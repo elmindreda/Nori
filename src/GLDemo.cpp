@@ -63,31 +63,63 @@ DemoEffect::DemoEffect(const std::string& name, DemoEffectType* initType):
   Managed<DemoEffect>(name),
   type(initType),
   elapsed(0.f),
-  duration(0.f)
+  duration(0.f),
+  active(false)
 {
 }
 
-void DemoEffect::update(Time deltaTime)
+bool DemoEffect::isActive(void) const
 {
-  elapsed += deltaTime;
+  return active;
 }
 
-void Effect::trigger(const std::string& name, const std::string& value)
+DemoEffectType* DemoEffect::getType(void) const
 {
+  return type;
 }
 
-void Effect::restart(void)
-{
-}
-
-Time Effect::getDuration(void) const
+Time DemoEffect::getDuration(void) const
 {
   return duration;
 }
 
-Time Effect::getTimeElapsed(void) const
+Time DemoEffect::getTimeElapsed(void) const
 {
   return elapsed;
+}
+
+void DemoEffect::prepareChildren(void) const
+{
+  for (const DemoEffect* child = getFirstChild();  child != NULL;  child = child->getNextSibling())
+    child->prepare();
+}
+
+void DemoEffect::renderChildren(void) const
+{
+  for (const DemoEffect* child = getFirstChild();  child != NULL;  child = child->getNextSibling())
+    child->render();
+}
+
+void DemoEffect::prepare(void) const
+{
+  prepareChildren();
+}
+
+void DemoEffect::render(void) const
+{
+  renderChildren();
+}
+
+void DemoEffect::update(Time deltaTime)
+{
+}
+
+void DemoEffect::trigger(const std::string& name, const std::string& value)
+{
+}
+
+void DemoEffect::restart(void)
+{
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -250,6 +282,10 @@ void Demo::updateEffect(Effect& effect, Time newTime)
 
   if (effect.instance->active)
   {
+    effect.instance->elapsed = newTime;
+
+    // TODO: Replay events in proper order (sort them beforehand)
+
     for (Effect::EventList::const_iterator event = effect.events.begin();  event != effect.events.end();  event++)
     {
       if ((*event).moment >= currentTime && (*event).moment < newTime)
@@ -257,7 +293,6 @@ void Demo::updateEffect(Effect& effect, Time newTime)
     }
       
     effect.instance->update(deltaTime);
-    effect.instance->elapsed = newTime;
   }
 
   for (Effect* child = effect.getFirstChild();  child != NULL;  child = child->getNextSibling())
@@ -322,7 +357,8 @@ Demo* DemoReader::read(const Path& path)
 
 Demo* DemoReader::read(Stream& stream)
 {
-  currentEffectName.clear();
+  while (!effectNameStack.empty())
+    effectNameStack.pop();
 
   if (!Reader::read(stream))
     return NULL;
@@ -358,34 +394,30 @@ bool DemoReader::beginElement(const std::string& name, const AttributeMap& attri
       return true;
     }
 
-    if (name == "layer")
-    {
-      if (!demo->getCanvas().addLayer(readString("name", attributes)))
-        return false;
-
-      return true;
-    }
-
     if (name == "effect")
     {
       std::string instanceName = readString("name", attributes);
 
+      std::string parentName;
+      if (!effectNameStack.empty())
+	parentName = effectNameStack.top();
+
       if (!demo->addEffect(instanceName,
                            readString("type", attributes),
-                           readString("layer", attributes),
                            readFloat("start", attributes),
-                           readFloat("duration", attributes)))
+                           readFloat("duration", attributes),
+			   parentName))
         return false;
 
-      currentEffectName = instanceName;
+      effectNameStack.push(instanceName);
       return true;
     }
 
-    if (!currentEffectName.empty())
+    if (!effectNameStack.empty())
     {
       if (name == "event")
       {
-        if (!demo->addEffectEvent(currentEffectName,
+        if (!demo->addEffectEvent(effectNameStack.top(),
 				  readString("name", attributes),
 				  readString("value", attributes),
 				  readFloat("moment", attributes)))
@@ -404,7 +436,7 @@ bool DemoReader::endElement(const std::string& name)
   if (demo)
   {
     if (name == "effect")
-      currentEffectName.clear();
+      effectNameStack.pop();
   }
   
   return true;

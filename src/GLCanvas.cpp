@@ -95,37 +95,6 @@ unsigned int getClosestPower(unsigned int value, unsigned int maximum)
 
 ///////////////////////////////////////////////////////////////////////
 
-/*
-Visual::Visual(void):
-  visible(true)
-{
-}
-
-Visual::~Visual(void)
-{
-}
-
-bool Visual::isVisible(void) const
-{
-  return visible;
-}
-
-void Visual::setVisible(bool enabled)
-{
-  visible = enabled;
-}
-
-void Visual::prepare(void) const
-{
-}
-
-void Visual::render(void) const
-{
-}
-*/
-
-///////////////////////////////////////////////////////////////////////
-
 Canvas::Canvas(void)
 {
   size.set(1.f, 1.f);
@@ -135,71 +104,6 @@ Canvas::Canvas(void)
 Canvas::~Canvas(void)
 {
 }
-
-/*
-bool Canvas::addLayer(const std::string& name)
-{
-  if (findLayer(name) != layers.end())
-    return false;
-
-  layers.push_back(Layer());
-  layers.back().name = name;
-  return true;
-}
-
-void Canvas::removeLayer(const std::string& name)
-{
-  LayerList::iterator layer = findLayer(name);
-  if (layer != layers.end())
-    layers.erase(layer);
-}
-
-bool Canvas::addVisual(Visual& visual, const std::string& layerName)
-{
-  LayerList::iterator layer = findLayer(layerName);
-  if (layer == layers.end())
-    return false;
-
-  if (std::find((*layer).visuals.begin(), (*layer).visuals.end(), &visual) != (*layer).visuals.end())
-    return false;
-
-  (*layer).visuals.push_back(&visual);
-  return true;
-}
-
-void Canvas::removeVisual(Visual& visual)
-{
-  for (LayerList::iterator layer = layers.begin();  layer != layers.end();  layer++)
-    (*layer).visuals.remove(&visual);
-}
-
-void Canvas::prepareVisuals(void)
-{
-  if (current != this)
-    apply();
-
-  for (LayerList::iterator layer = layers.begin();  layer != layers.end();  layer++)
-  {
-    for (Layer::VisualList::const_iterator visual = (*layer).visuals.begin();  visual != (*layer).visuals.end();  visual++)
-      (*visual)->prepare();
-  }
-}
-
-void Canvas::renderVisuals(void)
-{
-  if (current != this)
-    apply();
-
-  for (LayerList::iterator layer = layers.begin();  layer != layers.end();  layer++)
-  {
-    for (Layer::VisualList::const_iterator visual = (*layer).visuals.begin();  visual != (*layer).visuals.end();  visual++)
-    {
-      if ((*visual)->isVisible())
-        (*visual)->render();
-    }
-  }
-}
-*/
 
 void Canvas::begin2D(const Vector2& resolution) const
 {
@@ -305,19 +209,6 @@ Canvas* Canvas::getCurrent(void)
 
   return stack.top();
 }
-
-/*
-Canvas::LayerList::iterator Canvas::findLayer(const std::string& name)
-{
-  for (LayerList::iterator i = layers.begin();  i != layers.end();  i++)
-  {
-    if ((*i).name == name)
-      return i;
-  }
-
-  return layers.end();
-}
-*/
 
 Canvas::CanvasStack Canvas::stack;
 
