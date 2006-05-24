@@ -44,7 +44,6 @@
 #include <wendy/GLShader.h>
 #include <wendy/GLParticle.h>
 #include <wendy/GLRender.h>
-#include <wendy/GLMesh.h>
 #include <wendy/GLNode.h>
 #include <wendy/GLSprite.h>
 #include <wendy/GLDemo.h>

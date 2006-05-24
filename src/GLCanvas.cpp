@@ -141,14 +141,14 @@ void Canvas::end(void) const
   glPopAttrib();
 }
 
-void Canvas::push(void)
+void Canvas::push(void) const
 {
-  stack.push(this);
+  stack.push(const_cast<Canvas*>(this));
 
   apply();
 }
 
-void Canvas::pop(void)
+void Canvas::pop(void) const
 {
   if (stack.top() != this)
     throw Exception("Canvas stack pop out of order");
@@ -214,10 +214,10 @@ Canvas::CanvasStack Canvas::stack;
 
 ///////////////////////////////////////////////////////////////////////
 
-void ContextCanvas::apply(void)
+void ContextCanvas::apply(void) const
 {
-  unsigned int width = Context::get()->getWidth();
-  unsigned int height = Context::get()->getHeight();
+  const unsigned int width = Context::get()->getWidth();
+  const unsigned int height = Context::get()->getHeight();
 
   glViewport((GLint) (position.x * width),
              (GLint) (position.y * height),
@@ -248,7 +248,7 @@ unsigned int ContextCanvas::getPhysicalHeight(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-void TextureCanvas::pop(void)
+void TextureCanvas::pop(void) const
 {
   glPushAttrib(GL_TEXTURE_BIT);
   glBindTexture(texture->getTarget(), texture->getID());
@@ -344,10 +344,10 @@ bool TextureCanvas::init(const std::string& textureName, unsigned int width, uns
   return true;
 }
 
-void TextureCanvas::apply(void)
+void TextureCanvas::apply(void) const
 {
-  unsigned int width = texture->getWidth();
-  unsigned int height = texture->getHeight();
+  const unsigned int width = texture->getWidth();
+  const unsigned int height = texture->getHeight();
 
   glViewport((GLint) (position.x * width),
              (GLint) (position.y * height),

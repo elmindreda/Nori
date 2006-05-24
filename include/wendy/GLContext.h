@@ -118,7 +118,7 @@ class ContextObserver : public Observer<ContextObserver>
   friend class GLFWContext;
 protected:
   virtual void onContextResize(unsigned int width, unsigned int height);
-  virtual void onContextUpdate(void);
+  virtual bool onContextUpdate(void);
   virtual bool onContextClose(void);
   virtual void onContextKeyEvent(Key key, bool pressed);
   virtual void onContextMouseMove(const Point2& position);

@@ -49,6 +49,7 @@ public:
   const Transform3& getLocalTransform(void) const;
   const Transform3& getWorldTransform(void) const;
 protected:
+  virtual void prepare(void);
   virtual void enqueue(RenderQueue& queue) const;
 private:
   bool visible;
@@ -88,6 +89,7 @@ class CameraNode : public SceneNode
 {
 public:
   CameraNode(void);
+  void prepareTree(void);
   void renderTree(void) const;
   void enqueueTree(RenderQueue& queue) const;
   float getFOV(void) const;
@@ -97,6 +99,19 @@ public:
 private:
   float FOV;
   float aspectRatio;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class SpriteNode : public SceneNode
+{
+public:
+  const std::string& getSpriteName(void) const;
+  void setSpriteName(const std::string& newSpriteName);
+protected:
+  void enqueue(RenderQueue& queue) const;
+private:
+  std::string spriteName;
 };
 
 ///////////////////////////////////////////////////////////////////////

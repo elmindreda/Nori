@@ -227,6 +227,15 @@ const ImageFormat& Texture::getFormat(void) const
   return format;
 }
 
+void Texture::setFilters(GLenum minFilter, GLenum magFilter)
+{
+  glPushAttrib(GL_TEXTURE_BIT);
+  glBindTexture(textureTarget, textureID);
+  glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, magFilter);
+  glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, minFilter);
+  glPopAttrib();
+}
+
 Texture* Texture::createInstance(const std::string& name,
                                  const Path& path,
 				 unsigned int flags)

@@ -46,66 +46,13 @@ class Texture;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*
-class Visual
-{
-  friend class Canvas;
-public:
-  Visual(void);
-  virtual ~Visual(void);
-  bool isVisible(void) const;
-  void setVisible(bool enabled);
-protected:
-  virtual void prepare(void) const;
-  virtual void render(void) const;
-private:
-  bool visible;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class Layer
-{
-public:
-  typedef std::list<Visual*> VisualList;
-  Layer(const std::string& initName);
-  const std::string& getName(void) const;
-  VisualList visuals;
-private:
-  std::string name;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class LayerStack
-{
-public:
-  Layer* createLayer(const std::string& name);
-  Layer* findLayer(const std::string& name);
-  const Layer* findLayer(const std::string& name) const;
-  void destroyLayers(void);
-  Layer* getLayer(unsigned int index);
-  const Layer* getLayer(unsigned int index) const;
-  unsigned int getLayerCount(void) const;
-  bool addVisual(Visual& visual, const std::string& layerName);
-  void removeVisual(Visual& visual);
-  void prepareVisuals(void);
-  void renderVisuals(void);
-private:
-  typedef std::list<Layer> LayerList;
-  LayerList layers;
-};
-*/
-
-///////////////////////////////////////////////////////////////////////
-
 class Canvas
 {
 public:
   Canvas(void);
   virtual ~Canvas(void);
-  virtual void push(void);
-  virtual void pop(void);
+  virtual void push(void) const;
+  virtual void pop(void) const;
   void begin2D(const Vector2& resolution = Vector2(1.f, 1.f)) const;
   void begin3D(float aspect,
                float FOV = 90.f,
@@ -122,7 +69,7 @@ public:
   void setArea(const Vector2& newPosition, const Vector2& newSize);
   static Canvas* getCurrent(void);
 protected:
-  virtual void apply(void) = 0;
+  virtual void apply(void) const = 0;
   Vector2 position;
   Vector2 size;
 private:
@@ -138,7 +85,7 @@ public:
   unsigned int getPhysicalWidth(void) const;
   unsigned int getPhysicalHeight(void) const;
 private:
-  void apply(void);
+  void apply(void) const;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -146,7 +93,7 @@ private:
 class TextureCanvas : public Canvas
 {
 public:
-  void pop(void);
+  void pop(void) const;
   unsigned int getPhysicalWidth(void) const;
   unsigned int getPhysicalHeight(void) const;
   const Texture& getTexture(void) const;
@@ -156,7 +103,7 @@ public:
 private:
   TextureCanvas(void);
   bool init(const std::string& textureName, unsigned int width, unsigned int height);
-  void apply(void);
+  void apply(void) const;
   Ptr<Texture> texture;
 };
 

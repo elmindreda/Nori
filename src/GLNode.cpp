@@ -42,8 +42,9 @@
 #include <wendy/GLIndexBuffer.h>
 #include <wendy/GLVertexBuffer.h>
 #include <wendy/GLLight.h>
+#include <wendy/GLShader.h>
+#include <wendy/GLSprite.h>
 #include <wendy/GLRender.h>
-#include <wendy/GLMesh.h>
 #include <wendy/GLNode.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -96,6 +97,12 @@ const Transform3& SceneNode::getWorldTransform(void) const
     world.concatenate(parent->getWorldTransform());
 
   return world;
+}
+
+void SceneNode::prepare(void)
+{
+  for (SceneNode* node = getFirstChild();  node;  node = node->getNextSibling())
+    node->prepare();
 }
 
 void SceneNode::enqueue(RenderQueue& queue) const
@@ -166,7 +173,7 @@ void MeshNode::enqueue(RenderQueue& queue) const
 {
   SceneNode::enqueue(queue);
 
-  SimpleMesh* mesh = SimpleMesh::findInstance(meshName);
+  RenderMesh* mesh = RenderMesh::findInstance(meshName);
   if (mesh)
     mesh->enqueue(queue, getWorldTransform());
 }
@@ -177,6 +184,15 @@ CameraNode::CameraNode(void):
   FOV(90.f),
   aspectRatio(0.f)
 {
+}
+
+void CameraNode::prepareTree(void)
+{
+  SceneNode* root = this;
+  while (root->getParent())
+    root = root->getParent();
+
+  root->prepare();
 }
 
 void CameraNode::renderTree(void) const
@@ -240,6 +256,29 @@ void CameraNode::setFOV(float newFOV)
 void CameraNode::setAspectRatio(float newAspectRatio)
 {
   aspectRatio = newAspectRatio;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+const std::string& SpriteNode::getSpriteName(void) const
+{
+  return spriteName;
+}
+
+void SpriteNode::setSpriteName(const std::string& newSpriteName)
+{
+  spriteName = newSpriteName;
+}
+
+void SpriteNode::enqueue(RenderQueue& queue) const
+{
+  SceneNode::enqueue(queue);
+
+  RenderSprite* sprite = RenderSprite::findInstance(spriteName);
+  if (!sprite)
+    return;
+
+  sprite->enqueue(queue, getWorldTransform());
 }
 
 ///////////////////////////////////////////////////////////////////////

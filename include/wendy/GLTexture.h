@@ -98,6 +98,7 @@ public:
    *  @param path [in] The path of the image file to use.
    *  @param flags [in] The creation flags.
    */
+  void setFilters(GLenum minFilter, GLenum magFilter);
   static Texture* createInstance(const std::string& name,
                                  const Path& path,
                                  unsigned int flags = 0);

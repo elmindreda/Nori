@@ -118,12 +118,12 @@ void Sprite2::realizeVertices(Vertex2ft2fv* vertices) const
 
   vertices[0].mapping.set(0.f, 1.f);
   vertices[0].position.set(-offset.x, -offset.y);
-  vertices[1].mapping.set(0.f, 0.f);
-  vertices[1].position.set(-offset.x,  offset.y);
+  vertices[1].mapping.set(1.f, 1.f);
+  vertices[1].position.set( offset.x, -offset.y);
   vertices[2].mapping.set(1.f, 0.f);
   vertices[2].position.set( offset.x,  offset.y);
-  vertices[3].mapping.set(1.f, 1.f);
-  vertices[3].position.set( offset.x, -offset.y);
+  vertices[3].mapping.set(0.f, 0.f);
+  vertices[3].position.set(-offset.x,  offset.y);
 
   for (unsigned int i = 0;  i < 4;  i++)
   {
@@ -179,12 +179,12 @@ void Sprite3::realizeVertices(Vertex2ft3fv* vertices) const
 
   vertices[0].mapping.set(0.f, 1.f);
   vertices[0].position.set(-offset.x, -offset.y, 0.f);
-  vertices[1].mapping.set(0.f, 0.f);
-  vertices[1].position.set(-offset.x,  offset.y, 0.f);
+  vertices[1].mapping.set(1.f, 1.f);
+  vertices[1].position.set( offset.x, -offset.y, 0.f);
   vertices[2].mapping.set(1.f, 0.f);
   vertices[2].position.set( offset.x,  offset.y, 0.f);
-  vertices[3].mapping.set(1.f, 1.f);
-  vertices[3].position.set( offset.x, -offset.y, 0.f);
+  vertices[3].mapping.set(0.f, 0.f);
+  vertices[3].position.set(-offset.x,  offset.y, 0.f);
 
   for (unsigned int i = 0;  i < 4;  i++)
   {

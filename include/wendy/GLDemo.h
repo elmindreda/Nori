@@ -60,7 +60,7 @@ public:
    *  @param name [in] The desired name of the created effect object.
    *  @return The newly created effect object, or @c NULL.
    */
-  virtual DemoEffect* createEffect(const std::string& name = "") = 0;
+  virtual DemoEffect* createEffect(const std::string& name = "", Time duration = 0.0) = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ class DemoEffectTemplate : public DemoEffectType
 {
 public:
   inline DemoEffectTemplate(const std::string& name);
-  inline DemoEffect* createEffect(const std::string& name = "");
+  inline DemoEffect* createEffect(const std::string& name = "", Time duration = 0.0);
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -81,7 +81,9 @@ class DemoEffect : public Node<DemoEffect>, public Managed<DemoEffect>
 {
   friend class Demo;
 public:
-  DemoEffect(const std::string& name = "", DemoEffectType* initType = NULL);
+  DemoEffect(const std::string& name = "",
+             DemoEffectType* initType = NULL,
+	     Time initDuration = 0.0);
   bool isActive(void) const;
   DemoEffectType* getType(void) const;
   Time getDuration(void) const;
@@ -92,7 +94,7 @@ protected:
   virtual void prepare(void) const;
   virtual void render(void) const;
   virtual void update(Time deltaTime);
-  virtual void trigger(const std::string& name, const std::string& value);
+  virtual void trigger(Time moment, const std::string& name, const std::string& value);
   virtual void restart(void);
 private:
   DemoEffectType* type;
@@ -106,12 +108,22 @@ private:
 class NullEffect : public DemoEffect
 {
 public:
-  NullEffect(const std::string& name = "");
+  NullEffect(const std::string& name = "", DemoEffectType* type = NULL, Time duration = 0.0);
+  bool init(void);
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class ClearEffect : public DemoEffect
+{
+public:
+  ClearEffect(const std::string& name = "", DemoEffectType* type = NULL, Time duration = 0.0);
+  bool init(void);
 private:
-  void prepare(void) const;
   void render(void) const;
-  void update(Time deltaTime);
+  void trigger(Time moment, const std::string& name, const std::string& value);
   void restart(void);
+  ColorRGBA color;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -119,6 +131,7 @@ private:
 class Demo
 {
 public:
+  ~Demo(void);
   bool addEffect(const std::string& instanceName,
                  const std::string& typeName,
                  Time start,
@@ -131,6 +144,7 @@ public:
   bool createContext(void);
   bool createEffectInstances(void);
   void destroyEffectInstances(void);
+  void render(void) const;
   const ContextMode& getContextMode(void) const;
   void setContextMode(const ContextMode& newMode);
   const std::string& getTitle(void) const;
@@ -174,12 +188,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////////////////////////////
-
 class DemoReader : public XML::Reader
 {
 public:
@@ -207,9 +215,9 @@ inline DemoEffectTemplate<T>::DemoEffectTemplate(const std::string& name):
 }
 
 template <typename T>
-inline DemoEffect* DemoEffectTemplate<T>::createEffect(const std::string& name)
+inline DemoEffect* DemoEffectTemplate<T>::createEffect(const std::string& name, Time duration)
 {
-  Ptr<T> effect = new T(name, this);
+  Ptr<T> effect = new T(name, this, duration);
   if (!effect->init())
     return NULL;
 

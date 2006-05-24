@@ -5,7 +5,7 @@ bin_SCRIPTS = wendy-config
 
 lib_LIBRARIES = libwendy.a
 
-libwendy_a_SOURCES = Core.cpp GLCanvas.cpp GLContext.cpp GLDemo.cpp GLDisplayList.cpp GLIndexBuffer.cpp GLLight.cpp GLMesh.cpp GLNode.cpp GLRender.cpp GLShader.cpp GLSprite.cpp GLTexture.cpp GLVertexBuffer.cpp GLVertex.cpp Wendy.cpp
+libwendy_a_SOURCES = Core.cpp GLCanvas.cpp GLContext.cpp GLDemo.cpp GLDisplayList.cpp GLIndexBuffer.cpp GLLight.cpp GLNode.cpp GLRender.cpp GLShader.cpp GLSprite.cpp GLTexture.cpp GLVertexBuffer.cpp GLVertex.cpp Wendy.cpp
 
 EXTRA_DIST = update.sh
 

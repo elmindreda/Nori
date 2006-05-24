@@ -113,7 +113,7 @@ bool VertexFormat::addComponent(const VertexComponent& component)
 
 bool VertexFormat::addComponents(const std::string& specification)
 {
-  ComponentList components;
+  ComponentList temp;
 
   size_t size = getSize();
 
@@ -124,6 +124,8 @@ bool VertexFormat::addComponents(const std::string& specification)
       return false;
 
     unsigned int count = *command++ - '0';
+    if (command == specification.end())
+      return false;
 
     VertexComponent::Type type;
 
@@ -145,6 +147,9 @@ bool VertexFormat::addComponents(const std::string& specification)
 	return false;
     }
     
+    if (command == specification.end())
+      return false;
+
     VertexComponent::Kind kind;
 
     switch (tolower(*command++))
@@ -165,12 +170,15 @@ bool VertexFormat::addComponents(const std::string& specification)
 	return false;
     }
 
-    components.push_back(VertexComponent(kind, count, type));
-    components.back().offset = size;
-    size += components.back().getSize();
+    if (findComponent(kind))
+      return false;
+
+    temp.push_back(VertexComponent(kind, count, type));
+    temp.back().offset = size;
+    size += temp.back().getSize();
   }
 
-  for (ComponentList::iterator i = components.begin();  i != components.end();  i++)
+  for (ComponentList::iterator i = temp.begin();  i != temp.end();  i++)
     components.push_back(*i);
 
   return true;

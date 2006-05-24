@@ -103,8 +103,9 @@ void ContextObserver::onContextResize(unsigned int width, unsigned int height)
 {
 }
 
-void ContextObserver::onContextUpdate(void)
+bool ContextObserver::onContextUpdate(void)
 {
+  return true;
 }
 
 bool ContextObserver::onContextClose(void)
@@ -146,13 +147,24 @@ GLFWContext::~GLFWContext(void)
 
 bool GLFWContext::update(void)
 {
+  bool stopped = false;
+
   const ObserverList& observers = getObservers();
   for (ObserverList::const_iterator i = observers.begin();  i != observers.end();  i++)
-    (*i)->onContextUpdate();
+  {
+    if (!(*i)->onContextUpdate())
+      stopped = true;
+  }
 
   glfwSwapBuffers();
 
-  return (glfwGetWindowParam(GLFW_OPENED) == GL_TRUE) ? true : false;
+  if (stopped)
+    return false;
+
+  if (glfwGetWindowParam(GLFW_OPENED) != GL_TRUE)
+    return false;
+
+  return true;
 }
 
 EntryPoint GLFWContext::findEntryPoint(const std::string& name)
@@ -218,7 +230,7 @@ const std::string& GLFWContext::getTitle(void) const
 
 void GLFWContext::setTitle(const std::string& newTitle)
 {
-  glfwSetWindowTitle(title.c_str());
+  glfwSetWindowTitle(newTitle.c_str());
   title = newTitle;
 }
 

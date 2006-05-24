@@ -59,11 +59,13 @@ DemoEffectType::DemoEffectType(const std::string& name):
 
 ///////////////////////////////////////////////////////////////////////
 
-DemoEffect::DemoEffect(const std::string& name, DemoEffectType* initType):
+DemoEffect::DemoEffect(const std::string& name,
+                       DemoEffectType* initType,
+		       Time initDuration):
   Managed<DemoEffect>(name),
   type(initType),
-  elapsed(0.f),
-  duration(0.f),
+  duration(initDuration),
+  elapsed(0.0),
   active(false)
 {
 }
@@ -114,7 +116,7 @@ void DemoEffect::update(Time deltaTime)
 {
 }
 
-void DemoEffect::trigger(const std::string& name, const std::string& value)
+void DemoEffect::trigger(Time moment, const std::string& name, const std::string& value)
 {
 }
 
@@ -123,6 +125,53 @@ void DemoEffect::restart(void)
 }
 
 ///////////////////////////////////////////////////////////////////////
+
+NullEffect::NullEffect(const std::string& name, DemoEffectType* type, Time duration):
+  DemoEffect(name, type, duration)
+{
+}
+
+bool NullEffect::init(void)
+{
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+ClearEffect::ClearEffect(const std::string& name, DemoEffectType* type, Time duration):
+  DemoEffect(name, type, duration)
+{
+}
+
+bool ClearEffect::init(void)
+{
+  return true;
+}
+
+void ClearEffect::render(void) const
+{
+  Canvas::getCurrent()->clearDepth();
+  Canvas::getCurrent()->clearStencil();
+  Canvas::getCurrent()->clearColor(color);
+
+  renderChildren();
+}
+
+void ClearEffect::trigger(Time moment, const std::string& name, const std::string& value)
+{
+}
+
+void ClearEffect::restart(void)
+{
+  color = ColorRGBA::BLACK;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Demo::~Demo(void)
+{
+  destroyEffectInstances();
+}
 
 bool Demo::addEffect(const std::string& instanceName,
                      const std::string& typeName,
@@ -145,8 +194,14 @@ bool Demo::addEffect(const std::string& instanceName,
   Effect* parent = findEffect(parentName.empty() ? "root" : parentName);
   if (!parent)
   {
-    Log::writeError("Parent effect %s does not exist", instanceName.c_str());
+    Log::writeError("Parent effect %s does not exist", parentName.c_str());
     return false;
+  }
+
+  if (parent->instanceName == "root")
+  {
+    if (start + duration > parent->duration)
+      parent->duration = start + duration;
   }
 
   Effect* effect = new Effect();
@@ -157,6 +212,10 @@ bool Demo::addEffect(const std::string& instanceName,
   effect->typeName = typeName;
   effect->start = start;
   effect->duration = duration;
+
+  if (duration > rootEffect.duration)
+    rootEffect.duration = duration;
+
   return true;
 }
 
@@ -192,12 +251,23 @@ bool Demo::createContext(void)
 
 bool Demo::createEffectInstances(void)
 {
+  destroyEffectInstances();
+
   return createEffectInstance(rootEffect);
 }
 
 void Demo::destroyEffectInstances(void)
 {
   destroyEffectInstance(rootEffect);
+}
+
+void Demo::render(void) const
+{
+  if (const DemoEffect* instance = rootEffect.instance)
+  {
+    instance->prepare();
+    instance->render();
+  }
 }
 
 const ContextMode& Demo::getContextMode(void) const
@@ -236,7 +306,11 @@ void Demo::setTimeElapsed(Time newTime)
 
 Demo* Demo::createInstance(const std::string& title)
 {
-  return new Demo(title);
+  Ptr<Demo> demo = new Demo(title);
+  if (!demo->init())
+    return NULL;
+
+  return demo.detachObject();
 }
 
 Demo* Demo::createInstance(const Path& path)
@@ -250,16 +324,40 @@ Demo::Demo(const std::string& initTitle):
 {
 }
 
+bool Demo::init(void)
+{
+  // NOTE: AAAAAAAAAAAAAAAARRGHHHH!!!!!!!!!
+  
+  if (!DemoEffectType::findInstance("null"))
+    new DemoEffectTemplate<NullEffect>("null");
+
+  if (!DemoEffectType::findInstance("clear"))
+    new DemoEffectTemplate<ClearEffect>("clear");
+
+  rootEffect.instanceName = "root";
+  rootEffect.typeName = "null";
+  rootEffect.start = 0.f;
+  rootEffect.duration = 0.f;
+
+  effectMap[rootEffect.instanceName] = &rootEffect;
+
+  return true;
+}
+
 void Demo::updateEffect(Effect& effect, Time newTime)
 {
-  const Time currentTime = effect.instance->elapsed;
-  const Time deltaTime = newTime - currentTime;
+  Time currentTime = effect.instance->elapsed;
+  Time deltaTime = newTime - currentTime;
 
   if (newTime == currentTime)
     return;
 
-  if (currentTime == 0.f || newTime < currentTime)
+  if (currentTime == 0.0 || newTime < currentTime)
+  {
     effect.instance->restart();
+    effect.instance->active = false;
+    currentTime = 0.0;
+  }
 
   if (effect.instance->active)
   {
@@ -271,7 +369,7 @@ void Demo::updateEffect(Effect& effect, Time newTime)
   }
   else
   {
-    if ((currentTime == effect.start == 0.f) ||
+    if ((currentTime == 0.0 && effect.start == 0.0) ||
 	(currentTime < effect.start &&
 	 newTime >= effect.start &&
 	 newTime <= effect.start + effect.duration))
@@ -289,14 +387,14 @@ void Demo::updateEffect(Effect& effect, Time newTime)
     for (Effect::EventList::const_iterator event = effect.events.begin();  event != effect.events.end();  event++)
     {
       if ((*event).moment >= currentTime && (*event).moment < newTime)
-	effect.instance->trigger((*event).name, (*event).value);
+	effect.instance->trigger((*event).moment, (*event).name, (*event).value);
     }
       
     effect.instance->update(deltaTime);
-  }
 
-  for (Effect* child = effect.getFirstChild();  child != NULL;  child = child->getNextSibling())
-    updateEffect(*child, newTime - effect.start);
+    for (Effect* child = effect.getFirstChild();  child != NULL;  child = child->getNextSibling())
+      updateEffect(*child, newTime - effect.start);
+  }
 }
 
 bool Demo::createEffectInstance(Effect& effect)
@@ -308,7 +406,7 @@ bool Demo::createEffectInstance(Effect& effect)
     return false;
   }
 
-  effect.instance = type->createEffect(effect.instanceName);
+  effect.instance = type->createEffect(effect.instanceName, effect.duration);
   if (!effect.instance)
     return false;
 

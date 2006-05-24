@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WEGLRENDER_H
-#define WEGLRENDER_H
+#ifndef WENDY_GLRENDER_H
+#define WENDY_GLRENDER_H
 ///////////////////////////////////////////////////////////////////////
 
 #include <string>
@@ -81,9 +81,66 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+class RenderMesh : public Managed<RenderMesh>
+{
+public:
+  class Geometry;
+  typedef std::list<Geometry> GeometryList;
+  ~RenderMesh(void);
+  void enqueue(RenderQueue& queue, const Matrix4& transform) const;
+  void render(void) const;
+  GeometryList& getGeometries(void);
+  VertexBuffer* getVertexBuffer(void);
+  static RenderMesh* createInstance(const Path& path, const std::string& name = "");
+  static RenderMesh* createInstance(const Mesh& mesh, const std::string& name = "");
+private:
+  RenderMesh(const std::string& name);
+  bool init(const Mesh& mesh);
+  typedef std::list<IndexBuffer*> IndexBufferList;
+  GeometryList geometries;
+  Ptr<VertexBuffer> vertexBuffer;
+  IndexBufferList indexBuffers;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class RenderMesh::Geometry
+{
+public:
+  IndexBuffer* indexBuffer;
+  GLenum renderMode;
+  std::string shaderName;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class RenderSprite : public Managed<RenderSprite>
+{
+public:
+  ~RenderSprite(void);
+  void enqueue(RenderQueue& queue, const Matrix4& transform) const;
+  void render(void) const;
+  IndexBuffer* getIndexBuffer(void);
+  VertexBuffer* getVertexBuffer(void);
+  const std::string& getShaderName(void) const;
+  void setShaderName(const std::string& newShaderName);
+  const Vector2& getSpriteSize(void) const;
+  void setSpriteSize(const Vector2& newSize);
+  static RenderSprite* createInstance(const std::string& name = "");
+private:
+  RenderSprite(const std::string& name);
+  bool init(void);
+  std::string shaderName;
+  Vector2 spriteSize;
+  Ptr<IndexBuffer> indexBuffer;
+  Ptr<VertexBuffer> vertexBuffer;
+};
+
+///////////////////////////////////////////////////////////////////////
+
   } /*namespace GL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WEGLRENDER_H*/
+#endif /*WENDY_GLRENDER_H*/
 ///////////////////////////////////////////////////////////////////////

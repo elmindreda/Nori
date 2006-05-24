@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WESHADER_H
-#define WESHADER_H
+#ifndef WENDY_GLSHADER_H
+#define WENDY_GLSHADER_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -153,8 +153,8 @@ class Shader : public Managed<Shader>
 {
 public:
   virtual ~Shader(void);
-  void addPass(const ShaderPass& pass);
-  void removePasses(void);
+  ShaderPass& createPass(void);
+  void destroyPasses(void);
   void applyPass(unsigned int index) const;
   bool operator < (const Shader& other) const;
   bool isBlending(void) const;
@@ -175,5 +175,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WESHADER_H*/
+#endif /*WENDY_GLSHADER_H*/
 ///////////////////////////////////////////////////////////////////////

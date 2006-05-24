@@ -28,6 +28,9 @@
 #include <moira/Color.h>
 #include <moira/Vector.h>
 #include <moira/Matrix.h>
+#include <moira/Stream.h>
+#include <moira/XML.h>
+#include <moira/Mesh.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
@@ -36,6 +39,7 @@
 #include <wendy/GLVertex.h>
 #include <wendy/GLIndexBuffer.h>
 #include <wendy/GLVertexBuffer.h>
+#include <wendy/GLSprite.h>
 #include <wendy/GLRender.h>
 
 #include <algorithm>
@@ -144,6 +148,266 @@ void RenderQueue::sortOperations(void)
     std::sort(operations.begin(), operations.end());
     sorted = true;
   }
+}
+
+///////////////////////////////////////////////////////////////////////
+
+RenderMesh::~RenderMesh(void)
+{
+  while (indexBuffers.size())
+  {
+    delete indexBuffers.back();
+    indexBuffers.pop_back();
+  }
+}
+
+void RenderMesh::enqueue(RenderQueue& queue, const Matrix4& transform) const
+{
+  for (GeometryList::const_iterator i = geometries.begin();  i != geometries.end();  i++)
+  {
+    if (Shader* shader = Shader::findInstance((*i).shaderName))
+    {
+      RenderOperation operation;
+      operation.vertexBuffer = vertexBuffer;
+      operation.indexBuffer = (*i).indexBuffer;
+      operation.renderMode = (*i).renderMode;
+      operation.transform = transform;
+      operation.shader = shader;
+      queue.addOperation(operation);
+    }
+  }
+}
+
+void RenderMesh::render(void) const
+{
+  vertexBuffer->apply();
+
+  for (GeometryList::const_iterator i = geometries.begin();  i != geometries.end();  i++)
+  {
+    const Geometry& geometry = *i;
+
+    if (Shader* shader = Shader::findInstance(geometry.shaderName))
+    {
+      for (unsigned int pass = 0;  pass < shader->getPassCount();  pass++)
+      {
+        shader->applyPass(pass);
+
+        geometry.indexBuffer->apply();
+        geometry.indexBuffer->render(geometry.renderMode);
+      }
+    }
+  }
+}
+
+RenderMesh::GeometryList& RenderMesh::getGeometries(void)
+{
+  return geometries;
+}
+
+VertexBuffer* RenderMesh::getVertexBuffer(void)
+{
+  return vertexBuffer;
+}
+
+RenderMesh* RenderMesh::createInstance(const Path& path, const std::string& name)
+{
+  MeshReader reader;
+  Ptr<Mesh> mesh = reader.read(path);
+  if (!mesh)
+    return NULL;
+
+  return createInstance(*mesh, name);
+}
+
+RenderMesh* RenderMesh::createInstance(const Mesh& mesh, const std::string& name)
+{
+  Ptr<RenderMesh> renderMesh = new RenderMesh(name.empty() ? mesh.getName() : name);
+  if (!renderMesh->init(mesh))
+    return NULL;
+
+  return renderMesh.detachObject();
+}
+
+RenderMesh::RenderMesh(const std::string& name):
+  Managed<RenderMesh>(name)
+{
+}
+
+bool RenderMesh::init(const Mesh& mesh)
+{
+  VertexFormat format;
+
+  if (!format.addComponents("3fv3fn"))
+    return false;
+
+  std::string vertexBufferName;
+  vertexBufferName.append("mesh:");
+  vertexBufferName.append(getName());
+
+  vertexBuffer = VertexBuffer::createInstance(vertexBufferName, mesh.vertices.size(), format);
+  if (!vertexBuffer)
+    return false;
+
+  MeshVertex* vertices = reinterpret_cast<MeshVertex*>(vertexBuffer->lock());
+  if (!vertices)
+    return false;
+
+  for (Mesh::VertexList::const_iterator i = mesh.vertices.begin();  i != mesh.vertices.end();  i++)
+    *vertices++ = *i;
+
+  vertexBuffer->unlock();
+
+  for (Mesh::GeometryList::const_iterator i = mesh.geometries.begin();  i != mesh.geometries.end();  i++)
+  {
+    geometries.push_back(Geometry());
+    Geometry& geometry = geometries.back();
+
+    geometry.shaderName = (*i).shaderName;
+    geometry.renderMode = GL_TRIANGLES;
+
+    std::string indexBufferName;
+    indexBufferName.append("mesh:");
+    indexBufferName.append(getName());
+    indexBufferName.append("/");
+    indexBufferName.append(geometry.shaderName);
+
+    geometry.indexBuffer = IndexBuffer::createInstance(indexBufferName, (*i).triangles.size() * 3, IndexBuffer::UINT);
+    if (!geometry.indexBuffer)
+      return false;
+
+    indexBuffers.push_back(geometry.indexBuffer);
+
+    unsigned int* indices = reinterpret_cast<unsigned int*>(geometry.indexBuffer->lock());
+    if (!indices)
+      return false;
+
+    for (MeshGeometry::TriangleList::const_iterator j = (*i).triangles.begin();  j != (*i).triangles.end();  j++)
+    {
+      *indices++ = (*j).indices[0];
+      *indices++ = (*j).indices[1];
+      *indices++ = (*j).indices[2];
+    }
+
+    geometry.indexBuffer->unlock();
+  }
+
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+RenderSprite::~RenderSprite(void)
+{
+}
+
+void RenderSprite::enqueue(RenderQueue& queue, const Matrix4& transform) const
+{
+  Shader* shader = Shader::findInstance(shaderName);
+  if (!shader)
+    return;
+
+  RenderOperation operation;
+  operation.vertexBuffer = vertexBuffer;
+  operation.indexBuffer = indexBuffer;
+  operation.renderMode = GL_QUADS;
+  operation.transform = transform;
+  operation.shader = shader;
+  queue.addOperation(operation);
+}
+
+void RenderSprite::render(void) const
+{
+  Shader* shader = Shader::findInstance(shaderName);
+  if (!shader)
+    return;
+
+  vertexBuffer->apply();
+  indexBuffer->apply();
+
+  for (unsigned int pass = 0;  pass < shader->getPassCount();  pass++)
+  {
+    shader->applyPass(pass);
+    indexBuffer->render(GL_QUADS);
+  }
+}
+
+IndexBuffer* RenderSprite::getIndexBuffer(void)
+{
+  return indexBuffer;
+}
+
+VertexBuffer* RenderSprite::getVertexBuffer(void)
+{
+  return vertexBuffer;
+}
+
+const std::string& RenderSprite::getShaderName(void) const
+{
+  return shaderName;
+}
+
+void RenderSprite::setShaderName(const std::string& newShaderName)
+{
+  shaderName = newShaderName;
+}
+
+const Vector2& RenderSprite::getSpriteSize(void) const
+{
+  return spriteSize;
+}
+
+void RenderSprite::setSpriteSize(const Vector2& newSize)
+{
+  Vertex2ft3fv* vertices = (Vertex2ft3fv*) vertexBuffer->lock();
+  if (!vertices)
+    return;
+
+  Sprite3 sprite;
+  sprite.size = newSize;
+  sprite.realizeVertices(vertices);
+
+  vertexBuffer->unlock();
+
+  spriteSize = newSize;
+}
+
+RenderSprite* RenderSprite::createInstance(const std::string& name)
+{
+  Ptr<RenderSprite> sprite = new RenderSprite(name);
+  if (!sprite->init())
+    return NULL;
+
+  return sprite.detachObject();
+}
+
+RenderSprite::RenderSprite(const std::string& name):
+  Managed<RenderSprite>(name),
+  spriteSize(1.f, 1.f)
+{
+}
+
+bool RenderSprite::init(void)
+{
+  // TODO: Make a vertex buffer pool (credits to ryg).
+
+  indexBuffer = IndexBuffer::createInstance("", 4, IndexBuffer::BYTE);
+  if (!indexBuffer)
+    return false;
+
+  unsigned char* indices = (unsigned char*) indexBuffer->lock();
+  if (!indices)
+    return false;
+
+  for (unsigned int i = 0;  i < 4;  i++)
+    indices[i] = i;
+
+  indexBuffer->unlock();
+
+  vertexBuffer = VertexBuffer::createInstance("", 4, Vertex2ft3fv::format, VertexBuffer::DYNAMIC);
+  if (!vertexBuffer)
+    return false;
+
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////

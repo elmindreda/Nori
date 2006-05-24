@@ -50,6 +50,7 @@ using namespace moira;
 
 ShaderPass::ShaderPass(void)
 {
+  setDefaults();
 }
 
 void ShaderPass::apply(void) const
@@ -74,10 +75,13 @@ void ShaderPass::apply(void) const
 
   if (cache.dirty)
   {
-    // Force all states to known values.
+    // Force all states to known values
+
+    cache = data;
 
     setBooleanState(GL_CULL_FACE, data.cullMode != CULL_NONE);
-    glCullFace(data.cullMode);
+    if (data.cullMode != CULL_NONE)
+      glCullFace(data.cullMode);
 
     setBooleanState(GL_LIGHTING, data.lighting);
 
@@ -124,6 +128,8 @@ void ShaderPass::apply(void) const
 
 	glEnable(textureTarget);
 	glBindTexture(textureTarget, texture->getGLID());
+
+	cache.textureTarget = textureTarget;
       }
     }
 
@@ -131,7 +137,7 @@ void ShaderPass::apply(void) const
     if (error != GL_NO_ERROR)
       Log::writeWarning("Error when forcing shader pass: %s", gluErrorString(error));
     
-    cache = data;
+    cache.dirty = data.dirty = false;
     return;
   }
   
@@ -317,10 +323,7 @@ void ShaderPass::apply(void) const
       {
         if (cache.textureTarget)
           glDisable(cache.textureTarget);
-      }
 
-      if (textureTarget != cache.textureTarget)
-      {
         glEnable(textureTarget);
         cache.textureTarget = textureTarget;
       }
@@ -719,12 +722,13 @@ Shader::~Shader(void)
 {
 }
 
-void Shader::addPass(const ShaderPass& pass)
+ShaderPass& Shader::createPass(void)
 {
-  passes.push_back(pass);
+  passes.push_back(ShaderPass());
+  return passes.back();
 }
 
-void Shader::removePasses(void)
+void Shader::destroyPasses(void)
 {
   passes.clear();
 }
