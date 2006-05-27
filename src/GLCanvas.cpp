@@ -163,7 +163,7 @@ void Canvas::clearColor(const ColorRGBA& color)
 {
   glPushAttrib(GL_COLOR_BUFFER_BIT);
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  glClearColor(color.r, color.b, color.g, color.a);
+  glClearColor(color.r, color.g, color.b, color.a);
   glClear(GL_COLOR_BUFFER_BIT);
   glPopAttrib();
 }

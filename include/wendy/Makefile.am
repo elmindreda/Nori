@@ -3,7 +3,7 @@
 
 nodist_pkginclude_HEADERS = Config.h
 
-pkginclude_HEADERS = Core.h GLCanvas.h GLContext.h GLDemo.h GLDisplayList.h GLIndexBuffer.h GLLight.h GLNode.h GLParticle.h GLRender.h GLShader.h GLSprite.h GLTexture.h GLVertexBuffer.h GLVertex.h OpenGL.h Wendy.h
+pkginclude_HEADERS = Core.h FMOD.h FMODSample.h FMODSpectrum.h FMODSystem.h GLCamera.h GLCanvas.h GLContext.h GLDemo.h GLDisplayList.h GLIndexBuffer.h GLLight.h GLNode.h GLParticle.h GLRender.h GLShader.h GLSprite.h GLTexture.h GLVertexBuffer.h GLVertex.h OpenGL.h Wendy.h
 
 Config.h: @top_srcdir@/include/config.h
 	@top_srcdir@/build/makeconfig.sh \$< \$@

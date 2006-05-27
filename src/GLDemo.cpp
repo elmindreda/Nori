@@ -39,6 +39,14 @@
 #include <wendy/GLCanvas.h>
 #include <wendy/GLDemo.h>
 
+#if WENDY_HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+
+#if WENDY_HAVE_ERRNO_H
+#include <errno.h>
+#endif
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -93,13 +101,19 @@ Time DemoEffect::getTimeElapsed(void) const
 void DemoEffect::prepareChildren(void) const
 {
   for (const DemoEffect* child = getFirstChild();  child != NULL;  child = child->getNextSibling())
-    child->prepare();
+  {
+    if (child->active)
+      child->prepare();
+  }
 }
 
 void DemoEffect::renderChildren(void) const
 {
   for (const DemoEffect* child = getFirstChild();  child != NULL;  child = child->getNextSibling())
-    child->render();
+  {
+    if (child->active)
+      child->render();
+  }
 }
 
 void DemoEffect::prepare(void) const
@@ -159,6 +173,28 @@ void ClearEffect::render(void) const
 
 void ClearEffect::trigger(Time moment, const std::string& name, const std::string& value)
 {
+  errno = 0;
+
+  if (name == "red")
+  {
+    int integer = strtol(value.c_str(), NULL, 0);
+    if (errno != EINVAL)
+      color.r = integer / 255.f;
+  }
+
+  if (name == "green")
+  {
+    int integer = strtol(value.c_str(), NULL, 0);
+    if (errno != EINVAL)
+      color.g = integer / 255.f;
+  }
+
+  if (name == "blue")
+  {
+    int integer = strtol(value.c_str(), NULL, 0);
+    if (errno != EINVAL)
+      color.b = integer / 255.f;
+  }
 }
 
 void ClearEffect::restart(void)
@@ -346,16 +382,17 @@ bool Demo::init(void)
 
 void Demo::updateEffect(Effect& effect, Time newTime)
 {
-  Time currentTime = effect.instance->elapsed;
+  Time currentTime = effect.start + effect.instance->elapsed;
   Time deltaTime = newTime - currentTime;
 
   if (newTime == currentTime)
     return;
 
-  if (currentTime == 0.0 || newTime < currentTime)
+  if ((currentTime == effect.start) || (newTime < currentTime))
   {
     effect.instance->restart();
     effect.instance->active = false;
+    effect.instance->elapsed = 0.0;
     currentTime = 0.0;
   }
 
@@ -380,13 +417,13 @@ void Demo::updateEffect(Effect& effect, Time newTime)
 
   if (effect.instance->active)
   {
-    effect.instance->elapsed = newTime;
+    effect.instance->elapsed = newTime - effect.start;
 
     // TODO: Replay events in proper order (sort them beforehand)
 
     for (Effect::EventList::const_iterator event = effect.events.begin();  event != effect.events.end();  event++)
     {
-      if ((*event).moment >= currentTime && (*event).moment < newTime)
+      if ((effect.start + (*event).moment >= currentTime) && (effect.start + (*event).moment < newTime))
 	effect.instance->trigger((*event).moment, (*event).name, (*event).value);
     }
       

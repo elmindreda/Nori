@@ -25,6 +25,7 @@
 
 #include <moira/Config.h>
 #include <moira/Core.h>
+#include <moira/Log.h>
 #include <moira/Color.h>
 #include <moira/Vector.h>
 #include <moira/Matrix.h>
@@ -165,16 +166,20 @@ void RenderMesh::enqueue(RenderQueue& queue, const Matrix4& transform) const
 {
   for (GeometryList::const_iterator i = geometries.begin();  i != geometries.end();  i++)
   {
-    if (Shader* shader = Shader::findInstance((*i).shaderName))
+    Shader* shader = Shader::findInstance((*i).shaderName);
+    if (!shader)
     {
-      RenderOperation operation;
-      operation.vertexBuffer = vertexBuffer;
-      operation.indexBuffer = (*i).indexBuffer;
-      operation.renderMode = (*i).renderMode;
-      operation.transform = transform;
-      operation.shader = shader;
-      queue.addOperation(operation);
+      Log::writeWarning("Shader %s not found", (*i).shaderName.c_str());
+      return;
     }
+
+    RenderOperation operation;
+    operation.vertexBuffer = vertexBuffer;
+    operation.indexBuffer = (*i).indexBuffer;
+    operation.renderMode = (*i).renderMode;
+    operation.transform = transform;
+    operation.shader = shader;
+    queue.addOperation(operation);
   }
 }
 
@@ -186,15 +191,19 @@ void RenderMesh::render(void) const
   {
     const Geometry& geometry = *i;
 
-    if (Shader* shader = Shader::findInstance(geometry.shaderName))
+    Shader* shader = Shader::findInstance(geometry.shaderName);
+    if (!shader)
     {
-      for (unsigned int pass = 0;  pass < shader->getPassCount();  pass++)
-      {
-        shader->applyPass(pass);
+      Log::writeWarning("Shader %s not found", (*i).shaderName.c_str());
+      return;
+    }
 
-        geometry.indexBuffer->apply();
-        geometry.indexBuffer->render(geometry.renderMode);
-      }
+    for (unsigned int pass = 0;  pass < shader->getPassCount();  pass++)
+    {
+      shader->applyPass(pass);
+
+      geometry.indexBuffer->apply();
+      geometry.indexBuffer->render(geometry.renderMode);
     }
   }
 }
@@ -304,7 +313,10 @@ void RenderSprite::enqueue(RenderQueue& queue, const Matrix4& transform) const
 {
   Shader* shader = Shader::findInstance(shaderName);
   if (!shader)
+  {
+    Log::writeWarning("Shader %s not found", shaderName.c_str());
     return;
+  }
 
   RenderOperation operation;
   operation.vertexBuffer = vertexBuffer;
@@ -319,7 +331,10 @@ void RenderSprite::render(void) const
 {
   Shader* shader = Shader::findInstance(shaderName);
   if (!shader)
+  {
+    Log::writeWarning("Shader %s not found", shaderName.c_str());
     return;
+  }
 
   vertexBuffer->apply();
   indexBuffer->apply();
@@ -381,8 +396,7 @@ RenderSprite* RenderSprite::createInstance(const std::string& name)
 }
 
 RenderSprite::RenderSprite(const std::string& name):
-  Managed<RenderSprite>(name),
-  spriteSize(1.f, 1.f)
+  Managed<RenderSprite>(name)
 {
 }
 
@@ -407,6 +421,7 @@ bool RenderSprite::init(void)
   if (!vertexBuffer)
     return false;
 
+  setSpriteSize(Vector2(1.f, 1.f));
   return true;
 }
 

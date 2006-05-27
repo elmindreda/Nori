@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy library
+// Wendy FMOD library
 // Copyright (c) 2004 Camilla Berglund <elmindreda@home.se>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,33 +22,12 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_H
-#define WENDY_H
-///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
+#include <moira/Config.h>
+#include <moira/Core.h>
+#include <moira/Log.h>
 
 #include <wendy/Config.h>
-
-#include <wendy/Core.h>
-
-#include <wendy/OpenGL.h>
-#include <wendy/GLContext.h>
-#include <wendy/GLCanvas.h>
-#include <wendy/GLCamera.h>
-#include <wendy/GLVertex.h>
-#include <wendy/GLDisplayList.h>
-#include <wendy/GLIndexBuffer.h>
-#include <wendy/GLVertexBuffer.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLLight.h>
-#include <wendy/GLShader.h>
-#include <wendy/GLParticle.h>
-#include <wendy/GLRender.h>
-#include <wendy/GLNode.h>
-#include <wendy/GLSprite.h>
-#include <wendy/GLDemo.h>
-
 #include <wendy/FMOD.h>
 #include <wendy/FMODSample.h>
 #include <wendy/FMODSpectrum.h>
@@ -58,16 +37,70 @@
 
 namespace wendy
 {
+  namespace FMOD
+  {
+  
+///////////////////////////////////////////////////////////////////////
+
+using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-bool initializeSystem(void);
-void shutdownSystem(void);
+System::~System(void)
+{
+  FSOUND_Close();
+}
+
+Sample* System::createSample(const Path& path)
+{
+  Ptr<Sample> sample = new Sample();
+  if (!sample->init(path))
+    return NULL;
+
+  return sample.detachObject();
+}
+
+Spectrum* System::getSpectrum(void)
+{
+  spectrum = new Spectrum();
+
+  return spectrum;
+}
+
+bool System::create(void)
+{
+  Ptr<System> system = new System();
+  if (!system->init())
+    return false;
+
+  set(system.detachObject());
+  return true;
+}
+
+System::System(void)
+{
+}
+
+bool System::init(void)
+{
+  if (FSOUND_GetVersion() != FMOD_VERSION)
+  {
+    Log::writeError("Mismatched version of FMOD detected during initialization");
+    return false;
+  }
+  
+  if (!FSOUND_Init(44100, 32, FSOUND_INIT_GLOBALFOCUS))
+  {
+    Log::writeError("Unable to initialize FMOD");
+    return false;
+  }
+
+  return true;
+}
 
 ///////////////////////////////////////////////////////////////////////
 
+  } /*namespace FMOD*/
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_H*/
 ///////////////////////////////////////////////////////////////////////

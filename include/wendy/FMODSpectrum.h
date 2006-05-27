@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy library
+// Wendy FMOD library
 // Copyright (c) 2004 Camilla Berglund <elmindreda@home.se>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,52 +22,38 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_H
-#define WENDY_H
+#ifndef WENDY_FMODSPECTRUM_H
+#define WENDY_FMODSPECTRUM_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
-
-#include <wendy/Config.h>
-
-#include <wendy/Core.h>
-
-#include <wendy/OpenGL.h>
-#include <wendy/GLContext.h>
-#include <wendy/GLCanvas.h>
-#include <wendy/GLCamera.h>
-#include <wendy/GLVertex.h>
-#include <wendy/GLDisplayList.h>
-#include <wendy/GLIndexBuffer.h>
-#include <wendy/GLVertexBuffer.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLLight.h>
-#include <wendy/GLShader.h>
-#include <wendy/GLParticle.h>
-#include <wendy/GLRender.h>
-#include <wendy/GLNode.h>
-#include <wendy/GLSprite.h>
-#include <wendy/GLDemo.h>
-
-#include <wendy/FMOD.h>
-#include <wendy/FMODSample.h>
-#include <wendy/FMODSpectrum.h>
-#include <wendy/FMODSystem.h>
+#include <vector>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
+  namespace FMOD
+  {
+  
+///////////////////////////////////////////////////////////////////////
+
+class Spectrum
+{
+  friend class System;
+public:
+  typedef std::vector<float> PointList;
+  unsigned int getPointCount(void) const;
+  float getPoint(unsigned int index) const;
+  void getPoints(PointList& points) const;
+private:
+  Spectrum(void);
+};
 
 ///////////////////////////////////////////////////////////////////////
 
-bool initializeSystem(void);
-void shutdownSystem(void);
-
-///////////////////////////////////////////////////////////////////////
-
+  } /*namespace FMOD*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_H*/
+#endif /*WENDY_FMODSPECTRUM_H*/
 ///////////////////////////////////////////////////////////////////////

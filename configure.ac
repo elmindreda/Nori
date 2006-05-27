@@ -41,11 +41,13 @@ esac
 
 # Check for system header files.
 AC_HEADER_STDC
+AC_CHECK_HEADERS(errno.h)
 AC_LANG_PUSH(C++)
 AC_CHECK_HEADER([moira/Moira.h], [], [AC_MSG_ERROR([Moira not found])])
 AC_LANG_POP
 AC_CHECK_HEADER([GL/glfw.h], [], [AC_MSG_ERROR([GLFW not found])])
 AC_CHECK_HEADER([GL/glew.h], [], [AC_MSG_ERROR([GLEW not found])])
+AC_CHECK_HEADER([fmod.h], [], [AC_MSG_ERROR([FMOD not found])])
 
 # Check for typedefs, structures, and compiler characteristics.
 AC_TYPE_OFF_T
@@ -63,6 +65,7 @@ fi
 # Check for required GL interface libraries.
 AC_CHECK_LIB([glfw], [glfwInit], [], [AC_MSG_ERROR([GLFW not found])])
 AC_CHECK_LIB([GLEW], [glewInit], [], [AC_MSG_ERROR([GLEW not found])])
+AC_CHECK_LIB([fmod], [FSOUND_Init], [], [AC_MSG_ERROR([FMOD not found])])
 
 # Check for moira configuration.
 AC_MSG_CHECKING([for libmoira])

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy library
-// Copyright (c) 2004 Camilla Berglund <elmindreda@home.se>
+// Wendy OpenGL library
+// Copyright (c) 2005 Camilla Berglund <elmindreda@home.se>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,52 +22,44 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_H
-#define WENDY_H
-///////////////////////////////////////////////////////////////////////
-
-#include <moira/Moira.h>
-
-#include <wendy/Config.h>
-
-#include <wendy/Core.h>
-
-#include <wendy/OpenGL.h>
-#include <wendy/GLContext.h>
-#include <wendy/GLCanvas.h>
-#include <wendy/GLCamera.h>
-#include <wendy/GLVertex.h>
-#include <wendy/GLDisplayList.h>
-#include <wendy/GLIndexBuffer.h>
-#include <wendy/GLVertexBuffer.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLLight.h>
-#include <wendy/GLShader.h>
-#include <wendy/GLParticle.h>
-#include <wendy/GLRender.h>
-#include <wendy/GLNode.h>
-#include <wendy/GLSprite.h>
-#include <wendy/GLDemo.h>
-
-#include <wendy/FMOD.h>
-#include <wendy/FMODSample.h>
-#include <wendy/FMODSpectrum.h>
-#include <wendy/FMODSystem.h>
-
+#ifndef WENDY_GLCAMERA_H
+#define WENDY_GLCAMERA_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
+  namespace GL
+  {
+  
+///////////////////////////////////////////////////////////////////////
+
+using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-bool initializeSystem(void);
-void shutdownSystem(void);
+class Camera : public Managed<Camera>
+{
+public:
+  Camera(const std::string& name = "");
+  void begin(void) const;
+  void end(void) const;
+  float getFOV(void) const;
+  float getAspectRatio(void) const;
+  void setFOV(float newFOV);
+  void setAspectRatio(float newAspectRatio);
+  Transform3& getTransform(void);
+  const Transform3& getTransform(void) const;
+private:
+  float FOV;
+  float aspectRatio;
+  Transform3 transform;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
+  } /*namespace GL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_H*/
+#endif /*WENDY_GLCAMERA_H*/
 ///////////////////////////////////////////////////////////////////////
