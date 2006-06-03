@@ -319,14 +319,14 @@ void ShaderPass::apply(void) const
     {
       GLenum textureTarget = texture->getTarget();
 
-      if (textureTarget != cache.textureTarget)
-      {
+      //if (textureTarget != cache.textureTarget)
+      //{
         if (cache.textureTarget)
           glDisable(cache.textureTarget);
 
         glEnable(textureTarget);
         cache.textureTarget = textureTarget;
-      }
+      //}
       
       if (data.textureName != cache.textureName)
       {

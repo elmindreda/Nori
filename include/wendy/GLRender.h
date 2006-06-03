@@ -120,7 +120,6 @@ public:
   ~RenderSprite(void);
   void enqueue(RenderQueue& queue, const Matrix4& transform) const;
   void render(void) const;
-  IndexBuffer* getIndexBuffer(void);
   VertexBuffer* getVertexBuffer(void);
   const std::string& getShaderName(void) const;
   void setShaderName(const std::string& newShaderName);
@@ -132,7 +131,6 @@ private:
   bool init(void);
   std::string shaderName;
   Vector2 spriteSize;
-  Ptr<IndexBuffer> indexBuffer;
   Ptr<VertexBuffer> vertexBuffer;
 };
 

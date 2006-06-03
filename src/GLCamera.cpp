@@ -66,15 +66,15 @@ void Camera::begin(void) const
     canvas->begin3D((float) canvas->getPhysicalWidth() /
                     (float) canvas->getPhysicalHeight(), FOV);
 
-  Transform3 worldToLocal = transform;
-  worldToLocal.invert();
-
-  Matrix4 matrix = worldToLocal;
-
   glPushAttrib(GL_TRANSFORM_BIT);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
+
+  Transform3 reverseTransform = transform;
+  reverseTransform.invert();
+  Matrix4 matrix = reverseTransform;
   glLoadMatrixf(matrix);
+
   glPopAttrib();
 }
 

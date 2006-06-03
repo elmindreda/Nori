@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 
   if (GL::Context::create(mode))
   {
-    GL::Context::get()->setTitle("Hund");
+    GL::Context::get()->setTitle("Simple");
 
     while (GL::Context::get()->update())
     {

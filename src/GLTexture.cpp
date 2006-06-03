@@ -300,7 +300,10 @@ bool Texture::init(const Image& image, unsigned int initFlags)
     // TODO: Support ARB_texture_rectangle.
 
     if (!GLEW_ARB_texture_non_power_of_two)
+    {
+      Log::writeError("Rectangular textures unsupported");
       return false;
+    }
   }
   else
   {
@@ -315,14 +318,16 @@ bool Texture::init(const Image& image, unsigned int initFlags)
     {
       Image* scaled = new Image(current->getFormat(), physicalWidth, physicalHeight);
 
+      // TODO: Update this if support for non byte-sized channels are added.
+
       gluScaleImage(convertFormatToGenericGL(current->getFormat()),
                     current->getWidth(),
 		    current->getHeight(),
-		    convertFormatToGL(current->getFormat()),
+		    GL_UNSIGNED_BYTE,
 		    current->getPixels(),
 		    scaled->getWidth(),
 		    scaled->getHeight(),
-		    convertFormatToGL(scaled->getFormat()),
+		    GL_UNSIGNED_BYTE,
 		    scaled->getPixels());
 
       current = result = scaled;
@@ -396,8 +401,10 @@ bool Texture::init(const Image& image, unsigned int initFlags)
     return false;
   }
   
+  // "Regular" dimensions of texture object are equal to source image dimensions
   width = image.getWidth();
   height = image.getHeight();
+
   flags = initFlags;
 
   return true;

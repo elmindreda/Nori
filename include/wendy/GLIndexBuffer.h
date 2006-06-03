@@ -70,6 +70,7 @@ public:
   void render(unsigned int mode, unsigned int count = 0) const;
   void* lock(void);
   void unlock(void);
+  GLuint getGLID(void) const;
   Type getType(void) const;
   Usage getUsage(void) const;
   unsigned int getCount(void) const;

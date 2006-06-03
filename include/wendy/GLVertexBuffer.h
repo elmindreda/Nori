@@ -56,6 +56,7 @@ public:
 	      unsigned int count = 0) const;
   void* lock(void);
   void unlock(void);
+  GLuint getGLID(void) const;
   Usage getUsage(void) const;
   const VertexFormat& getFormat(void) const;
   unsigned int getCount(void) const;

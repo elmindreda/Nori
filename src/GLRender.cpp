@@ -320,7 +320,6 @@ void RenderSprite::enqueue(RenderQueue& queue, const Matrix4& transform) const
 
   RenderOperation operation;
   operation.vertexBuffer = vertexBuffer;
-  operation.indexBuffer = indexBuffer;
   operation.renderMode = GL_QUADS;
   operation.transform = transform;
   operation.shader = shader;
@@ -337,18 +336,12 @@ void RenderSprite::render(void) const
   }
 
   vertexBuffer->apply();
-  indexBuffer->apply();
 
   for (unsigned int pass = 0;  pass < shader->getPassCount();  pass++)
   {
     shader->applyPass(pass);
-    indexBuffer->render(GL_QUADS);
+    vertexBuffer->render(GL_QUADS);
   }
-}
-
-IndexBuffer* RenderSprite::getIndexBuffer(void)
-{
-  return indexBuffer;
 }
 
 VertexBuffer* RenderSprite::getVertexBuffer(void)
@@ -403,19 +396,6 @@ RenderSprite::RenderSprite(const std::string& name):
 bool RenderSprite::init(void)
 {
   // TODO: Make a vertex buffer pool (credits to ryg).
-
-  indexBuffer = IndexBuffer::createInstance("", 4, IndexBuffer::BYTE);
-  if (!indexBuffer)
-    return false;
-
-  unsigned char* indices = (unsigned char*) indexBuffer->lock();
-  if (!indices)
-    return false;
-
-  for (unsigned int i = 0;  i < 4;  i++)
-    indices[i] = i;
-
-  indexBuffer->unlock();
 
   vertexBuffer = VertexBuffer::createInstance("", 4, Vertex2ft3fv::format, VertexBuffer::DYNAMIC);
   if (!vertexBuffer)

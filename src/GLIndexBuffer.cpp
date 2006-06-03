@@ -151,6 +151,11 @@ void IndexBuffer::unlock(void)
   locked = false;
 }
 
+GLuint IndexBuffer::getGLID(void) const
+{
+  return bufferID;
+}
+
 IndexBuffer::Type IndexBuffer::getType(void) const
 {
   return type;

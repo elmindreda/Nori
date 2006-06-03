@@ -185,6 +185,11 @@ void VertexBuffer::unlock(void)
   locked = false;
 }
 
+GLuint VertexBuffer::getGLID(void) const
+{
+  return bufferID;
+}
+
 VertexBuffer::Usage VertexBuffer::getUsage(void) const
 {
   return usage;

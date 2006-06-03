@@ -443,9 +443,17 @@ bool Demo::createEffectInstance(Effect& effect)
     return false;
   }
 
-  effect.instance = type->createEffect(effect.instanceName, effect.duration);
-  if (!effect.instance)
+  try
+  {
+    effect.instance = type->createEffect(effect.instanceName, effect.duration);
+    if (!effect.instance)
+      return false;
+  }
+  catch (const Exception& e)
+  {
+    Log::writeError("Effect instance creation failed: %s", e.what());
     return false;
+  }
 
   if (Effect* parent = effect.getParent())
   {
