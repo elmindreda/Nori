@@ -24,6 +24,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <moira/Config.h>
+#include <moira/Portability.h>
 #include <moira/Core.h>
 #include <moira/Node.h>
 #include <moira/Color.h>
@@ -32,11 +33,13 @@
 #include <moira/Quaternion.h>
 #include <moira/Transform.h>
 #include <moira/Stream.h>
+#include <moira/Image.h>
 #include <moira/XML.h>
 #include <moira/Mesh.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
+#include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLIndexBuffer.h>

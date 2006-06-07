@@ -24,6 +24,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <moira/Config.h>
+#include <moira/Portability.h>
 #include <moira/Core.h>
 #include <moira/Log.h>
 #include <moira/Color.h>
@@ -253,7 +254,7 @@ bool RenderMesh::init(const Mesh& mesh)
   vertexBufferName.append("mesh:");
   vertexBufferName.append(getName());
 
-  vertexBuffer = VertexBuffer::createInstance(vertexBufferName, mesh.vertices.size(), format);
+  vertexBuffer = VertexBuffer::createInstance(vertexBufferName, (unsigned int) mesh.vertices.size(), format);
   if (!vertexBuffer)
     return false;
 
@@ -280,7 +281,7 @@ bool RenderMesh::init(const Mesh& mesh)
     indexBufferName.append("/");
     indexBufferName.append(geometry.shaderName);
 
-    geometry.indexBuffer = IndexBuffer::createInstance(indexBufferName, (*i).triangles.size() * 3, IndexBuffer::UINT);
+    geometry.indexBuffer = IndexBuffer::createInstance(indexBufferName, (unsigned int) (*i).triangles.size() * 3, IndexBuffer::UINT);
     if (!geometry.indexBuffer)
       return false;
 

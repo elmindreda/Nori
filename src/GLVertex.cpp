@@ -24,6 +24,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <moira/Config.h>
+#include <moira/Portability.h>
 #include <moira/Core.h>
 #include <moira/Vector.h>
 
@@ -94,7 +95,7 @@ VertexFormat::VertexFormat(void)
 {
 }
 
-VertexFormat::VertexFormat(const std::string& specification) throw(Exception)
+VertexFormat::VertexFormat(const std::string& specification)
 {
   if (!addComponents(specification))
     throw Exception("Invalid vertex format specification");
@@ -210,7 +211,7 @@ size_t VertexFormat::getSize(void) const
 
 unsigned int VertexFormat::getComponentCount(void) const
 {
-  return components.size();
+  return (unsigned int) components.size();
 }
 
 ///////////////////////////////////////////////////////////////////////

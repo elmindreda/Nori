@@ -24,6 +24,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <moira/Config.h>
+#include <moira/Portability.h>
 #include <moira/Core.h>
 #include <moira/Log.h>
 #include <moira/Color.h>
@@ -750,7 +751,7 @@ bool Shader::operator < (const Shader& other) const
   else if (other.isBlending())
     return true;
 
-  return getName().compare(other.getName());
+  return getName().compare(other.getName()) ? true : false;
 }
 
 bool Shader::isBlending(void) const
@@ -778,7 +779,7 @@ const ShaderPass& Shader::getPass(unsigned int index) const
 
 unsigned int Shader::getPassCount(void) const
 {
-  return passes.size();
+  return (unsigned int) passes.size();
 }
 
 Shader* Shader::createInstance(const std::string& name)

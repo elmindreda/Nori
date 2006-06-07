@@ -24,6 +24,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <moira/Config.h>
+#include <moira/Portability.h>
 #include <moira/Core.h>
 #include <moira/Log.h>
 #include <moira/Point.h>
@@ -77,7 +78,7 @@ void VertexBuffer::apply(void) const
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(component->getElementCount(),
                     component->getType(),
-		    format.getSize(),
+		    (GLsizei) format.getSize(),
 		    base + component->getOffset());
   }
   else
@@ -89,7 +90,7 @@ void VertexBuffer::apply(void) const
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glTexCoordPointer(component->getElementCount(),
                       component->getType(),
-		      format.getSize(),
+		      (GLsizei) format.getSize(),
 		      base + component->getOffset());
   }
   else
@@ -101,7 +102,7 @@ void VertexBuffer::apply(void) const
     glEnableClientState(GL_COLOR_ARRAY);
     glColorPointer(component->getElementCount(),
                    component->getType(),
-		   format.getSize(),
+		   (GLsizei) format.getSize(),
 		   base + component->getOffset());
   }
   else
@@ -112,7 +113,7 @@ void VertexBuffer::apply(void) const
   {
     glEnableClientState(GL_NORMAL_ARRAY);
     glNormalPointer(component->getType(),
-		    format.getSize(),
+		    (GLsizei) format.getSize(),
 		    base + component->getOffset());
   }
   else

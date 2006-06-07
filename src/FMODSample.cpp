@@ -104,7 +104,7 @@ bool Sample::isStarted(void) const
 
 bool Sample::isPaused(void) const
 {
-  return FSOUND_GetPaused(channel);
+  return FSOUND_GetPaused(channel) ? true : false;
 }
 
 Time Sample::getTime(void) const
@@ -123,7 +123,7 @@ bool Sample::init(const Path& path)
   if (!file)
     return false;
 
-  buffer.resize(file->getSize());
+  buffer.resize((unsigned int) file->getSize());
   if (!file->readItems(buffer.getItems(), buffer.getCount()))
     return false;
 

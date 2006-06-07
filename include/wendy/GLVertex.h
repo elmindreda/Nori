@@ -115,7 +115,7 @@ class VertexFormat
 {
 public:
   VertexFormat(void);
-  VertexFormat(const std::string& specification) throw(Exception);
+  VertexFormat(const std::string& specification);
   bool addComponent(const VertexComponent& component);
   bool addComponents(const std::string& specification);
   const VertexComponent* findComponent(VertexComponent::Kind kind) const;

@@ -14,6 +14,20 @@ AC_PROG_RANLIB
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
 
+# Check for system header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(errno.h)
+AC_LANG_PUSH(C++)
+AC_CHECK_HEADER([moira/Moira.h], [], [AC_MSG_ERROR([Moira not found])])
+AC_LANG_POP
+AC_CHECK_HEADER([GL/glfw.h], [], [AC_MSG_ERROR([GLFW not found])])
+AC_CHECK_HEADER([GL/glew.h], [], [AC_MSG_ERROR([GLEW not found])])
+AC_CHECK_HEADER([fmod.h], [], [AC_MSG_ERROR([FMOD not found])])
+
+# Check for typedefs, structures, and compiler characteristics.
+AC_TYPE_OFF_T
+AC_TYPE_SIZE_T
+
 # Check for platform profile and set up OpenGL build flags.
 AC_MSG_CHECKING([for a suitable OpenGL profile])
 case $host in
@@ -31,36 +45,17 @@ case $host in
     AC_MSG_RESULT([POSIX/GLX (default)])
     AC_DEFINE([WENDY_POSIX], [1], [Build on a POSIX system.])
     AC_PATH_X
-    if test "$ac_x_includes" = no || test "$ac_x_libraries" = no; then
-      AC_MSG_ERROR([X not found])
-    fi
-    CFLAGS="-I$ac_x_includes $CFLAGS"
-    LIBS="-L$ac_x_libraries $LIBS"
+    AC_CHECK_LIB([X11], [XCreateWindow], [], [AC_MSG_ERROR([X11 GLX not found])])-  AC_CHECK_LIB([GL], [glGetString], [], [AC_MSG_ERROR([OpenGL not found])])
+    AC_CHECK_LIB([GLU], [gluGetString], [], [AC_MSG_ERROR([GLU not found])])
+    AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([POSIX threads not found])])
+    AC_CHECK_LIB([Xxf86vm], [XF86VidModeQueryExtension])
+#    if test "$ac_x_includes" = no || test "$ac_x_libraries" = no; then
+#      AC_MSG_ERROR([X not found])
+#    fi
+#    CFLAGS="-I$ac_x_includes $CFLAGS"
+#    LIBS="-L$ac_x_libraries $LIBS"
     ;;
 esac
-
-# Check for system header files.
-AC_HEADER_STDC
-AC_CHECK_HEADERS(errno.h)
-AC_LANG_PUSH(C++)
-AC_CHECK_HEADER([moira/Moira.h], [], [AC_MSG_ERROR([Moira not found])])
-AC_LANG_POP
-AC_CHECK_HEADER([GL/glfw.h], [], [AC_MSG_ERROR([GLFW not found])])
-AC_CHECK_HEADER([GL/glew.h], [], [AC_MSG_ERROR([GLEW not found])])
-AC_CHECK_HEADER([fmod.h], [], [AC_MSG_ERROR([FMOD not found])])
-
-# Check for typedefs, structures, and compiler characteristics.
-AC_TYPE_OFF_T
-AC_TYPE_SIZE_T
-
-# Check for required X and GL library functions.
-if test "$ac_x_includes" != no && test "$ac_x_libraries" != no; then
-  AC_CHECK_LIB([X11], [XCreateWindow], [], [AC_MSG_ERROR([X11 GLX not found])])
-  AC_CHECK_LIB([GL], [glGetString], [], [AC_MSG_ERROR([OpenGL not found])])
-  AC_CHECK_LIB([GLU], [gluGetString], [], [AC_MSG_ERROR([GLU not found])])
-  AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([POSIX threads not found])])
-  AC_CHECK_LIB([Xxf86vm], [XF86VidModeQueryExtension])
-fi
 
 # Check for required GL interface libraries.
 AC_CHECK_LIB([glfw], [glfwInit], [], [AC_MSG_ERROR([GLFW not found])])

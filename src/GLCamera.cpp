@@ -24,15 +24,18 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <moira/Config.h>
+#include <moira/Portability.h>
 #include <moira/Core.h>
 #include <moira/Color.h>
 #include <moira/Vector.h>
 #include <moira/Matrix.h>
 #include <moira/Quaternion.h>
 #include <moira/Transform.h>
+#include <moira/Image.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
+#include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLCamera.h>
 
