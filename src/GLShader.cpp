@@ -125,12 +125,12 @@ void ShaderPass::apply(void) const
       Texture* texture = Texture::findInstance(data.textureName);
       if (texture)
       {
-	GLenum textureTarget = texture->getTarget();
+        GLenum textureTarget = texture->getTarget();
 
-	glEnable(textureTarget);
-	glBindTexture(textureTarget, texture->getGLID());
+        glEnable(textureTarget);
+        glBindTexture(textureTarget, texture->getGLID());
 
-	cache.textureTarget = textureTarget;
+        cache.textureTarget = textureTarget;
       }
     }
 
@@ -242,8 +242,8 @@ void ShaderPass::apply(void) const
     }
 
     if (data.stencilFunction != cache.stencilFunction ||
-	data.stencilRef != cache.stencilRef ||
-	data.stencilMask != cache.stencilMask)
+        data.stencilRef != cache.stencilRef ||
+        data.stencilMask != cache.stencilMask)
     {
       glStencilFunc(data.stencilFunction, data.stencilRef, data.stencilMask);
       cache.stencilFunction = data.stencilFunction;
@@ -252,8 +252,8 @@ void ShaderPass::apply(void) const
     }
 
     if (data.stencilFailed != cache.stencilFailed ||
-	data.depthFailed != cache.depthFailed ||
-	data.depthPassed != cache.depthPassed)
+        data.depthFailed != cache.depthFailed ||
+        data.depthPassed != cache.depthPassed)
     {
       glStencilOp(data.stencilFailed, data.depthFailed, data.depthPassed);
       cache.stencilFailed = data.stencilFailed;
@@ -743,15 +743,10 @@ bool Shader::operator < (const Shader& other) const
 {
   // Shaders with blending always go last
 
-  if (isBlending())
-  {
-    if (!other.isBlending())
-      return false;
-  }
-  else if (other.isBlending())
+  if (!isBlending() && other.isBlending())
     return true;
-
-  return getName().compare(other.getName()) ? true : false;
+ 
+  return getName().compare(other.getName()) < 0;
 }
 
 bool Shader::isBlending(void) const
