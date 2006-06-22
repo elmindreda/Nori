@@ -27,6 +27,8 @@
 #include <moira/Core.h>
 #include <moira/Log.h>
 #include <moira/Point.h>
+#include <moira/Color.h>
+#include <moira/Image.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>

@@ -61,13 +61,10 @@ Camera::Camera(const std::string& name):
 
 void Camera::begin(void) const
 {
-  Canvas* canvas = Canvas::getCurrent();
+  if (current != NULL)
+    throw Exception("Cannot nest cameras");
 
-  if (aspectRatio)
-    canvas->begin3D(aspectRatio, FOV);
-  else
-    canvas->begin3D((float) canvas->getPhysicalWidth() /
-                    (float) canvas->getPhysicalHeight(), FOV);
+  Canvas::getCurrent()->begin3D(FOV, aspectRatio);
 
   glPushAttrib(GL_TRANSFORM_BIT);
   glMatrixMode(GL_MODELVIEW);
@@ -79,18 +76,20 @@ void Camera::begin(void) const
   glLoadMatrixf(matrix);
 
   glPopAttrib();
+
+  current = const_cast<Camera*>(this);
 }
 
 void Camera::end(void) const
 {
-  Canvas* canvas = Canvas::getCurrent();
-
   glPushAttrib(GL_TRANSFORM_BIT);
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
   glPopAttrib();
 
-  canvas->end();
+  Canvas::getCurrent()->end();
+
+  current = NULL;
 }
 
 float Camera::getFOV(void) const
@@ -122,6 +121,13 @@ const Transform3& Camera::getTransform(void) const
 {
   return transform;
 }
+
+Camera* Camera::getCurrent(void)
+{
+  return current;
+}
+
+Camera* Camera::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 

@@ -76,7 +76,7 @@ private:
   unsigned int count;
   Usage usage;
   GLuint bufferID;
-  ByteBlock data;
+  Block data;
   static VertexBuffer* current;
 };
 

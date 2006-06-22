@@ -26,6 +26,7 @@
 #include <moira/Config.h>
 #include <moira/Portability.h>
 #include <moira/Core.h>
+#include <moira/Log.h>
 #include <moira/Point.h>
 #include <moira/Vector.h>
 #include <moira/Color.h>
@@ -112,15 +113,18 @@ void Canvas::begin2D(const Vector2& resolution) const
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  gluOrtho2D(0.f, resolution.x, resolution.y, 0.f);
+  gluOrtho2D(0.f, resolution.x, 0.f, resolution.y);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
   glPopAttrib();
 }
 
-void Canvas::begin3D(float aspect, float FOV, float nearZ, float farZ) const
+void Canvas::begin3D(float FOV, float aspect, float nearZ, float farZ) const
 {
+  if (aspect == 0.f)
+    aspect = (float) getPhysicalWidth() / (float) getPhysicalHeight();
+
   glPushAttrib(GL_TRANSFORM_BIT);
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
@@ -252,7 +256,7 @@ unsigned int ContextCanvas::getPhysicalHeight(void) const
 void TextureCanvas::pop(void) const
 {
   glPushAttrib(GL_TEXTURE_BIT);
-  glBindTexture(texture->getTarget(), texture->getID());
+  glBindTexture(texture->getTarget(), texture->getGLID());
 
   if (texture->getTarget() == GL_TEXTURE_1D)
     glCopyTexSubImage1D(texture->getTarget(),
@@ -301,6 +305,12 @@ TextureCanvas::TextureCanvas(void)
 
 bool TextureCanvas::init(const std::string& textureName, unsigned int width, unsigned int height)
 {
+  if (!Context::get())
+  {
+    Log::writeError("Cannot create texture canvas without OpenGL context");
+    return false;
+  }
+
   unsigned int maxSize;
   glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxSize);
 
@@ -312,7 +322,7 @@ bool TextureCanvas::init(const std::string& textureName, unsigned int width, uns
   if (maxHeight > maxSize)
     maxHeight = maxSize;
 
-  if (Context::get()->hasExtension("ARB_texture_non_power_of_two"))
+  if (GLEW_ARB_texture_non_power_of_two)
   {
     if (width > maxWidth)
     {

@@ -22,11 +22,18 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WEGLCONTEXT_H
-#define WEGLCONTEXT_H
+#ifndef WENDY_GLCONTEXT_H
+#define WENDY_GLCONTEXT_H
 ///////////////////////////////////////////////////////////////////////
 
 #include <GL/glfw.h>
+
+///////////////////////////////////////////////////////////////////////
+
+namespace moira
+{
+  class Image;
+}
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -52,7 +59,7 @@ public:
     UP, DOWN, LEFT, RIGHT, PAGEUP, PAGEDOWN, HOME, END,
     F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
   };
-  Key(unsigned int initValue);
+  Key(unsigned int value);
   operator unsigned int (void) const;
 private:
   unsigned int value;
@@ -68,12 +75,12 @@ public:
   ContextMode(void);
   /*! Constructor.
    */
-  ContextMode(unsigned int initWidth,
-	      unsigned int initHeight,
-	      unsigned int initColorBits,
-	      unsigned int initDepthBits = 0,
-	      unsigned int initStencilBits = 0,
-	      unsigned int initFlags = 0);
+  ContextMode(unsigned int width,
+	      unsigned int height,
+	      unsigned int colorBits,
+	      unsigned int depthBits = 0,
+	      unsigned int stencilBits = 0,
+	      unsigned int flags = 0);
   /*! Resets all value to their defaults.
    */
   void setDefaults(void);
@@ -115,7 +122,6 @@ public:
 class ContextObserver : public Observer<ContextObserver>
 {
   friend class Context;
-  friend class GLFWContext;
 protected:
   virtual void onContextResize(unsigned int width, unsigned int height);
   virtual bool onContextUpdate(void);
@@ -132,95 +138,70 @@ class Context : public Observable<ContextObserver>, public Singleton<Context>
 public:
   /*! Destructor.
    */
-  virtual ~Context(void);
+  ~Context(void);
   /*! Updates the screen.
    */
-  virtual bool update(void) = 0;
+  bool update(void);
   /*! Finds the entry point with the specified name.
-   *  @param name [in] The name of the entry point.
+   *  @param name The name of the entry point.
    *  @return The address of the specified entry point, or @c NULL.
    */
-  virtual EntryPoint findEntryPoint(const std::string& name) = 0;
+  EntryPoint findEntryPoint(const std::string& name);
   /*! @return @c true if the context is windowed, otherwise @c false.
    */
-  virtual bool isWindowed(void) const = 0;
+  bool isWindowed(void) const;
   /*! @return @c true if the specified key is pressed, otherwise @c false.
    *  @param key The desired key.
    */
-  virtual bool isKeyDown(const Key& key) const = 0;
+  bool isKeyDown(const Key& key) const;
   /*! @return @c true if the specified mouse button is pressed, otherwise @c false.
    *  @param button The desired mouse button.
    */
-  virtual bool isButtonDown(unsigned int button) const = 0;
+  bool isButtonDown(unsigned int button) const;
   /*! Checks for the presence of the specified extension.
-   *  @param name [in] The name of the desired extension.
+   *  @param name The name of the desired extension.
    *  @return @c true if the extension is present, otherwise @c false.
    */
-  virtual bool hasExtension(const std::string& name) const = 0;
+  bool hasExtension(const std::string& name) const;
   /*! @return The width, in pixels.
    */
-  virtual unsigned int getWidth(void) const = 0;
+  unsigned int getWidth(void) const;
   /*! @return The height, in pixels.
    */
-  virtual unsigned int getHeight(void) const = 0;
+  unsigned int getHeight(void) const;
   /*! @return The color depth, in bits.
    */
-  virtual unsigned int getColorBits(void) const = 0;
+  unsigned int getColorBits(void) const;
   /*! @return The depth-buffer depth, in bits.
    */
-  virtual unsigned int getDepthBits(void) const = 0;
+  unsigned int getDepthBits(void) const;
   /*! @return The stencil buffer depth, in bits.
    */
-  virtual unsigned int getStencilBits(void) const = 0;
+  unsigned int getStencilBits(void) const;
+  /*! @return A copy of the current state of the color buffer.
+   */
+  Image* getColorBuffer(void) const;
   /*! @return The title of the context window.
    */
-  virtual const std::string& getTitle(void) const = 0;
+  const std::string& getTitle(void) const;
   /*! Sets the title of the context window.
-   *  @param title [in] The desired title.
+   *  @param newTitle The desired title.
    */
-  virtual void setTitle(const std::string& title) = 0;
+  void setTitle(const std::string& newTitle);
   /*! @return The current mouse position.
    */
-  virtual const Point2& getMousePosition(void) const = 0;
+  const Point2& getMousePosition(void) const;
   /*! Places the the mouse cursor at the specified position.
    *  @param position The desired mouse position.
    */
-  virtual void setMousePosition(const Point2& position) = 0;
-  /*! Creates a context singleton object with the specified settings.
-    *  @param mode [in] The requested context settings.
-    *  @return @c true if successful, or @c false otherwise.
-    */
-  static bool create(const ContextMode& mode);
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class GLFWContext : public Context
-{
-public:
-  ~GLFWContext(void);
-  bool update(void);
-  EntryPoint findEntryPoint(const std::string& name);
-  bool isWindowed(void) const;
-  bool isKeyDown(const Key& key) const;
-  bool isButtonDown(unsigned int button) const;
-  bool hasExtension(const std::string& name) const;
-  unsigned int getWidth(void) const;
-  unsigned int getHeight(void) const;
-  unsigned int getColorBits(void) const;
-  unsigned int getDepthBits(void) const;
-  unsigned int getStencilBits(void) const;
-  const std::string& getTitle(void) const;
-  void setTitle(const std::string& newTitle);
-  const Point2& getMousePosition(void) const;
-  void setMousePosition(const Point2& position);
-  /*! Creates a GLFW context singleton object with the specified settings.
-    *  @param mode [in] The requested context settings.
+  void setMousePosition(const Point2& newPosition);
+  /*! Creates the context singleton object, using the specified settings.
+    *  @param mode The requested context settings.
     *  @return @c true if successful, or @c false otherwise.
     */
   static bool create(const ContextMode& mode);
 private:
-  GLFWContext(void);
+  Context(void);
   bool init(const ContextMode& mode);
   static void GLFWCALL sizeCallback(int width, int height);
   static int GLFWCALL closeCallback(void);
@@ -232,7 +213,7 @@ private:
   std::string title;
   static KeyMap internalMap;
   static KeyMap externalMap;
-  static GLFWContext* instance;
+  static Context* instance;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -241,5 +222,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WEGLCONTEXT_H*/
+#endif /*WENDY_GLCONTEXT_H*/
 ///////////////////////////////////////////////////////////////////////

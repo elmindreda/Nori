@@ -40,8 +40,23 @@ using namespace moira;
 class Font : public Managed<Font>
 {
 public:
-  static Font* createInstance(const Path& path, const std::string& name = "");
+  void render(const Vector2& position, float width) const;
   static Font* createInstance(const Face& face, const std::string& name = "");
+private:
+  class Glyph;
+  Font(const std::string& name);
+  bool init(const Face& face);
+  //Ptr<Shader> shader;
+  //Ptr<Texture> texture;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class Font::Glyph
+{
+public:
+  Vector2 position;
+  Vector2 size;
 };
 
 ///////////////////////////////////////////////////////////////////////

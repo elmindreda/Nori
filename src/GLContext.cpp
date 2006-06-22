@@ -26,6 +26,8 @@
 #include <moira/Config.h>
 #include <moira/Core.h>
 #include <moira/Point.h>
+#include <moira/Color.h>
+#include <moira/Image.h>
 #include <moira/Log.h>
 
 #include <wendy/Config.h>
@@ -129,23 +131,12 @@ void ContextObserver::onContextMouseClick(unsigned int button, bool clicked)
 
 Context::~Context(void)
 {
-}
-  
-bool Context::create(const ContextMode& mode)
-{
-  return GLFWContext::create(mode);
-}
-
-///////////////////////////////////////////////////////////////////////
-
-GLFWContext::~GLFWContext(void)
-{
   glfwCloseWindow();
 
   instance = NULL;
 }
 
-bool GLFWContext::update(void)
+bool Context::update(void)
 {
   bool stopped = false;
 
@@ -158,26 +149,26 @@ bool GLFWContext::update(void)
 
   glfwSwapBuffers();
 
-  if (stopped)
-    return false;
-
   if (glfwGetWindowParam(GLFW_OPENED) != GL_TRUE)
+    stopped = true;
+
+  if (stopped)
     return false;
 
   return true;
 }
 
-EntryPoint GLFWContext::findEntryPoint(const std::string& name)
+EntryPoint Context::findEntryPoint(const std::string& name)
 {
   return (EntryPoint) glfwGetProcAddress(name.c_str());
 }
 
-bool GLFWContext::isWindowed(void) const
+bool Context::isWindowed(void) const
 {
   return (mode.flags & ContextMode::WINDOWED) != 0;
 }
 
-bool GLFWContext::isKeyDown(const Key& key) const
+bool Context::isKeyDown(const Key& key) const
 {
   int externalKey = key;
 
@@ -188,67 +179,80 @@ bool GLFWContext::isKeyDown(const Key& key) const
   return (glfwGetKey(externalKey) == GLFW_PRESS) ? true : false;
 }
 
-bool GLFWContext::isButtonDown(unsigned int button) const
+bool Context::isButtonDown(unsigned int button) const
 {
   return (glfwGetMouseButton(button + GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) ? true : false;
 }
 
-bool GLFWContext::hasExtension(const std::string& name) const
+bool Context::hasExtension(const std::string& name) const
 {
   return glfwExtensionSupported(name.c_str()) != 0;
 }
 
-unsigned int GLFWContext::getWidth(void) const
+unsigned int Context::getWidth(void) const
 {
   return mode.width;
 }
 
-unsigned int GLFWContext::getHeight(void) const
+unsigned int Context::getHeight(void) const
 {
   return mode.height;
 }
 
-unsigned int GLFWContext::getColorBits(void) const
+unsigned int Context::getColorBits(void) const
 {
   return mode.colorBits;
 }
 
-unsigned int GLFWContext::getDepthBits(void) const
+unsigned int Context::getDepthBits(void) const
 {
   return mode.depthBits;
 }
 
-unsigned int GLFWContext::getStencilBits(void) const
+unsigned int Context::getStencilBits(void) const
 {
   return mode.stencilBits;
 }
 
-const std::string& GLFWContext::getTitle(void) const
+Image* Context::getColorBuffer(void) const
+{
+  Ptr<Image> result = new Image(ImageFormat::RGB888, mode.width, mode.height);
+
+  glReadPixels(0, 0, mode.width, mode.height,
+	       GL_RGB, GL_UNSIGNED_BYTE,
+	       result->getPixels());
+
+  result->flipHorizontal();
+
+  return result.detachObject();
+}
+
+const std::string& Context::getTitle(void) const
 {
   return title;
 }
 
-void GLFWContext::setTitle(const std::string& newTitle)
+void Context::setTitle(const std::string& newTitle)
 {
   glfwSetWindowTitle(newTitle.c_str());
   title = newTitle;
 }
 
-const Point2& GLFWContext::getMousePosition(void) const
+const Point2& Context::getMousePosition(void) const
 {
   static Point2 position;
   glfwGetMousePos(&position.x, &position.y);
   return position;
 }
 
-void GLFWContext::setMousePosition(const Point2& position)
+void Context::setMousePosition(const Point2& position)
 {
   glfwSetMousePos(position.x, position.y);
 }
 
-bool GLFWContext::create(const ContextMode& mode)
+bool Context::create(const ContextMode& mode)
 {
-  Ptr<GLFWContext> context = new GLFWContext();
+  Ptr<Context> context = new Context();
   if (!context->init(mode))
     return false;
   
@@ -256,15 +260,22 @@ bool GLFWContext::create(const ContextMode& mode)
   return true;
 }
 
-GLFWContext::GLFWContext(void)
+Context::Context(void)
 {
+  // Necessary hack in case GLFW calls a callback before
+  // we have had time to call Singleton::set.
+  // TODO: Remove this upon the arrival of GLFW_USER_POINTER.
+
   instance = this;
 }
 
-bool GLFWContext::init(const ContextMode& mode)
+bool Context::init(const ContextMode& mode)
 {
   if (!internalMap.size())
   {
+    // Jag kom på en sak. Du luktar struts.
+    // Jag tänker inte fira jul med dig.
+
     internalMap[Key::SPACE] = GLFW_KEY_SPACE;
     internalMap[Key::ESCAPE] = GLFW_KEY_ESC;
     internalMap[Key::TAB] = GLFW_KEY_TAB;
@@ -302,6 +313,8 @@ bool GLFWContext::init(const ContextMode& mode)
 
   if (!externalMap.size())
   {
+    // Jag ska förgöra er alla med min blöta katt.
+
     externalMap[GLFW_KEY_SPACE] = Key::SPACE;
     externalMap[GLFW_KEY_ESC] = Key::ESCAPE;
     externalMap[GLFW_KEY_TAB] = Key::TAB;
@@ -376,7 +389,7 @@ bool GLFWContext::init(const ContextMode& mode)
   return true;
 }
 
-void GLFWCALL GLFWContext::sizeCallback(int width, int height)
+void GLFWCALL Context::sizeCallback(int width, int height)
 {
   instance->mode.width = width;
   instance->mode.height = height;
@@ -386,7 +399,7 @@ void GLFWCALL GLFWContext::sizeCallback(int width, int height)
     (*i)->onContextResize(width, height);
 }
 
-int GLFWCALL GLFWContext::closeCallback(void)
+int GLFWCALL Context::closeCallback(void)
 {
   const ObserverList& observers = instance->getObservers();
   for (ObserverList::const_iterator i = observers.begin();  i != observers.end();  i++)
@@ -398,7 +411,7 @@ int GLFWCALL GLFWContext::closeCallback(void)
   return 1;
 }
 
-void GLFWCALL GLFWContext::keyboardCallback(int key, int action)
+void GLFWCALL Context::keyboardCallback(int key, int action)
 {
   if (key > GLFW_KEY_SPECIAL)
   {
@@ -414,7 +427,7 @@ void GLFWCALL GLFWContext::keyboardCallback(int key, int action)
     (*i)->onContextKeyEvent(key, (action == GLFW_PRESS) ? true : false);
 }
 
-void GLFWCALL GLFWContext::mousePosCallback(int x, int y)
+void GLFWCALL Context::mousePosCallback(int x, int y)
 {
   Point2 position(x, y);
 
@@ -423,17 +436,17 @@ void GLFWCALL GLFWContext::mousePosCallback(int x, int y)
     (*i)->onContextMouseMove(position);
 }
 
-void GLFWCALL GLFWContext::mouseButtonCallback(int button, int action)
+void GLFWCALL Context::mouseButtonCallback(int button, int action)
 {
   const ObserverList& observers = instance->getObservers();
   for (ObserverList::const_iterator i = observers.begin();  i != observers.end();  i++)
     (*i)->onContextMouseClick(button - GLFW_MOUSE_BUTTON_1, (action == GLFW_PRESS) ? true : false);
 }
 
-GLFWContext::KeyMap GLFWContext::internalMap;
-GLFWContext::KeyMap GLFWContext::externalMap;
+Context::KeyMap Context::internalMap;
+Context::KeyMap Context::externalMap;
 
-GLFWContext* GLFWContext::instance = NULL;
+Context* Context::instance = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 

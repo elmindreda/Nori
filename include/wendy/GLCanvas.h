@@ -50,8 +50,8 @@ public:
   virtual void push(void) const;
   virtual void pop(void) const;
   void begin2D(const Vector2& resolution = Vector2(1.f, 1.f)) const;
-  void begin3D(float aspect,
-               float FOV = 90.f,
+  void begin3D(float FOV = 90.f,
+               float aspect = 0.f,
 	       float nearZ = 0.01f,
 	       float farZ = 1000.f) const;
   void end(void) const;

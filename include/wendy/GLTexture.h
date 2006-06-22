@@ -27,6 +27,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <string>
+#include <vector>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -44,72 +45,6 @@ using namespace moira;
 class Texture : public Managed<Texture>
 {
 public:
-  /*! Destructor.
-   */
-  ~Texture(void);
-  /*! Locks the image data of the specified mip level for modification.
-   *  @param level [in] The desired mip level.
-   */
-  void* lock(unsigned int level = 0);
-  /*! Finishes modification of the image data.
-   */
-  void unlock(void);
-  /*! @return The OpenGL name of this texture.
-   */
-  GLuint getGLID(void) const;
-  /*! @return The OpenGL target of this texture.
-   */
-  GLenum getTarget(void) const;
-  /*! @return The width, in pixels, of the source for specified mip level.
-   *  @param level [in] The desired mip level.
-   */
-  unsigned int getWidth(unsigned int level = 0) const;
-  /*! @return The height, in pixels, of the source for specified mip level.
-   *  @param level [in] The desired mip level.
-   */
-  unsigned int getHeight(unsigned int level = 0) const;
-  /*! @return The depth, in pixels, of the source for the specified mip level.
-   *  @param level [in] The desired mip level.
-   */
-  unsigned int getDepth(unsigned int level = 0) const;
-  /*! @return The width, in pixels, of the specified mip level.
-   *  @param level [in] The desired mip level.
-   */
-  unsigned int getPhysicalWidth(unsigned int level = 0) const;
-  /*! @return The height, in pixels, of the specified mip level.
-   *  @param level [in] The desired mip level.
-   */
-  unsigned int getPhysicalHeight(unsigned int level = 0) const;
-  /*! @return The depth, in pixels, of the specified mip level.
-   *  @param level [in] The desired mip level.
-   */
-  unsigned int getPhysicalDepth(unsigned int level = 0) const;
-  /*! @return The number of mip levels in this texture.
-   */
-  unsigned int getLevelCount(void) const;
-  /*! @return The creation flags for this texture.
-   */
-  unsigned int getFlags(void) const;
-  /*! @return The image format of this texture.
-   */
-  const ImageFormat& getFormat(void) const;
-  /*! Creates a texture from the specified image file.
-   *  @param name [in] The desired name of the texture.
-   *  @param path [in] The path of the image file to use.
-   *  @param flags [in] The creation flags.
-   */
-  void setFilters(GLenum minFilter, GLenum magFilter);
-  static Texture* createInstance(const std::string& name,
-                                 const Path& path,
-                                 unsigned int flags = 0);
-  /*! Creates a texture from the specified image.
-   *  @param name [in] The desired name of the texture.
-   *  @param image [in] The image data to use.
-   *  @param flags [in] The creation flags.
-   */
-  static Texture* createInstance(const std::string& name,
-				 const Image& image,
-				 unsigned int flags = 0);
   enum
   {
     /*! The texture keeps a copy in system memory, for fast modification.
@@ -124,12 +59,91 @@ public:
     /*! The texture will be created with a mipmap chain.
      */
     MIPMAPPED = 4,
+    /*! The default texture creation flags.
+     */
+    DEFAULT = MIPMAPPED,
   };
+  /*! Destructor.
+   */
+  ~Texture(void);
+  /*! Locks the image data of the specified mip level for modification.
+   *  @param level The desired mip level.
+   */
+  void* lock(unsigned int level = 0);
+  /*! Finishes modification of the image data.
+   */
+  void unlock(void);
+  /*! @return The OpenGL name of this texture.
+   */
+  GLuint getGLID(void) const;
+  /*! @return The OpenGL target of this texture.
+   */
+  GLenum getTarget(void) const;
+  /*! @return The width, in pixels, of the source for specified mip level.
+   *  @param level The desired mip level.
+   */
+  unsigned int getWidth(unsigned int level = 0) const;
+  /*! @return The height, in pixels, of the source for specified mip level.
+   *  @param level The desired mip level.
+   */
+  unsigned int getHeight(unsigned int level = 0) const;
+  /*! @return The depth, in pixels, of the source for the specified mip level.
+   *  @param level The desired mip level.
+   */
+  unsigned int getDepth(unsigned int level = 0) const;
+  /*! @return The width, in pixels, of the specified mip level.
+   *  @param level The desired mip level.
+   */
+  unsigned int getPhysicalWidth(unsigned int level = 0) const;
+  /*! @return The height, in pixels, of the specified mip level.
+   *  @param level The desired mip level.
+   */
+  unsigned int getPhysicalHeight(unsigned int level = 0) const;
+  /*! @return The depth, in pixels, of the specified mip level.
+   *  @param level The desired mip level.
+   */
+  unsigned int getPhysicalDepth(unsigned int level = 0) const;
+  /*! @return The number of mip levels in this texture.
+   */
+  unsigned int getLevelCount(void) const;
+  /*! @return The creation flags for this texture.
+   */
+  unsigned int getFlags(void) const;
+  /*! @return The image format of this texture.
+   */
+  const ImageFormat& getFormat(void) const;
+  /*! @return The minification filter of this texture.
+   */
+  GLint getMinFilter(void) const;
+  /*! @return The magnification filter of this texture.
+   */
+  GLint getMagFilter(void) const;
+  /*! Sets the minification and magnification filters for this texture.
+   */
+  void setFilters(GLint newMinFilter, GLint newMagFilter);
+  /*! Creates a texture from the specified image file.
+   *  @param name The desired name of the texture.
+   *  @param path The path of the image file to use.
+   *  @param flags The creation flags.
+   */
+  static Texture* createInstance(const std::string& name,
+                                 const Path& path,
+                                 unsigned int flags = DEFAULT);
+  /*! Creates a texture from the specified image.
+   *  @param name The desired name of the texture.
+   *  @param image The image data to use.
+   *  @param flags The creation flags.
+   */
+  static Texture* createInstance(const std::string& name,
+				 const Image& image,
+				 unsigned int flags = DEFAULT);
 private:
   Texture(const std::string& name);
   bool init(const Image& image, unsigned int initFlags);
   GLuint textureID;
   GLenum textureTarget;
+  GLint minFilter;
+  GLint magFilter;
   unsigned int width;
   unsigned int height;
   unsigned int depth;
@@ -139,6 +153,24 @@ private:
   unsigned int levelCount;
   unsigned int flags;
   ImageFormat format;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class TextureList
+{
+public:
+  void addTexture(Texture* texture);
+  Texture* createTexture(const std::string& name,
+                         const Path& path,
+			 unsigned int flags = 0);
+  void destroyTextures(void);
+  unsigned int getTextureCount(void) const;
+  Texture* getTexture(unsigned int index);
+  const Texture* getTexture(unsigned int index) const;
+private:
+  typedef std::vector<Texture*> EntryList;
+  EntryList textures;
 };
 
 ///////////////////////////////////////////////////////////////////////

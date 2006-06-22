@@ -29,13 +29,16 @@
 #include <moira/Log.h>
 #include <moira/Color.h>
 #include <moira/Vector.h>
+#include <moira/Point.h>
 #include <moira/Matrix.h>
 #include <moira/Stream.h>
+#include <moira/Image.h>
 #include <moira/XML.h>
 #include <moira/Mesh.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
+#include <wendy/GLContext.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLLight.h>
 #include <wendy/GLVertex.h>
@@ -245,6 +248,12 @@ RenderMesh::RenderMesh(const std::string& name):
 
 bool RenderMesh::init(const Mesh& mesh)
 {
+  if (!Context::get())
+  {
+    Log::writeError("Cannot create render mesh without OpenGL context");
+    return false;
+  }
+
   VertexFormat format;
 
   if (!format.addComponents("3fv3fn"))

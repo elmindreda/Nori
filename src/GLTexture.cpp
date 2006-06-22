@@ -228,13 +228,37 @@ const ImageFormat& Texture::getFormat(void) const
   return format;
 }
 
-void Texture::setFilters(GLenum minFilter, GLenum magFilter)
+GLint Texture::getMinFilter(void) const
 {
-  glPushAttrib(GL_TEXTURE_BIT);
-  glBindTexture(textureTarget, textureID);
-  glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, magFilter);
-  glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, minFilter);
-  glPopAttrib();
+  return minFilter;
+}
+
+GLint Texture::getMagFilter(void) const
+{
+  return magFilter;
+}
+
+void Texture::setFilters(GLint newMinFilter, GLint newMagFilter)
+{
+  if (newMinFilter != minFilter || newMagFilter != magFilter)
+  {
+    glPushAttrib(GL_TEXTURE_BIT);
+    glBindTexture(textureTarget, textureID);
+
+    if (newMinFilter != minFilter)
+    {
+      glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, minFilter);
+      minFilter = newMinFilter;
+    }
+
+    if (newMagFilter != magFilter)
+    {
+      glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, magFilter);
+      magFilter = newMagFilter;
+    }
+
+    glPopAttrib();
+  }
 }
 
 Texture* Texture::createInstance(const std::string& name,
@@ -265,6 +289,8 @@ Texture::Texture(const std::string& name):
   Managed<Texture>(name),
   textureID(0),
   textureTarget(0),
+  minFilter(0),
+  magFilter(0),
   width(0),
   height(0),
   depth(0),
@@ -284,19 +310,25 @@ bool Texture::init(const Image& image, unsigned int initFlags)
     return false;
   }
 
+  flags = initFlags;
+
   if (image.getHeight() > 1)
     textureTarget = GL_TEXTURE_2D;
   else
     textureTarget = GL_TEXTURE_1D;
 
-  Ptr<Image> result;
-  const Image* current = &image;
+  Image source = image;
+  source.flipHorizontal();
 
-  ImageFormat format = getConversionFormat(current->getFormat());
-  if (format != current->getFormat())
-    current = result = current->convertTo(format);
+  // Ensure that source image is in GL-compatible format
+  ImageFormat format = getConversionFormat(source.getFormat());
+  if (format != source.getFormat())
+  {
+    if (!source.convert(format))
+      return false;
+  }
 
-  if (initFlags & RECTANGULAR)
+  if (flags & RECTANGULAR)
   {
     // TODO: Support ARB_texture_rectangle.
 
@@ -312,56 +344,37 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxSize);
 
-    unsigned int physicalWidth = getClosestPower(current->getWidth(), maxSize);
-    unsigned int physicalHeight = getClosestPower(current->getHeight(), maxSize);
+    unsigned int physicalWidth = getClosestPower(source.getWidth(), maxSize);
+    unsigned int physicalHeight = getClosestPower(source.getHeight(), maxSize);
 
-    if (physicalWidth != current->getWidth() || physicalHeight != current->getHeight())
-    {
-      Image* scaled = new Image(current->getFormat(), physicalWidth, physicalHeight);
-
-      // TODO: Update this if support for non byte-sized channels are added.
-
-      gluScaleImage(convertFormatToGenericGL(current->getFormat()),
-                    current->getWidth(),
-		    current->getHeight(),
-		    GL_UNSIGNED_BYTE,
-		    current->getPixels(),
-		    scaled->getWidth(),
-		    scaled->getHeight(),
-		    GL_UNSIGNED_BYTE,
-		    scaled->getPixels());
-
-      current = result = scaled;
-
-      // TODO: Make this work instead.
-      //source = source->resampleTo(physicalWidth, physicalHeight);
-    }
+    if (!source.resize(physicalWidth, physicalHeight))
+      return false;
   }
 
   glPushAttrib(GL_TEXTURE_BIT);
   glGenTextures(1, &textureID);
   glBindTexture(textureTarget, textureID);
 
-  if (initFlags & MIPMAPPED)
+  if (flags & MIPMAPPED)
   {
     if (textureTarget == GL_TEXTURE_1D)
     {
       gluBuild1DMipmaps(textureTarget,
                         format.getChannelCount(),
-                        current->getWidth(),
-                        convertFormatToGenericGL(current->getFormat()),
+                        source.getWidth(),
+                        convertFormatToGenericGL(source.getFormat()),
                         GL_UNSIGNED_BYTE,
-                        current->getPixels());
+                        source.getPixels());
     }
     else
     {
       gluBuild2DMipmaps(textureTarget,
                         format.getChannelCount(),
-                        current->getWidth(),
-                        current->getHeight(),
-                        convertFormatToGenericGL(current->getFormat()),
+                        source.getWidth(),
+                        source.getHeight(),
+                        convertFormatToGenericGL(source.getFormat()),
                         GL_UNSIGNED_BYTE,
-                        current->getPixels());
+                        source.getPixels());
     }
   }
   else
@@ -370,43 +383,43 @@ bool Texture::init(const Image& image, unsigned int initFlags)
     {
       glTexImage1D(textureTarget,
                    0,
-                   convertFormatToGL(current->getFormat()),
-                   current->getWidth(),
+                   convertFormatToGL(source.getFormat()),
+                   source.getWidth(),
                    0,
-                   convertFormatToGenericGL(current->getFormat()),
+                   convertFormatToGenericGL(source.getFormat()),
                    GL_UNSIGNED_BYTE,
-                   current->getPixels());
+                   source.getPixels());
     }
     else
     {
       glTexImage2D(textureTarget,
                    0,
-                   convertFormatToGL(current->getFormat()),
-                   current->getWidth(),
-                   current->getHeight(),
+                   convertFormatToGL(source.getFormat()),
+                   source.getWidth(),
+                   source.getHeight(),
                    0,
-                   convertFormatToGenericGL(current->getFormat()),
+                   convertFormatToGenericGL(source.getFormat()),
                    GL_UNSIGNED_BYTE,
-                   current->getPixels());
+                   source.getPixels());
     }
 
     glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   }
+
+  glGetTexParameteriv(textureTarget, GL_TEXTURE_MIN_FILTER, &minFilter);
+  glGetTexParameteriv(textureTarget, GL_TEXTURE_MAG_FILTER, &magFilter);
 
   glPopAttrib();
 
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
   {
-    Log::writeWarning("Error during texture creation: %s", gluErrorString(error));
+    Log::writeError("Error during texture creation: %s", gluErrorString(error));
     return false;
   }
   
-  // "Regular" dimensions of texture object are equal to source image dimensions
   width = image.getWidth();
   height = image.getHeight();
-
-  flags = initFlags;
 
   return true;
 }

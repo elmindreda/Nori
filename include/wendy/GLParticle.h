@@ -42,7 +42,35 @@ class Particle
 public:
   Vector3 position;
   Vector3 velocity;
-  Vector3 acceleration;
+  float angle;
+  Time lifeTime;
+  Time elapsed;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class ParticleEmitter
+{
+protected:
+  virtual unsigned int update(Time deltaTime);
+  virtual void createParticle(Particle& particle,
+                              unsigned int particleIndex) = 0;
+  /*! @return The number of particles emitted per second.
+   */
+  float getEmissionRate(void) const;
+  void setEmissionRate(float newRate);
+private:
+  float rate;
+  float emitted;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class ParticleAffector
+{
+protected:
+  virtual void affectParticle(Particle& particle,
+                              unsigned int particleIndex) = 0; 
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -50,33 +78,17 @@ public:
 class ParticleSystem
 {
 public:
-  virtual ~ParticleSystem(void);
-  virtual void update(Time deltaTime);
-  virtual void render(void) const;
-  void addGravityPoint(const Vector3& point);
-  void addGravityPlane(const Plane& plane);
-  unsigned int getEmissionRate(void) const;
-  void setEmissionRate(unsigned int newRate);
+  ~ParticleSystem(void);
+  void update(Time deltaTime);
+  void render(void) const;
 protected:
   ParticleSystem(void);
   typedef std::vector<Particle> ParticleList;
+  typedef std::vector<Particle*> ActiveParticleList;
   ParticleList particles;
+  ActiveParticleList activeParticles;
 private:
   Time currentTime;
-  unsigned int rate;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class SpriteParticleSystem : public ParticleSystem
-{
-public:
-  void update(Time deltaTime);
-  void render(void) const;
-  static ParticleSystem* createInstance(unsigned int particleCount);
-private:
-  Ptr<Shader> shader;
-  Ptr<VertexBuffer> vertexBuffer;
 };
 
 ///////////////////////////////////////////////////////////////////////

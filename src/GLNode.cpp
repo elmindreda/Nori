@@ -206,10 +206,10 @@ void CameraNode::renderTree(void) const
   Canvas* canvas = Canvas::getCurrent();
 
   if (aspectRatio)
-    canvas->begin3D(aspectRatio, FOV);
+    canvas->begin3D(FOV, aspectRatio);
   else
-    canvas->begin3D((float) canvas->getPhysicalWidth() /
-                    (float) canvas->getPhysicalHeight(), FOV);
+    canvas->begin3D(FOV, (float) canvas->getPhysicalWidth() /
+                         (float) canvas->getPhysicalHeight());
 
   Transform3 worldToLocal = getWorldTransform();
   worldToLocal.invert();

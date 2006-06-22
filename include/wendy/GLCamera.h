@@ -49,10 +49,13 @@ public:
   void setAspectRatio(float newAspectRatio);
   Transform3& getTransform(void);
   const Transform3& getTransform(void) const;
+  void setTransform(const Transform3& newTransform);
+  static Camera* getCurrent(void);
 private:
   float FOV;
   float aspectRatio;
   Transform3 transform;
+  static Camera* current;
 };
 
 ///////////////////////////////////////////////////////////////////////

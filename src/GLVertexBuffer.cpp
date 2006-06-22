@@ -29,6 +29,8 @@
 #include <moira/Log.h>
 #include <moira/Point.h>
 #include <moira/Vector.h>
+#include <moira/Color.h>
+#include <moira/Image.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
@@ -241,6 +243,12 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
 			unsigned int initCount,
 			Usage initUsage)
 {
+  if (!Context::get())
+  {
+    Log::writeError("Cannot create vertex buffer without OpenGL context");
+    return false;
+  }
+
   if (GLEW_ARB_vertex_buffer_object)
   {
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);

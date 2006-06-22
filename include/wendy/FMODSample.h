@@ -54,7 +54,7 @@ private:
   Sample(void);
   bool init(const Path& path);
   bool started;
-  ByteBlock buffer;
+  Block buffer;
   FSOUND_STREAM* stream;
   int channel;
 };

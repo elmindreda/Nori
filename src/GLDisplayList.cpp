@@ -26,6 +26,8 @@
 #include <moira/Config.h>
 #include <moira/Core.h>
 #include <moira/Log.h>
+#include <moira/Color.h>
+#include <moira/Image.h>
 #include <moira/Point.h>
 
 #include <wendy/Config.h>
@@ -62,6 +64,10 @@ void DisplayList::begin(bool immediate)
 void DisplayList::end(void)
 {
   glEndList();
+  
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+    Log::writeWarning("Error during display list recording: %s", gluErrorString(error));
 }
 
 void DisplayList::execute(void)

@@ -123,13 +123,13 @@ bool Sample::init(const Path& path)
   if (!file)
     return false;
 
-  buffer.resize((unsigned int) file->getSize());
-  if (!file->readItems(buffer.getItems(), buffer.getCount()))
+  buffer.resize(file->getSize());
+  if (!file->readItems(buffer.getData(), buffer.getSize()))
     return false;
 
   file = NULL;
 
-  stream = FSOUND_Stream_Open((const char*) buffer.getItems(), FSOUND_LOADMEMORY, 0, buffer.getCount());
+  stream = FSOUND_Stream_Open((const char*) buffer.getData(), FSOUND_LOADMEMORY, 0, buffer.getSize());
   if (!stream)
   {
     Log::writeError("Unable to load music file as any known format");

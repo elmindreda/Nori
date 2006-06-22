@@ -88,7 +88,7 @@ private:
   Usage usage;
   unsigned int count;
   GLuint bufferID;
-  ByteBlock data;
+  Block data;
   static IndexBuffer* current;
 };
 

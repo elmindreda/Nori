@@ -27,12 +27,14 @@
 #include <moira/Portability.h>
 #include <moira/Core.h>
 #include <moira/Log.h>
+#include <moira/Point.h>
 #include <moira/Color.h>
 #include <moira/Vector.h>
 #include <moira/Image.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
+#include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLShader.h>
 
@@ -320,14 +322,14 @@ void ShaderPass::apply(void) const
     {
       GLenum textureTarget = texture->getTarget();
 
-      //if (textureTarget != cache.textureTarget)
-      //{
+      if (textureTarget != cache.textureTarget)
+      {
         if (cache.textureTarget)
           glDisable(cache.textureTarget);
 
         glEnable(textureTarget);
         cache.textureTarget = textureTarget;
-      //}
+      }
       
       if (data.textureName != cache.textureName)
       {
@@ -793,6 +795,12 @@ Shader::Shader(const std::string& name):
 
 bool Shader::init(void)
 {
+  if (!Context::get())
+  {
+    Log::writeError("Cannot create shader without OpenGL context");
+    return false;
+  }
+
   return true;
 }
 
