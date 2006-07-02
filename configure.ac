@@ -13,20 +13,14 @@ AC_PROG_CC
 AC_PROG_RANLIB
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
+PKG_PROG_PKG_CONFIG
 
 # Check for system header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(errno.h)
-AC_LANG_PUSH(C++)
-AC_CHECK_HEADER([moira/Moira.h], [], [AC_MSG_ERROR([Moira not found])])
-AC_LANG_POP
 AC_CHECK_HEADER([GL/glfw.h], [], [AC_MSG_ERROR([GLFW not found])])
 AC_CHECK_HEADER([GL/glew.h], [], [AC_MSG_ERROR([GLEW not found])])
 AC_CHECK_HEADER([fmod.h], [], [AC_MSG_ERROR([FMOD not found])])
-
-# Check for typedefs, structures, and compiler characteristics.
-AC_TYPE_OFF_T
-AC_TYPE_SIZE_T
 
 # Check for platform profile and set up OpenGL build flags.
 AC_MSG_CHECKING([for a suitable OpenGL profile])
@@ -45,15 +39,20 @@ case $host in
     AC_MSG_RESULT([POSIX/GLX (default)])
     AC_DEFINE([WENDY_POSIX], [1], [Build on a POSIX system.])
     AC_PATH_X
-    AC_CHECK_LIB([X11], [XCreateWindow], [], [AC_MSG_ERROR([X11 GLX not found])])-  AC_CHECK_LIB([GL], [glGetString], [], [AC_MSG_ERROR([OpenGL not found])])
+    if test "$have_x" = "no"; then
+      AC_MSG_ERROR([X11 not found])
+    fi
+    if test -n "$ac_x_includes"; then
+      CFLAGS="-I$ac_x_includes $CFLAGS"
+    fi
+    if test -n "$ac_x_libraries"; then
+      LIBS="-L$ac_x_libraries $LIBS"
+    fi
+    AC_CHECK_LIB([X11], [XCreateWindow], [], [AC_MSG_ERROR([X11 GLX not found])])
+    AC_CHECK_LIB([GL], [glGetString], [], [AC_MSG_ERROR([OpenGL not found])])
     AC_CHECK_LIB([GLU], [gluGetString], [], [AC_MSG_ERROR([GLU not found])])
     AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([POSIX threads not found])])
     AC_CHECK_LIB([Xxf86vm], [XF86VidModeQueryExtension])
-#    if test "$ac_x_includes" = no || test "$ac_x_libraries" = no; then
-#      AC_MSG_ERROR([X not found])
-#    fi
-#    CFLAGS="-I$ac_x_includes $CFLAGS"
-#    LIBS="-L$ac_x_libraries $LIBS"
     ;;
 esac
 
@@ -63,23 +62,23 @@ AC_CHECK_LIB([GLEW], [glewInit], [], [AC_MSG_ERROR([GLEW not found])])
 AC_CHECK_LIB([fmod], [FSOUND_Init], [], [AC_MSG_ERROR([FMOD not found])])
 
 # Check for moira configuration.
-AC_MSG_CHECKING([for libmoira])
-if ! which moira-config > /dev/null; then
-  AC_MSG_ERROR([moira-config not found])
-fi
-CXXFLAGS="`moira-config --cxxflags` $CXXFLAGS"
-LIBS="`moira-config --libs` $LIBS"
-AC_MSG_RESULT([yes])
+PKG_CHECK_MODULES(moira, libmoira >= 0.0.2)
+PKG_CHECK_MODULES(libsigc, sigc++-2.0 >= 2.0.0)
+
+WENDY_CFLAGS="$libsigc_CFLAGS $moira_CFLAGS"
+AC_SUBST(WENDY_CFLAGS)
+WENDY_LIBS="$libsigc_LIBS $moira_LIBS"
+AC_SUBST(WENDY_LIBS)
 
 AC_OUTPUT(
   Makefile
   build/Makefile
+  build/libwendy.pc
   docs/Makefile
   examples/Makefile
   examples/simple/Makefile
   include/Makefile
   include/wendy/Makefile
   src/Makefile
-  src/wendy-config
   tools/Makefile)
 

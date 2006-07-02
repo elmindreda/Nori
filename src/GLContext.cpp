@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy OpenGL library
-// Copyright (c) 2004 Camilla Berglund <elmindreda@home.se>
+// Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -25,7 +25,8 @@
 
 #include <moira/Config.h>
 #include <moira/Core.h>
-#include <moira/Point.h>
+#include <moira/Signal.h>
+#include <moira/Vector.h>
 #include <moira/Color.h>
 #include <moira/Image.h>
 #include <moira/Log.h>
@@ -101,34 +102,6 @@ void ContextMode::set(unsigned int newWidth,
   
 ///////////////////////////////////////////////////////////////////////
 
-void ContextObserver::onContextResize(unsigned int width, unsigned int height)
-{
-}
-
-bool ContextObserver::onContextUpdate(void)
-{
-  return true;
-}
-
-bool ContextObserver::onContextClose(void)
-{
-  return true;
-}
-
-void ContextObserver::onContextKeyEvent(Key key, bool pressed)
-{
-}
-
-void ContextObserver::onContextMouseMove(const Point2& position)
-{
-}
-
-void ContextObserver::onContextMouseClick(unsigned int button, bool clicked)
-{
-}
-
-///////////////////////////////////////////////////////////////////////
-
 Context::~Context(void)
 {
   glfwCloseWindow();
@@ -140,12 +113,7 @@ bool Context::update(void)
 {
   bool stopped = false;
 
-  const ObserverList& observers = getObservers();
-  for (ObserverList::const_iterator i = observers.begin();  i != observers.end();  i++)
-  {
-    if (!(*i)->onContextUpdate())
-      stopped = true;
-  }
+  renderSignal.emit(stopped);  
 
   glfwSwapBuffers();
 
@@ -158,7 +126,7 @@ bool Context::update(void)
   return true;
 }
 
-EntryPoint Context::findEntryPoint(const std::string& name)
+EntryPoint Context::findEntryPoint(const String& name)
 {
   return (EntryPoint) glfwGetProcAddress(name.c_str());
 }
@@ -184,7 +152,7 @@ bool Context::isButtonDown(unsigned int button) const
   return (glfwGetMouseButton(button + GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) ? true : false;
 }
 
-bool Context::hasExtension(const std::string& name) const
+bool Context::hasExtension(const String& name) const
 {
   return glfwExtensionSupported(name.c_str()) != 0;
 }
@@ -227,27 +195,64 @@ Image* Context::getColorBuffer(void) const
   return result.detachObject();
 }
 
-const std::string& Context::getTitle(void) const
+const String& Context::getTitle(void) const
 {
   return title;
 }
 
-void Context::setTitle(const std::string& newTitle)
+void Context::setTitle(const String& newTitle)
 {
   glfwSetWindowTitle(newTitle.c_str());
   title = newTitle;
 }
 
-const Point2& Context::getMousePosition(void) const
+const Vector2& Context::getCursorPosition(void) const
 {
-  static Point2 position;
-  glfwGetMousePos(&position.x, &position.y);
-  return position;
+  int x, y;
+  glfwGetMousePos(&x, &y);
+  cursorPosition.set((float) x, (float) y);
+  return cursorPosition;
 }
 
-void Context::setMousePosition(const Point2& position)
+void Context::setCursorPosition(const Vector2& newPosition)
 {
-  glfwSetMousePos(position.x, position.y);
+  cursorPosition = newPosition;
+  glfwSetMousePos((int) newPosition.x, (int) newPosition.y);
+}
+
+SignalProxy0<void> Context::getDestroySignal(void)
+{
+  return destroySignal;
+}
+
+SignalProxy1<void, bool&> Context::getRenderSignal(void)
+{
+  return renderSignal;
+}
+
+SignalProxy1<void, bool&> Context::getCloseRequestSignal(void)
+{
+  return closeRequestSignal;
+}
+
+SignalProxy2<void, unsigned int, unsigned int> Context::getResizeSignal(void)
+{
+  return resizeSignal;
+}
+
+SignalProxy2<void, Key, bool> Context::getKeyPressSignal(void)
+{
+  return keyPressSignal;
+}
+
+SignalProxy2<void, unsigned int, bool> Context::getButtonClickSignal(void)
+{
+  return buttonClickSignal;
+}
+
+SignalProxy1<void, const Vector2&> Context::getCursorMoveSignal(void)
+{
+  return cursorMoveSignal;
 }
 
 bool Context::create(const ContextMode& mode)
@@ -394,19 +399,16 @@ void GLFWCALL Context::sizeCallback(int width, int height)
   instance->mode.width = width;
   instance->mode.height = height;
 
-  const ObserverList& observers = instance->getObservers();
-  for (ObserverList::const_iterator i = observers.begin();  i != observers.end();  i++)
-    (*i)->onContextResize(width, height);
+  instance->resizeSignal.emit(width, height);
 }
 
 int GLFWCALL Context::closeCallback(void)
 {
-  const ObserverList& observers = instance->getObservers();
-  for (ObserverList::const_iterator i = observers.begin();  i != observers.end();  i++)
-  {
-    if (!(*i)->onContextClose())
-      return 0;
-  }
+  bool close = false;
+
+  instance->closeRequestSignal.emit(close);
+  if (close)
+    return 0;
 
   return 1;
 }
@@ -422,25 +424,20 @@ void GLFWCALL Context::keyboardCallback(int key, int action)
     key = (*i).second;
   }
 
-  const ObserverList& observers = instance->getObservers();
-  for (ObserverList::const_iterator i = observers.begin();  i != observers.end();  i++)
-    (*i)->onContextKeyEvent(key, (action == GLFW_PRESS) ? true : false);
+  instance->keyPressSignal.emit(key, (action == GLFW_PRESS) ? true : false);
 }
 
 void GLFWCALL Context::mousePosCallback(int x, int y)
 {
-  Point2 position(x, y);
+  Vector2 position((float) x, (float) y);
 
-  const ObserverList& observers = instance->getObservers();
-  for (ObserverList::const_iterator i = observers.begin();  i != observers.end();  i++)
-    (*i)->onContextMouseMove(position);
+  instance->cursorMoveSignal.emit(position);
 }
 
 void GLFWCALL Context::mouseButtonCallback(int button, int action)
 {
-  const ObserverList& observers = instance->getObservers();
-  for (ObserverList::const_iterator i = observers.begin();  i != observers.end();  i++)
-    (*i)->onContextMouseClick(button - GLFW_MOUSE_BUTTON_1, (action == GLFW_PRESS) ? true : false);
+  instance->buttonClickSignal.emit(button - GLFW_MOUSE_BUTTON_1,
+                                   (action == GLFW_PRESS) ? true : false); 
 }
 
 Context::KeyMap Context::internalMap;

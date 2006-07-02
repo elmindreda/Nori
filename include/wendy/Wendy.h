@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy library
-// Copyright (c) 2004 Camilla Berglund <elmindreda@home.se>
+// Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy OpenGL library
-// Copyright (c) 2004 Camilla Berglund <elmindreda@home.se>
+// Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -26,10 +26,10 @@
 #include <moira/Config.h>
 #include <moira/Portability.h>
 #include <moira/Core.h>
+#include <moira/Signal.h>
 #include <moira/Log.h>
 #include <moira/Color.h>
 #include <moira/Vector.h>
-#include <moira/Point.h>
 #include <moira/Matrix.h>
 #include <moira/Stream.h>
 #include <moira/Image.h>

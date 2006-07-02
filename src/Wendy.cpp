@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy library
-// Copyright (c) 2004 Camilla Berglund <elmindreda@home.se>
+// Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -25,7 +25,8 @@
 
 #include <moira/Config.h>
 #include <moira/Core.h>
-#include <moira/Point.h>
+#include <moira/Signal.h>
+#include <moira/Vector.h>
 #include <moira/Color.h>
 #include <moira/Image.h>
 

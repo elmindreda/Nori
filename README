@@ -1,0 +1,86 @@
+Wendy library
+=============
+
+0. Introduction
+===============
+
+Wendy is a C++ class library for the production of demos (and small games).
+For more information about demos and the demoscene, see:
+
+  http://en.wikipedia.org/wiki/Demo_%28computer_programming%29
+  http://www.catb.org/~esr/jargon/html/D/demoscene.html
+
+The project website is here:
+
+  http://www.elmindreda.org/wendy/
+
+Wendy resides in a public Subversion repository on svn.elmindreda.org.  The URL
+for anonymous, read-only access is:
+
+  svn://svn.elmindreda.org/wendy/trunk
+
+
+1. License and copyright
+========================
+
+Wendy is copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
+
+Wendy is licensed under the zlib/libpng license.  See the file `COPYING' for
+license details.  The license is also included at the top of each source file.
+
+
+2. Project news
+===============
+
+See the file `NEWS'.
+
+
+3. Building Wendy
+=================
+
+If you got this source tree from a CVS repository, you will need to bootstrap
+the build environment using `build/bootstrap.sh'.  Note that this script
+requires autoconf and automake to run.
+
+If (or once) you have a `configure' script, go ahead and run it.  No additional
+magic should be required.  If it is, then that's a bug and should be reported.
+
+Wendy depends on the following external libraries:
+
+  GLEW (http://glew.sourceforge.net/)
+  GLFW (http://glfw.sourceforge.net/)
+  Moira (http://www.elmindreda.org/moira/)
+
+
+4. Installing Wendy
+===================
+
+See the file `INSTALL'.
+
+
+5. Using Wendy
+==============
+
+Wendy is documented using the Doxygen suite.  A suitable Doxyfile is located
+in the doc/ subdirectory.
+
+
+6. Hacking Wendy
+===============
+
+Sorry, you're on your own for now.
+
+
+7. Bugs, feedback and patches
+=============================
+
+Please send bug reports, feedback, patches and cookies to:
+Camilla Berglund <elmindreda@elmindreda.org>
+
+
+9. Release history
+===================
+
+No official releases yet.
+
+

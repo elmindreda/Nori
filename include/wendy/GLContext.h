@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy OpenGL library
-// Copyright (c) 2004 Camilla Berglund <elmindreda@home.se>
+// Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -119,21 +119,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-class ContextObserver : public Observer<ContextObserver>
-{
-  friend class Context;
-protected:
-  virtual void onContextResize(unsigned int width, unsigned int height);
-  virtual bool onContextUpdate(void);
-  virtual bool onContextClose(void);
-  virtual void onContextKeyEvent(Key key, bool pressed);
-  virtual void onContextMouseMove(const Point2& position);
-  virtual void onContextMouseClick(unsigned int button, bool clicked);
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class Context : public Observable<ContextObserver>, public Singleton<Context>
+class Context : public Singleton<Context>
 {
 public:
   /*! Destructor.
@@ -146,7 +132,7 @@ public:
    *  @param name The name of the entry point.
    *  @return The address of the specified entry point, or @c NULL.
    */
-  EntryPoint findEntryPoint(const std::string& name);
+  EntryPoint findEntryPoint(const String& name);
   /*! @return @c true if the context is windowed, otherwise @c false.
    */
   bool isWindowed(void) const;
@@ -162,7 +148,7 @@ public:
    *  @param name The name of the desired extension.
    *  @return @c true if the extension is present, otherwise @c false.
    */
-  bool hasExtension(const std::string& name) const;
+  bool hasExtension(const String& name) const;
   /*! @return The width, in pixels.
    */
   unsigned int getWidth(void) const;
@@ -183,18 +169,39 @@ public:
   Image* getColorBuffer(void) const;
   /*! @return The title of the context window.
    */
-  const std::string& getTitle(void) const;
+  const String& getTitle(void) const;
   /*! Sets the title of the context window.
    *  @param newTitle The desired title.
    */
-  void setTitle(const std::string& newTitle);
+  void setTitle(const String& newTitle);
   /*! @return The current mouse position.
    */
-  const Point2& getMousePosition(void) const;
+  const Vector2& getCursorPosition(void) const;
   /*! Places the the mouse cursor at the specified position.
    *  @param position The desired mouse position.
    */
-  void setMousePosition(const Point2& newPosition);
+  void setCursorPosition(const Vector2& newPosition);
+  /*! @return The signal for destruction of this context object.
+   */
+  SignalProxy0<void> getDestroySignal(void);
+  /*! @return The signal for rendering.
+   */
+  SignalProxy1<void, bool&> getRenderSignal(void);
+  /*! @return The signal for user-initiated close requests.
+   */
+  SignalProxy1<void, bool&> getCloseRequestSignal(void);
+  /*! @return The signal for context resizing.
+   */
+  SignalProxy2<void, unsigned int, unsigned int> getResizeSignal(void);
+  /*! @return The signal for key press and release events.
+   */
+  SignalProxy2<void, Key, bool> getKeyPressSignal(void);
+  /*! @return The signal for mouse button click and release events.
+   */
+  SignalProxy2<void, unsigned int, bool> getButtonClickSignal(void);
+  /*! @return The signal for mouse cursor movement events.
+   */
+  SignalProxy1<void, const Vector2&> getCursorMoveSignal(void);
   /*! Creates the context singleton object, using the specified settings.
     *  @param mode The requested context settings.
     *  @return @c true if successful, or @c false otherwise.
@@ -209,8 +216,16 @@ private:
   static void GLFWCALL mousePosCallback(int x, int y);
   static void GLFWCALL mouseButtonCallback(int button, int action);
   typedef std::map<int, int> KeyMap;
+  Signal0<void> destroySignal;
+  Signal1<void, bool&> renderSignal;
+  Signal1<void, bool&> closeRequestSignal;
+  Signal2<void, unsigned int, unsigned int> resizeSignal;
+  Signal2<void, Key, bool> keyPressSignal;
+  Signal2<void, unsigned int, bool> buttonClickSignal;
+  Signal1<void, const Vector2&> cursorMoveSignal;
   ContextMode mode;
-  std::string title;
+  String title;
+  mutable Vector2 cursorPosition;
   static KeyMap internalMap;
   static KeyMap externalMap;
   static Context* instance;

@@ -1,0 +1,6 @@
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libwendy.pc
+
+EXTRA_DIST = libwendy.pc.in makeconfig.sh update.sh
+
