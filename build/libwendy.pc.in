@@ -7,7 +7,7 @@ Name: Wendy
 Description: C++ demo/game engine
 Version: @VERSION@
 URL: http://www.elmindreda.org/wendy/
-Requires: libsigc++-2.0 >= 2.0.0 libmoira >= 0.0.2
+Requires: libmoira >= 0.0.2
 Libs: -L${libdir} -lwendy @LIBS@
 Cflags: -I${includedir}
 

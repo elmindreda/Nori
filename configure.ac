@@ -1,5 +1,5 @@
 AC_PREREQ(2.50)
-AC_INIT([wendy], [0.0.7], [elmindreda@users.sourceforge.net])
+AC_INIT([wendy], [0.0.7], [elmindreda@elmindreda.org])
 AC_CONFIG_SRCDIR([src/Core.cpp])
 AC_CONFIG_AUX_DIR(build/autotools)
 AC_CANONICAL_HOST
@@ -20,7 +20,6 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS(errno.h)
 AC_CHECK_HEADER([GL/glfw.h], [], [AC_MSG_ERROR([GLFW not found])])
 AC_CHECK_HEADER([GL/glew.h], [], [AC_MSG_ERROR([GLEW not found])])
-AC_CHECK_HEADER([fmod.h], [], [AC_MSG_ERROR([FMOD not found])])
 
 # Check for platform profile and set up OpenGL build flags.
 AC_MSG_CHECKING([for a suitable OpenGL profile])
@@ -59,11 +58,9 @@ esac
 # Check for required GL interface libraries.
 AC_CHECK_LIB([glfw], [glfwInit], [], [AC_MSG_ERROR([GLFW not found])])
 AC_CHECK_LIB([GLEW], [glewInit], [], [AC_MSG_ERROR([GLEW not found])])
-AC_CHECK_LIB([fmod], [FSOUND_Init], [], [AC_MSG_ERROR([FMOD not found])])
 
 # Check for moira configuration.
 PKG_CHECK_MODULES(moira, libmoira >= 0.0.2)
-PKG_CHECK_MODULES(libsigc, sigc++-2.0 >= 2.0.0)
 
 WENDY_CFLAGS="$libsigc_CFLAGS $moira_CFLAGS"
 AC_SUBST(WENDY_CFLAGS)
@@ -75,8 +72,11 @@ AC_OUTPUT(
   build/Makefile
   build/libwendy.pc
   docs/Makefile
+  docs/Doxyfile
   examples/Makefile
+  examples/fonts/Makefile
   examples/simple/Makefile
+  examples/widgets/Makefile
   include/Makefile
   include/wendy/Makefile
   src/Makefile

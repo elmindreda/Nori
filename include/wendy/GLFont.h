@@ -26,6 +26,10 @@
 #define WENDY_GLFONT_H
 ///////////////////////////////////////////////////////////////////////
 
+#include <list>
+
+///////////////////////////////////////////////////////////////////////
+
 namespace wendy
 {
   namespace GL
@@ -37,26 +41,39 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class Font : public Managed<Font>
+class TextureFont : public Managed<TextureFont>
 {
 public:
-  void render(const Vector2& position, float width) const;
-  static Font* createInstance(const Face& face, const std::string& name = "");
+  void render(const Vector2& penPosition, const String& text) const;
+  const Vector2& getPenPosition(void) const;
+  void setPenPosition(const Vector2& newPosition);
+  static TextureFont* createInstance(const Path& path,
+				     const String& characters,
+			             const String& name = "");
+  static TextureFont* createInstance(const Font& font,
+                                     const String& name = "");
 private:
   class Glyph;
-  Font(const std::string& name);
-  bool init(const Face& face);
-  //Ptr<Shader> shader;
-  //Ptr<Texture> texture;
+  TextureFont(const String& name);
+  bool init(const Font& font);
+  typedef std::list<Glyph> GlyphList;
+  typedef std::map<char, Glyph*> GlyphMap;
+  Font* font;
+  GlyphList glyphs;
+  GlyphMap glyphMap;
+  Vector2 penPosition;
+  Vector2i texelPosition;
+  Ptr<Texture> texture;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-class Font::Glyph
+class TextureFont::Glyph
 {
 public:
-  Vector2 position;
-  Vector2 size;
+  void render(const Vector2& penPosition);
+  Rectangle area;
+  const Font::Glyph* glyph;
 };
 
 ///////////////////////////////////////////////////////////////////////

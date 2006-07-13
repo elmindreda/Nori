@@ -26,10 +26,6 @@
 #define WENDY_GLCONTROL_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <sigc++/sigc++.h>
-
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
   namespace GL
@@ -41,18 +37,32 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! Base class for interface widgets.
+ *  @remarks Yes, it's big. Get over it.
+ */
 class Widget : public Node<Widget>,
-               public Managed<Widget>
+               public Managed<Widget>,
+	       public Trackable
 {
-  friend class Window;
+  friend class Node<Widget>;
 public:
   Widget(const String& name = "");
   virtual ~Widget(void);
   Widget* findByPoint(const Vector2& point);
+  /*! Removes this widget from its parent.
+   *  @remarks Overridden from moira::Node.  Call this if you override it,
+   *  lest terror and destruction befall your code.
+   */
+  void removeFromParent(void);
   bool isEnabled(void) const;
   bool isVisible(void) const;
-  void setEnabled(bool newState);
-  void setVisible(bool newState);
+  bool isActive(void) const;
+  bool isUnderCursor(void) const;
+  void enable(void);
+  void disable(void);
+  void show(void);
+  void hide(void);
+  void activate(void);
   const Rectangle& getArea(void) const;
   const Rectangle& getGlobalArea(void) const;
   void setArea(const Rectangle& newArea);
@@ -66,9 +76,15 @@ public:
   SignalProxy4<void, Widget&, const Vector2&, unsigned int, bool> getButtonClickSignal(void);
   SignalProxy1<void, Widget&> getCursorEnterSignal(void);
   SignalProxy1<void, Widget&> getCursorLeaveSignal(void);
+  static Widget* getActive(void);
+  static void renderRoots(void);
 protected:
   virtual void render(void) const;
 private:
+  void addedToParent(Widget& parent);
+  static void onKeyPress(Key key, bool pressed);
+  static void onCursorMove(const Vector2& position);
+  static void onButtonClick(unsigned int button, bool clicked);
   Signal1<void, Widget&> destroySignal;
   Signal2<void, Widget&, const Rectangle&> changeAreaSignal;
   Signal2<void, Widget&, bool> changeFocusSignal;
@@ -79,8 +95,12 @@ private:
   Signal1<void, Widget&> cursorLeaveSignal;
   bool enabled;
   bool visible;
+  bool underCursor;
   Rectangle area;
   mutable Rectangle globalArea;
+  typedef std::list<Widget*> WidgetList;
+  static WidgetList roots;
+  static Widget* activeWidget;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -96,11 +116,44 @@ public:
 protected:
   void render(void) const;
 private:
-  typedef Signal2<void, Button&, const String&> ChangeTitleSignal;
-  typedef Signal1<void, Button&> PushedSignal;
-  ChangeTitleSignal changeTitleSignal;
-  PushedSignal pushedSignal;
+  void onButtonClick(Widget& widget,
+                     const Vector2& position,
+		     unsigned int button,
+		     bool clicked);
+  void onKeyPress(Widget& widget, Key key, bool pressed);
+  Signal2<void, Button&, const String&> changeTitleSignal;
+  Signal1<void, Button&> pushedSignal;
   String title;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class Slider : public Widget
+{
+public:
+  enum Orientation { HORIZONTAL, VERTICAL };
+  Slider(const String& name = "");
+  float getMinValue(void) const;
+  float getMaxValue(void) const;
+  void setValueRange(float newMinValue, float newMaxValue);
+  float getValue(void) const;
+  void setValue(float newValue);
+  Orientation getOrientation(void) const;
+  void setOrientation(Orientation newOrientation);
+  SignalProxy2<void, Slider&, float> getChangeValueSignal(void);
+protected:
+  void render(void) const;
+private:
+  void onButtonClick(Widget& widget,
+                     const Vector2& position,
+		     unsigned int button,
+		     bool clicked);
+  void onKeyPress(Widget& widget, Key key, bool pressed);
+  Signal2<void, Slider&, float> changeValueSignal;
+  float minValue;
+  float maxValue;
+  float value;
+  Orientation orientation;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -109,14 +162,8 @@ class Window : public Widget
 {
 public:
   Window(const String& name = "", const String& title = "");
-  void render(void) const;  
-  Widget& getActiveWidget(void);
-  void setActiveWidget(const Widget& child);
 private:
-  void onKeyPress(Key key, bool pressed);
-  void onCursorMove(const Vector2& position);
-  void onButtonClick(unsigned int button, bool clicked);
-  ManagedPtr<Widget> activeWidget;
+  void render(void) const;  
   String title;
 };
 

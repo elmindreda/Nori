@@ -47,18 +47,13 @@ class Texture : public Managed<Texture>
 public:
   enum
   {
-    /*! The texture keeps a copy in system memory, for fast modification.
-     *  @remarks Not currently implemented.
-     */
-    SHADOWED = 1,
     /*! The texture will be created with the original image dimensions,
-     *  if possible.
-     *  @remarks Not currently implemented.
+     *  if possible.  Note that such textures are slower when rendering.
      */
-    RECTANGULAR = 2,
+    RECTANGULAR = 1,
     /*! The texture will be created with a mipmap chain.
      */
-    MIPMAPPED = 4,
+    MIPMAPPED = 2,
     /*! The default texture creation flags.
      */
     DEFAULT = MIPMAPPED,
@@ -66,13 +61,10 @@ public:
   /*! Destructor.
    */
   ~Texture(void);
-  /*! Locks the image data of the specified mip level for modification.
-   *  @param level The desired mip level.
-   */
-  void* lock(unsigned int level = 0);
-  /*! Finishes modification of the image data.
-   */
-  void unlock(void);
+  bool copyFrom(const Image& source,
+                unsigned int x,
+		unsigned int y,
+		unsigned int level = 0);
   /*! @return The OpenGL name of this texture.
    */
   GLuint getGLID(void) const;
@@ -121,6 +113,10 @@ public:
   /*! Sets the minification and magnification filters for this texture.
    */
   void setFilters(GLint newMinFilter, GLint newMagFilter);
+  /*! @param The desired mip level.
+   *  @return The image data of the specified mip level.
+   */
+  Image* getImage(unsigned int level = 0) const;
   /*! Creates a texture from the specified image file.
    *  @param name The desired name of the texture.
    *  @param path The path of the image file to use.
@@ -153,24 +149,6 @@ private:
   unsigned int levelCount;
   unsigned int flags;
   ImageFormat format;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class TextureList
-{
-public:
-  void addTexture(Texture* texture);
-  Texture* createTexture(const std::string& name,
-                         const Path& path,
-			 unsigned int flags = 0);
-  void destroyTextures(void);
-  unsigned int getTextureCount(void) const;
-  Texture* getTexture(unsigned int index);
-  const Texture* getTexture(unsigned int index) const;
-private:
-  typedef std::vector<Texture*> EntryList;
-  EntryList textures;
 };
 
 ///////////////////////////////////////////////////////////////////////

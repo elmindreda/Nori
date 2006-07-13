@@ -186,10 +186,10 @@ public:
   SignalProxy0<void> getDestroySignal(void);
   /*! @return The signal for rendering.
    */
-  SignalProxy1<void, bool&> getRenderSignal(void);
+  SignalProxy0<bool> getRenderSignal(void);
   /*! @return The signal for user-initiated close requests.
    */
-  SignalProxy1<void, bool&> getCloseRequestSignal(void);
+  SignalProxy0<bool> getCloseRequestSignal(void);
   /*! @return The signal for context resizing.
    */
   SignalProxy2<void, unsigned int, unsigned int> getResizeSignal(void);
@@ -217,8 +217,8 @@ private:
   static void GLFWCALL mouseButtonCallback(int button, int action);
   typedef std::map<int, int> KeyMap;
   Signal0<void> destroySignal;
-  Signal1<void, bool&> renderSignal;
-  Signal1<void, bool&> closeRequestSignal;
+  Signal0<bool> renderSignal;
+  Signal0<bool> closeRequestSignal;
   Signal2<void, unsigned int, unsigned int> resizeSignal;
   Signal2<void, Key, bool> keyPressSignal;
   Signal2<void, unsigned int, bool> buttonClickSignal;

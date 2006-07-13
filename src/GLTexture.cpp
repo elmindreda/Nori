@@ -153,25 +153,70 @@ Texture::~Texture(void)
     glDeleteTextures(1, &textureID);
 }
 
-void* Texture::lock(unsigned int level)
+bool Texture::copyFrom(const Image& source,
+                       unsigned int x,
+		       unsigned int y,
+		       unsigned int level)
 {
-  // TODO: Fail if any level already locked.
+  Image final = source;
+  final.convert(format);
 
-  if (flags & SHADOWED)
+  // Moira has y-axis down, OpenGL has y-axis up
+  final.flipHorizontal();
+
+  if (textureTarget == GL_TEXTURE_1D)
   {
-    // TODO: Expose memory mipmap.
-    return NULL;
+    if (final.getDimensionCount() > 1)
+    {
+      Log::writeError("Cannot blt to texture; source image has too many dimensions");
+      return false;
+    }
+
+    glPushAttrib(GL_TEXTURE_BIT | GL_PIXEL_MODE_BIT);
+    glBindTexture(textureTarget, textureID);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    glTexSubImage1D(textureTarget,
+                    level,
+		    x,
+		    final.getWidth(),
+                    convertFormatToGenericGL(format),
+                    GL_UNSIGNED_BYTE,
+		    final.getPixels());
+
+    glPopAttrib();
   }
   else
   {
-    // TODO: Read back and expose VRAM mipmap.
-    return NULL;
-  }
-}
+    if (final.getDimensionCount() > 2)
+    {
+      Log::writeError("Cannot blt to texture; source image has too many dimensions");
+      return false;
+    }
 
-void Texture::unlock(void)
-{
-  // TODO: Update VRAM mipmap.
+    glPushAttrib(GL_TEXTURE_BIT | GL_PIXEL_MODE_BIT);
+    glBindTexture(textureTarget, textureID);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    glTexSubImage2D(textureTarget,
+                    level,
+		    x, y,
+		    final.getWidth(), final.getHeight(),
+                    convertFormatToGenericGL(final.getFormat()),
+                    GL_UNSIGNED_BYTE,
+		    final.getPixels());
+
+    glPopAttrib();
+  }
+
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+  {
+    Log::writeError("Error during texture image blt: %s", gluErrorString(error));
+    return false;
+  }
+  
+  return true;
 }
 
 GLuint Texture::getGLID(void) const
@@ -262,6 +307,42 @@ void Texture::setFilters(GLint newMinFilter, GLint newMagFilter)
   }
 }
 
+Image* Texture::getImage(unsigned int level) const
+{
+  if (getPhysicalWidth(level) == 0 || getPhysicalHeight(level) == 0)
+  {
+    Log::writeError("Cannot retrieve image for non-existent level %u", level);
+    return NULL;
+  }
+
+  Ptr<Image> result = new Image(format,
+                                getPhysicalWidth(level),
+				getPhysicalHeight(level));
+
+  glPushAttrib(GL_TEXTURE_BIT | GL_PIXEL_MODE_BIT);
+  glBindTexture(textureTarget, textureID);
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
+  glGetTexImage(textureTarget,
+                level,
+		convertFormatToGenericGL(format),
+		GL_UNSIGNED_BYTE,
+		result->getPixels());
+  
+  glPopAttrib();
+
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+  {
+    Log::writeError("Error during texture image retrieval: %s", gluErrorString(error));
+    return NULL;
+  }
+
+  result->flipHorizontal();
+
+  return result.detachObject();
+}
+
 Texture* Texture::createInstance(const std::string& name,
                                  const Path& path,
 				 unsigned int flags)
@@ -319,13 +400,15 @@ bool Texture::init(const Image& image, unsigned int initFlags)
     textureTarget = GL_TEXTURE_1D;
 
   Image source = image;
+
+  // Moira has y-axis down, OpenGL has y-axis up
   source.flipHorizontal();
 
   // Ensure that source image is in GL-compatible format
-  ImageFormat format = getConversionFormat(source.getFormat());
-  if (format != source.getFormat())
+  ImageFormat targetFormat = getConversionFormat(source.getFormat());
+  if (targetFormat != source.getFormat())
   {
-    if (!source.convert(format))
+    if (!source.convert(targetFormat))
       return false;
   }
 
@@ -345,16 +428,17 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxSize);
 
-    unsigned int physicalWidth = getClosestPower(source.getWidth(), maxSize);
-    unsigned int physicalHeight = getClosestPower(source.getHeight(), maxSize);
+    physicalWidth = getClosestPower(source.getWidth(), maxSize);
+    physicalHeight = getClosestPower(source.getHeight(), maxSize);
 
     if (!source.resize(physicalWidth, physicalHeight))
       return false;
   }
 
-  glPushAttrib(GL_TEXTURE_BIT);
+  glPushAttrib(GL_TEXTURE_BIT | GL_PIXEL_MODE_BIT);
   glGenTextures(1, &textureID);
   glBindTexture(textureTarget, textureID);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   if (flags & MIPMAPPED)
   {
@@ -421,6 +505,8 @@ bool Texture::init(const Image& image, unsigned int initFlags)
   
   width = image.getWidth();
   height = image.getHeight();
+
+  format = source.getFormat();
 
   return true;
 }

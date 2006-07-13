@@ -4,6 +4,22 @@
 using namespace moira;
 using namespace wendy;
 
+namespace
+{
+
+bool render(void)
+{
+  GL::ContextCanvas canvas;
+
+  canvas.push();
+  canvas.clearColor(ColorRGBA(1.f, 0.f, 0.f, 0.f));
+  canvas.pop();
+
+  return true;
+}
+
+}
+
 int main(int argc, char** argv)
 {
   GL::ContextMode mode;
@@ -14,13 +30,12 @@ int main(int argc, char** argv)
 
   if (GL::Context::create(mode))
   {
-    GL::Context::get()->setTitle("Simple");
+    GL::Context* context = GL::Context::get();
+    context->setTitle("Simple");
+    context->getRenderSignal().connect(render);
 
-    while (GL::Context::get()->update())
-    {
-      glClearColor(1.f, 0.f, 0.f, 0.f);
-      glClear(GL_COLOR_BUFFER_BIT);
-    }
+    while (context->update())
+      ;
 
     GL::Context::destroy();
   }

@@ -113,7 +113,19 @@ bool Context::update(void)
 {
   bool stopped = false;
 
-  renderSignal.emit(stopped);  
+  typedef std::list<bool> ResultList;
+  ResultList results;
+
+  renderSignal.emit(results);  
+
+  for (ResultList::const_iterator i = results.begin();  i != results.end();  i++)
+  {
+    if (!(*i))
+    {
+      stopped = true;
+      break;
+    }
+  }
 
   glfwSwapBuffers();
 
@@ -225,12 +237,12 @@ SignalProxy0<void> Context::getDestroySignal(void)
   return destroySignal;
 }
 
-SignalProxy1<void, bool&> Context::getRenderSignal(void)
+SignalProxy0<bool> Context::getRenderSignal(void)
 {
   return renderSignal;
 }
 
-SignalProxy1<void, bool&> Context::getCloseRequestSignal(void)
+SignalProxy0<bool> Context::getCloseRequestSignal(void)
 {
   return closeRequestSignal;
 }
@@ -404,11 +416,16 @@ void GLFWCALL Context::sizeCallback(int width, int height)
 
 int GLFWCALL Context::closeCallback(void)
 {
-  bool close = false;
+  typedef std::list<bool> ResultList;
+  ResultList results;
 
-  instance->closeRequestSignal.emit(close);
-  if (close)
-    return 0;
+  instance->closeRequestSignal.emit(results);
+
+  for (ResultList::const_iterator i = results.begin();  i != results.end();  i++)
+  {
+    if (!(*i))
+      return 0;
+  }
 
   return 1;
 }

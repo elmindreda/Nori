@@ -43,16 +43,13 @@
 #include <wendy/GLVertexBuffer.h>
 #include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
+#include <wendy/GLFont.h>
 #include <wendy/GLParticle.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLNode.h>
 #include <wendy/GLSprite.h>
+#include <wendy/GLWidget.h>
 #include <wendy/GLDemo.h>
-
-#include <wendy/FMOD.h>
-#include <wendy/FMODSample.h>
-#include <wendy/FMODSpectrum.h>
-#include <wendy/FMODSystem.h>
 
 ///////////////////////////////////////////////////////////////////////
 
