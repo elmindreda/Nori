@@ -28,7 +28,6 @@
 #include <moira/Signal.h>
 #include <moira/Vector.h>
 #include <moira/Color.h>
-#include <moira/Image.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>

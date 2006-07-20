@@ -37,21 +37,50 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! Cull mode enumeration.
+ */
 enum CullMode
 {
+  /*! Do not cull any geometry.
+   */
   CULL_NONE,
+  /*! Cull front-facing geometry (i.e. render back-facing geometry).
+   */
   CULL_FRONT = GL_FRONT,
+  /*! Cull back-facing geometry (i.e. render front-facing geometry).
+   */
   CULL_BACK = GL_BACK,
+  /*! Cull all cullable geometry (i.e. front and back faces).
+   */
   CULL_BOTH = GL_FRONT_AND_BACK,
 };
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! Render pass.
+ *  This class encapsulates most of the OpenGL rendering state, notable
+ *  exceptions being the matrix stacks and object parameters such as
+ *  those set by @c glTexParameter.  It is relatively cheap to
+ *  construct and use, even for small render batches.
+ *  @remarks If you mix Wendy rendering code with other OpenGL code
+ *  that affects rendering state, you will need to call
+ *  ShaderPass::invalidateCache as appropriate, to notify the Wendy
+ *  rendering pipeline that its state cache is dirty.
+ */
 class ShaderPass
 {
 public:
   ShaderPass(void);
+  /*! Applies the settings in this render pass to OpenGL and stores
+   *  them in the internal cache.
+   *  @remarks If the cache is dirty, all relevant OpenGL states will
+   *  be forced to known values and the cache will then be considered
+   *  clean.
+   */
   void apply(void) const;
+  /*! @return @c true if this render pass has been changed since the
+   *  last call to ShaderPass::apply, otherwise @c false.
+   */
   bool isDirty(void) const;
   bool isCulling(void) const;
   bool isBlending(void) const;
@@ -75,12 +104,15 @@ public:
   GLenum getDepthPassOperation(void) const;
   unsigned int getStencilReference(void) const;
   unsigned int getStencilMask(void) const;
+  float getShininess(void) const;
   const ColorRGBA& getDefaultColor(void) const;
   const ColorRGBA& getAmbientColor(void) const;
   const ColorRGBA& getDiffuseColor(void) const;
   const ColorRGBA& getSpecularColor(void) const;
   const ColorRGBA& getCombineColor(void) const;
-  const std::string& getTextureName(void) const;
+  const String& getTextureName(void) const;
+  const String& getVertexProgramName(void) const;
+  const String& getFragmentProgramName(void) const;
   void setLit(bool enable);
   void setSphereMapped(bool enabled);
   void setDepthTesting(bool enable);
@@ -99,13 +131,19 @@ public:
   void setPolygonMode(GLenum mode);
   void setShadeMode(GLenum mode);
   void setBlendFactors(GLenum src, GLenum dst);
+  void setShininess(float newValue);
   void setDefaultColor(const ColorRGBA& color);
   void setAmbientColor(const ColorRGBA& color);
   void setDiffuseColor(const ColorRGBA& color);
   void setSpecularColor(const ColorRGBA& color);
   void setCombineColor(const ColorRGBA& color);
-  void setTextureName(const std::string& name);
+  void setTextureName(const String& name);
+  void setVertexProgramName(const String& newName);
+  void setFragmentProgramName(const String& newName);
   void setDefaults(void);
+  /*! Flags the cache as dirty.  All states will be forced to known values
+   *  on the next call to ShaderPass::apply.
+   */
   static void invalidateCache(void);
 private:
   class Data
@@ -134,12 +172,15 @@ private:
     GLenum stencilFailed;
     GLenum depthFailed;
     GLenum depthPassed;
+    float shininess;
     ColorRGBA defaultColor;
     ColorRGBA ambientColor;
     ColorRGBA diffuseColor;
     ColorRGBA specularColor;
     ColorRGBA combineColor;
-    std::string textureName;
+    String textureName;
+    String vertexProgramName;
+    String fragmentProgramName;
     GLenum textureTarget;
   };
   void setBooleanState(GLenum state, bool value) const;
@@ -149,10 +190,15 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! Render style.
+ *  This is the highest-level render style object, encapsulating
+ *  multiple render passes, each of which controls virtually all
+ *  relevant state for a single render pass.
+ */
 class Shader : public Managed<Shader>
 {
 public:
-  virtual ~Shader(void);
+  Shader(const String& name = "");
   ShaderPass& createPass(void);
   void destroyPasses(void);
   void applyPass(unsigned int index) const;
@@ -161,10 +207,7 @@ public:
   ShaderPass& getPass(unsigned int index);
   const ShaderPass& getPass(unsigned int index) const;
   unsigned int getPassCount(void) const;
-  static Shader* createInstance(const std::string& name);
 private:
-  Shader(const std::string& name);
-  bool init(void);
   typedef std::list<ShaderPass> PassList;
   PassList passes;
 };

@@ -26,13 +26,16 @@
 #include <moira/Config.h>
 #include <moira/Portability.h>
 #include <moira/Core.h>
+#include <moira/Signal.h>
 #include <moira/Node.h>
 #include <moira/Color.h>
 #include <moira/Vector.h>
 #include <moira/Matrix.h>
 #include <moira/Quaternion.h>
 #include <moira/Transform.h>
+#include <moira/Bezier.h>
 #include <moira/Stream.h>
+#include <moira/Resource.h>
 #include <moira/Image.h>
 #include <moira/XML.h>
 #include <moira/Mesh.h>
@@ -42,12 +45,12 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLVertex.h>
-#include <wendy/GLIndexBuffer.h>
-#include <wendy/GLVertexBuffer.h>
+#include <wendy/GLBuffer.h>
 #include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
-#include <wendy/GLSprite.h>
 #include <wendy/GLRender.h>
+#include <wendy/GLSprite.h>
+#include <wendy/GLMesh.h>
 #include <wendy/GLNode.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -119,12 +122,12 @@ void SceneNode::enqueue(RenderQueue& queue) const
 
 ///////////////////////////////////////////////////////////////////////
 
-const std::string& LightNode::getLightName(void) const
+const String& LightNode::getLightName(void) const
 {
   return lightName;
 }
 
-void LightNode::setLightName(const std::string& newLightName)
+void LightNode::setLightName(const String& newLightName)
 {
   lightName = newLightName;
 }
@@ -162,12 +165,12 @@ void LightNode::enqueue(RenderQueue& queue) const
 
 ///////////////////////////////////////////////////////////////////////
 
-const std::string& MeshNode::getMeshName(void) const
+const String& MeshNode::getMeshName(void) const
 {
   return meshName;
 }
 
-void MeshNode::setMeshName(const std::string& newMeshName)
+void MeshNode::setMeshName(const String& newMeshName)
 {
   meshName = newMeshName;
 }
@@ -176,7 +179,7 @@ void MeshNode::enqueue(RenderQueue& queue) const
 {
   SceneNode::enqueue(queue);
 
-  RenderMesh* mesh = RenderMesh::findInstance(meshName);
+  Mesh* mesh = Mesh::findInstance(meshName);
   if (mesh)
     mesh->enqueue(queue, getWorldTransform());
 }
@@ -191,11 +194,7 @@ CameraNode::CameraNode(void):
 
 void CameraNode::prepareTree(void)
 {
-  SceneNode* root = this;
-  while (root->getParent())
-    root = root->getParent();
-
-  root->prepare();
+  getRoot()->prepare();
 }
 
 void CameraNode::renderTree(void) const
@@ -234,11 +233,7 @@ void CameraNode::renderTree(void) const
 
 void CameraNode::enqueueTree(RenderQueue& queue) const
 {
-  const SceneNode* root = this;
-  while (root->getParent())
-    root = root->getParent();
-
-  root->enqueue(queue);
+  getRoot()->enqueue(queue);
 }
 
 float CameraNode::getFOV(void) const
@@ -263,25 +258,40 @@ void CameraNode::setAspectRatio(float newAspectRatio)
 
 ///////////////////////////////////////////////////////////////////////
 
-const std::string& SpriteNode::getSpriteName(void) const
+const String& SpriteNode::getShaderName(void) const
 {
-  return spriteName;
+  return shaderName;
 }
 
-void SpriteNode::setSpriteName(const std::string& newSpriteName)
+void SpriteNode::setShaderName(const String& newShaderName)
 {
-  spriteName = newSpriteName;
+  shaderName = newShaderName;
+}
+
+const Vector2& SpriteNode::getSpriteSize(void) const
+{
+  return spriteSize;
+}
+
+void SpriteNode::setSpriteSize(const Vector2& newSize)
+{
+  spriteSize = newSize;
 }
 
 void SpriteNode::enqueue(RenderQueue& queue) const
 {
   SceneNode::enqueue(queue);
 
-  RenderSprite* sprite = RenderSprite::findInstance(spriteName);
-  if (!sprite)
+  Shader* shader = Shader::findInstance(shaderName);
+  if (!shader)
+  {
+    Log::writeError("Shader %s not found", shaderName.c_str());
     return;
+  }
 
-  sprite->enqueue(queue, getWorldTransform());
+  Sprite3 sprite;
+  sprite.size = spriteSize;
+  sprite.enqueue(queue, getWorldTransform(), *shader);
 }
 
 ///////////////////////////////////////////////////////////////////////

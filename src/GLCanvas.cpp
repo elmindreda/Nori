@@ -27,9 +27,9 @@
 #include <moira/Portability.h>
 #include <moira/Core.h>
 #include <moira/Signal.h>
-#include <moira/Log.h>
 #include <moira/Vector.h>
 #include <moira/Color.h>
+#include <moira/Resource.h>
 #include <moira/Image.h>
 
 #include <wendy/Config.h>
@@ -164,7 +164,7 @@ void Canvas::pop(void) const
     stack.top()->apply();
 }
 
-void Canvas::clearColor(const ColorRGBA& color)
+void Canvas::clearColorBuffer(const ColorRGBA& color)
 {
   glPushAttrib(GL_COLOR_BUFFER_BIT);
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -173,7 +173,7 @@ void Canvas::clearColor(const ColorRGBA& color)
   glPopAttrib();
 }
 
-void Canvas::clearDepth(float depth)
+void Canvas::clearDepthBuffer(float depth)
 {
   glPushAttrib(GL_DEPTH_BUFFER_BIT);
   glDepthMask(GL_TRUE);
@@ -182,7 +182,7 @@ void Canvas::clearDepth(float depth)
   glPopAttrib();
 }
 
-void Canvas::clearStencil(unsigned int value)
+void Canvas::clearStencilBuffer(unsigned int value)
 {
   glPushAttrib(GL_STENCIL_BUFFER_BIT);
   glStencilMask(GL_TRUE);
@@ -348,7 +348,7 @@ bool TextureCanvas::init(const std::string& textureName, unsigned int width, uns
   if ((width & (width - 1)) || (height & (height - 1)))
     flags |= Texture::RECTANGULAR;
 
-  texture = Texture::createInstance(textureName, image, flags);
+  texture = Texture::createInstance(image, flags, textureName);
   if (!texture)
     return false;
 

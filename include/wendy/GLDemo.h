@@ -59,12 +59,13 @@ public:
   /*! Constructor.
    *  @param name [in] The name of this effect type.
    */
-  DemoEffectType(const std::string& name);
+  DemoEffectType(const String& name);
   /*! Creates an instance of this effect type.
    *  @param name [in] The desired name of the created effect object.
    *  @return The newly created effect object, or @c NULL.
    */
-  virtual DemoEffect* createEffect(const std::string& name = "", Time duration = 0.0) = 0;
+  virtual DemoEffect* createEffect(const String& name = "",
+                                   Time duration = 0.0) = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -75,8 +76,9 @@ template <typename T>
 class DemoEffectTemplate : public DemoEffectType
 {
 public:
-  inline DemoEffectTemplate(const std::string& name);
-  inline DemoEffect* createEffect(const std::string& name = "", Time duration = 0.0);
+  inline DemoEffectTemplate(const String& name);
+  inline DemoEffect* createEffect(const String& name = "",
+                                  Time duration = 0.0);
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -85,7 +87,7 @@ class DemoEffect : public Node<DemoEffect>, public Managed<DemoEffect>
 {
   friend class Demo;
 public:
-  DemoEffect(const std::string& name = "",
+  DemoEffect(const String& name = "",
              DemoEffectType* initType = NULL,
 	     Time initDuration = 0.0);
   bool isActive(void) const;
@@ -98,7 +100,7 @@ protected:
   virtual void prepare(void) const;
   virtual void render(void) const;
   virtual void update(Time deltaTime);
-  virtual void trigger(Time moment, const std::string& name, const std::string& value);
+  virtual void trigger(Time moment, const String& name, const String& value);
   virtual void restart(void);
 private:
   DemoEffectType* type;
@@ -112,7 +114,9 @@ private:
 class NullEffect : public DemoEffect
 {
 public:
-  NullEffect(const std::string& name = "", DemoEffectType* type = NULL, Time duration = 0.0);
+  NullEffect(const String& name = "",
+             DemoEffectType* type = NULL,
+	     Time duration = 0.0);
   bool init(void);
 };
 
@@ -121,11 +125,13 @@ public:
 class ClearEffect : public DemoEffect
 {
 public:
-  ClearEffect(const std::string& name = "", DemoEffectType* type = NULL, Time duration = 0.0);
+  ClearEffect(const String& name = "",
+              DemoEffectType* type = NULL,
+	      Time duration = 0.0);
   bool init(void);
 private:
   void render(void) const;
-  void trigger(Time moment, const std::string& name, const std::string& value);
+  void trigger(Time moment, const String& name, const String& value);
   void restart(void);
   ColorRGBA color;
 };
@@ -136,14 +142,14 @@ class Demo
 {
 public:
   ~Demo(void);
-  bool addEffect(const std::string& instanceName,
-                 const std::string& typeName,
+  bool addEffect(const String& instanceName,
+                 const String& typeName,
                  Time start,
                  Time duration,
-		 const std::string& parentName = "");
-  bool addEffectEvent(const std::string& instanceName,
-		      const std::string& eventName,
-		      const std::string& eventValue,
+		 const String& parentName = "");
+  bool addEffectEvent(const String& instanceName,
+		      const String& eventName,
+		      const String& eventValue,
 		      Time moment);
   bool createContext(void);
   bool createEffectInstances(void);
@@ -151,43 +157,43 @@ public:
   void render(void) const;
   const ContextMode& getContextMode(void) const;
   void setContextMode(const ContextMode& newMode);
-  const std::string& getTitle(void) const;
+  const String& getTitle(void) const;
   Time getDuration(void) const;
   Time getTimeElapsed(void) const;
   void setTimeElapsed(Time time);
   DemoEffect* getRootEffect(void);
-  static Demo* createInstance(const std::string& title);
+  static Demo* createInstance(const String& title);
   static Demo* createInstance(const Path& path);
 private:
   class Event
   {
   public:
-    std::string name;
-    std::string value;
+    String name;
+    String value;
     Time moment;
   };
   class Effect : public Node<Effect>
   {
   public:
     typedef std::vector<Event> EventList;
-    std::string instanceName;
-    std::string typeName;
+    String instanceName;
+    String typeName;
     Time start;
     Time duration;
     Ptr<DemoEffect> instance;
     EventList events;
   };
-  typedef std::map<std::string, Effect*> EffectMap;
-  Demo(const std::string& initTitle);
+  typedef std::map<String, Effect*> EffectMap;
+  Demo(const String& initTitle);
   bool init(void);
-  Effect* findEffect(const std::string& name);
+  Effect* findEffect(const String& name);
   void updateEffect(Effect& effect, Time newTime);
   bool createEffectInstance(Effect& effect);
   void destroyEffectInstance(Effect& effect);
   Effect rootEffect;
   EffectMap effectMap;
   ContextMode contextMode;
-  std::string title;
+  String title;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -198,10 +204,10 @@ public:
   Demo* read(const Path& path);
   Demo* read(Stream& stream);
 private:
-  bool beginElement(const std::string& name, const AttributeMap& attributes);
-  bool endElement(const std::string& name);
+  bool beginElement(const String& name);
+  bool endElement(const String& name);
   Ptr<Demo> demo;
-  std::stack<std::string> effectNameStack;
+  std::stack<String> effectNameStack;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -216,13 +222,13 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 template <typename T>
-inline DemoEffectTemplate<T>::DemoEffectTemplate(const std::string& name):
+inline DemoEffectTemplate<T>::DemoEffectTemplate(const String& name):
   DemoEffectType(name)
 {
 }
 
 template <typename T>
-inline DemoEffect* DemoEffectTemplate<T>::createEffect(const std::string& name, Time duration)
+inline DemoEffect* DemoEffectTemplate<T>::createEffect(const String& name, Time duration)
 {
   Ptr<T> effect = new T(name, this, duration);
   if (!effect->init())

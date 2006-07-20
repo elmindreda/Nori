@@ -26,7 +26,6 @@
 #define WENDY_GLCANVAS_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <list>
 #include <stack>
 
 ///////////////////////////////////////////////////////////////////////
@@ -46,6 +45,12 @@ class Texture;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! Rendering canvas.
+ *  A canvas is what other renderers call a render target, plus a
+ *  viewport within that render target, and a projection matrix.
+ *  @remarks Most higher-level objects capable of rendering wont work
+ *  without an active canvas on the canvas stack.
+ */
 class Canvas
 {
 public:
@@ -59,9 +64,9 @@ public:
 	       float nearZ = 0.01f,
 	       float farZ = 1000.f) const;
   void end(void) const;
-  virtual void clearColor(const ColorRGBA& color = ColorRGBA::BLACK);
-  virtual void clearDepth(float depth = 1.f);
-  virtual void clearStencil(unsigned int value = 0);
+  virtual void clearColorBuffer(const ColorRGBA& color = ColorRGBA::BLACK);
+  virtual void clearDepthBuffer(float depth = 1.f);
+  virtual void clearStencilBuffer(unsigned int value = 0);
   virtual unsigned int getPhysicalWidth(void) const = 0;
   virtual unsigned int getPhysicalHeight(void) const = 0;
   const Vector2& getAreaPosition(void) const;

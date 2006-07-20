@@ -25,17 +25,18 @@
 
 #include <moira/Config.h>
 #include <moira/Portability.h>
-#include <moira/Signal.h>
 #include <moira/Core.h>
-#include <moira/Log.h>
+#include <moira/Signal.h>
 #include <moira/Color.h>
 #include <moira/Vector.h>
+#include <moira/Resource.h>
 #include <moira/Image.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLProgram.h>
 #include <wendy/GLShader.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -98,8 +99,16 @@ void ShaderPass::apply(void) const
     glLineWidth(data.lineWidth);
 
     glDepthMask(data.depthWriting ? GL_TRUE : GL_FALSE);
-    glDepthFunc(data.depthFunction);
     setBooleanState(GL_DEPTH_TEST, data.depthTesting || data.depthWriting);
+
+    if (data.depthWriting && !data.depthTesting)
+    {
+      GLenum depthFunction = GL_ALWAYS;
+      glDepthFunc(depthFunction);
+      cache.depthFunction = depthFunction;
+    }
+    else
+      glDepthFunc(data.depthFunction);
 
     setBooleanState(GL_STENCIL_TEST, data.stencilTesting);
     glStencilFunc(data.stencilFunction, data.stencilRef, data.stencilMask);
@@ -109,6 +118,7 @@ void ShaderPass::apply(void) const
     glMaterialfv(inverseCullMode, GL_AMBIENT, data.ambientColor);
     glMaterialfv(inverseCullMode, GL_DIFFUSE, data.diffuseColor);
     glMaterialfv(inverseCullMode, GL_SPECULAR, data.specularColor);
+    glMaterialf(inverseCullMode, GL_SHININESS, data.shininess);
 
     glDisable(GL_TEXTURE_1D);
     glDisable(GL_TEXTURE_2D);
@@ -134,6 +144,54 @@ void ShaderPass::apply(void) const
 
         cache.textureTarget = textureTarget;
       }
+      else
+	Log::writeError("Render pass uses non-existent texture %s", data.textureName.c_str());
+    }
+
+    if (GLEW_ARB_vertex_program)
+    {
+      if (data.vertexProgramName.empty())
+	glDisable(GL_VERTEX_PROGRAM_ARB);
+      else
+      {
+	VertexProgram* program = VertexProgram::findInstance(data.vertexProgramName);
+	if (program)
+	{
+	  glEnable(GL_VERTEX_PROGRAM_ARB);
+	  glBindProgramARB(GL_VERTEX_PROGRAM_ARB, program->getGLID());
+	}
+	else
+	  Log::writeError("Render pass uses non-existent vertex program %s",
+	                  data.vertexProgramName.c_str());
+      }
+    }
+    else
+    {
+      if (!data.vertexProgramName.empty())
+	Log::writeError("Vertex programs are not supported by the current OpenGL context");
+    }
+
+    if (GLEW_ARB_fragment_program)
+    {
+      if (data.fragmentProgramName.empty())
+	glDisable(GL_FRAGMENT_PROGRAM_ARB);
+      else
+      {
+	FragmentProgram* program = FragmentProgram::findInstance(data.fragmentProgramName);
+	if (program)
+	{
+	  glEnable(GL_FRAGMENT_PROGRAM_ARB);
+	  glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, program->getGLID());
+	}
+	else
+	  Log::writeError("Render pass uses non-existent fragment program %s",
+	                  data.fragmentProgramName.c_str());
+      }
+    }
+    else
+    {
+      if (!data.fragmentProgramName.empty())
+	Log::writeError("Fragment programs are not supported by the current OpenGL context");
     }
 
     GLenum error = glGetError();
@@ -214,13 +272,11 @@ void ShaderPass::apply(void) const
       if (cache.depthFunction != depthFunction)
       {
         glDepthFunc(depthFunction);
-        cache.depthFunction = data.depthFunction;
+        cache.depthFunction = depthFunction;
       }
     }
   }
   
-  // TODO: Debug write only state.
-
   if (data.depthTesting || data.depthWriting)
   {
     if (!(cache.depthTesting || cache.depthWriting))
@@ -294,13 +350,19 @@ void ShaderPass::apply(void) const
       glMaterialfv(inverseCullMode, GL_SPECULAR, data.specularColor);
       cache.specularColor = data.specularColor;
     }
+
+    if (data.shininess != cache.shininess)
+    {
+      glMaterialf(inverseCullMode, GL_SHININESS, data.shininess);
+      cache.shininess = data.shininess;
+    }
   }
 
   if (!data.lighting)
   {
-    // NOTE: For compatibility reasons, we do not trust the cached color.
-    //       Since we always overwrite this value, there is also no
-    //       need to check whether the cache is dirty.
+    // For compatibility reasons, we do not trust the cached color.
+    // Since we always overwrite this value, there is no need to
+    // check whether the cache is dirty.
     
     glColor4fv(data.defaultColor);
     cache.defaultColor = data.defaultColor;
@@ -368,6 +430,80 @@ void ShaderPass::apply(void) const
         cache.sphereMapped = data.sphereMapped;
       }
     }
+    else
+      Log::writeError("Render pass uses non-existent texture %s", data.textureName.c_str());
+  }
+
+  if (GLEW_ARB_vertex_program)
+  {
+    if (data.vertexProgramName.empty())
+    {
+      if (!cache.vertexProgramName.empty())
+	glDisable(GL_VERTEX_PROGRAM_ARB);
+
+      cache.vertexProgramName.clear();
+    }
+    else
+    {
+      VertexProgram* program = VertexProgram::findInstance(data.vertexProgramName);
+      if (program)
+      {
+	if (cache.vertexProgramName.empty())
+	  glEnable(GL_VERTEX_PROGRAM_ARB);
+
+	// Since the vertex program object cannot push its binding in any
+	// resonable fashion, it must force the binding when creating and
+	// changing parameters on a program object.  Hence we cannot trust
+	// the state cache's program name to be valid between calls.  Thus
+	// we always force the binding to the correct value.
+	glBindProgramARB(GL_VERTEX_PROGRAM_ARB, program->getGLID());
+	cache.vertexProgramName = data.vertexProgramName;
+      }
+      else
+	Log::writeError("Render pass uses non-existent vertex program %s",
+	                data.vertexProgramName.c_str());
+    }
+  }
+  else
+  {
+    if (!data.vertexProgramName.empty())
+      Log::writeError("Vertex programs are not supported by the current OpenGL context");
+  }
+
+  if (GLEW_ARB_fragment_program)
+  {
+    if (data.fragmentProgramName.empty())
+    {
+      if (!cache.fragmentProgramName.empty())
+	glDisable(GL_FRAGMENT_PROGRAM_ARB);
+
+      cache.fragmentProgramName.clear();
+    }
+    else
+    {
+      FragmentProgram* program = FragmentProgram::findInstance(data.fragmentProgramName);
+      if (program)
+      {
+	if (cache.fragmentProgramName.empty())
+	  glEnable(GL_FRAGMENT_PROGRAM_ARB);
+
+	// Since the fragment program object cannot push its binding in any
+	// resonable fashion, it must force the binding when creating and
+	// changing parameters on a program object.  Hence we cannot trust
+	// the state cache's program name to be valid between calls.  Thus
+	// we always force the binding to the correct value.
+	glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, program->getGLID());
+	cache.fragmentProgramName = data.fragmentProgramName;
+      }
+      else
+	Log::writeError("Render pass uses non-existent fragment program %s",
+	                data.fragmentProgramName.c_str());
+    }
+  }
+  else
+  {
+    if (!data.fragmentProgramName.empty())
+      Log::writeError("Fragment programs are not supported by the current OpenGL context");
   }
 
   GLenum error = glGetError();
@@ -492,6 +628,11 @@ unsigned int ShaderPass::getStencilMask(void) const
   return data.stencilMask;
 }
 
+float ShaderPass::getShininess(void) const
+{
+  return data.shininess;
+}
+
 const ColorRGBA& ShaderPass::getDefaultColor(void) const
 {
   return data.defaultColor;
@@ -517,9 +658,19 @@ const ColorRGBA& ShaderPass::getCombineColor(void) const
   return data.combineColor;
 }
 
-const std::string& ShaderPass::getTextureName(void) const
+const String& ShaderPass::getTextureName(void) const
 {
   return data.textureName;
+}
+
+const String& ShaderPass::getVertexProgramName(void) const
+{
+  return data.vertexProgramName;
+}
+
+const String& ShaderPass::getFragmentProgramName(void) const
+{
+  return data.fragmentProgramName;
 }
 
 void ShaderPass::setSphereMapped(bool enabled)
@@ -624,6 +775,12 @@ void ShaderPass::setStencilOperations(GLenum stencilFailed,
   data.dirty = true;
 }
 
+void ShaderPass::setShininess(float newValue)
+{
+  data.shininess = newValue;
+  data.dirty = true;
+}
+
 void ShaderPass::setDefaultColor(const ColorRGBA& color)
 {
   data.defaultColor = color;
@@ -654,9 +811,21 @@ void ShaderPass::setCombineColor(const ColorRGBA& color)
   data.dirty = true;
 }
 
-void ShaderPass::setTextureName(const std::string& name)
+void ShaderPass::setTextureName(const String& name)
 {
   data.textureName = name;
+  data.dirty = true;
+}
+
+void ShaderPass::setVertexProgramName(const String& name)
+{
+  data.vertexProgramName = name;
+  data.dirty = true;
+}
+
+void ShaderPass::setFragmentProgramName(const String& name)
+{
+  data.fragmentProgramName = name;
   data.dirty = true;
 }
 
@@ -710,18 +879,22 @@ void ShaderPass::Data::setDefaults(void)
   stencilFailed = GL_KEEP;
   depthFailed = GL_KEEP;
   depthPassed = GL_KEEP;
+  shininess = 0.f;
   defaultColor.set(1.f, 1.f, 1.f, 1.f);
   ambientColor.set(0.f, 0.f, 0.f, 1.f);
   diffuseColor.set(1.f, 1.f, 1.f, 1.f);
   specularColor.set(1.f, 1.f, 1.f, 1.f);
   combineColor.set(1.f, 1.f, 1.f, 1.f);
-  textureName = "";
+  textureName.clear();
+  vertexProgramName.clear();
+  fragmentProgramName.clear();
   textureTarget = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-Shader::~Shader(void)
+Shader::Shader(const String& name):
+  Managed<Shader>(name)
 {
 }
 
@@ -777,31 +950,6 @@ const ShaderPass& Shader::getPass(unsigned int index) const
 unsigned int Shader::getPassCount(void) const
 {
   return (unsigned int) passes.size();
-}
-
-Shader* Shader::createInstance(const std::string& name)
-{
-  Ptr<Shader> shader = new Shader(name);
-  if (!shader->init())
-    return NULL;
-
-  return shader.detachObject();
-}
-
-Shader::Shader(const std::string& name):
-  Managed<Shader>(name)
-{
-}
-
-bool Shader::init(void)
-{
-  if (!Context::get())
-  {
-    Log::writeError("Cannot create shader without OpenGL context");
-    return false;
-  }
-
-  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////

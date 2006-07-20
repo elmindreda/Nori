@@ -39,13 +39,14 @@
 #include <wendy/GLCamera.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLDisplayList.h>
-#include <wendy/GLIndexBuffer.h>
-#include <wendy/GLVertexBuffer.h>
+#include <wendy/GLBuffer.h>
+#include <wendy/GLProgram.h>
 #include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLFont.h>
-#include <wendy/GLParticle.h>
 #include <wendy/GLRender.h>
+#include <wendy/GLParticle.h>
+#include <wendy/GLMesh.h>
 #include <wendy/GLNode.h>
 #include <wendy/GLSprite.h>
 #include <wendy/GLWidget.h>

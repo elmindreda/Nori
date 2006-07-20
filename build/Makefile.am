@@ -2,5 +2,5 @@
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libwendy.pc
 
-EXTRA_DIST = libwendy.pc.in makeconfig.sh update.sh
+EXTRA_DIST = bundle.sh libwendy.pc.in makeconfig.sh update.sh
 

@@ -27,12 +27,12 @@
 #include <moira/Portability.h>
 #include <moira/Core.h>
 #include <moira/Signal.h>
-#include <moira/Log.h>
 #include <moira/Color.h>
 #include <moira/Vector.h>
 #include <moira/Matrix.h>
+#include <moira/Rectangle.h>
+#include <moira/Bezier.h>
 #include <moira/Stream.h>
-#include <moira/Image.h>
 #include <moira/XML.h>
 #include <moira/Mesh.h>
 
@@ -42,9 +42,7 @@
 #include <wendy/GLShader.h>
 #include <wendy/GLLight.h>
 #include <wendy/GLVertex.h>
-#include <wendy/GLIndexBuffer.h>
-#include <wendy/GLVertexBuffer.h>
-#include <wendy/GLSprite.h>
+#include <wendy/GLBuffer.h>
 #include <wendy/GLRender.h>
 
 #include <algorithm>
@@ -62,10 +60,29 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+namespace
+{
+
+// OMGWTFBBQ!!1!
+
+inline unsigned int max(unsigned int x, unsigned int y)
+{
+  if (x > y)
+    return x;
+  else
+    return y;
+}
+
+}
+
+///////////////////////////////////////////////////////////////////////
+
 RenderOperation::RenderOperation(void):
   vertexBuffer(NULL),
   indexBuffer(NULL),
-  shader(NULL)
+  shader(NULL),
+  start(0),
+  count(0)
 {
 }
 
@@ -121,9 +138,9 @@ void RenderQueue::renderOperations(void)
       (*i).shader->applyPass(pass);
 
       if ((*i).indexBuffer)
-        (*i).indexBuffer->render((*i).renderMode);
+        (*i).indexBuffer->render((*i).renderMode, (*i).start, (*i).count);
       else
-        (*i).vertexBuffer->render((*i).renderMode);
+        (*i).vertexBuffer->render((*i).renderMode, (*i).start, (*i).count);
     }
 
     glPushAttrib(GL_TRANSFORM_BIT);
@@ -157,263 +174,304 @@ void RenderQueue::sortOperations(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-RenderMesh::~RenderMesh(void)
+bool Renderer::allocateIndices(IndexBufferRange& range,
+		               unsigned int count,
+                               IndexBuffer::Type type)
 {
-  while (indexBuffers.size())
+  IndexBufferSlot* slot = NULL;
+
+  for (IndexBufferList::iterator i = indexBuffers.begin();  i != indexBuffers.end();  i++)
   {
-    delete indexBuffers.back();
-    indexBuffers.pop_back();
-  }
-}
-
-void RenderMesh::enqueue(RenderQueue& queue, const Matrix4& transform) const
-{
-  for (GeometryList::const_iterator i = geometries.begin();  i != geometries.end();  i++)
-  {
-    Shader* shader = Shader::findInstance((*i).shaderName);
-    if (!shader)
+    if ((*i).indexBuffer->getType() == type && (*i).available >= count)
     {
-      Log::writeWarning("Shader %s not found", (*i).shaderName.c_str());
-      return;
-    }
-
-    RenderOperation operation;
-    operation.vertexBuffer = vertexBuffer;
-    operation.indexBuffer = (*i).indexBuffer;
-    operation.renderMode = (*i).renderMode;
-    operation.transform = transform;
-    operation.shader = shader;
-    queue.addOperation(operation);
-  }
-}
-
-void RenderMesh::render(void) const
-{
-  vertexBuffer->apply();
-
-  for (GeometryList::const_iterator i = geometries.begin();  i != geometries.end();  i++)
-  {
-    const Geometry& geometry = *i;
-
-    Shader* shader = Shader::findInstance(geometry.shaderName);
-    if (!shader)
-    {
-      Log::writeWarning("Shader %s not found", (*i).shaderName.c_str());
-      return;
-    }
-
-    for (unsigned int pass = 0;  pass < shader->getPassCount();  pass++)
-    {
-      shader->applyPass(pass);
-
-      geometry.indexBuffer->apply();
-      geometry.indexBuffer->render(geometry.renderMode);
+      slot = &(*i);
+      break;
     }
   }
+
+  if (!slot)
+  {
+    indexBuffers.push_back(IndexBufferSlot());
+    slot = &(indexBuffers.back());
+
+    slot->indexBuffer = IndexBuffer::createInstance(max(1024, count),
+                                                    type,
+						    IndexBuffer::DYNAMIC);
+    if (!slot->indexBuffer)
+    {
+      indexBuffers.pop_back();
+      return false;
+    }
+
+    slot->available = slot->indexBuffer->getCount();
+  }
+
+  range = IndexBufferRange(*(slot->indexBuffer), 
+			   slot->indexBuffer->getCount() - slot->available,
+                           count);
+
+  slot->available -= count;
+  return true;
 }
 
-RenderMesh::GeometryList& RenderMesh::getGeometries(void)
+bool Renderer::allocateVertices(VertexBufferRange& range,
+				unsigned int count,
+				const VertexFormat& format)
 {
-  return geometries;
+  VertexBufferSlot* slot = NULL;
+
+  for (VertexBufferList::iterator i = vertexBuffers.begin();  i != vertexBuffers.end();  i++)
+  {
+    if ((*i).vertexBuffer->getFormat() == format && (*i).available >= count)
+    {
+      slot = &(*i);
+      break;
+    }
+  }
+
+  if (!slot)
+  {
+    vertexBuffers.push_back(VertexBufferSlot());
+    slot = &(vertexBuffers.back());
+
+    slot->vertexBuffer = VertexBuffer::createInstance(max(1024, count),
+                                                      format,
+						      VertexBuffer::DYNAMIC);
+    if (!slot->vertexBuffer)
+    {
+      vertexBuffers.pop_back();
+      return false;
+    }
+
+    slot->available = slot->vertexBuffer->getCount();
+  }
+
+  range = VertexBufferRange(*(slot->vertexBuffer), 
+			    slot->vertexBuffer->getCount() - slot->available,
+                            count);
+
+  slot->available -= count;
+  return true;
 }
 
-VertexBuffer* RenderMesh::getVertexBuffer(void)
+bool Renderer::create(void)
 {
-  return vertexBuffer;
+  Ptr<Renderer> renderer = new Renderer();
+  if (!renderer->init())
+    return false;
+
+  set(renderer.detachObject());
+  return true;
 }
 
-RenderMesh* RenderMesh::createInstance(const Path& path, const std::string& name)
-{
-  MeshReader reader;
-  Ptr<Mesh> mesh = reader.read(path);
-  if (!mesh)
-    return NULL;
-
-  return createInstance(*mesh, name);
-}
-
-RenderMesh* RenderMesh::createInstance(const Mesh& mesh, const std::string& name)
-{
-  Ptr<RenderMesh> renderMesh = new RenderMesh(name.empty() ? mesh.getName() : name);
-  if (!renderMesh->init(mesh))
-    return NULL;
-
-  return renderMesh.detachObject();
-}
-
-RenderMesh::RenderMesh(const std::string& name):
-  Managed<RenderMesh>(name)
+Renderer::Renderer(void)
 {
 }
 
-bool RenderMesh::init(const Mesh& mesh)
+bool Renderer::init(void)
 {
   if (!Context::get())
   {
-    Log::writeError("Cannot create render mesh without OpenGL context");
+    Log::writeError("Cannot create renderer without OpenGL context");
     return false;
   }
 
-  VertexFormat format;
-
-  if (!format.addComponents("3fv3fn"))
-    return false;
-
-  std::string vertexBufferName;
-  vertexBufferName.append("mesh:");
-  vertexBufferName.append(getName());
-
-  vertexBuffer = VertexBuffer::createInstance(vertexBufferName, (unsigned int) mesh.vertices.size(), format);
-  if (!vertexBuffer)
-    return false;
-
-  MeshVertex* vertices = reinterpret_cast<MeshVertex*>(vertexBuffer->lock());
-  if (!vertices)
-    return false;
-
-  for (Mesh::VertexList::const_iterator i = mesh.vertices.begin();  i != mesh.vertices.end();  i++)
-    *vertices++ = *i;
-
-  vertexBuffer->unlock();
-
-  for (Mesh::GeometryList::const_iterator i = mesh.geometries.begin();  i != mesh.geometries.end();  i++)
-  {
-    geometries.push_back(Geometry());
-    Geometry& geometry = geometries.back();
-
-    geometry.shaderName = (*i).shaderName;
-    geometry.renderMode = GL_TRIANGLES;
-
-    std::string indexBufferName;
-    indexBufferName.append("mesh:");
-    indexBufferName.append(getName());
-    indexBufferName.append("/");
-    indexBufferName.append(geometry.shaderName);
-
-    geometry.indexBuffer = IndexBuffer::createInstance(indexBufferName, (unsigned int) (*i).triangles.size() * 3, IndexBuffer::UINT);
-    if (!geometry.indexBuffer)
-      return false;
-
-    indexBuffers.push_back(geometry.indexBuffer);
-
-    unsigned int* indices = reinterpret_cast<unsigned int*>(geometry.indexBuffer->lock());
-    if (!indices)
-      return false;
-
-    for (MeshGeometry::TriangleList::const_iterator j = (*i).triangles.begin();  j != (*i).triangles.end();  j++)
-    {
-      *indices++ = (*j).indices[0];
-      *indices++ = (*j).indices[1];
-      *indices++ = (*j).indices[2];
-    }
-
-    geometry.indexBuffer->unlock();
-  }
+  Context::get()->getFinishSignal().connect(*this, &Renderer::onFinish);
 
   return true;
+}
+
+void Renderer::onFinish(void)
+{
+  for (IndexBufferList::iterator i = indexBuffers.begin();  i != indexBuffers.end();  i++)
+    (*i).available = (*i).indexBuffer->getCount();
+
+  for (VertexBufferList::iterator i = vertexBuffers.begin();  i != vertexBuffers.end();  i++)
+    (*i).available = (*i).vertexBuffer->getCount();
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-RenderSprite::~RenderSprite(void)
+/*
+void Renderer::begin(void)
 {
+  stack.push(Context());
+
+  Context& context = getContext();
+  context.strokePass.setPolygonMode(GL_LINE);
 }
 
-void RenderSprite::enqueue(RenderQueue& queue, const Matrix4& transform) const
+void Renderer::end(void)
 {
-  Shader* shader = Shader::findInstance(shaderName);
-  if (!shader)
-  {
-    Log::writeWarning("Shader %s not found", shaderName.c_str());
-    return;
-  }
+  if (stack.empty())
+    throw Exception("Renderer context stack is empty");
 
-  RenderOperation operation;
-  operation.vertexBuffer = vertexBuffer;
-  operation.renderMode = GL_QUADS;
-  operation.transform = transform;
-  operation.shader = shader;
-  queue.addOperation(operation);
+  stack.pop();
 }
 
-void RenderSprite::render(void) const
+void Renderer::drawLine(const Vector2& start, const Vector2& end) const
 {
-  Shader* shader = Shader::findInstance(shaderName);
-  if (!shader)
-  {
-    Log::writeWarning("Shader %s not found", shaderName.c_str());
-    return;
-  }
+  Context& context = getContext();
 
-  vertexBuffer->apply();
-
-  for (unsigned int pass = 0;  pass < shader->getPassCount();  pass++)
+  if (context.stroking)
   {
-    shader->applyPass(pass);
-    vertexBuffer->render(GL_QUADS);
+    context.strokePass.apply();
+
+    glBegin(GL_LINES);
+    glVertex2fv(start);
+    glVertex2fv(end);
+    glEnd();
   }
 }
 
-VertexBuffer* RenderSprite::getVertexBuffer(void)
-{
-  return vertexBuffer;
-}
-
-const std::string& RenderSprite::getShaderName(void) const
-{
-  return shaderName;
-}
-
-void RenderSprite::setShaderName(const std::string& newShaderName)
-{
-  shaderName = newShaderName;
-}
-
-const Vector2& RenderSprite::getSpriteSize(void) const
-{
-  return spriteSize;
-}
-
-void RenderSprite::setSpriteSize(const Vector2& newSize)
-{
-  Vertex2ft3fv* vertices = (Vertex2ft3fv*) vertexBuffer->lock();
-  if (!vertices)
-    return;
-
-  Sprite3 sprite;
-  sprite.size = newSize;
-  sprite.realizeVertices(vertices);
-
-  vertexBuffer->unlock();
-
-  spriteSize = newSize;
-}
-
-RenderSprite* RenderSprite::createInstance(const std::string& name)
-{
-  Ptr<RenderSprite> sprite = new RenderSprite(name);
-  if (!sprite->init())
-    return NULL;
-
-  return sprite.detachObject();
-}
-
-RenderSprite::RenderSprite(const std::string& name):
-  Managed<RenderSprite>(name)
+void Renderer::drawCircle(const Vector2& center, float radius) const
 {
 }
 
-bool RenderSprite::init(void)
+void Renderer::drawBezier(const BezierCurve2& curve) const
 {
-  // TODO: Make a vertex buffer pool (credits to ryg).
+  BezierCurve2::PointList points;
+  curve.tesselate(points, 0.5f);
 
-  vertexBuffer = VertexBuffer::createInstance("", 4, Vertex2ft3fv::format, VertexBuffer::DYNAMIC);
-  if (!vertexBuffer)
+  if (context.stroking)
+  {
+    context.strokePass.apply();
+
+    glBegin(GL_LINE_STRIP);
+    for (BezierCurve2::PointList::const_iterator p = points.begin();  p != points.end();  p++)
+      glVertex2fv(*p);
+    glEnd();
+  }
+}
+
+void Renderer::drawRectangle(const Rectangle& rectangle) const
+{
+  Context& context = getContext();
+  
+  if (context.filling)
+  {
+    context.fillPass.apply();
+    glRectf(rectangle.position.x,
+            rectangle.position.y,
+	    rectangle.position.x + rectangle.size.x,
+	    rectangle.position.y + rectangle.size.y);
+  }
+
+  if (context.stroking)
+  {
+    context.strokePass.apply();
+    glRectf(rectangle.position.x,
+            rectangle.position.y,
+	    rectangle.position.x + rectangle.size.x,
+	    rectangle.position.y + rectangle.size.y);
+  }
+}
+
+bool Renderer::isStroking(void) const
+{
+  return getContext().stroking;
+}
+
+void Renderer::setStroking(bool newState)
+{
+  Context& context = getContext();
+  context.stroking = newState;
+}
+
+bool Renderer::isFilling(void) const
+{
+  return getContext().filling;
+}
+
+void Renderer::setFilling(bool newState)
+{
+  Context& context = getContext();
+  context.filling = newState;
+}
+
+const ColorRGBA& Renderer::getStrokeColor(void) const
+{
+  return getContext().strokePass.getDefaultColor();
+}
+
+void Renderer::setStrokeColor(const ColorRGBA& newColor)
+{
+  Context& context = getContext();
+  context.strokePass.setDefaultColor(newColor);
+}
+
+const ColorRGBA& Renderer::getFillColor(void) const
+{
+  return getContext().fillPass.getDefaultColor();
+}
+
+void Renderer::setFillColor(const ColorRGBA& newColor)
+{
+  Context& context = getContext();
+  context.fillPass.setDefaultColor(newColor);
+}
+
+float Renderer::getStrokeWidth(void) const
+{
+  return getContext().strokePass.getLineWidth() / getLineScale();
+}
+
+void Renderer::setStrokeWidth(float newWidth)
+{
+  Context& context = getContext();
+  context.strokePass.setLineWidth(newWidth() * getLineScale());
+}
+
+bool Renderer::create(void)
+{
+  Ptr<Renderer> renderer = new Renderer();
+  if (!renderer->init())
     return false;
 
-  setSpriteSize(Vector2(1.f, 1.f));
+  set(renderer.detachObject());
   return true;
 }
+
+Renderer::Renderer(void)
+{
+}
+
+bool Renderer::init(void)
+{
+  return true;
+}
+
+float Renderer::getLineScale(void) const
+{
+  Canvas* Canvas::getCurrent();
+
+  return (float) canvas->getPhysicalHeight() / (float) canvas->getHeight();
+}
+
+ShaderPass& Renderer::getContext(void)
+{
+  if (stack.empty())
+    throw Exception("Renderer context stack empty");
+
+  return stack.top();
+}
+
+const ShaderPass& Renderer::getContext(void) const
+{
+  if (stack.empty())
+    throw Exception("Renderer context stack empty");
+
+  return stack.top();
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Renderer::Context::Context(void):
+  stroking(true),
+  filling(false)
+{
+}
+*/
 
 ///////////////////////////////////////////////////////////////////////
 

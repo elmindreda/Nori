@@ -25,18 +25,19 @@
 
 #include <moira/Config.h>
 #include <moira/Core.h>
-#include <moira/Log.h>
 #include <moira/Signal.h>
 #include <moira/Node.h>
 #include <moira/Color.h>
 #include <moira/Vector.h>
 #include <moira/Rectangle.h>
+#include <moira/Font.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLShader.h>
+#include <wendy/GLFont.h>
 #include <wendy/GLWidget.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -136,6 +137,11 @@ bool Widget::isUnderCursor(void) const
   return underCursor;
 }
 
+bool Widget::isBeingDragged(void) const
+{
+  return draggedWidget == this;
+}
+
 void Widget::enable(void)
 {
   enabled = true;
@@ -158,6 +164,9 @@ void Widget::hide(void)
 
 void Widget::activate(void)
 {
+  if (activeWidget == this)
+    return;
+
   if (activeWidget)
     activeWidget->changeFocusSignal.emit(*activeWidget, false);
 
@@ -240,18 +249,51 @@ SignalProxy1<void, Widget&> Widget::getCursorLeaveSignal(void)
   return cursorLeaveSignal;
 }
 
+SignalProxy2<void, Widget&, const Vector2&> Widget::getDragBeginSignal(void)
+{
+  return dragBeginSignal;
+}
+
+SignalProxy2<void, Widget&, const Vector2&> Widget::getDragMoveSignal(void)
+{
+  return dragMoveSignal;
+}
+
+SignalProxy2<void, Widget&, const Vector2&> Widget::getDragEndSignal(void)
+{
+  return dragEndSignal;
+}
+
 Widget* Widget::getActive(void)
 {
   return activeWidget;
 }
 
+Font* Widget::getDefaultFont(void)
+{
+  return defaultFont;
+}
+
+void Widget::setDefaultFont(Font* newFont)
+{
+  defaultFont = newFont;
+}
+
 void Widget::renderRoots(void)
 {
+  Canvas* canvas = Canvas::getCurrent();
+  if (!canvas)
+    return;
+
+  canvas->begin2D(Vector2(canvas->getPhysicalWidth(), canvas->getPhysicalHeight()));
+
   for (WidgetList::iterator i = roots.begin();  i != roots.end();  i++)
   {
     if ((*i)->isVisible())
       (*i)->render();
   }
+
+  canvas->end();
 }
 
 void Widget::render(void) const
@@ -284,6 +326,15 @@ void Widget::onKeyPress(Key key, bool pressed)
 
 void Widget::onCursorMove(const Vector2& position)
 {
+  if (draggedWidget)
+  {
+    Vector2 localPosition = position - draggedWidget->getGlobalArea().position;
+
+    if (dragging)
+      draggedWidget->dragMoveSignal.emit(*draggedWidget, localPosition);
+    else
+      draggedWidget->dragBeginSignal.emit(*draggedWidget, localPosition);
+  }
 }
 
 void Widget::onButtonClick(unsigned int button, bool clicked)
@@ -295,24 +346,40 @@ void Widget::onButtonClick(unsigned int button, bool clicked)
 
   if (clicked)
   {
+    Widget* clickedWidget = NULL;
+
     for (WidgetList::iterator i = roots.begin();  i != roots.end();  i++)
     {
-      Widget* clickedWidget = (*i)->findByPoint(cursorPosition);
+      if (clickedWidget = (*i)->findByPoint(cursorPosition))
+	break;
+    }
 
-      while (clickedWidget && !clickedWidget->isEnabled())
-	clickedWidget = clickedWidget->getParent();
+    while (clickedWidget && !clickedWidget->isEnabled())
+      clickedWidget = clickedWidget->getParent();
 
-      if (clickedWidget)
-      {
-	cursorPosition -= clickedWidget->getGlobalArea().position;
+    if (clickedWidget)
+    {
+      clickedWidget->activate();
 
-	clickedWidget->activate();
-	clickedWidget->buttonClickSignal.emit(*clickedWidget, cursorPosition, button, clicked);
-      }
+      cursorPosition -= clickedWidget->getGlobalArea().position;
+      clickedWidget->buttonClickSignal.emit(*clickedWidget, cursorPosition, button, clicked);
     }
   }
   else
   {
+    if (draggedWidget)
+    {
+      if (dragging)
+      {
+	cursorPosition -= draggedWidget->getGlobalArea().position;
+	draggedWidget->dragEndSignal.emit(*draggedWidget, cursorPosition);
+
+	dragging = false;
+      }
+
+      draggedWidget = NULL;
+    }
+
     if (activeWidget)
     {
       cursorPosition -= activeWidget->getGlobalArea().position;
@@ -321,9 +388,14 @@ void Widget::onButtonClick(unsigned int button, bool clicked)
   }
 }
 
+bool Widget::dragging = false;
+
 Widget::WidgetList Widget::roots;
 
 Widget* Widget::activeWidget = NULL;
+Widget* Widget::draggedWidget = NULL;
+
+Font* Widget::defaultFont = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -528,16 +600,15 @@ Window::Window(const String& name, const String& initTitle):
 
 void Window::render(void) const
 {
-  Context* context = Context::get();
-  Canvas::getCurrent()->begin2D(Vector2(context->getWidth(), context->getHeight()));
   ShaderPass pass;
   pass.setDepthTesting(false);
   pass.setDefaultColor(ColorRGBA::WHITE);
   pass.apply();
+
   const Rectangle& area = getGlobalArea();
   glRectf(area.position.x, area.position.y, area.position.x + area.size.x, area.position.y + area.size.y);
+
   Widget::render();
-  Canvas::getCurrent()->end();
 }
 
 ///////////////////////////////////////////////////////////////////////

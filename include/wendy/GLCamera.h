@@ -40,7 +40,7 @@ using namespace moira;
 class Camera : public Managed<Camera>
 {
 public:
-  Camera(const std::string& name = "");
+  Camera(const String& name = "");
   void begin(void) const;
   void end(void) const;
   float getFOV(void) const;

@@ -28,17 +28,14 @@
 #include <moira/Core.h>
 #include <moira/Signal.h>
 #include <moira/Node.h>
-#include <moira/Log.h>
 #include <moira/Color.h>
 #include <moira/Vector.h>
 #include <moira/Stream.h>
-#include <moira/Image.h>
 #include <moira/XML.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
-#include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLDemo.h>
 
@@ -63,14 +60,14 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-DemoEffectType::DemoEffectType(const std::string& name):
+DemoEffectType::DemoEffectType(const String& name):
   Managed<DemoEffectType>(name)
 {
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-DemoEffect::DemoEffect(const std::string& name,
+DemoEffect::DemoEffect(const String& name,
                        DemoEffectType* initType,
 		       Time initDuration):
   Managed<DemoEffect>(name),
@@ -133,7 +130,7 @@ void DemoEffect::update(Time deltaTime)
 {
 }
 
-void DemoEffect::trigger(Time moment, const std::string& name, const std::string& value)
+void DemoEffect::trigger(Time moment, const String& name, const String& value)
 {
 }
 
@@ -143,7 +140,7 @@ void DemoEffect::restart(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-NullEffect::NullEffect(const std::string& name, DemoEffectType* type, Time duration):
+NullEffect::NullEffect(const String& name, DemoEffectType* type, Time duration):
   DemoEffect(name, type, duration)
 {
 }
@@ -155,7 +152,7 @@ bool NullEffect::init(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-ClearEffect::ClearEffect(const std::string& name, DemoEffectType* type, Time duration):
+ClearEffect::ClearEffect(const String& name, DemoEffectType* type, Time duration):
   DemoEffect(name, type, duration)
 {
 }
@@ -167,14 +164,14 @@ bool ClearEffect::init(void)
 
 void ClearEffect::render(void) const
 {
-  Canvas::getCurrent()->clearDepth();
-  Canvas::getCurrent()->clearStencil();
-  Canvas::getCurrent()->clearColor(color);
+  Canvas::getCurrent()->clearDepthBuffer();
+  Canvas::getCurrent()->clearStencilBuffer();
+  Canvas::getCurrent()->clearColorBuffer(color);
 
   renderChildren();
 }
 
-void ClearEffect::trigger(Time moment, const std::string& name, const std::string& value)
+void ClearEffect::trigger(Time moment, const String& name, const String& value)
 {
   errno = 0;
 
@@ -212,11 +209,11 @@ Demo::~Demo(void)
   destroyEffectInstances();
 }
 
-bool Demo::addEffect(const std::string& instanceName,
-                     const std::string& typeName,
+bool Demo::addEffect(const String& instanceName,
+                     const String& typeName,
                      Time start,
                      Time duration,
-		     const std::string& parentName)
+		     const String& parentName)
 {
   if (!DemoEffectType::findInstance(typeName))
   {
@@ -252,15 +249,12 @@ bool Demo::addEffect(const std::string& instanceName,
   effect->start = start;
   effect->duration = duration;
 
-  if (duration > rootEffect.duration)
-    rootEffect.duration = duration;
-
   return true;
 }
 
-bool Demo::addEffectEvent(const std::string& instanceName,
-			  const std::string& eventName,
-			  const std::string& eventValue,
+bool Demo::addEffectEvent(const String& instanceName,
+			  const String& eventName,
+			  const String& eventValue,
 			  Time moment)
 {
   Effect* effect = findEffect(instanceName);
@@ -319,7 +313,7 @@ void Demo::setContextMode(const ContextMode& newMode)
   contextMode = newMode;
 }
 
-const std::string& Demo::getTitle(void) const
+const String& Demo::getTitle(void) const
 {
   return title;
 }
@@ -343,7 +337,7 @@ void Demo::setTimeElapsed(Time newTime)
     updateEffect(rootEffect, newTime);
 }
 
-Demo* Demo::createInstance(const std::string& title)
+Demo* Demo::createInstance(const String& title)
 {
   Ptr<Demo> demo = new Demo(title);
   if (!demo->init())
@@ -358,7 +352,7 @@ Demo* Demo::createInstance(const Path& path)
   return reader.read(path);
 }
 
-Demo::Demo(const std::string& initTitle):
+Demo::Demo(const String& initTitle):
   title(initTitle)
 {
 }
@@ -468,7 +462,10 @@ bool Demo::createEffectInstance(Effect& effect)
   }
 
   for (Effect* child = effect.getFirstChild();  child != NULL;  child = child->getNextSibling())
-    createEffectInstance(*child);
+  {
+    if (!createEffectInstance(*child))
+      return false;
+  }
 
   return true;
 }
@@ -481,7 +478,7 @@ void Demo::destroyEffectInstance(Effect& effect)
   effect.instance = NULL;
 }
 
-Demo::Effect* Demo::findEffect(const std::string& name)
+Demo::Effect* Demo::findEffect(const String& name)
 {
   EffectMap::iterator i = effectMap.find(name);
   if (i == effectMap.end())
@@ -512,11 +509,11 @@ Demo* DemoReader::read(Stream& stream)
   return demo.detachObject();
 }
 
-bool DemoReader::beginElement(const std::string& name, const AttributeMap& attributes)
+bool DemoReader::beginElement(const String& name)
 {
   if (name == "demo")
   {
-    demo = Demo::createInstance(readString("title", attributes));
+    demo = Demo::createInstance(readString("title"));
     return true;
   }
 
@@ -526,14 +523,14 @@ bool DemoReader::beginElement(const std::string& name, const AttributeMap& attri
     {
       ContextMode mode;
 
-      mode.width = readInteger("width", attributes, 640);
-      mode.height = readInteger("height", attributes, 480);
+      mode.width = readInteger("width", 640);
+      mode.height = readInteger("height", 480);
 
-      mode.colorBits = readInteger("color", attributes, 24); 
-      mode.depthBits = readInteger("depth", attributes, 32); 
-      mode.stencilBits = readInteger("stencil", attributes, 0); 
+      mode.colorBits = readInteger("color", 24); 
+      mode.depthBits = readInteger("depth", 32); 
+      mode.stencilBits = readInteger("stencil", 0); 
 
-      if (readBoolean("windowed", attributes, true))
+      if (readBoolean("windowed", true))
         mode.flags |= ContextMode::WINDOWED;
 
       demo->setContextMode(mode);
@@ -542,16 +539,16 @@ bool DemoReader::beginElement(const std::string& name, const AttributeMap& attri
 
     if (name == "effect")
     {
-      std::string instanceName = readString("name", attributes);
+      String instanceName = readString("name");
 
-      std::string parentName;
+      String parentName;
       if (!effectNameStack.empty())
 	parentName = effectNameStack.top();
 
       if (!demo->addEffect(instanceName,
-                           readString("type", attributes),
-                           readFloat("start", attributes),
-                           readFloat("duration", attributes),
+                           readString("type"),
+                           readFloat("start"),
+                           readFloat("duration"),
 			   parentName))
         return false;
 
@@ -564,9 +561,9 @@ bool DemoReader::beginElement(const std::string& name, const AttributeMap& attri
       if (name == "event")
       {
         if (!demo->addEffectEvent(effectNameStack.top(),
-				  readString("name", attributes),
-				  readString("value", attributes),
-				  readFloat("moment", attributes)))
+				  readString("name"),
+				  readString("value"),
+				  readFloat("moment")))
           return false;
 
         return true;
@@ -577,7 +574,7 @@ bool DemoReader::beginElement(const std::string& name, const AttributeMap& attri
   return true;
 }
 
-bool DemoReader::endElement(const std::string& name)
+bool DemoReader::endElement(const String& name)
 {
   if (demo)
   {

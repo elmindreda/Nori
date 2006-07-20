@@ -12,7 +12,7 @@ bool render(void)
   GL::ContextCanvas canvas;
 
   canvas.push();
-  canvas.clearColor(ColorRGBA(1.f, 0.f, 0.f, 0.f));
+  canvas.clearColorBuffer(ColorRGBA(1.f, 0.f, 0.f, 0.f));
   canvas.pop();
 
   return true;

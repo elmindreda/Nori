@@ -60,6 +60,9 @@ class Sprite3
 {
 public:
   Sprite3(void);
+  void enqueue(RenderQueue& queue,
+               const Matrix4& transform,
+	       const Shader& shader) const;
   void render(void) const;
   void render(const Shader& shader) const;
   void realizeVertices(Vertex2ft3fv* vertices) const;

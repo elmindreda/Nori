@@ -80,6 +80,9 @@ void Camera::begin(void) const
 
 void Camera::end(void) const
 {
+  if (current == NULL)
+    Log::writeWarning("No current camera or camera invalidated during rendering");
+
   glPushAttrib(GL_TRANSFORM_BIT);
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
@@ -102,16 +105,25 @@ float Camera::getAspectRatio(void) const
 
 void Camera::setFOV(float newFOV)
 {
+  if (current == this)
+    current = NULL;
+
   FOV = newFOV;
 }
 
 void Camera::setAspectRatio(float newAspectRatio)
 {
+  if (current == this)
+    current = NULL;
+
   aspectRatio = newAspectRatio;
 }
 
 Transform3& Camera::getTransform(void)
 {
+  if (current == this)
+    current = NULL;
+
   return transform;
 }
 

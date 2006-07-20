@@ -62,7 +62,7 @@ public:
   const Vector3& getDirection(void) const;
   void setDirection(const Vector3& direction);
   void setDefaults(void);
-  static Light* createInstance(const std::string& name);
+  static Light* createInstance(const std::string& name = "");
   static void invalidateCache(void);
 private:
   class Data

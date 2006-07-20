@@ -52,6 +52,16 @@ VertexComponent::VertexComponent(Kind initKind,
 {
 }
 
+bool VertexComponent::operator == (const VertexComponent& other) const
+{
+  return kind == other.kind && count == other.count && type == other.type;
+}
+
+bool VertexComponent::operator != (const VertexComponent& other) const
+{
+  return kind != other.kind || count != other.count || type != other.type;
+}
+
 size_t VertexComponent::getSize(void) const
 {
   switch (type)
@@ -197,6 +207,16 @@ const VertexComponent* VertexFormat::findComponent(VertexComponent::Kind kind) c
 const VertexComponent& VertexFormat::operator [] (unsigned int index) const
 {
   return components[index];
+}
+
+bool VertexFormat::operator == (const VertexFormat& other) const
+{
+  return components == other.components;
+}
+
+bool VertexFormat::operator != (const VertexFormat& other) const
+{
+  return !(components == other.components);
 }
 
 size_t VertexFormat::getSize(void) const

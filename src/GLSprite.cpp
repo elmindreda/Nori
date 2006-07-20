@@ -26,14 +26,17 @@
 #include <moira/Config.h>
 #include <moira/Portability.h>
 #include <moira/Core.h>
+#include <moira/Signal.h>
 #include <moira/Vector.h>
 #include <moira/Color.h>
+#include <moira/Matrix.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLVertex.h>
-#include <wendy/GLVertexBuffer.h>
+#include <wendy/GLBuffer.h>
 #include <wendy/GLShader.h>
+#include <wendy/GLRender.h>
 #include <wendy/GLSprite.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -145,6 +148,37 @@ void Sprite2::setDefaults(void)
 Sprite3::Sprite3(void)
 {
   setDefaults();
+}
+
+void Sprite3::enqueue(RenderQueue& queue,
+                      const Matrix4& transform,
+		      const Shader& shader) const
+{
+  if (!Renderer::get())
+  {
+    Log::writeError("Cannot enqueue sprites without a renderer");
+    return;
+  }
+
+  VertexBufferRange range;
+  if (!Renderer::get()->allocateVertices(range, 4, Vertex2ft3fv::format))
+    return;
+
+  Vertex2ft3fv* vertices = (Vertex2ft3fv*) range.lock();
+  if (!vertices)
+    return;
+
+  realizeVertices(vertices);
+  range.unlock();
+
+  RenderOperation operation;
+  operation.vertexBuffer = range.getVertexBuffer();
+  operation.start = range.getStart();
+  operation.count = range.getCount();
+  operation.renderMode = GL_QUADS;
+  operation.transform = transform;
+  operation.shader = &shader;
+  queue.addOperation(operation);
 }
 
 void Sprite3::render(void) const

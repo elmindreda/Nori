@@ -25,10 +25,10 @@
 
 #include <moira/Config.h>
 #include <moira/Core.h>
-#include <moira/Log.h>
 #include <moira/Color.h>
 #include <moira/Vector.h>
 #include <moira/Rectangle.h>
+#include <moira/Resource.h>
 #include <moira/Image.h>
 #include <moira/Font.h>
 
@@ -70,11 +70,12 @@ unsigned int getNextPower(unsigned int value)
   
 ///////////////////////////////////////////////////////////////////////
   
-void TextureFont::render(const Vector2& penPosition, const String& text) const
+void Font::render(const String& text) const
 {
   ShaderPass pass;
   pass.setDepthTesting(false);
   pass.setDepthWriting(false);
+  pass.setDefaultColor(color);
   pass.setTextureName(texture->getName());
   pass.setCombineMode(GL_MODULATE);
   pass.setBlendFactors(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -90,47 +91,72 @@ void TextureFont::render(const Vector2& penPosition, const String& text) const
 
     Glyph* glyph = (*i).second;
 
-    glyph->render(pen);
-    pen.x += glyph->glyph->getAdvance();
+    if (*c != ' ')
+      glyph->render(pen);
+
+    pen.x += glyph->inner->getAdvance();
   }
 }
 
-const Vector2& TextureFont::getPenPosition(void) const
+const Vector2& Font::getPenPosition(void) const
 {
   return penPosition;
 }
 
-void TextureFont::setPenPosition(const Vector2& newPosition)
+void Font::setPenPosition(const Vector2& newPosition)
 {
   penPosition = newPosition;
 }
 
-TextureFont* TextureFont::createInstance(const Path& path,
-				         const String& characters,
-			                 const String& name)
+const ColorRGBA& Font::getColor(void) const
 {
-  Font* font = Font::createInstance(path, characters);
+  return color;
+}
+
+void Font::setColor(const ColorRGBA& newColor)
+{
+  color = newColor;
+}
+
+Vector2 Font::getTextSize(const String& text) const
+{
+  return inner->getTextSize(text);
+}
+
+Rectangle Font::getTextMetrics(const String& text) const
+{
+  Rectangle result = inner->getTextMetrics(text);
+  result.position += penPosition;
+  return result;
+}
+
+Font* Font::createInstance(const Path& path,
+			   const String& characters,
+			   const String& name)
+{
+  moira::Font* font = moira::Font::createInstance(path, characters);
   if (!font)
     return NULL;
 
   return createInstance(*font, name);
 }
 
-TextureFont* TextureFont::createInstance(const Font& font, const String& name)
+Font* Font::createInstance(const moira::Font& font, const String& name)
 {
-  Ptr<TextureFont> textureFont = new TextureFont(name);
+  Ptr<Font> textureFont = new Font(name);
   if (!textureFont->init(font))
     return NULL;
 
   return textureFont.detachObject();
 }
 
-TextureFont::TextureFont(const String& name):
-  Managed<TextureFont>(name)
+Font::Font(const String& name):
+  Managed<Font>(name),
+  color(ColorRGBA::WHITE)
 {
 }
 
-bool TextureFont::init(const Font& font)
+bool Font::init(const moira::Font& font)
 {
   const String& characters = font.getCharacters();
 
@@ -153,11 +179,7 @@ bool TextureFont::init(const Font& font)
     unsigned int height = glyphHeight * rows + 1;
     height = std::min(getNextPower(height), maxSize);
 
-    Log::writeInformation("Texture %ux%u", width, height);
-
-    Image image(ImageFormat::ALPHA8, width, height);
-
-    texture = Texture::createInstance("", image, 0);
+    texture = Texture::createInstance(Image(ImageFormat::ALPHA8, width, height), 0);
     if (!texture)
       return false;
   }
@@ -170,21 +192,21 @@ bool TextureFont::init(const Font& font)
     Glyph& glyph = glyphs.back();
     glyphMap[characters[i]] = &glyph;
 
-    glyph.glyph = font.getGlyph(characters[i]);
-    if (!glyph.glyph)
+    glyph.inner = font.getGlyph(characters[i]);
+    if (!glyph.inner)
     {
       Log::writeError("No glyph for character %c", characters[i]);
       return false;
     }
 
-    const Image& image = glyph.glyph->getImage();
+    const Image& image = glyph.inner->getImage();
 
-    if (texelPosition.x + image.getWidth() + 2 > texture->getWidth())
+    if (texelPosition.x + image.getWidth() + 2 > texture->getPhysicalWidth())
     {
       texelPosition.x = 1;
       texelPosition.y += (int) glyphHeight;
 
-      if (texelPosition.y + image.getHeight() + 2 > texture->getHeight())
+      if (texelPosition.y + image.getHeight() + 2 > texture->getPhysicalHeight())
       {
 	// TODO: Allocate new texture.
 	Log::writeError("No more room in font texture");
@@ -195,30 +217,28 @@ bool TextureFont::init(const Font& font)
     if (!texture->copyFrom(image, texelPosition.x, texelPosition.y))
       return false;
 
-    glyph.area.position.set(texelPosition.x / (float) texture->getWidth(),
-			    texelPosition.y / (float) texture->getHeight());
-    glyph.area.size.set(image.getWidth() / (float) texture->getWidth(),
-			image.getHeight() / (float) texture->getHeight());
+    glyph.area.position.set((texelPosition.x - 0.5f) / (float) texture->getPhysicalWidth(),
+			    (texelPosition.y - 0.5f) / (float) texture->getPhysicalHeight());
+    glyph.area.size.set((image.getWidth() + 0.5f) / (float) texture->getPhysicalWidth(),
+			(image.getHeight() + 0.5f) / (float) texture->getPhysicalHeight());
 
-    texelPosition.x += image.getWidth();
+    texelPosition.x += image.getWidth() + 1;
   }
 
-  Ptr<Image> image = texture->getImage();
-  ImageWriter writer;
-  writer.write(Path("%s.png", getName().c_str()), *image);
-
+  inner = &font;
   return true;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-void TextureFont::Glyph::render(const Vector2& penPosition)
+void Font::Glyph::render(const Vector2& penPosition)
 {
   const Rectangle& texelArea = area;
 
   Rectangle pixelArea;
-  pixelArea.position = penPosition + glyph->getBearing();
-  pixelArea.size.set(glyph->getImage().getWidth(), glyph->getImage().getHeight());
+  pixelArea.position = penPosition;
+  pixelArea.position.y += inner->getBearing().y - inner->getImage().getHeight();
+  pixelArea.size.set(inner->getImage().getWidth(), inner->getImage().getHeight());
     
   glBegin(GL_QUADS);
   glTexCoord2f(texelArea.position.x, texelArea.position.y);

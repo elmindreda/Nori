@@ -75,6 +75,7 @@ AC_OUTPUT(
   docs/Doxyfile
   examples/Makefile
   examples/fonts/Makefile
+  examples/program/Makefile
   examples/simple/Makefile
   examples/widgets/Makefile
   include/Makefile

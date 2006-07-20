@@ -26,8 +26,8 @@
 #define WENDY_GLRENDER_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <string>
 #include <list>
+#include <vector>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -38,10 +38,24 @@ namespace wendy
   
 ///////////////////////////////////////////////////////////////////////
 
+using namespace moira;
+
+///////////////////////////////////////////////////////////////////////
+
 class Shader;
 class Light;
 class VertexBuffer;
 class IndexBuffer;
+
+///////////////////////////////////////////////////////////////////////
+
+class VertexAllocation
+{
+public:
+  VertexBuffer* vertexBuffer;
+  unsigned int start;
+  unsigned int count;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -53,6 +67,8 @@ public:
   const VertexBuffer* vertexBuffer;
   const IndexBuffer* indexBuffer;
   const Shader* shader;
+  unsigned int start;
+  unsigned int count;
   Matrix4 transform;
   GLenum renderMode;
 };
@@ -81,58 +97,92 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class RenderMesh : public Managed<RenderMesh>
+class Renderer : public Trackable, public Singleton<Renderer>
 {
 public:
-  class Geometry;
-  typedef std::list<Geometry> GeometryList;
-  ~RenderMesh(void);
-  void enqueue(RenderQueue& queue, const Matrix4& transform) const;
-  void render(void) const;
-  GeometryList& getGeometries(void);
-  VertexBuffer* getVertexBuffer(void);
-  static RenderMesh* createInstance(const Path& path, const std::string& name = "");
-  static RenderMesh* createInstance(const Mesh& mesh, const std::string& name = "");
+  bool allocateIndices(IndexBufferRange& range,
+		       unsigned int count,
+                       IndexBuffer::Type type = IndexBuffer::UBYTE);
+  bool allocateVertices(VertexBufferRange& range,
+			unsigned int count,
+                        const VertexFormat& format);
+  static bool create(void);
 private:
-  RenderMesh(const std::string& name);
-  bool init(const Mesh& mesh);
-  typedef std::list<IndexBuffer*> IndexBufferList;
-  GeometryList geometries;
-  Ptr<VertexBuffer> vertexBuffer;
-  IndexBufferList indexBuffers;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class RenderMesh::Geometry
-{
-public:
-  IndexBuffer* indexBuffer;
-  GLenum renderMode;
-  std::string shaderName;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class RenderSprite : public Managed<RenderSprite>
-{
-public:
-  ~RenderSprite(void);
-  void enqueue(RenderQueue& queue, const Matrix4& transform) const;
-  void render(void) const;
-  VertexBuffer* getVertexBuffer(void);
-  const std::string& getShaderName(void) const;
-  void setShaderName(const std::string& newShaderName);
-  const Vector2& getSpriteSize(void) const;
-  void setSpriteSize(const Vector2& newSize);
-  static RenderSprite* createInstance(const std::string& name = "");
-private:
-  RenderSprite(const std::string& name);
+  class IndexBufferSlot;
+  class VertexBufferSlot;
+  Renderer(void);
   bool init(void);
-  std::string shaderName;
-  Vector2 spriteSize;
-  Ptr<VertexBuffer> vertexBuffer;
+  void onFinish(void);
+  typedef std::list<IndexBufferSlot> IndexBufferList;
+  typedef std::list<VertexBufferSlot> VertexBufferList;
+  IndexBufferList indexBuffers;
+  VertexBufferList vertexBuffers;
 };
+
+///////////////////////////////////////////////////////////////////////
+
+class Renderer::IndexBufferSlot
+{
+public:
+  Ptr<IndexBuffer> indexBuffer;
+  unsigned int available;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class Renderer::VertexBufferSlot
+{
+public:
+  Ptr<VertexBuffer> vertexBuffer;
+  unsigned int available;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*
+class Renderer : public Singleton<Renderer>
+{
+public:
+  void begin(void);
+  void end(void);
+  void drawLine(const Vector2& start, const Vector2& end) const;
+  void drawCircle(const Vector2& center, float radius) const;
+  void drawBezier(const BezierCurve2& curve) const;
+  void drawRectangle(const Rectangle& rectangle) const;
+  bool isStroking(void) const;
+  void setStroking(bool newState);
+  bool isFilling(void) const;
+  void setFilling(bool newState);
+  const ColorRGBA& getStrokeColor(void) const;
+  void setStrokeColor(const ColorRGBA& newColor);
+  const ColorRGBA& getFillColor(void) const;
+  void setFillColor(const ColorRGBA& newColor);
+  float getStrokeWidth(void) const;
+  void setStrokeWidth(float newWidth);
+  static bool create(void);
+private:
+  class Context;
+  Renderer(void);
+  bool init(void);
+  float getLineScale(void) const;
+  Context& getContext(void);
+  const Context& getContext(void) const;
+  typedef std::stack<Context> ContextStack;
+  ContextStack stack;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class Renderer::Context
+{
+public:
+  Context(void);
+  ShaderPass strokePass;
+  ShaderPass fillPass;
+  bool stroking;
+  bool filling;
+};
+*/
 
 ///////////////////////////////////////////////////////////////////////
 

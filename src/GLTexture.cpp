@@ -27,9 +27,9 @@
 #include <moira/Portability.h>
 #include <moira/Core.h>
 #include <moira/Signal.h>
-#include <moira/Log.h>
 #include <moira/Vector.h>
 #include <moira/Color.h>
+#include <moira/Resource.h>
 #include <moira/Image.h>
 
 #include <wendy/Config.h>
@@ -293,13 +293,13 @@ void Texture::setFilters(GLint newMinFilter, GLint newMagFilter)
 
     if (newMinFilter != minFilter)
     {
-      glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, minFilter);
+      glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, newMinFilter);
       minFilter = newMinFilter;
     }
 
     if (newMagFilter != magFilter)
     {
-      glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, magFilter);
+      glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, newMagFilter);
       magFilter = newMagFilter;
     }
 
@@ -343,9 +343,9 @@ Image* Texture::getImage(unsigned int level) const
   return result.detachObject();
 }
 
-Texture* Texture::createInstance(const std::string& name,
-                                 const Path& path,
-				 unsigned int flags)
+Texture* Texture::createInstance(const Path& path,
+				 unsigned int flags,
+				 const String& name)
 {
   ImageReader reader;
   
@@ -353,12 +353,12 @@ Texture* Texture::createInstance(const std::string& name,
   if (!image)
     return NULL;
 
-  return createInstance(name, *image, flags);
+  return createInstance(*image, flags, name);
 }
 
-Texture* Texture::createInstance(const std::string& name,
-                                 const Image& image,
-				 unsigned int flags)
+Texture* Texture::createInstance(const Image& image,
+				 unsigned int flags,
+				 const String& name)
 {
   Ptr<Texture> texture = new Texture(name);
   if (!texture->init(image, flags))
@@ -367,7 +367,7 @@ Texture* Texture::createInstance(const std::string& name,
   return texture.detachObject();
 }
 
-Texture::Texture(const std::string& name):
+Texture::Texture(const String& name):
   Managed<Texture>(name),
   textureID(0),
   textureTarget(0),
@@ -394,10 +394,21 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 
   flags = initFlags;
 
-  if (image.getHeight() > 1)
+  if (image.getDimensionCount() == 1)
+    textureTarget = GL_TEXTURE_1D;
+  else if (image.getDimensionCount() == 2)
     textureTarget = GL_TEXTURE_2D;
   else
-    textureTarget = GL_TEXTURE_1D;
+  {
+    // TODO: Support 3D textures
+
+    Log::writeError("3D textures not supported");
+    return false;
+  }
+
+  // The "normal" width and height correspond to the original dimensions
+  width = image.getWidth();
+  height = image.getHeight();
 
   Image source = image;
 
@@ -405,12 +416,10 @@ bool Texture::init(const Image& image, unsigned int initFlags)
   source.flipHorizontal();
 
   // Ensure that source image is in GL-compatible format
-  ImageFormat targetFormat = getConversionFormat(source.getFormat());
-  if (targetFormat != source.getFormat())
-  {
-    if (!source.convert(targetFormat))
-      return false;
-  }
+  if (!source.convert(getConversionFormat(source.getFormat())))
+    return false;
+
+  format = source.getFormat();
 
   if (flags & RECTANGULAR)
   {
@@ -424,6 +433,8 @@ bool Texture::init(const Image& image, unsigned int initFlags)
   }
   else
   {
+    // TODO: Query each context only once.
+
     unsigned int maxSize;
 
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxSize);
@@ -503,11 +514,6 @@ bool Texture::init(const Image& image, unsigned int initFlags)
     return false;
   }
   
-  width = image.getWidth();
-  height = image.getHeight();
-
-  format = source.getFormat();
-
   return true;
 }
   

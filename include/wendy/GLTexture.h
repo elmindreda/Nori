@@ -26,11 +26,6 @@
 #define WENDY_GLTEXTURE_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <string>
-#include <vector>
-
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
   namespace GL
@@ -122,19 +117,19 @@ public:
    *  @param path The path of the image file to use.
    *  @param flags The creation flags.
    */
-  static Texture* createInstance(const std::string& name,
-                                 const Path& path,
-                                 unsigned int flags = DEFAULT);
+  static Texture* createInstance(const Path& path,
+                                 unsigned int flags = DEFAULT,
+				 const String& name = "");
   /*! Creates a texture from the specified image.
    *  @param name The desired name of the texture.
    *  @param image The image data to use.
    *  @param flags The creation flags.
    */
-  static Texture* createInstance(const std::string& name,
-				 const Image& image,
-				 unsigned int flags = DEFAULT);
+  static Texture* createInstance(const Image& image,
+                                 unsigned int flags = DEFAULT,
+				 const String& name = "");
 private:
-  Texture(const std::string& name);
+  Texture(const String& name);
   bool init(const Image& image, unsigned int initFlags);
   GLuint textureID;
   GLenum textureTarget;

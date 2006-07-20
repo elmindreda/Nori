@@ -62,12 +62,12 @@ private:
 class LightNode : public SceneNode
 {
 public:
-  const std::string& getLightName(void) const;
-  void setLightName(const std::string& newLightName);
+  const String& getLightName(void) const;
+  void setLightName(const String& newLightName);
 protected:
   void enqueue(RenderQueue& queue) const;
 private:
-  std::string lightName;
+  String lightName;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -75,12 +75,12 @@ private:
 class MeshNode : public SceneNode
 {
 public:
-  const std::string& getMeshName(void) const;
-  void setMeshName(const std::string& newMeshName);
+  const String& getMeshName(void) const;
+  void setMeshName(const String& newMeshName);
 protected:
   void enqueue(RenderQueue& queue) const;
 private:
-  std::string meshName;
+  String meshName;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -106,12 +106,15 @@ private:
 class SpriteNode : public SceneNode
 {
 public:
-  const std::string& getSpriteName(void) const;
-  void setSpriteName(const std::string& newSpriteName);
+  const String& getShaderName(void) const;
+  void setShaderName(const String& newShaderName);
+  const Vector2& getSpriteSize(void) const;
+  void setSpriteSize(const Vector2& newSize);
 protected:
   void enqueue(RenderQueue& queue) const;
 private:
-  std::string spriteName;
+  String shaderName;
+  Vector2 spriteSize;
 };
 
 ///////////////////////////////////////////////////////////////////////

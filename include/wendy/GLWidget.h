@@ -58,6 +58,7 @@ public:
   bool isVisible(void) const;
   bool isActive(void) const;
   bool isUnderCursor(void) const;
+  bool isBeingDragged(void) const;
   void enable(void);
   void disable(void);
   void show(void);
@@ -76,7 +77,12 @@ public:
   SignalProxy4<void, Widget&, const Vector2&, unsigned int, bool> getButtonClickSignal(void);
   SignalProxy1<void, Widget&> getCursorEnterSignal(void);
   SignalProxy1<void, Widget&> getCursorLeaveSignal(void);
+  SignalProxy2<void, Widget&, const Vector2&> getDragBeginSignal(void);
+  SignalProxy2<void, Widget&, const Vector2&> getDragMoveSignal(void);
+  SignalProxy2<void, Widget&, const Vector2&> getDragEndSignal(void);
   static Widget* getActive(void);
+  static Font* getDefaultFont(void);
+  static void setDefaultFont(Font* newFont);
   static void renderRoots(void);
 protected:
   virtual void render(void) const;
@@ -93,14 +99,21 @@ private:
   Signal4<void, Widget&, const Vector2&, unsigned int, bool> buttonClickSignal;
   Signal1<void, Widget&> cursorEnterSignal;
   Signal1<void, Widget&> cursorLeaveSignal;
+  Signal2<void, Widget&, const Vector2&> dragBeginSignal;
+  Signal2<void, Widget&, const Vector2&> dragMoveSignal;
+  Signal2<void, Widget&, const Vector2&> dragEndSignal;
   bool enabled;
   bool visible;
   bool underCursor;
+  bool beingDragged;
   Rectangle area;
   mutable Rectangle globalArea;
   typedef std::list<Widget*> WidgetList;
+  static bool dragging;
   static WidgetList roots;
   static Widget* activeWidget;
+  static Widget* draggedWidget;
+  static Font* defaultFont;
 };
 
 ///////////////////////////////////////////////////////////////////////

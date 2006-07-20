@@ -28,12 +28,14 @@
 #include <moira/Signal.h>
 #include <moira/Vector.h>
 #include <moira/Color.h>
+#include <moira/Resource.h>
 #include <moira/Image.h>
-#include <moira/Log.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
+
+#include <GL/glfw.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -104,6 +106,8 @@ void ContextMode::set(unsigned int newWidth,
 
 Context::~Context(void)
 {
+  destroySignal.emit();
+
   glfwCloseWindow();
 
   instance = NULL;
@@ -131,6 +135,8 @@ bool Context::update(void)
 
   if (glfwGetWindowParam(GLFW_OPENED) != GL_TRUE)
     stopped = true;
+
+  finishSignal.emit();
 
   if (stopped)
     return false;
@@ -161,7 +167,10 @@ bool Context::isKeyDown(const Key& key) const
 
 bool Context::isButtonDown(unsigned int button) const
 {
-  return (glfwGetMouseButton(button + GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) ? true : false;
+  if (glfwGetMouseButton(button + GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
+    return true;
+
+  return false;
 }
 
 bool Context::hasExtension(const String& name) const
@@ -240,6 +249,11 @@ SignalProxy0<void> Context::getDestroySignal(void)
 SignalProxy0<bool> Context::getRenderSignal(void)
 {
   return renderSignal;
+}
+
+SignalProxy0<void> Context::getFinishSignal(void)
+{
+  return finishSignal;
 }
 
 SignalProxy0<bool> Context::getCloseRequestSignal(void)
@@ -406,7 +420,7 @@ bool Context::init(const ContextMode& mode)
   return true;
 }
 
-void GLFWCALL Context::sizeCallback(int width, int height)
+void Context::sizeCallback(int width, int height)
 {
   instance->mode.width = width;
   instance->mode.height = height;
@@ -414,7 +428,7 @@ void GLFWCALL Context::sizeCallback(int width, int height)
   instance->resizeSignal.emit(width, height);
 }
 
-int GLFWCALL Context::closeCallback(void)
+int Context::closeCallback(void)
 {
   typedef std::list<bool> ResultList;
   ResultList results;
@@ -430,7 +444,7 @@ int GLFWCALL Context::closeCallback(void)
   return 1;
 }
 
-void GLFWCALL Context::keyboardCallback(int key, int action)
+void Context::keyboardCallback(int key, int action)
 {
   if (key > GLFW_KEY_SPECIAL)
   {
@@ -444,14 +458,14 @@ void GLFWCALL Context::keyboardCallback(int key, int action)
   instance->keyPressSignal.emit(key, (action == GLFW_PRESS) ? true : false);
 }
 
-void GLFWCALL Context::mousePosCallback(int x, int y)
+void Context::mousePosCallback(int x, int y)
 {
   Vector2 position((float) x, (float) y);
 
   instance->cursorMoveSignal.emit(position);
 }
 
-void GLFWCALL Context::mouseButtonCallback(int button, int action)
+void Context::mouseButtonCallback(int button, int action)
 {
   instance->buttonClickSignal.emit(button - GLFW_MOUSE_BUTTON_1,
                                    (action == GLFW_PRESS) ? true : false); 

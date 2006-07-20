@@ -26,12 +26,9 @@
 #define WENDY_GLCONTEXT_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <GL/glfw.h>
-
-///////////////////////////////////////////////////////////////////////
-
 namespace moira
 {
+  class Rectangle;
   class Image;
 }
 
@@ -187,6 +184,9 @@ public:
   /*! @return The signal for rendering.
    */
   SignalProxy0<bool> getRenderSignal(void);
+  /*! @return The signal for post-rendering clean-up.
+   */
+  SignalProxy0<void> getFinishSignal(void);
   /*! @return The signal for user-initiated close requests.
    */
   SignalProxy0<bool> getCloseRequestSignal(void);
@@ -210,14 +210,15 @@ public:
 private:
   Context(void);
   bool init(const ContextMode& mode);
-  static void GLFWCALL sizeCallback(int width, int height);
-  static int GLFWCALL closeCallback(void);
-  static void GLFWCALL keyboardCallback(int key, int action);
-  static void GLFWCALL mousePosCallback(int x, int y);
-  static void GLFWCALL mouseButtonCallback(int button, int action);
+  static void sizeCallback(int width, int height);
+  static int closeCallback(void);
+  static void keyboardCallback(int key, int action);
+  static void mousePosCallback(int x, int y);
+  static void mouseButtonCallback(int button, int action);
   typedef std::map<int, int> KeyMap;
   Signal0<void> destroySignal;
   Signal0<bool> renderSignal;
+  Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
   Signal2<void, unsigned int, unsigned int> resizeSignal;
   Signal2<void, Key, bool> keyPressSignal;

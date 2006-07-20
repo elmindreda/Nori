@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy OpenGL library
-// Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,8 +22,12 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_VERTEXBUFFER_H
-#define WENDY_VERTEXBUFFER_H
+#ifndef WENDY_GLMESH_H
+#define WENDY_GLMESH_H
+///////////////////////////////////////////////////////////////////////
+
+#include <list>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -33,51 +37,41 @@ namespace wendy
   
 ///////////////////////////////////////////////////////////////////////
 
-using namespace moira;
+class Shader;
+class VertexBuffer;
+class IndexBuffer;
 
 ///////////////////////////////////////////////////////////////////////
 
-class VertexBuffer : public Managed<VertexBuffer>
+class Mesh : public Managed<Mesh>
 {
 public:
-  enum Usage
-  {
-    /*! Data will be specified once and used many times.
-     */
-    STATIC = GL_STATIC_DRAW_ARB,
-    /*! Data will be repeatedly respecified.
-     */
-    DYNAMIC = GL_DYNAMIC_DRAW_ARB,
-  };
-  ~VertexBuffer(void);
-  void apply(void) const;
-  void render(unsigned int mode,
-              unsigned int start = 0,
-	      unsigned int count = 0) const;
-  void* lock(void);
-  void unlock(void);
-  GLuint getGLID(void) const;
-  Usage getUsage(void) const;
-  const VertexFormat& getFormat(void) const;
-  unsigned int getCount(void) const;
-  static VertexBuffer* createInstance(const std::string& name,
-				      unsigned int count,
-                                      const VertexFormat& format,
-				      Usage usage = STATIC); 
-  static void invalidateCurrent(void);
-  static VertexBuffer* getCurrent(void);
+  class Geometry;
+  typedef std::list<Geometry> GeometryList;
+  ~Mesh(void);
+  void enqueue(RenderQueue& queue, const Matrix4& transform) const;
+  void render(void) const;
+  GeometryList& getGeometries(void);
+  VertexBuffer* getVertexBuffer(void);
+  static Mesh* createInstance(const Path& path, const std::string& name = "");
+  static Mesh* createInstance(const moira::Mesh& mesh, const std::string& name = "");
 private:
-  VertexBuffer(const std::string& name);
-  bool init(const VertexFormat& initFormat,
-            unsigned int initCount,
-	    Usage initUsage);
-  bool locked;
-  VertexFormat format;
-  unsigned int count;
-  Usage usage;
-  GLuint bufferID;
-  Block data;
-  static VertexBuffer* current;
+  Mesh(const std::string& name);
+  bool init(const moira::Mesh& mesh);
+  typedef std::list<IndexBuffer*> IndexBufferList;
+  GeometryList geometries;
+  Ptr<VertexBuffer> vertexBuffer;
+  IndexBufferList indexBuffers;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class Mesh::Geometry
+{
+public:
+  IndexBuffer* indexBuffer;
+  GLenum renderMode;
+  std::string shaderName;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -86,5 +80,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_VERTEXBUFFER_H*/
+#endif /*WENDY_GLMESH_H*/
 ///////////////////////////////////////////////////////////////////////

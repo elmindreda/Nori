@@ -86,7 +86,9 @@ public:
   };
   /*! Constructor.
    */
-  VertexComponent(Kind initKind, unsigned int initCount = 3, Type initType = FLOAT);
+  VertexComponent(Kind kind, unsigned int count = 3, Type type = FLOAT);
+  bool operator == (const VertexComponent& other) const;
+  bool operator != (const VertexComponent& other) const;
   /*! @return The size, in bytes, of this component.
    */
   size_t getSize(void) const;
@@ -115,11 +117,13 @@ class VertexFormat
 {
 public:
   VertexFormat(void);
-  VertexFormat(const std::string& specification);
+  VertexFormat(const String& specification);
   bool addComponent(const VertexComponent& component);
-  bool addComponents(const std::string& specification);
+  bool addComponents(const String& specification);
   const VertexComponent* findComponent(VertexComponent::Kind kind) const;
   const VertexComponent& operator [] (unsigned int index) const;
+  bool operator == (const VertexFormat& other) const;
+  bool operator != (const VertexFormat& other) const;
   size_t getSize(void) const;
   unsigned int getComponentCount(void) const;
 private:

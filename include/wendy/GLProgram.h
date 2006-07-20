@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy OpenGL library
-// Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,12 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WEGLINDEXBUFFER_H
-#define WEGLINDEXBUFFER_H
-///////////////////////////////////////////////////////////////////////
-
-#include <string>
-
+#ifndef WENDY_GLPROGRAM_H
+#define WENDY_GLPROGRAM_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -37,59 +33,40 @@ namespace wendy
   
 ///////////////////////////////////////////////////////////////////////
 
-using namespace moira;
+class VertexProgram : public Managed<VertexProgram>
+{
+public:
+  ~VertexProgram(void);
+  GLuint getGLID(void) const;
+  bool getParameter(unsigned int index, Vector4& value) const;
+  bool setParameter(unsigned int index, const Vector4& newValue);
+  static VertexProgram* createInstance(const Path& path,
+                                       const String& name = "");
+  static VertexProgram* createInstance(const String& text,
+                                       const String& name = "");
+private:
+  VertexProgram(const String& name);
+  bool init(const String& text);
+  GLuint programID;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
-class IndexBuffer : public Managed<IndexBuffer>
+class FragmentProgram : public Managed<FragmentProgram>
 {
 public:
-  enum Type
-  {
-    /*! Indices are of type unsigned int.
-     */
-    UINT = GL_UNSIGNED_INT,
-    /*! Indices are of type unsigned short.
-     */
-    USHORT = GL_UNSIGNED_SHORT,
-    /*! Indices are of type unsigned char.
-     */
-    BYTE = GL_UNSIGNED_BYTE,
-  };
-  enum Usage
-  {
-    /*! Data will be specified once and used many times.
-     */
-    STATIC = GL_STATIC_DRAW_ARB,
-    /*! Data will be repeatedly respecified.
-     */
-    DYNAMIC = GL_DYNAMIC_DRAW_ARB,
-  };
-  ~IndexBuffer(void);
-  void apply(void) const;
-  void render(unsigned int mode, unsigned int count = 0) const;
-  void* lock(void);
-  void unlock(void);
+  ~FragmentProgram(void);
   GLuint getGLID(void) const;
-  Type getType(void) const;
-  Usage getUsage(void) const;
-  unsigned int getCount(void) const;
-  static IndexBuffer* createInstance(const std::string& name,
-                                     unsigned int count,
-				     Type type = UINT,
-				     Usage usage = STATIC);
-  static void invalidateCurrent(void);
-  static IndexBuffer* getCurrent(void);
+  bool getParameter(unsigned int index, Vector4& value) const;
+  bool setParameter(unsigned int index, const Vector4& newValue);
+  static FragmentProgram* createInstance(const Path& path,
+                                         const String& name = "");
+  static FragmentProgram* createInstance(const String& text,
+                                         const String& name = "");
 private:
-  IndexBuffer(const std::string& name);
-  bool init(unsigned int initCount, Type initType, Usage initUsage);
-  bool locked;
-  Type type;
-  Usage usage;
-  unsigned int count;
-  GLuint bufferID;
-  Block data;
-  static IndexBuffer* current;
+  FragmentProgram(const String& name);
+  bool init(const String& text);
+  GLuint programID;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -98,5 +75,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WEGLINDEXBUFFER_H*/
+#endif /*WENDY_GLPROGRAM_H*/
 ///////////////////////////////////////////////////////////////////////

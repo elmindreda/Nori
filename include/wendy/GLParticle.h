@@ -75,14 +75,16 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////
 
-class ParticleSystem
+class ParticleSystem : public Managed<ParticleSystem>
 {
 public:
+  ParticleSystem(const String& name = "");
   ~ParticleSystem(void);
-  void update(Time deltaTime);
+  void enqueue(RenderQueue& queue, const Matrix4& transform) const;
   void render(void) const;
+  Time getTimeElapsed(void) const;
+  void setTimeElapsed(Time newTime);
 protected:
-  ParticleSystem(void);
   typedef std::vector<Particle> ParticleList;
   typedef std::vector<Particle*> ActiveParticleList;
   ParticleList particles;

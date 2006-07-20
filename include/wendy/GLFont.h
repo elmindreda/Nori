@@ -41,39 +41,48 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class TextureFont : public Managed<TextureFont>
+class Texture;
+
+///////////////////////////////////////////////////////////////////////
+
+class Font : public Managed<Font>
 {
 public:
-  void render(const Vector2& penPosition, const String& text) const;
+  void render(const String& text) const;
   const Vector2& getPenPosition(void) const;
   void setPenPosition(const Vector2& newPosition);
-  static TextureFont* createInstance(const Path& path,
-				     const String& characters,
-			             const String& name = "");
-  static TextureFont* createInstance(const Font& font,
-                                     const String& name = "");
+  const ColorRGBA& getColor(void) const;
+  void setColor(const ColorRGBA& newColor);
+  Vector2 getTextSize(const String& text) const;
+  Rectangle getTextMetrics(const String& text) const;
+  static Font* createInstance(const Path& path,
+			      const String& characters,
+			      const String& name = "");
+  static Font* createInstance(const moira::Font& font,
+                              const String& name = "");
 private:
   class Glyph;
-  TextureFont(const String& name);
-  bool init(const Font& font);
+  Font(const String& name);
+  bool init(const moira::Font& font);
   typedef std::list<Glyph> GlyphList;
   typedef std::map<char, Glyph*> GlyphMap;
-  Font* font;
+  const moira::Font* inner;
   GlyphList glyphs;
   GlyphMap glyphMap;
   Vector2 penPosition;
+  ColorRGBA color;
   Vector2i texelPosition;
   Ptr<Texture> texture;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-class TextureFont::Glyph
+class Font::Glyph
 {
 public:
   void render(const Vector2& penPosition);
   Rectangle area;
-  const Font::Glyph* glyph;
+  const moira::Font::Glyph* inner;
 };
 
 ///////////////////////////////////////////////////////////////////////
