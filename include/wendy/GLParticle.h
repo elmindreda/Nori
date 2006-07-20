@@ -26,6 +26,11 @@
 #define WENDY_PARTICLE_H
 ///////////////////////////////////////////////////////////////////////
 
+#include <list>
+#include <vector>
+
+///////////////////////////////////////////////////////////////////////
+
 namespace wendy
 {
   namespace GL
@@ -43,7 +48,7 @@ public:
   Vector3 position;
   Vector3 velocity;
   float angle;
-  Time lifeTime;
+  Time duration;
   Time elapsed;
 };
 
@@ -78,7 +83,7 @@ protected:
 class ParticleSystem : public Managed<ParticleSystem>
 {
 public:
-  ParticleSystem(const String& name = "");
+  ParticleSystem(unsigned int particleCount, const String& name = "");
   ~ParticleSystem(void);
   void enqueue(RenderQueue& queue, const Matrix4& transform) const;
   void render(void) const;
@@ -86,7 +91,7 @@ public:
   void setTimeElapsed(Time newTime);
 protected:
   typedef std::vector<Particle> ParticleList;
-  typedef std::vector<Particle*> ActiveParticleList;
+  typedef std::list<Particle*> ActiveParticleList;
   ParticleList particles;
   ActiveParticleList activeParticles;
 private:
