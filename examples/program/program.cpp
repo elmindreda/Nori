@@ -11,7 +11,7 @@ public:
 private:
   bool render(void);
   Ptr<GL::VertexProgram> program;
-  Ptr<GL::Shader> style;
+  Ptr<GL::RenderStyle> style;
   Ptr<GL::Camera> camera;
   Ptr<GL::Mesh> mesh;
 };
@@ -33,8 +33,8 @@ bool Demo::init(void)
   camera = new GL::Camera();
   camera->getTransform().position.z = 5.f;
 
-  style = new GL::Shader();
-  GL::ShaderPass& pass = style->createPass();
+  style = new GL::RenderStyle();
+  GL::RenderPass& pass = style->createPass();
   pass.setDefaultColor(ColorRGBA(0.f, 0.f, 1.f, 1.f));
   pass.setVertexProgramName(program->getName());
 
