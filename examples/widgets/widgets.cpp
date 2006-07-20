@@ -38,7 +38,13 @@ bool Widgets::init(void)
 
 void Widgets::render(void)
 {
+  GL::ContextCanvas canvas;
+  canvas.push();
+  canvas.clearColorBuffer(ColorRGBA::WHITE);
+
   GL::Widget::renderRoots();
+
+  canvas.pop();
 }
 
 void Widgets::onButtonPush(GL::Button& button)
@@ -68,9 +74,6 @@ int main()
     { 
       while (GL::Context::get()->update())
       {
-	glClearColor(1.f, 0.f, 0.f, 0.f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
 	widgets->render();
       }
     }
