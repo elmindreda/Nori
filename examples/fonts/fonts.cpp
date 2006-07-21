@@ -28,7 +28,11 @@ bool Demo::init(void)
   context->setTitle("Fonts");
   context->getRenderSignal().connect(*this, &Demo::render);
 
-  font = GL::Font::createInstance(Path("font.png"), "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  Font* defaultFont = Font::findInstance("default");
+  if (!defaultFont)
+    return false;
+
+  font = GL::Font::createInstance(*defaultFont);
   if (!font)
     return false;
 
@@ -40,23 +44,33 @@ bool Demo::render(void)
   GL::ContextCanvas canvas;
   canvas.push();
   canvas.clearColorBuffer();
-  canvas.begin2D(Vector2((float) canvas.getPhysicalWidth(),
-                         (float) canvas.getPhysicalHeight()));
+  canvas.begin2D(Vector2(640.f, 480.f));
 
-  String text = "All your base are belong to us";
+  String text = "In A.D. 2101, war was beginning\n"
+		"What happen?\n"
+		"Somebody set up us the bomb.\n"
+		"We get signal.\n"
+		"What?\n"
+		"Main screen turn on.\n"
+		"It's you.\n"
+		"How are you gentlemen?\n"
+                "All your base are belong to us.\n"
+                "You are on the way to destruction.\n"
+		"What you say?\n"
+                "You have no chance to survive make your time.\n"
+		"Ha ha ha ....";
 
-  Vector2 pen(100.f, 100.f);
+  Vector2 pen(100.f, 400.f);
 
   font->setPenPosition(pen);
   font->setColor(ColorRGBA::WHITE);
   font->render(text);
 
-  /*
   Rectangle area = font->getTextMetrics(text);
 
-  GL::ShaderPass pass;
+  GL::RenderPass pass;
   pass.setPolygonMode(GL_LINE);
-  pass.setDefaultColor(ColorRGBA::BLACK);
+  pass.setDefaultColor(ColorRGBA::WHITE);
   pass.apply();
 
   glRectf(area.position.x, area.position.y, area.position.x + area.size.x, area.position.y + area.size.y);
@@ -65,7 +79,6 @@ bool Demo::render(void)
   glVertex2f(0.f, pen.y);
   glVertex2f(canvas.getPhysicalWidth(), pen.y);
   glEnd();
-  */
 
   canvas.end();
   canvas.pop();

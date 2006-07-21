@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy user interface library
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_GLCONTROL_H
-#define WENDY_GLCONTROL_H
+#ifndef WENDY_GLWIDGET_H
+#define WENDY_GLWIDGET_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -37,7 +37,47 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! Base class for interface widgets.
+enum WidgetState
+{
+  STATE_NORMAL,
+  STATE_ACTIVE,
+  STATE_SELECTED,
+  STATE_DISABLED,
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Widget renderer singleton.
+ *
+ *  This class implements the default rendering behavior for widgets.
+ */
+class WidgetRenderer : public Singleton<WidgetRenderer>
+{
+public:
+  void drawFrame(const Rectangle& area, WidgetState state);
+  void drawHandle(const Rectangle& area, WidgetState state);
+  void drawButton(const Rectangle& area, WidgetState state, const String& text = "");
+  const ColorRGB& getWidgetColor(void) const;
+  const ColorRGB& getLightWidgetColor(void) const;
+  const ColorRGB& getDarkWidgetColor(void) const;
+  const ColorRGB& getTextColor(void) const;
+  const ColorRGB& getSelectedTextColor(void) const;
+  const ColorRGB& getSelectionColor(void) const;
+  const GL::Font* getFont(void) const;
+  static bool create(void);
+private:
+  WidgetRenderer(void);
+  bool init(void);
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Base class for interface widgets.
+ *
+ *  This is the base class for all interface widgets, including windows.
+ *  It also translates and dispatches user input events, with no client
+ *  setup required.
+ *  
  *  @remarks Yes, it's big. Get over it.
  */
 class Widget : public Node<Widget>,
@@ -81,8 +121,6 @@ public:
   SignalProxy2<void, Widget&, const Vector2&> getDragMoveSignal(void);
   SignalProxy2<void, Widget&, const Vector2&> getDragEndSignal(void);
   static Widget* getActive(void);
-  static Font* getDefaultFont(void);
-  static void setDefaultFont(Font* newFont);
   static void renderRoots(void);
 protected:
   virtual void render(void) const;
@@ -113,7 +151,6 @@ private:
   static WidgetList roots;
   static Widget* activeWidget;
   static Widget* draggedWidget;
-  static Font* defaultFont;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -121,7 +158,7 @@ private:
 class Button : public Widget
 {
 public:
-  Button(const String& name = "", const String& title = "");
+  Button(const String& title = "", const String& name = "");
   const String& getTitle(void) const;
   void setTitle(const String& newTitle);
   SignalProxy2<void, Button&, const String&> getChangeTitleSignal(void);
@@ -145,7 +182,7 @@ class Slider : public Widget
 {
 public:
   enum Orientation { HORIZONTAL, VERTICAL };
-  Slider(const String& name = "");
+  Slider(Orientation orientation = HORIZONTAL, const String& name = "");
   float getMinValue(void) const;
   float getMaxValue(void) const;
   void setValueRange(float newMinValue, float newMaxValue);
@@ -186,5 +223,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_GLCONTROL_H*/
+#endif /*WENDY_GLWIDGET_H*/
 ///////////////////////////////////////////////////////////////////////

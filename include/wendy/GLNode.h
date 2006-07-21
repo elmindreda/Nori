@@ -106,14 +106,14 @@ private:
 class SpriteNode : public SceneNode
 {
 public:
-  const String& getShaderName(void) const;
-  void setShaderName(const String& newShaderName);
+  const String& getStyleName(void) const;
+  void setStyleName(const String& newStyleName);
   const Vector2& getSpriteSize(void) const;
   void setSpriteSize(const Vector2& newSize);
 protected:
   void enqueue(RenderQueue& queue) const;
 private:
-  String shaderName;
+  String styleName;
   Vector2 spriteSize;
 };
 

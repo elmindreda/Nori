@@ -37,9 +37,9 @@ namespace wendy
   
 ///////////////////////////////////////////////////////////////////////
 
-class Shader;
 class VertexBuffer;
 class IndexBuffer;
+class RenderStyle;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -53,10 +53,10 @@ public:
   void render(void) const;
   GeometryList& getGeometries(void);
   VertexBuffer* getVertexBuffer(void);
-  static Mesh* createInstance(const Path& path, const std::string& name = "");
-  static Mesh* createInstance(const moira::Mesh& mesh, const std::string& name = "");
+  static Mesh* createInstance(const Path& path, const String& name = "");
+  static Mesh* createInstance(const moira::Mesh& mesh, const String& name = "");
 private:
-  Mesh(const std::string& name);
+  Mesh(const String& name);
   bool init(const moira::Mesh& mesh);
   typedef std::list<IndexBuffer*> IndexBufferList;
   GeometryList geometries;
@@ -71,7 +71,7 @@ class Mesh::Geometry
 public:
   IndexBuffer* indexBuffer;
   GLenum renderMode;
-  std::string shaderName;
+  String styleName;
 };
 
 ///////////////////////////////////////////////////////////////////////

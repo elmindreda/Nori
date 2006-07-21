@@ -47,7 +47,6 @@
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLLight.h>
-#include <wendy/GLShader.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLSprite.h>
 #include <wendy/GLMesh.h>
@@ -258,14 +257,14 @@ void CameraNode::setAspectRatio(float newAspectRatio)
 
 ///////////////////////////////////////////////////////////////////////
 
-const String& SpriteNode::getShaderName(void) const
+const String& SpriteNode::getStyleName(void) const
 {
-  return shaderName;
+  return styleName;
 }
 
-void SpriteNode::setShaderName(const String& newShaderName)
+void SpriteNode::setStyleName(const String& newStyleName)
 {
-  shaderName = newShaderName;
+  styleName = newStyleName;
 }
 
 const Vector2& SpriteNode::getSpriteSize(void) const
@@ -282,16 +281,16 @@ void SpriteNode::enqueue(RenderQueue& queue) const
 {
   SceneNode::enqueue(queue);
 
-  Shader* shader = Shader::findInstance(shaderName);
-  if (!shader)
+  RenderStyle* style = RenderStyle::findInstance(styleName);
+  if (!style)
   {
-    Log::writeError("Shader %s not found", shaderName.c_str());
+    Log::writeError("Render style %s not found", styleName.c_str());
     return;
   }
 
   Sprite3 sprite;
   sprite.size = spriteSize;
-  sprite.enqueue(queue, getWorldTransform(), *shader);
+  sprite.enqueue(queue, getWorldTransform(), *style);
 }
 
 ///////////////////////////////////////////////////////////////////////

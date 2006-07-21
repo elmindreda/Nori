@@ -37,7 +37,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class Shader;
+class RenderStyle;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -46,7 +46,7 @@ class Sprite2
 public:
   Sprite2(void);
   void render(void) const;
-  void render(const Shader& shader) const;
+  void render(const RenderStyle& style) const;
   void realizeVertices(Vertex2ft2fv* vertices) const;
   void setDefaults(void);
   Vector2 position;
@@ -62,9 +62,9 @@ public:
   Sprite3(void);
   void enqueue(RenderQueue& queue,
                const Matrix4& transform,
-	       const Shader& shader) const;
+	       const RenderStyle& style) const;
   void render(void) const;
-  void render(const Shader& shader) const;
+  void render(const RenderStyle& style) const;
   void realizeVertices(Vertex2ft3fv* vertices) const;
   void setDefaults(void);
   Vector3 position;

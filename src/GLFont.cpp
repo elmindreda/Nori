@@ -23,22 +23,21 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Config.h>
-#include <moira/Core.h>
-#include <moira/Color.h>
-#include <moira/Vector.h>
-#include <moira/Rectangle.h>
-#include <moira/Resource.h>
-#include <moira/Image.h>
-#include <moira/Font.h>
+#include <moira/Moira.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLTexture.h>
-#include <wendy/GLShader.h>
+#include <wendy/GLVertex.h>
+#include <wendy/GLBuffer.h>
+#include <wendy/GLRender.h>
 #include <wendy/GLFont.h>
 
 #include <cstdlib>
+
+#if MOIRA_HAVE_STDARG_H
+#include <stdarg.h>
+#endif
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -70,9 +69,16 @@ unsigned int getNextPower(unsigned int value)
   
 ///////////////////////////////////////////////////////////////////////
   
-void Font::render(const String& text) const
+void Font::render(const String& format, ...) const
 {
-  ShaderPass pass;
+  va_list vl;
+  char* text;
+
+  va_start(vl, format);
+  vasprintf(&text, format.c_str(), vl);
+  va_end(vl);
+  
+  RenderPass pass;
   pass.setDepthTesting(false);
   pass.setDepthWriting(false);
   pass.setDefaultColor(color);
@@ -83,18 +89,41 @@ void Font::render(const String& text) const
 
   Vector2 pen = penPosition;
 
-  for (String::const_iterator c = text.begin();  c != text.end();  c++)
+  for (const char* c = text;  *c != '\0';  c++)
   {
-    GlyphMap::const_iterator i = glyphMap.find(*c);
-    if (i == glyphMap.end())
-      continue;
+    switch (*c)
+    {
+      case '\t':
+      {
+	pen.x += size.x * 3;
+	break;
+      }
+	
+      case '\n':
+      {
+	pen.x = penPosition.x;
+	pen.y = pen.y - size.y * 1.2f;
+	break;
+      }
 
-    Glyph* glyph = (*i).second;
+      default:
+      {
+	GlyphMap::const_iterator i = glyphMap.find(*c);
+	if (i == glyphMap.end())
+	  continue;
 
-    if (*c != ' ')
-      glyph->render(pen);
+	Glyph* glyph = (*i).second;
 
-    pen.x += glyph->inner->getAdvance();
+	if (*c != ' ')
+	  glyph->render(pen);
+
+	pen.x += glyph->advance;
+	break;
+      }
+    }
+
+    pen.x = floorf(pen.x + 0.5f);
+    pen.y = floorf(pen.y + 0.5f);
   }
 }
 
@@ -118,15 +147,73 @@ void Font::setColor(const ColorRGBA& newColor)
   color = newColor;
 }
 
-Vector2 Font::getTextSize(const String& text) const
+Vector2 Font::getTextSize(const String& format, ...) const
 {
-  return inner->getTextSize(text);
+  va_list vl;
+  char* text;
+
+  va_start(vl, format);
+  vasprintf(&text, format.c_str(), vl);
+  va_end(vl);
+  
+  return getTextMetrics(text).size;
 }
 
-Rectangle Font::getTextMetrics(const String& text) const
+Rectangle Font::getTextMetrics(const String& format, ...) const
 {
-  Rectangle result = inner->getTextMetrics(text);
-  result.position += penPosition;
+  va_list vl;
+  char* text;
+
+  va_start(vl, format);
+  vasprintf(&text, format.c_str(), vl);
+  va_end(vl);
+  
+  Rectangle result(penPosition, Vector2::ZERO);
+
+  Vector2 pen = penPosition;
+
+  for (const char* c = text;  *c != '\0';  c++)
+  {
+    switch (*c)
+    {
+      case '\t':
+      {
+	pen.x += size.x * 3;
+	break;
+      }
+	
+      case '\n':
+      {
+	pen.x = penPosition.x;
+	pen.y = pen.y - size.y * 1.2f;
+	break;
+      }
+
+      default:
+      {
+	GlyphMap::const_iterator i = glyphMap.find(*c);
+	if (i == glyphMap.end())
+	  continue;
+
+	Glyph* glyph = (*i).second;
+
+	Rectangle area;
+	area.position.x = pen.x + glyph->bearing.x;
+	area.position.y = pen.y - glyph->size.y + glyph->bearing.y;
+	area.size.set((float) glyph->size.x,
+		      (float) glyph->size.y);
+
+	result.envelop(area);
+
+	pen.x += glyph->advance;
+	break;
+      }
+    }
+
+    pen.x = floorf(pen.x + 0.5f);
+    pen.y = floorf(pen.y + 0.5f);
+  }
+
   return result;
 }
 
@@ -134,7 +221,7 @@ Font* Font::createInstance(const Path& path,
 			   const String& characters,
 			   const String& name)
 {
-  moira::Font* font = moira::Font::createInstance(path, characters);
+  Ptr<moira::Font> font = moira::Font::createInstance(path, characters);
   if (!font)
     return NULL;
 
@@ -192,14 +279,18 @@ bool Font::init(const moira::Font& font)
     Glyph& glyph = glyphs.back();
     glyphMap[characters[i]] = &glyph;
 
-    glyph.inner = font.getGlyph(characters[i]);
-    if (!glyph.inner)
+    const moira::Font::Glyph* sourceGlyph = font.getGlyph(characters[i]);
+    if (!sourceGlyph)
     {
       Log::writeError("No glyph for character %c", characters[i]);
       return false;
     }
 
-    const Image& image = glyph.inner->getImage();
+    const Image& image = sourceGlyph->getImage();
+
+    glyph.advance = sourceGlyph->getAdvance();
+    glyph.bearing = sourceGlyph->getBearing();
+    glyph.size.set((float) image.getWidth(), (float) image.getHeight());
 
     if (texelPosition.x + image.getWidth() + 2 > texture->getPhysicalWidth())
     {
@@ -225,7 +316,7 @@ bool Font::init(const moira::Font& font)
     texelPosition.x += image.getWidth() + 1;
   }
 
-  inner = &font;
+  size.set(font.getWidth(), font.getHeight());
   return true;
 }
 
@@ -237,8 +328,8 @@ void Font::Glyph::render(const Vector2& penPosition)
 
   Rectangle pixelArea;
   pixelArea.position = penPosition;
-  pixelArea.position.y += inner->getBearing().y - inner->getImage().getHeight();
-  pixelArea.size.set(inner->getImage().getWidth(), inner->getImage().getHeight());
+  pixelArea.position.y += bearing.y - size.y;
+  pixelArea.size = size;
     
   glBegin(GL_QUADS);
   glTexCoord2f(texelArea.position.x, texelArea.position.y);

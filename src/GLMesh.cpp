@@ -35,7 +35,6 @@
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
-#include <wendy/GLShader.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLRender.h>
@@ -67,10 +66,10 @@ void Mesh::enqueue(RenderQueue& queue, const Matrix4& transform) const
 {
   for (GeometryList::const_iterator i = geometries.begin();  i != geometries.end();  i++)
   {
-    Shader* shader = Shader::findInstance((*i).shaderName);
-    if (!shader)
+    RenderStyle* style = RenderStyle::findInstance((*i).styleName);
+    if (!style)
     {
-      Log::writeWarning("Shader %s not found", (*i).shaderName.c_str());
+      Log::writeWarning("Render style %s not found", (*i).styleName.c_str());
       return;
     }
 
@@ -79,7 +78,7 @@ void Mesh::enqueue(RenderQueue& queue, const Matrix4& transform) const
     operation.indexBuffer = (*i).indexBuffer;
     operation.renderMode = (*i).renderMode;
     operation.transform = transform;
-    operation.shader = shader;
+    operation.style = style;
     queue.addOperation(operation);
   }
 }
@@ -92,16 +91,16 @@ void Mesh::render(void) const
   {
     const Geometry& geometry = *i;
 
-    Shader* shader = Shader::findInstance(geometry.shaderName);
-    if (!shader)
+    RenderStyle* style = RenderStyle::findInstance(geometry.styleName);
+    if (!style)
     {
-      Log::writeError("Shader %s not found", (*i).shaderName.c_str());
+      Log::writeError("Render style %s not found", (*i).styleName.c_str());
       return;
     }
 
-    for (unsigned int pass = 0;  pass < shader->getPassCount();  pass++)
+    for (unsigned int pass = 0;  pass < style->getPassCount();  pass++)
     {
-      shader->applyPass(pass);
+      style->applyPass(pass);
 
       geometry.indexBuffer->apply();
       geometry.indexBuffer->render(geometry.renderMode);
@@ -169,7 +168,7 @@ bool Mesh::init(const moira::Mesh& mesh)
     geometries.push_back(Geometry());
     Geometry& geometry = geometries.back();
 
-    geometry.shaderName = (*i).shaderName;
+    geometry.styleName = (*i).shaderName;
     geometry.renderMode = GL_TRIANGLES;
 
     geometry.indexBuffer = IndexBuffer::createInstance((unsigned int) (*i).triangles.size() * 3,

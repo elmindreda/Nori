@@ -42,7 +42,6 @@
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLLight.h>
-#include <wendy/GLShader.h>
 #include <wendy/GLFont.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLParticle.h>

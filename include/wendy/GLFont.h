@@ -48,13 +48,15 @@ class Texture;
 class Font : public Managed<Font>
 {
 public:
-  void render(const String& text) const;
+  void render(const String& format, ...) const;
+  float getWidth(void) const;
+  float getHeight(void) const;
   const Vector2& getPenPosition(void) const;
   void setPenPosition(const Vector2& newPosition);
   const ColorRGBA& getColor(void) const;
   void setColor(const ColorRGBA& newColor);
-  Vector2 getTextSize(const String& text) const;
-  Rectangle getTextMetrics(const String& text) const;
+  Vector2 getTextSize(const String& format, ...) const;
+  Rectangle getTextMetrics(const String& format, ...) const;
   static Font* createInstance(const Path& path,
 			      const String& characters,
 			      const String& name = "");
@@ -66,10 +68,10 @@ private:
   bool init(const moira::Font& font);
   typedef std::list<Glyph> GlyphList;
   typedef std::map<char, Glyph*> GlyphMap;
-  const moira::Font* inner;
   GlyphList glyphs;
   GlyphMap glyphMap;
   Vector2 penPosition;
+  Vector2 size;
   ColorRGBA color;
   Vector2i texelPosition;
   Ptr<Texture> texture;
@@ -82,7 +84,9 @@ class Font::Glyph
 public:
   void render(const Vector2& penPosition);
   Rectangle area;
-  const moira::Font::Glyph* inner;
+  Vector2 bearing;
+  Vector2 size;
+  float advance;
 };
 
 ///////////////////////////////////////////////////////////////////////

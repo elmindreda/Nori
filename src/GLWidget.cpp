@@ -23,20 +23,15 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Config.h>
-#include <moira/Core.h>
-#include <moira/Signal.h>
-#include <moira/Node.h>
-#include <moira/Color.h>
-#include <moira/Vector.h>
-#include <moira/Rectangle.h>
-#include <moira/Font.h>
+#include <moira/Moira.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLCanvas.h>
-#include <wendy/GLShader.h>
+#include <wendy/GLVertex.h>
+#include <wendy/GLBuffer.h>
+#include <wendy/GLRender.h>
 #include <wendy/GLFont.h>
 #include <wendy/GLWidget.h>
 
@@ -269,16 +264,6 @@ Widget* Widget::getActive(void)
   return activeWidget;
 }
 
-Font* Widget::getDefaultFont(void)
-{
-  return defaultFont;
-}
-
-void Widget::setDefaultFont(Font* newFont)
-{
-  defaultFont = newFont;
-}
-
 void Widget::renderRoots(void)
 {
   Canvas* canvas = Canvas::getCurrent();
@@ -395,11 +380,9 @@ Widget::WidgetList Widget::roots;
 Widget* Widget::activeWidget = NULL;
 Widget* Widget::draggedWidget = NULL;
 
-Font* Widget::defaultFont = NULL;
-
 ///////////////////////////////////////////////////////////////////////
 
-Button::Button(const String& name, const String& initTitle):
+Button::Button(const String& initTitle, const String& name):
   Widget(name),
   title(initTitle)
 {
@@ -431,7 +414,7 @@ void Button::render(void) const
 {
   const Rectangle& area = getGlobalArea();
 
-  ShaderPass pass;
+  RenderPass pass;
   pass.setDepthTesting(false);
 
   if (isActive())
@@ -465,12 +448,12 @@ void Button::onKeyPress(Widget& widget, Key key, bool pressed)
 
 ///////////////////////////////////////////////////////////////////////
 
-Slider::Slider(const String& name):
+Slider::Slider(Orientation initOrientation, const String& name):
   Widget(name),
   minValue(0.f),
   maxValue(1.f),
   value(0.f),
-  orientation(VERTICAL)
+  orientation(initOrientation)
 {
   getKeyPressSignal().connect(*this, &Slider::onKeyPress);
   getButtonClickSignal().connect(*this, &Slider::onButtonClick);
@@ -522,7 +505,7 @@ void Slider::render(void) const
 {
   const Rectangle& area = getGlobalArea();
 
-  ShaderPass pass;
+  RenderPass pass;
   pass.setCullMode(CULL_NONE);
   pass.setDepthTesting(false);
 
@@ -600,7 +583,7 @@ Window::Window(const String& name, const String& initTitle):
 
 void Window::render(void) const
 {
-  ShaderPass pass;
+  RenderPass pass;
   pass.setDepthTesting(false);
   pass.setDefaultColor(ColorRGBA::WHITE);
   pass.apply();

@@ -23,11 +23,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Config.h>
-#include <moira/Core.h>
-#include <moira/Signal.h>
-#include <moira/Vector.h>
-#include <moira/Color.h>
+#include <moira/Moira.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
@@ -42,8 +38,15 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+using namespace moira;
+
+///////////////////////////////////////////////////////////////////////
+
 bool initializeSystem(void)
 {
+  if (!moira::initialize())
+    return false;
+
   if (!glfwInit())
     return false;
 
@@ -55,6 +58,8 @@ void shutdownSystem(void)
   GL::Context::destroy();
 
   glfwTerminate();
+
+  moira::shutdown();
 }
 
 ///////////////////////////////////////////////////////////////////////

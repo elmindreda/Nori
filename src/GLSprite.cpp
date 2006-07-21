@@ -35,7 +35,6 @@
 #include <wendy/OpenGL.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
-#include <wendy/GLShader.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLSprite.h>
 
@@ -100,14 +99,14 @@ void Sprite2::render(void) const
   glEnd();
 }
 
-void Sprite2::render(const Shader& shader) const
+void Sprite2::render(const RenderStyle& style) const
 {
   Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
-  for (unsigned int pass = 0;  pass < shader.getPassCount();  pass++)
+  for (unsigned int pass = 0;  pass < style.getPassCount();  pass++)
   {
-    shader.applyPass(pass);
+    style.applyPass(pass);
 
     glBegin(GL_QUADS);
     for (unsigned int i = 0;  i < 4;  i++)
@@ -152,7 +151,7 @@ Sprite3::Sprite3(void)
 
 void Sprite3::enqueue(RenderQueue& queue,
                       const Matrix4& transform,
-		      const Shader& shader) const
+		      const RenderStyle& style) const
 {
   if (!Renderer::get())
   {
@@ -177,7 +176,7 @@ void Sprite3::enqueue(RenderQueue& queue,
   operation.count = range.getCount();
   operation.renderMode = GL_QUADS;
   operation.transform = transform;
-  operation.shader = &shader;
+  operation.style = &style;
   queue.addOperation(operation);
 }
 
@@ -192,14 +191,14 @@ void Sprite3::render(void) const
   glEnd();
 }
 
-void Sprite3::render(const Shader& shader) const
+void Sprite3::render(const RenderStyle& style) const
 {
   Vertex2ft3fv vertices[4];
   realizeVertices(vertices);
 
-  for (unsigned int pass = 0;  pass < shader.getPassCount();  pass++)
+  for (unsigned int pass = 0;  pass < style.getPassCount();  pass++)
   {
-    shader.applyPass(pass);
+    style.applyPass(pass);
 
     glBegin(GL_QUADS);
     for (unsigned int i = 0;  i < 4;  i++)
