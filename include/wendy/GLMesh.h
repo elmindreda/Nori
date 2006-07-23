@@ -43,7 +43,7 @@ class RenderStyle;
 
 ///////////////////////////////////////////////////////////////////////
 
-class Mesh : public Managed<Mesh>
+class Mesh : public DerivedResource<Mesh, moira::Mesh>
 {
 public:
   class Geometry;
@@ -53,7 +53,6 @@ public:
   void render(void) const;
   GeometryList& getGeometries(void);
   VertexBuffer* getVertexBuffer(void);
-  static Mesh* createInstance(const Path& path, const String& name = "");
   static Mesh* createInstance(const moira::Mesh& mesh, const String& name = "");
 private:
   Mesh(const String& name);

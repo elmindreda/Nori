@@ -148,6 +148,7 @@ public:
   IndexBufferRange(IndexBuffer& indexBuffer,
                    unsigned int start,
 		   unsigned int count);
+  void render(void);
   void* lock(void);
   void unlock(void);
   IndexBuffer* getIndexBuffer(void);
@@ -256,6 +257,7 @@ public:
   VertexBufferRange(VertexBuffer& vertexBuffer,
                     unsigned int start,
 		    unsigned int count);
+  void render(void);
   void* lock(void);
   void unlock(void);
   VertexBuffer* getVertexBuffer(void);

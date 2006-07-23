@@ -10,26 +10,58 @@ public:
   bool init(void);
   void render(void);
 private:
-  void onButtonPush(GL::Button& button);
-  void onValueChange(GL::Slider& slider, float newValue);
-  Ptr<GL::Window> window;
+  void onButtonPush(UI::Button& button);
+  void onValueChange(UI::Slider& slider, float newValue);
+  Ptr<UI::Window> window;
+  UI::Label* label;
 };
 
 bool Widgets::init(void)
 {
-  window = new GL::Window("", "Hello");
+  if (!UI::WidgetRenderer::create())
+    return false;
+
+  window = new UI::Window("Stairs");
   window->setArea(Rectangle(10, 10, 500, 500));
 
-  GL::Button* button = new GL::Button("", "OK");
-  button->setArea(Rectangle(10, 10, 300, 300));
+  UI::Button* button;
+
+  button = new UI::Button("Push");
+  button->setPosition(Vector2(10, 10));
   button->getPushedSignal().connect(*this, &Widgets::onButtonPush);
   window->addChildFirst(*button);
 
-  GL::Slider* slider = new GL::Slider();
+  button = new UI::Button("Shove");
+  button->setPosition(Vector2(120, 10));
+  button->getPushedSignal().connect(*this, &Widgets::onButtonPush);
+  window->addChildFirst(*button);
+
+  button = new UI::Button();
+  button->setPosition(Vector2(220, 10));
+  button->getPushedSignal().connect(*this, &Widgets::onButtonPush);
+  window->addChildFirst(*button);
+
+  label = new UI::Label("Amount of grandpa");
+  label->setArea(Rectangle(10, 350, 400, 20));
+  window->addChildFirst(*label);
+
+  UI::Entry* entry = new UI::Entry("Do you have stairs in your house?");
+  entry->setPosition(Vector2(10, 300));
+  window->addChildFirst(*entry);
+
+  UI::Slider* slider = new UI::Slider();
   slider->setArea(Rectangle(10, 400, 400, 20));
-  slider->setOrientation(GL::Slider::HORIZONTAL);
+  slider->setOrientation(UI::Slider::HORIZONTAL);
   slider->getChangeValueSignal().connect(*this, &Widgets::onValueChange);
   window->addChildFirst(*slider);
+
+  UI::List* list = new UI::List();
+  list->setArea(Rectangle(400, 100, 150, 200));
+  list->insertItem(new UI::Item("Bread"), 0);
+  list->insertItem(new UI::Item("Terrible secret"), 0);
+  list->insertItem(new UI::Item("Space"), 0);
+  list->insertItem(new UI::Item("Blind people"), 0);
+  window->addChildFirst(*list);
 
   window->activate();
 
@@ -42,19 +74,21 @@ void Widgets::render(void)
   canvas.push();
   canvas.clearColorBuffer(ColorRGBA::WHITE);
 
-  GL::Widget::renderRoots();
+  UI::Widget::renderRoots();
 
   canvas.pop();
 }
 
-void Widgets::onButtonPush(GL::Button& button)
+void Widgets::onButtonPush(UI::Button& button)
 {
-  Log::writeInformation("Hallelujah");
+  label->setText(button.getText());
 }
 
-void Widgets::onValueChange(GL::Slider& slider, float newValue)
+void Widgets::onValueChange(UI::Slider& slider, float newValue)
 {
-  Log::writeInformation("New value: %0.2f", newValue);
+  Variant value;
+  value.setFloatValue(newValue);
+  label->setText("Amount of grandpa: " + value.asString());
 }
 
 int main()
@@ -62,7 +96,7 @@ int main()
   GL::ContextMode mode;
   mode.set(640, 480, 32, 0, 0, GL::ContextMode::WINDOWED);
 
-  if (!initializeSystem())
+  if (!wendy::initialize())
     return 1;
 
   if (GL::Context::create(mode))
@@ -81,7 +115,7 @@ int main()
     GL::Context::destroy();
   }
 
-  shutdownSystem();
+  wendy::shutdown();
   return 0;
 }
 

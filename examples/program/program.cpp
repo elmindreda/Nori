@@ -26,7 +26,7 @@ bool Demo::init(void)
   context->setTitle("Program");
   context->getRenderSignal().connect(*this, &Demo::render);
 
-  program = GL::VertexProgram::createInstance(Path("program.vp"));
+  program = GL::VertexProgram::readInstance(Path("program.vp"));
   if (!program)
     return false;
 
@@ -38,7 +38,7 @@ bool Demo::init(void)
   pass.setDefaultColor(ColorRGBA(0.f, 0.f, 1.f, 1.f));
   pass.setVertexProgramName(program->getName());
 
-  Mesh* meshData = Mesh::createInstance(Path("cube.mesh"));
+  Mesh* meshData = Mesh::readInstance(Path("cube.mesh"));
   if (!meshData)
     return false;
 
@@ -68,7 +68,7 @@ bool Demo::render(void)
 
 int main()
 {
-  if (!initializeSystem())
+  if (!wendy::initialize())
     exit(1);
 
   Ptr<Demo> demo = new Demo();
@@ -85,7 +85,7 @@ int main()
 
   demo = NULL;
 
-  shutdownSystem();
+  wendy::shutdown();
   exit(0);
 }
 

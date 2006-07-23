@@ -89,6 +89,8 @@ public:
   void render(void) const;
   Time getTimeElapsed(void) const;
   void setTimeElapsed(Time newTime);
+  const String& getRenderStyleName(void) const;
+  void setRenderStyleName(const String& newName);
 protected:
   typedef std::vector<Particle> ParticleList;
   typedef std::list<Particle*> ActiveParticleList;
@@ -96,6 +98,7 @@ protected:
   ActiveParticleList activeParticles;
 private:
   Time currentTime;
+  String renderStyleName;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -23,13 +23,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Config.h>
-#include <moira/Core.h>
-#include <moira/Signal.h>
-#include <moira/Vector.h>
-#include <moira/Color.h>
-#include <moira/Resource.h>
-#include <moira/Image.h>
+#include <moira/Moira.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>

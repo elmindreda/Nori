@@ -45,6 +45,10 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Input key.
+ *
+ *  Represents a single input key (as on a keyboard).
+ */
 class Key
 {
 public:
@@ -64,6 +68,11 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Context settings.
+ *
+ *  This class provides the settings parameters available for OpenGL
+ *  context creation, as provided through Context::create.
+ */
 class ContextMode
 {
 public:
@@ -116,6 +125,13 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief OpenGL context singleton.
+ *
+ *  This class encapsulates the OpenGL context, provides display mode
+ *  control and basic HID (input) signals.  It also initializes the
+ *  GLEW library, allowing use of the GLEW booleans in client code
+ *  for the entire lifetime of the context.
+ */
 class Context : public Singleton<Context>
 {
 public:

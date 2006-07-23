@@ -284,6 +284,17 @@ IndexBufferRange::IndexBufferRange(IndexBuffer& initIndexBuffer,
   }
 }
 
+void IndexBufferRange::render(void)
+{
+  if (!indexBuffer || count == 0)
+  {
+    Log::writeError("Cannot render empty index buffer range");
+    return;
+  }
+
+  indexBuffer->render(start, count);
+}
+
 void* IndexBufferRange::lock(void)
 {
   if (!indexBuffer || count == 0)
@@ -588,6 +599,17 @@ VertexBufferRange::VertexBufferRange(VertexBuffer& initVertexBuffer,
     if (count > 0)
       throw Exception("Invalid vertex buffer range");
   }
+}
+
+void VertexBufferRange::render(void)
+{
+  if (!vertexBuffer || count == 0)
+  {
+    Log::writeError("Cannot render empty vertex buffer range");
+    return;
+  }
+
+  vertexBuffer->render(start, count);
 }
 
 void* VertexBufferRange::lock(void)

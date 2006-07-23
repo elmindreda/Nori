@@ -33,21 +33,35 @@ namespace wendy
   
 ///////////////////////////////////////////////////////////////////////
 
-class VertexProgram : public Managed<VertexProgram>
+using namespace moira;
+
+///////////////////////////////////////////////////////////////////////
+
+class VertexProgram : public Resource<VertexProgram>
 {
 public:
   ~VertexProgram(void);
   GLuint getGLID(void) const;
   bool getParameter(unsigned int index, Vector4& value) const;
   bool setParameter(unsigned int index, const Vector4& newValue);
-  static VertexProgram* createInstance(const Path& path,
-                                       const String& name = "");
   static VertexProgram* createInstance(const String& text,
                                        const String& name = "");
 private:
   VertexProgram(const String& name);
   bool init(const String& text);
   GLuint programID;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class VertexProgramCodec : public ResourceCodec<VertexProgram>
+{
+public:
+  VertexProgramCodec(void);
+  VertexProgram* read(const Path& path, const String& name = "");
+  VertexProgram* read(Stream& stream, const String& name = "");
+  bool write(const Path& path, const VertexProgram& program);
+  bool write(Stream& stream, const VertexProgram& program);
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -59,8 +73,8 @@ public:
   GLuint getGLID(void) const;
   bool getParameter(unsigned int index, Vector4& value) const;
   bool setParameter(unsigned int index, const Vector4& newValue);
-  static FragmentProgram* createInstance(const Path& path,
-                                         const String& name = "");
+  static FragmentProgram* readInstance(const Path& path,
+                                       const String& name = "");
   static FragmentProgram* createInstance(const String& text,
                                          const String& name = "");
 private:

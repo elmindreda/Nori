@@ -48,7 +48,7 @@ class Texture;
 class Font : public Managed<Font>
 {
 public:
-  void render(const String& format, ...) const;
+  void drawText(const String& format, ...) const;
   float getWidth(void) const;
   float getHeight(void) const;
   const Vector2& getPenPosition(void) const;

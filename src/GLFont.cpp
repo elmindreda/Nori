@@ -69,7 +69,7 @@ unsigned int getNextPower(unsigned int value)
   
 ///////////////////////////////////////////////////////////////////////
   
-void Font::render(const String& format, ...) const
+void Font::drawText(const String& format, ...) const
 {
   va_list vl;
   char* text;
@@ -125,6 +125,16 @@ void Font::render(const String& format, ...) const
     pen.x = floorf(pen.x + 0.5f);
     pen.y = floorf(pen.y + 0.5f);
   }
+}
+
+float Font::getWidth(void) const
+{
+  return size.x;
+}
+
+float Font::getHeight(void) const
+{
+  return size.y;
 }
 
 const Vector2& Font::getPenPosition(void) const
@@ -221,7 +231,7 @@ Font* Font::createInstance(const Path& path,
 			   const String& characters,
 			   const String& name)
 {
-  Ptr<moira::Font> font = moira::Font::createInstance(path, characters);
+  Ptr<moira::Font> font = moira::Font::readInstance(path, characters);
   if (!font)
     return NULL;
 
@@ -308,10 +318,10 @@ bool Font::init(const moira::Font& font)
     if (!texture->copyFrom(image, texelPosition.x, texelPosition.y))
       return false;
 
-    glyph.area.position.set((texelPosition.x - 0.5f) / (float) texture->getPhysicalWidth(),
-			    (texelPosition.y - 0.5f) / (float) texture->getPhysicalHeight());
-    glyph.area.size.set((image.getWidth() + 0.5f) / (float) texture->getPhysicalWidth(),
-			(image.getHeight() + 0.5f) / (float) texture->getPhysicalHeight());
+    glyph.area.position.set(texelPosition.x / (float) texture->getPhysicalWidth(),
+			    texelPosition.y / (float) texture->getPhysicalHeight());
+    glyph.area.size.set(image.getWidth() / (float) texture->getPhysicalWidth(),
+			image.getHeight() / (float) texture->getPhysicalHeight());
 
     texelPosition.x += image.getWidth() + 1;
   }

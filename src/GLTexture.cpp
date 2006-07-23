@@ -23,14 +23,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Config.h>
-#include <moira/Portability.h>
-#include <moira/Core.h>
-#include <moira/Signal.h>
-#include <moira/Vector.h>
-#include <moira/Color.h>
-#include <moira/Resource.h>
-#include <moira/Image.h>
+#include <moira/Moira.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
@@ -343,13 +336,34 @@ Image* Texture::getImage(unsigned int level) const
   return result.detachObject();
 }
 
-Texture* Texture::createInstance(const Path& path,
-				 unsigned int flags,
-				 const String& name)
+Texture* Texture::readInstance(const String& name, unsigned int flags)
 {
-  ImageReader reader;
-  
-  Ptr<Image> image = reader.read(path);
+  if (Image* image = Image::findInstance(name))
+    return createInstance(*image, flags, name);
+
+  Ptr<Image> image = Image::readInstance(name);
+  if (!image)
+    return NULL;
+
+  return createInstance(*image, flags, name);
+}
+
+Texture* Texture::readInstance(const Path& path,
+			       unsigned int flags,
+			       const String& name)
+{
+  Ptr<Image> image = Image::readInstance(path);
+  if (!image)
+    return NULL;
+
+  return createInstance(*image, flags, name);
+}
+
+Texture* Texture::readInstance(Stream& stream,
+			       unsigned int flags,
+			       const String& name)
+{
+  Ptr<Image> image = Image::readInstance(stream);
   if (!image)
     return NULL;
 
@@ -368,7 +382,7 @@ Texture* Texture::createInstance(const Image& image,
 }
 
 Texture::Texture(const String& name):
-  Managed<Texture>(name),
+  Resource<Texture>(name),
   textureID(0),
   textureTarget(0),
   minFilter(0),

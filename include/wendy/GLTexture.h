@@ -37,7 +37,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class Texture : public Managed<Texture>
+class Texture : public Resource<Texture>
 {
 public:
   enum
@@ -112,14 +112,19 @@ public:
    *  @return The image data of the specified mip level.
    */
   Image* getImage(unsigned int level = 0) const;
+  static Texture* readInstance(const String& name,
+                               unsigned int flags = DEFAULT);
   /*! Creates a texture from the specified image file.
    *  @param name The desired name of the texture.
    *  @param path The path of the image file to use.
    *  @param flags The creation flags.
    */
-  static Texture* createInstance(const Path& path,
-                                 unsigned int flags = DEFAULT,
-				 const String& name = "");
+  static Texture* readInstance(const Path& path,
+                               unsigned int flags = DEFAULT,
+			       const String& name = "");
+  static Texture* readInstance(Stream& stream,
+                               unsigned int flags = DEFAULT,
+			       const String& name = "");
   /*! Creates a texture from the specified image.
    *  @param name The desired name of the texture.
    *  @param image The image data to use.

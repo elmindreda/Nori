@@ -23,12 +23,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Config.h>
-#include <moira/Core.h>
-#include <moira/Signal.h>
-#include <moira/Vector.h>
-#include <moira/Color.h>
-#include <moira/Stream.h>
+#include <moira/Moira.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
@@ -85,20 +80,6 @@ bool VertexProgram::setParameter(unsigned int index, const Vector4& newValue)
   return true;
 }
 
-VertexProgram* VertexProgram::createInstance(const Path& path,
-                                             const String& name)
-{
-  Stream* file = FileStream::createInstance(path, Stream::READABLE);
-  Ptr<TextStream> stream = TextStream::createInstance(file);
-  if (!stream)
-    return NULL;
-
-  String text;
-  stream->readText(text, stream->getSize());
-
-  return createInstance(text, name);
-}
-
 VertexProgram* VertexProgram::createInstance(const String& text,
                                              const String& name)
 {
@@ -110,7 +91,7 @@ VertexProgram* VertexProgram::createInstance(const String& text,
 }
 
 VertexProgram::VertexProgram(const String& name):
-  Managed<VertexProgram>(name),
+  Resource<VertexProgram>(name),
   programID(0)
 {
 }
@@ -157,6 +138,40 @@ bool VertexProgram::init(const String& text)
 
 ///////////////////////////////////////////////////////////////////////
 
+VertexProgramCodec::VertexProgramCodec(void):
+  ResourceCodec<VertexProgram>("OpenGL ARB vertex program codec")
+{
+}
+
+VertexProgram* VertexProgramCodec::read(const Path& path, const String& name)
+{
+  return ResourceCodec<VertexProgram>::read(path, name);
+}
+
+VertexProgram* VertexProgramCodec::read(Stream& stream, const String& name)
+{
+  Ptr<TextStream> textStream = new TextStream(&stream, false);
+
+  String text;
+  textStream->readText(text, textStream->getSize());
+
+  return VertexProgram::createInstance(text, name);
+}
+
+bool VertexProgramCodec::write(const Path& path, const VertexProgram& program)
+{
+  return ResourceCodec<VertexProgram>::write(path, program);
+}
+
+bool VertexProgramCodec::write(Stream& stream, const VertexProgram& program)
+{
+  // TODO: The code.
+
+  return false;
+}
+
+///////////////////////////////////////////////////////////////////////
+
 FragmentProgram::~FragmentProgram(void)
 {
   if (programID != 0)
@@ -198,8 +213,8 @@ bool FragmentProgram::setParameter(unsigned int index, const Vector4& newValue)
   return true;
 }
 
-FragmentProgram* FragmentProgram::createInstance(const Path& path,
-                                             const String& name)
+FragmentProgram* FragmentProgram::readInstance(const Path& path,
+                                               const String& name)
 {
   Stream* file = FileStream::createInstance(path, Stream::READABLE);
   Ptr<TextStream> stream = TextStream::createInstance(file);
@@ -213,7 +228,7 @@ FragmentProgram* FragmentProgram::createInstance(const Path& path,
 }
 
 FragmentProgram* FragmentProgram::createInstance(const String& text,
-                                             const String& name)
+                                                 const String& name)
 {
   Ptr<FragmentProgram> program = new FragmentProgram(name);
   if (!program->init(text))

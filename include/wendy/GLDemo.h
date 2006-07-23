@@ -138,7 +138,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class Demo
+class Demo : public Resource<Demo>
 {
 public:
   ~Demo(void);
@@ -158,12 +158,12 @@ public:
   const ContextMode& getContextMode(void) const;
   void setContextMode(const ContextMode& newMode);
   const String& getTitle(void) const;
+  void setTitle(const String& newTitle);
   Time getDuration(void) const;
   Time getTimeElapsed(void) const;
   void setTimeElapsed(Time time);
   DemoEffect* getRootEffect(void);
-  static Demo* createInstance(const String& title);
-  static Demo* createInstance(const Path& path);
+  static Demo* createInstance(const String& name = "");
 private:
   class Event
   {
@@ -184,7 +184,7 @@ private:
     EventList events;
   };
   typedef std::map<String, Effect*> EffectMap;
-  Demo(const String& initTitle);
+  Demo(const String& name);
   bool init(void);
   Effect* findEffect(const String& name);
   void updateEffect(Effect& effect, Time newTime);
@@ -198,14 +198,17 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class DemoReader : public XML::Reader
+class DemoCodecXML : public ResourceCodec<Demo>, public XML::Codec
 {
 public:
-  Demo* read(const Path& path);
-  Demo* read(Stream& stream);
+  DemoCodecXML(void);
+  Demo* read(const Path& path, const String& name = "");
+  Demo* read(Stream& stream, const String& name = "");
+  bool write(const Path& path, const Demo& demo);
+  bool write(Stream& stream, const Demo& demo);
 private:
-  bool beginElement(const String& name);
-  bool endElement(const String& name);
+  bool onBeginElement(const String& name);
+  bool onEndElement(const String& name);
   Ptr<Demo> demo;
   std::stack<String> effectNameStack;
 };

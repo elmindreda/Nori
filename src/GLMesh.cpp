@@ -23,15 +23,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Config.h>
-#include <moira/Core.h>
-#include <moira/Signal.h>
-#include <moira/Color.h>
-#include <moira/Vector.h>
-#include <moira/Matrix.h>
-#include <moira/Stream.h>
-#include <moira/XML.h>
-#include <moira/Mesh.h>
+#include <moira/Moira.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
@@ -118,16 +110,6 @@ VertexBuffer* Mesh::getVertexBuffer(void)
   return vertexBuffer;
 }
 
-Mesh* Mesh::createInstance(const Path& path, const String& name)
-{
-  MeshReader reader;
-  Ptr<moira::Mesh> mesh = reader.read(path);
-  if (!mesh)
-    return NULL;
-
-  return createInstance(*mesh, name);
-}
-
 Mesh* Mesh::createInstance(const moira::Mesh& mesh, const String& name)
 {
   Ptr<Mesh> renderMesh = new Mesh(name);
@@ -138,7 +120,7 @@ Mesh* Mesh::createInstance(const moira::Mesh& mesh, const String& name)
 }
 
 Mesh::Mesh(const String& name):
-  Managed<Mesh>(name)
+  DerivedResource<Mesh, moira::Mesh>(name)
 {
 }
 

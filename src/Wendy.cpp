@@ -25,9 +25,7 @@
 
 #include <moira/Moira.h>
 
-#include <wendy/Config.h>
-#include <wendy/OpenGL.h>
-#include <wendy/GLContext.h>
+#include <wendy/Wendy.h>
 
 #include <GL/glfw.h>
 
@@ -42,7 +40,17 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-bool initializeSystem(void)
+namespace
+{
+
+Ptr<GL::VertexProgramCodec> vertexProgramCodec;
+Ptr<GL::DemoCodecXML> demoCodecXML;
+
+}
+
+///////////////////////////////////////////////////////////////////////
+
+bool initialize(void)
 {
   if (!moira::initialize())
     return false;
@@ -50,12 +58,18 @@ bool initializeSystem(void)
   if (!glfwInit())
     return false;
 
+  vertexProgramCodec = new GL::VertexProgramCodec();
+  demoCodecXML = new GL::DemoCodecXML();
+
   return true;
 }
 
-void shutdownSystem(void)
+void shutdown(void)
 {
   GL::Context::destroy();
+
+  vertexProgramCodec = NULL;
+  demoCodecXML = NULL;
 
   glfwTerminate();
 

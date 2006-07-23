@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_H
-#define WENDY_H
+#ifndef WENDY_WENDY_H
+#define WENDY_WENDY_H
 ///////////////////////////////////////////////////////////////////////
 
 #include <moira/Moira.h>
@@ -48,8 +48,9 @@
 #include <wendy/GLMesh.h>
 #include <wendy/GLNode.h>
 #include <wendy/GLSprite.h>
-#include <wendy/GLWidget.h>
 #include <wendy/GLDemo.h>
+
+#include <wendy/UIWidget.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -58,13 +59,27 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-bool initializeSystem(void);
-void shutdownSystem(void);
+/*! @brief Initializes libraries and creates the default objects.
+ *
+ *  Initializes lower-level libraries and sets up the default objects,
+ *  such as instances of all default resource codecs.  You must call
+ *  this before creating an OpenGL context.
+ *
+ *  @remarks If you do call it, it's considered polite to call
+ *  wendy::shutdown as well.
+ */
+bool initialize(void);
+
+/*! @brief Destroys the default objects.
+ *
+ *  Destroys all objects created by wendy::initialize.
+ */
+void shutdown(void);
 
 ///////////////////////////////////////////////////////////////////////
 
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_H*/
+#endif /*WENDY_WENDY_H*/
 ///////////////////////////////////////////////////////////////////////

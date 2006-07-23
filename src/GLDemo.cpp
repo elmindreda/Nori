@@ -23,15 +23,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Config.h>
-#include <moira/Portability.h>
-#include <moira/Core.h>
-#include <moira/Signal.h>
-#include <moira/Node.h>
-#include <moira/Color.h>
-#include <moira/Vector.h>
-#include <moira/Stream.h>
-#include <moira/XML.h>
+#include <moira/Moira.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
@@ -318,6 +310,11 @@ const String& Demo::getTitle(void) const
   return title;
 }
 
+void Demo::setTitle(const String& newTitle)
+{
+  title = newTitle;
+}
+
 Time Demo::getDuration(void) const
 {
   return rootEffect.duration;
@@ -346,21 +343,13 @@ Demo* Demo::createInstance(const String& title)
   return demo.detachObject();
 }
 
-Demo* Demo::createInstance(const Path& path)
-{
-  DemoReader reader;
-  return reader.read(path);
-}
-
-Demo::Demo(const String& initTitle):
-  title(initTitle)
+Demo::Demo(const String& name):
+  Resource<Demo>(name)
 {
 }
 
 bool Demo::init(void)
 {
-  // NOTE: AAAAAAAAAAAAAAAARRGHHHH!!!!!!!!!
-  
   if (!DemoEffectType::findInstance("null"))
     new DemoEffectTemplate<NullEffect>("null");
 
@@ -444,7 +433,12 @@ bool Demo::createEffectInstance(Effect& effect)
   {
     effect.instance = type->createEffect(effect.instanceName, effect.duration);
     if (!effect.instance)
+    {
+      Log::writeError("Failed to create effect %s of type %s",
+                      effect.instanceName.c_str(),
+		      effect.typeName.c_str());
       return false;
+    }
   }
   catch (const Exception& e)
   {
@@ -489,16 +483,19 @@ Demo::Effect* Demo::findEffect(const String& name)
 
 ///////////////////////////////////////////////////////////////////////
 
-Demo* DemoReader::read(const Path& path)
+DemoCodecXML::DemoCodecXML(void):
+  ResourceCodec<Demo>("Demo XML codec")
 {
-  Ptr<Stream> file = FileStream::createInstance(path, Stream::READABLE);
-  if (!file)
-    return false;
-
-  return read(*file);
+  addSuffix("demo");
+  addSuffix("xml");
 }
 
-Demo* DemoReader::read(Stream& stream)
+Demo* DemoCodecXML::read(const Path& path, const String& name)
+{
+  return ResourceCodec<Demo>::read(path, name);
+}
+
+Demo* DemoCodecXML::read(Stream& stream, const String& name)
 {
   while (!effectNameStack.empty())
     effectNameStack.pop();
@@ -509,11 +506,27 @@ Demo* DemoReader::read(Stream& stream)
   return demo.detachObject();
 }
 
-bool DemoReader::beginElement(const String& name)
+bool DemoCodecXML::write(const Path& path, const Demo& demo)
+{
+  return ResourceCodec<Demo>::write(path, demo);
+}
+
+bool DemoCodecXML::write(Stream& stream, const Demo& demo)
+{
+  // TODO: Implement.
+
+  return false;
+}
+
+bool DemoCodecXML::onBeginElement(const String& name)
 {
   if (name == "demo")
   {
-    demo = Demo::createInstance(readString("title"));
+    demo = Demo::createInstance();
+    if (!demo)
+      return false;
+
+    demo->setTitle(readString("title"));
     return true;
   }
 
@@ -574,7 +587,7 @@ bool DemoReader::beginElement(const String& name)
   return true;
 }
 
-bool DemoReader::endElement(const String& name)
+bool DemoCodecXML::onEndElement(const String& name)
 {
   if (demo)
   {

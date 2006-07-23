@@ -25,7 +25,7 @@ int main(int argc, char** argv)
   GL::ContextMode mode;
   mode.set(640, 480, 32, 0, 0, GL::ContextMode::WINDOWED);
 
-  if (!initializeSystem())
+  if (!wendy::initialize())
     return 1;
 
   if (GL::Context::create(mode))
@@ -40,7 +40,7 @@ int main(int argc, char** argv)
     GL::Context::destroy();
   }
 
-  shutdownSystem();
+  wendy::shutdown();
   return 0;
 }
 

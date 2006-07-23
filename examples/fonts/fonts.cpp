@@ -64,7 +64,7 @@ bool Demo::render(void)
 
   font->setPenPosition(pen);
   font->setColor(ColorRGBA::WHITE);
-  font->render(text);
+  font->drawText(text);
 
   Rectangle area = font->getTextMetrics(text);
 
@@ -90,7 +90,7 @@ bool Demo::render(void)
 
 int main(int argc, char** argv)
 {
-  if (!initializeSystem())
+  if (!wendy::initialize())
     exit(1);
 
   Ptr<Demo> demo = new Demo();
@@ -102,7 +102,7 @@ int main(int argc, char** argv)
 
   demo = NULL;
 
-  shutdownSystem();
+  wendy::shutdown();
   exit(0);
 }
 
