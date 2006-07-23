@@ -1,7 +1,7 @@
 !!ARBvp1.0
 
 ATTRIB position = vertex.position;
-PARAM mvp[4] = { state.matrix.mvp[2] };
+PARAM mvp[4] = { state.matrix.mvp };
 
 # Transform into clip space
 DP4    result.position.x, mvp[0], position;
