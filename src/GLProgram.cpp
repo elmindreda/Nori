@@ -114,7 +114,7 @@ bool VertexProgram::init(const String& text)
   glBindProgramARB(GL_VERTEX_PROGRAM_ARB, programID);
   glProgramStringARB(GL_VERTEX_PROGRAM_ARB,
                      GL_PROGRAM_FORMAT_ASCII_ARB,
-		     text.length(), text.c_str());
+                     (GLsizei) text.length(), text.c_str());
 
   const GLubyte* message = glGetString(GL_PROGRAM_ERROR_STRING_ARB);
 
@@ -261,7 +261,7 @@ bool FragmentProgram::init(const String& text)
   glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, programID);
   glProgramStringARB(GL_FRAGMENT_PROGRAM_ARB,
                      GL_PROGRAM_FORMAT_ASCII_ARB,
-		     text.length(), text.c_str());
+                     (GLsizei) text.length(), text.c_str());
 
   const GLubyte* message = glGetString(GL_PROGRAM_ERROR_STRING_ARB);
 

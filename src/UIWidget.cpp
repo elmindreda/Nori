@@ -543,8 +543,8 @@ void Widget::renderRoots(void)
     return;
   }
 
-  canvas->begin2D(Vector2(canvas->getPhysicalWidth(),
-                          canvas->getPhysicalHeight()));
+  canvas->begin2D(Vector2((float) canvas->getPhysicalWidth(),
+                          (float) canvas->getPhysicalHeight()));
 
   for (WidgetList::iterator i = roots.begin();  i != roots.end();  i++)
   {
@@ -576,7 +576,7 @@ void Widget::onKeyPress(GL::Key key, bool pressed)
     default:
     {
       if (activeWidget)
-	activeWidget->keyPressSignal.emit(*activeWidget, key, pressed);
+        activeWidget->keyPressSignal.emit(*activeWidget, key, pressed);
 
       break;
     }
@@ -1030,14 +1030,14 @@ void List::setSelection(unsigned int newIndex)
   if (items.empty())
     return;
 
-  newIndex = std::min(newIndex, items.size() - 1);
+  newIndex = std::min(newIndex, (unsigned int) items.size() - 1);
   changeSelectionSignal.emit(*this, newIndex);
   selection = newIndex;
 }
 
 unsigned int List::getItemCount(void) const
 {
-  return items.size();
+  return (unsigned int) items.size();
 }
 
 Item* List::getItem(unsigned int index)
@@ -1082,8 +1082,6 @@ SignalProxy2<void, List&, unsigned int> List::getChangeSelectionSignal(void)
 void List::render(void) const
 {
   const Rectangle& area = getGlobalArea();
-
-  WidgetState state;
 
   WidgetRenderer::get()->drawFrame(area, getState());
 

@@ -46,11 +46,11 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -106,11 +106,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -154,15 +154,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\FMODSample.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\FMODSpectrum.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\FMODSystem.cpp"
+				RelativePath="..\..\src\GLBuffer.cpp"
 				>
 			</File>
 			<File
@@ -186,7 +178,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\GLIndexBuffer.cpp"
+				RelativePath="..\..\src\GLFont.cpp"
 				>
 			</File>
 			<File
@@ -194,15 +186,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\GLMesh.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\GLNode.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\GLRender.cpp"
+				RelativePath="..\..\src\GLProgram.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\GLShader.cpp"
+				RelativePath="..\..\src\GLRender.cpp"
 				>
 			</File>
 			<File
@@ -218,7 +214,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\GLVertexBuffer.cpp"
+				RelativePath="..\..\src\UIWidget.cpp"
 				>
 			</File>
 			<File
@@ -236,19 +232,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\wendy\FMOD.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\wendy\FMODSample.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\wendy\FMODSpectrum.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\wendy\FMODSystem.h"
+				RelativePath="..\..\include\wendy\GLBuffer.h"
 				>
 			</File>
 			<File
@@ -272,11 +256,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\wendy\GLIndexBuffer.h"
+				RelativePath="..\..\include\wendy\GLFont.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\include\wendy\GLLight.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\GLMesh.h"
 				>
 			</File>
 			<File
@@ -288,11 +276,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\wendy\GLRender.h"
+				RelativePath="..\..\include\wendy\GLProgram.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\wendy\GLShader.h"
+				RelativePath="..\..\include\wendy\GLRender.h"
 				>
 			</File>
 			<File
@@ -308,11 +296,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\wendy\GLVertexBuffer.h"
+				RelativePath="..\..\include\wendy\OpenGL.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\wendy\OpenGL.h"
+				RelativePath="..\..\include\wendy\UIWidget.h"
 				>
 			</File>
 			<File
