@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WEGLLIGHT_H
-#define WEGLLIGHT_H
+#ifndef WENDY_GLLIGHT_H
+#define WENDY_GLLIGHT_H
 ///////////////////////////////////////////////////////////////////////
 
 #include <vector>
@@ -44,9 +44,13 @@ using namespace moira;
 class Light : public Managed<Light>
 {
 public:
-  enum Type { DIRECTIONAL, POSITIONAL };
+  enum Type
+  {
+    DIRECTIONAL,
+    POSITIONAL
+  };
   ~Light(void);
-  GLenum getGLID(void) const;
+  GLuint getGLID(void) const;
   bool isEnabled(void) const;
   bool setEnabled(bool enabled);
   Type getType(void) const;
@@ -62,7 +66,7 @@ public:
   const Vector3& getDirection(void) const;
   void setDirection(const Vector3& direction);
   void setDefaults(void);
-  static Light* createInstance(const std::string& name = "");
+  static Light* createInstance(const String& name = "");
   static void invalidateCache(void);
 private:
   class Data
@@ -79,7 +83,9 @@ private:
     Vector3 position;
     Vector3 direction;
   };
-  Light(const std::string& name);
+  Light(const String& name);
+  Light(const Light& source);
+  Light& operator = (const Light& source);
   bool init(void);
   void apply(void);
   Vector4 makePosition(const Data& data);
@@ -95,5 +101,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WEGLLIGHT_H*/
+#endif /*WENDY_GLLIGHT_H*/
 ///////////////////////////////////////////////////////////////////////

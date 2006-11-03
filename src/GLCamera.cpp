@@ -28,7 +28,10 @@
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLVertex.h>
+#include <wendy/GLBuffer.h>
 #include <wendy/GLCanvas.h>
+#include <wendy/GLRender.h>
 #include <wendy/GLCamera.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -47,24 +50,33 @@ using namespace moira;
 Camera::Camera(const std::string& name):
   Managed<Camera>(name),
   FOV(90.f),
-  aspectRatio(0.f)
+  aspectRatio(0.f),
+  minDepth(0.01f),
+  maxDepth(1000.f),
+  dirtyFrustum(true),
+  dirtyInverse(true)
 {
 }
 
 void Camera::begin(void) const
 {
-  if (current != NULL)
+  if (current)
     throw Exception("Cannot nest cameras");
 
-  Canvas::getCurrent()->begin3D(FOV, aspectRatio);
+  Renderer* renderer = Renderer::get();
+  if (!renderer)
+  {
+    Log::writeError("Cannot make camera current without a renderer");
+    return;
+  }
+
+  renderer->begin3D(FOV, aspectRatio);
 
   glPushAttrib(GL_TRANSFORM_BIT);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
-  Transform3 reverseTransform = transform;
-  reverseTransform.invert();
-  Matrix4 matrix = reverseTransform;
+  Matrix4 matrix = getInverseTransform();
   glLoadMatrixf(matrix);
 
   glPopAttrib();
@@ -74,15 +86,15 @@ void Camera::begin(void) const
 
 void Camera::end(void) const
 {
-  if (current == NULL)
-    Log::writeWarning("No current camera or camera invalidated during rendering");
+  if (current != this)
+    throw Exception("No current camera or camera invalidated during rendering");
 
   glPushAttrib(GL_TRANSFORM_BIT);
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
   glPopAttrib();
 
-  Canvas::getCurrent()->end();
+  Renderer::get()->end();
 
   current = NULL;
 }
@@ -97,33 +109,78 @@ float Camera::getAspectRatio(void) const
   return aspectRatio;
 }
 
+float Camera::getMinDepth(void) const
+{
+  return minDepth;
+}
+
+float Camera::getMaxDepth(void) const
+{
+  return maxDepth;
+}
+
 void Camera::setFOV(float newFOV)
 {
   if (current == this)
-    current = NULL;
+    throw Exception("Cannot change properties on an active camera");
 
   FOV = newFOV;
+  dirtyFrustum = true;
 }
 
 void Camera::setAspectRatio(float newAspectRatio)
 {
   if (current == this)
-    current = NULL;
+    throw Exception("Cannot change properties on an active camera");
 
   aspectRatio = newAspectRatio;
+  dirtyFrustum = true;
 }
 
-Transform3& Camera::getTransform(void)
+void Camera::setDepthRange(float newMinDepth, float newMaxDepth)
 {
   if (current == this)
-    current = NULL;
+    throw Exception("Cannot change properties on an active camera");
 
-  return transform;
+  minDepth = newMinDepth;
+  maxDepth = newMaxDepth;
+  dirtyFrustum = true;
 }
 
 const Transform3& Camera::getTransform(void) const
 {
   return transform;
+}
+
+const Transform3& Camera::getInverseTransform(void) const
+{
+  if (dirtyInverse)
+  {
+    inverse = transform;
+    inverse.invert();
+    dirtyInverse = false;
+  }
+
+  return inverse;
+}
+
+void Camera::setTransform(const Transform3& newTransform)
+{
+  transform = newTransform;
+  dirtyFrustum = true;
+  dirtyInverse = true;
+}
+
+const Frustum& Camera::getFrustum(void) const
+{
+  if (dirtyFrustum)
+  {
+    frustum.set(FOV, aspectRatio, maxDepth);
+    frustum.transformBy(transform);
+    dirtyFrustum = false;
+  }
+
+  return frustum;
 }
 
 Camera* Camera::getCurrent(void)

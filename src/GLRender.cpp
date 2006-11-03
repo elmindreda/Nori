@@ -29,13 +29,15 @@
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLCanvas.h>
 #include <wendy/GLLight.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
-#include <wendy/GLProgram.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLRender.h>
 
 #include <algorithm>
+#include <cstdlib>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -53,170 +55,32 @@ using namespace moira;
 namespace
 {
 
-inline unsigned int max(unsigned int x, unsigned int y)
+class RenderOperationComparator
 {
-  if (x > y)
-    return x;
-  else
-    return y;
-}
-
-void onContextDestroy(void)
-{
-  Renderer::destroy();
-}
+public:
+  inline bool operator () (const RenderOperation* x, const RenderOperation* y)
+  {
+    return *x < *y;
+  }
+};
 
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-RenderPass::RenderPass(void)
+RenderPass::RenderPass(const String& initGroupName):
+  groupName(initGroupName)
 {
   setDefaults();
 }
 
 void RenderPass::apply(void) const
 {
-  CullMode inverseCullMode;
-
-  switch (data.cullMode)
-  {
-    case CULL_NONE:
-      inverseCullMode = CULL_BOTH;
-      break;
-    case CULL_FRONT:
-      inverseCullMode = CULL_BACK;
-      break;
-    case CULL_BACK:
-      inverseCullMode = CULL_FRONT;
-      break;
-    case CULL_BOTH:
-      inverseCullMode = CULL_NONE;
-      break;
-  }
+  // NOTE: Yes, I know this is huge.  You don't need to point it out.
 
   if (cache.dirty)
   {
-    // Force all states to known values
-
-    cache = data;
-
-    setBooleanState(GL_CULL_FACE, data.cullMode != CULL_NONE);
-    if (data.cullMode != CULL_NONE)
-      glCullFace(data.cullMode);
-
-    setBooleanState(GL_LIGHTING, data.lighting);
-
-    setBooleanState(GL_BLEND, data.srcFactor != GL_ONE || data.dstFactor != GL_ZERO);
-    glBlendFunc(data.srcFactor, data.dstFactor);
-    
-    glShadeModel(data.shadeMode);
-
-    glPolygonMode(GL_FRONT_AND_BACK, data.polygonMode);
-
-    glLineWidth(data.lineWidth);
-
-    glDepthMask(data.depthWriting ? GL_TRUE : GL_FALSE);
-    setBooleanState(GL_DEPTH_TEST, data.depthTesting || data.depthWriting);
-
-    if (data.depthWriting && !data.depthTesting)
-    {
-      GLenum depthFunction = GL_ALWAYS;
-      glDepthFunc(depthFunction);
-      cache.depthFunction = depthFunction;
-    }
-    else
-      glDepthFunc(data.depthFunction);
-
-    setBooleanState(GL_STENCIL_TEST, data.stencilTesting);
-    glStencilFunc(data.stencilFunction, data.stencilRef, data.stencilMask);
-    glStencilOp(data.stencilFailed, data.depthFailed, data.depthPassed);
-
-    glColor4fv(data.defaultColor);
-    glMaterialfv(inverseCullMode, GL_AMBIENT, data.ambientColor);
-    glMaterialfv(inverseCullMode, GL_DIFFUSE, data.diffuseColor);
-    glMaterialfv(inverseCullMode, GL_SPECULAR, data.specularColor);
-    glMaterialf(inverseCullMode, GL_SHININESS, data.shininess);
-
-    glDisable(GL_TEXTURE_1D);
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_TEXTURE_3D);
-
-    setBooleanState(GL_TEXTURE_GEN_S, data.sphereMapped);
-    setBooleanState(GL_TEXTURE_GEN_T, data.sphereMapped);
-    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, data.combineMode);
-    glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, data.combineColor);
-
-    if (!data.textureName.empty())
-    {
-      Texture* texture = Texture::findInstance(data.textureName);
-      if (texture)
-      {
-        GLenum textureTarget = texture->getTarget();
-
-        glEnable(textureTarget);
-        glBindTexture(textureTarget, texture->getGLID());
-
-        cache.textureTarget = textureTarget;
-      }
-      else
-	Log::writeError("Render pass uses non-existent texture %s", data.textureName.c_str());
-    }
-
-    if (GLEW_ARB_vertex_program)
-    {
-      if (data.vertexProgramName.empty())
-	glDisable(GL_VERTEX_PROGRAM_ARB);
-      else
-      {
-	VertexProgram* program = VertexProgram::findInstance(data.vertexProgramName);
-	if (program)
-	{
-	  glEnable(GL_VERTEX_PROGRAM_ARB);
-	  glBindProgramARB(GL_VERTEX_PROGRAM_ARB, program->getGLID());
-	}
-	else
-	  Log::writeError("Render pass uses non-existent vertex program %s",
-	                  data.vertexProgramName.c_str());
-      }
-    }
-    else
-    {
-      if (!data.vertexProgramName.empty())
-	Log::writeError("Vertex programs are not supported by the current OpenGL context");
-    }
-
-    if (GLEW_ARB_fragment_program)
-    {
-      if (data.fragmentProgramName.empty())
-	glDisable(GL_FRAGMENT_PROGRAM_ARB);
-      else
-      {
-	FragmentProgram* program = FragmentProgram::findInstance(data.fragmentProgramName);
-	if (program)
-	{
-	  glEnable(GL_FRAGMENT_PROGRAM_ARB);
-	  glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, program->getGLID());
-	}
-	else
-	  Log::writeError("Render pass uses non-existent fragment program %s",
-	                  data.fragmentProgramName.c_str());
-      }
-    }
-    else
-    {
-      if (!data.fragmentProgramName.empty())
-	Log::writeError("Fragment programs are not supported by the current OpenGL context");
-    }
-
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR)
-      Log::writeWarning("Error when forcing render pass: %s", gluErrorString(error));
-    
-    cache.dirty = data.dirty = false;
+    force();
     return;
   }
   
@@ -248,12 +112,6 @@ void RenderPass::apply(void) const
     cache.dstFactor = data.dstFactor;
   }
 
-  if (data.shadeMode != cache.shadeMode)
-  {
-    glShadeModel(data.shadeMode);
-    cache.shadeMode = data.shadeMode;
-  }
-
   if (data.polygonMode != cache.polygonMode)
   {
     glPolygonMode(GL_FRONT_AND_BACK, data.polygonMode);
@@ -262,7 +120,14 @@ void RenderPass::apply(void) const
 
   if (data.lineWidth != cache.lineWidth)
   {
-    glLineWidth(data.lineWidth);
+    unsigned int height;
+
+    if (Canvas* canvas = Canvas::getCurrent())
+      height = canvas->getPhysicalHeight();
+    else
+      height = Context::get()->getHeight();
+
+    glLineWidth(data.lineWidth * height / 100.f);
     cache.lineWidth = data.lineWidth;
   }
 
@@ -285,7 +150,7 @@ void RenderPass::apply(void) const
     {
       // NOTE: Special case; depth buffer filling.
       //       Set specific depth buffer function.
-      const unsigned int depthFunction = GL_ALWAYS;
+      const GLenum depthFunction = GL_ALWAYS;
 
       if (cache.depthFunction != depthFunction)
       {
@@ -293,10 +158,7 @@ void RenderPass::apply(void) const
         cache.depthFunction = depthFunction;
       }
     }
-  }
-  
-  if (data.depthTesting || data.depthWriting)
-  {
+
     if (!(cache.depthTesting || cache.depthWriting))
       glEnable(GL_DEPTH_TEST);
   }
@@ -345,113 +207,82 @@ void RenderPass::apply(void) const
       cache.stencilTesting = data.stencilTesting;
     }
   }
+
+  if (data.colorWriting != cache.colorWriting)
+  {
+    const GLboolean state = data.colorWriting ? GL_TRUE : GL_FALSE;
+    glColorMask(state, state, state, state);
+    cache.colorWriting = data.colorWriting;
+  }
   
   if (data.lighting)
   {
     // Set ambient material color.
     if (data.ambientColor != cache.ambientColor)
     {
-      glMaterialfv(inverseCullMode, GL_AMBIENT, data.ambientColor);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, data.ambientColor);
       cache.ambientColor = data.ambientColor;
     }
 
     // Set diffuse material color.
     if (data.diffuseColor != cache.diffuseColor)
     {
-      glMaterialfv(inverseCullMode, GL_DIFFUSE, data.diffuseColor);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, data.diffuseColor);
       cache.diffuseColor = data.diffuseColor;
     }
 
     // Set specular material color.
     if (data.specularColor != cache.specularColor)
     {
-      glMaterialfv(inverseCullMode, GL_SPECULAR, data.specularColor);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, data.specularColor);
       cache.specularColor = data.specularColor;
     }
 
     if (data.shininess != cache.shininess)
     {
-      glMaterialf(inverseCullMode, GL_SHININESS, data.shininess);
+      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, data.shininess);
       cache.shininess = data.shininess;
     }
   }
 
   if (!data.lighting)
   {
-    // For compatibility reasons, we do not trust the cached color.
-    // Since we always overwrite this value, there is no need to
-    // check whether the cache is dirty.
+    // For compatibility reasons, we do not trust the cached color.  Since we
+    // always overwrite this value, there is no need to check whether the cache
+    // is dirty.
     
     glColor4fv(data.defaultColor);
     cache.defaultColor = data.defaultColor;
   }
 
-  if (data.textureName.empty())
+  if (GLEW_ARB_shader_objects)
   {
-    if (!cache.textureName.empty())
-      glDisable(cache.textureTarget);
+    // Since the GLSL program object cannot push the currently active
+    // program in any resonable fashion, it must force the use when
+    // changing uniforms in a program object.  Hence we cannot trust the
+    // state cache's program name to be valid between calls.  Thus we
+    // always force the use of the correct program.
 
-    cache.textureTarget = 0;
-    cache.textureName.clear();
-  }
-  else
-  {
-    // Retrieve texture object.
-    Texture* texture = Texture::findInstance(data.textureName);
-    if (texture)
+    if (data.shaderProgramName.empty())
     {
-      GLenum textureTarget = texture->getTarget();
-
-      if (textureTarget != cache.textureTarget)
-      {
-        if (cache.textureTarget)
-          glDisable(cache.textureTarget);
-
-        glEnable(textureTarget);
-        cache.textureTarget = textureTarget;
-      }
-      
-      if (data.textureName != cache.textureName)
-      {
-        glBindTexture(textureTarget, texture->getGLID());
-        cache.textureName = data.textureName;
-      }
-
-      if (data.combineMode != cache.combineMode)
-      {
-        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, data.combineMode);
-        cache.combineMode = data.combineMode;
-      }
-
-      // Set texture environment color.
-      if (data.combineColor != cache.combineColor)
-      {
-        glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, data.combineColor);
-        cache.combineColor = data.combineColor;
-      }
-
-      if (data.sphereMapped != cache.sphereMapped)
-      {
-        if (data.sphereMapped)
-        {
-          glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-          glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-          glEnable(GL_TEXTURE_GEN_S);
-          glEnable(GL_TEXTURE_GEN_T);
-        }
-        else
-        {
-          glDisable(GL_TEXTURE_GEN_S);
-          glDisable(GL_TEXTURE_GEN_T);
-        }
-
-        cache.sphereMapped = data.sphereMapped;
-      }
+      ShaderProgram::applyFixedFunction();
+      cache.shaderProgramName.clear();
     }
     else
-      Log::writeError("Render pass uses non-existent texture %s", data.textureName.c_str());
+    {
+      ShaderProgram* program = ShaderProgram::findInstance(data.shaderProgramName);
+      if (program)
+      {
+	program->apply();
+	cache.shaderProgramName = data.shaderProgramName;
+      }
+      else
+	Log::writeError("Render pass uses non-existent GLSL program %s",
+	                data.shaderProgramName.c_str());
+    }
   }
 
+  /*
   if (GLEW_ARB_vertex_program)
   {
     if (data.vertexProgramName.empty())
@@ -471,9 +302,9 @@ void RenderPass::apply(void) const
 
 	// Since the vertex program object cannot push its binding in any
 	// resonable fashion, it must force the binding when creating and
-	// changing parameters on a program object.  Hence we cannot trust
-	// the state cache's program name to be valid between calls.  Thus
-	// we always force the binding to the correct value.
+	// changing parameters on a program object.  Hence we cannot trust the
+	// state cache's program name to be valid between calls.  Thus we
+	// always force the binding to the correct value.
 	glBindProgramARB(GL_VERTEX_PROGRAM_ARB, program->getGLID());
 	cache.vertexProgramName = data.vertexProgramName;
       }
@@ -507,9 +338,9 @@ void RenderPass::apply(void) const
 
 	// Since the fragment program object cannot push its binding in any
 	// resonable fashion, it must force the binding when creating and
-	// changing parameters on a program object.  Hence we cannot trust
-	// the state cache's program name to be valid between calls.  Thus
-	// we always force the binding to the correct value.
+	// changing parameters on a program object.  Hence we cannot trust the
+	// state cache's program name to be valid between calls.  Thus we
+	// always force the binding to the correct value.
 	glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, program->getGLID());
 	cache.fragmentProgramName = data.fragmentProgramName;
       }
@@ -523,12 +354,15 @@ void RenderPass::apply(void) const
     if (!data.fragmentProgramName.empty())
       Log::writeError("Fragment programs are not supported by the current OpenGL context");
   }
+  */
 
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
-    Log::writeWarning("Error when applying render pass: %s", gluErrorString(error));
+    Log::writeError("Error when applying render pass: %s", gluErrorString(error));
+
+  TextureStack::apply();
   
-  data.dirty = cache.dirty = false;
+  data.dirty = false;
 }
 
 bool RenderPass::isDirty(void) const
@@ -561,9 +395,9 @@ bool RenderPass::isStencilTesting(void) const
   return data.stencilTesting;
 }
 
-bool RenderPass::isSphereMapped(void) const
+bool RenderPass::isColorWriting(void) const
 {
-  return data.sphereMapped;
+  return data.colorWriting;
 }
 
 bool RenderPass::isLit(void) const
@@ -581,19 +415,9 @@ CullMode RenderPass::getCullMode(void) const
   return data.cullMode;
 }
 
-GLenum RenderPass::getCombineMode(void) const
-{
-  return data.combineMode;
-}
-
 GLenum RenderPass::getPolygonMode(void) const
 {
   return data.polygonMode;
-}
-
-GLenum RenderPass::getShadeMode(void) const
-{
-  return data.shadeMode;
 }
 
 GLenum RenderPass::getSrcFactor(void) const
@@ -671,30 +495,14 @@ const ColorRGBA& RenderPass::getSpecularColor(void) const
   return data.specularColor;
 }
 
-const ColorRGBA& RenderPass::getCombineColor(void) const
+const String& RenderPass::getShaderProgramName(void) const
 {
-  return data.combineColor;
+  return data.shaderProgramName;
 }
 
-const String& RenderPass::getTextureName(void) const
+const String& RenderPass::getGroupName(void) const
 {
-  return data.textureName;
-}
-
-const String& RenderPass::getVertexProgramName(void) const
-{
-  return data.vertexProgramName;
-}
-
-const String& RenderPass::getFragmentProgramName(void) const
-{
-  return data.fragmentProgramName;
-}
-
-void RenderPass::setSphereMapped(bool enabled)
-{
-  data.sphereMapped = enabled;
-  data.dirty = true;
+  return groupName;
 }
 
 void RenderPass::setLit(bool enable)
@@ -733,21 +541,9 @@ void RenderPass::setCullMode(CullMode mode)
   data.dirty = true;
 }
 
-void RenderPass::setCombineMode(GLenum mode)
-{
-  data.combineMode = mode;
-  data.dirty = true;
-}
-
 void RenderPass::setPolygonMode(GLenum mode)
 {
   data.polygonMode = mode;
-  data.dirty = true;
-}
-
-void RenderPass::setShadeMode(GLenum mode)
-{
-  data.shadeMode = mode;
   data.dirty = true;
 }
 
@@ -793,6 +589,12 @@ void RenderPass::setStencilOperations(GLenum stencilFailed,
   data.dirty = true;
 }
 
+void RenderPass::setColorWriting(bool enabled)
+{
+  data.colorWriting = enabled;
+  data.dirty = true;
+}
+
 void RenderPass::setShininess(float newValue)
 {
   data.shininess = newValue;
@@ -823,27 +625,9 @@ void RenderPass::setSpecularColor(const ColorRGBA& color)
   data.dirty = true;
 }
 
-void RenderPass::setCombineColor(const ColorRGBA& color)
+void RenderPass::setShaderProgramName(const String& newName)
 {
-  data.combineColor = color;
-  data.dirty = true;
-}
-
-void RenderPass::setTextureName(const String& name)
-{
-  data.textureName = name;
-  data.dirty = true;
-}
-
-void RenderPass::setVertexProgramName(const String& name)
-{
-  data.vertexProgramName = name;
-  data.dirty = true;
-}
-
-void RenderPass::setFragmentProgramName(const String& name)
-{
-  data.fragmentProgramName = name;
+  data.shaderProgramName = newName;
   data.dirty = true;
 }
 
@@ -855,6 +639,127 @@ void RenderPass::setDefaults(void)
 void RenderPass::invalidateCache(void)
 {
   cache.dirty = true;
+}
+
+void RenderPass::force(void) const
+{
+  cache = data;
+
+  setBooleanState(GL_CULL_FACE, data.cullMode != CULL_NONE);
+  if (data.cullMode != CULL_NONE)
+    glCullFace(data.cullMode);
+
+  setBooleanState(GL_LIGHTING, data.lighting);
+
+  setBooleanState(GL_BLEND, data.srcFactor != GL_ONE || data.dstFactor != GL_ZERO);
+  glBlendFunc(data.srcFactor, data.dstFactor);
+  
+  glPolygonMode(GL_FRONT_AND_BACK, data.polygonMode);
+
+  unsigned int height;
+
+  if (Canvas* canvas = Canvas::getCurrent())
+    height = canvas->getPhysicalHeight();
+  else
+    height = Context::get()->getHeight();
+
+  glLineWidth(data.lineWidth * height / 100.f);
+
+  glDepthMask(data.depthWriting ? GL_TRUE : GL_FALSE);
+  setBooleanState(GL_DEPTH_TEST, data.depthTesting || data.depthWriting);
+
+  if (data.depthWriting && !data.depthTesting)
+  {
+    const GLenum depthFunction = GL_ALWAYS;
+    glDepthFunc(depthFunction);
+    cache.depthFunction = depthFunction;
+  }
+  else
+    glDepthFunc(data.depthFunction);
+
+  const GLboolean state = data.colorWriting ? GL_TRUE : GL_FALSE;
+  glColorMask(state, state, state, state);
+
+  setBooleanState(GL_STENCIL_TEST, data.stencilTesting);
+  glStencilFunc(data.stencilFunction, data.stencilRef, data.stencilMask);
+  glStencilOp(data.stencilFailed, data.depthFailed, data.depthPassed);
+
+  glColor4fv(data.defaultColor);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, data.ambientColor);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, data.diffuseColor);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, data.specularColor);
+  glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, data.shininess);
+
+  if (GLEW_ARB_shader_objects)
+  {
+    if (data.shaderProgramName.empty())
+      ShaderProgram::applyFixedFunction();
+    else
+    {
+      ShaderProgram* program = ShaderProgram::findInstance(data.shaderProgramName);
+      if (program)
+	program->apply();
+      else
+	Log::writeError("Render pass uses non-existent shader program %s",
+			data.shaderProgramName.c_str());
+    }
+  }
+
+  /*
+  if (GLEW_ARB_vertex_program)
+  {
+    if (data.vertexProgramName.empty())
+      glDisable(GL_VERTEX_PROGRAM_ARB);
+    else
+    {
+      VertexProgram* program = VertexProgram::findInstance(data.vertexProgramName);
+      if (program)
+      {
+	glEnable(GL_VERTEX_PROGRAM_ARB);
+	glBindProgramARB(GL_VERTEX_PROGRAM_ARB, program->getGLID());
+      }
+      else
+	Log::writeError("Render pass uses non-existent vertex program %s",
+			data.vertexProgramName.c_str());
+    }
+  }
+  else
+  {
+    if (!data.vertexProgramName.empty())
+      Log::writeError("Vertex programs are not supported by the current OpenGL context");
+  }
+
+  if (GLEW_ARB_fragment_program)
+  {
+    if (data.fragmentProgramName.empty())
+      glDisable(GL_FRAGMENT_PROGRAM_ARB);
+    else
+    {
+      FragmentProgram* program = FragmentProgram::findInstance(data.fragmentProgramName);
+      if (program)
+      {
+	glEnable(GL_FRAGMENT_PROGRAM_ARB);
+	glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, program->getGLID());
+      }
+      else
+	Log::writeError("Render pass uses non-existent fragment program %s",
+			data.fragmentProgramName.c_str());
+    }
+  }
+  else
+  {
+    if (!data.fragmentProgramName.empty())
+      Log::writeError("Fragment programs are not supported by the current OpenGL context");
+  }
+  */
+
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+    Log::writeWarning("Error when forcing render pass: %s", gluErrorString(error));
+
+  TextureStack::apply();
+  
+  cache.dirty = data.dirty = false;
 }
 
 void RenderPass::setBooleanState(GLenum state, bool value) const
@@ -881,12 +786,10 @@ void RenderPass::Data::setDefaults(void)
   depthTesting = true;
   depthWriting = true;
   stencilTesting = false;
-  sphereMapped = false;
+  colorWriting = true;
   lineWidth = 1.f;
   cullMode = CULL_BACK;
-  combineMode = GL_MODULATE;
   polygonMode = GL_FILL;
-  shadeMode = GL_SMOOTH;
   srcFactor = GL_ONE;
   dstFactor = GL_ZERO;
   depthFunction = GL_LESS;
@@ -902,23 +805,19 @@ void RenderPass::Data::setDefaults(void)
   ambientColor.set(0.f, 0.f, 0.f, 1.f);
   diffuseColor.set(1.f, 1.f, 1.f, 1.f);
   specularColor.set(1.f, 1.f, 1.f, 1.f);
-  combineColor.set(1.f, 1.f, 1.f, 1.f);
-  textureName.clear();
-  vertexProgramName.clear();
-  fragmentProgramName.clear();
-  textureTarget = 0;
+  shaderProgramName.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 RenderStyle::RenderStyle(const String& name):
-  Managed<RenderStyle>(name)
+  Resource<RenderStyle>(name)
 {
 }
 
-RenderPass& RenderStyle::createPass(void)
+RenderPass& RenderStyle::createPass(const String& groupName)
 {
-  passes.push_back(RenderPass());
+  passes.push_back(RenderPass(groupName));
   return passes.back();
 }
 
@@ -939,7 +838,9 @@ bool RenderStyle::operator < (const RenderStyle& other) const
   if (!isBlending() && other.isBlending())
     return true;
  
-  return getName().compare(other.getName()) < 0;
+  // TODO: Better sorting.
+
+  return false;
 }
 
 bool RenderStyle::isBlending(void) const
@@ -988,7 +889,8 @@ bool RenderOperation::operator < (const RenderOperation& other) const
 
 ///////////////////////////////////////////////////////////////////////
 
-RenderQueue::RenderQueue(void):
+RenderQueue::RenderQueue(const Camera& initCamera):
+  camera(initCamera),
   sorted(true)
 {
 }
@@ -998,44 +900,53 @@ void RenderQueue::addLight(Light& light)
   lights.push_back(&light);
 }
 
-void RenderQueue::addOperation(RenderOperation& operation)
+RenderOperation& RenderQueue::createOperation(void)
 {
-  operations.push_back(operation);
   sorted = false;
+
+  operations.push_back(RenderOperation());
+  return operations.back();
 }
 
-void RenderQueue::removeOperations(void)
+void RenderQueue::destroyOperations(void)
 {
   operations.clear();
 }
 
-void RenderQueue::renderOperations(void)
+void RenderQueue::renderOperations(void) const
 {
   sortOperations();
 
   for (LightList::const_iterator i = lights.begin();  i != lights.end();  i++)
     (*i)->setEnabled(true);
 
-  for (OperationList::const_iterator i = operations.begin();  i != operations.end();  i++)
+  for (unsigned int i = 0;  i < sortedOperations.size();  i++)
   {
+    const RenderOperation& operation = *sortedOperations[i];
+
     glPushAttrib(GL_TRANSFORM_BIT);
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
-    glMultMatrixf((*i).transform);
+    glMultMatrixf(operation.transform);
     glPopAttrib();
 
-    (*i).vertexBuffer->apply();
-    if ((*i).indexBuffer)
-      (*i).indexBuffer->apply();
-
-    for (unsigned int pass = 0;  pass < (*i).style->getPassCount();  pass++)
+    for (unsigned int j = 0;  j < operation.style->getPassCount();  j++)
     {
-      (*i).style->applyPass(pass);
+      const RenderPass& pass = operation.style->getPass(j);
+      if (!pass.getGroupName().empty())
+	continue;
 
-      if ((*i).indexBuffer)
-        (*i).indexBuffer->render((*i).renderMode, (*i).start, (*i).count);
+      pass.apply();
+
+      if (operation.indexBuffer)
+        operation.indexBuffer->render(*(operation.vertexBuffer),
+	                              operation.renderMode,
+	                              operation.start,
+				      operation.count);
       else
-        (*i).vertexBuffer->render((*i).renderMode, (*i).start, (*i).count);
+        operation.vertexBuffer->render(operation.renderMode,
+	                               operation.start,
+				       operation.count);
     }
 
     glPushAttrib(GL_TRANSFORM_BIT);
@@ -1048,6 +959,11 @@ void RenderQueue::renderOperations(void)
     (*i)->setEnabled(false);
 }
 
+const Camera& RenderQueue::getCamera(void) const
+{
+  return camera;
+}
+
 const RenderQueue::LightList& RenderQueue::getLights(void) const
 {
   return lights;
@@ -1058,16 +974,183 @@ const RenderQueue::OperationList& RenderQueue::getOperations(void) const
   return operations;
 }
 
-void RenderQueue::sortOperations(void)
+void RenderQueue::sortOperations(void) const
 {
   if (!sorted)
   {
-    std::sort(operations.begin(), operations.end());
+    sortedOperations.clear();
+    sortedOperations.reserve(operations.size());
+    for (unsigned int i = 0;  i < operations.size();  i++)
+      sortedOperations.push_back(&operations[i]);
+
+    RenderOperationComparator comparator;
+    std::sort(sortedOperations.begin(), sortedOperations.end(), comparator);
     sorted = true;
   }
 }
 
 ///////////////////////////////////////////////////////////////////////
+
+RenderStage::~RenderStage(void)
+{
+}
+
+void RenderStage::prepare(const RenderQueue& queue)
+{
+}
+
+void RenderStage::render(const RenderQueue& queue)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
+void RenderStageStack::addStage(RenderStage& stage)
+{
+  stages.push_back(&stage);
+}
+
+void RenderStageStack::destroyStages(void)
+{
+  while (!stages.empty())
+  {
+    delete stages.back();
+    stages.pop_back();
+  }
+}
+
+void RenderStageStack::prepare(const RenderQueue& queue)
+{
+  for (StageList::iterator i = stages.begin();  i != stages.end();  i++)
+    (*i)->prepare(queue);
+}
+
+void RenderStageStack::render(const RenderQueue& queue)
+{
+  for (StageList::iterator i = stages.begin();  i != stages.end();  i++)
+    (*i)->render(queue);
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Renderable::~Renderable(void)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
+void Renderer::begin2D(const Vector2& resolution) const
+{
+  Canvas* canvas = Canvas::getCurrent();
+  if (!canvas)
+  {
+    Log::writeError("Cannot begin without a current canvas");
+    return;
+  }
+
+  glPushAttrib(GL_TRANSFORM_BIT);
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  gluOrtho2D(0.f, resolution.x, 0.f, resolution.y);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+  glPopAttrib();
+}
+
+void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ) const
+{
+  Canvas* canvas = Canvas::getCurrent();
+  if (!canvas)
+  {
+    Log::writeError("Cannot begin without a current canvas");
+    return;
+  }
+
+  if (aspect == 0.f)
+    aspect = (float) canvas->getPhysicalWidth() / (float) canvas->getPhysicalHeight();
+
+  glPushAttrib(GL_TRANSFORM_BIT);
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  gluPerspective(FOV, aspect, nearZ, farZ);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+  glPopAttrib();
+}
+  
+void Renderer::end(void) const
+{
+  glPushAttrib(GL_TRANSFORM_BIT);
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
+  glPopAttrib();
+}
+
+void Renderer::drawPoint(const Vector2& point)
+{
+  pass.apply();
+
+  glBegin(GL_POINTS);
+  glVertex2fv(point);
+  glEnd();
+}
+
+void Renderer::drawLine(const Segment2& segment)
+{
+  pass.apply();
+
+  glBegin(GL_LINES);
+  glVertex2fv(segment.start);
+  glVertex2fv(segment.end);
+  glEnd();
+}
+
+void Renderer::drawBezier(const BezierCurve2& spline)
+{
+  BezierCurve2::PointList points;
+  spline.tessellate(points);
+  
+  pass.apply();
+
+  glBegin(GL_LINE_STRIP);
+  for (unsigned int i = 0;  i < points.size();  i++)
+    glVertex2fv(points[i]);
+  glEnd();
+}
+
+void Renderer::drawRectangle(const Rectangle& rectangle)
+{
+  float minX, minY, maxX, maxY;
+  rectangle.getBounds(minX, minY, maxX, maxY);
+
+  if (maxX - minX < 1.f || maxY - minY < 1.f)
+    return;
+
+  pass.setPolygonMode(GL_LINE);
+  pass.apply();
+
+  glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
+}
+
+void Renderer::fillRectangle(const Rectangle& rectangle)
+{
+  float minX, minY, maxX, maxY;
+  rectangle.getBounds(minX, minY, maxX, maxY);
+
+  if (maxX - minX < 1.f || maxY - minY < 1.f)
+    return;
+
+  pass.setPolygonMode(GL_FILL);
+  pass.apply();
+
+  glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
+}
 
 bool Renderer::allocateIndices(IndexBufferRange& range,
 		               unsigned int count,
@@ -1089,9 +1172,11 @@ bool Renderer::allocateIndices(IndexBufferRange& range,
     indexBuffers.push_back(IndexBufferSlot());
     slot = &(indexBuffers.back());
 
-    slot->indexBuffer = IndexBuffer::createInstance(max(1024, count),
+    const unsigned int standardCount = 1024;
+
+    slot->indexBuffer = IndexBuffer::createInstance(std::max(standardCount, count),
                                                     type,
-						    IndexBuffer::DYNAMIC);
+						    IndexBuffer::STREAM);
     if (!slot->indexBuffer)
     {
       indexBuffers.pop_back();
@@ -1129,9 +1214,11 @@ bool Renderer::allocateVertices(VertexBufferRange& range,
     vertexBuffers.push_back(VertexBufferSlot());
     slot = &(vertexBuffers.back());
 
-    slot->vertexBuffer = VertexBuffer::createInstance(max(1024, count),
+    const unsigned int standardCount = 1024;
+
+    slot->vertexBuffer = VertexBuffer::createInstance(std::max(standardCount, count),
                                                       format,
-						      VertexBuffer::DYNAMIC);
+						      VertexBuffer::STREAM);
     if (!slot->vertexBuffer)
     {
       vertexBuffers.pop_back();
@@ -1149,6 +1236,21 @@ bool Renderer::allocateVertices(VertexBufferRange& range,
   return true;
 }
 
+const ColorRGBA& Renderer::getColor(void) const
+{
+  return pass.getDefaultColor();
+}
+
+void Renderer::setColor(const ColorRGBA& newColor)
+{
+  pass.setDefaultColor(newColor);
+}
+
+const RenderStyle& Renderer::getDefaultStyle(void) const
+{
+  return *defaultStyle;
+}
+
 bool Renderer::create(void)
 {
   Ptr<Renderer> renderer = new Renderer();
@@ -1161,6 +1263,13 @@ bool Renderer::create(void)
 
 Renderer::Renderer(void)
 {
+  static bool initialized = false;
+
+  if (!initialized)
+  {
+    Context::getDestroySignal().connect(onContextDestroy);
+    initialized = true;
+  }
 }
 
 bool Renderer::init(void)
@@ -1171,13 +1280,41 @@ bool Renderer::init(void)
     return false;
   }
 
-  Context::get()->getFinishSignal().connect(*this, &Renderer::onFinish);
-  Context::get()->getDestroySignal().connect(onContextDestroy);
+  try
+  {
+    CheckerImageGenerator generator;
+    generator.setDefaultColor(ColorRGBA(1.f, 0.f, 1.f, 1.f));
+    generator.setCheckerColor(ColorRGBA(0.f, 1.f, 0.f, 1.f));
+    generator.setCheckerSize(1);
 
+    Ptr<Image> image = generator.generate(ImageFormat::RGB888, 2, 2);
+    if (!image)
+      return false;
+
+    defaultTexture = Texture::createInstance(*image, Texture::DEFAULT, "default");
+    if (!defaultTexture)
+      return false;
+
+    defaultStyle = new RenderStyle("default");
+    
+    RenderPass& pass = defaultStyle->createPass();
+    pass.setCullMode(CULL_NONE);
+
+    TextureLayer& layer = pass.createTextureLayer();
+    layer.setTextureName(defaultTexture->getName());
+    layer.setSphereMapped(true);
+  }
+  catch (Exception& exception)
+  {
+    Log::writeError("Failed to create default render style");
+    return false;
+  }
+
+  Context::get()->getFinishSignal().connect(*this, &Renderer::onContextFinish);
   return true;
 }
 
-void Renderer::onFinish(void)
+void Renderer::onContextFinish(void)
 {
   for (IndexBufferList::iterator i = indexBuffers.begin();  i != indexBuffers.end();  i++)
     (*i).available = (*i).indexBuffer->getCount();
@@ -1186,188 +1323,14 @@ void Renderer::onFinish(void)
     (*i).available = (*i).vertexBuffer->getCount();
 }
 
-///////////////////////////////////////////////////////////////////////
-
-/*
-void Renderer::begin(void)
+void Renderer::onContextDestroy(void)
 {
-  stack.push(Context());
-
-  Context& context = getContext();
-  context.strokePass.setPolygonMode(GL_LINE);
-}
-
-void Renderer::end(void)
-{
-  if (stack.empty())
-    throw Exception("Renderer context stack is empty");
-
-  stack.pop();
-}
-
-void Renderer::drawLine(const Vector2& start, const Vector2& end) const
-{
-  Context& context = getContext();
-
-  if (context.stroking)
+  if (Renderer::get())
   {
-    context.strokePass.apply();
-
-    glBegin(GL_LINES);
-    glVertex2fv(start);
-    glVertex2fv(end);
-    glEnd();
+    Log::writeWarning("Renderer not explicitly destroyed before context destruction");
+    Renderer::destroy();
   }
 }
-
-void Renderer::drawCircle(const Vector2& center, float radius) const
-{
-}
-
-void Renderer::drawBezier(const BezierCurve2& curve) const
-{
-  BezierCurve2::PointList points;
-  curve.tesselate(points, 0.5f);
-
-  if (context.stroking)
-  {
-    context.strokePass.apply();
-
-    glBegin(GL_LINE_STRIP);
-    for (BezierCurve2::PointList::const_iterator p = points.begin();  p != points.end();  p++)
-      glVertex2fv(*p);
-    glEnd();
-  }
-}
-
-void Renderer::drawRectangle(const Rectangle& rectangle) const
-{
-  Context& context = getContext();
-  
-  if (context.filling)
-  {
-    context.fillPass.apply();
-    glRectf(rectangle.position.x,
-            rectangle.position.y,
-	    rectangle.position.x + rectangle.size.x,
-	    rectangle.position.y + rectangle.size.y);
-  }
-
-  if (context.stroking)
-  {
-    context.strokePass.apply();
-    glRectf(rectangle.position.x,
-            rectangle.position.y,
-	    rectangle.position.x + rectangle.size.x,
-	    rectangle.position.y + rectangle.size.y);
-  }
-}
-
-bool Renderer::isStroking(void) const
-{
-  return getContext().stroking;
-}
-
-void Renderer::setStroking(bool newState)
-{
-  Context& context = getContext();
-  context.stroking = newState;
-}
-
-bool Renderer::isFilling(void) const
-{
-  return getContext().filling;
-}
-
-void Renderer::setFilling(bool newState)
-{
-  Context& context = getContext();
-  context.filling = newState;
-}
-
-const ColorRGBA& Renderer::getStrokeColor(void) const
-{
-  return getContext().strokePass.getDefaultColor();
-}
-
-void Renderer::setStrokeColor(const ColorRGBA& newColor)
-{
-  Context& context = getContext();
-  context.strokePass.setDefaultColor(newColor);
-}
-
-const ColorRGBA& Renderer::getFillColor(void) const
-{
-  return getContext().fillPass.getDefaultColor();
-}
-
-void Renderer::setFillColor(const ColorRGBA& newColor)
-{
-  Context& context = getContext();
-  context.fillPass.setDefaultColor(newColor);
-}
-
-float Renderer::getStrokeWidth(void) const
-{
-  return getContext().strokePass.getLineWidth() / getLineScale();
-}
-
-void Renderer::setStrokeWidth(float newWidth)
-{
-  Context& context = getContext();
-  context.strokePass.setLineWidth(newWidth() * getLineScale());
-}
-
-bool Renderer::create(void)
-{
-  Ptr<Renderer> renderer = new Renderer();
-  if (!renderer->init())
-    return false;
-
-  set(renderer.detachObject());
-  return true;
-}
-
-Renderer::Renderer(void)
-{
-}
-
-bool Renderer::init(void)
-{
-  return true;
-}
-
-float Renderer::getLineScale(void) const
-{
-  Canvas* Canvas::getCurrent();
-
-  return (float) canvas->getPhysicalHeight() / (float) canvas->getHeight();
-}
-
-RenderPass& Renderer::getContext(void)
-{
-  if (stack.empty())
-    throw Exception("Renderer context stack empty");
-
-  return stack.top();
-}
-
-const RenderPass& Renderer::getContext(void) const
-{
-  if (stack.empty())
-    throw Exception("Renderer context stack empty");
-
-  return stack.top();
-}
-
-///////////////////////////////////////////////////////////////////////
-
-Renderer::Context::Context(void):
-  stroking(true),
-  filling(false)
-{
-}
-*/
 
 ///////////////////////////////////////////////////////////////////////
 

@@ -49,7 +49,7 @@ Light::~Light(void)
   setEnabled(false);
 }
 
-GLenum Light::getGLID(void) const
+GLuint Light::getGLID(void) const
 {
   if (data.enabled)
     return GL_LIGHT0 + index;
@@ -187,7 +187,7 @@ void Light::setDefaults(void)
   data.setDefaults();
 }
 
-Light* Light::createInstance(const std::string& name)
+Light* Light::createInstance(const String& name)
 {
   Ptr<Light> light = new Light(name);
   if (!light->init())
@@ -202,10 +202,23 @@ void Light::invalidateCache(void)
     (*i).dirty = true;
 }
 
-Light::Light(const std::string& name):
+Light::Light(const String& name):
   Managed<Light>(name),
   index(0)
 {
+}
+
+Light::Light(const Light& source):
+  Managed<Light>(source)
+{
+  // NOTE: Not implemented.
+}
+
+Light& Light::operator = (const Light& source)
+{
+  // NOTE: Not implemented.
+
+  return *this;
 }
 
 bool Light::init(void)

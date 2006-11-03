@@ -9,11 +9,11 @@ namespace
 
 bool render(void)
 {
-  GL::ContextCanvas canvas;
+  GL::ScreenCanvas canvas;
 
-  canvas.push();
+  canvas.begin();
   canvas.clearColorBuffer(ColorRGBA(1.f, 0.f, 0.f, 0.f));
-  canvas.pop();
+  canvas.end();
 
   return true;
 }

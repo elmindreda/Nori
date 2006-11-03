@@ -43,34 +43,117 @@ class RenderStyle;
 
 ///////////////////////////////////////////////////////////////////////
 
-class Mesh : public DerivedResource<Mesh, moira::Mesh>
+/*! @brief Geometry mesh object.
+ *  @ingroup renderer
+ *
+ *  This class represents a single static mesh, consisting of one or more
+ *  Mesh::Geometry objects. Each geometry is a part of the mesh using the
+ *  same render style and primitive mode.
+ */
+class Mesh : public Renderable, public DerivedResource<Mesh, moira::Mesh>
 {
 public:
   class Geometry;
-  typedef std::list<Geometry> GeometryList;
-  ~Mesh(void);
-  void enqueue(RenderQueue& queue, const Matrix4& transform) const;
-  void render(void) const;
-  GeometryList& getGeometries(void);
-  VertexBuffer* getVertexBuffer(void);
+  void enqueue(RenderQueue& queue, const Transform3& transform) const;
+  const Sphere& getBounds(void) const;
   static Mesh* createInstance(const moira::Mesh& mesh, const String& name = "");
 private:
   Mesh(const String& name);
+  Mesh(const Mesh& source);
+  Mesh& operator = (const Mesh& source);
   bool init(const moira::Mesh& mesh);
-  typedef std::list<IndexBuffer*> IndexBufferList;
+  typedef std::list<Geometry> GeometryList;
   GeometryList geometries;
   Ptr<VertexBuffer> vertexBuffer;
-  IndexBufferList indexBuffers;
+  Ptr<IndexBuffer> indexBuffer;
+  Sphere bounds;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Geometry mesh subset.
+ *  @ingroup renderer
+ *
+ *  This class represents a subset of a mesh, using a single render style
+ *  and a single primitive mode.
+ */
 class Mesh::Geometry
 {
 public:
-  IndexBuffer* indexBuffer;
+  /*! The range of indices used by this geometry.
+   */
+  IndexBufferRange range;
+  /*! The primitive mode used by this geometry.
+   */
   GLenum renderMode;
+  /*! The name of the render style used by this geometry.
+   */
   String styleName;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Shadow volume generator.
+ *  @ingroup renderer
+ *
+ *  This class is used to generate shadow volumes from a given source triangle
+ *  mesh. It is intended for use with static geometry.
+ */
+class ShadowMesh : public Renderable
+{
+public:
+  void update(const Vector3 origin);
+  void enqueue(RenderQueue& queue, const Transform3& transform) const;
+  float getExtrudeDistance(void) const;
+  void setExtrudeDistance(float newDistance);
+  static ShadowMesh* createInstance(const moira::Mesh& mesh);
+private:
+  class Edge;
+  class Triangle;
+  ShadowMesh(void);
+  ShadowMesh(const ShadowMesh& source);
+  ShadowMesh& operator = (const ShadowMesh& source);
+  bool init(const moira::Mesh& mesh);
+  typedef std::vector<Vector3> VertexList;
+  typedef std::vector<Edge> EdgeList;
+  typedef std::vector<Triangle> TriangleList;
+  VertexList vertices;
+  mutable VertexList extrudedVertices;
+  TriangleList triangles;
+  EdgeList edges;
+  float distance;
+  unsigned int vertexCount;
+  Ptr<VertexBuffer> vertexBuffer;
+  Ptr<RenderStyle> style;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @internal
+ */
+class ShadowMesh::Edge
+{
+public:
+  unsigned int vertices[2];
+  unsigned int triangles[2];
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @internal
+ */
+class ShadowMesh::Triangle
+{
+public:
+  enum Status
+  {
+    UNREFERENCED,
+    FRONT_FACE,
+    BACK_FACE,
+  };
+  unsigned int vertices[3];
+  Vector3 normal;
+  mutable Status status;
 };
 
 ///////////////////////////////////////////////////////////////////////

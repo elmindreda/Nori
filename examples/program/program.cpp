@@ -10,10 +10,12 @@ public:
   bool init(void);
 private:
   bool render(void);
-  Ptr<GL::VertexProgram> program;
-  Ptr<GL::RenderStyle> style;
-  Ptr<GL::Camera> camera;
+  GL::Camera camera;
+  GL::Scene scene;
   Ptr<GL::Mesh> mesh;
+  GL::MeshNode* meshNode;
+  GL::CameraNode* cameraNode;
+  Timer timer;
 };
 
 bool Demo::init(void)
@@ -26,43 +28,56 @@ bool Demo::init(void)
   context->setTitle("Program");
   context->getRenderSignal().connect(*this, &Demo::render);
 
-  program = GL::VertexProgram::readInstance(Path("program.vp"));
-  if (!program)
+  if (!GL::Renderer::create())
     return false;
 
-  camera = new GL::Camera();
-  camera->getTransform().position.z = 5.f;
+  camera.setFOV(60.f);
 
-  style = new GL::RenderStyle();
-  GL::RenderPass& pass = style->createPass();
-  pass.setDefaultColor(ColorRGBA(0.f, 0.f, 1.f, 1.f));
-  pass.setVertexProgramName(program->getName());
+  cameraNode = new GL::CameraNode();
+  cameraNode->setCameraName(camera.getName());
+  cameraNode->getLocalTransform().position.z = 5.f;
+  scene.addRootNode(*cameraNode);
 
-  Mesh* meshData = Mesh::readInstance(Path("cube.mesh"));
+  Mesh* meshData = Mesh::readInstance("cube");
   if (!meshData)
     return false;
 
-  meshData->collapseGeometries(style->getName());
+  meshData->calculateNormals(Mesh::SEPARATE_FACES);
 
   mesh = GL::Mesh::createInstance(*meshData);
   if (!mesh)
     return false;
+
+  meshNode = new GL::MeshNode();
+  meshNode->setMeshName(mesh->getName());
+  scene.addRootNode(*meshNode);
+
+  timer.start();
 
   return true;
 }
 
 bool Demo::render(void)
 {
-  GL::ContextCanvas canvas;
-  canvas.push();
+  const Time time = timer.getTime();
+
+  if (GL::ShaderProgram* program = GL::ShaderProgram::findInstance("program"))
+  {
+    if (GL::ShaderUniform* uniform = program->getUniform("time"))
+      uniform->setValue((float) time);
+  }
+
+  GL::ScreenCanvas canvas;
+  canvas.begin();
   canvas.clearDepthBuffer();
   canvas.clearColorBuffer();
 
-  camera->begin();
-  mesh->render();
-  camera->end();
+  meshNode->getLocalTransform().rotation.setAxisRotation(Vector3(0.f, 1.f, 0.f), time);
 
-  canvas.pop();
+  scene.updateTree();
+  scene.renderTree(camera);
+
+  canvas.end();
   return true;
 }
 

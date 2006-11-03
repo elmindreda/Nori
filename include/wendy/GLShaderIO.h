@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_GLPROGRAM_H
-#define WENDY_GLPROGRAM_H
+#ifndef WENDY_GLSHADERIO_H
+#define WENDY_GLSHADERIO_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -37,50 +37,53 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class VertexProgram : public Resource<VertexProgram>
+/*! @brief GLSL vertex shader codec.
+ *  @ingroup io
+ */
+class VertexShaderCodec : public ResourceCodec<VertexShader>
 {
 public:
-  ~VertexProgram(void);
-  GLuint getGLID(void) const;
-  bool getParameter(unsigned int index, Vector4& value) const;
-  bool setParameter(unsigned int index, const Vector4& newValue);
-  static VertexProgram* createInstance(const String& text,
-                                       const String& name = "");
-private:
-  VertexProgram(const String& name);
-  bool init(const String& text);
-  GLuint programID;
+  VertexShaderCodec(void);
+  VertexShader* read(const Path& path, const String& name = "");
+  VertexShader* read(Stream& stream, const String& name = "");
+  bool write(const Path& path, const VertexShader& program);
+  bool write(Stream& stream, const VertexShader& program);
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-class VertexProgramCodec : public ResourceCodec<VertexProgram>
+/*! @brief GLSL fragment shader codec.
+ *  @ingroup io
+ */
+class FragmentShaderCodec : public ResourceCodec<FragmentShader>
 {
 public:
-  VertexProgramCodec(void);
-  VertexProgram* read(const Path& path, const String& name = "");
-  VertexProgram* read(Stream& stream, const String& name = "");
-  bool write(const Path& path, const VertexProgram& program);
-  bool write(Stream& stream, const VertexProgram& program);
+  FragmentShaderCodec(void);
+  FragmentShader* read(const Path& path, const String& name = "");
+  FragmentShader* read(Stream& stream, const String& name = "");
+  bool write(const Path& path, const FragmentShader& program);
+  bool write(Stream& stream, const FragmentShader& program);
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-class FragmentProgram : public Managed<FragmentProgram>
+/*! @brief Codec for XML format GLSL programs.
+ *  @ingroup io
+ */
+class ShaderProgramCodec : public ResourceCodec<ShaderProgram>, public XML::Codec
 {
 public:
-  ~FragmentProgram(void);
-  GLuint getGLID(void) const;
-  bool getParameter(unsigned int index, Vector4& value) const;
-  bool setParameter(unsigned int index, const Vector4& newValue);
-  static FragmentProgram* readInstance(const Path& path,
-                                       const String& name = "");
-  static FragmentProgram* createInstance(const String& text,
-                                         const String& name = "");
+  ShaderProgramCodec(void);
+  ShaderProgram* read(const Path& path, const String& name = "");
+  ShaderProgram* read(Stream& stream, const String& name = "");
+  bool write(const Path& path, const ShaderProgram& program);
+  bool write(Stream& stream, const ShaderProgram& program);
 private:
-  FragmentProgram(const String& name);
-  bool init(const String& text);
-  GLuint programID;
+  bool onBeginElement(const String& name);
+  bool onEndElement(const String& name);
+  Ptr<ShaderProgram> program;
+  Shader* currentShader;
+  String programName;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -89,5 +92,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_GLPROGRAM_H*/
+#endif /*WENDY_GLSHADERIO_H*/
 ///////////////////////////////////////////////////////////////////////

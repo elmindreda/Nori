@@ -7,6 +7,7 @@ using namespace wendy;
 class Widgets : public Trackable
 {
 public:
+  ~Widgets(void);
   bool init(void);
   void render(void);
 private:
@@ -16,9 +17,18 @@ private:
   UI::Label* label;
 };
 
+Widgets::~Widgets(void)
+{
+  UI::Renderer::destroy();
+  GL::Renderer::destroy();
+}
+
 bool Widgets::init(void)
 {
-  if (!UI::WidgetRenderer::create())
+  if (!GL::Renderer::create())
+    return false;
+
+  if (!UI::Renderer::create())
     return false;
 
   window = new UI::Window("Stairs");
@@ -29,31 +39,31 @@ bool Widgets::init(void)
   button = new UI::Button("Push");
   button->setPosition(Vector2(10, 10));
   button->getPushedSignal().connect(*this, &Widgets::onButtonPush);
-  window->addChildFirst(*button);
+  window->addChild(*button);
 
   button = new UI::Button("Shove");
   button->setPosition(Vector2(120, 10));
   button->getPushedSignal().connect(*this, &Widgets::onButtonPush);
-  window->addChildFirst(*button);
+  window->addChild(*button);
 
   button = new UI::Button();
   button->setPosition(Vector2(220, 10));
   button->getPushedSignal().connect(*this, &Widgets::onButtonPush);
-  window->addChildFirst(*button);
+  window->addChild(*button);
 
   label = new UI::Label("Amount of grandpa");
   label->setArea(Rectangle(10, 350, 400, 20));
-  window->addChildFirst(*label);
+  window->addChild(*label);
 
   UI::Entry* entry = new UI::Entry("Do you have stairs in your house?");
   entry->setPosition(Vector2(10, 300));
-  window->addChildFirst(*entry);
+  window->addChild(*entry);
 
   UI::Slider* slider = new UI::Slider();
   slider->setArea(Rectangle(10, 400, 400, 20));
   slider->setOrientation(UI::Slider::HORIZONTAL);
   slider->getChangeValueSignal().connect(*this, &Widgets::onValueChange);
-  window->addChildFirst(*slider);
+  window->addChild(*slider);
 
   UI::List* list = new UI::List();
   list->setArea(Rectangle(400, 100, 150, 200));
@@ -61,7 +71,7 @@ bool Widgets::init(void)
   list->insertItem(new UI::Item("Terrible secret"), 0);
   list->insertItem(new UI::Item("Space"), 0);
   list->insertItem(new UI::Item("Blind people"), 0);
-  window->addChildFirst(*list);
+  window->addChild(*list);
 
   window->activate();
 
@@ -70,13 +80,13 @@ bool Widgets::init(void)
 
 void Widgets::render(void)
 {
-  GL::ContextCanvas canvas;
-  canvas.push();
+  GL::ScreenCanvas canvas;
+  canvas.begin();
   canvas.clearColorBuffer(ColorRGBA::WHITE);
 
   UI::Widget::renderRoots();
 
-  canvas.pop();
+  canvas.end();
 }
 
 void Widgets::onButtonPush(UI::Button& button)
@@ -107,10 +117,10 @@ int main()
     if (widgets->init())
     { 
       while (GL::Context::get()->update())
-      {
 	widgets->render();
-      }
     }
+
+    widgets = NULL;
 
     GL::Context::destroy();
   }

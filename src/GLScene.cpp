@@ -29,13 +29,18 @@
 #include <wendy/OpenGL.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
+#include <wendy/GLCamera.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLLight.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLSprite.h>
+#include <wendy/GLParticle.h>
 #include <wendy/GLMesh.h>
-#include <wendy/GLNode.h>
+#include <wendy/GLTerrain.h>
+#include <wendy/GLScene.h>
+
+#include <algorithm>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -51,9 +56,9 @@ using namespace moira;
 ///////////////////////////////////////////////////////////////////////
 
 SceneNode::SceneNode(void):
-  visible(true)
+  visible(true),
+  dirtyWorld(false)
 {
-  local.setIdentity();
 }
 
 SceneNode::~SceneNode(void)
@@ -72,6 +77,7 @@ void SceneNode::setVisible(bool enabled)
 
 Transform3& SceneNode::getLocalTransform(void)
 {
+  dirtyWorld = true;
   return local;
 }
 
@@ -82,17 +88,24 @@ const Transform3& SceneNode::getLocalTransform(void) const
 
 const Transform3& SceneNode::getWorldTransform(void) const
 {
-  world = local;
-  if (const SceneNode* parent = getParent())
-    world.concatenate(parent->getWorldTransform());
-
+  updateWorldTransform();
   return world;
 }
 
-void SceneNode::prepare(void)
+void SceneNode::addedToParent(SceneNode& parent)
+{
+  dirtyWorld = true;
+}
+
+void SceneNode::removedFromParent(void)
+{
+  dirtyWorld = true;
+}
+
+void SceneNode::update(void)
 {
   for (SceneNode* node = getFirstChild();  node;  node = node->getNextSibling())
-    node->prepare();
+    node->update();
 }
 
 void SceneNode::enqueue(RenderQueue& queue) const
@@ -102,6 +115,123 @@ void SceneNode::enqueue(RenderQueue& queue) const
     if (node->isVisible())
       node->enqueue(queue);
   }
+}
+
+bool SceneNode::updateWorldTransform(void) const
+{
+  world = local;
+  if (const SceneNode* parent = getParent())
+  {
+    parent->updateWorldTransform();
+    world.concatenate(parent->world);
+  }
+  
+  /* TODO: Fix this.
+
+  const SceneNode* parent = getParent();
+  if (parent)
+  {
+    if (parent->updateWorldTransform())
+      dirtyWorld = true;
+  }
+
+  if (dirtyWorld)
+  {
+    world = local;
+    if (parent)
+      world.concatenate(parent->world);
+
+    dirtyWorld = false;
+    return true;
+  }
+  */
+
+  return false;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Scene::Scene(const String& name):
+  Managed<Scene>(name),
+  fogging(false),
+  fogColor(ColorRGB::BLACK)
+{
+}
+
+void Scene::updateTree(void)
+{
+  for (NodeList::const_iterator i = roots.begin();  i != roots.end();  i++)
+    (*i)->update();
+}
+
+void Scene::renderTree(const Camera& camera) const
+{
+  RenderQueue queue(camera);
+  enqueueTree(queue);
+
+  if (fogging)
+  {
+    ColorRGBA color = fogColor;
+
+    glEnable(GL_FOG);
+    glFogfv(GL_FOG_COLOR, color);
+  }
+  else
+    glDisable(GL_FOG);
+
+  camera.begin();
+  queue.renderOperations();
+  camera.end();
+
+  if (fogging)
+    glDisable(GL_FOG);
+}
+
+void Scene::enqueueTree(RenderQueue& queue) const
+{
+  for (NodeList::const_iterator i = roots.begin();  i != roots.end();  i++)
+  {
+    if ((*i)->isVisible())
+      (*i)->enqueue(queue);
+  }
+}
+
+void Scene::addRootNode(SceneNode& node)
+{
+  if (std::find(roots.begin(), roots.end(), &node) != roots.end())
+    return;
+
+  roots.push_back(&node);
+}
+
+void Scene::removeRootNode(SceneNode& node)
+{
+  roots.remove(&node);
+}
+
+void Scene::removeRootNodes(void)
+{
+  roots.clear();
+}
+
+bool Scene::isFogging(void) const
+{
+  return fogging;
+}
+
+void Scene::setFogging(bool newState)
+{
+  fogging = newState;
+}
+
+const ColorRGB& Scene::getFogColor(void) const
+{
+  return fogColor;
+}
+
+void Scene::setFogColor(const ColorRGB& newColor)
+{
+  fogColor = newColor;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -122,7 +252,8 @@ void LightNode::enqueue(RenderQueue& queue) const
 
   if (Light* light = Light::findInstance(lightName))
   {
-    const Transform3& transform = getWorldTransform();
+    Transform3 transform = getWorldTransform();
+    transform.concatenate(queue.getCamera().getInverseTransform());
 
     switch (light->getType())
     {
@@ -170,74 +301,47 @@ void MeshNode::enqueue(RenderQueue& queue) const
 
 ///////////////////////////////////////////////////////////////////////
 
-CameraNode::CameraNode(void):
-  FOV(90.f),
-  aspectRatio(0.f)
+const String& CameraNode::getCameraName(void) const
 {
+  return cameraName;
 }
 
-void CameraNode::prepareTree(void)
+void CameraNode::setCameraName(const String& newName)
 {
-  getRoot()->prepare();
+  cameraName = newName;
 }
 
-void CameraNode::renderTree(void) const
+void CameraNode::update(void)
 {
-  RenderQueue queue;
-  enqueueTree(queue);
+  Camera* camera = Camera::findInstance(cameraName);
+  if (!camera)
+  {
+    Log::writeError("Cannot find camera %s for camera node", cameraName.c_str());
+    return;
+  }
 
-  Canvas* canvas = Canvas::getCurrent();
-
-  if (aspectRatio)
-    canvas->begin3D(FOV, aspectRatio);
-  else
-    canvas->begin3D(FOV, (float) canvas->getPhysicalWidth() /
-                         (float) canvas->getPhysicalHeight());
-
-  Transform3 worldToLocal = getWorldTransform();
-  worldToLocal.invert();
-
-  Matrix4 matrix = worldToLocal;
-
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadMatrixf(matrix);
-  glPopAttrib();
-
-  queue.renderOperations();
-
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-  glPopAttrib();
-
-  canvas->end();
+  camera->setTransform(getWorldTransform());
 }
 
-void CameraNode::enqueueTree(RenderQueue& queue) const
+///////////////////////////////////////////////////////////////////////
+
+const String& TerrainNode::getTerrainName(void) const
 {
-  getRoot()->enqueue(queue);
+  return terrainName;
 }
 
-float CameraNode::getFOV(void) const
+void TerrainNode::setTerrainName(const String& newTerrainName)
 {
-  return FOV;
+  terrainName = newTerrainName;
 }
 
-float CameraNode::getAspectRatio(void) const
+void TerrainNode::enqueue(RenderQueue& queue) const
 {
-  return aspectRatio;
-}
+  SceneNode::enqueue(queue);
 
-void CameraNode::setFOV(float newFOV)
-{
-  FOV = newFOV;
-}
-
-void CameraNode::setAspectRatio(float newAspectRatio)
-{
-  aspectRatio = newAspectRatio;
+  Terrain* terrain = Terrain::findInstance(terrainName);
+  if (terrain)
+    terrain->enqueue(queue, getWorldTransform());
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -266,16 +370,48 @@ void SpriteNode::enqueue(RenderQueue& queue) const
 {
   SceneNode::enqueue(queue);
 
-  RenderStyle* style = RenderStyle::findInstance(styleName);
-  if (!style)
+  Sprite3 sprite;
+  sprite.size = spriteSize;
+  sprite.styleName = styleName;
+  sprite.enqueue(queue, getWorldTransform());
+}
+
+///////////////////////////////////////////////////////////////////////
+
+const String& ParticleSystemNode::getSystemName(void) const
+{
+  return systemName;
+}
+
+void ParticleSystemNode::setSystemName(const String& newSystemName)
+{
+  systemName = newSystemName;
+}
+
+void ParticleSystemNode::update(void)
+{
+  ParticleSystem* system = ParticleSystem::findInstance(systemName);
+  if (!system)
   {
-    Log::writeError("Render style %s not found", styleName.c_str());
+    Log::writeError("Cannot find particle system %s", systemName.c_str());
     return;
   }
 
-  Sprite3 sprite;
-  sprite.size = spriteSize;
-  sprite.enqueue(queue, getWorldTransform(), *style);
+  system->setTransform(getWorldTransform());
+}
+
+void ParticleSystemNode::enqueue(RenderQueue& queue) const
+{
+  SceneNode::enqueue(queue);
+
+  ParticleSystem* system = ParticleSystem::findInstance(systemName);
+  if (!system)
+  {
+    Log::writeError("Cannot find particle system %s", systemName.c_str());
+    return;
+  }
+
+  system->enqueue(queue, Transform3());
 }
 
 ///////////////////////////////////////////////////////////////////////

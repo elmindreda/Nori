@@ -43,8 +43,12 @@ using namespace moira;
 namespace
 {
 
-Ptr<GL::VertexProgramCodec> vertexProgramCodec;
-Ptr<GL::DemoCodecXML> demoCodecXML;
+Ptr<GL::VertexShaderCodec> vertexShaderCodec;
+Ptr<GL::FragmentShaderCodec> fragmentShaderCodec;
+Ptr<GL::ShaderProgramCodec> shaderProgramCodec;
+Ptr<GL::RenderStyleCodec> renderStyleCodec;
+
+//Ptr<demo::DemoCodecXML> demoCodecXML;
 
 }
 
@@ -58,8 +62,24 @@ bool initialize(void)
   if (!glfwInit())
     return false;
 
-  vertexProgramCodec = new GL::VertexProgramCodec();
-  demoCodecXML = new GL::DemoCodecXML();
+  vertexShaderCodec = new GL::VertexShaderCodec();
+  fragmentShaderCodec = new GL::FragmentShaderCodec();
+  shaderProgramCodec = new GL::ShaderProgramCodec();
+  renderStyleCodec = new GL::RenderStyleCodec();
+
+  if (!GL::VertexShader::addSearchPath(Path(".")))
+    return false;
+
+  if (!GL::FragmentShader::addSearchPath(Path(".")))
+    return false;
+
+  if (!GL::ShaderProgram::addSearchPath(Path(".")))
+    return false;
+
+  if (!GL::RenderStyle::addSearchPath(Path(".")))
+    return false;
+
+  //demoCodecXML = new demo::DemoCodecXML();
 
   return true;
 }
@@ -68,8 +88,12 @@ void shutdown(void)
 {
   GL::Context::destroy();
 
-  vertexProgramCodec = NULL;
-  demoCodecXML = NULL;
+  vertexShaderCodec = NULL;
+  fragmentShaderCodec = NULL;
+  shaderProgramCodec = NULL;
+  renderStyleCodec = NULL;
+
+  //demoCodecXML = NULL;
 
   glfwTerminate();
 

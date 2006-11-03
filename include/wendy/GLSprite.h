@@ -41,6 +41,8 @@ class RenderStyle;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup renderer
+ */
 class Sprite2
 {
 public:
@@ -56,34 +58,21 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-class Sprite3
+/*! @ingroup renderer
+ */
+class Sprite3 : public Renderable
 {
 public:
   Sprite3(void);
   void enqueue(RenderQueue& queue,
-               const Matrix4& transform,
-	       const RenderStyle& style) const;
+               const Transform3& transform) const;
   void render(void) const;
-  void render(const RenderStyle& style) const;
   void realizeVertices(Vertex2ft3fv* vertices) const;
   void setDefaults(void);
   Vector3 position;
   Vector2 size;
   float angle;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class SpriteList2
-{
-public:
-  typedef std::vector<Sprite2> SpriteList;
-  virtual ~SpriteList2(void);
-  SpriteList2* createInstance(unsigned int spriteCount);
-private:
-  SpriteList2(void);
-  bool init(void);
-  Ptr<VertexBuffer> vertexBuffer;
+  String styleName;
 };
 
 ///////////////////////////////////////////////////////////////////////

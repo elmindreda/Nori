@@ -46,6 +46,12 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Vertex format component descriptor.
+ *  @ingroup opengl
+ *
+ *  This class describes a single logical component of a vertex format.
+ *  A component may have multiple members.
+ */
 class VertexComponent
 {
   friend class VertexFormat;
@@ -66,6 +72,9 @@ public:
     /*! Component is a vertex normal.
      */
     NORMAL,
+    /*! Component is a generic attribute.
+     */
+    GENERIC,
   };
   /*! Vertex format element type enumeration.
    */
@@ -87,7 +96,11 @@ public:
   /*! Constructor.
    */
   VertexComponent(Kind kind, unsigned int count = 3, Type type = FLOAT);
+  /*! Equality operator.
+   */
   bool operator == (const VertexComponent& other) const;
+  /*! Inequality operator.
+   */
   bool operator != (const VertexComponent& other) const;
   /*! @return The size, in bytes, of this component.
    */
@@ -113,13 +126,31 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Vertex format descriptor.
+ *  @ingroup opengl
+ *
+ *  This class describes a mapping between the physical layout and the semantic
+ *  structure of a given vertex format.
+ *
+ *  It allows the renderer to work with vertex buffers of (almost) arbitrary
+ *  layout without client intervention.
+ */
 class VertexFormat
 {
 public:
+  /*! Constructor.
+   */
   VertexFormat(void);
+  /*! Constructor. Creates components according to the specified specification.
+   *  @param specification The specification of the desired format.
+   *  @remarks This will throw if the specification is syntactically malformed.
+   */
   VertexFormat(const String& specification);
-  bool addComponent(const VertexComponent& component);
-  bool addComponents(const String& specification);
+  bool createComponent(VertexComponent::Kind kind,
+                       unsigned int count = 3,
+		       VertexComponent::Type type = VertexComponent::FLOAT);
+  bool createComponents(const String& specification);
+  void destroyComponents(void);
   const VertexComponent* findComponent(VertexComponent::Kind kind) const;
   const VertexComponent& operator [] (unsigned int index) const;
   bool operator == (const VertexFormat& other) const;
@@ -133,6 +164,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Predefined vertex format.
+ */
 class Vertex3fv
 {
 public:
@@ -143,6 +176,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Predefined vertex format.
+ */
 class Vertex3fn3fv
 {
 public:
@@ -154,6 +189,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Predefined vertex format.
+ */
 class Vertex2ft2fv
 {
 public:
@@ -165,10 +202,26 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Predefined vertex format.
+ */
 class Vertex2ft3fv
 {
 public:
   void send(void) const;
+  Vector2 mapping;
+  Vector3 position;
+  static const VertexFormat format;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Predefined vertex format.
+ */
+class Vertex4fc2ft3fv
+{
+public:
+  void send(void) const;
+  ColorRGBA color;
   Vector2 mapping;
   Vector3 position;
   static const VertexFormat format;

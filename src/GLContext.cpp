@@ -31,6 +31,10 @@
 
 #include <GL/glfw.h>
 
+#if MOIRA_HAVE_CTYPE_H
+#include <ctype.h>
+#endif
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -201,9 +205,14 @@ Image* Context::getColorBuffer(void) const
 {
   Ptr<Image> result = new Image(ImageFormat::RGB888, mode.width, mode.height);
 
+  glPushAttrib(GL_PIXEL_MODE_BIT);
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
   glReadPixels(0, 0, mode.width, mode.height,
 	       GL_RGB, GL_UNSIGNED_BYTE,
 	       result->getPixels());
+
+  glPopAttrib();
 
   result->flipHorizontal();
 
@@ -235,11 +244,6 @@ void Context::setCursorPosition(const Vector2& newPosition)
   glfwSetMousePos((int) newPosition.x, (int) newPosition.y);
 }
 
-SignalProxy0<void> Context::getDestroySignal(void)
-{
-  return destroySignal;
-}
-
 SignalProxy0<bool> Context::getRenderSignal(void)
 {
   return renderSignal;
@@ -265,6 +269,11 @@ SignalProxy2<void, Key, bool> Context::getKeyPressSignal(void)
   return keyPressSignal;
 }
 
+SignalProxy1<void, wchar_t> Context::getCharInputSignal(void)
+{
+  return charInputSignal;
+}
+
 SignalProxy2<void, unsigned int, bool> Context::getButtonClickSignal(void)
 {
   return buttonClickSignal;
@@ -282,16 +291,40 @@ bool Context::create(const ContextMode& mode)
     return false;
   
   set(context.detachObject());
+  createSignal.emit();
   return true;
+}
+
+SignalProxy0<void> Context::getCreateSignal(void)
+{
+  return createSignal;
+}
+
+SignalProxy0<void> Context::getDestroySignal(void)
+{
+  return destroySignal;
 }
 
 Context::Context(void)
 {
   // Necessary hack in case GLFW calls a callback before
   // we have had time to call Singleton::set.
+
   // TODO: Remove this upon the arrival of GLFW_USER_POINTER.
 
   instance = this;
+}
+
+Context::Context(const Context& source)
+{
+  // NOTE: Not implemented.
+}
+
+Context& Context::operator = (const Context& source)
+{
+  // NOTE: Not implemented.
+
+  return *this;
 }
 
 bool Context::init(const ContextMode& mode)
@@ -405,6 +438,7 @@ bool Context::init(const ContextMode& mode)
   glfwSetMousePosCallback(mousePosCallback);
   glfwSetMouseButtonCallback(mouseButtonCallback);
   glfwSetKeyCallback(keyboardCallback);
+  glfwSetCharCallback(characterCallback);
   
   glfwSwapInterval(1);
 
@@ -452,6 +486,14 @@ void Context::keyboardCallback(int key, int action)
   instance->keyPressSignal.emit(key, (action == GLFW_PRESS) ? true : false);
 }
 
+void Context::characterCallback(int character, int action)
+{
+  if (action != GLFW_PRESS)
+    return;
+
+  instance->charInputSignal.emit((wchar_t) character);
+}
+
 void Context::mousePosCallback(int x, int y)
 {
   Vector2 position((float) x, (float) y);
@@ -469,6 +511,9 @@ Context::KeyMap Context::internalMap;
 Context::KeyMap Context::externalMap;
 
 Context* Context::instance = NULL;
+
+Signal0<void> Context::createSignal;
+Signal0<void> Context::destroySignal;
 
 ///////////////////////////////////////////////////////////////////////
 

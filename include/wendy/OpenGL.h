@@ -29,6 +29,14 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
+/*! @defgroup opengl OpenGL wrapper API
+ *
+ *  These classes wrap parts of the OpenGL API, maintaining a rather close
+ *  mapping to the underlying concepts, but providing useful services and a
+ *  semblance of automatic resource management. They are used by most
+ *  higher-level components such as the 3D rendering pipeline.
+ */
+
 ///////////////////////////////////////////////////////////////////////
 #endif /*WEOPENGL_H*/
 ///////////////////////////////////////////////////////////////////////

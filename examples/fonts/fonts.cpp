@@ -28,6 +28,9 @@ bool Demo::init(void)
   context->setTitle("Fonts");
   context->getRenderSignal().connect(*this, &Demo::render);
 
+  if (!GL::Renderer::create())
+    return false;
+
   Font* defaultFont = Font::findInstance("default");
   if (!defaultFont)
     return false;
@@ -41,10 +44,11 @@ bool Demo::init(void)
 
 bool Demo::render(void)
 {
-  GL::ContextCanvas canvas;
-  canvas.push();
+  GL::ScreenCanvas canvas;
+  canvas.begin();
   canvas.clearColorBuffer();
-  canvas.begin2D(Vector2(640.f, 480.f));
+
+  GL::Renderer::get()->begin2D(Vector2(640.f, 480.f));
 
   String text = "In A.D. 2101, war was beginning\n"
 		"What happen?\n"
@@ -80,8 +84,9 @@ bool Demo::render(void)
   glVertex2f(canvas.getPhysicalWidth(), pen.y);
   glEnd();
 
+  GL::Renderer::get()->end();
+
   canvas.end();
-  canvas.pop();
 
   return true;
 }

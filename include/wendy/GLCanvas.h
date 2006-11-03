@@ -26,10 +26,6 @@
 #define WENDY_GLCANVAS_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <stack>
-
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
   namespace GL
@@ -45,70 +41,136 @@ class Texture;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! Rendering canvas.
- *  A canvas is what other renderers call a render target, plus a
- *  viewport within that render target, and a projection matrix.
+/*! @brief Rendering canvas.
+ *  @ingroup opengl
+ *
+ *  This class represents a render target, i.e. a framebuffer binding.
+ *
  *  @remarks Most higher-level objects capable of rendering wont work
- *  without an active canvas on the canvas stack.
+ *  without an active canvas.
  */
 class Canvas
 {
 public:
+  /*! Constructor.
+   */
   Canvas(void);
+  /*! Destructor.
+   */
   virtual ~Canvas(void);
-  virtual void push(void) const;
-  virtual void pop(void) const;
-  void begin2D(const Vector2& resolution = Vector2(1.f, 1.f)) const;
-  void begin3D(float FOV = 90.f,
-               float aspect = 0.f,
-	       float nearZ = 0.01f,
-	       float farZ = 1000.f) const;
+  /*! Makes this the current canvas and begins rendering.
+   */
+  void begin(void) const;
+  /*! Finishes rendering to this canvas.  After this call, this canvas
+   *  will no longer be current.
+   */
   void end(void) const;
-  virtual void clearColorBuffer(const ColorRGBA& color = ColorRGBA::BLACK);
-  virtual void clearDepthBuffer(float depth = 1.f);
-  virtual void clearStencilBuffer(unsigned int value = 0);
+  /*! Pushes the specified area onto the scissor area clip stack.  The
+   *  resulting scissor area is the specified scissor area clipped by the
+   *  current scissor area.
+   *  @param area The desired area to push.
+   *  @return @c true if the resulting scissor area has a non-zero size,
+   *  otherwise @c false.
+   *  @remarks If the resulting scissor area is a null area, it is not pushed
+   *  onto the stack, so you do not need to (and should not) pop it.
+   */
+  bool pushScissorArea(const Rectangle& area);
+  /*! Pops the top area from the scissor area clip stack.
+   */
+  void popScissorArea(void);
+  /*! Clears the color buffer of this canvas with the specified color.
+   */
+  void clearColorBuffer(const ColorRGBA& color = ColorRGBA::BLACK);
+  /*! Clears the depth buffer of this canvas with the specified depth
+   *  value.
+   */
+  void clearDepthBuffer(float depth = 1.f);
+  /*! Clears the stencil buffer of this canvas with the specified
+   *  stencil value.
+   */
+  void clearStencilBuffer(unsigned int value = 0);
+  /*! @return The width, in pixels, of this canvas.
+   */
   virtual unsigned int getPhysicalWidth(void) const = 0;
+  /*! @return The height, in pixels, of this canvas.
+   */
   virtual unsigned int getPhysicalHeight(void) const = 0;
-  const Vector2& getAreaPosition(void) const;
-  const Vector2& getAreaSize(void) const;
-  void setArea(const Vector2& newPosition, const Vector2& newSize);
+  /*! @return The scissor rectangle of this canvas.
+   */
+  const Rectangle& getScissorArea(void) const;
+  /*! Sets the scissor rectangle for this canvas.
+   *  @param rectangle The desired scissor rectangle.
+   */
+  const Rectangle& getViewportArea(void) const;
+  /*! Sets the viewport rectangle for this canvas.
+   *  @param rectangle The desired viewport rectangle.
+   */
+  void setViewportArea(const Rectangle& newArea);
+  /*! @return The current canvas, or @c NULL if there is no current
+   *  canvas.
+   */
   static Canvas* getCurrent(void);
 protected:
+  /*! Called when this canvas is to be made current.
+   */
   virtual void apply(void) const = 0;
-  Vector2 position;
-  Vector2 size;
+  virtual void finish(void) const = 0;
+  virtual void updateScissorArea(void) const = 0;
+  virtual void updateViewportArea(void) const = 0;
 private:
-  typedef std::stack<Canvas*> CanvasStack;
-  static CanvasStack stack;
+  Canvas(const Canvas& source);
+  Canvas& operator = (const Canvas& source);
+  RectangleClipStack scissorStack;
+  Rectangle viewportArea;
+  static Canvas* current;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-class ContextCanvas : public Canvas
+/*! @brief %Canvas for rendering to the screen.
+ *  @ingroup opengl
+ */
+class ScreenCanvas : public Canvas
 {
 public:
   unsigned int getPhysicalWidth(void) const;
   unsigned int getPhysicalHeight(void) const;
 private:
   void apply(void) const;
+  void finish(void) const;
+  void updateScissorArea(void) const;
+  void updateViewportArea(void) const;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief %Canvas for rendering to a texture.
+ *  @ingroup opengl
+ */
 class TextureCanvas : public Canvas
 {
 public:
-  void pop(void) const;
   unsigned int getPhysicalWidth(void) const;
   unsigned int getPhysicalHeight(void) const;
+  /*! @return The texture targeted by this texture canvas.
+   */
   const Texture& getTexture(void) const;
-  static TextureCanvas* createInstance(const std::string& textureName,
-                                       unsigned int width,
-                                       unsigned int height);
+  /*! Creates a texture canvas and its associated texture.
+   *  @param width The desired width of the texture and texture canvas.
+   *  @param height The desired height of the texture and texture canvas.
+   *  @param textureName The desired name of the texture, or the empty string
+   *  to automatically generate a name.
+   */
+  static TextureCanvas* createInstance(unsigned int width,
+                                       unsigned int height,
+				       const String& textureName = "");
 private:
   TextureCanvas(void);
-  bool init(const std::string& textureName, unsigned int width, unsigned int height);
+  bool init(unsigned int width, unsigned int height, const String& textureName);
   void apply(void) const;
+  void finish(void) const;
+  void updateScissorArea(void) const;
+  void updateViewportArea(void) const;
   Ptr<Texture> texture;
 };
 

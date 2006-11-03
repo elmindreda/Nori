@@ -69,62 +69,47 @@ unsigned int getNextPower(unsigned int value)
   
 ///////////////////////////////////////////////////////////////////////
   
-void Font::drawText(const String& format, ...) const
+void Font::drawText(const String& text) const
+{
+  pass.apply();
+
+  LayoutList layout;
+  getTextLayout(layout, text);
+
+  Vector2 roundedPen = penPosition;
+  roundedPen.x = floorf(roundedPen.x + 0.5f);
+  roundedPen.y = floorf(roundedPen.y + 0.5f);
+
+  for (LayoutList::const_iterator i = layout.begin();  i != layout.end();  i++)
+  {
+    switch ((*i).character)
+    {
+      case '\t':
+      case '\n':
+      case ' ':
+	continue;
+
+      default:
+      {
+	if (const Glyph* glyph = getGlyph((*i).character))
+	  glyph->render(roundedPen + (*i).penOffset);
+      }
+    }
+  }
+}
+
+void Font::drawText(const char* format, ...) const
 {
   va_list vl;
   char* text;
 
   va_start(vl, format);
-  vasprintf(&text, format.c_str(), vl);
+  vasprintf(&text, format, vl);
   va_end(vl);
   
-  RenderPass pass;
-  pass.setDepthTesting(false);
-  pass.setDepthWriting(false);
-  pass.setDefaultColor(color);
-  pass.setTextureName(texture->getName());
-  pass.setCombineMode(GL_MODULATE);
-  pass.setBlendFactors(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  pass.apply();
+  drawText(String(text));
 
-  Vector2 pen = penPosition;
-
-  for (const char* c = text;  *c != '\0';  c++)
-  {
-    switch (*c)
-    {
-      case '\t':
-      {
-	pen.x += size.x * 3;
-	break;
-      }
-	
-      case '\n':
-      {
-	pen.x = penPosition.x;
-	pen.y = pen.y - size.y * 1.2f;
-	break;
-      }
-
-      default:
-      {
-	GlyphMap::const_iterator i = glyphMap.find(*c);
-	if (i == glyphMap.end())
-	  continue;
-
-	Glyph* glyph = (*i).second;
-
-	if (*c != ' ')
-	  glyph->render(pen);
-
-	pen.x += glyph->advance;
-	break;
-      }
-    }
-
-    pen.x = floorf(pen.x + 0.5f);
-    pen.y = floorf(pen.y + 0.5f);
-  }
+  free(text);
 }
 
 float Font::getWidth(void) const
@@ -149,82 +134,107 @@ void Font::setPenPosition(const Vector2& newPosition)
 
 const ColorRGBA& Font::getColor(void) const
 {
-  return color;
+  return pass.getDefaultColor();
 }
 
 void Font::setColor(const ColorRGBA& newColor)
 {
-  color = newColor;
+  pass.setDefaultColor(newColor);
 }
 
-Vector2 Font::getTextSize(const String& format, ...) const
+Rectangle Font::getTextMetrics(const String& text) const
+{
+  Rectangle result(Vector2::ZERO, Vector2::ZERO);
+
+  LayoutList layout;
+  getTextLayout(layout, text);
+
+  for (LayoutList::const_iterator i = layout.begin();  i != layout.end();  i++)
+    result.envelop((*i).area);
+
+  return result;
+}
+
+Rectangle Font::getTextMetrics(const char* format, ...) const
 {
   va_list vl;
   char* text;
 
   va_start(vl, format);
-  vasprintf(&text, format.c_str(), vl);
+  vasprintf(&text, format, vl);
   va_end(vl);
   
-  return getTextMetrics(text).size;
+  Rectangle result = getTextMetrics(String(text));
+
+  free(text);
+  return result;
 }
 
-Rectangle Font::getTextMetrics(const String& format, ...) const
+void Font::getTextLayout(LayoutList& result, const String& text) const
 {
-  va_list vl;
-  char* text;
+  Vector2 pen(0.f, 0.f);
 
-  va_start(vl, format);
-  vasprintf(&text, format.c_str(), vl);
-  va_end(vl);
-  
-  Rectangle result(penPosition, Vector2::ZERO);
-
-  Vector2 pen = penPosition;
-
-  for (const char* c = text;  *c != '\0';  c++)
+  for (String::const_iterator c = text.begin();  c != text.end();  c++)
   {
+    Layout layout;
+    layout.character = *c;
+    layout.penOffset = pen;
+
     switch (*c)
     {
       case '\t':
       {
-	pen.x += size.x * 3;
+	layout.area.set(pen, Vector2::ZERO);
+	pen.x += size.x * 3.f;
 	break;
       }
 	
       case '\n':
       {
-	pen.x = penPosition.x;
-	pen.y = pen.y - size.y * 1.2f;
+	layout.area.set(pen, Vector2::ZERO);
+	pen.x = 0.f;
+	pen.y -= size.y * 1.2f;
 	break;
       }
 
       default:
       {
-	GlyphMap::const_iterator i = glyphMap.find(*c);
-	if (i == glyphMap.end())
+	const Glyph* glyph = getGlyph(*c);
+	if (!glyph)
+	{
+	  Log::writeWarning("Failed to layout unknown glyph %02x", *c);
 	  continue;
+	}
 
-	Glyph* glyph = (*i).second;
-
-	Rectangle area;
-	area.position.x = pen.x + glyph->bearing.x;
-	area.position.y = pen.y - glyph->size.y + glyph->bearing.y;
-	area.size.set((float) glyph->size.x,
-		      (float) glyph->size.y);
-
-	result.envelop(area);
+	layout.area.position.x = pen.x + glyph->bearing.x;
+	layout.area.position.y = pen.y - glyph->size.y + glyph->bearing.y;
+	layout.area.size.set((float) glyph->size.x,
+	                     (float) glyph->size.y);
 
 	pen.x += glyph->advance;
 	break;
       }
     }
 
+    result.push_back(layout);
+
     pen.x = floorf(pen.x + 0.5f);
     pen.y = floorf(pen.y + 0.5f);
   }
+}
 
-  return result;
+void Font::getTextLayout(LayoutList& result, const char* format, ...) const
+{
+  va_list vl;
+  char* text;
+
+  va_start(vl, format);
+  vasprintf(&text, format, vl);
+  va_end(vl);
+
+  getTextLayout(result, String(text));
+  
+  free(text);
 }
 
 Font* Font::createInstance(const Path& path,
@@ -248,9 +258,21 @@ Font* Font::createInstance(const moira::Font& font, const String& name)
 }
 
 Font::Font(const String& name):
-  Managed<Font>(name),
-  color(ColorRGBA::WHITE)
+  Managed<Font>(name)
 {
+}
+
+Font::Font(const Font& source):
+  Managed<Font>(source)
+{
+  // NOTE: Not implemented.
+}
+
+Font& Font::operator = (const Font& source)
+{
+  // NOTE: Not implemented.
+
+  return *this;
 }
 
 bool Font::init(const moira::Font& font)
@@ -281,7 +303,7 @@ bool Font::init(const moira::Font& font)
       return false;
   }
 
-  texelPosition.set(1, 1);
+  Vector2i texelPosition(1, 1);
 
   for (unsigned int i = 0;  i < characters.size();  i++)
   {
@@ -309,7 +331,7 @@ bool Font::init(const moira::Font& font)
 
       if (texelPosition.y + image.getHeight() + 2 > texture->getPhysicalHeight())
       {
-	// TODO: Allocate new texture.
+	// TODO: Allocate next texture.
 	Log::writeError("No more room in font texture");
 	return false;
       }
@@ -326,13 +348,31 @@ bool Font::init(const moira::Font& font)
     texelPosition.x += image.getWidth() + 1;
   }
 
+  pass.setDepthTesting(false);
+  pass.setDepthWriting(false);
+  pass.setDefaultColor(ColorRGBA::WHITE);
+  pass.setBlendFactors(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  TextureLayer& layer = pass.createTextureLayer();
+  layer.setTextureName(texture->getName());
+  layer.setCombineMode(GL_MODULATE);
+
   size.set(font.getWidth(), font.getHeight());
   return true;
 }
 
+const Font::Glyph* Font::getGlyph(char character) const
+{
+  GlyphMap::const_iterator i = glyphMap.find(character);
+  if (i == glyphMap.end())
+    return NULL;
+
+  return (*i).second;
+}
+
 ///////////////////////////////////////////////////////////////////////
 
-void Font::Glyph::render(const Vector2& penPosition)
+void Font::Glyph::render(const Vector2& penPosition) const
 {
   const Rectangle& texelArea = area;
 

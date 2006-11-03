@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy demo system
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -30,13 +30,14 @@
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
-#include <wendy/GLDemo.h>
 
-#if WENDY_HAVE_STDLIB_H
+#include <wendy/DemoEffect.h>
+
+#if MOIRA_HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 
-#if WENDY_HAVE_ERRNO_H
+#if MOIRA_HAVE_ERRNO_H
 #include <errno.h>
 #endif
 
@@ -44,7 +45,7 @@
 
 namespace wendy
 {
-  namespace GL
+  namespace demo
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -53,17 +54,17 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-DemoEffectType::DemoEffectType(const String& name):
-  Managed<DemoEffectType>(name)
+EffectType::EffectType(const String& name):
+  Managed<EffectType>(name)
 {
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-DemoEffect::DemoEffect(const String& name,
-                       DemoEffectType* initType,
+Effect::Effect(const String& name,
+                       EffectType* initType,
 		       Time initDuration):
-  Managed<DemoEffect>(name),
+  Managed<Effect>(name),
   type(initType),
   duration(initDuration),
   elapsed(0.0),
@@ -71,70 +72,70 @@ DemoEffect::DemoEffect(const String& name,
 {
 }
 
-bool DemoEffect::isActive(void) const
+bool Effect::isActive(void) const
 {
   return active;
 }
 
-DemoEffectType* DemoEffect::getType(void) const
+EffectType* Effect::getType(void) const
 {
   return type;
 }
 
-Time DemoEffect::getDuration(void) const
+Time Effect::getDuration(void) const
 {
   return duration;
 }
 
-Time DemoEffect::getTimeElapsed(void) const
+Time Effect::getTimeElapsed(void) const
 {
   return elapsed;
 }
 
-void DemoEffect::prepareChildren(void) const
+void Effect::prepareChildren(void) const
 {
-  for (const DemoEffect* child = getFirstChild();  child != NULL;  child = child->getNextSibling())
+  for (const Effect* child = getFirstChild();  child != NULL;  child = child->getNextSibling())
   {
     if (child->active)
       child->prepare();
   }
 }
 
-void DemoEffect::renderChildren(void) const
+void Effect::renderChildren(void) const
 {
-  for (const DemoEffect* child = getFirstChild();  child != NULL;  child = child->getNextSibling())
+  for (const Effect* child = getFirstChild();  child != NULL;  child = child->getNextSibling())
   {
     if (child->active)
       child->render();
   }
 }
 
-void DemoEffect::prepare(void) const
+void Effect::prepare(void) const
 {
   prepareChildren();
 }
 
-void DemoEffect::render(void) const
+void Effect::render(void) const
 {
   renderChildren();
 }
 
-void DemoEffect::update(Time deltaTime)
+void Effect::update(Time deltaTime)
 {
 }
 
-void DemoEffect::trigger(Time moment, const String& name, const String& value)
+void Effect::trigger(const Event& event)
 {
 }
 
-void DemoEffect::restart(void)
+void Effect::restart(void)
 {
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-NullEffect::NullEffect(const String& name, DemoEffectType* type, Time duration):
-  DemoEffect(name, type, duration)
+NullEffect::NullEffect(const String& name, EffectType* type, Time duration):
+  Effect(name, type, duration)
 {
 }
 
@@ -145,8 +146,8 @@ bool NullEffect::init(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-ClearEffect::ClearEffect(const String& name, DemoEffectType* type, Time duration):
-  DemoEffect(name, type, duration)
+ClearEffect::ClearEffect(const String& name, EffectType* type, Time duration):
+  Effect(name, type, duration)
 {
 }
 
@@ -157,9 +158,9 @@ bool ClearEffect::init(void)
 
 void ClearEffect::render(void) const
 {
-  Canvas::getCurrent()->clearDepthBuffer();
-  Canvas::getCurrent()->clearStencilBuffer();
-  Canvas::getCurrent()->clearColorBuffer(color);
+  GL::Canvas::getCurrent()->clearDepthBuffer();
+  GL::Canvas::getCurrent()->clearStencilBuffer();
+  GL::Canvas::getCurrent()->clearColorBuffer(color);
 
   renderChildren();
 }
@@ -197,6 +198,7 @@ void ClearEffect::restart(void)
 
 ///////////////////////////////////////////////////////////////////////
 
+/*
 Demo::~Demo(void)
 {
   destroyEffectInstances();
@@ -289,7 +291,7 @@ void Demo::destroyEffectInstances(void)
 
 void Demo::render(void) const
 {
-  if (const DemoEffect* instance = rootEffect.instance)
+  if (const Effect* instance = rootEffect.instance)
   {
     instance->prepare();
     instance->render();
@@ -351,11 +353,11 @@ Demo::Demo(const String& name):
 
 bool Demo::init(void)
 {
-  if (!DemoEffectType::findInstance("null"))
-    new DemoEffectTemplate<NullEffect>("null");
+  if (!EffectType::findInstance("null"))
+    new EffectTemplate<NullEffect>("null");
 
-  if (!DemoEffectType::findInstance("clear"))
-    new DemoEffectTemplate<ClearEffect>("clear");
+  if (!EffectType::findInstance("clear"))
+    new EffectTemplate<ClearEffect>("clear");
 
   rootEffect.instanceName = "root";
   rootEffect.typeName = "null";
@@ -423,7 +425,7 @@ void Demo::updateEffect(Effect& effect, Time newTime)
 
 bool Demo::createEffectInstance(Effect& effect)
 {
-  DemoEffectType* type = DemoEffectType::findInstance(effect.typeName);
+  EffectType* type = EffectType::findInstance(effect.typeName);
   if (!type)
   {
     Log::writeError("Effect type %s does not exist", effect.typeName.c_str());
@@ -481,22 +483,24 @@ Demo::Effect* Demo::findEffect(const String& name)
 
   return (*i).second;
 }
+*/
 
 ///////////////////////////////////////////////////////////////////////
 
-DemoCodecXML::DemoCodecXML(void):
+/*
+CodecXML::CodecXML(void):
   ResourceCodec<Demo>("Demo XML codec")
 {
   addSuffix("demo");
   addSuffix("xml");
 }
 
-Demo* DemoCodecXML::read(const Path& path, const String& name)
+Demo* CodecXML::read(const Path& path, const String& name)
 {
   return ResourceCodec<Demo>::read(path, name);
 }
 
-Demo* DemoCodecXML::read(Stream& stream, const String& name)
+Demo* CodecXML::read(Stream& stream, const String& name)
 {
   while (!effectNameStack.empty())
     effectNameStack.pop();
@@ -507,7 +511,7 @@ Demo* DemoCodecXML::read(Stream& stream, const String& name)
   return demo.detachObject();
 }
 
-bool DemoCodecXML::write(const Path& path, const Demo& demo)
+bool CodecXML::write(const Path& path, const Demo& demo)
 {
   return ResourceCodec<Demo>::write(path, demo);
 }
@@ -598,10 +602,11 @@ bool DemoCodecXML::onEndElement(const String& name)
   
   return true;
 }
+*/
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace demo*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

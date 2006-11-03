@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
-// Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy user interface library
+// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,19 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-
-#include <moira/Moira.h>
-
-#include <wendy/Config.h>
-#include <wendy/OpenGL.h>
-#include <wendy/GLContext.h>
-#include <wendy/GLDisplayList.h>
-
+#ifndef WENDY_UISLIDER_H
+#define WENDY_UISLIDER_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace GL
+  namespace UI
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -43,68 +37,41 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-DisplayList::~DisplayList(void)
+/*! @ingroup ui
+ */
+class Slider : public Widget
 {
-  glDeleteLists(listID, 1);
-}
-
-void DisplayList::begin(bool immediate)
-{
-  if (immediate)
-    glNewList(listID, GL_COMPILE_AND_EXECUTE);
-  else
-    glNewList(listID, GL_COMPILE);
-}
-
-void DisplayList::end(void)
-{
-  glEndList();
-  
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-    Log::writeWarning("Error during display list recording: %s", gluErrorString(error));
-}
-
-void DisplayList::execute(void)
-{
-  glCallList(listID);
-}
-
-GLuint DisplayList::getGLID(void) const
-{
-  return listID;
-}
-
-DisplayList* DisplayList::createInstance(const std::string& name)
-{
-  Ptr<DisplayList> list = new DisplayList(name);
-  if (!list->init())
-    return NULL;
-
-  return list.detachObject();
-}
-
-DisplayList::DisplayList(const std::string& name):
-  Managed<DisplayList>(name),
-  listID(0)
-{
-}
-
-bool DisplayList::init(void)
-{
-  if (!Context::get())
-  {
-    Log::writeError("Cannot create display list without OpenGL context");
-    return false;
-  }
-
-  listID = glGenLists(1);
-  return true;
-}
+public:
+  enum Orientation { HORIZONTAL, VERTICAL };
+  Slider(Orientation orientation = HORIZONTAL, const String& name = "");
+  float getMinValue(void) const;
+  float getMaxValue(void) const;
+  void setValueRange(float newMinValue, float newMaxValue);
+  float getValue(void) const;
+  void setValue(float newValue, bool notify = true);
+  Orientation getOrientation(void) const;
+  void setOrientation(Orientation newOrientation);
+  SignalProxy2<void, Slider&, float> getChangeValueSignal(void);
+protected:
+  void render(void) const;
+private:
+  void onButtonClick(Widget& widget,
+                     const Vector2& position,
+		     unsigned int button,
+		     bool clicked);
+  void onKeyPress(Widget& widget, GL::Key key, bool pressed);
+  Signal2<void, Slider&, float> changeValueSignal;
+  float minValue;
+  float maxValue;
+  float value;
+  Orientation orientation;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace UI*/
 } /*namespace wendy*/
 
+///////////////////////////////////////////////////////////////////////
+#endif /*WENDY_UISLIDER_H*/
 ///////////////////////////////////////////////////////////////////////

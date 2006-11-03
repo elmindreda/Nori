@@ -52,7 +52,7 @@ using namespace moira;
 class Key
 {
 public:
-  enum
+  enum Symbol
   {
     SPACE = 32,
     ESCAPE = 256, TAB, ENTER, BACKSPACE, INSERT, DELETE, 
@@ -68,7 +68,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Context settings.
+/*! @brief %Context settings.
+ *  @ingroup opengl
  *
  *  This class provides the settings parameters available for OpenGL
  *  context creation, as provided through Context::create.
@@ -126,6 +127,7 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief OpenGL context singleton.
+ *  @ingroup opengl
  *
  *  This class encapsulates the OpenGL context, provides display mode
  *  control and basic HID (input) signals.  It also initializes the
@@ -194,13 +196,10 @@ public:
    *  @param position The desired mouse position.
    */
   void setCursorPosition(const Vector2& newPosition);
-  /*! @return The signal for destruction of this context object.
-   */
-  SignalProxy0<void> getDestroySignal(void);
   /*! @return The signal for rendering.
    */
   SignalProxy0<bool> getRenderSignal(void);
-  /*! @return The signal for post-rendering clean-up.
+  /*! @return The signal for per-frame post-render clean-up.
    */
   SignalProxy0<void> getFinishSignal(void);
   /*! @return The signal for user-initiated close requests.
@@ -212,6 +211,9 @@ public:
   /*! @return The signal for key press and release events.
    */
   SignalProxy2<void, Key, bool> getKeyPressSignal(void);
+  /*! @return The signal for character input events.
+   */
+  SignalProxy1<void, wchar_t> getCharInputSignal(void);
   /*! @return The signal for mouse button click and release events.
    */
   SignalProxy2<void, unsigned int, bool> getButtonClickSignal(void);
@@ -223,21 +225,30 @@ public:
     *  @return @c true if successful, or @c false otherwise.
     */
   static bool create(const ContextMode& mode);
+  /*! @return The signal for creation of a context object.
+   */
+  static SignalProxy0<void> getCreateSignal(void);
+  /*! @return The signal for destruction of a context object.
+   */
+  static SignalProxy0<void> getDestroySignal(void);
 private:
   Context(void);
+  Context(const Context& source);
+  Context& operator = (const Context& source);
   bool init(const ContextMode& mode);
   static void sizeCallback(int width, int height);
   static int closeCallback(void);
   static void keyboardCallback(int key, int action);
+  static void characterCallback(int character, int action);
   static void mousePosCallback(int x, int y);
   static void mouseButtonCallback(int button, int action);
   typedef std::map<int, int> KeyMap;
-  Signal0<void> destroySignal;
   Signal0<bool> renderSignal;
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
   Signal2<void, unsigned int, unsigned int> resizeSignal;
   Signal2<void, Key, bool> keyPressSignal;
+  Signal1<void, wchar_t> charInputSignal;
   Signal2<void, unsigned int, bool> buttonClickSignal;
   Signal1<void, const Vector2&> cursorMoveSignal;
   ContextMode mode;
@@ -246,6 +257,8 @@ private:
   static KeyMap internalMap;
   static KeyMap externalMap;
   static Context* instance;
+  static Signal0<void> createSignal;
+  static Signal0<void> destroySignal;
 };
 
 ///////////////////////////////////////////////////////////////////////

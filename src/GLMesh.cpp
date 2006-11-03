@@ -28,6 +28,7 @@
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLVertex.h>
+#include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLMesh.h>
@@ -45,69 +46,31 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Mesh::~Mesh(void)
-{
-  while (indexBuffers.size())
-  {
-    delete indexBuffers.back();
-    indexBuffers.pop_back();
-  }
-}
-
-void Mesh::enqueue(RenderQueue& queue, const Matrix4& transform) const
+void Mesh::enqueue(RenderQueue& queue, const Transform3& transform) const
 {
   for (GeometryList::const_iterator i = geometries.begin();  i != geometries.end();  i++)
   {
     RenderStyle* style = RenderStyle::findInstance((*i).styleName);
     if (!style)
     {
-      Log::writeWarning("Render style %s not found", (*i).styleName.c_str());
-      return;
-    }
-
-    RenderOperation operation;
-    operation.vertexBuffer = vertexBuffer;
-    operation.indexBuffer = (*i).indexBuffer;
-    operation.renderMode = (*i).renderMode;
-    operation.transform = transform;
-    operation.style = style;
-    queue.addOperation(operation);
-  }
-}
-
-void Mesh::render(void) const
-{
-  vertexBuffer->apply();
-
-  for (GeometryList::const_iterator i = geometries.begin();  i != geometries.end();  i++)
-  {
-    const Geometry& geometry = *i;
-
-    RenderStyle* style = RenderStyle::findInstance(geometry.styleName);
-    if (!style)
-    {
       Log::writeError("Render style %s not found", (*i).styleName.c_str());
       return;
     }
 
-    for (unsigned int pass = 0;  pass < style->getPassCount();  pass++)
-    {
-      style->applyPass(pass);
-
-      geometry.indexBuffer->apply();
-      geometry.indexBuffer->render(geometry.renderMode);
-    }
+    RenderOperation& operation = queue.createOperation();
+    operation.vertexBuffer = vertexBuffer;
+    operation.indexBuffer = (*i).range.getIndexBuffer();
+    operation.renderMode = (*i).renderMode;
+    operation.transform = transform;
+    operation.start = (*i).range.getStart();
+    operation.count = (*i).range.getCount();
+    operation.style = style;
   }
 }
 
-Mesh::GeometryList& Mesh::getGeometries(void)
+const Sphere& Mesh::getBounds(void) const
 {
-  return geometries;
-}
-
-VertexBuffer* Mesh::getVertexBuffer(void)
-{
-  return vertexBuffer;
+  return bounds;
 }
 
 Mesh* Mesh::createInstance(const moira::Mesh& mesh, const String& name)
@@ -124,11 +87,34 @@ Mesh::Mesh(const String& name):
 {
 }
 
+Mesh::Mesh(const Mesh& source):
+  DerivedResource<Mesh, moira::Mesh>(source)
+{
+  // NOTE: Not implemented.
+}
+
+Mesh& Mesh::operator = (const Mesh& source)
+{
+  // NOTE: Not implemented.
+
+  return *this;
+}
+
 bool Mesh::init(const moira::Mesh& mesh)
 {
+  unsigned int indexCount = 0;
+
+  for (unsigned int i = 0;  i < mesh.geometries.size();  i++)
+  {
+    if (!RenderStyle::readInstance(mesh.geometries[i].shaderName))
+      return false;
+
+    indexCount += (unsigned int) mesh.geometries[i].triangles.size() * 3;
+  }
+
   VertexFormat format;
 
-  if (!format.addComponents("3fv3fn"))
+  if (!format.createComponents("3fv3fn2ft"))
     return false;
 
   vertexBuffer = VertexBuffer::createInstance((unsigned int) mesh.vertices.size(),
@@ -145,22 +131,24 @@ bool Mesh::init(const moira::Mesh& mesh)
 
   vertexBuffer->unlock();
 
+  indexBuffer = IndexBuffer::createInstance(indexCount, IndexBuffer::UINT);
+  if (!indexBuffer)
+    return false;
+
+  unsigned int indexBase = 0;
+
   for (moira::Mesh::GeometryList::const_iterator i = mesh.geometries.begin();  i != mesh.geometries.end();  i++)
   {
     geometries.push_back(Geometry());
     Geometry& geometry = geometries.back();
 
+    indexCount = (unsigned int) (*i).triangles.size() * 3;
+
     geometry.styleName = (*i).shaderName;
     geometry.renderMode = GL_TRIANGLES;
+    geometry.range = IndexBufferRange(*indexBuffer, indexBase, indexCount);
 
-    geometry.indexBuffer = IndexBuffer::createInstance((unsigned int) (*i).triangles.size() * 3,
-						       IndexBuffer::UINT);
-    if (!geometry.indexBuffer)
-      return false;
-
-    indexBuffers.push_back(geometry.indexBuffer);
-
-    unsigned int* indices = (unsigned int*) geometry.indexBuffer->lock();
+    unsigned int* indices = (unsigned int*) geometry.range.lock();
     if (!indices)
       return false;
 
@@ -171,7 +159,262 @@ bool Mesh::init(const moira::Mesh& mesh)
       *indices++ = (*j).indices[2];
     }
 
-    geometry.indexBuffer->unlock();
+    geometry.range.unlock();
+
+    indexBase += indexCount;
+  }
+
+  mesh.getBounds(bounds);
+
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+void ShadowMesh::update(const Vector3 origin)
+{
+  Vector3* volume = (Vector3*) vertexBuffer->lock();
+  if (!volume)
+    return;
+
+  vertexCount = 0;
+
+  for (unsigned int i = 0;  i < triangles.size();  i++)
+    triangles[i].status = Triangle::UNREFERENCED;
+
+  for (unsigned int i = 0;  i < edges.size();  i++)
+  {
+    const Edge& edge = edges[i];
+    Triangle::Status statuses[2];
+
+    for (unsigned int j = 0;  j < 2;  j++)
+    {
+      const Triangle& triangle = triangles[edge.triangles[j]];
+
+      if (triangle.status == Triangle::UNREFERENCED)
+      {
+	Vector3 eye = origin - vertices[triangle.vertices[0]];
+
+	if (triangle.normal.dotProduct(eye) > 0.f)
+	{
+	  // Generate front cap
+	  for (unsigned int k = 0;  k < 3;  k++)
+	    volume[vertexCount++] = vertices[triangle.vertices[k]];
+
+	  // Generate back cap, saving vertices
+	  for (unsigned int k = 0;  k < 3;  k++)
+	  {
+	    Vector3& vertex = extrudedVertices[triangle.vertices[2 - k]];
+	    vertex = vertices[triangle.vertices[2 - k]];
+	    Vector3 offset = vertex - origin;
+	    offset.scaleTo(distance);
+	    vertex += offset;
+	    volume[vertexCount++] = vertex;
+	  }
+
+	  triangle.status = Triangle::FRONT_FACE;
+	}
+	else
+	  triangle.status = Triangle::BACK_FACE;
+      }
+
+      statuses[j] = triangle.status;
+    }
+
+    if (statuses[0] != statuses[1])
+    {
+      // Generate sides, re-using vertices
+
+      if (statuses[0] == Triangle::FRONT_FACE)
+      {
+	volume[vertexCount++] = vertices[edge.vertices[0]];
+	volume[vertexCount++] = extrudedVertices[edge.vertices[0]];
+	volume[vertexCount++] = extrudedVertices[edge.vertices[1]];
+	volume[vertexCount++] = vertices[edge.vertices[1]];
+	volume[vertexCount++] = vertices[edge.vertices[0]];
+	volume[vertexCount++] = extrudedVertices[edge.vertices[1]];
+      }
+      else
+      {
+	volume[vertexCount++] = vertices[edge.vertices[0]];
+	volume[vertexCount++] = extrudedVertices[edge.vertices[1]];
+	volume[vertexCount++] = extrudedVertices[edge.vertices[0]];
+	volume[vertexCount++] = vertices[edge.vertices[0]];
+	volume[vertexCount++] = vertices[edge.vertices[1]];
+	volume[vertexCount++] = extrudedVertices[edge.vertices[1]];
+      }
+    }
+  }
+
+  vertexBuffer->unlock();
+}
+
+void ShadowMesh::enqueue(RenderQueue& queue, const Transform3& transform) const
+{
+  if (!vertexCount)
+  {
+    Log::writeWarning("Cannot enqueue non-updated shadow mesh");
+    return;
+  }
+
+  RenderOperation& operation = queue.createOperation();
+  operation.vertexBuffer = vertexBuffer;
+  operation.renderMode = GL_TRIANGLES;
+  operation.style = style;
+  operation.count = vertexCount;
+  operation.transform = transform;
+}
+
+float ShadowMesh::getExtrudeDistance(void) const
+{
+  return distance;
+}
+
+void ShadowMesh::setExtrudeDistance(float newDistance)
+{
+  distance = newDistance;
+}
+
+ShadowMesh* ShadowMesh::createInstance(const moira::Mesh& mesh)
+{
+  Ptr<ShadowMesh> shadowMesh = new ShadowMesh();
+  if (!shadowMesh->init(mesh))
+    return NULL;
+
+  return shadowMesh.detachObject();
+}
+
+ShadowMesh::ShadowMesh(void):
+  distance(100.f),
+  vertexCount(0)
+{
+}
+
+ShadowMesh::ShadowMesh(const ShadowMesh& source)
+{
+  // NOTE: Not implemented.
+}
+
+ShadowMesh& ShadowMesh::operator = (const ShadowMesh& source)
+{
+  // NOTE: Not implemented.
+
+  return *this;
+}
+
+bool ShadowMesh::init(const moira::Mesh& mesh)
+{
+  // Validate source mesh (a little bit)
+  {
+    if (mesh.edges.empty())
+    {
+      Log::writeError("Source for shadow mesh creation must have edge data");
+      return false;
+    }
+
+    std::vector<unsigned int> references;
+    references.insert(references.end(), mesh.edges.size(), 0);
+
+    for (unsigned int i = 0;  i < mesh.geometries.size();  i++)
+    {
+      const MeshGeometry& geometry = mesh.geometries[i];
+
+      for (unsigned int j = 0;  j < geometry.triangles.size();  j++)
+      {
+	for (unsigned int k = 0;  k < 3;  k++)
+	  references[geometry.triangles[j].edges[k]]++;
+      }
+    }
+
+    for (unsigned int i = 0;  i < references.size();  i++)
+    {
+      if (references[i] != 2)
+      {
+	Log::writeError("Invalid mesh for shadow volume extraction");
+	return false;
+      }
+    }
+  }
+
+  // Create hardware objects
+  {
+    VertexFormat format;
+    if (!format.createComponents("3fv"))
+      return false;
+
+    vertexBuffer = VertexBuffer::createInstance(mesh.vertices.size() * 2,
+						format,
+						VertexBuffer::DYNAMIC);
+    if (!vertexBuffer)
+      return false;
+
+    style = new RenderStyle();
+
+    RenderPass& back = style->createPass();
+    back.setStencilOperations(GL_KEEP, GL_INCR, GL_KEEP);
+    back.setStencilTesting(true);
+    back.setDepthWriting(false);
+    back.setColorWriting(false);
+
+    RenderPass& front = style->createPass();
+    front.setStencilOperations(GL_KEEP, GL_DECR, GL_KEEP);
+    front.setStencilTesting(true);
+    front.setDepthWriting(false);
+    front.setColorWriting(false);
+  }
+
+  // Convert mesh data to internal format
+
+  vertices.reserve(mesh.vertices.size());
+  extrudedVertices.resize(mesh.vertices.size());
+
+  for (unsigned int i = 0;  i < mesh.vertices.size();  i++)
+    vertices.push_back(mesh.vertices[i].position);
+
+  for (unsigned int i = 0;  i < mesh.geometries.size();  i++)
+  {
+    const MeshGeometry& geometry = mesh.geometries[i];
+
+    for (unsigned int j = 0;  j < geometry.triangles.size();  j++)
+    {
+      triangles.push_back(Triangle());
+      Triangle& triangle = triangles.back();
+
+      for (unsigned int k = 0;  k < 3;  k++)
+	triangle.vertices[k] = geometry.triangles[j].indices[k];
+
+      const Vector3 one = vertices[triangle.vertices[1]] -
+                          vertices[triangle.vertices[0]];
+      const Vector3 two = vertices[triangle.vertices[2]] -
+                          vertices[triangle.vertices[0]];
+      triangle.normal = one.crossProduct(two);
+      triangle.normal.normalize();
+
+      for (unsigned int k = 0;  k < 3;  k++)
+      {
+	unsigned int l;
+
+	for (l = 0;  l < edges.size();  l++)
+	{
+	  if (edges[l].vertices[0] == triangle.vertices[(k + 1) % 3] &&
+	      edges[l].vertices[1] == triangle.vertices[k])
+	  {
+	    edges[l].triangles[1] = triangles.size() - 1;
+	    break;
+	  }
+	}
+
+	if (l == edges.size())
+	{
+	  edges.push_back(Edge());
+	  Edge& edge = edges.back();
+
+	  edge.triangles[0] = triangles.size() - 1;
+	  edge.vertices[0] = triangle.vertices[k];
+	  edge.vertices[1] = triangle.vertices[(k + 1) % 3];
+	}
+      }
+    }
   }
 
   return true;

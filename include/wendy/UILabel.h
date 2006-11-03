@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
-// Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy user interface library
+// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,18 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WEGLDISPLAYLIST_H
-#define WEGLDISPLAYLIST_H
-///////////////////////////////////////////////////////////////////////
-
-#include <list>
-#include <string>
-
+#ifndef WENDY_UILABEL_H
+#define WENDY_UILABEL_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace GL
+  namespace UI
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -42,26 +37,29 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class DisplayList : public Managed<DisplayList>
+/*! @ingroup ui
+ */
+class Label : public Widget
 {
 public:
-  ~DisplayList(void);
-  void begin(bool immediate = false);
-  void end(void);
-  void execute(void);
-  GLuint getGLID(void) const;
-  static DisplayList* createInstance(const std::string& name);
+  Label(const String& text = "", const String& name = "");
+  const String& getText(void) const;
+  void setText(const String& newText);
+  const Alignment& getTextAlignment(void) const;
+  void setTextAlignment(const Alignment& newAlignment);
+  SignalProxy2<void, Label&, const String&> getChangeTextSignal(void);
 private:
-  DisplayList(const std::string& name);
-  bool init(void);
-  GLuint listID;
+  void render(void) const;
+  Signal2<void, Label&, const String&> changeTextSignal;
+  String text;
+  Alignment textAlignment;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace UI*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WEGLDISPLAYLIST_H*/
+#endif /*WENDY_UILABEL_H*/
 ///////////////////////////////////////////////////////////////////////

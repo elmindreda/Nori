@@ -23,17 +23,12 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Config.h>
-#include <moira/Portability.h>
-#include <moira/Core.h>
-#include <moira/Signal.h>
-#include <moira/Vector.h>
-#include <moira/Color.h>
-#include <moira/Matrix.h>
+#include <moira/Moira.h>
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLVertex.h>
+#include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLSprite.h>
@@ -150,12 +145,24 @@ Sprite3::Sprite3(void)
 }
 
 void Sprite3::enqueue(RenderQueue& queue,
-                      const Matrix4& transform,
-		      const RenderStyle& style) const
+                      const Transform3& transform) const
 {
   if (!Renderer::get())
   {
     Log::writeError("Cannot enqueue sprites without a renderer");
+    return;
+  }
+
+  if (styleName.empty())
+  {
+    Log::writeError("Cannot enqueue with no render style name set");
+    return;
+  }
+
+  RenderStyle* style = RenderStyle::findInstance(styleName);
+  if (!style)
+  {
+    Log::writeError("Render style %s not found", styleName.c_str());
     return;
   }
 
@@ -170,14 +177,13 @@ void Sprite3::enqueue(RenderQueue& queue,
   realizeVertices(vertices);
   range.unlock();
 
-  RenderOperation operation;
+  RenderOperation& operation = queue.createOperation();
   operation.vertexBuffer = range.getVertexBuffer();
   operation.start = range.getStart();
   operation.count = range.getCount();
   operation.renderMode = GL_QUADS;
   operation.transform = transform;
-  operation.style = &style;
-  queue.addOperation(operation);
+  operation.style = style;
 }
 
 void Sprite3::render(void) const
@@ -185,25 +191,31 @@ void Sprite3::render(void) const
   Vertex2ft3fv vertices[4];
   realizeVertices(vertices);
 
-  glBegin(GL_QUADS);
-  for (unsigned int i = 0;  i < 4;  i++)
-    vertices[i].send();
-  glEnd();
-}
-
-void Sprite3::render(const RenderStyle& style) const
-{
-  Vertex2ft3fv vertices[4];
-  realizeVertices(vertices);
-
-  for (unsigned int pass = 0;  pass < style.getPassCount();  pass++)
+  if (styleName.empty())
   {
-    style.applyPass(pass);
-
     glBegin(GL_QUADS);
     for (unsigned int i = 0;  i < 4;  i++)
       vertices[i].send();
     glEnd();
+  }
+  else
+  {
+    RenderStyle* style = RenderStyle::findInstance(styleName);
+    if (!style)
+    {
+      Log::writeError("Render style %s not found", styleName.c_str());
+      return;
+    }
+
+    for (unsigned int pass = 0;  pass < style->getPassCount();  pass++)
+    {
+      style->applyPass(pass);
+
+      glBegin(GL_QUADS);
+      for (unsigned int i = 0;  i < 4;  i++)
+	vertices[i].send();
+      glEnd();
+    }
   }
 }
 
@@ -232,6 +244,7 @@ void Sprite3::setDefaults(void)
   position.set(0.f, 0.f, 0.f);
   size.set(1.f, 1.f);
   angle = 0.f;
+  styleName.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////

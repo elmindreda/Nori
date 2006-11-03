@@ -92,73 +92,81 @@ unsigned int getClosestPower(unsigned int value, unsigned int maximum)
 
 Canvas::Canvas(void)
 {
-  size.set(1.f, 1.f);
-  position.set(0.f, 0.f);
+  scissorStack.push(Rectangle(0.f, 0.f, 1.f, 1.f));
+  viewportArea.set(0.f, 0.f, 1.f, 1.f);
 }
 
 Canvas::~Canvas(void)
 {
+  if (current == this)
+  {
+    Log::writeError("Destruction of current canvas detected; don't do this");
+    current = NULL;
+  }
 }
 
-void Canvas::begin2D(const Vector2& resolution) const
+void Canvas::begin(void) const
 {
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  gluOrtho2D(0.f, resolution.x, 0.f, resolution.y);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  glPopAttrib();
-}
-
-void Canvas::begin3D(float FOV, float aspect, float nearZ, float farZ) const
-{
-  if (aspect == 0.f)
-    aspect = (float) getPhysicalWidth() / (float) getPhysicalHeight();
-
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  gluPerspective(FOV, aspect, nearZ, farZ);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  glPopAttrib();
-}
-  
-void Canvas::end(void) const
-{
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-  glPopAttrib();
-}
-
-void Canvas::push(void) const
-{
-  stack.push(const_cast<Canvas*>(this));
+  if (current)
+    throw Exception("Cannot nest canvases");
 
   apply();
+
+  updateScissorArea();
+  updateViewportArea();
+
+  current = const_cast<Canvas*>(this);
 }
 
-void Canvas::pop(void) const
+void Canvas::end(void) const
 {
-  if (stack.top() != this)
-    throw Exception("Canvas stack pop out of order");
+  if (current != this)
+    throw Exception("Cannot end non-current canvas");
 
-  stack.pop();
+  finish();
+  current = NULL;
+}
 
-  if (!stack.empty())
-    stack.top()->apply();
+bool Canvas::pushScissorArea(const Rectangle& area)
+{
+  if (!scissorStack.push(area))
+    return false;
+
+  if (scissorStack.getTotal() != Rectangle(0.f, 0.f, 1.f, 1.f))
+    glEnable(GL_SCISSOR_TEST);
+  else
+    glDisable(GL_SCISSOR_TEST);
+
+  if (current == this)
+    updateScissorArea();
+
+  return true;
+}
+
+void Canvas::popScissorArea(void)
+{
+  if (scissorStack.getCount() == 1)
+    throw Exception("Cannot pop empty scissor clip stack");
+
+  scissorStack.pop();
+
+  if (scissorStack.getTotal() != Rectangle(0.f, 0.f, 1.f, 1.f))
+    glEnable(GL_SCISSOR_TEST);
+  else
+    glDisable(GL_SCISSOR_TEST);
+
+  if (current == this)
+    updateScissorArea();
 }
 
 void Canvas::clearColorBuffer(const ColorRGBA& color)
 {
+  if (getCurrent() != this)
+  {
+    Log::writeError("Cannot clear non-current canvas");
+    return;
+  }
+
   glPushAttrib(GL_COLOR_BUFFER_BIT);
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   glClearColor(color.r, color.g, color.b, color.a);
@@ -168,6 +176,12 @@ void Canvas::clearColorBuffer(const ColorRGBA& color)
 
 void Canvas::clearDepthBuffer(float depth)
 {
+  if (getCurrent() != this)
+  {
+    Log::writeError("Cannot clear non-current canvas");
+    return;
+  }
+
   glPushAttrib(GL_DEPTH_BUFFER_BIT);
   glDepthMask(GL_TRUE);
   glClearDepth(depth);
@@ -177,6 +191,12 @@ void Canvas::clearDepthBuffer(float depth)
 
 void Canvas::clearStencilBuffer(unsigned int value)
 {
+  if (getCurrent() != this)
+  {
+    Log::writeError("Cannot clear non-current canvas");
+    return;
+  }
+
   glPushAttrib(GL_STENCIL_BUFFER_BIT);
   glStencilMask(GL_TRUE);
   glClearStencil(value);
@@ -184,96 +204,100 @@ void Canvas::clearStencilBuffer(unsigned int value)
   glPopAttrib();
 }
 
-const Vector2& Canvas::getAreaPosition(void) const
+const Rectangle& Canvas::getScissorArea(void) const
 {
-  return position;
+  return scissorStack.getTotal();
 }
 
-const Vector2& Canvas::getAreaSize(void) const
+const Rectangle& Canvas::getViewportArea(void) const
 {
-  return size;
+  return viewportArea;
 }
 
-void Canvas::setArea(const Vector2& newPosition, const Vector2& newSize)
+void Canvas::setViewportArea(const Rectangle& newArea)
 {
-  position = newPosition;
-  size = newSize;
+  viewportArea = newArea;
+  viewportArea.clipBy(Rectangle(0.f, 0.f, 1.f, 1.f));
+
+  if (current == this)
+    updateViewportArea();
 }
 
 Canvas* Canvas::getCurrent(void)
 {
-  if (stack.empty())
-    return NULL;
-
-  return stack.top();
+  return current;
 }
 
-Canvas::CanvasStack Canvas::stack;
+Canvas::Canvas(const Canvas& source)
+{
+  // NOTE: Not implemented.
+}
+
+Canvas& Canvas::operator = (const Canvas& source)
+{
+  // NOTE: Not implemented.
+
+  return *this;
+}
+
+Canvas* Canvas::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 
-void ContextCanvas::apply(void) const
+unsigned int ScreenCanvas::getPhysicalWidth(void) const
 {
-  const unsigned int width = Context::get()->getWidth();
-  const unsigned int height = Context::get()->getHeight();
-
-  glViewport((GLint) (position.x * width),
-             (GLint) (position.y * height),
-	     (GLsizei) (size.x * width),
-	     (GLsizei) (size.y * height));
-
-  if (position == Vector2::ZERO && size == Vector2::ONE)
-    glDisable(GL_SCISSOR_TEST);
-  else
-  {
-    glEnable(GL_SCISSOR_TEST);
-    glScissor((GLint) (position.x * width),
-              (GLint) (position.y * height),
-	      (GLsizei) (size.x * width),
-	      (GLsizei) (size.y * height));
-  }
+  return Context::get()->getWidth();
 }
 
-unsigned int ContextCanvas::getPhysicalWidth(void) const
+unsigned int ScreenCanvas::getPhysicalHeight(void) const
 {
-  return (unsigned int) (Context::get()->getWidth() * size.x);
+  return Context::get()->getHeight();
 }
 
-unsigned int ContextCanvas::getPhysicalHeight(void) const
+void ScreenCanvas::apply(void) const
 {
-  return (unsigned int) (Context::get()->getHeight() * size.y);
+}
+
+void ScreenCanvas::finish(void) const
+{
+}
+
+void ScreenCanvas::updateScissorArea(void) const
+{
+  const Rectangle& area = getScissorArea();
+
+  const unsigned int width = getPhysicalWidth();
+  const unsigned int height = getPhysicalHeight();
+
+  glScissor((GLint) (area.position.x * width),
+	    (GLint) (area.position.y * height),
+	    (GLsizei) (area.size.x * width),
+	    (GLsizei) (area.size.y * height));
+}
+
+void ScreenCanvas::updateViewportArea(void) const
+{
+  const Rectangle& area = getViewportArea();
+
+  const unsigned int width = getPhysicalWidth();
+  const unsigned int height = getPhysicalHeight();
+
+  glViewport((GLint) (area.position.x * width),
+             (GLint) (area.position.y * height),
+	     (GLsizei) (area.size.x * width),
+	     (GLsizei) (area.size.y * height));
 }
 
 ///////////////////////////////////////////////////////////////////////
-
-void TextureCanvas::pop(void) const
-{
-  glPushAttrib(GL_TEXTURE_BIT);
-  glBindTexture(texture->getTarget(), texture->getGLID());
-
-  if (texture->getTarget() == GL_TEXTURE_1D)
-    glCopyTexSubImage1D(texture->getTarget(),
-                        0, 0, 0, 0,
-                        texture->getWidth());
-  else
-    glCopyTexSubImage2D(texture->getTarget(),
-                        0, 0, 0, 0, 0,
-                        texture->getWidth(),
-                        texture->getHeight());
-
-  glPopAttrib();
-
-  Canvas::pop();
-}
 
 unsigned int TextureCanvas::getPhysicalWidth(void) const
 {
-  return (unsigned int) (texture->getWidth() * size.x);
+  return texture->getWidth();
 }
 
 unsigned int TextureCanvas::getPhysicalHeight(void) const
 {
-  return (unsigned int) (texture->getHeight() * size.y);
+  return texture->getHeight();
 }
 
 const Texture& TextureCanvas::getTexture(void) const
@@ -281,12 +305,12 @@ const Texture& TextureCanvas::getTexture(void) const
   return *texture;
 }
 
-TextureCanvas* TextureCanvas::createInstance(const std::string& textureName,
-                                             unsigned int width,
-                                             unsigned int height)
+TextureCanvas* TextureCanvas::createInstance(unsigned int width,
+                                             unsigned int height,
+					     const String& textureName)
 {
   Ptr<TextureCanvas> canvas = new TextureCanvas();
-  if (!canvas->init(textureName, width, height))
+  if (!canvas->init(width, height, textureName))
     return false;
 
   return canvas.detachObject();
@@ -296,7 +320,7 @@ TextureCanvas::TextureCanvas(void)
 {
 }
 
-bool TextureCanvas::init(const std::string& textureName, unsigned int width, unsigned int height)
+bool TextureCanvas::init(unsigned int width, unsigned int height, const String& textureName)
 {
   if (!Context::get())
   {
@@ -350,24 +374,49 @@ bool TextureCanvas::init(const std::string& textureName, unsigned int width, uns
 
 void TextureCanvas::apply(void) const
 {
-  const unsigned int width = texture->getWidth();
-  const unsigned int height = texture->getHeight();
+}
 
-  glViewport((GLint) (position.x * width),
-             (GLint) (position.y * height),
-	     (GLsizei) (size.x * width),
-	     (GLsizei) (size.y * height));
+void TextureCanvas::finish(void) const
+{
+  TextureLayer layer(0);
+  layer.setTextureName(texture->getName());
+  layer.apply();
 
-  if (position == Vector2::ZERO && size == Vector2::ONE)
-    glDisable(GL_SCISSOR_TEST);
+  if (texture->getTarget() == GL_TEXTURE_1D)
+    glCopyTexSubImage1D(texture->getTarget(),
+                        0, 0, 0, 0,
+                        texture->getWidth());
   else
-  {
-    glEnable(GL_SCISSOR_TEST);
-    glScissor((GLint) (position.x * width),
-              (GLint) (position.y * height),
-	      (GLsizei) (size.x * width),
-	      (GLsizei) (size.y * height));
-  }
+    glCopyTexSubImage2D(texture->getTarget(),
+                        0, 0, 0, 0, 0,
+                        texture->getWidth(),
+                        texture->getHeight());
+}
+
+void TextureCanvas::updateScissorArea(void) const
+{
+  const Rectangle& area = getScissorArea();
+
+  const unsigned int width = getPhysicalWidth();
+  const unsigned int height = getPhysicalHeight();
+
+  glScissor((GLint) (area.position.x * width),
+	    (GLint) (area.position.y * height),
+	    (GLsizei) (area.size.x * width),
+	    (GLsizei) (area.size.y * height));
+}
+
+void TextureCanvas::updateViewportArea(void) const
+{
+  const Rectangle& area = getViewportArea();
+
+  const unsigned int width = getPhysicalWidth();
+  const unsigned int height = getPhysicalHeight();
+
+  glViewport((GLint) (area.position.x * width),
+             (GLint) (area.position.y * height),
+	     (GLsizei) (area.size.x * width),
+	     (GLsizei) (area.size.y * height));
 }
 
 ///////////////////////////////////////////////////////////////////////
