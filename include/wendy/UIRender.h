@@ -73,6 +73,16 @@ enum VertAlignment
 
 /*! @ingroup ui
  */
+enum Orientation
+{
+  HORIZONTAL,
+  VERTICAL,
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup ui
+ */
 class Alignment
 {
 public:

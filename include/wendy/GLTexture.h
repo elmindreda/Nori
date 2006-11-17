@@ -56,6 +56,9 @@ public:
     /*! The texture will be created with a mipmap chain.
      */
     MIPMAPPED = 2,
+    /*! The texture is guaranteed not to be larger than the source image.
+     */
+    DONT_GROW = 4,
     /*! The default texture creation flags.
      */
     DEFAULT = MIPMAPPED,
@@ -106,15 +109,6 @@ public:
   /*! @return The image format of this texture.
    */
   const ImageFormat& getFormat(void) const;
-  /*! @return The minification filter of this texture.
-   */
-  GLint getMinFilter(void) const;
-  /*! @return The magnification filter of this texture.
-   */
-  GLint getMagFilter(void) const;
-  /*! Sets the minification and magnification filters for this texture.
-   */
-  void setFilters(GLint newMinFilter, GLint newMagFilter);
   /*! @param The desired mipmap level.
    *  @return The image data of the specified mipmap level.
    */
@@ -153,6 +147,7 @@ private:
   GLuint textureID;
   GLint minFilter;
   GLint magFilter;
+  GLint addressMode;
   unsigned int width;
   unsigned int height;
   unsigned int depth;
@@ -192,6 +187,7 @@ public:
   /*! Applies this texture layer to the texture unit it is bound to.
    */
   void apply(void) const;
+  bool isCompatible(void) const;
   /*! @return @c true if this texture layer uses sphere mapping, otherwise @c
    *  false.
    *  @remarks This has no effect if a fragment program or fragment shader is
@@ -206,6 +202,15 @@ public:
   /*! @return The combine color for this texture layer.
    */
   const ColorRGBA& getCombineColor(void) const;
+  /*! @return The minification filter of this texture layer.
+   */
+  GLint getMinFilter(void) const;
+  /*! @return The magnification filter of this texture layer.
+   */
+  GLint getMagFilter(void) const;
+  /*! @return The addressing mode of this texture layer.
+   */
+  GLint getAddressMode(void) const;
   /*! @return The name of the texture set for this texture layer, or the
    *  empty string if no texture is set.
    */
@@ -236,6 +241,12 @@ public:
    *  @param newColor The desired new combine color.
    */
   void setCombineColor(const ColorRGBA& newColor);
+  /*! Sets the minification and magnification filters for this texture layer.
+   */
+  void setFilters(GLint newMinFilter, GLint newMagFilter);
+  /*! Sets the addressing mode for this texture layer.
+   */
+  void setAddressMode(GLint newMode);
   /*! Sets the name of the texture used by this texture layer.
    *  @param newName The name of the texture used by this texture layer, or the
    *  empty string to disable texturing for this layer.
@@ -273,6 +284,9 @@ private:
     ColorRGBA combineColor;
     String textureName;
     String samplerName;
+    GLint minFilter;
+    GLint magFilter;
+    GLint addressMode;
   };
   typedef std::vector<Data> DataList;
   typedef std::vector<GLenum> TargetList;
@@ -319,6 +333,7 @@ public:
   /*! Destroys all texture layers in this layer stack.
    */
   void destroyTextureLayers(void);
+  bool isCompatible(void) const;
   /*! @return The number of texture layers in this layer stack.
    */
   unsigned int getTextureLayerCount(void) const;

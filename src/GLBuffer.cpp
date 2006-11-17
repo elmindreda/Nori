@@ -124,6 +124,8 @@ void VertexBuffer::apply(void) const
   else
     glDisableClientState(GL_NORMAL_ARRAY);
 
+  // Collect texture coordinate components
+
   std::vector<const VertexComponent*> components;
 
   for (unsigned int i = 0;  i < format.getComponentCount();  i++)
@@ -133,12 +135,17 @@ void VertexBuffer::apply(void) const
       components.push_back(&component);
   }
 
+  // Discard unusable texture components
+  // TODO: Make this understand GLSL program limits.
+
   unsigned int textureUnitCount = TextureLayer::getUnitCount();
   if (components.size() > textureUnitCount)
   {
     Log::writeWarning("Applied vertex buffer contains more texture coordinate sets than there are texture units");
     components.resize(textureUnitCount);
   }
+
+  // Apply texture components
 
   for (unsigned int i = 0;  i < components.size();  i++)
   {
@@ -153,6 +160,8 @@ void VertexBuffer::apply(void) const
 		      (GLsizei) format.getSize(),
 		      base + component->getOffset());
   }
+
+  // Disable any remaining texture coordinate sets
 
   for (unsigned int i = components.size();  i < textureUnitCount;  i++)
   {
@@ -338,16 +347,16 @@ VertexBuffer* VertexBuffer::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 
-VertexBufferRange::VertexBufferRange(void):
+VertexRange::VertexRange(void):
   vertexBuffer(NULL),
   start(0),
   count(0)
 {
 }
 
-VertexBufferRange::VertexBufferRange(VertexBuffer& initVertexBuffer,
-                                     unsigned int initStart,
-                                     unsigned int initCount):
+VertexRange::VertexRange(VertexBuffer& initVertexBuffer,
+                         unsigned int initStart,
+                         unsigned int initCount):
   vertexBuffer(&initVertexBuffer),
   start(initStart),
   count(initCount)
@@ -364,7 +373,7 @@ VertexBufferRange::VertexBufferRange(VertexBuffer& initVertexBuffer,
   }
 }
 
-void VertexBufferRange::render(void) const
+void VertexRange::render(void) const
 {
   if (!vertexBuffer || count == 0)
   {
@@ -375,7 +384,7 @@ void VertexBufferRange::render(void) const
   vertexBuffer->render(start, count);
 }
 
-void* VertexBufferRange::lock(void) const
+void* VertexRange::lock(void) const
 {
   if (!vertexBuffer || count == 0)
   {
@@ -390,22 +399,22 @@ void* VertexBufferRange::lock(void) const
   return vertices + start * vertexBuffer->getFormat().getSize();
 }
 
-void VertexBufferRange::unlock(void) const
+void VertexRange::unlock(void) const
 {
   vertexBuffer->unlock();
 }
 
-VertexBuffer* VertexBufferRange::getVertexBuffer(void) const
+VertexBuffer* VertexRange::getVertexBuffer(void) const
 {
   return vertexBuffer;
 }
 
-unsigned int VertexBufferRange::getStart(void) const
+unsigned int VertexRange::getStart(void) const
 {
   return start;
 }
 
-unsigned int VertexBufferRange::getCount(void) const
+unsigned int VertexRange::getCount(void) const
 {
   return count;
 }
@@ -612,16 +621,16 @@ IndexBuffer* IndexBuffer::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 
-IndexBufferRange::IndexBufferRange(void):
+IndexRange::IndexRange(void):
   indexBuffer(NULL),
   start(0),
   count(0)
 {
 }
 
-IndexBufferRange::IndexBufferRange(IndexBuffer& initIndexBuffer,
-                                   unsigned int initStart,
-                                   unsigned int initCount):
+IndexRange::IndexRange(IndexBuffer& initIndexBuffer,
+                       unsigned int initStart,
+                       unsigned int initCount):
   indexBuffer(&initIndexBuffer),
   start(initStart),
   count(initCount)
@@ -638,7 +647,7 @@ IndexBufferRange::IndexBufferRange(IndexBuffer& initIndexBuffer,
   }
 }
 
-void IndexBufferRange::render(const VertexBuffer& vertexBuffer) const
+void IndexRange::render(const VertexBuffer& vertexBuffer) const
 {
   if (!indexBuffer || count == 0)
   {
@@ -649,7 +658,7 @@ void IndexBufferRange::render(const VertexBuffer& vertexBuffer) const
   indexBuffer->render(vertexBuffer, start, count);
 }
 
-void* IndexBufferRange::lock(void) const
+void* IndexRange::lock(void) const
 {
   if (!indexBuffer || count == 0)
   {
@@ -664,22 +673,22 @@ void* IndexBufferRange::lock(void) const
   return indices + start * getTypeSize(indexBuffer->getType());
 }
 
-void IndexBufferRange::unlock(void) const
+void IndexRange::unlock(void) const
 {
   indexBuffer->unlock();
 }
 
-IndexBuffer* IndexBufferRange::getIndexBuffer(void) const
+IndexBuffer* IndexRange::getIndexBuffer(void) const
 {
   return indexBuffer;
 }
 
-unsigned int IndexBufferRange::getStart(void) const
+unsigned int IndexRange::getStart(void) const
 {
   return start;
 }
 
-unsigned int IndexBufferRange::getCount(void) const
+unsigned int IndexRange::getCount(void) const
 {
   return count;
 }

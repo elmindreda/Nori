@@ -350,6 +350,7 @@ bool ShadowMesh::init(const moira::Mesh& mesh)
 
     style = new RenderStyle();
 
+    /*
     RenderPass& back = style->createPass();
     back.setStencilOperations(GL_KEEP, GL_INCR, GL_KEEP);
     back.setStencilTesting(true);
@@ -361,6 +362,7 @@ bool ShadowMesh::init(const moira::Mesh& mesh)
     front.setStencilTesting(true);
     front.setDepthWriting(false);
     front.setColorWriting(false);
+    */
   }
 
   // Convert mesh data to internal format

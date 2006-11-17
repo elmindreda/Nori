@@ -59,6 +59,8 @@ Mapper<String, GLenum> polygonModeMap;
 Mapper<String, GLenum> blendFactorMap;
 Mapper<String, GLenum> functionMap;
 Mapper<String, GLenum> operationMap;
+Mapper<String, GLint> filterMap;
+Mapper<String, GLint> addressModeMap;
 
 const unsigned int RENDER_STYLE_XML_VERSION = 2;
 
@@ -138,6 +140,22 @@ RenderStyle* RenderStyleCodec::read(Stream& stream, const String& name)
     operationMap["invert"] = GL_INVERT;
   }
 
+  if (filterMap.isEmpty())
+  {
+    filterMap["nearest"] = GL_NEAREST;
+    filterMap["linear"] = GL_LINEAR;
+    filterMap["nearest mipmap nearest"] = GL_NEAREST_MIPMAP_NEAREST;
+    filterMap["nearest mipmap linear"] = GL_NEAREST_MIPMAP_LINEAR;
+    filterMap["linear mipmap nearest"] = GL_LINEAR_MIPMAP_NEAREST;
+    filterMap["linear mipmap linear"] = GL_LINEAR_MIPMAP_LINEAR;
+  }
+
+  if (addressModeMap.isEmpty())
+  {
+    addressModeMap["wrap"] = GL_REPEAT;
+    addressModeMap["clamp"] = GL_CLAMP;
+  }
+
   currentPass = NULL;
   currentLayer = NULL;
 
@@ -211,6 +229,7 @@ bool RenderStyleCodec::write(Stream& stream, const RenderStyle& style)
 	endElement();
       }
 
+      /*
       if (pass.isStencilTesting() != defaults.isStencilTesting() ||
 	  pass.getStencilFunction() != defaults.getStencilFunction() ||
 	  pass.getStencilReference() != defaults.getStencilReference() ||
@@ -229,6 +248,7 @@ bool RenderStyleCodec::write(Stream& stream, const RenderStyle& style)
 	addAttribute("depth-passed", operationMap[pass.getDepthPassOperation()]);
 	endElement();
       }
+      */
 
       if (pass.getLineWidth() != defaults.getLineWidth())
       {
@@ -303,6 +323,15 @@ bool RenderStyleCodec::write(Stream& stream, const RenderStyle& style)
 
 	beginElement("mapping");
 	addAttribute("mode", mappingMode);
+	endElement();
+
+	beginElement("filter");
+	addAttribute("min", filterMap[layer.getMinFilter()]);
+	addAttribute("mag", filterMap[layer.getMagFilter()]);
+	endElement();
+
+	beginElement("address");
+	addAttribute("mode", addressModeMap[layer.getAddressMode()]);
 	endElement();
 
 	endElement();
@@ -442,6 +471,7 @@ bool RenderStyleCodec::onBeginElement(const String& name)
 	return true;
       }
 
+      /*
       if (name == "stencil")
       {
         currentPass->setStencilTesting(readBoolean("testing", currentPass->isStencilTesting()));
@@ -485,6 +515,7 @@ bool RenderStyleCodec::onBeginElement(const String& name)
 
         return true;
       }
+      */
 
       if (name == "line")
       {
@@ -622,6 +653,41 @@ bool RenderStyleCodec::onBeginElement(const String& name)
 	}
 
 	return true;
+      }
+
+      if (name == "filter")
+      {
+	String filterName;
+	
+	filterName = readString("min");
+	if (!filterName.empty())
+	{
+	  if (filterMap.hasKey(filterName))
+	    currentLayer->setFilters(filterMap[filterName], currentLayer->getMagFilter());
+	  else
+	    Log::writeError("Invalid texture layer min filter type %s", filterName.c_str());
+	}
+	
+	filterName = readString("mag");
+	if (!filterName.empty())
+	{
+	  if (filterMap.hasKey(filterName))
+	    currentLayer->setFilters(currentLayer->getMinFilter(), filterMap[filterName]);
+	  else
+	    Log::writeError("Invalid texture layer mag filter type %s", filterName.c_str());
+	}
+      }
+
+      if (name == "address")
+      {
+	String addressModeName = readString("mode");
+	if (!addressModeName.empty())
+	{
+	  if (addressModeMap.hasKey(addressModeName))
+	    currentLayer->setAddressMode(addressModeMap[addressModeName]);
+	  else
+	    Log::writeError("Invalid texture layer address mode %s", addressModeName.c_str());
+	}
       }
     }
   }

@@ -38,7 +38,7 @@
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
-#include <wendy/UISlider.h>
+#include <wendy/UIProgress.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -53,7 +53,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Slider::Slider(Orientation initOrientation, const String& name):
+Progress::Progress(Orientation initOrientation, const String& name):
   Widget(name),
   minValue(0.f),
   maxValue(1.f),
@@ -68,58 +68,58 @@ Slider::Slider(Orientation initOrientation, const String& name):
   else
     setSize(Vector2(font->getHeight() * 1.5f,
                     font->getWidth() * 10.f));
-
-  getKeyPressSignal().connect(*this, &Slider::onKeyPress);
-  getButtonClickSignal().connect(*this, &Slider::onButtonClick);
 }
 
-float Slider::getMinValue(void) const
+float Progress::getMinValue(void) const
 {
   return minValue;
 }
 
-float Slider::getMaxValue(void) const
+float Progress::getMaxValue(void) const
 {
   return maxValue;
 }
 
-void Slider::setValueRange(float newMinValue, float newMaxValue)
+void Progress::setValueRange(float newMinValue, float newMaxValue)
 {
   minValue = newMinValue;
   maxValue = newMaxValue;
 
   if (value < minValue)
-    setValue(minValue, true);
+    setValue(minValue);
   else if (value > maxValue)
-    setValue(maxValue, true);
+    setValue(maxValue);
 }
 
-float Slider::getValue(void) const
+float Progress::getValue(void) const
 {
   return value;
 }
 
-void Slider::setValue(float newValue)
+void Progress::setValue(float newValue, bool notify)
 {
-  setValue(newValue, false);
+  if (notify)
+    changeValueSignal.emit(*this, newValue);
+
+  value = newValue;
 }
 
-Orientation Slider::getOrientation(void) const
+Orientation Progress::getOrientation(void) const
 {
   return orientation;
 }
 
-void Slider::setOrientation(Orientation newOrientation)
+void Progress::setOrientation(Orientation newOrientation)
 {
   orientation = newOrientation;
 }
 
-SignalProxy2<void, Slider&, float> Slider::getChangeValueSignal(void)
+SignalProxy2<void, Progress&, float> Progress::getChangeValueSignal(void)
 {
   return changeValueSignal;
 }
 
-void Slider::render(void) const
+void Progress::render(void) const
 {
   const Rectangle& area = getGlobalArea();
 
@@ -130,23 +130,21 @@ void Slider::render(void) const
 
     const float position = (value - minValue) / (maxValue - minValue);
 
-    GL::Font* font = Renderer::get()->getCurrentFont();
-
     Rectangle handleArea;
 
     if (orientation == HORIZONTAL)
     {
-      handleArea.set(area.position.x + position * (area.size.x - font->getWidth()),
+      handleArea.set(area.position.x + position * (area.size.x - 10.f) + 5.f,
 		     area.position.y,
-		     font->getWidth(),
+		     10.f,
 		     area.size.y);
     }
     else
     {
       handleArea.set(area.position.x,
-		     area.position.y + position * (area.size.y - font->getHeight()),
+		     area.position.y + position * (area.size.y - 10.f) + 5.f,
 		     area.size.x,
-		     font->getHeight());
+		     10.f);
     }
 
     renderer->drawHandle(handleArea, getState());
@@ -155,62 +153,6 @@ void Slider::render(void) const
 
     renderer->popClipArea();
   }
-}
-
-void Slider::onButtonClick(Widget& widget,
-	                   const Vector2& point,
-	                   unsigned int button,
-		           bool clicked)
-{
-  if (clicked)
-  {
-    Vector2 localPoint = transformToLocal(point);
-
-    GL::Font* font = Renderer::get()->getCurrentFont();
-
-    float scale;
-
-    if (orientation == HORIZONTAL)
-      scale = (localPoint.x - font->getWidth() / 2.f) / (getArea().size.x - font->getWidth());
-    else
-      scale = (localPoint.y - font->getHeight() / 2.f) / (getArea().size.y - font->getHeight());
-
-    setValue(minValue + (maxValue - minValue) * scale, true);
-  }
-}
-
-void Slider::onKeyPress(Widget& widget, GL::Key key, bool pressed)
-{
-  if (pressed)
-  {
-    switch (key)
-    {
-      case GL::Key::UP:
-      case GL::Key::RIGHT:
-	setValue(value + 1.f, true);
-	break;
-      case GL::Key::DOWN:
-      case GL::Key::LEFT:
-	setValue(value - 1.f, true);
-	break;
-    }
-  }
-}
-
-void Slider::setValue(float newValue, bool notify)
-{
-  if (newValue < minValue)
-    newValue = minValue;
-  else if (newValue > maxValue)
-    newValue = maxValue;
-
-  if (newValue == value)
-    return;
-
-  if (notify)
-    changeValueSignal.emit(*this, newValue);
-
-  value = newValue;
 }
 
 ///////////////////////////////////////////////////////////////////////

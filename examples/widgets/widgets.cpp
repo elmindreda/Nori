@@ -61,7 +61,7 @@ bool Widgets::init(void)
 
   UI::Slider* slider = new UI::Slider();
   slider->setArea(Rectangle(10, 400, 400, 20));
-  slider->setOrientation(UI::Slider::HORIZONTAL);
+  slider->setOrientation(UI::HORIZONTAL);
   slider->getChangeValueSignal().connect(*this, &Widgets::onValueChange);
   window->addChild(*slider);
 

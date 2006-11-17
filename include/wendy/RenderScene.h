@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy default renderer
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,13 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_GLSCENE_H
-#define WENDY_GLSCENE_H
+#ifndef WENDY_RENDERSCENE_H
+#define WENDY_RENDERSCENE_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace GL
+  namespace render
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -41,6 +41,27 @@ using namespace moira;
  *  
  *  These classes make up the scene graph and scene management part of Wendy.
  */
+
+///////////////////////////////////////////////////////////////////////
+
+/*! Scene node enqueueing phase type enumeration.
+ *  @ingroup scene
+ */
+enum QueuePhase
+{
+  /*! Light collection phase.
+   */
+  COLLECT_LIGHTS,
+  /*! Shadow volume collection phase.
+   */
+  COLLECT_SHADOW_VOLUMES,
+  /*! Shadow object collection phase.
+   */
+  COLLECT_SHADOW_OBJECTS,
+  /*! Default geometry collection phase.
+   */
+  COLLECT_GEOMETRY,
+};
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -77,25 +98,33 @@ public:
   /*! @return The local-to-world transform of this scene node.
    */
   const Transform3& getWorldTransform(void) const;
+  const Sphere& getLocalBounds(void) const;
+  void setLocalBounds(const Sphere& newBounds);
+  const Sphere& getTotalBounds(void) const;
 protected:
   void addedToParent(SceneNode& parent);
   void removedFromParent(void);
   /*! Called when the scene graph is updated. This is the correct place to put
    *  per-frame operations which affect the transform or bounds.
    */
-  virtual void update(void);
+  virtual void update(Time deltaTime);
+  virtual void restart(void);
   /*! Called when the scene graph is collecting rendering information. All the
    *  operations required to render this scene node should be put into the
    *  specified render queue.
    *  @param queue The render queue for collecting operations.
+   *  @param phase The current enqueueing phase.
    */
-  virtual void enqueue(RenderQueue& queue) const;
+  virtual void enqueue(RenderQueue& queue, QueuePhase phase) const;
 private:
   bool updateWorldTransform(void) const;
   bool visible;
   Transform3 local;
   mutable Transform3 world;
   mutable bool dirtyWorld;
+  Sphere localBounds;
+  mutable Sphere totalBounds;
+  mutable bool dirtyBounds;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -109,22 +138,29 @@ private:
 class Scene : public Managed<Scene>
 {
 public:
+  enum ShadowType
+  {
+    NO_SHADOWS,
+    STENCIL_SHADOWS,
+  };
+  typedef std::vector<SceneNode*> NodeList;
   Scene(const String& name = "");
-  void updateTree(void);
-  void renderTree(const Camera& camera) const;
-  void enqueueTree(RenderQueue& queue) const;
-  void addRootNode(SceneNode& node);
-  void removeRootNode(SceneNode& node);
-  void removeRootNodes(void);
-  bool isFogging(void) const;
-  void setFogging(bool newState);
-  const ColorRGB& getFogColor(void) const;
-  void setFogColor(const ColorRGB& newColor);
+  ~Scene(void);
+  void enqueue(RenderQueue& queue) const;
+  void query(const Sphere& bounds, NodeList& nodes);
+  void query(const Frustum& frustum, NodeList& nodes);
+  void addNode(SceneNode& node);
+  void removeNode(SceneNode& node);
+  void removeNodes(void);
+  const NodeList& getNodes(void) const;
+  Time getTimeElapsed(void) const;
+  void setTimeElapsed(Time newTime);
+  ShadowType getShadowType(void) const;
+  void setShadowType(ShadowType newType);
 private:
-  typedef std::list<SceneNode*> NodeList;
   NodeList roots;
-  bool fogging;
-  ColorRGB fogColor;
+  Time currentTime;
+  ShadowType shadowType;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -152,6 +188,7 @@ public:
   const String& getMeshName(void) const;
   void setMeshName(const String& newMeshName);
 protected:
+  void update(Time deltaTime);
   void enqueue(RenderQueue& queue) const;
 private:
   String meshName;
@@ -167,7 +204,7 @@ public:
   const String& getCameraName(void) const;
   void setCameraName(const String& newName);
 protected:
-  void update(void);
+  void update(Time deltaTime);
 private:
   String cameraName;
 };
@@ -215,7 +252,7 @@ public:
   const String& getSystemName(void) const;
   void setSystemName(const String& newSystemName);
 protected:
-  void update(void);
+  void update(Time deltaTime);
   void enqueue(RenderQueue& queue) const;
 private:
   String styleName;
@@ -224,9 +261,9 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_GLSCENE_H*/
+#endif /*WENDY_RENDERSCENE_H*/
 ///////////////////////////////////////////////////////////////////////

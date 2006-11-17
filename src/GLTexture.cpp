@@ -95,6 +95,18 @@ ImageFormat::Type getConversionFormat(const ImageFormat& format)
   }
 }
 
+GLint unmipmapMinFilter(GLint minFilter)
+{
+  if (minFilter == GL_NEAREST_MIPMAP_NEAREST ||
+      minFilter == GL_NEAREST_MIPMAP_LINEAR)
+    return GL_NEAREST;
+  else if (minFilter == GL_LINEAR_MIPMAP_NEAREST ||
+	   minFilter == GL_LINEAR_MIPMAP_LINEAR)
+    return GL_NEAREST;
+
+  return minFilter;
+}
+
 Mapper<ImageFormat::Type, GLenum> formatMap;
 
 Mapper<ImageFormat::Type, GLenum> genericFormatMap;
@@ -225,39 +237,6 @@ unsigned int Texture::getFlags(void) const
 const ImageFormat& Texture::getFormat(void) const
 {
   return format;
-}
-
-GLint Texture::getMinFilter(void) const
-{
-  return minFilter;
-}
-
-GLint Texture::getMagFilter(void) const
-{
-  return magFilter;
-}
-
-void Texture::setFilters(GLint newMinFilter, GLint newMagFilter)
-{
-  if (newMinFilter != minFilter || newMagFilter != magFilter)
-  {
-    glPushAttrib(GL_TEXTURE_BIT);
-    glBindTexture(textureTarget, textureID);
-
-    if (newMinFilter != minFilter)
-    {
-      glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, newMinFilter);
-      minFilter = newMinFilter;
-    }
-
-    if (newMagFilter != magFilter)
-    {
-      glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, newMagFilter);
-      magFilter = newMagFilter;
-    }
-
-    glPopAttrib();
-  }
 }
 
 Image* Texture::getImage(unsigned int level) const
@@ -410,7 +389,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
     return false;
   }
 
-  // The "normal" width and height correspond to the original dimensions
+  // The "regular" width and height correspond to the original dimensions
   width = image.getWidth();
   height = image.getHeight();
 
@@ -427,13 +406,44 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 
   if (flags & RECTANGULAR)
   {
-    // TODO: Support ARB_texture_rectangle.
+    physicalWidth = width;
+    physicalHeight = height;
 
     if (!GLEW_ARB_texture_non_power_of_two)
     {
-      Log::writeError("Rectangular textures unsupported");
-      return false;
+      if (!GLEW_ARB_texture_rectangle)
+      {
+	Log::writeError("Rectangular textures are not supported by the current OpenGL context");
+	return false;
+      }
+
+      if (textureTarget != GL_TEXTURE_2D)
+      {
+	Log::writeError("Only two-dimensional rectangular textures are supported by this OpenGL context");
+	return false;
+      }
+
+      if (flags & MIPMAPPED)
+      {
+	Log::writeError("Mipmapped rectangular textures are not supported by the current OpenGL context");
+	return false;
+      }
+
+      textureTarget = GL_TEXTURE_RECTANGLE_ARB;
     }
+
+    unsigned int maxSize;
+
+    if (textureTarget == GL_TEXTURE_RECTANGLE_ARB)
+      glGetIntegerv(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB, (GLint*) &maxSize);
+    else
+      glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxSize);
+
+    if (physicalWidth > maxSize)
+      physicalWidth = maxSize;
+
+    if (physicalHeight > maxSize)
+      physicalHeight = maxSize;
   }
   else
   {
@@ -441,16 +451,26 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxSize);
 
-    physicalWidth = getClosestPower(source.getWidth(), maxSize);
-    physicalHeight = getClosestPower(source.getHeight(), maxSize);
-
-    if (!source.resize(physicalWidth, physicalHeight))
-      return false;
+    if (flags & DONT_GROW)
+    {
+      physicalWidth = getClosestPower(width, std::min(maxSize, width));
+      physicalHeight = getClosestPower(height, std::min(maxSize, height));
+    }
+    else
+    {
+      physicalWidth = getClosestPower(width, maxSize);
+      physicalHeight = getClosestPower(height, maxSize);
+    }
   }
+
+  // Rescale source image (don't worry, it's a no-op if the sizes are equal)
+  if (!source.resize(physicalWidth, physicalHeight))
+    return false;
 
   // Clear any errors
   glGetError();
 
+  // Contact space station
   glGenTextures(1, &textureID);
 
   glPushAttrib(GL_TEXTURE_BIT | GL_PIXEL_MODE_BIT);
@@ -479,7 +499,10 @@ bool Texture::init(const Image& image, unsigned int initFlags)
                         source.getPixels());
     }
 
-    levelCount = /* GAH */;
+    if (flags & RECTANGULAR)
+      levelCount = (unsigned int) (1.f + floorf(log2f(fmaxf(width, height))));
+    else
+      levelCount = (unsigned int) log2f(fmaxf(width, height));
   }
   else
   {
@@ -507,6 +530,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
                    source.getPixels());
     }
 
+    // Disable mipmapping
     glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     levelCount = 1;
@@ -514,6 +538,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 
   glGetTexParameteriv(textureTarget, GL_TEXTURE_MIN_FILTER, &minFilter);
   glGetTexParameteriv(textureTarget, GL_TEXTURE_MAG_FILTER, &magFilter);
+  glGetTexParameteriv(textureTarget, GL_TEXTURE_WRAP_S, &addressMode);
 
   glPopAttrib();
 
@@ -609,7 +634,27 @@ void TextureLayer::apply(void) const
         glEnable(textureTarget);
         textureTargets[unit] = textureTarget;
       }
+
+      // Set scaling texture matrix
+      // NOTE: This is (and should remain) the only place where the regular
+      //       texture matrix is used.  If you need matrices, use uniforms.
+      {
+	// TODO: See if we can avoid always forcing this
+
+	Matrix4 matrix;
+
+	if (textureTarget == GL_TEXTURE_RECTANGLE_ARB)
+	{
+	  matrix.x.x = 1.f / texture->getPhysicalWidth();
+	  matrix.y.y = 1.f / texture->getPhysicalHeight();
+	}
       
+	glPushAttrib(GL_TRANSFORM_BIT);
+	glMatrixMode(GL_TEXTURE);
+	glLoadMatrixf(matrix);
+	glPopAttrib();
+      }
+
       if (data.textureName != cache.textureName)
       {
         glBindTexture(textureTarget, texture->textureID);
@@ -622,11 +667,35 @@ void TextureLayer::apply(void) const
         cache.combineMode = data.combineMode;
       }
 
-      // Set texture environment color.
+      // Set texture environment color
       if (data.combineColor != cache.combineColor)
       {
         glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, data.combineColor);
         cache.combineColor = data.combineColor;
+      }
+
+      if (data.addressMode != texture->addressMode)
+      {
+	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, data.addressMode);
+	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, data.addressMode);
+	texture->addressMode = data.addressMode;
+      }
+
+      GLint minFilter = data.minFilter;
+
+      if (!(texture->getFlags() & Texture::MIPMAPPED))
+	minFilter = unmipmapMinFilter(minFilter);
+
+      if (minFilter != texture->minFilter)
+      {
+	glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, minFilter);
+	texture->minFilter = minFilter;
+      }
+
+      if (data.magFilter != texture->magFilter)
+      {
+	glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, data.magFilter);
+	texture->magFilter = data.magFilter;
       }
 
       if (data.sphereMapped != cache.sphereMapped)
@@ -657,6 +726,14 @@ void TextureLayer::apply(void) const
   data.dirty = cache.dirty = false;
 }
 
+bool TextureLayer::isCompatible(void) const
+{
+  if (unit > getUnitCount())
+    return false;
+
+  return true;
+}
+
 bool TextureLayer::isSphereMapped(void) const
 {
   return data.sphereMapped;
@@ -670,6 +747,21 @@ GLenum TextureLayer::getCombineMode(void) const
 const ColorRGBA& TextureLayer::getCombineColor(void) const
 {
   return data.combineColor;
+}
+
+GLint TextureLayer::getMinFilter(void) const
+{
+  return data.minFilter;
+}
+
+GLint TextureLayer::getMagFilter(void) const
+{
+  return data.magFilter;
+}
+
+GLint TextureLayer::getAddressMode(void) const
+{
+  return data.addressMode;
 }
 
 const String& TextureLayer::getTextureName(void) const
@@ -705,6 +797,19 @@ void TextureLayer::setCombineColor(const ColorRGBA& newColor)
   data.dirty = true;
 }
 
+void TextureLayer::setFilters(GLint newMinFilter, GLint newMagFilter)
+{
+  data.minFilter = newMinFilter;
+  data.magFilter = newMagFilter;
+  data.dirty = true;
+}
+
+void TextureLayer::setAddressMode(GLint newMode)
+{
+  data.addressMode = newMode;
+  data.dirty = true;
+}
+
 void TextureLayer::setTextureName(const String& newName)
 {
   data.textureName = newName;
@@ -726,7 +831,7 @@ unsigned int TextureLayer::getUnitCount(void)
 {
   if (!Context::get())
   {
-    Log::writeError("Cannot query texture unit count before context creation");
+    Log::writeError("Cannot query texture unit count before OpenGL context creation");
     return 0;
   }
 
@@ -784,6 +889,22 @@ void TextureLayer::force(void) const
       glBindTexture(textureTarget, texture->textureID);
 
       textureTargets[unit] = textureTarget;
+
+      GLint minFilter = data.minFilter;
+
+      if (!(texture->getFlags() & Texture::MIPMAPPED))
+	minFilter = unmipmapMinFilter(minFilter);
+
+      glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, minFilter);
+      texture->minFilter = minFilter;
+
+      glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, data.magFilter);
+      texture->magFilter = data.magFilter;
+
+      glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, data.addressMode);
+      glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, data.addressMode);
+
+      texture->addressMode = data.addressMode;
 
       if (!data.samplerName.empty())
 	forceSampler(*texture);
@@ -872,6 +993,9 @@ void TextureLayer::Data::setDefaults(void)
   sphereMapped = false;
   combineMode = GL_MODULATE;
   combineColor.set(1.f, 1.f, 1.f, 1.f);
+  minFilter = GL_LINEAR_MIPMAP_LINEAR;
+  magFilter = GL_LINEAR;
+  addressMode = GL_REPEAT;
   textureName.clear();
 }
 
@@ -908,6 +1032,17 @@ TextureLayer& TextureStack::createTextureLayer(void)
 void TextureStack::destroyTextureLayers(void)
 {
   layers.clear();
+}
+
+bool TextureStack::isCompatible(void) const
+{
+  for (unsigned int i = 0;  i < layers.size();  i++)
+  {
+    if (!layers[i].isCompatible())
+      return false;
+  }
+
+  return true;
 }
 
 unsigned int TextureStack::getTextureLayerCount(void) const

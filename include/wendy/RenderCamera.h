@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy default renderer
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,13 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_GLCAMERA_H
-#define WENDY_GLCAMERA_H
+#ifndef WENDY_RENDERCAMERA_H
+#define WENDY_RENDERCAMERA_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace GL
+  namespace render
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -43,6 +43,9 @@ using namespace moira;
  *  This class is most often used together with the scene graph, but can
  *  also be used standalone, if you wish to render without using a scene
  *  graph but still wish to model a camera.
+ *
+ *  @remarks This class requires the @link GL::Renderer OpenGL renderer
+ *  @endlink .
  */
 class Camera : public Managed<Camera>
 {
@@ -142,9 +145,9 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_GLCAMERA_H*/
+#endif /*WENDY_RENDERCAMERA_H*/
 ///////////////////////////////////////////////////////////////////////

@@ -31,8 +31,6 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
 
-#include <algorithm>
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -43,50 +41,6 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
-
-///////////////////////////////////////////////////////////////////////
-
-namespace
-{
-
-unsigned int getClosestPower(unsigned int value, unsigned int maximum)
-{
-  unsigned int result;
-
-  if (value > maximum)
-    result = maximum;
-  else
-    result = value;
-
-  if (result & (result - 1))
-  {
-    // value is not power of two
-    // find largest power lesser than maximum
-
-    unsigned int i;
-
-    for (i = 0;  result & ~1;  i++)
-      result >>= 1;
-
-    result = 1 << i;
-  }
-
-  if ((result << 1) > maximum)
-  {
-    // maximum is not power of two, so we give up here
-    return result;
-  }
-
-  if (value > result)
-  {
-    // there is room to preserve all detail, so use it
-    return result << 1;
-  }
-
-  return result;
-}
-
-}
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -328,46 +282,23 @@ bool TextureCanvas::init(unsigned int width, unsigned int height, const String& 
     return false;
   }
 
-  unsigned int maxSize;
-  glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxSize);
-
-  unsigned int maxWidth = Context::get()->getWidth();
-  if (maxWidth > maxSize)
-    maxWidth = maxSize;
-
-  unsigned int maxHeight = Context::get()->getHeight();
-  if (maxHeight > maxSize)
-    maxHeight = maxSize;
-
-  if (GLEW_ARB_texture_non_power_of_two)
-  {
-    if (width > maxWidth)
-    {
-      height = (unsigned int) ((float) height * (float) maxWidth / (float) width);
-      width = maxWidth;
-    }
-
-    if (height > maxHeight)
-    {
-      width = (unsigned int) ((float) width * (float) maxHeight / (float) height);
-      height = maxHeight;
-    }
-  }
-  else
-  {
-    width = getClosestPower(width, maxWidth);
-    height = getClosestPower(height, maxHeight);
-  }
-
   Image image(ImageFormat::RGB888, width, height);
 
-  unsigned int flags = 0;
   if ((width & (width - 1)) || (height & (height - 1)))
-    flags |= Texture::RECTANGULAR;
+  {
+    // Requested image size is NPOT
 
-  texture = Texture::createInstance(image, flags, textureName);
+    texture = Texture::createInstance(image,
+                                      Texture::RECTANGULAR | Texture::DONT_GROW,
+				      textureName);
+  }
+
   if (!texture)
-    return false;
+  {
+    texture = Texture::createInstance(image, Texture::DONT_GROW, textureName);
+    if (!texture)
+      return false;
+  }
 
   return true;
 }
@@ -378,6 +309,8 @@ void TextureCanvas::apply(void) const
 
 void TextureCanvas::finish(void) const
 {
+  // TODO: Clean up (don't rely on implicit glActiveTexture)
+
   TextureLayer layer(0);
   layer.setTextureName(texture->getName());
   layer.apply();

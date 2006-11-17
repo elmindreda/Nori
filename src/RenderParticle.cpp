@@ -117,6 +117,7 @@ ParticleAffector& ParticleAffector::operator = (const ParticleAffector& source)
 
 ParticleSystem::ParticleSystem(const String& name):
   Managed<ParticleSystem>(name),
+  updateBounds(true),
   particleSize(1.f, 1.f),
   currentTime(0.0),
   periodType(VARIABLE_PERIOD)
@@ -199,6 +200,21 @@ void ParticleSystem::removeAffector(ParticleAffector& affector)
   affector.system = NULL;
 }
 
+bool ParticleSystem::isUpdatingBounds(void) const
+{
+  return updateBounds;
+}
+
+void ParticleSystem::setUpdatesBounds(bool newState)
+{
+  updateBounds = newState;
+}
+
+const Sphere& ParticleSystem::getBounds(void) const
+{
+  return bounds;
+}
+
 unsigned int ParticleSystem::getParticleCount(void) const
 {
   return particles.size();
@@ -254,6 +270,8 @@ void ParticleSystem::setTimeElapsed(Time newTime)
 {
   Time deltaTime = newTime - currentTime;
 
+  // TODO: Implement fixed frequencey updating.
+
   if (deltaTime < 0.f)
   {
     restart();
@@ -265,6 +283,10 @@ void ParticleSystem::setTimeElapsed(Time newTime)
 
   bounds.center = transform.position;
   bounds.radius = 0.f;
+
+  // Emit particles created during this time frame
+  // TODO: Affect particles by their position within the timeframe (lerp),
+  //       instead of placing all of them at the beginning of it.
 
   for (EmitterList::const_iterator i = emitters.begin();  i != emitters.end();  i++)
   {
@@ -282,6 +304,8 @@ void ParticleSystem::setTimeElapsed(Time newTime)
     }
   }
 
+  // Affect all living particles for this time frame
+
   for (ParticlePool::iterator p = activeParticles.begin();  p != activeParticles.end(); )
   {
     for (AffectorList::const_iterator a = affectors.begin();  a != affectors.end();  a++)
@@ -293,7 +317,9 @@ void ParticleSystem::setTimeElapsed(Time newTime)
       particle.elapsed += deltaTime;
       if (particle.elapsed < particle.duration)
       {
-	bounds.envelop(particle.position);
+	if (updateBounds)
+	  bounds.envelop(particle.position);
+
 	p++;
       }
       else
@@ -384,6 +410,8 @@ bool ParticleSystem::realizeVertices(VertexBufferRange& range,
   for (ParticlePool::const_iterator i = activeParticles.begin();  i != activeParticles.end();  i++)
   {  
     const Particle& particle = particles[*i];
+
+    // TODO: Fix this (separate y-axis rotation and pivot)
 
     Vector3 direction = (camera - particle.position).normalize();
 
@@ -545,6 +573,8 @@ void PlanarGravityParticleAffector::affectParticle(Particle& particle,
                                                    unsigned int particleIndex,
 		                                   Time deltaTime)
 {
+  // TODO: Replace with verlet or better integrator.
+
   particle.position += particle.velocity * deltaTime +
                        gravity * deltaTime * deltaTime;
   particle.velocity += gravity * deltaTime;

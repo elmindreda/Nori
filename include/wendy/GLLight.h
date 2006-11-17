@@ -41,58 +41,77 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Camera space light.
+ *
+ *  This works both with fixed pipeline and GLSL programs.
+ */
 class Light : public Managed<Light>
 {
 public:
   enum Type
   {
     DIRECTIONAL,
-    POSITIONAL
+    POINT,
+    SPOT,
   };
+  enum ShaderType
+  {
+    VERTEX_SHADER,
+    FRAGMENT_SHADER,
+  };
+  Light(const String& name = "");
   ~Light(void);
-  GLuint getGLID(void) const;
+  bool operator < (const Light& other) const;
   bool isEnabled(void) const;
-  bool setEnabled(bool enabled);
+  void enable(void);
+  void disable(void);
+  bool isCastingShadows(void) const;
+  void setShadowCasting(bool newState);
   Type getType(void) const;
   void setType(Type type);
   const ColorRGB& getAmbientIntensity(void) const;
-  void setAmbientIntensity(const ColorRGB& color);
-  const ColorRGB& getDiffuseIntensity(void) const;
-  void setDiffuseIntensity(const ColorRGB& color);
-  const ColorRGB& getSpecularIntensity(void) const;
-  void setSpecularIntensity(const ColorRGB& color);
+  void setAmbientIntensity(const ColorRGB& newIntensity);
+  const ColorRGB& getIntensity(void) const;
+  void setIntensity(const ColorRGB& newIntensity);
   const Vector3& getPosition(void) const;
-  void setPosition(const Vector3& position);
+  void setPosition(const Vector3& newPosition);
   const Vector3& getDirection(void) const;
-  void setDirection(const Vector3& direction);
+  void setDirection(const Vector3& newDirection);
+  float getConstantAttenuation(void) const;
+  void setConstantAttenuation(float newValue);
+  float getLinearAttenuation(void) const;
+  void setLinearAttenuation(float newValue);
+  float getQuadraticAttenuation(void) const;
+  void setQuadraticAttenuation(float newValue);
+  float getCutoffAngle(void) const;
+  void setCutoffAngle(float newAngle);
   void setDefaults(void);
-  static Light* createInstance(const String& name = "");
-  static void invalidateCache(void);
+  static void applyFixedState(void);
+  static void applyShaderState(void);
+  static void disableLights(void);
+  static Shader* createShader(ShaderType type);
+  static unsigned int getSlotCount(void);
 private:
-  class Data
-  {
-  public:
-    Data(void);
-    void setDefaults(void);
-    bool enabled;
-    bool dirty;
-    Type type;
-    ColorRGB ambient;
-    ColorRGB diffuse;
-    ColorRGB specular;
-    Vector3 position;
-    Vector3 direction;
-  };
-  Light(const String& name);
   Light(const Light& source);
   Light& operator = (const Light& source);
-  bool init(void);
-  void apply(void);
-  Vector4 makePosition(const Data& data);
-  typedef std::vector<Data> CacheList;
-  GLenum index;
-  Data data;
-  static CacheList caches;
+  static void onContextDestroy(void);
+  char getTypeCharacter(void);
+  typedef std::vector<Light*> LightList;
+  typedef std::vector<ShaderRef> ShaderList;
+  bool enabled;
+  bool shadows;
+  Type type;
+  ColorRGB ambient;
+  ColorRGB intensity;
+  Vector3 position;
+  Vector3 direction;
+  float constant;
+  float linear;
+  float quadratic;
+  float cutoff;
+  static LightList current;
+  static ShaderList shaders;
+  static unsigned int slotCount;
 };
 
 ///////////////////////////////////////////////////////////////////////

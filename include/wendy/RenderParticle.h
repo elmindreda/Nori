@@ -189,6 +189,9 @@ public:
   void removeEmitter(ParticleEmitter& emitter);
   void addAffector(ParticleAffector& affector);
   void removeAffector(ParticleAffector& affector);
+  bool isUpdatingBounds(void) const;
+  void setUpdatesBounds(bool newState);
+  const Sphere& getBounds(void) const;
   unsigned int getParticleCount(void) const;
   void setParticleCount(unsigned int newCount);
   const Vector2& getParticleSize(void) const;
@@ -221,6 +224,7 @@ private:
   ParticleSystem& operator = (const ParticleSystem& source);
   bool realizeVertices(VertexBufferRange& range,
                        const Vector3& camera) const;
+  bool updateBounds;
   Time currentTime;
   String styleName;
   Vector2 particleSize;

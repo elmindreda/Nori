@@ -42,13 +42,12 @@ using namespace moira;
 class Slider : public Widget
 {
 public:
-  enum Orientation { HORIZONTAL, VERTICAL };
   Slider(Orientation orientation = HORIZONTAL, const String& name = "");
   float getMinValue(void) const;
   float getMaxValue(void) const;
   void setValueRange(float newMinValue, float newMaxValue);
   float getValue(void) const;
-  void setValue(float newValue, bool notify = true);
+  void setValue(float newValue);
   Orientation getOrientation(void) const;
   void setOrientation(Orientation newOrientation);
   SignalProxy2<void, Slider&, float> getChangeValueSignal(void);
@@ -60,6 +59,7 @@ private:
 		     unsigned int button,
 		     bool clicked);
   void onKeyPress(Widget& widget, GL::Key key, bool pressed);
+  void setValue(float newValue, bool notify);
   Signal2<void, Slider&, float> changeValueSignal;
   float minValue;
   float maxValue;

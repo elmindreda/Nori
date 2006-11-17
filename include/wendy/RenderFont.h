@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_GLFONT_H
-#define WENDY_GLFONT_H
+#ifndef WENDY_RENDERFONT_H
+#define WENDY_RENDERFONT_H
 ///////////////////////////////////////////////////////////////////////
 
 #include <list>
@@ -32,16 +32,12 @@
 
 namespace wendy
 {
-  namespace GL
+  namespace render
   {
   
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
-
-///////////////////////////////////////////////////////////////////////
-
-class Texture;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -83,6 +79,8 @@ public:
    *  @param newColor The desired color and opacity values.
    */
   void setColor(const ColorRGBA& newColor);
+  float getAscender(void) const;
+  float getDescender(void) const;
   /*! @param text The text to measure.
    *  @return The bounding rectangle, in pixels, of the specified text as
    *  rendered by this font.
@@ -117,8 +115,10 @@ private:
   GlyphMap glyphMap;
   Vector2 penPosition;
   Vector2 size;
-  RenderPass pass;
-  Ptr<Texture> texture;
+  float ascender;
+  float descender;
+  GL::Pass pass;
+  Ptr<GL::Texture> texture;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -140,7 +140,7 @@ public:
 class Font::Glyph
 {
 public:
-  void render(const Vector2& penPosition) const;
+  void draw(const Vector2& penPosition) const;
   Rectangle area;
   Vector2 bearing;
   Vector2 size;
@@ -149,9 +149,9 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_GLFONT_H*/
+#endif /*WENDY_RENDERFONT_H*/
 ///////////////////////////////////////////////////////////////////////

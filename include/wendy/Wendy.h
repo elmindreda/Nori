@@ -44,18 +44,19 @@
  *
  *  Some notable features of Wendy are:
  *
- *  - Multipass @link wendy::GL::RenderStyle render style @endlink descriptors
- *    with support for multitexturing, ARB programs and GLSL shaders.
- *  - Extensible @link wendy::GL::ParticleSystem particle system @endlink with
+ *  - Multipass, multi-technique @link wendy::render::Style render style
+ *    @endlink descriptors with support for multitexturing, ARB programs and GLSL
+ *    shaders.
+ *  - Extensible @link wendy::render::ParticleSystem particle system @endlink with
  *    generic emitters and affectors.
- *  - @link wendy::GL::RenderQueue Render queue @endlink system with automatic
- *    sorting.
+ *  - @link wendy::render::Queue Render queue @endlink system with automatic
+ *    opacity, distance and material sorting.
  *  - Basic @link scene scene graph @endlink management.
  *  - Hierarchial @link demo demo effect system @endlink with local time.
  *  - Extensible @link ui user interface library @endlink and supporting 2D
  *    rendering interface.
  *  - @link opengl OpenGL wrapper API @endlink, providing automatic resource
- *    management and many useful helper methods, in case you need to implement
+ *    management and many useful helper classes, in case you need to implement
  *    custom rendering.
  *
  *  @section license License
@@ -90,28 +91,33 @@
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
-#include <wendy/GLCamera.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLLight.h>
+#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
-#include <wendy/GLFont.h>
-#include <wendy/GLParticle.h>
-#include <wendy/GLMesh.h>
-#include <wendy/GLTerrain.h>
-#include <wendy/GLSprite.h>
-#include <wendy/GLScene.h>
+
+#include <wendy/RenderQueue.h>
+#include <wendy/RenderStyle.h>
+#include <wendy/RenderStage.h>
+#include <wendy/RenderCamera.h>
+#include <wendy/RenderFont.h>
+#include <wendy/RenderParticle.h>
+#include <wendy/RenderMesh.h>
+#include <wendy/RenderTerrain.h>
+#include <wendy/RenderSprite.h>
+#include <wendy/RenderScene.h>
 
 #include <wendy/GLShaderIO.h>
 #include <wendy/GLRenderIO.h>
-#include <wendy/GLRenderStages.h>
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIWindow.h>
 #include <wendy/UILayout.h>
 #include <wendy/UILabel.h>
+#include <wendy/UIProgress.h>
 #include <wendy/UIButton.h>
 #include <wendy/UISlider.h>
 #include <wendy/UIEntry.h>

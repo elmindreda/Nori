@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy default renderer
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -31,7 +31,8 @@
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLRender.h>
-#include <wendy/GLFont.h>
+
+#include <wendy/RenderFont.h>
 
 #include <cstdlib>
 
@@ -43,7 +44,7 @@
 
 namespace wendy
 {
-  namespace GL
+  namespace render
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -92,7 +93,7 @@ void Font::drawText(const String& text) const
       default:
       {
 	if (const Glyph* glyph = getGlyph((*i).character))
-	  glyph->render(roundedPen + (*i).penOffset);
+	  glyph->draw(roundedPen + (*i).penOffset);
       }
     }
   }
@@ -140,6 +141,16 @@ const ColorRGBA& Font::getColor(void) const
 void Font::setColor(const ColorRGBA& newColor)
 {
   pass.setDefaultColor(newColor);
+}
+
+float Font::getAscender(void) const
+{
+  return ascender;
+}
+
+float Font::getDescender(void) const
+{
+  return descender;
 }
 
 Rectangle Font::getTextMetrics(const String& text) const
@@ -202,8 +213,9 @@ void Font::getTextLayout(LayoutList& result, const String& text) const
 	const Glyph* glyph = getGlyph(*c);
 	if (!glyph)
 	{
-	  Log::writeWarning("Failed to layout unknown glyph %02x", *c);
-	  continue;
+	  glyph = getGlyph('?');
+	  if (!glyph)
+	    continue;
 	}
 
 	layout.area.position.x = pen.x + glyph->bearing.x;
@@ -250,11 +262,11 @@ Font* Font::createInstance(const Path& path,
 
 Font* Font::createInstance(const moira::Font& font, const String& name)
 {
-  Ptr<Font> textureFont = new Font(name);
-  if (!textureFont->init(font))
+  Ptr<Font> renderFont = new Font(name);
+  if (!renderFont->init(font))
     return NULL;
 
-  return textureFont.detachObject();
+  return renderFont.detachObject();
 }
 
 Font::Font(const String& name):
@@ -298,10 +310,12 @@ bool Font::init(const moira::Font& font)
     unsigned int height = glyphHeight * rows + 1;
     height = std::min(getNextPower(height), maxSize);
 
-    texture = Texture::createInstance(Image(ImageFormat::ALPHA8, width, height), 0);
+    texture = GL::Texture::createInstance(Image(ImageFormat::ALPHA8, width, height), 0);
     if (!texture)
       return false;
   }
+
+  ascender = descender = 0.f;
 
   Vector2i texelPosition(1, 1);
 
@@ -324,6 +338,12 @@ bool Font::init(const moira::Font& font)
     glyph.bearing = sourceGlyph->getBearing();
     glyph.size.set((float) image.getWidth(), (float) image.getHeight());
 
+    if (glyph.bearing.y > ascender)
+      ascender = glyph.bearing.y;
+
+    if (glyph.size.y - glyph.bearing.y > descender)
+      descender = glyph.size.y - glyph.bearing.y;
+
     if (texelPosition.x + image.getWidth() + 2 > texture->getPhysicalWidth())
     {
       texelPosition.x = 1;
@@ -332,6 +352,7 @@ bool Font::init(const moira::Font& font)
       if (texelPosition.y + image.getHeight() + 2 > texture->getPhysicalHeight())
       {
 	// TODO: Allocate next texture.
+	// TODO: Add texture pointer to glyphs.
 	Log::writeError("No more room in font texture");
 	return false;
       }
@@ -353,7 +374,7 @@ bool Font::init(const moira::Font& font)
   pass.setDefaultColor(ColorRGBA::WHITE);
   pass.setBlendFactors(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  TextureLayer& layer = pass.createTextureLayer();
+  GL::TextureLayer& layer = pass.createTextureLayer();
   layer.setTextureName(texture->getName());
   layer.setCombineMode(GL_MODULATE);
 
@@ -372,7 +393,7 @@ const Font::Glyph* Font::getGlyph(char character) const
 
 ///////////////////////////////////////////////////////////////////////
 
-void Font::Glyph::render(const Vector2& penPosition) const
+void Font::Glyph::draw(const Vector2& penPosition) const
 {
   const Rectangle& texelArea = area;
 
@@ -395,7 +416,7 @@ void Font::Glyph::render(const Vector2& penPosition) const
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

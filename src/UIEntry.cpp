@@ -55,7 +55,8 @@ using namespace moira;
 
 Entry::Entry(const String& initText, const String& name):
   Widget(name),
-  text(initText)
+  text(initText),
+  caretPosition(0)
 {
   GL::Font* font = Renderer::get()->getCurrentFont();
 
@@ -74,7 +75,6 @@ const String& Entry::getText(void) const
 
 void Entry::setText(const String& newText)
 {
-  changeTextSignal.emit(*this, newText);
   text = newText;
 }
 
@@ -85,13 +85,17 @@ unsigned int Entry::getCaretPosition(void) const
 
 void Entry::setCaretPosition(unsigned int newPosition)
 {
-  caretMoveSignal.emit(*this, newPosition);
-  caretPosition = newPosition;
+  setCaretPosition(newPosition, false);
 }
 
-SignalProxy2<void, Entry&, const String&> Entry::getChangeTextSignal(void)
+SignalProxy1<void, Entry&> Entry::getChangeTextSignal(void)
 {
   return changeTextSignal;
+}
+
+SignalProxy1<void, Entry&> Entry::getCaretMoveSignal(void)
+{
+  return caretMoveSignal;
 }
 
 void Entry::render(void) const
@@ -110,6 +114,29 @@ void Entry::render(void) const
     textArea.size.x -= font->getWidth();
 
     renderer->drawText(textArea, text, LEFT_ALIGNED);
+
+    if (isActive() && ((unsigned int) (Timer::getCurrentTime() * 2.f) & 1))
+    {
+      float position = 0.f;
+
+      if (caretPosition > 0)
+      {
+	GL::Font::LayoutList layouts;
+	font->getTextLayout(layouts, text.substr(0, caretPosition));
+
+	const GL::Font::Layout& glyph = layouts[caretPosition - 1];
+	position = glyph.penOffset.x + glyph.area.size.x;
+      }
+
+      Segment2 segment;
+      segment.start.set(textArea.position.x + position,
+                        textArea.position.y);
+      segment.end.set(textArea.position.x + position,
+                      textArea.position.y + textArea.size.y);
+
+      GL::Renderer::get()->setColor(ColorRGBA::BLACK);
+      GL::Renderer::get()->drawLine(segment);
+    }
 
     Widget::render();
 
@@ -133,13 +160,49 @@ void Entry::onKeyPress(Widget& widget, GL::Key key, bool pressed)
   {
     case GL::Key::BACKSPACE:
     {
-      if (!text.empty())
+      if (!text.empty() && caretPosition > 0)
       {
-	String newText = text;
-	newText.erase(text.size() - 1, 1);
-	setText(newText);
+	text.erase(caretPosition - 1, 1);
+	changeTextSignal.emit(*this);
+	setCaretPosition(caretPosition - 1, true);
       }
 
+      break;
+    }
+
+    case GL::Key::DELETE:
+    {
+      if (!text.empty() && caretPosition < text.length())
+      {
+	text.erase(caretPosition, 1);
+	changeTextSignal.emit(*this);
+      }
+
+      break;
+    }
+
+    case GL::Key::LEFT:
+    {
+      if (caretPosition > 0)
+	setCaretPosition(caretPosition - 1, true);
+      break;
+    }
+
+    case GL::Key::RIGHT:
+    {
+      setCaretPosition(caretPosition + 1, true);
+      break;
+    }
+
+    case GL::Key::HOME:
+    {
+      setCaretPosition(0, true);
+      break;
+    }
+
+    case GL::Key::END:
+    {
+      setCaretPosition(text.length(), true);
       break;
     }
   }
@@ -147,9 +210,23 @@ void Entry::onKeyPress(Widget& widget, GL::Key key, bool pressed)
 
 void Entry::onCharInput(Widget& widget, wchar_t character)
 {
-  String newText = text;
-  newText.append(1, (char) character);
-  setText(newText);
+  text.insert(caretPosition, 1, (char) character);
+  changeTextSignal.emit(*this);
+  setCaretPosition(caretPosition + 1, true);
+}
+
+void Entry::setCaretPosition(unsigned int newPosition, bool notify)
+{
+  if (newPosition > text.length())
+    newPosition = text.length();
+
+  if (newPosition == caretPosition)
+    return;
+
+  caretPosition = newPosition;
+
+  if (notify)
+    caretMoveSignal.emit(*this);
 }
 
 ///////////////////////////////////////////////////////////////////////

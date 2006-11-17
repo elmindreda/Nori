@@ -81,9 +81,9 @@ bool VertexShaderCodec::write(const Path& path, const VertexShader& program)
 
 bool VertexShaderCodec::write(Stream& stream, const VertexShader& program)
 {
-  // TODO: The code.
+  const String& text = program.getText();
 
-  return false;
+  return stream.writeItems(text.c_str(), text.size());
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -116,9 +116,9 @@ bool FragmentShaderCodec::write(const Path& path, const FragmentShader& program)
 
 bool FragmentShaderCodec::write(Stream& stream, const FragmentShader& program)
 {
-  // TODO: The code.
+  const String& text = program.getText();
 
-  return false;
+  return stream.writeItems(text.c_str(), text.size());
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -214,6 +214,10 @@ bool ShaderProgramCodec::onBeginElement(const String& name)
     }
 
     program = ShaderProgram::createInstance(programName);
+
+    if (readBoolean("lighting"))
+      program->setUsesLighting(true);
+
     return true;
   }
 
@@ -269,8 +273,13 @@ bool ShaderProgramCodec::onEndElement(const String& name)
   {
     if (name == "program")
     {
-      if (!program->link())
-	return false;
+      if (!program->isUsingLighting())
+      {
+	// Don't attempt to link programs using built-in lighting
+
+	if (!program->link())
+	  return false;
+      }
 
       return true;
     }

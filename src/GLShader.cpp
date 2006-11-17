@@ -65,13 +65,18 @@ Shader::Type Shader::getType(void) const
   return type;
 }
 
+const String& Shader::getText(void) const
+{
+  return text;
+}
+
 Shader::Shader(Type initType):
   shaderID(0),
   type(initType)
 {
 }
 
-bool Shader::init(const String& text)
+bool Shader::init(const String& initText)
 {
   if (!Context::get())
   {
@@ -99,6 +104,8 @@ bool Shader::init(const String& text)
     Log::writeError("Failed to create GLSL shader object");
     return false;
   }
+
+  text = initText;
 
   const char* string = text.c_str();
 
@@ -406,6 +413,12 @@ void ShaderProgram::removeShader(Shader& shader)
   if (i == shaders.end())
     return;
 
+  if (vertexLighting == &shader)
+    vertexLighting = NULL;
+
+  if (fragmentLighting == &shader)
+    fragmentLighting = NULL;
+
   glDetachObjectARB(programID, shader.shaderID);
   shaders.erase(i);
   modified = true;
@@ -414,6 +427,7 @@ void ShaderProgram::removeShader(Shader& shader)
 bool ShaderProgram::link(void)
 {
   destroyUniforms();
+  destroyAttributes();
 
   glLinkProgramARB(programID);
 
@@ -437,17 +451,22 @@ bool ShaderProgram::link(void)
     Log::writeError("Failed to link GLSL program %s: %s", getName().c_str(), message.getData());
     return false;
   }
+  
+  if (!shaders.empty())
+  {
+    if (!apply())
+      return false;
 
-  if (!apply())
-    return false;
+    if (!createUniforms())
+      return false;
 
-  if (!createUniforms())
-    return false;
-
-  if (!createAttributes())
-    return false;
+    if (!createAttributes())
+      return false;
+  }
 
   modified = false;
+
+  linkedSignal.emit(*this);
   return true;
 }
 
@@ -502,6 +521,22 @@ bool ShaderProgram::isModified(void) const
   return modified;
 }
 
+bool ShaderProgram::isUsingLighting(void) const
+{
+  return lighting;
+}
+
+void ShaderProgram::setUsesLighting(bool newState)
+{
+  if (!newState)
+  {
+    setVertexLightingShader(NULL);
+    setFragmentLightingShader(NULL);
+  }
+
+  lighting = newState;
+}
+
 unsigned int ShaderProgram::getShaderCount(void) const
 {
   return shaders.size();
@@ -554,6 +589,34 @@ const ShaderUniform* ShaderProgram::getUniform(const String& name) const
   return NULL;
 }
 
+VertexShader* ShaderProgram::getVertexLightingShader(void)
+{
+  return vertexLighting;
+}
+
+void ShaderProgram::setVertexLightingShader(VertexShader* newShader)
+{
+  if (vertexLighting)
+    removeShader(*vertexLighting);
+
+  vertexLighting = newShader;
+  addShader(*vertexLighting);
+}
+
+FragmentShader* ShaderProgram::getFragmentLightingShader(void)
+{
+  return fragmentLighting;
+}
+
+void ShaderProgram::setFragmentLightingShader(FragmentShader* newShader)
+{
+  if (fragmentLighting)
+    removeShader(*fragmentLighting);
+
+  fragmentLighting = newShader;
+  addShader(*fragmentLighting);
+}
+
 ShaderProgram* ShaderProgram::createInstance(const String& name)
 {
   Ptr<ShaderProgram> program = new ShaderProgram(name);
@@ -577,7 +640,10 @@ ShaderProgram* ShaderProgram::getCurrent(void)
 ShaderProgram::ShaderProgram(const String& name):
   Resource<ShaderProgram>(name),
   programID(0),
-  modified(false)
+  modified(false),
+  lighting(false),
+  vertexLighting(NULL),
+  fragmentLighting(NULL)
 {
 }
 

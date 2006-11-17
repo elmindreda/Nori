@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<style version="1">
+<style version="2">
   <pass>
     <shader-program name="program" />
     <default r="1" g="0" b="0" a="1" />
+    <texture name="program" sampler="program" />
   </pass>
 </style>

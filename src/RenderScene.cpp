@@ -27,6 +27,7 @@
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLCamera.h>
@@ -57,7 +58,8 @@ using namespace moira;
 
 SceneNode::SceneNode(void):
   visible(true),
-  dirtyWorld(false)
+  dirtyWorld(false),
+  dirtyBounds(false)
 {
 }
 
@@ -92,28 +94,73 @@ const Transform3& SceneNode::getWorldTransform(void) const
   return world;
 }
 
+const Sphere& SceneNode::getLocalBounds(void) const
+{
+  return localBounds;
+}
+
+void SceneNode::setLocalBounds(const Sphere& newBounds)
+{
+  localBounds = newBounds;
+
+  for (SceneNode* parent = this;  parent;  parent = parent->getParent())
+    parent->dirtyBounds = true;
+}
+
+const Sphere& SceneNode::getTotalBounds(void) const
+{
+  if (dirtyBounds)
+  {
+    totalBounds = localBounds;
+    for (const SceneNode* child = getFirstChild();  child;  child = child->getNextSibling())
+      totalBounds.envelop(child->getTotalBounds());
+
+    dirtyBounds = false;
+  }
+
+  return totalBounds;
+}
+
 void SceneNode::addedToParent(SceneNode& parent)
 {
   dirtyWorld = true;
+
+  for (SceneNode* parent = this;  parent;  parent = parent->getParent())
+    parent->dirtyBounds = true;
 }
 
 void SceneNode::removedFromParent(void)
 {
   dirtyWorld = true;
+
+  for (SceneNode* parent = this;  parent;  parent = parent->getParent())
+    parent->dirtyBounds = true;
 }
 
-void SceneNode::update(void)
+void SceneNode::update(Time deltaTime)
 {
   for (SceneNode* node = getFirstChild();  node;  node = node->getNextSibling())
-    node->update();
+    node->update(deltaTime);
 }
+
+void SceneNode::restart(void)
+{
+} 
 
 void SceneNode::enqueue(RenderQueue& queue) const
 {
   for (const SceneNode* node = getFirstChild();  node;  node = node->getNextSibling())
   {
     if (node->isVisible())
-      node->enqueue(queue);
+    {
+      // TODO: Make less gluäöusch.
+
+      Sphere worldBounds = node->getTotalBounds();
+      worldBounds.transformBy(node->getWorldTransform());
+
+      if (queue.getCamera().getFrustum().intersects(worldBounds))
+	node->enqueue(queue);
+    }
   }
 }
 
@@ -153,50 +200,62 @@ bool SceneNode::updateWorldTransform(void) const
 
 Scene::Scene(const String& name):
   Managed<Scene>(name),
-  fogging(false),
-  fogColor(ColorRGB::BLACK)
+  currentTime(0.0)
 {
 }
 
-void Scene::updateTree(void)
+Scene::~Scene(void)
 {
-  for (NodeList::const_iterator i = roots.begin();  i != roots.end();  i++)
-    (*i)->update();
-}
-
-void Scene::renderTree(const Camera& camera) const
-{
-  RenderQueue queue(camera);
-  enqueueTree(queue);
-
-  if (fogging)
+  while (!roots.empty())
   {
-    ColorRGBA color = fogColor;
-
-    glEnable(GL_FOG);
-    glFogfv(GL_FOG_COLOR, color);
+    delete roots.front();
+    roots.pop_front();
   }
-  else
-    glDisable(GL_FOG);
-
-  camera.begin();
-  queue.renderOperations();
-  camera.end();
-
-  if (fogging)
-    glDisable(GL_FOG);
 }
 
-void Scene::enqueueTree(RenderQueue& queue) const
+void Scene::enqueue(RenderQueue& queue) const
+{
+  NodeList nodes;
+  query(queue.getCamera().getFrustum(), nodes);
+
+  for (NodeList::const_iterator i = nodes.begin();  i != nodes.end();  i++)
+    (*i)->enqueueLights(queue);
+
+  for (NodeList::const_iterator i = nodes.begin();  i != nodes.end();  i++)
+    (*i)->enqueueGeometry(queue);
+}
+
+void Scene::query(const Sphere& bounds, NodeList& nodes)
 {
   for (NodeList::const_iterator i = roots.begin();  i != roots.end();  i++)
   {
     if ((*i)->isVisible())
-      (*i)->enqueue(queue);
+    {
+      Sphere total = (*i)->getTotalBounds();
+      total.transformBy((*i)->getWorldTransform());
+
+      if (bounds.intersects(total))
+	nodes.push_back(*i);
+    }
   }
 }
 
-void Scene::addRootNode(SceneNode& node)
+void Scene::query(const Frustum& frustum, NodeList& nodes)
+{
+  for (NodeList::const_iterator i = roots.begin();  i != roots.end();  i++)
+  {
+    if ((*i)->isVisible())
+    {
+      Sphere total = (*i)->getTotalBounds();
+      total.transformBy((*i)->getWorldTransform());
+
+      if (frustum.intersects(total))
+	nodes.push_back(*i);
+    }
+  }
+}
+
+void Scene::addNode(SceneNode& node)
 {
   if (std::find(roots.begin(), roots.end(), &node) != roots.end())
     return;
@@ -204,34 +263,45 @@ void Scene::addRootNode(SceneNode& node)
   roots.push_back(&node);
 }
 
-void Scene::removeRootNode(SceneNode& node)
+void Scene::removeNode(SceneNode& node)
 {
   roots.remove(&node);
 }
 
-void Scene::removeRootNodes(void)
+void Scene::removeNodes(void)
 {
   roots.clear();
 }
 
-bool Scene::isFogging(void) const
+const NodeList& Scene::getNodes(void) const
 {
-  return fogging;
+  return roots;
 }
 
-void Scene::setFogging(bool newState)
+Time Scene::getTimeElapsed(void) const
 {
-  fogging = newState;
+  return currentTime;
 }
 
-const ColorRGB& Scene::getFogColor(void) const
+void Scene::setTimeElapsed(Time newTime)
 {
-  return fogColor;
-}
+  Time deltaTime = newTime - currentTime;
 
-void Scene::setFogColor(const ColorRGB& newColor)
-{
-  fogColor = newColor;
+  if (deltaTime < 0.f)
+  {
+    for (NodeList::const_iterator i = roots.begin();  i != roots.end();  i++)
+      (*i)->restart();
+
+    deltaTime = newTime;
+  }
+
+  if (deltaTime == 0.f)
+    return;
+
+  for (NodeList::const_iterator i = roots.begin();  i != roots.end();  i++)
+    (*i)->update(deltaTime);
+
+  currentTime = newTime;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -265,7 +335,7 @@ void LightNode::enqueue(RenderQueue& queue) const
         break;
       }
 
-      case Light::POSITIONAL:
+      case Light::POINT:
       {
         Vector3 position(0.f, 0.f, 0.f);
         transform.transformVector(position);
@@ -274,7 +344,7 @@ void LightNode::enqueue(RenderQueue& queue) const
       }
     }
 
-    queue.addLight(*light);
+    queue.attachLight(*light);
   }
 }
 
@@ -288,6 +358,15 @@ const String& MeshNode::getMeshName(void) const
 void MeshNode::setMeshName(const String& newMeshName)
 {
   meshName = newMeshName;
+}
+
+void MeshNode::update(Time deltaTime)
+{
+  SceneNode::update(deltaTime);
+
+  Mesh* mesh = Mesh::findInstance(meshName);
+  if (mesh)
+    setLocalBounds(mesh->getBounds());
 }
 
 void MeshNode::enqueue(RenderQueue& queue) const
@@ -311,8 +390,10 @@ void CameraNode::setCameraName(const String& newName)
   cameraName = newName;
 }
 
-void CameraNode::update(void)
+void CameraNode::update(Time deltaTime)
 {
+  SceneNode::update(deltaTime);
+
   Camera* camera = Camera::findInstance(cameraName);
   if (!camera)
   {
@@ -388,16 +469,19 @@ void ParticleSystemNode::setSystemName(const String& newSystemName)
   systemName = newSystemName;
 }
 
-void ParticleSystemNode::update(void)
+void ParticleSystemNode::update(Time deltaTime)
 {
+  SceneNode::update(deltaTime);
+
   ParticleSystem* system = ParticleSystem::findInstance(systemName);
   if (!system)
   {
-    Log::writeError("Cannot find particle system %s", systemName.c_str());
+    Log::writeError("Cannot find particle system %s for updating", systemName.c_str());
     return;
   }
 
   system->setTransform(getWorldTransform());
+  setLocalBounds(system->getBounds());
 }
 
 void ParticleSystemNode::enqueue(RenderQueue& queue) const
@@ -407,7 +491,7 @@ void ParticleSystemNode::enqueue(RenderQueue& queue) const
   ParticleSystem* system = ParticleSystem::findInstance(systemName);
   if (!system)
   {
-    Log::writeError("Cannot find particle system %s", systemName.c_str());
+    Log::writeError("Cannot find particle system %s for enqueueing", systemName.c_str());
     return;
   }
 

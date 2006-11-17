@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy default renderer
 // Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_GLMESH_H
-#define WENDY_GLMESH_H
+#ifndef WENDY_RENDERMESH_H
+#define WENDY_RENDERMESH_H
 ///////////////////////////////////////////////////////////////////////
 
 #include <list>
@@ -32,15 +32,9 @@
 
 namespace wendy
 {
-  namespace GL
+  namespace render
   {
   
-///////////////////////////////////////////////////////////////////////
-
-class VertexBuffer;
-class IndexBuffer;
-class RenderStyle;
-
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Geometry mesh object.
@@ -54,7 +48,7 @@ class Mesh : public Renderable, public DerivedResource<Mesh, moira::Mesh>
 {
 public:
   class Geometry;
-  void enqueue(RenderQueue& queue, const Transform3& transform) const;
+  void enqueue(Queue& queue, const Transform3& transform) const;
   const Sphere& getBounds(void) const;
   static Mesh* createInstance(const moira::Mesh& mesh, const String& name = "");
 private:
@@ -64,8 +58,8 @@ private:
   bool init(const moira::Mesh& mesh);
   typedef std::list<Geometry> GeometryList;
   GeometryList geometries;
-  Ptr<VertexBuffer> vertexBuffer;
-  Ptr<IndexBuffer> indexBuffer;
+  Ptr<GL::VertexBuffer> vertexBuffer;
+  Ptr<GL::IndexBuffer> indexBuffer;
   Sphere bounds;
 };
 
@@ -82,7 +76,7 @@ class Mesh::Geometry
 public:
   /*! The range of indices used by this geometry.
    */
-  IndexBufferRange range;
+  GL::IndexRange range;
   /*! The primitive mode used by this geometry.
    */
   GLenum renderMode;
@@ -103,7 +97,7 @@ class ShadowMesh : public Renderable
 {
 public:
   void update(const Vector3 origin);
-  void enqueue(RenderQueue& queue, const Transform3& transform) const;
+  void enqueue(Queue& queue, const Transform3& transform) const;
   float getExtrudeDistance(void) const;
   void setExtrudeDistance(float newDistance);
   static ShadowMesh* createInstance(const moira::Mesh& mesh);
@@ -123,8 +117,8 @@ private:
   EdgeList edges;
   float distance;
   unsigned int vertexCount;
-  Ptr<VertexBuffer> vertexBuffer;
-  Ptr<RenderStyle> style;
+  Ptr<GL::VertexBuffer> vertexBuffer;
+  Ptr<Style> style;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -158,9 +152,9 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_GLMESH_H*/
+#endif /*WENDY_RENDERMESH_H*/
 ///////////////////////////////////////////////////////////////////////

@@ -150,13 +150,11 @@ private:
  *  This is useful for allocation schemes where many smaller objects
  *  are fitted into a single vertex buffer for performance reasons.
  */
-class VertexBufferRange
+class VertexRange
 {
 public:
-  VertexBufferRange(void);
-  VertexBufferRange(VertexBuffer& vertexBuffer,
-                    unsigned int start,
-		    unsigned int count);
+  VertexRange(void);
+  VertexRange(VertexBuffer& vertexBuffer, unsigned int start, unsigned int count);
   void render(void) const;
   void* lock(void) const;
   void unlock(void) const;
@@ -201,8 +199,7 @@ public:
      */
     STATIC = GL_STATIC_DRAW_ARB,
     /*! Data will be specified once and used a few times.
-     */
-    STREAM = GL_STREAM_DRAW_ARB,
+     */ STREAM = GL_STREAM_DRAW_ARB,
     /*! Data will be repeatedly respecified and re-used.
      */
     DYNAMIC = GL_DYNAMIC_DRAW_ARB,
@@ -285,13 +282,11 @@ private:
  *  This is useful for allocation schemes where many smaller objects
  *  are fitted into a single index buffer for performance reasons.
  */
-class IndexBufferRange
+class IndexRange
 {
 public:
-  IndexBufferRange(void);
-  IndexBufferRange(IndexBuffer& indexBuffer,
-                   unsigned int start,
-		   unsigned int count);
+  IndexRange(void);
+  IndexRange(IndexBuffer& indexBuffer, unsigned int start, unsigned int count);
   void render(const VertexBuffer& vertexBuffer) const;
   void* lock(void) const;
   void unlock(void) const;

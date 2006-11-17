@@ -28,12 +28,12 @@
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLLight.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
-#include <wendy/GLShader.h>
 #include <wendy/GLRender.h>
 
 #include <algorithm>
@@ -71,7 +71,6 @@ public:
 RenderPass::RenderPass(const String& initGroupName):
   groupName(initGroupName)
 {
-  setDefaults();
 }
 
 void RenderPass::apply(void) const
@@ -171,43 +170,6 @@ void RenderPass::apply(void) const
   cache.depthTesting = data.depthTesting;
   cache.depthWriting = data.depthWriting;
 
-  if (data.stencilTesting)
-  {
-    if (!cache.stencilTesting)
-    {
-      glEnable(GL_STENCIL_TEST);
-      cache.stencilTesting = data.stencilTesting;
-    }
-
-    if (data.stencilFunction != cache.stencilFunction ||
-        data.stencilRef != cache.stencilRef ||
-        data.stencilMask != cache.stencilMask)
-    {
-      glStencilFunc(data.stencilFunction, data.stencilRef, data.stencilMask);
-      cache.stencilFunction = data.stencilFunction;
-      cache.stencilRef = data.stencilRef;
-      cache.stencilMask = data.stencilMask;
-    }
-
-    if (data.stencilFailed != cache.stencilFailed ||
-        data.depthFailed != cache.depthFailed ||
-        data.depthPassed != cache.depthPassed)
-    {
-      glStencilOp(data.stencilFailed, data.depthFailed, data.depthPassed);
-      cache.stencilFailed = data.stencilFailed;
-      cache.depthFailed = data.depthFailed;
-      cache.depthPassed = data.depthPassed;
-    }
-  }
-  else
-  {
-    if (cache.stencilTesting)
-    {
-      glDisable(GL_STENCIL_TEST);
-      cache.stencilTesting = data.stencilTesting;
-    }
-  }
-
   if (data.colorWriting != cache.colorWriting)
   {
     const GLboolean state = data.colorWriting ? GL_TRUE : GL_FALSE;
@@ -282,80 +244,6 @@ void RenderPass::apply(void) const
     }
   }
 
-  /*
-  if (GLEW_ARB_vertex_program)
-  {
-    if (data.vertexProgramName.empty())
-    {
-      if (!cache.vertexProgramName.empty())
-	glDisable(GL_VERTEX_PROGRAM_ARB);
-
-      cache.vertexProgramName.clear();
-    }
-    else
-    {
-      VertexProgram* program = VertexProgram::findInstance(data.vertexProgramName);
-      if (program)
-      {
-	if (cache.vertexProgramName.empty())
-	  glEnable(GL_VERTEX_PROGRAM_ARB);
-
-	// Since the vertex program object cannot push its binding in any
-	// resonable fashion, it must force the binding when creating and
-	// changing parameters on a program object.  Hence we cannot trust the
-	// state cache's program name to be valid between calls.  Thus we
-	// always force the binding to the correct value.
-	glBindProgramARB(GL_VERTEX_PROGRAM_ARB, program->getGLID());
-	cache.vertexProgramName = data.vertexProgramName;
-      }
-      else
-	Log::writeError("Render pass uses non-existent vertex program %s",
-	                data.vertexProgramName.c_str());
-    }
-  }
-  else
-  {
-    if (!data.vertexProgramName.empty())
-      Log::writeError("Vertex programs are not supported by the current OpenGL context");
-  }
-
-  if (GLEW_ARB_fragment_program)
-  {
-    if (data.fragmentProgramName.empty())
-    {
-      if (!cache.fragmentProgramName.empty())
-	glDisable(GL_FRAGMENT_PROGRAM_ARB);
-
-      cache.fragmentProgramName.clear();
-    }
-    else
-    {
-      FragmentProgram* program = FragmentProgram::findInstance(data.fragmentProgramName);
-      if (program)
-      {
-	if (cache.fragmentProgramName.empty())
-	  glEnable(GL_FRAGMENT_PROGRAM_ARB);
-
-	// Since the fragment program object cannot push its binding in any
-	// resonable fashion, it must force the binding when creating and
-	// changing parameters on a program object.  Hence we cannot trust the
-	// state cache's program name to be valid between calls.  Thus we
-	// always force the binding to the correct value.
-	glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, program->getGLID());
-	cache.fragmentProgramName = data.fragmentProgramName;
-      }
-      else
-	Log::writeError("Render pass uses non-existent fragment program %s",
-	                data.fragmentProgramName.c_str());
-    }
-  }
-  else
-  {
-    if (!data.fragmentProgramName.empty())
-      Log::writeError("Fragment programs are not supported by the current OpenGL context");
-  }
-  */
-
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
     Log::writeError("Error when applying render pass: %s", gluErrorString(error));
@@ -363,11 +251,6 @@ void RenderPass::apply(void) const
   TextureStack::apply();
   
   data.dirty = false;
-}
-
-bool RenderPass::isDirty(void) const
-{
-  return data.dirty;
 }
 
 bool RenderPass::isCulling(void) const
@@ -388,11 +271,6 @@ bool RenderPass::isDepthTesting(void) const
 bool RenderPass::isDepthWriting(void) const
 {
   return data.depthWriting;
-}
-
-bool RenderPass::isStencilTesting(void) const
-{
-  return data.stencilTesting;
 }
 
 bool RenderPass::isColorWriting(void) const
@@ -438,36 +316,6 @@ GLenum RenderPass::getDepthFunction(void) const
 GLenum RenderPass::getAlphaFunction(void) const
 {
   return data.alphaFunction;
-}
-
-GLenum RenderPass::getStencilFunction(void) const
-{
-  return data.stencilFunction;
-}
-
-GLenum RenderPass::getStencilFailOperation(void) const
-{
-  return data.stencilFailed;
-}
-
-GLenum RenderPass::getDepthFailOperation(void) const
-{
-  return data.depthFailed;
-}
-
-GLenum RenderPass::getDepthPassOperation(void) const
-{
-  return data.depthPassed;
-}
-
-unsigned int RenderPass::getStencilReference(void) const
-{
-  return data.stencilRef;
-}
-
-unsigned int RenderPass::getStencilMask(void) const
-{
-  return data.stencilMask;
 }
 
 float RenderPass::getShininess(void) const
@@ -523,12 +371,6 @@ void RenderPass::setDepthWriting(bool enable)
   data.dirty = true;
 }
 
-void RenderPass::setStencilTesting(bool enable)
-{
-  data.stencilTesting = enable;
-  data.dirty = true;
-}
-
 void RenderPass::setLineWidth(float width)
 {
   data.lineWidth = width;
@@ -563,29 +405,6 @@ void RenderPass::setDepthFunction(GLenum function)
 void RenderPass::setAlphaFunction(GLenum function)
 {
   data.alphaFunction = function;
-  data.dirty = true;
-}
-
-void RenderPass::setStencilFunction(GLenum function)
-{
-  data.stencilFunction = function;
-  data.dirty = true;
-}
-
-void RenderPass::setStencilValues(unsigned int reference, unsigned int mask)
-{
-  data.stencilRef = reference;
-  data.stencilMask = mask;
-  data.dirty = true;
-}
-
-void RenderPass::setStencilOperations(GLenum stencilFailed,
-                                      GLenum depthFailed,
-                                      GLenum depthPassed)
-{
-  data.stencilFailed = stencilFailed;
-  data.depthFailed = depthFailed;
-  data.depthPassed = depthPassed;
   data.dirty = true;
 }
 
@@ -680,10 +499,6 @@ void RenderPass::force(void) const
   const GLboolean state = data.colorWriting ? GL_TRUE : GL_FALSE;
   glColorMask(state, state, state, state);
 
-  setBooleanState(GL_STENCIL_TEST, data.stencilTesting);
-  glStencilFunc(data.stencilFunction, data.stencilRef, data.stencilMask);
-  glStencilOp(data.stencilFailed, data.depthFailed, data.depthPassed);
-
   glColor4fv(data.defaultColor);
   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, data.ambientColor);
   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, data.diffuseColor);
@@ -704,54 +519,6 @@ void RenderPass::force(void) const
 			data.shaderProgramName.c_str());
     }
   }
-
-  /*
-  if (GLEW_ARB_vertex_program)
-  {
-    if (data.vertexProgramName.empty())
-      glDisable(GL_VERTEX_PROGRAM_ARB);
-    else
-    {
-      VertexProgram* program = VertexProgram::findInstance(data.vertexProgramName);
-      if (program)
-      {
-	glEnable(GL_VERTEX_PROGRAM_ARB);
-	glBindProgramARB(GL_VERTEX_PROGRAM_ARB, program->getGLID());
-      }
-      else
-	Log::writeError("Render pass uses non-existent vertex program %s",
-			data.vertexProgramName.c_str());
-    }
-  }
-  else
-  {
-    if (!data.vertexProgramName.empty())
-      Log::writeError("Vertex programs are not supported by the current OpenGL context");
-  }
-
-  if (GLEW_ARB_fragment_program)
-  {
-    if (data.fragmentProgramName.empty())
-      glDisable(GL_FRAGMENT_PROGRAM_ARB);
-    else
-    {
-      FragmentProgram* program = FragmentProgram::findInstance(data.fragmentProgramName);
-      if (program)
-      {
-	glEnable(GL_FRAGMENT_PROGRAM_ARB);
-	glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, program->getGLID());
-      }
-      else
-	Log::writeError("Render pass uses non-existent fragment program %s",
-			data.fragmentProgramName.c_str());
-    }
-  }
-  else
-  {
-    if (!data.fragmentProgramName.empty())
-      Log::writeError("Fragment programs are not supported by the current OpenGL context");
-  }
-  */
 
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
@@ -785,7 +552,6 @@ void RenderPass::Data::setDefaults(void)
   lighting = false;
   depthTesting = true;
   depthWriting = true;
-  stencilTesting = false;
   colorWriting = true;
   lineWidth = 1.f;
   cullMode = CULL_BACK;
@@ -794,12 +560,6 @@ void RenderPass::Data::setDefaults(void)
   dstFactor = GL_ZERO;
   depthFunction = GL_LESS;
   alphaFunction = GL_ALWAYS;
-  stencilFunction = GL_ALWAYS;
-  stencilRef = 0;
-  stencilMask = ~0;
-  stencilFailed = GL_KEEP;
-  depthFailed = GL_KEEP;
-  depthPassed = GL_KEEP;
   shininess = 0.f;
   defaultColor.set(1.f, 1.f, 1.f, 1.f);
   ambientColor.set(0.f, 0.f, 0.f, 1.f);
@@ -834,22 +594,24 @@ void RenderStyle::applyPass(unsigned int index) const
 bool RenderStyle::operator < (const RenderStyle& other) const
 {
   // Styles with blending always go last
-
-  if (!isBlending() && other.isBlending())
-    return true;
+  if (isBlending() != other.isBlending())
+  {
+    if (isBlending())
+      return false;
+    else
+      return true;
+  }
  
-  // TODO: Better sorting.
-
-  return false;
+  return getName() < other.getName();
 }
 
 bool RenderStyle::isBlending(void) const
 {
-  for (PassList::const_iterator i = passes.begin();  i != passes.end();  i++)
-    if ((*i).isBlending())
-      return true;
+  if (passes.empty())
+    return false;
 
-  return false;
+  // Only the first pass (should) matter
+  return passes.front().isBlending();
 }
 
 RenderPass& RenderStyle::getPass(unsigned int index)
@@ -878,51 +640,122 @@ RenderOperation::RenderOperation(void):
   indexBuffer(NULL),
   style(NULL),
   start(0),
-  count(0)
+  count(0),
+  distance(0.f)
 {
 }
 
 bool RenderOperation::operator < (const RenderOperation& other) const
 {
+  // Sort blending operations by distance
+  if (style->isBlending() && other.style->isBlending())
+    return distance > other.distance;
+
+  // ...which assumes that blending operations are sorted last by this
+  // (and they always will be, but it's still not perfectly isolated).
   return (*style) < (*other.style);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 RenderQueue::RenderQueue(const Camera& initCamera):
-  camera(initCamera),
-  sorted(true)
+  camera(initCamera)
 {
 }
 
-void RenderQueue::addLight(Light& light)
+void RenderQueue::attachLight(Light& light)
 {
-  lights.push_back(&light);
+  if (findGroup(light))
+    return;
+
+  lightGroups.push_front(Group(&light));
+}
+
+void RenderQueue::detachLights(void)
+{
+  lightGroups.clear();
 }
 
 RenderOperation& RenderQueue::createOperation(void)
 {
-  sorted = false;
+  return defaultGroup.createOperation();
+}
 
-  operations.push_back(RenderOperation());
-  return operations.back();
+RenderOperation& RenderQueue::createLightOperation(Light& light)
+{
+  Group* group = findGroup(light);
+  if (!group)
+  {
+    // NOTE: An exception is thrown here because attaching lights and
+    //       registering rendering operations on those lights will usually be
+    //       done by entirely different parts of the code, and if they don't
+    //       agree on the set of lights in use for a particular queue, then
+    //       that's most likely a bug.
+    throw Exception("Cannot create render operation on non-attached lights");
+  }
+
+  return group->createOperation();
 }
 
 void RenderQueue::destroyOperations(void)
 {
-  operations.clear();
+  defaultGroup.destroyOperations();
+  for (GroupList::iterator i = lightGroups.begin();  i != lightGroups.end();  i++)
+    (*i).destroyOperations();
 }
 
 void RenderQueue::renderOperations(void) const
 {
-  sortOperations();
+  renderGroup(defaultGroup);
+}
 
-  for (LightList::const_iterator i = lights.begin();  i != lights.end();  i++)
-    (*i)->setEnabled(true);
+void RenderQueue::renderLightOperations(Light& light) const
+{
+  const Group* group = findGroup(light);
+  if (!group)
+    throw Exception("Cannot render operations on non-attached lights");
 
-  for (unsigned int i = 0;  i < sortedOperations.size();  i++)
+  renderGroup(*group);
+}
+
+const Camera& RenderQueue::getCamera(void) const
+{
+  return camera;
+}
+
+unsigned int RenderQueue::getLightCount(void) const
+{
+  return lightGroups.size();
+}
+
+Light& RenderQueue::getLight(unsigned int index) const
+{
+  GroupList::const_iterator group = lightGroups.begin();
+  std::advance(group, index);
+  return *((*group).getLight());
+}
+
+const RenderQueue::SortedList& RenderQueue::getOperations(void) const
+{
+  return defaultGroup.getOperations();
+}
+
+const RenderQueue::SortedList& RenderQueue::getLightOperations(Light& light) const
+{
+  const Group* group = findGroup(light);
+  if (!group)
+    throw Exception("Cannot retrieve operations for non-attached lights");
+
+  return group->getOperations();
+}
+
+void RenderQueue::renderGroup(const Group& group) const
+{
+  const SortedList& operations = group.getOperations();
+  
+  for (unsigned int i = 0;  i < operations.size();  i++)
   {
-    const RenderOperation& operation = *sortedOperations[i];
+    const RenderOperation& operation = *operations[i];
 
     glPushAttrib(GL_TRANSFORM_BIT);
     glMatrixMode(GL_MODELVIEW);
@@ -954,27 +787,56 @@ void RenderQueue::renderOperations(void) const
     glPopMatrix();
     glPopAttrib();
   }
-
-  for (LightList::const_iterator i = lights.begin();  i != lights.end();  i++)
-    (*i)->setEnabled(false);
 }
 
-const Camera& RenderQueue::getCamera(void) const
+RenderQueue::Group* RenderQueue::findGroup(Light& light)
 {
-  return camera;
+  for (GroupList::iterator i = lightGroups.begin();  i != lightGroups.end();  i++)
+  {
+    if ((*i).getLight() == &light)
+      return &(*i);
+  }
+
+  return NULL;
 }
 
-const RenderQueue::LightList& RenderQueue::getLights(void) const
+const RenderQueue::Group* RenderQueue::findGroup(Light& light) const
 {
-  return lights;
+  for (GroupList::const_iterator i = lightGroups.begin();  i != lightGroups.end();  i++)
+  {
+    if ((*i).getLight() == &light)
+      return &(*i);
+  }
+
+  return NULL;
 }
 
-const RenderQueue::OperationList& RenderQueue::getOperations(void) const
+///////////////////////////////////////////////////////////////////////
+
+RenderQueue::Group::Group(Light* initLight):
+  light(initLight)
 {
-  return operations;
 }
 
-void RenderQueue::sortOperations(void) const
+RenderOperation& RenderQueue::Group::createOperation(void)
+{
+  sorted = false;
+
+  operations.push_back(RenderOperation());
+  return operations.back();
+}
+
+void RenderQueue::Group::destroyOperations(void)
+{
+  operations.clear();
+}
+
+Light* RenderQueue::Group::getLight(void) const
+{
+  return light;
+}
+
+const RenderQueue::SortedList& RenderQueue::Group::getOperations(void) const
 {
   if (!sorted)
   {
@@ -984,9 +846,14 @@ void RenderQueue::sortOperations(void) const
       sortedOperations.push_back(&operations[i]);
 
     RenderOperationComparator comparator;
-    std::sort(sortedOperations.begin(), sortedOperations.end(), comparator);
+    std::sort(sortedOperations.begin(),
+              sortedOperations.end(),
+	      comparator);
+
     sorted = true;
   }
+
+  return sortedOperations;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1094,7 +961,7 @@ void Renderer::end(void) const
 
 void Renderer::drawPoint(const Vector2& point)
 {
-  pass.apply();
+  drawPass.apply();
 
   glBegin(GL_POINTS);
   glVertex2fv(point);
@@ -1103,7 +970,7 @@ void Renderer::drawPoint(const Vector2& point)
 
 void Renderer::drawLine(const Segment2& segment)
 {
-  pass.apply();
+  drawPass.apply();
 
   glBegin(GL_LINES);
   glVertex2fv(segment.start);
@@ -1116,7 +983,7 @@ void Renderer::drawBezier(const BezierCurve2& spline)
   BezierCurve2::PointList points;
   spline.tessellate(points);
   
-  pass.apply();
+  drawPass.apply();
 
   glBegin(GL_LINE_STRIP);
   for (unsigned int i = 0;  i < points.size();  i++)
@@ -1132,8 +999,8 @@ void Renderer::drawRectangle(const Rectangle& rectangle)
   if (maxX - minX < 1.f || maxY - minY < 1.f)
     return;
 
-  pass.setPolygonMode(GL_LINE);
-  pass.apply();
+  drawPass.setPolygonMode(GL_LINE);
+  drawPass.apply();
 
   glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
 }
@@ -1146,8 +1013,8 @@ void Renderer::fillRectangle(const Rectangle& rectangle)
   if (maxX - minX < 1.f || maxY - minY < 1.f)
     return;
 
-  pass.setPolygonMode(GL_FILL);
-  pass.apply();
+  drawPass.setPolygonMode(GL_FILL);
+  drawPass.apply();
 
   glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
 }
@@ -1238,12 +1105,22 @@ bool Renderer::allocateVertices(VertexBufferRange& range,
 
 const ColorRGBA& Renderer::getColor(void) const
 {
-  return pass.getDefaultColor();
+  return drawPass.getDefaultColor();
 }
 
 void Renderer::setColor(const ColorRGBA& newColor)
 {
-  pass.setDefaultColor(newColor);
+  drawPass.setDefaultColor(newColor);
+}
+
+float Renderer::getLineWidth(void) const
+{
+  return drawPass.getLineWidth();
+}
+
+void Renderer::setLineWidth(float newWidth)
+{
+  drawPass.setLineWidth(newWidth);
 }
 
 const RenderStyle& Renderer::getDefaultStyle(void) const
@@ -1279,6 +1156,11 @@ bool Renderer::init(void)
     Log::writeError("Cannot create renderer without OpenGL context");
     return false;
   }
+
+  drawPass.setCullMode(CULL_NONE);
+  drawPass.setDepthTesting(false);
+  drawPass.setDepthWriting(false);
+  drawPass.setDefaultColor(ColorRGBA::BLACK);
 
   try
   {

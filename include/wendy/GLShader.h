@@ -65,11 +65,13 @@ public:
   /*! @return The type of this GLSL shader.
    */
   Type getType(void) const;
+  const String& getText(void) const;
 protected:
   Shader(Type type);
   bool init(const String& text);
   GLhandleARB shaderID;
   Type type;
+  String text;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -246,12 +248,26 @@ private:
  *
  *  This class represents a single GLSL program, i.e. a collection of shaders
  *  and associated uniforms.
+ *
+ *  @note A program that uses built-in lighting calls (or is assumed to call)
+ *  function provided through engine-generated shaders.  Therefore, such
+ *  programs are not linked upon loading, but rather upon first use.  In other
+ *  words, link errors in an engine-lit program will not be reported until you
+ *  attempt to render something with it.
  */
 class ShaderProgram : public Resource<ShaderProgram>
 {
 public:
+  /*! Destructor.
+   */
   ~ShaderProgram(void);
+  /*! Adds a shader to this program.
+   *  @note This will flag this program as modified, i.e. in need of re-linking.
+   */
   void addShader(Shader& shader);
+  /*! Removes a shader from this program.
+   *  @note This will flag this program as modified, i.e. in need of re-linking.
+   */
   void removeShader(Shader& shader);
   /*! Links all shaders added to this program.
    *  @return @c true if the link was successful, otherwise @c false.
@@ -268,6 +284,13 @@ public:
   /*! @return @c true if this program needs to be relinked, otherwise @c false.
    */
   bool isModified(void) const;
+  /*! @return @c true if this program uses the built-in lighting functionality,
+   *  otherwise @c false.
+   */
+  bool isUsingLighting(void) const;
+  /*! Sets whether this program uses the built-in lighting functionality.
+   */
+  void setUsesLighting(bool newState);
   /*! @return The number of shaders added to this program.
    */
   unsigned int getShaderCount(void) const;
@@ -298,6 +321,33 @@ public:
    *  @return The desired uniform, or @c NULL if no such uniform exists.
    */
   const ShaderUniform* getUniform(const String& name) const;
+  /*! @return The currently set built-in vertex lighting shader, or @c NULL if
+   *  no such shader is set.
+   *
+   *  @note This will most often only be used by the renderer.
+   */
+  VertexShader* getVertexLightingShader(void);
+  /*! Sets the built-in vertex lighting shader.
+   *  @param[in] newShader The shader to use, or @c NULL to not use a built-in
+   *  vertex lighting shader.
+   *
+   *  @note This will most often only be used by the renderer.
+   */
+  void setVertexLightingShader(VertexShader* newShader);
+  /*! @return The currently set built-in fragment lighting shader, or @c NULL
+   *  if no such shader is set.
+   *
+   *  @note This will most often only be used by the renderer.
+   */
+  FragmentShader* getFragmentLightingShader(void);
+  /*! Sets the built-in fragment lighting shader.
+   *  @param[in] newShader The shader to use, or @c NULL to not use a built-in
+   *  fragment lighting shader.
+   *
+   *  @note This will most often only be used by the renderer.
+   */
+  void setFragmentLightingShader(FragmentShader* newShader);
+  SignalProxy1<void, ShaderProgram&> getLinkedSignal(void);
   /*! Creates a GLSL program with the specified name.
    *  @param name The desired name of the program, or the empty string to
    *  automatically generate a name.
@@ -321,10 +371,14 @@ private:
   typedef std::vector<ShaderUniform*> UniformList;
   typedef std::vector<ShaderAttribute*> AttributeList;
   bool modified;
+  bool lighting;
   ShaderList shaders;
+  VertexShader* vertexLighting;
+  FragmentShader* fragmentLighting;
   UniformList uniforms;
   AttributeList attributes;
   GLhandleARB programID;
+  Signal1<void, ShaderProgram&> linkedSignal;
   static ShaderProgram* current;
 };
 

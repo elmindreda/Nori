@@ -89,12 +89,19 @@ void Camera::end(void) const
   if (current != this)
     throw Exception("No current camera or camera invalidated during rendering");
 
+  Renderer* renderer = Renderer::get();
+  if (!renderer)
+  {
+    Log::writeError("Cannot make camera current without a renderer");
+    return;
+  }
+
   glPushAttrib(GL_TRANSFORM_BIT);
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
   glPopAttrib();
 
-  Renderer::get()->end();
+  renderer->end();
 
   current = NULL;
 }

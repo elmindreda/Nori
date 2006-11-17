@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_UIENTRY_H
-#define WENDY_UIENTRY_H
+#ifndef WENDY_UIPROGRESS_H
+#define WENDY_UIPROGRESS_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -39,31 +39,26 @@ using namespace moira;
 
 /*! @ingroup ui
  */
-class Entry : public Widget
+class Progress : public Widget
 {
 public:
-  Entry(const String& text = "", const String& name = "");
-  const String& getText(void) const;
-  void setText(const String& newText);
-  unsigned int getCaretPosition(void) const;
-  void setCaretPosition(unsigned int newPosition);
-  SignalProxy1<void, Entry&> getChangeTextSignal(void);
-  SignalProxy1<void, Entry&> getCaretMoveSignal(void);
-protected:
-  void render(void) const;
+  Progress(Orientation orientation = HORIZONTAL,
+           const String& name = "");
+  float getMinValue(void) const;
+  float getMaxValue(void) const;
+  void setValueRange(float newMinValue, float newMaxValue);
+  float getValue(void) const;
+  void setValue(float newValue, bool notify = true);
+  Orientation getOrientation(void) const;
+  void setOrientation(Orientation newOrientation);
+  SignalProxy2<void, Progress&, float> getChangeValueSignal(void);
 private:
-  void onButtonClick(Widget& widget,
-                     const Vector2& position,
-		     unsigned int button,
-		     bool clicked);
-  void onKeyPress(Widget& widget, GL::Key key, bool pressed);
-  void onCharInput(Widget& widget, wchar_t character);
-  void setText(const String& newText, bool notify);
-  void setCaretPosition(unsigned int newPosition, bool notify);
-  Signal1<void, Entry&> changeTextSignal;
-  Signal1<void, Entry&> caretMoveSignal;
-  String text;
-  unsigned int caretPosition;
+  void render(void) const;
+  Signal2<void, Progress&, float> changeValueSignal;
+  float minValue;
+  float maxValue;
+  float value;
+  Orientation orientation;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -72,5 +67,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_UIENTRY_H*/
+#endif /*WENDY_UIPROGRESS_H*/
 ///////////////////////////////////////////////////////////////////////

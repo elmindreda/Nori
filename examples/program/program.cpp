@@ -67,15 +67,21 @@ bool Demo::render(void)
       uniform->setValue((float) time);
   }
 
+  meshNode->getLocalTransform().rotation.setAxisRotation(Vector3(0.f, 1.f, 0.f), time);
+
+  scene.setTimeElapsed(time);
+
   GL::ScreenCanvas canvas;
   canvas.begin();
   canvas.clearDepthBuffer();
   canvas.clearColorBuffer();
 
-  meshNode->getLocalTransform().rotation.setAxisRotation(Vector3(0.f, 1.f, 0.f), time);
+  GL::RenderQueue queue(camera);
+  scene.enqueue(queue);
 
-  scene.updateTree();
-  scene.renderTree(camera);
+  camera.begin();
+  queue.renderOperations();
+  camera.end();
 
   canvas.end();
   return true;
