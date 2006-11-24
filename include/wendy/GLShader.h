@@ -62,16 +62,31 @@ public:
   /*! Destructor.
    */
   virtual ~Shader(void);
+  bool createDefaultVariant(void);
+  bool createVariant(const String& name, const String& text);
+  void destroyVariant(const String& name);
+  void destroyVariants(void);
+  bool hasVariant(const String& name) const;
+  bool isUsingLighting(void) const;
+  void setUsesLighting(bool newState);
   /*! @return The type of this GLSL shader.
    */
   Type getType(void) const;
   const String& getText(void) const;
+  const String& getVariantText(const String& name) const;
 protected:
+  struct Variant
+  {
+    String name;
+    String text;
+    GLhandleARB ID;
+  };
   Shader(Type type);
   bool init(const String& text);
-  GLhandleARB shaderID;
+  typedef std::vector<Variant> VariantList;
   Type type;
   String text;
+  VariantList variants;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -288,9 +303,6 @@ public:
    *  otherwise @c false.
    */
   bool isUsingLighting(void) const;
-  /*! Sets whether this program uses the built-in lighting functionality.
-   */
-  void setUsesLighting(bool newState);
   /*! @return The number of shaders added to this program.
    */
   unsigned int getShaderCount(void) const;
@@ -327,26 +339,12 @@ public:
    *  @note This will most often only be used by the renderer.
    */
   VertexShader* getVertexLightingShader(void);
-  /*! Sets the built-in vertex lighting shader.
-   *  @param[in] newShader The shader to use, or @c NULL to not use a built-in
-   *  vertex lighting shader.
-   *
-   *  @note This will most often only be used by the renderer.
-   */
-  void setVertexLightingShader(VertexShader* newShader);
   /*! @return The currently set built-in fragment lighting shader, or @c NULL
    *  if no such shader is set.
    *
    *  @note This will most often only be used by the renderer.
    */
   FragmentShader* getFragmentLightingShader(void);
-  /*! Sets the built-in fragment lighting shader.
-   *  @param[in] newShader The shader to use, or @c NULL to not use a built-in
-   *  fragment lighting shader.
-   *
-   *  @note This will most often only be used by the renderer.
-   */
-  void setFragmentLightingShader(FragmentShader* newShader);
   SignalProxy1<void, ShaderProgram&> getLinkedSignal(void);
   /*! Creates a GLSL program with the specified name.
    *  @param name The desired name of the program, or the empty string to

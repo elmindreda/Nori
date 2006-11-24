@@ -130,8 +130,8 @@ public:
   const ColorRGB& getTextFrameColor(void);
   const ColorRGB& getSelectionColor(void);
   const ColorRGB& getSelectedTextColor(void);
-  GL::Font* getDefaultFont(void);
-  GL::Font* getCurrentFont(void);
+  render::Font* getDefaultFont(void);
+  render::Font* getCurrentFont(void);
   static bool create(void);
 private:
   Renderer(void);
@@ -142,8 +142,8 @@ private:
   ColorRGB textFrameColor;
   ColorRGB selectionColor;
   ColorRGB selectedTextColor;
-  Ptr<GL::Font> defaultFont;
-  GL::Font* currentFont;
+  Ptr<render::Font> defaultFont;
+  render::Font* currentFont;
 };
 
 ///////////////////////////////////////////////////////////////////////

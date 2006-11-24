@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy default renderer
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -30,16 +30,20 @@
 #include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
-#include <wendy/GLCamera.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLLight.h>
+#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
-#include <wendy/GLSprite.h>
-#include <wendy/GLParticle.h>
-#include <wendy/GLMesh.h>
-#include <wendy/GLTerrain.h>
-#include <wendy/GLScene.h>
+
+#include <wendy/RenderCamera.h>
+#include <wendy/RenderStyle.h>
+#include <wendy/RenderQueue.h>
+#include <wendy/RenderSprite.h>
+#include <wendy/RenderParticle.h>
+#include <wendy/RenderMesh.h>
+#include <wendy/RenderTerrain.h>
+#include <wendy/RenderScene.h>
 
 #include <algorithm>
 
@@ -47,7 +51,7 @@
 
 namespace wendy
 {
-  namespace GL
+  namespace render
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -147,7 +151,7 @@ void SceneNode::restart(void)
 {
 } 
 
-void SceneNode::enqueue(RenderQueue& queue) const
+void SceneNode::enqueue(Queue& queue, QueuePhase phase) const
 {
   for (const SceneNode* node = getFirstChild();  node;  node = node->getNextSibling())
   {
@@ -159,7 +163,7 @@ void SceneNode::enqueue(RenderQueue& queue) const
       worldBounds.transformBy(node->getWorldTransform());
 
       if (queue.getCamera().getFrustum().intersects(worldBounds))
-	node->enqueue(queue);
+	node->enqueue(queue, phase);
     }
   }
 }
@@ -208,21 +212,21 @@ Scene::~Scene(void)
 {
   while (!roots.empty())
   {
-    delete roots.front();
-    roots.pop_front();
+    delete roots.back();
+    roots.pop_back();
   }
 }
 
-void Scene::enqueue(RenderQueue& queue) const
+void Scene::enqueue(Queue& queue)
 {
   NodeList nodes;
   query(queue.getCamera().getFrustum(), nodes);
 
   for (NodeList::const_iterator i = nodes.begin();  i != nodes.end();  i++)
-    (*i)->enqueueLights(queue);
+    (*i)->enqueue(queue, COLLECT_LIGHTS);
 
   for (NodeList::const_iterator i = nodes.begin();  i != nodes.end();  i++)
-    (*i)->enqueueGeometry(queue);
+    (*i)->enqueue(queue, COLLECT_GEOMETRY);
 }
 
 void Scene::query(const Sphere& bounds, NodeList& nodes)
@@ -265,7 +269,9 @@ void Scene::addNode(SceneNode& node)
 
 void Scene::removeNode(SceneNode& node)
 {
-  roots.remove(&node);
+  NodeList::iterator i = std::find(roots.begin(), roots.end(), &node);
+  if (i != roots.end())
+    roots.erase(i);
 }
 
 void Scene::removeNodes(void)
@@ -273,7 +279,7 @@ void Scene::removeNodes(void)
   roots.clear();
 }
 
-const NodeList& Scene::getNodes(void) const
+const Scene::NodeList& Scene::getNodes(void) const
 {
   return roots;
 }
@@ -316,18 +322,18 @@ void LightNode::setLightName(const String& newLightName)
   lightName = newLightName;
 }
 
-void LightNode::enqueue(RenderQueue& queue) const
+void LightNode::enqueue(Queue& queue, QueuePhase phase) const
 {
-  SceneNode::enqueue(queue);
+  SceneNode::enqueue(queue, phase);
 
-  if (Light* light = Light::findInstance(lightName))
+  if (GL::Light* light = GL::Light::findInstance(lightName))
   {
     Transform3 transform = getWorldTransform();
     transform.concatenate(queue.getCamera().getInverseTransform());
 
     switch (light->getType())
     {
-      case Light::DIRECTIONAL:
+      case GL::Light::DIRECTIONAL:
       {
         Vector3 direction(0.f, 0.f, 1.f);
         transform.rotateVector(direction);
@@ -335,7 +341,7 @@ void LightNode::enqueue(RenderQueue& queue) const
         break;
       }
 
-      case Light::POINT:
+      case GL::Light::POINT:
       {
         Vector3 position(0.f, 0.f, 0.f);
         transform.transformVector(position);
@@ -369,9 +375,9 @@ void MeshNode::update(Time deltaTime)
     setLocalBounds(mesh->getBounds());
 }
 
-void MeshNode::enqueue(RenderQueue& queue) const
+void MeshNode::enqueue(Queue& queue, QueuePhase phase) const
 {
-  SceneNode::enqueue(queue);
+  SceneNode::enqueue(queue, phase);
 
   Mesh* mesh = Mesh::findInstance(meshName);
   if (mesh)
@@ -416,9 +422,9 @@ void TerrainNode::setTerrainName(const String& newTerrainName)
   terrainName = newTerrainName;
 }
 
-void TerrainNode::enqueue(RenderQueue& queue) const
+void TerrainNode::enqueue(Queue& queue, QueuePhase phase) const
 {
-  SceneNode::enqueue(queue);
+  SceneNode::enqueue(queue, phase);
 
   Terrain* terrain = Terrain::findInstance(terrainName);
   if (terrain)
@@ -447,9 +453,9 @@ void SpriteNode::setSpriteSize(const Vector2& newSize)
   spriteSize = newSize;
 }
 
-void SpriteNode::enqueue(RenderQueue& queue) const
+void SpriteNode::enqueue(Queue& queue, QueuePhase phase) const
 {
-  SceneNode::enqueue(queue);
+  SceneNode::enqueue(queue, phase);
 
   Sprite3 sprite;
   sprite.size = spriteSize;
@@ -484,9 +490,9 @@ void ParticleSystemNode::update(Time deltaTime)
   setLocalBounds(system->getBounds());
 }
 
-void ParticleSystemNode::enqueue(RenderQueue& queue) const
+void ParticleSystemNode::enqueue(Queue& queue, QueuePhase phase) const
 {
-  SceneNode::enqueue(queue);
+  SceneNode::enqueue(queue, phase);
 
   ParticleSystem* system = ParticleSystem::findInstance(systemName);
   if (!system)
@@ -500,7 +506,7 @@ void ParticleSystemNode::enqueue(RenderQueue& queue) const
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

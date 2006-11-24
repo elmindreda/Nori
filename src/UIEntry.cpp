@@ -33,8 +33,10 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
-#include <wendy/GLFont.h>
+
+#include <wendy/RenderFont.h>
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
@@ -58,7 +60,7 @@ Entry::Entry(const String& initText, const String& name):
   text(initText),
   caretPosition(0)
 {
-  GL::Font* font = Renderer::get()->getCurrentFont();
+  render::Font* font = Renderer::get()->getCurrentFont();
 
   setSize(Vector2(font->getWidth() * 10.f,
                   font->getHeight() * 1.5f));
@@ -107,7 +109,7 @@ void Entry::render(void) const
   {
     renderer->drawTextFrame(area, getState());
 
-    GL::Font* font = renderer->getCurrentFont();
+    render::Font* font = renderer->getCurrentFont();
 
     Rectangle textArea = area;
     textArea.position.x += font->getWidth() / 2.f;
@@ -121,10 +123,10 @@ void Entry::render(void) const
 
       if (caretPosition > 0)
       {
-	GL::Font::LayoutList layouts;
+	render::Font::LayoutList layouts;
 	font->getTextLayout(layouts, text.substr(0, caretPosition));
 
-	const GL::Font::Layout& glyph = layouts[caretPosition - 1];
+	const render::Font::Layout& glyph = layouts[caretPosition - 1];
 	position = glyph.penOffset.x + glyph.area.size.x;
       }
 

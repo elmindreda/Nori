@@ -33,8 +33,10 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
-#include <wendy/GLFont.h>
+
+#include <wendy/RenderFont.h>
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
@@ -85,7 +87,7 @@ void Item::render(const Rectangle& area, bool selected)
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
   {
-    GL::Font* font = renderer->getCurrentFont();
+    render::Font* font = renderer->getCurrentFont();
 
     Rectangle textArea = area;
     textArea.position.x += font->getWidth() / 2.f;
@@ -93,7 +95,7 @@ void Item::render(const Rectangle& area, bool selected)
 
     if (selected)
     {
-      GL::RenderPass pass;
+      GL::Pass pass;
       pass.setDefaultColor(ColorRGBA(renderer->getSelectionColor(), 1.f));
       pass.setDepthTesting(false);
       pass.setDepthWriting(false);

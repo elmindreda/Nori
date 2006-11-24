@@ -30,6 +30,7 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
 
 #include <wendy/RenderFont.h>

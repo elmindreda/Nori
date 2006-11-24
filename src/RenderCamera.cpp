@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy default renderer
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -31,14 +31,16 @@
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLCanvas.h>
+#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
-#include <wendy/GLCamera.h>
+
+#include <wendy/RenderCamera.h>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace GL
+  namespace render
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -47,7 +49,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Camera::Camera(const std::string& name):
+Camera::Camera(const String& name):
   Managed<Camera>(name),
   FOV(90.f),
   aspectRatio(0.f),
@@ -63,7 +65,7 @@ void Camera::begin(void) const
   if (current)
     throw Exception("Cannot nest cameras");
 
-  Renderer* renderer = Renderer::get();
+  GL::Renderer* renderer = GL::Renderer::get();
   if (!renderer)
   {
     Log::writeError("Cannot make camera current without a renderer");
@@ -89,7 +91,7 @@ void Camera::end(void) const
   if (current != this)
     throw Exception("No current camera or camera invalidated during rendering");
 
-  Renderer* renderer = Renderer::get();
+  GL::Renderer* renderer = GL::Renderer::get();
   if (!renderer)
   {
     Log::writeError("Cannot make camera current without a renderer");
@@ -199,7 +201,7 @@ Camera* Camera::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

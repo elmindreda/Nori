@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy default renderer
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_GLPARTICLE_H
-#define WENDY_GLPARTICLE_H
+#ifndef WENDY_RENDERPARTICLE_H
+#define WENDY_RENDERPARTICLE_H
 ///////////////////////////////////////////////////////////////////////
 
 #include <list>
@@ -33,7 +33,7 @@
 
 namespace wendy
 {
-  namespace GL
+  namespace render
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -184,7 +184,7 @@ public:
   };
   ParticleSystem(const String& name = "");
   ~ParticleSystem(void);
-  void enqueue(RenderQueue& queue, const Transform3& transform) const;
+  void enqueue(Queue& queue, const Transform3& transform) const;
   void addEmitter(ParticleEmitter& emitter);
   void removeEmitter(ParticleEmitter& emitter);
   void addAffector(ParticleAffector& affector);
@@ -222,8 +222,7 @@ protected:
 private:
   ParticleSystem(const ParticleSystem& source);
   ParticleSystem& operator = (const ParticleSystem& source);
-  bool realizeVertices(VertexBufferRange& range,
-                       const Vector3& camera) const;
+  bool realizeVertices(GL::VertexRange& range, const Vector3& camera) const;
   bool updateBounds;
   Time currentTime;
   String styleName;
@@ -283,9 +282,9 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_GLPARTICLE_H*/
+#endif /*WENDY_RENDERPARTICLE_H*/
 ///////////////////////////////////////////////////////////////////////

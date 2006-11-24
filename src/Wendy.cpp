@@ -46,7 +46,8 @@ namespace
 Ptr<GL::VertexShaderCodec> vertexShaderCodec;
 Ptr<GL::FragmentShaderCodec> fragmentShaderCodec;
 Ptr<GL::ShaderProgramCodec> shaderProgramCodec;
-Ptr<GL::RenderStyleCodec> renderStyleCodec;
+
+Ptr<render::StyleCodec> renderStyleCodec;
 
 //Ptr<demo::DemoCodecXML> demoCodecXML;
 
@@ -65,7 +66,7 @@ bool initialize(void)
   vertexShaderCodec = new GL::VertexShaderCodec();
   fragmentShaderCodec = new GL::FragmentShaderCodec();
   shaderProgramCodec = new GL::ShaderProgramCodec();
-  renderStyleCodec = new GL::RenderStyleCodec();
+  renderStyleCodec = new render::StyleCodec();
 
   if (!GL::VertexShader::addSearchPath(Path(".")))
     return false;
@@ -76,7 +77,7 @@ bool initialize(void)
   if (!GL::ShaderProgram::addSearchPath(Path(".")))
     return false;
 
-  if (!GL::RenderStyle::addSearchPath(Path(".")))
+  if (!render::Style::addSearchPath(Path(".")))
     return false;
 
   //demoCodecXML = new demo::DemoCodecXML();

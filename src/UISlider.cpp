@@ -33,8 +33,10 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
-#include <wendy/GLFont.h>
+
+#include <wendy/RenderFont.h>
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
@@ -60,7 +62,7 @@ Slider::Slider(Orientation initOrientation, const String& name):
   value(0.f),
   orientation(initOrientation)
 {
-  GL::Font* font = Renderer::get()->getCurrentFont();
+  render::Font* font = Renderer::get()->getCurrentFont();
 
   if (orientation == HORIZONTAL)
     setSize(Vector2(font->getWidth() * 10.f,
@@ -130,7 +132,7 @@ void Slider::render(void) const
 
     const float position = (value - minValue) / (maxValue - minValue);
 
-    GL::Font* font = Renderer::get()->getCurrentFont();
+    render::Font* font = Renderer::get()->getCurrentFont();
 
     Rectangle handleArea;
 
@@ -166,7 +168,7 @@ void Slider::onButtonClick(Widget& widget,
   {
     Vector2 localPoint = transformToLocal(point);
 
-    GL::Font* font = Renderer::get()->getCurrentFont();
+    render::Font* font = Renderer::get()->getCurrentFont();
 
     float scale;
 

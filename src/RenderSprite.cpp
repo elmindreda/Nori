@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy default renderer
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -30,14 +30,20 @@
 #include <wendy/GLVertex.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLLight.h>
+#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
-#include <wendy/GLSprite.h>
+
+#include <wendy/RenderCamera.h>
+#include <wendy/RenderStyle.h>
+#include <wendy/RenderQueue.h>
+#include <wendy/RenderSprite.h>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace GL
+  namespace render
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -85,7 +91,7 @@ Sprite2::Sprite2(void)
 
 void Sprite2::render(void) const
 {
-  Vertex2ft2fv vertices[4];
+  GL::Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
   glBegin(GL_QUADS);
@@ -94,14 +100,16 @@ void Sprite2::render(void) const
   glEnd();
 }
 
-void Sprite2::render(const RenderStyle& style) const
+void Sprite2::render(const Style& style) const
 {
-  Vertex2ft2fv vertices[4];
+  GL::Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
-  for (unsigned int pass = 0;  pass < style.getPassCount();  pass++)
+  const Technique* technique = style.getActiveTechnique();
+
+  for (unsigned int pass = 0;  pass < technique->getPassCount();  pass++)
   {
-    style.applyPass(pass);
+    technique->applyPass(pass);
 
     glBegin(GL_QUADS);
     for (unsigned int i = 0;  i < 4;  i++)
@@ -110,7 +118,7 @@ void Sprite2::render(const RenderStyle& style) const
   }
 }
 
-void Sprite2::realizeVertices(Vertex2ft2fv* vertices) const
+void Sprite2::realizeVertices(GL::Vertex2ft2fv* vertices) const
 {
   const Vector2 offset(size.x / 2.f, size.y / 2.f);
 
@@ -144,10 +152,9 @@ Sprite3::Sprite3(void)
   setDefaults();
 }
 
-void Sprite3::enqueue(RenderQueue& queue,
-                      const Transform3& transform) const
+void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
 {
-  if (!Renderer::get())
+  if (!GL::Renderer::get())
   {
     Log::writeError("Cannot enqueue sprites without a renderer");
     return;
@@ -159,36 +166,43 @@ void Sprite3::enqueue(RenderQueue& queue,
     return;
   }
 
-  RenderStyle* style = RenderStyle::findInstance(styleName);
+  Style* style = Style::findInstance(styleName);
   if (!style)
   {
     Log::writeError("Render style %s not found", styleName.c_str());
     return;
   }
 
-  VertexBufferRange range;
-  if (!Renderer::get()->allocateVertices(range, 4, Vertex2ft3fv::format))
+  const Technique* technique = style->getActiveTechnique();
+  if (!technique)
+  {
+    Log::writeError("Render style %s has no active technique", styleName.c_str());
+    return;
+  }
+
+  GL::VertexRange range;
+  if (!GL::Renderer::get()->allocateVertices(range, 4, GL::Vertex2ft3fv::format))
     return;
 
-  Vertex2ft3fv* vertices = (Vertex2ft3fv*) range.lock();
+  GL::Vertex2ft3fv* vertices = (GL::Vertex2ft3fv*) range.lock();
   if (!vertices)
     return;
 
   realizeVertices(vertices);
   range.unlock();
 
-  RenderOperation& operation = queue.createOperation();
+  Operation& operation = queue.createOperation();
   operation.vertexBuffer = range.getVertexBuffer();
   operation.start = range.getStart();
   operation.count = range.getCount();
   operation.renderMode = GL_QUADS;
   operation.transform = transform;
-  operation.style = style;
+  operation.technique = technique;
 }
 
 void Sprite3::render(void) const
 {
-  Vertex2ft3fv vertices[4];
+  GL::Vertex2ft3fv vertices[4];
   realizeVertices(vertices);
 
   if (styleName.empty())
@@ -200,16 +214,23 @@ void Sprite3::render(void) const
   }
   else
   {
-    RenderStyle* style = RenderStyle::findInstance(styleName);
+    Style* style = Style::findInstance(styleName);
     if (!style)
     {
       Log::writeError("Render style %s not found", styleName.c_str());
       return;
     }
 
-    for (unsigned int pass = 0;  pass < style->getPassCount();  pass++)
+    const Technique* technique = style->getActiveTechnique();
+    if (!technique)
     {
-      style->applyPass(pass);
+      Log::writeError("Render style %s has no active technique", styleName.c_str());
+      return;
+    }
+
+    for (unsigned int pass = 0;  pass < technique->getPassCount();  pass++)
+    {
+      technique->applyPass(pass);
 
       glBegin(GL_QUADS);
       for (unsigned int i = 0;  i < 4;  i++)
@@ -219,7 +240,7 @@ void Sprite3::render(void) const
   }
 }
 
-void Sprite3::realizeVertices(Vertex2ft3fv* vertices) const
+void Sprite3::realizeVertices(GL::Vertex2ft3fv* vertices) const
 {
   const Vector2 offset(size.x / 2.f, size.y / 2.f);
 
@@ -249,7 +270,7 @@ void Sprite3::setDefaults(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

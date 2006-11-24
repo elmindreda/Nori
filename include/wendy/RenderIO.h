@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy default renderer
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,18 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_GLRENDERIO_H
-#define WENDY_GLRENDERIO_H
-///////////////////////////////////////////////////////////////////////
-
-#include <list>
-#include <vector>
-
+#ifndef WENDY_RENDERIO_H
+#define WENDY_RENDERIO_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace GL
+  namespace render
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -45,28 +40,29 @@ using namespace moira;
 /*! @brief Codec for XML format render styles.
  *  @ingroup io
  */
-class RenderStyleCodec : ResourceCodec<RenderStyle>, public XML::Codec
+class StyleCodec : ResourceCodec<Style>, public XML::Codec
 {
 public:
-  RenderStyleCodec(void);
-  RenderStyle* read(const Path& path, const String& name = "");
-  RenderStyle* read(Stream& stream, const String& name = "");
-  bool write(const Path& path, const RenderStyle& style);
-  bool write(Stream& stream, const RenderStyle& style);
+  StyleCodec(void);
+  Style* read(const Path& path, const String& name = "");
+  Style* read(Stream& stream, const String& name = "");
+  bool write(const Path& path, const Style& style);
+  bool write(Stream& stream, const Style& style);
 private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
-  Ptr<RenderStyle> style;
-  RenderPass* currentPass;
-  TextureLayer* currentLayer;
+  Ptr<Style> style;
+  Technique* currentTechnique;
+  GL::Pass* currentPass;
+  GL::TextureLayer* currentLayer;
   String styleName;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_GLRENDERIO_H*/
+#endif /*WENDY_RENDERIO_H*/
 ///////////////////////////////////////////////////////////////////////

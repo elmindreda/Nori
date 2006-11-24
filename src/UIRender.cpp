@@ -33,8 +33,10 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
-#include <wendy/GLFont.h>
+
+#include <wendy/RenderFont.h>
 
 #include <wendy/UIRender.h>
 
@@ -148,7 +150,7 @@ void Renderer::drawFrame(const Rectangle& area, WidgetState state)
   if (maxX - minX < 1.f || maxY - minY < 1.f)
     return;
 
-  GL::RenderPass pass;
+  GL::Pass pass;
   pass.setLineWidth(1.f / GL::Canvas::getCurrent()->getPhysicalHeight());
 
   switch (state)
@@ -185,7 +187,7 @@ void Renderer::drawTextFrame(const Rectangle& area, WidgetState state)
   if (maxX - minX < 1.f || maxY - minY < 1.f)
     return;
 
-  GL::RenderPass pass;
+  GL::Pass pass;
   pass.setLineWidth(1.f / GL::Canvas::getCurrent()->getPhysicalHeight());
 
   switch (state)
@@ -252,12 +254,12 @@ const ColorRGB& Renderer::getSelectionColor(void)
   return selectionColor;
 }
 
-GL::Font* Renderer::getCurrentFont(void)
+render::Font* Renderer::getCurrentFont(void)
 {
   return currentFont;
 }
 
-GL::Font* Renderer::getDefaultFont(void)
+render::Font* Renderer::getDefaultFont(void)
 {
   return defaultFont;
 }
@@ -296,7 +298,7 @@ bool Renderer::init(void)
   if (!fontData)
     return false;
 
-  defaultFont = GL::Font::createInstance(*fontData);
+  defaultFont = render::Font::createInstance(*fontData);
   if (!defaultFont)
     return false;
 

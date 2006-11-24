@@ -115,7 +115,7 @@ protected:
    *  @param queue The render queue for collecting operations.
    *  @param phase The current enqueueing phase.
    */
-  virtual void enqueue(RenderQueue& queue, QueuePhase phase) const;
+  virtual void enqueue(Queue& queue, QueuePhase phase) const;
 private:
   bool updateWorldTransform(void) const;
   bool visible;
@@ -146,7 +146,7 @@ public:
   typedef std::vector<SceneNode*> NodeList;
   Scene(const String& name = "");
   ~Scene(void);
-  void enqueue(RenderQueue& queue) const;
+  void enqueue(Queue& queue);
   void query(const Sphere& bounds, NodeList& nodes);
   void query(const Frustum& frustum, NodeList& nodes);
   void addNode(SceneNode& node);
@@ -173,7 +173,7 @@ public:
   const String& getLightName(void) const;
   void setLightName(const String& newLightName);
 protected:
-  void enqueue(RenderQueue& queue) const;
+  void enqueue(Queue& queue, QueuePhase phase) const;
 private:
   String lightName;
 };
@@ -189,7 +189,7 @@ public:
   void setMeshName(const String& newMeshName);
 protected:
   void update(Time deltaTime);
-  void enqueue(RenderQueue& queue) const;
+  void enqueue(Queue& queue, QueuePhase phase) const;
 private:
   String meshName;
 };
@@ -219,7 +219,7 @@ public:
   const String& getTerrainName(void) const;
   void setTerrainName(const String& newTerrainName);
 protected:
-  void enqueue(RenderQueue& queue) const;
+  void enqueue(Queue& queue, QueuePhase phase) const;
 private:
   String terrainName;
 };
@@ -236,7 +236,7 @@ public:
   const Vector2& getSpriteSize(void) const;
   void setSpriteSize(const Vector2& newSize);
 protected:
-  void enqueue(RenderQueue& queue) const;
+  void enqueue(Queue& queue, QueuePhase phase) const;
 private:
   String styleName;
   Vector2 spriteSize;
@@ -253,7 +253,7 @@ public:
   void setSystemName(const String& newSystemName);
 protected:
   void update(Time deltaTime);
-  void enqueue(RenderQueue& queue) const;
+  void enqueue(Queue& queue, QueuePhase phase) const;
 private:
   String styleName;
   String systemName;

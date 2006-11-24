@@ -33,8 +33,10 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
-#include <wendy/GLFont.h>
+
+#include <wendy/RenderFont.h>
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
@@ -57,7 +59,7 @@ Label::Label(const String& initText, const String& name):
   Widget(name),
   text(initText)
 {
-  GL::Font* font = Renderer::get()->getCurrentFont();
+  render::Font* font = Renderer::get()->getCurrentFont();
 
   float textWidth;
 

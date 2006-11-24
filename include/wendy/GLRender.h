@@ -74,7 +74,6 @@ public:
   void setColor(const ColorRGBA& newColor);
   float getLineWidth(void) const;
   void setLineWidth(float newWidth);
-  const RenderStyle& getDefaultStyle(void) const;
   /*! Creates the renderer singleton.
    */
   static bool create(void);
@@ -95,11 +94,9 @@ private:
   static void onContextDestroy(void);
   typedef std::list<IndexBufferSlot> IndexBufferList;
   typedef std::list<VertexBufferSlot> VertexBufferList;
-  Ptr<RenderStyle> defaultStyle;
-  Ptr<Texture> defaultTexture;
   IndexBufferList indexBuffers;
   VertexBufferList vertexBuffers;
-  RenderPass drawPass;
+  GL::Pass drawPass;
 };
 
 ///////////////////////////////////////////////////////////////////////

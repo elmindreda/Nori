@@ -60,8 +60,7 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 Light::Light(const String& name):
-  Managed<Light>(name),
-  enabled(false)
+  Managed<Light>(name)
 {
   static bool initialized = false;
 
@@ -76,7 +75,6 @@ Light::Light(const String& name):
 
 Light::~Light(void)
 {
-  disable();
 }
 
 bool Light::operator < (const Light& other) const
@@ -84,40 +82,12 @@ bool Light::operator < (const Light& other) const
   return type < other.type;
 }
 
-bool Light::isEnabled(void) const
+bool Light::isBounded(void) const
 {
-  return enabled;
-}
+  if (type == DIRECTIONAL)
+    return false;
 
-void Light::enable(void)
-{
-  if (enabled)
-    return;
-
-  current.push_back(this);
-  enabled = true;
-}
-
-void Light::disable(void)
-{
-  if (!enabled)
-    return;
-
-  LightList::iterator i = std::find(current.begin(), current.end(), this);
-  if (i != current.end())
-    current.erase(i);
-
-  enabled = false;
-}
-
-bool Light::isCastingShadows(void) const
-{
-  return shadows;
-}
-
-void Light::setShadowCasting(bool newState)
-{
-  shadows = newState;
+  return radius < std::numeric_limits<float>::infinity();
 }
 
 Light::Type Light::getType(void) const
@@ -130,14 +100,14 @@ void Light::setType(Type type)
   type = type;
 }
 
-const ColorRGB& Light::getAmbientIntensity(void) const
+const ColorRGB& Light::getAmbience(void) const
 {
-  return ambient;
+  return ambience;
 }
 
-void Light::setAmbientIntensity(const ColorRGB& newIntensity)
+void Light::setAmbience(const ColorRGB& newAmbience)
 {
-  ambient = newIntensity;
+  ambience = newAmbience;
 }
 
 const ColorRGB& Light::getIntensity(void) const
@@ -170,34 +140,14 @@ void Light::setDirection(const Vector3& newDirection)
   direction = newDirection;
 }
 
-float Light::getConstantAttenuation(void) const
+float Light::getRadius(void) const
 {
-  return constant;
+  return radius;
 }
 
-void Light::setConstantAttenuation(float newValue)
+void Light::setRadius(float newRadius)
 {
-  constant = newValue;
-}
-
-float Light::getLinearAttenuation(void) const
-{
-  return linear;
-}
-
-void Light::setLinearAttenuation(float newValue)
-{
-  linear = newValue;
-}
-
-float Light::getQuadraticAttenuation(void) const
-{
-  return quadratic;
-}
-
-void Light::setQuadraticAttenuation(float newValue)
-{
-  quadratic = newValue;
+  radius = newRadius;
 }
 
 float Light::getCutoffAngle(void) const
@@ -214,135 +164,42 @@ void Light::setCutoffAngle(float newAngle)
   cutoff = newAngle;
 }
 
+const Sphere& Light::getBounds(void) const
+{
+  const float infinity = std::numeric_limits<float>::infinity();
+
+  if (type == DIRECTIONAL || radius == infinity)
+    bounds.set(Vector3(0.f, 0.f, 0.f), infinity);
+  else
+    bounds.set(position, radius);
+
+  return bounds;
+}
+
+char Light::getTypeCharacter(void) const
+{
+  switch (type)
+  {
+    case DIRECTIONAL:
+      return 'D';
+    case POINT:
+      return 'P';
+    case SPOT:
+      return 'S';
+    default:
+      throw Exception("Invalid light type");
+  }
+}
+
 void Light::setDefaults(void)
 {
-  shadows = false;
   type = DIRECTIONAL;
-  ambient.set(0.f, 0.f, 0.f);
+  ambience.set(0.f, 0.f, 0.f);
   intensity.set(1.f, 1.f, 1.f);
   position.set(0.f, 0.f, 0.f);
   direction.set(0.f, 0.f, 1.f);
-  constant = 1.f;
-  linear = 0.f;
-  quadratic = 0.f;
+  radius = 0.f;
   cutoff = M_PI;
-}
-
-void Light::applyFixedState(void)
-{
-  if (current.size() > getSlotCount())
-    Log::writeWarning("Current OpenGL context has too few light slots to apply all currently enabled lights");
-
-  // NOTE: It's up to the renderer to decide which lights to enable.  If it
-  //       hasn't done its job then we don't care here.
-
-  const unsigned int count = std::min((unsigned int) current.size(), getSlotCount());
-
-  for (unsigned int i = 0;  i < count;  i++)
-  {
-    const Light& light = *current[i];
-
-    // NOTE: Since these values will most often only be written once per frame,
-    //       (unless we're doing stencil shadowing, and then most of the time
-    //       will be spent redrawing anyway), and since at least some of them
-    //       will likely change fairly often, I'm not taking the time to add
-    //       state caching for them right now.
-
-    glEnable(GL_LIGHT0 + i);
-
-    ColorRGBA intensityGL;
-
-    intensityGL.set(light.ambient, 1.f);
-    glLightfv(GL_LIGHT0 + i, GL_AMBIENT, intensityGL);
-
-    intensityGL.set(light.intensity, 1.f);
-    glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, intensityGL);
-    glLightfv(GL_LIGHT0 + i, GL_SPECULAR, intensityGL);
-
-    Vector4 positionGL;
-
-    if (light.type == DIRECTIONAL)
-      positionGL.set(light.direction, 0.f);
-    else
-      positionGL.set(light.position, 1.f);
-
-    glPushAttrib(GL_TRANSFORM_BIT);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-    glLightfv(GL_LIGHT0 + i, GL_POSITION, positionGL);
-    glPopMatrix();
-    glPopAttrib();
-
-    if (light.type != DIRECTIONAL)
-    {
-      glLightf(GL_LIGHT0 + i, GL_CONSTANT_ATTENUATION, light.constant);
-      glLightf(GL_LIGHT0 + i, GL_LINEAR_ATTENUATION, light.linear);
-      glLightf(GL_LIGHT0 + i, GL_QUADRATIC_ATTENUATION, light.quadratic);
-
-      if (light.type == SPOT)
-      {
-	const float degrees = light.cutoff * 180.f / M_PI;
-	glLightf(GL_LIGHT0 + i, GL_SPOT_CUTOFF, degrees);
-
-	glLightfv(GL_LIGHT0 + i, GL_SPOT_DIRECTION, light.direction);
-      }
-    }
-
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR)
-      Log::writeError("Error when applying light %s: %s",
-                      light.getName().c_str(),
-		      gluErrorString(error));
-  }
-
-  // Disable any unused light slots
-
-  for (unsigned int i = count;  i < slotCount;  i++)
-    glDisable(GL_LIGHT0 + i);
-}
-
-void Light::applyShaderState(void)
-{
-  for (unsigned int i = 0;  i < current.size();  i++)
-  {
-    // TODO: Write uniforms.
-  }
-}
-
-Shader* Light::createShader(ShaderType type)
-{
-  std::sort(current.begin(), current.end(), LightComparator());
-
-  String shaderName = "wendyLightShader:";
-
-  for (unsigned int i = 0;  i < current.size();  i++)
-    shaderName.append(1, current[i]->getTypeCharacter());
-
-  switch (type)
-  {
-    case VERTEX_SHADER:
-    {
-      if (VertexShader* shader = VertexShader::findInstance(shaderName))
-	return shader;
-
-      // TODO: Create shader.
-
-      break;
-    }
-
-    case FRAGMENT_SHADER:
-    {
-      if (FragmentShader* shader = FragmentShader::findInstance(shaderName))
-	return shader;
-
-      // TODO: Create shader.
-
-      break;
-    }
-  }
-
-  return NULL;
 }
 
 unsigned int Light::getSlotCount(void)
@@ -374,30 +231,233 @@ Light& Light::operator = (const Light& source)
 
 void Light::onContextDestroy(void)
 {
-  shaders.clear();
-
   slotCount = 0;
 }
 
-char Light::getTypeCharacter(void)
+unsigned int Light::slotCount = 0;
+
+///////////////////////////////////////////////////////////////////////
+
+LightState::LightState(void)
 {
-  switch (type)
+  static bool initialized = false;
+
+  if (!initialized)
   {
-    case DIRECTIONAL:
-      return 'D';
-    case POINT:
-      return 'P';
-    case SPOT:
-      return 'S';
-    default:
-      throw Exception("Invalid light type");
+    Context::getDestroySignal().connect(onContextDestroy);
+    initialized = true;
   }
 }
 
-Light::LightList Light::current;
-Light::ShaderList Light::shaders;
+void LightState::apply(void) const
+{
+  // NOTE: It's up to the renderer to decide which lights to enable.  If it
+  //       hasn't done its job then we don't care here, except to yell.
 
-unsigned int Light::slotCount = 0;
+  const unsigned int count = std::min((unsigned int) lights.size(), Light::getSlotCount());
+
+  if (count < lights.size())
+    Log::writeWarning("Current OpenGL context has too few light slots to apply all currently enabled lights");
+
+  currentName.clear();
+  currentName.reserve(count);
+
+  currentLights.clear();
+  currentLights.reserve(count);
+
+  for (unsigned int i = 0;  i < count;  i++)
+  {
+    Light& light = *lights[i];
+
+    // NOTE: Since these values will most often only be written once per frame,
+    //       (unless we're doing stencil shadowing, and then most of the time
+    //       will be spent redrawing anyway), and since at least some of them
+    //       will likely change fairly often, I'm not taking the time to add
+    //       state caching for them right now.
+
+    glEnable(GL_LIGHT0 + i);
+
+    ColorRGBA intensityGL;
+
+    intensityGL.set(light.getAmbience(), 1.f);
+    glLightfv(GL_LIGHT0 + i, GL_AMBIENT, intensityGL);
+
+    intensityGL.set(light.getIntensity(), 1.f);
+    glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, intensityGL);
+    glLightfv(GL_LIGHT0 + i, GL_SPECULAR, intensityGL);
+
+    Vector4 positionGL;
+
+    if (light.getType() == Light::DIRECTIONAL)
+      positionGL.set(light.getDirection(), 0.f);
+    else
+      positionGL.set(light.getPosition(), 1.f);
+
+    glPushAttrib(GL_TRANSFORM_BIT);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    glLightfv(GL_LIGHT0 + i, GL_POSITION, positionGL);
+    glPopMatrix();
+    glPopAttrib();
+
+    if (light.getType() != Light::DIRECTIONAL)
+    {
+      glLightf(GL_LIGHT0 + i, GL_CONSTANT_ATTENUATION, 0.f);
+      glLightf(GL_LIGHT0 + i, GL_LINEAR_ATTENUATION, 0.f);
+
+      if (light.isBounded())
+      {
+	const float epsilon = 0.01f;
+	const float radius = light.getRadius();
+	const float quadratic = 1.f / (radius * radius * epsilon);
+
+	glLightf(GL_LIGHT0 + i, GL_QUADRATIC_ATTENUATION, quadratic);
+      }
+      else
+	glLightf(GL_LIGHT0 + i, GL_QUADRATIC_ATTENUATION, 0.f);
+
+      if (light.getType() == Light::SPOT)
+      {
+	const float degrees = light.getCutoffAngle() * 180.f / M_PI;
+	glLightf(GL_LIGHT0 + i, GL_SPOT_CUTOFF, degrees);
+
+	glLightfv(GL_LIGHT0 + i, GL_SPOT_DIRECTION, light.getDirection());
+      }
+    }
+
+    currentName.append(1, light.getTypeCharacter());
+    currentLights.push_back(&light);
+
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR)
+      Log::writeError("Error when applying light %s: %s",
+                      light.getName().c_str(),
+		      gluErrorString(error));
+  }
+
+  // Disable any unused light slots
+  for (unsigned int i = count;  i < Light::getSlotCount();  i++)
+    glDisable(GL_LIGHT0 + i);
+}
+
+void LightState::attachLight(Light& light)
+{
+  LightList::const_iterator i = std::find(lights.begin(), lights.end(), &light);
+  if (i != lights.end())
+    return;
+
+  lights.push_back(&light);
+}
+
+void LightState::detachLight(Light& light)
+{
+  LightList::iterator i = std::find(lights.begin(), lights.end(), &light);
+  if (i != lights.end())
+    lights.erase(i);
+}
+
+void LightState::detachLights(void)
+{
+  lights.clear();
+}
+
+const LightList& LightState::getLights(void) const
+{
+  return lights;
+}
+
+const String& LightState::getVariantName(void)
+{
+  return currentName;
+}
+
+const String& LightState::getVariantSource(void)
+{
+  String& source = variants[currentName];
+  if (!source.empty())
+    return source;
+
+  generateSource(source);
+  return source;
+}
+
+void LightState::generateSource(String& result)
+{
+  std::stringstream source;
+
+  source << "vec3 wendyAmbient(in vec3 position)\n{\n";
+  source << "  vec3 result, light;\n";
+
+  for (unsigned int i = 0;  i < currentLights.size();  i++)
+  {
+    const Light& light = *currentLights[i];
+
+    if (light.isBounded())
+    {
+      source << "  light = gl_LightSource[" << i << "].position.xyz - position;\n";
+      source << "  result += gl_LightSource[" << i << "].ambient / "
+                "(dot(light, light) * gl_LightSource[" << i << "].quadraticAttentuation);\n";
+    }
+    else
+      source << "  result += gl_LightSource[" << i << "].ambient;\n";
+  }
+
+  source << "  return result;\n}\n\n";
+
+  source << "vec3 wendyDiffuse(in vec3 position, in vec3 normal)\n{\n";
+  source << "  vec3 result, light;\n";
+
+  for (unsigned int i = 0;  i < currentLights.size();  i++)
+  {
+    const Light& light = *currentLights[i];
+
+    switch (light.getType())
+    {
+      case Light::DIRECTIONAL:
+      {
+	source << "  result += gl_LightSource[" << i << "].diffuse * "
+	          "max(dot(gl_LightSource[" << i << "].position.xyz, normal), 0.0);\n";
+	break;
+      }
+
+      case Light::POINT:
+      {
+	source << "  light = gl_LightSource[" << i << "].position.xyz - position;\n";
+
+	if (light.isBounded())
+	  source << "  result += gl_LightSource[" << i << "].diffuse * "
+		    "max(dot(normalize(light), normal), 0.0) / "
+		    "(dot(light, light) * gl_LightSource[" << i << "].quadraticAttentuation);\n";
+	else
+	  source << "  result += gl_LightSource[" << i << "].diffuse * "
+		    "max(dot(normalize(light), normal), 0.0);\n";
+	break;
+      }
+
+      case Light::SPOT:
+      {
+	// TODO: The code.
+	break;
+      }
+    }
+  }
+
+  source << "  return result;\n}\n\n";
+
+  result = source.str();
+}
+
+void LightState::onContextDestroy(void)
+{
+  currentLights.clear();
+}
+
+String LightState::currentName;
+
+LightList LightState::currentLights;
+
+LightState::VariantMap LightState::variants;
 
 ///////////////////////////////////////////////////////////////////////
 

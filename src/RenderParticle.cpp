@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy default renderer
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -27,18 +27,23 @@
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
-#include <wendy/GLCamera.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLLight.h>
+#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
-#include <wendy/GLParticle.h>
+
+#include <wendy/RenderCamera.h>
+#include <wendy/RenderStyle.h>
+#include <wendy/RenderQueue.h>
+#include <wendy/RenderParticle.h>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace GL
+  namespace render
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -139,28 +144,35 @@ ParticleSystem::~ParticleSystem(void)
   } 
 }
 
-void ParticleSystem::enqueue(RenderQueue& queue, const Transform3& transform) const
+void ParticleSystem::enqueue(Queue& queue, const Transform3& transform) const
 {
   if (!activeParticles.size())
     return;
 
-  VertexBufferRange range;
+  GL::VertexRange range;
 
   if (!realizeVertices(range, queue.getCamera().getTransform().position))
     return;
 
-  RenderStyle* style = RenderStyle::findInstance(styleName);
+  Style* style = Style::findInstance(styleName);
   if (!style)
   {
     Log::writeError("Render style %s not found", styleName.c_str());
     return;
   }
 
-  RenderOperation& operation = queue.createOperation();
+  Technique* technique = style->getActiveTechnique();
+  if (!technique)
+  {
+    Log::writeError("Render style %s has no active technique", style->getName().c_str());
+    return;
+  }
+
+  Operation& operation = queue.createOperation();
   operation.vertexBuffer = range.getVertexBuffer();
   operation.start = range.getStart();
   operation.count = range.getCount();
-  operation.style = style;
+  operation.technique = technique;
   operation.renderMode = GL_QUADS;
 }
 
@@ -386,10 +398,10 @@ ParticleSystem& ParticleSystem::operator = (const ParticleSystem& source)
   return *this;
 }
 
-bool ParticleSystem::realizeVertices(VertexBufferRange& range,
+bool ParticleSystem::realizeVertices(GL::VertexRange& range,
 		                     const Vector3& camera) const
 {
-  Renderer* renderer = Renderer::get();
+  GL::Renderer* renderer = GL::Renderer::get();
   if (!renderer)
   {
     Log::writeError("Cannot render particles without a renderer");
@@ -398,10 +410,10 @@ bool ParticleSystem::realizeVertices(VertexBufferRange& range,
 
   if (!renderer->allocateVertices(range,
                                   activeParticles.size() * 4, 
-				  Vertex4fc2ft3fv::format))
+				  GL::Vertex4fc2ft3fv::format))
     return false;
 
-  Vertex4fc2ft3fv* vertices = (Vertex4fc2ft3fv*) range.lock();
+  GL::Vertex4fc2ft3fv* vertices = (GL::Vertex4fc2ft3fv*) range.lock();
   if (!vertices)
     return false;
 
@@ -592,7 +604,7 @@ void PlanarGravityParticleAffector::setGravity(const Vector3& newGravity)
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

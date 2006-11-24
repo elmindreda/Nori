@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy default renderer
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -30,15 +30,21 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLLight.h>
+#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
-#include <wendy/GLMesh.h>
-#include <wendy/GLTerrain.h>
+
+#include <wendy/RenderCamera.h>
+#include <wendy/RenderStyle.h>
+#include <wendy/RenderQueue.h>
+#include <wendy/RenderMesh.h>
+#include <wendy/RenderTerrain.h>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace GL
+  namespace render
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -47,7 +53,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-void Terrain::enqueue(RenderQueue& queue, const Transform3& transform) const
+void Terrain::enqueue(Queue& queue, const Transform3& transform) const
 {
   mesh->enqueue(queue, transform);
 }
@@ -123,15 +129,17 @@ bool Terrain::init(const Image& heightmap,
     return false;
   }
 
-  texture = Texture::createInstance(colormap, 0);
+  texture = GL::Texture::createInstance(colormap, 0);
   if (!texture)
     return false;
 
   // Create render style
   {
-    RenderPass& pass = style.createPass();
+    Technique& technique = style.createTechnique();
 
-    TextureLayer& layer = pass.createTextureLayer();
+    GL::Pass& pass = technique.createPass();
+
+    GL::TextureLayer& layer = pass.createTextureLayer();
     layer.setCombineMode(GL_REPLACE);
     layer.setTextureName(texture->getName());
   }
@@ -228,7 +236,7 @@ Vector3 Terrain::worldToGrid(const Vector3& world) const
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

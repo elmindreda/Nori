@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy default renderer
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,13 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_GLSPRITE_H
-#define WENDY_GLSPRITE_H
+#ifndef WENDY_RENDERSPRITE_H
+#define WENDY_RENDERSPRITE_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace GL
+  namespace render
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -48,8 +48,8 @@ class Sprite2
 public:
   Sprite2(void);
   void render(void) const;
-  void render(const RenderStyle& style) const;
-  void realizeVertices(Vertex2ft2fv* vertices) const;
+  void render(const Style& style) const;
+  void realizeVertices(GL::Vertex2ft2fv* vertices) const;
   void setDefaults(void);
   Vector2 position;
   Vector2 size;
@@ -64,10 +64,9 @@ class Sprite3 : public Renderable
 {
 public:
   Sprite3(void);
-  void enqueue(RenderQueue& queue,
-               const Transform3& transform) const;
+  void enqueue(Queue& queue, const Transform3& transform) const;
   void render(void) const;
-  void realizeVertices(Vertex2ft3fv* vertices) const;
+  void realizeVertices(GL::Vertex2ft3fv* vertices) const;
   void setDefaults(void);
   Vector3 position;
   Vector2 size;
@@ -77,9 +76,9 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_GLSPRITE_H*/
+#endif /*WENDY_RENDERSPRITE_H*/
 ///////////////////////////////////////////////////////////////////////

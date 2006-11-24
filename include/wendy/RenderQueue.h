@@ -53,29 +53,6 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Abstract renderable object.
- *  @ingroup renderer
- *
- *  This is the interface for non-scene renderables. It provides a simple
- *  mechanism for retrieving render operations either in local or world space.
- */
-class Renderable
-{
-public:
-  /*! Destructor.
-   */
-  virtual ~Renderable(void);
-  /*! Queries the renderable for render operations.
-   *  @param[in,out] queue The render queue where the operations are to
-   *  be created.
-   *  @param[in] transform The local-to-world transform.
-   */
-  virtual void enqueue(RenderQueue& queue,
-                       const Transform3& transform) const = 0;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Render operation in the 3D pipeline.
  *  @ingroup renderer
  *
@@ -89,6 +66,7 @@ public:
  */
 class Operation
 {
+  friend class Group;
 public:
   /*! Constructor.
    */
@@ -104,9 +82,9 @@ public:
    *  if no index buffer is to be used.
    */
   const GL::IndexBuffer* indexBuffer;
-  /*! The render style to use.
+  /*! The render technique to use.
    */
-  const Style* style;
+  const Technique* technique;
   /*! If an index buffer is set, this is the first element of the range of
    *  indices to be used for rendering.  Otherwise, it is the first vertex in
    *  the vertex buffer to be used for rendering.
@@ -129,6 +107,8 @@ public:
   /*! The geometry rendering mode to use.
    */
   GLenum renderMode;
+private:
+  mutable bool blending;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -174,7 +154,7 @@ public:
   void attachLight(GL::Light& light);
   void detachLights(void);
   Operation& createOperation(void);
-  Operation& createLightOperation(Light& light);
+  Operation& createLightOperation(GL::Light& light);
   void destroyOperations(void);
   const Camera& getCamera(void) const;
   unsigned int getLightCount(void) const;
@@ -183,12 +163,35 @@ public:
   Group& getLightGroup(unsigned int index);
   const Group& getLightGroup(unsigned int index) const;
 private:
-  Group* findGroup(Light& light);
-  const Group* findGroup(Light& light) const;
+  Group* findGroup(GL::Light& light);
+  const Group* findGroup(GL::Light& light) const;
   typedef std::list<Group> GroupList;
   GroupList lightGroups;
   Group defaultGroup;
   const Camera& camera;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Abstract renderable object.
+ *  @ingroup renderer
+ *
+ *  This is the interface for enqueueable, non-scene renderables. It provides a
+ *  simple mechanism for retrieving render operations either in local or world
+ *  space.
+ */
+class Renderable
+{
+public:
+  /*! Destructor.
+   */
+  virtual ~Renderable(void);
+  /*! Queries the renderable for render operations.
+   *  @param[in,out] queue The render queue where the operations are to
+   *  be created.
+   *  @param[in] transform The local-to-world transform.
+   */
+  virtual void enqueue(Queue& queue, const Transform3& transform) const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////

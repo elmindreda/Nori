@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy default renderer
 // Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -30,14 +30,20 @@
 #include <wendy/GLVertex.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLLight.h>
+#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
-#include <wendy/GLMesh.h>
+
+#include <wendy/RenderCamera.h>
+#include <wendy/RenderStyle.h>
+#include <wendy/RenderQueue.h>
+#include <wendy/RenderMesh.h>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace GL
+  namespace render
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -46,25 +52,32 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-void Mesh::enqueue(RenderQueue& queue, const Transform3& transform) const
+void Mesh::enqueue(Queue& queue, const Transform3& transform) const
 {
   for (GeometryList::const_iterator i = geometries.begin();  i != geometries.end();  i++)
   {
-    RenderStyle* style = RenderStyle::findInstance((*i).styleName);
+    Style* style = Style::findInstance((*i).styleName);
     if (!style)
     {
       Log::writeError("Render style %s not found", (*i).styleName.c_str());
       return;
     }
 
-    RenderOperation& operation = queue.createOperation();
+    const Technique* technique = style->getActiveTechnique();
+    if (!technique)
+    {
+      Log::writeError("Render style %s has no active technique", (*i).styleName.c_str());
+      return;
+    }
+
+    Operation& operation = queue.createOperation();
     operation.vertexBuffer = vertexBuffer;
     operation.indexBuffer = (*i).range.getIndexBuffer();
     operation.renderMode = (*i).renderMode;
     operation.transform = transform;
     operation.start = (*i).range.getStart();
     operation.count = (*i).range.getCount();
-    operation.style = style;
+    operation.technique = technique;
   }
 }
 
@@ -106,18 +119,18 @@ bool Mesh::init(const moira::Mesh& mesh)
 
   for (unsigned int i = 0;  i < mesh.geometries.size();  i++)
   {
-    if (!RenderStyle::readInstance(mesh.geometries[i].shaderName))
+    if (!Style::readInstance(mesh.geometries[i].shaderName))
       return false;
 
     indexCount += (unsigned int) mesh.geometries[i].triangles.size() * 3;
   }
 
-  VertexFormat format;
+  GL::VertexFormat format;
 
   if (!format.createComponents("3fv3fn2ft"))
     return false;
 
-  vertexBuffer = VertexBuffer::createInstance((unsigned int) mesh.vertices.size(),
+  vertexBuffer = GL::VertexBuffer::createInstance((unsigned int) mesh.vertices.size(),
 					      format);
   if (!vertexBuffer)
     return false;
@@ -131,7 +144,7 @@ bool Mesh::init(const moira::Mesh& mesh)
 
   vertexBuffer->unlock();
 
-  indexBuffer = IndexBuffer::createInstance(indexCount, IndexBuffer::UINT);
+  indexBuffer = GL::IndexBuffer::createInstance(indexCount, GL::IndexBuffer::UINT);
   if (!indexBuffer)
     return false;
 
@@ -146,7 +159,7 @@ bool Mesh::init(const moira::Mesh& mesh)
 
     geometry.styleName = (*i).shaderName;
     geometry.renderMode = GL_TRIANGLES;
-    geometry.range = IndexBufferRange(*indexBuffer, indexBase, indexCount);
+    geometry.range = GL::IndexRange(*indexBuffer, indexBase, indexCount);
 
     unsigned int* indices = (unsigned int*) geometry.range.lock();
     if (!indices)
@@ -249,7 +262,7 @@ void ShadowMesh::update(const Vector3 origin)
   vertexBuffer->unlock();
 }
 
-void ShadowMesh::enqueue(RenderQueue& queue, const Transform3& transform) const
+void ShadowMesh::enqueue(Queue& queue, const Transform3& transform) const
 {
   if (!vertexCount)
   {
@@ -257,10 +270,17 @@ void ShadowMesh::enqueue(RenderQueue& queue, const Transform3& transform) const
     return;
   }
 
-  RenderOperation& operation = queue.createOperation();
+  const Technique* technique = style->getActiveTechnique();
+  if (!technique)
+  {
+    Log::writeError("Render style %s has no active technique", style->getName().c_str());
+    return;
+  }
+
+  Operation& operation = queue.createOperation();
   operation.vertexBuffer = vertexBuffer;
   operation.renderMode = GL_TRIANGLES;
-  operation.style = style;
+  operation.technique = technique;
   operation.count = vertexCount;
   operation.transform = transform;
 }
@@ -338,17 +358,17 @@ bool ShadowMesh::init(const moira::Mesh& mesh)
 
   // Create hardware objects
   {
-    VertexFormat format;
+    GL::VertexFormat format;
     if (!format.createComponents("3fv"))
       return false;
 
-    vertexBuffer = VertexBuffer::createInstance(mesh.vertices.size() * 2,
-						format,
-						VertexBuffer::DYNAMIC);
+    vertexBuffer = GL::VertexBuffer::createInstance(mesh.vertices.size() * 2,
+						    format,
+						    GL::VertexBuffer::DYNAMIC);
     if (!vertexBuffer)
       return false;
 
-    style = new RenderStyle();
+    style = new Style();
 
     /*
     RenderPass& back = style->createPass();
@@ -424,7 +444,7 @@ bool ShadowMesh::init(const moira::Mesh& mesh)
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

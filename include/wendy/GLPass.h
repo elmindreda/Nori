@@ -229,65 +229,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Sortable render pass stack object.
- *  @ingroup opengl
- *
- *  This is the highest-level render style object, encapsulating multiple
- *  render passes, each of which controls virtually all relevant state for a
- *  single render pass.
- *
- *  Most of the time, this is the class you want to use to manage your render
- *  states.
- */
-class PassStack
-{
-public:
-  /*! Creates a new render pass in this render style.
-   *  @param[in] name The name of the render pass, if it is a pass intended for
-   *  a custom render stage, or the empty string to place it in the default
-   *  pass group.
-   *  @return The newly created render pass.
-   *  @remarks The passes are rendered in creation order.
-   *  @remarks Non-empty render pass names must be unique.
-   *  @remarks Named render passes will be ignored by the default render stage.
-   */
-  Pass& createPass(const String& name = "");
-  void destroyPass(unsigned int index);
-  /*! Destroys all render passes in this render style.
-   */
-  void destroyPasses(void);
-  /*! Applies the render pass with the specified index.
-   *  @param index The index of the desired render pass.
-   */
-  void applyPass(unsigned int index) const;
-  Pass* findPass(const String& name);
-  /*! Comparison operator to enable sorting.
-   *  @param other The object to compare to.
-   */
-  bool operator < (const PassStack& other) const;
-  bool isCompatible(void) const;
-  /*! @return @c true if this render style uses framebuffer blending, otherwise
-   *  @c false.
-   */
-  bool isBlending(void) const;
-  /*! @param index The index of the desired render pass.
-   *  @return The render pass at the specified index.
-   */
-  Pass& getPass(unsigned int index);
-  /*! @param index The index of the desired render pass.
-   *  @return The render pass at the specified index.
-   */
-  const Pass& getPass(unsigned int index) const;
-  /*! @return The number of render passes in this render style.
-   */
-  unsigned int getPassCount(void) const;
-private:
-  typedef std::list<Pass> List;
-  List passes;
-};
-
-///////////////////////////////////////////////////////////////////////
-
   } /*namespace GL*/
 } /*namespace wendy*/
 

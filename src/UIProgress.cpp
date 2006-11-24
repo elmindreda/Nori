@@ -33,8 +33,10 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
-#include <wendy/GLFont.h>
+
+#include <wendy/RenderFont.h>
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
@@ -60,7 +62,7 @@ Progress::Progress(Orientation initOrientation, const String& name):
   value(0.f),
   orientation(initOrientation)
 {
-  GL::Font* font = Renderer::get()->getCurrentFont();
+  render::Font* font = Renderer::get()->getCurrentFont();
 
   if (orientation == HORIZONTAL)
     setSize(Vector2(font->getWidth() * 10.f,

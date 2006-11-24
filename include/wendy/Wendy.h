@@ -98,19 +98,20 @@
 #include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
 
-#include <wendy/RenderQueue.h>
-#include <wendy/RenderStyle.h>
-#include <wendy/RenderStage.h>
+#include <wendy/GLShaderIO.h>
+
 #include <wendy/RenderCamera.h>
+#include <wendy/RenderStyle.h>
+#include <wendy/RenderQueue.h>
+#include <wendy/RenderStage.h>
+#include <wendy/RenderSprite.h>
 #include <wendy/RenderFont.h>
 #include <wendy/RenderParticle.h>
 #include <wendy/RenderMesh.h>
 #include <wendy/RenderTerrain.h>
-#include <wendy/RenderSprite.h>
 #include <wendy/RenderScene.h>
 
-#include <wendy/GLShaderIO.h>
-#include <wendy/GLRenderIO.h>
+#include <wendy/RenderIO.h>
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>

@@ -13,7 +13,7 @@ public:
   bool init(void);
 private:
   bool render(void);
-  Ptr<GL::Font> font;
+  Ptr<render::Font> font;
 };
 
 bool Demo::init(void)
@@ -35,7 +35,7 @@ bool Demo::init(void)
   if (!defaultFont)
     return false;
 
-  font = GL::Font::createInstance(*defaultFont);
+  font = render::Font::createInstance(*defaultFont);
   if (!font)
     return false;
 
@@ -72,7 +72,7 @@ bool Demo::render(void)
 
   Rectangle area = font->getTextMetrics(text);
 
-  GL::RenderPass pass;
+  GL::Pass pass;
   pass.setPolygonMode(GL_LINE);
   pass.setDefaultColor(ColorRGBA::WHITE);
   pass.apply();

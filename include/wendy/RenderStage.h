@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy default renderer
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -48,7 +48,6 @@ public:
   virtual ~Stage(void);
   virtual void prepare(const Queue& queue);
   virtual void render(const Queue& queue);
-  virtual void composite(const Queue& queue);
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -59,7 +58,7 @@ public:
   ~StageStack(void);
   void addStage(Stage& stage);
   void removeStage(Stage& stage);
-  void removeStages(void);
+  void destroyStages(void);
   void render(const Queue& queue);
 private:
   typedef std::vector<Stage*> StageList;
@@ -71,12 +70,34 @@ private:
 namespace stdlib
 {
 
-class DefaultStage;
-class GlowStage;
-class StencilShadowStage;
-class MotionBlurStage;
+///////////////////////////////////////////////////////////////////////
 
-}
+class DefaultStage : public Stage
+{
+public:
+  void render(const Queue& queue);
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class GlowStage : public Stage
+{
+public:
+  void prepare(const Queue& queue);
+  void render(const Queue& queue);
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class StencilShadowStage : public Stage
+{
+public:
+  void render(const Queue& queue);
+};
+
+///////////////////////////////////////////////////////////////////////
+
+} /*namespace stdlib*/
 
 ///////////////////////////////////////////////////////////////////////
 

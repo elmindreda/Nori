@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy default renderer
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,13 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_GLTERRAIN_H
-#define WENDY_GLTERRAIN_H
+#ifndef WENDY_RENDERTERRAIN_H
+#define WENDY_RENDERTERRAIN_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace GL
+  namespace render
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ using namespace moira;
 class Terrain : public Managed<Terrain>
 {
 public:
-  void enqueue(RenderQueue& queue, const Transform3& transform) const;
+  void enqueue(Queue& queue, const Transform3& transform) const;
   void calculateShadows(const Vector3& sun);
   /*! @param[in] position The position to query.
    *  @return The height of the terrain at the specified position.
@@ -67,12 +67,12 @@ private:
   typedef std::vector<Tile> TileList;
   unsigned int width;
   unsigned int depth;
-  RenderStyle style;
   Vector3 size;
   Vector2 offset;
-  Ptr<Mesh> mesh;
-  Ptr<Texture> texture;
   TileList tiles;
+  Ptr<Mesh> mesh;
+  Ptr<GL::Texture> texture;
+  Style style;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -87,9 +87,9 @@ struct Terrain::Tile
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_GLTERRAIN_H*/
+#endif /*WENDY_RENDERTERRAIN_H*/
 ///////////////////////////////////////////////////////////////////////
