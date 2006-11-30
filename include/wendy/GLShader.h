@@ -41,92 +41,6 @@ class ShaderProgram;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Base class for OpenGL Shading Language shader objects.
- *  @ingroup opengl
- */
-class Shader : public RefObject<Shader>
-{
-  friend class ShaderProgram;
-public:
-  /*! Shader type enumeration.
-   */
-  enum Type
-  {
-    /*! Vertex shader.
-     */
-    VERTEX,
-    /*! Fragment shader.
-     */
-    FRAGMENT,
-  };
-  /*! Destructor.
-   */
-  virtual ~Shader(void);
-  bool createDefaultVariant(void);
-  bool createVariant(const String& name, const String& text);
-  void destroyVariant(const String& name);
-  void destroyVariants(void);
-  bool hasVariant(const String& name) const;
-  bool isUsingLighting(void) const;
-  void setUsesLighting(bool newState);
-  /*! @return The type of this GLSL shader.
-   */
-  Type getType(void) const;
-  const String& getText(void) const;
-  const String& getVariantText(const String& name) const;
-protected:
-  struct Variant
-  {
-    String name;
-    String text;
-    GLhandleARB ID;
-  };
-  Shader(Type type);
-  bool init(const String& text);
-  typedef std::vector<Variant> VariantList;
-  Type type;
-  String text;
-  VariantList variants;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-typedef Ref<Shader> ShaderRef;
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief OpenGL Shading Language vertex shader object.
- *  @ingroup opengl
- */
-class VertexShader : public Shader, public Resource<VertexShader>
-{
-public:
-  static VertexShader* createInstance(const Path& path,
-                                      const String& name = "");
-  static VertexShader* createInstance(const String& text,
-                                      const String& name = "");
-private:
-  VertexShader(const String& name);
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief OpenGL Shading Language fragment shader object.
- *  @ingroup opengl
- */
-class FragmentShader : public Shader, public Resource<FragmentShader>
-{
-public:
-  static FragmentShader* createInstance(const Path& path,
-                                        const String& name = "");
-  static FragmentShader* createInstance(const String& text,
-                                        const String& name = "");
-private:
-  FragmentShader(const String& name);
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief GLSL program vertex attribute.
  *  @ingroup opengl
  *
@@ -258,126 +172,72 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GLSL program.
- *  @ingroup opengl
- *
- *  This class represents a single GLSL program, i.e. a collection of shaders
- *  and associated uniforms.
- *
- *  @note A program that uses built-in lighting calls (or is assumed to call)
- *  function provided through engine-generated shaders.  Therefore, such
- *  programs are not linked upon loading, but rather upon first use.  In other
- *  words, link errors in an engine-lit program will not be reported until you
- *  attempt to render something with it.
- */
 class ShaderProgram : public Resource<ShaderProgram>
 {
 public:
-  /*! Destructor.
-   */
   ~ShaderProgram(void);
-  /*! Adds a shader to this program.
-   *  @note This will flag this program as modified, i.e. in need of re-linking.
-   */
-  void addShader(Shader& shader);
-  /*! Removes a shader from this program.
-   *  @note This will flag this program as modified, i.e. in need of re-linking.
-   */
-  void removeShader(Shader& shader);
-  /*! Links all shaders added to this program.
-   *  @return @c true if the link was successful, otherwise @c false.
-   */
-  bool link(void);
-  /*! Makes this the current GLSL program.
-   *  @return @c true if successful, otherwise @c false.
-   */
   bool apply(void) const;
-  /*! @return @c true if this program is successfully validated, otherwise @c
-   *  false.
-   */
-  bool isValid(void) const;
-  /*! @return @c true if this program needs to be relinked, otherwise @c false.
-   */
-  bool isModified(void) const;
-  /*! @return @c true if this program uses the built-in lighting functionality,
-   *  otherwise @c false.
-   */
   bool isUsingLighting(void) const;
-  /*! @return The number of shaders added to this program.
-   */
-  unsigned int getShaderCount(void) const;
-  /*! @param index The index of the desired shader.
-   *  @return The shader at the specified index.
-   */
-  Shader& getShader(unsigned int index);
-  /*! @param index The index of the desired shader.
-   *  @return The shader at the specified index.
-   */
-  const Shader& getShader(unsigned int index) const;
-  /*! @return The number of active uniforms in this program.
-   */
   unsigned int getUniformCount(void) const;
-  /*! @param index The index of the desired uniform.
-   *  @return The uniform at the specified index.
-   */
   ShaderUniform& getUniform(unsigned int index);
-  /*! @param index The index of the desired uniform.
-   *  @return The uniform at the specified index.
-   */
   const ShaderUniform& getUniform(unsigned int index) const;
-  /*! @param name The name of the desired uniform.
-   *  @return The desired uniform, or @c NULL if no such uniform exists.
-   */
   ShaderUniform* getUniform(const String& name);
-  /*! @param name The name of the desired uniform.
-   *  @return The desired uniform, or @c NULL if no such uniform exists.
-   */
   const ShaderUniform* getUniform(const String& name) const;
-  /*! @return The currently set built-in vertex lighting shader, or @c NULL if
-   *  no such shader is set.
-   *
-   *  @note This will most often only be used by the renderer.
-   */
-  VertexShader* getVertexLightingShader(void);
-  /*! @return The currently set built-in fragment lighting shader, or @c NULL
-   *  if no such shader is set.
-   *
-   *  @note This will most often only be used by the renderer.
-   */
-  FragmentShader* getFragmentLightingShader(void);
+  unsigned int getAttributeCount(void) const;
+  ShaderAttribute& getAttribute(unsigned int index);
+  const ShaderAttribute& getAttribute(unsigned int index) const;
+  ShaderAttribute* getAttribute(const String& name);
+  const ShaderAttribute* getAttribute(const String& name) const;
+  const String& getVertexText(void) const;
+  const String& getFragmentText(void) const;
   SignalProxy1<void, ShaderProgram&> getLinkedSignal(void);
-  /*! Creates a GLSL program with the specified name.
-   *  @param name The desired name of the program, or the empty string to
-   *  automatically generate a name.
-   */
-  static ShaderProgram* createInstance(const String& name = "");
-  /*! Disables any current GLSL program.
-   */
+  static ShaderProgram* createInstance(const String& vertexText,
+                                       const String& fragmentText,
+				       bool lighting,
+				       const String& name = "");
   static void applyFixedFunction(void);
-  /*! @return The current GLSL program, or @c NULL
-   *  if no program is currently in use.
-   */
   static ShaderProgram* getCurrent(void);
 private:
   ShaderProgram(const String& name);
-  bool init(void);
-  bool createUniforms(void);
-  bool createAttributes(void);
-  void destroyUniforms(void);
-  void destroyAttributes(void);
-  typedef std::vector<ShaderRef> ShaderList;
-  typedef std::vector<ShaderUniform*> UniformList;
-  typedef std::vector<ShaderAttribute*> AttributeList;
-  bool modified;
-  bool lighting;
-  ShaderList shaders;
-  VertexShader* vertexLighting;
-  FragmentShader* fragmentLighting;
-  UniformList uniforms;
-  AttributeList attributes;
-  GLhandleARB programID;
+  bool init(const String& vertexText,
+            const String& fragmentText,
+	    bool lighting);
+  Variant* createVariant(const String& name);
+  Variant* findVarant(const String& name);
+  const Variant* findVarant(const String& name) const;
+  typedef std::vector<Variant*> VariantList;
+  String baseVertexText;
+  String baseFragmentText;
+  VariantList variants;
+  Variant* active;
   Signal1<void, ShaderProgram&> linkedSignal;
   static ShaderProgram* current;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class ShaderProgram::Variant
+{
+public:
+  Variant(const String& name);
+  ~Variant(void);    
+  bool init(const String& vertexText,
+	    const String& fragmentText);
+  void apply(void) const;
+  static void applyFixedFunction(void);
+  typedef std::vector<ShaderUniform*> UniformList;
+  typedef std::vector<ShaderAttribute*> AttributeList;
+  UniformList uniforms;
+  AttributeList attributes;
+private:
+  GLhandleARB createShader(GLenum type, const String& text);
+  bool createUniforms(void);
+  bool createAttributes(void);
+  GLhandleARB programID;
+  GLhandleARB vertexID;
+  GLhandleARB fragmentID;
+  String name;
+  static Variant* current;
 };
 
 ///////////////////////////////////////////////////////////////////////

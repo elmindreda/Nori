@@ -45,134 +45,6 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-namespace
-{
-
-Mapper<Shader::Type, GLenum> shaderTypeMap;
-
-}
-
-///////////////////////////////////////////////////////////////////////
-
-Shader::~Shader(void)
-{
-  if (shaderID)
-    glDeleteObjectARB(shaderID);
-}
-
-Shader::Type Shader::getType(void) const
-{
-  return type;
-}
-
-const String& Shader::getText(void) const
-{
-  return text;
-}
-
-Shader::Shader(Type initType):
-  shaderID(0),
-  type(initType)
-{
-}
-
-bool Shader::init(const String& initText)
-{
-  if (!Context::get())
-  {
-    Log::writeError("Cannot create GLSL shader without OpenGL context");
-    return false;
-  }
-
-  if (shaderTypeMap.isEmpty())
-  {
-    shaderTypeMap[Shader::VERTEX] = GL_VERTEX_SHADER_ARB;
-    shaderTypeMap[Shader::FRAGMENT] = GL_FRAGMENT_SHADER_ARB;
-  }
-
-  if (!GLEW_ARB_shader_objects ||
-      (type == VERTEX && !GLEW_ARB_vertex_shader) ||
-      (type == FRAGMENT && !GLEW_ARB_fragment_shader))
-  {
-    Log::writeError("GLSL shaders are not supported by the current OpenGL context");
-    return false;
-  }
-
-  shaderID = glCreateShaderObjectARB(shaderTypeMap[type]);
-  if (!shaderID)
-  {
-    Log::writeError("Failed to create GLSL shader object");
-    return false;
-  }
-
-  text = initText;
-
-  const char* string = text.c_str();
-
-  glShaderSourceARB(shaderID, 1, &string, NULL);
-  glCompileShaderARB(shaderID);
-
-  int status;
-
-  glGetObjectParameterivARB(shaderID, GL_OBJECT_COMPILE_STATUS_ARB, &status);
-
-  if (!status)
-  {
-    GLint length;
-    glGetObjectParameterivARB(shaderID,
-                              GL_OBJECT_INFO_LOG_LENGTH_ARB,
-			      &length);
-
-    Block message(length + 1);
-
-    glGetInfoLogARB(shaderID, message.getSize(), &length, (GLcharARB*) message.getData());
-    message[length] = '\0';
-
-    Log::writeError("Failed to compile GLSL shader: %s", message.getData());
-    return false;
-  }
-
-  return true;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-VertexShader* VertexShader::createInstance(const String& text,
-				           const String& name)
-{
-  Ptr<VertexShader> shader = new VertexShader(name);
-  if (!shader->init(text))
-    return false;
-
-  return shader.detachObject();
-}
-
-VertexShader::VertexShader(const String& name):
-  Resource<VertexShader>(name),
-  Shader(VERTEX)
-{
-}
-
-///////////////////////////////////////////////////////////////////////
-
-FragmentShader* FragmentShader::createInstance(const String& text,
-				               const String& name)
-{
-  Ptr<FragmentShader> shader = new FragmentShader(name);
-  if (!shader->init(text))
-    return false;
-
-  return shader.detachObject();
-}
-
-FragmentShader::FragmentShader(const String& name):
-  Resource<FragmentShader>(name),
-  Shader(FRAGMENT)
-{
-}
-
-///////////////////////////////////////////////////////////////////////
-
 bool ShaderAttribute::isArray(void) const
 {
   return count > 1;
@@ -381,92 +253,46 @@ ShaderUniform& ShaderUniform::operator = (const ShaderUniform& source)
 
 ShaderProgram::~ShaderProgram(void)
 {
-  destroyUniforms();
-  destroyAttributes();
-
-  while (!shaders.empty())
+  while (!variants.empty())
   {
-    removeShader(*shaders.back());
-    shaders.pop_back();
+    delete variants.back();
+    variants.pop_back();
   }
-
-  if (current == this)
-    applyFixedFunction();
-
-  if (programID)
-    glDeleteObjectARB(programID);
 }
 
-void ShaderProgram::addShader(Shader& shader)
+bool ShaderProgram::createVariant(const String& name,
+		                  const String& variantVertexText,
+		                  const String& variantFragmentText)
 {
-  if (std::find(shaders.begin(), shaders.end(), &shader) != shaders.end())
-    return;
-
-  glAttachObjectARB(programID, shader.shaderID);
-  shaders.push_back(&shader);
-  modified = true;
 }
 
-void ShaderProgram::removeShader(Shader& shader)
+void ShaderProgram::destroyVariant(const String& name)
 {
-  ShaderList::iterator i = std::find(shaders.begin(), shaders.end(), &shader);
-  if (i == shaders.end())
-    return;
-
-  if (vertexLighting == &shader)
-    vertexLighting = NULL;
-
-  if (fragmentLighting == &shader)
-    fragmentLighting = NULL;
-
-  glDetachObjectARB(programID, shader.shaderID);
-  shaders.erase(i);
-  modified = true;
 }
 
-bool ShaderProgram::link(void)
+void ShaderProgram::destroyVariants(void)
 {
-  destroyUniforms();
-  destroyAttributes();
+}
 
-  glLinkProgramARB(programID);
+bool ShaderProgram::isUsingLighting(void) const
+{
+}
 
-  GLint status;
-  glGetObjectParameterivARB(programID,
-                            GL_OBJECT_LINK_STATUS_ARB,
-			    &status);
+bool ShaderProgram::hasVariant(const String& name) const
+{
+}
 
-  if (!status)
-  {
-    GLint length;
-    glGetObjectParameterivARB(programID,
-                              GL_OBJECT_INFO_LOG_LENGTH_ARB,
-			      &length);
+const String& ShaderProgram::getActiveVariant(void) const
+{
+}
 
-    Block message(length + 1);
-
-    glGetInfoLogARB(programID, message.getSize(), &length, (GLcharARB*) message.getData());
-    message[length] = '\0';
-
-    Log::writeError("Failed to link GLSL program %s: %s", getName().c_str(), message.getData());
+bool ShaderProgram::setActiveVariant(const String& name)
+{
+  Variant* variant = findVarant(name);
+  if (!variant)
     return false;
-  }
-  
-  if (!shaders.empty())
-  {
-    if (!apply())
-      return false;
 
-    if (!createUniforms())
-      return false;
-
-    if (!createAttributes())
-      return false;
-  }
-
-  modified = false;
-
-  linkedSignal.emit(*this);
+  active = variant;
   return true;
 }
 
@@ -488,68 +314,9 @@ bool ShaderProgram::apply(void) const
   return true;
 }
 
-bool ShaderProgram::isValid(void) const
-{
-  glValidateProgramARB(programID);
-
-  GLint status;
-  glGetObjectParameterivARB(programID,
-                            GL_OBJECT_VALIDATE_STATUS_ARB,
-			    &status);
-
-  if (!status)
-  {
-    GLint length;
-    glGetObjectParameterivARB(programID,
-                              GL_OBJECT_INFO_LOG_LENGTH_ARB,
-			      &length);
-
-    Block message(length + 1);
-
-    glGetInfoLogARB(programID, message.getSize(), &length, (GLcharARB*) message.getData());
-    message[length] = '\0';
-
-    Log::writeError("Validation of GLSL program %s failed: %s", getName().c_str(), message.getData());
-    return false;
-  }
-
-  return true;
-}
-
-bool ShaderProgram::isModified(void) const
-{
-  return modified;
-}
-
 bool ShaderProgram::isUsingLighting(void) const
 {
   return lighting;
-}
-
-void ShaderProgram::setUsesLighting(bool newState)
-{
-  if (!newState)
-  {
-    setVertexLightingShader(NULL);
-    setFragmentLightingShader(NULL);
-  }
-
-  lighting = newState;
-}
-
-unsigned int ShaderProgram::getShaderCount(void) const
-{
-  return shaders.size();
-}
-
-Shader& ShaderProgram::getShader(unsigned int index)
-{
-  return *shaders[index];
-}
-
-const Shader& ShaderProgram::getShader(unsigned int index) const
-{
-  return *shaders[index];
 }
 
 unsigned int ShaderProgram::getUniformCount(void) const
@@ -589,38 +356,13 @@ const ShaderUniform* ShaderProgram::getUniform(const String& name) const
   return NULL;
 }
 
-VertexShader* ShaderProgram::getVertexLightingShader(void)
-{
-  return vertexLighting;
-}
-
-void ShaderProgram::setVertexLightingShader(VertexShader* newShader)
-{
-  if (vertexLighting)
-    removeShader(*vertexLighting);
-
-  vertexLighting = newShader;
-  addShader(*vertexLighting);
-}
-
-FragmentShader* ShaderProgram::getFragmentLightingShader(void)
-{
-  return fragmentLighting;
-}
-
-void ShaderProgram::setFragmentLightingShader(FragmentShader* newShader)
-{
-  if (fragmentLighting)
-    removeShader(*fragmentLighting);
-
-  fragmentLighting = newShader;
-  addShader(*fragmentLighting);
-}
-
-ShaderProgram* ShaderProgram::createInstance(const String& name)
+ShaderProgram* ShaderProgram::createInstance(const String& vertexText,
+                                             const String& fragmentText,
+				             bool lighting,
+					     const String& name)
 {
   Ptr<ShaderProgram> program = new ShaderProgram(name);
-  if (!program->init())
+  if (!program->init(vertexText, fragmentText, lighting))
     return NULL;
 
   return program.detachObject();
@@ -628,8 +370,7 @@ ShaderProgram* ShaderProgram::createInstance(const String& name)
 
 void ShaderProgram::applyFixedFunction(void)
 {
-  glUseProgramObjectARB(0);
-  current = NULL;
+  Variant::applyFixedFunction();
 }
 
 ShaderProgram* ShaderProgram::getCurrent(void)
@@ -639,15 +380,13 @@ ShaderProgram* ShaderProgram::getCurrent(void)
 
 ShaderProgram::ShaderProgram(const String& name):
   Resource<ShaderProgram>(name),
-  programID(0),
-  modified(false),
-  lighting(false),
-  vertexLighting(NULL),
-  fragmentLighting(NULL)
+  lighting(false)
 {
 }
 
-bool ShaderProgram::init(void)
+bool ShaderProgram::init(const String& vertexText,
+                         const String& fragmentText,
+	                 bool initLighting)
 {
   if (!Context::get())
   {
@@ -655,12 +394,148 @@ bool ShaderProgram::init(void)
     return false;
   }
 
-  if (!GLEW_ARB_shader_objects)
+  if (!GLEW_ARB_shading_language_100)
   {
     Log::writeError("GLSL programs are not supported by the current OpenGL context");
     return false;
   }
 
+  baseVertexText = vertexText;
+  baseFragmentText = fragmentText;
+  lighting = initLighting;
+
+  active = createVariant("");
+  if (!active)
+    return false;
+
+  return true;
+}
+
+Variant* ShaderProgram::createVariant(const String& name)
+{
+  String vertexText;
+
+  if (lighting)
+  {
+    vertexText.append(LightState::getVariantText(name));
+    vertexText.append("\n\n");
+  }
+
+  vertexText.append(baseVertexText);
+
+  String fragmentText;
+
+  if (lighting)
+  {
+    fragmentText.append(LightState::getVariantText(name));
+    fragmentText.append("\n\n");
+  }
+
+  fragmentText.append(baseFragmentText);
+
+  Ptr<Variant> variant = new Variant(name);
+  if (!variant->init(vertexText, fragmentText))
+    return false;
+
+  variants.push_back(variant.detachObject());
+  return true;
+}
+
+Variant* ShaderProgram::findVarant(const String& name)
+{
+  for (unsigned int i = 0;  i < variants.size();  i++)
+  {
+    if (variants[i]->name == name)
+      return variants[i];
+  }
+
+  return NULL;
+}
+
+const Variant* ShaderProgram::findVarant(const String& name) const
+{
+  for (unsigned int i = 0;  i < variants.size();  i++)
+  {
+    if (variants[i]->name == name)
+      return variants[i];
+  }
+
+  return NULL;
+}
+
+ShaderProgram* ShaderProgram::current = NULL;
+
+///////////////////////////////////////////////////////////////////////
+
+ShaderProgram::Variant::Variant(const String& name):
+  programID(0),
+  vertexID(0),
+  fragmentID(0)
+{
+}
+
+ShaderProgram::Variant::~Variant(void)
+{
+  while (!uniforms.empty())
+  {
+    delete uniforms.back();
+    uniforms.pop_back();
+  }
+
+  while (!attributes.empty())
+  {
+    delete attributes.back();
+    attributes.pop_back();
+  }
+
+  if (current == this)
+    applyFixedFunction();
+
+  if (vertexID)
+    glDeleteObjectARB(vertexID);
+
+  if (fragmentID)
+    glDeleteObjectARB(fragmentID);
+
+  if (programID)
+    glDeleteObjectARB(programID);
+}
+
+bool ShaderProgram::Variant::isValid(void) const
+{
+  glValidateProgramARB(programID);
+
+  GLint status;
+  glGetObjectParameterivARB(programID, GL_OBJECT_VALIDATE_STATUS_ARB, &status);
+
+  GLint length;
+  glGetObjectParameterivARB(programID, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length);
+
+  if (length)
+  {
+    Block message(length + 1);
+
+    glGetInfoLogARB(programID, message.getSize(), &length, (GLcharARB*) message.getData());
+    message[length] = '\0';
+
+    if (status)
+      Log::writeWarning("Warnings during validation of variant %s of GLSL program %s: %s",
+			name.c_str(),
+			program.getName().c_str(),
+			message.getData());
+    else
+      Log::writeError("Validation of variant %s of GLSL program %s failed: %s",
+		      name.c_str(),
+		      program.getName().c_str(),
+		      message.getData());
+  }
+
+  return status ? true : false;
+}
+
+bool ShaderProgram::Variant::init(const String& vertexText,
+	                          const String& fragmentText)
+{
   programID = glCreateProgramObjectARB();
   if (!programID)
   {
@@ -668,10 +543,100 @@ bool ShaderProgram::init(void)
     return false;
   }
 
+  vertexID = createShader(GL_VERTEX_SHADER_ARB, vertexText);
+  if (!vertexID)
+    return false;
+
+  fragmentID = createShader(GL_FRAGMENT_SHADER_ARB, fragmentText);
+  if (!fragmentID)
+    return false;
+
+  glLinkProgramARB(programID);
+
+  GLint status;
+  glGetObjectParameterivARB(programID, GL_OBJECT_LINK_STATUS_ARB, &status);
+
+  GLint length;
+  glGetObjectParameterivARB(programID, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length);
+
+  if (length)
+  {
+    Block message(length + 1);
+
+    glGetInfoLogARB(programID, message.getSize(), &length, (GLcharARB*) message.getData());
+    message[length] = '\0';
+
+    if (status)
+      Log::writeWarning("Warnings when linking variant %s of GLSL program %s: %s",
+                        name.c_str(),
+			program.getName().c_str(),
+			message.getData());
+    else
+      Log::writeError("Failed to link variant %s of GLSL program %s: %s",
+                      name.c_str(),
+		      program.getName().c_str(),
+		      message.getData());
+  }
+
+  if (!status)
+    return false;
+  
+  if (!apply())
+    return false;
+
+  if (!createUniforms())
+    return false;
+
+  if (!createAttributes())
+    return false;
+
   return true;
 }
 
-bool ShaderProgram::createUniforms(void)
+GLhandleARB ShaderProgram::Variant::createShader(GLenum type, const String& text)
+{
+  GLhandleARB shaderID = glCreateShaderObjectARB(type);
+  if (!shaderID)
+  {
+    Log::writeError("Failed to create GLSL shader object");
+    return 0;
+  }
+
+  const char* string = text.c_str();
+
+  glShaderSourceARB(shaderID, 1, &string, NULL);
+  glCompileShaderARB(shaderID);
+
+  int status;
+  glGetObjectParameterivARB(shaderID, GL_OBJECT_COMPILE_STATUS_ARB, &status);
+
+  GLint length;
+  glGetObjectParameterivARB(shaderID, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length);
+
+  if (length > 0)
+  {
+    Block message(length + 1);
+
+    glGetInfoLogARB(shaderID, message.getSize(), &length, (GLcharARB*) message.getData());
+    message[length] = '\0';
+
+    if (status)
+      Log::writeWarning("Warnings when compiling GLSL shader: %s", message.getData());
+    else
+      Log::writeError("Failed to compile GLSL shader: %s", message.getData());
+  }
+
+  if (!status)
+  {
+    glDeleteObjectARB(shaderID);
+    return 0;
+  }
+
+  glAttachObjectARB(programID, shaderID);
+  return shaderID;
+}
+
+bool ShaderProgram::Variant::createUniforms(void)
 {
   GLint uniformCount;
   glGetObjectParameterivARB(programID,
@@ -683,7 +648,7 @@ bool ShaderProgram::createUniforms(void)
                             GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB,
 			    &maxNameLength);
 
-  Block name(maxNameLength);
+  Block uniformName(maxNameLength);
 
   for (unsigned int index = 0;  index < uniformCount;  index++)
   {
@@ -692,28 +657,28 @@ bool ShaderProgram::createUniforms(void)
 
     glGetActiveUniformARB(programID,
                           index,
-			  name.getSize(),
+			  uniformName.getSize(),
 			  &length,
 			  &count,
 			  &type,
-			  (GLcharARB*) name.getData());
+			  (GLcharARB*) uniformName.getData());
 
     GLenum error = glGetError();
     if (error != GL_NO_ERROR)
     {
       Log::writeError("Failed to retrieve uniform %u in GLSL program %s: %s",
-                      index, getName().c_str(), gluErrorString(error));
+                      index, name.c_str(), gluErrorString(error));
       return false;
     }
 
     if (!length)
     {
       Log::writeWarning("No information available for uniform %u in GLSL program %s",
-                        index, getName().c_str());
+                        index, name.c_str());
       continue;
     }
 
-    if (length > 3 && strncmp((const char*) name.getData(), "gl_", 3) == 0)
+    if (length > 3 && strncmp((const char*) uniformName.getData(), "gl_", 3) == 0)
       continue;
 
     std::vector<GLint> locations;
@@ -723,13 +688,13 @@ bool ShaderProgram::createUniforms(void)
       for (unsigned int i = 0;  i < count;  i++)
       {
 	std::stringstream elementName;
-	elementName << name.getData() << '[' << i << ']';
+	elementName << uniformName.getData() << '[' << i << ']';
 
 	GLint location = glGetUniformLocation(programID, elementName.str().c_str());
 	if (location == -1)
 	{
 	  Log::writeError("Failed to retrieve location of uniform %s in GLSL program %s",
-			  elementName.str().c_str(), getName().c_str());
+			  elementName.str().c_str(), name.c_str());
 	  return false;
 	}
 
@@ -738,11 +703,11 @@ bool ShaderProgram::createUniforms(void)
     }
     else
     {
-      GLint location = glGetUniformLocation(programID, (GLcharARB*) name.getData());
+      GLint location = glGetUniformLocation(programID, (GLcharARB*) uniformName.getData());
       if (location == -1)
       {
 	Log::writeError("Failed to retrieve location of uniform %s in GLSL program %s",
-			name.getData(), getName().c_str());
+			uniformName.getData(), name.c_str());
 	return false;
       }
 
@@ -752,7 +717,7 @@ bool ShaderProgram::createUniforms(void)
     ShaderUniform* uniform = new ShaderUniform(*this);
     uniforms.push_back(uniform);
 
-    uniform->name.assign((char*) name.getData(), length);
+    uniform->name.assign((char*) uniformName.getData(), length);
     uniform->type = (ShaderUniform::Type) type;
     uniform->count = count;
     uniform->locations = locations;
@@ -773,7 +738,7 @@ bool ShaderProgram::createAttributes(void)
                             GL_OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB,
 			    &maxNameLength);
 
-  Block name(maxNameLength);
+  Block attributeName(maxNameLength);
 
   for (unsigned int index = 0;  index < attributeCount;  index++)
   {
@@ -782,42 +747,42 @@ bool ShaderProgram::createAttributes(void)
 
     glGetActiveAttribARB(programID,
 			 index,
-			 name.getSize(),
+			 attributeName.getSize(),
 			 &length,
 			 &count,
 			 &type,
-			 (GLcharARB*) name.getData());
+			 (GLcharARB*) attributeName.getData());
 
     GLenum error = glGetError();
     if (error != GL_NO_ERROR)
     {
       Log::writeError("Failed to retrieve attribute %u in GLSL program %s: %s",
-                      index, getName().c_str(), gluErrorString(error));
+                      index, name.c_str(), gluErrorString(error));
       return false;
     }
 
     if (!length)
     {
       Log::writeWarning("No information available for attribute %u in GLSL program %s",
-                        index, getName().c_str());
+                        index, name.c_str());
       continue;
     }
 
-    if (length > 3 && strncmp((const char*) name.getData(), "gl_", 3) == 0)
+    if (length > 3 && strncmp((const char*) attributeName.getData(), "gl_", 3) == 0)
       continue;
 
-    GLint location = glGetAttribLocation(programID, (GLcharARB*) name.getData());
+    GLint location = glGetAttribLocation(programID, (GLcharARB*) attributeName.getData());
     if (location == -1)
     {
       Log::writeError("Failed to retrieve location of attribute %s in GLSL program %s",
-		      name.getData(), getName().c_str());
+		      attributeName.getData(), name.c_str());
       return false;
     }
 
     ShaderAttribute* attribute = new ShaderAttribute(*this);
     attributes.push_back(attribute);
 
-    attribute->name.assign((char*) name.getData(), length);
+    attribute->name.assign((char*) attributeName.getData(), length);
     attribute->type = (ShaderAttribute::Type) type;
     attribute->count = count;
     attribute->index = location;
@@ -825,26 +790,6 @@ bool ShaderProgram::createAttributes(void)
 
   return true;
 }
-
-void ShaderProgram::destroyUniforms(void)
-{
-  while (!uniforms.empty())
-  {
-    delete uniforms.back();
-    uniforms.pop_back();
-  }
-}
-
-void ShaderProgram::destroyAttributes(void)
-{
-  while (!attributes.empty())
-  {
-    delete attributes.back();
-    attributes.pop_back();
-  }
-}
-
-ShaderProgram* ShaderProgram::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 

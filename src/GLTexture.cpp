@@ -89,7 +89,7 @@ ImageFormat::Type getConversionFormat(const ImageFormat& format)
   switch (format)
   {
     case ImageFormat::RGBX8888:
-      return ImageFormat::RGB888;
+      return ImageFormat::RGBA8888;
     default:
       return format;
   }

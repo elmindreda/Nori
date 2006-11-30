@@ -113,7 +113,7 @@ public:
   void detachLights(void);
   const LightList& getLights(void) const;
   static const String& getVariantName(void);
-  static const String& getVariantSource(void);
+  static const String& getVariantText(const String& name);
 private:
   static void generateSource(String& result);
   static void onContextDestroy(void);

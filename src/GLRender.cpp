@@ -187,6 +187,8 @@ bool Renderer::allocateIndices(IndexRange& range,
     slot = &(indexBuffers.back());
 
     const unsigned int standardCount = 1024;
+    
+    // TODO: Introduce granularity.
 
     slot->indexBuffer = IndexBuffer::createInstance(std::max(standardCount, count),
                                                     type,
@@ -229,6 +231,8 @@ bool Renderer::allocateVertices(VertexRange& range,
     slot = &(vertexBuffers.back());
 
     const unsigned int standardCount = 1024;
+
+    // TODO: Introduce granularity.
 
     slot->vertexBuffer = VertexBuffer::createInstance(std::max(standardCount, count),
                                                       format,

@@ -125,10 +125,11 @@ typedef std::vector<const Operation*> OperationList;
 class Group
 {
 public:
-  Group(GL::Light* light = NULL);
+  Group(GL::Light* light = NULL, const String& name = "");
   Operation& createOperation(void);
   void destroyOperations(void);
   GL::Light* getLight(void) const;
+  const String& getName(void) const;
   const OperationList& getOperations(void) const;
 private:
   typedef std::list<Operation> List;
@@ -136,6 +137,7 @@ private:
   mutable OperationList sortedOperations;
   mutable bool sorted;
   GL::Light* light;
+  String name;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -153,7 +155,7 @@ public:
   Queue(const Camera& camera);
   void attachLight(GL::Light& light);
   void detachLights(void);
-  Operation& createOperation(void);
+  Operation& createOperation(const String& name = "");
   Operation& createLightOperation(GL::Light& light);
   void destroyOperations(void);
   const Camera& getCamera(void) const;
