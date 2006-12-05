@@ -28,6 +28,7 @@
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
+#include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLShaderIO.h>
 
@@ -71,7 +72,7 @@ VertexShader* VertexShaderCodec::read(Stream& stream, const String& name)
   String text;
   textStream->readText(text, textStream->getSize());
 
-  return VertexShader::createInstance(text, name);
+  return new VertexShader(text, name);
 }
 
 bool VertexShaderCodec::write(const Path& path, const VertexShader& program)
@@ -106,7 +107,7 @@ FragmentShader* FragmentShaderCodec::read(Stream& stream, const String& name)
   String text;
   textStream->readText(text, textStream->getSize());
 
-  return FragmentShader::createInstance(text, name);
+  return new FragmentShader(text, name);
 }
 
 bool FragmentShaderCodec::write(const Path& path, const FragmentShader& program)
@@ -136,8 +137,6 @@ ShaderProgram* ShaderProgramCodec::read(const Path& path, const String& name)
 
 ShaderProgram* ShaderProgramCodec::read(Stream& stream, const String& name)
 {
-  currentShader = NULL;
-
   programName = name;
 
   if (!XML::Codec::read(stream))
@@ -160,29 +159,13 @@ bool ShaderProgramCodec::write(Stream& stream, const ShaderProgram& program)
     beginElement("program");
     addAttribute("version", (int) SHADER_PROGRAM_XML_VERSION);
 
-    for (unsigned int i = 0;  i < program.getShaderCount();  i++)
-    {
-      const Shader& shader = program.getShader(i);
+    beginElement("vertex-shader");
+    addAttribute("name", program.getVertexShader().getName());
+    endElement();
 
-      if (shader.getType() == Shader::VERTEX)
-      {
-	const VertexShader* vertexShader = dynamic_cast<const VertexShader*>(&shader);
-
-	beginElement("vertex-shader");
-	addAttribute("name", vertexShader->getName());
-      }
-      else if (shader.getType() == Shader::FRAGMENT)
-      {
-	const FragmentShader* fragmentShader = dynamic_cast<const FragmentShader*>(&shader);
-
-	beginElement("fragment-shader");
-	addAttribute("name", fragmentShader->getName());
-      }
-      else
-	throw Exception("Unknown shader type");
-
-      endElement();
-    }
+    beginElement("fragment-shader");
+    addAttribute("name", program.getFragmentShader().getName());
+    endElement();
 
     endElement();
   }
@@ -213,55 +196,45 @@ bool ShaderProgramCodec::onBeginElement(const String& name)
       return false;
     }
 
-    program = ShaderProgram::createInstance(programName);
+    return true;
+  }
 
-    if (readBoolean("lighting"))
-      program->setUsesLighting(true);
+  if (name == "vertex-shader")
+  {
+    if (vertexShader)
+    {
+      Log::writeError("Cannot nest GLSL shaders");
+      return false;
+    }
+
+    String vertexShaderName = readString("name");
+    if (!vertexShaderName.length())
+      return true;
+
+    vertexShader = VertexShader::readInstance(vertexShaderName);
+    if (!vertexShader)
+      return false;
 
     return true;
   }
 
-  if (program)
+  if (name == "fragment-shader")
   {
-    if (name == "vertex-shader")
+    if (fragmentShader)
     {
-      if (currentShader)
-      {
-	Log::writeError("Cannot nest GLSL shaders");
-	return false;
-      }
-
-      String vertexShaderName = readString("name");
-      if (!vertexShaderName.length())
-	return true;
-
-      currentShader = VertexShader::readInstance(vertexShaderName);
-      if (!currentShader)
-	return false;
-
-      program->addShader(*currentShader);
-      return true;
+      Log::writeError("Cannot nest GLSL shaders");
+      return false;
     }
 
-    if (name == "fragment-shader")
-    {
-      if (currentShader)
-      {
-	Log::writeError("Cannot nest GLSL shaders");
-	return false;
-      }
-
-      String fragmentShaderName = readString("name");
-      if (!fragmentShaderName.length())
-	return true;
-
-      currentShader = FragmentShader::readInstance(fragmentShaderName);
-      if (!currentShader)
-	return false;
-
-      program->addShader(*currentShader);
+    String fragmentShaderName = readString("name");
+    if (!fragmentShaderName.length())
       return true;
-    }
+
+    fragmentShader = FragmentShader::readInstance(fragmentShaderName);
+    if (!fragmentShader)
+      return false;
+
+    return true;
   }
 
   return true;
@@ -269,29 +242,30 @@ bool ShaderProgramCodec::onBeginElement(const String& name)
 
 bool ShaderProgramCodec::onEndElement(const String& name)
 {
-  if (program)
+  if (name == "program")
   {
-    if (name == "program")
+    if (!vertexShader)
     {
-      if (!program->isUsingLighting())
-      {
-	// Don't attempt to link programs using built-in lighting
-
-	if (!program->link())
-	  return false;
-      }
-
-      return true;
+      Log::writeError("Vertex shader missing for GLSL program %s",
+		      programName.c_str());
+      return false;
     }
 
-    if (currentShader)
+    if (!fragmentShader)
     {
-      if (name == "vertex-shader" || name == "fragment-shader")
-      {
-	currentShader = NULL;
-	return true;
-      }
+      Log::writeError("Fragment shader missing for GLSL program %s",
+		      programName.c_str());
+      return false;
     }
+
+    program = ShaderProgram::createInstance(*vertexShader, *fragmentShader, programName);
+    if (!program)
+      return false;
+
+    vertexShader = NULL;
+    fragmentShader = NULL;
+
+    return true;
   }
 
   return true;

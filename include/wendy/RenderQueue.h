@@ -66,7 +66,7 @@ using namespace moira;
  */
 class Operation
 {
-  friend class Group;
+  friend class Queue;
 public:
   /*! Constructor.
    */
@@ -120,57 +120,33 @@ typedef std::vector<const Operation*> OperationList;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Render operation group.
- */
-class Group
-{
-public:
-  Group(GL::Light* light = NULL, const String& name = "");
-  Operation& createOperation(void);
-  void destroyOperations(void);
-  GL::Light* getLight(void) const;
-  const String& getName(void) const;
-  const OperationList& getOperations(void) const;
-private:
-  typedef std::list<Operation> List;
-  List operations;
-  mutable OperationList sortedOperations;
-  mutable bool sorted;
-  GL::Light* light;
-  String name;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Render operation queue for the 3D pipeline.
- *  @ingroup renderer
- *
- *  This class is a container for all data needed to render a scene, including
- *  separate render operation groups for each light, and can therefore be seen
- *  as a higher-level rendering operation.
+/*! @brief Render operation queue.
  */
 class Queue
 {
 public:
-  Queue(const Camera& camera);
+  Queue(const Camera& camera,
+        GL::Light* light = NULL,
+	const String& name = "");
   void attachLight(GL::Light& light);
   void detachLights(void);
-  Operation& createOperation(const String& name = "");
-  Operation& createLightOperation(GL::Light& light);
+  Operation& createOperation(void);
   void destroyOperations(void);
+  void render(const String& passName = "") const;
+  const String& getName(void) const;
   const Camera& getCamera(void) const;
-  unsigned int getLightCount(void) const;
-  Group& getDefaultGroup(void);
-  const Group& getDefaultGroup(void) const;
-  Group& getLightGroup(unsigned int index);
-  const Group& getLightGroup(unsigned int index) const;
+  GL::Light* getActiveLight(void) const;
+  const OperationList& getOperations(void) const;
+  const GL::LightState& getLights(void) const;
 private:
-  Group* findGroup(GL::Light& light);
-  const Group* findGroup(GL::Light& light) const;
-  typedef std::list<Group> GroupList;
-  GroupList lightGroups;
-  Group defaultGroup;
+  typedef std::list<Operation> List;
   const Camera& camera;
+  GL::Light* light;
+  String name;
+  GL::LightState lights;
+  List operations;
+  mutable OperationList sortedOperations;
+  mutable bool sorted;
 };
 
 ///////////////////////////////////////////////////////////////////////

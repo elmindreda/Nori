@@ -82,7 +82,8 @@ private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
   Ptr<ShaderProgram> program;
-  Shader* currentShader;
+  Ref<VertexShader> vertexShader;
+  Ref<FragmentShader> fragmentShader;
   String programName;
 };
 

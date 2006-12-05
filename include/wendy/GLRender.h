@@ -44,7 +44,8 @@ using namespace moira;
 /*! @brief The renderer singleton.
  *  @ingroup renderer
  *
- *  This is the central renderer class.
+ *  This is the central renderer class, although it's rarely used to render
+ *  anything.
  */
 class Renderer : public Trackable, public Singleton<Renderer>
 {
@@ -54,7 +55,10 @@ public:
                float aspect = 0.f,
 	       float nearZ = 0.01f,
 	       float farZ = 1000.f) const;
+  void begin3D(const Matrix4& projection) const;
   void end(void) const;
+  void pushTransform(const Matrix4& transform) const;
+  void popTransform(void) const;
   void drawPoint(const Vector2& point);
   void drawLine(const Segment2& segment);
   void drawBezier(const BezierCurve2& spline);

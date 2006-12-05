@@ -52,10 +52,10 @@ enum QueuePhase
   /*! Light collection phase.
    */
   COLLECT_LIGHTS,
-  /*! Shadow volume collection phase.
+  /*! Collection phase for operations used to render stencil shadow volumes.
    */
   COLLECT_SHADOW_VOLUMES,
-  /*! Shadow object collection phase.
+  /*! Collection phase for operations used to render a shadow map.
    */
   COLLECT_SHADOW_OBJECTS,
   /*! Default geometry collection phase.

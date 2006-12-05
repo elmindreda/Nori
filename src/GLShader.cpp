@@ -28,6 +28,7 @@
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
+#include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
 
 #include <sstream>
@@ -42,6 +43,57 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
+
+///////////////////////////////////////////////////////////////////////
+
+namespace
+{
+
+Mapper<Shader::Type, GLenum> shaderTypeMap;
+
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Shader::Shader(Type initType, const String& initText):
+  type(initType),
+  text(initText),
+  lighting(false)
+{
+  if (text.find("wendyLighting") != String::npos)
+    lighting = true;
+}
+
+bool Shader::isUsingLighting(void) const
+{
+  return lighting;
+}
+
+Shader::Type Shader::getType(void) const
+{
+  return type;
+}
+
+const String& Shader::getText(void) const
+{
+  return text;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+VertexShader::VertexShader(const String& text, const String& name):
+  Resource<VertexShader>(name),
+  Shader(VERTEX, text)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
+FragmentShader::FragmentShader(const String& text, const String& name):
+  Resource<FragmentShader>(name),
+  Shader(FRAGMENT, text)
+{
+}
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -90,18 +142,18 @@ unsigned int ShaderAttribute::getElementCount(void) const
   return count;
 }
 
-ShaderProgram& ShaderAttribute::getProgram(void) const
+ShaderPermutation& ShaderAttribute::getPermutation(void) const
 {
-  return program;
+  return permutation;
 }
 
-ShaderAttribute::ShaderAttribute(ShaderProgram& initProgram):
-  program(initProgram)
+ShaderAttribute::ShaderAttribute(ShaderPermutation& initPermutation):
+  permutation(initPermutation)
 {
 }
 
 ShaderAttribute::ShaderAttribute(const ShaderAttribute& source):
-  program(source.program)
+  permutation(source.permutation)
 {
   // NOTE: Not implemented.
 }
@@ -174,70 +226,61 @@ unsigned int ShaderUniform::getElementCount(void) const
 
 void ShaderUniform::setValue(int newValue, unsigned int index)
 {
-  program.apply();
   glUniform1iARB(locations[index], newValue);
 }
 
 void ShaderUniform::setValue(bool newValue, unsigned int index)
 {
-  program.apply();
   glUniform1iARB(locations[index], newValue);
 }
 
 void ShaderUniform::setValue(float newValue, unsigned int index)
 {
-  program.apply();
   glUniform1fARB(locations[index], newValue);
 }
 
 void ShaderUniform::setValue(const Vector2& newValue, unsigned int index)
 {
-  program.apply();
   glUniform2fvARB(locations[index], 1, newValue);
 }
 
 void ShaderUniform::setValue(const Vector3& newValue, unsigned int index)
 {
-  program.apply();
   glUniform3fvARB(locations[index], 1, newValue);
 }
 
 void ShaderUniform::setValue(const Vector4& newValue, unsigned int index)
 {
-  program.apply();
   glUniform4fvARB(locations[index], 1, newValue);
 }
 
 void ShaderUniform::setValue(const Matrix2& newValue, unsigned int index)
 {
-  program.apply();
   glUniformMatrix2fvARB(locations[index], 1, GL_FALSE, newValue);
 }
 
 void ShaderUniform::setValue(const Matrix3& newValue, unsigned int index)
 {
-  program.apply();
   glUniformMatrix3fvARB(locations[index], 1, GL_FALSE, newValue);
 }
 
 void ShaderUniform::setValue(const Matrix4& newValue, unsigned int index)
 {
-  program.apply();
   glUniformMatrix4fvARB(locations[index], 1, GL_FALSE, newValue);
 }
 
-ShaderProgram& ShaderUniform::getProgram(void) const
+ShaderPermutation& ShaderUniform::getPermutation(void) const
 {
-  return program;
+  return permutation;
 }
 
-ShaderUniform::ShaderUniform(ShaderProgram& initProgram):
-  program(initProgram)
+ShaderUniform::ShaderUniform(ShaderPermutation& initPermutation):
+  permutation(initPermutation)
 {
 }
 
 ShaderUniform::ShaderUniform(const ShaderUniform& source):
-  program(source.program)
+  permutation(source.permutation)
 {
   // NOTE: Not implemented.
 }
@@ -253,116 +296,64 @@ ShaderUniform& ShaderUniform::operator = (const ShaderUniform& source)
 
 ShaderProgram::~ShaderProgram(void)
 {
-  while (!variants.empty())
+  while (!permutations.empty())
   {
-    delete variants.back();
-    variants.pop_back();
+    delete permutations.back();
+    permutations.pop_back();
   }
 }
 
-bool ShaderProgram::createVariant(const String& name,
-		                  const String& variantVertexText,
-		                  const String& variantFragmentText)
+bool ShaderProgram::apply(void)
 {
-}
+  String name;
+  LightState::getCurrent().getPermutationName(name);
 
-void ShaderProgram::destroyVariant(const String& name)
-{
-}
+  ShaderPermutation* permutation = findPermutation(name);
+  if (!permutation)
+  {
+    permutation = createPermutation(LightState::getCurrent());
+    if (!permutation)
+      return false;
+  }
 
-void ShaderProgram::destroyVariants(void)
-{
+  appliedSignal.emit(*permutation);
+  return permutation->apply();
 }
 
 bool ShaderProgram::isUsingLighting(void) const
 {
-}
-
-bool ShaderProgram::hasVariant(const String& name) const
-{
-}
-
-const String& ShaderProgram::getActiveVariant(void) const
-{
-}
-
-bool ShaderProgram::setActiveVariant(const String& name)
-{
-  Variant* variant = findVarant(name);
-  if (!variant)
-    return false;
-
-  active = variant;
-  return true;
-}
-
-bool ShaderProgram::apply(void) const
-{
-  if (current == this)
+  if (vertexShader->isUsingLighting() || fragmentShader->isUsingLighting())
     return true;
 
-  glUseProgramObjectARB(programID);
-
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-  {
-    Log::writeError("Use of GLSL program %s failed: %s", getName().c_str(), gluErrorString(error));
-    return false;
-  }
-
-  current = const_cast<ShaderProgram*>(this);
-  return true;
+  return false;
 }
 
-bool ShaderProgram::isUsingLighting(void) const
+const VertexShader& ShaderProgram::getVertexShader(void) const
 {
-  return lighting;
+  return *vertexShader;
 }
 
-unsigned int ShaderProgram::getUniformCount(void) const
+const FragmentShader& ShaderProgram::getFragmentShader(void) const
 {
-  return uniforms.size();
+  return *fragmentShader;
 }
 
-ShaderUniform& ShaderProgram::getUniform(unsigned int index)
+SignalProxy1<void, ShaderPermutation&> ShaderProgram::getPermutationCreatedSignal(void)
 {
-  return *uniforms[index];
+  return createdSignal;
 }
 
-const ShaderUniform& ShaderProgram::getUniform(unsigned int index) const
+SignalProxy1<void, ShaderPermutation&> ShaderProgram::getPermutationAppliedSignal(void)
 {
-  return *uniforms[index];
+  return appliedSignal;
 }
 
-ShaderUniform* ShaderProgram::getUniform(const String& name)
-{
-  for (UniformList::iterator i = uniforms.begin();  i != uniforms.end();  i++)
-  {
-    if ((*i)->name == name)
-      return *i;
-  }
-
-  return NULL;
-}
-
-const ShaderUniform* ShaderProgram::getUniform(const String& name) const
-{
-  for (UniformList::const_iterator i = uniforms.begin();  i != uniforms.end();  i++)
-  {
-    if ((*i)->name == name)
-      return *i;
-  }
-
-  return NULL;
-}
-
-ShaderProgram* ShaderProgram::createInstance(const String& vertexText,
-                                             const String& fragmentText,
-				             bool lighting,
+ShaderProgram* ShaderProgram::createInstance(VertexShader& vertexShader,
+				             FragmentShader& fragmentShader,
 					     const String& name)
 {
   Ptr<ShaderProgram> program = new ShaderProgram(name);
-  if (!program->init(vertexText, fragmentText, lighting))
+  if (!program->init(vertexShader, fragmentShader))
     return NULL;
 
   return program.detachObject();
@@ -370,23 +361,16 @@ ShaderProgram* ShaderProgram::createInstance(const String& vertexText,
 
 void ShaderProgram::applyFixedFunction(void)
 {
-  Variant::applyFixedFunction();
-}
-
-ShaderProgram* ShaderProgram::getCurrent(void)
-{
-  return current;
+  ShaderPermutation::applyFixedFunction();
 }
 
 ShaderProgram::ShaderProgram(const String& name):
-  Resource<ShaderProgram>(name),
-  lighting(false)
+  Resource<ShaderProgram>(name)
 {
 }
 
-bool ShaderProgram::init(const String& vertexText,
-                         const String& fragmentText,
-	                 bool initLighting)
+bool ShaderProgram::init(VertexShader& initVertexShader,
+			 FragmentShader& initFragmentShader)
 {
   if (!Context::get())
   {
@@ -400,81 +384,140 @@ bool ShaderProgram::init(const String& vertexText,
     return false;
   }
 
-  baseVertexText = vertexText;
-  baseFragmentText = fragmentText;
-  lighting = initLighting;
+  vertexShader = &initVertexShader;
+  fragmentShader = &initFragmentShader;
 
-  active = createVariant("");
-  if (!active)
+  if (!createPermutation(LightState()))
     return false;
 
   return true;
 }
 
-Variant* ShaderProgram::createVariant(const String& name)
+ShaderPermutation* ShaderProgram::createPermutation(const LightState& lights)
 {
-  String vertexText;
-
-  if (lighting)
+  ShaderPermutation* permutation = new ShaderPermutation(*this);
+  if (!permutation->init(lights))
   {
-    vertexText.append(LightState::getVariantText(name));
-    vertexText.append("\n\n");
+    delete permutation;
+    return NULL;
   }
 
-  vertexText.append(baseVertexText);
-
-  String fragmentText;
-
-  if (lighting)
-  {
-    fragmentText.append(LightState::getVariantText(name));
-    fragmentText.append("\n\n");
-  }
-
-  fragmentText.append(baseFragmentText);
-
-  Ptr<Variant> variant = new Variant(name);
-  if (!variant->init(vertexText, fragmentText))
-    return false;
-
-  variants.push_back(variant.detachObject());
-  return true;
+  permutations.push_back(permutation);
+  createdSignal.emit(*permutation);
+  return permutation;
 }
 
-Variant* ShaderProgram::findVarant(const String& name)
+ShaderPermutation* ShaderProgram::findPermutation(const String& name)
 {
-  for (unsigned int i = 0;  i < variants.size();  i++)
+  for (unsigned int i = 0;  i < permutations.size();  i++)
   {
-    if (variants[i]->name == name)
-      return variants[i];
+    if (permutations[i]->name == name)
+      return permutations[i];
   }
 
   return NULL;
 }
 
-const Variant* ShaderProgram::findVarant(const String& name) const
+const ShaderPermutation* ShaderProgram::findPermutation(const String& name) const
 {
-  for (unsigned int i = 0;  i < variants.size();  i++)
+  for (unsigned int i = 0;  i < permutations.size();  i++)
   {
-    if (variants[i]->name == name)
-      return variants[i];
+    if (permutations[i]->name == name)
+      return permutations[i];
   }
 
   return NULL;
 }
-
-ShaderProgram* ShaderProgram::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 
-ShaderProgram::Variant::Variant(const String& name):
+bool ShaderPermutation::isValid(void) const
+{
+  glValidateProgramARB(programID);
+
+  GLint status;
+  glGetObjectParameterivARB(programID, GL_OBJECT_VALIDATE_STATUS_ARB, &status);
+
+  GLint length;
+  glGetObjectParameterivARB(programID, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length);
+
+  if (length > 1)
+  {
+    Block message(length);
+
+    glGetInfoLogARB(programID, message.getSize(), NULL, (GLcharARB*) message.getData());
+
+    if (status)
+      Log::writeWarning("Warnings during validation of variant %s of GLSL program %s: %s",
+			name.c_str(),
+			program.getName().c_str(),
+			message.getData());
+    else
+      Log::writeError("Validation of variant %s of GLSL program %s failed: %s",
+		      name.c_str(),
+		      program.getName().c_str(),
+		      message.getData());
+  }
+
+  return status ? true : false;
+}
+
+const String& ShaderPermutation::getName(void) const
+{
+  return name;
+}
+
+unsigned int ShaderPermutation::getUniformCount(void) const
+{
+  return uniforms.size();
+}
+
+ShaderUniform& ShaderPermutation::getUniform(unsigned int index)
+{
+  return *uniforms[index];
+}
+
+const ShaderUniform& ShaderPermutation::getUniform(unsigned int index) const
+{
+  return *uniforms[index];
+}
+
+ShaderUniform* ShaderPermutation::getUniform(const String& name)
+{
+  for (UniformList::iterator i = uniforms.begin();  i != uniforms.end();  i++)
+  {
+    if ((*i)->name == name)
+      return *i;
+  }
+
+  return NULL;
+}
+
+const ShaderUniform* ShaderPermutation::getUniform(const String& name) const
+{
+  for (UniformList::const_iterator i = uniforms.begin();  i != uniforms.end();  i++)
+  {
+    if ((*i)->name == name)
+      return *i;
+  }
+
+  return NULL;
+}
+
+ShaderPermutation* ShaderPermutation::getCurrent(void)
+{
+  return current;
+}
+
+ShaderPermutation::ShaderPermutation(ShaderProgram& initProgram):
+  program(initProgram),
   programID(0),
   vertexID(0),
   fragmentID(0)
 {
 }
 
-ShaderProgram::Variant::~Variant(void)
+ShaderPermutation::~ShaderPermutation(void)
 {
   while (!uniforms.empty())
   {
@@ -501,53 +544,23 @@ ShaderProgram::Variant::~Variant(void)
     glDeleteObjectARB(programID);
 }
 
-bool ShaderProgram::Variant::isValid(void) const
+bool ShaderPermutation::init(const LightState& state)
 {
-  glValidateProgramARB(programID);
+  state.getPermutationName(name);
 
-  GLint status;
-  glGetObjectParameterivARB(programID, GL_OBJECT_VALIDATE_STATUS_ARB, &status);
-
-  GLint length;
-  glGetObjectParameterivARB(programID, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length);
-
-  if (length)
-  {
-    Block message(length + 1);
-
-    glGetInfoLogARB(programID, message.getSize(), &length, (GLcharARB*) message.getData());
-    message[length] = '\0';
-
-    if (status)
-      Log::writeWarning("Warnings during validation of variant %s of GLSL program %s: %s",
-			name.c_str(),
-			program.getName().c_str(),
-			message.getData());
-    else
-      Log::writeError("Validation of variant %s of GLSL program %s failed: %s",
-		      name.c_str(),
-		      program.getName().c_str(),
-		      message.getData());
-  }
-
-  return status ? true : false;
-}
-
-bool ShaderProgram::Variant::init(const String& vertexText,
-	                          const String& fragmentText)
-{
   programID = glCreateProgramObjectARB();
   if (!programID)
   {
-    Log::writeError("Failed to create object for GLSL program %s", getName().c_str());
+    Log::writeError("Failed to create object for GLSL program %s",
+                    program.getName().c_str());
     return false;
   }
 
-  vertexID = createShader(GL_VERTEX_SHADER_ARB, vertexText);
+  vertexID = createShader(program.getVertexShader(), state);
   if (!vertexID)
     return false;
 
-  fragmentID = createShader(GL_FRAGMENT_SHADER_ARB, fragmentText);
+  fragmentID = createShader(program.getFragmentShader(), state);
   if (!fragmentID)
     return false;
 
@@ -559,12 +572,11 @@ bool ShaderProgram::Variant::init(const String& vertexText,
   GLint length;
   glGetObjectParameterivARB(programID, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length);
 
-  if (length)
+  if (length > 1)
   {
-    Block message(length + 1);
+    Block message(length);
 
-    glGetInfoLogARB(programID, message.getSize(), &length, (GLcharARB*) message.getData());
-    message[length] = '\0';
+    glGetInfoLogARB(programID, message.getSize(), NULL, (GLcharARB*) message.getData());
 
     if (status)
       Log::writeWarning("Warnings when linking variant %s of GLSL program %s: %s",
@@ -593,14 +605,57 @@ bool ShaderProgram::Variant::init(const String& vertexText,
   return true;
 }
 
-GLhandleARB ShaderProgram::Variant::createShader(GLenum type, const String& text)
+bool ShaderPermutation::apply(void) const
 {
-  GLhandleARB shaderID = glCreateShaderObjectARB(type);
+  if (current == this)
+    return true;
+
+  glUseProgramObjectARB(programID);
+
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+  {
+    Log::writeError("Use of permutation %s of GLSL program %s failed: %s",
+                    name.c_str(),
+		    program.getName().c_str(),
+		    gluErrorString(error));
+    return false;
+  }
+
+  current = const_cast<ShaderPermutation*>(this);
+  return true;
+}
+
+void ShaderPermutation::applyFixedFunction(void)
+{
+  glUseProgramObjectARB(0);
+  current = NULL;
+}
+
+GLhandleARB ShaderPermutation::createShader(const Shader& shader, const LightState& state)
+{
+  if (shaderTypeMap.isEmpty())
+  {
+    shaderTypeMap[Shader::VERTEX] = GL_VERTEX_SHADER_ARB;
+    shaderTypeMap[Shader::FRAGMENT] = GL_FRAGMENT_SHADER_ARB;
+  }
+
+  GLhandleARB shaderID = glCreateShaderObjectARB(shaderTypeMap[shader.getType()]);
   if (!shaderID)
   {
     Log::writeError("Failed to create GLSL shader object");
     return 0;
   }
+
+  String text;
+
+  if (shader.isUsingLighting())
+  {
+    text.append(state.getPermutationText());
+    text.append("\n\n");
+  }
+
+  text.append(shader.getText());
 
   const char* string = text.c_str();
 
@@ -613,12 +668,11 @@ GLhandleARB ShaderProgram::Variant::createShader(GLenum type, const String& text
   GLint length;
   glGetObjectParameterivARB(shaderID, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length);
 
-  if (length > 0)
+  if (length > 1)
   {
-    Block message(length + 1);
+    Block message(length);
 
-    glGetInfoLogARB(shaderID, message.getSize(), &length, (GLcharARB*) message.getData());
-    message[length] = '\0';
+    glGetInfoLogARB(shaderID, message.getSize(), NULL, (GLcharARB*) message.getData());
 
     if (status)
       Log::writeWarning("Warnings when compiling GLSL shader: %s", message.getData());
@@ -636,7 +690,7 @@ GLhandleARB ShaderProgram::Variant::createShader(GLenum type, const String& text
   return shaderID;
 }
 
-bool ShaderProgram::Variant::createUniforms(void)
+bool ShaderPermutation::createUniforms(void)
 {
   GLint uniformCount;
   glGetObjectParameterivARB(programID,
@@ -726,7 +780,7 @@ bool ShaderProgram::Variant::createUniforms(void)
   return true;
 }
 
-bool ShaderProgram::createAttributes(void)
+bool ShaderPermutation::createAttributes(void)
 {
   GLint attributeCount;
   glGetObjectParameterivARB(programID,
@@ -790,6 +844,8 @@ bool ShaderProgram::createAttributes(void)
 
   return true;
 }
+
+ShaderPermutation* ShaderPermutation::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 

@@ -28,6 +28,7 @@
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
+#include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
 
@@ -927,23 +928,30 @@ void TextureLayer::applySampler(Texture& texture) const
 
 void TextureLayer::forceSampler(Texture& texture) const
 {
-  ShaderProgram* program = ShaderProgram::getCurrent();
-  if (!program)
+  ShaderPermutation* permutation = ShaderPermutation::getCurrent();
+  if (!permutation)
   {
-    Log::writeError("Cannot bind texture layer %u to GLSL sampler uniform %s without a current program", unit, data.samplerName.c_str());
+    Log::writeError("Cannot bind texture layer %u to GLSL sampler uniform %s without a current permutation",
+                    unit,
+		    data.samplerName.c_str());
     return;
   }
 
-  ShaderUniform* sampler = program->getUniform(data.samplerName);
+  ShaderUniform* sampler = permutation->getUniform(data.samplerName);
   if (!sampler)
   {
-    Log::writeError("Texture layer %u bound to non-existent GLSL sampler uniform %s", unit, data.samplerName.c_str());
+    Log::writeError("Texture layer %u bound to non-existent GLSL sampler uniform %s",
+                    unit,
+		    data.samplerName.c_str());
     return;
   }
 
   if (samplerTypeMap[sampler->getType()] != texture.getTarget())
   {
-    Log::writeWarning("Type mismatch between texture %s and GLSL sampler uniform %s for texture layer %u", texture.getName().c_str(), data.samplerName.c_str(), unit);
+    Log::writeWarning("Type mismatch between texture %s and GLSL sampler uniform %s for texture layer %u",
+                      texture.getName().c_str(),
+		      data.samplerName.c_str(),
+		      unit);
     return;
   }
 

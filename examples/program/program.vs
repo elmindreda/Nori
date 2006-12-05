@@ -1,18 +1,19 @@
 
 uniform float time;
 
-varying vec3 normal;
+varying vec3 N;
+varying vec3 P;
 
 void main()
 {
-  vec3 light = vec3(0.0, 0.0, 1.0);
+  N = normalize(gl_NormalMatrix * gl_Normal).xyz;
 
-  normal = normalize(gl_NormalMatrix * gl_Normal);
+  vec4 position = gl_ModelViewMatrix * gl_Vertex;
+  position.y += sin(time);
 
-  vec4 position = ftransform();
-  position.y += sin(position.x + position.z + time);
+  P = position.xyz;
 
-  gl_FrontColor = gl_Color * dot(light, normal);
-  gl_Position = position;
+  gl_FrontColor = gl_Color;
+  gl_Position = gl_ProjectionMatrix * position;
 }
 

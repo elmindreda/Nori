@@ -28,10 +28,10 @@
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
+#include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
-#include <wendy/GLLight.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLPass.h>
@@ -95,12 +95,49 @@ void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ) const
   glLoadIdentity();
   glPopAttrib();
 }
+
+void Renderer::begin3D(const Matrix4& projection) const
+{
+  Canvas* canvas = Canvas::getCurrent();
+  if (!canvas)
+  {
+    Log::writeError("Cannot begin without a current canvas");
+    return;
+  }
+
+  glPushAttrib(GL_TRANSFORM_BIT);
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  glMultMatrixf(projection);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+  glPopAttrib();
+}
   
 void Renderer::end(void) const
 {
   glPushAttrib(GL_TRANSFORM_BIT);
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
+  glPopAttrib();
+}
+
+void Renderer::pushTransform(const Matrix4& transform) const
+{
+  glPushAttrib(GL_TRANSFORM_BIT);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glMultMatrixf(transform);
+  glPopAttrib();
+}
+
+void Renderer::popTransform(void) const
+{
+  glPushAttrib(GL_TRANSFORM_BIT);
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
   glPopAttrib();

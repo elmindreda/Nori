@@ -99,10 +99,6 @@ typedef Ref<Light> LightRef;
 
 ///////////////////////////////////////////////////////////////////////
 
-typedef std::vector<LightRef> LightList;
-
-///////////////////////////////////////////////////////////////////////
-
 class LightState
 {
 public:
@@ -111,17 +107,19 @@ public:
   void attachLight(Light& light);
   void detachLight(Light& light);
   void detachLights(void);
-  const LightList& getLights(void) const;
-  static const String& getVariantName(void);
-  static const String& getVariantText(const String& name);
+  unsigned int getLightCount(void) const;
+  Light& getLight(unsigned int index) const;
+  void getPermutationName(String& name) const;
+  const String& getPermutationText(void) const;
+  static const LightState& getCurrent(void);
 private:
-  static void generateSource(String& result);
+  void generatePermutation(String& text) const;
   static void onContextDestroy(void);
-  typedef std::map<String, String> VariantMap;
-  LightList lights;
-  static String currentName;
-  static LightList currentLights;
-  static VariantMap variants;
+  typedef std::vector<LightRef> List;
+  typedef std::map<String, String> PermutationMap;
+  List lights;
+  static LightState current;
+  static PermutationMap permutations;
 };
 
 ///////////////////////////////////////////////////////////////////////

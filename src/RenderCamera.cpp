@@ -52,7 +52,7 @@ using namespace moira;
 Camera::Camera(const String& name):
   Managed<Camera>(name),
   FOV(90.f),
-  aspectRatio(0.f),
+  aspectRatio(4.f / 3.f),
   minDepth(0.01f),
   maxDepth(1000.f),
   dirtyFrustum(true),
@@ -73,15 +73,7 @@ void Camera::begin(void) const
   }
 
   renderer->begin3D(FOV, aspectRatio);
-
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-
-  Matrix4 matrix = getInverseTransform();
-  glLoadMatrixf(matrix);
-
-  glPopAttrib();
+  renderer->pushTransform(getInverseTransform());
 
   current = const_cast<Camera*>(this);
 }
@@ -98,11 +90,7 @@ void Camera::end(void) const
     return;
   }
 
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-  glPopAttrib();
-
+  renderer->popTransform();
   renderer->end();
 
   current = NULL;
@@ -184,7 +172,7 @@ const Frustum& Camera::getFrustum(void) const
 {
   if (dirtyFrustum)
   {
-    frustum.set(FOV, aspectRatio, maxDepth);
+    frustum.set(FOV, aspectRatio, -maxDepth);
     frustum.transformBy(transform);
     dirtyFrustum = false;
   }

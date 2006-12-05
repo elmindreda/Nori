@@ -1,12 +1,15 @@
 
-varying vec3 normal;
+#pragma wendyLighting
 
-uniform sampler2D program;
+varying vec3 N;
+varying vec3 P;
 
 void main()
 {
-  vec2 texcoord = normalize(normal).xy * vec2(0.5) + vec2(0.5);
-  vec3 color = texture2D(program, texcoord);
-  gl_FragColor = vec4(color, 1.0);
+  vec3 Nn = normalize(N);
+
+  gl_FragColor = gl_Color * (vec4(ambient(P), 1.0) +
+                             vec4(diffuse(P, Nn), 1.0)) +
+		 vec4(specular(P, Nn, 5.0), 1.0);
 }
 

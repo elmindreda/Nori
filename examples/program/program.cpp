@@ -8,14 +8,17 @@ class Demo : public Trackable
 {
 public:
   bool init(void);
+  void run(void);
 private:
+  void applied(GL::ShaderPermutation& permutation);
   bool render(void);
-  GL::Camera camera;
-  GL::Scene scene;
-  Ptr<GL::Mesh> mesh;
-  GL::MeshNode* meshNode;
-  GL::CameraNode* cameraNode;
+  render::Camera camera;
+  render::Scene scene;
+  Ptr<render::Mesh> mesh;
+  render::MeshNode* meshNode;
+  render::CameraNode* cameraNode;
   Timer timer;
+  Time currentTime;
 };
 
 bool Demo::init(void)
@@ -33,54 +36,68 @@ bool Demo::init(void)
 
   camera.setFOV(60.f);
 
-  cameraNode = new GL::CameraNode();
+  cameraNode = new render::CameraNode();
   cameraNode->setCameraName(camera.getName());
-  cameraNode->getLocalTransform().position.z = 5.f;
-  scene.addRootNode(*cameraNode);
+  cameraNode->getLocalTransform().position.z = 3.f;
+  scene.addNode(*cameraNode);
 
-  Mesh* meshData = Mesh::readInstance("cube");
-  if (!meshData)
-    return false;
+  GL::Light* light = new GL::Light();
+  light->setIntensity(ColorRGB(1.f, 1.f, 1.f));
+  light->setAmbience(ColorRGB(0.5f, 0.5f, 0.5f));
+  light->setType(GL::Light::POINT);
+  //light->setRadius(8.f);
 
-  meshData->calculateNormals(Mesh::SEPARATE_FACES);
+  render::LightNode* lightNode = new render::LightNode();
+  lightNode->setLightName(light->getName());
+  lightNode->getLocalTransform().position.z = 3.f;
+  scene.addNode(*lightNode);
 
-  mesh = GL::Mesh::createInstance(*meshData);
+  mesh = render::Mesh::readInstance("cube");
   if (!mesh)
     return false;
 
-  meshNode = new GL::MeshNode();
+  meshNode = new render::MeshNode();
   meshNode->setMeshName(mesh->getName());
-  scene.addRootNode(*meshNode);
+  scene.addNode(*meshNode);
+
+  if (GL::ShaderProgram* program = GL::ShaderProgram::findInstance("program"))
+    program->getPermutationAppliedSignal().connect(*this, &Demo::applied);
 
   timer.start();
 
   return true;
 }
 
+void Demo::run(void)
+{
+  while (GL::Context::get()->update())
+    ;
+}
+
+void Demo::applied(GL::ShaderPermutation& permutation)
+{
+  if (GL::ShaderUniform* uniform = permutation.getUniform("time"))
+    uniform->setValue((float) currentTime);
+}
+
 bool Demo::render(void)
 {
-  const Time time = timer.getTime();
+  currentTime = timer.getTime();
 
-  if (GL::ShaderProgram* program = GL::ShaderProgram::findInstance("program"))
-  {
-    if (GL::ShaderUniform* uniform = program->getUniform("time"))
-      uniform->setValue((float) time);
-  }
+  meshNode->getLocalTransform().rotation.setAxisRotation(Vector3(0.f, 1.f, 0.f), currentTime);
 
-  meshNode->getLocalTransform().rotation.setAxisRotation(Vector3(0.f, 1.f, 0.f), time);
-
-  scene.setTimeElapsed(time);
+  scene.setTimeElapsed(currentTime);
 
   GL::ScreenCanvas canvas;
   canvas.begin();
   canvas.clearDepthBuffer();
   canvas.clearColorBuffer();
 
-  GL::RenderQueue queue(camera);
+  render::Queue queue(camera);
   scene.enqueue(queue);
 
   camera.begin();
-  queue.renderOperations();
+  queue.render();
   camera.end();
 
   canvas.end();
@@ -94,15 +111,7 @@ int main()
 
   Ptr<Demo> demo = new Demo();
   if (demo->init())
-  {
-    while (GL::Context::get()->update())
-      ;
-  }
-  else
-  {
-    Log::writeError("Punt");
-    exit(1);
-  }
+    demo->run();
 
   demo = NULL;
 

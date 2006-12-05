@@ -27,12 +27,12 @@
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
+#include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
-#include <wendy/GLLight.h>
 #include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
 
@@ -379,9 +379,12 @@ void MeshNode::enqueue(Queue& queue, QueuePhase phase) const
 {
   SceneNode::enqueue(queue, phase);
 
-  Mesh* mesh = Mesh::findInstance(meshName);
-  if (mesh)
-    mesh->enqueue(queue, getWorldTransform());
+  if (phase == COLLECT_GEOMETRY)
+  {
+    Mesh* mesh = Mesh::findInstance(meshName);
+    if (mesh)
+      mesh->enqueue(queue, getWorldTransform());
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////

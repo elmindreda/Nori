@@ -28,7 +28,6 @@
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
-#include <wendy/GLShader.h>
 #include <wendy/GLLight.h>
 
 #include <algorithm>
@@ -54,6 +53,8 @@ public:
     return *x < *y;
   }
 };
+
+Mapper<String, Light::Type> lightNameMap;
 
 }
 
@@ -95,9 +96,9 @@ Light::Type Light::getType(void) const
   return type;
 }
 
-void Light::setType(Type type)
+void Light::setType(Type newType)
 {
-  type = type;
+  type = newType;
 }
 
 const ColorRGB& Light::getAmbience(void) const
@@ -198,7 +199,7 @@ void Light::setDefaults(void)
   intensity.set(1.f, 1.f, 1.f);
   position.set(0.f, 0.f, 0.f);
   direction.set(0.f, 0.f, 1.f);
-  radius = 0.f;
+  radius = std::numeric_limits<float>::infinity();
   cutoff = M_PI;
 }
 
@@ -244,8 +245,11 @@ LightState::LightState(void)
 
   if (!initialized)
   {
-    Context::getDestroySignal().connect(onContextDestroy);
-    initialized = true;
+    if (Context::get())
+    {
+      Context::getDestroySignal().connect(onContextDestroy);
+      initialized = true;
+    }
   }
 }
 
@@ -258,12 +262,6 @@ void LightState::apply(void) const
 
   if (count < lights.size())
     Log::writeWarning("Current OpenGL context has too few light slots to apply all currently enabled lights");
-
-  currentName.clear();
-  currentName.reserve(count);
-
-  currentLights.clear();
-  currentLights.reserve(count);
 
   for (unsigned int i = 0;  i < count;  i++)
   {
@@ -303,7 +301,7 @@ void LightState::apply(void) const
 
     if (light.getType() != Light::DIRECTIONAL)
     {
-      glLightf(GL_LIGHT0 + i, GL_CONSTANT_ATTENUATION, 0.f);
+      glLightf(GL_LIGHT0 + i, GL_CONSTANT_ATTENUATION, 1.f);
       glLightf(GL_LIGHT0 + i, GL_LINEAR_ATTENUATION, 0.f);
 
       if (light.isBounded())
@@ -326,9 +324,6 @@ void LightState::apply(void) const
       }
     }
 
-    currentName.append(1, light.getTypeCharacter());
-    currentLights.push_back(&light);
-
     GLenum error = glGetError();
     if (error != GL_NO_ERROR)
       Log::writeError("Error when applying light %s: %s",
@@ -339,20 +334,23 @@ void LightState::apply(void) const
   // Disable any unused light slots
   for (unsigned int i = count;  i < Light::getSlotCount();  i++)
     glDisable(GL_LIGHT0 + i);
+
+  current.lights = lights;
 }
 
 void LightState::attachLight(Light& light)
 {
-  LightList::const_iterator i = std::find(lights.begin(), lights.end(), &light);
+  List::const_iterator i = std::find(lights.begin(), lights.end(), &light);
   if (i != lights.end())
     return;
 
   lights.push_back(&light);
+  std::sort(lights.begin(), lights.end(), LightComparator());
 }
 
 void LightState::detachLight(Light& light)
 {
-  LightList::iterator i = std::find(lights.begin(), lights.end(), &light);
+  List::iterator i = std::find(lights.begin(), lights.end(), &light);
   if (i != lights.end())
     lights.erase(i);
 }
@@ -362,102 +360,208 @@ void LightState::detachLights(void)
   lights.clear();
 }
 
-const LightList& LightState::getLights(void) const
+unsigned int LightState::getLightCount(void) const
 {
-  return lights;
+  return lights.size();
 }
 
-const String& LightState::getVariantName(void)
+Light& LightState::getLight(unsigned int index) const
 {
-  return currentName;
+  return *lights[index];
 }
 
-const String& LightState::getVariantSource(void)
+void LightState::getPermutationName(String& name) const
 {
-  String& source = variants[currentName];
+  name.clear();
+  name.reserve(lights.size());
+
+  for (unsigned int i = 0;  i < lights.size();  i++)
+    name.append(1, lights[i]->getTypeCharacter());
+}
+
+const String& LightState::getPermutationText(void) const
+{
+  String name;
+  getPermutationName(name);
+
+  String& source = permutations[name];
   if (!source.empty())
     return source;
 
-  generateSource(source);
+  generatePermutation(source);
   return source;
 }
 
-void LightState::generateSource(String& result)
+const LightState& LightState::getCurrent(void)
 {
+  return current;
+}
+
+void LightState::generatePermutation(String& text) const
+{
+  if (lightNameMap.isEmpty())
+  {
+    lightNameMap[Light::DIRECTIONAL] = "directional";
+    lightNameMap[Light::POINT] = "point";
+    lightNameMap[Light::SPOT] = "spot";
+  }
+
   std::stringstream source;
 
-  source << "vec3 wendyAmbient(in vec3 position)\n{\n";
-  source << "  vec3 result, light;\n";
+  // Generate ambient(P)
 
-  for (unsigned int i = 0;  i < currentLights.size();  i++)
+  source << "vec3 ambient(in vec3 P)\n{\n";
+
+  if (lights.empty())
+    source << "  return vec3(0.0);\n}\n\n";
+  else
   {
-    const Light& light = *currentLights[i];
+    source << "  vec3 Cl = vec3(0.0), L;\n";
 
-    if (light.isBounded())
+    for (unsigned int i = 0;  i < lights.size();  i++)
     {
-      source << "  light = gl_LightSource[" << i << "].position.xyz - position;\n";
-      source << "  result += gl_LightSource[" << i << "].ambient / "
-                "(dot(light, light) * gl_LightSource[" << i << "].quadraticAttentuation);\n";
+      const Light& light = *lights[i];
+
+      source << "  // Slot " << i << " is a " << lightNameMap[light.getType()] << " light\n";
+
+      if (light.isBounded())
+      {
+	source << "  L = gl_LightSource[" << i << "].position.xyz - P;\n";
+	source << "  Cl += gl_LightSource[" << i << "].ambient.rgb / "
+		  "(dot(L, L) * gl_LightSource[" << i << "].quadraticAttenuation);\n";
+      }
+      else
+	source << "  Cl += gl_LightSource[" << i << "].ambient.rgb;\n";
     }
-    else
-      source << "  result += gl_LightSource[" << i << "].ambient;\n";
+
+    source << "  return Cl;\n}\n\n";
   }
 
-  source << "  return result;\n}\n\n";
+  // Generate diffuse(P, N)
 
-  source << "vec3 wendyDiffuse(in vec3 position, in vec3 normal)\n{\n";
-  source << "  vec3 result, light;\n";
+  source << "vec3 diffuse(in vec3 P, in vec3 N)\n{\n";
 
-  for (unsigned int i = 0;  i < currentLights.size();  i++)
+  if (lights.empty())
+    source << "  return vec3(0.0);\n}\n\n";
+  else
   {
-    const Light& light = *currentLights[i];
+    source << "  vec3 Cl = vec3(0.0), L, NdotL;\n";
 
-    switch (light.getType())
+    for (unsigned int i = 0;  i < lights.size();  i++)
     {
-      case Light::DIRECTIONAL:
-      {
-	source << "  result += gl_LightSource[" << i << "].diffuse * "
-	          "max(dot(gl_LightSource[" << i << "].position.xyz, normal), 0.0);\n";
-	break;
-      }
+      const Light& light = *lights[i];
 
-      case Light::POINT:
-      {
-	source << "  light = gl_LightSource[" << i << "].position.xyz - position;\n";
+      source << "  // Slot " << i << " is a " << lightNameMap[light.getType()] << " light\n";
 
-	if (light.isBounded())
-	  source << "  result += gl_LightSource[" << i << "].diffuse * "
-		    "max(dot(normalize(light), normal), 0.0) / "
-		    "(dot(light, light) * gl_LightSource[" << i << "].quadraticAttentuation);\n";
-	else
-	  source << "  result += gl_LightSource[" << i << "].diffuse * "
-		    "max(dot(normalize(light), normal), 0.0);\n";
-	break;
-      }
-
-      case Light::SPOT:
+      switch (light.getType())
       {
-	// TODO: The code.
-	break;
+	case Light::DIRECTIONAL:
+	{
+	  source << "  Cl += gl_LightSource[" << i << "].diffuse.rgb * "
+		    "max(dot(gl_LightSource[" << i << "].position.xyz, N), 0.0);\n";
+	  break;
+	}
+
+	case Light::POINT:
+	{
+	  source << "  L = gl_LightSource[" << i << "].position.xyz - P;\n";
+
+	  if (light.isBounded())
+	    source << "  Cl += gl_LightSource[" << i << "].diffuse.rgb * "
+		      "max(dot(normalize(L), N), 0.0) / "
+		      "(dot(L, L) * gl_LightSource[" << i << "].quadraticAttenuation);\n";
+	  else
+	    source << "  Cl += gl_LightSource[" << i << "].diffuse.rgb * "
+		      "max(dot(normalize(L), N), 0.0);\n";
+	  break;
+	}
+
+	case Light::SPOT:
+	{
+	  source << "  L = gl_LightSource[" << i << "].position.xyz - P;\n";
+	  source << "  NdotL = max(dot(normalize(L), N), 0.0);\n";
+	  source << "  if (NdotL > 0.0)\n  {\n";
+	  source << "    float e = dot(gl_LightSource[" << i << "].spotDirection, normalize(-L));\n";
+	  source << "    if (e > gl_LightSource[" << i << "].spotCosCutoff)\n    {\n";
+	  // TODO: The code code.
+	  source << "    }\n  }\n";
+	  break;
+	}
       }
     }
+
+    source << "  return Cl;\n}\n\n";
   }
 
-  source << "  return result;\n}\n\n";
+  // Generate specular(P, N, s)
 
-  result = source.str();
+  source << "vec3 specular(in vec3 P, in vec3 N, float s)\n{\n";
+
+  if (lights.empty())
+    source << "  return vec3(0.0);\n}\n\n";
+  else
+  {
+    source << "  vec3 Cl = vec3(0.0), L, R, NdotL;\n";
+
+    for (unsigned int i = 0;  i < lights.size();  i++)
+    {
+      const Light& light = *lights[i];
+
+      source << "  // Slot " << i << " is a " << lightNameMap[light.getType()] << " light\n";
+
+      switch (light.getType())
+      {
+	case Light::DIRECTIONAL:
+	{
+	  source << "  R = reflect(-normalize(gl_LightSource[" << i << "].position.xyz), N);\n";
+	  source << "  Cl += gl_LightSource[" << i << "].specular.rgb * "
+		    "pow(max(dot(-normalize(P), R), 0.0), s);\n";
+	  break;
+	}
+
+	case Light::POINT:
+	{
+	  source << "  L = P - gl_LightSource[" << i << "].position.xyz;\n";
+	  source << "  R = reflect(normalize(L), N);\n";
+
+	  if (light.isBounded())
+	    source << "  Cl += gl_LightSource[" << i << "].specular.rgb * "
+		      "pow(max(dot(-normalize(P), R), 0.0), s) / "
+		      "(dot(L, L) * gl_LightSource[" << i << "].quadraticAttenuation);\n";
+	  else
+	    source << "  Cl += gl_LightSource[" << i << "].specular.rgb * "
+		      "pow(max(dot(-normalize(P), R), 0.0), s);\n";
+	  break;
+	}
+
+	case Light::SPOT:
+	{
+	  source << "  L = gl_LightSource[" << i << "].position.xyz - P;\n";
+	  source << "  NdotL = max(dot(normalize(L), N), 0.0);\n";
+	  source << "  if (NdotL > 0.0)\n  {\n";
+	  // TODO: The code code.
+	  source << "  }\n";
+	  break;
+	}
+      }
+    }
+
+    source << "  return Cl;\n}\n\n";
+  }
+
+  Log::writeInformation("%s", source.str().c_str());
+
+  text = source.str();
 }
 
 void LightState::onContextDestroy(void)
 {
-  currentLights.clear();
+  current.detachLights();
 }
 
-String LightState::currentName;
+LightState LightState::current;
 
-LightList LightState::currentLights;
-
-LightState::VariantMap LightState::variants;
+LightState::PermutationMap LightState::permutations;
 
 ///////////////////////////////////////////////////////////////////////
 
