@@ -55,8 +55,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Slider::Slider(Orientation initOrientation, const String& name):
-  Widget(name),
+Slider::Slider(Orientation initOrientation):
   minValue(0.f),
   maxValue(1.f),
   value(0.f),
@@ -71,8 +70,9 @@ Slider::Slider(Orientation initOrientation, const String& name):
     setSize(Vector2(font->getHeight() * 1.5f,
                     font->getWidth() * 10.f));
 
-  getKeyPressSignal().connect(*this, &Slider::onKeyPress);
-  getButtonClickSignal().connect(*this, &Slider::onButtonClick);
+  getKeyPressedSignal().connect(*this, &Slider::onKeyPressed);
+  getButtonClickedSignal().connect(*this, &Slider::onButtonClicked);
+  getDragMovedSignal().connect(*this, &Slider::onDragMoved);
 }
 
 float Slider::getMinValue(void) const
@@ -116,9 +116,9 @@ void Slider::setOrientation(Orientation newOrientation)
   orientation = newOrientation;
 }
 
-SignalProxy2<void, Slider&, float> Slider::getChangeValueSignal(void)
+SignalProxy2<void, Slider&, float> Slider::getValueChangedSignal(void)
 {
-  return changeValueSignal;
+  return valueChangedSignal;
 }
 
 void Slider::render(void) const
@@ -159,29 +159,16 @@ void Slider::render(void) const
   }
 }
 
-void Slider::onButtonClick(Widget& widget,
-	                   const Vector2& point,
-	                   unsigned int button,
-		           bool clicked)
+void Slider::onButtonClicked(Widget& widget,
+			     const Vector2& position,
+			     unsigned int button,
+			     bool clicked)
 {
   if (clicked)
-  {
-    Vector2 localPoint = transformToLocal(point);
-
-    render::Font* font = Renderer::get()->getCurrentFont();
-
-    float scale;
-
-    if (orientation == HORIZONTAL)
-      scale = (localPoint.x - font->getWidth() / 2.f) / (getArea().size.x - font->getWidth());
-    else
-      scale = (localPoint.y - font->getHeight() / 2.f) / (getArea().size.y - font->getHeight());
-
-    setValue(minValue + (maxValue - minValue) * scale, true);
-  }
+    setValue(transformToLocal(position));
 }
 
-void Slider::onKeyPress(Widget& widget, GL::Key key, bool pressed)
+void Slider::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
 {
   if (pressed)
   {
@@ -199,6 +186,25 @@ void Slider::onKeyPress(Widget& widget, GL::Key key, bool pressed)
   }
 }
 
+void Slider::onDragMoved(Widget& widget, const Vector2& position)
+{
+  setValue(transformToLocal(position));
+}
+
+void Slider::setValue(const Vector2& position)
+{
+  render::Font* font = Renderer::get()->getCurrentFont();
+
+  float scale;
+
+  if (orientation == HORIZONTAL)
+    scale = (position.x - font->getWidth() / 2.f) / (getArea().size.x - font->getWidth());
+  else
+    scale = (position.y - font->getHeight() / 2.f) / (getArea().size.y - font->getHeight());
+
+  setValue(minValue + (maxValue - minValue) * scale, true);
+}
+
 void Slider::setValue(float newValue, bool notify)
 {
   if (newValue < minValue)
@@ -210,7 +216,7 @@ void Slider::setValue(float newValue, bool notify)
     return;
 
   if (notify)
-    changeValueSignal.emit(*this, newValue);
+    valueChangedSignal.emit(*this, newValue);
 
   value = newValue;
 }

@@ -39,6 +39,7 @@ AC_OUTPUT(
   docs/Makefile
   docs/Doxyfile
   examples/Makefile
+  examples/editor/Makefile
   examples/fonts/Makefile
   examples/program/Makefile
   examples/shadow/Makefile

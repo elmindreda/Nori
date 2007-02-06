@@ -259,14 +259,14 @@ SignalProxy0<bool> Context::getCloseRequestSignal(void)
   return closeRequestSignal;
 }
 
-SignalProxy2<void, unsigned int, unsigned int> Context::getResizeSignal(void)
+SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal(void)
 {
-  return resizeSignal;
+  return resizedSignal;
 }
 
-SignalProxy2<void, Key, bool> Context::getKeyPressSignal(void)
+SignalProxy2<void, Key, bool> Context::getKeyPressedSignal(void)
 {
-  return keyPressSignal;
+  return keyPressedSignal;
 }
 
 SignalProxy1<void, wchar_t> Context::getCharInputSignal(void)
@@ -274,14 +274,14 @@ SignalProxy1<void, wchar_t> Context::getCharInputSignal(void)
   return charInputSignal;
 }
 
-SignalProxy2<void, unsigned int, bool> Context::getButtonClickSignal(void)
+SignalProxy2<void, unsigned int, bool> Context::getButtonClickedSignal(void)
 {
-  return buttonClickSignal;
+  return buttonClickedSignal;
 }
 
-SignalProxy1<void, const Vector2&> Context::getCursorMoveSignal(void)
+SignalProxy1<void, const Vector2&> Context::getCursorMovedSignal(void)
 {
-  return cursorMoveSignal;
+  return cursorMovedSignal;
 }
 
 bool Context::create(const ContextMode& mode)
@@ -453,7 +453,7 @@ void Context::sizeCallback(int width, int height)
   instance->mode.width = width;
   instance->mode.height = height;
 
-  instance->resizeSignal.emit(width, height);
+  instance->resizedSignal.emit(width, height);
 }
 
 int Context::closeCallback(void)
@@ -483,7 +483,7 @@ void Context::keyboardCallback(int key, int action)
     key = (*i).second;
   }
 
-  instance->keyPressSignal.emit(key, (action == GLFW_PRESS) ? true : false);
+  instance->keyPressedSignal.emit(key, (action == GLFW_PRESS) ? true : false);
 }
 
 void Context::characterCallback(int character, int action)
@@ -498,12 +498,12 @@ void Context::mousePosCallback(int x, int y)
 {
   Vector2 position((float) x, (float) y);
 
-  instance->cursorMoveSignal.emit(position);
+  instance->cursorMovedSignal.emit(position);
 }
 
 void Context::mouseButtonCallback(int button, int action)
 {
-  instance->buttonClickSignal.emit(button - GLFW_MOUSE_BUTTON_1,
+  instance->buttonClickedSignal.emit(button - GLFW_MOUSE_BUTTON_1,
                                    (action == GLFW_PRESS) ? true : false); 
 }
 

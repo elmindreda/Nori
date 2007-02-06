@@ -126,7 +126,7 @@ void Queue::destroyOperations(void)
   sorted = false;
 }
 
-void Queue::render(const String& passName) const
+void Queue::render(void) const
 {
   GL::Renderer* renderer = GL::Renderer::get();
   if (!renderer)
@@ -145,7 +145,7 @@ void Queue::render(const String& passName) const
     for (unsigned int j = 0;  j < operation.technique->getPassCount();  j++)
     {
       const GL::Pass& pass = operation.technique->getPass(j);
-      if (pass.getName() != passName)
+      if (!pass.getName().empty())
 	continue;
 
       pass.apply();
@@ -207,152 +207,6 @@ const GL::LightState& Queue::getLights(void) const
 {
   return lights;
 }
-
-///////////////////////////////////////////////////////////////////////
-
-/*
-Queue::Queue(const Camera& initCamera):
-  camera(initCamera)
-{
-}
-
-void Queue::attachLight(GL::Light& light)
-{
-  if (findGroup(light))
-    return;
-
-  lightGroups.push_front(Group(&light));
-}
-
-void Queue::detachLights(void)
-{
-  lightGroups.clear();
-}
-
-Operation& Queue::createOperation(void)
-{
-  return defaultGroup.createOperation();
-}
-
-Operation& Queue::createLightOperation(GL::Light& light)
-{
-  Group* group = findGroup(light);
-  if (!group)
-  {
-    // NOTE: An exception is thrown here because attaching lights and
-    //       registering rendering operations on those lights will usually be
-    //       done by entirely different parts of the code, and if they don't
-    //       agree on the set of lights in use for a particular queue, then
-    //       that's most likely a bug.
-    throw Exception("Cannot create render operation on non-attached lights");
-  }
-
-  return group->createOperation();
-}
-
-void Queue::destroyOperations(void)
-{
-  defaultGroup.destroyOperations();
-  for (GroupList::iterator i = lightGroups.begin();  i != lightGroups.end();  i++)
-    (*i).destroyOperations();
-}
-
-const Camera& Queue::getCamera(void) const
-{
-  return camera;
-}
-
-unsigned int Queue::getLightCount(void) const
-{
-  return lightGroups.size();
-}
-
-Group& Queue::getDefaultGroup(void)
-{
-  return defaultGroup;
-}
-
-const Group& Queue::getDefaultGroup(void) const
-{
-  return defaultGroup;
-}
-
-Group& Queue::getLightGroup(unsigned int index)
-{
-  GroupList::iterator group = lightGroups.begin();
-  std::advance(group, index);
-  return *group;
-}
-
-const Group& Queue::getLightGroup(unsigned int index) const
-{
-  GroupList::const_iterator group = lightGroups.begin();
-  std::advance(group, index);
-  return *group;
-}
-
-void Queue::renderGroup(const Group& group) const
-{
-  const OperationList& operations = group.getOperations();
-  
-  for (unsigned int i = 0;  i < operations.size();  i++)
-  {
-    const Operation& operation = *operations[i];
-
-    glPushAttrib(GL_TRANSFORM_BIT);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glMultMatrixf(operation.transform);
-    glPopAttrib();
-
-    for (unsigned int j = 0;  j < operation.style->getPassCount();  j++)
-    {
-      const RenderPass& pass = operation.style->getPass(j);
-      if (!pass.getGroupName().empty())
-	continue;
-
-      pass.apply();
-
-      if (operation.indexBuffer)
-        operation.indexBuffer->render(*(operation.vertexBuffer),
-	                              operation.renderMode,
-	                              operation.start,
-				      operation.count);
-      else
-        operation.vertexBuffer->render(operation.renderMode,
-	                               operation.start,
-				       operation.count);
-    }
-
-    glPushAttrib(GL_TRANSFORM_BIT);
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-    glPopAttrib();
-  }
-}
-
-Group* Queue::findGroup(GL::Light& light)
-{
-  for (GroupList::iterator i = lightGroups.begin();  i != lightGroups.end();  i++)
-  {
-    if ((*i).getLight() == &light)
-      return &(*i);
-  }
-
-  return NULL;
-}
-
-const Group* Queue::findGroup(GL::Light& light) const
-{
-  for (GroupList::const_iterator i = lightGroups.begin();  i != lightGroups.end();  i++)
-  {
-    if ((*i).getLight() == &light)
-      return &(*i);
-  }
-
-  return NULL;
-}
-*/
 
 ///////////////////////////////////////////////////////////////////////
 

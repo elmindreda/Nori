@@ -52,6 +52,7 @@ public:
    *  @remarks The y-coordinate of the position is mapped to the z-axis.
    */
   float getHeight(const Vector2& position) const;
+  const Sphere& getBounds(void) const;
   static Terrain* createInstance(const Image& heightmap,
 			         const Image& colormap,
 				 const Vector3& size,
@@ -73,6 +74,7 @@ private:
   Ptr<Mesh> mesh;
   Ptr<GL::Texture> texture;
   Style style;
+  Sphere bounds;
 };
 
 ///////////////////////////////////////////////////////////////////////

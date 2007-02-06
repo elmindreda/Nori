@@ -55,8 +55,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Layout::Layout(const String& name):
-  Widget(name),
+Layout::Layout(void):
   borderSize(0.f),
   parentAreaSlot(NULL)
 {
@@ -84,8 +83,8 @@ void Layout::removedChild(Widget& child)
 
 void Layout::addedToParent(Widget& parent)
 {
-  parentAreaSlot = parent.getChangeAreaSignal().connect(*this, &Layout::onChangeArea);
-  onChangeArea(parent, parent.getArea());
+  parentAreaSlot = parent.getAreaChangedSignal().connect(*this, &Layout::onAreaChanged);
+  onAreaChanged(parent, parent.getArea());
 }
 
 void Layout::removedFromParent(Widget& parent)
@@ -93,7 +92,7 @@ void Layout::removedFromParent(Widget& parent)
   parentAreaSlot = NULL;
 }
 
-void Layout::onChangeArea(Widget& parent, const Rectangle& area)
+void Layout::onAreaChanged(Widget& parent, const Rectangle& area)
 {
   setArea(Rectangle(Vector2::ZERO, area.size));
   update();

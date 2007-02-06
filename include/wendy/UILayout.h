@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_UILAYER_H
-#define WENDY_UILAYER_H
+#ifndef WENDY_UILAYOUT_H
+#define WENDY_UILAYOUT_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -42,7 +42,7 @@ using namespace moira;
 class Layout : public Widget
 {
 public:
-  Layout(const String& name = "");
+  Layout(void);
   float getBorderSize(void) const;
   void setBorderSize(float newSize);
 protected:
@@ -50,7 +50,7 @@ protected:
   void removedChild(Widget& child);
   void addedToParent(Widget& parent);
   void removedFromParent(Widget& parent);
-  void onChangeArea(Widget& parent, const Rectangle& area);
+  void onAreaChanged(Widget& parent, const Rectangle& area);
 private:
   void update(void);
   float borderSize;
@@ -63,5 +63,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_UILAYER_H*/
+#endif /*WENDY_UILAYOUT_H*/
 ///////////////////////////////////////////////////////////////////////

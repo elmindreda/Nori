@@ -146,9 +146,9 @@ public:
   typedef std::vector<SceneNode*> NodeList;
   Scene(const String& name = "");
   ~Scene(void);
-  void enqueue(Queue& queue);
-  void query(const Sphere& bounds, NodeList& nodes);
-  void query(const Frustum& frustum, NodeList& nodes);
+  void enqueue(Queue& queue) const;
+  void query(const Sphere& bounds, NodeList& nodes) const;
+  void query(const Frustum& frustum, NodeList& nodes) const;
   void addNode(SceneNode& node);
   void removeNode(SceneNode& node);
   void removeNodes(void);
@@ -173,6 +173,7 @@ public:
   const String& getLightName(void) const;
   void setLightName(const String& newLightName);
 protected:
+  void update(Time deltaTime);
   void enqueue(Queue& queue, QueuePhase phase) const;
 private:
   String lightName;
@@ -219,6 +220,7 @@ public:
   const String& getTerrainName(void) const;
   void setTerrainName(const String& newTerrainName);
 protected:
+  void update(Time deltaTime);
   void enqueue(Queue& queue, QueuePhase phase) const;
 private:
   String terrainName;

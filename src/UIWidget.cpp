@@ -54,12 +54,10 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Widget::Widget(const String& name):
-  Managed<Widget>(name),
+Widget::Widget(void):
   parent(NULL),
   enabled(true),
-  visible(true),
-  underCursor(false)
+  visible(true)
 {
   static bool initialized = false;
 
@@ -69,10 +67,10 @@ Widget::Widget(const String& name):
     if (!context)
       throw Exception("Cannot create UI widgets without an OpenGL context");
 
-    context->getKeyPressSignal().connect(&Widget::onKeyPress);
+    context->getKeyPressedSignal().connect(&Widget::onKeyPressed);
     context->getCharInputSignal().connect(&Widget::onCharInput);
-    context->getButtonClickSignal().connect(&Widget::onButtonClick);
-    context->getCursorMoveSignal().connect(&Widget::onCursorMove);
+    context->getButtonClickedSignal().connect(&Widget::onButtonClicked);
+    context->getCursorMovedSignal().connect(&Widget::onCursorMoved);
 
     initialized = true;
   }
@@ -91,21 +89,27 @@ Widget::~Widget(void)
 
   if (activeWidget == this)
   {
-    if (Widget* parent = getParent())
+    if (parent)
       parent->activate();
     else if (!roots.empty())
       roots.back()->activate();
     else
     {
-      changeFocusSignal.emit(*this, false);
+      focusChangedSignal.emit(*this, false);
       activeWidget = NULL;
     }
   }
 
+  if (draggedWidget == this)
+    draggedWidget = NULL;
+
+  if (hoveredWidget == this)
+    hoveredWidget = NULL;
+
   while (!children.empty())
     delete children.front();
 
-  destroySignal.emit(*this);
+  destroyedSignal.emit(*this);
 }
 
 void Widget::addChild(Widget& child)
@@ -121,7 +125,7 @@ void Widget::addChild(Widget& child)
   else
     roots.remove(&child);
 
-  children.push_front(&child);
+  children.push_back(&child);
   child.parent = this;
 
   addedChild(child);
@@ -198,10 +202,38 @@ void Widget::activate(void)
     return;
 
   if (activeWidget)
-    activeWidget->changeFocusSignal.emit(*activeWidget, false);
+    activeWidget->focusChangedSignal.emit(*activeWidget, false);
 
-  changeFocusSignal.emit(*this, true);
+  focusChangedSignal.emit(*this, true);
   activeWidget = this;
+}
+
+void Widget::bringToFront(void)
+{
+  List* siblings;
+
+  if (parent)
+    siblings = &(parent->children);
+  else
+    siblings = &roots;
+
+  List::iterator i = std::find(siblings->begin(), siblings->end(), this);
+  siblings->erase(i);
+  siblings->push_back(this);
+}
+
+void Widget::sendToBack(void)
+{
+  List* siblings;
+
+  if (parent)
+    siblings = &(parent->children);
+  else
+    siblings = &roots;
+
+  List::iterator i = std::find(siblings->begin(), siblings->end(), this);
+  siblings->erase(i);
+  siblings->push_front(this);
 }
 
 bool Widget::isEnabled(void) const
@@ -221,7 +253,7 @@ bool Widget::isActive(void) const
 
 bool Widget::isUnderCursor(void) const
 {
-  return underCursor;
+  return hoveredWidget == this;
 }
 
 bool Widget::isBeingDragged(void) const
@@ -261,7 +293,7 @@ const Rectangle& Widget::getGlobalArea(void) const
 {
   globalArea = area;
 
-  if (const Widget* parent = getParent())
+  if (parent)
     globalArea.position += parent->getGlobalArea().position;
 
   return globalArea;
@@ -269,42 +301,42 @@ const Rectangle& Widget::getGlobalArea(void) const
 
 void Widget::setArea(const Rectangle& newArea)
 {
-  changeAreaSignal.emit(*this, newArea);
+  areaChangedSignal.emit(*this, newArea);
   area = newArea;
 }
 
 void Widget::setSize(const Vector2& newSize)
 {
   Rectangle newArea(area.position, newSize);
-  changeAreaSignal.emit(*this, newArea);
+  areaChangedSignal.emit(*this, newArea);
   area.size = newSize;
 }
 
 void Widget::setPosition(const Vector2& newPosition)
 {
   Rectangle newArea(newPosition, area.size);
-  changeAreaSignal.emit(*this, newArea);
+  areaChangedSignal.emit(*this, newArea);
   area.position = newPosition;
 }
 
-SignalProxy1<void, Widget&> Widget::getDestroySignal(void)
+SignalProxy1<void, Widget&> Widget::getDestroyedSignal(void)
 {
-  return destroySignal;
+  return destroyedSignal;
 }
 
-SignalProxy2<void, Widget&, const Rectangle&> Widget::getChangeAreaSignal(void)
+SignalProxy2<void, Widget&, const Rectangle&> Widget::getAreaChangedSignal(void)
 {
-  return changeAreaSignal;
+  return areaChangedSignal;
 }
 
-SignalProxy2<void, Widget&, bool> Widget::getChangeFocusSignal(void)
+SignalProxy2<void, Widget&, bool> Widget::getFocusChangedSignal(void)
 {
-  return changeFocusSignal;
+  return focusChangedSignal;
 }
 
-SignalProxy3<void, Widget&, GL::Key, bool> Widget::getKeyPressSignal(void)
+SignalProxy3<void, Widget&, GL::Key, bool> Widget::getKeyPressedSignal(void)
 {
-  return keyPressSignal;
+  return keyPressedSignal;
 }
 
 SignalProxy2<void, Widget&, wchar_t> Widget::getCharInputSignal(void)
@@ -312,39 +344,39 @@ SignalProxy2<void, Widget&, wchar_t> Widget::getCharInputSignal(void)
   return charInputSignal;
 }
 
-SignalProxy2<void, Widget&, const Vector2&> Widget::getCursorMoveSignal(void)
+SignalProxy2<void, Widget&, const Vector2&> Widget::getCursorMovedSignal(void)
 {
-  return cursorMoveSignal;
+  return cursorMovedSignal;
 }
 
-SignalProxy4<void, Widget&, const Vector2&, unsigned int, bool> Widget::getButtonClickSignal(void)
+SignalProxy4<void, Widget&, const Vector2&, unsigned int, bool> Widget::getButtonClickedSignal(void)
 {
-  return buttonClickSignal;
+  return buttonClickedSignal;
 }
 
-SignalProxy1<void, Widget&> Widget::getCursorEnterSignal(void)
+SignalProxy1<void, Widget&> Widget::getCursorEnteredSignal(void)
 {
-  return cursorEnterSignal;
+  return cursorEnteredSignal;
 }
 
-SignalProxy1<void, Widget&> Widget::getCursorLeaveSignal(void)
+SignalProxy1<void, Widget&> Widget::getCursorLeftSignal(void)
 {
-  return cursorLeaveSignal;
+  return cursorLeftSignal;
 }
 
-SignalProxy2<void, Widget&, const Vector2&> Widget::getDragBeginSignal(void)
+SignalProxy2<void, Widget&, const Vector2&> Widget::getDragBegunSignal(void)
 {
-  return dragBeginSignal;
+  return dragBegunSignal;
 }
 
-SignalProxy2<void, Widget&, const Vector2&> Widget::getDragMoveSignal(void)
+SignalProxy2<void, Widget&, const Vector2&> Widget::getDragMovedSignal(void)
 {
-  return dragMoveSignal;
+  return dragMovedSignal;
 }
 
-SignalProxy2<void, Widget&, const Vector2&> Widget::getDragEndSignal(void)
+SignalProxy2<void, Widget&, const Vector2&> Widget::getDragEndedSignal(void)
 {
-  return dragEndSignal;
+  return dragEndedSignal;
 }
 
 Widget* Widget::getActive(void)
@@ -411,14 +443,14 @@ void Widget::removedFromParent(Widget& parent)
 {
 }
 
-void Widget::onKeyPress(GL::Key key, bool pressed)
+void Widget::onKeyPressed(GL::Key key, bool pressed)
 {
   switch (key)
   {
     default:
     {
       if (activeWidget)
-        activeWidget->keyPressSignal.emit(*activeWidget, key, pressed);
+        activeWidget->keyPressedSignal.emit(*activeWidget, key, pressed);
 
       break;
     }
@@ -431,18 +463,51 @@ void Widget::onCharInput(wchar_t character)
     activeWidget->charInputSignal.emit(*activeWidget, character);
 }
 
-void Widget::onCursorMove(const Vector2& position)
+void Widget::onCursorMoved(const Vector2& position)
 {
+  GL::Context* context = GL::Context::get();
+
+  Vector2 cursorPosition = position;
+  cursorPosition.y = context->getHeight() - cursorPosition.y;
+
+  Widget* newWidget = NULL;
+
+  for (List::reverse_iterator i = roots.rbegin();  i != roots.rend();  i++)
+  {
+    if ((*i)->isVisible())
+      if (newWidget = (*i)->findByPoint(cursorPosition))
+	break;
+  }
+
+  if (newWidget != hoveredWidget)
+  {
+    if (hoveredWidget)
+      hoveredWidget->cursorLeftSignal.emit(*hoveredWidget);
+
+    if (newWidget)
+      newWidget->cursorEnteredSignal.emit(*newWidget);
+
+    hoveredWidget = newWidget;
+  }
+
+  if (hoveredWidget)
+    hoveredWidget->cursorMovedSignal.emit(*hoveredWidget, cursorPosition);
+
   if (draggedWidget)
   {
     if (dragging)
-      draggedWidget->dragMoveSignal.emit(*draggedWidget, position);
+      draggedWidget->dragMovedSignal.emit(*draggedWidget, cursorPosition);
     else
-      draggedWidget->dragBeginSignal.emit(*draggedWidget, position);
+    {
+      // TODO: Add insensitivity.
+
+      draggedWidget->dragBegunSignal.emit(*draggedWidget, cursorPosition);
+      dragging = true;
+    }
   }
 }
 
-void Widget::onButtonClick(unsigned int button, bool clicked)
+void Widget::onButtonClicked(unsigned int button, bool clicked)
 {
   GL::Context* context = GL::Context::get();
 
@@ -453,10 +518,11 @@ void Widget::onButtonClick(unsigned int button, bool clicked)
   {
     Widget* clickedWidget = NULL;
 
-    for (List::iterator i = roots.begin();  i != roots.end();  i++)
+    for (List::reverse_iterator i = roots.rbegin();  i != roots.rend();  i++)
     {
-      if (clickedWidget = (*i)->findByPoint(cursorPosition))
-	break;
+      if ((*i)->isVisible())
+	if (clickedWidget = (*i)->findByPoint(cursorPosition))
+	  break;
     }
 
     while (clickedWidget && !clickedWidget->isEnabled())
@@ -465,7 +531,12 @@ void Widget::onButtonClick(unsigned int button, bool clicked)
     if (clickedWidget)
     {
       clickedWidget->activate();
-      clickedWidget->buttonClickSignal.emit(*clickedWidget, cursorPosition, button, clicked);
+      clickedWidget->buttonClickedSignal.emit(*clickedWidget,
+                                              cursorPosition,
+					      button,
+					      clicked);
+
+      draggedWidget = clickedWidget;
     }
   }
   else
@@ -474,7 +545,7 @@ void Widget::onButtonClick(unsigned int button, bool clicked)
     {
       if (dragging)
       {
-	draggedWidget->dragEndSignal.emit(*draggedWidget, cursorPosition);
+	draggedWidget->dragEndedSignal.emit(*draggedWidget, cursorPosition);
 	dragging = false;
       }
 
@@ -482,7 +553,10 @@ void Widget::onButtonClick(unsigned int button, bool clicked)
     }
 
     if (activeWidget)
-      activeWidget->buttonClickSignal.emit(*activeWidget, cursorPosition, button, clicked);
+      activeWidget->buttonClickedSignal.emit(*activeWidget,
+                                           cursorPosition,
+					   button,
+					   clicked);
   }
 }
 
@@ -492,6 +566,7 @@ Widget::List Widget::roots;
 
 Widget* Widget::activeWidget = NULL;
 Widget* Widget::draggedWidget = NULL;
+Widget* Widget::hoveredWidget = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 

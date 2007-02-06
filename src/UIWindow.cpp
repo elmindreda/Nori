@@ -55,8 +55,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Window::Window(const String& initTitle, const String& name):
-  Widget(name),
+Window::Window(const String& initTitle):
   title(initTitle)
 {
 }

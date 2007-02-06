@@ -118,13 +118,12 @@ public:
   unsigned int getTechniqueCount(void) const;
   Technique& getTechnique(unsigned int index);
   const Technique& getTechnique(unsigned int index) const;
-  Technique* getActiveTechnique(void);
-  const Technique* getActiveTechnique(void) const;
+  Technique* getActiveTechnique(void) const;
 private:
-  bool validateTechniques(void);
+  bool validateTechniques(void) const;
   typedef std::vector<Technique*> List;
   List techniques;
-  Technique* active;
+  mutable Technique* active;
 };
 
 ///////////////////////////////////////////////////////////////////////

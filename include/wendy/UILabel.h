@@ -42,15 +42,14 @@ using namespace moira;
 class Label : public Widget
 {
 public:
-  Label(const String& text = "", const String& name = "");
+  Label(const String& text = "");
   const String& getText(void) const;
   void setText(const String& newText);
+  void setText(const char* format, ...);
   const Alignment& getTextAlignment(void) const;
   void setTextAlignment(const Alignment& newAlignment);
-  SignalProxy2<void, Label&, const String&> getChangeTextSignal(void);
 private:
   void render(void) const;
-  Signal2<void, Label&, const String&> changeTextSignal;
   String text;
   Alignment textAlignment;
 };

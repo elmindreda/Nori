@@ -22,7 +22,6 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
@@ -32,14 +31,6 @@
 #include <wendy/GLCanvas.h>
 
 #include <wendy/DemoEffect.h>
-
-#if MOIRA_HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-
-#if MOIRA_HAVE_ERRNO_H
-#include <errno.h>
-#endif
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -61,12 +52,11 @@ EffectType::EffectType(const String& name):
 
 ///////////////////////////////////////////////////////////////////////
 
-Effect::Effect(const String& name,
-                       EffectType* initType,
-		       Time initDuration):
+Effect::Effect(EffectType& initType,
+               const String& name):
   Managed<Effect>(name),
   type(initType),
-  duration(initDuration),
+  duration(0.0),
   elapsed(0.0),
   active(false)
 {
@@ -77,7 +67,7 @@ bool Effect::isActive(void) const
   return active;
 }
 
-EffectType* Effect::getType(void) const
+EffectType& Effect::getType(void) const
 {
   return type;
 }
@@ -94,19 +84,23 @@ Time Effect::getTimeElapsed(void) const
 
 void Effect::prepareChildren(void) const
 {
-  for (const Effect* child = getFirstChild();  child != NULL;  child = child->getNextSibling())
+  const List& children = getChildren();
+
+  for (List::const_iterator i = children.begin();  i != children.end();  i++)
   {
-    if (child->active)
-      child->prepare();
+    if ((*i)->isActive())
+      (*i)->prepare();
   }
 }
 
 void Effect::renderChildren(void) const
 {
-  for (const Effect* child = getFirstChild();  child != NULL;  child = child->getNextSibling())
+  const List& children = getChildren();
+
+  for (List::const_iterator i = children.begin();  i != children.end();  i++)
   {
-    if (child->active)
-      child->render();
+    if ((*i)->isActive())
+      (*i)->render();
   }
 }
 
@@ -124,76 +118,20 @@ void Effect::update(Time deltaTime)
 {
 }
 
-void Effect::trigger(const Event& event)
-{
-}
-
 void Effect::restart(void)
 {
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-NullEffect::NullEffect(const String& name, EffectType* type, Time duration):
-  Effect(name, type, duration)
+NullEffect::NullEffect(EffectType& type, const String& name):
+  Effect(type, name)
 {
 }
 
 bool NullEffect::init(void)
 {
   return true;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-ClearEffect::ClearEffect(const String& name, EffectType* type, Time duration):
-  Effect(name, type, duration)
-{
-}
-
-bool ClearEffect::init(void)
-{
-  return true;
-}
-
-void ClearEffect::render(void) const
-{
-  GL::Canvas::getCurrent()->clearDepthBuffer();
-  GL::Canvas::getCurrent()->clearStencilBuffer();
-  GL::Canvas::getCurrent()->clearColorBuffer(color);
-
-  renderChildren();
-}
-
-void ClearEffect::trigger(Time moment, const String& name, const String& value)
-{
-  errno = 0;
-
-  if (name == "red")
-  {
-    int integer = strtol(value.c_str(), NULL, 0);
-    if (errno != EINVAL)
-      color.r = integer / 255.f;
-  }
-
-  if (name == "green")
-  {
-    int integer = strtol(value.c_str(), NULL, 0);
-    if (errno != EINVAL)
-      color.g = integer / 255.f;
-  }
-
-  if (name == "blue")
-  {
-    int integer = strtol(value.c_str(), NULL, 0);
-    if (errno != EINVAL)
-      color.b = integer / 255.f;
-  }
-}
-
-void ClearEffect::restart(void)
-{
-  color = ColorRGBA::BLACK;
 }
 
 ///////////////////////////////////////////////////////////////////////

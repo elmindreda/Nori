@@ -116,8 +116,11 @@ const Sphere& SceneNode::getTotalBounds(void) const
   if (dirtyBounds)
   {
     totalBounds = localBounds;
-    for (const SceneNode* child = getFirstChild();  child;  child = child->getNextSibling())
-      totalBounds.envelop(child->getTotalBounds());
+
+    const List& children = getChildren();
+
+    for (List::const_iterator i = children.begin();  i != children.end();  i++)
+      totalBounds.envelop((*i)->getTotalBounds());
 
     dirtyBounds = false;
   }
@@ -143,8 +146,10 @@ void SceneNode::removedFromParent(void)
 
 void SceneNode::update(Time deltaTime)
 {
-  for (SceneNode* node = getFirstChild();  node;  node = node->getNextSibling())
-    node->update(deltaTime);
+  const List& children = getChildren();
+
+  for (List::const_iterator i = children.begin();  i != children.end();  i++)
+    (*i)->update(deltaTime);
 }
 
 void SceneNode::restart(void)
@@ -153,17 +158,19 @@ void SceneNode::restart(void)
 
 void SceneNode::enqueue(Queue& queue, QueuePhase phase) const
 {
-  for (const SceneNode* node = getFirstChild();  node;  node = node->getNextSibling())
+  const List& children = getChildren();
+
+  for (List::const_iterator i = children.begin();  i != children.end();  i++)
   {
-    if (node->isVisible())
+    if ((*i)->isVisible())
     {
       // TODO: Make less gluäöusch.
 
-      Sphere worldBounds = node->getTotalBounds();
-      worldBounds.transformBy(node->getWorldTransform());
+      Sphere worldBounds = (*i)->getTotalBounds();
+      worldBounds.transformBy((*i)->getWorldTransform());
 
       if (queue.getCamera().getFrustum().intersects(worldBounds))
-	node->enqueue(queue, phase);
+	(*i)->enqueue(queue, phase);
     }
   }
 }
@@ -217,7 +224,7 @@ Scene::~Scene(void)
   }
 }
 
-void Scene::enqueue(Queue& queue)
+void Scene::enqueue(Queue& queue) const
 {
   NodeList nodes;
   query(queue.getCamera().getFrustum(), nodes);
@@ -229,7 +236,7 @@ void Scene::enqueue(Queue& queue)
     (*i)->enqueue(queue, COLLECT_GEOMETRY);
 }
 
-void Scene::query(const Sphere& bounds, NodeList& nodes)
+void Scene::query(const Sphere& bounds, NodeList& nodes) const
 {
   for (NodeList::const_iterator i = roots.begin();  i != roots.end();  i++)
   {
@@ -244,7 +251,7 @@ void Scene::query(const Sphere& bounds, NodeList& nodes)
   }
 }
 
-void Scene::query(const Frustum& frustum, NodeList& nodes)
+void Scene::query(const Frustum& frustum, NodeList& nodes) const
 {
   for (NodeList::const_iterator i = roots.begin();  i != roots.end();  i++)
   {
@@ -322,21 +329,29 @@ void LightNode::setLightName(const String& newLightName)
   lightName = newLightName;
 }
 
+void LightNode::update(Time deltaTime)
+{
+  if (GL::Light* light = GL::Light::findInstance(lightName))
+    setLocalBounds(light->getBounds());
+}
+
 void LightNode::enqueue(Queue& queue, QueuePhase phase) const
 {
   SceneNode::enqueue(queue, phase);
 
+  if (phase != COLLECT_LIGHTS)
+    return;
+
   if (GL::Light* light = GL::Light::findInstance(lightName))
   {
-    Transform3 transform = getWorldTransform();
-    transform.concatenate(queue.getCamera().getInverseTransform());
+    const Transform3 world = getWorldTransform();
 
     switch (light->getType())
     {
       case GL::Light::DIRECTIONAL:
       {
         Vector3 direction(0.f, 0.f, 1.f);
-        transform.rotateVector(direction);
+        world.rotateVector(direction);
         light->setDirection(direction);
         break;
       }
@@ -344,7 +359,7 @@ void LightNode::enqueue(Queue& queue, QueuePhase phase) const
       case GL::Light::POINT:
       {
         Vector3 position(0.f, 0.f, 0.f);
-        transform.transformVector(position);
+        world.transformVector(position);
         light->setPosition(position);
         break;
       }
@@ -425,13 +440,25 @@ void TerrainNode::setTerrainName(const String& newTerrainName)
   terrainName = newTerrainName;
 }
 
+void TerrainNode::update(Time deltaTime)
+{
+  SceneNode::update(deltaTime);
+
+  Terrain* terrain = Terrain::findInstance(terrainName);
+  if (terrain)
+    setLocalBounds(terrain->getBounds());
+}
+
 void TerrainNode::enqueue(Queue& queue, QueuePhase phase) const
 {
   SceneNode::enqueue(queue, phase);
 
-  Terrain* terrain = Terrain::findInstance(terrainName);
-  if (terrain)
-    terrain->enqueue(queue, getWorldTransform());
+  if (phase == COLLECT_GEOMETRY)
+  {
+    Terrain* terrain = Terrain::findInstance(terrainName);
+    if (terrain)
+      terrain->enqueue(queue, getWorldTransform());
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -460,10 +487,13 @@ void SpriteNode::enqueue(Queue& queue, QueuePhase phase) const
 {
   SceneNode::enqueue(queue, phase);
 
-  Sprite3 sprite;
-  sprite.size = spriteSize;
-  sprite.styleName = styleName;
-  sprite.enqueue(queue, getWorldTransform());
+  if (phase == COLLECT_GEOMETRY)
+  {
+    Sprite3 sprite;
+    sprite.size = spriteSize;
+    sprite.styleName = styleName;
+    sprite.enqueue(queue, getWorldTransform());
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -497,14 +527,17 @@ void ParticleSystemNode::enqueue(Queue& queue, QueuePhase phase) const
 {
   SceneNode::enqueue(queue, phase);
 
-  ParticleSystem* system = ParticleSystem::findInstance(systemName);
-  if (!system)
+  if (phase == COLLECT_GEOMETRY)
   {
-    Log::writeError("Cannot find particle system %s for enqueueing", systemName.c_str());
-    return;
-  }
+    ParticleSystem* system = ParticleSystem::findInstance(systemName);
+    if (!system)
+    {
+      Log::writeError("Cannot find particle system %s for enqueueing", systemName.c_str());
+      return;
+    }
 
-  system->enqueue(queue, Transform3());
+    system->enqueue(queue, Transform3());
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////

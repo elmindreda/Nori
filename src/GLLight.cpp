@@ -291,13 +291,7 @@ void LightState::apply(void) const
     else
       positionGL.set(light.getPosition(), 1.f);
 
-    glPushAttrib(GL_TRANSFORM_BIT);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
     glLightfv(GL_LIGHT0 + i, GL_POSITION, positionGL);
-    glPopMatrix();
-    glPopAttrib();
 
     if (light.getType() != Light::DIRECTIONAL)
     {
@@ -483,7 +477,7 @@ void LightState::generatePermutation(String& text) const
 	  source << "  if (NdotL > 0.0)\n  {\n";
 	  source << "    float e = dot(gl_LightSource[" << i << "].spotDirection, normalize(-L));\n";
 	  source << "    if (e > gl_LightSource[" << i << "].spotCosCutoff)\n    {\n";
-	  // TODO: The code code.
+	  // TODO: The code.
 	  source << "    }\n  }\n";
 	  break;
 	}

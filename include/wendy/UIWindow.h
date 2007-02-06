@@ -42,7 +42,7 @@ using namespace moira;
 class Window : public Widget
 {
 public:
-  Window(const String& title = "", const String& name = "");
+  Window(const String& title = "");
   const String& getTitle(void) const;
   void setTitle(const String& newTitle);
 private:

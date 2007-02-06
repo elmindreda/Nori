@@ -39,29 +39,11 @@ using namespace moira;
 
 /*! @ingroup ui
  */
-class Item
-{
-  friend class List;
-public:
-  Item(const String& value = "");
-  virtual bool operator < (const Item& other) const;
-  virtual float getHeight(void) const;
-  virtual const String& getValue(void) const;
-  virtual void setValue(const String& newValue);
-protected:
-  virtual void render(const Rectangle& area, bool selected);
-private:
-  String value;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup ui
- */
 class List : public Widget
 {
 public:
-  List(const String& name = "");
+  List(void);
+  ~List(void);
   void insertItem(Item* item, unsigned int index);
   void removeItem(Item* item);
   void removeItems(void);
@@ -73,21 +55,21 @@ public:
   unsigned int getItemCount(void) const;
   Item* getItem(unsigned int index);
   const Item* getItem(unsigned int index) const;
-  SignalProxy2<void, List&, Item&> getAddItemSignal(void);
-  SignalProxy2<void, List&, Item&> getRemoveItemSignal(void);
-  SignalProxy2<void, List&, unsigned int> getChangeSelectionSignal(void);
+  SignalProxy2<void, List&, Item&> getItemAddedSignal(void);
+  SignalProxy2<void, List&, Item&> getItemRemovedSignal(void);
+  SignalProxy2<void, List&, unsigned int> getSelectionChangedSignal(void);
 protected:
   void render(void) const;
 private:
-  void onButtonClick(Widget& widget,
-                     const Vector2& position,
-		     unsigned int button,
-		     bool clicked);
-  void onKeyPress(Widget& widget, GL::Key key, bool pressed);
+  void onButtonClicked(Widget& widget,
+		       const Vector2& position,
+		       unsigned int button,
+		       bool clicked);
+  void onKeyPressed(Widget& widget, GL::Key key, bool pressed);
   typedef std::list<Item*> ItemList;
-  Signal2<void, List&, Item&> addItemSignal;
-  Signal2<void, List&, Item&> removeItemSignal;
-  Signal2<void, List&, unsigned int> changeSelectionSignal;
+  Signal2<void, List&, Item&> itemAddedSignal;
+  Signal2<void, List&, Item&> itemRemovedSignal;
+  Signal2<void, List&, unsigned int> selectionChangedSignal;
   ItemList items;
   unsigned int selection;
 };

@@ -96,6 +96,7 @@
 #include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLPass.h>
+#include <wendy/GLState.h>
 #include <wendy/GLRender.h>
 
 #include <wendy/GLShaderIO.h>
@@ -116,15 +117,21 @@
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIWindow.h>
+#include <wendy/UICanvas.h>
 #include <wendy/UILayout.h>
 #include <wendy/UILabel.h>
 #include <wendy/UIProgress.h>
 #include <wendy/UIButton.h>
 #include <wendy/UISlider.h>
 #include <wendy/UIEntry.h>
+#include <wendy/UIItem.h>
 #include <wendy/UIList.h>
+#include <wendy/UIMenu.h>
+#include <wendy/UIPopup.h>
 
 #include <wendy/DemoEffect.h>
+#include <wendy/DemoShow.h>
+#include <wendy/DemoEditor.h>
 
 ///////////////////////////////////////////////////////////////////////
 

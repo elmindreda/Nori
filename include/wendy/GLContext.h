@@ -207,19 +207,19 @@ public:
   SignalProxy0<bool> getCloseRequestSignal(void);
   /*! @return The signal for context resizing.
    */
-  SignalProxy2<void, unsigned int, unsigned int> getResizeSignal(void);
+  SignalProxy2<void, unsigned int, unsigned int> getResizedSignal(void);
   /*! @return The signal for key press and release events.
    */
-  SignalProxy2<void, Key, bool> getKeyPressSignal(void);
+  SignalProxy2<void, Key, bool> getKeyPressedSignal(void);
   /*! @return The signal for character input events.
    */
   SignalProxy1<void, wchar_t> getCharInputSignal(void);
   /*! @return The signal for mouse button click and release events.
    */
-  SignalProxy2<void, unsigned int, bool> getButtonClickSignal(void);
+  SignalProxy2<void, unsigned int, bool> getButtonClickedSignal(void);
   /*! @return The signal for mouse cursor movement events.
    */
-  SignalProxy1<void, const Vector2&> getCursorMoveSignal(void);
+  SignalProxy1<void, const Vector2&> getCursorMovedSignal(void);
   /*! Creates the context singleton object, using the specified settings.
     *  @param mode The requested context settings.
     *  @return @c true if successful, or @c false otherwise.
@@ -246,11 +246,11 @@ private:
   Signal0<bool> renderSignal;
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
-  Signal2<void, unsigned int, unsigned int> resizeSignal;
-  Signal2<void, Key, bool> keyPressSignal;
+  Signal2<void, unsigned int, unsigned int> resizedSignal;
+  Signal2<void, Key, bool> keyPressedSignal;
   Signal1<void, wchar_t> charInputSignal;
-  Signal2<void, unsigned int, bool> buttonClickSignal;
-  Signal1<void, const Vector2&> cursorMoveSignal;
+  Signal2<void, unsigned int, bool> buttonClickedSignal;
+  Signal1<void, const Vector2&> cursorMovedSignal;
   ContextMode mode;
   String title;
   mutable Vector2 cursorPosition;

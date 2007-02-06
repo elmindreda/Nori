@@ -40,8 +40,10 @@
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
+#include <wendy/UIItem.h>
 #include <wendy/UIList.h>
 
+#include <algorithm>
 #include <cstdlib>
 
 ///////////////////////////////////////////////////////////////////////
@@ -57,66 +59,31 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Item::Item(const String& initValue):
-  value(initValue)
+namespace
 {
-}
 
-bool Item::operator < (const Item& other) const
+struct ItemComparator
 {
-  return value < other.value;
-}
-
-float Item::getHeight(void) const
-{
-  return Renderer::get()->getCurrentFont()->getHeight() * 1.5f;
-}
-
-const String& Item::getValue(void) const
-{
-  return value;
-}
-
-void Item::setValue(const String& newValue)
-{
-  value = newValue;
-}
-
-void Item::render(const Rectangle& area, bool selected)
-{
-  Renderer* renderer = Renderer::get();
-  if (renderer->pushClipArea(area))
+  inline bool operator () (const Item* x, const Item* y)
   {
-    render::Font* font = renderer->getCurrentFont();
-
-    Rectangle textArea = area;
-    textArea.position.x += font->getWidth() / 2.f;
-    textArea.size.x -= font->getWidth();
-
-    if (selected)
-    {
-      GL::Pass pass;
-      pass.setDefaultColor(ColorRGBA(renderer->getSelectionColor(), 1.f));
-      pass.setDepthTesting(false);
-      pass.setDepthWriting(false);
-      pass.apply();
-
-      glRectf(area.position.x, area.position.y, area.position.x + area.size.x, area.position.y + area.size.y);
-    }
-
-    renderer->drawText(textArea, value, LEFT_ALIGNED, selected);
-    renderer->popClipArea();
+    return *x < *y;
   }
+};
+
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-List::List(const String& name):
-  Widget(name),
+List::List(void):
   selection(0)
 {
-  getButtonClickSignal().connect(*this, &List::onButtonClick);
-  getKeyPressSignal().connect(*this, &List::onKeyPress);
+  getButtonClickedSignal().connect(*this, &List::onButtonClicked);
+  getKeyPressedSignal().connect(*this, &List::onKeyPressed);
+}
+
+List::~List(void)
+{
+  // TODO: Destroy items.
 }
 
 void List::insertItem(Item* item, unsigned int index)
@@ -125,7 +92,7 @@ void List::insertItem(Item* item, unsigned int index)
   if (i != items.end())
     return;
 
-  addItemSignal.emit(*this, *item);
+  itemAddedSignal.emit(*this, *item);
 
   ItemList::iterator p = items.begin();
   std::advance(p, index);
@@ -137,7 +104,7 @@ void List::removeItem(Item* item)
   ItemList::iterator i = std::find(items.begin(), items.end(), item);
   if (i != items.end())
   {
-    removeItemSignal.emit(*this, **i);
+    itemRemovedSignal.emit(*this, **i);
 
     delete *i;
     items.erase(i);
@@ -152,7 +119,6 @@ void List::removeItems(void)
 
 void List::sortItems(void)
 {
-  // TODO: The code.
 }
 
 unsigned int List::getSelection(void) const
@@ -166,7 +132,7 @@ void List::setSelection(unsigned int newIndex)
     return;
 
   newIndex = std::min(newIndex, (unsigned int) items.size() - 1);
-  changeSelectionSignal.emit(*this, newIndex);
+  selectionChangedSignal.emit(*this, newIndex);
   selection = newIndex;
 }
 
@@ -199,19 +165,19 @@ const Item* List::getItem(unsigned int index) const
   return NULL;
 }
 
-SignalProxy2<void, List&, Item&> List::getAddItemSignal(void)
+SignalProxy2<void, List&, Item&> List::getItemAddedSignal(void)
 {
-  return addItemSignal;
+  return itemAddedSignal;
 }
 
-SignalProxy2<void, List&, Item&> List::getRemoveItemSignal(void)
+SignalProxy2<void, List&, Item&> List::getItemRemovedSignal(void)
 {
-  return removeItemSignal;
+  return itemRemovedSignal;
 }
 
-SignalProxy2<void, List&, unsigned int> List::getChangeSelectionSignal(void)
+SignalProxy2<void, List&, unsigned int> List::getSelectionChangedSignal(void)
 {
-  return changeSelectionSignal;
+  return selectionChangedSignal;
 }
 
 void List::render(void) const
@@ -249,10 +215,10 @@ void List::render(void) const
   }
 }
 
-void List::onButtonClick(Widget& widget,
-                         const Vector2& position,
-		         unsigned int button,
-		         bool clicked)
+void List::onButtonClicked(Widget& widget,
+			   const Vector2& position,
+			   unsigned int button,
+			   bool clicked)
 {
   if (!clicked || button != 0)
     return;
@@ -281,7 +247,7 @@ void List::onButtonClick(Widget& widget,
   }
 }
 
-void List::onKeyPress(Widget& widget, GL::Key key, bool pressed)
+void List::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
 {
   if (!pressed)
     return;

@@ -42,20 +42,18 @@ using namespace moira;
 class Button : public Widget
 {
 public:
-  Button(const String& text = "", const String& name = "");
+  Button(const String& text = "");
   const String& getText(void) const;
   void setText(const String& newText);
-  SignalProxy2<void, Button&, const String&> getChangeTextSignal(void);
   SignalProxy1<void, Button&> getPushedSignal(void);
 protected:
   void render(void) const;
 private:
-  void onButtonClick(Widget& widget,
-                     const Vector2& position,
-		     unsigned int button,
-		     bool clicked);
-  void onKeyPress(Widget& widget, GL::Key key, bool pressed);
-  Signal2<void, Button&, const String&> changeTextSignal;
+  void onButtonClicked(Widget& widget,
+		       const Vector2& position,
+		       unsigned int button,
+		       bool clicked);
+  void onKeyPressed(Widget& widget, GL::Key key, bool pressed);
   Signal1<void, Button&> pushedSignal;
   String text;
 };

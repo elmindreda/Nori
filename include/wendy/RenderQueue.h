@@ -132,7 +132,7 @@ public:
   void detachLights(void);
   Operation& createOperation(void);
   void destroyOperations(void);
-  void render(const String& passName = "") const;
+  void render(void) const;
   const String& getName(void) const;
   const Camera& getCamera(void) const;
   GL::Light* getActiveLight(void) const;

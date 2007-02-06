@@ -42,19 +42,16 @@ using namespace moira;
 class Progress : public Widget
 {
 public:
-  Progress(Orientation orientation = HORIZONTAL,
-           const String& name = "");
+  Progress(Orientation orientation = HORIZONTAL);
   float getMinValue(void) const;
   float getMaxValue(void) const;
   void setValueRange(float newMinValue, float newMaxValue);
   float getValue(void) const;
-  void setValue(float newValue, bool notify = true);
+  void setValue(float newValue);
   Orientation getOrientation(void) const;
   void setOrientation(Orientation newOrientation);
-  SignalProxy2<void, Progress&, float> getChangeValueSignal(void);
 private:
   void render(void) const;
-  Signal2<void, Progress&, float> changeValueSignal;
   float minValue;
   float maxValue;
   float value;

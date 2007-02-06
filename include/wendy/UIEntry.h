@@ -42,26 +42,26 @@ using namespace moira;
 class Entry : public Widget
 {
 public:
-  Entry(const String& text = "", const String& name = "");
+  Entry(const String& text = "");
   const String& getText(void) const;
   void setText(const String& newText);
   unsigned int getCaretPosition(void) const;
   void setCaretPosition(unsigned int newPosition);
-  SignalProxy1<void, Entry&> getChangeTextSignal(void);
-  SignalProxy1<void, Entry&> getCaretMoveSignal(void);
+  SignalProxy1<void, Entry&> getTextChangedSignal(void);
+  SignalProxy1<void, Entry&> getCaretMovedSignal(void);
 protected:
   void render(void) const;
 private:
-  void onButtonClick(Widget& widget,
-                     const Vector2& position,
-		     unsigned int button,
-		     bool clicked);
-  void onKeyPress(Widget& widget, GL::Key key, bool pressed);
+  void onButtonClicked(Widget& widget,
+		       const Vector2& position,
+		       unsigned int button,
+		       bool clicked);
+  void onKeyPressed(Widget& widget, GL::Key key, bool pressed);
   void onCharInput(Widget& widget, wchar_t character);
   void setText(const String& newText, bool notify);
   void setCaretPosition(unsigned int newPosition, bool notify);
-  Signal1<void, Entry&> changeTextSignal;
-  Signal1<void, Entry&> caretMoveSignal;
+  Signal1<void, Entry&> textChangedSignal;
+  Signal1<void, Entry&> caretMovedSignal;
   String text;
   unsigned int caretPosition;
 };

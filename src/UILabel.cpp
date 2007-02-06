@@ -55,8 +55,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Label::Label(const String& initText, const String& name):
-  Widget(name),
+Label::Label(const String& initText):
   text(initText)
 {
   render::Font* font = Renderer::get()->getCurrentFont();
@@ -80,8 +79,20 @@ const String& Label::getText(void) const
 
 void Label::setText(const String& newText)
 {
-  changeTextSignal.emit(*this, newText);
   text = newText;
+}
+
+void Label::setText(const char* format, ...)
+{
+  va_list vl;
+  char* newText;
+
+  va_start(vl, format);
+  vasprintf(&newText, format, vl);
+  va_end(vl);
+  
+  text = newText;
+  free(newText);
 }
 
 const Alignment& Label::getTextAlignment(void) const
@@ -92,11 +103,6 @@ const Alignment& Label::getTextAlignment(void) const
 void Label::setTextAlignment(const Alignment& newAlignment)
 {
   textAlignment = newAlignment;
-}
-
-SignalProxy2<void, Label&, const String&> Label::getChangeTextSignal(void)
-{
-  return changeTextSignal;
 }
 
 void Label::render(void) const

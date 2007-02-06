@@ -253,7 +253,7 @@ const Technique& Style::getTechnique(unsigned int index) const
   return *techniques[index];
 }
 
-Technique* Style::getActiveTechnique(void)
+Technique* Style::getActiveTechnique(void) const
 {
   if (!active)
   {
@@ -264,19 +264,11 @@ Technique* Style::getActiveTechnique(void)
   return active;
 }
 
-const Technique* Style::getActiveTechnique(void) const
-{
-  if (!active)
-    return NULL;
-
-  return active;
-}
-
-bool Style::validateTechniques(void)
+bool Style::validateTechniques(void) const
 {
   List validated;
 
-  for (List::iterator i = techniques.begin();  i != techniques.end();  i++)
+  for (List::const_iterator i = techniques.begin();  i != techniques.end();  i++)
   {
     if ((*i)->isCompatible())
       validated.push_back(*i);
@@ -284,7 +276,7 @@ bool Style::validateTechniques(void)
 
   float quality = 0.f;
 
-  for (List::iterator i = techniques.begin();  i != techniques.end();  i++)
+  for (List::const_iterator i = techniques.begin();  i != techniques.end();  i++)
   {
     if ((*i)->getQuality() >= quality)
     {

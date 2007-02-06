@@ -55,8 +55,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Entry::Entry(const String& initText, const String& name):
-  Widget(name),
+Entry::Entry(const String& initText):
   text(initText),
   caretPosition(0)
 {
@@ -65,8 +64,8 @@ Entry::Entry(const String& initText, const String& name):
   setSize(Vector2(font->getWidth() * 10.f,
                   font->getHeight() * 1.5f));
 
-  getButtonClickSignal().connect(*this, &Entry::onButtonClick);
-  getKeyPressSignal().connect(*this, &Entry::onKeyPress);
+  getButtonClickedSignal().connect(*this, &Entry::onButtonClicked);
+  getKeyPressedSignal().connect(*this, &Entry::onKeyPressed);
   getCharInputSignal().connect(*this, &Entry::onCharInput);
 }
 
@@ -90,14 +89,14 @@ void Entry::setCaretPosition(unsigned int newPosition)
   setCaretPosition(newPosition, false);
 }
 
-SignalProxy1<void, Entry&> Entry::getChangeTextSignal(void)
+SignalProxy1<void, Entry&> Entry::getTextChangedSignal(void)
 {
-  return changeTextSignal;
+  return textChangedSignal;
 }
 
-SignalProxy1<void, Entry&> Entry::getCaretMoveSignal(void)
+SignalProxy1<void, Entry&> Entry::getCaretMovedSignal(void)
 {
-  return caretMoveSignal;
+  return caretMovedSignal;
 }
 
 void Entry::render(void) const
@@ -146,14 +145,15 @@ void Entry::render(void) const
   }
 }
 
-void Entry::onButtonClick(Widget& widget,
-		          const Vector2& position,
-		          unsigned int button,
-		          bool clicked)
+void Entry::onButtonClicked(Widget& widget,
+			    const Vector2& position,
+			    unsigned int button,
+			    bool clicked)
 {
+  // TODO: Position caret.
 }
 
-void Entry::onKeyPress(Widget& widget, GL::Key key, bool pressed)
+void Entry::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
 {
   if (!pressed)
     return;
@@ -165,7 +165,7 @@ void Entry::onKeyPress(Widget& widget, GL::Key key, bool pressed)
       if (!text.empty() && caretPosition > 0)
       {
 	text.erase(caretPosition - 1, 1);
-	changeTextSignal.emit(*this);
+	textChangedSignal.emit(*this);
 	setCaretPosition(caretPosition - 1, true);
       }
 
@@ -177,7 +177,7 @@ void Entry::onKeyPress(Widget& widget, GL::Key key, bool pressed)
       if (!text.empty() && caretPosition < text.length())
       {
 	text.erase(caretPosition, 1);
-	changeTextSignal.emit(*this);
+	textChangedSignal.emit(*this);
       }
 
       break;
@@ -213,7 +213,7 @@ void Entry::onKeyPress(Widget& widget, GL::Key key, bool pressed)
 void Entry::onCharInput(Widget& widget, wchar_t character)
 {
   text.insert(caretPosition, 1, (char) character);
-  changeTextSignal.emit(*this);
+  textChangedSignal.emit(*this);
   setCaretPosition(caretPosition + 1, true);
 }
 
@@ -228,7 +228,7 @@ void Entry::setCaretPosition(unsigned int newPosition, bool notify)
   caretPosition = newPosition;
 
   if (notify)
-    caretMoveSignal.emit(*this);
+    caretMovedSignal.emit(*this);
 }
 
 ///////////////////////////////////////////////////////////////////////

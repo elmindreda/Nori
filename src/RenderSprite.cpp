@@ -265,6 +265,7 @@ void Sprite3::setDefaults(void)
   position.set(0.f, 0.f, 0.f);
   size.set(1.f, 1.f);
   angle = 0.f;
+  type = SPHERICAL;
   styleName.clear();
 }
 

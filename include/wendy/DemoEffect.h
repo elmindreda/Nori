@@ -41,26 +41,12 @@ using namespace moira;
  *
  *  These classes are specifically for the production of demos. They provide
  *  hierarchial demo effect management, demo show and effect instancing from
- *  XML files, generic events and more.
+ *  XML files and more.
  */
 
 ///////////////////////////////////////////////////////////////////////
 
 class Effect;
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup demo
- */
-class Event //: public Decorated
-{
-public:
-  const String& getName(void) const;
-  Time getMoment(void) const;
-private:
-  String name;
-  Time moment;
-};
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -78,8 +64,7 @@ public:
    *  @param name The desired name of the created effect object.
    *  @return The newly created effect object, or @c NULL.
    */
-  virtual Effect* createEffect(const String& name = "",
-                               Time duration = 0.0) = 0;
+  virtual Effect* createEffect(const String& name = "") = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -92,8 +77,7 @@ class EffectTemplate : public EffectType
 {
 public:
   inline EffectTemplate(const String& name);
-  inline Effect* createEffect(const String& name = "",
-                              Time duration = 0.0);
+  inline Effect* createEffect(const String& name = "");
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -103,13 +87,13 @@ public:
  */
 class Effect : public Node<Effect>, public Managed<Effect>
 {
-  friend class Player;
+  friend class Editor;
+  friend class Show;
 public:
-  Effect(const String& name = "",
-         EffectType* type = NULL,
-	 Time duration = 0.0);
+  Effect(EffectType& type, const String& name = "");
   bool isActive(void) const;
-  EffectType* getType(void) const;
+  EffectType& getType(void) const;
+  Time getStartTime(void) const;
   Time getDuration(void) const;
   Time getTimeElapsed(void) const;
 protected:
@@ -118,44 +102,22 @@ protected:
   virtual void prepare(void) const;
   virtual void render(void) const;
   virtual void update(Time deltaTime);
-  virtual void trigger(const Event& event);
   virtual void restart(void);
 private:
-  EffectType* type;
+  bool active;
+  EffectType& type;
+  Time start;
   Time duration;
   Time elapsed;
-  bool active;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup default
- */
 class NullEffect : public Effect
 {
 public:
-  NullEffect(const String& name = "",
-             EffectType* type = NULL,
-	     Time duration = 0.0);
+  NullEffect(EffectType& type, const String& name = "");
   bool init(void);
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup default
- */
-class ClearEffect : public Effect
-{
-public:
-  ClearEffect(const String& name = "",
-              EffectType* type = NULL,
-	      Time duration = 0.0);
-  bool init(void);
-private:
-  void render(void) const;
-  void trigger(Time moment, const String& name, const String& value);
-  void restart(void);
-  ColorRGBA color;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -167,10 +129,9 @@ inline EffectTemplate<T>::EffectTemplate(const String& name):
 }
 
 template <typename T>
-inline Effect* EffectTemplate<T>::createEffect(const String& name,
-                                                       Time duration)
+inline Effect* EffectTemplate<T>::createEffect(const String& name)
 {
-  Ptr<T> effect = new T(name, this, duration);
+  Ptr<T> effect = new T(*this, name);
   if (!effect->init())
     return NULL;
 

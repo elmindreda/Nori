@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_DEMOEFFECT_H
-#define WENDY_DEMOEFFECT_H
+#ifndef WENDY_DEMOSHOW_H
+#define WENDY_DEMOSHOW_H
 ///////////////////////////////////////////////////////////////////////
 
 #include <vector>
@@ -42,82 +42,43 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class ShowEvent
+class Show : public Singleton<Show>
 {
 public:
-  String name;
-  String value;
-  Time moment;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class ShowEffect : public Node<ShowEffect>
-{
-public:
-  typedef std::vector<Event> EventList;
-  String instanceName;
-  String typeName;
-  Time start;
-  Time duration;
-  EventList events;
-  Ptr<Effect> instance;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class Show : public Resource<Show>
-{
-public:
-  ~Player(void);
-  bool addEffect(const String& instanceName,
-                 const String& typeName,
-                 Time start,
-                 Time duration,
-		 const String& parentName = "");
-  bool addEffectEvent(const String& instanceName,
-		      const String& eventName,
-		      const String& eventValue,
-		      Time moment);
-  bool createEffectInstances(void);
-  void destroyEffectInstances(void);
   void render(void) const;
+  Effect* getRootEffect(void);
   const String& getTitle(void) const;
   void setTitle(const String& newTitle);
   Time getDuration(void) const;
   Time getTimeElapsed(void) const;
-  void setTimeElapsed(Time time);
-  Effect* getRootEffect(void);
-  static Player* createInstance(const String& name = "");
+  void setTimeElapsed(Time newTime);
+  static bool create(void);
 private:
-  typedef std::map<String, ShowEffect*> EffectMap;
-  Player(const String& name);
+  Show(void);
   bool init(void);
-  Effect* findEffect(const String& name);
   void updateEffect(Effect& effect, Time newTime);
-  bool createEffectInstance(Effect& effect);
-  void destroyEffectInstance(Effect& effect);
-  Effect rootEffect;
-  EffectMap effectMap;
+  Ptr<Effect> root;
   String title;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
+/*
 class ShowCodecXML : public ResourceCodec<Show>, public XML::Codec
 {
 public:
-  DemoCodecXML(void);
-  Demo* read(const Path& path, const String& name = "");
-  Demo* read(Stream& stream, const String& name = "");
-  bool write(const Path& path, const Demo& demo);
-  bool write(Stream& stream, const Demo& demo);
+  ShowCodecXML(void);
+  Show* read(const Path& path, const String& name = "");
+  Show* read(Stream& stream, const String& name = "");
+  bool write(const Path& path, const Show& show);
+  bool write(Stream& stream, const Show& show);
 private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
-  Ptr<Demo> demo;
+  Ptr<Show> show;
   std::stack<String> effectNameStack;
 };
+*/
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -125,5 +86,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_DEMOEFFECT_H*/
+#endif /*WENDY_DEMOSHOW_H*/
 ///////////////////////////////////////////////////////////////////////

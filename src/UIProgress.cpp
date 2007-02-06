@@ -55,8 +55,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Progress::Progress(Orientation initOrientation, const String& name):
-  Widget(name),
+Progress::Progress(Orientation initOrientation):
   minValue(0.f),
   maxValue(1.f),
   value(0.f),
@@ -98,11 +97,8 @@ float Progress::getValue(void) const
   return value;
 }
 
-void Progress::setValue(float newValue, bool notify)
+void Progress::setValue(float newValue)
 {
-  if (notify)
-    changeValueSignal.emit(*this, newValue);
-
   value = newValue;
 }
 
@@ -114,11 +110,6 @@ Orientation Progress::getOrientation(void) const
 void Progress::setOrientation(Orientation newOrientation)
 {
   orientation = newOrientation;
-}
-
-SignalProxy2<void, Progress&, float> Progress::getChangeValueSignal(void)
-{
-  return changeValueSignal;
 }
 
 void Progress::render(void) const

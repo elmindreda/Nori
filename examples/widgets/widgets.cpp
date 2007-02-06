@@ -11,14 +11,17 @@ public:
   bool init(void);
   void render(void);
 private:
-  void onButtonPush(UI::Button& button);
-  void onValueChange(UI::Slider& slider, float newValue);
+  void onButtonPushed(UI::Button& button);
+  void onValueChanged(UI::Slider& slider, float newValue);
+  void onItemSelected(UI::Popup& menu, unsigned int index);
   Ptr<UI::Window> window;
   UI::Label* label;
 };
 
 Widgets::~Widgets(void)
 {
+  window = NULL;
+
   UI::Renderer::destroy();
   GL::Renderer::destroy();
 }
@@ -38,31 +41,35 @@ bool Widgets::init(void)
 
   button = new UI::Button("Push");
   button->setPosition(Vector2(10, 10));
-  button->getPushedSignal().connect(*this, &Widgets::onButtonPush);
+  button->getPushedSignal().connect(*this, &Widgets::onButtonPushed);
   window->addChild(*button);
 
   button = new UI::Button("Shove");
   button->setPosition(Vector2(120, 10));
-  button->getPushedSignal().connect(*this, &Widgets::onButtonPush);
+  button->getPushedSignal().connect(*this, &Widgets::onButtonPushed);
   window->addChild(*button);
 
-  button = new UI::Button();
-  button->setPosition(Vector2(220, 10));
-  button->getPushedSignal().connect(*this, &Widgets::onButtonPush);
-  window->addChild(*button);
+  UI::Popup* popup = new UI::Popup();
+  popup->setPosition(Vector2(220, 10));
+  popup->getItemSelectedSignal().connect(*this, &Widgets::onItemSelected);
+  popup->addItem(*new UI::Item("Space"));
+  popup->addItem(*new UI::Item("Terrible secret"));
+  popup->addItem(*new UI::Item("Stairs"));
+  popup->addItem(*new UI::Item("PAK CHOOIE UNF"));
+  window->addChild(*popup);
 
   label = new UI::Label("Amount of grandpa");
   label->setArea(Rectangle(10, 350, 400, 20));
   window->addChild(*label);
 
   UI::Entry* entry = new UI::Entry("Do you have stairs in your house?");
-  entry->setPosition(Vector2(10, 300));
+  entry->setArea(Rectangle(10, 300, 400, entry->getArea().size.y));
   window->addChild(*entry);
 
   UI::Slider* slider = new UI::Slider();
   slider->setArea(Rectangle(10, 400, 400, 20));
   slider->setOrientation(UI::HORIZONTAL);
-  slider->getChangeValueSignal().connect(*this, &Widgets::onValueChange);
+  slider->getValueChangedSignal().connect(*this, &Widgets::onValueChanged);
   window->addChild(*slider);
 
   UI::List* list = new UI::List();
@@ -89,16 +96,22 @@ void Widgets::render(void)
   canvas.end();
 }
 
-void Widgets::onButtonPush(UI::Button& button)
+void Widgets::onButtonPushed(UI::Button& button)
 {
-  label->setText(button.getText());
+  label->setText("Button: " + button.getText());
 }
 
-void Widgets::onValueChange(UI::Slider& slider, float newValue)
+void Widgets::onValueChanged(UI::Slider& slider, float newValue)
 {
   Variant value;
   value.setFloatValue(newValue);
   label->setText("Amount of grandpa: " + value.asString());
+}
+
+void Widgets::onItemSelected(UI::Popup& popup, unsigned int index)
+{
+  UI::Item* item = popup.getItem(index);
+  label->setText("Menu: " + item->getValue());
 }
 
 int main()

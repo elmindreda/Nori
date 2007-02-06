@@ -7,7 +7,7 @@ using namespace wendy;
 namespace
 {
 
-bool render(void)
+bool onRender(void)
 {
   GL::ScreenCanvas canvas;
 
@@ -32,7 +32,7 @@ int main(int argc, char** argv)
   {
     GL::Context* context = GL::Context::get();
     context->setTitle("Simple");
-    context->getRenderSignal().connect(render);
+    context->getRenderSignal().connect(onRender);
 
     while (context->update())
       ;

@@ -1,3 +1,3 @@
 
-SUBDIRS = fonts program simple widgets
+SUBDIRS = editor fonts program simple widgets
 

@@ -93,6 +93,11 @@ float Terrain::getHeight(const Vector2& position) const
   return height;
 }
  
+const Sphere& Terrain::getBounds(void) const
+{
+  return bounds;
+}
+
 Terrain* Terrain::createInstance(const Image& heightmap,
 			         const Image& colormap,
 				 const Vector3& size,
@@ -216,6 +221,9 @@ bool Terrain::init(const Image& heightmap,
   mesh = Mesh::createInstance(meshData);
   if (!mesh)
     return false;
+
+  bounds.center.set(0.f, 0.f, 0.f);
+  bounds.radius = (size / 2.f).length();
 
   return true;
 }

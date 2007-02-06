@@ -61,19 +61,13 @@ using namespace moira;
  *  
  *  @remarks Yes, it's big. Get over it.
  */
-class Widget : public Managed<Widget>,
-	       public Trackable
+class Widget : public Trackable
 {
 public:
   typedef std::list<Widget*> List;
   /*! Constructor.
-   *  @param[in] name The desired name of the widget, or the empty string to
-   *  automatically generate a name.
-   *
-   *  @remarks The widget name is not the same as the label of a button or
-   *  title of a window.
    */
-  Widget(const String& name = "");
+  Widget(void);
   /*! Destructor.
    */
   ~Widget(void);
@@ -119,6 +113,8 @@ public:
    *  @remarks This may fail if the widget is disabled.
    */
   void activate(void);
+  void bringToFront(void);
+  void sendToBack(void);
   /*! @return @c true if this widget is enabled, otherwise @c false.
    */
   bool isEnabled(void) const;
@@ -155,18 +151,18 @@ public:
    *  @remarks This is a helper method for Widget::setArea.
    */
   void setPosition(const Vector2& newPosition);
-  SignalProxy1<void, Widget&> getDestroySignal(void);
-  SignalProxy2<void, Widget&, const Rectangle&> getChangeAreaSignal(void);
-  SignalProxy2<void, Widget&, bool> getChangeFocusSignal(void);
-  SignalProxy3<void, Widget&, GL::Key, bool> getKeyPressSignal(void);
+  SignalProxy1<void, Widget&> getDestroyedSignal(void);
+  SignalProxy2<void, Widget&, const Rectangle&> getAreaChangedSignal(void);
+  SignalProxy2<void, Widget&, bool> getFocusChangedSignal(void);
+  SignalProxy3<void, Widget&, GL::Key, bool> getKeyPressedSignal(void);
   SignalProxy2<void, Widget&, wchar_t> getCharInputSignal(void);
-  SignalProxy2<void, Widget&, const Vector2&> getCursorMoveSignal(void);
-  SignalProxy4<void, Widget&, const Vector2&, unsigned int, bool> getButtonClickSignal(void);
-  SignalProxy1<void, Widget&> getCursorEnterSignal(void);
-  SignalProxy1<void, Widget&> getCursorLeaveSignal(void);
-  SignalProxy2<void, Widget&, const Vector2&> getDragBeginSignal(void);
-  SignalProxy2<void, Widget&, const Vector2&> getDragMoveSignal(void);
-  SignalProxy2<void, Widget&, const Vector2&> getDragEndSignal(void);
+  SignalProxy2<void, Widget&, const Vector2&> getCursorMovedSignal(void);
+  SignalProxy4<void, Widget&, const Vector2&, unsigned int, bool> getButtonClickedSignal(void);
+  SignalProxy1<void, Widget&> getCursorEnteredSignal(void);
+  SignalProxy1<void, Widget&> getCursorLeftSignal(void);
+  SignalProxy2<void, Widget&, const Vector2&> getDragBegunSignal(void);
+  SignalProxy2<void, Widget&, const Vector2&> getDragMovedSignal(void);
+  SignalProxy2<void, Widget&, const Vector2&> getDragEndedSignal(void);
   /*! @return The active widget, or @c NULL if no widget is active.
    */
   static Widget* getActive(void);
@@ -182,22 +178,22 @@ protected:
   virtual void addedToParent(Widget& parent);
   virtual void removedFromParent(Widget& parent);
 private:
-  static void onKeyPress(GL::Key key, bool pressed);
+  static void onKeyPressed(GL::Key key, bool pressed);
   static void onCharInput(wchar_t character);
-  static void onCursorMove(const Vector2& position);
-  static void onButtonClick(unsigned int button, bool clicked);
-  Signal1<void, Widget&> destroySignal;
-  Signal2<void, Widget&, const Rectangle&> changeAreaSignal;
-  Signal2<void, Widget&, bool> changeFocusSignal;
-  Signal3<void, Widget&, GL::Key, bool> keyPressSignal;
+  static void onCursorMoved(const Vector2& position);
+  static void onButtonClicked(unsigned int button, bool clicked);
+  Signal1<void, Widget&> destroyedSignal;
+  Signal2<void, Widget&, const Rectangle&> areaChangedSignal;
+  Signal2<void, Widget&, bool> focusChangedSignal;
+  Signal3<void, Widget&, GL::Key, bool> keyPressedSignal;
   Signal2<void, Widget&, wchar_t> charInputSignal;
-  Signal2<void, Widget&, const Vector2&> cursorMoveSignal;
-  Signal4<void, Widget&, const Vector2&, unsigned int, bool> buttonClickSignal;
-  Signal1<void, Widget&> cursorEnterSignal;
-  Signal1<void, Widget&> cursorLeaveSignal;
-  Signal2<void, Widget&, const Vector2&> dragBeginSignal;
-  Signal2<void, Widget&, const Vector2&> dragMoveSignal;
-  Signal2<void, Widget&, const Vector2&> dragEndSignal;
+  Signal2<void, Widget&, const Vector2&> cursorMovedSignal;
+  Signal4<void, Widget&, const Vector2&, unsigned int, bool> buttonClickedSignal;
+  Signal1<void, Widget&> cursorEnteredSignal;
+  Signal1<void, Widget&> cursorLeftSignal;
+  Signal2<void, Widget&, const Vector2&> dragBegunSignal;
+  Signal2<void, Widget&, const Vector2&> dragMovedSignal;
+  Signal2<void, Widget&, const Vector2&> dragEndedSignal;
   Widget* parent;
   List children;
   bool enabled;
@@ -210,6 +206,7 @@ private:
   static List roots;
   static Widget* activeWidget;
   static Widget* draggedWidget;
+  static Widget* hoveredWidget;
 };
 
 ///////////////////////////////////////////////////////////////////////

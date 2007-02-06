@@ -207,6 +207,12 @@ bool Renderer::allocateIndices(IndexRange& range,
 		               unsigned int count,
                                IndexBuffer::Type type)
 {
+  if (!count)
+  {
+    range = IndexRange();
+    return true;
+  }
+
   IndexBufferSlot* slot = NULL;
 
   for (IndexBufferList::iterator i = indexBuffers.begin();  i != indexBuffers.end();  i++)
@@ -223,11 +229,10 @@ bool Renderer::allocateIndices(IndexRange& range,
     indexBuffers.push_back(IndexBufferSlot());
     slot = &(indexBuffers.back());
 
-    const unsigned int standardCount = 1024;
+    // Granularity of 1K
+    const unsigned int actualCount = (count + 1023) / 1024;
     
-    // TODO: Introduce granularity.
-
-    slot->indexBuffer = IndexBuffer::createInstance(std::max(standardCount, count),
+    slot->indexBuffer = IndexBuffer::createInstance(actualCount,
                                                     type,
 						    IndexBuffer::STREAM);
     if (!slot->indexBuffer)
@@ -251,6 +256,12 @@ bool Renderer::allocateVertices(VertexRange& range,
 				unsigned int count,
 				const VertexFormat& format)
 {
+  if (!count)
+  {
+    range = VertexRange();
+    return true;
+  }
+
   VertexBufferSlot* slot = NULL;
 
   for (VertexBufferList::iterator i = vertexBuffers.begin();  i != vertexBuffers.end();  i++)
@@ -267,11 +278,10 @@ bool Renderer::allocateVertices(VertexRange& range,
     vertexBuffers.push_back(VertexBufferSlot());
     slot = &(vertexBuffers.back());
 
-    const unsigned int standardCount = 1024;
-
-    // TODO: Introduce granularity.
-
-    slot->vertexBuffer = VertexBuffer::createInstance(std::max(standardCount, count),
+    // Granularity of 1K
+    const unsigned int actualCount = (count + 1023) / 1024;
+    
+    slot->vertexBuffer = VertexBuffer::createInstance(actualCount,
                                                       format,
 						      VertexBuffer::STREAM);
     if (!slot->vertexBuffer)

@@ -54,8 +54,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Button::Button(const String& initText, const String& name):
-  Widget(name),
+Button::Button(const String& initText):
   text(initText)
 {
   render::Font* font = Renderer::get()->getCurrentFont();
@@ -70,8 +69,8 @@ Button::Button(const String& initText, const String& name):
   setSize(Vector2(font->getWidth() * 2.f + textWidth,
                   font->getHeight() * 2.f));
 
-  getButtonClickSignal().connect(*this, &Button::onButtonClick);
-  getKeyPressSignal().connect(*this, &Button::onKeyPress);
+  getButtonClickedSignal().connect(*this, &Button::onButtonClicked);
+  getKeyPressedSignal().connect(*this, &Button::onKeyPressed);
 }
 
 const String& Button::getText(void) const
@@ -81,13 +80,7 @@ const String& Button::getText(void) const
 
 void Button::setText(const String& newText)
 {
-  changeTextSignal.emit(*this, newText);
   text = newText;
-}
-
-SignalProxy2<void, Button&, const String&> Button::getChangeTextSignal(void)
-{
-  return changeTextSignal;
 }
 
 SignalProxy1<void, Button&> Button::getPushedSignal(void)
@@ -104,13 +97,13 @@ void Button::render(void) const
   Widget::render();
 }
 
-void Button::onButtonClick(Widget& widget, const Vector2& position, unsigned int button, bool clicked)
+void Button::onButtonClicked(Widget& widget, const Vector2& position, unsigned int button, bool clicked)
 {
   if (button == 0 && clicked == false && getGlobalArea().contains(position))
     pushedSignal.emit(*this);
 }
 
-void Button::onKeyPress(Widget& widget, GL::Key key, bool pressed)
+void Button::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
 {
   if (key == GL::Key::ENTER && pressed == true)
     pushedSignal.emit(*this);

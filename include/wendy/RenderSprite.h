@@ -63,6 +63,12 @@ public:
 class Sprite3 : public Renderable
 {
 public:
+  enum Type
+  {
+    STATIC,
+    CYLINDRIC,
+    SPHERICAL,
+  };
   Sprite3(void);
   void enqueue(Queue& queue, const Transform3& transform) const;
   void render(void) const;
@@ -71,6 +77,7 @@ public:
   Vector3 position;
   Vector2 size;
   float angle;
+  Type type;
   String styleName;
 };
 
