@@ -11,6 +11,8 @@ namespace
 
 bool setup(void)
 {
+  new demo::EffectTemplate<CubeEffect>("cube");
+
   if (!GL::Renderer::create())
     return false;
 
@@ -22,8 +24,6 @@ bool setup(void)
 
   if (!demo::Editor::create())
     return false;
-
-  new demo::EffectTemplate<CubeEffect>("cube");
 
   return true;
 }
@@ -88,6 +88,9 @@ int main(int argc, char** argv)
       while (GL::Context::get()->update())
 	;
     }
+
+    demo::Editor::destroy();
+    demo::Show::destroy();
   }
   else
     Log::writeError("Punt");

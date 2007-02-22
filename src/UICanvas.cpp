@@ -58,6 +58,7 @@ using namespace moira;
 Canvas::Canvas(void)
 {
   getAreaChangedSignal().connect(*this, &Canvas::onAreaChanged);
+  onAreaChanged(*this, getArea());
 }
 
 GL::Canvas& Canvas::getCanvas(void)
@@ -71,7 +72,13 @@ void Canvas::render(void) const
 
 void Canvas::onAreaChanged(Widget& widget, const Rectangle& newArea)
 {
-  // TODO: Reshape canvas.
+  GL::Context* context = GL::Context::get();
+
+  Rectangle normalizedArea = getGlobalArea();
+  normalizedArea *= Vector2(1.f / context->getWidth(),
+                            1.f / context->getHeight());
+
+  canvas.setViewportArea(normalizedArea);
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -40,7 +40,11 @@
 #include <wendy/UICanvas.h>
 #include <wendy/UISlider.h>
 #include <wendy/UILayout.h>
+#include <wendy/UIButton.h>
 #include <wendy/UILabel.h>
+#include <wendy/UIItem.h>
+#include <wendy/UIMenu.h>
+#include <wendy/UIPopup.h>
 
 #include <wendy/DemoEffect.h>
 #include <wendy/DemoShow.h>
@@ -86,14 +90,85 @@ bool Editor::init(void)
 
   GL::Context* context = GL::Context::get();
   context->getRenderSignal().connect(*this, &Editor::onRender);
+  context->getResizedSignal().connect(*this, &Editor::onResized);
 
   window = new UI::Window();
   window->setArea(Rectangle(0, 0, context->getWidth(), context->getHeight()));
 
-  canvas = new UI::Canvas();
-  canvas->setArea(window->getArea());
-  canvas->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
-  window->addChild(*canvas);
+  UI::Layout* mainLayout = new UI::Layout(UI::VERTICAL);
+  window->addChild(*mainLayout);
+
+  // Upper half
+  {
+    UI::Widget* upperPanel = new UI::Widget();
+    mainLayout->addChild(*upperPanel, 0.f);
+
+    UI::Layout* upperLayout = new UI::Layout(UI::HORIZONTAL);
+    upperLayout->setBorderSize(3.f);
+    upperPanel->addChild(*upperLayout);
+
+    canvas = new UI::Canvas();
+    canvas->setArea(window->getArea());
+    canvas->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
+    upperLayout->addChild(*canvas, 0.f);
+
+    UI::Widget* commandPanel = new UI::Widget();
+    upperLayout->addChild(*commandPanel, 0.f);
+
+    UI::Layout* commandLayout = new UI::Layout(UI::VERTICAL);
+    commandLayout->setBorderSize(3.f);
+    commandPanel->addChild(*commandLayout);
+
+    UI::Button* button;
+    
+    button = new UI::Button("Maali");
+    commandLayout->addChild(*button);
+
+    button = new UI::Button("Create Effect");
+    button->getPushedSignal().connect(*this, &Editor::onCreateEffect);
+    commandLayout->addChild(*button);
+
+    effectType = new UI::Popup();
+    commandLayout->addChild(*effectType);
+
+    // Build effect type list
+    {
+      EffectType::InstanceList instances;
+      EffectType::getInstances(instances);
+
+      if (instances.empty())
+      {
+	Log::writeError("No point in running editor without effect types");
+	return false;
+      }
+
+      for (unsigned int i = 0;  i < instances.size();  i++)
+	effectType->addItem(*new UI::Item(instances[i]->getName()));
+    }
+  }
+
+  // Lower half
+  {
+    UI::Widget* timelinePanel = new UI::Widget();
+    mainLayout->addChild(*timelinePanel, 0.f);
+
+    UI::Layout* timelineLayout = new UI::Layout(UI::VERTICAL);
+    timelineLayout->setBorderSize(3.f);
+    timelinePanel->addChild(*timelineLayout);
+
+    timeSlider = new UI::Slider(UI::HORIZONTAL);
+    timeSlider->getValueChangedSignal().connect(*this, &Editor::onValueChanged);
+    //timeSlider->setValueRange(0.f, Show::get()->getDuration());
+    timelineLayout->addChild(*timeSlider);
+
+    timeDisplay = new UI::Label();
+    timeDisplay->setTextAlignment(UI::RIGHT_ALIGNED);
+    timelineLayout->addChild(*timeDisplay);
+  }
+
+  timer.start();
+  timer.pause();
+  timer.setTime(0.0);
 
   return true;
 }
@@ -106,11 +181,18 @@ bool Editor::onRender(void)
   UI::Widget::renderRoots();
   screen.end();
 
+/*
   canvas->getCanvas().begin();
   Show::get()->render();
   canvas->getCanvas().end();
+  */
 
   return true;
+}
+
+void Editor::onResized(unsigned int width, unsigned int height)
+{
+  window->setSize(Vector2(width, height));
 }
 
 void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
@@ -127,8 +209,31 @@ void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
 	// TODO: Toggle editor mode.
 	break;
       }
+
+      case GL::Key::SPACE:
+      {
+	if (timer.isPaused())
+	  timer.resume();
+	else
+	  timer.pause();
+	break;
+      }
     }
   }
+}
+
+void Editor::onValueChanged(UI::Slider& slider, float newValue)
+{
+  timeDisplay->setText("%0.2f / %0.2f", newValue, Show::get()->getDuration());
+
+  timer.setTime(newValue);
+}
+
+void Editor::onCreateEffect(UI::Button& button)
+{
+  const String& typeName = effectType->getItem(effectType->getSelection())->getValue();
+
+  // TODO: Create effect.
 }
 
 ///////////////////////////////////////////////////////////////////////

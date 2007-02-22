@@ -254,6 +254,8 @@ public:
   void setDurationRange(const RandomRange& newRange);
   const RandomRange& getAngleRange(void) const;
   void setAngleRange(const RandomRange& newRange);
+  const RandomVolume& getOriginVolume(void) const;
+  void setOriginVolume(const RandomVolume& newVolume);
 private:
   float rate;
   float fraction;
@@ -261,6 +263,7 @@ private:
   RandomRange velocityRange;
   RandomRange durationRange;
   RandomRange angleRange;
+  RandomVolume originVolume;
 };
 
 ///////////////////////////////////////////////////////////////////////

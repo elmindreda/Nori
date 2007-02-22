@@ -53,9 +53,9 @@ void Show::render(void) const
     root->render();
 }
 
-Effect* Show::getRootEffect(void)
+Effect& Show::getRootEffect(void)
 {
-  return root;
+  return *root;
 }
 
 const String& Show::getTitle(void) const
@@ -109,8 +109,14 @@ Show::Show(void)
 
 bool Show::init(void)
 {
-  if (!EffectType::findInstance("null"))
-    new EffectTemplate<NullEffect>("null");
+  // Create built-in effect types
+  {
+    if (!EffectType::findInstance("null"))
+      new EffectTemplate<NullEffect>("null");
+
+    if (!EffectType::findInstance("clear"))
+      new EffectTemplate<ClearEffect>("clear");
+  }
 
   root = EffectType::findInstance("null")->createEffect("root");
 

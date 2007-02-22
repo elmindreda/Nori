@@ -62,7 +62,7 @@ Popup::Popup(void):
 {
   render::Font* font = Renderer::get()->getCurrentFont();
 
-  setSize(Vector2(font->getWidth() * 5.f, font->getHeight() * 2.f));
+  setSize(Vector2(font->getWidth() * 10.f, font->getHeight() * 2.f));
 
   getKeyPressedSignal().connect(*this, &Popup::onKeyPressed);
   getButtonClickedSignal().connect(*this, &Popup::onButtonClicked);
@@ -131,10 +131,18 @@ void Popup::render(void) const
     if (selection < menu->getItemCount())
     {
       const Item* item = menu->getItem(selection);
-      Renderer::get()->drawFrame(area, getState());
+      renderer->drawFrame(area, getState());
+
+      render::Font* font = renderer->getCurrentFont();
+
+      Rectangle textArea = area;
+      textArea.position.x += font->getWidth() / 2.f;
+      textArea.size.x -= font->getWidth();
+
+      renderer->drawText(textArea, item->getValue(), LEFT_ALIGNED);
     }
     else
-      Renderer::get()->drawFrame(area, getState());
+      renderer->drawFrame(area, getState());
 
     renderer->popClipArea();
 
@@ -144,7 +152,9 @@ void Popup::render(void) const
 
 void Popup::display(void)
 {
-  menu->setPosition(getGlobalArea().position);
+  const float width = std::max(menu->getArea().size.x, getArea().size.x);
+  menu->setArea(Rectangle(getGlobalArea().position,
+                          Vector2(width, menu->getArea().size.y)));
   menu->display();
 }
 

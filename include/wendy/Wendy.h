@@ -87,6 +87,11 @@
 
 #include <wendy/Core.h>
 
+#include <wendy/OpenAL.h>
+#include <wendy/ALContext.h>
+#include <wendy/ALBuffer.h>
+#include <wendy/ALSource.h>
+
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>

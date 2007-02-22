@@ -251,14 +251,16 @@ private:
 class ParticleSystemNode : public SceneNode
 {
 public:
+  ParticleSystemNode(void);
   const String& getSystemName(void) const;
   void setSystemName(const String& newSystemName);
 protected:
   void update(Time deltaTime);
+  void restart(void);
   void enqueue(Queue& queue, QueuePhase phase) const;
 private:
-  String styleName;
   String systemName;
+  Time elapsed;
 };
 
 ///////////////////////////////////////////////////////////////////////

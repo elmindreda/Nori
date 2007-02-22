@@ -57,7 +57,8 @@ using namespace moira;
 Widget::Widget(void):
   parent(NULL),
   enabled(true),
-  visible(true)
+  visible(true),
+  draggable(false)
 {
   static bool initialized = false;
 
@@ -256,6 +257,11 @@ bool Widget::isUnderCursor(void) const
   return hoveredWidget == this;
 }
 
+bool Widget::isDraggable(void) const
+{
+  return draggable;
+}
+
 bool Widget::isBeingDragged(void) const
 {
   return draggedWidget == this;
@@ -317,6 +323,13 @@ void Widget::setPosition(const Vector2& newPosition)
   Rectangle newArea(newPosition, area.size);
   areaChangedSignal.emit(*this, newArea);
   area.position = newPosition;
+}
+
+void Widget::setDraggable(bool newState)
+{
+  draggable = newState;
+  if (draggedWidget == this)
+    draggedWidget = NULL;
 }
 
 SignalProxy1<void, Widget&> Widget::getDestroyedSignal(void)
@@ -536,7 +549,8 @@ void Widget::onButtonClicked(unsigned int button, bool clicked)
 					      button,
 					      clicked);
 
-      draggedWidget = clickedWidget;
+      if (clickedWidget->isDraggable())
+	draggedWidget = clickedWidget;
     }
   }
   else
@@ -552,11 +566,11 @@ void Widget::onButtonClicked(unsigned int button, bool clicked)
       draggedWidget = NULL;
     }
 
-    if (activeWidget)
+    if (activeWidget && activeWidget->getGlobalArea().contains(cursorPosition))
       activeWidget->buttonClickedSignal.emit(*activeWidget,
-                                           cursorPosition,
-					   button,
-					   clicked);
+					     cursorPosition,
+					     button,
+					     clicked);
   }
 }
 

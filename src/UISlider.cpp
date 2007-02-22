@@ -73,6 +73,8 @@ Slider::Slider(Orientation initOrientation):
   getKeyPressedSignal().connect(*this, &Slider::onKeyPressed);
   getButtonClickedSignal().connect(*this, &Slider::onButtonClicked);
   getDragMovedSignal().connect(*this, &Slider::onDragMoved);
+
+  setDraggable(true);
 }
 
 float Slider::getMinValue(void) const

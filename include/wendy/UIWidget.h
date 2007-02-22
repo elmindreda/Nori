@@ -125,6 +125,7 @@ public:
    */
   bool isActive(void) const;
   bool isUnderCursor(void) const;
+  bool isDraggable(void) const;
   bool isBeingDragged(void) const;
   Widget* getParent(void) const;
   const List& getChildren(void) const;
@@ -151,6 +152,7 @@ public:
    *  @remarks This is a helper method for Widget::setArea.
    */
   void setPosition(const Vector2& newPosition);
+  void setDraggable(bool newState);
   SignalProxy1<void, Widget&> getDestroyedSignal(void);
   SignalProxy2<void, Widget&, const Rectangle&> getAreaChangedSignal(void);
   SignalProxy2<void, Widget&, bool> getFocusChangedSignal(void);
@@ -198,8 +200,7 @@ private:
   List children;
   bool enabled;
   bool visible;
-  bool underCursor;
-  bool beingDragged;
+  bool draggable;
   Rectangle area;
   mutable Rectangle globalArea;
   static bool dragging;

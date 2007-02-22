@@ -498,6 +498,11 @@ void SpriteNode::enqueue(Queue& queue, QueuePhase phase) const
 
 ///////////////////////////////////////////////////////////////////////
 
+ParticleSystemNode::ParticleSystemNode(void):
+  elapsed(0.0)
+{
+}
+
 const String& ParticleSystemNode::getSystemName(void) const
 {
   return systemName;
@@ -512,6 +517,8 @@ void ParticleSystemNode::update(Time deltaTime)
 {
   SceneNode::update(deltaTime);
 
+  elapsed += deltaTime;
+
   ParticleSystem* system = ParticleSystem::findInstance(systemName);
   if (!system)
   {
@@ -519,8 +526,14 @@ void ParticleSystemNode::update(Time deltaTime)
     return;
   }
 
+  system->setTimeElapsed(elapsed);
   system->setTransform(getWorldTransform());
   setLocalBounds(system->getBounds());
+}
+
+void ParticleSystemNode::restart(void)
+{
+  elapsed = 0.0;
 }
 
 void ParticleSystemNode::enqueue(Queue& queue, QueuePhase phase) const

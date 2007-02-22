@@ -119,6 +119,8 @@ void List::removeItems(void)
 
 void List::sortItems(void)
 {
+  ItemComparator comparator;
+  std::sort(items.begin(), items.end(), comparator);
 }
 
 unsigned int List::getSelection(void) const

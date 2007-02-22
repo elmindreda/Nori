@@ -80,6 +80,8 @@ Menu::Menu(void):
   getDragEndedSignal().connect(*this, &Menu::onDragEnded);
   getFocusChangedSignal().connect(*this, &Menu::onFocusChanged);
 
+  setDraggable(true);
+
   hide();
 }
 
@@ -164,7 +166,7 @@ void Menu::render(void) const
   {
     renderer->drawFrame(area, getState());
 
-    float itemTop = area.size.y;
+    float itemTop = area.size.y - 1.f;
 
     unsigned int index = 0;
 

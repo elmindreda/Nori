@@ -508,7 +508,7 @@ void DefaultParticleEmitter::createParticle(Particle& particle,
 		                            unsigned int particleIndex)
 {
   particle.color = colorRange.generate();
-  particle.position = Vector3::ZERO;
+  particle.position = originVolume.generate();
   particle.velocity = Vector3(0.f, velocityRange.generate(), 0.f);
   particle.duration = durationRange.generate();
   particle.elapsed = 0.f;
@@ -572,6 +572,16 @@ const RandomRange& DefaultParticleEmitter::getAngleRange(void) const
 void DefaultParticleEmitter::setAngleRange(const RandomRange& newRange)
 {
   angleRange = newRange;
+}
+
+const RandomVolume& DefaultParticleEmitter::getOriginVolume(void) const
+{
+  return originVolume;
+}
+
+void DefaultParticleEmitter::setOriginVolume(const RandomVolume& newVolume)
+{
+  originVolume = newVolume;
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -223,10 +223,10 @@ void ScreenCanvas::updateScissorArea(void) const
   const unsigned int width = getPhysicalWidth();
   const unsigned int height = getPhysicalHeight();
 
-  glScissor((GLint) (area.position.x * width),
-	    (GLint) (area.position.y * height),
-	    (GLsizei) (area.size.x * width),
-	    (GLsizei) (area.size.y * height));
+  glScissor((GLint) floorf(area.position.x * width),
+	    (GLint) floorf(area.position.y * height),
+	    (GLsizei) ceilf(area.size.x * width),
+	    (GLsizei) ceilf(area.size.y * height));
 }
 
 void ScreenCanvas::updateViewportArea(void) const

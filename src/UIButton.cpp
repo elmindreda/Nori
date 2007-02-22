@@ -97,16 +97,31 @@ void Button::render(void) const
   Widget::render();
 }
 
-void Button::onButtonClicked(Widget& widget, const Vector2& position, unsigned int button, bool clicked)
+void Button::onButtonClicked(Widget& widget,
+                             const Vector2& position,
+			     unsigned int button,
+			     bool clicked)
 {
-  if (button == 0 && clicked == false && getGlobalArea().contains(position))
-    pushedSignal.emit(*this);
+  if (clicked)
+    return;
+
+  pushedSignal.emit(*this);
 }
 
 void Button::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
 {
-  if (key == GL::Key::ENTER && pressed == true)
-    pushedSignal.emit(*this);
+  if (!pressed)
+    return;
+
+  switch (key)
+  {
+    case GL::Key::SPACE:
+    case GL::Key::ENTER:
+    {
+      pushedSignal.emit(*this);
+      break;
+    }
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////

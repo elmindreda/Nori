@@ -64,7 +64,6 @@ private:
   void onKeyPressed(Widget& widget, GL::Key key, bool pressed);
   void onDragEnded(Widget& widget, const Vector2& position);
   void sizeToFit(void);
-  typedef std::vector<Item*> ItemList;
   ItemList items;
   unsigned int selection;
   Signal2<void, Menu&, unsigned int> itemSelectedSignal;

@@ -55,10 +55,26 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Layout::Layout(void):
-  borderSize(0.f),
-  parentAreaSlot(NULL)
+Layout::Layout(Orientation initOrientation):
+  orientation(initOrientation),
+  borderSize(1.f)
 {
+}
+
+void Layout::addChild(Widget& child)
+{
+  Widget::addChild(child);
+}
+
+void Layout::addChild(Widget& child, float size)
+{
+  Widget::addChild(child);
+  sizes[&child] = size;
+}
+
+Orientation Layout::getOrientation(void) const
+{
+  return orientation;
 }
 
 float Layout::getBorderSize(void) const
@@ -71,13 +87,35 @@ void Layout::setBorderSize(float newSize)
   borderSize = newSize;
 }
 
+float Layout::getChildSize(Widget& child) const
+{
+  SizeMap::const_iterator i = sizes.find(&child);
+  if (i == sizes.end())
+    return 0.f;
+
+  return (*i).second;
+}
+
+void Layout::setChildSize(Widget& child, float newSize)
+{
+  SizeMap::iterator i = sizes.find(&child);
+  if (i != sizes.end())
+    sizes[&child] = newSize;
+}
+
 void Layout::addedChild(Widget& child)
 {
+  if (orientation == VERTICAL)
+    sizes[&child] = child.getArea().size.y;
+  else
+    sizes[&child] = child.getArea().size.x;
+
   update();
 }
 
 void Layout::removedChild(Widget& child)
 {
+  sizes.erase(&child);
   update();
 }
 
@@ -101,21 +139,72 @@ void Layout::onAreaChanged(Widget& parent, const Rectangle& area)
 void Layout::update(void)
 {
   const List& children = getChildren();
+  if (children.empty())
+    return;
 
-  float stackHeight = 0.f;
-
-  for (List::const_iterator i = children.begin();  i != children.end();  i++)
-    stackHeight += (*i)->getArea().size.y + borderSize;
-
-  const float width = getArea().size.x - borderSize * 2.f;
-
-  float position = getArea().size.y - stackHeight;
-
-  for (List::const_iterator i = children.begin();  i != children.end();  i++)
+  if (orientation == VERTICAL)
   {
-    const float height = (*i)->getArea().size.y;
-    (*i)->setArea(Rectangle(borderSize, position, width, height));
-    position += height + borderSize;
+    float stackHeight = borderSize;
+    unsigned int flexibleCount = 0;
+
+    for (List::const_iterator i = children.begin();  i != children.end();  i++)
+    {
+      const float height = sizes[*i];
+      if (height == 0.f)
+	flexibleCount++;
+
+      stackHeight += height + borderSize;
+    }
+
+    const float width = getArea().size.x - borderSize * 2.f;
+
+    float flexibleSize;
+    if (flexibleCount)
+      flexibleSize = (getArea().size.y - stackHeight) / flexibleCount;
+
+    float position = getArea().size.y;
+
+    for (List::const_iterator i = children.begin();  i != children.end();  i++)
+    {
+      float height = sizes[*i];
+      if (height == 0.f)
+	height = flexibleSize;
+
+      position -= height + borderSize;
+      (*i)->setArea(Rectangle(borderSize, position, width, height));
+    }
+  }
+  else
+  {
+    float stackWidth = borderSize;
+    unsigned int flexibleCount = 0;
+
+    for (List::const_iterator i = children.begin();  i != children.end();  i++)
+    {
+      const float width = sizes[*i];
+      if (width == 0.f)
+	flexibleCount++;
+
+      stackWidth += width + borderSize;
+    }
+
+    const float height = getArea().size.y - borderSize * 2.f;
+
+    float flexibleSize;
+    if (flexibleCount)
+      flexibleSize = (getArea().size.x - stackWidth) / flexibleCount;
+
+    float position = getArea().size.x;
+
+    for (List::const_iterator i = children.begin();  i != children.end();  i++)
+    {
+      float width = sizes[*i];
+      if (width == 0.f)
+	width = flexibleSize;
+
+      position -= width + borderSize;
+      (*i)->setArea(Rectangle(borderSize, position, width, height));
+    }
   }
 }
 

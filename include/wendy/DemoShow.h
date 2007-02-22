@@ -46,7 +46,7 @@ class Show : public Singleton<Show>
 {
 public:
   void render(void) const;
-  Effect* getRootEffect(void);
+  Effect& getRootEffect(void);
   const String& getTitle(void) const;
   void setTitle(const String& newTitle);
   Time getDuration(void) const;

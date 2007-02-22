@@ -62,6 +62,24 @@ Effect::Effect(EffectType& initType,
 {
 }
 
+bool Effect::createChild(const String& typeName,
+                         const String& instanceName)
+{
+  EffectType* type = EffectType::findInstance(typeName);
+  if (!type)
+  {
+    Log::writeError("Cannot find effect type %s", typeName.c_str());
+    return false;
+  }
+
+  Effect* instance = type->createEffect(instanceName);
+  if (!instance)
+    return false;
+
+  addChild(*instance);
+  return true;
+}
+
 bool Effect::isActive(void) const
 {
   return active;
@@ -72,9 +90,24 @@ EffectType& Effect::getType(void) const
   return type;
 }
 
+Time Effect::getStartTime(void) const
+{
+  return start;
+}
+
+void Effect::setStartTime(Time newTime)
+{
+  start = newTime;
+}
+
 Time Effect::getDuration(void) const
 {
   return duration;
+}
+
+void Effect::setDuration(Time newDuration)
+{
+  duration = newDuration;
 }
 
 Time Effect::getTimeElapsed(void) const
@@ -130,6 +163,18 @@ NullEffect::NullEffect(EffectType& type, const String& name):
 }
 
 bool NullEffect::init(void)
+{
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+ClearEffect::ClearEffect(EffectType& type, const String& name):
+  Effect(type, name)
+{
+}
+
+bool ClearEffect::init(void)
 {
   return true;
 }

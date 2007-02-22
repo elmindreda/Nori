@@ -91,10 +91,14 @@ class Effect : public Node<Effect>, public Managed<Effect>
   friend class Show;
 public:
   Effect(EffectType& type, const String& name = "");
+  bool createChild(const String& typeName,
+                   const String& instanceName = "");
   bool isActive(void) const;
   EffectType& getType(void) const;
   Time getStartTime(void) const;
+  void setStartTime(Time newTime);
   Time getDuration(void) const;
+  void setDuration(Time newDuration);
   Time getTimeElapsed(void) const;
 protected:
   void prepareChildren(void) const;
@@ -117,6 +121,15 @@ class NullEffect : public Effect
 {
 public:
   NullEffect(EffectType& type, const String& name = "");
+  bool init(void);
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class ClearEffect : public Effect
+{
+public:
+  ClearEffect(EffectType& type, const String& name = "");
   bool init(void);
 };
 

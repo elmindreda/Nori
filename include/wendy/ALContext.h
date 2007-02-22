@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy user interface library
-// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy OpenAL library
+// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,13 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_UILAYOUT_H
-#define WENDY_UILAYOUT_H
+#ifndef WENDY_ALCONTEXT_H
+#define WENDY_ALCONTEXT_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace UI
+  namespace AL
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -37,39 +37,27 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup ui
- */
-class Layout : public Widget
+class Context : public Singleton<Context>
 {
 public:
-  Layout(Orientation orientation);
-  void addChild(Widget& child);
-  void addChild(Widget& child, float size);
-  Orientation getOrientation(void) const;
-  float getBorderSize(void) const;
-  void setBorderSize(float newSize);
-  float getChildSize(Widget& child) const;
-  void setChildSize(Widget& child, float newSize);
-protected:
-  void addedChild(Widget& child);
-  void removedChild(Widget& child);
-  void addedToParent(Widget& parent);
-  void removedFromParent(Widget& parent);
-  void onAreaChanged(Widget& parent, const Rectangle& area);
+  ~Context(void);
+  const Vector3& getListenerPosition(void) const;
+  void setListenerPosition(const Vector3& newPosition);
+  const Vector3& getListenerVelocity(void) const;
+  void setListenerVelocity(const Vector3& newVelocity);
+  static bool create(void);
 private:
-  typedef std::map<Widget*, float> SizeMap;
-  void update(void);
-  SizeMap sizes;
-  float borderSize;
-  Orientation orientation;
-  Ptr<SignalSlot> parentAreaSlot;
+  Context(void);
+  bool init(void);
+  Vector3 listenerPosition;
+  Vector3 listenerVelocity;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace UI*/
+  } /*namespace AL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_UILAYOUT_H*/
+#endif /*WENDY_ALCONTEXT_H*/
 ///////////////////////////////////////////////////////////////////////

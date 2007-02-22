@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy demo system
+// Wendy OpenAL library
 // Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,46 +22,19 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_DEMOEDITOR_H
-#define WENDY_DEMOEDITOR_H
+#ifndef WENDY_OPENAL_H
+#define WENDY_OPENAL_H
 ///////////////////////////////////////////////////////////////////////
 
-namespace wendy
-{
-  namespace demo
-  {
-  
-///////////////////////////////////////////////////////////////////////
+#include <AL/alut.h>
 
-using namespace moira;
-
-///////////////////////////////////////////////////////////////////////
-
-class Editor : public Singleton<Editor>, public Trackable
-{
-public:
-  static bool create(void);
-private:
-  Editor(void);
-  bool init(void);
-  bool onRender(void);
-  void onResized(unsigned int width, unsigned int height);
-  void onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed);
-  void onValueChanged(UI::Slider& slider, float newValue);
-  void onCreateEffect(UI::Button& button);
-  Ptr<UI::Window> window;
-  UI::Canvas* canvas;
-  UI::Slider* timeSlider;
-  UI::Label* timeDisplay;
-  UI::Popup* effectType;
-  Timer timer;
-};
+/*! @defgroup opengl OpenAL wrapper API
+ *
+ *  These classes wrap parts of the OpenAL API, maintaining a rather close
+ *  mapping to the underlying concepts, but providing useful services and a
+ *  semblance of automatic resource management.
+ */
 
 ///////////////////////////////////////////////////////////////////////
-
-  } /*namespace demo*/
-} /*namespace wendy*/
-
-///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_DEMOEDITOR_H*/
+#endif /*WENDY_OPENAL_H*/
 ///////////////////////////////////////////////////////////////////////

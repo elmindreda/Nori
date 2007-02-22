@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy user interface library
-// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy OpenAL library
+// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,13 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_UILAYOUT_H
-#define WENDY_UILAYOUT_H
+#ifndef WENDY_ALSOURCE_H
+#define WENDY_ALSOURCE_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace UI
+  namespace AL
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -37,39 +37,42 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup ui
- */
-class Layout : public Widget
+class Source : public Managed<Source>
 {
 public:
-  Layout(Orientation orientation);
-  void addChild(Widget& child);
-  void addChild(Widget& child, float size);
-  Orientation getOrientation(void) const;
-  float getBorderSize(void) const;
-  void setBorderSize(float newSize);
-  float getChildSize(Widget& child) const;
-  void setChildSize(Widget& child, float newSize);
-protected:
-  void addedChild(Widget& child);
-  void removedChild(Widget& child);
-  void addedToParent(Widget& parent);
-  void removedFromParent(Widget& parent);
-  void onAreaChanged(Widget& parent, const Rectangle& area);
+  ~Source(void);
+  void start(void);
+  void stop(void);
+  void pause(void);
+  void resume(void);
+  bool isStarted(void) const;
+  bool isPaused(void) const;
+  bool isLooping(void) const;
+  void setLooping(bool newState);
+  const Vector3& getPosition(void) const;
+  void setPosition(const Vector3& newPosition);
+  const Vector3& getVelocity(void) const;
+  void setVelocity(const Vector3& newVelocity);
+  Buffer* getBuffer(void) const;
+  void setBuffer(Buffer* newBuffer);
+  static Source* createInstance(const String& name = "");
 private:
-  typedef std::map<Widget*, float> SizeMap;
-  void update(void);
-  SizeMap sizes;
-  float borderSize;
-  Orientation orientation;
-  Ptr<SignalSlot> parentAreaSlot;
+  Source(const String& name);
+  bool init(void);
+  ALuint sourceID;
+  bool started;
+  bool paused;
+  bool looping;
+  Vector3 position;
+  Vector3 velocity;
+  Buffer* buffer;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace UI*/
+  } /*namespace AL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_UILAYOUT_H*/
+#endif /*WENDY_ALSOURCE_H*/
 ///////////////////////////////////////////////////////////////////////

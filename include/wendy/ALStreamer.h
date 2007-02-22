@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy user interface library
-// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy OpenAL library
+// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,13 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_UILAYOUT_H
-#define WENDY_UILAYOUT_H
+#ifndef WENDY_ALSTREAMER_H
+#define WENDY_ALSTREAMER_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace UI
+  namespace AL
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -37,39 +37,23 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup ui
- */
-class Layout : public Widget
+class Streamer : public Managed<Streamer>
 {
 public:
-  Layout(Orientation orientation);
-  void addChild(Widget& child);
-  void addChild(Widget& child, float size);
-  Orientation getOrientation(void) const;
-  float getBorderSize(void) const;
-  void setBorderSize(float newSize);
-  float getChildSize(Widget& child) const;
-  void setChildSize(Widget& child, float newSize);
-protected:
-  void addedChild(Widget& child);
-  void removedChild(Widget& child);
-  void addedToParent(Widget& parent);
-  void removedFromParent(Widget& parent);
-  void onAreaChanged(Widget& parent, const Rectangle& area);
+  ~Streamer(void);
+  static Streamer* createInstance(const Path& path, const String& name = "");
+  static Streamer* createInstance(Stream& stream, const String& name = "");
 private:
-  typedef std::map<Widget*, float> SizeMap;
-  void update(void);
-  SizeMap sizes;
-  float borderSize;
-  Orientation orientation;
-  Ptr<SignalSlot> parentAreaSlot;
+  Streamer(const String& name);
+  bool init(const Path& path);
+  bool init(Stream& stream);
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace UI*/
+  } /*namespace AL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_UILAYOUT_H*/
+#endif /*WENDY_ALBUFFER_H*/
 ///////////////////////////////////////////////////////////////////////

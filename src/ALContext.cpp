@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy user interface library
-// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy OpenAL library
+// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,13 +22,18 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_UILAYOUT_H
-#define WENDY_UILAYOUT_H
+
+#include <moira/Moira.h>
+
+#include <wendy/Config.h>
+#include <wendy/OpenAL.h>
+#include <wendy/ALContext.h>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace UI
+  namespace AL
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -37,39 +42,76 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup ui
- */
-class Layout : public Widget
+Context::~Context(void)
 {
-public:
-  Layout(Orientation orientation);
-  void addChild(Widget& child);
-  void addChild(Widget& child, float size);
-  Orientation getOrientation(void) const;
-  float getBorderSize(void) const;
-  void setBorderSize(float newSize);
-  float getChildSize(Widget& child) const;
-  void setChildSize(Widget& child, float newSize);
-protected:
-  void addedChild(Widget& child);
-  void removedChild(Widget& child);
-  void addedToParent(Widget& parent);
-  void removedFromParent(Widget& parent);
-  void onAreaChanged(Widget& parent, const Rectangle& area);
-private:
-  typedef std::map<Widget*, float> SizeMap;
-  void update(void);
-  SizeMap sizes;
-  float borderSize;
-  Orientation orientation;
-  Ptr<SignalSlot> parentAreaSlot;
-};
+  alutExit();
+}
+
+const Vector3& Context::getListenerPosition(void) const
+{
+  return listenerPosition;
+}
+
+void Context::setListenerPosition(const Vector3& newPosition)
+{
+  if (listenerPosition != newPosition)
+  {
+    alListenerfv(AL_POSITION, listenerPosition);
+    listenerPosition = newPosition;
+  }
+}
+
+const Vector3& Context::getListenerVelocity(void) const
+{
+  return listenerVelocity;
+}
+
+void Context::setListenerVelocity(const Vector3& newVelocity)
+{
+  if (listenerVelocity != newVelocity)
+  {
+    alListenerfv(AL_VELOCITY, listenerVelocity);
+    listenerVelocity = newVelocity;
+  }
+}
+
+bool Context::create(void)
+{
+  if (get())
+    return true;
+
+  Ptr<Context> context = new Context();
+  if (!context->init())
+    return false;
+
+  set(context.detachObject());
+  return true;
+}
+
+Context::Context(void):
+  listenerPosition(Vector3::ZERO),
+  listenerVelocity(Vector3::ZERO)
+{
+}
+
+bool Context::init(void)
+{
+  if (!alutInit(NULL, NULL))
+  {
+    Log::writeError("Unable to initialize OpenAL: %s",
+                    alutGetErrorString(alutGetError()));
+    return false;
+  }
+
+  alListenerfv(AL_POSITION, listenerPosition);
+  alListenerfv(AL_VELOCITY, listenerVelocity);
+
+  return true;
+}
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace UI*/
+  } /*namespace AL*/
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_UILAYOUT_H*/
 ///////////////////////////////////////////////////////////////////////

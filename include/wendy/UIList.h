@@ -66,7 +66,6 @@ private:
 		       unsigned int button,
 		       bool clicked);
   void onKeyPressed(Widget& widget, GL::Key key, bool pressed);
-  typedef std::list<Item*> ItemList;
   Signal2<void, List&, Item&> itemAddedSignal;
   Signal2<void, List&, Item&> itemRemovedSignal;
   Signal2<void, List&, unsigned int> selectionChangedSignal;
