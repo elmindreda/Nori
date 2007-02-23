@@ -55,7 +55,7 @@ protected:
   void removedChild(Widget& child);
   void addedToParent(Widget& parent);
   void removedFromParent(Widget& parent);
-  void onAreaChanged(Widget& parent, const Rectangle& area);
+  void onAreaChanged(Widget& parent);
 private:
   typedef std::map<Widget*, float> SizeMap;
   void update(void);

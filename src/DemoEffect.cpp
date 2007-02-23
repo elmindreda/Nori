@@ -22,6 +22,7 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
+//
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
@@ -177,6 +178,16 @@ ClearEffect::ClearEffect(EffectType& type, const String& name):
 bool ClearEffect::init(void)
 {
   return true;
+}
+
+void ClearEffect::render(void) const
+{
+  GL::Canvas* canvas = GL::Canvas::getCurrent();
+  
+  canvas->clearColorBuffer(ColorRGBA::BLACK);
+  canvas->clearDepthBuffer();
+
+  renderChildren();
 }
 
 ///////////////////////////////////////////////////////////////////////

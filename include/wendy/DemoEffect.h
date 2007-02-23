@@ -50,6 +50,30 @@ class Effect;
 
 ///////////////////////////////////////////////////////////////////////
 
+class ParameterKey
+{
+public:
+  virtual ~ParameterKey(void);
+private:
+  Time moment;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class Parameter
+{
+public:
+  typedef std::vector<ParameterKey*> KeyList;
+  Parameter(const String& name);
+  virtual ~Parameter(void);
+  const String& getName(void) const;
+  KeyList keys;
+private:
+  String name;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Demo effect factory interface.
  *  @ingroup demo
  */
@@ -131,6 +155,8 @@ class ClearEffect : public Effect
 public:
   ClearEffect(EffectType& type, const String& name = "");
   bool init(void);
+private:
+  void render(void) const;
 };
 
 ///////////////////////////////////////////////////////////////////////

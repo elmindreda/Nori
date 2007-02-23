@@ -47,7 +47,7 @@ public:
 protected:
   void render(void) const;
 private:
-  void onAreaChanged(Widget& widget, const Rectangle& newArea);
+  void onAreaChanged(Widget& widget);
   GL::ScreenCanvas canvas;
 };
 

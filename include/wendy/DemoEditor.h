@@ -37,6 +37,68 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+class Timeline;
+
+///////////////////////////////////////////////////////////////////////
+
+class TimelineRuler : public UI::Widget
+{
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class TimelineEffect : public UI::Widget
+{
+public:
+  TimelineEffect(Timeline& timeline, Effect& effect);
+  Effect& getEffect(void) const;
+private:
+  enum Mode
+  {
+    NOT_DRAGGING,
+    DRAGGING_POSITION,
+    DRAGGING_START,
+    DRAGGING_DURATION,
+  };
+  void render(void) const;
+  void onDragBegun(Widget& widget, const Vector2& position);
+  void onDragMoved(Widget& widget, const Vector2& position);
+  void onDragEnded(Widget& widget, const Vector2& position);
+  void onWindowChanged(Timeline& timeline);
+  Timeline& timeline;
+  Effect& effect;
+  Vector2 reference;
+  Mode mode;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class Timeline : public UI::Widget
+{
+public:
+  Timeline(Effect& root);
+  Time getWindowStart(void) const;
+  void setWindowStart(Time newStart);
+  Time getWindowDuration(void) const;
+  void setWindowDuration(Time newDuration);
+  Time getTimeElapsed(void) const;
+  void setTimeElapsed(Time newTime);
+  void setRootEffect(Effect& newEffect);
+  SignalProxy1<void, Timeline&> getWindowChangedSignal(void);
+private:
+  void onAreaChanged(Widget& widget);
+  typedef std::vector<TimelineEffect*> EffectList;
+  Signal1<void, Timeline&> windowChangedSignal;
+  UI::View* view;
+  EffectList effects;
+  Effect* root;
+  Time windowStart;
+  Time windowDuration;
+  Time elapsed;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 class Editor : public Singleton<Editor>, public Trackable
 {
 public:
@@ -47,13 +109,11 @@ private:
   bool onRender(void);
   void onResized(unsigned int width, unsigned int height);
   void onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed);
-  void onValueChanged(UI::Slider& slider, float newValue);
-  void onCreateEffect(UI::Button& button);
+  Ptr<Show> show;
   Ptr<UI::Window> window;
   UI::Canvas* canvas;
-  UI::Slider* timeSlider;
-  UI::Label* timeDisplay;
-  UI::Popup* effectType;
+  UI::Widget* commandPanel;
+  Timeline* timeline;
   Timer timer;
 };
 

@@ -96,8 +96,8 @@ Widget::~Widget(void)
       roots.back()->activate();
     else
     {
-      focusChangedSignal.emit(*this, false);
       activeWidget = NULL;
+      focusChangedSignal.emit(*this, false);
     }
   }
 
@@ -205,8 +205,8 @@ void Widget::activate(void)
   if (activeWidget)
     activeWidget->focusChangedSignal.emit(*activeWidget, false);
 
-  focusChangedSignal.emit(*this, true);
   activeWidget = this;
+  focusChangedSignal.emit(*this, true);
 }
 
 void Widget::bringToFront(void)
@@ -307,22 +307,18 @@ const Rectangle& Widget::getGlobalArea(void) const
 
 void Widget::setArea(const Rectangle& newArea)
 {
-  areaChangedSignal.emit(*this, newArea);
   area = newArea;
+  areaChangedSignal.emit(*this);
 }
 
 void Widget::setSize(const Vector2& newSize)
 {
-  Rectangle newArea(area.position, newSize);
-  areaChangedSignal.emit(*this, newArea);
-  area.size = newSize;
+  setArea(Rectangle(area.position, newSize));
 }
 
 void Widget::setPosition(const Vector2& newPosition)
 {
-  Rectangle newArea(newPosition, area.size);
-  areaChangedSignal.emit(*this, newArea);
-  area.position = newPosition;
+  setArea(Rectangle(newPosition, area.size));
 }
 
 void Widget::setDraggable(bool newState)
@@ -337,7 +333,7 @@ SignalProxy1<void, Widget&> Widget::getDestroyedSignal(void)
   return destroyedSignal;
 }
 
-SignalProxy2<void, Widget&, const Rectangle&> Widget::getAreaChangedSignal(void)
+SignalProxy1<void, Widget&> Widget::getAreaChangedSignal(void)
 {
   return areaChangedSignal;
 }
@@ -497,10 +493,10 @@ void Widget::onCursorMoved(const Vector2& position)
     if (hoveredWidget)
       hoveredWidget->cursorLeftSignal.emit(*hoveredWidget);
 
+    hoveredWidget = newWidget;
+
     if (newWidget)
       newWidget->cursorEnteredSignal.emit(*newWidget);
-
-    hoveredWidget = newWidget;
   }
 
   if (hoveredWidget)

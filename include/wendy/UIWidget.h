@@ -71,6 +71,8 @@ public:
   /*! Destructor.
    */
   ~Widget(void);
+  /*! Adds a widget as a child to this widget.
+   */
   void addChild(Widget& child);
   void removeChild(Widget& child);
   /*! Searches for a widget at the specified point.
@@ -113,7 +115,11 @@ public:
    *  @remarks This may fail if the widget is disabled.
    */
   void activate(void);
+  /*! Makes this the top-level widget.
+   */
   void bringToFront(void);
+  /*! Makes this the bottom-most widget.
+   */
   void sendToBack(void);
   /*! @return @c true if this widget is enabled, otherwise @c false.
    */
@@ -124,10 +130,21 @@ public:
   /*! @return @c true if this is the active widget, otherwise @c false.
    */
   bool isActive(void) const;
+  /*! @return @c true if this widget is directly under the cursor, otherwise @c
+   * false.
+   */
   bool isUnderCursor(void) const;
+  /*! @return @c true if this widget supports dragging, otherwise @c false.
+   */
   bool isDraggable(void) const;
+  /*! @return @c true if this widget is currently the source of a dragging operation, otherwise @c false.
+   */
   bool isBeingDragged(void) const;
+  /*! @return The parent of this widget, or @c NULL if it has no parent.
+   */
   Widget* getParent(void) const;
+  /*! @return The child widgets of this widget.
+   */
   const List& getChildren(void) const;
   WidgetState getState(void) const;
   /*! @return The area of this widget, in parent coordinates.
@@ -154,7 +171,7 @@ public:
   void setPosition(const Vector2& newPosition);
   void setDraggable(bool newState);
   SignalProxy1<void, Widget&> getDestroyedSignal(void);
-  SignalProxy2<void, Widget&, const Rectangle&> getAreaChangedSignal(void);
+  SignalProxy1<void, Widget&> getAreaChangedSignal(void);
   SignalProxy2<void, Widget&, bool> getFocusChangedSignal(void);
   SignalProxy3<void, Widget&, GL::Key, bool> getKeyPressedSignal(void);
   SignalProxy2<void, Widget&, wchar_t> getCharInputSignal(void);
@@ -185,7 +202,7 @@ private:
   static void onCursorMoved(const Vector2& position);
   static void onButtonClicked(unsigned int button, bool clicked);
   Signal1<void, Widget&> destroyedSignal;
-  Signal2<void, Widget&, const Rectangle&> areaChangedSignal;
+  Signal1<void, Widget&> areaChangedSignal;
   Signal2<void, Widget&, bool> focusChangedSignal;
   Signal3<void, Widget&, GL::Key, bool> keyPressedSignal;
   Signal2<void, Widget&, wchar_t> charInputSignal;

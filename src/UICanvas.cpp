@@ -58,7 +58,7 @@ using namespace moira;
 Canvas::Canvas(void)
 {
   getAreaChangedSignal().connect(*this, &Canvas::onAreaChanged);
-  onAreaChanged(*this, getArea());
+  onAreaChanged(*this);
 }
 
 GL::Canvas& Canvas::getCanvas(void)
@@ -70,7 +70,7 @@ void Canvas::render(void) const
 {
 }
 
-void Canvas::onAreaChanged(Widget& widget, const Rectangle& newArea)
+void Canvas::onAreaChanged(Widget& widget)
 {
   GL::Context* context = GL::Context::get();
 

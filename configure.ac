@@ -33,9 +33,9 @@ PKG_CHECK_MODULES(glfw, libglfw >= 2.6)
 PKG_CHECK_MODULES(ogg, ogg >= 1.1.0)
 PKG_CHECK_MODULES(vorbis, vorbis >= 1.1.0)
 
-WENDY_CFLAGS="$glfw_CFLAGS $moira_CFLAGS $vorbis_CFLAGS $ogg_CFLAGS"
+WENDY_CFLAGS="$glfw_CFLAGS $moira_CFLAGS $vorbis_CFLAGS"
 AC_SUBST(WENDY_CFLAGS)
-WENDY_LIBS="$glfw_LIBS $moira_LIBS $vorbis_LIBS $ogg_LIBS"
+WENDY_LIBS="$glfw_LIBS $moira_LIBS $vorbis_LIBS"
 AC_SUBST(WENDY_LIBS)
 
 AC_OUTPUT(

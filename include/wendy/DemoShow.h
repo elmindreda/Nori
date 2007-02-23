@@ -42,7 +42,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class Show : public Singleton<Show>
+class Show : public Resource<Show>
 {
 public:
   void render(void) const;
@@ -52,9 +52,9 @@ public:
   Time getDuration(void) const;
   Time getTimeElapsed(void) const;
   void setTimeElapsed(Time newTime);
-  static bool create(void);
+  static Show* createInstance(const String& name = "");
 private:
-  Show(void);
+  Show(const String& name);
   bool init(void);
   void updateEffect(Effect& effect, Time newTime);
   Ptr<Effect> root;

@@ -19,9 +19,6 @@ bool setup(void)
   if (!UI::Renderer::create())
     return false;
 
-  if (!demo::Show::create())
-    return false;
-
   if (!demo::Editor::create())
     return false;
 
@@ -90,7 +87,6 @@ int main(int argc, char** argv)
     }
 
     demo::Editor::destroy();
-    demo::Show::destroy();
   }
   else
     Log::writeError("Punt");

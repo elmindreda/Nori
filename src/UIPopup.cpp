@@ -128,10 +128,11 @@ void Popup::render(void) const
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
   {
+    renderer->drawFrame(area, getState());
+
     if (selection < menu->getItemCount())
     {
       const Item* item = menu->getItem(selection);
-      renderer->drawFrame(area, getState());
 
       render::Font* font = renderer->getCurrentFont();
 
@@ -141,12 +142,10 @@ void Popup::render(void) const
 
       renderer->drawText(textArea, item->getValue(), LEFT_ALIGNED);
     }
-    else
-      renderer->drawFrame(area, getState());
-
-    renderer->popClipArea();
 
     Widget::render();
+
+    renderer->popClipArea();
   }
 }
 

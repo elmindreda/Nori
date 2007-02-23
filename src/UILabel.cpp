@@ -113,9 +113,10 @@ void Label::render(void) const
   if (renderer->pushClipArea(area))
   {
     renderer->drawText(area, text, textAlignment);
-    renderer->popClipArea();
 
     Widget::render();
+
+    renderer->popClipArea();
   }
 }
 

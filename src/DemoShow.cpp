@@ -49,8 +49,7 @@ using namespace moira;
 
 void Show::render(void) const
 {
-  if (root)
-    root->render();
+  root->render();
 }
 
 Effect& Show::getRootEffect(void)
@@ -70,40 +69,30 @@ void Show::setTitle(const String& newTitle)
 
 Time Show::getDuration(void) const
 {
-  if (root)
-    return root->getDuration();
-
-  return 0.f;
+  return root->getDuration();
 }
 
 Time Show::getTimeElapsed(void) const
 {
-  if (root)
-    return root->getTimeElapsed();
-
-  return 0.f;
+  return root->getTimeElapsed();
 }
 
 void Show::setTimeElapsed(Time newTime)
 {
-  if (root)
-    updateEffect(*root, newTime);
+  updateEffect(*root, newTime);
 }
 
-bool Show::create(void)
+Show* Show::createInstance(const String& name)
 {
-  if (get())
-    return true;
-
-  Ptr<Show> show = new Show();
+  Ptr<Show> show = new Show(name);
   if (!show->init())
-    return false;
+    return NULL;
 
-  set(show.detachObject());
-  return true;
+  return show.detachObject();
 }
 
-Show::Show(void)
+Show::Show(const String& name):
+  Resource<Show>(name)
 {
 }
 
@@ -119,6 +108,8 @@ bool Show::init(void)
   }
 
   root = EffectType::findInstance("null")->createEffect("root");
+  if (!root)
+    return false;
 
   return true;
 }

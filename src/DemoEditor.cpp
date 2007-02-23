@@ -37,6 +37,7 @@
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIWindow.h>
+#include <wendy/UIView.h>
 #include <wendy/UICanvas.h>
 #include <wendy/UISlider.h>
 #include <wendy/UILayout.h>
@@ -63,6 +64,128 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+TimelineEffect::TimelineEffect(Timeline& initTimeline, Effect& initEffect):
+  timeline(initTimeline),
+  effect(initEffect),
+  mode(NOT_DRAGGING)
+{
+  getDragBegunSignal().connect(*this, &TimelineEffect::onDragBegun);
+  getDragMovedSignal().connect(*this, &TimelineEffect::onDragMoved);
+  getDragEndedSignal().connect(*this, &TimelineEffect::onDragEnded);
+
+  timeline.getWindowChangedSignal().connect(*this, &TimelineEffect::onWindowChanged);
+
+  onWindowChanged(timeline);
+}
+
+Effect& TimelineEffect::getEffect(void) const
+{
+  return effect;
+}
+
+void TimelineEffect::render(void) const
+{
+  const Rectangle& area = getGlobalArea();
+
+  UI::Renderer* renderer = UI::Renderer::get();
+  if (renderer->pushClipArea(area))
+  {
+    renderer->drawFrame(area, getState());
+
+    UI::Widget::render();
+
+    renderer->popClipArea();
+  }
+}
+
+void TimelineEffect::onDragBegun(Widget& widget, const Vector2& position)
+{
+  // TODO: Note reference position.
+  // TODO: Detect and enter mode.
+}
+
+void TimelineEffect::onDragMoved(Widget& widget, const Vector2& position)
+{
+  // TODO: Update parameters according to mode.
+}
+
+void TimelineEffect::onDragEnded(Widget& widget, const Vector2& position)
+{
+  // TODO: Exit mode.
+}
+
+void TimelineEffect::onWindowChanged(Timeline& timeline)
+{
+  // TODO: Calculate size and position.
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Timeline::Timeline(Effect& initRoot):
+  root(NULL),
+  elapsed(0.0),
+  windowStart(0.0),
+  windowDuration(0.0)
+{
+  getAreaChangedSignal().connect(*this, &Timeline::onAreaChanged);
+
+  view = new UI::View();
+
+  setRootEffect(initRoot);
+}
+
+Time Timeline::getWindowStart(void) const
+{
+  return windowStart;
+}
+
+void Timeline::setWindowStart(Time newStart)
+{
+  windowStart = newStart;
+  windowChangedSignal.emit(*this);
+}
+
+Time Timeline::getWindowDuration(void) const
+{
+  return windowDuration;
+}
+
+void Timeline::setWindowDuration(Time newDuration)
+{
+  windowDuration = newDuration;
+  windowChangedSignal.emit(*this);
+}
+
+Time Timeline::getTimeElapsed(void) const
+{
+  return elapsed;
+}
+
+void Timeline::setTimeElapsed(Time newTime)
+{
+  elapsed = newTime;
+}
+
+void Timeline::setRootEffect(Effect& newEffect)
+{
+  root = &newEffect;
+}
+
+SignalProxy1<void, Timeline&> Timeline::getWindowChangedSignal(void)
+{
+  return windowChangedSignal;
+}
+
+void Timeline::onAreaChanged(Widget& widget)
+{
+  render::Font* font = UI::Renderer::get()->getDefaultFont();
+  const Vector2& size = getArea().size;
+
+  view->setSize(Vector2(size.x - font->getWidth() * 15.f, size.y));
+}
+
+///////////////////////////////////////////////////////////////////////
+
 bool Editor::create(void)
 {
   if (get())
@@ -82,9 +205,10 @@ Editor::Editor(void)
 
 bool Editor::init(void)
 {
-  if (!Show::get())
+  show = Show::createInstance();
+  if (!show)
   {
-    Log::writeError("Cannot create editor without a show");
+    Log::writeError("Cannot create show for editor");
     return false;
   }
 
@@ -108,11 +232,11 @@ bool Editor::init(void)
     upperPanel->addChild(*upperLayout);
 
     canvas = new UI::Canvas();
-    canvas->setArea(window->getArea());
+    //canvas->setArea(window->getArea());
     canvas->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
     upperLayout->addChild(*canvas, 0.f);
 
-    UI::Widget* commandPanel = new UI::Widget();
+    commandPanel = new UI::Widget();
     upperLayout->addChild(*commandPanel, 0.f);
 
     UI::Layout* commandLayout = new UI::Layout(UI::VERTICAL);
@@ -125,10 +249,9 @@ bool Editor::init(void)
     commandLayout->addChild(*button);
 
     button = new UI::Button("Create Effect");
-    button->getPushedSignal().connect(*this, &Editor::onCreateEffect);
     commandLayout->addChild(*button);
 
-    effectType = new UI::Popup();
+    UI::Popup* effectType = new UI::Popup();
     commandLayout->addChild(*effectType);
 
     // Build effect type list
@@ -156,12 +279,10 @@ bool Editor::init(void)
     timelineLayout->setBorderSize(3.f);
     timelinePanel->addChild(*timelineLayout);
 
-    timeSlider = new UI::Slider(UI::HORIZONTAL);
-    timeSlider->getValueChangedSignal().connect(*this, &Editor::onValueChanged);
-    //timeSlider->setValueRange(0.f, Show::get()->getDuration());
+    UI::Slider* timeSlider = new UI::Slider(UI::HORIZONTAL);
     timelineLayout->addChild(*timeSlider);
 
-    timeDisplay = new UI::Label();
+    UI::Label* timeDisplay = new UI::Label();
     timeDisplay->setTextAlignment(UI::RIGHT_ALIGNED);
     timelineLayout->addChild(*timeDisplay);
   }
@@ -181,11 +302,18 @@ bool Editor::onRender(void)
   UI::Widget::renderRoots();
   screen.end();
 
-/*
+  Rectangle area;
+
+  area = canvas->getGlobalArea();
+  Log::writeInformation("Canvas: %0.2f %0.2f %0.2f %0.2f", area.position.x, area.position.y, area.size.x, area.size.y);
+
+  area = commandPanel->getGlobalArea();
+  Log::writeInformation("Panel: %0.2f %0.2f %0.2f %0.2f", area.position.x, area.position.y, area.size.x, area.size.y);
+
   canvas->getCanvas().begin();
-  Show::get()->render();
+  canvas->getCanvas().clearColorBuffer(ColorRGBA::BLACK);
+  show->render();
   canvas->getCanvas().end();
-  */
 
   return true;
 }
@@ -220,20 +348,6 @@ void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
       }
     }
   }
-}
-
-void Editor::onValueChanged(UI::Slider& slider, float newValue)
-{
-  timeDisplay->setText("%0.2f / %0.2f", newValue, Show::get()->getDuration());
-
-  timer.setTime(newValue);
-}
-
-void Editor::onCreateEffect(UI::Button& button)
-{
-  const String& typeName = effectType->getItem(effectType->getSelection())->getValue();
-
-  // TODO: Create effect.
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -122,7 +122,7 @@ void Layout::removedChild(Widget& child)
 void Layout::addedToParent(Widget& parent)
 {
   parentAreaSlot = parent.getAreaChangedSignal().connect(*this, &Layout::onAreaChanged);
-  onAreaChanged(parent, parent.getArea());
+  onAreaChanged(parent);
 }
 
 void Layout::removedFromParent(Widget& parent)
@@ -130,9 +130,9 @@ void Layout::removedFromParent(Widget& parent)
   parentAreaSlot = NULL;
 }
 
-void Layout::onAreaChanged(Widget& parent, const Rectangle& area)
+void Layout::onAreaChanged(Widget& parent)
 {
-  setArea(Rectangle(Vector2::ZERO, area.size));
+  setArea(Rectangle(Vector2::ZERO, parent.getArea().size));
   update();
 }
 
@@ -203,7 +203,7 @@ void Layout::update(void)
 	width = flexibleSize;
 
       position -= width + borderSize;
-      (*i)->setArea(Rectangle(borderSize, position, width, height));
+      (*i)->setArea(Rectangle(position, borderSize, width, height));
     }
   }
 }
