@@ -118,7 +118,7 @@ private:
   float ascender;
   float descender;
   GL::Pass pass;
-  Ptr<GL::Texture> texture;
+  Ref<GL::Texture> texture;
 };
 
 ///////////////////////////////////////////////////////////////////////

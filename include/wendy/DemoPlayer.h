@@ -22,13 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_DEMOEFFECT_H
-#define WENDY_DEMOEFFECT_H
-///////////////////////////////////////////////////////////////////////
-
-#include <vector>
-#include <stack>
-
+#ifndef WENDY_DEMOPLAYER_H
+#define WENDY_DEMOPLAYER_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -42,75 +37,17 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class Player : public Resource<Player>
+class Player : public Singleton<Player>, public Trackable
 {
 public:
-  ~Player(void);
-  bool addEffect(const String& instanceName,
-                 const String& typeName,
-                 Time start,
-                 Time duration,
-		 const String& parentName = "");
-  bool addEffectEvent(const String& instanceName,
-		      const String& eventName,
-		      const String& eventValue,
-		      Time moment);
-  bool createEffectInstances(void);
-  void destroyEffectInstances(void);
-  void render(void) const;
-  const String& getTitle(void) const;
-  void setTitle(const String& newTitle);
-  Time getDuration(void) const;
-  Time getTimeElapsed(void) const;
-  void setTimeElapsed(Time time);
-  Effect* getRootEffect(void);
-  static Player* createInstance(const String& name = "");
+  static bool create(void);
 private:
-  class Event
-  {
-  public:
-    String name;
-    String value;
-    Time moment;
-  };
-  class Effect : public Node<Effect>
-  {
-  public:
-    typedef std::vector<Event> EventList;
-    String instanceName;
-    String typeName;
-    Time start;
-    Time duration;
-    Ptr<Effect> instance;
-    EventList events;
-  };
-  typedef std::map<String, Effect*> EffectMap;
-  Player(const String& name);
-  bool init(void);
-  Effect* findEffect(const String& name);
-  void updateEffect(Effect& effect, Time newTime);
-  bool createEffectInstance(Effect& effect);
-  void destroyEffectInstance(Effect& effect);
-  Effect rootEffect;
-  EffectMap effectMap;
-  String title;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class DemoCodecXML : public ResourceCodec<Demo>, public XML::Codec
-{
-public:
-  DemoCodecXML(void);
-  Demo* read(const Path& path, const String& name = "");
-  Demo* read(Stream& stream, const String& name = "");
-  bool write(const Path& path, const Demo& demo);
-  bool write(Stream& stream, const Demo& demo);
-private:
-  bool onBeginElement(const String& name);
-  bool onEndElement(const String& name);
-  Ptr<Demo> demo;
-  std::stack<String> effectNameStack;
+  bool onRender(void);
+  void onResized(unsigned int width, unsigned int height);
+  void onKeyPressed(GL::Key key, bool pressed);
+  GL::ScreenCanvas canvas;
+  Ptr<Show> show;
+  Timer timer;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -119,5 +56,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_DEMOEFFECT_H*/
+#endif /*WENDY_DEMOPLAYER_H*/
 ///////////////////////////////////////////////////////////////////////

@@ -51,7 +51,7 @@ public:
   virtual const String& getValue(void) const;
   virtual void setValue(const String& newValue);
 protected:
-  virtual void render(const Rectangle& area, bool selected);
+  virtual void render(const Rectangle& area, bool selected) const;
 private:
   String value;
 };

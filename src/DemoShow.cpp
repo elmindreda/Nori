@@ -30,7 +30,14 @@
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
+#include <wendy/GLPass.h>
 
+#include <wendy/RenderFont.h>
+
+#include <wendy/UIRender.h>
+#include <wendy/UIWidget.h>
+
+#include <wendy/DemoParameter.h>
 #include <wendy/DemoEffect.h>
 #include <wendy/DemoShow.h>
 
@@ -46,6 +53,11 @@ namespace wendy
 using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
+
+void Show::prepare(void) const
+{
+  root->prepare();
+}
 
 void Show::render(void) const
 {
@@ -174,20 +186,18 @@ void Show::updateEffect(Effect& effect, Time newTime)
 
 ///////////////////////////////////////////////////////////////////////
 
-/*
-CodecXML::CodecXML(void):
-  ResourceCodec<Demo>("Demo XML codec")
+ShowCodec::ShowCodec(void):
+  ResourceCodec<Show>("Demo show XML codec")
 {
-  addSuffix("demo");
-  addSuffix("xml");
+  addSuffix("show");
 }
 
-Demo* CodecXML::read(const Path& path, const String& name)
+Show* ShowCodec::read(const Path& path, const String& name)
 {
-  return ResourceCodec<Demo>::read(path, name);
+  return ResourceCodec<Show>::read(path, name);
 }
 
-Demo* CodecXML::read(Stream& stream, const String& name)
+Show* ShowCodec::read(Stream& stream, const String& name)
 {
   while (!effectNameStack.empty())
     effectNameStack.pop();
@@ -195,67 +205,71 @@ Demo* CodecXML::read(Stream& stream, const String& name)
   if (!Reader::read(stream))
     return NULL;
 
-  return demo.detachObject();
+  return show.detachObject();
 }
 
-bool CodecXML::write(const Path& path, const Demo& demo)
+bool ShowCodec::write(const Path& path, const Show& show)
 {
-  return ResourceCodec<Demo>::write(path, demo);
+  return ResourceCodec<Show>::write(path, show);
 }
 
-bool DemoCodecXML::write(Stream& stream, const Demo& demo)
+bool ShowCodec::write(Stream& stream, const Show& show)
 {
-  // TODO: Implement.
-
-  return false;
-}
-
-bool DemoCodecXML::onBeginElement(const String& name)
-{
-  if (name == "demo")
+  try
   {
-    demo = Demo::createInstance();
-    if (!demo)
+    setStream(&stream);
+
+    beginElement("show");
+    addAttribute("title", show.getTitle());
+
+    // TODO: The code.
+
+    endElement();
+
+    setStream(NULL);
+  }
+  catch (Exception& exception)
+  {
+    Log::writeError("Failed to write demo show %s: %s",
+                    show.getName().c_str(),
+		    exception.what());
+    return false;
+  }
+
+  return true;
+}
+
+bool ShowCodec::onBeginElement(const String& name)
+{
+  if (name == "show")
+  {
+    show = Show::createInstance();
+    if (!show)
       return false;
 
-    demo->setTitle(readString("title"));
+    show->setTitle(readString("title"));
     return true;
   }
 
-  if (demo)
+  if (show)
   {
-    if (name == "context")
-    {
-      ContextMode mode;
-
-      mode.width = readInteger("width", 640);
-      mode.height = readInteger("height", 480);
-
-      mode.colorBits = readInteger("color", 24); 
-      mode.depthBits = readInteger("depth", 32); 
-      mode.stencilBits = readInteger("stencil", 0); 
-
-      if (readBoolean("windowed", true))
-        mode.flags |= ContextMode::WINDOWED;
-
-      demo->setContextMode(mode);
-      return true;
-    }
-
     if (name == "effect")
     {
+      Effect* parent;
+
+      if (effectNameStack.empty())
+	parent = &(show->getRootEffect());
+      else
+	parent = Effect::findInstance(effectNameStack.top());
+
       String instanceName = readString("name");
 
-      String parentName;
-      if (!effectNameStack.empty())
-	parentName = effectNameStack.top();
-
-      if (!demo->addEffect(instanceName,
-                           readString("type"),
-                           readFloat("start"),
-                           readFloat("duration"),
-			   parentName))
-        return false;
+      Effect* effect = parent->createChild(readString("type"), instanceName);
+      if (!effect)
+	return false;
+      
+      effect->setStartTime(readFloat("start"));
+      effect->setDuration(readFloat("duration"));
 
       effectNameStack.push(instanceName);
       return true;
@@ -263,15 +277,30 @@ bool DemoCodecXML::onBeginElement(const String& name)
 
     if (!effectNameStack.empty())
     {
-      if (name == "event")
+      Effect* effect = Effect::findInstance(effectNameStack.top());
+
+      if (name == "parameter")
       {
-        if (!demo->addEffectEvent(effectNameStack.top(),
-				  readString("name"),
-				  readString("value"),
-				  readFloat("moment")))
-          return false;
+	String parameterName = readString("name");
+
+	currentParameter = effect->findParameter(parameterName);
+	if (!currentParameter)
+	{
+	  Log::writeError("Demo effect parameter %s does not exist",
+	                  parameterName.c_str());
+	  return false;
+	}
 
         return true;
+      }
+
+      if (currentParameter)
+      {
+	if (name == "key")
+	{
+	  currentParameter->createKey(readFloat("moment"), readString("value"));
+	  return true;
+	}
       }
     }
   }
@@ -279,17 +308,19 @@ bool DemoCodecXML::onBeginElement(const String& name)
   return true;
 }
 
-bool DemoCodecXML::onEndElement(const String& name)
+bool ShowCodec::onEndElement(const String& name)
 {
-  if (demo)
+  if (show)
   {
     if (name == "effect")
       effectNameStack.pop();
+
+    if (name == "parameter")
+      currentParameter = NULL;
   }
   
   return true;
 }
-*/
 
 ///////////////////////////////////////////////////////////////////////
 

@@ -170,13 +170,13 @@ private:
 class LightNode : public SceneNode
 {
 public:
-  const String& getLightName(void) const;
-  void setLightName(const String& newLightName);
+  GL::Light* getLight(void) const;
+  void setLight(GL::Light* newLight);
 protected:
   void update(Time deltaTime);
   void enqueue(Queue& queue, QueuePhase phase) const;
 private:
-  String lightName;
+  Ref<GL::Light> light;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -186,13 +186,12 @@ private:
 class MeshNode : public SceneNode
 {
 public:
-  const String& getMeshName(void) const;
-  void setMeshName(const String& newMeshName);
+  Mesh* getMesh(void) const;
+  void setMesh(Mesh* mesh);
 protected:
-  void update(Time deltaTime);
   void enqueue(Queue& queue, QueuePhase phase) const;
 private:
-  String meshName;
+  Ref<Mesh> mesh;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -233,14 +232,15 @@ private:
 class SpriteNode : public SceneNode
 {
 public:
-  const String& getStyleName(void) const;
-  void setStyleName(const String& newStyleName);
+  SpriteNode(void);
+  Style* getStyle(void) const;
+  void setStyle(Style* newStyle);
   const Vector2& getSpriteSize(void) const;
   void setSpriteSize(const Vector2& newSize);
 protected:
   void enqueue(Queue& queue, QueuePhase phase) const;
 private:
-  String styleName;
+  Ref<Style> style;
   Vector2 spriteSize;
 };
 

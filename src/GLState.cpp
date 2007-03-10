@@ -89,9 +89,11 @@ void StencilState::apply(void) const
     }
   }
 
+#if _DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
     Log::writeError("Error when applying stencil state: %s", gluErrorString(error));
+#endif
 
   data.dirty = false;
 }
@@ -187,9 +189,11 @@ void StencilState::force(void) const
   glStencilFunc(data.function, data.reference, data.writeMask);
   glStencilOp(data.stencilFailed, data.depthFailed, data.depthPassed);
 
+#if _DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
     Log::writeWarning("Error when forcing stencil state: %s", gluErrorString(error));
+#endif
 
   cache.dirty = data.dirty = false;
 }

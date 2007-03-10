@@ -612,6 +612,7 @@ bool ShaderPermutation::apply(void) const
 
   glUseProgramObjectARB(programID);
 
+#if _DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
   {
@@ -621,6 +622,7 @@ bool ShaderPermutation::apply(void) const
 		    gluErrorString(error));
     return false;
   }
+#endif
 
   current = const_cast<ShaderPermutation*>(this);
   return true;
@@ -717,6 +719,7 @@ bool ShaderPermutation::createUniforms(void)
 			  &type,
 			  (GLcharARB*) uniformName.getData());
 
+#if _DEBUG
     GLenum error = glGetError();
     if (error != GL_NO_ERROR)
     {
@@ -724,6 +727,7 @@ bool ShaderPermutation::createUniforms(void)
                       index, name.c_str(), gluErrorString(error));
       return false;
     }
+#endif
 
     if (!length)
     {
@@ -807,6 +811,7 @@ bool ShaderPermutation::createAttributes(void)
 			 &type,
 			 (GLcharARB*) attributeName.getData());
 
+#if _DEBUG
     GLenum error = glGetError();
     if (error != GL_NO_ERROR)
     {
@@ -814,6 +819,7 @@ bool ShaderPermutation::createAttributes(void)
                       index, name.c_str(), gluErrorString(error));
       return false;
     }
+#endif
 
     if (!length)
     {

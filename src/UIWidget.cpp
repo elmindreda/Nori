@@ -72,6 +72,7 @@ Widget::Widget(void):
     context->getCharInputSignal().connect(&Widget::onCharInput);
     context->getButtonClickedSignal().connect(&Widget::onButtonClicked);
     context->getCursorMovedSignal().connect(&Widget::onCursorMoved);
+    context->getWheelTurnedSignal().connect(&Widget::onWheelTurned);
 
     initialized = true;
   }
@@ -363,6 +364,11 @@ SignalProxy4<void, Widget&, const Vector2&, unsigned int, bool> Widget::getButto
   return buttonClickedSignal;
 }
 
+SignalProxy2<void, Widget&, int> Widget::getWheelTurnedSignal(void)
+{
+  return wheelTurnedSignal;
+}
+
 SignalProxy1<void, Widget&> Widget::getCursorEnteredSignal(void)
 {
   return cursorEnteredSignal;
@@ -568,6 +574,12 @@ void Widget::onButtonClicked(unsigned int button, bool clicked)
 					     button,
 					     clicked);
   }
+}
+
+void Widget::onWheelTurned(int offset)
+{
+  if (hoveredWidget)
+    hoveredWidget->wheelTurnedSignal.emit(*hoveredWidget, offset);
 }
 
 bool Widget::dragging = false;

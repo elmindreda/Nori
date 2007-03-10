@@ -63,6 +63,7 @@ private:
   Signal1<void, Entry&> textChangedSignal;
   Signal1<void, Entry&> caretMovedSignal;
   String text;
+  unsigned int startPosition;
   unsigned int caretPosition;
 };
 

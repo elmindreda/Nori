@@ -177,6 +177,7 @@ public:
   SignalProxy2<void, Widget&, wchar_t> getCharInputSignal(void);
   SignalProxy2<void, Widget&, const Vector2&> getCursorMovedSignal(void);
   SignalProxy4<void, Widget&, const Vector2&, unsigned int, bool> getButtonClickedSignal(void);
+  SignalProxy2<void, Widget&, int> getWheelTurnedSignal(void);
   SignalProxy1<void, Widget&> getCursorEnteredSignal(void);
   SignalProxy1<void, Widget&> getCursorLeftSignal(void);
   SignalProxy2<void, Widget&, const Vector2&> getDragBegunSignal(void);
@@ -201,6 +202,7 @@ private:
   static void onCharInput(wchar_t character);
   static void onCursorMoved(const Vector2& position);
   static void onButtonClicked(unsigned int button, bool clicked);
+  static void onWheelTurned(int offset);
   Signal1<void, Widget&> destroyedSignal;
   Signal1<void, Widget&> areaChangedSignal;
   Signal2<void, Widget&, bool> focusChangedSignal;
@@ -208,6 +210,7 @@ private:
   Signal2<void, Widget&, wchar_t> charInputSignal;
   Signal2<void, Widget&, const Vector2&> cursorMovedSignal;
   Signal4<void, Widget&, const Vector2&, unsigned int, bool> buttonClickedSignal;
+  Signal2<void, Widget&, int> wheelTurnedSignal;
   Signal1<void, Widget&> cursorEnteredSignal;
   Signal1<void, Widget&> cursorLeftSignal;
   Signal2<void, Widget&, const Vector2&> dragBegunSignal;

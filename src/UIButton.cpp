@@ -92,9 +92,15 @@ void Button::render(void) const
 {
   const Rectangle& area = getGlobalArea();
 
-  Renderer::get()->drawButton(area, getState(), text);
+  Renderer* renderer = Renderer::get();
+  if (renderer->pushClipArea(area))
+  {
+    Renderer::get()->drawButton(area, getState(), text);
 
-  Widget::render();
+    Widget::render();
+
+    renderer->popClipArea();
+  }
 }
 
 void Button::onButtonClicked(Widget& widget,

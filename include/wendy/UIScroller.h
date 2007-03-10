@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy default renderer
-// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy user interface library
+// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,13 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_RENDERTERRAIN_H
-#define WENDY_RENDERTERRAIN_H
+#ifndef WENDY_UISCROLLER_H
+#define WENDY_UISCROLLER_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace render
+  namespace UI
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -37,61 +37,43 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief %Terrain renderer.
- *  @ingroup renderer
- *
- *  Basic heightmap terrain renderer.
+/*! @ingroup ui
  */
-class Terrain : public Managed<Terrain>
+class Scroller : public Widget
 {
 public:
-  void enqueue(Queue& queue, const Transform3& transform) const;
-  void calculateShadows(const Vector3& sun);
-  /*! @param[in] position The position to query.
-   *  @return The height of the terrain at the specified position.
-   *  @remarks The y-coordinate of the position is mapped to the z-axis.
-   */
-  float getHeight(const Vector2& position) const;
-  const Sphere& getBounds(void) const;
-  static Terrain* createInstance(const Image& heightmap,
-			         const Image& colormap,
-				 const Vector3& size,
-                                 const String& name = "");
+  Scroller(Orientation orientation = HORIZONTAL);
+  float getMinValue(void) const;
+  float getMaxValue(void) const;
+  void setValueRange(float newMinValue, float newMaxValue);
+  float getValue(void) const;
+  void setValue(float newValue);
+  Orientation getOrientation(void) const;
+  void setOrientation(Orientation newOrientation);
+  SignalProxy2<void, Slider&, float> getValueChangedSignal(void);
+protected:
+  void render(void) const;
 private:
-  struct Tile;
-  Terrain(const String& name);
-  bool init(const Image& heightmap,
-            const Image& colormap,
-	    const Vector3& size);
-  Vector3 gridToWorld(const Vector3& grid) const;
-  Vector3 worldToGrid(const Vector3& world) const;
-  typedef std::vector<Tile> TileList;
-  unsigned int width;
-  unsigned int depth;
-  Vector3 size;
-  Vector2 offset;
-  TileList tiles;
-  Ref<Mesh> mesh;
-  Ref<GL::Texture> texture;
-  Style style;
-  Sphere bounds;
+  void onButtonClicked(Widget& widget,
+		       const Vector2& position,
+		       unsigned int button,
+		       bool clicked);
+  void onKeyPressed(Widget& widget, GL::Key key, bool pressed);
+  void onDragMoved(Widget& widget, const Vector2& position);
+  void setValue(const Vector2& position);
+  void setValue(float newValue, bool notify);
+  Signal2<void, Slider&, float> valueChangedSignal;
+  float minValue;
+  float maxValue;
+  float value;
+  Orientation orientation;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @internal
- */
-struct Terrain::Tile
-{
-  Vector3 normals[2];
-  float height;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-  } /*namespace render*/
+  } /*namespace UI*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_RENDERTERRAIN_H*/
+#endif /*WENDY_UISCROLLER_H*/
 ///////////////////////////////////////////////////////////////////////

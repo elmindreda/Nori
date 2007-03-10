@@ -44,7 +44,9 @@ namespace wendy
  *  Mesh::Geometry objects. Each geometry is a part of the mesh using the
  *  same render style and primitive mode.
  */
-class Mesh : public Renderable, public DerivedResource<Mesh, moira::Mesh>
+class Mesh : public Renderable,
+             public DerivedResource<Mesh, moira::Mesh>,
+	     public RefObject<Mesh>
 {
 public:
   class Geometry;
@@ -80,9 +82,9 @@ public:
   /*! The primitive mode used by this geometry.
    */
   GLenum renderMode;
-  /*! The name of the render style used by this geometry.
+  /*! The render style used by this geometry.
    */
-  String styleName;
+  Ref<Style> style;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -118,7 +120,7 @@ private:
   float distance;
   unsigned int vertexCount;
   Ptr<GL::VertexBuffer> vertexBuffer;
-  Ptr<Style> style;
+  Ref<Style> style;
 };
 
 ///////////////////////////////////////////////////////////////////////

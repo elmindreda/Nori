@@ -56,17 +56,11 @@ void Mesh::enqueue(Queue& queue, const Transform3& transform) const
 {
   for (GeometryList::const_iterator i = geometries.begin();  i != geometries.end();  i++)
   {
-    Style* style = Style::findInstance((*i).styleName);
-    if (!style)
-    {
-      Log::writeError("Render style %s not found", (*i).styleName.c_str());
-      return;
-    }
-
-    const Technique* technique = style->getActiveTechnique();
+    const Technique* technique = (*i).style->getActiveTechnique();
     if (!technique)
     {
-      Log::writeError("Render style %s has no active technique", (*i).styleName.c_str());
+      Log::writeError("Render style %s has no active technique",
+                      (*i).style->getName().c_str());
       return;
     }
 
@@ -118,12 +112,7 @@ bool Mesh::init(const moira::Mesh& mesh)
   unsigned int indexCount = 0;
 
   for (unsigned int i = 0;  i < mesh.geometries.size();  i++)
-  {
-    if (!Style::readInstance(mesh.geometries[i].shaderName))
-      return false;
-
     indexCount += (unsigned int) mesh.geometries[i].triangles.size() * 3;
-  }
 
   GL::VertexFormat format;
 
@@ -157,7 +146,10 @@ bool Mesh::init(const moira::Mesh& mesh)
 
     indexCount = (unsigned int) (*i).triangles.size() * 3;
 
-    geometry.styleName = (*i).shaderName;
+    geometry.style = Style::readInstance((*i).shaderName);
+    if (!geometry.style)
+      return false;
+
     geometry.renderMode = GL_TRIANGLES;
     geometry.range = GL::IndexRange(*indexBuffer, indexBase, indexCount);
 

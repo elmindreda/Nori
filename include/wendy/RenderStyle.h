@@ -70,6 +70,7 @@ public:
    */
   void applyPass(unsigned int index) const;
   GL::Pass* findPass(const String& name);
+  const GL::Pass* findPass(const String& name) const;
   /*! Comparison operator to enable sorting.
    *  @param other The object to compare to.
    */
@@ -106,7 +107,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class Style : public Resource<Style>
+class Style : public Resource<Style>, public RefObject<Style>
 {
 public:
   Style(const String& name = "");

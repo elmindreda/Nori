@@ -94,6 +94,7 @@
 
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
+#include <wendy/GLStatistics.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLVertex.h>
@@ -135,6 +136,7 @@
 #include <wendy/UIMenu.h>
 #include <wendy/UIPopup.h>
 
+#include <wendy/DemoParameter.h>
 #include <wendy/DemoEffect.h>
 #include <wendy/DemoShow.h>
 #include <wendy/DemoEditor.h>

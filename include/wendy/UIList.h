@@ -45,9 +45,12 @@ public:
   List(void);
   ~List(void);
   void insertItem(Item* item, unsigned int index);
-  void removeItem(Item* item);
-  void removeItems(void);
+  void destroyItem(Item* item);
+  void destroyItems(void);
   void sortItems(void);
+  bool isItemVisible(const Item* item) const;
+  unsigned int getOffset(void) const;
+  void setOffset(unsigned int newOffset);
   unsigned int getSelection(void) const;
   Item* getSelectedItem(void) const;
   void setSelection(unsigned int newIndex);
@@ -55,9 +58,7 @@ public:
   unsigned int getItemCount(void) const;
   Item* getItem(unsigned int index);
   const Item* getItem(unsigned int index) const;
-  SignalProxy2<void, List&, Item&> getItemAddedSignal(void);
-  SignalProxy2<void, List&, Item&> getItemRemovedSignal(void);
-  SignalProxy2<void, List&, unsigned int> getSelectionChangedSignal(void);
+  SignalProxy1<void, List&> getSelectionChangedSignal(void);
 protected:
   void render(void) const;
 private:
@@ -66,10 +67,11 @@ private:
 		       unsigned int button,
 		       bool clicked);
   void onKeyPressed(Widget& widget, GL::Key key, bool pressed);
-  Signal2<void, List&, Item&> itemAddedSignal;
-  Signal2<void, List&, Item&> itemRemovedSignal;
-  Signal2<void, List&, unsigned int> selectionChangedSignal;
+  void onWheelTurned(Widget& widget, int wheelOffset);
+  void setSelection(unsigned int newIndex, bool notify);
+  Signal1<void, List&> selectionChangedSignal;
   ItemList items;
+  unsigned int offset;
   unsigned int selection;
 };
 

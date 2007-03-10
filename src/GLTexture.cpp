@@ -103,7 +103,7 @@ GLint unmipmapMinFilter(GLint minFilter)
     return GL_NEAREST;
   else if (minFilter == GL_LINEAR_MIPMAP_NEAREST ||
 	   minFilter == GL_LINEAR_MIPMAP_LINEAR)
-    return GL_NEAREST;
+    return GL_LINEAR;
 
   return minFilter;
 }
@@ -180,12 +180,14 @@ bool Texture::copyFrom(const Image& source,
     glPopAttrib();
   }
 
+#if _DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
   {
     Log::writeError("Error during texture image blt: %s", gluErrorString(error));
     return false;
   }
+#endif
   
   return true;
 }
@@ -264,12 +266,14 @@ Image* Texture::getImage(unsigned int level) const
   
   glPopAttrib();
 
+#if _DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
   {
     Log::writeError("Error during texture image retrieval: %s", gluErrorString(error));
     return NULL;
   }
+#endif
 
   result->flipHorizontal();
 
@@ -405,6 +409,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 
   format = source.getFormat();
 
+  /*
   if (flags & RECTANGULAR)
   {
     physicalWidth = width;
@@ -412,6 +417,8 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 
     if (!GLEW_ARB_texture_non_power_of_two)
     {
+      Log::writeError("Rectangular textures are not supported by the current OpenGL context");
+      return false;
       if (!GLEW_ARB_texture_rectangle)
       {
 	Log::writeError("Rectangular textures are not supported by the current OpenGL context");
@@ -435,6 +442,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 
     unsigned int maxSize;
 
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxSize);
     if (textureTarget == GL_TEXTURE_RECTANGLE_ARB)
       glGetIntegerv(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB, (GLint*) &maxSize);
     else
@@ -447,6 +455,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
       physicalHeight = maxSize;
   }
   else
+  */
   {
     unsigned int maxSize;
 
@@ -500,10 +509,13 @@ bool Texture::init(const Image& image, unsigned int initFlags)
                         source.getPixels());
     }
 
+    levelCount = (unsigned int) log2f(fmaxf(width, height));
+    /*
     if (flags & RECTANGULAR)
       levelCount = (unsigned int) (1.f + floorf(log2f(fmaxf(width, height))));
     else
       levelCount = (unsigned int) log2f(fmaxf(width, height));
+    */
   }
   else
   {
@@ -607,122 +619,128 @@ void TextureLayer::apply(void) const
     }
   }
 
-  if (data.textureName.empty())
+  if (data.texture)
   {
-    if (!cache.textureName.empty())
+    const GLenum textureTarget = data.texture->getTarget();
+
+    if (textureTarget != textureTargets[unit])
+    {
+      if (textureTargets[unit])
+	glDisable(textureTargets[unit]);
+
+      glEnable(textureTarget);
+      textureTargets[unit] = textureTarget;
+    }
+
+    // Set scaling texture matrix
+    // NOTE: This is (and should remain) the only place where the regular
+    //       texture matrix is used.  If you need matrices, use uniforms.
+    /*
+    {
+      // TODO: See if we can avoid always forcing this
+
+      Matrix4 matrix;
+
+      if (textureTarget == GL_TEXTURE_RECTANGLE_ARB)
+      {
+	matrix.x.x = 1.f / texture->getPhysicalWidth();
+	matrix.y.y = 1.f / texture->getPhysicalHeight();
+      }
+    
+      glPushAttrib(GL_TRANSFORM_BIT);
+      glMatrixMode(GL_TEXTURE);
+      glLoadMatrixf(matrix);
+      glPopAttrib();
+    }
+    */
+
+    if (data.texture != cache.texture)
+    {
+      glBindTexture(textureTarget, data.texture->textureID);
+      cache.texture = data.texture;
+    }
+
+    if (data.combineMode != cache.combineMode)
+    {
+      glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, data.combineMode);
+      cache.combineMode = data.combineMode;
+    }
+
+    // Set texture environment color
+    if (data.combineColor != cache.combineColor)
+    {
+      glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, data.combineColor);
+      cache.combineColor = data.combineColor;
+    }
+
+    if (data.addressMode != data.texture->addressMode)
+    {
+      // Yes, this is correct.  This is per-object state, not per-unit state,
+      // so we can't use the regular state cache
+
+      glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, data.addressMode);
+      glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, data.addressMode);
+      data.texture->addressMode = data.addressMode;
+    }
+
+    GLint minFilter = data.minFilter;
+
+    if (!(data.texture->getFlags() & Texture::MIPMAPPED))
+      minFilter = unmipmapMinFilter(minFilter);
+
+    if (minFilter != data.texture->minFilter)
+    {
+      // Yes, this is correct.  This is per-object state, not per-unit state,
+      // so we can't use the regular state cache
+
+      glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, minFilter);
+      data.texture->minFilter = minFilter;
+    }
+
+    if (data.magFilter != data.texture->magFilter)
+    {
+      // Yes, this is correct.  This is per-object state, not per-unit state,
+      // so we can't use the regular state cache
+
+      glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, data.magFilter);
+      data.texture->magFilter = data.magFilter;
+    }
+
+    if (data.sphereMapped != cache.sphereMapped)
+    {
+      setBooleanState(GL_TEXTURE_GEN_S, data.sphereMapped);
+      setBooleanState(GL_TEXTURE_GEN_T, data.sphereMapped);
+
+      if (data.sphereMapped)
+      {
+	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+      }
+
+      cache.sphereMapped = data.sphereMapped;
+    }
+
+    if (!data.samplerName.empty())
+      applySampler(*data.texture);
+  }
+  else
+  {
+    if (cache.texture)
     {
       glDisable(textureTargets[unit]);
       textureTargets[unit] = 0;
-      cache.textureName.clear();
+      cache.texture = NULL;
     }
 
     if (!data.samplerName.empty())
       Log::writeError("Texture layer %u with no texture bound to GLSL sampler uniform %s", unit, data.samplerName.c_str());
   }
-  else
-  {
-    // Retrieve texture object.
-    Texture* texture = Texture::findInstance(data.textureName);
-    if (texture)
-    {
-      const GLenum textureTarget = texture->getTarget();
 
-      if (textureTarget != textureTargets[unit])
-      {
-        if (textureTargets[unit])
-          glDisable(textureTargets[unit]);
-
-        glEnable(textureTarget);
-        textureTargets[unit] = textureTarget;
-      }
-
-      // Set scaling texture matrix
-      // NOTE: This is (and should remain) the only place where the regular
-      //       texture matrix is used.  If you need matrices, use uniforms.
-      {
-	// TODO: See if we can avoid always forcing this
-
-	Matrix4 matrix;
-
-	if (textureTarget == GL_TEXTURE_RECTANGLE_ARB)
-	{
-	  matrix.x.x = 1.f / texture->getPhysicalWidth();
-	  matrix.y.y = 1.f / texture->getPhysicalHeight();
-	}
-      
-	glPushAttrib(GL_TRANSFORM_BIT);
-	glMatrixMode(GL_TEXTURE);
-	glLoadMatrixf(matrix);
-	glPopAttrib();
-      }
-
-      if (data.textureName != cache.textureName)
-      {
-        glBindTexture(textureTarget, texture->textureID);
-        cache.textureName = data.textureName;
-      }
-
-      if (data.combineMode != cache.combineMode)
-      {
-        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, data.combineMode);
-        cache.combineMode = data.combineMode;
-      }
-
-      // Set texture environment color
-      if (data.combineColor != cache.combineColor)
-      {
-        glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, data.combineColor);
-        cache.combineColor = data.combineColor;
-      }
-
-      if (data.addressMode != texture->addressMode)
-      {
-	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, data.addressMode);
-	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, data.addressMode);
-	texture->addressMode = data.addressMode;
-      }
-
-      GLint minFilter = data.minFilter;
-
-      if (!(texture->getFlags() & Texture::MIPMAPPED))
-	minFilter = unmipmapMinFilter(minFilter);
-
-      if (minFilter != texture->minFilter)
-      {
-	glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, minFilter);
-	texture->minFilter = minFilter;
-      }
-
-      if (data.magFilter != texture->magFilter)
-      {
-	glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, data.magFilter);
-	texture->magFilter = data.magFilter;
-      }
-
-      if (data.sphereMapped != cache.sphereMapped)
-      {
-	setBooleanState(GL_TEXTURE_GEN_S, data.sphereMapped);
-	setBooleanState(GL_TEXTURE_GEN_T, data.sphereMapped);
-
-        if (data.sphereMapped)
-        {
-          glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-          glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-        }
-
-        cache.sphereMapped = data.sphereMapped;
-      }
-
-      if (!data.samplerName.empty())
-	applySampler(*texture);
-    }
-    else
-      Log::writeError("Texture layer uses non-existent texture %s", data.textureName.c_str());
-  }
-
+#if _DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
     Log::writeError("Error when applying texture layer %u: %s", unit, gluErrorString(error));
+#endif
 
   data.dirty = cache.dirty = false;
 }
@@ -765,9 +783,9 @@ GLint TextureLayer::getAddressMode(void) const
   return data.addressMode;
 }
 
-const String& TextureLayer::getTextureName(void) const
+Texture* TextureLayer::getTexture(void) const
 {
-  return data.textureName;
+  return data.texture;
 }
 
 const String& TextureLayer::getSamplerName(void) const
@@ -811,9 +829,9 @@ void TextureLayer::setAddressMode(GLint newMode)
   data.dirty = true;
 }
 
-void TextureLayer::setTextureName(const String& newName)
+void TextureLayer::setTexture(Texture* newTexture)
 {
-  data.textureName = newName;
+  data.texture = newTexture;
   data.dirty = true;
 }
 
@@ -875,48 +893,45 @@ void TextureLayer::force(void) const
 
   Texture* texture = NULL;
 
-  if (data.textureName.empty())
+  if (data.texture)
+  {
+    const GLenum textureTarget = data.texture->getTarget();
+
+    glEnable(textureTarget);
+    glBindTexture(textureTarget, data.texture->textureID);
+
+    textureTargets[unit] = textureTarget;
+
+    GLint minFilter = data.minFilter;
+
+    if (!(data.texture->getFlags() & Texture::MIPMAPPED))
+      minFilter = unmipmapMinFilter(minFilter);
+
+    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, minFilter);
+    data.texture->minFilter = minFilter;
+
+    glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, data.magFilter);
+    data.texture->magFilter = data.magFilter;
+
+    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, data.addressMode);
+    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, data.addressMode);
+
+    data.texture->addressMode = data.addressMode;
+
+    if (!data.samplerName.empty())
+      forceSampler(*data.texture);
+  }
+  else
   {
     if (!data.samplerName.empty())
       Log::writeError("Texture layer %u with no texture bound to GLSL sampler uniform %s", unit, data.samplerName.c_str());
   }
-  else
-  {
-    if (texture = Texture::findInstance(data.textureName))
-    {
-      const GLenum textureTarget = texture->getTarget();
 
-      glEnable(textureTarget);
-      glBindTexture(textureTarget, texture->textureID);
-
-      textureTargets[unit] = textureTarget;
-
-      GLint minFilter = data.minFilter;
-
-      if (!(texture->getFlags() & Texture::MIPMAPPED))
-	minFilter = unmipmapMinFilter(minFilter);
-
-      glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, minFilter);
-      texture->minFilter = minFilter;
-
-      glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, data.magFilter);
-      texture->magFilter = data.magFilter;
-
-      glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, data.addressMode);
-      glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, data.addressMode);
-
-      texture->addressMode = data.addressMode;
-
-      if (!data.samplerName.empty())
-	forceSampler(*texture);
-    }
-    else
-      Log::writeError("Texture layer %u uses non-existent texture %s", unit, data.textureName.c_str());
-  }
-
+#if _DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
     Log::writeError("Error when forcing texture layer %u: %s", unit, gluErrorString(error));
+#endif
 
   data.dirty = cache.dirty = false;
 }
@@ -998,13 +1013,13 @@ TextureLayer::Data::Data(void)
 void TextureLayer::Data::setDefaults(void)
 {
   dirty = true;
+  texture = NULL;
   sphereMapped = false;
   combineMode = GL_MODULATE;
   combineColor.set(1.f, 1.f, 1.f, 1.f);
   minFilter = GL_LINEAR_MIPMAP_LINEAR;
   magFilter = GL_LINEAR;
   addressMode = GL_REPEAT;
-  textureName.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -49,7 +49,7 @@ Ptr<GL::ShaderProgramCodec> shaderProgramCodec;
 
 Ptr<render::StyleCodec> renderStyleCodec;
 
-//Ptr<demo::DemoCodecXML> demoCodecXML;
+Ptr<demo::ShowCodec> showCodec;
 
 }
 
@@ -67,6 +67,7 @@ bool initialize(void)
   fragmentShaderCodec = new GL::FragmentShaderCodec();
   shaderProgramCodec = new GL::ShaderProgramCodec();
   renderStyleCodec = new render::StyleCodec();
+  showCodec = new demo::ShowCodec();
 
   if (!GL::VertexShader::addSearchPath(Path(".")))
     return false;
@@ -80,7 +81,8 @@ bool initialize(void)
   if (!render::Style::addSearchPath(Path(".")))
     return false;
 
-  //demoCodecXML = new demo::DemoCodecXML();
+  if (!demo::Show::addSearchPath(Path(".")))
+    return false;
 
   return true;
 }
@@ -94,7 +96,7 @@ void shutdown(void)
   shaderProgramCodec = NULL;
   renderStyleCodec = NULL;
 
-  //demoCodecXML = NULL;
+  showCodec = NULL;
 
   glfwTerminate();
 

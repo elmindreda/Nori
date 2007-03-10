@@ -265,7 +265,7 @@ void LightState::apply(void) const
 
   for (unsigned int i = 0;  i < count;  i++)
   {
-    Light& light = *lights[i];
+    const Light& light = *lights[i];
 
     // NOTE: Since these values will most often only be written once per frame,
     //       (unless we're doing stencil shadowing, and then most of the time
@@ -295,19 +295,22 @@ void LightState::apply(void) const
 
     if (light.getType() != Light::DIRECTIONAL)
     {
-      glLightf(GL_LIGHT0 + i, GL_CONSTANT_ATTENUATION, 1.f);
       glLightf(GL_LIGHT0 + i, GL_LINEAR_ATTENUATION, 0.f);
 
       if (light.isBounded())
       {
-	const float epsilon = 0.01f;
+	const float epsilon = 0.1f;
 	const float radius = light.getRadius();
 	const float quadratic = 1.f / (radius * radius * epsilon);
 
+	glLightf(GL_LIGHT0 + i, GL_CONSTANT_ATTENUATION, 0.f);
 	glLightf(GL_LIGHT0 + i, GL_QUADRATIC_ATTENUATION, quadratic);
       }
       else
+      {
+	glLightf(GL_LIGHT0 + i, GL_CONSTANT_ATTENUATION, 1.f);
 	glLightf(GL_LIGHT0 + i, GL_QUADRATIC_ATTENUATION, 0.f);
+      }
 
       if (light.getType() == Light::SPOT)
       {
@@ -318,11 +321,13 @@ void LightState::apply(void) const
       }
     }
 
+#if _DEBUG
     GLenum error = glGetError();
     if (error != GL_NO_ERROR)
       Log::writeError("Error when applying light %s: %s",
                       light.getName().c_str(),
 		      gluErrorString(error));
+#endif
   }
 
   // Disable any unused light slots
@@ -543,7 +548,7 @@ void LightState::generatePermutation(String& text) const
     source << "  return Cl;\n}\n\n";
   }
 
-  Log::writeInformation("%s", source.str().c_str());
+  //Log::writeInformation("%s", source.str().c_str());
 
   text = source.str();
 }

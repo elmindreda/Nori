@@ -230,11 +230,11 @@ bool Renderer::allocateIndices(IndexRange& range,
     slot = &(indexBuffers.back());
 
     // Granularity of 1K
-    const unsigned int actualCount = (count + 1023) / 1024;
-    
+    const unsigned int actualCount = 1024 * ((count + 1023) / 1024);
+
     slot->indexBuffer = IndexBuffer::createInstance(actualCount,
                                                     type,
-						    IndexBuffer::STREAM);
+						    IndexBuffer::DYNAMIC);
     if (!slot->indexBuffer)
     {
       indexBuffers.pop_back();
@@ -279,11 +279,11 @@ bool Renderer::allocateVertices(VertexRange& range,
     slot = &(vertexBuffers.back());
 
     // Granularity of 1K
-    const unsigned int actualCount = (count + 1023) / 1024;
+    const unsigned int actualCount = 1024 * ((count + 1023) / 1024);
     
     slot->vertexBuffer = VertexBuffer::createInstance(actualCount,
                                                       format,
-						      VertexBuffer::STREAM);
+						      VertexBuffer::DYNAMIC);
     if (!slot->vertexBuffer)
     {
       vertexBuffers.pop_back();
@@ -402,10 +402,10 @@ void Renderer::onContextFinish(void)
 
 void Renderer::onContextDestroy(void)
 {
-  if (Renderer::get())
+  if (get())
   {
     Log::writeWarning("Renderer not explicitly destroyed before context destruction");
-    Renderer::destroy();
+    destroy();
   }
 }
 

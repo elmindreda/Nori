@@ -46,7 +46,7 @@ bool CubeEffect::init(void)
   scene.addNode(*cameraNode);
 
   meshNode = new render::MeshNode();
-  meshNode->setMeshName(cube->getName());
+  meshNode->setMesh(cube);
   scene.addNode(*meshNode);
 
   return true;

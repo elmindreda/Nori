@@ -57,12 +57,12 @@ using namespace moira;
 
 Entry::Entry(const String& initText):
   text(initText),
+  startPosition(0),
   caretPosition(0)
 {
   render::Font* font = Renderer::get()->getCurrentFont();
 
-  setSize(Vector2(font->getWidth() * 10.f,
-                  font->getHeight() * 1.5f));
+  setSize(Vector2(font->getWidth() * 10.f, font->getHeight() * 1.5f));
 
   getButtonClickedSignal().connect(*this, &Entry::onButtonClicked);
   getKeyPressedSignal().connect(*this, &Entry::onKeyPressed);
@@ -120,10 +120,10 @@ void Entry::render(void) const
     {
       float position = 0.f;
 
-      if (caretPosition > 0)
+      if (caretPosition > startPosition)
       {
 	render::Font::LayoutList layouts;
-	font->getTextLayout(layouts, text.substr(0, caretPosition));
+	font->getTextLayout(layouts, text.substr(startPosition, caretPosition));
 
 	const render::Font::Layout& glyph = layouts[caretPosition - 1];
 	position = glyph.penOffset.x + glyph.area.size.x;

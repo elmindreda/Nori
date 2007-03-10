@@ -71,6 +71,78 @@ unsigned int getNextPower(unsigned int value)
   
 ///////////////////////////////////////////////////////////////////////
   
+/*
+void Font::enqueueText(Queue& queue,
+                       const Transform3& transform,
+		       const String& text) const
+{
+  GL::Renderer* renderer = GL::Renderer::get();
+  if (!renderer)
+  {
+    Log::writeError("Cannot enqueue sprites without a renderer");
+    return;
+  }
+
+  const Technique* technique = style->getActiveTechnique();
+  if (!technique)
+  {
+    Log::writeError("Render style %s has no active technique",
+                    style->getName().c_str());
+    return;
+  }
+
+  GL::VertexRange range;
+
+  if (!renderer->allocateVertices(range,
+                                  text.length() * 4,0
+				  GL::Vertex2ft2fv::format))
+    return;
+
+  GL::Vertex2ft2fv* vertices = (GL::Vertex2ft2fv*) range.lock();
+  if (!vertices)
+    return;
+
+  LayoutList layout;
+  getTextLayout(layout, text);
+
+  Vector2 roundedPen = penPosition;
+  roundedPen.x = floorf(roundedPen.x + 0.5f);
+  roundedPen.y = floorf(roundedPen.y + 0.5f);
+
+  unsigned int count = 0;
+
+  for (LayoutList::const_iterator i = layout.begin();  i != layout.end();  i++)
+  {
+    switch ((*i).character)
+    {
+      case '\t':
+      case '\n':
+      case ' ':
+	continue;
+
+      default:
+      {
+	if (const Glyph* glyph = getGlyph((*i).character))
+	{
+	  glyph->realizeVertices(roundedPen + (*i).penOffset, vertices + count);
+	  count += 4;
+	}
+      }
+    }
+  }
+
+  range.unlock();
+
+  Operation& operation = queue.createOperation();
+  operation.transform = transform;
+  operation.technique = technique;
+  operation.vertexBuffer = range.getVertexBuffer();
+  operation.start = range.getStart();
+  operation.count = count;
+  operation.renderMode = GL_QUADS;
+}
+*/
+
 void Font::drawText(const String& text) const
 {
   pass.apply();
@@ -370,13 +442,18 @@ bool Font::init(const moira::Font& font)
     texelPosition.x += image.getWidth() + 1;
   }
 
+  //style = new Style();
+
+  //Technique& technique = style->createTechnique();
+
+  //pass = &(technique.createPass());
   pass.setDepthTesting(false);
   pass.setDepthWriting(false);
   pass.setDefaultColor(ColorRGBA::WHITE);
   pass.setBlendFactors(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   GL::TextureLayer& layer = pass.createTextureLayer();
-  layer.setTextureName(texture->getName());
+  layer.setTexture(texture);
   layer.setCombineMode(GL_MODULATE);
 
   size.set(font.getWidth(), font.getHeight());
@@ -414,6 +491,27 @@ void Font::Glyph::draw(const Vector2& penPosition) const
   glVertex2f(pixelArea.position.x, pixelArea.position.y + pixelArea.size.y);
   glEnd();    
 }
+
+/*
+void Font::Glyph::realizeVertices(Vector2 penPosition, GL::Vertex2ft2fv* vertices) const
+{
+  const Rectangle& texelArea = area;
+
+  Rectangle pixelArea;
+  pixelArea.position = penPosition;
+  pixelArea.position.y += bearing.y - size.y;
+  pixelArea.size = size;
+    
+  vertices[0].mapping.set(texelArea.position.x, texelArea.position.y);
+  vertices[0].position.set(pixelArea.position.x, pixelArea.position.y);
+  vertices[1].mapping.set(texelArea.position.x + texelArea.size.x, texelArea.position.y);
+  vertices[1].position.set(pixelArea.position.x + pixelArea.size.x, pixelArea.position.y);
+  vertices[2].mapping.set(texelArea.position.x + texelArea.size.x, texelArea.position.y + texelArea.size.y);
+  vertices[2].position.set(pixelArea.position.x + pixelArea.size.x, pixelArea.position.y + pixelArea.size.y);
+  vertices[3].mapping.set(texelArea.position.x, texelArea.position.y + texelArea.size.y);
+  vertices[3].position.set(pixelArea.position.x, pixelArea.position.y + pixelArea.size.y);
+}
+*/
 
 ///////////////////////////////////////////////////////////////////////
 

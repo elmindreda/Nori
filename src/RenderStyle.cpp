@@ -104,6 +104,20 @@ GL::Pass* Technique::findPass(const String& name)
   return NULL;
 }
 
+const GL::Pass* Technique::findPass(const String& name) const
+{
+  if (name.empty())
+    return NULL;
+
+  for (List::const_iterator i = passes.begin();  i != passes.end();  i++)
+  {
+    if ((*i).getName() == name)
+      return &(*i);
+  }
+
+  return NULL;
+}
+
 bool Technique::operator < (const Technique& other) const
 {
   // Styles with blending always go last

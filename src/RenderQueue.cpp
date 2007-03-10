@@ -132,6 +132,7 @@ void Queue::render(void) const
   if (!renderer)
     throw Exception("Cannot render render queue without a renderer");
 
+  camera.begin();
   lights.apply();
 
   const OperationList& operations = getOperations();
@@ -163,6 +164,8 @@ void Queue::render(void) const
 
     renderer->popTransform();
   }
+
+  camera.end();
 }
 
 const String& Queue::getName(void) const

@@ -28,6 +28,7 @@
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
+#include <wendy/GLStatistics.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
@@ -185,6 +186,9 @@ void VertexBuffer::render(unsigned int mode,
 
   if (!count)
     count = getCount();
+
+  if (Statistics* statistics = Statistics::get())
+    statistics->addPrimitives(mode, count);
 
   glDrawArrays(mode, start, count);
 }
@@ -457,6 +461,9 @@ void IndexBuffer::render(const VertexBuffer& vertexBuffer,
   if (!count)
     count = getCount();
 
+  if (Statistics* statistics = Statistics::get())
+    statistics->addPrimitives(mode, count);
+
   const Byte* base = NULL;
 
   if (!GLEW_ARB_vertex_buffer_object)
@@ -486,7 +493,7 @@ void* IndexBuffer::lock(void)
 
     if (mapping == NULL)
     {
-      Log::writeError("Unable to map vertex buffer object: %s", gluErrorString(glGetError()));
+      Log::writeError("Unable to map index buffer object: %s", gluErrorString(glGetError()));
       return NULL;
     }
   }
@@ -511,7 +518,7 @@ void IndexBuffer::unlock(void)
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
 
     if (!glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB))
-      Log::writeWarning("Data for vertex buffer object was corrupted");
+      Log::writeWarning("Data for index buffer object was corrupted");
 
     glPopClientAttrib();
   }

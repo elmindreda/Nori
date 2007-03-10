@@ -75,15 +75,17 @@ struct ItemComparator
 ///////////////////////////////////////////////////////////////////////
 
 List::List(void):
+  offset(0),
   selection(0)
 {
   getButtonClickedSignal().connect(*this, &List::onButtonClicked);
   getKeyPressedSignal().connect(*this, &List::onKeyPressed);
+  getWheelTurnedSignal().connect(*this, &List::onWheelTurned);
 }
 
 List::~List(void)
 {
-  // TODO: Destroy items.
+  destroyItems();
 }
 
 void List::insertItem(Item* item, unsigned int index)
@@ -92,35 +94,71 @@ void List::insertItem(Item* item, unsigned int index)
   if (i != items.end())
     return;
 
-  itemAddedSignal.emit(*this, *item);
-
   ItemList::iterator p = items.begin();
   std::advance(p, index);
   items.insert(p, item);
 }
 
-void List::removeItem(Item* item)
+void List::destroyItem(Item* item)
 {
   ItemList::iterator i = std::find(items.begin(), items.end(), item);
   if (i != items.end())
   {
-    itemRemovedSignal.emit(*this, **i);
-
     delete *i;
     items.erase(i);
+
+    setOffset(offset);
   }
 }
 
-void List::removeItems(void)
+void List::destroyItems(void)
 {
   while (!items.empty())
-    removeItem(items.front());
+    destroyItem(items.front());
 }
 
 void List::sortItems(void)
 {
   ItemComparator comparator;
   std::sort(items.begin(), items.end(), comparator);
+}
+
+bool List::isItemVisible(const Item* item) const
+{
+  unsigned int index = 0;
+
+  while (index < items.size() && items[index] != item)
+    index++;
+
+  if (index == items.size())
+    return false;
+
+  if (index < offset)
+    return false;
+
+  float height = items[index]->getHeight();
+
+  for (unsigned int i = offset;  i < index;  i++)
+  {
+    height += items[i]->getHeight();
+    if (height >= getArea().size.y)
+      return false;
+  }
+
+  return true;
+}
+
+unsigned int List::getOffset(void) const
+{
+  return offset;
+}
+
+void List::setOffset(unsigned int newOffset)
+{
+  if (items.empty())
+    return;
+
+  offset = std::min(newOffset, (unsigned int) items.size() - 1);
 }
 
 unsigned int List::getSelection(void) const
@@ -130,12 +168,7 @@ unsigned int List::getSelection(void) const
 
 void List::setSelection(unsigned int newIndex)
 {
-  if (items.empty())
-    return;
-
-  newIndex = std::min(newIndex, (unsigned int) items.size() - 1);
-  selectionChangedSignal.emit(*this, newIndex);
-  selection = newIndex;
+  setSelection(newIndex, false);
 }
 
 unsigned int List::getItemCount(void) const
@@ -167,17 +200,7 @@ const Item* List::getItem(unsigned int index) const
   return NULL;
 }
 
-SignalProxy2<void, List&, Item&> List::getItemAddedSignal(void)
-{
-  return itemAddedSignal;
-}
-
-SignalProxy2<void, List&, Item&> List::getItemRemovedSignal(void)
-{
-  return itemRemovedSignal;
-}
-
-SignalProxy2<void, List&, unsigned int> List::getSelectionChangedSignal(void)
+SignalProxy1<void, List&> List::getSelectionChangedSignal(void)
 {
   return selectionChangedSignal;
 }
@@ -193,11 +216,11 @@ void List::render(void) const
 
     float start = area.size.y;
 
-    unsigned int index = 0;
-
-    for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
+    for (unsigned int i = offset;  i < items.size();  i++)
     {
-      float height = (*i)->getHeight();
+      const Item& item = *items[i];
+
+      float height = item.getHeight();
       if (height + start < 0.f)
 	break;
 
@@ -205,10 +228,9 @@ void List::render(void) const
       itemArea.position.y += start - height;
       itemArea.size.y = height;
 
-      (*i)->render(itemArea, index == selection);
+      item.render(itemArea, i == selection);
 
       start -= height;
-      index++;
     }
 
     Widget::render();
@@ -227,25 +249,22 @@ void List::onButtonClicked(Widget& widget,
 
   Vector2 localPosition = transformToLocal(position);
 
-  unsigned int index = 0;
-
   const float height = getArea().size.y;
   float itemTop = height;
 
-  for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
+  for (unsigned int i = offset;  i < items.size();  i++)
   {
-    const float itemHeight = (*i)->getHeight();
+    const float itemHeight = items[i]->getHeight();
     if (itemTop - itemHeight < 0.f)
       break;
 
     if (itemTop - itemHeight <= localPosition.y)
     {
-      setSelection(index);
+      setSelection(i, true);
       return;
     }
 
     itemTop -= itemHeight;
-    index++;
   }
 }
 
@@ -259,16 +278,54 @@ void List::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
     case GL::Key::UP:
     {
       if (selection > 0)
-	setSelection(selection - 1);
+	setSelection(selection - 1, true);
       break;
     }
 
     case GL::Key::DOWN:
     {
-      setSelection(selection + 1);
+      setSelection(selection + 1, true);
+      break;
+    }
+
+    case GL::Key::HOME:
+    {
+      setSelection(0, true);
+      break;
+    }
+
+    case GL::Key::END:
+    {
+      if (!items.empty())
+	setSelection(items.size() - 1, true);
       break;
     }
   }
+}
+
+void List::onWheelTurned(Widget& widget, int wheelOffset)
+{
+  if (items.empty())
+    return;
+
+  if (wheelOffset + (int) offset < 0)
+    return;
+
+  setOffset(offset + wheelOffset);
+}
+
+void List::setSelection(unsigned int newIndex, bool notify)
+{
+  if (items.empty())
+    return;
+
+  selection = std::min(newIndex, (unsigned int) items.size() - 1);
+
+  if (!isItemVisible(items[selection]))
+    setOffset(selection);
+
+  if (notify)
+    selectionChangedSignal.emit(*this);
 }
 
 ///////////////////////////////////////////////////////////////////////

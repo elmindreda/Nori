@@ -46,6 +46,8 @@ public:
   float getMinValue(void) const;
   float getMaxValue(void) const;
   void setValueRange(float newMinValue, float newMaxValue);
+  float getStepSize(void) const;
+  void setStepSize(float newSize);
   float getValue(void) const;
   void setValue(float newValue);
   Orientation getOrientation(void) const;
@@ -59,12 +61,14 @@ private:
 		       unsigned int button,
 		       bool clicked);
   void onKeyPressed(Widget& widget, GL::Key key, bool pressed);
+  void onWheelTurned(Widget& widget, int offset);
   void onDragMoved(Widget& widget, const Vector2& position);
   void setValue(const Vector2& position);
   void setValue(float newValue, bool notify);
   Signal2<void, Slider&, float> valueChangedSignal;
   float minValue;
   float maxValue;
+  float stepSize;
   float value;
   Orientation orientation;
 };

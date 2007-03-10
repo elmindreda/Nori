@@ -202,6 +202,9 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 
 	beginElement("pass");
 
+	if (!pass.getName().empty())
+	  addAttribute("name", pass.getName());
+
 	if (pass.isLit() != defaults.isLit())
 	{
 	  beginElement("lighting");
@@ -318,11 +321,11 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 	{
 	  const GL::TextureLayer& layer = pass.getTextureLayer(i);
 
-	  if (layer.getTextureName().empty())
+	  if (!layer.getTexture())
 	    break;
 
 	  beginElement("texture");
-	  addAttribute("name", layer.getTextureName());
+	  addAttribute("name", layer.getTexture()->getName());
 
 	  if (!layer.getSamplerName().empty())
 	    addAttribute("sampler", layer.getSamplerName());
@@ -359,6 +362,8 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 
 	endElement();
       }
+
+      endElement();
     }
 
     endElement();
@@ -410,7 +415,7 @@ bool StyleCodec::onBeginElement(const String& name)
     {
       if (name == "pass")
       {
-	GL::Pass& pass = currentTechnique->createPass();
+	GL::Pass& pass = currentTechnique->createPass(readString("name"));
 	currentPass = &pass;
 	return true;
       }
@@ -616,11 +621,20 @@ bool StyleCodec::onBeginElement(const String& name)
 	  if (!textureName.length())
 	    return true;
 
-	  if (!GL::Texture::readInstance(textureName))
-	    return false;
+	  GL::Texture* texture;
+
+	  // TODO: Update this when resource cascade options are added.
+
+	  texture = GL::Texture::findInstance(textureName);
+	  if (!texture)
+	  {
+	    texture = GL::Texture::readInstance(textureName);
+	    if (!texture)
+	      return false;
+	  }
 
 	  GL::TextureLayer& layer = currentPass->createTextureLayer();
-	  layer.setTextureName(textureName);
+	  layer.setTexture(texture);
 	  layer.setSamplerName(readString("sampler"));
 
 	  currentLayer = &layer;

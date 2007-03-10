@@ -1,5 +1,5 @@
-//////////////////////////////////////////////////////////////////////
-// Wendy user interface library
+///////////////////////////////////////////////////////////////////////
+// Wendy debug tools
 // Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -38,15 +38,13 @@
 
 #include <wendy/RenderFont.h>
 
-#include <wendy/UIRender.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UIItem.h>
+#include <wendy/DebugHUD.h>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace UI
+  namespace debug
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -55,75 +53,39 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Item::Item(const String& initValue):
-  value(initValue)
+void HUD::render(void) const
+{
+  // TODO: Implement.
+}
+
+bool HUD::create(void)
+{
+  Ptr<HUD> display = new HUD();
+  if (!display->init())
+    return false;
+
+  set(display.detachObject());
+  return true;
+}
+
+HUD::HUD(void)
 {
 }
 
-bool Item::operator < (const Item& other) const
+bool HUD::init(void)
 {
-  return value < other.value;
-}
-
-float Item::getWidth(void) const
-{
-  render::Font* font = Renderer::get()->getCurrentFont();
-
-  float width = font->getWidth() * 2.f;
-
-  if (value.empty())
-    width += font->getWidth() * 3.f;
-  else
-    width += font->getTextMetrics(value).size.x;
-
-  return width;
-}
-
-float Item::getHeight(void) const
-{
-  return Renderer::get()->getCurrentFont()->getHeight() * 1.5f;
-}
-
-const String& Item::getValue(void) const
-{
-  return value;
-}
-
-void Item::setValue(const String& newValue)
-{
-  value = newValue;
-}
-
-void Item::render(const Rectangle& area, bool selected) const
-{
-  Renderer* renderer = Renderer::get();
-  if (renderer->pushClipArea(area))
+  if (!GL::Statistics::get())
   {
-    render::Font* font = renderer->getCurrentFont();
-
-    Rectangle textArea = area;
-    textArea.position.x += font->getWidth() / 2.f;
-    textArea.size.x -= font->getWidth();
-
-    if (selected)
-    {
-      GL::Pass pass;
-      pass.setDefaultColor(ColorRGBA(renderer->getSelectionColor(), 1.f));
-      pass.setDepthTesting(false);
-      pass.setDepthWriting(false);
-      pass.apply();
-
-      glRectf(area.position.x, area.position.y, area.position.x + area.size.x, area.position.y + area.size.y);
-    }
-
-    renderer->drawText(textArea, value, LEFT_ALIGNED, selected);
-    renderer->popClipArea();
+    Log::writeError("Cannot create debug HUD without statistics tracker");
+    return false;
   }
+
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace UI*/
+  } /*namespace debug*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

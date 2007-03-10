@@ -120,7 +120,11 @@ const Sphere& SceneNode::getTotalBounds(void) const
     const List& children = getChildren();
 
     for (List::const_iterator i = children.begin();  i != children.end();  i++)
-      totalBounds.envelop((*i)->getTotalBounds());
+    {
+      Sphere childBounds = (*i)->getTotalBounds();
+      childBounds.transformBy((*i)->getLocalTransform());
+      totalBounds.envelop(childBounds);
+    }
 
     dirtyBounds = false;
   }
@@ -300,7 +304,7 @@ void Scene::setTimeElapsed(Time newTime)
 {
   Time deltaTime = newTime - currentTime;
 
-  if (deltaTime < 0.f)
+  if (deltaTime < 0.0)
   {
     for (NodeList::const_iterator i = roots.begin();  i != roots.end();  i++)
       (*i)->restart();
@@ -308,7 +312,7 @@ void Scene::setTimeElapsed(Time newTime)
     deltaTime = newTime;
   }
 
-  if (deltaTime == 0.f)
+  if (deltaTime == 0.0)
     return;
 
   for (NodeList::const_iterator i = roots.begin();  i != roots.end();  i++)
@@ -319,20 +323,21 @@ void Scene::setTimeElapsed(Time newTime)
 
 ///////////////////////////////////////////////////////////////////////
 
-const String& LightNode::getLightName(void) const
+GL::Light* LightNode::getLight(void) const
 {
-  return lightName;
+  return light;
 }
 
-void LightNode::setLightName(const String& newLightName)
+void LightNode::setLight(GL::Light* newLight)
 {
-  lightName = newLightName;
+  light = newLight;
 }
 
 void LightNode::update(Time deltaTime)
 {
-  if (GL::Light* light = GL::Light::findInstance(lightName))
-    setLocalBounds(light->getBounds());
+  SceneNode::update(deltaTime);
+
+  setLocalBounds(light->getBounds());
 }
 
 void LightNode::enqueue(Queue& queue, QueuePhase phase) const
@@ -342,52 +347,41 @@ void LightNode::enqueue(Queue& queue, QueuePhase phase) const
   if (phase != COLLECT_LIGHTS)
     return;
 
-  if (GL::Light* light = GL::Light::findInstance(lightName))
+  const Transform3& world = getWorldTransform();
+
+  switch (light->getType())
   {
-    const Transform3 world = getWorldTransform();
-
-    switch (light->getType())
+    case GL::Light::DIRECTIONAL:
     {
-      case GL::Light::DIRECTIONAL:
-      {
-        Vector3 direction(0.f, 0.f, 1.f);
-        world.rotateVector(direction);
-        light->setDirection(direction);
-        break;
-      }
-
-      case GL::Light::POINT:
-      {
-        Vector3 position(0.f, 0.f, 0.f);
-        world.transformVector(position);
-        light->setPosition(position);
-        break;
-      }
+      Vector3 direction(0.f, 0.f, 1.f);
+      world.rotateVector(direction);
+      light->setDirection(direction);
+      break;
     }
 
-    queue.attachLight(*light);
+    case GL::Light::POINT:
+    {
+      Vector3 position(0.f, 0.f, 0.f);
+      world.transformVector(position);
+      light->setPosition(position);
+      break;
+    }
   }
+
+  queue.attachLight(*light);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-const String& MeshNode::getMeshName(void) const
+Mesh* MeshNode::getMesh(void) const
 {
-  return meshName;
+  return mesh;
 }
 
-void MeshNode::setMeshName(const String& newMeshName)
+void MeshNode::setMesh(Mesh* newMesh)
 {
-  meshName = newMeshName;
-}
-
-void MeshNode::update(Time deltaTime)
-{
-  SceneNode::update(deltaTime);
-
-  Mesh* mesh = Mesh::findInstance(meshName);
-  if (mesh)
-    setLocalBounds(mesh->getBounds());
+  mesh = newMesh;
+  setLocalBounds(mesh->getBounds());
 }
 
 void MeshNode::enqueue(Queue& queue, QueuePhase phase) const
@@ -395,11 +389,7 @@ void MeshNode::enqueue(Queue& queue, QueuePhase phase) const
   SceneNode::enqueue(queue, phase);
 
   if (phase == COLLECT_GEOMETRY)
-  {
-    Mesh* mesh = Mesh::findInstance(meshName);
-    if (mesh)
-      mesh->enqueue(queue, getWorldTransform());
-  }
+    mesh->enqueue(queue, getWorldTransform());
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -463,14 +453,19 @@ void TerrainNode::enqueue(Queue& queue, QueuePhase phase) const
 
 ///////////////////////////////////////////////////////////////////////
 
-const String& SpriteNode::getStyleName(void) const
+SpriteNode::SpriteNode(void)
 {
-  return styleName;
+  setSpriteSize(Vector2(1.f, 1.f));
 }
 
-void SpriteNode::setStyleName(const String& newStyleName)
+Style* SpriteNode::getStyle(void) const
 {
-  styleName = newStyleName;
+  return style;
+}
+
+void SpriteNode::setStyle(Style* newStyle)
+{
+  style = newStyle;
 }
 
 const Vector2& SpriteNode::getSpriteSize(void) const
@@ -481,6 +476,8 @@ const Vector2& SpriteNode::getSpriteSize(void) const
 void SpriteNode::setSpriteSize(const Vector2& newSize)
 {
   spriteSize = newSize;
+
+  setLocalBounds(Sphere(Vector3::ZERO, (newSize / 2.f).length()));
 }
 
 void SpriteNode::enqueue(Queue& queue, QueuePhase phase) const
@@ -491,7 +488,7 @@ void SpriteNode::enqueue(Queue& queue, QueuePhase phase) const
   {
     Sprite3 sprite;
     sprite.size = spriteSize;
-    sprite.styleName = styleName;
+    sprite.style = style;
     sprite.enqueue(queue, getWorldTransform());
   }
 }
@@ -526,8 +523,8 @@ void ParticleSystemNode::update(Time deltaTime)
     return;
   }
 
-  system->setTimeElapsed(elapsed);
   system->setTransform(getWorldTransform());
+  system->setTimeElapsed(elapsed);
   setLocalBounds(system->getBounds());
 }
 

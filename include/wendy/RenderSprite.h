@@ -51,6 +51,7 @@ public:
   void render(const Style& style) const;
   void realizeVertices(GL::Vertex2ft2fv* vertices) const;
   void setDefaults(void);
+  Rectangle mapping;
   Vector2 position;
   Vector2 size;
   float angle;
@@ -78,7 +79,7 @@ public:
   Vector2 size;
   float angle;
   Type type;
-  String styleName;
+  Ref<Style> style;
 };
 
 ///////////////////////////////////////////////////////////////////////

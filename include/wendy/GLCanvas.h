@@ -80,15 +80,15 @@ public:
   void popScissorArea(void);
   /*! Clears the color buffer of this canvas with the specified color.
    */
-  void clearColorBuffer(const ColorRGBA& color = ColorRGBA::BLACK);
+  void clearColorBuffer(const ColorRGBA& color = ColorRGBA::BLACK) const;
   /*! Clears the depth buffer of this canvas with the specified depth
    *  value.
    */
-  void clearDepthBuffer(float depth = 1.f);
+  void clearDepthBuffer(float depth = 1.f) const;
   /*! Clears the stencil buffer of this canvas with the specified
    *  stencil value.
    */
-  void clearStencilBuffer(unsigned int value = 0);
+  void clearStencilBuffer(unsigned int value = 0) const;
   /*! @return The width, in pixels, of this canvas.
    */
   virtual unsigned int getPhysicalWidth(void) const = 0;
@@ -154,7 +154,7 @@ public:
   unsigned int getPhysicalHeight(void) const;
   /*! @return The texture targeted by this texture canvas.
    */
-  const Texture& getTexture(void) const;
+  Texture& getTexture(void) const;
   /*! Creates a texture canvas and its associated texture.
    *  @param width The desired width of the texture and texture canvas.
    *  @param height The desired height of the texture and texture canvas.
@@ -171,7 +171,7 @@ private:
   void finish(void) const;
   void updateScissorArea(void) const;
   void updateViewportArea(void) const;
-  Ptr<Texture> texture;
+  Ref<Texture> texture;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -28,6 +28,7 @@
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
+#include <wendy/GLStatistics.h>
 #include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
@@ -57,6 +58,9 @@ Pass::Pass(const String& initName):
 void Pass::apply(void) const
 {
   // NOTE: Yes, I know this is huge.  You don't need to point it out.
+
+  if (Statistics* statistics = Statistics::get())
+    statistics->addPasses(1);
 
   if (cache.dirty)
   {
@@ -187,8 +191,7 @@ void Pass::apply(void) const
       cache.shininess = data.shininess;
     }
   }
-
-  if (!data.lighting)
+  else
   {
     // For compatibility reasons, we do not trust the cached color.  Since we
     // always overwrite this value, there is no need to check whether the cache
@@ -225,9 +228,11 @@ void Pass::apply(void) const
     }
   }
 
+#if _DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
     Log::writeError("Error when applying render pass: %s", gluErrorString(error));
+#endif
 
   TextureStack::apply();
   
@@ -507,9 +512,11 @@ void Pass::force(void) const
     }
   }
 
+#if _DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
     Log::writeWarning("Error when forcing render pass: %s", gluErrorString(error));
+#endif
 
   TextureStack::apply();
   

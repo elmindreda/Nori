@@ -122,13 +122,13 @@ void Sprite2::realizeVertices(GL::Vertex2ft2fv* vertices) const
 {
   const Vector2 offset(size.x / 2.f, size.y / 2.f);
 
-  vertices[0].mapping.set(1.f, 1.f);
+  vertices[0].mapping.set(mapping.position.x + mapping.size.x, mapping.position.y + mapping.size.y);
   vertices[0].position.set( offset.x,  offset.y);
-  vertices[1].mapping.set(0.f, 1.f);
+  vertices[1].mapping.set(mapping.position.x, mapping.position.y + mapping.size.y);
   vertices[1].position.set(-offset.x,  offset.y);
-  vertices[2].mapping.set(0.f, 0.f);
+  vertices[2].mapping.set(mapping.position.x, mapping.position.y);
   vertices[2].position.set(-offset.x, -offset.y);
-  vertices[3].mapping.set(1.f, 0.f);
+  vertices[3].mapping.set(mapping.position.x + mapping.size.x, mapping.position.y);
   vertices[3].position.set( offset.x, -offset.y);
 
   for (unsigned int i = 0;  i < 4;  i++)
@@ -140,6 +140,7 @@ void Sprite2::realizeVertices(GL::Vertex2ft2fv* vertices) const
 
 void Sprite2::setDefaults(void)
 {
+  mapping.set(Vector2::ZERO, Vector2::ONE);
   position.set(0.f, 0.f);
   size.set(1.f, 1.f);
   angle = 0.f;
@@ -156,27 +157,21 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
 {
   if (!GL::Renderer::get())
   {
-    Log::writeError("Cannot enqueue sprites without a renderer");
+    Log::writeError("Cannot enqueue sprite without a renderer");
     return;
   }
 
-  if (styleName.empty())
-  {
-    Log::writeError("Cannot enqueue with no render style name set");
-    return;
-  }
-
-  Style* style = Style::findInstance(styleName);
   if (!style)
   {
-    Log::writeError("Render style %s not found", styleName.c_str());
+    Log::writeError("Cannot enqueue sprite without a render style");
     return;
   }
 
   const Technique* technique = style->getActiveTechnique();
   if (!technique)
   {
-    Log::writeError("Render style %s has no active technique", styleName.c_str());
+    Log::writeError("Render style %s has no active technique",
+                    style->getName().c_str());
     return;
   }
 
@@ -205,26 +200,13 @@ void Sprite3::render(void) const
   GL::Vertex2ft3fv vertices[4];
   realizeVertices(vertices);
 
-  if (styleName.empty())
+  if (style)
   {
-    glBegin(GL_QUADS);
-    for (unsigned int i = 0;  i < 4;  i++)
-      vertices[i].send();
-    glEnd();
-  }
-  else
-  {
-    Style* style = Style::findInstance(styleName);
-    if (!style)
-    {
-      Log::writeError("Render style %s not found", styleName.c_str());
-      return;
-    }
-
     const Technique* technique = style->getActiveTechnique();
     if (!technique)
     {
-      Log::writeError("Render style %s has no active technique", styleName.c_str());
+      Log::writeError("Render style %s has no active technique",
+                      style->getName().c_str());
       return;
     }
 
@@ -237,6 +219,13 @@ void Sprite3::render(void) const
 	vertices[i].send();
       glEnd();
     }
+  }
+  else
+  {
+    glBegin(GL_QUADS);
+    for (unsigned int i = 0;  i < 4;  i++)
+      vertices[i].send();
+    glEnd();
   }
 }
 
@@ -266,7 +255,7 @@ void Sprite3::setDefaults(void)
   size.set(1.f, 1.f);
   angle = 0.f;
   type = SPHERICAL;
-  styleName.clear();
+  style = NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////

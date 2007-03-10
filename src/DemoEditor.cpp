@@ -47,6 +47,7 @@
 #include <wendy/UIMenu.h>
 #include <wendy/UIPopup.h>
 
+#include <wendy/DemoParameter.h>
 #include <wendy/DemoEffect.h>
 #include <wendy/DemoShow.h>
 #include <wendy/DemoEditor.h>
@@ -301,14 +302,6 @@ bool Editor::onRender(void)
   screen.begin();
   UI::Widget::renderRoots();
   screen.end();
-
-  Rectangle area;
-
-  area = canvas->getGlobalArea();
-  Log::writeInformation("Canvas: %0.2f %0.2f %0.2f %0.2f", area.position.x, area.position.y, area.size.x, area.size.y);
-
-  area = commandPanel->getGlobalArea();
-  Log::writeInformation("Panel: %0.2f %0.2f %0.2f %0.2f", area.position.x, area.position.y, area.size.x, area.size.y);
 
   canvas->getCanvas().begin();
   canvas->getCanvas().clearColorBuffer(ColorRGBA::BLACK);

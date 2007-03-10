@@ -50,30 +50,6 @@ class Effect;
 
 ///////////////////////////////////////////////////////////////////////
 
-class ParameterKey
-{
-public:
-  virtual ~ParameterKey(void);
-private:
-  Time moment;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class Parameter
-{
-public:
-  typedef std::vector<ParameterKey*> KeyList;
-  Parameter(const String& name);
-  virtual ~Parameter(void);
-  const String& getName(void) const;
-  KeyList keys;
-private:
-  String name;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Demo effect factory interface.
  *  @ingroup demo
  */
@@ -111,12 +87,14 @@ public:
  */
 class Effect : public Node<Effect>, public Managed<Effect>
 {
-  friend class Editor;
   friend class Show;
 public:
+  typedef std::vector<Parameter*> ParameterList;
   Effect(EffectType& type, const String& name = "");
-  bool createChild(const String& typeName,
-                   const String& instanceName = "");
+  bool init(void);
+  Effect* createChild(const String& typeName,
+                      const String& instanceName = "");
+  Parameter* findParameter(const String& name);
   bool isActive(void) const;
   EffectType& getType(void) const;
   Time getStartTime(void) const;
@@ -124,7 +102,10 @@ public:
   Time getDuration(void) const;
   void setDuration(Time newDuration);
   Time getTimeElapsed(void) const;
+  const ParameterList& getParameters(void);
 protected:
+  void addParameter(Parameter& parameter);
+  void removeParameter(Parameter& parameter);
   void prepareChildren(void) const;
   void renderChildren(void) const; 
   virtual void prepare(void) const;
@@ -137,6 +118,7 @@ private:
   Time start;
   Time duration;
   Time elapsed;
+  ParameterList parameters;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -172,7 +154,12 @@ inline Effect* EffectTemplate<T>::createEffect(const String& name)
 {
   Ptr<T> effect = new T(*this, name);
   if (!effect->init())
+  {
+    Log::writeWarning("Demo effect %s of type %s failed to initialize",
+                      name.c_str(),
+		      getName().c_str());
     return NULL;
+  }
 
   return effect.detachObject();
 }

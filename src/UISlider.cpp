@@ -58,6 +58,7 @@ using namespace moira;
 Slider::Slider(Orientation initOrientation):
   minValue(0.f),
   maxValue(1.f),
+  stepSize(1.f),
   value(0.f),
   orientation(initOrientation)
 {
@@ -72,6 +73,7 @@ Slider::Slider(Orientation initOrientation):
 
   getKeyPressedSignal().connect(*this, &Slider::onKeyPressed);
   getButtonClickedSignal().connect(*this, &Slider::onButtonClicked);
+  getWheelTurnedSignal().connect(*this, &Slider::onWheelTurned);
   getDragMovedSignal().connect(*this, &Slider::onDragMoved);
 
   setDraggable(true);
@@ -106,6 +108,16 @@ float Slider::getValue(void) const
 void Slider::setValue(float newValue)
 {
   setValue(newValue, false);
+}
+
+float Slider::getStepSize(void) const
+{
+  return stepSize;
+}
+
+void Slider::setStepSize(float newSize)
+{
+  stepSize = std::max(newSize, 0.f);
 }
 
 Orientation Slider::getOrientation(void) const
@@ -178,14 +190,25 @@ void Slider::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
     {
       case GL::Key::UP:
       case GL::Key::RIGHT:
-	setValue(value + 1.f, true);
+	setValue(value + stepSize, true);
 	break;
       case GL::Key::DOWN:
       case GL::Key::LEFT:
-	setValue(value - 1.f, true);
+	setValue(value - stepSize, true);
+	break;
+      case GL::Key::HOME:
+	setValue(minValue, true);
+	break;
+      case GL::Key::END:
+	setValue(maxValue, true);
 	break;
     }
   }
+}
+
+void Slider::onWheelTurned(Widget& widget, int offset)
+{
+  setValue(value + offset * stepSize, true);
 }
 
 void Slider::onDragMoved(Widget& widget, const Vector2& position)

@@ -14,7 +14,7 @@ private:
   bool render(void);
   render::Camera camera;
   render::Scene scene;
-  Ptr<render::Mesh> mesh;
+  Ref<render::Mesh> mesh;
   render::MeshNode* meshNode;
   render::CameraNode* cameraNode;
   Timer timer;
@@ -48,7 +48,7 @@ bool Demo::init(void)
   //light->setRadius(8.f);
 
   render::LightNode* lightNode = new render::LightNode();
-  lightNode->setLightName(light->getName());
+  lightNode->setLight(light);
   lightNode->getLocalTransform().position.z = 3.f;
   scene.addNode(*lightNode);
 
@@ -57,7 +57,7 @@ bool Demo::init(void)
     return false;
 
   meshNode = new render::MeshNode();
-  meshNode->setMeshName(mesh->getName());
+  meshNode->setMesh(mesh);
   scene.addNode(*meshNode);
 
   if (GL::ShaderProgram* program = GL::ShaderProgram::findInstance("program"))
@@ -95,10 +95,7 @@ bool Demo::render(void)
 
   render::Queue queue(camera);
   scene.enqueue(queue);
-
-  camera.begin();
   queue.render();
-  camera.end();
 
   canvas.end();
   return true;

@@ -1,9 +1,1 @@
-Effect parameters with curves
-OpenAL support
-Vertex allocator
-Particle system
-Texture locking and shadowing
 Scene graph transform cacheing
-Consistent managed object references
-Text rendering
-UI system

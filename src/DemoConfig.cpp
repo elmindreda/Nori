@@ -1,5 +1,5 @@
-//////////////////////////////////////////////////////////////////////
-// Wendy user interface library
+///////////////////////////////////////////////////////////////////////
+// Wendy demo system
 // Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -26,27 +26,31 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
-#include <wendy/GLCanvas.h>
 #include <wendy/GLTexture.h>
-#include <wendy/GLVertex.h>
-#include <wendy/GLBuffer.h>
+#include <wendy/GLCanvas.h>
 #include <wendy/GLPass.h>
-#include <wendy/GLRender.h>
 
 #include <wendy/RenderFont.h>
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
+#include <wendy/UIWindow.h>
+#include <wendy/UILayout.h>
+#include <wendy/UIButton.h>
+#include <wendy/UILabel.h>
 #include <wendy/UIItem.h>
+#include <wendy/UIMenu.h>
+#include <wendy/UIPopup.h>
+
+#include <wendy/DemoConfig.h>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace UI
+  namespace demo
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -55,75 +59,22 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Item::Item(const String& initValue):
-  value(initValue)
+ConfigDialog::ConfigDialog(void)
 {
 }
 
-bool Item::operator < (const Item& other) const
+void ConfigDialog::request(Config& config)
 {
-  return value < other.value;
 }
 
-float Item::getWidth(void) const
+SignalProxy0<void> ConfigDialog::getRenderSignal(void)
 {
-  render::Font* font = Renderer::get()->getCurrentFont();
-
-  float width = font->getWidth() * 2.f;
-
-  if (value.empty())
-    width += font->getWidth() * 3.f;
-  else
-    width += font->getTextMetrics(value).size.x;
-
-  return width;
-}
-
-float Item::getHeight(void) const
-{
-  return Renderer::get()->getCurrentFont()->getHeight() * 1.5f;
-}
-
-const String& Item::getValue(void) const
-{
-  return value;
-}
-
-void Item::setValue(const String& newValue)
-{
-  value = newValue;
-}
-
-void Item::render(const Rectangle& area, bool selected) const
-{
-  Renderer* renderer = Renderer::get();
-  if (renderer->pushClipArea(area))
-  {
-    render::Font* font = renderer->getCurrentFont();
-
-    Rectangle textArea = area;
-    textArea.position.x += font->getWidth() / 2.f;
-    textArea.size.x -= font->getWidth();
-
-    if (selected)
-    {
-      GL::Pass pass;
-      pass.setDefaultColor(ColorRGBA(renderer->getSelectionColor(), 1.f));
-      pass.setDepthTesting(false);
-      pass.setDepthWriting(false);
-      pass.apply();
-
-      glRectf(area.position.x, area.position.y, area.position.x + area.size.x, area.position.y + area.size.y);
-    }
-
-    renderer->drawText(textArea, value, LEFT_ALIGNED, selected);
-    renderer->popClipArea();
-  }
+  return renderSignal;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace UI*/
+  } /*namespace demo*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

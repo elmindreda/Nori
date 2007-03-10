@@ -220,6 +220,9 @@ public:
   /*! @return The signal for mouse cursor movement events.
    */
   SignalProxy1<void, const Vector2&> getCursorMovedSignal(void);
+  /*! @return The signal for mouse wheel events.
+    */
+  SignalProxy1<void, int> getWheelTurnedSignal(void);
   /*! Creates the context singleton object, using the specified settings.
     *  @param mode The requested context settings.
     *  @return @c true if successful, or @c false otherwise.
@@ -242,6 +245,7 @@ private:
   static void characterCallback(int character, int action);
   static void mousePosCallback(int x, int y);
   static void mouseButtonCallback(int button, int action);
+  static void mouseWheelCallback(int position);
   typedef std::map<int, int> KeyMap;
   Signal0<bool> renderSignal;
   Signal0<void> finishSignal;
@@ -251,8 +255,10 @@ private:
   Signal1<void, wchar_t> charInputSignal;
   Signal2<void, unsigned int, bool> buttonClickedSignal;
   Signal1<void, const Vector2&> cursorMovedSignal;
+  Signal1<void, int> wheelTurnedSignal;
   ContextMode mode;
   String title;
+  int wheelPosition;
   mutable Vector2 cursorPosition;
   static KeyMap internalMap;
   static KeyMap externalMap;

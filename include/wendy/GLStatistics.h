@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy default renderer
-// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy OpenGL library
+// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,13 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_RENDERTERRAIN_H
-#define WENDY_RENDERTERRAIN_H
+#ifndef WENDY_GLSTATISTICS_H
+#define WENDY_GLSTATISTICS_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace render
+  namespace GL
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -37,61 +37,38 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief %Terrain renderer.
- *  @ingroup renderer
- *
- *  Basic heightmap terrain renderer.
- */
-class Terrain : public Managed<Terrain>
+class Statistics : public Singleton<Statistics>, public Trackable
 {
 public:
-  void enqueue(Queue& queue, const Transform3& transform) const;
-  void calculateShadows(const Vector3& sun);
-  /*! @param[in] position The position to query.
-   *  @return The height of the terrain at the specified position.
-   *  @remarks The y-coordinate of the position is mapped to the z-axis.
-   */
-  float getHeight(const Vector2& position) const;
-  const Sphere& getBounds(void) const;
-  static Terrain* createInstance(const Image& heightmap,
-			         const Image& colormap,
-				 const Vector3& size,
-                                 const String& name = "");
+  void addPasses(unsigned int count);
+  void addPrimitives(GLenum mode, unsigned int count);
+  float getFrameRate(void) const;
+  unsigned int getFrameCount(void) const;
+  unsigned int getPassCount(void) const;
+  unsigned int getVertexCount(void) const;
+  unsigned int getPointCount(void) const;
+  unsigned int getLineCount(void) const;
+  unsigned int getTriangleCount(void) const;
+  static bool create(void);
 private:
-  struct Tile;
-  Terrain(const String& name);
-  bool init(const Image& heightmap,
-            const Image& colormap,
-	    const Vector3& size);
-  Vector3 gridToWorld(const Vector3& grid) const;
-  Vector3 worldToGrid(const Vector3& world) const;
-  typedef std::vector<Tile> TileList;
-  unsigned int width;
-  unsigned int depth;
-  Vector3 size;
-  Vector2 offset;
-  TileList tiles;
-  Ref<Mesh> mesh;
-  Ref<GL::Texture> texture;
-  Style style;
-  Sphere bounds;
+  Statistics(void);
+  bool init(void);
+  void onFinish(void);
+  void onContextDestroy(void);
+  unsigned int frameCount;
+  unsigned int passCount;
+  unsigned int vertexCount;
+  unsigned int pointCount;
+  unsigned int lineCount;
+  unsigned int triangleCount;
+  Timer timer;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @internal
- */
-struct Terrain::Tile
-{
-  Vector3 normals[2];
-  float height;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-  } /*namespace render*/
+  } /*namespace GL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_RENDERTERRAIN_H*/
+#endif /*WENDY_GLSTATISTICS_H*/
 ///////////////////////////////////////////////////////////////////////

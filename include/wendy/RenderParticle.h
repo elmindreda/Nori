@@ -200,8 +200,8 @@ public:
   void setTimeElapsed(Time newTime);
   PeriodType getPeriodType(void) const;
   void setPeriodType(PeriodType newType);
-  const String& getStyleName(void) const;
-  void setStyleName(const String& newName);
+  Style* getStyle(void) const;
+  void setStyle(Style* newStyle);
   const Transform3& getTransform(void) const;
   void setTransform(const Transform3& newTransform);
 protected:
@@ -225,7 +225,7 @@ private:
   bool realizeVertices(GL::VertexRange& range, const Vector3& camera) const;
   bool updateBounds;
   Time currentTime;
-  String styleName;
+  Ref<Style> style;
   Vector2 particleSize;
   PeriodType periodType;
   Transform3 transform;

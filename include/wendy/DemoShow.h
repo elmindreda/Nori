@@ -45,6 +45,7 @@ using namespace moira;
 class Show : public Resource<Show>
 {
 public:
+  void prepare(void) const;
   void render(void) const;
   Effect& getRootEffect(void);
   const String& getTitle(void) const;
@@ -63,11 +64,10 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*
-class ShowCodecXML : public ResourceCodec<Show>, public XML::Codec
+class ShowCodec : public ResourceCodec<Show>, public XML::Codec
 {
 public:
-  ShowCodecXML(void);
+  ShowCodec(void);
   Show* read(const Path& path, const String& name = "");
   Show* read(Stream& stream, const String& name = "");
   bool write(const Path& path, const Show& show);
@@ -77,8 +77,8 @@ private:
   bool onEndElement(const String& name);
   Ptr<Show> show;
   std::stack<String> effectNameStack;
+  Parameter* currentParameter;
 };
-*/
 
 ///////////////////////////////////////////////////////////////////////
 

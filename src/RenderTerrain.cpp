@@ -146,7 +146,7 @@ bool Terrain::init(const Image& heightmap,
 
     GL::TextureLayer& layer = pass.createTextureLayer();
     layer.setCombineMode(GL_REPLACE);
-    layer.setTextureName(texture->getName());
+    layer.setTexture(texture);
   }
 
   offset.set(width / 2.f, depth / 2.f);

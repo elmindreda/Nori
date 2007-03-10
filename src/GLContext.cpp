@@ -284,6 +284,11 @@ SignalProxy1<void, const Vector2&> Context::getCursorMovedSignal(void)
   return cursorMovedSignal;
 }
 
+SignalProxy1<void, int> Context::getWheelTurnedSignal(void)
+{
+  return wheelTurnedSignal;
+}
+
 bool Context::create(const ContextMode& mode)
 {
   Ptr<Context> context = new Context();
@@ -439,6 +444,9 @@ bool Context::init(const ContextMode& mode)
   glfwSetMouseButtonCallback(mouseButtonCallback);
   glfwSetKeyCallback(keyboardCallback);
   glfwSetCharCallback(characterCallback);
+  glfwSetMouseWheelCallback(mouseWheelCallback);
+
+  wheelPosition = glfwGetMouseWheel();
   
   glfwSwapInterval(1);
 
@@ -505,6 +513,12 @@ void Context::mouseButtonCallback(int button, int action)
 {
   instance->buttonClickedSignal.emit(button - GLFW_MOUSE_BUTTON_1,
                                    (action == GLFW_PRESS) ? true : false); 
+}
+
+void Context::mouseWheelCallback(int position)
+{
+  instance->wheelTurnedSignal.emit(instance->wheelPosition - position);
+  instance->wheelPosition = position;
 }
 
 Context::KeyMap Context::internalMap;

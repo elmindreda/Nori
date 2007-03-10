@@ -43,7 +43,7 @@ using namespace moira;
  *  @remarks This class intentionally has no public interface for
  *  making a texture object current.
  */
-class Texture : public Resource<Texture>
+class Texture : public Resource<Texture>, public RefObject<Texture>
 {
   friend class TextureLayer;
 public:
@@ -211,10 +211,10 @@ public:
   /*! @return The addressing mode of this texture layer.
    */
   GLint getAddressMode(void) const;
-  /*! @return The name of the texture set for this texture layer, or the
-   *  empty string if no texture is set.
+  /*! @return The texture set for this texture layer, or @c NULL if no texture
+   *  is set.
    */
-  const String& getTextureName(void) const;
+  Texture* getTexture(void) const;
   /*! @return The name of the GLSL program sampler uniform that this texture
    *  layer binds to, or the empty string if it does not bind to any sampler
    *  uniform.
@@ -247,11 +247,11 @@ public:
   /*! Sets the addressing mode for this texture layer.
    */
   void setAddressMode(GLint newMode);
-  /*! Sets the name of the texture used by this texture layer.
-   *  @param newName The name of the texture used by this texture layer, or the
-   *  empty string to disable texturing for this layer.
+  /*! Sets the texture used by this texture layer.
+   *  @param newName The name of the texture used by this texture layer, or @c
+   *  NULL to disable texturing for this layer.
    */
-  void setTextureName(const String& newName);
+  void setTexture(Texture* texture);
   /*! Sets the name of the GLSL program sampler uniform that this texture layer
    *  binds to.
    *  @param newName The name of the sampler uniform, or the empty string to
@@ -279,10 +279,10 @@ private:
     Data(void);
     void setDefaults(void);
     mutable bool dirty;
+    Ref<Texture> texture;
     bool sphereMapped;
     GLenum combineMode;
     ColorRGBA combineColor;
-    String textureName;
     String samplerName;
     GLint minFilter;
     GLint magFilter;

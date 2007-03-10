@@ -154,10 +154,9 @@ void ParticleSystem::enqueue(Queue& queue, const Transform3& transform) const
   if (!realizeVertices(range, queue.getCamera().getTransform().position))
     return;
 
-  Style* style = Style::findInstance(styleName);
   if (!style)
   {
-    Log::writeError("Render style %s not found", styleName.c_str());
+    Log::writeError("Cannot enqueue particle system with no render style");
     return;
   }
 
@@ -318,9 +317,9 @@ void ParticleSystem::setTimeElapsed(Time newTime)
 
   // Affect all living particles for this time frame
 
-  for (ParticlePool::iterator p = activeParticles.begin();  p != activeParticles.end(); )
+  for (AffectorList::const_iterator a = affectors.begin();  a != affectors.end();  a++)
   {
-    for (AffectorList::const_iterator a = affectors.begin();  a != affectors.end();  a++)
+    for (ParticlePool::iterator p = activeParticles.begin();  p != activeParticles.end(); )
     {
       Particle& particle = particles[*p];
 
@@ -355,14 +354,14 @@ void ParticleSystem::setPeriodType(PeriodType newType)
   periodType = newType;
 }
 
-const String& ParticleSystem::getStyleName(void) const
+Style* ParticleSystem::getStyle(void) const
 {
-  return styleName;
+  return style;
 }
 
-void ParticleSystem::setStyleName(const String& newName)
+void ParticleSystem::setStyle(Style* newStyle)
 {
-  styleName = newName;
+  style = newStyle;
 }
 
 const Transform3& ParticleSystem::getTransform(void) const

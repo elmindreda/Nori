@@ -68,16 +68,17 @@ bool Widgets::init(void)
 
   UI::Slider* slider = new UI::Slider();
   slider->setArea(Rectangle(10, 400, 400, 20));
+  slider->setValueRange(0.f, 100.f);
   slider->setOrientation(UI::HORIZONTAL);
   slider->getValueChangedSignal().connect(*this, &Widgets::onValueChanged);
   window->addChild(*slider);
 
+  const char* names[] = { "Space", "Terrible secret", "Stairs", "House" };
+
   UI::List* list = new UI::List();
-  list->setArea(Rectangle(400, 100, 150, 200));
-  list->insertItem(new UI::Item("Bread"), 0);
-  list->insertItem(new UI::Item("Terrible secret"), 0);
-  list->insertItem(new UI::Item("Space"), 0);
-  list->insertItem(new UI::Item("Blind people"), 0);
+  list->setArea(Rectangle(300, 80, 150, 200));
+  for (unsigned int i = 0;  i < 100;  i++)
+    list->insertItem(new UI::Item(names[rand()&3]), 0);
   window->addChild(*list);
 
   window->activate();

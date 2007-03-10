@@ -107,7 +107,7 @@ void Canvas::popScissorArea(void)
     updateScissorArea();
 }
 
-void Canvas::clearColorBuffer(const ColorRGBA& color)
+void Canvas::clearColorBuffer(const ColorRGBA& color) const
 {
   if (getCurrent() != this)
   {
@@ -122,7 +122,7 @@ void Canvas::clearColorBuffer(const ColorRGBA& color)
   glPopAttrib();
 }
 
-void Canvas::clearDepthBuffer(float depth)
+void Canvas::clearDepthBuffer(float depth) const
 {
   if (getCurrent() != this)
   {
@@ -137,7 +137,7 @@ void Canvas::clearDepthBuffer(float depth)
   glPopAttrib();
 }
 
-void Canvas::clearStencilBuffer(unsigned int value)
+void Canvas::clearStencilBuffer(unsigned int value) const
 {
   if (getCurrent() != this)
   {
@@ -221,8 +221,6 @@ void ScreenCanvas::updateScissorArea(void) const
   const unsigned int width = getPhysicalWidth();
   const unsigned int height = getPhysicalHeight();
 
-  //Log::writeInformation("Scissor: %0.2f %0.2f %0.2f %0.2f", area.position.x, area.position.y, area.size.x, area.size.y);
-
   glScissor((GLint) floorf(area.position.x * width),
 	    (GLint) floorf(area.position.y * height),
 	    (GLsizei) ceilf(area.size.x * width),
@@ -241,8 +239,6 @@ void ScreenCanvas::updateViewportArea(void) const
   const unsigned int width = getPhysicalWidth();
   const unsigned int height = getPhysicalHeight();
 
-  //Log::writeInformation("Viewport: %0.2f %0.2f %0.2f %0.2f", area.position.x, area.position.y, area.size.x, area.size.y);
-
   glViewport((GLint) (area.position.x * width),
              (GLint) (area.position.y * height),
 	     (GLsizei) (area.size.x * width),
@@ -255,15 +251,15 @@ void ScreenCanvas::updateViewportArea(void) const
 
 unsigned int TextureCanvas::getPhysicalWidth(void) const
 {
-  return texture->getWidth();
+  return texture->getPhysicalWidth();
 }
 
 unsigned int TextureCanvas::getPhysicalHeight(void) const
 {
-  return texture->getHeight();
+  return texture->getPhysicalHeight();
 }
 
-const Texture& TextureCanvas::getTexture(void) const
+Texture& TextureCanvas::getTexture(void) const
 {
   return *texture;
 }
@@ -318,21 +314,21 @@ void TextureCanvas::apply(void) const
 
 void TextureCanvas::finish(void) const
 {
-  // TODO: Clean up (don't rely on implicit glActiveTexture)
+  // TODO: Clean up.
 
   TextureLayer layer(0);
-  layer.setTextureName(texture->getName());
+  layer.setTexture(texture);
   layer.apply();
 
   if (texture->getTarget() == GL_TEXTURE_1D)
     glCopyTexSubImage1D(texture->getTarget(),
                         0, 0, 0, 0,
-                        texture->getWidth());
+                        texture->getPhysicalWidth());
   else
     glCopyTexSubImage2D(texture->getTarget(),
                         0, 0, 0, 0, 0,
-                        texture->getWidth(),
-                        texture->getHeight());
+                        texture->getPhysicalWidth(),
+                        texture->getPhysicalHeight());
 }
 
 void TextureCanvas::updateScissorArea(void) const
