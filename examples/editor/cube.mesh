@@ -1,0 +1,3853 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<mesh version="1" >
+ <geometry shader="cube" >
+  <triangle a="0" b="1" c="2" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="3" b="4" c="5" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="6" b="7" c="8" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="9" b="10" c="11" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="12" b="13" c="14" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="12" b="15" c="13" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="16" b="17" c="18" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="16" b="19" c="20" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="21" b="22" c="23" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="24" b="25" c="26" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="27" b="28" c="29" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="27" b="30" c="28" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="27" b="31" c="30" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="32" b="33" c="34" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="32" b="35" c="36" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="37" b="38" c="39" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="40" b="41" c="42" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="40" b="43" c="41" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="44" b="45" c="46" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="44" b="47" c="45" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="48" b="49" c="50" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="48" b="51" c="49" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="48" b="52" c="51" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="53" b="54" c="55" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="53" b="56" c="57" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="58" b="59" c="60" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="61" b="62" c="63" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="61" b="64" c="62" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="61" b="65" c="64" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="66" b="67" c="68" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="66" b="69" c="70" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="71" b="72" c="73" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="71" b="74" c="72" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="75" b="76" c="77" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="75" b="78" c="76" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="75" b="79" c="78" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="80" b="81" c="82" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="80" b="83" c="81" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="80" b="84" c="83" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="85" b="86" c="87" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="85" b="88" c="86" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="85" b="89" c="88" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="90" b="91" c="92" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="90" b="93" c="91" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="90" b="94" c="93" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="95" b="96" c="97" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="95" b="98" c="96" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="95" b="99" c="98" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="100" b="5" c="101" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="100" b="101" c="1" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="102" b="8" c="103" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="102" b="103" c="4" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="104" b="11" c="105" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="104" b="105" c="7" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="106" b="2" c="107" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="106" b="107" c="10" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="108" b="18" c="109" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="108" b="109" c="13" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="110" b="23" c="111" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="110" b="111" c="17" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="112" b="26" c="113" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="112" b="113" c="22" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="114" b="14" c="115" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="114" b="115" c="25" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="116" b="34" c="117" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="116" b="117" c="28" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="118" b="39" c="119" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="118" b="119" c="33" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="120" b="42" c="121" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="120" b="121" c="38" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="122" b="29" c="123" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="122" b="123" c="41" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="124" b="50" c="125" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="124" b="125" c="45" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="126" b="55" c="127" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="126" b="127" c="49" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="128" b="60" c="129" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="128" b="129" c="54" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="130" b="46" c="131" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="130" b="131" c="59" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="132" b="68" c="133" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="132" b="133" c="62" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="134" b="73" c="135" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="134" b="135" c="67" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="136" b="77" c="137" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="136" b="137" c="72" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="138" b="63" c="139" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="138" b="139" c="76" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="140" b="87" c="141" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="140" b="141" c="81" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="142" b="92" c="143" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="142" b="143" c="86" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="144" b="97" c="145" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="144" b="145" c="91" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="146" b="82" c="147" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="146" b="147" c="96" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="148" b="149" c="150" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="148" b="150" c="15" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="151" b="152" c="153" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="151" b="153" c="88" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="154" b="155" c="156" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="154" b="156" c="89" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="157" b="158" c="159" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="157" b="159" c="30" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="160" b="20" c="161" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="160" b="161" c="31" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="162" b="163" c="164" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="162" b="164" c="19" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="165" b="166" c="167" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="165" b="167" c="64" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="168" b="36" c="169" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="168" b="169" c="65" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="170" b="171" c="172" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="170" b="172" c="35" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="173" b="174" c="175" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="173" b="175" c="83" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="176" b="70" c="177" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="176" b="177" c="84" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="178" b="179" c="180" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="178" b="180" c="69" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="181" b="182" c="183" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="181" b="183" c="47" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="184" b="185" c="186" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="184" b="186" c="93" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="187" b="188" c="189" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="187" b="189" c="94" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="190" b="191" c="192" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="190" b="192" c="43" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="193" b="194" c="195" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="193" b="195" c="51" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="196" b="197" c="198" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="196" b="198" c="52" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="199" b="200" c="201" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="199" b="201" c="78" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="202" b="57" c="203" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="202" b="203" c="79" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="204" b="205" c="206" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="204" b="206" c="56" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="207" b="208" c="209" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="207" b="209" c="74" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="210" b="211" c="212" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="210" b="212" c="98" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="213" b="214" c="215" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="213" b="215" c="99" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="216" b="101" c="103" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="216" b="107" c="101" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="216" b="105" c="107" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="217" b="133" c="135" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="217" b="139" c="133" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="217" b="137" c="139" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="218" b="141" c="143" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="218" b="147" c="141" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="218" b="145" c="147" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="219" b="117" c="119" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="219" b="123" c="117" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="219" b="121" c="123" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="220" b="125" c="127" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="220" b="131" c="125" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="220" b="129" c="131" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="221" b="109" c="111" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="221" b="115" c="109" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="221" b="113" c="115" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="222" b="223" c="161" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="222" b="164" c="223" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="224" b="225" c="169" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="224" b="172" c="225" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="226" b="227" c="203" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="226" b="206" c="227" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="228" b="229" c="177" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="228" b="180" c="229" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="230" b="231" c="232" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="230" b="156" c="231" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="233" b="175" c="234" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="233" b="235" c="175" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="233" b="236" c="235" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="237" b="192" c="238" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="237" b="239" c="192" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="237" b="240" c="239" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="241" b="242" c="243" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="241" b="244" c="242" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="241" b="150" c="244" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="245" b="201" c="246" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="245" b="247" c="201" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="245" b="248" c="247" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="249" b="250" c="251" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="249" b="252" c="250" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="249" b="159" c="252" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="253" b="212" c="254" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="253" b="255" c="212" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="253" b="256" c="255" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="257" b="258" c="259" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="257" b="260" c="258" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="257" b="167" c="260" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="261" b="262" c="263" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="261" b="189" c="262" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="264" b="265" c="266" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="264" b="267" c="265" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="264" b="153" c="267" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="268" b="269" c="270" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="268" b="198" c="269" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="271" b="272" c="273" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="271" b="274" c="272" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="271" b="183" c="274" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="275" b="209" c="276" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="275" b="277" c="209" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="275" b="278" c="277" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="279" b="280" c="281" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="279" b="282" c="280" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="279" b="195" c="282" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="283" b="284" c="285" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="283" b="215" c="284" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="286" b="287" c="288" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="286" b="289" c="287" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="286" b="186" c="289" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="5" b="149" c="3" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="8" b="174" c="6" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="11" b="166" c="9" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="2" b="158" c="0" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="18" b="19" c="16" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="23" b="191" c="21" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="26" b="182" c="24" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="14" b="152" c="12" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="34" b="35" c="32" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="39" b="200" c="37" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="42" b="194" c="40" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="29" b="31" c="27" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="50" b="52" c="48" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="55" b="56" c="53" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="60" b="208" c="58" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="46" b="185" c="44" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="68" b="69" c="66" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="73" b="211" c="71" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="77" b="79" c="75" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="63" b="65" c="61" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="87" b="89" c="85" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="92" b="94" c="90" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="97" b="99" c="95" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="82" b="84" c="80" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="149" b="155" c="3" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="152" b="15" c="12" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="155" b="4" c="3" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="158" b="163" c="0" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="20" b="17" c="16" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="163" b="1" c="0" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="166" b="171" c="9" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="36" b="33" c="32" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="171" b="10" c="9" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="174" b="179" c="6" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="70" b="67" c="66" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="179" b="7" c="6" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="182" b="188" c="24" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="185" b="47" c="44" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="188" b="25" c="24" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="191" b="197" c="21" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="194" b="43" c="40" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="197" b="22" c="21" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="200" b="205" c="37" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="57" b="54" c="53" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="205" b="38" c="37" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="208" b="214" c="58" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="211" b="74" c="71" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="214" b="59" c="58" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="1" b="101" c="290" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="1" b="244" c="100" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="4" b="103" c="291" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="4" b="234" c="102" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="7" b="105" c="292" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="7" b="260" c="104" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="10" b="107" c="293" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="10" b="252" c="106" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="13" b="109" c="294" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="13" b="243" c="108" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="17" b="111" c="295" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="17" b="238" c="110" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="22" b="113" c="296" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="22" b="274" c="112" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="25" b="115" c="297" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="25" b="267" c="114" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="28" b="117" c="298" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="28" b="251" c="116" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="33" b="119" c="299" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="33" b="246" c="118" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="38" b="121" c="300" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="38" b="282" c="120" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="41" b="123" c="301" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="41" b="239" c="122" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="45" b="125" c="302" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="45" b="273" c="124" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="49" b="127" c="303" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="49" b="281" c="126" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="54" b="129" c="304" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="54" b="276" c="128" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="59" b="131" c="305" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="59" b="289" c="130" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="62" b="133" c="306" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="62" b="259" c="132" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="67" b="135" c="307" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="67" b="254" c="134" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="72" b="137" c="308" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="72" b="277" c="136" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="76" b="139" c="309" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="76" b="247" c="138" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="81" b="141" c="310" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="81" b="235" c="140" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="86" b="143" c="311" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="86" b="266" c="142" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="91" b="145" c="312" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="91" b="288" c="144" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="96" b="147" c="313" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="96" b="255" c="146" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="15" b="231" c="148" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="15" b="150" c="314" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="88" b="232" c="151" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="88" b="153" c="315" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="89" b="156" c="316" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="89" b="236" c="154" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="30" b="223" c="157" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="30" b="159" c="317" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="31" b="161" c="318" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="31" b="240" c="160" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="19" b="164" c="319" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="19" b="242" c="162" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="64" b="225" c="165" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="64" b="167" c="320" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="65" b="169" c="321" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="65" b="248" c="168" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="35" b="172" c="322" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="35" b="250" c="170" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="83" b="229" c="173" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="83" b="175" c="323" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="84" b="177" c="324" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="84" b="256" c="176" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="69" b="180" c="325" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="69" b="258" c="178" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="47" b="262" c="181" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="47" b="183" c="326" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="93" b="263" c="184" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="93" b="186" c="327" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="94" b="189" c="328" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="94" b="265" c="187" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="43" b="192" c="329" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="43" b="269" c="190" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="51" b="270" c="193" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="51" b="195" c="330" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="52" b="198" c="331" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="52" b="272" c="196" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="78" b="227" c="199" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="78" b="201" c="332" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="79" b="203" c="333" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="79" b="278" c="202" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="56" b="206" c="334" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="56" b="280" c="204" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="74" b="209" c="335" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="74" b="284" c="207" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="98" b="212" c="336" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="98" b="285" c="210" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="99" b="215" c="337" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="99" b="287" c="213" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="103" b="105" c="216" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="135" b="137" c="217" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="143" b="145" c="218" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="119" b="121" c="219" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="127" b="129" c="220" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="111" b="113" c="221" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="161" b="164" c="222" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="223" b="158" c="157" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="223" b="164" c="338" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="169" b="172" c="224" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="225" b="166" c="165" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="225" b="172" c="339" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="203" b="206" c="226" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="227" b="200" c="199" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="227" b="206" c="340" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="177" b="180" c="228" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="229" b="174" c="173" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="229" b="180" c="341" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="232" b="152" c="151" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="232" b="231" c="342" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="232" b="156" c="230" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="231" b="149" c="148" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="231" b="156" c="343" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="234" b="8" c="102" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="234" b="175" c="344" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="234" b="236" c="233" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="235" b="87" c="140" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="235" b="236" c="345" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="236" b="155" c="154" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="236" b="234" c="346" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="238" b="23" c="110" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="238" b="192" c="347" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="238" b="240" c="237" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="239" b="29" c="122" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="239" b="240" c="348" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="240" b="20" c="160" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="240" b="238" c="349" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="243" b="18" c="108" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="243" b="242" c="350" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="243" b="150" c="241" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="242" b="163" c="162" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="242" b="244" c="351" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="244" b="5" c="100" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="244" b="150" c="352" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="246" b="39" c="118" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="246" b="201" c="353" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="246" b="248" c="245" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="247" b="63" c="138" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="247" b="248" c="354" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="248" b="36" c="168" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="248" b="246" c="355" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="251" b="34" c="116" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="251" b="250" c="356" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="251" b="159" c="249" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="250" b="171" c="170" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="250" b="252" c="357" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="252" b="2" c="106" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="252" b="159" c="358" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="254" b="73" c="134" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="254" b="212" c="359" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="254" b="256" c="253" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="255" b="82" c="146" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="255" b="256" c="360" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="256" b="70" c="176" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="256" b="254" c="361" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="259" b="68" c="132" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="259" b="258" c="362" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="259" b="167" c="257" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="258" b="179" c="178" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="258" b="260" c="363" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="260" b="11" c="104" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="260" b="167" c="364" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="263" b="185" c="184" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="263" b="262" c="365" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="263" b="189" c="261" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="262" b="182" c="181" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="262" b="189" c="366" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="266" b="92" c="142" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="266" b="265" c="367" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="266" b="153" c="264" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="265" b="188" c="187" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="265" b="267" c="368" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="267" b="14" c="114" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="267" b="153" c="369" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="270" b="194" c="193" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="270" b="269" c="370" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="270" b="198" c="268" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="269" b="191" c="190" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="269" b="198" c="371" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="273" b="50" c="124" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="273" b="272" c="372" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="273" b="183" c="271" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="272" b="197" c="196" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="272" b="274" c="373" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="274" b="26" c="112" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="274" b="183" c="374" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="276" b="60" c="128" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="276" b="209" c="375" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="276" b="278" c="275" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="277" b="77" c="136" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="277" b="278" c="376" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="278" b="57" c="202" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="278" b="276" c="377" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="281" b="55" c="126" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="281" b="280" c="378" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="281" b="195" c="279" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="280" b="205" c="204" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="280" b="282" c="379" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="282" b="42" c="120" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="282" b="195" c="380" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="285" b="211" c="210" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="285" b="284" c="381" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="285" b="215" c="283" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="284" b="208" c="207" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="284" b="215" c="382" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="288" b="97" c="144" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="288" b="287" c="383" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="288" b="186" c="286" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="287" b="214" c="213" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="287" b="289" c="384" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="289" b="46" c="130" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="289" b="186" c="385" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="291" b="5" c="4" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="291" b="103" c="101" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="291" b="101" c="5" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="290" b="2" c="1" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="290" b="101" c="107" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="290" b="107" c="2" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="293" b="11" c="10" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="293" b="107" c="105" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="293" b="105" c="11" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="292" b="8" c="7" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="292" b="103" c="8" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="292" b="105" c="103" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="307" b="68" c="67" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="307" b="135" c="133" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="307" b="133" c="68" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="306" b="63" c="62" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="306" b="133" c="139" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="306" b="139" c="63" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="309" b="77" c="76" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="309" b="139" c="137" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="309" b="137" c="77" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="308" b="73" c="72" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="308" b="135" c="73" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="308" b="137" c="135" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="311" b="87" c="86" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="311" b="143" c="141" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="311" b="141" c="87" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="310" b="82" c="81" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="310" b="141" c="147" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="310" b="147" c="82" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="313" b="97" c="96" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="313" b="147" c="145" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="313" b="145" c="97" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="312" b="92" c="91" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="312" b="143" c="92" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="312" b="145" c="143" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="299" b="34" c="33" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="299" b="119" c="117" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="299" b="117" c="34" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="298" b="29" c="28" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="298" b="117" c="123" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="298" b="123" c="29" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="301" b="42" c="41" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="301" b="123" c="121" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="301" b="121" c="42" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="300" b="39" c="38" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="300" b="119" c="39" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="300" b="121" c="119" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="303" b="50" c="49" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="303" b="127" c="125" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="303" b="125" c="50" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="302" b="46" c="45" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="302" b="125" c="131" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="302" b="131" c="46" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="305" b="60" c="59" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="305" b="131" c="129" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="305" b="129" c="60" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="304" b="55" c="54" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="304" b="127" c="55" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="304" b="129" c="127" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="295" b="18" c="17" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="295" b="111" c="109" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="295" b="109" c="18" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="294" b="14" c="13" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="294" b="109" c="115" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="294" b="115" c="14" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="297" b="26" c="25" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="297" b="115" c="113" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="297" b="113" c="26" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="296" b="23" c="22" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="296" b="111" c="23" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="296" b="113" c="111" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="318" b="30" c="31" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="318" b="161" c="223" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="318" b="223" c="30" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="338" b="158" c="223" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="338" b="163" c="158" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="338" b="164" c="163" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="319" b="20" c="19" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="319" b="161" c="20" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="319" b="164" c="161" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="321" b="64" c="65" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="321" b="169" c="225" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="321" b="225" c="64" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="339" b="166" c="225" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="339" b="171" c="166" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="339" b="172" c="171" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="322" b="36" c="35" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="322" b="169" c="36" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="322" b="172" c="169" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="333" b="78" c="79" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="333" b="203" c="227" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="333" b="227" c="78" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="340" b="200" c="227" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="340" b="205" c="200" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="340" b="206" c="205" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="334" b="57" c="56" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="334" b="203" c="57" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="334" b="206" c="203" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="324" b="83" c="84" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="324" b="177" c="229" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="324" b="229" c="83" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="341" b="174" c="229" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="341" b="179" c="174" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="341" b="180" c="179" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="325" b="70" c="69" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="325" b="177" c="70" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="325" b="180" c="177" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="342" b="152" c="232" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="342" b="15" c="152" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="342" b="231" c="15" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="343" b="149" c="231" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="343" b="155" c="149" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="343" b="156" c="155" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="316" b="88" c="89" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="316" b="232" c="88" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="316" b="156" c="232" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="344" b="8" c="234" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="344" b="174" c="8" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="344" b="175" c="174" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="323" b="81" c="83" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="323" b="175" c="235" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="323" b="235" c="81" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="345" b="87" c="235" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="345" b="89" c="87" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="345" b="236" c="89" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="346" b="155" c="236" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="346" b="4" c="155" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="346" b="234" c="4" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="347" b="23" c="238" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="347" b="191" c="23" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="347" b="192" c="191" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="329" b="41" c="43" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="329" b="192" c="239" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="329" b="239" c="41" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="348" b="29" c="239" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="348" b="31" c="29" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="348" b="240" c="31" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="349" b="20" c="240" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="349" b="17" c="20" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="349" b="238" c="17" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="350" b="18" c="243" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="350" b="19" c="18" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="350" b="242" c="19" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="351" b="163" c="242" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="351" b="1" c="163" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="351" b="244" c="1" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="352" b="5" c="244" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="352" b="149" c="5" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="352" b="150" c="149" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="314" b="13" c="15" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="314" b="243" c="13" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="314" b="150" c="243" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="353" b="39" c="246" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="353" b="200" c="39" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="353" b="201" c="200" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="332" b="76" c="78" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="332" b="201" c="247" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="332" b="247" c="76" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="354" b="63" c="247" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="354" b="65" c="63" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="354" b="248" c="65" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="355" b="36" c="248" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="355" b="33" c="36" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="355" b="246" c="33" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="356" b="34" c="251" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="356" b="35" c="34" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="356" b="250" c="35" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="357" b="171" c="250" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="357" b="10" c="171" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="357" b="252" c="10" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="358" b="2" c="252" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="358" b="158" c="2" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="358" b="159" c="158" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="317" b="28" c="30" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="317" b="251" c="28" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="317" b="159" c="251" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="359" b="73" c="254" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="359" b="211" c="73" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="359" b="212" c="211" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="336" b="96" c="98" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="336" b="212" c="255" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="336" b="255" c="96" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="360" b="82" c="255" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="360" b="84" c="82" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="360" b="256" c="84" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="361" b="70" c="256" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="361" b="67" c="70" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="361" b="254" c="67" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="362" b="68" c="259" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="362" b="69" c="68" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="362" b="258" c="69" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="363" b="179" c="258" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="363" b="7" c="179" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="363" b="260" c="7" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="364" b="11" c="260" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="364" b="166" c="11" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="364" b="167" c="166" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="320" b="62" c="64" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="320" b="259" c="62" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="320" b="167" c="259" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="365" b="185" c="263" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="365" b="47" c="185" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="365" b="262" c="47" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="366" b="182" c="262" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="366" b="188" c="182" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="366" b="189" c="188" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="328" b="93" c="94" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="328" b="263" c="93" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="328" b="189" c="263" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="367" b="92" c="266" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="367" b="94" c="92" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="367" b="265" c="94" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="368" b="188" c="265" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="368" b="25" c="188" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="368" b="267" c="25" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="369" b="14" c="267" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="369" b="152" c="14" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="369" b="153" c="152" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="315" b="86" c="88" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="315" b="266" c="86" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="315" b="153" c="266" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="370" b="194" c="270" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="370" b="43" c="194" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="370" b="269" c="43" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="371" b="191" c="269" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="371" b="197" c="191" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="371" b="198" c="197" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="331" b="51" c="52" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="331" b="270" c="51" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="331" b="198" c="270" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="372" b="50" c="273" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="372" b="52" c="50" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="372" b="272" c="52" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="373" b="197" c="272" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="373" b="22" c="197" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="373" b="274" c="22" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="374" b="26" c="274" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="374" b="182" c="26" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="374" b="183" c="182" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="326" b="45" c="47" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="326" b="273" c="45" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="326" b="183" c="273" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="375" b="60" c="276" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="375" b="208" c="60" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="375" b="209" c="208" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="335" b="72" c="74" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="335" b="209" c="277" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="335" b="277" c="72" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="376" b="77" c="277" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="376" b="79" c="77" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="376" b="278" c="79" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="377" b="57" c="278" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="377" b="54" c="57" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="377" b="276" c="54" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="378" b="55" c="281" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="378" b="56" c="55" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="378" b="280" c="56" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="379" b="205" c="280" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="379" b="38" c="205" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="379" b="282" c="38" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="380" b="42" c="282" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="380" b="194" c="42" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="380" b="195" c="194" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="330" b="49" c="51" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="330" b="281" c="49" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="330" b="195" c="281" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="381" b="211" c="285" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="381" b="74" c="211" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="381" b="284" c="74" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="382" b="208" c="284" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="382" b="214" c="208" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="382" b="215" c="214" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="337" b="98" c="99" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="337" b="285" c="98" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="337" b="215" c="285" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="383" b="97" c="288" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="383" b="99" c="97" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="383" b="287" c="99" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="384" b="214" c="287" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="384" b="59" c="214" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="384" b="289" c="59" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="385" b="46" c="289" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="385" b="185" c="46" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="385" b="186" c="185" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="327" b="91" c="93" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="327" b="288" c="91" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+  <triangle a="327" b="186" c="288" >
+   <normal x="-0.000029" y="-0.000029" z="0.000000" />
+  </triangle>
+ </geometry>
+ <vertex x="-0.316982" y="0.316982" z="0.486314" >
+  <normal x="-0.045738" y="0.045738" z="0.997906" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.317459" y="0.171904" z="0.489942" >
+  <normal x="-0.051335" y="0.015718" z="0.998558" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171904" y="0.317459" z="0.489942" >
+  <normal x="-0.015718" y="0.051335" z="0.998558" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.316982" y="-0.316982" z="0.486314" >
+  <normal x="-0.045738" y="-0.045738" z="0.997906" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171904" y="-0.317459" z="0.489942" >
+  <normal x="-0.015718" y="-0.051335" z="0.998558" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.317459" y="-0.171904" z="0.489942" >
+  <normal x="-0.051335" y="-0.015718" z="0.998558" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.316982" y="-0.316982" z="0.486314" >
+  <normal x="0.045738" y="-0.045738" z="0.997906" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.317459" y="-0.171904" z="0.489942" >
+  <normal x="0.051335" y="-0.015718" z="0.998558" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171904" y="-0.317459" z="0.489942" >
+  <normal x="0.015718" y="-0.051335" z="0.998558" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.316982" y="0.316982" z="0.486314" >
+  <normal x="0.045738" y="0.045738" z="0.997906" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171904" y="0.317459" z="0.489942" >
+  <normal x="0.015718" y="0.051335" z="0.998558" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.317459" y="0.171904" z="0.489942" >
+  <normal x="0.051335" y="0.015718" z="0.998558" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.486314" y="-0.316982" z="0.316982" >
+  <normal x="-0.997906" y="-0.045738" z="0.045738" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.489942" y="-0.171904" z="0.317459" >
+  <normal x="-0.998558" y="-0.015718" z="0.051335" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.489942" y="-0.317459" z="0.171904" >
+  <normal x="-0.998558" y="-0.051335" z="0.015718" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.480266" y="-0.316186" z="0.408409" >
+  <normal x="-0.972008" y="-0.036515" z="0.232094" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.486314" y="0.316982" z="0.316982" >
+  <normal x="-0.997906" y="0.045738" z="0.045738" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.489942" y="0.317459" z="0.171904" >
+  <normal x="-0.998558" y="0.051335" z="0.015718" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.489942" y="0.171904" z="0.317459" >
+  <normal x="-0.998558" y="0.015718" z="0.051335" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.480266" y="0.316186" z="0.408409" >
+  <normal x="-0.972008" y="0.036515" z="0.232094" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.480266" y="0.408409" z="0.316186" >
+  <normal x="-0.972008" y="0.232094" z="0.036515" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.486314" y="0.316982" z="-0.316982" >
+  <normal x="-0.997906" y="0.045738" z="-0.045738" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.489942" y="0.171904" z="-0.317459" >
+  <normal x="-0.998558" y="0.015718" z="-0.051335" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.489942" y="0.317459" z="-0.171904" >
+  <normal x="-0.998558" y="0.051335" z="-0.015718" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.486314" y="-0.316982" z="-0.316982" >
+  <normal x="-0.997906" y="-0.045738" z="-0.045738" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.489942" y="-0.317459" z="-0.171904" >
+  <normal x="-0.998558" y="-0.051335" z="-0.015718" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.489942" y="-0.171904" z="-0.317459" >
+  <normal x="-0.998558" y="-0.015718" z="-0.051335" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.316982" y="0.486314" z="0.316982" >
+  <normal x="-0.045738" y="0.997906" z="0.045738" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171904" y="0.489942" z="0.317459" >
+  <normal x="-0.015718" y="0.998558" z="0.051335" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.317459" y="0.489942" z="0.171904" >
+  <normal x="-0.051335" y="0.998558" z="0.015718" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.316186" y="0.480266" z="0.408409" >
+  <normal x="-0.036515" y="0.972008" z="0.232094" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.408409" y="0.480266" z="0.316186" >
+  <normal x="-0.232094" y="0.972008" z="0.036515" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.316982" y="0.486314" z="0.316982" >
+  <normal x="0.045738" y="0.997906" z="0.045738" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.317459" y="0.489942" z="0.171904" >
+  <normal x="0.051335" y="0.998558" z="0.015718" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171904" y="0.489942" z="0.317459" >
+  <normal x="0.015718" y="0.998558" z="0.051335" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.316186" y="0.480266" z="0.408409" >
+  <normal x="0.036515" y="0.972008" z="0.232094" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.408409" y="0.480266" z="0.316186" >
+  <normal x="0.232094" y="0.972008" z="0.036515" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.316982" y="0.486314" z="-0.316982" >
+  <normal x="0.045738" y="0.997906" z="-0.045738" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171904" y="0.489942" z="-0.317459" >
+  <normal x="0.015718" y="0.998558" z="-0.051335" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.317459" y="0.489942" z="-0.171904" >
+  <normal x="0.051335" y="0.998558" z="-0.015718" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.316982" y="0.486314" z="-0.316982" >
+  <normal x="-0.045738" y="0.997906" z="-0.045738" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.317459" y="0.489942" z="-0.171904" >
+  <normal x="-0.051335" y="0.998558" z="-0.015718" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171904" y="0.489942" z="-0.317459" >
+  <normal x="-0.015718" y="0.998558" z="-0.051335" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.408409" y="0.480266" z="-0.316186" >
+  <normal x="-0.232094" y="0.972008" z="-0.036515" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.316982" y="-0.316982" z="-0.486314" >
+  <normal x="-0.045738" y="-0.045738" z="-0.997906" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.317459" y="-0.171904" z="-0.489942" >
+  <normal x="-0.051335" y="-0.015718" z="-0.998558" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171904" y="-0.317459" z="-0.489942" >
+  <normal x="-0.015718" y="-0.051335" z="-0.998558" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.408409" y="-0.316186" z="-0.480266" >
+  <normal x="-0.232094" y="-0.036515" z="-0.972008" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.316982" y="0.316982" z="-0.486314" >
+  <normal x="-0.045738" y="0.045738" z="-0.997906" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171904" y="0.317459" z="-0.489942" >
+  <normal x="-0.015718" y="0.051335" z="-0.998558" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.317459" y="0.171904" z="-0.489942" >
+  <normal x="-0.051335" y="0.015718" z="-0.998558" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.316186" y="0.408409" z="-0.480266" >
+  <normal x="-0.036515" y="0.232094" z="-0.972008" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.408409" y="0.316186" z="-0.480266" >
+  <normal x="-0.232094" y="0.036515" z="-0.972008" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.316982" y="0.316982" z="-0.486314" >
+  <normal x="0.045738" y="0.045738" z="-0.997906" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.317459" y="0.171904" z="-0.489942" >
+  <normal x="0.051335" y="0.015718" z="-0.998558" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171904" y="0.317459" z="-0.489942" >
+  <normal x="0.015718" y="0.051335" z="-0.998558" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.316186" y="0.408409" z="-0.480266" >
+  <normal x="0.036515" y="0.232094" z="-0.972008" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.408409" y="0.316186" z="-0.480266" >
+  <normal x="0.232094" y="0.036515" z="-0.972008" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.316982" y="-0.316982" z="-0.486314" >
+  <normal x="0.045738" y="-0.045738" z="-0.997906" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171904" y="-0.317459" z="-0.489942" >
+  <normal x="0.015718" y="-0.051335" z="-0.998558" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.317459" y="-0.171904" z="-0.489942" >
+  <normal x="0.051335" y="-0.015718" z="-0.998558" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.486314" y="0.316982" z="0.316982" >
+  <normal x="0.997906" y="0.045738" z="0.045738" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.489942" y="0.171904" z="0.317459" >
+  <normal x="0.998558" y="0.015718" z="0.051335" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.489942" y="0.317459" z="0.171904" >
+  <normal x="0.998558" y="0.051335" z="0.015718" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.480266" y="0.316186" z="0.408409" >
+  <normal x="0.972008" y="0.036515" z="0.232094" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.480266" y="0.408409" z="0.316186" >
+  <normal x="0.972008" y="0.232094" z="0.036515" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.486314" y="-0.316982" z="0.316982" >
+  <normal x="0.997906" y="-0.045738" z="0.045738" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.489942" y="-0.317459" z="0.171904" >
+  <normal x="0.998558" y="-0.051335" z="0.015718" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.489942" y="-0.171904" z="0.317459" >
+  <normal x="0.998558" y="-0.015718" z="0.051335" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.480266" y="-0.316186" z="0.408409" >
+  <normal x="0.972008" y="-0.036515" z="0.232094" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.480266" y="-0.408409" z="0.316186" >
+  <normal x="0.972008" y="-0.232094" z="0.036515" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.486314" y="-0.316982" z="-0.316982" >
+  <normal x="0.997906" y="-0.045738" z="-0.045738" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.489942" y="-0.171904" z="-0.317459" >
+  <normal x="0.998558" y="-0.015718" z="-0.051335" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.489942" y="-0.317459" z="-0.171904" >
+  <normal x="0.998558" y="-0.051335" z="-0.015718" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.480266" y="-0.316186" z="-0.408409" >
+  <normal x="0.972008" y="-0.036515" z="-0.232094" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.486314" y="0.316982" z="-0.316982" >
+  <normal x="0.997906" y="0.045738" z="-0.045738" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.489942" y="0.317459" z="-0.171904" >
+  <normal x="0.998558" y="0.051335" z="-0.015718" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.489942" y="0.171904" z="-0.317459" >
+  <normal x="0.998558" y="0.015718" z="-0.051335" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.480266" y="0.408409" z="-0.316186" >
+  <normal x="0.972008" y="0.232094" z="-0.036515" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.480266" y="0.316186" z="-0.408409" >
+  <normal x="0.972008" y="0.036515" z="-0.232094" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.316982" y="-0.486314" z="0.316982" >
+  <normal x="0.045738" y="-0.997906" z="0.045738" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171904" y="-0.489942" z="0.317459" >
+  <normal x="0.015718" y="-0.998558" z="0.051335" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.317459" y="-0.489942" z="0.171904" >
+  <normal x="0.051335" y="-0.998558" z="0.015718" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.316186" y="-0.480266" z="0.408409" >
+  <normal x="0.036515" y="-0.972008" z="0.232094" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.408409" y="-0.480266" z="0.316186" >
+  <normal x="0.232094" y="-0.972008" z="0.036515" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.316982" y="-0.486314" z="0.316982" >
+  <normal x="-0.045738" y="-0.997906" z="0.045738" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.317459" y="-0.489942" z="0.171904" >
+  <normal x="-0.051335" y="-0.998558" z="0.015718" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171904" y="-0.489942" z="0.317459" >
+  <normal x="-0.015718" y="-0.998558" z="0.051335" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.408409" y="-0.480266" z="0.316186" >
+  <normal x="-0.232094" y="-0.972008" z="0.036515" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.316186" y="-0.480266" z="0.408409" >
+  <normal x="-0.036515" y="-0.972008" z="0.232094" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.316982" y="-0.486314" z="-0.316982" >
+  <normal x="-0.045738" y="-0.997906" z="-0.045738" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171904" y="-0.489942" z="-0.317459" >
+  <normal x="-0.015718" y="-0.998558" z="-0.051335" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.317459" y="-0.489942" z="-0.171904" >
+  <normal x="-0.051335" y="-0.998558" z="-0.015718" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.316186" y="-0.480266" z="-0.408409" >
+  <normal x="-0.036515" y="-0.972008" z="-0.232094" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.408409" y="-0.480266" z="-0.316186" >
+  <normal x="-0.232094" y="-0.972008" z="-0.036515" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.316982" y="-0.486314" z="-0.316982" >
+  <normal x="0.045738" y="-0.997906" z="-0.045738" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.317459" y="-0.489942" z="-0.171904" >
+  <normal x="0.051335" y="-0.998558" z="-0.015718" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171904" y="-0.489942" z="-0.317459" >
+  <normal x="0.015718" y="-0.998558" z="-0.051335" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.408409" y="-0.480266" z="-0.316186" >
+  <normal x="0.232094" y="-0.972008" z="-0.036515" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.316186" y="-0.480266" z="-0.408409" >
+  <normal x="0.036515" y="-0.972008" z="-0.232094" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.317619" y="-0.000000" z="0.491152" >
+  <normal x="-0.054741" y="0.000000" z="0.998501" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.172159" y="-0.000000" z="0.495544" >
+  <normal x="-0.018933" y="-0.000000" z="0.999821" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="-0.317619" z="0.491152" >
+  <normal x="0.000000" y="-0.054741" z="0.998501" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="-0.172159" z="0.495544" >
+  <normal x="-0.000000" y="-0.018933" z="0.999821" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.317619" y="-0.000000" z="0.491152" >
+  <normal x="0.054741" y="-0.000000" z="0.998501" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.172159" y="-0.000000" z="0.495544" >
+  <normal x="0.018933" y="-0.000000" z="0.999821" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="0.317619" z="0.491152" >
+  <normal x="-0.000000" y="0.054741" z="0.998501" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="0.172159" z="0.495544" >
+  <normal x="0.000000" y="0.018933" z="0.999821" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.491152" y="-0.000000" z="0.317619" >
+  <normal x="-0.998501" y="0.000000" z="0.054741" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.495544" y="-0.000000" z="0.172159" >
+  <normal x="-0.999821" y="-0.000000" z="0.018933" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.491152" y="0.317619" z="-0.000000" >
+  <normal x="-0.998501" y="0.054741" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.495544" y="0.172159" z="-0.000000" >
+  <normal x="-0.999821" y="0.018933" z="-0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.491152" y="-0.000000" z="-0.317619" >
+  <normal x="-0.998501" y="-0.000000" z="-0.054741" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.495544" y="-0.000000" z="-0.172159" >
+  <normal x="-0.999821" y="0.000000" z="-0.018933" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.491152" y="-0.317619" z="-0.000000" >
+  <normal x="-0.998501" y="-0.054741" z="-0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.495544" y="-0.172159" z="-0.000000" >
+  <normal x="-0.999821" y="-0.018933" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="0.491152" z="0.317619" >
+  <normal x="-0.000000" y="0.998501" z="0.054741" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="0.495544" z="0.172159" >
+  <normal x="0.000000" y="0.999821" z="0.018933" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.317619" y="0.491152" z="-0.000000" >
+  <normal x="0.054741" y="0.998501" z="-0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.172159" y="0.495544" z="-0.000000" >
+  <normal x="0.018933" y="0.999821" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="0.491152" z="-0.317619" >
+  <normal x="0.000000" y="0.998501" z="-0.054741" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="0.495544" z="-0.172159" >
+  <normal x="0.000000" y="0.999821" z="-0.018933" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.317619" y="0.491152" z="-0.000000" >
+  <normal x="-0.054741" y="0.998501" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.172159" y="0.495544" z="-0.000000" >
+  <normal x="-0.018933" y="0.999821" z="-0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.317619" y="-0.000000" z="-0.491152" >
+  <normal x="-0.054741" y="-0.000000" z="-0.998501" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.172159" y="-0.000000" z="-0.495544" >
+  <normal x="-0.018933" y="0.000000" z="-0.999821" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="0.317619" z="-0.491152" >
+  <normal x="0.000000" y="0.054741" z="-0.998501" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="0.172159" z="-0.495544" >
+  <normal x="-0.000000" y="0.018933" z="-0.999821" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.317619" y="-0.000000" z="-0.491152" >
+  <normal x="0.054741" y="0.000000" z="-0.998501" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.172159" y="-0.000000" z="-0.495544" >
+  <normal x="0.018933" y="0.000000" z="-0.999821" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="-0.317619" z="-0.491152" >
+  <normal x="-0.000000" y="-0.054741" z="-0.998501" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="-0.172159" z="-0.495544" >
+  <normal x="0.000000" y="-0.018933" z="-0.999821" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.491152" y="-0.000000" z="0.317619" >
+  <normal x="0.998501" y="-0.000000" z="0.054741" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.495544" y="-0.000000" z="0.172159" >
+  <normal x="0.999821" y="0.000000" z="0.018933" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.491152" y="-0.317619" z="-0.000000" >
+  <normal x="0.998501" y="-0.054741" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.495544" y="-0.172159" z="-0.000000" >
+  <normal x="0.999821" y="-0.018933" z="-0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.491152" y="-0.000000" z="-0.317619" >
+  <normal x="0.998501" y="0.000000" z="-0.054741" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.495544" y="-0.000000" z="-0.172159" >
+  <normal x="0.999821" y="-0.000000" z="-0.018933" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.491152" y="0.317619" z="-0.000000" >
+  <normal x="0.998501" y="0.054741" z="-0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.495544" y="0.172159" z="-0.000000" >
+  <normal x="0.999821" y="0.018933" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="-0.491152" z="0.317619" >
+  <normal x="0.000000" y="-0.998501" z="0.054741" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="-0.495544" z="0.172159" >
+  <normal x="0.000000" y="-0.999821" z="0.018933" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.317619" y="-0.491152" z="-0.000000" >
+  <normal x="-0.054741" y="-0.998501" z="-0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.172159" y="-0.495544" z="-0.000000" >
+  <normal x="-0.018933" y="-0.999821" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="-0.491152" z="-0.317619" >
+  <normal x="-0.000000" y="-0.998501" z="-0.054741" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="-0.495544" z="-0.172159" >
+  <normal x="0.000000" y="-0.999821" z="-0.018933" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.317619" y="-0.491152" z="-0.000000" >
+  <normal x="0.054741" y="-0.998501" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.172159" y="-0.495544" z="-0.000000" >
+  <normal x="0.018933" y="-0.999821" z="-0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.458673" y="-0.315709" z="0.458673" >
+  <normal x="-0.706788" y="-0.030014" z="0.706788" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.408409" y="-0.316186" z="0.480266" >
+  <normal x="-0.232094" y="-0.036515" z="0.972008" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.460344" y="-0.171395" z="0.460344" >
+  <normal x="-0.707056" y="-0.011954" z="0.707056" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.458673" y="-0.458673" z="0.315709" >
+  <normal x="-0.706788" y="-0.706788" z="0.030014" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.480266" y="-0.408409" z="0.316186" >
+  <normal x="-0.972008" y="-0.232094" z="0.036515" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.460344" y="-0.460344" z="0.171395" >
+  <normal x="-0.707056" y="-0.707056" z="0.011954" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.315709" y="-0.458673" z="0.458673" >
+  <normal x="-0.030014" y="-0.706788" z="0.706788" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.316186" y="-0.408409" z="0.480266" >
+  <normal x="-0.036515" y="-0.232094" z="0.972008" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.405862" y="-0.455888" z="0.455888" >
+  <normal x="-0.244951" y="-0.685565" z="0.685565" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.315709" y="0.458673" z="0.458673" >
+  <normal x="-0.030014" y="0.706788" z="0.706788" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.316186" y="0.408409" z="0.480266" >
+  <normal x="-0.036515" y="0.232094" z="0.972008" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171395" y="0.460344" z="0.460344" >
+  <normal x="-0.011954" y="0.707056" z="0.707056" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.458673" y="0.458673" z="0.315709" >
+  <normal x="-0.706788" y="0.706788" z="0.030014" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.455888" y="0.455888" z="0.405862" >
+  <normal x="-0.685565" y="0.685565" z="0.244951" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.458673" y="0.315709" z="0.458673" >
+  <normal x="-0.706788" y="0.030014" z="0.706788" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.408409" y="0.316186" z="0.480266" >
+  <normal x="-0.232094" y="0.036515" z="0.972008" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.455888" y="0.405862" z="0.455888" >
+  <normal x="-0.685565" y="0.244951" z="0.685565" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.458673" y="0.315709" z="0.458673" >
+  <normal x="0.706788" y="0.030014" z="0.706788" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.408409" y="0.316186" z="0.480266" >
+  <normal x="0.232094" y="0.036515" z="0.972008" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.460344" y="0.171395" z="0.460344" >
+  <normal x="0.707056" y="0.011954" z="0.707056" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.458673" y="0.458673" z="0.315709" >
+  <normal x="0.706788" y="0.706788" z="0.030014" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.455888" y="0.455888" z="0.405862" >
+  <normal x="0.685565" y="0.685565" z="0.244951" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.315709" y="0.458673" z="0.458673" >
+  <normal x="0.030014" y="0.706788" z="0.706788" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.316186" y="0.408409" z="0.480266" >
+  <normal x="0.036515" y="0.232094" z="0.972008" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.405862" y="0.455888" z="0.455888" >
+  <normal x="0.244951" y="0.685565" z="0.685565" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.315709" y="-0.458673" z="0.458673" >
+  <normal x="0.030014" y="-0.706788" z="0.706788" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.316186" y="-0.408409" z="0.480266" >
+  <normal x="0.036515" y="-0.232094" z="0.972008" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171395" y="-0.460344" z="0.460344" >
+  <normal x="0.011954" y="-0.707056" z="0.707056" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.458673" y="-0.458673" z="0.315709" >
+  <normal x="0.706788" y="-0.706788" z="0.030014" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.455888" y="-0.455888" z="0.405862" >
+  <normal x="0.685565" y="-0.685565" z="0.244951" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.458673" y="-0.315709" z="0.458673" >
+  <normal x="0.706788" y="-0.030014" z="0.706788" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.408409" y="-0.316186" z="0.480266" >
+  <normal x="0.232094" y="-0.036515" z="0.972008" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.455888" y="-0.405862" z="0.455888" >
+  <normal x="0.685565" y="-0.244951" z="0.685565" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.458673" y="-0.315709" z="-0.458673" >
+  <normal x="-0.706788" y="-0.030014" z="-0.706788" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.480266" y="-0.316186" z="-0.408409" >
+  <normal x="-0.972008" y="-0.036515" z="-0.232094" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.460344" y="-0.171395" z="-0.460344" >
+  <normal x="-0.707056" y="-0.011954" z="-0.707056" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.315709" y="-0.458673" z="-0.458673" >
+  <normal x="-0.030014" y="-0.706788" z="-0.706788" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.316186" y="-0.408409" z="-0.480266" >
+  <normal x="-0.036515" y="-0.232094" z="-0.972008" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171395" y="-0.460344" z="-0.460344" >
+  <normal x="-0.011954" y="-0.707056" z="-0.707056" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.458673" y="-0.458673" z="-0.315709" >
+  <normal x="-0.706788" y="-0.706788" z="-0.030014" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.480266" y="-0.408409" z="-0.316186" >
+  <normal x="-0.972008" y="-0.232094" z="-0.036515" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.455888" y="-0.455888" z="-0.405862" >
+  <normal x="-0.685565" y="-0.685565" z="-0.244951" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.458673" y="0.458673" z="-0.315709" >
+  <normal x="-0.706788" y="0.706788" z="-0.030014" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.480266" y="0.408409" z="-0.316186" >
+  <normal x="-0.972008" y="0.232094" z="-0.036515" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.460344" y="0.460344" z="-0.171395" >
+  <normal x="-0.707056" y="0.707056" z="-0.011954" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.315709" y="0.458673" z="-0.458673" >
+  <normal x="-0.030014" y="0.706788" z="-0.706788" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.316186" y="0.480266" z="-0.408409" >
+  <normal x="-0.036515" y="0.972008" z="-0.232094" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171395" y="0.460344" z="-0.460344" >
+  <normal x="-0.011954" y="0.707056" z="-0.707056" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.458673" y="0.315709" z="-0.458673" >
+  <normal x="-0.706788" y="0.030014" z="-0.706788" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.480266" y="0.316186" z="-0.408409" >
+  <normal x="-0.972008" y="0.036515" z="-0.232094" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.455888" y="0.405862" z="-0.455888" >
+  <normal x="-0.685565" y="0.244951" z="-0.685565" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.458673" y="0.458673" z="-0.315709" >
+  <normal x="0.706788" y="0.706788" z="-0.030014" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.408409" y="0.480266" z="-0.316186" >
+  <normal x="0.232094" y="0.972008" z="-0.036515" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.460344" y="0.460344" z="-0.171395" >
+  <normal x="0.707056" y="0.707056" z="-0.011954" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.458673" y="0.315709" z="-0.458673" >
+  <normal x="0.706788" y="0.030014" z="-0.706788" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.455888" y="0.405862" z="-0.455888" >
+  <normal x="0.685565" y="0.244951" z="-0.685565" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.315709" y="0.458673" z="-0.458673" >
+  <normal x="0.030014" y="0.706788" z="-0.706788" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.316186" y="0.480266" z="-0.408409" >
+  <normal x="0.036515" y="0.972008" z="-0.232094" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.405862" y="0.455888" z="-0.455888" >
+  <normal x="0.244951" y="0.685565" z="-0.685565" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.458673" y="-0.315709" z="-0.458673" >
+  <normal x="0.706788" y="-0.030014" z="-0.706788" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.408409" y="-0.316186" z="-0.480266" >
+  <normal x="0.232094" y="-0.036515" z="-0.972008" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.460344" y="-0.171395" z="-0.460344" >
+  <normal x="0.707056" y="-0.011954" z="-0.707056" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.458673" y="-0.458673" z="-0.315709" >
+  <normal x="0.706788" y="-0.706788" z="-0.030014" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.480266" y="-0.408409" z="-0.316186" >
+  <normal x="0.972008" y="-0.232094" z="-0.036515" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.460344" y="-0.460344" z="-0.171395" >
+  <normal x="0.707056" y="-0.707056" z="-0.011954" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.315709" y="-0.458673" z="-0.458673" >
+  <normal x="0.030014" y="-0.706788" z="-0.706788" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.316186" y="-0.408409" z="-0.480266" >
+  <normal x="0.036515" y="-0.232094" z="-0.972008" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.405862" y="-0.455888" z="-0.455888" >
+  <normal x="0.244951" y="-0.685565" z="-0.685565" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="-0.000000" z="0.497008" >
+  <normal x="0.000000" y="0.000000" z="1.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.497008" y="-0.000000" z="-0.000000" >
+  <normal x="1.000000" y="0.000000" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="-0.497008" z="-0.000000" >
+  <normal x="0.000000" y="-1.000000" z="-0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="0.497008" z="-0.000000" >
+  <normal x="0.000000" y="1.000000" z="-0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="0.000000" z="-0.497008" >
+  <normal x="0.000000" y="0.000000" z="-1.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.497008" y="0.000000" z="-0.000000" >
+  <normal x="-1.000000" y="0.000000" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.442346" y="0.442346" z="0.442346" >
+  <normal x="-0.577350" y="0.577350" z="0.577350" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.405862" y="0.455888" z="0.455888" >
+  <normal x="-0.244951" y="0.685565" z="0.685565" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.442346" y="0.442346" z="0.442346" >
+  <normal x="0.577350" y="0.577350" z="0.577350" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.455888" y="0.405862" z="0.455888" >
+  <normal x="0.685565" y="0.244951" z="0.685565" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.442346" y="0.442346" z="-0.442346" >
+  <normal x="0.577350" y="0.577350" z="-0.577350" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.455888" y="0.455888" z="-0.405862" >
+  <normal x="0.685565" y="0.685565" z="-0.244951" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.442346" y="-0.442346" z="0.442346" >
+  <normal x="0.577350" y="-0.577350" z="0.577350" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.405862" y="-0.455888" z="0.455888" >
+  <normal x="0.244951" y="-0.685565" z="0.685565" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.442346" y="-0.442346" z="0.442346" >
+  <normal x="-0.577350" y="-0.577350" z="0.577350" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.455888" y="-0.405862" z="0.455888" >
+  <normal x="-0.685565" y="-0.244951" z="0.685565" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.455888" y="-0.455888" z="0.405862" >
+  <normal x="-0.685565" y="-0.685565" z="0.244951" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="-0.460901" z="0.460901" >
+  <normal x="-0.000000" y="-0.707107" z="0.707107" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="-0.409682" z="0.483831" >
+  <normal x="-0.000000" y="-0.245841" z="0.969310" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="-0.483831" z="0.409682" >
+  <normal x="-0.000000" y="-0.969310" z="0.245841" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171395" y="-0.460344" z="0.460344" >
+  <normal x="-0.011954" y="-0.707056" z="0.707056" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.460901" y="0.460901" z="-0.000000" >
+  <normal x="-0.707107" y="0.707107" z="-0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.483831" y="0.409682" z="-0.000000" >
+  <normal x="-0.969310" y="0.245841" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.409682" y="0.483831" z="-0.000000" >
+  <normal x="-0.245841" y="0.969310" z="-0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.460344" y="0.460344" z="0.171395" >
+  <normal x="-0.707056" y="0.707056" z="0.011954" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.460901" y="-0.000000" z="0.460901" >
+  <normal x="-0.707107" y="-0.000000" z="0.707107" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.460344" y="0.171395" z="0.460344" >
+  <normal x="-0.707056" y="0.011954" z="0.707056" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.483831" y="-0.000000" z="0.409682" >
+  <normal x="-0.969310" y="-0.000000" z="0.245841" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.409682" y="-0.000000" z="0.483831" >
+  <normal x="-0.245841" y="-0.000000" z="0.969310" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.460901" y="0.460901" z="-0.000000" >
+  <normal x="0.707107" y="0.707107" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.409682" y="0.483831" z="-0.000000" >
+  <normal x="0.245841" y="0.969310" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.483831" y="0.409682" z="-0.000000" >
+  <normal x="0.969310" y="0.245841" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.460344" y="0.460344" z="0.171395" >
+  <normal x="0.707056" y="0.707056" z="0.011954" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="0.460901" z="0.460901" >
+  <normal x="0.000000" y="0.707107" z="0.707107" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171395" y="0.460344" z="0.460344" >
+  <normal x="0.011954" y="0.707056" z="0.707056" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="0.483831" z="0.409682" >
+  <normal x="-0.000000" y="0.969310" z="0.245841" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="0.409682" z="0.483831" >
+  <normal x="0.000000" y="0.245841" z="0.969310" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.460901" y="-0.460901" z="-0.000000" >
+  <normal x="0.707107" y="-0.707107" z="-0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.483831" y="-0.409682" z="-0.000000" >
+  <normal x="0.969310" y="-0.245841" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.409682" y="-0.483831" z="-0.000000" >
+  <normal x="0.245841" y="-0.969310" z="-0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.460344" y="-0.460344" z="0.171395" >
+  <normal x="0.707056" y="-0.707056" z="0.011954" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.460901" y="-0.000000" z="0.460901" >
+  <normal x="0.707107" y="0.000000" z="0.707107" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.460344" y="-0.171395" z="0.460344" >
+  <normal x="0.707056" y="-0.011954" z="0.707056" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.483831" y="-0.000000" z="0.409682" >
+  <normal x="0.969310" y="0.000000" z="0.245841" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.409682" y="-0.000000" z="0.483831" >
+  <normal x="0.245841" y="0.000000" z="0.969310" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.442346" y="-0.442346" z="-0.442346" >
+  <normal x="-0.577350" y="-0.577350" z="-0.577350" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.455888" y="-0.405862" z="-0.455888" >
+  <normal x="-0.685565" y="-0.244951" z="-0.685565" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.405862" y="-0.455888" z="-0.455888" >
+  <normal x="-0.244951" y="-0.685565" z="-0.685565" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.460901" y="-0.460901" z="-0.000000" >
+  <normal x="-0.707107" y="-0.707107" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.460344" y="-0.460344" z="-0.171395" >
+  <normal x="-0.707056" y="-0.707056" z="-0.011954" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.409682" y="-0.483831" z="-0.000000" >
+  <normal x="-0.245841" y="-0.969310" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.483831" y="-0.409682" z="-0.000000" >
+  <normal x="-0.969310" y="-0.245841" z="0.000000" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.442346" y="0.442346" z="-0.442346" >
+  <normal x="-0.577350" y="0.577350" z="-0.577350" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.455888" y="0.455888" z="-0.405862" >
+  <normal x="-0.685565" y="0.685565" z="-0.244951" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.405862" y="0.455888" z="-0.455888" >
+  <normal x="-0.244951" y="0.685565" z="-0.685565" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.460901" y="-0.000000" z="-0.460901" >
+  <normal x="-0.707107" y="0.000000" z="-0.707107" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.460344" y="0.171395" z="-0.460344" >
+  <normal x="-0.707056" y="0.011954" z="-0.707056" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.409682" y="-0.000000" z="-0.483831" >
+  <normal x="-0.245841" y="-0.000000" z="-0.969310" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.483831" y="-0.000000" z="-0.409682" >
+  <normal x="-0.969310" y="0.000000" z="-0.245841" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.460901" y="-0.000000" z="-0.460901" >
+  <normal x="0.707107" y="-0.000000" z="-0.707107" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.409682" y="-0.000000" z="-0.483831" >
+  <normal x="0.245841" y="0.000000" z="-0.969310" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.483831" y="-0.000000" z="-0.409682" >
+  <normal x="0.969310" y="-0.000000" z="-0.245841" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.460344" y="0.171395" z="-0.460344" >
+  <normal x="0.707056" y="0.011954" z="-0.707056" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="0.460901" z="-0.460901" >
+  <normal x="-0.000000" y="0.707107" z="-0.707107" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171395" y="0.460344" z="-0.460344" >
+  <normal x="0.011954" y="0.707056" z="-0.707056" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="0.409682" z="-0.483831" >
+  <normal x="-0.000000" y="0.245841" z="-0.969310" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="0.483831" z="-0.409682" >
+  <normal x="-0.000000" y="0.969310" z="-0.245841" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.442346" y="-0.442346" z="-0.442346" >
+  <normal x="0.577350" y="-0.577350" z="-0.577350" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.455888" y="-0.405862" z="-0.455888" >
+  <normal x="0.685565" y="-0.244951" z="-0.685565" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.455888" y="-0.455888" z="-0.405862" >
+  <normal x="0.685565" y="-0.685565" z="-0.244951" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="-0.460901" z="-0.460901" >
+  <normal x="0.000000" y="-0.707107" z="-0.707107" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171395" y="-0.460344" z="-0.460344" >
+  <normal x="0.011954" y="-0.707056" z="-0.707056" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="-0.483831" z="-0.409682" >
+  <normal x="-0.000000" y="-0.969310" z="-0.245841" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.000000" y="-0.409682" z="-0.483831" >
+  <normal x="0.000000" y="-0.245841" z="-0.969310" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.172095" y="0.172095" z="0.494144" >
+  <normal x="-0.018527" y="0.018527" z="0.999657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.172095" y="-0.172095" z="0.494144" >
+  <normal x="-0.018527" y="-0.018527" z="0.999657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.172095" y="-0.172095" z="0.494144" >
+  <normal x="0.018527" y="-0.018527" z="0.999657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.172095" y="0.172095" z="0.494144" >
+  <normal x="0.018527" y="0.018527" z="0.999657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.494144" y="-0.172095" z="0.172095" >
+  <normal x="-0.999657" y="-0.018527" z="0.018527" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.494144" y="0.172095" z="0.172095" >
+  <normal x="-0.999657" y="0.018527" z="0.018527" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.494144" y="0.172095" z="-0.172095" >
+  <normal x="-0.999657" y="0.018527" z="-0.018527" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.494144" y="-0.172095" z="-0.172095" >
+  <normal x="-0.999657" y="-0.018527" z="-0.018527" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.172095" y="0.494144" z="0.172095" >
+  <normal x="-0.018527" y="0.999657" z="0.018527" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.172095" y="0.494144" z="0.172095" >
+  <normal x="0.018527" y="0.999657" z="0.018527" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.172095" y="0.494144" z="-0.172095" >
+  <normal x="0.018527" y="0.999657" z="-0.018527" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.172095" y="0.494144" z="-0.172095" >
+  <normal x="-0.018527" y="0.999657" z="-0.018527" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.172095" y="-0.172095" z="-0.494144" >
+  <normal x="-0.018527" y="-0.018527" z="-0.999657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.172095" y="0.172095" z="-0.494144" >
+  <normal x="-0.018527" y="0.018527" z="-0.999657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.172095" y="0.172095" z="-0.494144" >
+  <normal x="0.018527" y="0.018527" z="-0.999657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.172095" y="-0.172095" z="-0.494144" >
+  <normal x="0.018527" y="-0.018527" z="-0.999657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.494144" y="0.172095" z="0.172095" >
+  <normal x="0.999657" y="0.018527" z="0.018527" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.494144" y="-0.172095" z="0.172095" >
+  <normal x="0.999657" y="-0.018527" z="0.018527" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.494144" y="-0.172095" z="-0.172095" >
+  <normal x="0.999657" y="-0.018527" z="-0.018527" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.494144" y="0.172095" z="-0.172095" >
+  <normal x="0.999657" y="0.018527" z="-0.018527" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.172095" y="-0.494144" z="0.172095" >
+  <normal x="0.018527" y="-0.999657" z="0.018527" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.172095" y="-0.494144" z="0.172095" >
+  <normal x="-0.018527" y="-0.999657" z="0.018527" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.172095" y="-0.494144" z="-0.172095" >
+  <normal x="-0.018527" y="-0.999657" z="-0.018527" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.172095" y="-0.494144" z="-0.172095" >
+  <normal x="0.018527" y="-0.999657" z="-0.018527" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.482940" y="-0.171586" z="0.409363" >
+  <normal x="-0.969657" y="-0.012514" z="0.244150" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.409363" y="-0.482940" z="0.171586" >
+  <normal x="-0.244150" y="-0.969657" z="0.012514" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.406817" y="-0.475810" z="0.406817" >
+  <normal x="-0.214639" y="-0.952817" z="0.214639" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171586" y="0.482940" z="0.409363" >
+  <normal x="-0.012514" y="0.969657" z="0.244150" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.406817" y="0.475810" z="0.406817" >
+  <normal x="-0.214639" y="0.952817" z="0.214639" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.475810" y="0.406817" z="0.406817" >
+  <normal x="-0.952817" y="0.214639" z="0.214639" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.482940" y="0.171586" z="0.409363" >
+  <normal x="0.969657" y="0.012514" z="0.244150" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.475810" y="0.406817" z="0.406817" >
+  <normal x="0.952817" y="0.214639" z="0.214639" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.406817" y="0.475810" z="0.406817" >
+  <normal x="0.214639" y="0.952817" z="0.214639" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171586" y="-0.482940" z="0.409363" >
+  <normal x="0.012514" y="-0.969657" z="0.244150" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.406817" y="-0.475810" z="0.406817" >
+  <normal x="0.214639" y="-0.952817" z="0.214639" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.475810" y="-0.406817" z="0.406817" >
+  <normal x="0.952817" y="-0.214639" z="0.214639" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.409363" y="-0.171586" z="-0.482940" >
+  <normal x="-0.244150" y="-0.012514" z="-0.969657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171586" y="-0.482940" z="-0.409363" >
+  <normal x="-0.012514" y="-0.969657" z="-0.244150" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.406817" y="-0.475810" z="-0.406817" >
+  <normal x="-0.214639" y="-0.952817" z="-0.214639" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.409363" y="0.482940" z="-0.171586" >
+  <normal x="-0.244150" y="0.969657" z="-0.012514" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171586" y="0.409363" z="-0.482940" >
+  <normal x="-0.012514" y="0.244150" z="-0.969657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.406817" y="0.406817" z="-0.475810" >
+  <normal x="-0.214639" y="0.214639" z="-0.952817" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.482940" y="0.409363" z="-0.171586" >
+  <normal x="0.969657" y="0.244150" z="-0.012514" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.475810" y="0.406817" z="-0.406817" >
+  <normal x="0.952817" y="0.214639" z="-0.214639" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.406817" y="0.406817" z="-0.475810" >
+  <normal x="0.214639" y="0.214639" z="-0.952817" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.482940" y="-0.171586" z="-0.409363" >
+  <normal x="0.969657" y="-0.012514" z="-0.244150" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.409363" y="-0.482940" z="-0.171586" >
+  <normal x="0.244150" y="-0.969657" z="-0.012514" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.406817" y="-0.475810" z="-0.406817" >
+  <normal x="0.214639" y="-0.952817" z="-0.214639" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.406817" y="0.406817" z="0.475810" >
+  <normal x="-0.214639" y="0.214639" z="0.952817" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.406817" y="0.406817" z="0.475810" >
+  <normal x="0.214639" y="0.214639" z="0.952817" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.406817" y="0.475810" z="-0.406817" >
+  <normal x="0.214639" y="0.952817" z="-0.214639" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.406817" y="-0.406817" z="0.475810" >
+  <normal x="0.214639" y="-0.214639" z="0.952817" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.475810" y="-0.406817" z="0.406817" >
+  <normal x="-0.952817" y="-0.214639" z="0.214639" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.406817" y="-0.406817" z="0.475810" >
+  <normal x="-0.214639" y="-0.214639" z="0.952817" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171586" y="-0.409363" z="0.482940" >
+  <normal x="0.012514" y="-0.244150" z="0.969657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171586" y="-0.482940" z="0.409363" >
+  <normal x="-0.012514" y="-0.969657" z="0.244150" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171586" y="-0.409363" z="0.482940" >
+  <normal x="-0.012514" y="-0.244150" z="0.969657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.482940" y="0.409363" z="-0.171586" >
+  <normal x="-0.969657" y="0.244150" z="-0.012514" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.409363" y="0.482940" z="0.171586" >
+  <normal x="-0.244150" y="0.969657" z="0.012514" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.482940" y="0.409363" z="0.171586" >
+  <normal x="-0.969657" y="0.244150" z="0.012514" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.482940" y="0.171586" z="0.409363" >
+  <normal x="-0.969657" y="0.012514" z="0.244150" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.409363" y="0.171586" z="0.482940" >
+  <normal x="-0.244150" y="0.012514" z="0.969657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.409363" y="-0.171586" z="0.482940" >
+  <normal x="-0.244150" y="-0.012514" z="0.969657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.409363" y="0.482940" z="-0.171586" >
+  <normal x="0.244150" y="0.969657" z="-0.012514" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.482940" y="0.409363" z="0.171586" >
+  <normal x="0.969657" y="0.244150" z="0.012514" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.409363" y="0.482940" z="0.171586" >
+  <normal x="0.244150" y="0.969657" z="0.012514" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171586" y="0.482940" z="0.409363" >
+  <normal x="0.012514" y="0.969657" z="0.244150" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171586" y="0.409363" z="0.482940" >
+  <normal x="0.012514" y="0.244150" z="0.969657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171586" y="0.409363" z="0.482940" >
+  <normal x="-0.012514" y="0.244150" z="0.969657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.482940" y="-0.409363" z="-0.171586" >
+  <normal x="0.969657" y="-0.244150" z="-0.012514" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.409363" y="-0.482940" z="0.171586" >
+  <normal x="0.244150" y="-0.969657" z="0.012514" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.482940" y="-0.409363" z="0.171586" >
+  <normal x="0.969657" y="-0.244150" z="0.012514" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.482940" y="-0.171586" z="0.409363" >
+  <normal x="0.969657" y="-0.012514" z="0.244150" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.409363" y="-0.171586" z="0.482940" >
+  <normal x="0.244150" y="-0.012514" z="0.969657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.409363" y="0.171586" z="0.482940" >
+  <normal x="0.244150" y="0.012514" z="0.969657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.406817" y="-0.406817" z="-0.475810" >
+  <normal x="-0.214639" y="-0.214639" z="-0.952817" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.475810" y="-0.406817" z="-0.406817" >
+  <normal x="-0.952817" y="-0.214639" z="-0.214639" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.409363" y="-0.482940" z="-0.171586" >
+  <normal x="-0.244150" y="-0.969657" z="-0.012514" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.482940" y="-0.409363" z="-0.171586" >
+  <normal x="-0.969657" y="-0.244150" z="-0.012514" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.482940" y="-0.409363" z="0.171586" >
+  <normal x="-0.969657" y="-0.244150" z="0.012514" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.406817" y="0.475810" z="-0.406817" >
+  <normal x="-0.214639" y="0.952817" z="-0.214639" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.475810" y="0.406817" z="-0.406817" >
+  <normal x="-0.952817" y="0.214639" z="-0.214639" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.409363" y="0.171586" z="-0.482940" >
+  <normal x="-0.244150" y="0.012514" z="-0.969657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.482940" y="0.171586" z="-0.409363" >
+  <normal x="-0.969657" y="0.012514" z="-0.244150" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.482940" y="-0.171586" z="-0.409363" >
+  <normal x="-0.969657" y="-0.012514" z="-0.244150" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.409363" y="-0.171586" z="-0.482940" >
+  <normal x="0.244150" y="-0.012514" z="-0.969657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.482940" y="0.171586" z="-0.409363" >
+  <normal x="0.969657" y="0.012514" z="-0.244150" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.409363" y="0.171586" z="-0.482940" >
+  <normal x="0.244150" y="0.012514" z="-0.969657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171586" y="0.409363" z="-0.482940" >
+  <normal x="0.012514" y="0.244150" z="-0.969657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171586" y="0.482940" z="-0.409363" >
+  <normal x="0.012514" y="0.969657" z="-0.244150" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171586" y="0.482940" z="-0.409363" >
+  <normal x="-0.012514" y="0.969657" z="-0.244150" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.475810" y="-0.406817" z="-0.406817" >
+  <normal x="0.952817" y="-0.214639" z="-0.214639" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.406817" y="-0.406817" z="-0.475810" >
+  <normal x="0.214639" y="-0.214639" z="-0.952817" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171586" y="-0.482940" z="-0.409363" >
+  <normal x="0.012514" y="-0.969657" z="-0.244150" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="0.171586" y="-0.409363" z="-0.482940" >
+  <normal x="0.012514" y="-0.244150" z="-0.969657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+ <vertex x="-0.171586" y="-0.409363" z="-0.482940" >
+  <normal x="-0.012514" y="-0.244150" z="-0.969657" />
+  <texcoord x="0.000000" y="0.000000" />
+ </vertex>
+</mesh>
