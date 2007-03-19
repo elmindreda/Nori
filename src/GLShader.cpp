@@ -664,7 +664,7 @@ GLhandleARB ShaderPermutation::createShader(const Shader& shader, const LightSta
   glShaderSourceARB(shaderID, 1, &string, NULL);
   glCompileShaderARB(shaderID);
 
-  int status;
+  GLint status;
   glGetObjectParameterivARB(shaderID, GL_OBJECT_COMPILE_STATUS_ARB, &status);
 
   GLint length;

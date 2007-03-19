@@ -37,7 +37,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class HUD
+class HUD : public Singleton<HUD>
 {
 public:
   void render(void) const;

@@ -29,6 +29,7 @@
 
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
+#include <wendy/GLStatistics.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
