@@ -31,6 +31,7 @@
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLLight.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
 
@@ -609,6 +610,42 @@ const Vector3& PlanarGravityParticleAffector::getGravity(void) const
 void PlanarGravityParticleAffector::setGravity(const Vector3& newGravity)
 {
   gravity = newGravity;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+ColorFadeParticleAffector::ColorFadeParticleAffector(void):
+  start(ColorRGBA::WHITE),
+  end(ColorRGBA::BLACK)
+{
+}
+
+void ColorFadeParticleAffector::affectParticle(Particle& particle,
+		                               unsigned int particleIndex,
+		                               Time deltaTime)
+{
+  const float t = particle.elapsed / particle.duration;
+  particle.color = start * (1.f - t) + end * t;
+}
+
+const ColorRGBA& ColorFadeParticleAffector::getStartColor(void) const
+{
+  return start;
+}
+
+void ColorFadeParticleAffector::setStartColor(const ColorRGBA& newColor)
+{
+  start = newColor;
+}
+
+const ColorRGBA& ColorFadeParticleAffector::getEndColor(void) const
+{
+  return end;
+}
+
+void ColorFadeParticleAffector::setEndColor(const ColorRGBA& newColor)
+{
+  end = newColor;
 }
 
 ///////////////////////////////////////////////////////////////////////

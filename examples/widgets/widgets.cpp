@@ -12,7 +12,7 @@ public:
   void render(void);
 private:
   void onButtonPushed(UI::Button& button);
-  void onValueChanged(UI::Slider& slider, float newValue);
+  void onValueChanged(UI::Slider& slider);
   void onItemSelected(UI::Popup& menu, unsigned int index);
   Ptr<UI::Window> window;
   UI::Label* label;
@@ -102,10 +102,10 @@ void Widgets::onButtonPushed(UI::Button& button)
   label->setText("Button: " + button.getText());
 }
 
-void Widgets::onValueChanged(UI::Slider& slider, float newValue)
+void Widgets::onValueChanged(UI::Slider& slider)
 {
   Variant value;
-  value.setFloatValue(newValue);
+  value.setFloatValue(slider.getValue());
   label->setText("Amount of grandpa: " + value.asString());
 }
 

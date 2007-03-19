@@ -31,6 +31,7 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLLight.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
 
@@ -120,7 +121,7 @@ bool Mesh::init(const moira::Mesh& mesh)
     return false;
 
   vertexBuffer = GL::VertexBuffer::createInstance((unsigned int) mesh.vertices.size(),
-					      format);
+					          format);
   if (!vertexBuffer)
     return false;
 

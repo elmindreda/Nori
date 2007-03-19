@@ -33,6 +33,8 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLLight.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
 
@@ -85,6 +87,7 @@ float Layout::getBorderSize(void) const
 void Layout::setBorderSize(float newSize)
 {
   borderSize = newSize;
+  update();
 }
 
 float Layout::getChildSize(Widget& child) const

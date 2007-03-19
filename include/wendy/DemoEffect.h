@@ -143,6 +143,19 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+class DistortEffect : public Effect
+{
+public:
+  DistortEffect(EffectType& type, const String& name = "");
+  bool init(void);
+private:
+  void prepare(void) const;
+  void render(void) const;
+  Ptr<GL::TextureCanvas> canvas;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 template <typename T>
 inline EffectTemplate<T>::EffectTemplate(const String& name):
   EffectType(name)

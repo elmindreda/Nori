@@ -45,21 +45,25 @@ using namespace moira;
 class Show : public Resource<Show>
 {
 public:
+  typedef std::vector<Effect*> EffectList;
+  void addEffect(Effect& effect);
+  void removeEffect(Effect& effect);
   void prepare(void) const;
   void render(void) const;
-  Effect& getRootEffect(void);
   const String& getTitle(void) const;
   void setTitle(const String& newTitle);
   Time getDuration(void) const;
   Time getTimeElapsed(void) const;
   void setTimeElapsed(Time newTime);
+  const EffectList& getEffects(void) const;
   static Show* createInstance(const String& name = "");
 private:
   Show(const String& name);
   bool init(void);
   void updateEffect(Effect& effect, Time newTime);
-  Ptr<Effect> root;
+  EffectList effects;
   String title;
+  Time elapsed;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -76,7 +80,7 @@ private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
   Ptr<Show> show;
-  std::stack<String> effectNameStack;
+  std::stack<Effect*> effectStack;
   Parameter* currentParameter;
 };
 

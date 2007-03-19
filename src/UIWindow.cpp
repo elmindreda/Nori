@@ -33,6 +33,8 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLLight.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
 

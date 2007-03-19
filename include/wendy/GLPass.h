@@ -139,7 +139,7 @@ public:
   /*! @return The name of the GLSL program used by this render pass, or the
    *  empty string if it doesn't use any GLSL program.
    */
-  const String& getShaderProgramName(void) const;
+  ShaderProgram* getShaderProgram(void) const;
   const String& getName(void) const;
   /*! Sets whether this render pass is affected by lighting.
    *  @param enable Set to @c true to enable lighting, or @c false to disable
@@ -191,7 +191,7 @@ public:
    *  @param newName The name of the desired vertex program, or the empty
    *  string to disable the use of GLSL programs.
    */
-  void setShaderProgramName(const String& newName);
+  void setShaderProgram(ShaderProgram* newProgram);
   /*! Resets all values in this render pass to their defaults.
    */
   void setDefaults(void);
@@ -218,7 +218,7 @@ private:
     ColorRGBA ambientColor;
     ColorRGBA diffuseColor;
     ColorRGBA specularColor;
-    String shaderProgramName;
+    Ref<ShaderProgram> program;
   };
   void force(void) const;
   void setBooleanState(GLenum state, bool value) const;

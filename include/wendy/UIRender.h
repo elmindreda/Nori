@@ -142,7 +142,7 @@ private:
   ColorRGB textFrameColor;
   ColorRGB selectionColor;
   ColorRGB selectedTextColor;
-  Ptr<render::Font> defaultFont;
+  Ref<render::Font> defaultFont;
   render::Font* currentFont;
 };
 

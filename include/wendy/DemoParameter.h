@@ -76,8 +76,10 @@ class ParameterTemplate : public Parameter
 {
 public:
   inline ParameterTemplate(const String& name);
+  inline ParameterKey& createKey(Time moment, const String& value = "");
   inline T getValue(Time moment) const;
 protected:
+  virtual T getDefaultValue(void) const = 0;
   virtual T interpolateKeys(const K& start, const K& end, float t) const = 0;
 };
 
@@ -108,15 +110,78 @@ public:
   FloatParameter(const String& name,
                  float minValue = 0.f,
 		 float maxValue = 1.f);
-  inline ParameterKey& createKey(Time moment, const String& value = "");
   float getMinValue(void) const;
   float getMaxValue(void) const;
 private:
+  float getDefaultValue(void) const;
   float interpolateKeys(const FloatKey& start,
                         const FloatKey& end,
 			float t) const;
   float minValue;
   float maxValue;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class BooleanParameter;
+
+///////////////////////////////////////////////////////////////////////
+
+class BooleanKey : public ParameterKey
+{
+public:
+  BooleanKey(Time moment);
+  bool getValue(void) const;
+  void setValue(bool newValue);
+  void asString(String& result) const;
+  void setStringValue(const String& newValue);
+private:
+  bool value;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class BooleanParameter : public ParameterTemplate<BooleanKey, bool>
+{
+public:
+  BooleanParameter(const String& name);
+  bool getValue(Time moment) const;
+private:
+  bool getDefaultValue(void) const;
+  bool interpolateKeys(const BooleanKey& start,
+                       const BooleanKey& end,
+		       float t) const;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class StyleParameter;
+
+///////////////////////////////////////////////////////////////////////
+
+class StyleKey : public ParameterKey
+{
+public:
+  StyleKey(Time moment);
+  render::Style* getStyle(void) const;
+  void setStyle(render::Style* newStyle);
+  void asString(String& result) const;
+  void setStringValue(const String& newValue);
+private:
+  Ref<render::Style> style;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class StyleParameter : public ParameterTemplate<StyleKey, render::Style*>
+{
+public:
+  StyleParameter(const String& name);
+private:
+  render::Style* getDefaultValue(void) const;
+  render::Style* interpolateKeys(const StyleKey& start,
+                                 const StyleKey& end,
+			         float t) const;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -128,12 +193,22 @@ inline ParameterTemplate<K,T>::ParameterTemplate(const String& name):
 }
 
 template <typename K, typename T>
+ParameterKey& ParameterTemplate<K,T>::createKey(Time moment, const String& value)
+{
+  K* key = new K(moment);
+  registerKey(*key);
+
+  key->setStringValue(value);
+  return *key;
+}
+
+template <typename K, typename T>
 inline T ParameterTemplate<K,T>::getValue(Time moment) const
 {
   const KeyList& keys = getKeys();
 
   if (keys.empty())
-    return 0.f;
+    return getDefaultValue();
 
   unsigned int index = 0;
 
@@ -149,8 +224,8 @@ inline T ParameterTemplate<K,T>::getValue(Time moment) const
   if (index == keys.size())
     return dynamic_cast<K*>(keys.back())->getValue();
 
-  const FloatKey& startKey = *dynamic_cast<K*>(keys[index - 1]);
-  const FloatKey& endKey = *dynamic_cast<K*>(keys[index]);
+  const K& startKey = *dynamic_cast<K*>(keys[index - 1]);
+  const K& endKey = *dynamic_cast<K*>(keys[index]);
 
   const Time start = startKey.getMoment();
 

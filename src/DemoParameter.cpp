@@ -29,10 +29,13 @@
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLLight.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLPass.h>
 
 #include <wendy/RenderFont.h>
+#include <wendy/RenderStyle.h>
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
@@ -117,8 +120,8 @@ void Parameter::registerKey(ParameterKey& key)
 
 ///////////////////////////////////////////////////////////////////////
 
-FloatKey::FloatKey(FloatParameter& initParameter, Time initMoment):
-  ParameterKey(initMoment),
+FloatKey::FloatKey(FloatParameter& initParameter, Time moment):
+  ParameterKey(moment),
   parameter(initParameter),
   value(0.f)
 {
@@ -159,9 +162,11 @@ FloatParameter::FloatParameter(const String& name,
 {
 }
 
-ParameterKey& FloatParameter::createKey(Time moment, const String& value)
+template <>
+ParameterKey& ParameterTemplate<FloatKey,float>::createKey(Time moment,
+                                                           const String& value)
 {
-  FloatKey* key = new FloatKey(*this, moment);
+  FloatKey* key = new FloatKey(dynamic_cast<FloatParameter&>(*this), moment);
   registerKey(*key);
 
   key->setStringValue(value);
@@ -183,6 +188,107 @@ float FloatParameter::interpolateKeys(const FloatKey& start,
 			              float t) const
 {
   return start.getValue() * (1.f - t) + end.getValue() * t;
+}
+
+float FloatParameter::getDefaultValue(void) const
+{
+  return 0.f;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+BooleanKey::BooleanKey(Time moment):
+  ParameterKey(moment),
+  value(false)
+{
+}
+
+bool BooleanKey::getValue(void) const
+{
+  return value;
+}
+
+void BooleanKey::asString(String& result) const
+{
+  Variant::convertToString(result, value);
+}
+
+void BooleanKey::setValue(bool newValue)
+{
+  value = newValue;
+}
+
+void BooleanKey::setStringValue(const String& newValue)
+{
+  value = Variant::convertToBoolean(newValue);
+}
+
+///////////////////////////////////////////////////////////////////////
+
+BooleanParameter::BooleanParameter(const String& name):
+  ParameterTemplate<BooleanKey, bool>(name)
+{
+}
+
+bool BooleanParameter::interpolateKeys(const BooleanKey& start,
+                                       const BooleanKey& end,
+			               float t) const
+{
+  return start.getValue();
+}
+
+bool BooleanParameter::getDefaultValue(void) const
+{
+  return false;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+StyleKey::StyleKey(Time moment):
+  ParameterKey(moment)
+{
+}
+
+render::Style* StyleKey::getStyle(void) const
+{
+  return style;
+}
+
+void StyleKey::setStyle(render::Style* newStyle)
+{
+  style = newStyle;
+}
+
+void StyleKey::asString(String& result) const
+{
+  if (style)
+    result = style->getName();
+  else
+    result.clear();
+}
+
+void StyleKey::setStringValue(const String& newValue)
+{
+  style = render::Style::readInstance(newValue);
+}
+
+///////////////////////////////////////////////////////////////////////
+
+StyleParameter::StyleParameter(const String& name):
+  ParameterTemplate<StyleKey, render::Style*>(name)
+{
+}
+
+render::Style* StyleParameter::getDefaultValue(void) const
+{
+  return NULL;
+}
+
+render::Style* StyleParameter::interpolateKeys(const StyleKey& start,
+			                       const StyleKey& end,
+			                       float t) const
+{
+  return start.getStyle();
 }
 
 ///////////////////////////////////////////////////////////////////////

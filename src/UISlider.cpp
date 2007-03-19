@@ -33,6 +33,8 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLLight.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
 
@@ -130,7 +132,7 @@ void Slider::setOrientation(Orientation newOrientation)
   orientation = newOrientation;
 }
 
-SignalProxy2<void, Slider&, float> Slider::getValueChangedSignal(void)
+SignalProxy1<void, Slider&> Slider::getValueChangedSignal(void)
 {
   return valueChangedSignal;
 }
@@ -240,10 +242,10 @@ void Slider::setValue(float newValue, bool notify)
   if (newValue == value)
     return;
 
-  if (notify)
-    valueChangedSignal.emit(*this, newValue);
-
   value = newValue;
+
+  if (notify)
+    valueChangedSignal.emit(*this);
 }
 
 ///////////////////////////////////////////////////////////////////////

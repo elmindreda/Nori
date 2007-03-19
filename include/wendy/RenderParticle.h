@@ -285,6 +285,26 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup default
+ */
+class ColorFadeParticleAffector : public ParticleAffector
+{
+public:
+  ColorFadeParticleAffector(void);
+  void affectParticle(Particle& particle,
+                      unsigned int particleIndex,
+		      Time deltaTime);
+  const ColorRGBA& getStartColor(void) const;
+  void setStartColor(const ColorRGBA& newColor);
+  const ColorRGBA& getEndColor(void) const;
+  void setEndColor(const ColorRGBA& newColor);
+private:
+  ColorRGBA start;
+  ColorRGBA end;
+};
+
+///////////////////////////////////////////////////////////////////////
+
   } /*namespace render*/
 } /*namespace wendy*/
 

@@ -46,7 +46,8 @@ using namespace moira;
  *  This class provides layout and rendering of a single font, using data
  *  from a moira::Font object.
  */
-class Font : public Managed<Font>
+class Font : public DerivedResource<Font, moira::Font>,
+             public RefObject<Font>
 {
 public:
   class Layout;

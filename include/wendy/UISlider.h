@@ -52,7 +52,7 @@ public:
   void setValue(float newValue);
   Orientation getOrientation(void) const;
   void setOrientation(Orientation newOrientation);
-  SignalProxy2<void, Slider&, float> getValueChangedSignal(void);
+  SignalProxy1<void, Slider&> getValueChangedSignal(void);
 protected:
   void render(void) const;
 private:
@@ -65,7 +65,7 @@ private:
   void onDragMoved(Widget& widget, const Vector2& position);
   void setValue(const Vector2& position);
   void setValue(float newValue, bool notify);
-  Signal2<void, Slider&, float> valueChangedSignal;
+  Signal1<void, Slider&> valueChangedSignal;
   float minValue;
   float maxValue;
   float stepSize;

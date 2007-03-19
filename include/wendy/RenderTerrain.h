@@ -42,7 +42,7 @@ using namespace moira;
  *
  *  Basic heightmap terrain renderer.
  */
-class Terrain : public Managed<Terrain>
+class Terrain : public Managed<Terrain>, public RefObject<Terrain>
 {
 public:
   void enqueue(Queue& queue, const Transform3& transform) const;

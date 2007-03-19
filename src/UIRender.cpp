@@ -33,6 +33,8 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLLight.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
 
@@ -294,13 +296,12 @@ bool Renderer::init(void)
     return false;
   }
 
-  Font* fontData = Font::findInstance("default");
-  if (!fontData)
-    return false;
-
-  defaultFont = render::Font::createInstance(*fontData);
+  defaultFont = render::Font::readInstance("default");
   if (!defaultFont)
+  {
+    Log::writeError("Failed to load default font");
     return false;
+  }
 
   currentFont = defaultFont;
 

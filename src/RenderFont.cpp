@@ -28,6 +28,8 @@
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLLight.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLPass.h>
@@ -343,12 +345,12 @@ Font* Font::createInstance(const moira::Font& font, const String& name)
 }
 
 Font::Font(const String& name):
-  Managed<Font>(name)
+  DerivedResource<Font, moira::Font>(name)
 {
 }
 
 Font::Font(const Font& source):
-  Managed<Font>(source)
+  DerivedResource<Font, moira::Font>(source)
 {
   // NOTE: Not implemented.
 }

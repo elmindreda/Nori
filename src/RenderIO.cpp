@@ -167,7 +167,19 @@ Style* StyleCodec::read(Stream& stream, const String& name)
   styleName = name;
 
   if (!XML::Codec::read(stream))
+  {
+    style = NULL;
     return NULL;
+  }
+
+  if (!style->getTechniqueCount())
+  {
+    Log::writeError("No valid techniques found in render style %s",
+                    style->getName().c_str());
+
+    style = NULL;
+    return NULL;
+  }
 
   return style.detachObject();
 }
@@ -353,10 +365,10 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 	  endElement();
 	}
 
-	if (!pass.getShaderProgramName().empty())
+	if (GL::ShaderProgram* program = pass.getShaderProgram())
 	{
 	  beginElement("shader-program");
-	  addAttribute("name", pass.getShaderProgramName());
+	  addAttribute("name", program->getName());
 	  endElement();
 	}
 
@@ -372,7 +384,9 @@ bool StyleCodec::write(Stream& stream, const Style& style)
   }
   catch (Exception& exception)
   {
-    Log::writeError("Failed to write render style %s: %s", style.getName().c_str(), exception.what());
+    Log::writeError("Failed to write render style %s: %s",
+                    style.getName().c_str(),
+		    exception.what());
     setStream(NULL);
     return false;
   }
@@ -434,7 +448,8 @@ bool StyleCodec::onBeginElement(const String& name)
 	  if (srcFactorName.length())
 	  {
 	    if (blendFactorMap.hasKey(srcFactorName))
-	      currentPass->setBlendFactors(blendFactorMap[srcFactorName], currentPass->getDstFactor());
+	      currentPass->setBlendFactors(blendFactorMap[srcFactorName],
+	                                   currentPass->getDstFactor());
 	    else
 	    {
 	      Log::writeError("Invalid blend factor name %s", srcFactorName.c_str());
@@ -446,10 +461,12 @@ bool StyleCodec::onBeginElement(const String& name)
 	  if (dstFactorName.length())
 	  {
 	    if (blendFactorMap.hasKey(dstFactorName))
-	      currentPass->setBlendFactors(currentPass->getSrcFactor(), blendFactorMap[dstFactorName]);
+	      currentPass->setBlendFactors(currentPass->getSrcFactor(),
+	                                   blendFactorMap[dstFactorName]);
 	    else
 	    {
-	      Log::writeError("Invalid blend factor name %s", dstFactorName.c_str());
+	      Log::writeError("Invalid blend factor name %s",
+	                      dstFactorName.c_str());
 	      return false;
 	    }
 	  }
@@ -475,7 +492,8 @@ bool StyleCodec::onBeginElement(const String& name)
 	      currentPass->setDepthFunction(functionMap[functionName]);
 	    else
 	    {
-	      Log::writeError("Invalid depth test function name %s", functionName.c_str());
+	      Log::writeError("Invalid depth test function name %s",
+	                      functionName.c_str());
 	      return false;
 	    }
 	  }
@@ -492,7 +510,8 @@ bool StyleCodec::onBeginElement(const String& name)
 	      currentPass->setAlphaFunction(functionMap[functionName]);
 	    else
 	    {
-	      Log::writeError("Invalid alpha test function name %s", functionName.c_str());
+	      Log::writeError("Invalid alpha test function name %s",
+	                      functionName.c_str());
 	      return false;
 	    }
 	  }
@@ -561,7 +580,8 @@ bool StyleCodec::onBeginElement(const String& name)
 	      currentPass->setPolygonMode(polygonModeMap[polygonModeName]);
 	    else
 	    {
-	      Log::writeError("Invalid polygon mode %s", polygonModeName.c_str());
+	      Log::writeError("Invalid polygon mode %s",
+	                      polygonModeName.c_str());
 	      return false;
 	    }
 	  }
@@ -611,7 +631,8 @@ bool StyleCodec::onBeginElement(const String& name)
 	  readAttributes(color, currentPass->getSpecularColor());
 	  currentPass->setSpecularColor(color);
 
-	  currentPass->setShininess(readFloat("shininess", currentPass->getShininess()));
+	  currentPass->setShininess(readFloat("shininess",
+	                                      currentPass->getShininess()));
 	  return true;
 	}
 
@@ -623,7 +644,7 @@ bool StyleCodec::onBeginElement(const String& name)
 
 	  GL::Texture* texture;
 
-	  // TODO: Update this when resource cascade options are added.
+	  // TODO: Update this once resource cascade options are added.
 
 	  texture = GL::Texture::findInstance(textureName);
 	  if (!texture)
@@ -644,13 +665,26 @@ bool StyleCodec::onBeginElement(const String& name)
 	if (name == "shader-program")
 	{
 	  String shaderProgramName = readString("name");
-	  if (!shaderProgramName.length())
+	  if (shaderProgramName.empty())
 	    return true;
 
-	  if (!GL::ShaderProgram::readInstance(shaderProgramName))
+	  if (!GLEW_ARB_shading_language_100)
+	  {
+	    Log::writeWarning("GLSL not supported by current context; "
+	                      "skipping technique %u in render style %s",
+	                      style->getTechniqueCount(),
+	                      style->getName().c_str());
+
+	    style->destroyTechnique(*currentTechnique);
+	    currentTechnique = NULL;
+	    return true;
+	  }
+
+	  GL::ShaderProgram* program = GL::ShaderProgram::readInstance(shaderProgramName);
+	  if (!program)
 	    return false;
 	  
-	  currentPass->setShaderProgramName(shaderProgramName);
+	  currentPass->setShaderProgram(program);
 	  return true;
 	}
 
@@ -665,7 +699,8 @@ bool StyleCodec::onBeginElement(const String& name)
 		currentLayer->setCombineMode(combineModeMap[combineModeName]);
 	      else
 	      {
-		Log::writeError("Invalid texture combine %s", combineModeName.c_str());
+		Log::writeError("Invalid texture combine %s",
+		                combineModeName.c_str());
 		return false;
 	      }
 	    }
@@ -686,7 +721,8 @@ bool StyleCodec::onBeginElement(const String& name)
 	    currentLayer->setSphereMapped(false);
 	  else
 	  {
-	    Log::writeError("Invalid texture layer mapping mode name %s", modeName.c_str());
+	    Log::writeError("Invalid texture layer mapping mode name %s",
+	                    modeName.c_str());
 	    return false;
 	  }
 
@@ -701,18 +737,22 @@ bool StyleCodec::onBeginElement(const String& name)
 	  if (!filterName.empty())
 	  {
 	    if (filterMap.hasKey(filterName))
-	      currentLayer->setFilters(filterMap[filterName], currentLayer->getMagFilter());
+	      currentLayer->setFilters(filterMap[filterName],
+	                               currentLayer->getMagFilter());
 	    else
-	      Log::writeError("Invalid texture layer min filter type %s", filterName.c_str());
+	      Log::writeError("Invalid texture layer min filter type %s",
+	                      filterName.c_str());
 	  }
 	  
 	  filterName = readString("mag");
 	  if (!filterName.empty())
 	  {
 	    if (filterMap.hasKey(filterName))
-	      currentLayer->setFilters(currentLayer->getMinFilter(), filterMap[filterName]);
+	      currentLayer->setFilters(currentLayer->getMinFilter(),
+	                               filterMap[filterName]);
 	    else
-	      Log::writeError("Invalid texture layer mag filter type %s", filterName.c_str());
+	      Log::writeError("Invalid texture layer mag filter type %s",
+	                      filterName.c_str());
 	  }
 	}
 
@@ -724,7 +764,8 @@ bool StyleCodec::onBeginElement(const String& name)
 	    if (addressModeMap.hasKey(addressModeName))
 	      currentLayer->setAddressMode(addressModeMap[addressModeName]);
 	    else
-	      Log::writeError("Invalid texture layer address mode %s", addressModeName.c_str());
+	      Log::writeError("Invalid texture layer address mode %s",
+	                      addressModeName.c_str());
 	  }
 	}
       }

@@ -28,11 +28,17 @@
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
+#include <wendy/GLLight.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLPass.h>
+#include <wendy/GLVertex.h>
+#include <wendy/GLBuffer.h>
+#include <wendy/GLRender.h>
 
 #include <wendy/RenderFont.h>
+#include <wendy/RenderStyle.h>
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
@@ -65,18 +71,9 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-TimelineEffect::TimelineEffect(Timeline& initTimeline, Effect& initEffect):
-  timeline(initTimeline),
-  effect(initEffect),
-  mode(NOT_DRAGGING)
+TimelineEffect::TimelineEffect(Effect& initEffect):
+  effect(initEffect)
 {
-  getDragBegunSignal().connect(*this, &TimelineEffect::onDragBegun);
-  getDragMovedSignal().connect(*this, &TimelineEffect::onDragMoved);
-  getDragEndedSignal().connect(*this, &TimelineEffect::onDragEnded);
-
-  timeline.getWindowChangedSignal().connect(*this, &TimelineEffect::onWindowChanged);
-
-  onWindowChanged(timeline);
 }
 
 Effect& TimelineEffect::getEffect(void) const
@@ -92,6 +89,7 @@ void TimelineEffect::render(void) const
   if (renderer->pushClipArea(area))
   {
     renderer->drawFrame(area, getState());
+    renderer->drawText(area, effect.getName());
 
     UI::Widget::render();
 
@@ -99,40 +97,15 @@ void TimelineEffect::render(void) const
   }
 }
 
-void TimelineEffect::onDragBegun(Widget& widget, const Vector2& position)
-{
-  // TODO: Note reference position.
-  // TODO: Detect and enter mode.
-}
-
-void TimelineEffect::onDragMoved(Widget& widget, const Vector2& position)
-{
-  // TODO: Update parameters according to mode.
-}
-
-void TimelineEffect::onDragEnded(Widget& widget, const Vector2& position)
-{
-  // TODO: Exit mode.
-}
-
-void TimelineEffect::onWindowChanged(Timeline& timeline)
-{
-  // TODO: Calculate size and position.
-}
-
 ///////////////////////////////////////////////////////////////////////
 
-Timeline::Timeline(Effect& initRoot):
-  root(NULL),
+Timeline::Timeline(Show& initShow):
+  show(initShow),
+  parent(NULL),
   elapsed(0.0),
   windowStart(0.0),
-  windowDuration(0.0)
+  scale(1.f)
 {
-  getAreaChangedSignal().connect(*this, &Timeline::onAreaChanged);
-
-  view = new UI::View();
-
-  setRootEffect(initRoot);
 }
 
 Time Timeline::getWindowStart(void) const
@@ -146,14 +119,14 @@ void Timeline::setWindowStart(Time newStart)
   windowChangedSignal.emit(*this);
 }
 
-Time Timeline::getWindowDuration(void) const
+float Timeline::getScale(void) const
 {
-  return windowDuration;
+  return scale;
 }
 
-void Timeline::setWindowDuration(Time newDuration)
+void Timeline::setScale(float newScale)
 {
-  windowDuration = newDuration;
+  scale = newScale;
   windowChangedSignal.emit(*this);
 }
 
@@ -167,22 +140,37 @@ void Timeline::setTimeElapsed(Time newTime)
   elapsed = newTime;
 }
 
-void Timeline::setRootEffect(Effect& newEffect)
+void Timeline::render(void) const
 {
-  root = &newEffect;
-}
+  const Show::EffectList& effects = show.getEffects();
 
-SignalProxy1<void, Timeline&> Timeline::getWindowChangedSignal(void)
-{
-  return windowChangedSignal;
-}
+  const Rectangle& area = getGlobalArea();
+      
+  UI::Renderer* renderer = UI::Renderer::get();
+  if (renderer->pushClipArea(area))
+  {
+    render::Font* font = renderer->getDefaultFont();
 
-void Timeline::onAreaChanged(Widget& widget)
-{
-  render::Font* font = UI::Renderer::get()->getDefaultFont();
-  const Vector2& size = getArea().size;
+    const Show::EffectList& effects = show.getEffects();
 
-  view->setSize(Vector2(size.x - font->getWidth() * 15.f, size.y));
+    const float height = font->getHeight() * 2.f;
+
+    for (unsigned int i = 0;  i < effects.size();  i++)
+    {
+      Rectangle effectArea;
+      effectArea.position.set((effects[i]->getStartTime() - windowStart) * font->getWidth() * scale,
+                              area.size.y - (i + 1) * height);
+      effectArea.size.set(effects[i]->getDuration() * font->getWidth() * scale,
+                          height);
+      transformToGlobal(effectArea.position);
+
+      renderer->drawFrame(effectArea, getState());
+    }
+
+    UI::Widget::render();
+
+    renderer->popClipArea();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -208,10 +196,7 @@ bool Editor::init(void)
 {
   show = Show::createInstance();
   if (!show)
-  {
-    Log::writeError("Cannot create show for editor");
     return false;
-  }
 
   GL::Context* context = GL::Context::get();
   context->getRenderSignal().connect(*this, &Editor::onRender);
@@ -233,7 +218,6 @@ bool Editor::init(void)
     upperPanel->addChild(*upperLayout);
 
     canvas = new UI::Canvas();
-    //canvas->setArea(window->getArea());
     canvas->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
     upperLayout->addChild(*canvas, 0.f);
 
@@ -250,9 +234,14 @@ bool Editor::init(void)
     commandLayout->addChild(*button);
 
     button = new UI::Button("Create Effect");
+    button->getPushedSignal().connect(*this, &Editor::onCreateEffect);
     commandLayout->addChild(*button);
 
-    UI::Popup* effectType = new UI::Popup();
+    button = new UI::Button("Destroy Effect");
+    button->getPushedSignal().connect(*this, &Editor::onDestroyEffect);
+    commandLayout->addChild(*button);
+
+    effectType = new UI::Popup();
     commandLayout->addChild(*effectType);
 
     // Build effect type list
@@ -280,12 +269,16 @@ bool Editor::init(void)
     timelineLayout->setBorderSize(3.f);
     timelinePanel->addChild(*timelineLayout);
 
-    UI::Slider* timeSlider = new UI::Slider(UI::HORIZONTAL);
+    timeSlider = new UI::Slider(UI::HORIZONTAL);
+    timeSlider->getValueChangedSignal().connect(*this, &Editor::onTimeSlider);
     timelineLayout->addChild(*timeSlider);
 
     UI::Label* timeDisplay = new UI::Label();
     timeDisplay->setTextAlignment(UI::RIGHT_ALIGNED);
     timelineLayout->addChild(*timeDisplay);
+
+    Timeline* timeline = new Timeline(*show);
+    timelineLayout->addChild(*timeline, 0.f);
   }
 
   timer.start();
@@ -297,9 +290,17 @@ bool Editor::init(void)
 
 bool Editor::onRender(void)
 {
+  Time currentTime = timer.getTime();
+
+  timeSlider->setValue(currentTime);
+
+  show->setTimeElapsed(currentTime);
+  show->prepare();
+
   GL::ScreenCanvas screen;
 
   screen.begin();
+  screen.clearColorBuffer();
   UI::Widget::renderRoots();
   screen.end();
 
@@ -309,6 +310,38 @@ bool Editor::onRender(void)
   canvas->getCanvas().end();
 
   return true;
+}
+
+void Editor::onCreateEffect(UI::Button& button)
+{
+  UI::Item* typeItem = effectType->getItem(effectType->getSelection());
+  if (!typeItem)
+    return;
+
+  EffectType* type = EffectType::findInstance(typeItem->getValue());
+  if (!type)
+    return;
+
+  Effect* effect = type->createEffect();
+  if (!effect)
+    return;
+
+  effect->setDuration(10.0);
+  show->addEffect(*effect);
+
+  timeSlider->setValueRange(0.f, show->getDuration());
+}
+
+void Editor::onDestroyEffect(UI::Button& button)
+{
+  const Show::EffectList& effects = show->getEffects();
+
+  if (!effects.empty())
+  {  
+    Effect* effect = effects.back();
+    show->removeEffect(*effect);
+    delete effect;
+  }
 }
 
 void Editor::onResized(unsigned int width, unsigned int height)
@@ -331,6 +364,30 @@ void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
 	break;
       }
 
+      case GL::Key::LEFT:
+      {
+	timer.setTime(timer.getTime() - 1.0);
+	break;
+      }
+
+      case GL::Key::RIGHT:
+      {
+	timer.setTime(timer.getTime() + 1.0);
+	break;
+      }
+
+      case GL::Key::HOME:
+      {
+	timer.setTime(0.0);
+	break;
+      }
+
+      case GL::Key::END:
+      {
+	timer.setTime(show->getDuration() - 0.01);
+	break;
+      }
+
       case GL::Key::SPACE:
       {
 	if (timer.isPaused())
@@ -341,6 +398,11 @@ void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
       }
     }
   }
+}
+
+void Editor::onTimeSlider(UI::Slider& slider)
+{
+  timer.setTime(slider.getValue());
 }
 
 ///////////////////////////////////////////////////////////////////////

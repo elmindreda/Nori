@@ -271,7 +271,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class ShaderProgram : public Resource<ShaderProgram>
+class ShaderProgram : public Resource<ShaderProgram>,
+                      public RefObject<ShaderProgram>
 {
 public:
   ~ShaderProgram(void);

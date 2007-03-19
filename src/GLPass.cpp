@@ -209,22 +209,15 @@ void Pass::apply(void) const
     // state cache's program name to be valid between calls.  Thus we
     // always force the use of the correct program.
 
-    if (data.shaderProgramName.empty())
+    if (!data.program)
     {
       ShaderProgram::applyFixedFunction();
-      cache.shaderProgramName.clear();
+      cache.program = NULL;
     }
     else
     {
-      ShaderProgram* program = ShaderProgram::findInstance(data.shaderProgramName);
-      if (program)
-      {
-	program->apply();
-	cache.shaderProgramName = data.shaderProgramName;
-      }
-      else
-	Log::writeError("Render pass uses non-existent GLSL program %s",
-	                data.shaderProgramName.c_str());
+      data.program->apply();
+      cache.program = data.program;
     }
   }
 
@@ -241,12 +234,6 @@ void Pass::apply(void) const
 
 bool Pass::isCompatible(void) const
 {
-  if (!GLEW_ARB_shading_language_100)
-  {
-    if (!data.shaderProgramName.empty())
-      return false;
-  }
-
   return TextureStack::isCompatible();
 }
 
@@ -340,9 +327,9 @@ const ColorRGBA& Pass::getSpecularColor(void) const
   return data.specularColor;
 }
 
-const String& Pass::getShaderProgramName(void) const
+ShaderProgram* Pass::getShaderProgram(void) const
 {
-  return data.shaderProgramName;
+  return data.program;
 }
 
 const String& Pass::getName(void) const
@@ -441,9 +428,9 @@ void Pass::setSpecularColor(const ColorRGBA& color)
   data.dirty = true;
 }
 
-void Pass::setShaderProgramName(const String& newName)
+void Pass::setShaderProgram(ShaderProgram* newProgram)
 {
-  data.shaderProgramName = newName;
+  data.program = newProgram;
   data.dirty = true;
 }
 
@@ -499,17 +486,10 @@ void Pass::force(void) const
 
   if (GLEW_ARB_shader_objects)
   {
-    if (data.shaderProgramName.empty())
+    if (!data.program)
       ShaderProgram::applyFixedFunction();
     else
-    {
-      ShaderProgram* program = ShaderProgram::findInstance(data.shaderProgramName);
-      if (program)
-	program->apply();
-      else
-	Log::writeError("Render pass uses non-existent shader program %s",
-			data.shaderProgramName.c_str());
-    }
+      data.program->apply();
   }
 
 #if _DEBUG
@@ -559,7 +539,7 @@ void Pass::Data::setDefaults(void)
   ambientColor.set(0.f, 0.f, 0.f, 1.f);
   diffuseColor.set(1.f, 1.f, 1.f, 1.f);
   specularColor.set(1.f, 1.f, 1.f, 1.f);
-  shaderProgramName.clear();
+  program = NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////

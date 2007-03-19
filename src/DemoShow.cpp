@@ -29,10 +29,13 @@
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLLight.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLPass.h>
 
 #include <wendy/RenderFont.h>
+#include <wendy/RenderStyle.h>
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
@@ -54,19 +57,29 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+void Show::addEffect(Effect& effect)
+{
+  if (std::find(effects.begin(), effects.end(), &effect) == effects.end())
+    effects.push_back(&effect);
+}
+
+void Show::removeEffect(Effect& effect)
+{
+  EffectList::iterator i = std::find(effects.begin(), effects.end(), &effect);
+  if (i != effects.end())
+    effects.erase(i);
+}
+
 void Show::prepare(void) const
 {
-  root->prepare();
+  for (EffectList::const_iterator i = effects.begin();  i != effects.end();  i++)
+    (*i)->prepare();
 }
 
 void Show::render(void) const
 {
-  root->render();
-}
-
-Effect& Show::getRootEffect(void)
-{
-  return *root;
+  for (EffectList::const_iterator i = effects.begin();  i != effects.end();  i++)
+    (*i)->render();
 }
 
 const String& Show::getTitle(void) const
@@ -81,17 +94,30 @@ void Show::setTitle(const String& newTitle)
 
 Time Show::getDuration(void) const
 {
-  return root->getDuration();
+  Time duration = 0.0;
+
+  for (EffectList::const_iterator i = effects.begin();  i != effects.end();  i++)
+    duration = std::max(duration, (*i)->getDuration());
+
+  return duration;
 }
 
 Time Show::getTimeElapsed(void) const
 {
-  return root->getTimeElapsed();
+  return elapsed;
 }
 
 void Show::setTimeElapsed(Time newTime)
 {
-  updateEffect(*root, newTime);
+  elapsed = std::min(newTime, getDuration());
+
+  for (EffectList::const_iterator i = effects.begin();  i != effects.end();  i++)
+    updateEffect(**i, elapsed);
+}
+
+const Show::EffectList& Show::getEffects(void) const
+{
+  return effects;
 }
 
 Show* Show::createInstance(const String& name)
@@ -104,7 +130,8 @@ Show* Show::createInstance(const String& name)
 }
 
 Show::Show(const String& name):
-  Resource<Show>(name)
+  Resource<Show>(name),
+  elapsed(0.0)
 {
 }
 
@@ -119,10 +146,6 @@ bool Show::init(void)
       new EffectTemplate<ClearEffect>("clear");
   }
 
-  root = EffectType::findInstance("null")->createEffect("root");
-  if (!root)
-    return false;
-
   return true;
 }
 
@@ -130,9 +153,6 @@ void Show::updateEffect(Effect& effect, Time newTime)
 {
   Time currentTime = effect.start + effect.elapsed;
   Time deltaTime = newTime - currentTime;
-
-  if (newTime == currentTime)
-    return;
 
   if ((currentTime == effect.start) || (newTime < currentTime))
   {
@@ -165,16 +185,6 @@ void Show::updateEffect(Effect& effect, Time newTime)
   {
     effect.elapsed = newTime - effect.start;
 
-    // TODO: Replay events in proper order (sort them beforehand)
-
-    /*
-    for (Effect::EventList::const_iterator event = effect.events.begin();  event != effect.events.end();  event++)
-    {
-      if ((effect.start + (*event).moment >= currentTime) && (effect.start + (*event).moment < newTime))
-	effect.instance->trigger((*event).moment, (*event).name, (*event).value);
-    }
-    */
-      
     effect.update(deltaTime);
 
     const Effect::List& children = effect.getChildren();
@@ -199,8 +209,8 @@ Show* ShowCodec::read(const Path& path, const String& name)
 
 Show* ShowCodec::read(Stream& stream, const String& name)
 {
-  while (!effectNameStack.empty())
-    effectNameStack.pop();
+  while (!effectStack.empty())
+    effectStack.pop();
 
   if (!Reader::read(stream))
     return NULL;
@@ -255,29 +265,34 @@ bool ShowCodec::onBeginElement(const String& name)
   {
     if (name == "effect")
     {
-      Effect* parent;
+      String typeName = readString("type");
 
-      if (effectNameStack.empty())
-	parent = &(show->getRootEffect());
-      else
-	parent = Effect::findInstance(effectNameStack.top());
+      EffectType* type = EffectType::findInstance(typeName);
+      if (!type)
+      {
+	Log::writeError("Effect type %s does not exist", typeName.c_str());
+	return false;
+      }
 
-      String instanceName = readString("name");
-
-      Effect* effect = parent->createChild(readString("type"), instanceName);
+      Effect* effect = type->createEffect(readString("name"));
       if (!effect)
 	return false;
       
       effect->setStartTime(readFloat("start"));
       effect->setDuration(readFloat("duration"));
 
-      effectNameStack.push(instanceName);
+      if (effectStack.empty())
+	show->addEffect(*effect);
+      else
+	effectStack.top()->addChild(*effect);
+
+      effectStack.push(effect);
       return true;
     }
 
-    if (!effectNameStack.empty())
+    if (!effectStack.empty())
     {
-      Effect* effect = Effect::findInstance(effectNameStack.top());
+      Effect* effect = effectStack.top();
 
       if (name == "parameter")
       {
@@ -313,7 +328,7 @@ bool ShowCodec::onEndElement(const String& name)
   if (show)
   {
     if (name == "effect")
-      effectNameStack.pop();
+      effectStack.pop();
 
     if (name == "parameter")
       currentParameter = NULL;

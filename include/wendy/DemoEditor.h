@@ -37,10 +37,6 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class Timeline;
-
-///////////////////////////////////////////////////////////////////////
-
 class TimelineRuler : public UI::Widget
 {
 };
@@ -50,25 +46,11 @@ class TimelineRuler : public UI::Widget
 class TimelineEffect : public UI::Widget
 {
 public:
-  TimelineEffect(Timeline& timeline, Effect& effect);
+  TimelineEffect(Effect& effect);
   Effect& getEffect(void) const;
 private:
-  enum Mode
-  {
-    NOT_DRAGGING,
-    DRAGGING_POSITION,
-    DRAGGING_START,
-    DRAGGING_DURATION,
-  };
   void render(void) const;
-  void onDragBegun(Widget& widget, const Vector2& position);
-  void onDragMoved(Widget& widget, const Vector2& position);
-  void onDragEnded(Widget& widget, const Vector2& position);
-  void onWindowChanged(Timeline& timeline);
-  Timeline& timeline;
   Effect& effect;
-  Vector2 reference;
-  Mode mode;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -76,25 +58,33 @@ private:
 class Timeline : public UI::Widget
 {
 public:
-  Timeline(Effect& root);
+  Timeline(Show& show);
   Time getWindowStart(void) const;
   void setWindowStart(Time newStart);
-  Time getWindowDuration(void) const;
-  void setWindowDuration(Time newDuration);
+  float getScale(void) const;
+  void setScale(float newScale);
   Time getTimeElapsed(void) const;
   void setTimeElapsed(Time newTime);
-  void setRootEffect(Effect& newEffect);
   SignalProxy1<void, Timeline&> getWindowChangedSignal(void);
 private:
+  enum DragMode
+  {
+    NOT_DRAGGING,
+    DRAGGING_POSITION,
+    DRAGGING_START,
+    DRAGGING_DURATION,
+  };
+  void render(void) const;
   void onAreaChanged(Widget& widget);
   typedef std::vector<TimelineEffect*> EffectList;
   Signal1<void, Timeline&> windowChangedSignal;
-  UI::View* view;
+  Show& show;
   EffectList effects;
-  Effect* root;
+  Effect* parent;
   Time windowStart;
-  Time windowDuration;
+  float scale;
   Time elapsed;
+  DragMode dragMode;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -107,12 +97,17 @@ private:
   Editor(void);
   bool init(void);
   bool onRender(void);
+  void onCreateEffect(UI::Button& button);
+  void onDestroyEffect(UI::Button& button);
   void onResized(unsigned int width, unsigned int height);
   void onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed);
+  void onTimeSlider(UI::Slider& slider);
   Ptr<Show> show;
   Ptr<UI::Window> window;
   UI::Canvas* canvas;
   UI::Widget* commandPanel;
+  UI::Popup* effectType;
+  UI::Slider* timeSlider;
   Timeline* timeline;
   Timer timer;
 };

@@ -81,6 +81,10 @@ bool HUD::init(void)
     return false;
   }
 
+  font = render::Font::readInstance("default");
+  if (!font)
+    return false;
+
   return true;
 }
 

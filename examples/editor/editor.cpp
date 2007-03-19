@@ -11,13 +11,13 @@ namespace
 
 bool setup(void)
 {
-  new demo::EffectTemplate<CubeEffect>("cube");
-
   if (!GL::Renderer::create())
     return false;
 
   if (!UI::Renderer::create())
     return false;
+
+  new demo::EffectTemplate<CubeEffect>("cube");
 
   if (!demo::Editor::create())
     return false;
@@ -38,6 +38,10 @@ bool CubeEffect::init(void)
   if (!cube)
     return false;
 
+  light = new GL::Light();
+  light->setType(GL::Light::DIRECTIONAL);
+  light->setIntensity(ColorRGB::WHITE);
+
   camera.setFOV(60.f);
 
   cameraNode = new render::CameraNode();
@@ -49,26 +53,24 @@ bool CubeEffect::init(void)
   meshNode->setMesh(cube);
   scene.addNode(*meshNode);
 
+  render::LightNode* lightNode = new render::LightNode();
+  lightNode->setLight(light);
+  scene.addNode(*lightNode);
+
   return true;
 }
 
 void CubeEffect::render(void) const
 {
-  GL::ScreenCanvas canvas;
-  canvas.begin();
-
   render::Queue queue(camera);
   scene.enqueue(queue);
-
-  camera.begin();
   queue.render();
-  camera.end();
-
-  canvas.end();
 }
 
 void CubeEffect::update(Time deltaTime)
 {
+  meshNode->getLocalTransform().rotation.setAxisRotation(Vector3(0.f, 1.f, 0.f), getTimeElapsed());
+
   scene.setTimeElapsed(getTimeElapsed());
 }
 
