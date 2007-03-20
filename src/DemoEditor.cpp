@@ -71,17 +71,17 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-TimelineEffect::TimelineEffect(Effect& initEffect):
+TimelineTrack::TimelineTrack(Effect& initEffect):
   effect(initEffect)
 {
 }
 
-Effect& TimelineEffect::getEffect(void) const
+Effect& TimelineTrack::getEffect(void) const
 {
   return effect;
 }
 
-void TimelineEffect::render(void) const
+void TimelineTrack::render(void) const
 {
   const Rectangle& area = getGlobalArea();
 
@@ -140,6 +140,26 @@ void Timeline::setTimeElapsed(Time newTime)
   elapsed = newTime;
 }
 
+Effect* Timeline::getParentEffect(void) const
+{
+  return parent;
+}
+
+void Timeline::setParentEffect(Effect* newEffect)
+{
+  parent = newEffect;
+
+  while (!tracks.empty())
+  {
+    delete tracks.back();
+    tracks.pop_back();
+  }
+}
+
+void Timeline::update(void)
+{
+}
+
 void Timeline::render(void) const
 {
   const Show::EffectList& effects = show.getEffects();
@@ -165,6 +185,7 @@ void Timeline::render(void) const
       transformToGlobal(effectArea.position);
 
       renderer->drawFrame(effectArea, getState());
+      renderer->drawText(effectArea, effects[i]->getName());
     }
 
     UI::Widget::render();

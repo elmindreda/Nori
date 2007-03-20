@@ -43,10 +43,10 @@ class TimelineRuler : public UI::Widget
 
 ///////////////////////////////////////////////////////////////////////
 
-class TimelineEffect : public UI::Widget
+class TimelineTrack : public UI::Widget
 {
 public:
-  TimelineEffect(Effect& effect);
+  TimelineTrack(Effect& effect);
   Effect& getEffect(void) const;
 private:
   void render(void) const;
@@ -65,6 +65,8 @@ public:
   void setScale(float newScale);
   Time getTimeElapsed(void) const;
   void setTimeElapsed(Time newTime);
+  Effect* getParentEffect(void) const;
+  void setParentEffect(Effect* newEffect);
   SignalProxy1<void, Timeline&> getWindowChangedSignal(void);
 private:
   enum DragMode
@@ -74,12 +76,13 @@ private:
     DRAGGING_START,
     DRAGGING_DURATION,
   };
+  void update(void);
   void render(void) const;
   void onAreaChanged(Widget& widget);
-  typedef std::vector<TimelineEffect*> EffectList;
+  typedef std::vector<TimelineTrack*> EffectList;
   Signal1<void, Timeline&> windowChangedSignal;
   Show& show;
-  EffectList effects;
+  EffectList tracks;
   Effect* parent;
   Time windowStart;
   float scale;
