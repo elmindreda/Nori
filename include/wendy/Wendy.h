@@ -130,6 +130,7 @@
 #include <wendy/UIProgress.h>
 #include <wendy/UIButton.h>
 #include <wendy/UISlider.h>
+#include <wendy/UIScroller.h>
 #include <wendy/UIEntry.h>
 #include <wendy/UIItem.h>
 #include <wendy/UIList.h>

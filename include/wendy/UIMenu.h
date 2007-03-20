@@ -54,7 +54,7 @@ public:
   const Item* getItem(unsigned int index) const;
   SignalProxy2<void, Menu&, unsigned int> getItemSelectedSignal(void);
 private:
-  void render(void) const;
+  void draw(void) const;
   void onFocusChanged(Widget& widget, bool activated);
   void onCursorMoved(Widget& widget, const Vector2& position);
   void onButtonClicked(Widget& widget,

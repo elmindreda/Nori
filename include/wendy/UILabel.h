@@ -49,7 +49,7 @@ public:
   const Alignment& getTextAlignment(void) const;
   void setTextAlignment(const Alignment& newAlignment);
 private:
-  void render(void) const;
+  void draw(void) const;
   String text;
   Alignment textAlignment;
 };

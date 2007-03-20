@@ -50,7 +50,7 @@ public:
   SignalProxy1<void, Entry&> getTextChangedSignal(void);
   SignalProxy1<void, Entry&> getCaretMovedSignal(void);
 protected:
-  void render(void) const;
+  void draw(void) const;
 private:
   void onButtonClicked(Widget& widget,
 		       const Vector2& position,

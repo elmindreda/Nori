@@ -101,7 +101,7 @@ SignalProxy1<void, Entry&> Entry::getCaretMovedSignal(void)
   return caretMovedSignal;
 }
 
-void Entry::render(void) const
+void Entry::draw(void) const
 {
   const Rectangle& area = getGlobalArea();
 
@@ -141,7 +141,7 @@ void Entry::render(void) const
       GL::Renderer::get()->drawLine(segment);
     }
 
-    Widget::render();
+    Widget::draw();
 
     renderer->popClipArea();
   }

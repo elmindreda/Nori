@@ -62,7 +62,7 @@ Window::Window(const String& initTitle):
 {
 }
 
-void Window::render(void) const
+void Window::draw(void) const
 {
   const Rectangle& area = getGlobalArea();
 
@@ -71,7 +71,7 @@ void Window::render(void) const
   {
     renderer->drawFrame(area, getState());
 
-    Widget::render();
+    Widget::draw();
 
     renderer->popClipArea();
   }

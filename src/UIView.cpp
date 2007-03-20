@@ -68,14 +68,14 @@ Widget* View::getInner(void) const
   return inner;
 }
 
-void View::render(void) const
+void View::draw(void) const
 {
   const Rectangle& area = getGlobalArea();
 
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
   {
-    Widget::render();
+    Widget::draw();
 
     renderer->popClipArea();
   }

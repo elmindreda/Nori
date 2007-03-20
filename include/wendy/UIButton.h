@@ -47,7 +47,7 @@ public:
   void setText(const String& newText);
   SignalProxy1<void, Button&> getPushedSignal(void);
 protected:
-  void render(void) const;
+  void draw(void) const;
 private:
   void onButtonClicked(Widget& widget,
 		       const Vector2& position,

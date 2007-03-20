@@ -114,7 +114,7 @@ void Progress::setOrientation(Orientation newOrientation)
   orientation = newOrientation;
 }
 
-void Progress::render(void) const
+void Progress::draw(void) const
 {
   const Rectangle& area = getGlobalArea();
 
@@ -144,7 +144,7 @@ void Progress::render(void) const
 
     renderer->drawHandle(handleArea, getState());
 
-    Widget::render();
+    Widget::draw();
 
     renderer->popClipArea();
   }

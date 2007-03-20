@@ -50,11 +50,9 @@ public:
   void setStepSize(float newSize);
   float getValue(void) const;
   void setValue(float newValue);
-  Orientation getOrientation(void) const;
-  void setOrientation(Orientation newOrientation);
   SignalProxy1<void, Slider&> getValueChangedSignal(void);
 protected:
-  void render(void) const;
+  void draw(void) const;
 private:
   void onButtonClicked(Widget& widget,
 		       const Vector2& position,

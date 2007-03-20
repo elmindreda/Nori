@@ -240,6 +240,15 @@ void Widget::sendToBack(void)
   siblings->push_front(this);
 }
 
+void Widget::cancelDragging(void)
+{
+  if (dragging && draggedWidget == this)
+  {
+    draggedWidget = NULL;
+    dragging = false;
+  }
+}
+
 bool Widget::isEnabled(void) const
 {
   return enabled;
@@ -401,25 +410,25 @@ Widget* Widget::getActive(void)
   return activeWidget;
 }
 
-void Widget::renderRoots(void)
+void Widget::drawRoots(void)
 {
   if (!Renderer::get())
   {
-    Log::writeError("Cannot render widgets without a widget renderer");
+    Log::writeError("Cannot draw widgets without a widget renderer");
     return;
   }
 
   GL::Canvas* canvas = GL::Canvas::getCurrent();
   if (!canvas)
   {
-    Log::writeError("Cannot render widgets without a current canvas");
+    Log::writeError("Cannot draw widgets without a current canvas");
     return;
   }
 
   GL::Renderer* renderer = GL::Renderer::get();
   if (!renderer)
   {
-    Log::writeError("Cannot render widgets without a renderer");
+    Log::writeError("Cannot draw widgets without a renderer");
     return;
   }
 
@@ -429,18 +438,18 @@ void Widget::renderRoots(void)
   for (List::iterator i = roots.begin();  i != roots.end();  i++)
   {
     if ((*i)->isVisible())
-      (*i)->render();
+      (*i)->draw();
   }
 
   renderer->end();
 }
 
-void Widget::render(void) const
+void Widget::draw(void) const
 {
   for (List::const_iterator i = children.begin();  i != children.end();  i++)
   {
     if ((*i)->isVisible())
-      (*i)->render();
+      (*i)->draw();
   }
 }
 
@@ -518,8 +527,8 @@ void Widget::onCursorMoved(const Vector2& position)
     {
       // TODO: Add insensitivity.
 
-      draggedWidget->dragBegunSignal.emit(*draggedWidget, cursorPosition);
       dragging = true;
+      draggedWidget->dragBegunSignal.emit(*draggedWidget, cursorPosition);
     }
   }
 }

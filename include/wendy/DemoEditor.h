@@ -49,7 +49,7 @@ public:
   TimelineTrack(Effect& effect);
   Effect& getEffect(void) const;
 private:
-  void render(void) const;
+  void draw(void) const;
   Effect& effect;
 };
 
@@ -77,7 +77,7 @@ private:
     DRAGGING_DURATION,
   };
   void update(void);
-  void render(void) const;
+  void draw(void) const;
   void onAreaChanged(Widget& widget);
   typedef std::vector<TimelineTrack*> EffectList;
   Signal1<void, Timeline&> windowChangedSignal;

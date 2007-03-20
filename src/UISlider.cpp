@@ -122,22 +122,12 @@ void Slider::setStepSize(float newSize)
   stepSize = std::max(newSize, 0.f);
 }
 
-Orientation Slider::getOrientation(void) const
-{
-  return orientation;
-}
-
-void Slider::setOrientation(Orientation newOrientation)
-{
-  orientation = newOrientation;
-}
-
 SignalProxy1<void, Slider&> Slider::getValueChangedSignal(void)
 {
   return valueChangedSignal;
 }
 
-void Slider::render(void) const
+void Slider::draw(void) const
 {
   const Rectangle& area = getGlobalArea();
 
@@ -169,7 +159,7 @@ void Slider::render(void) const
 
     renderer->drawHandle(handleArea, getState());
 
-    Widget::render();
+    Widget::draw();
 
     renderer->popClipArea();
   }

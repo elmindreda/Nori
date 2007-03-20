@@ -69,9 +69,14 @@ bool Widgets::init(void)
   UI::Slider* slider = new UI::Slider();
   slider->setArea(Rectangle(10, 400, 400, 20));
   slider->setValueRange(0.f, 100.f);
-  slider->setOrientation(UI::HORIZONTAL);
   slider->getValueChangedSignal().connect(*this, &Widgets::onValueChanged);
   window->addChild(*slider);
+
+  UI::Scroller* scroller = new UI::Scroller();
+  scroller->setArea(Rectangle(10, 430, 400, 20));
+  scroller->setValueRange(0.f, 100.f);
+  scroller->setPercentage(0.25f);
+  window->addChild(*scroller);
 
   const char* names[] = { "Space", "Terrible secret", "Stairs", "House" };
 
@@ -92,7 +97,7 @@ void Widgets::render(void)
   canvas.begin();
   canvas.clearColorBuffer(ColorRGBA::WHITE);
 
-  UI::Widget::renderRoots();
+  UI::Widget::drawRoots();
 
   canvas.end();
 }

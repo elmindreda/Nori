@@ -96,7 +96,7 @@ void Item::setValue(const String& newValue)
   value = newValue;
 }
 
-void Item::render(const Rectangle& area, bool selected) const
+void Item::draw(const Rectangle& area, bool selected) const
 {
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))

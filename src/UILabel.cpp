@@ -107,7 +107,7 @@ void Label::setTextAlignment(const Alignment& newAlignment)
   textAlignment = newAlignment;
 }
 
-void Label::render(void) const
+void Label::draw(void) const
 {
   const Rectangle& area = getGlobalArea();
 
@@ -116,7 +116,7 @@ void Label::render(void) const
   {
     renderer->drawText(area, text, textAlignment);
 
-    Widget::render();
+    Widget::draw();
 
     renderer->popClipArea();
   }

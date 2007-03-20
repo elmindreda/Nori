@@ -159,7 +159,7 @@ SignalProxy2<void, Menu&, unsigned int> Menu::getItemSelectedSignal(void)
   return itemSelectedSignal;
 }
 
-void Menu::render(void) const
+void Menu::draw(void) const
 {
   const Rectangle& area = getGlobalArea();
 
@@ -182,13 +182,13 @@ void Menu::render(void) const
       itemArea.position.y += itemTop - height;
       itemArea.size.y = height;
 
-      (*i)->render(itemArea, index == selection);
+      (*i)->draw(itemArea, index == selection);
 
       itemTop -= height;
       index++;
     }
 
-    Widget::render();
+    Widget::draw();
 
     renderer->popClipArea();
   }

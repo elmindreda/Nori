@@ -48,24 +48,28 @@ public:
   void setValueRange(float newMinValue, float newMaxValue);
   float getValue(void) const;
   void setValue(float newValue);
-  Orientation getOrientation(void) const;
-  void setOrientation(Orientation newOrientation);
-  SignalProxy2<void, Slider&, float> getValueChangedSignal(void);
+  float getPercentage(void) const;
+  void setPercentage(float newPercentage);
+  SignalProxy1<void, Scroller&> getValueChangedSignal(void);
 protected:
-  void render(void) const;
+  void draw(void) const;
 private:
   void onButtonClicked(Widget& widget,
 		       const Vector2& position,
 		       unsigned int button,
 		       bool clicked);
   void onKeyPressed(Widget& widget, GL::Key key, bool pressed);
+  void onWheelTurned(Widget& widget, int offset);
+  void onDragBegun(Widget& widget, const Vector2& position);
   void onDragMoved(Widget& widget, const Vector2& position);
-  void setValue(const Vector2& position);
   void setValue(float newValue, bool notify);
-  Signal2<void, Slider&, float> valueChangedSignal;
+  float getHandleSize(void) const;
+  Signal1<void, Scroller&> valueChangedSignal;
   float minValue;
   float maxValue;
   float value;
+  float percentage;
+  float reference;
   Orientation orientation;
 };
 

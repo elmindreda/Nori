@@ -46,7 +46,7 @@ public:
   const String& getTitle(void) const;
   void setTitle(const String& newTitle);
 private:
-  void render(void) const;  
+  void draw(void) const;  
   String title;
 };
 

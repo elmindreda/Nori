@@ -40,7 +40,7 @@ using namespace moira;
 class HUD : public Singleton<HUD>
 {
 public:
-  void render(void) const;
+  void draw(void) const;
   static bool create(void);
 private:
   HUD(void);

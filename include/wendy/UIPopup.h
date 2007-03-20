@@ -53,7 +53,7 @@ public:
   const Item* getItem(unsigned int index) const;
   SignalProxy2<void, Popup&, unsigned int> getItemSelectedSignal(void);
 protected:
-  void render(void) const;
+  void draw(void) const;
 private:
   void display(void);
   void onButtonClicked(Widget& widget,

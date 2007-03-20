@@ -40,14 +40,14 @@ using namespace moira;
 /*! @defgroup ui User interface API
  *
  *  These classes provide a simple 2D graphical user interface (GUI). The
- *  rendering is layered on top of the OpenGL renderer and using the input
- *  functionality of the context singleton, so they environment must be set
- *  up before the user interface can be rendered.
+ *  drawing is layered on top of the OpenGL renderer and using the input
+ *  functionality of the context singleton, so the environment must be set
+ *  up before the user interface can be drawn.
  *
  *  The user interface classes make heavy use of signals, and its design is in
  *  many ways similar to the gtkmm library. One notable difference is that,
  *  since we are working on top of OpenGL, usually together with 3D rendering,
- *  we need to re-render the entire interface each frame.
+ *  we need to redraw the entire interface each frame.
  */
 
 ///////////////////////////////////////////////////////////////////////
@@ -121,6 +121,7 @@ public:
   /*! Makes this the bottom-most widget.
    */
   void sendToBack(void);
+  void cancelDragging(void);
   /*! @return @c true if this widget is enabled, otherwise @c false.
    */
   bool isEnabled(void) const;
@@ -186,13 +187,13 @@ public:
   /*! @return The active widget, or @c NULL if no widget is active.
    */
   static Widget* getActive(void);
-  /*! Renders all root level widgets.
+  /*! Draws all root level widgets.
    */
-  static void renderRoots(void);
+  static void drawRoots(void);
 protected:
-  /*! Calls Widget::render for all children of this widget.
+  /*! Calls Widget::draw for all children of this widget.
    */
-  virtual void render(void) const;
+  virtual void draw(void) const;
   virtual void addedChild(Widget& child);
   virtual void removedChild(Widget& child);
   virtual void addedToParent(Widget& parent);

@@ -123,7 +123,7 @@ SignalProxy2<void, Popup&, unsigned int> Popup::getItemSelectedSignal(void)
   return itemSelectedSignal;
 }
 
-void Popup::render(void) const
+void Popup::draw(void) const
 {
   const Rectangle& area = getGlobalArea();
 
@@ -145,7 +145,7 @@ void Popup::render(void) const
       renderer->drawText(textArea, item->getValue(), LEFT_ALIGNED);
     }
 
-    Widget::render();
+    Widget::draw();
 
     renderer->popClipArea();
   }

@@ -34,6 +34,8 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLLight.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
 
@@ -54,7 +56,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-void HUD::render(void) const
+void HUD::draw(void) const
 {
   // TODO: Implement.
 }

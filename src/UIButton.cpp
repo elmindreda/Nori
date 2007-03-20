@@ -90,7 +90,7 @@ SignalProxy1<void, Button&> Button::getPushedSignal(void)
   return pushedSignal;
 }
 
-void Button::render(void) const
+void Button::draw(void) const
 {
   const Rectangle& area = getGlobalArea();
 
@@ -99,7 +99,7 @@ void Button::render(void) const
   {
     Renderer::get()->drawButton(area, getState(), text);
 
-    Widget::render();
+    Widget::draw();
 
     renderer->popClipArea();
   }

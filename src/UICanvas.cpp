@@ -68,7 +68,7 @@ GL::Canvas& Canvas::getCanvas(void)
   return canvas;
 }
 
-void Canvas::render(void) const
+void Canvas::draw(void) const
 {
 }
 

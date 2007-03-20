@@ -81,7 +81,7 @@ Effect& TimelineTrack::getEffect(void) const
   return effect;
 }
 
-void TimelineTrack::render(void) const
+void TimelineTrack::draw(void) const
 {
   const Rectangle& area = getGlobalArea();
 
@@ -91,7 +91,7 @@ void TimelineTrack::render(void) const
     renderer->drawFrame(area, getState());
     renderer->drawText(area, effect.getName());
 
-    UI::Widget::render();
+    UI::Widget::draw();
 
     renderer->popClipArea();
   }
@@ -160,7 +160,7 @@ void Timeline::update(void)
 {
 }
 
-void Timeline::render(void) const
+void Timeline::draw(void) const
 {
   const Show::EffectList& effects = show.getEffects();
 
@@ -188,7 +188,7 @@ void Timeline::render(void) const
       renderer->drawText(effectArea, effects[i]->getName());
     }
 
-    UI::Widget::render();
+    UI::Widget::draw();
 
     renderer->popClipArea();
   }
@@ -322,7 +322,7 @@ bool Editor::onRender(void)
 
   screen.begin();
   screen.clearColorBuffer();
-  UI::Widget::renderRoots();
+  UI::Widget::drawRoots();
   screen.end();
 
   canvas->getCanvas().begin();

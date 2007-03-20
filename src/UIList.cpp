@@ -207,7 +207,7 @@ SignalProxy1<void, List&> List::getSelectionChangedSignal(void)
   return selectionChangedSignal;
 }
 
-void List::render(void) const
+void List::draw(void) const
 {
   const Rectangle& area = getGlobalArea();
 
@@ -230,12 +230,12 @@ void List::render(void) const
       itemArea.position.y += start - height;
       itemArea.size.y = height;
 
-      item.render(itemArea, i == selection);
+      item.draw(itemArea, i == selection);
 
       start -= height;
     }
 
-    Widget::render();
+    Widget::draw();
 
     renderer->popClipArea();
   }

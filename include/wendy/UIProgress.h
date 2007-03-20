@@ -51,7 +51,7 @@ public:
   Orientation getOrientation(void) const;
   void setOrientation(Orientation newOrientation);
 private:
-  void render(void) const;
+  void draw(void) const;
   float minValue;
   float maxValue;
   float value;

@@ -45,7 +45,7 @@ public:
   Canvas(void);
   GL::Canvas& getCanvas(void);
 protected:
-  void render(void) const;
+  void draw(void) const;
 private:
   void onAreaChanged(Widget& widget);
   GL::ScreenCanvas canvas;

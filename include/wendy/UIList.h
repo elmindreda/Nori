@@ -60,7 +60,7 @@ public:
   const Item* getItem(unsigned int index) const;
   SignalProxy1<void, List&> getSelectionChangedSignal(void);
 protected:
-  void render(void) const;
+  void draw(void) const;
 private:
   void onButtonClicked(Widget& widget,
 		       const Vector2& position,

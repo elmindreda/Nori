@@ -45,7 +45,7 @@ public:
   View(void);
   Widget* getInner(void) const;
 private:
-  void render(void) const;
+  void draw(void) const;
   Widget* inner;
 };
 
