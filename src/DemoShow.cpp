@@ -139,11 +139,17 @@ bool Show::init(void)
 {
   // Create built-in effect types
   {
-    if (!EffectType::findInstance("null"))
-      new EffectTemplate<NullEffect>("null");
+    String name;
 
-    if (!EffectType::findInstance("clear"))
-      new EffectTemplate<ClearEffect>("clear");
+    name = "Null effect";
+
+    if (!EffectType::findInstance(name))
+      new EffectTemplate<NullEffect>(name);
+
+    name = "Clear screen";
+
+    if (!EffectType::findInstance(name))
+      new EffectTemplate<ClearEffect>(name);
   }
 
   return true;

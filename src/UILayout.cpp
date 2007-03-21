@@ -57,10 +57,13 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Layout::Layout(Orientation initOrientation):
+Layout::Layout(Orientation initOrientation, bool initExpanding):
   orientation(initOrientation),
+  expanding(initExpanding),
   borderSize(1.f)
 {
+  if (!expanding)
+    getAreaChangedSignal().connect(*this, &Layout::onAreaChanged);
 }
 
 void Layout::addChild(Widget& child)
@@ -72,6 +75,11 @@ void Layout::addChild(Widget& child, float size)
 {
   Widget::addChild(child);
   sizes[&child] = size;
+}
+
+bool Layout::isExpanding(void) const
+{
+  return expanding;
 }
 
 Orientation Layout::getOrientation(void) const
@@ -124,18 +132,24 @@ void Layout::removedChild(Widget& child)
 
 void Layout::addedToParent(Widget& parent)
 {
-  parentAreaSlot = parent.getAreaChangedSignal().connect(*this, &Layout::onAreaChanged);
-  onAreaChanged(parent);
+  if (expanding)
+  {
+    parentAreaSlot = parent.getAreaChangedSignal().connect(*this, &Layout::onAreaChanged);
+    onAreaChanged(parent);
+  }
 }
 
 void Layout::removedFromParent(Widget& parent)
 {
-  parentAreaSlot = NULL;
+  if (expanding)
+    parentAreaSlot = NULL;
 }
 
-void Layout::onAreaChanged(Widget& parent)
+void Layout::onAreaChanged(Widget& widget)
 {
-  setArea(Rectangle(Vector2::ZERO, parent.getArea().size));
+  if (expanding)
+    setArea(Rectangle(Vector2::ZERO, widget.getArea().size));
+
   update();
 }
 

@@ -137,27 +137,30 @@ void Scroller::draw(void) const
   {
     renderer->drawFrame(area, getState());
 
-    const float size = getHandleSize();
-    const float scale = (value - minValue) / (maxValue - minValue);
-
-    Rectangle handleArea;
-
-    if (orientation == HORIZONTAL)
+    if (minValue != maxValue)
     {
-      handleArea.set(area.position.x + scale * (area.size.x - size),
-		     area.position.y,
-		     size,
-		     area.size.y);
-    }
-    else
-    {
-      handleArea.set(area.position.x,
-		     area.position.y + scale * (area.size.y - size),
-		     area.size.x,
-		     size);
-    }
+      const float size = getHandleSize();
+      const float offset = getHandleOffset();
 
-    renderer->drawHandle(handleArea, getState());
+      Rectangle handleArea;
+
+      if (orientation == HORIZONTAL)
+      {
+	handleArea.set(area.position.x + offset,
+		       area.position.y,
+		       size,
+		       area.size.y);
+      }
+      else
+      {
+	handleArea.set(area.position.x,
+		       area.position.y + area.size.y - offset - size,
+		       area.size.x,
+		       size);
+      }
+
+      renderer->drawHandle(handleArea, getState());
+    }
 
     Widget::draw();
 
@@ -173,53 +176,50 @@ void Scroller::onButtonClicked(Widget& widget,
   if (!clicked)
     return;
 
+  if (minValue == maxValue)
+    return;
+
   Vector2 localPoint = transformToLocal(point);
 
-  const Rectangle& area = getArea();
-
   const float size = getHandleSize();
-  const float scale = (value - minValue) / (maxValue - minValue);
-  const float stepScale = percentage / (1.f - percentage);
+  const float offset = getHandleOffset();
 
   if (orientation == HORIZONTAL)
   {
-    const float offset = (area.size.x - size) * scale;
-
     if (localPoint.x < offset)
-      setValue(value - (maxValue - minValue) * stepScale, true);
+      setValue(value - getValueStep(), true);
     else if (localPoint.x >= offset + size)
-      setValue(value + (maxValue - minValue) * stepScale, true);
+      setValue(value + getValueStep(), true);
   }
   else
   {
-    const float offset = (area.size.y - size) * scale;
-
-    if (localPoint.y < offset)
-      setValue(value - (maxValue - minValue) * stepScale, true);
-    else if (localPoint.y >= offset + size)
-      setValue(value + (maxValue - minValue) * stepScale, true);
+    if (localPoint.y > getArea().size.y - offset)
+      setValue(value - getValueStep(), true);
+    else if (localPoint.y <= getArea().size.y - offset - size)
+      setValue(value + getValueStep(), true);
   }
 }
 
 void Scroller::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
 {
+  if (minValue == maxValue)
+    return;
+
   if (pressed)
   {
     switch (key)
     {
-      case GL::Key::UP:
+      case GL::Key::DOWN:
       case GL::Key::RIGHT:
       {
-	const float stepScale = percentage / (1.f - percentage);
-	setValue(value + (maxValue - minValue) * stepScale, true);
+	setValue(value + getValueStep(), true);
 	break;
       }
 
-      case GL::Key::DOWN:
+      case GL::Key::UP:
       case GL::Key::LEFT:
       {
-	const float stepScale = percentage / (1.f - percentage);
-	setValue(value - (maxValue - minValue) * stepScale, true);
+	setValue(value - getValueStep(), true);
 	break;
       }
 
@@ -240,23 +240,26 @@ void Scroller::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
 
 void Scroller::onWheelTurned(Widget& widget, int offset)
 {
-  const float stepScale = percentage / (1.f - percentage);
-  setValue(value + offset * (maxValue - minValue) * stepScale, true);
+  if (minValue == maxValue)
+    return;
+
+  setValue(value + offset * getValueStep(), true);
 }
 
 void Scroller::onDragBegun(Widget& widget, const Vector2& point)
 {
+  if (minValue == maxValue)
+    return;
+
   Vector2 localPoint = transformToLocal(point);
 
   const Rectangle& area = getArea();
 
   const float size = getHandleSize();
-  const float scale = (value - minValue) / (maxValue - minValue);
+  const float offset = getHandleOffset();
 
   if (orientation == HORIZONTAL)
   {
-    const float offset = (area.size.x - size) * scale;
-
     if (localPoint.x >= offset && localPoint.x < offset + size)
       reference = localPoint.x - offset;
     else
@@ -264,10 +267,9 @@ void Scroller::onDragBegun(Widget& widget, const Vector2& point)
   }
   else
   {
-    const float offset = (area.size.y - size) * scale;
-
-    if (localPoint.y >= offset && localPoint.y < offset + size)
-      reference = localPoint.y - offset;
+    if (localPoint.y <= area.size.y - offset &&
+        localPoint.y > area.size.y - offset - size)
+      reference = area.size.y - localPoint.y - offset;
     else
       cancelDragging();
   }
@@ -275,6 +277,9 @@ void Scroller::onDragBegun(Widget& widget, const Vector2& point)
 
 void Scroller::onDragMoved(Widget& widget, const Vector2& point)
 {
+  if (minValue == maxValue)
+    return;
+
   Vector2 localPoint = transformToLocal(point);
 
   const Rectangle& area = getArea();
@@ -286,7 +291,7 @@ void Scroller::onDragMoved(Widget& widget, const Vector2& point)
   if (orientation == HORIZONTAL)
     scale = (localPoint.x - reference) / (area.size.x - size);
   else
-    scale = (localPoint.y - reference) / (area.size.y - size);
+    scale = (area.size.y - localPoint.y - reference) / (area.size.y - size);
 
   setValue(minValue + (maxValue - minValue) * scale, true);
 }
@@ -315,6 +320,21 @@ float Scroller::getHandleSize(void) const
     return std::max(getArea().size.x * percentage, font->getWidth());
   else
     return std::max(getArea().size.y * percentage, font->getHeight());
+}
+
+float Scroller::getHandleOffset(void) const
+{
+  const float scale = (value - minValue) / (maxValue - minValue);
+
+  if (orientation == HORIZONTAL)
+    return (getArea().size.x - getHandleSize()) * scale;
+  else
+    return (getArea().size.y - getHandleSize()) * scale;
+}
+
+float Scroller::getValueStep(void) const
+{
+  return (maxValue - minValue) * percentage / (1.f - percentage);
 }
 
 ///////////////////////////////////////////////////////////////////////

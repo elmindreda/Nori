@@ -44,8 +44,8 @@ class List : public Widget
 public:
   List(void);
   ~List(void);
-  void insertItem(Item* item, unsigned int index);
-  void destroyItem(Item* item);
+  void addItem(Item& item);
+  void removeItem(Item& item);
   void destroyItems(void);
   void sortItems(void);
   bool isItemVisible(const Item* item) const;
@@ -62,17 +62,22 @@ public:
 protected:
   void draw(void) const;
 private:
+  void onAreaChanged(Widget& widget);
   void onButtonClicked(Widget& widget,
 		       const Vector2& position,
 		       unsigned int button,
 		       bool clicked);
   void onKeyPressed(Widget& widget, GL::Key key, bool pressed);
   void onWheelTurned(Widget& widget, int wheelOffset);
+  void onValueChanged(Scroller& scroller);
+  void updateScroller(void);
+  unsigned int getVisibleItemCount(void) const;
   void setSelection(unsigned int newIndex, bool notify);
   Signal1<void, List&> selectionChangedSignal;
   ItemList items;
   unsigned int offset;
   unsigned int selection;
+  Scroller* scroller;
 };
 
 ///////////////////////////////////////////////////////////////////////

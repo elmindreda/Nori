@@ -95,6 +95,8 @@ private:
 class Editor : public Singleton<Editor>, public Trackable
 {
 public:
+  bool isVisible(void) const;
+  void setVisible(bool newState);
   static bool create(void);
 private:
   Editor(void);
@@ -103,13 +105,15 @@ private:
   void onCreateEffect(UI::Button& button);
   void onDestroyEffect(UI::Button& button);
   void onResized(unsigned int width, unsigned int height);
+  void onKeyPressed(GL::Key key, bool pressed);
   void onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed);
   void onTimeSlider(UI::Slider& slider);
+  bool visible;
   Ptr<Show> show;
   Ptr<UI::Window> window;
   UI::Canvas* canvas;
   UI::Widget* commandPanel;
-  UI::Popup* effectType;
+  UI::List* effectType;
   UI::Slider* timeSlider;
   Timeline* timeline;
   Timer timer;

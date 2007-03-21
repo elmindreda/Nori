@@ -43,6 +43,7 @@ class Scroller : public Widget
 {
 public:
   Scroller(Orientation orientation = HORIZONTAL);
+  Orientation getOrientation(void) const;
   float getMinValue(void) const;
   float getMaxValue(void) const;
   void setValueRange(float newMinValue, float newMaxValue);
@@ -64,6 +65,8 @@ private:
   void onDragMoved(Widget& widget, const Vector2& position);
   void setValue(float newValue, bool notify);
   float getHandleSize(void) const;
+  float getHandleOffset(void) const;
+  float getValueStep(void) const;
   Signal1<void, Scroller&> valueChangedSignal;
   float minValue;
   float maxValue;

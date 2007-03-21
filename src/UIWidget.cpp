@@ -199,7 +199,7 @@ void Widget::hide(void)
 
 void Widget::activate(void)
 {
-  if (!isEnabled())
+  if (!isVisible() || !isEnabled())
     return;
 
   if (activeWidget == this)
@@ -251,12 +251,24 @@ void Widget::cancelDragging(void)
 
 bool Widget::isEnabled(void) const
 {
-  return enabled;
+  if (!enabled)
+    return false;
+
+  if (parent)
+    return parent->isEnabled();
+
+  return true;
 }
 
 bool Widget::isVisible(void) const
 {
-  return visible;
+  if (!visible)
+    return false;
+
+  if (parent)
+    return parent->isVisible();
+
+  return true;
 }
 
 bool Widget::isActive(void) const

@@ -26,6 +26,7 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
+
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLLight.h>
@@ -45,13 +46,13 @@
 #include <wendy/UIWindow.h>
 #include <wendy/UIView.h>
 #include <wendy/UICanvas.h>
+#include <wendy/UIScroller.h>
 #include <wendy/UISlider.h>
 #include <wendy/UILayout.h>
 #include <wendy/UIButton.h>
 #include <wendy/UILabel.h>
 #include <wendy/UIItem.h>
-#include <wendy/UIMenu.h>
-#include <wendy/UIPopup.h>
+#include <wendy/UIList.h>
 
 #include <wendy/DemoParameter.h>
 #include <wendy/DemoEffect.h>
@@ -196,6 +197,29 @@ void Timeline::draw(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
+bool Editor::isVisible(void) const
+{
+  return visible;
+}
+
+void Editor::setVisible(bool newState)
+{
+  visible = newState;
+
+  GL::Context* context = GL::Context::get();
+
+  if (visible)
+  {
+    window->show();
+    context->setTitle(show->getTitle() + " - Wendy Editor");
+  }
+  else
+  {
+    window->hide();
+    context->setTitle(show->getTitle());
+  }
+}
+
 bool Editor::create(void)
 {
   if (get())
@@ -209,7 +233,8 @@ bool Editor::create(void)
   return true;
 }
 
-Editor::Editor(void)
+Editor::Editor(void):
+  visible(false)
 {
 }
 
@@ -219,9 +244,12 @@ bool Editor::init(void)
   if (!show)
     return false;
 
+  show->setTitle("Demo");
+
   GL::Context* context = GL::Context::get();
   context->getRenderSignal().connect(*this, &Editor::onRender);
   context->getResizedSignal().connect(*this, &Editor::onResized);
+  context->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
 
   window = new UI::Window();
   window->setArea(Rectangle(0, 0, context->getWidth(), context->getHeight()));
@@ -231,23 +259,21 @@ bool Editor::init(void)
 
   // Upper half
   {
-    UI::Widget* upperPanel = new UI::Widget();
-    mainLayout->addChild(*upperPanel, 0.f);
-
-    UI::Layout* upperLayout = new UI::Layout(UI::HORIZONTAL);
+    UI::Layout* upperLayout = new UI::Layout(UI::HORIZONTAL, false);
     upperLayout->setBorderSize(3.f);
-    upperPanel->addChild(*upperLayout);
+    mainLayout->addChild(*upperLayout, 0.f);
 
     canvas = new UI::Canvas();
     canvas->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
     upperLayout->addChild(*canvas, 0.f);
 
-    commandPanel = new UI::Widget();
-    upperLayout->addChild(*commandPanel, 0.f);
+    UI::Layout* controlLayout = new UI::Layout(UI::HORIZONTAL, false);
+    controlLayout->setBorderSize(0.f);
+    upperLayout->addChild(*controlLayout, 0.f);
 
-    UI::Layout* commandLayout = new UI::Layout(UI::VERTICAL);
+    UI::Layout* commandLayout = new UI::Layout(UI::VERTICAL, false);
     commandLayout->setBorderSize(3.f);
-    commandPanel->addChild(*commandLayout);
+    controlLayout->addChild(*commandLayout, 0.f);
 
     UI::Button* button;
     
@@ -262,8 +288,8 @@ bool Editor::init(void)
     button->getPushedSignal().connect(*this, &Editor::onDestroyEffect);
     commandLayout->addChild(*button);
 
-    effectType = new UI::Popup();
-    commandLayout->addChild(*effectType);
+    effectType = new UI::List();
+    controlLayout->addChild(*effectType, 0.f);
 
     // Build effect type list
     {
@@ -277,18 +303,18 @@ bool Editor::init(void)
       }
 
       for (unsigned int i = 0;  i < instances.size();  i++)
-	effectType->addItem(*new UI::Item(instances[i]->getName()));
+      {
+	UI::Item* item = new UI::Item(instances[i]->getName());
+	effectType->addItem(*item);
+      }
     }
   }
 
   // Lower half
   {
-    UI::Widget* timelinePanel = new UI::Widget();
-    mainLayout->addChild(*timelinePanel, 0.f);
-
-    UI::Layout* timelineLayout = new UI::Layout(UI::VERTICAL);
+    UI::Layout* timelineLayout = new UI::Layout(UI::VERTICAL, false);
     timelineLayout->setBorderSize(3.f);
-    timelinePanel->addChild(*timelineLayout);
+    mainLayout->addChild(*timelineLayout, 0.f);
 
     timeSlider = new UI::Slider(UI::HORIZONTAL);
     timeSlider->getValueChangedSignal().connect(*this, &Editor::onTimeSlider);
@@ -306,6 +332,7 @@ bool Editor::init(void)
   timer.pause();
   timer.setTime(0.0);
 
+  setVisible(false);
   return true;
 }
 
@@ -320,15 +347,23 @@ bool Editor::onRender(void)
 
   GL::ScreenCanvas screen;
 
-  screen.begin();
-  screen.clearColorBuffer();
-  UI::Widget::drawRoots();
-  screen.end();
+  if (visible)
+  {
+    screen.begin();
+    screen.clearColorBuffer();
+    UI::Widget::drawRoots();
+    screen.end();
 
-  canvas->getCanvas().begin();
-  canvas->getCanvas().clearColorBuffer(ColorRGBA::BLACK);
-  show->render();
-  canvas->getCanvas().end();
+    canvas->getCanvas().begin();
+    show->render();
+    canvas->getCanvas().end();
+  }
+  else
+  {
+    screen.begin();
+    show->render();
+    screen.end();
+  }
 
   return true;
 }
@@ -370,6 +405,21 @@ void Editor::onResized(unsigned int width, unsigned int height)
   window->setSize(Vector2(width, height));
 }
 
+void Editor::onKeyPressed(GL::Key key, bool pressed)
+{
+  if (!pressed)
+    return;
+
+  switch (key)
+  {
+    case GL::Key::TAB:
+    {
+      setVisible(!visible);
+      break;
+    }
+  }
+}
+
 void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
 {
   if (&widget == canvas)
@@ -379,11 +429,13 @@ void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
 
     switch (key)
     {
-      case GL::Key::ESCAPE:
+      /*
+      case GL::Key::TAB:
       {
-	// TODO: Toggle editor mode.
+	setVisible(false);
 	break;
       }
+      */
 
       case GL::Key::LEFT:
       {

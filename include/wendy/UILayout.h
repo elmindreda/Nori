@@ -42,9 +42,10 @@ using namespace moira;
 class Layout : public Widget
 {
 public:
-  Layout(Orientation orientation);
+  Layout(Orientation orientation, bool expanding = true);
   void addChild(Widget& child);
   void addChild(Widget& child, float size);
+  bool isExpanding(void) const;
   Orientation getOrientation(void) const;
   float getBorderSize(void) const;
   void setBorderSize(float newSize);
@@ -59,6 +60,7 @@ protected:
 private:
   typedef std::map<Widget*, float> SizeMap;
   void update(void);
+  bool expanding;
   SizeMap sizes;
   float borderSize;
   Orientation orientation;

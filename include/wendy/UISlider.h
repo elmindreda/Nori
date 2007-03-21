@@ -43,6 +43,7 @@ class Slider : public Widget
 {
 public:
   Slider(Orientation orientation = HORIZONTAL);
+  Orientation getOrientation(void) const;
   float getMinValue(void) const;
   float getMaxValue(void) const;
   void setValueRange(float newMinValue, float newMaxValue);

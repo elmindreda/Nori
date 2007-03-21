@@ -42,6 +42,7 @@
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
+#include <wendy/UIScroller.h>
 #include <wendy/UIItem.h>
 #include <wendy/UIList.h>
 
@@ -80,9 +81,19 @@ List::List(void):
   offset(0),
   selection(0)
 {
+  getAreaChangedSignal().connect(*this, &List::onAreaChanged);
   getButtonClickedSignal().connect(*this, &List::onButtonClicked);
   getKeyPressedSignal().connect(*this, &List::onKeyPressed);
   getWheelTurnedSignal().connect(*this, &List::onWheelTurned);
+
+  scroller = new Scroller(VERTICAL);
+  scroller->setValueRange(0.f, 1.f);
+  scroller->setPercentage(1.f);
+  scroller->getValueChangedSignal().connect(*this, &List::onValueChanged);
+  addChild(*scroller);
+
+  onAreaChanged(*this);
+  updateScroller();
 }
 
 List::~List(void)
@@ -90,25 +101,22 @@ List::~List(void)
   destroyItems();
 }
 
-void List::insertItem(Item* item, unsigned int index)
+void List::addItem(Item& item)
 {
-  ItemList::iterator i = std::find(items.begin(), items.end(), item);
+  ItemList::iterator i = std::find(items.begin(), items.end(), &item);
   if (i != items.end())
     return;
 
-  ItemList::iterator p = items.begin();
-  std::advance(p, index);
-  items.insert(p, item);
+  items.push_back(&item);
+  updateScroller();
 }
 
-void List::destroyItem(Item* item)
+void List::removeItem(Item& item)
 {
-  ItemList::iterator i = std::find(items.begin(), items.end(), item);
+  ItemList::iterator i = std::find(items.begin(), items.end(), &item);
   if (i != items.end())
   {
-    delete *i;
     items.erase(i);
-
     setOffset(offset);
   }
 }
@@ -116,13 +124,20 @@ void List::destroyItem(Item* item)
 void List::destroyItems(void)
 {
   while (!items.empty())
-    destroyItem(items.front());
+  {
+    delete items.back();
+    items.pop_back();
+  }
+
+  updateScroller();
 }
 
 void List::sortItems(void)
 {
   ItemComparator comparator;
   std::sort(items.begin(), items.end(), comparator);
+
+  updateScroller();
 }
 
 bool List::isItemVisible(const Item* item) const
@@ -161,6 +176,8 @@ void List::setOffset(unsigned int newOffset)
     return;
 
   offset = std::min(newOffset, (unsigned int) items.size() - 1);
+
+  updateScroller();
 }
 
 unsigned int List::getSelection(void) const
@@ -241,6 +258,15 @@ void List::draw(void) const
   }
 }
 
+void List::onAreaChanged(Widget& widget)
+{
+  const Rectangle& area = getArea();
+
+  const float width = scroller->getArea().size.x;
+
+  scroller->setArea(Rectangle(area.size.x - width, 0.f, width, area.size.y));
+}
+
 void List::onButtonClicked(Widget& widget,
 			   const Vector2& position,
 			   unsigned int button,
@@ -314,6 +340,46 @@ void List::onWheelTurned(Widget& widget, int wheelOffset)
     return;
 
   setOffset(offset + wheelOffset);
+}
+
+void List::onValueChanged(Scroller& scroller)
+{
+  setOffset((unsigned int) scroller.getValue());
+}
+
+void List::updateScroller(void)
+{
+  const unsigned int count = getVisibleItemCount();
+
+  if (count < items.size())
+  {
+    scroller->show();
+    scroller->setValue(offset);
+    scroller->setValueRange(0.f, (float) items.size() - 1);
+
+    if (count > 0)
+      scroller->setPercentage(count / (float) items.size());
+    else
+      scroller->setPercentage(1.f);
+  }
+  else
+    scroller->hide();
+}
+
+unsigned int List::getVisibleItemCount(void) const
+{
+  unsigned int index;
+
+  float height = getArea().size.y;
+
+  for (index = offset;  index < items.size();  index++)
+  {
+    height -= items[index]->getHeight();
+    if (height < 0.f)
+      break;
+  }
+
+  return index - offset;
 }
 
 void List::setSelection(unsigned int newIndex, bool notify)

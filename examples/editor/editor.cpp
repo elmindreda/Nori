@@ -17,7 +17,7 @@ bool setup(void)
   if (!UI::Renderer::create())
     return false;
 
-  new demo::EffectTemplate<CubeEffect>("cube");
+  new demo::EffectTemplate<CubeEffect>("Shader cube");
 
   if (!demo::Editor::create())
     return false;

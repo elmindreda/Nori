@@ -83,7 +83,10 @@ bool Widgets::init(void)
   UI::List* list = new UI::List();
   list->setArea(Rectangle(300, 80, 150, 200));
   for (unsigned int i = 0;  i < 100;  i++)
-    list->insertItem(new UI::Item(names[rand()&3]), 0);
+  {
+    UI::Item* item = new UI::Item(names[rand()&3]);
+    list->addItem(*item);
+  }
   window->addChild(*list);
 
   window->activate();
