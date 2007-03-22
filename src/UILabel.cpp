@@ -60,18 +60,18 @@ using namespace moira;
 Label::Label(const String& initText):
   text(initText)
 {
-  render::Font* font = Renderer::get()->getCurrentFont();
+  Renderer* renderer = Renderer::get();
+
+  const float em = renderer->getDefaultEM();
 
   float textWidth;
 
   if (text.empty())
-    textWidth = font->getWidth() * 3.f;
+    textWidth = em * 3.f;
   else
-    textWidth = font->getTextMetrics(text).size.x;
+    textWidth = renderer->getDefaultFont()->getTextMetrics(text).size.x;
 
-  setSize(Vector2(font->getWidth() * 2.f + textWidth,
-                  font->getHeight() * 2.f));
-
+  setSize(Vector2(em * 2.f + textWidth, em * 2.f));
 }
 
 const String& Label::getText(void) const

@@ -64,14 +64,12 @@ Slider::Slider(Orientation initOrientation):
   value(0.f),
   orientation(initOrientation)
 {
-  render::Font* font = Renderer::get()->getCurrentFont();
+  const float em = Renderer::get()->getDefaultEM();
 
   if (orientation == HORIZONTAL)
-    setSize(Vector2(font->getWidth() * 10.f,
-                    font->getHeight() * 1.5f));
+    setSize(Vector2(em * 10.f, em * 1.5f));
   else
-    setSize(Vector2(font->getHeight() * 1.5f,
-                    font->getWidth() * 10.f));
+    setSize(Vector2(em * 1.5f, em * 10.f));
 
   getKeyPressedSignal().connect(*this, &Slider::onKeyPressed);
   getButtonClickedSignal().connect(*this, &Slider::onButtonClicked);
@@ -138,23 +136,23 @@ void Slider::draw(void) const
 
     const float position = (value - minValue) / (maxValue - minValue);
 
-    render::Font* font = Renderer::get()->getCurrentFont();
+    const float em = Renderer::get()->getDefaultEM();
 
     Rectangle handleArea;
 
     if (orientation == HORIZONTAL)
     {
-      handleArea.set(area.position.x + position * (area.size.x - font->getWidth()),
+      handleArea.set(area.position.x + position * (area.size.x - em),
 		     area.position.y,
-		     font->getWidth(),
+		     em,
 		     area.size.y);
     }
     else
     {
       handleArea.set(area.position.x,
-		     area.position.y + position * (area.size.y - font->getHeight()),
+		     area.position.y + position * (area.size.y - em),
 		     area.size.x,
-		     font->getHeight());
+		     em);
     }
 
     renderer->drawHandle(handleArea, getState());
@@ -210,14 +208,14 @@ void Slider::onDragMoved(Widget& widget, const Vector2& position)
 
 void Slider::setValue(const Vector2& position)
 {
-  render::Font* font = Renderer::get()->getCurrentFont();
+  const float em = Renderer::get()->getDefaultEM();
 
   float scale;
 
   if (orientation == HORIZONTAL)
-    scale = (position.x - font->getWidth() / 2.f) / (getArea().size.x - font->getWidth());
+    scale = (position.x - em / 2.f) / (getArea().size.x - em);
   else
-    scale = (position.y - font->getHeight() / 2.f) / (getArea().size.y - font->getHeight());
+    scale = (position.y - em / 2.f) / (getArea().size.y - em);
 
   setValue(minValue + (maxValue - minValue) * scale, true);
 }

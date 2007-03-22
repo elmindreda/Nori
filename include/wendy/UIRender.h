@@ -41,10 +41,10 @@ using namespace moira;
  */
 enum WidgetState
 {
+  STATE_DISABLED,
   STATE_NORMAL,
   STATE_ACTIVE,
   STATE_SELECTED,
-  STATE_DISABLED,
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -132,6 +132,8 @@ public:
   const ColorRGB& getSelectedTextColor(void);
   render::Font* getDefaultFont(void);
   render::Font* getCurrentFont(void);
+  float getDefaultEM(void) const;
+  float getCurrentEM(void) const;
   static bool create(void);
 private:
   Renderer(void);

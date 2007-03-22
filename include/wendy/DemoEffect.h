@@ -91,9 +91,6 @@ class Effect : public Node<Effect>, public Managed<Effect>
 public:
   typedef std::vector<Parameter*> ParameterList;
   Effect(EffectType& type, const String& name = "");
-  bool init(void);
-  Effect* createChild(const String& typeName,
-                      const String& instanceName = "");
   Parameter* findParameter(const String& name);
   bool isActive(void) const;
   EffectType& getType(void) const;

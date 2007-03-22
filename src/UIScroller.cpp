@@ -64,14 +64,12 @@ Scroller::Scroller(Orientation initOrientation):
   percentage(0.5f),
   orientation(initOrientation)
 {
-  render::Font* font = Renderer::get()->getCurrentFont();
+  const float em = Renderer::get()->getDefaultEM();
 
   if (orientation == HORIZONTAL)
-    setSize(Vector2(font->getWidth() * 10.f,
-                    font->getHeight() * 1.5f));
+    setSize(Vector2(em * 10.f, em * 1.5f));
   else
-    setSize(Vector2(font->getHeight() * 1.5f,
-                    font->getWidth() * 10.f));
+    setSize(Vector2(em * 1.5f, em * 10.f));
 
   getKeyPressedSignal().connect(*this, &Scroller::onKeyPressed);
   getButtonClickedSignal().connect(*this, &Scroller::onButtonClicked);
@@ -314,12 +312,12 @@ void Scroller::setValue(float newValue, bool notify)
 
 float Scroller::getHandleSize(void) const
 {
-  render::Font* font = Renderer::get()->getCurrentFont();
+  const float em = Renderer::get()->getDefaultEM();
 
   if (orientation == HORIZONTAL)
-    return std::max(getArea().size.x * percentage, font->getWidth());
+    return std::max(getArea().size.x * percentage, em);
   else
-    return std::max(getArea().size.y * percentage, font->getHeight());
+    return std::max(getArea().size.y * percentage, em);
 }
 
 float Scroller::getHandleOffset(void) const

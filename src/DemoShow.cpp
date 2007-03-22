@@ -73,13 +73,19 @@ void Show::removeEffect(Effect& effect)
 void Show::prepare(void) const
 {
   for (EffectList::const_iterator i = effects.begin();  i != effects.end();  i++)
-    (*i)->prepare();
+  {
+    if ((*i)->isActive())
+      (*i)->prepare();
+  }
 }
 
 void Show::render(void) const
 {
   for (EffectList::const_iterator i = effects.begin();  i != effects.end();  i++)
-    (*i)->render();
+  {
+    if ((*i)->isActive())
+      (*i)->render();
+  }
 }
 
 const String& Show::getTitle(void) const
@@ -160,7 +166,7 @@ void Show::updateEffect(Effect& effect, Time newTime)
   Time currentTime = effect.start + effect.elapsed;
   Time deltaTime = newTime - currentTime;
 
-  if ((currentTime == effect.start) || (newTime < currentTime))
+  if (newTime < currentTime)
   {
     effect.restart();
     effect.active = false;
@@ -178,20 +184,23 @@ void Show::updateEffect(Effect& effect, Time newTime)
   }
   else
   {
-    if ((currentTime == 0.0 && effect.start == 0.0) ||
-	(currentTime < effect.start &&
-	 newTime >= effect.start &&
-	 newTime <= effect.start + effect.duration))
-    {
+    if (newTime >= effect.start && newTime <= effect.start + effect.duration)
       effect.active = true;
-    }
   }
 
   if (effect.active)
   {
-    effect.elapsed = newTime - effect.start;
+    Time maxDelta = 1.0;
 
-    effect.update(deltaTime);
+    while (deltaTime > 0.0)
+    {
+      Time localDelta = std::min(deltaTime, maxDelta);
+
+      effect.elapsed += localDelta;
+      effect.update(localDelta);
+
+      deltaTime -= localDelta;
+    }
 
     const Effect::List& children = effect.getChildren();
 

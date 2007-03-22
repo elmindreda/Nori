@@ -156,8 +156,8 @@ bool Context::isKeyDown(const Key& key) const
 {
   int externalKey = key;
 
-  KeyMap::const_iterator i = externalMap.find(externalKey);
-  if (i != externalMap.end())
+  KeyMap::const_iterator i = internalMap.find(externalKey);
+  if (i != internalMap.end())
     externalKey = (*i).second;
 
   return (glfwGetKey(externalKey) == GLFW_PRESS) ? true : false;

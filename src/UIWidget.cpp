@@ -244,6 +244,10 @@ void Widget::cancelDragging(void)
 {
   if (dragging && draggedWidget == this)
   {
+    GL::Context* context = GL::Context::get();
+
+    draggedWidget->dragEndedSignal.emit(*draggedWidget, context->getCursorPosition());
+
     draggedWidget = NULL;
     dragging = false;
   }

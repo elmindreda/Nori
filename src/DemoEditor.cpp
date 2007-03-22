@@ -57,6 +57,7 @@
 #include <wendy/DemoParameter.h>
 #include <wendy/DemoEffect.h>
 #include <wendy/DemoShow.h>
+#include <wendy/DemoTimeline.h>
 #include <wendy/DemoEditor.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -70,130 +71,6 @@ namespace wendy
 
 using namespace moira;
 
-///////////////////////////////////////////////////////////////////////
-
-TimelineTrack::TimelineTrack(Effect& initEffect):
-  effect(initEffect)
-{
-}
-
-Effect& TimelineTrack::getEffect(void) const
-{
-  return effect;
-}
-
-void TimelineTrack::draw(void) const
-{
-  const Rectangle& area = getGlobalArea();
-
-  UI::Renderer* renderer = UI::Renderer::get();
-  if (renderer->pushClipArea(area))
-  {
-    renderer->drawFrame(area, getState());
-    renderer->drawText(area, effect.getName());
-
-    UI::Widget::draw();
-
-    renderer->popClipArea();
-  }
-}
-
-///////////////////////////////////////////////////////////////////////
-
-Timeline::Timeline(Show& initShow):
-  show(initShow),
-  parent(NULL),
-  elapsed(0.0),
-  windowStart(0.0),
-  scale(1.f)
-{
-}
-
-Time Timeline::getWindowStart(void) const
-{
-  return windowStart;
-}
-
-void Timeline::setWindowStart(Time newStart)
-{
-  windowStart = newStart;
-  windowChangedSignal.emit(*this);
-}
-
-float Timeline::getScale(void) const
-{
-  return scale;
-}
-
-void Timeline::setScale(float newScale)
-{
-  scale = newScale;
-  windowChangedSignal.emit(*this);
-}
-
-Time Timeline::getTimeElapsed(void) const
-{
-  return elapsed;
-}
-
-void Timeline::setTimeElapsed(Time newTime)
-{
-  elapsed = newTime;
-}
-
-Effect* Timeline::getParentEffect(void) const
-{
-  return parent;
-}
-
-void Timeline::setParentEffect(Effect* newEffect)
-{
-  parent = newEffect;
-
-  while (!tracks.empty())
-  {
-    delete tracks.back();
-    tracks.pop_back();
-  }
-}
-
-void Timeline::update(void)
-{
-}
-
-void Timeline::draw(void) const
-{
-  const Show::EffectList& effects = show.getEffects();
-
-  const Rectangle& area = getGlobalArea();
-      
-  UI::Renderer* renderer = UI::Renderer::get();
-  if (renderer->pushClipArea(area))
-  {
-    render::Font* font = renderer->getDefaultFont();
-
-    const Show::EffectList& effects = show.getEffects();
-
-    const float height = font->getHeight() * 2.f;
-
-    for (unsigned int i = 0;  i < effects.size();  i++)
-    {
-      Rectangle effectArea;
-      effectArea.position.set((effects[i]->getStartTime() - windowStart) * font->getWidth() * scale,
-                              area.size.y - (i + 1) * height);
-      effectArea.size.set(effects[i]->getDuration() * font->getWidth() * scale,
-                          height);
-      transformToGlobal(effectArea.position);
-
-      renderer->drawFrame(effectArea, getState());
-      renderer->drawText(effectArea, effects[i]->getName());
-    }
-
-    UI::Widget::draw();
-
-    renderer->popClipArea();
-  }
-}
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -320,11 +197,11 @@ bool Editor::init(void)
     timeSlider->getValueChangedSignal().connect(*this, &Editor::onTimeSlider);
     timelineLayout->addChild(*timeSlider);
 
-    UI::Label* timeDisplay = new UI::Label();
+    timeDisplay = new UI::Label();
     timeDisplay->setTextAlignment(UI::RIGHT_ALIGNED);
     timelineLayout->addChild(*timeDisplay);
 
-    Timeline* timeline = new Timeline(*show);
+    timeline = new Timeline(*show);
     timelineLayout->addChild(*timeline, 0.f);
   }
 
@@ -341,6 +218,10 @@ bool Editor::onRender(void)
   Time currentTime = timer.getTime();
 
   timeSlider->setValue(currentTime);
+  timeDisplay->setText("%u:%02u.%02u",
+                       (unsigned int) currentTime / 60,
+		       (unsigned int) currentTime % 60,
+		       (unsigned int) (currentTime * 100.0) % 100);
 
   show->setTimeElapsed(currentTime);
   show->prepare();
@@ -378,12 +259,7 @@ void Editor::onCreateEffect(UI::Button& button)
   if (!type)
     return;
 
-  Effect* effect = type->createEffect();
-  if (!effect)
-    return;
-
-  effect->setDuration(10.0);
-  show->addEffect(*effect);
+  timeline->createEffect(*type);
 
   timeSlider->setValueRange(0.f, show->getDuration());
 }

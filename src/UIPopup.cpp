@@ -62,9 +62,9 @@ using namespace moira;
 Popup::Popup(void):
   selection(0)
 {
-  render::Font* font = Renderer::get()->getCurrentFont();
+  const float em = Renderer::get()->getDefaultEM();
 
-  setSize(Vector2(font->getWidth() * 10.f, font->getHeight() * 2.f));
+  setSize(Vector2(em * 10.f, em * 2.f));
 
   getKeyPressedSignal().connect(*this, &Popup::onKeyPressed);
   getButtonClickedSignal().connect(*this, &Popup::onButtonClicked);
@@ -136,11 +136,11 @@ void Popup::draw(void) const
     {
       const Item* item = menu->getItem(selection);
 
-      render::Font* font = renderer->getCurrentFont();
+      const float em = Renderer::get()->getDefaultEM();
 
       Rectangle textArea = area;
-      textArea.position.x += font->getWidth() / 2.f;
-      textArea.size.x -= font->getWidth();
+      textArea.position.x += em / 2.f;
+      textArea.size.x -= em;
 
       renderer->drawText(textArea, item->getValue(), LEFT_ALIGNED);
     }

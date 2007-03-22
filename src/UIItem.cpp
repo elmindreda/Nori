@@ -69,14 +69,16 @@ bool Item::operator < (const Item& other) const
 
 float Item::getWidth(void) const
 {
-  render::Font* font = Renderer::get()->getCurrentFont();
+  Renderer* renderer = Renderer::get();
 
-  float width = font->getWidth() * 2.f;
+  const float em = renderer->getDefaultEM();
+
+  float width = em * 2.f;
 
   if (value.empty())
-    width += font->getWidth() * 3.f;
+    width += em * 3.f;
   else
-    width += font->getTextMetrics(value).size.x;
+    width += renderer->getDefaultFont()->getTextMetrics(value).size.x;
 
   return width;
 }
@@ -101,11 +103,11 @@ void Item::draw(const Rectangle& area, bool selected) const
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
   {
-    render::Font* font = renderer->getCurrentFont();
+    const float em = Renderer::get()->getDefaultEM();
 
     Rectangle textArea = area;
-    textArea.position.x += font->getWidth() / 2.f;
-    textArea.size.x -= font->getWidth();
+    textArea.position.x += em / 2.f;
+    textArea.size.x -= em;
 
     if (selected)
     {

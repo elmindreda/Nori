@@ -37,61 +37,6 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class TimelineRuler : public UI::Widget
-{
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class TimelineTrack : public UI::Widget
-{
-public:
-  TimelineTrack(Effect& effect);
-  Effect& getEffect(void) const;
-private:
-  void draw(void) const;
-  Effect& effect;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class Timeline : public UI::Widget
-{
-public:
-  Timeline(Show& show);
-  Time getWindowStart(void) const;
-  void setWindowStart(Time newStart);
-  float getScale(void) const;
-  void setScale(float newScale);
-  Time getTimeElapsed(void) const;
-  void setTimeElapsed(Time newTime);
-  Effect* getParentEffect(void) const;
-  void setParentEffect(Effect* newEffect);
-  SignalProxy1<void, Timeline&> getWindowChangedSignal(void);
-private:
-  enum DragMode
-  {
-    NOT_DRAGGING,
-    DRAGGING_POSITION,
-    DRAGGING_START,
-    DRAGGING_DURATION,
-  };
-  void update(void);
-  void draw(void) const;
-  void onAreaChanged(Widget& widget);
-  typedef std::vector<TimelineTrack*> EffectList;
-  Signal1<void, Timeline&> windowChangedSignal;
-  Show& show;
-  EffectList tracks;
-  Effect* parent;
-  Time windowStart;
-  float scale;
-  Time elapsed;
-  DragMode dragMode;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 class Editor : public Singleton<Editor>, public Trackable
 {
 public:
@@ -115,6 +60,7 @@ private:
   UI::Widget* commandPanel;
   UI::List* effectType;
   UI::Slider* timeSlider;
+  UI::Label* timeDisplay;
   Timeline* timeline;
   Timer timer;
 };

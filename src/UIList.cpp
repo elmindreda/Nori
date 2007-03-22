@@ -93,7 +93,6 @@ List::List(void):
   addChild(*scroller);
 
   onAreaChanged(*this);
-  updateScroller();
 }
 
 List::~List(void)
@@ -265,6 +264,7 @@ void List::onAreaChanged(Widget& widget)
   const float width = scroller->getArea().size.x;
 
   scroller->setArea(Rectangle(area.size.x - width, 0.f, width, area.size.y));
+  updateScroller();
 }
 
 void List::onButtonClicked(Widget& widget,
@@ -356,11 +356,7 @@ void List::updateScroller(void)
     scroller->show();
     scroller->setValue(offset);
     scroller->setValueRange(0.f, (float) items.size() - 1);
-
-    if (count > 0)
-      scroller->setPercentage(count / (float) items.size());
-    else
-      scroller->setPercentage(1.f);
+    scroller->setPercentage(count / (float) items.size());
   }
   else
     scroller->hide();

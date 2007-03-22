@@ -73,29 +73,6 @@ Effect::Effect(EffectType& initType, const String& name):
 {
 }
 
-bool Effect::init(void)
-{
-  return true;
-}
-
-Effect* Effect::createChild(const String& typeName,
-                            const String& instanceName)
-{
-  EffectType* type = EffectType::findInstance(typeName);
-  if (!type)
-  {
-    Log::writeError("Cannot find effect type %s", typeName.c_str());
-    return NULL;
-  }
-
-  Effect* instance = type->createEffect(instanceName);
-  if (!instance)
-    return NULL;
-
-  addChild(*instance);
-  return instance;
-}
-
 Parameter* Effect::findParameter(const String& name)
 {
   for (ParameterList::const_iterator i = parameters.begin();  i != parameters.end();  i++)
@@ -124,6 +101,9 @@ Time Effect::getStartTime(void) const
 
 void Effect::setStartTime(Time newTime)
 {
+  if (newTime < start)
+    restart();
+
   start = newTime;
 }
 

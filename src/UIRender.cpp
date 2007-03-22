@@ -266,6 +266,16 @@ render::Font* Renderer::getDefaultFont(void)
   return defaultFont;
 }
 
+float Renderer::getDefaultEM(void) const
+{
+  return defaultFont->getHeight();
+}
+
+float Renderer::getCurrentEM(void) const
+{
+  return currentFont->getHeight();
+}
+
 bool Renderer::create(void)
 {
   Ptr<Renderer> renderer = new Renderer();

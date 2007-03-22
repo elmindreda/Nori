@@ -63,14 +63,12 @@ Progress::Progress(Orientation initOrientation):
   value(0.f),
   orientation(initOrientation)
 {
-  render::Font* font = Renderer::get()->getCurrentFont();
+  const float em = Renderer::get()->getDefaultEM();
 
   if (orientation == HORIZONTAL)
-    setSize(Vector2(font->getWidth() * 10.f,
-                    font->getHeight() * 1.5f));
+    setSize(Vector2(em * 10.f, em * 1.5f));
   else
-    setSize(Vector2(font->getHeight() * 1.5f,
-                    font->getWidth() * 10.f));
+    setSize(Vector2(em * 1.5f, em * 10.f));
 }
 
 float Progress::getMinValue(void) const

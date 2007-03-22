@@ -62,9 +62,9 @@ Entry::Entry(const String& initText):
   startPosition(0),
   caretPosition(0)
 {
-  render::Font* font = Renderer::get()->getCurrentFont();
+  const float em = Renderer::get()->getDefaultEM();
 
-  setSize(Vector2(font->getWidth() * 10.f, font->getHeight() * 1.5f));
+  setSize(Vector2(em * 10.f, em * 1.5f));
 
   getButtonClickedSignal().connect(*this, &Entry::onButtonClicked);
   getKeyPressedSignal().connect(*this, &Entry::onKeyPressed);
@@ -110,11 +110,11 @@ void Entry::draw(void) const
   {
     renderer->drawTextFrame(area, getState());
 
-    render::Font* font = renderer->getCurrentFont();
+    const float em = Renderer::get()->getDefaultEM();
 
     Rectangle textArea = area;
-    textArea.position.x += font->getWidth() / 2.f;
-    textArea.size.x -= font->getWidth();
+    textArea.position.x += em / 2.f;
+    textArea.size.x -= em;
 
     renderer->drawText(textArea, text, LEFT_ALIGNED);
 
@@ -125,7 +125,7 @@ void Entry::draw(void) const
       if (caretPosition > startPosition)
       {
 	render::Font::LayoutList layouts;
-	font->getTextLayout(layouts, text.substr(startPosition, caretPosition));
+	renderer->getDefaultFont()->getTextLayout(layouts, text.substr(startPosition, caretPosition));
 
 	const render::Font::Layout& glyph = layouts[caretPosition - 1];
 	position = glyph.penOffset.x + glyph.area.size.x;
