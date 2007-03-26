@@ -37,6 +37,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup openal
+ */
 class Buffer : public Managed<Buffer>
 {
   friend class Source;

@@ -104,12 +104,6 @@ public:
    *  events.
    */
   void disable(void);
-  /*! Makes this widget visible.
-   */
-  void show(void);
-  /*! Makes this widget hidden.
-   */
-  void hide(void);
   /*! Makes this the active widget.
    *
    *  @remarks This may fail if the widget is disabled.
@@ -170,6 +164,11 @@ public:
    *  @remarks This is a helper method for Widget::setArea.
    */
   void setPosition(const Vector2& newPosition);
+  /*! Sets whether this widget is visible.
+   */
+  void setVisible(bool newState);
+  /*! Sets whether this widget can be dragged.
+   */
   void setDraggable(bool newState);
   SignalProxy1<void, Widget&> getDestroyedSignal(void);
   SignalProxy1<void, Widget&> getAreaChangedSignal(void);

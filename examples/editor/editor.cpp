@@ -89,6 +89,9 @@ int main(int argc, char** argv)
     }
 
     demo::Editor::destroy();
+    UI::Renderer::destroy();
+    GL::Renderer::destroy();
+    GL::Context::destroy();
   }
   else
     Log::writeError("Punt");

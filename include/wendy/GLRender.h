@@ -61,9 +61,11 @@ public:
   void popTransform(void) const;
   void drawPoint(const Vector2& point);
   void drawLine(const Segment2& segment);
+  void drawTriangle(const Triangle2& triangle);
   void drawBezier(const BezierCurve2& spline);
   void drawRectangle(const Rectangle& rectangle);
   void fillRectangle(const Rectangle& rectangle);
+  void fillTriangle(const Triangle2& triangle);
   /*! Allocates a range of indices of the specified type.
    */
   bool allocateIndices(IndexRange& range,

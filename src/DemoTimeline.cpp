@@ -53,11 +53,14 @@
 #include <wendy/UILabel.h>
 #include <wendy/UIItem.h>
 #include <wendy/UIList.h>
+#include <wendy/UIMenu.h>
 
 #include <wendy/DemoParameter.h>
 #include <wendy/DemoEffect.h>
 #include <wendy/DemoShow.h>
 #include <wendy/DemoTimeline.h>
+
+#include <sstream>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -77,7 +80,26 @@ TimelineRuler::TimelineRuler(Timeline& initTimeline):
 {
   const float em = UI::Renderer::get()->getDefaultEM();
 
+  getButtonClickedSignal().connect(*this, &TimelineRuler::onButtonClicked);
+  getDragMovedSignal().connect(*this, &TimelineRuler::onDragMoved);
+
   setSize(Vector2(em * 2.f, em * 2.f));
+  setDraggable(true);
+}
+
+Time TimelineRuler::getTimeElapsed(void) const
+{
+  return elapsed;
+}
+
+void TimelineRuler::setTimeElapsed(Time newTime)
+{
+  elapsed = newTime;
+}
+
+SignalProxy1<void, TimelineRuler&> TimelineRuler::getTimeChangedSignal(void)
+{
+  return timeChangedSignal;
 }
 
 void TimelineRuler::draw(void) const
@@ -89,16 +111,99 @@ void TimelineRuler::draw(void) const
   {
     renderer->drawFrame(area, getState());
 
-    const unsigned int count = (unsigned int) timeline.getVisibleDuration();
+    GL::Renderer::get()->setColor(ColorRGBA::BLACK);
+    GL::Renderer::get()->setLineWidth(1.f / GL::Canvas::getCurrent()->getPhysicalHeight());
+
+    const float em = renderer->getDefaultEM();
+    const float width = timeline.getSecondWidth();
+    const float start = timeline.getWindowStart();
+    const float offset = (1.f - start + floorf(start)) * width;
+    const unsigned int count = (unsigned int) ((area.size.x + width) / width);
+
+    int index = (int) start + 1;
+
+    Segment2 segment;
 
     for (unsigned int i = 0;  i < count;  i++)
     {
+      float position = offset + i * width;
+
+      segment.start = area.position + Vector2(position, area.size.y / 2.f);
+      segment.end = area.position + Vector2(position, area.size.y);
+
+      GL::Renderer::get()->drawLine(segment);
+
+      if ((index + i) % 10 == 0)
+      {
+	Rectangle digitArea;
+	digitArea.position = area.position + Vector2(position - em, 0.f);
+	digitArea.size.set(2.f * em, area.size.y);
+
+	String digits;
+	Variant::convertToString(digits, index + (int) i);
+
+	renderer->drawText(digitArea, digits);
+      }
     }
+
+    float position = (elapsed - timeline.getWindowStart()) * width;
+
+    Triangle2 triangle;
+    triangle.P[0] = Vector2(position + width / 2.f, area.size.y) + area.position;
+    triangle.P[1] = Vector2(position - width / 2.f, area.size.y) + area.position;
+    triangle.P[2] = Vector2(position, 0.f) + area.position;
+
+    GL::Renderer::get()->setColor(ColorRGBA::BLACK);
+    GL::Renderer::get()->fillTriangle(triangle);
 
     UI::Widget::draw();
 
     renderer->popClipArea();
   }
+}
+
+void TimelineRuler::onButtonClicked(Widget& widget,
+                                    const Vector2& point,
+				    unsigned int button,
+				    bool clicked)
+{
+  if (!clicked)
+    return;
+
+  const Vector2 localPoint = transformToLocal(point);
+
+  bool snapping = false;
+
+  GL::Context* context = GL::Context::get();
+
+  if (context->isKeyDown(GL::Key::LSHIFT) || context->isKeyDown(GL::Key::RSHIFT))
+    snapping = true;
+
+  elapsed = timeline.getWindowStart() + localPoint.x / timeline.getSecondWidth();
+
+  if (snapping)
+    elapsed = floorf(elapsed + 0.5);
+
+  timeChangedSignal.emit(*this);
+}
+
+void TimelineRuler::onDragMoved(Widget& widget, const Vector2& point)
+{
+  const Vector2 localPoint = transformToLocal(point);
+
+  bool snapping = false;
+
+  GL::Context* context = GL::Context::get();
+
+  if (context->isKeyDown(GL::Key::LSHIFT) || context->isKeyDown(GL::Key::RSHIFT))
+    snapping = true;
+
+  elapsed = timeline.getWindowStart() + localPoint.x / timeline.getSecondWidth();
+
+  if (snapping)
+    elapsed = floorf(elapsed + 0.5);
+
+  timeChangedSignal.emit(*this);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -110,9 +215,16 @@ TimelineTrack::TimelineTrack(Timeline& initTimeline, Effect& initEffect):
 {
   const float em = UI::Renderer::get()->getDefaultEM();
 
+  getButtonClickedSignal().connect(*this, &TimelineTrack::onButtonClicked);
   getDragBegunSignal().connect(*this, &TimelineTrack::onDragBegun);
   getDragMovedSignal().connect(*this, &TimelineTrack::onDragMoved);
   getDragEndedSignal().connect(*this, &TimelineTrack::onDragEnded);
+
+  menu = new UI::Menu();
+  menu->addItem(*new UI::Item("Rename"));
+  menu->addItem(*new UI::Item("Move Up"));
+  menu->addItem(*new UI::Item("Move Down"));
+  menu->addItem(*new UI::Item("Delete"));
 
   setSize(Vector2(em * 2.f, em * 2.f));
   setDraggable(true);
@@ -130,8 +242,6 @@ void TimelineTrack::draw(void) const
   UI::Renderer* renderer = UI::Renderer::get();
   if (renderer->pushClipArea(area))
   {
-    renderer->drawFrame(area, UI::STATE_NORMAL);
-
     const float size = getHandleSize();
     const float offset = getHandleOffset();
 
@@ -139,8 +249,32 @@ void TimelineTrack::draw(void) const
     effectArea.size.set(size, area.size.y);
     effectArea.position.set(area.position.x + offset, area.position.y);
 
-    renderer->drawFrame(effectArea, getState());
+    ColorRGBA color;
+
+    if (effect.isActive())
+      color.set(0.1f, 0.7f, 0.1f, 1.f);
+    else
+      color.set(renderer->getWidgetColor(), 1.f);
+
+    GL::Renderer::get()->setColor(color);
+    GL::Renderer::get()->fillRectangle(effectArea);
+
+    GL::Renderer::get()->setColor(ColorRGBA::BLACK);
+    GL::Renderer::get()->setLineWidth(1.f / GL::Canvas::getCurrent()->getPhysicalHeight());
+    GL::Renderer::get()->drawRectangle(effectArea);
+
     renderer->drawText(effectArea, effect.getName());
+
+    const float em = renderer->getDefaultEM();
+
+    Rectangle handleArea;
+    handleArea.size.set(em, effectArea.size.y);
+
+    handleArea.position = effectArea.position - Vector2(em, 0.f);
+    renderer->drawHandle(handleArea, getState());
+
+    handleArea.position = effectArea.position + Vector2(effectArea.size.x, 0.f);
+    renderer->drawHandle(handleArea, getState());
 
     UI::Widget::draw();
 
@@ -148,17 +282,41 @@ void TimelineTrack::draw(void) const
   }
 }
 
+void TimelineTrack::onButtonClicked(Widget& widget,
+		                    const Vector2& point,
+		                    unsigned int button,
+		                    bool clicked)
+{
+  if (!clicked || button != 1)
+    return;
+
+  menu->setPosition(point);
+  menu->display();
+}
+
 void TimelineTrack::onDragBegun(Widget& widget, const Vector2& point)
 {
-  Vector2 localPoint = transformToLocal(point);
+  float position = transformToLocal(point).x;
 
+  UI::Renderer* renderer = UI::Renderer::get();
+
+  const float em = renderer->getDefaultEM();
   const float size = getHandleSize();
   const float offset = getHandleOffset();
 
-  if (localPoint.x >= offset && localPoint.x < offset + size)
+  if (position >= offset - em && position < offset + size + em)
   {
-    reference = localPoint.x - offset;
-    mode = DRAGGING_POSITION;
+    reference = position - offset;
+
+    if (reference < 0.f)
+      mode = DRAGGING_START;
+    else if (reference < size)
+      mode = DRAGGING_POSITION;
+    else
+    {
+      mode = DRAGGING_DURATION;
+      reference -= size;
+    }
   }
   else
     cancelDragging();
@@ -175,7 +333,7 @@ void TimelineTrack::onDragMoved(Widget& widget, const Vector2& point)
   if (context->isKeyDown(GL::Key::LSHIFT) || context->isKeyDown(GL::Key::RSHIFT))
     snapping = true;
 
-  const float size = getHandleSize();
+  const float offset = getHandleOffset();
 
   if (mode == DRAGGING_POSITION)
   {
@@ -183,9 +341,35 @@ void TimelineTrack::onDragMoved(Widget& widget, const Vector2& point)
                  (position - reference) / timeline.getSecondWidth();
 
     if (snapping)
-      start = floor(start);
+      start = floor(start + 0.5);
 
-    effect.setStartTime(start);
+    if (start >= 0.0)
+      effect.setStartTime(start);
+  }
+  else if (mode == DRAGGING_START)
+  {
+    Time start = timeline.getWindowStart() +
+                 (position - reference) / timeline.getSecondWidth();
+
+    if (snapping)
+      start = floor(start + 0.5);
+
+    Time duration = effect.getDuration() + effect.getStartTime() - start;
+    if (start >= 0.0 && duration >= 0.0)
+    {
+      effect.setStartTime(start);
+      effect.setDuration(duration);
+    }
+  }
+  else
+  {
+    Time duration = (position - offset - reference) / timeline.getSecondWidth();
+
+    if (snapping)
+      duration = floorf(duration + 0.5);
+
+    if (duration >= 0.0)
+      effect.setDuration(duration);
   }
 }
 
@@ -209,17 +393,21 @@ float TimelineTrack::getHandleOffset(void) const
 Timeline::Timeline(Show& initShow):
   show(initShow),
   parent(NULL),
-  elapsed(0.0),
-  windowStart(0.0),
-  zoom(1.f)
+  start(0.0),
+  zoom(1.f),
+  effectIndex(1)
 {
+  getAreaChangedSignal().connect(*this, &Timeline::onAreaChanged);
+
   UI::Layout* mainLayout = new UI::Layout(UI::VERTICAL);
   addChild(*mainLayout);
 
   ruler = new TimelineRuler(*this);
+  ruler->getTimeChangedSignal().connect(*this, &Timeline::onTimeChanged);
   mainLayout->addChild(*ruler);  
 
   trackLayout = new UI::Layout(UI::VERTICAL, false);
+  trackLayout->setBorderSize(0.f);
   mainLayout->addChild(*trackLayout, 0.f);
 
   timeScroller = new UI::Scroller(UI::HORIZONTAL);
@@ -235,6 +423,11 @@ bool Timeline::createEffect(EffectType& type)
   if (!effect)
     return false;
 
+  std::stringstream stream;
+  stream << "Effect " << effectIndex++;
+  effect->setName(stream.str());
+
+  effect->setStartTime(start);
   effect->setDuration(10.0);
   show.addEffect(*effect);
 
@@ -242,15 +435,24 @@ bool Timeline::createEffect(EffectType& type)
   return true;
 }
 
+void Timeline::destroyEffect(void)
+{
+  TimelineTrack* track = dynamic_cast<TimelineTrack*>(getActive());
+  if (track)
+  {
+    updateScroller();
+  }
+}
+
 Time Timeline::getWindowStart(void) const
 {
-  return windowStart;
+  return start;
 }
 
 void Timeline::setWindowStart(Time newStart)
 {
-  windowStart = newStart;
-  timeScroller->setValue(windowStart);
+  start = newStart;
+  timeScroller->setValue(start);
 }
 
 float Timeline::getZoom(void) const
@@ -261,16 +463,17 @@ float Timeline::getZoom(void) const
 void Timeline::setZoom(float newZoom)
 {
   zoom = newZoom;
+  updateScroller();
 }
 
 Time Timeline::getTimeElapsed(void) const
 {
-  return elapsed;
+  return ruler->getTimeElapsed();
 }
 
 void Timeline::setTimeElapsed(Time newTime)
 {
-  elapsed = newTime;
+  ruler->setTimeElapsed(newTime);
 }
 
 Time Timeline::getVisibleDuration(void) const
@@ -326,6 +529,38 @@ void Timeline::setParentEffect(Effect* newEffect)
   updateScroller();
 }
 
+SignalProxy1<void, Timeline&> Timeline::getTimeChangedSignal(void)
+{
+  return timeChangedSignal;
+}
+
+void Timeline::draw(void) const
+{
+  const Rectangle& area = getGlobalArea();
+
+  UI::Renderer* renderer = UI::Renderer::get();
+  if (renderer->pushClipArea(area))
+  {
+    UI::Widget::draw();
+
+    const Rectangle& layoutArea = trackLayout->getGlobalArea();
+
+    const float width = renderer->getDefaultEM() / 3.f;
+    const float position = (getTimeElapsed() - getWindowStart()) *
+			   getSecondWidth();
+
+    Rectangle markerArea;
+    markerArea.position.set(layoutArea.position.x + position - width / 2.f,
+                            layoutArea.position.y);
+    markerArea.size.set(width, layoutArea.size.y);
+
+    GL::Renderer::get()->setColor(ColorRGBA(0.3f, 0.3f, 0.3f, 0.7f));
+    GL::Renderer::get()->fillRectangle(markerArea);
+
+    renderer->popClipArea();
+  }
+}
+
 void Timeline::updateScroller(void)
 {
   Time duration;
@@ -337,13 +572,23 @@ void Timeline::updateScroller(void)
 
   Time visible = getVisibleDuration();
 
-  timeScroller->setPercentage(visible / (duration + visible));
+  timeScroller->setPercentage(visible / (duration + visible) / zoom);
   timeScroller->setValueRange(0.f, duration + visible);
 }
 
 void Timeline::onValueChanged(UI::Scroller& scroller)
 {
-  windowStart = scroller.getValue();
+  start = scroller.getValue();
+}
+
+void Timeline::onTimeChanged(TimelineRuler& ruler)
+{
+  timeChangedSignal.emit(*this);
+}
+
+void Timeline::onAreaChanged(UI::Widget& widget)
+{
+  updateScroller();
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -62,7 +62,7 @@ using namespace moira;
  *  @remarks Note that this class does not include any references to a camera.
  *  The camera transformation is handled by the Camera class, and the
  *  Queue to which your Operation belongs contains a reference to
- *  the correct Camera.
+ *  the camera being used.
  */
 class Operation
 {
@@ -125,18 +125,49 @@ typedef std::vector<const Operation*> OperationList;
 class Queue
 {
 public:
+  /*! Constructor. Creates a render queue for the specified camera, optionally
+   *  with the specified light and name.
+   *  @param[in] camera The camera to use.
+   *  @param[in] light The light to collect geometry for, or @c NULL to not
+   *  collect for a light.
+   *  @param[in] name The desired name of the render queue.
+   */
   Queue(const Camera& camera,
         GL::Light* light = NULL,
 	const String& name = "");
+  /*! Attaches a light to this render queue.
+   *  @param[in] light The light to attach.
+   */
   void attachLight(GL::Light& light);
+  /*! Detaches all attached lights from this render queue.
+   */
   void detachLights(void);
+  /*! Creates a render operation in this render queue.
+   *  @return The created operation.
+   */
   Operation& createOperation(void);
+  /*! Destroys all render operations in this render queue.
+   */
   void destroyOperations(void);
+  /*! Renders the operations in this render queue, using the specified camera
+   *  and the attached lights.
+   */
   void render(void) const;
+  /*! @return The name of this render queue.
+   */
   const String& getName(void) const;
+  /*! @return The camera used by this render queue.
+   */
   const Camera& getCamera(void) const;
+  /*! @return The light for which to collect geometry, or @c NULL if not
+   *  collecting geometry for a light.
+   */
   GL::Light* getActiveLight(void) const;
+  /*! @return The render operations in this render queue.
+   */
   const OperationList& getOperations(void) const;
+  /*! @return The lights attached to this render queue.
+   */
   const GL::LightState& getLights(void) const;
 private:
   typedef std::list<Operation> List;

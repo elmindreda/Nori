@@ -77,27 +77,28 @@ public:
    */
   GLenum getTarget(void) const;
   /*! @return The width, in pixels, of the source for specified mipmap level.
-   *  @param level The desired mipmap level.
+   *  @param[in] level The desired mipmap level.
    */
   unsigned int getWidth(unsigned int level = 0) const;
   /*! @return The height, in pixels, of the source for specified mipmap level.
-   *  @param level The desired mipmap level.
+   *  @param[in] level The desired mipmap level.
    */
   unsigned int getHeight(unsigned int level = 0) const;
-  /*! @return The depth, in pixels, of the source for the specified mipmap level.
-   *  @param level The desired mipmap level.
+  /*! @return The depth, in pixels, of the source for the specified mipmap
+   *  level.
+   *  @param[in] level The desired mipmap level.
    */
   unsigned int getDepth(unsigned int level = 0) const;
   /*! @return The width, in pixels, of the specified mipmap level.
-   *  @param level The desired mipmap level.
+   *  @param[in] level The desired mipmap level.
    */
   unsigned int getPhysicalWidth(unsigned int level = 0) const;
   /*! @return The height, in pixels, of the specified mipmap level.
-   *  @param level The desired mipmap level.
+   *  @param[in] level The desired mipmap level.
    */
   unsigned int getPhysicalHeight(unsigned int level = 0) const;
   /*! @return The depth, in pixels, of the specified mipmap level.
-   *  @param level The desired mipmap level.
+   *  @param[in] level The desired mipmap level.
    */
   unsigned int getPhysicalDepth(unsigned int level = 0) const;
   /*! @return The number of mipmap levels in this texture.
@@ -109,32 +110,32 @@ public:
   /*! @return The image format of this texture.
    */
   const ImageFormat& getFormat(void) const;
-  /*! @param The desired mipmap level.
+  /*! @param[in] level The desired mipmap level.
    *  @return The image data of the specified mipmap level.
    */
   Image* getImage(unsigned int level = 0) const;
   static Texture* readInstance(const String& name,
                                unsigned int flags = DEFAULT);
   /*! Creates a texture from the specified image file.
-   *  @param path The path of the image file to use.
-   *  @param flags The creation flags.
-   *  @param name The desired name of the texture.
+   *  @param[in] path The path of the image file to use.
+   *  @param[in] flags The creation flags.
+   *  @param[in] name The desired name of the texture.
    */
   static Texture* readInstance(const Path& path,
                                unsigned int flags = DEFAULT,
 			       const String& name = "");
   /*! Creates a texture from the specified stream.
-   *  @param stream The source data stream to use.
-   *  @param flags The creation flags.
-   *  @param name The desired name of the texture.
+   *  @param[in] stream The source data stream to use.
+   *  @param[in] flags The creation flags.
+   *  @param[in] name The desired name of the texture.
    */
   static Texture* readInstance(Stream& stream,
                                unsigned int flags = DEFAULT,
 			       const String& name = "");
   /*! Creates a texture from the specified image.
-   *  @param image The image data to use.
-   *  @param flags The creation flags.
-   *  @param name The desired name of the texture, or the empty string to
+   *  @param[in] image The image data to use.
+   *  @param[in] flags The creation flags.
+   *  @param[in] name The desired name of the texture, or the empty string to
    *  automatically generate a name.
    */
   static Texture* createInstance(const Image& image,

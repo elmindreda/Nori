@@ -30,11 +30,11 @@
  *
  *  @section intro Introduction
  *
- *  This is the reference documentation for the Wendy engine. The Wendy engine
- *  is a simple rendering engine built on top of OpenGL and intended for the
- *  production of demos and small games. It is also the hope of the author that
- *  it serves as a suitable introduction to rendering engine design, due to its
- *  small size and consistent design.
+ *  This is the reference documentation for the Wendy engine, a simple demo and
+ *  game engine using OpenGL, OpenAL and ODE (formerly OpenDE). It is the hope
+ *  of the author that it also serves as a suitable introduction to engine
+ *  design, due to its (relatively) small size and (hopefully) consistent
+ *  design.
  *
  *  The Wendy engine is built on top of the Moira utility library, which
  *  provides resource management, math classes, animation, image and mesh data
@@ -45,8 +45,7 @@
  *  Some notable features of Wendy are:
  *
  *  - Multipass, multi-technique @link wendy::render::Style render style
- *    @endlink descriptors with support for multitexturing, ARB programs and GLSL
- *    shaders.
+ *    @endlink descriptors with support for multitexturing and GLSL shaders.
  *  - Extensible @link wendy::render::ParticleSystem particle system @endlink with
  *    generic emitters and affectors.
  *  - @link wendy::render::Queue Render queue @endlink system with automatic

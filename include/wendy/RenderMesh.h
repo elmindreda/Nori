@@ -37,12 +37,12 @@ namespace wendy
   
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Geometry mesh object.
+/*! @brief Renderable mesh object.
  *  @ingroup renderer
  *
  *  This class represents a single static mesh, consisting of one or more
- *  Mesh::Geometry objects. Each geometry is a part of the mesh using the
- *  same render style and primitive mode.
+ *  Mesh::Geometry objects. Each geometry is a part of the mesh using a single
+ *  render style and primitive mode.
  */
 class Mesh : public Renderable,
              public DerivedResource<Mesh, moira::Mesh>,
@@ -51,7 +51,14 @@ class Mesh : public Renderable,
 public:
   class Geometry;
   void enqueue(Queue& queue, const Transform3& transform) const;
+  /*! @return The bounding sphere of this mesh.
+   */
   const Sphere& getBounds(void) const;
+  /*! Creates a renderable mesh from the specified mesh data.
+   *  @param[in] mesh The mesh data to use.
+   *  @param[in] name The desired name of the created renderable mesh.
+   *  @return The newly created renderable mesh, or @c NULL if an error occurred.
+   */
   static Mesh* createInstance(const moira::Mesh& mesh, const String& name = "");
 private:
   Mesh(const String& name);

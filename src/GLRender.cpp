@@ -162,6 +162,18 @@ void Renderer::drawLine(const Segment2& segment)
   glEnd();
 }
 
+void Renderer::drawTriangle(const Triangle2& triangle)
+{
+  drawPass.setPolygonMode(GL_LINE);
+  drawPass.apply();
+
+  glBegin(GL_TRIANGLES);
+  glVertex2fv(triangle.P[0]);
+  glVertex2fv(triangle.P[1]);
+  glVertex2fv(triangle.P[2]);
+  glEnd();
+}
+
 void Renderer::drawBezier(const BezierCurve2& spline)
 {
   BezierCurve2::PointList points;
@@ -187,6 +199,18 @@ void Renderer::drawRectangle(const Rectangle& rectangle)
   drawPass.apply();
 
   glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
+}
+
+void Renderer::fillTriangle(const Triangle2& triangle)
+{
+  drawPass.setPolygonMode(GL_FILL);
+  drawPass.apply();
+
+  glBegin(GL_TRIANGLES);
+  glVertex2fv(triangle.P[0]);
+  glVertex2fv(triangle.P[1]);
+  glVertex2fv(triangle.P[2]);
+  glEnd();
 }
 
 void Renderer::fillRectangle(const Rectangle& rectangle)
@@ -309,6 +333,10 @@ const ColorRGBA& Renderer::getColor(void) const
 void Renderer::setColor(const ColorRGBA& newColor)
 {
   drawPass.setDefaultColor(newColor);
+  if (newColor.a == 1.f)
+    drawPass.setBlendFactors(GL_ONE, GL_ZERO);
+  else
+    drawPass.setBlendFactors(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 float Renderer::getLineWidth(void) const

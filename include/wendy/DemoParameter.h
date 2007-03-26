@@ -37,6 +37,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup demo
+ */
 class ParameterKey
 {
   friend class Parameter;
@@ -52,6 +54,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup demo
+ */
 class Parameter
 {
 public:
@@ -71,6 +75,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup demo
+ */
 template <typename K, typename T>
 class ParameterTemplate : public Parameter
 {
@@ -89,6 +95,8 @@ class FloatParameter;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup demo
+ */
 class FloatKey : public ParameterKey
 {
 public:
@@ -104,6 +112,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup demo
+ */
 class FloatParameter : public ParameterTemplate<FloatKey, float>
 {
 public:
@@ -127,6 +137,8 @@ class BooleanParameter;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup demo
+ */
 class BooleanKey : public ParameterKey
 {
 public:
@@ -141,6 +153,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup demo
+ */
 class BooleanParameter : public ParameterTemplate<BooleanKey, bool>
 {
 public:
@@ -159,6 +173,8 @@ class StyleParameter;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup demo
+ */
 class StyleKey : public ParameterKey
 {
 public:
@@ -173,6 +189,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup demo
+ */
 class StyleParameter : public ParameterTemplate<StyleKey, render::Style*>
 {
 public:

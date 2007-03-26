@@ -41,17 +41,31 @@ class Timeline;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup demo
+ */
 class TimelineRuler : public UI::Widget
 {
 public:
   TimelineRuler(Timeline& timeline);
+  Time getTimeElapsed(void) const;
+  void setTimeElapsed(Time newTime);
+  SignalProxy1<void, TimelineRuler&> getTimeChangedSignal(void);
 private:
   void draw(void) const;
+  void onButtonClicked(Widget& widget,
+                       const Vector2& point,
+		       unsigned int button,
+		       bool clicked);
+  void onDragMoved(Widget& widget, const Vector2& point);
+  Signal1<void, TimelineRuler&> timeChangedSignal;
   Timeline& timeline;
+  Time elapsed;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup demo
+ */
 class TimelineTrack : public UI::Widget
 {
 public:
@@ -66,6 +80,10 @@ private:
     DRAGGING_DURATION,
   };
   void draw(void) const;
+  void onButtonClicked(Widget& widget,
+                       const Vector2& point,
+		       unsigned int button,
+		       bool clicked);
   void onDragBegun(Widget& widget, const Vector2& point);
   void onDragMoved(Widget& widget, const Vector2& point);
   void onDragEnded(Widget& widget, const Vector2& point);
@@ -74,16 +92,20 @@ private:
   Timeline& timeline;
   Effect& effect;
   DragMode mode;
+  Ptr<UI::Menu> menu;
   float reference;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup demo
+ */
 class Timeline : public UI::Widget
 {
 public:
   Timeline(Show& show);
   bool createEffect(EffectType& type);
+  void destroyEffect(void);
   Time getWindowStart(void) const;
   void setWindowStart(Time newStart);
   float getZoom(void) const;
@@ -94,16 +116,21 @@ public:
   float getSecondWidth(void) const;
   Effect* getParentEffect(void) const;
   void setParentEffect(Effect* newEffect);
+  SignalProxy1<void, Timeline&> getTimeChangedSignal(void);
 private:
   typedef std::vector<TimelineTrack*> EffectList;
+  void draw(void) const;
   void updateScroller(void);
   void onValueChanged(UI::Scroller& scroller);
+  void onTimeChanged(TimelineRuler& ruler);
+  void onAreaChanged(UI::Widget& widget);
+  Signal1<void, Timeline&> timeChangedSignal;
   Show& show;
   EffectList tracks;
   Effect* parent;
-  Time windowStart;
+  Time start;
   float zoom;
-  Time elapsed;
+  unsigned int effectIndex;
   TimelineRuler* ruler;
   UI::Layout* trackLayout;
   UI::Scroller* timeScroller;

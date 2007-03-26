@@ -83,8 +83,7 @@ Menu::Menu(void):
   getFocusChangedSignal().connect(*this, &Menu::onFocusChanged);
 
   setDraggable(true);
-
-  hide();
+  setVisible(false);
 }
 
 Menu::~Menu(void)
@@ -94,7 +93,7 @@ Menu::~Menu(void)
 
 void Menu::display(void)
 {
-  show();
+  setVisible(true);
   bringToFront();
   activate();
 }
@@ -197,7 +196,7 @@ void Menu::draw(void) const
 void Menu::onFocusChanged(Widget& widget, bool activated)
 {
   if (!activated)
-    hide();
+    setVisible(false);
 }
 
 void Menu::onCursorMoved(Widget& widget, const Vector2& position)
@@ -250,7 +249,7 @@ void Menu::onButtonClicked(Widget& widget,
     if (itemTop - itemHeight <= localPosition.y)
     {
       itemSelectedSignal.emit(*this, index);
-      hide();
+      setVisible(false);
       return;
     }
 
@@ -286,7 +285,7 @@ void Menu::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
     case GL::Key::ENTER:
     {
       itemSelectedSignal.emit(*this, selection);
-      hide();
+      setVisible(false);
       break;
     }
   }
@@ -297,7 +296,7 @@ void Menu::onDragEnded(Widget& widget, const Vector2& position)
   Vector2 localPosition = transformToLocal(position);
 
   if (!getArea().contains(localPosition))
-    hide();
+    setVisible(false);
 }
 
 void Menu::sizeToFit(void)

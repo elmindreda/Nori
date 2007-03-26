@@ -28,7 +28,7 @@
 
 #include <AL/alut.h>
 
-/*! @defgroup opengl OpenAL wrapper API
+/*! @defgroup openal OpenAL wrapper API
  *
  *  These classes wrap parts of the OpenAL API, maintaining a rather close
  *  mapping to the underlying concepts, but providing useful services and a

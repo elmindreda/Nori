@@ -187,16 +187,6 @@ void Widget::disable(void)
   enabled = false;
 }
 
-void Widget::show(void)
-{
-  visible = true;
-}
-
-void Widget::hide(void)
-{
-  visible = false;
-}
-
 void Widget::activate(void)
 {
   if (!isVisible() || !isEnabled())
@@ -349,11 +339,16 @@ void Widget::setPosition(const Vector2& newPosition)
   setArea(Rectangle(newPosition, area.size));
 }
 
+void Widget::setVisible(bool newState)
+{
+  visible = newState;
+}
+
 void Widget::setDraggable(bool newState)
 {
   draggable = newState;
   if (draggedWidget == this)
-    draggedWidget = NULL;
+    cancelDragging();
 }
 
 SignalProxy1<void, Widget&> Widget::getDestroyedSignal(void)
@@ -578,7 +573,7 @@ void Widget::onButtonClicked(unsigned int button, bool clicked)
 					      button,
 					      clicked);
 
-      if (clickedWidget->isDraggable())
+      if (button == 0 && clickedWidget->isDraggable())
 	draggedWidget = clickedWidget;
     }
   }

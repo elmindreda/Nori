@@ -37,6 +37,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup demo
+ */
 class Player : public Singleton<Player>, public Trackable
 {
 public:

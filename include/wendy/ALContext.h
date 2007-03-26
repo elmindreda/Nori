@@ -37,6 +37,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup openal
+ */
 class Context : public Singleton<Context>
 {
 public:

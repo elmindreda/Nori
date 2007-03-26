@@ -42,6 +42,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup demo
+ */
 class Show : public Resource<Show>
 {
 public:
@@ -68,6 +70,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup io
+ */
 class ShowCodec : public ResourceCodec<Show>, public XML::Codec
 {
 public:

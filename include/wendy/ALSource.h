@@ -37,6 +37,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup openal
+ */
 class Source : public Managed<Source>
 {
 public:

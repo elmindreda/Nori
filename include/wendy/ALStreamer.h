@@ -37,6 +37,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup openal
+ */
 class Streamer : public Managed<Streamer>
 {
 public:

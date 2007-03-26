@@ -103,7 +103,7 @@ Time Show::getDuration(void) const
   Time duration = 0.0;
 
   for (EffectList::const_iterator i = effects.begin();  i != effects.end();  i++)
-    duration = std::max(duration, (*i)->getDuration());
+    duration = std::max(duration, (*i)->start + (*i)->duration);
 
   return duration;
 }
@@ -115,7 +115,7 @@ Time Show::getTimeElapsed(void) const
 
 void Show::setTimeElapsed(Time newTime)
 {
-  elapsed = std::min(newTime, getDuration());
+  elapsed = std::max(newTime, 0.0);
 
   for (EffectList::const_iterator i = effects.begin();  i != effects.end();  i++)
     updateEffect(**i, elapsed);

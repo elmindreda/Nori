@@ -37,6 +37,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup demo
+ */
 class Editor : public Singleton<Editor>, public Trackable
 {
 public:
@@ -49,17 +51,18 @@ private:
   bool onRender(void);
   void onCreateEffect(UI::Button& button);
   void onDestroyEffect(UI::Button& button);
+  void onZoomIn(UI::Button& button);
+  void onZoomOut(UI::Button& button);
   void onResized(unsigned int width, unsigned int height);
   void onKeyPressed(GL::Key key, bool pressed);
   void onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed);
-  void onTimeSlider(UI::Slider& slider);
+  void onTimeChanged(Timeline& timeline);
   bool visible;
   Ptr<Show> show;
   Ptr<UI::Window> window;
   UI::Canvas* canvas;
   UI::Widget* commandPanel;
   UI::List* effectType;
-  UI::Slider* timeSlider;
   UI::Label* timeDisplay;
   Timeline* timeline;
   Timer timer;

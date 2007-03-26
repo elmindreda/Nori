@@ -63,10 +63,29 @@ using namespace moira;
 
 ConfigDialog::ConfigDialog(void)
 {
+  UI::Layout* layout = new UI::Layout(UI::VERTICAL);
+  addChild(*layout);
+
+  UI::Button* button;
+
+  button = new UI::Button("Demo");
+  layout->addChild(*button, 0.f);
+
+  button = new UI::Button("Die");
+  layout->addChild(*button, 0.f);
+
+  setVisible(false);
 }
 
 void ConfigDialog::request(Config& config)
 {
+  setVisible(true);
+
+  while (GL::Context::get()->update())
+  {
+  }
+
+  setVisible(false);
 }
 
 SignalProxy0<void> ConfigDialog::getRenderSignal(void)

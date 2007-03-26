@@ -67,10 +67,10 @@ VertexShader* VertexShaderCodec::read(const Path& path, const String& name)
 
 VertexShader* VertexShaderCodec::read(Stream& stream, const String& name)
 {
-  Ptr<TextStream> textStream = new TextStream(&stream, false);
+  TextStream textStream(stream, false);
 
   String text;
-  textStream->readText(text, textStream->getSize());
+  textStream.readText(text, textStream.getSize());
 
   return new VertexShader(text, name);
 }
@@ -102,10 +102,10 @@ FragmentShader* FragmentShaderCodec::read(const Path& path, const String& name)
 
 FragmentShader* FragmentShaderCodec::read(Stream& stream, const String& name)
 {
-  Ptr<TextStream> textStream = new TextStream(&stream, false);
+  TextStream textStream(stream, false);
 
   String text;
-  textStream->readText(text, textStream->getSize());
+  textStream.readText(text, textStream.getSize());
 
   return new FragmentShader(text, name);
 }

@@ -53,6 +53,7 @@
 #include <wendy/UILabel.h>
 #include <wendy/UIItem.h>
 #include <wendy/UIList.h>
+#include <wendy/UIMenu.h>
 
 #include <wendy/DemoParameter.h>
 #include <wendy/DemoEffect.h>
@@ -86,15 +87,11 @@ void Editor::setVisible(bool newState)
   GL::Context* context = GL::Context::get();
 
   if (visible)
-  {
-    window->show();
     context->setTitle(show->getTitle() + " - Wendy Editor");
-  }
   else
-  {
-    window->hide();
     context->setTitle(show->getTitle());
-  }
+
+  window->setVisible(visible);
 }
 
 bool Editor::create(void)
@@ -165,6 +162,14 @@ bool Editor::init(void)
     button->getPushedSignal().connect(*this, &Editor::onDestroyEffect);
     commandLayout->addChild(*button);
 
+    button = new UI::Button("Zoom In");
+    button->getPushedSignal().connect(*this, &Editor::onZoomIn);
+    commandLayout->addChild(*button);
+
+    button = new UI::Button("Zoom Out");
+    button->getPushedSignal().connect(*this, &Editor::onZoomOut);
+    commandLayout->addChild(*button);
+
     effectType = new UI::List();
     controlLayout->addChild(*effectType, 0.f);
 
@@ -193,15 +198,12 @@ bool Editor::init(void)
     timelineLayout->setBorderSize(3.f);
     mainLayout->addChild(*timelineLayout, 0.f);
 
-    timeSlider = new UI::Slider(UI::HORIZONTAL);
-    timeSlider->getValueChangedSignal().connect(*this, &Editor::onTimeSlider);
-    timelineLayout->addChild(*timeSlider);
-
     timeDisplay = new UI::Label();
-    timeDisplay->setTextAlignment(UI::RIGHT_ALIGNED);
+    timeDisplay->setTextAlignment(UI::CENTERED_ON_X);
     timelineLayout->addChild(*timeDisplay);
 
     timeline = new Timeline(*show);
+    timeline->getTimeChangedSignal().connect(*this, &Editor::onTimeChanged);
     timelineLayout->addChild(*timeline, 0.f);
   }
 
@@ -217,7 +219,7 @@ bool Editor::onRender(void)
 {
   Time currentTime = timer.getTime();
 
-  timeSlider->setValue(currentTime);
+  timeline->setTimeElapsed(currentTime);
   timeDisplay->setText("%u:%02u.%02u",
                        (unsigned int) currentTime / 60,
 		       (unsigned int) currentTime % 60,
@@ -260,20 +262,23 @@ void Editor::onCreateEffect(UI::Button& button)
     return;
 
   timeline->createEffect(*type);
-
-  timeSlider->setValueRange(0.f, show->getDuration());
 }
 
 void Editor::onDestroyEffect(UI::Button& button)
 {
-  const Show::EffectList& effects = show->getEffects();
+  timeline->destroyEffect();
+}
 
-  if (!effects.empty())
-  {  
-    Effect* effect = effects.back();
-    show->removeEffect(*effect);
-    delete effect;
-  }
+void Editor::onZoomIn(UI::Button& button)
+{
+  timeline->setZoom(timeline->getZoom() * 2.f);
+}
+
+void Editor::onZoomOut(UI::Button& button)
+{
+  const float zoom = timeline->getZoom() / 2.f;
+  if (zoom >= 1.f)
+    timeline->setZoom(zoom);
 }
 
 void Editor::onResized(unsigned int width, unsigned int height)
@@ -349,9 +354,9 @@ void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
   }
 }
 
-void Editor::onTimeSlider(UI::Slider& slider)
+void Editor::onTimeChanged(Timeline& timeline)
 {
-  timer.setTime(slider.getValue());
+  timer.setTime(timeline.getTimeElapsed());
 }
 
 ///////////////////////////////////////////////////////////////////////

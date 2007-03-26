@@ -31,11 +31,7 @@ bool Demo::init(void)
   if (!GL::Renderer::create())
     return false;
 
-  Font* defaultFont = Font::findInstance("default");
-  if (!defaultFont)
-    return false;
-
-  font = render::Font::createInstance(*defaultFont);
+  font = render::Font::readInstance("default");
   if (!font)
     return false;
 
