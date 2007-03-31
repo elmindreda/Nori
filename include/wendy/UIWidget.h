@@ -75,6 +75,7 @@ public:
    */
   void addChild(Widget& child);
   void removeChild(Widget& child);
+  void destroyChildren(void);
   /*! Searches for a widget at the specified point.
    *  @param[in] point The point at which to search.
    *  @return The widget at the specified point, or @c NULL if no matching

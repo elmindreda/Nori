@@ -79,15 +79,22 @@ Widget::Widget(void):
     initialized = true;
   }
 
-  area.set(0.f, 0.f, 1.f, 1.f);
+  const float em = Renderer::get()->getDefaultEM();
+
+  area.set(0.f, 0.f, em, em);
 
   roots.push_back(this);
 }
 
 Widget::~Widget(void)
 {
+  destroyChildren();
+
   if (parent)
-    parent->removeChild(*this);
+  {
+    parent->children.remove(this);
+    parent->removedChild(*this);
+  }
   else
     roots.remove(this);
 
@@ -109,9 +116,6 @@ Widget::~Widget(void)
 
   if (hoveredWidget == this)
     hoveredWidget = NULL;
-
-  while (!children.empty())
-    delete children.front();
 
   destroyedSignal.emit(*this);
 }
@@ -148,6 +152,12 @@ void Widget::removeChild(Widget& child)
     removedChild(child);
     child.removedFromParent(*this);
   }
+}
+
+void Widget::destroyChildren(void)
+{
+  while (!children.empty())
+    delete children.front();
 }
 
 Widget* Widget::findByPoint(const Vector2& point)

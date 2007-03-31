@@ -44,21 +44,58 @@ class Item
   friend class List;
   friend class Menu;
 public:
-  Item(const String& value = "");
+  Item(const String& value = "", unsigned int ID = 0);
   virtual bool operator < (const Item& other) const;
   virtual float getWidth(void) const;
   virtual float getHeight(void) const;
-  virtual const String& getValue(void) const;
-  virtual void setValue(const String& newValue);
+  virtual unsigned int getID(void) const;
+  virtual const String& asString(void) const;
+  virtual void setStringValue(const String& newValue);
 protected:
   virtual void draw(const Rectangle& area, bool selected) const;
 private:
   String value;
+  unsigned int ID;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup ui
+ */
 typedef std::vector<Item*> ItemList;
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup ui
+ */
+class SeparatorItem : public Item
+{
+public:
+  SeparatorItem(void);
+  float getWidth(void) const;
+  float getHeight(void) const;
+protected:
+  void draw(const Rectangle& area, bool selected) const;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup ui
+ */
+class TextureItem : public Item
+{
+public:
+  TextureItem(GL::Texture& texture,
+              const String& name = "",
+	      unsigned int ID = 0);
+  float getWidth(void) const;
+  float getHeight(void) const;
+  GL::Texture& getTexture(void) const;
+protected:
+  void draw(const Rectangle& area, bool selected) const;
+private:
+  Ref<GL::Texture> texture;
+};
 
 ///////////////////////////////////////////////////////////////////////
 

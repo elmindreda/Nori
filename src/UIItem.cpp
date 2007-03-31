@@ -57,8 +57,9 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Item::Item(const String& initValue):
-  value(initValue)
+Item::Item(const String& initValue, unsigned int initID):
+  value(initValue),
+  ID(initID)
 {
 }
 
@@ -88,12 +89,17 @@ float Item::getHeight(void) const
   return Renderer::get()->getCurrentFont()->getHeight() * 1.5f;
 }
 
-const String& Item::getValue(void) const
+unsigned int Item::getID(void) const
+{
+  return ID;
+}
+
+const String& Item::asString(void) const
 {
   return value;
 }
 
-void Item::setValue(const String& newValue)
+void Item::setStringValue(const String& newValue)
 {
   value = newValue;
 }
@@ -111,16 +117,98 @@ void Item::draw(const Rectangle& area, bool selected) const
 
     if (selected)
     {
-      GL::Pass pass;
-      pass.setDefaultColor(ColorRGBA(renderer->getSelectionColor(), 1.f));
-      pass.setDepthTesting(false);
-      pass.setDepthWriting(false);
-      pass.apply();
-
-      glRectf(area.position.x, area.position.y, area.position.x + area.size.x, area.position.y + area.size.y);
+      GL::Renderer::get()->setColor(ColorRGBA(renderer->getSelectionColor(), 1.f));
+      GL::Renderer::get()->fillRectangle(area);
     }
 
     renderer->drawText(textArea, value, LEFT_ALIGNED, selected);
+    renderer->popClipArea();
+  }
+}
+
+///////////////////////////////////////////////////////////////////////
+
+SeparatorItem::SeparatorItem(void)
+{
+}
+
+float SeparatorItem::getWidth(void) const
+{
+  const float em = Renderer::get()->getDefaultEM();
+
+  return em * 3.f;
+}
+
+float SeparatorItem::getHeight(void) const
+{
+  const float em = Renderer::get()->getDefaultEM();
+
+  return em / 2.f;
+}
+
+void SeparatorItem::draw(const Rectangle& area, bool selected) const
+{
+  Renderer* renderer = Renderer::get();
+  if (renderer->pushClipArea(area))
+  {
+    Segment2 segment;
+    segment.start.set(area.position.x, area.position.y + area.size.y / 2.f);
+    segment.end.set(area.position.x + area.size.x, area.position.y + area.size.y / 2.f);
+
+    GL::Renderer::get()->setColor(ColorRGBA::BLACK);
+    GL::Renderer::get()->drawLine(segment);
+
+    renderer->popClipArea();
+  }
+}
+
+///////////////////////////////////////////////////////////////////////
+
+TextureItem::TextureItem(GL::Texture& initTexture,
+                         const String& name,
+			 unsigned int ID):
+  Item(name, ID),
+  texture(&initTexture)
+{
+}
+
+float TextureItem::getWidth(void) const
+{
+  const float em = Renderer::get()->getDefaultEM();
+
+  return Item::getWidth() + em * 3.f;
+}
+
+float TextureItem::getHeight(void) const
+{
+  const float em = Renderer::get()->getDefaultEM();
+
+  return em * 3.f;
+}
+
+GL::Texture& TextureItem::getTexture(void) const
+{
+  return *texture;
+}
+
+void TextureItem::draw(const Rectangle& area, bool selected) const
+{
+  Renderer* renderer = Renderer::get();
+  if (renderer->pushClipArea(area))
+  {
+    const float em = Renderer::get()->getDefaultEM();
+
+    Rectangle textArea = area;
+    textArea.position.x += em * 3.5f;
+    textArea.size.x -= em;
+
+    if (selected)
+    {
+      GL::Renderer::get()->setColor(ColorRGBA(renderer->getSelectionColor(), 1.f));
+      GL::Renderer::get()->fillRectangle(area);
+    }
+
+    renderer->drawText(textArea, asString(), LEFT_ALIGNED, selected);
     renderer->popClipArea();
   }
 }

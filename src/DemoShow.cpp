@@ -57,35 +57,14 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-void Show::addEffect(Effect& effect)
-{
-  if (std::find(effects.begin(), effects.end(), &effect) == effects.end())
-    effects.push_back(&effect);
-}
-
-void Show::removeEffect(Effect& effect)
-{
-  EffectList::iterator i = std::find(effects.begin(), effects.end(), &effect);
-  if (i != effects.end())
-    effects.erase(i);
-}
-
 void Show::prepare(void) const
 {
-  for (EffectList::const_iterator i = effects.begin();  i != effects.end();  i++)
-  {
-    if ((*i)->isActive())
-      (*i)->prepare();
-  }
+  root->prepare();
 }
 
 void Show::render(void) const
 {
-  for (EffectList::const_iterator i = effects.begin();  i != effects.end();  i++)
-  {
-    if ((*i)->isActive())
-      (*i)->render();
-  }
+  root->render();
 }
 
 const String& Show::getTitle(void) const
@@ -102,7 +81,9 @@ Time Show::getDuration(void) const
 {
   Time duration = 0.0;
 
-  for (EffectList::const_iterator i = effects.begin();  i != effects.end();  i++)
+  const Effect::List& children = root->getChildren();
+
+  for (Effect::List::const_iterator i = children.begin();  i != children.end();  i++)
     duration = std::max(duration, (*i)->start + (*i)->duration);
 
   return duration;
@@ -110,20 +91,25 @@ Time Show::getDuration(void) const
 
 Time Show::getTimeElapsed(void) const
 {
-  return elapsed;
+  return root->getTimeElapsed();
 }
 
 void Show::setTimeElapsed(Time newTime)
 {
-  elapsed = std::max(newTime, 0.0);
+  newTime = std::max(newTime, 0.0);
+  root->setDuration(getDuration());
 
-  for (EffectList::const_iterator i = effects.begin();  i != effects.end();  i++)
-    updateEffect(**i, elapsed);
+  updateEffect(*root, newTime);
 }
 
-const Show::EffectList& Show::getEffects(void) const
+Effect& Show::getRootEffect(void)
 {
-  return effects;
+  return *root;
+}
+
+const Effect& Show::getRootEffect(void) const
+{
+  return *root;
 }
 
 Show* Show::createInstance(const String& name)
@@ -136,8 +122,7 @@ Show* Show::createInstance(const String& name)
 }
 
 Show::Show(const String& name):
-  Resource<Show>(name),
-  elapsed(0.0)
+  Resource<Show>(name)
 {
 }
 
@@ -157,6 +142,10 @@ bool Show::init(void)
     if (!EffectType::findInstance(name))
       new EffectTemplate<ClearEffect>(name);
   }
+
+  root = EffectType::findInstance("Null effect")->createEffect("Root effect");
+  if (!root)
+    return false;
 
   return true;
 }
@@ -247,7 +236,10 @@ bool ShowCodec::write(Stream& stream, const Show& show)
     beginElement("show");
     addAttribute("title", show.getTitle());
 
-    // TODO: The code.
+    const Effect::List& children = show.getRootEffect().getChildren();
+
+    for (Effect::List::const_iterator i = children.begin();  i != children.end();  i++)
+      writeEffect(**i);
 
     endElement();
 
@@ -273,6 +265,7 @@ bool ShowCodec::onBeginElement(const String& name)
       return false;
 
     show->setTitle(readString("title"));
+    effectStack.push(&(show->getRootEffect()));
     return true;
   }
 
@@ -296,11 +289,7 @@ bool ShowCodec::onBeginElement(const String& name)
       effect->setStartTime(readFloat("start"));
       effect->setDuration(readFloat("duration"));
 
-      if (effectStack.empty())
-	show->addEffect(*effect);
-      else
-	effectStack.top()->addChild(*effect);
-
+      effectStack.top()->addChild(*effect);
       effectStack.push(effect);
       return true;
     }
@@ -350,6 +339,24 @@ bool ShowCodec::onEndElement(const String& name)
   }
   
   return true;
+}
+
+void ShowCodec::writeEffect(const Effect& effect)
+{
+  beginElement("effect");
+  addAttribute("name", effect.getName());
+  addAttribute("type", effect.getType().getName());
+  addAttribute("start", effect.getStartTime());
+  addAttribute("duration", effect.getDuration());
+
+  // TODO: Write parameters and keys.
+
+  const Effect::List& children = effect.getChildren();
+
+  for (Effect::List::const_iterator i = children.begin();  i != children.end();  i++)
+    writeEffect(**i);
+
+  endElement();
 }
 
 ///////////////////////////////////////////////////////////////////////

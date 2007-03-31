@@ -93,6 +93,7 @@ Menu::~Menu(void)
 
 void Menu::display(void)
 {
+  selection = 0;
   setVisible(true);
   bringToFront();
   activate();
@@ -105,6 +106,19 @@ void Menu::addItem(Item& item)
     return;
 
   items.push_back(&item);
+
+  sizeToFit();
+}
+
+void Menu::addItemAt(Item& item, unsigned int index)
+{
+  ItemList::iterator i = std::find(items.begin(), items.end(), &item);
+  if (i != items.end())
+    return;
+
+  i = items.begin();
+  std::advance(i, std::min(index, items.size()));
+  items.insert(i, &item);
 
   sizeToFit();
 }

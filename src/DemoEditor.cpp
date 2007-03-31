@@ -44,7 +44,7 @@
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIWindow.h>
-#include <wendy/UIView.h>
+#include <wendy/UIBook.h>
 #include <wendy/UICanvas.h>
 #include <wendy/UIScroller.h>
 #include <wendy/UISlider.h>
@@ -54,6 +54,7 @@
 #include <wendy/UIItem.h>
 #include <wendy/UIList.h>
 #include <wendy/UIMenu.h>
+#include <wendy/UIPopup.h>
 
 #include <wendy/DemoParameter.h>
 #include <wendy/DemoEffect.h>
@@ -75,6 +76,43 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+void Editor::render(void)
+{
+  Time currentTime = timer.getTime();
+
+  timeline->setTimeElapsed(currentTime);
+  timeDisplay->setText("%u:%02u.%02u",
+                       (unsigned int) currentTime / 60,
+		       (unsigned int) currentTime % 60,
+		       (unsigned int) (currentTime * 100.0) % 100);
+
+  show->setTimeElapsed(currentTime);
+  show->prepare();
+
+  GL::ScreenCanvas screen;
+
+  if (visible)
+  {
+    screen.begin();
+    screen.clearColorBuffer();
+    UI::Widget::drawRoots();
+    screen.end();
+
+    if (canvas->isVisible())
+    {
+      canvas->getCanvas().begin();
+      show->render();
+      canvas->getCanvas().end();
+    }
+  }
+  else
+  {
+    screen.begin();
+    show->render();
+    screen.end();
+  }
+}
+
 bool Editor::isVisible(void) const
 {
   return visible;
@@ -91,7 +129,7 @@ void Editor::setVisible(bool newState)
   else
     context->setTitle(show->getTitle());
 
-  window->setVisible(visible);
+  book->setVisible(visible);
 }
 
 bool Editor::create(void)
@@ -121,18 +159,18 @@ bool Editor::init(void)
   show->setTitle("Demo");
 
   GL::Context* context = GL::Context::get();
-  context->getRenderSignal().connect(*this, &Editor::onRender);
   context->getResizedSignal().connect(*this, &Editor::onResized);
   context->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
 
-  window = new UI::Window();
-  window->setArea(Rectangle(0, 0, context->getWidth(), context->getHeight()));
+  book = new UI::Book();
 
-  UI::Layout* mainLayout = new UI::Layout(UI::VERTICAL);
-  window->addChild(*mainLayout);
+  UI::Page* timelinePage = new UI::Page("Timeline View");
+  book->addChild(*timelinePage);
 
-  // Upper half
   {
+    UI::Layout* mainLayout = new UI::Layout(UI::VERTICAL);
+    timelinePage->addChild(*mainLayout);
+
     UI::Layout* upperLayout = new UI::Layout(UI::HORIZONTAL, false);
     upperLayout->setBorderSize(3.f);
     mainLayout->addChild(*upperLayout, 0.f);
@@ -158,17 +196,23 @@ bool Editor::init(void)
     button->getPushedSignal().connect(*this, &Editor::onCreateEffect);
     commandLayout->addChild(*button);
 
-    button = new UI::Button("Destroy Effect");
-    button->getPushedSignal().connect(*this, &Editor::onDestroyEffect);
-    commandLayout->addChild(*button);
+    UI::Label* label;
+    
+    label = new UI::Label("Zoom");
+    commandLayout->addChild(*label);
 
-    button = new UI::Button("Zoom In");
-    button->getPushedSignal().connect(*this, &Editor::onZoomIn);
-    commandLayout->addChild(*button);
+    UI::Slider* zoomSlider = new UI::Slider();
+    zoomSlider->setValueRange(1.f, 4.f);
+    zoomSlider->setValue(1.f);
+    zoomSlider->getValueChangedSignal().connect(*this, &Editor::onZoomChanged);
+    commandLayout->addChild(*zoomSlider);
 
-    button = new UI::Button("Zoom Out");
-    button->getPushedSignal().connect(*this, &Editor::onZoomOut);
-    commandLayout->addChild(*button);
+    label = new UI::Label("Parent");
+    commandLayout->addChild(*label);
+
+    parentPopup = new UI::Popup();
+    parentPopup->getItemSelectedSignal().connect(*this, &Editor::onParentSelected);
+    commandLayout->addChild(*parentPopup);
 
     effectType = new UI::List();
     controlLayout->addChild(*effectType, 0.f);
@@ -190,10 +234,7 @@ bool Editor::init(void)
 	effectType->addItem(*item);
       }
     }
-  }
 
-  // Lower half
-  {
     UI::Layout* timelineLayout = new UI::Layout(UI::VERTICAL, false);
     timelineLayout->setBorderSize(3.f);
     mainLayout->addChild(*timelineLayout, 0.f);
@@ -204,50 +245,45 @@ bool Editor::init(void)
 
     timeline = new Timeline(*show);
     timeline->getTimeChangedSignal().connect(*this, &Editor::onTimeChanged);
+    timeline->getParentChangedSignal().connect(*this, &Editor::onParentChanged);
     timelineLayout->addChild(*timeline, 0.f);
+  }
+
+  UI::Page* shaderPage = new UI::Page("Shader Editor");
+  book->addChild(*shaderPage);
+
+  {
+    UI::Layout* mainLayout = new UI::Layout(UI::VERTICAL);
+    shaderPage->addChild(*mainLayout);
+
+    UI::Label* stupidLabel = new UI::Label("Stuff here");
+    mainLayout->addChild(*stupidLabel, 0.f);
+  }
+
+  UI::Page* aboutPage = new UI::Page("About Wendy");
+  book->addChild(*aboutPage);
+
+  {
+    UI::Layout* mainLayout = new UI::Layout(UI::VERTICAL);
+    aboutPage->addChild(*mainLayout);
+
+    UI::Label* aboutLabel = new UI::Label();
+    mainLayout->addChild(*aboutLabel, 0.f);
+
+    aboutLabel->setText("The Wendy demo system\n"
+                        "Copyright (c) 2007 Camilla Berglund <elmindreda@users.sourceforge.net>\n"
+                        "\n"
+			"Compiled " __TIME__ " on " __DATE__ "\n");
   }
 
   timer.start();
   timer.pause();
   timer.setTime(0.0);
 
+  onResized(context->getWidth(), context->getHeight());
+  onParentChanged(*timeline);
+
   setVisible(false);
-  return true;
-}
-
-bool Editor::onRender(void)
-{
-  Time currentTime = timer.getTime();
-
-  timeline->setTimeElapsed(currentTime);
-  timeDisplay->setText("%u:%02u.%02u",
-                       (unsigned int) currentTime / 60,
-		       (unsigned int) currentTime % 60,
-		       (unsigned int) (currentTime * 100.0) % 100);
-
-  show->setTimeElapsed(currentTime);
-  show->prepare();
-
-  GL::ScreenCanvas screen;
-
-  if (visible)
-  {
-    screen.begin();
-    screen.clearColorBuffer();
-    UI::Widget::drawRoots();
-    screen.end();
-
-    canvas->getCanvas().begin();
-    show->render();
-    canvas->getCanvas().end();
-  }
-  else
-  {
-    screen.begin();
-    show->render();
-    screen.end();
-  }
-
   return true;
 }
 
@@ -257,33 +293,21 @@ void Editor::onCreateEffect(UI::Button& button)
   if (!typeItem)
     return;
 
-  EffectType* type = EffectType::findInstance(typeItem->getValue());
+  EffectType* type = EffectType::findInstance(typeItem->asString());
   if (!type)
     return;
 
   timeline->createEffect(*type);
 }
 
-void Editor::onDestroyEffect(UI::Button& button)
+void Editor::onZoomChanged(UI::Slider& slider)
 {
-  timeline->destroyEffect();
-}
-
-void Editor::onZoomIn(UI::Button& button)
-{
-  timeline->setZoom(timeline->getZoom() * 2.f);
-}
-
-void Editor::onZoomOut(UI::Button& button)
-{
-  const float zoom = timeline->getZoom() / 2.f;
-  if (zoom >= 1.f)
-    timeline->setZoom(zoom);
+  timeline->setZoom(slider.getValue());
 }
 
 void Editor::onResized(unsigned int width, unsigned int height)
 {
-  window->setSize(Vector2(width, height));
+  book->setSize(Vector2(width, height));
 }
 
 void Editor::onKeyPressed(GL::Key key, bool pressed)
@@ -357,6 +381,29 @@ void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
 void Editor::onTimeChanged(Timeline& timeline)
 {
   timer.setTime(timeline.getTimeElapsed());
+}
+
+void Editor::onParentChanged(Timeline& timeline)
+{
+  parentPopup->destroyItems();
+
+  Effect* effect = &(timeline.getParentEffect());
+
+  do
+  {
+    parentPopup->addItem(*new UI::Item(effect->getName()));
+  }
+  while (effect = effect->getParent());
+}
+
+void Editor::onParentSelected(UI::Popup& popup, unsigned int index)
+{
+  UI::Item* item = popup.getItem(index);
+  Effect* effect = Effect::findInstance(item->asString());
+  if (!effect)
+    return;
+
+  timeline->setParentEffect(*effect);
 }
 
 ///////////////////////////////////////////////////////////////////////

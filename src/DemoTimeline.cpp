@@ -146,15 +146,19 @@ void TimelineRuler::draw(void) const
       }
     }
 
-    float position = (elapsed - timeline.getWindowStart()) * width;
+    const Time timeOffset = timeline.getWindowStart() +
+                            timeline.getParentEffect().getGlobalOffset();
+    float position = (elapsed - timeOffset) * width;
 
     Triangle2 triangle;
-    triangle.P[0] = Vector2(position + width / 2.f, area.size.y) + area.position;
-    triangle.P[1] = Vector2(position - width / 2.f, area.size.y) + area.position;
+    triangle.P[0] = Vector2(position + area.size.y / 2.f, area.size.y) + area.position;
+    triangle.P[1] = Vector2(position - area.size.y / 2.f, area.size.y) + area.position;
     triangle.P[2] = Vector2(position, 0.f) + area.position;
 
-    GL::Renderer::get()->setColor(ColorRGBA::BLACK);
+    GL::Renderer::get()->setColor(ColorRGBA(0.8f, 0.1f, 0.1f, 1.f));
     GL::Renderer::get()->fillTriangle(triangle);
+    GL::Renderer::get()->setColor(ColorRGBA::BLACK);
+    GL::Renderer::get()->drawTriangle(triangle);
 
     UI::Widget::draw();
 
@@ -170,38 +174,24 @@ void TimelineRuler::onButtonClicked(Widget& widget,
   if (!clicked)
     return;
 
-  const Vector2 localPoint = transformToLocal(point);
+  const float position = transformToLocal(point).x;
 
-  bool snapping = false;
-
-  GL::Context* context = GL::Context::get();
-
-  if (context->isKeyDown(GL::Key::LSHIFT) || context->isKeyDown(GL::Key::RSHIFT))
-    snapping = true;
-
-  elapsed = timeline.getWindowStart() + localPoint.x / timeline.getSecondWidth();
-
-  if (snapping)
-    elapsed = floorf(elapsed + 0.5);
+  elapsed = timeline.getWindowStart() + position / timeline.getSecondWidth();
+  elapsed = std::max(elapsed, 0.0);
+  elapsed = timeline.getParentEffect().getGlobalOffset() +
+            timeline.getSnappedTime(elapsed);
 
   timeChangedSignal.emit(*this);
 }
 
 void TimelineRuler::onDragMoved(Widget& widget, const Vector2& point)
 {
-  const Vector2 localPoint = transformToLocal(point);
+  const float position = transformToLocal(point).x;
 
-  bool snapping = false;
-
-  GL::Context* context = GL::Context::get();
-
-  if (context->isKeyDown(GL::Key::LSHIFT) || context->isKeyDown(GL::Key::RSHIFT))
-    snapping = true;
-
-  elapsed = timeline.getWindowStart() + localPoint.x / timeline.getSecondWidth();
-
-  if (snapping)
-    elapsed = floorf(elapsed + 0.5);
+  elapsed = timeline.getWindowStart() + position / timeline.getSecondWidth();
+  elapsed = std::max(elapsed, 0.0);
+  elapsed = timeline.getParentEffect().getGlobalOffset() +
+            timeline.getSnappedTime(elapsed);
 
   timeChangedSignal.emit(*this);
 }
@@ -215,16 +205,9 @@ TimelineTrack::TimelineTrack(Timeline& initTimeline, Effect& initEffect):
 {
   const float em = UI::Renderer::get()->getDefaultEM();
 
-  getButtonClickedSignal().connect(*this, &TimelineTrack::onButtonClicked);
   getDragBegunSignal().connect(*this, &TimelineTrack::onDragBegun);
   getDragMovedSignal().connect(*this, &TimelineTrack::onDragMoved);
   getDragEndedSignal().connect(*this, &TimelineTrack::onDragEnded);
-
-  menu = new UI::Menu();
-  menu->addItem(*new UI::Item("Rename"));
-  menu->addItem(*new UI::Item("Move Up"));
-  menu->addItem(*new UI::Item("Move Down"));
-  menu->addItem(*new UI::Item("Delete"));
 
   setSize(Vector2(em * 2.f, em * 2.f));
   setDraggable(true);
@@ -282,18 +265,6 @@ void TimelineTrack::draw(void) const
   }
 }
 
-void TimelineTrack::onButtonClicked(Widget& widget,
-		                    const Vector2& point,
-		                    unsigned int button,
-		                    bool clicked)
-{
-  if (!clicked || button != 1)
-    return;
-
-  menu->setPosition(point);
-  menu->display();
-}
-
 void TimelineTrack::onDragBegun(Widget& widget, const Vector2& point)
 {
   float position = transformToLocal(point).x;
@@ -326,13 +297,6 @@ void TimelineTrack::onDragMoved(Widget& widget, const Vector2& point)
 {
   float position = transformToLocal(point).x;
 
-  bool snapping = false;
-
-  GL::Context* context = GL::Context::get();
-
-  if (context->isKeyDown(GL::Key::LSHIFT) || context->isKeyDown(GL::Key::RSHIFT))
-    snapping = true;
-
   const float offset = getHandleOffset();
 
   if (mode == DRAGGING_POSITION)
@@ -340,8 +304,7 @@ void TimelineTrack::onDragMoved(Widget& widget, const Vector2& point)
     Time start = timeline.getWindowStart() +
                  (position - reference) / timeline.getSecondWidth();
 
-    if (snapping)
-      start = floor(start + 0.5);
+    start = timeline.getSnappedTime(start);
 
     if (start >= 0.0)
       effect.setStartTime(start);
@@ -351,8 +314,7 @@ void TimelineTrack::onDragMoved(Widget& widget, const Vector2& point)
     Time start = timeline.getWindowStart() +
                  (position - reference) / timeline.getSecondWidth();
 
-    if (snapping)
-      start = floor(start + 0.5);
+    start = timeline.getSnappedTime(start);
 
     Time duration = effect.getDuration() + effect.getStartTime() - start;
     if (start >= 0.0 && duration >= 0.0)
@@ -365,8 +327,7 @@ void TimelineTrack::onDragMoved(Widget& widget, const Vector2& point)
   {
     Time duration = (position - offset - reference) / timeline.getSecondWidth();
 
-    if (snapping)
-      duration = floorf(duration + 0.5);
+    duration = timeline.getSnappedTime(duration);
 
     if (duration >= 0.0)
       effect.setDuration(duration);
@@ -393,6 +354,7 @@ float TimelineTrack::getHandleOffset(void) const
 Timeline::Timeline(Show& initShow):
   show(initShow),
   parent(NULL),
+  selected(NULL),
   start(0.0),
   zoom(1.f),
   effectIndex(1)
@@ -408,39 +370,56 @@ Timeline::Timeline(Show& initShow):
 
   trackLayout = new UI::Layout(UI::VERTICAL, false);
   trackLayout->setBorderSize(0.f);
+  trackLayout->getButtonClickedSignal().connect(*this, &Timeline::onButtonClicked);
   mainLayout->addChild(*trackLayout, 0.f);
 
   timeScroller = new UI::Scroller(UI::HORIZONTAL);
   timeScroller->getValueChangedSignal().connect(*this, &Timeline::onValueChanged);
   mainLayout->addChild(*timeScroller);
 
-  setParentEffect(NULL);
+  effectMenu = new UI::Menu();
+  effectMenu->addItem(*new UI::Item("Enter", MENU_ENTER));
+  effectMenu->addItem(*new UI::SeparatorItem());
+  effectMenu->addItem(*new UI::Item("Rename", MENU_RENAME));
+  effectMenu->addItem(*new UI::SeparatorItem());
+  effectMenu->addItem(*new UI::Item("Move Up", MENU_MOVE_UP));
+  effectMenu->addItem(*new UI::Item("Move Down", MENU_MOVE_DOWN));
+  effectMenu->addItem(*new UI::SeparatorItem());
+  effectMenu->addItem(*new UI::Item("Delete", MENU_DELETE));
+  effectMenu->getItemSelectedSignal().connect(*this, &Timeline::onItemSelected);
+
+  layoutMenu = new UI::Menu();
+  layoutMenu->addItem(*new UI::Item("Exit", MENU_EXIT));
+  layoutMenu->getItemSelectedSignal().connect(*this, &Timeline::onItemSelected);
+
+  setParentEffect(show.getRootEffect());
 }
 
 bool Timeline::createEffect(EffectType& type)
 {
-  Effect* effect = type.createEffect();
+  std::stringstream stream;
+  stream << type.getName() << ' ' << effectIndex++;
+
+  Effect* effect = type.createEffect(stream.str());
   if (!effect)
     return false;
 
-  std::stringstream stream;
-  stream << "Effect " << effectIndex++;
-  effect->setName(stream.str());
-
   effect->setStartTime(start);
   effect->setDuration(10.0);
-  show.addEffect(*effect);
+  parent->addChild(*effect);
 
-  setParentEffect(parent);
+  createTrack(*effect);
   return true;
 }
 
 void Timeline::destroyEffect(void)
 {
-  TimelineTrack* track = dynamic_cast<TimelineTrack*>(getActive());
-  if (track)
+  if (selected)
   {
-    updateScroller();
+    Effect* effect = &(selected->getEffect());
+
+    delete selected;
+    delete effect;
   }
 }
 
@@ -488,50 +467,49 @@ float Timeline::getSecondWidth(void) const
   return em * 2.f * zoom;
 }
 
-Effect* Timeline::getParentEffect(void) const
+Effect& Timeline::getParentEffect(void) const
 {
-  return parent;
+  return *parent;
 }
 
-void Timeline::setParentEffect(Effect* newEffect)
+void Timeline::setParentEffect(Effect& newParent)
 {
-  while (!tracks.empty())
-  {
-    delete tracks.back();
-    tracks.pop_back();
-  }
+  if (parent == &newParent)
+    return;
 
-  parent = newEffect;
+  trackLayout->destroyChildren();
+  selected = NULL;
 
-  if (parent)
-  {
-    const Effect::List& effects = parent->getChildren();
+  parent = &newParent;
 
-    for (unsigned int i = 0;  i < effects.size();  i++)
-    {
-      TimelineTrack* track = new TimelineTrack(*this, *effects[i]);
-      trackLayout->addChild(*track);
-      tracks.push_back(track);
-    }
-  }
-  else
-  {
-    const Show::EffectList& effects = show.getEffects();
+  const Effect::List& effects = parent->getChildren();
 
-    for (unsigned int i = 0;  i < effects.size();  i++)
-    {
-      TimelineTrack* track = new TimelineTrack(*this, *effects[i]);
-      trackLayout->addChild(*track);
-      tracks.push_back(track);
-    }
-  }
+  for (Effect::List::const_iterator i = effects.begin();  i != effects.end();  i++)
+    createTrack(**i);
 
   updateScroller();
+
+  parentChangedSignal.emit(*this);
+}
+
+Time Timeline::getSnappedTime(Time time) const
+{
+  GL::Context* context = GL::Context::get();
+
+  if (context->isKeyDown(GL::Key::LSHIFT) || context->isKeyDown(GL::Key::RSHIFT))
+    return floorf(time + 0.5);
+
+  return time;
 }
 
 SignalProxy1<void, Timeline&> Timeline::getTimeChangedSignal(void)
 {
   return timeChangedSignal;
+}
+
+SignalProxy1<void, Timeline&> Timeline::getParentChangedSignal(void)
+{
+  return parentChangedSignal;
 }
 
 void Timeline::draw(void) const
@@ -545,16 +523,16 @@ void Timeline::draw(void) const
 
     const Rectangle& layoutArea = trackLayout->getGlobalArea();
 
+    const Time timeOffset = getWindowStart() + parent->getGlobalOffset();
+    const float position = (getTimeElapsed() - timeOffset) * getSecondWidth();
     const float width = renderer->getDefaultEM() / 3.f;
-    const float position = (getTimeElapsed() - getWindowStart()) *
-			   getSecondWidth();
 
     Rectangle markerArea;
     markerArea.position.set(layoutArea.position.x + position - width / 2.f,
                             layoutArea.position.y);
     markerArea.size.set(width, layoutArea.size.y);
 
-    GL::Renderer::get()->setColor(ColorRGBA(0.3f, 0.3f, 0.3f, 0.7f));
+    GL::Renderer::get()->setColor(ColorRGBA(0.3f, 0.3f, 0.3f, 0.5f));
     GL::Renderer::get()->fillRectangle(markerArea);
 
     renderer->popClipArea();
@@ -563,17 +541,46 @@ void Timeline::draw(void) const
 
 void Timeline::updateScroller(void)
 {
-  Time duration;
-
-  if (parent)
-    duration = parent->getDuration();
-  else
-    duration = show.getDuration();
-
   Time visible = getVisibleDuration();
+  Time duration = parent->getDuration();
 
   timeScroller->setPercentage(visible / (duration + visible) / zoom);
   timeScroller->setValueRange(0.f, duration + visible);
+}
+
+void Timeline::createTrack(Effect& effect)
+{
+  TimelineTrack* track = new TimelineTrack(*this, effect);
+  track->getButtonClickedSignal().connect(*this, &Timeline::onButtonClicked);
+  trackLayout->addChild(*track);
+}
+
+void Timeline::onButtonClicked(Widget& widget,
+		               const Vector2& point,
+		               unsigned int button,
+		               bool clicked)
+{
+  if (&widget == trackLayout)
+  {
+    if (clicked && button == 1)
+    {
+      if (parent->getParent())
+      {
+	layoutMenu->setPosition(point);
+	layoutMenu->display();
+      }
+    }
+  }
+  else if (TimelineTrack* track = dynamic_cast<TimelineTrack*>(&widget))
+  {
+    selected = track;
+
+    if (clicked && button == 1)
+    {
+      effectMenu->setPosition(point);
+      effectMenu->display();
+    }
+  }
 }
 
 void Timeline::onValueChanged(UI::Scroller& scroller)
@@ -589,6 +596,53 @@ void Timeline::onTimeChanged(TimelineRuler& ruler)
 void Timeline::onAreaChanged(UI::Widget& widget)
 {
   updateScroller();
+}
+
+void Timeline::onItemSelected(UI::Menu& menu, unsigned int index)
+{
+  UI::Item* item = menu.getItem(index);
+
+  switch (item->getID())
+  {
+    case MENU_ENTER:
+    {
+      if (selected)
+	setParentEffect(selected->getEffect());
+      break;
+    }
+
+    case MENU_EXIT:
+    {
+      if (selected)
+      {
+	if (Effect* parent = selected->getEffect().getParent())
+	  setParentEffect(*parent);
+      }
+
+      break;
+    }
+
+    case MENU_RENAME:
+    {
+      break;
+    }
+
+    case MENU_MOVE_UP:
+    {
+      break;
+    }
+
+    case MENU_MOVE_DOWN:
+    {
+      break;
+    }
+
+    case MENU_DELETE:
+    {
+      destroyEffect();
+      break;
+    }
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -42,6 +42,7 @@ using namespace moira;
 class Editor : public Singleton<Editor>, public Trackable
 {
 public:
+  void render(void);
   bool isVisible(void) const;
   void setVisible(bool newState);
   static bool create(void);
@@ -51,18 +52,20 @@ private:
   bool onRender(void);
   void onCreateEffect(UI::Button& button);
   void onDestroyEffect(UI::Button& button);
-  void onZoomIn(UI::Button& button);
-  void onZoomOut(UI::Button& button);
+  void onZoomChanged(UI::Slider& slider);
   void onResized(unsigned int width, unsigned int height);
   void onKeyPressed(GL::Key key, bool pressed);
   void onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed);
   void onTimeChanged(Timeline& timeline);
+  void onParentChanged(Timeline& timeline);
+  void onParentSelected(UI::Popup& popup, unsigned int index);
   bool visible;
   Ptr<Show> show;
-  Ptr<UI::Window> window;
+  Ptr<UI::Book> book;
   UI::Canvas* canvas;
   UI::Widget* commandPanel;
   UI::List* effectType;
+  UI::Popup* parentPopup;
   UI::Label* timeDisplay;
   Timeline* timeline;
   Timer timer;

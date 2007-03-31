@@ -80,10 +80,6 @@ private:
     DRAGGING_DURATION,
   };
   void draw(void) const;
-  void onButtonClicked(Widget& widget,
-                       const Vector2& point,
-		       unsigned int button,
-		       bool clicked);
   void onDragBegun(Widget& widget, const Vector2& point);
   void onDragMoved(Widget& widget, const Vector2& point);
   void onDragEnded(Widget& widget, const Vector2& point);
@@ -92,7 +88,6 @@ private:
   Timeline& timeline;
   Effect& effect;
   DragMode mode;
-  Ptr<UI::Menu> menu;
   float reference;
 };
 
@@ -114,20 +109,40 @@ public:
   void setTimeElapsed(Time newTime);
   Time getVisibleDuration(void) const;
   float getSecondWidth(void) const;
-  Effect* getParentEffect(void) const;
-  void setParentEffect(Effect* newEffect);
+  Effect& getParentEffect(void) const;
+  void setParentEffect(Effect& newEffect);
+  Time getSnappedTime(Time time) const;
   SignalProxy1<void, Timeline&> getTimeChangedSignal(void);
+  SignalProxy1<void, Timeline&> getParentChangedSignal(void);
 private:
   typedef std::vector<TimelineTrack*> EffectList;
+  enum MenuItem
+  {
+    MENU_ENTER = 1,
+    MENU_EXIT,
+    MENU_RENAME,
+    MENU_MOVE_UP,
+    MENU_MOVE_DOWN,
+    MENU_DELETE,
+  };
   void draw(void) const;
   void updateScroller(void);
+  void createTrack(Effect& effect);
+  void onButtonClicked(Widget& widget,
+                       const Vector2& point,
+		       unsigned int button,
+		       bool clicked);
   void onValueChanged(UI::Scroller& scroller);
   void onTimeChanged(TimelineRuler& ruler);
   void onAreaChanged(UI::Widget& widget);
+  void onItemSelected(UI::Menu& menu, unsigned int index);
   Signal1<void, Timeline&> timeChangedSignal;
+  Signal1<void, Timeline&> parentChangedSignal;
   Show& show;
-  EffectList tracks;
   Effect* parent;
+  TimelineTrack* selected;
+  Ptr<UI::Menu> effectMenu;
+  Ptr<UI::Menu> layoutMenu;
   Time start;
   float zoom;
   unsigned int effectIndex;

@@ -120,7 +120,7 @@ void Widgets::onValueChanged(UI::Slider& slider)
 void Widgets::onItemSelected(UI::Popup& popup, unsigned int index)
 {
   UI::Item* item = popup.getItem(index);
-  label->setText("Menu: " + item->getValue());
+  label->setText("Menu: " + item->asString());
 }
 
 int main()

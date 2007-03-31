@@ -122,6 +122,7 @@
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIWindow.h>
+#include <wendy/UIBook.h>
 #include <wendy/UIView.h>
 #include <wendy/UICanvas.h>
 #include <wendy/UILayout.h>

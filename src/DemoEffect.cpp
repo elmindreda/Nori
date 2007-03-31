@@ -94,6 +94,20 @@ EffectType& Effect::getType(void) const
   return type;
 }
 
+Time Effect::getGlobalOffset(void) const
+{
+  Time offset = 0.0;
+
+  const Effect* effect = this;
+  while (effect)
+  {
+    offset += effect->getStartTime();
+    effect = effect->getParent();
+  }
+
+  return offset;
+}
+
 Time Effect::getStartTime(void) const
 {
   return start;

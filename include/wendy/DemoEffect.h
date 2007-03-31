@@ -94,6 +94,7 @@ public:
   Parameter* findParameter(const String& name);
   bool isActive(void) const;
   EffectType& getType(void) const;
+  Time getGlobalOffset(void) const;
   Time getStartTime(void) const;
   void setStartTime(Time newTime);
   Time getDuration(void) const;

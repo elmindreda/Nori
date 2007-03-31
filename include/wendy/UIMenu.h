@@ -46,6 +46,7 @@ public:
   ~Menu(void);
   void display(void);
   void addItem(Item& item);
+  void addItemAt(Item& item, unsigned int index);
   void removeItem(Item& item);
   void destroyItems(void);
   void sortItems(void);

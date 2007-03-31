@@ -9,10 +9,19 @@ using namespace wendy;
 namespace
 {
 
+bool render(void)
+{
+  demo::Editor::get()->render();
+
+  return true;
+}
+
 bool setup(void)
 {
   if (!GL::Renderer::create())
     return false;
+
+  GL::Context::get()->getRenderSignal().connect(render);
 
   if (!UI::Renderer::create())
     return false;
@@ -65,6 +74,8 @@ void CubeEffect::render(void) const
   render::Queue queue(camera);
   scene.enqueue(queue);
   queue.render();
+
+  demo::Effect::render();
 }
 
 void CubeEffect::update(Time deltaTime)
