@@ -107,6 +107,9 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Multi-technique render style descriptor.
+ *  @ingroup renderer
+ */
 class Style : public Resource<Style>, public RefObject<Style>
 {
 public:

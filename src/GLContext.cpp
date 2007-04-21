@@ -60,20 +60,48 @@ Key::operator unsigned int (void) const
 
 ///////////////////////////////////////////////////////////////////////
 
+ScreenMode::ScreenMode(void)
+{
+  setDefaults();
+}
+
+ScreenMode::ScreenMode(unsigned int initWidth,
+                       unsigned int initHeight,
+		       unsigned int initColorBits):
+  width(initWidth),
+  height(initHeight),
+  colorBits(initColorBits)
+{
+}
+
+void ScreenMode::setDefaults(void)
+{
+  set(640, 480, 0);
+}
+
+void ScreenMode::set(unsigned int newWidth,
+                     unsigned int newHeight,
+		     unsigned int newColorBits)
+{
+  width = newWidth;
+  height = newHeight;
+  colorBits = newColorBits;
+}
+
+///////////////////////////////////////////////////////////////////////
+
 ContextMode::ContextMode(void)
 {
   setDefaults();
 }
 
-ContextMode::ContextMode(unsigned int initWidth,
-                         unsigned int initHeight,
-			 unsigned int initColorBits,
+ContextMode::ContextMode(unsigned int width,
+                         unsigned int height,
+			 unsigned int colorBits,
 			 unsigned int initDepthBits,
 			 unsigned int initStencilBits,
 			 unsigned int initFlags):
-  width(initWidth),
-  height(initHeight),
-  colorBits(initColorBits),
+  ScreenMode(width, height, colorBits),
   depthBits(initDepthBits),
   stencilBits(initStencilBits),
   flags(initFlags)
@@ -82,19 +110,18 @@ ContextMode::ContextMode(unsigned int initWidth,
 
 void ContextMode::setDefaults(void)
 {
-  set(640, 480, 0, 0, 0, 0);
+  set(640, 480, 0, 0, 0, DEFAULT);
 }
 
-void ContextMode::set(unsigned int newWidth,
-                      unsigned int newHeight,
-		      unsigned int newColorBits,
+void ContextMode::set(unsigned int width,
+                      unsigned int height,
+		      unsigned int colorBits,
 		      unsigned int newDepthBits,
 		      unsigned int newStencilBits,
 		      unsigned int newFlags)
 {
-  width = newWidth;
-  height = newHeight;
-  colorBits = newColorBits;
+  ScreenMode::set(width, height, colorBits);
+
   depthBits = newDepthBits;
   stencilBits = newStencilBits;
   flags = newFlags;
@@ -308,6 +335,11 @@ SignalProxy0<void> Context::getCreateSignal(void)
 SignalProxy0<void> Context::getDestroySignal(void)
 {
   return destroySignal;
+}
+
+void Context::getScreenModes(ScreenModeList& result)
+{
+  GLFWvidmode modes[128];
 }
 
 Context::Context(void)

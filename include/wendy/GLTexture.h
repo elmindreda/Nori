@@ -249,7 +249,7 @@ public:
    */
   void setAddressMode(GLint newMode);
   /*! Sets the texture used by this texture layer.
-   *  @param newName The name of the texture used by this texture layer, or @c
+   *  @param[in] texture The texture used by this texture layer, or @c
    *  NULL to disable texturing for this layer.
    */
   void setTexture(Texture* texture);

@@ -68,15 +68,58 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Screen mode.
+ *  @ingroup opengl
+ */
+class ScreenMode
+{
+public:
+  /*! Default constructor.
+   */
+  ScreenMode(void);
+  /*! Constructor.
+   */
+  ScreenMode(unsigned int width, unsigned int height, unsigned int colorBits);
+  /*! Resets all value to their defaults.
+   */
+  void setDefaults(void);
+  /*! Sets the 
+   */
+  void set(unsigned int newWidth, unsigned int newHeight, unsigned int newColorBits);
+  /*! The desired width of the context.
+   */
+  unsigned int width;
+  /*! The desired height of the context.
+   */
+  unsigned int height;
+  /*! The desired color buffer bit depth.
+   */
+  unsigned int colorBits;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+typedef std::vector<ScreenMode> ScreenModeList;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief %Context settings.
  *  @ingroup opengl
  *
  *  This class provides the settings parameters available for OpenGL
  *  context creation, as provided through Context::create.
  */
-class ContextMode
+class ContextMode : public ScreenMode
 {
 public:
+  enum {
+    /*! Create a windowed context, if supported.
+     */
+    WINDOWED = 1,
+    /*! Default flags.
+     */
+    DEFAULT = WINDOWED,
+  };
   /*! Default constructor.
    */
   ContextMode(void);
@@ -87,7 +130,7 @@ public:
 	      unsigned int colorBits,
 	      unsigned int depthBits = 0,
 	      unsigned int stencilBits = 0,
-	      unsigned int flags = 0);
+	      unsigned int flags = DEFAULT);
   /*! Resets all value to their defaults.
    */
   void setDefaults(void);
@@ -98,16 +141,7 @@ public:
 	   unsigned int newColorBits,
 	   unsigned int newDepthBits = 0,
 	   unsigned int newStencilBits = 0,
-	   unsigned int newFlags = 0);
-  /*! The desired width of the context.
-   */
-  unsigned int width;
-  /*! The desired height of the context.
-   */
-  unsigned int height;
-  /*! The desired color buffer bit depth.
-   */
-  unsigned int colorBits;
+	   unsigned int newFlags = DEFAULT);
   /*! The desired depth buffer bit depth.
    */
   unsigned int depthBits;
@@ -117,11 +151,6 @@ public:
   /*! The desired modification flags.
    */
   unsigned int flags;
-  enum {
-    /*! Create a windowed context, if supported.
-     */
-    WINDOWED = 1,
-  };
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -193,7 +222,7 @@ public:
    */
   const Vector2& getCursorPosition(void) const;
   /*! Places the the mouse cursor at the specified position.
-   *  @param position The desired mouse position.
+   *  @param[in] newPosition The desired mouse position.
    */
   void setCursorPosition(const Vector2& newPosition);
   /*! @return The signal for rendering.
@@ -234,6 +263,10 @@ public:
   /*! @return The signal for destruction of a context object.
    */
   static SignalProxy0<void> getDestroySignal(void);
+  /*! Retrieves the supported screen modes.
+   *  @param result The supported modes.
+   */
+  static void getScreenModes(ScreenModeList& result);
 private:
   Context(void);
   Context(const Context& source);

@@ -66,10 +66,10 @@ private:
 
 /*! @ingroup demo
  */
-class TimelineTrack : public UI::Widget
+class EffectTrack : public UI::Widget
 {
 public:
-  TimelineTrack(Timeline& timeline, Effect& effect);
+  EffectTrack(Timeline& timeline, Effect& effect);
   Effect& getEffect(void) const;
 private:
   enum DragMode
@@ -89,6 +89,24 @@ private:
   Effect& effect;
   DragMode mode;
   float reference;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup demo
+ */
+class ParameterTrack : public UI::Widget
+{
+public:
+  ParameterTrack(Timeline& timeline, Parameter& parameter);
+  Parameter& getParameter(void) const;
+private:
+  void draw(void) const;
+  void onDragBegun(Widget& widget, const Vector2& point);
+  void onDragMoved(Widget& widget, const Vector2& point);
+  void onDragEnded(Widget& widget, const Vector2& point);
+  Timeline& timeline;
+  Parameter& parameter;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -115,7 +133,7 @@ public:
   SignalProxy1<void, Timeline&> getTimeChangedSignal(void);
   SignalProxy1<void, Timeline&> getParentChangedSignal(void);
 private:
-  typedef std::vector<TimelineTrack*> EffectList;
+  typedef std::vector<EffectTrack*> EffectList;
   enum MenuItem
   {
     MENU_ENTER = 1,
@@ -140,7 +158,7 @@ private:
   Signal1<void, Timeline&> parentChangedSignal;
   Show& show;
   Effect* parent;
-  TimelineTrack* selected;
+  EffectTrack* selected;
   Ptr<UI::Menu> effectMenu;
   Ptr<UI::Menu> layoutMenu;
   Time start;

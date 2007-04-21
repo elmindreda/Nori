@@ -121,6 +121,7 @@ typedef std::vector<const Operation*> OperationList;
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Render operation queue.
+ *  @ingroup renderer
  */
 class Queue
 {

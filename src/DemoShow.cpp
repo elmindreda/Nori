@@ -153,14 +153,15 @@ bool Show::init(void)
 void Show::updateEffect(Effect& effect, Time newTime)
 {
   Time currentTime = effect.start + effect.elapsed;
-  Time deltaTime = newTime - currentTime;
 
   if (newTime < currentTime)
   {
     effect.restart();
     effect.active = false;
+    effect.updated = false;
     effect.elapsed = 0.0;
-    currentTime = 0.0;
+
+    currentTime = effect.start;
   }
 
   if (effect.active)
@@ -179,14 +180,16 @@ void Show::updateEffect(Effect& effect, Time newTime)
 
   if (effect.active)
   {
-    Time maxDelta = 1.0;
+    const Time maxDelta = 1.0;
+    Time deltaTime = newTime - currentTime;
 
-    while (deltaTime > 0.0)
+    while (!effect.updated || deltaTime > 0.0)
     {
       Time localDelta = std::min(deltaTime, maxDelta);
 
       effect.elapsed += localDelta;
       effect.update(localDelta);
+      effect.updated = true;
 
       deltaTime -= localDelta;
     }

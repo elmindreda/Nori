@@ -224,6 +224,7 @@ void Book::setActivePage(Page* newPage, bool notify)
 
   activePage = newPage;
   activePage->setVisible(true);
+  activePage->activate();
 
   if (notify)
     pageChangedSignal.emit(*this);

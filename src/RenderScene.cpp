@@ -312,9 +312,6 @@ void Scene::setTimeElapsed(Time newTime)
     deltaTime = newTime;
   }
 
-  if (deltaTime == 0.0)
-    return;
-
   for (NodeList::const_iterator i = roots.begin();  i != roots.end();  i++)
     (*i)->update(deltaTime);
 

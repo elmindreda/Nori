@@ -66,10 +66,11 @@ EffectType::EffectType(const String& name):
 Effect::Effect(EffectType& initType, const String& name):
   Managed<Effect>(name),
   type(initType),
+  active(false),
+  updated(false),
   start(0.0),
   duration(0.0),
-  elapsed(0.0),
-  active(false)
+  elapsed(0.0)
 {
 }
 
@@ -119,6 +120,7 @@ void Effect::setStartTime(Time newTime)
     restart();
 
   start = newTime;
+  updated = false;
 }
 
 Time Effect::getDuration(void) const
@@ -129,6 +131,7 @@ Time Effect::getDuration(void) const
 void Effect::setDuration(Time newDuration)
 {
   duration = newDuration;
+  updated = false;
 }
 
 Time Effect::getTimeElapsed(void) const
@@ -209,7 +212,8 @@ bool NullEffect::init(void)
 ///////////////////////////////////////////////////////////////////////
 
 ClearEffect::ClearEffect(EffectType& type, const String& name):
-  Effect(type, name)
+  Effect(type, name),
+  color(*this, "Color")
 {
 }
 

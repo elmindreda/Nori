@@ -71,8 +71,16 @@ public:
    *  @param area The desired area to push.
    *  @return @c true if the resulting scissor area has a non-zero size,
    *  otherwise @c false.
-   *  @remarks If the resulting scissor area is a null area, it is not pushed
-   *  onto the stack, so you do not need to (and should not) pop it.
+   *  @remarks If the resulting scissor area is empty, it is not pushed
+   *  onto the stack, so you do not need to (and should not) pop it. The
+   *  recommended pattern is:
+   *  @code
+   *  if (canvas.pushScissorArea(childArea))
+   *  {
+   *	drawStuff();
+   *	canvas.popScissorArea();
+   *  }
+   *  @endcode
    */
   bool pushScissorArea(const Rectangle& area);
   /*! Pops the top area from the scissor area clip stack.
@@ -98,12 +106,11 @@ public:
   /*! @return The scissor rectangle of this canvas.
    */
   const Rectangle& getScissorArea(void) const;
-  /*! Sets the scissor rectangle for this canvas.
-   *  @param rectangle The desired scissor rectangle.
+  /*! @return The viewport rectangle of this canvas.
    */
   const Rectangle& getViewportArea(void) const;
   /*! Sets the viewport rectangle for this canvas.
-   *  @param rectangle The desired viewport rectangle.
+   *  @param[in] newArea The desired viewport rectangle.
    */
   void setViewportArea(const Rectangle& newArea);
   /*! @return The current canvas, or @c NULL if there is no current

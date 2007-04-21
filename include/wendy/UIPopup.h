@@ -44,6 +44,7 @@ class Popup : public Widget
 public:
   Popup(void);
   void addItem(Item& item);
+  void addItem(const String& value);
   void removeItem(Item& item);
   void destroyItems(void);
   unsigned int getSelection(void) const;
@@ -51,6 +52,7 @@ public:
   unsigned int getItemCount(void) const;
   Item* getItem(unsigned int index);
   const Item* getItem(unsigned int index) const;
+  String getItemValue(unsigned int index) const;
   SignalProxy2<void, Popup&, unsigned int> getItemSelectedSignal(void);
 protected:
   void draw(void) const;

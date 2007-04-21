@@ -133,7 +133,7 @@ void Scroller::draw(void) const
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
   {
-    renderer->drawFrame(area, getState());
+    renderer->drawWell(area, getState());
 
     if (minValue != maxValue)
     {

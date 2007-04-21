@@ -46,6 +46,7 @@
 #include <wendy/UIWindow.h>
 #include <wendy/UIBook.h>
 #include <wendy/UICanvas.h>
+#include <wendy/UIEntry.h>
 #include <wendy/UIScroller.h>
 #include <wendy/UISlider.h>
 #include <wendy/UILayout.h>
@@ -76,69 +77,35 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-void Editor::render(void)
+void Editor::run(void)
 {
-  Time currentTime = timer.getTime();
-
-  timeline->setTimeElapsed(currentTime);
-  timeDisplay->setText("%u:%02u.%02u",
-                       (unsigned int) currentTime / 60,
-		       (unsigned int) currentTime % 60,
-		       (unsigned int) (currentTime * 100.0) % 100);
-
-  show->setTimeElapsed(currentTime);
-  show->prepare();
-
-  GL::ScreenCanvas screen;
-
-  if (visible)
-  {
-    screen.begin();
-    screen.clearColorBuffer();
-    UI::Widget::drawRoots();
-    screen.end();
-
-    if (canvas->isVisible())
-    {
-      canvas->getCanvas().begin();
-      show->render();
-      canvas->getCanvas().end();
-    }
-  }
-  else
-  {
-    screen.begin();
-    show->render();
-    screen.end();
-  }
+  while (GL::Context::get()->update())
+    ;
 }
 
 bool Editor::isVisible(void) const
 {
-  return visible;
+  return book->isVisible();
+}
+
+bool Editor::isModified(void) const
+{
+  return modified;
 }
 
 void Editor::setVisible(bool newState)
 {
-  visible = newState;
-
-  GL::Context* context = GL::Context::get();
-
-  if (visible)
-    context->setTitle(show->getTitle() + " - Wendy Editor");
-  else
-    context->setTitle(show->getTitle());
-
-  book->setVisible(visible);
+  book->setVisible(newState);
+  updateTitle();
 }
 
-bool Editor::create(void)
+bool Editor::create(const String& showName)
 {
   if (get())
     return true;
 
   Ptr<Editor> editor = new Editor();
-  if (!editor->init())
+  if (!editor->init(showName))
     return false;
 
   set(editor.detachObject());
@@ -146,25 +113,31 @@ bool Editor::create(void)
 }
 
 Editor::Editor(void):
-  visible(false)
+  modified(false),
+  quitting(false)
 {
 }
 
-bool Editor::init(void)
+bool Editor::init(const String& showName)
 {
-  show = Show::createInstance();
+  if (showName.empty())
+    show = Show::createInstance();
+  else
+    show = Show::readInstance(showName);
+
   if (!show)
     return false;
 
   show->setTitle("Demo");
 
   GL::Context* context = GL::Context::get();
+  context->getRenderSignal().connect(*this, &Editor::onRender);
   context->getResizedSignal().connect(*this, &Editor::onResized);
   context->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
 
   book = new UI::Book();
 
-  UI::Page* timelinePage = new UI::Page("Timeline View");
+  UI::Page* timelinePage = new UI::Page("Timeline Editor");
   book->addChild(*timelinePage);
 
   {
@@ -249,15 +222,37 @@ bool Editor::init(void)
     timelineLayout->addChild(*timeline, 0.f);
   }
 
-  UI::Page* shaderPage = new UI::Page("Shader Editor");
-  book->addChild(*shaderPage);
+  UI::Page* showPage = new UI::Page("Show Editor");
+  book->addChild(*showPage);
 
   {
     UI::Layout* mainLayout = new UI::Layout(UI::VERTICAL);
-    shaderPage->addChild(*mainLayout);
+    mainLayout->setBorderSize(3.f);
+    showPage->addChild(*mainLayout);
 
-    UI::Label* stupidLabel = new UI::Label("Stuff here");
-    mainLayout->addChild(*stupidLabel, 0.f);
+    UI::Button* button;
+
+    button = new UI::Button("Load Show");
+    button->getPushedSignal().connect(*this, &Editor::onLoadShow);
+    mainLayout->addChild(*button);
+
+    button = new UI::Button("Save Show");
+    button->getPushedSignal().connect(*this, &Editor::onSaveShow);
+    mainLayout->addChild(*button);
+
+    UI::Label* label;
+
+    label = new UI::Label("Show Title");
+    mainLayout->addChild(*label);
+
+    titleEntry = new UI::Entry();
+    titleEntry->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
+    titleEntry->setText(show->getTitle());
+    mainLayout->addChild(*titleEntry);
+
+    // Set aspect ratio(s)
+    // Set default mode
+    // Set music file/name
   }
 
   UI::Page* aboutPage = new UI::Page("About Wendy");
@@ -287,6 +282,63 @@ bool Editor::init(void)
   return true;
 }
 
+void Editor::updateTitle(void)
+{
+  GL::Context* context = GL::Context::get();
+
+  if (book->isVisible())
+    context->setTitle(show->getTitle() + " - Wendy Editor");
+  else
+    context->setTitle(show->getTitle());
+}
+
+bool Editor::onRender(void)
+{
+  Time currentTime = timer.getTime();
+
+  timeline->setTimeElapsed(currentTime);
+  timeDisplay->setText("%u:%02u.%02u",
+                       (unsigned int) currentTime / 60,
+		       (unsigned int) currentTime % 60,
+		       (unsigned int) (currentTime * 100.0) % 100);
+
+  show->setTimeElapsed(currentTime);
+  show->prepare();
+
+  GL::ScreenCanvas screen;
+
+  if (book->isVisible())
+  {
+    screen.begin();
+    screen.clearColorBuffer();
+    UI::Widget::drawRoots();
+    screen.end();
+
+    if (canvas->isVisible())
+    {
+      canvas->getCanvas().begin();
+      show->render();
+      canvas->getCanvas().end();
+    }
+  }
+  else
+  {
+    screen.begin();
+    show->render();
+    screen.end();
+  }
+
+  return !quitting;
+}
+
+void Editor::onLoadShow(UI::Button& button)
+{
+}
+
+void Editor::onSaveShow(UI::Button& button)
+{
+}
+
 void Editor::onCreateEffect(UI::Button& button)
 {
   UI::Item* typeItem = effectType->getItem(effectType->getSelection());
@@ -307,7 +359,7 @@ void Editor::onZoomChanged(UI::Slider& slider)
 
 void Editor::onResized(unsigned int width, unsigned int height)
 {
-  book->setSize(Vector2(width, height));
+  book->setSize(Vector2((float) width, (float) height));
 }
 
 void Editor::onKeyPressed(GL::Key key, bool pressed)
@@ -319,7 +371,7 @@ void Editor::onKeyPressed(GL::Key key, bool pressed)
   {
     case GL::Key::TAB:
     {
-      setVisible(!visible);
+      setVisible(!isVisible());
       break;
     }
   }
@@ -376,6 +428,18 @@ void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
       }
     }
   }
+
+  if (&widget == titleEntry)
+  {
+    if (!pressed)
+      return;
+
+    if (key == GL::Key::ENTER)
+    {
+      show->setTitle(titleEntry->getText());
+      updateTitle();
+    }
+  }
 }
 
 void Editor::onTimeChanged(Timeline& timeline)
@@ -391,15 +455,14 @@ void Editor::onParentChanged(Timeline& timeline)
 
   do
   {
-    parentPopup->addItem(*new UI::Item(effect->getName()));
+    parentPopup->addItem(effect->getName());
   }
   while (effect = effect->getParent());
 }
 
 void Editor::onParentSelected(UI::Popup& popup, unsigned int index)
 {
-  UI::Item* item = popup.getItem(index);
-  Effect* effect = Effect::findInstance(item->asString());
+  Effect* effect = Effect::findInstance(popup.getItemValue(index));
   if (!effect)
     return;
 

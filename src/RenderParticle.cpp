@@ -293,8 +293,8 @@ void ParticleSystem::setTimeElapsed(Time newTime)
   if (deltaTime == 0.f)
     return;
 
-  bounds.center = transform.position;
-  bounds.radius = 0.f;
+  if (updateBounds)
+    bounds.set(transform.position, 0.f);
 
   // Emit particles created during this time frame
   // TODO: Affect particles by their position within the timeframe (lerp),

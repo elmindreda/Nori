@@ -140,7 +140,7 @@ void TimelineRuler::draw(void) const
 	digitArea.size.set(2.f * em, area.size.y);
 
 	String digits;
-	Variant::convertToString(digits, index + (int) i);
+	Variant::convertToString(digits, (index + (int) i) % 60);
 
 	renderer->drawText(digitArea, digits);
       }
@@ -198,27 +198,27 @@ void TimelineRuler::onDragMoved(Widget& widget, const Vector2& point)
 
 ///////////////////////////////////////////////////////////////////////
 
-TimelineTrack::TimelineTrack(Timeline& initTimeline, Effect& initEffect):
+EffectTrack::EffectTrack(Timeline& initTimeline, Effect& initEffect):
   timeline(initTimeline),
   effect(initEffect),
   mode(NOT_DRAGGING)
 {
   const float em = UI::Renderer::get()->getDefaultEM();
 
-  getDragBegunSignal().connect(*this, &TimelineTrack::onDragBegun);
-  getDragMovedSignal().connect(*this, &TimelineTrack::onDragMoved);
-  getDragEndedSignal().connect(*this, &TimelineTrack::onDragEnded);
+  getDragBegunSignal().connect(*this, &EffectTrack::onDragBegun);
+  getDragMovedSignal().connect(*this, &EffectTrack::onDragMoved);
+  getDragEndedSignal().connect(*this, &EffectTrack::onDragEnded);
 
   setSize(Vector2(em * 2.f, em * 2.f));
   setDraggable(true);
 }
 
-Effect& TimelineTrack::getEffect(void) const
+Effect& EffectTrack::getEffect(void) const
 {
   return effect;
 }
 
-void TimelineTrack::draw(void) const
+void EffectTrack::draw(void) const
 {
   const Rectangle& area = getGlobalArea();
 
@@ -265,7 +265,7 @@ void TimelineTrack::draw(void) const
   }
 }
 
-void TimelineTrack::onDragBegun(Widget& widget, const Vector2& point)
+void EffectTrack::onDragBegun(Widget& widget, const Vector2& point)
 {
   float position = transformToLocal(point).x;
 
@@ -293,7 +293,7 @@ void TimelineTrack::onDragBegun(Widget& widget, const Vector2& point)
     cancelDragging();
 }
 
-void TimelineTrack::onDragMoved(Widget& widget, const Vector2& point)
+void EffectTrack::onDragMoved(Widget& widget, const Vector2& point)
 {
   float position = transformToLocal(point).x;
 
@@ -334,17 +334,17 @@ void TimelineTrack::onDragMoved(Widget& widget, const Vector2& point)
   }
 }
 
-void TimelineTrack::onDragEnded(Widget& widget, const Vector2& point)
+void EffectTrack::onDragEnded(Widget& widget, const Vector2& point)
 {
   mode = NOT_DRAGGING;
 }
 
-float TimelineTrack::getHandleSize(void) const
+float EffectTrack::getHandleSize(void) const
 {
   return effect.getDuration() * timeline.getSecondWidth();
 }
 
-float TimelineTrack::getHandleOffset(void) const
+float EffectTrack::getHandleOffset(void) const
 {
   return (effect.getStartTime() - timeline.getWindowStart()) * timeline.getSecondWidth();
 }
@@ -477,7 +477,7 @@ void Timeline::setParentEffect(Effect& newParent)
   if (parent == &newParent)
     return;
 
-  trackLayout->destroyChildren();
+  //trackLayout->destroyChildren();
   selected = NULL;
 
   parent = &newParent;
@@ -550,7 +550,7 @@ void Timeline::updateScroller(void)
 
 void Timeline::createTrack(Effect& effect)
 {
-  TimelineTrack* track = new TimelineTrack(*this, effect);
+  EffectTrack* track = new EffectTrack(*this, effect);
   track->getButtonClickedSignal().connect(*this, &Timeline::onButtonClicked);
   trackLayout->addChild(*track);
 }
@@ -571,7 +571,7 @@ void Timeline::onButtonClicked(Widget& widget,
       }
     }
   }
-  else if (TimelineTrack* track = dynamic_cast<TimelineTrack*>(&widget))
+  else if (EffectTrack* track = dynamic_cast<EffectTrack*>(&widget))
   {
     selected = track;
 

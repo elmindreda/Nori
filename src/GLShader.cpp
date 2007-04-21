@@ -445,7 +445,7 @@ bool ShaderPermutation::isValid(void) const
   {
     Block message(length);
 
-    glGetInfoLogARB(programID, message.getSize(), NULL, (GLcharARB*) message.getData());
+    glGetInfoLogARB(programID, (GLsizei) message.getSize(), NULL, (GLcharARB*) message.getData());
 
     if (status)
       Log::writeWarning("Warnings during validation of variant %s of GLSL program %s: %s",
@@ -469,7 +469,7 @@ const String& ShaderPermutation::getName(void) const
 
 unsigned int ShaderPermutation::getUniformCount(void) const
 {
-  return uniforms.size();
+  return (unsigned int) uniforms.size();
 }
 
 ShaderUniform& ShaderPermutation::getUniform(unsigned int index)
@@ -576,7 +576,7 @@ bool ShaderPermutation::init(const LightState& state)
   {
     Block message(length);
 
-    glGetInfoLogARB(programID, message.getSize(), NULL, (GLcharARB*) message.getData());
+    glGetInfoLogARB(programID, (GLsizei) message.getSize(), NULL, (GLcharARB*) message.getData());
 
     if (status)
       Log::writeWarning("Warnings when linking variant %s of GLSL program %s: %s",
@@ -674,7 +674,7 @@ GLhandleARB ShaderPermutation::createShader(const Shader& shader, const LightSta
   {
     Block message(length);
 
-    glGetInfoLogARB(shaderID, message.getSize(), NULL, (GLcharARB*) message.getData());
+    glGetInfoLogARB(shaderID, (GLsizei) message.getSize(), NULL, (GLcharARB*) message.getData());
 
     if (status)
       Log::writeWarning("Warnings when compiling GLSL shader: %s", message.getData());

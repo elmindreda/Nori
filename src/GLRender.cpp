@@ -383,37 +383,24 @@ bool Renderer::init(void)
   drawPass.setDepthWriting(false);
   drawPass.setDefaultColor(ColorRGBA::BLACK);
 
-/*
-  try
+  CheckerImageGenerator generator;
+  generator.setDefaultColor(ColorRGBA(1.f, 0.f, 1.f, 1.f));
+  generator.setCheckerColor(ColorRGBA(0.f, 1.f, 0.f, 1.f));
+  generator.setCheckerSize(1);
+
+  Ptr<Image> image = generator.generate(ImageFormat::RGBX8888, 2, 2);
+  if (!image)
   {
-    CheckerImageGenerator generator;
-    generator.setDefaultColor(ColorRGBA(1.f, 0.f, 1.f, 1.f));
-    generator.setCheckerColor(ColorRGBA(0.f, 1.f, 0.f, 1.f));
-    generator.setCheckerSize(1);
-
-    Ptr<Image> image = generator.generate(ImageFormat::RGB888, 2, 2);
-    if (!image)
-      return false;
-
-    defaultTexture = Texture::createInstance(*image, Texture::DEFAULT, "default");
-    if (!defaultTexture)
-      return false;
-
-    defaultStyle = new RenderStyle("default");
-    
-    RenderPass& pass = defaultStyle->createPass();
-    pass.setCullMode(CULL_NONE);
-
-    TextureLayer& layer = pass.createTextureLayer();
-    layer.setTextureName(defaultTexture->getName());
-    layer.setSphereMapped(true);
-  }
-  catch (Exception& exception)
-  {
-    Log::writeError("Failed to create default render style");
+    Log::writeError("Failed to create image data for default texture");
     return false;
   }
-  */
+
+  defaultTexture = Texture::createInstance(*image, Texture::DEFAULT, "default");
+  if (!defaultTexture)
+  {
+    Log::writeError("Failed to create default texture");
+    return false;
+  }
 
   Context::get()->getFinishSignal().connect(*this, &Renderer::onContextFinish);
   return true;

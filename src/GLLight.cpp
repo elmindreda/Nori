@@ -31,6 +31,7 @@
 #include <wendy/GLLight.h>
 
 #include <algorithm>
+#include <limits>
 #include <sstream>
 
 ///////////////////////////////////////////////////////////////////////

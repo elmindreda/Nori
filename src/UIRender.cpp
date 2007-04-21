@@ -144,6 +144,43 @@ void Renderer::drawText(const Rectangle& area,
   currentFont->drawText(text);
 }
 
+void Renderer::drawWell(const Rectangle& area, WidgetState state)
+{
+  float minX, minY, maxX, maxY;
+  area.getBounds(minX, minY, maxX, maxY);
+
+  if (maxX - minX < 1.f || maxY - minY < 1.f)
+    return;
+
+  GL::Pass pass;
+  pass.setLineWidth(1.f / GL::Canvas::getCurrent()->getPhysicalHeight());
+
+  switch (state)
+  {
+    case STATE_ACTIVE:
+      pass.setDefaultColor(ColorRGBA(wellColor * 1.2f, 1.f));
+      break;
+    case STATE_DISABLED:
+      pass.setDefaultColor(ColorRGBA(wellColor * 0.8f, 1.f));
+      break;
+    default:
+      pass.setDefaultColor(ColorRGBA(wellColor, 1.f));
+      break;
+  }
+      
+  pass.setDepthTesting(false);
+  pass.setDepthWriting(false);
+  pass.apply();
+
+  glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
+      
+  pass.setPolygonMode(GL_LINE);
+  pass.setDefaultColor(ColorRGBA::BLACK);
+  pass.apply();
+
+  glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
+}
+
 void Renderer::drawFrame(const Rectangle& area, WidgetState state)
 {
   float minX, minY, maxX, maxY;
@@ -165,43 +202,6 @@ void Renderer::drawFrame(const Rectangle& area, WidgetState state)
       break;
     default:
       pass.setDefaultColor(ColorRGBA(widgetColor, 1.f));
-      break;
-  }
-      
-  pass.setDepthTesting(false);
-  pass.setDepthWriting(false);
-  pass.apply();
-
-  glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
-      
-  pass.setPolygonMode(GL_LINE);
-  pass.setDefaultColor(ColorRGBA::BLACK);
-  pass.apply();
-
-  glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
-}
-
-void Renderer::drawTextFrame(const Rectangle& area, WidgetState state)
-{
-  float minX, minY, maxX, maxY;
-  area.getBounds(minX, minY, maxX, maxY);
-
-  if (maxX - minX < 1.f || maxY - minY < 1.f)
-    return;
-
-  GL::Pass pass;
-  pass.setLineWidth(1.f / GL::Canvas::getCurrent()->getPhysicalHeight());
-
-  switch (state)
-  {
-    case STATE_ACTIVE:
-      pass.setDefaultColor(ColorRGBA(textFrameColor * 1.2f, 1.f));
-      break;
-    case STATE_DISABLED:
-      pass.setDefaultColor(ColorRGBA(textFrameColor * 0.8f, 1.f));
-      break;
-    default:
-      pass.setDefaultColor(ColorRGBA(textFrameColor, 1.f));
       break;
   }
       
@@ -241,9 +241,9 @@ const ColorRGB& Renderer::getTextColor(void)
   return textColor;
 }
 
-const ColorRGB& Renderer::getTextFrameColor(void)
+const ColorRGB& Renderer::getWellColor(void)
 {
-  return textFrameColor;
+  return wellColor;
 }
 
 const ColorRGB& Renderer::getSelectedTextColor(void)
@@ -317,7 +317,7 @@ bool Renderer::init(void)
 
   widgetColor.set(0.7f, 0.7f, 0.7f);
   textColor = ColorRGB::BLACK;
-  textFrameColor = ColorRGB::WHITE;
+  wellColor = widgetColor * 1.2f;
   selectionColor.set(0.3f, 0.3f, 0.3f);
   selectedTextColor = ColorRGB::WHITE;
 

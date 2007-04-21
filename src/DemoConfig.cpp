@@ -39,6 +39,7 @@
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIWindow.h>
+#include <wendy/UIScroller.h>
 #include <wendy/UILayout.h>
 #include <wendy/UIButton.h>
 #include <wendy/UILabel.h>

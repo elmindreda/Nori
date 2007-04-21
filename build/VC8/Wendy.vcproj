@@ -157,11 +157,39 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\GLBuffer.cpp"
+				RelativePath="..\..\src\DebugHUD.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\GLCamera.cpp"
+				RelativePath="..\..\src\DemoConfig.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\DemoEditor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\DemoEffect.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\DemoParameter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\DemoPlayer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\DemoShow.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\DemoTimeline.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\GLBuffer.cpp"
 				>
 			</File>
 			<File
@@ -173,31 +201,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\GLDemo.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\GLDisplayList.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\GLFont.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\GLLight.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\GLMesh.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\GLNode.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\GLProgram.cpp"
+				RelativePath="..\..\src\GLPass.cpp"
 				>
 			</File>
 			<File
@@ -205,7 +213,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\GLSprite.cpp"
+				RelativePath="..\..\src\GLShader.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\GLShaderIO.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\GLState.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\GLStatistics.cpp"
 				>
 			</File>
 			<File
@@ -217,7 +237,115 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\RenderCamera.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\RenderFont.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\RenderIO.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\RenderMesh.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\RenderParticle.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\RenderQueue.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\RenderScene.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\RenderSprite.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\RenderStage.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\RenderStyle.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\RenderTerrain.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\UIBook.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\UIButton.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\UICanvas.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\UIEntry.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\UIItem.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\UILabel.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\UILayout.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\UIList.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\UIMenu.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\UIPopup.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\UIProgress.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\UIRender.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\UIScroller.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\UISlider.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\UIView.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\UIWidget.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\UIWindow.cpp"
 				>
 			</File>
 			<File
@@ -231,7 +359,71 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\..\include\wendy\ALBuffer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\ALContext.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\ALSource.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\ALStreamer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\CgContext.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\include\wendy\Core.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\DEBody.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\DebugHUD.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\DEGeometry.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\DemoConfig.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\DemoEditor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\DemoEffect.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\DemoParameter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\DemoPlayer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\DemoShow.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\DemoTimeline.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\DEWorld.h"
 				>
 			</File>
 			<File
@@ -279,6 +471,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\include\wendy\GLPass.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\include\wendy\GLProgram.h"
 				>
 			</File>
@@ -287,7 +483,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\include\wendy\GLShader.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\GLShaderIO.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\include\wendy\GLSprite.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\GLState.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\GLStatistics.h"
 				>
 			</File>
 			<File
@@ -299,11 +511,127 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\include\wendy\OpenAL.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\OpenDE.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\include\wendy\OpenGL.h"
 				>
 			</File>
 			<File
+				RelativePath="..\..\include\wendy\RenderCamera.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\RenderFont.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\RenderIO.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\RenderMesh.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\RenderParticle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\RenderQueue.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\RenderScene.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\RenderSprite.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\RenderStage.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\RenderStyle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\RenderTerrain.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\UIBook.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\UIButton.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\UICanvas.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\UIEntry.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\UIItem.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\UILabel.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\UILayout.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\UIList.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\UIMenu.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\UIPopup.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\UIProgress.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\UIRender.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\UIScroller.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\UISlider.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\UIView.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\include\wendy\UIWidget.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\wendy\UIWindow.h"
 				>
 			</File>
 			<File

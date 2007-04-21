@@ -57,12 +57,12 @@ public:
   Camera(const String& name = "");
   /*! Applies this camera to the projection and modelview matrix stacks and
    *  makes it current.
-   *  @pre You must have created the @link Renderer renderer @endlink before
-   *  calling Camera::begin, as it uses Renderer::begin3D.
+   *  @pre You must have created the @link GL::Renderer renderer @endlink before
+   *  calling Camera::begin, as it uses GL::Renderer::begin3D.
    *
    *  @remarks You cannot nest cameras, i.e. you cannot call Camera::begin
    *  if there is already a current camera.
-   *  @see Renderer::begin3D
+   *  @see GL::Renderer::begin3D
    */
   void begin(void) const;
   /*! Removes this camera from the projection and modelview matrix stacks and 
@@ -100,8 +100,8 @@ public:
    */
   void setAspectRatio(float newAspectRatio);
   /*! Sets the position of the near and far clip planes.
-   *  @param[in] minDepth The distance to the near clip plane.
-   *  @param[in] maxDepth The distance to the far clip plane.
+   *  @param[in] newMinDepth The distance to the near clip plane.
+   *  @param[in] newMaxDepth The distance to the far clip plane.
    *
    *  @remarks You cannot call this on the current camera.
    */

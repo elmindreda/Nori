@@ -86,11 +86,6 @@
 
 #include <wendy/Core.h>
 
-#include <wendy/OpenAL.h>
-#include <wendy/ALContext.h>
-#include <wendy/ALBuffer.h>
-#include <wendy/ALSource.h>
-
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLStatistics.h>
@@ -122,6 +117,7 @@
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIWindow.h>
+#include <wendy/UIScroller.h>
 #include <wendy/UIBook.h>
 #include <wendy/UIView.h>
 #include <wendy/UICanvas.h>
@@ -130,7 +126,6 @@
 #include <wendy/UIProgress.h>
 #include <wendy/UIButton.h>
 #include <wendy/UISlider.h>
-#include <wendy/UIScroller.h>
 #include <wendy/UIEntry.h>
 #include <wendy/UIItem.h>
 #include <wendy/UIList.h>

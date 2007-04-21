@@ -74,7 +74,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Geometry mesh subset.
+/*! @brief %Renderable mesh subset.
  *  @ingroup renderer
  *
  *  This class represents a subset of a mesh, using a single render style

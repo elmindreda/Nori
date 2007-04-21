@@ -78,6 +78,12 @@ void Popup::addItem(Item& item)
   menu->addItem(item);
 }
 
+void Popup::addItem(const String& value)
+{
+  Item* item = new Item(value);
+  menu->addItem(*item);
+}
+
 void Popup::removeItem(Item& item)
 {
   menu->removeItem(item);
@@ -116,6 +122,14 @@ Item* Popup::getItem(unsigned int index)
 const Item* Popup::getItem(unsigned int index) const
 {
   return menu->getItem(index);
+}
+
+String Popup::getItemValue(unsigned int index) const
+{
+  if (const Item* item = menu->getItem(index))
+    return item->asString();
+
+  return String();
 }
 
 SignalProxy2<void, Popup&, unsigned int> Popup::getItemSelectedSignal(void)

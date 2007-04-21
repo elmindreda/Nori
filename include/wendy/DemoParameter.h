@@ -37,38 +37,53 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+class Parameter;
+class Effect;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @ingroup demo
+ *  @brief Demo effect parameter key superclass.
  */
 class ParameterKey
 {
-  friend class Parameter;
 public:
-  ParameterKey(Time moment);
+  ParameterKey(Parameter& parameter);
   virtual ~ParameterKey(void);
-  virtual void asString(String& result) const = 0;
+  virtual String asString(void) const = 0;
   virtual void setStringValue(const String& newValue) = 0;
+  Parameter& getParameter(void) const;
   Time getMoment(void) const;
+  void setMoment(Time newMoment);
 private:
+  Parameter& parameter;
   Time moment;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @ingroup demo
+ *  @brief Demo effect parameter superclass.
  */
 class Parameter
 {
+  friend class ParameterKey;
 public:
   typedef std::vector<ParameterKey*> KeyList;
-  Parameter(const String& name);
+  Parameter(Effect& effect, const String& name);
   virtual ~Parameter(void);
   virtual ParameterKey& createKey(Time moment, const String& value = "") = 0;
   void destroyKey(ParameterKey& key);
+  //Time getSequenceStart(Time moment) const;
+  //Time getSequenceDuration(Time moment) const;
+  //unsigned int getSequenceIndex(Time moment) const;
+  Effect& getEffect(void) const;
   const String& getName(void) const;
   const KeyList& getKeys(void) const;
 protected:
   void registerKey(ParameterKey& key);
 private:
+  Effect& effect;
   String name;
   KeyList keys;
 };
@@ -81,7 +96,7 @@ template <typename K, typename T>
 class ParameterTemplate : public Parameter
 {
 public:
-  inline ParameterTemplate(const String& name);
+  inline ParameterTemplate(Effect& effect, const String& name);
   inline ParameterKey& createKey(Time moment, const String& value = "");
   inline T getValue(Time moment) const;
 protected:
@@ -91,22 +106,17 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////
 
-class FloatParameter;
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @ingroup demo
  */
 class FloatKey : public ParameterKey
 {
 public:
-  FloatKey(FloatParameter& parameter, Time moment);
+  FloatKey(Parameter& parameter);
   float getValue(void) const;
   void setValue(float newValue);
-  void asString(String& result) const;
+  String asString(void) const;
   void setStringValue(const String& newValue);
 private:
-  FloatParameter& parameter;
   float value;
 };
 
@@ -117,7 +127,8 @@ private:
 class FloatParameter : public ParameterTemplate<FloatKey, float>
 {
 public:
-  FloatParameter(const String& name,
+  FloatParameter(Effect& effect,
+                 const String& name,
                  float minValue = 0.f,
 		 float maxValue = 1.f);
   float getMinValue(void) const;
@@ -133,19 +144,15 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class BooleanParameter;
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @ingroup demo
  */
 class BooleanKey : public ParameterKey
 {
 public:
-  BooleanKey(Time moment);
+  BooleanKey(Parameter& parameter);
   bool getValue(void) const;
   void setValue(bool newValue);
-  void asString(String& result) const;
+  String asString(void) const;
   void setStringValue(const String& newValue);
 private:
   bool value;
@@ -158,7 +165,7 @@ private:
 class BooleanParameter : public ParameterTemplate<BooleanKey, bool>
 {
 public:
-  BooleanParameter(const String& name);
+  BooleanParameter(Effect& effect, const String& name);
   bool getValue(Time moment) const;
 private:
   bool getDefaultValue(void) const;
@@ -169,19 +176,15 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class StyleParameter;
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @ingroup demo
  */
 class StyleKey : public ParameterKey
 {
 public:
-  StyleKey(Time moment);
-  render::Style* getStyle(void) const;
-  void setStyle(render::Style* newStyle);
-  void asString(String& result) const;
+  StyleKey(Parameter& parameter);
+  render::Style* getValue(void) const;
+  void setValue(render::Style* newStyle);
+  String asString(void) const;
   void setStringValue(const String& newValue);
 private:
   Ref<render::Style> style;
@@ -194,7 +197,7 @@ private:
 class StyleParameter : public ParameterTemplate<StyleKey, render::Style*>
 {
 public:
-  StyleParameter(const String& name);
+  StyleParameter(Effect& effect, const String& name);
 private:
   render::Style* getDefaultValue(void) const;
   render::Style* interpolateKeys(const StyleKey& start,
@@ -204,19 +207,51 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup demo
+ */
+class ColorKeyRGB : public ParameterKey
+{
+public:
+  ColorKeyRGB(Parameter& parameter);
+  ColorRGB getValue(void) const;
+  void setValue(ColorRGB newValue);
+  String asString(void) const;
+  void setStringValue(const String& newValue);
+private:
+  ColorRGB value;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup demo
+ */
+class ColorParameterRGB : public ParameterTemplate<ColorKeyRGB, ColorRGB>
+{
+public:
+  ColorParameterRGB(Effect& effect, const String& name);
+private:
+  ColorRGB getDefaultValue(void) const;
+  ColorRGB interpolateKeys(const ColorKeyRGB& start,
+                           const ColorKeyRGB& end,
+			   float t) const;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 template <typename K, typename T>
-inline ParameterTemplate<K,T>::ParameterTemplate(const String& name):
-  Parameter(name)
+inline ParameterTemplate<K,T>::ParameterTemplate(Effect& effect, const String& name):
+  Parameter(effect, name)
 {
 }
 
 template <typename K, typename T>
 ParameterKey& ParameterTemplate<K,T>::createKey(Time moment, const String& value)
 {
-  K* key = new K(moment);
+  K* key = new K(*this);
+  key->setStringValue(value);
+  key->setMoment(moment);
   registerKey(*key);
 
-  key->setStringValue(value);
   return *key;
 }
 

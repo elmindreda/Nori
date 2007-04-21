@@ -121,13 +121,13 @@ public:
                 const String& text,
 		const Alignment& alignment = Alignment(),
 		bool selected = false);
+  void drawWell(const Rectangle& area, WidgetState state);
   void drawFrame(const Rectangle& area, WidgetState state);
-  void drawTextFrame(const Rectangle& area, WidgetState state);
   void drawHandle(const Rectangle& area, WidgetState state);
   void drawButton(const Rectangle& area, WidgetState state, const String& text = "");
   const ColorRGB& getWidgetColor(void);
   const ColorRGB& getTextColor(void);
-  const ColorRGB& getTextFrameColor(void);
+  const ColorRGB& getWellColor(void);
   const ColorRGB& getSelectionColor(void);
   const ColorRGB& getSelectedTextColor(void);
   render::Font* getDefaultFont(void);
@@ -141,7 +141,7 @@ private:
   static void onContextDestroy(void);
   ColorRGB widgetColor;
   ColorRGB textColor;
-  ColorRGB textFrameColor;
+  ColorRGB wellColor;
   ColorRGB selectionColor;
   ColorRGB selectedTextColor;
   Ref<render::Font> defaultFont;

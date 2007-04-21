@@ -112,6 +112,7 @@ protected:
   virtual void restart(void);
 private:
   bool active;
+  bool updated;
   EffectType& type;
   Time start;
   Time duration;
@@ -137,19 +138,7 @@ public:
   bool init(void);
 private:
   void render(void) const;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class DistortEffect : public Effect
-{
-public:
-  DistortEffect(EffectType& type, const String& name = "");
-  bool init(void);
-private:
-  void prepare(void) const;
-  void render(void) const;
-  Ptr<GL::TextureCanvas> canvas;
+  ColorParameterRGB color;
 };
 
 ///////////////////////////////////////////////////////////////////////

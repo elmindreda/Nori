@@ -103,6 +103,7 @@ private:
   IndexBufferList indexBuffers;
   VertexBufferList vertexBuffers;
   GL::Pass drawPass;
+  Ref<Texture> defaultTexture;
 };
 
 ///////////////////////////////////////////////////////////////////////

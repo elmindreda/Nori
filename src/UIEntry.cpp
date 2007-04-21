@@ -108,9 +108,9 @@ void Entry::draw(void) const
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
   {
-    renderer->drawTextFrame(area, getState());
+    renderer->drawWell(area, getState());
 
-    const float em = Renderer::get()->getDefaultEM();
+    const float em = renderer->getDefaultEM();
 
     Rectangle textArea = area;
     textArea.position.x += em / 2.f;
@@ -148,11 +148,33 @@ void Entry::draw(void) const
 }
 
 void Entry::onButtonClicked(Widget& widget,
-			    const Vector2& position,
+			    const Vector2& point,
 			    unsigned int button,
 			    bool clicked)
 {
-  // TODO: Position caret.
+  float position = transformToLocal(point).x;
+
+  Renderer* renderer = Renderer::get();
+
+  const float em = renderer->getDefaultEM();
+
+  render::Font::LayoutList layouts;
+  renderer->getDefaultFont()->getTextLayout(layouts, text.substr(startPosition, String::npos));
+
+  float offset = em / 2.f;
+  unsigned int index;
+
+  // TODO: Improve this, it sucks.
+
+  for (index = 0;  index < layouts.size();  index++)
+  {
+    if (offset > position)
+      break;
+
+    offset += layouts[index].area.size.x;
+  }
+
+  setCaretPosition(startPosition + index, true);
 }
 
 void Entry::onKeyPressed(Widget& widget, GL::Key key, bool pressed)

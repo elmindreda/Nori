@@ -26,6 +26,7 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
+
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
@@ -55,8 +56,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-ParameterKey::ParameterKey(Time initMoment):
-  moment(initMoment)
+ParameterKey::ParameterKey(Parameter& initParameter):
+  parameter(initParameter)
 {
 }
 
@@ -64,14 +65,26 @@ ParameterKey::~ParameterKey(void)
 {
 }
 
+Parameter& ParameterKey::getParameter(void) const
+{
+  return parameter;
+}
+
 Time ParameterKey::getMoment(void) const
 {
   return moment;
 }
 
+void ParameterKey::setMoment(Time newMoment)
+{
+  moment = newMoment;
+  // TODO: Reinsert into parameter.
+}
+
 ///////////////////////////////////////////////////////////////////////
 
-Parameter::Parameter(const String& initName):
+Parameter::Parameter(Effect& initEffect, const String& initName):
+  effect(initEffect),
   name(initName)
 {
 }
@@ -95,6 +108,11 @@ void Parameter::destroyKey(ParameterKey& key)
   }
 }
 
+Effect& Parameter::getEffect(void) const
+{
+  return effect;
+}
+
 const String& Parameter::getName(void) const
 {
   return name;
@@ -111,7 +129,7 @@ void Parameter::registerKey(ParameterKey& key)
 
   for (i = keys.begin();  i != keys.end();  i++)
   {
-    if ((*i)->moment >= key.moment)
+    if ((*i)->getMoment() >= key.getMoment())
       break;
   }
 
@@ -120,9 +138,8 @@ void Parameter::registerKey(ParameterKey& key)
 
 ///////////////////////////////////////////////////////////////////////
 
-FloatKey::FloatKey(FloatParameter& initParameter, Time moment):
-  ParameterKey(moment),
-  parameter(initParameter),
+FloatKey::FloatKey(Parameter& parameter):
+  ParameterKey(parameter),
   value(0.f)
 {
 }
@@ -132,20 +149,26 @@ float FloatKey::getValue(void) const
   return value;
 }
 
-void FloatKey::asString(String& result) const
-{
-  Variant::convertToString(result, value);
-}
-
 void FloatKey::setValue(float newValue)
 {
+  FloatParameter& parameter = dynamic_cast<FloatParameter&>(getParameter());
+
   value = newValue;
   value = std::min(std::max(value, parameter.getMaxValue()),
                    parameter.getMinValue());
 }
 
+String FloatKey::asString(void) const
+{
+  String result;
+  Variant::convertToString(result, value);
+  return result;
+}
+
 void FloatKey::setStringValue(const String& newValue)
 {
+  FloatParameter& parameter = dynamic_cast<FloatParameter&>(getParameter());
+
   value = Variant::convertToFloat(newValue);
   value = std::min(std::max(value, parameter.getMaxValue()),
                    parameter.getMinValue());
@@ -153,24 +176,14 @@ void FloatKey::setStringValue(const String& newValue)
 
 ///////////////////////////////////////////////////////////////////////
 
-FloatParameter::FloatParameter(const String& name,
+FloatParameter::FloatParameter(Effect& effect,
+                               const String& name,
 	                       float initMinValue,
 	                       float initMaxValue):
-  ParameterTemplate<FloatKey, float>(name),
+  ParameterTemplate<FloatKey, float>(effect, name),
   minValue(initMinValue),
   maxValue(initMaxValue)
 {
-}
-
-template <>
-ParameterKey& ParameterTemplate<FloatKey,float>::createKey(Time moment,
-                                                           const String& value)
-{
-  FloatKey* key = new FloatKey(dynamic_cast<FloatParameter&>(*this), moment);
-  registerKey(*key);
-
-  key->setStringValue(value);
-  return *key;
 }
 
 float FloatParameter::getMinValue(void) const
@@ -197,9 +210,8 @@ float FloatParameter::getDefaultValue(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-BooleanKey::BooleanKey(Time moment):
-  ParameterKey(moment),
-  value(false)
+BooleanKey::BooleanKey(Parameter& parameter):
+  ParameterKey(parameter)
 {
 }
 
@@ -208,9 +220,11 @@ bool BooleanKey::getValue(void) const
   return value;
 }
 
-void BooleanKey::asString(String& result) const
+String BooleanKey::asString(void) const
 {
+  String result;
   Variant::convertToString(result, value);
+  return result;
 }
 
 void BooleanKey::setValue(bool newValue)
@@ -225,8 +239,8 @@ void BooleanKey::setStringValue(const String& newValue)
 
 ///////////////////////////////////////////////////////////////////////
 
-BooleanParameter::BooleanParameter(const String& name):
-  ParameterTemplate<BooleanKey, bool>(name)
+BooleanParameter::BooleanParameter(Effect& effect, const String& name):
+  ParameterTemplate<BooleanKey, bool>(effect, name)
 {
 }
 
@@ -244,27 +258,27 @@ bool BooleanParameter::getDefaultValue(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-StyleKey::StyleKey(Time moment):
-  ParameterKey(moment)
+StyleKey::StyleKey(Parameter& parameter):
+  ParameterKey(parameter)
 {
 }
 
-render::Style* StyleKey::getStyle(void) const
+render::Style* StyleKey::getValue(void) const
 {
   return style;
 }
 
-void StyleKey::setStyle(render::Style* newStyle)
+void StyleKey::setValue(render::Style* newStyle)
 {
   style = newStyle;
 }
 
-void StyleKey::asString(String& result) const
+String StyleKey::asString(void) const
 {
   if (style)
-    result = style->getName();
-  else
-    result.clear();
+    return style->getName();
+
+  return String();
 }
 
 void StyleKey::setStringValue(const String& newValue)
@@ -274,8 +288,8 @@ void StyleKey::setStringValue(const String& newValue)
 
 ///////////////////////////////////////////////////////////////////////
 
-StyleParameter::StyleParameter(const String& name):
-  ParameterTemplate<StyleKey, render::Style*>(name)
+StyleParameter::StyleParameter(Effect& effect, const String& name):
+  ParameterTemplate<StyleKey, render::Style*>(effect, name)
 {
 }
 
@@ -288,7 +302,55 @@ render::Style* StyleParameter::interpolateKeys(const StyleKey& start,
 			                       const StyleKey& end,
 			                       float t) const
 {
-  return start.getStyle();
+  return start.getValue();
+}
+
+///////////////////////////////////////////////////////////////////////
+
+ColorKeyRGB::ColorKeyRGB(Parameter& parameter):
+  ParameterKey(parameter)
+{
+}
+
+ColorRGB ColorKeyRGB::getValue(void) const
+{
+  return value;
+}
+
+void ColorKeyRGB::setValue(ColorRGB newValue)
+{
+  value = newValue;
+}
+
+String ColorKeyRGB::asString(void) const
+{
+  String result;
+  // TODO: Implement.
+  return result;
+}
+
+void ColorKeyRGB::setStringValue(const String& newValue)
+{
+  // TODO: Implement.
+}
+
+///////////////////////////////////////////////////////////////////////
+
+ColorParameterRGB::ColorParameterRGB(Effect& effect, const String& name):
+  ParameterTemplate<ColorKeyRGB, ColorRGB>(effect, name)
+{
+}
+
+ColorRGB ColorParameterRGB::getDefaultValue(void) const
+{
+  return ColorRGB::BLACK;
+}
+
+ColorRGB ColorParameterRGB::interpolateKeys(const ColorKeyRGB& start,
+			                    const ColorKeyRGB& end,
+			                    float t) const
+{
+  return start.getValue();
 }
 
 ///////////////////////////////////////////////////////////////////////

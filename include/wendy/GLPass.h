@@ -188,8 +188,8 @@ public:
   void setDiffuseColor(const ColorRGBA& color);
   void setSpecularColor(const ColorRGBA& color);
   /*! Sets the name of the GLSL program used by this render pass.
-   *  @param newName The name of the desired vertex program, or the empty
-   *  string to disable the use of GLSL programs.
+   *  @param[in] newProgram The desired shader program, or @c NULL to disable
+   *  the use of GLSL programs.
    */
   void setShaderProgram(ShaderProgram* newProgram);
   /*! Resets all values in this render pass to their defaults.

@@ -9,19 +9,10 @@ using namespace wendy;
 namespace
 {
 
-bool render(void)
-{
-  demo::Editor::get()->render();
-
-  return true;
-}
-
 bool setup(void)
 {
   if (!GL::Renderer::create())
     return false;
-
-  GL::Context::get()->getRenderSignal().connect(render);
 
   if (!UI::Renderer::create())
     return false;
@@ -63,8 +54,7 @@ bool CubeEffect::init(void)
   scene.addNode(*meshNode);
 
   render::LightNode* lightNode = new render::LightNode();
-  lightNode->setLight(light);
-  scene.addNode(*lightNode);
+  lightNode->setLight(light); scene.addNode(*lightNode);
 
   return true;
 }
@@ -94,10 +84,7 @@ int main(int argc, char** argv)
   if (GL::Context::create(mode))
   {
     if (setup())
-    {
-      while (GL::Context::get()->update())
-	;
-    }
+      demo::Editor::get()->run();
 
     demo::Editor::destroy();
     UI::Renderer::destroy();

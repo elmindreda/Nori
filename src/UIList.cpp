@@ -230,7 +230,7 @@ void List::draw(void) const
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
   {
-    renderer->drawFrame(area, getState());
+    renderer->drawWell(area, getState());
 
     float start = area.size.y;
 

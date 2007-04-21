@@ -18,39 +18,17 @@ PKG_PROG_PKG_CONFIG
 # Check for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(errno.h)
-AC_CHECK_HEADER([GL/glew.h], [], [AC_MSG_ERROR([GLEW not found])])
-AC_CHECK_HEADER([AL/alut.h], [], [AC_MSG_ERROR([ALUT not found])])
-
-case $host in
-  *-*-darwin* | *-*-macos10*)
-    ;;
-  *)
-    AC_CHECK_HEADER([AL/al.h], [], [AC_MSG_ERROR([OpenAL not found])])
-    ;;
-esac
 
 # Check for libraries.
 AC_CHECK_LIB([GLEW], [glewInit], [], [AC_MSG_ERROR([GLEW not found])])
-AC_CHECK_LIB([alut], [alutInit], [], [AC_MSG_ERROR([ALUT not found])])
-
-case $host in
-  *-*-darwin* | *-*-macos10*)
-    WENDY_LIBS="$WENDY_LIBS -framework OpenAL"
-    ;;
-  *)
-    AC_CHECK_LIB([openal], [alEnable], [], [AC_MSG_ERROR([OpenAL not found])])
-    ;;
-esac
 
 # Check for packages.
 PKG_CHECK_MODULES(moira, libmoira >= 0.0.2)
 PKG_CHECK_MODULES(glfw, libglfw >= 2.6)
-PKG_CHECK_MODULES(ogg, ogg >= 1.1.0)
-PKG_CHECK_MODULES(vorbis, vorbis >= 1.1.0)
 
-WENDY_CFLAGS="$WENDY_CFLAGS $glfw_CFLAGS $moira_CFLAGS $vorbis_CFLAGS"
+WENDY_CFLAGS="$WENDY_CFLAGS $glfw_CFLAGS $moira_CFLAGS"
 AC_SUBST(WENDY_CFLAGS)
-WENDY_LIBS="$WENDY_LIBS $glfw_LIBS $moira_LIBS $vorbis_LIBS"
+WENDY_LIBS="$WENDY_LIBS $glfw_LIBS $moira_LIBS"
 AC_SUBST(WENDY_LIBS)
 
 AC_OUTPUT(
