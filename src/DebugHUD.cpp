@@ -43,6 +43,8 @@
 
 #include <wendy/DebugHUD.h>
 
+#include <sstream>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -58,7 +60,32 @@ using namespace moira;
 
 void HUD::draw(void) const
 {
-  // TODO: Implement.
+  GL::Statistics* statistics = GL::Statistics::get();
+
+  std::stringstream text;
+  text << "Vertices: " << statistics->getVertexCount();
+
+  GL::Canvas* canvas = GL::Canvas::getCurrent();
+
+  Rectangle area(0.f, 0.f, (float) canvas->getPhysicalWidth(),
+                           (float) canvas->getPhysicalHeight());
+
+  Rectangle metrics = font->getTextMetrics(text.str());
+
+  Vector2 penPosition;
+  penPosition.x = area.getCenter().x - metrics.getCenter().x;
+  penPosition.y = area.getCenter().y - metrics.getCenter().y;
+
+  GL::Renderer* renderer = GL::Renderer::get();
+
+  renderer->begin2D(Vector2((float) canvas->getPhysicalWidth(),
+                            (float) canvas->getPhysicalHeight()));
+
+  font->setColor(ColorRGBA::WHITE);
+  font->setPenPosition(penPosition);
+  font->drawText(text.str());
+
+  renderer->end();
 }
 
 bool HUD::create(void)

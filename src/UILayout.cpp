@@ -42,8 +42,6 @@
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
-#include <wendy/UIBook.h>
-#include <wendy/UIScroller.h>
 #include <wendy/UILayout.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -62,16 +60,10 @@ using namespace moira;
 Layout::Layout(Orientation initOrientation, bool initExpanding):
   orientation(initOrientation),
   expanding(initExpanding),
-  scroller(NULL),
   borderSize(1.f)
 {
   if (!expanding)
     getAreaChangedSignal().connect(*this, &Layout::onAreaChanged);
-
-  scroller = new Scroller(orientation);
-  scroller->getValueChangedSignal().connect(*this, &Layout::onValueChanged);
-  scroller->setVisible(false);
-  addChild(*scroller);
 }
 
 void Layout::addChild(Widget& child)
@@ -124,9 +116,6 @@ void Layout::setChildSize(Widget& child, float newSize)
 
 void Layout::addedChild(Widget& child)
 {
-  if (&child == scroller)
-    return;
-
   if (orientation == VERTICAL)
     sizes[&child] = child.getArea().size.y;
   else
@@ -137,9 +126,6 @@ void Layout::addedChild(Widget& child)
 
 void Layout::removedChild(Widget& child)
 {
-  if (&child == scroller)
-    return;
-
   sizes.erase(&child);
   update();
 }
@@ -167,10 +153,6 @@ void Layout::onAreaChanged(Widget& widget)
   update();
 }
 
-void Layout::onValueChanged(Scroller& scroller)
-{
-}
-
 void Layout::update(void)
 {
   const List& children = getChildren();
@@ -183,9 +165,6 @@ void Layout::update(void)
 
     for (List::const_iterator i = children.begin();  i != children.end();  i++)
     {
-      if (*i == scroller)
-	continue;
-
       const float height = sizes[*i];
       if (height == 0.f)
 	flexibleCount++;
@@ -195,21 +174,6 @@ void Layout::update(void)
 
     float width = size.x - borderSize * 2.f;
 
-    if (stackHeight > size.y)
-    {
-      width -= scroller->getArea().size.x;
-
-      scroller->setArea(Rectangle(size.x - scroller->getArea().size.x,
-				  0.f,
-				  scroller->getArea().size.x,
-				  size.y));
-      scroller->setValueRange(0.f, size.y);
-      scroller->setPercentage(size.y / stackHeight);
-      scroller->setVisible(true);
-    }
-    else
-      scroller->setVisible(false);
-
     float flexibleSize;
     if (flexibleCount)
       flexibleSize = (size.y - stackHeight) / flexibleCount;
@@ -218,9 +182,6 @@ void Layout::update(void)
 
     for (List::const_iterator i = children.begin();  i != children.end();  i++)
     {
-      if (*i == scroller)
-	continue;
-
       float height = sizes[*i];
       if (height == 0.f)
 	height = flexibleSize;
@@ -235,9 +196,6 @@ void Layout::update(void)
 
     for (List::const_iterator i = children.begin();  i != children.end();  i++)
     {
-      if (*i == scroller)
-	continue;
-
       const float width = sizes[*i];
       if (width == 0.f)
 	flexibleCount++;
@@ -247,18 +205,6 @@ void Layout::update(void)
 
     float height = size.y - borderSize * 2.f;
 
-    if (stackWidth > size.x)
-    {
-      height -= scroller->getArea().size.y;
-
-      scroller->setArea(Rectangle(0.f, 0.f, size.x, scroller->getArea().size.y));
-      scroller->setValueRange(0.f, size.x);
-      scroller->setPercentage(size.x / stackWidth);
-      scroller->setVisible(true);
-    }
-    else
-      scroller->setVisible(false);
-
     float flexibleSize;
     if (flexibleCount)
       flexibleSize = (size.x - stackWidth) / flexibleCount;
@@ -267,9 +213,6 @@ void Layout::update(void)
 
     for (List::const_iterator i = children.begin();  i != children.end();  i++)
     {
-      if (*i == scroller)
-	continue;
-
       float width = sizes[*i];
       if (width == 0.f)
 	width = flexibleSize;

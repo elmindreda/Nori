@@ -54,6 +54,8 @@ private:
   bool onRender(void);
   void onLoadShow(UI::Button& button);
   void onSaveShow(UI::Button& button);
+  void onRewind(UI::Button& button);
+  void onPauseResume(UI::Button& button);
   void onCreateEffect(UI::Button& button);
   void onDestroyEffect(UI::Button& button);
   void onZoomChanged(UI::Slider& slider);

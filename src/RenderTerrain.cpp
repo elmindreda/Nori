@@ -54,6 +54,15 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+namespace
+{
+
+const unsigned int RENDER_TERRAIN_XML_VERSION = 1;
+
+}
+
+///////////////////////////////////////////////////////////////////////
+
 void Terrain::enqueue(Queue& queue, const Transform3& transform) const
 {
   mesh->enqueue(queue, transform);
@@ -241,6 +250,91 @@ Vector3 Terrain::worldToGrid(const Vector3& world) const
   const Vector3 scale(width / size.x, 255.f / size.y, depth / size.z);
 
   return world * scale + Vector3(offset.x, 0.f, offset.y);
+}
+
+///////////////////////////////////////////////////////////////////////
+
+TerrainCodec::TerrainCodec(void):
+  ResourceCodec<Terrain>("XML terrain codec")
+{
+  addSuffix("terrain");
+}
+
+Terrain* TerrainCodec::read(const Path& path, const String& name)
+{
+  return ResourceCodec<Terrain>::read(path, name);
+}
+
+Terrain* TerrainCodec::read(Stream& stream, const String& name)
+{
+  terrainName = name;
+
+  if (!XML::Codec::read(stream))
+  {
+    style = NULL;
+    return NULL;
+  }
+
+  return terrain.detachObject();
+}
+
+bool TerrainCodec::write(const Path& path, const Terrain& Terrain)
+{
+  return ResourceCodec<Style>::write(path, style);
+}
+
+bool TerrainCodec::write(Stream& stream, const Terrain& Terrain)
+{
+  try
+  {
+    setStream(&stream);
+
+    beginElement("terrain");
+    addAttribute("version", (int) RENDER_TERRAIN_XML_VERSION);
+
+    endElement();
+
+    setStream(NULL);
+  }
+  catch (Exception& exception)
+  {
+    Log::writeError("Failed to write terrain %s: %s",
+                    terrain.getName().c_str(),
+		    exception.what());
+    setStream(NULL);
+    return false;
+  }
+
+  return true;
+}
+
+bool TerrainCodec::onBeginElement(const String& name)
+{
+  if (name == "terrain")
+  {
+    if (terrain)
+    {
+      Log::writeError("Only one terrain per file allowed");
+      return false;
+    }
+
+    const unsigned int version = readInteger("version");
+    if (version != RENDER_TERRAIN_XML_VERSION)
+    {
+      Log::writeError("Terrain XML format version mismatch");
+      return false;
+    }
+
+    terrain = new Terrain(terrainName);
+    return true;
+  }
+
+  return true;
+}
+
+bool TerrainCodec::onEndElement(const String& name)
+{
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////

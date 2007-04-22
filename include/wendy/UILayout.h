@@ -59,13 +59,11 @@ protected:
   void onAreaChanged(Widget& parent);
 private:
   typedef std::map<Widget*, float> SizeMap;
-  void onValueChanged(Scroller& scroller);
   void update(void);
   bool expanding;
   SizeMap sizes;
   float borderSize;
   Orientation orientation;
-  Scroller* scroller;
   Ptr<SignalSlot> parentAreaSlot;
 };
 

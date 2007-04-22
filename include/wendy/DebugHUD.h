@@ -45,7 +45,7 @@ public:
 private:
   HUD(void);
   bool init(void);
-  Ptr<render::Font> font;
+  Ref<render::Font> font;
 };
 
 ///////////////////////////////////////////////////////////////////////

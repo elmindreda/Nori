@@ -42,7 +42,7 @@ using namespace moira;
  *
  *  Basic heightmap terrain renderer.
  */
-class Terrain : public Managed<Terrain>, public RefObject<Terrain>
+class Terrain : public Resource<Terrain>, public RefObject<Terrain>
 {
 public:
   void enqueue(Queue& queue, const Transform3& transform) const;
@@ -85,6 +85,23 @@ struct Terrain::Tile
 {
   Vector3 normals[2];
   float height;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class TerrainCodec : public ResourceCodec<Terrain>, public XML::Codec
+{
+public:
+  TerrainCodec(void);
+  Terrain* read(const Path& path, const String& name = "");
+  Terrain* read(Stream& stream, const String& name = "");
+  bool write(const Path& path, const Terrain& terrain);
+  bool write(Stream& stream, const Terrain& terrain);
+private:
+  bool onBeginElement(const String& name);
+  bool onEndElement(const String& name);
+  Ptr<Terrain> terrain;
+  String terrainName;
 };
 
 ///////////////////////////////////////////////////////////////////////

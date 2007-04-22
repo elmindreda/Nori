@@ -477,7 +477,7 @@ void Timeline::setParentEffect(Effect& newParent)
   if (parent == &newParent)
     return;
 
-  //trackLayout->destroyChildren();
+  trackLayout->destroyChildren();
   selected = NULL;
 
   parent = &newParent;

@@ -128,12 +128,12 @@ bool Editor::init(const String& showName)
   if (!show)
     return false;
 
-  show->setTitle("Demo");
-
   GL::Context* context = GL::Context::get();
   context->getRenderSignal().connect(*this, &Editor::onRender);
   context->getResizedSignal().connect(*this, &Editor::onResized);
   context->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
+
+  const float em = UI::Renderer::get()->getDefaultEM();
 
   book = new UI::Book();
 
@@ -212,9 +212,24 @@ bool Editor::init(const String& showName)
     timelineLayout->setBorderSize(3.f);
     mainLayout->addChild(*timelineLayout, 0.f);
 
+    UI::Layout* playLayout = new UI::Layout(UI::HORIZONTAL, false);
+    playLayout->setSize(Vector2(em * 2.f, em * 2.f));
+    timelineLayout->addChild(*playLayout);
+
     timeDisplay = new UI::Label();
     timeDisplay->setTextAlignment(UI::CENTERED_ON_X);
-    timelineLayout->addChild(*timeDisplay);
+    playLayout->addChild(*timeDisplay, 0.f);
+
+    button = new UI::Button(">|");
+    playLayout->addChild(*button, 0.f);
+
+    button = new UI::Button("||");
+    button->getPushedSignal().connect(*this, &Editor::onPauseResume);
+    playLayout->addChild(*button, 0.f);
+
+    button = new UI::Button("|<");
+    button->getPushedSignal().connect(*this, &Editor::onRewind);
+    playLayout->addChild(*button, 0.f);
 
     timeline = new Timeline(*show);
     timeline->getTimeChangedSignal().connect(*this, &Editor::onTimeChanged);
@@ -337,6 +352,24 @@ void Editor::onLoadShow(UI::Button& button)
 
 void Editor::onSaveShow(UI::Button& button)
 {
+  Path path = show->getSourcePath();
+  if (path.asString().empty())
+    path = Path("demo.show");
+
+  Show::writeInstance(path, *show);
+}
+
+void Editor::onRewind(UI::Button& button)
+{
+  timer.setTime(0.0);
+}
+
+void Editor::onPauseResume(UI::Button& button)
+{
+  if (timer.isPaused())
+    timer.resume();
+  else
+    timer.pause();
 }
 
 void Editor::onCreateEffect(UI::Button& button)

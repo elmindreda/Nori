@@ -93,9 +93,9 @@ void Renderer::popClipArea(void)
 }
 
 void Renderer::drawText(const Rectangle& area,
-                              const String& text,
-		              const Alignment& alignment,
-			      bool selected)
+                        const String& text,
+		        const Alignment& alignment,
+			bool selected)
 {
   Rectangle metrics = currentFont->getTextMetrics(text);
 

@@ -147,6 +147,7 @@ bool Show::init(void)
   if (!root)
     return false;
 
+  title = "Demo";
   return true;
 }
 
