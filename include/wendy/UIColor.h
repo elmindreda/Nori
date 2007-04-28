@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy user interface library
 // Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,17 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_GLSTATISTICS_H
-#define WENDY_GLSTATISTICS_H
-///////////////////////////////////////////////////////////////////////
-
-#include <deque>
-
+#ifndef WENDY_UICOLOR_H
+#define WENDY_UICOLOR_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace GL
+  namespace UI
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -41,43 +37,28 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class Statistics : public Singleton<Statistics>, public Trackable
+/*! @ingroup ui
+ */
+class ColorPickerRGB : public Widget
 {
 public:
-  class Frame
-  {
-  public:
-    Frame(void);
-    unsigned int passCount;
-    unsigned int vertexCount;
-    unsigned int pointCount;
-    unsigned int lineCount;
-    unsigned int triangleCount;
-    Time duration;
-  };
-  typedef std::deque<Frame> FrameQueue;
-  void addPasses(unsigned int count);
-  void addPrimitives(GLenum mode, unsigned int count);
-  float getFrameRate(void) const;
-  unsigned int getFrameCount(void) const;
-  const Frame& getFrame(void) const;
-  static bool create(void);
+  ColorPickerRGB(void);
+  const ColorRGB& getValue(void) const;
+  void setValue(const ColorRGB& newValue);
+  SignalProxy1<void, ColorPickerRGB&> getValueChangedSignal(void);
 private:
-  Statistics(void);
-  bool init(void);
-  void onFinish(void);
-  static void onContextDestroy(void);
-  unsigned int frameCount;
-  float frameRate;
-  FrameQueue frames;
-  Timer timer;
+  void draw(void) const;
+  void onValueChanged(Slider& slider);
+  ColorRGB value;
+  Slider* sliders[3];
+  Signal1<void, ColorPickerRGB&> valueChangedSignal;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace UI*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_GLSTATISTICS_H*/
+#endif /*WENDY_UICOLOR_H*/
 ///////////////////////////////////////////////////////////////////////

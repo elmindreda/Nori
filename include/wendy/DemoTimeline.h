@@ -93,20 +93,22 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup demo
+/*! @brief Demo effect property key interface widget.
+ *  @ingroup demo
  */
-class ParameterTrack : public UI::Widget
+class PropertyTrack : public UI::Widget
 {
 public:
-  ParameterTrack(Timeline& timeline, Parameter& parameter);
-  Parameter& getParameter(void) const;
+  PropertyTrack(Timeline& timeline, Property& property);
+  Property& getParameter(void) const;
 private:
   void draw(void) const;
   void onDragBegun(Widget& widget, const Vector2& point);
   void onDragMoved(Widget& widget, const Vector2& point);
   void onDragEnded(Widget& widget, const Vector2& point);
   Timeline& timeline;
-  Parameter& parameter;
+  Property& property;
+  PropertyKey* draggedKey;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -127,17 +129,22 @@ public:
   void setTimeElapsed(Time newTime);
   Time getVisibleDuration(void) const;
   float getSecondWidth(void) const;
+  Effect* getSelectedEffect(void) const;
   Effect& getParentEffect(void) const;
   void setParentEffect(Effect& newEffect);
   Time getSnappedTime(Time time) const;
   SignalProxy1<void, Timeline&> getTimeChangedSignal(void);
   SignalProxy1<void, Timeline&> getParentChangedSignal(void);
+  SignalProxy1<void, Timeline&> getEffectSelectedSignal(void);
+  SignalProxy1<void, Timeline&> getPropertySelectedSignal(void);
+  SignalProxy1<void, Timeline&> getPropertyKeySelectedSignal(void);
 private:
-  typedef std::vector<EffectTrack*> EffectList;
+  typedef std::vector<UI::Widget*> TrackList;
   enum MenuItem
   {
     MENU_ENTER = 1,
-    MENU_EXIT,
+    MENU_EXIT_PARENT,
+    MENU_EXIT_ALL,
     MENU_RENAME,
     MENU_MOVE_UP,
     MENU_MOVE_DOWN,
@@ -145,6 +152,7 @@ private:
   };
   void draw(void) const;
   void updateScroller(void);
+  void createTrack(Property& property);
   void createTrack(Effect& effect);
   void onButtonClicked(Widget& widget,
                        const Vector2& point,
@@ -156,17 +164,20 @@ private:
   void onItemSelected(UI::Menu& menu, unsigned int index);
   Signal1<void, Timeline&> timeChangedSignal;
   Signal1<void, Timeline&> parentChangedSignal;
+  Signal1<void, Timeline&> effectSelectedSignal;
+  Signal1<void, Timeline&> propertySelectedSignal;
+  Signal1<void, Timeline&> propertyKeySelectedSignal;
   Show& show;
   Effect* parent;
   EffectTrack* selected;
   Ptr<UI::Menu> effectMenu;
-  Ptr<UI::Menu> layoutMenu;
+  Ptr<UI::Menu> canvasMenu;
+  TrackList tracks;
   Time start;
   float zoom;
-  unsigned int effectIndex;
   TimelineRuler* ruler;
-  UI::Layout* trackLayout;
-  UI::Scroller* timeScroller;
+  UI::Widget* trackPanel;
+  UI::Scroller* horzScroller;
 };
 
 ///////////////////////////////////////////////////////////////////////

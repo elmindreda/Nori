@@ -1,5 +1,5 @@
 AC_PREREQ(2.50)
-AC_INIT([wendy], [0.1.0], [elmindreda@elmindreda.org])
+AC_INIT([wendy], [0.6.0], [elmindreda@elmindreda.org])
 AC_CONFIG_SRCDIR([src/Core.cpp])
 AC_CONFIG_AUX_DIR(build/autotools)
 AC_CANONICAL_HOST

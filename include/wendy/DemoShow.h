@@ -62,13 +62,15 @@ private:
   Show(const String& name);
   bool init(void);
   void updateEffect(Effect& effect, Time newTime);
+  void deactivateChildren(Effect& effect);
   Ptr<Effect> root;
   String title;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup io
+/*! @brief Demo show XML codec.
+ *  @ingroup io
  */
 class ShowCodec : public ResourceCodec<Show>, public XML::Codec
 {
@@ -84,7 +86,7 @@ private:
   void writeEffect(const Effect& effect);
   Ptr<Show> show;
   std::stack<Effect*> effectStack;
-  Parameter* currentParameter;
+  Property* currentProperty;
 };
 
 ///////////////////////////////////////////////////////////////////////

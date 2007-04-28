@@ -168,7 +168,7 @@ private:
  *  This class ties a specific texture (or no texture) to a specific texture
  *  unit, and can be said to represent a texture unit binding.
  *
- *  Note that it's valid for the texture name to be empty. This means that no
+ *  Note that it's valid for the texture to be @c NULL. This means that no
  *  texture is bound to the texture unit.
  *
  *  @remarks %Texture layers assigned to non-existent texture units will be
@@ -176,7 +176,7 @@ private:
  *
  *  @remarks Unless you're writing your own custom renderer, you don't probably
  *  want to use this directly (especially the TextureLayer::apply method), but
- *  instead work through the RenderPass and RenderStyle classes.
+ *  instead work through the Pass, render::Technique and render::Style classes.
  */
 class TextureLayer
 {

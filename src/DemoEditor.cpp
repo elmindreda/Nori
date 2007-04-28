@@ -57,7 +57,7 @@
 #include <wendy/UIMenu.h>
 #include <wendy/UIPopup.h>
 
-#include <wendy/DemoParameter.h>
+#include <wendy/DemoProperty.h>
 #include <wendy/DemoEffect.h>
 #include <wendy/DemoShow.h>
 #include <wendy/DemoTimeline.h>
@@ -83,20 +83,52 @@ void Editor::run(void)
     ;
 }
 
-bool Editor::isVisible(void) const
-{
-  return book->isVisible();
-}
-
 bool Editor::isModified(void) const
 {
   return modified;
+}
+
+bool Editor::isPaused(void) const
+{
+  return timer.isPaused();
+}
+
+bool Editor::isVisible(void) const
+{
+  return book->isVisible();
 }
 
 void Editor::setVisible(bool newState)
 {
   book->setVisible(newState);
   updateTitle();
+}
+
+Time Editor::getTimeElapsed(void) const
+{
+  return elapsed;
+}
+
+void Editor::setTimeElapsed(Time newTime)
+{
+  timer.setTime(newTime);
+  elapsed = newTime;
+  timeChangedSignal.emit();
+}
+
+SignalProxy0<void> Editor::getTimeChangedSignal(void)
+{
+  return timeChangedSignal;
+}
+
+SignalProxy0<void> Editor::getPausedSignal(void)
+{
+  return pausedSignal;
+}
+
+SignalProxy0<void> Editor::getResumedSignal(void)
+{
+  return resumedSignal;
 }
 
 bool Editor::create(const String& showName)
@@ -114,7 +146,8 @@ bool Editor::create(const String& showName)
 
 Editor::Editor(void):
   modified(false),
-  quitting(false)
+  quitting(false),
+  elapsed(0.0)
 {
 }
 
@@ -162,30 +195,19 @@ bool Editor::init(const String& showName)
 
     UI::Button* button;
     
-    button = new UI::Button("Maali");
-    commandLayout->addChild(*button);
-
     button = new UI::Button("Create Effect");
     button->getPushedSignal().connect(*this, &Editor::onCreateEffect);
     commandLayout->addChild(*button);
 
     UI::Label* label;
     
-    label = new UI::Label("Zoom");
+    label = new UI::Label("Effect Name");
     commandLayout->addChild(*label);
 
-    UI::Slider* zoomSlider = new UI::Slider();
-    zoomSlider->setValueRange(1.f, 4.f);
-    zoomSlider->setValue(1.f);
-    zoomSlider->getValueChangedSignal().connect(*this, &Editor::onZoomChanged);
-    commandLayout->addChild(*zoomSlider);
-
-    label = new UI::Label("Parent");
-    commandLayout->addChild(*label);
-
-    parentPopup = new UI::Popup();
-    parentPopup->getItemSelectedSignal().connect(*this, &Editor::onParentSelected);
-    commandLayout->addChild(*parentPopup);
+    nameEntry = new UI::Entry();
+    nameEntry->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
+    nameEntry->disable();
+    commandLayout->addChild(*nameEntry);
 
     effectType = new UI::List();
     controlLayout->addChild(*effectType, 0.f);
@@ -216,24 +238,41 @@ bool Editor::init(const String& showName)
     playLayout->setSize(Vector2(em * 2.f, em * 2.f));
     timelineLayout->addChild(*playLayout);
 
+    UI::Slider* zoomSlider = new UI::Slider();
+    zoomSlider->setSize(Vector2(em * 10.f, 0.f));
+    zoomSlider->setValueRange(1.f, 10.f);
+    zoomSlider->setValue(1.f);
+    zoomSlider->getValueChangedSignal().connect(*this, &Editor::onZoomChanged);
+    playLayout->addChild(*zoomSlider);
+
     timeDisplay = new UI::Label();
     timeDisplay->setTextAlignment(UI::CENTERED_ON_X);
     playLayout->addChild(*timeDisplay, 0.f);
 
-    button = new UI::Button(">|");
-    playLayout->addChild(*button, 0.f);
+    parentPopup = new UI::Popup();
+    parentPopup->setSize(Vector2(em * 10.f, 0.f));
+    parentPopup->getItemSelectedSignal().connect(*this, &Editor::onParentSelected);
+    playLayout->addChild(*parentPopup);
+
+    button = new UI::Button("Maali");
+    button->setSize(Vector2(em * 6.f, 0.f));
+    button->getPushedSignal().connect(*this, &Editor::onMaali);
+    playLayout->addChild(*button);
 
     button = new UI::Button("||");
+    button->setSize(Vector2(em * 4.f, 0.f));
     button->getPushedSignal().connect(*this, &Editor::onPauseResume);
-    playLayout->addChild(*button, 0.f);
+    playLayout->addChild(*button);
 
     button = new UI::Button("|<");
+    button->setSize(Vector2(em * 4.f, 0.f));
     button->getPushedSignal().connect(*this, &Editor::onRewind);
-    playLayout->addChild(*button, 0.f);
+    playLayout->addChild(*button);
 
     timeline = new Timeline(*show);
     timeline->getTimeChangedSignal().connect(*this, &Editor::onTimeChanged);
     timeline->getParentChangedSignal().connect(*this, &Editor::onParentChanged);
+    timeline->getEffectSelectedSignal().connect(*this, &Editor::onSelectionChanged);
     timelineLayout->addChild(*timeline, 0.f);
   }
 
@@ -265,9 +304,17 @@ bool Editor::init(const String& showName)
     titleEntry->setText(show->getTitle());
     mainLayout->addChild(*titleEntry);
 
+    label = new UI::Label("Show Path: " + show->getSourcePath().asString());
+    mainLayout->addChild(*label);
+
+    label = new UI::Label("Music Path");
+    mainLayout->addChild(*label);
+
+    UI::Entry* musicEntry = new UI::Entry();
+    mainLayout->addChild(*musicEntry);
+
     // Set aspect ratio(s)
     // Set default mode
-    // Set music file/name
   }
 
   UI::Page* aboutPage = new UI::Page("About Wendy");
@@ -280,15 +327,21 @@ bool Editor::init(const String& showName)
     UI::Label* aboutLabel = new UI::Label();
     mainLayout->addChild(*aboutLabel, 0.f);
 
-    aboutLabel->setText("The Wendy demo system\n"
+    aboutLabel->setText("The Wendy demo system, version " WENDY_PACKAGE_VERSION "\n"
                         "Copyright (c) 2007 Camilla Berglund <elmindreda@users.sourceforge.net>\n"
+			"\n"
+			"expat - Copyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd and Clark Cooper\n"
+			"libpng - Copyright (c) 2004, 2006 Glenn Randers-Pehrson\n"
+			"zlib - Copyright (c) 1995-1998 Jean-loup Gailly and Mark Adler\n"
+			"GLFW - Copyright (c) 2006-2007 Camilla Berglund\n"
+			"GLEW - Copyright (c) 2002-2006, Milan Ikits and Marcelo E. Magallon\n"
                         "\n"
 			"Compiled " __TIME__ " on " __DATE__ "\n");
   }
 
   timer.start();
   timer.pause();
-  timer.setTime(0.0);
+  setTimeElapsed(0.0);
 
   onResized(context->getWidth(), context->getHeight());
   onParentChanged(*timeline);
@@ -307,17 +360,36 @@ void Editor::updateTitle(void)
     context->setTitle(show->getTitle());
 }
 
+void Editor::togglePaused(void)
+{
+  if (timer.isPaused())
+  {
+    timer.resume();
+    resumedSignal.emit();
+  }
+  else
+  {
+    timer.pause();
+    pausedSignal.emit();
+  }
+}
+
 bool Editor::onRender(void)
 {
-  Time currentTime = timer.getTime();
+  const float duration = show->getDuration();
 
-  timeline->setTimeElapsed(currentTime);
-  timeDisplay->setText("%u:%02u.%02u",
-                       (unsigned int) currentTime / 60,
-		       (unsigned int) currentTime % 60,
-		       (unsigned int) (currentTime * 100.0) % 100);
+  elapsed = timer.getTime();
 
-  show->setTimeElapsed(currentTime);
+  timeline->setTimeElapsed(elapsed);
+  timeDisplay->setText("%u:%02u.%02u / %u:%02u.%02u",
+                       (unsigned int) elapsed / 60,
+		       (unsigned int) elapsed % 60,
+		       (unsigned int) (elapsed * 100.0) % 100,
+                       (unsigned int) duration / 60,
+		       (unsigned int) duration % 60,
+		       (unsigned int) (duration * 100.0) % 100);
+
+  show->setTimeElapsed(elapsed);
   show->prepare();
 
   GL::ScreenCanvas screen;
@@ -346,6 +418,11 @@ bool Editor::onRender(void)
   return !quitting;
 }
 
+void Editor::onMaali(UI::Button& button)
+{
+  setVisible(false);
+}
+
 void Editor::onLoadShow(UI::Button& button)
 {
 }
@@ -361,15 +438,12 @@ void Editor::onSaveShow(UI::Button& button)
 
 void Editor::onRewind(UI::Button& button)
 {
-  timer.setTime(0.0);
+  setTimeElapsed(0.0);
 }
 
 void Editor::onPauseResume(UI::Button& button)
 {
-  if (timer.isPaused())
-    timer.resume();
-  else
-    timer.pause();
+  togglePaused();
 }
 
 void Editor::onCreateEffect(UI::Button& button)
@@ -419,65 +493,65 @@ void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
 
     switch (key)
     {
-      /*
-      case GL::Key::TAB:
-      {
-	setVisible(false);
-	break;
-      }
-      */
-
       case GL::Key::LEFT:
       {
-	timer.setTime(timer.getTime() - 1.0);
+	setTimeElapsed(elapsed - 1.0);
 	break;
       }
 
       case GL::Key::RIGHT:
       {
-	timer.setTime(timer.getTime() + 1.0);
+	setTimeElapsed(elapsed + 1.0);
 	break;
       }
 
       case GL::Key::HOME:
       {
-	timer.setTime(0.0);
+	setTimeElapsed(0.0);
 	break;
       }
 
       case GL::Key::END:
       {
-	timer.setTime(show->getDuration() - 0.01);
+	setTimeElapsed(show->getDuration() - 0.01);
 	break;
       }
 
       case GL::Key::SPACE:
       {
-	if (timer.isPaused())
-	  timer.resume();
-	else
-	  timer.pause();
+	togglePaused();
 	break;
       }
     }
   }
-
-  if (&widget == titleEntry)
+  else if (&widget == titleEntry)
   {
-    if (!pressed)
+    if (!pressed || key != GL::Key::ENTER)
       return;
 
-    if (key == GL::Key::ENTER)
-    {
-      show->setTitle(titleEntry->getText());
-      updateTitle();
-    }
+    show->setTitle(titleEntry->getText());
+    updateTitle();
+  }
+  else if (&widget == nameEntry)
+  {
+    if (!pressed || key != GL::Key::ENTER)
+      return;
+
+    String effectName = nameEntry->getText();
+    if (effectName.empty())
+      return;
+
+    Effect* selected = timeline->getSelectedEffect();
+    if (!selected)
+      return;
+
+    selected->setName(effectName);
   }
 }
 
 void Editor::onTimeChanged(Timeline& timeline)
 {
-  timer.setTime(timeline.getTimeElapsed());
+  setTimeElapsed(timeline.getTimeElapsed());
 }
 
 void Editor::onParentChanged(Timeline& timeline)
@@ -491,6 +565,21 @@ void Editor::onParentChanged(Timeline& timeline)
     parentPopup->addItem(effect->getName());
   }
   while (effect = effect->getParent());
+}
+
+void Editor::onSelectionChanged(Timeline& timeline)
+{
+  Effect* selected = timeline.getSelectedEffect();
+  if (selected)
+  {
+    nameEntry->setText(selected->getName());
+    nameEntry->enable();
+  }
+  else
+  {
+    nameEntry->setText("");
+    nameEntry->disable();
+  }
 }
 
 void Editor::onParentSelected(UI::Popup& popup, unsigned int index)

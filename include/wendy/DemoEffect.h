@@ -88,10 +88,12 @@ public:
 class Effect : public Node<Effect>, public Managed<Effect>
 {
   friend class Show;
+  friend class Property;
 public:
-  typedef std::vector<Parameter*> ParameterList;
+  typedef std::vector<Property*> PropertyList;
   Effect(EffectType& type, const String& name = "");
-  Parameter* findParameter(const String& name);
+  ~Effect(void);
+  Property* findProperty(const String& name);
   bool isActive(void) const;
   EffectType& getType(void) const;
   Time getGlobalOffset(void) const;
@@ -100,10 +102,8 @@ public:
   Time getDuration(void) const;
   void setDuration(Time newDuration);
   Time getTimeElapsed(void) const;
-  const ParameterList& getParameters(void);
+  const PropertyList& getProperties(void) const;
 protected:
-  void addParameter(Parameter& parameter);
-  void removeParameter(Parameter& parameter);
   void prepareChildren(void) const;
   void renderChildren(void) const; 
   virtual void prepare(void) const;
@@ -117,7 +117,7 @@ private:
   Time start;
   Time duration;
   Time elapsed;
-  ParameterList parameters;
+  PropertyList properties;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@ public:
   bool init(void);
 private:
   void render(void) const;
-  ColorParameterRGB color;
+  ColorPropertyRGB color;
 };
 
 ///////////////////////////////////////////////////////////////////////

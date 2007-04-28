@@ -482,6 +482,8 @@ bool Context::init(const ContextMode& mode)
   
   glfwSwapInterval(1);
 
+  glfwEnable(GLFW_MOUSE_CURSOR);
+
   setTitle("Wendy");
   glfwPollEvents();
 

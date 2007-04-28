@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_DEMOPARAMETER_H
-#define WENDY_DEMOPARAMETER_H
+#ifndef WENDY_DEMOPROPERTY_H
+#define WENDY_DEMOPROPERTY_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -37,51 +37,51 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class Parameter;
+class Property;
 class Effect;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup demo
- *  @brief Demo effect parameter key superclass.
+/*! @brief Demo effect property key superclass.
+ *  @ingroup demo
  */
-class ParameterKey
+class PropertyKey : public Trackable
 {
 public:
-  ParameterKey(Parameter& parameter);
-  virtual ~ParameterKey(void);
+  PropertyKey(Property& property);
+  virtual ~PropertyKey(void);
+  virtual UI::Widget* createManipulator(void) = 0;
   virtual String asString(void) const = 0;
   virtual void setStringValue(const String& newValue) = 0;
-  Parameter& getParameter(void) const;
+  Property& getProperty(void) const;
   Time getMoment(void) const;
   void setMoment(Time newMoment);
 private:
-  Parameter& parameter;
+  void insert(void);
+  void remove(void);
+  Property& property;
   Time moment;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup demo
- *  @brief Demo effect parameter superclass.
+/*! @brief Demo effect property superclass.
+ *  @ingroup demo
  */
-class Parameter
+class Property
 {
-  friend class ParameterKey;
+  friend class PropertyKey;
 public:
-  typedef std::vector<ParameterKey*> KeyList;
-  Parameter(Effect& effect, const String& name);
-  virtual ~Parameter(void);
-  virtual ParameterKey& createKey(Time moment, const String& value = "") = 0;
-  void destroyKey(ParameterKey& key);
-  //Time getSequenceStart(Time moment) const;
-  //Time getSequenceDuration(Time moment) const;
-  //unsigned int getSequenceIndex(Time moment) const;
+  typedef std::vector<PropertyKey*> KeyList;
+  Property(Effect& effect, const String& name);
+  virtual ~Property(void);
+  virtual PropertyKey& createKey(Time moment, const String& value = "") = 0;
+  Time getSequenceStart(Time moment) const;
+  Time getSequenceDuration(Time moment) const;
+  unsigned int getSequenceIndex(Time moment) const;
   Effect& getEffect(void) const;
   const String& getName(void) const;
   const KeyList& getKeys(void) const;
-protected:
-  void registerKey(ParameterKey& key);
 private:
   Effect& effect;
   String name;
@@ -93,11 +93,11 @@ private:
 /*! @ingroup demo
  */
 template <typename K, typename T>
-class ParameterTemplate : public Parameter
+class PropertyTemplate : public Property
 {
 public:
-  inline ParameterTemplate(Effect& effect, const String& name);
-  inline ParameterKey& createKey(Time moment, const String& value = "");
+  inline PropertyTemplate(Effect& effect, const String& name);
+  inline PropertyKey& createKey(Time moment, const String& value = "");
   inline T getValue(Time moment) const;
 protected:
   virtual T getDefaultValue(void) const = 0;
@@ -108,15 +108,17 @@ protected:
 
 /*! @ingroup demo
  */
-class FloatKey : public ParameterKey
+class FloatKey : public PropertyKey
 {
 public:
-  FloatKey(Parameter& parameter);
+  FloatKey(Property& property);
+  UI::Widget* createManipulator(void);
   float getValue(void) const;
   void setValue(float newValue);
   String asString(void) const;
   void setStringValue(const String& newValue);
 private:
+  void onValueChanged(UI::Slider& slider);
   float value;
 };
 
@@ -124,10 +126,10 @@ private:
 
 /*! @ingroup demo
  */
-class FloatParameter : public ParameterTemplate<FloatKey, float>
+class FloatProperty : public PropertyTemplate<FloatKey, float>
 {
 public:
-  FloatParameter(Effect& effect,
+  FloatProperty(Effect& effect,
                  const String& name,
                  float minValue = 0.f,
 		 float maxValue = 1.f);
@@ -146,10 +148,11 @@ private:
 
 /*! @ingroup demo
  */
-class BooleanKey : public ParameterKey
+class BooleanKey : public PropertyKey
 {
 public:
-  BooleanKey(Parameter& parameter);
+  BooleanKey(Property& property);
+  UI::Widget* createManipulator(void);
   bool getValue(void) const;
   void setValue(bool newValue);
   String asString(void) const;
@@ -162,11 +165,10 @@ private:
 
 /*! @ingroup demo
  */
-class BooleanParameter : public ParameterTemplate<BooleanKey, bool>
+class BooleanProperty : public PropertyTemplate<BooleanKey, bool>
 {
 public:
-  BooleanParameter(Effect& effect, const String& name);
-  bool getValue(Time moment) const;
+  BooleanProperty(Effect& effect, const String& name);
 private:
   bool getDefaultValue(void) const;
   bool interpolateKeys(const BooleanKey& start,
@@ -178,10 +180,47 @@ private:
 
 /*! @ingroup demo
  */
-class StyleKey : public ParameterKey
+class EnumKey : public PropertyKey
 {
 public:
-  StyleKey(Parameter& parameter);
+  EnumKey(Property& property);
+  UI::Widget* createManipulator(void);
+  unsigned int getValue(void) const;
+  void setValue(unsigned int newValue);
+  String asString(void) const;
+  void setStringValue(const String& newValue);
+private:
+  unsigned int value;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup demo
+ */
+class EnumProperty : public PropertyTemplate<EnumKey, unsigned int>
+{
+public:
+  EnumProperty(Effect& effect, const String& name);
+  void addSymbol(const String& name, unsigned int ID);
+  const String& getSymbolName(unsigned int ID) const;
+  unsigned int getSymbolID(const String& name) const;
+private:
+  unsigned int getDefaultValue(void) const;
+  unsigned int interpolateKeys(const EnumKey& start,
+                               const EnumKey& end,
+		               float t) const;
+  Mapper<String, unsigned int> symbols;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup demo
+ */
+class StyleKey : public PropertyKey
+{
+public:
+  StyleKey(Property& property);
+  UI::Widget* createManipulator(void);
   render::Style* getValue(void) const;
   void setValue(render::Style* newStyle);
   String asString(void) const;
@@ -194,10 +233,10 @@ private:
 
 /*! @ingroup demo
  */
-class StyleParameter : public ParameterTemplate<StyleKey, render::Style*>
+class StyleProperty : public PropertyTemplate<StyleKey, render::Style*>
 {
 public:
-  StyleParameter(Effect& effect, const String& name);
+  StyleProperty(Effect& effect, const String& name);
 private:
   render::Style* getDefaultValue(void) const;
   render::Style* interpolateKeys(const StyleKey& start,
@@ -209,10 +248,11 @@ private:
 
 /*! @ingroup demo
  */
-class ColorKeyRGB : public ParameterKey
+class ColorKeyRGB : public PropertyKey
 {
 public:
-  ColorKeyRGB(Parameter& parameter);
+  ColorKeyRGB(Property& property);
+  UI::Widget* createManipulator(void);
   ColorRGB getValue(void) const;
   void setValue(ColorRGB newValue);
   String asString(void) const;
@@ -225,10 +265,10 @@ private:
 
 /*! @ingroup demo
  */
-class ColorParameterRGB : public ParameterTemplate<ColorKeyRGB, ColorRGB>
+class ColorPropertyRGB : public PropertyTemplate<ColorKeyRGB, ColorRGB>
 {
 public:
-  ColorParameterRGB(Effect& effect, const String& name);
+  ColorPropertyRGB(Effect& effect, const String& name);
 private:
   ColorRGB getDefaultValue(void) const;
   ColorRGB interpolateKeys(const ColorKeyRGB& start,
@@ -239,24 +279,23 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 template <typename K, typename T>
-inline ParameterTemplate<K,T>::ParameterTemplate(Effect& effect, const String& name):
-  Parameter(effect, name)
+inline PropertyTemplate<K,T>::PropertyTemplate(Effect& effect, const String& name):
+  Property(effect, name)
 {
 }
 
 template <typename K, typename T>
-ParameterKey& ParameterTemplate<K,T>::createKey(Time moment, const String& value)
+inline PropertyKey& PropertyTemplate<K,T>::createKey(Time moment, const String& value)
 {
   K* key = new K(*this);
   key->setStringValue(value);
   key->setMoment(moment);
-  registerKey(*key);
 
   return *key;
 }
 
 template <typename K, typename T>
-inline T ParameterTemplate<K,T>::getValue(Time moment) const
+inline T PropertyTemplate<K,T>::getValue(Time moment) const
 {
   const KeyList& keys = getKeys();
 
@@ -293,5 +332,5 @@ inline T ParameterTemplate<K,T>::getValue(Time moment) const
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_DEMOPARAMETER_H*/
+#endif /*WENDY_DEMOPROPERTY_H*/
 ///////////////////////////////////////////////////////////////////////

@@ -39,8 +39,9 @@
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
+#include <wendy/UISlider.h>
 
-#include <wendy/DemoParameter.h>
+#include <wendy/DemoProperty.h>
 #include <wendy/DemoEffect.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -74,9 +75,15 @@ Effect::Effect(EffectType& initType, const String& name):
 {
 }
 
-Parameter* Effect::findParameter(const String& name)
+Effect::~Effect(void)
 {
-  for (ParameterList::const_iterator i = parameters.begin();  i != parameters.end();  i++)
+  while (!properties.empty())
+    delete properties.back();
+}
+
+Property* Effect::findProperty(const String& name)
+{
+  for (PropertyList::const_iterator i = properties.begin();  i != properties.end();  i++)
   {
     if ((*i)->getName() == name)
       return *i;
@@ -139,22 +146,9 @@ Time Effect::getTimeElapsed(void) const
   return elapsed;
 }
 
-const Effect::ParameterList& Effect::getParameters(void)
+const Effect::PropertyList& Effect::getProperties(void) const
 {
-  return parameters;
-}
-
-void Effect::addParameter(Parameter& parameter)
-{
-  if (std::find(parameters.begin(), parameters.end(), &parameter) == parameters.end())
-    parameters.push_back(&parameter);
-}
-
-void Effect::removeParameter(Parameter& parameter)
-{
-  ParameterList::iterator i = std::find(parameters.begin(), parameters.end(), &parameter);
-  if (i != parameters.end())
-    parameters.erase(i);
+  return properties;
 }
 
 void Effect::prepareChildren(void) const
@@ -226,7 +220,7 @@ void ClearEffect::render(void) const
 {
   GL::Canvas* canvas = GL::Canvas::getCurrent();
   
-  canvas->clearColorBuffer(ColorRGBA::BLACK);
+  canvas->clearColorBuffer(color.getValue(getTimeElapsed()));
   canvas->clearDepthBuffer();
 
   renderChildren();

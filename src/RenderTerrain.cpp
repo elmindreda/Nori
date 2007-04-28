@@ -68,10 +68,6 @@ void Terrain::enqueue(Queue& queue, const Transform3& transform) const
   mesh->enqueue(queue, transform);
 }
 
-void Terrain::calculateShadows(const Vector3& sun)
-{
-}
-
 float Terrain::getHeight(const Vector2& position) const
 {
   const Vector3 grid = worldToGrid(Vector3(position.x, 0.f, position.y));
@@ -121,7 +117,7 @@ Terrain* Terrain::createInstance(const Image& heightmap,
 }
 
 Terrain::Terrain(const String& name):
-  Managed<Terrain>(name)
+  Resource<Terrain>(name)
 {
 }
 
@@ -271,19 +267,19 @@ Terrain* TerrainCodec::read(Stream& stream, const String& name)
 
   if (!XML::Codec::read(stream))
   {
-    style = NULL;
+    terrain = NULL;
     return NULL;
   }
 
   return terrain.detachObject();
 }
 
-bool TerrainCodec::write(const Path& path, const Terrain& Terrain)
+bool TerrainCodec::write(const Path& path, const Terrain& terrain)
 {
-  return ResourceCodec<Style>::write(path, style);
+  return ResourceCodec<Terrain>::write(path, terrain);
 }
 
-bool TerrainCodec::write(Stream& stream, const Terrain& Terrain)
+bool TerrainCodec::write(Stream& stream, const Terrain& terrain)
 {
   try
   {
@@ -325,7 +321,7 @@ bool TerrainCodec::onBeginElement(const String& name)
       return false;
     }
 
-    terrain = new Terrain(terrainName);
+    //terrain = Terrain::createInstance(terrainName);
     return true;
   }
 

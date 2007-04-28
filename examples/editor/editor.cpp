@@ -19,7 +19,7 @@ bool setup(void)
 
   new demo::EffectTemplate<CubeEffect>("Shader cube");
 
-  if (!demo::Editor::create())
+  if (!demo::Editor::create("editor"))
     return false;
 
   return true;
@@ -34,13 +34,29 @@ CubeEffect::CubeEffect(demo::EffectType& type, const String& name):
 
 bool CubeEffect::init(void)
 {
-  cube = render::Mesh::readInstance("cube");
+  render::Mesh* cube = render::Mesh::readInstance("cube");
   if (!cube)
     return false;
+
+  GL::Light* light;
+  render::LightNode* lightNode;
 
   light = new GL::Light();
   light->setType(GL::Light::DIRECTIONAL);
   light->setIntensity(ColorRGB::WHITE);
+
+  lightNode = new render::LightNode();
+  lightNode->setLight(light);
+  scene.addNode(*lightNode);
+
+  light = new GL::Light();
+  light->setType(GL::Light::DIRECTIONAL);
+  light->setIntensity(ColorRGB(0.1f, 0.1f, 1.f));
+
+  lightNode = new render::LightNode();
+  lightNode->setLight(light);
+  lightNode->getLocalTransform().rotation.setAxisRotation(Vector3::Y, M_PI / 4.f);
+  scene.addNode(*lightNode);
 
   camera.setFOV(60.f);
 
@@ -52,9 +68,6 @@ bool CubeEffect::init(void)
   meshNode = new render::MeshNode();
   meshNode->setMesh(cube);
   scene.addNode(*meshNode);
-
-  render::LightNode* lightNode = new render::LightNode();
-  lightNode->setLight(light); scene.addNode(*lightNode);
 
   return true;
 }
@@ -80,7 +93,7 @@ int main(int argc, char** argv)
   if (!wendy::initialize())
     exit(1);
 
-  GL::ContextMode mode(640, 480, 32, 32, 0, true);
+  GL::ContextMode mode(800, 600, 32, 32, 0, GL::ContextMode::WINDOWED);
   if (GL::Context::create(mode))
   {
     if (setup())

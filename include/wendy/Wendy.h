@@ -132,7 +132,7 @@
 #include <wendy/UIMenu.h>
 #include <wendy/UIPopup.h>
 
-#include <wendy/DemoParameter.h>
+#include <wendy/DemoProperty.h>
 #include <wendy/DemoEffect.h>
 #include <wendy/DemoShow.h>
 #include <wendy/DemoTimeline.h>

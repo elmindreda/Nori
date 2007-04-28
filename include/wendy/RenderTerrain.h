@@ -42,11 +42,12 @@ using namespace moira;
  *
  *  Basic heightmap terrain renderer.
  */
-class Terrain : public Resource<Terrain>, public RefObject<Terrain>
+class Terrain : public Renderable,
+                public Resource<Terrain>,
+		public RefObject<Terrain>
 {
 public:
   void enqueue(Queue& queue, const Transform3& transform) const;
-  void calculateShadows(const Vector3& sun);
   /*! @param[in] position The position to query.
    *  @return The height of the terrain at the specified position.
    *  @remarks The y-coordinate of the position is mapped to the z-axis.

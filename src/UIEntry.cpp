@@ -168,10 +168,8 @@ void Entry::onButtonClicked(Widget& widget,
 
   for (index = 0;  index < layouts.size();  index++)
   {
-    if (offset > position)
+    if (offset + layouts[index].penOffset.x > position)
       break;
-
-    offset += layouts[index].area.size.x;
   }
 
   setCaretPosition(startPosition + index, true);

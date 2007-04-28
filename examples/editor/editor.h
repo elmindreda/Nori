@@ -11,8 +11,6 @@ protected:
   render::Camera camera;
   render::CameraNode* cameraNode;
   render::MeshNode* meshNode;
-  Ref<render::Mesh> cube;
-  Ref<GL::Light> light;
 };
 
 

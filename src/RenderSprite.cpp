@@ -234,19 +234,30 @@ void Sprite3::realizeVertices(GL::Vertex2ft3fv* vertices) const
 {
   const Vector2 offset(size.x / 2.f, size.y / 2.f);
 
-  vertices[0].mapping.set(0.f, 0.f);
-  vertices[0].position.set(-offset.x, -offset.y, 0.f);
-  vertices[1].mapping.set(1.f, 0.f);
-  vertices[1].position.set( offset.x, -offset.y, 0.f);
-  vertices[2].mapping.set(1.f, 1.f);
-  vertices[2].position.set( offset.x,  offset.y, 0.f);
-  vertices[3].mapping.set(0.f, 1.f);
-  vertices[3].position.set(-offset.x,  offset.y, 0.f);
-
-  for (unsigned int i = 0;  i < 4;  i++)
+  if (type == STATIC)
   {
-    rotateVector3(vertices[i].position, angle);
-    vertices[i].position += position;
+    vertices[0].mapping.set(0.f, 0.f);
+    vertices[0].position.set(-offset.x, -offset.y, 0.f);
+    vertices[1].mapping.set(1.f, 0.f);
+    vertices[1].position.set( offset.x, -offset.y, 0.f);
+    vertices[2].mapping.set(1.f, 1.f);
+    vertices[2].position.set( offset.x,  offset.y, 0.f);
+    vertices[3].mapping.set(0.f, 1.f);
+    vertices[3].position.set(-offset.x,  offset.y, 0.f);
+
+    for (unsigned int i = 0;  i < 4;  i++)
+    {
+      rotateVector3(vertices[i].position, angle);
+      vertices[i].position += position;
+    }
+  }
+  else if (type == CYLINDRIC)
+  {
+    // TODO: The code.
+  }
+  else if (type == SPHERICAL)
+  {
+    // TODO: The code.
   }
 }
 
@@ -255,7 +266,7 @@ void Sprite3::setDefaults(void)
   position.set(0.f, 0.f, 0.f);
   size.set(1.f, 1.f);
   angle = 0.f;
-  type = SPHERICAL;
+  type = STATIC;
   style = NULL;
 }
 

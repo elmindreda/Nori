@@ -1,5 +1,5 @@
-///////////////////////////////////////////////////////////////////////
-// Wendy debug tools
+//////////////////////////////////////////////////////////////////////
+// Wendy user interface library
 // Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -29,7 +29,6 @@
 
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
-#include <wendy/GLStatistics.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
@@ -41,15 +40,17 @@
 
 #include <wendy/RenderFont.h>
 
-#include <wendy/DebugHUD.h>
-
-#include <sstream>
+#include <wendy/UIRender.h>
+#include <wendy/UIWidget.h>
+#include <wendy/UILayout.h>
+#include <wendy/UISlider.h>
+#include <wendy/UIColor.h>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace debug
+  namespace UI
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -58,69 +59,69 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-void HUD::draw(void) const
+ColorPickerRGB::ColorPickerRGB(void)
 {
-  GL::Statistics* statistics = GL::Statistics::get();
+  Layout* sliderLayout = new Layout(VERTICAL);
+  sliderLayout->setBorderSize(1.f);
+  addChild(*sliderLayout);
 
-  std::stringstream text;
-  text << "Vertices: " << statistics->getFrame().vertexCount << '\n';
-  text << "FPS: " << statistics->getFrameRate() << '\n';
-
-  GL::Canvas* canvas = GL::Canvas::getCurrent();
-
-  Rectangle area(0.f, 0.f, (float) canvas->getPhysicalWidth(),
-                           (float) canvas->getPhysicalHeight());
-
-  Rectangle metrics = font->getTextMetrics(text.str());
-
-  Vector2 penPosition;
-  penPosition.x = area.getCenter().x - metrics.getCenter().x;
-  penPosition.y = area.getCenter().y - metrics.getCenter().y;
-
-  GL::Renderer* renderer = GL::Renderer::get();
-
-  renderer->begin2D(Vector2((float) canvas->getPhysicalWidth(),
-                            (float) canvas->getPhysicalHeight()));
-
-  font->setColor(ColorRGBA::WHITE);
-  font->setPenPosition(penPosition);
-  font->drawText(text.str());
-
-  renderer->end();
-}
-
-bool HUD::create(void)
-{
-  Ptr<HUD> display = new HUD();
-  if (!display->init())
-    return false;
-
-  set(display.detachObject());
-  return true;
-}
-
-HUD::HUD(void)
-{
-}
-
-bool HUD::init(void)
-{
-  if (!GL::Statistics::get())
+  for (unsigned int i = 0;  i < 3;  i++)
   {
-    Log::writeError("Cannot create debug HUD without statistics tracker");
-    return false;
+    sliders[i] = new Slider(HORIZONTAL);
+    sliders[i]->setValueRange(0.f, 1.f);
+    sliders[i]->getValueChangedSignal().connect(*this, &ColorPickerRGB::onValueChanged);
+    sliderLayout->addChild(*sliders[i]);
   }
 
-  font = render::Font::readInstance("default");
-  if (!font)
-    return false;
+  // TODO: Set size.
+}
 
-  return true;
+const ColorRGB& ColorPickerRGB::getValue(void) const
+{
+  return value;
+}
+
+void ColorPickerRGB::setValue(const ColorRGB& newValue)
+{
+  value = newValue;
+}
+
+SignalProxy1<void, ColorPickerRGB&> ColorPickerRGB::getValueChangedSignal(void)
+{
+  return valueChangedSignal;
+}
+
+void ColorPickerRGB::draw(void) const
+{
+  const Rectangle& area = getGlobalArea();
+
+  Renderer* renderer = Renderer::get();
+  if (renderer->pushClipArea(area))
+  {
+    renderer->drawFrame(area, getState());
+
+    Widget::draw();
+
+    renderer->popClipArea();
+  }
+}
+
+void ColorPickerRGB::onValueChanged(Slider& slider)
+{
+  for (unsigned int i = 0;  i < 3;  i++)
+  {
+    if (&slider == sliders[i])
+    {
+      value[i] = slider.getValue();
+      valueChangedSignal.emit(*this);
+      break;
+    }
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace debug*/
+  } /*namespace UI*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

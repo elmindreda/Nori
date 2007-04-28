@@ -39,8 +39,9 @@
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
+#include <wendy/UISlider.h>
 
-#include <wendy/DemoParameter.h>
+#include <wendy/DemoProperty.h>
 #include <wendy/DemoEffect.h>
 #include <wendy/DemoShow.h>
 
@@ -97,6 +98,8 @@ Time Show::getTimeElapsed(void) const
 void Show::setTimeElapsed(Time newTime)
 {
   newTime = std::max(newTime, 0.0);
+
+  // TODO: Remove this hack.
   root->setDuration(getDuration());
 
   updateEffect(*root, newTime);
@@ -169,6 +172,7 @@ void Show::updateEffect(Effect& effect, Time newTime)
   {
     if (newTime > effect.start + effect.duration)
     {
+      deactivateChildren(effect);
       effect.active = false;
       effect.elapsed = effect.duration;
     }
@@ -199,6 +203,17 @@ void Show::updateEffect(Effect& effect, Time newTime)
 
     for (Effect::List::const_iterator i = children.begin();  i != children.end();  i++)
       updateEffect(**i, newTime - effect.start);
+  }
+}
+
+void Show::deactivateChildren(Effect& effect)
+{
+  const Effect::List& children = effect.getChildren();
+
+  for (Effect::List::const_iterator i = children.begin();  i != children.end();  i++)
+  {
+    deactivateChildren(**i);
+    (*i)->active = false;
   }
 }
 
@@ -302,26 +317,27 @@ bool ShowCodec::onBeginElement(const String& name)
     {
       Effect* effect = effectStack.top();
 
-      if (name == "parameter")
+      if (name == "property")
       {
-	String parameterName = readString("name");
+	String propertyName = readString("name");
 
-	currentParameter = effect->findParameter(parameterName);
-	if (!currentParameter)
+	currentProperty = effect->findProperty(propertyName);
+	if (!currentProperty)
 	{
-	  Log::writeError("Demo effect parameter %s does not exist",
-	                  parameterName.c_str());
+	  Log::writeError("Effect %s does not have property %s",
+	                  effect->getName().c_str(),
+	                  propertyName.c_str());
 	  return false;
 	}
 
         return true;
       }
 
-      if (currentParameter)
+      if (currentProperty)
       {
 	if (name == "key")
 	{
-	  currentParameter->createKey(readFloat("moment"), readString("value"));
+	  currentProperty->createKey(readFloat("moment"), readString("value"));
 	  return true;
 	}
       }
@@ -338,8 +354,8 @@ bool ShowCodec::onEndElement(const String& name)
     if (name == "effect")
       effectStack.pop();
 
-    if (name == "parameter")
-      currentParameter = NULL;
+    if (name == "property")
+      currentProperty = NULL;
   }
   
   return true;
@@ -353,7 +369,25 @@ void ShowCodec::writeEffect(const Effect& effect)
   addAttribute("start", effect.getStartTime());
   addAttribute("duration", effect.getDuration());
 
-  // TODO: Write parameters and keys.
+  const Effect::PropertyList& properties = effect.getProperties();
+
+  for (Effect::PropertyList::const_iterator p = properties.begin();  p != properties.end();  p++)
+  {
+    beginElement("property");
+    addAttribute("name", (*p)->getName());
+
+    const Property::KeyList& keys = (*p)->getKeys();
+
+    for (Property::KeyList::const_iterator k = keys.begin();  k != keys.end();  k++)
+    {
+      beginElement("key");
+      addAttribute("moment", (float) (*k)->getMoment());
+      addAttribute("value", (*k)->asString());
+      endElement();
+    }
+
+    endElement();
+  }
 
   const Effect::List& children = effect.getChildren();
 

@@ -45,7 +45,8 @@ using namespace moira;
 
 void Statistics::addPasses(unsigned int count)
 {
-  passCount += count;
+  Frame& frame = frames.front();
+  frame.passCount += count;
 }
 
 void Statistics::addPrimitives(GLenum mode, unsigned int count)
@@ -53,39 +54,40 @@ void Statistics::addPrimitives(GLenum mode, unsigned int count)
   if (!count)
     return;
 
-  vertexCount += count;
+  Frame& frame = frames.front();
+  frame.vertexCount += count;
 
   switch (mode)
   {
     case GL_POINTS:
-      pointCount += count;
+      frame.pointCount += count;
       break;
     case GL_LINES:
-      lineCount += count / 2;
+      frame.lineCount += count / 2;
       break;
     case GL_LINE_LOOP:
-      lineCount += count;
+      frame.lineCount += count;
       break;
     case GL_LINE_STRIP:
-      lineCount += count - 1;
+      frame.lineCount += count - 1;
       break;
     case GL_TRIANGLES:
-      triangleCount += count / 3;
+      frame.triangleCount += count / 3;
       break;
     case GL_TRIANGLE_STRIP:
-      triangleCount += count - 2;
+      frame.triangleCount += count - 2;
       break;
     case GL_TRIANGLE_FAN:
-      triangleCount += count - 1;
+      frame.triangleCount += count - 1;
       break;
     case GL_QUADS:
-      triangleCount += count / 2;
+      frame.triangleCount += count / 2;
       break;
     case GL_QUAD_STRIP:
-      triangleCount += count - 2;
+      frame.triangleCount += count - 2;
       break;
     case GL_POLYGON:
-      triangleCount += count - 2;
+      frame.triangleCount += count - 2;
       break;
     default:
       Log::writeError("Invalid render mode %u", mode);
@@ -94,7 +96,7 @@ void Statistics::addPrimitives(GLenum mode, unsigned int count)
 
 float Statistics::getFrameRate(void) const
 {
-  return 0.f;
+  return frameRate;
 }
 
 unsigned int Statistics::getFrameCount(void) const
@@ -102,29 +104,9 @@ unsigned int Statistics::getFrameCount(void) const
   return frameCount;
 }
 
-unsigned int Statistics::getPassCount(void) const
+const Statistics::Frame& Statistics::getFrame(void) const
 {
-  return passCount;
-}
-
-unsigned int Statistics::getVertexCount(void) const
-{
-  return vertexCount;
-}
-
-unsigned int Statistics::getPointCount(void) const
-{
-  return pointCount;
-}
-
-unsigned int Statistics::getLineCount(void) const
-{
-  return lineCount;
-}
-
-unsigned int Statistics::getTriangleCount(void) const
-{
-  return triangleCount;
+  return frames.front();
 }
 
 bool Statistics::create(void)
@@ -142,12 +124,15 @@ bool Statistics::create(void)
 
 Statistics::Statistics(void):
   frameCount(0),
-  passCount(0),
-  vertexCount(0),
-  pointCount(0),
-  lineCount(0),
-  triangleCount(0)
+  frameRate(0.f)
 {
+  static bool initialized = false;
+
+  if (!initialized)
+  {
+    Context::getDestroySignal().connect(&Statistics::onContextDestroy);
+    initialized = true;
+  }
 }
 
 bool Statistics::init(void)
@@ -160,8 +145,8 @@ bool Statistics::init(void)
   }
 
   context->getFinishSignal().connect(*this, &Statistics::onFinish);
-  context->getDestroySignal().connect(*this, &Statistics::onContextDestroy);
 
+  timer.start();
   return true;
 }
 
@@ -169,16 +154,33 @@ void Statistics::onFinish(void)
 {
   frameCount++;
 
-  passCount = 0;
-  vertexCount = 0;
-  pointCount = 0;
-  lineCount = 0;
-  triangleCount = 0;
+  frames.push_front(Frame());
+  if (frames.size() > 60)
+    frames.pop_back();
+
+  frameRate = 0.f;
+
+  for (unsigned int i = 0;  i < frames.size();  i++)
+    frameRate += frames[i].duration / frames.size();
 }
 
 void Statistics::onContextDestroy(void)
 {
   Log::writeWarning("Statistics tracker not explicitly destroyed before context destruction");
+
+  destroy();
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Statistics::Frame::Frame(void):
+  passCount(0),
+  vertexCount(0),
+  pointCount(0),
+  lineCount(0),
+  triangleCount(0),
+  duration(0.0)
+{
 }
 
 ///////////////////////////////////////////////////////////////////////

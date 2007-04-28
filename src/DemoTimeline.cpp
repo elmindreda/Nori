@@ -55,7 +55,7 @@
 #include <wendy/UIList.h>
 #include <wendy/UIMenu.h>
 
-#include <wendy/DemoParameter.h>
+#include <wendy/DemoProperty.h>
 #include <wendy/DemoEffect.h>
 #include <wendy/DemoShow.h>
 #include <wendy/DemoTimeline.h>
@@ -72,6 +72,128 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
+
+///////////////////////////////////////////////////////////////////////
+
+namespace
+{
+
+class TrackPanel : public UI::Widget
+{
+public:
+  TrackPanel(Timeline& timeline);
+protected:
+  void draw(void) const;
+  void addedChild(Widget& child);
+  void removedChild(Widget& child);
+private:
+  void updateTracks(void);
+  void onAreaChanged(UI::Widget& widget);
+  void onValueChanged(UI::Scroller& scroller);
+  Timeline& timeline;
+  UI::Scroller* scroller;
+};
+
+TrackPanel::TrackPanel(Timeline& initTimeline):
+  timeline(initTimeline)
+{
+  getAreaChangedSignal().connect(*this, &TrackPanel::onAreaChanged);
+
+  scroller = new UI::Scroller(UI::VERTICAL);
+  scroller->setValueRange(0.f, 1.f);
+  scroller->setPercentage(1.f);
+  scroller->getValueChangedSignal().connect(*this, &TrackPanel::onValueChanged);
+  addChild(*scroller);
+}
+
+void TrackPanel::draw(void) const
+{
+  const Rectangle& area = getGlobalArea();
+
+  UI::Renderer* renderer = UI::Renderer::get();
+  if (renderer->pushClipArea(area))
+  {
+    UI::Widget::draw();
+
+    const Time timeOffset = timeline.getWindowStart() + timeline.getParentEffect().getGlobalOffset();
+    const float position = (timeline.getTimeElapsed() - timeOffset) * timeline.getSecondWidth();
+    const float width = renderer->getDefaultEM() / 3.f;
+
+    Rectangle markerArea;
+    markerArea.position.set(area.position.x + position - width / 2.f,
+                            area.position.y);
+    markerArea.size.set(width, area.size.y);
+
+    GL::Renderer::get()->setColor(ColorRGBA(0.3f, 0.3f, 0.3f, 0.5f));
+    GL::Renderer::get()->fillRectangle(markerArea);
+
+    renderer->popClipArea();
+  }
+}
+
+void TrackPanel::addedChild(Widget& child)
+{
+  if (&child == scroller)
+    return;
+
+  updateTracks();
+}
+
+void TrackPanel::removedChild(Widget& child)
+{
+  if (&child == scroller)
+    return;
+
+  updateTracks();
+}
+
+void TrackPanel::updateTracks(void)
+{
+  const List& children = getChildren();
+
+  const float em = UI::Renderer::get()->getDefaultEM();
+  const float height = em * 2.f;
+  const float visible = getArea().size.y;
+
+  float width = getArea().size.x;
+  float position = visible;
+
+  const float extra = std::max((children.size() - 1) * height - visible, 0.f);
+  if (extra == 0.f)
+    scroller->setVisible(false);
+  else
+  {
+    position += scroller->getValue();
+    width -= scroller->getArea().size.x + 2.f;
+
+    scroller->setArea(Rectangle(width, 0.f, scroller->getArea().size.x, visible));
+    scroller->setValueRange(0.f, extra);
+    scroller->setPercentage(visible / (visible + extra));
+    scroller->setVisible(true);
+  }
+
+  for (List::const_iterator i = children.begin();  i != children.end();  i++)
+  {
+    if (*i == scroller)
+      continue;
+
+    position -= height;
+
+    (*i)->setArea(Rectangle(0.f, position, width, height));
+  }
+}
+
+void TrackPanel::onAreaChanged(UI::Widget& widget)
+{
+  updateTracks();
+}
+
+void TrackPanel::onValueChanged(UI::Scroller& scroller)
+{
+  updateTracks();
+}
+
+}
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -351,64 +473,197 @@ float EffectTrack::getHandleOffset(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
+PropertyTrack::PropertyTrack(Timeline& initTimeline, Property& initProperty):
+  timeline(initTimeline),
+  property(initProperty),
+  draggedKey(NULL)
+{
+  const float em = UI::Renderer::get()->getDefaultEM();
+
+  getDragBegunSignal().connect(*this, &PropertyTrack::onDragBegun);
+  getDragMovedSignal().connect(*this, &PropertyTrack::onDragMoved);
+  getDragEndedSignal().connect(*this, &PropertyTrack::onDragEnded);
+
+  setSize(Vector2(em * 2.f, em * 2.f));
+  setDraggable(true);
+}
+
+Property& PropertyTrack::getParameter(void) const
+{
+  return property;
+}
+
+void PropertyTrack::draw(void) const
+{
+  const Rectangle& area = getGlobalArea();
+
+  UI::Renderer* renderer = UI::Renderer::get();
+  if (renderer->pushClipArea(area))
+  {
+    Rectangle wellArea;
+    wellArea.position.set(area.position.x - timeline.getWindowStart() * timeline.getSecondWidth(),
+                          area.position.y);
+    wellArea.size.set(property.getEffect().getDuration() * timeline.getSecondWidth(),
+                      area.size.y);
+                          
+    renderer->drawWell(wellArea, getState());
+    renderer->drawText(wellArea, property.getName());
+
+    const float em = renderer->getDefaultEM();
+
+    const Property::KeyList& keys = property.getKeys();
+
+    for (unsigned int i = 0;  i < keys.size();  i++)
+    {
+      const float offset = (keys[i]->getMoment() - timeline.getWindowStart()) *
+                           timeline.getSecondWidth();
+
+      Rectangle handleArea;
+      handleArea.position.set(area.position.x + offset - em / 2.f,
+                              area.position.y);
+      handleArea.size.set(em, area.size.y);
+
+      renderer->drawHandle(handleArea, getState());
+    }
+
+    renderer->popClipArea();
+  }
+}
+
+void PropertyTrack::onDragBegun(Widget& widget, const Vector2& point)
+{
+  float position = transformToLocal(point).x;
+
+  UI::Renderer* renderer = UI::Renderer::get();
+
+  const Property::KeyList& keys = property.getKeys();
+
+  const float em = renderer->getDefaultEM();
+
+  for (unsigned int i = 0;  i < keys.size();  i++)
+  {
+    const float offset = (keys[i]->getMoment() - timeline.getWindowStart()) *
+                         timeline.getSecondWidth();
+
+    if (position >= offset - em / 2.f && position < offset + em / 2.f)
+    {
+      draggedKey = keys[i];
+      break;
+    }
+  }
+
+  if (!draggedKey)
+  {
+    const Time moment = position / timeline.getSecondWidth() -
+                        timeline.getWindowStart();
+
+    if (moment <= property.getEffect().getDuration())
+      draggedKey = &(property.createKey(moment));
+    else
+      cancelDragging();
+  }
+}
+
+void PropertyTrack::onDragMoved(Widget& widget, const Vector2& point)
+{
+  float position = transformToLocal(point).x;
+
+  Time moment;
+
+  moment = position / timeline.getSecondWidth() + timeline.getWindowStart();
+  moment = std::min(moment, property.getEffect().getDuration());
+  moment = timeline.getSnappedTime(moment);
+
+  draggedKey->setMoment(moment);
+}
+
+void PropertyTrack::onDragEnded(Widget& widget, const Vector2& point)
+{
+  draggedKey = NULL;
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Timeline::Timeline(Show& initShow):
   show(initShow),
   parent(NULL),
   selected(NULL),
+  ruler(NULL),
   start(0.0),
-  zoom(1.f),
-  effectIndex(1)
+  zoom(1.f)
 {
   getAreaChangedSignal().connect(*this, &Timeline::onAreaChanged);
 
-  UI::Layout* mainLayout = new UI::Layout(UI::VERTICAL);
+  UI::Layout* mainLayout = new UI::Layout(UI::HORIZONTAL);
   addChild(*mainLayout);
+
+  UI::Layout* vertLayout = new UI::Layout(UI::VERTICAL, false);
+  mainLayout->addChild(*vertLayout, 0.f);
 
   ruler = new TimelineRuler(*this);
   ruler->getTimeChangedSignal().connect(*this, &Timeline::onTimeChanged);
-  mainLayout->addChild(*ruler);  
+  vertLayout->addChild(*ruler);  
 
-  trackLayout = new UI::Layout(UI::VERTICAL, false);
-  trackLayout->setBorderSize(0.f);
-  trackLayout->getButtonClickedSignal().connect(*this, &Timeline::onButtonClicked);
-  mainLayout->addChild(*trackLayout, 0.f);
+  trackPanel = new TrackPanel(*this);
+  trackPanel->getButtonClickedSignal().connect(*this, &Timeline::onButtonClicked);
+  vertLayout->addChild(*trackPanel, 0.f);
 
-  timeScroller = new UI::Scroller(UI::HORIZONTAL);
-  timeScroller->getValueChangedSignal().connect(*this, &Timeline::onValueChanged);
-  mainLayout->addChild(*timeScroller);
+  horzScroller = new UI::Scroller(UI::HORIZONTAL);
+  horzScroller->getValueChangedSignal().connect(*this, &Timeline::onValueChanged);
+  vertLayout->addChild(*horzScroller);
 
   effectMenu = new UI::Menu();
-  effectMenu->addItem(*new UI::Item("Enter", MENU_ENTER));
+  effectMenu->addItem(*new UI::Item("Delete", MENU_DELETE));
   effectMenu->addItem(*new UI::SeparatorItem());
   effectMenu->addItem(*new UI::Item("Rename", MENU_RENAME));
   effectMenu->addItem(*new UI::SeparatorItem());
   effectMenu->addItem(*new UI::Item("Move Up", MENU_MOVE_UP));
   effectMenu->addItem(*new UI::Item("Move Down", MENU_MOVE_DOWN));
   effectMenu->addItem(*new UI::SeparatorItem());
-  effectMenu->addItem(*new UI::Item("Delete", MENU_DELETE));
+  effectMenu->addItem(*new UI::Item("Enter", MENU_ENTER));
   effectMenu->getItemSelectedSignal().connect(*this, &Timeline::onItemSelected);
 
-  layoutMenu = new UI::Menu();
-  layoutMenu->addItem(*new UI::Item("Exit", MENU_EXIT));
-  layoutMenu->getItemSelectedSignal().connect(*this, &Timeline::onItemSelected);
+  canvasMenu = new UI::Menu();
+  canvasMenu->addItem(*new UI::Item("Exit All", MENU_EXIT_ALL));
+  canvasMenu->addItem(*new UI::Item("Exit Parent", MENU_EXIT_PARENT));
+  canvasMenu->getItemSelectedSignal().connect(*this, &Timeline::onItemSelected);
 
   setParentEffect(show.getRootEffect());
 }
 
 bool Timeline::createEffect(EffectType& type)
 {
+  unsigned int index = 1;
   std::stringstream stream;
-  stream << type.getName() << ' ' << effectIndex++;
 
-  Effect* effect = type.createEffect(stream.str());
-  if (!effect)
+  do
+  {
+    stream.str("");
+    stream << type.getName() << ' ' << index++;
+  }
+  while (Effect::findInstance(stream.str()));
+
+  try
+  {
+    Effect* effect = type.createEffect(stream.str());
+    if (!effect)
+      return false;
+
+    effect->setStartTime(start);
+    effect->setDuration(10.0);
+    parent->addChild(*effect);
+
+    createTrack(*effect);
+  }
+  catch (Exception& exception)
+  {
+    Log::writeError("Failed to create effect %s of type %s: %s",
+                    stream.str().c_str(),
+		    type.getName().c_str(),
+		    exception.what());
     return false;
+  }
 
-  effect->setStartTime(start);
-  effect->setDuration(10.0);
-  parent->addChild(*effect);
-
-  createTrack(*effect);
   return true;
 }
 
@@ -418,7 +673,12 @@ void Timeline::destroyEffect(void)
   {
     Effect* effect = &(selected->getEffect());
 
+    tracks.erase(std::find(tracks.begin(), tracks.end(), selected));
+
     delete selected;
+    selected = NULL;
+    effectSelectedSignal.emit(*this);
+
     delete effect;
   }
 }
@@ -431,7 +691,7 @@ Time Timeline::getWindowStart(void) const
 void Timeline::setWindowStart(Time newStart)
 {
   start = newStart;
-  timeScroller->setValue(start);
+  horzScroller->setValue(start);
 }
 
 float Timeline::getZoom(void) const
@@ -464,7 +724,15 @@ float Timeline::getSecondWidth(void) const
 {
   const float em = UI::Renderer::get()->getDefaultEM();
 
-  return em * 2.f * zoom;
+  return em * zoom;
+}
+
+Effect* Timeline::getSelectedEffect(void) const
+{
+  if (selected)
+    return &(selected->getEffect());
+
+  return NULL;
 }
 
 Effect& Timeline::getParentEffect(void) const
@@ -477,10 +745,21 @@ void Timeline::setParentEffect(Effect& newParent)
   if (parent == &newParent)
     return;
 
-  trackLayout->destroyChildren();
   selected = NULL;
+  effectSelectedSignal.emit(*this);
+
+  while (!tracks.empty())
+  {
+    delete tracks.back();
+    tracks.pop_back();
+  }
 
   parent = &newParent;
+
+  const Effect::PropertyList& properties = parent->getProperties();
+
+  for (Effect::PropertyList::const_iterator i = properties.begin();  i != properties.end();  i++)
+    createTrack(**i);
 
   const Effect::List& effects = parent->getChildren();
 
@@ -512,6 +791,21 @@ SignalProxy1<void, Timeline&> Timeline::getParentChangedSignal(void)
   return parentChangedSignal;
 }
 
+SignalProxy1<void, Timeline&> Timeline::getEffectSelectedSignal(void)
+{
+  return effectSelectedSignal;
+}
+
+SignalProxy1<void, Timeline&> Timeline::getPropertySelectedSignal(void)
+{
+  return propertySelectedSignal;
+}
+
+SignalProxy1<void, Timeline&> Timeline::getPropertyKeySelectedSignal(void)
+{
+  return propertyKeySelectedSignal;
+}
+
 void Timeline::draw(void) const
 {
   const Rectangle& area = getGlobalArea();
@@ -521,38 +815,33 @@ void Timeline::draw(void) const
   {
     UI::Widget::draw();
 
-    const Rectangle& layoutArea = trackLayout->getGlobalArea();
-
-    const Time timeOffset = getWindowStart() + parent->getGlobalOffset();
-    const float position = (getTimeElapsed() - timeOffset) * getSecondWidth();
-    const float width = renderer->getDefaultEM() / 3.f;
-
-    Rectangle markerArea;
-    markerArea.position.set(layoutArea.position.x + position - width / 2.f,
-                            layoutArea.position.y);
-    markerArea.size.set(width, layoutArea.size.y);
-
-    GL::Renderer::get()->setColor(ColorRGBA(0.3f, 0.3f, 0.3f, 0.5f));
-    GL::Renderer::get()->fillRectangle(markerArea);
-
     renderer->popClipArea();
   }
 }
 
 void Timeline::updateScroller(void)
 {
-  Time visible = getVisibleDuration();
-  Time duration = parent->getDuration();
+  const Time visible = getVisibleDuration();
+  const Time duration = parent->getDuration();
 
-  timeScroller->setPercentage(visible / (duration + visible) / zoom);
-  timeScroller->setValueRange(0.f, duration + visible);
+  horzScroller->setPercentage(std::max(visible / (duration + 10.0), 0.0));
+  horzScroller->setValueRange(0.f, duration + 10.0);
+}
+
+void Timeline::createTrack(Property& property)
+{
+  PropertyTrack* track = new PropertyTrack(*this, property);
+  track->getButtonClickedSignal().connect(*this, &Timeline::onButtonClicked);
+  trackPanel->addChild(*track);
+  tracks.push_back(track);
 }
 
 void Timeline::createTrack(Effect& effect)
 {
   EffectTrack* track = new EffectTrack(*this, effect);
   track->getButtonClickedSignal().connect(*this, &Timeline::onButtonClicked);
-  trackLayout->addChild(*track);
+  trackPanel->addChild(*track);
+  tracks.push_back(track);
 }
 
 void Timeline::onButtonClicked(Widget& widget,
@@ -560,20 +849,21 @@ void Timeline::onButtonClicked(Widget& widget,
 		               unsigned int button,
 		               bool clicked)
 {
-  if (&widget == trackLayout)
+  if (&widget == trackPanel)
   {
     if (clicked && button == 1)
     {
       if (parent->getParent())
       {
-	layoutMenu->setPosition(point);
-	layoutMenu->display();
+	canvasMenu->setPosition(point);
+	canvasMenu->display();
       }
     }
   }
   else if (EffectTrack* track = dynamic_cast<EffectTrack*>(&widget))
   {
     selected = track;
+    effectSelectedSignal.emit(*this);
 
     if (clicked && button == 1)
     {
@@ -581,11 +871,15 @@ void Timeline::onButtonClicked(Widget& widget,
       effectMenu->display();
     }
   }
+  else if (PropertyTrack* track = dynamic_cast<PropertyTrack*>(&widget))
+  {
+  }
 }
 
 void Timeline::onValueChanged(UI::Scroller& scroller)
 {
-  start = scroller.getValue();
+  if (&scroller == horzScroller)
+    start = scroller.getValue();
 }
 
 void Timeline::onTimeChanged(TimelineRuler& ruler)
@@ -611,13 +905,22 @@ void Timeline::onItemSelected(UI::Menu& menu, unsigned int index)
       break;
     }
 
-    case MENU_EXIT:
+    case MENU_EXIT_PARENT:
     {
-      if (selected)
-      {
-	if (Effect* parent = selected->getEffect().getParent())
-	  setParentEffect(*parent);
-      }
+      if (parent->getParent())
+	setParentEffect(*parent->getParent());
+
+      break;
+    }
+
+    case MENU_EXIT_ALL:
+    {
+      Effect* root = parent;
+      while (root->getParent())
+	root = root->getParent();
+
+      if (parent != root)
+	setParentEffect(*root);
 
       break;
     }

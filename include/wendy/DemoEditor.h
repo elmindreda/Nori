@@ -43,15 +43,23 @@ class Editor : public Singleton<Editor>, public Trackable
 {
 public:
   void run(void);
-  bool isVisible(void) const;
   bool isModified(void) const;
+  bool isPaused(void) const;
+  bool isVisible(void) const;
   void setVisible(bool newState);
+  Time getTimeElapsed(void) const;
+  void setTimeElapsed(Time newTime);
+  SignalProxy0<void> getTimeChangedSignal(void);
+  SignalProxy0<void> getPausedSignal(void);
+  SignalProxy0<void> getResumedSignal(void);
   static bool create(const String& showName = "");
 private:
   Editor(void);
   bool init(const String& showName);
   void updateTitle(void);
+  void togglePaused(void);
   bool onRender(void);
+  void onMaali(UI::Button& button);
   void onLoadShow(UI::Button& button);
   void onSaveShow(UI::Button& button);
   void onRewind(UI::Button& button);
@@ -64,19 +72,24 @@ private:
   void onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed);
   void onTimeChanged(Timeline& timeline);
   void onParentChanged(Timeline& timeline);
+  void onSelectionChanged(Timeline& timeline);
   void onParentSelected(UI::Popup& popup, unsigned int index);
   Ptr<Show> show;
   bool modified;
   bool quitting;
   Ptr<UI::Book> book;
   UI::Canvas* canvas;
-  UI::Widget* commandPanel;
   UI::List* effectType;
   UI::Popup* parentPopup;
   UI::Label* timeDisplay;
   UI::Entry* titleEntry;
+  UI::Entry* nameEntry;
   Timeline* timeline;
   Timer timer;
+  Time elapsed;
+  Signal0<void> timeChangedSignal;
+  Signal0<void> pausedSignal;
+  Signal0<void> resumedSignal;
 };
 
 ///////////////////////////////////////////////////////////////////////
