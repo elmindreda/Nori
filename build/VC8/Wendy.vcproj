@@ -42,7 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\include&quot;;&quot;$(ProjectDir)..\..\..\moira\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -107,7 +107,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\include&quot;;&quot;$(ProjectDir)..\..\..\moira\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -173,11 +173,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\DemoParameter.cpp"
+				RelativePath="..\..\src\DemoPlayer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\DemoPlayer.cpp"
+				RelativePath="..\..\src\DemoProperty.cpp"
 				>
 			</File>
 			<File
@@ -407,11 +407,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\wendy\DemoParameter.h"
+				RelativePath="..\..\include\wendy\DemoPlayer.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\wendy\DemoPlayer.h"
+				RelativePath="..\..\include\wendy\DemoProperty.h"
 				>
 			</File>
 			<File

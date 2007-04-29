@@ -146,6 +146,8 @@ bool Statistics::init(void)
 
   context->getFinishSignal().connect(*this, &Statistics::onFinish);
 
+  frames.push_back(Frame());
+
   timer.start();
   return true;
 }

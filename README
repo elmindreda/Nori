@@ -14,11 +14,6 @@ The project website is here:
 
   http://www.elmindreda.org/wendy/
 
-Wendy resides in a public Subversion repository on svn.elmindreda.org.  The URL
-for anonymous, read-only access is:
-
-  svn://svn.elmindreda.org/wendy/trunk
-
 
 1. License and copyright
 ========================
@@ -50,6 +45,8 @@ Wendy depends on the following external libraries:
   GLEW (http://glew.sourceforge.net/)
   GLFW (http://glfw.sourceforge.net/)
   Moira (http://www.elmindreda.org/moira/)
+  ODE
+  OpenAL
 
 
 4. Installing Wendy
@@ -62,7 +59,7 @@ See the file `INSTALL'.
 ==============
 
 Wendy is documented using the Doxygen suite.  A suitable Doxyfile is located
-in the doc/ subdirectory.
+in the docs/ subdirectory.
 
 
 6. Hacking Wendy
