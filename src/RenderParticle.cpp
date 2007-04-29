@@ -229,7 +229,7 @@ const Sphere& ParticleSystem::getBounds(void) const
 
 unsigned int ParticleSystem::getParticleCount(void) const
 {
-  return particles.size();
+  return (unsigned int) particles.size();
 }
 
 void ParticleSystem::setParticleCount(unsigned int newCount)

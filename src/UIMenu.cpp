@@ -154,7 +154,7 @@ void Menu::sortItems(void)
 
 unsigned int Menu::getItemCount(void) const
 {
-  return items.size();
+  return (unsigned int) items.size();
 }
 
 Item* Menu::getItem(unsigned int index)

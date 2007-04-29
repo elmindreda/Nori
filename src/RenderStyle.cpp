@@ -254,7 +254,7 @@ Technique* Style::findTechnique(const String& name)
 
 unsigned int Style::getTechniqueCount(void) const
 {
-  return techniques.size();
+  return (unsigned int) techniques.size();
 }
 
 Technique& Style::getTechnique(unsigned int index)

@@ -376,7 +376,7 @@ void Editor::togglePaused(void)
 
 bool Editor::onRender(void)
 {
-  const float duration = show->getDuration();
+  const Time duration = show->getDuration();
 
   elapsed = timer.getTime();
 
