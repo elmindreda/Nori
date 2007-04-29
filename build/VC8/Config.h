@@ -58,7 +58,7 @@
 #define WENDY_PACKAGE_STRING "wendy"
 
 /* Define to the version of this package. */
-#define WENDY_PACKAGE_VERSION "0.0.7"
+#define WENDY_PACKAGE_VERSION "0.6.0"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define WENDY_STDC_HEADERS 1
