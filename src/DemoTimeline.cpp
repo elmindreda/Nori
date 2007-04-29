@@ -115,14 +115,15 @@ void TrackPanel::draw(void) const
   {
     UI::Widget::draw();
 
-    const Time timeOffset = timeline.getWindowStart() + timeline.getParentEffect().getGlobalOffset();
-    const float position = (timeline.getTimeElapsed() - timeOffset) * timeline.getSecondWidth();
+    const Time timeOffset = timeline.getWindowStart() +
+                            timeline.getParentEffect().getGlobalOffset();
+    const float position = (timeline.getTimeElapsed() - timeOffset) *
+                           timeline.getSecondWidth();
     const float width = renderer->getDefaultEM() / 3.f;
 
     Rectangle markerArea;
-    markerArea.position.set(area.position.x + position - width / 2.f,
-                            area.position.y);
-    markerArea.size.set(width, area.size.y);
+    markerArea.set(area.position.x + position - width / 2.f, area.position.y,
+                   width, area.size.y);
 
     GL::Renderer::get()->setColor(ColorRGBA(0.3f, 0.3f, 0.3f, 0.5f));
     GL::Renderer::get()->fillRectangle(markerArea);
@@ -160,10 +161,13 @@ void TrackPanel::updateTracks(void)
 
   const float extra = std::max((children.size() - 1) * height - visible, 0.f);
   if (extra == 0.f)
+  {
+    scroller->setValue(0.f);
     scroller->setVisible(false);
+  }
   else
   {
-    position += scroller->getValue();
+    position += std::min(extra, scroller->getValue());
     width -= scroller->getArea().size.x + 2.f;
 
     scroller->setArea(Rectangle(width, 0.f, scroller->getArea().size.x, visible));
@@ -389,7 +393,7 @@ void EffectTrack::draw(void) const
 
 void EffectTrack::onDragBegun(Widget& widget, const Vector2& point)
 {
-  float position = transformToLocal(point).x;
+  const float position = transformToLocal(point).x;
 
   UI::Renderer* renderer = UI::Renderer::get();
 
@@ -417,8 +421,7 @@ void EffectTrack::onDragBegun(Widget& widget, const Vector2& point)
 
 void EffectTrack::onDragMoved(Widget& widget, const Vector2& point)
 {
-  float position = transformToLocal(point).x;
-
+  const float position = transformToLocal(point).x;
   const float offset = getHandleOffset();
 
   if (mode == DRAGGING_POSITION)
@@ -608,9 +611,9 @@ Timeline::Timeline(Show& initShow):
   trackPanel->getButtonClickedSignal().connect(*this, &Timeline::onButtonClicked);
   vertLayout->addChild(*trackPanel, 0.f);
 
-  horzScroller = new UI::Scroller(UI::HORIZONTAL);
-  horzScroller->getValueChangedSignal().connect(*this, &Timeline::onValueChanged);
-  vertLayout->addChild(*horzScroller);
+  scroller = new UI::Scroller(UI::HORIZONTAL);
+  scroller->getValueChangedSignal().connect(*this, &Timeline::onValueChanged);
+  vertLayout->addChild(*scroller);
 
   effectMenu = new UI::Menu();
   effectMenu->addItem(*new UI::Item("Delete", MENU_DELETE));
@@ -691,7 +694,7 @@ Time Timeline::getWindowStart(void) const
 void Timeline::setWindowStart(Time newStart)
 {
   start = newStart;
-  horzScroller->setValue(start);
+  scroller->setValue(start);
 }
 
 float Timeline::getZoom(void) const
@@ -824,8 +827,8 @@ void Timeline::updateScroller(void)
   const Time visible = getVisibleDuration();
   const Time duration = parent->getDuration();
 
-  horzScroller->setPercentage(std::max(visible / (duration + 10.0), 0.0));
-  horzScroller->setValueRange(0.f, duration + 10.0);
+  scroller->setPercentage(std::max(visible / (duration + 10.0), 0.0));
+  scroller->setValueRange(0.f, duration + 10.0);
 }
 
 void Timeline::createTrack(Property& property)
@@ -878,8 +881,7 @@ void Timeline::onButtonClicked(Widget& widget,
 
 void Timeline::onValueChanged(UI::Scroller& scroller)
 {
-  if (&scroller == horzScroller)
-    start = scroller.getValue();
+  start = scroller.getValue();
 }
 
 void Timeline::onTimeChanged(TimelineRuler& ruler)

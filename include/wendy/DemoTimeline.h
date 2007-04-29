@@ -177,7 +177,7 @@ private:
   float zoom;
   TimelineRuler* ruler;
   UI::Widget* trackPanel;
-  UI::Scroller* horzScroller;
+  UI::Scroller* scroller;
 };
 
 ///////////////////////////////////////////////////////////////////////

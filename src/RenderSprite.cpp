@@ -272,6 +272,20 @@ void Sprite3::setDefaults(void)
 
 ///////////////////////////////////////////////////////////////////////
 
+SpriteCloud3::SpriteCloud3(void)
+{
+}
+
+void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
+{
+}
+
+void SpriteCloud3::realizeVertices(GL::Vertex2ft3fv* vertices) const
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
   } /*namespace render*/
 } /*namespace wendy*/
 

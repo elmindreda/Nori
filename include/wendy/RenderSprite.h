@@ -89,30 +89,25 @@ public:
 class SpriteCloud3 : public Renderable
 {
 public:
-  class Slot;
+  enum Type
+  {
+    STATIC,
+    CYLINDRIC,
+    SPHERICAL,
+  };
+  struct Slot
+  {
+    Vector3 position;
+    float angle;
+  };
   SpriteCloud3(void);
   void enqueue(Queue& queue, const Transform3& transform) const;
-  Style* getStyle(void) const;
-  void setStyle(Style* newStyle);
-  const Vector2& getSpriteSize(void) const;
-  void setSpriteSize(const Vector2& newSize);
-  unsigned int getSpriteCount(void) const;
-  void setSpriteCount(unsigned int newCount);
-private:
   void realizeVertices(GL::Vertex2ft3fv* vertices) const;
+  typedef std::vector<Slot> SlotList;
   Vector2 size;
+  SlotList slots;
+  Type type;
   Ref<Style> style;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup renderer
- */
-class SpriteCloud3::Slot
-{
-public:
-  Vector3 position;
-  float angle;
 };
 
 ///////////////////////////////////////////////////////////////////////
