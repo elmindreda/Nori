@@ -512,6 +512,7 @@ void DefaultParticleEmitter::createParticle(Particle& particle,
   particle.velocity = Vector3(0.f, velocityRange.generate(), 0.f);
   particle.duration = durationRange.generate();
   particle.elapsed = 0.f;
+  particle.angle = 0.f;
 
   getSystem()->getTransform().transformVector(particle.position);
 

@@ -131,8 +131,8 @@ class FloatProperty : public PropertyTemplate<FloatKey, float>
 public:
   FloatProperty(Effect& effect,
                  const String& name,
-                 float minValue = 0.f,
-		 float maxValue = 1.f);
+                 float minValue,
+		 float maxValue);
   float getMinValue(void) const;
   float getMaxValue(void) const;
 private:
@@ -216,6 +216,39 @@ private:
 
 /*! @ingroup demo
  */
+class TextureKey : public PropertyKey
+{
+public:
+  TextureKey(Property& property);
+  UI::Widget* createManipulator(void);
+  GL::Texture* getValue(void) const;
+  void setValue(GL::Texture* newTexture);
+  String asString(void) const;
+  void setStringValue(const String& newValue);
+private:
+  Ref<GL::Texture> texture;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup demo
+ */
+class TextureProperty : public PropertyTemplate<TextureKey, GL::Texture*>
+{
+public:
+  TextureProperty(Effect& effect, const String& name);
+  bool isComplete(void) const;
+private:
+  GL::Texture* getDefaultValue(void) const;
+  GL::Texture* interpolateKeys(const TextureKey& start,
+                               const TextureKey& end,
+			       float t) const;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup demo
+ */
 class StyleKey : public PropertyKey
 {
 public:
@@ -237,6 +270,7 @@ class StyleProperty : public PropertyTemplate<StyleKey, render::Style*>
 {
 public:
   StyleProperty(Effect& effect, const String& name);
+  bool isComplete(void) const;
 private:
   render::Style* getDefaultValue(void) const;
   render::Style* interpolateKeys(const StyleKey& start,

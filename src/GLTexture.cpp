@@ -409,7 +409,6 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 
   format = source.getFormat();
 
-  /*
   if (flags & RECTANGULAR)
   {
     physicalWidth = width;
@@ -419,6 +418,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
     {
       Log::writeError("Rectangular textures are not supported by the current OpenGL context");
       return false;
+      /*
       if (!GLEW_ARB_texture_rectangle)
       {
 	Log::writeError("Rectangular textures are not supported by the current OpenGL context");
@@ -438,6 +438,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
       }
 
       textureTarget = GL_TEXTURE_RECTANGLE_ARB;
+      */
     }
 
     unsigned int maxSize;
@@ -455,7 +456,6 @@ bool Texture::init(const Image& image, unsigned int initFlags)
       physicalHeight = maxSize;
   }
   else
-  */
   {
     unsigned int maxSize;
 

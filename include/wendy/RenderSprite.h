@@ -41,6 +41,15 @@ class RenderStyle;
 
 ///////////////////////////////////////////////////////////////////////
 
+enum SpriteType3
+{
+  STATIC_SPRITE,
+  CYLINDRIC_SPRITE,
+  SPHERICAL_SPRITE,
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @ingroup renderer
  */
 class Sprite2
@@ -64,21 +73,16 @@ public:
 class Sprite3 : public Renderable
 {
 public:
-  enum Type
-  {
-    STATIC,
-    CYLINDRIC,
-    SPHERICAL,
-  };
   Sprite3(void);
   void enqueue(Queue& queue, const Transform3& transform) const;
-  void render(void) const;
-  void realizeVertices(GL::Vertex2ft3fv* vertices) const;
+  void realizeVertices(GL::Vertex2ft3fv* vertices,
+                       const Transform3& transform,
+                       const Vector3& camera) const;
   void setDefaults(void);
   Vector3 position;
   Vector2 size;
   float angle;
-  Type type;
+  SpriteType3 type;
   Ref<Style> style;
 };
 
@@ -89,24 +93,20 @@ public:
 class SpriteCloud3 : public Renderable
 {
 public:
-  enum Type
-  {
-    STATIC,
-    CYLINDRIC,
-    SPHERICAL,
-  };
   struct Slot
   {
     Vector3 position;
     float angle;
+    Vector2 size;
   };
   SpriteCloud3(void);
   void enqueue(Queue& queue, const Transform3& transform) const;
-  void realizeVertices(GL::Vertex2ft3fv* vertices) const;
+  void realizeVertices(GL::Vertex2ft3fv* vertices,
+                       const Transform3& transform,
+                       const Vector3& camera) const;
   typedef std::vector<Slot> SlotList;
-  Vector2 size;
   SlotList slots;
-  Type type;
+  SpriteType3 type;
   Ref<Style> style;
 };
 

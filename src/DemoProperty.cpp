@@ -248,7 +248,7 @@ void FloatKey::setStringValue(const String& newValue)
   FloatProperty& property = dynamic_cast<FloatProperty&>(getProperty());
 
   value = Variant::convertToFloat(newValue);
-  value = std::min(std::max(value, property.getMaxValue()),
+  value = std::max(std::min(value, property.getMaxValue()),
                    property.getMinValue());
 }
 
@@ -419,6 +419,73 @@ unsigned int EnumProperty::getDefaultValue(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
+TextureKey::TextureKey(Property& property):
+  PropertyKey(property)
+{
+}
+
+UI::Widget* TextureKey::createManipulator(void)
+{
+  return NULL;
+}
+
+GL::Texture* TextureKey::getValue(void) const
+{
+  return texture;
+}
+
+void TextureKey::setValue(GL::Texture* newTexture)
+{
+  texture = newTexture;
+}
+
+String TextureKey::asString(void) const
+{
+  if (texture)
+    return texture->getName();
+
+  return String();
+}
+
+void TextureKey::setStringValue(const String& newValue)
+{
+  texture = GL::Texture::readInstance(newValue);
+}
+
+///////////////////////////////////////////////////////////////////////
+
+TextureProperty::TextureProperty(Effect& effect, const String& name):
+  PropertyTemplate<TextureKey, GL::Texture*>(effect, name)
+{
+}
+
+bool TextureProperty::isComplete(void) const
+{
+  const KeyList& keys = getKeys();
+
+  for (KeyList::const_iterator i = keys.begin();  i != keys.end();  i++)
+  {
+    if (!dynamic_cast<TextureKey*>(*i)->getValue())
+      return false;
+  }
+
+  return true;
+}  
+
+GL::Texture* TextureProperty::getDefaultValue(void) const
+{
+  return NULL;
+}
+
+GL::Texture* TextureProperty::interpolateKeys(const TextureKey& start,
+			                      const TextureKey& end,
+			                      float t) const
+{
+  return start.getValue();
+}
+
+///////////////////////////////////////////////////////////////////////
+
 StyleKey::StyleKey(Property& property):
   PropertyKey(property)
 {
@@ -459,6 +526,19 @@ StyleProperty::StyleProperty(Effect& effect, const String& name):
 {
 }
 
+bool StyleProperty::isComplete(void) const
+{
+  const KeyList& keys = getKeys();
+
+  for (KeyList::const_iterator i = keys.begin();  i != keys.end();  i++)
+  {
+    if (!dynamic_cast<StyleKey*>(*i)->getValue())
+      return false;
+  }
+
+  return true;
+}  
+
 render::Style* StyleProperty::getDefaultValue(void) const
 {
   return NULL;
@@ -497,13 +577,13 @@ void ColorKeyRGB::setValue(ColorRGB newValue)
 String ColorKeyRGB::asString(void) const
 {
   String result;
-  // TODO: Implement.
+  value.convertToString(result);
   return result;
 }
 
 void ColorKeyRGB::setStringValue(const String& newValue)
 {
-  // TODO: Implement.
+  value = newValue;
 }
 
 ///////////////////////////////////////////////////////////////////////

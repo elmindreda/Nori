@@ -74,13 +74,60 @@ namespace wendy
 
 using namespace moira;
 
-
 ///////////////////////////////////////////////////////////////////////
 
 void Editor::run(void)
 {
-  while (GL::Context::get()->update())
-    ;
+  togglePaused();
+
+  do
+  {
+    const Time duration = show->getDuration();
+
+    elapsed = timer.getTime();
+
+    if (simple && elapsed >= duration)
+      break;
+
+    timeline->setTimeElapsed(elapsed);
+    timeDisplay->setText("%u:%02u.%02u / %u:%02u.%02u",
+			 (unsigned int) elapsed / 60,
+			 (unsigned int) elapsed % 60,
+			 (unsigned int) (elapsed * 100.0) % 100,
+			 (unsigned int) duration / 60,
+			 (unsigned int) duration % 60,
+			 (unsigned int) (duration * 100.0) % 100);
+
+    show->setTimeElapsed(elapsed);
+    show->prepare();
+
+    GL::ScreenCanvas screen;
+
+    if (book->isVisible())
+    {
+      screen.begin();
+      screen.clearColorBuffer();
+      UI::Widget::drawRoots();
+      screen.end();
+
+      if (canvas->isVisible())
+      {
+	canvas->getCanvas().begin();
+	show->render();
+	canvas->getCanvas().end();
+      }
+    }
+    else
+    {
+      screen.begin();
+      show->render();
+      screen.end();
+    }
+
+    if (quitting)
+      break;
+  }
+  while (GL::Context::get()->update());
 }
 
 bool Editor::isModified(void) const
@@ -100,6 +147,9 @@ bool Editor::isVisible(void) const
 
 void Editor::setVisible(bool newState)
 {
+  if (newState)
+    simple = false;
+
   book->setVisible(newState);
   updateTitle();
 }
@@ -114,6 +164,16 @@ void Editor::setTimeElapsed(Time newTime)
   timer.setTime(newTime);
   elapsed = newTime;
   timeChangedSignal.emit();
+}
+
+const Show& Editor::getShow(void) const
+{
+  return *show;
+}
+
+SignalProxy0<void> Editor::getMusicChangedSignal(void)
+{
+  return musicChangedSignal;
 }
 
 SignalProxy0<void> Editor::getTimeChangedSignal(void)
@@ -145,6 +205,7 @@ bool Editor::create(const String& showName)
 }
 
 Editor::Editor(void):
+  simple(true),
   modified(false),
   quitting(false),
   elapsed(0.0)
@@ -162,9 +223,9 @@ bool Editor::init(const String& showName)
     return false;
 
   GL::Context* context = GL::Context::get();
-  context->getRenderSignal().connect(*this, &Editor::onRender);
   context->getResizedSignal().connect(*this, &Editor::onResized);
   context->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
+  context->getCloseRequestSignal().connect(*this, &Editor::onCloseRequest);
 
   const float em = UI::Renderer::get()->getDefaultEM();
 
@@ -284,7 +345,11 @@ bool Editor::init(const String& showName)
     mainLayout->setBorderSize(3.f);
     showPage->addChild(*mainLayout);
 
+    UI::Label* label;
     UI::Button* button;
+
+    label = new UI::Label("Show Path: " + show->getSourcePath().asString());
+    mainLayout->addChild(*label);
 
     button = new UI::Button("Load Show");
     button->getPushedSignal().connect(*this, &Editor::onLoadShow);
@@ -294,8 +359,6 @@ bool Editor::init(const String& showName)
     button->getPushedSignal().connect(*this, &Editor::onSaveShow);
     mainLayout->addChild(*button);
 
-    UI::Label* label;
-
     label = new UI::Label("Show Title");
     mainLayout->addChild(*label);
 
@@ -304,13 +367,11 @@ bool Editor::init(const String& showName)
     titleEntry->setText(show->getTitle());
     mainLayout->addChild(*titleEntry);
 
-    label = new UI::Label("Show Path: " + show->getSourcePath().asString());
-    mainLayout->addChild(*label);
-
     label = new UI::Label("Music Path");
     mainLayout->addChild(*label);
 
-    UI::Entry* musicEntry = new UI::Entry();
+    musicEntry = new UI::Entry();
+    musicEntry->setText(show->getMusicPath().asString());
     mainLayout->addChild(*musicEntry);
 
     // Set aspect ratio(s)
@@ -339,14 +400,17 @@ bool Editor::init(const String& showName)
 			"Compiled " __TIME__ " on " __DATE__ "\n");
   }
 
+  onResized(context->getWidth(), context->getHeight());
+  onParentChanged(*timeline);
+
+  updateTitle();
+
   timer.start();
   timer.pause();
   setTimeElapsed(0.0);
 
-  onResized(context->getWidth(), context->getHeight());
-  onParentChanged(*timeline);
-
   setVisible(false);
+
   return true;
 }
 
@@ -374,48 +438,10 @@ void Editor::togglePaused(void)
   }
 }
 
-bool Editor::onRender(void)
+bool Editor::onCloseRequest(void)
 {
-  const Time duration = show->getDuration();
-
-  elapsed = timer.getTime();
-
-  timeline->setTimeElapsed(elapsed);
-  timeDisplay->setText("%u:%02u.%02u / %u:%02u.%02u",
-                       (unsigned int) elapsed / 60,
-		       (unsigned int) elapsed % 60,
-		       (unsigned int) (elapsed * 100.0) % 100,
-                       (unsigned int) duration / 60,
-		       (unsigned int) duration % 60,
-		       (unsigned int) (duration * 100.0) % 100);
-
-  show->setTimeElapsed(elapsed);
-  show->prepare();
-
-  GL::ScreenCanvas screen;
-
-  if (book->isVisible())
-  {
-    screen.begin();
-    screen.clearColorBuffer();
-    UI::Widget::drawRoots();
-    screen.end();
-
-    if (canvas->isVisible())
-    {
-      canvas->getCanvas().begin();
-      show->render();
-      canvas->getCanvas().end();
-    }
-  }
-  else
-  {
-    screen.begin();
-    show->render();
-    screen.end();
-  }
-
-  return !quitting;
+  quitting = true;
+  return false;
 }
 
 void Editor::onMaali(UI::Button& button)
@@ -531,6 +557,14 @@ void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
 
     show->setTitle(titleEntry->getText());
     updateTitle();
+  }
+  else if (&widget == musicEntry)
+  {
+    if (!pressed || key != GL::Key::ENTER)
+      return;
+
+    show->setMusicPath(Path(musicEntry->getText()));
+    musicChangedSignal.emit();
   }
   else if (&widget == nameEntry)
   {

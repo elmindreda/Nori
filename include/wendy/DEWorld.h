@@ -41,6 +41,11 @@ using namespace moira;
  */
 class World
 {
+public:
+  World(void);
+  virtual ~World(void);
+private:
+  dWorldID worldID;
 };
 
 ///////////////////////////////////////////////////////////////////////

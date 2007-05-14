@@ -78,6 +78,16 @@ void Show::setTitle(const String& newTitle)
   title = newTitle;
 }
 
+const Path& Show::getMusicPath(void) const
+{
+  return musicPath;
+}
+
+void Show::setMusicPath(const Path& newPath)
+{
+  musicPath = newPath;
+}
+
 Time Show::getDuration(void) const
 {
   Time duration = 0.0;
@@ -254,6 +264,7 @@ bool ShowCodec::write(Stream& stream, const Show& show)
 
     beginElement("show");
     addAttribute("title", show.getTitle());
+    addAttribute("music", show.getMusicPath().asString());
 
     const Effect::List& children = show.getRootEffect().getChildren();
 
@@ -284,6 +295,7 @@ bool ShowCodec::onBeginElement(const String& name)
       return false;
 
     show->setTitle(readString("title"));
+    show->setMusicPath(Path(readString("music")));
     effectStack.push(&(show->getRootEffect()));
     return true;
   }

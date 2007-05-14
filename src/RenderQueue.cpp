@@ -98,7 +98,8 @@ Queue::Queue(const Camera& initCamera,
 	     const String& initName):
   camera(initCamera),
   light(initLight),
-  name(initName)
+  name(initName),
+  sorted(false)
 {
 }
 

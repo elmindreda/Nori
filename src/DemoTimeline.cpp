@@ -483,6 +483,7 @@ PropertyTrack::PropertyTrack(Timeline& initTimeline, Property& initProperty):
 {
   const float em = UI::Renderer::get()->getDefaultEM();
 
+  getKeyPressedSignal().connect(*this, &PropertyTrack::onKeyPressed);
   getDragBegunSignal().connect(*this, &PropertyTrack::onDragBegun);
   getDragMovedSignal().connect(*this, &PropertyTrack::onDragMoved);
   getDragEndedSignal().connect(*this, &PropertyTrack::onDragEnded);
@@ -530,6 +531,20 @@ void PropertyTrack::draw(void) const
     }
 
     renderer->popClipArea();
+  }
+}
+
+void PropertyTrack::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
+{
+  if (!pressed)
+    return;
+
+  switch (key)
+  {
+    case GL::Key::DELETE:
+    {
+      break;
+    }
   }
 }
 

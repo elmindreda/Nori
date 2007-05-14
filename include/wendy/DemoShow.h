@@ -52,6 +52,8 @@ public:
   void render(void) const;
   const String& getTitle(void) const;
   void setTitle(const String& newTitle);
+  const Path& getMusicPath(void) const;
+  void setMusicPath(const Path& newPath);
   Time getDuration(void) const;
   Time getTimeElapsed(void) const;
   void setTimeElapsed(Time newTime);
@@ -65,6 +67,7 @@ private:
   void deactivateChildren(Effect& effect);
   Ptr<Effect> root;
   String title;
+  Path musicPath;
 };
 
 ///////////////////////////////////////////////////////////////////////

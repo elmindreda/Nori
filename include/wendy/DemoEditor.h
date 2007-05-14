@@ -43,12 +43,15 @@ class Editor : public Singleton<Editor>, public Trackable
 {
 public:
   void run(void);
+  bool isSimple(void) const;
   bool isModified(void) const;
   bool isPaused(void) const;
   bool isVisible(void) const;
   void setVisible(bool newState);
   Time getTimeElapsed(void) const;
   void setTimeElapsed(Time newTime);
+  const Show& getShow(void) const;
+  SignalProxy0<void> getMusicChangedSignal(void);
   SignalProxy0<void> getTimeChangedSignal(void);
   SignalProxy0<void> getPausedSignal(void);
   SignalProxy0<void> getResumedSignal(void);
@@ -58,7 +61,7 @@ private:
   bool init(const String& showName);
   void updateTitle(void);
   void togglePaused(void);
-  bool onRender(void);
+  bool onCloseRequest(void);
   void onMaali(UI::Button& button);
   void onLoadShow(UI::Button& button);
   void onSaveShow(UI::Button& button);
@@ -75,6 +78,7 @@ private:
   void onSelectionChanged(Timeline& timeline);
   void onParentSelected(UI::Popup& popup, unsigned int index);
   Ptr<Show> show;
+  bool simple;
   bool modified;
   bool quitting;
   Ptr<UI::Book> book;
@@ -83,10 +87,12 @@ private:
   UI::Popup* parentPopup;
   UI::Label* timeDisplay;
   UI::Entry* titleEntry;
+  UI::Entry* musicEntry;
   UI::Entry* nameEntry;
   Timeline* timeline;
   Timer timer;
   Time elapsed;
+  Signal0<void> musicChangedSignal;
   Signal0<void> timeChangedSignal;
   Signal0<void> pausedSignal;
   Signal0<void> resumedSignal;

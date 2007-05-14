@@ -131,6 +131,7 @@
 #include <wendy/UIList.h>
 #include <wendy/UIMenu.h>
 #include <wendy/UIPopup.h>
+#include <wendy/UIColor.h>
 
 #include <wendy/DemoProperty.h>
 #include <wendy/DemoEffect.h>
