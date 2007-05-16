@@ -93,7 +93,7 @@ int main(int argc, char** argv)
   if (!wendy::initialize())
     exit(1);
 
-  GL::ContextMode mode(800, 600, 32, 32, 0, GL::ContextMode::WINDOWED);
+  GL::ContextMode mode(800, 600, 32, 32, 0, 0, GL::ContextMode::WINDOWED);
   if (GL::Context::create(mode))
   {
     if (setup())

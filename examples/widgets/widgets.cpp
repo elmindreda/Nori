@@ -126,7 +126,7 @@ void Widgets::onItemSelected(UI::Popup& popup, unsigned int index)
 int main()
 {
   GL::ContextMode mode;
-  mode.set(640, 480, 32, 0, 0, GL::ContextMode::WINDOWED);
+  mode.set(640, 480, 32, 0, 0, 0, GL::ContextMode::WINDOWED);
 
   if (!wendy::initialize())
     return 1;

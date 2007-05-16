@@ -130,6 +130,7 @@ public:
 	      unsigned int colorBits,
 	      unsigned int depthBits = 0,
 	      unsigned int stencilBits = 0,
+	      unsigned int samples = 0,
 	      unsigned int flags = DEFAULT);
   /*! Resets all value to their defaults.
    */
@@ -141,6 +142,7 @@ public:
 	   unsigned int newColorBits,
 	   unsigned int newDepthBits = 0,
 	   unsigned int newStencilBits = 0,
+	   unsigned int newSamples = 0,
 	   unsigned int newFlags = DEFAULT);
   /*! The desired depth buffer bit depth.
    */
@@ -148,6 +150,9 @@ public:
   /*! The desired stencil buffer bit depth.
    */
   unsigned int stencilBits;
+  /*! The desired number of FSAA samples.
+   */
+  unsigned int samples;
   /*! The desired modification flags.
    */
   unsigned int flags;

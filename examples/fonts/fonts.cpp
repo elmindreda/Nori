@@ -19,7 +19,7 @@ private:
 bool Demo::init(void)
 {
   GL::ContextMode mode;
-  mode.set(640, 480, 32, 0, 0, GL::ContextMode::WINDOWED);
+  mode.set(640, 480, 32, 0, 0, 0, GL::ContextMode::WINDOWED);
 
   if (!GL::Context::create(mode))
     return false;

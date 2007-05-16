@@ -100,10 +100,12 @@ ContextMode::ContextMode(unsigned int width,
 			 unsigned int colorBits,
 			 unsigned int initDepthBits,
 			 unsigned int initStencilBits,
+			 unsigned int initSamples,
 			 unsigned int initFlags):
   ScreenMode(width, height, colorBits),
   depthBits(initDepthBits),
   stencilBits(initStencilBits),
+  samples(initSamples),
   flags(initFlags)
 {
 }
@@ -118,12 +120,14 @@ void ContextMode::set(unsigned int width,
 		      unsigned int colorBits,
 		      unsigned int newDepthBits,
 		      unsigned int newStencilBits,
+		      unsigned int newSamples,
 		      unsigned int newFlags)
 {
   ScreenMode::set(width, height, colorBits);
 
   depthBits = newDepthBits;
   stencilBits = newStencilBits;
+  samples = newSamples;
   flags = newFlags;
 }
   
@@ -455,6 +459,9 @@ bool Context::init(const ContextMode& mode)
     flags = GLFW_WINDOW;
   else
     flags = GLFW_FULLSCREEN;
+
+  if (mode.samples)
+    glfwOpenWindowHint(GLFW_FSAA_SAMPLES, mode.samples);
   
   if (!glfwOpenWindow(mode.width, mode.height, 
                       colorBits / 3, colorBits / 3, colorBits / 3, 0,

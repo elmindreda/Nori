@@ -24,7 +24,7 @@ bool onRender(void)
 int main(int argc, char** argv)
 {
   GL::ContextMode mode;
-  mode.set(640, 480, 32, 0, 0, GL::ContextMode::WINDOWED);
+  mode.set(640, 480, 32, 0, 0, 0, GL::ContextMode::WINDOWED);
 
   if (!wendy::initialize())
     return 1;
