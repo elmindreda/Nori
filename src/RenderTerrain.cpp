@@ -104,22 +104,13 @@ const Sphere& Terrain::getBounds(void) const
   return bounds;
 }
 
-Style* Terrain::getStyle(void) const
-{
-  return style;
-}
-
-void Terrain::setStyle(Style* newStyle)
-{
-  style = newStyle;
-}
-
 Terrain* Terrain::createInstance(const Image& heightmap,
 				 const Vector3& size,
+				 Style& style,
 			         const String& name)
 {
   Ptr<Terrain> terrain = new Terrain(name);
-  if (!terrain->init(heightmap, size))
+  if (!terrain->init(heightmap, size, style))
     return NULL;
 
   return terrain.detachObject();
@@ -130,7 +121,7 @@ Terrain::Terrain(const String& name):
 {
 }
 
-bool Terrain::init(const Image& heightmap, const Vector3& initSize)
+bool Terrain::init(const Image& heightmap, const Vector3& initSize, Style& style)
 {
   if (heightmap.getFormat() != ImageFormat::GREY8)
   {
@@ -154,7 +145,7 @@ bool Terrain::init(const Image& heightmap, const Vector3& initSize)
   moira::Mesh meshData;
   meshData.vertices.resize(width * depth);
   meshData.geometries.resize(1);
-  meshData.geometries[0].shaderName = "purple";
+  meshData.geometries[0].shaderName = style.getName();
   meshData.geometries[0].triangles.resize((width - 1) * (depth - 1) * 2);
 
   const unsigned char* values = (const unsigned char*) heightmap.getPixels();
@@ -319,10 +310,14 @@ bool TerrainCodec::onBeginElement(const String& name)
     if (!heightmap)
       return false;
 
+    Ref<Style> style = Style::readInstance(readString("style"));
+    if (!style)
+      return false;
+
     Vector3 size;
     readAttributes(size);
 
-    terrain = Terrain::createInstance(*heightmap, size, terrainName);
+    terrain = Terrain::createInstance(*heightmap, size, *style, terrainName);
     if (!terrain)
       return false;
 
