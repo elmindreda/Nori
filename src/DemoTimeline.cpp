@@ -572,7 +572,6 @@ void PropertyTrack::onDragBegun(Widget& widget, const Vector2& point)
 
   if (!draggedKey)
   {
-    /*
     const Time moment = position / timeline.getSecondWidth() -
                         timeline.getWindowStart();
 
@@ -580,8 +579,6 @@ void PropertyTrack::onDragBegun(Widget& widget, const Vector2& point)
       draggedKey = &(property.createKey(moment));
     else
       cancelDragging();
-    */
-    cancelDragging();
   }
 }
 

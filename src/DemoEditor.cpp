@@ -511,8 +511,7 @@ void Editor::onKeyPressed(GL::Key key, bool pressed)
 
     case GL::Key::ESCAPE:
     {
-      if (simple)
-        quitting = true;
+      quitting = true;
       break;
     }
   }
