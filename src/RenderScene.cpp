@@ -417,21 +417,20 @@ void CameraNode::update(Time deltaTime)
 
 ///////////////////////////////////////////////////////////////////////
 
-const String& TerrainNode::getTerrainName(void) const
+Terrain* TerrainNode::getTerrain(void) const
 {
-  return terrainName;
+  return terrain;
 }
 
-void TerrainNode::setTerrainName(const String& newTerrainName)
+void TerrainNode::setTerrain(Terrain* newTerrain)
 {
-  terrainName = newTerrainName;
+  terrain = newTerrain;
 }
 
 void TerrainNode::update(Time deltaTime)
 {
   SceneNode::update(deltaTime);
 
-  Terrain* terrain = Terrain::findInstance(terrainName);
   if (terrain)
     setLocalBounds(terrain->getBounds());
 }
@@ -442,7 +441,6 @@ void TerrainNode::enqueue(Queue& queue, QueuePhase phase) const
 
   if (phase == COLLECT_GEOMETRY)
   {
-    Terrain* terrain = Terrain::findInstance(terrainName);
     if (terrain)
       terrain->enqueue(queue, getWorldTransform());
   }

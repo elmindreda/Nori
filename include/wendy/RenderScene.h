@@ -216,13 +216,13 @@ private:
 class TerrainNode : public SceneNode
 {
 public:
-  const String& getTerrainName(void) const;
-  void setTerrainName(const String& newTerrainName);
+  Terrain* getTerrain(void) const;
+  void setTerrain(Terrain* newTerrain);
 protected:
   void update(Time deltaTime);
   void enqueue(Queue& queue, QueuePhase phase) const;
 private:
-  String terrainName;
+  Ref<Terrain> terrain;
 };
 
 ///////////////////////////////////////////////////////////////////////

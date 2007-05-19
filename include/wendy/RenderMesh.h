@@ -50,10 +50,13 @@ class Mesh : public Renderable,
 {
 public:
   class Geometry;
+  typedef std::vector<Geometry*> GeometryList;
+  ~Mesh(void);
   void enqueue(Queue& queue, const Transform3& transform) const;
   /*! @return The bounding sphere of this mesh.
    */
   const Sphere& getBounds(void) const;
+  const GeometryList& getGeometries(void);
   /*! Creates a renderable mesh from the specified mesh data.
    *  @param[in] mesh The mesh data to use.
    *  @param[in] name The desired name of the created renderable mesh.
@@ -65,7 +68,6 @@ private:
   Mesh(const Mesh& source);
   Mesh& operator = (const Mesh& source);
   bool init(const moira::Mesh& mesh);
-  typedef std::list<Geometry> GeometryList;
   GeometryList geometries;
   Ptr<GL::VertexBuffer> vertexBuffer;
   Ptr<GL::IndexBuffer> indexBuffer;
@@ -82,15 +84,24 @@ private:
  */
 class Mesh::Geometry
 {
+  friend class Mesh;
 public:
-  /*! The range of indices used by this geometry.
+  /*! Constructor.
    */
+  //Geometry(const GL::IndexRange& range, GLenum renderMode, Style* style);
+  /*! @return The range of indices used by this geometry.
+   */
+  const GL::IndexRange& getIndexRange(void) const;
+  /*! @return The primitive mode used by this geometry.
+   */
+  GLenum getRenderMode(void) const;
+  /*! @return The render style used by this geometry.
+   */
+  Style* getStyle(void) const;
+  void setStyle(Style* newStyle);
+private:
   GL::IndexRange range;
-  /*! The primitive mode used by this geometry.
-   */
   GLenum renderMode;
-  /*! The render style used by this geometry.
-   */
   Ref<Style> style;
 };
 

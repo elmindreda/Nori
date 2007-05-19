@@ -53,25 +53,34 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+Mesh::~Mesh(void)
+{
+  while (!geometries.empty())
+  {
+    delete geometries.back();
+    geometries.pop_back();
+  }
+}
+
 void Mesh::enqueue(Queue& queue, const Transform3& transform) const
 {
   for (GeometryList::const_iterator i = geometries.begin();  i != geometries.end();  i++)
   {
-    const Technique* technique = (*i).style->getActiveTechnique();
+    const Technique* technique = (*i)->style->getActiveTechnique();
     if (!technique)
     {
       Log::writeError("Render style %s has no active technique",
-                      (*i).style->getName().c_str());
+                      (*i)->style->getName().c_str());
       return;
     }
 
     Operation& operation = queue.createOperation();
     operation.vertexBuffer = vertexBuffer;
-    operation.indexBuffer = (*i).range.getIndexBuffer();
-    operation.renderMode = (*i).renderMode;
+    operation.indexBuffer = (*i)->range.getIndexBuffer();
+    operation.renderMode = (*i)->renderMode;
     operation.transform = transform;
-    operation.start = (*i).range.getStart();
-    operation.count = (*i).range.getCount();
+    operation.start = (*i)->range.getStart();
+    operation.count = (*i)->range.getCount();
     operation.technique = technique;
   }
 }
@@ -79,6 +88,11 @@ void Mesh::enqueue(Queue& queue, const Transform3& transform) const
 const Sphere& Mesh::getBounds(void) const
 {
   return bounds;
+}
+
+const Mesh::GeometryList& Mesh::getGeometries(void)
+{
+  return geometries;
 }
 
 Mesh* Mesh::createInstance(const moira::Mesh& mesh, const String& name)
@@ -142,19 +156,19 @@ bool Mesh::init(const moira::Mesh& mesh)
 
   for (moira::Mesh::GeometryList::const_iterator i = mesh.geometries.begin();  i != mesh.geometries.end();  i++)
   {
-    geometries.push_back(Geometry());
-    Geometry& geometry = geometries.back();
+    Geometry* geometry = new Geometry();
+    geometries.push_back(geometry);
 
     indexCount = (unsigned int) (*i).triangles.size() * 3;
 
-    geometry.style = Style::readInstance((*i).shaderName);
-    if (!geometry.style)
+    geometry->style = Style::readInstance((*i).shaderName);
+    if (!geometry->style)
       return false;
 
-    geometry.renderMode = GL_TRIANGLES;
-    geometry.range = GL::IndexRange(*indexBuffer, indexBase, indexCount);
+    geometry->renderMode = GL_TRIANGLES;
+    geometry->range = GL::IndexRange(*indexBuffer, indexBase, indexCount);
 
-    unsigned int* indices = (unsigned int*) geometry.range.lock();
+    unsigned int* indices = (unsigned int*) geometry->range.lock();
     if (!indices)
       return false;
 
@@ -165,7 +179,7 @@ bool Mesh::init(const moira::Mesh& mesh)
       *indices++ = (*j).indices[2];
     }
 
-    geometry.range.unlock();
+    geometry->range.unlock();
 
     indexBase += indexCount;
   }
@@ -173,6 +187,39 @@ bool Mesh::init(const moira::Mesh& mesh)
   mesh.getBounds(bounds);
 
   return true;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+/*
+Mesh::Geometry::Geometry(const GL::IndexRange& initRange,
+                         GLenum initRenderMode,
+			 Style* initStyle):
+  range(initRange),
+  renderMode(initRenderMode),
+  style(initStyle)
+{
+}
+*/
+
+const GL::IndexRange& Mesh::Geometry::getIndexRange(void) const
+{
+  return range;
+}
+
+GLenum Mesh::Geometry::getRenderMode(void) const
+{
+  return renderMode;
+}
+
+Style* Mesh::Geometry::getStyle(void) const
+{
+  return style;
+}
+
+void Mesh::Geometry::setStyle(Style* newStyle)
+{
+  style = newStyle;
 }
 
 ///////////////////////////////////////////////////////////////////////

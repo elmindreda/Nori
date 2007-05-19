@@ -104,13 +104,22 @@ const Sphere& Terrain::getBounds(void) const
   return bounds;
 }
 
+Style* Terrain::getStyle(void) const
+{
+  return style;
+}
+
+void Terrain::setStyle(Style* newStyle)
+{
+  style = newStyle;
+}
+
 Terrain* Terrain::createInstance(const Image& heightmap,
-			         const Image& colormap,
 				 const Vector3& size,
 			         const String& name)
 {
   Ptr<Terrain> terrain = new Terrain(name);
-  if (!terrain->init(heightmap, colormap, size))
+  if (!terrain->init(heightmap, size))
     return NULL;
 
   return terrain.detachObject();
@@ -121,9 +130,7 @@ Terrain::Terrain(const String& name):
 {
 }
 
-bool Terrain::init(const Image& heightmap,
-                   const Image& colormap,
-                   const Vector3& initSize)
+bool Terrain::init(const Image& heightmap, const Vector3& initSize)
 {
   if (heightmap.getFormat() != ImageFormat::GREY8)
   {
@@ -140,21 +147,6 @@ bool Terrain::init(const Image& heightmap,
     return false;
   }
 
-  texture = GL::Texture::createInstance(colormap, 0);
-  if (!texture)
-    return false;
-
-  // Create render style
-  {
-    Technique& technique = style.createTechnique();
-
-    GL::Pass& pass = technique.createPass();
-
-    GL::TextureLayer& layer = pass.createTextureLayer();
-    layer.setCombineMode(GL_REPLACE);
-    layer.setTexture(texture);
-  }
-
   offset.set(width / 2.f, depth / 2.f);
 
   size = initSize;
@@ -162,7 +154,7 @@ bool Terrain::init(const Image& heightmap,
   moira::Mesh meshData;
   meshData.vertices.resize(width * depth);
   meshData.geometries.resize(1);
-  meshData.geometries[0].shaderName = style.getName();
+  meshData.geometries[0].shaderName = "purple";
   meshData.geometries[0].triangles.resize((width - 1) * (depth - 1) * 2);
 
   const unsigned char* values = (const unsigned char*) heightmap.getPixels();
@@ -288,6 +280,8 @@ bool TerrainCodec::write(Stream& stream, const Terrain& terrain)
     beginElement("terrain");
     addAttribute("version", (int) RENDER_TERRAIN_XML_VERSION);
 
+    // TODO: No idea.
+
     endElement();
 
     setStream(NULL);
@@ -321,7 +315,17 @@ bool TerrainCodec::onBeginElement(const String& name)
       return false;
     }
 
-    //terrain = Terrain::createInstance(terrainName);
+    Ref<Image> heightmap = Image::readInstance(readString("heightmap"));
+    if (!heightmap)
+      return false;
+
+    Vector3 size;
+    readAttributes(size);
+
+    terrain = Terrain::createInstance(*heightmap, size, terrainName);
+    if (!terrain)
+      return false;
+
     return true;
   }
 

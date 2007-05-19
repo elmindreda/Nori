@@ -409,6 +409,7 @@ bool Editor::init(const String& showName)
   timer.pause();
   setTimeElapsed(0.0);
 
+  canvas->activate();
   setVisible(false);
 
   return true;

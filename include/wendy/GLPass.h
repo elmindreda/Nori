@@ -195,6 +195,8 @@ public:
   /*! Resets all values in this render pass to their defaults.
    */
   void setDefaults(void);
+  static bool isCullingInverted(void);
+  static void setCullingInversion(bool newState);
 private:
   class Data
   {
@@ -225,6 +227,7 @@ private:
   Data data;
   String name;
   static Data cache;
+  static bool cullingInverted;
 };
 
 ///////////////////////////////////////////////////////////////////////

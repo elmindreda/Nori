@@ -54,16 +54,15 @@ public:
    */
   float getHeight(const Vector2& position) const;
   const Sphere& getBounds(void) const;
+  Style* getStyle(void) const;
+  void setStyle(Style* newStyle);
   static Terrain* createInstance(const Image& heightmap,
-			         const Image& colormap,
 				 const Vector3& size,
                                  const String& name = "");
 private:
   struct Tile;
   Terrain(const String& name);
-  bool init(const Image& heightmap,
-            const Image& colormap,
-	    const Vector3& size);
+  bool init(const Image& heightmap, const Vector3& size);
   Vector3 gridToWorld(const Vector3& grid) const;
   Vector3 worldToGrid(const Vector3& world) const;
   typedef std::vector<Tile> TileList;
@@ -73,8 +72,7 @@ private:
   Vector2 offset;
   TileList tiles;
   Ref<Mesh> mesh;
-  Ref<GL::Texture> texture;
-  Style style;
+  Ref<Style> style;
   Sphere bounds;
 };
 

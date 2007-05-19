@@ -50,6 +50,30 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+namespace
+{
+
+CullMode invertCullMode(CullMode mode)
+{
+  switch (mode)
+  {
+    case CULL_NONE:
+      return CULL_BOTH;
+    case CULL_FRONT:
+      return CULL_BACK;
+    case CULL_BACK:
+      return CULL_FRONT;
+    case CULL_BOTH:
+      return CULL_NONE;
+    default:
+      throw Exception("Invalid cull mode");
+  }
+}
+
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Pass::Pass(const String& initName):
   name(initName)
 {
@@ -68,15 +92,19 @@ void Pass::apply(void) const
     return;
   }
   
-  if (data.cullMode != cache.cullMode)
-  {
-    if ((data.cullMode == CULL_NONE) != (cache.cullMode == CULL_NONE))
-      setBooleanState(GL_CULL_FACE, data.cullMode != CULL_NONE);
+  CullMode cullMode = data.cullMode;
+  if (cullingInverted)
+    cullMode = invertCullMode(cullMode);
 
-    if (data.cullMode != CULL_NONE)
-      glCullFace(data.cullMode);
+  if (cullMode != cache.cullMode)
+  {
+    if ((cullMode == CULL_NONE) != (cache.cullMode == CULL_NONE))
+      setBooleanState(GL_CULL_FACE, cullMode != CULL_NONE);
+
+    if (cullMode != CULL_NONE)
+      glCullFace(cullMode);
       
-    cache.cullMode = data.cullMode;
+    cache.cullMode = cullMode;
   }
 
   if (data.lighting != cache.lighting)
@@ -439,13 +467,27 @@ void Pass::setDefaults(void)
   data.setDefaults();
 }
 
+bool Pass::isCullingInverted(void)
+{
+  return cullingInverted;
+}
+
+void Pass::setCullingInversion(bool newState)
+{
+  cullingInverted = newState;
+}
+
 void Pass::force(void) const
 {
   cache = data;
 
-  setBooleanState(GL_CULL_FACE, data.cullMode != CULL_NONE);
-  if (data.cullMode != CULL_NONE)
-    glCullFace(data.cullMode);
+  CullMode cullMode = data.cullMode;
+  if (cullingInverted)
+    cullMode = invertCullMode(cullMode);
+
+  setBooleanState(GL_CULL_FACE, cullMode != CULL_NONE);
+  if (cullMode != CULL_NONE)
+    glCullFace(cullMode);
 
   setBooleanState(GL_LIGHTING, data.lighting);
 
@@ -512,6 +554,8 @@ void Pass::setBooleanState(GLenum state, bool value) const
 }
 
 Pass::Data Pass::cache;
+
+bool Pass::cullingInverted = false;
 
 ///////////////////////////////////////////////////////////////////////
 
