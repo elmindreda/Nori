@@ -100,15 +100,8 @@ Widget::~Widget(void)
 
   if (activeWidget == this)
   {
-    if (parent)
-      parent->activate();
-    else if (!roots.empty())
-      roots.back()->activate();
-    else
-    {
-      activeWidget = NULL;
-      focusChangedSignal.emit(*this, false);
-    }
+    activeWidget = NULL;
+    focusChangedSignal.emit(*this, false);
   }
 
   if (draggedWidget == this)

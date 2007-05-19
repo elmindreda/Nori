@@ -508,6 +508,13 @@ void Editor::onKeyPressed(GL::Key key, bool pressed)
       setVisible(!isVisible());
       break;
     }
+
+    case GL::Key::ESCAPE:
+    {
+      if (simple)
+        quitting = true;
+      break;
+    }
   }
 }
 
