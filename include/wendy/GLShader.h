@@ -81,6 +81,8 @@ class VertexShader : public Shader,
 		     public Resource<VertexShader>
 {
 public:
+  static VertexShader* createInstance(const String& text, const String& name = "");
+private:
   VertexShader(const String& text, const String& name);
 };
 
@@ -94,6 +96,8 @@ class FragmentShader : public Shader,
                        public Resource<FragmentShader>
 {
 public:
+  static FragmentShader* createInstance(const String& text, const String& name = "");
+private:
   FragmentShader(const String& text, const String& name);
 };
 

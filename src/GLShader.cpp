@@ -81,6 +81,14 @@ const String& Shader::getText(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
+VertexShader* VertexShader::createInstance(const String& text, const String& name)
+{
+  if (!GLEW_ARB_vertex_shader)
+    return NULL;
+
+  return new VertexShader(text, name);
+}
+
 VertexShader::VertexShader(const String& text, const String& name):
   Resource<VertexShader>(name),
   Shader(VERTEX, text)
@@ -88,6 +96,14 @@ VertexShader::VertexShader(const String& text, const String& name):
 }
 
 ///////////////////////////////////////////////////////////////////////
+
+FragmentShader* FragmentShader::createInstance(const String& text, const String& name)
+{
+  if (!GLEW_ARB_fragment_shader)
+    return NULL;
+
+  return new FragmentShader(text, name);
+}
 
 FragmentShader::FragmentShader(const String& text, const String& name):
   Resource<FragmentShader>(name),

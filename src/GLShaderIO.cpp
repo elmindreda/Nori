@@ -72,7 +72,7 @@ VertexShader* VertexShaderCodec::read(Stream& stream, const String& name)
   String text;
   textStream.readText(text, textStream.getSize());
 
-  return new VertexShader(text, name);
+  return VertexShader::createInstance(text, name);
 }
 
 bool VertexShaderCodec::write(const Path& path, const VertexShader& program)
@@ -107,7 +107,7 @@ FragmentShader* FragmentShaderCodec::read(Stream& stream, const String& name)
   String text;
   textStream.readText(text, textStream.getSize());
 
-  return new FragmentShader(text, name);
+  return FragmentShader::createInstance(text, name);
 }
 
 bool FragmentShaderCodec::write(const Path& path, const FragmentShader& program)

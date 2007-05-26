@@ -22,6 +22,15 @@ AC_CHECK_HEADERS(errno.h)
 # Check for libraries.
 AC_CHECK_LIB([GLEW], [glewInit], [], [AC_MSG_ERROR([GLEW not found])])
 
+case $host in
+  *-*-darwin* | *-*-macos10*)
+    WENDY_LIBS="$WENDY_LIBS -framework OpenAL"
+    ;;
+  *)
+    AC_CHECK_LIB([openal], [alEnable], [], [AC_MSG_ERROR([OpenAL not found])])
+    ;;
+esac
+
 # Check for packages.
 PKG_CHECK_MODULES(moira, libmoira >= 0.0.2)
 PKG_CHECK_MODULES(glfw, libglfw >= 2.6)

@@ -117,7 +117,7 @@ void Menu::addItemAt(Item& item, unsigned int index)
     return;
 
   i = items.begin();
-  std::advance(i, std::min(index, items.size()));
+  std::advance(i, std::min(index, (unsigned int) items.size()));
   items.insert(i, &item);
 
   sizeToFit();
