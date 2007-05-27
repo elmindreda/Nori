@@ -135,7 +135,7 @@ bool Mesh::init(const moira::Mesh& mesh)
     return false;
 
   vertexBuffer = GL::VertexBuffer::createInstance((unsigned int) mesh.vertices.size(),
-					          format);
+                                                  format);
   if (!vertexBuffer)
     return false;
 
@@ -194,7 +194,7 @@ bool Mesh::init(const moira::Mesh& mesh)
 /*
 Mesh::Geometry::Geometry(const GL::IndexRange& initRange,
                          GLenum initRenderMode,
-			 Style* initStyle):
+                               Style* initStyle):
   range(initRange),
   renderMode(initRenderMode),
   style(initStyle)
@@ -280,21 +280,21 @@ void ShadowMesh::update(const Vector3 origin)
 
       if (statuses[0] == Triangle::FRONT_FACE)
       {
-	volume[vertexCount++] = vertices[edge.vertices[0]];
-	volume[vertexCount++] = extrudedVertices[edge.vertices[0]];
-	volume[vertexCount++] = extrudedVertices[edge.vertices[1]];
-	volume[vertexCount++] = vertices[edge.vertices[1]];
-	volume[vertexCount++] = vertices[edge.vertices[0]];
-	volume[vertexCount++] = extrudedVertices[edge.vertices[1]];
+        volume[vertexCount++] = vertices[edge.vertices[0]];
+        volume[vertexCount++] = extrudedVertices[edge.vertices[0]];
+        volume[vertexCount++] = extrudedVertices[edge.vertices[1]];
+        volume[vertexCount++] = vertices[edge.vertices[1]];
+        volume[vertexCount++] = vertices[edge.vertices[0]];
+        volume[vertexCount++] = extrudedVertices[edge.vertices[1]];
       }
       else
       {
-	volume[vertexCount++] = vertices[edge.vertices[0]];
-	volume[vertexCount++] = extrudedVertices[edge.vertices[1]];
-	volume[vertexCount++] = extrudedVertices[edge.vertices[0]];
-	volume[vertexCount++] = vertices[edge.vertices[0]];
-	volume[vertexCount++] = vertices[edge.vertices[1]];
-	volume[vertexCount++] = extrudedVertices[edge.vertices[1]];
+        volume[vertexCount++] = vertices[edge.vertices[0]];
+        volume[vertexCount++] = extrudedVertices[edge.vertices[1]];
+        volume[vertexCount++] = extrudedVertices[edge.vertices[0]];
+        volume[vertexCount++] = vertices[edge.vertices[0]];
+        volume[vertexCount++] = vertices[edge.vertices[1]];
+        volume[vertexCount++] = extrudedVertices[edge.vertices[1]];
       }
     }
   }
@@ -403,8 +403,8 @@ bool ShadowMesh::init(const moira::Mesh& mesh)
       return false;
 
     vertexBuffer = GL::VertexBuffer::createInstance(mesh.vertices.size() * 2,
-						    format,
-						    GL::VertexBuffer::DYNAMIC);
+                                                    format,
+                                                    GL::VertexBuffer::DYNAMIC);
     if (!vertexBuffer)
       return false;
 
@@ -443,7 +443,7 @@ bool ShadowMesh::init(const moira::Mesh& mesh)
       Triangle& triangle = triangles.back();
 
       for (unsigned int k = 0;  k < 3;  k++)
-	triangle.vertices[k] = geometry.triangles[j].indices[k];
+          triangle.vertices[k] = geometry.triangles[j].indices[k];
 
       const Vector3 one = vertices[triangle.vertices[1]] -
                           vertices[triangle.vertices[0]];

@@ -14,7 +14,6 @@ private:
   bool render(void);
   render::Camera camera;
   render::Scene scene;
-  Ref<render::Mesh> mesh;
   render::MeshNode* meshNode;
   render::CameraNode* cameraNode;
   Timer timer;
@@ -52,7 +51,7 @@ bool Demo::init(void)
   lightNode->getLocalTransform().position.z = 3.f;
   scene.addNode(*lightNode);
 
-  mesh = render::Mesh::readInstance("cube");
+  Ref<render::Mesh> mesh = render::Mesh::readInstance("cube");
   if (!mesh)
     return false;
 
@@ -84,7 +83,8 @@ bool Demo::render(void)
 {
   currentTime = timer.getTime();
 
-  meshNode->getLocalTransform().rotation.setAxisRotation(Vector3(0.f, 1.f, 0.f), currentTime);
+  meshNode->getLocalTransform().rotation.setAxisRotation(Vector3(0.f, 1.f, 0.f),
+                                                         currentTime);
 
   scene.setTimeElapsed(currentTime);
 

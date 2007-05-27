@@ -234,6 +234,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup opengl
+ */
 class ShaderPermutation
 {
   friend class ShaderProgram;
@@ -275,6 +277,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup opengl
+ */
 class ShaderProgram : public Resource<ShaderProgram>,
                       public RefObject<ShaderProgram>
 {

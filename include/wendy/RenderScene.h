@@ -129,6 +129,26 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+class SceneNodeType : public Managed<SceneNodeType>
+{
+public:
+  SceneNodeType(const String& name);
+  virtual ~SceneNodeType(void);
+  virtual SceneNode* createNode(void) = 0;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+template <typename T>
+class SceneNodeTemplate
+{
+public:
+  inline SceneNodeTemplate(const String& name);
+  inline SceneNode* createNode(void);
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief %Scene graph container.
  *  @ingroup scene
  *
@@ -262,6 +282,20 @@ private:
   String systemName;
   Time elapsed;
 };
+
+///////////////////////////////////////////////////////////////////////
+
+template <typename T>
+inline SceneNodeTemplate<T>::SceneNodeTemplate(const String& name):
+  SceneNodeType(name)
+{
+}
+
+template <typename T>
+inline SceneNode* SceneNodeTemplate<T>::createNode(void)
+{
+  return new T();
+}
 
 ///////////////////////////////////////////////////////////////////////
 

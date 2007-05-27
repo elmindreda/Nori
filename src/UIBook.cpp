@@ -138,21 +138,21 @@ void Book::draw(void) const
 
       for (unsigned int i = 0;  i < pages.size();  i++)
       {
-	Rectangle buttonArea;
-	buttonArea.set(width * i, size.y - height, width, height);
+        Rectangle buttonArea;
+        buttonArea.set(width * i, size.y - height, width, height);
 
-	WidgetState state;
-	if (isEnabled())
-	{
-	  if (activePage == pages[i])
-	    state = STATE_ACTIVE;
-	  else
-	    state = STATE_NORMAL;
-	}
-	else
-	  state = STATE_DISABLED;
+        WidgetState state;
+        if (isEnabled())
+        {
+          if (activePage == pages[i])
+            state = STATE_ACTIVE;
+          else
+            state = STATE_NORMAL;
+        }
+        else
+          state = STATE_DISABLED;
 
-	renderer->drawButton(buttonArea, state, pages[i]->getText());
+        renderer->drawButton(buttonArea, state, pages[i]->getText());
       }
     }
 
@@ -189,9 +189,9 @@ void Book::removedChild(Widget& child)
       getPages(pages);
 
       if (pages.empty())
-	setActivePage(NULL, false);
+        setActivePage(NULL, false);
       else
-	setActivePage(pages.front(), false);
+        setActivePage(pages.front(), false);
     }
   }
 }

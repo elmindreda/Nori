@@ -74,7 +74,7 @@ void Camera::begin(void) const
     return;
   }
 
-  renderer->begin3D(FOV, aspectRatio);
+  renderer->begin3D(FOV, aspectRatio, minDepth, maxDepth);
   renderer->pushTransform(getInverseTransform());
 
   current = const_cast<Camera*>(this);

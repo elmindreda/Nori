@@ -72,13 +72,24 @@ class Property
 {
   friend class PropertyKey;
 public:
+  enum BlendMode
+  {
+    SELECT_START,
+    SELECT_END,
+    LINEAR,
+  };
   typedef std::vector<PropertyKey*> KeyList;
   Property(Effect& effect, const String& name);
   virtual ~Property(void);
   virtual PropertyKey& createKey(Time moment, const String& value = "") = 0;
+  Time getSequenceStart(void) const;
   Time getSequenceStart(Time moment) const;
+  Time getSequenceDuration(void) const;
   Time getSequenceDuration(Time moment) const;
+  unsigned int getSequenceIndex(void) const;
   unsigned int getSequenceIndex(Time moment) const;
+  BlendMode getBlendMode(void) const;
+  void setBlendMode(BlendMode newBlendMode);
   Effect& getEffect(void) const;
   const String& getName(void) const;
   const KeyList& getKeys(void) const;
@@ -86,6 +97,7 @@ private:
   Effect& effect;
   String name;
   KeyList keys;
+  BlendMode mode;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -98,6 +110,7 @@ class PropertyTemplate : public Property
 public:
   inline PropertyTemplate(Effect& effect, const String& name);
   inline PropertyKey& createKey(Time moment, const String& value = "");
+  inline T getValue(void) const;
   inline T getValue(Time moment) const;
 protected:
   virtual T getDefaultValue(void) const = 0;
@@ -329,6 +342,12 @@ inline PropertyKey& PropertyTemplate<K,T>::createKey(Time moment, const String& 
 }
 
 template <typename K, typename T>
+inline T PropertyTemplate<K,T>::getValue(void) const
+{
+  return getValue(getEffect().getTimeElapsed());
+}
+
+template <typename K, typename T>
 inline T PropertyTemplate<K,T>::getValue(Time moment) const
 {
   const KeyList& keys = getKeys();
@@ -353,11 +372,24 @@ inline T PropertyTemplate<K,T>::getValue(Time moment) const
   const K& startKey = *dynamic_cast<K*>(keys[index - 1]);
   const K& endKey = *dynamic_cast<K*>(keys[index]);
 
-  const Time start = startKey.getMoment();
+  switch (getBlendMode())
+  {
+    case SELECT_START:
+      return startKey.getValue();
 
-  const float t = (moment - start) / (endKey.getMoment() - start);
+    case SELECT_END:
+      return endKey.getValue();
 
-  return interpolateKeys(startKey, endKey, t);
+    case LINEAR:
+    default:
+    {
+      const Time start = startKey.getMoment();
+
+      const float t = (moment - start) / (endKey.getMoment() - start);
+
+      return interpolateKeys(startKey, endKey, t);
+    }
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////

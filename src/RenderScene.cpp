@@ -386,7 +386,10 @@ void MeshNode::enqueue(Queue& queue, QueuePhase phase) const
   SceneNode::enqueue(queue, phase);
 
   if (phase == COLLECT_GEOMETRY)
-    mesh->enqueue(queue, getWorldTransform());
+  {
+    if (mesh)
+      mesh->enqueue(queue, getWorldTransform());
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////

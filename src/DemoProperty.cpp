@@ -111,7 +111,8 @@ void PropertyKey::remove(void)
 
 Property::Property(Effect& initEffect, const String& initName):
   effect(initEffect),
-  name(initName)
+  name(initName),
+  mode(LINEAR)
 {
   if (std::find(effect.properties.begin(), effect.properties.end(), this) ==
       effect.properties.end())
@@ -126,6 +127,11 @@ Property::~Property(void)
 
   while (!keys.empty())
     delete keys.back();
+}
+
+Time Property::getSequenceStart(void) const
+{
+  return getSequenceStart(effect.getTimeElapsed());
 }
 
 Time Property::getSequenceStart(Time moment) const
@@ -145,6 +151,11 @@ Time Property::getSequenceStart(Time moment) const
     return keys.back()->getMoment();
 
   return keys[index - 1]->getMoment();
+}
+
+Time Property::getSequenceDuration(void) const
+{
+  return getSequenceDuration(effect.getTimeElapsed());
 }
 
 Time Property::getSequenceDuration(Time moment) const
@@ -169,6 +180,11 @@ Time Property::getSequenceDuration(Time moment) const
   return keys[index]->getMoment() - keys[index - 1]->getMoment();
 }
 
+unsigned int Property::getSequenceIndex(void) const
+{
+  return getSequenceIndex(effect.getTimeElapsed());
+}
+
 unsigned int Property::getSequenceIndex(Time moment) const
 {
   if (keys.empty())
@@ -186,6 +202,16 @@ unsigned int Property::getSequenceIndex(Time moment) const
     index--;
 
   return index;
+}
+
+Property::BlendMode Property::getBlendMode(void) const
+{
+  return mode;
+}
+
+void Property::setBlendMode(BlendMode newBlendMode)
+{
+  mode = newBlendMode;
 }
 
 Effect& Property::getEffect(void) const
