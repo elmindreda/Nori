@@ -668,10 +668,10 @@ bool StyleCodec::onBeginElement(const String& name)
 	  if (shaderProgramName.empty())
 	    return true;
 
-	  if (!GLEW_ARB_shading_language_100)
+	  GL::ShaderProgram* program = GL::ShaderProgram::readInstance(shaderProgramName);
+	  if (!program)
 	  {
-	    Log::writeWarning("GLSL not supported by current context; "
-	                      "skipping technique %u in render style %s",
+	    Log::writeWarning("Skipping technique %u in render style %s",
 	                      style->getTechniqueCount(),
 	                      style->getName().c_str());
 
@@ -679,10 +679,6 @@ bool StyleCodec::onBeginElement(const String& name)
 	    currentTechnique = NULL;
 	    return true;
 	  }
-
-	  GL::ShaderProgram* program = GL::ShaderProgram::readInstance(shaderProgramName);
-	  if (!program)
-	    return false;
 	  
 	  currentPass->setShaderProgram(program);
 	  return true;
