@@ -112,7 +112,7 @@ void realizeSpriteVertices(GL::Vertex2ft3fv* vertices,
   }
   else if (type == SPHERICAL_SPRITE)
   {
-    Vector3 direction = (camera - position).normalize();
+    Vector3 direction = (camera - position).normalized();
 
     Quaternion final;
     final.setVectorRotation(direction);

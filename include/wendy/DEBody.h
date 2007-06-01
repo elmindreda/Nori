@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenDE library
+// Wendy ODE library
 // Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -41,6 +41,29 @@ using namespace moira;
  */
 class Body
 {
+  friend class Shape;
+public:
+  Body(World& world);
+  ~Body(void);
+  void addForce(const Vector3& force);
+  void addForce(const Vector3& force, const Vector3& position);
+  void addTorque(const Vector3& torque);
+  bool isEnabled(void) const;
+  void setEnabled(bool newState);
+  Mass getMass(void) const;
+  void setMass(const Mass& newMass);
+  Vector3 getForce(void) const;
+  void setForce(const Vector3& newForce);
+  Vector3 getTorque(void) const;
+  void setTorque(const Vector3& newTorque);
+  Transform3 getTransform(void) const;
+  void setTransform(const Transform3& newTransform);
+  void setLinearVelocity(const Vector3& newVelocity);
+  void setAngularVelocity(const Vector3& newVelocity);
+  World& getWorld(void) const;
+private:
+  dBodyID bodyID;
+  World& world;
 };
 
 ///////////////////////////////////////////////////////////////////////

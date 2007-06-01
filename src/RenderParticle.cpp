@@ -425,7 +425,7 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& range,
 
     // TODO: Fix this (separate y-axis rotation and pivot)
 
-    Vector3 direction = (camera - particle.position).normalize();
+    Vector3 direction = (camera - particle.position).normalized();
 
     Quaternion final;
     final.setVectorRotation(direction);

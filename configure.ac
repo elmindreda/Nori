@@ -18,9 +18,11 @@ PKG_PROG_PKG_CONFIG
 # Check for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(errno.h)
+AC_CHECK_HEADERS(ode/ode.h, [], [AC_MSG_ERROR([ODE not found])])
 
 # Check for libraries.
 AC_CHECK_LIB([GLEW], [glewInit], [], [AC_MSG_ERROR([GLEW not found])])
+AC_CHECK_LIB([ode], [dWorldCreate], [], [AC_MSG_ERROR([ODE not found])])
 
 case $host in
   *-*-darwin* | *-*-macos10*)

@@ -51,12 +51,14 @@
  *  - @link wendy::render::Queue Render queue @endlink system with automatic
  *    opacity, distance and material sorting.
  *  - Basic @link scene scene graph @endlink management.
- *  - Hierarchial @link demo demo effect system @endlink with local time.
+ *  - Hierarchial @link demo demo effect system @endlink with local time,
+ *    animable properties and built-in real-time effect sequencer / editor.
  *  - Extensible @link ui user interface library @endlink and supporting 2D
  *    rendering interface.
  *  - @link opengl OpenGL wrapper API @endlink, providing automatic resource
  *    management and many useful helper classes, in case you need to implement
  *    custom rendering.
+ *  - @link opende ODE wrapper API.
  *
  *  @section license License
  *
@@ -85,6 +87,12 @@
 #include <wendy/Config.h>
 
 #include <wendy/Core.h>
+
+#include <wendy/OpenDE.h>
+#include <wendy/DEWorld.h>
+#include <wendy/DEMass.h>
+#include <wendy/DEBody.h>
+#include <wendy/DEWorld.h>
 
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>

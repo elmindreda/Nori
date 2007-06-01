@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenDE library
+// Wendy ODE library
 // Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -41,11 +41,16 @@ using namespace moira;
  */
 class World
 {
+  friend class Body;
 public:
   World(void);
   virtual ~World(void);
+  void update(Time deltaTime);
+  const Vector3& getGravity(void) const;
+  void setGravity(const Vector3& newGravity);
 private:
   dWorldID worldID;
+  Vector3 gravity;
 };
 
 ///////////////////////////////////////////////////////////////////////

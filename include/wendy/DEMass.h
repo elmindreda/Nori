@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenDE library
+// Wendy ODE library
 // Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_DEGEOMETRY_H
-#define WENDY_DEGEOMETRY_H
+#ifndef WENDY_DEMASS_H
+#define WENDY_DEMASS_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -37,10 +37,31 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+enum Axis
+{
+  AXIS_X = 1,
+  AXIS_Y = 2,
+  AXIS_Z = 3,
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @ingroup opende
  */
-class Geometry
+class Mass
 {
+public:
+  Mass(void);
+  void transformBy(const Transform3& transform);
+  Mass operator + (const Mass& other) const;
+  Mass& operator += (const Mass& other);
+  void setSphere(float density, float radius);
+  void setAAB(float density, const Vector3& size);
+  void setCapsule(float density, Axis axis, float length, float radius);
+  void setCylinder(float density, Axis axis, float length, float radius);
+  void setDefaults(void);
+private:
+  dMass value;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -49,5 +70,5 @@ class Geometry
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_DEGEOMETRY_H*/
+#endif /*WENDY_DEMASS_H*/
 ///////////////////////////////////////////////////////////////////////

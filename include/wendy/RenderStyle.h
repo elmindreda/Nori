@@ -58,7 +58,7 @@ public:
    *  @return The newly created render pass.
    *  @remarks The passes are rendered in creation order.
    *  @remarks Non-empty render pass names must be unique.
-   *  @remarks Named render passes will be ignored by the default render stage.
+   *  @remarks Named render passes will be ignored by the default render mechanisms.
    */
   GL::Pass& createPass(const String& name = "");
   void destroyPass(GL::Pass& pass);
@@ -114,11 +114,13 @@ class Style : public Resource<Style>, public RefObject<Style>
 {
 public:
   Style(const String& name = "");
+  Style(const Style& source);
   ~Style(void);
   Technique& createTechnique(const String& name = "");
   void destroyTechnique(Technique& technique);
   void destroyTechniques(void);
   Technique* findTechnique(const String& name);
+  Style& operator = (const Style& source);
   unsigned int getTechniqueCount(void) const;
   Technique& getTechnique(unsigned int index);
   const Technique& getTechnique(unsigned int index) const;

@@ -201,6 +201,12 @@ Style::Style(const String& name):
 {
 }
 
+Style::Style(const Style& source):
+  Resource<Style>("")
+{
+  operator = (source);
+}
+
 Style::~Style(void)
 {
   destroyTechniques();
@@ -250,6 +256,14 @@ Technique* Style::findTechnique(const String& name)
   }
 
   return NULL;
+}
+
+Style& Style::operator = (const Style& source)
+{
+  for (List::const_iterator i = source.techniques.begin();  i != source.techniques.end();  i++)
+    techniques.push_back(new Technique(**i));
+
+  return *this;
 }
 
 unsigned int Style::getTechniqueCount(void) const

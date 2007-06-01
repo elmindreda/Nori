@@ -22,17 +22,59 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_OPENDE_H
-#define WENDY_OPENDE_H
+#ifndef WENDY_DESHAPE_H
+#define WENDY_DESHAPE_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <ode/ode.h>
+namespace wendy
+{
+  namespace DE
+  {
+  
+///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup opende ODE wrapper API
- *
- *  These classes wrap parts of the ODE API.
+using namespace moira;
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup opende
  */
+class Shape
+{
+public:
+  virtual ~Shape(void);
+  bool isEnabled(void) const;
+  void setEnabled(bool newState);
+  unsigned long getCategoryBits(void) const;
+  void setCategoryBits(unsigned long newBits);
+  unsigned long getCollideBits(void) const;
+  void setCollideBits(unsigned long newBits);
+  Body* getBody(void) const;
+  void setBody(Body* newBody);
+  Transform3 getTransform(void) const;
+  void setTransform(const Transform3& newTransform);
+protected:
+  Shape(dGeomID geomID);
+  dGeomID geomID;
+};
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_OPENDE_H*/
+
+/*! @ingroup opende
+ */
+class SphereShape : public Shape
+{
+public:
+  SphereShape(float radius);
+  float getRadius(void) const;
+  void setRadius(float newRadius);
+};
+
+///////////////////////////////////////////////////////////////////////
+
+  } /*namespace DE*/
+} /*namespace wendy*/
+
+///////////////////////////////////////////////////////////////////////
+#endif /*WENDY_DESHAPE_H*/
 ///////////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy ODE library
+// Wendy OpenDE library
 // Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,17 +22,75 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_OPENDE_H
-#define WENDY_OPENDE_H
-///////////////////////////////////////////////////////////////////////
 
-#include <ode/ode.h>
+#include <moira/Moira.h>
 
-/*! @defgroup opende ODE wrapper API
- *
- *  These classes wrap parts of the ODE API.
- */
+#include <wendy/Config.h>
+#include <wendy/OpenDE.h>
+#include <wendy/DEMass.h>
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_OPENDE_H*/
+
+namespace wendy
+{
+  namespace DE
+  {
+  
+///////////////////////////////////////////////////////////////////////
+
+using namespace moira;
+
+///////////////////////////////////////////////////////////////////////
+
+Mass::Mass(void)
+{
+  setDefaults();
+}
+
+void Mass::transformBy(const Transform3& transform)
+{
+}
+
+Mass Mass::operator + (const Mass& other) const
+{
+  Mass result(*this);
+  result += other;
+  return result;
+}
+
+Mass& Mass::operator += (const Mass& other)
+{
+  dMassAdd(&value, &other.value);
+}
+
+void Mass::setSphere(float density, float radius)
+{
+  dMassSetSphere(&value, density, radius);
+}
+
+void Mass::setAAB(float density, const Vector3& size)
+{
+  dMassSetBox(&value, density, size.x, size.y, size.z);
+}
+
+void Mass::setCapsule(float density, Axis axis, float length, float radius)
+{
+  dMassSetCapsule(&value, density, axis, radius, length);
+}
+
+void Mass::setCylinder(float density, Axis axis, float length, float radius)
+{
+  dMassSetCylinder(&value, density, axis, radius, length);
+}
+
+void Mass::setDefaults(void)
+{
+  dMassSetZero(&value);
+}
+
+///////////////////////////////////////////////////////////////////////
+
+  } /*namespace DE*/
+} /*namespace wendy*/
+
 ///////////////////////////////////////////////////////////////////////

@@ -92,7 +92,7 @@ float Terrain::getHeight(const Vector2& position) const
   Vector3 corner = gridToWorld(Vector3(floorf(grid.x), 0.f, floorf(grid.z)));
   corner.y = tile.height;
   
-  const float D = -corner.dotProduct(normal);
+  const float D = -corner.dot(normal);
 
   const float height = -((normal.x * position.x + normal.z * position.y + D) / normal.y);
 

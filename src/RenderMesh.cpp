@@ -248,7 +248,7 @@ void ShadowMesh::update(const Vector3 origin)
       {
 	Vector3 eye = origin - vertices[triangle.vertices[0]];
 
-	if (triangle.normal.dotProduct(eye) > 0.f)
+	if (triangle.normal.dot(eye) > 0.f)
 	{
 	  // Generate front cap
 	  for (unsigned int k = 0;  k < 3;  k++)
@@ -449,7 +449,7 @@ bool ShadowMesh::init(const moira::Mesh& mesh)
                           vertices[triangle.vertices[0]];
       const Vector3 two = vertices[triangle.vertices[2]] -
                           vertices[triangle.vertices[0]];
-      triangle.normal = one.crossProduct(two);
+      triangle.normal = one.cross(two);
       triangle.normal.normalize();
 
       for (unsigned int k = 0;  k < 3;  k++)

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy ODE library
+// Wendy OpenDE library
 // Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,17 +22,56 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_OPENDE_H
-#define WENDY_OPENDE_H
-///////////////////////////////////////////////////////////////////////
 
-#include <ode/ode.h>
+#include <moira/Moira.h>
 
-/*! @defgroup opende ODE wrapper API
- *
- *  These classes wrap parts of the ODE API.
- */
+#include <wendy/Config.h>
+#include <wendy/OpenDE.h>
+#include <wendy/DEWorld.h>
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_OPENDE_H*/
+
+namespace wendy
+{
+  namespace DE
+  {
+  
+///////////////////////////////////////////////////////////////////////
+
+using namespace moira;
+
+///////////////////////////////////////////////////////////////////////
+
+World::World(void):
+  gravity(Vector3::ZERO)
+{
+  worldID = dWorldCreate();
+}
+
+World::~World(void)
+{
+  dWorldDestroy(worldID);
+}
+
+void World::update(Time deltaTime)
+{
+  dWorldStep(worldID, deltaTime);
+}
+
+const Vector3& World::getGravity(void) const
+{
+  return gravity;
+}
+
+void World::setGravity(const Vector3& newGravity)
+{
+  gravity = newGravity;
+  dWorldSetGravity(worldID, gravity.x, gravity.y, gravity.z);
+}
+
+///////////////////////////////////////////////////////////////////////
+
+  } /*namespace DE*/
+} /*namespace wendy*/
+
 ///////////////////////////////////////////////////////////////////////

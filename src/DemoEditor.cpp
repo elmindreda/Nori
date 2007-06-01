@@ -396,6 +396,7 @@ bool Editor::init(const String& showName)
 			"zlib - Copyright (c) 1995-1998 Jean-loup Gailly and Mark Adler\n"
 			"GLFW - Copyright (c) 2006-2007 Camilla Berglund\n"
 			"GLEW - Copyright (c) 2002-2006, Milan Ikits and Marcelo E. Magallon\n"
+			"ODE - Copyright (c) 2001-2004, Russell L. Smith\n"
                         "\n"
 			"Compiled " __TIME__ " on " __DATE__ "\n");
   }
