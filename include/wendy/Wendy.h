@@ -58,7 +58,7 @@
  *  - @link opengl OpenGL wrapper API @endlink, providing automatic resource
  *    management and many useful helper classes, in case you need to implement
  *    custom rendering.
- *  - @link opende ODE wrapper API.
+ *  - @link opende ODE @endlink wrapper API.
  *
  *  @section license License
  *
