@@ -80,7 +80,11 @@ public:
    *  @param newColor The desired color and opacity values.
    */
   void setColor(const ColorRGBA& newColor);
+  /*! @return The ascender for this font.
+   */
   float getAscender(void) const;
+  /*! @return The descender for this font.
+   */
   float getDescender(void) const;
   /*! @param text The text to measure.
    *  @return The bounding rectangle, in pixels, of the specified text as

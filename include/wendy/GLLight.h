@@ -48,10 +48,18 @@ using namespace moira;
 class Light : public RefObject<Light>, public Managed<Light>
 {
 public:
+  /*! Light type enumeration.
+   */
   enum Type
   {
+    /*! Light source is directional.
+     */
     DIRECTIONAL,
+    /*! Light source is a point light.
+     */
     POINT,
+    /*! Light source is a spotlight.
+     */
     SPOT,
   };
   Light(const String& name = "");

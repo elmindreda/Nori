@@ -153,13 +153,30 @@ private:
 class VertexRange
 {
 public:
+  /*! Constructor.
+   */
   VertexRange(void);
+  /*! Constructor.
+   */
   VertexRange(VertexBuffer& vertexBuffer, unsigned int start, unsigned int count);
+  /*! Renders this vertex range.
+   */
   void render(void) const;
+  /*! Locks this vertex range into memory and returns its address.
+   *  @return The base address of this vertex range, or @c NULL if an error occurred.
+   */
   void* lock(void) const;
+  /*! Unlocks this vertex range.
+   */
   void unlock(void) const;
+  /*! @return The vertex buffer underlying this vertex range.
+   */
   VertexBuffer* getVertexBuffer(void) const;
+  /*! @return The index of the first vertex in this vertex range.
+   */
   unsigned int getStart(void) const;
+  /*! @return The number of vertices in this vertex range.
+   */
   unsigned int getCount(void) const;
 private:
   VertexBuffer* vertexBuffer;
@@ -285,13 +302,30 @@ private:
 class IndexRange
 {
 public:
+  /*! Constructor.
+   */
   IndexRange(void);
+  /*! Constructor.
+   */
   IndexRange(IndexBuffer& indexBuffer, unsigned int start, unsigned int count);
+  /*! Renders this index range with the specied vertex buffer.
+   */
   void render(const VertexBuffer& vertexBuffer) const;
+  /*! Locks this index range into memory and returns its address.
+   *  @return The base address of this index range, or @c NULL if an error occurred.
+   */
   void* lock(void) const;
+  /*! Unlocks this index range.
+   */
   void unlock(void) const;
+  /*! @return The index buffer underlying this index range.
+   */
   IndexBuffer* getIndexBuffer(void) const;
+  /*! @return The index of the first index in this index range.
+   */
   unsigned int getStart(void) const;
+  /*! @return The number of indices in this index range.
+   */
   unsigned int getCount(void) const;
 private:
   IndexBuffer* indexBuffer;

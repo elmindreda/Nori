@@ -124,7 +124,6 @@ ParticleAffector& ParticleAffector::operator = (const ParticleAffector& source)
 ParticleSystem::ParticleSystem(const String& name):
   Managed<ParticleSystem>(name),
   updateBounds(true),
-  particleSize(1.f, 1.f),
   currentTime(0.0),
   periodType(VARIABLE_PERIOD)
 {
@@ -261,16 +260,6 @@ void ParticleSystem::setParticleCount(unsigned int newCount)
       passiveParticles.push_front(i);
     }
   }
-}
-
-const Vector2& ParticleSystem::getParticleSize(void) const
-{
-  return particleSize;
-}
-
-void ParticleSystem::setParticleSize(const Vector2& newSize)
-{
-  particleSize = newSize;
 }
 
 Time ParticleSystem::getTimeElapsed(void) const
@@ -417,13 +406,13 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& range,
   if (!vertices)
     return false;
 
-  const Vector2 offset(particleSize.x / 2.f, particleSize.y / 2.f);
-
   for (ParticlePool::const_iterator i = activeParticles.begin();  i != activeParticles.end();  i++)
   {  
     const Particle& particle = particles[*i];
 
     // TODO: Fix this (separate y-axis rotation and pivot)
+
+    const Vector2 offset(particle.size.x / 2.f, particle.size.y / 2.f);
 
     Vector3 direction = (camera - particle.position).normalized();
 
@@ -507,12 +496,15 @@ void DefaultParticleEmitter::restart(void)
 void DefaultParticleEmitter::createParticle(Particle& particle,
 		                            unsigned int particleIndex)
 {
+  const float size = sizeRange.generate();
+
   particle.color = colorRange.generate();
   particle.position = originVolume.generate();
   particle.velocity = Vector3(0.f, velocityRange.generate(), 0.f);
   particle.duration = durationRange.generate();
   particle.elapsed = 0.f;
   particle.angle = 0.f;
+  particle.size.set(size, size);
 
   getSystem()->getTransform().transformVector(particle.position);
 
@@ -583,6 +575,16 @@ const RandomVolume& DefaultParticleEmitter::getOriginVolume(void) const
 void DefaultParticleEmitter::setOriginVolume(const RandomVolume& newVolume)
 {
   originVolume = newVolume;
+}
+
+const RandomRange& DefaultParticleEmitter::getSizeRange(void) const
+{
+  return sizeRange;
+}
+
+void DefaultParticleEmitter::setSizeRange(const RandomRange& newRange)
+{
+  sizeRange = newRange;
 }
 
 ///////////////////////////////////////////////////////////////////////

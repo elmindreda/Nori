@@ -260,6 +260,10 @@ bool Editor::init(const String& showName)
     button->getPushedSignal().connect(*this, &Editor::onCreateEffect);
     commandLayout->addChild(*button);
 
+    button = new UI::Button("Destroy All Effects");
+    button->getPushedSignal().connect(*this, &Editor::onDestroyAllEffects);
+    commandLayout->addChild(*button);
+
     UI::Label* label;
     
     label = new UI::Label("Effect Name");
@@ -485,6 +489,10 @@ void Editor::onCreateEffect(UI::Button& button)
     return;
 
   timeline->createEffect(*type);
+}
+
+void Editor::onDestroyAllEffects(UI::Button& button)
+{
 }
 
 void Editor::onZoomChanged(UI::Slider& slider)

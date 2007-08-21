@@ -58,7 +58,8 @@ public:
   void request(Config& config);
   SignalProxy0<void> getRenderSignal(void);
 private:
-  void onButtonPushed(UI::Button& button);
+  void onDemo(UI::Button& button);
+  void onDie(UI::Button& button);
   Signal0<void> renderSignal;
   UI::Popup* modes;
 };

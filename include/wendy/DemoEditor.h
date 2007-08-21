@@ -68,7 +68,7 @@ private:
   void onRewind(UI::Button& button);
   void onPauseResume(UI::Button& button);
   void onCreateEffect(UI::Button& button);
-  void onDestroyEffect(UI::Button& button);
+  void onDestroyAllEffects(UI::Button& button);
   void onZoomChanged(UI::Slider& slider);
   void onResized(unsigned int width, unsigned int height);
   void onKeyPressed(GL::Key key, bool pressed);

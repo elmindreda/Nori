@@ -94,6 +94,14 @@ SignalProxy0<void> ConfigDialog::getRenderSignal(void)
   return renderSignal;
 }
 
+void ConfigDialog::onDemo(UI::Button& button)
+{
+}
+
+void ConfigDialog::onDie(UI::Button& button)
+{
+}
+
 ///////////////////////////////////////////////////////////////////////
 
   } /*namespace demo*/

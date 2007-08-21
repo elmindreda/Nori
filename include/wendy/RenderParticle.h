@@ -70,6 +70,9 @@ public:
   /*! The amount of time, in seconds, that this particle has been alive.
    */
   Time elapsed;
+  /*! The 2D size, in units, of the particle.
+   */
+  Vector2 size;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -182,33 +185,88 @@ public:
     FIXED_PERIOD,
     VARIABLE_PERIOD,
   };
+  /*! Constructor.
+   */
   ParticleSystem(const String& name = "");
+  /*! Destructor.
+   */
   ~ParticleSystem(void);
   void enqueue(Queue& queue, const Transform3& transform) const;
+  /*! Adds the specified emitter to this particle system.
+   *  @param[in] emitter The emitter to add.
+   */
   void addEmitter(ParticleEmitter& emitter);
+  /*! Removes the specified emitter from this particle system.
+   *  @param[in] emitter The emitter to remove.
+   */
   void removeEmitter(ParticleEmitter& emitter);
+  /*! Adds the specified affector to this particle system.
+   *  @param[in] affector The affector to add.
+   */
   void addAffector(ParticleAffector& affector);
+  /*! Removes the specified affector from this particle system.
+   *  @param[in] affector The affector to remove.
+   */
   void removeAffector(ParticleAffector& affector);
+  /*! @return @c true if this system ensures its bounds contain all active
+   *  particles on each update.
+   */
   bool isUpdatingBounds(void) const;
+  /*! Sets whether this system ensures its bounds contain all active particles
+   *  on each update.
+   *  @param[in] newState @c true to activate bounds updating, or @c false to
+   *  deactivate it.
+   */
   void setUpdatesBounds(bool newState);
+  /*! @return The bounds of this particle system.
+   */
   const Sphere& getBounds(void) const;
+  /*! @return The number of particles in this particle system.
+   */
   unsigned int getParticleCount(void) const;
+  /*! Sets the specified number of particles in this particle system.
+   *  @param[in] newCount The desired number of particles.
+   */
   void setParticleCount(unsigned int newCount);
-  const Vector2& getParticleSize(void) const;
-  void setParticleSize(const Vector2& newSize);
+  /*! @return The time elapsed, in seconds, since this particle system was
+   *  started.
+   */
   Time getTimeElapsed(void) const;
+  /*! Sets the total time elapsed, in seconds, for this particle system.
+   */
   void setTimeElapsed(Time newTime);
+  /*! @return The update period type of this particle system.
+   */
   PeriodType getPeriodType(void) const;
+  /*! Sets the update period type of this particle system.
+   *  @param[in] newType The desired update period type.
+   */
   void setPeriodType(PeriodType newType);
+  /*! @return The render style of this particle system.
+   */
   Style* getStyle(void) const;
+  /*! Sets the render style of this particle system.
+   *  @param[in] newStyle The desired render style.
+   */
   void setStyle(Style* newStyle);
+  /*! @return The local-to-world transform of this particle system.
+   */
   const Transform3& getTransform(void) const;
+  /*! Sets the local-to-world transform of this particle system.
+   *  @param[in] newTransform The desired local-to-world transform.
+   */
   void setTransform(const Transform3& newTransform);
 protected:
+  /*! Called for each particle added to this particle system.
+   */
   virtual void addedParticle(Particle& particle,
                              unsigned int particleIndex);
+  /*! Called for each particle remove from this particle system.
+   */
   virtual void removedParticle(Particle& particle,
                                unsigned int particleIndex);
+  /*! Called when the elapsed time for this particle system is reset.
+   */
   virtual void restart(void);
   typedef std::vector<Particle> ParticleList;
   typedef std::list<unsigned int> ParticlePool;
@@ -226,7 +284,6 @@ private:
   bool updateBounds;
   Time currentTime;
   Ref<Style> style;
-  Vector2 particleSize;
   PeriodType periodType;
   Transform3 transform;
   Sphere bounds;
@@ -256,6 +313,8 @@ public:
   void setAngleRange(const RandomRange& newRange);
   const RandomVolume& getOriginVolume(void) const;
   void setOriginVolume(const RandomVolume& newVolume);
+  const RandomRange& getSizeRange(void) const;
+  void setSizeRange(const RandomRange& newRange);
 private:
   float rate;
   float fraction;
@@ -264,6 +323,7 @@ private:
   RandomRange durationRange;
   RandomRange angleRange;
   RandomVolume originVolume;
+  RandomRange sizeRange;
 };
 
 ///////////////////////////////////////////////////////////////////////
