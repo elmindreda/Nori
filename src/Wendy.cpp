@@ -62,7 +62,10 @@ bool initialize(void)
     return false;
 
   if (!glfwInit())
+  {
+    Log::writeError("Failed to initialize GLFW");
     return false;
+  }
 
   vertexShaderCodec = new GL::VertexShaderCodec();
   fragmentShaderCodec = new GL::FragmentShaderCodec();
