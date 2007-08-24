@@ -14,5 +14,7 @@ include_directories(include)
 
 add_subdirectory(src)
 add_subdirectory(examples/editor)
+add_subdirectory(examples/fonts)
 add_subdirectory(examples/simple)
+add_subdirectory(examples/widgets)
 
