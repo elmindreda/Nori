@@ -2,8 +2,8 @@ project(wendy)
 
 include(UsePkgConfig)
 
-find_package(OpenAL)
-find_package(OpenGL)
+find_package(OpenAL REQUIRED)
+find_package(OpenGL REQUIRED)
 
 find_library(GLEW_LIBRARY GLEW)
 
