@@ -61,6 +61,8 @@ bool initialize(void)
   if (!moira::initialize())
     return false;
 
+  atexit(shutdown);
+
   if (!glfwInit())
   {
     Log::writeError("Failed to initialize GLFW");
