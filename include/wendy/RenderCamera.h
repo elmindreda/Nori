@@ -88,22 +88,22 @@ public:
   /*! Sets the field of view for this camera.
    *  @param newFOV The desired field of view, in degrees.
    *
-   *  @remarks You cannot call this on the current camera.
+   *  @remarks You must not call this on the current camera.
    */
   void setFOV(float newFOV);
   /*! Sets the aspect ratio of this camera.
    *  @param[in] newAspectRatio The desired aspect ratio, or zero to
    *  automatically calculate the aspect ratio from the physical dimensions of
-   *  the current render target.
+   *  the current render target each time this camera is made current.
    *
-   *  @remarks You cannot call this on the current camera.
+   *  @remarks You must not call this on the current camera.
    */
   void setAspectRatio(float newAspectRatio);
   /*! Sets the position of the near and far clip planes.
    *  @param[in] newMinDepth The distance to the near clip plane.
    *  @param[in] newMaxDepth The distance to the far clip plane.
    *
-   *  @remarks You cannot call this on the current camera.
+   *  @remarks You must not call this on the current camera.
    */
   void setDepthRange(float newMinDepth, float newMaxDepth);
   /*! @return The transform for this camera.
