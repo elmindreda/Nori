@@ -11,7 +11,6 @@ bool onRender(void)
 {
   GL::ScreenCanvas canvas;
 
-  canvas.setViewportArea(Rectangle(0.f, 0.5f, 0.5f, 0.5f));
   canvas.begin();
   canvas.clearColorBuffer(ColorRGBA(1.f, 0.f, 0.f, 0.f));
   canvas.end();
