@@ -392,7 +392,7 @@ bool Editor::init(const String& showName)
     UI::Label* aboutLabel = new UI::Label();
     mainLayout->addChild(*aboutLabel, 0.f);
 
-    aboutLabel->setText("The Wendy demo system, version " WENDY_PACKAGE_VERSION "\n"
+    aboutLabel->setText("The Wendy demo system, version " WENDY_VERSION "\n"
                         "Copyright (c) 2007 Camilla Berglund <elmindreda@users.sourceforge.net>\n"
 			"\n"
 			"expat - Copyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd and Clark Cooper\n"
