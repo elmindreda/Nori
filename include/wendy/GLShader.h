@@ -124,6 +124,8 @@ public:
     FLOAT_MAT3 = GL_FLOAT_MAT3_ARB,
     FLOAT_MAT4 = GL_FLOAT_MAT4_ARB,
   };
+  /*! @return @c true if this attribute is an array, otherwise @c false.
+   */
   bool isArray(void) const;
   /*! @return @c true if this attribute is a vector, otherwise @c false.
    */
@@ -138,6 +140,8 @@ public:
    */
   const String& getName(void) const;
   unsigned int getIndex(void) const;
+  /*! @return The number of elements in this array, or 1 if it is not an array.
+   */
   unsigned int getElementCount(void) const;
   /*! @return The GLSL program permutation that contains this attribute.
    */

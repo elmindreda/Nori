@@ -12,16 +12,26 @@ namespace
 bool setup(void)
 {
   if (!GL::Renderer::create())
+  {
+    Log::writeError("Unable to create OpenGL renderer");
     return false;
+  }
 
   if (!UI::Renderer::create())
+  {
+    Log::writeError("Unable to create UI renderer");
     return false;
+  }
 
   new demo::EffectTemplate<CubeEffect>("Shader cube");
 
   if (!demo::Editor::create("editor"))
+  {
+    Log::writeError("Unable to create demo editor");
     return false;
+  }
 
+  demo::Editor::get()->setVisible(true);
   return true;
 }
 
@@ -105,7 +115,10 @@ int main(int argc, char** argv)
     GL::Context::destroy();
   }
   else
+  {
     Log::writeError("Punt");
+    exit(1);
+  }
 
   wendy::shutdown();
   exit(0);

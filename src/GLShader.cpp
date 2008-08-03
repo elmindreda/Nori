@@ -31,6 +31,7 @@
 #include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
 
+#include <cstring>
 #include <sstream>
 
 ///////////////////////////////////////////////////////////////////////
@@ -752,7 +753,7 @@ bool ShaderPermutation::createUniforms(void)
       continue;
     }
 
-    if (length > 3 && strncmp((const char*) uniformName.getData(), "gl_", 3) == 0)
+    if (length > 3 && std::strncmp((const char*) uniformName.getData(), "gl_", 3) == 0)
       continue;
 
     std::vector<GLint> locations;
@@ -844,7 +845,7 @@ bool ShaderPermutation::createAttributes(void)
       continue;
     }
 
-    if (length > 3 && strncmp((const char*) attributeName.getData(), "gl_", 3) == 0)
+    if (length > 3 && std::strncmp((const char*) attributeName.getData(), "gl_", 3) == 0)
       continue;
 
     GLint location = glGetAttribLocation(programID, (GLcharARB*) attributeName.getData());
