@@ -8,6 +8,6 @@ Description: C++ demo/game engine
 Version: @VERSION@
 URL: http://www.elmindreda.org/wendy/
 Requires: libmoira >= 0.6.0 libglfw >= 2.6
-Libs: -L${libdir} -lwendy @LIBS@
+Libs: -L${libdir} -lwendy -lglew
 Cflags: -I${includedir}
 
