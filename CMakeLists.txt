@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 2.4)
+cmake_minimum_required(VERSION 2.6)
 
-project(wendy CXX)
+project(wendy C CXX)
 set(VERSION 0.6.0)
 
 if(COMMAND cmake_policy)
