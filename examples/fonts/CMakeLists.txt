@@ -1,5 +1,5 @@
 add_executable(fonts WIN32 MACOSX_BUNDLE fonts.cpp)
-target_link_libraries(fonts wendy ${WENDY_LIBRARIES})
+target_link_libraries(fonts libwendy ${WENDY_LIBRARIES})
 
 #set(data default.font default.png)
 #set_target_properties(fonts PROPERTIES RESOURCE ${data})
