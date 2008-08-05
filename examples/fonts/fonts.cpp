@@ -66,20 +66,6 @@ bool Demo::render(void)
   font->setColor(ColorRGBA::WHITE);
   font->drawText(text);
 
-  Rectangle area = font->getTextMetrics(text);
-
-  GL::Pass pass;
-  pass.setPolygonMode(GL_LINE);
-  pass.setDefaultColor(ColorRGBA::WHITE);
-  pass.apply();
-
-  glRectf(area.position.x, area.position.y, area.position.x + area.size.x, area.position.y + area.size.y);
-
-  glBegin(GL_LINES);
-  glVertex2f(0.f, pen.y);
-  glVertex2f(canvas.getPhysicalWidth(), pen.y);
-  glEnd();
-
   GL::Renderer::get()->end();
 
   canvas.end();

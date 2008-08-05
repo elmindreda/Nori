@@ -158,6 +158,9 @@ public:
   VertexRange(void);
   /*! Constructor.
    */
+  VertexRange(VertexBuffer& vertexBuffer);
+  /*! Constructor.
+   */
   VertexRange(VertexBuffer& vertexBuffer, unsigned int start, unsigned int count);
   /*! Renders this vertex range.
    */
@@ -305,6 +308,9 @@ public:
   /*! Constructor.
    */
   IndexRange(void);
+  /*! Constructor.
+   */
+  IndexRange(IndexBuffer& indexBuffer);
   /*! Constructor.
    */
   IndexRange(IndexBuffer& indexBuffer, unsigned int start, unsigned int count);
