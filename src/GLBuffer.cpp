@@ -358,6 +358,15 @@ VertexRange::VertexRange(void):
 {
 }
 
+VertexRange::VertexRange(VertexBuffer& initVertexBuffer):
+  vertexBuffer(&initVertexBuffer),
+  start(0),
+  count(0)
+{
+  if (vertexBuffer)
+    count = vertexBuffer->getCount();
+}
+
 VertexRange::VertexRange(VertexBuffer& initVertexBuffer,
                          unsigned int initStart,
                          unsigned int initCount):
@@ -633,6 +642,15 @@ IndexRange::IndexRange(void):
   start(0),
   count(0)
 {
+}
+
+IndexRange::IndexRange(IndexBuffer& initIndexBuffer):
+  indexBuffer(&initIndexBuffer),
+  start(0),
+  count(0)
+{
+  if (indexBuffer)
+    count = indexBuffer->getCount();
 }
 
 IndexRange::IndexRange(IndexBuffer& initIndexBuffer,
