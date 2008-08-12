@@ -52,7 +52,7 @@ public:
   virtual const String& asString(void) const;
   virtual void setStringValue(const String& newValue);
 protected:
-  virtual void draw(const Rectangle& area, bool selected) const;
+  virtual void draw(const Rectangle& area, WidgetState state) const;
 private:
   String value;
   unsigned int ID;
@@ -75,7 +75,7 @@ public:
   float getWidth(void) const;
   float getHeight(void) const;
 protected:
-  void draw(const Rectangle& area, bool selected) const;
+  void draw(const Rectangle& area, WidgetState state) const;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -92,7 +92,7 @@ public:
   float getHeight(void) const;
   GL::Texture& getTexture(void) const;
 protected:
-  void draw(const Rectangle& area, bool selected) const;
+  void draw(const Rectangle& area, WidgetState state) const;
 private:
   Ref<GL::Texture> texture;
 };

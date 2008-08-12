@@ -195,7 +195,7 @@ void Menu::draw(void) const
       itemArea.position.y += itemTop - height;
       itemArea.size.y = height;
 
-      (*i)->draw(itemArea, index == selection);
+      (*i)->draw(itemArea, index == selection ? STATE_SELECTED : STATE_NORMAL);
 
       itemTop -= height;
       index++;

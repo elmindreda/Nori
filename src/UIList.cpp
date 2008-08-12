@@ -246,7 +246,7 @@ void List::draw(void) const
       itemArea.position.y += start - height;
       itemArea.size.y = height;
 
-      item.draw(itemArea, i == selection);
+      item.draw(itemArea, i == selection ? STATE_SELECTED : STATE_NORMAL);
 
       start -= height;
     }

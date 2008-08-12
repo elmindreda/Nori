@@ -354,6 +354,22 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+class TextureCodec : public ResourceCodec<Texture>, public XML::Codec
+{
+public:
+  TextureCodec(void);
+  Texture* read(const Path& path, const String& name = "");
+  Texture* read(Stream& stream, const String& name = "");
+  bool write(const Path& path, const Texture& texture);
+  bool write(Stream& stream, const Texture& texture);
+private:
+  bool onBeginElement(const String& name);
+  bool onEndElement(const String& name);
+  Ptr<Texture> texture;
+};
+
+///////////////////////////////////////////////////////////////////////
+
   } /*namespace GL*/
 } /*namespace wendy*/
 

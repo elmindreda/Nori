@@ -9,8 +9,8 @@ endif(COMMAND cmake_policy)
 
 include(FindPkgConfig)
 
-pkg_check_modules(MOIRA REQUIRED libmoira>=0.6.0)
-list(APPEND WENDY_LIBRARIES ${MOIRA_LIBRARIES})
+pkg_check_modules(moira REQUIRED libmoira>=0.6.0)
+list(APPEND WENDY_LIBRARIES ${moira_LIBRARIES})
 
 find_library(GLEW_LIBRARY GLEW)
 if(${GLEW_LIBRARY} EQUAL "GLEW_LIBRARY-NOTFOUND")

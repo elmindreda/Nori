@@ -119,8 +119,12 @@ public:
   void popClipArea(void);
   void drawText(const Rectangle& area,
                 const String& text,
+		const Alignment& alignment,
+		const ColorRGB& color);
+  void drawText(const Rectangle& area,
+                const String& text,
 		const Alignment& alignment = Alignment(),
-		bool selected = false);
+		WidgetState state = STATE_NORMAL);
   void drawWell(const Rectangle& area, WidgetState state);
   void drawFrame(const Rectangle& area, WidgetState state);
   void drawHandle(const Rectangle& area, WidgetState state);
@@ -132,6 +136,7 @@ public:
   const ColorRGB& getSelectedTextColor(void);
   render::Font* getDefaultFont(void);
   render::Font* getCurrentFont(void);
+  void setCurrentFont(render::Font* newFont);
   float getDefaultEM(void) const;
   float getCurrentEM(void) const;
   static bool create(void);
@@ -145,7 +150,7 @@ private:
   ColorRGB selectionColor;
   ColorRGB selectedTextColor;
   Ref<render::Font> defaultFont;
-  render::Font* currentFont;
+  Ref<render::Font> currentFont;
 };
 
 ///////////////////////////////////////////////////////////////////////

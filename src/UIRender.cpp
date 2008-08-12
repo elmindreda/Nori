@@ -95,7 +95,7 @@ void Renderer::popClipArea(void)
 void Renderer::drawText(const Rectangle& area,
                         const String& text,
 		        const Alignment& alignment,
-			bool selected)
+		        const ColorRGB& color)
 {
   Rectangle metrics = currentFont->getTextMetrics(text);
 
@@ -135,13 +135,38 @@ void Renderer::drawText(const Rectangle& area,
       return;
   }
 
-  if (selected)
-    currentFont->setColor(ColorRGBA(selectedTextColor, 1.f));
-  else
-    currentFont->setColor(ColorRGBA(textColor, 1.f));
-
+  currentFont->setColor(ColorRGBA(color, 1.f));
   currentFont->setPenPosition(penPosition);
   currentFont->drawText(text);
+}
+
+void Renderer::drawText(const Rectangle& area,
+                        const String& text,
+		        const Alignment& alignment,
+			WidgetState state)
+{
+  switch (state)
+  {
+    case STATE_DISABLED:
+      drawText(area, text, alignment, textColor);
+      break;
+
+    case STATE_NORMAL:
+      drawText(area, text, alignment, textColor);
+      break;
+
+    case STATE_ACTIVE:
+      drawText(area, text, alignment, textColor);
+      break;
+
+    case STATE_SELECTED:
+      drawText(area, text, alignment, selectedTextColor);
+      break;
+
+    default:
+      Log::writeError("Invalid widget state %u", state);
+      break;
+  }
 }
 
 void Renderer::drawWell(const Rectangle& area, WidgetState state)
@@ -276,6 +301,14 @@ float Renderer::getCurrentEM(void) const
   return currentFont->getHeight();
 }
 
+void Renderer::setCurrentFont(render::Font* newFont)
+{
+  if (newFont)
+    currentFont = newFont;
+  else
+    currentFont = defaultFont;
+}
+
 bool Renderer::create(void)
 {
   Ptr<Renderer> renderer = new Renderer();
@@ -286,8 +319,7 @@ bool Renderer::create(void)
   return true;
 }
 
-Renderer::Renderer(void):
-  currentFont(NULL)
+Renderer::Renderer(void)
 {
   static bool initialized = false;
 

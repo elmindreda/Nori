@@ -26,14 +26,6 @@
 #define WENDY_GLCONTEXT_H
 ///////////////////////////////////////////////////////////////////////
 
-namespace moira
-{
-  class Rectangle;
-  class Image;
-}
-
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
   namespace GL
@@ -178,7 +170,7 @@ public:
    */
   bool update(void);
   /*! Finds the entry point with the specified name.
-   *  @param name The name of the entry point.
+   *  @param[in] name The name of the entry point.
    *  @return The address of the specified entry point, or @c NULL.
    */
   EntryPoint findEntryPoint(const String& name);
@@ -186,15 +178,15 @@ public:
    */
   bool isWindowed(void) const;
   /*! @return @c true if the specified key is pressed, otherwise @c false.
-   *  @param key The desired key.
+   *  @param[in] key The desired key.
    */
   bool isKeyDown(const Key& key) const;
   /*! @return @c true if the specified mouse button is pressed, otherwise @c false.
-   *  @param button The desired mouse button.
+   *  @param[in] button The desired mouse button.
    */
   bool isButtonDown(unsigned int button) const;
   /*! Checks for the presence of the specified extension.
-   *  @param name The name of the desired extension.
+   *  @param[in] name The name of the desired extension.
    *  @return @c true if the extension is present, otherwise @c false.
    */
   bool hasExtension(const String& name) const;
@@ -220,7 +212,7 @@ public:
    */
   const String& getTitle(void) const;
   /*! Sets the title of the context window.
-   *  @param newTitle The desired title.
+   *  @param[in] newTitle The desired title.
    */
   void setTitle(const String& newTitle);
   /*! @return The current mouse position.
@@ -258,7 +250,7 @@ public:
     */
   SignalProxy1<void, int> getWheelTurnedSignal(void);
   /*! Creates the context singleton object, using the specified settings.
-    *  @param mode The requested context settings.
+    *  @param[in] mode The requested context settings.
     *  @return @c true if successful, or @c false otherwise.
     */
   static bool create(const ContextMode& mode);
@@ -269,7 +261,7 @@ public:
    */
   static SignalProxy0<void> getDestroySignal(void);
   /*! Retrieves the supported screen modes.
-   *  @param result The supported modes.
+   *  @param[out] result The supported modes.
    */
   static void getScreenModes(ScreenModeList& result);
 private:
