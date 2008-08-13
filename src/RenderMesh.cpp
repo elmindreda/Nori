@@ -139,14 +139,8 @@ bool Mesh::init(const moira::Mesh& mesh)
   if (!vertexBuffer)
     return false;
 
-  MeshVertex* vertices = (MeshVertex*) vertexBuffer->lock();
-  if (!vertices)
-    return false;
-
-  for (unsigned int i = 0;  i < mesh.vertices.size();  i++)
-    *vertices++ = mesh.vertices[i];
-
-  vertexBuffer->unlock();
+  // NOTE: This may not be portable to really weird platforms.
+  vertexBuffer->copyFrom(&mesh.vertices[0], mesh.vertices.size());
 
   indexBuffer = GL::IndexBuffer::createInstance(indexCount, GL::IndexBuffer::UINT);
   if (!indexBuffer)
