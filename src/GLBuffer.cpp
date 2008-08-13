@@ -139,7 +139,7 @@ void VertexBuffer::apply(void) const
 
   const VertexComponent* component;
 
-  component = format.findComponent(VertexComponent::VERTEX);
+  component = format.findComponent(VertexComponent::POSITION);
   if (component)
   {
     glEnableClientState(GL_VERTEX_ARRAY);

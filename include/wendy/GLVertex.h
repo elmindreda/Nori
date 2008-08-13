@@ -62,7 +62,7 @@ public:
   {
     /*! Component is a vertex position.
      */
-    VERTEX,
+    POSITION,
     /*! Component is a texture coordinate.
      */
     TEXCOORD,
@@ -157,6 +157,7 @@ public:
   bool operator != (const VertexFormat& other) const;
   size_t getSize(void) const;
   unsigned int getComponentCount(void) const;
+  String getSpecification(void) const;
 private:
   typedef std::vector<VertexComponent> ComponentList;
   ComponentList components;

@@ -29,7 +29,8 @@
 #include <wendy/OpenGL.h>
 #include <wendy/GLVertex.h>
 
-#include <ctype.h>
+#include <cctype>
+#include <sstream>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -195,7 +196,7 @@ bool VertexFormat::createComponents(const std::string& specification)
     switch (tolower(*command++))
     {
       case 'v':
-	kind = VertexComponent::VERTEX;
+	kind = VertexComponent::POSITION;
 	break;
       case 't':
 	kind = VertexComponent::TEXCOORD;
@@ -263,6 +264,59 @@ size_t VertexFormat::getSize(void) const
 unsigned int VertexFormat::getComponentCount(void) const
 {
   return (unsigned int) components.size();
+}
+
+String VertexFormat::getSpecification(void) const
+{
+  std::stringstream result;
+
+  for (ComponentList::const_iterator i = components.begin();  i != components.end();  i++)
+  {
+    result << (*i).count;
+
+    switch ((*i).type)
+    {
+      case VertexComponent::DOUBLE:
+	result << 'd';
+	break;
+      case VertexComponent::FLOAT:
+	result << 'f';
+	break;
+      case VertexComponent::INT:
+	result << 'i';
+	break;
+      case VertexComponent::SHORT:
+	result << 's';
+	break;
+      default:
+	Log::writeError("Invalid vertex component type %u", (*i).type);
+	break;
+    }
+
+    switch ((*i).kind)
+    {
+      case VertexComponent::POSITION:
+	result << 'v';
+	break;
+      case VertexComponent::TEXCOORD:
+	result << 't';
+	break;
+      case VertexComponent::COLOR:
+	result << 'c';
+	break;
+      case VertexComponent::NORMAL:
+	result << 'n';
+	break;
+      case VertexComponent::GENERIC:
+	result << 'a';
+	break;
+      default:
+	Log::writeError("Invalid vertex component kind %u", (*i).kind);
+	break;
+    }
+  }
+
+  result.str();
 }
 
 ///////////////////////////////////////////////////////////////////////
