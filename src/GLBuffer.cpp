@@ -56,6 +56,23 @@ size_t getTypeSize(IndexBuffer::Type type)
     case IndexBuffer::UBYTE:
       return sizeof(GLubyte);
     default:
+      Log::writeError("Invalid index buffer type %u", type);
+      return 0;
+  }
+}
+
+GLenum getAccessPolicy(LockType type)
+{
+  switch (type)
+  {
+    case LOCK_READ_ONLY:
+      return GL_READ_ONLY_ARB;
+    case LOCK_WRITE_ONLY:
+      return GL_WRITE_ONLY_ARB;
+    case LOCK_READ_WRITE:
+      return GL_READ_WRITE_ARB;
+    default:
+      Log::writeError("Invalid lock type %u", type);
       return 0;
   }
 }
@@ -193,7 +210,7 @@ void VertexBuffer::render(unsigned int mode,
   glDrawArrays(mode, start, count);
 }
 
-void* VertexBuffer::lock(void)
+void* VertexBuffer::lock(LockType type)
 {
   if (locked)
   {
@@ -208,7 +225,7 @@ void* VertexBuffer::lock(void)
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
 
-    mapping = glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_READ_WRITE_ARB);
+    mapping = glMapBufferARB(GL_ARRAY_BUFFER_ARB, getAccessPolicy(type));
 
     glPopClientAttrib();
 
@@ -245,6 +262,48 @@ void VertexBuffer::unlock(void)
   }
 
   locked = false;
+}
+
+void VertexBuffer::copyFrom(const void* source, size_t sourceSize, size_t offset)
+{
+  if (locked)
+  {
+    Log::writeError("Cannot copy data into locked vertex buffer");
+    return;
+  }
+
+  if (GLEW_ARB_vertex_buffer_object)
+  {
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+    glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
+
+    glBufferSubData(GL_ARRAY_BUFFER_ARB, offset, sourceSize, source);
+
+    glPopClientAttrib();
+  }
+  else
+    data.copyFrom(reinterpret_cast<const Byte*>(source), sourceSize, offset);
+}
+
+void VertexBuffer::copyTo(void* target, size_t targetSize, size_t offset)
+{
+  if (locked)
+  {
+    Log::writeError("Cannot copy data from locked vertex buffer");
+    return;
+  }
+
+  if (GLEW_ARB_vertex_buffer_object)
+  {
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+    glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
+
+    glGetBufferSubData(GL_ARRAY_BUFFER_ARB, offset, targetSize, target);
+
+    glPopClientAttrib();
+  }
+  else
+    data.copyTo(reinterpret_cast<Byte*>(target), targetSize, offset);
 }
 
 VertexBuffer::Usage VertexBuffer::getUsage(void) const
@@ -397,7 +456,7 @@ void VertexRange::render(void) const
   vertexBuffer->render(start, count);
 }
 
-void* VertexRange::lock(void) const
+void* VertexRange::lock(LockType type) const
 {
   if (!vertexBuffer || count == 0)
   {
@@ -405,7 +464,7 @@ void* VertexRange::lock(void) const
     return NULL;
   }
 
-  Byte* vertices = (Byte*) vertexBuffer->lock();
+  Byte* vertices = (Byte*) vertexBuffer->lock(type);
   if (!vertices)
     return NULL;
 
@@ -481,7 +540,7 @@ void IndexBuffer::render(const VertexBuffer& vertexBuffer,
   glDrawElements(mode, count, type, base + getTypeSize(type) * start);
 }
 
-void* IndexBuffer::lock(void)
+void* IndexBuffer::lock(LockType type)
 {
   if (locked)
   {
@@ -496,7 +555,7 @@ void* IndexBuffer::lock(void)
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
 
-    mapping = glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_READ_WRITE_ARB);
+    mapping = glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, getAccessPolicy(type));
 
     glPopClientAttrib();
 
@@ -533,6 +592,48 @@ void IndexBuffer::unlock(void)
   }
 
   locked = false;
+}
+
+void IndexBuffer::copyFrom(const void* source, size_t sourceSize, size_t offset)
+{
+  if (locked)
+  {
+    Log::writeError("Cannot copy data into locked index buffer");
+    return;
+  }
+
+  if (GLEW_ARB_vertex_buffer_object)
+  {
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
+
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, sourceSize, source);
+
+    glPopClientAttrib();
+  }
+  else
+    data.copyFrom(reinterpret_cast<const Byte*>(source), sourceSize, offset);
+}
+
+void IndexBuffer::copyTo(void* target, size_t targetSize, size_t offset)
+{
+  if (locked)
+  {
+    Log::writeError("Cannot copy data from locked index buffer");
+    return;
+  }
+
+  if (GLEW_ARB_vertex_buffer_object)
+  {
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
+
+    glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, targetSize, target);
+
+    glPopClientAttrib();
+  }
+  else
+    data.copyTo(reinterpret_cast<Byte*>(target), targetSize, offset);
 }
 
 IndexBuffer::Type IndexBuffer::getType(void) const
@@ -683,7 +784,7 @@ void IndexRange::render(const VertexBuffer& vertexBuffer) const
   indexBuffer->render(vertexBuffer, start, count);
 }
 
-void* IndexRange::lock(void) const
+void* IndexRange::lock(LockType type) const
 {
   if (!indexBuffer || count == 0)
   {
@@ -691,7 +792,7 @@ void* IndexRange::lock(void) const
     return NULL;
   }
 
-  Byte* indices = (Byte*) indexBuffer->lock();
+  Byte* indices = (Byte*) indexBuffer->lock(type);
   if (!indices)
     return NULL;
 

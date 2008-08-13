@@ -96,10 +96,26 @@ public:
   /*! Locks this vertex buffer for reading and writing.
    *  @return The base address of the vertices.
    */
-  void* lock(void);
+  void* lock(LockType type = LOCK_WRITE_ONLY);
   /*! Unlocks this vertex buffer, finalizing any changes.
    */
   void unlock(void);
+  /*! Copies the specified data into this vertex buffer, starting at the
+   *  specified offset.
+   *  @param[in] source The base address of the source data.
+   *  @param[in] sourceSize The number of bytes to copy.
+   *  @param[in] offset The desired offset within this vertex buffer, in bytes,
+   *  from which to start.
+   */
+  void copyFrom(const void* source, size_t sourceSize, size_t offset);
+  /*! Copies the specified number of bytes from this vertex buffer, starting
+   *  at the specified offset.
+   *  @param[in] target The base address of the destination buffer.
+   *  @param[in] targetSize The number of bytes to copy.
+   *  @param[in] offset The desired offset within this vertex buffer, in bytes,
+   *  from which to start.
+   */
+  void copyTo(void* target, size_t targetSize, size_t offset);
   /*! @return The usage hint of this vertex buffer.
    */
   Usage getUsage(void) const;
@@ -168,7 +184,7 @@ public:
   /*! Locks this vertex range into memory and returns its address.
    *  @return The base address of this vertex range, or @c NULL if an error occurred.
    */
-  void* lock(void) const;
+  void* lock(LockType type = LOCK_WRITE_ONLY) const;
   /*! Unlocks this vertex range.
    */
   void unlock(void) const;
@@ -246,12 +262,29 @@ public:
               unsigned int start = 0,
 	      unsigned int count = 0) const;
   /*! Locks this index buffer for reading and writing.
+   *  @param[in] type The desired type of lock.
    *  @return The base address of the index elements.
    */
-  void* lock(void);
+  void* lock(LockType type = LOCK_WRITE_ONLY);
   /*! Unlocks this index buffer, finalizing any changes.
    */
   void unlock(void);
+  /*! Copies the specified data into this index buffer, starting at the
+   *  specified offset.
+   *  @param[in] source The base address of the source data.
+   *  @param[in] sourceSize The number of bytes to copy.
+   *  @param[in] offset The desired offset within this index buffer, in bytes,
+   *  from which to start.
+   */
+  void copyFrom(const void* source, size_t sourceSize, size_t offset);
+  /*! Copies the specified number of bytes from this index buffer, starting
+   *  at the specified offset.
+   *  @param[in] target The base address of the destination buffer.
+   *  @param[in] targetSize The number of bytes to copy.
+   *  @param[in] offset The desired offset within this index buffer, in bytes,
+   *  from which to start.
+   */
+  void copyTo(void* target, size_t targetSize, size_t offset);
   /*! @return The type of the index elements in this index buffer.
    */
   Type getType(void) const;
@@ -318,9 +351,10 @@ public:
    */
   void render(const VertexBuffer& vertexBuffer) const;
   /*! Locks this index range into memory and returns its address.
+   *  @param[in] type The desired type of lock.
    *  @return The base address of this index range, or @c NULL if an error occurred.
    */
-  void* lock(void) const;
+  void* lock(LockType type = LOCK_WRITE_ONLY) const;
   /*! Unlocks this index range.
    */
   void unlock(void) const;
