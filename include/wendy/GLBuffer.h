@@ -106,14 +106,14 @@ public:
    *  @param[in] count The number of vertices to copy.
    *  @param[in] start The index of the first vertex to be written to.
    */
-  void copyFrom(const void* source, unsigned int count, unsigned int start);
+  void copyFrom(const void* source, unsigned int count, unsigned int start = 0);
   /*! Copies the specified number of bytes from this vertex buffer, starting
    *  at the specified offset.
    *  @param[in] target The base address of the destination buffer.
    *  @param[in] count The number of vertices to copy.
    *  @param[in] start The index of the first vertex to read from.
    */
-  void copyTo(void* target, unsigned int count, unsigned int start);
+  void copyTo(void* target, unsigned int count, unsigned int start = 0);
   /*! @return The usage hint of this vertex buffer.
    */
   Usage getUsage(void) const;
@@ -278,19 +278,17 @@ public:
   /*! Copies the specified data into this index buffer, starting at the
    *  specified offset.
    *  @param[in] source The base address of the source data.
-   *  @param[in] sourceSize The number of bytes to copy.
-   *  @param[in] offset The desired offset within this index buffer, in bytes,
-   *  from which to start.
+   *  @param[in] count The number of indices to copy.
+   *  @param[in] start The index of the first index to be written to.
    */
-  void copyFrom(const void* source, size_t sourceSize, size_t offset);
+  void copyFrom(const void* source, unsigned int count, unsigned int start = 0);
   /*! Copies the specified number of bytes from this index buffer, starting
    *  at the specified offset.
    *  @param[in] target The base address of the destination buffer.
-   *  @param[in] targetSize The number of bytes to copy.
-   *  @param[in] offset The desired offset within this index buffer, in bytes,
-   *  from which to start.
+   *  @param[in] count The number of indices to copy.
+   *  @param[in] start The index of the first index to read from.
    */
-  void copyTo(void* target, size_t targetSize, size_t offset);
+  void copyTo(void* target, unsigned int count, unsigned int start = 0);
   /*! @return The type of the index elements in this index buffer.
    */
   Type getType(void) const;
