@@ -61,7 +61,7 @@ size_t getTypeSize(IndexBuffer::Type type)
   }
 }
 
-GLenum getAccessPolicy(LockType type)
+GLenum convertLockType(LockType type)
 {
   switch (type)
   {
@@ -73,6 +73,38 @@ GLenum getAccessPolicy(LockType type)
       return GL_READ_WRITE_ARB;
     default:
       Log::writeError("Invalid lock type %u", type);
+      return 0;
+  }
+}
+
+GLenum convertUsage(VertexBuffer::Usage usage)
+{
+  switch (usage)
+  {
+    case VertexBuffer::STATIC:
+      return GL_STATIC_DRAW_ARB;
+    case VertexBuffer::STREAM:
+      return GL_STREAM_DRAW_ARB;
+    case VertexBuffer::DYNAMIC:
+      return GL_DYNAMIC_DRAW_ARB;
+    default:
+      Log::writeError("Invalid vertex buffer usage %u", usage);
+      return 0;
+  }
+}
+
+GLenum convertUsage(IndexBuffer::Usage usage)
+{
+  switch (usage)
+  {
+    case IndexBuffer::STATIC:
+      return GL_STATIC_DRAW_ARB;
+    case IndexBuffer::STREAM:
+      return GL_STREAM_DRAW_ARB;
+    case IndexBuffer::DYNAMIC:
+      return GL_DYNAMIC_DRAW_ARB;
+    default:
+      Log::writeError("Invalid index buffer usage %u", usage);
       return 0;
   }
 }
@@ -225,7 +257,7 @@ void* VertexBuffer::lock(LockType type)
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
 
-    mapping = glMapBufferARB(GL_ARRAY_BUFFER_ARB, getAccessPolicy(type));
+    mapping = glMapBufferARB(GL_ARRAY_BUFFER_ARB, convertLockType(type));
 
     glPopClientAttrib();
 
@@ -264,7 +296,7 @@ void VertexBuffer::unlock(void)
   locked = false;
 }
 
-void VertexBuffer::copyFrom(const void* source, size_t sourceSize, size_t offset)
+void VertexBuffer::copyFrom(const void* source, unsigned int count, unsigned int start)
 {
   if (locked)
   {
@@ -272,20 +304,22 @@ void VertexBuffer::copyFrom(const void* source, size_t sourceSize, size_t offset
     return;
   }
 
+  const size_t size = format.getSize();
+
   if (GLEW_ARB_vertex_buffer_object)
   {
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
 
-    glBufferSubData(GL_ARRAY_BUFFER_ARB, offset, sourceSize, source);
+    glBufferSubData(GL_ARRAY_BUFFER_ARB, start * size, count * size, source);
 
     glPopClientAttrib();
   }
   else
-    data.copyFrom(reinterpret_cast<const Byte*>(source), sourceSize, offset);
+    data.copyFrom(reinterpret_cast<const Byte*>(source), count * size, start * size);
 }
 
-void VertexBuffer::copyTo(void* target, size_t targetSize, size_t offset)
+void VertexBuffer::copyTo(void* target, unsigned int count, unsigned int start)
 {
   if (locked)
   {
@@ -293,17 +327,19 @@ void VertexBuffer::copyTo(void* target, size_t targetSize, size_t offset)
     return;
   }
 
+  const size_t size = format.getSize();
+
   if (GLEW_ARB_vertex_buffer_object)
   {
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
 
-    glGetBufferSubData(GL_ARRAY_BUFFER_ARB, offset, targetSize, target);
+    glGetBufferSubData(GL_ARRAY_BUFFER_ARB, start * size, count * size, target);
 
     glPopClientAttrib();
   }
   else
-    data.copyTo(reinterpret_cast<Byte*>(target), targetSize, offset);
+    data.copyTo(reinterpret_cast<Byte*>(target), count * size, start * size);
 }
 
 VertexBuffer::Usage VertexBuffer::getUsage(void) const
@@ -386,7 +422,7 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
     glBufferDataARB(GL_ARRAY_BUFFER_ARB,
 		    initCount * initFormat.getSize(),
 		    NULL,
-		    initUsage);
+		    convertUsage(initUsage));
     glPopClientAttrib();
 
     GLenum error = glGetError();
@@ -473,7 +509,29 @@ void* VertexRange::lock(LockType type) const
 
 void VertexRange::unlock(void) const
 {
+  if (!vertexBuffer)
+  {
+    Log::writeError("Cannot unlock non-locked vertex buffer");
+    return;
+  }
+
   vertexBuffer->unlock();
+}
+
+void VertexRange::copyFrom(const void* source)
+{
+  if (!vertexBuffer)
+    return;
+
+  vertexBuffer->copyFrom(source, count, start);
+}
+
+void VertexRange::copyTo(void* target)
+{
+  if (!vertexBuffer)
+    return;
+
+  vertexBuffer->copyTo(target, count, start);
 }
 
 VertexBuffer* VertexRange::getVertexBuffer(void) const
@@ -555,7 +613,7 @@ void* IndexBuffer::lock(LockType type)
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
 
-    mapping = glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, getAccessPolicy(type));
+    mapping = glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, convertLockType(type));
 
     glPopClientAttrib();
 
@@ -594,7 +652,7 @@ void IndexBuffer::unlock(void)
   locked = false;
 }
 
-void IndexBuffer::copyFrom(const void* source, size_t sourceSize, size_t offset)
+void IndexBuffer::copyFrom(const void* source, unsigned int count, unsigned int start)
 {
   if (locked)
   {
@@ -602,20 +660,22 @@ void IndexBuffer::copyFrom(const void* source, size_t sourceSize, size_t offset)
     return;
   }
 
+  const size_t size = getTypeSize(type);
+
   if (GLEW_ARB_vertex_buffer_object)
   {
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
 
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, sourceSize, source);
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, count * size, source);
 
     glPopClientAttrib();
   }
   else
-    data.copyFrom(reinterpret_cast<const Byte*>(source), sourceSize, offset);
+    data.copyFrom(reinterpret_cast<const Byte*>(source), count * size, start * size);
 }
 
-void IndexBuffer::copyTo(void* target, size_t targetSize, size_t offset)
+void IndexBuffer::copyTo(void* target, unsigned int count, unsigned int start)
 {
   if (locked)
   {
@@ -623,17 +683,19 @@ void IndexBuffer::copyTo(void* target, size_t targetSize, size_t offset)
     return;
   }
 
+  const size_t size = getTypeSize(type);
+
   if (GLEW_ARB_vertex_buffer_object)
   {
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
 
-    glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, targetSize, target);
+    glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, count * size, target);
 
     glPopClientAttrib();
   }
   else
-    data.copyTo(reinterpret_cast<Byte*>(target), targetSize, offset);
+    data.copyTo(reinterpret_cast<Byte*>(target), count * size, start * size);
 }
 
 IndexBuffer::Type IndexBuffer::getType(void) const
@@ -715,7 +777,7 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
     glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
 	            initCount * getTypeSize(initType),
 		    NULL,
-		    initUsage);
+		    convertUsage(initUsage));
     glPopClientAttrib();
 
     GLenum error = glGetError();
@@ -801,7 +863,29 @@ void* IndexRange::lock(LockType type) const
 
 void IndexRange::unlock(void) const
 {
+  if (!indexBuffer)
+  {
+    Log::writeError("Cannot unlock non-locked index buffer");
+    return;
+  }
+
   indexBuffer->unlock();
+}
+
+void IndexRange::copyFrom(const void* source)
+{
+  if (!indexBuffer)
+    return;
+
+  indexBuffer->copyFrom(source, count, start);
+}
+
+void IndexRange::copyTo(void* target)
+{
+  if (!indexBuffer)
+    return;
+
+  indexBuffer->copyTo(target, count, start);
 }
 
 IndexBuffer* IndexRange::getIndexBuffer(void) const

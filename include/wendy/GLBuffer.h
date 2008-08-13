@@ -69,13 +69,13 @@ public:
   {
     /*! Data will be specified once and used many times.
      */
-    STATIC = GL_STATIC_DRAW_ARB,
+    STATIC,
     /*! Data will be specified once and used a few times.
      */
-    STREAM = GL_STREAM_DRAW_ARB,
+    STREAM,
     /*! Data will be repeatedly respecified and re-used.
      */
-    DYNAMIC = GL_DYNAMIC_DRAW_ARB,
+    DYNAMIC,
   };
   /*! Destructor.
    */
@@ -103,19 +103,17 @@ public:
   /*! Copies the specified data into this vertex buffer, starting at the
    *  specified offset.
    *  @param[in] source The base address of the source data.
-   *  @param[in] sourceSize The number of bytes to copy.
-   *  @param[in] offset The desired offset within this vertex buffer, in bytes,
-   *  from which to start.
+   *  @param[in] count The number of vertices to copy.
+   *  @param[in] start The index of the first vertex to be written to.
    */
-  void copyFrom(const void* source, size_t sourceSize, size_t offset);
+  void copyFrom(const void* source, unsigned int count, unsigned int start);
   /*! Copies the specified number of bytes from this vertex buffer, starting
    *  at the specified offset.
    *  @param[in] target The base address of the destination buffer.
-   *  @param[in] targetSize The number of bytes to copy.
-   *  @param[in] offset The desired offset within this vertex buffer, in bytes,
-   *  from which to start.
+   *  @param[in] count The number of vertices to copy.
+   *  @param[in] start The index of the first vertex to read from.
    */
-  void copyTo(void* target, size_t targetSize, size_t offset);
+  void copyTo(void* target, unsigned int count, unsigned int start);
   /*! @return The usage hint of this vertex buffer.
    */
   Usage getUsage(void) const;
@@ -188,6 +186,14 @@ public:
   /*! Unlocks this vertex range.
    */
   void unlock(void) const;
+  /*! Copies the specified data into this vertex range.
+   *  @param[in] source The base address of the source data.
+   */
+  void copyFrom(const void* source);
+  /*! Copies the specified number of bytes from this vertex range.
+   *  @param[in] target The base address of the destination buffer.
+   */
+  void copyTo(void* target);
   /*! @return The vertex buffer underlying this vertex range.
    */
   VertexBuffer* getVertexBuffer(void) const;
@@ -358,6 +364,14 @@ public:
   /*! Unlocks this index range.
    */
   void unlock(void) const;
+  /*! Copies the specified data into this index range.
+   *  @param[in] source The base address of the source data.
+   */
+  void copyFrom(const void* source);
+  /*! Copies the specified number of bytes from this index range.
+   *  @param[in] target The base address of the destination buffer.
+   */
+  void copyTo(void* target);
   /*! @return The index buffer underlying this index range.
    */
   IndexBuffer* getIndexBuffer(void) const;
