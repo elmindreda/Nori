@@ -296,7 +296,7 @@ void VertexBuffer::unlock(void)
   locked = false;
 }
 
-void VertexBuffer::copyFrom(const void* source, unsigned int count, unsigned int start)
+void VertexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsigned int start)
 {
   if (locked)
   {
@@ -304,26 +304,9 @@ void VertexBuffer::copyFrom(const void* source, unsigned int count, unsigned int
     return;
   }
 
-  const size_t size = format.getSize();
-
-  if (GLEW_ARB_vertex_buffer_object)
+  if (start + sourceCount > count)
   {
-    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
-
-    glBufferSubData(GL_ARRAY_BUFFER_ARB, start * size, count * size, source);
-
-    glPopClientAttrib();
-  }
-  else
-    data.copyFrom(reinterpret_cast<const Byte*>(source), count * size, start * size);
-}
-
-void VertexBuffer::copyTo(void* target, unsigned int count, unsigned int start)
-{
-  if (locked)
-  {
-    Log::writeError("Cannot copy data from locked vertex buffer");
+    Log::writeError("Too many vertices submitted");
     return;
   }
 
@@ -334,12 +317,41 @@ void VertexBuffer::copyTo(void* target, unsigned int count, unsigned int start)
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
 
-    glGetBufferSubData(GL_ARRAY_BUFFER_ARB, start * size, count * size, target);
+    glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
 
     glPopClientAttrib();
   }
   else
-    data.copyTo(reinterpret_cast<Byte*>(target), count * size, start * size);
+    data.copyFrom(reinterpret_cast<const Byte*>(source), sourceCount * size, start * size);
+}
+
+void VertexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int start)
+{
+  if (locked)
+  {
+    Log::writeError("Cannot copy data from locked vertex buffer");
+    return;
+  }
+
+  if (start + targetCount > count)
+  {
+    Log::writeError("Too many vertices requested");
+    return;
+  }
+
+  const size_t size = format.getSize();
+
+  if (GLEW_ARB_vertex_buffer_object)
+  {
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+    glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
+
+    glGetBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
+
+    glPopClientAttrib();
+  }
+  else
+    data.copyTo(reinterpret_cast<Byte*>(target), targetCount * size, start * size);
 }
 
 VertexBuffer::Usage VertexBuffer::getUsage(void) const
@@ -652,7 +664,7 @@ void IndexBuffer::unlock(void)
   locked = false;
 }
 
-void IndexBuffer::copyFrom(const void* source, unsigned int count, unsigned int start)
+void IndexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsigned int start)
 {
   if (locked)
   {
@@ -660,26 +672,9 @@ void IndexBuffer::copyFrom(const void* source, unsigned int count, unsigned int 
     return;
   }
 
-  const size_t size = getTypeSize(type);
-
-  if (GLEW_ARB_vertex_buffer_object)
+  if (start + sourceCount > count)
   {
-    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
-
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, count * size, source);
-
-    glPopClientAttrib();
-  }
-  else
-    data.copyFrom(reinterpret_cast<const Byte*>(source), count * size, start * size);
-}
-
-void IndexBuffer::copyTo(void* target, unsigned int count, unsigned int start)
-{
-  if (locked)
-  {
-    Log::writeError("Cannot copy data from locked index buffer");
+    Log::writeError("Too many indices submitted");
     return;
   }
 
@@ -690,12 +685,41 @@ void IndexBuffer::copyTo(void* target, unsigned int count, unsigned int start)
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
 
-    glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, count * size, target);
+    glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
 
     glPopClientAttrib();
   }
   else
-    data.copyTo(reinterpret_cast<Byte*>(target), count * size, start * size);
+    data.copyFrom(reinterpret_cast<const Byte*>(source), sourceCount * size, start * size);
+}
+
+void IndexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int start)
+{
+  if (locked)
+  {
+    Log::writeError("Cannot copy data from locked index buffer");
+    return;
+  }
+
+  if (start + targetCount > count)
+  {
+    Log::writeError("Too many indices requested");
+    return;
+  }
+
+  const size_t size = getTypeSize(type);
+
+  if (GLEW_ARB_vertex_buffer_object)
+  {
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
+
+    glGetBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
+
+    glPopClientAttrib();
+  }
+  else
+    data.copyTo(reinterpret_cast<Byte*>(target), targetCount * size, start * size);
 }
 
 IndexBuffer::Type IndexBuffer::getType(void) const
