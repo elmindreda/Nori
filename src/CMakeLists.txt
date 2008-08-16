@@ -5,7 +5,7 @@ set(wendy_SOURCES
     DEBody.cpp DEMass.cpp DEShape.cpp DEWorld.cpp
     DebugHUD.cpp
     DemoConfig.cpp DemoEditor.cpp DemoEffect.cpp DemoPlayer.cpp DemoProperty.cpp DemoShow.cpp DemoTimeline.cpp
-    GLBuffer.cpp GLCanvas.cpp GLContext.cpp GLLight.cpp GLPass.cpp GLRender.cpp GLShader.cpp GLShaderIO.cpp GLState.cpp GLStatistics.cpp GLTexture.cpp GLVertex.cpp
+    GLBuffer.cpp GLCanvas.cpp GLContext.cpp GLPass.cpp GLRender.cpp GLShader.cpp GLShaderIO.cpp GLState.cpp GLStatistics.cpp GLTexture.cpp GLVertex.cpp
     RenderCamera.cpp RenderFont.cpp RenderIO.cpp RenderMesh.cpp RenderParticle.cpp RenderQueue.cpp RenderScene.cpp RenderSprite.cpp RenderStage.cpp RenderStyle.cpp RenderTerrain.cpp
     UIBook.cpp UIButton.cpp UICanvas.cpp UIColor.cpp UIEntry.cpp UIItem.cpp UILabel.cpp UILayout.cpp UIList.cpp UIMenu.cpp UIPopup.cpp UIProgress.cpp UIRender.cpp UIScroller.cpp UISlider.cpp UIView.cpp UIWidget.cpp UIWindow.cpp)
 

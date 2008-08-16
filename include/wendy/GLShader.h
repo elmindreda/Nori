@@ -60,7 +60,6 @@ public:
     FRAGMENT,
   };
   Shader(Type type, const String& text);
-  bool isUsingLighting(void) const;
   /*! @return The type of this GLSL shader.
    */
   Type getType(void) const;
@@ -261,10 +260,10 @@ public:
 private:
   ShaderPermutation(ShaderProgram& program);
   ~ShaderPermutation(void);    
-  bool init(const LightState& state);
+  bool init(void);
   bool apply(void) const;
   static void applyFixedFunction(void);
-  GLhandleARB createShader(const Shader& shader, const LightState& state);
+  GLhandleARB createShader(const Shader& shader);
   bool createUniforms(void);
   bool createAttributes(void);
   typedef std::vector<ShaderUniform*> UniformList;
@@ -289,7 +288,6 @@ class ShaderProgram : public Resource<ShaderProgram>,
 public:
   ~ShaderProgram(void);
   bool apply(void);
-  bool isUsingLighting(void) const;
   const VertexShader& getVertexShader(void) const;
   const FragmentShader& getFragmentShader(void) const;
   SignalProxy1<void, ShaderPermutation&> getPermutationCreatedSignal(void);
@@ -301,7 +299,7 @@ public:
 private:
   ShaderProgram(const String& name);
   bool init(VertexShader& vertexShader, FragmentShader& fragmentShader);
-  ShaderPermutation* createPermutation(const LightState& state);
+  ShaderPermutation* createPermutation(void);
   ShaderPermutation* findPermutation(const String& name);
   const ShaderPermutation* findPermutation(const String& name) const;
   typedef std::vector<ShaderPermutation*> PermutationList;

@@ -134,12 +134,12 @@ public:
    *  @param[in] name The desired name of the render queue.
    */
   Queue(const Camera& camera,
-        GL::Light* light = NULL,
+        Light* light = NULL,
 	const String& name = "");
   /*! Attaches a light to this render queue.
    *  @param[in] light The light to attach.
    */
-  void attachLight(GL::Light& light);
+  void attachLight(Light& light);
   /*! Detaches all attached lights from this render queue.
    */
   void detachLights(void);
@@ -163,19 +163,19 @@ public:
   /*! @return The light for which to collect geometry, or @c NULL if not
    *  collecting geometry for a light.
    */
-  GL::Light* getActiveLight(void) const;
+  Light* getActiveLight(void) const;
   /*! @return The render operations in this render queue.
    */
   const OperationList& getOperations(void) const;
   /*! @return The lights attached to this render queue.
    */
-  const GL::LightState& getLights(void) const;
+  const LightState& getLights(void) const;
 private:
   typedef std::list<Operation> List;
   const Camera& camera;
-  GL::Light* light;
+  Light* light;
   String name;
-  GL::LightState lights;
+  LightState lights;
   List operations;
   mutable OperationList sortedOperations;
   mutable bool sorted;
