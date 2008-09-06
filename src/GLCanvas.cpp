@@ -152,6 +152,11 @@ void Canvas::clearStencilBuffer(unsigned int value) const
   glPopAttrib();
 }
 
+float Canvas::getPhysicalAspectRatio(void) const
+{
+  return getPhysicalWidth() / (float) getPhysicalHeight();
+}
+
 const Rectangle& Canvas::getScissorArea(void) const
 {
   return scissorStack.getTotal();

@@ -103,6 +103,9 @@ public:
   /*! @return The height, in pixels, of this canvas.
    */
   virtual unsigned int getPhysicalHeight(void) const = 0;
+  /*! @return The aspect ratio of the dimensions, in pixels, of this canvas.
+   */
+  float getPhysicalAspectRatio(void) const;
   /*! @return The scissor rectangle of this canvas.
    */
   const Rectangle& getScissorArea(void) const;
