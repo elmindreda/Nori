@@ -177,8 +177,9 @@ public:
    */
   VertexRange(VertexBuffer& vertexBuffer, unsigned int start, unsigned int count);
   /*! Renders this vertex range.
+   *  @param[in] mode The desired primitive mode.
    */
-  void render(void) const;
+  void render(unsigned int mode) const;
   /*! Locks this vertex range into memory and returns its address.
    *  @return The base address of this vertex range, or @c NULL if an error occurred.
    */
@@ -352,8 +353,9 @@ public:
    */
   IndexRange(IndexBuffer& indexBuffer, unsigned int start, unsigned int count);
   /*! Renders this index range with the specied vertex buffer.
+   *  @param[in] mode The desired primitive mode.
    */
-  void render(const VertexBuffer& vertexBuffer) const;
+  void render(const VertexBuffer& vertexBuffer, unsigned int mode) const;
   /*! Locks this index range into memory and returns its address.
    *  @param[in] type The desired type of lock.
    *  @return The base address of this index range, or @c NULL if an error occurred.

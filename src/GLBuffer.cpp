@@ -475,7 +475,7 @@ VertexRange::VertexRange(VertexBuffer& initVertexBuffer,
   }
 }
 
-void VertexRange::render(void) const
+void VertexRange::render(unsigned int mode) const
 {
   if (!vertexBuffer || count == 0)
   {
@@ -483,7 +483,7 @@ void VertexRange::render(void) const
     return;
   }
 
-  vertexBuffer->render(start, count);
+  vertexBuffer->render(mode, start, count);
 }
 
 void* VertexRange::lock(LockType type) const
@@ -823,7 +823,7 @@ IndexRange::IndexRange(IndexBuffer& initIndexBuffer,
   }
 }
 
-void IndexRange::render(const VertexBuffer& vertexBuffer) const
+void IndexRange::render(const VertexBuffer& vertexBuffer, unsigned int mode) const
 {
   if (!indexBuffer || count == 0)
   {
@@ -831,7 +831,7 @@ void IndexRange::render(const VertexBuffer& vertexBuffer) const
     return;
   }
 
-  indexBuffer->render(vertexBuffer, start, count);
+  indexBuffer->render(vertexBuffer, mode, start, count);
 }
 
 void* IndexRange::lock(LockType type) const

@@ -170,7 +170,7 @@ void Sprite2::render(void) const
     return;
 
   range.copyFrom(vertices);
-  range.render();
+  range.render(GL_TRIANGLE_FAN);
 }
 
 void Sprite2::render(const Style& style) const
@@ -189,7 +189,7 @@ void Sprite2::render(const Style& style) const
   for (unsigned int pass = 0;  pass < technique->getPassCount();  pass++)
   {
     technique->applyPass(pass);
-    range.render();
+    range.render(GL_TRIANGLE_FAN);
   }
 }
 
