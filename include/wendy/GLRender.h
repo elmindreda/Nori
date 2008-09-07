@@ -66,6 +66,7 @@ public:
   void drawRectangle(const Rectangle& rectangle);
   void fillRectangle(const Rectangle& rectangle);
   void fillTriangle(const Triangle2& triangle);
+  void blitTexture(const Rectangle& area, GL::Texture& texture);
   /*! Allocates a range of indices of the specified type.
    */
   bool allocateIndices(IndexRange& range,

@@ -147,9 +147,15 @@ void Renderer::drawPoint(const Vector2& point)
 {
   drawPass.apply();
 
-  glBegin(GL_POINTS);
-  glVertex2fv(point);
-  glEnd();
+  GL::Vertex2fv vertex;
+  vertex.position = point;
+
+  GL::VertexRange range;
+  if (!allocateVertices(range, 1, GL::Vertex2fv::format))
+    return;
+
+  range.copyFrom(&vertex);
+  range.render(GL_POINTS);
 }
 
 void Renderer::drawLine(const Segment2& segment)
@@ -221,10 +227,65 @@ void Renderer::fillRectangle(const Rectangle& rectangle)
   if (maxX - minX < 1.f || maxY - minY < 1.f)
     return;
 
+  maxX -= 1.f;
+  maxY -= 1.f;
+
+  GL::Vertex2fv vertices[4];
+
+  vertices[0].position.set(minX, minY);
+  vertices[1].position.set(maxX, minY);
+  vertices[2].position.set(maxX, maxY);
+  vertices[3].position.set(minX, maxY);
+
+  GL::VertexRange range;
+  if (!allocateVertices(range, 4, GL::Vertex2fv::format))
+    return;
+
   drawPass.setPolygonMode(GL_FILL);
   drawPass.apply();
 
-  glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
+  range.copyFrom(vertices);
+  range.render(GL_TRIANGLE_FAN);
+}
+
+void Renderer::blitTexture(const Rectangle& area, GL::Texture& texture)
+{
+  float minX, minY, maxX, maxY;
+  area.getBounds(minX, minY, maxX, maxY);
+
+  if (maxX - minX < 1.f || maxY - minY < 1.f)
+    return;
+
+  maxX -= 1.f;
+  maxY -= 1.f;
+
+  GL::Vertex2ft2fv vertices[4];
+
+  vertices[0].mapping.set(0.f, 0.f);
+  vertices[0].position.set(minX, minY);
+  vertices[1].mapping.set(1.f, 0.f);
+  vertices[1].position.set(maxX, minY);
+  vertices[2].mapping.set(1.f, 1.f);
+  vertices[2].position.set(maxX, maxY);
+  vertices[3].mapping.set(0.f, 1.f);
+  vertices[3].position.set(minX, maxY);
+
+  GL::VertexRange range;
+  if (!allocateVertices(range, 4, GL::Vertex2ft2fv::format))
+    return;
+
+  GL::TextureLayer& layer = drawPass.createTextureLayer();
+  layer.setCombineMode(GL_REPLACE);
+  layer.setFilters(GL_NEAREST, GL_NEAREST);
+  layer.setTexture(&texture);
+
+  drawPass.setPolygonMode(GL_FILL);
+  drawPass.apply();
+
+  range.copyFrom(vertices);
+  range.render(GL_TRIANGLE_FAN);
+
+  drawPass.destroyTextureLayers();
 }
 
 bool Renderer::allocateIndices(IndexRange& range,

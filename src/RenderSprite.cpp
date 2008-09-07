@@ -254,14 +254,11 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
   if (!GL::Renderer::get()->allocateVertices(range, 4, GL::Vertex2ft3fv::format))
     return;
 
-  GL::Vertex2ft3fv* vertices = (GL::Vertex2ft3fv*) range.lock();
-  if (!vertices)
-    return;
-
   const Vector3 camera = queue.getCamera().getTransform().position;
 
+  GL::Vertex2ft3fv vertices[4];
   realizeVertices(vertices, transform, camera);
-  range.unlock();
+  range.copyFrom(vertices);
 
   Vector3 position = Vector3::ZERO;
   transform.transformVector(position);

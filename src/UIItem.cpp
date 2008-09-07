@@ -198,17 +198,24 @@ void TextureItem::draw(const Rectangle& area, WidgetState state) const
   {
     const float em = Renderer::get()->getDefaultEM();
 
-    Rectangle textArea = area;
-    textArea.position.x += em * 3.5f;
-    textArea.size.x -= em;
-
     if (state == STATE_SELECTED)
     {
       GL::Renderer::get()->setColor(ColorRGBA(renderer->getSelectionColor(), 1.f));
       GL::Renderer::get()->fillRectangle(area);
     }
 
+    Rectangle textureArea = area;
+    textureArea.size.set(em * 3.f, em * 3.f);
+
+    GL::Renderer::get()->setColor(ColorRGBA(1.f, 0.f, 0.f, 1.f));
+    GL::Renderer::get()->blitTexture(textureArea, *texture);
+
+    Rectangle textArea = area;
+    textArea.position.x += em * 3.5f;
+    textArea.size.x -= em;
+
     renderer->drawText(textArea, asString(), LEFT_ALIGNED, state);
+
     renderer->popClipArea();
   }
 }
