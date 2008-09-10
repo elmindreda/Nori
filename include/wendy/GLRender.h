@@ -59,13 +59,6 @@ public:
   void end(void) const;
   void pushTransform(const Matrix4& transform) const;
   void popTransform(void) const;
-  void drawPoint(const Vector2& point);
-  void drawLine(const Segment2& segment);
-  void drawTriangle(const Triangle2& triangle);
-  void drawBezier(const BezierCurve2& spline);
-  void drawRectangle(const Rectangle& rectangle);
-  void fillRectangle(const Rectangle& rectangle);
-  void fillTriangle(const Triangle2& triangle);
   /*! Allocates a range of indices of the specified type.
    */
   bool allocateIndices(IndexRange& range,
@@ -76,10 +69,6 @@ public:
   bool allocateVertices(VertexRange& range,
 			unsigned int count,
                         const VertexFormat& format);
-  const ColorRGBA& getColor(void) const;
-  void setColor(const ColorRGBA& newColor);
-  float getLineWidth(void) const;
-  void setLineWidth(float newWidth);
   /*! Creates the renderer singleton.
    */
   static bool create(void);
@@ -102,7 +91,6 @@ private:
   typedef std::list<VertexBufferSlot> VertexBufferList;
   IndexBufferList indexBuffers;
   VertexBufferList vertexBuffers;
-  GL::Pass drawPass;
   Ref<Texture> defaultTexture;
 };
 

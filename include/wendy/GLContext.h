@@ -206,6 +206,7 @@ public:
    */
   unsigned int getStencilBits(void) const;
   /*! @return A copy of the current state of the color buffer.
+   *  @todo Rename this to reflect object ownership transfer.
    */
   Image* getColorBuffer(void) const;
   /*! @return The title of the context window.

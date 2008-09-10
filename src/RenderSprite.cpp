@@ -165,10 +165,12 @@ void Sprite2::render(void) const
   GL::Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
-  glBegin(GL_QUADS);
-  for (unsigned int i = 0;  i < 4;  i++)
-    vertices[i].send();
-  glEnd();
+  GL::VertexRange range;
+  if (!GL::Renderer::get()->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
+    return;
+
+  range.copyFrom(vertices);
+  range.render(GL_TRIANGLE_FAN);
 }
 
 void Sprite2::render(const Style& style) const
@@ -176,16 +178,18 @@ void Sprite2::render(const Style& style) const
   GL::Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
+  GL::VertexRange range;
+  if (!GL::Renderer::get()->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
+    return;
+
+  range.copyFrom(vertices);
+
   const Technique* technique = style.getActiveTechnique();
 
   for (unsigned int pass = 0;  pass < technique->getPassCount();  pass++)
   {
     technique->applyPass(pass);
-
-    glBegin(GL_QUADS);
-    for (unsigned int i = 0;  i < 4;  i++)
-      vertices[i].send();
-    glEnd();
+    range.render(GL_TRIANGLE_FAN);
   }
 }
 
@@ -250,14 +254,11 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
   if (!GL::Renderer::get()->allocateVertices(range, 4, GL::Vertex2ft3fv::format))
     return;
 
-  GL::Vertex2ft3fv* vertices = (GL::Vertex2ft3fv*) range.lock();
-  if (!vertices)
-    return;
-
   const Vector3 camera = queue.getCamera().getTransform().position;
 
+  GL::Vertex2ft3fv vertices[4];
   realizeVertices(vertices, transform, camera);
-  range.unlock();
+  range.copyFrom(vertices);
 
   Vector3 position = Vector3::ZERO;
   transform.transformVector(position);

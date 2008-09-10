@@ -132,7 +132,7 @@ void VertexBuffer::apply(void) const
 
   const Byte* base = NULL;
 
-  if (GLEW_ARB_vertex_buffer_object)
+  if (bufferID)
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
   else
     base = data;
@@ -254,7 +254,7 @@ void* VertexBuffer::lock(LockType type)
 
   void* mapping = NULL;
 
-  if (GLEW_ARB_vertex_buffer_object)
+  if (bufferID)
   {
     mapping = glMapBufferARB(GL_ARRAY_BUFFER_ARB, convertLockType(type));
     if (mapping == NULL)
@@ -280,7 +280,7 @@ void VertexBuffer::unlock(void)
 
   apply();
 
-  if (GLEW_ARB_vertex_buffer_object)
+  if (bufferID)
   {
     if (!glUnmapBufferARB(GL_ARRAY_BUFFER_ARB))
       Log::writeWarning("Data for vertex buffer object was corrupted");
@@ -307,7 +307,7 @@ void VertexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsign
 
   const size_t size = format.getSize();
 
-  if (GLEW_ARB_vertex_buffer_object)
+  if (bufferID)
     glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
   else
     data.copyFrom(reinterpret_cast<const Byte*>(source), sourceCount * size, start * size);
@@ -331,7 +331,7 @@ void VertexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int s
 
   const size_t size = format.getSize();
 
-  if (GLEW_ARB_vertex_buffer_object)
+  if (bufferID)
     glGetBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
   else
     data.copyTo(reinterpret_cast<Byte*>(target), targetCount * size, start * size);
@@ -475,7 +475,7 @@ VertexRange::VertexRange(VertexBuffer& initVertexBuffer,
   }
 }
 
-void VertexRange::render(void) const
+void VertexRange::render(unsigned int mode) const
 {
   if (!vertexBuffer || count == 0)
   {
@@ -483,7 +483,7 @@ void VertexRange::render(void) const
     return;
   }
 
-  vertexBuffer->render(start, count);
+  vertexBuffer->render(mode, start, count);
 }
 
 void* VertexRange::lock(LockType type) const
@@ -562,7 +562,7 @@ void IndexBuffer::apply(void) const
   if (current == this)
     return;
 
-  if (GLEW_ARB_vertex_buffer_object)
+  if (bufferID)
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
 
   current = const_cast<IndexBuffer*>(this);
@@ -586,7 +586,7 @@ void IndexBuffer::render(const VertexBuffer& vertexBuffer,
 
   const Byte* base = NULL;
 
-  if (!GLEW_ARB_vertex_buffer_object)
+  if (!bufferID)
     base = data;
 
   glDrawElements(mode, count, type, base + getTypeSize(type) * start);
@@ -604,7 +604,7 @@ void* IndexBuffer::lock(LockType type)
 
   void* mapping = NULL;
 
-  if (GLEW_ARB_vertex_buffer_object)
+  if (bufferID)
   {
     mapping = glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, convertLockType(type));
     if (mapping == NULL)
@@ -630,7 +630,7 @@ void IndexBuffer::unlock(void)
 
   apply();
 
-  if (GLEW_ARB_vertex_buffer_object)
+  if (bufferID)
   {
     if (!glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB))
       Log::writeWarning("Data for index buffer object was corrupted");
@@ -657,7 +657,7 @@ void IndexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsigne
 
   const size_t size = getTypeSize(type);
 
-  if (GLEW_ARB_vertex_buffer_object)
+  if (bufferID)
     glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
   else
     data.copyFrom(reinterpret_cast<const Byte*>(source), sourceCount * size, start * size);
@@ -681,7 +681,7 @@ void IndexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int st
 
   const size_t size = getTypeSize(type);
 
-  if (GLEW_ARB_vertex_buffer_object)
+  if (bufferID)
     glGetBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
   else
     data.copyTo(reinterpret_cast<Byte*>(target), targetCount * size, start * size);
@@ -823,7 +823,7 @@ IndexRange::IndexRange(IndexBuffer& initIndexBuffer,
   }
 }
 
-void IndexRange::render(const VertexBuffer& vertexBuffer) const
+void IndexRange::render(const VertexBuffer& vertexBuffer, unsigned int mode) const
 {
   if (!indexBuffer || count == 0)
   {
@@ -831,7 +831,7 @@ void IndexRange::render(const VertexBuffer& vertexBuffer) const
     return;
   }
 
-  indexBuffer->render(vertexBuffer, start, count);
+  indexBuffer->render(vertexBuffer, mode, start, count);
 }
 
 void* IndexRange::lock(LockType type) const

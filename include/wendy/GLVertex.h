@@ -192,6 +192,17 @@ public:
 
 /*! @brief Predefined vertex format.
  */
+class Vertex2fv
+{
+public:
+  Vector2 position;
+  static const VertexFormat format;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Predefined vertex format.
+ */
 class Vertex2ft2fv
 {
 public:
