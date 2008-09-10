@@ -143,151 +143,6 @@ void Renderer::popTransform(void) const
   glPopAttrib();
 }
 
-void Renderer::drawPoint(const Vector2& point)
-{
-  drawPass.apply();
-
-  GL::Vertex2fv vertex;
-  vertex.position = point;
-
-  GL::VertexRange range;
-  if (!allocateVertices(range, 1, GL::Vertex2fv::format))
-    return;
-
-  range.copyFrom(&vertex);
-  range.render(GL_POINTS);
-}
-
-void Renderer::drawLine(const Segment2& segment)
-{
-  drawPass.apply();
-
-  glBegin(GL_LINES);
-  glVertex2fv(segment.start);
-  glVertex2fv(segment.end);
-  glEnd();
-}
-
-void Renderer::drawTriangle(const Triangle2& triangle)
-{
-  drawPass.setPolygonMode(GL_LINE);
-  drawPass.apply();
-
-  glBegin(GL_TRIANGLES);
-  glVertex2fv(triangle.P[0]);
-  glVertex2fv(triangle.P[1]);
-  glVertex2fv(triangle.P[2]);
-  glEnd();
-}
-
-void Renderer::drawBezier(const BezierCurve2& spline)
-{
-  BezierCurve2::PointList points;
-  spline.tessellate(points);
-  
-  drawPass.apply();
-
-  glBegin(GL_LINE_STRIP);
-  for (unsigned int i = 0;  i < points.size();  i++)
-    glVertex2fv(points[i]);
-  glEnd();
-}
-
-void Renderer::drawRectangle(const Rectangle& rectangle)
-{
-  float minX, minY, maxX, maxY;
-  rectangle.getBounds(minX, minY, maxX, maxY);
-
-  if (maxX - minX < 1.f || maxY - minY < 1.f)
-    return;
-
-  drawPass.setPolygonMode(GL_LINE);
-  drawPass.apply();
-
-  glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
-}
-
-void Renderer::fillTriangle(const Triangle2& triangle)
-{
-  drawPass.setPolygonMode(GL_FILL);
-  drawPass.apply();
-
-  glBegin(GL_TRIANGLES);
-  glVertex2fv(triangle.P[0]);
-  glVertex2fv(triangle.P[1]);
-  glVertex2fv(triangle.P[2]);
-  glEnd();
-}
-
-void Renderer::fillRectangle(const Rectangle& rectangle)
-{
-  float minX, minY, maxX, maxY;
-  rectangle.getBounds(minX, minY, maxX, maxY);
-
-  if (maxX - minX < 1.f || maxY - minY < 1.f)
-    return;
-
-  maxX -= 1.f;
-  maxY -= 1.f;
-
-  GL::Vertex2fv vertices[4];
-
-  vertices[0].position.set(minX, minY);
-  vertices[1].position.set(maxX, minY);
-  vertices[2].position.set(maxX, maxY);
-  vertices[3].position.set(minX, maxY);
-
-  GL::VertexRange range;
-  if (!allocateVertices(range, 4, GL::Vertex2fv::format))
-    return;
-
-  drawPass.setPolygonMode(GL_FILL);
-  drawPass.apply();
-
-  range.copyFrom(vertices);
-  range.render(GL_TRIANGLE_FAN);
-}
-
-void Renderer::blitTexture(const Rectangle& area, GL::Texture& texture)
-{
-  float minX, minY, maxX, maxY;
-  area.getBounds(minX, minY, maxX, maxY);
-
-  if (maxX - minX < 1.f || maxY - minY < 1.f)
-    return;
-
-  maxX -= 1.f;
-  maxY -= 1.f;
-
-  GL::Vertex2ft2fv vertices[4];
-
-  vertices[0].mapping.set(0.f, 0.f);
-  vertices[0].position.set(minX, minY);
-  vertices[1].mapping.set(1.f, 0.f);
-  vertices[1].position.set(maxX, minY);
-  vertices[2].mapping.set(1.f, 1.f);
-  vertices[2].position.set(maxX, maxY);
-  vertices[3].mapping.set(0.f, 1.f);
-  vertices[3].position.set(minX, maxY);
-
-  GL::VertexRange range;
-  if (!allocateVertices(range, 4, GL::Vertex2ft2fv::format))
-    return;
-
-  GL::TextureLayer& layer = drawPass.createTextureLayer();
-  layer.setCombineMode(GL_REPLACE);
-  layer.setFilters(GL_NEAREST, GL_NEAREST);
-  layer.setTexture(&texture);
-
-  drawPass.setPolygonMode(GL_FILL);
-  drawPass.apply();
-
-  range.copyFrom(vertices);
-  range.render(GL_TRIANGLE_FAN);
-
-  drawPass.destroyTextureLayers();
-}
-
 bool Renderer::allocateIndices(IndexRange& range,
 		               unsigned int count,
                                IndexBuffer::Type type)
@@ -386,30 +241,6 @@ bool Renderer::allocateVertices(VertexRange& range,
   return true;
 }
 
-const ColorRGBA& Renderer::getColor(void) const
-{
-  return drawPass.getDefaultColor();
-}
-
-void Renderer::setColor(const ColorRGBA& newColor)
-{
-  drawPass.setDefaultColor(newColor);
-  if (newColor.a == 1.f)
-    drawPass.setBlendFactors(GL_ONE, GL_ZERO);
-  else
-    drawPass.setBlendFactors(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-}
-
-float Renderer::getLineWidth(void) const
-{
-  return drawPass.getLineWidth();
-}
-
-void Renderer::setLineWidth(float newWidth)
-{
-  drawPass.setLineWidth(newWidth);
-}
-
 bool Renderer::create(void)
 {
   Ptr<Renderer> renderer = new Renderer();
@@ -438,11 +269,6 @@ bool Renderer::init(void)
     Log::writeError("Cannot create renderer without OpenGL context");
     return false;
   }
-
-  drawPass.setCullMode(CULL_NONE);
-  drawPass.setDepthTesting(false);
-  drawPass.setDepthWriting(false);
-  drawPass.setDefaultColor(ColorRGBA::BLACK);
 
   CheckerImageGenerator generator;
   generator.setDefaultColor(ColorRGBA(1.f, 0.f, 1.f, 1.f));

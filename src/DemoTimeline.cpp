@@ -125,8 +125,8 @@ void TrackPanel::draw(void) const
     markerArea.set(area.position.x + position - width / 2.f, area.position.y,
                    width, area.size.y);
 
-    GL::Renderer::get()->setColor(ColorRGBA(0.3f, 0.3f, 0.3f, 0.5f));
-    GL::Renderer::get()->fillRectangle(markerArea);
+    renderer->setColor(ColorRGBA(0.3f, 0.3f, 0.3f, 0.5f));
+    renderer->fillRectangle(markerArea);
 
     renderer->popClipArea();
   }
@@ -237,8 +237,8 @@ void TimelineRuler::draw(void) const
   {
     renderer->drawFrame(area, getState());
 
-    GL::Renderer::get()->setColor(ColorRGBA::BLACK);
-    GL::Renderer::get()->setLineWidth(1.f / GL::Canvas::getCurrent()->getPhysicalHeight());
+    renderer->setColor(ColorRGBA::BLACK);
+    renderer->setLineWidth(1.f / GL::Canvas::getCurrent()->getPhysicalHeight());
 
     const float em = renderer->getDefaultEM();
     const float width = timeline.getSecondWidth();
@@ -257,7 +257,7 @@ void TimelineRuler::draw(void) const
       segment.start = area.position + Vector2(position, area.size.y / 2.f);
       segment.end = area.position + Vector2(position, area.size.y);
 
-      GL::Renderer::get()->drawLine(segment);
+      renderer->drawLine(segment);
 
       if ((index + i) % 10 == 0)
       {
@@ -281,10 +281,10 @@ void TimelineRuler::draw(void) const
     triangle.P[1] = Vector2(position - area.size.y / 2.f, area.size.y) + area.position;
     triangle.P[2] = Vector2(position, 0.f) + area.position;
 
-    GL::Renderer::get()->setColor(ColorRGBA(0.8f, 0.1f, 0.1f, 1.f));
-    GL::Renderer::get()->fillTriangle(triangle);
-    GL::Renderer::get()->setColor(ColorRGBA::BLACK);
-    GL::Renderer::get()->drawTriangle(triangle);
+    renderer->setColor(ColorRGBA(0.8f, 0.1f, 0.1f, 1.f));
+    renderer->fillTriangle(triangle);
+    renderer->setColor(ColorRGBA::BLACK);
+    renderer->drawTriangle(triangle);
 
     UI::Widget::draw();
 
@@ -365,12 +365,12 @@ void EffectTrack::draw(void) const
     else
       color.set(renderer->getWidgetColor(), 1.f);
 
-    GL::Renderer::get()->setColor(color);
-    GL::Renderer::get()->fillRectangle(effectArea);
+    renderer->setColor(color);
+    renderer->fillRectangle(effectArea);
 
-    GL::Renderer::get()->setColor(ColorRGBA::BLACK);
-    GL::Renderer::get()->setLineWidth(1.f / GL::Canvas::getCurrent()->getPhysicalHeight());
-    GL::Renderer::get()->drawRectangle(effectArea);
+    renderer->setColor(ColorRGBA::BLACK);
+    renderer->setLineWidth(1.f / GL::Canvas::getCurrent()->getPhysicalHeight());
+    renderer->drawRectangle(effectArea);
 
     renderer->drawText(effectArea, effect.getName());
 

@@ -117,6 +117,14 @@ public:
    *  previously current clipping area.
    */
   void popClipArea(void);
+  void drawPoint(const Vector2& point);
+  void drawLine(const Segment2& segment);
+  void drawTriangle(const Triangle2& triangle);
+  void drawBezier(const BezierCurve2& spline);
+  void drawRectangle(const Rectangle& rectangle);
+  void fillRectangle(const Rectangle& rectangle);
+  void fillTriangle(const Triangle2& triangle);
+  void blitTexture(const Rectangle& area, GL::Texture& texture);
   void drawText(const Rectangle& area,
                 const String& text,
 		const Alignment& alignment,
@@ -129,6 +137,10 @@ public:
   void drawFrame(const Rectangle& area, WidgetState state);
   void drawHandle(const Rectangle& area, WidgetState state);
   void drawButton(const Rectangle& area, WidgetState state, const String& text = "");
+  const ColorRGBA& getColor(void) const;
+  void setColor(const ColorRGBA& newColor);
+  float getLineWidth(void) const;
+  void setLineWidth(float newWidth);
   const ColorRGB& getWidgetColor(void);
   const ColorRGB& getTextColor(void);
   const ColorRGB& getWellColor(void);
@@ -151,6 +163,7 @@ private:
   ColorRGB selectedTextColor;
   Ref<render::Font> defaultFont;
   Ref<render::Font> currentFont;
+  GL::Pass drawPass;
 };
 
 ///////////////////////////////////////////////////////////////////////
