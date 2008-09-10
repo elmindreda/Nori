@@ -28,7 +28,6 @@
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
-#include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
@@ -39,6 +38,7 @@
 
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderStyle.h>
+#include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
 
 #include <algorithm>
@@ -94,7 +94,7 @@ bool Operation::operator < (const Operation& other) const
 ///////////////////////////////////////////////////////////////////////
 
 Queue::Queue(const Camera& initCamera,
-             GL::Light* initLight,
+             Light* initLight,
 	     const String& initName):
   camera(initCamera),
   light(initLight),
@@ -103,7 +103,7 @@ Queue::Queue(const Camera& initCamera,
 {
 }
 
-void Queue::attachLight(GL::Light& light)
+void Queue::attachLight(Light& light)
 {
   lights.attachLight(light);
 }
@@ -179,7 +179,7 @@ const Camera& Queue::getCamera(void) const
   return camera;
 }
 
-GL::Light* Queue::getActiveLight(void) const
+Light* Queue::getActiveLight(void) const
 {
   return light;
 }
@@ -207,7 +207,7 @@ const OperationList& Queue::getOperations(void) const
   return sortedOperations;
 }
 
-const GL::LightState& Queue::getLights(void) const
+const LightState& Queue::getLights(void) const
 {
   return lights;
 }

@@ -27,7 +27,6 @@
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
-#include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
@@ -38,6 +37,7 @@
 
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderStyle.h>
+#include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderSprite.h>
 #include <wendy/RenderParticle.h>
@@ -320,12 +320,12 @@ void Scene::setTimeElapsed(Time newTime)
 
 ///////////////////////////////////////////////////////////////////////
 
-GL::Light* LightNode::getLight(void) const
+Light* LightNode::getLight(void) const
 {
   return light;
 }
 
-void LightNode::setLight(GL::Light* newLight)
+void LightNode::setLight(Light* newLight)
 {
   light = newLight;
 }
@@ -334,7 +334,7 @@ void LightNode::update(Time deltaTime)
 {
   SceneNode::update(deltaTime);
 
-  setLocalBounds(light->getBounds());
+  //setLocalBounds(light->getBounds());
 }
 
 void LightNode::enqueue(Queue& queue, QueuePhase phase) const
@@ -346,9 +346,10 @@ void LightNode::enqueue(Queue& queue, QueuePhase phase) const
 
   const Transform3& world = getWorldTransform();
 
+  /*
   switch (light->getType())
   {
-    case GL::Light::DIRECTIONAL:
+    case Light::DIRECTIONAL:
     {
       Vector3 direction(0.f, 0.f, 1.f);
       world.rotateVector(direction);
@@ -356,7 +357,7 @@ void LightNode::enqueue(Queue& queue, QueuePhase phase) const
       break;
     }
 
-    case GL::Light::POINT:
+    case Light::POINT:
     {
       Vector3 position(0.f, 0.f, 0.f);
       world.transformVector(position);
@@ -364,6 +365,7 @@ void LightNode::enqueue(Queue& queue, QueuePhase phase) const
       break;
     }
   }
+  */
 
   queue.attachLight(*light);
 }

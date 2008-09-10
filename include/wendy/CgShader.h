@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy demo system
-// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy Cg library
+// Copyright (c) 2008 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,37 +22,15 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-
-#include <moira/Moira.h>
-
-#include <wendy/Config.h>
-#include <wendy/OpenGL.h>
-#include <wendy/GLContext.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLShader.h>
-#include <wendy/GLCanvas.h>
-#include <wendy/GLPass.h>
-
-#include <wendy/RenderFont.h>
-
-#include <wendy/UIRender.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UIWindow.h>
-#include <wendy/UIScroller.h>
-#include <wendy/UILayout.h>
-#include <wendy/UIButton.h>
-#include <wendy/UILabel.h>
-#include <wendy/UIItem.h>
-#include <wendy/UIMenu.h>
-#include <wendy/UIPopup.h>
-
-#include <wendy/DemoConfig.h>
-
+#ifndef WENDY_CGSHADER_H
+#define WENDY_CGSHADER_H
+///////////////////////////////////////////////////////////////////////
+#if WENDY_USE_CG
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace demo
+  namespace Cg
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -61,49 +39,30 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-ConfigDialog::ConfigDialog(void)
+/*! @brief Cg shader program.
+ */
+class Shader : public Resource<Shader>, public RefObject<Shader>
 {
-  UI::Layout* layout = new UI::Layout(UI::VERTICAL);
-  addChild(*layout);
-
-  UI::Button* button;
-
-  button = new UI::Button("Demo");
-  layout->addChild(*button, 0.f);
-
-  button = new UI::Button("Die");
-  layout->addChild(*button, 0.f);
-
-  setVisible(false);
-}
-
-void ConfigDialog::request(Config& config)
-{
-  setVisible(true);
-
-  while (GL::Context::get()->update())
-  {
-  }
-
-  setVisible(false);
-}
-
-SignalProxy0<void> ConfigDialog::getRenderSignal(void)
-{
-  return renderSignal;
-}
-
-void ConfigDialog::onDemo(UI::Button& button)
-{
-}
-
-void ConfigDialog::onDie(UI::Button& button)
-{
-}
+public:
+  /*! Destructor.
+   */
+  ~Shader(void);
+  Domain getDomain(void) const;
+  static Shader* createInstance(Domain domain, const String& text, const String& name = "");
+private:
+  Shader(Domain domain, const String& name);
+  bool init(const String& text);
+  Domain domain;
+  CGprogram programID;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace demo*/
+  } /*namespace Cg*/
 } /*namespace wendy*/
 
+///////////////////////////////////////////////////////////////////////
+#endif /* WENDY_USE_CG */
+///////////////////////////////////////////////////////////////////////
+#endif /*WENDY_CGSHADER_H*/
 ///////////////////////////////////////////////////////////////////////

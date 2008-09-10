@@ -25,6 +25,8 @@
 #ifndef WENDY_CGCONTEXT_H
 #define WENDY_CGCONTEXT_H
 ///////////////////////////////////////////////////////////////////////
+#if WENDY_USE_CG
+///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
@@ -37,6 +39,15 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+enum Domain
+{
+  VERTEX,
+  FRAGMENT,
+  GEOMETRY,
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Cg context singleton.
  */
 class Context : public Singleton<Context>
@@ -45,6 +56,8 @@ public:
   /*! Destructor.
    */
   ~Context(void);
+  CGcontext getID(void) const;
+  CGprofile getProfile(Domain domain) const;
   /*! Creates the context singleton object.
    *  @return @c true if successful, or @c false otherwise.
    */
@@ -52,6 +65,8 @@ public:
 private:
   Context(void);
   bool init(void);
+  CGcontext contextID;
+  CGprofile profiles[3];
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -59,6 +74,8 @@ private:
   } /*namespace Cg*/
 } /*namespace wendy*/
 
+///////////////////////////////////////////////////////////////////////
+#endif /* WENDY_USE_CG */
 ///////////////////////////////////////////////////////////////////////
 #endif /*WENDY_CGCONTEXT_H*/
 ///////////////////////////////////////////////////////////////////////

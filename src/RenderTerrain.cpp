@@ -30,13 +30,13 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
-#include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
 
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderStyle.h>
+#include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderMesh.h>
 #include <wendy/RenderTerrain.h>

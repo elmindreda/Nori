@@ -28,7 +28,6 @@
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
-#include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
 
@@ -943,16 +942,16 @@ void TextureLayer::applySampler(Texture& texture) const
 
 void TextureLayer::forceSampler(Texture& texture) const
 {
-  ShaderPermutation* permutation = ShaderPermutation::getCurrent();
-  if (!permutation)
+  ShaderProgram* program = ShaderProgram::getCurrent();
+  if (!program)
   {
-    Log::writeError("Cannot bind texture layer %u to GLSL sampler uniform %s without a current permutation",
+    Log::writeError("Cannot bind texture layer %u to GLSL sampler uniform %s without a current program",
                     unit,
 		    data.samplerName.c_str());
     return;
   }
 
-  ShaderUniform* sampler = permutation->getUniform(data.samplerName);
+  ShaderUniform* sampler = program->getUniform(data.samplerName);
   if (!sampler)
   {
     Log::writeError("Texture layer %u bound to non-existent GLSL sampler uniform %s",

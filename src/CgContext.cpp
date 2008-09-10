@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy demo system
-// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy Cg library
+// Copyright (c) 2008 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -26,33 +26,14 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
-#include <wendy/GLContext.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLShader.h>
-#include <wendy/GLCanvas.h>
-#include <wendy/GLPass.h>
-
-#include <wendy/RenderFont.h>
-
-#include <wendy/UIRender.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UIWindow.h>
-#include <wendy/UIScroller.h>
-#include <wendy/UILayout.h>
-#include <wendy/UIButton.h>
-#include <wendy/UILabel.h>
-#include <wendy/UIItem.h>
-#include <wendy/UIMenu.h>
-#include <wendy/UIPopup.h>
-
-#include <wendy/DemoConfig.h>
+#include <wendy/Cg.h>
+#include <wendy/CgContext.h>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace demo
+  namespace Cg
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -61,49 +42,74 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-ConfigDialog::ConfigDialog(void)
+Context::~Context(void)
 {
-  UI::Layout* layout = new UI::Layout(UI::VERTICAL);
-  addChild(*layout);
-
-  UI::Button* button;
-
-  button = new UI::Button("Demo");
-  layout->addChild(*button, 0.f);
-
-  button = new UI::Button("Die");
-  layout->addChild(*button, 0.f);
-
-  setVisible(false);
+  if (contextID)
+    cgDestroyContext(contextID);
 }
 
-void ConfigDialog::request(Config& config)
+CGcontext Context::getID(void) const
 {
-  setVisible(true);
+  return contextID;
+}
 
-  while (GL::Context::get()->update())
+CGprofile Context::getProfile(Domain domain) const
+{
+  switch (domain)
   {
+    case VERTEX:
+      return profiles[VERTEX];
+    case FRAGMENT:
+      return profiles[FRAGMENT];
+    case GEOMETRY:
+      return profiles[GEOMETRY];
+    default:
+      throw Exception("Invalid shader domain");
   }
-
-  setVisible(false);
 }
 
-SignalProxy0<void> ConfigDialog::getRenderSignal(void)
+bool Context::create(void)
 {
-  return renderSignal;
+  if (get())
+    return true;
+
+  Ptr<Context> context = new Context();
+  if (!context->init())
+    return false;
+
+  set(context.detachObject());
+  return true;
 }
 
-void ConfigDialog::onDemo(UI::Button& button)
+Context::Context(void):
+  contextID(NULL)
 {
 }
 
-void ConfigDialog::onDie(UI::Button& button)
+bool Context::init(void)
 {
+  contextID = cgCreateContext();
+  if (!contextID)
+    return false;
+
+  profiles[VERTEX] = cgGLGetLatestProfile(CG_GL_VERTEX);
+  if (profiles[VERTEX] == CG_PROFILE_UNKNOWN)
+    Log::writeWarning("No suitable Cg vertex shader profile found");
+
+  profiles[FRAGMENT] = cgGLGetLatestProfile(CG_GL_FRAGMENT);
+  if (profiles[FRAGMENT] == CG_PROFILE_UNKNOWN)
+    Log::writeWarning("No suitable Cg fragment shader profile found");
+
+  profiles[GEOMETRY] = cgGLGetLatestProfile(CG_GL_GEOMETRY);
+  if (profiles[GEOMETRY] == CG_PROFILE_UNKNOWN)
+    Log::writeWarning("No suitable Cg geometry shader profile found");
+
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace demo*/
+  } /*namespace Cg*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

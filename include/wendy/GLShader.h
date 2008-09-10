@@ -37,7 +37,6 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class ShaderPermutation;
 class ShaderProgram;
 
 ///////////////////////////////////////////////////////////////////////
@@ -67,7 +66,6 @@ public:
 protected:
   Type type;
   String text;
-  bool lighting;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -109,7 +107,7 @@ private:
  */
 class ShaderAttribute
 {
-  friend class ShaderPermutation;
+  friend class ShaderProgram;
 public:
   /*! Shader attribute type enumeration.
    */
@@ -144,12 +142,12 @@ public:
   unsigned int getElementCount(void) const;
   /*! @return The GLSL program permutation that contains this attribute.
    */
-  ShaderPermutation& getPermutation(void) const;
+  ShaderProgram& getProgram(void) const;
 private:
-  ShaderAttribute(ShaderPermutation& permutation);
+  ShaderAttribute(ShaderProgram& program);
   ShaderAttribute(const ShaderAttribute& source);
   ShaderAttribute& operator = (const ShaderAttribute& source);
-  ShaderPermutation& permutation;
+  ShaderProgram& program;
   String name;
   Type type;
   unsigned int count;
@@ -166,7 +164,7 @@ private:
  */
 class ShaderUniform
 {
-  friend class ShaderPermutation;
+  friend class ShaderProgram;
 public:
   /*! Shader uniform type enumeration.
    */
@@ -222,12 +220,12 @@ public:
   void setValue(const Matrix4& newValue, unsigned int index = 0);
   /*! @return The GLSL program permutation that contains this uniform.
    */
-  ShaderPermutation& getPermutation(void) const;
+  ShaderProgram& getProgram(void) const;
 private:
-  ShaderUniform(ShaderPermutation& permutation);
+  ShaderUniform(ShaderProgram& program);
   ShaderUniform(const ShaderUniform& source);
   ShaderUniform& operator = (const ShaderUniform& source);
-  ShaderPermutation& permutation;
+  ShaderProgram& program;
   typedef std::vector<GLint> LocationList;
   String name;
   Type type;
@@ -239,12 +237,13 @@ private:
 
 /*! @ingroup opengl
  */
-class ShaderPermutation
+class ShaderProgram : public Resource<ShaderProgram>,
+                      public RefObject<ShaderProgram>
 {
-  friend class ShaderProgram;
 public:
+  ~ShaderProgram(void);
+  bool apply(void) const;
   bool isValid(void) const;
-  const String& getName(void) const;
   unsigned int getUniformCount(void) const;
   ShaderUniform& getUniform(unsigned int index);
   const ShaderUniform& getUniform(unsigned int index) const;
@@ -255,59 +254,29 @@ public:
   const ShaderAttribute& getAttribute(unsigned int index) const;
   ShaderAttribute* getAttribute(const String& name);
   const ShaderAttribute* getAttribute(const String& name) const;
-  ShaderProgram& getProgram(void) const;
-  static ShaderPermutation* getCurrent(void);
-private:
-  ShaderPermutation(ShaderProgram& program);
-  ~ShaderPermutation(void);    
-  bool init(void);
-  bool apply(void) const;
+  const VertexShader& getVertexShader(void) const;
+  const FragmentShader& getFragmentShader(void) const;
+  static ShaderProgram* createInstance(VertexShader& vertexShader,
+				       FragmentShader& fragmentShader,
+				       const String& name = "");
   static void applyFixedFunction(void);
+  static ShaderProgram* getCurrent(void);
+private:
+  ShaderProgram(const String& name);
+  bool init(VertexShader& vertexShader, FragmentShader& fragmentShader);
   GLhandleARB createShader(const Shader& shader);
   bool createUniforms(void);
   bool createAttributes(void);
   typedef std::vector<ShaderUniform*> UniformList;
   typedef std::vector<ShaderAttribute*> AttributeList;
-  ShaderProgram& program;
+  Ref<VertexShader> vertexShader;
+  Ref<FragmentShader> fragmentShader;
   GLhandleARB programID;
   GLhandleARB vertexID;
   GLhandleARB fragmentID;
   UniformList uniforms;
   AttributeList attributes;
-  String name;
-  static ShaderPermutation* current;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup opengl
- */
-class ShaderProgram : public Resource<ShaderProgram>,
-                      public RefObject<ShaderProgram>
-{
-public:
-  ~ShaderProgram(void);
-  bool apply(void);
-  const VertexShader& getVertexShader(void) const;
-  const FragmentShader& getFragmentShader(void) const;
-  SignalProxy1<void, ShaderPermutation&> getPermutationCreatedSignal(void);
-  SignalProxy1<void, ShaderPermutation&> getPermutationAppliedSignal(void);
-  static ShaderProgram* createInstance(VertexShader& vertexShader,
-				       FragmentShader& fragmentShader,
-				       const String& name = "");
-  static void applyFixedFunction(void);
-private:
-  ShaderProgram(const String& name);
-  bool init(VertexShader& vertexShader, FragmentShader& fragmentShader);
-  ShaderPermutation* createPermutation(void);
-  ShaderPermutation* findPermutation(const String& name);
-  const ShaderPermutation* findPermutation(const String& name) const;
-  typedef std::vector<ShaderPermutation*> PermutationList;
-  Ref<VertexShader> vertexShader;
-  Ref<FragmentShader> fragmentShader;
-  PermutationList permutations;
-  Signal1<void, ShaderPermutation&> createdSignal;
-  Signal1<void, ShaderPermutation&> appliedSignal;
+  static ShaderProgram* current;
 };
 
 ///////////////////////////////////////////////////////////////////////

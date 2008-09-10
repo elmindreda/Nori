@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy demo system
-// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy Cg library
+// Copyright (c) 2008 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -26,33 +26,15 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
-#include <wendy/GLContext.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLShader.h>
-#include <wendy/GLCanvas.h>
-#include <wendy/GLPass.h>
-
-#include <wendy/RenderFont.h>
-
-#include <wendy/UIRender.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UIWindow.h>
-#include <wendy/UIScroller.h>
-#include <wendy/UILayout.h>
-#include <wendy/UIButton.h>
-#include <wendy/UILabel.h>
-#include <wendy/UIItem.h>
-#include <wendy/UIMenu.h>
-#include <wendy/UIPopup.h>
-
-#include <wendy/DemoConfig.h>
+#include <wendy/Cg.h>
+#include <wendy/CgContext.h>
+#include <wendy/CgShader.h>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace demo
+  namespace Cg
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -61,49 +43,57 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-ConfigDialog::ConfigDialog(void)
+Shader::~Shader(void)
 {
-  UI::Layout* layout = new UI::Layout(UI::VERTICAL);
-  addChild(*layout);
-
-  UI::Button* button;
-
-  button = new UI::Button("Demo");
-  layout->addChild(*button, 0.f);
-
-  button = new UI::Button("Die");
-  layout->addChild(*button, 0.f);
-
-  setVisible(false);
+  if (programID)
+    cgDestroyProgram(programID);
 }
 
-void ConfigDialog::request(Config& config)
+Shader* Shader::createInstance(Domain domain, const String& text, const String& name)
 {
-  setVisible(true);
+  Ptr<Shader> shader = new Shader(domain, name);
+  if (!shader->init(text))
+    return NULL;
 
-  while (GL::Context::get()->update())
+  return shader.detachObject();
+}
+
+Shader::Shader(Domain initDomain, const String& name):
+  Resource<Shader>(name),
+  domain(initDomain),
+  programID(NULL)
+{
+}
+
+bool Shader::init(const String& text)
+{
+  Context* context = Context::get();
+  if (!context)
   {
+    Log::writeError("Cannot create Cg shader without Cg context");
+    return false;
   }
 
-  setVisible(false);
-}
+  CGprofile profile = context->getProfile(domain);
+  if (profile == CG_PROFILE_UNKNOWN)
+  {
+    Log::writeError("Cannot create Cg shaders for domain");
+    return false;
+  }
 
-SignalProxy0<void> ConfigDialog::getRenderSignal(void)
-{
-  return renderSignal;
-}
+  programID = cgCreateProgram(context->getID(), CG_SOURCE, text.c_str(), profile, NULL, NULL);
+  if (!programID)
+  {
+    Log::writeError("Failed to compile Cg shader: %s", cgGetErrorString(cgGetError()));
+    return false;
+  }
 
-void ConfigDialog::onDemo(UI::Button& button)
-{
-}
-
-void ConfigDialog::onDie(UI::Button& button)
-{
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace demo*/
+  } /*namespace Cg*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

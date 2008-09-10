@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy demo system
-// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy Cg library
+// Copyright (c) 2008 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,88 +22,24 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
+#ifndef WENDY_CG_H
+#define WENDY_CG_H
+///////////////////////////////////////////////////////////////////////
+#if WENDY_USE_CG
+///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
-
-#include <wendy/Config.h>
-#include <wendy/OpenGL.h>
-#include <wendy/GLContext.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLShader.h>
-#include <wendy/GLCanvas.h>
-#include <wendy/GLPass.h>
-
-#include <wendy/RenderFont.h>
-
-#include <wendy/UIRender.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UIWindow.h>
-#include <wendy/UIScroller.h>
-#include <wendy/UILayout.h>
-#include <wendy/UIButton.h>
-#include <wendy/UILabel.h>
-#include <wendy/UIItem.h>
-#include <wendy/UIMenu.h>
-#include <wendy/UIPopup.h>
-
-#include <wendy/DemoConfig.h>
+#include <Cg/cg.h>
+#include <Cg/cgGL.h>
 
 ///////////////////////////////////////////////////////////////////////
 
-namespace wendy
-{
-  namespace demo
-  {
-  
-///////////////////////////////////////////////////////////////////////
-
-using namespace moira;
+/*! @defgroup cg Cg wrapper API
+ *
+ *  These classes wrap parts of the Cg API.
+ */
 
 ///////////////////////////////////////////////////////////////////////
-
-ConfigDialog::ConfigDialog(void)
-{
-  UI::Layout* layout = new UI::Layout(UI::VERTICAL);
-  addChild(*layout);
-
-  UI::Button* button;
-
-  button = new UI::Button("Demo");
-  layout->addChild(*button, 0.f);
-
-  button = new UI::Button("Die");
-  layout->addChild(*button, 0.f);
-
-  setVisible(false);
-}
-
-void ConfigDialog::request(Config& config)
-{
-  setVisible(true);
-
-  while (GL::Context::get()->update())
-  {
-  }
-
-  setVisible(false);
-}
-
-SignalProxy0<void> ConfigDialog::getRenderSignal(void)
-{
-  return renderSignal;
-}
-
-void ConfigDialog::onDemo(UI::Button& button)
-{
-}
-
-void ConfigDialog::onDie(UI::Button& button)
-{
-}
-
+#endif /* WENDY_USE_CG */
 ///////////////////////////////////////////////////////////////////////
-
-  } /*namespace demo*/
-} /*namespace wendy*/
-
+#endif /*WENDY_CG_H*/
 ///////////////////////////////////////////////////////////////////////

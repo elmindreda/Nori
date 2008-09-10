@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy default renderer
-// Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2008 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -28,18 +28,8 @@
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLCanvas.h>
-#include <wendy/GLShader.h>
-#include <wendy/GLVertex.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLPass.h>
 
-#include <wendy/RenderCamera.h>
-#include <wendy/RenderStyle.h>
 #include <wendy/RenderLight.h>
-#include <wendy/RenderQueue.h>
-#include <wendy/RenderStage.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -50,58 +40,95 @@ namespace wendy
   
 ///////////////////////////////////////////////////////////////////////
 
-using namespace moira;
+Light::Light(void):
+  intensity(ColorRGB::WHITE),
+  position(Vector3::ZERO)
+{
+}
+
+const ColorRGB& Light::getIntensity(void) const
+{
+  return intensity;
+}
+
+void Light::setIntensity(const ColorRGB& newIntensity)
+{
+  intensity = newIntensity;
+}
+
+const Vector3 Light::getPosition(void) const
+{
+  return position;
+}
+
+void Light::setPosition(const Vector3& newPosition)
+{
+  position = newPosition;
+}
 
 ///////////////////////////////////////////////////////////////////////
 
-Stage::~Stage(void)
+LightState::LightState(void)
 {
-}
+  static bool initialized = false;
 
-void Stage::prepare(const Queue& queue)
-{
-}
-
-void Stage::render(const Queue& queue)
-{
-}
-
-///////////////////////////////////////////////////////////////////////
-
-StageStack::~StageStack(void)
-{
-  destroyStages();
-}
-
-void StageStack::addStage(Stage& stage)
-{
-  stages.push_back(&stage);
-}
-
-void StageStack::removeStage(Stage& stage)
-{
-  StageList::iterator i = std::find(stages.begin(), stages.end(), &stage);
-  if (i != stages.end())
-    stages.erase(i);
-}
-
-void StageStack::destroyStages(void)
-{
-  while (!stages.empty())
+  if (!initialized)
   {
-    delete stages.back();
-    stages.pop_back();
+    GL::Context* context = GL::Context::get();
+    if (context)
+    {
+      context->getDestroySignal().connect(onContextDestroy);
+      initialized = true;
+    }
   }
 }
 
-void StageStack::render(const Queue& queue)
+void LightState::apply(void) const
 {
-  for (StageList::iterator i = stages.begin();  i != stages.end();  i++)
-    (*i)->prepare(queue);
-
-  for (StageList::iterator i = stages.begin();  i != stages.end();  i++)
-    (*i)->render(queue);
 }
+
+void LightState::attachLight(Light& light)
+{
+  List::const_iterator i = std::find(lights.begin(), lights.end(), &light);
+  if (i != lights.end())
+    return;
+
+  lights.push_back(&light);
+}
+
+void LightState::detachLight(Light& light)
+{
+  List::iterator i = std::find(lights.begin(), lights.end(), &light);
+  if (i != lights.end())
+    lights.erase(i);
+}
+
+void LightState::detachLights(void)
+{
+  lights.clear();
+}
+
+unsigned int LightState::getLightCount(void) const
+{
+  return lights.size();
+}
+
+Light& LightState::getLight(unsigned int index) const
+{
+  return *lights[index];
+}
+
+const LightState& LightState::getCurrent(void)
+{
+  return current;
+}
+
+void LightState::onContextDestroy(void)
+{
+  current.detachLights();
+}
+
+LightState LightState::current;
 
 ///////////////////////////////////////////////////////////////////////
 

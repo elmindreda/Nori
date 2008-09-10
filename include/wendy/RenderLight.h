@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy demo system
-// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy default renderer
+// Copyright (c) 2008 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,37 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-
-#include <moira/Moira.h>
-
-#include <wendy/Config.h>
-#include <wendy/OpenGL.h>
-#include <wendy/GLContext.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLShader.h>
-#include <wendy/GLCanvas.h>
-#include <wendy/GLPass.h>
-
-#include <wendy/RenderFont.h>
-
-#include <wendy/UIRender.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UIWindow.h>
-#include <wendy/UIScroller.h>
-#include <wendy/UILayout.h>
-#include <wendy/UIButton.h>
-#include <wendy/UILabel.h>
-#include <wendy/UIItem.h>
-#include <wendy/UIMenu.h>
-#include <wendy/UIPopup.h>
-
-#include <wendy/DemoConfig.h>
-
+#ifndef WENDY_RENDERLIGHT_H
+#define WENDY_RENDERLIGHT_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace demo
+  namespace render
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -61,49 +37,48 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-ConfigDialog::ConfigDialog(void)
+class Light : public RefObject<Light>
 {
-  UI::Layout* layout = new UI::Layout(UI::VERTICAL);
-  addChild(*layout);
-
-  UI::Button* button;
-
-  button = new UI::Button("Demo");
-  layout->addChild(*button, 0.f);
-
-  button = new UI::Button("Die");
-  layout->addChild(*button, 0.f);
-
-  setVisible(false);
-}
-
-void ConfigDialog::request(Config& config)
-{
-  setVisible(true);
-
-  while (GL::Context::get()->update())
-  {
-  }
-
-  setVisible(false);
-}
-
-SignalProxy0<void> ConfigDialog::getRenderSignal(void)
-{
-  return renderSignal;
-}
-
-void ConfigDialog::onDemo(UI::Button& button)
-{
-}
-
-void ConfigDialog::onDie(UI::Button& button)
-{
-}
+public:
+  Light(void);
+  const ColorRGB& getIntensity(void) const;
+  void setIntensity(const ColorRGB& newColor);
+  const Vector3 getPosition(void) const;
+  void setPosition(const Vector3& newPosition);
+private:
+  ColorRGB intensity;
+  Vector3 position;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace demo*/
+typedef Ref<Light> LightRef;
+
+///////////////////////////////////////////////////////////////////////
+
+class LightState
+{
+public:
+  LightState(void);
+  void apply(void) const;
+  void attachLight(Light& light);
+  void detachLight(Light& light);
+  void detachLights(void);
+  unsigned int getLightCount(void) const;
+  Light& getLight(unsigned int index) const;
+  static const LightState& getCurrent(void);
+private:
+  static void onContextDestroy(void);
+  typedef std::vector<LightRef> List;
+  List lights;
+  static LightState current;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+  } /*namespace render*/
 } /*namespace wendy*/
 
+///////////////////////////////////////////////////////////////////////
+#endif /*WENDY_RENDERLIGHT_H*/
 ///////////////////////////////////////////////////////////////////////
