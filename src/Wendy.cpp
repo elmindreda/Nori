@@ -43,6 +43,7 @@ using namespace moira;
 namespace
 {
 
+Ptr<GL::TextureCodec> textureCodec;
 Ptr<GL::VertexShaderCodec> vertexShaderCodec;
 Ptr<GL::FragmentShaderCodec> fragmentShaderCodec;
 Ptr<GL::ShaderProgramCodec> shaderProgramCodec;
@@ -69,12 +70,16 @@ bool initialize(void)
     return false;
   }
 
+  textureCodec = new GL::TextureCodec();
   vertexShaderCodec = new GL::VertexShaderCodec();
   fragmentShaderCodec = new GL::FragmentShaderCodec();
   shaderProgramCodec = new GL::ShaderProgramCodec();
   renderStyleCodec = new render::StyleCodec();
   renderTerrainCodec = new render::TerrainCodec();
   showCodec = new demo::ShowCodec();
+
+  if (!GL::Texture::addSearchPath(Path(".")))
+    return false;
 
   if (!GL::VertexShader::addSearchPath(Path(".")))
     return false;
@@ -98,6 +103,7 @@ void shutdown(void)
 {
   GL::Context::destroy();
 
+  textureCodec = NULL;
   vertexShaderCodec = NULL;
   fragmentShaderCodec = NULL;
   shaderProgramCodec = NULL;

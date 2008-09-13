@@ -107,6 +107,7 @@
 #include <wendy/GLState.h>
 #include <wendy/GLRender.h>
 
+#include <wendy/GLTextureIO.h>
 #include <wendy/GLShaderIO.h>
 
 #include <wendy/RenderCamera.h>

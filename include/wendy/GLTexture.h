@@ -115,24 +115,6 @@ public:
    *  @return The image data of the specified mipmap level.
    */
   Image* getImage(unsigned int level = 0) const;
-  static Texture* readInstance(const String& name,
-                               unsigned int flags = DEFAULT);
-  /*! Creates a texture from the specified image file.
-   *  @param[in] path The path of the image file to use.
-   *  @param[in] flags The creation flags.
-   *  @param[in] name The desired name of the texture.
-   */
-  static Texture* readInstance(const Path& path,
-                               unsigned int flags = DEFAULT,
-			       const String& name = "");
-  /*! Creates a texture from the specified stream.
-   *  @param[in] stream The source data stream to use.
-   *  @param[in] flags The creation flags.
-   *  @param[in] name The desired name of the texture.
-   */
-  static Texture* readInstance(Stream& stream,
-                               unsigned int flags = DEFAULT,
-			       const String& name = "");
   /*! Creates a texture from the specified image.
    *  @param[in] image The image data to use.
    *  @param[in] flags The creation flags.
@@ -351,22 +333,6 @@ private:
   typedef std::vector<TextureLayer> LayerList;
   LayerList layers;
   static LayerList defaults;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class TextureCodec : public ResourceCodec<Texture>, public XML::Codec
-{
-public:
-  TextureCodec(void);
-  Texture* read(const Path& path, const String& name = "");
-  Texture* read(Stream& stream, const String& name = "");
-  bool write(const Path& path, const Texture& texture);
-  bool write(Stream& stream, const Texture& texture);
-private:
-  bool onBeginElement(const String& name);
-  bool onEndElement(const String& name);
-  Ptr<Texture> texture;
 };
 
 ///////////////////////////////////////////////////////////////////////

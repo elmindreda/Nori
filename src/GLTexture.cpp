@@ -280,48 +280,6 @@ Image* Texture::getImage(unsigned int level) const
   return result.detachObject();
 }
 
-Texture* Texture::readInstance(const String& name, unsigned int flags)
-{
-  if (Texture* texture = findInstance(name))
-  {
-    if (texture->getFlags() != flags)
-      throw Exception("Flags differ for cached texture");
-
-    return texture;
-  }
-
-  if (Image* image = Image::findInstance(name))
-    return createInstance(*image, flags, name);
-
-  Ptr<Image> image = Image::readInstance(name);
-  if (!image)
-    return NULL;
-
-  return createInstance(*image, flags, name);
-}
-
-Texture* Texture::readInstance(const Path& path,
-			       unsigned int flags,
-			       const String& name)
-{
-  Ptr<Image> image = Image::readInstance(path);
-  if (!image)
-    return NULL;
-
-  return createInstance(*image, flags, name);
-}
-
-Texture* Texture::readInstance(Stream& stream,
-			       unsigned int flags,
-			       const String& name)
-{
-  Ptr<Image> image = Image::readInstance(stream);
-  if (!image)
-    return NULL;
-
-  return createInstance(*image, flags, name);
-}
-
 Texture* Texture::createInstance(const Image& image,
 				 unsigned int flags,
 				 const String& name)
@@ -396,13 +354,13 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 	return false;
       }
 
-      if (GLEW_ARB_texture_rectangle)
-	textureTarget = GL_TEXTURE_RECTANGLE_ARB;
-      else
+      if (!GLEW_ARB_texture_rectangle)
       {
 	Log::writeError("Rectangular textures are not supported by the current OpenGL context");
 	return false;
       }
+
+      textureTarget = GL_TEXTURE_RECTANGLE_ARB;
     }
     else
       textureTarget = GL_TEXTURE_2D;
