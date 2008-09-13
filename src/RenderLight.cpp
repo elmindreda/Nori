@@ -42,7 +42,8 @@ namespace wendy
 
 Light::Light(void):
   intensity(ColorRGB::WHITE),
-  position(Vector3::ZERO)
+  position(Vector3::ZERO),
+  bounds(Vector3::ZERO, 1.f)
 {
 }
 
@@ -64,6 +65,16 @@ const Vector3 Light::getPosition(void) const
 void Light::setPosition(const Vector3& newPosition)
 {
   position = newPosition;
+}
+
+const Sphere& Light::getBounds(void) const
+{
+  return bounds;
+}
+
+void Light::setBounds(const Sphere& newBounds)
+{
+  bounds = newBounds;
 }
 
 ///////////////////////////////////////////////////////////////////////
