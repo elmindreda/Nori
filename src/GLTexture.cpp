@@ -197,19 +197,19 @@ GLenum Texture::getTarget(void) const
   return textureTarget;
 }
 
-unsigned int Texture::getWidth(unsigned int level) const
+unsigned int Texture::getSourceWidth(unsigned int level) const
 {
-  return width >> level;
+  return sourceWidth >> level;
 }
 
-unsigned int Texture::getHeight(unsigned int level) const
+unsigned int Texture::getSourceHeight(unsigned int level) const
 {
-  return height >> level;
+  return sourceHeight >> level;
 }
 
-unsigned int Texture::getDepth(unsigned int level) const
+unsigned int Texture::getSourceDepth(unsigned int level) const
 {
-  return depth >> level;
+  return sourceDepth >> level;
 }
 
 unsigned int Texture::getPhysicalWidth(unsigned int level) const
@@ -339,9 +339,9 @@ Texture::Texture(const String& name):
   textureID(0),
   minFilter(0),
   magFilter(0),
-  width(0),
-  height(0),
-  depth(0),
+  sourceWidth(0),
+  sourceHeight(0),
+  sourceDepth(0),
   physicalWidth(0),
   physicalHeight(0),
   physicalDepth(0),
@@ -382,100 +382,94 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 
   flags = initFlags;
 
+  // Figure out which texture target to use
+
   if (image.getDimensionCount() == 1)
     textureTarget = GL_TEXTURE_1D;
   else if (image.getDimensionCount() == 2)
-    textureTarget = GL_TEXTURE_2D;
-  else
   {
-    // TODO: Support 3D textures
-
-    Log::writeError("3D textures not supported");
-    return false;
-  }
-
-  // The "regular" width and height correspond to the original dimensions
-  width = image.getWidth();
-  height = image.getHeight();
-
-  Image source = image;
-
-  // Moira has y-axis down, OpenGL has y-axis up
-  source.flipHorizontal();
-
-  // Ensure that source image is in GL-compatible format
-  if (!source.convert(getConversionFormat(source.getFormat())))
-    return false;
-
-  format = source.getFormat();
-
-  if (flags & RECTANGULAR)
-  {
-    physicalWidth = width;
-    physicalHeight = height;
-
-    if (!GLEW_ARB_texture_non_power_of_two)
+    if (flags & RECTANGULAR)
     {
-      Log::writeError("Rectangular textures are not supported by the current OpenGL context");
-      return false;
-      /*
-      if (!GLEW_ARB_texture_rectangle)
+      if (flags & MIPMAPPED)
+      {
+	Log::writeError("Rectangular textures cannot be mipmapped");
+	return false;
+      }
+
+      if (GLEW_ARB_texture_rectangle)
+	textureTarget = GL_TEXTURE_RECTANGLE_ARB;
+      else
       {
 	Log::writeError("Rectangular textures are not supported by the current OpenGL context");
 	return false;
       }
-
-      if (textureTarget != GL_TEXTURE_2D)
-      {
-	Log::writeError("Only two-dimensional rectangular textures are supported by this OpenGL context");
-	return false;
-      }
-
-      if (flags & MIPMAPPED)
-      {
-	Log::writeError("Mipmapped rectangular textures are not supported by the current OpenGL context");
-	return false;
-      }
-
-      textureTarget = GL_TEXTURE_RECTANGLE_ARB;
-      */
     }
-
-    unsigned int maxSize;
-
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxSize);
-    if (textureTarget == GL_TEXTURE_RECTANGLE_ARB)
-      glGetIntegerv(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB, (GLint*) &maxSize);
     else
-      glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxSize);
-
-    if (physicalWidth > maxSize)
-      physicalWidth = maxSize;
-
-    if (physicalHeight > maxSize)
-      physicalHeight = maxSize;
+      textureTarget = GL_TEXTURE_2D;
   }
   else
   {
-    unsigned int maxSize;
+    // TODO: Support 3D textures
 
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxSize);
+    Log::writeError("3D textures not supported yet");
+    return false;
+  }
 
-    if (flags & DONT_GROW)
+  // Save source image dimensions
+  sourceWidth = image.getWidth();
+  sourceHeight = image.getHeight();
+
+  Image source = image;
+
+  // Adapt source image to OpenGL restrictions
+  {
+    // Ensure that source image is in GL-compatible format
+    if (!source.convert(getConversionFormat(source.getFormat())))
+      return false;
+
+    format = source.getFormat();
+
+    // Moira has y-axis down, OpenGL has y-axis up
+    source.flipHorizontal();
+
+    // Figure out target dimensions
+
+    if (flags & RECTANGULAR)
     {
-      physicalWidth = getClosestPower(width, std::min(maxSize, width));
-      physicalHeight = getClosestPower(height, std::min(maxSize, height));
+      physicalWidth = sourceWidth;
+      physicalHeight = sourceHeight;
+
+      unsigned int maxSize;
+      glGetIntegerv(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB, (GLint*) &maxSize);
+
+      if (physicalWidth > maxSize)
+	physicalWidth = maxSize;
+
+      if (physicalHeight > maxSize)
+	physicalHeight = maxSize;
     }
     else
     {
-      physicalWidth = getClosestPower(width, maxSize);
-      physicalHeight = getClosestPower(height, maxSize);
-    }
-  }
+      unsigned int maxSize;
 
-  // Rescale source image (don't worry, it's a no-op if the sizes are equal)
-  if (!source.resize(physicalWidth, physicalHeight))
-    return false;
+      glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxSize);
+
+      if (flags & DONT_GROW)
+      {
+	physicalWidth = getClosestPower(sourceWidth, std::min(maxSize, sourceWidth));
+	physicalHeight = getClosestPower(sourceHeight, std::min(maxSize, sourceHeight));
+      }
+      else
+      {
+	physicalWidth = getClosestPower(sourceWidth, maxSize);
+	physicalHeight = getClosestPower(sourceHeight, maxSize);
+      }
+    }
+
+    // Rescale source image (don't worry, it's a no-op if the sizes are equal)
+    if (!source.resize(physicalWidth, physicalHeight))
+      return false;
+  }
 
   // Clear any errors
   glGetError();
@@ -509,7 +503,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
                         source.getPixels());
     }
 
-    levelCount = (unsigned int) log2f(fmaxf(width, height));
+    levelCount = (unsigned int) log2f(fmaxf(sourceWidth, sourceHeight));
     /*
     if (flags & RECTANGULAR)
       levelCount = (unsigned int) (1.f + floorf(log2f(fmaxf(width, height))));
@@ -542,9 +536,6 @@ bool Texture::init(const Image& image, unsigned int initFlags)
                    GL_UNSIGNED_BYTE,
                    source.getPixels());
     }
-
-    // Disable mipmapping
-    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     levelCount = 1;
   }
@@ -631,28 +622,6 @@ void TextureLayer::apply(void) const
       glEnable(textureTarget);
       textureTargets[unit] = textureTarget;
     }
-
-    // Set scaling texture matrix
-    // NOTE: This is (and should remain) the only place where the regular
-    //       texture matrix is used.  If you need matrices, use uniforms.
-    /*
-    {
-      // TODO: See if we can avoid always forcing this
-
-      Matrix4 matrix;
-
-      if (textureTarget == GL_TEXTURE_RECTANGLE_ARB)
-      {
-	matrix.x.x = 1.f / texture->getPhysicalWidth();
-	matrix.y.y = 1.f / texture->getPhysicalHeight();
-      }
-    
-      glPushAttrib(GL_TRANSFORM_BIT);
-      glMatrixMode(GL_TEXTURE);
-      glLoadMatrixf(matrix);
-      glPopAttrib();
-    }
-    */
 
     if (data.texture != cache.texture)
     {

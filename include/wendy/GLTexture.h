@@ -50,7 +50,8 @@ public:
   enum
   {
     /*! The texture will be created with the original image dimensions,
-     *  if possible.  Note that such textures are slower when rendering.
+     *  if possible.  Note that such textures have an address range of
+     *  [0..w] and [0..h], not [0..1].
      */
     RECTANGULAR = 1,
     /*! The texture will be created with a mipmap chain.
@@ -79,16 +80,16 @@ public:
   /*! @return The width, in pixels, of the source for specified mipmap level.
    *  @param[in] level The desired mipmap level.
    */
-  unsigned int getWidth(unsigned int level = 0) const;
+  unsigned int getSourceWidth(unsigned int level = 0) const;
   /*! @return The height, in pixels, of the source for specified mipmap level.
    *  @param[in] level The desired mipmap level.
    */
-  unsigned int getHeight(unsigned int level = 0) const;
+  unsigned int getSourceHeight(unsigned int level = 0) const;
   /*! @return The depth, in pixels, of the source for the specified mipmap
    *  level.
    *  @param[in] level The desired mipmap level.
    */
-  unsigned int getDepth(unsigned int level = 0) const;
+  unsigned int getSourceDepth(unsigned int level = 0) const;
   /*! @return The width, in pixels, of the specified mipmap level.
    *  @param[in] level The desired mipmap level.
    */
@@ -149,9 +150,9 @@ private:
   GLint minFilter;
   GLint magFilter;
   GLint addressMode;
-  unsigned int width;
-  unsigned int height;
-  unsigned int depth;
+  unsigned int sourceWidth;
+  unsigned int sourceHeight;
+  unsigned int sourceDepth;
   unsigned int physicalWidth;
   unsigned int physicalHeight;
   unsigned int physicalDepth;
