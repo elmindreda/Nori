@@ -216,13 +216,6 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 	if (!pass.getName().empty())
 	  addAttribute("name", pass.getName());
 
-	if (pass.isLit() != defaults.isLit())
-	{
-	  beginElement("lighting");
-	  addAttribute("enabled", pass.isLit());
-	  endElement();
-	}
-
 	if (pass.getSrcFactor() != defaults.getSrcFactor() ||
 	    pass.getDstFactor() != defaults.getDstFactor())
 	{
@@ -293,39 +286,11 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 	  endElement();
 	}
 
-	if (pass.isLit())
+	if (pass.getDefaultColor() != defaults.getDefaultColor())
 	{
-	  if (pass.getAmbientColor() != defaults.getAmbientColor())
-	  {
-	    beginElement("ambient");
-	    addAttributes(pass.getAmbientColor());
-	    endElement();
-	  }
-
-	  if (pass.getDiffuseColor() != defaults.getDiffuseColor())
-	  {
-	    beginElement("diffuse");
-	    addAttributes(pass.getDiffuseColor());
-	    endElement();
-	  }
-
-	  if (pass.getSpecularColor() != defaults.getSpecularColor() ||
-	      pass.getShininess() != defaults.getShininess())
-	  {
-	    beginElement("specular");
-	    addAttributes(pass.getSpecularColor());
-	    addAttribute("shininess", pass.getShininess());
-	    endElement();
-	  }
-	}
-	else
-	{
-	  if (pass.getDefaultColor() != defaults.getDefaultColor())
-	  {
-	    beginElement("default");
-	    addAttributes(pass.getDefaultColor());
-	    endElement();
-	  }
+	  beginElement("default");
+	  addAttributes(pass.getDefaultColor());
+	  endElement();
 	}
 
 	for (unsigned int i = 0;  i < pass.getTextureLayerCount();  i++)
@@ -435,12 +400,6 @@ bool StyleCodec::onBeginElement(const String& name)
 
       if (currentPass)
       {
-	if (name == "lighting")
-	{
-	  currentPass->setLit(readBoolean("enabled", currentPass->isLit()));
-	  return true;
-	}
-
 	if (name == "blending")
 	{
 	  String srcFactorName = readString("src");
@@ -605,33 +564,6 @@ bool StyleCodec::onBeginElement(const String& name)
 	  ColorRGBA color;
 	  readAttributes(color, currentPass->getDefaultColor());
 	  currentPass->setDefaultColor(color);
-	  return true;
-	}
-
-	if (name == "ambient")
-	{
-	  ColorRGBA color;
-	  readAttributes(color, currentPass->getAmbientColor());
-	  currentPass->setAmbientColor(color);
-	  return true;
-	}
-
-	if (name == "diffuse")
-	{
-	  ColorRGBA color;
-	  readAttributes(color, currentPass->getDiffuseColor());
-	  currentPass->setDiffuseColor(color);
-	  return true;
-	}
-
-	if (name == "specular")
-	{
-	  ColorRGBA color;
-	  readAttributes(color, currentPass->getSpecularColor());
-	  currentPass->setSpecularColor(color);
-
-	  currentPass->setShininess(readFloat("shininess",
-	                                      currentPass->getShininess()));
 	  return true;
 	}
 

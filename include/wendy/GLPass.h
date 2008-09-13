@@ -114,10 +114,6 @@ public:
    *  @c false.
    */
   bool isColorWriting(void) const;
-  /*! @return @c true if this render pass is affected by lighting, otherwise @c
-   *  false.
-   */
-  bool isLit(void) const;
   /*! @return The width of lines, in percent of the height of the current
    * render target.
    */
@@ -135,21 +131,12 @@ public:
   GLenum getDstFactor(void) const;
   GLenum getDepthFunction(void) const;
   GLenum getAlphaFunction(void) const;
-  float getShininess(void) const;
   const ColorRGBA& getDefaultColor(void) const;
-  const ColorRGBA& getAmbientColor(void) const;
-  const ColorRGBA& getDiffuseColor(void) const;
-  const ColorRGBA& getSpecularColor(void) const;
   /*! @return The name of the GLSL program used by this render pass, or the
    *  empty string if it doesn't use any GLSL program.
    */
   ShaderProgram* getShaderProgram(void) const;
   const String& getName(void) const;
-  /*! Sets whether this render pass is affected by lighting.
-   *  @param enable Set to @c true to enable lighting, or @c false to disable
-   *  it.
-   */
-  void setLit(bool enable);
   /*! Sets whether this render pass uses depth buffer testing.
    *  @param enable Set to @c true to enable depth buffer testing, or @c false
    *  to disable it.
@@ -186,11 +173,7 @@ public:
    */
   void setPolygonMode(GLenum mode);
   void setBlendFactors(GLenum src, GLenum dst);
-  void setShininess(float newValue);
   void setDefaultColor(const ColorRGBA& color);
-  void setAmbientColor(const ColorRGBA& color);
-  void setDiffuseColor(const ColorRGBA& color);
-  void setSpecularColor(const ColorRGBA& color);
   /*! Sets the name of the GLSL program used by this render pass.
    *  @param[in] newProgram The desired shader program, or @c NULL to disable
    *  the use of GLSL programs.
@@ -208,7 +191,6 @@ private:
     Data(void);
     void setDefaults(void);
     mutable bool dirty;
-    bool lighting;
     bool depthTesting;
     bool depthWriting;
     bool colorWriting;
@@ -219,11 +201,7 @@ private:
     GLenum dstFactor;
     GLenum depthFunction;
     GLenum alphaFunction;
-    float shininess;
     ColorRGBA defaultColor;
-    ColorRGBA ambientColor;
-    ColorRGBA diffuseColor;
-    ColorRGBA specularColor;
     Ref<ShaderProgram> program;
   };
   void force(void) const;

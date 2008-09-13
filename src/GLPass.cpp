@@ -106,12 +106,6 @@ void Pass::apply(void) const
     cache.cullMode = cullMode;
   }
 
-  if (data.lighting != cache.lighting)
-  {
-    setBooleanState(GL_LIGHTING, data.lighting);
-    cache.lighting = data.lighting;
-  }
-
   if (data.srcFactor != cache.srcFactor || data.dstFactor != cache.dstFactor)
   {
     setBooleanState(GL_BLEND, data.srcFactor != GL_ONE || data.dstFactor != GL_ZERO);
@@ -189,44 +183,12 @@ void Pass::apply(void) const
     cache.colorWriting = data.colorWriting;
   }
   
-  if (data.lighting)
-  {
-    // Set ambient material color.
-    if (data.ambientColor != cache.ambientColor)
-    {
-      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, data.ambientColor);
-      cache.ambientColor = data.ambientColor;
-    }
-
-    // Set diffuse material color.
-    if (data.diffuseColor != cache.diffuseColor)
-    {
-      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, data.diffuseColor);
-      cache.diffuseColor = data.diffuseColor;
-    }
-
-    // Set specular material color.
-    if (data.specularColor != cache.specularColor)
-    {
-      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, data.specularColor);
-      cache.specularColor = data.specularColor;
-    }
-
-    if (data.shininess != cache.shininess)
-    {
-      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, data.shininess);
-      cache.shininess = data.shininess;
-    }
-  }
-  else
-  {
-    // For compatibility reasons, we do not trust the cached color.  Since we
-    // always overwrite this value, there is no need to check whether the cache
-    // is dirty.
-    
-    glColor4fv(data.defaultColor);
-    cache.defaultColor = data.defaultColor;
-  }
+  // For compatibility reasons, we do not trust the cached color.  Since we
+  // always overwrite this value, there is no need to check whether the cache
+  // is dirty.
+  
+  glColor4fv(data.defaultColor);
+  cache.defaultColor = data.defaultColor;
 
   if (GLEW_ARB_shading_language_100)
   {
@@ -289,11 +251,6 @@ bool Pass::isColorWriting(void) const
   return data.colorWriting;
 }
 
-bool Pass::isLit(void) const
-{
-  return data.lighting;
-}
-
 float Pass::getLineWidth(void) const
 {
   return data.lineWidth;
@@ -329,29 +286,9 @@ GLenum Pass::getAlphaFunction(void) const
   return data.alphaFunction;
 }
 
-float Pass::getShininess(void) const
-{
-  return data.shininess;
-}
-
 const ColorRGBA& Pass::getDefaultColor(void) const
 {
   return data.defaultColor;
-}
-
-const ColorRGBA& Pass::getAmbientColor(void) const
-{
-  return data.ambientColor;
-}
-
-const ColorRGBA& Pass::getDiffuseColor(void) const
-{
-  return data.diffuseColor;
-}
-
-const ColorRGBA& Pass::getSpecularColor(void) const
-{
-  return data.specularColor;
 }
 
 ShaderProgram* Pass::getShaderProgram(void) const
@@ -362,12 +299,6 @@ ShaderProgram* Pass::getShaderProgram(void) const
 const String& Pass::getName(void) const
 {
   return name;
-}
-
-void Pass::setLit(bool enable)
-{
-  data.lighting = enable;
-  data.dirty = true;
 }
 
 void Pass::setDepthTesting(bool enable)
@@ -425,33 +356,9 @@ void Pass::setColorWriting(bool enabled)
   data.dirty = true;
 }
 
-void Pass::setShininess(float newValue)
-{
-  data.shininess = newValue;
-  data.dirty = true;
-}
-
 void Pass::setDefaultColor(const ColorRGBA& color)
 {
   data.defaultColor = color;
-  data.dirty = true;
-}
-
-void Pass::setAmbientColor(const ColorRGBA& color)
-{
-  data.ambientColor = color;
-  data.dirty = true;
-}
-
-void Pass::setDiffuseColor(const ColorRGBA& color)
-{
-  data.diffuseColor = color;
-  data.dirty = true;
-}
-
-void Pass::setSpecularColor(const ColorRGBA& color)
-{
-  data.specularColor = color;
   data.dirty = true;
 }
 
@@ -488,8 +395,6 @@ void Pass::force(void) const
   if (cullMode != CULL_NONE)
     glCullFace(cullMode);
 
-  setBooleanState(GL_LIGHTING, data.lighting);
-
   setBooleanState(GL_BLEND, data.srcFactor != GL_ONE || data.dstFactor != GL_ZERO);
   glBlendFunc(data.srcFactor, data.dstFactor);
   
@@ -520,10 +425,6 @@ void Pass::force(void) const
   glColorMask(state, state, state, state);
 
   glColor4fv(data.defaultColor);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, data.ambientColor);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, data.diffuseColor);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, data.specularColor);
-  glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, data.shininess);
 
   if (GLEW_ARB_shader_objects)
   {
@@ -566,7 +467,6 @@ Pass::Data::Data(void)
 void Pass::Data::setDefaults(void)
 {
   dirty = true;
-  lighting = false;
   depthTesting = true;
   depthWriting = true;
   colorWriting = true;
@@ -577,11 +477,7 @@ void Pass::Data::setDefaults(void)
   dstFactor = GL_ZERO;
   depthFunction = GL_LESS;
   alphaFunction = GL_ALWAYS;
-  shininess = 0.f;
   defaultColor.set(1.f, 1.f, 1.f, 1.f);
-  ambientColor.set(0.f, 0.f, 0.f, 1.f);
-  diffuseColor.set(1.f, 1.f, 1.f, 1.f);
-  specularColor.set(1.f, 1.f, 1.f, 1.f);
   program = NULL;
 }
 
