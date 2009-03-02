@@ -137,6 +137,12 @@ Context::~Context(void)
 {
   destroySignal.emit();
 
+  if (cgContextID)
+  {
+    cgDestroyContext(cgContextID);
+    cgContextID = NULL;
+  }
+
   glfwCloseWindow();
 
   instance = NULL;
@@ -346,7 +352,10 @@ void Context::getScreenModes(ScreenModeList& result)
   GLFWvidmode modes[128];
 }
 
-Context::Context(void)
+Context::Context(void):
+  cgContextID(NULL),
+  cgVertexProfile(CG_PROFILE_UNKNOWN),
+  cgFragmentProfile(CG_PROFILE_UNKNOWN)
 {
   // Necessary hack in case GLFW calls a callback before
   // we have had time to call Singleton::set.
@@ -476,6 +485,36 @@ bool Context::init(const ContextMode& mode)
     Log::writeError("Unable to initialize GLEW");
     return false;
   }
+
+  cgContextID = cgCreateContext();
+  if (!cgContextID)
+  {
+    Log::writeError("Unable to create Cg context");
+    return false;
+  }
+
+  cgVertexProfile = cgGLGetLatestProfile(CG_GL_VERTEX);
+  if (cgVertexProfile == CG_PROFILE_UNKNOWN)
+  {
+    Log::writeError("Unable to find any usable Cg vertex profile");
+    return false;
+  }
+
+  cgGLSetOptimalOptions(cgVertexProfile);
+  cgGLEnableProfile(cgVertexProfile);
+
+  cgFragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
+  if (cgFragmentProfile == CG_PROFILE_UNKNOWN)
+  {
+    Log::writeError("Unable to find any usable Cg fragment profile");
+    return false;
+  }
+
+  cgGLSetOptimalOptions(cgFragmentProfile);
+  cgGLEnableProfile(cgFragmentProfile);
+
+  cgGLSetManageTextureParameters(cgContextID, CG_TRUE);
+  cgSetLockingPolicy(CG_NO_LOCKS_POLICY);
 
   glfwSetWindowSizeCallback(sizeCallback);
   glfwSetWindowCloseCallback(closeCallback);

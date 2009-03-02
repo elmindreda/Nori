@@ -131,9 +131,7 @@ public:
   GLenum getDstFactor(void) const;
   GLenum getDepthFunction(void) const;
   GLenum getAlphaFunction(void) const;
-  const ColorRGBA& getDefaultColor(void) const;
-  /*! @return The name of the GLSL program used by this render pass, or the
-   *  empty string if it doesn't use any GLSL program.
+  /*! @return The shader program used by this render pass.
    */
   ShaderProgram* getShaderProgram(void) const;
   const String& getName(void) const;
@@ -173,10 +171,9 @@ public:
    */
   void setPolygonMode(GLenum mode);
   void setBlendFactors(GLenum src, GLenum dst);
-  void setDefaultColor(const ColorRGBA& color);
-  /*! Sets the name of the GLSL program used by this render pass.
-   *  @param[in] newProgram The desired shader program, or @c NULL to disable
-   *  the use of GLSL programs.
+  /*! Sets the shader program used by this render pass.
+   *  @param[in] newProgram The desired shader program, or @c NULL to use the
+   *  default shader program.
    */
   void setShaderProgram(ShaderProgram* newProgram);
   /*! Resets all values in this render pass to their defaults.
@@ -201,7 +198,6 @@ private:
     GLenum dstFactor;
     GLenum depthFunction;
     GLenum alphaFunction;
-    ColorRGBA defaultColor;
     Ref<ShaderProgram> program;
   };
   void force(void) const;

@@ -1,7 +1,6 @@
 
 set(wendy_SOURCES
     ALBuffer.cpp ALContext.cpp ALSource.cpp ALStreamer.cpp
-    CgContext.cpp CgShader.cpp
     Core.cpp Wendy.cpp
     DEBody.cpp DEMass.cpp DEShape.cpp DEWorld.cpp
     DebugHUD.cpp

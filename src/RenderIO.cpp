@@ -57,7 +57,6 @@ namespace
 {
 
 Mapper<String, GL::CullMode> cullModeMap;
-Mapper<String, GLenum> combineModeMap;
 Mapper<String, GLenum> polygonModeMap;
 Mapper<String, GLenum> blendFactorMap;
 Mapper<String, GLenum> functionMap;
@@ -90,14 +89,6 @@ Style* StyleCodec::read(Stream& stream, const String& name)
     cullModeMap["front"] = GL::CULL_FRONT;
     cullModeMap["back"] = GL::CULL_BACK;
     cullModeMap["both"] = GL::CULL_BOTH;
-  }
-
-  if (combineModeMap.isEmpty())
-  {
-    combineModeMap["replace"] = GL_REPLACE;
-    combineModeMap["modulate"] = GL_MODULATE;
-    combineModeMap["decal"] = GL_DECAL;
-    combineModeMap["blend"] = GL_BLEND;
   }
 
   if (polygonModeMap.isEmpty())
@@ -286,13 +277,6 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 	  endElement();
 	}
 
-	if (pass.getDefaultColor() != defaults.getDefaultColor())
-	{
-	  beginElement("default");
-	  addAttributes(pass.getDefaultColor());
-	  endElement();
-	}
-
 	for (unsigned int i = 0;  i < pass.getTextureLayerCount();  i++)
 	{
 	  const GL::TextureLayer& layer = pass.getTextureLayer(i);
@@ -305,17 +289,6 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 
 	  if (!layer.getSamplerName().empty())
 	    addAttribute("sampler", layer.getSamplerName());
-
-	  beginElement("combine");
-	  addAttribute("mode", combineModeMap[layer.getCombineMode()]);
-	  addAttributes(layer.getCombineColor());
-	  endElement();
-
-	  String mappingMode = (layer.isSphereMapped() ? "sphere" : "none");
-
-	  beginElement("mapping");
-	  addAttribute("mode", mappingMode);
-	  endElement();
 
 	  beginElement("filter");
 	  addAttribute("min", filterMap[layer.getMinFilter()]);
@@ -559,14 +532,6 @@ bool StyleCodec::onBeginElement(const String& name)
 	  return true;
 	}
 
-	if (name == "default")
-	{
-	  ColorRGBA color;
-	  readAttributes(color, currentPass->getDefaultColor());
-	  currentPass->setDefaultColor(color);
-	  return true;
-	}
-
 	if (name == "texture")
 	{
 	  String textureName = readString("name");
@@ -612,47 +577,6 @@ bool StyleCodec::onBeginElement(const String& name)
 	  }
 	  
 	  currentPass->setShaderProgram(program);
-	  return true;
-	}
-
-	if (currentLayer)
-	{
-	  if (name == "combine")
-	  {
-	    String combineModeName = readString("mode");
-	    if (combineModeName.length())
-	    {
-	      if (combineModeMap.hasKey(combineModeName))
-		currentLayer->setCombineMode(combineModeMap[combineModeName]);
-	      else
-	      {
-		Log::writeError("Invalid texture combine %s",
-		                combineModeName.c_str());
-		return false;
-	      }
-	    }
-
-	    ColorRGBA color;
-	    readAttributes(color, currentLayer->getCombineColor());
-	    currentLayer->setCombineColor(color);
-	    return true;
-	  }
-	}
-
-	if (name == "mapping")
-	{
-	  String modeName = readString("mode");
-	  if (modeName == "sphere")
-	    currentLayer->setSphereMapped(true);
-	  else if (modeName == "none")
-	    currentLayer->setSphereMapped(false);
-	  else
-	  {
-	    Log::writeError("Invalid texture layer mapping mode name %s",
-	                    modeName.c_str());
-	    return false;
-	  }
-
 	  return true;
 	}
 

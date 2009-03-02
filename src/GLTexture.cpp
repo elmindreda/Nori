@@ -349,6 +349,11 @@ Texture::Texture(const String& name):
 {
 }
 
+Texture::Texture(const Texture& source):
+  Resource<Texture>("")
+{
+}
+
 bool Texture::init(const Image& image, unsigned int initFlags)
 {
   if (!Context::get())
@@ -565,6 +570,11 @@ bool Texture::init(const Image& image, unsigned int initFlags)
   
   return true;
 }
+
+Texture& Texture::operator = (const Texture& source)
+{
+  return *this;
+}
   
 ///////////////////////////////////////////////////////////////////////
 
@@ -589,6 +599,8 @@ TextureLayer::TextureLayer(unsigned int initUnit):
     samplerTypeMap[ShaderUniform::SAMPLER_1D] = GL_TEXTURE_1D;
     samplerTypeMap[ShaderUniform::SAMPLER_2D] = GL_TEXTURE_2D;
     samplerTypeMap[ShaderUniform::SAMPLER_3D] = GL_TEXTURE_3D;
+    samplerTypeMap[ShaderUniform::SAMPLER_RECT] = GL_TEXTURE_RECTANGLE_ARB;
+    samplerTypeMap[ShaderUniform::SAMPLER_CUBE] = GL_TEXTURE_CUBE_MAP_ARB;
     samplerTypeMap.setDefaults((ShaderUniform::Type) 0, 0);
   }
 }
@@ -631,45 +643,10 @@ void TextureLayer::apply(void) const
       textureTargets[unit] = textureTarget;
     }
 
-    // Set scaling texture matrix
-    // NOTE: This is (and should remain) the only place where the regular
-    //       texture matrix is used.  If you need matrices, use uniforms.
-    /*
-    {
-      // TODO: See if we can avoid always forcing this
-
-      Matrix4 matrix;
-
-      if (textureTarget == GL_TEXTURE_RECTANGLE_ARB)
-      {
-	matrix.x.x = 1.f / texture->getPhysicalWidth();
-	matrix.y.y = 1.f / texture->getPhysicalHeight();
-      }
-    
-      glPushAttrib(GL_TRANSFORM_BIT);
-      glMatrixMode(GL_TEXTURE);
-      glLoadMatrixf(matrix);
-      glPopAttrib();
-    }
-    */
-
     if (data.texture != cache.texture)
     {
       glBindTexture(textureTarget, data.texture->textureID);
       cache.texture = data.texture;
-    }
-
-    if (data.combineMode != cache.combineMode)
-    {
-      glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, data.combineMode);
-      cache.combineMode = data.combineMode;
-    }
-
-    // Set texture environment color
-    if (data.combineColor != cache.combineColor)
-    {
-      glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, data.combineColor);
-      cache.combineColor = data.combineColor;
     }
 
     if (data.addressMode != data.texture->addressMode)
@@ -705,20 +682,6 @@ void TextureLayer::apply(void) const
       data.texture->magFilter = data.magFilter;
     }
 
-    if (data.sphereMapped != cache.sphereMapped)
-    {
-      setBooleanState(GL_TEXTURE_GEN_S, data.sphereMapped);
-      setBooleanState(GL_TEXTURE_GEN_T, data.sphereMapped);
-
-      if (data.sphereMapped)
-      {
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-      }
-
-      cache.sphereMapped = data.sphereMapped;
-    }
-
     if (!data.samplerName.empty())
       applySampler(*data.texture);
   }
@@ -752,21 +715,6 @@ bool TextureLayer::isCompatible(void) const
   return true;
 }
 
-bool TextureLayer::isSphereMapped(void) const
-{
-  return data.sphereMapped;
-}
-
-GLenum TextureLayer::getCombineMode(void) const
-{
-  return data.combineMode;
-}
-
-const ColorRGBA& TextureLayer::getCombineColor(void) const
-{
-  return data.combineColor;
-}
-
 GLint TextureLayer::getMinFilter(void) const
 {
   return data.minFilter;
@@ -795,24 +743,6 @@ const String& TextureLayer::getSamplerName(void) const
 unsigned int TextureLayer::getUnit(void) const
 {
   return unit;
-}
-
-void TextureLayer::setSphereMapped(bool newState)
-{
-  data.sphereMapped = newState;
-  data.dirty = true;
-}
-
-void TextureLayer::setCombineMode(GLenum newMode)
-{
-  data.combineMode = newMode;
-  data.dirty = true;
-}
-
-void TextureLayer::setCombineColor(const ColorRGBA& newColor)
-{
-  data.combineColor = newColor;
-  data.dirty = true;
 }
 
 void TextureLayer::setFilters(GLint newMinFilter, GLint newMagFilter)
@@ -881,14 +811,6 @@ void TextureLayer::force(void) const
   glDisable(GL_TEXTURE_3D);
 
   textureTargets[unit] = 0;
-
-  setBooleanState(GL_TEXTURE_GEN_S, data.sphereMapped);
-  setBooleanState(GL_TEXTURE_GEN_T, data.sphereMapped);
-  glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-  glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, data.combineMode);
-  glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, data.combineColor);
 
   Texture* texture = NULL;
 
@@ -1013,9 +935,6 @@ void TextureLayer::Data::setDefaults(void)
 {
   dirty = true;
   texture = NULL;
-  sphereMapped = false;
-  combineMode = GL_MODULATE;
-  combineColor.set(1.f, 1.f, 1.f, 1.f);
   minFilter = GL_LINEAR_MIPMAP_LINEAR;
   magFilter = GL_LINEAR;
   addressMode = GL_REPEAT;

@@ -7,10 +7,7 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
-option(USE_CG "Compile with Cg support" ON)
-if(USE_CG)
-  set(WENDY_USE_CG 1)
-endif(USE_CG)
+set(WENDY_USE_CG 1 CACHE BOOL "Compile with Cg support")
 
 include(FindPkgConfig)
 

@@ -29,8 +29,8 @@
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLStatistics.h>
-#include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
@@ -183,31 +183,14 @@ void Pass::apply(void) const
     cache.colorWriting = data.colorWriting;
   }
   
-  // For compatibility reasons, we do not trust the cached color.  Since we
-  // always overwrite this value, there is no need to check whether the cache
-  // is dirty.
-  
-  glColor4fv(data.defaultColor);
-  cache.defaultColor = data.defaultColor;
-
-  if (GLEW_ARB_shading_language_100)
+  if (data.program)
   {
-    // Since the GLSL program object cannot push the currently active
-    // program in any resonable fashion, it must force the use when
-    // changing uniforms in a program object.  Hence we cannot trust the
-    // state cache's program name to be valid between calls.  Thus we
-    // always force the use of the correct program.
-
-    if (!data.program)
-    {
-      ShaderProgram::applyFixedFunction();
-      cache.program = NULL;
-    }
-    else
-    {
-      data.program->apply();
-      cache.program = data.program;
-    }
+    data.program->apply();
+    cache.program = data.program;
+  }
+  else
+  {
+    // TODO: Get default shader program.
   }
 
 #if _DEBUG
@@ -286,11 +269,6 @@ GLenum Pass::getAlphaFunction(void) const
   return data.alphaFunction;
 }
 
-const ColorRGBA& Pass::getDefaultColor(void) const
-{
-  return data.defaultColor;
-}
-
 ShaderProgram* Pass::getShaderProgram(void) const
 {
   return data.program;
@@ -356,12 +334,6 @@ void Pass::setColorWriting(bool enabled)
   data.dirty = true;
 }
 
-void Pass::setDefaultColor(const ColorRGBA& color)
-{
-  data.defaultColor = color;
-  data.dirty = true;
-}
-
 void Pass::setShaderProgram(ShaderProgram* newProgram)
 {
   data.program = newProgram;
@@ -424,14 +396,11 @@ void Pass::force(void) const
   const GLboolean state = data.colorWriting ? GL_TRUE : GL_FALSE;
   glColorMask(state, state, state, state);
 
-  glColor4fv(data.defaultColor);
-
-  if (GLEW_ARB_shader_objects)
+  if (data.program)
+    data.program->apply();
+  else
   {
-    if (!data.program)
-      ShaderProgram::applyFixedFunction();
-    else
-      data.program->apply();
+    // TODO: Get default shader program.
   }
 
 #if _DEBUG
@@ -477,7 +446,6 @@ void Pass::Data::setDefaults(void)
   dstFactor = GL_ZERO;
   depthFunction = GL_LESS;
   alphaFunction = GL_ALWAYS;
-  defaultColor.set(1.f, 1.f, 1.f, 1.f);
   program = NULL;
 }
 

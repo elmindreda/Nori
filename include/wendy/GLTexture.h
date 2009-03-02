@@ -45,7 +45,7 @@ using namespace moira;
  */
 class Texture : public Resource<Texture>, public RefObject<Texture>
 {
-  friend class TextureLayer;
+  friend class ShaderUniform;
 public:
   enum
   {
@@ -143,7 +143,9 @@ public:
 				 const String& name = "");
 private:
   Texture(const String& name);
+  Texture(const Texture& source);
   bool init(const Image& image, unsigned int flags);
+  Texture& operator = (const Texture& source);
   GLenum textureTarget;
   GLuint textureID;
   GLint minFilter;
@@ -189,20 +191,6 @@ public:
    */
   void apply(void) const;
   bool isCompatible(void) const;
-  /*! @return @c true if this texture layer uses sphere mapping, otherwise @c
-   *  false.
-   *  @remarks This has no effect if a fragment program or fragment shader is
-   *  in use.
-   */
-  bool isSphereMapped(void) const;
-  /*! @return The combine mode for this texture layer.
-   *  @remarks This has no effect if a fragment program or fragment shader is
-   *  in use.
-   */
-  GLenum getCombineMode(void) const;
-  /*! @return The combine color for this texture layer.
-   */
-  const ColorRGBA& getCombineColor(void) const;
   /*! @return The minification filter of this texture layer.
    */
   GLint getMinFilter(void) const;
@@ -225,23 +213,6 @@ public:
   /*! @return The texture unit to which this texture layer applies.
    */
   unsigned int getUnit(void) const;
-  /*! Sets whether this texture layer uses sphere mapping.
-   *  @param newState @c true to enabled sphere mapping, or @c false to disable
-   *  it.
-   *  @remarks This has no effect if a fragment program or fragment shader is
-   *  in use.
-   */
-  void setSphereMapped(bool newState);
-  /*! Sets the combine mode for this texture layer.
-   *  @param newMode The desired new combine mode.
-   *  @remarks This has no effect if a fragment program or fragment shader is
-   *  in use.
-   */
-  void setCombineMode(GLenum newMode);
-  /*! Sets the combine color for this texture layer.
-   *  @param newColor The desired new combine color.
-   */
-  void setCombineColor(const ColorRGBA& newColor);
   /*! Sets the minification and magnification filters for this texture layer.
    */
   void setFilters(GLint newMinFilter, GLint newMagFilter);
@@ -281,9 +252,6 @@ private:
     void setDefaults(void);
     mutable bool dirty;
     Ref<Texture> texture;
-    bool sphereMapped;
-    GLenum combineMode;
-    ColorRGBA combineColor;
     String samplerName;
     GLint minFilter;
     GLint magFilter;
@@ -315,7 +283,7 @@ private:
  *
  *  @remarks Unless you're writing your own custom renderer, you don't probably
  *  want to use this directly (especially the TextureStack::apply method), but
- *  instead work through the RenderPass and RenderStyle classes.
+ *  instead work through the Pass class.
  */
 class TextureStack
 {

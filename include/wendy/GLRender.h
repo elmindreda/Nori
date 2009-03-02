@@ -102,6 +102,7 @@ private:
   IndexBufferList indexBuffers;
   VertexBufferList vertexBuffers;
   Ref<Texture> defaultTexture;
+  Ref<ShaderProgram> defaultProgram;
 };
 
 ///////////////////////////////////////////////////////////////////////
