@@ -67,6 +67,21 @@ enum CullMode
 
 ///////////////////////////////////////////////////////////////////////
 
+class SamplerState
+{
+public:
+  SamplerState(const String& name, Texture& texture);
+  const String& getName(void) const;
+  void setName(const String& newName);
+  Texture& getTexture(void) const;
+  const setTexture(Texture& newTexture);
+private:
+  String name;
+  Ref<Texture> texture;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Render pass state object.
  *  @ingroup opengl
  *
