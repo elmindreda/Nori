@@ -26,6 +26,11 @@
 #define WENDY_GLCONTEXT_H
 ///////////////////////////////////////////////////////////////////////
 
+#include <Cg/cg.h>
+#include <Cg/cgGL.h>
+
+///////////////////////////////////////////////////////////////////////
+
 namespace wendy
 {
   namespace GL
@@ -162,6 +167,8 @@ public:
  */
 class Context : public Singleton<Context>
 {
+  friend class VertexShader;
+  friend class FragmentShader;
 public:
   /*! Destructor.
    */
@@ -290,6 +297,9 @@ private:
   ContextMode mode;
   String title;
   int wheelPosition;
+  CGcontext cgContextID;
+  CGprofile cgVertexProfile;
+  CGprofile cgFragmentProfile;
   mutable Vector2 cursorPosition;
   static KeyMap internalMap;
   static KeyMap externalMap;

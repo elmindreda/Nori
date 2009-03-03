@@ -67,28 +67,6 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Codec for XML format GLSL programs.
- *  @ingroup io
- */
-class ShaderProgramCodec : public ResourceCodec<ShaderProgram>, public XML::Codec
-{
-public:
-  ShaderProgramCodec(void);
-  ShaderProgram* read(const Path& path, const String& name = "");
-  ShaderProgram* read(Stream& stream, const String& name = "");
-  bool write(const Path& path, const ShaderProgram& program);
-  bool write(Stream& stream, const ShaderProgram& program);
-private:
-  bool onBeginElement(const String& name);
-  bool onEndElement(const String& name);
-  Ptr<ShaderProgram> program;
-  Ref<VertexShader> vertexShader;
-  Ref<FragmentShader> fragmentShader;
-  String programName;
-};
-
-///////////////////////////////////////////////////////////////////////
-
   } /*namespace GL*/
 } /*namespace wendy*/
 

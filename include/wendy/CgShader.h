@@ -1,6 +1,6 @@
-//////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
-// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
+///////////////////////////////////////////////////////////////////////
+// Wendy Cg library
+// Copyright (c) 2008 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,32 +22,15 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-
-#include <moira/Moira.h>
-
-#include <wendy/Config.h>
-
-#include <wendy/OpenGL.h>
-#include <wendy/GLContext.h>
-#include <wendy/GLCanvas.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLVertex.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLShader.h>
-#include <wendy/GLPass.h>
-#include <wendy/GLRender.h>
-
-#include <wendy/RenderFont.h>
-
-#include <wendy/UIRender.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UIView.h>
-
+#ifndef WENDY_CGSHADER_H
+#define WENDY_CGSHADER_H
+///////////////////////////////////////////////////////////////////////
+#if WENDY_USE_CG
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace UI
+  namespace Cg
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -56,33 +39,30 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-View::View(void)
+/*! @brief Cg shader program.
+ */
+class Shader : public Resource<Shader>, public RefObject<Shader>
 {
-  inner = new Widget();
-  addChild(*inner);
-}
-
-Widget* View::getInner(void) const
-{
-  return inner;
-}
-
-void View::draw(void) const
-{
-  const Rectangle& area = getGlobalArea();
-
-  Renderer* renderer = Renderer::get();
-  if (renderer->pushClipArea(area))
-  {
-    Widget::draw();
-
-    renderer->popClipArea();
-  }
-}
+public:
+  /*! Destructor.
+   */
+  ~Shader(void);
+  Domain getDomain(void) const;
+  static Shader* createInstance(Domain domain, const String& text, const String& name = "");
+private:
+  Shader(Domain domain, const String& name);
+  bool init(const String& text);
+  Domain domain;
+  CGprogram programID;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace UI*/
+  } /*namespace Cg*/
 } /*namespace wendy*/
 
+///////////////////////////////////////////////////////////////////////
+#endif /* WENDY_USE_CG */
+///////////////////////////////////////////////////////////////////////
+#endif /*WENDY_CGSHADER_H*/
 ///////////////////////////////////////////////////////////////////////

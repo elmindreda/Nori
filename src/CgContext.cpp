@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy Cg library
-// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2008 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,10 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_CGCONTEXT_H
-#define WENDY_CGCONTEXT_H
-///////////////////////////////////////////////////////////////////////
-#if WENDY_USE_CG
+
+#include <moira/Moira.h>
+
+#include <wendy/Config.h>
+#include <wendy/Cg.h>
+#include <wendy/CgContext.h>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -39,43 +42,74 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-enum Domain
+Context::~Context(void)
 {
-  VERTEX,
-  FRAGMENT,
-  GEOMETRY,
-};
+  if (contextID)
+    cgDestroyContext(contextID);
+}
 
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Cg context singleton.
- */
-class Context : public Singleton<Context>
+CGcontext Context::getID(void) const
 {
-public:
-  /*! Destructor.
-   */
-  ~Context(void);
-  CGcontext getID(void) const;
-  CGprofile getProfile(Domain domain) const;
-  /*! Creates the context singleton object.
-   *  @return @c true if successful, or @c false otherwise.
-   */
-  static bool create(void);
-private:
-  Context(void);
-  bool init(void);
-  CGcontext contextID;
-  CGprofile profiles[3];
-};
+  return contextID;
+}
+
+CGprofile Context::getProfile(Domain domain) const
+{
+  switch (domain)
+  {
+    case VERTEX:
+      return profiles[VERTEX];
+    case FRAGMENT:
+      return profiles[FRAGMENT];
+    case GEOMETRY:
+      return profiles[GEOMETRY];
+    default:
+      throw Exception("Invalid shader domain");
+  }
+}
+
+bool Context::create(void)
+{
+  if (get())
+    return true;
+
+  Ptr<Context> context = new Context();
+  if (!context->init())
+    return false;
+
+  set(context.detachObject());
+  return true;
+}
+
+Context::Context(void):
+  contextID(NULL)
+{
+}
+
+bool Context::init(void)
+{
+  contextID = cgCreateContext();
+  if (!contextID)
+    return false;
+
+  profiles[VERTEX] = cgGLGetLatestProfile(CG_GL_VERTEX);
+  if (profiles[VERTEX] == CG_PROFILE_UNKNOWN)
+    Log::writeWarning("No suitable Cg vertex shader profile found");
+
+  profiles[FRAGMENT] = cgGLGetLatestProfile(CG_GL_FRAGMENT);
+  if (profiles[FRAGMENT] == CG_PROFILE_UNKNOWN)
+    Log::writeWarning("No suitable Cg fragment shader profile found");
+
+  profiles[GEOMETRY] = cgGLGetLatestProfile(CG_GL_GEOMETRY);
+  if (profiles[GEOMETRY] == CG_PROFILE_UNKNOWN)
+    Log::writeWarning("No suitable Cg geometry shader profile found");
+
+  return true;
+}
 
 ///////////////////////////////////////////////////////////////////////
 
   } /*namespace Cg*/
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////
-#endif /* WENDY_USE_CG */
-///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_CGCONTEXT_H*/
 ///////////////////////////////////////////////////////////////////////

@@ -46,7 +46,6 @@ namespace
 Ptr<GL::TextureCodec> textureCodec;
 Ptr<GL::VertexShaderCodec> vertexShaderCodec;
 Ptr<GL::FragmentShaderCodec> fragmentShaderCodec;
-Ptr<GL::ShaderProgramCodec> shaderProgramCodec;
 
 Ptr<render::StyleCodec> renderStyleCodec;
 Ptr<render::TerrainCodec> renderTerrainCodec;
@@ -73,7 +72,6 @@ bool initialize(void)
   textureCodec = new GL::TextureCodec();
   vertexShaderCodec = new GL::VertexShaderCodec();
   fragmentShaderCodec = new GL::FragmentShaderCodec();
-  shaderProgramCodec = new GL::ShaderProgramCodec();
   renderStyleCodec = new render::StyleCodec();
   renderTerrainCodec = new render::TerrainCodec();
   showCodec = new demo::ShowCodec();
@@ -87,7 +85,10 @@ bool initialize(void)
   if (!GL::FragmentShader::addSearchPath(Path(".")))
     return false;
 
-  if (!GL::ShaderProgram::addSearchPath(Path(".")))
+  if (!GL::VertexShader::addSearchPath(Path(".")))
+    return false;
+
+  if (!GL::FragmentShader::addSearchPath(Path(".")))
     return false;
 
   if (!render::Style::addSearchPath(Path(".")))
@@ -106,7 +107,6 @@ void shutdown(void)
   textureCodec = NULL;
   vertexShaderCodec = NULL;
   fragmentShaderCodec = NULL;
-  shaderProgramCodec = NULL;
   renderStyleCodec = NULL;
   renderTerrainCodec = NULL;
 

@@ -29,9 +29,8 @@
 #include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLStatistics.h>
-#include <wendy/GLLight.h>
-#include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
@@ -105,12 +104,6 @@ void Pass::apply(void) const
       glCullFace(cullMode);
       
     cache.cullMode = cullMode;
-  }
-
-  if (data.lighting != cache.lighting)
-  {
-    setBooleanState(GL_LIGHTING, data.lighting);
-    cache.lighting = data.lighting;
   }
 
   if (data.srcFactor != cache.srcFactor || data.dstFactor != cache.dstFactor)
@@ -190,63 +183,14 @@ void Pass::apply(void) const
     cache.colorWriting = data.colorWriting;
   }
   
-  if (data.lighting)
+  if (data.program)
   {
-    // Set ambient material color.
-    if (data.ambientColor != cache.ambientColor)
-    {
-      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, data.ambientColor);
-      cache.ambientColor = data.ambientColor;
-    }
-
-    // Set diffuse material color.
-    if (data.diffuseColor != cache.diffuseColor)
-    {
-      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, data.diffuseColor);
-      cache.diffuseColor = data.diffuseColor;
-    }
-
-    // Set specular material color.
-    if (data.specularColor != cache.specularColor)
-    {
-      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, data.specularColor);
-      cache.specularColor = data.specularColor;
-    }
-
-    if (data.shininess != cache.shininess)
-    {
-      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, data.shininess);
-      cache.shininess = data.shininess;
-    }
+    data.program->apply();
+    cache.program = data.program;
   }
   else
   {
-    // For compatibility reasons, we do not trust the cached color.  Since we
-    // always overwrite this value, there is no need to check whether the cache
-    // is dirty.
-    
-    glColor4fv(data.defaultColor);
-    cache.defaultColor = data.defaultColor;
-  }
-
-  if (GLEW_ARB_shading_language_100)
-  {
-    // Since the GLSL program object cannot push the currently active
-    // program in any resonable fashion, it must force the use when
-    // changing uniforms in a program object.  Hence we cannot trust the
-    // state cache's program name to be valid between calls.  Thus we
-    // always force the use of the correct program.
-
-    if (!data.program)
-    {
-      ShaderProgram::applyFixedFunction();
-      cache.program = NULL;
-    }
-    else
-    {
-      data.program->apply();
-      cache.program = data.program;
-    }
+    // TODO: Get default shader program.
   }
 
 #if _DEBUG
@@ -290,11 +234,6 @@ bool Pass::isColorWriting(void) const
   return data.colorWriting;
 }
 
-bool Pass::isLit(void) const
-{
-  return data.lighting;
-}
-
 float Pass::getLineWidth(void) const
 {
   return data.lineWidth;
@@ -330,31 +269,6 @@ GLenum Pass::getAlphaFunction(void) const
   return data.alphaFunction;
 }
 
-float Pass::getShininess(void) const
-{
-  return data.shininess;
-}
-
-const ColorRGBA& Pass::getDefaultColor(void) const
-{
-  return data.defaultColor;
-}
-
-const ColorRGBA& Pass::getAmbientColor(void) const
-{
-  return data.ambientColor;
-}
-
-const ColorRGBA& Pass::getDiffuseColor(void) const
-{
-  return data.diffuseColor;
-}
-
-const ColorRGBA& Pass::getSpecularColor(void) const
-{
-  return data.specularColor;
-}
-
 ShaderProgram* Pass::getShaderProgram(void) const
 {
   return data.program;
@@ -363,12 +277,6 @@ ShaderProgram* Pass::getShaderProgram(void) const
 const String& Pass::getName(void) const
 {
   return name;
-}
-
-void Pass::setLit(bool enable)
-{
-  data.lighting = enable;
-  data.dirty = true;
 }
 
 void Pass::setDepthTesting(bool enable)
@@ -426,36 +334,6 @@ void Pass::setColorWriting(bool enabled)
   data.dirty = true;
 }
 
-void Pass::setShininess(float newValue)
-{
-  data.shininess = newValue;
-  data.dirty = true;
-}
-
-void Pass::setDefaultColor(const ColorRGBA& color)
-{
-  data.defaultColor = color;
-  data.dirty = true;
-}
-
-void Pass::setAmbientColor(const ColorRGBA& color)
-{
-  data.ambientColor = color;
-  data.dirty = true;
-}
-
-void Pass::setDiffuseColor(const ColorRGBA& color)
-{
-  data.diffuseColor = color;
-  data.dirty = true;
-}
-
-void Pass::setSpecularColor(const ColorRGBA& color)
-{
-  data.specularColor = color;
-  data.dirty = true;
-}
-
 void Pass::setShaderProgram(ShaderProgram* newProgram)
 {
   data.program = newProgram;
@@ -489,8 +367,6 @@ void Pass::force(void) const
   if (cullMode != CULL_NONE)
     glCullFace(cullMode);
 
-  setBooleanState(GL_LIGHTING, data.lighting);
-
   setBooleanState(GL_BLEND, data.srcFactor != GL_ONE || data.dstFactor != GL_ZERO);
   glBlendFunc(data.srcFactor, data.dstFactor);
   
@@ -520,18 +396,11 @@ void Pass::force(void) const
   const GLboolean state = data.colorWriting ? GL_TRUE : GL_FALSE;
   glColorMask(state, state, state, state);
 
-  glColor4fv(data.defaultColor);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, data.ambientColor);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, data.diffuseColor);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, data.specularColor);
-  glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, data.shininess);
-
-  if (GLEW_ARB_shader_objects)
+  if (data.program)
+    data.program->apply();
+  else
   {
-    if (!data.program)
-      ShaderProgram::applyFixedFunction();
-    else
-      data.program->apply();
+    // TODO: Get default shader program.
   }
 
 #if _DEBUG
@@ -567,7 +436,6 @@ Pass::Data::Data(void)
 void Pass::Data::setDefaults(void)
 {
   dirty = true;
-  lighting = false;
   depthTesting = true;
   depthWriting = true;
   colorWriting = true;
@@ -578,11 +446,6 @@ void Pass::Data::setDefaults(void)
   dstFactor = GL_ZERO;
   depthFunction = GL_LESS;
   alphaFunction = GL_ALWAYS;
-  shininess = 0.f;
-  defaultColor.set(1.f, 1.f, 1.f, 1.f);
-  ambientColor.set(0.f, 0.f, 0.f, 1.f);
-  diffuseColor.set(1.f, 1.f, 1.f, 1.f);
-  specularColor.set(1.f, 1.f, 1.f, 1.f);
   program = NULL;
 }
 

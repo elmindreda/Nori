@@ -1,3 +1,5 @@
 
 #define WENDY_VERSION "@VERSION@"
 
+#cmakedefine WENDY_USE_CG 1
+

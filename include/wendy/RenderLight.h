@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
-// Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy default renderer
+// Copyright (c) 2008 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,17 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_GLLIGHT_H
-#define WENDY_GLLIGHT_H
-///////////////////////////////////////////////////////////////////////
-
-#include <vector>
-
+#ifndef WENDY_RENDERLIGHT_H
+#define WENDY_RENDERLIGHT_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace GL
+  namespace render
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -41,64 +37,20 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Camera space light.
- *
- *  This works both with fixed pipeline and GLSL programs.
- */
-class Light : public RefObject<Light>, public Managed<Light>
+class Light : public RefObject<Light>
 {
 public:
-  /*! Light type enumeration.
-   */
-  enum Type
-  {
-    /*! Light source is directional.
-     */
-    DIRECTIONAL,
-    /*! Light source is a point light.
-     */
-    POINT,
-    /*! Light source is a spotlight.
-     */
-    SPOT,
-  };
-  Light(const String& name = "");
-  ~Light(void);
-  bool operator < (const Light& other) const;
-  bool isBounded(void) const;
-  Type getType(void) const;
-  void setType(Type type);
-  const ColorRGB& getAmbience(void) const;
-  void setAmbience(const ColorRGB& newAmbience);
+  Light(void);
   const ColorRGB& getIntensity(void) const;
-  void setIntensity(const ColorRGB& newIntensity);
-  const Vector3& getPosition(void) const;
+  void setIntensity(const ColorRGB& newColor);
+  const Vector3 getPosition(void) const;
   void setPosition(const Vector3& newPosition);
-  const Vector3& getDirection(void) const;
-  void setDirection(const Vector3& newDirection);
-  float getRadius(void) const;
-  void setRadius(float newRadius);
-  float getCutoffAngle(void) const;
-  void setCutoffAngle(float newAngle);
   const Sphere& getBounds(void) const;
-  char getTypeCharacter(void) const;
-  void setDefaults(void);
-  static void applyFixedState(void);
-  static void applyShaderState(void);
-  static unsigned int getSlotCount(void);
+  void setBounds(const Sphere& newBounds);
 private:
-  Light(const Light& source);
-  Light& operator = (const Light& source);
-  static void onContextDestroy(void);
-  Type type;
-  ColorRGB ambience;
   ColorRGB intensity;
   Vector3 position;
-  Vector3 direction;
-  float radius;
-  float cutoff;
-  mutable Sphere bounds;
-  static unsigned int slotCount;
+  Sphere bounds;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -117,24 +69,19 @@ public:
   void detachLights(void);
   unsigned int getLightCount(void) const;
   Light& getLight(unsigned int index) const;
-  void getPermutationName(String& name) const;
-  const String& getPermutationText(void) const;
   static const LightState& getCurrent(void);
 private:
-  void generatePermutation(String& text) const;
   static void onContextDestroy(void);
   typedef std::vector<LightRef> List;
-  typedef std::map<String, String> PermutationMap;
   List lights;
   static LightState current;
-  static PermutationMap permutations;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_GLLIGHT_H*/
+#endif /*WENDY_RENDERLIGHT_H*/
 ///////////////////////////////////////////////////////////////////////

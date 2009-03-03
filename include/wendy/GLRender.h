@@ -44,8 +44,8 @@ using namespace moira;
 /*! @brief The renderer singleton.
  *  @ingroup renderer
  *
- *  This is the central renderer class, although it's rarely used to render
- *  anything.
+ *  This is the central renderer class, although it doesn't actually
+ *  render anything.
  */
 class Renderer : public Trackable, public Singleton<Renderer>
 {
@@ -60,11 +60,21 @@ public:
   void pushTransform(const Matrix4& transform) const;
   void popTransform(void) const;
   /*! Allocates a range of indices of the specified type.
+   *  @param[out] range The newly allocated index range.
+   *  @param[in] count The number of indices to allocate.
+   *  @param[in] type The type of indices to allocate.
+   *  @return @c true if the allocattion succeeded, or @c false if an
+   *  error occurred.
    */
   bool allocateIndices(IndexRange& range,
 		       unsigned int count,
                        IndexBuffer::Type type = IndexBuffer::UBYTE);
   /*! Allocates a range of vertices of the specified format.
+   *  @param[out] range The newly allocated vertex range.
+   *  @param[in] count The number of vertices to allocate.
+   *  @param[in] format The format of vertices to allocate.
+   *  @return @c true if the allocattion succeeded, or @c false if an
+   *  error occurred.
    */
   bool allocateVertices(VertexRange& range,
 			unsigned int count,
@@ -92,6 +102,7 @@ private:
   IndexBufferList indexBuffers;
   VertexBufferList vertexBuffers;
   Ref<Texture> defaultTexture;
+  Ref<ShaderProgram> defaultProgram;
 };
 
 ///////////////////////////////////////////////////////////////////////

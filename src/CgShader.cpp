@@ -1,6 +1,6 @@
-//////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
-// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
+///////////////////////////////////////////////////////////////////////
+// Wendy Cg library
+// Copyright (c) 2008 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -26,28 +26,15 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-
-#include <wendy/OpenGL.h>
-#include <wendy/GLContext.h>
-#include <wendy/GLCanvas.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLVertex.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLShader.h>
-#include <wendy/GLPass.h>
-#include <wendy/GLRender.h>
-
-#include <wendy/RenderFont.h>
-
-#include <wendy/UIRender.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UIView.h>
+#include <wendy/Cg.h>
+#include <wendy/CgContext.h>
+#include <wendy/CgShader.h>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace UI
+  namespace Cg
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -56,33 +43,57 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-View::View(void)
+Shader::~Shader(void)
 {
-  inner = new Widget();
-  addChild(*inner);
+  if (programID)
+    cgDestroyProgram(programID);
 }
 
-Widget* View::getInner(void) const
+Shader* Shader::createInstance(Domain domain, const String& text, const String& name)
 {
-  return inner;
+  Ptr<Shader> shader = new Shader(domain, name);
+  if (!shader->init(text))
+    return NULL;
+
+  return shader.detachObject();
 }
 
-void View::draw(void) const
+Shader::Shader(Domain initDomain, const String& name):
+  Resource<Shader>(name),
+  domain(initDomain),
+  programID(NULL)
 {
-  const Rectangle& area = getGlobalArea();
+}
 
-  Renderer* renderer = Renderer::get();
-  if (renderer->pushClipArea(area))
+bool Shader::init(const String& text)
+{
+  Context* context = Context::get();
+  if (!context)
   {
-    Widget::draw();
-
-    renderer->popClipArea();
+    Log::writeError("Cannot create Cg shader without Cg context");
+    return false;
   }
+
+  CGprofile profile = context->getProfile(domain);
+  if (profile == CG_PROFILE_UNKNOWN)
+  {
+    Log::writeError("Cannot create Cg shaders for domain");
+    return false;
+  }
+
+  programID = cgCreateProgram(context->getID(), CG_SOURCE, text.c_str(), profile, NULL, NULL);
+  if (!programID)
+  {
+    Log::writeError("Failed to compile Cg shader: %s", cgGetErrorString(cgGetError()));
+    return false;
+  }
+
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace UI*/
+  } /*namespace Cg*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

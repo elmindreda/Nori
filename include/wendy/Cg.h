@@ -1,6 +1,6 @@
-//////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
-// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
+///////////////////////////////////////////////////////////////////////
+// Wendy Cg library
+// Copyright (c) 2008 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,67 +22,24 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
+#ifndef WENDY_CG_H
+#define WENDY_CG_H
+///////////////////////////////////////////////////////////////////////
+#if WENDY_USE_CG
+///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
-
-#include <wendy/Config.h>
-
-#include <wendy/OpenGL.h>
-#include <wendy/GLContext.h>
-#include <wendy/GLCanvas.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLVertex.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLShader.h>
-#include <wendy/GLPass.h>
-#include <wendy/GLRender.h>
-
-#include <wendy/RenderFont.h>
-
-#include <wendy/UIRender.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UIView.h>
+#include <Cg/cg.h>
+#include <Cg/cgGL.h>
 
 ///////////////////////////////////////////////////////////////////////
 
-namespace wendy
-{
-  namespace UI
-  {
-  
-///////////////////////////////////////////////////////////////////////
-
-using namespace moira;
+/*! @defgroup cg Cg wrapper API
+ *
+ *  These classes wrap parts of the Cg API.
+ */
 
 ///////////////////////////////////////////////////////////////////////
-
-View::View(void)
-{
-  inner = new Widget();
-  addChild(*inner);
-}
-
-Widget* View::getInner(void) const
-{
-  return inner;
-}
-
-void View::draw(void) const
-{
-  const Rectangle& area = getGlobalArea();
-
-  Renderer* renderer = Renderer::get();
-  if (renderer->pushClipArea(area))
-  {
-    Widget::draw();
-
-    renderer->popClipArea();
-  }
-}
-
+#endif /* WENDY_USE_CG */
 ///////////////////////////////////////////////////////////////////////
-
-  } /*namespace UI*/
-} /*namespace wendy*/
-
+#endif /*WENDY_CG_H*/
 ///////////////////////////////////////////////////////////////////////

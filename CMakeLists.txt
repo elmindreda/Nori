@@ -7,6 +7,8 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
+set(WENDY_USE_CG 1 CACHE BOOL "Compile with Cg support")
+
 include(FindPkgConfig)
 
 pkg_check_modules(moira REQUIRED libmoira>=0.6.0)
