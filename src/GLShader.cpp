@@ -354,8 +354,10 @@ FragmentShader& FragmentShader::operator = (const FragmentShader& source)
 
 ///////////////////////////////////////////////////////////////////////
 
-void ShaderProgram::apply(void) const
+void ShaderProgram::apply(void)
 {
+  appliedSignal.emit(*this);
+
   cgGLBindProgram(programID);
 }
 

@@ -148,7 +148,7 @@ class ShaderProgram : public RefObject<ShaderProgram>,
                       public Resource<ShaderProgram>
 {
 public:
-  void apply(void) const;
+  void apply(void);
   ShaderUniform* findUniform(const String& name);
   const ShaderUniform* findUniform(const String& name) const;
   unsigned int getUniformCount(void) const;
