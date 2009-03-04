@@ -86,8 +86,7 @@ private:
  *  @ingroup opengl
  *
  *  This class and its associated classes encapsulates most of the OpenGL
- *  rendering state, notable exceptions being the matrix stacks, object
- *  parameters, as well as scene-level states such as stencil and fog.
+ *  rendering state, notable exceptions being the object parameters.
  *
  *  @remarks Unless you're writing your own custom renderer, you will probably
  *  want to use the classes in the render namespace, and not use these classes
@@ -95,7 +94,7 @@ private:
  *
  *  @remarks Yes, it's big.
  */
-class Pass : public TextureStack
+class Pass
 {
 public:
   /*! Constructor.
