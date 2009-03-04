@@ -74,7 +74,7 @@ public:
   const String& getName(void) const;
   void setName(const String& newName);
   Texture& getTexture(void) const;
-  const setTexture(Texture& newTexture);
+  void setTexture(Texture& newTexture);
 private:
   String name;
   Ref<Texture> texture;
