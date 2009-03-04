@@ -67,6 +67,11 @@ enum CullMode
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Sampler state.
+ *  @ingroup opengl
+ *
+ *  This class represents the desired state of a single sampler uniform.
+ */
 class SamplerState
 {
 public:
