@@ -37,7 +37,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GLSL vertex shader codec.
+/*! @brief Vertex shader codec.
  *  @ingroup io
  */
 class VertexShaderCodec : public ResourceCodec<VertexShader>
@@ -52,7 +52,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GLSL fragment shader codec.
+/*! @brief Fragment shader codec.
  *  @ingroup io
  */
 class FragmentShaderCodec : public ResourceCodec<FragmentShader>
@@ -63,6 +63,28 @@ public:
   FragmentShader* read(Stream& stream, const String& name = "");
   bool write(const Path& path, const FragmentShader& program);
   bool write(Stream& stream, const FragmentShader& program);
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Shader program XML codec.
+ *  @ingroup io
+ */
+class ShaderProgramCodec : public ResourceCodec<ShaderProgram>, public XML::Codec
+{
+public:
+  ShaderProgramCodec(void);
+  ShaderProgram* read(const Path& path, const String& name = "");
+  ShaderProgram* read(Stream& stream, const String& name = "");
+  bool write(const Path& path, const ShaderProgram& program);
+  bool write(Stream& stream, const ShaderProgram& program);
+private:
+  bool onBeginElement(const String& name);
+  bool onEndElement(const String& name);
+  Ptr<ShaderProgram> program;
+  Ref<VertexShader> vertexShader;
+  Ref<FragmentShader> fragmentShader;
+  String programName;
 };
 
 ///////////////////////////////////////////////////////////////////////
