@@ -67,26 +67,6 @@ enum CullMode
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Sampler state.
- *  @ingroup opengl
- *
- *  This class represents the desired state of a single sampler uniform.
- */
-class SamplerState
-{
-public:
-  SamplerState(const String& name, Texture& texture);
-  const String& getName(void) const;
-  void setName(const String& newName);
-  Texture& getTexture(void) const;
-  void setTexture(Texture& newTexture);
-private:
-  String name;
-  Ref<Texture> texture;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Render pass state object.
  *  @ingroup opengl
  *
@@ -133,6 +113,7 @@ public:
    *  @c false.
    */
   bool isColorWriting(void) const;
+  bool hasSampler(const String& name) const;
   /*! @return The width of lines, in percent of the height of the current
    * render target.
    */
@@ -150,6 +131,9 @@ public:
   GLenum getDstFactor(void) const;
   GLenum getDepthFunction(void) const;
   GLenum getAlphaFunction(void) const;
+  Texture& getSamplerTexture(unsigned int index) const;
+  Texture& getSamplerTexture(const String& name) const;
+  unsigned int getSamplerCount(void) const;
   /*! @return The shader program used by this render pass.
    */
   ShaderProgram* getShaderProgram(void) const;
@@ -190,6 +174,8 @@ public:
    */
   void setPolygonMode(GLenum mode);
   void setBlendFactors(GLenum src, GLenum dst);
+  bool setSamplerTexture(unsigned int samplerIndex, Texture& texture);
+  bool setSamplerTexture(const String& samplerName, Texture& texture);
   /*! Sets the shader program used by this render pass.
    *  @param[in] newProgram The desired shader program, or @c NULL to use the
    *  default shader program.
@@ -201,6 +187,12 @@ public:
   static bool isCullingInverted(void);
   static void setCullingInversion(bool newState);
 private:
+  class Sampler
+  {
+  public:
+    String name;
+    Ref<Texture> texture;
+  };
   class Data
   {
   public:
@@ -220,7 +212,11 @@ private:
     Ref<ShaderProgram> program;
   };
   void force(void) const;
+  Sampler* findSampler(const String& name);
+  const Sampler* findSampler(const String& name) const;
   void setBooleanState(GLenum state, bool value) const;
+  typedef std::vector<Sampler> SamplerList;
+  SamplerList samplers;
   Data data;
   String name;
   static Data cache;
