@@ -109,7 +109,6 @@ void shutdown(void)
   shaderProgramCodec = NULL;
   renderStyleCodec = NULL;
   renderTerrainCodec = NULL;
-
   showCodec = NULL;
 
   glfwTerminate();
