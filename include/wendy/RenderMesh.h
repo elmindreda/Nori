@@ -79,7 +79,7 @@ private:
 /*! @brief %Renderable mesh subset.
  *  @ingroup renderer
  *
- *  This class represents a subset of a mesh, using a single render style
+ *  This class represents a subset of a mesh, using a single %render style
  *  and a single primitive mode.
  */
 class Mesh::Geometry
@@ -95,7 +95,7 @@ public:
   /*! @return The primitive mode used by this geometry.
    */
   GLenum getRenderMode(void) const;
-  /*! @return The render style used by this geometry.
+  /*! @return The %render style used by this geometry.
    */
   Style* getStyle(void) const;
   void setStyle(Style* newStyle);
