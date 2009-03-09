@@ -291,7 +291,7 @@ unsigned int Pass::getSamplerCount(void) const
   return samplers.size();
 }
 
-ShaderProgram* Pass::getShaderProgram(void) const
+Program* Pass::getProgram(void) const
 {
   return data.program;
 }
@@ -360,13 +360,13 @@ bool Pass::setSamplerTexture(const String& samplerName, Texture& texture)
 {
 }
 
-void Pass::setShaderProgram(ShaderProgram* newProgram)
+void Pass::setProgram(Program* newProgram)
 {
   if (newProgram)
     data.program = &newProgram;
   else
   {
-    data.program = ShaderProgram::readInstance("default");
+    data.program = Program::readInstance("default");
     if (!data.program)
       throw Exception("Default shader program missing");
   }

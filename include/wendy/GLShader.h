@@ -37,16 +37,16 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class ShaderProgram;
+class Program;
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Shader uniform.
  *  @ingroup opengl
  */
-class ShaderUniform
+class Uniform
 {
-  friend class ShaderProgram;
+  friend class Program;
 public:
   enum Type
   {
@@ -77,12 +77,12 @@ public:
   void setValue(const Matrix3& newValue);
   void setValue(const Matrix4& newValue);
   void setTexture(const Texture& newTexture);
-  ShaderProgram& getProgram(void) const;
+  Program& getProgram(void) const;
 private:
-  ShaderUniform(ShaderProgram& program);
-  ShaderUniform(const ShaderUniform& source);
-  ShaderUniform& operator = (const ShaderUniform& source);
-  ShaderProgram& program;
+  Uniform(Program& program);
+  Uniform(const Uniform& source);
+  Uniform& operator = (const Uniform& source);
+  Program& program;
   String name;
   Type type;
   unsigned int count;
@@ -97,7 +97,7 @@ private:
 class VertexShader : public RefObject<VertexShader>,
                      public Resource<VertexShader>
 {
-  friend class ShaderProgram;
+  friend class Program;
 public:
   ~VertexShader(void);
   const String& getText(void) const;
@@ -122,7 +122,7 @@ private:
 class FragmentShader : public RefObject<FragmentShader>,
                        public Resource<FragmentShader>
 {
-  friend class ShaderProgram;
+  friend class Program;
 public:
   ~FragmentShader(void);
   const String& getText(void) const;
@@ -144,35 +144,46 @@ private:
 /*! @brief Shader program.
  *  @ingroup opengl
  */
-class ShaderProgram : public RefObject<ShaderProgram>,
-                      public Resource<ShaderProgram>
+class Program : public RefObject<Program>, public Resource<Program>
 {
 public:
   void apply(void);
-  ShaderUniform* findUniform(const String& name);
-  const ShaderUniform* findUniform(const String& name) const;
+  Uniform* findUniform(const String& name);
+  const Uniform* findUniform(const String& name) const;
   unsigned int getUniformCount(void) const;
-  ShaderUniform& getUniform(unsigned int index);
-  const ShaderUniform& getUniform(unsigned int index) const;
+  Uniform& getUniform(unsigned int index);
+  const Uniform& getUniform(unsigned int index) const;
   VertexShader& getVertexShader(void) const;
   FragmentShader& getFragmentShader(void) const;
-  SignalProxy1<void, ShaderProgram&> getAppliedSignal(void);
-  static ShaderProgram* createInstance(Context& context,
-                                       VertexShader& vertexShader,
-                                       FragmentShader& fragmentShader,
-				       const String& name = "");
+  SignalProxy1<void, Program&> getAppliedSignal(void);
+  static Program* createInstance(Context& context,
+                                 VertexShader& vertexShader,
+                                 FragmentShader& fragmentShader,
+				 const String& name = "");
 private:
-  ShaderProgram(Context& context, const String& name);
-  ShaderProgram(const ShaderProgram& source);
+  Program(Context& context, const String& name);
+  Program(const Program& source);
   bool init(VertexShader& vertexShader, FragmentShader& fragmentShader);
-  ShaderProgram& operator = (const ShaderProgram& source);
-  typedef std::vector<ShaderUniform*> UniformList;
+  Program& operator = (const Program& source);
+  typedef std::vector<Uniform*> UniformList;
   Context& context;
   Ref<VertexShader> vertexShader;
   Ref<FragmentShader> fragmentShader;
   CGprogram programID;
   UniformList uniforms;
-  Signal1<void, ShaderProgram&> appliedSignal;
+  Signal1<void, Program&> appliedSignal;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class ProgramState
+{
+public:
+  ProgramState(Program& program);
+  void apply(void) const;
+  Program& getProgram(void) const;
+private:
+  Program& program;
 };
 
 ///////////////////////////////////////////////////////////////////////

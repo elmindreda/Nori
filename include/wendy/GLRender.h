@@ -79,6 +79,8 @@ public:
   bool allocateVertices(VertexRange& range,
 			unsigned int count,
                         const VertexFormat& format);
+  Texture& getDefaultTexture(void) const;
+  Program& getDefaultProgram(void) const;
   /*! Creates the renderer singleton.
    */
   static bool create(void);
@@ -102,7 +104,7 @@ private:
   IndexBufferList indexBuffers;
   VertexBufferList vertexBuffers;
   Ref<Texture> defaultTexture;
-  Ref<ShaderProgram> defaultProgram;
+  Ref<Program> defaultProgram;
 };
 
 ///////////////////////////////////////////////////////////////////////

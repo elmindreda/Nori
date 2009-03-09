@@ -42,7 +42,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class ShaderProgram;
+class Program;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -136,7 +136,7 @@ public:
   unsigned int getSamplerCount(void) const;
   /*! @return The shader program used by this render pass.
    */
-  ShaderProgram* getShaderProgram(void) const;
+  Program* getProgram(void) const;
   const String& getName(void) const;
   /*! Sets whether this render pass uses depth buffer testing.
    *  @param enable Set to @c true to enable depth buffer testing, or @c false
@@ -180,7 +180,7 @@ public:
    *  @param[in] newProgram The desired shader program, or @c NULL to use the
    *  default shader program.
    */
-  void setShaderProgram(ShaderProgram* newProgram);
+  void setProgram(Program* newProgram);
   /*! Resets all values in this render pass to their defaults.
    */
   void setDefaults(void);
@@ -209,7 +209,7 @@ private:
     GLenum dstFactor;
     GLenum depthFunction;
     GLenum alphaFunction;
-    Ref<ShaderProgram> program;
+    Ref<Program> program;
   };
   void force(void) const;
   Sampler* findSampler(const String& name);

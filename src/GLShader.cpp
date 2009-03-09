@@ -50,34 +50,34 @@ using namespace moira;
 namespace
 {
 
-ShaderUniform::Type convertUniformType(CGtype type)
+Uniform::Type convertUniformType(CGtype type)
 {
   switch (type)
   {
     case CG_FLOAT:
-      return ShaderUniform::FLOAT;
+      return Uniform::FLOAT;
     case CG_FLOAT2:
-      return ShaderUniform::FLOAT_VEC2;
+      return Uniform::FLOAT_VEC2;
     case CG_FLOAT3:
-      return ShaderUniform::FLOAT_VEC3;
+      return Uniform::FLOAT_VEC3;
     case CG_FLOAT4:
-      return ShaderUniform::FLOAT_VEC4;
+      return Uniform::FLOAT_VEC4;
     case CG_FLOAT2x2:
-      return ShaderUniform::FLOAT_MAT2;
+      return Uniform::FLOAT_MAT2;
     case CG_FLOAT3x3:
-      return ShaderUniform::FLOAT_MAT3;
+      return Uniform::FLOAT_MAT3;
     case CG_FLOAT4x4:
-      return ShaderUniform::FLOAT_MAT4;
+      return Uniform::FLOAT_MAT4;
     case CG_SAMPLER1D:
-      return ShaderUniform::SAMPLER_1D;
+      return Uniform::SAMPLER_1D;
     case CG_SAMPLER2D:
-      return ShaderUniform::SAMPLER_2D;
+      return Uniform::SAMPLER_2D;
     case CG_SAMPLER3D:
-      return ShaderUniform::SAMPLER_3D;
+      return Uniform::SAMPLER_3D;
     case CG_SAMPLERRECT:
-      return ShaderUniform::SAMPLER_RECT;
+      return Uniform::SAMPLER_RECT;
     case CG_SAMPLERCUBE:
-      return ShaderUniform::SAMPLER_CUBE;
+      return Uniform::SAMPLER_CUBE;
     default:
       throw Exception("Invalid Cg parameter type");
   }
@@ -87,7 +87,7 @@ ShaderUniform::Type convertUniformType(CGtype type)
 
 ///////////////////////////////////////////////////////////////////////
 
-bool ShaderUniform::isScalar(void) const
+bool Uniform::isScalar(void) const
 {
   if (type == FLOAT)
     return true;
@@ -95,7 +95,7 @@ bool ShaderUniform::isScalar(void) const
   return false;
 }
 
-bool ShaderUniform::isVector(void) const
+bool Uniform::isVector(void) const
 {
   if (type == FLOAT_VEC2 || type == FLOAT_VEC3 || type == FLOAT_VEC4)
     return true;
@@ -103,7 +103,7 @@ bool ShaderUniform::isVector(void) const
   return false;
 }
 
-bool ShaderUniform::isMatrix(void) const
+bool Uniform::isMatrix(void) const
 {
   if (type == FLOAT_MAT2 || type == FLOAT_MAT3 || type == FLOAT_MAT4)
     return true;
@@ -111,7 +111,7 @@ bool ShaderUniform::isMatrix(void) const
   return false;
 }
 
-bool ShaderUniform::isSampler(void) const
+bool Uniform::isSampler(void) const
 {
   if (type == SAMPLER_1D || type == SAMPLER_2D || type == SAMPLER_3D ||
       type == SAMPLER_RECT || type == SAMPLER_CUBE)
@@ -120,17 +120,17 @@ bool ShaderUniform::isSampler(void) const
   return false;
 }
 
-ShaderUniform::Type ShaderUniform::getType(void) const
+Uniform::Type Uniform::getType(void) const
 {
   return type;
 }
 
-const String& ShaderUniform::getName(void) const
+const String& Uniform::getName(void) const
 {
   return name;
 }
 
-void ShaderUniform::setValue(float newValue)
+void Uniform::setValue(float newValue)
 {
   if (type != FLOAT)
   {
@@ -141,7 +141,7 @@ void ShaderUniform::setValue(float newValue)
   cgGLSetParameter1f(uniformID, newValue);
 }
 
-void ShaderUniform::setValue(const Vector2& newValue)
+void Uniform::setValue(const Vector2& newValue)
 {
   if (type != FLOAT_VEC2)
   {
@@ -152,7 +152,7 @@ void ShaderUniform::setValue(const Vector2& newValue)
   cgGLSetParameter2fv(uniformID, newValue);
 }
 
-void ShaderUniform::setValue(const Vector3& newValue)
+void Uniform::setValue(const Vector3& newValue)
 {
   if (type != FLOAT_VEC3)
   {
@@ -163,7 +163,7 @@ void ShaderUniform::setValue(const Vector3& newValue)
   cgGLSetParameter3fv(uniformID, newValue);
 }
 
-void ShaderUniform::setValue(const Vector4& newValue)
+void Uniform::setValue(const Vector4& newValue)
 {
   if (type != FLOAT_VEC4)
   {
@@ -174,7 +174,7 @@ void ShaderUniform::setValue(const Vector4& newValue)
   cgGLSetParameter4fv(uniformID, newValue);
 }
 
-void ShaderUniform::setValue(const Matrix2& newValue)
+void Uniform::setValue(const Matrix2& newValue)
 {
   if (type != FLOAT_MAT2)
   {
@@ -185,7 +185,7 @@ void ShaderUniform::setValue(const Matrix2& newValue)
   cgGLSetMatrixParameterfr(uniformID, newValue);
 }
 
-void ShaderUniform::setValue(const Matrix3& newValue)
+void Uniform::setValue(const Matrix3& newValue)
 {
   if (type != FLOAT_MAT3)
   {
@@ -196,7 +196,7 @@ void ShaderUniform::setValue(const Matrix3& newValue)
   cgGLSetMatrixParameterfr(uniformID, newValue);
 }
 
-void ShaderUniform::setValue(const Matrix4& newValue)
+void Uniform::setValue(const Matrix4& newValue)
 {
   if (type != FLOAT_MAT4)
   {
@@ -207,7 +207,7 @@ void ShaderUniform::setValue(const Matrix4& newValue)
   cgGLSetMatrixParameterfr(uniformID, newValue);
 }
 
-void ShaderUniform::setTexture(const Texture& newTexture)
+void Uniform::setTexture(const Texture& newTexture)
 {
   if (!isSampler())
   {
@@ -220,22 +220,22 @@ void ShaderUniform::setTexture(const Texture& newTexture)
   cgGLSetTextureParameter(uniformID, newTexture.textureID);
 }
 
-ShaderProgram& ShaderUniform::getProgram(void) const
+Program& Uniform::getProgram(void) const
 {
   return program;
 }
 
-ShaderUniform::ShaderUniform(ShaderProgram& initProgram):
+Uniform::Uniform(Program& initProgram):
   program(initProgram)
 {
 }
 
-ShaderUniform::ShaderUniform(const ShaderUniform& source):
+Uniform::Uniform(const Uniform& source):
   program(source.program)
 {
 }
 
-ShaderUniform& ShaderUniform::operator = (const ShaderUniform& source)
+Uniform& Uniform::operator = (const Uniform& source)
 {
   return *this;
 }
@@ -354,14 +354,14 @@ FragmentShader& FragmentShader::operator = (const FragmentShader& source)
 
 ///////////////////////////////////////////////////////////////////////
 
-void ShaderProgram::apply(void)
+void Program::apply(void)
 {
   appliedSignal.emit(*this);
 
   cgGLBindProgram(programID);
 }
 
-ShaderUniform* ShaderProgram::findUniform(const String& name)
+Uniform* Program::findUniform(const String& name)
 {
   for (UniformList::const_iterator i = uniforms.begin();  i != uniforms.end();  i++)
   {
@@ -372,7 +372,7 @@ ShaderUniform* ShaderProgram::findUniform(const String& name)
   return NULL;
 }
 
-const ShaderUniform* ShaderProgram::findUniform(const String& name) const
+const Uniform* Program::findUniform(const String& name) const
 {
   for (UniformList::const_iterator i = uniforms.begin();  i != uniforms.end();  i++)
   {
@@ -383,61 +383,61 @@ const ShaderUniform* ShaderProgram::findUniform(const String& name) const
   return NULL;
 }
 
-unsigned int ShaderProgram::getUniformCount(void) const
+unsigned int Program::getUniformCount(void) const
 {
   return uniforms.size();
 }
 
-ShaderUniform& ShaderProgram::getUniform(unsigned int index)
+Uniform& Program::getUniform(unsigned int index)
 {
   return *uniforms[index];
 }
 
-const ShaderUniform& ShaderProgram::getUniform(unsigned int index) const
+const Uniform& Program::getUniform(unsigned int index) const
 {
   return *uniforms[index];
 }
 
-VertexShader& ShaderProgram::getVertexShader(void) const
+VertexShader& Program::getVertexShader(void) const
 {
   return *vertexShader;
 }
 
-FragmentShader& ShaderProgram::getFragmentShader(void) const
+FragmentShader& Program::getFragmentShader(void) const
 {
   return *fragmentShader;
 }
 
-SignalProxy1<void, ShaderProgram&> ShaderProgram::getAppliedSignal(void)
+SignalProxy1<void, Program&> Program::getAppliedSignal(void)
 {
   return appliedSignal;
 }
 
-ShaderProgram* ShaderProgram::createInstance(Context& context,
+Program* Program::createInstance(Context& context,
                                              VertexShader& vertexShader,
 					     FragmentShader& fragmentShader,
 					     const String& name)
 {
-  Ptr<ShaderProgram> program = new ShaderProgram(context, name);
+  Ptr<Program> program = new Program(context, name);
   if (!program->init(vertexShader, fragmentShader))
     return NULL;
 
   return program.detachObject();
 }
 
-ShaderProgram::ShaderProgram(Context& initContext, const String& name):
-  Resource<ShaderProgram>(name),
+Program::Program(Context& initContext, const String& name):
+  Resource<Program>(name),
   context(initContext)
 {
 }
 
-ShaderProgram::ShaderProgram(const ShaderProgram& source):
-  Resource<ShaderProgram>(""),
+Program::Program(const Program& source):
+  Resource<Program>(""),
   context(source.context)
 {
 }
 
-bool ShaderProgram::init(VertexShader& initVertexShader, FragmentShader& initFragmentShader)
+bool Program::init(VertexShader& initVertexShader, FragmentShader& initFragmentShader)
 {
   vertexShader = &initVertexShader;
   fragmentShader = &initFragmentShader;
@@ -456,7 +456,7 @@ bool ShaderProgram::init(VertexShader& initVertexShader, FragmentShader& initFra
     CGtype type = cgGetParameterType(parameter);
     if (type != CG_ARRAY && type != CG_STRUCT)
     {
-      ShaderUniform* uniform = new ShaderUniform(*this);
+      Uniform* uniform = new Uniform(*this);
       uniform->name = cgGetParameterName(parameter);
       uniform->type = convertUniformType(type);
       uniform->uniformID = parameter;
@@ -471,7 +471,7 @@ bool ShaderProgram::init(VertexShader& initVertexShader, FragmentShader& initFra
   return true;
 }
 
-ShaderProgram& ShaderProgram::operator = (const ShaderProgram& source)
+Program& Program::operator = (const Program& source)
 {
   return *this;
 }
