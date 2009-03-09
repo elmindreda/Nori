@@ -17,6 +17,12 @@ bool setup(void)
     return false;
   }
 
+  if (!input::Context::create(*GL::Context::get()))
+  {
+    Log::writeError("Unable to create input context");
+    return false;
+  }
+
   if (!UI::Renderer::create())
   {
     Log::writeError("Unable to create UI renderer");
@@ -103,7 +109,7 @@ int main(int argc, char** argv)
   if (!wendy::initialize())
     exit(1);
 
-  GL::ContextMode mode(800, 600, 32, 32, 0, 0, GL::ContextMode::WINDOWED);
+  GL::ContextMode mode(800, 600, 32, 16, 0, 0, GL::ContextMode::WINDOWED);
   if (GL::Context::create(mode))
   {
     if (setup())

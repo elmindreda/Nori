@@ -46,7 +46,7 @@ public:
 private:
   bool onRender(void);
   void onResized(unsigned int width, unsigned int height);
-  void onKeyPressed(GL::Key key, bool pressed);
+  void onKeyPressed(input::Key key, bool pressed);
   GL::ScreenCanvas canvas;
   Ptr<Show> show;
   Timer timer;

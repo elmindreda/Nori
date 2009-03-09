@@ -37,29 +37,6 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Input key.
- *
- *  Represents a single input key (as on a keyboard).
- */
-class Key
-{
-public:
-  enum Symbol
-  {
-    SPACE = 32,
-    ESCAPE = 256, TAB, ENTER, BACKSPACE, INSERT, DELETE, 
-    LSHIFT, RSHIFT, LCTRL, RCTRL, LALT, RALT,
-    UP, DOWN, LEFT, RIGHT, PAGEUP, PAGEDOWN, HOME, END,
-    F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
-  };
-  Key(unsigned int value);
-  operator unsigned int (void) const;
-private:
-  unsigned int value;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Screen mode.
  *  @ingroup opengl
  */
@@ -177,14 +154,6 @@ public:
   /*! @return @c true if the context is windowed, otherwise @c false.
    */
   bool isWindowed(void) const;
-  /*! @return @c true if the specified key is pressed, otherwise @c false.
-   *  @param[in] key The desired key.
-   */
-  bool isKeyDown(const Key& key) const;
-  /*! @return @c true if the specified mouse button is pressed, otherwise @c false.
-   *  @param[in] button The desired mouse button.
-   */
-  bool isButtonDown(unsigned int button) const;
   /*! Checks for the presence of the specified extension.
    *  @param[in] name The name of the desired extension.
    *  @return @c true if the extension is present, otherwise @c false.
@@ -216,13 +185,6 @@ public:
    *  @param[in] newTitle The desired title.
    */
   void setTitle(const String& newTitle);
-  /*! @return The current mouse position.
-   */
-  const Vector2& getCursorPosition(void) const;
-  /*! Places the the mouse cursor at the specified position.
-   *  @param[in] newPosition The desired mouse position.
-   */
-  void setCursorPosition(const Vector2& newPosition);
   /*! @return The signal for rendering.
    */
   SignalProxy0<bool> getRenderSignal(void);
@@ -235,21 +197,6 @@ public:
   /*! @return The signal for context resizing.
    */
   SignalProxy2<void, unsigned int, unsigned int> getResizedSignal(void);
-  /*! @return The signal for key press and release events.
-   */
-  SignalProxy2<void, Key, bool> getKeyPressedSignal(void);
-  /*! @return The signal for character input events.
-   */
-  SignalProxy1<void, wchar_t> getCharInputSignal(void);
-  /*! @return The signal for mouse button click and release events.
-   */
-  SignalProxy2<void, unsigned int, bool> getButtonClickedSignal(void);
-  /*! @return The signal for mouse cursor movement events.
-   */
-  SignalProxy1<void, const Vector2&> getCursorMovedSignal(void);
-  /*! @return The signal for mouse wheel events.
-    */
-  SignalProxy1<void, int> getWheelTurnedSignal(void);
   /*! Creates the context singleton object, using the specified settings.
     *  @param[in] mode The requested context settings.
     *  @return @c true if successful, or @c false otherwise.
@@ -272,27 +219,12 @@ private:
   bool init(const ContextMode& mode);
   static void sizeCallback(int width, int height);
   static int closeCallback(void);
-  static void keyboardCallback(int key, int action);
-  static void characterCallback(int character, int action);
-  static void mousePosCallback(int x, int y);
-  static void mouseButtonCallback(int button, int action);
-  static void mouseWheelCallback(int position);
-  typedef std::map<int, int> KeyMap;
   Signal0<bool> renderSignal;
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
   Signal2<void, unsigned int, unsigned int> resizedSignal;
-  Signal2<void, Key, bool> keyPressedSignal;
-  Signal1<void, wchar_t> charInputSignal;
-  Signal2<void, unsigned int, bool> buttonClickedSignal;
-  Signal1<void, const Vector2&> cursorMovedSignal;
-  Signal1<void, int> wheelTurnedSignal;
   ContextMode mode;
   String title;
-  int wheelPosition;
-  mutable Vector2 cursorPosition;
-  static KeyMap internalMap;
-  static KeyMap externalMap;
   static Context* instance;
   static Signal0<void> createSignal;
   static Signal0<void> destroySignal;

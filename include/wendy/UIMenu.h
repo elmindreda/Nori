@@ -62,7 +62,7 @@ private:
                        const Vector2& position,
 		       unsigned int button,
 		       bool clicked);
-  void onKeyPressed(Widget& widget, GL::Key key, bool pressed);
+  void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   void onDragEnded(Widget& widget, const Vector2& position);
   void sizeToFit(void);
   ItemList items;

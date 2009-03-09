@@ -40,6 +40,8 @@
 
 #include <wendy/RenderFont.h>
 
+#include <wendy/Input.h>
+
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIScroller.h>
@@ -296,33 +298,33 @@ void List::onButtonClicked(Widget& widget,
   }
 }
 
-void List::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
+void List::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 {
   if (!pressed)
     return;
 
   switch (key)
   {
-    case GL::Key::UP:
+    case input::Key::UP:
     {
       if (selection > 0)
 	setSelection(selection - 1, true);
       break;
     }
 
-    case GL::Key::DOWN:
+    case input::Key::DOWN:
     {
       setSelection(selection + 1, true);
       break;
     }
 
-    case GL::Key::HOME:
+    case input::Key::HOME:
     {
       setSelection(0, true);
       break;
     }
 
-    case GL::Key::END:
+    case input::Key::END:
     {
       if (!items.empty())
 	setSelection(items.size() - 1, true);

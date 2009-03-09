@@ -40,6 +40,8 @@
 
 #include <wendy/RenderFont.h>
 
+#include <wendy/Input.h>
+
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 
@@ -66,9 +68,9 @@ Widget::Widget(void):
 
   if (!initialized)
   {
-    GL::Context* context = GL::Context::get();
+    input::Context* context = input::Context::get();
     if (!context)
-      throw Exception("Cannot create UI widgets without an OpenGL context");
+      throw Exception("Cannot create UI widgets without an input context");
 
     context->getKeyPressedSignal().connect(&Widget::onKeyPressed);
     context->getCharInputSignal().connect(&Widget::onCharInput);
@@ -237,7 +239,7 @@ void Widget::cancelDragging(void)
 {
   if (dragging && draggedWidget == this)
   {
-    GL::Context* context = GL::Context::get();
+    input::Context* context = input::Context::get();
 
     draggedWidget->dragEndedSignal.emit(*draggedWidget, context->getCursorPosition());
 
@@ -369,7 +371,7 @@ SignalProxy2<void, Widget&, bool> Widget::getFocusChangedSignal(void)
   return focusChangedSignal;
 }
 
-SignalProxy3<void, Widget&, GL::Key, bool> Widget::getKeyPressedSignal(void)
+SignalProxy3<void, Widget&, input::Key, bool> Widget::getKeyPressedSignal(void)
 {
   return keyPressedSignal;
 }
@@ -483,7 +485,7 @@ void Widget::removedFromParent(Widget& parent)
 {
 }
 
-void Widget::onKeyPressed(GL::Key key, bool pressed)
+void Widget::onKeyPressed(input::Key key, bool pressed)
 {
   switch (key)
   {
@@ -549,7 +551,7 @@ void Widget::onCursorMoved(const Vector2& position)
 
 void Widget::onButtonClicked(unsigned int button, bool clicked)
 {
-  GL::Context* context = GL::Context::get();
+  input::Context* context = input::Context::get();
 
   Vector2 cursorPosition = context->getCursorPosition();
   cursorPosition.y = context->getHeight() - cursorPosition.y;

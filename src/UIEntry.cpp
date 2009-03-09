@@ -40,6 +40,8 @@
 
 #include <wendy/RenderFont.h>
 
+#include <wendy/Input.h>
+
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIEntry.h>
@@ -175,14 +177,14 @@ void Entry::onButtonClicked(Widget& widget,
   setCaretPosition(startPosition + index, true);
 }
 
-void Entry::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
+void Entry::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 {
   if (!pressed)
     return;
 
   switch (key)
   {
-    case GL::Key::BACKSPACE:
+    case input::Key::BACKSPACE:
     {
       if (!text.empty() && caretPosition > 0)
       {
@@ -194,7 +196,7 @@ void Entry::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
       break;
     }
 
-    case GL::Key::DELETE:
+    case input::Key::DELETE:
     {
       if (!text.empty() && caretPosition < text.length())
       {
@@ -205,26 +207,26 @@ void Entry::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
       break;
     }
 
-    case GL::Key::LEFT:
+    case input::Key::LEFT:
     {
       if (caretPosition > 0)
 	setCaretPosition(caretPosition - 1, true);
       break;
     }
 
-    case GL::Key::RIGHT:
+    case input::Key::RIGHT:
     {
       setCaretPosition(caretPosition + 1, true);
       break;
     }
 
-    case GL::Key::HOME:
+    case input::Key::HOME:
     {
       setCaretPosition(0, true);
       break;
     }
 
-    case GL::Key::END:
+    case input::Key::END:
     {
       setCaretPosition(text.length(), true);
       break;

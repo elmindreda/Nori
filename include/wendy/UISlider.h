@@ -59,7 +59,7 @@ private:
 		       const Vector2& position,
 		       unsigned int button,
 		       bool clicked);
-  void onKeyPressed(Widget& widget, GL::Key key, bool pressed);
+  void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   void onWheelTurned(Widget& widget, int offset);
   void onDragMoved(Widget& widget, const Vector2& position);
   void setValue(const Vector2& position);

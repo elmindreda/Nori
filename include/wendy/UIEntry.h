@@ -56,7 +56,7 @@ private:
 		       const Vector2& position,
 		       unsigned int button,
 		       bool clicked);
-  void onKeyPressed(Widget& widget, GL::Key key, bool pressed);
+  void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   void onCharInput(Widget& widget, wchar_t character);
   void setText(const String& newText, bool notify);
   void setCaretPosition(unsigned int newPosition, bool notify);

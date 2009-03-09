@@ -41,6 +41,8 @@
 #include <wendy/RenderFont.h>
 #include <wendy/RenderStyle.h>
 
+#include <wendy/Input.h>
+
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIWindow.h>
@@ -222,9 +224,13 @@ bool Editor::init(const String& showName)
   if (!show)
     return false;
 
+  {
+    input::Context* context = input::Context::get();
+    context->getResizedSignal().connect(*this, &Editor::onResized);
+    context->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
+  }
+
   GL::Context* context = GL::Context::get();
-  context->getResizedSignal().connect(*this, &Editor::onResized);
-  context->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
   context->getCloseRequestSignal().connect(*this, &Editor::onCloseRequest);
 
   const float em = UI::Renderer::get()->getDefaultEM();
@@ -505,20 +511,20 @@ void Editor::onResized(unsigned int width, unsigned int height)
   book->setSize(Vector2((float) width, (float) height));
 }
 
-void Editor::onKeyPressed(GL::Key key, bool pressed)
+void Editor::onKeyPressed(input::Key key, bool pressed)
 {
   if (!pressed)
     return;
 
   switch (key)
   {
-    case GL::Key::TAB:
+    case input::Key::TAB:
     {
       setVisible(!isVisible());
       break;
     }
 
-    case GL::Key::ESCAPE:
+    case input::Key::ESCAPE:
     {
       quitting = true;
       break;
@@ -526,7 +532,7 @@ void Editor::onKeyPressed(GL::Key key, bool pressed)
   }
 }
 
-void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
+void Editor::onKeyPressed(UI::Widget& widget, input::Key key, bool pressed)
 {
   if (&widget == canvas)
   {
@@ -535,31 +541,31 @@ void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
 
     switch (key)
     {
-      case GL::Key::LEFT:
+      case input::Key::LEFT:
       {
 	setTimeElapsed(elapsed - 1.0);
 	break;
       }
 
-      case GL::Key::RIGHT:
+      case input::Key::RIGHT:
       {
 	setTimeElapsed(elapsed + 1.0);
 	break;
       }
 
-      case GL::Key::HOME:
+      case input::Key::HOME:
       {
 	setTimeElapsed(0.0);
 	break;
       }
 
-      case GL::Key::END:
+      case input::Key::END:
       {
 	setTimeElapsed(show->getDuration() - 0.01);
 	break;
       }
 
-      case GL::Key::SPACE:
+      case input::Key::SPACE:
       {
 	togglePaused();
 	break;
@@ -568,7 +574,7 @@ void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
   }
   else if (&widget == titleEntry)
   {
-    if (!pressed || key != GL::Key::ENTER)
+    if (!pressed || key != input::Key::ENTER)
       return;
 
     show->setTitle(titleEntry->getText());
@@ -576,7 +582,7 @@ void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
   }
   else if (&widget == musicEntry)
   {
-    if (!pressed || key != GL::Key::ENTER)
+    if (!pressed || key != input::Key::ENTER)
       return;
 
     show->setMusicPath(Path(musicEntry->getText()));
@@ -584,7 +590,7 @@ void Editor::onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed)
   }
   else if (&widget == nameEntry)
   {
-    if (!pressed || key != GL::Key::ENTER)
+    if (!pressed || key != input::Key::ENTER)
       return;
 
     String effectName = nameEntry->getText();

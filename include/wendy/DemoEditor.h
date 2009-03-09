@@ -71,8 +71,8 @@ private:
   void onDestroyAllEffects(UI::Button& button);
   void onZoomChanged(UI::Slider& slider);
   void onResized(unsigned int width, unsigned int height);
-  void onKeyPressed(GL::Key key, bool pressed);
-  void onKeyPressed(UI::Widget& widget, GL::Key key, bool pressed);
+  void onKeyPressed(input::Key key, bool pressed);
+  void onKeyPressed(UI::Widget& widget, input::Key key, bool pressed);
   void onTimeChanged(Timeline& timeline);
   void onParentChanged(Timeline& timeline);
   void onSelectionChanged(Timeline& timeline);

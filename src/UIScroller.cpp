@@ -40,6 +40,8 @@
 
 #include <wendy/RenderFont.h>
 
+#include <wendy/Input.h>
+
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIScroller.h>
@@ -198,7 +200,7 @@ void Scroller::onButtonClicked(Widget& widget,
   }
 }
 
-void Scroller::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
+void Scroller::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 {
   if (minValue == maxValue)
     return;
@@ -207,27 +209,27 @@ void Scroller::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
   {
     switch (key)
     {
-      case GL::Key::DOWN:
-      case GL::Key::RIGHT:
+      case input::Key::DOWN:
+      case input::Key::RIGHT:
       {
 	setValue(value + getValueStep(), true);
 	break;
       }
 
-      case GL::Key::UP:
-      case GL::Key::LEFT:
+      case input::Key::UP:
+      case input::Key::LEFT:
       {
 	setValue(value - getValueStep(), true);
 	break;
       }
 
-      case GL::Key::HOME:
+      case input::Key::HOME:
       {
 	setValue(minValue, true);
 	break;
       }
 
-      case GL::Key::END:
+      case input::Key::END:
       {
 	setValue(maxValue, true);
 	break;

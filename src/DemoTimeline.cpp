@@ -41,6 +41,8 @@
 #include <wendy/RenderFont.h>
 #include <wendy/RenderStyle.h>
 
+#include <wendy/Input.h>
+
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIWindow.h>
@@ -534,14 +536,14 @@ void PropertyTrack::draw(void) const
   }
 }
 
-void PropertyTrack::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
+void PropertyTrack::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 {
   if (!pressed)
     return;
 
   switch (key)
   {
-    case GL::Key::DELETE:
+    case input::Key::DELETE:
     {
       break;
     }
@@ -791,9 +793,9 @@ void Timeline::setParentEffect(Effect& newParent)
 
 Time Timeline::getSnappedTime(Time time) const
 {
-  GL::Context* context = GL::Context::get();
+  input::Context* context = input::Context::get();
 
-  if (context->isKeyDown(GL::Key::LSHIFT) || context->isKeyDown(GL::Key::RSHIFT))
+  if (context->isKeyDown(input::Key::LSHIFT) || context->isKeyDown(input::Key::RSHIFT))
     return floorf(time + 0.5);
 
   return time;
