@@ -176,14 +176,32 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+class UniformState
+{
+public:
+  UniformState(Uniform& uniform);
+  void apply(void) const;
+  Uniform& getUniform(void) const;
+private:
+  Uniform& uniform;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 class ProgramState
 {
 public:
+  ProgramState(void);
   ProgramState(Program& program);
   void apply(void) const;
-  Program& getProgram(void) const;
+  unsigned int getUniformStateCount(void) const;
+  UniformState& getUniformState(unsigned int index);
+  const UniformState& getUniformState(unsigned int index) const;
+  Program* getProgram(void) const;
 private:
+  typedef std::vector<UniformState> StateList;
   Program& program;
+  StateList states;
 };
 
 ///////////////////////////////////////////////////////////////////////

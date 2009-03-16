@@ -242,7 +242,8 @@ public:
      */
     STATIC = GL_STATIC_DRAW_ARB,
     /*! Data will be specified once and used a few times.
-     */ STREAM = GL_STREAM_DRAW_ARB,
+     */
+    STREAM = GL_STREAM_DRAW_ARB,
     /*! Data will be repeatedly respecified and re-used.
      */
     DYNAMIC = GL_DYNAMIC_DRAW_ARB,
