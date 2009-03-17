@@ -200,7 +200,7 @@ public:
   Program* getProgram(void) const;
 private:
   typedef std::vector<UniformState> StateList;
-  Program& program;
+  Ref<Program> program;
   StateList states;
 };
 
