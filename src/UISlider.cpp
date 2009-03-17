@@ -39,6 +39,8 @@
 
 #include <wendy/RenderFont.h>
 
+#include <wendy/Input.h>
+
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UISlider.h>
@@ -171,24 +173,24 @@ void Slider::onButtonClicked(Widget& widget,
     setValue(transformToLocal(position));
 }
 
-void Slider::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
+void Slider::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 {
   if (pressed)
   {
     switch (key)
     {
-      case GL::Key::UP:
-      case GL::Key::RIGHT:
+      case input::Key::UP:
+      case input::Key::RIGHT:
 	setValue(value + stepSize, true);
 	break;
-      case GL::Key::DOWN:
-      case GL::Key::LEFT:
+      case input::Key::DOWN:
+      case input::Key::LEFT:
 	setValue(value - stepSize, true);
 	break;
-      case GL::Key::HOME:
+      case input::Key::HOME:
 	setValue(minValue, true);
 	break;
-      case GL::Key::END:
+      case input::Key::END:
 	setValue(maxValue, true);
 	break;
     }

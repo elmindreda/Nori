@@ -38,6 +38,8 @@
 
 #include <wendy/RenderFont.h>
 
+#include <wendy/Input.h>
+
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIButton.h>
@@ -116,15 +118,15 @@ void Button::onButtonClicked(Widget& widget,
   pushedSignal.emit(*this);
 }
 
-void Button::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
+void Button::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 {
   if (!pressed)
     return;
 
   switch (key)
   {
-    case GL::Key::SPACE:
-    case GL::Key::ENTER:
+    case input::Key::SPACE:
+    case input::Key::ENTER:
     {
       pushedSignal.emit(*this);
       break;

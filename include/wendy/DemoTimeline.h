@@ -103,7 +103,7 @@ public:
   Property& getParameter(void) const;
 private:
   void draw(void) const;
-  void onKeyPressed(Widget& widget, GL::Key key, bool pressed);
+  void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   void onDragBegun(Widget& widget, const Vector2& point);
   void onDragMoved(Widget& widget, const Vector2& point);
   void onDragEnded(Widget& widget, const Vector2& point);

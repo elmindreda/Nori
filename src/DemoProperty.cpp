@@ -36,6 +36,8 @@
 #include <wendy/RenderFont.h>
 #include <wendy/RenderStyle.h>
 
+#include <wendy/Input.h>
+
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UISlider.h>

@@ -174,7 +174,7 @@ public:
   SignalProxy1<void, Widget&> getDestroyedSignal(void);
   SignalProxy1<void, Widget&> getAreaChangedSignal(void);
   SignalProxy2<void, Widget&, bool> getFocusChangedSignal(void);
-  SignalProxy3<void, Widget&, GL::Key, bool> getKeyPressedSignal(void);
+  SignalProxy3<void, Widget&, input::Key, bool> getKeyPressedSignal(void);
   SignalProxy2<void, Widget&, wchar_t> getCharInputSignal(void);
   SignalProxy2<void, Widget&, const Vector2&> getCursorMovedSignal(void);
   SignalProxy4<void, Widget&, const Vector2&, unsigned int, bool> getButtonClickedSignal(void);
@@ -199,7 +199,7 @@ protected:
   virtual void addedToParent(Widget& parent);
   virtual void removedFromParent(Widget& parent);
 private:
-  static void onKeyPressed(GL::Key key, bool pressed);
+  static void onKeyPressed(input::Key key, bool pressed);
   static void onCharInput(wchar_t character);
   static void onCursorMoved(const Vector2& position);
   static void onButtonClicked(unsigned int button, bool clicked);
@@ -207,7 +207,7 @@ private:
   Signal1<void, Widget&> destroyedSignal;
   Signal1<void, Widget&> areaChangedSignal;
   Signal2<void, Widget&, bool> focusChangedSignal;
-  Signal3<void, Widget&, GL::Key, bool> keyPressedSignal;
+  Signal3<void, Widget&, input::Key, bool> keyPressedSignal;
   Signal2<void, Widget&, wchar_t> charInputSignal;
   Signal2<void, Widget&, const Vector2&> cursorMovedSignal;
   Signal4<void, Widget&, const Vector2&, unsigned int, bool> buttonClickedSignal;

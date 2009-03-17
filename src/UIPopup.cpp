@@ -39,6 +39,8 @@
 
 #include <wendy/RenderFont.h>
 
+#include <wendy/Input.h>
+
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIItem.h>
@@ -183,14 +185,14 @@ void Popup::onButtonClicked(Widget& widget,
   display();
 }
 
-void Popup::onKeyPressed(Widget& widget, GL::Key key, bool pressed)
+void Popup::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 {
   if (!pressed)
     return;
 
   switch (key)
   {
-    case GL::Key::ENTER:
+    case input::Key::ENTER:
     {
       display();
       break;
