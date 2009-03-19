@@ -114,10 +114,6 @@ public:
    */
   bool isColorWriting(void) const;
   bool hasSampler(const String& name) const;
-  /*! @return The width of lines, in percent of the height of the current
-   * render target.
-   */
-  float getLineWidth(void) const;
   /*! @return The culling mode of this render pass.
    */
   CullMode getCullMode(void) const;
@@ -130,7 +126,6 @@ public:
   GLenum getSrcFactor(void) const;
   GLenum getDstFactor(void) const;
   GLenum getDepthFunction(void) const;
-  GLenum getAlphaFunction(void) const;
   Texture& getSamplerTexture(unsigned int index) const;
   Texture& getSamplerTexture(const String& name) const;
   unsigned int getSamplerCount(void) const;
@@ -152,17 +147,11 @@ public:
    *  @param function The desired depth testing function.
    */
   void setDepthFunction(GLenum function);
-  void setAlphaFunction(GLenum function);
   /*! Sets whether writing to the color buffer is enabled.
    *  @param enabled @c true to enable writing to the color buffer, or @c false
    *  to disable it.
    */
   void setColorWriting(bool enabled);
-  /*! Sets the specified line width.
-   *  @param width The desired line width, in percent of the height of the
-   *  current render target.
-   */
-  void setLineWidth(float width);
   void setCullMode(CullMode mode);
   /*! Sets the polygon rendering mode of this render pass.
    *  @param mode The desired polygon rendering mode. Possible values are:
@@ -202,13 +191,11 @@ private:
     bool depthTesting;
     bool depthWriting;
     bool colorWriting;
-    float lineWidth;
     CullMode cullMode;
     GLenum polygonMode;
     GLenum srcFactor;
     GLenum dstFactor;
     GLenum depthFunction;
-    GLenum alphaFunction;
     Ref<Program> program;
   };
   void force(void) const;
