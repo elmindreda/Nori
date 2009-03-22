@@ -70,18 +70,18 @@ public:
 /*! @brief Shader program XML codec.
  *  @ingroup io
  */
-class ShaderProgramCodec : public ResourceCodec<ShaderProgram>, public XML::Codec
+class ProgramCodec : public ResourceCodec<Program>, public XML::Codec
 {
 public:
-  ShaderProgramCodec(void);
-  ShaderProgram* read(const Path& path, const String& name = "");
-  ShaderProgram* read(Stream& stream, const String& name = "");
-  bool write(const Path& path, const ShaderProgram& program);
-  bool write(Stream& stream, const ShaderProgram& program);
+  ProgramCodec(void);
+  Program* read(const Path& path, const String& name = "");
+  Program* read(Stream& stream, const String& name = "");
+  bool write(const Path& path, const Program& program);
+  bool write(Stream& stream, const Program& program);
 private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
-  Ptr<ShaderProgram> program;
+  Ptr<Program> program;
   Ref<VertexShader> vertexShader;
   Ref<FragmentShader> fragmentShader;
   String programName;

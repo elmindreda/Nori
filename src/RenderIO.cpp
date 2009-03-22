@@ -302,7 +302,7 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 	  endElement();
 	}
 
-	if (GL::ShaderProgram* program = pass.getShaderProgram())
+	if (GL::Program* program = pass.getProgram())
 	{
 	  beginElement("shader-program");
 	  addAttribute("name", program->getName());
@@ -560,11 +560,11 @@ bool StyleCodec::onBeginElement(const String& name)
 
 	if (name == "shader-program")
 	{
-	  String shaderProgramName = readString("name");
-	  if (shaderProgramName.empty())
+	  String programName = readString("name");
+	  if (programName.empty())
 	    return true;
 
-	  GL::ShaderProgram* program = GL::ShaderProgram::readInstance(shaderProgramName);
+	  GL::Program* program = GL::Program::readInstance(programName);
 	  if (!program)
 	  {
 	    Log::writeWarning("Skipping technique %u in render style %s",
@@ -576,7 +576,7 @@ bool StyleCodec::onBeginElement(const String& name)
 	    return true;
 	  }
 	  
-	  currentPass->setShaderProgram(program);
+	  currentPass->setProgram(program);
 	  return true;
 	}
 

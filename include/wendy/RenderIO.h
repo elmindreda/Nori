@@ -54,7 +54,6 @@ private:
   Ptr<Style> style;
   Technique* currentTechnique;
   GL::Pass* currentPass;
-  GL::TextureLayer* currentLayer;
   String styleName;
 };
 

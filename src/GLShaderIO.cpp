@@ -126,18 +126,18 @@ bool FragmentShaderCodec::write(Stream& stream, const FragmentShader& program)
 
 ///////////////////////////////////////////////////////////////////////
 
-ShaderProgramCodec::ShaderProgramCodec(void):
-  ResourceCodec<ShaderProgram>("XML shader program codec")
+ProgramCodec::ProgramCodec(void):
+  ResourceCodec<Program>("XML shader program codec")
 {
   addSuffix("program");
 }
 
-ShaderProgram* ShaderProgramCodec::read(const Path& path, const String& name)
+Program* ProgramCodec::read(const Path& path, const String& name)
 {
-  return ResourceCodec<ShaderProgram>::read(path, name);
+  return ResourceCodec<Program>::read(path, name);
 }
 
-ShaderProgram* ShaderProgramCodec::read(Stream& stream, const String& name)
+Program* ProgramCodec::read(Stream& stream, const String& name)
 {
   programName = name;
 
@@ -156,12 +156,12 @@ ShaderProgram* ShaderProgramCodec::read(Stream& stream, const String& name)
   return program.detachObject();
 }
 
-bool ShaderProgramCodec::write(const Path& path, const ShaderProgram& program)
+bool ProgramCodec::write(const Path& path, const Program& program)
 {
-  return ResourceCodec<ShaderProgram>::write(path, program);
+  return ResourceCodec<Program>::write(path, program);
 }
 
-bool ShaderProgramCodec::write(Stream& stream, const ShaderProgram& program)
+bool ProgramCodec::write(Stream& stream, const Program& program)
 {
   try
   {
@@ -190,7 +190,7 @@ bool ShaderProgramCodec::write(Stream& stream, const ShaderProgram& program)
   return true;
 }
 
-bool ShaderProgramCodec::onBeginElement(const String& name)
+bool ProgramCodec::onBeginElement(const String& name)
 {
   if (name == "program")
   {
@@ -251,7 +251,7 @@ bool ShaderProgramCodec::onBeginElement(const String& name)
   return true;
 }
 
-bool ShaderProgramCodec::onEndElement(const String& name)
+bool ProgramCodec::onEndElement(const String& name)
 {
   if (name == "program")
   {
@@ -269,7 +269,7 @@ bool ShaderProgramCodec::onEndElement(const String& name)
       return false;
     }
 
-    program = ShaderProgram::createInstance(*Context::get(), *vertexShader, *fragmentShader, programName);
+    program = Program::createInstance(*Context::get(), *vertexShader, *fragmentShader, programName);
     if (!program)
       return false;
 

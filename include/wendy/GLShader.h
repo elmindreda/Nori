@@ -180,7 +180,23 @@ class UniformState
 {
 public:
   UniformState(Uniform& uniform);
-  void apply(void) const;
+  virtual void apply(void) const;
+  virtual bool getValue(float& result) const;
+  virtual void setValue(float newValue);
+  virtual bool getValue(Vector2& result) const;
+  virtual void setValue(const Vector2& newValue);
+  virtual bool getValue(Vector3& result) const;
+  virtual void setValue(const Vector3& newValue);
+  virtual bool getValue(Vector4& result) const;
+  virtual void setValue(const Vector4& newValue);
+  virtual bool getValue(Matrix2& result) const;
+  virtual void setValue(const Matrix2& newValue);
+  virtual bool getValue(Matrix3& result) const;
+  virtual void setValue(const Matrix3& newValue);
+  virtual bool getValue(Matrix4& result) const;
+  virtual void setValue(const Matrix4& newValue);
+  virtual bool getTexture(Texture& result) const;
+  virtual void setTexture(const Texture& newTexture);
   Uniform& getUniform(void) const;
 private:
   Uniform& uniform;
@@ -197,9 +213,11 @@ public:
   unsigned int getUniformStateCount(void) const;
   UniformState& getUniformState(unsigned int index);
   const UniformState& getUniformState(unsigned int index) const;
+  UniformState& getUniformState(const String& name);
+  const UniformState& getUniformState(const String& name) const;
   Program* getProgram(void) const;
 private:
-  typedef std::vector<UniformState> StateList;
+  typedef std::vector<UniformState*> StateList;
   Ref<Program> program;
   StateList states;
 };

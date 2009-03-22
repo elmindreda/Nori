@@ -67,6 +67,34 @@ enum CullMode
 
 ///////////////////////////////////////////////////////////////////////
 
+class UniformState
+{
+public:
+  UniformState(Uniform& uniform);
+  virtual void apply(void) const;
+  virtual bool getValue(float& result) const;
+  virtual void setValue(float newValue);
+  virtual bool getValue(Vector2& result) const;
+  virtual void setValue(const Vector2& newValue);
+  virtual bool getValue(Vector3& result) const;
+  virtual void setValue(const Vector3& newValue);
+  virtual bool getValue(Vector4& result) const;
+  virtual void setValue(const Vector4& newValue);
+  virtual bool getValue(Matrix2& result) const;
+  virtual void setValue(const Matrix2& newValue);
+  virtual bool getValue(Matrix3& result) const;
+  virtual void setValue(const Matrix3& newValue);
+  virtual bool getValue(Matrix4& result) const;
+  virtual void setValue(const Matrix4& newValue);
+  virtual bool getTexture(Texture& result) const;
+  virtual void setTexture(const Texture& newTexture);
+  Uniform& getUniform(void) const;
+private:
+  Uniform& uniform;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Render pass state object.
  *  @ingroup opengl
  *
@@ -126,9 +154,7 @@ public:
   GLenum getSrcFactor(void) const;
   GLenum getDstFactor(void) const;
   GLenum getDepthFunction(void) const;
-  Texture& getSamplerTexture(unsigned int index) const;
-  Texture& getSamplerTexture(const String& name) const;
-  unsigned int getSamplerCount(void) const;
+  UniformState& getUniformState(const String& name);
   /*! @return The shader program used by this render pass.
    */
   Program* getProgram(void) const;
@@ -163,8 +189,6 @@ public:
    */
   void setPolygonMode(GLenum mode);
   void setBlendFactors(GLenum src, GLenum dst);
-  bool setSamplerTexture(unsigned int samplerIndex, Texture& texture);
-  bool setSamplerTexture(const String& samplerName, Texture& texture);
   /*! Sets the shader program used by this render pass.
    *  @param[in] newProgram The desired shader program, or @c NULL to use the
    *  default shader program.
@@ -176,12 +200,6 @@ public:
   static bool isCullingInverted(void);
   static void setCullingInversion(bool newState);
 private:
-  class Sampler
-  {
-  public:
-    String name;
-    Ref<Texture> texture;
-  };
   class Data
   {
   public:

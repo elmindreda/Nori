@@ -381,7 +381,7 @@ void Pass::setProgram(Program* newProgram)
 
   for (unsigned int i = 0;  i < data.program->getUniformCount();  i++)
   {
-    ShaderUniform* uniform = data.program->getUniform(i);
+    Uniform* uniform = data.program->getUniform(i);
     if (uniform->isSampler())
       samplers.push_back(Sampler(uniform->getName(), ));
 
