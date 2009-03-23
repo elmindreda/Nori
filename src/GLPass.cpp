@@ -69,6 +69,132 @@ CullMode invertCullMode(CullMode mode)
   }
 }
 
+template <typename T>
+class UniformStateTemplate : public UniformState
+{
+public:
+  inline UniformStateTemplate(Uniform& uniform);
+  inline bool getValue(T& result) const;
+  inline void setValue(const T& newValue);
+private:
+  inline void apply(void) const;
+  T value;
+};
+
+template <typename T>
+inline UniformStateTemplate<T>::UniformStateTemplate(Uniform& uniform):
+  UniformState(uniform)
+{
+}
+
+template <typename T>
+inline bool UniformStateTemplate<T>::getValue(T& result) const
+{
+  result = value;
+  return true;
+}
+
+template <typename T>
+inline void UniformStateTemplate<T>::setValue(const T& newValue)
+{
+  value = newValue;
+}
+
+template <typename T>
+inline void UniformStateTemplate<T>::apply(void) const
+{
+  getUniform().setValue(value);
+}
+
+}
+
+///////////////////////////////////////////////////////////////////////
+
+bool UniformState::getValue(float& result) const
+{
+  return false;
+}
+
+void UniformState::setValue(float newValue)
+{
+}
+
+bool UniformState::getValue(Vector2& result) const
+{
+  return false;
+}
+
+void UniformState::setValue(const Vector2& newValue)
+{
+}
+
+bool UniformState::getValue(Vector3& result) const
+{
+  return false;
+}
+
+void UniformState::setValue(const Vector3& newValue)
+{
+}
+
+bool UniformState::getValue(Vector4& result) const
+{
+  return false;
+}
+
+void UniformState::setValue(const Vector4& newValue)
+{
+}
+
+bool UniformState::getValue(Matrix2& result) const
+{
+  return false;
+}
+
+void UniformState::setValue(const Matrix2& newValue)
+{
+}
+
+bool UniformState::getValue(Matrix3& result) const
+{
+  return false;
+}
+
+void UniformState::setValue(const Matrix3& newValue)
+{
+}
+
+bool UniformState::getValue(Matrix4& result) const
+{
+  return false;
+}
+
+void UniformState::setValue(const Matrix4& newValue)
+{
+}
+
+Uniform& UniformState::getUniform(void) const
+{
+  return uniform;
+}
+
+UniformState::UniformState(Uniform& initUniform):
+  uniform(initUniform)
+{
+}
+
+UniformState::UniformState(const UniformState& source):
+  uniform(source.uniform)
+{
+}
+
+UniformState& UniformState::operator = (const UniformState& source)
+{
+  return *this;
+}
+
+void UniformState::apply(void) const
+{
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -123,19 +249,6 @@ void Pass::apply(void) const
     cache.polygonMode = data.polygonMode;
   }
 
-  if (data.lineWidth != cache.lineWidth)
-  {
-    unsigned int height;
-
-    if (Canvas* canvas = Canvas::getCurrent())
-      height = canvas->getPhysicalHeight();
-    else
-      height = Context::get()->getHeight();
-
-    glLineWidth(data.lineWidth * height / 100.f);
-    cache.lineWidth = data.lineWidth;
-  }
-
   if (data.depthTesting || data.depthWriting)
   {
     // Set depth buffer writing.
@@ -185,6 +298,9 @@ void Pass::apply(void) const
   
   if (data.program)
   {
+    for (StateList::const_iterator i = states.begin();  i != states.end();  i++)
+      (**i).apply();
+
     data.program->apply();
     cache.program = data.program;
   }
@@ -199,14 +315,14 @@ void Pass::apply(void) const
     Log::writeError("Error when applying render pass: %s", gluErrorString(error));
 #endif
 
-  TextureStack::apply();
-  
   data.dirty = false;
 }
 
 bool Pass::isCompatible(void) const
 {
-  return TextureStack::isCompatible();
+  // TODO: The code.
+
+  return true;
 }
 
 bool Pass::isCulling(void) const
@@ -234,11 +350,6 @@ bool Pass::isColorWriting(void) const
   return data.colorWriting;
 }
 
-float Pass::getLineWidth(void) const
-{
-  return data.lineWidth;
-}
-
 CullMode Pass::getCullMode(void) const
 {
   return data.cullMode;
@@ -264,33 +375,6 @@ GLenum Pass::getDepthFunction(void) const
   return data.depthFunction;
 }
 
-GLenum Pass::getAlphaFunction(void) const
-{
-  return data.alphaFunction;
-}
-
-Texture& Pass::getSamplerTexture(unsigned int index) const
-{
-  if (index >= samplers.size())
-    throw Exception("Invalid sampler index");
-
-  return *samplers[index].texture;
-}
-
-Texture& Pass::getSamplerTexture(const String& name) const
-{
-  Sampler* sampler = findSampler(name)
-  if (!sampler)
-    throw Exception("Invalid sampler name");
-
-  return *(sampler->texture);
-}
-
-unsigned int Pass::getSamplerCount(void) const
-{
-  return samplers.size();
-}
-
 Program* Pass::getProgram(void) const
 {
   return data.program;
@@ -310,12 +394,6 @@ void Pass::setDepthTesting(bool enable)
 void Pass::setDepthWriting(bool enable)
 {
   data.depthWriting = enable;
-  data.dirty = true;
-}
-
-void Pass::setLineWidth(float width)
-{
-  data.lineWidth = width;
   data.dirty = true;
 }
 
@@ -344,47 +422,15 @@ void Pass::setDepthFunction(GLenum function)
   data.dirty = true;
 }
 
-void Pass::setAlphaFunction(GLenum function)
-{
-  data.alphaFunction = function;
-  data.dirty = true;
-}
-
 void Pass::setColorWriting(bool enabled)
 {
   data.colorWriting = enabled;
   data.dirty = true;
 }
 
-bool Pass::setSamplerTexture(const String& samplerName, Texture& texture)
-{
-}
-
 void Pass::setProgram(Program* newProgram)
 {
-  if (newProgram)
-    data.program = &newProgram;
-  else
-  {
-    data.program = Program::readInstance("default");
-    if (!data.program)
-      throw Exception("Default shader program missing");
-  }
-
-  data.dirty = true;
-
-  Ref<Texture> texture = Texture::readInstance("default");
-  if (!texture)
-    throw Exception("Default texture missing");
-
-  samplers.clean();
-
-  for (unsigned int i = 0;  i < data.program->getUniformCount();  i++)
-  {
-    Uniform* uniform = data.program->getUniform(i);
-    if (uniform->isSampler())
-      samplers.push_back(Sampler(uniform->getName(), ));
-
+  // TODO: The code.
 }
 
 void Pass::setDefaults(void)
@@ -426,8 +472,6 @@ void Pass::force(void) const
   else
     height = Context::get()->getHeight();
 
-  glLineWidth(data.lineWidth * height / 100.f);
-
   glDepthMask(data.depthWriting ? GL_TRUE : GL_FALSE);
   setBooleanState(GL_DEPTH_TEST, data.depthTesting || data.depthWriting);
 
@@ -456,8 +500,6 @@ void Pass::force(void) const
     Log::writeWarning("Error when forcing render pass: %s", gluErrorString(error));
 #endif
 
-  TextureStack::apply();
-  
   cache.dirty = data.dirty = false;
 }
 
@@ -486,13 +528,11 @@ void Pass::Data::setDefaults(void)
   depthTesting = true;
   depthWriting = true;
   colorWriting = true;
-  lineWidth = 1.f;
   cullMode = CULL_BACK;
   polygonMode = GL_FILL;
   srcFactor = GL_ONE;
   dstFactor = GL_ZERO;
   depthFunction = GL_LESS;
-  alphaFunction = GL_ALWAYS;
   program = NULL;
 }
 

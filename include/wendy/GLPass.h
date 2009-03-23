@@ -67,13 +67,15 @@ enum CullMode
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! State for a single shader uniform.
+ *  @ingroup opengl
+ */
 class UniformState
 {
+  friend class Pass;
 public:
-  UniformState(Uniform& uniform);
-  virtual void apply(void) const;
   virtual bool getValue(float& result) const;
-  virtual void setValue(float newValue);
+  virtual void setValue(const float newValue);
   virtual bool getValue(Vector2& result) const;
   virtual void setValue(const Vector2& newValue);
   virtual bool getValue(Vector3& result) const;
@@ -86,11 +88,36 @@ public:
   virtual void setValue(const Matrix3& newValue);
   virtual bool getValue(Matrix4& result) const;
   virtual void setValue(const Matrix4& newValue);
-  virtual bool getTexture(Texture& result) const;
-  virtual void setTexture(const Texture& newTexture);
   Uniform& getUniform(void) const;
+protected:
+  UniformState(Uniform& uniform);
+  virtual void apply(void) const;
 private:
+  UniformState(const UniformState& source);
+  UniformState& operator = (const UniformState& source);
   Uniform& uniform;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! State for a single shader sampler uniform.
+ *  @ingroup opengl
+ */
+class SamplerState
+{
+  friend class Pass;
+public:
+  virtual bool getTexture(Ref<Texture>& result) const;
+  virtual void setTexture(Texture* newTexture);
+  Sampler& getSampler(void) const;
+protected:
+  SamplerState(Sampler& sampler);
+  virtual void apply(void) const;
+private:
+  SamplerState(const SamplerState& source);
+  SamplerState& operator = (const SamplerState& source);
+  Sampler& sampler;
+  Ref<Texture> texture;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -155,6 +182,7 @@ public:
   GLenum getDstFactor(void) const;
   GLenum getDepthFunction(void) const;
   UniformState& getUniformState(const String& name);
+  const UniformState& getUniformState(const String& name) const;
   /*! @return The shader program used by this render pass.
    */
   Program* getProgram(void) const;
@@ -217,11 +245,9 @@ private:
     Ref<Program> program;
   };
   void force(void) const;
-  Sampler* findSampler(const String& name);
-  const Sampler* findSampler(const String& name) const;
   void setBooleanState(GLenum state, bool value) const;
-  typedef std::vector<Sampler> SamplerList;
-  SamplerList samplers;
+  typedef std::vector<UniformState*> StateList;
+  StateList states;
   Data data;
   String name;
   static Data cache;

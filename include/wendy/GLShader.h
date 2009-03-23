@@ -57,16 +57,10 @@ public:
     FLOAT_MAT2,
     FLOAT_MAT3,
     FLOAT_MAT4,
-    SAMPLER_1D,
-    SAMPLER_2D,
-    SAMPLER_3D,
-    SAMPLER_RECT,
-    SAMPLER_CUBE,
   };
   bool isScalar(void) const;
   bool isVector(void) const;
   bool isMatrix(void) const;
-  bool isSampler(void) const;
   Type getType(void) const;
   const String& getName(void) const;
   void setValue(float newValue);
@@ -76,7 +70,6 @@ public:
   void setValue(const Matrix2& newValue);
   void setValue(const Matrix3& newValue);
   void setValue(const Matrix4& newValue);
-  void setTexture(const Texture& newTexture);
   Program& getProgram(void) const;
 private:
   Uniform(Program& program);
@@ -85,8 +78,38 @@ private:
   Program& program;
   String name;
   Type type;
-  unsigned int count;
   CGparameter uniformID;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Shader sampler uniform.
+ *  @ingroup opengl
+ */
+class Sampler
+{
+  friend class Program;
+public:
+  enum Type
+  {
+    SAMPLER_1D,
+    SAMPLER_2D,
+    SAMPLER_3D,
+    SAMPLER_RECT,
+    SAMPLER_CUBE,
+  };
+  Type getType(void) const;
+  const String& getName(void) const;
+  void setTexture(const Texture& newTexture);
+  Program& getProgram(void) const;
+private:
+  Sampler(Program& program);
+  Sampler(const Sampler& source);
+  Sampler& operator = (const Sampler& source);
+  Program& program;
+  String name;
+  Type type;
+  CGparameter samplerID;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -150,12 +173,16 @@ public:
   void apply(void);
   Uniform* findUniform(const String& name);
   const Uniform* findUniform(const String& name) const;
+  Sampler* findSampler(const String& name);
+  const Sampler* findSampler(const String& name) const;
   unsigned int getUniformCount(void) const;
   Uniform& getUniform(unsigned int index);
   const Uniform& getUniform(unsigned int index) const;
+  unsigned int getSamplerCount(void) const;
+  Sampler& getSampler(unsigned int index);
+  const Sampler& getSampler(unsigned int index) const;
   VertexShader& getVertexShader(void) const;
   FragmentShader& getFragmentShader(void) const;
-  SignalProxy1<void, Program&> getAppliedSignal(void);
   static Program* createInstance(Context& context,
                                  VertexShader& vertexShader,
                                  FragmentShader& fragmentShader,
@@ -166,44 +193,18 @@ private:
   bool init(VertexShader& vertexShader, FragmentShader& fragmentShader);
   Program& operator = (const Program& source);
   typedef std::vector<Uniform*> UniformList;
+  typedef std::vector<Sampler*> SamplerList;
   Context& context;
   Ref<VertexShader> vertexShader;
   Ref<FragmentShader> fragmentShader;
   CGprogram programID;
   UniformList uniforms;
-  Signal1<void, Program&> appliedSignal;
+  SamplerList samplers;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-class UniformState
-{
-public:
-  UniformState(Uniform& uniform);
-  virtual void apply(void) const;
-  virtual bool getValue(float& result) const;
-  virtual void setValue(float newValue);
-  virtual bool getValue(Vector2& result) const;
-  virtual void setValue(const Vector2& newValue);
-  virtual bool getValue(Vector3& result) const;
-  virtual void setValue(const Vector3& newValue);
-  virtual bool getValue(Vector4& result) const;
-  virtual void setValue(const Vector4& newValue);
-  virtual bool getValue(Matrix2& result) const;
-  virtual void setValue(const Matrix2& newValue);
-  virtual bool getValue(Matrix3& result) const;
-  virtual void setValue(const Matrix3& newValue);
-  virtual bool getValue(Matrix4& result) const;
-  virtual void setValue(const Matrix4& newValue);
-  virtual bool getTexture(Texture& result) const;
-  virtual void setTexture(const Texture& newTexture);
-  Uniform& getUniform(void) const;
-private:
-  Uniform& uniform;
-};
-
-///////////////////////////////////////////////////////////////////////
-
+/*
 class ProgramState
 {
 public:
@@ -221,6 +222,7 @@ private:
   Ref<Program> program;
   StateList states;
 };
+*/
 
 ///////////////////////////////////////////////////////////////////////
 

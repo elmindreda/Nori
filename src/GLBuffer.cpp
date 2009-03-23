@@ -188,19 +188,18 @@ void VertexBuffer::apply(void) const
   // Discard unusable texture components
   // TODO: Make this understand GLSL program limits.
 
-  unsigned int textureUnitCount = TextureLayer::getUnitCount();
-  if (components.size() > textureUnitCount)
+  unsigned int textureCoords = Context::get()->getLimits().getMaxTextureCoords();
+  if (components.size() > textureCoords)
   {
-    Log::writeWarning("Applied vertex buffer contains more texture coordinate sets than there are texture units");
-    components.resize(textureUnitCount);
+    Log::writeWarning("Applied vertex buffer contains more texture coordinate sets than this context supports");
+    components.resize(textureCoords);
   }
 
   // Apply texture components
 
   for (unsigned int i = 0;  i < components.size();  i++)
   {
-    if (GLEW_ARB_multitexture)
-      glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
+    glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
 
     component = components[i];
 
@@ -213,11 +212,9 @@ void VertexBuffer::apply(void) const
 
   // Disable any remaining texture coordinate sets
 
-  for (unsigned int i = components.size();  i < textureUnitCount;  i++)
+  for (unsigned int i = components.size();  i < textureCoords;  i++)
   {
-    if (GLEW_ARB_multitexture)
-      glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
-
+    glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   }
 

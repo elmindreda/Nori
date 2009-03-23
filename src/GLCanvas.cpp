@@ -319,11 +319,13 @@ void TextureCanvas::apply(void) const
 
 void TextureCanvas::finish(void) const
 {
-  // TODO: Clean up.
+  // TODO: Implement.
 
+  /*
   TextureLayer layer(0);
   layer.setTexture(texture);
   layer.apply();
+  */
 
   if (texture->getTarget() == GL_TEXTURE_1D)
     glCopyTexSubImage1D(texture->getTarget(),

@@ -42,6 +42,10 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+class Context;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Screen mode.
  *  @ingroup opengl
  */
@@ -134,6 +138,31 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! OpenGL limits data.
+ *  @ingroup opengl
+ */
+class Limits
+{
+public:
+  Limits(Context& context);
+  unsigned int getMaxTextureCoords(void) const;
+  unsigned int getMaxFragmentTextureImageUnits(void) const;
+  unsigned int getMaxVertexTextureImageUnits(void) const;
+  unsigned int getMaxTextureSize(void) const;
+  unsigned int getMaxTextureCubeSize(void) const;
+  unsigned int getMaxTextureRectangleSize(void) const;
+private:
+  Context& context;
+  unsigned int maxTextureCoords;
+  unsigned int maxFragmentTextureImageUnits;
+  unsigned int maxVertexTextureImageUnits;
+  unsigned int maxTextureSize;
+  unsigned int maxTextureCubeSize;
+  unsigned int maxTextureRectangleSize;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief OpenGL context singleton.
  *  @ingroup opengl
  *
@@ -192,6 +221,7 @@ public:
    *  @param[in] newTitle The desired title.
    */
   void setTitle(const String& newTitle);
+  const Limits& getLimits(void) const;
   /*! @return The signal for rendering.
    */
   SignalProxy0<bool> getRenderSignal(void);

@@ -110,8 +110,6 @@ Mapper<ImageFormat::Type, GLenum> formatMap;
 
 Mapper<ImageFormat::Type, GLenum> genericFormatMap;
 
-Mapper<Uniform::Type, GLenum> samplerTypeMap;
-
 }
 
 ///////////////////////////////////////////////////////////////////////

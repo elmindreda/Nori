@@ -121,6 +121,59 @@ void ContextMode::set(unsigned int width,
   
 ///////////////////////////////////////////////////////////////////////
 
+Limits::Limits(Context& initContext):
+  context(initContext),
+  maxTextureCoords(0),
+  maxFragmentTextureImageUnits(0),
+  maxVertexTextureImageUnits(0),
+  maxTextureSize(0),
+  maxTextureCubeSize(0),
+  maxTextureRectangleSize(0)
+{
+  glGetIntegerv(GL_MAX_TEXTURE_COORDS, (GLint*) &maxTextureCoords);
+  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint*) &maxFragmentTextureImageUnits);
+  glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, (GLint*) &maxVertexTextureImageUnits);
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxTextureSize);
+
+  if (GLEW_ARB_texture_cube_map)
+    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, (GLint*) &maxTextureCubeSize);
+
+  if (GLEW_ARB_texture_rectangle)
+    glGetIntegerv(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB, (GLint*) &maxTextureCubeSize);
+}
+
+unsigned int Limits::getMaxTextureCoords(void) const
+{
+  return maxTextureCoords;
+}
+
+unsigned int Limits::getMaxFragmentTextureImageUnits(void) const
+{
+  return maxFragmentTextureImageUnits;
+}
+
+unsigned int Limits::getMaxVertexTextureImageUnits(void) const
+{
+  return maxVertexTextureImageUnits;
+}
+
+unsigned int Limits::getMaxTextureSize(void) const
+{
+  return maxTextureSize;
+}
+
+unsigned int Limits::getMaxTextureCubeSize(void) const
+{
+  return maxTextureCubeSize;
+}
+
+unsigned int Limits::getMaxTextureRectangleSize(void) const
+{
+  return maxTextureRectangleSize;
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Context::~Context(void)
 {
   destroySignal.emit();
@@ -334,6 +387,12 @@ bool Context::init(const ContextMode& mode)
   if (glewInit() != GLEW_OK)
   {
     Log::writeError("Unable to initialize GLEW");
+    return false;
+  }
+
+  if (GLEW_ARB_multitexture)
+  {
+    Log::writeError("Multitexturing (ARB_multitexture) is required but not supported");
     return false;
   }
 

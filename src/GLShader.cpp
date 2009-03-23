@@ -31,8 +31,7 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLShader.h>
 
-#include <cstring>
-#include <sstream>
+#include <algorithm>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -68,19 +67,89 @@ Uniform::Type convertUniformType(CGtype type)
       return Uniform::FLOAT_MAT3;
     case CG_FLOAT4x4:
       return Uniform::FLOAT_MAT4;
-    case CG_SAMPLER1D:
-      return Uniform::SAMPLER_1D;
-    case CG_SAMPLER2D:
-      return Uniform::SAMPLER_2D;
-    case CG_SAMPLER3D:
-      return Uniform::SAMPLER_3D;
-    case CG_SAMPLERRECT:
-      return Uniform::SAMPLER_RECT;
-    case CG_SAMPLERCUBE:
-      return Uniform::SAMPLER_CUBE;
     default:
       throw Exception("Invalid Cg parameter type");
   }
+}
+
+Sampler::Type convertSamplerType(CGtype type)
+{
+  switch (type)
+  {
+    case CG_SAMPLER1D:
+      return Sampler::SAMPLER_1D;
+    case CG_SAMPLER2D:
+      return Sampler::SAMPLER_2D;
+    case CG_SAMPLER3D:
+      return Sampler::SAMPLER_3D;
+    case CG_SAMPLERRECT:
+      return Sampler::SAMPLER_RECT;
+    case CG_SAMPLERCUBE:
+      return Sampler::SAMPLER_CUBE;
+    default:
+      throw Exception("Invalid Cg parameter type");
+  }
+}
+
+bool isUniformType(CGtype type)
+{
+  switch (type)
+  {
+    case CG_FLOAT:
+    case CG_FLOAT2:
+    case CG_FLOAT3:
+    case CG_FLOAT4:
+    case CG_FLOAT2x2:
+    case CG_FLOAT3x3:
+    case CG_FLOAT4x4:
+      return true;
+  }
+
+  return false;
+}
+
+bool isSamplerType(CGtype type)
+{
+  switch (type)
+  {
+    case CG_SAMPLER1D:
+    case CG_SAMPLER2D:
+    case CG_SAMPLER3D:
+    case CG_SAMPLERRECT:
+    case CG_SAMPLERCUBE:
+      return true;
+  }
+
+  return false;
+}
+
+template <typename T>
+class NameComparator
+{
+public:
+  inline NameComparator(const String& name);
+  inline bool operator () (const T& object);
+  inline bool operator () (const T* object);
+private:
+  const String& name;
+};
+
+template <typename T>
+inline NameComparator<T>::NameComparator(const String& initName):
+  name(initName)
+{
+}
+
+template <typename T>
+inline bool NameComparator<T>::operator () (const T& object)
+{
+  return name == object.getName();
+}
+
+template <typename T>
+inline bool NameComparator<T>::operator () (const T* object)
+{
+  return name == object->getName();
 }
 
 }
@@ -106,15 +175,6 @@ bool Uniform::isVector(void) const
 bool Uniform::isMatrix(void) const
 {
   if (type == FLOAT_MAT2 || type == FLOAT_MAT3 || type == FLOAT_MAT4)
-    return true;
-
-  return false;
-}
-
-bool Uniform::isSampler(void) const
-{
-  if (type == SAMPLER_1D || type == SAMPLER_2D || type == SAMPLER_3D ||
-      type == SAMPLER_RECT || type == SAMPLER_CUBE)
     return true;
 
   return false;
@@ -207,19 +267,6 @@ void Uniform::setValue(const Matrix4& newValue)
   cgGLSetMatrixParameterfr(uniformID, newValue);
 }
 
-void Uniform::setTexture(const Texture& newTexture)
-{
-  if (!isSampler())
-  {
-    Log::writeError("Uniform %s in program %s is not a sampler", name.c_str(), program.getName().c_str());
-    return;
-  }
-
-  // TODO: Check for texture type match.
-
-  cgGLSetTextureParameter(uniformID, newTexture.textureID);
-}
-
 Program& Uniform::getProgram(void) const
 {
   return program;
@@ -236,6 +283,38 @@ Uniform::Uniform(const Uniform& source):
 }
 
 Uniform& Uniform::operator = (const Uniform& source)
+{
+  return *this;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Sampler::Type Sampler::getType(void) const
+{
+  return type;
+}
+
+const String& Sampler::getName(void) const
+{
+  return name;
+}
+
+Program& Sampler::getProgram(void) const
+{
+  return program;
+}
+
+Sampler::Sampler(Program& initProgram):
+  program(initProgram)
+{
+}
+
+Sampler::Sampler(const Sampler& source):
+  program(source.program)
+{
+}
+
+Sampler& Sampler::operator = (const Sampler& source)
 {
   return *this;
 }
@@ -356,31 +435,43 @@ FragmentShader& FragmentShader::operator = (const FragmentShader& source)
 
 void Program::apply(void)
 {
-  appliedSignal.emit(*this);
-
   cgGLBindProgram(programID);
 }
 
 Uniform* Program::findUniform(const String& name)
 {
-  for (UniformList::const_iterator i = uniforms.begin();  i != uniforms.end();  i++)
-  {
-    if ((*i)->name == name)
-      return *i;
-  }
+  UniformList::const_iterator i = std::find_if(uniforms.begin(), uniforms.end(), NameComparator<Uniform>(name));
+  if (i == uniforms.end())
+    return NULL;
 
-  return NULL;
+  return *i;
 }
 
 const Uniform* Program::findUniform(const String& name) const
 {
-  for (UniformList::const_iterator i = uniforms.begin();  i != uniforms.end();  i++)
-  {
-    if ((*i)->name == name)
-      return *i;
-  }
+  UniformList::const_iterator i = std::find_if(uniforms.begin(), uniforms.end(), NameComparator<Uniform>(name));
+  if (i == uniforms.end())
+    return NULL;
 
-  return NULL;
+  return *i;
+}
+
+Sampler* Program::findSampler(const String& name)
+{
+  SamplerList::const_iterator i = std::find_if(samplers.begin(), samplers.end(), NameComparator<Sampler>(name));
+  if (i == samplers.end())
+    return NULL;
+
+  return *i;
+}
+
+const Sampler* Program::findSampler(const String& name) const
+{
+  SamplerList::const_iterator i = std::find_if(samplers.begin(), samplers.end(), NameComparator<Sampler>(name));
+  if (i == samplers.end())
+    return NULL;
+
+  return *i;
 }
 
 unsigned int Program::getUniformCount(void) const
@@ -398,6 +489,21 @@ const Uniform& Program::getUniform(unsigned int index) const
   return *uniforms[index];
 }
 
+unsigned int Program::getSamplerCount(void) const
+{
+  return samplers.size();
+}
+
+Sampler& Program::getSampler(unsigned int index)
+{
+  return *samplers[index];
+}
+
+const Sampler& Program::getSampler(unsigned int index) const
+{
+  return *samplers[index];
+}
+
 VertexShader& Program::getVertexShader(void) const
 {
   return *vertexShader;
@@ -406,11 +512,6 @@ VertexShader& Program::getVertexShader(void) const
 FragmentShader& Program::getFragmentShader(void) const
 {
   return *fragmentShader;
-}
-
-SignalProxy1<void, Program&> Program::getAppliedSignal(void)
-{
-  return appliedSignal;
 }
 
 Program* Program::createInstance(Context& context,
@@ -456,12 +557,26 @@ bool Program::init(VertexShader& initVertexShader, FragmentShader& initFragmentS
     CGtype type = cgGetParameterType(parameter);
     if (type != CG_ARRAY && type != CG_STRUCT)
     {
-      Uniform* uniform = new Uniform(*this);
-      uniform->name = cgGetParameterName(parameter);
-      uniform->type = convertUniformType(type);
-      uniform->uniformID = parameter;
+      if (isSamplerType(type))
+      {
+	Sampler* sampler = new Sampler(*this);
+	sampler->name = cgGetParameterName(parameter);
+	sampler->type = convertSamplerType(type);
+	sampler->samplerID = parameter;
 
-      uniforms.push_back(uniform);
+	samplers.push_back(sampler);
+      }
+      else if (isUniformType(type))
+      {
+	Uniform* uniform = new Uniform(*this);
+	uniform->name = cgGetParameterName(parameter);
+	uniform->type = convertUniformType(type);
+	uniform->uniformID = parameter;
+
+	uniforms.push_back(uniform);
+      }
+      else
+	Log::writeWarning("Ignoring shader uniform %s", cgGetParameterName(parameter));
     }
 
     parameter = cgGetNextParameter(parameter);
