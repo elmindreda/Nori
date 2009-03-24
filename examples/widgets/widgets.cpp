@@ -31,6 +31,9 @@ bool Widgets::init(void)
   if (!GL::Renderer::create())
     return false;
 
+  if (!input::Context::create(*GL::Context::get()))
+    return false;
+
   if (!UI::Renderer::create())
     return false;
 
