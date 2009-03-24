@@ -198,7 +198,7 @@ void Uniform::setValue(float newValue)
     return;
   }
 
-  cgGLSetParameter1f(uniformID, newValue);
+  cgGLSetParameter1f((CGparameter) uniformID, newValue);
 }
 
 void Uniform::setValue(const Vector2& newValue)
@@ -209,7 +209,7 @@ void Uniform::setValue(const Vector2& newValue)
     return;
   }
 
-  cgGLSetParameter2fv(uniformID, newValue);
+  cgGLSetParameter2fv((CGparameter) uniformID, newValue);
 }
 
 void Uniform::setValue(const Vector3& newValue)
@@ -220,7 +220,7 @@ void Uniform::setValue(const Vector3& newValue)
     return;
   }
 
-  cgGLSetParameter3fv(uniformID, newValue);
+  cgGLSetParameter3fv((CGparameter) uniformID, newValue);
 }
 
 void Uniform::setValue(const Vector4& newValue)
@@ -231,7 +231,7 @@ void Uniform::setValue(const Vector4& newValue)
     return;
   }
 
-  cgGLSetParameter4fv(uniformID, newValue);
+  cgGLSetParameter4fv((CGparameter) uniformID, newValue);
 }
 
 void Uniform::setValue(const Matrix2& newValue)
@@ -242,7 +242,7 @@ void Uniform::setValue(const Matrix2& newValue)
     return;
   }
 
-  cgGLSetMatrixParameterfr(uniformID, newValue);
+  cgGLSetMatrixParameterfr((CGparameter) uniformID, newValue);
 }
 
 void Uniform::setValue(const Matrix3& newValue)
@@ -253,7 +253,7 @@ void Uniform::setValue(const Matrix3& newValue)
     return;
   }
 
-  cgGLSetMatrixParameterfr(uniformID, newValue);
+  cgGLSetMatrixParameterfr((CGparameter) uniformID, newValue);
 }
 
 void Uniform::setValue(const Matrix4& newValue)
@@ -264,7 +264,7 @@ void Uniform::setValue(const Matrix4& newValue)
     return;
   }
 
-  cgGLSetMatrixParameterfr(uniformID, newValue);
+  cgGLSetMatrixParameterfr((CGparameter) uniformID, newValue);
 }
 
 Program& Uniform::getProgram(void) const
@@ -324,7 +324,7 @@ Sampler& Sampler::operator = (const Sampler& source)
 VertexShader::~VertexShader(void)
 {
   if (shaderID)
-    cgDestroyProgram(shaderID);
+    cgDestroyProgram((CGprogram) shaderID);
 }
 
 const String& VertexShader::getText(void) const
@@ -360,10 +360,17 @@ bool VertexShader::init(const String& initText)
 {
   text = initText;
 
-  shaderID = cgCreateProgram(context.cgContextID, CG_SOURCE, text.c_str(), context.cgVertexProfile, NULL, NULL);
+  shaderID = cgCreateProgram((CGcontext) context.cgContextID,
+                             CG_SOURCE,
+			     text.c_str(),
+			     (CGprofile) context.cgVertexProfile,
+			     NULL,
+			     NULL);
   if (!shaderID)
   {
-    Log::writeError("Failed to compile Cg vertex shader: %s", cgGetErrorString(cgGetError()));
+    Log::writeError("Failed to compile Cg vertex shader:\n%s\n%s",
+                    cgGetErrorString(cgGetError()),
+		    cgGetLastListing((CGcontext) context.cgContextID));
     return false;
   }
 
@@ -380,7 +387,7 @@ VertexShader& VertexShader::operator = (const VertexShader& source)
 FragmentShader::~FragmentShader(void)
 {
   if (shaderID)
-    cgDestroyProgram(shaderID);
+    cgDestroyProgram((CGprogram) shaderID);
 }
 
 const String& FragmentShader::getText(void) const
@@ -416,10 +423,17 @@ bool FragmentShader::init(const String& initText)
 {
   text = initText;
 
-  shaderID = cgCreateProgram(context.cgContextID, CG_SOURCE, text.c_str(), context.cgFragmentProfile, NULL, NULL);
+  shaderID = cgCreateProgram((CGcontext) context.cgContextID,
+                             CG_SOURCE,
+			     text.c_str(),
+			     (CGprofile) context.cgFragmentProfile,
+			     NULL,
+			     NULL);
   if (!shaderID)
   {
-    Log::writeError("Failed to compile Cg fragment shader: %s", cgGetErrorString(cgGetError()));
+    Log::writeError("Failed to compile Cg fragment shader:\n%s\n%s",
+                    cgGetErrorString(cgGetError()),
+		    cgGetLastListing((CGcontext) context.cgContextID));
     return false;
   }
 
@@ -435,7 +449,7 @@ FragmentShader& FragmentShader::operator = (const FragmentShader& source)
 
 void Program::apply(void)
 {
-  cgGLBindProgram(programID);
+  cgGLBindProgram((CGprogram) programID);
 }
 
 Uniform* Program::findUniform(const String& name)
@@ -543,14 +557,15 @@ bool Program::init(VertexShader& initVertexShader, FragmentShader& initFragmentS
   vertexShader = &initVertexShader;
   fragmentShader = &initFragmentShader;
 
-  programID = cgCombinePrograms2(vertexShader->shaderID, fragmentShader->shaderID);
+  programID = cgCombinePrograms2((CGprogram) vertexShader->shaderID,
+                                 (CGprogram) fragmentShader->shaderID);
   if (!programID)
   {
     Log::writeError("Unable to combine shaders for program %s", getName().c_str());
     return false;
   }
 
-  CGparameter parameter = cgGetFirstParameter(programID, CG_PROGRAM);
+  CGparameter parameter = cgGetFirstParameter((CGprogram) programID, CG_PROGRAM);
 
   while (parameter)
   {
@@ -582,7 +597,7 @@ bool Program::init(VertexShader& initVertexShader, FragmentShader& initFragmentS
     parameter = cgGetNextParameter(parameter);
   }
 
-  cgGLLoadProgram(programID);
+  cgGLLoadProgram((CGprogram) programID);
   return true;
 }
 

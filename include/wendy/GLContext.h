@@ -262,9 +262,9 @@ private:
   Signal2<void, unsigned int, unsigned int> resizedSignal;
   ContextMode mode;
   String title;
-  CGcontext cgContextID;
-  CGprofile cgVertexProfile;
-  CGprofile cgFragmentProfile;
+  void* cgContextID;
+  int cgVertexProfile;
+  int cgFragmentProfile;
   static Context* instance;
   static Signal0<void> createSignal;
   static Signal0<void> destroySignal;

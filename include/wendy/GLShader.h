@@ -37,6 +37,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+class Context;
 class Program;
 
 ///////////////////////////////////////////////////////////////////////
@@ -78,7 +79,7 @@ private:
   Program& program;
   String name;
   Type type;
-  CGparameter uniformID;
+  void* uniformID;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -109,7 +110,7 @@ private:
   Program& program;
   String name;
   Type type;
-  CGparameter samplerID;
+  void* samplerID;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -133,7 +134,7 @@ private:
   bool init(const String& initText);
   VertexShader& operator = (const VertexShader& source);
   Context& context;
-  CGprogram shaderID;
+  void* shaderID;
   String text;
 };
 
@@ -158,7 +159,7 @@ private:
   bool init(const String& initText);
   FragmentShader& operator = (const FragmentShader& source);
   Context& context;
-  CGprogram shaderID;
+  void* shaderID;
   String text;
 };
 
@@ -197,7 +198,7 @@ private:
   Context& context;
   Ref<VertexShader> vertexShader;
   Ref<FragmentShader> fragmentShader;
-  CGprogram programID;
+  void* programID;
   UniformList uniforms;
   SamplerList samplers;
 };

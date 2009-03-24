@@ -107,12 +107,12 @@ class SamplerState
 {
   friend class Pass;
 public:
-  virtual bool getTexture(Ref<Texture>& result) const;
-  virtual void setTexture(Texture* newTexture);
+  bool getTexture(Ref<Texture>& result) const;
+  void setTexture(Texture* newTexture);
   Sampler& getSampler(void) const;
 protected:
   SamplerState(Sampler& sampler);
-  virtual void apply(void) const;
+  void apply(void) const;
 private:
   SamplerState(const SamplerState& source);
   SamplerState& operator = (const SamplerState& source);
@@ -183,6 +183,8 @@ public:
   GLenum getDepthFunction(void) const;
   UniformState& getUniformState(const String& name);
   const UniformState& getUniformState(const String& name) const;
+  SamplerState& getSamplerState(const String& name);
+  const SamplerState& getSamplerState(const String& name) const;
   /*! @return The shader program used by this render pass.
    */
   Program* getProgram(void) const;
@@ -246,8 +248,10 @@ private:
   };
   void force(void) const;
   void setBooleanState(GLenum state, bool value) const;
-  typedef std::vector<UniformState*> StateList;
-  StateList states;
+  typedef std::vector<UniformState*> UniformList;
+  typedef std::vector<SamplerState*> SamplerList;
+  UniformList uniforms;
+  SamplerList samplers;
   Data data;
   String name;
   static Data cache;

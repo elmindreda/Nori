@@ -180,7 +180,7 @@ Context::~Context(void)
 
   if (cgContextID)
   {
-    cgDestroyContext(cgContextID);
+    cgDestroyContext((CGcontext) cgContextID);
     cgContextID = NULL;
   }
 
@@ -410,8 +410,8 @@ bool Context::init(const ContextMode& mode)
     return false;
   }
 
-  cgGLSetOptimalOptions(cgVertexProfile);
-  cgGLEnableProfile(cgVertexProfile);
+  cgGLSetOptimalOptions((CGprofile) cgVertexProfile);
+  cgGLEnableProfile((CGprofile) cgVertexProfile);
 
   cgFragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
   if (cgFragmentProfile == CG_PROFILE_UNKNOWN)
@@ -420,10 +420,10 @@ bool Context::init(const ContextMode& mode)
     return false;
   }
 
-  cgGLSetOptimalOptions(cgFragmentProfile);
-  cgGLEnableProfile(cgFragmentProfile);
+  cgGLSetOptimalOptions((CGprofile) cgFragmentProfile);
+  cgGLEnableProfile((CGprofile) cgFragmentProfile);
 
-  cgGLSetManageTextureParameters(cgContextID, CG_TRUE);
+  cgGLSetManageTextureParameters((CGcontext) cgContextID, CG_TRUE);
   cgSetLockingPolicy(CG_NO_LOCKS_POLICY);
 
   glfwSetWindowSizeCallback(sizeCallback);

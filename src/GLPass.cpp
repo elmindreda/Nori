@@ -199,6 +199,37 @@ void UniformState::apply(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
+bool SamplerState::getTexture(Ref<Texture>& result) const
+{
+  result = texture;
+}
+
+void SamplerState::setTexture(Texture* newTexture)
+{
+  texture = newTexture;
+}
+
+SamplerState::SamplerState(Sampler& initSampler):
+  sampler(initSampler)
+{
+}
+
+SamplerState::SamplerState(const SamplerState& source):
+  sampler(source.sampler)
+{
+}
+
+SamplerState& SamplerState::operator = (const SamplerState& source)
+{
+  return *this;
+}
+
+void SamplerState::apply(void) const
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Pass::Pass(const String& initName):
   name(initName)
 {
@@ -298,7 +329,10 @@ void Pass::apply(void) const
   
   if (data.program)
   {
-    for (StateList::const_iterator i = states.begin();  i != states.end();  i++)
+    for (UniformList::const_iterator i = uniforms.begin();  i != uniforms.end();  i++)
+      (**i).apply();
+
+    for (SamplerList::const_iterator i = samplers.begin();  i != samplers.end();  i++)
       (**i).apply();
 
     data.program->apply();
