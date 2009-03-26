@@ -117,13 +117,13 @@ public:
    *  previously current clipping area.
    */
   void popClipArea(void);
-  void drawPoint(const Vector2& point);
-  void drawLine(const Segment2& segment);
-  void drawTriangle(const Triangle2& triangle);
-  void drawBezier(const BezierCurve2& spline);
-  void drawRectangle(const Rectangle& rectangle);
-  void fillRectangle(const Rectangle& rectangle);
-  void fillTriangle(const Triangle2& triangle);
+  void drawPoint(const Vector2& point, const ColorRGBA& color);
+  void drawLine(const Segment2& segment, const ColorRGBA& color);
+  void drawTriangle(const Triangle2& triangle, const ColorRGBA& color);
+  void drawBezier(const BezierCurve2& spline, const ColorRGBA& color);
+  void drawRectangle(const Rectangle& rectangle, const ColorRGBA& color);
+  void fillRectangle(const Rectangle& rectangle, const ColorRGBA& color);
+  void fillTriangle(const Triangle2& triangle, const ColorRGBA& color);
   void blitTexture(const Rectangle& area, GL::Texture& texture);
   void drawText(const Rectangle& area,
                 const String& text,
@@ -137,10 +137,6 @@ public:
   void drawFrame(const Rectangle& area, WidgetState state);
   void drawHandle(const Rectangle& area, WidgetState state);
   void drawButton(const Rectangle& area, WidgetState state, const String& text = "");
-  const ColorRGBA& getColor(void) const;
-  void setColor(const ColorRGBA& newColor);
-  float getLineWidth(void) const;
-  void setLineWidth(float newWidth);
   const ColorRGB& getWidgetColor(void);
   const ColorRGB& getTextColor(void);
   const ColorRGB& getWellColor(void);
@@ -155,6 +151,7 @@ public:
 private:
   Renderer(void);
   bool init(void);
+  void setDrawingState(const ColorRGBA& color, bool fill);
   static void onContextDestroy(void);
   ColorRGB widgetColor;
   ColorRGB textColor;
@@ -164,6 +161,7 @@ private:
   Ref<render::Font> defaultFont;
   Ref<render::Font> currentFont;
   GL::Pass drawPass;
+  GL::Pass blitPass;
 };
 
 ///////////////////////////////////////////////////////////////////////

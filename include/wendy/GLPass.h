@@ -42,6 +42,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+class Uniform;
+class Sampler;
 class Program;
 
 ///////////////////////////////////////////////////////////////////////
@@ -140,6 +142,9 @@ public:
   /*! Constructor.
    */
   Pass(const String& name = "");
+  /*! Destructor.
+   */
+  ~Pass(void);
   /*! Applies the settings in this render pass to OpenGL and stores them in the
    *  internal cache.
    *
@@ -181,10 +186,16 @@ public:
   GLenum getSrcFactor(void) const;
   GLenum getDstFactor(void) const;
   GLenum getDepthFunction(void) const;
+  unsigned int getUniformCount(void) const;
   UniformState& getUniformState(const String& name);
   const UniformState& getUniformState(const String& name) const;
+  UniformState& getUniformState(unsigned int index);
+  const UniformState& getUniformState(unsigned int index) const;
+  unsigned int getSamplerCount(void) const;
   SamplerState& getSamplerState(const String& name);
   const SamplerState& getSamplerState(const String& name) const;
+  SamplerState& getSamplerState(unsigned int index);
+  const SamplerState& getSamplerState(unsigned int index) const;
   /*! @return The shader program used by this render pass.
    */
   Program* getProgram(void) const;
@@ -248,6 +259,7 @@ private:
   };
   void force(void) const;
   void setBooleanState(GLenum state, bool value) const;
+  void destroyProgramState(void);
   typedef std::vector<UniformState*> UniformList;
   typedef std::vector<SamplerState*> SamplerList;
   UniformList uniforms;

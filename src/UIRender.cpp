@@ -93,8 +93,9 @@ void Renderer::popClipArea(void)
   canvas->popScissorArea();
 }
 
-void Renderer::drawPoint(const Vector2& point)
+void Renderer::drawPoint(const Vector2& point, const ColorRGBA& color)
 {
+  setDrawingState(color, false);
   drawPass.apply();
 
   GL::Vertex2fv vertex;
@@ -108,8 +109,9 @@ void Renderer::drawPoint(const Vector2& point)
   range.render(GL_POINTS);
 }
 
-void Renderer::drawLine(const Segment2& segment)
+void Renderer::drawLine(const Segment2& segment, const ColorRGBA& color)
 {
+  setDrawingState(color, false);
   drawPass.apply();
 
   glBegin(GL_LINES);
@@ -118,9 +120,9 @@ void Renderer::drawLine(const Segment2& segment)
   glEnd();
 }
 
-void Renderer::drawTriangle(const Triangle2& triangle)
+void Renderer::drawTriangle(const Triangle2& triangle, const ColorRGBA& color)
 {
-  drawPass.setPolygonMode(GL_LINE);
+  setDrawingState(color, false);
   drawPass.apply();
 
   glBegin(GL_TRIANGLES);
@@ -130,11 +132,12 @@ void Renderer::drawTriangle(const Triangle2& triangle)
   glEnd();
 }
 
-void Renderer::drawBezier(const BezierCurve2& spline)
+void Renderer::drawBezier(const BezierCurve2& spline, const ColorRGBA& color)
 {
   BezierCurve2::PointList points;
   spline.tessellate(points);
   
+  setDrawingState(color, false);
   drawPass.apply();
 
   glBegin(GL_LINE_STRIP);
@@ -143,7 +146,7 @@ void Renderer::drawBezier(const BezierCurve2& spline)
   glEnd();
 }
 
-void Renderer::drawRectangle(const Rectangle& rectangle)
+void Renderer::drawRectangle(const Rectangle& rectangle, const ColorRGBA& color)
 {
   float minX, minY, maxX, maxY;
   rectangle.getBounds(minX, minY, maxX, maxY);
@@ -151,15 +154,15 @@ void Renderer::drawRectangle(const Rectangle& rectangle)
   if (maxX - minX < 1.f || maxY - minY < 1.f)
     return;
 
-  drawPass.setPolygonMode(GL_LINE);
+  setDrawingState(color, false);
   drawPass.apply();
 
   glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
 }
 
-void Renderer::fillTriangle(const Triangle2& triangle)
+void Renderer::fillTriangle(const Triangle2& triangle, const ColorRGBA& color)
 {
-  drawPass.setPolygonMode(GL_FILL);
+  setDrawingState(color, true);
   drawPass.apply();
 
   glBegin(GL_TRIANGLES);
@@ -169,7 +172,7 @@ void Renderer::fillTriangle(const Triangle2& triangle)
   glEnd();
 }
 
-void Renderer::fillRectangle(const Rectangle& rectangle)
+void Renderer::fillRectangle(const Rectangle& rectangle, const ColorRGBA& color)
 {
   float minX, minY, maxX, maxY;
   rectangle.getBounds(minX, minY, maxX, maxY);
@@ -191,7 +194,7 @@ void Renderer::fillRectangle(const Rectangle& rectangle)
   if (!GL::Renderer::get()->allocateVertices(range, 4, GL::Vertex2fv::format))
     return;
 
-  drawPass.setPolygonMode(GL_FILL);
+  setDrawingState(color, true);
   drawPass.apply();
 
   range.copyFrom(vertices);
@@ -224,18 +227,13 @@ void Renderer::blitTexture(const Rectangle& area, GL::Texture& texture)
   if (!GL::Renderer::get()->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
     return;
 
-  GL::TextureLayer& layer = drawPass.createTextureLayer();
-  layer.setCombineMode(GL_REPLACE);
-  layer.setFilters(GL_NEAREST, GL_NEAREST);
-  layer.setTexture(&texture);
-
-  drawPass.setPolygonMode(GL_FILL);
-  drawPass.apply();
+  blitPass.getSamplerState("texture").setTexture(&texture);
+  blitPass.apply();
 
   range.copyFrom(vertices);
   range.render(GL_TRIANGLE_FAN);
 
-  drawPass.destroyTextureLayers();
+  blitPass.getSamplerState("texture").setTexture(NULL);
 }
 
 void Renderer::drawText(const Rectangle& area,
@@ -317,76 +315,44 @@ void Renderer::drawText(const Rectangle& area,
 
 void Renderer::drawWell(const Rectangle& area, WidgetState state)
 {
-  float minX, minY, maxX, maxY;
-  area.getBounds(minX, minY, maxX, maxY);
-
-  if (maxX - minX < 1.f || maxY - minY < 1.f)
-    return;
-
-  GL::Pass pass;
-  pass.setLineWidth(1.f / GL::Canvas::getCurrent()->getPhysicalHeight());
+  ColorRGB fillColor;
 
   switch (state)
   {
     case STATE_ACTIVE:
-      pass.setDefaultColor(ColorRGBA(wellColor * 1.2f, 1.f));
+      fillColor = wellColor * 1.2f;
       break;
     case STATE_DISABLED:
-      pass.setDefaultColor(ColorRGBA(wellColor * 0.8f, 1.f));
+      fillColor = wellColor * 0.8f;
       break;
     default:
-      pass.setDefaultColor(ColorRGBA(wellColor, 1.f));
+      fillColor = wellColor;
       break;
   }
-      
-  pass.setDepthTesting(false);
-  pass.setDepthWriting(false);
-  pass.apply();
 
-  glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
-      
-  pass.setPolygonMode(GL_LINE);
-  pass.setDefaultColor(ColorRGBA::BLACK);
-  pass.apply();
-
-  glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
+  fillRectangle(area, fillColor);
+  drawRectangle(area, ColorRGBA::BLACK);
 }
 
 void Renderer::drawFrame(const Rectangle& area, WidgetState state)
 {
-  float minX, minY, maxX, maxY;
-  area.getBounds(minX, minY, maxX, maxY);
-
-  if (maxX - minX < 1.f || maxY - minY < 1.f)
-    return;
-
-  GL::Pass pass;
-  pass.setLineWidth(1.f / GL::Canvas::getCurrent()->getPhysicalHeight());
+  ColorRGB fillColor;
 
   switch (state)
   {
     case STATE_ACTIVE:
-      pass.setDefaultColor(ColorRGBA(widgetColor * 1.2f, 1.f));
+      fillColor = widgetColor * 1.2f;
       break;
     case STATE_DISABLED:
-      pass.setDefaultColor(ColorRGBA(widgetColor * 0.8f, 1.f));
+      fillColor = widgetColor * 0.8f;
       break;
     default:
-      pass.setDefaultColor(ColorRGBA(widgetColor, 1.f));
+      fillColor = widgetColor;
       break;
   }
       
-  pass.setDepthTesting(false);
-  pass.setDepthWriting(false);
-  pass.apply();
-
-  glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
-      
-  pass.setPolygonMode(GL_LINE);
-  pass.setDefaultColor(ColorRGBA::BLACK);
-  pass.apply();
-
-  glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
+  fillRectangle(area, fillColor);
+  drawRectangle(area, ColorRGBA::BLACK);
 }
 
 void Renderer::drawHandle(const Rectangle& area, WidgetState state)
@@ -400,30 +366,6 @@ void Renderer::drawButton(const Rectangle& area, WidgetState state, const String
 
   if (text.length())
     drawText(area, text);
-}
-
-const ColorRGBA& Renderer::getColor(void) const
-{
-  return drawPass.getDefaultColor();
-}
-
-void Renderer::setColor(const ColorRGBA& newColor)
-{
-  drawPass.setDefaultColor(newColor);
-  if (newColor.a == 1.f)
-    drawPass.setBlendFactors(GL_ONE, GL_ZERO);
-  else
-    drawPass.setBlendFactors(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-}
-
-float Renderer::getLineWidth(void) const
-{
-  return drawPass.getLineWidth();
-}
-
-void Renderer::setLineWidth(float newWidth)
-{
-  drawPass.setLineWidth(newWidth);
 }
 
 const ColorRGB& Renderer::getWidgetColor(void)
@@ -498,11 +440,6 @@ Renderer::Renderer(void)
     GL::Context::getDestroySignal().connect(onContextDestroy);
     initialized = true;
   }
-
-  drawPass.setCullMode(GL::CULL_NONE);
-  drawPass.setDepthTesting(false);
-  drawPass.setDepthWriting(false);
-  drawPass.setDefaultColor(ColorRGBA::BLACK);
 }
 
 bool Renderer::init(void)
@@ -528,7 +465,62 @@ bool Renderer::init(void)
   selectionColor.set(0.3f, 0.3f, 0.3f);
   selectedTextColor = ColorRGB::WHITE;
 
+  // Set up drawing render pass
+  {
+    Ref<GL::Program> drawProgram = GL::Program::readInstance("uidraw");
+    if (!drawProgram)
+    {
+      Log::writeError("Failed to load UI drawing shader program");
+      return false;
+    }
+
+    if (!drawProgram->findUniform("color"))
+    {
+      Log::writeError("UI drawing shader program does not have the required uniforms");
+      return false;
+    }
+
+    drawPass.setProgram(drawProgram);
+    drawPass.setCullMode(GL::CULL_NONE);
+    drawPass.setDepthTesting(false);
+    drawPass.setDepthWriting(false);
+  }
+
+  // Set up blitting render pass
+  {
+    Ref<GL::Program> blitProgram = GL::Program::readInstance("uiblit");
+    if (!blitProgram)
+    {
+      Log::writeError("Failed to load UI blitting shader program");
+      return false;
+    }
+
+    if (!blitProgram->findUniform("color") || !blitProgram->findSampler("texture"))
+    {
+      Log::writeError("UI blitting shader program does not have the required uniforms");
+      return false;
+    }
+
+    blitPass.setProgram(blitProgram);
+    blitPass.setCullMode(GL::CULL_NONE);
+    blitPass.setDepthTesting(false);
+    blitPass.setDepthWriting(false);
+    blitPass.setPolygonMode(GL_FILL);
+  }
+
   return true;
+}
+
+void Renderer::setDrawingState(const ColorRGBA& color, bool fill)
+{
+  drawPass.getUniformState("color").setValue(Vector4(color.r, color.g, color.b, color.a));
+
+  if (color.a == 1.f)
+    drawPass.setBlendFactors(GL_ONE, GL_ZERO);
+  else
+    drawPass.setBlendFactors(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  drawPass.setPolygonMode(fill ? GL_FILL : GL_LINES);
 }
 
 void Renderer::onContextDestroy(void)

@@ -106,6 +106,47 @@ inline void UniformStateTemplate<T>::apply(void) const
   getUniform().setValue(value);
 }
 
+template <typename T>
+class NameComparator
+{
+public:
+  inline NameComparator(const String& name);
+  inline bool operator () (const T& object);
+  inline bool operator () (const T* object);
+private:
+  const String& name;
+};
+
+template <typename T>
+inline NameComparator<T>::NameComparator(const String& initName):
+  name(initName)
+{
+}
+
+template <typename T>
+inline bool NameComparator<T>::operator () (const T& object)
+{
+  return name == object.getName();
+}
+
+template <typename T>
+inline bool NameComparator<T>::operator () (const T* object)
+{
+  return name == object->getName();
+}
+
+template <>
+inline bool NameComparator<UniformState>::operator () (const UniformState* object)
+{
+  return name == object->getUniform().getName();
+}
+
+template <>
+inline bool NameComparator<SamplerState>::operator () (const SamplerState* object)
+{
+  return name == object->getSampler().getName();
+}
+
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -209,9 +250,19 @@ void SamplerState::setTexture(Texture* newTexture)
   texture = newTexture;
 }
 
+Sampler& SamplerState::getSampler(void) const
+{
+  return sampler;
+}
+
 SamplerState::SamplerState(Sampler& initSampler):
   sampler(initSampler)
 {
+}
+
+void SamplerState::apply(void) const
+{
+  sampler.setTexture(texture);
 }
 
 SamplerState::SamplerState(const SamplerState& source):
@@ -224,15 +275,16 @@ SamplerState& SamplerState::operator = (const SamplerState& source)
   return *this;
 }
 
-void SamplerState::apply(void) const
-{
-}
-
 ///////////////////////////////////////////////////////////////////////
 
 Pass::Pass(const String& initName):
   name(initName)
 {
+}
+
+Pass::~Pass(void)
+{
+  destroyProgramState();
 }
 
 void Pass::apply(void) const
@@ -409,6 +461,84 @@ GLenum Pass::getDepthFunction(void) const
   return data.depthFunction;
 }
 
+unsigned int Pass::getUniformCount(void) const
+{
+  return uniforms.size();
+}
+
+UniformState& Pass::getUniformState(const String& name)
+{
+  UniformList::const_iterator i = std::find_if(uniforms.begin(), uniforms.end(), NameComparator<UniformState>(name));
+  if (i == uniforms.end())
+    throw Exception("Render pass uniform state unknown");
+
+  return **i;
+}
+
+const UniformState& Pass::getUniformState(const String& name) const
+{
+  UniformList::const_iterator i = std::find_if(uniforms.begin(), uniforms.end(), NameComparator<UniformState>(name));
+  if (i == uniforms.end())
+    throw Exception("Render pass uniform state unknown");
+
+  return **i;
+}
+
+UniformState& Pass::getUniformState(unsigned int index)
+{
+  if (index >= uniforms.size())
+    throw Exception("Render pass uniform state access out of range");
+
+  return *uniforms[index];
+}
+
+const UniformState& Pass::getUniformState(unsigned int index) const
+{
+  if (index >= uniforms.size())
+    throw Exception("Render pass uniform state access out of range");
+
+  return *uniforms[index];
+}
+
+unsigned int Pass::getSamplerCount(void) const
+{
+  return samplers.size();
+}
+
+SamplerState& Pass::getSamplerState(const String& name)
+{
+  SamplerList::const_iterator i = std::find_if(samplers.begin(), samplers.end(), NameComparator<SamplerState>(name));
+  if (i == samplers.end())
+    throw Exception("Render pass sampler state unknown");
+
+  return **i;
+}
+
+const SamplerState& Pass::getSamplerState(const String& name) const
+{
+  SamplerList::const_iterator i = std::find_if(samplers.begin(), samplers.end(), NameComparator<SamplerState>(name));
+  if (i == samplers.end())
+    throw Exception("Render pass sampler state unknown");
+
+  return **i;
+}
+
+SamplerState& Pass::getSamplerState(unsigned int index)
+{
+  if (index >= samplers.size())
+    throw Exception("Render pass sampler state access out of range");
+
+  return *samplers[index];
+}
+
+const SamplerState& Pass::getSamplerState(unsigned int index) const
+{
+  if (index >= samplers.size())
+    throw Exception("Render pass sampler state access out of range");
+
+  return *samplers[index];
+}
+
 Program* Pass::getProgram(void) const
 {
   return data.program;
@@ -464,7 +594,17 @@ void Pass::setColorWriting(bool enabled)
 
 void Pass::setProgram(Program* newProgram)
 {
-  // TODO: The code.
+  destroyProgramState();
+  data.program = newProgram;
+
+  if (data.program)
+  {
+    for (unsigned int i = 0;  i < data.program->getSamplerCount();  i++)
+      samplers.push_back(new SamplerState(data.program->getSampler(i)));
+
+    for (unsigned int i = 0;  i < data.program->getUniformCount();  i++)
+      uniforms.push_back(new UniformState(data.program->getUniform(i)));
+  }
 }
 
 void Pass::setDefaults(void)
@@ -543,6 +683,21 @@ void Pass::setBooleanState(GLenum state, bool value) const
     glEnable(state);
   else
     glDisable(state);
+}
+
+void Pass::destroyProgramState(void)
+{
+  while (!uniforms.empty())
+  {
+    delete uniforms.back();
+    uniforms.pop_back();
+  }
+
+  while (!samplers.empty())
+  {
+    delete samplers.back();
+    samplers.pop_back();
+  }
 }
 
 Pass::Data Pass::cache;

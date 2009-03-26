@@ -64,7 +64,7 @@ Mapper<String, GLenum> operationMap;
 Mapper<String, GLint> filterMap;
 Mapper<String, GLint> addressModeMap;
 
-const unsigned int RENDER_STYLE_XML_VERSION = 3;
+const unsigned int RENDER_STYLE_XML_VERSION = 4;
 
 }
 
@@ -152,7 +152,6 @@ Style* StyleCodec::read(Stream& stream, const String& name)
 
   currentTechnique = NULL;
   currentPass = NULL;
-  currentLayer = NULL;
 
   styleName = name;
 
@@ -233,13 +232,6 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 	  endElement();
 	}
 
-	if (pass.getAlphaFunction() != defaults.getAlphaFunction())
-	{
-	  beginElement("alpha");
-	  addAttribute("function", functionMap[pass.getAlphaFunction()]);
-	  endElement();
-	}
-
 	/*
 	if (pass.isStencilTesting() != defaults.isStencilTesting() ||
 	    pass.getStencilFunction() != defaults.getStencilFunction() ||
@@ -261,13 +253,6 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 	}
 	*/
 
-	if (pass.getLineWidth() != defaults.getLineWidth())
-	{
-	  beginElement("line");
-	  addAttribute("width", pass.getLineWidth());
-	  endElement();
-	}
-
 	if (pass.getPolygonMode() != defaults.getPolygonMode() ||
 	    pass.getCullMode() != defaults.getCullMode())
 	{
@@ -277,35 +262,26 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 	  endElement();
 	}
 
-	for (unsigned int i = 0;  i < pass.getTextureLayerCount();  i++)
-	{
-	  const GL::TextureLayer& layer = pass.getTextureLayer(i);
-
-	  if (!layer.getTexture())
-	    break;
-
-	  beginElement("texture");
-	  addAttribute("name", layer.getTexture()->getName());
-
-	  if (!layer.getSamplerName().empty())
-	    addAttribute("sampler", layer.getSamplerName());
-
-	  beginElement("filter");
-	  addAttribute("min", filterMap[layer.getMinFilter()]);
-	  addAttribute("mag", filterMap[layer.getMagFilter()]);
-	  endElement();
-
-	  beginElement("address");
-	  addAttribute("mode", addressModeMap[layer.getAddressMode()]);
-	  endElement();
-
-	  endElement();
-	}
-
 	if (GL::Program* program = pass.getProgram())
 	{
-	  beginElement("shader-program");
+	  beginElement("program");
 	  addAttribute("name", program->getName());
+
+	  for (unsigned int i = 0;  i < pass.getSamplerCount();  i++)
+	  {
+	    const GL::SamplerState& state = pass.getSamplerState(i);
+
+	    Ref<GL::Texture> texture;
+	    state.getTexture(texture);
+	    if (texture)
+	      continue;
+
+	    beginElement("sampler");
+	    addAttribute("name", state.getSampler().getName());
+	    addAttribute("texture", texture->getName());
+	    endElement();
+	  }
+
 	  endElement();
 	}
 
@@ -432,24 +408,6 @@ bool StyleCodec::onBeginElement(const String& name)
 	  return true;
 	}
 	
-	if (name == "alpha")
-	{
-	  String functionName = readString("function");
-	  if (functionName.length())
-	  {
-	    if (functionMap.hasKey(functionName))
-	      currentPass->setAlphaFunction(functionMap[functionName]);
-	    else
-	    {
-	      Log::writeError("Invalid alpha test function name %s",
-	                      functionName.c_str());
-	      return false;
-	    }
-	  }
-
-	  return true;
-	}
-
 	/*
 	if (name == "stencil")
 	{
@@ -496,12 +454,6 @@ bool StyleCodec::onBeginElement(const String& name)
 	}
 	*/
 
-	if (name == "line")
-	{
-	  currentPass->setLineWidth(readFloat("width"));
-	  return true;
-	}
-
 	if (name == "polygon")
 	{
 	  String polygonModeName = readString("mode");
@@ -532,33 +484,7 @@ bool StyleCodec::onBeginElement(const String& name)
 	  return true;
 	}
 
-	if (name == "texture")
-	{
-	  String textureName = readString("name");
-	  if (!textureName.length())
-	    return true;
-
-	  GL::Texture* texture;
-
-	  // TODO: Update this once resource cascade options are added.
-
-	  texture = GL::Texture::findInstance(textureName);
-	  if (!texture)
-	  {
-	    texture = GL::Texture::readInstance(textureName);
-	    if (!texture)
-	      return false;
-	  }
-
-	  GL::TextureLayer& layer = currentPass->createTextureLayer();
-	  layer.setTexture(texture);
-	  layer.setSamplerName(readString("sampler"));
-
-	  currentLayer = &layer;
-	  return true;
-	}
-
-	if (name == "shader-program")
+	if (name == "program")
 	{
 	  String programName = readString("name");
 	  if (programName.empty())
@@ -580,6 +506,36 @@ bool StyleCodec::onBeginElement(const String& name)
 	  return true;
 	}
 
+	if (currentPass->getProgram())
+	{
+	  if (name == "sampler")
+	  {
+	    String samplerName = readString("name");
+	    if (samplerName.empty())
+	      return true;
+
+	    if (!currentPass->getProgram()->findSampler(samplerName))
+	    {
+	      Log::writeError("Shader program %s does not have sampler uniform %s",
+	                      currentPass->getProgram()->getName().c_str(),
+			      samplerName.c_str());
+	      return false;
+	    }
+
+	    String textureName = readString("texture");
+	    if (textureName.empty())
+	      return true;
+
+	    Ref<GL::Texture> texture = GL::Texture::readInstance(textureName);
+	    if (!texture)
+	      return false;
+
+	    currentPass->getSamplerState(samplerName).setTexture(texture);
+	    return true;
+	  }
+	}
+
+	/*
 	if (name == "filter")
 	{
 	  String filterName;
@@ -619,6 +575,7 @@ bool StyleCodec::onBeginElement(const String& name)
 	                      addressModeName.c_str());
 	  }
 	}
+	*/
       }
     }
   }
@@ -644,15 +601,6 @@ bool StyleCodec::onEndElement(const String& name)
 	{
 	  currentPass = NULL;
 	  return true;
-	}
-
-	if (currentLayer)
-	{
-	  if (name == "texture")
-	  {
-	    currentLayer = NULL;
-	    return true;
-	  }
 	}
       }
     }

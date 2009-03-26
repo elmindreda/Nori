@@ -38,6 +38,7 @@ using namespace moira;
 ///////////////////////////////////////////////////////////////////////
 
 class Context;
+class Texture;
 class Program;
 
 ///////////////////////////////////////////////////////////////////////
@@ -101,7 +102,7 @@ public:
   };
   Type getType(void) const;
   const String& getName(void) const;
-  void setTexture(const Texture& newTexture);
+  void setTexture(Texture* newTexture);
   Program& getProgram(void) const;
 private:
   Sampler(Program& program);

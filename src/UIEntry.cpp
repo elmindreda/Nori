@@ -138,8 +138,7 @@ void Entry::draw(void) const
       segment.end.set(textArea.position.x + position,
                       textArea.position.y + textArea.size.y);
 
-      renderer->setColor(ColorRGBA::BLACK);
-      renderer->drawLine(segment);
+      renderer->drawLine(segment, ColorRGBA::BLACK);
     }
 
     Widget::draw();

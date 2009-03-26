@@ -262,6 +262,7 @@ private:
   Signal2<void, unsigned int, unsigned int> resizedSignal;
   ContextMode mode;
   String title;
+  Ptr<Limits> limits;
   void* cgContextID;
   int cgVertexProfile;
   int cgFragmentProfile;

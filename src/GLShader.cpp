@@ -299,6 +299,11 @@ const String& Sampler::getName(void) const
   return name;
 }
 
+void Sampler::setTexture(Texture* newTexture)
+{
+  // TODO: The code.
+}
+
 Program& Sampler::getProgram(void) const
 {
   return program;

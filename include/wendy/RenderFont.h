@@ -123,6 +123,7 @@ private:
   float ascender;
   float descender;
   GL::Pass pass;
+  ColorRGBA color;
   Ref<GL::Texture> texture;
 };
 

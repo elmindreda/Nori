@@ -289,6 +289,11 @@ void Context::setTitle(const String& newTitle)
   title = newTitle;
 }
 
+const Limits& Context::getLimits(void) const
+{
+  return *limits;
+}
+
 SignalProxy0<bool> Context::getRenderSignal(void)
 {
   return renderSignal;
@@ -390,11 +395,13 @@ bool Context::init(const ContextMode& mode)
     return false;
   }
 
-  if (GLEW_ARB_multitexture)
+  if (!GLEW_ARB_multitexture)
   {
     Log::writeError("Multitexturing (ARB_multitexture) is required but not supported");
     return false;
   }
+
+  limits = new Limits(*this);
 
   cgContextID = cgCreateContext();
   if (!cgContextID)

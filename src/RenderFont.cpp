@@ -27,6 +27,7 @@
 
 #include <wendy/Config.h>
 #include <wendy/OpenGL.h>
+#include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLVertex.h>
@@ -137,12 +138,13 @@ void Font::setPenPosition(const Vector2& newPosition)
 
 const ColorRGBA& Font::getColor(void) const
 {
-  return pass.getDefaultColor();
+  return color;
 }
 
 void Font::setColor(const ColorRGBA& newColor)
 {
-  pass.setDefaultColor(newColor);
+  color = newColor;
+  pass.getUniformState("color").setValue(Vector4(color.g, color.g, color.b, color.a));
 }
 
 float Font::getAscender(void) const
@@ -293,9 +295,7 @@ bool Font::init(const moira::Font& font)
 {
   const String& characters = font.getCharacters();
 
-  unsigned int maxSize;
-
-  glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxSize);
+  const unsigned int maxSize = GL::Context::get()->getLimits().getMaxTextureSize();
 
   const unsigned int glyphWidth = (unsigned int) ceilf(font.getWidth()) + 1;
   const unsigned int glyphHeight = (unsigned int) ceilf(font.getHeight()) + 1;
@@ -315,6 +315,30 @@ bool Font::init(const moira::Font& font)
     texture = GL::Texture::createInstance(Image(ImageFormat::ALPHA8, width, height), 0);
     if (!texture)
       return false;
+  }
+
+  // Create render pass
+  {
+    Ref<GL::Program> program = GL::Program::readInstance("font");
+    if (!program)
+    {
+      Log::writeError("Unable to read font glyph shader program");
+      return false;
+    }
+
+    if (!program->findSampler("texture") || !program->findUniform("color"))
+    {
+      Log::writeError("Font shader program does not have the required uniforms");
+      return false;
+    }
+
+    pass.setProgram(program);
+    pass.setDepthTesting(false);
+    pass.setDepthWriting(false);
+    pass.setBlendFactors(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    pass.getSamplerState("texture").setTexture(texture);
+
+    color = ColorRGBA::WHITE;
   }
 
   ascender = descender = 0.f;
@@ -370,15 +394,6 @@ bool Font::init(const moira::Font& font)
 
     texelPosition.x += image.getWidth() + 1;
   }
-
-  pass.setDepthTesting(false);
-  pass.setDepthWriting(false);
-  pass.setDefaultColor(ColorRGBA::WHITE);
-  pass.setBlendFactors(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  GL::TextureLayer& layer = pass.createTextureLayer();
-  layer.setTexture(texture);
-  layer.setCombineMode(GL_MODULATE);
 
   size.set(font.getWidth(), font.getHeight());
   return true;
