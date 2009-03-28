@@ -67,20 +67,7 @@ enum CullMode
   CULL_BOTH,
 };
 
-/*! Comparison function enumeration.
- *  @ingroup opengl
- */
-enum Function
-{
-  ALLOW_NEVER,
-  ALLOW_ALWAYS,
-  ALLOW_EQUAL,
-  ALLOW_NOT_EQUAL,
-  ALLOW_LESSER,
-  ALLOW_LESSER_EQUAL,
-  ALLOW_GREATER,
-  ALLOW_GREATER_EQUAL,
-};
+///////////////////////////////////////////////////////////////////////
 
 /*! Blend factor enumeration.
  *  @ingroup opengl

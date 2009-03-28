@@ -51,6 +51,38 @@ class Context;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! Render mode enumeration.
+ *  @ingroup opengl
+ */
+enum RenderMode
+{
+  RENDER_POINTS,
+  RENDER_LINES,
+  RENDER_LINE_STRIP,
+  RENDER_TRIANGLES,
+  RENDER_TRIANGLE_STRIP,
+  RENDER_TRIANGLE_FAN,
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! Comparison function enumeration.
+ *  @ingroup opengl
+ */
+enum Function
+{
+  ALLOW_NEVER,
+  ALLOW_ALWAYS,
+  ALLOW_EQUAL,
+  ALLOW_NOT_EQUAL,
+  ALLOW_LESSER,
+  ALLOW_LESSER_EQUAL,
+  ALLOW_GREATER,
+  ALLOW_GREATER_EQUAL,
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Screen mode.
  *  @ingroup opengl
  */

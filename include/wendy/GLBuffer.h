@@ -55,21 +55,6 @@ enum LockType
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! Render mode enumeration.
- *  @ingroup opengl
- */
-enum RenderMode
-{
-  RENDER_POINTS,
-  RENDER_LINES,
-  RENDER_LINE_STRIP,
-  RENDER_TRIANGLES,
-  RENDER_TRIANGLE_STRIP,
-  RENDER_TRIANGLE_FAN,
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Vertex buffer.
  *  @ingroup opengl
  *

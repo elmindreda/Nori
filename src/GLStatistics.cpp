@@ -49,7 +49,7 @@ void Statistics::addPasses(unsigned int count)
   frame.passCount += count;
 }
 
-void Statistics::addPrimitives(GLenum mode, unsigned int count)
+void Statistics::addPrimitives(RenderMode mode, unsigned int count)
 {
   if (!count)
     return;
@@ -59,35 +59,23 @@ void Statistics::addPrimitives(GLenum mode, unsigned int count)
 
   switch (mode)
   {
-    case GL_POINTS:
+    case RENDER_POINTS:
       frame.pointCount += count;
       break;
-    case GL_LINES:
+    case RENDER_LINES:
       frame.lineCount += count / 2;
       break;
-    case GL_LINE_LOOP:
-      frame.lineCount += count;
-      break;
-    case GL_LINE_STRIP:
+    case RENDER_LINE_STRIP:
       frame.lineCount += count - 1;
       break;
-    case GL_TRIANGLES:
+    case RENDER_TRIANGLES:
       frame.triangleCount += count / 3;
       break;
-    case GL_TRIANGLE_STRIP:
+    case RENDER_TRIANGLE_STRIP:
       frame.triangleCount += count - 2;
       break;
-    case GL_TRIANGLE_FAN:
+    case RENDER_TRIANGLE_FAN:
       frame.triangleCount += count - 1;
-      break;
-    case GL_QUADS:
-      frame.triangleCount += count / 2;
-      break;
-    case GL_QUAD_STRIP:
-      frame.triangleCount += count - 2;
-      break;
-    case GL_POLYGON:
-      frame.triangleCount += count - 2;
       break;
     default:
       Log::writeError("Invalid render mode %u", mode);

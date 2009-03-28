@@ -27,6 +27,7 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/GLContext.h>
 #include <wendy/GLState.h>
 
 #define GLEW_STATIC
@@ -42,6 +43,63 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
+
+///////////////////////////////////////////////////////////////////////
+
+namespace
+{
+
+GLenum convertFunction(Function function)
+{
+  switch (function)
+  {
+    case ALLOW_NEVER:
+      return GL_NEVER;
+    case ALLOW_ALWAYS:
+      return GL_ALWAYS;
+    case ALLOW_EQUAL:
+      return GL_EQUAL;
+    case ALLOW_NOT_EQUAL:
+      return GL_NOTEQUAL;
+    case ALLOW_LESSER:
+      return GL_LESS;
+    case ALLOW_LESSER_EQUAL:
+      return GL_LEQUAL;
+    case ALLOW_GREATER:
+      return GL_GREATER;
+    case ALLOW_GREATER_EQUAL:
+      return GL_GEQUAL;
+    default:
+      throw Exception("Invalid function");
+  }
+}
+
+GLenum convertOperation(Operation operation)
+{
+  switch (operation)
+  {
+    case OP_KEEP:
+      return GL_KEEP;
+    case OP_ZERO:
+      return GL_ZERO;
+    case OP_REPLACE:
+      return GL_REPLACE;
+    case OP_INCREASE:
+      return GL_INCR;
+    case OP_DECREASE:
+      return GL_DECR;
+    case OP_INVERT:
+      return GL_INVERT;
+    case OP_INCREASE_WRAP:
+      return GL_INCR_WRAP;
+    case OP_DECREASE_WRAP:
+      return GL_DECR_WRAP;
+    default:
+      throw Exception("Invalid stencil operation");
+  }
+}
+
+}
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -67,7 +125,8 @@ void StencilState::apply(void) const
         data.reference != cache.reference ||
         data.writeMask != cache.writeMask)
     {
-      glStencilFunc(data.function, data.reference, data.writeMask);
+      glStencilFunc(convertFunction(data.function), data.reference, data.writeMask);
+
       cache.function = data.function;
       cache.reference = data.reference;
       cache.writeMask = data.writeMask;
@@ -77,7 +136,10 @@ void StencilState::apply(void) const
         data.depthFailed != cache.depthFailed ||
         data.depthPassed != cache.depthPassed)
     {
-      glStencilOp(data.stencilFailed, data.depthFailed, data.depthPassed);
+      glStencilOp(convertOperation(data.stencilFailed),
+                  convertOperation(data.depthFailed),
+		  convertOperation(data.depthPassed));
+
       cache.stencilFailed = data.stencilFailed;
       cache.depthFailed = data.depthFailed;
       cache.depthPassed = data.depthPassed;
@@ -106,22 +168,22 @@ bool StencilState::isEnabled(void) const
   return data.enabled;
 }
 
-GLenum StencilState::getFunction(void) const
+Function StencilState::getFunction(void) const
 {
   return data.function;
 }
 
-GLenum StencilState::getStencilFailOperation(void) const
+Operation StencilState::getStencilFailOperation(void) const
 {
   return data.stencilFailed;
 }
 
-GLenum StencilState::getDepthFailOperation(void) const
+Operation StencilState::getDepthFailOperation(void) const
 {
   return data.depthFailed;
 }
 
-GLenum StencilState::getDepthPassOperation(void) const
+Operation StencilState::getDepthPassOperation(void) const
 {
   return data.depthPassed;
 }
@@ -142,7 +204,7 @@ void StencilState::setEnabled(bool newState)
   data.dirty = true;
 }
 
-void StencilState::setFunction(GLenum newFunction)
+void StencilState::setFunction(Function newFunction)
 {
   data.function = newFunction;
   data.dirty = true;
@@ -160,9 +222,9 @@ void StencilState::setWriteMask(unsigned int newMask)
   data.dirty = true;
 }
 
-void StencilState::setOperations(GLenum stencilFailed,
-                                 GLenum depthFailed,
-                                 GLenum depthPassed)
+void StencilState::setOperations(Operation stencilFailed,
+                                 Operation depthFailed,
+                                 Operation depthPassed)
 {
   data.stencilFailed = stencilFailed;
   data.depthFailed = depthFailed;
@@ -173,11 +235,6 @@ void StencilState::setOperations(GLenum stencilFailed,
 void StencilState::setDefaults(void)
 {
   data.setDefaults();
-}
-
-void StencilState::invalidateCache(void)
-{
-  cache.dirty = true;
 }
 
 void StencilState::force(void) const
@@ -214,12 +271,12 @@ void StencilState::Data::setDefaults(void)
 {
   dirty = true;
   enabled = false;
-  function = GL_ALWAYS;
+  function = ALLOW_ALWAYS;
   reference = 0;
   writeMask = ~0;
-  stencilFailed = GL_KEEP;
-  depthFailed = GL_KEEP;
-  depthPassed = GL_KEEP;
+  stencilFailed = OP_KEEP;
+  depthFailed = OP_KEEP;
+  depthPassed = OP_KEEP;
 }
 
 ///////////////////////////////////////////////////////////////////////

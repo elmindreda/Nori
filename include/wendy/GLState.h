@@ -37,26 +37,42 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! Stencil operation enumeration.
+ *  @ingroup opengl
+ */
+enum Operation
+{
+  OP_KEEP,
+  OP_ZERO,
+  OP_REPLACE,
+  OP_INCREASE,
+  OP_DECREASE,
+  OP_INVERT,
+  OP_INCREASE_WRAP,
+  OP_DECREASE_WRAP
+};
+
+///////////////////////////////////////////////////////////////////////
+
 class StencilState
 {
 public:
   void apply(void) const;
   bool isEnabled(void) const;
-  GLenum getFunction(void) const;
-  GLenum getStencilFailOperation(void) const;
-  GLenum getDepthFailOperation(void) const;
-  GLenum getDepthPassOperation(void) const;
+  Function getFunction(void) const;
+  Operation getStencilFailOperation(void) const;
+  Operation getDepthFailOperation(void) const;
+  Operation getDepthPassOperation(void) const;
   unsigned int getReference(void) const;
   unsigned int getWriteMask(void) const;
   void setEnabled(bool newState);
-  void setFunction(GLenum newFunction);
+  void setFunction(Function newFunction);
   void setReference(unsigned int newReference);
   void setWriteMask(unsigned int newMask);
-  void setOperations(GLenum stencilFailed,
-                     GLenum depthFailed,
-                     GLenum depthPassed);
+  void setOperations(Operation stencilFailed,
+                     Operation depthFailed,
+                     Operation depthPassed);
   void setDefaults(void);
-  static void invalidateCache(void);
 private:
   class Data
   {
@@ -65,12 +81,12 @@ private:
     void setDefaults(void);
     mutable bool dirty;
     bool enabled;
-    GLenum function;
+    Function function;
     unsigned int reference;
     unsigned int writeMask;
-    GLenum stencilFailed;
-    GLenum depthFailed;
-    GLenum depthPassed;
+    Operation stencilFailed;
+    Operation depthFailed;
+    Operation depthPassed;
   };
   void force(void) const;
   Data data;
