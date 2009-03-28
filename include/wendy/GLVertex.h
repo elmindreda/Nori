@@ -170,7 +170,6 @@ private:
 class Vertex3fv
 {
 public:
-  void send(void) const;
   Vector3 position;
   static const VertexFormat format;
 };
@@ -182,7 +181,6 @@ public:
 class Vertex3fn3fv
 {
 public:
-  void send(void) const;
   Vector3 normal;
   Vector3 position;
   static const VertexFormat format;
@@ -206,7 +204,6 @@ public:
 class Vertex2ft2fv
 {
 public:
-  void send(void) const;
   Vector2 mapping;
   Vector2 position;
   static const VertexFormat format;
@@ -219,7 +216,6 @@ public:
 class Vertex2ft3fv
 {
 public:
-  void send(void) const;
   Vector2 mapping;
   Vector3 position;
   static const VertexFormat format;
@@ -232,7 +228,6 @@ public:
 class Vertex4fc2ft3fv
 {
 public:
-  void send(void) const;
   ColorRGBA color;
   Vector2 mapping;
   Vector3 position;

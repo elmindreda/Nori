@@ -27,9 +27,6 @@
 
 #include <wendy/Config.h>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-
 #include <wendy/GLVertex.h>
 
 #include <cctype>
@@ -324,20 +321,9 @@ String VertexFormat::getSpecification(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-void Vertex3fv::send(void) const
-{
-  glVertex3fv(position);
-}
-
 const VertexFormat Vertex3fv::format("3fv");
 
 ///////////////////////////////////////////////////////////////////////
-
-void Vertex3fn3fv::send(void) const
-{
-  glNormal3fv(normal);
-  glVertex3fv(position);
-}
 
 const VertexFormat Vertex3fn3fv::format("3fn3fv");
 
@@ -347,32 +333,13 @@ const VertexFormat Vertex2fv::format("2fv");
 
 ///////////////////////////////////////////////////////////////////////
 
-void Vertex2ft2fv::send(void) const
-{
-  glTexCoord2fv(mapping);
-  glVertex2fv(position);
-}
-
 const VertexFormat Vertex2ft2fv::format("2ft2fv");
 
 ///////////////////////////////////////////////////////////////////////
 
-void Vertex2ft3fv::send(void) const
-{
-  glTexCoord2fv(mapping);
-  glVertex3fv(position);
-}
-
 const VertexFormat Vertex2ft3fv::format("2ft3fv");
 
 ///////////////////////////////////////////////////////////////////////
-
-void Vertex4fc2ft3fv::send(void) const
-{
-  glColor4fv(color);
-  glTexCoord2fv(mapping);
-  glVertex3fv(position);
-}
 
 const VertexFormat Vertex4fc2ft3fv::format("4fc2ft3fv");
 

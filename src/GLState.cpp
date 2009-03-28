@@ -27,10 +27,10 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/GLState.h>
+
 #define GLEW_STATIC
 #include <GL/glew.h>
-
-#include <wendy/GLState.h>
 
 ///////////////////////////////////////////////////////////////////////
 

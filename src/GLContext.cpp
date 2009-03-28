@@ -27,12 +27,15 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/GLContext.h>
+
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include <wendy/GLContext.h>
-
 #include <GL/glfw.h>
+
+#include <Cg/cg.h>
+#include <Cg/cgGL.h>
 
 #if MOIRA_HAVE_CTYPE_H
 #include <ctype.h>

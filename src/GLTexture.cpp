@@ -27,11 +27,11 @@
 
 #include <wendy/Config.h>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
 
 ///////////////////////////////////////////////////////////////////////
 
