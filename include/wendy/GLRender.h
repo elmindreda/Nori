@@ -50,15 +50,15 @@ using namespace moira;
 class Renderer : public Trackable, public Singleton<Renderer>
 {
 public:
-  void begin2D(const Vector2& resolution = Vector2(1.f, 1.f)) const;
+  void begin2D(const Vector2& resolution = Vector2(1.f, 1.f));
   void begin3D(float FOV = 90.f,
                float aspect = 0.f,
 	       float nearZ = 0.01f,
-	       float farZ = 1000.f) const;
-  void begin3D(const Matrix4& projection) const;
-  void end(void) const;
-  void pushTransform(const Matrix4& transform) const;
-  void popTransform(void) const;
+	       float farZ = 1000.f);
+  void begin3D(const Matrix4& projection);
+  void end(void);
+  void pushTransform(const Matrix4& transform);
+  void popTransform(void);
   /*! Allocates a range of indices of the specified type.
    *  @param[out] range The newly allocated index range.
    *  @param[in] count The number of indices to allocate.

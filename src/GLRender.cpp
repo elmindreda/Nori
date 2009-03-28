@@ -55,7 +55,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-void Renderer::begin2D(const Vector2& resolution) const
+void Renderer::begin2D(const Vector2& resolution)
 {
   Canvas* canvas = Canvas::getCurrent();
   if (!canvas)
@@ -78,7 +78,7 @@ void Renderer::begin2D(const Vector2& resolution) const
   matrixStack.push(projection);
 }
 
-void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ) const
+void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ)
 {
   Canvas* canvas = Canvas::getCurrent();
   if (!canvas)
@@ -105,7 +105,7 @@ void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ) const
   matrixStack.push(projection);
 }
 
-void Renderer::begin3D(const Matrix4& projection) const
+void Renderer::begin3D(const Matrix4& projection)
 {
   Canvas* canvas = Canvas::getCurrent();
   if (!canvas)
@@ -120,7 +120,7 @@ void Renderer::begin3D(const Matrix4& projection) const
   matrixStack.push(projection);
 }
   
-void Renderer::end(void) const
+void Renderer::end(void)
 {
   matrixStack.pop();
 
@@ -128,12 +128,12 @@ void Renderer::end(void) const
     throw Exception("Renderer matrix stack not empty after end");
 }
 
-void Renderer::pushTransform(const Matrix4& transform) const
+void Renderer::pushTransform(const Matrix4& transform)
 {
   matrixStack.push(transform);
 }
 
-void Renderer::popTransform(void) const
+void Renderer::popTransform(void)
 {
   matrixStack.pop();
 }

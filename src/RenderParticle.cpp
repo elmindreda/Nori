@@ -170,8 +170,9 @@ void ParticleSystem::enqueue(Queue& queue, const Transform3& transform) const
 
   Operation& operation = queue.createOperation();
   operation.vertexBuffer = vertices.getVertexBuffer();
-  operation.start = range.getStart();
-  operation.count = range.getCount();
+  operation.indexBuffer = indices.getIndexBuffer();
+  operation.start = indices.getStart();
+  operation.count = indices.getCount();
   operation.technique = technique;
   operation.renderMode = GL::RENDER_TRIANGLES;
 }
