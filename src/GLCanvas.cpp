@@ -26,7 +26,10 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
+
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
@@ -325,7 +328,6 @@ void TextureCanvas::finish(void) const
   TextureLayer layer(0);
   layer.setTexture(texture);
   layer.apply();
-  */
 
   if (texture->getTarget() == GL_TEXTURE_1D)
     glCopyTexSubImage1D(texture->getTarget(),
@@ -336,6 +338,7 @@ void TextureCanvas::finish(void) const
                         0, 0, 0, 0, 0,
                         texture->getPhysicalWidth(),
                         texture->getPhysicalHeight());
+  */
 }
 
 void TextureCanvas::updateScissorArea(void) const

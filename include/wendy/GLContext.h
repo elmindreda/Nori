@@ -46,6 +46,16 @@ class Context;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @defgroup opengl OpenGL wrapper API
+ *
+ *  These classes wrap parts of the OpenGL API, maintaining a rather close
+ *  mapping to the underlying concepts, but providing useful services and a
+ *  semblance of automatic resource management. They are used by most
+ *  higher-level components such as the 3D rendering pipeline.
+ */
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Screen mode.
  *  @ingroup opengl
  */
@@ -151,6 +161,7 @@ public:
   unsigned int getMaxTextureSize(void) const;
   unsigned int getMaxTextureCubeSize(void) const;
   unsigned int getMaxTextureRectangleSize(void) const;
+  unsigned int getMaxVertexAttributes(void) const;
 private:
   Context& context;
   unsigned int maxTextureCoords;
@@ -159,6 +170,7 @@ private:
   unsigned int maxTextureSize;
   unsigned int maxTextureCubeSize;
   unsigned int maxTextureRectangleSize;
+  unsigned int maxVertexAttributes;
 };
 
 ///////////////////////////////////////////////////////////////////////

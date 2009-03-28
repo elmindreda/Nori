@@ -58,13 +58,45 @@ enum CullMode
   CULL_NONE,
   /*! Cull front-facing geometry (i.e. render back-facing geometry).
    */
-  CULL_FRONT = GL_FRONT,
+  CULL_FRONT,
   /*! Cull back-facing geometry (i.e. render front-facing geometry).
    */
-  CULL_BACK = GL_BACK,
+  CULL_BACK,
   /*! Cull all cullable geometry (i.e. front and back faces).
    */
-  CULL_BOTH = GL_FRONT_AND_BACK,
+  CULL_BOTH,
+};
+
+/*! Comparison function enumeration.
+ *  @ingroup opengl
+ */
+enum Function
+{
+  ALLOW_NEVER,
+  ALLOW_ALWAYS,
+  ALLOW_EQUAL,
+  ALLOW_NOT_EQUAL,
+  ALLOW_LESSER,
+  ALLOW_LESSER_EQUAL,
+  ALLOW_GREATER,
+  ALLOW_GREATER_EQUAL,
+};
+
+/*! Blend factor enumeration.
+ *  @ingroup opengl
+ */
+enum BlendFactor
+{
+  BLEND_ZERO,
+  BLEND_ONE,
+  BLEND_SRC_COLOR,
+  BLEND_DST_COLOR,
+  BLEND_SRC_ALPHA,
+  BLEND_DST_ALPHA,
+  BLEND_ONE_MINUS_SRC_COLOR,
+  BLEND_ONE_MINUS_DST_COLOR,
+  BLEND_ONE_MINUS_SRC_ALPHA,
+  BLEND_ONE_MINUS_DST_ALPHA,
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -173,19 +205,14 @@ public:
    *  @c false.
    */
   bool isColorWriting(void) const;
+  bool isWireframe(void) const;
   bool hasSampler(const String& name) const;
   /*! @return The culling mode of this render pass.
    */
   CullMode getCullMode(void) const;
-  /*! @return The polygon rendering mode of this render pass.
-   *
-   *  @remarks The value may be @c GL_POINT, @c GL_LINE or @c GL_FILL.
-   *  @remarks This corresponds to the @c glPolygonMode command.
-   */
-  GLenum getPolygonMode(void) const;
-  GLenum getSrcFactor(void) const;
-  GLenum getDstFactor(void) const;
-  GLenum getDepthFunction(void) const;
+  BlendFactor getSrcFactor(void) const;
+  BlendFactor getDstFactor(void) const;
+  Function getDepthFunction(void) const;
   unsigned int getUniformCount(void) const;
   UniformState& getUniformState(const String& name);
   const UniformState& getUniformState(const String& name) const;
@@ -213,23 +240,15 @@ public:
   /*! Sets the depth buffer testing function for this render pass.
    *  @param function The desired depth testing function.
    */
-  void setDepthFunction(GLenum function);
+  void setDepthFunction(Function function);
   /*! Sets whether writing to the color buffer is enabled.
    *  @param enabled @c true to enable writing to the color buffer, or @c false
    *  to disable it.
    */
   void setColorWriting(bool enabled);
+  void setWireframe(bool enabled);
   void setCullMode(CullMode mode);
-  /*! Sets the polygon rendering mode of this render pass.
-   *  @param mode The desired polygon rendering mode. Possible values are:
-   *  @arg GL_POINT
-   *  @arg GL_LINE
-   *  @arg GL_FILL
-   *
-   *  @remarks This corresponds to the @c glPolygonMode command.
-   */
-  void setPolygonMode(GLenum mode);
-  void setBlendFactors(GLenum src, GLenum dst);
+  void setBlendFactors(BlendFactor src, BlendFactor dst);
   /*! Sets the shader program used by this render pass.
    *  @param[in] newProgram The desired shader program, or @c NULL to use the
    *  default shader program.
@@ -250,15 +269,15 @@ private:
     bool depthTesting;
     bool depthWriting;
     bool colorWriting;
+    bool wireframe;
     CullMode cullMode;
-    GLenum polygonMode;
-    GLenum srcFactor;
-    GLenum dstFactor;
-    GLenum depthFunction;
+    BlendFactor srcFactor;
+    BlendFactor dstFactor;
+    Function depthFunction;
     Ref<Program> program;
   };
   void force(void) const;
-  void setBooleanState(GLenum state, bool value) const;
+  void setBooleanState(unsigned int state, bool value) const;
   void destroyProgramState(void);
   typedef std::vector<UniformState*> UniformList;
   typedef std::vector<SamplerState*> SamplerList;

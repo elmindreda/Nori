@@ -26,7 +26,10 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
+
 #include <wendy/GLContext.h>
 
 #include <GL/glfw.h>
@@ -128,18 +131,16 @@ Limits::Limits(Context& initContext):
   maxVertexTextureImageUnits(0),
   maxTextureSize(0),
   maxTextureCubeSize(0),
-  maxTextureRectangleSize(0)
+  maxTextureRectangleSize(0),
+  maxVertexAttributes(0)
 {
   glGetIntegerv(GL_MAX_TEXTURE_COORDS, (GLint*) &maxTextureCoords);
   glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint*) &maxFragmentTextureImageUnits);
   glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, (GLint*) &maxVertexTextureImageUnits);
   glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxTextureSize);
-
-  if (GLEW_ARB_texture_cube_map)
-    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, (GLint*) &maxTextureCubeSize);
-
-  if (GLEW_ARB_texture_rectangle)
-    glGetIntegerv(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB, (GLint*) &maxTextureCubeSize);
+  glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB, (GLint*) &maxTextureCubeSize);
+  glGetIntegerv(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB, (GLint*) &maxTextureCubeSize);
+  glGetIntegerv(GL_MAX_VERTEX_ATTRIBS_ARB, (GLint*) maxVertexAttributes);
 }
 
 unsigned int Limits::getMaxTextureCoords(void) const
@@ -395,9 +396,21 @@ bool Context::init(const ContextMode& mode)
     return false;
   }
 
-  if (!GLEW_ARB_multitexture)
+  if (!GLEW_ARB_vertex_buffer_object)
   {
-    Log::writeError("Multitexturing (ARB_multitexture) is required but not supported");
+    Log::writeError("Vertex buffer objects (ARB_vertex_buffer_object) is required but not supported");
+    return false;
+  }
+
+  if (!GLEW_ARB_texture_cube_map)
+  {
+    Log::writeError("Cube map textures are required but not supported");
+    return false;
+  }
+
+  if (!GLEW_ARB_texture_rectangle)
+  {
+    Log::writeError("Rectangular textures are required but not supported");
     return false;
   }
 

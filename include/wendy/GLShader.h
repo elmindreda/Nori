@@ -206,6 +206,26 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+class ProgramInterface
+{
+public:
+  void addUniform(const String& name, Uniform::Type type);
+  void addSampler(const String& name, Sampler::Type type);
+  //void addAttribute(const String& name, VertexComponent::Type type, unsigned int count);
+  /*! @param[in] program The program to check against this interface.
+   *  @return @c true if this interface and the specified program has any
+   *          uniform, sampler or attribute names in common.
+   */
+  bool intersects(const Program& program) const;
+  /*! @param[in] program The program to check against this interface.
+   *  @return @c true if all uniform, sampler and attribute names and types in
+   *  this interface are present in the specified program.
+   */
+  bool conforms(const Program& program) const;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*
 class ProgramState
 {

@@ -94,7 +94,6 @@
 #include <wendy/DEBody.h>
 #include <wendy/DEWorld.h>
 
-#include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLStatistics.h>
 #include <wendy/GLTexture.h>

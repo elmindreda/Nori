@@ -82,16 +82,16 @@ public:
   {
     /*! Component elements are doubles.
      */
-    DOUBLE = GL_DOUBLE,
+    DOUBLE,
     /*! Component elements are floats.
      */
-    FLOAT = GL_FLOAT,
+    FLOAT,
     /*! Component elements are ints.
      */
-    INT = GL_INT,
+    INT,
     /*! Component elements are shorts.
      */
-    SHORT = GL_SHORT,
+    SHORT,
   };
   /*! Constructor.
    */

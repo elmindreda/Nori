@@ -26,7 +26,10 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
+
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
 
@@ -186,11 +189,6 @@ bool Texture::copyFrom(const Image& source,
 #endif
   
   return true;
-}
-
-GLenum Texture::getTarget(void) const
-{
-  return textureTarget;
 }
 
 unsigned int Texture::getSourceWidth(unsigned int level) const

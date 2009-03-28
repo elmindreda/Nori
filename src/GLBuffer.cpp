@@ -26,7 +26,10 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
+
 #include <wendy/GLContext.h>
 #include <wendy/GLStatistics.h>
 #include <wendy/GLVertex.h>
@@ -109,6 +112,44 @@ GLenum convertUsage(IndexBuffer::Usage usage)
   }
 }
 
+GLenum convertType(VertexComponent::Type type)
+{
+  switch (type)
+  {
+    case VertexComponent::DOUBLE:
+      return GL_DOUBLE;
+    case VertexComponent::FLOAT:
+      return GL_FLOAT;
+    case VertexComponent::INT:
+      return GL_INT;
+    case VertexComponent::SHORT:
+      return GL_SHORT;
+    default:
+      throw Exception("Invalid vertex component type");
+  }
+}
+
+GLenum convertRenderMode(RenderMode mode)
+{
+  switch (mode)
+  {
+    case RENDER_POINTS:
+      return GL_POINTS;
+    case RENDER_LINES:
+      return GL_LINES;
+    case RENDER_LINE_STRIP:
+      return GL_LINE_STRIP;
+    case RENDER_TRIANGLES:
+      return GL_TRIANGLES;
+    case RENDER_TRIANGLE_STRIP:
+      return GL_TRIANGLE_STRIP;
+    case RENDER_TRIANGLE_FAN:
+      return GL_TRIANGLE_FAN;
+    default:
+      throw Exception("Invalid render mode");
+  }
+}
+
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -130,12 +171,7 @@ void VertexBuffer::apply(void) const
   if (current == this)
     return;
 
-  const Byte* base = NULL;
-
-  if (bufferID)
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
-  else
-    base = data;
+  glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
 
   const VertexComponent* component;
 
@@ -144,9 +180,9 @@ void VertexBuffer::apply(void) const
   {
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(component->getElementCount(),
-                    component->getType(),
+                    convertType(component->getType()),
 		    (GLsizei) format.getSize(),
-		    base + component->getOffset());
+		    (GLvoid*) component->getOffset());
   }
   else
     glDisableClientState(GL_VERTEX_ARRAY);
@@ -156,9 +192,9 @@ void VertexBuffer::apply(void) const
   {
     glEnableClientState(GL_COLOR_ARRAY);
     glColorPointer(component->getElementCount(),
-                   component->getType(),
+                   convertType(component->getType()),
 		   (GLsizei) format.getSize(),
-		   base + component->getOffset());
+		   (GLvoid*) component->getOffset());
   }
   else
     glDisableClientState(GL_COLOR_ARRAY);
@@ -167,9 +203,9 @@ void VertexBuffer::apply(void) const
   if (component)
   {
     glEnableClientState(GL_NORMAL_ARRAY);
-    glNormalPointer(component->getType(),
+    glNormalPointer(convertType(component->getType()),
 		    (GLsizei) format.getSize(),
-		    base + component->getOffset());
+		    (GLvoid*) component->getOffset());
   }
   else
     glDisableClientState(GL_NORMAL_ARRAY);
@@ -205,9 +241,9 @@ void VertexBuffer::apply(void) const
 
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glTexCoordPointer(component->getElementCount(),
-                      component->getType(),
+                      convertType(component->getType()),
 		      (GLsizei) format.getSize(),
-		      base + component->getOffset());
+		      (GLvoid*) component->getOffset());
   }
 
   // Disable any remaining texture coordinate sets
@@ -223,7 +259,7 @@ void VertexBuffer::apply(void) const
   current = const_cast<VertexBuffer*>(this);
 }
 
-void VertexBuffer::render(unsigned int mode,
+void VertexBuffer::render(RenderMode mode,
                           unsigned int start,
                           unsigned int count) const
 {
@@ -236,7 +272,7 @@ void VertexBuffer::render(unsigned int mode,
   if (Statistics* statistics = Statistics::get())
     statistics->addPrimitives(mode, count);
 
-  glDrawArrays(mode, start, count);
+  glDrawArrays(convertRenderMode(mode), start, count);
 }
 
 void* VertexBuffer::lock(LockType type)
@@ -249,19 +285,12 @@ void* VertexBuffer::lock(LockType type)
 
   apply();
 
-  void* mapping = NULL;
-
-  if (bufferID)
+  void* mapping = glMapBufferARB(GL_ARRAY_BUFFER_ARB, convertLockType(type));
+  if (mapping == NULL)
   {
-    mapping = glMapBufferARB(GL_ARRAY_BUFFER_ARB, convertLockType(type));
-    if (mapping == NULL)
-    {
-      Log::writeError("Unable to map vertex buffer object: %s", gluErrorString(glGetError()));
-      return NULL;
-    }
+    Log::writeError("Unable to map vertex buffer object: %s", gluErrorString(glGetError()));
+    return NULL;
   }
-  else
-    mapping = data;
 
   locked = true;
   return mapping;
@@ -304,10 +333,7 @@ void VertexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsign
 
   const size_t size = format.getSize();
 
-  if (bufferID)
-    glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
-  else
-    data.copyFrom(reinterpret_cast<const Byte*>(source), sourceCount * size, start * size);
+  glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
 }
 
 void VertexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int start)
@@ -328,10 +354,7 @@ void VertexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int s
 
   const size_t size = format.getSize();
 
-  if (bufferID)
-    glGetBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
-  else
-    data.copyTo(reinterpret_cast<Byte*>(target), targetCount * size, start * size);
+  glGetBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
 }
 
 VertexBuffer::Usage VertexBuffer::getUsage(void) const
@@ -402,29 +425,24 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
     return false;
   }
 
-  if (GLEW_ARB_vertex_buffer_object)
+  // Clear any errors
+  glGetError();
+
+  glGenBuffersARB(1, &bufferID);
+
+  apply();
+
+  glBufferDataARB(GL_ARRAY_BUFFER_ARB,
+		  initCount * initFormat.getSize(),
+		  NULL,
+		  convertUsage(initUsage));
+
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
   {
-    // Clear any errors
-    glGetError();
-
-    glGenBuffersARB(1, &bufferID);
-
-    apply();
-
-    glBufferDataARB(GL_ARRAY_BUFFER_ARB,
-		    initCount * initFormat.getSize(),
-		    NULL,
-		    convertUsage(initUsage));
-
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR)
-    {
-      Log::writeWarning("Error during vertex buffer object creation: %s", gluErrorString(error));
-      return false;
-    }
+    Log::writeWarning("Error during vertex buffer object creation: %s", gluErrorString(error));
+    return false;
   }
-  else
-    data.resize(initCount * initFormat.getSize());
 
   format = initFormat;
   usage = initUsage;
@@ -472,7 +490,7 @@ VertexRange::VertexRange(VertexBuffer& initVertexBuffer,
   }
 }
 
-void VertexRange::render(unsigned int mode) const
+void VertexRange::render(RenderMode mode) const
 {
   if (!vertexBuffer || count == 0)
   {
@@ -566,7 +584,7 @@ void IndexBuffer::apply(void) const
 }
 
 void IndexBuffer::render(const VertexBuffer& vertexBuffer,
-                         unsigned int mode,
+                         RenderMode mode,
                          unsigned int start,
 			 unsigned int count) const
 {
@@ -581,12 +599,7 @@ void IndexBuffer::render(const VertexBuffer& vertexBuffer,
   if (Statistics* statistics = Statistics::get())
     statistics->addPrimitives(mode, count);
 
-  const Byte* base = NULL;
-
-  if (!bufferID)
-    base = data;
-
-  glDrawElements(mode, count, type, base + getTypeSize(type) * start);
+  glDrawElements(convertRenderMode(mode), count, type, (GLvoid*) (getTypeSize(type) * start));
 }
 
 void* IndexBuffer::lock(LockType type)
@@ -599,19 +612,12 @@ void* IndexBuffer::lock(LockType type)
 
   apply();
 
-  void* mapping = NULL;
-
-  if (bufferID)
+  void* mapping = glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, convertLockType(type));
+  if (mapping == NULL)
   {
-    mapping = glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, convertLockType(type));
-    if (mapping == NULL)
-    {
-      Log::writeError("Unable to map index buffer object: %s", gluErrorString(glGetError()));
-      return NULL;
-    }
+    Log::writeError("Unable to map index buffer object: %s", gluErrorString(glGetError()));
+    return NULL;
   }
-  else
-    mapping = data;
 
   locked = true;
   return mapping;
@@ -654,10 +660,7 @@ void IndexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsigne
 
   const size_t size = getTypeSize(type);
 
-  if (bufferID)
-    glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
-  else
-    data.copyFrom(reinterpret_cast<const Byte*>(source), sourceCount * size, start * size);
+  glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
 }
 
 void IndexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int start)
@@ -678,10 +681,7 @@ void IndexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int st
 
   const size_t size = getTypeSize(type);
 
-  if (bufferID)
-    glGetBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
-  else
-    data.copyTo(reinterpret_cast<Byte*>(target), targetCount * size, start * size);
+  glGetBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
 }
 
 IndexBuffer::Type IndexBuffer::getType(void) const
@@ -751,29 +751,24 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
     return false;
   }
 
-  if (GLEW_ARB_vertex_buffer_object)
+  // Clear any errors
+  glGetError();
+
+  glGenBuffersARB(1, &bufferID);
+
+  apply();
+
+  glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+		  initCount * getTypeSize(initType),
+		  NULL,
+		  convertUsage(initUsage));
+
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
   {
-    // Clear any errors
-    glGetError();
-
-    glGenBuffersARB(1, &bufferID);
-
-    apply();
-
-    glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-	            initCount * getTypeSize(initType),
-		    NULL,
-		    convertUsage(initUsage));
-
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR)
-    {
-      Log::writeWarning("Error during vertex buffer object creation: %s", gluErrorString(error));
-      return false;
-    }
+    Log::writeWarning("Error during vertex buffer object creation: %s", gluErrorString(error));
+    return false;
   }
-  else
-    data.resize(initCount * getTypeSize(initType));
 
   type = initType;
   usage = initUsage;
@@ -820,7 +815,7 @@ IndexRange::IndexRange(IndexBuffer& initIndexBuffer,
   }
 }
 
-void IndexRange::render(const VertexBuffer& vertexBuffer, unsigned int mode) const
+void IndexRange::render(const VertexBuffer& vertexBuffer, RenderMode mode) const
 {
   if (!indexBuffer || count == 0)
   {

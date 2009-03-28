@@ -26,7 +26,7 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLShader.h>
@@ -335,7 +335,7 @@ bool Font::init(const moira::Font& font)
     pass.setProgram(program);
     pass.setDepthTesting(false);
     pass.setDepthWriting(false);
-    pass.setBlendFactors(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    pass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
     pass.getSamplerState("texture").setTexture(texture);
 
     color = ColorRGBA::WHITE;

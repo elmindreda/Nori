@@ -280,7 +280,9 @@ protected:
 private:
   ParticleSystem(const ParticleSystem& source);
   ParticleSystem& operator = (const ParticleSystem& source);
-  bool realizeVertices(GL::VertexRange& range, const Vector3& camera) const;
+  bool realizeVertices(GL::VertexRange& vertices,
+                       GL::IndexRange& indices,
+		       const Vector3& camera) const;
   bool updateBounds;
   Time currentTime;
   Ref<Style> style;

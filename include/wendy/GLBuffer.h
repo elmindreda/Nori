@@ -55,6 +55,21 @@ enum LockType
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! Render mode enumeration.
+ *  @ingroup opengl
+ */
+enum RenderMode
+{
+  RENDER_POINTS,
+  RENDER_LINES,
+  RENDER_LINE_STRIP,
+  RENDER_TRIANGLES,
+  RENDER_TRIANGLE_STRIP,
+  RENDER_TRIANGLE_FAN,
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Vertex buffer.
  *  @ingroup opengl
  *
@@ -90,7 +105,7 @@ public:
    *  @remarks If this is not the current vertex buffer, it will be made
    *  current by a call to VertexBuffer::apply before rendering.
    */
-  void render(unsigned int mode,
+  void render(RenderMode mode,
               unsigned int start = 0,
 	      unsigned int count = 0) const;
   /*! Locks this vertex buffer for reading and writing.
@@ -148,10 +163,9 @@ private:
   bool init(const VertexFormat& format, unsigned int count, Usage usage);
   bool locked;
   VertexFormat format;
-  GLuint bufferID;
+  unsigned int bufferID;
   unsigned int count;
   Usage usage;
-  Block data;
   static VertexBuffer* current;
 };
 
@@ -179,7 +193,7 @@ public:
   /*! Renders this vertex range.
    *  @param[in] mode The desired primitive mode.
    */
-  void render(unsigned int mode) const;
+  void render(RenderMode mode) const;
   /*! Locks this vertex range into memory and returns its address.
    *  @return The base address of this vertex range, or @c NULL if an error occurred.
    */
@@ -226,13 +240,13 @@ public:
   {
     /*! Indices are of type unsigned int.
      */
-    UINT = GL_UNSIGNED_INT,
+    UINT,
     /*! Indices are of type unsigned short.
      */
-    USHORT = GL_UNSIGNED_SHORT,
+    USHORT,
     /*! Indices are of type unsigned char.
      */
-    UBYTE = GL_UNSIGNED_BYTE,
+    UBYTE,
   };
   /*! Index buffer usage hint enumeration.
    */
@@ -240,13 +254,13 @@ public:
   {
     /*! Data will be specified once and used many times.
      */
-    STATIC = GL_STATIC_DRAW_ARB,
+    STATIC,
     /*! Data will be specified once and used a few times.
      */
-    STREAM = GL_STREAM_DRAW_ARB,
+    STREAM,
     /*! Data will be repeatedly respecified and re-used.
      */
-    DYNAMIC = GL_DYNAMIC_DRAW_ARB,
+    DYNAMIC,
   };
   /*! Destructor.
    */
@@ -266,7 +280,7 @@ public:
    *  current by a call to IndexBuffer::apply before rendering.
    */
   void render(const VertexBuffer& vertexBuffer,
-              unsigned int mode,
+              RenderMode mode,
               unsigned int start = 0,
 	      unsigned int count = 0) const;
   /*! Locks this index buffer for reading and writing.
@@ -326,9 +340,8 @@ private:
   bool locked;
   Type type;
   Usage usage;
-  GLuint bufferID;
+  unsigned int bufferID;
   unsigned int count;
-  Block data;
   static IndexBuffer* current;
 };
 
@@ -356,7 +369,7 @@ public:
   /*! Renders this index range with the specied vertex buffer.
    *  @param[in] mode The desired primitive mode.
    */
-  void render(const VertexBuffer& vertexBuffer, unsigned int mode) const;
+  void render(const VertexBuffer& vertexBuffer, RenderMode mode) const;
   /*! Locks this index range into memory and returns its address.
    *  @param[in] type The desired type of lock.
    *  @return The base address of this index range, or @c NULL if an error occurred.

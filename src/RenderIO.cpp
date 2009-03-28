@@ -26,7 +26,7 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
@@ -57,12 +57,13 @@ namespace
 {
 
 Mapper<String, GL::CullMode> cullModeMap;
-Mapper<String, GLenum> polygonModeMap;
-Mapper<String, GLenum> blendFactorMap;
-Mapper<String, GLenum> functionMap;
+Mapper<String, GL::BlendFactor> blendFactorMap;
+Mapper<String, GL::Function> functionMap;
+/*
 Mapper<String, GLenum> operationMap;
 Mapper<String, GLint> filterMap;
 Mapper<String, GLint> addressModeMap;
+*/
 
 const unsigned int RENDER_STYLE_XML_VERSION = 4;
 
@@ -91,39 +92,33 @@ Style* StyleCodec::read(Stream& stream, const String& name)
     cullModeMap["both"] = GL::CULL_BOTH;
   }
 
-  if (polygonModeMap.isEmpty())
-  {
-    polygonModeMap["points"] = GL_POINT;
-    polygonModeMap["lines"] = GL_LINE;
-    polygonModeMap["faces"] = GL_FILL;
-  }
-
   if (blendFactorMap.isEmpty())
   {
-    blendFactorMap["zero"] = GL_ZERO;
-    blendFactorMap["one"] = GL_ONE;
-    blendFactorMap["src color"] = GL_SRC_COLOR;
-    blendFactorMap["dst color"] = GL_DST_COLOR;
-    blendFactorMap["src alpha"] = GL_SRC_ALPHA;
-    blendFactorMap["dst alpha"] = GL_DST_ALPHA;
-    blendFactorMap["one minus src color"] = GL_ONE_MINUS_SRC_COLOR;
-    blendFactorMap["one minus dst color"] = GL_ONE_MINUS_DST_COLOR;
-    blendFactorMap["one minus src alpha"] = GL_ONE_MINUS_SRC_ALPHA;
-    blendFactorMap["one minus dst alpha"] = GL_ONE_MINUS_DST_ALPHA;
+    blendFactorMap["zero"] = GL::BLEND_ZERO;
+    blendFactorMap["one"] = GL::BLEND_ONE;
+    blendFactorMap["src color"] = GL::BLEND_SRC_COLOR;
+    blendFactorMap["dst color"] = GL::BLEND_DST_COLOR;
+    blendFactorMap["src alpha"] = GL::BLEND_SRC_ALPHA;
+    blendFactorMap["dst alpha"] = GL::BLEND_DST_ALPHA;
+    blendFactorMap["one minus src color"] = GL::BLEND_ONE_MINUS_SRC_COLOR;
+    blendFactorMap["one minus dst color"] = GL::BLEND_ONE_MINUS_DST_COLOR;
+    blendFactorMap["one minus src alpha"] = GL::BLEND_ONE_MINUS_SRC_ALPHA;
+    blendFactorMap["one minus dst alpha"] = GL::BLEND_ONE_MINUS_DST_ALPHA;
   }
 
   if (functionMap.isEmpty())
   {
-    functionMap["never"] = GL_NEVER;
-    functionMap["always"] = GL_ALWAYS;
-    functionMap["equal"] = GL_EQUAL;
-    functionMap["not equal"] = GL_NOTEQUAL;
-    functionMap["lesser"] = GL_LESS;
-    functionMap["lesser or equal"] = GL_LEQUAL;
-    functionMap["greater"] = GL_GREATER;
-    functionMap["greater or equal"] = GL_GEQUAL;
+    functionMap["never"] = GL::ALLOW_NEVER;
+    functionMap["always"] = GL::ALLOW_ALWAYS;
+    functionMap["equal"] = GL::ALLOW_EQUAL;
+    functionMap["not equal"] = GL::ALLOW_NOT_EQUAL;
+    functionMap["lesser"] = GL::ALLOW_LESSER;
+    functionMap["lesser or equal"] = GL::ALLOW_LESSER_EQUAL;
+    functionMap["greater"] = GL::ALLOW_GREATER;
+    functionMap["greater or equal"] = GL::ALLOW_GREATER_EQUAL;
   }
 
+  /*
   if (operationMap.isEmpty())
   {
     operationMap["keep"] = GL_KEEP;
@@ -149,6 +144,7 @@ Style* StyleCodec::read(Stream& stream, const String& name)
     addressModeMap["wrap"] = GL_REPEAT;
     addressModeMap["clamp"] = GL_CLAMP;
   }
+  */
 
   currentTechnique = NULL;
   currentPass = NULL;
@@ -253,11 +249,11 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 	}
 	*/
 
-	if (pass.getPolygonMode() != defaults.getPolygonMode() ||
+	if (pass.isWireframe() != defaults.isWireframe() ||
 	    pass.getCullMode() != defaults.getCullMode())
 	{
 	  beginElement("polygon");
-	  addAttribute("mode", polygonModeMap[pass.getPolygonMode()]);
+	  addAttribute("wireframe", pass.isWireframe());
 	  addAttribute("cull", cullModeMap[pass.getCullMode()]);
 	  endElement();
 	}
@@ -456,18 +452,7 @@ bool StyleCodec::onBeginElement(const String& name)
 
 	if (name == "polygon")
 	{
-	  String polygonModeName = readString("mode");
-	  if (polygonModeName.length())
-	  {
-	    if (polygonModeMap.hasKey(polygonModeName))
-	      currentPass->setPolygonMode(polygonModeMap[polygonModeName]);
-	    else
-	    {
-	      Log::writeError("Invalid polygon mode %s",
-	                      polygonModeName.c_str());
-	      return false;
-	    }
-	  }
+	  currentPass->setWireframe(readBoolean("wireframe"));
 
 	  String cullModeName = readString("cull");
 	  if (cullModeName.length())

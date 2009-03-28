@@ -26,7 +26,7 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
 #include <wendy/GLVertex.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
@@ -158,7 +158,7 @@ bool Mesh::init(const moira::Mesh& mesh)
     if (!geometry->style)
       return false;
 
-    geometry->renderMode = GL_TRIANGLES;
+    geometry->renderMode = GL::RENDER_TRIANGLES;
     geometry->range = GL::IndexRange(*indexBuffer, indexBase, indexCount);
 
     unsigned int* indices = (unsigned int*) geometry->range.lock();
@@ -200,7 +200,7 @@ const GL::IndexRange& Mesh::Geometry::getIndexRange(void) const
   return range;
 }
 
-GLenum Mesh::Geometry::getRenderMode(void) const
+GL::RenderMode Mesh::Geometry::getRenderMode(void) const
 {
   return renderMode;
 }
@@ -312,7 +312,7 @@ void ShadowMesh::enqueue(Queue& queue, const Transform3& transform) const
 
   Operation& operation = queue.createOperation();
   operation.vertexBuffer = vertexBuffer;
-  operation.renderMode = GL_TRIANGLES;
+  operation.renderMode = GL::RENDER_TRIANGLES;
   operation.technique = technique;
   operation.count = vertexCount;
   operation.transform = transform;

@@ -26,7 +26,7 @@
 #include <moira/Moira.h>
 
 #include <wendy/Core.h>
-#include <wendy/OpenGL.h>
+
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>

@@ -26,7 +26,10 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
+
 #include <wendy/GLVertex.h>
 
 #include <cctype>

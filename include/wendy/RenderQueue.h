@@ -111,7 +111,7 @@ public:
   float distance;
   /*! The geometry rendering mode to use.
    */
-  GLenum renderMode;
+  GL::RenderMode renderMode;
 private:
   mutable bool blending;
 };

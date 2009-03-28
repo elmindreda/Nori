@@ -26,7 +26,7 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
@@ -149,9 +149,10 @@ void ParticleSystem::enqueue(Queue& queue, const Transform3& transform) const
   if (!activeParticles.size())
     return;
 
-  GL::VertexRange range;
+  GL::VertexRange vertices;
+  GL::IndexRange indices;
 
-  if (!realizeVertices(range, queue.getCamera().getTransform().position))
+  if (!realizeVertices(vertices, indices, queue.getCamera().getTransform().position))
     return;
 
   if (!style)
@@ -168,11 +169,11 @@ void ParticleSystem::enqueue(Queue& queue, const Transform3& transform) const
   }
 
   Operation& operation = queue.createOperation();
-  operation.vertexBuffer = range.getVertexBuffer();
+  operation.vertexBuffer = vertices.getVertexBuffer();
   operation.start = range.getStart();
   operation.count = range.getCount();
   operation.technique = technique;
-  operation.renderMode = GL_QUADS;
+  operation.renderMode = GL::RENDER_TRIANGLES;
 }
 
 void ParticleSystem::addEmitter(ParticleEmitter& emitter)
@@ -387,7 +388,8 @@ ParticleSystem& ParticleSystem::operator = (const ParticleSystem& source)
   return *this;
 }
 
-bool ParticleSystem::realizeVertices(GL::VertexRange& range,
+bool ParticleSystem::realizeVertices(GL::VertexRange& vertices,
+                                     GL::IndexRange& indices,
 		                     const Vector3& camera) const
 {
   GL::Renderer* renderer = GL::Renderer::get();
@@ -397,7 +399,7 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& range,
     return false;
   }
 
-  if (!renderer->allocateVertices(range,
+  if (!renderer->allocateVertices(vertices,
                                   activeParticles.size() * 4, 
 				  GL::Vertex4fc2ft3fv::format))
     return false;

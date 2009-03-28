@@ -74,9 +74,6 @@ public:
                 unsigned int x,
 		unsigned int y,
 		unsigned int level = 0);
-  /*! @return The OpenGL target of this texture.
-   */
-  GLenum getTarget(void) const;
   /*! @return The width, in pixels, of the source for specified mipmap level.
    *  @param[in] level The desired mipmap level.
    */
@@ -129,11 +126,11 @@ private:
   Texture(const Texture& source);
   bool init(const Image& image, unsigned int flags);
   Texture& operator = (const Texture& source);
-  GLenum textureTarget;
-  GLuint textureID;
-  GLint minFilter;
-  GLint magFilter;
-  GLint addressMode;
+  unsigned int textureTarget;
+  unsigned int textureID;
+  int minFilter;
+  int magFilter;
+  int addressMode;
   unsigned int sourceWidth;
   unsigned int sourceHeight;
   unsigned int sourceDepth;

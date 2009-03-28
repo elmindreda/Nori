@@ -59,8 +59,8 @@ bool Demo::init(void)
   meshNode->setMesh(mesh);
   scene.addNode(*meshNode);
 
-  if (GL::ShaderProgram* program = GL::ShaderProgram::findInstance("program"))
-    program->getPermutationAppliedSignal().connect(*this, &Demo::applied);
+  if (GL::Program* program = GL::Program::findInstance("program"))
+    program->getAppliedSignal().connect(*this, &Demo::applied);
 
   timer.start();
 
@@ -73,9 +73,9 @@ void Demo::run(void)
     ;
 }
 
-void Demo::applied(GL::ShaderPermutation& permutation)
+void Demo::applied(GL::Program& program)
 {
-  if (GL::ShaderUniform* uniform = permutation.getUniform("time"))
+  if (GL::Uniform* uniform = program.getUniform("time"))
     uniform->setValue((float) currentTime);
 }
 

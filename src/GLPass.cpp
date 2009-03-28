@@ -26,7 +26,10 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
+
 #include <wendy/GLContext.h>
 #include <wendy/GLStatistics.h>
 #include <wendy/GLTexture.h>
@@ -52,6 +55,21 @@ using namespace moira;
 namespace
 {
 
+GLenum convertCullMode(CullMode mode)
+{
+  switch (mode)
+  {
+    case CULL_FRONT:
+      return GL_FRONT;
+    case CULL_BACK:
+      return GL_BACK;
+    case CULL_BOTH:
+      return GL_FRONT_AND_BACK;
+    default:
+      throw Exception("Invalid cull mode");
+  }
+}
+
 CullMode invertCullMode(CullMode mode)
 {
   switch (mode)
@@ -66,6 +84,60 @@ CullMode invertCullMode(CullMode mode)
       return CULL_NONE;
     default:
       throw Exception("Invalid cull mode");
+  }
+}
+
+GLenum convertFunction(Function function)
+{
+  switch (function)
+  {
+    case ALLOW_NEVER:
+      return GL_NEVER;
+    case ALLOW_ALWAYS:
+      return GL_ALWAYS;
+    case ALLOW_EQUAL:
+      return GL_EQUAL;
+    case ALLOW_NOT_EQUAL:
+      return GL_NOTEQUAL;
+    case ALLOW_LESSER:
+      return GL_LESS;
+    case ALLOW_LESSER_EQUAL:
+      return GL_LEQUAL;
+    case ALLOW_GREATER:
+      return GL_GREATER;
+    case ALLOW_GREATER_EQUAL:
+      return GL_GEQUAL;
+    default:
+      throw Exception("Invalid function");
+  }
+}
+
+GLenum convertBlendFactor(BlendFactor factor)
+{
+  switch (factor)
+  {
+    case BLEND_ZERO:
+      return GL_ZERO;
+    case BLEND_ONE:
+      return GL_ONE;
+    case BLEND_SRC_COLOR:
+      return GL_SRC_COLOR;
+    case BLEND_DST_COLOR:
+      return GL_DST_COLOR;
+    case BLEND_SRC_ALPHA:
+      return GL_SRC_ALPHA;
+    case BLEND_DST_ALPHA:
+      return GL_DST_ALPHA;
+    case BLEND_ONE_MINUS_SRC_COLOR:
+      return GL_ONE_MINUS_SRC_COLOR;
+    case BLEND_ONE_MINUS_DST_COLOR:
+      return GL_ONE_MINUS_DST_COLOR;
+    case BLEND_ONE_MINUS_SRC_ALPHA:
+      return GL_ONE_MINUS_SRC_ALPHA;
+    case BLEND_ONE_MINUS_DST_ALPHA:
+      return GL_ONE_MINUS_DST_ALPHA;
+    default:
+      throw Exception("Invalid blend factor");
   }
 }
 
@@ -310,26 +382,20 @@ void Pass::apply(void) const
       setBooleanState(GL_CULL_FACE, cullMode != CULL_NONE);
 
     if (cullMode != CULL_NONE)
-      glCullFace(cullMode);
+      glCullFace(convertCullMode(cullMode));
       
     cache.cullMode = cullMode;
   }
 
   if (data.srcFactor != cache.srcFactor || data.dstFactor != cache.dstFactor)
   {
-    setBooleanState(GL_BLEND, data.srcFactor != GL_ONE || data.dstFactor != GL_ZERO);
+    setBooleanState(GL_BLEND, data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO);
 
-    if (data.srcFactor != GL_ONE || data.dstFactor != GL_ZERO)
-      glBlendFunc(data.srcFactor, data.dstFactor);
+    if (data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO)
+      glBlendFunc(convertBlendFactor(data.srcFactor), convertBlendFactor(data.dstFactor));
     
     cache.srcFactor = data.srcFactor;
     cache.dstFactor = data.dstFactor;
-  }
-
-  if (data.polygonMode != cache.polygonMode)
-  {
-    glPolygonMode(GL_FRONT_AND_BACK, data.polygonMode);
-    cache.polygonMode = data.polygonMode;
   }
 
   if (data.depthTesting || data.depthWriting)
@@ -343,7 +409,7 @@ void Pass::apply(void) const
       // Set depth buffer function.
       if (data.depthFunction != cache.depthFunction)
       {
-        glDepthFunc(data.depthFunction);
+        glDepthFunc(convertFunction(data.depthFunction));
         cache.depthFunction = data.depthFunction;
       }
     }
@@ -351,11 +417,11 @@ void Pass::apply(void) const
     {
       // NOTE: Special case; depth buffer filling.
       //       Set specific depth buffer function.
-      const GLenum depthFunction = GL_ALWAYS;
+      const Function depthFunction = ALLOW_ALWAYS;
 
       if (cache.depthFunction != depthFunction)
       {
-        glDepthFunc(depthFunction);
+        glDepthFunc(convertFunction(depthFunction));
         cache.depthFunction = depthFunction;
       }
     }
@@ -377,6 +443,13 @@ void Pass::apply(void) const
     const GLboolean state = data.colorWriting ? GL_TRUE : GL_FALSE;
     glColorMask(state, state, state, state);
     cache.colorWriting = data.colorWriting;
+  }
+
+  if (data.wireframe != cache.wireframe)
+  {
+    const GLenum state = data.wireframe ? GL_LINE : GL_FILL;
+    glPolygonMode(GL_FRONT_AND_BACK, state);
+    cache.wireframe = data.wireframe;
   }
   
   if (data.program)
@@ -418,7 +491,7 @@ bool Pass::isCulling(void) const
 
 bool Pass::isBlending(void) const
 {
-  return data.srcFactor != GL_ONE || data.dstFactor != GL_ZERO;
+  return data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO;
 }
 
 bool Pass::isDepthTesting(void) const
@@ -436,27 +509,27 @@ bool Pass::isColorWriting(void) const
   return data.colorWriting;
 }
 
+bool Pass::isWireframe(void) const
+{
+  return data.wireframe;
+}
+
 CullMode Pass::getCullMode(void) const
 {
   return data.cullMode;
 }
 
-GLenum Pass::getPolygonMode(void) const
-{
-  return data.polygonMode;
-}
-
-GLenum Pass::getSrcFactor(void) const
+BlendFactor Pass::getSrcFactor(void) const
 {
   return data.srcFactor;
 }
 
-GLenum Pass::getDstFactor(void) const
+BlendFactor Pass::getDstFactor(void) const
 {
   return data.dstFactor;
 }
 
-GLenum Pass::getDepthFunction(void) const
+Function Pass::getDepthFunction(void) const
 {
   return data.depthFunction;
 }
@@ -567,20 +640,14 @@ void Pass::setCullMode(CullMode mode)
   data.dirty = true;
 }
 
-void Pass::setPolygonMode(GLenum mode)
-{
-  data.polygonMode = mode;
-  data.dirty = true;
-}
-
-void Pass::setBlendFactors(GLenum src, GLenum dst)
+void Pass::setBlendFactors(BlendFactor src, BlendFactor dst)
 {
   data.srcFactor = src;
   data.dstFactor = dst;
   data.dirty = true;
 }
 
-void Pass::setDepthFunction(GLenum function)
+void Pass::setDepthFunction(Function function)
 {
   data.depthFunction = function;
   data.dirty = true;
@@ -589,6 +656,12 @@ void Pass::setDepthFunction(GLenum function)
 void Pass::setColorWriting(bool enabled)
 {
   data.colorWriting = enabled;
+  data.dirty = true;
+}
+
+void Pass::setWireframe(bool enabled)
+{
+  data.wireframe = enabled;
   data.dirty = true;
 }
 
@@ -632,13 +705,11 @@ void Pass::force(void) const
 
   setBooleanState(GL_CULL_FACE, cullMode != CULL_NONE);
   if (cullMode != CULL_NONE)
-    glCullFace(cullMode);
+    glCullFace(convertCullMode(cullMode));
 
-  setBooleanState(GL_BLEND, data.srcFactor != GL_ONE || data.dstFactor != GL_ZERO);
-  glBlendFunc(data.srcFactor, data.dstFactor);
+  setBooleanState(GL_BLEND, data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO);
+  glBlendFunc(convertBlendFactor(data.srcFactor), convertBlendFactor(data.dstFactor));
   
-  glPolygonMode(GL_FRONT_AND_BACK, data.polygonMode);
-
   unsigned int height;
 
   if (Canvas* canvas = Canvas::getCurrent())
@@ -651,15 +722,18 @@ void Pass::force(void) const
 
   if (data.depthWriting && !data.depthTesting)
   {
-    const GLenum depthFunction = GL_ALWAYS;
-    glDepthFunc(depthFunction);
+    const Function depthFunction = ALLOW_ALWAYS;
+    glDepthFunc(convertFunction(depthFunction));
     cache.depthFunction = depthFunction;
   }
   else
-    glDepthFunc(data.depthFunction);
+    glDepthFunc(convertFunction(data.depthFunction));
 
   const GLboolean state = data.colorWriting ? GL_TRUE : GL_FALSE;
   glColorMask(state, state, state, state);
+
+  const GLenum polygonMode = data.wireframe ? GL_LINE : GL_FILL;
+  glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
 
   if (data.program)
     data.program->apply();
@@ -677,7 +751,7 @@ void Pass::force(void) const
   cache.dirty = data.dirty = false;
 }
 
-void Pass::setBooleanState(GLenum state, bool value) const
+void Pass::setBooleanState(unsigned int state, bool value) const
 {
   if (value)
     glEnable(state);
@@ -717,11 +791,11 @@ void Pass::Data::setDefaults(void)
   depthTesting = true;
   depthWriting = true;
   colorWriting = true;
+  wireframe = false;
   cullMode = CULL_BACK;
-  polygonMode = GL_FILL;
-  srcFactor = GL_ONE;
-  dstFactor = GL_ZERO;
-  depthFunction = GL_LESS;
+  srcFactor = BLEND_ONE;
+  dstFactor = BLEND_ZERO;
+  depthFunction = ALLOW_LESSER;
   program = NULL;
 }
 
