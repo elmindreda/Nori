@@ -105,6 +105,7 @@ private:
   VertexBufferList vertexBuffers;
   Ref<Texture> defaultTexture;
   Ref<Program> defaultProgram;
+  MatrixStack4 matrixStack;
 };
 
 ///////////////////////////////////////////////////////////////////////

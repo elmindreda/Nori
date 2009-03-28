@@ -64,15 +64,18 @@ void Renderer::begin2D(const Vector2& resolution) const
     return;
   }
 
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  gluOrtho2D(0.f, resolution.x, 0.f, resolution.y);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  glPopAttrib();
+  if (!matrixStack.isEmpty())
+    throw Exception("Renderer matrix stack not empty at begin");
+
+  Matrix4 projection;
+  projection.x.x = 2.f / resolution.x;
+  projection.y.y = 2.f / resolution.y;
+  projection.z.z = -1.f;
+  projection.w.x = -1.f;
+  projection.w.y = -1.f;
+  projection.w.w = 1.f;
+
+  matrixStack.push(projection);
 }
 
 void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ) const
@@ -84,18 +87,22 @@ void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ) const
     return;
   }
 
+  if (!matrixStack.isEmpty())
+    throw Exception("Renderer matrix stack not empty at begin");
+
   if (aspect == 0.f)
     aspect = (float) canvas->getPhysicalWidth() / (float) canvas->getPhysicalHeight();
 
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  gluPerspective(FOV, aspect, nearZ, farZ);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  glPopAttrib();
+  const float f = 1.f / tanf(FOV / 2.f);
+
+  Matrix4 projection;
+  projection.x.x = f / aspect;
+  projection.y.y = f;
+  projection.z.z = (farZ + nearZ) / (nearZ - farZ);
+  projection.z.w = -1.f;
+  projection.w.z = (2.f * farZ * nearZ) / (nearZ - farZ);
+
+  matrixStack.push(projection);
 }
 
 void Renderer::begin3D(const Matrix4& projection) const
@@ -107,42 +114,28 @@ void Renderer::begin3D(const Matrix4& projection) const
     return;
   }
 
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  glMultMatrixf(projection);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  glPopAttrib();
+  if (!matrixStack.isEmpty())
+    throw Exception("Renderer matrix stack not empty at begin");
+
+  matrixStack.push(projection);
 }
   
 void Renderer::end(void) const
 {
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-  glPopAttrib();
+  matrixStack.pop();
+
+  if (!matrixStack.isEmpty())
+    throw Exception("Renderer matrix stack not empty after end");
 }
 
 void Renderer::pushTransform(const Matrix4& transform) const
 {
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glMultMatrixf(transform);
-  glPopAttrib();
+  matrixStack.push(transform);
 }
 
 void Renderer::popTransform(void) const
 {
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-  glPopAttrib();
+  matrixStack.pop();
 }
 
 bool Renderer::allocateIndices(IndexRange& range,
