@@ -28,6 +28,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/GLContext.h>
+#include <wendy/GLStatistics.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
@@ -53,6 +54,67 @@ using namespace moira;
 
 namespace
 {
+
+GLenum convertCullMode(CullMode mode)
+{
+  switch (mode)
+  {
+    case CULL_FRONT:
+      return GL_FRONT;
+    case CULL_BACK:
+      return GL_BACK;
+    case CULL_BOTH:
+      return GL_FRONT_AND_BACK;
+    default:
+      throw Exception("Invalid cull mode");
+  }
+}
+
+CullMode invertCullMode(CullMode mode)
+{
+  switch (mode)
+  {
+    case CULL_NONE:
+      return CULL_BOTH;
+    case CULL_FRONT:
+      return CULL_BACK;
+    case CULL_BACK:
+      return CULL_FRONT;
+    case CULL_BOTH:
+      return CULL_NONE;
+    default:
+      throw Exception("Invalid cull mode");
+  }
+}
+
+GLenum convertBlendFactor(BlendFactor factor)
+{
+  switch (factor)
+  {
+    case BLEND_ZERO:
+      return GL_ZERO;
+    case BLEND_ONE:
+      return GL_ONE;
+    case BLEND_SRC_COLOR:
+      return GL_SRC_COLOR;
+    case BLEND_DST_COLOR:
+      return GL_DST_COLOR;
+    case BLEND_SRC_ALPHA:
+      return GL_SRC_ALPHA;
+    case BLEND_DST_ALPHA:
+      return GL_DST_ALPHA;
+    case BLEND_ONE_MINUS_SRC_COLOR:
+      return GL_ONE_MINUS_SRC_COLOR;
+    case BLEND_ONE_MINUS_DST_COLOR:
+      return GL_ONE_MINUS_DST_COLOR;
+    case BLEND_ONE_MINUS_SRC_ALPHA:
+      return GL_ONE_MINUS_SRC_ALPHA;
+    case BLEND_ONE_MINUS_DST_ALPHA:
+      return GL_ONE_MINUS_DST_ALPHA;
+    default:
+      throw Exception("Invalid blend factor");
+  }
+}
 
 GLenum convertFunction(Function function)
 {
@@ -188,8 +250,6 @@ inline bool NameComparator<SamplerState>::operator () (const SamplerState* objec
 
 void StencilState::apply(void) const
 {
-  // NOTE: Yes, I know this is huge.  You don't need to point it out.
-
   if (cache.dirty)
   {
     force();
@@ -505,7 +565,7 @@ void ProgramState::apply(void) const
     for (SamplerList::const_iterator i = samplers.begin();  i != samplers.end();  i++)
       (**i).apply();
 
-    GL::Renderer::get()->setProgram(program);
+    GL::Renderer::get()->setCurrentProgram(program);
   }
 }
 
@@ -620,6 +680,290 @@ void ProgramState::destroyProgramState(void)
     delete samplers.back();
     samplers.pop_back();
   }
+}
+
+///////////////////////////////////////////////////////////////////////
+
+void RenderState::apply(void) const
+{
+  if (Statistics* statistics = Statistics::get())
+    statistics->addPasses(1);
+
+  if (cache.dirty)
+  {
+    force();
+    return;
+  }
+  
+  CullMode cullMode = data.cullMode;
+  if (cullingInverted)
+    cullMode = invertCullMode(cullMode);
+
+  if (cullMode != cache.cullMode)
+  {
+    if ((cullMode == CULL_NONE) != (cache.cullMode == CULL_NONE))
+      setBooleanState(GL_CULL_FACE, cullMode != CULL_NONE);
+
+    if (cullMode != CULL_NONE)
+      glCullFace(convertCullMode(cullMode));
+      
+    cache.cullMode = cullMode;
+  }
+
+  if (data.srcFactor != cache.srcFactor || data.dstFactor != cache.dstFactor)
+  {
+    setBooleanState(GL_BLEND, data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO);
+
+    if (data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO)
+      glBlendFunc(convertBlendFactor(data.srcFactor), convertBlendFactor(data.dstFactor));
+    
+    cache.srcFactor = data.srcFactor;
+    cache.dstFactor = data.dstFactor;
+  }
+
+  if (data.depthTesting || data.depthWriting)
+  {
+    // Set depth buffer writing.
+    if (data.depthWriting != cache.depthWriting)
+      glDepthMask(data.depthWriting ? GL_TRUE : GL_FALSE);
+
+    if (data.depthTesting)
+    {
+      // Set depth buffer function.
+      if (data.depthFunction != cache.depthFunction)
+      {
+        glDepthFunc(convertFunction(data.depthFunction));
+        cache.depthFunction = data.depthFunction;
+      }
+    }
+    else if (data.depthWriting)
+    {
+      // NOTE: Special case; depth buffer filling.
+      //       Set specific depth buffer function.
+      const Function depthFunction = ALLOW_ALWAYS;
+
+      if (cache.depthFunction != depthFunction)
+      {
+        glDepthFunc(convertFunction(depthFunction));
+        cache.depthFunction = depthFunction;
+      }
+    }
+
+    if (!(cache.depthTesting || cache.depthWriting))
+      glEnable(GL_DEPTH_TEST);
+  }
+  else
+  {
+    if (cache.depthTesting || cache.depthWriting)
+      glDisable(GL_DEPTH_TEST);
+  }
+
+  cache.depthTesting = data.depthTesting;
+  cache.depthWriting = data.depthWriting;
+
+  if (data.colorWriting != cache.colorWriting)
+  {
+    const GLboolean state = data.colorWriting ? GL_TRUE : GL_FALSE;
+    glColorMask(state, state, state, state);
+    cache.colorWriting = data.colorWriting;
+  }
+
+  if (data.wireframe != cache.wireframe)
+  {
+    const GLenum state = data.wireframe ? GL_LINE : GL_FILL;
+    glPolygonMode(GL_FRONT_AND_BACK, state);
+    cache.wireframe = data.wireframe;
+  }
+  
+#if _DEBUG
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+    Log::writeError("Error when applying render state: %s", gluErrorString(error));
+#endif
+
+  data.dirty = false;
+}
+
+bool RenderState::isCulling(void) const
+{
+  return data.cullMode != CULL_NONE;
+}
+
+bool RenderState::isBlending(void) const
+{
+  return data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO;
+}
+
+bool RenderState::isDepthTesting(void) const
+{
+  return data.depthTesting;
+}
+
+bool RenderState::isDepthWriting(void) const
+{
+  return data.depthWriting;
+}
+
+bool RenderState::isColorWriting(void) const
+{
+  return data.colorWriting;
+}
+
+bool RenderState::isWireframe(void) const
+{
+  return data.wireframe;
+}
+
+CullMode RenderState::getCullMode(void) const
+{
+  return data.cullMode;
+}
+
+BlendFactor RenderState::getSrcFactor(void) const
+{
+  return data.srcFactor;
+}
+
+BlendFactor RenderState::getDstFactor(void) const
+{
+  return data.dstFactor;
+}
+
+Function RenderState::getDepthFunction(void) const
+{
+  return data.depthFunction;
+}
+
+void RenderState::setDepthTesting(bool enable)
+{
+  data.depthTesting = enable;
+  data.dirty = true;
+}
+
+void RenderState::setDepthWriting(bool enable)
+{
+  data.depthWriting = enable;
+  data.dirty = true;
+}
+
+void RenderState::setCullMode(CullMode mode)
+{
+  data.cullMode = mode;
+  data.dirty = true;
+}
+
+void RenderState::setBlendFactors(BlendFactor src, BlendFactor dst)
+{
+  data.srcFactor = src;
+  data.dstFactor = dst;
+  data.dirty = true;
+}
+
+void RenderState::setDepthFunction(Function function)
+{
+  data.depthFunction = function;
+  data.dirty = true;
+}
+
+void RenderState::setColorWriting(bool enabled)
+{
+  data.colorWriting = enabled;
+  data.dirty = true;
+}
+
+void RenderState::setWireframe(bool enabled)
+{
+  data.wireframe = enabled;
+  data.dirty = true;
+}
+
+void RenderState::setDefaults(void)
+{
+  data.setDefaults();
+}
+
+bool RenderState::isCullingInverted(void)
+{
+  return cullingInverted;
+}
+
+void RenderState::setCullingInversion(bool newState)
+{
+  cullingInverted = newState;
+}
+
+void RenderState::force(void) const
+{
+  cache = data;
+
+  CullMode cullMode = data.cullMode;
+  if (cullingInverted)
+    cullMode = invertCullMode(cullMode);
+
+  setBooleanState(GL_CULL_FACE, cullMode != CULL_NONE);
+  if (cullMode != CULL_NONE)
+    glCullFace(convertCullMode(cullMode));
+
+  setBooleanState(GL_BLEND, data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO);
+  glBlendFunc(convertBlendFactor(data.srcFactor), convertBlendFactor(data.dstFactor));
+  
+  glDepthMask(data.depthWriting ? GL_TRUE : GL_FALSE);
+  setBooleanState(GL_DEPTH_TEST, data.depthTesting || data.depthWriting);
+
+  if (data.depthWriting && !data.depthTesting)
+  {
+    const Function depthFunction = ALLOW_ALWAYS;
+    glDepthFunc(convertFunction(depthFunction));
+    cache.depthFunction = depthFunction;
+  }
+  else
+    glDepthFunc(convertFunction(data.depthFunction));
+
+  const GLboolean state = data.colorWriting ? GL_TRUE : GL_FALSE;
+  glColorMask(state, state, state, state);
+
+  const GLenum polygonMode = data.wireframe ? GL_LINE : GL_FILL;
+  glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
+
+#if _DEBUG
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+    Log::writeWarning("Error when forcing render pass: %s", gluErrorString(error));
+#endif
+
+  cache.dirty = data.dirty = false;
+}
+
+void RenderState::setBooleanState(unsigned int state, bool value) const
+{
+  if (value)
+    glEnable(state);
+  else
+    glDisable(state);
+}
+
+RenderState::Data RenderState::cache;
+
+bool RenderState::cullingInverted = false;
+
+///////////////////////////////////////////////////////////////////////
+
+RenderState::Data::Data(void)
+{
+  setDefaults();
+}
+
+void RenderState::Data::setDefaults(void)
+{
+  dirty = true;
+  depthTesting = true;
+  depthWriting = true;
+  colorWriting = true;
+  wireframe = false;
+  cullMode = CULL_BACK;
+  srcFactor = BLEND_ONE;
+  dstFactor = BLEND_ZERO;
+  depthFunction = ALLOW_LESSER;
 }
 
 ///////////////////////////////////////////////////////////////////////

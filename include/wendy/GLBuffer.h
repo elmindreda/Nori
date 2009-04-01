@@ -349,12 +349,14 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Geometric primitive range.
+ *  @ingroup opengl
+ */
 class PrimitiveRange
 {
 public:
   PrimitiveRange(void);
-  PrimitiveRange(PrimitiveType type,
-                 VertexBuffer& vertexBuffer);
+  PrimitiveRange(PrimitiveType type, VertexBuffer& vertexBuffer);
   PrimitiveRange(PrimitiveType type,
                  VertexBuffer& vertexBuffer,
                  IndexBuffer& indexBuffer);

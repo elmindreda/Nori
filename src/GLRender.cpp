@@ -177,7 +177,7 @@ bool Renderer::allocateIndices(IndexRange& range,
 
   IndexBufferSlot* slot = NULL;
 
-  for (IndexBufferList::iterator i = indexBuffers.begin();  i != indexBuffers.end();  i++)
+  for (IndexBufferList::iterator i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
   {
     if ((*i).indexBuffer->getType() == type && (*i).available >= count)
     {
@@ -188,10 +188,11 @@ bool Renderer::allocateIndices(IndexRange& range,
 
   if (!slot)
   {
-    indexBuffers.push_back(IndexBufferSlot());
-    slot = &(indexBuffers.back());
+    indexBufferPool.push_back(IndexBufferSlot());
+    slot = &(indexBufferPool.back());
 
     // Granularity of 1K
+    // TODO: Make configurable or autoconfigured
     const unsigned int actualCount = 1024 * ((count + 1023) / 1024);
 
     slot->indexBuffer = IndexBuffer::createInstance(actualCount,
@@ -199,7 +200,7 @@ bool Renderer::allocateIndices(IndexRange& range,
 						    IndexBuffer::DYNAMIC);
     if (!slot->indexBuffer)
     {
-      indexBuffers.pop_back();
+      indexBufferPool.pop_back();
       return false;
     }
 
@@ -226,7 +227,7 @@ bool Renderer::allocateVertices(VertexRange& range,
 
   VertexBufferSlot* slot = NULL;
 
-  for (VertexBufferList::iterator i = vertexBuffers.begin();  i != vertexBuffers.end();  i++)
+  for (VertexBufferList::iterator i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
   {
     if ((*i).vertexBuffer->getFormat() == format && (*i).available >= count)
     {
@@ -237,10 +238,11 @@ bool Renderer::allocateVertices(VertexRange& range,
 
   if (!slot)
   {
-    vertexBuffers.push_back(VertexBufferSlot());
-    slot = &(vertexBuffers.back());
+    vertexBufferPool.push_back(VertexBufferSlot());
+    slot = &(vertexBufferPool.back());
 
     // Granularity of 1K
+    // TODO: Make configurable or autoconfigured
     const unsigned int actualCount = 1024 * ((count + 1023) / 1024);
     
     slot->vertexBuffer = VertexBuffer::createInstance(actualCount,
@@ -248,7 +250,7 @@ bool Renderer::allocateVertices(VertexRange& range,
 						      VertexBuffer::DYNAMIC);
     if (!slot->vertexBuffer)
     {
-      vertexBuffers.pop_back();
+      vertexBufferPool.pop_back();
       return false;
     }
 
@@ -263,9 +265,49 @@ bool Renderer::allocateVertices(VertexRange& range,
   return true;
 }
 
-bool Renderer::create(void)
+bool Renderer::isReservedUniform(const String& name) const
 {
-  Ptr<Renderer> renderer = new Renderer();
+  return name == "MVP";
+}
+
+Context& Renderer::getContext(void) const
+{
+  return context;
+}
+
+Canvas* Renderer::getCurrentCanvas(void) const
+{
+  return currentCanvas;
+}
+
+Texture& Renderer::getDefaultTexture(void) const
+{
+  return *defaultTexture;
+}
+
+Program& Renderer::getDefaultProgram(void) const
+{
+  return *defaultProgram;
+}
+
+void Renderer::setCurrentCanvas(Canvas* newCanvas)
+{
+  currentCanvas = newCanvas;
+}
+
+void Renderer::setCurrentProgram(Program* newProgram)
+{
+  currentProgram = newProgram;
+}
+
+void Renderer::setCurrentPrimitiveRange(const PrimitiveRange& newRange)
+{
+  currentRange = newRange;
+}
+
+bool Renderer::create(Context& context)
+{
+  Ptr<Renderer> renderer = new Renderer(context);
   if (!renderer->init())
     return false;
 
@@ -273,15 +315,12 @@ bool Renderer::create(void)
   return true;
 }
 
-Renderer::Renderer(void)
+Renderer::Renderer(Context& initContext):
+  context(initContext),
+  currentCanvas(NULL),
+  currentVertexBuffer(NULL),
+  currentIndexBuffer(NULL)
 {
-  static bool initialized = false;
-
-  if (!initialized)
-  {
-    Context::getDestroySignal().connect(onContextDestroy);
-    initialized = true;
-  }
 }
 
 bool Renderer::init(void)
@@ -317,20 +356,11 @@ bool Renderer::init(void)
 
 void Renderer::onContextFinish(void)
 {
-  for (IndexBufferList::iterator i = indexBuffers.begin();  i != indexBuffers.end();  i++)
+  for (IndexBufferList::iterator i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
     (*i).available = (*i).indexBuffer->getCount();
 
-  for (VertexBufferList::iterator i = vertexBuffers.begin();  i != vertexBuffers.end();  i++)
+  for (VertexBufferList::iterator i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
     (*i).available = (*i).vertexBuffer->getCount();
-}
-
-void Renderer::onContextDestroy(void)
-{
-  if (get())
-  {
-    Log::writeWarning("Renderer not explicitly destroyed before context destruction");
-    destroy();
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////

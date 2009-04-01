@@ -41,6 +41,10 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+class Canvas;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief The renderer singleton.
  *  @ingroup renderer
  *
@@ -58,8 +62,7 @@ public:
   void end(void);
   void pushTransform(const Matrix4& transform);
   void popTransform(void);
-  void setProgram(Program* newProgam);
-  void render(const PrimitiveRange& range);
+  void render(void);
   /*! Allocates a range of indices of the specified type.
    *  @param[out] range The newly allocated index range.
    *  @param[in] count The number of indices to allocate.
@@ -80,12 +83,17 @@ public:
   bool allocateVertices(VertexRange& range,
 			unsigned int count,
                         const VertexFormat& format);
-  bool isEngineUniform(const String& name) const;
+  bool isReservedUniform(const String& name) const;
+  Context& getContext(void) const;
+  Canvas* getCurrentCanvas(void) const;
   Texture& getDefaultTexture(void) const;
   Program& getDefaultProgram(void) const;
+  void setCurrentCanvas(Canvas* newCanvas);
+  void setCurrentProgram(Program* newProgram);
+  void setCurrentPrimitiveRange(const PrimitiveRange& newRange);
   /*! Creates the renderer singleton.
    */
-  static bool create(void);
+  static bool create(Context& context);
 private:
   struct IndexBufferSlot
   {
@@ -97,20 +105,22 @@ private:
     Ptr<VertexBuffer> vertexBuffer;
     unsigned int available;
   };
-  Renderer(void);
+  Renderer(Context& context);
   bool init(void);
   void onContextFinish(void);
-  static void onContextDestroy(void);
   typedef std::list<IndexBufferSlot> IndexBufferList;
   typedef std::list<VertexBufferSlot> VertexBufferList;
-  IndexBufferList indexBuffers;
-  VertexBufferList vertexBuffers;
+  Context& context;
+  MatrixStack4 matrixStack;
+  IndexBufferList indexBufferPool;
+  VertexBufferList vertexBufferPool;
+  Canvas* currentCanvas;
   VertexBuffer* currentVertexBuffer;
   IndexBuffer* currentIndexBuffer;
   Ref<Program> currentProgram;
+  PrimitiveRange currentRange;
   Ref<Texture> defaultTexture;
   Ref<Program> defaultProgram;
-  MatrixStack4 matrixStack;
 };
 
 ///////////////////////////////////////////////////////////////////////

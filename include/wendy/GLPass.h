@@ -48,46 +48,6 @@ class Program;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Cull mode enumeration.
- *  @ingroup opengl
- */
-enum CullMode
-{
-  /*! Do not cull any geometry.
-   */
-  CULL_NONE,
-  /*! Cull front-facing geometry (i.e. render back-facing geometry).
-   */
-  CULL_FRONT,
-  /*! Cull back-facing geometry (i.e. render front-facing geometry).
-   */
-  CULL_BACK,
-  /*! Cull all cullable geometry (i.e. front and back faces).
-   */
-  CULL_BOTH,
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! Blend factor enumeration.
- *  @ingroup opengl
- */
-enum BlendFactor
-{
-  BLEND_ZERO,
-  BLEND_ONE,
-  BLEND_SRC_COLOR,
-  BLEND_DST_COLOR,
-  BLEND_SRC_ALPHA,
-  BLEND_DST_ALPHA,
-  BLEND_ONE_MINUS_SRC_COLOR,
-  BLEND_ONE_MINUS_DST_COLOR,
-  BLEND_ONE_MINUS_SRC_ALPHA,
-  BLEND_ONE_MINUS_DST_ALPHA,
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Render pass state object.
  *  @ingroup opengl
  *
@@ -101,7 +61,7 @@ enum BlendFactor
  *
  *  @remarks Yes, it's big.
  */
-class Pass : public ProgramState
+class Pass : public ProgramState, public RenderState
 {
 public:
   /*! Constructor.
@@ -109,92 +69,14 @@ public:
   Pass(const String& name = "");
   /*! Destructor.
    */
-  ~Pass(void);
-  /*! Applies the settings in this render pass to OpenGL and stores them in the
-   *  internal cache.
-   *
-   *  @remarks If the cache is dirty, all relevant OpenGL states will be forced
-   *  to known values and the cache will then be considered clean.
-   */
   void apply(void) const;
   bool isCompatible(void) const;
-  /*! @return @c true if this render pass uses any form of culling, otherwise
-   *  @c false.
-   */
-  bool isCulling(void) const;
-  /*! @return @c true if this render pass uses any form of blending with the
-   *  framebuffer, otherwise @c false.
-   */
-  bool isBlending(void) const;
-  /*! @return @c true if this render pass uses depth buffer testing, otherwise
-   *  @c false.
-   */
-  bool isDepthTesting(void) const;
-  /*! @return @c true if this render pass writes to the depth buffer, otherwise
-   *  @c false.
-   */
-  bool isDepthWriting(void) const;
-  /*! @return @c true if this render pass writes to the color buffer, otherwise
-   *  @c false.
-   */
-  bool isColorWriting(void) const;
-  bool isWireframe(void) const;
-  /*! @return The culling mode of this render pass.
-   */
-  CullMode getCullMode(void) const;
-  BlendFactor getSrcFactor(void) const;
-  BlendFactor getDstFactor(void) const;
-  Function getDepthFunction(void) const;
   const String& getName(void) const;
-  /*! Sets whether this render pass uses depth buffer testing.
-   *  @param enable Set to @c true to enable depth buffer testing, or @c false
-   *  to disable it.
-   */
-  void setDepthTesting(bool enable);
-  /*! Sets whether this render pass writes to the depth buffer.
-   *  @param enable Set to @c true to enable depth buffer writing, or @c false
-   *  to disable it.
-   */
-  void setDepthWriting(bool enable);
-  /*! Sets the depth buffer testing function for this render pass.
-   *  @param function The desired depth testing function.
-   */
-  void setDepthFunction(Function function);
-  /*! Sets whether writing to the color buffer is enabled.
-   *  @param enabled @c true to enable writing to the color buffer, or @c false
-   *  to disable it.
-   */
-  void setColorWriting(bool enabled);
-  void setWireframe(bool enabled);
-  void setCullMode(CullMode mode);
-  void setBlendFactors(BlendFactor src, BlendFactor dst);
   /*! Resets all values in this render pass to their defaults.
    */
   void setDefaults(void);
-  static bool isCullingInverted(void);
-  static void setCullingInversion(bool newState);
 private:
-  class Data
-  {
-  public:
-    Data(void);
-    void setDefaults(void);
-    mutable bool dirty;
-    bool depthTesting;
-    bool depthWriting;
-    bool colorWriting;
-    bool wireframe;
-    CullMode cullMode;
-    BlendFactor srcFactor;
-    BlendFactor dstFactor;
-    Function depthFunction;
-  };
-  void force(void) const;
-  void setBooleanState(unsigned int state, bool value) const;
-  Data data;
   String name;
-  static Data cache;
-  static bool cullingInverted;
 };
 
 ///////////////////////////////////////////////////////////////////////
