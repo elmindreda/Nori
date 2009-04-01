@@ -29,12 +29,14 @@
 
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
-#include <wendy/GLShader.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
-#include <wendy/GLPass.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLRender.h>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
 
 #include <algorithm>
 #include <cstdlib>
@@ -49,6 +51,34 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
+
+///////////////////////////////////////////////////////////////////////
+
+namespace
+{
+  
+GLenum convertPrimitiveType(PrimitiveType type)
+{
+  switch (type)
+  {
+    case POINT_LIST:
+      return GL_POINTS;
+    case LINE_LIST:
+      return GL_LINES;
+    case LINE_STRIP:
+      return GL_LINE_STRIP;
+    case TRIANGLE_LIST:
+      return GL_TRIANGLES;
+    case TRIANGLE_STRIP:
+      return GL_TRIANGLE_STRIP;
+    case TRIANGLE_FAN:
+      return GL_TRIANGLE_FAN;
+    default:
+      throw Exception("Invalid primitive type");
+  }
+}
+
+}
 
 ///////////////////////////////////////////////////////////////////////
 

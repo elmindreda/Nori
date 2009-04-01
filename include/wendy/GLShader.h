@@ -43,6 +43,37 @@ class Program;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Shader program vertex varying.
+ *  @ingroup opengl
+ */
+class Varying
+{
+  friend class Program;
+public:
+  enum Type
+  {
+    FLOAT,
+    FLOAT_VEC2,
+    FLOAT_VEC3,
+    FLOAT_VEC4,
+  };
+  bool isScalar(void) const;
+  bool isVector(void) const;
+  Type getType(void) const;
+  const String& getName(void) const;
+  Program& getProgram(void) const;
+private:
+  Varying(Program& program);
+  Varying(const Varying& source);
+  Varying& operator = (const Varying& source);
+  Program& program;
+  Type type;
+  String name;
+  void* varyingID;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Shader uniform.
  *  @ingroup opengl
  */
@@ -172,11 +203,15 @@ private:
 class Program : public RefObject<Program>, public Resource<Program>
 {
 public:
-  void apply(void);
+  Varying* findVarying(const String& name);
+  const Varying* findVarying(const String& name) const;
   Uniform* findUniform(const String& name);
   const Uniform* findUniform(const String& name) const;
   Sampler* findSampler(const String& name);
   const Sampler* findSampler(const String& name) const;
+  unsigned int getVaryingCount(void) const;
+  Varying& getVarying(unsigned int index);
+  const Varying& getVarying(unsigned int index) const;
   unsigned int getUniformCount(void) const;
   Uniform& getUniform(unsigned int index);
   const Uniform& getUniform(unsigned int index) const;
@@ -194,12 +229,14 @@ private:
   Program(const Program& source);
   bool init(VertexShader& vertexShader, FragmentShader& fragmentShader);
   Program& operator = (const Program& source);
+  typedef std::vector<Varying*> VaryingList;
   typedef std::vector<Uniform*> UniformList;
   typedef std::vector<Sampler*> SamplerList;
   Context& context;
   Ref<VertexShader> vertexShader;
   Ref<FragmentShader> fragmentShader;
   void* programID;
+  VaryingList varyings;
   UniformList uniforms;
   SamplerList samplers;
 };
@@ -211,14 +248,14 @@ class ProgramInterface
 public:
   void addUniform(const String& name, Uniform::Type type);
   void addSampler(const String& name, Sampler::Type type);
-  //void addAttribute(const String& name, VertexComponent::Type type, unsigned int count);
+  //void addVarying(const String& name, VertexComponent::Type type, unsigned int count);
   /*! @param[in] program The program to check against this interface.
    *  @return @c true if this interface and the specified program has any
-   *          uniform, sampler or attribute names in common.
+   *          uniform, sampler or varying names in common.
    */
   bool intersects(const Program& program) const;
   /*! @param[in] program The program to check against this interface.
-   *  @return @c true if all uniform, sampler and attribute names and types in
+   *  @return @c true if all uniform, sampler and varying names and types in
    *  this interface are present in the specified program.
    */
   bool conforms(const Program& program) const;

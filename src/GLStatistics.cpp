@@ -49,7 +49,7 @@ void Statistics::addPasses(unsigned int count)
   frame.passCount += count;
 }
 
-void Statistics::addPrimitives(RenderMode mode, unsigned int count)
+void Statistics::addPrimitives(PrimitiveType type, unsigned int count)
 {
   if (!count)
     return;
@@ -57,28 +57,28 @@ void Statistics::addPrimitives(RenderMode mode, unsigned int count)
   Frame& frame = frames.front();
   frame.vertexCount += count;
 
-  switch (mode)
+  switch (type)
   {
-    case RENDER_POINTS:
+    case POINT_LIST:
       frame.pointCount += count;
       break;
-    case RENDER_LINES:
+    case LINE_LIST:
       frame.lineCount += count / 2;
       break;
-    case RENDER_LINE_STRIP:
+    case LINE_STRIP:
       frame.lineCount += count - 1;
       break;
-    case RENDER_TRIANGLES:
+    case TRIANGLE_LIST:
       frame.triangleCount += count / 3;
       break;
-    case RENDER_TRIANGLE_STRIP:
+    case TRIANGLE_STRIP:
       frame.triangleCount += count - 2;
       break;
-    case RENDER_TRIANGLE_FAN:
+    case TRIANGLE_FAN:
       frame.triangleCount += count - 1;
       break;
     default:
-      Log::writeError("Invalid render mode %u", mode);
+      Log::writeError("Invalid primitive type %u", type);
   }
 }
 

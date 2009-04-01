@@ -55,6 +55,23 @@ using namespace moira;
 namespace
 {
 
+Varying::Type convertVaryingType(CGtype type)
+{
+  switch (type)
+  {
+    case CG_FLOAT:
+      return Varying::FLOAT;
+    case CG_FLOAT2:
+      return Varying::FLOAT_VEC2;
+    case CG_FLOAT3:
+      return Varying::FLOAT_VEC3;
+    case CG_FLOAT4:
+      return Varying::FLOAT_VEC4;
+    default:
+      throw Exception("Invalid Cg varying parameter type");
+  }
+}
+
 Uniform::Type convertUniformType(CGtype type)
 {
   switch (type)
@@ -74,7 +91,7 @@ Uniform::Type convertUniformType(CGtype type)
     case CG_FLOAT4x4:
       return Uniform::FLOAT_MAT4;
     default:
-      throw Exception("Invalid Cg parameter type");
+      throw Exception("Invalid Cg uniform parameter type");
   }
 }
 
@@ -93,7 +110,7 @@ Sampler::Type convertSamplerType(CGtype type)
     case CG_SAMPLERCUBE:
       return Sampler::SAMPLER_CUBE;
     default:
-      throw Exception("Invalid Cg parameter type");
+      throw Exception("Invalid Cg sampler parameter type");
   }
 }
 
@@ -162,12 +179,54 @@ inline bool NameComparator<T>::operator () (const T* object)
 
 ///////////////////////////////////////////////////////////////////////
 
-bool Uniform::isScalar(void) const
+bool Varying::isScalar(void) const
 {
-  if (type == FLOAT)
+  return type == FLOAT;
+}
+
+bool Varying::isVector(void) const
+{
+  if (type == FLOAT_VEC2 || type == FLOAT_VEC3 || type == FLOAT_VEC4)
     return true;
 
   return false;
+}
+
+Varying::Type Varying::getType(void) const
+{
+  return type;
+}
+
+const String& Varying::getName(void) const
+{
+  return name;
+}
+
+Program& Varying::getProgram(void) const
+{
+  return program;
+}
+
+Varying::Varying(Program& initProgram):
+  program(initProgram)
+{
+}
+
+Varying::Varying(const Varying& source):
+  program(source.program)
+{
+}
+
+Varying& Varying::operator = (const Varying& source)
+{
+  return *this;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+bool Uniform::isScalar(void) const
+{
+  return type == FLOAT;
 }
 
 bool Uniform::isVector(void) const
@@ -458,9 +517,22 @@ FragmentShader& FragmentShader::operator = (const FragmentShader& source)
 
 ///////////////////////////////////////////////////////////////////////
 
-void Program::apply(void)
+Varying* Program::findVarying(const String& name)
 {
-  cgGLBindProgram((CGprogram) programID);
+  VaryingList::const_iterator i = std::find_if(varyings.begin(), varyings.end(), NameComparator<Varying>(name));
+  if (i == varyings.end())
+    return NULL;
+
+  return *i;
+}
+
+const Varying* Program::findVarying(const String& name) const
+{
+  VaryingList::const_iterator i = std::find_if(varyings.begin(), varyings.end(), NameComparator<Varying>(name));
+  if (i == varyings.end())
+    return NULL;
+
+  return *i;
 }
 
 Uniform* Program::findUniform(const String& name)
@@ -497,6 +569,21 @@ const Sampler* Program::findSampler(const String& name) const
     return NULL;
 
   return *i;
+}
+
+unsigned int Program::getVaryingCount(void) const
+{
+  return varyings.size();
+}
+
+Varying& Program::getVarying(unsigned int index)
+{
+  return *varyings[index];
+}
+
+const Varying& Program::getVarying(unsigned int index) const
+{
+  return *varyings[index];
 }
 
 unsigned int Program::getUniformCount(void) const
@@ -576,13 +663,44 @@ bool Program::init(VertexShader& initVertexShader, FragmentShader& initFragmentS
     return false;
   }
 
-  CGparameter parameter = cgGetFirstParameter((CGprogram) programID, CG_PROGRAM);
+  CGparameter parameter = cgGetFirstParameter((CGprogram) vertexShader->shaderID, CG_PROGRAM);
 
   while (parameter)
   {
-    CGtype type = cgGetParameterType(parameter);
-    if (type != CG_ARRAY && type != CG_STRUCT)
+    CGenum variability = cgGetParameterVariability(parameter);
+
+    if (variability == CG_VARYING)
     {
+      if (cgGetParameterDirection(parameter) != CG_IN)
+	continue;
+
+      CGtype type = cgGetParameterType(parameter);
+
+      // TODO: Check type.
+
+      Varying* varying = new Varying(*this);
+      varying->name = cgGetParameterName(parameter);
+      varying->type = convertVaryingType(type);
+      varying->varyingID = parameter;
+
+      varyings.push_back(varying);
+    }
+    else if (variability == CG_UNIFORM)
+    {
+      CGtype type = cgGetParameterType(parameter);
+
+      if (type == CG_ARRAY)
+      {
+	Log::writeWarning("Array uniforms unsupported");
+	continue;
+      }
+
+      if (type == CG_STRUCT)
+      {
+	Log::writeWarning("Struct uniforms unsupported");
+	continue;
+      }
+
       if (isSamplerType(type))
       {
 	Sampler* sampler = new Sampler(*this);
@@ -602,7 +720,7 @@ bool Program::init(VertexShader& initVertexShader, FragmentShader& initFragmentS
 	uniforms.push_back(uniform);
       }
       else
-	Log::writeWarning("Ignoring shader uniform %s", cgGetParameterName(parameter));
+	Log::writeError("Unknown Cg parameter type");
     }
 
     parameter = cgGetNextParameter(parameter);

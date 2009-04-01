@@ -88,66 +88,12 @@ enum BlendFactor
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! State for a single shader uniform.
- *  @ingroup opengl
- */
-class UniformState
-{
-  friend class Pass;
-public:
-  virtual bool getValue(float& result) const;
-  virtual void setValue(const float newValue);
-  virtual bool getValue(Vector2& result) const;
-  virtual void setValue(const Vector2& newValue);
-  virtual bool getValue(Vector3& result) const;
-  virtual void setValue(const Vector3& newValue);
-  virtual bool getValue(Vector4& result) const;
-  virtual void setValue(const Vector4& newValue);
-  virtual bool getValue(Matrix2& result) const;
-  virtual void setValue(const Matrix2& newValue);
-  virtual bool getValue(Matrix3& result) const;
-  virtual void setValue(const Matrix3& newValue);
-  virtual bool getValue(Matrix4& result) const;
-  virtual void setValue(const Matrix4& newValue);
-  Uniform& getUniform(void) const;
-protected:
-  UniformState(Uniform& uniform);
-  virtual void apply(void) const;
-private:
-  UniformState(const UniformState& source);
-  UniformState& operator = (const UniformState& source);
-  Uniform& uniform;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! State for a single shader sampler uniform.
- *  @ingroup opengl
- */
-class SamplerState
-{
-  friend class Pass;
-public:
-  bool getTexture(Ref<Texture>& result) const;
-  void setTexture(Texture* newTexture);
-  Sampler& getSampler(void) const;
-protected:
-  SamplerState(Sampler& sampler);
-  void apply(void) const;
-private:
-  SamplerState(const SamplerState& source);
-  SamplerState& operator = (const SamplerState& source);
-  Sampler& sampler;
-  Ref<Texture> texture;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Render pass state object.
  *  @ingroup opengl
  *
  *  This class and its associated classes encapsulates most of the OpenGL
- *  rendering state, notable exceptions being the object parameters.
+ *  rendering state, notable exceptions being the transformation and stencil
+ *  buffer state.
  *
  *  @remarks Unless you're writing your own custom renderer, you will probably
  *  want to use the classes in the render namespace, and not use these classes
@@ -155,7 +101,7 @@ private:
  *
  *  @remarks Yes, it's big.
  */
-class Pass
+class Pass : public ProgramState
 {
 public:
   /*! Constructor.
@@ -193,26 +139,12 @@ public:
    */
   bool isColorWriting(void) const;
   bool isWireframe(void) const;
-  bool hasSampler(const String& name) const;
   /*! @return The culling mode of this render pass.
    */
   CullMode getCullMode(void) const;
   BlendFactor getSrcFactor(void) const;
   BlendFactor getDstFactor(void) const;
   Function getDepthFunction(void) const;
-  unsigned int getUniformCount(void) const;
-  UniformState& getUniformState(const String& name);
-  const UniformState& getUniformState(const String& name) const;
-  UniformState& getUniformState(unsigned int index);
-  const UniformState& getUniformState(unsigned int index) const;
-  unsigned int getSamplerCount(void) const;
-  SamplerState& getSamplerState(const String& name);
-  const SamplerState& getSamplerState(const String& name) const;
-  SamplerState& getSamplerState(unsigned int index);
-  const SamplerState& getSamplerState(unsigned int index) const;
-  /*! @return The shader program used by this render pass.
-   */
-  Program* getProgram(void) const;
   const String& getName(void) const;
   /*! Sets whether this render pass uses depth buffer testing.
    *  @param enable Set to @c true to enable depth buffer testing, or @c false
@@ -236,11 +168,6 @@ public:
   void setWireframe(bool enabled);
   void setCullMode(CullMode mode);
   void setBlendFactors(BlendFactor src, BlendFactor dst);
-  /*! Sets the shader program used by this render pass.
-   *  @param[in] newProgram The desired shader program, or @c NULL to use the
-   *  default shader program.
-   */
-  void setProgram(Program* newProgram);
   /*! Resets all values in this render pass to their defaults.
    */
   void setDefaults(void);
@@ -261,15 +188,9 @@ private:
     BlendFactor srcFactor;
     BlendFactor dstFactor;
     Function depthFunction;
-    Ref<Program> program;
   };
   void force(void) const;
   void setBooleanState(unsigned int state, bool value) const;
-  void destroyProgramState(void);
-  typedef std::vector<UniformState*> UniformList;
-  typedef std::vector<SamplerState*> SamplerList;
-  UniformList uniforms;
-  SamplerList samplers;
   Data data;
   String name;
   static Data cache;

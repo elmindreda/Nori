@@ -28,7 +28,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/GLContext.h>
-#include <wendy/GLStatistics.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
@@ -129,27 +128,6 @@ GLenum convertType(VertexComponent::Type type)
   }
 }
 
-GLenum convertRenderMode(RenderMode mode)
-{
-  switch (mode)
-  {
-    case RENDER_POINTS:
-      return GL_POINTS;
-    case RENDER_LINES:
-      return GL_LINES;
-    case RENDER_LINE_STRIP:
-      return GL_LINE_STRIP;
-    case RENDER_TRIANGLES:
-      return GL_TRIANGLES;
-    case RENDER_TRIANGLE_STRIP:
-      return GL_TRIANGLE_STRIP;
-    case RENDER_TRIANGLE_FAN:
-      return GL_TRIANGLE_FAN;
-    default:
-      throw Exception("Invalid render mode");
-  }
-}
-
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -166,6 +144,7 @@ VertexBuffer::~VertexBuffer(void)
     glDeleteBuffersARB(1, &bufferID);
 }
 
+/*
 void VertexBuffer::apply(void) const
 {
   if (current == this)
@@ -258,7 +237,9 @@ void VertexBuffer::apply(void) const
 
   current = const_cast<VertexBuffer*>(this);
 }
+*/
 
+/*
 void VertexBuffer::render(RenderMode mode,
                           unsigned int start,
                           unsigned int count) const
@@ -274,6 +255,7 @@ void VertexBuffer::render(RenderMode mode,
 
   glDrawArrays(convertRenderMode(mode), start, count);
 }
+*/
 
 void* VertexBuffer::lock(LockType type)
 {
@@ -283,7 +265,7 @@ void* VertexBuffer::lock(LockType type)
     return NULL;
   }
 
-  apply();
+  glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
 
   void* mapping = glMapBufferARB(GL_ARRAY_BUFFER_ARB, convertLockType(type));
   if (mapping == NULL)
@@ -304,13 +286,10 @@ void VertexBuffer::unlock(void)
     return;
   }
 
-  apply();
+  glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
 
-  if (bufferID)
-  {
-    if (!glUnmapBufferARB(GL_ARRAY_BUFFER_ARB))
-      Log::writeWarning("Data for vertex buffer object was corrupted");
-  }
+  if (!glUnmapBufferARB(GL_ARRAY_BUFFER_ARB))
+    Log::writeWarning("Data for vertex buffer object was corrupted");
 
   locked = false;
 }
@@ -329,10 +308,9 @@ void VertexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsign
     return;
   }
 
-  apply();
-
   const size_t size = format.getSize();
 
+  glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
   glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
 }
 
@@ -350,10 +328,9 @@ void VertexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int s
     return;
   }
 
-  apply();
-
   const size_t size = format.getSize();
 
+  glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
   glGetBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
 }
 
@@ -429,9 +406,7 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
   glGetError();
 
   glGenBuffersARB(1, &bufferID);
-
-  apply();
-
+  glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
   glBufferDataARB(GL_ARRAY_BUFFER_ARB,
 		  initCount * initFormat.getSize(),
 		  NULL,
@@ -455,111 +430,6 @@ VertexBuffer* VertexBuffer::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 
-VertexRange::VertexRange(void):
-  vertexBuffer(NULL),
-  start(0),
-  count(0)
-{
-}
-
-VertexRange::VertexRange(VertexBuffer& initVertexBuffer):
-  vertexBuffer(&initVertexBuffer),
-  start(0),
-  count(0)
-{
-  if (vertexBuffer)
-    count = vertexBuffer->getCount();
-}
-
-VertexRange::VertexRange(VertexBuffer& initVertexBuffer,
-                         unsigned int initStart,
-                         unsigned int initCount):
-  vertexBuffer(&initVertexBuffer),
-  start(initStart),
-  count(initCount)
-{
-  if (vertexBuffer)
-  {
-    if (vertexBuffer->getCount() < start + count)
-      throw Exception("Invalid vertex buffer range");
-  }
-  else
-  {
-    if (start > 0 || count > 0)
-      throw Exception("Invalid vertex buffer range");
-  }
-}
-
-void VertexRange::render(RenderMode mode) const
-{
-  if (!vertexBuffer || count == 0)
-  {
-    Log::writeError("Cannot render empty vertex buffer range");
-    return;
-  }
-
-  vertexBuffer->render(mode, start, count);
-}
-
-void* VertexRange::lock(LockType type) const
-{
-  if (!vertexBuffer || count == 0)
-  {
-    Log::writeError("Cannot lock empty vertex buffer range");
-    return NULL;
-  }
-
-  Byte* vertices = (Byte*) vertexBuffer->lock(type);
-  if (!vertices)
-    return NULL;
-
-  return vertices + start * vertexBuffer->getFormat().getSize();
-}
-
-void VertexRange::unlock(void) const
-{
-  if (!vertexBuffer)
-  {
-    Log::writeError("Cannot unlock non-locked vertex buffer");
-    return;
-  }
-
-  vertexBuffer->unlock();
-}
-
-void VertexRange::copyFrom(const void* source)
-{
-  if (!vertexBuffer)
-    return;
-
-  vertexBuffer->copyFrom(source, count, start);
-}
-
-void VertexRange::copyTo(void* target)
-{
-  if (!vertexBuffer)
-    return;
-
-  vertexBuffer->copyTo(target, count, start);
-}
-
-VertexBuffer* VertexRange::getVertexBuffer(void) const
-{
-  return vertexBuffer;
-}
-
-unsigned int VertexRange::getStart(void) const
-{
-  return start;
-}
-
-unsigned int VertexRange::getCount(void) const
-{
-  return count;
-}
-
-///////////////////////////////////////////////////////////////////////
-
 IndexBuffer::~IndexBuffer(void)
 {
   if (locked)
@@ -572,6 +442,7 @@ IndexBuffer::~IndexBuffer(void)
     glDeleteBuffersARB(1, &bufferID);
 }
 
+/*
 void IndexBuffer::apply(void) const
 {
   if (current == this)
@@ -582,7 +453,9 @@ void IndexBuffer::apply(void) const
 
   current = const_cast<IndexBuffer*>(this);
 }
+*/
 
+/*
 void IndexBuffer::render(const VertexBuffer& vertexBuffer,
                          RenderMode mode,
                          unsigned int start,
@@ -601,6 +474,7 @@ void IndexBuffer::render(const VertexBuffer& vertexBuffer,
 
   glDrawElements(convertRenderMode(mode), count, type, (GLvoid*) (getTypeSize(type) * start));
 }
+*/
 
 void* IndexBuffer::lock(LockType type)
 {
@@ -610,7 +484,7 @@ void* IndexBuffer::lock(LockType type)
     return NULL;
   }
 
-  apply();
+  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
 
   void* mapping = glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, convertLockType(type));
   if (mapping == NULL)
@@ -631,13 +505,10 @@ void IndexBuffer::unlock(void)
     return;
   }
 
-  apply();
+  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
 
-  if (bufferID)
-  {
-    if (!glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB))
-      Log::writeWarning("Data for index buffer object was corrupted");
-  }
+  if (!glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB))
+    Log::writeWarning("Data for index buffer object was corrupted");
 
   locked = false;
 }
@@ -656,10 +527,9 @@ void IndexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsigne
     return;
   }
 
-  apply();
-
   const size_t size = getTypeSize(type);
 
+  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
   glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
 }
 
@@ -677,10 +547,9 @@ void IndexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int st
     return;
   }
 
-  apply();
-
   const size_t size = getTypeSize(type);
 
+  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
   glGetBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
 }
 
@@ -755,9 +624,7 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
   glGetError();
 
   glGenBuffersARB(1, &bufferID);
-
-  apply();
-
+  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
   glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
 		  initCount * getTypeSize(initType),
 		  NULL,
@@ -777,6 +644,100 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
 }
 
 IndexBuffer* IndexBuffer::current = NULL;
+
+///////////////////////////////////////////////////////////////////////
+
+VertexRange::VertexRange(void):
+  vertexBuffer(NULL),
+  start(0),
+  count(0)
+{
+}
+
+VertexRange::VertexRange(VertexBuffer& initVertexBuffer):
+  vertexBuffer(&initVertexBuffer),
+  start(0),
+  count(0)
+{
+  if (vertexBuffer)
+    count = vertexBuffer->getCount();
+}
+
+VertexRange::VertexRange(VertexBuffer& initVertexBuffer,
+                         unsigned int initStart,
+                         unsigned int initCount):
+  vertexBuffer(&initVertexBuffer),
+  start(initStart),
+  count(initCount)
+{
+  if (vertexBuffer)
+  {
+    if (vertexBuffer->getCount() < start + count)
+      throw Exception("Invalid vertex buffer range");
+  }
+  else
+  {
+    if (start > 0 || count > 0)
+      throw Exception("Invalid vertex buffer range");
+  }
+}
+
+void* VertexRange::lock(LockType type) const
+{
+  if (!vertexBuffer || count == 0)
+  {
+    Log::writeError("Cannot lock empty vertex buffer range");
+    return NULL;
+  }
+
+  Byte* vertices = (Byte*) vertexBuffer->lock(type);
+  if (!vertices)
+    return NULL;
+
+  return vertices + start * vertexBuffer->getFormat().getSize();
+}
+
+void VertexRange::unlock(void) const
+{
+  if (!vertexBuffer)
+  {
+    Log::writeError("Cannot unlock non-locked vertex buffer");
+    return;
+  }
+
+  vertexBuffer->unlock();
+}
+
+void VertexRange::copyFrom(const void* source)
+{
+  if (!vertexBuffer)
+    return;
+
+  vertexBuffer->copyFrom(source, count, start);
+}
+
+void VertexRange::copyTo(void* target)
+{
+  if (!vertexBuffer)
+    return;
+
+  vertexBuffer->copyTo(target, count, start);
+}
+
+VertexBuffer* VertexRange::getVertexBuffer(void) const
+{
+  return vertexBuffer;
+}
+
+unsigned int VertexRange::getStart(void) const
+{
+  return start;
+}
+
+unsigned int VertexRange::getCount(void) const
+{
+  return count;
+}
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -813,17 +774,6 @@ IndexRange::IndexRange(IndexBuffer& initIndexBuffer,
     if (start > 0 || count > 0)
       throw Exception("Invalid index buffer range");
   }
-}
-
-void IndexRange::render(const VertexBuffer& vertexBuffer, RenderMode mode) const
-{
-  if (!indexBuffer || count == 0)
-  {
-    Log::writeError("Cannot render empty index buffer range");
-    return;
-  }
-
-  indexBuffer->render(vertexBuffer, mode, start, count);
 }
 
 void* IndexRange::lock(LockType type) const
@@ -879,6 +829,98 @@ unsigned int IndexRange::getStart(void) const
 }
 
 unsigned int IndexRange::getCount(void) const
+{
+  return count;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+PrimitiveRange::PrimitiveRange(void):
+  type(TRIANGLE_LIST),
+  vertexBuffer(NULL),
+  indexBuffer(NULL),
+  start(0),
+  count(0)
+{
+}
+
+PrimitiveRange::PrimitiveRange(PrimitiveType initType,
+	                       VertexBuffer& initVertexBuffer):
+  type(initType),
+  vertexBuffer(&initVertexBuffer),
+  indexBuffer(NULL),
+  start(0),
+  count(0) 
+{
+  count = vertexBuffer->getCount();
+}
+
+PrimitiveRange::PrimitiveRange(PrimitiveType initType,
+	                       VertexBuffer& initVertexBuffer,
+	                       IndexBuffer& initIndexBuffer):
+  type(initType),
+  vertexBuffer(&initVertexBuffer),
+  indexBuffer(&initIndexBuffer),
+  start(0),
+  count(0)                                                     
+{
+  count = indexBuffer->getCount();
+}
+
+PrimitiveRange::PrimitiveRange(PrimitiveType initType,
+	                       VertexBuffer& initVertexBuffer,
+	                       unsigned int initStart,
+	                       unsigned int initCount):
+  type(initType),
+  vertexBuffer(&initVertexBuffer),
+  indexBuffer(NULL),
+  start(initStart),
+  count(initCount)
+{
+}
+
+PrimitiveRange::PrimitiveRange(PrimitiveType initType,
+	                       VertexBuffer& initVertexBuffer,
+			       IndexBuffer& initIndexBuffer,
+	                       unsigned int initStart,
+	                       unsigned int initCount):
+  type(initType),
+  vertexBuffer(&initVertexBuffer),
+  indexBuffer(&initIndexBuffer),
+  start(initStart),
+  count(initCount)
+{
+}
+
+bool PrimitiveRange::isEmpty(void) const
+{
+  if (vertexBuffer == NULL)
+    return true;
+
+  return count == 0;
+}
+
+PrimitiveType PrimitiveRange::getType(void) const
+{
+  return type;
+}
+
+VertexBuffer* PrimitiveRange::getVertexBuffer(void) const
+{
+  return vertexBuffer;
+}
+
+IndexBuffer* PrimitiveRange::getIndexBuffer(void) const
+{
+  return indexBuffer;
+}
+
+unsigned int PrimitiveRange::getStart(void) const
+{
+  return start;
+}
+
+unsigned int PrimitiveRange::getCount(void) const
 {
   return count;
 }

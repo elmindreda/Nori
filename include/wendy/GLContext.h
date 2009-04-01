@@ -51,21 +51,6 @@ class Context;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! Render mode enumeration.
- *  @ingroup opengl
- */
-enum RenderMode
-{
-  RENDER_POINTS,
-  RENDER_LINES,
-  RENDER_LINE_STRIP,
-  RENDER_TRIANGLES,
-  RENDER_TRIANGLE_STRIP,
-  RENDER_TRIANGLE_FAN,
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! Comparison function enumeration.
  *  @ingroup opengl
  */
@@ -79,6 +64,21 @@ enum Function
   ALLOW_LESSER_EQUAL,
   ALLOW_GREATER,
   ALLOW_GREATER_EQUAL,
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Primitive type enumeration.
+ *  @ingroup opengl
+ */
+enum PrimitiveType
+{
+  POINT_LIST,
+  LINE_LIST,
+  LINE_STRIP,
+  TRIANGLE_LIST,
+  TRIANGLE_STRIP,
+  TRIANGLE_FAN,
 };
 
 ///////////////////////////////////////////////////////////////////////

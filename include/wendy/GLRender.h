@@ -44,8 +44,7 @@ using namespace moira;
 /*! @brief The renderer singleton.
  *  @ingroup renderer
  *
- *  This is the central renderer class, although it doesn't actually
- *  render anything.
+ *  This is the central renderer class for the OpenGL layer.
  */
 class Renderer : public Trackable, public Singleton<Renderer>
 {
@@ -59,6 +58,8 @@ public:
   void end(void);
   void pushTransform(const Matrix4& transform);
   void popTransform(void);
+  void setProgram(Program* newProgam);
+  void render(const PrimitiveRange& range);
   /*! Allocates a range of indices of the specified type.
    *  @param[out] range The newly allocated index range.
    *  @param[in] count The number of indices to allocate.
@@ -79,6 +80,7 @@ public:
   bool allocateVertices(VertexRange& range,
 			unsigned int count,
                         const VertexFormat& format);
+  bool isEngineUniform(const String& name) const;
   Texture& getDefaultTexture(void) const;
   Program& getDefaultProgram(void) const;
   /*! Creates the renderer singleton.
@@ -103,6 +105,9 @@ private:
   typedef std::list<VertexBufferSlot> VertexBufferList;
   IndexBufferList indexBuffers;
   VertexBufferList vertexBuffers;
+  VertexBuffer* currentVertexBuffer;
+  IndexBuffer* currentIndexBuffer;
+  Ref<Program> currentProgram;
   Ref<Texture> defaultTexture;
   Ref<Program> defaultProgram;
   MatrixStack4 matrixStack;
