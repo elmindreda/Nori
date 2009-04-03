@@ -171,12 +171,9 @@ public:
    *  @param textureName The desired name of the texture, or the empty string
    *  to automatically generate a name.
    */
-  static TextureCanvas* createInstance(unsigned int width,
-                                       unsigned int height,
-				       const String& textureName = "");
+  static TextureCanvas* createInstance(Texture& texture);
 private:
-  TextureCanvas(void);
-  bool init(unsigned int width, unsigned int height, const String& textureName);
+  bool init(Texture& texture);
   void apply(void) const;
   void finish(void) const;
   void updateScissorArea(void) const;
