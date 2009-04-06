@@ -41,15 +41,6 @@ namespace wendy
   
 ///////////////////////////////////////////////////////////////////////
 
-namespace
-{
-
-Pattern componentNamePattern("[a-zA-Z_][a-zA-Z0-9_]+");
-
-}
-
-///////////////////////////////////////////////////////////////////////
-
 VertexComponent::VertexComponent(const String& initName,
                                  unsigned int initCount,
 				 Type initType):
@@ -79,8 +70,6 @@ size_t VertexComponent::getSize(void) const
       return sizeof(float) * count;
     case INT:
       return sizeof(int) * count;
-    case SHORT:
-      return sizeof(short) * count;
     default:
       return 0;
   }
@@ -173,9 +162,6 @@ bool VertexFormat::createComponents(const String& specification)
 	break;
       case 'i':
 	type = VertexComponent::INT;
-	break;
-      case 's':
-	type = VertexComponent::SHORT;
 	break;
       default:
 	if (std::isgraph(*command))
@@ -275,9 +261,6 @@ String VertexFormat::getSpecification(void) const
       case VertexComponent::INT:
 	result << 'i';
 	break;
-      case VertexComponent::SHORT:
-	result << 's';
-	break;
       default:
 	Log::writeError("Invalid vertex component type %u", (*i).type);
 	break;
@@ -291,27 +274,27 @@ String VertexFormat::getSpecification(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-const VertexFormat Vertex3fv::format("3fv");
+const VertexFormat Vertex3fv::format("3f:position");
 
 ///////////////////////////////////////////////////////////////////////
 
-const VertexFormat Vertex3fn3fv::format("3fn3fv");
+const VertexFormat Vertex3fn3fv::format("3f:normal 3f:position");
 
 ///////////////////////////////////////////////////////////////////////
 
-const VertexFormat Vertex2fv::format("2fv");
+const VertexFormat Vertex2fv::format("2f:position");
 
 ///////////////////////////////////////////////////////////////////////
 
-const VertexFormat Vertex2ft2fv::format("2ft2fv");
+const VertexFormat Vertex2ft2fv::format("2f:mapping 2f:position");
 
 ///////////////////////////////////////////////////////////////////////
 
-const VertexFormat Vertex2ft3fv::format("2ft3fv");
+const VertexFormat Vertex2ft3fv::format("2f:mapping 3f:position");
 
 ///////////////////////////////////////////////////////////////////////
 
-const VertexFormat Vertex4fc2ft3fv::format("4fc2ft3fv");
+const VertexFormat Vertex4fc2ft3fv::format("4f:color 2f:mapping 3f:position");
 
 ///////////////////////////////////////////////////////////////////////
 

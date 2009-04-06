@@ -69,9 +69,6 @@ public:
     /*! Component elements are ints.
      */
     INT,
-    /*! Component elements are shorts.
-     */
-    SHORT,
   };
   /*! Constructor.
    */

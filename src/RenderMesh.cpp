@@ -27,11 +27,14 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/GLVertex.h>
+#include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
-#include <wendy/GLPass.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLRender.h>
+#include <wendy/GLState.h>
+#include <wendy/GLPass.h>
 
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderStyle.h>
@@ -76,7 +79,7 @@ void Mesh::enqueue(Queue& queue, const Transform3& transform) const
     Operation& operation = queue.createOperation();
     operation.vertexBuffer = vertexBuffer;
     operation.indexBuffer = (*i)->range.getIndexBuffer();
-    operation.renderMode = (*i)->renderMode;
+    operation.type = (*i)->primitiveType;
     operation.transform = transform;
     operation.start = (*i)->range.getStart();
     operation.count = (*i)->range.getCount();
@@ -130,7 +133,7 @@ bool Mesh::init(const moira::Mesh& mesh)
 
   GL::VertexFormat format;
 
-  if (!format.createComponents("3fv3fn2ft"))
+  if (!format.createComponents("3f:position 3f:normal 2f:mapping"))
     return false;
 
   vertexBuffer = GL::VertexBuffer::createInstance((unsigned int) mesh.vertices.size(),
@@ -158,7 +161,7 @@ bool Mesh::init(const moira::Mesh& mesh)
     if (!geometry->style)
       return false;
 
-    geometry->renderMode = GL::RENDER_TRIANGLES;
+    geometry->primitiveType = GL::TRIANGLE_LIST;
     geometry->range = GL::IndexRange(*indexBuffer, indexBase, indexCount);
 
     unsigned int* indices = (unsigned int*) geometry->range.lock();
@@ -200,9 +203,9 @@ const GL::IndexRange& Mesh::Geometry::getIndexRange(void) const
   return range;
 }
 
-GL::RenderMode Mesh::Geometry::getRenderMode(void) const
+GL::PrimitiveType Mesh::Geometry::getPrimitiveType(void) const
 {
-  return renderMode;
+  return primitiveType;
 }
 
 Style* Mesh::Geometry::getStyle(void) const
@@ -312,7 +315,7 @@ void ShadowMesh::enqueue(Queue& queue, const Transform3& transform) const
 
   Operation& operation = queue.createOperation();
   operation.vertexBuffer = vertexBuffer;
-  operation.renderMode = GL::RENDER_TRIANGLES;
+  operation.type = GL::TRIANGLE_LIST;
   operation.technique = technique;
   operation.count = vertexCount;
   operation.transform = transform;

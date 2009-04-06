@@ -27,12 +27,14 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLShader.h>
-#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
+#include <wendy/GLState.h>
+#include <wendy/GLPass.h>
 
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderStyle.h>
@@ -174,7 +176,7 @@ void ParticleSystem::enqueue(Queue& queue, const Transform3& transform) const
   operation.start = indices.getStart();
   operation.count = indices.getCount();
   operation.technique = technique;
-  operation.renderMode = GL::RENDER_TRIANGLES;
+  operation.type = GL::TRIANGLE_LIST;
 }
 
 void ParticleSystem::addEmitter(ParticleEmitter& emitter)
@@ -389,8 +391,8 @@ ParticleSystem& ParticleSystem::operator = (const ParticleSystem& source)
   return *this;
 }
 
-bool ParticleSystem::realizeVertices(GL::VertexRange& vertices,
-                                     GL::IndexRange& indices,
+bool ParticleSystem::realizeVertices(GL::VertexRange& vertexRange,
+                                     GL::IndexRange& indexRange,
 		                     const Vector3& camera) const
 {
   GL::Renderer* renderer = GL::Renderer::get();
@@ -400,12 +402,12 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& vertices,
     return false;
   }
 
-  if (!renderer->allocateVertices(vertices,
+  if (!renderer->allocateVertices(vertexRange,
                                   activeParticles.size() * 4, 
 				  GL::Vertex4fc2ft3fv::format))
     return false;
 
-  GL::Vertex4fc2ft3fv* vertices = (GL::Vertex4fc2ft3fv*) range.lock();
+  GL::Vertex4fc2ft3fv* vertices = (GL::Vertex4fc2ft3fv*) vertexRange.lock();
   if (!vertices)
     return false;
 
@@ -459,7 +461,7 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& vertices,
     vertices += 4;
   }
 
-  range.unlock();
+  vertexRange.unlock();
 
   return true;
 }

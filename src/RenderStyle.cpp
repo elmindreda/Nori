@@ -28,11 +28,12 @@
 #include <wendy/Config.h>
 
 #include <wendy/GLContext.h>
-#include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLShader.h>
+#include <wendy/GLState.h>
 #include <wendy/GLPass.h>
 
 #include <wendy/RenderStyle.h>

@@ -27,12 +27,14 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLShader.h>
-#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
+#include <wendy/GLState.h>
+#include <wendy/GLPass.h>
 
 #include <wendy/RenderStyle.h>
 #include <wendy/RenderIO.h>
@@ -473,12 +475,16 @@ bool StyleCodec::onBeginElement(const String& name)
 	{
 	  String programName = readString("name");
 	  if (programName.empty())
-	    return true;
+	  {
+	    Log::writeError("Shader program name missing");
+	    return false;
+	  }
 
 	  GL::Program* program = GL::Program::readInstance(programName);
 	  if (!program)
 	  {
-	    Log::writeWarning("Skipping technique %u in render style %s",
+	    Log::writeWarning("Failed to load shader program %s; skipping technique %u in render style %s",
+	                      programName.c_str(),
 	                      style->getTechniqueCount(),
 	                      style->getName().c_str());
 

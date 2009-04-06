@@ -115,8 +115,6 @@ private:
   IndexBufferList indexBufferPool;
   VertexBufferList vertexBufferPool;
   Canvas* currentCanvas;
-  VertexBuffer* currentVertexBuffer;
-  IndexBuffer* currentIndexBuffer;
   Ref<Program> currentProgram;
   PrimitiveRange currentRange;
   Ref<Texture> defaultTexture;

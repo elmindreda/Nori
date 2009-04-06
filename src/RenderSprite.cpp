@@ -27,12 +27,14 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/GLVertex.h>
+#include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLShader.h>
-#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
+#include <wendy/GLState.h>
+#include <wendy/GLPass.h>
 
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderStyle.h>
@@ -165,12 +167,16 @@ void Sprite2::render(void) const
   GL::Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
+  GL::Renderer* renderer = GL::Renderer::get();
+
   GL::VertexRange range;
-  if (!GL::Renderer::get()->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
+  if (!renderer->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
     return;
 
   range.copyFrom(vertices);
-  range.render(GL_TRIANGLE_FAN);
+
+  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  renderer->render();
 }
 
 void Sprite2::render(const Style& style) const
@@ -178,18 +184,22 @@ void Sprite2::render(const Style& style) const
   GL::Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
+  GL::Renderer* renderer = GL::Renderer::get();
+
   GL::VertexRange range;
-  if (!GL::Renderer::get()->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
+  if (!renderer->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
     return;
 
   range.copyFrom(vertices);
 
   const Technique* technique = style.getActiveTechnique();
 
+  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+
   for (unsigned int pass = 0;  pass < technique->getPassCount();  pass++)
   {
     technique->applyPass(pass);
-    range.render(GL_TRIANGLE_FAN);
+    renderer->render();
   }
 }
 
@@ -267,7 +277,7 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
   operation.vertexBuffer = range.getVertexBuffer();
   operation.start = range.getStart();
   operation.count = range.getCount();
-  operation.renderMode = GL_QUADS;
+  operation.type = GL::TRIANGLE_FAN;
   operation.transform = transform;
   operation.technique = technique;
   operation.distance = (position - camera).length();
@@ -328,6 +338,7 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
     return;
   }
 
+  /* TODO: Make this not use quads.
   GL::VertexRange range;
   if (!renderer->allocateVertices(range, 4 * slots.size(), GL::Vertex2ft3fv::format))
     return;
@@ -352,6 +363,7 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   operation.transform = transform;
   operation.technique = technique;
   operation.distance = (position - camera).length();
+  */
 }
 
 void SpriteCloud3::realizeVertices(GL::Vertex2ft3fv* vertices,

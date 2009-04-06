@@ -28,6 +28,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/GLContext.h>
+#include <wendy/GLVertex.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLShader.h>
 
@@ -54,6 +55,37 @@ using namespace moira;
 
 namespace
 {
+
+GLint getElementCount(Varying::Type type)
+{
+  switch (type)
+  {
+    case Varying::FLOAT:
+      return 1;
+    case Varying::FLOAT_VEC2:
+      return 2;
+    case Varying::FLOAT_VEC3:
+      return 3;
+    case Varying::FLOAT_VEC4:
+      return 4;
+    default:
+      throw Exception("Invalid varying parameter type");
+  }
+}
+
+GLenum getVaryingBaseType(Varying::Type type)
+{
+  switch (type)
+  {
+    case Varying::FLOAT:
+    case Varying::FLOAT_VEC2:
+    case Varying::FLOAT_VEC3:
+    case Varying::FLOAT_VEC4:
+      return GL_FLOAT;
+    default:
+      throw Exception("Invalid varying parameter type");
+  }
+}
 
 Varying::Type convertVaryingType(CGtype type)
 {
@@ -200,6 +232,38 @@ Varying::Type Varying::getType(void) const
 const String& Varying::getName(void) const
 {
   return name;
+}
+
+void Varying::enable(size_t stride, size_t offset)
+{
+  cgGLEnableClientState((CGparameter) varyingID);
+
+  {
+    CGerror error = cgGetError();
+    if (error != CG_NO_ERROR)
+      Log::writeError("Failed to enable varying %s: %s", name.c_str(), cgGetErrorString(error));
+  }
+
+  cgGLSetParameterPointer((CGparameter) varyingID,
+                          getElementCount(type),
+			  getVaryingBaseType(type),
+			  stride,
+			  (const void*) offset);
+
+  {
+    CGerror error = cgGetError();
+    if (error != CG_NO_ERROR)
+      Log::writeError("Failed to set varying %s: %s", name.c_str(), cgGetErrorString(error));
+  }
+}
+
+void Varying::disable(void)
+{
+  cgGLDisableClientState((CGparameter) varyingID);
+
+  CGerror error = cgGetError();
+  if (error != CG_NO_ERROR)
+    Log::writeError("Failed to disable varying %s: %s", name.c_str(), cgGetErrorString(error));
 }
 
 Program& Varying::getProgram(void) const
@@ -663,6 +727,8 @@ bool Program::init(VertexShader& initVertexShader, FragmentShader& initFragmentS
     return false;
   }
 
+  cgGLLoadProgram((CGprogram) programID);
+
   CGparameter parameter = cgGetFirstParameter((CGprogram) vertexShader->shaderID, CG_PROGRAM);
 
   while (parameter)
@@ -726,13 +792,106 @@ bool Program::init(VertexShader& initVertexShader, FragmentShader& initFragmentS
     parameter = cgGetNextParameter(parameter);
   }
 
-  cgGLLoadProgram((CGprogram) programID);
   return true;
+}
+
+void Program::apply(void) const
+{
+  cgGLBindProgram((CGprogram) programID);
 }
 
 Program& Program::operator = (const Program& source)
 {
   return *this;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+void ProgramInterface::addUniform(const String& name, Uniform::Type type)
+{
+  uniforms.push_back(UniformList::value_type(name, type));
+}
+
+void ProgramInterface::addSampler(const String& name, Sampler::Type type)
+{
+  samplers.push_back(SamplerList::value_type(name, type));
+}
+
+void ProgramInterface::addVarying(const String& name, Varying::Type type)
+{
+  varyings.push_back(VaryingList::value_type(name, type));
+}
+
+bool ProgramInterface::matches(const Program& program) const
+{
+  if (program.getUniformCount() != uniforms.size() ||
+      program.getSamplerCount() != samplers.size() ||
+      program.getVaryingCount() != varyings.size())
+    return false;
+
+  for (unsigned int i = 0;  i < uniforms.size();  i++)
+  {
+    const UniformList::value_type& entry = uniforms[i];
+
+    const Uniform* uniform = program.findUniform(entry.first);
+    if (!uniform)
+      return false;
+
+    if (uniform->getType() != entry.second)
+      return false;
+  }
+
+  for (unsigned int i = 0;  i < samplers.size();  i++)
+  {
+    const SamplerList::value_type& entry = samplers[i];
+
+    const Sampler* sampler = program.findSampler(entry.first);
+    if (!sampler)
+      return false;
+
+    if (sampler->getType() != entry.second)
+      return false;
+  }
+
+  for (unsigned int i = 0;  i < varyings.size();  i++)
+  {
+    const VaryingList::value_type& entry = varyings[i];
+
+    const Varying* varying = program.findVarying(entry.first);
+    if (!varying)
+      return false;
+
+    if (varying->getType() != entry.second)
+      return false;
+  }
+
+  return true;
+}
+
+bool ProgramInterface::matches(const VertexFormat& format) const
+{
+  if (format.getComponentCount() != varyings.size())
+    return false;
+
+  for (unsigned int i = 0;  i < varyings.size();  i++)
+  {
+    const VaryingList::value_type& entry = varyings[i];
+
+    const VertexComponent* component = format.findComponent(entry.first);
+    if (!component)
+      return false;
+
+    if (component->getType() != VertexComponent::FLOAT)
+      return false;
+
+    if ((component->getElementCount() == 1 && entry.second != Varying::FLOAT) ||
+        (component->getElementCount() == 2 && entry.second != Varying::FLOAT_VEC2) ||
+        (component->getElementCount() == 3 && entry.second != Varying::FLOAT_VEC3) ||
+        (component->getElementCount() == 4 && entry.second != Varying::FLOAT_VEC4))
+      return false;
+  }
+
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////

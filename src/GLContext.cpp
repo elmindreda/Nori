@@ -433,8 +433,8 @@ bool Context::init(const ContextMode& mode)
     return false;
   }
 
-  cgGLSetOptimalOptions((CGprofile) cgVertexProfile);
   cgGLEnableProfile((CGprofile) cgVertexProfile);
+  cgGLSetOptimalOptions((CGprofile) cgVertexProfile);
 
   cgFragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
   if (cgFragmentProfile == CG_PROFILE_UNKNOWN)
@@ -443,11 +443,13 @@ bool Context::init(const ContextMode& mode)
     return false;
   }
 
-  cgGLSetOptimalOptions((CGprofile) cgFragmentProfile);
   cgGLEnableProfile((CGprofile) cgFragmentProfile);
+  cgGLSetOptimalOptions((CGprofile) cgFragmentProfile);
 
   cgGLSetManageTextureParameters((CGcontext) cgContextID, CG_TRUE);
   cgSetLockingPolicy(CG_NO_LOCKS_POLICY);
+  cgSetParameterSettingMode((CGcontext) cgContextID, CG_IMMEDIATE_PARAMETER_SETTING);
+  cgGLSetDebugMode(CG_TRUE);
 
   glfwSetWindowSizeCallback(sizeCallback);
   glfwSetWindowCloseCallback(closeCallback);

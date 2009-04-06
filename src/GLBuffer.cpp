@@ -111,23 +111,6 @@ GLenum convertUsage(IndexBuffer::Usage usage)
   }
 }
 
-GLenum convertType(VertexComponent::Type type)
-{
-  switch (type)
-  {
-    case VertexComponent::DOUBLE:
-      return GL_DOUBLE;
-    case VertexComponent::FLOAT:
-      return GL_FLOAT;
-    case VertexComponent::INT:
-      return GL_INT;
-    case VertexComponent::SHORT:
-      return GL_SHORT;
-    default:
-      throw Exception("Invalid vertex component type");
-  }
-}
-
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -143,101 +126,6 @@ VertexBuffer::~VertexBuffer(void)
   if (bufferID)
     glDeleteBuffersARB(1, &bufferID);
 }
-
-/*
-void VertexBuffer::apply(void) const
-{
-  if (current == this)
-    return;
-
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
-
-  const VertexComponent* component;
-
-  component = format.findComponent(VertexComponent::POSITION);
-  if (component)
-  {
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(component->getElementCount(),
-                    convertType(component->getType()),
-		    (GLsizei) format.getSize(),
-		    (GLvoid*) component->getOffset());
-  }
-  else
-    glDisableClientState(GL_VERTEX_ARRAY);
-
-  component = format.findComponent(VertexComponent::COLOR);
-  if (component)
-  {
-    glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(component->getElementCount(),
-                   convertType(component->getType()),
-		   (GLsizei) format.getSize(),
-		   (GLvoid*) component->getOffset());
-  }
-  else
-    glDisableClientState(GL_COLOR_ARRAY);
-
-  component = format.findComponent(VertexComponent::NORMAL);
-  if (component)
-  {
-    glEnableClientState(GL_NORMAL_ARRAY);
-    glNormalPointer(convertType(component->getType()),
-		    (GLsizei) format.getSize(),
-		    (GLvoid*) component->getOffset());
-  }
-  else
-    glDisableClientState(GL_NORMAL_ARRAY);
-
-  // Collect texture coordinate components
-
-  std::vector<const VertexComponent*> components;
-
-  for (unsigned int i = 0;  i < format.getComponentCount();  i++)
-  {
-    const VertexComponent& component = format[i];
-    if (component.getKind() == VertexComponent::TEXCOORD)
-      components.push_back(&component);
-  }
-
-  // Discard unusable texture components
-  // TODO: Make this understand GLSL program limits.
-
-  unsigned int textureCoords = Context::get()->getLimits().getMaxTextureCoords();
-  if (components.size() > textureCoords)
-  {
-    Log::writeWarning("Applied vertex buffer contains more texture coordinate sets than this context supports");
-    components.resize(textureCoords);
-  }
-
-  // Apply texture components
-
-  for (unsigned int i = 0;  i < components.size();  i++)
-  {
-    glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
-
-    component = components[i];
-
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(component->getElementCount(),
-                      convertType(component->getType()),
-		      (GLsizei) format.getSize(),
-		      (GLvoid*) component->getOffset());
-  }
-
-  // Disable any remaining texture coordinate sets
-
-  for (unsigned int i = components.size();  i < textureCoords;  i++)
-  {
-    glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-  }
-
-  // TODO: Apply generic attribute components.
-
-  current = const_cast<VertexBuffer*>(this);
-}
-*/
 
 /*
 void VertexBuffer::render(RenderMode mode,
@@ -265,7 +153,7 @@ void* VertexBuffer::lock(LockType type)
     return NULL;
   }
 
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
+  apply();
 
   void* mapping = glMapBufferARB(GL_ARRAY_BUFFER_ARB, convertLockType(type));
   if (mapping == NULL)
@@ -286,7 +174,7 @@ void VertexBuffer::unlock(void)
     return;
   }
 
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
+  apply();
 
   if (!glUnmapBufferARB(GL_ARRAY_BUFFER_ARB))
     Log::writeWarning("Data for vertex buffer object was corrupted");
@@ -308,9 +196,9 @@ void VertexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsign
     return;
   }
 
-  const size_t size = format.getSize();
+  apply();
 
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
+  const size_t size = format.getSize();
   glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
 }
 
@@ -328,9 +216,9 @@ void VertexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int s
     return;
   }
 
-  const size_t size = format.getSize();
+  apply();
 
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
+  const size_t size = format.getSize();
   glGetBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
 }
 
@@ -359,16 +247,6 @@ VertexBuffer* VertexBuffer::createInstance(unsigned int count,
     return NULL;
 
   return buffer.detachObject();
-}
-
-void VertexBuffer::invalidateCurrent(void)
-{
-  current = NULL;
-}
-
-VertexBuffer* VertexBuffer::getCurrent(void)
-{
-  return current;
 }
 
 VertexBuffer::VertexBuffer(const String& name):
@@ -406,7 +284,9 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
   glGetError();
 
   glGenBuffersARB(1, &bufferID);
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
+
+  apply();
+
   glBufferDataARB(GL_ARRAY_BUFFER_ARB,
 		  initCount * initFormat.getSize(),
 		  NULL,
@@ -426,6 +306,30 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
   return true;
 }
 
+void VertexBuffer::apply(void) const
+{
+  if (current == this)
+    return;
+
+  glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
+
+#if _DEBUG
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+  {
+    Log::writeWarning("Error when making vertex buffer current: %s", gluErrorString(error));
+    return;
+  }
+#endif
+
+  current = const_cast<VertexBuffer*>(this);
+}
+
+void VertexBuffer::invalidateCurrent(void)
+{
+  current = NULL;
+}
+
 VertexBuffer* VertexBuffer::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
@@ -443,16 +347,6 @@ IndexBuffer::~IndexBuffer(void)
 }
 
 /*
-void IndexBuffer::apply(void) const
-{
-  if (current == this)
-    return;
-
-  if (bufferID)
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
-
-  current = const_cast<IndexBuffer*>(this);
-}
 */
 
 /*
@@ -484,7 +378,7 @@ void* IndexBuffer::lock(LockType type)
     return NULL;
   }
 
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
+  apply();
 
   void* mapping = glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, convertLockType(type));
   if (mapping == NULL)
@@ -505,7 +399,7 @@ void IndexBuffer::unlock(void)
     return;
   }
 
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
+  apply();
 
   if (!glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB))
     Log::writeWarning("Data for index buffer object was corrupted");
@@ -527,9 +421,9 @@ void IndexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsigne
     return;
   }
 
-  const size_t size = getTypeSize(type);
+  apply();
 
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
+  const size_t size = getTypeSize(type);
   glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
 }
 
@@ -547,9 +441,9 @@ void IndexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int st
     return;
   }
 
-  const size_t size = getTypeSize(type);
+  apply();
 
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
+  const size_t size = getTypeSize(type);
   glGetBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
 }
 
@@ -578,16 +472,6 @@ IndexBuffer* IndexBuffer::createInstance(unsigned int count,
     return NULL;
 
   return buffer.detachObject();
-}
-
-void IndexBuffer::invalidateCurrent(void)
-{
-  current = NULL;
-}
-
-IndexBuffer* IndexBuffer::getCurrent(void)
-{
-  return current;
 }
 
 IndexBuffer::IndexBuffer(const String& name):
@@ -624,7 +508,9 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
   glGetError();
 
   glGenBuffersARB(1, &bufferID);
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
+  
+  apply();
+
   glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
 		  initCount * getTypeSize(initType),
 		  NULL,
@@ -641,6 +527,30 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
   usage = initUsage;
   count = initCount;
   return true;
+}
+
+void IndexBuffer::apply(void) const
+{
+  if (current == this)
+    return;
+
+  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
+
+#if _DEBUG
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+  {
+    Log::writeWarning("Error when making index buffer current: %s", gluErrorString(error));
+    return false;
+  }
+#endif
+
+  current = const_cast<IndexBuffer*>(this);
+}
+
+void IndexBuffer::invalidateCurrent(void)
+{
+  current = NULL;
 }
 
 IndexBuffer* IndexBuffer::current = NULL;
@@ -845,7 +755,7 @@ PrimitiveRange::PrimitiveRange(void):
 }
 
 PrimitiveRange::PrimitiveRange(PrimitiveType initType,
-	                       VertexBuffer& initVertexBuffer):
+	                       const VertexBuffer& initVertexBuffer):
   type(initType),
   vertexBuffer(&initVertexBuffer),
   indexBuffer(NULL),
@@ -856,8 +766,21 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
 }
 
 PrimitiveRange::PrimitiveRange(PrimitiveType initType,
-	                       VertexBuffer& initVertexBuffer,
-	                       IndexBuffer& initIndexBuffer):
+                               const VertexRange& vertexRange):
+  type(initType),
+  vertexBuffer(NULL),
+  indexBuffer(NULL),
+  start(0),
+  count(0)
+{
+  vertexBuffer = vertexRange.getVertexBuffer();
+  start = vertexRange.getStart();
+  count = vertexRange.getCount();
+}
+
+PrimitiveRange::PrimitiveRange(PrimitiveType initType,
+	                       const VertexBuffer& initVertexBuffer,
+	                       const IndexBuffer& initIndexBuffer):
   type(initType),
   vertexBuffer(&initVertexBuffer),
   indexBuffer(&initIndexBuffer),
@@ -868,7 +791,21 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
 }
 
 PrimitiveRange::PrimitiveRange(PrimitiveType initType,
-	                       VertexBuffer& initVertexBuffer,
+	                       const VertexBuffer& initVertexBuffer,
+	                       const IndexRange& indexRange):
+  type(initType),
+  vertexBuffer(&initVertexBuffer),
+  indexBuffer(NULL),
+  start(0),
+  count(0)                                                     
+{
+  indexBuffer = indexRange.getIndexBuffer();
+  start = indexRange.getStart();
+  count = indexRange.getCount();
+}
+
+PrimitiveRange::PrimitiveRange(PrimitiveType initType,
+	                       const VertexBuffer& initVertexBuffer,
 	                       unsigned int initStart,
 	                       unsigned int initCount):
   type(initType),
@@ -880,8 +817,8 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
 }
 
 PrimitiveRange::PrimitiveRange(PrimitiveType initType,
-	                       VertexBuffer& initVertexBuffer,
-			       IndexBuffer& initIndexBuffer,
+	                       const VertexBuffer& initVertexBuffer,
+			       const IndexBuffer& initIndexBuffer,
 	                       unsigned int initStart,
 	                       unsigned int initCount):
   type(initType),
@@ -905,12 +842,12 @@ PrimitiveType PrimitiveRange::getType(void) const
   return type;
 }
 
-VertexBuffer* PrimitiveRange::getVertexBuffer(void) const
+const VertexBuffer* PrimitiveRange::getVertexBuffer(void) const
 {
   return vertexBuffer;
 }
 
-IndexBuffer* PrimitiveRange::getIndexBuffer(void) const
+const IndexBuffer* PrimitiveRange::getIndexBuffer(void) const
 {
   return indexBuffer;
 }

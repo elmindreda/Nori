@@ -28,13 +28,14 @@
 #include <wendy/Config.h>
 
 #include <wendy/GLContext.h>
-#include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
-#include <wendy/GLPass.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLRender.h>
+#include <wendy/GLState.h>
+#include <wendy/GLPass.h>
 
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderStyle.h>
@@ -153,14 +154,26 @@ void Queue::render(void) const
       pass.apply();
 
       if (operation.indexBuffer)
-        operation.indexBuffer->render(*(operation.vertexBuffer),
-	                              operation.renderMode,
-	                              operation.start,
-				      operation.count);
+      {
+	GL::PrimitiveRange range(operation.type,
+				 *(operation.vertexBuffer),
+				 *(operation.indexBuffer),
+	                         operation.start,
+				 operation.count);
+
+	renderer->setCurrentPrimitiveRange(range);
+	renderer->render();
+      }
       else
-        operation.vertexBuffer->render(operation.renderMode,
-	                               operation.start,
-				       operation.count);
+      {
+	GL::PrimitiveRange range(operation.type,
+				 *(operation.vertexBuffer),
+	                         operation.start,
+				 operation.count);
+
+	renderer->setCurrentPrimitiveRange(range);
+	renderer->render();
+      }
     }
 
     renderer->popTransform();

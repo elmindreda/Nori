@@ -57,6 +57,21 @@ using namespace moira;
 namespace
 {
   
+size_t getTypeSize(IndexBuffer::Type type)
+{
+  switch (type)
+  {
+    case IndexBuffer::UINT:
+      return sizeof(GLuint);
+    case IndexBuffer::USHORT:
+      return sizeof(GLushort);
+    case IndexBuffer::UBYTE:
+      return sizeof(GLubyte);
+    default:
+      throw Exception("Invalid index buffer type");
+  }
+}
+
 GLenum convertPrimitiveType(PrimitiveType type)
 {
   switch (type)
@@ -75,6 +90,36 @@ GLenum convertPrimitiveType(PrimitiveType type)
       return GL_TRIANGLE_FAN;
     default:
       throw Exception("Invalid primitive type");
+  }
+}
+
+GLenum convertType(VertexComponent::Type type)
+{
+  switch (type)
+  {
+    case VertexComponent::DOUBLE:
+      return GL_DOUBLE;
+    case VertexComponent::FLOAT:
+      return GL_FLOAT;
+    case VertexComponent::INT:
+      return GL_INT;
+    default:
+      throw Exception("Invalid vertex component type");
+  }
+}
+
+GLenum convertType(IndexBuffer::Type type)
+{
+  switch (type)
+  {
+    case IndexBuffer::UINT:
+      return GL_UNSIGNED_INT;
+    case IndexBuffer::USHORT:
+      return GL_UNSIGNED_SHORT;
+    case IndexBuffer::UBYTE:
+      return GL_UNSIGNED_BYTE;
+    default:
+      throw Exception("Invalid index buffer type");
   }
 }
 
@@ -163,6 +208,79 @@ void Renderer::pushTransform(const Matrix4& transform)
 void Renderer::popTransform(void)
 {
   matrixStack.pop();
+}
+
+void Renderer::render(void)
+{
+  if (currentRange.isEmpty())
+  {
+    Log::writeWarning("Rendering empty primitive range");
+    return;
+  }
+
+  if (!currentProgram)
+  {
+    Log::writeError("Unable to render without a current shader program");
+    return;
+  }
+
+  Program& program = *currentProgram;
+  program.apply();
+
+  const VertexBuffer& vertexBuffer = *(currentRange.getVertexBuffer());
+  vertexBuffer.apply();
+
+  const IndexBuffer* indexBuffer = currentRange.getIndexBuffer();
+  if (indexBuffer)
+    indexBuffer->apply();
+
+  const VertexFormat& format = vertexBuffer.getFormat();
+
+  if (format.getComponentCount() != program.getVaryingCount())
+  {
+    Log::writeError("Vertex component count does not match shader program varying count");
+    return;
+  }
+
+  for (unsigned int i = 0;  i < format.getComponentCount();  i++)
+  {
+    const VertexComponent& component = format[i];
+
+    Varying* varying = program.findVarying(component.getName());
+    if (!varying)
+    {
+      Log::writeError("Vertex component %s has no corresponding shader program varying",
+                      component.getName().c_str());
+      return;
+    }
+
+    // TODO: Check type compatibility.
+
+    varying->enable(format.getSize(), component.getOffset());
+  }
+
+  if (Uniform* MVP = program.findUniform("MVP"))
+  {
+    if (MVP->getType() == Uniform::FLOAT_MAT4)
+      MVP->setValue(matrixStack.getTotal());
+  }
+
+  if (indexBuffer)
+  {
+    glDrawElements(convertPrimitiveType(currentRange.getType()),
+                   currentRange.getCount(),
+		   convertType(indexBuffer->getType()),
+		   (GLvoid*) (getTypeSize(indexBuffer->getType()) * currentRange.getStart()));
+  }
+  else
+  {
+    glDrawArrays(convertPrimitiveType(currentRange.getType()),
+                 currentRange.getStart(),
+		 currentRange.getCount());
+  }
+
+  for (unsigned int i = 0;  i < program.getVaryingCount();  i++)
+    program.getVarying(i).disable();
 }
 
 bool Renderer::allocateIndices(IndexRange& range,
@@ -318,8 +436,7 @@ bool Renderer::create(Context& context)
 Renderer::Renderer(Context& initContext):
   context(initContext),
   currentCanvas(NULL),
-  currentVertexBuffer(NULL),
-  currentIndexBuffer(NULL)
+  currentProgram(NULL)
 {
 }
 

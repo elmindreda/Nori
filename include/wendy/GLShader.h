@@ -39,6 +39,7 @@ using namespace moira;
 
 class Context;
 class Texture;
+class VertexFormat;
 class Program;
 
 ///////////////////////////////////////////////////////////////////////
@@ -57,6 +58,8 @@ public:
     FLOAT_VEC3,
     FLOAT_VEC4,
   };
+  void enable(size_t stride, size_t offset);
+  void disable(void);
   bool isScalar(void) const;
   bool isVector(void) const;
   Type getType(void) const;
@@ -202,6 +205,7 @@ private:
  */
 class Program : public RefObject<Program>, public Resource<Program>
 {
+  friend class Renderer;
 public:
   Varying* findVarying(const String& name);
   const Varying* findVarying(const String& name) const;
@@ -228,6 +232,7 @@ private:
   Program(Context& context, const String& name);
   Program(const Program& source);
   bool init(VertexShader& vertexShader, FragmentShader& fragmentShader);
+  void apply(void) const;
   Program& operator = (const Program& source);
   typedef std::vector<Varying*> VaryingList;
   typedef std::vector<Uniform*> UniformList;
@@ -248,40 +253,17 @@ class ProgramInterface
 public:
   void addUniform(const String& name, Uniform::Type type);
   void addSampler(const String& name, Sampler::Type type);
-  //void addVarying(const String& name, VertexComponent::Type type, unsigned int count);
-  /*! @param[in] program The program to check against this interface.
-   *  @return @c true if this interface and the specified program has any
-   *          uniform, sampler or varying names in common.
-   */
-  bool intersects(const Program& program) const;
-  /*! @param[in] program The program to check against this interface.
-   *  @return @c true if all uniform, sampler and varying names and types in
-   *  this interface are present in the specified program.
-   */
-  bool conforms(const Program& program) const;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*
-class ProgramState
-{
-public:
-  ProgramState(void);
-  ProgramState(Program& program);
-  void apply(void) const;
-  unsigned int getUniformStateCount(void) const;
-  UniformState& getUniformState(unsigned int index);
-  const UniformState& getUniformState(unsigned int index) const;
-  UniformState& getUniformState(const String& name);
-  const UniformState& getUniformState(const String& name) const;
-  Program* getProgram(void) const;
+  void addVarying(const String& name, Varying::Type type);
+  bool matches(const Program& program) const;
+  bool matches(const VertexFormat& format) const;
 private:
-  typedef std::vector<UniformState*> StateList;
-  Ref<Program> program;
-  StateList states;
+  typedef std::vector<std::pair<String, Uniform::Type> > UniformList;
+  typedef std::vector<std::pair<String, Sampler::Type> > SamplerList;
+  typedef std::vector<std::pair<String, Varying::Type> > VaryingList;
+  UniformList uniforms;
+  SamplerList samplers;
+  VaryingList varyings;
 };
-*/
 
 ///////////////////////////////////////////////////////////////////////
 

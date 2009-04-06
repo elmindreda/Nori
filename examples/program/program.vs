@@ -1,19 +1,20 @@
 
-uniform float time;
-
-varying vec3 N;
-varying vec3 P;
-
-void main()
+struct Out
 {
-  N = normalize(gl_NormalMatrix * gl_Normal).xyz;
+  float4 position : POSITION;
+  float4 color;
+  float3 normal;
+  float2 mapping;
+};
 
-  vec4 position = gl_ModelViewMatrix * gl_Vertex;
-  position.y += sin(time);
+Out main(in float3 position, in float3 normal, in float2 mapping)
+{
+  Out result;
 
-  P = position.xyz;
-
-  gl_FrontColor = gl_Color;
-  gl_Position = gl_ProjectionMatrix * position;
+  result.position = float4(position, 1);
+  result.color = float4(1, 0, 0, 1);
+  result.normal = normal;
+  result.mapping = mapping;
+  return result;
 }
 

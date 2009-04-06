@@ -124,7 +124,6 @@ private:
   float descender;
   GL::Pass pass;
   ColorRGBA color;
-  Ref<GL::Texture> texture;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -146,7 +145,7 @@ public:
 class Font::Glyph
 {
 public:
-  void draw(const Vector2& penPosition) const;
+  void realizeVertices(Vector2 penPosition, GL::Vertex2ft2fv* vertices) const;
   Rectangle area;
   Vector2 bearing;
   Vector2 size;

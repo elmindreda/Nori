@@ -667,6 +667,11 @@ void ProgramState::setProgram(Program* newProgram)
   }
 }
 
+void ProgramState::setDefaults(void)
+{
+  setProgram(NULL);
+}
+
 void ProgramState::destroyProgramState(void)
 {
   while (!uniforms.empty())

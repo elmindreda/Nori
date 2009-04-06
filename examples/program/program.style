@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<style version="3">
+<style version="4">
   <technique quality="1">
     <pass>
-      <shader-program name="program" />
-      <default r="1" g="0.1" b="0.1" a="1" />
-    </pass>
-  </technique>
-  <technique quality="0">
-    <pass>
-      <lighting enabled="1" />
-      <default r="1" g="0.1" b="0.1" a="1" />
+      <program name="program" />
+      <polygon cull="none" wireframe="0" />
     </pass>
   </technique>
 </style>

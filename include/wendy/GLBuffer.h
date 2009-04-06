@@ -62,6 +62,7 @@ enum LockType
  */
 class VertexBuffer : public Managed<VertexBuffer>
 {
+  friend class Renderer;
 public:
   /*! Vertex buffer usage hint enumeration.
    */
@@ -121,18 +122,13 @@ public:
                                       const VertexFormat& format,
 				      Usage usage = STATIC,
 				      const String& name = ""); 
-  /*! Invalidates the current vertex buffer.
-   */
-  static void invalidateCurrent(void);
-  /*! @return The current vertex buffer, or @c NULL if no vertex buffer is
-   *  current.
-   */
-  static VertexBuffer* getCurrent(void);
 private:
   VertexBuffer(const String& name);
   VertexBuffer(const VertexBuffer& source);
   VertexBuffer& operator = (const VertexBuffer& source);
   bool init(const VertexFormat& format, unsigned int count, Usage usage);
+  void apply(void) const;
+  static void invalidateCurrent(void);
   bool locked;
   VertexFormat format;
   unsigned int bufferID;
@@ -150,6 +146,7 @@ private:
  */
 class IndexBuffer : public Managed<IndexBuffer>
 {
+  friend class Renderer;
 public:
   /*! Index buffer element type enumeration.
    */
@@ -224,18 +221,13 @@ public:
 				     Type type = UINT,
 				     Usage usage = STATIC,
 				     const String& name = "");
-  /*! Invalidates the current index buffer.
-   */
-  static void invalidateCurrent(void);
-  /*! @return The current index buffer, or @c NULL if no index buffer is
-   *  current.
-   */
-  static IndexBuffer* getCurrent(void);
 private:
   IndexBuffer(const String& name);
   IndexBuffer(const IndexBuffer& source);
   IndexBuffer& operator = (const IndexBuffer& source);
   bool init(unsigned int count, Type type, Usage usage);
+  void apply(void) const;
+  static void invalidateCurrent(void);
   bool locked;
   Type type;
   Usage usage;
@@ -356,29 +348,33 @@ class PrimitiveRange
 {
 public:
   PrimitiveRange(void);
-  PrimitiveRange(PrimitiveType type, VertexBuffer& vertexBuffer);
+  PrimitiveRange(PrimitiveType type, const VertexBuffer& vertexBuffer);
+  PrimitiveRange(PrimitiveType type, const VertexRange& vertexRange);
   PrimitiveRange(PrimitiveType type,
-                 VertexBuffer& vertexBuffer,
-                 IndexBuffer& indexBuffer);
+                 const VertexBuffer& vertexBuffer,
+                 const IndexBuffer& indexBuffer);
   PrimitiveRange(PrimitiveType type,
-                 VertexBuffer& vertexBuffer,
+                 const VertexBuffer& vertexBuffer,
+                 const IndexRange& indexRange);
+  PrimitiveRange(PrimitiveType type,
+                 const VertexBuffer& vertexBuffer,
 		 unsigned int start,
 		 unsigned int count);
   PrimitiveRange(PrimitiveType type,
-                 VertexBuffer& vertexBuffer,
-                 IndexBuffer& indexBuffer,
+                 const VertexBuffer& vertexBuffer,
+                 const IndexBuffer& indexBuffer,
 	         unsigned int start,
 	         unsigned int count);
   bool isEmpty(void) const;
   PrimitiveType getType(void) const;
-  VertexBuffer* getVertexBuffer(void) const;
-  IndexBuffer* getIndexBuffer(void) const;
+  const VertexBuffer* getVertexBuffer(void) const;
+  const IndexBuffer* getIndexBuffer(void) const;
   unsigned int getStart(void) const;
   unsigned int getCount(void) const;
 private:
   PrimitiveType type;
-  VertexBuffer* vertexBuffer;
-  IndexBuffer* indexBuffer;
+  const VertexBuffer* vertexBuffer;
+  const IndexBuffer* indexBuffer;
   unsigned int start;
   unsigned int count;
 };
