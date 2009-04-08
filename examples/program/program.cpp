@@ -73,10 +73,11 @@ bool Demo::init(void)
   */
 
   camera.setFOV(60.f);
+  camera.setAspectRatio(0.f);
 
   cameraNode = new render::CameraNode();
   cameraNode->setCameraName(camera.getName());
-  cameraNode->getLocalTransform().position.z = 3.f;
+  cameraNode->getLocalTransform().position.z = 6.f;
   scene.addNode(*cameraNode);
 
   /*
@@ -124,8 +125,6 @@ bool Demo::render(void)
   canvas.begin();
   canvas.clearDepthBuffer();
   canvas.clearColorBuffer();
-
-  scene.setTimeElapsed(currentTime);
 
   render::Queue queue(camera);
   scene.enqueue(queue);
