@@ -45,7 +45,7 @@ using namespace moira;
  */
 class Texture : public Resource<Texture>, public RefObject<Texture>
 {
-  friend class Uniform;
+  friend class Sampler;
 public:
   enum
   {

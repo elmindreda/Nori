@@ -127,24 +127,6 @@ VertexBuffer::~VertexBuffer(void)
     glDeleteBuffersARB(1, &bufferID);
 }
 
-/*
-void VertexBuffer::render(RenderMode mode,
-                          unsigned int start,
-                          unsigned int count) const
-{
-  if (getCurrent() != this)
-    apply();
-
-  if (!count)
-    count = getCount();
-
-  if (Statistics* statistics = Statistics::get())
-    statistics->addPrimitives(mode, count);
-
-  glDrawArrays(convertRenderMode(mode), start, count);
-}
-*/
-
 void* VertexBuffer::lock(LockType type)
 {
   if (locked)
@@ -345,30 +327,6 @@ IndexBuffer::~IndexBuffer(void)
   if (bufferID)
     glDeleteBuffersARB(1, &bufferID);
 }
-
-/*
-*/
-
-/*
-void IndexBuffer::render(const VertexBuffer& vertexBuffer,
-                         RenderMode mode,
-                         unsigned int start,
-			 unsigned int count) const
-{
-  vertexBuffer.apply();
-
-  if (getCurrent() != this)
-    apply();
-
-  if (!count)
-    count = getCount();
-
-  if (Statistics* statistics = Statistics::get())
-    statistics->addPrimitives(mode, count);
-
-  glDrawElements(convertRenderMode(mode), count, type, (GLvoid*) (getTypeSize(type) * start));
-}
-*/
 
 void* IndexBuffer::lock(LockType type)
 {

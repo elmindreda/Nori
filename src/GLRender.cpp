@@ -165,7 +165,7 @@ void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ)
   if (aspect == 0.f)
     aspect = (float) canvas->getPhysicalWidth() / (float) canvas->getPhysicalHeight();
 
-  const float f = 1.f / tanf(FOV / 2.f);
+  const float f = 1.f / tanf((FOV * M_PI / 180.f) / 2.f);
 
   Matrix4 projection;
   projection.x.x = f / aspect;
@@ -173,6 +173,7 @@ void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ)
   projection.z.z = (farZ + nearZ) / (nearZ - farZ);
   projection.z.w = -1.f;
   projection.w.z = (2.f * farZ * nearZ) / (nearZ - farZ);
+  projection.w.w = 0.f;
 
   matrixStack.push(projection);
 }
@@ -236,27 +237,27 @@ void Renderer::render(void)
 
   const VertexFormat& format = vertexBuffer.getFormat();
 
-  if (format.getComponentCount() != program.getVaryingCount())
+  if (program.getVaryingCount() > format.getComponentCount())
   {
-    Log::writeError("Vertex component count does not match shader program varying count");
+    Log::writeError("Shader program has more varying parameters than vertex format has components");
     return;
   }
 
-  for (unsigned int i = 0;  i < format.getComponentCount();  i++)
+  for (unsigned int i = 0;  i < program.getVaryingCount();  i++)
   {
-    const VertexComponent& component = format[i];
+    Varying& varying = program.getVarying(i);
 
-    Varying* varying = program.findVarying(component.getName());
-    if (!varying)
+    const VertexComponent* component = format.findComponent(varying.getName());
+    if (!component)
     {
-      Log::writeError("Vertex component %s has no corresponding shader program varying",
-                      component.getName().c_str());
+      Log::writeError("Varying parameter %s has no corresponding vertex format component",
+                      varying.getName().c_str());
       return;
     }
 
     // TODO: Check type compatibility.
 
-    varying->enable(format.getSize(), component.getOffset());
+    varying.enable(format.getSize(), component->getOffset());
   }
 
   if (Uniform* MVP = program.findUniform("MVP"))

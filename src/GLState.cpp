@@ -535,7 +535,12 @@ SamplerState::SamplerState(Sampler& initSampler):
 
 void SamplerState::apply(void) const
 {
-  sampler.setTexture(texture);
+  if (texture)
+    sampler.setTexture(*texture);
+  else
+  {
+    // TODO: Wtf?
+  }
 }
 
 SamplerState::SamplerState(const SamplerState& source):
@@ -663,7 +668,42 @@ void ProgramState::setProgram(Program* newProgram)
       samplers.push_back(new SamplerState(program->getSampler(i)));
 
     for (unsigned int i = 0;  i < program->getUniformCount();  i++)
-      uniforms.push_back(new UniformState(program->getUniform(i)));
+    {
+      Uniform& uniform = program->getUniform(i);
+      UniformState* state;
+
+      if (GL::Renderer::get()->isReservedUniform(uniform.getName()))
+	continue;
+
+      switch (uniform.getType())
+      {
+	case Uniform::FLOAT:
+	  state = new UniformStateTemplate<float>(uniform);
+	  break;
+	case Uniform::FLOAT_VEC2:
+	  state = new UniformStateTemplate<Vector2>(uniform);
+	  break;
+	case Uniform::FLOAT_VEC3:
+	  state = new UniformStateTemplate<Vector3>(uniform);
+	  break;
+	case Uniform::FLOAT_VEC4:
+	  state = new UniformStateTemplate<Vector4>(uniform);
+	  break;
+	case Uniform::FLOAT_MAT2:
+	  state = new UniformStateTemplate<Matrix2>(uniform);
+	  break;
+	case Uniform::FLOAT_MAT3:
+	  state = new UniformStateTemplate<Matrix3>(uniform);
+	  break;
+	case Uniform::FLOAT_MAT4:
+	  state = new UniformStateTemplate<Matrix4>(uniform);
+	  break;
+	default:
+	  throw Exception("Unknown uniform state type");
+      }
+
+      uniforms.push_back(state);
+    }
   }
 }
 

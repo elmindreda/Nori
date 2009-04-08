@@ -371,7 +371,7 @@ void Uniform::setValue(const Matrix2& newValue)
     return;
   }
 
-  cgGLSetMatrixParameterfr((CGparameter) uniformID, newValue);
+  cgSetMatrixParameterfc((CGparameter) uniformID, newValue);
 }
 
 void Uniform::setValue(const Matrix3& newValue)
@@ -382,18 +382,18 @@ void Uniform::setValue(const Matrix3& newValue)
     return;
   }
 
-  cgGLSetMatrixParameterfr((CGparameter) uniformID, newValue);
+  cgSetMatrixParameterfc((CGparameter) uniformID, newValue);
 }
 
 void Uniform::setValue(const Matrix4& newValue)
 {
   if (type != FLOAT_MAT4)
   {
-    Log::writeError("Uniform %s in program %s is not of type float2", name.c_str(), program.getName().c_str());
+    Log::writeError("Uniform %s in program %s is not of type float4x4", name.c_str(), program.getName().c_str());
     return;
   }
 
-  cgGLSetMatrixParameterfr((CGparameter) uniformID, newValue);
+  cgSetMatrixParameterfc((CGparameter) uniformID, newValue);
 }
 
 Program& Uniform::getProgram(void) const
@@ -428,9 +428,9 @@ const String& Sampler::getName(void) const
   return name;
 }
 
-void Sampler::setTexture(Texture* newTexture)
+void Sampler::setTexture(Texture& newTexture)
 {
-  // TODO: The code.
+  cgGLSetTextureParameter((CGparameter) samplerID, newTexture.textureID);
 }
 
 Program& Sampler::getProgram(void) const
@@ -719,6 +719,7 @@ bool Program::init(VertexShader& initVertexShader, FragmentShader& initFragmentS
   vertexShader = &initVertexShader;
   fragmentShader = &initFragmentShader;
 
+  /*
   programID = cgCombinePrograms2((CGprogram) vertexShader->shaderID,
                                  (CGprogram) fragmentShader->shaderID);
   if (!programID)
@@ -726,70 +727,61 @@ bool Program::init(VertexShader& initVertexShader, FragmentShader& initFragmentS
     Log::writeError("Unable to combine shaders for program %s", getName().c_str());
     return false;
   }
+  */
 
-  cgGLLoadProgram((CGprogram) programID);
+  cgGLLoadProgram((CGprogram) vertexShader->shaderID);
+  cgGLLoadProgram((CGprogram) fragmentShader->shaderID);
 
-  CGparameter parameter = cgGetFirstParameter((CGprogram) vertexShader->shaderID, CG_PROGRAM);
+  CGparameter parameter = cgGetFirstLeafParameter((CGprogram) vertexShader->shaderID,
+                                                  CG_PROGRAM);
 
   while (parameter)
   {
-    CGenum variability = cgGetParameterVariability(parameter);
-
-    if (variability == CG_VARYING)
+    if (cgGetParameterResource(parameter) != CG_UNDEFINED)
     {
-      if (cgGetParameterDirection(parameter) != CG_IN)
-	continue;
-
-      CGtype type = cgGetParameterType(parameter);
-
-      // TODO: Check type.
-
-      Varying* varying = new Varying(*this);
-      varying->name = cgGetParameterName(parameter);
-      varying->type = convertVaryingType(type);
-      varying->varyingID = parameter;
-
-      varyings.push_back(varying);
-    }
-    else if (variability == CG_UNIFORM)
-    {
-      CGtype type = cgGetParameterType(parameter);
-
-      if (type == CG_ARRAY)
+      CGenum variability = cgGetParameterVariability(parameter);
+      if (variability == CG_VARYING)
       {
-	Log::writeWarning("Array uniforms unsupported");
-	continue;
-      }
+	if (cgGetParameterDirection(parameter) != CG_IN)
+	  continue;
 
-      if (type == CG_STRUCT)
+	CGtype type = cgGetParameterType(parameter);
+
+	Varying* varying = new Varying(*this);
+	varying->name = cgGetParameterName(parameter);
+	varying->type = convertVaryingType(type);
+	varying->varyingID = parameter;
+
+	varyings.push_back(varying);
+      }
+      else if (variability == CG_UNIFORM)
       {
-	Log::writeWarning("Struct uniforms unsupported");
-	continue;
-      }
+	CGtype type = cgGetParameterType(parameter);
 
-      if (isSamplerType(type))
-      {
-	Sampler* sampler = new Sampler(*this);
-	sampler->name = cgGetParameterName(parameter);
-	sampler->type = convertSamplerType(type);
-	sampler->samplerID = parameter;
+	if (isSamplerType(type))
+	{
+	  Sampler* sampler = new Sampler(*this);
+	  sampler->name = cgGetParameterName(parameter);
+	  sampler->type = convertSamplerType(type);
+	  sampler->samplerID = parameter;
 
-	samplers.push_back(sampler);
-      }
-      else if (isUniformType(type))
-      {
-	Uniform* uniform = new Uniform(*this);
-	uniform->name = cgGetParameterName(parameter);
-	uniform->type = convertUniformType(type);
-	uniform->uniformID = parameter;
+	  samplers.push_back(sampler);
+	}
+	else if (isUniformType(type))
+	{
+	  Uniform* uniform = new Uniform(*this);
+	  uniform->name = cgGetParameterName(parameter);
+	  uniform->type = convertUniformType(type);
+	  uniform->uniformID = parameter;
 
-	uniforms.push_back(uniform);
+	  uniforms.push_back(uniform);
+	}
+	else
+	  Log::writeError("Unknown Cg parameter type");
       }
-      else
-	Log::writeError("Unknown Cg parameter type");
     }
 
-    parameter = cgGetNextParameter(parameter);
+    parameter = cgGetNextLeafParameter(parameter);
   }
 
   return true;
@@ -797,7 +789,8 @@ bool Program::init(VertexShader& initVertexShader, FragmentShader& initFragmentS
 
 void Program::apply(void) const
 {
-  cgGLBindProgram((CGprogram) programID);
+  cgGLBindProgram((CGprogram) vertexShader->shaderID);
+  cgGLBindProgram((CGprogram) fragmentShader->shaderID);
 }
 
 Program& Program::operator = (const Program& source)

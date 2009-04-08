@@ -454,7 +454,7 @@ bool Context::init(const ContextMode& mode)
   glfwSetWindowSizeCallback(sizeCallback);
   glfwSetWindowCloseCallback(closeCallback);
 
-  glfwSwapInterval(1);
+  //glfwSwapInterval(1);
 
   setTitle("Wendy");
   glfwPollEvents();
