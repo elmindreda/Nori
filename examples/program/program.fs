@@ -1,6 +1,6 @@
 
-float4 main(in float4 color, in float3 normal) : COLOR
+float4 main(uniform sampler2D checkers, in float4 color, in float3 normal, in float2 mapping) : COLOR
 {
-  return color + float4(normal, 0);
+  return tex2D(checkers, mapping) * 0.25 + color * dot(normal, float4(0, 0, 1, 0)) * 0.75;
 }
 

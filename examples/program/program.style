@@ -2,8 +2,9 @@
 <style version="4">
   <technique quality="1">
     <pass>
-      <program name="program" />
-      <polygon cull="none" wireframe="0" />
+      <program name="program">
+	<sampler name="checkers" texture="default" />
+      </program>
     </pass>
   </technique>
 </style>
