@@ -111,7 +111,8 @@ private:
   typedef std::list<IndexBufferSlot> IndexBufferList;
   typedef std::list<VertexBufferSlot> VertexBufferList;
   Context& context;
-  MatrixStack4 matrixStack;
+  Matrix4 projection;
+  MatrixStack4 modelview;
   IndexBufferList indexBufferPool;
   VertexBufferList vertexBufferPool;
   Canvas* currentCanvas;

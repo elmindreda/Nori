@@ -136,18 +136,15 @@ void Renderer::begin2D(const Vector2& resolution)
     return;
   }
 
-  if (!matrixStack.isEmpty())
-    throw Exception("Renderer matrix stack not empty at begin");
+  if (!modelview.isEmpty())
+    throw Exception("Renderer modelview matrix stack not empty at begin");
 
-  Matrix4 projection;
   projection.x.x = 2.f / resolution.x;
   projection.y.y = 2.f / resolution.y;
   projection.z.z = -1.f;
   projection.w.x = -1.f;
   projection.w.y = -1.f;
   projection.w.w = 1.f;
-
-  matrixStack.push(projection);
 }
 
 void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ)
@@ -159,26 +156,23 @@ void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ)
     return;
   }
 
-  if (!matrixStack.isEmpty())
-    throw Exception("Renderer matrix stack not empty at begin");
+  if (!modelview.isEmpty())
+    throw Exception("Renderer modelview matrix stack not empty at begin");
 
   if (aspect == 0.f)
     aspect = (float) canvas->getPhysicalWidth() / (float) canvas->getPhysicalHeight();
 
   const float f = 1.f / tanf((FOV * M_PI / 180.f) / 2.f);
 
-  Matrix4 projection;
   projection.x.x = f / aspect;
   projection.y.y = f;
   projection.z.z = (farZ + nearZ) / (nearZ - farZ);
   projection.z.w = -1.f;
   projection.w.z = (2.f * farZ * nearZ) / (nearZ - farZ);
   projection.w.w = 0.f;
-
-  matrixStack.push(projection);
 }
 
-void Renderer::begin3D(const Matrix4& projection)
+void Renderer::begin3D(const Matrix4& newProjection)
 {
   Canvas* canvas = Canvas::getCurrent();
   if (!canvas)
@@ -187,28 +181,28 @@ void Renderer::begin3D(const Matrix4& projection)
     return;
   }
 
-  if (!matrixStack.isEmpty())
-    throw Exception("Renderer matrix stack not empty at begin");
+  if (!modelview.isEmpty())
+    throw Exception("Renderer modelview matrix stack not empty at begin");
 
-  matrixStack.push(projection);
+  projection = newProjection;
 }
   
 void Renderer::end(void)
 {
-  matrixStack.pop();
+  if (!modelview.isEmpty())
+    throw Exception("Renderer modelview matrix stack not empty after end");
 
-  if (!matrixStack.isEmpty())
-    throw Exception("Renderer matrix stack not empty after end");
+  projection.setIdentity();
 }
 
 void Renderer::pushTransform(const Matrix4& transform)
 {
-  matrixStack.push(transform);
+  modelview.push(transform);
 }
 
 void Renderer::popTransform(void)
 {
-  matrixStack.pop();
+  modelview.pop();
 }
 
 void Renderer::render(void)
@@ -263,7 +257,23 @@ void Renderer::render(void)
   if (Uniform* MVP = program.findUniform("MVP"))
   {
     if (MVP->getType() == Uniform::FLOAT_MAT4)
-      MVP->setValue(matrixStack.getTotal());
+    {
+      Matrix4 mvp = projection;
+      mvp.concatenate(modelview.getTotal());
+      MVP->setValue(mvp);
+    }
+  }
+
+  if (Uniform* P = program.findUniform("P"))
+  {
+    if (P->getType() == Uniform::FLOAT_MAT4)
+      P->setValue(projection);
+  }
+
+  if (Uniform* MV = program.findUniform("MV"))
+  {
+    if (MV->getType() == Uniform::FLOAT_MAT4)
+      MV->setValue(modelview.getTotal());
   }
 
   if (indexBuffer)
@@ -386,7 +396,7 @@ bool Renderer::allocateVertices(VertexRange& range,
 
 bool Renderer::isReservedUniform(const String& name) const
 {
-  return name == "MVP";
+  return name == "MVP" || name == "MV" || name == "P";
 }
 
 Context& Renderer::getContext(void) const
@@ -454,7 +464,7 @@ bool Renderer::init(void)
   generator.setCheckerColor(ColorRGBA(0.f, 1.f, 0.f, 1.f));
   generator.setCheckerSize(1);
 
-  Ptr<Image> image = generator.generate(ImageFormat::RGBX8888, 2, 2);
+  Ptr<Image> image = generator.generate(ImageFormat::RGBX8888, 8, 8);
   if (!image)
   {
     Log::writeError("Failed to create image data for default texture");

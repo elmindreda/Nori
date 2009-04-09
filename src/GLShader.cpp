@@ -371,7 +371,7 @@ void Uniform::setValue(const Matrix2& newValue)
     return;
   }
 
-  cgSetMatrixParameterfc((CGparameter) uniformID, newValue);
+  cgGLSetMatrixParameterfc((CGparameter) uniformID, newValue);
 }
 
 void Uniform::setValue(const Matrix3& newValue)
@@ -382,7 +382,7 @@ void Uniform::setValue(const Matrix3& newValue)
     return;
   }
 
-  cgSetMatrixParameterfc((CGparameter) uniformID, newValue);
+  cgGLSetMatrixParameterfc((CGparameter) uniformID, newValue);
 }
 
 void Uniform::setValue(const Matrix4& newValue)
@@ -393,7 +393,7 @@ void Uniform::setValue(const Matrix4& newValue)
     return;
   }
 
-  cgSetMatrixParameterfc((CGparameter) uniformID, newValue);
+  cgGLSetMatrixParameterfc((CGparameter) uniformID, newValue);
 }
 
 Program& Uniform::getProgram(void) const
@@ -719,21 +719,13 @@ bool Program::init(VertexShader& initVertexShader, FragmentShader& initFragmentS
   vertexShader = &initVertexShader;
   fragmentShader = &initFragmentShader;
 
-  /*
-  programID = cgCombinePrograms2((CGprogram) vertexShader->shaderID,
-                                 (CGprogram) fragmentShader->shaderID);
-  if (!programID)
-  {
-    Log::writeError("Unable to combine shaders for program %s", getName().c_str());
-    return false;
-  }
-  */
-
   cgGLLoadProgram((CGprogram) vertexShader->shaderID);
   cgGLLoadProgram((CGprogram) fragmentShader->shaderID);
 
-  CGparameter parameter = cgGetFirstLeafParameter((CGprogram) vertexShader->shaderID,
-                                                  CG_PROGRAM);
+  CGparameter parameter;
+  
+  parameter = cgGetFirstLeafParameter((CGprogram) vertexShader->shaderID,
+                                      CG_PROGRAM);
 
   while (parameter)
   {
@@ -755,6 +747,44 @@ bool Program::init(VertexShader& initVertexShader, FragmentShader& initFragmentS
 	varyings.push_back(varying);
       }
       else if (variability == CG_UNIFORM)
+      {
+	CGtype type = cgGetParameterType(parameter);
+
+	if (isSamplerType(type))
+	{
+	  Sampler* sampler = new Sampler(*this);
+	  sampler->name = cgGetParameterName(parameter);
+	  sampler->type = convertSamplerType(type);
+	  sampler->samplerID = parameter;
+
+	  samplers.push_back(sampler);
+	}
+	else if (isUniformType(type))
+	{
+	  Uniform* uniform = new Uniform(*this);
+	  uniform->name = cgGetParameterName(parameter);
+	  uniform->type = convertUniformType(type);
+	  uniform->uniformID = parameter;
+
+	  uniforms.push_back(uniform);
+	}
+	else
+	  Log::writeError("Unknown Cg parameter type");
+      }
+    }
+
+    parameter = cgGetNextLeafParameter(parameter);
+  }
+
+  parameter = cgGetFirstLeafParameter((CGprogram) fragmentShader->shaderID,
+                                      CG_PROGRAM);
+
+  while (parameter)
+  {
+    if (cgGetParameterResource(parameter) != CG_UNDEFINED)
+    {
+      CGenum variability = cgGetParameterVariability(parameter);
+      if (variability == CG_UNIFORM)
       {
 	CGtype type = cgGetParameterType(parameter);
 

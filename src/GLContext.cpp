@@ -433,6 +433,9 @@ bool Context::init(const ContextMode& mode)
     return false;
   }
 
+  Log::writeInformation("Cg vertex profile %s selected",
+                        cgGetProfileString((CGprofile)cgVertexProfile));
+
   cgGLEnableProfile((CGprofile) cgVertexProfile);
   cgGLSetOptimalOptions((CGprofile) cgVertexProfile);
 
@@ -442,6 +445,9 @@ bool Context::init(const ContextMode& mode)
     Log::writeError("Unable to find any usable Cg fragment profile");
     return false;
   }
+
+  Log::writeInformation("Cg fragment profile %s selected",
+                        cgGetProfileString((CGprofile) cgFragmentProfile));
 
   cgGLEnableProfile((CGprofile) cgFragmentProfile);
   cgGLSetOptimalOptions((CGprofile) cgFragmentProfile);
