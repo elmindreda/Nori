@@ -62,9 +62,50 @@ Key::operator unsigned int (void) const
 
 ///////////////////////////////////////////////////////////////////////
 
+void Focus::onContextResized(unsigned int width, unsigned int height)
+{
+}
+
+void Focus::onKeyPressed(Key key, bool pressed)
+{
+}
+
+void Focus::onCharInput(wchar_t character)
+{
+}
+
+void Focus::onButtonClicked(unsigned int button, bool clicked)
+{
+}
+
+void Focus::onCursorMoved(const Vector2& position)
+{
+}
+
+void Focus::onWheelTurned(int offset)
+{
+}
+
+void Focus::onFocusChanged(bool activated)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Context::~Context(void)
 {
+  setFocus(NULL);
   instance = NULL;
+}
+
+void Context::captureCursor(void)
+{
+  glfwDisable(GLFW_MOUSE_CURSOR);
+}
+
+void Context::releaseCursor(void)
+{
+  glfwEnable(GLFW_MOUSE_CURSOR);
 }
 
 bool Context::isKeyDown(const Key& key) const
@@ -140,6 +181,25 @@ SignalProxy1<void, int> Context::getWheelTurnedSignal(void)
   return wheelTurnedSignal;
 }
 
+Focus* Context::getFocus(void) const
+{
+  return currentFocus;
+}
+
+void Context::setFocus(Focus* newFocus)
+{
+  if (currentFocus == newFocus)
+    return;
+
+  if (currentFocus)
+    currentFocus->onFocusChanged(false);
+
+  currentFocus = newFocus;
+
+  if (currentFocus)
+    currentFocus->onFocusChanged(true);
+}
+
 GL::Context& Context::getContext(void) const
 {
   return context;
@@ -152,7 +212,8 @@ bool Context::create(GL::Context& context)
 }
 
 Context::Context(GL::Context& initContext):
-  context(initContext)
+  context(initContext),
+  currentFocus(NULL)
 {
   // TODO: Remove this upon the arrival of GLFW_USER_DATA.
   instance = this;
@@ -265,6 +326,9 @@ Context& Context::operator = (const Context& source)
 void Context::sizeCallback(unsigned int width, unsigned int height)
 {
   resizedSignal.emit(width, height);
+
+  if (currentFocus)
+    currentFocus->onContextResized(width, height);
 }
 
 void Context::keyboardCallback(int key, int action)
@@ -279,6 +343,9 @@ void Context::keyboardCallback(int key, int action)
   }
 
   instance->keyPressedSignal.emit(key, (action == GLFW_PRESS) ? true : false);
+
+  if (instance->currentFocus)
+    instance->currentFocus->onKeyPressed(key, (action == GLFW_PRESS) ? true : false);
 }
 
 void Context::characterCallback(int character, int action)
@@ -287,6 +354,9 @@ void Context::characterCallback(int character, int action)
     return;
 
   instance->charInputSignal.emit((wchar_t) character);
+
+  if (instance->currentFocus)
+    instance->currentFocus->onCharInput((wchar_t) character);
 }
 
 void Context::mousePosCallback(int x, int y)
@@ -294,17 +364,28 @@ void Context::mousePosCallback(int x, int y)
   Vector2 position((float) x, (float) y);
 
   instance->cursorMovedSignal.emit(position);
+
+  if (instance->currentFocus)
+    instance->currentFocus->onCursorMoved(position);
 }
 
 void Context::mouseButtonCallback(int button, int action)
 {
   instance->buttonClickedSignal.emit(button - GLFW_MOUSE_BUTTON_1,
                                    (action == GLFW_PRESS) ? true : false); 
+
+  if (instance->currentFocus)
+    instance->currentFocus->onButtonClicked(button - GLFW_MOUSE_BUTTON_1,
+                                            (action == GLFW_PRESS) ? true : false);
 }
 
 void Context::mouseWheelCallback(int position)
 {
   instance->wheelTurnedSignal.emit(instance->wheelPosition - position);
+
+  if (instance->currentFocus)
+    instance->currentFocus->onWheelTurned(instance->wheelPosition - position);
+
   instance->wheelPosition = position;
 }
 
