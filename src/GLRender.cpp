@@ -26,16 +26,17 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
 #include <wendy/GLContext.h>
-#include <wendy/GLLight.h>
-#include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
-#include <wendy/GLPass.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLRender.h>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
 
 #include <algorithm>
 #include <cstdlib>
@@ -53,27 +54,80 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-void Renderer::begin2D(const Vector2& resolution) const
+namespace
 {
-  Canvas* canvas = Canvas::getCurrent();
-  if (!canvas)
+  
+size_t getTypeSize(IndexBuffer::Type type)
+{
+  switch (type)
   {
-    Log::writeError("Cannot begin without a current canvas");
-    return;
+    case IndexBuffer::UINT:
+      return sizeof(GLuint);
+    case IndexBuffer::USHORT:
+      return sizeof(GLushort);
+    case IndexBuffer::UBYTE:
+      return sizeof(GLubyte);
+    default:
+      throw Exception("Invalid index buffer type");
   }
-
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  gluOrtho2D(0.f, resolution.x, 0.f, resolution.y);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  glPopAttrib();
 }
 
-void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ) const
+GLenum convertPrimitiveType(PrimitiveType type)
+{
+  switch (type)
+  {
+    case POINT_LIST:
+      return GL_POINTS;
+    case LINE_LIST:
+      return GL_LINES;
+    case LINE_STRIP:
+      return GL_LINE_STRIP;
+    case TRIANGLE_LIST:
+      return GL_TRIANGLES;
+    case TRIANGLE_STRIP:
+      return GL_TRIANGLE_STRIP;
+    case TRIANGLE_FAN:
+      return GL_TRIANGLE_FAN;
+    default:
+      throw Exception("Invalid primitive type");
+  }
+}
+
+GLenum convertType(VertexComponent::Type type)
+{
+  switch (type)
+  {
+    case VertexComponent::DOUBLE:
+      return GL_DOUBLE;
+    case VertexComponent::FLOAT:
+      return GL_FLOAT;
+    case VertexComponent::INT:
+      return GL_INT;
+    default:
+      throw Exception("Invalid vertex component type");
+  }
+}
+
+GLenum convertType(IndexBuffer::Type type)
+{
+  switch (type)
+  {
+    case IndexBuffer::UINT:
+      return GL_UNSIGNED_INT;
+    case IndexBuffer::USHORT:
+      return GL_UNSIGNED_SHORT;
+    case IndexBuffer::UBYTE:
+      return GL_UNSIGNED_BYTE;
+    default:
+      throw Exception("Invalid index buffer type");
+  }
+}
+
+}
+
+///////////////////////////////////////////////////////////////////////
+
+void Renderer::begin(const Matrix4& newProjection)
 {
   Canvas* canvas = Canvas::getCurrent();
   if (!canvas)
@@ -81,66 +135,163 @@ void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ) const
     Log::writeError("Cannot begin without a current canvas");
     return;
   }
+
+  if (!modelview.isEmpty())
+    throw Exception("Renderer modelview matrix stack not empty at begin");
+
+  projection = newProjection;
+}
+  
+void Renderer::begin2D(const Vector2& resolution)
+{
+  Canvas* canvas = Canvas::getCurrent();
+  if (!canvas)
+  {
+    Log::writeError("Cannot begin without a current canvas");
+    return;
+  }
+
+  if (!modelview.isEmpty())
+    throw Exception("Renderer modelview matrix stack not empty at begin");
+
+  projection.x.x = 2.f / resolution.x;
+  projection.y.y = 2.f / resolution.y;
+  projection.z.z = -1.f;
+  projection.w.x = -1.f;
+  projection.w.y = -1.f;
+  projection.w.w = 1.f;
+}
+
+void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ)
+{
+  Canvas* canvas = Canvas::getCurrent();
+  if (!canvas)
+  {
+    Log::writeError("Cannot begin without a current canvas");
+    return;
+  }
+
+  if (!modelview.isEmpty())
+    throw Exception("Renderer modelview matrix stack not empty at begin");
 
   if (aspect == 0.f)
     aspect = (float) canvas->getPhysicalWidth() / (float) canvas->getPhysicalHeight();
 
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  gluPerspective(FOV, aspect, nearZ, farZ);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  glPopAttrib();
+  const float f = 1.f / tanf((FOV * M_PI / 180.f) / 2.f);
+
+  projection.x.x = f / aspect;
+  projection.y.y = f;
+  projection.z.z = (farZ + nearZ) / (nearZ - farZ);
+  projection.z.w = -1.f;
+  projection.w.z = (2.f * farZ * nearZ) / (nearZ - farZ);
+  projection.w.w = 0.f;
 }
 
-void Renderer::begin3D(const Matrix4& projection) const
+void Renderer::end(void)
 {
-  Canvas* canvas = Canvas::getCurrent();
-  if (!canvas)
+  if (!modelview.isEmpty())
+    throw Exception("Renderer modelview matrix stack not empty after end");
+
+  projection.setIdentity();
+}
+
+void Renderer::pushTransform(const Matrix4& transform)
+{
+  modelview.push(transform);
+}
+
+void Renderer::popTransform(void)
+{
+  modelview.pop();
+}
+
+void Renderer::render(void)
+{
+  if (currentRange.isEmpty())
   {
-    Log::writeError("Cannot begin without a current canvas");
+    Log::writeWarning("Rendering empty primitive range");
     return;
   }
 
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  glMultMatrixf(projection);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  glPopAttrib();
-}
-  
-void Renderer::end(void) const
-{
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-  glPopAttrib();
-}
+  if (!currentProgram)
+  {
+    Log::writeError("Unable to render without a current shader program");
+    return;
+  }
 
-void Renderer::pushTransform(const Matrix4& transform) const
-{
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glMultMatrixf(transform);
-  glPopAttrib();
-}
+  Program& program = *currentProgram;
+  program.apply();
 
-void Renderer::popTransform(void) const
-{
-  glPushAttrib(GL_TRANSFORM_BIT);
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-  glPopAttrib();
+  const VertexBuffer& vertexBuffer = *(currentRange.getVertexBuffer());
+  vertexBuffer.apply();
+
+  const IndexBuffer* indexBuffer = currentRange.getIndexBuffer();
+  if (indexBuffer)
+    indexBuffer->apply();
+
+  const VertexFormat& format = vertexBuffer.getFormat();
+
+  if (program.getVaryingCount() > format.getComponentCount())
+  {
+    Log::writeError("Shader program has more varying parameters than vertex format has components");
+    return;
+  }
+
+  for (unsigned int i = 0;  i < program.getVaryingCount();  i++)
+  {
+    Varying& varying = program.getVarying(i);
+
+    const VertexComponent* component = format.findComponent(varying.getName());
+    if (!component)
+    {
+      Log::writeError("Varying parameter %s has no corresponding vertex format component",
+                      varying.getName().c_str());
+      return;
+    }
+
+    // TODO: Check type compatibility.
+
+    varying.enable(format.getSize(), component->getOffset());
+  }
+
+  if (Uniform* MVP = program.findUniform("MVP"))
+  {
+    if (MVP->getType() == Uniform::FLOAT_MAT4)
+    {
+      Matrix4 mvp = projection;
+      mvp.concatenate(modelview.getTotal());
+      MVP->setValue(mvp);
+    }
+  }
+
+  if (Uniform* P = program.findUniform("P"))
+  {
+    if (P->getType() == Uniform::FLOAT_MAT4)
+      P->setValue(projection);
+  }
+
+  if (Uniform* MV = program.findUniform("MV"))
+  {
+    if (MV->getType() == Uniform::FLOAT_MAT4)
+      MV->setValue(modelview.getTotal());
+  }
+
+  if (indexBuffer)
+  {
+    glDrawElements(convertPrimitiveType(currentRange.getType()),
+                   currentRange.getCount(),
+		   convertType(indexBuffer->getType()),
+		   (GLvoid*) (getTypeSize(indexBuffer->getType()) * currentRange.getStart()));
+  }
+  else
+  {
+    glDrawArrays(convertPrimitiveType(currentRange.getType()),
+                 currentRange.getStart(),
+		 currentRange.getCount());
+  }
+
+  for (unsigned int i = 0;  i < program.getVaryingCount();  i++)
+    program.getVarying(i).disable();
 }
 
 bool Renderer::allocateIndices(IndexRange& range,
@@ -155,7 +306,7 @@ bool Renderer::allocateIndices(IndexRange& range,
 
   IndexBufferSlot* slot = NULL;
 
-  for (IndexBufferList::iterator i = indexBuffers.begin();  i != indexBuffers.end();  i++)
+  for (IndexBufferList::iterator i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
   {
     if ((*i).indexBuffer->getType() == type && (*i).available >= count)
     {
@@ -166,10 +317,11 @@ bool Renderer::allocateIndices(IndexRange& range,
 
   if (!slot)
   {
-    indexBuffers.push_back(IndexBufferSlot());
-    slot = &(indexBuffers.back());
+    indexBufferPool.push_back(IndexBufferSlot());
+    slot = &(indexBufferPool.back());
 
     // Granularity of 1K
+    // TODO: Make configurable or autoconfigured
     const unsigned int actualCount = 1024 * ((count + 1023) / 1024);
 
     slot->indexBuffer = IndexBuffer::createInstance(actualCount,
@@ -177,7 +329,7 @@ bool Renderer::allocateIndices(IndexRange& range,
 						    IndexBuffer::DYNAMIC);
     if (!slot->indexBuffer)
     {
-      indexBuffers.pop_back();
+      indexBufferPool.pop_back();
       return false;
     }
 
@@ -204,7 +356,7 @@ bool Renderer::allocateVertices(VertexRange& range,
 
   VertexBufferSlot* slot = NULL;
 
-  for (VertexBufferList::iterator i = vertexBuffers.begin();  i != vertexBuffers.end();  i++)
+  for (VertexBufferList::iterator i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
   {
     if ((*i).vertexBuffer->getFormat() == format && (*i).available >= count)
     {
@@ -215,10 +367,11 @@ bool Renderer::allocateVertices(VertexRange& range,
 
   if (!slot)
   {
-    vertexBuffers.push_back(VertexBufferSlot());
-    slot = &(vertexBuffers.back());
+    vertexBufferPool.push_back(VertexBufferSlot());
+    slot = &(vertexBufferPool.back());
 
     // Granularity of 1K
+    // TODO: Make configurable or autoconfigured
     const unsigned int actualCount = 1024 * ((count + 1023) / 1024);
     
     slot->vertexBuffer = VertexBuffer::createInstance(actualCount,
@@ -226,7 +379,7 @@ bool Renderer::allocateVertices(VertexRange& range,
 						      VertexBuffer::DYNAMIC);
     if (!slot->vertexBuffer)
     {
-      vertexBuffers.pop_back();
+      vertexBufferPool.pop_back();
       return false;
     }
 
@@ -241,9 +394,49 @@ bool Renderer::allocateVertices(VertexRange& range,
   return true;
 }
 
-bool Renderer::create(void)
+bool Renderer::isReservedUniform(const String& name) const
 {
-  Ptr<Renderer> renderer = new Renderer();
+  return name == "MVP" || name == "MV" || name == "P";
+}
+
+Context& Renderer::getContext(void) const
+{
+  return context;
+}
+
+Canvas* Renderer::getCurrentCanvas(void) const
+{
+  return currentCanvas;
+}
+
+Texture& Renderer::getDefaultTexture(void) const
+{
+  return *defaultTexture;
+}
+
+Program& Renderer::getDefaultProgram(void) const
+{
+  return *defaultProgram;
+}
+
+void Renderer::setCurrentCanvas(Canvas* newCanvas)
+{
+  currentCanvas = newCanvas;
+}
+
+void Renderer::setCurrentProgram(Program* newProgram)
+{
+  currentProgram = newProgram;
+}
+
+void Renderer::setCurrentPrimitiveRange(const PrimitiveRange& newRange)
+{
+  currentRange = newRange;
+}
+
+bool Renderer::create(Context& context)
+{
+  Ptr<Renderer> renderer = new Renderer(context);
   if (!renderer->init())
     return false;
 
@@ -251,15 +444,11 @@ bool Renderer::create(void)
   return true;
 }
 
-Renderer::Renderer(void)
+Renderer::Renderer(Context& initContext):
+  context(initContext),
+  currentCanvas(NULL),
+  currentProgram(NULL)
 {
-  static bool initialized = false;
-
-  if (!initialized)
-  {
-    Context::getDestroySignal().connect(onContextDestroy);
-    initialized = true;
-  }
 }
 
 bool Renderer::init(void)
@@ -275,7 +464,7 @@ bool Renderer::init(void)
   generator.setCheckerColor(ColorRGBA(0.f, 1.f, 0.f, 1.f));
   generator.setCheckerSize(1);
 
-  Ptr<Image> image = generator.generate(ImageFormat::RGBX8888, 2, 2);
+  Ptr<Image> image = generator.generate(ImageFormat::RGBX8888, 8, 8);
   if (!image)
   {
     Log::writeError("Failed to create image data for default texture");
@@ -295,20 +484,11 @@ bool Renderer::init(void)
 
 void Renderer::onContextFinish(void)
 {
-  for (IndexBufferList::iterator i = indexBuffers.begin();  i != indexBuffers.end();  i++)
+  for (IndexBufferList::iterator i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
     (*i).available = (*i).indexBuffer->getCount();
 
-  for (VertexBufferList::iterator i = vertexBuffers.begin();  i != vertexBuffers.end();  i++)
+  for (VertexBufferList::iterator i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
     (*i).available = (*i).vertexBuffer->getCount();
-}
-
-void Renderer::onContextDestroy(void)
-{
-  if (get())
-  {
-    Log::writeWarning("Renderer not explicitly destroyed before context destruction");
-    destroy();
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////

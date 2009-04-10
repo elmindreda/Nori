@@ -26,7 +26,7 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
 #include <wendy/GLContext.h>
 #include <wendy/GLStatistics.h>
 
@@ -49,7 +49,7 @@ void Statistics::addPasses(unsigned int count)
   frame.passCount += count;
 }
 
-void Statistics::addPrimitives(GLenum mode, unsigned int count)
+void Statistics::addPrimitives(PrimitiveType type, unsigned int count)
 {
   if (!count)
     return;
@@ -57,40 +57,28 @@ void Statistics::addPrimitives(GLenum mode, unsigned int count)
   Frame& frame = frames.front();
   frame.vertexCount += count;
 
-  switch (mode)
+  switch (type)
   {
-    case GL_POINTS:
+    case POINT_LIST:
       frame.pointCount += count;
       break;
-    case GL_LINES:
+    case LINE_LIST:
       frame.lineCount += count / 2;
       break;
-    case GL_LINE_LOOP:
-      frame.lineCount += count;
-      break;
-    case GL_LINE_STRIP:
+    case LINE_STRIP:
       frame.lineCount += count - 1;
       break;
-    case GL_TRIANGLES:
+    case TRIANGLE_LIST:
       frame.triangleCount += count / 3;
       break;
-    case GL_TRIANGLE_STRIP:
+    case TRIANGLE_STRIP:
       frame.triangleCount += count - 2;
       break;
-    case GL_TRIANGLE_FAN:
+    case TRIANGLE_FAN:
       frame.triangleCount += count - 1;
       break;
-    case GL_QUADS:
-      frame.triangleCount += count / 2;
-      break;
-    case GL_QUAD_STRIP:
-      frame.triangleCount += count - 2;
-      break;
-    case GL_POLYGON:
-      frame.triangleCount += count - 2;
-      break;
     default:
-      Log::writeError("Invalid render mode %u", mode);
+      Log::writeError("Invalid primitive type %u", type);
   }
 }
 

@@ -26,14 +26,15 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
+#include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
-#include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
-#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
+#include <wendy/GLState.h>
+#include <wendy/GLPass.h>
 
 #include <wendy/RenderFont.h>
 
@@ -75,31 +76,61 @@ unsigned int getNextPower(unsigned int value)
   
 void Font::drawText(const String& text) const
 {
-  pass.apply();
-
-  LayoutList layout;
-  getTextLayout(layout, text);
+  GL::VertexRange vertexRange;
+  if (!GL::Renderer::get()->allocateVertices(vertexRange, text.size() * 6, GL::Vertex2ft2fv::format))
+  {
+    Log::writeError("Failed to allocate vertices for text drawing");
+    return;
+  }
 
   Vector2 roundedPen = penPosition;
   roundedPen.x = floorf(roundedPen.x + 0.5f);
   roundedPen.y = floorf(roundedPen.y + 0.5f);
 
-  for (LayoutList::const_iterator i = layout.begin();  i != layout.end();  i++)
+  Vector2 penOffset(0.f, 0.f);
+
+  GL::Vertex2ft2fv* vertices = (GL::Vertex2ft2fv*) vertexRange.lock();
+
+  for (String::const_iterator c = text.begin();  c != text.end();  c++)
   {
-    switch ((*i).character)
+    switch (*c)
     {
       case '\t':
+      {
+	penOffset.x += size.x * 3.f;
+	break;
+      }
+	
       case '\n':
-      case ' ':
-	continue;
+      {
+	penOffset.x = 0.f;
+	penOffset.y -= size.y * 1.2f;
+	break;
+      }
 
       default:
       {
-	if (const Glyph* glyph = getGlyph((*i).character))
-	  glyph->draw(roundedPen + (*i).penOffset);
+	const Glyph* glyph = getGlyph(*c);
+	if (!glyph)
+	  continue;
+
+	glyph->realizeVertices(roundedPen + penOffset, vertices);
+	vertices += 6;
+
+	penOffset.x += glyph->advance;
+	break;
       }
     }
+
+    penOffset.x = floorf(penOffset.x + 0.5f);
+    penOffset.y = floorf(penOffset.y + 0.5f);
   }
+
+  vertexRange.unlock();
+
+  GL::Renderer::get()->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_LIST, vertexRange));
+
+  pass.apply();
 }
 
 void Font::drawText(const char* format, ...) const
@@ -138,12 +169,13 @@ void Font::setPenPosition(const Vector2& newPosition)
 
 const ColorRGBA& Font::getColor(void) const
 {
-  return pass.getDefaultColor();
+  return color;
 }
 
 void Font::setColor(const ColorRGBA& newColor)
 {
-  pass.setDefaultColor(newColor);
+  color = newColor;
+  pass.getUniformState("color").setValue(Vector4(color.g, color.g, color.b, color.a));
 }
 
 float Font::getAscender(void) const
@@ -294,12 +326,12 @@ bool Font::init(const moira::Font& font)
 {
   const String& characters = font.getCharacters();
 
-  unsigned int maxSize;
-
-  glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxSize);
+  const unsigned int maxSize = GL::Context::get()->getLimits().getMaxTextureSize();
 
   const unsigned int glyphWidth = (unsigned int) ceilf(font.getWidth()) + 1;
   const unsigned int glyphHeight = (unsigned int) ceilf(font.getHeight()) + 1;
+
+  Ref<GL::Texture> texture;
 
   // Create texture
   {
@@ -316,6 +348,30 @@ bool Font::init(const moira::Font& font)
     texture = GL::Texture::createInstance(Image(ImageFormat::ALPHA8, width, height), 0);
     if (!texture)
       return false;
+  }
+
+  // Create render pass
+  {
+    Ref<GL::Program> program = GL::Program::readInstance("font");
+    if (!program)
+    {
+      Log::writeError("Unable to read font glyph shader program");
+      return false;
+    }
+
+    if (!program->findSampler("texture") || !program->findUniform("color"))
+    {
+      Log::writeError("Font shader program does not have the required uniforms");
+      return false;
+    }
+
+    pass.setProgram(program);
+    pass.setDepthTesting(false);
+    pass.setDepthWriting(false);
+    pass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
+    pass.getSamplerState("texture").setTexture(texture);
+
+    color = ColorRGBA::WHITE;
   }
 
   ascender = descender = 0.f;
@@ -372,15 +428,6 @@ bool Font::init(const moira::Font& font)
     texelPosition.x += image.getWidth() + 1;
   }
 
-  pass.setDepthTesting(false);
-  pass.setDepthWriting(false);
-  pass.setDefaultColor(ColorRGBA::WHITE);
-  pass.setBlendFactors(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  GL::TextureLayer& layer = pass.createTextureLayer();
-  layer.setTexture(texture);
-  layer.setCombineMode(GL_MODULATE);
-
   size.set(font.getWidth(), font.getHeight());
   return true;
 }
@@ -396,6 +443,7 @@ const Font::Glyph* Font::getGlyph(char character) const
 
 ///////////////////////////////////////////////////////////////////////
 
+/*
 void Font::Glyph::draw(const Vector2& penPosition) const
 {
   const Rectangle& texelArea = area;
@@ -416,27 +464,31 @@ void Font::Glyph::draw(const Vector2& penPosition) const
   glVertex2f(pixelArea.position.x, pixelArea.position.y + pixelArea.size.y);
   glEnd();    
 }
+*/
 
-/*
 void Font::Glyph::realizeVertices(Vector2 penPosition, GL::Vertex2ft2fv* vertices) const
 {
-  const Rectangle& texelArea = area;
+  const Rectangle& ta = area;
 
-  Rectangle pixelArea;
-  pixelArea.position = penPosition;
-  pixelArea.position.y += bearing.y - size.y;
-  pixelArea.size = size;
+  Rectangle pa;
+  pa.position = penPosition;
+  pa.position.y += bearing.y - size.y;
+  pa.size = size;
     
-  vertices[0].mapping.set(texelArea.position.x, texelArea.position.y);
-  vertices[0].position.set(pixelArea.position.x, pixelArea.position.y);
-  vertices[1].mapping.set(texelArea.position.x + texelArea.size.x, texelArea.position.y);
-  vertices[1].position.set(pixelArea.position.x + pixelArea.size.x, pixelArea.position.y);
-  vertices[2].mapping.set(texelArea.position.x + texelArea.size.x, texelArea.position.y + texelArea.size.y);
-  vertices[2].position.set(pixelArea.position.x + pixelArea.size.x, pixelArea.position.y + pixelArea.size.y);
-  vertices[3].mapping.set(texelArea.position.x, texelArea.position.y + texelArea.size.y);
-  vertices[3].position.set(pixelArea.position.x, pixelArea.position.y + pixelArea.size.y);
+  vertices[0].mapping.set(ta.position.x, ta.position.y);
+  vertices[0].position.set(pa.position.x, pa.position.y);
+  vertices[1].mapping.set(ta.position.x + ta.size.x, ta.position.y);
+  vertices[1].position.set(pa.position.x + pa.size.x, pa.position.y);
+  vertices[2].mapping.set(ta.position.x + ta.size.x, ta.position.y + ta.size.y);
+  vertices[2].position.set(pa.position.x + pa.size.x, pa.position.y + pa.size.y);
+
+  vertices[3].mapping.set(ta.position.x + ta.size.x, ta.position.y + ta.size.y);
+  vertices[3].position.set(pa.position.x + pa.size.x, pa.position.y + pa.size.y);
+  vertices[4].mapping.set(ta.position.x, ta.position.y + ta.size.y);
+  vertices[4].position.set(pa.position.x, pa.position.y + pa.size.y);
+  vertices[5].mapping.set(ta.position.x, ta.position.y);
+  vertices[5].position.set(pa.position.x, pa.position.y);
 }
-*/
 
 ///////////////////////////////////////////////////////////////////////
 

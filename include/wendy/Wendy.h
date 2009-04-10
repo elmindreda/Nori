@@ -94,24 +94,23 @@
 #include <wendy/DEBody.h>
 #include <wendy/DEWorld.h>
 
-#include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
-#include <wendy/GLStatistics.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
-#include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
-#include <wendy/GLPass.h>
-#include <wendy/GLState.h>
+#include <wendy/GLStatistics.h>
 #include <wendy/GLRender.h>
+#include <wendy/GLState.h>
+#include <wendy/GLPass.h>
 
 #include <wendy/GLTextureIO.h>
 #include <wendy/GLShaderIO.h>
 
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderStyle.h>
+#include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderStage.h>
 #include <wendy/RenderSprite.h>

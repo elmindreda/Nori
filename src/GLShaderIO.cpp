@@ -26,9 +26,9 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
 #include <wendy/GLContext.h>
-#include <wendy/GLLight.h>
+#include <wendy/GLTexture.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLShaderIO.h>
 
@@ -55,9 +55,10 @@ const unsigned int SHADER_PROGRAM_XML_VERSION = 1;
 ///////////////////////////////////////////////////////////////////////
 
 VertexShaderCodec::VertexShaderCodec(void):
-  ResourceCodec<VertexShader>("GLSL vertex shader codec")
+  ResourceCodec<VertexShader>("Vertex shader codec")
 {
   addSuffix("vs");
+  addSuffix("cg");
 }
 
 VertexShader* VertexShaderCodec::read(const Path& path, const String& name)
@@ -72,7 +73,7 @@ VertexShader* VertexShaderCodec::read(Stream& stream, const String& name)
   String text;
   textStream.readText(text, textStream.getSize());
 
-  return VertexShader::createInstance(text, name);
+  return VertexShader::createInstance(*Context::get(), text, name);
 }
 
 bool VertexShaderCodec::write(const Path& path, const VertexShader& program)
@@ -90,9 +91,10 @@ bool VertexShaderCodec::write(Stream& stream, const VertexShader& program)
 ///////////////////////////////////////////////////////////////////////
 
 FragmentShaderCodec::FragmentShaderCodec(void):
-  ResourceCodec<FragmentShader>("GLSL fragment shader codec") 
+  ResourceCodec<FragmentShader>("Fragment shader codec") 
 {
   addSuffix("fs");
+  addSuffix("cg");
 }
 
 FragmentShader* FragmentShaderCodec::read(const Path& path, const String& name)
@@ -107,7 +109,7 @@ FragmentShader* FragmentShaderCodec::read(Stream& stream, const String& name)
   String text;
   textStream.readText(text, textStream.getSize());
 
-  return FragmentShader::createInstance(text, name);
+  return FragmentShader::createInstance(*Context::get(), text, name);
 }
 
 bool FragmentShaderCodec::write(const Path& path, const FragmentShader& program)
@@ -124,33 +126,42 @@ bool FragmentShaderCodec::write(Stream& stream, const FragmentShader& program)
 
 ///////////////////////////////////////////////////////////////////////
 
-ShaderProgramCodec::ShaderProgramCodec(void):
-  ResourceCodec<ShaderProgram>("XML GLSL program codec")
+ProgramCodec::ProgramCodec(void):
+  ResourceCodec<Program>("XML shader program codec")
 {
   addSuffix("program");
 }
 
-ShaderProgram* ShaderProgramCodec::read(const Path& path, const String& name)
+Program* ProgramCodec::read(const Path& path, const String& name)
 {
-  return ResourceCodec<ShaderProgram>::read(path, name);
+  return ResourceCodec<Program>::read(path, name);
 }
 
-ShaderProgram* ShaderProgramCodec::read(Stream& stream, const String& name)
+Program* ProgramCodec::read(Stream& stream, const String& name)
 {
   programName = name;
 
   if (!XML::Codec::read(stream))
+  {
+    program = NULL;
     return NULL;
+  }
+
+  if (!program)
+  {
+    Log::writeError("No shader program specification found in file");
+    return NULL;
+  }
 
   return program.detachObject();
 }
 
-bool ShaderProgramCodec::write(const Path& path, const ShaderProgram& program)
+bool ProgramCodec::write(const Path& path, const Program& program)
 {
-  return ResourceCodec<ShaderProgram>::write(path, program);
+  return ResourceCodec<Program>::write(path, program);
 }
 
-bool ShaderProgramCodec::write(Stream& stream, const ShaderProgram& program)
+bool ProgramCodec::write(Stream& stream, const Program& program)
 {
   try
   {
@@ -171,7 +182,7 @@ bool ShaderProgramCodec::write(Stream& stream, const ShaderProgram& program)
   }
   catch (Exception& exception)
   {
-    Log::writeError("Failed to write GLSL program %s: %s", program.getName().c_str(), exception.what());
+    Log::writeError("Failed to write shader program %s: %s", program.getName().c_str(), exception.what());
     setStream(NULL);
     return false;
   }
@@ -179,20 +190,20 @@ bool ShaderProgramCodec::write(Stream& stream, const ShaderProgram& program)
   return true;
 }
 
-bool ShaderProgramCodec::onBeginElement(const String& name)
+bool ProgramCodec::onBeginElement(const String& name)
 {
   if (name == "program")
   {
     if (program)
     {
-      Log::writeError("Only one GLSL program per file allowed");
+      Log::writeError("Only one shader program per file allowed");
       return false;
     }
 
     const unsigned int version = readInteger("version");
     if (version != SHADER_PROGRAM_XML_VERSION)
     {
-      Log::writeError("GLSL program XML format version mismatch");
+      Log::writeError("Shader program XML format version mismatch");
       return false;
     }
 
@@ -203,7 +214,7 @@ bool ShaderProgramCodec::onBeginElement(const String& name)
   {
     if (vertexShader)
     {
-      Log::writeError("Cannot nest GLSL shaders");
+      Log::writeError("Cannot nest vertex shaders");
       return false;
     }
 
@@ -222,7 +233,7 @@ bool ShaderProgramCodec::onBeginElement(const String& name)
   {
     if (fragmentShader)
     {
-      Log::writeError("Cannot nest GLSL shaders");
+      Log::writeError("Cannot nest fragment shaders");
       return false;
     }
 
@@ -240,25 +251,25 @@ bool ShaderProgramCodec::onBeginElement(const String& name)
   return true;
 }
 
-bool ShaderProgramCodec::onEndElement(const String& name)
+bool ProgramCodec::onEndElement(const String& name)
 {
   if (name == "program")
   {
     if (!vertexShader)
     {
-      Log::writeError("Vertex shader missing for GLSL program %s",
+      Log::writeError("Vertex shader missing for shader program %s",
 		      programName.c_str());
       return false;
     }
 
     if (!fragmentShader)
     {
-      Log::writeError("Fragment shader missing for GLSL program %s",
+      Log::writeError("Fragment shader missing for shader program %s",
 		      programName.c_str());
       return false;
     }
 
-    program = ShaderProgram::createInstance(*vertexShader, *fragmentShader, programName);
+    program = Program::createInstance(*Context::get(), *vertexShader, *fragmentShader, programName);
     if (!program)
       return false;
 

@@ -26,7 +26,7 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
 #include <wendy/GLVertex.h>
 
 #include <cctype>
@@ -41,10 +41,10 @@ namespace wendy
   
 ///////////////////////////////////////////////////////////////////////
 
-VertexComponent::VertexComponent(Kind initKind,
+VertexComponent::VertexComponent(const String& initName,
                                  unsigned int initCount,
 				 Type initType):
-  kind(initKind),
+  name(initName),
   count(initCount),
   type(initType)
 {
@@ -52,12 +52,12 @@ VertexComponent::VertexComponent(Kind initKind,
 
 bool VertexComponent::operator == (const VertexComponent& other) const
 {
-  return kind == other.kind && count == other.count && type == other.type;
+  return name == other.name && count == other.count && type == other.type;
 }
 
 bool VertexComponent::operator != (const VertexComponent& other) const
 {
-  return kind != other.kind || count != other.count || type != other.type;
+  return name != other.name || count != other.count || type != other.type;
 }
 
 size_t VertexComponent::getSize(void) const
@@ -70,16 +70,14 @@ size_t VertexComponent::getSize(void) const
       return sizeof(float) * count;
     case INT:
       return sizeof(int) * count;
-    case SHORT:
-      return sizeof(short) * count;
     default:
       return 0;
   }
 }
 
-VertexComponent::Kind VertexComponent::getKind(void) const
+const String& VertexComponent::getName(void) const
 {
-  return kind;
+  return name;
 }
 
 VertexComponent::Type VertexComponent::getType(void) const
@@ -103,51 +101,38 @@ VertexFormat::VertexFormat(void)
 {
 }
 
-VertexFormat::VertexFormat(const std::string& specification)
+VertexFormat::VertexFormat(const String& specification)
 {
   if (!createComponents(specification))
     throw Exception("Invalid vertex format specification");
 }
 
-bool VertexFormat::createComponent(VertexComponent::Kind kind,
+bool VertexFormat::createComponent(const String& name,
                                    unsigned int count,
 				   VertexComponent::Type type)
 {
-  if (kind == VertexComponent::GENERIC)
+  if (count < 1 || count > 4)
   {
-    if (count < 1 || count > 4)
-    {
-      Log::writeError("Generic vertex components must have between 1 and 4 elements");
-      return false;
-    }
-  }
-  else
-  {
-    if (count < 2 || count > 4)
-    {
-      Log::writeError("Regular vertex components must have between 2 and 4 elements");
-      return false;
-    }
-
-    if (kind != VertexComponent::TEXCOORD)
-    {
-      if (findComponent(kind))
-      {
-	Log::writeError("Invalid duplicate regular vertex component");
-	return false;
-      }
-    }
+    Log::writeError("Vertex components must have between 1 and 4 elements");
+    return false;
   }
 
-  size_t size = getSize();
+  if (findComponent(name))
+  {
+    Log::writeError("Duplicate vertex component %s detected; vertex components must have unique names",
+                    name.c_str());
+    return false;
+  }
 
-  components.push_back(VertexComponent(kind, count, type));
+  const size_t size = getSize();
+
+  components.push_back(VertexComponent(name, count, type));
   VertexComponent& component = components.back();
   component.offset = size;
   return true;
 }
 
-bool VertexFormat::createComponents(const std::string& specification)
+bool VertexFormat::createComponents(const String& specification)
 {
   String::const_iterator command = specification.begin();
   while (command != specification.end())
@@ -158,8 +143,8 @@ bool VertexFormat::createComponents(const std::string& specification)
       return false;
     }
 
-    unsigned int count = *command++ - '0';
-    if (command == specification.end())
+    const unsigned int count = *command - '0';
+    if (++command == specification.end())
     {
       Log::writeError("Unexpected end of vertex format specification");
       return false;
@@ -167,7 +152,7 @@ bool VertexFormat::createComponents(const std::string& specification)
 
     VertexComponent::Type type;
 
-    switch (tolower(*command++))
+    switch (tolower(*command))
     {
       case 'd':
 	type = VertexComponent::DOUBLE;
@@ -178,45 +163,36 @@ bool VertexFormat::createComponents(const std::string& specification)
       case 'i':
 	type = VertexComponent::INT;
 	break;
-      case 's':
-	type = VertexComponent::SHORT;
-	break;
       default:
+	if (std::isgraph(*command))
+	  Log::writeError("Invalid vertex component type \'%c\'", *command);
+	else
+	  Log::writeError("Invalid vertex component type 0x%02x", *command);
 	return false;
     }
     
-    if (command == specification.end())
+    if (++command == specification.end())
     {
       Log::writeError("Unexpected end of vertex format specification");
       return false;
     }
 
-    VertexComponent::Kind kind;
-
-    switch (tolower(*command++))
+    if (*command != ':')
     {
-      case 'v':
-	kind = VertexComponent::POSITION;
-	break;
-      case 't':
-	kind = VertexComponent::TEXCOORD;
-	break;
-      case 'c':
-	kind = VertexComponent::COLOR;
-	break;
-      case 'n':
-	kind = VertexComponent::NORMAL;
-	break;
-      case 'a':
-	kind = VertexComponent::GENERIC;
-	break;
-      default:
-	Log::writeError("Invalid vertex component kind");
-	return false;
+      Log::writeError("Invalid vertex component specification; expected \':\'");
+      return false;
     }
 
-    if (!createComponent(kind, count, type))
+    String name;
+
+    while (++command != specification.end() && *command != ' ')
+      name.append(1, *command);
+
+    if (!createComponent(name, count, type))
       return false;
+
+    while (command != specification.end() && *command == ' ')
+      command++;
   }
 
   return true;
@@ -227,10 +203,10 @@ void VertexFormat::destroyComponents(void)
   components.clear();
 }
 
-const VertexComponent* VertexFormat::findComponent(VertexComponent::Kind kind) const
+const VertexComponent* VertexFormat::findComponent(const String& name) const
 {
   for (ComponentList::const_iterator i = components.begin();  i != components.end();  i++)
-    if ((*i).getKind() == kind)
+    if ((*i).getName() == name)
       return &(*i);
 
   return NULL;
@@ -285,35 +261,12 @@ String VertexFormat::getSpecification(void) const
       case VertexComponent::INT:
 	result << 'i';
 	break;
-      case VertexComponent::SHORT:
-	result << 's';
-	break;
       default:
 	Log::writeError("Invalid vertex component type %u", (*i).type);
 	break;
     }
 
-    switch ((*i).kind)
-    {
-      case VertexComponent::POSITION:
-	result << 'v';
-	break;
-      case VertexComponent::TEXCOORD:
-	result << 't';
-	break;
-      case VertexComponent::COLOR:
-	result << 'c';
-	break;
-      case VertexComponent::NORMAL:
-	result << 'n';
-	break;
-      case VertexComponent::GENERIC:
-	result << 'a';
-	break;
-      default:
-	Log::writeError("Invalid vertex component kind %u", (*i).kind);
-	break;
-    }
+    result << ':' << (*i).name << ' ';
   }
 
   result.str();
@@ -321,57 +274,27 @@ String VertexFormat::getSpecification(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-void Vertex3fv::send(void) const
-{
-  glVertex3fv(position);
-}
-
-const VertexFormat Vertex3fv::format("3fv");
+const VertexFormat Vertex3fv::format("3f:position");
 
 ///////////////////////////////////////////////////////////////////////
 
-void Vertex3fn3fv::send(void) const
-{
-  glNormal3fv(normal);
-  glVertex3fv(position);
-}
-
-const VertexFormat Vertex3fn3fv::format("3fn3fv");
+const VertexFormat Vertex3fn3fv::format("3f:normal 3f:position");
 
 ///////////////////////////////////////////////////////////////////////
 
-const VertexFormat Vertex2fv::format("2fv");
+const VertexFormat Vertex2fv::format("2f:position");
 
 ///////////////////////////////////////////////////////////////////////
 
-void Vertex2ft2fv::send(void) const
-{
-  glTexCoord2fv(mapping);
-  glVertex2fv(position);
-}
-
-const VertexFormat Vertex2ft2fv::format("2ft2fv");
+const VertexFormat Vertex2ft2fv::format("2f:mapping 2f:position");
 
 ///////////////////////////////////////////////////////////////////////
 
-void Vertex2ft3fv::send(void) const
-{
-  glTexCoord2fv(mapping);
-  glVertex3fv(position);
-}
-
-const VertexFormat Vertex2ft3fv::format("2ft3fv");
+const VertexFormat Vertex2ft3fv::format("2f:mapping 3f:position");
 
 ///////////////////////////////////////////////////////////////////////
 
-void Vertex4fc2ft3fv::send(void) const
-{
-  glColor4fv(color);
-  glTexCoord2fv(mapping);
-  glVertex3fv(position);
-}
-
-const VertexFormat Vertex4fc2ft3fv::format("4fc2ft3fv");
+const VertexFormat Vertex4fc2ft3fv::format("4f:color 2f:mapping 3f:position");
 
 ///////////////////////////////////////////////////////////////////////
 

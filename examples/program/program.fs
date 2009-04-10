@@ -1,15 +1,6 @@
 
-#pragma wendyLighting
-
-varying vec3 N;
-varying vec3 P;
-
-void main()
+float4 main(uniform sampler2D checkers, in float4 color, in float3 normal, in float2 mapping) : COLOR
 {
-  vec3 Nn = normalize(N);
-
-  gl_FragColor = gl_Color * (vec4(ambient(P), 1.0) +
-                             vec4(diffuse(P, Nn), 1.0)) +
-		 vec4(specular(P, Nn, 5.0), 1.0);
+  return float4(tex2D(checkers, mapping).r) * 0.25 + color * dot(normal, float4(0, 0, 1, 0)) * 0.75;
 }
 

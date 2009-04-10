@@ -27,13 +27,11 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
-#include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
@@ -139,8 +137,7 @@ void Entry::draw(void) const
       segment.end.set(textArea.position.x + position,
                       textArea.position.y + textArea.size.y);
 
-      renderer->setColor(ColorRGBA::BLACK);
-      renderer->drawLine(segment);
+      renderer->drawLine(segment, ColorRGBA::BLACK);
     }
 
     Widget::draw();

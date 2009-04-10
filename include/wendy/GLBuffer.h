@@ -37,7 +37,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! Memory locking type enumeration.
+/*! @brief Memory locking type enumeration.
  *  @ingroup opengl
  */
 enum LockType
@@ -62,6 +62,7 @@ enum LockType
  */
 class VertexBuffer : public Managed<VertexBuffer>
 {
+  friend class Renderer;
 public:
   /*! Vertex buffer usage hint enumeration.
    */
@@ -80,19 +81,6 @@ public:
   /*! Destructor.
    */
   ~VertexBuffer(void);
-  /*! Makes this vertex buffer current.
-   */
-  void apply(void) const;
-  /*! Renders the specified range of this vertex buffer.
-   *  @param mode The desired primitive mode.
-   *  @param start The start of the desired vertex range.
-   *  @param count The desired number of vertices to use.
-   *  @remarks If this is not the current vertex buffer, it will be made
-   *  current by a call to VertexBuffer::apply before rendering.
-   */
-  void render(unsigned int mode,
-              unsigned int start = 0,
-	      unsigned int count = 0) const;
   /*! Locks this vertex buffer for reading and writing.
    *  @return The base address of the vertices.
    */
@@ -134,80 +122,19 @@ public:
                                       const VertexFormat& format,
 				      Usage usage = STATIC,
 				      const String& name = ""); 
-  /*! Invalidates the current vertex buffer.
-   */
-  static void invalidateCurrent(void);
-  /*! @return The current vertex buffer, or @c NULL if no vertex buffer is
-   *  current.
-   */
-  static VertexBuffer* getCurrent(void);
 private:
   VertexBuffer(const String& name);
   VertexBuffer(const VertexBuffer& source);
   VertexBuffer& operator = (const VertexBuffer& source);
   bool init(const VertexFormat& format, unsigned int count, Usage usage);
+  void apply(void) const;
+  static void invalidateCurrent(void);
   bool locked;
   VertexFormat format;
-  GLuint bufferID;
+  unsigned int bufferID;
   unsigned int count;
   Usage usage;
-  Block data;
   static VertexBuffer* current;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Vertex buffer range.
- *  @ingroup opengl
- *
- *  This class represents a contigous range of an vertex buffer object.
- *  This is useful for allocation schemes where many smaller objects
- *  are fitted into a single vertex buffer for performance reasons.
- */
-class VertexRange
-{
-public:
-  /*! Constructor.
-   */
-  VertexRange(void);
-  /*! Constructor.
-   */
-  VertexRange(VertexBuffer& vertexBuffer);
-  /*! Constructor.
-   */
-  VertexRange(VertexBuffer& vertexBuffer, unsigned int start, unsigned int count);
-  /*! Renders this vertex range.
-   *  @param[in] mode The desired primitive mode.
-   */
-  void render(unsigned int mode) const;
-  /*! Locks this vertex range into memory and returns its address.
-   *  @return The base address of this vertex range, or @c NULL if an error occurred.
-   */
-  void* lock(LockType type = LOCK_WRITE_ONLY) const;
-  /*! Unlocks this vertex range.
-   */
-  void unlock(void) const;
-  /*! Copies the specified data into this vertex range.
-   *  @param[in] source The base address of the source data.
-   */
-  void copyFrom(const void* source);
-  /*! Copies the specified number of bytes from this vertex range.
-   *  @param[in] target The base address of the destination buffer.
-   */
-  void copyTo(void* target);
-  /*! @return The vertex buffer underlying this vertex range.
-   */
-  VertexBuffer* getVertexBuffer(void) const;
-  /*! @return The index of the first vertex in this vertex range.
-   */
-  unsigned int getStart(void) const;
-  /*! @return The number of vertices in this vertex range.
-   */
-  unsigned int getCount(void) const;
-private:
-  VertexBuffer* vertexBuffer;
-  unsigned int start;
-  unsigned int count;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -219,6 +146,7 @@ private:
  */
 class IndexBuffer : public Managed<IndexBuffer>
 {
+  friend class Renderer;
 public:
   /*! Index buffer element type enumeration.
    */
@@ -226,13 +154,13 @@ public:
   {
     /*! Indices are of type unsigned int.
      */
-    UINT = GL_UNSIGNED_INT,
+    UINT,
     /*! Indices are of type unsigned short.
      */
-    USHORT = GL_UNSIGNED_SHORT,
+    USHORT,
     /*! Indices are of type unsigned char.
      */
-    UBYTE = GL_UNSIGNED_BYTE,
+    UBYTE,
   };
   /*! Index buffer usage hint enumeration.
    */
@@ -240,34 +168,17 @@ public:
   {
     /*! Data will be specified once and used many times.
      */
-    STATIC = GL_STATIC_DRAW_ARB,
+    STATIC,
     /*! Data will be specified once and used a few times.
-     */ STREAM = GL_STREAM_DRAW_ARB,
+     */
+    STREAM,
     /*! Data will be repeatedly respecified and re-used.
      */
-    DYNAMIC = GL_DYNAMIC_DRAW_ARB,
+    DYNAMIC,
   };
   /*! Destructor.
    */
   ~IndexBuffer(void);
-  /*! Makes this the current index buffer.
-   */
-  void apply(void) const;
-  /*! Renders from the specified vertex buffer with the specified range of
-   *  index elements in this index buffer.
-   *  @param vertexBuffer The desired vertex buffer.
-   *  @param mode The desired primitive mode.
-   *  @param start The start of the desired index element range.
-   *  @param count The desired number of index elements to use.
-   *  @remarks If the specified vertex buffer is not current, it will be made
-   *  current by a call to VertexBuffer::apply before rendering.
-   *  @remarks If this is not the current index buffer, it will be made
-   *  current by a call to IndexBuffer::apply before rendering.
-   */
-  void render(const VertexBuffer& vertexBuffer,
-              unsigned int mode,
-              unsigned int start = 0,
-	      unsigned int count = 0) const;
   /*! Locks this index buffer for reading and writing.
    *  @param[in] type The desired type of lock.
    *  @return The base address of the index elements.
@@ -310,25 +221,70 @@ public:
 				     Type type = UINT,
 				     Usage usage = STATIC,
 				     const String& name = "");
-  /*! Invalidates the current index buffer.
-   */
-  static void invalidateCurrent(void);
-  /*! @return The current index buffer, or @c NULL if no index buffer is
-   *  current.
-   */
-  static IndexBuffer* getCurrent(void);
 private:
   IndexBuffer(const String& name);
   IndexBuffer(const IndexBuffer& source);
   IndexBuffer& operator = (const IndexBuffer& source);
   bool init(unsigned int count, Type type, Usage usage);
+  void apply(void) const;
+  static void invalidateCurrent(void);
   bool locked;
   Type type;
   Usage usage;
-  GLuint bufferID;
+  unsigned int bufferID;
   unsigned int count;
-  Block data;
   static IndexBuffer* current;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Vertex buffer range.
+ *  @ingroup opengl
+ *
+ *  This class represents a contigous range of an vertex buffer object.
+ *  This is useful for allocation schemes where many smaller objects
+ *  are fitted into a single vertex buffer for performance reasons.
+ */
+class VertexRange
+{
+public:
+  /*! Constructor.
+   */
+  VertexRange(void);
+  /*! Constructor.
+   */
+  VertexRange(VertexBuffer& vertexBuffer);
+  /*! Constructor.
+   */
+  VertexRange(VertexBuffer& vertexBuffer, unsigned int start, unsigned int count);
+  /*! Locks this vertex range into memory and returns its address.
+   *  @return The base address of this vertex range, or @c NULL if an error occurred.
+   */
+  void* lock(LockType type = LOCK_WRITE_ONLY) const;
+  /*! Unlocks this vertex range.
+   */
+  void unlock(void) const;
+  /*! Copies the specified data into this vertex range.
+   *  @param[in] source The base address of the source data.
+   */
+  void copyFrom(const void* source);
+  /*! Copies the specified number of bytes from this vertex range.
+   *  @param[in] target The base address of the destination buffer.
+   */
+  void copyTo(void* target);
+  /*! @return The vertex buffer underlying this vertex range.
+   */
+  VertexBuffer* getVertexBuffer(void) const;
+  /*! @return The index of the first vertex in this vertex range.
+   */
+  unsigned int getStart(void) const;
+  /*! @return The number of vertices in this vertex range.
+   */
+  unsigned int getCount(void) const;
+private:
+  VertexBuffer* vertexBuffer;
+  unsigned int start;
+  unsigned int count;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -352,10 +308,6 @@ public:
   /*! Constructor.
    */
   IndexRange(IndexBuffer& indexBuffer, unsigned int start, unsigned int count);
-  /*! Renders this index range with the specied vertex buffer.
-   *  @param[in] mode The desired primitive mode.
-   */
-  void render(const VertexBuffer& vertexBuffer, unsigned int mode) const;
   /*! Locks this index range into memory and returns its address.
    *  @param[in] type The desired type of lock.
    *  @return The base address of this index range, or @c NULL if an error occurred.
@@ -383,6 +335,46 @@ public:
   unsigned int getCount(void) const;
 private:
   IndexBuffer* indexBuffer;
+  unsigned int start;
+  unsigned int count;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Geometric primitive range.
+ *  @ingroup opengl
+ */
+class PrimitiveRange
+{
+public:
+  PrimitiveRange(void);
+  PrimitiveRange(PrimitiveType type, const VertexBuffer& vertexBuffer);
+  PrimitiveRange(PrimitiveType type, const VertexRange& vertexRange);
+  PrimitiveRange(PrimitiveType type,
+                 const VertexBuffer& vertexBuffer,
+                 const IndexBuffer& indexBuffer);
+  PrimitiveRange(PrimitiveType type,
+                 const VertexBuffer& vertexBuffer,
+                 const IndexRange& indexRange);
+  PrimitiveRange(PrimitiveType type,
+                 const VertexBuffer& vertexBuffer,
+		 unsigned int start,
+		 unsigned int count);
+  PrimitiveRange(PrimitiveType type,
+                 const VertexBuffer& vertexBuffer,
+                 const IndexBuffer& indexBuffer,
+	         unsigned int start,
+	         unsigned int count);
+  bool isEmpty(void) const;
+  PrimitiveType getType(void) const;
+  const VertexBuffer* getVertexBuffer(void) const;
+  const IndexBuffer* getIndexBuffer(void) const;
+  unsigned int getStart(void) const;
+  unsigned int getCount(void) const;
+private:
+  PrimitiveType type;
+  const VertexBuffer* vertexBuffer;
+  const IndexBuffer* indexBuffer;
   unsigned int start;
   unsigned int count;
 };

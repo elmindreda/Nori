@@ -94,14 +94,14 @@ public:
   const GL::IndexRange& getIndexRange(void) const;
   /*! @return The primitive mode used by this geometry.
    */
-  GLenum getRenderMode(void) const;
+  GL::PrimitiveType getPrimitiveType(void) const;
   /*! @return The %render style used by this geometry.
    */
   Style* getStyle(void) const;
   void setStyle(Style* newStyle);
 private:
   GL::IndexRange range;
-  GLenum renderMode;
+  GL::PrimitiveType primitiveType;
   Ref<Style> style;
 };
 

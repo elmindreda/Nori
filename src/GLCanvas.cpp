@@ -26,10 +26,13 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -269,22 +272,16 @@ Texture& TextureCanvas::getTexture(void) const
   return *texture;
 }
 
-TextureCanvas* TextureCanvas::createInstance(unsigned int width,
-                                             unsigned int height,
-					     const String& textureName)
+TextureCanvas* TextureCanvas::createInstance(Texture& texture)
 {
   Ptr<TextureCanvas> canvas = new TextureCanvas();
-  if (!canvas->init(width, height, textureName))
+  if (!canvas->init(texture))
     return false;
 
   return canvas.detachObject();
 }
 
-TextureCanvas::TextureCanvas(void)
-{
-}
-
-bool TextureCanvas::init(unsigned int width, unsigned int height, const String& textureName)
+bool TextureCanvas::init(Texture& initTexture)
 {
   if (!Context::get())
   {
@@ -292,23 +289,7 @@ bool TextureCanvas::init(unsigned int width, unsigned int height, const String& 
     return false;
   }
 
-  Image image(ImageFormat::RGB888, width, height);
-
-  if ((width & (width - 1)) || (height & (height - 1)))
-  {
-    // Requested image size is NPOT
-
-    texture = Texture::createInstance(image,
-                                      Texture::RECTANGULAR | Texture::DONT_GROW,
-				      textureName);
-  }
-
-  if (!texture)
-  {
-    texture = Texture::createInstance(image, Texture::DONT_GROW, textureName);
-    if (!texture)
-      return false;
-  }
+  texture = &initTexture;
 
   return true;
 }
@@ -319,8 +300,9 @@ void TextureCanvas::apply(void) const
 
 void TextureCanvas::finish(void) const
 {
-  // TODO: Clean up.
+  // TODO: Implement.
 
+  /*
   TextureLayer layer(0);
   layer.setTexture(texture);
   layer.apply();
@@ -334,6 +316,7 @@ void TextureCanvas::finish(void) const
                         0, 0, 0, 0, 0,
                         texture->getPhysicalWidth(),
                         texture->getPhysicalHeight());
+  */
 }
 
 void TextureCanvas::updateScissorArea(void) const

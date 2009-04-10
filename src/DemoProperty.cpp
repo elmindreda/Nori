@@ -27,11 +27,8 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
-#include <wendy/GLLight.h>
-#include <wendy/GLShader.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLPass.h>
 

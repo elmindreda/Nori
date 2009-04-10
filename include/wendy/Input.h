@@ -61,6 +61,22 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup input
+ */
+class Focus
+{
+public:
+  virtual void onContextResized(unsigned int width, unsigned int height);
+  virtual void onKeyPressed(Key key, bool pressed);
+  virtual void onCharInput(wchar_t character);
+  virtual void onButtonClicked(unsigned int button, bool clicked);
+  virtual void onCursorMoved(const Vector2& position);
+  virtual void onWheelTurned(int offset);
+  virtual void onFocusChanged(bool activated);
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Input manager.
  *  @ingroup input
  *
@@ -72,6 +88,8 @@ public:
   /*! Destructor.
    */
   virtual ~Context(void);
+  void captureCursor(void);
+  void releaseCursor(void);
   /*! @return @c true if the specified key is pressed, otherwise @c false.
    *  @param[in] key The desired key.
    */
@@ -111,6 +129,8 @@ public:
   /*! @return The signal for mouse wheel events.
     */
   SignalProxy1<void, int> getWheelTurnedSignal(void);
+  Focus* getFocus(void) const;
+  void setFocus(Focus* newFocus);
   /*! @return The context underlying this input manager.
    */
   GL::Context& getContext(void) const;
@@ -134,25 +154,11 @@ private:
   Signal1<void, int> wheelTurnedSignal;
   GL::Context& context;
   int wheelPosition;
+  Focus* currentFocus;
   mutable Vector2 cursorPosition;
   static KeyMap internalMap;
   static KeyMap externalMap;
   static Context* instance;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup input
- */
-class Focus
-{
-protected:
-  virtual void onContextResized(unsigned int width, unsigned int height);
-  virtual void onKeyPressed(Key key, bool pressed);
-  virtual void onCharInput(wchar_t character);
-  virtual void onButtonClicked(unsigned int button, bool clicked);
-  virtual void onCursorMoved(const Vector2& position);
-  virtual void onWheelTurned(int offset);
 };
 
 ///////////////////////////////////////////////////////////////////////

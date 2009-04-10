@@ -41,37 +41,59 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+class Canvas;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief The renderer singleton.
  *  @ingroup renderer
  *
- *  This is the central renderer class, although it's rarely used to render
- *  anything.
+ *  This is the central renderer class for the OpenGL layer.
  */
 class Renderer : public Trackable, public Singleton<Renderer>
 {
 public:
-  void begin2D(const Vector2& resolution = Vector2(1.f, 1.f)) const;
+  void begin(const Matrix4& projection);
+  void begin2D(const Vector2& resolution = Vector2(1.f, 1.f));
   void begin3D(float FOV = 90.f,
                float aspect = 0.f,
 	       float nearZ = 0.01f,
-	       float farZ = 1000.f) const;
-  void begin3D(const Matrix4& projection) const;
-  void end(void) const;
-  void pushTransform(const Matrix4& transform) const;
-  void popTransform(void) const;
+	       float farZ = 1000.f);
+  void end(void);
+  void pushTransform(const Matrix4& transform);
+  void popTransform(void);
+  void render(void);
   /*! Allocates a range of indices of the specified type.
+   *  @param[out] range The newly allocated index range.
+   *  @param[in] count The number of indices to allocate.
+   *  @param[in] type The type of indices to allocate.
+   *  @return @c true if the allocattion succeeded, or @c false if an
+   *  error occurred.
    */
   bool allocateIndices(IndexRange& range,
 		       unsigned int count,
                        IndexBuffer::Type type = IndexBuffer::UBYTE);
   /*! Allocates a range of vertices of the specified format.
+   *  @param[out] range The newly allocated vertex range.
+   *  @param[in] count The number of vertices to allocate.
+   *  @param[in] format The format of vertices to allocate.
+   *  @return @c true if the allocattion succeeded, or @c false if an
+   *  error occurred.
    */
   bool allocateVertices(VertexRange& range,
 			unsigned int count,
                         const VertexFormat& format);
+  bool isReservedUniform(const String& name) const;
+  Context& getContext(void) const;
+  Canvas* getCurrentCanvas(void) const;
+  Texture& getDefaultTexture(void) const;
+  Program& getDefaultProgram(void) const;
+  void setCurrentCanvas(Canvas* newCanvas);
+  void setCurrentProgram(Program* newProgram);
+  void setCurrentPrimitiveRange(const PrimitiveRange& newRange);
   /*! Creates the renderer singleton.
    */
-  static bool create(void);
+  static bool create(Context& context);
 private:
   struct IndexBufferSlot
   {
@@ -83,15 +105,21 @@ private:
     Ptr<VertexBuffer> vertexBuffer;
     unsigned int available;
   };
-  Renderer(void);
+  Renderer(Context& context);
   bool init(void);
   void onContextFinish(void);
-  static void onContextDestroy(void);
   typedef std::list<IndexBufferSlot> IndexBufferList;
   typedef std::list<VertexBufferSlot> VertexBufferList;
-  IndexBufferList indexBuffers;
-  VertexBufferList vertexBuffers;
+  Context& context;
+  Matrix4 projection;
+  MatrixStack4 modelview;
+  IndexBufferList indexBufferPool;
+  VertexBufferList vertexBufferPool;
+  Canvas* currentCanvas;
+  Ref<Program> currentProgram;
+  PrimitiveRange currentRange;
   Ref<Texture> defaultTexture;
+  Ref<Program> defaultProgram;
 };
 
 ///////////////////////////////////////////////////////////////////////

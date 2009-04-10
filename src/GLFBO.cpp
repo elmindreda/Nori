@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy Cg library
-// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy OpenGL library
+// Copyright (c) 2009 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,13 +22,22 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_CGCONTEXT_H
-#define WENDY_CGCONTEXT_H
+
+#include <moira/Moira.h>
+
+#include <wendy/Config.h>
+
+#include <wendy/GLContext.h>
+#include <wendy/GLFBO.h>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace Cg
+  namespace GL
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -37,28 +46,43 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Cg context singleton.
- */
-class Context : public Singleton<Context>
+Framebuffer::~Framebuffer(void)
 {
-public:
-  /*! Destructor.
-   */
-  ~Context(void);
-  /*! Creates the context singleton object.
-   *  @return @c true if successful, or @c false otherwise.
-   */
-  static bool create(void);
-private:
-  Context(void);
-  bool init(void);
-};
+  if (bufferID)
+    glDeleteFramebuffersEXT(1, &bufferID);
+}
+
+Framebuffer* Framebuffer::createInstance(Context& context)
+{
+  Ptr<Framebuffer> framebuffer = new Framebuffer(context);
+  if (!framebuffer->init())
+    return NULL;
+
+  return framebuffer.detachObject();
+}
+
+Framebuffer::Framebuffer(Context& initContext):
+  context(initContext)
+{
+}
+
+bool Framebuffer::init(void)
+{
+  if (!GLEW_EXT_framebuffer_object)
+  {
+    Log::writeError("Framebuffer objects are not supported by the current OpenGL context");
+    return false;
+  }
+
+  glGenFramebuffersEXT(1, &bufferID);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
+
+  return true;
+}
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace Cg*/
+  } /*namespace GL*/
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_CGCONTEXT_H*/
 ///////////////////////////////////////////////////////////////////////

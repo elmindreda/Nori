@@ -26,14 +26,15 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
+#include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
-#include <wendy/GLLight.h>
 #include <wendy/GLShader.h>
-#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
+#include <wendy/GLState.h>
+#include <wendy/GLPass.h>
 
 #include <wendy/RenderStyle.h>
 #include <wendy/RenderIO.h>
@@ -58,15 +59,15 @@ namespace
 {
 
 Mapper<String, GL::CullMode> cullModeMap;
-Mapper<String, GLenum> combineModeMap;
-Mapper<String, GLenum> polygonModeMap;
-Mapper<String, GLenum> blendFactorMap;
-Mapper<String, GLenum> functionMap;
+Mapper<String, GL::BlendFactor> blendFactorMap;
+Mapper<String, GL::Function> functionMap;
+/*
 Mapper<String, GLenum> operationMap;
 Mapper<String, GLint> filterMap;
 Mapper<String, GLint> addressModeMap;
+*/
 
-const unsigned int RENDER_STYLE_XML_VERSION = 3;
+const unsigned int RENDER_STYLE_XML_VERSION = 4;
 
 }
 
@@ -93,47 +94,33 @@ Style* StyleCodec::read(Stream& stream, const String& name)
     cullModeMap["both"] = GL::CULL_BOTH;
   }
 
-  if (combineModeMap.isEmpty())
-  {
-    combineModeMap["replace"] = GL_REPLACE;
-    combineModeMap["modulate"] = GL_MODULATE;
-    combineModeMap["decal"] = GL_DECAL;
-    combineModeMap["blend"] = GL_BLEND;
-  }
-
-  if (polygonModeMap.isEmpty())
-  {
-    polygonModeMap["points"] = GL_POINT;
-    polygonModeMap["lines"] = GL_LINE;
-    polygonModeMap["faces"] = GL_FILL;
-  }
-
   if (blendFactorMap.isEmpty())
   {
-    blendFactorMap["zero"] = GL_ZERO;
-    blendFactorMap["one"] = GL_ONE;
-    blendFactorMap["src color"] = GL_SRC_COLOR;
-    blendFactorMap["dst color"] = GL_DST_COLOR;
-    blendFactorMap["src alpha"] = GL_SRC_ALPHA;
-    blendFactorMap["dst alpha"] = GL_DST_ALPHA;
-    blendFactorMap["one minus src color"] = GL_ONE_MINUS_SRC_COLOR;
-    blendFactorMap["one minus dst color"] = GL_ONE_MINUS_DST_COLOR;
-    blendFactorMap["one minus src alpha"] = GL_ONE_MINUS_SRC_ALPHA;
-    blendFactorMap["one minus dst alpha"] = GL_ONE_MINUS_DST_ALPHA;
+    blendFactorMap["zero"] = GL::BLEND_ZERO;
+    blendFactorMap["one"] = GL::BLEND_ONE;
+    blendFactorMap["src color"] = GL::BLEND_SRC_COLOR;
+    blendFactorMap["dst color"] = GL::BLEND_DST_COLOR;
+    blendFactorMap["src alpha"] = GL::BLEND_SRC_ALPHA;
+    blendFactorMap["dst alpha"] = GL::BLEND_DST_ALPHA;
+    blendFactorMap["one minus src color"] = GL::BLEND_ONE_MINUS_SRC_COLOR;
+    blendFactorMap["one minus dst color"] = GL::BLEND_ONE_MINUS_DST_COLOR;
+    blendFactorMap["one minus src alpha"] = GL::BLEND_ONE_MINUS_SRC_ALPHA;
+    blendFactorMap["one minus dst alpha"] = GL::BLEND_ONE_MINUS_DST_ALPHA;
   }
 
   if (functionMap.isEmpty())
   {
-    functionMap["never"] = GL_NEVER;
-    functionMap["always"] = GL_ALWAYS;
-    functionMap["equal"] = GL_EQUAL;
-    functionMap["not equal"] = GL_NOTEQUAL;
-    functionMap["lesser"] = GL_LESS;
-    functionMap["lesser or equal"] = GL_LEQUAL;
-    functionMap["greater"] = GL_GREATER;
-    functionMap["greater or equal"] = GL_GEQUAL;
+    functionMap["never"] = GL::ALLOW_NEVER;
+    functionMap["always"] = GL::ALLOW_ALWAYS;
+    functionMap["equal"] = GL::ALLOW_EQUAL;
+    functionMap["not equal"] = GL::ALLOW_NOT_EQUAL;
+    functionMap["lesser"] = GL::ALLOW_LESSER;
+    functionMap["lesser or equal"] = GL::ALLOW_LESSER_EQUAL;
+    functionMap["greater"] = GL::ALLOW_GREATER;
+    functionMap["greater or equal"] = GL::ALLOW_GREATER_EQUAL;
   }
 
+  /*
   if (operationMap.isEmpty())
   {
     operationMap["keep"] = GL_KEEP;
@@ -159,10 +146,10 @@ Style* StyleCodec::read(Stream& stream, const String& name)
     addressModeMap["wrap"] = GL_REPEAT;
     addressModeMap["clamp"] = GL_CLAMP;
   }
+  */
 
   currentTechnique = NULL;
   currentPass = NULL;
-  currentLayer = NULL;
 
   styleName = name;
 
@@ -217,13 +204,6 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 	if (!pass.getName().empty())
 	  addAttribute("name", pass.getName());
 
-	if (pass.isLit() != defaults.isLit())
-	{
-	  beginElement("lighting");
-	  addAttribute("enabled", pass.isLit());
-	  endElement();
-	}
-
 	if (pass.getSrcFactor() != defaults.getSrcFactor() ||
 	    pass.getDstFactor() != defaults.getDstFactor())
 	{
@@ -250,13 +230,6 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 	  endElement();
 	}
 
-	if (pass.getAlphaFunction() != defaults.getAlphaFunction())
-	{
-	  beginElement("alpha");
-	  addAttribute("function", functionMap[pass.getAlphaFunction()]);
-	  endElement();
-	}
-
 	/*
 	if (pass.isStencilTesting() != defaults.isStencilTesting() ||
 	    pass.getStencilFunction() != defaults.getStencilFunction() ||
@@ -278,97 +251,35 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 	}
 	*/
 
-	if (pass.getLineWidth() != defaults.getLineWidth())
-	{
-	  beginElement("line");
-	  addAttribute("width", pass.getLineWidth());
-	  endElement();
-	}
-
-	if (pass.getPolygonMode() != defaults.getPolygonMode() ||
+	if (pass.isWireframe() != defaults.isWireframe() ||
 	    pass.getCullMode() != defaults.getCullMode())
 	{
 	  beginElement("polygon");
-	  addAttribute("mode", polygonModeMap[pass.getPolygonMode()]);
+	  addAttribute("wireframe", pass.isWireframe());
 	  addAttribute("cull", cullModeMap[pass.getCullMode()]);
 	  endElement();
 	}
 
-	if (pass.isLit())
+	if (GL::Program* program = pass.getProgram())
 	{
-	  if (pass.getAmbientColor() != defaults.getAmbientColor())
-	  {
-	    beginElement("ambient");
-	    addAttributes(pass.getAmbientColor());
-	    endElement();
-	  }
-
-	  if (pass.getDiffuseColor() != defaults.getDiffuseColor())
-	  {
-	    beginElement("diffuse");
-	    addAttributes(pass.getDiffuseColor());
-	    endElement();
-	  }
-
-	  if (pass.getSpecularColor() != defaults.getSpecularColor() ||
-	      pass.getShininess() != defaults.getShininess())
-	  {
-	    beginElement("specular");
-	    addAttributes(pass.getSpecularColor());
-	    addAttribute("shininess", pass.getShininess());
-	    endElement();
-	  }
-	}
-	else
-	{
-	  if (pass.getDefaultColor() != defaults.getDefaultColor())
-	  {
-	    beginElement("default");
-	    addAttributes(pass.getDefaultColor());
-	    endElement();
-	  }
-	}
-
-	for (unsigned int i = 0;  i < pass.getTextureLayerCount();  i++)
-	{
-	  const GL::TextureLayer& layer = pass.getTextureLayer(i);
-
-	  if (!layer.getTexture())
-	    break;
-
-	  beginElement("texture");
-	  addAttribute("name", layer.getTexture()->getName());
-
-	  if (!layer.getSamplerName().empty())
-	    addAttribute("sampler", layer.getSamplerName());
-
-	  beginElement("combine");
-	  addAttribute("mode", combineModeMap[layer.getCombineMode()]);
-	  addAttributes(layer.getCombineColor());
-	  endElement();
-
-	  String mappingMode = (layer.isSphereMapped() ? "sphere" : "none");
-
-	  beginElement("mapping");
-	  addAttribute("mode", mappingMode);
-	  endElement();
-
-	  beginElement("filter");
-	  addAttribute("min", filterMap[layer.getMinFilter()]);
-	  addAttribute("mag", filterMap[layer.getMagFilter()]);
-	  endElement();
-
-	  beginElement("address");
-	  addAttribute("mode", addressModeMap[layer.getAddressMode()]);
-	  endElement();
-
-	  endElement();
-	}
-
-	if (GL::ShaderProgram* program = pass.getShaderProgram())
-	{
-	  beginElement("shader-program");
+	  beginElement("program");
 	  addAttribute("name", program->getName());
+
+	  for (unsigned int i = 0;  i < pass.getSamplerCount();  i++)
+	  {
+	    const GL::SamplerState& state = pass.getSamplerState(i);
+
+	    Ref<GL::Texture> texture;
+	    state.getTexture(texture);
+	    if (texture)
+	      continue;
+
+	    beginElement("sampler");
+	    addAttribute("name", state.getSampler().getName());
+	    addAttribute("texture", texture->getName());
+	    endElement();
+	  }
+
 	  endElement();
 	}
 
@@ -436,12 +347,6 @@ bool StyleCodec::onBeginElement(const String& name)
 
       if (currentPass)
       {
-	if (name == "lighting")
-	{
-	  currentPass->setLit(readBoolean("enabled", currentPass->isLit()));
-	  return true;
-	}
-
 	if (name == "blending")
 	{
 	  String srcFactorName = readString("src");
@@ -501,24 +406,6 @@ bool StyleCodec::onBeginElement(const String& name)
 	  return true;
 	}
 	
-	if (name == "alpha")
-	{
-	  String functionName = readString("function");
-	  if (functionName.length())
-	  {
-	    if (functionMap.hasKey(functionName))
-	      currentPass->setAlphaFunction(functionMap[functionName]);
-	    else
-	    {
-	      Log::writeError("Invalid alpha test function name %s",
-	                      functionName.c_str());
-	      return false;
-	    }
-	  }
-
-	  return true;
-	}
-
 	/*
 	if (name == "stencil")
 	{
@@ -565,26 +452,9 @@ bool StyleCodec::onBeginElement(const String& name)
 	}
 	*/
 
-	if (name == "line")
-	{
-	  currentPass->setLineWidth(readFloat("width"));
-	  return true;
-	}
-
 	if (name == "polygon")
 	{
-	  String polygonModeName = readString("mode");
-	  if (polygonModeName.length())
-	  {
-	    if (polygonModeMap.hasKey(polygonModeName))
-	      currentPass->setPolygonMode(polygonModeMap[polygonModeName]);
-	    else
-	    {
-	      Log::writeError("Invalid polygon mode %s",
-	                      polygonModeName.c_str());
-	      return false;
-	    }
-	  }
+	  currentPass->setWireframe(readBoolean("wireframe"));
 
 	  String cullModeName = readString("cull");
 	  if (cullModeName.length())
@@ -601,77 +471,20 @@ bool StyleCodec::onBeginElement(const String& name)
 	  return true;
 	}
 
-	if (name == "default")
+	if (name == "program")
 	{
-	  ColorRGBA color;
-	  readAttributes(color, currentPass->getDefaultColor());
-	  currentPass->setDefaultColor(color);
-	  return true;
-	}
-
-	if (name == "ambient")
-	{
-	  ColorRGBA color;
-	  readAttributes(color, currentPass->getAmbientColor());
-	  currentPass->setAmbientColor(color);
-	  return true;
-	}
-
-	if (name == "diffuse")
-	{
-	  ColorRGBA color;
-	  readAttributes(color, currentPass->getDiffuseColor());
-	  currentPass->setDiffuseColor(color);
-	  return true;
-	}
-
-	if (name == "specular")
-	{
-	  ColorRGBA color;
-	  readAttributes(color, currentPass->getSpecularColor());
-	  currentPass->setSpecularColor(color);
-
-	  currentPass->setShininess(readFloat("shininess",
-	                                      currentPass->getShininess()));
-	  return true;
-	}
-
-	if (name == "texture")
-	{
-	  String textureName = readString("name");
-	  if (!textureName.length())
-	    return true;
-
-	  GL::Texture* texture;
-
-	  // TODO: Update this once resource cascade options are added.
-
-	  texture = GL::Texture::findInstance(textureName);
-	  if (!texture)
+	  String programName = readString("name");
+	  if (programName.empty())
 	  {
-	    texture = GL::Texture::readInstance(textureName);
-	    if (!texture)
-	      return false;
+	    Log::writeError("Shader program name missing");
+	    return false;
 	  }
 
-	  GL::TextureLayer& layer = currentPass->createTextureLayer();
-	  layer.setTexture(texture);
-	  layer.setSamplerName(readString("sampler"));
-
-	  currentLayer = &layer;
-	  return true;
-	}
-
-	if (name == "shader-program")
-	{
-	  String shaderProgramName = readString("name");
-	  if (shaderProgramName.empty())
-	    return true;
-
-	  GL::ShaderProgram* program = GL::ShaderProgram::readInstance(shaderProgramName);
+	  GL::Program* program = GL::Program::readInstance(programName);
 	  if (!program)
 	  {
-	    Log::writeWarning("Skipping technique %u in render style %s",
+	    Log::writeWarning("Failed to load shader program %s; skipping technique %u in render style %s",
+	                      programName.c_str(),
 	                      style->getTechniqueCount(),
 	                      style->getName().c_str());
 
@@ -680,51 +493,40 @@ bool StyleCodec::onBeginElement(const String& name)
 	    return true;
 	  }
 	  
-	  currentPass->setShaderProgram(program);
+	  currentPass->setProgram(program);
 	  return true;
 	}
 
-	if (currentLayer)
+	if (currentPass->getProgram())
 	{
-	  if (name == "combine")
+	  if (name == "sampler")
 	  {
-	    String combineModeName = readString("mode");
-	    if (combineModeName.length())
+	    String samplerName = readString("name");
+	    if (samplerName.empty())
+	      return true;
+
+	    if (!currentPass->getProgram()->findSampler(samplerName))
 	    {
-	      if (combineModeMap.hasKey(combineModeName))
-		currentLayer->setCombineMode(combineModeMap[combineModeName]);
-	      else
-	      {
-		Log::writeError("Invalid texture combine %s",
-		                combineModeName.c_str());
-		return false;
-	      }
+	      Log::writeError("Shader program %s does not have sampler uniform %s",
+	                      currentPass->getProgram()->getName().c_str(),
+			      samplerName.c_str());
+	      return false;
 	    }
 
-	    ColorRGBA color;
-	    readAttributes(color, currentLayer->getCombineColor());
-	    currentLayer->setCombineColor(color);
+	    String textureName = readString("texture");
+	    if (textureName.empty())
+	      return true;
+
+	    Ref<GL::Texture> texture = GL::Texture::readInstance(textureName);
+	    if (!texture)
+	      return false;
+
+	    currentPass->getSamplerState(samplerName).setTexture(texture);
 	    return true;
 	  }
 	}
 
-	if (name == "mapping")
-	{
-	  String modeName = readString("mode");
-	  if (modeName == "sphere")
-	    currentLayer->setSphereMapped(true);
-	  else if (modeName == "none")
-	    currentLayer->setSphereMapped(false);
-	  else
-	  {
-	    Log::writeError("Invalid texture layer mapping mode name %s",
-	                    modeName.c_str());
-	    return false;
-	  }
-
-	  return true;
-	}
-
+	/*
 	if (name == "filter")
 	{
 	  String filterName;
@@ -764,6 +566,7 @@ bool StyleCodec::onBeginElement(const String& name)
 	                      addressModeName.c_str());
 	  }
 	}
+	*/
       }
     }
   }
@@ -789,15 +592,6 @@ bool StyleCodec::onEndElement(const String& name)
 	{
 	  currentPass = NULL;
 	  return true;
-	}
-
-	if (currentLayer)
-	{
-	  if (name == "texture")
-	  {
-	    currentLayer = NULL;
-	    return true;
-	  }
 	}
       }
     }

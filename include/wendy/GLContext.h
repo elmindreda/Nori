@@ -37,6 +37,52 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+class Context;
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @defgroup opengl OpenGL wrapper API
+ *
+ *  These classes wrap parts of the OpenGL API, maintaining a rather close
+ *  mapping to the underlying concepts, but providing useful services and a
+ *  semblance of automatic resource management. They are used by most
+ *  higher-level components such as the 3D rendering pipeline.
+ */
+
+///////////////////////////////////////////////////////////////////////
+
+/*! Comparison function enumeration.
+ *  @ingroup opengl
+ */
+enum Function
+{
+  ALLOW_NEVER,
+  ALLOW_ALWAYS,
+  ALLOW_EQUAL,
+  ALLOW_NOT_EQUAL,
+  ALLOW_LESSER,
+  ALLOW_LESSER_EQUAL,
+  ALLOW_GREATER,
+  ALLOW_GREATER_EQUAL,
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Primitive type enumeration.
+ *  @ingroup opengl
+ */
+enum PrimitiveType
+{
+  POINT_LIST,
+  LINE_LIST,
+  LINE_STRIP,
+  TRIANGLE_LIST,
+  TRIANGLE_STRIP,
+  TRIANGLE_FAN,
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Screen mode.
  *  @ingroup opengl
  */
@@ -129,6 +175,33 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! OpenGL limits data.
+ *  @ingroup opengl
+ */
+class Limits
+{
+public:
+  Limits(Context& context);
+  unsigned int getMaxTextureCoords(void) const;
+  unsigned int getMaxFragmentTextureImageUnits(void) const;
+  unsigned int getMaxVertexTextureImageUnits(void) const;
+  unsigned int getMaxTextureSize(void) const;
+  unsigned int getMaxTextureCubeSize(void) const;
+  unsigned int getMaxTextureRectangleSize(void) const;
+  unsigned int getMaxVertexAttributes(void) const;
+private:
+  Context& context;
+  unsigned int maxTextureCoords;
+  unsigned int maxFragmentTextureImageUnits;
+  unsigned int maxVertexTextureImageUnits;
+  unsigned int maxTextureSize;
+  unsigned int maxTextureCubeSize;
+  unsigned int maxTextureRectangleSize;
+  unsigned int maxVertexAttributes;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief OpenGL context singleton.
  *  @ingroup opengl
  *
@@ -139,6 +212,8 @@ public:
  */
 class Context : public Singleton<Context>
 {
+  friend class VertexShader;
+  friend class FragmentShader;
 public:
   /*! Destructor.
    */
@@ -185,6 +260,7 @@ public:
    *  @param[in] newTitle The desired title.
    */
   void setTitle(const String& newTitle);
+  const Limits& getLimits(void) const;
   /*! @return The signal for rendering.
    */
   SignalProxy0<bool> getRenderSignal(void);
@@ -225,6 +301,10 @@ private:
   Signal2<void, unsigned int, unsigned int> resizedSignal;
   ContextMode mode;
   String title;
+  Ptr<Limits> limits;
+  void* cgContextID;
+  int cgVertexProfile;
+  int cgFragmentProfile;
   static Context* instance;
   static Signal0<void> createSignal;
   static Signal0<void> destroySignal;

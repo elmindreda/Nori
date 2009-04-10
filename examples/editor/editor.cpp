@@ -54,19 +54,19 @@ bool CubeEffect::init(void)
   if (!cube)
     return false;
 
-  GL::Light* light;
+  render::Light* light;
   render::LightNode* lightNode;
 
-  light = new GL::Light();
-  light->setType(GL::Light::DIRECTIONAL);
+  light = new render::Light();
+  //light->setType(Light::DIRECTIONAL);
   light->setIntensity(ColorRGB::WHITE);
 
   lightNode = new render::LightNode();
   lightNode->setLight(light);
   scene.addNode(*lightNode);
 
-  light = new GL::Light();
-  light->setType(GL::Light::DIRECTIONAL);
+  light = new render::Light();
+  //light->setType(Light::DIRECTIONAL);
   light->setIntensity(ColorRGB(0.1f, 0.1f, 1.f));
 
   lightNode = new render::LightNode();

@@ -190,13 +190,13 @@ private:
 class LightNode : public SceneNode
 {
 public:
-  GL::Light* getLight(void) const;
-  void setLight(GL::Light* newLight);
+  Light* getLight(void) const;
+  void setLight(Light* newLight);
 protected:
   void update(Time deltaTime);
   void enqueue(Queue& queue, QueuePhase phase) const;
 private:
-  Ref<GL::Light> light;
+  Ref<Light> light;
 };
 
 ///////////////////////////////////////////////////////////////////////

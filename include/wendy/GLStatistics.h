@@ -57,7 +57,7 @@ public:
   };
   typedef std::deque<Frame> FrameQueue;
   void addPasses(unsigned int count);
-  void addPrimitives(GLenum mode, unsigned int count);
+  void addPrimitives(PrimitiveType type, unsigned int count);
   float getFrameRate(void) const;
   unsigned int getFrameCount(void) const;
   const Frame& getFrame(void) const;

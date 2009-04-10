@@ -26,14 +26,22 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
 #include <wendy/GLContext.h>
 
+#define GLEW_STATIC
+#include <GL/glew.h>
+
 #include <GL/glfw.h>
+
+#include <Cg/cg.h>
+#include <Cg/cgGL.h>
 
 #if MOIRA_HAVE_CTYPE_H
 #include <ctype.h>
 #endif
+
+#include <algorithm>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -121,9 +129,66 @@ void ContextMode::set(unsigned int width,
   
 ///////////////////////////////////////////////////////////////////////
 
+Limits::Limits(Context& initContext):
+  context(initContext),
+  maxTextureCoords(0),
+  maxFragmentTextureImageUnits(0),
+  maxVertexTextureImageUnits(0),
+  maxTextureSize(0),
+  maxTextureCubeSize(0),
+  maxTextureRectangleSize(0),
+  maxVertexAttributes(0)
+{
+  glGetIntegerv(GL_MAX_TEXTURE_COORDS, (GLint*) &maxTextureCoords);
+  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint*) &maxFragmentTextureImageUnits);
+  glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, (GLint*) &maxVertexTextureImageUnits);
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxTextureSize);
+  glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB, (GLint*) &maxTextureCubeSize);
+  glGetIntegerv(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB, (GLint*) &maxTextureCubeSize);
+  glGetIntegerv(GL_MAX_VERTEX_ATTRIBS_ARB, (GLint*) maxVertexAttributes);
+}
+
+unsigned int Limits::getMaxTextureCoords(void) const
+{
+  return maxTextureCoords;
+}
+
+unsigned int Limits::getMaxFragmentTextureImageUnits(void) const
+{
+  return maxFragmentTextureImageUnits;
+}
+
+unsigned int Limits::getMaxVertexTextureImageUnits(void) const
+{
+  return maxVertexTextureImageUnits;
+}
+
+unsigned int Limits::getMaxTextureSize(void) const
+{
+  return maxTextureSize;
+}
+
+unsigned int Limits::getMaxTextureCubeSize(void) const
+{
+  return maxTextureCubeSize;
+}
+
+unsigned int Limits::getMaxTextureRectangleSize(void) const
+{
+  return maxTextureRectangleSize;
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Context::~Context(void)
 {
   destroySignal.emit();
+
+  if (cgContextID)
+  {
+    cgDestroyContext((CGcontext) cgContextID);
+    cgContextID = NULL;
+  }
 
   glfwCloseWindow();
 
@@ -139,17 +204,15 @@ bool Context::update(void)
 
   renderSignal.emit(results);  
 
-  for (ResultList::const_iterator i = results.begin();  i != results.end();  i++)
-  {
-    if (!(*i))
-    {
-      stopped = true;
-      break;
-    }
-  }
+  // Stop run loop if anyone returned false
+  if (std::find(results.begin(), results.end(), false) != results.end())
+    stopped = true;
 
   glfwSwapBuffers();
 
+  // Stop run loop if the user closed the window
+  // NOTE: This is here because we only find out about this after events
+  //       have been processed by SwapBuffers.
   if (glfwGetWindowParam(GLFW_OPENED) != GL_TRUE)
     stopped = true;
 
@@ -203,6 +266,9 @@ unsigned int Context::getStencilBits(void) const
 
 Image* Context::getColorBuffer(void) const
 {
+  // TODO: Update this when adding FBO support.
+  // TODO: Eliminate stack and pixel option usage.
+
   Ptr<Image> result = new Image(ImageFormat::RGB888, mode.width, mode.height);
 
   glPushAttrib(GL_PIXEL_MODE_BIT);
@@ -214,6 +280,7 @@ Image* Context::getColorBuffer(void) const
 
   glPopAttrib();
 
+  // OpenGL images and Moira images are upside down to each other.
   result->flipHorizontal();
 
   return result.detachObject();
@@ -228,6 +295,11 @@ void Context::setTitle(const String& newTitle)
 {
   glfwSetWindowTitle(newTitle.c_str());
   title = newTitle;
+}
+
+const Limits& Context::getLimits(void) const
+{
+  return *limits;
 }
 
 SignalProxy0<bool> Context::getRenderSignal(void)
@@ -276,7 +348,10 @@ void Context::getScreenModes(ScreenModeList& result)
   GLFWvidmode modes[128];
 }
 
-Context::Context(void)
+Context::Context(void):
+  cgContextID(NULL),
+  cgVertexProfile(CG_PROFILE_UNKNOWN),
+  cgFragmentProfile(CG_PROFILE_UNKNOWN)
 {
   // Necessary hack in case GLFW calls a callback before
   // we have had time to call Singleton::set.
@@ -328,10 +403,68 @@ bool Context::init(const ContextMode& mode)
     return false;
   }
 
+  if (!GLEW_ARB_vertex_buffer_object)
+  {
+    Log::writeError("Vertex buffer objects (ARB_vertex_buffer_object) is required but not supported");
+    return false;
+  }
+
+  if (!GLEW_ARB_texture_cube_map)
+  {
+    Log::writeError("Cube map textures are required but not supported");
+    return false;
+  }
+
+  if (!GLEW_ARB_texture_rectangle)
+  {
+    Log::writeError("Rectangular textures are required but not supported");
+    return false;
+  }
+
+  limits = new Limits(*this);
+
+  cgContextID = cgCreateContext();
+  if (!cgContextID)
+  {
+    Log::writeError("Unable to create Cg context");
+    return false;
+  }
+
+  cgVertexProfile = cgGLGetLatestProfile(CG_GL_VERTEX);
+  if (cgVertexProfile == CG_PROFILE_UNKNOWN)
+  {
+    Log::writeError("Unable to find any usable Cg vertex profile");
+    return false;
+  }
+
+  Log::writeInformation("Cg vertex profile %s selected",
+                        cgGetProfileString((CGprofile) cgVertexProfile));
+
+  cgGLEnableProfile((CGprofile) cgVertexProfile);
+  cgGLSetOptimalOptions((CGprofile) cgVertexProfile);
+
+  cgFragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
+  if (cgFragmentProfile == CG_PROFILE_UNKNOWN)
+  {
+    Log::writeError("Unable to find any usable Cg fragment profile");
+    return false;
+  }
+
+  Log::writeInformation("Cg fragment profile %s selected",
+                        cgGetProfileString((CGprofile) cgFragmentProfile));
+
+  cgGLEnableProfile((CGprofile) cgFragmentProfile);
+  cgGLSetOptimalOptions((CGprofile) cgFragmentProfile);
+
+  cgGLSetManageTextureParameters((CGcontext) cgContextID, CG_TRUE);
+  cgSetLockingPolicy(CG_NO_LOCKS_POLICY);
+  cgSetParameterSettingMode((CGcontext) cgContextID, CG_IMMEDIATE_PARAMETER_SETTING);
+  cgGLSetDebugMode(CG_TRUE);
+
   glfwSetWindowSizeCallback(sizeCallback);
   glfwSetWindowCloseCallback(closeCallback);
 
-  glfwSwapInterval(1);
+  //glfwSwapInterval(1);
 
   setTitle("Wendy");
   glfwPollEvents();

@@ -26,8 +26,18 @@
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
-#include <wendy/OpenGL.h>
+
+#include <wendy/GLContext.h>
+#include <wendy/GLStatistics.h>
+#include <wendy/GLTexture.h>
+#include <wendy/GLVertex.h>
+#include <wendy/GLBuffer.h>
+#include <wendy/GLShader.h>
+#include <wendy/GLRender.h>
 #include <wendy/GLState.h>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -42,10 +52,204 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+namespace
+{
+
+GLenum convertCullMode(CullMode mode)
+{
+  switch (mode)
+  {
+    case CULL_FRONT:
+      return GL_FRONT;
+    case CULL_BACK:
+      return GL_BACK;
+    case CULL_BOTH:
+      return GL_FRONT_AND_BACK;
+    default:
+      throw Exception("Invalid cull mode");
+  }
+}
+
+CullMode invertCullMode(CullMode mode)
+{
+  switch (mode)
+  {
+    case CULL_NONE:
+      return CULL_BOTH;
+    case CULL_FRONT:
+      return CULL_BACK;
+    case CULL_BACK:
+      return CULL_FRONT;
+    case CULL_BOTH:
+      return CULL_NONE;
+    default:
+      throw Exception("Invalid cull mode");
+  }
+}
+
+GLenum convertBlendFactor(BlendFactor factor)
+{
+  switch (factor)
+  {
+    case BLEND_ZERO:
+      return GL_ZERO;
+    case BLEND_ONE:
+      return GL_ONE;
+    case BLEND_SRC_COLOR:
+      return GL_SRC_COLOR;
+    case BLEND_DST_COLOR:
+      return GL_DST_COLOR;
+    case BLEND_SRC_ALPHA:
+      return GL_SRC_ALPHA;
+    case BLEND_DST_ALPHA:
+      return GL_DST_ALPHA;
+    case BLEND_ONE_MINUS_SRC_COLOR:
+      return GL_ONE_MINUS_SRC_COLOR;
+    case BLEND_ONE_MINUS_DST_COLOR:
+      return GL_ONE_MINUS_DST_COLOR;
+    case BLEND_ONE_MINUS_SRC_ALPHA:
+      return GL_ONE_MINUS_SRC_ALPHA;
+    case BLEND_ONE_MINUS_DST_ALPHA:
+      return GL_ONE_MINUS_DST_ALPHA;
+    default:
+      throw Exception("Invalid blend factor");
+  }
+}
+
+GLenum convertFunction(Function function)
+{
+  switch (function)
+  {
+    case ALLOW_NEVER:
+      return GL_NEVER;
+    case ALLOW_ALWAYS:
+      return GL_ALWAYS;
+    case ALLOW_EQUAL:
+      return GL_EQUAL;
+    case ALLOW_NOT_EQUAL:
+      return GL_NOTEQUAL;
+    case ALLOW_LESSER:
+      return GL_LESS;
+    case ALLOW_LESSER_EQUAL:
+      return GL_LEQUAL;
+    case ALLOW_GREATER:
+      return GL_GREATER;
+    case ALLOW_GREATER_EQUAL:
+      return GL_GEQUAL;
+    default:
+      throw Exception("Invalid function");
+  }
+}
+
+GLenum convertOperation(Operation operation)
+{
+  switch (operation)
+  {
+    case OP_KEEP:
+      return GL_KEEP;
+    case OP_ZERO:
+      return GL_ZERO;
+    case OP_REPLACE:
+      return GL_REPLACE;
+    case OP_INCREASE:
+      return GL_INCR;
+    case OP_DECREASE:
+      return GL_DECR;
+    case OP_INVERT:
+      return GL_INVERT;
+    case OP_INCREASE_WRAP:
+      return GL_INCR_WRAP;
+    case OP_DECREASE_WRAP:
+      return GL_DECR_WRAP;
+    default:
+      throw Exception("Invalid stencil operation");
+  }
+}
+
+template <typename T>
+class UniformStateTemplate : public UniformState
+{
+public:
+  inline UniformStateTemplate(Uniform& uniform);
+  inline bool getValue(T& result) const;
+  inline void setValue(const T& newValue);
+private:
+  inline void apply(void) const;
+  T value;
+};
+
+template <typename T>
+inline UniformStateTemplate<T>::UniformStateTemplate(Uniform& uniform):
+  UniformState(uniform)
+{
+}
+
+template <typename T>
+inline bool UniformStateTemplate<T>::getValue(T& result) const
+{
+  result = value;
+  return true;
+}
+
+template <typename T>
+inline void UniformStateTemplate<T>::setValue(const T& newValue)
+{
+  value = newValue;
+}
+
+template <typename T>
+inline void UniformStateTemplate<T>::apply(void) const
+{
+  getUniform().setValue(value);
+}
+
+template <typename T>
+class NameComparator
+{
+public:
+  inline NameComparator(const String& name);
+  inline bool operator () (const T& object);
+  inline bool operator () (const T* object);
+private:
+  const String& name;
+};
+
+template <typename T>
+inline NameComparator<T>::NameComparator(const String& initName):
+  name(initName)
+{
+}
+
+template <typename T>
+inline bool NameComparator<T>::operator () (const T& object)
+{
+  return name == object.getName();
+}
+
+template <typename T>
+inline bool NameComparator<T>::operator () (const T* object)
+{
+  return name == object->getName();
+}
+
+template <>
+inline bool NameComparator<UniformState>::operator () (const UniformState* object)
+{
+  return name == object->getUniform().getName();
+}
+
+template <>
+inline bool NameComparator<SamplerState>::operator () (const SamplerState* object)
+{
+  return name == object->getSampler().getName();
+}
+
+}
+
+///////////////////////////////////////////////////////////////////////
+
 void StencilState::apply(void) const
 {
-  // NOTE: Yes, I know this is huge.  You don't need to point it out.
-
   if (cache.dirty)
   {
     force();
@@ -64,7 +268,8 @@ void StencilState::apply(void) const
         data.reference != cache.reference ||
         data.writeMask != cache.writeMask)
     {
-      glStencilFunc(data.function, data.reference, data.writeMask);
+      glStencilFunc(convertFunction(data.function), data.reference, data.writeMask);
+
       cache.function = data.function;
       cache.reference = data.reference;
       cache.writeMask = data.writeMask;
@@ -74,7 +279,10 @@ void StencilState::apply(void) const
         data.depthFailed != cache.depthFailed ||
         data.depthPassed != cache.depthPassed)
     {
-      glStencilOp(data.stencilFailed, data.depthFailed, data.depthPassed);
+      glStencilOp(convertOperation(data.stencilFailed),
+                  convertOperation(data.depthFailed),
+		  convertOperation(data.depthPassed));
+
       cache.stencilFailed = data.stencilFailed;
       cache.depthFailed = data.depthFailed;
       cache.depthPassed = data.depthPassed;
@@ -103,22 +311,22 @@ bool StencilState::isEnabled(void) const
   return data.enabled;
 }
 
-GLenum StencilState::getFunction(void) const
+Function StencilState::getFunction(void) const
 {
   return data.function;
 }
 
-GLenum StencilState::getStencilFailOperation(void) const
+Operation StencilState::getStencilFailOperation(void) const
 {
   return data.stencilFailed;
 }
 
-GLenum StencilState::getDepthFailOperation(void) const
+Operation StencilState::getDepthFailOperation(void) const
 {
   return data.depthFailed;
 }
 
-GLenum StencilState::getDepthPassOperation(void) const
+Operation StencilState::getDepthPassOperation(void) const
 {
   return data.depthPassed;
 }
@@ -139,7 +347,7 @@ void StencilState::setEnabled(bool newState)
   data.dirty = true;
 }
 
-void StencilState::setFunction(GLenum newFunction)
+void StencilState::setFunction(Function newFunction)
 {
   data.function = newFunction;
   data.dirty = true;
@@ -157,9 +365,9 @@ void StencilState::setWriteMask(unsigned int newMask)
   data.dirty = true;
 }
 
-void StencilState::setOperations(GLenum stencilFailed,
-                                 GLenum depthFailed,
-                                 GLenum depthPassed)
+void StencilState::setOperations(Operation stencilFailed,
+                                 Operation depthFailed,
+                                 Operation depthPassed)
 {
   data.stencilFailed = stencilFailed;
   data.depthFailed = depthFailed;
@@ -170,11 +378,6 @@ void StencilState::setOperations(GLenum stencilFailed,
 void StencilState::setDefaults(void)
 {
   data.setDefaults();
-}
-
-void StencilState::invalidateCache(void)
-{
-  cache.dirty = true;
 }
 
 void StencilState::force(void) const
@@ -211,12 +414,601 @@ void StencilState::Data::setDefaults(void)
 {
   dirty = true;
   enabled = false;
-  function = GL_ALWAYS;
+  function = ALLOW_ALWAYS;
   reference = 0;
   writeMask = ~0;
-  stencilFailed = GL_KEEP;
-  depthFailed = GL_KEEP;
-  depthPassed = GL_KEEP;
+  stencilFailed = OP_KEEP;
+  depthFailed = OP_KEEP;
+  depthPassed = OP_KEEP;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+bool UniformState::getValue(float& result) const
+{
+  return false;
+}
+
+void UniformState::setValue(float newValue)
+{
+}
+
+bool UniformState::getValue(Vector2& result) const
+{
+  return false;
+}
+
+void UniformState::setValue(const Vector2& newValue)
+{
+}
+
+bool UniformState::getValue(Vector3& result) const
+{
+  return false;
+}
+
+void UniformState::setValue(const Vector3& newValue)
+{
+}
+
+bool UniformState::getValue(Vector4& result) const
+{
+  return false;
+}
+
+void UniformState::setValue(const Vector4& newValue)
+{
+}
+
+bool UniformState::getValue(Matrix2& result) const
+{
+  return false;
+}
+
+void UniformState::setValue(const Matrix2& newValue)
+{
+}
+
+bool UniformState::getValue(Matrix3& result) const
+{
+  return false;
+}
+
+void UniformState::setValue(const Matrix3& newValue)
+{
+}
+
+bool UniformState::getValue(Matrix4& result) const
+{
+  return false;
+}
+
+void UniformState::setValue(const Matrix4& newValue)
+{
+}
+
+Uniform& UniformState::getUniform(void) const
+{
+  return uniform;
+}
+
+UniformState::UniformState(Uniform& initUniform):
+  uniform(initUniform)
+{
+}
+
+UniformState::UniformState(const UniformState& source):
+  uniform(source.uniform)
+{
+}
+
+UniformState& UniformState::operator = (const UniformState& source)
+{
+  return *this;
+}
+
+void UniformState::apply(void) const
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
+bool SamplerState::getTexture(Ref<Texture>& result) const
+{
+  result = texture;
+}
+
+void SamplerState::setTexture(Texture* newTexture)
+{
+  texture = newTexture;
+}
+
+Sampler& SamplerState::getSampler(void) const
+{
+  return sampler;
+}
+
+SamplerState::SamplerState(Sampler& initSampler):
+  sampler(initSampler)
+{
+}
+
+void SamplerState::apply(void) const
+{
+  if (texture)
+    sampler.setTexture(*texture);
+  else
+  {
+    // TODO: Wtf?
+  }
+}
+
+SamplerState::SamplerState(const SamplerState& source):
+  sampler(source.sampler)
+{
+}
+
+SamplerState& SamplerState::operator = (const SamplerState& source)
+{
+  return *this;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+ProgramState::~ProgramState(void)
+{
+  destroyProgramState();
+}
+
+void ProgramState::apply(void) const
+{
+  if (program)
+  {
+    for (UniformList::const_iterator i = uniforms.begin();  i != uniforms.end();  i++)
+      (**i).apply();
+
+    for (SamplerList::const_iterator i = samplers.begin();  i != samplers.end();  i++)
+      (**i).apply();
+
+    GL::Renderer::get()->setCurrentProgram(program);
+  }
+}
+
+unsigned int ProgramState::getUniformCount(void) const
+{
+  return uniforms.size();
+}
+
+UniformState& ProgramState::getUniformState(const String& name)
+{
+  UniformList::const_iterator i = std::find_if(uniforms.begin(), uniforms.end(), NameComparator<UniformState>(name));
+  if (i == uniforms.end())
+    throw Exception("Render pass uniform state unknown");
+
+  return **i;
+}
+
+const UniformState& ProgramState::getUniformState(const String& name) const
+{
+  UniformList::const_iterator i = std::find_if(uniforms.begin(), uniforms.end(), NameComparator<UniformState>(name));
+  if (i == uniforms.end())
+    throw Exception("Render pass uniform state unknown");
+
+  return **i;
+}
+
+UniformState& ProgramState::getUniformState(unsigned int index)
+{
+  if (index >= uniforms.size())
+    throw Exception("Render pass uniform state access out of range");
+
+  return *uniforms[index];
+}
+
+const UniformState& ProgramState::getUniformState(unsigned int index) const
+{
+  if (index >= uniforms.size())
+    throw Exception("Render pass uniform state access out of range");
+
+  return *uniforms[index];
+}
+
+unsigned int ProgramState::getSamplerCount(void) const
+{
+  return samplers.size();
+}
+
+SamplerState& ProgramState::getSamplerState(const String& name)
+{
+  SamplerList::const_iterator i = std::find_if(samplers.begin(), samplers.end(), NameComparator<SamplerState>(name));
+  if (i == samplers.end())
+    throw Exception("Render pass sampler state unknown");
+
+  return **i;
+}
+
+const SamplerState& ProgramState::getSamplerState(const String& name) const
+{
+  SamplerList::const_iterator i = std::find_if(samplers.begin(), samplers.end(), NameComparator<SamplerState>(name));
+  if (i == samplers.end())
+    throw Exception("Render pass sampler state unknown");
+
+  return **i;
+}
+
+SamplerState& ProgramState::getSamplerState(unsigned int index)
+{
+  if (index >= samplers.size())
+    throw Exception("Render pass sampler state access out of range");
+
+  return *samplers[index];
+}
+
+const SamplerState& ProgramState::getSamplerState(unsigned int index) const
+{
+  if (index >= samplers.size())
+    throw Exception("Render pass sampler state access out of range");
+
+  return *samplers[index];
+}
+
+Program* ProgramState::getProgram(void) const
+{
+  return program;
+}
+
+void ProgramState::setProgram(Program* newProgram)
+{
+  destroyProgramState();
+  program = newProgram;
+
+  if (program)
+  {
+    for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
+      samplers.push_back(new SamplerState(program->getSampler(i)));
+
+    for (unsigned int i = 0;  i < program->getUniformCount();  i++)
+    {
+      Uniform& uniform = program->getUniform(i);
+      UniformState* state;
+
+      if (GL::Renderer::get()->isReservedUniform(uniform.getName()))
+	continue;
+
+      switch (uniform.getType())
+      {
+	case Uniform::FLOAT:
+	  state = new UniformStateTemplate<float>(uniform);
+	  break;
+	case Uniform::FLOAT_VEC2:
+	  state = new UniformStateTemplate<Vector2>(uniform);
+	  break;
+	case Uniform::FLOAT_VEC3:
+	  state = new UniformStateTemplate<Vector3>(uniform);
+	  break;
+	case Uniform::FLOAT_VEC4:
+	  state = new UniformStateTemplate<Vector4>(uniform);
+	  break;
+	case Uniform::FLOAT_MAT2:
+	  state = new UniformStateTemplate<Matrix2>(uniform);
+	  break;
+	case Uniform::FLOAT_MAT3:
+	  state = new UniformStateTemplate<Matrix3>(uniform);
+	  break;
+	case Uniform::FLOAT_MAT4:
+	  state = new UniformStateTemplate<Matrix4>(uniform);
+	  break;
+	default:
+	  throw Exception("Unknown uniform state type");
+      }
+
+      uniforms.push_back(state);
+    }
+  }
+}
+
+void ProgramState::setDefaults(void)
+{
+  setProgram(NULL);
+}
+
+void ProgramState::destroyProgramState(void)
+{
+  while (!uniforms.empty())
+  {
+    delete uniforms.back();
+    uniforms.pop_back();
+  }
+
+  while (!samplers.empty())
+  {
+    delete samplers.back();
+    samplers.pop_back();
+  }
+}
+
+///////////////////////////////////////////////////////////////////////
+
+void RenderState::apply(void) const
+{
+  if (Statistics* statistics = Statistics::get())
+    statistics->addPasses(1);
+
+  if (cache.dirty)
+  {
+    force();
+    return;
+  }
+  
+  CullMode cullMode = data.cullMode;
+  if (cullingInverted)
+    cullMode = invertCullMode(cullMode);
+
+  if (cullMode != cache.cullMode)
+  {
+    if ((cullMode == CULL_NONE) != (cache.cullMode == CULL_NONE))
+      setBooleanState(GL_CULL_FACE, cullMode != CULL_NONE);
+
+    if (cullMode != CULL_NONE)
+      glCullFace(convertCullMode(cullMode));
+      
+    cache.cullMode = cullMode;
+  }
+
+  if (data.srcFactor != cache.srcFactor || data.dstFactor != cache.dstFactor)
+  {
+    setBooleanState(GL_BLEND, data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO);
+
+    if (data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO)
+      glBlendFunc(convertBlendFactor(data.srcFactor), convertBlendFactor(data.dstFactor));
+    
+    cache.srcFactor = data.srcFactor;
+    cache.dstFactor = data.dstFactor;
+  }
+
+  if (data.depthTesting || data.depthWriting)
+  {
+    // Set depth buffer writing.
+    if (data.depthWriting != cache.depthWriting)
+      glDepthMask(data.depthWriting ? GL_TRUE : GL_FALSE);
+
+    if (data.depthTesting)
+    {
+      // Set depth buffer function.
+      if (data.depthFunction != cache.depthFunction)
+      {
+        glDepthFunc(convertFunction(data.depthFunction));
+        cache.depthFunction = data.depthFunction;
+      }
+    }
+    else if (data.depthWriting)
+    {
+      // NOTE: Special case; depth buffer filling.
+      //       Set specific depth buffer function.
+      const Function depthFunction = ALLOW_ALWAYS;
+
+      if (cache.depthFunction != depthFunction)
+      {
+        glDepthFunc(convertFunction(depthFunction));
+        cache.depthFunction = depthFunction;
+      }
+    }
+
+    if (!(cache.depthTesting || cache.depthWriting))
+      glEnable(GL_DEPTH_TEST);
+  }
+  else
+  {
+    if (cache.depthTesting || cache.depthWriting)
+      glDisable(GL_DEPTH_TEST);
+  }
+
+  cache.depthTesting = data.depthTesting;
+  cache.depthWriting = data.depthWriting;
+
+  if (data.colorWriting != cache.colorWriting)
+  {
+    const GLboolean state = data.colorWriting ? GL_TRUE : GL_FALSE;
+    glColorMask(state, state, state, state);
+    cache.colorWriting = data.colorWriting;
+  }
+
+  if (data.wireframe != cache.wireframe)
+  {
+    const GLenum state = data.wireframe ? GL_LINE : GL_FILL;
+    glPolygonMode(GL_FRONT_AND_BACK, state);
+    cache.wireframe = data.wireframe;
+  }
+  
+#if _DEBUG
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+    Log::writeError("Error when applying render state: %s", gluErrorString(error));
+#endif
+
+  data.dirty = false;
+}
+
+bool RenderState::isCulling(void) const
+{
+  return data.cullMode != CULL_NONE;
+}
+
+bool RenderState::isBlending(void) const
+{
+  return data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO;
+}
+
+bool RenderState::isDepthTesting(void) const
+{
+  return data.depthTesting;
+}
+
+bool RenderState::isDepthWriting(void) const
+{
+  return data.depthWriting;
+}
+
+bool RenderState::isColorWriting(void) const
+{
+  return data.colorWriting;
+}
+
+bool RenderState::isWireframe(void) const
+{
+  return data.wireframe;
+}
+
+CullMode RenderState::getCullMode(void) const
+{
+  return data.cullMode;
+}
+
+BlendFactor RenderState::getSrcFactor(void) const
+{
+  return data.srcFactor;
+}
+
+BlendFactor RenderState::getDstFactor(void) const
+{
+  return data.dstFactor;
+}
+
+Function RenderState::getDepthFunction(void) const
+{
+  return data.depthFunction;
+}
+
+void RenderState::setDepthTesting(bool enable)
+{
+  data.depthTesting = enable;
+  data.dirty = true;
+}
+
+void RenderState::setDepthWriting(bool enable)
+{
+  data.depthWriting = enable;
+  data.dirty = true;
+}
+
+void RenderState::setCullMode(CullMode mode)
+{
+  data.cullMode = mode;
+  data.dirty = true;
+}
+
+void RenderState::setBlendFactors(BlendFactor src, BlendFactor dst)
+{
+  data.srcFactor = src;
+  data.dstFactor = dst;
+  data.dirty = true;
+}
+
+void RenderState::setDepthFunction(Function function)
+{
+  data.depthFunction = function;
+  data.dirty = true;
+}
+
+void RenderState::setColorWriting(bool enabled)
+{
+  data.colorWriting = enabled;
+  data.dirty = true;
+}
+
+void RenderState::setWireframe(bool enabled)
+{
+  data.wireframe = enabled;
+  data.dirty = true;
+}
+
+void RenderState::setDefaults(void)
+{
+  data.setDefaults();
+}
+
+bool RenderState::isCullingInverted(void)
+{
+  return cullingInverted;
+}
+
+void RenderState::setCullingInversion(bool newState)
+{
+  cullingInverted = newState;
+}
+
+void RenderState::force(void) const
+{
+  cache = data;
+
+  CullMode cullMode = data.cullMode;
+  if (cullingInverted)
+    cullMode = invertCullMode(cullMode);
+
+  setBooleanState(GL_CULL_FACE, cullMode != CULL_NONE);
+  if (cullMode != CULL_NONE)
+    glCullFace(convertCullMode(cullMode));
+
+  setBooleanState(GL_BLEND, data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO);
+  glBlendFunc(convertBlendFactor(data.srcFactor), convertBlendFactor(data.dstFactor));
+  
+  glDepthMask(data.depthWriting ? GL_TRUE : GL_FALSE);
+  setBooleanState(GL_DEPTH_TEST, data.depthTesting || data.depthWriting);
+
+  if (data.depthWriting && !data.depthTesting)
+  {
+    const Function depthFunction = ALLOW_ALWAYS;
+    glDepthFunc(convertFunction(depthFunction));
+    cache.depthFunction = depthFunction;
+  }
+  else
+    glDepthFunc(convertFunction(data.depthFunction));
+
+  const GLboolean state = data.colorWriting ? GL_TRUE : GL_FALSE;
+  glColorMask(state, state, state, state);
+
+  const GLenum polygonMode = data.wireframe ? GL_LINE : GL_FILL;
+  glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
+
+#if _DEBUG
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+    Log::writeWarning("Error when forcing render pass: %s", gluErrorString(error));
+#endif
+
+  cache.dirty = data.dirty = false;
+}
+
+void RenderState::setBooleanState(unsigned int state, bool value) const
+{
+  if (value)
+    glEnable(state);
+  else
+    glDisable(state);
+}
+
+RenderState::Data RenderState::cache;
+
+bool RenderState::cullingInverted = false;
+
+///////////////////////////////////////////////////////////////////////
+
+RenderState::Data::Data(void)
+{
+  setDefaults();
+}
+
+void RenderState::Data::setDefaults(void)
+{
+  dirty = true;
+  depthTesting = true;
+  depthWriting = true;
+  colorWriting = true;
+  wireframe = false;
+  cullMode = CULL_BACK;
+  srcFactor = BLEND_ONE;
+  dstFactor = BLEND_ZERO;
+  depthFunction = ALLOW_LESSER;
 }
 
 ///////////////////////////////////////////////////////////////////////

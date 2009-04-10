@@ -50,64 +50,41 @@ using namespace moira;
  *  @ingroup opengl
  *
  *  This class describes a single logical component of a vertex format.
- *  A component may have multiple members.
+ *  A component may have multiple (up to four) members.
  */
 class VertexComponent
 {
   friend class VertexFormat;
 public:
-  /*! Vertex component kind enumeration.
-   */
-  enum Kind
-  {
-    /*! Component is a vertex position.
-     */
-    POSITION,
-    /*! Component is a texture coordinate.
-     */
-    TEXCOORD,
-    /*! Component is a color value.
-     */
-    COLOR,
-    /*! Component is a vertex normal.
-     */
-    NORMAL,
-    /*! Component is a generic attribute.
-     */
-    GENERIC,
-  };
   /*! Vertex format element type enumeration.
    */
   enum Type
   {
     /*! Component elements are doubles.
      */
-    DOUBLE = GL_DOUBLE,
+    DOUBLE,
     /*! Component elements are floats.
      */
-    FLOAT = GL_FLOAT,
+    FLOAT,
     /*! Component elements are ints.
      */
-    INT = GL_INT,
-    /*! Component elements are shorts.
-     */
-    SHORT = GL_SHORT,
+    INT,
   };
   /*! Constructor.
    */
-  VertexComponent(Kind kind, unsigned int count = 3, Type type = FLOAT);
+  VertexComponent(const String& name, unsigned int count, Type type = FLOAT);
   /*! Equality operator.
    */
   bool operator == (const VertexComponent& other) const;
   /*! Inequality operator.
    */
   bool operator != (const VertexComponent& other) const;
+  /*! @return The name of this component.
+   */
+  const String& getName(void) const;
   /*! @return The size, in bytes, of this component.
    */
   size_t getSize(void) const;
-  /*! @return The kind of this component.
-   */
-  Kind getKind(void) const;
   /*! @return The type of the elements in this component.
    */
   Type getType(void) const;
@@ -118,10 +95,10 @@ public:
    */
   unsigned int getElementCount(void) const;
 private:
-  Kind kind;
+  String name;
+  unsigned int count;
   Type type;
   size_t offset;
-  unsigned int count;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -146,12 +123,12 @@ public:
    *  @remarks This will throw if the specification is syntactically malformed.
    */
   VertexFormat(const String& specification);
-  bool createComponent(VertexComponent::Kind kind,
-                       unsigned int count = 3,
+  bool createComponent(const String& name,
+                       unsigned int count,
 		       VertexComponent::Type type = VertexComponent::FLOAT);
   bool createComponents(const String& specification);
   void destroyComponents(void);
-  const VertexComponent* findComponent(VertexComponent::Kind kind) const;
+  const VertexComponent* findComponent(const String& name) const;
   const VertexComponent& operator [] (unsigned int index) const;
   bool operator == (const VertexFormat& other) const;
   bool operator != (const VertexFormat& other) const;
@@ -170,7 +147,6 @@ private:
 class Vertex3fv
 {
 public:
-  void send(void) const;
   Vector3 position;
   static const VertexFormat format;
 };
@@ -182,7 +158,6 @@ public:
 class Vertex3fn3fv
 {
 public:
-  void send(void) const;
   Vector3 normal;
   Vector3 position;
   static const VertexFormat format;
@@ -206,7 +181,6 @@ public:
 class Vertex2ft2fv
 {
 public:
-  void send(void) const;
   Vector2 mapping;
   Vector2 position;
   static const VertexFormat format;
@@ -219,7 +193,6 @@ public:
 class Vertex2ft3fv
 {
 public:
-  void send(void) const;
   Vector2 mapping;
   Vector3 position;
   static const VertexFormat format;
@@ -232,7 +205,6 @@ public:
 class Vertex4fc2ft3fv
 {
 public:
-  void send(void) const;
   ColorRGBA color;
   Vector2 mapping;
   Vector3 position;

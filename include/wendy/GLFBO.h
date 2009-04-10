@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy OpenGL library
-// Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2009 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,21 +22,50 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WEOPENGL_H
-#define WEOPENGL_H
+#ifndef WENDY_GLFBO_H
+#define WENDY_GLFBO_H
 ///////////////////////////////////////////////////////////////////////
 
-#define GLEW_STATIC
-#include <GL/glew.h>
+namespace wendy
+{
+  namespace GL
+  {
+  
+///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup opengl OpenGL wrapper API
- *
- *  These classes wrap parts of the OpenGL API, maintaining a rather close
- *  mapping to the underlying concepts, but providing useful services and a
- *  semblance of automatic resource management. They are used by most
- *  higher-level components such as the 3D rendering pipeline.
- */
+using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WEOPENGL_H*/
+
+class CanvasInfo
+{
+public:
+  unsigned int width;
+  unsigned int height;
+  unsigned int colorBits;
+  unsigned int depthBits;
+  unsigned int stencilBits;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class Framebuffer
+{
+public:
+  ~Framebuffer(void);
+  static Framebuffer* createInstance(Context& context);
+private:
+  Framebuffer(Context& context);
+  bool init(void);
+  Context& context;
+  unsigned int bufferID;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+  } /*namespace GL*/
+} /*namespace wendy*/
+
+///////////////////////////////////////////////////////////////////////
+#endif /*WENDY_GLFBO_H*/
 ///////////////////////////////////////////////////////////////////////

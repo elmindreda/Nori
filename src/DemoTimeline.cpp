@@ -27,11 +27,9 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/OpenGL.h>
 #include <wendy/GLContext.h>
-#include <wendy/GLLight.h>
-#include <wendy/GLShader.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLCanvas.h>
 #include <wendy/GLPass.h>
 #include <wendy/GLVertex.h>
@@ -127,8 +125,7 @@ void TrackPanel::draw(void) const
     markerArea.set(area.position.x + position - width / 2.f, area.position.y,
                    width, area.size.y);
 
-    renderer->setColor(ColorRGBA(0.3f, 0.3f, 0.3f, 0.5f));
-    renderer->fillRectangle(markerArea);
+    renderer->fillRectangle(markerArea, ColorRGBA(0.3f, 0.3f, 0.3f, 0.5f));
 
     renderer->popClipArea();
   }
@@ -239,9 +236,6 @@ void TimelineRuler::draw(void) const
   {
     renderer->drawFrame(area, getState());
 
-    renderer->setColor(ColorRGBA::BLACK);
-    renderer->setLineWidth(1.f / GL::Canvas::getCurrent()->getPhysicalHeight());
-
     const float em = renderer->getDefaultEM();
     const float width = timeline.getSecondWidth();
     const float start = timeline.getWindowStart();
@@ -259,7 +253,7 @@ void TimelineRuler::draw(void) const
       segment.start = area.position + Vector2(position, area.size.y / 2.f);
       segment.end = area.position + Vector2(position, area.size.y);
 
-      renderer->drawLine(segment);
+      renderer->drawLine(segment, ColorRGBA::BLACK);
 
       if ((index + i) % 10 == 0)
       {
@@ -283,10 +277,8 @@ void TimelineRuler::draw(void) const
     triangle.P[1] = Vector2(position - area.size.y / 2.f, area.size.y) + area.position;
     triangle.P[2] = Vector2(position, 0.f) + area.position;
 
-    renderer->setColor(ColorRGBA(0.8f, 0.1f, 0.1f, 1.f));
-    renderer->fillTriangle(triangle);
-    renderer->setColor(ColorRGBA::BLACK);
-    renderer->drawTriangle(triangle);
+    renderer->fillTriangle(triangle, ColorRGBA(0.8f, 0.1f, 0.1f, 1.f));
+    renderer->drawTriangle(triangle, ColorRGBA::BLACK);
 
     UI::Widget::draw();
 
@@ -367,12 +359,8 @@ void EffectTrack::draw(void) const
     else
       color.set(renderer->getWidgetColor(), 1.f);
 
-    renderer->setColor(color);
-    renderer->fillRectangle(effectArea);
-
-    renderer->setColor(ColorRGBA::BLACK);
-    renderer->setLineWidth(1.f / GL::Canvas::getCurrent()->getPhysicalHeight());
-    renderer->drawRectangle(effectArea);
+    renderer->fillRectangle(effectArea, color);
+    renderer->drawRectangle(effectArea, ColorRGBA::BLACK);
 
     renderer->drawText(effectArea, effect.getName());
 
@@ -893,6 +881,7 @@ void Timeline::onButtonClicked(Widget& widget,
   }
   else if (PropertyTrack* track = dynamic_cast<PropertyTrack*>(&widget))
   {
+    // TODO: The code.
   }
 }
 
