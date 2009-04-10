@@ -127,6 +127,21 @@ GLenum convertType(IndexBuffer::Type type)
 
 ///////////////////////////////////////////////////////////////////////
 
+void Renderer::begin(const Matrix4& newProjection)
+{
+  Canvas* canvas = Canvas::getCurrent();
+  if (!canvas)
+  {
+    Log::writeError("Cannot begin without a current canvas");
+    return;
+  }
+
+  if (!modelview.isEmpty())
+    throw Exception("Renderer modelview matrix stack not empty at begin");
+
+  projection = newProjection;
+}
+  
 void Renderer::begin2D(const Vector2& resolution)
 {
   Canvas* canvas = Canvas::getCurrent();
@@ -172,21 +187,6 @@ void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ)
   projection.w.w = 0.f;
 }
 
-void Renderer::begin3D(const Matrix4& newProjection)
-{
-  Canvas* canvas = Canvas::getCurrent();
-  if (!canvas)
-  {
-    Log::writeError("Cannot begin without a current canvas");
-    return;
-  }
-
-  if (!modelview.isEmpty())
-    throw Exception("Renderer modelview matrix stack not empty at begin");
-
-  projection = newProjection;
-}
-  
 void Renderer::end(void)
 {
   if (!modelview.isEmpty())

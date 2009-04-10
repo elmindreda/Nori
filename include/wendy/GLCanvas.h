@@ -165,11 +165,8 @@ public:
   /*! @return The texture targeted by this texture canvas.
    */
   Texture& getTexture(void) const;
-  /*! Creates a texture canvas and its associated texture.
-   *  @param width The desired width of the texture and texture canvas.
-   *  @param height The desired height of the texture and texture canvas.
-   *  @param textureName The desired name of the texture, or the empty string
-   *  to automatically generate a name.
+  /*! Creates a texture canvas for the specified texture.
+   *  @param texture The texture for which to create a texture canvas.
    */
   static TextureCanvas* createInstance(Texture& texture);
 private:

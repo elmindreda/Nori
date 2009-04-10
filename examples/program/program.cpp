@@ -77,7 +77,7 @@ bool Demo::init(void)
 
   cameraNode = new render::CameraNode();
   cameraNode->setCameraName(camera.getName());
-  cameraNode->getLocalTransform().position.z = 3.f;
+  cameraNode->getLocalTransform().position.z = 2.f;
   scene.addNode(*cameraNode);
 
   /*
