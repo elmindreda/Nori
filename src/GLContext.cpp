@@ -41,6 +41,8 @@
 #include <ctype.h>
 #endif
 
+#include <algorithm>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -202,17 +204,15 @@ bool Context::update(void)
 
   renderSignal.emit(results);  
 
-  for (ResultList::const_iterator i = results.begin();  i != results.end();  i++)
-  {
-    if (!(*i))
-    {
-      stopped = true;
-      break;
-    }
-  }
+  // Stop run loop if anyone returned false
+  if (std::find(results.begin(), results.end(), false) != results.end())
+    stopped = true;
 
   glfwSwapBuffers();
 
+  // Stop run loop if the user closed the window
+  // NOTE: This is here because we only find out about this after events
+  //       have been processed by SwapBuffers.
   if (glfwGetWindowParam(GLFW_OPENED) != GL_TRUE)
     stopped = true;
 
@@ -266,6 +266,9 @@ unsigned int Context::getStencilBits(void) const
 
 Image* Context::getColorBuffer(void) const
 {
+  // TODO: Update this when adding FBO support.
+  // TODO: Eliminate stack and pixel option usage.
+
   Ptr<Image> result = new Image(ImageFormat::RGB888, mode.width, mode.height);
 
   glPushAttrib(GL_PIXEL_MODE_BIT);
@@ -277,6 +280,7 @@ Image* Context::getColorBuffer(void) const
 
   glPopAttrib();
 
+  // OpenGL images and Moira images are upside down to each other.
   result->flipHorizontal();
 
   return result.detachObject();
@@ -434,7 +438,7 @@ bool Context::init(const ContextMode& mode)
   }
 
   Log::writeInformation("Cg vertex profile %s selected",
-                        cgGetProfileString((CGprofile)cgVertexProfile));
+                        cgGetProfileString((CGprofile) cgVertexProfile));
 
   cgGLEnableProfile((CGprofile) cgVertexProfile);
   cgGLSetOptimalOptions((CGprofile) cgVertexProfile);
