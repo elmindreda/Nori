@@ -2,7 +2,7 @@
 set(wendy_SOURCES
     Core.cpp Wendy.cpp
     #ALBuffer.cpp ALContext.cpp ALSource.cpp ALStreamer.cpp
-    GLBuffer.cpp GLCanvas.cpp GLContext.cpp GLPass.cpp GLRender.cpp GLShader.cpp GLShaderIO.cpp GLState.cpp GLStatistics.cpp GLTexture.cpp GLTextureIO.cpp GLVertex.cpp
+    GLBuffer.cpp GLCanvas.cpp GLContext.cpp GLFBO.cpp GLPass.cpp GLRender.cpp GLShader.cpp GLShaderIO.cpp GLState.cpp GLStatistics.cpp GLTexture.cpp GLTextureIO.cpp GLVertex.cpp
     #DEBody.cpp DEMass.cpp DEShape.cpp DEWorld.cpp
     RenderCamera.cpp RenderFont.cpp RenderIO.cpp RenderLight.cpp RenderMesh.cpp RenderParticle.cpp RenderQueue.cpp RenderScene.cpp RenderSprite.cpp RenderStage.cpp RenderStyle.cpp RenderTerrain.cpp
     Input.cpp)
