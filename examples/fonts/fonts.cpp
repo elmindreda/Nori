@@ -10,11 +10,20 @@ namespace
 class Demo : public Trackable
 {
 public:
+  ~Demo(void);
   bool init(void);
 private:
   bool render(void);
   Ptr<render::Font> font;
 };
+
+Demo::~Demo(void)
+{
+  font = NULL;
+
+  GL::Renderer::destroy();
+  GL::Context::destroy();
+}
 
 bool Demo::init(void)
 {
@@ -22,18 +31,24 @@ bool Demo::init(void)
   mode.set(640, 480, 32, 0, 0, 0, GL::ContextMode::WINDOWED);
 
   if (!GL::Context::create(mode))
+  {
+    Log::writeError("Failed to create OpenGL context");
     return false;
+  }
 
   GL::Context* context = GL::Context::get();
   context->setTitle("Fonts");
   context->getRenderSignal().connect(*this, &Demo::render);
 
-  if (!GL::Renderer::create())
+  if (!GL::Renderer::create(*GL::Context::get()))
     return false;
 
   font = render::Font::readInstance("default");
   if (!font)
+  {
+    Log::writeError("Failed to load font");
     return false;
+  }
 
   return true;
 }
