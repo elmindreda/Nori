@@ -204,7 +204,7 @@ void Renderer::drawRectangle(const Rectangle& rectangle, const ColorRGBA& color)
 
   setDrawingState(color, true);
 
-  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::LINE_LOOP, range));
   renderer->render();
 }
 
@@ -286,6 +286,8 @@ void Renderer::blitTexture(const Rectangle& area, GL::Texture& texture)
   GL::VertexRange range;
   if (!GL::Renderer::get()->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
     return;
+
+  range.copyFrom(vertices);
 
   blitPass.getSamplerState("image").setTexture(&texture);
   blitPass.apply();
