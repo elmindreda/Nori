@@ -154,6 +154,7 @@ void Renderer::begin2D(const Vector2& resolution)
   if (!modelview.isEmpty())
     throw Exception("Renderer modelview matrix stack not empty at begin");
 
+  projection.setIdentity();
   projection.x.x = 2.f / resolution.x;
   projection.y.y = 2.f / resolution.y;
   projection.z.z = -1.f;
@@ -179,6 +180,7 @@ void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ)
 
   const float f = 1.f / tanf((FOV * M_PI / 180.f) / 2.f);
 
+  projection.setIdentity();
   projection.x.x = f / aspect;
   projection.y.y = f;
   projection.z.z = (farZ + nearZ) / (nearZ - farZ);
@@ -251,7 +253,7 @@ void Renderer::render(void)
 
     // TODO: Check type compatibility.
 
-    varying.enable(format.getSize(), component->getOffset());
+    varying.enable(format.getSize(), currentRange.getStart() * format.getSize() + component->getOffset());
   }
 
   if (Uniform* MVP = program.findUniform("MVP"))
@@ -333,6 +335,8 @@ bool Renderer::allocateIndices(IndexRange& range,
       return false;
     }
 
+    Log::writeInformation("Allocated index pool of size %u", actualCount);
+
     slot->available = slot->indexBuffer->getCount();
   }
 
@@ -382,6 +386,13 @@ bool Renderer::allocateVertices(VertexRange& range,
       vertexBufferPool.pop_back();
       return false;
     }
+
+    String specification;
+    format.getSpecification(specification);
+
+    Log::writeInformation("Allocated vertex pool of size %u format %s",
+                          actualCount,
+			  specification.c_str());
 
     slot->available = slot->vertexBuffer->getCount();
   }
