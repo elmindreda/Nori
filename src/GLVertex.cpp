@@ -119,7 +119,7 @@ bool VertexFormat::createComponent(const String& name,
 
   if (findComponent(name))
   {
-    Log::writeError("Duplicate vertex component %s detected; vertex components must have unique names",
+    Log::writeError("Duplicate vertex component name \'%s\' detected; vertex components must have unique names",
                     name.c_str());
     return false;
   }
@@ -219,17 +219,7 @@ const VertexComponent& VertexFormat::operator [] (unsigned int index) const
 
 bool VertexFormat::operator == (const VertexFormat& other) const
 {
-  if (components.size() != other.components.size())
-    return false;
-
-  for (ComponentList::const_iterator i = components.begin();  i != components.end();  i++)
-  {
-    const VertexComponent* c = other.findComponent((*i).getName());
-    if (!c || *c != *i)
-      return false;
-  }
-
-  return true;
+  return components == other.components;
 }
 
 bool VertexFormat::operator != (const VertexFormat& other) const
@@ -254,7 +244,7 @@ unsigned int VertexFormat::getComponentCount(void) const
 
 void VertexFormat::getSpecification(String& specification) const
 {
-  std::stringstream result;
+  std::ostringstream result;
 
   for (ComponentList::const_iterator i = components.begin();  i != components.end();  i++)
   {

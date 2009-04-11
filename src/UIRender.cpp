@@ -107,7 +107,6 @@ void Renderer::drawPoint(const Vector2& point, const ColorRGBA& color)
   range.copyFrom(&vertex);
 
   setDrawingState(color, true);
-  drawPass.apply();
 
   renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::POINT_LIST, range));
   renderer->render();
@@ -128,7 +127,6 @@ void Renderer::drawLine(const Segment2& segment, const ColorRGBA& color)
   range.copyFrom(vertices);
 
   setDrawingState(color, true);
-  drawPass.apply();
 
   renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::LINE_LIST, range));
   renderer->render();
@@ -150,7 +148,6 @@ void Renderer::drawTriangle(const Triangle2& triangle, const ColorRGBA& color)
   range.copyFrom(vertices);
 
   setDrawingState(color, true);
-  drawPass.apply();
 
   renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
   renderer->render();
@@ -175,7 +172,6 @@ void Renderer::drawBezier(const BezierCurve2& spline, const ColorRGBA& color)
   range.unlock();
 
   setDrawingState(color, true);
-  drawPass.apply();
 
   renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::LINE_STRIP, range));
   renderer->render();
@@ -207,7 +203,6 @@ void Renderer::drawRectangle(const Rectangle& rectangle, const ColorRGBA& color)
   range.copyFrom(vertices);
 
   setDrawingState(color, true);
-  drawPass.apply();
 
   renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
   renderer->render();
@@ -229,7 +224,6 @@ void Renderer::fillTriangle(const Triangle2& triangle, const ColorRGBA& color)
   range.copyFrom(vertices);
 
   setDrawingState(color, false);
-  drawPass.apply();
 
   renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
   renderer->render();
@@ -261,7 +255,6 @@ void Renderer::fillRectangle(const Rectangle& rectangle, const ColorRGBA& color)
   range.copyFrom(vertices);
 
   setDrawingState(color, false);
-  drawPass.apply();
 
   renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
   renderer->render();
@@ -297,7 +290,7 @@ void Renderer::blitTexture(const Rectangle& area, GL::Texture& texture)
   blitPass.getSamplerState("image").setTexture(&texture);
   blitPass.apply();
 
-  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
+  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
   renderer->render();
 
   blitPass.getSamplerState("image").setTexture(NULL);
@@ -587,6 +580,7 @@ void Renderer::setDrawingState(const ColorRGBA& color, bool wireframe)
     drawPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
 
   drawPass.setWireframe(wireframe);
+  drawPass.apply();
 }
 
 void Renderer::onContextDestroy(void)

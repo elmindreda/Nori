@@ -76,8 +76,10 @@ unsigned int getNextPower(unsigned int value)
   
 void Font::drawText(const String& text) const
 {
+  GL::Renderer* renderer = GL::Renderer::get();
+
   GL::VertexRange vertexRange;
-  if (!GL::Renderer::get()->allocateVertices(vertexRange, text.size() * 6, GL::Vertex2ft2fv::format))
+  if (!renderer->allocateVertices(vertexRange, text.size() * 6, GL::Vertex2ft2fv::format))
   {
     Log::writeError("Failed to allocate vertices for text drawing");
     return;
@@ -128,9 +130,10 @@ void Font::drawText(const String& text) const
 
   vertexRange.unlock();
 
-  GL::Renderer::get()->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_LIST, vertexRange));
-
   pass.apply();
+
+  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_LIST, vertexRange));
+  renderer->render();
 }
 
 void Font::drawText(const char* format, ...) const
@@ -370,6 +373,7 @@ bool Font::init(const moira::Font& font)
     pass.setDepthWriting(false);
     pass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
     pass.getSamplerState("glyphs").setTexture(texture);
+    pass.getUniformState("color").setValue(Vector4(1, 1, 1, 1));
 
     color = ColorRGBA::WHITE;
   }
