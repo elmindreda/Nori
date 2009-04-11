@@ -220,11 +220,19 @@ bool ProgramCodec::onBeginElement(const String& name)
 
     String vertexShaderName = readString("name");
     if (!vertexShaderName.length())
+    {
+      Log::writeError("Vertex shader name in shader program %s is empty", programName.c_str());
       return true;
+    }
 
     vertexShader = VertexShader::readInstance(vertexShaderName);
     if (!vertexShader)
+    {
+      Log::writeError("Cannot find vertex shader %s for shader program %s",
+                      vertexShaderName.c_str(),
+		      programName.c_str());
       return false;
+    }
 
     return true;
   }
@@ -239,11 +247,19 @@ bool ProgramCodec::onBeginElement(const String& name)
 
     String fragmentShaderName = readString("name");
     if (!fragmentShaderName.length())
+    {
+      Log::writeError("Fragment shader name in shader program %s is empty", programName.c_str());
       return true;
+    }
 
     fragmentShader = FragmentShader::readInstance(fragmentShaderName);
     if (!fragmentShader)
+    {
+      Log::writeError("Cannot find fragment shader %s for shader program %s",
+                      fragmentShaderName.c_str(),
+		      programName.c_str());
       return false;
+    }
 
     return true;
   }
