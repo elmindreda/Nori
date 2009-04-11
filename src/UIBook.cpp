@@ -99,6 +99,7 @@ void Page::draw(void) const
 Book::Book(void):
   activePage(NULL)
 {
+  getKeyPressedSignal().connect(*this, &Book::onKeyPressed);
   getButtonClickedSignal().connect(*this, &Book::onButtonClicked);
   getAreaChangedSignal().connect(*this, &Book::onAreaChanged);
 }
@@ -242,6 +243,41 @@ void Book::onAreaChanged(Widget& widget)
 
   for (PageList::const_iterator i = pages.begin();  i != pages.end();  i++)
     (*i)->setArea(Rectangle(0.f, 0.f, size.x, size.y - em * 2.f));
+}
+
+void Book::onKeyPressed(Widget& widgeth, input::Key key, bool pressed)
+{
+  if (!pressed)
+    return;
+
+  PageList pages;
+  getPages(pages);
+
+  PageList::const_iterator i = std::find(pages.begin(), pages.end(), activePage);
+  if (i == pages.end())
+    return;
+
+  switch (key)
+  {
+    case input::Key::TAB:
+    case input::Key::RIGHT:
+    {
+      if (++i == pages.end())
+	setActivePage(pages.front(), true);
+      else
+	setActivePage(*i, true);
+      break;
+    }
+
+    case input::Key::LEFT:
+    {
+      if (i == pages.begin())
+	setActivePage(pages.back(), true);
+      else
+	setActivePage(*(--i), true);
+      break;
+    }
+  }
 }
 
 void Book::onButtonClicked(Widget& widget,
