@@ -359,7 +359,7 @@ bool Font::init(const moira::Font& font)
       return false;
     }
 
-    if (!program->findSampler("texture") || !program->findUniform("color"))
+    if (!program->findSampler("glyphs") || !program->findUniform("color"))
     {
       Log::writeError("Font shader program does not have the required uniforms");
       return false;
@@ -369,7 +369,7 @@ bool Font::init(const moira::Font& font)
     pass.setDepthTesting(false);
     pass.setDepthWriting(false);
     pass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
-    pass.getSamplerState("texture").setTexture(texture);
+    pass.getSamplerState("glyphs").setTexture(texture);
 
     color = ColorRGBA::WHITE;
   }
