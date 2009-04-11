@@ -151,7 +151,7 @@ public:
 private:
   Renderer(void);
   bool init(void);
-  void setDrawingState(const ColorRGBA& color, bool fill);
+  void setDrawingState(const ColorRGBA& color, bool wireframe);
   static void onContextDestroy(void);
   ColorRGB widgetColor;
   ColorRGB textColor;

@@ -33,8 +33,9 @@
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLShader.h>
-#include <wendy/GLPass.h>
 #include <wendy/GLRender.h>
+#include <wendy/GLState.h>
+#include <wendy/GLPass.h>
 
 #include <wendy/RenderFont.h>
 
@@ -94,41 +95,65 @@ void Renderer::popClipArea(void)
 
 void Renderer::drawPoint(const Vector2& point, const ColorRGBA& color)
 {
-  setDrawingState(color, false);
-  drawPass.apply();
+  GL::Renderer* renderer = GL::Renderer::get();
 
   GL::Vertex2fv vertex;
   vertex.position = point;
 
   GL::VertexRange range;
-  if (!GL::Renderer::get()->allocateVertices(range, 1, GL::Vertex2fv::format))
+  if (!renderer->allocateVertices(range, 1, GL::Vertex2fv::format))
     return;
 
   range.copyFrom(&vertex);
-  range.render(GL_POINTS);
+
+  setDrawingState(color, true);
+  drawPass.apply();
+
+  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::POINT_LIST, range));
+  renderer->render();
 }
 
 void Renderer::drawLine(const Segment2& segment, const ColorRGBA& color)
 {
-  setDrawingState(color, false);
+  GL::Renderer* renderer = GL::Renderer::get();
+
+  GL::Vertex2fv vertices[2];
+  vertices[0].position = segment.start;
+  vertices[1].position = segment.end;
+
+  GL::VertexRange range;
+  if (!renderer->allocateVertices(range, 2, GL::Vertex2fv::format))
+    return;
+
+  range.copyFrom(vertices);
+
+  setDrawingState(color, true);
   drawPass.apply();
 
-  glBegin(GL_LINES);
-  glVertex2fv(segment.start);
-  glVertex2fv(segment.end);
-  glEnd();
+  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::LINE_LIST, range));
+  renderer->render();
 }
 
 void Renderer::drawTriangle(const Triangle2& triangle, const ColorRGBA& color)
 {
-  setDrawingState(color, false);
+  GL::Renderer* renderer = GL::Renderer::get();
+
+  GL::Vertex2fv vertices[3];
+  vertices[0].position = triangle.P[0];
+  vertices[1].position = triangle.P[1];
+  vertices[2].position = triangle.P[2];
+
+  GL::VertexRange range;
+  if (!renderer->allocateVertices(range, 3, GL::Vertex2fv::format))
+    return;
+
+  range.copyFrom(vertices);
+
+  setDrawingState(color, true);
   drawPass.apply();
 
-  glBegin(GL_TRIANGLES);
-  glVertex2fv(triangle.P[0]);
-  glVertex2fv(triangle.P[1]);
-  glVertex2fv(triangle.P[2]);
-  glEnd();
+  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
+  renderer->render();
 }
 
 void Renderer::drawBezier(const BezierCurve2& spline, const ColorRGBA& color)
@@ -136,13 +161,24 @@ void Renderer::drawBezier(const BezierCurve2& spline, const ColorRGBA& color)
   BezierCurve2::PointList points;
   spline.tessellate(points);
   
-  setDrawingState(color, false);
+  GL::Renderer* renderer = GL::Renderer::get();
+
+  GL::VertexRange range;
+  if (!renderer->allocateVertices(range, points.size(), GL::Vertex2fv::format))
+    return;
+
+  GL::Vertex2fv* vertices = (GL::Vertex2fv*) range.lock();
+
+  for (unsigned int i = 0;  i < points.size();  i++)
+    vertices[i].position = points[i];
+
+  range.unlock();
+
+  setDrawingState(color, true);
   drawPass.apply();
 
-  glBegin(GL_LINE_STRIP);
-  for (unsigned int i = 0;  i < points.size();  i++)
-    glVertex2fv(points[i]);
-  glEnd();
+  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::LINE_STRIP, range));
+  renderer->render();
 }
 
 void Renderer::drawRectangle(const Rectangle& rectangle, const ColorRGBA& color)
@@ -153,22 +189,50 @@ void Renderer::drawRectangle(const Rectangle& rectangle, const ColorRGBA& color)
   if (maxX - minX < 1.f || maxY - minY < 1.f)
     return;
 
-  setDrawingState(color, false);
+  maxX -= 1.f;
+  maxY -= 1.f;
+
+  GL::Vertex2fv vertices[4];
+  vertices[0].position.set(minX, minY);
+  vertices[1].position.set(maxX, minY);
+  vertices[2].position.set(maxX, maxY);
+  vertices[3].position.set(minX, maxY);
+
+  GL::Renderer* renderer = GL::Renderer::get();
+
+  GL::VertexRange range;
+  if (!renderer->allocateVertices(range, 4, GL::Vertex2fv::format))
+    return;
+
+  range.copyFrom(vertices);
+
+  setDrawingState(color, true);
   drawPass.apply();
 
-  glRectf(minX, minY, maxX - 1.f, maxY - 1.f);
+  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  renderer->render();
 }
 
 void Renderer::fillTriangle(const Triangle2& triangle, const ColorRGBA& color)
 {
-  setDrawingState(color, true);
+  GL::Vertex2fv vertices[3];
+  vertices[0].position = triangle.P[0];
+  vertices[1].position = triangle.P[1];
+  vertices[2].position = triangle.P[2];
+
+  GL::Renderer* renderer = GL::Renderer::get();
+
+  GL::VertexRange range;
+  if (!renderer->allocateVertices(range, 3, GL::Vertex2fv::format))
+    return;
+
+  range.copyFrom(vertices);
+
+  setDrawingState(color, false);
   drawPass.apply();
 
-  glBegin(GL_TRIANGLES);
-  glVertex2fv(triangle.P[0]);
-  glVertex2fv(triangle.P[1]);
-  glVertex2fv(triangle.P[2]);
-  glEnd();
+  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
+  renderer->render();
 }
 
 void Renderer::fillRectangle(const Rectangle& rectangle, const ColorRGBA& color)
@@ -183,21 +247,24 @@ void Renderer::fillRectangle(const Rectangle& rectangle, const ColorRGBA& color)
   maxY -= 1.f;
 
   GL::Vertex2fv vertices[4];
-
   vertices[0].position.set(minX, minY);
   vertices[1].position.set(maxX, minY);
   vertices[2].position.set(maxX, maxY);
   vertices[3].position.set(minX, maxY);
 
+  GL::Renderer* renderer = GL::Renderer::get();
+
   GL::VertexRange range;
-  if (!GL::Renderer::get()->allocateVertices(range, 4, GL::Vertex2fv::format))
+  if (!renderer->allocateVertices(range, 4, GL::Vertex2fv::format))
     return;
 
-  setDrawingState(color, true);
+  range.copyFrom(vertices);
+
+  setDrawingState(color, false);
   drawPass.apply();
 
-  range.copyFrom(vertices);
-  range.render(GL_TRIANGLE_FAN);
+  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  renderer->render();
 }
 
 void Renderer::blitTexture(const Rectangle& area, GL::Texture& texture)
@@ -212,7 +279,6 @@ void Renderer::blitTexture(const Rectangle& area, GL::Texture& texture)
   maxY -= 1.f;
 
   GL::Vertex2ft2fv vertices[4];
-
   vertices[0].mapping.set(0.f, 0.f);
   vertices[0].position.set(minX, minY);
   vertices[1].mapping.set(1.f, 0.f);
@@ -222,17 +288,19 @@ void Renderer::blitTexture(const Rectangle& area, GL::Texture& texture)
   vertices[3].mapping.set(0.f, 1.f);
   vertices[3].position.set(minX, maxY);
 
+  GL::Renderer* renderer = GL::Renderer::get();
+
   GL::VertexRange range;
   if (!GL::Renderer::get()->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
     return;
 
-  blitPass.getSamplerState("texture").setTexture(&texture);
+  blitPass.getSamplerState("image").setTexture(&texture);
   blitPass.apply();
 
-  range.copyFrom(vertices);
-  range.render(GL_TRIANGLE_FAN);
+  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
+  renderer->render();
 
-  blitPass.getSamplerState("texture").setTexture(NULL);
+  blitPass.getSamplerState("image").setTexture(NULL);
 }
 
 void Renderer::drawText(const Rectangle& area,
@@ -494,7 +562,7 @@ bool Renderer::init(void)
       return false;
     }
 
-    if (!blitProgram->findUniform("color") || !blitProgram->findSampler("texture"))
+    if (!blitProgram->findSampler("image"))
     {
       Log::writeError("UI blitting shader program does not have the required uniforms");
       return false;
@@ -504,22 +572,21 @@ bool Renderer::init(void)
     blitPass.setCullMode(GL::CULL_NONE);
     blitPass.setDepthTesting(false);
     blitPass.setDepthWriting(false);
-    blitPass.setPolygonMode(GL_FILL);
   }
 
   return true;
 }
 
-void Renderer::setDrawingState(const ColorRGBA& color, bool fill)
+void Renderer::setDrawingState(const ColorRGBA& color, bool wireframe)
 {
   drawPass.getUniformState("color").setValue(Vector4(color.r, color.g, color.b, color.a));
 
   if (color.a == 1.f)
-    drawPass.setBlendFactors(GL_ONE, GL_ZERO);
+    drawPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ZERO);
   else
-    drawPass.setBlendFactors(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    drawPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
 
-  drawPass.setPolygonMode(fill ? GL_FILL : GL_LINES);
+  drawPass.setWireframe(wireframe);
 }
 
 void Renderer::onContextDestroy(void)
