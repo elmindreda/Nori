@@ -93,6 +93,8 @@ void Font::drawText(const String& text) const
 
   GL::Vertex2ft2fv* vertices = (GL::Vertex2ft2fv*) vertexRange.lock();
 
+  unsigned int count = 0;
+
   for (String::const_iterator c = text.begin();  c != text.end();  c++)
   {
     switch (*c)
@@ -110,14 +112,24 @@ void Font::drawText(const String& text) const
 	break;
       }
 
+      case ' ':
+      {
+	const Glyph* glyph = getGlyph(*c);
+	if (!glyph)
+	  continue;
+
+	penOffset.x += glyph->advance;
+	break;
+      }
+
       default:
       {
 	const Glyph* glyph = getGlyph(*c);
 	if (!glyph)
 	  continue;
 
-	glyph->realizeVertices(roundedPen + penOffset, vertices);
-	vertices += 6;
+	glyph->realizeVertices(roundedPen + penOffset, vertices + count);
+	count += 6;
 
 	penOffset.x += glyph->advance;
 	break;
@@ -132,7 +144,10 @@ void Font::drawText(const String& text) const
 
   pass.apply();
 
-  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_LIST, vertexRange));
+  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_LIST,
+                                                        *vertexRange.getVertexBuffer(),
+							vertexRange.getStart(),
+							count));
   renderer->render();
 }
 
