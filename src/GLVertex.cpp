@@ -219,7 +219,17 @@ const VertexComponent& VertexFormat::operator [] (unsigned int index) const
 
 bool VertexFormat::operator == (const VertexFormat& other) const
 {
-  return components == other.components;
+  if (components.size() != other.components.size())
+    return false;
+
+  for (ComponentList::const_iterator i = components.begin();  i != components.end();  i++)
+  {
+    const VertexComponent* c = other.findComponent((*i).getName());
+    if (!c || *c != *i)
+      return false;
+  }
+
+  return true;
 }
 
 bool VertexFormat::operator != (const VertexFormat& other) const
@@ -242,7 +252,7 @@ unsigned int VertexFormat::getComponentCount(void) const
   return (unsigned int) components.size();
 }
 
-String VertexFormat::getSpecification(void) const
+void VertexFormat::getSpecification(String& specification) const
 {
   std::stringstream result;
 
@@ -269,7 +279,7 @@ String VertexFormat::getSpecification(void) const
     result << ':' << (*i).name << ' ';
   }
 
-  result.str();
+  specification = result.str();
 }
 
 ///////////////////////////////////////////////////////////////////////
