@@ -57,7 +57,6 @@ Pass::Pass(const String& initName):
 void Pass::apply(void) const
 {
   RenderState::apply();
-  ProgramState::apply();
 }
 
 bool Pass::isCompatible(void) const
@@ -75,7 +74,6 @@ const String& Pass::getName(void) const
 void Pass::setDefaults(void)
 {
   RenderState::setDefaults();
-  ProgramState::setDefaults();
 }
 
 ///////////////////////////////////////////////////////////////////////

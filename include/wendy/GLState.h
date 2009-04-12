@@ -240,7 +240,7 @@ private:
 /*! @brief Render state object.
  *  @ingroup opengl
  */
-class RenderState
+class RenderState : public ProgramState
 {
 public:
   void apply(void) const;

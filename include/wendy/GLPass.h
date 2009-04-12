@@ -61,7 +61,7 @@ class Program;
  *
  *  @remarks Yes, it's big.
  */
-class Pass : public ProgramState, public RenderState
+class Pass : public RenderState
 {
 public:
   /*! Constructor.

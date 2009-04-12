@@ -826,6 +826,8 @@ void RenderState::apply(void) const
     Log::writeError("Error when applying render state: %s", gluErrorString(error));
 #endif
 
+  ProgramState::apply();
+
   data.dirty = false;
 }
 
@@ -975,6 +977,8 @@ void RenderState::force(void) const
   if (error != GL_NO_ERROR)
     Log::writeWarning("Error when forcing render pass: %s", gluErrorString(error));
 #endif
+
+  ProgramState::apply();
 
   cache.dirty = data.dirty = false;
 }
