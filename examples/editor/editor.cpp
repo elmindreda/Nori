@@ -11,7 +11,16 @@ namespace
 
 bool setup(void)
 {
-  if (!GL::Renderer::create())
+  Image::addSearchPath(Path("../media"));
+  Font::addSearchPath(Path("../media"));
+  Mesh::addSearchPath(Path("../media"));
+  GL::Texture::addSearchPath(Path("../media"));
+  GL::VertexShader::addSearchPath(Path("../media"));
+  GL::FragmentShader::addSearchPath(Path("../media"));
+  GL::Program::addSearchPath(Path("../media"));
+  render::Style::addSearchPath(Path("../media"));
+
+  if (!GL::Renderer::create(*GL::Context::get()))
   {
     Log::writeError("Unable to create OpenGL renderer");
     return false;
