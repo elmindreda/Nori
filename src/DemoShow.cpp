@@ -29,7 +29,10 @@
 
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLVertex.h>
+#include <wendy/GLShader.h>
 #include <wendy/GLCanvas.h>
+#include <wendy/GLState.h>
 #include <wendy/GLPass.h>
 
 #include <wendy/RenderFont.h>
@@ -158,7 +161,10 @@ bool Show::init(void)
 
   root = EffectType::findInstance("Null effect")->createEffect("Root effect");
   if (!root)
+  {
+    Log::writeError("Failed to create root effect");
     return false;
+  }
 
   title = "Demo";
   return true;

@@ -31,10 +31,11 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLCanvas.h>
-#include <wendy/GLPass.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLRender.h>
+#include <wendy/GLState.h>
+#include <wendy/GLPass.h>
 
 #include <wendy/RenderFont.h>
 #include <wendy/RenderStyle.h>
@@ -215,12 +216,23 @@ Editor::Editor(void):
 bool Editor::init(const String& showName)
 {
   if (showName.empty())
+  {
     show = Show::createInstance();
+    if (!show)
+    {
+      Log::writeError("Failed to create demo show");
+      return false;
+    }
+  }
   else
+  {
     show = Show::readInstance(showName);
-
-  if (!show)
-    return false;
+    if (!show)
+    {
+      Log::writeError("Failed to load demo show \'%s\'", showName.c_str());
+      return false;
+    }
+  }
 
   {
     input::Context* context = input::Context::get();

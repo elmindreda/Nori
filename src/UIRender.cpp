@@ -303,6 +303,9 @@ void Renderer::drawText(const Rectangle& area,
 		        const Alignment& alignment,
 		        const ColorRGB& color)
 {
+  if (text.empty())
+    return;
+
   Rectangle metrics = currentFont->getTextMetrics(text);
 
   Vector2 penPosition(0.f, 0.f);

@@ -76,7 +76,7 @@ bool initialize(void)
   programCodec = new GL::ProgramCodec();
   renderStyleCodec = new render::StyleCodec();
   renderTerrainCodec = new render::TerrainCodec();
-  //showCodec = new demo::ShowCodec();
+  showCodec = new demo::ShowCodec();
 
   if (!GL::Texture::addSearchPath(Path(".")))
     return false;
@@ -109,7 +109,7 @@ void shutdown(void)
   programCodec = NULL;
   renderStyleCodec = NULL;
   renderTerrainCodec = NULL;
-  //showCodec = NULL;
+  showCodec = NULL;
 
   glfwTerminate();
 

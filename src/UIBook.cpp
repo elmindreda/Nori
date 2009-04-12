@@ -293,7 +293,8 @@ void Book::onButtonClicked(Widget& widget,
 
   const unsigned int index = (unsigned int) (position / width);
 
-  setActivePage(pages[index], true);
+  if (pages[index] != activePage)
+    setActivePage(pages[index], true);
 }
 
 ///////////////////////////////////////////////////////////////////////
