@@ -59,7 +59,7 @@ bool Demo::render(void)
   canvas.begin();
   canvas.clearColorBuffer();
 
-  GL::Renderer::get()->begin2D(Vector2(640.f, 480.f));
+  GL::Renderer::get()->begin2D(640.f, 480.f);
 
   String text = "In A.D. 2101, war was beginning\n"
 		"What happen?\n"

@@ -447,8 +447,8 @@ void Widget::drawRoots(void)
     return;
   }
 
-  renderer->begin2D(Vector2((float) canvas->getPhysicalWidth(),
-                            (float) canvas->getPhysicalHeight()));
+  renderer->begin2D((float) canvas->getPhysicalWidth(),
+                    (float) canvas->getPhysicalHeight());
 
   for (List::iterator i = roots.begin();  i != roots.end();  i++)
   {

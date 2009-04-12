@@ -144,7 +144,7 @@ void Renderer::begin(const Matrix4& newProjection)
   projection = newProjection;
 }
   
-void Renderer::begin2D(const Vector2& resolution)
+void Renderer::begin2D(float width, float height)
 {
   Canvas* canvas = Canvas::getCurrent();
   if (!canvas)
@@ -156,8 +156,8 @@ void Renderer::begin2D(const Vector2& resolution)
   if (!modelview.isEmpty())
     throw Exception("Renderer modelview matrix stack not empty at begin");
 
-  projection.x.x = 2.f / resolution.x;
-  projection.y.y = 2.f / resolution.y;
+  projection.x.x = 2.f / width;
+  projection.y.y = 2.f / height;
   projection.z.z = -1.f;
   projection.w.x = -1.f;
   projection.w.y = -1.f;

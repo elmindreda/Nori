@@ -54,7 +54,7 @@ class Renderer : public Trackable, public Singleton<Renderer>
 {
 public:
   void begin(const Matrix4& projection);
-  void begin2D(const Vector2& resolution = Vector2(1.f, 1.f));
+  void begin2D(float width, float height);
   void begin3D(float FOV = 90.f,
                float aspect = 0.f,
 	       float nearZ = 0.01f,
