@@ -431,7 +431,7 @@ bool Font::init(const moira::Font& font)
       {
 	// TODO: Allocate next texture.
 	// TODO: Add texture pointer to glyphs.
-	Log::writeError("No more room in font texture");
+	Log::writeError("Not enough room in texture for font \'%s\'", getName().c_str());
 	return false;
       }
     }
@@ -501,12 +501,10 @@ void Font::Glyph::realizeVertices(Vector2 penPosition, GL::Vertex2ft2fv* vertice
   vertices[2].mapping.set(ta.position.x + ta.size.x, ta.position.y + ta.size.y);
   vertices[2].position.set(pa.position.x + pa.size.x, pa.position.y + pa.size.y);
 
-  vertices[3].mapping.set(ta.position.x + ta.size.x, ta.position.y + ta.size.y);
-  vertices[3].position.set(pa.position.x + pa.size.x, pa.position.y + pa.size.y);
+  vertices[3] = vertices[2];
   vertices[4].mapping.set(ta.position.x, ta.position.y + ta.size.y);
   vertices[4].position.set(pa.position.x, pa.position.y + pa.size.y);
-  vertices[5].mapping.set(ta.position.x, ta.position.y);
-  vertices[5].position.set(pa.position.x, pa.position.y);
+  vertices[5] = vertices[0];
 }
 
 ///////////////////////////////////////////////////////////////////////
