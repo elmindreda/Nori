@@ -34,10 +34,9 @@
 #include <wendy/GLShader.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLState.h>
-#include <wendy/GLPass.h>
 
 #include <wendy/RenderCamera.h>
-#include <wendy/RenderStyle.h>
+#include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderMesh.h>
@@ -108,11 +107,11 @@ const Sphere& Terrain::getBounds(void) const
 
 Terrain* Terrain::createInstance(const Image& heightmap,
 				 const Vector3& size,
-				 Style& style,
+				 Material& material,
 			         const String& name)
 {
   Ptr<Terrain> terrain = new Terrain(name);
-  if (!terrain->init(heightmap, size, style))
+  if (!terrain->init(heightmap, size, material))
     return NULL;
 
   return terrain.detachObject();
@@ -123,7 +122,7 @@ Terrain::Terrain(const String& name):
 {
 }
 
-bool Terrain::init(const Image& heightmap, const Vector3& initSize, Style& style)
+bool Terrain::init(const Image& heightmap, const Vector3& initSize, Material& material)
 {
   if (heightmap.getFormat() != ImageFormat::GREY8)
   {
@@ -147,7 +146,7 @@ bool Terrain::init(const Image& heightmap, const Vector3& initSize, Style& style
   moira::Mesh meshData;
   meshData.vertices.resize(width * depth);
   meshData.geometries.resize(1);
-  meshData.geometries[0].shaderName = style.getName();
+  meshData.geometries[0].shaderName = material.getName();
   meshData.geometries[0].triangles.resize((width - 1) * (depth - 1) * 2);
 
   const unsigned char* values = (const unsigned char*) heightmap.getPixels();
@@ -312,14 +311,14 @@ bool TerrainCodec::onBeginElement(const String& name)
     if (!heightmap)
       return false;
 
-    Ref<Style> style = Style::readInstance(readString("style"));
-    if (!style)
+    Ref<Material> material = Material::readInstance(readString("material"));
+    if (!material)
       return false;
 
     Vector3 size;
     readAttributes(size);
 
-    terrain = Terrain::createInstance(*heightmap, size, *style, terrainName);
+    terrain = Terrain::createInstance(*heightmap, size, *material, terrainName);
     if (!terrain)
       return false;
 

@@ -56,12 +56,12 @@ public:
   const Sphere& getBounds(void) const;
   static Terrain* createInstance(const Image& heightmap,
 				 const Vector3& size,
-				 Style& style,
+				 Material& material,
                                  const String& name = "");
 private:
   struct Tile;
   Terrain(const String& name);
-  bool init(const Image& heightmap, const Vector3& size, Style& style);
+  bool init(const Image& heightmap, const Vector3& size, Material& material);
   Vector3 gridToWorld(const Vector3& grid) const;
   Vector3 worldToGrid(const Vector3& world) const;
   typedef std::vector<Tile> TileList;

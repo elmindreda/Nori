@@ -34,9 +34,8 @@
 #include <wendy/GLShader.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLState.h>
-#include <wendy/GLPass.h>
 
-#include <wendy/RenderStyle.h>
+#include <wendy/RenderMaterial.h>
 #include <wendy/RenderIO.h>
 
 #include <algorithm>
@@ -67,24 +66,24 @@ Mapper<String, GLint> filterMap;
 Mapper<String, GLint> addressModeMap;
 */
 
-const unsigned int RENDER_STYLE_XML_VERSION = 4;
+const unsigned int RENDER_MATERIAL_XML_VERSION = 4;
 
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-StyleCodec::StyleCodec(void):
-  ResourceCodec<Style>("XML render style codec")
+MaterialCodec::MaterialCodec(void):
+  ResourceCodec<Material>("XML material codec")
 {
-  addSuffix("style");
+  addSuffix("material");
 }
 
-Style* StyleCodec::read(const Path& path, const String& name)
+Material* MaterialCodec::read(const Path& path, const String& name)
 {
-  return ResourceCodec<Style>::read(path, name);
+  return ResourceCodec<Material>::read(path, name);
 }
 
-Style* StyleCodec::read(Stream& stream, const String& name)
+Material* MaterialCodec::read(Stream& stream, const String& name)
 {
   if (cullModeMap.isEmpty())
   {
@@ -151,45 +150,45 @@ Style* StyleCodec::read(Stream& stream, const String& name)
   currentTechnique = NULL;
   currentPass = NULL;
 
-  styleName = name;
+  materialName = name;
 
   if (!XML::Codec::read(stream))
   {
-    style = NULL;
+    material = NULL;
     return NULL;
   }
 
-  if (!style->getTechniqueCount())
+  if (!material || !material->getTechniqueCount())
   {
-    Log::writeError("No valid techniques found in render style %s",
-                    style->getName().c_str());
+    Log::writeError("No valid techniques found in material \'%s\'",
+                    materialName.c_str());
 
-    style = NULL;
+    material = NULL;
     return NULL;
   }
 
-  return style.detachObject();
+  return material.detachObject();
 }
 
-bool StyleCodec::write(const Path& path, const Style& style)
+bool MaterialCodec::write(const Path& path, const Material& material)
 {
-  return ResourceCodec<Style>::write(path, style);
+  return ResourceCodec<Material>::write(path, material);
 }
 
-bool StyleCodec::write(Stream& stream, const Style& style)
+bool MaterialCodec::write(Stream& stream, const Material& material)
 {
-  GL::Pass defaults;
+  GL::RenderState defaults;
 
   try
   {
     setStream(&stream);
 
-    beginElement("style");
-    addAttribute("version", (int) RENDER_STYLE_XML_VERSION);
+    beginElement("material");
+    addAttribute("version", (int) RENDER_MATERIAL_XML_VERSION);
 
-    for (unsigned int i = 0;  i < style.getTechniqueCount();  i++)
+    for (unsigned int i = 0;  i < material.getTechniqueCount();  i++)
     {
-      const Technique& technique = style.getTechnique(i);
+      const Technique& technique = material.getTechnique(i);
 
       beginElement("technique");
       addAttribute("name", technique.getName());
@@ -197,7 +196,7 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 
       for (unsigned int i = 0;  i < technique.getPassCount();  i++)
       {
-	const GL::Pass& pass = technique.getPass(i);
+	const Pass& pass = technique.getPass(i);
 
 	beginElement("pass");
 
@@ -295,8 +294,8 @@ bool StyleCodec::write(Stream& stream, const Style& style)
   }
   catch (Exception& exception)
   {
-    Log::writeError("Failed to write render style %s: %s",
-                    style.getName().c_str(),
+    Log::writeError("Failed to write material \'%s\': %s",
+                    material.getName().c_str(),
 		    exception.what());
     setStream(NULL);
     return false;
@@ -305,32 +304,32 @@ bool StyleCodec::write(Stream& stream, const Style& style)
   return true;
 }
 
-bool StyleCodec::onBeginElement(const String& name)
+bool MaterialCodec::onBeginElement(const String& name)
 {
-  if (name == "style")
+  if (name == "material")
   {
-    if (style)
+    if (material)
     {
-      Log::writeError("Only one render style per file allowed");
+      Log::writeError("Only one material per file allowed");
       return false;
     }
 
     const unsigned int version = readInteger("version");
-    if (version != RENDER_STYLE_XML_VERSION)
+    if (version != RENDER_MATERIAL_XML_VERSION)
     {
-      Log::writeError("Render style XML format version mismatch");
+      Log::writeError("Material XML format version mismatch");
       return false;
     }
 
-    style = new Style(styleName);
+    material = new Material(materialName);
     return true;
   }
 
-  if (style)
+  if (material)
   {
     if (name == "technique")
     {
-      Technique& technique = style->createTechnique(readString("name"));
+      Technique& technique = material->createTechnique(readString("name"));
       technique.setQuality(readFloat("quality"));
       currentTechnique = &technique;
       return true;
@@ -340,7 +339,7 @@ bool StyleCodec::onBeginElement(const String& name)
     {
       if (name == "pass")
       {
-	GL::Pass& pass = currentTechnique->createPass(readString("name"));
+	Pass& pass = currentTechnique->createPass(readString("name"));
 	currentPass = &pass;
 	return true;
       }
@@ -357,7 +356,7 @@ bool StyleCodec::onBeginElement(const String& name)
 	                                   currentPass->getDstFactor());
 	    else
 	    {
-	      Log::writeError("Invalid blend factor name %s", srcFactorName.c_str());
+	      Log::writeError("Invalid blend factor name \'%s\'", srcFactorName.c_str());
 	      return false;
 	    }
 	  }
@@ -483,12 +482,12 @@ bool StyleCodec::onBeginElement(const String& name)
 	  GL::Program* program = GL::Program::readInstance(programName);
 	  if (!program)
 	  {
-	    Log::writeWarning("Failed to load shader program %s; skipping technique %u in render style %s",
+	    Log::writeWarning("Failed to load shader program %s; skipping technique %u in material %s",
 	                      programName.c_str(),
-	                      style->getTechniqueCount(),
-	                      style->getName().c_str());
+	                      material->getTechniqueCount(),
+	                      material->getName().c_str());
 
-	    style->destroyTechnique(*currentTechnique);
+	    material->destroyTechnique(*currentTechnique);
 	    currentTechnique = NULL;
 	    return true;
 	  }
@@ -574,9 +573,9 @@ bool StyleCodec::onBeginElement(const String& name)
   return true;
 }
 
-bool StyleCodec::onEndElement(const String& name)
+bool MaterialCodec::onEndElement(const String& name)
 {
-  if (style)
+  if (material)
   {
     if (currentTechnique)
     {

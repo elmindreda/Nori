@@ -34,9 +34,8 @@
 #include <wendy/GLBuffer.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLState.h>
-#include <wendy/GLPass.h>
 
-#include <wendy/RenderStyle.h>
+#include <wendy/RenderMaterial.h>
 
 #include <algorithm>
 
@@ -53,22 +52,51 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+Pass::Pass(const String& initName):
+  name(initName)
+{
+}
+
+void Pass::apply(void) const
+{
+  RenderState::apply();
+}
+
+bool Pass::isCompatible(void) const
+{
+  // TODO: The code.
+
+  return true;
+}
+
+const String& Pass::getName(void) const
+{
+  return name;
+}
+
+void Pass::setDefaults(void)
+{
+  RenderState::setDefaults();
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Technique::Technique(const String& initName):
   name(initName),
   quality(1.f)
 {
 }
 
-GL::Pass& Technique::createPass(const String& name)
+Pass& Technique::createPass(const String& name)
 {
   if (findPass(name))
     throw Exception("Duplicate render pass name");
 
-  passes.push_back(GL::Pass(name));
+  passes.push_back(Pass(name));
   return passes.back();
 }
 
-void Technique::destroyPass(GL::Pass& pass)
+void Technique::destroyPass(Pass& pass)
 {
   for (List::iterator i = passes.begin();  i != passes.end();  i++)
   {
@@ -90,7 +118,7 @@ void Technique::applyPass(unsigned int index) const
   getPass(index).apply();
 }
 
-GL::Pass* Technique::findPass(const String& name)
+Pass* Technique::findPass(const String& name)
 {
   if (name.empty())
     return NULL;
@@ -104,7 +132,7 @@ GL::Pass* Technique::findPass(const String& name)
   return NULL;
 }
 
-const GL::Pass* Technique::findPass(const String& name) const
+const Pass* Technique::findPass(const String& name) const
 {
   if (name.empty())
     return NULL;
@@ -120,7 +148,7 @@ const GL::Pass* Technique::findPass(const String& name) const
 
 bool Technique::operator < (const Technique& other) const
 {
-  // Styles with blending always go last
+  // Materials with blending always go last
   if (isBlending() != other.isBlending())
   {
     if (isBlending())
@@ -159,14 +187,14 @@ bool Technique::isBlending(void) const
   return false;
 }
 
-GL::Pass& Technique::getPass(unsigned int index)
+Pass& Technique::getPass(unsigned int index)
 {
   List::iterator pass = passes.begin();
   std::advance(pass, index);
   return *pass;
 }
 
-const GL::Pass& Technique::getPass(unsigned int index) const
+const Pass& Technique::getPass(unsigned int index) const
 {
   List::const_iterator pass = passes.begin();
   std::advance(pass, index);
@@ -195,24 +223,24 @@ void Technique::setQuality(float newQuality)
 
 ///////////////////////////////////////////////////////////////////////
 
-Style::Style(const String& name):
-  Resource<Style>(name),
+Material::Material(const String& name):
+  Resource<Material>(name),
   active(NULL)
 {
 }
 
-Style::Style(const Style& source):
-  Resource<Style>("")
+Material::Material(const Material& source):
+  Resource<Material>("")
 {
   operator = (source);
 }
 
-Style::~Style(void)
+Material::~Material(void)
 {
   destroyTechniques();
 }
 
-Technique& Style::createTechnique(const String& name)
+Technique& Material::createTechnique(const String& name)
 {
   if (!name.empty())
   {
@@ -225,7 +253,7 @@ Technique& Style::createTechnique(const String& name)
   return *technique;
 }
 
-void Style::destroyTechnique(Technique& technique)
+void Material::destroyTechnique(Technique& technique)
 {
   if (active == &technique)
     active = NULL;
@@ -235,7 +263,7 @@ void Style::destroyTechnique(Technique& technique)
     techniques.erase(i);
 }
 
-void Style::destroyTechniques(void)
+void Material::destroyTechniques(void)
 {
   while (!techniques.empty())
   {
@@ -244,7 +272,7 @@ void Style::destroyTechniques(void)
   }
 }
 
-Technique* Style::findTechnique(const String& name)
+Technique* Material::findTechnique(const String& name)
 {
   if (name.empty())
     return NULL;
@@ -258,7 +286,7 @@ Technique* Style::findTechnique(const String& name)
   return NULL;
 }
 
-Style& Style::operator = (const Style& source)
+Material& Material::operator = (const Material& source)
 {
   for (List::const_iterator i = source.techniques.begin();  i != source.techniques.end();  i++)
     techniques.push_back(new Technique(**i));
@@ -266,22 +294,22 @@ Style& Style::operator = (const Style& source)
   return *this;
 }
 
-unsigned int Style::getTechniqueCount(void) const
+unsigned int Material::getTechniqueCount(void) const
 {
   return (unsigned int) techniques.size();
 }
 
-Technique& Style::getTechnique(unsigned int index)
+Technique& Material::getTechnique(unsigned int index)
 {
   return *techniques[index];
 }
 
-const Technique& Style::getTechnique(unsigned int index) const
+const Technique& Material::getTechnique(unsigned int index) const
 {
   return *techniques[index];
 }
 
-Technique* Style::getActiveTechnique(void) const
+Technique* Material::getActiveTechnique(void) const
 {
   if (!active)
   {
@@ -292,7 +320,7 @@ Technique* Style::getActiveTechnique(void) const
   return active;
 }
 
-bool Style::validateTechniques(void) const
+bool Material::validateTechniques(void) const
 {
   List validated;
 

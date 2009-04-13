@@ -34,15 +34,13 @@
 #include <wendy/GLBuffer.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLState.h>
-#include <wendy/GLPass.h>
 
+#include <wendy/RenderMaterial.h>
 #include <wendy/RenderFont.h>
 
+#include <cctype>
 #include <cstdlib>
-
-#if MOIRA_HAVE_STDARG_H
-#include <stdarg.h>
-#endif
+#include <cstdarg>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -406,7 +404,11 @@ bool Font::init(const moira::Font& font)
     const moira::Font::Glyph* sourceGlyph = font.getGlyph(characters[i]);
     if (!sourceGlyph)
     {
-      Log::writeError("No glyph for character %c", characters[i]);
+      if (std::isgraph(characters[i]))
+	Log::writeError("No glyph for character \'%c\'", characters[i]);
+      else
+	Log::writeError("No glyph for character 0x%02x", (unsigned int) characters[i]);
+
       return false;
     }
 
@@ -461,29 +463,6 @@ const Font::Glyph* Font::getGlyph(char character) const
 }
 
 ///////////////////////////////////////////////////////////////////////
-
-/*
-void Font::Glyph::draw(const Vector2& penPosition) const
-{
-  const Rectangle& texelArea = area;
-
-  Rectangle pixelArea;
-  pixelArea.position = penPosition;
-  pixelArea.position.y += bearing.y - size.y;
-  pixelArea.size = size;
-    
-  glBegin(GL_QUADS);
-  glTexCoord2f(texelArea.position.x, texelArea.position.y);
-  glVertex2f(pixelArea.position.x, pixelArea.position.y);
-  glTexCoord2f(texelArea.position.x + texelArea.size.x, texelArea.position.y);
-  glVertex2f(pixelArea.position.x + pixelArea.size.x, pixelArea.position.y);
-  glTexCoord2f(texelArea.position.x + texelArea.size.x, texelArea.position.y + texelArea.size.y);
-  glVertex2f(pixelArea.position.x + pixelArea.size.x, pixelArea.position.y + pixelArea.size.y);
-  glTexCoord2f(texelArea.position.x, texelArea.position.y + texelArea.size.y);
-  glVertex2f(pixelArea.position.x, pixelArea.position.y + pixelArea.size.y);
-  glEnd();    
-}
-*/
 
 void Font::Glyph::realizeVertices(Vector2 penPosition, GL::Vertex2ft2fv* vertices) const
 {

@@ -44,7 +44,7 @@ bool Demo::init(void)
   GL::VertexShader::addSearchPath(Path("../media"));
   GL::FragmentShader::addSearchPath(Path("../media"));
   GL::Program::addSearchPath(Path("../media"));
-  render::Style::addSearchPath(Path("../media"));
+  render::Material::addSearchPath(Path("../media"));
 
   GL::ContextMode mode(640, 480, 32, 16, 0, 0, GL::ContextMode::WINDOWED);
   if (!GL::Context::create(mode))

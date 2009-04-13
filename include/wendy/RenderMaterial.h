@@ -42,6 +42,29 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Render pass state object.
+ *  @ingroup renderer
+ */
+class Pass : public GL::RenderState
+{
+public:
+  /*! Constructor.
+   */
+  Pass(const String& name = "");
+  /*! Destructor.
+   */
+  void apply(void) const;
+  bool isCompatible(void) const;
+  const String& getName(void) const;
+  /*! Resets all values in this %render pass to their defaults.
+   */
+  void setDefaults(void);
+private:
+  String name;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Multipass %render technique.
  *  @ingroup renderer
  */
@@ -60,10 +83,10 @@ public:
    *  @remarks Non-empty %render pass names must be unique.
    *  @remarks Named %render passes will be ignored by the default %render mechanisms.
    */
-  GL::Pass& createPass(const String& name = "");
+  Pass& createPass(const String& name = "");
   /*! Removes the specified %render pass from this technique.
    */
-  void destroyPass(GL::Pass& pass);
+  void destroyPass(Pass& pass);
   /*! Destroys all %render passes in this technique.
    */
   void destroyPasses(void);
@@ -75,12 +98,12 @@ public:
    *  @param[in] name The name of the desired %render pass.
    *  @return The desired %render pass, or @c NULL if no such pass exists.
    */
-  GL::Pass* findPass(const String& name);
+  Pass* findPass(const String& name);
   /*! Searches for the pass with the specified name.
    *  @param[in] name The name of the desired %render pass.
    *  @return The desired %render pass, or @c NULL if no such pass exists.
    */
-  const GL::Pass* findPass(const String& name) const;
+  const Pass* findPass(const String& name) const;
   /*! Comparison operator to enable sorting.
    *  @param other The object to compare to.
    */
@@ -96,11 +119,11 @@ public:
   /*! @param index The index of the desired %render pass.
    *  @return The %render pass at the specified index.
    */
-  GL::Pass& getPass(unsigned int index);
+  Pass& getPass(unsigned int index);
   /*! @param index The index of the desired %render pass.
    *  @return The %render pass at the specified index.
    */
-  const GL::Pass& getPass(unsigned int index) const;
+  const Pass& getPass(unsigned int index) const;
   /*! @return The number of %render passes in this technique.
    */
   unsigned int getPassCount(void) const;
@@ -110,7 +133,7 @@ public:
   float getQuality(void) const;
   void setQuality(float newQuality);
 private:
-  typedef std::list<GL::Pass> List;
+  typedef std::list<Pass> List;
   List passes;
   String name;
   float quality;
@@ -118,28 +141,28 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Multi-technique %render style descriptor.
+/*! @brief Multi-technique material descriptor.
  *  @ingroup renderer
  */
-class Style : public Resource<Style>, public RefObject<Style>
+class Material : public Resource<Material>, public RefObject<Material>
 {
 public:
   /*! Constructor.
    */
-  Style(const String& name = "");
+  Material(const String& name = "");
   /*! Copy constructor.
    */
-  Style(const Style& source);
+  Material(const Material& source);
   /*! Destructor.
    */
-  ~Style(void);
-  /*! Creates a technique with the specified name in this %render style.
+  ~Material(void);
+  /*! Creates a technique with the specified name in this %render material.
    */
   Technique& createTechnique(const String& name = "");
   /*! Destroys the specified technique.
    */
   void destroyTechnique(Technique& technique);
-  /*! Destroys all techniques in this %render style.
+  /*! Destroys all techniques in this %render material.
    */
   void destroyTechniques(void);
   /*! Searches for the technique with the specified name.
@@ -149,8 +172,8 @@ public:
   Technique* findTechnique(const String& name);
   /*! Assignment operator.
    */
-  Style& operator = (const Style& source);
-  /*! @return The number of techniques in this %render style.
+  Material& operator = (const Material& source);
+  /*! @return The number of techniques in this %render material.
    */
   unsigned int getTechniqueCount(void) const;
   /*! @return The technique at the specified index.
@@ -159,7 +182,7 @@ public:
   /*! @return The technique at the specified index.
    */
   const Technique& getTechnique(unsigned int index) const;
-  /*! @return The active technique for this %render style, or @c NULL if no
+  /*! @return The active technique for this %render material, or @c NULL if no
    *  technique is active.
    */
   Technique* getActiveTechnique(void) const;

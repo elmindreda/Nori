@@ -34,7 +34,6 @@
 #include <wendy/GLShader.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLState.h>
-#include <wendy/GLPass.h>
 
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderStyle.h>
@@ -68,11 +67,11 @@ void Mesh::enqueue(Queue& queue, const Transform3& transform) const
 {
   for (GeometryList::const_iterator i = geometries.begin();  i != geometries.end();  i++)
   {
-    const Technique* technique = (*i)->style->getActiveTechnique();
+    const Technique* technique = (*i)->material->getActiveTechnique();
     if (!technique)
     {
-      Log::writeError("Render style %s has no active technique",
-                      (*i)->style->getName().c_str());
+      Log::writeError("Material %s has no active technique",
+                      (*i)->material->getName().c_str());
       return;
     }
 
@@ -157,9 +156,14 @@ bool Mesh::init(const moira::Mesh& mesh)
 
     indexCount = (unsigned int) (*i).triangles.size() * 3;
 
-    geometry->style = Style::readInstance((*i).shaderName);
-    if (!geometry->style)
+    geometry->material = Material::readInstance((*i).shaderName);
+    if (!geometry->material)
+    {
+      Log::writeError("Cannot find material \'%s\' for mesh \'%s\'",
+                      (*i).shaderName.c_str(),
+		      getName().c_str());
       return false;
+    }
 
     geometry->primitiveType = GL::TRIANGLE_LIST;
     geometry->range = GL::IndexRange(*indexBuffer, indexBase, indexCount);
@@ -190,10 +194,10 @@ bool Mesh::init(const moira::Mesh& mesh)
 /*
 Mesh::Geometry::Geometry(const GL::IndexRange& initRange,
                          GLenum initRenderMode,
-                               Style* initStyle):
+                               Material* initMaterial):
   range(initRange),
   renderMode(initRenderMode),
-  style(initStyle)
+  material(initMaterial)
 {
 }
 */
@@ -208,14 +212,14 @@ GL::PrimitiveType Mesh::Geometry::getPrimitiveType(void) const
   return primitiveType;
 }
 
-Style* Mesh::Geometry::getStyle(void) const
+Material* Mesh::Geometry::getMaterial(void) const
 {
-  return style;
+  return material;
 }
 
-void Mesh::Geometry::setStyle(Style* newStyle)
+void Mesh::Geometry::setMaterial(Material* newMaterial)
 {
-  style = newStyle;
+  material = newMaterial;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -306,10 +310,10 @@ void ShadowMesh::enqueue(Queue& queue, const Transform3& transform) const
     return;
   }
 
-  const Technique* technique = style->getActiveTechnique();
+  const Technique* technique = material->getActiveTechnique();
   if (!technique)
   {
-    Log::writeError("Render style %s has no active technique", style->getName().c_str());
+    Log::writeError("Material %s has no active technique", material->getName().c_str());
     return;
   }
 
@@ -404,16 +408,16 @@ bool ShadowMesh::init(const moira::Mesh& mesh)
     if (!vertexBuffer)
       return false;
 
-    style = new Style();
+    material = new Material();
 
     /*
-    RenderPass& back = style->createPass();
+    RenderPass& back = material->createPass();
     back.setStencilOperations(GL_KEEP, GL_INCR, GL_KEEP);
     back.setStencilTesting(true);
     back.setDepthWriting(false);
     back.setColorWriting(false);
 
-    RenderPass& front = style->createPass();
+    RenderPass& front = material->createPass();
     front.setStencilOperations(GL_KEEP, GL_DECR, GL_KEEP);
     front.setStencilTesting(true);
     front.setDepthWriting(false);

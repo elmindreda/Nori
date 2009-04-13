@@ -129,7 +129,7 @@ bool Texture::copyFrom(const Image& source,
 		       unsigned int level)
 {
   Image final = source;
-  final.convert(format);
+  final.convertTo(format);
 
   // Moira has y-axis down, OpenGL has y-axis up
   final.flipHorizontal();
@@ -353,12 +353,6 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 	return false;
       }
 
-      if (!GLEW_ARB_texture_rectangle)
-      {
-	Log::writeError("Rectangular textures are not supported by the current OpenGL context");
-	return false;
-      }
-
       textureTarget = GL_TEXTURE_RECTANGLE_ARB;
     }
     else
@@ -381,7 +375,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
   // Adapt source image to OpenGL restrictions
   {
     // Ensure that source image is in GL-compatible format
-    if (!source.convert(getConversionFormat(source.getFormat())))
+    if (!source.convertTo(getConversionFormat(source.getFormat())))
       return false;
 
     format = source.getFormat();
@@ -396,8 +390,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
       physicalWidth = sourceWidth;
       physicalHeight = sourceHeight;
 
-      unsigned int maxSize;
-      glGetIntegerv(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB, (GLint*) &maxSize);
+      const unsigned int maxSize = GL::Context::get()->getLimits().getMaxTextureRectangleSize();
 
       if (physicalWidth > maxSize)
 	physicalWidth = maxSize;
@@ -407,9 +400,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
     }
     else
     {
-      unsigned int maxSize;
-
-      glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxSize);
+      const unsigned int maxSize = GL::Context::get()->getLimits().getMaxTextureSize();
 
       if (flags & DONT_GROW)
       {
@@ -423,7 +414,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
       }
     }
 
-    // Rescale source image (don't worry, it's a no-op if the sizes are equal)
+    // Rescale source image (no-op if the sizes are equal)
     if (!source.resize(physicalWidth, physicalHeight))
       return false;
   }
@@ -460,13 +451,10 @@ bool Texture::init(const Image& image, unsigned int initFlags)
                         source.getPixels());
     }
 
-    levelCount = (unsigned int) log2f(fmaxf(sourceWidth, sourceHeight));
-    /*
     if (flags & RECTANGULAR)
-      levelCount = (unsigned int) (1.f + floorf(log2f(fmaxf(width, height))));
+      levelCount = (unsigned int) (1.f + floorf(log2f(fmaxf(sourceWidth, sourceHeight))));
     else
-      levelCount = (unsigned int) log2f(fmaxf(width, height));
-    */
+      levelCount = (unsigned int) log2f(fmaxf(sourceWidth, sourceHeight));
   }
   else
   {
@@ -497,6 +485,12 @@ bool Texture::init(const Image& image, unsigned int initFlags)
     levelCount = 1;
   }
 
+  if (flags & MIPMAPPED)
+    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  else
+    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+  // Retrieve "sampler" settings
   glGetTexParameteriv(textureTarget, GL_TEXTURE_MIN_FILTER, &minFilter);
   glGetTexParameteriv(textureTarget, GL_TEXTURE_MAG_FILTER, &magFilter);
   glGetTexParameteriv(textureTarget, GL_TEXTURE_WRAP_S, &addressMode);

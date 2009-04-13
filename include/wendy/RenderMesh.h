@@ -42,7 +42,7 @@ namespace wendy
  *
  *  This class represents a single static mesh, consisting of one or more
  *  Mesh::Geometry objects. Each geometry is a part of the mesh using a single
- *  render style and primitive mode.
+ *  render material and primitive mode.
  */
 class Mesh : public Renderable,
              public DerivedResource<Mesh, moira::Mesh>,
@@ -79,7 +79,7 @@ private:
 /*! @brief %Renderable mesh subset.
  *  @ingroup renderer
  *
- *  This class represents a subset of a mesh, using a single %render style
+ *  This class represents a subset of a mesh, using a single %render material
  *  and a single primitive mode.
  */
 class Mesh::Geometry
@@ -88,21 +88,21 @@ class Mesh::Geometry
 public:
   /*! Constructor.
    */
-  //Geometry(const GL::IndexRange& range, GLenum renderMode, Style* style);
+  //Geometry(const GL::IndexRange& range, GLenum renderMode, Material* material);
   /*! @return The range of indices used by this geometry.
    */
   const GL::IndexRange& getIndexRange(void) const;
   /*! @return The primitive mode used by this geometry.
    */
   GL::PrimitiveType getPrimitiveType(void) const;
-  /*! @return The %render style used by this geometry.
+  /*! @return The %render material used by this geometry.
    */
-  Style* getStyle(void) const;
-  void setStyle(Style* newStyle);
+  Material* getMaterial(void) const;
+  void setMaterial(Material* newMaterial);
 private:
   GL::IndexRange range;
   GL::PrimitiveType primitiveType;
-  Ref<Style> style;
+  Ref<Material> material;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@ private:
   float distance;
   unsigned int vertexCount;
   Ptr<GL::VertexBuffer> vertexBuffer;
-  Ref<Style> style;
+  Ref<Material> material;
 };
 
 ///////////////////////////////////////////////////////////////////////

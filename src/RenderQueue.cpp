@@ -35,10 +35,9 @@
 #include <wendy/GLShader.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLState.h>
-#include <wendy/GLPass.h>
 
 #include <wendy/RenderCamera.h>
-#include <wendy/RenderStyle.h>
+#include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
 
@@ -147,7 +146,7 @@ void Queue::render(void) const
 
     for (unsigned int j = 0;  j < operation.technique->getPassCount();  j++)
     {
-      const GL::Pass& pass = operation.technique->getPass(j);
+      const Pass& pass = operation.technique->getPass(j);
       if (!pass.getName().empty())
 	continue;
 

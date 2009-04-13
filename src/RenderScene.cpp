@@ -35,10 +35,9 @@
 #include <wendy/GLShader.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLState.h>
-#include <wendy/GLPass.h>
 
 #include <wendy/RenderCamera.h>
-#include <wendy/RenderStyle.h>
+#include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderSprite.h>
@@ -460,14 +459,14 @@ SpriteNode::SpriteNode(void)
   setSpriteSize(Vector2(1.f, 1.f));
 }
 
-Style* SpriteNode::getStyle(void) const
+Material* SpriteNode::getMaterial(void) const
 {
-  return style;
+  return material;
 }
 
-void SpriteNode::setStyle(Style* newStyle)
+void SpriteNode::setMaterial(Material* newMaterial)
 {
-  style = newStyle;
+  material = newMaterial;
 }
 
 const Vector2& SpriteNode::getSpriteSize(void) const
@@ -490,7 +489,7 @@ void SpriteNode::enqueue(Queue& queue, QueuePhase phase) const
   {
     Sprite3 sprite;
     sprite.size = spriteSize;
-    sprite.style = style;
+    sprite.material = material;
     sprite.enqueue(queue, getWorldTransform());
   }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<style version="4">
+<material version="4">
   <technique quality="1">
     <pass>
       <program name="cube">
@@ -7,4 +7,4 @@
       </program>
     </pass>
   </technique>
-</style>
+</material>

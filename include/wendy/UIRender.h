@@ -160,8 +160,8 @@ private:
   ColorRGB selectedTextColor;
   Ref<render::Font> defaultFont;
   Ref<render::Font> currentFont;
-  GL::Pass drawPass;
-  GL::Pass blitPass;
+  GL::RenderState drawPass;
+  GL::RenderState blitPass;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -35,8 +35,8 @@
 #include <wendy/GLShader.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLState.h>
-#include <wendy/GLPass.h>
 
+#include <wendy/RenderMaterial.h>
 #include <wendy/RenderFont.h>
 
 #include <wendy/Input.h>
