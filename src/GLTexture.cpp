@@ -353,12 +353,6 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 	return false;
       }
 
-      if (!GLEW_ARB_texture_rectangle)
-      {
-	Log::writeError("Rectangular textures are not supported by the current OpenGL context");
-	return false;
-      }
-
       textureTarget = GL_TEXTURE_RECTANGLE_ARB;
     }
     else
