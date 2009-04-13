@@ -103,7 +103,6 @@
 #include <wendy/GLStatistics.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLState.h>
-#include <wendy/GLPass.h>
 
 #include <wendy/GLTextureIO.h>
 #include <wendy/GLShaderIO.h>

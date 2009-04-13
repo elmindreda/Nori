@@ -254,8 +254,8 @@ public:
   void addUniform(const String& name, Uniform::Type type);
   void addSampler(const String& name, Sampler::Type type);
   void addVarying(const String& name, Varying::Type type);
-  bool matches(const Program& program) const;
-  bool matches(const VertexFormat& format) const;
+  bool matches(const Program& program, bool verbose = false) const;
+  bool matches(const VertexFormat& format, bool verbose = false) const;
 private:
   typedef std::vector<std::pair<String, Uniform::Type> > UniformList;
   typedef std::vector<std::pair<String, Sampler::Type> > SamplerList;

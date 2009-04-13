@@ -122,7 +122,7 @@ private:
   Vector2 size;
   float ascender;
   float descender;
-  GL::Pass pass;
+  Pass pass;
   ColorRGBA color;
 };
 

@@ -473,9 +473,9 @@ bool Renderer::init(void)
   CheckerImageGenerator generator;
   generator.setDefaultColor(ColorRGBA(1.f, 0.f, 1.f, 1.f));
   generator.setCheckerColor(ColorRGBA(0.f, 1.f, 0.f, 1.f));
-  generator.setCheckerSize(1);
+  generator.setCheckerSize(10);
 
-  Ptr<Image> image = generator.generate(ImageFormat::RGBX8888, 8, 8);
+  Ptr<Image> image = generator.generate(ImageFormat::RGB888, 20, 20);
   if (!image)
   {
     Log::writeError("Failed to create image data for default texture");

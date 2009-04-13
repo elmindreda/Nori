@@ -27,6 +27,12 @@ Demo::~Demo(void)
 
 bool Demo::init(void)
 {
+  Image::addSearchPath(Path("../media"));
+  Font::addSearchPath(Path("../media"));
+  GL::VertexShader::addSearchPath(Path("../media"));
+  GL::FragmentShader::addSearchPath(Path("../media"));
+  GL::Program::addSearchPath(Path("../media"));
+
   GL::ContextMode mode;
   mode.set(640, 480, 32, 0, 0, 0, GL::ContextMode::WINDOWED);
 

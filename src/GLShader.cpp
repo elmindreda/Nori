@@ -146,6 +146,65 @@ Sampler::Type convertSamplerType(CGtype type)
   }
 }
 
+const char* getTypeName(Uniform::Type type)
+{
+  switch (type)
+  {
+    case Uniform::FLOAT:
+      return "float";
+    case Uniform::FLOAT_VEC2:
+      return "float2";
+    case Uniform::FLOAT_VEC3:
+      return "float3";
+    case Uniform::FLOAT_VEC4:
+      return "float4";
+    case Uniform::FLOAT_MAT2:
+      return "float2x2";
+    case Uniform::FLOAT_MAT3:
+      return "float3x3";
+    case Uniform::FLOAT_MAT4:
+      return "float4x4";
+    default:
+      throw Exception("Invalid uniform type");
+  }
+}
+
+const char* getTypeName(Sampler::Type type)
+{
+  switch (type)
+  {
+    case Sampler::SAMPLER_1D:
+      return "sampler1D";
+    case Sampler::SAMPLER_2D:
+      return "sampler2D";
+    case Sampler::SAMPLER_3D:
+      return "sampler3D";
+    case Sampler::SAMPLER_RECT:
+      return "samplerRECT";
+    case Sampler::SAMPLER_CUBE:
+      return "samplerCUBE";
+    default:
+      throw Exception("Invalid sampler type");
+  }
+}
+
+const char* getTypeName(Varying::Type type)
+{
+  switch (type)
+  {
+    case Varying::FLOAT:
+      return "float";
+    case Varying::FLOAT_VEC2:
+      return "float2";
+    case Varying::FLOAT_VEC3:
+      return "float3";
+    case Varying::FLOAT_VEC4:
+      return "float4";
+    default:
+      throw Exception("Invalid varying type");
+  }
+}
+
 bool isUniformType(CGtype type)
 {
   switch (type)
@@ -238,11 +297,13 @@ void Varying::enable(size_t stride, size_t offset)
 {
   cgGLEnableClientState((CGparameter) varyingID);
 
+#if _DEBUG
   {
     CGerror error = cgGetError();
     if (error != CG_NO_ERROR)
       Log::writeError("Failed to enable varying %s: %s", name.c_str(), cgGetErrorString(error));
   }
+#endif
 
   cgGLSetParameterPointer((CGparameter) varyingID,
                           getElementCount(type),
@@ -250,20 +311,24 @@ void Varying::enable(size_t stride, size_t offset)
 			  stride,
 			  (const void*) offset);
 
+#if _DEBUG
   {
     CGerror error = cgGetError();
     if (error != CG_NO_ERROR)
       Log::writeError("Failed to set varying %s: %s", name.c_str(), cgGetErrorString(error));
   }
+#endif
 }
 
 void Varying::disable(void)
 {
   cgGLDisableClientState((CGparameter) varyingID);
 
+#if _DEBUG
   CGerror error = cgGetError();
   if (error != CG_NO_ERROR)
     Log::writeError("Failed to disable varying %s: %s", name.c_str(), cgGetErrorString(error));
+#endif
 }
 
 Program& Varying::getProgram(void) const
@@ -431,6 +496,14 @@ const String& Sampler::getName(void) const
 void Sampler::setTexture(Texture& newTexture)
 {
   cgGLSetTextureParameter((CGparameter) samplerID, newTexture.textureID);
+
+#if _DEBUG
+  {
+    CGerror error = cgGetError();
+    if (error != CG_NO_ERROR)
+      Log::writeError("Failed to set sampler %s to %s: %s", name.c_str(), newTexture.getName().c_str(), cgGetErrorString(error));
+  }
+#endif
 }
 
 Program& Sampler::getProgram(void) const
@@ -845,12 +918,43 @@ void ProgramInterface::addVarying(const String& name, Varying::Type type)
   varyings.push_back(VaryingList::value_type(name, type));
 }
 
-bool ProgramInterface::matches(const Program& program) const
+bool ProgramInterface::matches(const Program& program, bool verbose) const
 {
-  if (program.getUniformCount() != uniforms.size() ||
-      program.getSamplerCount() != samplers.size() ||
-      program.getVaryingCount() != varyings.size())
+  if (program.getUniformCount() != uniforms.size())
+  {
+    if (verbose)
+    {
+      Log::writeError("Program \'%s\' uniform count mismatch (should be %u)",
+                      program.getName().c_str(),
+                      uniforms.size());
+    }
+     
     return false;
+  }
+
+  if (program.getSamplerCount() != samplers.size())
+  {
+    if (verbose)
+    {
+      Log::writeError("Program \'%s\' sampler count mismatch (should be %u)",
+                      program.getName().c_str(),
+                      samplers.size());
+    }
+     
+    return false;
+  }
+
+  if (program.getVaryingCount() != varyings.size())
+  {
+    if (verbose)
+    {
+      Log::writeError("Program \'%s\' varying count mismatch; should be %u",
+                      program.getName().c_str(),
+                      varyings.size());
+    }
+     
+    return false;
+  }
 
   for (unsigned int i = 0;  i < uniforms.size();  i++)
   {
@@ -858,10 +962,29 @@ bool ProgramInterface::matches(const Program& program) const
 
     const Uniform* uniform = program.findUniform(entry.first);
     if (!uniform)
+    {
+      if (verbose)
+      {
+	Log::writeError("Uniform \'%s\' missing in program \'%s\'",
+	                entry.first.c_str(),
+			program.getName().c_str());
+      }
+
       return false;
+    }
 
     if (uniform->getType() != entry.second)
+    {
+      if (verbose)
+      {
+	Log::writeError("Uniform \'%s\' in program \'%s\' has incorrect type; should be %s",
+	                entry.first.c_str(),
+			program.getName().c_str(),
+			getTypeName(entry.second));
+      }
+
       return false;
+    }
   }
 
   for (unsigned int i = 0;  i < samplers.size();  i++)
@@ -870,10 +993,29 @@ bool ProgramInterface::matches(const Program& program) const
 
     const Sampler* sampler = program.findSampler(entry.first);
     if (!sampler)
+    {
+      if (verbose)
+      {
+	Log::writeError("Sampler \'%s\' missing in program \'%s\'",
+	                entry.first.c_str(),
+			program.getName().c_str());
+      }
+
       return false;
+    }
 
     if (sampler->getType() != entry.second)
+    {
+      if (verbose)
+      {
+	Log::writeError("Sampler \'%s\' in program \'%s\' has incorrect type; should be %s",
+	                entry.first.c_str(),
+			program.getName().c_str(),
+			getTypeName(entry.second));
+      }
+
       return false;
+    }
   }
 
   for (unsigned int i = 0;  i < varyings.size();  i++)
@@ -882,16 +1024,35 @@ bool ProgramInterface::matches(const Program& program) const
 
     const Varying* varying = program.findVarying(entry.first);
     if (!varying)
+    {
+      if (verbose)
+      {
+	Log::writeError("Varying \'%s\' missing in program \'%s\'",
+	                entry.first.c_str(),
+			program.getName().c_str());
+      }
+
       return false;
+    }
 
     if (varying->getType() != entry.second)
+    {
+      if (verbose)
+      {
+	Log::writeError("Varying \'%s\' in program \'%s\' has incorrect type; should be %s",
+	                entry.first.c_str(),
+			program.getName().c_str(),
+			getTypeName(entry.second));
+      }
+
       return false;
+    }
   }
 
   return true;
 }
 
-bool ProgramInterface::matches(const VertexFormat& format) const
+bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
 {
   if (format.getComponentCount() != varyings.size())
     return false;

@@ -34,7 +34,6 @@
 #include <wendy/GLShader.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLState.h>
-#include <wendy/GLPass.h>
 
 #include <wendy/RenderStyle.h>
 #include <wendy/RenderIO.h>
@@ -178,7 +177,7 @@ bool StyleCodec::write(const Path& path, const Style& style)
 
 bool StyleCodec::write(Stream& stream, const Style& style)
 {
-  GL::Pass defaults;
+  Pass defaults;
 
   try
   {
@@ -197,7 +196,7 @@ bool StyleCodec::write(Stream& stream, const Style& style)
 
       for (unsigned int i = 0;  i < technique.getPassCount();  i++)
       {
-	const GL::Pass& pass = technique.getPass(i);
+	const Pass& pass = technique.getPass(i);
 
 	beginElement("pass");
 
@@ -340,7 +339,7 @@ bool StyleCodec::onBeginElement(const String& name)
     {
       if (name == "pass")
       {
-	GL::Pass& pass = currentTechnique->createPass(readString("name"));
+	Pass& pass = currentTechnique->createPass(readString("name"));
 	currentPass = &pass;
 	return true;
       }

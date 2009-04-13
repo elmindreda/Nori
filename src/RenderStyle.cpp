@@ -34,7 +34,6 @@
 #include <wendy/GLBuffer.h>
 #include <wendy/GLShader.h>
 #include <wendy/GLState.h>
-#include <wendy/GLPass.h>
 
 #include <wendy/RenderStyle.h>
 
@@ -53,22 +52,51 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+Pass::Pass(const String& initName):
+  name(initName)
+{
+}
+
+void Pass::apply(void) const
+{
+  RenderState::apply();
+}
+
+bool Pass::isCompatible(void) const
+{
+  // TODO: The code.
+
+  return true;
+}
+
+const String& Pass::getName(void) const
+{
+  return name;
+}
+
+void Pass::setDefaults(void)
+{
+  RenderState::setDefaults();
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Technique::Technique(const String& initName):
   name(initName),
   quality(1.f)
 {
 }
 
-GL::Pass& Technique::createPass(const String& name)
+Pass& Technique::createPass(const String& name)
 {
   if (findPass(name))
     throw Exception("Duplicate render pass name");
 
-  passes.push_back(GL::Pass(name));
+  passes.push_back(Pass(name));
   return passes.back();
 }
 
-void Technique::destroyPass(GL::Pass& pass)
+void Technique::destroyPass(Pass& pass)
 {
   for (List::iterator i = passes.begin();  i != passes.end();  i++)
   {
@@ -90,7 +118,7 @@ void Technique::applyPass(unsigned int index) const
   getPass(index).apply();
 }
 
-GL::Pass* Technique::findPass(const String& name)
+Pass* Technique::findPass(const String& name)
 {
   if (name.empty())
     return NULL;
@@ -104,7 +132,7 @@ GL::Pass* Technique::findPass(const String& name)
   return NULL;
 }
 
-const GL::Pass* Technique::findPass(const String& name) const
+const Pass* Technique::findPass(const String& name) const
 {
   if (name.empty())
     return NULL;
@@ -159,14 +187,14 @@ bool Technique::isBlending(void) const
   return false;
 }
 
-GL::Pass& Technique::getPass(unsigned int index)
+Pass& Technique::getPass(unsigned int index)
 {
   List::iterator pass = passes.begin();
   std::advance(pass, index);
   return *pass;
 }
 
-const GL::Pass& Technique::getPass(unsigned int index) const
+const Pass& Technique::getPass(unsigned int index) const
 {
   List::const_iterator pass = passes.begin();
   std::advance(pass, index);

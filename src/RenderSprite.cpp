@@ -34,7 +34,6 @@
 #include <wendy/GLShader.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLState.h>
-#include <wendy/GLPass.h>
 
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderStyle.h>

@@ -53,7 +53,7 @@ private:
   bool onEndElement(const String& name);
   Ptr<Style> style;
   Technique* currentTechnique;
-  GL::Pass* currentPass;
+  Pass* currentPass;
   String styleName;
 };
 
