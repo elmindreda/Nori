@@ -177,7 +177,7 @@ bool StyleCodec::write(const Path& path, const Style& style)
 
 bool StyleCodec::write(Stream& stream, const Style& style)
 {
-  Pass defaults;
+  GL::RenderState defaults;
 
   try
   {
