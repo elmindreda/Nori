@@ -34,7 +34,7 @@
 #include <wendy/GLCanvas.h>
 #include <wendy/GLState.h>
 
-#include <wendy/RenderStyle.h>
+#include <wendy/RenderMaterial.h>
 #include <wendy/RenderFont.h>
 
 #include <wendy/Input.h>

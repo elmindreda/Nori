@@ -141,28 +141,28 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Multi-technique %render style descriptor.
+/*! @brief Multi-technique material descriptor.
  *  @ingroup renderer
  */
-class Style : public Resource<Style>, public RefObject<Style>
+class Material : public Resource<Material>, public RefObject<Material>
 {
 public:
   /*! Constructor.
    */
-  Style(const String& name = "");
+  Material(const String& name = "");
   /*! Copy constructor.
    */
-  Style(const Style& source);
+  Material(const Material& source);
   /*! Destructor.
    */
-  ~Style(void);
-  /*! Creates a technique with the specified name in this %render style.
+  ~Material(void);
+  /*! Creates a technique with the specified name in this %render material.
    */
   Technique& createTechnique(const String& name = "");
   /*! Destroys the specified technique.
    */
   void destroyTechnique(Technique& technique);
-  /*! Destroys all techniques in this %render style.
+  /*! Destroys all techniques in this %render material.
    */
   void destroyTechniques(void);
   /*! Searches for the technique with the specified name.
@@ -172,8 +172,8 @@ public:
   Technique* findTechnique(const String& name);
   /*! Assignment operator.
    */
-  Style& operator = (const Style& source);
-  /*! @return The number of techniques in this %render style.
+  Material& operator = (const Material& source);
+  /*! @return The number of techniques in this %render material.
    */
   unsigned int getTechniqueCount(void) const;
   /*! @return The technique at the specified index.
@@ -182,7 +182,7 @@ public:
   /*! @return The technique at the specified index.
    */
   const Technique& getTechnique(unsigned int index) const;
-  /*! @return The active technique for this %render style, or @c NULL if no
+  /*! @return The active technique for this %render material, or @c NULL if no
    *  technique is active.
    */
   Technique* getActiveTechnique(void) const;

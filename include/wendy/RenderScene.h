@@ -253,14 +253,14 @@ class SpriteNode : public SceneNode
 {
 public:
   SpriteNode(void);
-  Style* getStyle(void) const;
-  void setStyle(Style* newStyle);
+  Material* getMaterial(void) const;
+  void setMaterial(Material* newMaterial);
   const Vector2& getSpriteSize(void) const;
   void setSpriteSize(const Vector2& newSize);
 protected:
   void enqueue(Queue& queue, QueuePhase phase) const;
 private:
-  Ref<Style> style;
+  Ref<Material> material;
   Vector2 spriteSize;
 };
 

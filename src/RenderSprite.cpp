@@ -36,7 +36,7 @@
 #include <wendy/GLState.h>
 
 #include <wendy/RenderCamera.h>
-#include <wendy/RenderStyle.h>
+#include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderSprite.h>
@@ -178,7 +178,7 @@ void Sprite2::render(void) const
   renderer->render();
 }
 
-void Sprite2::render(const Style& style) const
+void Sprite2::render(const Material& material) const
 {
   GL::Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
@@ -191,7 +191,7 @@ void Sprite2::render(const Style& style) const
 
   range.copyFrom(vertices);
 
-  const Technique* technique = style.getActiveTechnique();
+  const Technique* technique = material.getActiveTechnique();
 
   renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 
@@ -245,17 +245,17 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
     return;
   }
 
-  if (!style)
+  if (!material)
   {
-    Log::writeError("Cannot enqueue sprite without a render style");
+    Log::writeError("Cannot enqueue sprite without a material");
     return;
   }
 
-  const Technique* technique = style->getActiveTechnique();
+  const Technique* technique = material->getActiveTechnique();
   if (!technique)
   {
-    Log::writeError("Render style %s has no active technique",
-                    style->getName().c_str());
+    Log::writeError("Material %s has no active technique",
+                    material->getName().c_str());
     return;
   }
 
@@ -301,7 +301,7 @@ void Sprite3::setDefaults(void)
   size.set(1.f, 1.f);
   angle = 0.f;
   type = STATIC_SPRITE;
-  style = NULL;
+  material = NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -323,17 +323,17 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
     return;
   }
 
-  if (!style)
+  if (!material)
   {
-    Log::writeError("Cannot enqueue sprite cloud without a render style");
+    Log::writeError("Cannot enqueue sprite cloud without a material");
     return;
   }
 
-  const Technique* technique = style->getActiveTechnique();
+  const Technique* technique = material->getActiveTechnique();
   if (!technique)
   {
-    Log::writeError("Render style %s has no active technique",
-                    style->getName().c_str());
+    Log::writeError("Material %s has no active technique",
+                    material->getName().c_str());
     return;
   }
 

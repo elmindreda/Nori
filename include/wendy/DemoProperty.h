@@ -262,33 +262,33 @@ private:
 
 /*! @ingroup demo
  */
-class StyleKey : public PropertyKey
+class MaterialKey : public PropertyKey
 {
 public:
-  StyleKey(Property& property);
+  MaterialKey(Property& property);
   UI::Widget* createManipulator(void);
-  render::Style* getValue(void) const;
-  void setValue(render::Style* newStyle);
+  render::Material* getValue(void) const;
+  void setValue(render::Material* newMaterial);
   String asString(void) const;
   void setStringValue(const String& newValue);
 private:
-  Ref<render::Style> style;
+  Ref<render::Material> material;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @ingroup demo
  */
-class StyleProperty : public PropertyTemplate<StyleKey, render::Style*>
+class MaterialProperty : public PropertyTemplate<MaterialKey, render::Material*>
 {
 public:
-  StyleProperty(Effect& effect, const String& name);
+  MaterialProperty(Effect& effect, const String& name);
   bool isComplete(void) const;
 private:
-  render::Style* getDefaultValue(void) const;
-  render::Style* interpolateKeys(const StyleKey& start,
-                                 const StyleKey& end,
-			         float t) const;
+  render::Material* getDefaultValue(void) const;
+  render::Material* interpolateKeys(const MaterialKey& start,
+                                    const MaterialKey& end,
+			            float t) const;
 };
 
 ///////////////////////////////////////////////////////////////////////

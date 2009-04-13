@@ -36,7 +36,7 @@
 #include <wendy/GLState.h>
 
 #include <wendy/RenderCamera.h>
-#include <wendy/RenderStyle.h>
+#include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderParticle.h>
@@ -156,16 +156,16 @@ void ParticleSystem::enqueue(Queue& queue, const Transform3& transform) const
   if (!realizeVertices(vertices, indices, queue.getCamera().getTransform().position))
     return;
 
-  if (!style)
+  if (!material)
   {
-    Log::writeError("Cannot enqueue particle system with no render style");
+    Log::writeError("Cannot enqueue particle system with no material");
     return;
   }
 
-  Technique* technique = style->getActiveTechnique();
+  Technique* technique = material->getActiveTechnique();
   if (!technique)
   {
-    Log::writeError("Render style %s has no active technique", style->getName().c_str());
+    Log::writeError("Material %s has no active technique", material->getName().c_str());
     return;
   }
 
@@ -347,14 +347,14 @@ void ParticleSystem::setPeriodType(PeriodType newType)
   periodType = newType;
 }
 
-Style* ParticleSystem::getStyle(void) const
+Material* ParticleSystem::getMaterial(void) const
 {
-  return style;
+  return material;
 }
 
-void ParticleSystem::setStyle(Style* newStyle)
+void ParticleSystem::setMaterial(Material* newMaterial)
 {
-  style = newStyle;
+  material = newMaterial;
 }
 
 const Transform3& ParticleSystem::getTransform(void) const

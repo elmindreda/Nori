@@ -242,13 +242,13 @@ public:
    *  @param[in] newType The desired update period type.
    */
   void setPeriodType(PeriodType newType);
-  /*! @return The render style of this particle system.
+  /*! @return The render material of this particle system.
    */
-  Style* getStyle(void) const;
-  /*! Sets the render style of this particle system.
-   *  @param[in] newStyle The desired render style.
+  Material* getMaterial(void) const;
+  /*! Sets the render material of this particle system.
+   *  @param[in] newMaterial The desired render material.
    */
-  void setStyle(Style* newStyle);
+  void setMaterial(Material* newMaterial);
   /*! @return The local-to-world transform of this particle system.
    */
   const Transform3& getTransform(void) const;
@@ -285,7 +285,7 @@ private:
 		       const Vector3& camera) const;
   bool updateBounds;
   Time currentTime;
-  Ref<Style> style;
+  Ref<Material> material;
   PeriodType periodType;
   Transform3 transform;
   Sphere bounds;

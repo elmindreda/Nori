@@ -37,10 +37,6 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class RenderStyle;
-
-///////////////////////////////////////////////////////////////////////
-
 enum SpriteType3
 {
   STATIC_SPRITE,
@@ -57,7 +53,7 @@ class Sprite2
 public:
   Sprite2(void);
   void render(void) const;
-  void render(const Style& style) const;
+  void render(const Material& material) const;
   void realizeVertices(GL::Vertex2ft2fv* vertices) const;
   void setDefaults(void);
   Rectangle mapping;
@@ -83,7 +79,7 @@ public:
   Vector2 size;
   float angle;
   SpriteType3 type;
-  Ref<Style> style;
+  Ref<Material> material;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -107,7 +103,7 @@ public:
   typedef std::vector<Slot> SlotList;
   SlotList slots;
   SpriteType3 type;
-  Ref<Style> style;
+  Ref<Material> material;
 };
 
 ///////////////////////////////////////////////////////////////////////

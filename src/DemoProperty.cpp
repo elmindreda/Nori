@@ -34,7 +34,7 @@
 #include <wendy/GLCanvas.h>
 #include <wendy/GLState.h>
 
-#include <wendy/RenderStyle.h>
+#include <wendy/RenderMaterial.h>
 #include <wendy/RenderFont.h>
 
 #include <wendy/Input.h>
@@ -513,66 +513,66 @@ GL::Texture* TextureProperty::interpolateKeys(const TextureKey& start,
 
 ///////////////////////////////////////////////////////////////////////
 
-StyleKey::StyleKey(Property& property):
+MaterialKey::MaterialKey(Property& property):
   PropertyKey(property)
 {
 }
 
-UI::Widget* StyleKey::createManipulator(void)
+UI::Widget* MaterialKey::createManipulator(void)
 {
   return NULL;
 }
 
-render::Style* StyleKey::getValue(void) const
+render::Material* MaterialKey::getValue(void) const
 {
-  return style;
+  return material;
 }
 
-void StyleKey::setValue(render::Style* newStyle)
+void MaterialKey::setValue(render::Material* newMaterial)
 {
-  style = newStyle;
+  material = newMaterial;
 }
 
-String StyleKey::asString(void) const
+String MaterialKey::asString(void) const
 {
-  if (style)
-    return style->getName();
+  if (material)
+    return material->getName();
 
   return String();
 }
 
-void StyleKey::setStringValue(const String& newValue)
+void MaterialKey::setStringValue(const String& newValue)
 {
-  style = render::Style::readInstance(newValue);
+  material = render::Material::readInstance(newValue);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-StyleProperty::StyleProperty(Effect& effect, const String& name):
-  PropertyTemplate<StyleKey, render::Style*>(effect, name)
+MaterialProperty::MaterialProperty(Effect& effect, const String& name):
+  PropertyTemplate<MaterialKey, render::Material*>(effect, name)
 {
 }
 
-bool StyleProperty::isComplete(void) const
+bool MaterialProperty::isComplete(void) const
 {
   const KeyList& keys = getKeys();
 
   for (KeyList::const_iterator i = keys.begin();  i != keys.end();  i++)
   {
-    if (!dynamic_cast<StyleKey*>(*i)->getValue())
+    if (!dynamic_cast<MaterialKey*>(*i)->getValue())
       return false;
   }
 
   return true;
 }  
 
-render::Style* StyleProperty::getDefaultValue(void) const
+render::Material* MaterialProperty::getDefaultValue(void) const
 {
   return NULL;
 }
 
-render::Style* StyleProperty::interpolateKeys(const StyleKey& start,
-			                      const StyleKey& end,
+render::Material* MaterialProperty::interpolateKeys(const MaterialKey& start,
+			                      const MaterialKey& end,
 			                      float t) const
 {
   return start.getValue();

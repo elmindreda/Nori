@@ -47,7 +47,7 @@ using namespace moira;
  *  These classes make up the core 3D renderering pipeline.
  *
  *  It also provides some basic high-level rendering primitives such as
- *  multi-style geometry meshes, a simple terrain renderer and an extensible
+ *  multi-material geometry meshes, a simple terrain renderer and an extensible
  *  particle system.
  */
 

@@ -37,24 +37,24 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Codec for XML format render styles.
+/*! @brief Codec for XML format render materials.
  *  @ingroup io
  */
-class StyleCodec : ResourceCodec<Style>, public XML::Codec
+class MaterialCodec : ResourceCodec<Material>, public XML::Codec
 {
 public:
-  StyleCodec(void);
-  Style* read(const Path& path, const String& name = "");
-  Style* read(Stream& stream, const String& name = "");
-  bool write(const Path& path, const Style& style);
-  bool write(Stream& stream, const Style& style);
+  MaterialCodec(void);
+  Material* read(const Path& path, const String& name = "");
+  Material* read(Stream& stream, const String& name = "");
+  bool write(const Path& path, const Material& material);
+  bool write(Stream& stream, const Material& material);
 private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
-  Ptr<Style> style;
+  Ptr<Material> material;
   Technique* currentTechnique;
   Pass* currentPass;
-  String styleName;
+  String materialName;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -18,7 +18,7 @@ bool setup(void)
   GL::VertexShader::addSearchPath(Path("../media"));
   GL::FragmentShader::addSearchPath(Path("../media"));
   GL::Program::addSearchPath(Path("../media"));
-  render::Style::addSearchPath(Path("../media"));
+  render::Material::addSearchPath(Path("../media"));
 
   if (!GL::Renderer::create(*GL::Context::get()))
   {
