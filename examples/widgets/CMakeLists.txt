@@ -1,5 +1,5 @@
 add_executable(widgets WIN32 MACOSX_BUNDLE widgets.cpp)
-target_link_libraries(widgets wendy ${WENDY_LIBRARIES})
+target_link_libraries(widgets wendy moira ${WENDY_LIBRARIES})
 
 #set(data default.font default.png)
 #set_target_properties(fonts PROPERTIES RESOURCE ${data})

@@ -11,5 +11,7 @@ set(wendy_SOURCES
     DemoConfig.cpp DemoEditor.cpp DemoEffect.cpp DemoPlayer.cpp DemoProperty.cpp DemoShow.cpp DemoTimeline.cpp)
 
 add_library(wendy STATIC ${wendy_SOURCES})
+add_dependencies(wendy moira)
+
 install(TARGETS wendy ARCHIVE DESTINATION lib)
 
