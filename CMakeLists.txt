@@ -45,8 +45,8 @@ add_subdirectory(examples/program)
 add_subdirectory(examples/editor)
 #add_subdirectory(examples/widgets)
 
-configure_file(docs/Doxyfile.in
-               docs/Doxyfile @ONLY)
+configure_file(${wendy_SOURCE_DIR}/docs/Doxyfile.in
+               ${wendy_BINARY_DIR}/docs/Doxyfile @ONLY)
 configure_file(${wendy_SOURCE_DIR}/include/wendy/Config.h.in
                ${wendy_BINARY_DIR}/include/wendy/Config.h @ONLY)
 configure_file(${wendy_SOURCE_DIR}/build/libwendy.pc.in
