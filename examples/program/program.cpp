@@ -80,14 +80,6 @@ bool Demo::init(void)
     return false;
   */
 
-  camera.setFOV(60.f);
-  camera.setAspectRatio(0.f);
-
-  cameraNode = new render::CameraNode();
-  cameraNode->setCameraName(camera.getName());
-  cameraNode->getLocalTransform().position.z = 2.f;
-  scene.addNode(*cameraNode);
-
   /*
   GL::Light* light = new GL::Light();
   light->setIntensity(ColorRGB(1.f, 1.f, 1.f));
@@ -103,11 +95,22 @@ bool Demo::init(void)
 
   Ref<render::Mesh> mesh = render::Mesh::readInstance("cube");
   if (!mesh)
+  {
+    Log::writeError("Failed to load mesh");
     return false;
+  }
 
   meshNode = new render::MeshNode();
   meshNode->setMesh(mesh);
   scene.addNode(*meshNode);
+
+  camera.setFOV(60.f);
+  camera.setAspectRatio(0.f);
+
+  cameraNode = new render::CameraNode();
+  cameraNode->setCameraName(camera.getName());
+  cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 1.5f;
+  scene.addNode(*cameraNode);
 
   timer.start();
 
