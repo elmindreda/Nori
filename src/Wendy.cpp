@@ -78,24 +78,6 @@ bool initialize(void)
   renderTerrainCodec = new render::TerrainCodec();
   showCodec = new demo::ShowCodec();
 
-  if (!GL::Texture::addSearchPath(Path(".")))
-    return false;
-
-  if (!GL::VertexShader::addSearchPath(Path(".")))
-    return false;
-
-  if (!GL::FragmentShader::addSearchPath(Path(".")))
-    return false;
-
-  if (!GL::Program::addSearchPath(Path(".")))
-    return false;
-
-  if (!render::Material::addSearchPath(Path(".")))
-    return false;
-
-  if (!demo::Show::addSearchPath(Path(".")))
-    return false;
-
   return true;
 }
 
