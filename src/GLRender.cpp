@@ -335,7 +335,7 @@ bool Renderer::allocateIndices(IndexRange& range,
       return false;
     }
 
-    Log::writeInformation("Allocated index pool of size %u", actualCount);
+    Log::write("Allocated index pool of size %u", actualCount);
 
     slot->available = slot->indexBuffer->getCount();
   }
@@ -390,9 +390,9 @@ bool Renderer::allocateVertices(VertexRange& range,
     String specification;
     format.getSpecification(specification);
 
-    Log::writeInformation("Allocated vertex pool of size %u format %s",
-                          actualCount,
-			  specification.c_str());
+    Log::write("Allocated vertex pool of size %u format %s",
+               actualCount,
+	       specification.c_str());
 
     slot->available = slot->vertexBuffer->getCount();
   }

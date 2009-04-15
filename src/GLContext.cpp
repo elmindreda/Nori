@@ -437,8 +437,8 @@ bool Context::init(const ContextMode& mode)
     return false;
   }
 
-  Log::writeInformation("Cg vertex profile %s selected",
-                        cgGetProfileString((CGprofile) cgVertexProfile));
+  Log::write("Cg vertex profile %s selected",
+             cgGetProfileString((CGprofile) cgVertexProfile));
 
   cgGLEnableProfile((CGprofile) cgVertexProfile);
   cgGLSetOptimalOptions((CGprofile) cgVertexProfile);
@@ -450,8 +450,8 @@ bool Context::init(const ContextMode& mode)
     return false;
   }
 
-  Log::writeInformation("Cg fragment profile %s selected",
-                        cgGetProfileString((CGprofile) cgFragmentProfile));
+  Log::write("Cg fragment profile %s selected",
+             cgGetProfileString((CGprofile) cgFragmentProfile));
 
   cgGLEnableProfile((CGprofile) cgFragmentProfile);
   cgGLSetOptimalOptions((CGprofile) cgFragmentProfile);
