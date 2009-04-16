@@ -48,7 +48,7 @@ using namespace moira;
 namespace
 {
 
-const unsigned int PROGRAM_XML_VERSION = 1;
+const unsigned int PROGRAM_XML_VERSION = 2;
 
 }
 
