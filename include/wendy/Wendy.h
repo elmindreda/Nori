@@ -45,7 +45,7 @@
  *  Some notable features of Wendy are:
  *
  *  - Multipass, multi-technique @link wendy::render::Material material
- *    @endlink descriptors with support for multitexturing and GLSL shaders.
+ *    @endlink descriptors with support for multitexturing and Cg shaders.
  *  - Extensible @link wendy::render::ParticleSystem particle system @endlink with
  *    generic emitters and affectors.
  *  - @link wendy::render::Queue Render queue @endlink system with automatic
@@ -99,13 +99,13 @@
 #include <wendy/GLCanvas.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
-#include <wendy/GLShader.h>
+#include <wendy/GLProgram.h>
 #include <wendy/GLStatistics.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLState.h>
 
 #include <wendy/GLTextureIO.h>
-#include <wendy/GLShaderIO.h>
+#include <wendy/GLProgramIO.h>
 
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>

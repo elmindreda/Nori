@@ -29,8 +29,8 @@
 
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
-#include <wendy/GLShader.h>
-#include <wendy/GLShaderIO.h>
+#include <wendy/GLProgram.h>
+#include <wendy/GLProgramIO.h>
 
 ///////////////////////////////////////////////////////////////////////
 

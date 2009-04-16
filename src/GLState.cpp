@@ -32,7 +32,7 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
-#include <wendy/GLShader.h>
+#include <wendy/GLProgram.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLState.h>
 
