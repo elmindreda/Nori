@@ -19,6 +19,7 @@ bool setup(void)
   GL::FragmentProgram::addSearchPath(Path("../media"));
   GL::Program::addSearchPath(Path("../media"));
   render::Material::addSearchPath(Path("../media"));
+  demo::Show::addSearchPath(Path("."));
 
   if (!GL::Renderer::create(*GL::Context::get()))
   {
