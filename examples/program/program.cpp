@@ -41,8 +41,8 @@ bool Demo::init(void)
   Image::addSearchPath(Path("../media"));
   Mesh::addSearchPath(Path("../media"));
   GL::Texture::addSearchPath(Path("../media"));
-  GL::VertexShader::addSearchPath(Path("../media"));
-  GL::FragmentShader::addSearchPath(Path("../media"));
+  GL::VertexProgram::addSearchPath(Path("../media"));
+  GL::FragmentProgram::addSearchPath(Path("../media"));
   GL::Program::addSearchPath(Path("../media"));
   render::Material::addSearchPath(Path("../media"));
 

@@ -44,8 +44,8 @@ namespace
 {
 
 Ptr<GL::TextureCodec> textureCodec;
-Ptr<GL::VertexShaderCodec> vertexShaderCodec;
-Ptr<GL::FragmentShaderCodec> fragmentShaderCodec;
+Ptr<GL::VertexProgramCodec> vertexProgramCodec;
+Ptr<GL::FragmentProgramCodec> fragmentProgramCodec;
 Ptr<GL::ProgramCodec> programCodec;
 
 Ptr<render::MaterialCodec> renderMaterialCodec;
@@ -71,8 +71,8 @@ bool initialize(void)
   }
 
   textureCodec = new GL::TextureCodec();
-  vertexShaderCodec = new GL::VertexShaderCodec();
-  fragmentShaderCodec = new GL::FragmentShaderCodec();
+  vertexProgramCodec = new GL::VertexProgramCodec();
+  fragmentProgramCodec = new GL::FragmentProgramCodec();
   programCodec = new GL::ProgramCodec();
   renderMaterialCodec = new render::MaterialCodec();
   renderTerrainCodec = new render::TerrainCodec();
@@ -86,8 +86,8 @@ void shutdown(void)
   GL::Context::destroy();
 
   textureCodec = NULL;
-  vertexShaderCodec = NULL;
-  fragmentShaderCodec = NULL;
+  vertexProgramCodec = NULL;
+  fragmentProgramCodec = NULL;
   programCodec = NULL;
   renderMaterialCodec = NULL;
   renderTerrainCodec = NULL;

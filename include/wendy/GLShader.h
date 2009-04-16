@@ -150,58 +150,60 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Vertex shader.
+/*! @brief Vertex program object.
  *  @ingroup opengl
  */
-class VertexShader : public RefObject<VertexShader>,
-                     public Resource<VertexShader>
+class VertexProgram : public RefObject<VertexProgram>,
+                      public Resource<VertexProgram>
 {
   friend class Program;
 public:
-  ~VertexShader(void);
+  ~VertexProgram(void);
   const String& getText(void) const;
-  static VertexShader* createInstance(Context& context,
-                                      const String& text,
-                                      const String& name = "");
+  static VertexProgram* createInstance(Context& context,
+                                       const String& text,
+                                       const String& name = "");
 private:
-  VertexShader(Context& context, const String& name);
-  VertexShader(const VertexShader& source);
+  VertexProgram(Context& context, const String& name);
+  VertexProgram(const VertexProgram& source);
   bool init(const String& initText);
-  VertexShader& operator = (const VertexShader& source);
+  VertexProgram& operator = (const VertexProgram& source);
   Context& context;
-  void* shaderID;
+  void* programID;
   String text;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Fragment shader.
+/*! @brief Fragment program object.
  *  @ingroup opengl
  */
-class FragmentShader : public RefObject<FragmentShader>,
-                       public Resource<FragmentShader>
+class FragmentProgram : public RefObject<FragmentProgram>,
+                        public Resource<FragmentProgram>
 {
   friend class Program;
 public:
-  ~FragmentShader(void);
+  ~FragmentProgram(void);
   const String& getText(void) const;
-  static FragmentShader* createInstance(Context& context,
-                                        const String& text,
-                                        const String& name = "");
+  static FragmentProgram* createInstance(Context& context,
+                                         const String& text,
+                                         const String& name = "");
 private:
-  FragmentShader(Context& context, const String& name);
-  FragmentShader(const FragmentShader& source);
+  FragmentProgram(Context& context, const String& name);
+  FragmentProgram(const FragmentProgram& source);
   bool init(const String& initText);
-  FragmentShader& operator = (const FragmentShader& source);
+  FragmentProgram& operator = (const FragmentProgram& source);
   Context& context;
-  void* shaderID;
+  void* programID;
   String text;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Shader program.
+/*! @brief Combined program object.
  *  @ingroup opengl
+ *
+ *  Represents a complete set of GPU programs.
  */
 class Program : public RefObject<Program>, public Resource<Program>
 {
@@ -222,24 +224,24 @@ public:
   unsigned int getSamplerCount(void) const;
   Sampler& getSampler(unsigned int index);
   const Sampler& getSampler(unsigned int index) const;
-  VertexShader& getVertexShader(void) const;
-  FragmentShader& getFragmentShader(void) const;
+  VertexProgram& getVertexProgram(void) const;
+  FragmentProgram& getFragmentProgram(void) const;
   static Program* createInstance(Context& context,
-                                 VertexShader& vertexShader,
-                                 FragmentShader& fragmentShader,
+                                 VertexProgram& vertexProgram,
+                                 FragmentProgram& fragmentProgram,
 				 const String& name = "");
 private:
   Program(Context& context, const String& name);
   Program(const Program& source);
-  bool init(VertexShader& vertexShader, FragmentShader& fragmentShader);
+  bool init(VertexProgram& vertexProgram, FragmentProgram& fragmentProgram);
   void apply(void) const;
   Program& operator = (const Program& source);
   typedef std::vector<Varying*> VaryingList;
   typedef std::vector<Uniform*> UniformList;
   typedef std::vector<Sampler*> SamplerList;
   Context& context;
-  Ref<VertexShader> vertexShader;
-  Ref<FragmentShader> fragmentShader;
+  Ref<VertexProgram> vertexProgram;
+  Ref<FragmentProgram> fragmentProgram;
   void* programID;
   VaryingList varyings;
   UniformList uniforms;

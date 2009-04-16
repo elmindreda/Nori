@@ -40,14 +40,14 @@ using namespace moira;
 /*! @brief Vertex shader codec.
  *  @ingroup io
  */
-class VertexShaderCodec : public ResourceCodec<VertexShader>
+class VertexProgramCodec : public ResourceCodec<VertexProgram>
 {
 public:
-  VertexShaderCodec(void);
-  VertexShader* read(const Path& path, const String& name = "");
-  VertexShader* read(Stream& stream, const String& name = "");
-  bool write(const Path& path, const VertexShader& program);
-  bool write(Stream& stream, const VertexShader& program);
+  VertexProgramCodec(void);
+  VertexProgram* read(const Path& path, const String& name = "");
+  VertexProgram* read(Stream& stream, const String& name = "");
+  bool write(const Path& path, const VertexProgram& program);
+  bool write(Stream& stream, const VertexProgram& program);
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -55,14 +55,14 @@ public:
 /*! @brief Fragment shader codec.
  *  @ingroup io
  */
-class FragmentShaderCodec : public ResourceCodec<FragmentShader>
+class FragmentProgramCodec : public ResourceCodec<FragmentProgram>
 {
 public:
-  FragmentShaderCodec(void);
-  FragmentShader* read(const Path& path, const String& name = "");
-  FragmentShader* read(Stream& stream, const String& name = "");
-  bool write(const Path& path, const FragmentShader& program);
-  bool write(Stream& stream, const FragmentShader& program);
+  FragmentProgramCodec(void);
+  FragmentProgram* read(const Path& path, const String& name = "");
+  FragmentProgram* read(Stream& stream, const String& name = "");
+  bool write(const Path& path, const FragmentProgram& program);
+  bool write(Stream& stream, const FragmentProgram& program);
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -82,8 +82,8 @@ private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
   Ptr<Program> program;
-  Ref<VertexShader> vertexShader;
-  Ref<FragmentShader> fragmentShader;
+  Ref<VertexProgram> vertexProgram;
+  Ref<FragmentProgram> fragmentProgram;
   String programName;
 };
 

@@ -48,40 +48,40 @@ using namespace moira;
 namespace
 {
 
-const unsigned int SHADER_PROGRAM_XML_VERSION = 1;
+const unsigned int PROGRAM_XML_VERSION = 1;
 
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-VertexShaderCodec::VertexShaderCodec(void):
-  ResourceCodec<VertexShader>("Vertex shader codec")
+VertexProgramCodec::VertexProgramCodec(void):
+  ResourceCodec<VertexProgram>("Vertex program codec")
 {
   addSuffix("vs");
   addSuffix("cg");
 }
 
-VertexShader* VertexShaderCodec::read(const Path& path, const String& name)
+VertexProgram* VertexProgramCodec::read(const Path& path, const String& name)
 {
-  return ResourceCodec<VertexShader>::read(path, name);
+  return ResourceCodec<VertexProgram>::read(path, name);
 }
 
-VertexShader* VertexShaderCodec::read(Stream& stream, const String& name)
+VertexProgram* VertexProgramCodec::read(Stream& stream, const String& name)
 {
   TextStream textStream(stream, false);
 
   String text;
   textStream.readText(text, textStream.getSize());
 
-  return VertexShader::createInstance(*Context::get(), text, name);
+  return VertexProgram::createInstance(*Context::get(), text, name);
 }
 
-bool VertexShaderCodec::write(const Path& path, const VertexShader& program)
+bool VertexProgramCodec::write(const Path& path, const VertexProgram& program)
 {
-  return ResourceCodec<VertexShader>::write(path, program);
+  return ResourceCodec<VertexProgram>::write(path, program);
 }
 
-bool VertexShaderCodec::write(Stream& stream, const VertexShader& program)
+bool VertexProgramCodec::write(Stream& stream, const VertexProgram& program)
 {
   const String& text = program.getText();
 
@@ -90,34 +90,34 @@ bool VertexShaderCodec::write(Stream& stream, const VertexShader& program)
 
 ///////////////////////////////////////////////////////////////////////
 
-FragmentShaderCodec::FragmentShaderCodec(void):
-  ResourceCodec<FragmentShader>("Fragment shader codec") 
+FragmentProgramCodec::FragmentProgramCodec(void):
+  ResourceCodec<FragmentProgram>("Fragment program codec") 
 {
   addSuffix("fs");
   addSuffix("cg");
 }
 
-FragmentShader* FragmentShaderCodec::read(const Path& path, const String& name)
+FragmentProgram* FragmentProgramCodec::read(const Path& path, const String& name)
 {
-  return ResourceCodec<FragmentShader>::read(path, name);
+  return ResourceCodec<FragmentProgram>::read(path, name);
 }
 
-FragmentShader* FragmentShaderCodec::read(Stream& stream, const String& name)
+FragmentProgram* FragmentProgramCodec::read(Stream& stream, const String& name)
 {
   TextStream textStream(stream, false);
 
   String text;
   textStream.readText(text, textStream.getSize());
 
-  return FragmentShader::createInstance(*Context::get(), text, name);
+  return FragmentProgram::createInstance(*Context::get(), text, name);
 }
 
-bool FragmentShaderCodec::write(const Path& path, const FragmentShader& program)
+bool FragmentProgramCodec::write(const Path& path, const FragmentProgram& program)
 {
-  return ResourceCodec<FragmentShader>::write(path, program);
+  return ResourceCodec<FragmentProgram>::write(path, program);
 }
 
-bool FragmentShaderCodec::write(Stream& stream, const FragmentShader& program)
+bool FragmentProgramCodec::write(Stream& stream, const FragmentProgram& program)
 {
   const String& text = program.getText();
 
@@ -168,14 +168,14 @@ bool ProgramCodec::write(Stream& stream, const Program& program)
     setStream(&stream);
 
     beginElement("program");
-    addAttribute("version", (int) SHADER_PROGRAM_XML_VERSION);
+    addAttribute("version", (int) PROGRAM_XML_VERSION);
 
-    beginElement("vertex-shader");
-    addAttribute("name", program.getVertexShader().getName());
+    beginElement("vertex");
+    addAttribute("name", program.getVertexProgram().getName());
     endElement();
 
-    beginElement("fragment-shader");
-    addAttribute("name", program.getFragmentShader().getName());
+    beginElement("fragment");
+    addAttribute("name", program.getFragmentProgram().getName());
     endElement();
 
     endElement();
@@ -201,7 +201,7 @@ bool ProgramCodec::onBeginElement(const String& name)
     }
 
     const unsigned int version = readInteger("version");
-    if (version != SHADER_PROGRAM_XML_VERSION)
+    if (version != PROGRAM_XML_VERSION)
     {
       Log::writeError("Shader program XML format version mismatch");
       return false;
@@ -210,26 +210,26 @@ bool ProgramCodec::onBeginElement(const String& name)
     return true;
   }
 
-  if (name == "vertex-shader")
+  if (name == "vertex")
   {
-    if (vertexShader)
+    if (vertexProgram)
     {
-      Log::writeError("Cannot nest vertex shaders");
+      Log::writeError("Cannot nest vertex programs");
       return false;
     }
 
-    String vertexShaderName = readString("name");
-    if (!vertexShaderName.length())
+    String vertexProgramName = readString("name");
+    if (!vertexProgramName.length())
     {
-      Log::writeError("Vertex shader name in shader program %s is empty", programName.c_str());
+      Log::writeError("Vertex program name in shader program %s is empty", programName.c_str());
       return true;
     }
 
-    vertexShader = VertexShader::readInstance(vertexShaderName);
-    if (!vertexShader)
+    vertexProgram = VertexProgram::readInstance(vertexProgramName);
+    if (!vertexProgram)
     {
-      Log::writeError("Cannot find vertex shader %s for shader program %s",
-                      vertexShaderName.c_str(),
+      Log::writeError("Cannot find vertex program %s for shader program %s",
+                      vertexProgramName.c_str(),
 		      programName.c_str());
       return false;
     }
@@ -237,26 +237,26 @@ bool ProgramCodec::onBeginElement(const String& name)
     return true;
   }
 
-  if (name == "fragment-shader")
+  if (name == "fragment")
   {
-    if (fragmentShader)
+    if (fragmentProgram)
     {
-      Log::writeError("Cannot nest fragment shaders");
+      Log::writeError("Cannot nest fragment programs");
       return false;
     }
 
-    String fragmentShaderName = readString("name");
-    if (!fragmentShaderName.length())
+    String fragmentProgramName = readString("name");
+    if (!fragmentProgramName.length())
     {
-      Log::writeError("Fragment shader name in shader program %s is empty", programName.c_str());
+      Log::writeError("Fragment program name in shader program %s is empty", programName.c_str());
       return true;
     }
 
-    fragmentShader = FragmentShader::readInstance(fragmentShaderName);
-    if (!fragmentShader)
+    fragmentProgram = FragmentProgram::readInstance(fragmentProgramName);
+    if (!fragmentProgram)
     {
-      Log::writeError("Cannot find fragment shader %s for shader program %s",
-                      fragmentShaderName.c_str(),
+      Log::writeError("Cannot find fragment program %s for shader program %s",
+                      fragmentProgramName.c_str(),
 		      programName.c_str());
       return false;
     }
@@ -271,26 +271,26 @@ bool ProgramCodec::onEndElement(const String& name)
 {
   if (name == "program")
   {
-    if (!vertexShader)
+    if (!vertexProgram)
     {
-      Log::writeError("Vertex shader missing for shader program %s",
+      Log::writeError("Vertex program missing for shader program %s",
 		      programName.c_str());
       return false;
     }
 
-    if (!fragmentShader)
+    if (!fragmentProgram)
     {
-      Log::writeError("Fragment shader missing for shader program %s",
+      Log::writeError("Fragment program missing for shader program %s",
 		      programName.c_str());
       return false;
     }
 
-    program = Program::createInstance(*Context::get(), *vertexShader, *fragmentShader, programName);
+    program = Program::createInstance(*Context::get(), *vertexProgram, *fragmentProgram, programName);
     if (!program)
       return false;
 
-    vertexShader = NULL;
-    fragmentShader = NULL;
+    vertexProgram = NULL;
+    fragmentProgram = NULL;
 
     return true;
   }

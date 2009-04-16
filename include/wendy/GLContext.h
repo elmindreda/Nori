@@ -213,8 +213,8 @@ private:
  */
 class Context : public Singleton<Context>
 {
-  friend class VertexShader;
-  friend class FragmentShader;
+  friend class VertexProgram;
+  friend class FragmentProgram;
 public:
   /*! Destructor.
    */

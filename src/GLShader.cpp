@@ -528,54 +528,54 @@ Sampler& Sampler::operator = (const Sampler& source)
 
 ///////////////////////////////////////////////////////////////////////
 
-VertexShader::~VertexShader(void)
+VertexProgram::~VertexProgram(void)
 {
-  if (shaderID)
-    cgDestroyProgram((CGprogram) shaderID);
+  if (programID)
+    cgDestroyProgram((CGprogram) programID);
 }
 
-const String& VertexShader::getText(void) const
+const String& VertexProgram::getText(void) const
 {
   return text;
 }
 
-VertexShader* VertexShader::createInstance(Context& context,
-                                           const String& text,
-					   const String& name)
+VertexProgram* VertexProgram::createInstance(Context& context,
+                                             const String& text,
+					     const String& name)
 {
-  Ptr<VertexShader> shader = new VertexShader(context, name);
-  if (!shader->init(text))
+  Ptr<VertexProgram> program = new VertexProgram(context, name);
+  if (!program->init(text))
     return NULL;
 
-  return shader.detachObject();
+  return program.detachObject();
 }
 
-VertexShader::VertexShader(Context& initContext, const String& name):
-  Resource<VertexShader>(name),
+VertexProgram::VertexProgram(Context& initContext, const String& name):
+  Resource<VertexProgram>(name),
   context(initContext),
-  shaderID(NULL)
+  programID(NULL)
 {
 }
 
-VertexShader::VertexShader(const VertexShader& source):
-  Resource<VertexShader>(""),
+VertexProgram::VertexProgram(const VertexProgram& source):
+  Resource<VertexProgram>(""),
   context(source.context)
 {
 }
 
-bool VertexShader::init(const String& initText)
+bool VertexProgram::init(const String& initText)
 {
   text = initText;
 
-  shaderID = cgCreateProgram((CGcontext) context.cgContextID,
-                             CG_SOURCE,
-			     text.c_str(),
-			     (CGprofile) context.cgVertexProfile,
-			     NULL,
-			     NULL);
-  if (!shaderID)
+  programID = cgCreateProgram((CGcontext) context.cgContextID,
+                              CG_SOURCE,
+			      text.c_str(),
+			      (CGprofile) context.cgVertexProfile,
+			      NULL,
+			      NULL);
+  if (!programID)
   {
-    Log::writeError("Failed to compile Cg vertex shader:\n%s\n%s",
+    Log::writeError("Failed to compile Cg vertex program:\n%s\n%s",
                     cgGetErrorString(cgGetError()),
 		    cgGetLastListing((CGcontext) context.cgContextID));
     return false;
@@ -584,61 +584,61 @@ bool VertexShader::init(const String& initText)
   return true;
 }
 
-VertexShader& VertexShader::operator = (const VertexShader& source)
+VertexProgram& VertexProgram::operator = (const VertexProgram& source)
 {
   return *this;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-FragmentShader::~FragmentShader(void)
+FragmentProgram::~FragmentProgram(void)
 {
-  if (shaderID)
-    cgDestroyProgram((CGprogram) shaderID);
+  if (programID)
+    cgDestroyProgram((CGprogram) programID);
 }
 
-const String& FragmentShader::getText(void) const
+const String& FragmentProgram::getText(void) const
 {
   return text;
 }
 
-FragmentShader* FragmentShader::createInstance(Context& context,
-                                               const String& text,
-					       const String& name)
+FragmentProgram* FragmentProgram::createInstance(Context& context,
+                                                 const String& text,
+					         const String& name)
 {
-  Ptr<FragmentShader> shader = new FragmentShader(context, name);
-  if (!shader->init(text))
+  Ptr<FragmentProgram> program = new FragmentProgram(context, name);
+  if (!program->init(text))
     return NULL;
 
-  return shader.detachObject();
+  return program.detachObject();
 }
 
-FragmentShader::FragmentShader(Context& initContext, const String& name):
-  Resource<FragmentShader>(name),
+FragmentProgram::FragmentProgram(Context& initContext, const String& name):
+  Resource<FragmentProgram>(name),
   context(initContext),
-  shaderID(NULL)
+  programID(NULL)
 {
 }
 
-FragmentShader::FragmentShader(const FragmentShader& source):
-  Resource<FragmentShader>(""),
+FragmentProgram::FragmentProgram(const FragmentProgram& source):
+  Resource<FragmentProgram>(""),
   context(source.context)
 {
 }
 
-bool FragmentShader::init(const String& initText)
+bool FragmentProgram::init(const String& initText)
 {
   text = initText;
 
-  shaderID = cgCreateProgram((CGcontext) context.cgContextID,
-                             CG_SOURCE,
-			     text.c_str(),
-			     (CGprofile) context.cgFragmentProfile,
-			     NULL,
-			     NULL);
-  if (!shaderID)
+  programID = cgCreateProgram((CGcontext) context.cgContextID,
+                              CG_SOURCE,
+			      text.c_str(),
+			      (CGprofile) context.cgFragmentProfile,
+			      NULL,
+			      NULL);
+  if (!programID)
   {
-    Log::writeError("Failed to compile Cg fragment shader:\n%s\n%s",
+    Log::writeError("Failed to compile Cg fragment program:\n%s\n%s",
                     cgGetErrorString(cgGetError()),
 		    cgGetLastListing((CGcontext) context.cgContextID));
     return false;
@@ -647,7 +647,7 @@ bool FragmentShader::init(const String& initText)
   return true;
 }
 
-FragmentShader& FragmentShader::operator = (const FragmentShader& source)
+FragmentProgram& FragmentProgram::operator = (const FragmentProgram& source)
 {
   return *this;
 }
@@ -753,23 +753,23 @@ const Sampler& Program::getSampler(unsigned int index) const
   return *samplers[index];
 }
 
-VertexShader& Program::getVertexShader(void) const
+VertexProgram& Program::getVertexProgram(void) const
 {
-  return *vertexShader;
+  return *vertexProgram;
 }
 
-FragmentShader& Program::getFragmentShader(void) const
+FragmentProgram& Program::getFragmentProgram(void) const
 {
-  return *fragmentShader;
+  return *fragmentProgram;
 }
 
 Program* Program::createInstance(Context& context,
-                                             VertexShader& vertexShader,
-					     FragmentShader& fragmentShader,
-					     const String& name)
+                                 VertexProgram& vertexProgram,
+				 FragmentProgram& fragmentProgram,
+				 const String& name)
 {
   Ptr<Program> program = new Program(context, name);
-  if (!program->init(vertexShader, fragmentShader))
+  if (!program->init(vertexProgram, fragmentProgram))
     return NULL;
 
   return program.detachObject();
@@ -787,17 +787,17 @@ Program::Program(const Program& source):
 {
 }
 
-bool Program::init(VertexShader& initVertexShader, FragmentShader& initFragmentShader)
+bool Program::init(VertexProgram& initVertexProgram, FragmentProgram& initFragmentProgram)
 {
-  vertexShader = &initVertexShader;
-  fragmentShader = &initFragmentShader;
+  vertexProgram = &initVertexProgram;
+  fragmentProgram = &initFragmentProgram;
 
-  cgGLLoadProgram((CGprogram) vertexShader->shaderID);
-  cgGLLoadProgram((CGprogram) fragmentShader->shaderID);
+  cgGLLoadProgram((CGprogram) vertexProgram->programID);
+  cgGLLoadProgram((CGprogram) fragmentProgram->programID);
 
   CGparameter parameter;
   
-  parameter = cgGetFirstLeafParameter((CGprogram) vertexShader->shaderID,
+  parameter = cgGetFirstLeafParameter((CGprogram) vertexProgram->programID,
                                       CG_PROGRAM);
 
   while (parameter)
@@ -849,7 +849,7 @@ bool Program::init(VertexShader& initVertexShader, FragmentShader& initFragmentS
     parameter = cgGetNextLeafParameter(parameter);
   }
 
-  parameter = cgGetFirstLeafParameter((CGprogram) fragmentShader->shaderID,
+  parameter = cgGetFirstLeafParameter((CGprogram) fragmentProgram->programID,
                                       CG_PROGRAM);
 
   while (parameter)
@@ -892,8 +892,8 @@ bool Program::init(VertexShader& initVertexShader, FragmentShader& initFragmentS
 
 void Program::apply(void) const
 {
-  cgGLBindProgram((CGprogram) vertexShader->shaderID);
-  cgGLBindProgram((CGprogram) fragmentShader->shaderID);
+  cgGLBindProgram((CGprogram) vertexProgram->programID);
+  cgGLBindProgram((CGprogram) fragmentProgram->programID);
 }
 
 Program& Program::operator = (const Program& source)
