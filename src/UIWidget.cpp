@@ -486,16 +486,8 @@ void Widget::removedFromParent(Widget& parent)
 
 void Widget::onKeyPressed(input::Key key, bool pressed)
 {
-  switch (key)
-  {
-    default:
-    {
-      if (activeWidget)
-        activeWidget->keyPressedSignal.emit(*activeWidget, key, pressed);
-
-      break;
-    }
-  }
+  if (activeWidget)
+    activeWidget->keyPressedSignal.emit(*activeWidget, key, pressed);
 }
 
 void Widget::onCharInput(wchar_t character)

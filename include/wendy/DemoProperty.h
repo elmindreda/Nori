@@ -385,7 +385,7 @@ inline T PropertyTemplate<K,T>::getValue(Time moment) const
     {
       const Time start = startKey.getMoment();
 
-      const float t = (moment - start) / (endKey.getMoment() - start);
+      const float t = (float) (moment - start) / (float) (endKey.getMoment() - start);
 
       return interpolateKeys(startKey, endKey, t);
     }

@@ -151,7 +151,7 @@ void Statistics::onFinish(void)
   frameRate = 0.f;
 
   for (unsigned int i = 0;  i < frames.size();  i++)
-    frameRate += frames[i].duration / frames.size();
+    frameRate += (float) frames[i].duration / frames.size();
 }
 
 void Statistics::onContextDestroy(void)

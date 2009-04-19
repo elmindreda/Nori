@@ -487,7 +487,7 @@ DefaultParticleEmitter::DefaultParticleEmitter(void):
 
 unsigned int DefaultParticleEmitter::update(Time deltaTime)
 {
-  const float count = deltaTime * rate + fraction;
+  const float count = (float) deltaTime * rate + fraction;
   fraction = count - floorf(count);
   return (unsigned int) count;
 }
@@ -515,7 +515,7 @@ void DefaultParticleEmitter::createParticle(Particle& particle,
   Quaternion rotation;
   rotation.setAxisRotation(Vector3(1.f, 0.f, 0.f), angleRange.generate());
   rotation.rotateVector(particle.velocity);
-  rotation.setAxisRotation(Vector3(0.f, 1.f, 0.f), M_PI * 2.f * normalizedRandom());
+  rotation.setAxisRotation(Vector3(0.f, 1.f, 0.f), (float) M_PI * 2.f * normalizedRandom());
   rotation.rotateVector(particle.velocity);
 
   getSystem()->getTransform().rotateVector(particle.velocity);
@@ -600,13 +600,13 @@ PlanarGravityParticleAffector::PlanarGravityParticleAffector(void):
 
 void PlanarGravityParticleAffector::affectParticle(Particle& particle,
                                                    unsigned int particleIndex,
-		                                   Time deltaTime)
+                                                   Time deltaTime)
 {
   // TODO: Replace with verlet or better integrator.
 
-  particle.position += particle.velocity * deltaTime +
-                       gravity * deltaTime * deltaTime;
-  particle.velocity += gravity * deltaTime;
+  particle.position += particle.velocity * (float) deltaTime +
+                       gravity * (float) deltaTime * (float) deltaTime;
+  particle.velocity += gravity * (float) deltaTime;
 }
 
 const Vector3& PlanarGravityParticleAffector::getGravity(void) const
@@ -631,7 +631,7 @@ void ColorFadeParticleAffector::affectParticle(Particle& particle,
 		                               unsigned int particleIndex,
 		                               Time deltaTime)
 {
-  const float t = particle.elapsed / particle.duration;
+  const float t = (float) (particle.elapsed / particle.duration);
   particle.color = start * (1.f - t) + end * t;
 }
 

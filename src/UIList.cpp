@@ -355,7 +355,7 @@ void List::updateScroller(void)
   if (count < items.size())
   {
     scroller->setVisible(true);
-    scroller->setValue(offset);
+    scroller->setValue((float) offset);
     scroller->setValueRange(0.f, (float) items.size() - 1);
     scroller->setPercentage(count / (float) items.size());
   }

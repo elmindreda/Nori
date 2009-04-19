@@ -117,7 +117,7 @@ void TrackPanel::draw(void) const
 
     const Time timeOffset = timeline.getWindowStart() +
                             timeline.getParentEffect().getGlobalOffset();
-    const float position = (timeline.getTimeElapsed() - timeOffset) *
+    const float position = (float) (timeline.getTimeElapsed() - timeOffset) *
                            timeline.getSecondWidth();
     const float width = renderer->getDefaultEM() / 3.f;
 
@@ -238,7 +238,7 @@ void TimelineRuler::draw(void) const
 
     const float em = renderer->getDefaultEM();
     const float width = timeline.getSecondWidth();
-    const float start = timeline.getWindowStart();
+    const float start = (float) timeline.getWindowStart();
     const float offset = (1.f - start + floorf(start)) * width;
     const unsigned int count = (unsigned int) ((area.size.x + width) / width);
 
@@ -257,20 +257,20 @@ void TimelineRuler::draw(void) const
 
       if ((index + i) % 10 == 0)
       {
-	Rectangle digitArea;
-	digitArea.position = area.position + Vector2(position - em, 0.f);
-	digitArea.size.set(2.f * em, area.size.y);
+        Rectangle digitArea;
+        digitArea.position = area.position + Vector2(position - em, 0.f);
+        digitArea.size.set(2.f * em, area.size.y);
 
-	String digits;
-	Variant::convertToString(digits, (index + (int) i) % 60);
+        String digits;
+        Variant::convertToString(digits, (index + (int) i) % 60);
 
-	renderer->drawText(digitArea, digits);
+        renderer->drawText(digitArea, digits);
       }
     }
 
     const Time timeOffset = timeline.getWindowStart() +
                             timeline.getParentEffect().getGlobalOffset();
-    float position = (elapsed - timeOffset) * width;
+    float position = (float) (elapsed - timeOffset) * width;
 
     Triangle2 triangle;
     triangle.P[0] = Vector2(position + area.size.y / 2.f, area.size.y) + area.position;
@@ -456,12 +456,12 @@ void EffectTrack::onDragEnded(Widget& widget, const Vector2& point)
 
 float EffectTrack::getHandleSize(void) const
 {
-  return effect.getDuration() * timeline.getSecondWidth();
+  return (float) effect.getDuration() * timeline.getSecondWidth();
 }
 
 float EffectTrack::getHandleOffset(void) const
 {
-  return (effect.getStartTime() - timeline.getWindowStart()) * timeline.getSecondWidth();
+  return (float) (effect.getStartTime() - timeline.getWindowStart()) * timeline.getSecondWidth();
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -495,7 +495,7 @@ void PropertyTrack::draw(void) const
   if (renderer->pushClipArea(area))
   {
     Rectangle wellArea;
-    wellArea.position.set(area.position.x - timeline.getWindowStart() * timeline.getSecondWidth(),
+    wellArea.position.set(area.position.x - (float) timeline.getWindowStart() * timeline.getSecondWidth(),
                           area.position.y);
     wellArea.size.set(property.getEffect().getDuration() * timeline.getSecondWidth(),
                       area.size.y);

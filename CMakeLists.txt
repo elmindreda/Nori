@@ -7,42 +7,54 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
-include(FindPkgConfig)
+include(CheckIncludeFile)
 
-find_library(GLEW_LIBRARY GLEW)
-if(NOT GLEW_LIBRARY)
-  message(FATAL_ERROR "GLEW not found")
-endif(NOT GLEW_LIBRARY)
-list(APPEND WENDY_LIBRARIES ${GLEW_LIBRARY})
+if(NOT MSVC)
+  include(FindPkgConfig)
 
-pkg_check_modules(GLFW REQUIRED libglfw>=2.6.0)
-list(APPEND WENDY_LIBRARIES ${GLFW_LIBRARIES})
+  pkg_check_modules(GLFW REQUIRED libglfw>=2.6.0)
+  list(APPEND WENDY_LIBRARIES ${GLFW_LIBRARIES})
+endif(NOT MSVC)
 
-find_package(OpenAL REQUIRED)
-link_directories(${OPENAL_LIBRARY_DIRS})
-list(APPEND WENDY_LIBRARIES ${OPENAL_LIBRARY})
+#find_library(GLEW_LIBRARY GLEW)
+#if(NOT GLEW_LIBRARY)
+#  message(FATAL_ERROR "GLEW not found")
+#endif(NOT GLEW_LIBRARY)
+#list(APPEND WENDY_LIBRARIES ${GLEW_LIBRARY})
 
-find_library(CG_LIBRARY Cg)
-find_library(CGGL_LIBRARY CgGL)
+#find_package(OpenAL REQUIRED)
+#list(APPEND WENDY_LIBRARIES ${OPENAL_LIBRARY})
+
+find_library(CG_LIBRARY Cg PATHS ENV CG_LIB_PATH)
+find_library(CGGL_LIBRARY CgGL PATHS ENV CG_LIB_PATH)
 if(NOT CG_LIBRARY OR NOT CGGL_LIBRARY)
-  message(FATAL_ERROR "Cg not found")
+  message(FATAL_ERROR "Cg libraries not found")
 endif(NOT CG_LIBRARY OR NOT CGGL_LIBRARY)
 list(APPEND WENDY_LIBRARIES ${CG_LIBRARY} ${CGGL_LIBRARY})
+
+if(WIN32)
+  include_directories($ENV{CG_INC_PATH})
+endif(WIN32)
 
 find_package(Doxygen)
 
 add_subdirectory(${wendy_SOURCE_DIR}/../moira ${wendy_BINARY_DIR}/moira)
 
 set(WENDY_LIBRARIES ${WENDY_LIBRARIES} ${MOIRA_LIBRARIES} CACHE STRING "Libraries used by Wendy")
-set(WENDY_INCLUDE_DIRS ${MOIRA_INCLUDE_DIRS} ${wendy_SOURCE_DIR}/include ${wendy_BINARY_DIR}/include CACHE STRING "Include directories for Wendy")
+set(WENDY_INCLUDE_DIRS ${MOIRA_INCLUDE_DIRS}
+		       ${GLEW_SOURCE_DIR}
+                       ${wendy_SOURCE_DIR}/include
+		       ${wendy_BINARY_DIR}/include
+    CACHE STRING "Include directories for Wendy")
 
 include_directories(${WENDY_INCLUDE_DIRS})
 
+add_subdirectory(libs)
 add_subdirectory(src)
-add_subdirectory(examples/simple)
-add_subdirectory(examples/fonts)
-add_subdirectory(examples/program)
-add_subdirectory(examples/editor)
+#add_subdirectory(examples/simple)
+#add_subdirectory(examples/fonts)
+#add_subdirectory(examples/program)
+#add_subdirectory(examples/editor)
 #add_subdirectory(examples/widgets)
 
 configure_file(${wendy_SOURCE_DIR}/docs/Doxyfile.in
@@ -54,7 +66,7 @@ configure_file(${wendy_SOURCE_DIR}/build/libwendy.pc.in
 
 install(DIRECTORY include/wendy
         DESTINATION include
-	FILES_MATCHING PATTERN "*.h")
+        FILES_MATCHING PATTERN "*.h")
 install(FILES ${wendy_SOURCE_DIR}/build/libwendy.pc
         DESTINATION lib/pkgconfig)
 
