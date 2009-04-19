@@ -141,7 +141,24 @@ private:
 class UniformData
 {
 public:
+  UniformData(Uniform::Type type);
+  Uniform::Type getType(void) const;
+  bool getValue(float& result) const;
+  void setValue(const float newValue);
+  bool getValue(Vector2& result) const;
+  void setValue(const Vector2& newValue);
+  bool getValue(Vector3& result) const;
+  void setValue(const Vector3& newValue);
+  bool getValue(Vector4& result) const;
+  void setValue(const Vector4& newValue);
+  bool getValue(Matrix2& result) const;
+  void setValue(const Matrix2& newValue);
+  bool getValue(Matrix3& result) const;
+  void setValue(const Matrix3& newValue);
+  bool getValue(Matrix4& result) const;
+  void setValue(const Matrix4& newValue);
 private:
+  Uniform::Type type;
   float data[16];
 };
 
@@ -205,8 +222,11 @@ private:
 class ProgramState
 {
 public:
+  ProgramState(void);
+  ProgramState(const ProgramState& source);
   ~ProgramState(void);
   void apply(void) const;
+  ProgramState& operator = (const ProgramState& source);
   unsigned int getUniformCount(void) const;
   UniformState& getUniformState(const String& name);
   const UniformState& getUniformState(const String& name) const;
