@@ -88,12 +88,6 @@
 
 #include <wendy/Core.h>
 
-#include <wendy/OpenDE.h>
-#include <wendy/DEWorld.h>
-#include <wendy/DEMass.h>
-#include <wendy/DEBody.h>
-#include <wendy/DEWorld.h>
-
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLCanvas.h>
@@ -111,7 +105,6 @@
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
-#include <wendy/RenderStage.h>
 #include <wendy/RenderSprite.h>
 #include <wendy/RenderFont.h>
 #include <wendy/RenderParticle.h>
