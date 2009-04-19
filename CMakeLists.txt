@@ -7,30 +7,41 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
-include(CheckIncludeFile)
+option(WENDY_USE_INTERNAL "Use internal versions of library dependencies" ON)
 
-if(NOT MSVC)
-  include(FindPkgConfig)
+if(WENDY_USE_INTERNAL)
 
-  pkg_check_modules(GLFW REQUIRED libglfw>=2.6.0)
-  list(APPEND WENDY_LIBRARIES ${GLFW_LIBRARIES})
-endif(NOT MSVC)
+  add_subdirectory(libs)
+  list(APPEND wendy_LIBRARIES GLEW)
 
-#find_library(GLEW_LIBRARY GLEW)
-#if(NOT GLEW_LIBRARY)
-#  message(FATAL_ERROR "GLEW not found")
-#endif(NOT GLEW_LIBRARY)
-#list(APPEND WENDY_LIBRARIES ${GLEW_LIBRARY})
+else()
+
+  find_library(GLEW_LIBRARY GLEW)
+  if(NOT GLEW_LIBRARY)
+    message(FATAL_ERROR "GLEW not found")
+  endif(NOT GLEW_LIBRARY)
+  list(APPEND wendy_LIBRARIES ${GLEW_LIBRARY})
+
+endif(WENDY_USE_INTERNAL)
 
 #find_package(OpenAL REQUIRED)
-#list(APPEND WENDY_LIBRARIES ${OPENAL_LIBRARY})
+#list(APPEND wendy_LIBRARIES ${OPENAL_LIBRARY})
+
+find_package(GLU REQUIRED)
+list(APPEND wendy_LIBRARIES ${OPENGL_glu_LIBRARY})
 
 find_library(CG_LIBRARY Cg PATHS ENV CG_LIB_PATH)
 find_library(CGGL_LIBRARY CgGL PATHS ENV CG_LIB_PATH)
 if(NOT CG_LIBRARY OR NOT CGGL_LIBRARY)
   message(FATAL_ERROR "Cg libraries not found")
 endif(NOT CG_LIBRARY OR NOT CGGL_LIBRARY)
-list(APPEND WENDY_LIBRARIES ${CG_LIBRARY} ${CGGL_LIBRARY})
+list(APPEND wendy_LIBRARIES ${CG_LIBRARY} ${CGGL_LIBRARY})
+
+if(NOT MSVC)
+  include(FindPkgConfig)
+  pkg_check_modules(GLFW REQUIRED libglfw>=2.6.0)
+  list(APPEND wendy_LIBRARIES ${GLFW_LIBRARIES})
+endif(NOT MSVC)
 
 if(WIN32)
   include_directories($ENV{CG_INC_PATH})
@@ -38,9 +49,10 @@ endif(WIN32)
 
 find_package(Doxygen)
 
+# Import Moira (assume parallell directories)
 add_subdirectory(${wendy_SOURCE_DIR}/../moira ${wendy_BINARY_DIR}/moira)
 
-set(WENDY_LIBRARIES ${WENDY_LIBRARIES} ${MOIRA_LIBRARIES} CACHE STRING "Libraries used by Wendy")
+set(WENDY_LIBRARIES ${wendy_LIBRARIES} ${MOIRA_LIBRARIES} CACHE STRING "Libraries used by Wendy")
 set(WENDY_INCLUDE_DIRS ${MOIRA_INCLUDE_DIRS}
 		       ${GLEW_SOURCE_DIR}
                        ${wendy_SOURCE_DIR}/include
@@ -49,13 +61,8 @@ set(WENDY_INCLUDE_DIRS ${MOIRA_INCLUDE_DIRS}
 
 include_directories(${WENDY_INCLUDE_DIRS})
 
-add_subdirectory(libs)
 add_subdirectory(src)
-#add_subdirectory(examples/simple)
-#add_subdirectory(examples/fonts)
-#add_subdirectory(examples/program)
-#add_subdirectory(examples/editor)
-#add_subdirectory(examples/widgets)
+#add_subdirectory(examples)
 
 configure_file(${wendy_SOURCE_DIR}/docs/Doxyfile.in
                ${wendy_BINARY_DIR}/docs/Doxyfile @ONLY)
