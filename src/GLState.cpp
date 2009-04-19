@@ -555,6 +555,20 @@ SamplerState& SamplerState::operator = (const SamplerState& source)
 
 ///////////////////////////////////////////////////////////////////////
 
+ProgramState::ProgramState(void)
+{
+}
+
+ProgramState::ProgramState(const ProgramState& source)
+{
+  program = source.program;
+
+  for (SamplerList::const_iterator i = source.samplers.begin();  i != source.samplers.end();  i++)
+    samplers.push_back(new SamplerState(**i));
+
+  // TODO: Deep copy of uniform state.
+}
+
 ProgramState::~ProgramState(void)
 {
   destroyProgramState();
@@ -572,6 +586,15 @@ void ProgramState::apply(void) const
 
     GL::Renderer::get()->setCurrentProgram(program);
   }
+}
+
+ProgramState& ProgramState::operator = (const ProgramState& source)
+{
+  setProgram(source.program);
+
+  // TODO: Deep copy of uniform and sampler state.
+
+  return *this;
 }
 
 unsigned int ProgramState::getUniformCount(void) const
