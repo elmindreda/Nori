@@ -352,7 +352,7 @@ void LightNode::enqueue(Queue& queue, QueuePhase phase) const
   {
     case Light::DIRECTIONAL:
     {
-      Vector3 direction(0.f, 0.f, 1.f);
+      Vec3 direction(0.f, 0.f, 1.f);
       world.rotateVector(direction);
       light->setDirection(direction);
       break;
@@ -360,7 +360,7 @@ void LightNode::enqueue(Queue& queue, QueuePhase phase) const
 
     case Light::POINT:
     {
-      Vector3 position(0.f, 0.f, 0.f);
+      Vec3 position(0.f, 0.f, 0.f);
       world.transformVector(position);
       light->setPosition(position);
       break;
@@ -456,7 +456,7 @@ void TerrainNode::enqueue(Queue& queue, QueuePhase phase) const
 
 SpriteNode::SpriteNode(void)
 {
-  setSpriteSize(Vector2(1.f, 1.f));
+  setSpriteSize(Vec2(1.f, 1.f));
 }
 
 Material* SpriteNode::getMaterial(void) const
@@ -469,16 +469,16 @@ void SpriteNode::setMaterial(Material* newMaterial)
   material = newMaterial;
 }
 
-const Vector2& SpriteNode::getSpriteSize(void) const
+const Vec2& SpriteNode::getSpriteSize(void) const
 {
   return spriteSize;
 }
 
-void SpriteNode::setSpriteSize(const Vector2& newSize)
+void SpriteNode::setSpriteSize(const Vec2& newSize)
 {
   spriteSize = newSize;
 
-  setLocalBounds(Sphere(Vector3::ZERO, (newSize / 2.f).length()));
+  setLocalBounds(Sphere(Vec3::ZERO, (newSize / 2.f).length()));
 }
 
 void SpriteNode::enqueue(Queue& queue, QueuePhase phase) const

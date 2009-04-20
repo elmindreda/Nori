@@ -84,19 +84,19 @@ public:
    *  @remarks The point is in parent coordinates. If this is a top-level
    *  widget, it is in global coordinates.
    */
-  Widget* findByPoint(const Vector2& point);
+  Widget* findByPoint(const Vec2& point);
   /*! Transforms the specified point from global into local (client
    *  area) coordinates.
    *  @param[in] globalPoint The global coordinate point to transform.
    *  @return The corresponding local coordinate point.
    */
-  Vector2 transformToLocal(const Vector2& globalPoint) const;
+  Vec2 transformToLocal(const Vec2& globalPoint) const;
   /*! Transforms the specified point from local (client area) into
    *  global coordinates.
    *  @param[in] localPoint The local coordinate point to transform.
    *  @return The corresponding global coordinate point.
    */
-  Vector2 transformToGlobal(const Vector2& localPoint) const;
+  Vec2 transformToGlobal(const Vec2& localPoint) const;
   /*! Enables this widget, allowing it to become active and receive input
    *  events.
    */
@@ -145,26 +145,26 @@ public:
   WidgetState getState(void) const;
   /*! @return The area of this widget, in parent coordinates.
    */
-  const Rectangle& getArea(void) const;
+  const Rect& getArea(void) const;
   /*! @return The area of this widget, in global coordinates.
    */
-  const Rectangle& getGlobalArea(void) const;
+  const Rect& getGlobalArea(void) const;
   /*! Sets the area of this widget.
    *  @param[in] newArea The desired area, in parent coordinates.
    */
-  void setArea(const Rectangle& newArea);
+  void setArea(const Rect& newArea);
   /*! Sets the size of this widget.
    *  @param[in] newSize The desired size, in parent coordinates.
    *
    *  @remarks This is a helper method for Widget::setArea.
    */
-  void setSize(const Vector2& newSize);
+  void setSize(const Vec2& newSize);
   /*! Sets the position of this widget.
    *  @param[in] newPosition The desired position, in parent coordinates.
    *
    *  @remarks This is a helper method for Widget::setArea.
    */
-  void setPosition(const Vector2& newPosition);
+  void setPosition(const Vec2& newPosition);
   /*! Sets whether this widget is visible.
    */
   void setVisible(bool newState);
@@ -176,14 +176,14 @@ public:
   SignalProxy2<void, Widget&, bool> getFocusChangedSignal(void);
   SignalProxy3<void, Widget&, input::Key, bool> getKeyPressedSignal(void);
   SignalProxy2<void, Widget&, wchar_t> getCharInputSignal(void);
-  SignalProxy2<void, Widget&, const Vector2&> getCursorMovedSignal(void);
-  SignalProxy4<void, Widget&, const Vector2&, unsigned int, bool> getButtonClickedSignal(void);
+  SignalProxy2<void, Widget&, const Vec2&> getCursorMovedSignal(void);
+  SignalProxy4<void, Widget&, const Vec2&, unsigned int, bool> getButtonClickedSignal(void);
   SignalProxy2<void, Widget&, int> getWheelTurnedSignal(void);
   SignalProxy1<void, Widget&> getCursorEnteredSignal(void);
   SignalProxy1<void, Widget&> getCursorLeftSignal(void);
-  SignalProxy2<void, Widget&, const Vector2&> getDragBegunSignal(void);
-  SignalProxy2<void, Widget&, const Vector2&> getDragMovedSignal(void);
-  SignalProxy2<void, Widget&, const Vector2&> getDragEndedSignal(void);
+  SignalProxy2<void, Widget&, const Vec2&> getDragBegunSignal(void);
+  SignalProxy2<void, Widget&, const Vec2&> getDragMovedSignal(void);
+  SignalProxy2<void, Widget&, const Vec2&> getDragEndedSignal(void);
   /*! @return The active widget, or @c NULL if no widget is active.
    */
   static Widget* getActive(void);
@@ -201,7 +201,7 @@ protected:
 private:
   static void onKeyPressed(input::Key key, bool pressed);
   static void onCharInput(wchar_t character);
-  static void onCursorMoved(const Vector2& position);
+  static void onCursorMoved(const Vec2& position);
   static void onButtonClicked(unsigned int button, bool clicked);
   static void onWheelTurned(int offset);
   Signal1<void, Widget&> destroyedSignal;
@@ -209,21 +209,21 @@ private:
   Signal2<void, Widget&, bool> focusChangedSignal;
   Signal3<void, Widget&, input::Key, bool> keyPressedSignal;
   Signal2<void, Widget&, wchar_t> charInputSignal;
-  Signal2<void, Widget&, const Vector2&> cursorMovedSignal;
-  Signal4<void, Widget&, const Vector2&, unsigned int, bool> buttonClickedSignal;
+  Signal2<void, Widget&, const Vec2&> cursorMovedSignal;
+  Signal4<void, Widget&, const Vec2&, unsigned int, bool> buttonClickedSignal;
   Signal2<void, Widget&, int> wheelTurnedSignal;
   Signal1<void, Widget&> cursorEnteredSignal;
   Signal1<void, Widget&> cursorLeftSignal;
-  Signal2<void, Widget&, const Vector2&> dragBegunSignal;
-  Signal2<void, Widget&, const Vector2&> dragMovedSignal;
-  Signal2<void, Widget&, const Vector2&> dragEndedSignal;
+  Signal2<void, Widget&, const Vec2&> dragBegunSignal;
+  Signal2<void, Widget&, const Vec2&> dragMovedSignal;
+  Signal2<void, Widget&, const Vec2&> dragEndedSignal;
   Widget* parent;
   List children;
   bool enabled;
   bool visible;
   bool draggable;
-  Rectangle area;
-  mutable Rectangle globalArea;
+  Rect area;
+  mutable Rect globalArea;
   static bool dragging;
   static List roots;
   static Widget* activeWidget;

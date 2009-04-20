@@ -83,11 +83,11 @@ void Font::drawText(const String& text) const
     return;
   }
 
-  Vector2 roundedPen = penPosition;
+  Vec2 roundedPen = penPosition;
   roundedPen.x = floorf(roundedPen.x + 0.5f);
   roundedPen.y = floorf(roundedPen.y + 0.5f);
 
-  Vector2 penOffset(0.f, 0.f);
+  Vec2 penOffset(0.f, 0.f);
 
   GL::Vertex2ft2fv* vertices = (GL::Vertex2ft2fv*) vertexRange.lock();
 
@@ -173,12 +173,12 @@ float Font::getHeight(void) const
   return size.y;
 }
 
-const Vector2& Font::getPenPosition(void) const
+const Vec2& Font::getPenPosition(void) const
 {
   return penPosition;
 }
 
-void Font::setPenPosition(const Vector2& newPosition)
+void Font::setPenPosition(const Vec2& newPosition)
 {
   penPosition = newPosition;
 }
@@ -191,7 +191,7 @@ const ColorRGBA& Font::getColor(void) const
 void Font::setColor(const ColorRGBA& newColor)
 {
   color = newColor;
-  pass.getUniformState("color").setValue(Vector4(color.g, color.g, color.b, color.a));
+  pass.getUniformState("color").setValue(Vec4(color.g, color.g, color.b, color.a));
 }
 
 float Font::getAscender(void) const
@@ -204,9 +204,9 @@ float Font::getDescender(void) const
   return descender;
 }
 
-Rectangle Font::getTextMetrics(const String& text) const
+Rect Font::getTextMetrics(const String& text) const
 {
-  Rectangle result(Vector2::ZERO, Vector2::ZERO);
+  Rect result(Vec2::ZERO, Vec2::ZERO);
 
   LayoutList layout;
   getTextLayout(layout, text);
@@ -217,7 +217,7 @@ Rectangle Font::getTextMetrics(const String& text) const
   return result;
 }
 
-Rectangle Font::getTextMetrics(const char* format, ...) const
+Rect Font::getTextMetrics(const char* format, ...) const
 {
   va_list vl;
   char* text;
@@ -226,7 +226,7 @@ Rectangle Font::getTextMetrics(const char* format, ...) const
   vasprintf(&text, format, vl);
   va_end(vl);
   
-  Rectangle result = getTextMetrics(String(text));
+  Rect result = getTextMetrics(String(text));
 
   free(text);
   return result;
@@ -234,7 +234,7 @@ Rectangle Font::getTextMetrics(const char* format, ...) const
 
 void Font::getTextLayout(LayoutList& result, const String& text) const
 {
-  Vector2 pen(0.f, 0.f);
+  Vec2 pen(0.f, 0.f);
 
   for (String::const_iterator c = text.begin();  c != text.end();  c++)
   {
@@ -246,14 +246,14 @@ void Font::getTextLayout(LayoutList& result, const String& text) const
     {
       case '\t':
       {
-	layout.area.set(pen, Vector2::ZERO);
+	layout.area.set(pen, Vec2::ZERO);
 	pen.x += size.x * 3.f;
 	break;
       }
 	
       case '\n':
       {
-	layout.area.set(pen, Vector2::ZERO);
+	layout.area.set(pen, Vec2::ZERO);
 	pen.x = 0.f;
 	pen.y -= size.y * 1.2f;
 	break;
@@ -386,14 +386,14 @@ bool Font::init(const moira::Font& font)
     pass.setDepthWriting(false);
     pass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
     pass.getSamplerState("glyphs").setTexture(texture);
-    pass.getUniformState("color").setValue(Vector4(1, 1, 1, 1));
+    pass.getUniformState("color").setValue(Vec4(1, 1, 1, 1));
 
     color = ColorRGBA::WHITE;
   }
 
   ascender = descender = 0.f;
 
-  Vector2i texelPosition(1, 1);
+  Vec2i texelPosition(1, 1);
 
   for (unsigned int i = 0;  i < characters.size();  i++)
   {
@@ -464,11 +464,11 @@ const Font::Glyph* Font::getGlyph(char character) const
 
 ///////////////////////////////////////////////////////////////////////
 
-void Font::Glyph::realizeVertices(Vector2 penPosition, GL::Vertex2ft2fv* vertices) const
+void Font::Glyph::realizeVertices(Vec2 penPosition, GL::Vertex2ft2fv* vertices) const
 {
-  const Rectangle& ta = area;
+  const Rect& ta = area;
 
-  Rectangle pa;
+  Rect pa;
   pa.position = penPosition;
   pa.position.y += bearing.y - size.y;
   pa.size = size;

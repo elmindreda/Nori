@@ -224,9 +224,9 @@ void Mesh::Geometry::setMaterial(Material* newMaterial)
 
 ///////////////////////////////////////////////////////////////////////
 
-void ShadowMesh::update(const Vector3 origin)
+void ShadowMesh::update(const Vec3 origin)
 {
-  Vector3* volume = (Vector3*) vertexBuffer->lock();
+  Vec3* volume = (Vec3*) vertexBuffer->lock();
   if (!volume)
     return;
 
@@ -246,7 +246,7 @@ void ShadowMesh::update(const Vector3 origin)
 
       if (triangle.status == Triangle::UNREFERENCED)
       {
-	Vector3 eye = origin - vertices[triangle.vertices[0]];
+	Vec3 eye = origin - vertices[triangle.vertices[0]];
 
 	if (triangle.normal.dot(eye) > 0.f)
 	{
@@ -257,9 +257,9 @@ void ShadowMesh::update(const Vector3 origin)
 	  // Generate back cap, saving vertices
 	  for (unsigned int k = 0;  k < 3;  k++)
 	  {
-	    Vector3& vertex = extrudedVertices[triangle.vertices[2 - k]];
+	    Vec3& vertex = extrudedVertices[triangle.vertices[2 - k]];
 	    vertex = vertices[triangle.vertices[2 - k]];
-	    Vector3 offset = vertex - origin;
+	    Vec3 offset = vertex - origin;
 	    offset.scaleTo(distance);
 	    vertex += offset;
 	    volume[vertexCount++] = vertex;
@@ -445,10 +445,10 @@ bool ShadowMesh::init(const moira::Mesh& mesh)
       for (unsigned int k = 0;  k < 3;  k++)
           triangle.vertices[k] = geometry.triangles[j].indices[k];
 
-      const Vector3 one = vertices[triangle.vertices[1]] -
-                          vertices[triangle.vertices[0]];
-      const Vector3 two = vertices[triangle.vertices[2]] -
-                          vertices[triangle.vertices[0]];
+      const Vec3 one = vertices[triangle.vertices[1]] -
+                       vertices[triangle.vertices[0]];
+      const Vec3 two = vertices[triangle.vertices[2]] -
+                       vertices[triangle.vertices[0]];
       triangle.normal = one.cross(two);
       triangle.normal.normalize();
 

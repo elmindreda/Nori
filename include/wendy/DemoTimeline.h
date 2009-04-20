@@ -53,10 +53,10 @@ public:
 private:
   void draw(void) const;
   void onButtonClicked(Widget& widget,
-                       const Vector2& point,
+                       const Vec2& point,
 		       unsigned int button,
 		       bool clicked);
-  void onDragMoved(Widget& widget, const Vector2& point);
+  void onDragMoved(Widget& widget, const Vec2& point);
   Signal1<void, TimelineRuler&> timeChangedSignal;
   Timeline& timeline;
   Time elapsed;
@@ -80,9 +80,9 @@ private:
     DRAGGING_DURATION,
   };
   void draw(void) const;
-  void onDragBegun(Widget& widget, const Vector2& point);
-  void onDragMoved(Widget& widget, const Vector2& point);
-  void onDragEnded(Widget& widget, const Vector2& point);
+  void onDragBegun(Widget& widget, const Vec2& point);
+  void onDragMoved(Widget& widget, const Vec2& point);
+  void onDragEnded(Widget& widget, const Vec2& point);
   float getHandleSize(void) const;
   float getHandleOffset(void) const;
   Timeline& timeline;
@@ -104,9 +104,9 @@ public:
 private:
   void draw(void) const;
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
-  void onDragBegun(Widget& widget, const Vector2& point);
-  void onDragMoved(Widget& widget, const Vector2& point);
-  void onDragEnded(Widget& widget, const Vector2& point);
+  void onDragBegun(Widget& widget, const Vec2& point);
+  void onDragMoved(Widget& widget, const Vec2& point);
+  void onDragEnded(Widget& widget, const Vec2& point);
   Timeline& timeline;
   Property& property;
   PropertyKey* draggedKey;
@@ -156,7 +156,7 @@ private:
   void createTrack(Property& property);
   void createTrack(Effect& effect);
   void onButtonClicked(Widget& widget,
-                       const Vector2& point,
+                       const Vec2& point,
 		       unsigned int button,
 		       bool clicked);
   void onValueChanged(UI::Scroller& scroller);

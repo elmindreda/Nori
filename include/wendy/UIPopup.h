@@ -59,7 +59,7 @@ protected:
 private:
   void display(void);
   void onButtonClicked(Widget& widget,
-		       const Vector2& position,
+		       const Vec2& position,
 		       unsigned int button,
 		       bool clicked);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);

@@ -433,57 +433,57 @@ void UniformState::setValue(float newValue)
 {
 }
 
-bool UniformState::getValue(Vector2& result) const
+bool UniformState::getValue(Vec2& result) const
 {
   return false;
 }
 
-void UniformState::setValue(const Vector2& newValue)
+void UniformState::setValue(const Vec2& newValue)
 {
 }
 
-bool UniformState::getValue(Vector3& result) const
-{
-  return false;
-}
-
-void UniformState::setValue(const Vector3& newValue)
-{
-}
-
-bool UniformState::getValue(Vector4& result) const
+bool UniformState::getValue(Vec3& result) const
 {
   return false;
 }
 
-void UniformState::setValue(const Vector4& newValue)
+void UniformState::setValue(const Vec3& newValue)
 {
 }
 
-bool UniformState::getValue(Matrix2& result) const
-{
-  return false;
-}
-
-void UniformState::setValue(const Matrix2& newValue)
-{
-}
-
-bool UniformState::getValue(Matrix3& result) const
+bool UniformState::getValue(Vec4& result) const
 {
   return false;
 }
 
-void UniformState::setValue(const Matrix3& newValue)
+void UniformState::setValue(const Vec4& newValue)
 {
 }
 
-bool UniformState::getValue(Matrix4& result) const
+bool UniformState::getValue(Mat2& result) const
 {
   return false;
 }
 
-void UniformState::setValue(const Matrix4& newValue)
+void UniformState::setValue(const Mat2& newValue)
+{
+}
+
+bool UniformState::getValue(Mat3& result) const
+{
+  return false;
+}
+
+void UniformState::setValue(const Mat3& newValue)
+{
+}
+
+bool UniformState::getValue(Mat4& result) const
+{
+  return false;
+}
+
+void UniformState::setValue(const Mat4& newValue)
 {
 }
 
@@ -704,22 +704,22 @@ void ProgramState::setProgram(Program* newProgram)
 	  state = new UniformStateTemplate<float>(uniform);
 	  break;
 	case Uniform::FLOAT_VEC2:
-	  state = new UniformStateTemplate<Vector2>(uniform);
+	  state = new UniformStateTemplate<Vec2>(uniform);
 	  break;
 	case Uniform::FLOAT_VEC3:
-	  state = new UniformStateTemplate<Vector3>(uniform);
+	  state = new UniformStateTemplate<Vec3>(uniform);
 	  break;
 	case Uniform::FLOAT_VEC4:
-	  state = new UniformStateTemplate<Vector4>(uniform);
+	  state = new UniformStateTemplate<Vec4>(uniform);
 	  break;
 	case Uniform::FLOAT_MAT2:
-	  state = new UniformStateTemplate<Matrix2>(uniform);
+	  state = new UniformStateTemplate<Mat2>(uniform);
 	  break;
 	case Uniform::FLOAT_MAT3:
-	  state = new UniformStateTemplate<Matrix3>(uniform);
+	  state = new UniformStateTemplate<Mat3>(uniform);
 	  break;
 	case Uniform::FLOAT_MAT4:
-	  state = new UniformStateTemplate<Matrix4>(uniform);
+	  state = new UniformStateTemplate<Mat4>(uniform);
 	  break;
 	default:
 	  throw Exception("Unknown uniform state type");

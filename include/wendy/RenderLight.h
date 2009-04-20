@@ -43,13 +43,13 @@ public:
   Light(void);
   const ColorRGB& getIntensity(void) const;
   void setIntensity(const ColorRGB& newColor);
-  const Vector3 getPosition(void) const;
-  void setPosition(const Vector3& newPosition);
+  const Vec3 getPosition(void) const;
+  void setPosition(const Vec3& newPosition);
   const Sphere& getBounds(void) const;
   void setBounds(const Sphere& newBounds);
 private:
   ColorRGB intensity;
-  Vector3 position;
+  Vec3 position;
   Sphere bounds;
 };
 

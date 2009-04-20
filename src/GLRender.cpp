@@ -129,7 +129,7 @@ GLenum convertType(IndexBuffer::Type type)
 
 ///////////////////////////////////////////////////////////////////////
 
-void Renderer::begin(const Matrix4& newProjection)
+void Renderer::begin(const Mat4& newProjection)
 {
   Canvas* canvas = Canvas::getCurrent();
   if (!canvas)
@@ -197,7 +197,7 @@ void Renderer::end(void)
   projection.setIdentity();
 }
 
-void Renderer::pushTransform(const Matrix4& transform)
+void Renderer::pushTransform(const Mat4& transform)
 {
   modelview.push(transform);
 }
@@ -260,7 +260,7 @@ void Renderer::render(void)
   {
     if (MVP->getType() == Uniform::FLOAT_MAT4)
     {
-      Matrix4 mvp = projection;
+      Mat4 mvp = projection;
       mvp.concatenate(modelview.getTotal());
       MVP->setValue(mvp);
     }

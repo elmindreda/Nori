@@ -226,7 +226,7 @@ SignalProxy1<void, List&> List::getSelectionChangedSignal(void)
 
 void List::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
@@ -243,7 +243,7 @@ void List::draw(void) const
       if (height + start < 0.f)
 	break;
 
-      Rectangle itemArea = area;
+      Rect itemArea = area;
       itemArea.position.y += start - height;
       itemArea.size.y = height;
 
@@ -260,23 +260,23 @@ void List::draw(void) const
 
 void List::onAreaChanged(Widget& widget)
 {
-  const Rectangle& area = getArea();
+  const Rect& area = getArea();
 
   const float width = scroller->getArea().size.x;
 
-  scroller->setArea(Rectangle(area.size.x - width, 0.f, width, area.size.y));
+  scroller->setArea(Rect(area.size.x - width, 0.f, width, area.size.y));
   updateScroller();
 }
 
 void List::onButtonClicked(Widget& widget,
-			   const Vector2& position,
+			   const Vec2& position,
 			   unsigned int button,
 			   bool clicked)
 {
   if (!clicked || button != 0)
     return;
 
-  Vector2 localPosition = transformToLocal(position);
+  Vec2 localPosition = transformToLocal(position);
 
   const float height = getArea().size.y;
   float itemTop = height;

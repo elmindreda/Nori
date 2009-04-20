@@ -108,7 +108,7 @@ TrackPanel::TrackPanel(Timeline& initTimeline):
 
 void TrackPanel::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   UI::Renderer* renderer = UI::Renderer::get();
   if (renderer->pushClipArea(area))
@@ -121,7 +121,7 @@ void TrackPanel::draw(void) const
                            timeline.getSecondWidth();
     const float width = renderer->getDefaultEM() / 3.f;
 
-    Rectangle markerArea;
+    Rect markerArea;
     markerArea.set(area.position.x + position - width / 2.f, area.position.y,
                    width, area.size.y);
 
@@ -169,7 +169,7 @@ void TrackPanel::updateTracks(void)
     position += std::min(extra, scroller->getValue());
     width -= scroller->getArea().size.x + 2.f;
 
-    scroller->setArea(Rectangle(width, 0.f, scroller->getArea().size.x, visible));
+    scroller->setArea(Rect(width, 0.f, scroller->getArea().size.x, visible));
     scroller->setValueRange(0.f, extra);
     scroller->setPercentage(visible / (visible + extra));
     scroller->setVisible(true);
@@ -182,7 +182,7 @@ void TrackPanel::updateTracks(void)
 
     position -= height;
 
-    (*i)->setArea(Rectangle(0.f, position, width, height));
+    (*i)->setArea(Rect(0.f, position, width, height));
   }
 }
 
@@ -208,7 +208,7 @@ TimelineRuler::TimelineRuler(Timeline& initTimeline):
   getButtonClickedSignal().connect(*this, &TimelineRuler::onButtonClicked);
   getDragMovedSignal().connect(*this, &TimelineRuler::onDragMoved);
 
-  setSize(Vector2(em * 2.f, em * 2.f));
+  setSize(Vec2(em * 2.f, em * 2.f));
   setDraggable(true);
 }
 
@@ -229,7 +229,7 @@ SignalProxy1<void, TimelineRuler&> TimelineRuler::getTimeChangedSignal(void)
 
 void TimelineRuler::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   UI::Renderer* renderer = UI::Renderer::get();
   if (renderer->pushClipArea(area))
@@ -250,15 +250,15 @@ void TimelineRuler::draw(void) const
     {
       float position = offset + i * width;
 
-      segment.start = area.position + Vector2(position, area.size.y / 2.f);
-      segment.end = area.position + Vector2(position, area.size.y);
+      segment.start = area.position + Vec2(position, area.size.y / 2.f);
+      segment.end = area.position + Vec2(position, area.size.y);
 
       renderer->drawLine(segment, ColorRGBA::BLACK);
 
       if ((index + i) % 10 == 0)
       {
-        Rectangle digitArea;
-        digitArea.position = area.position + Vector2(position - em, 0.f);
+        Rect digitArea;
+        digitArea.position = area.position + Vec2(position - em, 0.f);
         digitArea.size.set(2.f * em, area.size.y);
 
         String digits;
@@ -273,9 +273,9 @@ void TimelineRuler::draw(void) const
     float position = (float) (elapsed - timeOffset) * width;
 
     Triangle2 triangle;
-    triangle.P[0] = Vector2(position + area.size.y / 2.f, area.size.y) + area.position;
-    triangle.P[1] = Vector2(position - area.size.y / 2.f, area.size.y) + area.position;
-    triangle.P[2] = Vector2(position, 0.f) + area.position;
+    triangle.P[0] = Vec2(position + area.size.y / 2.f, area.size.y) + area.position;
+    triangle.P[1] = Vec2(position - area.size.y / 2.f, area.size.y) + area.position;
+    triangle.P[2] = Vec2(position, 0.f) + area.position;
 
     renderer->fillTriangle(triangle, ColorRGBA(0.8f, 0.1f, 0.1f, 1.f));
     renderer->drawTriangle(triangle, ColorRGBA::BLACK);
@@ -287,7 +287,7 @@ void TimelineRuler::draw(void) const
 }
 
 void TimelineRuler::onButtonClicked(Widget& widget,
-                                    const Vector2& point,
+                                    const Vec2& point,
 				    unsigned int button,
 				    bool clicked)
 {
@@ -304,7 +304,7 @@ void TimelineRuler::onButtonClicked(Widget& widget,
   timeChangedSignal.emit(*this);
 }
 
-void TimelineRuler::onDragMoved(Widget& widget, const Vector2& point)
+void TimelineRuler::onDragMoved(Widget& widget, const Vec2& point)
 {
   const float position = transformToLocal(point).x;
 
@@ -329,7 +329,7 @@ EffectTrack::EffectTrack(Timeline& initTimeline, Effect& initEffect):
   getDragMovedSignal().connect(*this, &EffectTrack::onDragMoved);
   getDragEndedSignal().connect(*this, &EffectTrack::onDragEnded);
 
-  setSize(Vector2(em * 2.f, em * 2.f));
+  setSize(Vec2(em * 2.f, em * 2.f));
   setDraggable(true);
 }
 
@@ -340,7 +340,7 @@ Effect& EffectTrack::getEffect(void) const
 
 void EffectTrack::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   UI::Renderer* renderer = UI::Renderer::get();
   if (renderer->pushClipArea(area))
@@ -348,7 +348,7 @@ void EffectTrack::draw(void) const
     const float size = getHandleSize();
     const float offset = getHandleOffset();
 
-    Rectangle effectArea;
+    Rect effectArea;
     effectArea.size.set(size, area.size.y);
     effectArea.position.set(area.position.x + offset, area.position.y);
 
@@ -366,13 +366,13 @@ void EffectTrack::draw(void) const
 
     const float em = renderer->getDefaultEM();
 
-    Rectangle handleArea;
+    Rect handleArea;
     handleArea.size.set(em, effectArea.size.y);
 
-    handleArea.position = effectArea.position - Vector2(em, 0.f);
+    handleArea.position = effectArea.position - Vec2(em, 0.f);
     renderer->drawHandle(handleArea, getState());
 
-    handleArea.position = effectArea.position + Vector2(effectArea.size.x, 0.f);
+    handleArea.position = effectArea.position + Vec2(effectArea.size.x, 0.f);
     renderer->drawHandle(handleArea, getState());
 
     UI::Widget::draw();
@@ -381,7 +381,7 @@ void EffectTrack::draw(void) const
   }
 }
 
-void EffectTrack::onDragBegun(Widget& widget, const Vector2& point)
+void EffectTrack::onDragBegun(Widget& widget, const Vec2& point)
 {
   const float position = transformToLocal(point).x;
 
@@ -409,7 +409,7 @@ void EffectTrack::onDragBegun(Widget& widget, const Vector2& point)
     cancelDragging();
 }
 
-void EffectTrack::onDragMoved(Widget& widget, const Vector2& point)
+void EffectTrack::onDragMoved(Widget& widget, const Vec2& point)
 {
   const float position = transformToLocal(point).x;
   const float offset = getHandleOffset();
@@ -449,7 +449,7 @@ void EffectTrack::onDragMoved(Widget& widget, const Vector2& point)
   }
 }
 
-void EffectTrack::onDragEnded(Widget& widget, const Vector2& point)
+void EffectTrack::onDragEnded(Widget& widget, const Vec2& point)
 {
   mode = NOT_DRAGGING;
 }
@@ -478,7 +478,7 @@ PropertyTrack::PropertyTrack(Timeline& initTimeline, Property& initProperty):
   getDragMovedSignal().connect(*this, &PropertyTrack::onDragMoved);
   getDragEndedSignal().connect(*this, &PropertyTrack::onDragEnded);
 
-  setSize(Vector2(em * 2.f, em * 2.f));
+  setSize(Vec2(em * 2.f, em * 2.f));
   setDraggable(true);
 }
 
@@ -489,12 +489,12 @@ Property& PropertyTrack::getParameter(void) const
 
 void PropertyTrack::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   UI::Renderer* renderer = UI::Renderer::get();
   if (renderer->pushClipArea(area))
   {
-    Rectangle wellArea;
+    Rect wellArea;
     wellArea.position.set(area.position.x - (float) timeline.getWindowStart() * timeline.getSecondWidth(),
                           area.position.y);
     wellArea.size.set(property.getEffect().getDuration() * timeline.getSecondWidth(),
@@ -512,7 +512,7 @@ void PropertyTrack::draw(void) const
       const float offset = (keys[i]->getMoment() - timeline.getWindowStart()) *
                            timeline.getSecondWidth();
 
-      Rectangle handleArea;
+      Rect handleArea;
       handleArea.position.set(area.position.x + offset - em / 2.f,
                               area.position.y);
       handleArea.size.set(em, area.size.y);
@@ -538,7 +538,7 @@ void PropertyTrack::onKeyPressed(Widget& widget, input::Key key, bool pressed)
   }
 }
 
-void PropertyTrack::onDragBegun(Widget& widget, const Vector2& point)
+void PropertyTrack::onDragBegun(Widget& widget, const Vec2& point)
 {
   float position = transformToLocal(point).x;
 
@@ -572,7 +572,7 @@ void PropertyTrack::onDragBegun(Widget& widget, const Vector2& point)
   }
 }
 
-void PropertyTrack::onDragMoved(Widget& widget, const Vector2& point)
+void PropertyTrack::onDragMoved(Widget& widget, const Vec2& point)
 {
   float position = transformToLocal(point).x;
 
@@ -585,7 +585,7 @@ void PropertyTrack::onDragMoved(Widget& widget, const Vector2& point)
   draggedKey->setMoment(moment);
 }
 
-void PropertyTrack::onDragEnded(Widget& widget, const Vector2& point)
+void PropertyTrack::onDragEnded(Widget& widget, const Vec2& point)
 {
   draggedKey = NULL;
 }
@@ -816,7 +816,7 @@ SignalProxy1<void, Timeline&> Timeline::getPropertyKeySelectedSignal(void)
 
 void Timeline::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   UI::Renderer* renderer = UI::Renderer::get();
   if (renderer->pushClipArea(area))
@@ -853,7 +853,7 @@ void Timeline::createTrack(Effect& effect)
 }
 
 void Timeline::onButtonClicked(Widget& widget,
-		               const Vector2& point,
+		               const Vec2& point,
 		               unsigned int button,
 		               bool clicked)
 {

@@ -105,14 +105,14 @@ void Item::setStringValue(const String& newValue)
   value = newValue;
 }
 
-void Item::draw(const Rectangle& area, WidgetState state) const
+void Item::draw(const Rect& area, WidgetState state) const
 {
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
   {
     const float em = Renderer::get()->getDefaultEM();
 
-    Rectangle textArea = area;
+    Rect textArea = area;
     textArea.position.x += em / 2.f;
     textArea.size.x -= em;
 
@@ -144,7 +144,7 @@ float SeparatorItem::getHeight(void) const
   return em / 2.f;
 }
 
-void SeparatorItem::draw(const Rectangle& area, WidgetState state) const
+void SeparatorItem::draw(const Rect& area, WidgetState state) const
 {
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
@@ -188,7 +188,7 @@ GL::Texture& TextureItem::getTexture(void) const
   return *texture;
 }
 
-void TextureItem::draw(const Rectangle& area, WidgetState state) const
+void TextureItem::draw(const Rect& area, WidgetState state) const
 {
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
@@ -198,12 +198,12 @@ void TextureItem::draw(const Rectangle& area, WidgetState state) const
     if (state == STATE_SELECTED)
       renderer->fillRectangle(area, ColorRGBA(renderer->getSelectionColor(), 1.f));
 
-    Rectangle textureArea = area;
+    Rect textureArea = area;
     textureArea.size.set(em * 3.f, em * 3.f);
 
     renderer->blitTexture(textureArea, *texture);
 
-    Rectangle textArea = area;
+    Rect textArea = area;
     textArea.position.x += em * 3.5f;
     textArea.size.x -= em;
 

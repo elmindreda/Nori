@@ -100,12 +100,12 @@ public:
   Type getType(void) const;
   const String& getName(void) const;
   void setValue(float newValue);
-  void setValue(const Vector2& newValue);
-  void setValue(const Vector3& newValue);
-  void setValue(const Vector4& newValue);
-  void setValue(const Matrix2& newValue);
-  void setValue(const Matrix3& newValue);
-  void setValue(const Matrix4& newValue);
+  void setValue(const Vec2& newValue);
+  void setValue(const Vec3& newValue);
+  void setValue(const Vec4& newValue);
+  void setValue(const Mat2& newValue);
+  void setValue(const Mat3& newValue);
+  void setValue(const Mat4& newValue);
   Program& getProgram(void) const;
 private:
   Uniform(Program& program);

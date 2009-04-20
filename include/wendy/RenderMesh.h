@@ -116,7 +116,7 @@ private:
 class ShadowMesh : public Renderable
 {
 public:
-  void update(const Vector3 origin);
+  void update(const Vec3 origin);
   void enqueue(Queue& queue, const Transform3& transform) const;
   float getExtrudeDistance(void) const;
   void setExtrudeDistance(float newDistance);
@@ -128,7 +128,7 @@ private:
   ShadowMesh(const ShadowMesh& source);
   ShadowMesh& operator = (const ShadowMesh& source);
   bool init(const moira::Mesh& mesh);
-  typedef std::vector<Vector3> VertexList;
+  typedef std::vector<Vec3> VertexList;
   typedef std::vector<Edge> EdgeList;
   typedef std::vector<Triangle> TriangleList;
   VertexList vertices;
@@ -166,7 +166,7 @@ public:
     BACK_FACE,
   };
   unsigned int vertices[3];
-  Vector3 normal;
+  Vec3 normal;
   mutable Status status;
 };
 

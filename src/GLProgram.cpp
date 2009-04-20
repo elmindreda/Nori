@@ -395,7 +395,7 @@ void Uniform::setValue(float newValue)
   cgGLSetParameter1f((CGparameter) uniformID, newValue);
 }
 
-void Uniform::setValue(const Vector2& newValue)
+void Uniform::setValue(const Vec2& newValue)
 {
   if (type != FLOAT_VEC2)
   {
@@ -406,7 +406,7 @@ void Uniform::setValue(const Vector2& newValue)
   cgGLSetParameter2fv((CGparameter) uniformID, newValue);
 }
 
-void Uniform::setValue(const Vector3& newValue)
+void Uniform::setValue(const Vec3& newValue)
 {
   if (type != FLOAT_VEC3)
   {
@@ -417,7 +417,7 @@ void Uniform::setValue(const Vector3& newValue)
   cgGLSetParameter3fv((CGparameter) uniformID, newValue);
 }
 
-void Uniform::setValue(const Vector4& newValue)
+void Uniform::setValue(const Vec4& newValue)
 {
   if (type != FLOAT_VEC4)
   {
@@ -428,7 +428,7 @@ void Uniform::setValue(const Vector4& newValue)
   cgGLSetParameter4fv((CGparameter) uniformID, newValue);
 }
 
-void Uniform::setValue(const Matrix2& newValue)
+void Uniform::setValue(const Mat2& newValue)
 {
   if (type != FLOAT_MAT2)
   {
@@ -439,7 +439,7 @@ void Uniform::setValue(const Matrix2& newValue)
   cgGLSetMatrixParameterfc((CGparameter) uniformID, newValue);
 }
 
-void Uniform::setValue(const Matrix3& newValue)
+void Uniform::setValue(const Mat3& newValue)
 {
   if (type != FLOAT_MAT3)
   {
@@ -450,7 +450,7 @@ void Uniform::setValue(const Matrix3& newValue)
   cgGLSetMatrixParameterfc((CGparameter) uniformID, newValue);
 }
 
-void Uniform::setValue(const Matrix4& newValue)
+void Uniform::setValue(const Mat4& newValue)
 {
   if (type != FLOAT_MAT4)
   {

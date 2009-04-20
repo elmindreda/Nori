@@ -68,9 +68,9 @@ Slider::Slider(Orientation initOrientation):
   const float em = Renderer::get()->getDefaultEM();
 
   if (orientation == HORIZONTAL)
-    setSize(Vector2(em * 10.f, em * 1.5f));
+    setSize(Vec2(em * 10.f, em * 1.5f));
   else
-    setSize(Vector2(em * 1.5f, em * 10.f));
+    setSize(Vec2(em * 1.5f, em * 10.f));
 
   getKeyPressedSignal().connect(*this, &Slider::onKeyPressed);
   getButtonClickedSignal().connect(*this, &Slider::onButtonClicked);
@@ -128,7 +128,7 @@ SignalProxy1<void, Slider&> Slider::getValueChangedSignal(void)
 
 void Slider::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
@@ -139,7 +139,7 @@ void Slider::draw(void) const
 
     const float em = Renderer::get()->getDefaultEM();
 
-    Rectangle handleArea;
+    Rect handleArea;
 
     if (orientation == HORIZONTAL)
     {
@@ -165,7 +165,7 @@ void Slider::draw(void) const
 }
 
 void Slider::onButtonClicked(Widget& widget,
-			     const Vector2& position,
+			     const Vec2& position,
 			     unsigned int button,
 			     bool clicked)
 {
@@ -202,12 +202,12 @@ void Slider::onWheelTurned(Widget& widget, int offset)
   setValue(value + offset * stepSize, true);
 }
 
-void Slider::onDragMoved(Widget& widget, const Vector2& position)
+void Slider::onDragMoved(Widget& widget, const Vec2& position)
 {
   setValue(transformToLocal(position));
 }
 
-void Slider::setValue(const Vector2& position)
+void Slider::setValue(const Vec2& position)
 {
   const float em = Renderer::get()->getDefaultEM();
 

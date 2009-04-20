@@ -57,13 +57,13 @@ public:
 private:
   void draw(void) const;
   void onFocusChanged(Widget& widget, bool activated);
-  void onCursorMoved(Widget& widget, const Vector2& position);
+  void onCursorMoved(Widget& widget, const Vec2& position);
   void onButtonClicked(Widget& widget,
-                       const Vector2& position,
+                       const Vec2& position,
 		       unsigned int button,
 		       bool clicked);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
-  void onDragEnded(Widget& widget, const Vector2& position);
+  void onDragEnded(Widget& widget, const Vec2& position);
   void sizeToFit(void);
   ItemList items;
   unsigned int selection;

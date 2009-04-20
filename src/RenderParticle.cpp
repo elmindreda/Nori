@@ -392,7 +392,7 @@ ParticleSystem& ParticleSystem::operator = (const ParticleSystem& source)
 
 bool ParticleSystem::realizeVertices(GL::VertexRange& vertexRange,
                                      GL::IndexRange& indexRange,
-		                     const Vector3& camera) const
+		                     const Vec3& camera) const
 {
   GL::Renderer* renderer = GL::Renderer::get();
   if (!renderer)
@@ -416,22 +416,22 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& vertexRange,
 
     // TODO: Fix this (separate y-axis rotation and pivot)
 
-    const Vector2 offset(particle.size.x / 2.f, particle.size.y / 2.f);
+    const Vec2 offset(particle.size.x / 2.f, particle.size.y / 2.f);
 
-    Vector3 direction = (camera - particle.position).normalized();
+    Vec3 direction = (camera - particle.position).normalized();
 
-    Quaternion final;
+    Quat final;
     final.setVectorRotation(direction);
 
     if (particle.angle != 0.f)
     {
-      Quaternion local;
-      local.setAxisRotation(Vector3(0.f, 0.f, 1.f), particle.angle);
+      Quat local;
+      local.setAxisRotation(Vec3(0.f, 0.f, 1.f), particle.angle);
 
       final = final * local;
     }
 
-    Vector3 positions[4];
+    Vec3 positions[4];
 
     positions[0].set(-offset.x, -offset.y, 0.f);
     positions[1].set( offset.x, -offset.y, 0.f);
@@ -504,7 +504,7 @@ void DefaultParticleEmitter::createParticle(Particle& particle,
 
   particle.color = colorRange.generate();
   particle.position = originVolume.generate();
-  particle.velocity = Vector3(0.f, velocityRange.generate(), 0.f);
+  particle.velocity = Vec3(0.f, velocityRange.generate(), 0.f);
   particle.duration = durationRange.generate();
   particle.elapsed = 0.f;
   particle.angle = 0.f;
@@ -512,10 +512,10 @@ void DefaultParticleEmitter::createParticle(Particle& particle,
 
   getSystem()->getTransform().transformVector(particle.position);
 
-  Quaternion rotation;
-  rotation.setAxisRotation(Vector3(1.f, 0.f, 0.f), angleRange.generate());
+  Quat rotation;
+  rotation.setAxisRotation(Vec3(1.f, 0.f, 0.f), angleRange.generate());
   rotation.rotateVector(particle.velocity);
-  rotation.setAxisRotation(Vector3(0.f, 1.f, 0.f), (float) M_PI * 2.f * normalizedRandom());
+  rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f), (float) M_PI * 2.f * normalizedRandom());
   rotation.rotateVector(particle.velocity);
 
   getSystem()->getTransform().rotateVector(particle.velocity);
@@ -609,12 +609,12 @@ void PlanarGravityParticleAffector::affectParticle(Particle& particle,
   particle.velocity += gravity * (float) deltaTime;
 }
 
-const Vector3& PlanarGravityParticleAffector::getGravity(void) const
+const Vec3& PlanarGravityParticleAffector::getGravity(void) const
 {
   return gravity;
 }
 
-void PlanarGravityParticleAffector::setGravity(const Vector3& newGravity)
+void PlanarGravityParticleAffector::setGravity(const Vec3& newGravity)
 {
   gravity = newGravity;
 }

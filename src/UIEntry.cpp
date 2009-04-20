@@ -65,7 +65,7 @@ Entry::Entry(const String& initText):
 {
   const float em = Renderer::get()->getDefaultEM();
 
-  setSize(Vector2(em * 10.f, em * 1.5f));
+  setSize(Vec2(em * 10.f, em * 1.5f));
 
   getButtonClickedSignal().connect(*this, &Entry::onButtonClicked);
   getKeyPressedSignal().connect(*this, &Entry::onKeyPressed);
@@ -104,7 +104,7 @@ SignalProxy1<void, Entry&> Entry::getCaretMovedSignal(void)
 
 void Entry::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
@@ -113,7 +113,7 @@ void Entry::draw(void) const
 
     const float em = renderer->getDefaultEM();
 
-    Rectangle textArea = area;
+    Rect textArea = area;
     textArea.position.x += em / 2.f;
     textArea.size.x -= em;
 
@@ -148,7 +148,7 @@ void Entry::draw(void) const
 }
 
 void Entry::onButtonClicked(Widget& widget,
-			    const Vector2& point,
+			    const Vec2& point,
 			    unsigned int button,
 			    bool clicked)
 {

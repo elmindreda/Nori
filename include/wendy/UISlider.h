@@ -56,13 +56,13 @@ protected:
   void draw(void) const;
 private:
   void onButtonClicked(Widget& widget,
-		       const Vector2& position,
+		       const Vec2& position,
 		       unsigned int button,
 		       bool clicked);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   void onWheelTurned(Widget& widget, int offset);
-  void onDragMoved(Widget& widget, const Vector2& position);
-  void setValue(const Vector2& position);
+  void onDragMoved(Widget& widget, const Vec2& position);
+  void setValue(const Vec2& position);
   void setValue(float newValue, bool notify);
   Signal1<void, Slider&> valueChangedSignal;
   float minValue;

@@ -71,13 +71,13 @@ void Alignment::set(HorzAlignment newHorizontal, VertAlignment newVertical)
 
 ///////////////////////////////////////////////////////////////////////
 
-bool Renderer::pushClipArea(const Rectangle& area)
+bool Renderer::pushClipArea(const Rect& area)
 {
   GL::Canvas* canvas = GL::Canvas::getCurrent();
   if (!canvas)
     throw Exception("Cannot render without a current canvas");
 
-  Vector2 scale;
+  Vec2 scale;
   scale.x = 1.f / canvas->getPhysicalWidth();
   scale.y = 1.f / canvas->getPhysicalHeight();
 
@@ -93,7 +93,7 @@ void Renderer::popClipArea(void)
   canvas->popScissorArea();
 }
 
-void Renderer::drawPoint(const Vector2& point, const ColorRGBA& color)
+void Renderer::drawPoint(const Vec2& point, const ColorRGBA& color)
 {
   GL::Renderer* renderer = GL::Renderer::get();
 
@@ -177,7 +177,7 @@ void Renderer::drawBezier(const BezierCurve2& spline, const ColorRGBA& color)
   renderer->render();
 }
 
-void Renderer::drawRectangle(const Rectangle& rectangle, const ColorRGBA& color)
+void Renderer::drawRectangle(const Rect& rectangle, const ColorRGBA& color)
 {
   float minX, minY, maxX, maxY;
   rectangle.getBounds(minX, minY, maxX, maxY);
@@ -229,7 +229,7 @@ void Renderer::fillTriangle(const Triangle2& triangle, const ColorRGBA& color)
   renderer->render();
 }
 
-void Renderer::fillRectangle(const Rectangle& rectangle, const ColorRGBA& color)
+void Renderer::fillRectangle(const Rect& rectangle, const ColorRGBA& color)
 {
   float minX, minY, maxX, maxY;
   rectangle.getBounds(minX, minY, maxX, maxY);
@@ -260,7 +260,7 @@ void Renderer::fillRectangle(const Rectangle& rectangle, const ColorRGBA& color)
   renderer->render();
 }
 
-void Renderer::blitTexture(const Rectangle& area, GL::Texture& texture)
+void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
 {
   float minX, minY, maxX, maxY;
   area.getBounds(minX, minY, maxX, maxY);
@@ -298,7 +298,7 @@ void Renderer::blitTexture(const Rectangle& area, GL::Texture& texture)
   blitPass.getSamplerState("image").setTexture(NULL);
 }
 
-void Renderer::drawText(const Rectangle& area,
+void Renderer::drawText(const Rect& area,
                         const String& text,
 		        const Alignment& alignment,
 		        const ColorRGB& color)
@@ -306,9 +306,9 @@ void Renderer::drawText(const Rectangle& area,
   if (text.empty())
     return;
 
-  Rectangle metrics = currentFont->getTextMetrics(text);
+  Rect metrics = currentFont->getTextMetrics(text);
 
-  Vector2 penPosition(0.f, 0.f);
+  Vec2 penPosition(0.f, 0.f);
 
   switch (alignment.horizontal)
   {
@@ -349,7 +349,7 @@ void Renderer::drawText(const Rectangle& area,
   currentFont->drawText(text);
 }
 
-void Renderer::drawText(const Rectangle& area,
+void Renderer::drawText(const Rect& area,
                         const String& text,
 		        const Alignment& alignment,
 			WidgetState state)
@@ -378,7 +378,7 @@ void Renderer::drawText(const Rectangle& area,
   }
 }
 
-void Renderer::drawWell(const Rectangle& area, WidgetState state)
+void Renderer::drawWell(const Rect& area, WidgetState state)
 {
   ColorRGB fillColor;
 
@@ -399,7 +399,7 @@ void Renderer::drawWell(const Rectangle& area, WidgetState state)
   drawRectangle(area, ColorRGBA::BLACK);
 }
 
-void Renderer::drawFrame(const Rectangle& area, WidgetState state)
+void Renderer::drawFrame(const Rect& area, WidgetState state)
 {
   ColorRGB fillColor;
 
@@ -420,12 +420,12 @@ void Renderer::drawFrame(const Rectangle& area, WidgetState state)
   drawRectangle(area, ColorRGBA::BLACK);
 }
 
-void Renderer::drawHandle(const Rectangle& area, WidgetState state)
+void Renderer::drawHandle(const Rect& area, WidgetState state)
 {
   drawFrame(area, state);
 }
 
-void Renderer::drawButton(const Rectangle& area, WidgetState state, const String& text)
+void Renderer::drawButton(const Rect& area, WidgetState state, const String& text)
 {
   drawFrame(area, state);
 
@@ -577,7 +577,7 @@ bool Renderer::init(void)
 
 void Renderer::setDrawingState(const ColorRGBA& color, bool wireframe)
 {
-  drawPass.getUniformState("color").setValue(Vector4(color.r, color.g, color.b, color.a));
+  drawPass.getUniformState("color").setValue(Vec4(color.r, color.g, color.b, color.a));
 
   if (color.a == 1.f)
     drawPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ZERO);

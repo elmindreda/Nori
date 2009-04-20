@@ -154,12 +154,12 @@ void Widget::destroyChildren(void)
     delete children.front();
 }
 
-Widget* Widget::findByPoint(const Vector2& point)
+Widget* Widget::findByPoint(const Vec2& point)
 {
   if (!area.contains(point))
     return NULL;
 
-  const Vector2 localPoint = point - area.position;
+  const Vec2 localPoint = point - area.position;
 
   for (List::const_iterator i = children.begin();  i != children.end();  i++)
   {
@@ -171,12 +171,12 @@ Widget* Widget::findByPoint(const Vector2& point)
   return this;
 }
 
-Vector2 Widget::transformToLocal(const Vector2& globalPoint) const
+Vec2 Widget::transformToLocal(const Vec2& globalPoint) const
 {
   return globalPoint - getGlobalArea().position;
 }
 
-Vector2 Widget::transformToGlobal(const Vector2& localPoint) const
+Vec2 Widget::transformToGlobal(const Vec2& localPoint) const
 {
   return localPoint + getGlobalArea().position;
 }
@@ -312,12 +312,12 @@ WidgetState Widget::getState(void) const
     return STATE_DISABLED;
 }
 
-const Rectangle& Widget::getArea(void) const
+const Rect& Widget::getArea(void) const
 {
   return area;
 }
 
-const Rectangle& Widget::getGlobalArea(void) const
+const Rect& Widget::getGlobalArea(void) const
 {
   globalArea = area;
 
@@ -327,20 +327,20 @@ const Rectangle& Widget::getGlobalArea(void) const
   return globalArea;
 }
 
-void Widget::setArea(const Rectangle& newArea)
+void Widget::setArea(const Rect& newArea)
 {
   area = newArea;
   areaChangedSignal.emit(*this);
 }
 
-void Widget::setSize(const Vector2& newSize)
+void Widget::setSize(const Vec2& newSize)
 {
-  setArea(Rectangle(area.position, newSize));
+  setArea(Rect(area.position, newSize));
 }
 
-void Widget::setPosition(const Vector2& newPosition)
+void Widget::setPosition(const Vec2& newPosition)
 {
-  setArea(Rectangle(newPosition, area.size));
+  setArea(Rect(newPosition, area.size));
 }
 
 void Widget::setVisible(bool newState)
@@ -380,12 +380,12 @@ SignalProxy2<void, Widget&, wchar_t> Widget::getCharInputSignal(void)
   return charInputSignal;
 }
 
-SignalProxy2<void, Widget&, const Vector2&> Widget::getCursorMovedSignal(void)
+SignalProxy2<void, Widget&, const Vec2&> Widget::getCursorMovedSignal(void)
 {
   return cursorMovedSignal;
 }
 
-SignalProxy4<void, Widget&, const Vector2&, unsigned int, bool> Widget::getButtonClickedSignal(void)
+SignalProxy4<void, Widget&, const Vec2&, unsigned int, bool> Widget::getButtonClickedSignal(void)
 {
   return buttonClickedSignal;
 }
@@ -405,17 +405,17 @@ SignalProxy1<void, Widget&> Widget::getCursorLeftSignal(void)
   return cursorLeftSignal;
 }
 
-SignalProxy2<void, Widget&, const Vector2&> Widget::getDragBegunSignal(void)
+SignalProxy2<void, Widget&, const Vec2&> Widget::getDragBegunSignal(void)
 {
   return dragBegunSignal;
 }
 
-SignalProxy2<void, Widget&, const Vector2&> Widget::getDragMovedSignal(void)
+SignalProxy2<void, Widget&, const Vec2&> Widget::getDragMovedSignal(void)
 {
   return dragMovedSignal;
 }
 
-SignalProxy2<void, Widget&, const Vector2&> Widget::getDragEndedSignal(void)
+SignalProxy2<void, Widget&, const Vec2&> Widget::getDragEndedSignal(void)
 {
   return dragEndedSignal;
 }
@@ -496,11 +496,11 @@ void Widget::onCharInput(wchar_t character)
     activeWidget->charInputSignal.emit(*activeWidget, character);
 }
 
-void Widget::onCursorMoved(const Vector2& position)
+void Widget::onCursorMoved(const Vec2& position)
 {
   GL::Context* context = GL::Context::get();
 
-  Vector2 cursorPosition = position;
+  Vec2 cursorPosition = position;
   cursorPosition.y = context->getHeight() - cursorPosition.y;
 
   Widget* newWidget = NULL;
@@ -544,7 +544,7 @@ void Widget::onButtonClicked(unsigned int button, bool clicked)
 {
   input::Context* context = input::Context::get();
 
-  Vector2 cursorPosition = context->getCursorPosition();
+  Vec2 cursorPosition = context->getCursorPosition();
   cursorPosition.y = context->getHeight() - cursorPosition.y;
 
   if (clicked)

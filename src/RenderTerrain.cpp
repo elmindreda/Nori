@@ -69,9 +69,9 @@ void Terrain::enqueue(Queue& queue, const Transform3& transform) const
   mesh->enqueue(queue, transform);
 }
 
-float Terrain::getHeight(const Vector2& position) const
+float Terrain::getHeight(const Vec2& position) const
 {
-  const Vector3 grid = worldToGrid(Vector3(position.x, 0.f, position.y));
+  const Vec3 grid = worldToGrid(Vec3(position.x, 0.f, position.y));
 
   if (grid.x < 0.f || grid.z < 0.f || grid.x >= width || grid.z >= depth)
     return 0.f;
@@ -83,14 +83,14 @@ float Terrain::getHeight(const Vector2& position) const
 
   const Tile& tile = tiles[index];
   
-  Vector3 normal;
+  Vec3 normal;
 
   if (grid.x - floorf(grid.x) > grid.z - floorf(grid.z))
     normal = tile.normals[0];
   else
     normal = tile.normals[1];
 
-  Vector3 corner = gridToWorld(Vector3(floorf(grid.x), 0.f, floorf(grid.z)));
+  Vec3 corner = gridToWorld(Vec3(floorf(grid.x), 0.f, floorf(grid.z)));
   corner.y = tile.height;
   
   const float D = -corner.dot(normal);
@@ -106,7 +106,7 @@ const Sphere& Terrain::getBounds(void) const
 }
 
 Terrain* Terrain::createInstance(const Image& heightmap,
-				 const Vector3& size,
+				 const Vec3& size,
 				 Material& material,
 			         const String& name)
 {
@@ -122,7 +122,7 @@ Terrain::Terrain(const String& name):
 {
 }
 
-bool Terrain::init(const Image& heightmap, const Vector3& initSize, Material& material)
+bool Terrain::init(const Image& heightmap, const Vec3& initSize, Material& material)
 {
   if (heightmap.getFormat() != ImageFormat::GREY8)
   {
@@ -218,18 +218,18 @@ bool Terrain::init(const Image& heightmap, const Vector3& initSize, Material& ma
   return true;
 }
 
-Vector3 Terrain::gridToWorld(const Vector3& grid) const
+Vec3 Terrain::gridToWorld(const Vec3& grid) const
 {
-  const Vector3 scale(size.x / width, size.y / 255.f, size.z / depth);
+  const Vec3 scale(size.x / width, size.y / 255.f, size.z / depth);
 
-  return (grid - Vector3(offset.x, 0.f, offset.y)) * scale;
+  return (grid - Vec3(offset.x, 0.f, offset.y)) * scale;
 }
 
-Vector3 Terrain::worldToGrid(const Vector3& world) const
+Vec3 Terrain::worldToGrid(const Vec3& world) const
 {
-  const Vector3 scale(width / size.x, 255.f / size.y, depth / size.z);
+  const Vec3 scale(width / size.x, 255.f / size.y, depth / size.z);
 
-  return world * scale + Vector3(offset.x, 0.f, offset.y);
+  return world * scale + Vec3(offset.x, 0.f, offset.y);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -315,7 +315,7 @@ bool TerrainCodec::onBeginElement(const String& name)
     if (!material)
       return false;
 
-    Vector3 size;
+    Vec3 size;
     readAttributes(size);
 
     terrain = Terrain::createInstance(*heightmap, size, *material, terrainName);

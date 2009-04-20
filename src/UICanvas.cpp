@@ -77,9 +77,9 @@ void Canvas::onAreaChanged(Widget& widget)
 {
   GL::Context* context = GL::Context::get();
 
-  Rectangle normalizedArea = getGlobalArea();
-  normalizedArea *= Vector2(1.f / context->getWidth(),
-                            1.f / context->getHeight());
+  Rect normalizedArea = getGlobalArea();
+  normalizedArea *= Vec2(1.f / context->getWidth(),
+                         1.f / context->getHeight());
 
   canvas.setViewportArea(normalizedArea);
 }

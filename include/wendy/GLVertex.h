@@ -147,7 +147,7 @@ private:
 class Vertex3fv
 {
 public:
-  Vector3 position;
+  Vec3 position;
   static const VertexFormat format;
 };
 
@@ -158,8 +158,8 @@ public:
 class Vertex3fn3fv
 {
 public:
-  Vector3 normal;
-  Vector3 position;
+  Vec3 normal;
+  Vec3 position;
   static const VertexFormat format;
 };
 
@@ -170,7 +170,7 @@ public:
 class Vertex2fv
 {
 public:
-  Vector2 position;
+  Vec2 position;
   static const VertexFormat format;
 };
 
@@ -181,8 +181,8 @@ public:
 class Vertex2ft2fv
 {
 public:
-  Vector2 mapping;
-  Vector2 position;
+  Vec2 mapping;
+  Vec2 position;
   static const VertexFormat format;
 };
 
@@ -193,8 +193,8 @@ public:
 class Vertex2ft3fv
 {
 public:
-  Vector2 mapping;
-  Vector3 position;
+  Vec2 mapping;
+  Vec3 position;
   static const VertexFormat format;
 };
 
@@ -206,8 +206,8 @@ class Vertex4fc2ft3fv
 {
 public:
   ColorRGBA color;
-  Vector2 mapping;
-  Vector3 position;
+  Vec2 mapping;
+  Vec3 position;
   static const VertexFormat format;
 };
 

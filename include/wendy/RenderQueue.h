@@ -103,7 +103,7 @@ public:
   /*! The local-to-world transformation. Leave this set to identity if the
    *  geometry already is in world space.
    */
-  Matrix4 transform;
+  Mat4 transform;
   /*! The distance from the camera to the geometry rendered by this operation.
    *  It must be set for blending operations, but should also be set for opaque
    *  operations.

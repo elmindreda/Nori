@@ -61,7 +61,7 @@ public:
    *
    *  @remarks The point is in global coordinates.
    */
-  Widget* findWidgetByPoint(const Vector2& point);
+  Widget* findWidgetByPoint(const Vec2& point);
   /*! Makes this the active desktop.
    */
   void activate(void);
@@ -75,8 +75,8 @@ public:
   SignalProxy2<void, Desktop&, bool> getFocusChangedSignal(void);
   SignalProxy3<void, Widget&, input::Key, bool> getKeyPressedSignal(void);
   SignalProxy2<void, Widget&, wchar_t> getCharInputSignal(void);
-  SignalProxy2<void, Widget&, const Vector2&> getCursorMovedSignal(void);
-  SignalProxy4<void, Widget&, const Vector2&, unsigned int, bool> getButtonClickedSignal(void);
+  SignalProxy2<void, Widget&, const Vec2&> getCursorMovedSignal(void);
+  SignalProxy4<void, Widget&, const Vec2&, unsigned int, bool> getButtonClickedSignal(void);
   SignalProxy2<void, Widget&, int> getWheelTurnedSignal(void);
   /*! @return The active widget, or @c NULL if no widget is active.
    */
@@ -92,15 +92,15 @@ protected:
 private:
   static void onKeyPressed(input::Key key, bool pressed);
   static void onCharInput(wchar_t character);
-  static void onCursorMoved(const Vector2& position);
+  static void onCursorMoved(const Vec2& position);
   static void onButtonClicked(unsigned int button, bool clicked);
   static void onWheelTurned(int offset);
   Signal1<void, Widget&> destroyedSignal;
   Signal2<void, Widget&, bool> focusChangedSignal;
   Signal3<void, Widget&, input::Key, bool> keyPressedSignal;
   Signal2<void, Widget&, wchar_t> charInputSignal;
-  Signal2<void, Widget&, const Vector2&> cursorMovedSignal;
-  Signal4<void, Widget&, const Vector2&, unsigned int, bool> buttonClickedSignal;
+  Signal2<void, Widget&, const Vec2&> cursorMovedSignal;
+  Signal4<void, Widget&, const Vec2&, unsigned int, bool> buttonClickedSignal;
   Signal2<void, Widget&, int> wheelTurnedSignal;
   Signal1<void, Widget&> cursorEnteredSignal;
   Signal1<void, Widget&> cursorLeftSignal;

@@ -255,13 +255,13 @@ public:
   SpriteNode(void);
   Material* getMaterial(void) const;
   void setMaterial(Material* newMaterial);
-  const Vector2& getSpriteSize(void) const;
-  void setSpriteSize(const Vector2& newSize);
+  const Vec2& getSpriteSize(void) const;
+  void setSpriteSize(const Vec2& newSize);
 protected:
   void enqueue(Queue& queue, QueuePhase phase) const;
 private:
   Ref<Material> material;
-  Vector2 spriteSize;
+  Vec2 spriteSize;
 };
 
 ///////////////////////////////////////////////////////////////////////

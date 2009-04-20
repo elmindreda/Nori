@@ -149,7 +149,7 @@ void Layout::removedFromParent(Widget& parent)
 void Layout::onAreaChanged(Widget& widget)
 {
   if (expanding)
-    setArea(Rectangle(Vector2::ZERO, widget.getArea().size));
+    setArea(Rect(Vec2::ZERO, widget.getArea().size));
 
   update();
 }
@@ -157,7 +157,7 @@ void Layout::onAreaChanged(Widget& widget)
 void Layout::update(void)
 {
   const List& children = getChildren();
-  const Vector2& size = getArea().size;
+  const Vec2& size = getArea().size;
   unsigned int flexibleCount = 0;
 
   if (orientation == VERTICAL)
@@ -188,7 +188,7 @@ void Layout::update(void)
 	height = flexibleSize;
 
       position -= height + borderSize;
-      (*i)->setArea(Rectangle(borderSize, position, width, height));
+      (*i)->setArea(Rect(borderSize, position, width, height));
     }
   }
   else
@@ -219,7 +219,7 @@ void Layout::update(void)
 	width = flexibleSize;
 
       position -= width + borderSize;
-      (*i)->setArea(Rectangle(position, borderSize, width, height));
+      (*i)->setArea(Rect(position, borderSize, width, height));
     }
   }
 }

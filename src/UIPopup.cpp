@@ -65,7 +65,7 @@ Popup::Popup(void):
 {
   const float em = Renderer::get()->getDefaultEM();
 
-  setSize(Vector2(em * 10.f, em * 2.f));
+  setSize(Vec2(em * 10.f, em * 2.f));
 
   getKeyPressedSignal().connect(*this, &Popup::onKeyPressed);
   getButtonClickedSignal().connect(*this, &Popup::onButtonClicked);
@@ -140,7 +140,7 @@ SignalProxy2<void, Popup&, unsigned int> Popup::getItemSelectedSignal(void)
 
 void Popup::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
@@ -153,7 +153,7 @@ void Popup::draw(void) const
 
       const float em = Renderer::get()->getDefaultEM();
 
-      Rectangle textArea = area;
+      Rect textArea = area;
       textArea.position.x += em / 2.f;
       textArea.size.x -= em;
 
@@ -169,13 +169,13 @@ void Popup::draw(void) const
 void Popup::display(void)
 {
   const float width = std::max(menu->getArea().size.x, getArea().size.x);
-  menu->setArea(Rectangle(getGlobalArea().position,
-                          Vector2(width, menu->getArea().size.y)));
+  menu->setArea(Rect(getGlobalArea().position,
+                     Vec2(width, menu->getArea().size.y)));
   menu->display();
 }
 
 void Popup::onButtonClicked(Widget& widget,
-		            const Vector2& position,
+		            const Vec2& position,
 		            unsigned int button,
 		            bool clicked)
 {

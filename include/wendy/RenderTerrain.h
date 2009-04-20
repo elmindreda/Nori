@@ -52,23 +52,23 @@ public:
    *  @return The height of the terrain at the specified position.
    *  @remarks The y-coordinate of the position is mapped to the z-axis.
    */
-  float getHeight(const Vector2& position) const;
+  float getHeight(const Vec2& position) const;
   const Sphere& getBounds(void) const;
   static Terrain* createInstance(const Image& heightmap,
-				 const Vector3& size,
+				 const Vec3& size,
 				 Material& material,
                                  const String& name = "");
 private:
   struct Tile;
   Terrain(const String& name);
-  bool init(const Image& heightmap, const Vector3& size, Material& material);
-  Vector3 gridToWorld(const Vector3& grid) const;
-  Vector3 worldToGrid(const Vector3& world) const;
+  bool init(const Image& heightmap, const Vec3& size, Material& material);
+  Vec3 gridToWorld(const Vec3& grid) const;
+  Vec3 worldToGrid(const Vec3& world) const;
   typedef std::vector<Tile> TileList;
   unsigned int width;
   unsigned int depth;
-  Vector3 size;
-  Vector2 offset;
+  Vec3 size;
+  Vec2 offset;
   TileList tiles;
   Ref<Mesh> mesh;
   Sphere bounds;
@@ -80,7 +80,7 @@ private:
  */
 struct Terrain::Tile
 {
-  Vector3 normals[2];
+  Vec3 normals[2];
   float height;
 };
 

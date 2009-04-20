@@ -42,8 +42,8 @@ namespace wendy
 
 Light::Light(void):
   intensity(ColorRGB::WHITE),
-  position(Vector3::ZERO),
-  bounds(Vector3::ZERO, 1.f)
+  position(Vec3::ZERO),
+  bounds(Vec3::ZERO, 1.f)
 {
 }
 
@@ -57,12 +57,12 @@ void Light::setIntensity(const ColorRGB& newIntensity)
   intensity = newIntensity;
 }
 
-const Vector3 Light::getPosition(void) const
+const Vec3 Light::getPosition(void) const
 {
   return position;
 }
 
-void Light::setPosition(const Vector3& newPosition)
+void Light::setPosition(const Vec3& newPosition)
 {
   position = newPosition;
 }

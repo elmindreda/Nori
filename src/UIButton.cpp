@@ -72,7 +72,7 @@ Button::Button(const String& initText):
   else
     textWidth = renderer->getDefaultFont()->getTextMetrics(text).size.x;
 
-  setSize(Vector2(em * 2.f + textWidth, em * 2.f));
+  setSize(Vec2(em * 2.f + textWidth, em * 2.f));
 
   getButtonClickedSignal().connect(*this, &Button::onButtonClicked);
   getKeyPressedSignal().connect(*this, &Button::onKeyPressed);
@@ -95,7 +95,7 @@ SignalProxy1<void, Button&> Button::getPushedSignal(void)
 
 void Button::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
@@ -109,7 +109,7 @@ void Button::draw(void) const
 }
 
 void Button::onButtonClicked(Widget& widget,
-                             const Vector2& position,
+                             const Vec2& position,
 			     unsigned int button,
 			     bool clicked)
 {

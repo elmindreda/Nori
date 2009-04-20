@@ -94,7 +94,7 @@ SignalProxy1<void, ColorPickerRGB&> ColorPickerRGB::getValueChangedSignal(void)
 
 void ColorPickerRGB::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))

@@ -315,11 +315,11 @@ bool Editor::init(const String& showName)
     mainLayout->addChild(*timelineLayout, 0.f);
 
     UI::Layout* playLayout = new UI::Layout(UI::HORIZONTAL, false);
-    playLayout->setSize(Vector2(em * 2.f, em * 2.f));
+    playLayout->setSize(Vec2(em * 2.f, em * 2.f));
     timelineLayout->addChild(*playLayout);
 
     UI::Slider* zoomSlider = new UI::Slider();
-    zoomSlider->setSize(Vector2(em * 10.f, 0.f));
+    zoomSlider->setSize(Vec2(em * 10.f, 0.f));
     zoomSlider->setValueRange(1.f, 10.f);
     zoomSlider->setValue(1.f);
     zoomSlider->getValueChangedSignal().connect(*this, &Editor::onZoomChanged);
@@ -330,22 +330,22 @@ bool Editor::init(const String& showName)
     playLayout->addChild(*timeDisplay, 0.f);
 
     parentPopup = new UI::Popup();
-    parentPopup->setSize(Vector2(em * 10.f, 0.f));
+    parentPopup->setSize(Vec2(em * 10.f, 0.f));
     parentPopup->getItemSelectedSignal().connect(*this, &Editor::onParentSelected);
     playLayout->addChild(*parentPopup);
 
     button = new UI::Button("Maali");
-    button->setSize(Vector2(em * 6.f, 0.f));
+    button->setSize(Vec2(em * 6.f, 0.f));
     button->getPushedSignal().connect(*this, &Editor::onMaali);
     playLayout->addChild(*button);
 
     button = new UI::Button("||");
-    button->setSize(Vector2(em * 4.f, 0.f));
+    button->setSize(Vec2(em * 4.f, 0.f));
     button->getPushedSignal().connect(*this, &Editor::onPauseResume);
     playLayout->addChild(*button);
 
     button = new UI::Button("|<");
-    button->setSize(Vector2(em * 4.f, 0.f));
+    button->setSize(Vec2(em * 4.f, 0.f));
     button->getPushedSignal().connect(*this, &Editor::onRewind);
     playLayout->addChild(*button);
 
@@ -517,7 +517,7 @@ void Editor::onZoomChanged(UI::Slider& slider)
 
 void Editor::onResized(unsigned int width, unsigned int height)
 {
-  book->setSize(Vector2((float) width, (float) height));
+  book->setSize(Vec2((float) width, (float) height));
 }
 
 void Editor::onKeyPressed(input::Key key, bool pressed)

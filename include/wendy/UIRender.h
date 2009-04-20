@@ -112,31 +112,31 @@ public:
    *  @return @c true if successful, or @c false if the specified area
    *  would result in a null total clipping area.
    */
-  bool pushClipArea(const Rectangle& area);
+  bool pushClipArea(const Rect& area);
   /*! Pops the top clipping area from the clip stack, restoring the
    *  previously current clipping area.
    */
   void popClipArea(void);
-  void drawPoint(const Vector2& point, const ColorRGBA& color);
+  void drawPoint(const Vec2& point, const ColorRGBA& color);
   void drawLine(const Segment2& segment, const ColorRGBA& color);
   void drawTriangle(const Triangle2& triangle, const ColorRGBA& color);
   void drawBezier(const BezierCurve2& spline, const ColorRGBA& color);
-  void drawRectangle(const Rectangle& rectangle, const ColorRGBA& color);
-  void fillRectangle(const Rectangle& rectangle, const ColorRGBA& color);
+  void drawRectangle(const Rect& rectangle, const ColorRGBA& color);
+  void fillRectangle(const Rect& rectangle, const ColorRGBA& color);
   void fillTriangle(const Triangle2& triangle, const ColorRGBA& color);
-  void blitTexture(const Rectangle& area, GL::Texture& texture);
-  void drawText(const Rectangle& area,
+  void blitTexture(const Rect& area, GL::Texture& texture);
+  void drawText(const Rect& area,
                 const String& text,
 		const Alignment& alignment,
 		const ColorRGB& color);
-  void drawText(const Rectangle& area,
+  void drawText(const Rect& area,
                 const String& text,
 		const Alignment& alignment = Alignment(),
 		WidgetState state = STATE_NORMAL);
-  void drawWell(const Rectangle& area, WidgetState state);
-  void drawFrame(const Rectangle& area, WidgetState state);
-  void drawHandle(const Rectangle& area, WidgetState state);
-  void drawButton(const Rectangle& area, WidgetState state, const String& text = "");
+  void drawWell(const Rect& area, WidgetState state);
+  void drawFrame(const Rect& area, WidgetState state);
+  void drawHandle(const Rect& area, WidgetState state);
+  void drawButton(const Rect& area, WidgetState state, const String& text = "");
   const ColorRGB& getWidgetColor(void);
   const ColorRGB& getTextColor(void);
   const ColorRGB& getWellColor(void);

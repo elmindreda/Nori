@@ -75,7 +75,7 @@ void Page::setText(const String& newText)
 
 void Page::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
@@ -121,7 +121,7 @@ SignalProxy1<void, Book&> Book::getPageChangedSignal(void)
 
 void Book::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
@@ -133,14 +133,14 @@ void Book::draw(void) const
     {
       const float em = Renderer::get()->getDefaultEM();
 
-      const Vector2& size = getArea().size;
+      const Vec2& size = getArea().size;
 
       const float width = size.x / pages.size();
       const float height = em * 2.f;
 
       for (unsigned int i = 0;  i < pages.size();  i++)
       {
-        Rectangle buttonArea;
+        Rect buttonArea;
         buttonArea.set(width * i, size.y - height, width, height);
 
         WidgetState state;
@@ -170,9 +170,9 @@ void Book::addedChild(Widget& child)
   {
     const float em = Renderer::get()->getDefaultEM();
 
-    const Vector2& size = getArea().size;
+    const Vec2& size = getArea().size;
 
-    page->setArea(Rectangle(0.f, 0.f, size.x, size.y - em * 2.f));
+    page->setArea(Rect(0.f, 0.f, size.x, size.y - em * 2.f));
 
     if (activePage)
       page->setVisible(false);
@@ -239,10 +239,10 @@ void Book::onAreaChanged(Widget& widget)
 
   const float em = Renderer::get()->getDefaultEM();
 
-  const Vector2& size = getArea().size;
+  const Vec2& size = getArea().size;
 
   for (PageList::const_iterator i = pages.begin();  i != pages.end();  i++)
-    (*i)->setArea(Rectangle(0.f, 0.f, size.x, size.y - em * 2.f));
+    (*i)->setArea(Rect(0.f, 0.f, size.x, size.y - em * 2.f));
 }
 
 void Book::onKeyPressed(Widget& widgeth, input::Key key, bool pressed)
@@ -281,7 +281,7 @@ void Book::onKeyPressed(Widget& widgeth, input::Key key, bool pressed)
 }
 
 void Book::onButtonClicked(Widget& widget,
-		           const Vector2& point,
+		           const Vec2& point,
 		           unsigned int button,
 		           bool clicked)
 {

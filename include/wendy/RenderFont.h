@@ -68,11 +68,11 @@ public:
   float getHeight(void) const;
   /*! @return The current pen position, in screen units.
    */
-  const Vector2& getPenPosition(void) const;
+  const Vec2& getPenPosition(void) const;
   /*! Sets the current pen position.
    *  @param newPosition The desired pen position, in screen units.
    */
-  void setPenPosition(const Vector2& newPosition);
+  void setPenPosition(const Vec2& newPosition);
   /*! @return The color and opacity values for glyphs drawn with this font.
    */
   const ColorRGBA& getColor(void) const;
@@ -90,12 +90,12 @@ public:
    *  @return The bounding rectangle, in pixels, of the specified text as
    *  rendered by this font.
    */
-  Rectangle getTextMetrics(const String& text) const;
+  Rect getTextMetrics(const String& text) const;
   /*! @param format The format string for the text to measure.
    *  @return The bounding rectangle, in pixels, of the specified text as
    *  rendered by this font.
    */
-  Rectangle getTextMetrics(const char* format, ...) const;
+  Rect getTextMetrics(const char* format, ...) const;
   /*! Calculates the layout of glyphs for the specified text.
    */
   void getTextLayout(LayoutList& result, const String& text) const;
@@ -118,8 +118,8 @@ private:
   typedef std::map<char, Glyph*> GlyphMap;
   GlyphList glyphs;
   GlyphMap glyphMap;
-  Vector2 penPosition;
-  Vector2 size;
+  Vec2 penPosition;
+  Vec2 size;
   float ascender;
   float descender;
   GL::RenderState pass;
@@ -133,8 +133,8 @@ private:
 class Font::Layout
 {
 public:
-  Rectangle area;
-  Vector2 penOffset;
+  Rect area;
+  Vec2 penOffset;
   char character;
 };
 
@@ -145,10 +145,10 @@ public:
 class Font::Glyph
 {
 public:
-  void realizeVertices(Vector2 penPosition, GL::Vertex2ft2fv* vertices) const;
-  Rectangle area;
-  Vector2 bearing;
-  Vector2 size;
+  void realizeVertices(Vec2 penPosition, GL::Vertex2ft2fv* vertices) const;
+  Rect area;
+  Vec2 bearing;
+  Vec2 size;
   float advance;
 };
 

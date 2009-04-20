@@ -72,7 +72,7 @@ Label::Label(const String& initText):
   else
     textWidth = renderer->getDefaultFont()->getTextMetrics(text).size.x;
 
-  setSize(Vector2(em * 2.f + textWidth, em * 2.f));
+  setSize(Vec2(em * 2.f + textWidth, em * 2.f));
 }
 
 const String& Label::getText(void) const
@@ -110,7 +110,7 @@ void Label::setTextAlignment(const Alignment& newAlignment)
 
 void Label::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))

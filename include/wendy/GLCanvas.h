@@ -82,7 +82,7 @@ public:
    *  }
    *  @endcode
    */
-  bool pushScissorArea(const Rectangle& area);
+  bool pushScissorArea(const Rect& area);
   /*! Pops the top area from the scissor area clip stack.
    */
   void popScissorArea(void);
@@ -108,14 +108,14 @@ public:
   float getPhysicalAspectRatio(void) const;
   /*! @return The scissor rectangle of this canvas.
    */
-  const Rectangle& getScissorArea(void) const;
+  const Rect& getScissorArea(void) const;
   /*! @return The viewport rectangle of this canvas.
    */
-  const Rectangle& getViewportArea(void) const;
+  const Rect& getViewportArea(void) const;
   /*! Sets the viewport rectangle for this canvas.
    *  @param[in] newArea The desired viewport rectangle.
    */
-  void setViewportArea(const Rectangle& newArea);
+  void setViewportArea(const Rect& newArea);
   /*! @return The current canvas, or @c NULL if there is no current
    *  canvas.
    */
@@ -130,8 +130,8 @@ protected:
 private:
   Canvas(const Canvas& source);
   Canvas& operator = (const Canvas& source);
-  RectangleClipStack scissorStack;
-  Rectangle viewportArea;
+  RectClipStack scissorStack;
+  Rect viewportArea;
   static Canvas* current;
 };
 

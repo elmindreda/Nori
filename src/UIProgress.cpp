@@ -67,9 +67,9 @@ Progress::Progress(Orientation initOrientation):
   const float em = Renderer::get()->getDefaultEM();
 
   if (orientation == HORIZONTAL)
-    setSize(Vector2(em * 10.f, em * 1.5f));
+    setSize(Vec2(em * 10.f, em * 1.5f));
   else
-    setSize(Vector2(em * 1.5f, em * 10.f));
+    setSize(Vec2(em * 1.5f, em * 10.f));
 }
 
 float Progress::getMinValue(void) const
@@ -115,7 +115,7 @@ void Progress::setOrientation(Orientation newOrientation)
 
 void Progress::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
@@ -124,7 +124,7 @@ void Progress::draw(void) const
 
     const float position = (value - minValue) / (maxValue - minValue);
 
-    Rectangle handleArea;
+    Rect handleArea;
 
     if (orientation == HORIZONTAL)
     {

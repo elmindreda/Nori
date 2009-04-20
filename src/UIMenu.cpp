@@ -175,7 +175,7 @@ SignalProxy2<void, Menu&, unsigned int> Menu::getItemSelectedSignal(void)
 
 void Menu::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
@@ -192,7 +192,7 @@ void Menu::draw(void) const
       if (height + itemTop < 0.f)
 	break;
 
-      Rectangle itemArea = area;
+      Rect itemArea = area;
       itemArea.position.y += itemTop - height;
       itemArea.size.y = height;
 
@@ -214,9 +214,9 @@ void Menu::onFocusChanged(Widget& widget, bool activated)
     setVisible(false);
 }
 
-void Menu::onCursorMoved(Widget& widget, const Vector2& position)
+void Menu::onCursorMoved(Widget& widget, const Vec2& position)
 {
-  Vector2 localPosition = transformToLocal(position);
+  Vec2 localPosition = transformToLocal(position);
 
   unsigned int index = 0;
 
@@ -241,14 +241,14 @@ void Menu::onCursorMoved(Widget& widget, const Vector2& position)
 }
 
 void Menu::onButtonClicked(Widget& widget,
-                           const Vector2& position,
+                           const Vec2& position,
 			   unsigned int button,
 			   bool clicked)
 {
   if (clicked)
     return;
 
-  Vector2 localPosition = transformToLocal(position);
+  Vec2 localPosition = transformToLocal(position);
 
   unsigned int index = 0;
 
@@ -306,9 +306,9 @@ void Menu::onKeyPressed(Widget& widget, input::Key key, bool pressed)
   }
 }
 
-void Menu::onDragEnded(Widget& widget, const Vector2& position)
+void Menu::onDragEnded(Widget& widget, const Vec2& position)
 {
-  Vector2 localPosition = transformToLocal(position);
+  Vec2 localPosition = transformToLocal(position);
 
   if (!getArea().contains(localPosition))
     setVisible(false);
@@ -316,7 +316,7 @@ void Menu::onDragEnded(Widget& widget, const Vector2& position)
 
 void Menu::sizeToFit(void)
 {
-  Vector2 size(0.f, 2.f);
+  Vec2 size(0.f, 2.f);
 
   for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
   {

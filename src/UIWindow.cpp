@@ -65,7 +65,7 @@ Window::Window(const String& initTitle):
 
 void Window::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))

@@ -56,9 +56,9 @@ public:
   void render(const Material& material) const;
   void realizeVertices(GL::Vertex2ft2fv* vertices) const;
   void setDefaults(void);
-  Rectangle mapping;
-  Vector2 position;
-  Vector2 size;
+  Rect mapping;
+  Vec2 position;
+  Vec2 size;
   float angle;
 };
 
@@ -73,10 +73,10 @@ public:
   void enqueue(Queue& queue, const Transform3& transform) const;
   void realizeVertices(GL::Vertex2ft3fv* vertices,
                        const Transform3& transform,
-                       const Vector3& camera) const;
+                       const Vec3& camera) const;
   void setDefaults(void);
-  Vector3 position;
-  Vector2 size;
+  Vec3 position;
+  Vec2 size;
   float angle;
   SpriteType3 type;
   Ref<Material> material;
@@ -91,15 +91,15 @@ class SpriteCloud3 : public Renderable
 public:
   struct Slot
   {
-    Vector3 position;
+    Vec3 position;
     float angle;
-    Vector2 size;
+    Vec2 size;
   };
   SpriteCloud3(void);
   void enqueue(Queue& queue, const Transform3& transform) const;
   void realizeVertices(GL::Vertex2ft3fv* vertices,
                        const Transform3& transform,
-                       const Vector3& camera) const;
+                       const Vec3& camera) const;
   typedef std::vector<Slot> SlotList;
   SlotList slots;
   SpriteType3 type;

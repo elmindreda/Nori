@@ -57,24 +57,24 @@ using namespace moira;
 namespace
 {
 
-void rotateVector2(Vector2& vector, float angle)
+void rotateVec2(Vec2& vector, float angle)
 {
   const float sina = sinf(angle);
   const float cosa = cosf(angle);
 
-  Vector2 result;
+  Vec2 result;
 
   result.x = vector.x * cosa - vector.y * sina;
   result.y = vector.x * sina + vector.y * cosa;
   vector = result;
 }
 
-void rotateVector3(Vector3& vector, float angle)
+void rotateVec3(Vec3& vector, float angle)
 {
   const float sina = sinf(angle);
   const float cosa = cosf(angle);
 
-  Vector3 result;
+  Vec3 result;
 
   result.x = vector.x * cosa - vector.y * sina;
   result.y = vector.x * sina + vector.y * cosa;
@@ -83,13 +83,13 @@ void rotateVector3(Vector3& vector, float angle)
 }
 
 void realizeSpriteVertices(GL::Vertex2ft3fv* vertices,
-			   const Vector3& camera,
-                           const Vector3& position,
-		           const Vector2& size,
+			   const Vec3& camera,
+                           const Vec3& position,
+		           const Vec2& size,
 		           float angle,
 			   SpriteType3 type)
 {
-  const Vector2 offset(size.x / 2.f, size.y / 2.f);
+  const Vec2 offset(size.x / 2.f, size.y / 2.f);
 
   if (type == STATIC_SPRITE)
   {
@@ -104,7 +104,7 @@ void realizeSpriteVertices(GL::Vertex2ft3fv* vertices,
 
     for (unsigned int i = 0;  i < 4;  i++)
     {
-      rotateVector3(vertices[i].position, angle);
+      rotateVec3(vertices[i].position, angle);
       vertices[i].position += position;
     }
   }
@@ -113,20 +113,20 @@ void realizeSpriteVertices(GL::Vertex2ft3fv* vertices,
   }
   else if (type == SPHERICAL_SPRITE)
   {
-    Vector3 direction = (camera - position).normalized();
+    Vec3 direction = (camera - position).normalized();
 
-    Quaternion final;
+    Quat final;
     final.setVectorRotation(direction);
 
     if (angle != 0.f)
     {
-      Quaternion local;
-      local.setAxisRotation(Vector3(0.f, 0.f, 1.f), angle);
+      Quat local;
+      local.setAxisRotation(Vec3(0.f, 0.f, 1.f), angle);
 
       final = final * local;
     }
 
-    Vector3 positions[4];
+    Vec3 positions[4];
 
     positions[0].set(-offset.x, -offset.y, 0.f);
     positions[1].set( offset.x, -offset.y, 0.f);
@@ -204,7 +204,7 @@ void Sprite2::render(const Material& material) const
 
 void Sprite2::realizeVertices(GL::Vertex2ft2fv* vertices) const
 {
-  const Vector2 offset(size.x / 2.f, size.y / 2.f);
+  const Vec2 offset(size.x / 2.f, size.y / 2.f);
 
   vertices[0].mapping.set(mapping.position.x + mapping.size.x, mapping.position.y + mapping.size.y);
   vertices[0].position.set( offset.x,  offset.y);
@@ -217,14 +217,14 @@ void Sprite2::realizeVertices(GL::Vertex2ft2fv* vertices) const
 
   for (unsigned int i = 0;  i < 4;  i++)
   {
-    rotateVector2(vertices[i].position, angle);
+    rotateVec2(vertices[i].position, angle);
     vertices[i].position += position;
   }
 }
 
 void Sprite2::setDefaults(void)
 {
-  mapping.set(Vector2::ZERO, Vector2::ONE);
+  mapping.set(Vec2::ZERO, Vec2::ONE);
   position.set(0.f, 0.f);
   size.set(1.f, 1.f);
   angle = 0.f;
@@ -263,13 +263,13 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
   if (!GL::Renderer::get()->allocateVertices(range, 4, GL::Vertex2ft3fv::format))
     return;
 
-  const Vector3 camera = queue.getCamera().getTransform().position;
+  const Vec3 camera = queue.getCamera().getTransform().position;
 
   GL::Vertex2ft3fv vertices[4];
   realizeVertices(vertices, transform, camera);
   range.copyFrom(vertices);
 
-  Vector3 position = Vector3::ZERO;
+  Vec3 position = Vec3::ZERO;
   transform.transformVector(position);
 
   Operation& operation = queue.createOperation();
@@ -284,12 +284,12 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
 
 void Sprite3::realizeVertices(GL::Vertex2ft3fv* vertices,
                               const Transform3& transform,
-                              const Vector3& camera) const
+                              const Vec3& camera) const
 {
   Transform3 inverse = transform;
   inverse.invert();
   
-  Vector3 localCamera = camera;
+  Vec3 localCamera = camera;
   inverse.transformVector(localCamera);
 
   realizeSpriteVertices(vertices, localCamera, position, size, angle, type);
@@ -346,12 +346,12 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   if (!vertices)
     return;
 
-  const Vector3 camera = queue.getCamera().getTransform().position;
+  const Vec3 camera = queue.getCamera().getTransform().position;
 
   realizeVertices(vertices, transform, camera);
   range.unlock();
 
-  Vector3 position = Vector3::ZERO;
+  Vec3 position = Vec3::ZERO;
   transform.transformVector(position);
 
   Operation& operation = queue.createOperation();
@@ -367,12 +367,12 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
 
 void SpriteCloud3::realizeVertices(GL::Vertex2ft3fv* vertices,
                                    const Transform3& transform,
-                                   const Vector3& camera) const
+                                   const Vec3& camera) const
 {
   Transform3 inverse = transform;
   inverse.invert();
   
-  Vector3 localCamera = camera;
+  Vec3 localCamera = camera;
   inverse.transformVector(localCamera);
 
   for (unsigned int i = 0;  i < slots.size();  i++)

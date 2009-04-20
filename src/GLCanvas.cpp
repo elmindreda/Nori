@@ -49,7 +49,7 @@ using namespace moira;
 
 Canvas::Canvas(void)
 {
-  scissorStack.push(Rectangle(0.f, 0.f, 1.f, 1.f));
+  scissorStack.push(Rect(0.f, 0.f, 1.f, 1.f));
   viewportArea.set(0.f, 0.f, 1.f, 1.f);
 }
 
@@ -83,7 +83,7 @@ void Canvas::end(void) const
   current = NULL;
 }
 
-bool Canvas::pushScissorArea(const Rectangle& area)
+bool Canvas::pushScissorArea(const Rect& area)
 {
   if (!scissorStack.push(area))
     return false;
@@ -101,7 +101,7 @@ void Canvas::popScissorArea(void)
 
   scissorStack.pop();
 
-  if (scissorStack.getTotal() != Rectangle(0.f, 0.f, 1.f, 1.f))
+  if (scissorStack.getTotal() != Rect(0.f, 0.f, 1.f, 1.f))
     glEnable(GL_SCISSOR_TEST);
   else
     glDisable(GL_SCISSOR_TEST);
@@ -160,20 +160,20 @@ float Canvas::getPhysicalAspectRatio(void) const
   return getPhysicalWidth() / (float) getPhysicalHeight();
 }
 
-const Rectangle& Canvas::getScissorArea(void) const
+const Rect& Canvas::getScissorArea(void) const
 {
   return scissorStack.getTotal();
 }
 
-const Rectangle& Canvas::getViewportArea(void) const
+const Rect& Canvas::getViewportArea(void) const
 {
   return viewportArea;
 }
 
-void Canvas::setViewportArea(const Rectangle& newArea)
+void Canvas::setViewportArea(const Rect& newArea)
 {
   viewportArea = newArea;
-  viewportArea.clipBy(Rectangle(0.f, 0.f, 1.f, 1.f));
+  viewportArea.clipBy(Rect(0.f, 0.f, 1.f, 1.f));
 
   if (current == this)
     updateViewportArea();
@@ -220,9 +220,9 @@ void ScreenCanvas::finish(void) const
 
 void ScreenCanvas::updateScissorArea(void) const
 {
-  const Rectangle& viewportArea = getViewportArea();
+  const Rect& viewportArea = getViewportArea();
 
-  Rectangle area = getScissorArea();
+  Rect area = getScissorArea();
   area *= viewportArea.size;
   area.position += viewportArea.position;
 
@@ -234,7 +234,7 @@ void ScreenCanvas::updateScissorArea(void) const
 	    (GLsizei) ceilf(area.size.x * width),
 	    (GLsizei) ceilf(area.size.y * height));
 
-  if (area == Rectangle(0.f, 0.f, 1.f, 1.f))
+  if (area == Rect(0.f, 0.f, 1.f, 1.f))
     glDisable(GL_SCISSOR_TEST);
   else
     glEnable(GL_SCISSOR_TEST);
@@ -242,7 +242,7 @@ void ScreenCanvas::updateScissorArea(void) const
 
 void ScreenCanvas::updateViewportArea(void) const
 {
-  const Rectangle& area = getViewportArea();
+  const Rect& area = getViewportArea();
 
   const unsigned int width = getPhysicalWidth();
   const unsigned int height = getPhysicalHeight();
@@ -321,9 +321,9 @@ void TextureCanvas::finish(void) const
 
 void TextureCanvas::updateScissorArea(void) const
 {
-  const Rectangle& viewportArea = getViewportArea();
+  const Rect& viewportArea = getViewportArea();
 
-  Rectangle area = getScissorArea();
+  Rect area = getScissorArea();
   area *= viewportArea.size;
   area.position += viewportArea.position;
 
@@ -335,7 +335,7 @@ void TextureCanvas::updateScissorArea(void) const
 	    (GLsizei) (area.size.x * width),
 	    (GLsizei) (area.size.y * height));
 
-  if (area == Rectangle(0.f, 0.f, 1.f, 1.f))
+  if (area == Rect(0.f, 0.f, 1.f, 1.f))
     glDisable(GL_SCISSOR_TEST);
   else
     glEnable(GL_SCISSOR_TEST);
@@ -343,7 +343,7 @@ void TextureCanvas::updateScissorArea(void) const
 
 void TextureCanvas::updateViewportArea(void) const
 {
-  const Rectangle& area = getViewportArea();
+  const Rect& area = getViewportArea();
 
   const unsigned int width = getPhysicalWidth();
   const unsigned int height = getPhysicalHeight();

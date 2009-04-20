@@ -53,14 +53,14 @@ class Canvas;
 class Renderer : public Trackable, public Singleton<Renderer>
 {
 public:
-  void begin(const Matrix4& projection);
+  void begin(const Mat4& projection);
   void begin2D(float width, float height);
   void begin3D(float FOV = 90.f,
                float aspect = 0.f,
 	       float nearZ = 0.01f,
 	       float farZ = 1000.f);
   void end(void);
-  void pushTransform(const Matrix4& transform);
+  void pushTransform(const Mat4& transform);
   void popTransform(void);
   void render(void);
   /*! Allocates a range of indices of the specified type.
@@ -111,7 +111,7 @@ private:
   typedef std::list<IndexBufferSlot> IndexBufferList;
   typedef std::list<VertexBufferSlot> VertexBufferList;
   Context& context;
-  Matrix4 projection;
+  Mat4 projection;
   MatrixStack4 modelview;
   IndexBufferList indexBufferPool;
   VertexBufferList vertexBufferPool;

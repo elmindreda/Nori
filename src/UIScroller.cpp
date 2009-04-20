@@ -68,9 +68,9 @@ Scroller::Scroller(Orientation initOrientation):
   const float em = Renderer::get()->getDefaultEM();
 
   if (orientation == HORIZONTAL)
-    setSize(Vector2(em * 10.f, em * 1.5f));
+    setSize(Vec2(em * 10.f, em * 1.5f));
   else
-    setSize(Vector2(em * 1.5f, em * 10.f));
+    setSize(Vec2(em * 1.5f, em * 10.f));
 
   getKeyPressedSignal().connect(*this, &Scroller::onKeyPressed);
   getButtonClickedSignal().connect(*this, &Scroller::onButtonClicked);
@@ -129,7 +129,7 @@ SignalProxy1<void, Scroller&> Scroller::getValueChangedSignal(void)
 
 void Scroller::draw(void) const
 {
-  const Rectangle& area = getGlobalArea();
+  const Rect& area = getGlobalArea();
 
   Renderer* renderer = Renderer::get();
   if (renderer->pushClipArea(area))
@@ -141,7 +141,7 @@ void Scroller::draw(void) const
       const float size = getHandleSize();
       const float offset = getHandleOffset();
 
-      Rectangle handleArea;
+      Rect handleArea;
 
       if (orientation == HORIZONTAL)
       {
@@ -168,7 +168,7 @@ void Scroller::draw(void) const
 }
 
 void Scroller::onButtonClicked(Widget& widget,
-			       const Vector2& point,
+			       const Vec2& point,
 			       unsigned int button,
 			       bool clicked)
 {
@@ -178,7 +178,7 @@ void Scroller::onButtonClicked(Widget& widget,
   if (minValue == maxValue)
     return;
 
-  Vector2 localPoint = transformToLocal(point);
+  Vec2 localPoint = transformToLocal(point);
 
   const float size = getHandleSize();
   const float offset = getHandleOffset();
@@ -245,14 +245,14 @@ void Scroller::onWheelTurned(Widget& widget, int offset)
   setValue(value + offset * getValueStep(), true);
 }
 
-void Scroller::onDragBegun(Widget& widget, const Vector2& point)
+void Scroller::onDragBegun(Widget& widget, const Vec2& point)
 {
   if (minValue == maxValue)
     return;
 
-  Vector2 localPoint = transformToLocal(point);
+  Vec2 localPoint = transformToLocal(point);
 
-  const Rectangle& area = getArea();
+  const Rect& area = getArea();
 
   const float size = getHandleSize();
   const float offset = getHandleOffset();
@@ -274,14 +274,14 @@ void Scroller::onDragBegun(Widget& widget, const Vector2& point)
   }
 }
 
-void Scroller::onDragMoved(Widget& widget, const Vector2& point)
+void Scroller::onDragMoved(Widget& widget, const Vec2& point)
 {
   if (minValue == maxValue)
     return;
 
-  Vector2 localPoint = transformToLocal(point);
+  Vec2 localPoint = transformToLocal(point);
 
-  const Rectangle& area = getArea();
+  const Rect& area = getArea();
 
   const float size = getHandleSize();
 

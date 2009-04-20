@@ -54,10 +54,10 @@ class Particle
 public:
   /*! The world-space position of this particle.
    */
-  Vector3 position;
+  Vec3 position;
   /*! The world-space velocity vector of this particle.
    */
-  Vector3 velocity;
+  Vec3 velocity;
   /*! The color and transparency values of this particle.
    */
   ColorRGBA color;
@@ -72,7 +72,7 @@ public:
   Time elapsed;
   /*! The 2D size, in units, of the particle.
    */
-  Vector2 size;
+  Vec2 size;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -282,7 +282,7 @@ private:
   ParticleSystem& operator = (const ParticleSystem& source);
   bool realizeVertices(GL::VertexRange& vertices,
                        GL::IndexRange& indices,
-		       const Vector3& camera) const;
+		       const Vec3& camera) const;
   bool updateBounds;
   Time currentTime;
   Ref<Material> material;
@@ -339,10 +339,10 @@ public:
   void affectParticle(Particle& particle,
                       unsigned int particleIndex,
 		      Time deltaTime);
-  const Vector3& getGravity(void) const;
-  void setGravity(const Vector3& newGravity);
+  const Vec3& getGravity(void) const;
+  void setGravity(const Vec3& newGravity);
 private:
-  Vector3 gravity;
+  Vec3 gravity;
 };
 
 ///////////////////////////////////////////////////////////////////////
