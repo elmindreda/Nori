@@ -51,7 +51,9 @@ Ptr<GL::ProgramCodec> programCodec;
 Ptr<render::MaterialCodec> renderMaterialCodec;
 Ptr<render::TerrainCodec> renderTerrainCodec;
 
+#if WENDY_INCLUDE_DEMO_SYSTEM
 Ptr<demo::ShowCodec> showCodec;
+#endif
 
 }
 
@@ -76,7 +78,10 @@ bool initialize(void)
   programCodec = new GL::ProgramCodec();
   renderMaterialCodec = new render::MaterialCodec();
   renderTerrainCodec = new render::TerrainCodec();
+
+#if WENDY_INCLUDE_DEMO_SYSTEM
   showCodec = new demo::ShowCodec();
+#endif
 
   return true;
 }
@@ -91,7 +96,10 @@ void shutdown(void)
   programCodec = NULL;
   renderMaterialCodec = NULL;
   renderTerrainCodec = NULL;
+
+#if WENDY_INCLUDE_DEMO_SYSTEM
   showCodec = NULL;
+#endif
 
   glfwTerminate();
 

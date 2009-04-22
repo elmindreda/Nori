@@ -1,5 +1,7 @@
 
 #define WENDY_VERSION "@VERSION@"
 
-#cmakedefine WENDY_USE_CG 1
+#cmakedefine WENDY_INCLUDE_UI_SYSTEM 1
+
+#cmakedefine WENDY_INCLUDE_DEMO_SYSTEM 1
 
