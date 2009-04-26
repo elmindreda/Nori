@@ -10,6 +10,8 @@ endif(COMMAND cmake_policy)
 option(WENDY_USE_INTERNAL "Use internal versions of library dependencies" ON)
 option(WENDY_INCLUDE_UI_SYSTEM "Include the UI library" ON)
 option(WENDY_INCLUDE_DEMO_SYSTEM "Include the demo system" ON)
+option(WENDY_INCLUDE_OPENAL_WRAPPER "Include the OpenAL wrapper" OFF)
+option(WENDY_BUILD_EXAMPLES "Build the bundled example programs" OFF)
 
 if(WENDY_USE_INTERNAL)
 
@@ -26,8 +28,10 @@ else()
 
 endif(WENDY_USE_INTERNAL)
 
-#find_package(OpenAL REQUIRED)
-#list(APPEND wendy_LIBRARIES ${OPENAL_LIBRARY})
+if(WENDY_INCLUDE_OPENAL_WRAPPER)
+  find_package(OpenAL REQUIRED)
+  list(APPEND wendy_LIBRARIES ${OPENAL_LIBRARY})
+endif(WENDY_INCLUDE_OPENAL_WRAPPER)
 
 find_package(GLU REQUIRED)
 list(APPEND wendy_LIBRARIES ${OPENGL_glu_LIBRARY})
@@ -64,7 +68,10 @@ set(WENDY_INCLUDE_DIRS ${MOIRA_INCLUDE_DIRS}
 include_directories(${WENDY_INCLUDE_DIRS})
 
 add_subdirectory(src)
-#add_subdirectory(examples)
+
+if(WENDY_BUILD_EXAMPLES)
+  add_subdirectory(examples)
+endif(WENDY_BUILD_EXAMPLES)
 
 configure_file(${wendy_SOURCE_DIR}/docs/Doxyfile.in
                ${wendy_BINARY_DIR}/docs/Doxyfile @ONLY)
