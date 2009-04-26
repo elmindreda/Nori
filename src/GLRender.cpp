@@ -261,7 +261,7 @@ void Renderer::render(void)
     if (MVP->getType() == Uniform::FLOAT_MAT4)
     {
       Mat4 mvp = projection;
-      mvp.concatenate(modelview.getTotal());
+      mvp *= modelview.getTotal();
       MVP->setValue(mvp);
     }
   }
