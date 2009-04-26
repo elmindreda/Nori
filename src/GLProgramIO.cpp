@@ -57,7 +57,7 @@ const unsigned int PROGRAM_XML_VERSION = 2;
 VertexProgramCodec::VertexProgramCodec(void):
   ResourceCodec<VertexProgram>("Vertex program codec")
 {
-  addSuffix("vs");
+  addSuffix("vp");
   addSuffix("cg");
 }
 
@@ -93,7 +93,7 @@ bool VertexProgramCodec::write(Stream& stream, const VertexProgram& program)
 FragmentProgramCodec::FragmentProgramCodec(void):
   ResourceCodec<FragmentProgram>("Fragment program codec") 
 {
-  addSuffix("fs");
+  addSuffix("fp");
   addSuffix("cg");
 }
 
