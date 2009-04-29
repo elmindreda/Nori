@@ -259,29 +259,29 @@ void ScreenCanvas::updateViewportArea(void) const
 
 unsigned int TextureCanvas::getPhysicalWidth(void) const
 {
-  return texture->getPhysicalWidth();
+  return width;
 }
 
 unsigned int TextureCanvas::getPhysicalHeight(void) const
 {
-  return texture->getPhysicalHeight();
+  return height;
 }
 
-Texture& TextureCanvas::getTexture(void) const
+Texture* TextureCanvas::getTexture(void) const
 {
-  return *texture;
+  return texture;
 }
 
-TextureCanvas* TextureCanvas::createInstance(Texture& texture)
+TextureCanvas* TextureCanvas::createInstance(unsigned int width, unsigned int height)
 {
   Ptr<TextureCanvas> canvas = new TextureCanvas();
-  if (!canvas->init(texture))
+  if (!canvas->init(width, height))
     return false;
 
   return canvas.detachObject();
 }
 
-bool TextureCanvas::init(Texture& initTexture)
+bool TextureCanvas::init(unsigned int initWidth, unsigned int initHeight)
 {
   if (!Context::get())
   {
@@ -289,7 +289,8 @@ bool TextureCanvas::init(Texture& initTexture)
     return false;
   }
 
-  texture = &initTexture;
+  width = initWidth;
+  height = initHeight;
 
   return true;
 }

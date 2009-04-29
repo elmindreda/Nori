@@ -164,17 +164,19 @@ public:
   unsigned int getPhysicalHeight(void) const;
   /*! @return The texture targeted by this texture canvas.
    */
-  Texture& getTexture(void) const;
+  Texture* getTexture(void) const;
   /*! Creates a texture canvas for the specified texture.
    *  @param texture The texture for which to create a texture canvas.
    */
-  static TextureCanvas* createInstance(Texture& texture);
+  static TextureCanvas* createInstance(unsigned int width, unsigned int height);
 private:
-  bool init(Texture& texture);
+  bool init(unsigned int width, unsigned int height);
   void apply(void) const;
   void finish(void) const;
   void updateScissorArea(void) const;
   void updateViewportArea(void) const;
+  unsigned int width;
+  unsigned int height;
   Ref<Texture> texture;
 };
 
