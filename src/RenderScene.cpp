@@ -186,7 +186,7 @@ bool SceneNode::updateWorldTransform(void) const
   if (const SceneNode* parent = getParent())
   {
     parent->updateWorldTransform();
-    world.concatenate(parent->world);
+    world *= parent->world;
   }
   
   /* TODO: Fix this.
