@@ -81,7 +81,7 @@ bool CubeEffect::init(void)
 
   lightNode = new render::LightNode();
   lightNode->setLight(light);
-  lightNode->getLocalTransform().rotation.setAxisRotation(Vector3::Y, M_PI / 4.f);
+  lightNode->getLocalTransform().rotation.setAxisRotation(Vec3::Y, M_PI / 4.f);
   scene.addNode(*lightNode);
 
   camera.setFOV(60.f);
@@ -109,7 +109,7 @@ void CubeEffect::render(void) const
 
 void CubeEffect::update(Time deltaTime)
 {
-  meshNode->getLocalTransform().rotation.setAxisRotation(Vector3(0.f, 1.f, 0.f), getTimeElapsed());
+  meshNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f), getTimeElapsed());
 
   scene.setTimeElapsed(getTimeElapsed());
 }
