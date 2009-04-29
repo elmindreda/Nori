@@ -415,11 +415,6 @@ Context& Renderer::getContext(void) const
   return context;
 }
 
-Canvas* Renderer::getCurrentCanvas(void) const
-{
-  return currentCanvas;
-}
-
 Texture& Renderer::getDefaultTexture(void) const
 {
   return *defaultTexture;
@@ -428,6 +423,31 @@ Texture& Renderer::getDefaultTexture(void) const
 Program& Renderer::getDefaultProgram(void) const
 {
   return *defaultProgram;
+}
+
+Canvas* Renderer::getCurrentCanvas(void) const
+{
+  return currentCanvas;
+}
+
+Program* Renderer::getCurrentProgram(void) const
+{
+  return currentProgram;
+}
+
+const PrimitiveRange& Renderer::getCurrentPrimitiveRange(void) const
+{
+  return currentRange;
+}
+
+const Mat4& Renderer::getCurrentProjectionMatrix(void) const
+{
+  return projection;
+}
+
+const Mat4& Renderer::getCurrentModelViewMatrix(void) const
+{
+  return modelview.getTotal();
 }
 
 void Renderer::setCurrentCanvas(Canvas* newCanvas)

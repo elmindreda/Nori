@@ -85,9 +85,13 @@ public:
                         const VertexFormat& format);
   bool isReservedUniform(const String& name) const;
   Context& getContext(void) const;
-  Canvas* getCurrentCanvas(void) const;
   Texture& getDefaultTexture(void) const;
   Program& getDefaultProgram(void) const;
+  Canvas* getCurrentCanvas(void) const;
+  Program* getCurrentProgram(void) const;
+  const PrimitiveRange& getCurrentPrimitiveRange(void) const;
+  const Mat4& getCurrentProjectionMatrix(void) const;
+  const Mat4& getCurrentModelViewMatrix(void) const;
   void setCurrentCanvas(Canvas* newCanvas);
   void setCurrentProgram(Program* newProgram);
   void setCurrentPrimitiveRange(const PrimitiveRange& newRange);
