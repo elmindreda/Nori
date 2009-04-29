@@ -406,9 +406,11 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& vertexRange,
 				  GL::Vertex4fc2ft3fv::format))
     return false;
 
-  GL::Vertex4fc2ft3fv* vertices = (GL::Vertex4fc2ft3fv*) vertexRange.lock();
+  GL::VertexRangeLock<GL::Vertex4fc2ft3fv> vertices(vertexRange);
   if (!vertices)
     return false;
+
+  unsigned int base = 0;
 
   for (ParticlePool::const_iterator i = activeParticles.begin();  i != activeParticles.end();  i++)
   {  
@@ -444,23 +446,21 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& vertexRange,
       positions[i] += particle.position;
     }
 
-    vertices[0].color = particle.color;
-    vertices[0].mapping.set(0.f, 0.f);
-    vertices[0].position = positions[0];
-    vertices[1].color = particle.color;
-    vertices[1].mapping.set(1.f, 0.f);
-    vertices[1].position = positions[1];
-    vertices[2].color = particle.color;
-    vertices[2].mapping.set(1.f, 1.f);
-    vertices[2].position = positions[2];
-    vertices[3].color = particle.color;
-    vertices[3].mapping.set(0.f, 1.f);
-    vertices[3].position = positions[3];
+    vertices[base + 0].color = particle.color;
+    vertices[base + 0].mapping.set(0.f, 0.f);
+    vertices[base + 0].position = positions[0];
+    vertices[base + 1].color = particle.color;
+    vertices[base + 1].mapping.set(1.f, 0.f);
+    vertices[base + 1].position = positions[1];
+    vertices[base + 2].color = particle.color;
+    vertices[base + 2].mapping.set(1.f, 1.f);
+    vertices[base + 2].position = positions[2];
+    vertices[base + 3].color = particle.color;
+    vertices[base + 3].mapping.set(0.f, 1.f);
+    vertices[base + 3].position = positions[3];
 
-    vertices += 4;
+    base += 4;
   }
-
-  vertexRange.unlock();
 
   return true;
 }

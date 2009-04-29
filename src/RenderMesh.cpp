@@ -168,18 +168,18 @@ bool Mesh::init(const moira::Mesh& mesh)
     geometry->primitiveType = GL::TRIANGLE_LIST;
     geometry->range = GL::IndexRange(*indexBuffer, indexBase, indexCount);
 
-    unsigned int* indices = (unsigned int*) geometry->range.lock();
+    GL::IndexRangeLock<unsigned int> indices(geometry->range);
     if (!indices)
       return false;
 
+    unsigned int index = 0;
+
     for (MeshGeometry::TriangleList::const_iterator j = (*i).triangles.begin();  j != (*i).triangles.end();  j++)
     {
-      *indices++ = (*j).indices[0];
-      *indices++ = (*j).indices[1];
-      *indices++ = (*j).indices[2];
+      indices[index++] = (*j).indices[0];
+      indices[index++] = (*j).indices[1];
+      indices[index++] = (*j).indices[2];
     }
-
-    geometry->range.unlock();
 
     indexBase += indexCount;
   }

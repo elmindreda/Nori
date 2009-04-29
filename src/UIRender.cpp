@@ -164,12 +164,13 @@ void Renderer::drawBezier(const BezierCurve2& spline, const ColorRGBA& color)
   if (!renderer->allocateVertices(range, points.size(), GL::Vertex2fv::format))
     return;
 
-  GL::Vertex2fv* vertices = (GL::Vertex2fv*) range.lock();
+  // Realize vertices
+  {
+    GL::VertexRangeLock<GL::Vertex2fv> vertices(range);
 
-  for (unsigned int i = 0;  i < points.size();  i++)
-    vertices[i].position = points[i];
-
-  range.unlock();
+    for (unsigned int i = 0;  i < points.size();  i++)
+      vertices[i].position = points[i];
+  }
 
   setDrawingState(color, true);
 

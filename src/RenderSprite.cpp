@@ -337,17 +337,25 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
     return;
   }
 
-  /* TODO: Make this not use quads.
-  GL::VertexRange range;
-  if (!renderer->allocateVertices(range, 4 * slots.size(), GL::Vertex2ft3fv::format))
+  GL::VertexRange vertexRange;
+  if (!renderer->allocateVertices(vertexRange, 4 * slots.size(), GL::Vertex2ft3fv::format))
     return;
 
-  GL::Vertex2ft3fv* vertices = (GL::Vertex2ft3fv*) range.lock();
+  GL::IndexRange indexRange;
+  if (!renderer->allocateIndices(indexRange, 6 * slots.size(), GL::IndexBuffer::USHORT))
+    return;
+
+  GL::VertexRangeLock<GL::Vertex2ft3fv> vertices(vertexRange);
   if (!vertices)
+    return;
+
+  GL::IndexRangeLock<unsigned short> indices(indexRange);
+  if (!indices)
     return;
 
   const Vec3 camera = queue.getCamera().getTransform().position;
 
+  /* TODO: Make this not use quads.
   realizeVertices(vertices, transform, camera);
   range.unlock();
 

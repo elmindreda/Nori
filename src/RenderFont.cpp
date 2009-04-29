@@ -83,62 +83,68 @@ void Font::drawText(const String& text) const
     return;
   }
 
-  Vec2 roundedPen = penPosition;
-  roundedPen.x = floorf(roundedPen.x + 0.5f);
-  roundedPen.y = floorf(roundedPen.y + 0.5f);
-
-  Vec2 penOffset(0.f, 0.f);
-
-  GL::Vertex2ft2fv* vertices = (GL::Vertex2ft2fv*) vertexRange.lock();
-
   unsigned int count = 0;
 
-  for (String::const_iterator c = text.begin();  c != text.end();  c++)
+  // Realize vertices for glyphs
   {
-    switch (*c)
+    Vec2 roundedPen = penPosition;
+    roundedPen.x = floorf(roundedPen.x + 0.5f);
+    roundedPen.y = floorf(roundedPen.y + 0.5f);
+
+    Vec2 penOffset(0.f, 0.f);
+
+    GL::VertexRangeLock<GL::Vertex2ft2fv> vertices(vertexRange);
+    if (!vertices)
     {
-      case '\t':
-      {
-	penOffset.x += size.x * 3.f;
-	break;
-      }
-	
-      case '\n':
-      {
-	penOffset.x = 0.f;
-	penOffset.y -= size.y * 1.2f;
-	break;
-      }
-
-      case ' ':
-      {
-	const Glyph* glyph = getGlyph(*c);
-	if (!glyph)
-	  continue;
-
-	penOffset.x += glyph->advance;
-	break;
-      }
-
-      default:
-      {
-	const Glyph* glyph = getGlyph(*c);
-	if (!glyph)
-	  continue;
-
-	glyph->realizeVertices(roundedPen + penOffset, vertices + count);
-	count += 6;
-
-	penOffset.x += glyph->advance;
-	break;
-      }
+      Log::writeError("Failed to lock vertices for text drawing");
+      return;
     }
 
-    penOffset.x = floorf(penOffset.x + 0.5f);
-    penOffset.y = floorf(penOffset.y + 0.5f);
-  }
+    for (String::const_iterator c = text.begin();  c != text.end();  c++)
+    {
+      switch (*c)
+      {
+	case '\t':
+	{
+	  penOffset.x += size.x * 3.f;
+	  break;
+	}
+	  
+	case '\n':
+	{
+	  penOffset.x = 0.f;
+	  penOffset.y -= size.y * 1.2f;
+	  break;
+	}
 
-  vertexRange.unlock();
+	case ' ':
+	{
+	  const Glyph* glyph = getGlyph(*c);
+	  if (!glyph)
+	    continue;
+
+	  penOffset.x += glyph->advance;
+	  break;
+	}
+
+	default:
+	{
+	  const Glyph* glyph = getGlyph(*c);
+	  if (!glyph)
+	    continue;
+
+	  glyph->realizeVertices(roundedPen + penOffset, vertices + count);
+	  count += 6;
+
+	  penOffset.x += glyph->advance;
+	  break;
+	}
+      }
+
+      penOffset.x = floorf(penOffset.x + 0.5f);
+      penOffset.y = floorf(penOffset.y + 0.5f);
+    }
+  }
 
   pass.apply();
 

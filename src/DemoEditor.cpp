@@ -408,14 +408,14 @@ bool Editor::init(const String& showName)
     mainLayout->addChild(*aboutLabel, 0.f);
 
     aboutLabel->setText("The Wendy demo system, version " WENDY_VERSION "\n"
-                        "Copyright (c) 2007 Camilla Berglund <elmindreda@users.sourceforge.net>\n"
+                        "Copyright (c) 2009 Camilla Berglund <elmindreda@users.sourceforge.net>\n"
 			"\n"
 			"expat - Copyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd and Clark Cooper\n"
+			"PCRE - Copyright (c) 1997-2008 University of Cambridge\n"
 			"libpng - Copyright (c) 2004, 2006 Glenn Randers-Pehrson\n"
 			"zlib - Copyright (c) 1995-1998 Jean-loup Gailly and Mark Adler\n"
 			"GLFW - Copyright (c) 2006-2007 Camilla Berglund\n"
 			"GLEW - Copyright (c) 2002-2006, Milan Ikits and Marcelo E. Magallon\n"
-			"ODE - Copyright (c) 2001-2004, Russell L. Smith\n"
                         "\n"
 			"Compiled " __TIME__ " on " __DATE__ "\n");
   }

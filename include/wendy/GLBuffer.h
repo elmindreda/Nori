@@ -381,6 +381,90 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+template <typename T>
+class VertexRangeLock
+{
+public:
+  inline VertexRangeLock(VertexRange& range);
+  inline ~VertexRangeLock(void);
+  inline operator T* (void);
+private:
+  VertexRange range;
+  T* vertices;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+template <typename T>
+class IndexRangeLock
+{
+public:
+  inline IndexRangeLock(IndexRange& range);
+  inline ~IndexRangeLock(void);
+  inline operator T* (void);
+private:
+  IndexRange range;
+  T* indices;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+template <typename T>
+inline VertexRangeLock<T>::VertexRangeLock(VertexRange& initRange):
+  range(initRange),
+  vertices(NULL)
+{
+  // TODO: Type matching.
+}
+
+template <typename T>
+inline VertexRangeLock<T>::~VertexRangeLock(void)
+{
+  if (vertices)
+    range.unlock();
+}
+
+template <typename T>
+inline VertexRangeLock<T>::operator T* (void)
+{
+  if (vertices)
+    return vertices;
+
+  vertices = (T*) range.lock();
+
+  return vertices;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+template <typename T>
+inline IndexRangeLock<T>::IndexRangeLock(IndexRange& initRange):
+  range(initRange),
+  indices(NULL)
+{
+  // TODO: Type matching.
+}
+
+template <typename T>
+inline IndexRangeLock<T>::~IndexRangeLock(void)
+{
+  if (indices)
+    range.unlock();
+}
+
+template <typename T>
+inline IndexRangeLock<T>::operator T* (void)
+{
+  if (indices)
+    return indices;
+
+  indices = (T*) range.lock();
+
+  return indices;
+}
+
+///////////////////////////////////////////////////////////////////////
+
   } /*namespace GL*/
 } /*namespace wendy*/
 
