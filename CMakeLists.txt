@@ -67,18 +67,18 @@ set(WENDY_INCLUDE_DIRS ${MOIRA_INCLUDE_DIRS}
 
 include_directories(${WENDY_INCLUDE_DIRS})
 
-add_subdirectory(src)
-
-if(WENDY_BUILD_EXAMPLES)
-  add_subdirectory(examples)
-endif(WENDY_BUILD_EXAMPLES)
-
 configure_file(${wendy_SOURCE_DIR}/docs/Doxyfile.in
                ${wendy_BINARY_DIR}/docs/Doxyfile @ONLY)
 configure_file(${wendy_SOURCE_DIR}/include/wendy/Config.h.in
                ${wendy_BINARY_DIR}/include/wendy/Config.h @ONLY)
 configure_file(${wendy_SOURCE_DIR}/build/libwendy.pc.in
                ${wendy_BINARY_DIR}/build/libwendy.pc @ONLY)
+
+add_subdirectory(src)
+
+if(WENDY_BUILD_EXAMPLES)
+  add_subdirectory(examples)
+endif(WENDY_BUILD_EXAMPLES)
 
 install(DIRECTORY include/wendy
         DESTINATION include
