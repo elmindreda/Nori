@@ -127,7 +127,7 @@ bool Demo::render(void)
 {
   currentTime = timer.getTime();
 
-  meshNode->getLocalTransform().rotation.setAxisRotation(Vector3(0.f, 1.f, 0.f),
+  meshNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f),
                                                          currentTime);
 
   scene.setTimeElapsed(currentTime);
