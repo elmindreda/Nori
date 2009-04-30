@@ -145,6 +145,8 @@ class UniformState
 {
   friend class ProgramState;
 public:
+  UniformState(Uniform& uniform);
+  UniformState(const UniformState& source);
   void getValue(float& result) const;
   void setValue(const float newValue);
   void getValue(Vec2& result) const;
@@ -160,11 +162,8 @@ public:
   void getValue(Mat4& result) const;
   void setValue(const Mat4& newValue);
   Uniform& getUniform(void) const;
-protected:
-  UniformState(Uniform& uniform);
-  void apply(void) const;
 private:
-  UniformState(const UniformState& source);
+  void apply(void) const;
   UniformState& operator = (const UniformState& source);
   Uniform& uniform;
   float data[16];
@@ -179,14 +178,13 @@ class SamplerState
 {
   friend class ProgramState;
 public:
+  SamplerState(Sampler& sampler);
+  SamplerState(const SamplerState& source);
   bool getTexture(Ref<Texture>& result) const;
   void setTexture(Texture* newTexture);
   Sampler& getSampler(void) const;
-protected:
-  SamplerState(Sampler& sampler);
-  void apply(void) const;
 private:
-  SamplerState(const SamplerState& source);
+  void apply(void) const;
   SamplerState& operator = (const SamplerState& source);
   Sampler& sampler;
   Ref<Texture> texture;
@@ -194,6 +192,9 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Shader program state.
+ *  @ingroup opengl
+ */
 class ProgramState
 {
 public:

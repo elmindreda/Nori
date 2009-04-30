@@ -389,6 +389,18 @@ void StencilState::Data::setDefaults(void)
 
 ///////////////////////////////////////////////////////////////////////
 
+UniformState::UniformState(Uniform& initUniform):
+  uniform(initUniform)
+{
+  std::memset(data, 0, sizeof(data));
+}
+
+UniformState::UniformState(const UniformState& source):
+  uniform(source.uniform)
+{
+  std::memcpy(data, source.data, sizeof(data));
+}
+
 void UniformState::getValue(float& result) const
 {
   result = *data;
@@ -464,22 +476,6 @@ Uniform& UniformState::getUniform(void) const
   return uniform;
 }
 
-UniformState::UniformState(Uniform& initUniform):
-  uniform(initUniform)
-{
-  std::memset(data, 0, sizeof(data));
-}
-
-UniformState::UniformState(const UniformState& source):
-  uniform(source.uniform)
-{
-}
-
-UniformState& UniformState::operator = (const UniformState& source)
-{
-  return *this;
-}
-
 void UniformState::apply(void) const
 {
   switch (uniform.getType())
@@ -508,7 +504,25 @@ void UniformState::apply(void) const
   }
 }
 
+UniformState& UniformState::operator = (const UniformState& source)
+{
+  // NOTE: Not implemented.
+
+  return *this;
+}
+
 ///////////////////////////////////////////////////////////////////////
+
+SamplerState::SamplerState(Sampler& initSampler):
+  sampler(initSampler)
+{
+}
+
+SamplerState::SamplerState(const SamplerState& source):
+  sampler(source.sampler)
+{
+  texture = source.texture;
+}
 
 bool SamplerState::getTexture(Ref<Texture>& result) const
 {
@@ -525,28 +539,20 @@ Sampler& SamplerState::getSampler(void) const
   return sampler;
 }
 
-SamplerState::SamplerState(Sampler& initSampler):
-  sampler(initSampler)
-{
-}
-
 void SamplerState::apply(void) const
 {
   if (texture)
     sampler.setTexture(*texture);
   else
   {
-    // TODO: Wtf?
+    // TODO: Wtf do we do here?
   }
-}
-
-SamplerState::SamplerState(const SamplerState& source):
-  sampler(source.sampler)
-{
 }
 
 SamplerState& SamplerState::operator = (const SamplerState& source)
 {
+  // NOTE: Not implemented.
+
   return *this;
 }
 
@@ -558,12 +564,7 @@ ProgramState::ProgramState(void)
 
 ProgramState::ProgramState(const ProgramState& source)
 {
-  program = source.program;
-
-  for (SamplerList::const_iterator i = source.samplers.begin();  i != source.samplers.end();  i++)
-    samplers.push_back(new SamplerState(**i));
-
-  // TODO: Deep copy of uniform state.
+  operator = (source);
 }
 
 ProgramState::~ProgramState(void)
@@ -589,7 +590,11 @@ ProgramState& ProgramState::operator = (const ProgramState& source)
 {
   setProgram(source.program);
 
-  // TODO: Deep copy of uniform and sampler state.
+  for (SamplerList::const_iterator s = source.samplers.begin();  s != source.samplers.end();  s++)
+    samplers.push_back(new SamplerState(**s));
+
+  for (UniformList::const_iterator s = source.uniforms.begin();  s != source.uniforms.end();  s++)
+    uniforms.push_back(new UniformState(**s));
 
   return *this;
 }
