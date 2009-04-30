@@ -39,6 +39,8 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
+#include <cstring>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -164,43 +166,6 @@ GLenum convertOperation(Operation operation)
     default:
       throw Exception("Invalid stencil operation");
   }
-}
-
-template <typename T>
-class UniformStateTemplate : public UniformState
-{
-public:
-  inline UniformStateTemplate(Uniform& uniform);
-  inline bool getValue(T& result) const;
-  inline void setValue(const T& newValue);
-private:
-  inline void apply(void) const;
-  T value;
-};
-
-template <typename T>
-inline UniformStateTemplate<T>::UniformStateTemplate(Uniform& uniform):
-  UniformState(uniform)
-{
-}
-
-template <typename T>
-inline bool UniformStateTemplate<T>::getValue(T& result) const
-{
-  result = value;
-  return true;
-}
-
-template <typename T>
-inline void UniformStateTemplate<T>::setValue(const T& newValue)
-{
-  value = newValue;
-}
-
-template <typename T>
-inline void UniformStateTemplate<T>::apply(void) const
-{
-  getUniform().setValue(value);
 }
 
 template <typename T>
@@ -424,67 +389,74 @@ void StencilState::Data::setDefaults(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-bool UniformState::getValue(float& result) const
+void UniformState::getValue(float& result) const
 {
-  return false;
+  result = *data;
 }
 
 void UniformState::setValue(float newValue)
 {
+  *data = newValue;
 }
 
-bool UniformState::getValue(Vec2& result) const
+void UniformState::getValue(Vec2& result) const
 {
-  return false;
+  result = *reinterpret_cast<const Vec2*>(data);
 }
 
 void UniformState::setValue(const Vec2& newValue)
 {
+  *reinterpret_cast<Vec2*>(data) = newValue;
 }
 
-bool UniformState::getValue(Vec3& result) const
+void UniformState::getValue(Vec3& result) const
 {
-  return false;
+  result = *reinterpret_cast<const Vec3*>(data);
 }
 
 void UniformState::setValue(const Vec3& newValue)
 {
+  *reinterpret_cast<Vec3*>(data) = newValue;
 }
 
-bool UniformState::getValue(Vec4& result) const
+void UniformState::getValue(Vec4& result) const
 {
-  return false;
+  result = *reinterpret_cast<const Vec4*>(data);
 }
 
 void UniformState::setValue(const Vec4& newValue)
 {
+  *reinterpret_cast<Vec4*>(data) = newValue;
 }
 
-bool UniformState::getValue(Mat2& result) const
+void UniformState::getValue(Mat2& result) const
 {
-  return false;
+  result = *reinterpret_cast<const Mat2*>(data);
 }
 
 void UniformState::setValue(const Mat2& newValue)
 {
+  *reinterpret_cast<Mat2*>(data) = newValue;
 }
 
-bool UniformState::getValue(Mat3& result) const
+void UniformState::getValue(Mat3& result) const
 {
-  return false;
+  result = *reinterpret_cast<const Mat3*>(data);
 }
 
 void UniformState::setValue(const Mat3& newValue)
 {
+  *reinterpret_cast<Mat3*>(data) = newValue;
 }
 
-bool UniformState::getValue(Mat4& result) const
+void UniformState::getValue(Mat4& result) const
 {
-  return false;
+  result = *reinterpret_cast<const Mat4*>(data);
 }
 
 void UniformState::setValue(const Mat4& newValue)
 {
+  *reinterpret_cast<Mat4*>(data) = newValue;
 }
 
 Uniform& UniformState::getUniform(void) const
@@ -495,6 +467,7 @@ Uniform& UniformState::getUniform(void) const
 UniformState::UniformState(Uniform& initUniform):
   uniform(initUniform)
 {
+  std::memset(data, 0, sizeof(data));
 }
 
 UniformState::UniformState(const UniformState& source):
@@ -509,6 +482,30 @@ UniformState& UniformState::operator = (const UniformState& source)
 
 void UniformState::apply(void) const
 {
+  switch (uniform.getType())
+  {
+    case Uniform::FLOAT:
+      uniform.setValue(*data);
+      break;
+    case Uniform::FLOAT_VEC2:
+      uniform.setValue(*reinterpret_cast<const Vec2*>(data));
+      break;
+    case Uniform::FLOAT_VEC3:
+      uniform.setValue(*reinterpret_cast<const Vec3*>(data));
+      break;
+    case Uniform::FLOAT_VEC4:
+      uniform.setValue(*reinterpret_cast<const Vec4*>(data));
+      break;
+    case Uniform::FLOAT_MAT2:
+      uniform.setValue(*reinterpret_cast<const Mat2*>(data));
+      break;
+    case Uniform::FLOAT_MAT3:
+      uniform.setValue(*reinterpret_cast<const Mat3*>(data));
+      break;
+    case Uniform::FLOAT_MAT4:
+      uniform.setValue(*reinterpret_cast<const Mat4*>(data));
+      break;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -693,39 +690,11 @@ void ProgramState::setProgram(Program* newProgram)
     for (unsigned int i = 0;  i < program->getUniformCount();  i++)
     {
       Uniform& uniform = program->getUniform(i);
-      UniformState* state;
 
       if (GL::Renderer::get()->isReservedUniform(uniform.getName()))
 	continue;
 
-      switch (uniform.getType())
-      {
-	case Uniform::FLOAT:
-	  state = new UniformStateTemplate<float>(uniform);
-	  break;
-	case Uniform::FLOAT_VEC2:
-	  state = new UniformStateTemplate<Vec2>(uniform);
-	  break;
-	case Uniform::FLOAT_VEC3:
-	  state = new UniformStateTemplate<Vec3>(uniform);
-	  break;
-	case Uniform::FLOAT_VEC4:
-	  state = new UniformStateTemplate<Vec4>(uniform);
-	  break;
-	case Uniform::FLOAT_MAT2:
-	  state = new UniformStateTemplate<Mat2>(uniform);
-	  break;
-	case Uniform::FLOAT_MAT3:
-	  state = new UniformStateTemplate<Mat3>(uniform);
-	  break;
-	case Uniform::FLOAT_MAT4:
-	  state = new UniformStateTemplate<Mat4>(uniform);
-	  break;
-	default:
-	  throw Exception("Unknown uniform state type");
-      }
-
-      uniforms.push_back(state);
+      uniforms.push_back(new UniformState(uniform));
     }
   }
 }

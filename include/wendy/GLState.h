@@ -138,32 +138,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class UniformData
-{
-public:
-  UniformData(Uniform::Type type);
-  Uniform::Type getType(void) const;
-  bool getValue(float& result) const;
-  void setValue(const float newValue);
-  bool getValue(Vec2& result) const;
-  void setValue(const Vec2& newValue);
-  bool getValue(Vec3& result) const;
-  void setValue(const Vec3& newValue);
-  bool getValue(Vec4& result) const;
-  void setValue(const Vec4& newValue);
-  bool getValue(Mat2& result) const;
-  void setValue(const Mat2& newValue);
-  bool getValue(Mat3& result) const;
-  void setValue(const Mat3& newValue);
-  bool getValue(Mat4& result) const;
-  void setValue(const Mat4& newValue);
-private:
-  Uniform::Type type;
-  float data[16];
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief State for a single shader uniform.
  *  @ingroup opengl
  */
@@ -171,28 +145,29 @@ class UniformState
 {
   friend class ProgramState;
 public:
-  virtual bool getValue(float& result) const;
-  virtual void setValue(const float newValue);
-  virtual bool getValue(Vec2& result) const;
-  virtual void setValue(const Vec2& newValue);
-  virtual bool getValue(Vec3& result) const;
-  virtual void setValue(const Vec3& newValue);
-  virtual bool getValue(Vec4& result) const;
-  virtual void setValue(const Vec4& newValue);
-  virtual bool getValue(Mat2& result) const;
-  virtual void setValue(const Mat2& newValue);
-  virtual bool getValue(Mat3& result) const;
-  virtual void setValue(const Mat3& newValue);
-  virtual bool getValue(Mat4& result) const;
-  virtual void setValue(const Mat4& newValue);
+  void getValue(float& result) const;
+  void setValue(const float newValue);
+  void getValue(Vec2& result) const;
+  void setValue(const Vec2& newValue);
+  void getValue(Vec3& result) const;
+  void setValue(const Vec3& newValue);
+  void getValue(Vec4& result) const;
+  void setValue(const Vec4& newValue);
+  void getValue(Mat2& result) const;
+  void setValue(const Mat2& newValue);
+  void getValue(Mat3& result) const;
+  void setValue(const Mat3& newValue);
+  void getValue(Mat4& result) const;
+  void setValue(const Mat4& newValue);
   Uniform& getUniform(void) const;
 protected:
   UniformState(Uniform& uniform);
-  virtual void apply(void) const;
+  void apply(void) const;
 private:
   UniformState(const UniformState& source);
   UniformState& operator = (const UniformState& source);
   Uniform& uniform;
+  float data[16];
 };
 
 ///////////////////////////////////////////////////////////////////////
