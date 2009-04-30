@@ -342,10 +342,12 @@ void Context::keyboardCallback(int key, int action)
     key = (*i).second;
   }
 
-  instance->keyPressedSignal.emit(key, (action == GLFW_PRESS) ? true : false);
+  const bool pressed = (action == GLFW_PRESS) ? true : false;
+
+  instance->keyPressedSignal.emit(key, pressed);
 
   if (instance->currentFocus)
-    instance->currentFocus->onKeyPressed(key, (action == GLFW_PRESS) ? true : false);
+    instance->currentFocus->onKeyPressed(key, pressed);
 }
 
 void Context::characterCallback(int character, int action)
@@ -361,7 +363,7 @@ void Context::characterCallback(int character, int action)
 
 void Context::mousePosCallback(int x, int y)
 {
-  Vec2 position((float) x, (float) y);
+  const Vec2 position((float) x, (float) y);
 
   instance->cursorMovedSignal.emit(position);
 
@@ -371,12 +373,14 @@ void Context::mousePosCallback(int x, int y)
 
 void Context::mouseButtonCallback(int button, int action)
 {
-  instance->buttonClickedSignal.emit(button - GLFW_MOUSE_BUTTON_1,
-                                   (action == GLFW_PRESS) ? true : false); 
+  const bool clicked = (action == GLFW_PRESS) ? true : false;
+
+  button -= GLFW_MOUSE_BUTTON_1;
+
+  instance->buttonClickedSignal.emit(button, clicked); 
 
   if (instance->currentFocus)
-    instance->currentFocus->onButtonClicked(button - GLFW_MOUSE_BUTTON_1,
-                                            (action == GLFW_PRESS) ? true : false);
+    instance->currentFocus->onButtonClicked(button, clicked);
 }
 
 void Context::mouseWheelCallback(int position)
