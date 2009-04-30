@@ -79,6 +79,8 @@ public:
    *  @param[in] name The desired name of this scene node type.
    */
   SceneNodeType(const String& name);
+  /*! Destructor.
+   */
   virtual ~SceneNodeType(void);
   virtual SceneNode* createNode(void) = 0;
 };
