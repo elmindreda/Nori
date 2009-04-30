@@ -75,6 +75,9 @@ enum QueuePhase
 class SceneNodeType : public Managed<SceneNodeType>
 {
 public:
+  /*! Constructor.
+   *  @param[in] name The desired name of this scene node type.
+   */
   SceneNodeType(const String& name);
   virtual ~SceneNodeType(void);
   virtual SceneNode* createNode(void) = 0;
@@ -128,22 +131,33 @@ public:
   /*! @return The local-to-world transform of this scene node.
    */
   const Transform3& getWorldTransform(void) const;
+  /*! @return The local space bounds of this node.
+   */
   const Sphere& getLocalBounds(void) const;
+  /*! Sets the local space bounds of this node.
+   *  @param[in] newBounds The desired new bounds of this node.
+   */
   void setLocalBounds(const Sphere& newBounds);
+  /*! @return The local space union of the bounds of this node and all its
+   *  child nodes.
+   */
   const Sphere& getTotalBounds(void) const;
 protected:
   void addedToParent(SceneNode& parent);
   void removedFromParent(void);
-  /*! Called when the scene graph is updated. This is the correct place to put
+  /*! Called when the scene graph is updated.  This is the correct place to put
    *  per-frame operations which affect the transform or bounds.
+   *  @param[in] deltaTime The time elapsed, in seconds, since the last update.
    */
   virtual void update(Time deltaTime);
+  /*! Called when the scene graph time is reset.
+   */
   virtual void restart(void);
-  /*! Called when the scene graph is collecting rendering information. All the
+  /*! Called when the scene graph is collecting rendering information.  All the
    *  operations required to render this scene node should be put into the
    *  specified render queue.
-   *  @param queue The render queue for collecting operations.
-   *  @param phase The current enqueueing phase.
+   *  @param[inout] queue The render queue for collecting operations.
+   *  @param[in] phase The current enqueueing phase.
    */
   virtual void enqueue(Queue& queue, QueuePhase phase) const;
 private:
