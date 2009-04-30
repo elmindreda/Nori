@@ -109,9 +109,9 @@ GLint unmipmapMinFilter(GLint minFilter)
   return minFilter;
 }
 
-Mapper<ImageFormat::Type, GLenum> formatMap;
+Bimap<ImageFormat::Type, GLenum> formatMap;
 
-Mapper<ImageFormat::Type, GLenum> genericFormatMap;
+Bimap<ImageFormat::Type, GLenum> genericFormatMap;
 
 }
 

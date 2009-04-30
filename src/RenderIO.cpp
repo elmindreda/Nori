@@ -57,13 +57,13 @@ using namespace moira;
 namespace
 {
 
-Mapper<String, GL::CullMode> cullModeMap;
-Mapper<String, GL::BlendFactor> blendFactorMap;
-Mapper<String, GL::Function> functionMap;
+Bimap<String, GL::CullMode> cullModeMap;
+Bimap<String, GL::BlendFactor> blendFactorMap;
+Bimap<String, GL::Function> functionMap;
 /*
-Mapper<String, GLenum> operationMap;
-Mapper<String, GLint> filterMap;
-Mapper<String, GLint> addressModeMap;
+Bimap<String, GLenum> operationMap;
+Bimap<String, GLint> filterMap;
+Bimap<String, GLint> addressModeMap;
 */
 
 const unsigned int RENDER_MATERIAL_XML_VERSION = 4;
