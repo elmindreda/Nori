@@ -222,7 +222,7 @@ private:
   unsigned int interpolateKeys(const EnumKey& start,
                                const EnumKey& end,
 		               float t) const;
-  Mapper<String, unsigned int> symbols;
+  Bimap<String, unsigned int> symbols;
 };
 
 ///////////////////////////////////////////////////////////////////////
