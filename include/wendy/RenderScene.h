@@ -44,6 +44,10 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+class SceneNode;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! Scene node enqueueing phase type enumeration.
  *  @ingroup scene
  */
@@ -61,6 +65,32 @@ enum QueuePhase
   /*! Default geometry collection phase.
    */
   COLLECT_GEOMETRY,
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief %Scene graph node factory super class.
+ *  @ingroup scene
+ */
+class SceneNodeType : public Managed<SceneNodeType>
+{
+public:
+  SceneNodeType(const String& name);
+  virtual ~SceneNodeType(void);
+  virtual SceneNode* createNode(void) = 0;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief %Scene graph node factory template.
+ *  @ingroup scene
+ */
+template <typename T>
+class SceneNodeTemplate : public SceneNodeType
+{
+public:
+  inline SceneNodeTemplate(const String& name);
+  inline SceneNode* createNode(void);
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -125,26 +155,6 @@ private:
   Sphere localBounds;
   mutable Sphere totalBounds;
   mutable bool dirtyBounds;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class SceneNodeType : public Managed<SceneNodeType>
-{
-public:
-  SceneNodeType(const String& name);
-  virtual ~SceneNodeType(void);
-  virtual SceneNode* createNode(void) = 0;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-template <typename T>
-class SceneNodeTemplate
-{
-public:
-  inline SceneNodeTemplate(const String& name);
-  inline SceneNode* createNode(void);
 };
 
 ///////////////////////////////////////////////////////////////////////
