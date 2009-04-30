@@ -198,16 +198,46 @@ private:
 class ProgramState
 {
 public:
+  /*! Constructor.
+   */
   ProgramState(void);
+  /*! Copy constructor.  Performs a deep copy of the contained state.     
+   */
   ProgramState(const ProgramState& source);
+  /*! Destructor.
+   */
   ~ProgramState(void);
+  /*! Applies this shader program state to the current context.
+   */
   void apply(void) const;
+  /*! Assignment operator.  Performs a deep copy of the contained state.
+   */
   ProgramState& operator = (const ProgramState& source);
+  /*! @return The number of non-sampler uniforms exposed by this state object.
+   */
   unsigned int getUniformCount(void) const;
+  /*! @return The state object corresponding to the non-sampler uniform with
+   *  the specified name.
+   *  @param[in] name The name of the desired uniform.
+   */
   UniformState& getUniformState(const String& name);
+  /*! @return The state object corresponding to the non-sampler uniform with
+   *  the specified name.
+   *  @param[in] name The name of the desired uniform.
+   */
   const UniformState& getUniformState(const String& name) const;
+  /*! @return The non-sampler uniform state object at the specified index.
+   *  @param[in] index The index of the desired non-sampler uniform state
+   *  object.
+   */
   UniformState& getUniformState(unsigned int index);
+  /*! @return The non-sampler uniform state object at the specified index.
+   *  @param[in] index The index of the desired non-sampler uniform state
+   *  object.
+   */
   const UniformState& getUniformState(unsigned int index) const;
+  /*! @return The number of sampler uniforms exposed by this state object.
+   */
   unsigned int getSamplerCount(void) const;
   SamplerState& getSamplerState(const String& name);
   const SamplerState& getSamplerState(const String& name) const;
@@ -249,57 +279,79 @@ private:
 class RenderState : public ProgramState
 {
 public:
+  /*! Applies this render state to the current context.
+   */
   void apply(void) const;
-  /*! @return @c true if this render pass uses any form of culling, otherwise
+  /*! @return @c true if this render state uses any form of culling, otherwise
    *  @c false.
    */
   bool isCulling(void) const;
-  /*! @return @c true if this render pass uses any form of blending with the
+  /*! @return @c true if this render state uses any form of blending with the
    *  framebuffer, otherwise @c false.
    */
   bool isBlending(void) const;
-  /*! @return @c true if this render pass uses depth buffer testing, otherwise
+  /*! @return @c true if this render state uses depth buffer testing, otherwise
    *  @c false.
    */
   bool isDepthTesting(void) const;
-  /*! @return @c true if this render pass writes to the depth buffer, otherwise
+  /*! @return @c true if this render state writes to the depth buffer, otherwise
    *  @c false.
    */
   bool isDepthWriting(void) const;
-  /*! @return @c true if this render pass writes to the color buffer, otherwise
+  /*! @return @c true if this render state writes to the color buffer, otherwise
    *  @c false.
    */
   bool isColorWriting(void) const;
+  /*! @return @c true if this render state uses wireframe rendering, otherwise
+   *  @c false.
+   */
   bool isWireframe(void) const;
-  /*! @return The culling mode of this render pass.
+  /*! @return The culling mode of this render state.
    */
   CullMode getCullMode(void) const;
+  /*! @return The source factor for color buffer blending.
+   */
   BlendFactor getSrcFactor(void) const;
+  /*! @return The destination factor for color buffer blending.
+   */
   BlendFactor getDstFactor(void) const;
+  /*! @return The depth buffer testing function used by this render state.
+   */
   Function getDepthFunction(void) const;
-  /*! Sets whether this render pass uses depth buffer testing.
-   *  @param enable Set to @c true to enable depth buffer testing, or @c false
-   *  to disable it.
+  /*! Sets whether this render state uses depth buffer testing.
+   *  @param[in] enable Set to @c true to enable depth buffer testing, or @c
+   *  false to disable it.
    */
   void setDepthTesting(bool enable);
-  /*! Sets whether this render pass writes to the depth buffer.
-   *  @param enable Set to @c true to enable depth buffer writing, or @c false
-   *  to disable it.
+  /*! Sets whether this render state writes to the depth buffer.
+   *  @param[in] enable Set to @c true to enable depth buffer writing, or @c
+   *  false to disable it.
    */
   void setDepthWriting(bool enable);
-  /*! Sets the depth buffer testing function for this render pass.
-   *  @param function The desired depth testing function.
+  /*! Sets the depth buffer testing function for this render state.
+   *  @param[in] function The desired depth testing function.
    */
   void setDepthFunction(Function function);
   /*! Sets whether writing to the color buffer is enabled.
-   *  @param enabled @c true to enable writing to the color buffer, or @c false
-   *  to disable it.
+   *  @param[in] enabled @c true to enable writing to the color buffer, or @c
+   *  false to disable it.
    */
   void setColorWriting(bool enabled);
+  /*! Sets whether wireframe rendering is enabled.
+   *  @param[in] enabled @c true to enable wireframe rendering, or @c false to
+   *  disable it.
+   */
   void setWireframe(bool enabled);
+  /*! Sets the specified primitive culling mode.
+   *  @param[in] mode The desired new primitive culling mode.
+   */
   void setCullMode(CullMode mode);
+  /*! Sets the factors for color buffer blending.
+   *  @param[in] src The desired source factor.
+   *  @param[in] dst The desired destination factor.
+   */
   void setBlendFactors(BlendFactor src, BlendFactor dst);
-  /*! Resets all values in this render pass to their defaults.
+  /*! Resets all values in this render state to their defaults.
    */
   void setDefaults(void);
   static bool isCullingInverted(void);
