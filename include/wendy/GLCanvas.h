@@ -164,7 +164,12 @@ public:
   unsigned int getPhysicalHeight(void) const;
   /*! @return The texture targeted by this texture canvas.
    */
-  Texture* getTexture(void) const;
+  Texture* getColorBufferTexture(void) const;
+  /*! Sets the texture to use as the color buffer for this canvas.
+   *  @param[in] newTexture The desired texture, or @c NULL to detach the currently set texture.
+   *  @remarks A texture canvas cannot be rendered to without a texture to use as color buffer.
+   */
+  void setColorBufferTexture(Texture* newTexture);
   /*! Creates a texture canvas for the specified texture.
    *  @param texture The texture for which to create a texture canvas.
    */
