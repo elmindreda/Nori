@@ -68,7 +68,7 @@ public:
    */
   ~Texture(void);
   /*! Updates the area at the specified coordinates in the specified mipmap
-   *  level with the specified image.
+   *  level with the contents of the specified image.
    */
   bool copyFrom(const Image& source,
                 unsigned int x,
@@ -109,7 +109,7 @@ public:
    */
   const ImageFormat& getFormat(void) const;
   /*! @param[in] level The desired mipmap level.
-   *  @return The image data of the specified mipmap level.
+   *  @return A copy of the image data of the specified mipmap level.
    */
   Image* getImage(unsigned int level = 0) const;
   /*! Creates a texture from the specified image.

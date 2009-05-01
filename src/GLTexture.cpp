@@ -341,29 +341,35 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 
   // Figure out which texture target to use
 
-  if (image.getDimensionCount() == 1)
-    textureTarget = GL_TEXTURE_1D;
-  else if (image.getDimensionCount() == 2)
+  if (flags & RECTANGULAR)
   {
-    if (flags & RECTANGULAR)
+    if (image.getDimensionCount() > 2)
     {
-      if (flags & MIPMAPPED)
-      {
-	Log::writeError("Rectangular textures cannot be mipmapped");
-	return false;
-      }
-
-      textureTarget = GL_TEXTURE_RECTANGLE_ARB;
+      Log::writeError("Rectangular textures cannot have more than two dimensions");
+      return false;
     }
-    else
-      textureTarget = GL_TEXTURE_2D;
+
+    if (flags & MIPMAPPED)
+    {
+      Log::writeError("Rectangular textures cannot be mipmapped");
+      return false;
+    }
+
+    textureTarget = GL_TEXTURE_RECTANGLE_ARB;
   }
   else
   {
-    // TODO: Support 3D textures
+    if (image.getDimensionCount() == 1)
+      textureTarget = GL_TEXTURE_1D;
+    else if (image.getDimensionCount() == 2)
+      textureTarget = GL_TEXTURE_2D;
+    else
+    {
+      // TODO: Support 3D textures
 
-    Log::writeError("3D textures not supported yet");
-    return false;
+      Log::writeError("3D POT textures not supported by Wendy yet");
+      return false;
+    }
   }
 
   // Save source image dimensions
@@ -383,7 +389,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
     // Moira has y-axis down, OpenGL has y-axis up
     source.flipHorizontal();
 
-    // Figure out target dimensions
+    // Figure out target dimensions for rescaling
 
     if (flags & RECTANGULAR)
     {
@@ -416,6 +422,8 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 
     // Rescale source image (no-op if the sizes are equal)
     if (!source.resize(physicalWidth, physicalHeight))
+    {
+      Log::writeError("Failed to rescale image for texture \'%s\'", getName().c_str());
       return false;
   }
 
