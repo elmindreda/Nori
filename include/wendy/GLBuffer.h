@@ -57,8 +57,6 @@ enum LockType
 
 /*! @brief Vertex buffer.
  *  @ingroup opengl
- *
- *  Uses VBO if available, with fallback to vertex arrays.
  */
 class VertexBuffer : public Managed<VertexBuffer>
 {
@@ -141,8 +139,6 @@ private:
 
 /*! @brief Index (or element) buffer.
  *  @ingroup opengl
- *
- *  Uses VBO if available, with fallback to index arrays.
  */
 class IndexBuffer : public Managed<IndexBuffer>
 {
@@ -365,9 +361,19 @@ public:
                  const IndexBuffer& indexBuffer,
 	         unsigned int start,
 	         unsigned int count);
+  /*! @return @c true if this primitive range contains zero primitives,
+   *  otherwise @c false.
+   */
   bool isEmpty(void) const;
+  /*! @return The type of primitives in this range.
+   */
   PrimitiveType getType(void) const;
+  /*! @return The vertex buffer used by this primitive range.
+   */
   const VertexBuffer* getVertexBuffer(void) const;
+  /*! @return The index buffer used by this primitive range, or @c NULL if no
+   *  index buffer is used.
+   */
   const IndexBuffer* getIndexBuffer(void) const;
   unsigned int getStart(void) const;
   unsigned int getCount(void) const;
@@ -381,12 +387,25 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Vertex range scoped lock helper template.
+ *  @ingroup opengl
+ */
 template <typename T>
 class VertexRangeLock
 {
 public:
+  /*! Constructor.
+   *  @param[in] range The vertex range to lock.
+   *  @remarks The vertex range must not already be locked.
+   */
   inline VertexRangeLock(VertexRange& range);
+  /*! Destructor.
+   *  Releases any lock held.
+   */
   inline ~VertexRangeLock(void);
+  /*! @return The base address of the locked vertex range.
+   *  @remarks The vertex range is locked the first time this is called.
+   */
   inline operator T* (void);
 private:
   VertexRange range;
@@ -395,12 +414,25 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Index range scoped lock helper template.
+ *  @ingroup opengl
+ */
 template <typename T>
 class IndexRangeLock
 {
 public:
+  /*! Constructor.
+   *  @param[in] range The index range to lock.
+   *  @remarks The index range must not already be locked.
+   */
   inline IndexRangeLock(IndexRange& range);
+  /*! Destructor.
+   *  Releases any lock held.
+   */
   inline ~IndexRangeLock(void);
+  /*! @return The base address of the locked index range.
+   *  @remarks The index range is locked the first time this is called.
+   */
   inline operator T* (void);
 private:
   IndexRange range;
