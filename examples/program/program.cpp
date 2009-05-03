@@ -132,18 +132,16 @@ bool Demo::render(void)
 
   scene.setTimeElapsed(currentTime);
 
-  GL::ScreenCanvas canvas;
-  canvas.begin();
-  canvas.clearDepthBuffer();
-  canvas.clearColorBuffer();
+  GL::Renderer* renderer = GL::Renderer::get();
+
+  renderer->clearDepthBuffer();
+  renderer->clearColorBuffer();
 
   render::Queue queue(camera);
   scene.enqueue(queue);
   queue.render();
 
   /*
-  GL::Renderer* renderer = GL::Renderer::get();
-
   renderer->begin2D(Vector2(1.f, 1.f));
 
   for (unsigned int i = 0;  i < technique->getPassCount();  i++)
@@ -163,7 +161,6 @@ bool Demo::render(void)
   renderer->end();
   */
 
-  canvas.end();
   return true;
 }
 

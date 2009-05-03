@@ -9,11 +9,8 @@ namespace
 
 bool onRender(void)
 {
-  GL::ScreenCanvas canvas;
-
-  canvas.begin();
-  canvas.clearColorBuffer(ColorRGBA(1.f, 0.f, 0.f, 0.f));
-  canvas.end();
+  GL::Renderer* renderer = GL::Renderer::get();
+  renderer->clearColorBuffer(ColorRGBA(1.f, 0.f, 0.f, 0.f));
 
   return true;
 }

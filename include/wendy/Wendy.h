@@ -31,10 +31,9 @@
  *  @section intro Introduction
  *
  *  This is the reference documentation for the Wendy engine, a simple demo and
- *  game engine using OpenGL, OpenAL and ODE (formerly OpenDE). It is the hope
- *  of the author that it also serves as a suitable introduction to engine
- *  design, due to its (relatively) small size and (hopefully) consistent
- *  design.
+ *  game engine using OpenGL and OpenAL. It is the hope of the author that it
+ *  also serves as a suitable introduction to engine design, due to its
+ *  (relatively) small size and (hopefully) consistent design.
  *
  *  The Wendy engine is built on top of the Moira utility library, which
  *  provides resource management, math classes, animation, image and mesh data
@@ -58,7 +57,6 @@
  *  - @link opengl OpenGL wrapper API @endlink, providing automatic resource
  *    management and many useful helper classes, in case you need to implement
  *    custom rendering.
- *  - @link opende ODE @endlink wrapper API.
  *
  *  @section license License
  *

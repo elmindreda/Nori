@@ -73,24 +73,22 @@ void Alignment::set(HorzAlignment newHorizontal, VertAlignment newVertical)
 
 bool Renderer::pushClipArea(const Rect& area)
 {
-  GL::Canvas* canvas = GL::Canvas::getCurrent();
-  if (!canvas)
-    throw Exception("Cannot render without a current canvas");
+  GL::Renderer* renderer = GL::Renderer::get();
+
+  GL::Canvas& canvas = renderer->getCurrentCanvas();
 
   Vec2 scale;
-  scale.x = 1.f / canvas->getPhysicalWidth();
-  scale.y = 1.f / canvas->getPhysicalHeight();
+  scale.x = 1.f / canvas.getPhysicalWidth();
+  scale.y = 1.f / canvas.getPhysicalHeight();
 
-  return canvas->pushScissorArea(area * scale);
+  return renderer->pushScissorArea(area * scale);
 }
 
 void Renderer::popClipArea(void)
 {
-  GL::Canvas* canvas = GL::Canvas::getCurrent();
-  if (!canvas)
-    throw Exception("Cannot render without a current canvas");
+  GL::Renderer* renderer = GL::Renderer::get();
 
-  canvas->popScissorArea();
+  renderer->popScissorArea();
 }
 
 void Renderer::drawPoint(const Vec2& point, const ColorRGBA& color)

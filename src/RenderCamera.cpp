@@ -71,7 +71,7 @@ void Camera::begin(void) const
     return;
   }
 
-  renderer->begin3D(FOV, aspectRatio, minDepth, maxDepth);
+  renderer->setProjectionMatrix3D(FOV, aspectRatio, minDepth, maxDepth);
   renderer->pushTransform(getInverseTransform());
 
   current = const_cast<Camera*>(this);
@@ -90,7 +90,6 @@ void Camera::end(void) const
   }
 
   renderer->popTransform();
-  renderer->end();
 
   current = NULL;
 }

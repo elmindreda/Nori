@@ -43,12 +43,10 @@ class Canvas : public Widget
 {
 public:
   Canvas(void);
-  GL::Canvas& getCanvas(void);
+  SignalProxy1<void, const Canvas&> getDrawSignal(void);
 protected:
   void draw(void) const;
-private:
-  void onAreaChanged(Widget& widget);
-  GL::ScreenCanvas canvas;
+  Signal1<void, const Canvas&> drawSignal;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -60,28 +60,18 @@ using namespace moira;
 
 Canvas::Canvas(void)
 {
-  getAreaChangedSignal().connect(*this, &Canvas::onAreaChanged);
-  onAreaChanged(*this);
 }
 
-GL::Canvas& Canvas::getCanvas(void)
+SignalProxy1<void, const Canvas&> Canvas::getDrawSignal(void)
 {
-  return canvas;
+  return drawSignal;
 }
 
 void Canvas::draw(void) const
 {
-}
+  drawSignal.emit(*this);
 
-void Canvas::onAreaChanged(Widget& widget)
-{
-  GL::Context* context = GL::Context::get();
-
-  Rect normalizedArea = getGlobalArea();
-  normalizedArea *= Vec2(1.f / context->getWidth(),
-                         1.f / context->getHeight());
-
-  canvas.setViewportArea(normalizedArea);
+  Widget::draw();
 }
 
 ///////////////////////////////////////////////////////////////////////

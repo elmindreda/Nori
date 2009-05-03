@@ -101,28 +101,13 @@ void Editor::run(void)
     show->setTimeElapsed(elapsed);
     show->prepare();
 
-    GL::ScreenCanvas screen;
+    GL::Renderer* renderer = GL::Renderer::get();
+    renderer->clearColorBuffer();
 
     if (book->isVisible())
-    {
-      screen.begin();
-      screen.clearColorBuffer();
       UI::Widget::drawRoots();
-      screen.end();
-
-      if (canvas->isVisible())
-      {
-	canvas->getCanvas().begin();
-	show->render();
-	canvas->getCanvas().end();
-      }
-    }
     else
-    {
-      screen.begin();
       show->render();
-      screen.end();
-    }
 
     if (quitting)
       break;
@@ -259,6 +244,7 @@ bool Editor::init(const String& showName)
 
     canvas = new UI::Canvas();
     canvas->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
+    canvas->getDrawSignal().connect(*this, &Editor::onDrawShowCanvas);
     upperLayout->addChild(*canvas, 0.f);
 
     UI::Layout* controlLayout = new UI::Layout(UI::HORIZONTAL, false);
@@ -518,6 +504,17 @@ void Editor::onZoomChanged(UI::Slider& slider)
 void Editor::onResized(unsigned int width, unsigned int height)
 {
   book->setSize(Vec2((float) width, (float) height));
+}
+
+void Editor::onDrawShowCanvas(const UI::Canvas& canvas)
+{
+  GL::Renderer* renderer = GL::Renderer::get();
+
+  Mat4 old = renderer->getProjectionMatrix();
+
+  show->render();
+
+  renderer->setProjectionMatrix(old);
 }
 
 void Editor::onKeyPressed(input::Key key, bool pressed)

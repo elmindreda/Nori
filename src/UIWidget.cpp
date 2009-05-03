@@ -433,13 +433,6 @@ void Widget::drawRoots(void)
     return;
   }
 
-  GL::Canvas* canvas = GL::Canvas::getCurrent();
-  if (!canvas)
-  {
-    Log::writeError("Cannot draw widgets without a current canvas");
-    return;
-  }
-
   GL::Renderer* renderer = GL::Renderer::get();
   if (!renderer)
   {
@@ -447,16 +440,16 @@ void Widget::drawRoots(void)
     return;
   }
 
-  renderer->begin2D((float) canvas->getPhysicalWidth(),
-                    (float) canvas->getPhysicalHeight());
+  GL::Canvas& canvas = renderer->getCurrentCanvas();
+
+  renderer->setProjectionMatrix2D((float) canvas.getPhysicalWidth(),
+                                  (float) canvas.getPhysicalHeight());
 
   for (List::iterator i = roots.begin();  i != roots.end();  i++)
   {
     if ((*i)->isVisible())
       (*i)->draw();
   }
-
-  renderer->end();
 }
 
 void Widget::draw(void) const
@@ -514,6 +507,8 @@ void Widget::onCursorMoved(const Vec2& position)
 
   if (newWidget != hoveredWidget)
   {
+    // TODO: Notify parents up to common ancestor.
+
     if (hoveredWidget)
       hoveredWidget->cursorLeftSignal.emit(*hoveredWidget);
 
@@ -532,7 +527,7 @@ void Widget::onCursorMoved(const Vec2& position)
       draggedWidget->dragMovedSignal.emit(*draggedWidget, cursorPosition);
     else
     {
-      // TODO: Add insensitivity.
+      // TODO: Add insensitivity radius.
 
       dragging = true;
       draggedWidget->dragBegunSignal.emit(*draggedWidget, cursorPosition);
@@ -568,6 +563,8 @@ void Widget::onButtonClicked(unsigned int button, bool clicked)
                                               cursorPosition,
 					      button,
 					      clicked);
+
+      // TODO: Allow dragging with any button.
 
       if (button == 0 && clickedWidget->isDraggable())
 	draggedWidget = clickedWidget;

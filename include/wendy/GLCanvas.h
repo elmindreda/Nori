@@ -44,59 +44,12 @@ class Texture;
 /*! @brief Rendering canvas.
  *  @ingroup opengl
  *
- *  This class represents a render target, i.e. a framebuffer binding.
- *
- *  @remarks Most higher-level objects capable of rendering wont work
- *  without an active canvas.
+ *  This class represents a render target, i.e. a framebuffer.
  */
 class Canvas
 {
+  friend class Renderer;
 public:
-  /*! Constructor.
-   */
-  Canvas(void);
-  /*! Destructor.
-   */
-  virtual ~Canvas(void);
-  /*! Makes this the current canvas and begins rendering.
-   */
-  void begin(void) const;
-  /*! Finishes rendering to this canvas.  After this call, this canvas
-   *  will no longer be current.
-   */
-  void end(void) const;
-  /*! Pushes the specified area onto the scissor area clip stack.  The
-   *  resulting scissor area is the specified scissor area clipped by the
-   *  current scissor area.
-   *  @param area The desired area to push.
-   *  @return @c true if the resulting scissor area has a non-zero size,
-   *  otherwise @c false.
-   *  @remarks If the resulting scissor area is empty, it is not pushed
-   *  onto the stack, so you do not need to (and should not) pop it. The
-   *  recommended pattern is:
-   *  @code
-   *  if (canvas.pushScissorArea(childArea))
-   *  {
-   *	drawStuff();
-   *	canvas.popScissorArea();
-   *  }
-   *  @endcode
-   */
-  bool pushScissorArea(const Rect& area);
-  /*! Pops the top area from the scissor area clip stack.
-   */
-  void popScissorArea(void);
-  /*! Clears the color buffer of this canvas with the specified color.
-   */
-  void clearColorBuffer(const ColorRGBA& color = ColorRGBA::BLACK) const;
-  /*! Clears the depth buffer of this canvas with the specified depth
-   *  value.
-   */
-  void clearDepthBuffer(float depth = 1.f) const;
-  /*! Clears the stencil buffer of this canvas with the specified
-   *  stencil value.
-   */
-  void clearStencilBuffer(unsigned int value = 0) const;
   /*! @return The width, in pixels, of this canvas.
    */
   virtual unsigned int getPhysicalWidth(void) const = 0;
@@ -106,33 +59,20 @@ public:
   /*! @return The aspect ratio of the dimensions, in pixels, of this canvas.
    */
   float getPhysicalAspectRatio(void) const;
-  /*! @return The scissor rectangle of this canvas.
-   */
-  const Rect& getScissorArea(void) const;
-  /*! @return The viewport rectangle of this canvas.
-   */
-  const Rect& getViewportArea(void) const;
-  /*! Sets the viewport rectangle for this canvas.
-   *  @param[in] newArea The desired viewport rectangle.
-   */
-  void setViewportArea(const Rect& newArea);
-  /*! @return The current canvas, or @c NULL if there is no current
-   *  canvas.
-   */
-  static Canvas* getCurrent(void);
 protected:
+  /*! Constructor.
+   */
+  Canvas(void);
+  /*! Destructor.
+   */
+  virtual ~Canvas(void);
   /*! Called when this canvas is to be made current.
    */
   virtual void apply(void) const = 0;
   virtual void finish(void) const = 0;
-  virtual void updateScissorArea(void) const = 0;
-  virtual void updateViewportArea(void) const = 0;
 private:
   Canvas(const Canvas& source);
   Canvas& operator = (const Canvas& source);
-  RectClipStack scissorStack;
-  Rect viewportArea;
-  static Canvas* current;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -148,8 +88,6 @@ public:
 private:
   void apply(void) const;
   void finish(void) const;
-  void updateScissorArea(void) const;
-  void updateViewportArea(void) const;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -162,7 +100,7 @@ class TextureCanvas : public Canvas
 public:
   unsigned int getPhysicalWidth(void) const;
   unsigned int getPhysicalHeight(void) const;
-  /*! @return The texture targeted by this texture canvas.
+  /*! @return The texture that this canvas uses as a color buffer.
    */
   Texture* getColorBufferTexture(void) const;
   /*! Sets the texture to use as the color buffer for this canvas.
@@ -178,11 +116,10 @@ private:
   bool init(unsigned int width, unsigned int height);
   void apply(void) const;
   void finish(void) const;
-  void updateScissorArea(void) const;
-  void updateViewportArea(void) const;
   unsigned int width;
   unsigned int height;
   Ref<Texture> texture;
+  unsigned int level;
 };
 
 ///////////////////////////////////////////////////////////////////////

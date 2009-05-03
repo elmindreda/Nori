@@ -30,8 +30,10 @@
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
+#include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLCanvas.h>
+#include <wendy/GLRender.h>
 #include <wendy/GLState.h>
 
 #include <wendy/RenderMaterial.h>
@@ -220,10 +222,10 @@ bool ClearEffect::init(void)
 
 void ClearEffect::render(void) const
 {
-  GL::Canvas* canvas = GL::Canvas::getCurrent();
+  GL::Renderer* renderer = GL::Renderer::get();
   
-  canvas->clearColorBuffer(color.getValue(getTimeElapsed()));
-  canvas->clearDepthBuffer();
+  renderer->clearColorBuffer(color.getValue(getTimeElapsed()));
+  renderer->clearDepthBuffer();
 
   renderChildren();
 }

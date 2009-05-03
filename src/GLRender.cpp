@@ -129,72 +129,27 @@ GLenum convertType(IndexBuffer::Type type)
 
 ///////////////////////////////////////////////////////////////////////
 
-void Renderer::begin(const Mat4& newProjection)
+bool Renderer::pushScissorArea(const Rect& area)
 {
-  Canvas* canvas = Canvas::getCurrent();
-  if (!canvas)
+  if (!scissorStack.push(area))
+    return false;
+
+  updateScissorArea();
+
+  return true;
+}
+
+void Renderer::popScissorArea(void)
+{
+  if (scissorStack.getCount() == 1)
   {
-    Log::writeError("Cannot begin without a current canvas");
+    Log::writeError("Cannot pop empty scissor clip stack");
     return;
   }
 
-  if (!modelview.isEmpty())
-    throw Exception("Renderer modelview matrix stack not empty at begin");
+  scissorStack.pop();
 
-  projection = newProjection;
-}
-  
-void Renderer::begin2D(float width, float height)
-{
-  Canvas* canvas = Canvas::getCurrent();
-  if (!canvas)
-  {
-    Log::writeError("Cannot begin without a current canvas");
-    return;
-  }
-
-  if (!modelview.isEmpty())
-    throw Exception("Renderer modelview matrix stack not empty at begin");
-
-  projection.x.x = 2.f / width;
-  projection.y.y = 2.f / height;
-  projection.z.z = -1.f;
-  projection.w.x = -1.f;
-  projection.w.y = -1.f;
-  projection.w.w = 1.f;
-}
-
-void Renderer::begin3D(float FOV, float aspect, float nearZ, float farZ)
-{
-  Canvas* canvas = Canvas::getCurrent();
-  if (!canvas)
-  {
-    Log::writeError("Cannot begin without a current canvas");
-    return;
-  }
-
-  if (!modelview.isEmpty())
-    throw Exception("Renderer modelview matrix stack not empty at begin");
-
-  if (aspect == 0.f)
-    aspect = (float) canvas->getPhysicalWidth() / (float) canvas->getPhysicalHeight();
-
-  const float f = 1.f / tanf((FOV * M_PI / 180.f) / 2.f);
-
-  projection.x.x = f / aspect;
-  projection.y.y = f;
-  projection.z.z = (farZ + nearZ) / (nearZ - farZ);
-  projection.z.w = -1.f;
-  projection.w.z = (2.f * farZ * nearZ) / (nearZ - farZ);
-  projection.w.w = 0.f;
-}
-
-void Renderer::end(void)
-{
-  if (!modelview.isEmpty())
-    throw Exception("Renderer modelview matrix stack not empty after end");
-
-  projection.setIdentity();
+  updateScissorArea();
 }
 
 void Renderer::pushTransform(const Mat4& transform)
@@ -205,6 +160,33 @@ void Renderer::pushTransform(const Mat4& transform)
 void Renderer::popTransform(void)
 {
   modelview.pop();
+}
+
+void Renderer::clearColorBuffer(const ColorRGBA& color)
+{
+  glPushAttrib(GL_COLOR_BUFFER_BIT);
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glClearColor(color.r, color.g, color.b, color.a);
+  glClear(GL_COLOR_BUFFER_BIT);
+  glPopAttrib();
+}
+
+void Renderer::clearDepthBuffer(float depth)
+{
+  glPushAttrib(GL_DEPTH_BUFFER_BIT);
+  glDepthMask(GL_TRUE);
+  glClearDepth(depth);
+  glClear(GL_DEPTH_BUFFER_BIT);
+  glPopAttrib();
+}
+
+void Renderer::clearStencilBuffer(unsigned int value)
+{
+  glPushAttrib(GL_STENCIL_BUFFER_BIT);
+  glStencilMask(GL_TRUE);
+  glClearStencil(value);
+  glClear(GL_STENCIL_BUFFER_BIT);
+  glPopAttrib();
 }
 
 void Renderer::render(void)
@@ -323,7 +305,7 @@ bool Renderer::allocateIndices(IndexRange& range,
     slot = &(indexBufferPool.back());
 
     // Granularity of 1K
-    // TODO: Make configurable or autoconfigured
+    // TODO: Make granularity configurable or autoconfigured
     const unsigned int actualCount = 1024 * ((count + 1023) / 1024);
 
     slot->indexBuffer = IndexBuffer::createInstance(actualCount,
@@ -375,7 +357,7 @@ bool Renderer::allocateVertices(VertexRange& range,
     slot = &(vertexBufferPool.back());
 
     // Granularity of 1K
-    // TODO: Make configurable or autoconfigured
+    // TODO: Make granularity configurable or autoconfigured
     const unsigned int actualCount = 1024 * ((count + 1023) / 1024);
     
     slot->vertexBuffer = VertexBuffer::createInstance(actualCount,
@@ -425,9 +407,27 @@ Program& Renderer::getDefaultProgram(void) const
   return *defaultProgram;
 }
 
-Canvas* Renderer::getCurrentCanvas(void) const
+const Rect& Renderer::getScissorArea(void) const
 {
-  return currentCanvas;
+  return scissorStack.getTotal();
+}
+
+const Rect& Renderer::getViewportArea(void) const
+{
+  return viewportArea;
+}
+
+void Renderer::setViewportArea(const Rect& newArea)
+{
+  viewportArea = newArea;
+  viewportArea.clipBy(Rect(0.f, 0.f, 1.f, 1.f));
+
+  updateViewportArea();
+}
+
+Canvas& Renderer::getCurrentCanvas(void) const
+{
+  return *currentCanvas;
 }
 
 Program* Renderer::getCurrentProgram(void) const
@@ -440,19 +440,56 @@ const PrimitiveRange& Renderer::getCurrentPrimitiveRange(void) const
   return currentRange;
 }
 
-const Mat4& Renderer::getCurrentProjectionMatrix(void) const
+const Mat4& Renderer::getProjectionMatrix(void) const
 {
   return projection;
 }
 
-const Mat4& Renderer::getCurrentModelViewMatrix(void) const
+const Mat4& Renderer::getModelViewMatrix(void) const
 {
   return modelview.getTotal();
 }
 
-void Renderer::setCurrentCanvas(Canvas* newCanvas)
+void Renderer::setScreenCanvasCurrent(void)
 {
-  currentCanvas = newCanvas;
+  setCurrentCanvas(*screenCanvas);
+}
+
+void Renderer::setCurrentCanvas(Canvas& newCanvas)
+{
+  currentCanvas->finish();
+  currentCanvas = &newCanvas;
+  currentCanvas->apply();
+}
+
+void Renderer::setProjectionMatrix(const Mat4& newProjection)
+{
+  projection = newProjection;
+}
+  
+void Renderer::setProjectionMatrix2D(float width, float height)
+{
+  projection.x.x = 2.f / width;
+  projection.y.y = 2.f / height;
+  projection.z.z = -1.f;
+  projection.w.x = -1.f;
+  projection.w.y = -1.f;
+  projection.w.w = 1.f;
+}
+
+void Renderer::setProjectionMatrix3D(float FOV, float aspect, float nearZ, float farZ)
+{
+  if (aspect == 0.f)
+    aspect = currentCanvas->getPhysicalAspectRatio();
+
+  const float f = 1.f / tanf((FOV * M_PI / 180.f) / 2.f);
+
+  projection.x.x = f / aspect;
+  projection.y.y = f;
+  projection.z.z = (farZ + nearZ) / (nearZ - farZ);
+  projection.z.w = -1.f;
+  projection.w.z = (2.f * farZ * nearZ) / (nearZ - farZ);
+  projection.w.w = 0.f;
 }
 
 void Renderer::setCurrentProgram(Program* newProgram)
@@ -477,6 +514,7 @@ bool Renderer::create(Context& context)
 
 Renderer::Renderer(Context& initContext):
   context(initContext),
+  screenCanvas(NULL),
   currentCanvas(NULL),
   currentProgram(NULL)
 {
@@ -484,32 +522,41 @@ Renderer::Renderer(Context& initContext):
 
 bool Renderer::init(void)
 {
-  if (!Context::get())
-  {
-    Log::writeError("Cannot create renderer without OpenGL context");
-    return false;
-  }
+  scissorStack.push(Rect(0.f, 0.f, 1.f, 1.f));
+  viewportArea.set(0.f, 0.f, 1.f, 1.f);
 
-  CheckerImageGenerator generator;
-  generator.setDefaultColor(ColorRGBA(1.f, 0.f, 1.f, 1.f));
-  generator.setCheckerColor(ColorRGBA(0.f, 1.f, 0.f, 1.f));
-  generator.setCheckerSize(10);
+  screenCanvas = new ScreenCanvas();
+  screenCanvas->apply();
+  currentCanvas = screenCanvas;
 
-  Ptr<Image> image = generator.generate(ImageFormat::RGB888, 20, 20);
-  if (!image)
-  {
-    Log::writeError("Failed to create image data for default texture");
-    return false;
-  }
-
-  defaultTexture = Texture::createInstance(*image, Texture::DEFAULT, "default");
+  defaultTexture = Texture::findInstance("default");
   if (!defaultTexture)
   {
-    Log::writeError("Failed to create default texture");
-    return false;
+    // Create DXM-colored default texture
+
+    CheckerImageGenerator generator;
+    generator.setDefaultColor(ColorRGBA(1.f, 0.f, 1.f, 1.f));
+    generator.setCheckerColor(ColorRGBA(0.f, 1.f, 0.f, 1.f));
+    generator.setCheckerSize(5);
+
+    Ptr<Image> image = generator.generate(ImageFormat::RGB888, 20, 20);
+    if (!image)
+    {
+      Log::writeError("Failed to create image data for default texture");
+      return false;
+    }
+
+    defaultTexture = Texture::createInstance(*image, Texture::DEFAULT, "default");
+    if (!defaultTexture)
+    {
+      Log::writeError("Failed to create default texture");
+      return false;
+    }
   }
 
-  Context::get()->getFinishSignal().connect(*this, &Renderer::onContextFinish);
+  // TODO: Create default shader program(s).
+
+  context.getFinishSignal().connect(*this, &Renderer::onContextFinish);
   return true;
 }
 
@@ -520,6 +567,41 @@ void Renderer::onContextFinish(void)
 
   for (VertexBufferList::iterator i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
     (*i).available = (*i).vertexBuffer->getCount();
+}
+
+void Renderer::updateScissorArea(void)
+{
+  Rect area = scissorStack.getTotal();
+  area *= viewportArea.size;
+  area.position += viewportArea.position;
+
+  const unsigned int width = currentCanvas->getPhysicalWidth();
+  const unsigned int height = currentCanvas->getPhysicalHeight();
+
+  glScissor((GLint) floorf(area.position.x * width),
+	    (GLint) floorf(area.position.y * height),
+	    (GLsizei) ceilf(area.size.x * width),
+	    (GLsizei) ceilf(area.size.y * height));
+
+  if (area == Rect(0.f, 0.f, 1.f, 1.f))
+    glDisable(GL_SCISSOR_TEST);
+  else
+    glEnable(GL_SCISSOR_TEST);
+}
+
+void Renderer::updateViewportArea(void)
+{
+  const Rect& area = getViewportArea();
+
+  const unsigned int width = currentCanvas->getPhysicalWidth();
+  const unsigned int height = currentCanvas->getPhysicalHeight();
+
+  glViewport((GLint) (area.position.x * width),
+             (GLint) (area.position.y * height),
+	     (GLsizei) (area.size.x * width),
+	     (GLsizei) (area.size.y * height));
+
+  updateScissorArea();
 }
 
 ///////////////////////////////////////////////////////////////////////

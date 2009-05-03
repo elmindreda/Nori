@@ -158,7 +158,7 @@ protected:
   /*! Called when the scene graph is collecting rendering information.  All the
    *  operations required to render this scene node should be put into the
    *  specified render queue.
-   *  @param[inout] queue The render queue for collecting operations.
+   *  @param[in,out] queue The render queue for collecting operations.
    *  @param[in] phase The current enqueueing phase.
    */
   virtual void enqueue(Queue& queue, QueuePhase phase) const;
