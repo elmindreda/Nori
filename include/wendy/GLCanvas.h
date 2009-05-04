@@ -82,10 +82,12 @@ private:
  */
 class ScreenCanvas : public Canvas
 {
+  friend class Renderer;
 public:
   unsigned int getPhysicalWidth(void) const;
   unsigned int getPhysicalHeight(void) const;
 private:
+  ScreenCanvas(void);
   void apply(void) const;
   void finish(void) const;
 };
@@ -113,6 +115,7 @@ public:
    */
   static TextureCanvas* createInstance(unsigned int width, unsigned int height);
 private:
+  TextureCanvas(void);
   bool init(unsigned int width, unsigned int height);
   void apply(void) const;
   void finish(void) const;
