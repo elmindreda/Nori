@@ -203,8 +203,8 @@ private:
   MatrixStack4 modelview;
   IndexBufferList indexBufferPool;
   VertexBufferList vertexBufferPool;
-  Canvas* currentCanvas;
   Canvas* screenCanvas;
+  Canvas* currentCanvas;
   Ref<Program> currentProgram;
   PrimitiveRange currentRange;
   Ref<Texture> defaultTexture;
