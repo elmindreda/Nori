@@ -57,21 +57,6 @@ using namespace moira;
 namespace
 {
   
-size_t getTypeSize(IndexBuffer::Type type)
-{
-  switch (type)
-  {
-    case IndexBuffer::UINT:
-      return sizeof(GLuint);
-    case IndexBuffer::USHORT:
-      return sizeof(GLushort);
-    case IndexBuffer::UBYTE:
-      return sizeof(GLubyte);
-    default:
-      throw Exception("Invalid index buffer type");
-  }
-}
-
 GLenum convertPrimitiveType(PrimitiveType type)
 {
   switch (type)
@@ -265,7 +250,7 @@ void Renderer::render(void)
     glDrawElements(convertPrimitiveType(currentRange.getType()),
                    currentRange.getCount(),
 		   convertType(indexBuffer->getType()),
-		   (GLvoid*) (getTypeSize(indexBuffer->getType()) * currentRange.getStart()));
+		   (GLvoid*) (IndexBuffer::getTypeSize(indexBuffer->getType()) * currentRange.getStart()));
   }
   else
   {
@@ -525,7 +510,7 @@ bool Renderer::init(void)
   scissorStack.push(Rect(0.f, 0.f, 1.f, 1.f));
   viewportArea.set(0.f, 0.f, 1.f, 1.f);
 
-  screenCanvas = new ScreenCanvas();
+  screenCanvas = new ScreenCanvas(context);
   screenCanvas->apply();
   currentCanvas = screenCanvas;
 

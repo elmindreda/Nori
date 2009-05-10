@@ -59,10 +59,11 @@ public:
   /*! @return The aspect ratio of the dimensions, in pixels, of this canvas.
    */
   float getPhysicalAspectRatio(void) const;
+  Context& getContext(void) const;
 protected:
   /*! Constructor.
    */
-  Canvas(void);
+  Canvas(Context& context);
   /*! Destructor.
    */
   virtual ~Canvas(void);
@@ -73,6 +74,7 @@ protected:
 private:
   Canvas(const Canvas& source);
   Canvas& operator = (const Canvas& source);
+  Context& context;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -87,7 +89,7 @@ public:
   unsigned int getPhysicalWidth(void) const;
   unsigned int getPhysicalHeight(void) const;
 private:
-  ScreenCanvas(void);
+  ScreenCanvas(Context& context);
   void apply(void) const;
   void finish(void) const;
 };
@@ -107,20 +109,22 @@ public:
   Texture* getColorBufferTexture(void) const;
   /*! Sets the texture to use as the color buffer for this canvas.
    *  @param[in] newTexture The desired texture, or @c NULL to detach the currently set texture.
+   *  @param[in] newLevel If a texture is specified, the desired mipmap level of the texture to use.
    *  @remarks A texture canvas cannot be rendered to without a texture to use as color buffer.
    */
-  void setColorBufferTexture(Texture* newTexture);
+  void setColorBufferTexture(Texture* newTexture, unsigned int newLevel = 0);
   /*! Creates a texture canvas for the specified texture.
    *  @param texture The texture for which to create a texture canvas.
    */
-  static TextureCanvas* createInstance(unsigned int width, unsigned int height);
+  static TextureCanvas* createInstance(Context& context, unsigned int width, unsigned int height);
 private:
-  TextureCanvas(void);
+  TextureCanvas(Context& context);
   bool init(unsigned int width, unsigned int height);
   void apply(void) const;
   void finish(void) const;
   unsigned int width;
   unsigned int height;
+  unsigned int bufferID;
   Ref<Texture> texture;
   unsigned int level;
 };

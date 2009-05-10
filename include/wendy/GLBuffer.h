@@ -217,6 +217,9 @@ public:
 				     Type type = UINT,
 				     Usage usage = STATIC,
 				     const String& name = "");
+  /*! @return The size, in bytes, of the specified element type.
+   */
+  static size_t getTypeSize(Type type);
 private:
   IndexBuffer(const String& name);
   IndexBuffer(const IndexBuffer& source);

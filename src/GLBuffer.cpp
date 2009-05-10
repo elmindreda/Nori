@@ -47,22 +47,6 @@ namespace wendy
 namespace
 {
   
-size_t getTypeSize(IndexBuffer::Type type)
-{
-  switch (type)
-  {
-    case IndexBuffer::UINT:
-      return sizeof(GLuint);
-    case IndexBuffer::USHORT:
-      return sizeof(GLushort);
-    case IndexBuffer::UBYTE:
-      return sizeof(GLubyte);
-    default:
-      Log::writeError("Invalid index buffer type %u", type);
-      return 0;
-  }
-}
-
 GLenum convertLockType(LockType type)
 {
   switch (type)
@@ -432,6 +416,22 @@ IndexBuffer* IndexBuffer::createInstance(unsigned int count,
   return buffer.detachObject();
 }
 
+size_t IndexBuffer::getTypeSize(Type type)
+{
+  switch (type)
+  {
+    case IndexBuffer::UINT:
+      return sizeof(GLuint);
+    case IndexBuffer::USHORT:
+      return sizeof(GLushort);
+    case IndexBuffer::UBYTE:
+      return sizeof(GLubyte);
+    default:
+      Log::writeError("Invalid index buffer type %u", type);
+      return 0;
+  }
+}
+
 IndexBuffer::IndexBuffer(const String& name):
   Managed<IndexBuffer>(name),
   locked(false),
@@ -656,7 +656,7 @@ void* IndexRange::lock(LockType type) const
   if (!indices)
     return NULL;
 
-  return indices + start * getTypeSize(indexBuffer->getType());
+  return indices + start * IndexBuffer::getTypeSize(indexBuffer->getType());
 }
 
 void IndexRange::unlock(void) const

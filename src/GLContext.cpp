@@ -345,7 +345,9 @@ SignalProxy0<void> Context::getDestroySignal(void)
 
 void Context::getScreenModes(ScreenModeList& result)
 {
+  /*
   GLFWvidmode modes[128];
+  */
 }
 
 Context::Context(void):

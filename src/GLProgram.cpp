@@ -217,9 +217,9 @@ bool isUniformType(CGtype type)
     case CG_FLOAT3x3:
     case CG_FLOAT4x4:
       return true;
+    default:
+      return false;
   }
-
-  return false;
 }
 
 bool isSamplerType(CGtype type)
@@ -232,9 +232,9 @@ bool isSamplerType(CGtype type)
     case CG_SAMPLERRECT:
     case CG_SAMPLERCUBE:
       return true;
+    default:
+      return false;
   }
-
-  return false;
 }
 
 template <typename T>

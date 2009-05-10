@@ -52,7 +52,13 @@ float Canvas::getPhysicalAspectRatio(void) const
   return getPhysicalWidth() / (float) getPhysicalHeight();
 }
 
-Canvas::Canvas(void)
+Context& Canvas::getContext(void) const
+{
+  return context;
+}
+
+Canvas::Canvas(Context& initContext):
+  context(initContext)
 {
 }
 
@@ -60,7 +66,8 @@ Canvas::~Canvas(void)
 {
 }
 
-Canvas::Canvas(const Canvas& source)
+Canvas::Canvas(const Canvas& source):
+  context(source.context)
 {
   // NOTE: Not implemented.
 }
@@ -76,16 +83,23 @@ Canvas& Canvas::operator = (const Canvas& source)
 
 unsigned int ScreenCanvas::getPhysicalWidth(void) const
 {
-  return Context::get()->getWidth();
+  return getContext().getWidth();
 }
 
 unsigned int ScreenCanvas::getPhysicalHeight(void) const
 {
-  return Context::get()->getHeight();
+  return getContext().getHeight();
+}
+
+ScreenCanvas::ScreenCanvas(Context& context):
+  Canvas(context)
+{
 }
 
 void ScreenCanvas::apply(void) const
 {
+  if (GLEW_EXT_framebuffer_object)
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
 void ScreenCanvas::finish(void) const
@@ -111,30 +125,26 @@ Texture* TextureCanvas::getColorBufferTexture(void) const
 
 void TextureCanvas::setColorBufferTexture(Texture* newTexture, unsigned int newLevel)
 {
-  if (texture)
-    finish();
-
   texture = newTexture;
   level = newLevel;
 }
 
-TextureCanvas* TextureCanvas::createInstance(unsigned int width, unsigned int height)
+TextureCanvas* TextureCanvas::createInstance(Context& context, unsigned int width, unsigned int height)
 {
-  Ptr<TextureCanvas> canvas = new TextureCanvas();
+  Ptr<TextureCanvas> canvas = new TextureCanvas(context);
   if (!canvas->init(width, height))
     return false;
 
   return canvas.detachObject();
 }
 
+TextureCanvas::TextureCanvas(Context& context):
+  Canvas(context)
+{
+}
+
 bool TextureCanvas::init(unsigned int initWidth, unsigned int initHeight)
 {
-  if (!Context::get())
-  {
-    Log::writeError("Cannot create texture canvas without OpenGL context");
-    return false;
-  }
-
   width = initWidth;
   height = initHeight;
 
@@ -143,6 +153,8 @@ bool TextureCanvas::init(unsigned int initWidth, unsigned int initHeight)
 
 void TextureCanvas::apply(void) const
 {
+  if (GLEW_EXT_framebuffer_object)
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
 }
 
 void TextureCanvas::finish(void) const
