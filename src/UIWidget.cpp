@@ -501,8 +501,11 @@ void Widget::onCursorMoved(const Vec2& position)
   for (List::reverse_iterator i = roots.rbegin();  i != roots.rend();  i++)
   {
     if ((*i)->isVisible())
-      if (newWidget = (*i)->findByPoint(cursorPosition))
+    {
+      newWidget = (*i)->findByPoint(cursorPosition);
+      if (newWidget)
 	break;
+    }
   }
 
   if (newWidget != hoveredWidget)
@@ -549,8 +552,11 @@ void Widget::onButtonClicked(unsigned int button, bool clicked)
     for (List::reverse_iterator i = roots.rbegin();  i != roots.rend();  i++)
     {
       if ((*i)->isVisible())
-	if (clickedWidget = (*i)->findByPoint(cursorPosition))
+      {
+	clickedWidget = (*i)->findByPoint(cursorPosition);
+	if (clickedWidget)
 	  break;
+      }
     }
 
     while (clickedWidget && !clickedWidget->isEnabled())
