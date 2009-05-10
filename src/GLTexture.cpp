@@ -425,6 +425,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
     {
       Log::writeError("Failed to rescale image for texture \'%s\'", getName().c_str());
       return false;
+    }
   }
 
   // Clear any errors
