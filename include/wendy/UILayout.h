@@ -60,10 +60,10 @@ protected:
 private:
   typedef std::map<Widget*, float> SizeMap;
   void update(void);
-  bool expanding;
   SizeMap sizes;
   float borderSize;
   Orientation orientation;
+  bool expanding;
   Ptr<SignalSlot> parentAreaSlot;
 };
 
