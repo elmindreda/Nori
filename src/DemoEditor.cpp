@@ -626,7 +626,7 @@ void Editor::onParentChanged(Timeline& timeline)
   {
     parentPopup->addItem(effect->getName());
   }
-  while (effect = effect->getParent());
+  while ((effect = effect->getParent()) != NULL);
 }
 
 void Editor::onSelectionChanged(Timeline& timeline)
