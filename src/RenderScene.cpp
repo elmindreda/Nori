@@ -345,9 +345,9 @@ void LightNode::enqueue(Queue& queue, QueuePhase phase) const
   if (phase != COLLECT_LIGHTS)
     return;
 
+  /*
   const Transform3& world = getWorldTransform();
 
-  /*
   switch (light->getType())
   {
     case Light::DIRECTIONAL:
