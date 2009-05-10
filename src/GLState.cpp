@@ -524,7 +524,7 @@ SamplerState::SamplerState(const SamplerState& source):
   texture = source.texture;
 }
 
-bool SamplerState::getTexture(Ref<Texture>& result) const
+void SamplerState::getTexture(Ref<Texture>& result) const
 {
   result = texture;
 }

@@ -180,7 +180,7 @@ class SamplerState
 public:
   SamplerState(Sampler& sampler);
   SamplerState(const SamplerState& source);
-  bool getTexture(Ref<Texture>& result) const;
+  void getTexture(Ref<Texture>& result) const;
   void setTexture(Texture* newTexture);
   Sampler& getSampler(void) const;
 private:
