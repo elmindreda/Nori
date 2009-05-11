@@ -1,6 +1,6 @@
 
 set(wendy_SOURCES
-    Core.cpp Wendy.cpp
+    Wendy.cpp
     GLBuffer.cpp GLContext.cpp GLProgram.cpp GLProgramIO.cpp GLRender.cpp GLState.cpp GLStatistics.cpp GLTexture.cpp GLTextureIO.cpp GLVertex.cpp
     RenderCamera.cpp RenderFont.cpp RenderIO.cpp RenderLight.cpp RenderMesh.cpp RenderParticle.cpp RenderQueue.cpp RenderSprite.cpp RenderMaterial.cpp RenderTerrain.cpp
     SceneGraph.cpp SceneIO.cpp
