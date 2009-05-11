@@ -575,7 +575,8 @@ bool VertexProgram::init(const String& initText)
 			      NULL);
   if (!programID)
   {
-    Log::writeError("Failed to compile Cg vertex program:\n%s\n%s",
+    Log::writeError("Failed to compile Cg vertex program \'%s\':\n%s\n%s",
+                    getName().c_str(),
                     cgGetErrorString(cgGetError()),
 		    cgGetLastListing((CGcontext) context.cgContextID));
     return false;
@@ -638,7 +639,8 @@ bool FragmentProgram::init(const String& initText)
 			      NULL);
   if (!programID)
   {
-    Log::writeError("Failed to compile Cg fragment program:\n%s\n%s",
+    Log::writeError("Failed to compile Cg fragment program \'%s\':\n%s\n%s",
+                    getName().c_str(),
                     cgGetErrorString(cgGetError()),
 		    cgGetLastListing((CGcontext) context.cgContextID));
     return false;
