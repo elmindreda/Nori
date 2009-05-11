@@ -80,6 +80,22 @@
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @defgroup io I/O classes
+ *
+ *  These classes provide I/O for various other parts of the system, mostly
+ *  by implementing resource system codecs.
+ */
+
+/*! @defgroup default Default extensions
+ *
+ *  These classes are not conceptually a part of the core Wendy library, but
+ *  are default implementations of commonly used extensions of the core objects
+ *  provided by the system. They are provided both to speed up development and
+ *  to serve as examples of correct use of the core classes.
+ */
+
+///////////////////////////////////////////////////////////////////////
+
 #include <moira/Moira.h>
 
 #include <wendy/Config.h>
