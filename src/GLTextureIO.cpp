@@ -105,7 +105,7 @@ bool TextureCodec::write(Stream& stream, const Texture& texture)
   }
   catch (Exception& exception)
   {
-    Log::writeError("Failed to write texture specification %s: %s",
+    Log::writeError("Failed to write texture specification \'%s\': %s",
                     texture.getName().c_str(),
 		    exception.what());
     setStream(NULL);
