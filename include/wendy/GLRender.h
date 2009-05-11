@@ -41,6 +41,37 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+class Stats
+{
+public:
+  class Frame
+  {
+  public:
+    Frame(void);
+    unsigned int passCount;
+    unsigned int vertexCount;
+    unsigned int pointCount;
+    unsigned int lineCount;
+    unsigned int triangleCount;
+    Time duration;
+  };
+  typedef std::deque<Frame> FrameQueue;
+  Stats(void);
+  void addFrame(void);
+  void addPasses(unsigned int count);
+  void addPrimitives(PrimitiveType type, unsigned int count);
+  float getFrameRate(void) const;
+  unsigned int getFrameCount(void) const;
+  const Frame& getFrame(void) const;
+private:
+  unsigned int frameCount;
+  float frameRate;
+  FrameQueue frames;
+  Timer timer;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Rendering canvas.
  *  @ingroup opengl
  *
@@ -255,6 +286,8 @@ public:
    *  @param[in] newRange The desired primitive range to use.
    */
   void setCurrentPrimitiveRange(const PrimitiveRange& newRange);
+  Stats* getStats(void) const;
+  void setStats(Stats* newStats);
   /*! Creates the renderer singleton.
    *  @param[in] context The context to create the renderer for.
    *  @return @c true if successful, or @c false if an error occurred.
@@ -295,6 +328,7 @@ private:
   PrimitiveRange currentRange;
   Ref<Texture> defaultTexture;
   Ref<Program> defaultProgram;
+  Stats* stats;
 };
 
 ///////////////////////////////////////////////////////////////////////

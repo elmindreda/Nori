@@ -1,7 +1,7 @@
 
 set(wendy_SOURCES
     Wendy.cpp
-    GLBuffer.cpp GLContext.cpp GLProgram.cpp GLProgramIO.cpp GLRender.cpp GLState.cpp GLStatistics.cpp GLTexture.cpp GLTextureIO.cpp GLVertex.cpp
+    GLBuffer.cpp GLContext.cpp GLProgram.cpp GLProgramIO.cpp GLRender.cpp GLState.cpp GLTexture.cpp GLTextureIO.cpp GLVertex.cpp
     RenderCamera.cpp RenderFont.cpp RenderIO.cpp RenderLight.cpp RenderMesh.cpp RenderParticle.cpp RenderQueue.cpp RenderSprite.cpp RenderMaterial.cpp RenderTerrain.cpp
     SceneGraph.cpp SceneIO.cpp
     Input.cpp)

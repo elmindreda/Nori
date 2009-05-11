@@ -105,7 +105,6 @@
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
-#include <wendy/GLStatistics.h>
 #include <wendy/GLRender.h>
 #include <wendy/GLState.h>
 
@@ -129,6 +128,7 @@
 #include <wendy/SceneGraph.h>
 #include <wendy/SceneIO.h>
 
+#if WENDY_INCLUDE_UI_SYSTEM
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIWindow.h>
@@ -147,12 +147,15 @@
 #include <wendy/UIMenu.h>
 #include <wendy/UIPopup.h>
 #include <wendy/UIColor.h>
+#endif
 
+#if WENDY_INCLUDE_DEMO_SYSTEM
 #include <wendy/DemoProperty.h>
 #include <wendy/DemoEffect.h>
 #include <wendy/DemoShow.h>
 #include <wendy/DemoTimeline.h>
 #include <wendy/DemoEditor.h>
+#endif
 
 ///////////////////////////////////////////////////////////////////////
 

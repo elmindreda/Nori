@@ -28,7 +28,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/GLContext.h>
-#include <wendy/GLStatistics.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
@@ -728,8 +727,11 @@ void ProgramState::destroyProgramState(void)
 
 void RenderState::apply(void) const
 {
-  if (Statistics* statistics = Statistics::get())
-    statistics->addPasses(1);
+  if (Renderer* renderer = Renderer::get())
+  {
+    if (Stats* stats = renderer->getStats())
+      stats->addPasses(1);
+  }
 
   if (cache.dirty)
   {

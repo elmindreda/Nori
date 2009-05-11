@@ -113,6 +113,97 @@ GLenum convertType(IndexBuffer::Type type)
 
 ///////////////////////////////////////////////////////////////////////
 
+Stats::Stats(void):
+  frameCount(0),
+  frameRate(0.f)
+{
+  frames.push_back(Frame());
+
+  timer.start();
+}
+
+void Stats::addFrame(void)
+{
+  frameCount++;
+
+  frames.push_front(Frame());
+  if (frames.size() > 60)
+    frames.pop_back();
+
+  frameRate = 0.f;
+
+  for (unsigned int i = 0;  i < frames.size();  i++)
+    frameRate += (float) frames[i].duration / frames.size();
+}
+
+void Stats::addPasses(unsigned int count)
+{
+  Frame& frame = frames.front();
+  frame.passCount += count;
+}
+
+void Stats::addPrimitives(PrimitiveType type, unsigned int count)
+{
+  if (!count)
+    return;
+
+  Frame& frame = frames.front();
+  frame.vertexCount += count;
+
+  switch (type)
+  {
+    case POINT_LIST:
+      frame.pointCount += count;
+      break;
+    case LINE_LIST:
+      frame.lineCount += count / 2;
+      break;
+    case LINE_STRIP:
+      frame.lineCount += count - 1;
+      break;
+    case TRIANGLE_LIST:
+      frame.triangleCount += count / 3;
+      break;
+    case TRIANGLE_STRIP:
+      frame.triangleCount += count - 2;
+      break;
+    case TRIANGLE_FAN:
+      frame.triangleCount += count - 1;
+      break;
+    default:
+      Log::writeError("Invalid primitive type %u", type);
+  }
+}
+
+float Stats::getFrameRate(void) const
+{
+  return frameRate;
+}
+
+unsigned int Stats::getFrameCount(void) const
+{
+  return frameCount;
+}
+
+const Stats::Frame& Stats::getFrame(void) const
+{
+  return frames.front();
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Stats::Frame::Frame(void):
+  passCount(0),
+  vertexCount(0),
+  pointCount(0),
+  lineCount(0),
+  triangleCount(0),
+  duration(0.0)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
 float Canvas::getPhysicalAspectRatio(void) const
 {
   return getPhysicalWidth() / (float) getPhysicalHeight();
@@ -388,6 +479,9 @@ void Renderer::render(void)
 		 currentRange.getCount());
   }
 
+  if (stats)
+    stats->addPrimitives(currentRange.getType(), currentRange.getCount());
+
   for (unsigned int i = 0;  i < program.getVaryingCount();  i++)
     program.getVarying(i).disable();
 }
@@ -618,6 +712,16 @@ void Renderer::setCurrentPrimitiveRange(const PrimitiveRange& newRange)
   currentRange = newRange;
 }
 
+Stats* Renderer::getStats(void) const
+{
+  return stats;
+}
+
+void Renderer::setStats(Stats* newStats)
+{
+  stats = newStats;
+}
+
 bool Renderer::create(Context& context)
 {
   Ptr<Renderer> renderer = new Renderer(context);
@@ -632,7 +736,8 @@ Renderer::Renderer(Context& initContext):
   context(initContext),
   screenCanvas(NULL),
   currentCanvas(NULL),
-  currentProgram(NULL)
+  currentProgram(NULL),
+  stats(NULL)
 {
 }
 
@@ -685,6 +790,9 @@ void Renderer::onContextFinish(void)
 
   for (VertexBufferList::iterator i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
     (*i).available = (*i).vertexBuffer->getCount();
+
+  if (stats)
+    stats->addFrame();
 }
 
 void Renderer::updateScissorArea(void)
