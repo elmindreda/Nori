@@ -19,6 +19,7 @@ if(WENDY_INCLUDE_DEMO_SYSTEM)
 endif(WENDY_INCLUDE_DEMO_SYSTEM)
 
 add_library(wendy STATIC ${wendy_SOURCES})
+add_dependencies(wendy moira)
 
 install(TARGETS wendy ARCHIVE DESTINATION lib)
 
