@@ -108,11 +108,13 @@
 #include <wendy/RenderParticle.h>
 #include <wendy/RenderMesh.h>
 #include <wendy/RenderTerrain.h>
-#include <wendy/RenderScene.h>
 
 #include <wendy/RenderIO.h>
 
 #include <wendy/Input.h>
+
+#include <wendy/SceneGraph.h>
+#include <wendy/SceneIO.h>
 
 #include <wendy/UIRender.h>
 #include <wendy/UIWidget.h>

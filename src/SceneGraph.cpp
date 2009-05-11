@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy default renderer
+// Wendy scene graph
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -44,7 +44,8 @@
 #include <wendy/RenderParticle.h>
 #include <wendy/RenderMesh.h>
 #include <wendy/RenderTerrain.h>
-#include <wendy/RenderScene.h>
+
+#include <wendy/SceneGraph.h>
 
 #include <algorithm>
 
@@ -52,7 +53,7 @@
 
 namespace wendy
 {
-  namespace render
+  namespace scene
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -61,58 +62,117 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-SceneNode::SceneNode(void):
+Node::Node(void):
+  parent(NULL),
   visible(true),
   dirtyWorld(false),
   dirtyBounds(false)
 {
 }
 
-SceneNode::~SceneNode(void)
+Node::~Node(void)
 {
+  destroyChildren();
+  removeFromParent();
 }
 
-bool SceneNode::isVisible(void) const
+bool Node::addChild(Node& child)
+{
+  if (isChildOf(child))
+    return false;
+
+  child.removeFromParent();
+
+  children.push_back(&child);
+  child.parent = this;
+  return true;
+}
+
+void Node::removeFromParent(void)
+{
+  if (parent)
+  {
+    List& siblings = parent->children;
+    siblings.erase(std::find(siblings.begin(), siblings.end(), this));
+    parent = NULL;
+  }
+}
+
+void Node::destroyChildren(void)
+{
+  while (!children.empty())
+    delete children.back();
+}
+
+bool Node::isChildOf(const Node& node) const
+{
+  if (parent != NULL)
+  {
+    if (parent == &node)
+      return true;
+
+    return parent->isChildOf(node);
+  }
+  
+  return false;
+}
+
+bool Node::isVisible(void) const
 {
   return visible;
 }
 
-void SceneNode::setVisible(bool enabled)
+bool Node::hasChildren(void) const
+{
+  return !children.empty();
+}
+
+Node* Node::getParent(void) const
+{
+  return parent;
+}
+
+const Node::List& Node::getChildren(void) const
+{
+  return children;
+}
+
+void Node::setVisible(bool enabled)
 {
   visible = enabled;
 }
 
-Transform3& SceneNode::getLocalTransform(void)
+Transform3& Node::getLocalTransform(void)
 {
   dirtyWorld = true;
   return local;
 }
 
-const Transform3& SceneNode::getLocalTransform(void) const
+const Transform3& Node::getLocalTransform(void) const
 {
   return local;
 }
 
-const Transform3& SceneNode::getWorldTransform(void) const
+const Transform3& Node::getWorldTransform(void) const
 {
   updateWorldTransform();
   return world;
 }
 
-const Sphere& SceneNode::getLocalBounds(void) const
+const Sphere& Node::getLocalBounds(void) const
 {
   return localBounds;
 }
 
-void SceneNode::setLocalBounds(const Sphere& newBounds)
+void Node::setLocalBounds(const Sphere& newBounds)
 {
   localBounds = newBounds;
 
-  for (SceneNode* parent = this;  parent;  parent = parent->getParent())
+  for (Node* parent = this;  parent;  parent = parent->getParent())
     parent->dirtyBounds = true;
 }
 
-const Sphere& SceneNode::getTotalBounds(void) const
+const Sphere& Node::getTotalBounds(void) const
 {
   if (dirtyBounds)
   {
@@ -133,23 +193,23 @@ const Sphere& SceneNode::getTotalBounds(void) const
   return totalBounds;
 }
 
-void SceneNode::addedToParent(SceneNode& parent)
+void Node::addedToParent(Node& parent)
 {
   dirtyWorld = true;
 
-  for (SceneNode* parent = this;  parent;  parent = parent->getParent())
+  for (Node* parent = this;  parent;  parent = parent->getParent())
     parent->dirtyBounds = true;
 }
 
-void SceneNode::removedFromParent(void)
+void Node::removedFromParent(void)
 {
   dirtyWorld = true;
 
-  for (SceneNode* parent = this;  parent;  parent = parent->getParent())
+  for (Node* parent = this;  parent;  parent = parent->getParent())
     parent->dirtyBounds = true;
 }
 
-void SceneNode::update(Time deltaTime)
+void Node::update(Time deltaTime)
 {
   const List& children = getChildren();
 
@@ -157,11 +217,11 @@ void SceneNode::update(Time deltaTime)
     (*i)->update(deltaTime);
 }
 
-void SceneNode::restart(void)
+void Node::restart(void)
 {
 } 
 
-void SceneNode::enqueue(Queue& queue, QueuePhase phase) const
+void Node::enqueue(render::Queue& queue, QueuePhase phase) const
 {
   const List& children = getChildren();
 
@@ -180,10 +240,10 @@ void SceneNode::enqueue(Queue& queue, QueuePhase phase) const
   }
 }
 
-bool SceneNode::updateWorldTransform(void) const
+bool Node::updateWorldTransform(void) const
 {
   world = local;
-  if (const SceneNode* parent = getParent())
+  if (const Node* parent = getParent())
   {
     parent->updateWorldTransform();
     world *= parent->world;
@@ -191,7 +251,7 @@ bool SceneNode::updateWorldTransform(void) const
   
   /* TODO: Fix this.
 
-  const SceneNode* parent = getParent();
+  const Node* parent = getParent();
   if (parent)
   {
     if (parent->updateWorldTransform())
@@ -214,13 +274,13 @@ bool SceneNode::updateWorldTransform(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-Scene::Scene(const String& name):
-  Managed<Scene>(name),
+Graph::Graph(const String& name):
+  Resource<Graph>(name),
   currentTime(0.0)
 {
 }
 
-Scene::~Scene(void)
+Graph::~Graph(void)
 {
   while (!roots.empty())
   {
@@ -229,21 +289,21 @@ Scene::~Scene(void)
   }
 }
 
-void Scene::enqueue(Queue& queue) const
+void Graph::enqueue(render::Queue& queue) const
 {
-  NodeList nodes;
+  Node::List nodes;
   query(queue.getCamera().getFrustum(), nodes);
 
-  for (NodeList::const_iterator i = nodes.begin();  i != nodes.end();  i++)
+  for (Node::List::const_iterator i = nodes.begin();  i != nodes.end();  i++)
     (*i)->enqueue(queue, COLLECT_LIGHTS);
 
-  for (NodeList::const_iterator i = nodes.begin();  i != nodes.end();  i++)
+  for (Node::List::const_iterator i = nodes.begin();  i != nodes.end();  i++)
     (*i)->enqueue(queue, COLLECT_GEOMETRY);
 }
 
-void Scene::query(const Sphere& bounds, NodeList& nodes) const
+void Graph::query(const Sphere& bounds, Node::List& nodes) const
 {
-  for (NodeList::const_iterator i = roots.begin();  i != roots.end();  i++)
+  for (Node::List::const_iterator i = roots.begin();  i != roots.end();  i++)
   {
     if ((*i)->isVisible())
     {
@@ -256,9 +316,9 @@ void Scene::query(const Sphere& bounds, NodeList& nodes) const
   }
 }
 
-void Scene::query(const Frustum& frustum, NodeList& nodes) const
+void Graph::query(const Frustum& frustum, Node::List& nodes) const
 {
-  for (NodeList::const_iterator i = roots.begin();  i != roots.end();  i++)
+  for (Node::List::const_iterator i = roots.begin();  i != roots.end();  i++)
   {
     if ((*i)->isVisible())
     {
@@ -271,7 +331,7 @@ void Scene::query(const Frustum& frustum, NodeList& nodes) const
   }
 }
 
-void Scene::addNode(SceneNode& node)
+void Graph::addNode(Node& node)
 {
   if (std::find(roots.begin(), roots.end(), &node) != roots.end())
     return;
@@ -279,41 +339,41 @@ void Scene::addNode(SceneNode& node)
   roots.push_back(&node);
 }
 
-void Scene::removeNode(SceneNode& node)
+void Graph::removeNode(Node& node)
 {
-  NodeList::iterator i = std::find(roots.begin(), roots.end(), &node);
+  Node::List::iterator i = std::find(roots.begin(), roots.end(), &node);
   if (i != roots.end())
     roots.erase(i);
 }
 
-void Scene::removeNodes(void)
+void Graph::removeNodes(void)
 {
   roots.clear();
 }
 
-const Scene::NodeList& Scene::getNodes(void) const
+const Node::List& Graph::getNodes(void) const
 {
   return roots;
 }
 
-Time Scene::getTimeElapsed(void) const
+Time Graph::getTimeElapsed(void) const
 {
   return currentTime;
 }
 
-void Scene::setTimeElapsed(Time newTime)
+void Graph::setTimeElapsed(Time newTime)
 {
   Time deltaTime = newTime - currentTime;
 
   if (deltaTime < 0.0)
   {
-    for (NodeList::const_iterator i = roots.begin();  i != roots.end();  i++)
+    for (Node::List::const_iterator i = roots.begin();  i != roots.end();  i++)
       (*i)->restart();
 
     deltaTime = newTime;
   }
 
-  for (NodeList::const_iterator i = roots.begin();  i != roots.end();  i++)
+  for (Node::List::const_iterator i = roots.begin();  i != roots.end();  i++)
     (*i)->update(deltaTime);
 
   currentTime = newTime;
@@ -321,26 +381,26 @@ void Scene::setTimeElapsed(Time newTime)
 
 ///////////////////////////////////////////////////////////////////////
 
-Light* LightNode::getLight(void) const
+render::Light* LightNode::getLight(void) const
 {
   return light;
 }
 
-void LightNode::setLight(Light* newLight)
+void LightNode::setLight(render::Light* newLight)
 {
   light = newLight;
 }
 
 void LightNode::update(Time deltaTime)
 {
-  SceneNode::update(deltaTime);
+  Node::update(deltaTime);
 
   //setLocalBounds(light->getBounds());
 }
 
-void LightNode::enqueue(Queue& queue, QueuePhase phase) const
+void LightNode::enqueue(render::Queue& queue, QueuePhase phase) const
 {
-  SceneNode::enqueue(queue, phase);
+  Node::enqueue(queue, phase);
 
   if (phase != COLLECT_LIGHTS)
     return;
@@ -373,20 +433,20 @@ void LightNode::enqueue(Queue& queue, QueuePhase phase) const
 
 ///////////////////////////////////////////////////////////////////////
 
-Mesh* MeshNode::getMesh(void) const
+render::Mesh* MeshNode::getMesh(void) const
 {
   return mesh;
 }
 
-void MeshNode::setMesh(Mesh* newMesh)
+void MeshNode::setMesh(render::Mesh* newMesh)
 {
   mesh = newMesh;
   setLocalBounds(mesh->getBounds());
 }
 
-void MeshNode::enqueue(Queue& queue, QueuePhase phase) const
+void MeshNode::enqueue(render::Queue& queue, QueuePhase phase) const
 {
-  SceneNode::enqueue(queue, phase);
+  Node::enqueue(queue, phase);
 
   if (phase == COLLECT_GEOMETRY)
   {
@@ -409,9 +469,9 @@ void CameraNode::setCameraName(const String& newName)
 
 void CameraNode::update(Time deltaTime)
 {
-  SceneNode::update(deltaTime);
+  Node::update(deltaTime);
 
-  Camera* camera = Camera::findInstance(cameraName);
+  render::Camera* camera = render::Camera::findInstance(cameraName);
   if (!camera)
   {
     Log::writeError("Cannot find camera %s for camera node", cameraName.c_str());
@@ -423,27 +483,27 @@ void CameraNode::update(Time deltaTime)
 
 ///////////////////////////////////////////////////////////////////////
 
-Terrain* TerrainNode::getTerrain(void) const
+render::Terrain* TerrainNode::getTerrain(void) const
 {
   return terrain;
 }
 
-void TerrainNode::setTerrain(Terrain* newTerrain)
+void TerrainNode::setTerrain(render::Terrain* newTerrain)
 {
   terrain = newTerrain;
 }
 
 void TerrainNode::update(Time deltaTime)
 {
-  SceneNode::update(deltaTime);
+  Node::update(deltaTime);
 
   if (terrain)
     setLocalBounds(terrain->getBounds());
 }
 
-void TerrainNode::enqueue(Queue& queue, QueuePhase phase) const
+void TerrainNode::enqueue(render::Queue& queue, QueuePhase phase) const
 {
-  SceneNode::enqueue(queue, phase);
+  Node::enqueue(queue, phase);
 
   if (phase == COLLECT_GEOMETRY)
   {
@@ -459,12 +519,12 @@ SpriteNode::SpriteNode(void)
   setSpriteSize(Vec2(1.f, 1.f));
 }
 
-Material* SpriteNode::getMaterial(void) const
+render::Material* SpriteNode::getMaterial(void) const
 {
   return material;
 }
 
-void SpriteNode::setMaterial(Material* newMaterial)
+void SpriteNode::setMaterial(render::Material* newMaterial)
 {
   material = newMaterial;
 }
@@ -481,13 +541,13 @@ void SpriteNode::setSpriteSize(const Vec2& newSize)
   setLocalBounds(Sphere(Vec3::ZERO, (newSize / 2.f).length()));
 }
 
-void SpriteNode::enqueue(Queue& queue, QueuePhase phase) const
+void SpriteNode::enqueue(render::Queue& queue, QueuePhase phase) const
 {
-  SceneNode::enqueue(queue, phase);
+  Node::enqueue(queue, phase);
 
   if (phase == COLLECT_GEOMETRY)
   {
-    Sprite3 sprite;
+    render::Sprite3 sprite;
     sprite.size = spriteSize;
     sprite.material = material;
     sprite.enqueue(queue, getWorldTransform());
@@ -513,11 +573,11 @@ void ParticleSystemNode::setSystemName(const String& newSystemName)
 
 void ParticleSystemNode::update(Time deltaTime)
 {
-  SceneNode::update(deltaTime);
+  Node::update(deltaTime);
 
   elapsed += deltaTime;
 
-  ParticleSystem* system = ParticleSystem::findInstance(systemName);
+  render::ParticleSystem* system = render::ParticleSystem::findInstance(systemName);
   if (!system)
   {
     Log::writeError("Cannot find particle system %s for updating", systemName.c_str());
@@ -534,13 +594,13 @@ void ParticleSystemNode::restart(void)
   elapsed = 0.0;
 }
 
-void ParticleSystemNode::enqueue(Queue& queue, QueuePhase phase) const
+void ParticleSystemNode::enqueue(render::Queue& queue, QueuePhase phase) const
 {
-  SceneNode::enqueue(queue, phase);
+  Node::enqueue(queue, phase);
 
   if (phase == COLLECT_GEOMETRY)
   {
-    ParticleSystem* system = ParticleSystem::findInstance(systemName);
+    render::ParticleSystem* system = render::ParticleSystem::findInstance(systemName);
     if (!system)
     {
       Log::writeError("Cannot find particle system %s for enqueueing", systemName.c_str());
@@ -553,7 +613,7 @@ void ParticleSystemNode::enqueue(Queue& queue, QueuePhase phase) const
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
+  } /*namespace scene*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

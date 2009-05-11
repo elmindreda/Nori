@@ -2,7 +2,8 @@
 set(wendy_SOURCES
     Core.cpp Wendy.cpp
     GLBuffer.cpp GLCanvas.cpp GLContext.cpp GLProgram.cpp GLProgramIO.cpp GLRender.cpp GLState.cpp GLStatistics.cpp GLTexture.cpp GLTextureIO.cpp GLVertex.cpp
-    RenderCamera.cpp RenderFont.cpp RenderIO.cpp RenderLight.cpp RenderMesh.cpp RenderParticle.cpp RenderQueue.cpp RenderScene.cpp RenderSprite.cpp RenderMaterial.cpp RenderTerrain.cpp
+    RenderCamera.cpp RenderFont.cpp RenderIO.cpp RenderLight.cpp RenderMesh.cpp RenderParticle.cpp RenderQueue.cpp RenderSprite.cpp RenderMaterial.cpp RenderTerrain.cpp
+    SceneGraph.cpp SceneIO.cpp
     Input.cpp)
 
 if(WENDY_INCLUDE_UI_SYSTEM)

@@ -13,9 +13,9 @@ public:
 private:
   bool render(void);
   render::Camera camera;
-  render::Scene scene;
-  render::MeshNode* meshNode;
-  render::CameraNode* cameraNode;
+  scene::Graph graph;
+  scene::MeshNode* meshNode;
+  scene::CameraNode* cameraNode;
   /*
   Ptr<GL::VertexBuffer> vertexBuffer;
   Ref<render::Style> style;
@@ -100,17 +100,17 @@ bool Demo::init(void)
     return false;
   }
 
-  meshNode = new render::MeshNode();
+  meshNode = new scene::MeshNode();
   meshNode->setMesh(mesh);
-  scene.addNode(*meshNode);
+  graph.addNode(*meshNode);
 
   camera.setFOV(60.f);
   camera.setAspectRatio(0.f);
 
-  cameraNode = new render::CameraNode();
+  cameraNode = new scene::CameraNode();
   cameraNode->setCameraName(camera.getName());
-  cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 1.5f;
-  scene.addNode(*cameraNode);
+  cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
+  graph.addNode(*cameraNode);
 
   timer.start();
 
@@ -130,15 +130,15 @@ bool Demo::render(void)
   meshNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f),
                                                          currentTime);
 
-  scene.setTimeElapsed(currentTime);
+  graph.setTimeElapsed(currentTime);
 
   GL::Renderer* renderer = GL::Renderer::get();
 
   renderer->clearDepthBuffer();
-  renderer->clearColorBuffer();
+  renderer->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
 
   render::Queue queue(camera);
-  scene.enqueue(queue);
+  graph.enqueue(queue);
   queue.render();
 
   /*

@@ -65,35 +65,35 @@ bool CubeEffect::init(void)
     return false;
 
   render::Light* light;
-  render::LightNode* lightNode;
+  scene::LightNode* lightNode;
 
   light = new render::Light();
   //light->setType(Light::DIRECTIONAL);
   light->setIntensity(ColorRGB::WHITE);
 
-  lightNode = new render::LightNode();
+  lightNode = new scene::LightNode();
   lightNode->setLight(light);
-  scene.addNode(*lightNode);
+  graph.addNode(*lightNode);
 
   light = new render::Light();
   //light->setType(Light::DIRECTIONAL);
   light->setIntensity(ColorRGB(0.1f, 0.1f, 1.f));
 
-  lightNode = new render::LightNode();
+  lightNode = new scene::LightNode();
   lightNode->setLight(light);
   lightNode->getLocalTransform().rotation.setAxisRotation(Vec3::Y, M_PI / 4.f);
-  scene.addNode(*lightNode);
+  graph.addNode(*lightNode);
 
   camera.setFOV(60.f);
 
-  cameraNode = new render::CameraNode();
+  cameraNode = new scene::CameraNode();
   cameraNode->setCameraName(camera.getName());
   cameraNode->getLocalTransform().position.z = cube->getBounds().radius * 1.5f;
-  scene.addNode(*cameraNode);
+  graph.addNode(*cameraNode);
 
-  meshNode = new render::MeshNode();
+  meshNode = new scene::MeshNode();
   meshNode->setMesh(cube);
-  scene.addNode(*meshNode);
+  graph.addNode(*meshNode);
 
   return true;
 }
@@ -101,7 +101,7 @@ bool CubeEffect::init(void)
 void CubeEffect::render(void) const
 {
   render::Queue queue(camera);
-  scene.enqueue(queue);
+  graph.enqueue(queue);
   queue.render();
 
   demo::Effect::render();
@@ -111,7 +111,7 @@ void CubeEffect::update(Time deltaTime)
 {
   meshNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f), getTimeElapsed());
 
-  scene.setTimeElapsed(getTimeElapsed());
+  graph.setTimeElapsed(getTimeElapsed());
 }
 
 int main(int argc, char** argv)

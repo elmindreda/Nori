@@ -7,10 +7,10 @@ public:
 protected:
   void render(void) const;
   void update(Time deltaTime);
-  render::Scene scene;
+  scene::Graph graph;
   render::Camera camera;
-  render::CameraNode* cameraNode;
-  render::MeshNode* meshNode;
+  scene::CameraNode* cameraNode;
+  scene::MeshNode* meshNode;
 };
 
 

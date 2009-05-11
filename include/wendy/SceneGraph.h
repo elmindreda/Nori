@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy default renderer
+// Wendy scene graph
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,13 +22,13 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_RENDERSCENE_H
-#define WENDY_RENDERSCENE_H
+#ifndef WENDY_SCENEGRAPH_H
+#define WENDY_SCENEGRAPH_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace render
+  namespace scene
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class SceneNode;
+class Node;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -72,17 +72,17 @@ enum QueuePhase
 /*! @brief %Scene graph node factory super class.
  *  @ingroup scene
  */
-class SceneNodeType : public Managed<SceneNodeType>
+class NodeType : public Managed<NodeType>
 {
 public:
   /*! Constructor.
    *  @param[in] name The desired name of this scene node type.
    */
-  SceneNodeType(const String& name);
+  NodeType(const String& name);
   /*! Destructor.
    */
-  virtual ~SceneNodeType(void);
-  virtual SceneNode* createNode(void) = 0;
+  virtual ~NodeType(void);
+  virtual Node* createNode(void) = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -91,11 +91,11 @@ public:
  *  @ingroup scene
  */
 template <typename T>
-class SceneNodeTemplate : public SceneNodeType
+class NodeTemplate : public NodeType
 {
 public:
-  inline SceneNodeTemplate(const String& name);
-  inline SceneNode* createNode(void);
+  inline NodeTemplate(const String& name);
+  inline Node* createNode(void);
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -106,19 +106,48 @@ public:
  *  This is the base class for all kinds of nodes in a scene graph. It provides
  *  local and world transforms, and a set of callbacks for scene graph events.
  */
-class SceneNode : public Node<SceneNode>
+class Node
 {
-  friend class Scene;
+  friend class Graph;
 public:
+  typedef std::vector<Node*> List;
   /*! Constructor.
    */
-  SceneNode(void);
+  Node(void);
+  /*! Copy constructor.
+   */
+  Node(const Node& source);
   /*! Destructor.
    */
-  ~SceneNode(void);
+  virtual ~Node(void);
+  /*! Attaches the specified node as a child to this node.
+   *  @param[in] child The node to attach to this node.
+   *  @return @c true if successful, or false if the specified node was a
+   *  parent of this node.
+   */
+  bool addChild(Node& child);
+  /*! Removes the specified child node from this node.
+   *  @param[in] child The child node to remove.
+   */
+  void removeFromParent(void);
+  /*! Deletes all attached children.
+   */
+  void destroyChildren(void);
+  /*! @return @c true if the specified node is a parent of this node, otherwise @c false.
+   */
+  bool isChildOf(const Node& node) const;
   /*! @return @c true if this scene node is visible, otherwise @c false.
    */
   bool isVisible(void) const;
+  /*! @return @c true if this node has any children, otherwise @c false.
+   */
+  bool hasChildren(void) const;
+  /*! @return The parent of this node.
+   */
+  Node* getParent(void) const;
+  /*! @return The list of children of this node.
+   */
+  const List& getChildren(void) const;
   /*! Sets the visible state of this scene node.
    *  @param enabled @c true to make this scene node visible, or @c false to
    *  hide it.
@@ -145,8 +174,8 @@ public:
    */
   const Sphere& getTotalBounds(void) const;
 protected:
-  void addedToParent(SceneNode& parent);
-  void removedFromParent(void);
+  virtual void addedToParent(Node& parent);
+  virtual void removedFromParent(void);
   /*! Called when the scene graph is updated.  This is the correct place to put
    *  per-frame operations which affect the transform or bounds.
    *  @param[in] deltaTime The time elapsed, in seconds, since the last update.
@@ -161,9 +190,11 @@ protected:
    *  @param[in,out] queue The render queue for collecting operations.
    *  @param[in] phase The current enqueueing phase.
    */
-  virtual void enqueue(Queue& queue, QueuePhase phase) const;
+  virtual void enqueue(render::Queue& queue, QueuePhase phase) const;
 private:
   bool updateWorldTransform(void) const;
+  Node* parent;
+  List children;
   bool visible;
   Transform3 local;
   mutable Transform3 world;
@@ -175,76 +206,67 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief %Scene graph container.
+/*! @brief %Scene graph.
  *  @ingroup scene
  *
  *  This class represents a single scene graph, and is a logical tree root node,
  *  although it doesn't have a transform or bounds.
  */
-class Scene : public Managed<Scene>
+class Graph : public Resource<Graph>
 {
 public:
-  enum ShadowType
-  {
-    NO_SHADOWS,
-    STENCIL_SHADOWS,
-  };
-  typedef std::vector<SceneNode*> NodeList;
-  Scene(const String& name = "");
-  ~Scene(void);
-  void enqueue(Queue& queue) const;
-  void query(const Sphere& bounds, NodeList& nodes) const;
-  void query(const Frustum& frustum, NodeList& nodes) const;
-  void addNode(SceneNode& node);
-  void removeNode(SceneNode& node);
+  Graph(const String& name = "");
+  ~Graph(void);
+  void enqueue(render::Queue& queue) const;
+  void query(const Sphere& bounds, Node::List& nodes) const;
+  void query(const Frustum& frustum, Node::List& nodes) const;
+  void addNode(Node& node);
+  void removeNode(Node& node);
   void removeNodes(void);
-  const NodeList& getNodes(void) const;
+  const Node::List& getNodes(void) const;
   Time getTimeElapsed(void) const;
   void setTimeElapsed(Time newTime);
-  ShadowType getShadowType(void) const;
-  void setShadowType(ShadowType newType);
 private:
-  NodeList roots;
+  Node::List roots;
   Time currentTime;
-  ShadowType shadowType;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @ingroup scene
  */
-class LightNode : public SceneNode
+class LightNode : public Node
 {
 public:
-  Light* getLight(void) const;
-  void setLight(Light* newLight);
+  render::Light* getLight(void) const;
+  void setLight(render::Light* newLight);
 protected:
   void update(Time deltaTime);
-  void enqueue(Queue& queue, QueuePhase phase) const;
+  void enqueue(render::Queue& queue, QueuePhase phase) const;
 private:
-  Ref<Light> light;
+  Ref<render::Light> light;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @ingroup scene
  */
-class MeshNode : public SceneNode
+class MeshNode : public Node
 {
 public:
-  Mesh* getMesh(void) const;
-  void setMesh(Mesh* mesh);
+  render::Mesh* getMesh(void) const;
+  void setMesh(render::Mesh* mesh);
 protected:
-  void enqueue(Queue& queue, QueuePhase phase) const;
+  void enqueue(render::Queue& queue, QueuePhase phase) const;
 private:
-  Ref<Mesh> mesh;
+  Ref<render::Mesh> mesh;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @ingroup scene
  */
-class CameraNode : public SceneNode
+class CameraNode : public Node
 {
 public:
   const String& getCameraName(void) const;
@@ -259,34 +281,34 @@ private:
 
 /*! @ingroup scene
  */
-class TerrainNode : public SceneNode
+class TerrainNode : public Node
 {
 public:
-  Terrain* getTerrain(void) const;
-  void setTerrain(Terrain* newTerrain);
+  render::Terrain* getTerrain(void) const;
+  void setTerrain(render::Terrain* newTerrain);
 protected:
   void update(Time deltaTime);
-  void enqueue(Queue& queue, QueuePhase phase) const;
+  void enqueue(render::Queue& queue, QueuePhase phase) const;
 private:
-  Ref<Terrain> terrain;
+  Ref<render::Terrain> terrain;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @ingroup scene
  */
-class SpriteNode : public SceneNode
+class SpriteNode : public Node
 {
 public:
   SpriteNode(void);
-  Material* getMaterial(void) const;
-  void setMaterial(Material* newMaterial);
+  render::Material* getMaterial(void) const;
+  void setMaterial(render::Material* newMaterial);
   const Vec2& getSpriteSize(void) const;
   void setSpriteSize(const Vec2& newSize);
 protected:
-  void enqueue(Queue& queue, QueuePhase phase) const;
+  void enqueue(render::Queue& queue, QueuePhase phase) const;
 private:
-  Ref<Material> material;
+  Ref<render::Material> material;
   Vec2 spriteSize;
 };
 
@@ -294,7 +316,7 @@ private:
 
 /*! @ingroup scene
  */
-class ParticleSystemNode : public SceneNode
+class ParticleSystemNode : public Node
 {
 public:
   ParticleSystemNode(void);
@@ -303,7 +325,7 @@ public:
 protected:
   void update(Time deltaTime);
   void restart(void);
-  void enqueue(Queue& queue, QueuePhase phase) const;
+  void enqueue(render::Queue& queue, QueuePhase phase) const;
 private:
   String systemName;
   Time elapsed;
@@ -312,22 +334,22 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 template <typename T>
-inline SceneNodeTemplate<T>::SceneNodeTemplate(const String& name):
-  SceneNodeType(name)
+inline NodeTemplate<T>::NodeTemplate(const String& name):
+  NodeType(name)
 {
 }
 
 template <typename T>
-inline SceneNode* SceneNodeTemplate<T>::createNode(void)
+inline Node* NodeTemplate<T>::createNode(void)
 {
   return new T();
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
+  } /*namespace scene*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_RENDERSCENE_H*/
+#endif /*WENDY_SCENEGRAPH_H*/
 ///////////////////////////////////////////////////////////////////////
