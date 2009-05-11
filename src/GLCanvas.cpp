@@ -159,23 +159,10 @@ void TextureCanvas::apply(void) const
 
 void TextureCanvas::finish(void) const
 {
-  // TODO: Implement.
+  if (!texture)
+    return;
 
-  /*
-  TextureLayer layer(0);
-  layer.setTexture(texture);
-  layer.apply();
-
-  if (texture->getTarget() == GL_TEXTURE_1D)
-    glCopyTexSubImage1D(texture->getTarget(),
-                        0, 0, 0, 0,
-                        texture->getPhysicalWidth());
-  else
-    glCopyTexSubImage2D(texture->getTarget(),
-                        0, 0, 0, 0, 0,
-                        texture->getPhysicalWidth(),
-                        texture->getPhysicalHeight());
-  */
+  texture->copyFromColorBuffer(0, 0, level);
 }
 
 ///////////////////////////////////////////////////////////////////////

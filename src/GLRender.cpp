@@ -445,6 +445,8 @@ void Renderer::setCurrentCanvas(Canvas& newCanvas)
   currentCanvas->finish();
   currentCanvas = &newCanvas;
   currentCanvas->apply();
+
+  updateViewportArea();
 }
 
 void Renderer::setProjectionMatrix(const Mat4& newProjection)
@@ -513,6 +515,8 @@ bool Renderer::init(void)
   screenCanvas = new ScreenCanvas(context);
   screenCanvas->apply();
   currentCanvas = screenCanvas;
+
+  updateViewportArea();
 
   defaultTexture = Texture::findInstance("default");
   if (!defaultTexture)

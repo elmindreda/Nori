@@ -33,6 +33,9 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
+#include <Cg/cg.h>
+#include <Cg/cgGL.h>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -183,11 +186,55 @@ bool Texture::copyFrom(const Image& source,
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
   {
-    Log::writeError("Error during texture image blt: %s", gluErrorString(error));
+    Log::writeError("Error during copy into level %u of texture \'%s\': %s",
+                    level,
+		    gluErrorString(error));
     return false;
   }
 #endif
   
+  return true;
+}
+
+bool Texture::copyFromColorBuffer(unsigned int x, unsigned int y, unsigned int level)
+{
+  Context* context = GL::Context::get();
+
+  glPushAttrib(GL_TEXTURE_BIT);
+  glBindTexture(textureTarget, textureID);
+
+  if (textureTarget == GL_TEXTURE_1D)
+  {
+    glCopyTexSubImage1D(textureTarget,
+                        level,
+			0,
+                        x, y,
+                        physicalWidth);
+  }
+  else
+  {
+    glCopyTexSubImage2D(textureTarget,
+                        level,
+			0, 0,
+                        x, y,
+                        physicalWidth,
+                        physicalHeight);
+  }
+
+  glPopAttrib();
+
+#if _DEBUG
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+  {
+    Log::writeError("Error during copy from color buffer to level %u of texture \'%s\': %s",
+                    level,
+                    getName().c_str(),
+		    gluErrorString(error));
+    return false;
+  }
+#endif
+
   return true;
 }
 
@@ -240,7 +287,9 @@ Image* Texture::getImage(unsigned int level) const
 {
   if (getPhysicalWidth(level) == 0 || getPhysicalHeight(level) == 0)
   {
-    Log::writeError("Cannot retrieve image for non-existent level %u", level);
+    Log::writeError("Cannot retrieve image for non-existent level %u of texture \'%s\'",
+                    level,
+		    getName().c_str());
     return NULL;
   }
 

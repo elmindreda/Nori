@@ -74,6 +74,9 @@ public:
                 unsigned int x,
 		unsigned int y,
 		unsigned int level = 0);
+  bool copyFromColorBuffer(unsigned int x,
+		           unsigned int y,
+		           unsigned int level = 0);
   /*! @return The width, in pixels, of the source for specified mipmap level.
    *  @param[in] level The desired mipmap level.
    */
