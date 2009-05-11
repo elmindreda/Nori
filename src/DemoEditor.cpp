@@ -30,7 +30,6 @@
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
-#include <wendy/GLCanvas.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLRender.h>

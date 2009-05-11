@@ -29,7 +29,6 @@
 
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
-#include <wendy/GLCanvas.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
@@ -110,6 +109,136 @@ GLenum convertType(IndexBuffer::Type type)
   }
 }
 
+} /*namespace*/
+
+///////////////////////////////////////////////////////////////////////
+
+float Canvas::getPhysicalAspectRatio(void) const
+{
+  return getPhysicalWidth() / (float) getPhysicalHeight();
+}
+
+Context& Canvas::getContext(void) const
+{
+  return context;
+}
+
+Canvas::Canvas(Context& initContext):
+  context(initContext)
+{
+}
+
+Canvas::~Canvas(void)
+{
+}
+
+Canvas::Canvas(const Canvas& source):
+  context(source.context)
+{
+  // NOTE: Not implemented.
+}
+
+Canvas& Canvas::operator = (const Canvas& source)
+{
+  // NOTE: Not implemented.
+
+  return *this;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+unsigned int ScreenCanvas::getPhysicalWidth(void) const
+{
+  return getContext().getWidth();
+}
+
+unsigned int ScreenCanvas::getPhysicalHeight(void) const
+{
+  return getContext().getHeight();
+}
+
+ScreenCanvas::ScreenCanvas(Context& context):
+  Canvas(context)
+{
+}
+
+void ScreenCanvas::apply(void) const
+{
+  if (GLEW_EXT_framebuffer_object)
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+}
+
+void ScreenCanvas::finish(void) const
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
+unsigned int TextureCanvas::getPhysicalWidth(void) const
+{
+  return width;
+}
+
+unsigned int TextureCanvas::getPhysicalHeight(void) const
+{
+  return height;
+}
+
+Texture* TextureCanvas::getColorBufferTexture(void) const
+{
+  return texture;
+}
+
+void TextureCanvas::setColorBufferTexture(Texture* newTexture, unsigned int newLevel)
+{
+  texture = newTexture;
+  level = newLevel;
+}
+
+TextureCanvas* TextureCanvas::createInstance(Context& context, unsigned int width, unsigned int height)
+{
+  Ptr<TextureCanvas> canvas = new TextureCanvas(context);
+  if (!canvas->init(width, height))
+    return false;
+
+  return canvas.detachObject();
+}
+
+TextureCanvas::TextureCanvas(Context& context):
+  Canvas(context)
+{
+}
+
+bool TextureCanvas::init(unsigned int initWidth, unsigned int initHeight)
+{
+  width = initWidth;
+  height = initHeight;
+
+  if (GLEW_EXT_framebuffer_object)
+  {
+    // TODO: Implement FBO.
+  }
+
+  return true;
+}
+
+void TextureCanvas::apply(void) const
+{
+  if (GLEW_EXT_framebuffer_object)
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
+}
+
+void TextureCanvas::finish(void) const
+{
+  if (!texture)
+    return;
+
+  if (GLEW_EXT_framebuffer_object)
+  {
+    // TODO: Implement FBO.
+  }
+  else
+    texture->copyFromColorBuffer(0, 0, level);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -357,7 +486,7 @@ bool Renderer::allocateVertices(VertexRange& range,
     String specification;
     format.getSpecification(specification);
 
-    Log::write("Allocated vertex pool of size %u format %s",
+    Log::write("Allocated vertex pool of size %u format \'%s\'",
                actualCount,
 	       specification.c_str());
 

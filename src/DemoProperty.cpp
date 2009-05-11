@@ -31,7 +31,6 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLProgram.h>
-#include <wendy/GLCanvas.h>
 #include <wendy/GLState.h>
 
 #include <wendy/RenderMaterial.h>
