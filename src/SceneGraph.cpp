@@ -61,6 +61,17 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+NodeType::NodeType(const String& name):
+  Managed<NodeType>(name)
+{
+}
+
+NodeType::~NodeType(void)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Node::Node(void):
   parent(NULL),
   visible(true),
