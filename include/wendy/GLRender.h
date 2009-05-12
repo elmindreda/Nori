@@ -41,6 +41,9 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief %Render statistics.
+ *  @ingroup opengl
+ */
 class Stats
 {
 public:
@@ -138,14 +141,15 @@ public:
   /*! @return The texture that this canvas uses as a color buffer.
    */
   Texture* getColorBufferTexture(void) const;
+  Texture* getDepthBufferTexture(void) const;
   /*! Sets the texture to use as the color buffer for this canvas.
    *  @param[in] newTexture The desired texture, or @c NULL to detach the currently set texture.
    *  @param[in] newLevel If a texture is specified, the desired mipmap level of the texture to use.
    *  @remarks A texture canvas cannot be rendered to without a texture to use as color buffer.
    */
   void setColorBufferTexture(Texture* newTexture, unsigned int newLevel = 0);
+  void setDepthBufferTexture(Texture* newTexture, unsigned int newLevel = 0);
   /*! Creates a texture canvas for the specified texture.
-   *  @param texture The texture for which to create a texture canvas.
    */
   static TextureCanvas* createInstance(Context& context, unsigned int width, unsigned int height);
 private:
