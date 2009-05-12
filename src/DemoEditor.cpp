@@ -509,11 +509,19 @@ void Editor::onDrawShowCanvas(const UI::Canvas& canvas)
 {
   GL::Renderer* renderer = GL::Renderer::get();
 
-  Mat4 old = renderer->getProjectionMatrix();
+  Mat4 oldProjection = renderer->getProjectionMatrix();
+  Rect oldViewport = renderer->getViewportArea();
+
+  Rect viewport = canvas.getGlobalArea();
+  viewport *= Vec2(1.f / renderer->getCurrentCanvas().getPhysicalWidth(),
+                   1.f / renderer->getCurrentCanvas().getPhysicalHeight());
+
+  renderer->setViewportArea(viewport);
 
   show->render();
 
-  renderer->setProjectionMatrix(old);
+  renderer->setViewportArea(oldViewport);
+  renderer->setProjectionMatrix(oldProjection);
 }
 
 void Editor::onKeyPressed(input::Key key, bool pressed)
