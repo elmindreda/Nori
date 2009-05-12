@@ -51,6 +51,8 @@ Ptr<GL::ProgramCodec> programCodec;
 Ptr<render::MaterialCodec> renderMaterialCodec;
 Ptr<render::TerrainCodec> renderTerrainCodec;
 
+Ptr<scene::GraphCodecXML> sceneGraphCodec;
+
 #if WENDY_INCLUDE_DEMO_SYSTEM
 Ptr<demo::ShowCodec> showCodec;
 #endif
@@ -78,6 +80,7 @@ bool initialize(void)
   programCodec = new GL::ProgramCodec();
   renderMaterialCodec = new render::MaterialCodec();
   renderTerrainCodec = new render::TerrainCodec();
+  sceneGraphCodec = new scene::GraphCodecXML();
 
 #if WENDY_INCLUDE_DEMO_SYSTEM
   showCodec = new demo::ShowCodec();
@@ -96,6 +99,7 @@ void shutdown(void)
   programCodec = NULL;
   renderMaterialCodec = NULL;
   renderTerrainCodec = NULL;
+  sceneGraphCodec = NULL;
 
 #if WENDY_INCLUDE_DEMO_SYSTEM
   showCodec = NULL;
