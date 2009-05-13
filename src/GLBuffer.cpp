@@ -499,7 +499,7 @@ void IndexBuffer::apply(void) const
   if (error != GL_NO_ERROR)
   {
     Log::writeWarning("Error when making index buffer current: %s", gluErrorString(error));
-    return false;
+    return;
   }
 #endif
 

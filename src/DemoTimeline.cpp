@@ -496,7 +496,7 @@ void PropertyTrack::draw(void) const
     Rect wellArea;
     wellArea.position.set(area.position.x - (float) timeline.getWindowStart() * timeline.getSecondWidth(),
                           area.position.y);
-    wellArea.size.set(property.getEffect().getDuration() * timeline.getSecondWidth(),
+    wellArea.size.set((float) property.getEffect().getDuration() * timeline.getSecondWidth(),
                       area.size.y);
                           
     renderer->drawWell(wellArea, getState());
@@ -508,7 +508,7 @@ void PropertyTrack::draw(void) const
 
     for (unsigned int i = 0;  i < keys.size();  i++)
     {
-      const float offset = (keys[i]->getMoment() - timeline.getWindowStart()) *
+      const float offset = (float) (keys[i]->getMoment() - timeline.getWindowStart()) *
                            timeline.getSecondWidth();
 
       Rect handleArea;
@@ -549,7 +549,7 @@ void PropertyTrack::onDragBegun(Widget& widget, const Vec2& point)
 
   for (unsigned int i = 0;  i < keys.size();  i++)
   {
-    const float offset = (keys[i]->getMoment() - timeline.getWindowStart()) *
+    const float offset = (float) (keys[i]->getMoment() - timeline.getWindowStart()) *
                          timeline.getSecondWidth();
 
     if (position >= offset - em / 2.f && position < offset + em / 2.f)
@@ -698,7 +698,7 @@ Time Timeline::getWindowStart(void) const
 void Timeline::setWindowStart(Time newStart)
 {
   start = newStart;
-  scroller->setValue(start);
+  scroller->setValue((float) start);
 }
 
 float Timeline::getZoom(void) const
@@ -783,7 +783,7 @@ Time Timeline::getSnappedTime(Time time) const
   input::Context* context = input::Context::get();
 
   if (context->isKeyDown(input::Key::LSHIFT) || context->isKeyDown(input::Key::RSHIFT))
-    return floorf(time + 0.5);
+    return floor(time + 0.5);
 
   return time;
 }
@@ -831,8 +831,8 @@ void Timeline::updateScroller(void)
   const Time visible = getVisibleDuration();
   const Time duration = parent->getDuration();
 
-  scroller->setPercentage(std::max(visible / (duration + 10.0), 0.0));
-  scroller->setValueRange(0.f, duration + 10.0);
+  scroller->setPercentage((float) std::max(visible / (duration + 10.0), 0.0));
+  scroller->setValueRange(0.f, (float) duration + 10.f);
 }
 
 void Timeline::createTrack(Property& property)

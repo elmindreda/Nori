@@ -510,9 +510,9 @@ bool Texture::init(const Image& image, unsigned int initFlags)
     }
 
     if (flags & RECTANGULAR)
-      levelCount = (unsigned int) (1.f + floorf(log2f(fmaxf(sourceWidth, sourceHeight))));
+      levelCount = (unsigned int) (1.f + floorf(log2f((float) std::max(sourceWidth, sourceHeight))));
     else
-      levelCount = (unsigned int) log2f(fmaxf(sourceWidth, sourceHeight));
+      levelCount = (unsigned int) log2f((float) std::max(sourceWidth, sourceHeight));
   }
   else
   {

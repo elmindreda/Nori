@@ -128,7 +128,7 @@ bool Demo::render(void)
   currentTime = timer.getTime();
 
   meshNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f),
-                                                         currentTime);
+                                                         (float) currentTime);
 
   graph.setTimeElapsed(currentTime);
 

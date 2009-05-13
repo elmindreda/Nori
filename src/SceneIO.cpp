@@ -30,6 +30,7 @@
 #include <wendy/GLContext.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLState.h>
 
@@ -37,7 +38,9 @@
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
+#include <wendy/RenderMesh.h>
 #include <wendy/RenderTerrain.h>
+#include <wendy/RenderParticle.h>
 
 #include <wendy/SceneGraph.h>
 #include <wendy/SceneIO.h>
@@ -185,6 +188,8 @@ bool GraphCodecXML::onEndElement(const String& name)
     if (name == "node")
       currentNode = currentNode->getParent();
   }
+
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -692,7 +692,7 @@ void Renderer::setProjectionMatrix3D(float FOV, float aspect, float nearZ, float
   if (aspect == 0.f)
     aspect = currentCanvas->getPhysicalAspectRatio();
 
-  const float f = 1.f / tanf((FOV * M_PI / 180.f) / 2.f);
+  const float f = 1.f / tanf((FOV * (float) M_PI / 180.f) / 2.f);
 
   projection.x.x = f / aspect;
   projection.y.y = f;

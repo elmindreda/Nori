@@ -71,7 +71,7 @@ VertexProgram* VertexProgramCodec::read(Stream& stream, const String& name)
   TextStream textStream(stream, false);
 
   String text;
-  textStream.readText(text, textStream.getSize());
+  textStream.readText(text, (size_t) textStream.getSize());
 
   return VertexProgram::createInstance(*Context::get(), text, name);
 }
@@ -107,7 +107,7 @@ FragmentProgram* FragmentProgramCodec::read(Stream& stream, const String& name)
   TextStream textStream(stream, false);
 
   String text;
-  textStream.readText(text, textStream.getSize());
+  textStream.readText(text, (size_t) textStream.getSize());
 
   return FragmentProgram::createInstance(*Context::get(), text, name);
 }
