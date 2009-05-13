@@ -121,11 +121,12 @@
 #include <wendy/RenderMesh.h>
 #include <wendy/RenderTerrain.h>
 
-#include <wendy/RenderIO.h>
+#include <wendy/RenderMaterialIO.h>
 
 #include <wendy/Input.h>
 
 #include <wendy/SceneGraph.h>
+
 #include <wendy/SceneIO.h>
 
 #if WENDY_INCLUDE_UI_SYSTEM
