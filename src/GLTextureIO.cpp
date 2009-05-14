@@ -49,6 +49,9 @@ namespace
 
 const unsigned int TEXTURE_XML_VERSION = 1;
 
+Bimap<String, FilterMode> filterModeMap;
+Bimap<String, AddressMode> addressModeMap;
+
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -96,6 +99,8 @@ bool TextureCodec::write(Stream& stream, const Texture& texture)
 
     beginElement("texture");
     addAttribute("version", TEXTURE_XML_VERSION);
+    addAttribute("filter", filterModeMap[texture.getFilterMode()]);
+    addAttribute("address", addressModeMap[texture.getAddressMode()]);
 
     // TODO: Uhm...
 
@@ -170,6 +175,30 @@ bool TextureCodec::onBeginElement(const String& name)
     texture = Texture::createInstance(*image, flags, textureName);
     if (!texture)
       return false;
+
+    String filterModeName = readString("filter");
+    if (!filterModeName.empty())
+    {
+      if (filterModeMap.hasKey(filterModeName))
+	texture->setFilterMode(filterModeMap[filterModeName]);
+      else
+      {
+	Log::writeError("Invalid filter mode name \'%s\'", filterModeName.c_str());
+	return false;
+      }
+    }
+
+    String addressModeName = readString("address");
+    if (!addressModeName.empty())
+    {
+      if (addressModeMap.hasKey(addressModeName))
+	texture->setAddressMode(addressModeMap[addressModeName]);
+      else
+      {
+	Log::writeError("Invalid address mode name \'%s\'", addressModeName.c_str());
+	return false;
+      }
+    }
 
     return true;
   }

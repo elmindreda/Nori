@@ -37,6 +37,27 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup opengl
+ */
+enum FilterMode
+{
+  FILTER_NEAREST,
+  FILTER_BILINEAR,
+  FILTER_TRILINEAR,
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup opengl
+ */
+enum AddressMode
+{
+  ADDRESS_WRAP,
+  ADDRESS_CLAMP,
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief %Texture image object.
  *  @ingroup opengl
  *
@@ -108,6 +129,10 @@ public:
   /*! @return The creation flags for this texture.
    */
   unsigned int getFlags(void) const;
+  FilterMode getFilterMode(void) const;
+  void setFilterMode(FilterMode newMode);
+  AddressMode getAddressMode(void) const;
+  void setAddressMode(AddressMode newMode);
   /*! @return The image format of this texture.
    */
   const ImageFormat& getFormat(void) const;
@@ -131,9 +156,6 @@ private:
   Texture& operator = (const Texture& source);
   unsigned int textureTarget;
   unsigned int textureID;
-  int minFilter;
-  int magFilter;
-  int addressMode;
   unsigned int sourceWidth;
   unsigned int sourceHeight;
   unsigned int sourceDepth;
@@ -142,6 +164,8 @@ private:
   unsigned int physicalDepth;
   unsigned int levelCount;
   unsigned int flags;
+  FilterMode filterMode;
+  AddressMode addressMode;
   ImageFormat format;
 };
 

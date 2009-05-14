@@ -112,8 +112,53 @@ GLint unmipmapMinFilter(GLint minFilter)
   return minFilter;
 }
 
-Bimap<ImageFormat::Type, GLenum> formatMap;
+GLint convertAddressMode(AddressMode mode)
+{
+  switch (mode)
+  {
+    case ADDRESS_WRAP:
+      return GL_REPEAT;
+    case ADDRESS_CLAMP:
+      return GL_CLAMP_TO_EDGE;
+    default:
+      throw Exception("Invalid address mode");
+  }
+}
 
+GLint convertFilterMode(FilterMode mode, bool mipmapped)
+{
+  switch (mode)
+  {
+    case FILTER_NEAREST:
+    {
+      if (mipmapped)
+	return GL_NEAREST_MIPMAP_NEAREST;
+      else
+	return GL_NEAREST;
+    }
+
+    case FILTER_BILINEAR:
+    {
+      if (mipmapped)
+	return GL_LINEAR_MIPMAP_NEAREST;
+      else
+	return GL_LINEAR;
+    }
+
+    case FILTER_TRILINEAR:
+    {
+      if (mipmapped)
+	return GL_LINEAR_MIPMAP_LINEAR;
+      else
+	return GL_LINEAR;
+    }
+
+    default:
+      throw Exception("Invalid filter mode");
+  }
+}
+
+Bimap<ImageFormat::Type, GLenum> formatMap;
 Bimap<ImageFormat::Type, GLenum> genericFormatMap;
 
 }
@@ -278,6 +323,56 @@ unsigned int Texture::getFlags(void) const
   return flags;
 }
 
+FilterMode Texture::getFilterMode(void) const
+{
+  return filterMode;
+}
+
+void Texture::setFilterMode(FilterMode newMode)
+{
+  if (newMode != filterMode)
+  {
+    glPushAttrib(GL_TEXTURE_BIT);
+    glBindTexture(textureTarget, textureID);
+
+    glTexParameteri(textureTarget,
+                    GL_TEXTURE_MIN_FILTER,
+		    convertFilterMode(filterMode, (flags & MIPMAPPED) ? true : false));
+    glTexParameteri(textureTarget,
+                    GL_TEXTURE_MAG_FILTER,
+		    convertFilterMode(filterMode, false));
+
+    glPopAttrib();
+
+    filterMode = newMode;
+  }
+}
+
+AddressMode Texture::getAddressMode(void) const
+{
+  return addressMode;
+}
+
+void Texture::setAddressMode(AddressMode newMode)
+{
+  if (newMode != addressMode)
+  {
+    glPushAttrib(GL_TEXTURE_BIT);
+    glBindTexture(textureTarget, textureID);
+
+    GLint mode = convertAddressMode(addressMode);
+
+    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, mode);
+
+    if (textureTarget != GL_TEXTURE_1D)
+      glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, mode);
+
+    glPopAttrib();
+
+    addressMode = newMode;
+  }
+}
+
 const ImageFormat& Texture::getFormat(void) const
 {
   return format;
@@ -338,8 +433,6 @@ Texture::Texture(const String& name):
   Resource<Texture>(name),
   textureTarget(0),
   textureID(0),
-  minFilter(0),
-  magFilter(0),
   sourceWidth(0),
   sourceHeight(0),
   sourceDepth(0),
@@ -347,7 +440,9 @@ Texture::Texture(const String& name):
   physicalHeight(0),
   physicalDepth(0),
   levelCount(0),
-  flags(0)
+  flags(0),
+  filterMode(FILTER_BILINEAR),
+  addressMode(ADDRESS_WRAP)
 {
 }
 
@@ -544,21 +639,22 @@ bool Texture::init(const Image& image, unsigned int initFlags)
   }
 
   if (flags & MIPMAPPED)
-    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
   else
     glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-  // Retrieve "sampler" settings
-  glGetTexParameteriv(textureTarget, GL_TEXTURE_MIN_FILTER, &minFilter);
-  glGetTexParameteriv(textureTarget, GL_TEXTURE_MAG_FILTER, &magFilter);
-  glGetTexParameteriv(textureTarget, GL_TEXTURE_WRAP_S, &addressMode);
+  glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
+
+  if (textureTarget != GL_TEXTURE_1D)
+    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
   glPopAttrib();
 
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
   {
-    Log::writeError("Error during creation of texture %s: %s",
+    Log::writeError("Error during creation of texture \'%s\': %s",
                     getName().c_str(),
 		    gluErrorString(error));
     return false;
