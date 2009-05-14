@@ -62,8 +62,6 @@ Bimap<String, GL::BlendFactor> blendFactorMap;
 Bimap<String, GL::Function> functionMap;
 /*
 Bimap<String, GLenum> operationMap;
-Bimap<String, GLint> filterMap;
-Bimap<String, GLint> addressModeMap;
 */
 
 const unsigned int RENDER_MATERIAL_XML_VERSION = 4;
@@ -349,7 +347,7 @@ bool MaterialCodec::onBeginElement(const String& name)
 	if (name == "blending")
 	{
 	  String srcFactorName = readString("src");
-	  if (srcFactorName.length())
+	  if (!srcFactorName.empty())
 	  {
 	    if (blendFactorMap.hasKey(srcFactorName))
 	      currentPass->setBlendFactors(blendFactorMap[srcFactorName],
@@ -362,7 +360,7 @@ bool MaterialCodec::onBeginElement(const String& name)
 	  }
 
 	  String dstFactorName = readString("dst");
-	  if (dstFactorName.length())
+	  if (!dstFactorName.empty())
 	  {
 	    if (blendFactorMap.hasKey(dstFactorName))
 	      currentPass->setBlendFactors(currentPass->getSrcFactor(),
@@ -390,7 +388,7 @@ bool MaterialCodec::onBeginElement(const String& name)
 	  currentPass->setDepthWriting(readBoolean("writing", currentPass->isDepthWriting()));
 
 	  String functionName = readString("function");
-	  if (functionName.length())
+	  if (!functionName.empty())
 	  {
 	    if (functionMap.hasKey(functionName))
 	      currentPass->setDepthFunction(functionMap[functionName]);
@@ -456,7 +454,7 @@ bool MaterialCodec::onBeginElement(const String& name)
 	  currentPass->setWireframe(readBoolean("wireframe"));
 
 	  String cullModeName = readString("cull");
-	  if (cullModeName.length())
+	  if (!cullModeName.empty())
 	  {
 	    if (cullModeMap.hasKey(cullModeName))
 	      currentPass->setCullMode(cullModeMap[cullModeName]);
