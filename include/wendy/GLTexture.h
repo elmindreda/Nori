@@ -37,7 +37,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup opengl
+/*! @brief Texture sampler filtering mode.
+ *  @ingroup opengl
  */
 enum FilterMode
 {
@@ -48,11 +49,16 @@ enum FilterMode
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup opengl
+/*! @brief Texture sampler address wrapping mode.
+ *  @ingroup opengl
  */
 enum AddressMode
 {
+  /*! Addresses are wrapped to within the texture.
+   */
   ADDRESS_WRAP,
+  /*! Addresses are clamped to the edges of the texture.
+   */
   ADDRESS_CLAMP,
 };
 
@@ -129,9 +135,19 @@ public:
   /*! @return The creation flags for this texture.
    */
   unsigned int getFlags(void) const;
+  /*! @return The sampler filter mode of this texture.
+   */
   FilterMode getFilterMode(void) const;
+  /*! Sets the sampler filter mode of this texture.
+   *  @param[in] newMode The desired filter mode.
+   */
   void setFilterMode(FilterMode newMode);
+  /*! @return The sampler address wrapping mode of this texture.
+   */
   AddressMode getAddressMode(void) const;
+  /*! Sets the sampler address wrapping mode of this texture.
+   *  @param[in] newMode The desired address wrapping mode.
+   */
   void setAddressMode(AddressMode newMode);
   /*! @return The image format of this texture.
    */
