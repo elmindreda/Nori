@@ -375,25 +375,25 @@ Context& Context::operator = (const Context& source)
   return *this;
 }
 
-bool Context::init(const ContextMode& mode)
+bool Context::init(const ContextMode& initMode)
 {
-  unsigned int colorBits = mode.colorBits;
+  unsigned int colorBits = initMode.colorBits;
   if (colorBits > 24)
     colorBits = 24;
   
   unsigned int flags;
   
-  if (mode.flags & ContextMode::WINDOWED)
+  if (initMode.flags & ContextMode::WINDOWED)
     flags = GLFW_WINDOW;
   else
     flags = GLFW_FULLSCREEN;
 
-  if (mode.samples)
-    glfwOpenWindowHint(GLFW_FSAA_SAMPLES, mode.samples);
+  if (initMode.samples)
+    glfwOpenWindowHint(GLFW_FSAA_SAMPLES, initMode.samples);
   
-  if (!glfwOpenWindow(mode.width, mode.height, 
+  if (!glfwOpenWindow(initMode.width, initMode.height, 
                       colorBits / 3, colorBits / 3, colorBits / 3, 0,
-                      mode.depthBits, mode.stencilBits, flags))
+                      initMode.depthBits, initMode.stencilBits, flags))
   {
     Log::writeError("Unable to create GLFW window");
     return false;
@@ -424,6 +424,14 @@ bool Context::init(const ContextMode& mode)
   }
 
   limits = new Limits(*this);
+
+  mode.colorBits = glfwGetWindowParam(GLFW_RED_BITS) +
+                   glfwGetWindowParam(GLFW_GREEN_BITS) +
+		   glfwGetWindowParam(GLFW_BLUE_BITS);
+  mode.depthBits = glfwGetWindowParam(GLFW_DEPTH_BITS);
+  mode.stencilBits = glfwGetWindowParam(GLFW_STENCIL_BITS);
+  mode.samples = glfwGetWindowParam(GLFW_FSAA_SAMPLES);
+  mode.flags = initMode.flags;
 
   cgContextID = cgCreateContext();
   if (!cgContextID)
