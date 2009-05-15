@@ -345,9 +345,16 @@ SignalProxy0<void> Context::getDestroySignal(void)
 
 void Context::getScreenModes(ScreenModeList& result)
 {
-  /*
-  GLFWvidmode modes[128];
-  */
+  GLFWvidmode modes[256];
+
+  const int count = glfwGetVideoModes(modes, sizeof(modes) / sizeof(GLFWvidmode));
+
+  for (unsigned int i = 0;  i < count;  i++)
+  {
+    result.push_back(ScreenMode(modes[i].Width,
+                                modes[i].Height,
+				modes[i].RedBits + modes[i].GreenBits + modes[i].BlueBits));
+  }
 }
 
 Context::Context(void):
