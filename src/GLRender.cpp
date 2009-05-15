@@ -357,16 +357,6 @@ void Renderer::popScissorArea(void)
   updateScissorArea();
 }
 
-void Renderer::pushTransform(const Mat4& transform)
-{
-  modelview.push(transform);
-}
-
-void Renderer::popTransform(void)
-{
-  modelview.pop();
-}
-
 void Renderer::clearColorBuffer(const ColorRGBA& color)
 {
   glPushAttrib(GL_COLOR_BUFFER_BIT);
@@ -422,7 +412,8 @@ void Renderer::render(void)
 
   if (program.getVaryingCount() > format.getComponentCount())
   {
-    Log::writeError("Shader program has more varying parameters than vertex format has components");
+    Log::writeError("Shader program \'%s\' has more varying parameters than vertex format has components",
+                    program.getName().c_str());
     return;
   }
 
@@ -443,26 +434,53 @@ void Renderer::render(void)
     varying.enable(format.getSize(), component->getOffset());
   }
 
-  if (Uniform* MVP = program.findUniform("MVP"))
+  if (Uniform* P = program.findUniform("M"))
   {
-    if (MVP->getType() == Uniform::FLOAT_MAT4)
-    {
-      Mat4 mvp = projection;
-      mvp *= modelview.getTotal();
-      MVP->setValue(mvp);
-    }
+    if (P->getType() == Uniform::FLOAT_MAT4)
+      P->setValue(modelMatrix);
+  }
+
+  if (Uniform* P = program.findUniform("V"))
+  {
+    if (P->getType() == Uniform::FLOAT_MAT4)
+      P->setValue(viewMatrix);
   }
 
   if (Uniform* P = program.findUniform("P"))
   {
     if (P->getType() == Uniform::FLOAT_MAT4)
-      P->setValue(projection);
+      P->setValue(projectionMatrix);
   }
 
   if (Uniform* MV = program.findUniform("MV"))
   {
     if (MV->getType() == Uniform::FLOAT_MAT4)
-      MV->setValue(modelview.getTotal());
+    {
+      Mat4 mv = viewMatrix;
+      mv *= modelMatrix;
+      MV->setValue(mv);
+    }
+  }
+
+  if (Uniform* MV = program.findUniform("VP"))
+  {
+    if (MV->getType() == Uniform::FLOAT_MAT4)
+    {
+      Mat4 vp = projectionMatrix;
+      vp *= viewMatrix;
+      MV->setValue(vp);
+    }
+  }
+
+  if (Uniform* MVP = program.findUniform("MVP"))
+  {
+    if (MVP->getType() == Uniform::FLOAT_MAT4)
+    {
+      Mat4 mvp = projectionMatrix;
+      mvp *= viewMatrix;
+      mvp *= modelMatrix;
+      MVP->setValue(mvp);
+    }
   }
 
   if (indexBuffer)
@@ -597,7 +615,9 @@ bool Renderer::allocateVertices(VertexRange& range,
 
 bool Renderer::isReservedUniform(const String& name) const
 {
-  return name == "MVP" || name == "MV" || name == "P";
+  return name == "M" || name == "V" || name == "P" ||
+         name == "MV" || name == "VP" ||
+	 name == "MVP";
 }
 
 Context& Renderer::getContext(void) const
@@ -648,14 +668,19 @@ const PrimitiveRange& Renderer::getCurrentPrimitiveRange(void) const
   return currentRange;
 }
 
-const Mat4& Renderer::getProjectionMatrix(void) const
+const Mat4& Renderer::getModelMatrix(void) const
 {
-  return projection;
+  return modelMatrix;
 }
 
-const Mat4& Renderer::getModelViewMatrix(void) const
+const Mat4& Renderer::getViewMatrix(void) const
 {
-  return modelview.getTotal();
+  return viewMatrix;
+}
+
+const Mat4& Renderer::getProjectionMatrix(void) const
+{
+  return projectionMatrix;
 }
 
 void Renderer::setScreenCanvasCurrent(void)
@@ -672,19 +697,29 @@ void Renderer::setCurrentCanvas(Canvas& newCanvas)
   updateViewportArea();
 }
 
-void Renderer::setProjectionMatrix(const Mat4& newProjection)
+void Renderer::setModelMatrix(const Mat4& newMatrix)
 {
-  projection = newProjection;
+  modelMatrix = newMatrix;
+}
+
+void Renderer::setViewMatrix(const Mat4& newMatrix)
+{
+  viewMatrix = newMatrix;
+}
+
+void Renderer::setProjectionMatrix(const Mat4& newMatrix)
+{
+  projectionMatrix = newMatrix;
 }
   
 void Renderer::setProjectionMatrix2D(float width, float height)
 {
-  projection.x.x = 2.f / width;
-  projection.y.y = 2.f / height;
-  projection.z.z = -1.f;
-  projection.w.x = -1.f;
-  projection.w.y = -1.f;
-  projection.w.w = 1.f;
+  projectionMatrix.x.x = 2.f / width;
+  projectionMatrix.y.y = 2.f / height;
+  projectionMatrix.z.z = -1.f;
+  projectionMatrix.w.x = -1.f;
+  projectionMatrix.w.y = -1.f;
+  projectionMatrix.w.w = 1.f;
 }
 
 void Renderer::setProjectionMatrix3D(float FOV, float aspect, float nearZ, float farZ)
@@ -694,12 +729,12 @@ void Renderer::setProjectionMatrix3D(float FOV, float aspect, float nearZ, float
 
   const float f = 1.f / tanf((FOV * (float) M_PI / 180.f) / 2.f);
 
-  projection.x.x = f / aspect;
-  projection.y.y = f;
-  projection.z.z = (farZ + nearZ) / (nearZ - farZ);
-  projection.z.w = -1.f;
-  projection.w.z = (2.f * farZ * nearZ) / (nearZ - farZ);
-  projection.w.w = 0.f;
+  projectionMatrix.x.x = f / aspect;
+  projectionMatrix.y.y = f;
+  projectionMatrix.z.z = (farZ + nearZ) / (nearZ - farZ);
+  projectionMatrix.z.w = -1.f;
+  projectionMatrix.w.z = (2.f * farZ * nearZ) / (nearZ - farZ);
+  projectionMatrix.w.w = 0.f;
 }
 
 void Renderer::setCurrentProgram(Program* newProgram)

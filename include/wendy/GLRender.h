@@ -195,8 +195,6 @@ public:
   /*! Pops the top area from the scissor area clip stack.
    */
   void popScissorArea(void);
-  void pushTransform(const Mat4& transform);
-  void popTransform(void);
   /*! Clears the current color buffer with the specified color.
    *  @param[in] color The color value to clear the color buffer with.
    */
@@ -255,14 +253,17 @@ public:
   Canvas& getCurrentCanvas(void) const;
   Program* getCurrentProgram(void) const;
   const PrimitiveRange& getCurrentPrimitiveRange(void) const;
+  const Mat4& getModelMatrix(void) const;
+  const Mat4& getViewMatrix(void) const;
   const Mat4& getProjectionMatrix(void) const;
-  const Mat4& getModelViewMatrix(void) const;
   void setScreenCanvasCurrent(void);
   void setCurrentCanvas(Canvas& newCanvas);
+  void setModelMatrix(const Mat4& newMatrix);
+  void setViewMatrix(const Mat4& newMatrix);
   /*! Sets the projection matrix.
-   *  @param[in] newProjection The desired projection matrix.
+   *  @param[in] newMatrix The desired projection matrix.
    */
-  void setProjectionMatrix(const Mat4& newProjection);
+  void setProjectionMatrix(const Mat4& newMatrix);
   /*! Sets an orthographic projection matrix as ([0..width], [0..height], [-1, 1]).
    *  @param[in] width The width of the projected space.
    *  @param[in] height The height of the projected space.
@@ -322,7 +323,9 @@ private:
   Context& context;
   RectClipStack scissorStack;
   Rect viewportArea;
-  Mat4 projection;
+  Mat4 modelMatrix;
+  Mat4 viewMatrix;
+  Mat4 projectionMatrix;
   MatrixStack4 modelview;
   IndexBufferList indexBufferPool;
   VertexBufferList vertexBufferPool;

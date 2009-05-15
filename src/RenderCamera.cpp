@@ -59,11 +59,8 @@ Camera::Camera(const String& name):
 {
 }
 
-void Camera::begin(void) const
+void Camera::apply(void) const
 {
-  if (current)
-    throw Exception("Cannot nest cameras");
-
   GL::Renderer* renderer = GL::Renderer::get();
   if (!renderer)
   {
@@ -72,26 +69,7 @@ void Camera::begin(void) const
   }
 
   renderer->setProjectionMatrix3D(FOV, aspectRatio, minDepth, maxDepth);
-  renderer->pushTransform(getInverseTransform());
-
-  current = const_cast<Camera*>(this);
-}
-
-void Camera::end(void) const
-{
-  if (current != this)
-    throw Exception("No current camera or camera invalidated during rendering");
-
-  GL::Renderer* renderer = GL::Renderer::get();
-  if (!renderer)
-  {
-    Log::writeError("Cannot make camera current without a renderer");
-    return;
-  }
-
-  renderer->popTransform();
-
-  current = NULL;
+  renderer->setViewMatrix(getInverseTransform());
 }
 
 float Camera::getFOV(void) const
@@ -116,27 +94,18 @@ float Camera::getMaxDepth(void) const
 
 void Camera::setFOV(float newFOV)
 {
-  if (current == this)
-    throw Exception("Cannot change properties on an active camera");
-
   FOV = newFOV;
   dirtyFrustum = true;
 }
 
 void Camera::setAspectRatio(float newAspectRatio)
 {
-  if (current == this)
-    throw Exception("Cannot change properties on an active camera");
-
   aspectRatio = newAspectRatio;
   dirtyFrustum = true;
 }
 
 void Camera::setDepthRange(float newMinDepth, float newMaxDepth)
 {
-  if (current == this)
-    throw Exception("Cannot change properties on an active camera");
-
   minDepth = newMinDepth;
   maxDepth = newMaxDepth;
   dirtyFrustum = true;
@@ -177,13 +146,6 @@ const Frustum& Camera::getFrustum(void) const
 
   return frustum;
 }
-
-Camera* Camera::getCurrent(void)
-{
-  return current;
-}
-
-Camera* Camera::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 

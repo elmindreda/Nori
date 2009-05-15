@@ -132,7 +132,7 @@ void Queue::render(void) const
   if (!renderer)
     throw Exception("Cannot render render queue without a renderer");
 
-  camera.begin();
+  camera.apply();
   lights.apply();
 
   const OperationList& operations = getOperations();
@@ -141,7 +141,7 @@ void Queue::render(void) const
   {
     const Operation& operation = *operations[i];
 
-    renderer->pushTransform(operation.transform);
+    renderer->setModelMatrix(operation.transform);
 
     for (unsigned int j = 0;  j < operation.technique->getPassCount();  j++)
     {
@@ -173,11 +173,7 @@ void Queue::render(void) const
 	renderer->render();
       }
     }
-
-    renderer->popTransform();
   }
-
-  camera.end();
 }
 
 const String& Queue::getName(void) const
