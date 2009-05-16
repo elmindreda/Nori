@@ -189,6 +189,14 @@ void List::setSelection(unsigned int newIndex)
   setSelection(newIndex, false);
 }
 
+Item* List::getSelectedItem(void) const
+{
+  if (items.empty())
+    return NULL;
+
+  return items[selection];
+}
+
 unsigned int List::getItemCount(void) const
 {
   return (unsigned int) items.size();
