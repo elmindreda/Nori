@@ -45,7 +45,6 @@ bool Demo::init(void)
 
   GL::Context* context = GL::Context::get();
   context->setTitle("Bloom");
-  context->getRenderSignal().connect(*this, &Demo::render);
 
   if (!GL::Renderer::create(*context))
     return false;
@@ -93,45 +92,41 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  while (GL::Context::get()->update())
-    ;
-}
+  do
+  {
+    currentTime = timer.getTime();
 
-bool Demo::render(void)
-{
-  currentTime = timer.getTime();
+    meshNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f),
+							   currentTime);
 
-  meshNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f),
-                                                         currentTime);
+    graph.setTimeElapsed(currentTime);
 
-  graph.setTimeElapsed(currentTime);
+    render::Queue queue(camera);
+    graph.enqueue(queue);
 
-  render::Queue queue(camera);
-  graph.enqueue(queue);
+    GL::Renderer* renderer = GL::Renderer::get();
 
-  GL::Renderer* renderer = GL::Renderer::get();
+    renderer->setCurrentCanvas(*canvas);
+    renderer->clearDepthBuffer();
+    renderer->clearColorBuffer(ColorRGBA(0.4f, 0.4f, 0.4f, 1.f));
 
-  renderer->setCurrentCanvas(*canvas);
-  renderer->clearDepthBuffer();
-  renderer->clearColorBuffer(ColorRGBA(0.4f, 0.4f, 0.4f, 1.f));
+    queue.render();
 
-  queue.render();
+    renderer->setScreenCanvasCurrent();
+    renderer->clearDepthBuffer();
+    renderer->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
 
-  renderer->setScreenCanvasCurrent();
-  renderer->clearDepthBuffer();
-  renderer->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
+    queue.render();
 
-  queue.render();
+    renderer->setProjectionMatrix2D(4.f, 4.f);
 
-  renderer->setProjectionMatrix2D(4.f, 4.f);
+    bloomPass.apply();
 
-  bloomPass.apply();
-
-  render::Sprite2 sprite;
-  sprite.position.set(0.5f, 0.5f);
-  sprite.render();
-
-  return true;
+    render::Sprite2 sprite;
+    sprite.position.set(0.5f, 0.5f);
+    sprite.render();
+  }
+  while (GL::Context::get()->update());
 }
 
 int main()

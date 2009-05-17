@@ -197,46 +197,16 @@ Context::~Context(void)
 
 bool Context::update(void)
 {
-  bool stopped = false;
-
-  typedef std::list<bool> ResultList;
-  ResultList results;
-
-  renderSignal.emit(results);  
-
-  // Stop run loop if anyone returned false
-  if (std::find(results.begin(), results.end(), false) != results.end())
-    stopped = true;
-
   glfwSwapBuffers();
-
-  // Stop run loop if the user closed the window
-  // NOTE: This is here because we only find out about this after events
-  //       have been processed by SwapBuffers.
-  if (glfwGetWindowParam(GLFW_OPENED) != GL_TRUE)
-    stopped = true;
 
   finishSignal.emit();
 
-  if (stopped)
-    return false;
-
-  return true;
-}
-
-EntryPoint Context::findEntryPoint(const String& name)
-{
-  return (EntryPoint) glfwGetProcAddress(name.c_str());
+  return glfwGetWindowParam(GLFW_OPENED) == GL_TRUE;
 }
 
 bool Context::isWindowed(void) const
 {
   return (mode.flags & ContextMode::WINDOWED) != 0;
-}
-
-bool Context::hasExtension(const String& name) const
-{
-  return glfwExtensionSupported(name.c_str()) != 0;
 }
 
 unsigned int Context::getWidth(void) const
@@ -300,11 +270,6 @@ void Context::setTitle(const String& newTitle)
 const Limits& Context::getLimits(void) const
 {
   return *limits;
-}
-
-SignalProxy0<bool> Context::getRenderSignal(void)
-{
-  return renderSignal;
 }
 
 SignalProxy0<void> Context::getFinishSignal(void)

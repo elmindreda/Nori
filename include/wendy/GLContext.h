@@ -115,6 +115,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup opengl
+ */
 typedef std::vector<ScreenMode> ScreenModeList;
 
 ///////////////////////////////////////////////////////////////////////
@@ -222,19 +224,9 @@ public:
   /*! Updates the screen.
    */
   bool update(void);
-  /*! Finds the entry point with the specified name.
-   *  @param[in] name The name of the entry point.
-   *  @return The address of the specified entry point, or @c NULL.
-   */
-  EntryPoint findEntryPoint(const String& name);
   /*! @return @c true if the context is windowed, otherwise @c false.
    */
   bool isWindowed(void) const;
-  /*! Checks for the presence of the specified extension.
-   *  @param[in] name The name of the desired extension.
-   *  @return @c true if the extension is present, otherwise @c false.
-   */
-  bool hasExtension(const String& name) const;
   /*! @return The width, in pixels.
    */
   unsigned int getWidth(void) const;
@@ -262,9 +254,6 @@ public:
    */
   void setTitle(const String& newTitle);
   const Limits& getLimits(void) const;
-  /*! @return The signal for rendering.
-   */
-  SignalProxy0<bool> getRenderSignal(void);
   /*! @return The signal for per-frame post-render clean-up.
    */
   SignalProxy0<void> getFinishSignal(void);
@@ -296,7 +285,6 @@ private:
   bool init(const ContextMode& mode);
   static void sizeCallback(int width, int height);
   static int closeCallback(void);
-  Signal0<bool> renderSignal;
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
   Signal2<void, unsigned int, unsigned int> resizedSignal;
