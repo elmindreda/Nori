@@ -82,7 +82,7 @@ private:
   bool simple;
   bool modified;
   bool quitting;
-  Ptr<UI::Book> book;
+  UI::Book* book;
   Ptr<UI::Desktop> desktop;
   UI::Canvas* canvas;
   UI::List* effectType;

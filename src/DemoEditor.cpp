@@ -193,6 +193,7 @@ Editor::Editor(void):
   simple(true),
   modified(false),
   quitting(false),
+  book(NULL),
   elapsed(0.0)
 {
 }

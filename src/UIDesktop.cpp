@@ -82,23 +82,6 @@ void Desktop::addRootWidget(Widget& widget)
   widget.setDesktop(this);
 }
 
-void Desktop::removeRootWidget(Widget& widget)
-{
-  if (widget.desktop != this)
-    return;
-
-  if (widget.parent)
-    return;
-
-  WidgetList::iterator i = std::find(roots.begin(), roots.end(), &widget);
-  if (i != roots.end())
-  {
-    roots.erase(i);
-    removedWidget(widget);
-    widget.setDesktop(NULL);
-  }
-}
-
 void Desktop::drawRootWidgets(void)
 {
   GL::Renderer::get()->setProjectionMatrix2D((float) context.getWidth(),
@@ -201,25 +184,51 @@ void Desktop::setActiveWidget(Widget* widget)
     activeWidget->focusChangedSignal.emit(*activeWidget, true);
 }
 
+void Desktop::updateHoveredWidget(void)
+{
+  Vec2 cursorPosition = context.getCursorPosition();
+  cursorPosition.y = context.getHeight() - cursorPosition.y;
+
+  Widget* newWidget = findWidgetByPoint(cursorPosition);
+
+  if (hoveredWidget == newWidget)
+    return;
+
+  // TODO: Notify parents up to common ancestor.
+
+  if (hoveredWidget)
+    hoveredWidget->cursorLeftSignal.emit(*hoveredWidget);
+
+  hoveredWidget = newWidget;
+
+  if (hoveredWidget)
+  {
+    hoveredWidget->cursorEnteredSignal.emit(*hoveredWidget);
+    hoveredWidget->cursorMovedSignal.emit(*hoveredWidget, cursorPosition);
+  }
+}
+
 void Desktop::removedWidget(Widget& widget)
 {
-  if (activeWidget == &widget || activeWidget->isChildOf(widget))
-    setActiveWidget(widget.parent);
-
-  if (hoveredWidget == &widget || hoveredWidget->isChildOf(widget))
+  if (activeWidget)
   {
-    Vec2 cursorPosition = context.getCursorPosition();
-    cursorPosition.y = context.getHeight() - cursorPosition.y;
+    if (activeWidget == &widget || activeWidget->isChildOf(widget))
+      setActiveWidget(widget.parent);
+  }
 
-    hoveredWidget = findWidgetByPoint(cursorPosition);
-    if (hoveredWidget)
-      hoveredWidget->cursorEnteredSignal.emit(*hoveredWidget);
+  if (hoveredWidget)
+  {
+    if (hoveredWidget == &widget || hoveredWidget->isChildOf(widget))
+      updateHoveredWidget();
   }
 
   if (dragging)
   {
-    if (draggedWidget == &widget || draggedWidget->isChildOf(widget))
-      cancelDragging();
+    if (draggedWidget)
+    {
+      if (draggedWidget == &widget || draggedWidget->isChildOf(widget))
+	cancelDragging();
+    }
   }
 }
 
@@ -237,29 +246,13 @@ void Desktop::onCharInput(wchar_t character)
 
 void Desktop::onCursorMoved(const Vec2& position)
 {
-  Vec2 cursorPosition = position;
-  cursorPosition.y = context.getHeight() - cursorPosition.y;
-
-  Widget* newWidget = findWidgetByPoint(cursorPosition);
-
-  if (newWidget != hoveredWidget)
-  {
-    // TODO: Notify parents up to common ancestor.
-
-    if (hoveredWidget)
-      hoveredWidget->cursorLeftSignal.emit(*hoveredWidget);
-
-    hoveredWidget = newWidget;
-
-    if (newWidget)
-      newWidget->cursorEnteredSignal.emit(*newWidget);
-  }
-
-  if (hoveredWidget)
-    hoveredWidget->cursorMovedSignal.emit(*hoveredWidget, cursorPosition);
+  updateHoveredWidget();
 
   if (draggedWidget)
   {
+    Vec2 cursorPosition = context.getCursorPosition();
+    cursorPosition.y = context.getHeight() - cursorPosition.y;
+
     if (dragging)
       draggedWidget->dragMovedSignal.emit(*draggedWidget, cursorPosition);
     else

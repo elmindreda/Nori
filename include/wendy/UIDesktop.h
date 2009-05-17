@@ -59,7 +59,6 @@ public:
    */
   ~Desktop(void);
   void addRootWidget(Widget& widget);
-  void removeRootWidget(Widget& widget);
   /*! Draws all root level widgets.
    */
   void drawRootWidgets(void);
@@ -86,6 +85,7 @@ public:
   Widget* getHoveredWidget(void);
   void setActiveWidget(Widget* widget);
 private:
+  void updateHoveredWidget(void);
   void removedWidget(Widget& widget);
   void onKeyPressed(input::Key key, bool pressed);
   void onCharInput(wchar_t character);

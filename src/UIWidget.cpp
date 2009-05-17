@@ -75,29 +75,36 @@ Widget::~Widget(void)
 
 void Widget::remove(void)
 {
+  if (!desktop && !parent)
+    return;
+
+  WidgetList* siblings;
+
   if (parent)
+    siblings = &(parent->children);
+  else
+    siblings = &(desktop->roots);
+
+  WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
+  if (i != siblings->end())
   {
-    WidgetList& siblings = parent->children;
+    siblings->erase(i);
 
-    WidgetList::iterator i = std::find(siblings.begin(), siblings.end(), this);
-    if (i != siblings.end())
+    Desktop* oldDesktop = desktop;
+    setDesktop(NULL);
+
+    Widget* oldParent = parent;
+    parent = NULL;
+
+    if (oldDesktop)
+      oldDesktop->removedWidget(*this);
+
+    if (oldParent)
     {
-      if (desktop)
-      {
-	desktop->removedWidget(*this);
-	setDesktop(NULL);
-      }
-
-      Widget* oldParent = parent;
-      siblings.erase(i);
-      parent = NULL;
-
       oldParent->removedChild(*this);
       removedFromParent(*oldParent);
     }
   }
-  else if (desktop)
-    desktop->removeRootWidget(*this);
 }
 
 void Widget::addChild(Widget& child)
