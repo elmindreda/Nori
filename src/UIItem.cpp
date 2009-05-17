@@ -41,6 +41,7 @@
 #include <wendy/Input.h>
 
 #include <wendy/UIRender.h>
+#include <wendy/UIDesktop.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIItem.h>
 

@@ -41,6 +41,7 @@
 #include <wendy/Input.h>
 
 #include <wendy/UIRender.h>
+#include <wendy/UIDesktop.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIWindow.h>
 #include <wendy/UIBook.h>
@@ -104,7 +105,7 @@ void Editor::run(void)
     renderer->clearColorBuffer();
 
     if (book->isVisible())
-      UI::Widget::drawRoots();
+      desktop->drawRootWidgets();
     else
       show->render();
 
@@ -228,7 +229,10 @@ bool Editor::init(const String& showName)
 
   const float em = UI::Renderer::get()->getDefaultEM();
 
+  desktop = new UI::Desktop(*input::Context::get());
+
   book = new UI::Book();
+  desktop->addRootWidget(*book);
 
   UI::Page* timelinePage = new UI::Page("Timeline Editor");
   book->addChild(*timelinePage);

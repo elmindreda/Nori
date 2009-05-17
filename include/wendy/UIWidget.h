@@ -52,6 +52,10 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+class Desktop;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Base class for interface widgets.
  *  @ingroup ui
  *
@@ -63,18 +67,18 @@ using namespace moira;
  */
 class Widget : public Trackable
 {
+  friend class Desktop;
 public:
-  typedef std::list<Widget*> List;
   /*! Constructor.
    */
   Widget(void);
   /*! Destructor.
    */
   ~Widget(void);
+  void remove(void);
   /*! Adds a widget as a child to this widget.
    */
   void addChild(Widget& child);
-  void removeChild(Widget& child);
   void destroyChildren(void);
   /*! Searches for a widget at the specified point.
    *  @param[in] point The point at which to search.
@@ -107,7 +111,7 @@ public:
   void disable(void);
   /*! Makes this the active widget.
    *
-   *  @remarks This may fail if the widget is disabled.
+   *  @remarks This will fail if the widget is hidden or disabled.
    */
   void activate(void);
   /*! Makes this the top-level widget.
@@ -136,12 +140,14 @@ public:
   /*! @return @c true if this widget is currently the source of a dragging operation, otherwise @c false.
    */
   bool isBeingDragged(void) const;
+  bool isChildOf(const Widget& widget) const;
+  Desktop* getDesktop(void) const;
   /*! @return The parent of this widget, or @c NULL if it has no parent.
    */
   Widget* getParent(void) const;
   /*! @return The child widgets of this widget.
    */
-  const List& getChildren(void) const;
+  const WidgetList& getChildren(void) const;
   WidgetState getState(void) const;
   /*! @return The area of this widget, in parent coordinates.
    */
@@ -184,12 +190,6 @@ public:
   SignalProxy2<void, Widget&, const Vec2&> getDragBegunSignal(void);
   SignalProxy2<void, Widget&, const Vec2&> getDragMovedSignal(void);
   SignalProxy2<void, Widget&, const Vec2&> getDragEndedSignal(void);
-  /*! @return The active widget, or @c NULL if no widget is active.
-   */
-  static Widget* getActive(void);
-  /*! Draws all root level widgets.
-   */
-  static void drawRoots(void);
 protected:
   /*! Calls Widget::draw for all children of this widget.
    */
@@ -199,11 +199,7 @@ protected:
   virtual void addedToParent(Widget& parent);
   virtual void removedFromParent(Widget& parent);
 private:
-  static void onKeyPressed(input::Key key, bool pressed);
-  static void onCharInput(wchar_t character);
-  static void onCursorMoved(const Vec2& position);
-  static void onButtonClicked(unsigned int button, bool clicked);
-  static void onWheelTurned(int offset);
+  void setDesktop(Desktop* newDesktop);
   Signal1<void, Widget&> destroyedSignal;
   Signal1<void, Widget&> areaChangedSignal;
   Signal2<void, Widget&, bool> focusChangedSignal;
@@ -217,18 +213,14 @@ private:
   Signal2<void, Widget&, const Vec2&> dragBegunSignal;
   Signal2<void, Widget&, const Vec2&> dragMovedSignal;
   Signal2<void, Widget&, const Vec2&> dragEndedSignal;
+  Desktop* desktop;
   Widget* parent;
-  List children;
+  WidgetList children;
   bool enabled;
   bool visible;
   bool draggable;
   Rect area;
   mutable Rect globalArea;
-  static bool dragging;
-  static List roots;
-  static Widget* activeWidget;
-  static Widget* draggedWidget;
-  static Widget* hoveredWidget;
 };
 
 ///////////////////////////////////////////////////////////////////////

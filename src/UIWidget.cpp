@@ -41,6 +41,7 @@
 #include <wendy/Input.h>
 
 #include <wendy/UIRender.h>
+#include <wendy/UIDesktop.h>
 #include <wendy/UIWidget.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -57,100 +58,71 @@ using namespace moira;
 ///////////////////////////////////////////////////////////////////////
 
 Widget::Widget(void):
+  desktop(NULL),
   parent(NULL),
   enabled(true),
   visible(true),
   draggable(false)
 {
-  static bool initialized = false;
-
-  if (!initialized)
-  {
-    input::Context* context = input::Context::get();
-    if (!context)
-      throw Exception("Cannot create UI widgets without an input context");
-
-    context->getKeyPressedSignal().connect(&Widget::onKeyPressed);
-    context->getCharInputSignal().connect(&Widget::onCharInput);
-    context->getButtonClickedSignal().connect(&Widget::onButtonClicked);
-    context->getCursorMovedSignal().connect(&Widget::onCursorMoved);
-    context->getWheelTurnedSignal().connect(&Widget::onWheelTurned);
-
-    initialized = true;
-  }
-
-  const float em = Renderer::get()->getDefaultEM();
-
-  area.set(0.f, 0.f, em, em);
-
-  roots.push_back(this);
 }
 
 Widget::~Widget(void)
 {
   destroyChildren();
+  remove();
+  destroyedSignal.emit(*this);
+}
 
+void Widget::remove(void)
+{
   if (parent)
   {
-    parent->children.remove(this);
-    parent->removedChild(*this);
+    WidgetList& siblings = parent->children;
+
+    WidgetList::iterator i = std::find(siblings.begin(), siblings.end(), this);
+    if (i != siblings.end())
+    {
+      if (desktop)
+      {
+	desktop->removedWidget(*this);
+	setDesktop(NULL);
+      }
+
+      Widget* oldParent = parent;
+      siblings.erase(i);
+      parent = NULL;
+
+      oldParent->removedChild(*this);
+      removedFromParent(*oldParent);
+    }
   }
-  else
-    roots.remove(this);
-
-  if (activeWidget == this)
-  {
-    activeWidget = NULL;
-    focusChangedSignal.emit(*this, false);
-  }
-
-  if (draggedWidget == this)
-    draggedWidget = NULL;
-
-  if (hoveredWidget == this)
-    hoveredWidget = NULL;
-
-  destroyedSignal.emit(*this);
+  else if (desktop)
+    desktop->removeRootWidget(*this);
 }
 
 void Widget::addChild(Widget& child)
 {
+  // We don't allow cycles
   for (Widget* widget = this;  widget;  widget = widget->parent)
   {
     if (widget == &child)
       return;
   }
 
-  if (child.parent)
-    child.parent->removeChild(child);
-  else
-    roots.remove(&child);
+  child.remove();
 
   children.push_back(&child);
   child.parent = this;
+  child.setDesktop(desktop);
 
   addedChild(child);
   child.addedToParent(*this);
 }
 
-void Widget::removeChild(Widget& child)
-{
-  List::iterator i = std::find(children.begin(), children.end(), &child);
-  if (i != children.end())
-  {
-    children.erase(i);
-    child.parent = NULL;
-    roots.push_back(&child);
-
-    removedChild(child);
-    child.removedFromParent(*this);
-  }
-}
-
 void Widget::destroyChildren(void)
 {
   while (!children.empty())
-    delete children.front();
+    delete children.back();
 }
 
 Widget* Widget::findByPoint(const Vec2& point)
@@ -160,10 +132,10 @@ Widget* Widget::findByPoint(const Vec2& point)
 
   const Vec2 localPoint = point - area.position;
 
-  for (List::const_iterator i = children.begin();  i != children.end();  i++)
+  for (WidgetList::const_iterator c = children.begin();  c != children.end();  c++)
   {
-    if ((*i)->isVisible())
-      if (Widget* result = (*i)->findByPoint(localPoint))
+    if ((*c)->isVisible())
+      if (Widget* result = (*c)->findByPoint(localPoint))
 	return result;
   }
 
@@ -192,58 +164,54 @@ void Widget::disable(void)
 
 void Widget::activate(void)
 {
-  if (!isVisible() || !isEnabled())
+  if (!desktop)
     return;
 
-  if (activeWidget == this)
-    return;
-
-  if (activeWidget)
-    activeWidget->focusChangedSignal.emit(*activeWidget, false);
-
-  activeWidget = this;
-  focusChangedSignal.emit(*this, true);
+  desktop->setActiveWidget(this);
 }
 
 void Widget::bringToFront(void)
 {
-  List* siblings;
+  /*
+  if (!desktop)
+    return;
+
+  WidgetList* siblings;
 
   if (parent)
     siblings = &(parent->children);
   else
     siblings = &roots;
 
-  List::iterator i = std::find(siblings->begin(), siblings->end(), this);
+  WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
   siblings->erase(i);
   siblings->push_back(this);
+  */
 }
 
 void Widget::sendToBack(void)
 {
-  List* siblings;
+  /*
+  if (!desktop)
+    return;
+
+  WidgetList* siblings;
 
   if (parent)
     siblings = &(parent->children);
   else
     siblings = &roots;
 
-  List::iterator i = std::find(siblings->begin(), siblings->end(), this);
+  WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
   siblings->erase(i);
   siblings->push_front(this);
+  */
 }
 
 void Widget::cancelDragging(void)
 {
-  if (dragging && draggedWidget == this)
-  {
-    input::Context* context = input::Context::get();
-
-    draggedWidget->dragEndedSignal.emit(*draggedWidget, context->getCursorPosition());
-
-    draggedWidget = NULL;
-    dragging = false;
-  }
+  if (isBeingDragged())
+    desktop->cancelDragging();
 }
 
 bool Widget::isEnabled(void) const
@@ -259,6 +227,9 @@ bool Widget::isEnabled(void) const
 
 bool Widget::isVisible(void) const
 {
+  if (!desktop)
+    return false;
+
   if (!visible)
     return false;
 
@@ -270,12 +241,18 @@ bool Widget::isVisible(void) const
 
 bool Widget::isActive(void) const
 {
-  return activeWidget == this;
+  if (!desktop)
+    return false;
+
+  return desktop->getActiveWidget() == this;
 }
 
 bool Widget::isUnderCursor(void) const
 {
-  return hoveredWidget == this;
+  if (!desktop)
+    return false;
+
+  return desktop->getHoveredWidget() == this;
 }
 
 bool Widget::isDraggable(void) const
@@ -285,7 +262,26 @@ bool Widget::isDraggable(void) const
 
 bool Widget::isBeingDragged(void) const
 {
-  return draggedWidget == this;
+  if (!desktop)
+    return false;
+
+  return desktop->getDraggedWidget() == this;
+}
+
+bool Widget::isChildOf(const Widget& widget) const
+{
+  for (Widget* ancestor = parent;  ancestor;  ancestor = ancestor->parent)
+  {
+    if (ancestor == &widget)
+      return true;
+  }
+
+  return false;
+}
+
+Desktop* Widget::getDesktop(void) const
+{
+  return desktop;
 }
 
 Widget* Widget::getParent(void) const
@@ -293,7 +289,7 @@ Widget* Widget::getParent(void) const
   return parent;
 }
 
-const Widget::List& Widget::getChildren(void) const
+const WidgetList& Widget::getChildren(void) const
 {
   return children;
 }
@@ -350,7 +346,8 @@ void Widget::setVisible(bool newState)
 void Widget::setDraggable(bool newState)
 {
   draggable = newState;
-  if (draggedWidget == this)
+
+  if (desktop && !draggable)
     cancelDragging();
 }
 
@@ -419,41 +416,9 @@ SignalProxy2<void, Widget&, const Vec2&> Widget::getDragEndedSignal(void)
   return dragEndedSignal;
 }
 
-Widget* Widget::getActive(void)
-{
-  return activeWidget;
-}
-
-void Widget::drawRoots(void)
-{
-  if (!Renderer::get())
-  {
-    Log::writeError("Cannot draw widgets without a widget renderer");
-    return;
-  }
-
-  GL::Renderer* renderer = GL::Renderer::get();
-  if (!renderer)
-  {
-    Log::writeError("Cannot draw widgets without a renderer");
-    return;
-  }
-
-  GL::Canvas& canvas = renderer->getCurrentCanvas();
-
-  renderer->setProjectionMatrix2D((float) canvas.getPhysicalWidth(),
-                                  (float) canvas.getPhysicalHeight());
-
-  for (List::iterator i = roots.begin();  i != roots.end();  i++)
-  {
-    if ((*i)->isVisible())
-      (*i)->draw();
-  }
-}
-
 void Widget::draw(void) const
 {
-  for (List::const_iterator i = children.begin();  i != children.end();  i++)
+  for (WidgetList::const_iterator i = children.begin();  i != children.end();  i++)
   {
     if ((*i)->isVisible())
       (*i)->draw();
@@ -476,139 +441,13 @@ void Widget::removedFromParent(Widget& parent)
 {
 }
 
-void Widget::onKeyPressed(input::Key key, bool pressed)
+void Widget::setDesktop(Desktop* newDesktop)
 {
-  if (activeWidget)
-    activeWidget->keyPressedSignal.emit(*activeWidget, key, pressed);
+  desktop = newDesktop;
+
+  for (WidgetList::const_iterator c = children.begin();  c != children.end();  c++)
+    (*c)->setDesktop(desktop);
 }
-
-void Widget::onCharInput(wchar_t character)
-{
-  if (activeWidget)
-    activeWidget->charInputSignal.emit(*activeWidget, character);
-}
-
-void Widget::onCursorMoved(const Vec2& position)
-{
-  GL::Context* context = GL::Context::get();
-
-  Vec2 cursorPosition = position;
-  cursorPosition.y = context->getHeight() - cursorPosition.y;
-
-  Widget* newWidget = NULL;
-
-  for (List::reverse_iterator i = roots.rbegin();  i != roots.rend();  i++)
-  {
-    if ((*i)->isVisible())
-    {
-      newWidget = (*i)->findByPoint(cursorPosition);
-      if (newWidget)
-	break;
-    }
-  }
-
-  if (newWidget != hoveredWidget)
-  {
-    // TODO: Notify parents up to common ancestor.
-
-    if (hoveredWidget)
-      hoveredWidget->cursorLeftSignal.emit(*hoveredWidget);
-
-    hoveredWidget = newWidget;
-
-    if (newWidget)
-      newWidget->cursorEnteredSignal.emit(*newWidget);
-  }
-
-  if (hoveredWidget)
-    hoveredWidget->cursorMovedSignal.emit(*hoveredWidget, cursorPosition);
-
-  if (draggedWidget)
-  {
-    if (dragging)
-      draggedWidget->dragMovedSignal.emit(*draggedWidget, cursorPosition);
-    else
-    {
-      // TODO: Add insensitivity radius.
-
-      dragging = true;
-      draggedWidget->dragBegunSignal.emit(*draggedWidget, cursorPosition);
-    }
-  }
-}
-
-void Widget::onButtonClicked(unsigned int button, bool clicked)
-{
-  input::Context* context = input::Context::get();
-
-  Vec2 cursorPosition = context->getCursorPosition();
-  cursorPosition.y = context->getHeight() - cursorPosition.y;
-
-  if (clicked)
-  {
-    Widget* clickedWidget = NULL;
-
-    for (List::reverse_iterator i = roots.rbegin();  i != roots.rend();  i++)
-    {
-      if ((*i)->isVisible())
-      {
-	clickedWidget = (*i)->findByPoint(cursorPosition);
-	if (clickedWidget)
-	  break;
-      }
-    }
-
-    while (clickedWidget && !clickedWidget->isEnabled())
-      clickedWidget = clickedWidget->getParent();
-
-    if (clickedWidget)
-    {
-      clickedWidget->activate();
-      clickedWidget->buttonClickedSignal.emit(*clickedWidget,
-                                              cursorPosition,
-					      button,
-					      clicked);
-
-      // TODO: Allow dragging with any button.
-
-      if (button == 0 && clickedWidget->isDraggable())
-	draggedWidget = clickedWidget;
-    }
-  }
-  else
-  {
-    if (draggedWidget)
-    {
-      if (dragging)
-      {
-	draggedWidget->dragEndedSignal.emit(*draggedWidget, cursorPosition);
-	dragging = false;
-      }
-
-      draggedWidget = NULL;
-    }
-
-    if (activeWidget && activeWidget->getGlobalArea().contains(cursorPosition))
-      activeWidget->buttonClickedSignal.emit(*activeWidget,
-					     cursorPosition,
-					     button,
-					     clicked);
-  }
-}
-
-void Widget::onWheelTurned(int offset)
-{
-  if (hoveredWidget)
-    hoveredWidget->wheelTurnedSignal.emit(*hoveredWidget, offset);
-}
-
-bool Widget::dragging = false;
-
-Widget::List Widget::roots;
-
-Widget* Widget::activeWidget = NULL;
-Widget* Widget::draggedWidget = NULL;
-Widget* Widget::hoveredWidget = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 

@@ -41,6 +41,7 @@
 #include <wendy/Input.h>
 
 #include <wendy/UIRender.h>
+#include <wendy/UIDesktop.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIWindow.h>
 #include <wendy/UIView.h>
@@ -148,7 +149,7 @@ void TrackPanel::removedChild(Widget& child)
 
 void TrackPanel::updateTracks(void)
 {
-  const List& children = getChildren();
+  const UI::WidgetList& children = getChildren();
 
   const float em = UI::Renderer::get()->getDefaultEM();
   const float height = em * 2.f;
@@ -174,7 +175,7 @@ void TrackPanel::updateTracks(void)
     scroller->setVisible(true);
   }
 
-  for (List::const_iterator i = children.begin();  i != children.end();  i++)
+  for (UI::WidgetList::const_iterator i = children.begin();  i != children.end();  i++)
   {
     if (*i == scroller)
       continue;

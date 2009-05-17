@@ -83,6 +83,7 @@ private:
   bool modified;
   bool quitting;
   Ptr<UI::Book> book;
+  Ptr<UI::Desktop> desktop;
   UI::Canvas* canvas;
   UI::List* effectType;
   UI::Popup* parentPopup;

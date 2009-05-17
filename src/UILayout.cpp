@@ -41,6 +41,7 @@
 #include <wendy/Input.h>
 
 #include <wendy/UIRender.h>
+#include <wendy/UIDesktop.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UILayout.h>
 
@@ -155,7 +156,7 @@ void Layout::onAreaChanged(Widget& widget)
 
 void Layout::update(void)
 {
-  const List& children = getChildren();
+  const WidgetList& children = getChildren();
   const Vec2& size = getArea().size;
   unsigned int flexibleCount = 0;
 
@@ -163,7 +164,7 @@ void Layout::update(void)
   {
     float stackHeight = borderSize;
 
-    for (List::const_iterator i = children.begin();  i != children.end();  i++)
+    for (WidgetList::const_iterator i = children.begin();  i != children.end();  i++)
     {
       const float height = sizes[*i];
       if (height == 0.f)
@@ -180,7 +181,7 @@ void Layout::update(void)
 
     float position = size.y;
 
-    for (List::const_iterator i = children.begin();  i != children.end();  i++)
+    for (WidgetList::const_iterator i = children.begin();  i != children.end();  i++)
     {
       float height = sizes[*i];
       if (height == 0.f)
@@ -194,7 +195,7 @@ void Layout::update(void)
   {
     float stackWidth = borderSize;
 
-    for (List::const_iterator i = children.begin();  i != children.end();  i++)
+    for (WidgetList::const_iterator i = children.begin();  i != children.end();  i++)
     {
       const float width = sizes[*i];
       if (width == 0.f)
@@ -211,7 +212,7 @@ void Layout::update(void)
 
     float position = size.x;
 
-    for (List::const_iterator i = children.begin();  i != children.end();  i++)
+    for (WidgetList::const_iterator i = children.begin();  i != children.end();  i++)
     {
       float width = sizes[*i];
       if (width == 0.f)

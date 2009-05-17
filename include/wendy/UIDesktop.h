@@ -37,23 +37,35 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+class Widget;
+
+///////////////////////////////////////////////////////////////////////
+
+typedef std::vector<Widget*> WidgetList;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Root object for UI objects.
  *  @ingroup ui
  */
 class Desktop : public Trackable
 {
+  friend class Widget;
 public:
-  typedef std::list<Widget*> List;
   /*! Constructor.
    */
   Desktop(input::Context& context);
   /*! Destructor.
    */
   ~Desktop(void);
+  void addRootWidget(Widget& widget);
+  void removeRootWidget(Widget& widget);
   /*! Draws all root level widgets.
    */
   void drawRootWidgets(void);
   void destroyRootWidgets(void);
+  void bringWidgetToFront(Widget& widget);
+  void sendWidgetToBack(Widget& widget);
   /*! Searches for a widget at the specified point.
    *  @param[in] point The point at which to search.
    *  @return The widget at the specified point, or @c NULL if no matching
@@ -62,51 +74,28 @@ public:
    *  @remarks The point is in global coordinates.
    */
   Widget* findWidgetByPoint(const Vec2& point);
-  /*! Makes this the active desktop.
-   */
-  void activate(void);
-  /*! @return @c true if this is the active desktop, otherwise @c false.
-   */
-  bool isActive(void) const;
+  void cancelDragging(void);
   /*! @return The root widgets of this desktop.
    */
-  const List& getRootWidgets(void) const;
-  SignalProxy1<void, Widget&> getDestroyedSignal(void);
+  const WidgetList& getRootWidgets(void) const;
   SignalProxy2<void, Desktop&, bool> getFocusChangedSignal(void);
-  SignalProxy3<void, Widget&, input::Key, bool> getKeyPressedSignal(void);
-  SignalProxy2<void, Widget&, wchar_t> getCharInputSignal(void);
-  SignalProxy2<void, Widget&, const Vec2&> getCursorMovedSignal(void);
-  SignalProxy4<void, Widget&, const Vec2&, unsigned int, bool> getButtonClickedSignal(void);
-  SignalProxy2<void, Widget&, int> getWheelTurnedSignal(void);
   /*! @return The active widget, or @c NULL if no widget is active.
    */
   Widget* getActiveWidget(void);
-protected:
-  /*! Calls Widget::draw for all children of this widget.
-   */
-  virtual void draw(void) const;
-  virtual void addedChild(Widget& child);
-  virtual void removedChild(Widget& child);
-  virtual void addedToParent(Widget& parent);
-  virtual void removedFromParent(Widget& parent);
+  Widget* getDraggedWidget(void);
+  Widget* getHoveredWidget(void);
+  void setActiveWidget(Widget* widget);
 private:
-  static void onKeyPressed(input::Key key, bool pressed);
-  static void onCharInput(wchar_t character);
-  static void onCursorMoved(const Vec2& position);
-  static void onButtonClicked(unsigned int button, bool clicked);
-  static void onWheelTurned(int offset);
-  Signal1<void, Widget&> destroyedSignal;
-  Signal2<void, Widget&, bool> focusChangedSignal;
-  Signal3<void, Widget&, input::Key, bool> keyPressedSignal;
-  Signal2<void, Widget&, wchar_t> charInputSignal;
-  Signal2<void, Widget&, const Vec2&> cursorMovedSignal;
-  Signal4<void, Widget&, const Vec2&, unsigned int, bool> buttonClickedSignal;
-  Signal2<void, Widget&, int> wheelTurnedSignal;
-  Signal1<void, Widget&> cursorEnteredSignal;
-  Signal1<void, Widget&> cursorLeftSignal;
+  void removedWidget(Widget& widget);
+  void onKeyPressed(input::Key key, bool pressed);
+  void onCharInput(wchar_t character);
+  void onCursorMoved(const Vec2& position);
+  void onButtonClicked(unsigned int button, bool clicked);
+  void onWheelTurned(int offset);
+  Signal2<void, Desktop&, bool> focusChangedSignal;
   input::Context& context;
   bool dragging;
-  List roots;
+  WidgetList roots;
   Widget* activeWidget;
   Widget* draggedWidget;
   Widget* hoveredWidget;

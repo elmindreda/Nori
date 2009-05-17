@@ -35,7 +35,6 @@
 #include <wendy/GLRender.h>
 #include <wendy/GLState.h>
 
-#include <wendy/RenderMaterial.h>
 #include <wendy/RenderFont.h>
 
 #include <cctype>

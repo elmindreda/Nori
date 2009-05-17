@@ -41,6 +41,7 @@
 #include <wendy/Input.h>
 
 #include <wendy/UIRender.h>
+#include <wendy/UIDesktop.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIBook.h>
 
@@ -199,11 +200,11 @@ void Book::removedChild(Widget& child)
 
 void Book::getPages(PageList& pages) const
 {
-  const List& children = getChildren();
+  const WidgetList& children = getChildren();
 
   pages.reserve(children.size());
 
-  for (List::const_iterator i = children.begin();  i != children.end();  i++)
+  for (WidgetList::const_iterator i = children.begin();  i != children.end();  i++)
   {
     if (Page* page = dynamic_cast<Page*>(*i))
       pages.push_back(page);
@@ -215,7 +216,7 @@ void Book::setActivePage(Page* newPage, bool notify)
   if (newPage == activePage)
     return;
 
-  const List& children = getChildren();
+  const WidgetList& children = getChildren();
 
   if (std::find(children.begin(), children.end(), newPage) == children.end())
     return;
