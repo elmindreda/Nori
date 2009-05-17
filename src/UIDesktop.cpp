@@ -202,10 +202,7 @@ void Desktop::updateHoveredWidget(void)
   hoveredWidget = newWidget;
 
   if (hoveredWidget)
-  {
     hoveredWidget->cursorEnteredSignal.emit(*hoveredWidget);
-    hoveredWidget->cursorMovedSignal.emit(*hoveredWidget, cursorPosition);
-  }
 }
 
 void Desktop::removedWidget(Widget& widget)
@@ -248,11 +245,14 @@ void Desktop::onCursorMoved(const Vec2& position)
 {
   updateHoveredWidget();
 
+  Vec2 cursorPosition = context.getCursorPosition();
+  cursorPosition.y = context.getHeight() - cursorPosition.y;
+
+  if (hoveredWidget)
+    hoveredWidget->cursorMovedSignal.emit(*hoveredWidget, cursorPosition);
+
   if (draggedWidget)
   {
-    Vec2 cursorPosition = context.getCursorPosition();
-    cursorPosition.y = context.getHeight() - cursorPosition.y;
-
     if (dragging)
       draggedWidget->dragMovedSignal.emit(*draggedWidget, cursorPosition);
     else

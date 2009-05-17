@@ -179,7 +179,6 @@ void Widget::activate(void)
 
 void Widget::bringToFront(void)
 {
-  /*
   if (!desktop)
     return;
 
@@ -188,17 +187,15 @@ void Widget::bringToFront(void)
   if (parent)
     siblings = &(parent->children);
   else
-    siblings = &roots;
+    siblings = &(desktop->roots);
 
   WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
   siblings->erase(i);
   siblings->push_back(this);
-  */
 }
 
 void Widget::sendToBack(void)
 {
-  /*
   if (!desktop)
     return;
 
@@ -207,12 +204,11 @@ void Widget::sendToBack(void)
   if (parent)
     siblings = &(parent->children);
   else
-    siblings = &roots;
+    siblings = &(desktop->roots);
 
   WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
   siblings->erase(i);
-  siblings->push_front(this);
-  */
+  siblings->insert(siblings->begin(), this);
 }
 
 void Widget::cancelDragging(void)
