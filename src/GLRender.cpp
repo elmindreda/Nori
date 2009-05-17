@@ -398,6 +398,8 @@ void Renderer::render(void)
     return;
   }
 
+  // TODO: Optimize this method.
+
   Program& program = *currentProgram;
   program.apply();
 
@@ -828,6 +830,8 @@ void Renderer::onContextFinish(void)
 
   if (stats)
     stats->addFrame();
+
+  updateViewportArea();
 }
 
 void Renderer::updateScissorArea(void)
