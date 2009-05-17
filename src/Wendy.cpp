@@ -51,7 +51,15 @@ Ptr<GL::ProgramCodec> programCodec;
 Ptr<render::MaterialCodec> renderMaterialCodec;
 Ptr<render::TerrainCodec> renderTerrainCodec;
 
+#if WENDY_INCLUDE_SCENE_GRAPH
 Ptr<scene::GraphCodecXML> sceneGraphCodec;
+Ptr<scene::NodeType> sceneLightNodeType;
+Ptr<scene::NodeType> sceneMeshNodeType;
+Ptr<scene::NodeType> sceneCameraNodeType;
+Ptr<scene::NodeType> sceneTerrainNodeType;
+Ptr<scene::NodeType> sceneSpriteNodeType;
+Ptr<scene::NodeType> sceneParticleNodeType;
+#endif
 
 #if WENDY_INCLUDE_DEMO_SYSTEM
 Ptr<demo::ShowCodec> showCodec;
@@ -80,7 +88,16 @@ bool initialize(void)
   programCodec = new GL::ProgramCodec();
   renderMaterialCodec = new render::MaterialCodec();
   renderTerrainCodec = new render::TerrainCodec();
+
+#if WENDY_INCLUDE_SCENE_GRAPH
   sceneGraphCodec = new scene::GraphCodecXML();
+  sceneLightNodeType = new scene::NodeTemplate<scene::LightNode>("Light");
+  sceneMeshNodeType = new scene::NodeTemplate<scene::MeshNode>("Mesh");
+  sceneCameraNodeType = new scene::NodeTemplate<scene::CameraNode>("Camera");
+  sceneTerrainNodeType = new scene::NodeTemplate<scene::TerrainNode>("Terrain");
+  sceneSpriteNodeType = new scene::NodeTemplate<scene::SpriteNode>("Sprite");
+  sceneParticleNodeType = new scene::NodeTemplate<scene::ParticleSystemNode>("ParticleSystem");
+#endif
 
 #if WENDY_INCLUDE_DEMO_SYSTEM
   showCodec = new demo::ShowCodec();
@@ -99,7 +116,16 @@ void shutdown(void)
   programCodec = NULL;
   renderMaterialCodec = NULL;
   renderTerrainCodec = NULL;
+
+#if WENDY_INCLUDE_SCENE_GRAPH
   sceneGraphCodec = NULL;
+  sceneLightNodeType = NULL;
+  sceneMeshNodeType = NULL;
+  sceneCameraNodeType = NULL;
+  sceneTerrainNodeType = NULL;
+  sceneSpriteNodeType = NULL;
+  sceneParticleNodeType = NULL;
+#endif
 
 #if WENDY_INCLUDE_DEMO_SYSTEM
   showCodec = NULL;

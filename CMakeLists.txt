@@ -8,6 +8,7 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 option(WENDY_USE_INTERNAL "Use internal versions of library dependencies" ON)
+option(WENDY_INCLUDE_SCENE_GRAPH "Include the scene graph" ON)
 option(WENDY_INCLUDE_UI_SYSTEM "Include the UI library" ON)
 option(WENDY_INCLUDE_DEMO_SYSTEM "Include the demo system" ON)
 option(WENDY_INCLUDE_OPENAL_WRAPPER "Include the OpenAL wrapper" OFF)

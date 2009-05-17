@@ -125,9 +125,10 @@
 
 #include <wendy/Input.h>
 
+#if WENDY_INCLUDE_SCENE_GRAPH
 #include <wendy/SceneGraph.h>
-
 #include <wendy/SceneIO.h>
+#endif
 
 #if WENDY_INCLUDE_UI_SYSTEM
 #include <wendy/UIRender.h>
