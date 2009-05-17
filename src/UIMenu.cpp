@@ -92,8 +92,11 @@ Menu::~Menu(void)
   destroyItems();
 }
 
-void Menu::display(void)
+void Menu::display(Desktop& desktop)
 {
+  if (getDesktop() != &desktop)
+    desktop.addRootWidget(*this);
+
   selection = 0;
   setVisible(true);
   bringToFront();

@@ -864,7 +864,7 @@ void Timeline::onButtonClicked(Widget& widget,
       if (parent->getParent())
       {
 	canvasMenu->setPosition(point);
-	canvasMenu->display();
+	canvasMenu->display(*getDesktop());
       }
     }
   }
@@ -876,7 +876,7 @@ void Timeline::onButtonClicked(Widget& widget,
     if (clicked && button == 1)
     {
       effectMenu->setPosition(point);
-      effectMenu->display();
+      effectMenu->display(*getDesktop());
     }
   }
   else if (PropertyTrack* track = dynamic_cast<PropertyTrack*>(&widget))

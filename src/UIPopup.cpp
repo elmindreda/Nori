@@ -171,7 +171,7 @@ void Popup::display(void)
   const float width = std::max(menu->getArea().size.x, getArea().size.x);
   menu->setArea(Rect(getGlobalArea().position,
                      Vec2(width, menu->getArea().size.y)));
-  menu->display();
+  menu->display(*getDesktop());
 }
 
 void Popup::onButtonClicked(Widget& widget,

@@ -44,7 +44,7 @@ class Menu : public Widget
 public:
   Menu(void);
   ~Menu(void);
-  void display(void);
+  void display(Desktop& desktop);
   void addItem(Item& item);
   void addItemAt(Item& item, unsigned int index);
   void removeItem(Item& item);
