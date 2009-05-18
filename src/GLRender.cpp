@@ -436,16 +436,16 @@ void Renderer::render(void)
     varying.enable(format.getSize(), component->getOffset());
   }
 
-  if (Uniform* P = program.findUniform("M"))
+  if (Uniform* M = program.findUniform("M"))
   {
-    if (P->getType() == Uniform::FLOAT_MAT4)
-      P->setValue(modelMatrix);
+    if (M->getType() == Uniform::FLOAT_MAT4)
+      M->setValue(modelMatrix);
   }
 
-  if (Uniform* P = program.findUniform("V"))
+  if (Uniform* V = program.findUniform("V"))
   {
-    if (P->getType() == Uniform::FLOAT_MAT4)
-      P->setValue(viewMatrix);
+    if (V->getType() == Uniform::FLOAT_MAT4)
+      V->setValue(viewMatrix);
   }
 
   if (Uniform* P = program.findUniform("P"))
@@ -464,13 +464,13 @@ void Renderer::render(void)
     }
   }
 
-  if (Uniform* MV = program.findUniform("VP"))
+  if (Uniform* VP = program.findUniform("VP"))
   {
-    if (MV->getType() == Uniform::FLOAT_MAT4)
+    if (VP->getType() == Uniform::FLOAT_MAT4)
     {
       Mat4 vp = projectionMatrix;
       vp *= viewMatrix;
-      MV->setValue(vp);
+      VP->setValue(vp);
     }
   }
 
