@@ -384,7 +384,7 @@ SignalProxy2<void, Widget&, const Vec2&> Widget::getCursorMovedSignal(void)
   return cursorMovedSignal;
 }
 
-SignalProxy4<void, Widget&, const Vec2&, unsigned int, bool> Widget::getButtonClickedSignal(void)
+SignalProxy4<void, Widget&, const Vec2&, input::Button, bool> Widget::getButtonClickedSignal(void)
 {
   return buttonClickedSignal;
 }

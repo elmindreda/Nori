@@ -54,7 +54,7 @@ private:
   void draw(void) const;
   void onButtonClicked(Widget& widget,
                        const Vec2& point,
-		       unsigned int button,
+		       input::Button button,
 		       bool clicked);
   void onDragMoved(Widget& widget, const Vec2& point);
   Signal1<void, TimelineRuler&> timeChangedSignal;
@@ -157,7 +157,7 @@ private:
   void createTrack(Effect& effect);
   void onButtonClicked(Widget& widget,
                        const Vec2& point,
-		       unsigned int button,
+		       input::Button button,
 		       bool clicked);
   void onValueChanged(UI::Scroller& scroller);
   void onTimeChanged(TimelineRuler& ruler);

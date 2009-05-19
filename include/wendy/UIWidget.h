@@ -183,7 +183,7 @@ public:
   SignalProxy3<void, Widget&, input::Key, bool> getKeyPressedSignal(void);
   SignalProxy2<void, Widget&, wchar_t> getCharInputSignal(void);
   SignalProxy2<void, Widget&, const Vec2&> getCursorMovedSignal(void);
-  SignalProxy4<void, Widget&, const Vec2&, unsigned int, bool> getButtonClickedSignal(void);
+  SignalProxy4<void, Widget&, const Vec2&, input::Button, bool> getButtonClickedSignal(void);
   SignalProxy2<void, Widget&, int> getWheelTurnedSignal(void);
   SignalProxy1<void, Widget&> getCursorEnteredSignal(void);
   SignalProxy1<void, Widget&> getCursorLeftSignal(void);
@@ -206,7 +206,7 @@ private:
   Signal3<void, Widget&, input::Key, bool> keyPressedSignal;
   Signal2<void, Widget&, wchar_t> charInputSignal;
   Signal2<void, Widget&, const Vec2&> cursorMovedSignal;
-  Signal4<void, Widget&, const Vec2&, unsigned int, bool> buttonClickedSignal;
+  Signal4<void, Widget&, const Vec2&, input::Button, bool> buttonClickedSignal;
   Signal2<void, Widget&, int> wheelTurnedSignal;
   Signal1<void, Widget&> cursorEnteredSignal;
   Signal1<void, Widget&> cursorLeftSignal;

@@ -166,7 +166,7 @@ void Slider::draw(void) const
 
 void Slider::onButtonClicked(Widget& widget,
 			     const Vec2& position,
-			     unsigned int button,
+			     input::Button button,
 			     bool clicked)
 {
   if (clicked)

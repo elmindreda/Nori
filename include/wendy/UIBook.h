@@ -72,7 +72,7 @@ private:
   void onKeyPressed(Widget& widgeth, input::Key key, bool pressed);
   void onButtonClicked(Widget& widget,
 		       const Vec2& position,
-		       unsigned int button,
+		       input::Button button,
 		       bool clicked);
   Signal1<void, Book&> pageChangedSignal;
   Page* activePage;

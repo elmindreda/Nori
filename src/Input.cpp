@@ -50,14 +50,26 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
   
-Key::Key(unsigned int initValue):
-  value(initValue)
+Key::Key(unsigned int initSymbol):
+  symbol(initSymbol)
 {
 }
 
 Key::operator unsigned int (void) const
 {
-  return value;
+  return symbol;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Button::Button(unsigned int initSymbol):
+  symbol(initSymbol)
+{
+}
+
+Button::operator unsigned int (void) const
+{
+  return symbol;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -74,7 +86,7 @@ void Focus::onCharInput(wchar_t character)
 {
 }
 
-void Focus::onButtonClicked(unsigned int button, bool clicked)
+void Focus::onButtonClicked(Button button, bool clicked)
 {
 }
 
@@ -119,7 +131,7 @@ bool Context::isKeyDown(const Key& key) const
   return (glfwGetKey(externalKey) == GLFW_PRESS) ? true : false;
 }
 
-bool Context::isButtonDown(unsigned int button) const
+bool Context::isButtonDown(Button button) const
 {
   if (glfwGetMouseButton(button + GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
     return true;
@@ -166,7 +178,7 @@ SignalProxy1<void, wchar_t> Context::getCharInputSignal(void)
   return charInputSignal;
 }
 
-SignalProxy2<void, unsigned int, bool> Context::getButtonClickedSignal(void)
+SignalProxy2<void, Button, bool> Context::getButtonClickedSignal(void)
 {
   return buttonClickedSignal;
 }

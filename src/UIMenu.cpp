@@ -245,7 +245,7 @@ void Menu::onCursorMoved(Widget& widget, const Vec2& position)
 
 void Menu::onButtonClicked(Widget& widget,
                            const Vec2& position,
-			   unsigned int button,
+			   input::Button button,
 			   bool clicked)
 {
   if (clicked)

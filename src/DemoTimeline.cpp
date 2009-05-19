@@ -859,7 +859,7 @@ void Timeline::onButtonClicked(Widget& widget,
 {
   if (&widget == trackPanel)
   {
-    if (clicked && button == 1)
+    if (clicked && button == input::Button::RIGHT)
     {
       if (parent->getParent())
       {
@@ -873,7 +873,7 @@ void Timeline::onButtonClicked(Widget& widget,
     selected = track;
     effectSelectedSignal.emit(*this);
 
-    if (clicked && button == 1)
+    if (clicked && button == input::Button::RIGHT)
     {
       effectMenu->setPosition(point);
       effectMenu->display(*getDesktop());

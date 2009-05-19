@@ -53,10 +53,30 @@ public:
     UP, DOWN, LEFT, RIGHT, PAGEUP, PAGEDOWN, HOME, END,
     F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
   };
-  Key(unsigned int value);
+  Key(unsigned int symbol);
   operator unsigned int (void) const;
 private:
-  unsigned int value;
+  unsigned int symbol;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/* @brief Mouse button symbol.
+ * @ingroup input
+ */
+class Button
+{
+public:
+  enum Symbol
+  {
+    LEFT,
+    RIGHT,
+    MIDDLE,
+  };
+  Button(unsigned int symbol);
+  operator unsigned int (void) const;
+private:
+  unsigned int symbol;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -69,7 +89,7 @@ public:
   virtual void onContextResized(unsigned int width, unsigned int height);
   virtual void onKeyPressed(Key key, bool pressed);
   virtual void onCharInput(wchar_t character);
-  virtual void onButtonClicked(unsigned int button, bool clicked);
+  virtual void onButtonClicked(Button button, bool clicked);
   virtual void onCursorMoved(const Vec2& position);
   virtual void onWheelTurned(int offset);
   virtual void onFocusChanged(bool activated);
@@ -97,7 +117,7 @@ public:
   /*! @return @c true if the specified mouse button is pressed, otherwise @c false.
    *  @param[in] button The desired mouse button.
    */
-  bool isButtonDown(unsigned int button) const;
+  bool isButtonDown(Button button) const;
   /*! @return The width, in pixels, of the mousable screen area.
    */
   unsigned int getWidth(void) const;
@@ -122,7 +142,7 @@ public:
   SignalProxy1<void, wchar_t> getCharInputSignal(void);
   /*! @return The signal for mouse button click and release events.
    */
-  SignalProxy2<void, unsigned int, bool> getButtonClickedSignal(void);
+  SignalProxy2<void, Button, bool> getButtonClickedSignal(void);
   /*! @return The signal for mouse cursor movement events.
    */
   SignalProxy1<void, const Vec2&> getCursorMovedSignal(void);
@@ -149,7 +169,7 @@ private:
   Signal2<void, unsigned int, unsigned int> resizedSignal;
   Signal2<void, Key, bool> keyPressedSignal;
   Signal1<void, wchar_t> charInputSignal;
-  Signal2<void, unsigned int, bool> buttonClickedSignal;
+  Signal2<void, Button, bool> buttonClickedSignal;
   Signal1<void, const Vec2&> cursorMovedSignal;
   Signal1<void, int> wheelTurnedSignal;
   GL::Context& context;

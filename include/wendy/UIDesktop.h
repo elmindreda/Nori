@@ -90,7 +90,7 @@ private:
   void onKeyPressed(input::Key key, bool pressed);
   void onCharInput(wchar_t character);
   void onCursorMoved(const Vec2& position);
-  void onButtonClicked(unsigned int button, bool clicked);
+  void onButtonClicked(input::Button button, bool clicked);
   void onWheelTurned(int offset);
   Signal2<void, Desktop&, bool> focusChangedSignal;
   input::Context& context;

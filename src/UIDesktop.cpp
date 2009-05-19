@@ -265,7 +265,7 @@ void Desktop::onCursorMoved(const Vec2& position)
   }
 }
 
-void Desktop::onButtonClicked(unsigned int button, bool clicked)
+void Desktop::onButtonClicked(input::Button button, bool clicked)
 {
   Vec2 cursorPosition = context.getCursorPosition();
   cursorPosition.y = context.getHeight() - cursorPosition.y;
@@ -297,7 +297,7 @@ void Desktop::onButtonClicked(unsigned int button, bool clicked)
 
       // TODO: Allow dragging with any button.
 
-      if (button == 0 && clickedWidget->isDraggable())
+      if (button == input::Button::LEFT && clickedWidget->isDraggable())
 	draggedWidget = clickedWidget;
     }
   }

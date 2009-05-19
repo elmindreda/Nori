@@ -278,10 +278,10 @@ void List::onAreaChanged(Widget& widget)
 
 void List::onButtonClicked(Widget& widget,
 			   const Vec2& position,
-			   unsigned int button,
+			   input::Button button,
 			   bool clicked)
 {
-  if (!clicked || button != 0)
+  if (!clicked || button != input::Button::LEFT)
     return;
 
   Vec2 localPosition = transformToLocal(position);

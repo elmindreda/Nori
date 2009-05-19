@@ -149,7 +149,7 @@ void Entry::draw(void) const
 
 void Entry::onButtonClicked(Widget& widget,
 			    const Vec2& point,
-			    unsigned int button,
+			    input::Button button,
 			    bool clicked)
 {
   float position = transformToLocal(point).x;

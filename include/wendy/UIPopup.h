@@ -60,7 +60,7 @@ private:
   void display(void);
   void onButtonClicked(Widget& widget,
 		       const Vec2& position,
-		       unsigned int button,
+		       input::Button button,
 		       bool clicked);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   void onItemSelected(Menu& menu, unsigned int index);

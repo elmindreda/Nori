@@ -282,7 +282,7 @@ void Book::onKeyPressed(Widget& widgeth, input::Key key, bool pressed)
 
 void Book::onButtonClicked(Widget& widget,
 		           const Vec2& point,
-		           unsigned int button,
+		           input::Button button,
 		           bool clicked)
 {
   PageList pages;

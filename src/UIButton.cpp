@@ -110,7 +110,7 @@ void Button::draw(void) const
 
 void Button::onButtonClicked(Widget& widget,
                              const Vec2& position,
-			     unsigned int button,
+			     input::Button button,
 			     bool clicked)
 {
   if (clicked)
