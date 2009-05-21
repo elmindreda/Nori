@@ -334,29 +334,6 @@ void TextureCanvas::finish(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-bool Renderer::pushScissorArea(const Rect& area)
-{
-  if (!scissorStack.push(area))
-    return false;
-
-  updateScissorArea();
-
-  return true;
-}
-
-void Renderer::popScissorArea(void)
-{
-  if (scissorStack.getCount() == 1)
-  {
-    Log::writeError("Cannot pop empty scissor clip stack");
-    return;
-  }
-
-  scissorStack.pop();
-
-  updateScissorArea();
-}
-
 void Renderer::clearColorBuffer(const ColorRGBA& color)
 {
   glPushAttrib(GL_COLOR_BUFFER_BIT);
@@ -639,7 +616,7 @@ Program& Renderer::getDefaultProgram(void) const
 
 const Rect& Renderer::getScissorArea(void) const
 {
-  return scissorStack.getTotal();
+  return scissorArea;
 }
 
 const Rect& Renderer::getViewportArea(void) const
@@ -647,11 +624,15 @@ const Rect& Renderer::getViewportArea(void) const
   return viewportArea;
 }
 
+void Renderer::setScissorArea(const Rect& newArea)
+{
+  scissorArea = newArea;
+  updateScissorArea();
+}
+
 void Renderer::setViewportArea(const Rect& newArea)
 {
   viewportArea = newArea;
-  viewportArea.clipBy(Rect(0.f, 0.f, 1.f, 1.f));
-
   updateViewportArea();
 }
 
@@ -697,6 +678,7 @@ void Renderer::setCurrentCanvas(Canvas& newCanvas)
   currentCanvas->apply();
 
   updateViewportArea();
+  updateScissorArea();
 }
 
 void Renderer::setModelMatrix(const Mat4& newMatrix)
@@ -780,7 +762,7 @@ Renderer::Renderer(Context& initContext):
 
 bool Renderer::init(void)
 {
-  scissorStack.push(Rect(0.f, 0.f, 1.f, 1.f));
+  scissorArea.set(0.f, 0.f, 1.f, 1.f);
   viewportArea.set(0.f, 0.f, 1.f, 1.f);
 
   screenCanvas = new ScreenCanvas(context);
@@ -788,6 +770,7 @@ bool Renderer::init(void)
   currentCanvas = screenCanvas;
 
   updateViewportArea();
+  updateScissorArea();
 
   defaultTexture = Texture::findInstance("default");
   if (!defaultTexture)
@@ -831,42 +814,53 @@ void Renderer::onContextFinish(void)
   if (stats)
     stats->addFrame();
 
+  // NOTE: This is a hack to compensate for the current lack of frame fence
+  // calls.  It sort of works as long as the finish signal is emitted after
+  // event processing.
   updateViewportArea();
+  updateScissorArea();
 }
 
 void Renderer::updateScissorArea(void)
 {
-  Rect area = scissorStack.getTotal();
-  area *= viewportArea.size;
-  area.position += viewportArea.position;
-
-  const unsigned int width = currentCanvas->getPhysicalWidth();
-  const unsigned int height = currentCanvas->getPhysicalHeight();
-
-  glScissor((GLint) floorf(area.position.x * width),
-	    (GLint) floorf(area.position.y * height),
-	    (GLsizei) ceilf(area.size.x * width),
-	    (GLsizei) ceilf(area.size.y * height));
-
-  if (area == Rect(0.f, 0.f, 1.f, 1.f))
+  if (scissorArea == Rect(0.f, 0.f, 1.f, 1.f))
     glDisable(GL_SCISSOR_TEST);
   else
+  {
+    const unsigned int width = currentCanvas->getPhysicalWidth();
+    const unsigned int height = currentCanvas->getPhysicalHeight();
+
+    Recti sa((int) (scissorArea.position.x * width),
+	     (int) (scissorArea.position.y * height),
+	     (int) (scissorArea.size.x * width),
+	     (int) (scissorArea.size.y * height));              
+
+    Log::write("s: %i %i %i %i", sa.position.x, sa.position.y, sa.size.x, sa.size.y);
+
     glEnable(GL_SCISSOR_TEST);
+    glScissor((GLint) floorf(scissorArea.position.x * width),
+	      (GLint) floorf(scissorArea.position.y * height),
+	      (GLsizei) ceilf(scissorArea.size.x * width),
+	      (GLsizei) ceilf(scissorArea.size.y * height));
+  }
 }
 
 void Renderer::updateViewportArea(void)
 {
-  const Rect& area = getViewportArea();
-
   const unsigned int width = currentCanvas->getPhysicalWidth();
   const unsigned int height = currentCanvas->getPhysicalHeight();
 
-  glViewport((GLint) (area.position.x * width),
-             (GLint) (area.position.y * height),
-	     (GLsizei) (area.size.x * width),
-	     (GLsizei) (area.size.y * height));
+  Recti vp((int) (viewportArea.position.x * width),
+           (int) (viewportArea.position.y * height),
+	   (int) (viewportArea.size.x * width),
+	   (int) (viewportArea.size.y * height));              
 
-  updateScissorArea();
+  Log::write("v: %i %i %i %i", vp.position.x, vp.position.y, vp.size.x, vp.size.y);
+
+  glViewport((GLint) (viewportArea.position.x * width),
+             (GLint) (viewportArea.position.y * height),
+	     (GLsizei) (viewportArea.size.x * width),
+	     (GLsizei) (viewportArea.size.y * height));
 }
 
 ///////////////////////////////////////////////////////////////////////

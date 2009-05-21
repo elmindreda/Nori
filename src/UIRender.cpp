@@ -76,18 +76,32 @@ bool Renderer::pushClipArea(const Rect& area)
 
   GL::Canvas& canvas = renderer->getCurrentCanvas();
 
+  Log::write("c: %0.2f %0.2f %0.2f %0.2f", area.position.x, area.position.y, area.size.x, area.size.y);
+
   Vec2 scale;
   scale.x = 1.f / canvas.getPhysicalWidth();
   scale.y = 1.f / canvas.getPhysicalHeight();
 
-  return renderer->pushScissorArea(area * scale);
+  if (!clipAreaStack.push(area * scale))
+    return false;
+
+  renderer->setScissorArea(clipAreaStack.getTotal());
+  return true;
 }
 
 void Renderer::popClipArea(void)
 {
+  if (clipAreaStack.getCount() == 1)
+  {
+    Log::writeError("Cannot pop empty clip area stack");
+    return;
+  }
+
+  clipAreaStack.pop();
+
   GL::Renderer* renderer = GL::Renderer::get();
 
-  renderer->popScissorArea();
+  renderer->setScissorArea(clipAreaStack.getTotal());
 }
 
 void Renderer::drawPoint(const Vec2& point, const ColorRGBA& color)
@@ -496,13 +510,6 @@ bool Renderer::create(void)
 
 Renderer::Renderer(void)
 {
-  static bool initialized = false;
-
-  if (!initialized)
-  {
-    GL::Context::getDestroySignal().connect(onContextDestroy);
-    initialized = true;
-  }
 }
 
 bool Renderer::init(void)
@@ -513,6 +520,14 @@ bool Renderer::init(void)
     return false;
   }
 
+  widgetColor.set(0.7f, 0.7f, 0.7f);
+  textColor = ColorRGB::BLACK;
+  wellColor = widgetColor * 1.2f;
+  selectionColor.set(0.3f, 0.3f, 0.3f);
+  selectedTextColor = ColorRGB::WHITE;
+
+  clipAreaStack.push(Rect(0.f, 0.f, 1.f, 1.f));
+
   defaultFont = render::Font::readInstance("default");
   if (!defaultFont)
   {
@@ -521,12 +536,6 @@ bool Renderer::init(void)
   }
 
   currentFont = defaultFont;
-
-  widgetColor.set(0.7f, 0.7f, 0.7f);
-  textColor = ColorRGB::BLACK;
-  wellColor = widgetColor * 1.2f;
-  selectionColor.set(0.3f, 0.3f, 0.3f);
-  selectedTextColor = ColorRGB::WHITE;
 
   // Set up drawing render pass
   {
@@ -584,15 +593,6 @@ void Renderer::setDrawingState(const ColorRGBA& color, bool wireframe)
 
   drawPass.setWireframe(wireframe);
   drawPass.apply();
-}
-
-void Renderer::onContextDestroy(void)
-{
-  if (Renderer::get())
-  {
-    Log::writeWarning("Renderer not explicitly destroyed before context destruction");
-    Renderer::destroy();
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////

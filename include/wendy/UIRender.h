@@ -111,6 +111,16 @@ public:
    *  @param area The desired clipping area.
    *  @return @c true if successful, or @c false if the specified area
    *  would result in a null total clipping area.
+   *  @remarks If the resulting clipping area is empty, it is not pushed
+   *  onto the stack, so you do not need to (and should not) pop it. The
+   *  recommended pattern is:
+   *  @code
+   *  if (renderer.pushClipArea(childArea))
+   *  {
+   *	drawStuff();
+   *	renderer.popClipArea();
+   *  }
+   *  @endcode
    */
   bool pushClipArea(const Rect& area);
   /*! Pops the top clipping area from the clip stack, restoring the
@@ -152,7 +162,7 @@ private:
   Renderer(void);
   bool init(void);
   void setDrawingState(const ColorRGBA& color, bool wireframe);
-  static void onContextDestroy(void);
+  RectClipStackf clipAreaStack;
   ColorRGB widgetColor;
   ColorRGB textColor;
   ColorRGB wellColor;

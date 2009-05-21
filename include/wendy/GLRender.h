@@ -174,27 +174,6 @@ private:
 class Renderer : public Trackable, public Singleton<Renderer>
 {
 public:
-  /*! Pushes the specified area onto the scissor area clip stack.  The
-   *  resulting scissor area is the specified scissor area clipped by the
-   *  current scissor area.
-   *  @param area The desired area to push.
-   *  @return @c true if the resulting scissor area has a non-zero size,
-   *  otherwise @c false.
-   *  @remarks If the resulting scissor area is empty, it is not pushed
-   *  onto the stack, so you do not need to (and should not) pop it. The
-   *  recommended pattern is:
-   *  @code
-   *  if (renderer.pushScissorArea(childArea))
-   *  {
-   *	drawStuff();
-   *	renderer.popScissorArea();
-   *  }
-   *  @endcode
-   */
-  bool pushScissorArea(const Rect& area);
-  /*! Pops the top area from the scissor area clip stack.
-   */
-  void popScissorArea(void);
   /*! Clears the current color buffer with the specified color.
    *  @param[in] color The color value to clear the color buffer with.
    */
@@ -246,6 +225,7 @@ public:
   /*! @return The current viewport rectangle.
    */
   const Rect& getViewportArea(void) const;
+  void setScissorArea(const Rect& newArea);
   /*! Sets the current viewport rectangle.
    *  @param[in] newArea The desired viewport rectangle.
    */
@@ -321,7 +301,7 @@ private:
   typedef std::list<IndexBufferSlot> IndexBufferList;
   typedef std::list<VertexBufferSlot> VertexBufferList;
   Context& context;
-  RectClipStack scissorStack;
+  Rect scissorArea;
   Rect viewportArea;
   Mat4 modelMatrix;
   Mat4 viewMatrix;
