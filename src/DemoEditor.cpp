@@ -516,15 +516,19 @@ void Editor::onDrawShowCanvas(const UI::Canvas& canvas)
 
   Mat4 oldProjection = renderer->getProjectionMatrix();
   Rect oldViewport = renderer->getViewportArea();
+  Rect oldScissor = renderer->getScissorArea();
 
-  Rect viewport = canvas.getGlobalArea();
-  viewport *= Vec2(1.f / renderer->getCurrentCanvas().getPhysicalWidth(),
-                   1.f / renderer->getCurrentCanvas().getPhysicalHeight());
+  Vec2 scale(1.f / renderer->getCurrentCanvas().getPhysicalWidth(),
+             1.f / renderer->getCurrentCanvas().getPhysicalHeight());    
 
-  renderer->setViewportArea(viewport);
+  Rect area = canvas.getGlobalArea() * scale;
+
+  renderer->setScissorArea(area);
+  renderer->setViewportArea(area);
 
   show->render();
 
+  renderer->setScissorArea(oldScissor);
   renderer->setViewportArea(oldViewport);
   renderer->setProjectionMatrix(oldProjection);
 }
