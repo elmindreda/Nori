@@ -288,7 +288,7 @@ void TimelineRuler::draw(void) const
 
 void TimelineRuler::onButtonClicked(Widget& widget,
                                     const Vec2& point,
-				    unsigned int button,
+				    input::Button button,
 				    bool clicked)
 {
   if (!clicked)
@@ -854,7 +854,7 @@ void Timeline::createTrack(Effect& effect)
 
 void Timeline::onButtonClicked(Widget& widget,
 		               const Vec2& point,
-		               unsigned int button,
+		               input::Button button,
 		               bool clicked)
 {
   if (&widget == trackPanel)
