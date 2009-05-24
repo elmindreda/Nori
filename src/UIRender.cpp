@@ -76,8 +76,6 @@ bool Renderer::pushClipArea(const Rect& area)
 
   GL::Canvas& canvas = renderer->getCurrentCanvas();
 
-  Log::write("c: %0.2f %0.2f %0.2f %0.2f", area.position.x, area.position.y, area.size.x, area.size.y);
-
   Vec2 scale;
   scale.x = 1.f / canvas.getPhysicalWidth();
   scale.y = 1.f / canvas.getPhysicalHeight();

@@ -835,8 +835,6 @@ void Renderer::updateScissorArea(void)
 	     (int) (scissorArea.size.x * width),
 	     (int) (scissorArea.size.y * height));              
 
-    Log::write("s: %i %i %i %i", sa.position.x, sa.position.y, sa.size.x, sa.size.y);
-
     glEnable(GL_SCISSOR_TEST);
     glScissor((GLint) floorf(scissorArea.position.x * width),
 	      (GLint) floorf(scissorArea.position.y * height),
@@ -854,8 +852,6 @@ void Renderer::updateViewportArea(void)
            (int) (viewportArea.position.y * height),
 	   (int) (viewportArea.size.x * width),
 	   (int) (viewportArea.size.y * height));              
-
-  Log::write("v: %i %i %i %i", vp.position.x, vp.position.y, vp.size.x, vp.size.y);
 
   glViewport((GLint) (viewportArea.position.x * width),
              (GLint) (viewportArea.position.y * height),
