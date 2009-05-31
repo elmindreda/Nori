@@ -70,7 +70,7 @@ enum AddressMode
  *  @remarks This class intentionally has no public interface for
  *  making a texture object current.
  */
-class Texture : public Resource<Texture>, public RefObject<Texture>
+class Texture : public Resource<Texture>, public RefObject
 {
   friend class Sampler;
 public:

@@ -144,7 +144,7 @@ private:
 /*! @brief Multi-technique material descriptor.
  *  @ingroup renderer
  */
-class Material : public Resource<Material>, public RefObject<Material>
+class Material : public Resource<Material>, public RefObject
 {
 public:
   /*! Constructor.

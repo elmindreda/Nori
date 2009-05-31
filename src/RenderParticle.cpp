@@ -170,12 +170,10 @@ void ParticleSystem::enqueue(Queue& queue, const Transform3& transform) const
   }
 
   Operation& operation = queue.createOperation();
-  operation.vertexBuffer = vertices.getVertexBuffer();
-  operation.indexBuffer = indices.getIndexBuffer();
-  operation.start = indices.getStart();
-  operation.count = indices.getCount();
   operation.technique = technique;
-  operation.type = GL::TRIANGLE_LIST;
+  operation.range = GL::PrimitiveRange(GL::TRIANGLE_LIST,
+                                       *vertices.getVertexBuffer(),
+                                       indices);
 }
 
 void ParticleSystem::addEmitter(ParticleEmitter& emitter)

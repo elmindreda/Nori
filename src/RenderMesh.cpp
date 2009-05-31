@@ -76,12 +76,10 @@ void Mesh::enqueue(Queue& queue, const Transform3& transform) const
     }
 
     Operation& operation = queue.createOperation();
-    operation.vertexBuffer = vertexBuffer;
-    operation.indexBuffer = (*i)->range.getIndexBuffer();
-    operation.type = (*i)->primitiveType;
+    operation.range = GL::PrimitiveRange((*i)->primitiveType,
+                                         *vertexBuffer,
+                                         (*i)->range);
     operation.transform = transform;
-    operation.start = (*i)->range.getStart();
-    operation.count = (*i)->range.getCount();
     operation.technique = technique;
   }
 }
@@ -98,7 +96,7 @@ const Mesh::GeometryList& Mesh::getGeometries(void)
 
 Mesh* Mesh::createInstance(const moira::Mesh& mesh, const String& name)
 {
-  Ptr<Mesh> renderMesh = new Mesh(name);
+  Ptr<Mesh> renderMesh(new Mesh(name));
   if (!renderMesh->init(mesh))
     return NULL;
 
@@ -306,7 +304,7 @@ void ShadowMesh::enqueue(Queue& queue, const Transform3& transform) const
 {
   if (!vertexCount)
   {
-    Log::writeWarning("Cannot enqueue non-updated shadow mesh");
+    Log::writeError("Cannot enqueue non-updated shadow mesh");
     return;
   }
 
@@ -318,10 +316,8 @@ void ShadowMesh::enqueue(Queue& queue, const Transform3& transform) const
   }
 
   Operation& operation = queue.createOperation();
-  operation.vertexBuffer = vertexBuffer;
-  operation.type = GL::TRIANGLE_LIST;
+  operation.range = GL::PrimitiveRange(GL::TRIANGLE_LIST, *vertexBuffer, 0, vertexCount);
   operation.technique = technique;
-  operation.count = vertexCount;
   operation.transform = transform;
 }
 
@@ -337,7 +333,7 @@ void ShadowMesh::setExtrudeDistance(float newDistance)
 
 ShadowMesh* ShadowMesh::createInstance(const moira::Mesh& mesh)
 {
-  Ptr<ShadowMesh> shadowMesh = new ShadowMesh();
+  Ptr<ShadowMesh> shadowMesh(new ShadowMesh());
   if (!shadowMesh->init(mesh))
     return NULL;
 

@@ -498,7 +498,7 @@ void Renderer::setCurrentFont(render::Font* newFont)
 
 bool Renderer::create(void)
 {
-  Ptr<Renderer> renderer = new Renderer();
+  Ptr<Renderer> renderer(new Renderer());
   if (!renderer->init())
     return false;
 

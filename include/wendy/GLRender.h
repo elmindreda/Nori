@@ -283,14 +283,14 @@ private:
    */
   struct IndexBufferSlot
   {
-    Ptr<IndexBuffer> indexBuffer;
+    Ref<IndexBuffer> indexBuffer;
     unsigned int available;
   };
   /*! @internal
    */
   struct VertexBufferSlot
   {
-    Ptr<VertexBuffer> vertexBuffer;
+    Ref<VertexBuffer> vertexBuffer;
     unsigned int available;
   };
   Renderer(Context& context);
@@ -306,7 +306,6 @@ private:
   Mat4 modelMatrix;
   Mat4 viewMatrix;
   Mat4 projectionMatrix;
-  MatrixStack4 modelview;
   IndexBufferList indexBufferPool;
   VertexBufferList vertexBufferPool;
   Canvas* screenCanvas;

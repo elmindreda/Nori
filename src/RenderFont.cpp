@@ -309,7 +309,7 @@ Font* Font::createInstance(const Path& path,
 			   const String& characters,
 			   const String& name)
 {
-  Ptr<moira::Font> font = moira::Font::readInstance(path, characters);
+  Ptr<moira::Font> font(moira::Font::readInstance(path, characters));
   if (!font)
     return NULL;
 
@@ -318,7 +318,7 @@ Font* Font::createInstance(const Path& path,
 
 Font* Font::createInstance(const moira::Font& font, const String& name)
 {
-  Ptr<Font> renderFont = new Font(name);
+  Ptr<Font> renderFont(new Font(name));
   if (!renderFont->init(font))
     return NULL;
 

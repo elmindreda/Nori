@@ -58,7 +58,7 @@ enum LockType
 /*! @brief Vertex buffer.
  *  @ingroup opengl
  */
-class VertexBuffer : public Managed<VertexBuffer>
+class VertexBuffer : public Managed<VertexBuffer>, public RefObject
 {
   friend class Renderer;
 public:
@@ -140,7 +140,7 @@ private:
 /*! @brief Index (or element) buffer.
  *  @ingroup opengl
  */
-class IndexBuffer : public Managed<IndexBuffer>
+class IndexBuffer : public Managed<IndexBuffer>, public RefObject
 {
   friend class Renderer;
 public:
@@ -281,7 +281,7 @@ public:
    */
   unsigned int getCount(void) const;
 private:
-  VertexBuffer* vertexBuffer;
+  Ref<VertexBuffer> vertexBuffer;
   unsigned int start;
   unsigned int count;
 };
@@ -333,7 +333,7 @@ public:
    */
   unsigned int getCount(void) const;
 private:
-  IndexBuffer* indexBuffer;
+  Ref<IndexBuffer> indexBuffer;
   unsigned int start;
   unsigned int count;
 };
@@ -347,21 +347,21 @@ class PrimitiveRange
 {
 public:
   PrimitiveRange(void);
-  PrimitiveRange(PrimitiveType type, const VertexBuffer& vertexBuffer);
+  PrimitiveRange(PrimitiveType type, VertexBuffer& vertexBuffer);
   PrimitiveRange(PrimitiveType type, const VertexRange& vertexRange);
   PrimitiveRange(PrimitiveType type,
-                 const VertexBuffer& vertexBuffer,
-                 const IndexBuffer& indexBuffer);
+                 VertexBuffer& vertexBuffer,
+                 IndexBuffer& indexBuffer);
   PrimitiveRange(PrimitiveType type,
-                 const VertexBuffer& vertexBuffer,
+                 VertexBuffer& vertexBuffer,
                  const IndexRange& indexRange);
   PrimitiveRange(PrimitiveType type,
-                 const VertexBuffer& vertexBuffer,
+                 VertexBuffer& vertexBuffer,
 		 unsigned int start,
 		 unsigned int count);
   PrimitiveRange(PrimitiveType type,
-                 const VertexBuffer& vertexBuffer,
-                 const IndexBuffer& indexBuffer,
+                 VertexBuffer& vertexBuffer,
+                 IndexBuffer& indexBuffer,
 	         unsigned int start,
 	         unsigned int count);
   /*! @return @c true if this primitive range contains zero primitives,
@@ -373,17 +373,17 @@ public:
   PrimitiveType getType(void) const;
   /*! @return The vertex buffer used by this primitive range.
    */
-  const VertexBuffer* getVertexBuffer(void) const;
+  VertexBuffer* getVertexBuffer(void) const;
   /*! @return The index buffer used by this primitive range, or @c NULL if no
    *  index buffer is used.
    */
-  const IndexBuffer* getIndexBuffer(void) const;
+  IndexBuffer* getIndexBuffer(void) const;
   unsigned int getStart(void) const;
   unsigned int getCount(void) const;
 private:
   PrimitiveType type;
-  const VertexBuffer* vertexBuffer;
-  const IndexBuffer* indexBuffer;
+  Ref<VertexBuffer> vertexBuffer;
+  Ref<IndexBuffer> indexBuffer;
   unsigned int start;
   unsigned int count;
 };

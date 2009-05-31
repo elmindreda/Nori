@@ -543,7 +543,7 @@ VertexProgram* VertexProgram::createInstance(Context& context,
                                              const String& text,
 					     const String& name)
 {
-  Ptr<VertexProgram> program = new VertexProgram(context, name);
+  Ptr<VertexProgram> program(new VertexProgram(context, name));
   if (!program->init(text))
     return NULL;
 
@@ -607,7 +607,7 @@ FragmentProgram* FragmentProgram::createInstance(Context& context,
                                                  const String& text,
 					         const String& name)
 {
-  Ptr<FragmentProgram> program = new FragmentProgram(context, name);
+  Ptr<FragmentProgram> program(new FragmentProgram(context, name));
   if (!program->init(text))
     return NULL;
 
@@ -770,7 +770,7 @@ Program* Program::createInstance(Context& context,
 				 FragmentProgram& fragmentProgram,
 				 const String& name)
 {
-  Ptr<Program> program = new Program(context, name);
+  Ptr<Program> program(new Program(context, name));
   if (!program->init(vertexProgram, fragmentProgram))
     return NULL;
 

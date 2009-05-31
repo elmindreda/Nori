@@ -239,7 +239,7 @@ Image* Context::getColorBuffer(void) const
   // TODO: Update this when adding FBO support.
   // TODO: Eliminate stack and pixel option usage.
 
-  Ptr<Image> result = new Image(ImageFormat::RGB888, mode.width, mode.height);
+  Ptr<Image> result(new Image(ImageFormat::RGB888, mode.width, mode.height));
 
   glPushAttrib(GL_PIXEL_MODE_BIT);
   glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -289,7 +289,7 @@ SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal(void)
 
 bool Context::create(const ContextMode& mode)
 {
-  Ptr<Context> context = new Context();
+  Ptr<Context> context(new Context());
   if (!context->init(mode))
     return false;
   

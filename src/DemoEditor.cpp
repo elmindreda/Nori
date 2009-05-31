@@ -181,7 +181,7 @@ bool Editor::create(const String& showName)
   if (get())
     return true;
 
-  Ptr<Editor> editor = new Editor();
+  Ptr<Editor> editor(new Editor());
   if (!editor->init(showName))
     return false;
 

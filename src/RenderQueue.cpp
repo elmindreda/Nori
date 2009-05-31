@@ -71,11 +71,7 @@ struct OperationComparator
 ///////////////////////////////////////////////////////////////////////
 
 Operation::Operation(void):
-  vertexBuffer(NULL),
-  indexBuffer(NULL),
   technique(NULL),
-  start(0),
-  count(0),
   distance(0.f)
 {
 }
@@ -137,41 +133,22 @@ void Queue::render(void) const
 
   const OperationList& operations = getOperations();
   
-  for (unsigned int i = 0;  i < operations.size();  i++)
+  for (OperationList::const_iterator o = operations.begin();  o != operations.end();  o++)
   {
-    const Operation& operation = *operations[i];
+    const Operation& operation = **o;
 
     renderer->setModelMatrix(operation.transform);
 
-    for (unsigned int j = 0;  j < operation.technique->getPassCount();  j++)
+    for (unsigned int i = 0;  i < operation.technique->getPassCount();  i++)
     {
-      const Pass& pass = operation.technique->getPass(j);
+      const Pass& pass = operation.technique->getPass(i);
       if (!pass.getName().empty())
 	continue;
 
       pass.apply();
 
-      if (operation.indexBuffer)
-      {
-	GL::PrimitiveRange range(operation.type,
-				 *(operation.vertexBuffer),
-				 *(operation.indexBuffer),
-	                         operation.start,
-				 operation.count);
-
-	renderer->setCurrentPrimitiveRange(range);
-	renderer->render();
-      }
-      else
-      {
-	GL::PrimitiveRange range(operation.type,
-				 *(operation.vertexBuffer),
-	                         operation.start,
-				 operation.count);
-
-	renderer->setCurrentPrimitiveRange(range);
-	renderer->render();
-      }
+      renderer->setCurrentPrimitiveRange(operation.range);
+      renderer->render();
     }
   }
 }
