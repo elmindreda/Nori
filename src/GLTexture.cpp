@@ -388,9 +388,9 @@ Image* Texture::getImage(unsigned int level) const
     return NULL;
   }
 
-  Ptr<Image> result = new Image(format,
-                                getPhysicalWidth(level),
-				getPhysicalHeight(level));
+  Ptr<Image> result;
+  
+  result = new Image(format, getPhysicalWidth(level), getPhysicalHeight(level));
 
   glPushAttrib(GL_TEXTURE_BIT | GL_PIXEL_MODE_BIT);
   glBindTexture(textureTarget, textureID);
@@ -422,7 +422,7 @@ Texture* Texture::createInstance(const Image& image,
 				 unsigned int flags,
 				 const String& name)
 {
-  Ptr<Texture> texture = new Texture(name);
+  Ptr<Texture> texture(new Texture(name));
   if (!texture->init(image, flags))
     return NULL;
 

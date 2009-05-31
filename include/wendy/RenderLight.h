@@ -37,7 +37,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-class Light : public RefObject<Light>
+class Light : public RefObject
 {
 public:
   Light(void);

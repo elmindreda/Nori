@@ -152,7 +152,7 @@ inline EffectTemplate<T>::EffectTemplate(const String& name):
 template <typename T>
 inline Effect* EffectTemplate<T>::createEffect(const String& name)
 {
-  Ptr<T> effect = new T(*this, name);
+  Ptr<T> effect(new T(*this, name));
   if (!effect->init())
   {
     Log::writeWarning("Demo effect %s of type %s failed to initialize",

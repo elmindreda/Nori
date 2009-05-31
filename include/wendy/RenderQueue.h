@@ -80,26 +80,12 @@ public:
    *  @param other The object to compare to.
    */
   bool operator < (const Operation& other) const;
-  /*! The vertex buffer that contains the geometry to render.
+  /*! The primitive range to render.
    */
-  const GL::VertexBuffer* vertexBuffer;
-  /*! The index buffer that references the vertex buffer, or @c NULL
-   *  if no index buffer is to be used.
-   */
-  const GL::IndexBuffer* indexBuffer;
+  GL::PrimitiveRange range;
   /*! The render technique to use.
    */
   const Technique* technique;
-  /*! If an index buffer is set, this is the first element of the range of
-   *  indices to be used for rendering.  Otherwise, it is the first vertex in
-   *  the vertex buffer to be used for rendering.
-   */
-  unsigned int start;
-  /*! If an index buffer is set, this is the number of elements in the index
-   *  buffer to be used for rendering.  Otherwise, it is the number of vertices
-   *  in the vertex buffer to be used for rendering.
-   */
-  unsigned int count;
   /*! The local-to-world transformation. Leave this set to identity if the
    *  geometry already is in world space.
    */
@@ -109,9 +95,6 @@ public:
    *  operations.
    */
   float distance;
-  /*! The geometry rendering mode to use.
-   */
-  GL::PrimitiveType type;
 private:
   mutable bool blending;
 };

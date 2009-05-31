@@ -46,7 +46,7 @@ namespace wendy
  */
 class Mesh : public Renderable,
              public DerivedResource<Mesh, moira::Mesh>,
-	     public RefObject<Mesh>
+	     public RefObject
 {
 public:
   class Geometry;
@@ -69,8 +69,8 @@ private:
   Mesh& operator = (const Mesh& source);
   bool init(const moira::Mesh& mesh);
   GeometryList geometries;
-  Ptr<GL::VertexBuffer> vertexBuffer;
-  Ptr<GL::IndexBuffer> indexBuffer;
+  Ref<GL::VertexBuffer> vertexBuffer;
+  Ref<GL::IndexBuffer> indexBuffer;
   Sphere bounds;
 };
 
@@ -137,7 +137,7 @@ private:
   EdgeList edges;
   float distance;
   unsigned int vertexCount;
-  Ptr<GL::VertexBuffer> vertexBuffer;
+  Ref<GL::VertexBuffer> vertexBuffer;
   Ref<Material> material;
 };
 

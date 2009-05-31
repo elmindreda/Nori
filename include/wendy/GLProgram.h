@@ -153,8 +153,7 @@ private:
 /*! @brief Vertex program object.
  *  @ingroup opengl
  */
-class VertexProgram : public RefObject<VertexProgram>,
-                      public Resource<VertexProgram>
+class VertexProgram : public RefObject, public Resource<VertexProgram>
 {
   friend class Program;
 public:
@@ -178,8 +177,7 @@ private:
 /*! @brief Fragment program object.
  *  @ingroup opengl
  */
-class FragmentProgram : public RefObject<FragmentProgram>,
-                        public Resource<FragmentProgram>
+class FragmentProgram : public RefObject, public Resource<FragmentProgram>
 {
   friend class Program;
 public:
@@ -205,7 +203,7 @@ private:
  *
  *  Represents a complete set of GPU programs.
  */
-class Program : public RefObject<Program>, public Resource<Program>
+class Program : public RefObject, public Resource<Program>
 {
   friend class Renderer;
 public:

@@ -273,10 +273,7 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
   transform.transformVector(position);
 
   Operation& operation = queue.createOperation();
-  operation.vertexBuffer = range.getVertexBuffer();
-  operation.start = range.getStart();
-  operation.count = range.getCount();
-  operation.type = GL::TRIANGLE_FAN;
+  operation.range = GL::PrimitiveRange(GL::TRIANGLE_FAN, range);
   operation.transform = transform;
   operation.technique = technique;
   operation.distance = (position - camera).length();

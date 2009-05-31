@@ -129,7 +129,7 @@ const Effect& Show::getRootEffect(void) const
 
 Show* Show::createInstance(const String& name)
 {
-  Ptr<Show> show = new Show(name);
+  Ptr<Show> show(new Show(name));
   if (!show->init())
     return NULL;
 

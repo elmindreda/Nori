@@ -136,7 +136,7 @@ int main()
   if (!wendy::initialize())
     exit(1);
 
-  Ptr<Demo> demo = new Demo();
+  Ptr<Demo> demo(new Demo());
   if (demo->init())
     demo->run();
 

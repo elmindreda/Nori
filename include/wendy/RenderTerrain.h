@@ -44,7 +44,7 @@ using namespace moira;
  */
 class Terrain : public Renderable,
                 public Resource<Terrain>,
-		public RefObject<Terrain>
+		public RefObject
 {
 public:
   void enqueue(Queue& queue, const Transform3& transform) const;

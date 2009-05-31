@@ -288,7 +288,7 @@ void TextureCanvas::setColorBufferTexture(Texture* newTexture, unsigned int newL
 
 TextureCanvas* TextureCanvas::createInstance(Context& context, unsigned int width, unsigned int height)
 {
-  Ptr<TextureCanvas> canvas = new TextureCanvas(context);
+  Ptr<TextureCanvas> canvas(new TextureCanvas(context));
   if (!canvas->init(width, height))
     return false;
 
@@ -743,7 +743,7 @@ void Renderer::setStats(Stats* newStats)
 
 bool Renderer::create(Context& context)
 {
-  Ptr<Renderer> renderer = new Renderer(context);
+  Ptr<Renderer> renderer(new Renderer(context));
   if (!renderer->init())
     return false;
 
@@ -782,7 +782,7 @@ bool Renderer::init(void)
     generator.setCheckerColor(ColorRGBA(0.f, 1.f, 0.f, 1.f));
     generator.setCheckerSize(5);
 
-    Ptr<Image> image = generator.generate(ImageFormat::RGB888, 20, 20);
+    Ptr<Image> image(generator.generate(ImageFormat::RGB888, 20, 20));
     if (!image)
     {
       Log::writeError("Failed to create image data for default texture");

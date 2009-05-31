@@ -108,7 +108,7 @@ Terrain* Terrain::createInstance(const Image& heightmap,
 				 Material& material,
 			         const String& name)
 {
-  Ptr<Terrain> terrain = new Terrain(name);
+  Ptr<Terrain> terrain(new Terrain(name));
   if (!terrain->init(heightmap, size, material))
     return NULL;
 
