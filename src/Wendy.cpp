@@ -27,6 +27,19 @@
 
 #include <wendy/Wendy.h>
 
+#include <internal/GLTextureIO.h>
+#include <internal/GLProgramIO.h>
+
+#include <internal/RenderMaterialIO.h>
+
+#if WENDY_INCLUDE_SCENE_GRAPH
+#include <internal/SceneIO.h>
+#endif
+
+#if WENDY_INCLUDE_DEMO_SYSTEM
+#include <internal/DemoShowIO.h>
+#endif
+
 #include <GL/glfw.h>
 
 ///////////////////////////////////////////////////////////////////////

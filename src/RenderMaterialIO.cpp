@@ -36,7 +36,8 @@
 #include <wendy/GLState.h>
 
 #include <wendy/RenderMaterial.h>
-#include <wendy/RenderMaterialIO.h>
+
+#include <internal/RenderMaterialIO.h>
 
 #include <algorithm>
 #include <cstdlib>

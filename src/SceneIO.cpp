@@ -43,7 +43,8 @@
 #include <wendy/RenderParticle.h>
 
 #include <wendy/SceneGraph.h>
-#include <wendy/SceneIO.h>
+
+#include <internal/SceneIO.h>
 
 ///////////////////////////////////////////////////////////////////////
 

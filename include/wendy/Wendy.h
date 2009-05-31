@@ -108,9 +108,6 @@
 #include <wendy/GLRender.h>
 #include <wendy/GLState.h>
 
-#include <wendy/GLTextureIO.h>
-#include <wendy/GLProgramIO.h>
-
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
@@ -121,13 +118,10 @@
 #include <wendy/RenderMesh.h>
 #include <wendy/RenderTerrain.h>
 
-#include <wendy/RenderMaterialIO.h>
-
 #include <wendy/Input.h>
 
 #if WENDY_INCLUDE_SCENE_GRAPH
 #include <wendy/SceneGraph.h>
-#include <wendy/SceneIO.h>
 #endif
 
 #if WENDY_INCLUDE_UI_SYSTEM

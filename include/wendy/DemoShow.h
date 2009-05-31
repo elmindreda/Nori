@@ -26,11 +26,6 @@
 #define WENDY_DEMOSHOW_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <vector>
-#include <stack>
-
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
   namespace demo
@@ -68,28 +63,6 @@ private:
   Ptr<Effect> root;
   String title;
   Path musicPath;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Demo show XML codec.
- *  @ingroup io
- */
-class ShowCodec : public ResourceCodec<Show>, public XML::Codec
-{
-public:
-  ShowCodec(void);
-  Show* read(const Path& path, const String& name = "");
-  Show* read(Stream& stream, const String& name = "");
-  bool write(const Path& path, const Show& show);
-  bool write(Stream& stream, const Show& show);
-private:
-  bool onBeginElement(const String& name);
-  bool onEndElement(const String& name);
-  void writeEffect(const Effect& effect);
-  Ptr<Show> show;
-  std::stack<Effect*> effectStack;
-  Property* currentProperty;
 };
 
 ///////////////////////////////////////////////////////////////////////

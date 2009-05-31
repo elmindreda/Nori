@@ -30,7 +30,8 @@
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
-#include <wendy/GLProgramIO.h>
+
+#include <internal/GLProgramIO.h>
 
 ///////////////////////////////////////////////////////////////////////
 

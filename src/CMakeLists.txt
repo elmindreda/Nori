@@ -17,7 +17,7 @@ endif(WENDY_INCLUDE_UI_SYSTEM)
 if(WENDY_INCLUDE_DEMO_SYSTEM)
   list(APPEND wendy_SOURCES 
     DemoConfig.cpp DemoEditor.cpp DemoEffect.cpp DemoPlayer.cpp
-    DemoProperty.cpp DemoShow.cpp DemoTimeline.cpp)
+    DemoProperty.cpp DemoShow.cpp DemoShowIO.cpp DemoTimeline.cpp)
 endif(WENDY_INCLUDE_DEMO_SYSTEM)
 
 add_library(wendy STATIC ${wendy_SOURCES})
