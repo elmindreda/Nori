@@ -31,6 +31,7 @@
 #include <internal/GLProgramIO.h>
 
 #include <internal/RenderMaterialIO.h>
+#include <internal/RenderTerrainIO.h>
 
 #if WENDY_INCLUDE_SCENE_GRAPH
 #include <internal/SceneIO.h>
@@ -62,7 +63,7 @@ Ptr<GL::FragmentProgramCodec> fragmentProgramCodec;
 Ptr<GL::ProgramCodec> programCodec;
 
 Ptr<render::MaterialCodec> renderMaterialCodec;
-Ptr<render::TerrainCodec> renderTerrainCodec;
+Ptr<render::TerrainCodecXML> renderTerrainCodec;
 
 #if WENDY_INCLUDE_SCENE_GRAPH
 Ptr<scene::GraphCodecXML> sceneGraphCodec;
@@ -100,7 +101,7 @@ bool initialize(void)
   fragmentProgramCodec = new GL::FragmentProgramCodec();
   programCodec = new GL::ProgramCodec();
   renderMaterialCodec = new render::MaterialCodec();
-  renderTerrainCodec = new render::TerrainCodec();
+  renderTerrainCodec = new render::TerrainCodecXML();
 
 #if WENDY_INCLUDE_SCENE_GRAPH
   sceneGraphCodec = new scene::GraphCodecXML();

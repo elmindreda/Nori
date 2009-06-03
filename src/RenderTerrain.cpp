@@ -53,15 +53,6 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-namespace
-{
-
-const unsigned int RENDER_TERRAIN_XML_VERSION = 1;
-
-}
-
-///////////////////////////////////////////////////////////////////////
-
 void Terrain::enqueue(Queue& queue, const Transform3& transform) const
 {
   mesh->enqueue(queue, transform);
@@ -228,107 +219,6 @@ Vec3 Terrain::worldToGrid(const Vec3& world) const
   const Vec3 scale(width / size.x, 255.f / size.y, depth / size.z);
 
   return world * scale + Vec3(offset.x, 0.f, offset.y);
-}
-
-///////////////////////////////////////////////////////////////////////
-
-TerrainCodec::TerrainCodec(void):
-  ResourceCodec<Terrain>("XML terrain codec")
-{
-  addSuffix("terrain");
-}
-
-Terrain* TerrainCodec::read(const Path& path, const String& name)
-{
-  return ResourceCodec<Terrain>::read(path, name);
-}
-
-Terrain* TerrainCodec::read(Stream& stream, const String& name)
-{
-  terrainName = name;
-
-  if (!XML::Codec::read(stream))
-  {
-    terrain = NULL;
-    return NULL;
-  }
-
-  return terrain.detachObject();
-}
-
-bool TerrainCodec::write(const Path& path, const Terrain& terrain)
-{
-  return ResourceCodec<Terrain>::write(path, terrain);
-}
-
-bool TerrainCodec::write(Stream& stream, const Terrain& terrain)
-{
-  try
-  {
-    setStream(&stream);
-
-    beginElement("terrain");
-    addAttribute("version", (int) RENDER_TERRAIN_XML_VERSION);
-
-    // TODO: No idea.
-
-    endElement();
-
-    setStream(NULL);
-  }
-  catch (Exception& exception)
-  {
-    Log::writeError("Failed to write terrain %s: %s",
-                    terrain.getName().c_str(),
-		    exception.what());
-    setStream(NULL);
-    return false;
-  }
-
-  return true;
-}
-
-bool TerrainCodec::onBeginElement(const String& name)
-{
-  if (name == "terrain")
-  {
-    if (terrain)
-    {
-      Log::writeError("Only one terrain per file allowed");
-      return false;
-    }
-
-    const unsigned int version = readInteger("version");
-    if (version != RENDER_TERRAIN_XML_VERSION)
-    {
-      Log::writeError("Terrain XML format version mismatch");
-      return false;
-    }
-
-    Ref<Image> heightmap = Image::readInstance(readString("heightmap"));
-    if (!heightmap)
-      return false;
-
-    Ref<Material> material = Material::readInstance(readString("material"));
-    if (!material)
-      return false;
-
-    Vec3 size;
-    readAttributes(size);
-
-    terrain = Terrain::createInstance(*heightmap, size, *material, terrainName);
-    if (!terrain)
-      return false;
-
-    return true;
-  }
-
-  return true;
-}
-
-bool TerrainCodec::onEndElement(const String& name)
-{
-  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////
