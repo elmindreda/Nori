@@ -89,17 +89,6 @@ unsigned int getClosestPower(unsigned int value, unsigned int maximum)
   return result;
 }
 
-ImageFormat::Type getConversionFormat(const ImageFormat& format)
-{
-  switch (format)
-  {
-    case ImageFormat::RGBX8888:
-      return ImageFormat::RGBA8888;
-    default:
-      return format;
-  }
-}
-
 GLint unmipmapMinFilter(GLint minFilter)
 {
   if (minFilter == GL_NEAREST_MIPMAP_NEAREST ||
@@ -524,10 +513,6 @@ bool Texture::init(const Image& image, unsigned int initFlags)
 
   // Adapt source image to OpenGL restrictions
   {
-    // Ensure that source image is in GL-compatible format
-    if (!source.convertTo(getConversionFormat(source.getFormat())))
-      return false;
-
     format = source.getFormat();
 
     // Moira has y-axis down, OpenGL has y-axis up
