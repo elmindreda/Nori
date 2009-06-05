@@ -238,6 +238,11 @@ Canvas& Canvas::operator = (const Canvas& source)
 
 ///////////////////////////////////////////////////////////////////////
 
+bool ScreenCanvas::isComplete(void) const
+{
+  return true;
+}
+
 unsigned int ScreenCanvas::getPhysicalWidth(void) const
 {
   return getContext().getWidth();
@@ -255,8 +260,10 @@ ScreenCanvas::ScreenCanvas(Context& context):
 
 void ScreenCanvas::apply(void) const
 {
+  /*
   if (GLEW_EXT_framebuffer_object)
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  */
 }
 
 void ScreenCanvas::finish(void) const
@@ -264,6 +271,11 @@ void ScreenCanvas::finish(void) const
 }
 
 ///////////////////////////////////////////////////////////////////////
+
+bool TextureCanvas::isComplete(void) const
+{
+  return texture != NULL;
+}
 
 unsigned int TextureCanvas::getPhysicalWidth(void) const
 {
@@ -280,10 +292,25 @@ Texture* TextureCanvas::getColorBufferTexture(void) const
   return texture;
 }
 
-void TextureCanvas::setColorBufferTexture(Texture* newTexture, unsigned int newLevel)
+Texture* TextureCanvas::getDepthBufferTexture(void) const
 {
+  return NULL;
+}
+
+bool TextureCanvas::setColorBufferTexture(Texture* newTexture, unsigned int newLevel)
+{
+  if (newTexture->getPhysicalWidth() != width ||
+      newTexture->getPhysicalHeight() != height)
+    return false;
+
   texture = newTexture;
   level = newLevel;
+  return true;
+}
+
+bool TextureCanvas::setDepthBufferTexture(Texture* newTexture, unsigned int newLevel)
+{
+  return false;
 }
 
 TextureCanvas* TextureCanvas::createInstance(Context& context, unsigned int width, unsigned int height)
@@ -305,18 +332,22 @@ bool TextureCanvas::init(unsigned int initWidth, unsigned int initHeight)
   width = initWidth;
   height = initHeight;
 
+  /*
   if (GLEW_EXT_framebuffer_object)
   {
     // TODO: Implement FBO.
   }
+  */
 
   return true;
 }
 
 void TextureCanvas::apply(void) const
 {
+  /*
   if (GLEW_EXT_framebuffer_object)
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
+  */
 }
 
 void TextureCanvas::finish(void) const
@@ -324,12 +355,14 @@ void TextureCanvas::finish(void) const
   if (!texture)
     return;
 
+  /*
   if (GLEW_EXT_framebuffer_object)
   {
     // TODO: Implement FBO.
   }
-  else
-    texture->copyFromColorBuffer(0, 0, level);
+  */
+
+  texture->copyFromColorBuffer(0, 0, level);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -671,14 +704,19 @@ void Renderer::setScreenCanvasCurrent(void)
   setCurrentCanvas(*screenCanvas);
 }
 
-void Renderer::setCurrentCanvas(Canvas& newCanvas)
+bool Renderer::setCurrentCanvas(Canvas& newCanvas)
 {
+  if (!newCanvas.isComplete())
+    return false;
+
   currentCanvas->finish();
   currentCanvas = &newCanvas;
   currentCanvas->apply();
 
   updateViewportArea();
   updateScissorArea();
+
+  return true;
 }
 
 void Renderer::setModelMatrix(const Mat4& newMatrix)
@@ -698,6 +736,8 @@ void Renderer::setProjectionMatrix(const Mat4& newMatrix)
   
 void Renderer::setProjectionMatrix2D(float width, float height)
 {
+  projectionMatrix.setIdentity();
+
   projectionMatrix.x.x = 2.f / width;
   projectionMatrix.y.y = 2.f / height;
   projectionMatrix.z.z = -1.f;
@@ -709,9 +749,14 @@ void Renderer::setProjectionMatrix2D(float width, float height)
 void Renderer::setProjectionMatrix3D(float FOV, float aspect, float nearZ, float farZ)
 {
   if (aspect == 0.f)
-    aspect = currentCanvas->getPhysicalAspectRatio();
+  {
+    aspect = (currentCanvas->getPhysicalWidth() * viewportArea.size.x) /
+             (currentCanvas->getPhysicalHeight() * viewportArea.size.y);
+  }
 
   const float f = 1.f / tanf((FOV * (float) M_PI / 180.f) / 2.f);
+
+  projectionMatrix.setIdentity();
 
   projectionMatrix.x.x = f / aspect;
   projectionMatrix.y.y = f;
@@ -830,11 +875,6 @@ void Renderer::updateScissorArea(void)
     const unsigned int width = currentCanvas->getPhysicalWidth();
     const unsigned int height = currentCanvas->getPhysicalHeight();
 
-    Recti sa((int) (scissorArea.position.x * width),
-	     (int) (scissorArea.position.y * height),
-	     (int) (scissorArea.size.x * width),
-	     (int) (scissorArea.size.y * height));              
-
     glEnable(GL_SCISSOR_TEST);
     glScissor((GLint) floorf(scissorArea.position.x * width),
 	      (GLint) floorf(scissorArea.position.y * height),
@@ -847,11 +887,6 @@ void Renderer::updateViewportArea(void)
 {
   const unsigned int width = currentCanvas->getPhysicalWidth();
   const unsigned int height = currentCanvas->getPhysicalHeight();
-
-  Recti vp((int) (viewportArea.position.x * width),
-           (int) (viewportArea.position.y * height),
-	   (int) (viewportArea.size.x * width),
-	   (int) (viewportArea.size.y * height));              
 
   glViewport((GLint) (viewportArea.position.x * width),
              (GLint) (viewportArea.position.y * height),

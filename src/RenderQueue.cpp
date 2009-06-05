@@ -137,8 +137,6 @@ void Queue::render(void) const
   {
     const Operation& operation = **o;
 
-    renderer->setModelMatrix(operation.transform);
-
     for (unsigned int i = 0;  i < operation.technique->getPassCount();  i++)
     {
       const Pass& pass = operation.technique->getPass(i);
@@ -147,6 +145,7 @@ void Queue::render(void) const
 
       pass.apply();
 
+      renderer->setModelMatrix(operation.transform);
       renderer->setCurrentPrimitiveRange(operation.range);
       renderer->render();
     }

@@ -90,6 +90,10 @@ public:
   /*! @return The height, in pixels, of this canvas.
    */
   virtual unsigned int getPhysicalHeight(void) const = 0;
+  /*! @return @c true if this canvas is complete, i.e. usable for rendering,
+   *  otherwise @c false.
+   */
+  virtual bool isComplete(void) const = 0;
   /*! @return The aspect ratio of the dimensions, in pixels, of this canvas.
    */
   float getPhysicalAspectRatio(void) const;
@@ -120,6 +124,7 @@ class ScreenCanvas : public Canvas
 {
   friend class Renderer;
 public:
+  bool isComplete(void) const;
   unsigned int getPhysicalWidth(void) const;
   unsigned int getPhysicalHeight(void) const;
 private:
@@ -136,6 +141,7 @@ private:
 class TextureCanvas : public Canvas
 {
 public:
+  bool isComplete(void) const;
   unsigned int getPhysicalWidth(void) const;
   unsigned int getPhysicalHeight(void) const;
   /*! @return The texture that this canvas uses as a color buffer.
@@ -147,8 +153,8 @@ public:
    *  @param[in] newLevel If a texture is specified, the desired mipmap level of the texture to use.
    *  @remarks A texture canvas cannot be rendered to without a texture to use as color buffer.
    */
-  void setColorBufferTexture(Texture* newTexture, unsigned int newLevel = 0);
-  void setDepthBufferTexture(Texture* newTexture, unsigned int newLevel = 0);
+  bool setColorBufferTexture(Texture* newTexture, unsigned int newLevel = 0);
+  bool setDepthBufferTexture(Texture* newTexture, unsigned int newLevel = 0);
   /*! Creates a texture canvas for the specified texture.
    */
   static TextureCanvas* createInstance(Context& context, unsigned int width, unsigned int height);
@@ -237,7 +243,7 @@ public:
   const Mat4& getViewMatrix(void) const;
   const Mat4& getProjectionMatrix(void) const;
   void setScreenCanvasCurrent(void);
-  void setCurrentCanvas(Canvas& newCanvas);
+  bool setCurrentCanvas(Canvas& newCanvas);
   void setModelMatrix(const Mat4& newMatrix);
   void setViewMatrix(const Mat4& newMatrix);
   /*! Sets the projection matrix.
