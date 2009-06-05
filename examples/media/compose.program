@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <program version="2" >
-  <vertex name="bloom" />
-  <fragment name="bloom" />
+  <vertex name="compose" />
+  <fragment name="compose" />
 </program>

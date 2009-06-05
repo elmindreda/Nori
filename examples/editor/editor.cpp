@@ -85,10 +85,11 @@ bool CubeEffect::init(void)
   graph.addNode(*lightNode);
 
   camera.setFOV(60.f);
+  camera.setAspectRatio(0.f);
 
   cameraNode = new scene::CameraNode();
   cameraNode->setCameraName(camera.getName());
-  cameraNode->getLocalTransform().position.z = cube->getBounds().radius * 1.5f;
+  cameraNode->getLocalTransform().position.z = cube->getBounds().radius * 3.f;
   graph.addNode(*cameraNode);
 
   meshNode = new scene::MeshNode();

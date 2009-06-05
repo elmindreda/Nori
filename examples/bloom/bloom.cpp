@@ -11,10 +11,13 @@ public:
   bool init(void);
   void run(void);
 private:
-  bool render(void);
-  GL::RenderState bloomPass;
+  void renderQueuePass(const render::Queue& queue, const String& name);
   Ref<GL::Texture> texture;
   Ptr<GL::TextureCanvas> canvas;
+  GL::RenderState blackPass;
+  GL::RenderState horzPass;
+  GL::RenderState vertPass;
+  GL::RenderState composePass;
   render::Camera camera;
   scene::Graph graph;
   scene::MeshNode* meshNode;
@@ -49,7 +52,7 @@ bool Demo::init(void)
   if (!GL::Renderer::create(*context))
     return false;
 
-  texture = GL::Texture::createInstance(Image(ImageFormat::RGB888, 32, 32), 0);
+  texture = GL::Texture::createInstance(Image(ImageFormat::RGB888, 64, 64), 0);
   if (!texture)
     return false;
 
@@ -59,12 +62,35 @@ bool Demo::init(void)
 
   canvas->setColorBufferTexture(texture);
 
-  Ref<GL::Program> program = GL::Program::readInstance("bloom");
+  Ref<GL::Program> program;
+  
+  program = GL::Program::readInstance("black");
   if (!program)
     return false;
 
-  bloomPass.setProgram(program);
-  bloomPass.getSamplerState("image").setTexture(texture);
+  blackPass.setProgram(program);
+
+  program = GL::Program::readInstance("horzblur");
+  if (!program)
+    return false;
+
+  horzPass.setProgram(program);
+  horzPass.getSamplerState("image").setTexture(texture);
+
+  program = GL::Program::readInstance("vertblur");
+  if (!program)
+    return false;
+
+  vertPass.setProgram(program);
+  vertPass.getSamplerState("image").setTexture(texture);
+
+  program = GL::Program::readInstance("compose");
+  if (!program)
+    return false;
+
+  composePass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ONE);
+  composePass.setProgram(program);
+  composePass.getSamplerState("image").setTexture(texture);
 
   Ref<render::Mesh> mesh = render::Mesh::readInstance("cube");
   if (!mesh)
@@ -96,10 +122,8 @@ void Demo::run(void)
   {
     currentTime = timer.getTime();
 
-    /*
     meshNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f),
 							   currentTime);
-    */
 
     graph.setTimeElapsed(currentTime);
 
@@ -110,9 +134,9 @@ void Demo::run(void)
 
     renderer->setCurrentCanvas(*canvas);
     renderer->clearDepthBuffer();
-    renderer->clearColorBuffer(ColorRGBA(0.4f, 0.4f, 0.4f, 1.f));
+    renderer->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
-    queue.render();
+    renderQueuePass(queue, "bloom");
 
     renderer->setScreenCanvasCurrent();
     renderer->clearDepthBuffer();
@@ -122,7 +146,7 @@ void Demo::run(void)
 
     renderer->setProjectionMatrix2D(4.f, 4.f);
 
-    bloomPass.apply();
+    composePass.apply();
 
     render::Sprite2 sprite;
     sprite.position.set(0.5f, 0.5f);
@@ -131,7 +155,31 @@ void Demo::run(void)
   while (GL::Context::get()->update());
 }
 
-int main()
+void Demo::renderQueuePass(const render::Queue& queue, const String& name)
+{
+  GL::Renderer* renderer = GL::Renderer::get();
+
+  queue.getCamera().apply();
+
+  typedef render::OperationList List;
+  const List& operations = queue.getOperations();
+
+  for (List::const_iterator o = operations.begin();  o != operations.end();  o++)
+  {
+    const render::Operation& operation = **o;
+
+    if (const render::Pass* pass = operation.technique->findPass(name))
+      pass->apply();
+    else
+      blackPass.apply();
+
+    renderer->setModelMatrix(operation.transform);
+    renderer->setCurrentPrimitiveRange(operation.range);
+    renderer->render();
+  }
+}
+
+int main(void)
 {
   if (!wendy::initialize())
     exit(1);

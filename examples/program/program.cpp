@@ -43,7 +43,7 @@ bool Demo::init(void)
   GL::Context* context = GL::Context::get();
   context->setTitle("Program");
 
-  if (!GL::Renderer::create(*GL::Context::get()))
+  if (!GL::Renderer::create(*context))
     return false;
 
   Ref<render::Mesh> mesh = render::Mesh::readInstance("cube");
