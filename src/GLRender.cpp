@@ -684,6 +684,11 @@ const PrimitiveRange& Renderer::getCurrentPrimitiveRange(void) const
   return currentRange;
 }
 
+const Renderer::PlaneList& Renderer::getClipPlanes(void) const
+{
+  return planes;
+}
+
 const Mat4& Renderer::getModelMatrix(void) const
 {
   return modelMatrix;
@@ -774,6 +779,34 @@ void Renderer::setCurrentProgram(Program* newProgram)
 void Renderer::setCurrentPrimitiveRange(const PrimitiveRange& newRange)
 {
   currentRange = newRange;
+}
+
+bool Renderer::setClipPlanes(const PlaneList& newPlanes)
+{
+  if (planes.size() > context.getLimits().getMaxClipPlanes())
+    return false;
+
+  planes = newPlanes;
+  unsigned int index = 0;
+
+  for (PlaneList::const_iterator p = planes.begin();  p != planes.end();  p++)
+  {
+    // TODO: Verify this.
+
+    const double equation[4] = { (*p).normal.x, (*p).normal.y, (*p).normal.z, (*p).distance };
+
+    glEnable(GL_CLIP_PLANE0 + index);
+    glClipPlane(GL_CLIP_PLANE0 + index, equation);
+
+    index++;
+  }
+
+  for ( ;  index < context.getLimits().getMaxClipPlanes();  index++)
+  {
+    glDisable(GL_CLIP_PLANE0 + index);
+  }
+
+  return true;
 }
 
 Stats* Renderer::getStats(void) const

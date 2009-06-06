@@ -97,6 +97,8 @@ public:
   /*! @return The aspect ratio of the dimensions, in pixels, of this canvas.
    */
   float getPhysicalAspectRatio(void) const;
+  /*! @return The context this canvas was created for.
+   */
   Context& getContext(void) const;
 protected:
   /*! Constructor.
@@ -180,6 +182,7 @@ private:
 class Renderer : public Trackable, public Singleton<Renderer>
 {
 public:
+  typedef std::vector<Plane> PlaneList;
   /*! Clears the current color buffer with the specified color.
    *  @param[in] color The color value to clear the color buffer with.
    */
@@ -221,7 +224,12 @@ public:
   bool allocateVertices(VertexRange& range,
 			unsigned int count,
                         const VertexFormat& format);
+  /*! @return @c true if the specified uniform name is reserved by Wendy,
+   *  otherwise @c false.
+   */
   bool isReservedUniform(const String& name) const;
+  /*! @return The context this renderer was created for.
+   */
   Context& getContext(void) const;
   Texture& getDefaultTexture(void) const;
   Program& getDefaultProgram(void) const;
@@ -239,6 +247,7 @@ public:
   Canvas& getCurrentCanvas(void) const;
   Program* getCurrentProgram(void) const;
   const PrimitiveRange& getCurrentPrimitiveRange(void) const;
+  const PlaneList& getClipPlanes(void) const;
   const Mat4& getModelMatrix(void) const;
   const Mat4& getViewMatrix(void) const;
   const Mat4& getProjectionMatrix(void) const;
@@ -261,8 +270,7 @@ public:
    *  @param[in] nearZ The desired near plane distance of the projection.
    *  @param[in] farZ The desired far plane distance of the projection.
    *  @remarks If @a aspect is set to zero, the aspect ratio is calculated from
-   *  the dimensions of the current canvas.
-   *  @see Canvas::getPhysicalAspectRatio
+   *  the dimensions of the current viewport.
    */
   void setProjectionMatrix3D(float FOV = 90.f,
                              float aspect = 0.f,
@@ -277,6 +285,7 @@ public:
    *  @param[in] newRange The desired primitive range to use.
    */
   void setCurrentPrimitiveRange(const PrimitiveRange& newRange);
+  bool setClipPlanes(const PlaneList& newPlanes);
   Stats* getStats(void) const;
   void setStats(Stats* newStats);
   /*! Creates the renderer singleton.
@@ -318,6 +327,7 @@ private:
   Canvas* currentCanvas;
   Ref<Program> currentProgram;
   PrimitiveRange currentRange;
+  PlaneList planes;
   Ref<Texture> defaultTexture;
   Ref<Program> defaultProgram;
   Stats* stats;

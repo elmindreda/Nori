@@ -185,6 +185,7 @@ class Limits
 {
 public:
   Limits(Context& context);
+  unsigned int getMaxClipPlanes(void) const;
   unsigned int getMaxTextureCoords(void) const;
   unsigned int getMaxFragmentTextureImageUnits(void) const;
   unsigned int getMaxVertexTextureImageUnits(void) const;
@@ -194,6 +195,7 @@ public:
   unsigned int getMaxVertexAttributes(void) const;
 private:
   Context& context;
+  unsigned int maxClipPlanes;
   unsigned int maxTextureCoords;
   unsigned int maxFragmentTextureImageUnits;
   unsigned int maxVertexTextureImageUnits;
