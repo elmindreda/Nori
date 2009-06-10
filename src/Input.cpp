@@ -33,10 +33,6 @@
 
 #include <GL/glfw.h>
 
-#if MOIRA_HAVE_CTYPE_H
-#include <ctype.h>
-#endif
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -113,11 +109,13 @@ Context::~Context(void)
 void Context::captureCursor(void)
 {
   glfwDisable(GLFW_MOUSE_CURSOR);
+  cursorCaptured = true;
 }
 
 void Context::releaseCursor(void)
 {
   glfwEnable(GLFW_MOUSE_CURSOR);
+  cursorCaptured = false;
 }
 
 bool Context::isKeyDown(const Key& key) const
@@ -139,9 +137,9 @@ bool Context::isButtonDown(Button button) const
   return false;
 }
 
-bool Context::isCursorLocked(void) const
+bool Context::isCursorCaptured(void) const
 {
-  return cursorLocked;
+  return cursorCaptured;
 }
 
 unsigned int Context::getWidth(void) const
@@ -166,19 +164,6 @@ void Context::setCursorPosition(const Vec2& newPosition)
 {
   cursorPosition = newPosition;
   glfwSetMousePos((int) newPosition.x, (int) newPosition.y);
-}
-
-void Context::setCursorLock(bool newState)
-{
-  if (cursorLocked == newState)
-    return;
-
-  cursorLocked = newState;
-
-  if (cursorLocked)
-    glfwDisable(GLFW_MOUSE_CURSOR);
-  else
-    glfwEnable(GLFW_MOUSE_CURSOR);
 }
 
 SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal(void)
@@ -244,7 +229,7 @@ bool Context::create(GL::Context& context)
 Context::Context(GL::Context& initContext):
   context(initContext),
   currentFocus(NULL),
-  cursorLocked(false)
+  cursorCaptured(false)
 {
   // TODO: Remove this upon the arrival of GLFW_USER_DATA.
   instance = this;

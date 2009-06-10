@@ -118,7 +118,7 @@ public:
    *  @param[in] button The desired mouse button.
    */
   bool isButtonDown(Button button) const;
-  bool isCursorLocked(void) const;
+  bool isCursorCaptured(void) const;
   /*! @return The width, in pixels, of the mousable screen area.
    */
   unsigned int getWidth(void) const;
@@ -132,7 +132,6 @@ public:
    *  @param[in] newPosition The desired mouse position.
    */
   void setCursorPosition(const Vec2& newPosition);
-  void setCursorLock(bool newState);
   /*! @return The signal for context resizing.
    */
   SignalProxy2<void, unsigned int, unsigned int> getResizedSignal(void);
@@ -177,7 +176,7 @@ private:
   GL::Context& context;
   int wheelPosition;
   Focus* currentFocus;
-  bool cursorLocked;
+  bool cursorCaptured;
   mutable Vec2 cursorPosition;
   static KeyMap internalMap;
   static KeyMap externalMap;
