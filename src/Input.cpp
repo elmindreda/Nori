@@ -86,7 +86,7 @@ void Focus::onButtonClicked(Button button, bool clicked)
 {
 }
 
-void Focus::onCursorMoved(const Vec2& position)
+void Focus::onCursorMoved(const Vec2i& position)
 {
 }
 
@@ -152,18 +152,17 @@ unsigned int Context::getHeight(void) const
   return context.getHeight();
 }
 
-const Vec2& Context::getCursorPosition(void) const
+const Vec2i& Context::getCursorPosition(void) const
 {
-  int x, y;
-  glfwGetMousePos(&x, &y);
-  cursorPosition.set((float) x, (float) y);
+  glfwGetMousePos(&cursorPosition.x, &cursorPosition.y);
+
   return cursorPosition;
 }
 
-void Context::setCursorPosition(const Vec2& newPosition)
+void Context::setCursorPosition(const Vec2i& newPosition)
 {
   cursorPosition = newPosition;
-  glfwSetMousePos((int) newPosition.x, (int) newPosition.y);
+  glfwSetMousePos(newPosition.x, newPosition.y);
 }
 
 SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal(void)
@@ -186,7 +185,7 @@ SignalProxy2<void, Button, bool> Context::getButtonClickedSignal(void)
   return buttonClickedSignal;
 }
 
-SignalProxy1<void, const Vec2&> Context::getCursorMovedSignal(void)
+SignalProxy1<void, const Vec2i&> Context::getCursorMovedSignal(void)
 {
   return cursorMovedSignal;
 }
@@ -379,7 +378,7 @@ void Context::characterCallback(int character, int action)
 
 void Context::mousePosCallback(int x, int y)
 {
-  const Vec2 position((float) x, (float) y);
+  const Vec2i position(x, y);
 
   instance->cursorMovedSignal.emit(position);
 

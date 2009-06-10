@@ -131,10 +131,12 @@ void Desktop::cancelDragging(void)
 {
   if (dragging && draggedWidget)
   {
-    Vec2 cursorPosition = context.getCursorPosition();
+    Vec2i cursorPosition = context.getCursorPosition();
     cursorPosition.y = context.getHeight() - cursorPosition.y;
 
-    draggedWidget->dragEndedSignal.emit(*draggedWidget, cursorPosition);
+    const Vec2 scaledPosition(cursorPosition.x, cursorPosition.y);
+
+    draggedWidget->dragEndedSignal.emit(*draggedWidget, scaledPosition);
 
     draggedWidget = NULL;
     dragging = false;
@@ -186,10 +188,12 @@ void Desktop::setActiveWidget(Widget* widget)
 
 void Desktop::updateHoveredWidget(void)
 {
-  Vec2 cursorPosition = context.getCursorPosition();
+  Vec2i cursorPosition = context.getCursorPosition();
   cursorPosition.y = context.getHeight() - cursorPosition.y;
 
-  Widget* newWidget = findWidgetByPoint(cursorPosition);
+  const Vec2 scaledPosition(cursorPosition.x, cursorPosition.y);
+
+  Widget* newWidget = findWidgetByPoint(scaledPosition);
 
   if (hoveredWidget == newWidget)
     return;
@@ -241,34 +245,38 @@ void Desktop::onCharInput(wchar_t character)
     activeWidget->charInputSignal.emit(*activeWidget, character);
 }
 
-void Desktop::onCursorMoved(const Vec2& position)
+void Desktop::onCursorMoved(const Vec2i& position)
 {
   updateHoveredWidget();
 
-  Vec2 cursorPosition = context.getCursorPosition();
+  Vec2i cursorPosition = context.getCursorPosition();
   cursorPosition.y = context.getHeight() - cursorPosition.y;
 
+  const Vec2 scaledPosition(cursorPosition.x, cursorPosition.y);
+
   if (hoveredWidget)
-    hoveredWidget->cursorMovedSignal.emit(*hoveredWidget, cursorPosition);
+    hoveredWidget->cursorMovedSignal.emit(*hoveredWidget, scaledPosition);
 
   if (draggedWidget)
   {
     if (dragging)
-      draggedWidget->dragMovedSignal.emit(*draggedWidget, cursorPosition);
+      draggedWidget->dragMovedSignal.emit(*draggedWidget, scaledPosition);
     else
     {
       // TODO: Add insensitivity radius.
 
       dragging = true;
-      draggedWidget->dragBegunSignal.emit(*draggedWidget, cursorPosition);
+      draggedWidget->dragBegunSignal.emit(*draggedWidget, scaledPosition);
     }
   }
 }
 
 void Desktop::onButtonClicked(input::Button button, bool clicked)
 {
-  Vec2 cursorPosition = context.getCursorPosition();
+  Vec2i cursorPosition = context.getCursorPosition();
   cursorPosition.y = context.getHeight() - cursorPosition.y;
+
+  const Vec2 scaledPosition(cursorPosition.x, cursorPosition.y);
 
   if (clicked)
   {
@@ -278,7 +286,7 @@ void Desktop::onButtonClicked(input::Button button, bool clicked)
     {
       if ((*r)->isVisible())
       {
-	clickedWidget = (*r)->findByPoint(cursorPosition);
+	clickedWidget = (*r)->findByPoint(scaledPosition);
 	if (clickedWidget)
 	  break;
       }
@@ -291,7 +299,7 @@ void Desktop::onButtonClicked(input::Button button, bool clicked)
     {
       clickedWidget->activate();
       clickedWidget->buttonClickedSignal.emit(*clickedWidget,
-                                              cursorPosition,
+                                              scaledPosition,
 					      button,
 					      clicked);
 
@@ -307,17 +315,17 @@ void Desktop::onButtonClicked(input::Button button, bool clicked)
     {
       if (dragging)
       {
-	draggedWidget->dragEndedSignal.emit(*draggedWidget, cursorPosition);
+	draggedWidget->dragEndedSignal.emit(*draggedWidget, scaledPosition);
 	dragging = false;
       }
 
       draggedWidget = NULL;
     }
 
-    if (activeWidget && activeWidget->getGlobalArea().contains(cursorPosition))
+    if (activeWidget && activeWidget->getGlobalArea().contains(scaledPosition))
     {
       activeWidget->buttonClickedSignal.emit(*activeWidget,
-					     cursorPosition,
+					     scaledPosition,
 					     button,
 					     clicked);
     }

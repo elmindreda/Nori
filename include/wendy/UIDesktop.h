@@ -89,7 +89,7 @@ private:
   void removedWidget(Widget& widget);
   void onKeyPressed(input::Key key, bool pressed);
   void onCharInput(wchar_t character);
-  void onCursorMoved(const Vec2& position);
+  void onCursorMoved(const Vec2i& position);
   void onButtonClicked(input::Button button, bool clicked);
   void onWheelTurned(int offset);
   Signal2<void, Desktop&, bool> focusChangedSignal;

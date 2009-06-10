@@ -90,7 +90,7 @@ public:
   virtual void onKeyPressed(Key key, bool pressed);
   virtual void onCharInput(wchar_t character);
   virtual void onButtonClicked(Button button, bool clicked);
-  virtual void onCursorMoved(const Vec2& position);
+  virtual void onCursorMoved(const Vec2i& position);
   virtual void onWheelTurned(int offset);
   virtual void onFocusChanged(bool activated);
 };
@@ -127,11 +127,11 @@ public:
   unsigned int getHeight(void) const;
   /*! @return The current mouse position.
    */
-  const Vec2& getCursorPosition(void) const;
+  const Vec2i& getCursorPosition(void) const;
   /*! Places the the mouse cursor at the specified position.
    *  @param[in] newPosition The desired mouse position.
    */
-  void setCursorPosition(const Vec2& newPosition);
+  void setCursorPosition(const Vec2i& newPosition);
   /*! @return The signal for context resizing.
    */
   SignalProxy2<void, unsigned int, unsigned int> getResizedSignal(void);
@@ -146,7 +146,7 @@ public:
   SignalProxy2<void, Button, bool> getButtonClickedSignal(void);
   /*! @return The signal for mouse cursor movement events.
    */
-  SignalProxy1<void, const Vec2&> getCursorMovedSignal(void);
+  SignalProxy1<void, const Vec2i&> getCursorMovedSignal(void);
   /*! @return The signal for mouse wheel events.
     */
   SignalProxy1<void, int> getWheelTurnedSignal(void);
@@ -171,13 +171,13 @@ private:
   Signal2<void, Key, bool> keyPressedSignal;
   Signal1<void, wchar_t> charInputSignal;
   Signal2<void, Button, bool> buttonClickedSignal;
-  Signal1<void, const Vec2&> cursorMovedSignal;
+  Signal1<void, const Vec2i&> cursorMovedSignal;
   Signal1<void, int> wheelTurnedSignal;
   GL::Context& context;
   int wheelPosition;
   Focus* currentFocus;
   bool cursorCaptured;
-  mutable Vec2 cursorPosition;
+  mutable Vec2i cursorPosition;
   static KeyMap internalMap;
   static KeyMap externalMap;
   static Context* instance;
