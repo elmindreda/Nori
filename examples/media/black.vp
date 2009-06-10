@@ -1,6 +1,6 @@
 
-float4 main(in float4 position: POSITION, uniform float4x4 MVP) : POSITION
+float4 main(in float3 position, uniform float4x4 MVP) : POSITION
 {
-  return mul(MVP, position);
+  return mul(MVP, float4(position, 1));
 }
 
