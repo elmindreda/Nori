@@ -108,14 +108,14 @@ Context::~Context(void)
 
 void Context::captureCursor(void)
 {
-  glfwDisable(GLFW_MOUSE_CURSOR);
   cursorCaptured = true;
+  glfwDisable(GLFW_MOUSE_CURSOR);
 }
 
 void Context::releaseCursor(void)
 {
-  glfwEnable(GLFW_MOUSE_CURSOR);
   cursorCaptured = false;
+  glfwEnable(GLFW_MOUSE_CURSOR);
 }
 
 bool Context::isKeyDown(const Key& key) const
