@@ -139,6 +139,11 @@ bool Context::isButtonDown(Button button) const
   return false;
 }
 
+bool Context::isCursorLocked(void) const
+{
+  return cursorLocked;
+}
+
 unsigned int Context::getWidth(void) const
 {
   return context.getWidth();
@@ -161,6 +166,19 @@ void Context::setCursorPosition(const Vec2& newPosition)
 {
   cursorPosition = newPosition;
   glfwSetMousePos((int) newPosition.x, (int) newPosition.y);
+}
+
+void Context::setCursorLock(bool newState)
+{
+  if (cursorLocked == newState)
+    return;
+
+  cursorLocked = newState;
+
+  if (cursorLocked)
+    glfwDisable(GLFW_MOUSE_CURSOR);
+  else
+    glfwEnable(GLFW_MOUSE_CURSOR);
 }
 
 SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal(void)
@@ -225,7 +243,8 @@ bool Context::create(GL::Context& context)
 
 Context::Context(GL::Context& initContext):
   context(initContext),
-  currentFocus(NULL)
+  currentFocus(NULL),
+  cursorLocked(false)
 {
   // TODO: Remove this upon the arrival of GLFW_USER_DATA.
   instance = this;
