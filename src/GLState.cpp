@@ -581,7 +581,7 @@ void ProgramState::apply(void) const
     for (SamplerList::const_iterator i = samplers.begin();  i != samplers.end();  i++)
       (**i).apply();
 
-    GL::Renderer::get()->setCurrentProgram(program);
+    Renderer::get()->setCurrentProgram(program);
   }
 }
 
