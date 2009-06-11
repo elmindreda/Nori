@@ -7,7 +7,7 @@
       </program>
     </pass>
     <pass name="bloom">
-      <program name="bloom" />
+      <program name="cube" />
     </pass>
   </technique>
 </material>

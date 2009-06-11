@@ -1,26 +1,19 @@
 // Adapted from the RenderMonkey HDR sample
 
-float scale = 1.0 / 256.0;
+float2 gaussFilter[3];
 
-float4 gaussFilter[7];
-
-float4 main(in float2 mapping, uniform sampler2D image) : COLOR
+float4 main(in float2 mapping, uniform sampler2D image, uniform float2 scale) : COLOR
 {
   float4 color = float4(0.0);
   
-  gaussFilter[0] = float4(-3.0, 0.0, 0.0,  5.0 / 54.0);
-  gaussFilter[1] = float4(-2.0, 0.0, 0.0,  7.0 / 54.0);
-  gaussFilter[2] = float4(-1.0, 0.0, 0.0, 10.0 / 54.0);
-  gaussFilter[3] = float4( 0.0, 0.0, 0.0, 15.0 / 54.0);
-  gaussFilter[4] = float4( 1.0, 0.0, 0.0, 10.0 / 54.0);
-  gaussFilter[5] = float4( 2.0, 0.0, 0.0,  7.0 / 54.0);
-  gaussFilter[6] = float4( 3.0, 0.0, 0.0,  5.0 / 64.0);
+  gaussFilter[0] = float2(-1.5, 15.0 / 50.0);
+  gaussFilter[1] = float2( 0.0, 20.0 / 50.0);
+  gaussFilter[2] = float2( 1.5, 15.0 / 50.0);
   
-  for (int i = 0;  i < 7;  i++)
+  for (int i = 0;  i < 3;  i++)
   {
-    color += tex2D(image, float2(mapping.s + gaussFilter[i].s * scale,
-                                 mapping.t + gaussFilter[i].t * scale)) * 
-             gaussFilter[i].q;
+    color += tex2D(image, float2(mapping.s, mapping.t + gaussFilter[i].s * scale.t)) * 
+             gaussFilter[i].t;
   }
   
   return color;

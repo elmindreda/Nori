@@ -63,11 +63,13 @@ bool Demo::init(void)
   input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
   input::Context::get()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
 
-  texture = GL::Texture::createInstance(Image(ImageFormat::RGB888, 64, 64), 0);
+  texture = GL::Texture::createInstance(Image(ImageFormat::RGB888, 32, 32), 0);
   if (!texture)
     return false;
 
-  canvas = GL::TextureCanvas::createInstance(*context, 64, 64);
+  canvas = GL::TextureCanvas::createInstance(*context,
+                                             texture->getPhysicalWidth(),
+                                             texture->getPhysicalHeight());
   if (!canvas)
     return false;
 
@@ -158,26 +160,24 @@ void Demo::run(void)
 
     renderQueuePass(queue, "bloom");
 
-    renderer->setCurrentCanvas(*canvas);
     renderer->setProjectionMatrix2D(1.f, 1.f);
+
+    renderer->setCurrentCanvas(*canvas);
 
     horzPass.apply();
     sprite.render();
 
     renderer->setCurrentCanvas(*canvas);
-    renderer->setProjectionMatrix2D(1.f, 1.f);
 
     vertPass.apply();
     sprite.render();
 
     renderer->setCurrentCanvas(*canvas);
-    renderer->setProjectionMatrix2D(1.f, 1.f);
 
     horzPass.apply();
     sprite.render();
 
     renderer->setCurrentCanvas(*canvas);
-    renderer->setProjectionMatrix2D(1.f, 1.f);
 
     vertPass.apply();
     sprite.render();
