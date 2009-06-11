@@ -6,8 +6,5 @@
 	<sampler name="checkers" texture="default" />
       </program>
     </pass>
-    <pass name="bloom">
-      <program name="cube" />
-    </pass>
   </technique>
 </material>

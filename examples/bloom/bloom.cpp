@@ -11,7 +11,6 @@ public:
   bool init(void);
   void run(void);
 private:
-  void renderQueuePass(const render::Queue& queue, const String& name);
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const Vec2i& position);
   void onWheelTurned(int position);
@@ -158,7 +157,7 @@ void Demo::run(void)
     renderer->clearDepthBuffer();
     renderer->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
-    renderQueuePass(queue, "bloom");
+    queue.render();
 
     renderer->setProjectionMatrix2D(1.f, 1.f);
 
@@ -195,30 +194,6 @@ void Demo::run(void)
     sprite.render();
   }
   while (GL::Context::get()->update());
-}
-
-void Demo::renderQueuePass(const render::Queue& queue, const String& name)
-{
-  GL::Renderer* renderer = GL::Renderer::get();
-
-  queue.getCamera().apply();
-
-  typedef render::OperationList List;
-  const List& operations = queue.getOperations();
-
-  for (List::const_iterator o = operations.begin();  o != operations.end();  o++)
-  {
-    const render::Operation& operation = **o;
-
-    if (const render::Pass* pass = operation.technique->findPass(name))
-      pass->apply();
-    else
-      blackPass.apply();
-
-    renderer->setModelMatrix(operation.transform);
-    renderer->setCurrentPrimitiveRange(operation.range);
-    renderer->render();
-  }
 }
 
 void Demo::onButtonClicked(input::Button button, bool clicked)
