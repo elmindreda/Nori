@@ -12,6 +12,9 @@ public:
   void run(void);
 private:
   void renderQueuePass(const render::Queue& queue, const String& name);
+  void onButtonClicked(input::Button button, bool clicked);
+  void onCursorMoved(const Vec2i& position);
+  void onWheelTurned(int position);
   Ref<GL::Texture> texture;
   Ptr<GL::TextureCanvas> canvas;
   GL::RenderState blackPass;
@@ -23,11 +26,12 @@ private:
   scene::MeshNode* meshNode;
   scene::CameraNode* cameraNode;
   Timer timer;
-  Time currentTime;
+  Vec2i oldCursorPosition;
 };
 
 Demo::~Demo(void)
 {
+  input::Context::destroy();
   GL::Renderer::destroy();
   GL::Context::destroy();
 }
@@ -52,11 +56,18 @@ bool Demo::init(void)
   if (!GL::Renderer::create(*context))
     return false;
 
+  if (!input::Context::create(*context))
+    return false;
+
+  input::Context::get()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
+  input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
+  input::Context::get()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
+
   texture = GL::Texture::createInstance(Image(ImageFormat::RGB888, 64, 64), 0);
   if (!texture)
     return false;
 
-  canvas = GL::TextureCanvas::createInstance(*context, 32, 32);
+  canvas = GL::TextureCanvas::createInstance(*context, 64, 64);
   if (!canvas)
     return false;
 
@@ -70,25 +81,36 @@ bool Demo::init(void)
 
   blackPass.setProgram(program);
 
+  const Vec2 scale(1.f / texture->getPhysicalWidth(),
+                   1.f / texture->getPhysicalHeight());
+
   program = GL::Program::readInstance("horzblur");
   if (!program)
     return false;
 
+  horzPass.setDepthTesting(false);
+  horzPass.setDepthWriting(false);
   horzPass.setProgram(program);
   horzPass.getSamplerState("image").setTexture(texture);
+  horzPass.getUniformState("scale").setValue(scale);
 
   program = GL::Program::readInstance("vertblur");
   if (!program)
     return false;
 
+  vertPass.setDepthTesting(false);
+  vertPass.setDepthWriting(false);
   vertPass.setProgram(program);
   vertPass.getSamplerState("image").setTexture(texture);
+  vertPass.getUniformState("scale").setValue(scale);
 
   program = GL::Program::readInstance("compose");
   if (!program)
     return false;
 
-  composePass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ONE);
+  composePass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE);
+  composePass.setDepthTesting(false);
+  composePass.setDepthWriting(false);
   composePass.setProgram(program);
   composePass.getSamplerState("image").setTexture(texture);
 
@@ -104,7 +126,7 @@ bool Demo::init(void)
   graph.addNode(*meshNode);
 
   camera.setFOV(60.f);
-  camera.setAspectRatio(0.f);
+  camera.setAspectRatio(4.f / 3.f);
 
   cameraNode = new scene::CameraNode();
   cameraNode->setCameraName(camera.getName());
@@ -120,12 +142,10 @@ void Demo::run(void)
 {
   do
   {
-    currentTime = timer.getTime();
+    graph.setTimeElapsed(timer.getTime());
 
-    meshNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f),
-							   currentTime);
-
-    graph.setTimeElapsed(currentTime);
+    render::Sprite2 sprite;
+    sprite.position.set(0.5f, 0.5f);
 
     render::Queue queue(camera);
     graph.enqueue(queue);
@@ -138,18 +158,40 @@ void Demo::run(void)
 
     renderQueuePass(queue, "bloom");
 
+    renderer->setCurrentCanvas(*canvas);
+    renderer->setProjectionMatrix2D(1.f, 1.f);
+
+    horzPass.apply();
+    sprite.render();
+
+    renderer->setCurrentCanvas(*canvas);
+    renderer->setProjectionMatrix2D(1.f, 1.f);
+
+    vertPass.apply();
+    sprite.render();
+
+    renderer->setCurrentCanvas(*canvas);
+    renderer->setProjectionMatrix2D(1.f, 1.f);
+
+    horzPass.apply();
+    sprite.render();
+
+    renderer->setCurrentCanvas(*canvas);
+    renderer->setProjectionMatrix2D(1.f, 1.f);
+
+    vertPass.apply();
+    sprite.render();
+
     renderer->setScreenCanvasCurrent();
     renderer->clearDepthBuffer();
-    renderer->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
+    renderer->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
     queue.render();
 
-    renderer->setProjectionMatrix2D(4.f, 4.f);
+    renderer->setProjectionMatrix2D(1.f, 1.f);
 
     composePass.apply();
 
-    render::Sprite2 sprite;
-    sprite.position.set(0.5f, 0.5f);
     sprite.render();
   }
   while (GL::Context::get()->update());
@@ -177,6 +219,54 @@ void Demo::renderQueuePass(const render::Queue& queue, const String& name)
     renderer->setCurrentPrimitiveRange(operation.range);
     renderer->render();
   }
+}
+
+void Demo::onButtonClicked(input::Button button, bool clicked)
+{
+  input::Context* context = input::Context::get();
+
+  if (clicked)
+  {
+    context->captureCursor();
+    oldCursorPosition = context->getCursorPosition();
+  }
+  else
+    context->releaseCursor();
+}
+
+void Demo::onCursorMoved(const Vec2i& position)
+{
+  input::Context* context = input::Context::get();
+
+  if (context->isCursorCaptured())
+  {
+    const Vec2i offset = position - oldCursorPosition;
+
+    Quat rotation;
+
+    if (offset.x)
+    {
+      rotation.setAxisRotation(Vec3::Y, offset.x / 50.f);
+      Quat& parent = meshNode->getLocalTransform().rotation;
+      parent = rotation * parent;
+    }
+
+    if (offset.y)
+    {
+      rotation.setAxisRotation(Vec3::X, offset.y / 50.f);
+      Quat& parent = meshNode->getLocalTransform().rotation;
+      parent = rotation * parent;
+    }
+
+    oldCursorPosition = position;
+  }
+}
+
+void Demo::onWheelTurned(int offset)
+{
+  const float scale = meshNode->getMesh()->getBounds().radius / 10.f;
+
+  meshNode->getLocalTransform().position.z += offset * scale;
 }
 
 int main(void)
