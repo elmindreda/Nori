@@ -301,7 +301,10 @@ bool TextureCanvas::setColorBufferTexture(Texture* newTexture, unsigned int newL
 {
   if (newTexture->getPhysicalWidth() != width ||
       newTexture->getPhysicalHeight() != height)
+  {
+    Log::writeError("Specified color buffer texture does not match canvas dimensions");
     return false;
+  }
 
   texture = newTexture;
   level = newLevel;
