@@ -272,6 +272,16 @@ bool Texture::copyFromColorBuffer(unsigned int x, unsigned int y, unsigned int l
   return true;
 }
 
+bool Texture::isNPOT(void) const
+{
+  return (flags & RECTANGULAR) ? true : false;
+}
+
+bool Texture::isMipmapped(void) const
+{
+  return (flags & MIPMAPPED) ? true : false;
+}
+
 unsigned int Texture::getSourceWidth(unsigned int level) const
 {
   return sourceWidth >> level;
@@ -307,11 +317,6 @@ unsigned int Texture::getLevelCount(void) const
   return levelCount;
 }
 
-unsigned int Texture::getFlags(void) const
-{
-  return flags;
-}
-
 FilterMode Texture::getFilterMode(void) const
 {
   return filterMode;
@@ -325,11 +330,9 @@ void Texture::setFilterMode(FilterMode newMode)
 
     glBindTexture(textureTarget, textureID);
 
-    const bool mipmapped = (flags & MIPMAPPED) ? true : false;
-
     glTexParameteri(textureTarget,
                     GL_TEXTURE_MIN_FILTER,
-		    convertFilterMode(newMode, mipmapped));
+		    convertFilterMode(newMode, isMipmapped()));
     glTexParameteri(textureTarget,
                     GL_TEXTURE_MAG_FILTER,
 		    convertFilterMode(newMode, false));

@@ -104,6 +104,8 @@ public:
   bool copyFromColorBuffer(unsigned int x,
 		           unsigned int y,
 		           unsigned int level = 0);
+  bool isNPOT(void) const;
+  bool isMipmapped(void) const;
   /*! @return The width, in pixels, of the source for specified mipmap level.
    *  @param[in] level The desired mipmap level.
    */
@@ -132,9 +134,6 @@ public:
   /*! @return The number of mipmap levels in this texture.
    */
   unsigned int getLevelCount(void) const;
-  /*! @return The creation flags for this texture.
-   */
-  unsigned int getFlags(void) const;
   /*! @return The sampler filter mode of this texture.
    */
   FilterMode getFilterMode(void) const;
