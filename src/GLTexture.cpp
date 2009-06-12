@@ -321,19 +321,22 @@ void Texture::setFilterMode(FilterMode newMode)
 {
   if (newMode != filterMode)
   {
-    glPushAttrib(GL_TEXTURE_BIT);
+    cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_FALSE);
+
     glBindTexture(textureTarget, textureID);
+
+    const bool mipmapped = (flags & MIPMAPPED) ? true : false;
 
     glTexParameteri(textureTarget,
                     GL_TEXTURE_MIN_FILTER,
-		    convertFilterMode(filterMode, (flags & MIPMAPPED) ? true : false));
+		    convertFilterMode(newMode, mipmapped));
     glTexParameteri(textureTarget,
                     GL_TEXTURE_MAG_FILTER,
-		    convertFilterMode(filterMode, false));
-
-    glPopAttrib();
+		    convertFilterMode(newMode, false));
 
     filterMode = newMode;
+
+    cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
   }
 }
 
@@ -407,19 +410,26 @@ Image* Texture::getImage(unsigned int level) const
   return result.detachObject();
 }
 
-Texture* Texture::createInstance(const Image& image,
+Context& Texture::getContext(void) const
+{
+  return context;
+}
+
+Texture* Texture::createInstance(Context& context,
+                                 const Image& image,
 				 unsigned int flags,
 				 const String& name)
 {
-  Ptr<Texture> texture(new Texture(name));
+  Ptr<Texture> texture(new Texture(context, name));
   if (!texture->init(image, flags))
     return NULL;
 
   return texture.detachObject();
 }
 
-Texture::Texture(const String& name):
+Texture::Texture(Context& initContext, const String& name):
   Resource<Texture>(name),
+  context(initContext),
   textureTarget(0),
   textureID(0),
   sourceWidth(0),
@@ -436,7 +446,8 @@ Texture::Texture(const String& name):
 }
 
 Texture::Texture(const Texture& source):
-  Resource<Texture>("")
+  Resource<Texture>(""),
+  context(source.context)
 {
 }
 
@@ -560,10 +571,10 @@ bool Texture::init(const Image& image, unsigned int initFlags)
   // Clear any errors
   glGetError();
 
+  cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_FALSE);
+
   // Contact space station
   glGenTextures(1, &textureID);
-
-  glPushAttrib(GL_TEXTURE_BIT | GL_PIXEL_MODE_BIT);
   glBindTexture(textureTarget, textureID);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -634,7 +645,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
   if (textureTarget != GL_TEXTURE_1D)
     glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-  glPopAttrib();
+  cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
 
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)

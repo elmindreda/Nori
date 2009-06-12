@@ -217,6 +217,7 @@ private:
  */
 class Context : public Singleton<Context>
 {
+  friend class Texture;
   friend class VertexProgram;
   friend class FragmentProgram;
 public:

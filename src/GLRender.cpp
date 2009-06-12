@@ -870,7 +870,7 @@ bool Renderer::init(void)
       return false;
     }
 
-    defaultTexture = Texture::createInstance(*image, Texture::DEFAULT, "default");
+    defaultTexture = Texture::createInstance(context, *image, Texture::DEFAULT, "default");
     if (!defaultTexture)
     {
       Log::writeError("Failed to create default texture");

@@ -173,7 +173,9 @@ bool TextureCodec::onBeginElement(const String& name)
 	flags ^= Texture::DONT_GROW;
     }
 
-    texture = Texture::createInstance(*image, flags, textureName);
+    Context* context = Context::get();
+
+    texture = Texture::createInstance(*context, *image, flags, textureName);
     if (!texture)
       return false;
 

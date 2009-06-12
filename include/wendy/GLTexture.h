@@ -156,20 +156,23 @@ public:
    *  @return A copy of the image data of the specified mipmap level.
    */
   Image* getImage(unsigned int level = 0) const;
+  Context& getContext(void) const;
   /*! Creates a texture from the specified image.
    *  @param[in] image The image data to use.
    *  @param[in] flags The creation flags.
    *  @param[in] name The desired name of the texture, or the empty string to
    *  automatically generate a name.
    */
-  static Texture* createInstance(const Image& image,
+  static Texture* createInstance(Context& context,
+                                 const Image& image,
                                  unsigned int flags = DEFAULT,
 				 const String& name = "");
 private:
-  Texture(const String& name);
+  Texture(Context& context, const String& name);
   Texture(const Texture& source);
   bool init(const Image& image, unsigned int flags);
   Texture& operator = (const Texture& source);
+  Context& context;
   unsigned int textureTarget;
   unsigned int textureID;
   unsigned int sourceWidth;

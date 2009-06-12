@@ -345,9 +345,11 @@ Font& Font::operator = (const Font& source)
 
 bool Font::init(const moira::Font& font)
 {
+  GL::Context* context = GL::Context::get();
+
   const String& characters = font.getCharacters();
 
-  const unsigned int maxSize = GL::Context::get()->getLimits().getMaxTextureSize();
+  const unsigned int maxSize = context->getLimits().getMaxTextureSize();
 
   const unsigned int glyphWidth = (unsigned int) ceilf(font.getWidth()) + 1;
   const unsigned int glyphHeight = (unsigned int) ceilf(font.getHeight()) + 1;
@@ -366,7 +368,7 @@ bool Font::init(const moira::Font& font)
     unsigned int height = glyphHeight * rows + 1;
     height = std::min(getNextPower(height), maxSize);
 
-    texture = GL::Texture::createInstance(Image(ImageFormat::ALPHA8, width, height), 0);
+    texture = GL::Texture::createInstance(*context, Image(ImageFormat::ALPHA8, width, height), 0);
     if (!texture)
       return false;
   }

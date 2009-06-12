@@ -65,7 +65,7 @@ bool Demo::init(void)
 
   for (unsigned int i = 0;  i < 2;  i++)
   {
-    textures[i] = GL::Texture::createInstance(Image(ImageFormat::RGB888, size, size), 0);
+    textures[i] = GL::Texture::createInstance(*context, Image(ImageFormat::RGB888, size, size), 0);
     if (!textures[i])
     {
       Log::writeError("Failed to create canvas texture");
