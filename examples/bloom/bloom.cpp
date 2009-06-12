@@ -14,9 +14,8 @@ private:
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const Vec2i& position);
   void onWheelTurned(int position);
-  Ref<GL::Texture> texture;
-  Ptr<GL::TextureCanvas> canvas;
-  GL::RenderState blackPass;
+  Ref<GL::Texture> textures[2];
+  Ptr<GL::TextureCanvas> canvases[2];
   GL::RenderState horzPass;
   GL::RenderState vertPass;
   GL::RenderState composePass;
@@ -62,29 +61,31 @@ bool Demo::init(void)
   input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
   input::Context::get()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
 
-  texture = GL::Texture::createInstance(Image(ImageFormat::RGB888, 32, 32), 0);
-  if (!texture)
-    return false;
+  const int size = 32;
 
-  canvas = GL::TextureCanvas::createInstance(*context,
-                                             texture->getPhysicalWidth(),
-                                             texture->getPhysicalHeight());
-  if (!canvas)
-    return false;
+  for (unsigned int i = 0;  i < 2;  i++)
+  {
+    textures[i] = GL::Texture::createInstance(Image(ImageFormat::RGB888, size, size), 0);
+    if (!textures[i])
+    {
+      Log::writeError("Failed to create canvas texture");
+      return false;
+    }
 
-  canvas->setColorBufferTexture(texture);
+    canvases[i] = GL::TextureCanvas::createInstance(*context, size, size);
+    if (!canvases[i])
+    {
+      Log::writeError("Failed to create canvas");
+      return false;
+    }
+
+    canvases[i]->setColorBufferTexture(textures[i]);
+  }
+
+  const Vec2 scale(1.f / size, 1.f / size);
 
   Ref<GL::Program> program;
   
-  program = GL::Program::readInstance("black");
-  if (!program)
-    return false;
-
-  blackPass.setProgram(program);
-
-  const Vec2 scale(1.f / texture->getPhysicalWidth(),
-                   1.f / texture->getPhysicalHeight());
-
   program = GL::Program::readInstance("horzblur");
   if (!program)
     return false;
@@ -92,7 +93,7 @@ bool Demo::init(void)
   horzPass.setDepthTesting(false);
   horzPass.setDepthWriting(false);
   horzPass.setProgram(program);
-  horzPass.getSamplerState("image").setTexture(texture);
+  horzPass.getSamplerState("image").setTexture(textures[0]);
   horzPass.getUniformState("scale").setValue(scale);
 
   program = GL::Program::readInstance("vertblur");
@@ -102,18 +103,21 @@ bool Demo::init(void)
   vertPass.setDepthTesting(false);
   vertPass.setDepthWriting(false);
   vertPass.setProgram(program);
-  vertPass.getSamplerState("image").setTexture(texture);
+  vertPass.getSamplerState("image").setTexture(textures[1]);
   vertPass.getUniformState("scale").setValue(scale);
 
   program = GL::Program::readInstance("compose");
   if (!program)
+  {
+    Log::writeError("Failed to load compose program");
     return false;
+  }
 
   composePass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE);
   composePass.setDepthTesting(false);
   composePass.setDepthWriting(false);
   composePass.setProgram(program);
-  composePass.getSamplerState("image").setTexture(texture);
+  composePass.getSamplerState("image").setTexture(textures[0]);
 
   Ref<render::Mesh> mesh = render::Mesh::readInstance("cube");
   if (!mesh)
@@ -153,7 +157,7 @@ void Demo::run(void)
 
     GL::Renderer* renderer = GL::Renderer::get();
 
-    renderer->setCurrentCanvas(*canvas);
+    renderer->setCurrentCanvas(*canvases[0]);
     renderer->clearDepthBuffer();
     renderer->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
@@ -161,25 +165,18 @@ void Demo::run(void)
 
     renderer->setProjectionMatrix2D(1.f, 1.f);
 
-    renderer->setCurrentCanvas(*canvas);
+    for (unsigned int i = 0;  i < 2;  i++)
+    {
+      renderer->setCurrentCanvas(*canvases[1]);
 
-    horzPass.apply();
-    sprite.render();
+      horzPass.apply();
+      sprite.render();
 
-    renderer->setCurrentCanvas(*canvas);
+      renderer->setCurrentCanvas(*canvases[0]);
 
-    vertPass.apply();
-    sprite.render();
-
-    renderer->setCurrentCanvas(*canvas);
-
-    horzPass.apply();
-    sprite.render();
-
-    renderer->setCurrentCanvas(*canvas);
-
-    vertPass.apply();
-    sprite.render();
+      vertPass.apply();
+      sprite.render();
+    }
 
     renderer->setScreenCanvasCurrent();
     renderer->clearDepthBuffer();
@@ -190,7 +187,6 @@ void Demo::run(void)
     renderer->setProjectionMatrix2D(1.f, 1.f);
 
     composePass.apply();
-
     sprite.render();
   }
   while (GL::Context::get()->update());
