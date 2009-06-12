@@ -1,6 +1,0 @@
-
-float4 main(in float3 position: POSITION, uniform float4x4 MVP) : POSITION
-{
-  return mul(MVP, float4(position, 1));
-}
-
