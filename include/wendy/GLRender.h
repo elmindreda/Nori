@@ -80,7 +80,7 @@ private:
  *
  *  This class represents a render target, i.e. a framebuffer.
  */
-class Canvas
+class Canvas : public RefObject
 {
   friend class Renderer;
 public:
@@ -323,7 +323,7 @@ private:
   Mat4 projectionMatrix;
   IndexBufferList indexBufferPool;
   VertexBufferList vertexBufferPool;
-  Canvas* screenCanvas;
+  Ref<ScreenCanvas> screenCanvas;
   Canvas* currentCanvas;
   Ref<Program> currentProgram;
   PrimitiveRange currentRange;

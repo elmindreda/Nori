@@ -57,7 +57,7 @@ bool Demo::init(void)
   input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
   input::Context::get()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
 
-  texture = GL::Texture::createInstance(Image(ImageFormat::RGB888, 64, 64), 0);
+  texture = GL::Texture::createInstance(*context, Image(ImageFormat::RGB888, 64, 64), 0);
   if (!texture)
     return false;
 

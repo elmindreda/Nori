@@ -109,7 +109,50 @@ GLenum convertType(IndexBuffer::Type type)
   }
 }
 
-} /*namespace*/
+bool compatible(const Varying& varying, const VertexComponent& component)
+{
+  switch (varying.getType())
+  {
+    case Varying::FLOAT:
+    {
+      if (component.getType() == VertexComponent::FLOAT ||
+          component.getElementCount() == 1)
+        return true;
+
+      break;
+    }
+
+    case Varying::FLOAT_VEC2:
+    {
+      if (component.getType() == VertexComponent::FLOAT ||
+          component.getElementCount() == 2)
+        return true;
+
+      break;
+    }
+
+    case Varying::FLOAT_VEC3:
+    {
+      if (component.getType() == VertexComponent::FLOAT ||
+          component.getElementCount() == 3)
+        return true;
+
+      break;
+    }
+
+    case Varying::FLOAT_VEC4:
+    {
+      if (component.getType() == VertexComponent::FLOAT ||
+          component.getElementCount() == 4)
+        return true;
+
+      break;
+    }
+
+  return false;
+}
+
+} /*namespace (and Gandalf)*/
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -439,12 +482,19 @@ void Renderer::render(void)
     const VertexComponent* component = format.findComponent(varying.getName());
     if (!component)
     {
-      Log::writeError("Varying parameter \'%s\' has no corresponding vertex format component",
+      Log::writeError("Varying parameter \'%s\' of shader program \'%s\' has no corresponding vertex format component",
+                      program.getName().c_str(),
                       varying.getName().c_str());
       return;
     }
 
-    // TODO: Check type compatibility.
+    if (!compatible(varying, *component))
+    {
+      Log::writeError("Varying parameter \'%s\' of shader program \'%s\' has incompatible type",
+                      program.getName().c_str(),
+                      varying.getName().c_str());
+      return;
+    }
 
     varying.enable(format.getSize(), component->getOffset());
   }
@@ -834,7 +884,6 @@ bool Renderer::create(Context& context)
 
 Renderer::Renderer(Context& initContext):
   context(initContext),
-  screenCanvas(NULL),
   currentCanvas(NULL),
   currentProgram(NULL),
   stats(NULL)

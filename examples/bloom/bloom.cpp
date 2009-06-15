@@ -15,7 +15,7 @@ private:
   void onCursorMoved(const Vec2i& position);
   void onWheelTurned(int position);
   Ref<GL::Texture> textures[2];
-  Ptr<GL::TextureCanvas> canvases[2];
+  Ref<GL::TextureCanvas> canvases[2];
   GL::RenderState horzPass;
   GL::RenderState vertPass;
   GL::RenderState composePass;
