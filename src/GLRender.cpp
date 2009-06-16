@@ -115,7 +115,7 @@ bool compatible(const Varying& varying, const VertexComponent& component)
   {
     case Varying::FLOAT:
     {
-      if (component.getType() == VertexComponent::FLOAT ||
+      if (component.getType() == VertexComponent::FLOAT &&
           component.getElementCount() == 1)
         return true;
 
@@ -124,7 +124,7 @@ bool compatible(const Varying& varying, const VertexComponent& component)
 
     case Varying::FLOAT_VEC2:
     {
-      if (component.getType() == VertexComponent::FLOAT ||
+      if (component.getType() == VertexComponent::FLOAT &&
           component.getElementCount() == 2)
         return true;
 
@@ -133,7 +133,7 @@ bool compatible(const Varying& varying, const VertexComponent& component)
 
     case Varying::FLOAT_VEC3:
     {
-      if (component.getType() == VertexComponent::FLOAT ||
+      if (component.getType() == VertexComponent::FLOAT &&
           component.getElementCount() == 3)
         return true;
 
@@ -142,12 +142,13 @@ bool compatible(const Varying& varying, const VertexComponent& component)
 
     case Varying::FLOAT_VEC4:
     {
-      if (component.getType() == VertexComponent::FLOAT ||
+      if (component.getType() == VertexComponent::FLOAT &&
           component.getElementCount() == 4)
         return true;
 
       break;
     }
+  }
 
   return false;
 }
@@ -483,16 +484,16 @@ void Renderer::render(void)
     if (!component)
     {
       Log::writeError("Varying parameter \'%s\' of shader program \'%s\' has no corresponding vertex format component",
-                      program.getName().c_str(),
-                      varying.getName().c_str());
+                      varying.getName().c_str(),
+                      program.getName().c_str());
       return;
     }
 
     if (!compatible(varying, *component))
     {
       Log::writeError("Varying parameter \'%s\' of shader program \'%s\' has incompatible type",
-                      program.getName().c_str(),
-                      varying.getName().c_str());
+                      varying.getName().c_str(),
+                      program.getName().c_str());
       return;
     }
 
