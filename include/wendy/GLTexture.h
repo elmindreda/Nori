@@ -76,9 +76,10 @@ class Texture : public Resource<Texture>, public RefObject
 public:
   enum
   {
-    /*! The texture will be created with the original image dimensions,
-     *  if possible.  Note that such textures have an address range of
-     *  [0..w] and [0..h], not [0..1].
+    /*! The texture may have non-POT dimensions and will be created with the
+     *  original image dimensions or as close to them as possible.  Note that
+     *  textures created with this flag have an address range of [0..w] and
+     *  [0..h], not [0..1], whether or not they have POT dimensions.
      */
     RECTANGULAR = 1,
     /*! The texture will be created with a mipmap chain.
