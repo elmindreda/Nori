@@ -167,10 +167,6 @@ bool TextureCodec::onBeginElement(const String& name)
       defaultValue = (Texture::DEFAULT | Texture::RECTANGULAR) ? true : false;
       if (readBoolean("rectangular", defaultValue) != defaultValue)
 	flags ^= Texture::RECTANGULAR;
-
-      defaultValue = (Texture::DEFAULT | Texture::DONT_GROW) ? true : false;
-      if (readBoolean("dont-grow", defaultValue) != defaultValue)
-	flags ^= Texture::DONT_GROW;
     }
 
     Context* context = Context::get();

@@ -272,9 +272,9 @@ bool Texture::copyFromColorBuffer(unsigned int x, unsigned int y, unsigned int l
   return true;
 }
 
-bool Texture::isNPOT(void) const
+bool Texture::isPOT(void) const
 {
-  return (flags & RECTANGULAR) ? true : false;
+  return (flags & RECTANGULAR) ? false : true;
 }
 
 bool Texture::isMipmapped(void) const
@@ -551,16 +551,8 @@ bool Texture::init(const Image& image, unsigned int initFlags)
     {
       const unsigned int maxSize = GL::Context::get()->getLimits().getMaxTextureSize();
 
-      if (flags & DONT_GROW)
-      {
-	physicalWidth = getClosestPower(sourceWidth, std::min(maxSize, sourceWidth));
-	physicalHeight = getClosestPower(sourceHeight, std::min(maxSize, sourceHeight));
-      }
-      else
-      {
-	physicalWidth = getClosestPower(sourceWidth, maxSize);
-	physicalHeight = getClosestPower(sourceHeight, maxSize);
-      }
+      physicalWidth = getClosestPower(sourceWidth, maxSize);
+      physicalHeight = getClosestPower(sourceHeight, maxSize);
     }
 
     // Rescale source image (no-op if the sizes are equal)

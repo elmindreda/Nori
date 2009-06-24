@@ -42,8 +42,16 @@ using namespace moira;
  */
 enum FilterMode
 {
+  /*! Select the nearest texel of the nearest mipmap level.
+   */
   FILTER_NEAREST,
+  /*! Select the four nearest texels of the nearest mipmap level and
+   *  interpolate.
+   */
   FILTER_BILINEAR,
+  /*! Select the four nearest texels of the two nearest mipmap levels and
+   *  interpolate.
+   */
   FILTER_TRILINEAR,
 };
 
@@ -66,9 +74,6 @@ enum AddressMode
 
 /*! @brief %Texture image object.
  *  @ingroup opengl
- *
- *  @remarks This class intentionally has no public interface for
- *  making a texture object current.
  */
 class Texture : public Resource<Texture>, public RefObject
 {
@@ -84,9 +89,6 @@ public:
     /*! The texture will be created with a mipmap chain.
      */
     MIPMAPPED = 2,
-    /*! The texture is guaranteed not to be larger than the source image.
-     */
-    DONT_GROW = 4,
     /*! The default texture creation flags.
      */
     DEFAULT = MIPMAPPED,
@@ -104,7 +106,7 @@ public:
   bool copyFromColorBuffer(unsigned int x,
 		           unsigned int y,
 		           unsigned int level = 0);
-  bool isNPOT(void) const;
+  bool isPOT(void) const;
   bool isMipmapped(void) const;
   /*! @return The width, in pixels, of the source for specified mipmap level.
    *  @param[in] level The desired mipmap level.
@@ -164,7 +166,7 @@ public:
    */
   static Texture* createInstance(Context& context,
                                  const Image& image,
-                                 unsigned int flags = DEFAULT,
+                                 unsigned int flags,
 				 const String& name = "");
 private:
   Texture(Context& context, const String& name);
