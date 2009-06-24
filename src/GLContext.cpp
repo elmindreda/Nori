@@ -404,6 +404,7 @@ bool Context::init(const ContextMode& initMode)
 
   limits = new Limits(*this);
 
+  // Read back actual (as opposed to desired) buffer properties
   mode.colorBits = glfwGetWindowParam(GLFW_RED_BITS) +
                    glfwGetWindowParam(GLFW_GREEN_BITS) +
 		   glfwGetWindowParam(GLFW_BLUE_BITS);
