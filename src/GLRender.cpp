@@ -153,6 +153,9 @@ bool compatible(const Varying& varying, const VertexComponent& component)
   return false;
 }
 
+Bimap<ImageFormat, GLenum> colorFormatMap
+Bimap<ImageFormat, GLenum> depthFormatMap
+
 } /*namespace (and Gandalf)*/
 
 ///////////////////////////////////////////////////////////////////////
@@ -304,10 +307,8 @@ ScreenCanvas::ScreenCanvas(Context& context):
 
 void ScreenCanvas::apply(void) const
 {
-  /*
   if (GLEW_EXT_framebuffer_object)
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-  */
 }
 
 void ScreenCanvas::finish(void) const
@@ -318,7 +319,14 @@ void ScreenCanvas::finish(void) const
 
 bool TextureCanvas::isComplete(void) const
 {
-  return texture != NULL;
+  if (GLEW_EXT_framebuffer_object)
+  {
+    // TODO: Implement check.
+
+    return false;
+  }
+  else
+    return texture != NULL;
 }
 
 unsigned int TextureCanvas::getPhysicalWidth(void) const
@@ -333,16 +341,22 @@ unsigned int TextureCanvas::getPhysicalHeight(void) const
 
 Texture* TextureCanvas::getColorBufferTexture(void) const
 {
-  return texture;
+  return colorTexture;
 }
 
 Texture* TextureCanvas::getDepthBufferTexture(void) const
 {
-  return NULL;
+  return depthTexture;
 }
 
 bool TextureCanvas::setColorBufferTexture(Texture* newTexture, unsigned int newLevel)
 {
+  if (colorBufferID)
+  {
+    Log::writeError("Cannot replace an existing color renderbuffer");
+    return false;
+  }
+
   if (newTexture->getPhysicalWidth() != width ||
       newTexture->getPhysicalHeight() != height)
   {
@@ -350,14 +364,29 @@ bool TextureCanvas::setColorBufferTexture(Texture* newTexture, unsigned int newL
     return false;
   }
 
-  texture = newTexture;
-  level = newLevel;
+  colorTexture = newTexture;
+  colorLevel = newLevel;
   return true;
 }
 
 bool TextureCanvas::setDepthBufferTexture(Texture* newTexture, unsigned int newLevel)
 {
-  return false;
+  if (depthBufferID)
+  {
+    Log::writeError("Cannot replace an existing color renderbuffer");
+    return false;
+  }
+
+  if (newTexture->getPhysicalWidth() != width ||
+      newTexture->getPhysicalHeight() != height)
+  {
+    Log::writeError("Specified depth buffer texture does not match canvas dimensions");
+    return false;
+  }
+
+  depthTexture = newTexture;
+  depthLevel = newLevel;
+  return true;
 }
 
 TextureCanvas* TextureCanvas::createInstance(Context& context, unsigned int width, unsigned int height)
@@ -370,46 +399,94 @@ TextureCanvas* TextureCanvas::createInstance(Context& context, unsigned int widt
 }
 
 TextureCanvas::TextureCanvas(Context& context):
-  Canvas(context)
+  Canvas(context),
+  width(0),
+  height(0),
+  bufferID(0),
+  colorBufferID(0),
+  depthBufferID(0),
+  colorLevel(0),
+  depthLevel(0)
 {
 }
 
-bool TextureCanvas::init(unsigned int initWidth, unsigned int initHeight)
+bool TextureCanvas::init(unsigned int initWidth,
+                         unsigned int initHeight,
+                         ImageFormat colorFormat,
+                         ImageFormat depthFormat)
 {
+  if (colorFormatMap.isEmpty())
+  {
+    colorFormatMap[ImageFormat::RGB888] = GL_RGB8;
+    colorFormatMap[ImageFormat::RGBA8888] = GL_RGBA8;
+  }
+
+  if (depthFormatMap.isEmpty())
+  {
+    depthFormatMap[ImageFormat::DEPTH16] = GL_DEPTH_COMPONENT16;
+    depthFormatMap[ImageFormat::DEPTH24] = GL_DEPTH_COMPONENT24;
+    depthFormatMap[ImageFormat::DEPTH32] = GL_DEPTH_COMPONENT32;
+  }
+
   width = initWidth;
   height = initHeight;
 
-  /*
   if (GLEW_EXT_framebuffer_object)
   {
+    glGenFramebuffersEXT(1, &bufferID);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
+
+    if (colorFormat != ImageFormat::INVALID)
+    {
+      if (!colorFormatMap.hasKey(colorFormat))
+      {
+        Log::writeError("Unsupported color renderbuffer format \'%s\'",
+                        colorFormat.asString().c_str());
+        return false;
+      }
+
+      glGenRenderbuffersEXT(1, &colorBufferID);
+      glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, colorBufferID);
+      glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, colorFormatMap[colorFormat], width, height);
+
+#if WENDY_DEBUG
+      GLenum error = glGetError();
+      if (error != GL_NO_ERROR)
+      {
+        Log::writeError("Error during color renderbuffer creation: %s", gluErrorString(error));
+        return false;
+      }
+#endif
+    }
+
     // TODO: Implement FBO.
   }
-  */
+  else
+  {
+
 
   return true;
 }
 
 void TextureCanvas::apply(void) const
 {
-  /*
   if (GLEW_EXT_framebuffer_object)
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
-  */
 }
 
 void TextureCanvas::finish(void) const
 {
-  if (!texture)
-    return;
-
-  /*
   if (GLEW_EXT_framebuffer_object)
   {
     // TODO: Implement FBO.
   }
-  */
+  else
+  {
+    if (texture)
+      texture->copyFromColorBuffer(0, 0, level);
 
-  texture->copyFromColorBuffer(0, 0, level);
+    // TODO: Support depth texture.
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////

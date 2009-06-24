@@ -168,8 +168,12 @@ private:
   unsigned int width;
   unsigned int height;
   unsigned int bufferID;
-  Ref<Texture> texture;
-  unsigned int level;
+  unsigned int colorBufferID;
+  unsigned int depthBufferID;
+  Ref<Texture> colorTexture;
+  Ref<Texture> depthTexture;
+  unsigned int colorLevel;
+  unsigned int depthLevel;
 };
 
 ///////////////////////////////////////////////////////////////////////
