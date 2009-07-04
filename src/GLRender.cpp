@@ -153,8 +153,8 @@ bool compatible(const Varying& varying, const VertexComponent& component)
   return false;
 }
 
-Bimap<ImageFormat, GLenum> colorFormatMap
-Bimap<ImageFormat, GLenum> depthFormatMap
+Bimap<ImageFormat, GLenum> colorFormatMap;
+Bimap<ImageFormat, GLenum> depthFormatMap;
 
 } /*namespace (and Gandalf)*/
 
@@ -319,14 +319,11 @@ void ScreenCanvas::finish(void) const
 
 bool TextureCanvas::isComplete(void) const
 {
-  if (GLEW_EXT_framebuffer_object)
-  {
-    // TODO: Implement check.
+  if (not GLEW_EXT_framebuffer_object)
+    return true;
 
-    return false;
-  }
-  else
-    return texture != NULL;
+  // TODO: Implement check.
+  return false;
 }
 
 unsigned int TextureCanvas::getPhysicalWidth(void) const
