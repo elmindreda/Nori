@@ -356,108 +356,148 @@ Context& Context::operator = (const Context& source)
 
 bool Context::init(const ContextMode& initMode)
 {
-  unsigned int colorBits = initMode.colorBits;
-  if (colorBits > 24)
-    colorBits = 24;
-  
-  unsigned int flags;
-  
-  if (initMode.flags & ContextMode::WINDOWED)
-    flags = GLFW_WINDOW;
-  else
-    flags = GLFW_FULLSCREEN;
-
-  if (initMode.samples)
-    glfwOpenWindowHint(GLFW_FSAA_SAMPLES, initMode.samples);
-  
-  if (!glfwOpenWindow(initMode.width, initMode.height, 
-                      colorBits / 3, colorBits / 3, colorBits / 3, 0,
-                      initMode.depthBits, initMode.stencilBits, flags))
+  // Create context and window
   {
-    Log::writeError("Unable to create GLFW window");
-    return false;
+    unsigned int colorBits = initMode.colorBits;
+    if (colorBits > 24)
+      colorBits = 24;
+    
+    unsigned int flags;
+    
+    if (initMode.flags & ContextMode::WINDOWED)
+      flags = GLFW_WINDOW;
+    else
+      flags = GLFW_FULLSCREEN;
+
+    if (initMode.samples)
+      glfwOpenWindowHint(GLFW_FSAA_SAMPLES, initMode.samples);
+    
+    if (!glfwOpenWindow(initMode.width, initMode.height, 
+                        colorBits / 3, colorBits / 3, colorBits / 3, 0,
+                        initMode.depthBits, initMode.stencilBits, flags))
+    {
+      Log::writeError("Unable to create GLFW window");
+      return false;
+    }
+
+    // Set title (as soon as possible)
+    setTitle("Wendy");
+    glfwPollEvents();
+
+    // Read back actual (as opposed to desired) framebuffer properties
+    mode.colorBits = glfwGetWindowParam(GLFW_RED_BITS) +
+                     glfwGetWindowParam(GLFW_GREEN_BITS) +
+                     glfwGetWindowParam(GLFW_BLUE_BITS);
+    mode.depthBits = glfwGetWindowParam(GLFW_DEPTH_BITS);
+    mode.stencilBits = glfwGetWindowParam(GLFW_STENCIL_BITS);
+    mode.samples = glfwGetWindowParam(GLFW_FSAA_SAMPLES);
+    mode.flags = initMode.flags;
+
+    glfwSetWindowSizeCallback(sizeCallback);
+    glfwSetWindowCloseCallback(closeCallback);
+
+    glfwSwapInterval(1);
   }
   
-  if (glewInit() != GLEW_OK)
+  // Initialize GLEW and check extensions
   {
-    Log::writeError("Unable to initialize GLEW");
-    return false;
+    if (glewInit() != GLEW_OK)
+    {
+      Log::writeError("Unable to initialize GLEW");
+      return false;
+    }
+
+    if (!GLEW_ARB_vertex_buffer_object)
+    {
+      Log::writeError("Vertex buffer objects (ARB_vertex_buffer_object) is required but not supported");
+      return false;
+    }
+
+    if (!GLEW_ARB_texture_cube_map)
+    {
+      Log::writeError("Cube map textures (ARB_texture_cube_map) are required but not supported");
+      return false;
+    }
+
+    if (!GLEW_ARB_texture_rectangle)
+    {
+      Log::writeError("Rectangular textures (ARB_texture_rectangle) are required but not supported");
+      return false;
+    }
+
+    if (!GLEW_EXT_framebuffer_object)
+    {
+      Log::writeError("Framebuffer objects (EXT_framebuffer_object) are required but not supported");
+      return false;
+    }
   }
 
-  if (!GLEW_ARB_vertex_buffer_object)
-  {
-    Log::writeError("Vertex buffer objects (ARB_vertex_buffer_object) is required but not supported");
-    return false;
-  }
-
-  if (!GLEW_ARB_texture_cube_map)
-  {
-    Log::writeError("Cube map textures are required but not supported");
-    return false;
-  }
-
-  if (!GLEW_ARB_texture_rectangle)
-  {
-    Log::writeError("Rectangular textures are required but not supported");
-    return false;
-  }
-
+  // All extensions are there; figure out their limits
   limits = new Limits(*this);
 
-  // Read back actual (as opposed to desired) buffer properties
-  mode.colorBits = glfwGetWindowParam(GLFW_RED_BITS) +
-                   glfwGetWindowParam(GLFW_GREEN_BITS) +
-		   glfwGetWindowParam(GLFW_BLUE_BITS);
-  mode.depthBits = glfwGetWindowParam(GLFW_DEPTH_BITS);
-  mode.stencilBits = glfwGetWindowParam(GLFW_STENCIL_BITS);
-  mode.samples = glfwGetWindowParam(GLFW_FSAA_SAMPLES);
-  mode.flags = initMode.flags;
-
-  cgContextID = cgCreateContext();
-  if (!cgContextID)
+  // Initialize Cg context and profiles
   {
-    Log::writeError("Unable to create Cg context");
-    return false;
+errorCGerror error;
+
+    cgContextID = cgCreateContext();
+    if (!cgContextID)
+    {
+      Log::writeError("Unable to create Cg context: %s", cgGetErrorString(cgGetError()));
+      return false;
+    }
+
+    cgVertexProfile = cgGLGetLatestProfile(CG_GL_VERTEX);
+    if (cgVertexProfile == CG_PROFILE_UNKNOWN)
+    {
+      Log::writeError("Unable to find any usable Cg vertex profile");
+      return false;
+    }
+
+    Log::write("Cg vertex profile %s selected",
+               cgGetProfileString((CGprofile) cgVertexProfile));
+
+    cgGLEnableProfile((CGprofile) cgVertexProfile);
+    cgGLSetOptimalOptions((CGprofile) cgVertexProfile);
+
+    error = cgGetError();
+    if (error != CG_NO_ERROR)
+    {
+      Log::writeError("Failed to set up Cg vertex profile: %s", cgGetErrorString(error));
+      return false;
+    }
+
+    cgFragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
+    if (cgFragmentProfile == CG_PROFILE_UNKNOWN)
+    {
+      Log::writeError("Unable to find any usable Cg fragment profile");
+      return false;
+    }
+
+    Log::write("Cg fragment profile %s selected",
+               cgGetProfileString((CGprofile) cgFragmentProfile));
+
+    cgGLEnableProfile((CGprofile) cgFragmentProfile);
+    cgGLSetOptimalOptions((CGprofile) cgFragmentProfile);
+
+    error = cgGetError();
+    if (error != CG_NO_ERROR)
+    {
+      Log::writeError("Failed to set up Cg fragment profile: %s", cgGetErrorString(error));
+      return false;
+    }
+
+    cgGLSetManageTextureParameters((CGcontext) cgContextID, CG_TRUE);
+    cgSetLockingPolicy(CG_NO_LOCKS_POLICY);
+    cgSetParameterSettingMode((CGcontext) cgContextID, CG_IMMEDIATE_PARAMETER_SETTING);
+    cgGLSetDebugMode(CG_TRUE);
+
+    error = cgGetError();
+    if (error != CG_NO_ERROR)
+    {
+      Log::writeError("Failed to set Cg options: %s", cgGetErrorString(error));
+      return false;
+    }
   }
-
-  cgVertexProfile = cgGLGetLatestProfile(CG_GL_VERTEX);
-  if (cgVertexProfile == CG_PROFILE_UNKNOWN)
-  {
-    Log::writeError("Unable to find any usable Cg vertex profile");
-    return false;
-  }
-
-  Log::write("Cg vertex profile %s selected",
-             cgGetProfileString((CGprofile) cgVertexProfile));
-
-  cgGLEnableProfile((CGprofile) cgVertexProfile);
-  cgGLSetOptimalOptions((CGprofile) cgVertexProfile);
-
-  cgFragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
-  if (cgFragmentProfile == CG_PROFILE_UNKNOWN)
-  {
-    Log::writeError("Unable to find any usable Cg fragment profile");
-    return false;
-  }
-
-  Log::write("Cg fragment profile %s selected",
-             cgGetProfileString((CGprofile) cgFragmentProfile));
-
-  cgGLEnableProfile((CGprofile) cgFragmentProfile);
-  cgGLSetOptimalOptions((CGprofile) cgFragmentProfile);
-
-  cgGLSetManageTextureParameters((CGcontext) cgContextID, CG_TRUE);
-  cgSetLockingPolicy(CG_NO_LOCKS_POLICY);
-  cgSetParameterSettingMode((CGcontext) cgContextID, CG_IMMEDIATE_PARAMETER_SETTING);
-  cgGLSetDebugMode(CG_TRUE);
-
-  glfwSetWindowSizeCallback(sizeCallback);
-  glfwSetWindowCloseCallback(closeCallback);
-
-  //glfwSwapInterval(1);
-
-  setTitle("Wendy");
-  glfwPollEvents();
 
   return true;
 }
@@ -477,13 +517,10 @@ int Context::closeCallback(void)
 
   instance->closeRequestSignal.emit(results);
 
-  for (ResultList::const_iterator i = results.begin();  i != results.end();  i++)
-  {
-    if (!(*i))
-      return 0;
-  }
+  if (std::find(results.begin(), results.end(), false) == results.end())
+    return 1;
 
-  return 1;
+  return 0;
 }
 
 Context* Context::instance = NULL;
