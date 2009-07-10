@@ -279,7 +279,7 @@ void VertexBuffer::apply(void) const
 
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
 
-#if _DEBUG
+#if WENDY_DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
   {
@@ -494,7 +494,7 @@ void IndexBuffer::apply(void) const
 
   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
 
-#if _DEBUG
+#if WENDY_DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
   {

@@ -261,7 +261,7 @@ void StencilState::apply(void) const
     }
   }
 
-#if _DEBUG
+#if WENDY_DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
     Log::writeError("Error when applying stencil state: %s", gluErrorString(error));
@@ -356,7 +356,7 @@ void StencilState::force(void) const
   glStencilFunc(data.function, data.reference, data.writeMask);
   glStencilOp(data.stencilFailed, data.depthFailed, data.depthPassed);
 
-#if _DEBUG
+#if WENDY_DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
     Log::writeWarning("Error when forcing stencil state: %s", gluErrorString(error));
@@ -819,7 +819,7 @@ void RenderState::apply(void) const
     cache.wireframe = data.wireframe;
   }
   
-#if _DEBUG
+#if WENDY_DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
     Log::writeError("Error when applying render state: %s", gluErrorString(error));
@@ -971,7 +971,7 @@ void RenderState::force(void) const
   const GLenum polygonMode = data.wireframe ? GL_LINE : GL_FILL;
   glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
 
-#if _DEBUG
+#if WENDY_DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
     Log::writeWarning("Error when forcing render pass: %s", gluErrorString(error));
