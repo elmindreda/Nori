@@ -153,8 +153,8 @@ bool compatible(const Varying& varying, const VertexComponent& component)
   return false;
 }
 
-Bimap<ImageFormat, GLenum> colorFormatMap
-Bimap<ImageFormat, GLenum> depthFormatMap
+Bimap<ImageFormat, GLenum> colorFormatMap;
+Bimap<ImageFormat, GLenum> depthFormatMap;
 
 } /*namespace (and Gandalf)*/
 
@@ -313,6 +313,7 @@ void ScreenCanvas::apply(void) const
 
 void ScreenCanvas::finish(void) const
 {
+  // Nothing to do here.
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -325,8 +326,8 @@ bool TextureCanvas::isComplete(void) const
 
     return false;
   }
-  else
-    return texture != NULL;
+
+  return true;
 }
 
 unsigned int TextureCanvas::getPhysicalWidth(void) const
@@ -463,7 +464,7 @@ bool TextureCanvas::init(unsigned int initWidth,
   }
   else
   {
-
+  }
 
   return true;
 }
@@ -990,7 +991,7 @@ bool Renderer::init(void)
     generator.setCheckerColor(ColorRGBA(0.f, 1.f, 0.f, 1.f));
     generator.setCheckerSize(5);
 
-    Ptr<Image> image(generator.generate(ImageFormat::RGB888, 20, 20));
+    Ptr<moira::Image> image(generator.generate(ImageFormat::RGB888, 20, 20));
     if (!image)
     {
       Log::writeError("Failed to create image data for default texture");

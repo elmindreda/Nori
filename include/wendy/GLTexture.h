@@ -37,6 +37,10 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+class Texture;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Texture sampler filtering mode.
  *  @ingroup opengl
  */
@@ -75,6 +79,31 @@ enum AddressMode
 /*! @brief %Texture image object.
  *  @ingroup opengl
  */
+class TextureImage : public Image
+{
+  friend class Texture;
+public:
+  unsigned int getWidth(void) const;
+  unsigned int getHeight(void) const;
+  unsigned int getLevel(void) const;
+  unsigned int getZ(void) const;
+  ImageCube::Face getFace(void) const;
+  const ImageFormat& getFormat(void) const;
+  moira::Image* getPixels(void) const;
+  Texture& getTexture(void) const;
+private:
+  TextureImage(Texture& texture);
+  Texture& texture;
+  unsigned int level;
+  unsigned int z;
+  ImageCube::Face face;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief %Texture object.
+ *  @ingroup opengl
+ */
 class Texture : public Resource<Texture>, public RefObject
 {
   friend class Sampler;
@@ -100,14 +129,19 @@ public:
   /*! Updates the area at the specified coordinates in the specified mipmap
    *  level with the contents of the specified image.
    */
-  bool copyFrom(const Image& source,
+  bool copyFrom(const moira::Image& source,
                 unsigned int x,
 		unsigned int y,
 		unsigned int level = 0);
   bool copyFromColorBuffer(unsigned int x,
 		           unsigned int y,
 		           unsigned int level = 0);
+  /*! @return @c true if this texture's dimensions are power of two, otherwise
+   *  @c false.
+   */
   bool isPOT(void) const;
+  /*! @return @c true if this texture is mipmapped, otherwise @c false.
+   */
   bool isMipmapped(void) const;
   /*! @return The width, in pixels, of the source for specified mipmap level.
    *  @param[in] level The desired mipmap level.
@@ -154,10 +188,6 @@ public:
   /*! @return The image format of this texture.
    */
   const ImageFormat& getFormat(void) const;
-  /*! @param[in] level The desired mipmap level.
-   *  @return A copy of the image data of the specified mipmap level.
-   */
-  Image* getImage(unsigned int level = 0) const;
   Context& getContext(void) const;
   /*! Creates a texture from the specified image.
    *  @param[in] image The image data to use.
@@ -166,13 +196,13 @@ public:
    *  automatically generate a name.
    */
   static Texture* createInstance(Context& context,
-                                 const Image& image,
+                                 const moira::Image& image,
                                  unsigned int flags,
 				 const String& name = "");
 private:
   Texture(Context& context, const String& name);
   Texture(const Texture& source);
-  bool init(const Image& image, unsigned int flags);
+  bool init(const moira::Image& image, unsigned int flags);
   Texture& operator = (const Texture& source);
   Context& context;
   unsigned int textureTarget;

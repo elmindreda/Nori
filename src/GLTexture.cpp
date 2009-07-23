@@ -160,12 +160,12 @@ Texture::~Texture(void)
     glDeleteTextures(1, &textureID);
 }
 
-bool Texture::copyFrom(const Image& source,
+bool Texture::copyFrom(const moira::Image& source,
                        unsigned int x,
 		       unsigned int y,
 		       unsigned int level)
 {
-  Image final = source;
+  moira::Image final = source;
   final.convertTo(format);
 
   // Moira has y-axis down, OpenGL has y-axis up
@@ -373,7 +373,7 @@ const ImageFormat& Texture::getFormat(void) const
   return format;
 }
 
-Image* Texture::getImage(unsigned int level) const
+moira::Image* Texture::getImage(unsigned int level) const
 {
   if (getPhysicalWidth(level) == 0 || getPhysicalHeight(level) == 0)
   {
@@ -383,9 +383,9 @@ Image* Texture::getImage(unsigned int level) const
     return NULL;
   }
 
-  Ptr<Image> result;
+  Ptr<moira::Image> result;
   
-  result = new Image(format, getPhysicalWidth(level), getPhysicalHeight(level));
+  result = new moira::Image(format, getPhysicalWidth(level), getPhysicalHeight(level));
 
   glPushAttrib(GL_TEXTURE_BIT | GL_PIXEL_MODE_BIT);
   glBindTexture(textureTarget, textureID);
@@ -419,7 +419,7 @@ Context& Texture::getContext(void) const
 }
 
 Texture* Texture::createInstance(Context& context,
-                                 const Image& image,
+                                 const moira::Image& image,
 				 unsigned int flags,
 				 const String& name)
 {
@@ -454,7 +454,7 @@ Texture::Texture(const Texture& source):
 {
 }
 
-bool Texture::init(const Image& image, unsigned int initFlags)
+bool Texture::init(const moira::Image& image, unsigned int initFlags)
 {
   if (!Context::get())
   {
@@ -523,7 +523,7 @@ bool Texture::init(const Image& image, unsigned int initFlags)
   sourceWidth = image.getWidth();
   sourceHeight = image.getHeight();
 
-  Image source = image;
+  moira::Image source = image;
 
   // Adapt source image to OpenGL restrictions
   {

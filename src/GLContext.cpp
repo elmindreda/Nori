@@ -241,12 +241,12 @@ unsigned int Context::getStencilBits(void) const
   return mode.stencilBits;
 }
 
-Image* Context::getColorBuffer(void) const
+moira::Image* Context::getColorBuffer(void) const
 {
   // TODO: Update this when adding FBO support.
   // TODO: Eliminate stack and pixel option usage.
 
-  Ptr<Image> result(new Image(ImageFormat::RGB888, mode.width, mode.height));
+  Ptr<moira::Image> result(new moira::Image(ImageFormat::RGB888, mode.width, mode.height));
 
   glPushAttrib(GL_PIXEL_MODE_BIT);
   glPixelStorei(GL_PACK_ALIGNMENT, 1);

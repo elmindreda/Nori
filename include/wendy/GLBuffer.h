@@ -444,6 +444,29 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+class RenderBuffer : public Image, public Managed<RenderBuffer>
+{
+public:
+  virtual ~RenderBuffer(void);
+  unsigned int getWidth(void) const;
+  unsigned int getHeight(void) const;
+  const ImageFormat& getFormat(void) const;
+  moira::Image* getPixels(void) const;
+  static RenderBuffer* createInstance(const ImageFormat& format,
+                                      unsigned int width,
+                                      unsigned int height,
+                                      const String& name = "");
+private:
+  RenderBuffer(const String& name);
+  bool init(const ImageFormat& format, unsigned int width, unsigned int height);
+  unsigned int bufferID;
+  unsigned int width;
+  unsigned int height;
+  ImageFormat format;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 template <typename T>
 inline VertexRangeLock<T>::VertexRangeLock(VertexRange& initRange):
   range(initRange),

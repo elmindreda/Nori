@@ -103,7 +103,7 @@ bool TextureCodec::write(Stream& stream, const Texture& texture)
     addAttribute("filter", filterModeMap[texture.getFilterMode()]);
     addAttribute("address", addressModeMap[texture.getAddressMode()]);
 
-    // TODO: Uhm...
+    // TODO: Write all zero-level images?
 
     endElement();
 
@@ -145,7 +145,7 @@ bool TextureCodec::onBeginElement(const String& name)
       return false;
     }
 
-    Ref<Image> image = Image::readInstance(imageName);
+    Ref<moira::Image> image = moira::Image::readInstance(imageName);
     if (!image)
     {
       Log::writeError("Failed to load image %s for texture %s",
