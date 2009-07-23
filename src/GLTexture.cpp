@@ -216,7 +216,7 @@ bool Texture::copyFrom(const moira::Image& source,
     glPopAttrib();
   }
 
-#if _DEBUG
+#if WENDY_DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
   {
@@ -257,7 +257,7 @@ bool Texture::copyFromColorBuffer(unsigned int x, unsigned int y, unsigned int l
 
   glPopAttrib();
 
-#if _DEBUG
+#if WENDY_DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
   {
@@ -399,7 +399,7 @@ moira::Image* Texture::getImage(unsigned int level) const
   
   glPopAttrib();
 
-#if _DEBUG
+#if WENDY_DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
   {

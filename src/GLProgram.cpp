@@ -297,7 +297,7 @@ void Varying::enable(size_t stride, size_t offset)
 {
   cgGLEnableClientState((CGparameter) varyingID);
 
-#if _DEBUG
+#if WENDY_DEBUG
   {
     CGerror error = cgGetError();
     if (error != CG_NO_ERROR)
@@ -311,7 +311,7 @@ void Varying::enable(size_t stride, size_t offset)
 			  stride,
 			  (const void*) offset);
 
-#if _DEBUG
+#if WENDY_DEBUG
   {
     CGerror error = cgGetError();
     if (error != CG_NO_ERROR)
@@ -324,7 +324,7 @@ void Varying::disable(void)
 {
   cgGLDisableClientState((CGparameter) varyingID);
 
-#if _DEBUG
+#if WENDY_DEBUG
   CGerror error = cgGetError();
   if (error != CG_NO_ERROR)
     Log::writeError("Failed to disable varying %s: %s", name.c_str(), cgGetErrorString(error));
@@ -497,7 +497,7 @@ void Sampler::setTexture(Texture& newTexture)
 {
   cgGLSetTextureParameter((CGparameter) samplerID, newTexture.textureID);
 
-#if _DEBUG
+#if WENDY_DEBUG
   {
     CGerror error = cgGetError();
     if (error != CG_NO_ERROR)
