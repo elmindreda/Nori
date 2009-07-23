@@ -320,14 +320,11 @@ void ScreenCanvas::finish(void) const
 
 bool TextureCanvas::isComplete(void) const
 {
-  if (GLEW_EXT_framebuffer_object)
-  {
-    // TODO: Implement check.
+  if (not GLEW_EXT_framebuffer_object)
+    return true;
 
-    return false;
-  }
-
-  return true;
+  // TODO: Implement check.
+  return false;
 }
 
 unsigned int TextureCanvas::getPhysicalWidth(void) const
