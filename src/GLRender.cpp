@@ -307,8 +307,7 @@ ScreenCanvas::ScreenCanvas(Context& context):
 
 void ScreenCanvas::apply(void) const
 {
-  if (GLEW_EXT_framebuffer_object)
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
 void ScreenCanvas::finish(void) const
@@ -320,9 +319,6 @@ void ScreenCanvas::finish(void) const
 
 bool TextureCanvas::isComplete(void) const
 {
-  if (not GLEW_EXT_framebuffer_object)
-    return true;
-
   // TODO: Implement check.
   return false;
 }
@@ -429,62 +425,44 @@ bool TextureCanvas::init(unsigned int initWidth,
   width = initWidth;
   height = initHeight;
 
-  if (GLEW_EXT_framebuffer_object)
+  glGenFramebuffersEXT(1, &bufferID);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
+
+  if (colorFormat != ImageFormat::INVALID)
   {
-    glGenFramebuffersEXT(1, &bufferID);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
-
-    if (colorFormat != ImageFormat::INVALID)
+    if (!colorFormatMap.hasKey(colorFormat))
     {
-      if (!colorFormatMap.hasKey(colorFormat))
-      {
-        Log::writeError("Unsupported color renderbuffer format \'%s\'",
-                        colorFormat.asString().c_str());
-        return false;
-      }
-
-      glGenRenderbuffersEXT(1, &colorBufferID);
-      glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, colorBufferID);
-      glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, colorFormatMap[colorFormat], width, height);
-
-#if WENDY_DEBUG
-      GLenum error = glGetError();
-      if (error != GL_NO_ERROR)
-      {
-        Log::writeError("Error during color renderbuffer creation: %s", gluErrorString(error));
-        return false;
-      }
-#endif
+      Log::writeError("Unsupported color renderbuffer format \'%s\'",
+                      colorFormat.asString().c_str());
+      return false;
     }
 
-    // TODO: Implement FBO.
-  }
-  else
-  {
-  }
+    glGenRenderbuffersEXT(1, &colorBufferID);
+    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, colorBufferID);
+    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, colorFormatMap[colorFormat], width, height);
+
+#if WENDY_DEBUG
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR)
+    {
+      Log::writeError("Error during color renderbuffer creation: %s", gluErrorString(error));
+      return false;
+    }
+#endif
+
+  // TODO: Implement FBO.
 
   return true;
 }
 
 void TextureCanvas::apply(void) const
 {
-  if (GLEW_EXT_framebuffer_object)
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
 }
 
 void TextureCanvas::finish(void) const
 {
-  if (GLEW_EXT_framebuffer_object)
-  {
-    // TODO: Implement FBO.
-  }
-  else
-  {
-    if (texture)
-      texture->copyFromColorBuffer(0, 0, level);
-
-    // TODO: Support depth texture.
-  }
+  // TODO: Implement FBO.
 }
 
 ///////////////////////////////////////////////////////////////////////
