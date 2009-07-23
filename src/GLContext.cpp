@@ -437,7 +437,7 @@ bool Context::init(const ContextMode& initMode)
 
   // Initialize Cg context and profiles
   {
-errorCGerror error;
+    CGerror error;
 
     cgContextID = cgCreateContext();
     if (!cgContextID)
