@@ -404,11 +404,9 @@ TextureCanvas::TextureCanvas(Context& context):
 {
 }
 
-bool TextureCanvas::init(unsigned int initWidth,
-                         unsigned int initHeight,
-                         ImageFormat colorFormat,
-                         ImageFormat depthFormat)
+bool TextureCanvas::init(unsigned int initWidth, unsigned int initHeight)
 {
+  /*
   if (colorFormatMap.isEmpty())
   {
     colorFormatMap[ImageFormat::RGB888] = GL_RGB8;
@@ -421,6 +419,7 @@ bool TextureCanvas::init(unsigned int initWidth,
     depthFormatMap[ImageFormat::DEPTH24] = GL_DEPTH_COMPONENT24;
     depthFormatMap[ImageFormat::DEPTH32] = GL_DEPTH_COMPONENT32;
   }
+  */
 
   width = initWidth;
   height = initHeight;
@@ -428,6 +427,7 @@ bool TextureCanvas::init(unsigned int initWidth,
   glGenFramebuffersEXT(1, &bufferID);
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
 
+  /*
   if (colorFormat != ImageFormat::INVALID)
   {
     if (!colorFormatMap.hasKey(colorFormat))
@@ -440,17 +440,17 @@ bool TextureCanvas::init(unsigned int initWidth,
     glGenRenderbuffersEXT(1, &colorBufferID);
     glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, colorBufferID);
     glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, colorFormatMap[colorFormat], width, height);
+  }
+  */
 
 #if WENDY_DEBUG
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR)
-    {
-      Log::writeError("Error during color renderbuffer creation: %s", gluErrorString(error));
-      return false;
-    }
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+  {
+    Log::writeError("Error during color renderbuffer creation: %s", gluErrorString(error));
+    return false;
+  }
 #endif
-
-  // TODO: Implement FBO.
 
   return true;
 }
