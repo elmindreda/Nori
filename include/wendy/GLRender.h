@@ -148,18 +148,16 @@ public:
   unsigned int getPhysicalHeight(void) const;
   /*! @return The texture that this canvas uses as a color buffer.
    */
-  Texture* getColorBufferTexture(void) const;
-  Texture* getDepthBufferTexture(void) const;
-  /*! Sets the texture to use as the color buffer for this canvas.
-   *  @param[in] newTexture The desired texture, or @c NULL to detach the currently set texture.
-   *  @param[in] newLevel If a texture is specified, the desired mipmap level of the texture to use.
-   *  @remarks A texture canvas cannot be rendered to without a texture to use as color buffer.
+  Image* getColorBuffer(void) const;
+  Image* getDepthBuffer(void) const;
+  /*! Sets the image to use as the color buffer for this canvas.
+   *  @param[in] newImage The desired image, or @c NULL to detach the currently set image.
    */
-  bool setColorBufferTexture(Texture* newTexture, unsigned int newLevel = 0);
-  bool setDepthBufferTexture(Texture* newTexture, unsigned int newLevel = 0);
+  bool setColorBuffer(Image* newImage);
+  bool setDepthBuffer(Image* newImage);
   /*! Creates a texture canvas for the specified texture.
    */
-  static TextureCanvas* createInstance(Context& context, unsigned int width, unsigned int height);
+  static TextureCanvas* createInstance(Context& context);
 private:
   TextureCanvas(Context& context);
   bool init(unsigned int width, unsigned int height);
@@ -168,12 +166,8 @@ private:
   unsigned int width;
   unsigned int height;
   unsigned int bufferID;
-  unsigned int colorBufferID;
-  unsigned int depthBufferID;
-  Ref<Texture> colorTexture;
-  Ref<Texture> depthTexture;
-  unsigned int colorLevel;
-  unsigned int depthLevel;
+  Ref<Image> colorBuffer;
+  Ref<Image> depthBuffer;
 };
 
 ///////////////////////////////////////////////////////////////////////
