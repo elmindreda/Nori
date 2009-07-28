@@ -171,6 +171,7 @@ public:
   /*! @return The number of mipmap levels in this texture.
    */
   unsigned int getLevelCount(void) const;
+  Image& getImage(unsigned int level = 0);
   /*! @return The sampler filter mode of this texture.
    */
   FilterMode getFilterMode(void) const;
@@ -204,6 +205,7 @@ private:
   Texture(const Texture& source);
   bool init(const moira::Image& image, unsigned int flags);
   Texture& operator = (const Texture& source);
+  typedef std::vector<ImageRef> ImageList;
   Context& context;
   unsigned int textureTarget;
   unsigned int textureID;
@@ -218,6 +220,7 @@ private:
   FilterMode filterMode;
   AddressMode addressMode;
   ImageFormat format;
+  ImageList images;
 };
 
 ///////////////////////////////////////////////////////////////////////

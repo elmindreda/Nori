@@ -310,11 +310,6 @@ void ScreenCanvas::apply(void) const
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
-void ScreenCanvas::finish(void) const
-{
-  // Nothing to do here.
-}
-
 ///////////////////////////////////////////////////////////////////////
 
 bool TextureCanvas::isComplete(void) const
@@ -333,53 +328,43 @@ unsigned int TextureCanvas::getPhysicalHeight(void) const
   return height;
 }
 
-Texture* TextureCanvas::getColorBufferTexture(void) const
+Image* TextureCanvas::getColorBuffer(void) const
 {
-  return colorTexture;
+  return colorBuffer;
 }
 
-Texture* TextureCanvas::getDepthBufferTexture(void) const
+Image* TextureCanvas::getDepthBuffer(void) const
 {
-  return depthTexture;
+  return depthBuffer;
 }
 
-bool TextureCanvas::setColorBufferTexture(Texture* newTexture, unsigned int newLevel)
+bool TextureCanvas::setColorBuffer(Image* newImage)
 {
-  if (colorBufferID)
+  if (newImage)
   {
-    Log::writeError("Cannot replace an existing color renderbuffer");
-    return false;
+    if (newImage->getWidth() != width || newImage->getHeight() != height)
+    {
+      Log::writeError("Specified color buffer does not match canvas dimensions");
+      return false;
+    }
   }
 
-  if (newTexture->getPhysicalWidth() != width ||
-      newTexture->getPhysicalHeight() != height)
-  {
-    Log::writeError("Specified color buffer texture does not match canvas dimensions");
-    return false;
-  }
-
-  colorTexture = newTexture;
-  colorLevel = newLevel;
+  colorBuffer = newImage;
   return true;
 }
 
-bool TextureCanvas::setDepthBufferTexture(Texture* newTexture, unsigned int newLevel)
+bool TextureCanvas::setDepthBuffer(Image* newImage)
 {
-  if (depthBufferID)
+  if (newImage)
   {
-    Log::writeError("Cannot replace an existing color renderbuffer");
-    return false;
+    if (newImage->getWidth() != width || newImage->getHeight() != height)
+    {
+      Log::writeError("Specified depth buffer does not match canvas dimensions");
+      return false;
+    }
   }
 
-  if (newTexture->getPhysicalWidth() != width ||
-      newTexture->getPhysicalHeight() != height)
-  {
-    Log::writeError("Specified depth buffer texture does not match canvas dimensions");
-    return false;
-  }
-
-  depthTexture = newTexture;
-  depthLevel = newLevel;
+  depthBuffer = newImage;
   return true;
 }
 
@@ -396,52 +381,17 @@ TextureCanvas::TextureCanvas(Context& context):
   Canvas(context),
   width(0),
   height(0),
-  bufferID(0),
-  colorBufferID(0),
-  depthBufferID(0),
-  colorLevel(0),
-  depthLevel(0)
+  bufferID(0)
 {
 }
 
 bool TextureCanvas::init(unsigned int initWidth, unsigned int initHeight)
 {
-  /*
-  if (colorFormatMap.isEmpty())
-  {
-    colorFormatMap[ImageFormat::RGB888] = GL_RGB8;
-    colorFormatMap[ImageFormat::RGBA8888] = GL_RGBA8;
-  }
-
-  if (depthFormatMap.isEmpty())
-  {
-    depthFormatMap[ImageFormat::DEPTH16] = GL_DEPTH_COMPONENT16;
-    depthFormatMap[ImageFormat::DEPTH24] = GL_DEPTH_COMPONENT24;
-    depthFormatMap[ImageFormat::DEPTH32] = GL_DEPTH_COMPONENT32;
-  }
-  */
-
   width = initWidth;
   height = initHeight;
 
   glGenFramebuffersEXT(1, &bufferID);
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
-
-  /*
-  if (colorFormat != ImageFormat::INVALID)
-  {
-    if (!colorFormatMap.hasKey(colorFormat))
-    {
-      Log::writeError("Unsupported color renderbuffer format \'%s\'",
-                      colorFormat.asString().c_str());
-      return false;
-    }
-
-    glGenRenderbuffersEXT(1, &colorBufferID);
-    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, colorBufferID);
-    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, colorFormatMap[colorFormat], width, height);
-  }
-  */
 
 #if WENDY_DEBUG
   GLenum error = glGetError();
@@ -458,11 +408,6 @@ bool TextureCanvas::init(unsigned int initWidth, unsigned int initHeight)
 void TextureCanvas::apply(void) const
 {
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
-}
-
-void TextureCanvas::finish(void) const
-{
-  // TODO: Implement FBO.
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -821,7 +766,6 @@ bool Renderer::setCurrentCanvas(Canvas& newCanvas)
   if (!newCanvas.isComplete())
     return false;
 
-  currentCanvas->finish();
   currentCanvas = &newCanvas;
   currentCanvas->apply();
 

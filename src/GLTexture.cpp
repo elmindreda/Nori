@@ -28,6 +28,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/GLContext.h>
+#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
 
 #define GLEW_STATIC
@@ -373,8 +374,13 @@ const ImageFormat& Texture::getFormat(void) const
   return format;
 }
 
-moira::Image* Texture::getImage(unsigned int level) const
+Image& Texture::getImage(unsigned int level)
 {
+  if (level >= images.size())
+    throw Exception("Invalid mipmap level");
+
+  return *images[level];
+  /*
   if (getPhysicalWidth(level) == 0 || getPhysicalHeight(level) == 0)
   {
     Log::writeError("Cannot retrieve image for non-existent level %u of texture \'%s\'",
@@ -411,6 +417,7 @@ moira::Image* Texture::getImage(unsigned int level) const
   result->flipHorizontal();
 
   return result.detachObject();
+  */
 }
 
 Context& Texture::getContext(void) const

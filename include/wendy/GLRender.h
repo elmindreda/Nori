@@ -110,7 +110,6 @@ protected:
   /*! Called when this canvas is to be made current.
    */
   virtual void apply(void) const = 0;
-  virtual void finish(void) const = 0;
 private:
   Canvas(const Canvas& source);
   Canvas& operator = (const Canvas& source);
@@ -132,7 +131,6 @@ public:
 private:
   ScreenCanvas(Context& context);
   void apply(void) const;
-  void finish(void) const;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -157,12 +155,11 @@ public:
   bool setDepthBuffer(Image* newImage);
   /*! Creates a texture canvas for the specified texture.
    */
-  static TextureCanvas* createInstance(Context& context);
+  static TextureCanvas* createInstance(Context& context, unsigned int width, unsigned int height);
 private:
   TextureCanvas(Context& context);
   bool init(unsigned int width, unsigned int height);
   void apply(void) const;
-  void finish(void) const;
   unsigned int width;
   unsigned int height;
   unsigned int bufferID;

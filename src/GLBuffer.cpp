@@ -29,6 +29,7 @@
 
 #include <wendy/GLContext.h>
 #include <wendy/GLVertex.h>
+#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
 
@@ -218,6 +219,7 @@ VertexBuffer* VertexBuffer::createInstance(unsigned int count,
 VertexBuffer::VertexBuffer(const String& name):
   Managed<VertexBuffer>(name),
   locked(false),
+  bufferID(0),
   count(0),
   usage(STATIC)
 {
@@ -435,6 +437,7 @@ size_t IndexBuffer::getTypeSize(Type type)
 IndexBuffer::IndexBuffer(const String& name):
   Managed<IndexBuffer>(name),
   locked(false),
+  bufferID(0),
   type(UINT),
   usage(STATIC),
   count(0)
@@ -809,6 +812,74 @@ unsigned int PrimitiveRange::getStart(void) const
 unsigned int PrimitiveRange::getCount(void) const
 {
   return count;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+RenderBuffer::~RenderBuffer(void)
+{
+  if (bufferID)
+    glDeleteRenderbuffersEXT(1, &bufferID);
+}
+
+unsigned int RenderBuffer::getWidth(void) const
+{
+  return width;
+}
+
+unsigned int RenderBuffer::getHeight(void) const
+{
+  return height;
+}
+
+const ImageFormat& RenderBuffer::getFormat(void) const
+{
+  return format;
+}
+
+moira::Image* RenderBuffer::getPixels(void) const
+{
+  return NULL;
+}
+
+RenderBuffer* RenderBuffer::createInstance(const ImageFormat& format,
+                                           unsigned int width,
+                                           unsigned int height,
+                                           const String& name)
+{
+  Ptr<RenderBuffer> buffer(new RenderBuffer(name));
+  if (!buffer->init(format, width, height))
+    return NULL;
+    
+  return buffer.detachObject();
+}
+
+RenderBuffer::RenderBuffer(const String& name):
+  Managed<RenderBuffer>(name),
+  bufferID(0)
+{
+}
+
+bool RenderBuffer::init(const ImageFormat& format,
+                        unsigned int initWidth,
+                        unsigned int initHeight)
+{
+  width = initWidth;
+  height = initHeight;
+
+  glGenRenderbuffersEXT(1, &bufferID);
+  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, bufferID);
+
+#if WENDY_DEBUG
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+  {
+    Log::writeError("Error during renderbuffer creation: %s", gluErrorString(error));
+    return false;
+  }
+#endif
+
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////
