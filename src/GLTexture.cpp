@@ -151,6 +151,54 @@ GLint convertFilterMode(FilterMode mode, bool mipmapped)
 Bimap<ImageFormat::Type, GLenum> formatMap;
 Bimap<ImageFormat::Type, GLenum> genericFormatMap;
 
+} /*namespace*/
+
+///////////////////////////////////////////////////////////////////////
+
+unsigned int TextureImage::getWidth(void) const
+{
+  return texture.getPhysicalWidth(level);
+}
+
+unsigned int TextureImage::getHeight(void) const
+{
+  return texture.getPhysicalHeight(level);
+}
+
+unsigned int TextureImage::getLevel(void) const
+{
+  return level;
+}
+
+unsigned int TextureImage::getZ(void) const
+{
+  return 0;
+}
+
+ImageCube::Face TextureImage::getFace(void) const
+{
+  return face;
+}
+
+const ImageFormat& TextureImage::getFormat(void) const
+{
+  return texture.getFormat();
+}
+
+moira::Image* TextureImage::getPixels(void) const
+{
+  return NULL;
+}
+
+Texture& TextureImage::getTexture(void) const
+{
+  return texture;
+}
+
+TextureImage::TextureImage(Texture& initTexture, unsigned int initLevel):
+  texture(initTexture),
+  level(initLevel)
+{
 }
 
 ///////////////////////////////////////////////////////////////////////
