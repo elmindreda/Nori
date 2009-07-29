@@ -22,6 +22,7 @@ endif(WENDY_INCLUDE_DEMO_SYSTEM)
 
 add_library(wendy STATIC ${wendy_SOURCES})
 add_dependencies(wendy moira)
+set_target_properties(wendy PROPERTIES COMPILE_DEFINITIONS_DEBUG WENDY_DEBUG)
 
 install(TARGETS wendy ARCHIVE DESTINATION lib)
 
