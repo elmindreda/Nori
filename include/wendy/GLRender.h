@@ -41,6 +41,10 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+class Image;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief %Render statistics.
  *  @ingroup opengl
  */
@@ -163,8 +167,8 @@ private:
   unsigned int width;
   unsigned int height;
   unsigned int bufferID;
-  Ref<Image> colorBuffer;
-  Ref<Image> depthBuffer;
+  ImageRef colorBuffer;
+  ImageRef depthBuffer;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -37,6 +37,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+class Image;
 class Texture;
 
 ///////////////////////////////////////////////////////////////////////
@@ -92,12 +93,16 @@ public:
   moira::Image* getPixels(void) const;
   Texture& getTexture(void) const;
 private:
-  TextureImage(Texture& texture);
+  TextureImage(Texture& texture, unsigned int level);
   Texture& texture;
   unsigned int level;
   unsigned int z;
   ImageCube::Face face;
 };
+
+///////////////////////////////////////////////////////////////////////
+
+typedef Ref<TextureImage> TextureImageRef;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -171,7 +176,7 @@ public:
   /*! @return The number of mipmap levels in this texture.
    */
   unsigned int getLevelCount(void) const;
-  Image& getImage(unsigned int level = 0);
+  TextureImage& getImage(unsigned int level = 0);
   /*! @return The sampler filter mode of this texture.
    */
   FilterMode getFilterMode(void) const;
@@ -205,7 +210,7 @@ private:
   Texture(const Texture& source);
   bool init(const moira::Image& image, unsigned int flags);
   Texture& operator = (const Texture& source);
-  typedef std::vector<ImageRef> ImageList;
+  typedef std::vector<TextureImageRef> ImageList;
   Context& context;
   unsigned int textureTarget;
   unsigned int textureID;
@@ -215,7 +220,6 @@ private:
   unsigned int physicalWidth;
   unsigned int physicalHeight;
   unsigned int physicalDepth;
-  unsigned int levelCount;
   unsigned int flags;
   FilterMode filterMode;
   AddressMode addressMode;

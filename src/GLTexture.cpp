@@ -315,7 +315,7 @@ unsigned int Texture::getPhysicalDepth(unsigned int level) const
 
 unsigned int Texture::getLevelCount(void) const
 {
-  return levelCount;
+  return images.size();
 }
 
 FilterMode Texture::getFilterMode(void) const
@@ -374,7 +374,7 @@ const ImageFormat& Texture::getFormat(void) const
   return format;
 }
 
-Image& Texture::getImage(unsigned int level)
+TextureImage& Texture::getImage(unsigned int level)
 {
   if (level >= images.size())
     throw Exception("Invalid mipmap level");
@@ -448,7 +448,6 @@ Texture::Texture(Context& initContext, const String& name):
   physicalWidth(0),
   physicalHeight(0),
   physicalDepth(0),
-  levelCount(0),
   flags(0),
   filterMode(FILTER_BILINEAR),
   addressMode(ADDRESS_WRAP)
@@ -602,10 +601,18 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
                         source.getPixels());
     }
 
+    unsigned int count;
+
     if (flags & RECTANGULAR)
-      levelCount = (unsigned int) (1.f + floorf(log2f((float) std::max(sourceWidth, sourceHeight))));
+      count = (unsigned int) (1.f + floorf(log2f((float) std::max(sourceWidth, sourceHeight))));
     else
-      levelCount = (unsigned int) log2f((float) std::max(sourceWidth, sourceHeight));
+      count = (unsigned int) log2f((float) std::max(sourceWidth, sourceHeight));
+
+    for (unsigned int i = 0;  i < count;  i++)
+    {
+      TextureImageRef image = new TextureImage(*this, i);
+      images.push_back(image);
+    }
   }
   else
   {
@@ -633,7 +640,8 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
                    source.getPixels());
     }
 
-    levelCount = 1;
+    TextureImageRef image = new TextureImage(*this, 0);
+    images.push_back(image);
   }
 
   if (flags & MIPMAPPED)

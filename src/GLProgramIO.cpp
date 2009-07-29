@@ -28,6 +28,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/GLContext.h>
+#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
 

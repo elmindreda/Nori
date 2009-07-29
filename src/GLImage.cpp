@@ -1,6 +1,6 @@
-//////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 // Wendy OpenGL library
-// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2009 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -29,28 +29,12 @@
 
 #include <wendy/GLContext.h>
 #include <wendy/GLImage.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLVertex.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLProgram.h>
-#include <wendy/GLRender.h>
-#include <wendy/GLState.h>
-
-#include <wendy/RenderMaterial.h>
-#include <wendy/RenderFont.h>
-
-#include <wendy/Input.h>
-
-#include <wendy/UIRender.h>
-#include <wendy/UIDesktop.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UIWindow.h>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace UI
+  namespace GL
   {
   
 ///////////////////////////////////////////////////////////////////////
@@ -59,29 +43,13 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Window::Window(const String& initTitle):
-  title(initTitle)
+Image::~Image(void)
 {
-}
-
-void Window::draw(void) const
-{
-  const Rect& area = getGlobalArea();
-
-  Renderer* renderer = Renderer::get();
-  if (renderer->pushClipArea(area))
-  {
-    renderer->drawFrame(area, getState());
-
-    Widget::draw();
-
-    renderer->popClipArea();
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace UI*/
+  } /*namespace GL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
