@@ -72,6 +72,8 @@ bool Demo::init(void)
       return false;
     }
 
+    GL::ImageRef image = &(textures[i]->getImage(0));
+
     canvases[i] = GL::TextureCanvas::createInstance(*context, size, size);
     if (!canvases[i])
     {
@@ -79,7 +81,7 @@ bool Demo::init(void)
       return false;
     }
 
-    canvases[i]->setColorBufferTexture(textures[i]);
+    canvases[i]->setColorBuffer(image);
   }
 
   const Vec2 scale(1.f / size, 1.f / size);
