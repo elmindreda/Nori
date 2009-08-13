@@ -94,10 +94,6 @@ public:
   /*! @return The height, in pixels, of this canvas.
    */
   virtual unsigned int getPhysicalHeight(void) const = 0;
-  /*! @return @c true if this canvas is complete, i.e. usable for rendering,
-   *  otherwise @c false.
-   */
-  virtual bool isComplete(void) const = 0;
   /*! @return The aspect ratio of the dimensions, in pixels, of this canvas.
    */
   float getPhysicalAspectRatio(void) const;
@@ -129,7 +125,6 @@ class ScreenCanvas : public Canvas
 {
   friend class Renderer;
 public:
-  bool isComplete(void) const;
   unsigned int getPhysicalWidth(void) const;
   unsigned int getPhysicalHeight(void) const;
 private:
@@ -142,10 +137,13 @@ private:
 /*! @brief %Canvas for rendering to a texture.
  *  @ingroup opengl
  */
-class TextureCanvas : public Canvas
+class ImageCanvas : public Canvas
 {
 public:
-  bool isComplete(void) const;
+  /*! @return @c true if this canvas is complete, i.e. usable for rendering,
+   *  otherwise @c false.
+   */
+  virtual bool isComplete(void) const = 0;
   unsigned int getPhysicalWidth(void) const;
   unsigned int getPhysicalHeight(void) const;
   /*! @return The texture that this canvas uses as a color buffer.
@@ -159,9 +157,9 @@ public:
   bool setDepthBuffer(Image* newImage);
   /*! Creates a texture canvas for the specified texture.
    */
-  static TextureCanvas* createInstance(Context& context, unsigned int width, unsigned int height);
+  static ImageCanvas* createInstance(Context& context, unsigned int width, unsigned int height);
 private:
-  TextureCanvas(Context& context);
+  ImageCanvas(Context& context);
   bool init(unsigned int width, unsigned int height);
   void apply(void) const;
   unsigned int width;

@@ -157,27 +157,12 @@ Bimap<ImageFormat::Type, GLenum> genericFormatMap;
 
 unsigned int TextureImage::getWidth(void) const
 {
-  return texture.getPhysicalWidth(level);
+  return width;
 }
 
 unsigned int TextureImage::getHeight(void) const
 {
-  return texture.getPhysicalHeight(level);
-}
-
-unsigned int TextureImage::getLevel(void) const
-{
-  return level;
-}
-
-unsigned int TextureImage::getZ(void) const
-{
-  return 0;
-}
-
-ImageCube::Face TextureImage::getFace(void) const
-{
-  return face;
+  return height;
 }
 
 const ImageFormat& TextureImage::getFormat(void) const
@@ -185,19 +170,17 @@ const ImageFormat& TextureImage::getFormat(void) const
   return texture.getFormat();
 }
 
-moira::Image* TextureImage::getPixels(void) const
-{
-  return NULL;
-}
-
 Texture& TextureImage::getTexture(void) const
 {
   return texture;
 }
 
-TextureImage::TextureImage(Texture& initTexture, unsigned int initLevel):
+TextureImage::TextureImage(Texture& initTexture,
+                           unsigned int initWidth,
+                           unsigned int initHeight):
   texture(initTexture),
-  level(initLevel)
+  width(initWidth),
+  height(initHeight)
 {
 }
 
@@ -649,17 +632,22 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
                         source.getPixels());
     }
 
-    unsigned int count;
+    unsigned int level = 0;
 
-    if (flags & RECTANGULAR)
-      count = (unsigned int) (1.f + floorf(log2f((float) std::max(sourceWidth, sourceHeight))));
-    else
-      count = (unsigned int) log2f((float) std::max(sourceWidth, sourceHeight));
-
-    for (unsigned int i = 0;  i < count;  i++)
+    for (;;)
     {
-      TextureImageRef image = new TextureImage(*this, i);
+      int width, height;
+
+      glGetTexLevelParameteriv(textureTarget, level, GL_TEXTURE_WIDTH, &width);
+      glGetTexLevelParameteriv(textureTarget, level, GL_TEXTURE_HEIGHT, &height);
+
+      if (width == 0)
+        break;
+
+      TextureImageRef image = new TextureImage(*this, width, height);
       images.push_back(image);
+
+      level++;
     }
   }
   else
@@ -688,7 +676,7 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
                    source.getPixels());
     }
 
-    TextureImageRef image = new TextureImage(*this, 0);
+    TextureImageRef image = new TextureImage(*this, source.getWidth(), source.getHeight());
     images.push_back(image);
   }
 

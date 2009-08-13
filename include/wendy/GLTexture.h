@@ -86,18 +86,13 @@ class TextureImage : public Image
 public:
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
-  unsigned int getLevel(void) const;
-  unsigned int getZ(void) const;
-  ImageCube::Face getFace(void) const;
   const ImageFormat& getFormat(void) const;
-  moira::Image* getPixels(void) const;
   Texture& getTexture(void) const;
 private:
-  TextureImage(Texture& texture, unsigned int level);
+  TextureImage(Texture& texture, unsigned int width, unsigned int height);
   Texture& texture;
-  unsigned int level;
-  unsigned int z;
-  ImageCube::Face face;
+  unsigned int width;
+  unsigned int height;
 };
 
 ///////////////////////////////////////////////////////////////////////

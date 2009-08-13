@@ -45,6 +45,8 @@ public:
   virtual unsigned int getHeight(void) const = 0;
   virtual const ImageFormat& getFormat(void) const = 0;
   virtual moira::Image* getPixels(void) const = 0;
+protected:
+  virtual void attach(int attachment);
 };
 
 ///////////////////////////////////////////////////////////////////////
