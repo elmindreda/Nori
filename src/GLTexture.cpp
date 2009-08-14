@@ -324,11 +324,6 @@ unsigned int Texture::getSourceHeight(unsigned int level) const
   return sourceHeight >> level;
 }
 
-unsigned int Texture::getSourceDepth(unsigned int level) const
-{
-  return sourceDepth >> level;
-}
-
 unsigned int Texture::getPhysicalWidth(unsigned int level) const
 {
   return physicalWidth >> level;
@@ -337,11 +332,6 @@ unsigned int Texture::getPhysicalWidth(unsigned int level) const
 unsigned int Texture::getPhysicalHeight(unsigned int level) const
 {
   return physicalHeight >> level;
-}
-
-unsigned int Texture::getPhysicalDepth(unsigned int level) const
-{
-  return physicalDepth >> level;
 }
 
 unsigned int Texture::getLevelCount(void) const
@@ -475,10 +465,8 @@ Texture::Texture(Context& initContext, const String& name):
   textureID(0),
   sourceWidth(0),
   sourceHeight(0),
-  sourceDepth(0),
   physicalWidth(0),
   physicalHeight(0),
-  physicalDepth(0),
   flags(0),
   filterMode(FILTER_BILINEAR),
   addressMode(ADDRESS_WRAP)

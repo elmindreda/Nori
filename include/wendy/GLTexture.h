@@ -151,11 +151,6 @@ public:
    *  @param[in] level The desired mipmap level.
    */
   unsigned int getSourceHeight(unsigned int level = 0) const;
-  /*! @return The depth, in pixels, of the source for the specified mipmap
-   *  level.
-   *  @param[in] level The desired mipmap level.
-   */
-  unsigned int getSourceDepth(unsigned int level = 0) const;
   /*! @return The width, in pixels, of the specified mipmap level.
    *  @param[in] level The desired mipmap level.
    */
@@ -164,13 +159,9 @@ public:
    *  @param[in] level The desired mipmap level.
    */
   unsigned int getPhysicalHeight(unsigned int level = 0) const;
-  /*! @return The depth, in pixels, of the specified mipmap level.
-   *  @param[in] level The desired mipmap level.
-   */
-  unsigned int getPhysicalDepth(unsigned int level = 0) const;
   /*! @return The number of mipmap levels in this texture.
    */
-  unsigned int getLevelCount(void) const;
+  unsigned int getImageCount(void) const;
   TextureImage& getImage(unsigned int level = 0);
   /*! @return The sampler filter mode of this texture.
    */
@@ -211,10 +202,8 @@ private:
   unsigned int textureID;
   unsigned int sourceWidth;
   unsigned int sourceHeight;
-  unsigned int sourceDepth;
   unsigned int physicalWidth;
   unsigned int physicalHeight;
-  unsigned int physicalDepth;
   unsigned int flags;
   FilterMode filterMode;
   AddressMode addressMode;
