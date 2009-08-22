@@ -451,7 +451,6 @@ public:
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
   const ImageFormat& getFormat(void) const;
-  moira::Image* getPixels(void) const;
   static RenderBuffer* createInstance(const ImageFormat& format,
                                       unsigned int width,
                                       unsigned int height,

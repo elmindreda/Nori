@@ -155,6 +155,119 @@ Bimap<ImageFormat::Type, GLenum> genericFormatMap;
 
 ///////////////////////////////////////////////////////////////////////
 
+bool TextureImage::copyFrom(const moira::Image& source, unsigned int x, unsigned int y)
+{
+  moira::Image final = source;
+  final.convertTo(format);
+
+  // Moira has y-axis down, OpenGL has y-axis up
+  final.flipHorizontal();
+
+  if (textureTarget == GL_TEXTURE_1D)
+  {
+    if (final.getDimensionCount() > 1)
+    {
+      Log::writeError("Cannot blt to texture; source image has too many dimensions");
+      return false;
+    }
+
+    // TODO: Stop using attribute stack.
+
+    glPushAttrib(GL_TEXTURE_BIT | GL_PIXEL_MODE_BIT);
+    glBindTexture(texture.textureTarget, texture.textureID);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    glTexSubImage1D(texture.textureTarget,
+                    level,
+		    x,
+		    final.getWidth(),
+                    genericFormatMap[texture.format],
+                    GL_UNSIGNED_BYTE,
+		    final.getPixels());
+
+    glPopAttrib();
+  }
+  else
+  {
+    if (final.getDimensionCount() > 2)
+    {
+      Log::writeError("Cannot blt to texture; source image has too many dimensions");
+      return false;
+    }
+
+    // TODO: Stop using attribute stack.
+
+    glPushAttrib(GL_TEXTURE_BIT | GL_PIXEL_MODE_BIT);
+    glBindTexture(texture.textureTarget, texture.textureID);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    glTexSubImage2D(texture.textureTarget,
+                    level,
+		    x, y,
+		    final.getWidth(), final.getHeight(),
+                    genericFormatMap[texture.format],
+                    GL_UNSIGNED_BYTE,
+		    final.getPixels());
+
+    glPopAttrib();
+  }
+
+#if WENDY_DEBUG
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+  {
+    Log::writeError("Error during copy into level %u of texture \'%s\': %s",
+                    level,
+                    texture.getName().c_str(),
+		    gluErrorString(error));
+    return false;
+  }
+#endif
+  
+  return true;
+}
+
+bool Texture::copyFromColorBuffer(unsigned int x, unsigned int y)
+{
+  cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_FALSE);
+
+  glBindTexture(texture.textureTarget, texture.textureID);
+
+  if (texture.textureTarget == GL_TEXTURE_1D)
+  {
+    glCopyTexSubImage1D(texture.textureTarget,
+                        level,
+			0,
+                        x, y,
+                        width);
+  }
+  else
+  {
+    glCopyTexSubImage2D(texture.textureTarget,
+                        level,
+			0, 0,
+                        x, y,
+                        width,
+                        height);
+  }
+
+  cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
+
+#if WENDY_DEBUG
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+  {
+    Log::writeError("Error during copy from color buffer to level %u of texture \'%s\': %s",
+                    level,
+                    texture.getName().c_str(),
+		    gluErrorString(error));
+    return false;
+  }
+#endif
+
+  return true;
+}
+
 unsigned int TextureImage::getWidth(void) const
 {
   return width;
@@ -176,11 +289,33 @@ Texture& TextureImage::getTexture(void) const
 }
 
 TextureImage::TextureImage(Texture& initTexture,
+                           unsigned int initLevel,
                            unsigned int initWidth,
                            unsigned int initHeight):
   texture(initTexture),
+  level(initLevel),
   width(initWidth),
   height(initHeight)
+{
+}
+
+void TextureImage::attach(int attachment)
+{
+  if (texture.textureTarget == GL_TEXTURE_1D)
+    glFramebufferTexture1DEXT(GL_FRAMEBUFFER_EXT,
+                              attachment,
+                              texture.textureTarget,
+                              texture.textureID,
+                              level);
+  else
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+                              attachment,
+                              texture.textureTarget,
+                              texture.textureID,
+                              level);
+}
+
+void TextureImage::detach(void)
 {
 }
 
@@ -190,118 +325,6 @@ Texture::~Texture(void)
 {
   if (textureID)
     glDeleteTextures(1, &textureID);
-}
-
-bool Texture::copyFrom(const moira::Image& source,
-                       unsigned int x,
-		       unsigned int y,
-		       unsigned int level)
-{
-  moira::Image final = source;
-  final.convertTo(format);
-
-  // Moira has y-axis down, OpenGL has y-axis up
-  final.flipHorizontal();
-
-  if (textureTarget == GL_TEXTURE_1D)
-  {
-    if (final.getDimensionCount() > 1)
-    {
-      Log::writeError("Cannot blt to texture; source image has too many dimensions");
-      return false;
-    }
-
-    glPushAttrib(GL_TEXTURE_BIT | GL_PIXEL_MODE_BIT);
-    glBindTexture(textureTarget, textureID);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    glTexSubImage1D(textureTarget,
-                    level,
-		    x,
-		    final.getWidth(),
-                    genericFormatMap[format],
-                    GL_UNSIGNED_BYTE,
-		    final.getPixels());
-
-    glPopAttrib();
-  }
-  else
-  {
-    if (final.getDimensionCount() > 2)
-    {
-      Log::writeError("Cannot blt to texture; source image has too many dimensions");
-      return false;
-    }
-
-    glPushAttrib(GL_TEXTURE_BIT | GL_PIXEL_MODE_BIT);
-    glBindTexture(textureTarget, textureID);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    glTexSubImage2D(textureTarget,
-                    level,
-		    x, y,
-		    final.getWidth(), final.getHeight(),
-                    genericFormatMap[final.getFormat()],
-                    GL_UNSIGNED_BYTE,
-		    final.getPixels());
-
-    glPopAttrib();
-  }
-
-#if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-  {
-    Log::writeError("Error during copy into level %u of texture \'%s\': %s",
-                    level,
-		    gluErrorString(error));
-    return false;
-  }
-#endif
-  
-  return true;
-}
-
-bool Texture::copyFromColorBuffer(unsigned int x, unsigned int y, unsigned int level)
-{
-  Context* context = GL::Context::get();
-
-  glPushAttrib(GL_TEXTURE_BIT);
-  glBindTexture(textureTarget, textureID);
-
-  if (textureTarget == GL_TEXTURE_1D)
-  {
-    glCopyTexSubImage1D(textureTarget,
-                        level,
-			0,
-                        x, y,
-                        physicalWidth);
-  }
-  else
-  {
-    glCopyTexSubImage2D(textureTarget,
-                        level,
-			0, 0,
-                        x, y,
-                        physicalWidth,
-                        physicalHeight);
-  }
-
-  glPopAttrib();
-
-#if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-  {
-    Log::writeError("Error during copy from color buffer to level %u of texture \'%s\': %s",
-                    level,
-                    getName().c_str(),
-		    gluErrorString(error));
-    return false;
-  }
-#endif
-
-  return true;
 }
 
 bool Texture::isPOT(void) const

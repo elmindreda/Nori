@@ -84,13 +84,32 @@ class TextureImage : public Image
 {
   friend class Texture;
 public:
+  /*! Updates the area within this texture image, at the specified coordinates
+   *  and with a size matching the specified image, with the contents of that
+   *  image.
+   *  @param[in] source The image to copy pixel data from.
+   *  @param[in] x The x-coordinate of the area within this image to update.
+   *  @param[in] y The y-coordinate of the area within this image to update.
+   */
+  bool copyFrom(const moira::Image& source, unsigned int x, unsigned int y);
+  /*! Updates this texture image with the contents of the current color buffer
+   *  at the specified coordinates.
+   *  @param[in] x The x-coordinate of the desired area within the current color buffer.
+   *  @param[in] y The y-coordinate of the desired area within the current color buffer.
+   */
+  bool copyFromColorBuffer(unsigned int x, unsigned int y);
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
   const ImageFormat& getFormat(void) const;
+  /*! @return The texture containing this texture image.
+   */
   Texture& getTexture(void) const;
 private:
-  TextureImage(Texture& texture, unsigned int width, unsigned int height);
+  TextureImage(Texture& texture, unsigned int level, unsigned int width, unsigned int height);
+  void attach(int attachment);
+  void detach(void);
   Texture& texture;
+  unsigned int level;
   unsigned int width;
   unsigned int height;
 };
@@ -107,6 +126,7 @@ typedef Ref<TextureImage> TextureImageRef;
 class Texture : public Resource<Texture>, public RefObject
 {
   friend class Sampler;
+  friend class TextureImage;
 public:
   enum
   {
@@ -126,16 +146,6 @@ public:
   /*! Destructor.
    */
   ~Texture(void);
-  /*! Updates the area at the specified coordinates in the specified mipmap
-   *  level with the contents of the specified image.
-   */
-  bool copyFrom(const moira::Image& source,
-                unsigned int x,
-		unsigned int y,
-		unsigned int level = 0);
-  bool copyFromColorBuffer(unsigned int x,
-		           unsigned int y,
-		           unsigned int level = 0);
   /*! @return @c true if this texture's dimensions are power of two, otherwise
    *  @c false.
    */
