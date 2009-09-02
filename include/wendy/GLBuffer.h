@@ -458,6 +458,8 @@ public:
 private:
   RenderBuffer(const String& name);
   bool init(const ImageFormat& format, unsigned int width, unsigned int height);
+  void attach(int attachment);
+  void detach(void);
   unsigned int bufferID;
   unsigned int width;
   unsigned int height;

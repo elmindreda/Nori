@@ -837,11 +837,6 @@ const ImageFormat& RenderBuffer::getFormat(void) const
   return format;
 }
 
-moira::Image* RenderBuffer::getPixels(void) const
-{
-  return NULL;
-}
-
 RenderBuffer* RenderBuffer::createInstance(const ImageFormat& format,
                                            unsigned int width,
                                            unsigned int height,
@@ -880,6 +875,14 @@ bool RenderBuffer::init(const ImageFormat& format,
 #endif
 
   return true;
+}
+
+void RenderBuffer::attach(int attachment)
+{
+}
+
+void RenderBuffer::detach(void)
+{
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -153,22 +153,12 @@ public:
   /*! @return @c true if this texture is mipmapped, otherwise @c false.
    */
   bool isMipmapped(void) const;
-  /*! @return The width, in pixels, of the source for specified mipmap level.
-   *  @param[in] level The desired mipmap level.
+  /*! @return The width, in pixels, of the source image.
    */
-  unsigned int getSourceWidth(unsigned int level = 0) const;
-  /*! @return The height, in pixels, of the source for specified mipmap level.
-   *  @param[in] level The desired mipmap level.
+  unsigned int getSourceWidth(void) const;
+  /*! @return The height, in pixels, of the source image.
    */
-  unsigned int getSourceHeight(unsigned int level = 0) const;
-  /*! @return The width, in pixels, of the specified mipmap level.
-   *  @param[in] level The desired mipmap level.
-   */
-  unsigned int getPhysicalWidth(unsigned int level = 0) const;
-  /*! @return The height, in pixels, of the specified mipmap level.
-   *  @param[in] level The desired mipmap level.
-   */
-  unsigned int getPhysicalHeight(unsigned int level = 0) const;
+  unsigned int getSourceHeight(void) const;
   /*! @return The number of mipmap levels in this texture.
    */
   unsigned int getImageCount(void) const;
@@ -212,8 +202,6 @@ private:
   unsigned int textureID;
   unsigned int sourceWidth;
   unsigned int sourceHeight;
-  unsigned int physicalWidth;
-  unsigned int physicalHeight;
   unsigned int flags;
   FilterMode filterMode;
   AddressMode addressMode;

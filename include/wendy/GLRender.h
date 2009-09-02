@@ -140,10 +140,6 @@ private:
 class ImageCanvas : public Canvas
 {
 public:
-  /*! @return @c true if this canvas is complete, i.e. usable for rendering,
-   *  otherwise @c false.
-   */
-  virtual bool isComplete(void) const = 0;
   unsigned int getPhysicalWidth(void) const;
   unsigned int getPhysicalHeight(void) const;
   /*! @return The texture that this canvas uses as a color buffer.

@@ -286,11 +286,6 @@ Canvas& Canvas::operator = (const Canvas& source)
 
 ///////////////////////////////////////////////////////////////////////
 
-bool ScreenCanvas::isComplete(void) const
-{
-  return true;
-}
-
 unsigned int ScreenCanvas::getPhysicalWidth(void) const
 {
   return getContext().getWidth();
@@ -313,33 +308,27 @@ void ScreenCanvas::apply(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-bool TextureCanvas::isComplete(void) const
-{
-  // TODO: Implement check.
-  return false;
-}
-
-unsigned int TextureCanvas::getPhysicalWidth(void) const
+unsigned int ImageCanvas::getPhysicalWidth(void) const
 {
   return width;
 }
 
-unsigned int TextureCanvas::getPhysicalHeight(void) const
+unsigned int ImageCanvas::getPhysicalHeight(void) const
 {
   return height;
 }
 
-Image* TextureCanvas::getColorBuffer(void) const
+Image* ImageCanvas::getColorBuffer(void) const
 {
   return colorBuffer;
 }
 
-Image* TextureCanvas::getDepthBuffer(void) const
+Image* ImageCanvas::getDepthBuffer(void) const
 {
   return depthBuffer;
 }
 
-bool TextureCanvas::setColorBuffer(Image* newImage)
+bool ImageCanvas::setColorBuffer(Image* newImage)
 {
   if (newImage)
   {
@@ -354,7 +343,7 @@ bool TextureCanvas::setColorBuffer(Image* newImage)
   return true;
 }
 
-bool TextureCanvas::setDepthBuffer(Image* newImage)
+bool ImageCanvas::setDepthBuffer(Image* newImage)
 {
   if (newImage)
   {
@@ -369,16 +358,16 @@ bool TextureCanvas::setDepthBuffer(Image* newImage)
   return true;
 }
 
-TextureCanvas* TextureCanvas::createInstance(Context& context, unsigned int width, unsigned int height)
+ImageCanvas* ImageCanvas::createInstance(Context& context, unsigned int width, unsigned int height)
 {
-  Ptr<TextureCanvas> canvas(new TextureCanvas(context));
+  Ptr<ImageCanvas> canvas(new ImageCanvas(context));
   if (!canvas->init(width, height))
     return false;
 
   return canvas.detachObject();
 }
 
-TextureCanvas::TextureCanvas(Context& context):
+ImageCanvas::ImageCanvas(Context& context):
   Canvas(context),
   width(0),
   height(0),
@@ -386,7 +375,7 @@ TextureCanvas::TextureCanvas(Context& context):
 {
 }
 
-bool TextureCanvas::init(unsigned int initWidth, unsigned int initHeight)
+bool ImageCanvas::init(unsigned int initWidth, unsigned int initHeight)
 {
   width = initWidth;
   height = initHeight;
@@ -406,7 +395,7 @@ bool TextureCanvas::init(unsigned int initWidth, unsigned int initHeight)
   return true;
 }
 
-void TextureCanvas::apply(void) const
+void ImageCanvas::apply(void) const
 {
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
 }
@@ -764,9 +753,6 @@ void Renderer::setScreenCanvasCurrent(void)
 
 bool Renderer::setCurrentCanvas(Canvas& newCanvas)
 {
-  if (!newCanvas.isComplete())
-    return false;
-
   currentCanvas = &newCanvas;
   currentCanvas->apply();
 

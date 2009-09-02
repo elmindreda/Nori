@@ -158,12 +158,12 @@ Bimap<ImageFormat::Type, GLenum> genericFormatMap;
 bool TextureImage::copyFrom(const moira::Image& source, unsigned int x, unsigned int y)
 {
   moira::Image final = source;
-  final.convertTo(format);
+  final.convertTo(texture.format);
 
   // Moira has y-axis down, OpenGL has y-axis up
   final.flipHorizontal();
 
-  if (textureTarget == GL_TEXTURE_1D)
+  if (texture.textureTarget == GL_TEXTURE_1D)
   {
     if (final.getDimensionCount() > 1)
     {
@@ -227,9 +227,9 @@ bool TextureImage::copyFrom(const moira::Image& source, unsigned int x, unsigned
   return true;
 }
 
-bool Texture::copyFromColorBuffer(unsigned int x, unsigned int y)
+bool TextureImage::copyFromColorBuffer(unsigned int x, unsigned int y)
 {
-  cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_FALSE);
+  cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_FALSE);
 
   glBindTexture(texture.textureTarget, texture.textureID);
 
@@ -251,7 +251,7 @@ bool Texture::copyFromColorBuffer(unsigned int x, unsigned int y)
                         height);
   }
 
-  cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
+  cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_TRUE);
 
 #if WENDY_DEBUG
   GLenum error = glGetError();
@@ -337,27 +337,17 @@ bool Texture::isMipmapped(void) const
   return (flags & MIPMAPPED) ? true : false;
 }
 
-unsigned int Texture::getSourceWidth(unsigned int level) const
+unsigned int Texture::getSourceWidth(void) const
 {
-  return sourceWidth >> level;
+  return sourceWidth;
 }
 
-unsigned int Texture::getSourceHeight(unsigned int level) const
+unsigned int Texture::getSourceHeight(void) const
 {
-  return sourceHeight >> level;
+  return sourceHeight;
 }
 
-unsigned int Texture::getPhysicalWidth(unsigned int level) const
-{
-  return physicalWidth >> level;
-}
-
-unsigned int Texture::getPhysicalHeight(unsigned int level) const
-{
-  return physicalHeight >> level;
-}
-
-unsigned int Texture::getLevelCount(void) const
+unsigned int Texture::getImageCount(void) const
 {
   return images.size();
 }
@@ -488,8 +478,6 @@ Texture::Texture(Context& initContext, const String& name):
   textureID(0),
   sourceWidth(0),
   sourceHeight(0),
-  physicalWidth(0),
-  physicalHeight(0),
   flags(0),
   filterMode(FILTER_BILINEAR),
   addressMode(ADDRESS_WRAP)
@@ -571,6 +559,8 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
   sourceWidth = image.getWidth();
   sourceHeight = image.getHeight();
 
+  unsigned int width, height;
+
   moira::Image source = image;
 
   // Adapt source image to OpenGL restrictions
@@ -584,27 +574,27 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
 
     if (flags & RECTANGULAR)
     {
-      physicalWidth = sourceWidth;
-      physicalHeight = sourceHeight;
+      width = sourceWidth;
+      height = sourceHeight;
 
       const unsigned int maxSize = GL::Context::get()->getLimits().getMaxTextureRectangleSize();
 
-      if (physicalWidth > maxSize)
-	physicalWidth = maxSize;
+      if (width > maxSize)
+	width = maxSize;
 
-      if (physicalHeight > maxSize)
-	physicalHeight = maxSize;
+      if (height > maxSize)
+	height = maxSize;
     }
     else
     {
       const unsigned int maxSize = GL::Context::get()->getLimits().getMaxTextureSize();
 
-      physicalWidth = getClosestPower(sourceWidth, maxSize);
-      physicalHeight = getClosestPower(sourceHeight, maxSize);
+      width = getClosestPower(sourceWidth, maxSize);
+      height = getClosestPower(sourceHeight, maxSize);
     }
 
     // Rescale source image (no-op if the sizes are equal)
-    if (!source.resize(physicalWidth, physicalHeight))
+    if (!source.resize(width, height))
     {
       Log::writeError("Failed to rescale image for texture \'%s\'", getName().c_str());
       return false;
@@ -647,15 +637,13 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
 
     for (;;)
     {
-      int width, height;
-
-      glGetTexLevelParameteriv(textureTarget, level, GL_TEXTURE_WIDTH, &width);
-      glGetTexLevelParameteriv(textureTarget, level, GL_TEXTURE_HEIGHT, &height);
+      glGetTexLevelParameteriv(textureTarget, level, GL_TEXTURE_WIDTH, (int*) &width);
+      glGetTexLevelParameteriv(textureTarget, level, GL_TEXTURE_HEIGHT, (int*) &height);
 
       if (width == 0)
         break;
 
-      TextureImageRef image = new TextureImage(*this, width, height);
+      TextureImageRef image = new TextureImage(*this, level, width, height);
       images.push_back(image);
 
       level++;
@@ -687,7 +675,7 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
                    source.getPixels());
     }
 
-    TextureImageRef image = new TextureImage(*this, source.getWidth(), source.getHeight());
+    TextureImageRef image = new TextureImage(*this, 0, source.getWidth(), source.getHeight());
     images.push_back(image);
   }
 
