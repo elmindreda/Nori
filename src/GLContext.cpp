@@ -132,7 +132,6 @@ void ContextMode::set(unsigned int width,
 Limits::Limits(Context& initContext):
   context(initContext),
   maxClipPlanes(0),
-  maxTextureCoords(0),
   maxFragmentTextureImageUnits(0),
   maxVertexTextureImageUnits(0),
   maxTextureSize(0),
@@ -141,7 +140,6 @@ Limits::Limits(Context& initContext):
   maxVertexAttributes(0)
 {
   glGetIntegerv(GL_MAX_CLIP_PLANES, (GLint*) &maxClipPlanes);
-  glGetIntegerv(GL_MAX_TEXTURE_COORDS, (GLint*) &maxTextureCoords);
   glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint*) &maxFragmentTextureImageUnits);
   glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, (GLint*) &maxVertexTextureImageUnits);
   glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxTextureSize);
@@ -153,11 +151,6 @@ Limits::Limits(Context& initContext):
 unsigned int Limits::getMaxClipPlanes(void) const
 {
   return maxClipPlanes;
-}
-
-unsigned int Limits::getMaxTextureCoords(void) const
-{
-  return maxTextureCoords;
 }
 
 unsigned int Limits::getMaxFragmentTextureImageUnits(void) const

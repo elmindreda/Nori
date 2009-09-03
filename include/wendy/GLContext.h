@@ -184,19 +184,33 @@ public:
 class Limits
 {
 public:
+  /*! Constructor.
+   */
   Limits(Context& context);
+  /*! @return The number of available clip planes.
+   */
   unsigned int getMaxClipPlanes(void) const;
-  unsigned int getMaxTextureCoords(void) const;
+  /*! @return The number of available fragment program texture image units.
+   */
   unsigned int getMaxFragmentTextureImageUnits(void) const;
+  /*! @return The number of available vertex program texture image units.
+   */
   unsigned int getMaxVertexTextureImageUnits(void) const;
+  /*! @return The maximum size, in pixels, of 2D POT textures.
+   */
   unsigned int getMaxTextureSize(void) const;
+  /*! @return The maximum size, in pixels, of cube map texture faces.
+   */
   unsigned int getMaxTextureCubeSize(void) const;
+  /*! @return The maximum size, in pixels, of non-POT 2D textures.
+   */
   unsigned int getMaxTextureRectangleSize(void) const;
+  /*! @return The number of available vertex attributes.
+   */
   unsigned int getMaxVertexAttributes(void) const;
 private:
   Context& context;
   unsigned int maxClipPlanes;
-  unsigned int maxTextureCoords;
   unsigned int maxFragmentTextureImageUnits;
   unsigned int maxVertexTextureImageUnits;
   unsigned int maxTextureSize;
@@ -210,10 +224,9 @@ private:
 /*! @brief OpenGL context singleton.
  *  @ingroup opengl
  *
- *  This class encapsulates the OpenGL context, provides display mode
- *  control and basic HID (input) signals.  It also initializes the
- *  GLEW library, allowing use of the GLEW booleans in client code
- *  for the entire lifetime of the context.
+ *  This class encapsulates the OpenGL context and its associtated window.  It
+ *  also initializes the GLEW library, allowing use of the GLEW booleans in
+ *  client code for the entire lifetime of the context.
  */
 class Context : public Singleton<Context>
 {
@@ -230,22 +243,22 @@ public:
   /*! @return @c true if the context is windowed, otherwise @c false.
    */
   bool isWindowed(void) const;
-  /*! @return The width, in pixels.
+  /*! @return The default framebuffer width, in pixels.
    */
   unsigned int getWidth(void) const;
-  /*! @return The height, in pixels.
+  /*! @return The default framebuffer height, in pixels.
    */
   unsigned int getHeight(void) const;
-  /*! @return The color depth, in bits.
+  /*! @return The default framebuffer color depth, in bits.
    */
   unsigned int getColorBits(void) const;
-  /*! @return The depth-buffer depth, in bits.
+  /*! @return The default framebuffer depth-buffer depth, in bits.
    */
   unsigned int getDepthBits(void) const;
-  /*! @return The stencil buffer depth, in bits.
+  /*! @return The default framebuffer stencil buffer depth, in bits.
    */
   unsigned int getStencilBits(void) const;
-  /*! @return A copy of the current state of the color buffer.
+  /*! @return A copy of the current state of the default framebuffer color buffer.
    *  @todo Rename this to reflect object ownership transfer.
    */
   Image* getColorBuffer(void) const;
@@ -256,6 +269,8 @@ public:
    *  @param[in] newTitle The desired title.
    */
   void setTitle(const String& newTitle);
+  /*! @return The limits of this context.
+   */
   const Limits& getLimits(void) const;
   /*! @return The signal for per-frame post-render clean-up.
    */
