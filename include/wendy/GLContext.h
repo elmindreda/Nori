@@ -221,6 +221,28 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingoup opengl
+ */
+class Image : public RefObject
+{
+public:
+  virtual ~Image(void);
+  virtual unsigned int getWidth(void) const = 0;
+  virtual unsigned int getHeight(void) const = 0;
+  virtual const ImageFormat& getFormat(void) const = 0;
+protected:
+  virtual void attach(int attachment) = 0;
+  virtual void detach(void) = 0;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup opengl
+ */
+typedef Ref<Image> ImageRef;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief OpenGL context singleton.
  *  @ingroup opengl
  *
