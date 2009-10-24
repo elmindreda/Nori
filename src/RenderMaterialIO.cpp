@@ -28,7 +28,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/GLContext.h>
-#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
@@ -502,14 +501,18 @@ bool MaterialCodec::onBeginElement(const String& name)
 	  {
 	    String samplerName = readString("name");
 	    if (samplerName.empty())
+            {
+	      Log::writeWarning("Shader program %s lists unnamed sampler uniform",
+	                        currentPass->getProgram()->getName().c_str());
 	      return true;
+            }
 
 	    if (!currentPass->getProgram()->findSampler(samplerName))
 	    {
-	      Log::writeError("Shader program %s does not have sampler uniform %s",
-	                      currentPass->getProgram()->getName().c_str(),
-			      samplerName.c_str());
-	      return false;
+	      Log::writeWarning("Shader program %s does not have sampler uniform %s",
+	                        currentPass->getProgram()->getName().c_str(),
+			        samplerName.c_str());
+	      return true;
 	    }
 
 	    String textureName = readString("texture");

@@ -144,12 +144,12 @@ bool Context::isCursorCaptured(void) const
 
 unsigned int Context::getWidth(void) const
 {
-  return context.getWidth();
+  return context.getScreenCanvas().getWidth();
 }
 
 unsigned int Context::getHeight(void) const
 {
-  return context.getHeight();
+  return context.getScreenCanvas().getHeight();
 }
 
 const Vec2i& Context::getCursorPosition(void) const

@@ -15,7 +15,7 @@ private:
   void onCursorMoved(const Vec2i& position);
   void onWheelTurned(int position);
   Ref<GL::Texture> textures[2];
-  Ref<GL::TextureCanvas> canvases[2];
+  Ref<GL::ImageCanvas> canvases[2];
   GL::RenderState horzPass;
   GL::RenderState vertPass;
   GL::RenderState composePass;
@@ -65,7 +65,7 @@ bool Demo::init(void)
 
   for (unsigned int i = 0;  i < 2;  i++)
   {
-    textures[i] = GL::Texture::createInstance(*context, Image(ImageFormat::RGB888, size, size), 0);
+    textures[i] = GL::Texture::createInstance(*context, Image(PixelFormat::RGB8, size, size), 0);
     if (!textures[i])
     {
       Log::writeError("Failed to create canvas texture");
@@ -74,7 +74,7 @@ bool Demo::init(void)
 
     GL::ImageRef image = &(textures[i]->getImage(0));
 
-    canvases[i] = GL::TextureCanvas::createInstance(*context, size, size);
+    canvases[i] = GL::ImageCanvas::createInstance(*context, size, size);
     if (!canvases[i])
     {
       Log::writeError("Failed to create canvas");
@@ -157,32 +157,32 @@ void Demo::run(void)
     render::Queue queue(camera);
     graph.enqueue(queue);
 
-    GL::Renderer* renderer = GL::Renderer::get();
-
-    renderer->setCurrentCanvas(*canvases[0]);
-    renderer->clearDepthBuffer();
-    renderer->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
+    GL::Context* context = GL::Context::get();
+    context->setCurrentCanvas(*canvases[0]);
+    context->clearDepthBuffer();
+    context->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
     queue.render();
 
+    GL::Renderer* renderer = GL::Renderer::get();
     renderer->setProjectionMatrix2D(1.f, 1.f);
 
     for (unsigned int i = 0;  i < 2;  i++)
     {
-      renderer->setCurrentCanvas(*canvases[1]);
+      context->setCurrentCanvas(*canvases[1]);
 
       horzPass.apply();
       sprite.render();
 
-      renderer->setCurrentCanvas(*canvases[0]);
+      context->setCurrentCanvas(*canvases[0]);
 
       vertPass.apply();
       sprite.render();
     }
 
-    renderer->setScreenCanvasCurrent();
-    renderer->clearDepthBuffer();
-    renderer->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
+    context->setScreenCanvasCurrent();
+    context->clearDepthBuffer();
+    context->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
     queue.render();
 

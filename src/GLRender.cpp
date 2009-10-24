@@ -28,7 +28,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/GLContext.h>
-#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
@@ -154,8 +153,8 @@ bool compatible(const Varying& varying, const VertexComponent& component)
   return false;
 }
 
-Bimap<ImageFormat, GLenum> colorFormatMap;
-Bimap<ImageFormat, GLenum> depthFormatMap;
+Bimap<PixelFormat, GLenum> colorFormatMap;
+Bimap<PixelFormat, GLenum> depthFormatMap;
 
 } /*namespace (and Gandalf)*/
 
@@ -251,183 +250,6 @@ Stats::Frame::Frame(void):
 }
 
 ///////////////////////////////////////////////////////////////////////
-
-float Canvas::getPhysicalAspectRatio(void) const
-{
-  return getPhysicalWidth() / (float) getPhysicalHeight();
-}
-
-Context& Canvas::getContext(void) const
-{
-  return context;
-}
-
-Canvas::Canvas(Context& initContext):
-  context(initContext)
-{
-}
-
-Canvas::~Canvas(void)
-{
-}
-
-Canvas::Canvas(const Canvas& source):
-  context(source.context)
-{
-  // NOTE: Not implemented.
-}
-
-Canvas& Canvas::operator = (const Canvas& source)
-{
-  // NOTE: Not implemented.
-
-  return *this;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-unsigned int ScreenCanvas::getPhysicalWidth(void) const
-{
-  return getContext().getWidth();
-}
-
-unsigned int ScreenCanvas::getPhysicalHeight(void) const
-{
-  return getContext().getHeight();
-}
-
-ScreenCanvas::ScreenCanvas(Context& context):
-  Canvas(context)
-{
-}
-
-void ScreenCanvas::apply(void) const
-{
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-}
-
-///////////////////////////////////////////////////////////////////////
-
-unsigned int ImageCanvas::getPhysicalWidth(void) const
-{
-  return width;
-}
-
-unsigned int ImageCanvas::getPhysicalHeight(void) const
-{
-  return height;
-}
-
-Image* ImageCanvas::getColorBuffer(void) const
-{
-  return colorBuffer;
-}
-
-Image* ImageCanvas::getDepthBuffer(void) const
-{
-  return depthBuffer;
-}
-
-bool ImageCanvas::setColorBuffer(Image* newImage)
-{
-  if (newImage)
-  {
-    if (newImage->getWidth() != width || newImage->getHeight() != height)
-    {
-      Log::writeError("Specified color buffer does not match canvas dimensions");
-      return false;
-    }
-  }
-
-  colorBuffer = newImage;
-  return true;
-}
-
-bool ImageCanvas::setDepthBuffer(Image* newImage)
-{
-  if (newImage)
-  {
-    if (newImage->getWidth() != width || newImage->getHeight() != height)
-    {
-      Log::writeError("Specified depth buffer does not match canvas dimensions");
-      return false;
-    }
-  }
-
-  depthBuffer = newImage;
-  return true;
-}
-
-ImageCanvas* ImageCanvas::createInstance(Context& context, unsigned int width, unsigned int height)
-{
-  Ptr<ImageCanvas> canvas(new ImageCanvas(context));
-  if (!canvas->init(width, height))
-    return false;
-
-  return canvas.detachObject();
-}
-
-ImageCanvas::ImageCanvas(Context& context):
-  Canvas(context),
-  width(0),
-  height(0),
-  bufferID(0)
-{
-}
-
-bool ImageCanvas::init(unsigned int initWidth, unsigned int initHeight)
-{
-  width = initWidth;
-  height = initHeight;
-
-  glGenFramebuffersEXT(1, &bufferID);
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
-
-#if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-  {
-    Log::writeError("Error during color renderbuffer creation: %s", gluErrorString(error));
-    return false;
-  }
-#endif
-
-  return true;
-}
-
-void ImageCanvas::apply(void) const
-{
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
-}
-
-///////////////////////////////////////////////////////////////////////
-
-void Renderer::clearColorBuffer(const ColorRGBA& color)
-{
-  glPushAttrib(GL_COLOR_BUFFER_BIT);
-  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  glClearColor(color.r, color.g, color.b, color.a);
-  glClear(GL_COLOR_BUFFER_BIT);
-  glPopAttrib();
-}
-
-void Renderer::clearDepthBuffer(float depth)
-{
-  glPushAttrib(GL_DEPTH_BUFFER_BIT);
-  glDepthMask(GL_TRUE);
-  glClearDepth(depth);
-  glClear(GL_DEPTH_BUFFER_BIT);
-  glPopAttrib();
-}
-
-void Renderer::clearStencilBuffer(unsigned int value)
-{
-  glPushAttrib(GL_STENCIL_BUFFER_BIT);
-  glStencilMask(GL_TRUE);
-  glClearStencil(value);
-  glClear(GL_STENCIL_BUFFER_BIT);
-  glPopAttrib();
-}
 
 void Renderer::render(void)
 {
@@ -689,33 +511,6 @@ Program& Renderer::getDefaultProgram(void) const
   return *defaultProgram;
 }
 
-const Rect& Renderer::getScissorArea(void) const
-{
-  return scissorArea;
-}
-
-const Rect& Renderer::getViewportArea(void) const
-{
-  return viewportArea;
-}
-
-void Renderer::setScissorArea(const Rect& newArea)
-{
-  scissorArea = newArea;
-  updateScissorArea();
-}
-
-void Renderer::setViewportArea(const Rect& newArea)
-{
-  viewportArea = newArea;
-  updateViewportArea();
-}
-
-Canvas& Renderer::getCurrentCanvas(void) const
-{
-  return *currentCanvas;
-}
-
 Program* Renderer::getCurrentProgram(void) const
 {
   return currentProgram;
@@ -744,22 +539,6 @@ const Mat4& Renderer::getViewMatrix(void) const
 const Mat4& Renderer::getProjectionMatrix(void) const
 {
   return projectionMatrix;
-}
-
-void Renderer::setScreenCanvasCurrent(void)
-{
-  setCurrentCanvas(*screenCanvas);
-}
-
-bool Renderer::setCurrentCanvas(Canvas& newCanvas)
-{
-  currentCanvas = &newCanvas;
-  currentCanvas->apply();
-
-  updateViewportArea();
-  updateScissorArea();
-
-  return true;
 }
 
 void Renderer::setModelMatrix(const Mat4& newMatrix)
@@ -793,8 +572,8 @@ void Renderer::setProjectionMatrix3D(float FOV, float aspect, float nearZ, float
 {
   if (aspect == 0.f)
   {
-    aspect = (currentCanvas->getPhysicalWidth() * viewportArea.size.x) /
-             (currentCanvas->getPhysicalHeight() * viewportArea.size.y);
+    aspect = (context.getCurrentCanvas().getWidth() * context.getViewportArea().size.x) /
+             (context.getCurrentCanvas().getHeight() * context.getViewportArea().size.y);
   }
 
   const float f = 1.f / tanf((FOV * (float) M_PI / 180.f) / 2.f);
@@ -869,7 +648,6 @@ bool Renderer::create(Context& context)
 
 Renderer::Renderer(Context& initContext):
   context(initContext),
-  currentCanvas(NULL),
   currentProgram(NULL),
   stats(NULL)
 {
@@ -877,34 +655,15 @@ Renderer::Renderer(Context& initContext):
 
 bool Renderer::init(void)
 {
-  scissorArea.set(0.f, 0.f, 1.f, 1.f);
-  viewportArea.set(0.f, 0.f, 1.f, 1.f);
-
-  screenCanvas = new ScreenCanvas(context);
-  screenCanvas->apply();
-  currentCanvas = screenCanvas;
-
-  updateViewportArea();
-  updateScissorArea();
-
   defaultTexture = Texture::findInstance("default");
   if (!defaultTexture)
   {
-    // Create DXM-colored default texture
+    // TODO: Create DXM-colored source image.
 
-    CheckerImageGenerator generator;
-    generator.setDefaultColor(ColorRGBA(1.f, 0.f, 1.f, 1.f));
-    generator.setCheckerColor(ColorRGBA(0.f, 1.f, 0.f, 1.f));
-    generator.setCheckerSize(5);
-
-    Ptr<moira::Image> image(generator.generate(ImageFormat::RGB888, 20, 20));
-    if (!image)
-    {
-      Log::writeError("Failed to create image data for default texture");
-      return false;
-    }
-
-    defaultTexture = Texture::createInstance(context, *image, Texture::DEFAULT, "default");
+    defaultTexture = Texture::createInstance(context,
+                                             moira::Image(PixelFormat::RGB8, 20, 20),
+                                             Texture::DEFAULT,
+                                             "default");
     if (!defaultTexture)
     {
       Log::writeError("Failed to create default texture");
@@ -928,40 +687,6 @@ void Renderer::onContextFinish(void)
 
   if (stats)
     stats->addFrame();
-
-  // NOTE: This is a hack to compensate for the current lack of frame fence
-  // calls.  It sort of works as long as the finish signal is emitted after
-  // event processing.
-  updateViewportArea();
-  updateScissorArea();
-}
-
-void Renderer::updateScissorArea(void)
-{
-  if (scissorArea == Rect(0.f, 0.f, 1.f, 1.f))
-    glDisable(GL_SCISSOR_TEST);
-  else
-  {
-    const unsigned int width = currentCanvas->getPhysicalWidth();
-    const unsigned int height = currentCanvas->getPhysicalHeight();
-
-    glEnable(GL_SCISSOR_TEST);
-    glScissor((GLint) floorf(scissorArea.position.x * width),
-	      (GLint) floorf(scissorArea.position.y * height),
-	      (GLsizei) ceilf(scissorArea.size.x * width),
-	      (GLsizei) ceilf(scissorArea.size.y * height));
-  }
-}
-
-void Renderer::updateViewportArea(void)
-{
-  const unsigned int width = currentCanvas->getPhysicalWidth();
-  const unsigned int height = currentCanvas->getPhysicalHeight();
-
-  glViewport((GLint) (viewportArea.position.x * width),
-             (GLint) (viewportArea.position.y * height),
-	     (GLsizei) (viewportArea.size.x * width),
-	     (GLsizei) (viewportArea.size.y * height));
 }
 
 ///////////////////////////////////////////////////////////////////////

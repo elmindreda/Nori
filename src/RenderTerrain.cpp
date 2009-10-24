@@ -26,7 +26,6 @@
 #include <moira/Moira.h>
 
 #include <wendy/GLContext.h>
-#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
@@ -114,7 +113,7 @@ Terrain::Terrain(const String& name):
 
 bool Terrain::init(const Image& heightmap, const Vec3& initSize, Material& material)
 {
-  if (heightmap.getFormat() != ImageFormat::GREY8)
+  if (heightmap.getFormat() != PixelFormat::R8)
   {
     Log::writeError("Heightmap must be in GREY8 format");
     return false;

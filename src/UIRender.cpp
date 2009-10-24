@@ -28,7 +28,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/GLContext.h>
-#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
@@ -73,18 +72,18 @@ void Alignment::set(HorzAlignment newHorizontal, VertAlignment newVertical)
 
 bool Renderer::pushClipArea(const Rect& area)
 {
-  GL::Renderer* renderer = GL::Renderer::get();
+  GL::Context* context = GL::Context::get();
 
-  GL::Canvas& canvas = renderer->getCurrentCanvas();
+  GL::Canvas& canvas = context->getCurrentCanvas();
 
   Vec2 scale;
-  scale.x = 1.f / canvas.getPhysicalWidth();
-  scale.y = 1.f / canvas.getPhysicalHeight();
+  scale.x = 1.f / canvas.getWidth();
+  scale.y = 1.f / canvas.getHeight();
 
   if (!clipAreaStack.push(area * scale))
     return false;
 
-  renderer->setScissorArea(clipAreaStack.getTotal());
+  context->setScissorArea(clipAreaStack.getTotal());
   return true;
 }
 
@@ -98,9 +97,9 @@ void Renderer::popClipArea(void)
 
   clipAreaStack.pop();
 
-  GL::Renderer* renderer = GL::Renderer::get();
+  GL::Context* context = GL::Context::get();
 
-  renderer->setScissorArea(clipAreaStack.getTotal());
+  context->setScissorArea(clipAreaStack.getTotal());
 }
 
 void Renderer::drawPoint(const Vec2& point, const ColorRGBA& color)

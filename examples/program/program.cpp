@@ -72,6 +72,8 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
+  GL::Context* context = GL::Context::get();
+
   do
   {
     currentTime = timer.getTime();
@@ -81,16 +83,14 @@ void Demo::run(void)
 
     graph.setTimeElapsed(currentTime);
 
-    GL::Renderer* renderer = GL::Renderer::get();
-
-    renderer->clearDepthBuffer();
-    renderer->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
+    context->clearDepthBuffer();
+    context->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
 
     render::Queue queue(camera);
     graph.enqueue(queue);
     queue.render();
   }
-  while (GL::Context::get()->update());
+  while (context->update());
 }
 
 int main()

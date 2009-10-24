@@ -180,8 +180,159 @@ unsigned int Limits::getMaxTextureRectangleSize(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
+float Canvas::getAspectRatio(void) const
+{
+  return getWidth() / (float) getHeight();
+}
+
+Context& Canvas::getContext(void) const
+{
+  return context;
+}
+
+Canvas::Canvas(Context& initContext):
+  context(initContext)
+{
+}
+
+Canvas::~Canvas(void)
+{
+}
+
+Canvas::Canvas(const Canvas& source):
+  context(source.context)
+{
+  // NOTE: Not implemented.
+}
+
+Canvas& Canvas::operator = (const Canvas& source)
+{
+  // NOTE: Not implemented.
+
+  return *this;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+unsigned int ScreenCanvas::getWidth(void) const
+{
+  return width;
+}
+
+unsigned int ScreenCanvas::getHeight(void) const
+{
+  return height;
+}
+
+ScreenCanvas::ScreenCanvas(Context& context):
+  Canvas(context)
+{
+  // TODO: Get screen size.
+}
+
+void ScreenCanvas::apply(void) const
+{
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Image::~Image(void)
 {
+}
+
+///////////////////////////////////////////////////////////////////////
+
+unsigned int ImageCanvas::getWidth(void) const
+{
+  return width;
+}
+
+unsigned int ImageCanvas::getHeight(void) const
+{
+  return height;
+}
+
+Image* ImageCanvas::getColorBuffer(void) const
+{
+  return colorBuffer;
+}
+
+Image* ImageCanvas::getDepthBuffer(void) const
+{
+  return depthBuffer;
+}
+
+bool ImageCanvas::setColorBuffer(Image* newImage)
+{
+  if (newImage)
+  {
+    if (newImage->getWidth() != width || newImage->getHeight() != height)
+    {
+      Log::writeError("Specified color buffer does not match canvas dimensions");
+      return false;
+    }
+  }
+
+  colorBuffer = newImage;
+  return true;
+}
+
+bool ImageCanvas::setDepthBuffer(Image* newImage)
+{
+  if (newImage)
+  {
+    if (newImage->getWidth() != width || newImage->getHeight() != height)
+    {
+      Log::writeError("Specified depth buffer does not match canvas dimensions");
+      return false;
+    }
+  }
+
+  depthBuffer = newImage;
+  return true;
+}
+
+ImageCanvas* ImageCanvas::createInstance(Context& context, unsigned int width, unsigned int height)
+{
+  Ptr<ImageCanvas> canvas(new ImageCanvas(context));
+  if (!canvas->init(width, height))
+    return false;
+
+  return canvas.detachObject();
+}
+
+ImageCanvas::ImageCanvas(Context& context):
+  Canvas(context),
+  width(0),
+  height(0),
+  bufferID(0)
+{
+}
+
+bool ImageCanvas::init(unsigned int initWidth, unsigned int initHeight)
+{
+  width = initWidth;
+  height = initHeight;
+
+  glGenFramebuffersEXT(1, &bufferID);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
+
+#if WENDY_DEBUG
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+  {
+    Log::writeError("Error during color renderbuffer creation: %s", gluErrorString(error));
+    return false;
+  }
+#endif
+
+  return true;
+}
+
+void ImageCanvas::apply(void) const
+{
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -189,6 +340,8 @@ Image::~Image(void)
 Context::~Context(void)
 {
   destroySignal.emit();
+
+  currentCanvas = NULL;
 
   if (cgContextID)
   {
@@ -199,6 +352,33 @@ Context::~Context(void)
   glfwCloseWindow();
 
   instance = NULL;
+}
+
+void Context::clearColorBuffer(const ColorRGBA& color)
+{
+  glPushAttrib(GL_COLOR_BUFFER_BIT);
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glClearColor(color.r, color.g, color.b, color.a);
+  glClear(GL_COLOR_BUFFER_BIT);
+  glPopAttrib();
+}
+
+void Context::clearDepthBuffer(float depth)
+{
+  glPushAttrib(GL_DEPTH_BUFFER_BIT);
+  glDepthMask(GL_TRUE);
+  glClearDepth(depth);
+  glClear(GL_DEPTH_BUFFER_BIT);
+  glPopAttrib();
+}
+
+void Context::clearStencilBuffer(unsigned int value)
+{
+  glPushAttrib(GL_STENCIL_BUFFER_BIT);
+  glStencilMask(GL_TRUE);
+  glClearStencil(value);
+  glClear(GL_STENCIL_BUFFER_BIT);
+  glPopAttrib();
 }
 
 bool Context::update(void)
@@ -213,16 +393,6 @@ bool Context::update(void)
 bool Context::isWindowed(void) const
 {
   return (mode.flags & ContextMode::WINDOWED) != 0;
-}
-
-unsigned int Context::getWidth(void) const
-{
-  return mode.width;
-}
-
-unsigned int Context::getHeight(void) const
-{
-  return mode.height;
 }
 
 unsigned int Context::getColorBits(void) const
@@ -240,26 +410,52 @@ unsigned int Context::getStencilBits(void) const
   return mode.stencilBits;
 }
 
-moira::Image* Context::getColorBuffer(void) const
+const Rect& Context::getScissorArea(void) const
 {
-  // TODO: Update this when adding FBO support.
-  // TODO: Eliminate stack and pixel option usage.
+  return scissorArea;
+}
 
-  Ptr<moira::Image> result(new moira::Image(ImageFormat::RGB888, mode.width, mode.height));
+const Rect& Context::getViewportArea(void) const
+{
+  return viewportArea;
+}
 
-  glPushAttrib(GL_PIXEL_MODE_BIT);
-  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+void Context::setScissorArea(const Rect& newArea)
+{
+  scissorArea = newArea;
+  updateScissorArea();
+}
 
-  glReadPixels(0, 0, mode.width, mode.height,
-	       GL_RGB, GL_UNSIGNED_BYTE,
-	       result->getPixels());
+void Context::setViewportArea(const Rect& newArea)
+{
+  viewportArea = newArea;
+  updateViewportArea();
+}
 
-  glPopAttrib();
+Canvas& Context::getCurrentCanvas(void) const
+{
+  return *currentCanvas;
+}
 
-  // OpenGL images and Moira images are upside down to each other.
-  result->flipHorizontal();
+ScreenCanvas& Context::getScreenCanvas(void) const
+{
+  return *screenCanvas;
+}
 
-  return result.detachObject();
+void Context::setScreenCanvasCurrent(void)
+{
+  setCurrentCanvas(*screenCanvas);
+}
+
+bool Context::setCurrentCanvas(Canvas& newCanvas)
+{
+  currentCanvas = &newCanvas;
+  currentCanvas->apply();
+
+  updateViewportArea();
+  updateScissorArea();
+
+  return true;
 }
 
 const String& Context::getTitle(void) const
@@ -329,6 +525,8 @@ void Context::getScreenModes(ScreenModeList& result)
 }
 
 Context::Context(void):
+  currentCanvas(NULL),
+  screenCanvas(NULL),
   cgContextID(NULL),
   cgVertexProfile(CG_PROFILE_UNKNOWN),
   cgFragmentProfile(CG_PROFILE_UNKNOWN)
@@ -355,6 +553,9 @@ Context& Context::operator = (const Context& source)
 
 bool Context::init(const ContextMode& initMode)
 {
+  scissorArea.set(0.f, 0.f, 1.f, 1.f);
+  viewportArea.set(0.f, 0.f, 1.f, 1.f);
+
   // Create context and window
   {
     unsigned int colorBits = initMode.colorBits;
@@ -379,9 +580,8 @@ bool Context::init(const ContextMode& initMode)
       return false;
     }
 
-    // Set title (as soon as possible)
-    setTitle("Wendy");
-    glfwPollEvents();
+    mode.width = initMode.width;
+    mode.height = initMode.height;
 
     // Read back actual (as opposed to desired) framebuffer properties
     mode.colorBits = glfwGetWindowParam(GLFW_RED_BITS) +
@@ -391,11 +591,6 @@ bool Context::init(const ContextMode& initMode)
     mode.stencilBits = glfwGetWindowParam(GLFW_STENCIL_BITS);
     mode.samples = glfwGetWindowParam(GLFW_FSAA_SAMPLES);
     mode.flags = initMode.flags;
-
-    glfwSetWindowSizeCallback(sizeCallback);
-    glfwSetWindowCloseCallback(closeCallback);
-
-    glfwSwapInterval(1);
   }
   
   // Initialize GLEW and check extensions
@@ -498,13 +693,68 @@ bool Context::init(const ContextMode& initMode)
     }
   }
 
+  // This needs to be done before setting the window size callback
+  screenCanvas = new ScreenCanvas(*this);
+  screenCanvas->width = mode.width;
+  screenCanvas->height = mode.height;
+
+  setScreenCanvasCurrent();
+
+  // Finish GLFW init
+  {
+    setTitle("Wendy");
+    glfwPollEvents();
+
+    glfwSetWindowSizeCallback(sizeCallback);
+    glfwSetWindowCloseCallback(closeCallback);
+
+    glfwSwapInterval(1);
+  }
+
   return true;
+}
+
+void Context::updateScissorArea(void)
+{
+  if (scissorArea == Rect(0.f, 0.f, 1.f, 1.f))
+    glDisable(GL_SCISSOR_TEST);
+  else
+  {
+    const unsigned int width = currentCanvas->getWidth();
+    const unsigned int height = currentCanvas->getHeight();
+
+    glEnable(GL_SCISSOR_TEST);
+    glScissor((GLint) floorf(scissorArea.position.x * width),
+	      (GLint) floorf(scissorArea.position.y * height),
+	      (GLsizei) ceilf(scissorArea.size.x * width),
+	      (GLsizei) ceilf(scissorArea.size.y * height));
+  }
+}
+
+void Context::updateViewportArea(void)
+{
+  const unsigned int width = currentCanvas->getWidth();
+  const unsigned int height = currentCanvas->getHeight();
+
+  glViewport((GLint) (viewportArea.position.x * width),
+             (GLint) (viewportArea.position.y * height),
+	     (GLsizei) (viewportArea.size.x * width),
+	     (GLsizei) (viewportArea.size.y * height));
 }
 
 void Context::sizeCallback(int width, int height)
 {
   instance->mode.width = width;
   instance->mode.height = height;
+
+  instance->screenCanvas->width = width;
+  instance->screenCanvas->height = height;
+
+  if (instance->currentCanvas == instance->screenCanvas)
+  {
+    instance->updateViewportArea();
+    instance->updateScissorArea();
+  }
 
   instance->resizedSignal.emit(width, height);
 }

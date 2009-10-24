@@ -100,7 +100,7 @@ public:
   bool copyFromColorBuffer(unsigned int x, unsigned int y);
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
-  const ImageFormat& getFormat(void) const;
+  const PixelFormat& getFormat(void) const;
   /*! @return The texture containing this texture image.
    */
   Texture& getTexture(void) const;
@@ -153,6 +153,8 @@ public:
   /*! @return @c true if this texture is mipmapped, otherwise @c false.
    */
   bool isMipmapped(void) const;
+  unsigned int getWidth(unsigned int level = 0);
+  unsigned int getHeight(unsigned int level = 0);
   /*! @return The width, in pixels, of the source image.
    */
   unsigned int getSourceWidth(void) const;
@@ -179,7 +181,7 @@ public:
   void setAddressMode(AddressMode newMode);
   /*! @return The image format of this texture.
    */
-  const ImageFormat& getFormat(void) const;
+  const PixelFormat& getFormat(void) const;
   Context& getContext(void) const;
   /*! Creates a texture from the specified image.
    *  @param[in] image The image data to use.
@@ -205,7 +207,7 @@ private:
   unsigned int flags;
   FilterMode filterMode;
   AddressMode addressMode;
-  ImageFormat format;
+  PixelFormat format;
   ImageList images;
 };
 

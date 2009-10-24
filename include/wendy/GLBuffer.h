@@ -450,20 +450,20 @@ public:
   virtual ~RenderBuffer(void);
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
-  const ImageFormat& getFormat(void) const;
-  static RenderBuffer* createInstance(const ImageFormat& format,
+  const PixelFormat& getFormat(void) const;
+  static RenderBuffer* createInstance(const PixelFormat& format,
                                       unsigned int width,
                                       unsigned int height,
                                       const String& name = "");
 private:
   RenderBuffer(const String& name);
-  bool init(const ImageFormat& format, unsigned int width, unsigned int height);
+  bool init(const PixelFormat& format, unsigned int width, unsigned int height);
   void attach(int attachment);
   void detach(void);
   unsigned int bufferID;
   unsigned int width;
   unsigned int height;
-  ImageFormat format;
+  PixelFormat format;
 };
 
 ///////////////////////////////////////////////////////////////////////

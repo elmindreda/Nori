@@ -17,11 +17,9 @@ int main(int argc, char** argv)
     GL::Context* context = GL::Context::get();
     context->setTitle("Simple");
 
-    GL::Renderer* renderer = GL::Renderer::get();
-
     do
     {
-      renderer->clearColorBuffer(ColorRGBA(1.f, 0.f, 0.f, 0.f));
+      context->clearColorBuffer(ColorRGBA(1.f, 0.f, 0.f, 0.f));
     }
     while (context->update());
 

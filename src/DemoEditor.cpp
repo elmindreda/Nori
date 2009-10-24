@@ -28,7 +28,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/GLContext.h>
-#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLVertex.h>
@@ -102,8 +101,8 @@ void Editor::run(void)
     show->setTimeElapsed(elapsed);
     show->prepare();
 
-    GL::Renderer* renderer = GL::Renderer::get();
-    renderer->clearColorBuffer();
+    GL::Context* context = GL::Context::get();
+    context->clearColorBuffer();
 
     if (book->isVisible())
       desktop->drawRootWidgets();
@@ -411,7 +410,7 @@ bool Editor::init(const String& showName)
 			"Compiled " __TIME__ " on " __DATE__ "\n");
   }
 
-  onResized(context->getWidth(), context->getHeight());
+  onResized(context->getScreenCanvas().getWidth(), context->getScreenCanvas().getHeight());
   onParentChanged(*timeline);
 
   updateTitle();
@@ -513,24 +512,25 @@ void Editor::onResized(unsigned int width, unsigned int height)
 
 void Editor::onDrawShowCanvas(const UI::Canvas& canvas)
 {
+  GL::Context* context = GL::Context::get();
   GL::Renderer* renderer = GL::Renderer::get();
 
   Mat4 oldProjection = renderer->getProjectionMatrix();
-  Rect oldViewport = renderer->getViewportArea();
-  Rect oldScissor = renderer->getScissorArea();
+  Rect oldViewport = context->getViewportArea();
+  Rect oldScissor = context->getScissorArea();
 
-  Vec2 scale(1.f / renderer->getCurrentCanvas().getPhysicalWidth(),
-             1.f / renderer->getCurrentCanvas().getPhysicalHeight());    
+  Vec2 scale(1.f / context->getCurrentCanvas().getWidth(),
+             1.f / context->getCurrentCanvas().getHeight());
 
   Rect area = canvas.getGlobalArea() * scale;
 
-  renderer->setScissorArea(area);
-  renderer->setViewportArea(area);
+  context->setScissorArea(area);
+  context->setViewportArea(area);
 
   show->render();
 
-  renderer->setScissorArea(oldScissor);
-  renderer->setViewportArea(oldViewport);
+  context->setScissorArea(oldScissor);
+  context->setViewportArea(oldViewport);
   renderer->setProjectionMatrix(oldProjection);
 }
 

@@ -30,7 +30,7 @@ namespace wendy
 {
   namespace GL
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -94,12 +94,18 @@ public:
    */
   ScreenMode(void);
   /*! Constructor.
+   *  @param[in] width The desired width.
+   *  @param[in] height The desired height.
+   *  @param[in] colorBits The desired number of color bits.
    */
   ScreenMode(unsigned int width, unsigned int height, unsigned int colorBits);
   /*! Resets all value to their defaults.
    */
   void setDefaults(void);
-  /*! Sets the 
+  /*! Sets the specified values.
+   *  @param[in] newWidth The desired width.
+   *  @param[in] newHeight The desired height.
+   *  @param[in] newColorBits The desired number of color bits.
    */
   void set(unsigned int newWidth, unsigned int newHeight, unsigned int newColorBits);
   /*! The desired width of the context.
@@ -153,7 +159,7 @@ public:
   /*! Resets all value to their defaults.
    */
   void setDefaults(void);
-  /*! Sets the 
+  /*! Sets the specified value.
    */
   void set(unsigned int newWidth,
 	   unsigned int newHeight,
@@ -221,6 +227,67 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Rendering canvas.
+ *  @ingroup opengl
+ *
+ *  This class represents a render target, i.e. a framebuffer.
+ */
+class Canvas : public RefObject
+{
+  friend class Context;
+public:
+  /*! @return The width, in pixels, of this canvas.
+   */
+  virtual unsigned int getWidth(void) const = 0;
+  /*! @return The height, in pixels, of this canvas.
+   */
+  virtual unsigned int getHeight(void) const = 0;
+  /*! @return The aspect ratio of the dimensions, in pixels, of this canvas.
+   */
+  float getAspectRatio(void) const;
+  /*! @return The context this canvas was created for.
+   */
+  Context& getContext(void) const;
+protected:
+  /*! Constructor.
+   */
+  Canvas(Context& context);
+  /*! Destructor.
+   */
+  virtual ~Canvas(void);
+  /*! Called when this canvas is to be made current.
+   */
+  virtual void apply(void) const = 0;
+private:
+  Canvas(const Canvas& source);
+  Canvas& operator = (const Canvas& source);
+  Context& context;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief %Canvas for rendering to the screen.
+ *  @ingroup opengl
+ */
+class ScreenCanvas : public Canvas
+{
+  friend class Context;
+public:
+  unsigned int getWidth(void) const;
+  unsigned int getHeight(void) const;
+  const PixelFormat& getColorBufferFormat(void) const;
+  const PixelFormat& getDepthBufferFormat(void) const;
+private:
+  ScreenCanvas(Context& context);
+  void apply(void) const;
+  unsigned int width;
+  unsigned int height;
+  PixelFormat colorFormat;
+  PixelFormat depthFormat;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @ingoup opengl
  */
 class Image : public RefObject
@@ -229,7 +296,7 @@ public:
   virtual ~Image(void);
   virtual unsigned int getWidth(void) const = 0;
   virtual unsigned int getHeight(void) const = 0;
-  virtual const ImageFormat& getFormat(void) const = 0;
+  virtual const PixelFormat& getFormat(void) const = 0;
 protected:
   virtual void attach(int attachment) = 0;
   virtual void detach(void) = 0;
@@ -243,6 +310,42 @@ typedef Ref<Image> ImageRef;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief %Canvas for rendering to a texture.
+ *  @ingroup opengl
+ */
+class ImageCanvas : public Canvas
+{
+public:
+  unsigned int getWidth(void) const;
+  unsigned int getHeight(void) const;
+  /*! @return The texture that this canvas uses as a color buffer.
+   */
+  Image* getColorBuffer(void) const;
+  Image* getDepthBuffer(void) const;
+  /*! Sets the image to use as the color buffer for this canvas.
+   *  @param[in] newImage The desired image, or @c NULL to detach the currently
+   *  set image.
+   */
+  bool setColorBuffer(Image* newImage);
+  bool setDepthBuffer(Image* newImage);
+  /*! Creates a texture canvas for the specified texture.
+   */
+  static ImageCanvas* createInstance(Context& context,
+                                     unsigned int width,
+                                     unsigned int height);
+private:
+  ImageCanvas(Context& context);
+  bool init(unsigned int width, unsigned int height);
+  void apply(void) const;
+  unsigned int width;
+  unsigned int height;
+  unsigned int bufferID;
+  ImageRef colorBuffer;
+  ImageRef depthBuffer;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief OpenGL context singleton.
  *  @ingroup opengl
  *
@@ -253,24 +356,31 @@ typedef Ref<Image> ImageRef;
 class Context : public Singleton<Context>
 {
   friend class Texture;
+  friend class TextureImage;
   friend class VertexProgram;
   friend class FragmentProgram;
 public:
   /*! Destructor.
    */
   ~Context(void);
+  /*! Clears the current color buffer with the specified color.
+   *  @param[in] color The color value to clear the color buffer with.
+   */
+  void clearColorBuffer(const ColorRGBA& color = ColorRGBA::BLACK);
+  /*! Clears the current depth buffer with the specified depth value.
+   *  @param[in] depth The depth value to clear the depth buffer with.
+   */
+  void clearDepthBuffer(float depth = 1.f);
+  /*! Clears the current stencil buffer with the specified stencil value.
+   *  @param[in] value The stencil value to clear the stencil buffer with.
+   */
+  void clearStencilBuffer(unsigned int value = 0);
   /*! Updates the screen.
    */
   bool update(void);
   /*! @return @c true if the context is windowed, otherwise @c false.
    */
   bool isWindowed(void) const;
-  /*! @return The default framebuffer width, in pixels.
-   */
-  unsigned int getWidth(void) const;
-  /*! @return The default framebuffer height, in pixels.
-   */
-  unsigned int getHeight(void) const;
   /*! @return The default framebuffer color depth, in bits.
    */
   unsigned int getColorBits(void) const;
@@ -280,10 +390,31 @@ public:
   /*! @return The default framebuffer stencil buffer depth, in bits.
    */
   unsigned int getStencilBits(void) const;
-  /*! @return A copy of the current state of the default framebuffer color buffer.
-   *  @todo Rename this to reflect object ownership transfer.
+  /*! @return The current scissor rectangle.
    */
-  Image* getColorBuffer(void) const;
+  const Rect& getScissorArea(void) const;
+  /*! @return The current viewport rectangle.
+   */
+  const Rect& getViewportArea(void) const;
+  void setScissorArea(const Rect& newArea);
+  /*! Sets the current viewport rectangle.
+   *  @param[in] newArea The desired viewport rectangle.
+   */
+  void setViewportArea(const Rect& newArea);
+  /*! @return The current canvas.
+   */
+  Canvas& getCurrentCanvas(void) const;
+  /*! @return The screen canvas.
+   */
+  ScreenCanvas& getScreenCanvas(void) const;
+  /*! Sets the screen canvas as the current canvas.
+   */
+  void setScreenCanvasCurrent(void);
+  /*! Makes the specified canvas the current canvas.
+   *  @param[in] newCanvas The desired canvas.
+   *  @return @c true if successful, or @c false otherwise.
+   */
+  bool setCurrentCanvas(Canvas& newCanvas);
   /*! @return The title of the context window.
    */
   const String& getTitle(void) const;
@@ -323,6 +454,8 @@ private:
   Context(const Context& source);
   Context& operator = (const Context& source);
   bool init(const ContextMode& mode);
+  void updateScissorArea(void);
+  void updateViewportArea(void);
   static void sizeCallback(int width, int height);
   static int closeCallback(void);
   Signal0<void> finishSignal;
@@ -334,6 +467,10 @@ private:
   void* cgContextID;
   int cgVertexProfile;
   int cgFragmentProfile;
+  Rect scissorArea;
+  Rect viewportArea;
+  Ref<ScreenCanvas> screenCanvas;
+  Canvas* currentCanvas;
   static Context* instance;
   static Signal0<void> createSignal;
   static Signal0<void> destroySignal;

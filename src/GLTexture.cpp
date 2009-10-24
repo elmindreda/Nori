@@ -28,7 +28,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/GLContext.h>
-#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
 
 #define GLEW_STATIC
@@ -148,8 +147,8 @@ GLint convertFilterMode(FilterMode mode, bool mipmapped)
   }
 }
 
-Bimap<ImageFormat::Type, GLenum> formatMap;
-Bimap<ImageFormat::Type, GLenum> genericFormatMap;
+Bimap<PixelFormat, GLenum> formatMap;
+Bimap<PixelFormat, GLenum> genericFormatMap;
 
 } /*namespace*/
 
@@ -157,6 +156,7 @@ Bimap<ImageFormat::Type, GLenum> genericFormatMap;
 
 bool TextureImage::copyFrom(const moira::Image& source, unsigned int x, unsigned int y)
 {
+  /*
   moira::Image final = source;
   final.convertTo(texture.format);
 
@@ -223,7 +223,8 @@ bool TextureImage::copyFrom(const moira::Image& source, unsigned int x, unsigned
     return false;
   }
 #endif
-  
+  */
+
   return true;
 }
 
@@ -278,7 +279,7 @@ unsigned int TextureImage::getHeight(void) const
   return height;
 }
 
-const ImageFormat& TextureImage::getFormat(void) const
+const PixelFormat& TextureImage::getFormat(void) const
 {
   return texture.getFormat();
 }
@@ -335,6 +336,16 @@ bool Texture::isPOT(void) const
 bool Texture::isMipmapped(void) const
 {
   return (flags & MIPMAPPED) ? true : false;
+}
+
+unsigned int Texture::getWidth(unsigned int level)
+{
+  return getImage(level).getWidth();
+}
+
+unsigned int Texture::getHeight(unsigned int level)
+{
+  return getImage(level).getHeight();
 }
 
 unsigned int Texture::getSourceWidth(void) const
@@ -403,7 +414,7 @@ void Texture::setAddressMode(AddressMode newMode)
   }
 }
 
-const ImageFormat& Texture::getFormat(void) const
+const PixelFormat& Texture::getFormat(void) const
 {
   return format;
 }
@@ -500,24 +511,18 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
 
   if (formatMap.isEmpty())
   {
-    formatMap[ImageFormat::ALPHA8] = GL_ALPHA8;
-    formatMap[ImageFormat::GREY8] = GL_LUMINANCE8;
-    formatMap[ImageFormat::GREYALPHA88] = GL_LUMINANCE8_ALPHA8;
-    formatMap[ImageFormat::RGB888] = GL_RGB8;
-    formatMap[ImageFormat::RGBA8888] = GL_RGBA8;
-
-    formatMap.setDefaults(ImageFormat::INVALID, 0);
+    formatMap[PixelFormat::R8] = GL_ALPHA8;
+    formatMap[PixelFormat::RG8] = GL_LUMINANCE8_ALPHA8;
+    formatMap[PixelFormat::RGB8] = GL_RGB8;
+    formatMap[PixelFormat::RGBA8] = GL_RGBA8;
   }
 
   if (genericFormatMap.isEmpty())
   {
-    genericFormatMap[ImageFormat::ALPHA8] = GL_ALPHA;
-    genericFormatMap[ImageFormat::GREY8] = GL_LUMINANCE;
-    genericFormatMap[ImageFormat::GREYALPHA88] = GL_LUMINANCE_ALPHA;
-    genericFormatMap[ImageFormat::RGB888] = GL_RGB;
-    genericFormatMap[ImageFormat::RGBA8888] = GL_RGBA;
-
-    genericFormatMap.setDefaults(ImageFormat::INVALID, 0);
+    genericFormatMap[PixelFormat::R8] = GL_ALPHA;
+    genericFormatMap[PixelFormat::RG8] = GL_LUMINANCE_ALPHA;
+    genericFormatMap[PixelFormat::RGB8] = GL_RGB;
+    genericFormatMap[PixelFormat::RGBA8] = GL_RGBA;
   }
 
   flags = initFlags;

@@ -28,7 +28,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/GLContext.h>
-#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
@@ -223,10 +222,10 @@ bool ClearEffect::init(void)
 
 void ClearEffect::render(void) const
 {
-  GL::Renderer* renderer = GL::Renderer::get();
-  
-  renderer->clearColorBuffer(color.getValue(getTimeElapsed()));
-  renderer->clearDepthBuffer();
+  GL::Context* context = GL::Context::get();
+
+  context->clearColorBuffer(color.getValue(getTimeElapsed()));
+  context->clearDepthBuffer();
 
   renderChildren();
 }

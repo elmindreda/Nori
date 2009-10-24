@@ -29,7 +29,6 @@
 
 #include <wendy/GLContext.h>
 #include <wendy/GLVertex.h>
-#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
 
@@ -832,12 +831,12 @@ unsigned int RenderBuffer::getHeight(void) const
   return height;
 }
 
-const ImageFormat& RenderBuffer::getFormat(void) const
+const PixelFormat& RenderBuffer::getFormat(void) const
 {
   return format;
 }
 
-RenderBuffer* RenderBuffer::createInstance(const ImageFormat& format,
+RenderBuffer* RenderBuffer::createInstance(const PixelFormat& format,
                                            unsigned int width,
                                            unsigned int height,
                                            const String& name)
@@ -855,7 +854,7 @@ RenderBuffer::RenderBuffer(const String& name):
 {
 }
 
-bool RenderBuffer::init(const ImageFormat& format,
+bool RenderBuffer::init(const PixelFormat& format,
                         unsigned int initWidth,
                         unsigned int initHeight)
 {

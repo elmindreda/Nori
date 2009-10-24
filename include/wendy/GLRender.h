@@ -79,94 +79,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Rendering canvas.
- *  @ingroup opengl
- *
- *  This class represents a render target, i.e. a framebuffer.
- */
-class Canvas : public RefObject
-{
-  friend class Renderer;
-public:
-  /*! @return The width, in pixels, of this canvas.
-   */
-  virtual unsigned int getPhysicalWidth(void) const = 0;
-  /*! @return The height, in pixels, of this canvas.
-   */
-  virtual unsigned int getPhysicalHeight(void) const = 0;
-  /*! @return The aspect ratio of the dimensions, in pixels, of this canvas.
-   */
-  float getPhysicalAspectRatio(void) const;
-  /*! @return The context this canvas was created for.
-   */
-  Context& getContext(void) const;
-protected:
-  /*! Constructor.
-   */
-  Canvas(Context& context);
-  /*! Destructor.
-   */
-  virtual ~Canvas(void);
-  /*! Called when this canvas is to be made current.
-   */
-  virtual void apply(void) const = 0;
-private:
-  Canvas(const Canvas& source);
-  Canvas& operator = (const Canvas& source);
-  Context& context;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief %Canvas for rendering to the screen.
- *  @ingroup opengl
- */
-class ScreenCanvas : public Canvas
-{
-  friend class Renderer;
-public:
-  unsigned int getPhysicalWidth(void) const;
-  unsigned int getPhysicalHeight(void) const;
-private:
-  ScreenCanvas(Context& context);
-  void apply(void) const;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief %Canvas for rendering to a texture.
- *  @ingroup opengl
- */
-class ImageCanvas : public Canvas
-{
-public:
-  unsigned int getPhysicalWidth(void) const;
-  unsigned int getPhysicalHeight(void) const;
-  /*! @return The texture that this canvas uses as a color buffer.
-   */
-  Image* getColorBuffer(void) const;
-  Image* getDepthBuffer(void) const;
-  /*! Sets the image to use as the color buffer for this canvas.
-   *  @param[in] newImage The desired image, or @c NULL to detach the currently set image.
-   */
-  bool setColorBuffer(Image* newImage);
-  bool setDepthBuffer(Image* newImage);
-  /*! Creates a texture canvas for the specified texture.
-   */
-  static ImageCanvas* createInstance(Context& context, unsigned int width, unsigned int height);
-private:
-  ImageCanvas(Context& context);
-  bool init(unsigned int width, unsigned int height);
-  void apply(void) const;
-  unsigned int width;
-  unsigned int height;
-  unsigned int bufferID;
-  ImageRef colorBuffer;
-  ImageRef depthBuffer;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief The renderer singleton.
  *  @ingroup opengl
  *
@@ -176,18 +88,6 @@ class Renderer : public Trackable, public Singleton<Renderer>
 {
 public:
   typedef std::vector<Plane> PlaneList;
-  /*! Clears the current color buffer with the specified color.
-   *  @param[in] color The color value to clear the color buffer with.
-   */
-  void clearColorBuffer(const ColorRGBA& color = ColorRGBA::BLACK);
-  /*! Clears the current depth buffer with the specified depth value.
-   *  @param[in] depth The depth value to clear the depth buffer with.
-   */
-  void clearDepthBuffer(float depth = 1.f);
-  /*! Clears the current stencil buffer with the specified stencil value.
-   *  @param[in] value The stencil value to clear the stencil buffer with.
-   */
-  void clearStencilBuffer(unsigned int value = 0);
   /*! Renders the current primitive range to the current canvas, using the
    *  current shader program and transforms.
    *  @pre A shader program must be set before calling this method.
@@ -226,26 +126,12 @@ public:
   Context& getContext(void) const;
   Texture& getDefaultTexture(void) const;
   Program& getDefaultProgram(void) const;
-  /*! @return The current scissor rectangle.
-   */
-  const Rect& getScissorArea(void) const;
-  /*! @return The current viewport rectangle.
-   */
-  const Rect& getViewportArea(void) const;
-  void setScissorArea(const Rect& newArea);
-  /*! Sets the current viewport rectangle.
-   *  @param[in] newArea The desired viewport rectangle.
-   */
-  void setViewportArea(const Rect& newArea);
-  Canvas& getCurrentCanvas(void) const;
   Program* getCurrentProgram(void) const;
   const PrimitiveRange& getCurrentPrimitiveRange(void) const;
   const PlaneList& getClipPlanes(void) const;
   const Mat4& getModelMatrix(void) const;
   const Mat4& getViewMatrix(void) const;
   const Mat4& getProjectionMatrix(void) const;
-  void setScreenCanvasCurrent(void);
-  bool setCurrentCanvas(Canvas& newCanvas);
   void setModelMatrix(const Mat4& newMatrix);
   void setViewMatrix(const Mat4& newMatrix);
   /*! Sets the projection matrix.
@@ -304,20 +190,14 @@ private:
   Renderer(Context& context);
   bool init(void);
   void onContextFinish(void);
-  void updateScissorArea(void);
-  void updateViewportArea(void);
   typedef std::list<IndexBufferSlot> IndexBufferList;
   typedef std::list<VertexBufferSlot> VertexBufferList;
   Context& context;
-  Rect scissorArea;
-  Rect viewportArea;
   Mat4 modelMatrix;
   Mat4 viewMatrix;
   Mat4 projectionMatrix;
   IndexBufferList indexBufferPool;
   VertexBufferList vertexBufferPool;
-  Ref<ScreenCanvas> screenCanvas;
-  Canvas* currentCanvas;
   Ref<Program> currentProgram;
   PrimitiveRange currentRange;
   PlaneList planes;

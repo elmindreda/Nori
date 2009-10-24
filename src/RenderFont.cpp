@@ -28,7 +28,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/GLContext.h>
-#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLVertex.h>
@@ -369,7 +368,7 @@ bool Font::init(const moira::Font& font)
     unsigned int height = glyphHeight * rows + 1;
     height = std::min(getNextPower(height), maxSize);
 
-    texture = GL::Texture::createInstance(*context, Image(ImageFormat::ALPHA8, width, height), 0);
+    texture = GL::Texture::createInstance(*context, Image(PixelFormat::R8, width, height), 0);
     if (!texture)
       return false;
   }
@@ -403,6 +402,8 @@ bool Font::init(const moira::Font& font)
 
   Vec2i texelPosition(1, 1);
 
+  GL::TextureImage& textureImage = texture->getImage(0);
+
   for (unsigned int i = 0;  i < characters.size();  i++)
   {
     glyphs.push_back(Glyph());
@@ -432,12 +433,12 @@ bool Font::init(const moira::Font& font)
     if (glyph.size.y - glyph.bearing.y > descender)
       descender = glyph.size.y - glyph.bearing.y;
 
-    if (texelPosition.x + image.getWidth() + 2 > texture->getPhysicalWidth())
+    if (texelPosition.x + image.getWidth() + 2 > textureImage.getWidth())
     {
       texelPosition.x = 1;
       texelPosition.y += (int) glyphHeight;
 
-      if (texelPosition.y + image.getHeight() + 2 > texture->getPhysicalHeight())
+      if (texelPosition.y + image.getHeight() + 2 > textureImage.getHeight())
       {
 	// TODO: Allocate next texture.
 	// TODO: Add texture pointer to glyphs.
@@ -446,13 +447,13 @@ bool Font::init(const moira::Font& font)
       }
     }
 
-    if (!texture->copyFrom(image, texelPosition.x, texelPosition.y))
+    if (!textureImage.copyFrom(image, texelPosition.x, texelPosition.y))
       return false;
 
-    glyph.area.position.set(texelPosition.x / (float) texture->getPhysicalWidth(),
-			    texelPosition.y / (float) texture->getPhysicalHeight());
-    glyph.area.size.set(image.getWidth() / (float) texture->getPhysicalWidth(),
-			image.getHeight() / (float) texture->getPhysicalHeight());
+    glyph.area.position.set(texelPosition.x / (float) textureImage.getWidth(),
+			    texelPosition.y / (float) textureImage.getHeight());
+    glyph.area.size.set(image.getWidth() / (float) textureImage.getWidth(),
+			image.getHeight() / (float) textureImage.getHeight());
 
     texelPosition.x += image.getWidth() + 1;
   }
