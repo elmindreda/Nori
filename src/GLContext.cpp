@@ -37,10 +37,6 @@
 #include <Cg/cg.h>
 #include <Cg/cgGL.h>
 
-#if MOIRA_HAVE_CTYPE_H
-#include <ctype.h>
-#endif
-
 #include <algorithm>
 
 ///////////////////////////////////////////////////////////////////////
