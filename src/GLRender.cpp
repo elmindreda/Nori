@@ -46,7 +46,7 @@ namespace wendy
 {
   namespace GL
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -55,7 +55,7 @@ using namespace moira;
 
 namespace
 {
-  
+
 GLenum convertPrimitiveType(PrimitiveType type)
 {
   switch (type)
