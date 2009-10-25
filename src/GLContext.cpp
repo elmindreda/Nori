@@ -49,7 +49,7 @@ namespace wendy
 {
   namespace GL
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -140,7 +140,7 @@ void ContextMode::set(unsigned int width,
   samples = newSamples;
   flags = newFlags;
 }
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 Limits::Limits(Context& initContext):
@@ -508,7 +508,7 @@ bool Context::create(const ContextMode& mode)
   Ptr<Context> context(new Context());
   if (!context->init(mode))
     return false;
-  
+
   set(context.detachObject());
   createSignal.emit();
   return true;
@@ -575,9 +575,9 @@ bool Context::init(const ContextMode& initMode)
     unsigned int colorBits = initMode.colorBits;
     if (colorBits > 24)
       colorBits = 24;
-    
+
     unsigned int flags;
-    
+
     if (initMode.flags & ContextMode::WINDOWED)
       flags = GLFW_WINDOW;
     else
@@ -585,8 +585,8 @@ bool Context::init(const ContextMode& initMode)
 
     if (initMode.samples)
       glfwOpenWindowHint(GLFW_FSAA_SAMPLES, initMode.samples);
-    
-    if (!glfwOpenWindow(initMode.width, initMode.height, 
+
+    if (!glfwOpenWindow(initMode.width, initMode.height,
                         colorBits / 3, colorBits / 3, colorBits / 3, 0,
                         initMode.depthBits, initMode.stencilBits, flags))
     {
@@ -606,7 +606,7 @@ bool Context::init(const ContextMode& initMode)
     mode.samples = glfwGetWindowParam(GLFW_FSAA_SAMPLES);
     mode.flags = initMode.flags;
   }
-  
+
   // Initialize GLEW and check extensions
   {
     if (glewInit() != GLEW_OK)
