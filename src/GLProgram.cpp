@@ -656,6 +656,27 @@ FragmentProgram& FragmentProgram::operator = (const FragmentProgram& source)
 
 ///////////////////////////////////////////////////////////////////////
 
+Program::~Program(void)
+{
+  while (!varyings.empty())
+  {
+    delete varyings.back();
+    varyings.pop_back();
+  }
+
+  while (!uniforms.empty())
+  {
+    delete uniforms.back();
+    uniforms.pop_back();
+  }
+
+  while (!samplers.empty())
+  {
+    delete samplers.back();
+    samplers.pop_back();
+  }
+}
+
 Varying* Program::findVarying(const String& name)
 {
   VaryingList::const_iterator i = std::find_if(varyings.begin(), varyings.end(), NameComparator<Varying>(name));

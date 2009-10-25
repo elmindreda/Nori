@@ -207,6 +207,7 @@ class Program : public RefObject, public Resource<Program>
 {
   friend class Renderer;
 public:
+  ~Program(void);
   Varying* findVarying(const String& name);
   const Varying* findVarying(const String& name) const;
   Uniform* findUniform(const String& name);
