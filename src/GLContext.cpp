@@ -56,6 +56,20 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+namespace
+{
+
+GLint getIntegerParameter(GLenum parameter)
+{
+  GLint value;
+  glGetIntegerv(parameter, &value);
+  return value;
+}
+
+}
+
+///////////////////////////////////////////////////////////////////////
+
 ScreenMode::ScreenMode(void)
 {
   setDefaults();
@@ -139,13 +153,13 @@ Limits::Limits(Context& initContext):
   maxTextureRectangleSize(0),
   maxVertexAttributes(0)
 {
-  glGetIntegerv(GL_MAX_CLIP_PLANES, (GLint*) &maxClipPlanes);
-  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint*) &maxFragmentTextureImageUnits);
-  glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, (GLint*) &maxVertexTextureImageUnits);
-  glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &maxTextureSize);
-  glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB, (GLint*) &maxTextureCubeSize);
-  glGetIntegerv(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB, (GLint*) &maxTextureCubeSize);
-  glGetIntegerv(GL_MAX_VERTEX_ATTRIBS_ARB, (GLint*) maxVertexAttributes);
+  maxClipPlanes = getIntegerParameter(GL_MAX_CLIP_PLANES);
+  maxFragmentTextureImageUnits = getIntegerParameter(GL_MAX_TEXTURE_IMAGE_UNITS);
+  maxVertexTextureImageUnits = getIntegerParameter(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+  maxTextureSize = getIntegerParameter(GL_MAX_TEXTURE_SIZE);
+  maxTextureCubeSize = getIntegerParameter(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB);
+  maxTextureRectangleSize = getIntegerParameter(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB);
+  maxVertexAttributes = getIntegerParameter(GL_MAX_VERTEX_ATTRIBS_ARB);
 }
 
 unsigned int Limits::getMaxClipPlanes(void) const
