@@ -14,17 +14,17 @@ set(wendy_SOURCES
     Input.cpp)
 
 if(WENDY_INCLUDE_UI_SYSTEM)
-  list(APPEND wendy_SOURCES
-  UIBook.cpp UIButton.cpp UICanvas.cpp UIColor.cpp UIDesktop.cpp UIEntry.cpp
-  UIItem.cpp UILabel.cpp UILayout.cpp UIList.cpp UIMenu.cpp UIPopup.cpp
-  UIProgress.cpp UIRender.cpp UIScroller.cpp UISlider.cpp UIView.cpp
-  UIWidget.cpp UIWindow.cpp)
+  list(APPEND wendy_SOURCES UIBook.cpp UIButton.cpp UICanvas.cpp UIColor.cpp
+                            UIDesktop.cpp UIEntry.cpp UIItem.cpp UILabel.cpp
+                            UILayout.cpp UIList.cpp UIMenu.cpp UIPopup.cpp
+                            UIProgress.cpp UIRender.cpp UIScroller.cpp
+                            UISlider.cpp UIView.cpp UIWidget.cpp UIWindow.cpp)
 endif(WENDY_INCLUDE_UI_SYSTEM)
 
 if(WENDY_INCLUDE_DEMO_SYSTEM)
-  list(APPEND wendy_SOURCES 
-    DemoConfig.cpp DemoEditor.cpp DemoEffect.cpp DemoPlayer.cpp
-    DemoProperty.cpp DemoShow.cpp DemoShowIO.cpp DemoTimeline.cpp)
+  list(APPEND wendy_SOURCES DemoConfig.cpp DemoEditor.cpp DemoEffect.cpp
+                            DemoPlayer.cpp DemoProperty.cpp DemoShow.cpp
+                            DemoShowIO.cpp DemoTimeline.cpp)
 endif(WENDY_INCLUDE_DEMO_SYSTEM)
 
 add_library(wendy STATIC ${wendy_SOURCES})
