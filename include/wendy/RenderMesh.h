@@ -84,11 +84,12 @@ private:
  */
 class Mesh::Geometry
 {
-  friend class Mesh;
 public:
   /*! Constructor.
    */
-  //Geometry(const GL::IndexRange& range, GLenum renderMode, Material* material);
+  Geometry(const GL::IndexRange& range,
+           GL::PrimitiveType primitiveType,
+           Material* material);
   /*! @return The range of indices used by this geometry.
    */
   const GL::IndexRange& getIndexRange(void) const;
@@ -98,6 +99,8 @@ public:
   /*! @return The %render material used by this geometry.
    */
   Material* getMaterial(void) const;
+  /*! Sets the material of this geometry.
+   */
   void setMaterial(Material* newMaterial);
 private:
   GL::IndexRange range;

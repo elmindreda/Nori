@@ -47,7 +47,7 @@ namespace wendy
 {
   namespace render
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -67,18 +67,20 @@ void Mesh::enqueue(Queue& queue, const Transform3& transform) const
 {
   for (GeometryList::const_iterator i = geometries.begin();  i != geometries.end();  i++)
   {
-    const Technique* technique = (*i)->material->getActiveTechnique();
+    Material* material = (*i)->getMaterial();
+
+    const Technique* technique = material->getActiveTechnique();
     if (!technique)
     {
       Log::writeError("Material %s has no active technique",
-                      (*i)->material->getName().c_str());
+                      material->getName().c_str());
       return;
     }
 
     Operation& operation = queue.createOperation();
-    operation.range = GL::PrimitiveRange((*i)->primitiveType,
+    operation.range = GL::PrimitiveRange((*i)->getPrimitiveType(),
                                          *vertexBuffer,
-                                         (*i)->range);
+                                         (*i)->getIndexRange());
     operation.transform = transform;
     operation.technique = technique;
   }
@@ -149,13 +151,10 @@ bool Mesh::init(const moira::Mesh& mesh)
 
   for (moira::Mesh::GeometryList::const_iterator i = mesh.geometries.begin();  i != mesh.geometries.end();  i++)
   {
-    Geometry* geometry = new Geometry();
-    geometries.push_back(geometry);
-
     indexCount = (unsigned int) (*i).triangles.size() * 3;
 
-    geometry->material = Material::readInstance((*i).shaderName);
-    if (!geometry->material)
+    Ref<Material> material = Material::readInstance((*i).shaderName);
+    if (!material)
     {
       Log::writeError("Cannot find material \'%s\' for mesh \'%s\'",
                       (*i).shaderName.c_str(),
@@ -163,10 +162,12 @@ bool Mesh::init(const moira::Mesh& mesh)
       return false;
     }
 
-    geometry->primitiveType = GL::TRIANGLE_LIST;
-    geometry->range = GL::IndexRange(*indexBuffer, indexBase, indexCount);
+    GL::IndexRange range(*indexBuffer, indexBase, indexCount);
 
-    GL::IndexRangeLock<unsigned int> indices(geometry->range);
+    Geometry* geometry = new Geometry(range, GL::TRIANGLE_LIST, material);
+    geometries.push_back(geometry);
+
+    GL::IndexRangeLock<unsigned int> indices(range);
     if (!indices)
       return false;
 
@@ -189,16 +190,14 @@ bool Mesh::init(const moira::Mesh& mesh)
 
 ///////////////////////////////////////////////////////////////////////
 
-/*
 Mesh::Geometry::Geometry(const GL::IndexRange& initRange,
-                         GLenum initRenderMode,
-                               Material* initMaterial):
+                         GL::PrimitiveType initPrimitiveType,
+                         Material* initMaterial):
   range(initRange),
-  renderMode(initRenderMode),
+  primitiveType(initPrimitiveType),
   material(initMaterial)
 {
 }
-*/
 
 const GL::IndexRange& Mesh::Geometry::getIndexRange(void) const
 {
