@@ -400,6 +400,7 @@ public:
   /*! Constructor.
    *  @param[in] range The vertex range to lock.
    *  @remarks The vertex range must not already be locked.
+   *  @remarks The specified vertex range object is copied, not referenced.
    */
   inline VertexRangeLock(VertexRange& range);
   /*! Destructor.
@@ -427,6 +428,7 @@ public:
   /*! Constructor.
    *  @param[in] range The index range to lock.
    *  @remarks The index range must not already be locked.
+   *  @remarks The specified index range object is copied, not referenced.
    */
   inline IndexRangeLock(IndexRange& range);
   /*! Destructor.
