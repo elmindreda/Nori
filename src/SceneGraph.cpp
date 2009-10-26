@@ -42,7 +42,6 @@
 #include <wendy/RenderSprite.h>
 #include <wendy/RenderParticle.h>
 #include <wendy/RenderMesh.h>
-#include <wendy/RenderTerrain.h>
 
 #include <wendy/SceneGraph.h>
 
@@ -489,37 +488,6 @@ void CameraNode::update(Time deltaTime)
   }
 
   camera->setTransform(getWorldTransform());
-}
-
-///////////////////////////////////////////////////////////////////////
-
-render::Terrain* TerrainNode::getTerrain(void) const
-{
-  return terrain;
-}
-
-void TerrainNode::setTerrain(render::Terrain* newTerrain)
-{
-  terrain = newTerrain;
-}
-
-void TerrainNode::update(Time deltaTime)
-{
-  Node::update(deltaTime);
-
-  if (terrain)
-    setLocalBounds(terrain->getBounds());
-}
-
-void TerrainNode::enqueue(render::Queue& queue, QueuePhase phase) const
-{
-  Node::enqueue(queue, phase);
-
-  if (phase == COLLECT_GEOMETRY)
-  {
-    if (terrain)
-      terrain->enqueue(queue, getWorldTransform());
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////

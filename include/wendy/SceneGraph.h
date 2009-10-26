@@ -281,22 +281,6 @@ private:
 
 /*! @ingroup scene
  */
-class TerrainNode : public Node
-{
-public:
-  render::Terrain* getTerrain(void) const;
-  void setTerrain(render::Terrain* newTerrain);
-protected:
-  void update(Time deltaTime);
-  void enqueue(render::Queue& queue, QueuePhase phase) const;
-private:
-  Ref<render::Terrain> terrain;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup scene
- */
 class SpriteNode : public Node
 {
 public:

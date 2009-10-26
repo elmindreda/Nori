@@ -116,7 +116,6 @@
 #include <wendy/RenderFont.h>
 #include <wendy/RenderParticle.h>
 #include <wendy/RenderMesh.h>
-#include <wendy/RenderTerrain.h>
 
 #include <wendy/Input.h>
 

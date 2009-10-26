@@ -39,7 +39,6 @@
 #include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderMesh.h>
-#include <wendy/RenderTerrain.h>
 #include <wendy/RenderParticle.h>
 
 #include <wendy/SceneGraph.h>
