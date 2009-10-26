@@ -38,7 +38,7 @@ namespace wendy
 {
   namespace GL
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 VertexComponent::VertexComponent(const String& initName,
@@ -170,7 +170,7 @@ bool VertexFormat::createComponents(const String& specification)
 	  Log::writeError("Invalid vertex component type 0x%02x", *command);
 	return false;
     }
-    
+
     if (++command == specification.end())
     {
       Log::writeError("Unexpected end of vertex format specification");

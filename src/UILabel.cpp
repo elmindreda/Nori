@@ -51,7 +51,7 @@ namespace wendy
 {
   namespace UI
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -93,7 +93,7 @@ void Label::setText(const char* format, ...)
   va_start(vl, format);
   vasprintf(&newText, format, vl);
   va_end(vl);
-  
+
   text = newText;
   free(newText);
 }

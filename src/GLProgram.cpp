@@ -46,7 +46,7 @@ namespace wendy
 {
   namespace GL
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -819,7 +819,7 @@ bool Program::init(VertexProgram& initVertexProgram, FragmentProgram& initFragme
   cgGLLoadProgram((CGprogram) fragmentProgram->programID);
 
   CGparameter parameter;
-  
+
   parameter = cgGetFirstLeafParameter((CGprogram) vertexProgram->programID,
                                       CG_PROGRAM);
 
@@ -951,7 +951,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
                       program.getName().c_str(),
                       uniforms.size());
     }
-     
+
     return false;
   }
 
@@ -963,7 +963,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
                       program.getName().c_str(),
                       samplers.size());
     }
-     
+
     return false;
   }
 
@@ -975,7 +975,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
                       program.getName().c_str(),
                       varyings.size());
     }
-     
+
     return false;
   }
 

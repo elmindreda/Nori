@@ -47,7 +47,7 @@ namespace wendy
 {
   namespace render
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -285,7 +285,7 @@ void Sprite3::realizeVertices(GL::Vertex2ft3fv* vertices,
 {
   Transform3 inverse = transform;
   inverse.invert();
-  
+
   Vec3 localCamera = camera;
   inverse.transformVector(localCamera);
 
@@ -376,7 +376,7 @@ void SpriteCloud3::realizeVertices(GL::Vertex2ft3fv* vertices,
 {
   Transform3 inverse = transform;
   inverse.invert();
-  
+
   Vec3 localCamera = camera;
   inverse.transformVector(localCamera);
 

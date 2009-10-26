@@ -30,7 +30,7 @@ namespace wendy
 {
   namespace UI
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -99,7 +99,7 @@ public:
  *  @ingroup ui
  *
  *  This class implements the default rendering behavior for widgets.
- * 
+ *
  *  @remarks This should probable be made overridable at some point.
  */
 class Renderer : public Singleton<Renderer>

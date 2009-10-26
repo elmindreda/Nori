@@ -68,7 +68,7 @@ namespace wendy
 {
   namespace demo
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -499,7 +499,7 @@ void PropertyTrack::draw(void) const
                           area.position.y);
     wellArea.size.set((float) property.getEffect().getDuration() * timeline.getSecondWidth(),
                       area.size.y);
-                          
+
     renderer->drawWell(wellArea, getState());
     renderer->drawText(wellArea, property.getName());
 
@@ -610,7 +610,7 @@ Timeline::Timeline(Show& initShow):
 
   ruler = new TimelineRuler(*this);
   ruler->getTimeChangedSignal().connect(*this, &Timeline::onTimeChanged);
-  vertLayout->addChild(*ruler);  
+  vertLayout->addChild(*ruler);
 
   trackPanel = new TrackPanel(*this);
   trackPanel->getButtonClickedSignal().connect(*this, &Timeline::onButtonClicked);

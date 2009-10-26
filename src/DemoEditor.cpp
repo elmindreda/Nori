@@ -69,7 +69,7 @@ namespace wendy
 {
   namespace demo
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -260,7 +260,7 @@ bool Editor::init(const String& showName)
     controlLayout->addChild(*commandLayout, 0.f);
 
     UI::Button* button;
-    
+
     button = new UI::Button("Create Effect");
     button->getPushedSignal().connect(*this, &Editor::onCreateEffect);
     commandLayout->addChild(*button);
@@ -270,7 +270,7 @@ bool Editor::init(const String& showName)
     commandLayout->addChild(*button);
 
     UI::Label* label;
-    
+
     label = new UI::Label("Effect Name");
     commandLayout->addChild(*label);
 

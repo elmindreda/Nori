@@ -39,13 +39,13 @@ namespace wendy
 {
   namespace input
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
-  
+
 Key::Key(unsigned int initSymbol):
   symbol(initSymbol)
 {
@@ -321,7 +321,7 @@ Context::Context(GL::Context& initContext):
   glfwSetMouseWheelCallback(mouseWheelCallback);
 
   wheelPosition = glfwGetMouseWheel();
-  
+
   glfwEnable(GLFW_MOUSE_CURSOR);
 }
 
@@ -392,7 +392,7 @@ void Context::mouseButtonCallback(int button, int action)
 
   button -= GLFW_MOUSE_BUTTON_1;
 
-  instance->buttonClickedSignal.emit(button, clicked); 
+  instance->buttonClickedSignal.emit(button, clicked);
 
   if (instance->currentFocus)
     instance->currentFocus->onButtonClicked(button, clicked);

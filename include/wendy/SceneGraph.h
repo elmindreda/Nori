@@ -30,7 +30,7 @@ namespace wendy
 {
   namespace scene
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -38,7 +38,7 @@ using namespace moira;
 ///////////////////////////////////////////////////////////////////////
 
 /*! @defgroup scene Scene management API
- *  
+ *
  *  These classes make up the scene graph and scene management part of Wendy.
  */
 

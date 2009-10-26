@@ -41,12 +41,12 @@ namespace wendy
 {
   namespace GL
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace
 {
-  
+
 GLenum convertLockType(LockType type)
 {
   switch (type)
@@ -468,7 +468,7 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
   glGetError();
 
   glGenBuffersARB(1, &bufferID);
-  
+
   apply();
 
   glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
@@ -715,7 +715,7 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
   type(initType),
   vertexBuffer(&initVertexBuffer),
   start(0),
-  count(0) 
+  count(0)
 {
   count = vertexBuffer->getCount();
 }
@@ -738,7 +738,7 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
   vertexBuffer(&initVertexBuffer),
   indexBuffer(&initIndexBuffer),
   start(0),
-  count(0)                                                     
+  count(0)
 {
   count = indexBuffer->getCount();
 }
@@ -749,7 +749,7 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
   type(initType),
   vertexBuffer(&initVertexBuffer),
   start(0),
-  count(0)                                                     
+  count(0)
 {
   indexBuffer = indexRange.getIndexBuffer();
   start = indexRange.getStart();
@@ -844,7 +844,7 @@ RenderBuffer* RenderBuffer::createInstance(const PixelFormat& format,
   Ptr<RenderBuffer> buffer(new RenderBuffer(name));
   if (!buffer->init(format, width, height))
     return NULL;
-    
+
   return buffer.detachObject();
 }
 

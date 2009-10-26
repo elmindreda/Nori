@@ -48,7 +48,7 @@ namespace wendy
 {
   namespace UI
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -166,7 +166,7 @@ void Renderer::drawBezier(const BezierCurve2& spline, const ColorRGBA& color)
 {
   BezierCurve2::PointList points;
   spline.tessellate(points);
-  
+
   GL::Renderer* renderer = GL::Renderer::get();
 
   GL::VertexRange range;
@@ -425,7 +425,7 @@ void Renderer::drawFrame(const Rect& area, WidgetState state)
       fillColor = widgetColor;
       break;
   }
-      
+
   fillRectangle(area, fillColor);
   drawRectangle(area, ColorRGBA::BLACK);
 }

@@ -30,7 +30,7 @@ namespace wendy
 {
   namespace GL
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -201,7 +201,7 @@ public:
   /*! Constructor.
    */
   ProgramState(void);
-  /*! Copy constructor.  Performs a deep copy of the contained state.     
+  /*! Copy constructor.  Performs a deep copy of the contained state.
    */
   ProgramState(const ProgramState& source);
   /*! Destructor.

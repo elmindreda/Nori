@@ -30,7 +30,7 @@ namespace wendy
 {
   namespace UI
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -46,7 +46,7 @@ public:
   const String& getTitle(void) const;
   void setTitle(const String& newTitle);
 private:
-  void draw(void) const;  
+  void draw(void) const;
   String title;
 };
 

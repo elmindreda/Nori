@@ -44,7 +44,7 @@ namespace wendy
 {
   namespace render
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -157,7 +157,7 @@ bool Technique::operator < (const Technique& other) const
   }
 
   // TODO: Fix this!
- 
+
   return getName() < other.getName();
 }
 

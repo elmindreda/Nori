@@ -42,7 +42,7 @@ namespace wendy
 {
   namespace GL
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -435,7 +435,7 @@ TextureImage& Texture::getImage(unsigned int level)
   }
 
   Ptr<moira::Image> result;
-  
+
   result = new moira::Image(format, getPhysicalWidth(level), getPhysicalHeight(level));
 
   glPushAttrib(GL_TEXTURE_BIT | GL_PIXEL_MODE_BIT);
@@ -447,7 +447,7 @@ TextureImage& Texture::getImage(unsigned int level)
 		genericFormatMap[format],
 		GL_UNSIGNED_BYTE,
 		result->getPixels());
-  
+
   glPopAttrib();
 
 #if WENDY_DEBUG
@@ -705,7 +705,7 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
 		    gluErrorString(error));
     return false;
   }
-  
+
   return true;
 }
 
@@ -713,7 +713,7 @@ Texture& Texture::operator = (const Texture& source)
 {
   return *this;
 }
-  
+
 ///////////////////////////////////////////////////////////////////////
 
   } /*namespace GL*/

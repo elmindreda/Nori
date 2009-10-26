@@ -34,7 +34,7 @@ namespace wendy
 {
   namespace render
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -154,7 +154,7 @@ protected:
    */
   virtual void affectParticle(Particle& particle,
                               unsigned int particleIndex,
-			      Time deltaTime) = 0; 
+			      Time deltaTime) = 0;
   /*! @return The particle system that this affector is owned by, or @c NULL if
    *  this affector isn't owned by any system.
    */

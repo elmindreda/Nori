@@ -46,7 +46,7 @@ namespace wendy
 {
   namespace render
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -71,7 +71,7 @@ float Terrain::getHeight(const Vec2& position) const
   const unsigned int index = cornerZ * (width - 1) + cornerX;
 
   const Tile& tile = tiles[index];
-  
+
   Vec3 normal;
 
   if (grid.x - floorf(grid.x) > grid.z - floorf(grid.z))
@@ -81,14 +81,14 @@ float Terrain::getHeight(const Vec2& position) const
 
   Vec3 corner = gridToWorld(Vec3(floorf(grid.x), 0.f, floorf(grid.z)));
   corner.y = tile.height;
-  
+
   const float D = -corner.dot(normal);
 
   const float height = -((normal.x * position.x + normal.z * position.y + D) / normal.y);
 
   return height;
 }
- 
+
 const Sphere& Terrain::getBounds(void) const
 {
   return bounds;
@@ -152,7 +152,7 @@ bool Terrain::init(const Image& heightmap, const Vec3& initSize, Material& mater
       meshData.vertices[index].position.y = size.y * height;
       meshData.vertices[index].position.z = size.z * (z - offset.y) / depth;
       meshData.vertices[index].texcoord.set(x / (width - 1.f), z / (depth - 1.f));
-      
+
       index++;
     }
   }

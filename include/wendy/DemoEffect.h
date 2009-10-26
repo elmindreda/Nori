@@ -30,7 +30,7 @@ namespace wendy
 {
   namespace demo
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -105,7 +105,7 @@ public:
   const PropertyList& getProperties(void) const;
 protected:
   void prepareChildren(void) const;
-  void renderChildren(void) const; 
+  void renderChildren(void) const;
   virtual void prepare(void) const;
   virtual void render(void) const;
   virtual void update(Time deltaTime);

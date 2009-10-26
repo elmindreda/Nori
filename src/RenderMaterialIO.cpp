@@ -48,7 +48,7 @@ namespace wendy
 {
   namespace render
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -490,7 +490,7 @@ bool MaterialCodec::onBeginElement(const String& name)
 	    currentTechnique = NULL;
 	    return true;
 	  }
-	  
+
 	  currentPass->setProgram(program);
 	  return true;
 	}
@@ -532,7 +532,7 @@ bool MaterialCodec::onBeginElement(const String& name)
 	if (name == "filter")
 	{
 	  String filterName;
-	  
+
 	  filterName = readString("min");
 	  if (!filterName.empty())
 	  {
@@ -543,7 +543,7 @@ bool MaterialCodec::onBeginElement(const String& name)
 	      Log::writeError("Invalid texture layer min filter type %s",
 	                      filterName.c_str());
 	  }
-	  
+
 	  filterName = readString("mag");
 	  if (!filterName.empty())
 	  {

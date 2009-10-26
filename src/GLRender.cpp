@@ -424,7 +424,7 @@ bool Renderer::allocateIndices(IndexRange& range,
     slot->available = slot->indexBuffer->getCount();
   }
 
-  range = IndexRange(*(slot->indexBuffer), 
+  range = IndexRange(*(slot->indexBuffer),
 		     slot->indexBuffer->getCount() - slot->available,
                      count);
 
@@ -461,7 +461,7 @@ bool Renderer::allocateVertices(VertexRange& range,
     // Granularity of 1K
     // TODO: Make granularity configurable or autoconfigured
     const unsigned int actualCount = 1024 * ((count + 1023) / 1024);
-    
+
     slot->vertexBuffer = VertexBuffer::createInstance(actualCount,
                                                       format,
 						      VertexBuffer::DYNAMIC);
@@ -481,7 +481,7 @@ bool Renderer::allocateVertices(VertexRange& range,
     slot->available = slot->vertexBuffer->getCount();
   }
 
-  range = VertexRange(*(slot->vertexBuffer), 
+  range = VertexRange(*(slot->vertexBuffer),
 		      slot->vertexBuffer->getCount() - slot->available,
                       count);
 
@@ -555,7 +555,7 @@ void Renderer::setProjectionMatrix(const Mat4& newMatrix)
 {
   projectionMatrix = newMatrix;
 }
-  
+
 void Renderer::setProjectionMatrix2D(float width, float height)
 {
   projectionMatrix.setIdentity();

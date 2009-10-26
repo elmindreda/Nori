@@ -30,7 +30,7 @@ namespace wendy
 {
   namespace input
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -48,7 +48,7 @@ public:
   enum Symbol
   {
     SPACE = 32,
-    ESCAPE = 256, TAB, ENTER, BACKSPACE, INSERT, DELETE, 
+    ESCAPE = 256, TAB, ENTER, BACKSPACE, INSERT, DELETE,
     LSHIFT, RSHIFT, LCTRL, RCTRL, LALT, RALT,
     UP, DOWN, LEFT, RIGHT, PAGEUP, PAGEDOWN, HOME, END,
     F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,

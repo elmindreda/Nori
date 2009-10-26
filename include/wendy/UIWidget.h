@@ -30,7 +30,7 @@ namespace wendy
 {
   namespace UI
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -62,7 +62,7 @@ class Desktop;
  *  This is the base class for all interface widgets, including windows.
  *  It also translates and dispatches user input events, with no client
  *  setup required.
- *  
+ *
  *  @remarks Yes, it's big. Get over it.
  */
 class Widget : public Trackable

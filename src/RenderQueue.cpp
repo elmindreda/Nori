@@ -48,7 +48,7 @@ namespace wendy
 {
   namespace render
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -132,7 +132,7 @@ void Queue::render(void) const
   lights.apply();
 
   const OperationList& operations = getOperations();
-  
+
   for (OperationList::const_iterator o = operations.begin();  o != operations.end();  o++)
   {
     const Operation& operation = **o;

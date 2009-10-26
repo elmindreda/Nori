@@ -497,7 +497,7 @@ bool TextureProperty::isComplete(void) const
   }
 
   return true;
-}  
+}
 
 GL::Texture* TextureProperty::getDefaultValue(void) const
 {
@@ -564,7 +564,7 @@ bool MaterialProperty::isComplete(void) const
   }
 
   return true;
-}  
+}
 
 render::Material* MaterialProperty::getDefaultValue(void) const
 {

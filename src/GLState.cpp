@@ -46,7 +46,7 @@ namespace wendy
 {
   namespace GL
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -219,7 +219,7 @@ void StencilState::apply(void) const
     force();
     return;
   }
-  
+
   if (data.enabled)
   {
     if (!cache.enabled)
@@ -738,7 +738,7 @@ void RenderState::apply(void) const
     force();
     return;
   }
-  
+
   CullMode cullMode = data.cullMode;
   if (cullingInverted)
     cullMode = invertCullMode(cullMode);
@@ -750,7 +750,7 @@ void RenderState::apply(void) const
 
     if (cullMode != CULL_NONE)
       glCullFace(convertCullMode(cullMode));
-      
+
     cache.cullMode = cullMode;
   }
 
@@ -760,7 +760,7 @@ void RenderState::apply(void) const
 
     if (data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO)
       glBlendFunc(convertBlendFactor(data.srcFactor), convertBlendFactor(data.dstFactor));
-    
+
     cache.srcFactor = data.srcFactor;
     cache.dstFactor = data.dstFactor;
   }
@@ -818,7 +818,7 @@ void RenderState::apply(void) const
     glPolygonMode(GL_FRONT_AND_BACK, state);
     cache.wireframe = data.wireframe;
   }
-  
+
 #if WENDY_DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
@@ -952,7 +952,7 @@ void RenderState::force(void) const
 
   setBooleanState(GL_BLEND, data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO);
   glBlendFunc(convertBlendFactor(data.srcFactor), convertBlendFactor(data.dstFactor));
-  
+
   glDepthMask(data.depthWriting ? GL_TRUE : GL_FALSE);
   setBooleanState(GL_DEPTH_TEST, data.depthTesting || data.depthWriting);
 

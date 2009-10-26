@@ -54,7 +54,7 @@ namespace wendy
 {
   namespace scene
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -123,7 +123,7 @@ bool Node::isChildOf(const Node& node) const
 
     return parent->isChildOf(node);
   }
-  
+
   return false;
 }
 
@@ -229,7 +229,7 @@ void Node::update(Time deltaTime)
 
 void Node::restart(void)
 {
-} 
+}
 
 void Node::enqueue(render::Queue& queue, QueuePhase phase) const
 {
@@ -258,7 +258,7 @@ bool Node::updateWorldTransform(void) const
     parent->updateWorldTransform();
     world *= parent->world;
   }
-  
+
   /* TODO: Fix this.
 
   const Node* parent = getParent();

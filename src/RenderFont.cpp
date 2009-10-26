@@ -47,7 +47,7 @@ namespace wendy
 {
   namespace render
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -68,9 +68,9 @@ unsigned int getNextPower(unsigned int value)
 }
 
 }
-  
+
 ///////////////////////////////////////////////////////////////////////
-  
+
 void Font::drawText(const String& text) const
 {
   GL::Renderer* renderer = GL::Renderer::get();
@@ -108,7 +108,7 @@ void Font::drawText(const String& text) const
 	  penOffset.x += size.x * 3.f;
 	  break;
 	}
-	  
+
 	case '\n':
 	{
 	  penOffset.x = 0.f;
@@ -162,7 +162,7 @@ void Font::drawText(const char* format, ...) const
   va_start(vl, format);
   vasprintf(&text, format, vl);
   va_end(vl);
-  
+
   drawText(String(text));
 
   free(text);
@@ -230,7 +230,7 @@ Rect Font::getTextMetrics(const char* format, ...) const
   va_start(vl, format);
   vasprintf(&text, format, vl);
   va_end(vl);
-  
+
   Rect result = getTextMetrics(String(text));
 
   free(text);
@@ -301,7 +301,7 @@ void Font::getTextLayout(LayoutList& result, const char* format, ...) const
   va_end(vl);
 
   getTextLayout(result, String(text));
-  
+
   free(text);
 }
 
@@ -481,7 +481,7 @@ void Font::Glyph::realizeVertices(Vec2 penPosition, GL::Vertex2ft2fv* vertices) 
   pa.position = penPosition;
   pa.position.y += bearing.y - size.y;
   pa.size = size;
-    
+
   vertices[0].mapping.set(ta.position.x, ta.position.y);
   vertices[0].position.set(pa.position.x, pa.position.y);
   vertices[1].mapping.set(ta.position.x + ta.size.x, ta.position.y);

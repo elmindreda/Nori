@@ -30,7 +30,7 @@ namespace wendy
 {
   namespace GL
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -119,7 +119,7 @@ public:
   static VertexBuffer* createInstance(unsigned int count,
                                       const VertexFormat& format,
 				      Usage usage = STATIC,
-				      const String& name = ""); 
+				      const String& name = "");
 private:
   VertexBuffer(const String& name);
   VertexBuffer(const VertexBuffer& source);

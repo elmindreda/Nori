@@ -55,7 +55,7 @@ namespace wendy
 {
   namespace demo
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -149,7 +149,7 @@ bool ShowCodec::onBeginElement(const String& name)
       Effect* effect = type->createEffect(readString("name"));
       if (!effect)
 	return false;
-      
+
       effect->setStartTime(readFloat("start"));
       effect->setDuration(readFloat("duration"));
 
@@ -188,7 +188,7 @@ bool ShowCodec::onBeginElement(const String& name)
       }
     }
   }
-  
+
   return true;
 }
 
@@ -202,7 +202,7 @@ bool ShowCodec::onEndElement(const String& name)
     if (name == "property")
       currentProperty = NULL;
   }
-  
+
   return true;
 }
 

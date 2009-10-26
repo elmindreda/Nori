@@ -39,7 +39,7 @@ namespace wendy
 {
   namespace GL
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -92,7 +92,7 @@ bool VertexProgramCodec::write(Stream& stream, const VertexProgram& program)
 ///////////////////////////////////////////////////////////////////////
 
 FragmentProgramCodec::FragmentProgramCodec(void):
-  ResourceCodec<FragmentProgram>("Fragment program codec") 
+  ResourceCodec<FragmentProgram>("Fragment program codec")
 {
   addSuffix("fp");
   addSuffix("cg");

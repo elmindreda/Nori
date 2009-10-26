@@ -47,7 +47,7 @@ namespace wendy
 {
   namespace render
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 using namespace moira;
@@ -142,7 +142,7 @@ ParticleSystem::~ParticleSystem(void)
   {
     delete affectors.front();
     affectors.pop_front();
-  } 
+  }
 }
 
 void ParticleSystem::enqueue(Queue& queue, const Transform3& transform) const
@@ -400,7 +400,7 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& vertexRange,
   }
 
   if (!renderer->allocateVertices(vertexRange,
-                                  activeParticles.size() * 4, 
+                                  activeParticles.size() * 4,
 				  GL::Vertex4fc2ft3fv::format))
     return false;
 
@@ -411,7 +411,7 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& vertexRange,
   unsigned int base = 0;
 
   for (ParticlePool::const_iterator i = activeParticles.begin();  i != activeParticles.end();  i++)
-  {  
+  {
     const Particle& particle = particles[*i];
 
     // TODO: Fix this (separate y-axis rotation and pivot)

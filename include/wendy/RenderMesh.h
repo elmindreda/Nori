@@ -34,7 +34,7 @@ namespace wendy
 {
   namespace render
   {
-  
+
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Renderable mesh object.
