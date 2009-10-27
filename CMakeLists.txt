@@ -13,6 +13,7 @@ option(WENDY_INCLUDE_UI_SYSTEM "Include the UI library" ON)
 option(WENDY_INCLUDE_DEMO_SYSTEM "Include the demo system" ON)
 option(WENDY_INCLUDE_OPENAL_WRAPPER "Include the OpenAL wrapper" OFF)
 option(WENDY_BUILD_EXAMPLES "Build the bundled example programs" OFF)
+option(WENDY_BUILD_TESTS "Build the bundled test programs" OFF)
 
 if(WENDY_USE_INTERNAL)
 
@@ -80,6 +81,10 @@ add_subdirectory(src)
 if(WENDY_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif(WENDY_BUILD_EXAMPLES)
+
+if(WENDY_BUILD_TESTS)
+  add_subdirectory(tests)
+endif(WENDY_BUILD_TESTS)
 
 install(DIRECTORY include/wendy
         DESTINATION include
