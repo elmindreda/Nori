@@ -503,12 +503,6 @@ Texture::Texture(const Texture& source):
 
 bool Texture::init(const moira::Image& image, unsigned int initFlags)
 {
-  if (!Context::get())
-  {
-    Log::writeError("Cannot create texture without OpenGL context");
-    return false;
-  }
-
   if (formatMap.isEmpty())
   {
     formatMap[PixelFormat::R8] = GL_ALPHA8;
@@ -590,7 +584,7 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
       width = sourceWidth;
       height = sourceHeight;
 
-      const unsigned int maxSize = GL::Context::get()->getLimits().getMaxTextureRectangleSize();
+      const unsigned int maxSize = context.getLimits().getMaxTextureRectangleSize();
 
       if (width > maxSize)
 	width = maxSize;
@@ -600,7 +594,7 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
     }
     else
     {
-      const unsigned int maxSize = GL::Context::get()->getLimits().getMaxTextureSize();
+      const unsigned int maxSize = context.getLimits().getMaxTextureSize();
 
       width = getClosestPower(sourceWidth, maxSize);
       height = getClosestPower(sourceHeight, maxSize);
