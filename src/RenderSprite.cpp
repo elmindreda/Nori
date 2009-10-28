@@ -207,12 +207,13 @@ void Sprite2::realizeVertices(GL::Vertex2ft2fv* vertices) const
   const Vec2 offset(size.x / 2.f, size.y / 2.f);
 
   vertices[0].mapping.set(mapping.position.x + mapping.size.x, mapping.position.y + mapping.size.y);
-  vertices[0].position.set( offset.x,  offset.y);
   vertices[1].mapping.set(mapping.position.x, mapping.position.y + mapping.size.y);
-  vertices[1].position.set(-offset.x,  offset.y);
   vertices[2].mapping.set(mapping.position.x, mapping.position.y);
-  vertices[2].position.set(-offset.x, -offset.y);
   vertices[3].mapping.set(mapping.position.x + mapping.size.x, mapping.position.y);
+
+  vertices[0].position.set( offset.x,  offset.y);
+  vertices[1].position.set(-offset.x,  offset.y);
+  vertices[2].position.set(-offset.x, -offset.y);
   vertices[3].position.set( offset.x, -offset.y);
 
   for (unsigned int i = 0;  i < 4;  i++)
