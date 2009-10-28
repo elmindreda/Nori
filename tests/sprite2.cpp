@@ -44,10 +44,10 @@ bool Test::init(void)
     return false;
   }
 
-  GL::VertexProgram::addSearchPath(Path("../media"));
-  GL::FragmentProgram::addSearchPath(Path("../media"));
-  GL::Program::addSearchPath(Path("../media"));
-  render::Material::addSearchPath(Path("../media"));
+  GL::VertexProgram::addSearchPath(Path("media"));
+  GL::FragmentProgram::addSearchPath(Path("media"));
+  GL::Program::addSearchPath(Path("media"));
+  render::Material::addSearchPath(Path("media"));
 
   material = render::Material::readInstance("red");
   if (!material)
