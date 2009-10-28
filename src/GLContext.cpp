@@ -118,7 +118,7 @@ ContextMode::ContextMode(unsigned int width,
 
 void ContextMode::setDefaults(void)
 {
-  set(640, 480, 0, 0, 0, DEFAULT);
+  set(640, 480, 32, 32, 0, DEFAULT);
 }
 
 void ContextMode::set(unsigned int width,
