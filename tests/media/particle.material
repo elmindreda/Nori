@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<material version="4">
+  <technique quality="1">
+    <pass>
+      <depth testing="false" writing="false" />
+      <program name="particle" />
+      <polygon cull="none" />
+    </pass>
+  </technique>
+</material>
