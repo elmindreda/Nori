@@ -523,7 +523,7 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
   {
     Log::writeError("Source image for texture \'%s\' has unsupported format \'%s\'",
                     getName().c_str(),
-                    image.getFormat().asString.c_str());
+                    image.getFormat().asString().c_str());
     return false;
   }
 
