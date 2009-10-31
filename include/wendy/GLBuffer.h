@@ -95,7 +95,7 @@ public:
   void copyFrom(const void* source, unsigned int count, unsigned int start = 0);
   /*! Copies the specified number of bytes from this vertex buffer, starting
    *  at the specified offset.
-   *  @param[in] target The base address of the destination buffer.
+   *  @param[out] target The base address of the destination buffer.
    *  @param[in] count The number of vertices to copy.
    *  @param[in] start The index of the first vertex to read from.
    */
@@ -192,7 +192,7 @@ public:
   void copyFrom(const void* source, unsigned int count, unsigned int start = 0);
   /*! Copies the specified number of bytes from this index buffer, starting
    *  at the specified offset.
-   *  @param[in] target The base address of the destination buffer.
+   *  @param[out] target The base address of the destination buffer.
    *  @param[in] count The number of indices to copy.
    *  @param[in] start The index of the first index to read from.
    */
@@ -268,7 +268,7 @@ public:
    */
   void copyFrom(const void* source);
   /*! Copies the specified number of bytes from this vertex range.
-   *  @param[in] target The base address of the destination buffer.
+   *  @param[out] target The base address of the destination buffer.
    */
   void copyTo(void* target);
   /*! @return The vertex buffer underlying this vertex range.
@@ -323,7 +323,7 @@ public:
    */
   void copyFrom(const void* source);
   /*! Copies the specified number of bytes from this index range.
-   *  @param[in] target The base address of the destination buffer.
+   *  @param[out] target The base address of the destination buffer.
    */
   void copyTo(void* target);
   /*! @return The index buffer underlying this index range.
