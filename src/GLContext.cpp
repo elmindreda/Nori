@@ -224,14 +224,29 @@ Canvas& Canvas::operator = (const Canvas& source)
 
 ///////////////////////////////////////////////////////////////////////
 
+unsigned int ScreenCanvas::getColorBits(void) const
+{
+  return mode.colorBits;
+}
+
+unsigned int ScreenCanvas::getDepthBits(void) const
+{
+  return mode.depthBits;
+}
+
+unsigned int ScreenCanvas::getStencilBits(void) const
+{
+  return mode.stencilBits;
+}
+
 unsigned int ScreenCanvas::getWidth(void) const
 {
-  return width;
+  return mode.width;
 }
 
 unsigned int ScreenCanvas::getHeight(void) const
 {
-  return height;
+  return mode.height;
 }
 
 ScreenCanvas::ScreenCanvas(Context& context):
@@ -398,26 +413,6 @@ bool Context::update(void)
   finishSignal.emit();
 
   return glfwGetWindowParam(GLFW_OPENED) == GL_TRUE;
-}
-
-bool Context::isWindowed(void) const
-{
-  return (mode.flags & ContextMode::WINDOWED) != 0;
-}
-
-unsigned int Context::getColorBits(void) const
-{
-  return mode.colorBits;
-}
-
-unsigned int Context::getDepthBits(void) const
-{
-  return mode.depthBits;
-}
-
-unsigned int Context::getStencilBits(void) const
-{
-  return mode.stencilBits;
 }
 
 const Rect& Context::getScissorArea(void) const
@@ -589,18 +584,6 @@ bool Context::init(const ContextMode& initMode)
       Log::writeError("Unable to create GLFW window");
       return false;
     }
-
-    mode.width = initMode.width;
-    mode.height = initMode.height;
-
-    // Read back actual (as opposed to desired) framebuffer properties
-    mode.colorBits = glfwGetWindowParam(GLFW_RED_BITS) +
-                     glfwGetWindowParam(GLFW_GREEN_BITS) +
-                     glfwGetWindowParam(GLFW_BLUE_BITS);
-    mode.depthBits = glfwGetWindowParam(GLFW_DEPTH_BITS);
-    mode.stencilBits = glfwGetWindowParam(GLFW_STENCIL_BITS);
-    mode.samples = glfwGetWindowParam(GLFW_FSAA_SAMPLES);
-    mode.flags = initMode.flags;
   }
 
   // Initialize GLEW and check extensions
@@ -703,12 +686,23 @@ bool Context::init(const ContextMode& initMode)
     }
   }
 
-  // This needs to be done before setting the window size callback
-  screenCanvas = new ScreenCanvas(*this);
-  screenCanvas->width = mode.width;
-  screenCanvas->height = mode.height;
+  {
+    // This needs to be done before setting the window size callback
+    screenCanvas = new ScreenCanvas(*this);
+    screenCanvas->mode.width = initMode.width;
+    screenCanvas->mode.height = initMode.height;
 
-  setScreenCanvasCurrent();
+    // Read back actual (as opposed to desired) framebuffer properties
+    screenCanvas->mode.colorBits = glfwGetWindowParam(GLFW_RED_BITS) +
+                                   glfwGetWindowParam(GLFW_GREEN_BITS) +
+                                   glfwGetWindowParam(GLFW_BLUE_BITS);
+    screenCanvas->mode.depthBits = glfwGetWindowParam(GLFW_DEPTH_BITS);
+    screenCanvas->mode.stencilBits = glfwGetWindowParam(GLFW_STENCIL_BITS);
+    screenCanvas->mode.samples = glfwGetWindowParam(GLFW_FSAA_SAMPLES);
+    screenCanvas->mode.flags = initMode.flags;
+
+    setScreenCanvasCurrent();
+  }
 
   // Finish GLFW init
   {
@@ -754,11 +748,8 @@ void Context::updateViewportArea(void)
 
 void Context::sizeCallback(int width, int height)
 {
-  instance->mode.width = width;
-  instance->mode.height = height;
-
-  instance->screenCanvas->width = width;
-  instance->screenCanvas->height = height;
+  instance->screenCanvas->mode.width = width;
+  instance->screenCanvas->mode.height = height;
 
   if (instance->currentCanvas == instance->screenCanvas)
   {

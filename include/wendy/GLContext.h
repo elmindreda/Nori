@@ -273,17 +273,21 @@ class ScreenCanvas : public Canvas
 {
   friend class Context;
 public:
+  /*! @return The default framebuffer color depth, in bits.
+   */
+  unsigned int getColorBits(void) const;
+  /*! @return The default framebuffer depth-buffer depth, in bits.
+   */
+  unsigned int getDepthBits(void) const;
+  /*! @return The default framebuffer stencil buffer depth, in bits.
+   */
+  unsigned int getStencilBits(void) const;
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
-  const PixelFormat& getColorBufferFormat(void) const;
-  const PixelFormat& getDepthBufferFormat(void) const;
 private:
   ScreenCanvas(Context& context);
   void apply(void) const;
-  unsigned int width;
-  unsigned int height;
-  PixelFormat colorFormat;
-  PixelFormat depthFormat;
+  ContextMode mode;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -378,18 +382,6 @@ public:
   /*! Updates the screen.
    */
   bool update(void);
-  /*! @return @c true if the context is windowed, otherwise @c false.
-   */
-  bool isWindowed(void) const;
-  /*! @return The default framebuffer color depth, in bits.
-   */
-  unsigned int getColorBits(void) const;
-  /*! @return The default framebuffer depth-buffer depth, in bits.
-   */
-  unsigned int getDepthBits(void) const;
-  /*! @return The default framebuffer stencil buffer depth, in bits.
-   */
-  unsigned int getStencilBits(void) const;
   /*! @return The current scissor rectangle.
    */
   const Rect& getScissorArea(void) const;
@@ -461,7 +453,6 @@ private:
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
   Signal2<void, unsigned int, unsigned int> resizedSignal;
-  ContextMode mode;
   String title;
   Ptr<Limits> limits;
   void* cgContextID;
