@@ -298,7 +298,7 @@ private:
 class IndexRange
 {
 public:
-  /*! Creates a zero-length range not referencing any index buffer.
+  /*! Creates an empty range not referencing any index buffer.
    */
   IndexRange(void);
   /*! Creates a range spanning the entire specified index buffer.
@@ -349,19 +349,41 @@ private:
 class PrimitiveRange
 {
 public:
+  /*! Creates an empty primitive range not referencing any buffers.
+   */
   PrimitiveRange(void);
+  /*! Creates a primitive range of the specified type, using the entire
+   *  specified vertex buffer.
+   */
   PrimitiveRange(PrimitiveType type, VertexBuffer& vertexBuffer);
+  /*! Creates a primitive range of the specified type, using the specified
+   *  range of vertices.
+   */
   PrimitiveRange(PrimitiveType type, const VertexRange& vertexRange);
+  /*! Creates a primitive range of the specified type, using the entire
+   *  specified index buffer to reference vertices in the specified vertex
+   *  buffer.
+   */
   PrimitiveRange(PrimitiveType type,
                  VertexBuffer& vertexBuffer,
                  IndexBuffer& indexBuffer);
+  /*! Creates a primitive range of the specified type, using the specified
+   *  range of indices to refer to vertices in the specified vertex buffer.
+   */
   PrimitiveRange(PrimitiveType type,
                  VertexBuffer& vertexBuffer,
                  const IndexRange& indexRange);
+  /*! Creates a primitive range of the specified type, using the specified
+   *  range of the specified vertex buffer.
+   */
   PrimitiveRange(PrimitiveType type,
                  VertexBuffer& vertexBuffer,
 		 unsigned int start,
 		 unsigned int count);
+  /*! Creates a primitive range of the specified type, using the specified
+   *  range of the specified index buffer to reference vertices in the
+   *  specified vertex buffer.
+   */
   PrimitiveRange(PrimitiveType type,
                  VertexBuffer& vertexBuffer,
                  IndexBuffer& indexBuffer,
