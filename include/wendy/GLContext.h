@@ -258,10 +258,12 @@ protected:
   /*! Called when this canvas is to be made current.
    */
   virtual void apply(void) const = 0;
+  bool isCurrent(void) const;
 private:
   Canvas(const Canvas& source);
   Canvas& operator = (const Canvas& source);
   Context& context;
+  static const Canvas* current;
 };
 
 ///////////////////////////////////////////////////////////////////////

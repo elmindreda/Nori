@@ -190,6 +190,10 @@ unsigned int Limits::getMaxTextureRectangleSize(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
+Canvas::~Canvas(void)
+{
+}
+
 float Canvas::getAspectRatio(void) const
 {
   return getWidth() / (float) getHeight();
@@ -205,8 +209,14 @@ Canvas::Canvas(Context& initContext):
 {
 }
 
-Canvas::~Canvas(void)
+void Canvas::apply(void) const
 {
+  current = this;
+}
+
+bool Canvas::isCurrent(void) const
+{
+  return this == current;
 }
 
 Canvas::Canvas(const Canvas& source):
@@ -221,6 +231,8 @@ Canvas& Canvas::operator = (const Canvas& source)
 
   return *this;
 }
+
+const Canvas* Canvas::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -257,7 +269,11 @@ ScreenCanvas::ScreenCanvas(Context& context):
 
 void ScreenCanvas::apply(void) const
 {
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  if (!isCurrent())
+  {
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    Canvas::apply();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -357,7 +373,11 @@ bool ImageCanvas::init(unsigned int initWidth, unsigned int initHeight)
 
 void ImageCanvas::apply(void) const
 {
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
+  if (!isCurrent())
+  {
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
+    Canvas::apply();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////
