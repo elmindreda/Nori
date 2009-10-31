@@ -236,6 +236,9 @@ class Canvas : public RefObject
 {
   friend class Context;
 public:
+  /*! Destructor.
+   */
+  virtual ~Canvas(void);
   /*! @return The width, in pixels, of this canvas.
    */
   virtual unsigned int getWidth(void) const = 0;
@@ -252,9 +255,6 @@ protected:
   /*! Constructor.
    */
   Canvas(Context& context);
-  /*! Destructor.
-   */
-  virtual ~Canvas(void);
   /*! Called when this canvas is to be made current.
    */
   virtual void apply(void) const = 0;
@@ -460,8 +460,8 @@ private:
   int cgFragmentProfile;
   Rect scissorArea;
   Rect viewportArea;
+  Ref<Canvas> currentCanvas;
   Ref<ScreenCanvas> screenCanvas;
-  Canvas* currentCanvas;
   static Context* instance;
   static Signal0<void> createSignal;
   static Signal0<void> destroySignal;

@@ -436,9 +436,9 @@ size_t IndexBuffer::getTypeSize(Type type)
 IndexBuffer::IndexBuffer(const String& name):
   Managed<IndexBuffer>(name),
   locked(false),
-  bufferID(0),
   type(UINT),
   usage(STATIC),
+  bufferID(0),
   count(0)
 {
 }

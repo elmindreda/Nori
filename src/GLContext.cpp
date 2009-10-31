@@ -519,9 +519,9 @@ void Context::getScreenModes(ScreenModeList& result)
 {
   GLFWvidmode modes[256];
 
-  const int count = glfwGetVideoModes(modes, sizeof(modes) / sizeof(GLFWvidmode));
+  const size_t count = glfwGetVideoModes(modes, sizeof(modes) / sizeof(GLFWvidmode));
 
-  for (unsigned int i = 0;  i < count;  i++)
+  for (size_t i = 0;  i < count;  i++)
   {
     result.push_back(ScreenMode(modes[i].Width,
                                 modes[i].Height,
@@ -530,8 +530,6 @@ void Context::getScreenModes(ScreenModeList& result)
 }
 
 Context::Context(void):
-  currentCanvas(NULL),
-  screenCanvas(NULL),
   cgContextID(NULL),
   cgVertexProfile(CG_PROFILE_UNKNOWN),
   cgFragmentProfile(CG_PROFILE_UNKNOWN)
