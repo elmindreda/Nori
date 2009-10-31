@@ -528,8 +528,7 @@ VertexRange::VertexRange(VertexBuffer& initVertexBuffer):
   start(0),
   count(0)
 {
-  if (vertexBuffer)
-    count = vertexBuffer->getCount();
+  count = vertexBuffer->getCount();
 }
 
 VertexRange::VertexRange(VertexBuffer& initVertexBuffer,
@@ -539,16 +538,8 @@ VertexRange::VertexRange(VertexBuffer& initVertexBuffer,
   start(initStart),
   count(initCount)
 {
-  if (vertexBuffer)
-  {
-    if (vertexBuffer->getCount() < start + count)
-      throw Exception("Invalid vertex buffer range");
-  }
-  else
-  {
-    if (start > 0 || count > 0)
-      throw Exception("Invalid vertex buffer range");
-  }
+  if (vertexBuffer->getCount() < start + count)
+    throw Exception("Invalid vertex buffer range");
 }
 
 void* VertexRange::lock(LockType type) const
@@ -621,8 +612,7 @@ IndexRange::IndexRange(IndexBuffer& initIndexBuffer):
   start(0),
   count(0)
 {
-  if (indexBuffer)
-    count = indexBuffer->getCount();
+  count = indexBuffer->getCount();
 }
 
 IndexRange::IndexRange(IndexBuffer& initIndexBuffer,
@@ -632,16 +622,8 @@ IndexRange::IndexRange(IndexBuffer& initIndexBuffer,
   start(initStart),
   count(initCount)
 {
-  if (indexBuffer)
-  {
-    if (indexBuffer->getCount() < start + count)
-      throw Exception("Invalid index buffer range");
-  }
-  else
-  {
-    if (start > 0 || count > 0)
-      throw Exception("Invalid index buffer range");
-  }
+  if (indexBuffer->getCount() < start + count)
+    throw Exception("Invalid index buffer range");
 }
 
 void* IndexRange::lock(LockType type) const
