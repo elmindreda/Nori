@@ -95,7 +95,7 @@ public:
   void copyFrom(const void* source, unsigned int count, unsigned int start = 0);
   /*! Copies the specified number of bytes from this vertex buffer, starting
    *  at the specified offset.
-   *  @param[in] target The base address of the destination buffer.
+   *  @param[in,out] target The base address of the destination buffer.
    *  @param[in] count The number of vertices to copy.
    *  @param[in] start The index of the first vertex to read from.
    */
@@ -192,7 +192,7 @@ public:
   void copyFrom(const void* source, unsigned int count, unsigned int start = 0);
   /*! Copies the specified number of bytes from this index buffer, starting
    *  at the specified offset.
-   *  @param[in] target The base address of the destination buffer.
+   *  @param[in,out] target The base address of the destination buffer.
    *  @param[in] count The number of indices to copy.
    *  @param[in] start The index of the first index to read from.
    */
@@ -268,7 +268,7 @@ public:
    */
   void copyFrom(const void* source);
   /*! Copies the specified number of bytes from this vertex range.
-   *  @param[in] target The base address of the destination buffer.
+   *  @param[in,out] target The base address of the destination buffer.
    */
   void copyTo(void* target);
   /*! @return The vertex buffer underlying this vertex range.
@@ -298,13 +298,16 @@ private:
 class IndexRange
 {
 public:
-  /*! Constructor.
+  /*! Creates an empty range not referencing any index buffer.
    */
   IndexRange(void);
-  /*! Constructor.
+  /*! Creates a range spanning the entire specified index buffer.
+   *  @param[in] indexBuffer The index buffer this range will refer to.
    */
   IndexRange(IndexBuffer& indexBuffer);
-  /*! Constructor.
+  /*! Creates the specified range within the specified index buffer.
+   *  @throw Exception If the specified range does not fit inside the specified
+   *  index buffer.
    */
   IndexRange(IndexBuffer& indexBuffer, unsigned int start, unsigned int count);
   /*! Locks this index range into memory and returns its address.
@@ -320,7 +323,7 @@ public:
    */
   void copyFrom(const void* source);
   /*! Copies the specified number of bytes from this index range.
-   *  @param[in] target The base address of the destination buffer.
+   *  @param[in,out] target The base address of the destination buffer.
    */
   void copyTo(void* target);
   /*! @return The index buffer underlying this index range.
@@ -346,19 +349,41 @@ private:
 class PrimitiveRange
 {
 public:
+  /*! Creates an empty primitive range not referencing any buffers.
+   */
   PrimitiveRange(void);
+  /*! Creates a primitive range of the specified type, using the entire
+   *  specified vertex buffer.
+   */
   PrimitiveRange(PrimitiveType type, VertexBuffer& vertexBuffer);
+  /*! Creates a primitive range of the specified type, using the specified
+   *  range of vertices.
+   */
   PrimitiveRange(PrimitiveType type, const VertexRange& vertexRange);
+  /*! Creates a primitive range of the specified type, using the entire
+   *  specified index buffer to reference vertices in the specified vertex
+   *  buffer.
+   */
   PrimitiveRange(PrimitiveType type,
                  VertexBuffer& vertexBuffer,
                  IndexBuffer& indexBuffer);
+  /*! Creates a primitive range of the specified type, using the specified
+   *  range of indices to refer to vertices in the specified vertex buffer.
+   */
   PrimitiveRange(PrimitiveType type,
                  VertexBuffer& vertexBuffer,
                  const IndexRange& indexRange);
+  /*! Creates a primitive range of the specified type, using the specified
+   *  range of the specified vertex buffer.
+   */
   PrimitiveRange(PrimitiveType type,
                  VertexBuffer& vertexBuffer,
 		 unsigned int start,
 		 unsigned int count);
+  /*! Creates a primitive range of the specified type, using the specified
+   *  range of the specified index buffer to reference vertices in the
+   *  specified vertex buffer.
+   */
   PrimitiveRange(PrimitiveType type,
                  VertexBuffer& vertexBuffer,
                  IndexBuffer& indexBuffer,
