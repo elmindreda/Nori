@@ -95,6 +95,44 @@ GLenum convertUsage(IndexBuffer::Usage usage)
   }
 }
 
+Bimap<PixelFormat, GLenum> formatMap;
+
+GLenum convertToGL(const PixelFormat& format)
+{
+  if (formatMap.isEmpty())
+  {
+    formatMap[PixelFormat::R8] = GL_ALPHA8;
+    formatMap[PixelFormat::RG8] = GL_LUMINANCE8_ALPHA8;
+    formatMap[PixelFormat::RGB8] = GL_RGB8;
+    formatMap[PixelFormat::RGBA8] = GL_RGBA8;
+    formatMap[PixelFormat::DEPTH16] = GL_DEPTH_COMPONENT16_ARB;
+    formatMap[PixelFormat::DEPTH24] = GL_DEPTH_COMPONENT24_ARB;
+    formatMap[PixelFormat::DEPTH32] = GL_DEPTH_COMPONENT32_ARB;
+    formatMap.setDefaults(PixelFormat(), 0);
+  }
+
+  return formatMap[format];
+}
+
+Bimap<PixelFormat, GLenum> genericFormatMap;
+
+GLenum convertToGenericGL(const PixelFormat& format)
+{
+  if (genericFormatMap.isEmpty())
+  {
+    genericFormatMap[PixelFormat::R8] = GL_ALPHA;
+    genericFormatMap[PixelFormat::RG8] = GL_LUMINANCE_ALPHA;
+    genericFormatMap[PixelFormat::RGB8] = GL_RGB;
+    genericFormatMap[PixelFormat::RGBA8] = GL_RGBA;
+    genericFormatMap[PixelFormat::DEPTH16] = GL_DEPTH_COMPONENT;
+    genericFormatMap[PixelFormat::DEPTH24] = GL_DEPTH_COMPONENT;
+    genericFormatMap[PixelFormat::DEPTH32] = GL_DEPTH_COMPONENT;
+    genericFormatMap.setDefaults(PixelFormat(), 0);
+  }
+
+  return genericFormatMap[format];
+}
+
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -817,6 +855,9 @@ unsigned int PrimitiveRange::getCount(void) const
 
 RenderBuffer::~RenderBuffer(void)
 {
+  if (isCurrent())
+    current = NULL;
+
   if (bufferID)
     glDeleteRenderbuffersEXT(1, &bufferID);
 }
@@ -854,15 +895,19 @@ RenderBuffer::RenderBuffer(const String& name):
 {
 }
 
-bool RenderBuffer::init(const PixelFormat& format,
+bool RenderBuffer::init(const PixelFormat& initFormat,
                         unsigned int initWidth,
                         unsigned int initHeight)
 {
+  format = initFormat;
   width = initWidth;
   height = initHeight;
 
   glGenRenderbuffersEXT(1, &bufferID);
-  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, bufferID);
+
+  apply();
+
+  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, convertToGenericGL(format), width, height);
 
 #if WENDY_DEBUG
   GLenum error = glGetError();
@@ -878,11 +923,34 @@ bool RenderBuffer::init(const PixelFormat& format,
 
 void RenderBuffer::attach(int attachment)
 {
+  apply();
+
+  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
+                               attachment,
+                               GL_RENDERBUFFER_EXT,
+                               bufferID);
 }
 
 void RenderBuffer::detach(void)
 {
+  apply();
 }
+
+bool RenderBuffer::isCurrent(void) const
+{
+  return this == current;
+}
+
+void RenderBuffer::apply(void)
+{
+  if (!isCurrent())
+  {
+    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, bufferID);
+    current = this;
+  }
+}
+
+const RenderBuffer* RenderBuffer::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 
