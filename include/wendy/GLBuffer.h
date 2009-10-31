@@ -298,13 +298,16 @@ private:
 class IndexRange
 {
 public:
-  /*! Constructor.
+  /*! Creates a zero-length range not referencing any index buffer.
    */
   IndexRange(void);
-  /*! Constructor.
+  /*! Creates a range spanning the entire specified index buffer.
+   *  @param[in] indexBuffer The index buffer this range will refer to.
    */
   IndexRange(IndexBuffer& indexBuffer);
-  /*! Constructor.
+  /*! Creates the specified range within the specified index buffer.
+   *  @throw Exception If the specified range does not fit inside the specified
+   *  index buffer.
    */
   IndexRange(IndexBuffer& indexBuffer, unsigned int start, unsigned int count);
   /*! Locks this index range into memory and returns its address.
