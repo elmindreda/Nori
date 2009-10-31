@@ -153,9 +153,6 @@ bool compatible(const Varying& varying, const VertexComponent& component)
   return false;
 }
 
-Bimap<PixelFormat, GLenum> colorFormatMap;
-Bimap<PixelFormat, GLenum> depthFormatMap;
-
 } /*namespace (and Gandalf)*/
 
 ///////////////////////////////////////////////////////////////////////
