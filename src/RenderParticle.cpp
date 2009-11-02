@@ -462,11 +462,10 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& vertexRange,
 
   if (!renderer->allocateIndices(indexRange,
                                  activeParticles.size() * 6,
-				 GL::IndexBuffer::UINT))
+				 GL::IndexBuffer::USHORT))
     return false;
 
-  std::vector<unsigned int> indices;
-  indices.resize(activeParticles.size() * 6);
+  GL::IndexRangeLock<unsigned short> indices(indexRange);
 
   base = vertexRange.getStart();
 
@@ -480,8 +479,6 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& vertexRange,
     indices[i * 6 + 4] = base + i * 4 + 2;
     indices[i * 6 + 5] = base + i * 4 + 3;
   }
-
-  indexRange.copyFrom(&indices[0]);
 
   return true;
 }
