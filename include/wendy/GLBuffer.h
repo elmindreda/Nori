@@ -528,7 +528,43 @@ inline IndexRangeLock<T>::IndexRangeLock(IndexRange& initRange):
   range(initRange),
   indices(NULL)
 {
-  // TODO: Type matching.
+  throw Exception("Invalid index type");
+}
+
+template <>
+inline IndexRangeLock<unsigned char>::IndexRangeLock(IndexRange& initRange):
+  range(initRange),
+  indices(NULL)
+{
+  if (range.getIndexBuffer())
+  {
+    if (range.getIndexBuffer()->getType() != IndexBuffer::UBYTE)
+      throw Exception("Index buffer lock type mismatch");
+  }
+}
+
+template <>
+inline IndexRangeLock<unsigned short>::IndexRangeLock(IndexRange& initRange):
+  range(initRange),
+  indices(NULL)
+{
+  if (range.getIndexBuffer())
+  {
+    if (range.getIndexBuffer()->getType() != IndexBuffer::USHORT)
+      throw Exception("Index buffer lock type mismatch");
+  }
+}
+
+template <>
+inline IndexRangeLock<unsigned int>::IndexRangeLock(IndexRange& initRange):
+  range(initRange),
+  indices(NULL)
+{
+  if (range.getIndexBuffer())
+  {
+    if (range.getIndexBuffer()->getType() != IndexBuffer::UINT)
+      throw Exception("Index buffer lock type mismatch");
+  }
 }
 
 template <typename T>
