@@ -2,9 +2,11 @@
 <material version="4">
   <technique quality="1">
     <pass>
+      <blending src="one" dst="one" />
       <depth testing="false" writing="false" />
-      <program name="particle" />
-      <polygon cull="none" />
+      <program name="particle" >
+        <sampler name="image" texture="particle" />
+      </program>
     </pass>
   </technique>
 </material>

@@ -47,9 +47,11 @@ bool Test::init(void)
     return false;
   }
 
+  Image::addSearchPath(Path("media"));
   GL::VertexProgram::addSearchPath(Path("media"));
   GL::FragmentProgram::addSearchPath(Path("media"));
   GL::Program::addSearchPath(Path("media"));
+  GL::Texture::addSearchPath(Path("media"));
   render::Material::addSearchPath(Path("media"));
 
   material = render::Material::readInstance("particle");
@@ -60,10 +62,10 @@ bool Test::init(void)
   }
 
   render::DefaultParticleEmitter* emitter = new render::DefaultParticleEmitter();
-  emitter->setEmissionRate(15.f);
+  emitter->setEmissionRate(50.f);
   emitter->setColorRange(RandomRGBA(ColorRGBA(1.f, 1.f, 1.f, 1.f),
                                     ColorRGBA(0.2f, 0.2f, 0.2f, 1.f)));
-  emitter->setVelocityRange(RandomRange(1.f, 1.f));
+  emitter->setVelocityRange(RandomRange(4.f, 6.f));
   emitter->setDurationRange(RandomRange(4.f, 6.f));
   emitter->setAngleRange(RandomRange(0.f, M_PI));
   emitter->setOriginVolume(RandomVolume(Vec3(0.f, 0.f, 0.f),
@@ -79,8 +81,9 @@ bool Test::init(void)
   system.setParticleCount(1000);
 
   Transform3 transform;
-  transform.position.z = 10.f;
+  transform.position.z = 5.f;
   camera.setTransform(transform);
+  camera.setAspectRatio(0.f);
 
   timer.start();
   return true;

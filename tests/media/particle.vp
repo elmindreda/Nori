@@ -3,7 +3,7 @@ struct Out
 {
   float4 position : POSITION;
   float2 mapping;
-  float4 color;
+  float4 color : TEXCOORD0;
 };
 
 Out main(uniform float4x4 MVP, in float3 position, in float2 mapping, in float4 color)
