@@ -107,7 +107,7 @@ public:
 private:
   TextureImage(Texture& texture, unsigned int level, unsigned int width, unsigned int height);
   void attach(int attachment);
-  void detach(void);
+  void detach(int attachment);
   Texture& texture;
   unsigned int level;
   unsigned int width;

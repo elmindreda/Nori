@@ -471,6 +471,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup opengl
+ */
 class RenderBuffer : public Image, public Managed<RenderBuffer>
 {
 public:
@@ -486,7 +488,7 @@ private:
   RenderBuffer(const String& name);
   bool init(const PixelFormat& format, unsigned int width, unsigned int height);
   void attach(int attachment);
-  void detach(void);
+  void detach(int attachment);
   unsigned int bufferID;
   unsigned int width;
   unsigned int height;

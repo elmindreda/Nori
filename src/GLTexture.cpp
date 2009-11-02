@@ -316,8 +316,20 @@ void TextureImage::attach(int attachment)
                               level);
 }
 
-void TextureImage::detach(void)
+void TextureImage::detach(int attachment)
 {
+  if (texture.textureTarget == GL_TEXTURE_1D)
+    glFramebufferTexture1DEXT(GL_FRAMEBUFFER_EXT,
+                              attachment,
+                              texture.textureTarget,
+                              0,
+                              0);
+  else
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+                              attachment,
+                              texture.textureTarget,
+                              0,
+                              0);
 }
 
 ///////////////////////////////////////////////////////////////////////

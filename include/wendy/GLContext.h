@@ -298,6 +298,7 @@ private:
  */
 class Image : public RefObject
 {
+  friend class ImageCanvas;
 public:
   virtual ~Image(void);
   virtual unsigned int getWidth(void) const = 0;
@@ -305,7 +306,7 @@ public:
   virtual const PixelFormat& getFormat(void) const = 0;
 protected:
   virtual void attach(int attachment) = 0;
-  virtual void detach(void) = 0;
+  virtual void detach(int attachment) = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -322,6 +323,7 @@ typedef Ref<Image> ImageRef;
 class ImageCanvas : public Canvas
 {
 public:
+  ~ImageCanvas(void);
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
   /*! @return The texture that this canvas uses as a color buffer.

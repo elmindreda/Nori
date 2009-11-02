@@ -837,9 +837,6 @@ unsigned int PrimitiveRange::getCount(void) const
 
 RenderBuffer::~RenderBuffer(void)
 {
-  if (isCurrent())
-    current = NULL;
-
   if (bufferID)
     glDeleteRenderbuffersEXT(1, &bufferID);
 }
@@ -886,16 +883,14 @@ bool RenderBuffer::init(const PixelFormat& initFormat,
   height = initHeight;
 
   glGenRenderbuffersEXT(1, &bufferID);
-
-  apply();
-
+  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, bufferID);
   glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, convertToGenericGL(format), width, height);
 
 #if WENDY_DEBUG
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
   {
-    Log::writeError("Error during renderbuffer creation: %s", gluErrorString(error));
+    Log::writeError("Error during render buffer creation: %s", gluErrorString(error));
     return false;
   }
 #endif
@@ -905,34 +900,19 @@ bool RenderBuffer::init(const PixelFormat& initFormat,
 
 void RenderBuffer::attach(int attachment)
 {
-  apply();
-
   glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
                                attachment,
                                GL_RENDERBUFFER_EXT,
                                bufferID);
 }
 
-void RenderBuffer::detach(void)
+void RenderBuffer::detach(int attachment)
 {
-  apply();
+  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
+                               attachment,
+                               GL_RENDERBUFFER_EXT,
+                               0);
 }
-
-bool RenderBuffer::isCurrent(void) const
-{
-  return this == current;
-}
-
-void RenderBuffer::apply(void)
-{
-  if (!isCurrent())
-  {
-    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, bufferID);
-    current = this;
-  }
-}
-
-const RenderBuffer* RenderBuffer::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 

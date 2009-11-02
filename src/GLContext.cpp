@@ -284,6 +284,12 @@ Image::~Image(void)
 
 ///////////////////////////////////////////////////////////////////////
 
+ImageCanvas::~ImageCanvas(void)
+{
+  if (bufferID)
+    glDeleteFramebuffersEXT(1, &bufferID);
+}
+
 unsigned int ImageCanvas::getWidth(void) const
 {
   return width;
@@ -310,12 +316,19 @@ bool ImageCanvas::setColorBuffer(Image* newImage)
   {
     if (newImage->getWidth() != width || newImage->getHeight() != height)
     {
-      Log::writeError("Specified color buffer does not match canvas dimensions");
+      Log::writeError("Specified color buffer image object does not match canvas dimensions");
       return false;
     }
   }
 
+  if (colorBuffer)
+    colorBuffer->detach(GL_COLOR_ATTACHMENT0_EXT);
+
   colorBuffer = newImage;
+
+  if (colorBuffer)
+    colorBuffer->attach(GL_COLOR_ATTACHMENT0_EXT);
+
   return true;
 }
 
@@ -325,12 +338,19 @@ bool ImageCanvas::setDepthBuffer(Image* newImage)
   {
     if (newImage->getWidth() != width || newImage->getHeight() != height)
     {
-      Log::writeError("Specified depth buffer does not match canvas dimensions");
+      Log::writeError("Specified depth buffer image object does not match canvas dimensions");
       return false;
     }
   }
 
+  if (depthBuffer)
+    depthBuffer->detach(GL_DEPTH_ATTACHMENT_EXT);
+
   depthBuffer = newImage;
+
+  if (depthBuffer)
+    depthBuffer->attach(GL_DEPTH_ATTACHMENT_EXT);
+
   return true;
 }
 
