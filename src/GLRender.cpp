@@ -405,7 +405,8 @@ bool Renderer::allocateIndices(IndexRange& range,
 
     // Granularity of 1K
     // TODO: Make granularity configurable or autoconfigured
-    const unsigned int actualCount = 1024 * ((count + 1023) / 1024);
+    const unsigned int grainSize = 65536;
+    const unsigned int actualCount = grainSize * ((count + grainSize - 1) / grainSize);
 
     slot->indexBuffer = IndexBuffer::createInstance(actualCount,
                                                     type,
@@ -457,7 +458,8 @@ bool Renderer::allocateVertices(VertexRange& range,
 
     // Granularity of 1K
     // TODO: Make granularity configurable or autoconfigured
-    const unsigned int actualCount = 1024 * ((count + 1023) / 1024);
+    const unsigned int grainSize = 65536;
+    const unsigned int actualCount = grainSize * ((count + grainSize - 1) / grainSize);
 
     slot->vertexBuffer = VertexBuffer::createInstance(actualCount,
                                                       format,
