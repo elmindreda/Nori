@@ -630,27 +630,34 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
   glBindTexture(textureTarget, textureID);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
+  if (textureTarget == GL_TEXTURE_1D)
+  {
+    glTexImage1D(textureTarget,
+                  0,
+                  formatMap[source.getFormat()],
+                  source.getWidth(),
+                  0,
+                  genericFormatMap[source.getFormat()],
+                  GL_UNSIGNED_BYTE,
+                  source.getPixels());
+  }
+  else
+  {
+    glTexImage2D(textureTarget,
+                  0,
+                  formatMap[source.getFormat()],
+                  source.getWidth(),
+                  source.getHeight(),
+                  0,
+                  genericFormatMap[source.getFormat()],
+                  GL_UNSIGNED_BYTE,
+                  source.getPixels());
+  }
+
   if (flags & MIPMAPPED)
   {
-    if (textureTarget == GL_TEXTURE_1D)
-    {
-      gluBuild1DMipmaps(textureTarget,
-                        format.getChannelCount(),
-                        source.getWidth(),
-                        genericFormatMap[source.getFormat()],
-                        GL_UNSIGNED_BYTE,
-                        source.getPixels());
-    }
-    else
-    {
-      gluBuild2DMipmaps(textureTarget,
-                        format.getChannelCount(),
-                        source.getWidth(),
-                        source.getHeight(),
-                        genericFormatMap[source.getFormat()],
-                        GL_UNSIGNED_BYTE,
-                        source.getPixels());
-    }
+    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+    glGenerateMipmapEXT(textureTarget);
 
     unsigned int level = 0;
 
@@ -670,38 +677,11 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
   }
   else
   {
-    if (textureTarget == GL_TEXTURE_1D)
-    {
-      glTexImage1D(textureTarget,
-                   0,
-                   formatMap[source.getFormat()],
-                   source.getWidth(),
-                   0,
-                   genericFormatMap[source.getFormat()],
-                   GL_UNSIGNED_BYTE,
-                   source.getPixels());
-    }
-    else
-    {
-      glTexImage2D(textureTarget,
-                   0,
-                   formatMap[source.getFormat()],
-                   source.getWidth(),
-                   source.getHeight(),
-                   0,
-                   genericFormatMap[source.getFormat()],
-                   GL_UNSIGNED_BYTE,
-                   source.getPixels());
-    }
+    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     TextureImageRef image = new TextureImage(*this, 0, source.getWidth(), source.getHeight());
     images.push_back(image);
   }
-
-  if (flags & MIPMAPPED)
-    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-  else
-    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
   glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
