@@ -125,10 +125,10 @@ Mesh& Mesh::operator = (const Mesh& source)
 
 bool Mesh::init(const moira::Mesh& mesh)
 {
-  unsigned int indexCount = 0;
+  size_t indexCount = 0;
 
-  for (unsigned int i = 0;  i < mesh.geometries.size();  i++)
-    indexCount += (unsigned int) mesh.geometries[i].triangles.size() * 3;
+  for (size_t i = 0;  i < mesh.geometries.size();  i++)
+    indexCount += mesh.geometries[i].triangles.size() * 3;
 
   GL::VertexFormat format;
 
@@ -143,15 +143,24 @@ bool Mesh::init(const moira::Mesh& mesh)
   // NOTE: This may not be portable to really weird platforms.
   vertexBuffer->copyFrom(&mesh.vertices[0], mesh.vertices.size());
 
-  indexBuffer = GL::IndexBuffer::createInstance(indexCount, GL::IndexBuffer::UINT);
+  GL::IndexBuffer::Type indexType;
+
+  if (indexCount <= (1 << 8))
+    indexType = GL::IndexBuffer::UBYTE;
+  else if (indexCount <= (1 << 16))
+    indexType = GL::IndexBuffer::USHORT;
+  else
+    indexType = GL::IndexBuffer::UINT;
+
+  indexBuffer = GL::IndexBuffer::createInstance(indexCount, indexType);
   if (!indexBuffer)
     return false;
 
-  unsigned int indexBase = 0;
+  size_t indexBase = 0;
 
   for (moira::Mesh::GeometryList::const_iterator i = mesh.geometries.begin();  i != mesh.geometries.end();  i++)
   {
-    indexCount = (unsigned int) (*i).triangles.size() * 3;
+    indexCount = (*i).triangles.size() * 3;
 
     Ref<Material> material = Material::readInstance((*i).shaderName);
     if (!material)
@@ -167,17 +176,52 @@ bool Mesh::init(const moira::Mesh& mesh)
     Geometry* geometry = new Geometry(range, GL::TRIANGLE_LIST, material);
     geometries.push_back(geometry);
 
-    GL::IndexRangeLock<unsigned int> indices(range);
-    if (!indices)
-      return false;
+    size_t index = 0;
 
-    unsigned int index = 0;
-
-    for (MeshGeometry::TriangleList::const_iterator j = (*i).triangles.begin();  j != (*i).triangles.end();  j++)
+    if (indexType == GL::IndexBuffer::UBYTE)
     {
-      indices[index++] = (*j).indices[0];
-      indices[index++] = (*j).indices[1];
-      indices[index++] = (*j).indices[2];
+      GL::IndexRangeLock<unsigned char> indices(range);
+      if (!indices)
+        return false;
+
+      for (MeshGeometry::TriangleList::const_iterator j = (*i).triangles.begin();
+           j != (*i).triangles.end();
+           j++)
+      {
+        indices[index++] = (*j).indices[0];
+        indices[index++] = (*j).indices[1];
+        indices[index++] = (*j).indices[2];
+      }
+    }
+    else if (indexType == GL::IndexBuffer::USHORT)
+    {
+      GL::IndexRangeLock<unsigned short> indices(range);
+      if (!indices)
+        return false;
+
+      for (MeshGeometry::TriangleList::const_iterator j = (*i).triangles.begin();
+           j != (*i).triangles.end();
+           j++)
+      {
+        indices[index++] = (*j).indices[0];
+        indices[index++] = (*j).indices[1];
+        indices[index++] = (*j).indices[2];
+      }
+    }
+    else
+    {
+      GL::IndexRangeLock<unsigned int> indices(range);
+      if (!indices)
+        return false;
+
+      for (MeshGeometry::TriangleList::const_iterator j = (*i).triangles.begin();
+           j != (*i).triangles.end();
+           j++)
+      {
+        indices[index++] = (*j).indices[0];
+        indices[index++] = (*j).indices[1];
+        indices[index++] = (*j).indices[2];
+      }
     }
 
     indexBase += indexCount;
