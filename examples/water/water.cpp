@@ -15,12 +15,12 @@ private:
   void onCursorMoved(const Vec2i& position);
   void onWheelTurned(int position);
   Ref<GL::Texture> texture;
-  Ptr<GL::TextureCanvas> canvas;
+  Ptr<GL::ImageCanvas> canvas;
   render::Camera camera;
   scene::Graph graph;
-  scene::TerrainNode* terrainNode;
   scene::CameraNode* cameraNode;
   Vec2i oldCursorPosition;
+  Timer timer;
 };
 
 Demo::~Demo(void)
@@ -38,7 +38,6 @@ bool Demo::init(void)
   GL::FragmentProgram::addSearchPath(Path("../media"));
   GL::Program::addSearchPath(Path("../media"));
   render::Material::addSearchPath(Path("../media"));
-  render::Terrain::addSearchPath(Path("../media"));
 
   GL::ContextMode mode(640, 480, 32, 16, 0, 0, GL::ContextMode::WINDOWED);
   if (!GL::Context::create(mode))
@@ -57,30 +56,21 @@ bool Demo::init(void)
   input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
   input::Context::get()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
 
-  texture = GL::Texture::createInstance(*context, Image(ImageFormat::RGB888, 64, 64), 0);
+  texture = GL::Texture::createInstance(*context, Image(PixelFormat::RGB8, 64, 64), 0);
   if (!texture)
     return false;
 
-  canvas = GL::TextureCanvas::createInstance(*context, 64, 64);
+  canvas = GL::ImageCanvas::createInstance(*context, 64, 64);
   if (!canvas)
     return false;
 
-  canvas->setColorBufferTexture(texture);
-
-  Ref<render::Terrain> terrain = render::Terrain::readInstance("water");
-  if (!terrain)
-    return false;
-
-  scene::TerrainNode* terrainNode = new scene::TerrainNode();
-  terrainNode->setTerrain(terrain);
-  graph.addNode(*terrainNode);
+  canvas->setColorBuffer(&(texture->getImage(0)));
 
   camera.setFOV(60.f);
   camera.setAspectRatio(4.f / 3.f);
 
   cameraNode = new scene::CameraNode();
   cameraNode->setCameraName(camera.getName());
-  cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
   graph.addNode(*cameraNode);
 
   timer.start();
@@ -97,10 +87,10 @@ void Demo::run(void)
     render::Queue queue(camera);
     graph.enqueue(queue);
 
-    GL::Renderer* renderer = GL::Renderer::get();
+    GL::Context* context = GL::Context::get();
 
-    renderer->clearDepthBuffer();
-    renderer->clearColorBuffer(ColorRGBA::BLACK);
+    context->clearDepthBuffer();
+    context->clearColorBuffer(ColorRGBA::BLACK);
 
     queue.render();
   }
