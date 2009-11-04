@@ -3,7 +3,7 @@
   <technique quality="1">
     <pass>
       <program name="cube">
-	<sampler name="checkers" texture="default" />
+	<sampler name="checkers" texture="cube" />
       </program>
     </pass>
   </technique>
