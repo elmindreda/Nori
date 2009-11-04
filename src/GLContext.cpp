@@ -62,6 +62,31 @@ GLint getIntegerParameter(GLenum parameter)
   return value;
 }
 
+const char* getFramebufferStatusMessage(GLenum status)
+{
+  switch (status)
+  {
+    case GL_FRAMEBUFFER_COMPLETE_EXT:
+      return "Framebuffer is incomplete";
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+      return "Incomplete framebuffer attachment";
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+      return "Incomplete or missing framebuffer attachment";
+    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+      return "Incomplete framebuffer dimensions";
+    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
+      return "Incomplete framebuffer formats";
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+      return "Incomplete framebuffer draw buffer";
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+      return "Incomplete framebuffer read buffer";
+    case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+      return "Framebuffer configuration is unsupported";
+    default:
+      return "Unknown framebuffer status";
+  }
+}
+
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -219,6 +244,11 @@ bool Canvas::isCurrent(void) const
   return this == current;
 }
 
+const Canvas* Canvas::getCurrent(void)
+{
+  return current;
+}
+
 Canvas::Canvas(const Canvas& source):
   context(source.context)
 {
@@ -321,6 +351,9 @@ bool ImageCanvas::setColorBuffer(Image* newImage)
     }
   }
 
+  const Canvas* previous = getCurrent();
+  apply();
+
   if (colorBuffer)
     colorBuffer->detach(GL_COLOR_ATTACHMENT0_EXT);
 
@@ -329,6 +362,7 @@ bool ImageCanvas::setColorBuffer(Image* newImage)
   if (colorBuffer)
     colorBuffer->attach(GL_COLOR_ATTACHMENT0_EXT);
 
+  previous->apply();
   return true;
 }
 
@@ -343,6 +377,9 @@ bool ImageCanvas::setDepthBuffer(Image* newImage)
     }
   }
 
+  const Canvas* previous = getCurrent();
+  apply();
+
   if (depthBuffer)
     depthBuffer->detach(GL_DEPTH_ATTACHMENT_EXT);
 
@@ -351,6 +388,7 @@ bool ImageCanvas::setDepthBuffer(Image* newImage)
   if (depthBuffer)
     depthBuffer->attach(GL_DEPTH_ATTACHMENT_EXT);
 
+  previous->apply();
   return true;
 }
 
@@ -377,7 +415,6 @@ bool ImageCanvas::init(unsigned int initWidth, unsigned int initHeight)
   height = initHeight;
 
   glGenFramebuffersEXT(1, &bufferID);
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
 
 #if WENDY_DEBUG
   GLenum error = glGetError();
@@ -496,6 +533,12 @@ bool Context::setCurrentCanvas(Canvas& newCanvas)
 {
   currentCanvas = &newCanvas;
   currentCanvas->apply();
+
+#if WENDY_DEBUG
+    GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+    if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
+      Log::writeError("Image canvas is incomplete: %s", getFramebufferStatusMessage(status));
+#endif
 
   updateViewportArea();
   updateScissorArea();

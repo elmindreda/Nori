@@ -235,6 +235,7 @@ private:
 class Canvas : public RefObject
 {
   friend class Context;
+  friend class ImageCanvas;
 public:
   /*! Destructor.
    */
@@ -259,6 +260,7 @@ protected:
    */
   virtual void apply(void) const = 0;
   bool isCurrent(void) const;
+  static const Canvas* getCurrent(void);
 private:
   Canvas(const Canvas& source);
   Canvas& operator = (const Canvas& source);
