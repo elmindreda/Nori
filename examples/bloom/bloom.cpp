@@ -63,16 +63,23 @@ bool Demo::init(void)
 
   const int size = 32;
 
+  GL::ImageRef depthBuffer = GL::RenderBuffer::createInstance(PixelFormat::DEPTH24, size, size);
+  if (!depthBuffer)
+  {
+    Log::writeError("Failed to create depth render buffer");
+    return false;
+  }
+
   for (unsigned int i = 0;  i < 2;  i++)
   {
-    textures[i] = GL::Texture::createInstance(*context, Image(PixelFormat::RGB8, size, size), 0);
+    textures[i] = GL::Texture::createInstance(*context, Image(PixelFormat::RGBA8, size, size), 0);
     if (!textures[i])
     {
       Log::writeError("Failed to create canvas texture");
       return false;
     }
 
-    GL::ImageRef image = &(textures[i]->getImage(0));
+    GL::ImageRef colorBuffer = &(textures[i]->getImage(0));
 
     canvases[i] = GL::ImageCanvas::createInstance(*context, size, size);
     if (!canvases[i])
@@ -81,13 +88,14 @@ bool Demo::init(void)
       return false;
     }
 
-    canvases[i]->setColorBuffer(image);
+    canvases[i]->setColorBuffer(colorBuffer);
+    canvases[i]->setDepthBuffer(depthBuffer);
   }
 
   const Vec2 scale(1.f / size, 1.f / size);
 
   Ref<GL::Program> program;
-  
+
   program = GL::Program::readInstance("horzblur");
   if (!program)
     return false;
@@ -115,7 +123,7 @@ bool Demo::init(void)
     return false;
   }
 
-  composePass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE);
+  composePass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ONE);
   composePass.setDepthTesting(false);
   composePass.setDepthWriting(false);
   composePass.setProgram(program);
@@ -147,6 +155,8 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
+  render::Queue queue(camera);
+
   do
   {
     graph.setTimeElapsed(timer.getTime());
@@ -154,7 +164,6 @@ void Demo::run(void)
     render::Sprite2 sprite;
     sprite.position.set(0.5f, 0.5f);
 
-    render::Queue queue(camera);
     graph.enqueue(queue);
 
     GL::Context* context = GL::Context::get();
@@ -170,11 +179,15 @@ void Demo::run(void)
     for (unsigned int i = 0;  i < 2;  i++)
     {
       context->setCurrentCanvas(*canvases[1]);
+      context->clearDepthBuffer();
+      context->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
       horzPass.apply();
       sprite.render();
 
       context->setCurrentCanvas(*canvases[0]);
+      context->clearDepthBuffer();
+      context->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
       vertPass.apply();
       sprite.render();
@@ -190,6 +203,8 @@ void Demo::run(void)
 
     composePass.apply();
     sprite.render();
+
+    queue.destroyOperations();
   }
   while (GL::Context::get()->update());
 }
