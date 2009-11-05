@@ -79,6 +79,8 @@ bool Demo::init(void)
       return false;
     }
 
+    textures[i]->setAddressMode(GL::ADDRESS_CLAMP);
+
     GL::ImageRef colorBuffer = &(textures[i]->getImage(0));
 
     canvases[i] = GL::ImageCanvas::createInstance(*context, size, size);
