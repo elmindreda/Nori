@@ -665,7 +665,7 @@ bool Timeline::createEffect(EffectType& type)
   }
   catch (Exception& exception)
   {
-    Log::writeError("Failed to create effect %s of type %s: %s",
+    Log::writeError("Failed to create effect \'%s\' of type \'%s\': %s",
                     stream.str().c_str(),
 		    type.getName().c_str(),
 		    exception.what());

@@ -110,7 +110,7 @@ bool ShowCodec::write(Stream& stream, const Show& show)
   }
   catch (Exception& exception)
   {
-    Log::writeError("Failed to write demo show %s: %s",
+    Log::writeError("Failed to write demo show \'%s\': %s",
                     show.getName().c_str(),
 		    exception.what());
     return false;
@@ -142,7 +142,7 @@ bool ShowCodec::onBeginElement(const String& name)
       EffectType* type = EffectType::findInstance(typeName);
       if (!type)
       {
-	Log::writeError("Effect type %s does not exist", typeName.c_str());
+	Log::writeError("Effect type \'%s\' does not exist", typeName.c_str());
 	return false;
       }
 
@@ -169,7 +169,7 @@ bool ShowCodec::onBeginElement(const String& name)
 	currentProperty = effect->findProperty(propertyName);
 	if (!currentProperty)
 	{
-	  Log::writeError("Effect %s does not have property %s",
+	  Log::writeError("Effect \'%s\' does not have property %s",
 	                  effect->getName().c_str(),
 	                  propertyName.c_str());
 	  return false;
