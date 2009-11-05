@@ -410,17 +410,17 @@ void Texture::setAddressMode(AddressMode newMode)
 {
   if (newMode != addressMode)
   {
-    glPushAttrib(GL_TEXTURE_BIT);
-    glBindTexture(textureTarget, textureID);
-
     GLint mode = convertAddressMode(addressMode);
 
+    cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_FALSE);
+
+    glBindTexture(textureTarget, textureID);
     glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, mode);
 
     if (textureTarget != GL_TEXTURE_1D)
       glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, mode);
 
-    glPopAttrib();
+    cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
 
     addressMode = newMode;
   }
