@@ -89,6 +89,6 @@ endif(WENDY_BUILD_TESTS)
 install(DIRECTORY include/wendy
         DESTINATION include
         FILES_MATCHING PATTERN "*.h")
-install(FILES ${wendy_SOURCE_DIR}/build/libwendy.pc
+install(FILES ${wendy_BINARY_DIR}/build/libwendy.pc
         DESTINATION lib/pkgconfig)
 
