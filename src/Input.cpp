@@ -251,6 +251,8 @@ Context::Context(GL::Context& initContext):
     internalMap[Key::RCTRL] = GLFW_KEY_RCTRL;
     internalMap[Key::LALT] = GLFW_KEY_LALT;
     internalMap[Key::RALT] = GLFW_KEY_RALT;
+    internalMap[Key::LSUPER] = GLFW_KEY_LSUPER;
+    internalMap[Key::RSUPER] = GLFW_KEY_RSUPER;
     internalMap[Key::UP] = GLFW_KEY_UP;
     internalMap[Key::DOWN] = GLFW_KEY_DOWN;
     internalMap[Key::LEFT] = GLFW_KEY_LEFT;
@@ -290,6 +292,8 @@ Context::Context(GL::Context& initContext):
     externalMap[GLFW_KEY_RCTRL] = Key::RCTRL;
     externalMap[GLFW_KEY_LALT] = Key::LALT;
     externalMap[GLFW_KEY_RALT] = Key::RALT;
+    externalMap[GLFW_KEY_LSUPER] = Key::LSUPER;
+    externalMap[GLFW_KEY_RSUPER] = Key::RSUPER;
     externalMap[GLFW_KEY_UP] = Key::UP;
     externalMap[GLFW_KEY_DOWN] = Key::DOWN;
     externalMap[GLFW_KEY_LEFT] = Key::LEFT;
