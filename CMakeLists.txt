@@ -18,7 +18,7 @@ option(WENDY_BUILD_TESTS "Build the bundled test programs" OFF)
 if(WENDY_USE_INTERNAL)
 
   add_subdirectory(libs)
-  list(APPEND wendy_LIBRARIES GLEW)
+  list(APPEND wendy_LIBRARIES GLEW ${GLFW_LIBRARIES})
 
 else()
 
@@ -27,6 +27,14 @@ else()
     message(FATAL_ERROR "GLEW not found")
   endif(NOT GLEW_LIBRARY)
   list(APPEND wendy_LIBRARIES ${GLEW_LIBRARY})
+
+  if(MSVC)
+    include(FindPkgConfig)
+    pkg_check_modules(GLFW REQUIRED libglfw>=2.6.0)
+    list(APPEND wendy_LIBRARIES ${GLFW_LIBRARIES})
+  else()
+    message(FATAL_ERROR "GLFW not found")
+  endif(MSVC)
 
 endif(WENDY_USE_INTERNAL)
 
@@ -44,12 +52,6 @@ if(NOT CG_LIBRARY OR NOT CGGL_LIBRARY)
   message(FATAL_ERROR "Cg libraries not found")
 endif(NOT CG_LIBRARY OR NOT CGGL_LIBRARY)
 list(APPEND wendy_LIBRARIES ${CG_LIBRARY} ${CGGL_LIBRARY})
-
-if(NOT MSVC)
-  include(FindPkgConfig)
-  pkg_check_modules(GLFW REQUIRED libglfw>=2.6.0)
-  list(APPEND wendy_LIBRARIES ${GLFW_LIBRARIES})
-endif(NOT MSVC)
 
 if(WIN32)
   include_directories($ENV{CG_INC_PATH})
