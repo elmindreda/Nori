@@ -57,6 +57,16 @@ if(UNIX AND NOT APPLE AND NOT CYGWIN)
                            x11_joystick.c x11_keysym2unicode.c x11_thread.c
                            x11_time.c x11_window.c)
 
+elseif(WIN32)
+
+  set(CMAKE_REQUIRED_LIBRARIES ${OPENGL_gl_LIBRARY})
+  list(APPEND GLFW_INCLUDE_DIR ${OPENGL_INCLUDE_DIR})
+  list(APPEND GLFW_LIBRARIES ${OPENGL_gl_LIBRARY})
+
+  list(APPEND glfw_SOURCES win32_dllmain.c win32_enable.c win32_fullscreen.c
+                           win32_glext.c win32_init.c win32_joystick.c
+                           win32_thread.c win32_time.c win32_window.c)
+
 endif(UNIX AND NOT APPLE AND NOT CYGWIN)
 
 add_library(glfw STATIC ${glfw_SOURCES})
