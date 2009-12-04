@@ -29,3 +29,14 @@ set_target_properties(sprite3 PROPERTIES
   MACOSX_BUNDLE_GUI_IDENTIFIER org.elmindreda.wendy.sprite3
   DEBUG_POSTFIX "_debug")
 
+if(MSVC)
+  # Tell MSVC to use main instead of WinMain for Windows subsystem executables
+  set_target_properties(clear sprite2 sprite3 particles PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup")
+endif(MSVC)
+
+if(CYGWIN)
+  # Set cross-compile and subsystem compile and link flags
+  set_target_properties(clear sprite2 sprite3 particles PROPERTIES COMPILE_FLAGS "-mno-cygwin")
+  set_target_properties(clear sprite2 sprite3 particles PROPERTIES LINK_FLAGS "-mno-cygwin -mwindows")
+endif(CYGWIN)
+
