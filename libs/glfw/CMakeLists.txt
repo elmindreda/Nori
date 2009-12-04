@@ -1,6 +1,8 @@
 
 project(glfw C)
 
+include(CheckFunctionExists)
+
 find_package(OpenGL REQUIRED)
 
 include_directories(${glfw_SOURCE_DIR})
@@ -33,6 +35,23 @@ if(UNIX AND NOT APPLE AND NOT CYGWIN)
       list(APPEND GLFW_LIBRARIES ${X11_XF86VIDMODE_LIBRARIES})
     endif(X11_XF86VIDMODE_FOUND) 
   endif (NOT X11_XRANDR_FOUND)
+
+  check_function_exists(glXGetProcAddress GLXGETPROCADDRESS)
+  if(GLXGETPROCADDRESS)
+    add_definitions(-D_GLFW_HAS_GLXGETPROCADDRESS)
+  else()
+    check_function_exists(glXGetProcAddressARB GLXGETPROCADDRESSARB)
+
+    if(GLXGETPROCADDRESSARB)
+      add_definitions(-D_GLFW_HAS_GLXGETPROCADDRESSARB)
+    else()
+      check_function_exists(glXGetProcAddressEXT GLXGETPROCADDRESSEXT)
+    endif(GLXGETPROCADDRESSARB)
+
+    if(GLXGETPROCADDRESSEXT)
+      add_definitions(-D_GLFW_HAS_GLXGETPROCADDRESSEXT)
+    endif(GLXGETPROCADDRESSEXT)
+  endif(GLXGETPROCADDRESS)
 
   list(APPEND glfw_SOURCES x11_enable.c x11_fullscreen.c x11_glext.c x11_init.c
                            x11_joystick.c x11_keysym2unicode.c x11_thread.c
