@@ -40,17 +40,19 @@ if(UNIX AND NOT APPLE AND NOT CYGWIN)
   if(GLXGETPROCADDRESS)
     add_definitions(-D_GLFW_HAS_GLXGETPROCADDRESS)
   else()
+
     check_function_exists(glXGetProcAddressARB GLXGETPROCADDRESSARB)
 
     if(GLXGETPROCADDRESSARB)
       add_definitions(-D_GLFW_HAS_GLXGETPROCADDRESSARB)
     else()
       check_function_exists(glXGetProcAddressEXT GLXGETPROCADDRESSEXT)
+
+      if(GLXGETPROCADDRESSEXT)
+        add_definitions(-D_GLFW_HAS_GLXGETPROCADDRESSEXT)
+      endif(GLXGETPROCADDRESSEXT)
     endif(GLXGETPROCADDRESSARB)
 
-    if(GLXGETPROCADDRESSEXT)
-      add_definitions(-D_GLFW_HAS_GLXGETPROCADDRESSEXT)
-    endif(GLXGETPROCADDRESSEXT)
   endif(GLXGETPROCADDRESS)
 
   list(APPEND glfw_SOURCES x11_enable.c x11_fullscreen.c x11_glext.c x11_init.c
