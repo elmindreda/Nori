@@ -1,24 +1,18 @@
 
 project(glfw C)
 
-include(CheckFunctionExists)
-
-find_package(OpenGL REQUIRED)
-
-set(GLFW_INCLUDE_DIRS ${glfw_SOURCE_DIR})
-
 set(glfw_SOURCES enable.c fullscreen.c glext.c image.c init.c input.c joystick.c
                  stream.c tga.c thread.c time.c window.c)
 
 if(UNIX AND NOT APPLE AND NOT CYGWIN)
-
-  include(${glfw_SOURCE_DIR}/CMake/CHECK_X11_EXTENSIONS.cmake)
 
   set(CMAKE_REQUIRED_LIBRARIES ${X11_X11_LIB} ${OPENGL_gl_LIBRARY})
   list(APPEND GLFW_INCLUDE_DIRS ${X11_X11_INCLUDE_PATH})
   list(APPEND GLFW_LIBRARIES ${X11_X11_LIB})
   list(APPEND GLFW_INCLUDE_DIRS ${OPENGL_INCLUDE_DIR})
   list(APPEND GLFW_LIBRARIES ${OPENGL_gl_LIBRARY})
+
+  include(${glfw_SOURCE_DIR}/CMake/CHECK_X11_EXTENSIONS.cmake)
 
   CHECK_X11_XRANDR()
   if (X11_XRANDR_FOUND)
@@ -35,6 +29,8 @@ if(UNIX AND NOT APPLE AND NOT CYGWIN)
       list(APPEND GLFW_LIBRARIES ${X11_XF86VIDMODE_LIBRARIES})
     endif(X11_XF86VIDMODE_FOUND) 
   endif (NOT X11_XRANDR_FOUND)
+
+  include(CheckFunctionExists)
 
   check_function_exists(glXGetProcAddress GLXGETPROCADDRESS)
   if(GLXGETPROCADDRESS)
@@ -74,4 +70,7 @@ endif(UNIX AND NOT APPLE AND NOT CYGWIN)
 include_directories(${GLFW_INCLUDE_DIRS})
 
 add_library(glfw STATIC ${glfw_SOURCES})
+
+set(GLFW_INCLUDE_DIRS ${GLFW_INCLUDE_DIRS} CACHE STRING "GLFW include directories")
+set(GLFW_LIBRARIES ${GLFW_LIBRARIES} CACHE STRING "GLFW libraries")
 

@@ -19,10 +19,12 @@ if(NOT MSVC)
   find_package(Doxygen)
 endif(NOT MSVC)
 
+find_package(OpenGL REQUIRED)
+
 if(WENDY_USE_INTERNAL)
 
   add_subdirectory(libs)
-  list(APPEND wendy_LIBRARIES GLEW ${GLFW_LIBRARIES})
+  list(APPEND wendy_LIBRARIES GLEW glfw ${GLFW_LIBRARIES})
 
 else()
 
@@ -67,6 +69,7 @@ add_subdirectory(${wendy_SOURCE_DIR}/../moira ${wendy_BINARY_DIR}/moira)
 set(WENDY_LIBRARIES ${wendy_LIBRARIES} ${MOIRA_LIBRARIES} CACHE STRING "Libraries used by Wendy")
 set(WENDY_INCLUDE_DIRS ${MOIRA_INCLUDE_DIRS}
 		       ${GLEW_SOURCE_DIR}
+		       ${glfw_SOURCE_DIR}
                        ${GLFW_INCLUDE_DIRS}
                        ${wendy_SOURCE_DIR}/include
 		       ${wendy_BINARY_DIR}/include
