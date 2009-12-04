@@ -97,6 +97,9 @@ endif(WENDY_BUILD_TESTS)
 install(DIRECTORY include/wendy
         DESTINATION include
         FILES_MATCHING PATTERN "*.h")
-install(FILES ${wendy_BINARY_DIR}/build/libwendy.pc
-        DESTINATION lib/pkgconfig)
+
+if(UNIX AND NOT CYGWIN)
+  install(FILES ${wendy_BINARY_DIR}/build/libwendy.pc
+          DESTINATION lib/pkgconfig)
+endif(UNIX AND NOT CYGWIN)
 
