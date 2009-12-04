@@ -94,7 +94,10 @@ if(WENDY_BUILD_TESTS)
   add_subdirectory(tests)
 endif(WENDY_BUILD_TESTS)
 
-install(DIRECTORY include/wendy
+install(DIRECTORY ${wendy_BINARY_DIR}/include/wendy
+        DESTINATION include
+        FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY ${wendy_SOURCE_DIR}/include/wendy
         DESTINATION include
         FILES_MATCHING PATTERN "*.h")
 
