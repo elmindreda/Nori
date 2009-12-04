@@ -15,6 +15,10 @@ option(WENDY_INCLUDE_OPENAL_WRAPPER "Include the OpenAL wrapper" OFF)
 option(WENDY_BUILD_EXAMPLES "Build the bundled example programs" OFF)
 option(WENDY_BUILD_TESTS "Build the bundled test programs" OFF)
 
+if(NOT MSVC)
+  find_package(Doxygen)
+endif(NOT MSVC)
+
 if(WENDY_USE_INTERNAL)
 
   add_subdirectory(libs)
@@ -57,14 +61,13 @@ if(WIN32)
   include_directories($ENV{CG_INC_PATH})
 endif(WIN32)
 
-find_package(Doxygen)
-
 # Import Moira (assume parallell directories)
 add_subdirectory(${wendy_SOURCE_DIR}/../moira ${wendy_BINARY_DIR}/moira)
 
 set(WENDY_LIBRARIES ${wendy_LIBRARIES} ${MOIRA_LIBRARIES} CACHE STRING "Libraries used by Wendy")
 set(WENDY_INCLUDE_DIRS ${MOIRA_INCLUDE_DIRS}
 		       ${GLEW_SOURCE_DIR}
+                       ${GLFW_INCLUDE_DIRS}
                        ${wendy_SOURCE_DIR}/include
 		       ${wendy_BINARY_DIR}/include
     CACHE STRING "Include directories for Wendy")
