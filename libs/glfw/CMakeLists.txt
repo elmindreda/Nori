@@ -5,7 +5,7 @@ include(CheckFunctionExists)
 
 find_package(OpenGL REQUIRED)
 
-include_directories(${glfw_SOURCE_DIR})
+set(GLFW_INCLUDE_DIRS ${glfw_SOURCE_DIR})
 
 set(glfw_SOURCES enable.c fullscreen.c glext.c image.c init.c input.c joystick.c
                  stream.c tga.c thread.c time.c window.c)
@@ -70,6 +70,8 @@ elseif(WIN32)
                            win32_thread.c win32_time.c win32_window.c)
 
 endif(UNIX AND NOT APPLE AND NOT CYGWIN)
+
+include_directories(${GLFW_INCLUDE_DIRS})
 
 add_library(glfw STATIC ${glfw_SOURCES})
 
