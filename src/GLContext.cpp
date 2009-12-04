@@ -687,9 +687,9 @@ bool Context::init(const ContextMode& initMode)
       return false;
     }
 
-    if (!GLEW_ARB_texture_rectangle)
+    if (!GLEW_ARB_texture_rectangle && !GLEW_EXT_texture_rectangle)
     {
-      Log::writeError("Rectangular textures (ARB_texture_rectangle) are required but not supported");
+      Log::writeError("Rectangular textures ({ARB|EXT}_texture_rectangle) are required but not supported");
       return false;
     }
 
