@@ -44,8 +44,7 @@ bool Demo::init(void)
   GL::Program::addSearchPath(Path("../media"));
   render::Material::addSearchPath(Path("../media"));
 
-  GL::ContextMode mode(640, 480, 32, 16, 0, 0, GL::ContextMode::WINDOWED);
-  if (!GL::Context::create(mode))
+  if (!GL::Context::create(GL::ContextMode()))
     return false;
 
   GL::Context* context = GL::Context::get();
