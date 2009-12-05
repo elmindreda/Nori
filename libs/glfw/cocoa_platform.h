@@ -43,7 +43,7 @@ typedef void *id;
 
 #include <pthread.h>
 
-#include "../../include/GL/glfw.h"
+#include "GL/glfw.h"
 
 //========================================================================
 // GLFW platform specific types
