@@ -15,7 +15,9 @@ if(APPLE)
   list(APPEND glfw_SOURCES cocoa_enable.m cocoa_fullscreen.m cocoa_glext.m
                            cocoa_init.m cocoa_joystick.m cocoa_time.m cocoa_window.m)
 
-elseif(UNIX AND NOT APPLE AND NOT CYGWIN)
+endif(APPLE)
+
+if(UNIX AND NOT APPLE AND NOT CYGWIN)
 
   set(CMAKE_REQUIRED_LIBRARIES ${X11_X11_LIB} ${OPENGL_gl_LIBRARY})
   list(APPEND GLFW_INCLUDE_DIRS ${X11_X11_INCLUDE_PATH})
@@ -66,7 +68,9 @@ elseif(UNIX AND NOT APPLE AND NOT CYGWIN)
                            x11_joystick.c x11_keysym2unicode.c x11_thread.c
                            x11_time.c x11_window.c)
 
-elseif(WIN32)
+endif(UNIX AND NOT APPLE AND NOT CYGWIN)
+
+if(WIN32)
 
   set(CMAKE_REQUIRED_LIBRARIES ${OPENGL_gl_LIBRARY})
   list(APPEND GLFW_INCLUDE_DIRS ${OPENGL_INCLUDE_DIR})
@@ -76,7 +80,7 @@ elseif(WIN32)
                            win32_glext.c win32_init.c win32_joystick.c
                            win32_thread.c win32_time.c win32_window.c)
 
-endif(UNIX AND NOT APPLE AND NOT CYGWIN)
+endif(WIN32)
 
 include_directories(${GLFW_INCLUDE_DIRS})
 
