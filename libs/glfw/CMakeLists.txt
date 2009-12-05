@@ -4,7 +4,18 @@ project(glfw C)
 set(glfw_SOURCES enable.c fullscreen.c glext.c image.c init.c input.c joystick.c
                  stream.c tga.c thread.c time.c window.c)
 
-if(UNIX AND NOT APPLE AND NOT CYGWIN)
+if(APPLE)
+
+  list(APPEND GLFW_INCLUDE_DIRS ${OPENGL_INCLUDE_DIR})
+  list(APPEND GLFW_LIBRARIES ${OPENGL_gl_LIBRARY})
+
+  find_library(COCOA_FRAMEWORK Cocoa)
+  list(APPEND GLFW_LIBRARIES ${COCOA_FRAMEWORK})
+
+  list(APPEND glfw_SOURCES cocoa_enable.m cocoa_fullscreen.m cocoa_glext.m
+                           cocoa_init.m cocoa_joystick.m cocoa_time.m cocoa_window.m)
+
+elseif(UNIX AND NOT APPLE AND NOT CYGWIN)
 
   set(CMAKE_REQUIRED_LIBRARIES ${X11_X11_LIB} ${OPENGL_gl_LIBRARY})
   list(APPEND GLFW_INCLUDE_DIRS ${X11_X11_INCLUDE_PATH})
