@@ -244,6 +244,12 @@ static _GLFWfbconfig *getFBConfigs( unsigned int *found )
                 continue;
             }
 
+            if( !( pfd.dwFlags & PFD_GENERIC_ACCELERATED ) &&
+                ( pfd.dwFlags & PFD_GENERIC_FORMAT ) )
+            {
+                continue;
+            }
+
             if( pfd.iPixelType != PFD_TYPE_RGBA )
             {
                 // Only RGBA pixel formats considered
