@@ -32,12 +32,12 @@ Demo::~Demo(void)
 
 bool Demo::init(void)
 {
-  Image::addSearchPath(Path("../media"));
-  GL::Texture::addSearchPath(Path("../media"));
-  GL::VertexProgram::addSearchPath(Path("../media"));
-  GL::FragmentProgram::addSearchPath(Path("../media"));
-  GL::Program::addSearchPath(Path("../media"));
-  render::Material::addSearchPath(Path("../media"));
+  Image::addSearchPath(Path("media"));
+  GL::Texture::addSearchPath(Path("media"));
+  GL::VertexProgram::addSearchPath(Path("media"));
+  GL::FragmentProgram::addSearchPath(Path("media"));
+  GL::Program::addSearchPath(Path("media"));
+  render::Material::addSearchPath(Path("media"));
 
   GL::ContextMode mode(640, 480, 32, 16, 0, 0, GL::ContextMode::WINDOWED);
   if (!GL::Context::create(mode))

@@ -140,7 +140,7 @@ int main()
 
     Ptr<Widgets> widgets = new Widgets();
     if (widgets->init())
-    { 
+    {
       while (GL::Context::get()->update())
 	widgets->render();
     }
