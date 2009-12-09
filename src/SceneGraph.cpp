@@ -236,16 +236,20 @@ void Node::enqueue(render::Queue& queue, QueuePhase phase) const
 
   for (List::const_iterator i = children.begin();  i != children.end();  i++)
   {
-    if ((*i)->isVisible())
-    {
-      // TODO: Make less gluäöusch.
+    Node& node = **i;
 
-      Sphere worldBounds = (*i)->getTotalBounds();
-      worldBounds.transformBy((*i)->getWorldTransform());
+    if (!node.isVisible())
+      continue;
 
-      if (queue.getCamera().getFrustum().intersects(worldBounds))
-	(*i)->enqueue(queue, phase);
-    }
+    // TODO: Make less gluäöusch.
+
+    Sphere worldBounds = node.getTotalBounds();
+    worldBounds.transformBy(node.getWorldTransform());
+
+    const Frustum& frustum = queue.getCamera().getFrustum();
+
+    if (queue.getCamera().getFrustum().intersects(worldBounds))
+      node.enqueue(queue, phase);
   }
 }
 
@@ -320,7 +324,7 @@ void Graph::query(const Sphere& bounds, Node::List& nodes) const
       total.transformBy((*i)->getWorldTransform());
 
       if (bounds.intersects(total))
-	nodes.push_back(*i);
+        nodes.push_back(*i);
     }
   }
 }
@@ -335,7 +339,7 @@ void Graph::query(const Frustum& frustum, Node::List& nodes) const
       total.transformBy((*i)->getWorldTransform());
 
       if (frustum.intersects(total))
-	nodes.push_back(*i);
+        nodes.push_back(*i);
     }
   }
 }

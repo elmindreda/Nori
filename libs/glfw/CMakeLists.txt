@@ -75,6 +75,7 @@ if(WIN32)
   set(CMAKE_REQUIRED_LIBRARIES ${OPENGL_gl_LIBRARY})
   list(APPEND GLFW_INCLUDE_DIRS ${OPENGL_INCLUDE_DIR})
   list(APPEND GLFW_LIBRARIES ${OPENGL_gl_LIBRARY})
+  list(APPEND GLFW_LIBRARIES winmm)
 
   list(APPEND glfw_SOURCES win32_dllmain.c win32_enable.c win32_fullscreen.c
                            win32_glext.c win32_init.c win32_joystick.c
