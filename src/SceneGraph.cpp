@@ -333,13 +333,15 @@ void Graph::query(const Frustum& frustum, Node::List& nodes) const
 {
   for (Node::List::const_iterator i = roots.begin();  i != roots.end();  i++)
   {
-    if ((*i)->isVisible())
+    Node& node = **i;
+
+    if (node.isVisible())
     {
-      Sphere total = (*i)->getTotalBounds();
-      total.transformBy((*i)->getWorldTransform());
+      Sphere total = node.getTotalBounds();
+      total.transformBy(node.getWorldTransform());
 
       if (frustum.intersects(total))
-        nodes.push_back(*i);
+        nodes.push_back(&node);
     }
   }
 }
