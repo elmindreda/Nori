@@ -94,6 +94,9 @@ bool Node::addChild(Node& child)
 
   children.push_back(&child);
   child.parent = this;
+  child.addedToParent(*this);
+
+  invalidateBounds();
   return true;
 }
 
@@ -104,6 +107,7 @@ void Node::removeFromParent(void)
     List& siblings = parent->children;
     siblings.erase(std::find(siblings.begin(), siblings.end(), this));
     parent = NULL;
+    removedFromParent();
   }
 }
 
@@ -154,6 +158,10 @@ void Node::setVisible(bool enabled)
 Transform3& Node::getLocalTransform(void)
 {
   dirtyWorld = true;
+
+  if (parent)
+    parent->invalidateBounds();
+
   return local;
 }
 
@@ -177,8 +185,7 @@ void Node::setLocalBounds(const Sphere& newBounds)
 {
   localBounds = newBounds;
 
-  for (Node* parent = this;  parent;  parent = parent->getParent())
-    parent->dirtyBounds = true;
+  invalidateBounds();
 }
 
 const Sphere& Node::getTotalBounds(void) const
@@ -205,17 +212,11 @@ const Sphere& Node::getTotalBounds(void) const
 void Node::addedToParent(Node& parent)
 {
   dirtyWorld = true;
-
-  for (Node* parent = this;  parent;  parent = parent->getParent())
-    parent->dirtyBounds = true;
 }
 
 void Node::removedFromParent(void)
 {
   dirtyWorld = true;
-
-  for (Node* parent = this;  parent;  parent = parent->getParent())
-    parent->dirtyBounds = true;
 }
 
 void Node::update(Time deltaTime)
@@ -251,6 +252,12 @@ void Node::enqueue(render::Queue& queue, QueuePhase phase) const
     if (queue.getCamera().getFrustum().intersects(worldBounds))
       node.enqueue(queue, phase);
   }
+}
+
+void Node::invalidateBounds(void)
+{
+  for (Node* parent = this;  parent;  parent = parent->getParent())
+    parent->dirtyBounds = true;
 }
 
 bool Node::updateWorldTransform(void) const

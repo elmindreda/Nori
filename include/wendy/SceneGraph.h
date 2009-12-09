@@ -192,6 +192,7 @@ protected:
    */
   virtual void enqueue(render::Queue& queue, QueuePhase phase) const;
 private:
+  void invalidateBounds(void);
   bool updateWorldTransform(void) const;
   Node* parent;
   List children;
