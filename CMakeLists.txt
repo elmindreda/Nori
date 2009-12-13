@@ -16,8 +16,12 @@ option(WENDY_BUILD_EXAMPLES "Build the bundled example programs" OFF)
 option(WENDY_BUILD_TESTS "Build the bundled test programs" OFF)
 
 if(UNIX AND NOT CYGWIN)
-  find_package(Doxygen)
+  option(WENDY_BUILD_DOCUMENTATION "Build the Doxygen documentation" OFF)
 endif(UNIX AND NOT CYGWIN)
+
+if(WENDY_BUILD_DOCUMENTATION)
+  find_package(Doxygen)
+endif(WENDY_BUILD_DOCUMENTATION)
 
 find_package(OpenGL REQUIRED)
 
@@ -80,9 +84,12 @@ include_directories(${WENDY_INCLUDE_DIRS})
 configure_file(${wendy_SOURCE_DIR}/include/wendy/Config.h.in
                ${wendy_BINARY_DIR}/include/wendy/Config.h @ONLY)
 
-if(UNIX AND NOT CYGWIN)
+if(WENDY_BUILD_DOCUMENTATION)
   configure_file(${wendy_SOURCE_DIR}/docs/Doxyfile.in
                 ${wendy_BINARY_DIR}/docs/Doxyfile @ONLY)
+endif(WENDY_BUILD_DOCUMENTATION)
+
+if(UNIX AND NOT CYGWIN)
   configure_file(${wendy_SOURCE_DIR}/build/libwendy.pc.in
                 ${wendy_BINARY_DIR}/build/libwendy.pc @ONLY)
 endif(UNIX AND NOT CYGWIN)
