@@ -15,9 +15,9 @@ option(WENDY_INCLUDE_OPENAL_WRAPPER "Include the OpenAL wrapper" OFF)
 option(WENDY_BUILD_EXAMPLES "Build the bundled example programs" OFF)
 option(WENDY_BUILD_TESTS "Build the bundled test programs" OFF)
 
-if(NOT MSVC)
+if(UNIX AND NOT CYGWIN)
   find_package(Doxygen)
-endif(NOT MSVC)
+endif(UNIX AND NOT CYGWIN)
 
 find_package(OpenGL REQUIRED)
 
@@ -77,12 +77,15 @@ set(WENDY_INCLUDE_DIRS ${MOIRA_INCLUDE_DIRS}
 
 include_directories(${WENDY_INCLUDE_DIRS})
 
-configure_file(${wendy_SOURCE_DIR}/docs/Doxyfile.in
-               ${wendy_BINARY_DIR}/docs/Doxyfile @ONLY)
 configure_file(${wendy_SOURCE_DIR}/include/wendy/Config.h.in
                ${wendy_BINARY_DIR}/include/wendy/Config.h @ONLY)
-configure_file(${wendy_SOURCE_DIR}/build/libwendy.pc.in
-               ${wendy_BINARY_DIR}/build/libwendy.pc @ONLY)
+
+if(UNIX AND NOT CYGWIN)
+  configure_file(${wendy_SOURCE_DIR}/docs/Doxyfile.in
+                ${wendy_BINARY_DIR}/docs/Doxyfile @ONLY)
+  configure_file(${wendy_SOURCE_DIR}/build/libwendy.pc.in
+                ${wendy_BINARY_DIR}/build/libwendy.pc @ONLY)
+endif(UNIX AND NOT CYGWIN)
 
 add_subdirectory(src)
 
