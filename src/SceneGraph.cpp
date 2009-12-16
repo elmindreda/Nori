@@ -493,6 +493,9 @@ void CameraNode::update(Time deltaTime)
 {
   Node::update(deltaTime);
 
+  if (cameraName.empty())
+    return;
+
   render::Camera* camera = render::Camera::findInstance(cameraName);
   if (!camera)
   {
