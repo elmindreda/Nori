@@ -249,7 +249,7 @@ void Node::enqueue(render::Queue& queue, QueuePhase phase) const
 
     const Frustum& frustum = queue.getCamera().getFrustum();
 
-    if (queue.getCamera().getFrustum().intersects(worldBounds))
+    if (frustum.intersects(worldBounds))
       node.enqueue(queue, phase);
   }
 }
