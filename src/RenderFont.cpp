@@ -158,14 +158,18 @@ void Font::drawText(const char* format, ...) const
 {
   va_list vl;
   char* text;
+  int result;
 
   va_start(vl, format);
-  vasprintf(&text, format, vl);
+  result = vasprintf(&text, format, vl);
   va_end(vl);
+
+  if (result < 0)
+    return;
 
   drawText(String(text));
 
-  free(text);
+  std::free(text);
 }
 
 float Font::getWidth(void) const
@@ -226,14 +230,18 @@ Rect Font::getTextMetrics(const char* format, ...) const
 {
   va_list vl;
   char* text;
+  int result;
 
   va_start(vl, format);
-  vasprintf(&text, format, vl);
+  result = vasprintf(&text, format, vl);
   va_end(vl);
 
-  Rect result = getTextMetrics(String(text));
+  if (result < 0)
+    return Rect(0.f, 0.f, 0.f, 0.f);
 
-  free(text);
+  Rect metrics = getTextMetrics(String(text));
+
+  std::free(text);
   return result;
 }
 
@@ -295,14 +303,18 @@ void Font::getTextLayout(LayoutList& result, const char* format, ...) const
 {
   va_list vl;
   char* text;
+  int result;
 
   va_start(vl, format);
-  vasprintf(&text, format, vl);
+  result = vasprintf(&text, format, vl);
   va_end(vl);
+
+  if (result < 0)
+    return;
 
   getTextLayout(result, String(text));
 
-  free(text);
+  std::free(text);
 }
 
 Font* Font::createInstance(const Path& path,
