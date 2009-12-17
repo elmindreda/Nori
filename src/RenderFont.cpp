@@ -263,7 +263,7 @@ void Font::getTextLayout(LayoutList& result, const String& text) const
 	pen.x += size.x * 3.f;
 	break;
       }
-	
+
       case '\n':
       {
 	layout.area.set(pen, Vec2::ZERO);
