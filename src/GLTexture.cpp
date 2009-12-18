@@ -156,9 +156,15 @@ Bimap<PixelFormat, GLenum> genericFormatMap;
 
 bool TextureImage::copyFrom(const moira::Image& source, unsigned int x, unsigned int y)
 {
-  /*
   moira::Image final = source;
-  final.convertTo(texture.format);
+
+  if (final.getFormat() != texture.format)
+  {
+    // TODO: Convert to compatible pixel format
+
+    Log::writeError("Cannot copy texture data from source image of different pixel format");
+    return false;
+  }
 
   // Moira has y-axis down, OpenGL has y-axis up
   final.flipHorizontal();
@@ -171,9 +177,8 @@ bool TextureImage::copyFrom(const moira::Image& source, unsigned int x, unsigned
       return false;
     }
 
-    // TODO: Stop using attribute stack.
+    cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_FALSE);
 
-    glPushAttrib(GL_TEXTURE_BIT | GL_PIXEL_MODE_BIT);
     glBindTexture(texture.textureTarget, texture.textureID);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -185,7 +190,7 @@ bool TextureImage::copyFrom(const moira::Image& source, unsigned int x, unsigned
                     GL_UNSIGNED_BYTE,
 		    final.getPixels());
 
-    glPopAttrib();
+    cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_TRUE);
   }
   else
   {
@@ -195,9 +200,8 @@ bool TextureImage::copyFrom(const moira::Image& source, unsigned int x, unsigned
       return false;
     }
 
-    // TODO: Stop using attribute stack.
+    cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_FALSE);
 
-    glPushAttrib(GL_TEXTURE_BIT | GL_PIXEL_MODE_BIT);
     glBindTexture(texture.textureTarget, texture.textureID);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -209,7 +213,7 @@ bool TextureImage::copyFrom(const moira::Image& source, unsigned int x, unsigned
                     GL_UNSIGNED_BYTE,
 		    final.getPixels());
 
-    glPopAttrib();
+    cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_TRUE);
   }
 
 #if WENDY_DEBUG
@@ -223,7 +227,6 @@ bool TextureImage::copyFrom(const moira::Image& source, unsigned int x, unsigned
     return false;
   }
 #endif
-  */
 
   return true;
 }
@@ -265,6 +268,37 @@ bool TextureImage::copyFromColorBuffer(unsigned int x, unsigned int y)
     return false;
   }
 #endif
+
+  return true;
+}
+
+bool TextureImage::copyTo(moira::Image& result) const
+{
+  result = moira::Image(texture.format, width, height);
+
+  cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_FALSE);
+
+  glBindTexture(texture.textureTarget, texture.textureID);
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
+  glGetTexImage(texture.textureTarget,
+                level,
+		genericFormatMap[texture.format],
+		GL_UNSIGNED_BYTE,
+		result.getPixels());
+
+  cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_TRUE);
+
+#if WENDY_DEBUG
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+  {
+    Log::writeError("Error during texture image retrieval: %s", gluErrorString(error));
+    return false;
+  }
+#endif
+
+  result.flipHorizontal();
 
   return true;
 }
@@ -437,44 +471,6 @@ TextureImage& Texture::getImage(unsigned int level)
     throw Exception("Invalid mipmap level");
 
   return *images[level];
-  /*
-  if (getPhysicalWidth(level) == 0 || getPhysicalHeight(level) == 0)
-  {
-    Log::writeError("Cannot retrieve image for non-existent level %u of texture \'%s\'",
-                    level,
-		    getName().c_str());
-    return NULL;
-  }
-
-  Ptr<moira::Image> result;
-
-  result = new moira::Image(format, getPhysicalWidth(level), getPhysicalHeight(level));
-
-  glPushAttrib(GL_TEXTURE_BIT | GL_PIXEL_MODE_BIT);
-  glBindTexture(textureTarget, textureID);
-  glPixelStorei(GL_PACK_ALIGNMENT, 1);
-
-  glGetTexImage(textureTarget,
-                level,
-		genericFormatMap[format],
-		GL_UNSIGNED_BYTE,
-		result->getPixels());
-
-  glPopAttrib();
-
-#if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-  {
-    Log::writeError("Error during texture image retrieval: %s", gluErrorString(error));
-    return NULL;
-  }
-#endif
-
-  result->flipHorizontal();
-
-  return result.detachObject();
-  */
 }
 
 Context& Texture::getContext(void) const

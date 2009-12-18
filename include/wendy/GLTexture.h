@@ -98,6 +98,7 @@ public:
    *  @param[in] y The y-coordinate of the desired area within the current color buffer.
    */
   bool copyFromColorBuffer(unsigned int x, unsigned int y);
+  bool copyTo(moira::Image& result) const;
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
   const PixelFormat& getFormat(void) const;
