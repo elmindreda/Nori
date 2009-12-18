@@ -5,13 +5,15 @@ set(wendy_SOURCES
     GLBuffer.cpp GLContext.cpp GLProgram.cpp GLProgramIO.cpp GLRender.cpp
     GLState.cpp GLTexture.cpp GLTextureIO.cpp GLVertex.cpp
 
+    Input.cpp
+
     RenderCamera.cpp RenderFont.cpp RenderLight.cpp RenderMesh.cpp
     RenderMaterial.cpp RenderMaterialIO.cpp RenderParticle.cpp RenderQueue.cpp
-    RenderSprite.cpp
+    RenderSprite.cpp)
 
-    SceneGraph.cpp SceneIO.cpp
-
-    Input.cpp)
+if(WENDY_INCLUDE_SCENE_GRAPH)
+  list(APPEND wendy_SOURCES SceneGraph.cpp SceneIO.cpp)
+endif(WENDY_INCLUDE_SCENE_GRAPH)
 
 if(WENDY_INCLUDE_UI_SYSTEM)
   list(APPEND wendy_SOURCES UIBook.cpp UIButton.cpp UICanvas.cpp UIColor.cpp
