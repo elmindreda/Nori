@@ -63,6 +63,11 @@ if(NOT CG_LIBRARY OR NOT CGGL_LIBRARY)
 endif(NOT CG_LIBRARY OR NOT CGGL_LIBRARY)
 list(APPEND wendy_LIBRARIES ${CG_LIBRARY} ${CGGL_LIBRARY})
 
+# Ugly fix for Cg depending on pthreads
+if(UNIX AND NOT CYGWIN)
+  list(APPEND wendy_LIBRARIES -pthread)
+endif(UNIX AND NOT CYGWIN)
+
 if(WIN32)
   include_directories($ENV{CG_INC_PATH})
 endif(WIN32)
