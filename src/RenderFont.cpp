@@ -242,7 +242,7 @@ Rect Font::getTextMetrics(const char* format, ...) const
   Rect metrics = getTextMetrics(String(text));
 
   std::free(text);
-  return result;
+  return metrics;
 }
 
 void Font::getTextLayout(LayoutList& result, const String& text) const
@@ -299,7 +299,7 @@ void Font::getTextLayout(LayoutList& result, const String& text) const
   }
 }
 
-void Font::getTextLayout(LayoutList& result, const char* format, ...) const
+void Font::getTextLayout(LayoutList& layout, const char* format, ...) const
 {
   va_list vl;
   char* text;
@@ -312,7 +312,7 @@ void Font::getTextLayout(LayoutList& result, const char* format, ...) const
   if (result < 0)
     return;
 
-  getTextLayout(result, String(text));
+  getTextLayout(layout, String(text));
 
   std::free(text);
 }
