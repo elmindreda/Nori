@@ -195,93 +195,93 @@ bool MaterialCodec::write(Stream& stream, const Material& material)
 
       for (unsigned int i = 0;  i < technique.getPassCount();  i++)
       {
-	const Pass& pass = technique.getPass(i);
+        const Pass& pass = technique.getPass(i);
 
-	beginElement("pass");
+        beginElement("pass");
 
-	if (!pass.getName().empty())
-	  addAttribute("name", pass.getName());
+        if (!pass.getName().empty())
+          addAttribute("name", pass.getName());
 
-	if (pass.getSrcFactor() != defaults.getSrcFactor() ||
-	    pass.getDstFactor() != defaults.getDstFactor())
-	{
-	  beginElement("blending");
-	  addAttribute("src", blendFactorMap[pass.getSrcFactor()]);
-	  addAttribute("dst", blendFactorMap[pass.getDstFactor()]);
-	  endElement();
-	}
+        if (pass.getSrcFactor() != defaults.getSrcFactor() ||
+            pass.getDstFactor() != defaults.getDstFactor())
+        {
+          beginElement("blending");
+          addAttribute("src", blendFactorMap[pass.getSrcFactor()]);
+          addAttribute("dst", blendFactorMap[pass.getDstFactor()]);
+          endElement();
+        }
 
-	if (pass.isColorWriting() != defaults.isColorWriting())
-	{
-	  beginElement("color");
-	  addAttribute("writing", pass.isColorWriting());
-	  endElement();
-	}
+        if (pass.isColorWriting() != defaults.isColorWriting())
+        {
+          beginElement("color");
+          addAttribute("writing", pass.isColorWriting());
+          endElement();
+        }
 
-	if (pass.isDepthTesting() != defaults.isDepthTesting() ||
-	    pass.isDepthWriting() != defaults.isDepthWriting())
-	{
-	  beginElement("depth");
-	  addAttribute("testing", pass.isDepthTesting());
-	  addAttribute("writing", pass.isDepthWriting());
-	  addAttribute("function", functionMap[pass.getDepthFunction()]);
-	  endElement();
-	}
+        if (pass.isDepthTesting() != defaults.isDepthTesting() ||
+            pass.isDepthWriting() != defaults.isDepthWriting())
+        {
+          beginElement("depth");
+          addAttribute("testing", pass.isDepthTesting());
+          addAttribute("writing", pass.isDepthWriting());
+          addAttribute("function", functionMap[pass.getDepthFunction()]);
+          endElement();
+        }
 
-	/*
-	if (pass.isStencilTesting() != defaults.isStencilTesting() ||
-	    pass.getStencilFunction() != defaults.getStencilFunction() ||
-	    pass.getStencilReference() != defaults.getStencilReference() ||
-	    pass.getStencilMask() != defaults.getStencilMask() ||
-	    pass.getStencilFailOperation() != defaults.getStencilFailOperation() ||
-	    pass.getDepthPassOperation() != defaults.getDepthPassOperation() ||
-	    pass.getDepthFailOperation() != defaults.getDepthFailOperation())
-	{
-	  beginElement("stencil");
-	  addAttribute("testing", pass.isStencilTesting());
-	  addAttribute("function", functionMap[pass.getStencilFunction()]);
-	  addAttribute("reference", pass.getStencilReference());
-	  addAttribute("mask", pass.getStencilMask());
-	  addAttribute("stencil-failed", operationMap[pass.getStencilFailOperation()]);
-	  addAttribute("depth-failed", operationMap[pass.getDepthFailOperation()]);
-	  addAttribute("depth-passed", operationMap[pass.getDepthPassOperation()]);
-	  endElement();
-	}
-	*/
+        /*
+        if (pass.isStencilTesting() != defaults.isStencilTesting() ||
+            pass.getStencilFunction() != defaults.getStencilFunction() ||
+            pass.getStencilReference() != defaults.getStencilReference() ||
+            pass.getStencilMask() != defaults.getStencilMask() ||
+            pass.getStencilFailOperation() != defaults.getStencilFailOperation() ||
+            pass.getDepthPassOperation() != defaults.getDepthPassOperation() ||
+            pass.getDepthFailOperation() != defaults.getDepthFailOperation())
+        {
+          beginElement("stencil");
+          addAttribute("testing", pass.isStencilTesting());
+          addAttribute("function", functionMap[pass.getStencilFunction()]);
+          addAttribute("reference", pass.getStencilReference());
+          addAttribute("mask", pass.getStencilMask());
+          addAttribute("stencil-failed", operationMap[pass.getStencilFailOperation()]);
+          addAttribute("depth-failed", operationMap[pass.getDepthFailOperation()]);
+          addAttribute("depth-passed", operationMap[pass.getDepthPassOperation()]);
+          endElement();
+        }
+        */
 
-	if (pass.isWireframe() != defaults.isWireframe() ||
-	    pass.getCullMode() != defaults.getCullMode())
-	{
-	  beginElement("polygon");
-	  addAttribute("wireframe", pass.isWireframe());
-	  addAttribute("cull", cullModeMap[pass.getCullMode()]);
-	  endElement();
-	}
+        if (pass.isWireframe() != defaults.isWireframe() ||
+            pass.getCullMode() != defaults.getCullMode())
+        {
+          beginElement("polygon");
+          addAttribute("wireframe", pass.isWireframe());
+          addAttribute("cull", cullModeMap[pass.getCullMode()]);
+          endElement();
+        }
 
-	if (GL::Program* program = pass.getProgram())
-	{
-	  beginElement("program");
-	  addAttribute("name", program->getName());
+        if (GL::Program* program = pass.getProgram())
+        {
+          beginElement("program");
+          addAttribute("name", program->getName());
 
-	  for (unsigned int i = 0;  i < pass.getSamplerCount();  i++)
-	  {
-	    const GL::SamplerState& state = pass.getSamplerState(i);
+          for (unsigned int i = 0;  i < pass.getSamplerCount();  i++)
+          {
+            const GL::SamplerState& state = pass.getSamplerState(i);
 
-	    Ref<GL::Texture> texture;
-	    state.getTexture(texture);
-	    if (texture)
-	      continue;
+            Ref<GL::Texture> texture;
+            state.getTexture(texture);
+            if (texture)
+              continue;
 
-	    beginElement("sampler");
-	    addAttribute("name", state.getSampler().getName());
-	    addAttribute("texture", texture->getName());
-	    endElement();
-	  }
+            beginElement("sampler");
+            addAttribute("name", state.getSampler().getName());
+            addAttribute("texture", texture->getName());
+            endElement();
+          }
 
-	  endElement();
-	}
+          endElement();
+        }
 
-	endElement();
+        endElement();
       }
 
       endElement();
@@ -295,7 +295,7 @@ bool MaterialCodec::write(Stream& stream, const Material& material)
   {
     Log::writeError("Failed to write material \'%s\': %s",
                     material.getName().c_str(),
-		    exception.what());
+                    exception.what());
     setStream(NULL);
     return false;
   }
@@ -338,237 +338,237 @@ bool MaterialCodec::onBeginElement(const String& name)
     {
       if (name == "pass")
       {
-	Pass& pass = currentTechnique->createPass(readString("name"));
-	currentPass = &pass;
-	return true;
+        Pass& pass = currentTechnique->createPass(readString("name"));
+        currentPass = &pass;
+        return true;
       }
 
       if (currentPass)
       {
-	if (name == "blending")
-	{
-	  String srcFactorName = readString("src");
-	  if (!srcFactorName.empty())
-	  {
-	    if (blendFactorMap.hasKey(srcFactorName))
-	      currentPass->setBlendFactors(blendFactorMap[srcFactorName],
-	                                   currentPass->getDstFactor());
-	    else
-	    {
-	      Log::writeError("Invalid blend factor name \'%s\'", srcFactorName.c_str());
-	      return false;
-	    }
-	  }
-
-	  String dstFactorName = readString("dst");
-	  if (!dstFactorName.empty())
-	  {
-	    if (blendFactorMap.hasKey(dstFactorName))
-	      currentPass->setBlendFactors(currentPass->getSrcFactor(),
-	                                   blendFactorMap[dstFactorName]);
-	    else
-	    {
-	      Log::writeError("Invalid blend factor name \'%s\'",
-	                      dstFactorName.c_str());
-	      return false;
-	    }
-	  }
-
-	  return true;
-	}
-
-	if (name == "color")
-	{
-	  currentPass->setColorWriting(readBoolean("writing", currentPass->isColorWriting()));
-	  return true;
-	}
-
-	if (name == "depth")
-	{
-	  currentPass->setDepthTesting(readBoolean("testing", currentPass->isDepthTesting()));
-	  currentPass->setDepthWriting(readBoolean("writing", currentPass->isDepthWriting()));
-
-	  String functionName = readString("function");
-	  if (!functionName.empty())
-	  {
-	    if (functionMap.hasKey(functionName))
-	      currentPass->setDepthFunction(functionMap[functionName]);
-	    else
-	    {
-	      Log::writeError("Invalid depth test function name \'%s\'",
-	                      functionName.c_str());
-	      return false;
-	    }
-	  }
-
-	  return true;
-	}
-	
-	/*
-	if (name == "stencil")
-	{
-	  currentPass->setStencilTesting(readBoolean("testing", currentPass->isStencilTesting()));
-
-	  String functionName = readString("function");
-	  if (!functionMap.hasKey(functionName))
-	    return false;
-
-	  currentPass->setStencilFunction(functionMap[functionName]);
-
-	  String operationName;
-
-	  operationName = readString("stencil-failed");
-	  if (operationMap.hasKey(operationName))
-	    currentPass->setStencilOperations(operationMap[operationName],
-					      currentPass->getDepthFailOperation(),
-					      currentPass->getDepthPassOperation());
-	  else
-	    return false;
-
-	  operationName = readString("depth-failed");
-	  if (operationMap.hasKey(operationName))
-	    currentPass->setStencilOperations(currentPass->getStencilFailOperation(),
-					      operationMap[operationName],
-					      currentPass->getDepthPassOperation());
-	  else
-	    return false;
-
-	  operationName = readString("depth-passed");
-	  if (operationMap.hasKey(operationName))
-	    currentPass->setStencilOperations(currentPass->getStencilFailOperation(),
-					      currentPass->getDepthFailOperation(),
-					      operationMap[operationName]);
-	  else
-	    return false;
-
-	  const unsigned int reference = readInteger("reference", currentPass->getStencilReference());
-	  const unsigned int mask = readInteger("mask", currentPass->getStencilMask());
-
-	  currentPass->setStencilValues(reference, mask);
-
-	  return true;
-	}
-	*/
-
-	if (name == "polygon")
-	{
-	  currentPass->setWireframe(readBoolean("wireframe"));
-
-	  String cullModeName = readString("cull");
-	  if (!cullModeName.empty())
-	  {
-	    if (cullModeMap.hasKey(cullModeName))
-	      currentPass->setCullMode(cullModeMap[cullModeName]);
-	    else
-	    {
-	      Log::writeError("Invalid cull mode \'%s\'", cullModeName.c_str());
-	      return false;
-	    }
-	  }
-
-	  return true;
-	}
-
-	if (name == "program")
-	{
-	  String programName = readString("name");
-	  if (programName.empty())
-	  {
-	    Log::writeError("Shader program name missing");
-	    return false;
-	  }
-
-	  GL::Program* program = GL::Program::readInstance(programName);
-	  if (!program)
-	  {
-	    Log::writeWarning("Failed to load shader program \'%s\'; skipping technique %u in material \'%s\'",
-	                      programName.c_str(),
-	                      material->getTechniqueCount(),
-	                      material->getName().c_str());
-
-	    material->destroyTechnique(*currentTechnique);
-	    currentTechnique = NULL;
-	    return true;
-	  }
-
-	  currentPass->setProgram(program);
-	  return true;
-	}
-
-	if (currentPass->getProgram())
-	{
-	  if (name == "sampler")
-	  {
-	    String samplerName = readString("name");
-	    if (samplerName.empty())
+        if (name == "blending")
+        {
+          String srcFactorName = readString("src");
+          if (!srcFactorName.empty())
+          {
+            if (blendFactorMap.hasKey(srcFactorName))
+              currentPass->setBlendFactors(blendFactorMap[srcFactorName],
+                                           currentPass->getDstFactor());
+            else
             {
-	      Log::writeWarning("Shader program \'%s\' lists unnamed sampler uniform",
-	                        currentPass->getProgram()->getName().c_str());
-	      return true;
+              Log::writeError("Invalid blend factor name \'%s\'", srcFactorName.c_str());
+              return false;
+            }
+          }
+
+          String dstFactorName = readString("dst");
+          if (!dstFactorName.empty())
+          {
+            if (blendFactorMap.hasKey(dstFactorName))
+              currentPass->setBlendFactors(currentPass->getSrcFactor(),
+                                           blendFactorMap[dstFactorName]);
+            else
+            {
+              Log::writeError("Invalid blend factor name \'%s\'",
+                              dstFactorName.c_str());
+              return false;
+            }
+          }
+
+          return true;
+        }
+
+        if (name == "color")
+        {
+          currentPass->setColorWriting(readBoolean("writing", currentPass->isColorWriting()));
+          return true;
+        }
+
+        if (name == "depth")
+        {
+          currentPass->setDepthTesting(readBoolean("testing", currentPass->isDepthTesting()));
+          currentPass->setDepthWriting(readBoolean("writing", currentPass->isDepthWriting()));
+
+          String functionName = readString("function");
+          if (!functionName.empty())
+          {
+            if (functionMap.hasKey(functionName))
+              currentPass->setDepthFunction(functionMap[functionName]);
+            else
+            {
+              Log::writeError("Invalid depth test function name \'%s\'",
+                              functionName.c_str());
+              return false;
+            }
+          }
+
+          return true;
+        }
+
+        /*
+        if (name == "stencil")
+        {
+          currentPass->setStencilTesting(readBoolean("testing", currentPass->isStencilTesting()));
+
+          String functionName = readString("function");
+          if (!functionMap.hasKey(functionName))
+            return false;
+
+          currentPass->setStencilFunction(functionMap[functionName]);
+
+          String operationName;
+
+          operationName = readString("stencil-failed");
+          if (operationMap.hasKey(operationName))
+            currentPass->setStencilOperations(operationMap[operationName],
+                                              currentPass->getDepthFailOperation(),
+                                              currentPass->getDepthPassOperation());
+          else
+            return false;
+
+          operationName = readString("depth-failed");
+          if (operationMap.hasKey(operationName))
+            currentPass->setStencilOperations(currentPass->getStencilFailOperation(),
+                                              operationMap[operationName],
+                                              currentPass->getDepthPassOperation());
+          else
+            return false;
+
+          operationName = readString("depth-passed");
+          if (operationMap.hasKey(operationName))
+            currentPass->setStencilOperations(currentPass->getStencilFailOperation(),
+                                              currentPass->getDepthFailOperation(),
+                                              operationMap[operationName]);
+          else
+            return false;
+
+          const unsigned int reference = readInteger("reference", currentPass->getStencilReference());
+          const unsigned int mask = readInteger("mask", currentPass->getStencilMask());
+
+          currentPass->setStencilValues(reference, mask);
+
+          return true;
+        }
+        */
+
+        if (name == "polygon")
+        {
+          currentPass->setWireframe(readBoolean("wireframe"));
+
+          String cullModeName = readString("cull");
+          if (!cullModeName.empty())
+          {
+            if (cullModeMap.hasKey(cullModeName))
+              currentPass->setCullMode(cullModeMap[cullModeName]);
+            else
+            {
+              Log::writeError("Invalid cull mode \'%s\'", cullModeName.c_str());
+              return false;
+            }
+          }
+
+          return true;
+        }
+
+        if (name == "program")
+        {
+          String programName = readString("name");
+          if (programName.empty())
+          {
+            Log::writeError("Shader program name missing");
+            return false;
+          }
+
+          GL::Program* program = GL::Program::readInstance(programName);
+          if (!program)
+          {
+            Log::writeWarning("Failed to load shader program \'%s\'; skipping technique %u in material \'%s\'",
+                              programName.c_str(),
+                              material->getTechniqueCount(),
+                              material->getName().c_str());
+
+            material->destroyTechnique(*currentTechnique);
+            currentTechnique = NULL;
+            return true;
+          }
+
+          currentPass->setProgram(program);
+          return true;
+        }
+
+        if (currentPass->getProgram())
+        {
+          if (name == "sampler")
+          {
+            String samplerName = readString("name");
+            if (samplerName.empty())
+            {
+              Log::writeWarning("Shader program \'%s\' lists unnamed sampler uniform",
+                                currentPass->getProgram()->getName().c_str());
+              return true;
             }
 
-	    if (!currentPass->getProgram()->findSampler(samplerName))
-	    {
-	      Log::writeWarning("Shader program \'%s\' does not have sampler uniform \'%s\'",
-	                        currentPass->getProgram()->getName().c_str(),
-			        samplerName.c_str());
-	      return true;
-	    }
+            if (!currentPass->getProgram()->findSampler(samplerName))
+            {
+              Log::writeWarning("Shader program \'%s\' does not have sampler uniform \'%s\'",
+                                currentPass->getProgram()->getName().c_str(),
+                                samplerName.c_str());
+              return true;
+            }
 
-	    String textureName = readString("texture");
-	    if (textureName.empty())
-	      return true;
+            String textureName = readString("texture");
+            if (textureName.empty())
+              return true;
 
-	    Ref<GL::Texture> texture = GL::Texture::readInstance(textureName);
-	    if (!texture)
-	      return false;
+            Ref<GL::Texture> texture = GL::Texture::readInstance(textureName);
+            if (!texture)
+              return false;
 
-	    currentPass->getSamplerState(samplerName).setTexture(texture);
-	    return true;
-	  }
-	}
+            currentPass->getSamplerState(samplerName).setTexture(texture);
+            return true;
+          }
+        }
 
-	/*
-	if (name == "filter")
-	{
-	  String filterName;
+        /*
+        if (name == "filter")
+        {
+          String filterName;
 
-	  filterName = readString("min");
-	  if (!filterName.empty())
-	  {
-	    if (filterMap.hasKey(filterName))
-	      currentLayer->setFilters(filterMap[filterName],
-	                               currentLayer->getMagFilter());
-	    else
-	      Log::writeError("Invalid texture layer min filter type \'%s\'",
-	                      filterName.c_str());
-	  }
+          filterName = readString("min");
+          if (!filterName.empty())
+          {
+            if (filterMap.hasKey(filterName))
+              currentLayer->setFilters(filterMap[filterName],
+                                       currentLayer->getMagFilter());
+            else
+              Log::writeError("Invalid texture layer min filter type \'%s\'",
+                              filterName.c_str());
+          }
 
-	  filterName = readString("mag");
-	  if (!filterName.empty())
-	  {
-	    if (filterMap.hasKey(filterName))
-	      currentLayer->setFilters(currentLayer->getMinFilter(),
-	                               filterMap[filterName]);
-	    else
-	      Log::writeError("Invalid texture layer mag filter type \'%s\'",
-	                      filterName.c_str());
-	  }
-	}
+          filterName = readString("mag");
+          if (!filterName.empty())
+          {
+            if (filterMap.hasKey(filterName))
+              currentLayer->setFilters(currentLayer->getMinFilter(),
+                                       filterMap[filterName]);
+            else
+              Log::writeError("Invalid texture layer mag filter type \'%s\'",
+                              filterName.c_str());
+          }
+        }
 
-	if (name == "address")
-	{
-	  String addressModeName = readString("mode");
-	  if (!addressModeName.empty())
-	  {
-	    if (addressModeMap.hasKey(addressModeName))
-	      currentLayer->setAddressMode(addressModeMap[addressModeName]);
-	    else
-	      Log::writeError("Invalid texture layer address mode \'%s\'",
-	                      addressModeName.c_str());
-	  }
-	}
-	*/
+        if (name == "address")
+        {
+          String addressModeName = readString("mode");
+          if (!addressModeName.empty())
+          {
+            if (addressModeMap.hasKey(addressModeName))
+              currentLayer->setAddressMode(addressModeMap[addressModeName]);
+            else
+              Log::writeError("Invalid texture layer address mode \'%s\'",
+                              addressModeName.c_str());
+          }
+        }
+        */
       }
     }
   }
@@ -584,17 +584,17 @@ bool MaterialCodec::onEndElement(const String& name)
     {
       if (name == "technique")
       {
-	currentTechnique = NULL;
-	return true;
+        currentTechnique = NULL;
+        return true;
       }
 
       if (currentPass)
       {
-	if (name == "pass")
-	{
-	  currentPass = NULL;
-	  return true;
-	}
+        if (name == "pass")
+        {
+          currentPass = NULL;
+          return true;
+        }
       }
     }
   }
