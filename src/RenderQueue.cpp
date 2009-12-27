@@ -88,12 +88,9 @@ bool Operation::operator < (const Operation& other) const
 
 ///////////////////////////////////////////////////////////////////////
 
-Queue::Queue(const Camera& initCamera,
-             Light* initLight,
-	     const String& initName):
+Queue::Queue(const Camera& initCamera, Light* initLight):
   camera(initCamera),
   light(initLight),
-  name(initName),
   sorted(false)
 {
 }
@@ -150,11 +147,6 @@ void Queue::render(void) const
       renderer->render();
     }
   }
-}
-
-const String& Queue::getName(void) const
-{
-  return name;
 }
 
 const Camera& Queue::getCamera(void) const

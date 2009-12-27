@@ -118,11 +118,8 @@ public:
    *  @param[in] camera The camera to use.
    *  @param[in] light The light to collect geometry for, or @c NULL to not
    *  collect for a light.
-   *  @param[in] name The desired name of the render queue.
    */
-  Queue(const Camera& camera,
-        Light* light = NULL,
-	const String& name = "");
+  Queue(const Camera& camera, Light* light = NULL);
   /*! Attaches a light to this render queue.
    *  @param[in] light The light to attach.
    */
@@ -141,9 +138,6 @@ public:
    *  and the attached lights.
    */
   void render(void) const;
-  /*! @return The name of this render queue.
-   */
-  const String& getName(void) const;
   /*! @return The camera used by this render queue.
    */
   const Camera& getCamera(void) const;
@@ -161,7 +155,6 @@ private:
   typedef std::list<Operation> List;
   const Camera& camera;
   Light* light;
-  String name;
   LightState lights;
   List operations;
   mutable OperationList sortedOperations;
