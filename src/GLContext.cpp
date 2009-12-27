@@ -677,7 +677,7 @@ bool Context::init(const ContextMode& initMode)
 
     if (!GLEW_ARB_vertex_buffer_object)
     {
-      Log::writeError("Vertex buffer objects (ARB_vertex_buffer_object) is required but not supported");
+      Log::writeError("Vertex buffer objects (ARB_vertex_buffer_object) are required but not supported");
       return false;
     }
 
