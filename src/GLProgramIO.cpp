@@ -183,7 +183,7 @@ bool ProgramCodec::write(Stream& stream, const Program& program)
   }
   catch (Exception& exception)
   {
-    Log::writeError("Failed to write shader program %s: %s", program.getName().c_str(), exception.what());
+    Log::writeError("Failed to write shader program \'%s\': %s", program.getName().c_str(), exception.what());
     setStream(NULL);
     return false;
   }
@@ -222,14 +222,14 @@ bool ProgramCodec::onBeginElement(const String& name)
     String vertexProgramName = readString("name");
     if (!vertexProgramName.length())
     {
-      Log::writeError("Vertex program name in shader program %s is empty", programName.c_str());
+      Log::writeError("Vertex program name in shader program \'%s\' is empty", programName.c_str());
       return true;
     }
 
     vertexProgram = VertexProgram::readInstance(vertexProgramName);
     if (!vertexProgram)
     {
-      Log::writeError("Cannot find vertex program %s for shader program %s",
+      Log::writeError("Cannot find vertex program \'%s\' for shader program \'%s\'",
                       vertexProgramName.c_str(),
 		      programName.c_str());
       return false;
@@ -249,14 +249,14 @@ bool ProgramCodec::onBeginElement(const String& name)
     String fragmentProgramName = readString("name");
     if (!fragmentProgramName.length())
     {
-      Log::writeError("Fragment program name in shader program %s is empty", programName.c_str());
+      Log::writeError("Fragment program name in shader program \'%s\' is empty", programName.c_str());
       return true;
     }
 
     fragmentProgram = FragmentProgram::readInstance(fragmentProgramName);
     if (!fragmentProgram)
     {
-      Log::writeError("Cannot find fragment program %s for shader program %s",
+      Log::writeError("Cannot find fragment program \'%s\' for shader program \'%s\'",
                       fragmentProgramName.c_str(),
 		      programName.c_str());
       return false;
@@ -274,14 +274,14 @@ bool ProgramCodec::onEndElement(const String& name)
   {
     if (!vertexProgram)
     {
-      Log::writeError("Vertex program missing for shader program %s",
+      Log::writeError("Vertex program missing for shader program \'%s\'",
 		      programName.c_str());
       return false;
     }
 
     if (!fragmentProgram)
     {
-      Log::writeError("Fragment program missing for shader program %s",
+      Log::writeError("Fragment program missing for shader program \'%s\'",
 		      programName.c_str());
       return false;
     }
