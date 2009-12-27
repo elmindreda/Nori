@@ -517,6 +517,9 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
     formatMap[PixelFormat::RG8] = GL_LUMINANCE8_ALPHA8;
     formatMap[PixelFormat::RGB8] = GL_RGB8;
     formatMap[PixelFormat::RGBA8] = GL_RGBA8;
+    formatMap[PixelFormat::DEPTH16] = GL_DEPTH_COMPONENT16;
+    formatMap[PixelFormat::DEPTH24] = GL_DEPTH_COMPONENT24;
+    formatMap[PixelFormat::DEPTH32] = GL_DEPTH_COMPONENT32;
   }
 
   if (genericFormatMap.isEmpty())
@@ -525,6 +528,9 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
     genericFormatMap[PixelFormat::RG8] = GL_LUMINANCE_ALPHA;
     genericFormatMap[PixelFormat::RGB8] = GL_RGB;
     genericFormatMap[PixelFormat::RGBA8] = GL_RGBA;
+    genericFormatMap[PixelFormat::DEPTH16] = GL_DEPTH_COMPONENT;
+    genericFormatMap[PixelFormat::DEPTH24] = GL_DEPTH_COMPONENT;
+    genericFormatMap[PixelFormat::DEPTH32] = GL_DEPTH_COMPONENT;
   }
 
   if (!formatMap.hasKey(image.getFormat()))
