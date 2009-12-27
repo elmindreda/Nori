@@ -368,7 +368,7 @@ bool MaterialCodec::onBeginElement(const String& name)
 	                                   blendFactorMap[dstFactorName]);
 	    else
 	    {
-	      Log::writeError("Invalid blend factor name %s",
+	      Log::writeError("Invalid blend factor name \'%s\'",
 	                      dstFactorName.c_str());
 	      return false;
 	    }
@@ -395,7 +395,7 @@ bool MaterialCodec::onBeginElement(const String& name)
 	      currentPass->setDepthFunction(functionMap[functionName]);
 	    else
 	    {
-	      Log::writeError("Invalid depth test function name %s",
+	      Log::writeError("Invalid depth test function name \'%s\'",
 	                      functionName.c_str());
 	      return false;
 	    }
@@ -461,7 +461,7 @@ bool MaterialCodec::onBeginElement(const String& name)
 	      currentPass->setCullMode(cullModeMap[cullModeName]);
 	    else
 	    {
-	      Log::writeError("Invalid cull mode %s", cullModeName.c_str());
+	      Log::writeError("Invalid cull mode \'%s\'", cullModeName.c_str());
 	      return false;
 	    }
 	  }
@@ -481,7 +481,7 @@ bool MaterialCodec::onBeginElement(const String& name)
 	  GL::Program* program = GL::Program::readInstance(programName);
 	  if (!program)
 	  {
-	    Log::writeWarning("Failed to load shader program %s; skipping technique %u in material %s",
+	    Log::writeWarning("Failed to load shader program \'%s\'; skipping technique %u in material \'%s\'",
 	                      programName.c_str(),
 	                      material->getTechniqueCount(),
 	                      material->getName().c_str());
@@ -502,14 +502,14 @@ bool MaterialCodec::onBeginElement(const String& name)
 	    String samplerName = readString("name");
 	    if (samplerName.empty())
             {
-	      Log::writeWarning("Shader program %s lists unnamed sampler uniform",
+	      Log::writeWarning("Shader program \'%s\' lists unnamed sampler uniform",
 	                        currentPass->getProgram()->getName().c_str());
 	      return true;
             }
 
 	    if (!currentPass->getProgram()->findSampler(samplerName))
 	    {
-	      Log::writeWarning("Shader program %s does not have sampler uniform %s",
+	      Log::writeWarning("Shader program \'%s\' does not have sampler uniform \'%s\'",
 	                        currentPass->getProgram()->getName().c_str(),
 			        samplerName.c_str());
 	      return true;
@@ -540,7 +540,7 @@ bool MaterialCodec::onBeginElement(const String& name)
 	      currentLayer->setFilters(filterMap[filterName],
 	                               currentLayer->getMagFilter());
 	    else
-	      Log::writeError("Invalid texture layer min filter type %s",
+	      Log::writeError("Invalid texture layer min filter type \'%s\'",
 	                      filterName.c_str());
 	  }
 
@@ -551,7 +551,7 @@ bool MaterialCodec::onBeginElement(const String& name)
 	      currentLayer->setFilters(currentLayer->getMinFilter(),
 	                               filterMap[filterName]);
 	    else
-	      Log::writeError("Invalid texture layer mag filter type %s",
+	      Log::writeError("Invalid texture layer mag filter type \'%s\'",
 	                      filterName.c_str());
 	  }
 	}
@@ -564,7 +564,7 @@ bool MaterialCodec::onBeginElement(const String& name)
 	    if (addressModeMap.hasKey(addressModeName))
 	      currentLayer->setAddressMode(addressModeMap[addressModeName]);
 	    else
-	      Log::writeError("Invalid texture layer address mode %s",
+	      Log::writeError("Invalid texture layer address mode \'%s\'",
 	                      addressModeName.c_str());
 	  }
 	}
