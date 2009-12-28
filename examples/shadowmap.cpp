@@ -14,6 +14,7 @@ private:
   bool render(void);
   Ref<GL::ImageCanvas> canvas;
   Ref<GL::Texture> shadowmap;
+  Ref<GL::RenderBuffer> dummy;
   Ref<render::Camera> lightCamera;
   Ref<render::Camera> viewCamera;
   scene::Graph graph;
@@ -49,16 +50,23 @@ bool Demo::init(void)
   if (!GL::Renderer::create(*context))
     return false;
 
-  Image data(PixelFormat::DEPTH24, 512, 512);
+  const unsigned int size = 512;
+
+  Image data(PixelFormat::DEPTH24, size, size);
 
   shadowmap = GL::Texture::createInstance(*context, data, 0, "shadowmap");
   if (!shadowmap)
+    return false;
+
+  dummy = GL::RenderBuffer::createInstance(PixelFormat::RGBA8, size, size);
+  if (!dummy)
     return false;
 
   canvas = GL::ImageCanvas::createInstance(*context, shadowmap->getWidth(), shadowmap->getHeight());
   if (!canvas)
     return false;
 
+  canvas->setColorBuffer(dummy);
   canvas->setDepthBuffer(&shadowmap->getImage());
 
   Ref<render::Mesh> mesh = render::Mesh::readInstance("hills");
@@ -87,7 +95,8 @@ bool Demo::init(void)
 
   lightCameraNode = new scene::CameraNode();
   lightCameraNode->setCamera(lightCamera);
-  lightCameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
+  lightCameraNode->getLocalTransform().position.x = mesh->getBounds().radius * 3.f;
+  lightCameraNode->getLocalTransform().rotation.setAxisRotation(Vec3::Y, (float) M_PI / 2.f);
   graph.addNode(*lightCameraNode);
 
   timer.start();
@@ -108,12 +117,26 @@ void Demo::run(void)
 
     graph.setTimeElapsed(currentTime);
 
-    context->clearDepthBuffer();
-    context->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
+    // Render shadow map
+    {
+      context->setCurrentCanvas(*canvas);
+      context->clearDepthBuffer();
 
-    render::Queue queue(*viewCamera);
-    graph.enqueue(queue);
-    queue.render();
+      render::Queue queue(*lightCamera);
+      graph.enqueue(queue);
+      queue.render("shadowmap");
+    }
+
+    // Render view
+    {
+      context->setScreenCanvasCurrent();
+      context->clearDepthBuffer();
+      context->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
+
+      render::Queue queue(*viewCamera);
+      graph.enqueue(queue);
+      queue.render();
+    }
   }
   while (context->update());
 }
