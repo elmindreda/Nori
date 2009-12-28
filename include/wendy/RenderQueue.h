@@ -136,8 +136,9 @@ public:
   void destroyOperations(void);
   /*! Renders the operations in this render queue, using the specified camera
    *  and the attached lights.
+   *  @param[in] passName The name of render passes to use.
    */
-  void render(void) const;
+  void render(const String& passName = "") const;
   /*! @return The camera used by this render queue.
    */
   const Camera& getCamera(void) const;

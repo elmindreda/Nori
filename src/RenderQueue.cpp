@@ -119,7 +119,7 @@ void Queue::destroyOperations(void)
   sorted = false;
 }
 
-void Queue::render(void) const
+void Queue::render(const String& passName) const
 {
   GL::Renderer* renderer = GL::Renderer::get();
   if (!renderer)
@@ -137,7 +137,7 @@ void Queue::render(void) const
     for (unsigned int i = 0;  i < operation.technique->getPassCount();  i++)
     {
       const Pass& pass = operation.technique->getPass(i);
-      if (!pass.getName().empty())
+      if (pass.getName() != passName)
 	continue;
 
       pass.apply();
