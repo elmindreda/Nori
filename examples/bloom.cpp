@@ -173,7 +173,7 @@ void Demo::run(void)
     context->clearDepthBuffer();
     context->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
-    queue.render();
+    queue.render("bloom");
 
     GL::Renderer* renderer = GL::Renderer::get();
     renderer->setProjectionMatrix2D(1.f, 1.f);
