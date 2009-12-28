@@ -45,8 +45,6 @@ Wendy depends on the following external libraries:
   GLEW (http://glew.sourceforge.net/)
   GLFW (http://glfw.sourceforge.net/)
   Moira (http://www.elmindreda.org/moira/)
-  ODE
-  OpenAL (http://www.openal.org/)
 
 
 4. Installing Wendy
