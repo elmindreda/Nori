@@ -557,14 +557,7 @@ void Renderer::setProjectionMatrix(const Mat4& newMatrix)
 
 void Renderer::setProjectionMatrix2D(float width, float height)
 {
-  projectionMatrix.setIdentity();
-
-  projectionMatrix.x.x = 2.f / width;
-  projectionMatrix.y.y = 2.f / height;
-  projectionMatrix.z.z = -1.f;
-  projectionMatrix.w.x = -1.f;
-  projectionMatrix.w.y = -1.f;
-  projectionMatrix.w.w = 1.f;
+  projectionMatrix.setProjection2D(width, height);
 }
 
 void Renderer::setProjectionMatrix3D(float FOV, float aspect, float nearZ, float farZ)
@@ -575,16 +568,7 @@ void Renderer::setProjectionMatrix3D(float FOV, float aspect, float nearZ, float
              (context.getCurrentCanvas().getHeight() * context.getViewportArea().size.y);
   }
 
-  const float f = 1.f / tanf((FOV * (float) M_PI / 180.f) / 2.f);
-
-  projectionMatrix.setIdentity();
-
-  projectionMatrix.x.x = f / aspect;
-  projectionMatrix.y.y = f;
-  projectionMatrix.z.z = (farZ + nearZ) / (nearZ - farZ);
-  projectionMatrix.z.w = -1.f;
-  projectionMatrix.w.z = (2.f * farZ * nearZ) / (nearZ - farZ);
-  projectionMatrix.w.w = 0.f;
+  projectionMatrix.setProjection3D(FOV, aspect, nearZ, farZ);
 }
 
 void Renderer::setCurrentProgram(Program* newProgram)
