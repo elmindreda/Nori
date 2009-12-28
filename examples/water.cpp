@@ -123,16 +123,16 @@ void Demo::onCursorMoved(const Vec2i& position)
 
     if (offset.x)
     {
-      rotation.setAxisRotation(Vec3::Y, offset.x / 50.f);
-      Quat& parent = meshNode->getLocalTransform().rotation;
-      parent = rotation * parent;
+      //rotation.setAxisRotation(Vec3::Y, offset.x / 50.f);
+      //Quat& parent = meshNode->getLocalTransform().rotation;
+      //parent = rotation * parent;
     }
 
     if (offset.y)
     {
-      rotation.setAxisRotation(Vec3::X, offset.y / 50.f);
-      Quat& parent = meshNode->getLocalTransform().rotation;
-      parent = rotation * parent;
+      //rotation.setAxisRotation(Vec3::X, offset.y / 50.f);
+      //Quat& parent = meshNode->getLocalTransform().rotation;
+      //parent = rotation * parent;
     }
 
     oldCursorPosition = position;
@@ -141,9 +141,9 @@ void Demo::onCursorMoved(const Vec2i& position)
 
 void Demo::onWheelTurned(int offset)
 {
-  const float scale = meshNode->getMesh()->getBounds().radius / 10.f;
+  //const float scale = meshNode->getMesh()->getBounds().radius / 10.f;
 
-  meshNode->getLocalTransform().position.z += offset * scale;
+  //meshNode->getLocalTransform().position.z += offset * scale;
 }
 
 int main(void)
