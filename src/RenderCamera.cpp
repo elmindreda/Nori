@@ -48,8 +48,7 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Camera::Camera(const String& name):
-  Managed<Camera>(name),
+Camera::Camera(void):
   FOV(90.f),
   aspectRatio(4.f / 3.f),
   minDepth(0.01f),

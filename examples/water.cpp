@@ -16,7 +16,7 @@ private:
   void onWheelTurned(int position);
   Ref<GL::Texture> texture;
   Ptr<GL::ImageCanvas> canvas;
-  render::Camera camera;
+  Ref<render::Camera> camera;
   scene::Graph graph;
   scene::CameraNode* cameraNode;
   Vec2i oldCursorPosition;
@@ -66,11 +66,12 @@ bool Demo::init(void)
 
   canvas->setColorBuffer(&(texture->getImage(0)));
 
-  camera.setFOV(60.f);
-  camera.setAspectRatio(4.f / 3.f);
+  camera = new render::Camera();
+  camera->setFOV(60.f);
+  camera->setAspectRatio(4.f / 3.f);
 
   cameraNode = new scene::CameraNode();
-  cameraNode->setCameraName(camera.getName());
+  cameraNode->setCamera(camera);
   graph.addNode(*cameraNode);
 
   timer.start();
@@ -84,7 +85,7 @@ void Demo::run(void)
   {
     graph.setTimeElapsed(timer.getTime());
 
-    render::Queue queue(camera);
+    render::Queue queue(*camera);
     graph.enqueue(queue);
 
     GL::Context* context = GL::Context::get();

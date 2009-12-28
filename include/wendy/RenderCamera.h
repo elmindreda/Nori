@@ -47,14 +47,12 @@ using namespace moira;
  *  @remarks This class requires the @link GL::Renderer OpenGL renderer
  *  @endlink .
  */
-class Camera : public Managed<Camera>
+class Camera : public RefObject
 {
 public:
   /*! Constructor.
-   *  @param[in] name The desired name of the camera, or the empty string to
-   *  automatically generate a name.
    */
-  Camera(const String& name = "");
+  Camera(void);
   /*! Applies this camera to the projection and modelview matrix stacks and
    *  makes it current.
    */

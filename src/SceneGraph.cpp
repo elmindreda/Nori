@@ -479,29 +479,22 @@ void MeshNode::enqueue(render::Queue& queue, QueuePhase phase) const
 
 ///////////////////////////////////////////////////////////////////////
 
-const String& CameraNode::getCameraName(void) const
+render::Camera* CameraNode::getCamera(void) const
 {
-  return cameraName;
+  return camera;
 }
 
-void CameraNode::setCameraName(const String& newName)
+void CameraNode::setCamera(render::Camera* newCamera)
 {
-  cameraName = newName;
+  camera = newCamera;
 }
 
 void CameraNode::update(Time deltaTime)
 {
   Node::update(deltaTime);
 
-  if (cameraName.empty())
-    return;
-
-  render::Camera* camera = render::Camera::findInstance(cameraName);
   if (!camera)
-  {
-    Log::writeError("Cannot find camera %s for camera node", cameraName.c_str());
     return;
-  }
 
   camera->setTransform(getWorldTransform());
 }

@@ -270,12 +270,12 @@ private:
 class CameraNode : public Node
 {
 public:
-  const String& getCameraName(void) const;
-  void setCameraName(const String& newName);
+  render::Camera* getCamera(void) const;
+  void setCamera(render::Camera* newCamera);
 protected:
   void update(Time deltaTime);
 private:
-  String cameraName;
+  Ref<render::Camera> camera;
 };
 
 ///////////////////////////////////////////////////////////////////////

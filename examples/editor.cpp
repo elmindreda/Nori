@@ -84,11 +84,12 @@ bool CubeEffect::init(void)
   lightNode->getLocalTransform().rotation.setAxisRotation(Vec3::Y, (float) M_PI / 4.f);
   graph.addNode(*lightNode);
 
-  camera.setFOV(60.f);
-  camera.setAspectRatio(0.f);
+  camera = new render::Camera();
+  camera->setFOV(60.f);
+  camera->setAspectRatio(0.f);
 
   cameraNode = new scene::CameraNode();
-  cameraNode->setCameraName(camera.getName());
+  cameraNode->setCamera(camera);
   cameraNode->getLocalTransform().position.z = cube->getBounds().radius * 3.f;
   graph.addNode(*cameraNode);
 
@@ -101,7 +102,7 @@ bool CubeEffect::init(void)
 
 void CubeEffect::render(void) const
 {
-  render::Queue queue(camera);
+  render::Queue queue(*camera);
   graph.enqueue(queue);
   queue.render();
 

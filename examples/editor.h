@@ -8,7 +8,7 @@ protected:
   void render(void) const;
   void update(Time deltaTime);
   scene::Graph graph;
-  render::Camera camera;
+  Ref<render::Camera> camera;
   scene::CameraNode* cameraNode;
   scene::MeshNode* meshNode;
 };

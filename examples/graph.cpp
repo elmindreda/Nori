@@ -12,7 +12,7 @@ public:
   void run(void);
 private:
   bool render(void);
-  render::Camera camera;
+  Ref<render::Camera> camera;
   scene::Graph graph;
   scene::MeshNode* meshNode;
   scene::CameraNode* cameraNode;
@@ -56,11 +56,12 @@ bool Demo::init(void)
   meshNode->setMesh(mesh);
   graph.addNode(*meshNode);
 
-  camera.setFOV(60.f);
-  camera.setAspectRatio(0.f);
+  camera = new render::Camera();
+  camera->setFOV(60.f);
+  camera->setAspectRatio(0.f);
 
   cameraNode = new scene::CameraNode();
-  cameraNode->setCameraName(camera.getName());
+  cameraNode->setCamera(camera);
   cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
   graph.addNode(*cameraNode);
 
@@ -85,7 +86,7 @@ void Demo::run(void)
     context->clearDepthBuffer();
     context->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
 
-    render::Queue queue(camera);
+    render::Queue queue(*camera);
     graph.enqueue(queue);
     queue.render();
   }

@@ -19,7 +19,7 @@ private:
   GL::RenderState horzPass;
   GL::RenderState vertPass;
   GL::RenderState composePass;
-  render::Camera camera;
+  Ref<render::Camera> camera;
   scene::Graph graph;
   scene::MeshNode* meshNode;
   scene::CameraNode* cameraNode;
@@ -141,11 +141,12 @@ bool Demo::init(void)
   meshNode->setMesh(mesh);
   graph.addNode(*meshNode);
 
-  camera.setFOV(60.f);
-  camera.setAspectRatio(4.f / 3.f);
+  camera = new render::Camera();
+  camera->setFOV(60.f);
+  camera->setAspectRatio(4.f / 3.f);
 
   cameraNode = new scene::CameraNode();
-  cameraNode->setCameraName(camera.getName());
+  cameraNode->setCamera(camera);
   cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
   graph.addNode(*cameraNode);
 
@@ -156,7 +157,7 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  render::Queue queue(camera);
+  render::Queue queue(*camera);
 
   do
   {
