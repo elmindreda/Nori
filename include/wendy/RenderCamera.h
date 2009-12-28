@@ -101,7 +101,7 @@ public:
    *  @remarks This is the world-to-camera-space transform for this camera. For
    *  the camera-to-world-space transform, see Camera::getTransform.
    */
-  const Transform3& getInverseTransform(void) const;
+  const Transform3& getViewTransform(void) const;
   /*! Sets the transform for this camera.
    *  @param[in] newTransform The desired new transform.
    *

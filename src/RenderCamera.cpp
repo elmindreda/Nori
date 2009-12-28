@@ -69,7 +69,7 @@ void Camera::apply(void) const
   }
 
   renderer->setProjectionMatrix3D(FOV, aspectRatio, minDepth, maxDepth);
-  renderer->setViewMatrix(getInverseTransform());
+  renderer->setViewMatrix(getViewTransform());
 }
 
 float Camera::getFOV(void) const
@@ -116,7 +116,7 @@ const Transform3& Camera::getTransform(void) const
   return transform;
 }
 
-const Transform3& Camera::getInverseTransform(void) const
+const Transform3& Camera::getViewTransform(void) const
 {
   if (dirtyInverse)
   {
