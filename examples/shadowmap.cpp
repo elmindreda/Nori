@@ -14,10 +14,12 @@ private:
   bool render(void);
   Ref<GL::ImageCanvas> canvas;
   Ref<GL::Texture> shadowmap;
-  Ref<render::Camera> camera;
+  Ref<render::Camera> lightCamera;
+  Ref<render::Camera> viewCamera;
   scene::Graph graph;
   scene::MeshNode* meshNode;
-  scene::CameraNode* cameraNode;
+  scene::CameraNode* lightCameraNode;
+  scene::CameraNode* viewCameraNode;
   Timer timer;
   Time currentTime;
 };
@@ -70,14 +72,23 @@ bool Demo::init(void)
   meshNode->setMesh(mesh);
   graph.addNode(*meshNode);
 
-  camera = new render::Camera();
-  camera->setFOV(60.f);
-  camera->setAspectRatio(0.f);
+  viewCamera = new render::Camera();
+  viewCamera->setFOV(60.f);
+  viewCamera->setAspectRatio(0.f);
 
-  cameraNode = new scene::CameraNode();
-  cameraNode->setCamera(camera);
-  cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
-  graph.addNode(*cameraNode);
+  viewCameraNode = new scene::CameraNode();
+  viewCameraNode->setCamera(viewCamera);
+  viewCameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
+  graph.addNode(*viewCameraNode);
+
+  lightCamera = new render::Camera();
+  lightCamera->setFOV(60.f);
+  lightCamera->setAspectRatio(0.f);
+
+  lightCameraNode = new scene::CameraNode();
+  lightCameraNode->setCamera(lightCamera);
+  lightCameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
+  graph.addNode(*lightCameraNode);
 
   timer.start();
 
@@ -100,7 +111,7 @@ void Demo::run(void)
     context->clearDepthBuffer();
     context->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
 
-    render::Queue queue(*camera);
+    render::Queue queue(*viewCamera);
     graph.enqueue(queue);
     queue.render();
   }
