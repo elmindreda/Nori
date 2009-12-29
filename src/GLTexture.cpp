@@ -149,6 +149,7 @@ GLint convertFilterMode(FilterMode mode, bool mipmapped)
 
 Bimap<PixelFormat, GLenum> formatMap;
 Bimap<PixelFormat, GLenum> genericFormatMap;
+Bimap<PixelFormat::Type, GLenum> typeMap;
 
 } /*namespace*/
 
@@ -533,11 +534,25 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
     genericFormatMap[PixelFormat::DEPTH32] = GL_DEPTH_COMPONENT;
   }
 
+  if (typeMap.isEmpty())
+  {
+    typeMap[PixelFormat::UINT8] = GL_UNSIGNED_BYTE;
+    typeMap[PixelFormat::UINT16] = GL_UNSIGNED_SHORT;
+    typeMap[PixelFormat::UINT32] = GL_UNSIGNED_INT;
+  }
+
   if (!formatMap.hasKey(image.getFormat()))
   {
-    Log::writeError("Source image for texture \'%s\' has unsupported format \'%s\'",
+    Log::writeError("Source image for texture \'%s\' has unsupported pixel format \'%s\'",
                     getName().c_str(),
                     image.getFormat().asString().c_str());
+    return false;
+  }
+
+  if (!typeMap.hasKey(image.getFormat().getType()))
+  {
+    Log::writeError("Source image for texture \'%s\' has unsupported component type",
+                    getName().c_str());
     return false;
   }
 
@@ -640,7 +655,7 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
                   source.getWidth(),
                   0,
                   genericFormatMap[source.getFormat()],
-                  GL_UNSIGNED_BYTE,
+                  typeMap[source.getFormat().getType()],
                   source.getPixels());
   }
   else
@@ -652,7 +667,7 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
                   source.getHeight(),
                   0,
                   genericFormatMap[source.getFormat()],
-                  GL_UNSIGNED_BYTE,
+                  typeMap[source.getFormat().getType()],
                   source.getPixels());
   }
 
