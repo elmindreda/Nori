@@ -61,7 +61,7 @@ bool Demo::init(void)
   input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
   input::Context::get()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
 
-  const unsigned int size = 1024;
+  const unsigned int size = 512;
 
   depthmap = GL::Texture::createInstance(*context, Image(PixelFormat::DEPTH16, size, size), 0, "depthmap");
   if (!depthmap)
@@ -166,9 +166,15 @@ void Demo::run(void)
 
           if (GL::Program* program = pass.getProgram())
           {
-            const char* uniformName = "LV";
+            String uniformName;
+
+            uniformName = "LV";
             if (program->findUniform(uniformName))
               pass.getUniformState(uniformName).setValue(WL);
+
+            uniformName = "light";
+            if (program->findUniform(uniformName))
+              pass.getUniformState(uniformName).setValue(lightCamera->getTransform().position);
           }
         }
       }

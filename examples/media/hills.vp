@@ -3,6 +3,7 @@ struct Out
 {
   float4 position : POSITION;
   float4 lightpos;
+  float3 worldpos;
   float3 normal;
 };
 
@@ -12,6 +13,7 @@ Out main(uniform float4x4 MVP, uniform float4x4 M, uniform float4x4 LV, in float
 
   result.position = mul(MVP, float4(position, 1));
   result.lightpos = mul(LV, mul(M, float4(position, 1)));
+  result.worldpos = mul(M, float4(position, 1));
   result.normal = mul(M, float4(normal, 0));
   return result;
 }

@@ -4,6 +4,7 @@
     <pass>
       <program name="hills">
 	<sampler name="depthmap" texture="depthmap" />
+	<sampler name="spotmask" texture="spotmask" />
       </program>
     </pass>
     <pass name="shadowmap" >
