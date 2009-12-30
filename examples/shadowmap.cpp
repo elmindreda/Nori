@@ -12,6 +12,9 @@ public:
   void run(void);
 private:
   bool render(void);
+  void onButtonClicked(input::Button button, bool clicked);
+  void onCursorMoved(const Vec2i& position);
+  void onWheelTurned(int position);
   Ref<GL::ImageCanvas> canvas;
   Ref<GL::Texture> depthmap;
   Ref<GL::Texture> colormap;
@@ -22,10 +25,12 @@ private:
   scene::CameraNode* lightCameraNode;
   scene::CameraNode* viewCameraNode;
   Timer timer;
+  Vec2i oldCursorPosition;
 };
 
 Demo::~Demo(void)
 {
+  input::Context::destroy();
   GL::Renderer::destroy();
   GL::Context::destroy();
 }
@@ -48,6 +53,13 @@ bool Demo::init(void)
 
   if (!GL::Renderer::create(*context))
     return false;
+
+  if (!input::Context::create(*context))
+    return false;
+
+  input::Context::get()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
+  input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
+  input::Context::get()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
 
   const unsigned int size = 1024;
 
@@ -112,9 +124,6 @@ void Demo::run(void)
   {
     Time currentTime = timer.getTime();
 
-    meshNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f),
-							   (float) currentTime);
-
     graph.setTimeElapsed(currentTime);
 
     // Render shadow map
@@ -177,6 +186,54 @@ void Demo::run(void)
     }
   }
   while (context->update());
+}
+
+void Demo::onButtonClicked(input::Button button, bool clicked)
+{
+  input::Context* context = input::Context::get();
+
+  if (clicked)
+  {
+    context->captureCursor();
+    oldCursorPosition = context->getCursorPosition();
+  }
+  else
+    context->releaseCursor();
+}
+
+void Demo::onCursorMoved(const Vec2i& position)
+{
+  input::Context* context = input::Context::get();
+
+  if (context->isCursorCaptured())
+  {
+    const Vec2i offset = position - oldCursorPosition;
+
+    Quat rotation;
+
+    if (offset.x)
+    {
+      rotation.setAxisRotation(Vec3::Y, offset.x / 50.f);
+      Quat& parent = meshNode->getLocalTransform().rotation;
+      parent = rotation * parent;
+    }
+
+    if (offset.y)
+    {
+      rotation.setAxisRotation(Vec3::X, offset.y / 50.f);
+      Quat& parent = meshNode->getLocalTransform().rotation;
+      parent = rotation * parent;
+    }
+
+    oldCursorPosition = position;
+  }
+}
+
+void Demo::onWheelTurned(int offset)
+{
+  const float scale = meshNode->getMesh()->getBounds().radius / 10.f;
+
+  meshNode->getLocalTransform().position.z += offset * scale;
 }
 
 int main()
