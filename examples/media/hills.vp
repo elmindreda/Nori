@@ -3,17 +3,24 @@ struct Out
 {
   float4 position : POSITION;
   float4 lightpos;
-  float3 worldpos;
+  float3 lightvec;
   float3 normal;
 };
 
-Out main(uniform float4x4 MVP, uniform float4x4 M, uniform float4x4 LV, in float3 position, in float3 normal)
+Out main(uniform float4x4 MVP,
+         uniform float4x4 M,
+         uniform float4x4 LV,
+         uniform float3 light,
+         in float3 position,
+         in float3 normal)
 {
   Out result;
 
+  float3 worldpos = mul(M, float4(position, 1)).xyz;
+
   result.position = mul(MVP, float4(position, 1));
-  result.lightpos = mul(LV, mul(M, float4(position, 1)));
-  result.worldpos = mul(M, float4(position, 1));
+  result.lightpos = mul(LV, float4(worldpos, 1));
+  result.lightvec = light - worldpos;
   result.normal = mul(M, float4(normal, 0));
   return result;
 }
