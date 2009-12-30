@@ -61,6 +61,19 @@ TextureCodec::TextureCodec(void):
   ResourceCodec<Texture>("XML texture specification codec")
 {
   addSuffix("texture");
+
+  if (addressModeMap.isEmpty())
+  {
+    addressModeMap["wrap"] = ADDRESS_WRAP;
+    addressModeMap["clamp"] = ADDRESS_CLAMP;
+  }
+
+  if (filterModeMap.isEmpty())
+  {
+    filterModeMap["nearest"] = FILTER_NEAREST;
+    filterModeMap["bilinear"] = FILTER_BILINEAR;
+    filterModeMap["trilinear"] = FILTER_TRILINEAR;
+  }
 }
 
 Texture* TextureCodec::read(const Path& path, const String& name)
