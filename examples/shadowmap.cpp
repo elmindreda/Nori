@@ -100,10 +100,6 @@ bool Demo::init(void)
   lightCameraNode->getLocalTransform().rotation.setAxisRotation(Vec3::Y, (float) M_PI / 2.f);
   graph.addNode(*lightCameraNode);
 
-  Ref<GL::Program> program = GL::Program::readInstance("uiblit");
-  if (!program)
-    return false;
-
   timer.start();
 
   return true;
