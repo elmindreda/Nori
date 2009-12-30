@@ -56,7 +56,7 @@ bool Demo::init(void)
   if (!depthmap)
     return false;
 
-  colormap = GL::Texture::createInstance(*context, Image(PixelFormat::RGBA8, size, size), 0, "colormap");
+  colormap = GL::Texture::createInstance(*context, Image(PixelFormat::RGBA8, size, size), 0);
   if (!colormap)
     return false;
 
