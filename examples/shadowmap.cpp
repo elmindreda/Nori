@@ -50,7 +50,7 @@ bool Demo::init(void)
   if (!GL::Renderer::create(*context))
     return false;
 
-  const unsigned int size = 512;
+  const unsigned int size = 1024;
 
   depthmap = GL::Texture::createInstance(*context, Image(PixelFormat::DEPTH16, size, size), 0, "depthmap");
   if (!depthmap)
