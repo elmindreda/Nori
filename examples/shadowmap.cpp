@@ -22,7 +22,6 @@ private:
   scene::CameraNode* lightCameraNode;
   scene::CameraNode* viewCameraNode;
   Timer timer;
-  Time currentTime;
 };
 
 Demo::~Demo(void)
@@ -111,7 +110,7 @@ void Demo::run(void)
 
   do
   {
-    currentTime = timer.getTime();
+    Time currentTime = timer.getTime();
 
     meshNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f),
 							   (float) currentTime);
