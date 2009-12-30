@@ -107,8 +107,8 @@ bool Demo::init(void)
 
   lightCameraNode = new scene::CameraNode();
   lightCameraNode->setCamera(lightCamera);
-  lightCameraNode->getLocalTransform().position.x = radius * 2.f;
-  lightCameraNode->getLocalTransform().rotation.setAxisRotation(Vec3::Y, (float) M_PI / 2.f);
+  lightCameraNode->getLocalTransform().position.set(radius * 2.f, 0.f, radius * 2.f);
+  lightCameraNode->getLocalTransform().rotation.setAxisRotation(Vec3::Y, (float) M_PI / 4.f);
   graph.addNode(*lightCameraNode);
 
   timer.start();
