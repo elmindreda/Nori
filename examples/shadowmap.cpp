@@ -13,8 +13,8 @@ public:
 private:
   bool render(void);
   Ref<GL::ImageCanvas> canvas;
-  Ref<GL::Texture> shadowmap;
-  Ref<GL::RenderBuffer> dummy;
+  Ref<GL::Texture> depthmap;
+  Ref<GL::Texture> colormap;
   Ref<render::Camera> lightCamera;
   Ref<render::Camera> viewCamera;
   scene::Graph graph;
@@ -52,22 +52,20 @@ bool Demo::init(void)
 
   const unsigned int size = 512;
 
-  Image data(PixelFormat::DEPTH24, size, size);
-
-  shadowmap = GL::Texture::createInstance(*context, data, 0, "shadowmap");
-  if (!shadowmap)
+  depthmap = GL::Texture::createInstance(*context, Image(PixelFormat::DEPTH16, size, size), 0, "depthmap");
+  if (!depthmap)
     return false;
 
-  dummy = GL::RenderBuffer::createInstance(PixelFormat::RGBA8, size, size);
-  if (!dummy)
+  colormap = GL::Texture::createInstance(*context, Image(PixelFormat::RGBA8, size, size), 0, "colormap");
+  if (!colormap)
     return false;
 
-  canvas = GL::ImageCanvas::createInstance(*context, shadowmap->getWidth(), shadowmap->getHeight());
+  canvas = GL::ImageCanvas::createInstance(*context, size, size);
   if (!canvas)
     return false;
 
-  canvas->setColorBuffer(dummy);
-  canvas->setDepthBuffer(&shadowmap->getImage());
+  canvas->setDepthBuffer(&depthmap->getImage());
+  canvas->setColorBuffer(&colormap->getImage());
 
   Ref<render::Mesh> mesh = render::Mesh::readInstance("hills");
   if (!mesh)
@@ -75,6 +73,8 @@ bool Demo::init(void)
     Log::writeError("Failed to load mesh");
     return false;
   }
+
+  const float radius = mesh->getBounds().radius;
 
   meshNode = new scene::MeshNode();
   meshNode->setMesh(mesh);
@@ -86,18 +86,23 @@ bool Demo::init(void)
 
   viewCameraNode = new scene::CameraNode();
   viewCameraNode->setCamera(viewCamera);
-  viewCameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
+  viewCameraNode->getLocalTransform().position.z = radius * 2.f;
   graph.addNode(*viewCameraNode);
 
   lightCamera = new render::Camera();
   lightCamera->setFOV(60.f);
-  lightCamera->setAspectRatio(0.f);
+  lightCamera->setAspectRatio(1.f);
+  lightCamera->setDepthRange(0.1f, radius * 6.f);
 
   lightCameraNode = new scene::CameraNode();
   lightCameraNode->setCamera(lightCamera);
-  lightCameraNode->getLocalTransform().position.x = mesh->getBounds().radius * 3.f;
+  lightCameraNode->getLocalTransform().position.x = radius * 2.f;
   lightCameraNode->getLocalTransform().rotation.setAxisRotation(Vec3::Y, (float) M_PI / 2.f);
   graph.addNode(*lightCameraNode);
+
+  Ref<GL::Program> program = GL::Program::readInstance("uiblit");
+  if (!program)
+    return false;
 
   timer.start();
 
@@ -121,10 +126,48 @@ void Demo::run(void)
     {
       context->setCurrentCanvas(*canvas);
       context->clearDepthBuffer();
+      context->clearColorBuffer();
 
       render::Queue queue(*lightCamera);
       graph.enqueue(queue);
       queue.render("shadowmap");
+    }
+
+    Mat4 WL;
+    WL.x.set(0.5f, 0.f, 0.f, 0.f);
+    WL.y.set(0.f, 0.5f, 0.f, 0.f);
+    WL.z.set(0.f, 0.f, 0.5f, 0.f);
+    WL.w.set(0.5f, 0.5f, 0.5f, 1.f);
+
+    Mat4 LP;
+    LP.setProjection3D(lightCamera->getFOV(),
+                       lightCamera->getAspectRatio(),
+                       lightCamera->getMinDepth(),
+                       lightCamera->getMaxDepth());
+    WL *= LP;
+
+    Mat4 LV;
+    LV = lightCamera->getViewTransform();
+    WL *= LV;
+
+    if (render::Material* material = render::Material::findInstance("hills"))
+    {
+      if (render::Technique* technique = material->getActiveTechnique())
+      {
+        for (unsigned int i = 0;  i < technique->getPassCount();  i++)
+        {
+          render::Pass& pass = technique->getPass(i);
+          if (!pass.getName().empty())
+            continue;
+
+          if (GL::Program* program = pass.getProgram())
+          {
+            const char* uniformName = "LV";
+            if (program->findUniform(uniformName))
+              pass.getUniformState(uniformName).setValue(WL);
+          }
+        }
+      }
     }
 
     // Render view

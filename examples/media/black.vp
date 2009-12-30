@@ -1,0 +1,13 @@
+
+struct Out
+{
+  float4 position : POSITION;
+};
+
+Out main(uniform float4x4 MVP, in float3 position, in float3 normal)
+{
+  Out result;
+  result.position = mul(MVP, float4(position - normal * 0.001, 1));
+  return result;
+}
+
