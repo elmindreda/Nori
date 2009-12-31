@@ -301,7 +301,7 @@ void Varying::enable(size_t stride, size_t offset)
   {
     CGerror error = cgGetError();
     if (error != CG_NO_ERROR)
-      Log::writeError("Failed to enable varying %s: %s", name.c_str(), cgGetErrorString(error));
+      Log::writeError("Failed to enable varying \'%s\': %s", name.c_str(), cgGetErrorString(error));
   }
 #endif
 
@@ -315,7 +315,7 @@ void Varying::enable(size_t stride, size_t offset)
   {
     CGerror error = cgGetError();
     if (error != CG_NO_ERROR)
-      Log::writeError("Failed to set varying %s: %s", name.c_str(), cgGetErrorString(error));
+      Log::writeError("Failed to set varying \'%s\': %s", name.c_str(), cgGetErrorString(error));
   }
 #endif
 }
@@ -327,7 +327,7 @@ void Varying::disable(void)
 #if WENDY_DEBUG
   CGerror error = cgGetError();
   if (error != CG_NO_ERROR)
-    Log::writeError("Failed to disable varying %s: %s", name.c_str(), cgGetErrorString(error));
+    Log::writeError("Failed to disable varying \'%s\': %s", name.c_str(), cgGetErrorString(error));
 #endif
 }
 
@@ -388,7 +388,7 @@ void Uniform::setValue(float newValue)
 {
   if (type != FLOAT)
   {
-    Log::writeError("Uniform %s in program %s is not of type float", name.c_str(), program.getName().c_str());
+    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float", name.c_str(), program.getName().c_str());
     return;
   }
 
@@ -399,7 +399,7 @@ void Uniform::setValue(const Vec2& newValue)
 {
   if (type != FLOAT_VEC2)
   {
-    Log::writeError("Uniform %s in program %s is not of type float2", name.c_str(), program.getName().c_str());
+    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float2", name.c_str(), program.getName().c_str());
     return;
   }
 
@@ -410,7 +410,7 @@ void Uniform::setValue(const Vec3& newValue)
 {
   if (type != FLOAT_VEC3)
   {
-    Log::writeError("Uniform %s in program %s is not of type float3", name.c_str(), program.getName().c_str());
+    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float3", name.c_str(), program.getName().c_str());
     return;
   }
 
@@ -421,7 +421,7 @@ void Uniform::setValue(const Vec4& newValue)
 {
   if (type != FLOAT_VEC4)
   {
-    Log::writeError("Uniform %s in program %s is not of type float4", name.c_str(), program.getName().c_str());
+    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float4", name.c_str(), program.getName().c_str());
     return;
   }
 
@@ -432,7 +432,7 @@ void Uniform::setValue(const Mat2& newValue)
 {
   if (type != FLOAT_MAT2)
   {
-    Log::writeError("Uniform %s in program %s is not of type float2x2", name.c_str(), program.getName().c_str());
+    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float2x2", name.c_str(), program.getName().c_str());
     return;
   }
 
@@ -443,7 +443,7 @@ void Uniform::setValue(const Mat3& newValue)
 {
   if (type != FLOAT_MAT3)
   {
-    Log::writeError("Uniform %s in program %s is not of type float3x3", name.c_str(), program.getName().c_str());
+    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float3x3", name.c_str(), program.getName().c_str());
     return;
   }
 
@@ -454,7 +454,7 @@ void Uniform::setValue(const Mat4& newValue)
 {
   if (type != FLOAT_MAT4)
   {
-    Log::writeError("Uniform %s in program %s is not of type float4x4", name.c_str(), program.getName().c_str());
+    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float4x4", name.c_str(), program.getName().c_str());
     return;
   }
 
@@ -501,7 +501,7 @@ void Sampler::setTexture(Texture& newTexture)
   {
     CGerror error = cgGetError();
     if (error != CG_NO_ERROR)
-      Log::writeError("Failed to set sampler %s to %s: %s", name.c_str(), newTexture.getName().c_str(), cgGetErrorString(error));
+      Log::writeError("Failed to set sampler \'%s\' to \'%s\': %s", name.c_str(), newTexture.getName().c_str(), cgGetErrorString(error));
   }
 #endif
 }
@@ -812,11 +812,30 @@ Program::Program(const Program& source):
 
 bool Program::init(VertexProgram& initVertexProgram, FragmentProgram& initFragmentProgram)
 {
+  CGerror error;
+
   vertexProgram = &initVertexProgram;
   fragmentProgram = &initFragmentProgram;
 
   cgGLLoadProgram((CGprogram) vertexProgram->programID);
+  error = cgGetError();
+  if (error != CG_NO_ERROR)
+  {
+    Log::writeError("Failed to load vertex program \'%s\': %s",
+                    vertexProgram->getName().c_str(),
+                    cgGetErrorString(error));
+    return false;
+  }
+
   cgGLLoadProgram((CGprogram) fragmentProgram->programID);
+  error = cgGetError();
+  if (error != CG_NO_ERROR)
+  {
+    Log::writeError("Failed to load fragment program \'%s\': %s",
+                    fragmentProgram->getName().c_str(),
+                    cgGetErrorString(error));
+    return false;
+  }
 
   CGparameter parameter;
 
@@ -1000,7 +1019,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	Log::writeError("Uniform \'%s\' in program \'%s\' has incorrect type; should be %s",
+	Log::writeError("Uniform \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
 	                entry.first.c_str(),
 			program.getName().c_str(),
 			getTypeName(entry.second));
@@ -1031,7 +1050,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	Log::writeError("Sampler \'%s\' in program \'%s\' has incorrect type; should be %s",
+	Log::writeError("Sampler \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
 	                entry.first.c_str(),
 			program.getName().c_str(),
 			getTypeName(entry.second));
@@ -1062,7 +1081,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	Log::writeError("Varying \'%s\' in program \'%s\' has incorrect type; should be %s",
+	Log::writeError("Varying \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
 	                entry.first.c_str(),
 			program.getName().c_str(),
 			getTypeName(entry.second));
