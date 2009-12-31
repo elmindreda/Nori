@@ -349,6 +349,12 @@ void TextureImage::attach(int attachment)
                               texture.textureTarget,
                               texture.textureID,
                               level);
+
+#if WENDY_DEBUG
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+    Log::writeError("Error when applying texture image: %s", gluErrorString(error));
+#endif
 }
 
 void TextureImage::detach(int attachment)
@@ -365,6 +371,12 @@ void TextureImage::detach(int attachment)
                               texture.textureTarget,
                               0,
                               0);
+
+#if WENDY_DEBUG
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+    Log::writeError("Error when applying texture image: %s", gluErrorString(error));
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////

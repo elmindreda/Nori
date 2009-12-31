@@ -302,6 +302,13 @@ void ScreenCanvas::apply(void) const
   if (!isCurrent())
   {
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+#if WENDY_DEBUG
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+    Log::writeError("Error when applying screen canvas: %s", gluErrorString(error));
+#endif
+
     Canvas::apply();
   }
 }
@@ -420,7 +427,7 @@ bool ImageCanvas::init(unsigned int initWidth, unsigned int initHeight)
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
   {
-    Log::writeError("Error during color renderbuffer creation: %s", gluErrorString(error));
+    Log::writeError("Error during image canvas creation: %s", gluErrorString(error));
     return false;
   }
 #endif
@@ -433,6 +440,13 @@ void ImageCanvas::apply(void) const
   if (!isCurrent())
   {
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
+
+#if WENDY_DEBUG
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+    Log::writeError("Error when applying image canvas: %s", gluErrorString(error));
+#endif
+
     Canvas::apply();
   }
 }
@@ -535,9 +549,9 @@ bool Context::setCurrentCanvas(Canvas& newCanvas)
   currentCanvas->apply();
 
 #if WENDY_DEBUG
-    GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-    if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
-      Log::writeError("Image canvas is incomplete: %s", getFramebufferStatusMessage(status));
+  GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+  if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
+    Log::writeError("Image canvas is incomplete: %s", getFramebufferStatusMessage(status));
 #endif
 
   updateViewportArea();
