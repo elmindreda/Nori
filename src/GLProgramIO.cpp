@@ -144,9 +144,14 @@ Program* ProgramCodec::read(Stream& stream, const String& name)
 
   if (!XML::Codec::read(stream))
   {
+    vertexProgram = NULL;
+    fragmentProgram = NULL;
     program = NULL;
     return NULL;
   }
+
+  vertexProgram = NULL;
+  fragmentProgram = NULL;
 
   if (!program)
   {
