@@ -436,7 +436,7 @@ public:
     *  @param[in] mode The requested context settings.
     *  @return @c true if successful, or @c false otherwise.
     */
-  static bool create(const ContextMode& mode);
+  static bool create(const ContextMode& mode = ContextMode());
   /*! @return The signal for creation of a context object.
    */
   static SignalProxy0<void> getCreateSignal(void);
