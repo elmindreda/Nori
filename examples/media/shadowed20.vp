@@ -1,0 +1,24 @@
+
+struct Out
+{
+  float4 position : POSITION;
+  float4 lightpos : TEXCOORD0;
+  float3 normal;
+};
+
+Out main(uniform float4x4 MVP,
+         uniform float4x4 LV,
+         uniform float4x4 M,
+         in float3 position,
+         in float3 normal)
+{
+  Out result;
+
+  float3 worldpos = mul(M, float4(position, 1)).xyz;
+
+  result.position = mul(MVP, float4(position, 1));
+  result.lightpos = mul(LV, float4(worldpos, 1));
+  result.normal = mul(M, float4(normal, 0));
+  return result;
+}
+

@@ -2,9 +2,21 @@
 <material version="4">
   <technique quality="1">
     <pass>
-      <program name="hills">
+      <program name="shadowed">
 	<sampler name="depthmap" texture="depthmap" />
 	<sampler name="spotmask" texture="spotmask" />
+      </program>
+    </pass>
+    <pass name="shadowmap" >
+      <polygon cull="back" />
+      <color writing="false" />
+      <program name="black" />
+    </pass>
+  </technique>
+  <technique quality="0.5">
+    <pass>
+      <program name="shadowed20">
+	<sampler name="depthmap" texture="depthmap" />
       </program>
     </pass>
     <pass name="shadowmap" >
