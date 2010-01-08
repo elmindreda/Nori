@@ -56,12 +56,25 @@ endif(WENDY_INCLUDE_OPENAL_WRAPPER)
 find_package(GLU REQUIRED)
 list(APPEND wendy_LIBRARIES ${OPENGL_glu_LIBRARY})
 
-find_library(CG_LIBRARY Cg PATHS ENV CG_LIB_PATH)
-find_library(CGGL_LIBRARY CgGL PATHS ENV CG_LIB_PATH)
-if(NOT CG_LIBRARY OR NOT CGGL_LIBRARY)
-  message(FATAL_ERROR "Cg libraries not found")
-endif(NOT CG_LIBRARY OR NOT CGGL_LIBRARY)
-list(APPEND wendy_LIBRARIES ${CG_LIBRARY} ${CGGL_LIBRARY})
+if(APPLE)
+
+  find_library(CG_LIBRARY Cg)
+  if(NOT CG_LIBRARY)
+    message(FATAL_ERROR "Cg framework not found")
+  endif(NOT CG_LIBRARY)
+  list(APPEND wendy_LIBRARIES ${CG_LIBRARY})
+
+else()
+
+  find_library(CG_LIBRARY Cg PATHS ENV CG_LIB_PATH)
+  find_library(CGGL_LIBRARY CgGL PATHS ENV CG_LIB_PATH)
+  if(NOT CG_LIBRARY OR NOT CGGL_LIBRARY)
+    message(FATAL_ERROR "Cg libraries not found")
+  endif(NOT CG_LIBRARY OR NOT CGGL_LIBRARY)
+  list(APPEND wendy_LIBRARIES ${CG_LIBRARY} ${CGGL_LIBRARY})
+
+endif(APPLE)
+
 
 # Ugly fix for Cg depending on pthreads
 if(UNIX AND NOT CYGWIN)
