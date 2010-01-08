@@ -7,7 +7,7 @@ struct Out
 Out main(uniform float4x4 MVP, in float3 position, in float3 normal)
 {
   Out result;
-  result.position = mul(MVP, float4(position - normal * 0.001, 1));
+  result.position = mul(MVP, float4(position, 1)) + float4(0, 0, 0.001, 0);
   return result;
 }
 
