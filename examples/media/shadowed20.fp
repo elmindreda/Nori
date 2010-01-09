@@ -12,6 +12,7 @@ float4 main(uniform sampler2D depthmap,
   {
     float L = normalize(float3(1, 0, 0));
     float Id = saturate(dot(normal, L));
+
     return float4(C * (Ia + Id), 1);
   }
   else
