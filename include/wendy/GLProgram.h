@@ -39,7 +39,6 @@ using namespace moira;
 
 class Context;
 class Texture;
-class VertexFormat;
 class Program;
 
 ///////////////////////////////////////////////////////////////////////
