@@ -77,9 +77,7 @@ bool Demo::render(void)
 
   Vec2 pen(100.f, 400.f);
 
-  font->setPenPosition(pen);
-  font->setColor(ColorRGBA::WHITE);
-  font->drawText(text);
+  font->drawText(pen, ColorRGBA::WHITE, text);
 
   return true;
 }

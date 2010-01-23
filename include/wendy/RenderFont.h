@@ -54,31 +54,17 @@ public:
   /*! Renders the specified text at the current pen position.
    *  @param text The text to render.
    */
-  void drawText(const String& text) const;
+  void drawText(const Vec2 penPosition, const ColorRGBA& color, const String& text) const;
   /*! Renders the specified text at the current pen position.
    *  @param format The format string for the text to render.
    */
-  void drawText(const char* format, ...) const;
+  void drawText(const Vec2 penPosition, const ColorRGBA& color, const char* format, ...) const;
   /*! @return The width, in pixels, of the character cell for this font.
    */
   float getWidth(void) const;
   /*! @return The height, in pixels, of the character cell for this font.
    */
   float getHeight(void) const;
-  /*! @return The current pen position, in screen units.
-   */
-  const Vec2& getPenPosition(void) const;
-  /*! Sets the current pen position.
-   *  @param newPosition The desired pen position, in screen units.
-   */
-  void setPenPosition(const Vec2& newPosition);
-  /*! @return The color and opacity values for glyphs drawn with this font.
-   */
-  const ColorRGBA& getColor(void) const;
-  /*! Sets the color and opacity values for glyphs drawn with this font.
-   *  @param newColor The desired color and opacity values.
-   */
-  void setColor(const ColorRGBA& newColor);
   /*! @return The ascender for this font.
    */
   float getAscender(void) const;
@@ -117,12 +103,10 @@ private:
   typedef std::map<char, Glyph*> GlyphMap;
   GlyphList glyphs;
   GlyphMap glyphMap;
-  Vec2 penPosition;
   Vec2 size;
   float ascender;
   float descender;
-  GL::RenderState pass;
-  ColorRGBA color;
+  mutable GL::RenderState pass;
 };
 
 ///////////////////////////////////////////////////////////////////////

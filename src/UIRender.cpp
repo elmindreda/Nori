@@ -354,9 +354,7 @@ void Renderer::drawText(const Rect& area,
       return;
   }
 
-  currentFont->setColor(ColorRGBA(color, 1.f));
-  currentFont->setPenPosition(penPosition);
-  currentFont->drawText(text);
+  currentFont->drawText(penPosition, ColorRGBA(color, 1.f), text);
 }
 
 void Renderer::drawText(const Rect& area,

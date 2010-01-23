@@ -71,7 +71,7 @@ unsigned int getNextPower(unsigned int value)
 
 ///////////////////////////////////////////////////////////////////////
 
-void Font::drawText(const String& text) const
+void Font::drawText(const Vec2 penPosition, const ColorRGBA& color, const String& text) const
 {
   GL::Renderer* renderer = GL::Renderer::get();
 
@@ -145,6 +145,7 @@ void Font::drawText(const String& text) const
     }
   }
 
+  pass.getUniformState("color").setValue(Vec4(color.g, color.g, color.b, color.a));
   pass.apply();
 
   renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_LIST,
@@ -154,7 +155,7 @@ void Font::drawText(const String& text) const
   renderer->render();
 }
 
-void Font::drawText(const char* format, ...) const
+void Font::drawText(const Vec2 penPosition, const ColorRGBA& color, const char* format, ...) const
 {
   va_list vl;
   char* text;
@@ -167,7 +168,7 @@ void Font::drawText(const char* format, ...) const
   if (result < 0)
     return;
 
-  drawText(String(text));
+  drawText(penPosition, color, String(text));
 
   std::free(text);
 }
@@ -180,27 +181,6 @@ float Font::getWidth(void) const
 float Font::getHeight(void) const
 {
   return size.y;
-}
-
-const Vec2& Font::getPenPosition(void) const
-{
-  return penPosition;
-}
-
-void Font::setPenPosition(const Vec2& newPosition)
-{
-  penPosition = newPosition;
-}
-
-const ColorRGBA& Font::getColor(void) const
-{
-  return color;
-}
-
-void Font::setColor(const ColorRGBA& newColor)
-{
-  color = newColor;
-  pass.getUniformState("color").setValue(Vec4(color.g, color.g, color.b, color.a));
 }
 
 float Font::getAscender(void) const
@@ -406,8 +386,6 @@ bool Font::init(const moira::Font& font)
     pass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
     pass.getSamplerState("glyphs").setTexture(texture);
     pass.getUniformState("color").setValue(Vec4(1, 1, 1, 1));
-
-    color = ColorRGBA::WHITE;
   }
 
   ascender = descender = 0.f;
