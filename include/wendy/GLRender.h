@@ -194,7 +194,6 @@ private:
   IndexBufferList indexBufferPool;
   VertexBufferList vertexBufferPool;
   Ref<Program> currentProgram;
-  PrimitiveRange currentRange;
   PlaneList planes;
   Ref<Texture> defaultTexture;
   Ref<Program> defaultProgram;
