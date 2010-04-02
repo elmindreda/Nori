@@ -148,11 +148,10 @@ void Font::drawText(const Vec2 penPosition, const ColorRGBA& color, const String
   pass.getUniformState("color").setValue(Vec4(color.g, color.g, color.b, color.a));
   pass.apply();
 
-  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_LIST,
-                                                        *vertexRange.getVertexBuffer(),
-							vertexRange.getStart(),
-							count));
-  renderer->render();
+  renderer->render(GL::PrimitiveRange(GL::TRIANGLE_LIST,
+                                      *vertexRange.getVertexBuffer(),
+				      vertexRange.getStart(),
+				      count));
 }
 
 void Font::drawText(const Vec2 penPosition, const ColorRGBA& color, const char* format, ...) const

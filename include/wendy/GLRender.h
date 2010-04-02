@@ -92,7 +92,7 @@ public:
    *  current shader program and transforms.
    *  @pre A shader program must be set before calling this method.
    */
-  void render(void);
+  void render(const PrimitiveRange& range);
   /*! Allocates a range of temporary indices of the specified type.
    *  @param[out] range The newly allocated index range.
    *  @param[in] count The number of indices to allocate.
@@ -127,7 +127,6 @@ public:
   Texture& getDefaultTexture(void) const;
   Program& getDefaultProgram(void) const;
   Program* getCurrentProgram(void) const;
-  const PrimitiveRange& getCurrentPrimitiveRange(void) const;
   const PlaneList& getClipPlanes(void) const;
   const Mat4& getModelMatrix(void) const;
   const Mat4& getViewMatrix(void) const;
@@ -160,10 +159,6 @@ public:
    *  the current shader program.
    */
   void setCurrentProgram(Program* newProgram);
-  /*! Sets the current primitive range for use when rendering.
-   *  @param[in] newRange The desired primitive range to use.
-   */
-  void setCurrentPrimitiveRange(const PrimitiveRange& newRange);
   bool setClipPlanes(const PlaneList& newPlanes);
   Stats* getStats(void) const;
   void setStats(Stats* newStats);

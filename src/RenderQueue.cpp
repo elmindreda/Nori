@@ -143,8 +143,7 @@ void Queue::render(const String& passName) const
       pass.apply();
 
       renderer->setModelMatrix(operation.transform);
-      renderer->setCurrentPrimitiveRange(operation.range);
-      renderer->render();
+      renderer->render(operation.range);
     }
   }
 }

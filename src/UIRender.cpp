@@ -117,8 +117,7 @@ void Renderer::drawPoint(const Vec2& point, const ColorRGBA& color)
 
   setDrawingState(color, true);
 
-  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::POINT_LIST, range));
-  renderer->render();
+  renderer->render(GL::PrimitiveRange(GL::POINT_LIST, range));
 }
 
 void Renderer::drawLine(const Segment2& segment, const ColorRGBA& color)
@@ -137,8 +136,7 @@ void Renderer::drawLine(const Segment2& segment, const ColorRGBA& color)
 
   setDrawingState(color, true);
 
-  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::LINE_LIST, range));
-  renderer->render();
+  renderer->render(GL::PrimitiveRange(GL::LINE_LIST, range));
 }
 
 void Renderer::drawTriangle(const Triangle2& triangle, const ColorRGBA& color)
@@ -158,8 +156,7 @@ void Renderer::drawTriangle(const Triangle2& triangle, const ColorRGBA& color)
 
   setDrawingState(color, true);
 
-  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
-  renderer->render();
+  renderer->render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
 }
 
 void Renderer::drawBezier(const BezierCurve2& spline, const ColorRGBA& color)
@@ -183,8 +180,7 @@ void Renderer::drawBezier(const BezierCurve2& spline, const ColorRGBA& color)
 
   setDrawingState(color, true);
 
-  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::LINE_STRIP, range));
-  renderer->render();
+  renderer->render(GL::PrimitiveRange(GL::LINE_STRIP, range));
 }
 
 void Renderer::drawRectangle(const Rect& rectangle, const ColorRGBA& color)
@@ -214,8 +210,7 @@ void Renderer::drawRectangle(const Rect& rectangle, const ColorRGBA& color)
 
   setDrawingState(color, true);
 
-  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::LINE_LOOP, range));
-  renderer->render();
+  renderer->render(GL::PrimitiveRange(GL::LINE_LOOP, range));
 }
 
 void Renderer::fillTriangle(const Triangle2& triangle, const ColorRGBA& color)
@@ -235,8 +230,7 @@ void Renderer::fillTriangle(const Triangle2& triangle, const ColorRGBA& color)
 
   setDrawingState(color, false);
 
-  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
-  renderer->render();
+  renderer->render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
 }
 
 void Renderer::fillRectangle(const Rect& rectangle, const ColorRGBA& color)
@@ -266,8 +260,7 @@ void Renderer::fillRectangle(const Rect& rectangle, const ColorRGBA& color)
 
   setDrawingState(color, false);
 
-  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
-  renderer->render();
+  renderer->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 }
 
 void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
@@ -302,8 +295,7 @@ void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
   blitPass.getSamplerState("image").setTexture(&texture);
   blitPass.apply();
 
-  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
-  renderer->render();
+  renderer->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 
   blitPass.getSamplerState("image").setTexture(NULL);
 }

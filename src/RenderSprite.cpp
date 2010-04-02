@@ -174,8 +174,7 @@ void Sprite2::render(void) const
 
   range.copyFrom(vertices);
 
-  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
-  renderer->render();
+  renderer->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 }
 
 void Sprite2::render(const Material& material) const
@@ -193,12 +192,10 @@ void Sprite2::render(const Material& material) const
 
   const Technique* technique = material.getActiveTechnique();
 
-  renderer->setCurrentPrimitiveRange(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
-
   for (unsigned int pass = 0;  pass < technique->getPassCount();  pass++)
   {
     technique->applyPass(pass);
-    renderer->render();
+    renderer->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
   }
 }
 

@@ -248,9 +248,9 @@ Stats::Frame::Frame(void):
 
 ///////////////////////////////////////////////////////////////////////
 
-void Renderer::render(void)
+void Renderer::render(const PrimitiveRange& range)
 {
-  if (currentRange.isEmpty())
+  if (range.isEmpty())
   {
     Log::writeWarning("Rendering empty primitive range");
     return;
@@ -267,10 +267,10 @@ void Renderer::render(void)
   Program& program = *currentProgram;
   program.apply();
 
-  const VertexBuffer& vertexBuffer = *(currentRange.getVertexBuffer());
+  const VertexBuffer& vertexBuffer = *(range.getVertexBuffer());
   vertexBuffer.apply();
 
-  const IndexBuffer* indexBuffer = currentRange.getIndexBuffer();
+  const IndexBuffer* indexBuffer = range.getIndexBuffer();
   if (indexBuffer)
     indexBuffer->apply();
 
@@ -358,20 +358,20 @@ void Renderer::render(void)
 
   if (indexBuffer)
   {
-    glDrawElements(convertPrimitiveType(currentRange.getType()),
-                   currentRange.getCount(),
+    glDrawElements(convertPrimitiveType(range.getType()),
+                   range.getCount(),
 		   convertType(indexBuffer->getType()),
-		   (GLvoid*) (IndexBuffer::getTypeSize(indexBuffer->getType()) * currentRange.getStart()));
+		   (GLvoid*) (IndexBuffer::getTypeSize(indexBuffer->getType()) * range.getStart()));
   }
   else
   {
-    glDrawArrays(convertPrimitiveType(currentRange.getType()),
-                 currentRange.getStart(),
-		 currentRange.getCount());
+    glDrawArrays(convertPrimitiveType(range.getType()),
+                 range.getStart(),
+		 range.getCount());
   }
 
   if (stats)
-    stats->addPrimitives(currentRange.getType(), currentRange.getCount());
+    stats->addPrimitives(range.getType(), range.getCount());
 
   for (unsigned int i = 0;  i < program.getVaryingCount();  i++)
     program.getVarying(i).disable();
@@ -515,11 +515,6 @@ Program* Renderer::getCurrentProgram(void) const
   return currentProgram;
 }
 
-const PrimitiveRange& Renderer::getCurrentPrimitiveRange(void) const
-{
-  return currentRange;
-}
-
 const Renderer::PlaneList& Renderer::getClipPlanes(void) const
 {
   return planes;
@@ -574,11 +569,6 @@ void Renderer::setProjectionMatrix3D(float FOV, float aspect, float nearZ, float
 void Renderer::setCurrentProgram(Program* newProgram)
 {
   currentProgram = newProgram;
-}
-
-void Renderer::setCurrentPrimitiveRange(const PrimitiveRange& newRange)
-{
-  currentRange = newRange;
 }
 
 bool Renderer::setClipPlanes(const PlaneList& newPlanes)
