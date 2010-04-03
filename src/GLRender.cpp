@@ -153,6 +153,49 @@ bool compatible(const Varying& varying, const VertexComponent& component)
   return false;
 }
 
+void requestModelMatrix(Uniform& uniform)
+{
+  Renderer* renderer = Renderer::get();
+  uniform.setValue(renderer->getModelMatrix());
+}
+
+void requestViewMatrix(Uniform& uniform)
+{
+  Renderer* renderer = Renderer::get();
+  uniform.setValue(renderer->getViewMatrix());
+}
+
+void requestProjectionMatrix(Uniform& uniform)
+{
+  Renderer* renderer = Renderer::get();
+  uniform.setValue(renderer->getProjectionMatrix());
+}
+
+void requestModelViewMatrix(Uniform& uniform)
+{
+  Renderer* renderer = Renderer::get();
+  Mat4 value = renderer->getViewMatrix();
+  value *= renderer->getModelMatrix();
+  uniform.setValue(value);
+}
+
+void requestViewProjectionMatrix(Uniform& uniform)
+{
+  Renderer* renderer = Renderer::get();
+  Mat4 value = renderer->getProjectionMatrix();
+  value *= renderer->getViewMatrix();
+  uniform.setValue(value);
+}
+
+void requestModelViewProjectionMatrix(Uniform& uniform)
+{
+  Renderer* renderer = Renderer::get();
+  Mat4 value = renderer->getProjectionMatrix();
+  value *= renderer->getViewMatrix();
+  value *= renderer->getModelMatrix();
+  uniform.setValue(value);
+}
+
 } /*namespace (and Gandalf)*/
 
 ///////////////////////////////////////////////////////////////////////
@@ -307,6 +350,7 @@ void Renderer::render(const PrimitiveRange& range)
     varying.enable(format.getSize(), component->getOffset());
   }
 
+  /*
   if (Uniform* M = program.findUniform("M"))
   {
     if (M->getType() == Uniform::FLOAT_MAT4)
@@ -353,6 +397,25 @@ void Renderer::render(const PrimitiveRange& range)
       mvp *= viewMatrix;
       mvp *= modelMatrix;
       MVP->setValue(mvp);
+    }
+  }
+  */
+
+  for (UniformList::const_iterator u = reservedUniforms.begin();  u != reservedUniforms.end();  u++)
+  {
+    if (Uniform* uniform = program.findUniform(u->name))
+    {
+      if (uniform->getType() == u->type)
+        u->signal.emit(*uniform);
+    }
+  }
+
+  for (SamplerList::const_iterator s = reservedSamplers.begin();  s != reservedSamplers.end();  s++)
+  {
+    if (Sampler* sampler = program.findSampler(s->name))
+    {
+      if (sampler->getType() == s->type)
+        s->signal.emit(*sampler);
     }
   }
 
@@ -488,11 +551,54 @@ bool Renderer::allocateVertices(VertexRange& range,
   return true;
 }
 
+SignalProxy1<void, Uniform&> Renderer::reserveUniform(const String& name, Uniform::Type type)
+{
+  if (isReservedUniform(name))
+    throw Exception("Uniform already reserved");
+
+  reservedUniforms.push_back(ReservedUniform());
+
+  ReservedUniform& slot = reservedUniforms.back();
+  slot.name = name;
+  slot.type = type;
+
+  return slot.signal;
+}
+
+SignalProxy1<void, Sampler&> Renderer::reserveSampler(const String& name, Sampler::Type type)
+{
+  if (isReservedSampler(name))
+    throw Exception("Sampler already reserved");
+
+  reservedSamplers.push_back(ReservedSampler());
+
+  ReservedSampler& slot = reservedSamplers.back();
+  slot.name = name;
+  slot.type = type;
+
+  return slot.signal;
+}
+
 bool Renderer::isReservedUniform(const String& name) const
 {
-  return name == "M" || name == "V" || name == "P" ||
-         name == "MV" || name == "VP" ||
-	 name == "MVP";
+  for (UniformList::const_iterator u = reservedUniforms.begin();  u != reservedUniforms.end();  u++)
+  {
+    if (u->name == name)
+      return true;
+  }
+
+  return false;
+}
+
+bool Renderer::isReservedSampler(const String& name) const
+{
+  for (SamplerList::const_iterator s = reservedSamplers.begin();  s != reservedSamplers.end();  s++)
+  {
+    if (s->name == name)
+      return true;
+  }
+
+  return false;
 }
 
 Context& Renderer::getContext(void) const
@@ -628,6 +734,13 @@ Renderer::Renderer(Context& initContext):
 
 bool Renderer::init(void)
 {
+  reserveUniform("M", Uniform::FLOAT_MAT4).connect(requestModelMatrix);
+  reserveUniform("V", Uniform::FLOAT_MAT4).connect(requestViewMatrix);
+  reserveUniform("P", Uniform::FLOAT_MAT4).connect(requestProjectionMatrix);
+  reserveUniform("MV", Uniform::FLOAT_MAT4).connect(requestModelViewMatrix);
+  reserveUniform("VP", Uniform::FLOAT_MAT4).connect(requestViewProjectionMatrix);
+  reserveUniform("MVP", Uniform::FLOAT_MAT4).connect(requestModelViewProjectionMatrix);
+
   defaultTexture = Texture::findInstance("default");
   if (!defaultTexture)
   {

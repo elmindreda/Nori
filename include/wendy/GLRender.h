@@ -117,10 +117,16 @@ public:
   bool allocateVertices(VertexRange& range,
 			unsigned int count,
                         const VertexFormat& format);
-  /*! @return @c true if the specified uniform name is reserved by Wendy,
+  SignalProxy1<void, Uniform&> reserveUniform(const String& name, Uniform::Type type);
+  SignalProxy1<void, Sampler&> reserveSampler(const String& name, Sampler::Type type);
+  /*! @return @c true if the specified uniform name is reserved,
    *  otherwise @c false.
    */
   bool isReservedUniform(const String& name) const;
+  /*! @return @c true if the specified sampler name is reserved,
+   *  otherwise @c false.
+   */
+  bool isReservedSampler(const String& name) const;
   /*! @return The context this renderer was created for.
    */
   Context& getContext(void) const;
@@ -182,17 +188,37 @@ private:
     Ref<VertexBuffer> vertexBuffer;
     unsigned int available;
   };
+  /*! @internal
+   */
+  struct ReservedUniform
+  {
+    String name;
+    Uniform::Type type;
+    Signal1<void, Uniform&> signal;
+  };
+  /*! @internal
+   */
+  struct ReservedSampler
+  {
+    String name;
+    Sampler::Type type;
+    Signal1<void, Sampler&> signal;
+  };
   Renderer(Context& context);
   bool init(void);
   void onContextFinish(void);
   typedef std::list<IndexBufferSlot> IndexBufferList;
   typedef std::list<VertexBufferSlot> VertexBufferList;
+  typedef std::list<ReservedUniform> UniformList;
+  typedef std::list<ReservedSampler> SamplerList;
   Context& context;
   Mat4 modelMatrix;
   Mat4 viewMatrix;
   Mat4 projectionMatrix;
   IndexBufferList indexBufferPool;
   VertexBufferList vertexBufferPool;
+  UniformList reservedUniforms;
+  SamplerList reservedSamplers;
   Ref<Program> currentProgram;
   PlaneList planes;
   Ref<Texture> defaultTexture;
