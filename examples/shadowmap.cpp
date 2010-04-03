@@ -11,7 +11,8 @@ public:
   bool init(void);
   void run(void);
 private:
-  bool render(void);
+  void onRequestedWL(GL::Uniform& uniform);
+  void onRequestedLight(GL::Uniform& uniform);
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const Vec2i& position);
   void onWheelTurned(int position);
@@ -25,6 +26,7 @@ private:
   scene::CameraNode* lightCameraNode;
   scene::CameraNode* viewCameraNode;
   Timer timer;
+  Mat4 WL;
   Vec2i oldCursorPosition;
 };
 
@@ -53,6 +55,11 @@ bool Demo::init(void)
 
   if (!GL::Renderer::create(*context))
     return false;
+
+  GL::Renderer* renderer = GL::Renderer::get();
+
+  renderer->reserveUniform("WL", GL::Uniform::FLOAT_MAT4).connect(*this, &Demo::onRequestedWL);
+  renderer->reserveUniform("light", GL::Uniform::FLOAT_VEC3).connect(*this, &Demo::onRequestedLight);
 
   if (!input::Context::create(*context))
     return false;
@@ -126,6 +133,25 @@ void Demo::run(void)
 
     graph.setTimeElapsed(currentTime);
 
+    // Calculate back-projection matrix for this frame
+    {
+      WL.x.set(0.5f, 0.f, 0.f, 0.f);
+      WL.y.set(0.f, 0.5f, 0.f, 0.f);
+      WL.z.set(0.f, 0.f, 0.5f, 0.f);
+      WL.w.set(0.5f, 0.5f, 0.5f, 1.f);
+
+      Mat4 LP;
+      LP.setProjection3D(lightCamera->getFOV(),
+                          lightCamera->getAspectRatio(),
+                          lightCamera->getMinDepth(),
+                          lightCamera->getMaxDepth());
+      WL *= LP;
+
+      Mat4 LV;
+      LV = lightCamera->getViewTransform();
+      WL *= LV;
+    }
+
     // Render shadow map
     {
       context->setCurrentCanvas(*canvas);
@@ -135,49 +161,6 @@ void Demo::run(void)
       render::Queue queue(*lightCamera);
       graph.enqueue(queue);
       queue.render("shadowmap");
-    }
-
-    Mat4 WL;
-    WL.x.set(0.5f, 0.f, 0.f, 0.f);
-    WL.y.set(0.f, 0.5f, 0.f, 0.f);
-    WL.z.set(0.f, 0.f, 0.5f, 0.f);
-    WL.w.set(0.5f, 0.5f, 0.5f, 1.f);
-
-    Mat4 LP;
-    LP.setProjection3D(lightCamera->getFOV(),
-                       lightCamera->getAspectRatio(),
-                       lightCamera->getMinDepth(),
-                       lightCamera->getMaxDepth());
-    WL *= LP;
-
-    Mat4 LV;
-    LV = lightCamera->getViewTransform();
-    WL *= LV;
-
-    if (render::Material* material = render::Material::findInstance("hills"))
-    {
-      if (render::Technique* technique = material->getActiveTechnique())
-      {
-        for (unsigned int i = 0;  i < technique->getPassCount();  i++)
-        {
-          render::Pass& pass = technique->getPass(i);
-          if (!pass.getName().empty())
-            continue;
-
-          if (GL::Program* program = pass.getProgram())
-          {
-            String uniformName;
-
-            uniformName = "LV";
-            if (program->findUniform(uniformName))
-              pass.getUniformState(uniformName).setValue(WL);
-
-            uniformName = "light";
-            if (program->findUniform(uniformName))
-              pass.getUniformState(uniformName).setValue(lightCamera->getTransform().position);
-          }
-        }
-      }
     }
 
     // Render view
@@ -192,6 +175,16 @@ void Demo::run(void)
     }
   }
   while (context->update());
+}
+
+void Demo::onRequestedWL(GL::Uniform& uniform)
+{
+  uniform.setValue(WL);
+}
+
+void Demo::onRequestedLight(GL::Uniform& uniform)
+{
+  uniform.setValue(lightCamera->getTransform().position);
 }
 
 void Demo::onButtonClicked(input::Button button, bool clicked)
