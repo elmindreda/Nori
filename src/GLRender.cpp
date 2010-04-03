@@ -350,57 +350,6 @@ void Renderer::render(const PrimitiveRange& range)
     varying.enable(format.getSize(), component->getOffset());
   }
 
-  /*
-  if (Uniform* M = program.findUniform("M"))
-  {
-    if (M->getType() == Uniform::FLOAT_MAT4)
-      M->setValue(modelMatrix);
-  }
-
-  if (Uniform* V = program.findUniform("V"))
-  {
-    if (V->getType() == Uniform::FLOAT_MAT4)
-      V->setValue(viewMatrix);
-  }
-
-  if (Uniform* P = program.findUniform("P"))
-  {
-    if (P->getType() == Uniform::FLOAT_MAT4)
-      P->setValue(projectionMatrix);
-  }
-
-  if (Uniform* MV = program.findUniform("MV"))
-  {
-    if (MV->getType() == Uniform::FLOAT_MAT4)
-    {
-      Mat4 mv = viewMatrix;
-      mv *= modelMatrix;
-      MV->setValue(mv);
-    }
-  }
-
-  if (Uniform* VP = program.findUniform("VP"))
-  {
-    if (VP->getType() == Uniform::FLOAT_MAT4)
-    {
-      Mat4 vp = projectionMatrix;
-      vp *= viewMatrix;
-      VP->setValue(vp);
-    }
-  }
-
-  if (Uniform* MVP = program.findUniform("MVP"))
-  {
-    if (MVP->getType() == Uniform::FLOAT_MAT4)
-    {
-      Mat4 mvp = projectionMatrix;
-      mvp *= viewMatrix;
-      mvp *= modelMatrix;
-      MVP->setValue(mvp);
-    }
-  }
-  */
-
   for (UniformList::const_iterator u = reservedUniforms.begin();  u != reservedUniforms.end();  u++)
   {
     if (Uniform* uniform = program.findUniform(u->name))
