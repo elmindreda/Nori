@@ -415,7 +415,7 @@ bool Renderer::allocateIndices(IndexRange& range,
     indexBufferPool.push_back(IndexBufferSlot());
     slot = &(indexBufferPool.back());
 
-    // Granularity of 1K
+    // Granularity of 64K
     // TODO: Make granularity configurable or autoconfigured
     const unsigned int grainSize = 65536;
     const unsigned int actualCount = grainSize * ((count + grainSize - 1) / grainSize);
@@ -468,7 +468,7 @@ bool Renderer::allocateVertices(VertexRange& range,
     vertexBufferPool.push_back(VertexBufferSlot());
     slot = &(vertexBufferPool.back());
 
-    // Granularity of 1K
+    // Granularity of 64K
     // TODO: Make granularity configurable or autoconfigured
     const unsigned int grainSize = 65536;
     const unsigned int actualCount = grainSize * ((count + grainSize - 1) / grainSize);
