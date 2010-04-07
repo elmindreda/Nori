@@ -57,7 +57,7 @@ void Light::setIntensity(const ColorRGB& newIntensity)
   intensity = newIntensity;
 }
 
-const Vec3 Light::getPosition(void) const
+const Vec3& Light::getPosition(void) const
 {
   return position;
 }
