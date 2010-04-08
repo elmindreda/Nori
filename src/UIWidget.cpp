@@ -62,7 +62,8 @@ Widget::Widget(void):
   parent(NULL),
   enabled(true),
   visible(true),
-  draggable(false)
+  draggable(false),
+  area(0.f, 0.f, 0.f, 0.f)
 {
 }
 
