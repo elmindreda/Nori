@@ -155,7 +155,7 @@ inline Effect* EffectTemplate<T>::createEffect(const String& name)
   Ptr<T> effect(new T(*this, name));
   if (!effect->init())
   {
-    Log::writeWarning("Demo effect %s of type %s failed to initialize",
+    Log::writeWarning("Demo effect \'%s\' of type \'%s\' failed to initialize",
                       name.c_str(),
 		      getName().c_str());
     return NULL;
