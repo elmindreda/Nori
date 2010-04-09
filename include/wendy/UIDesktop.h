@@ -48,7 +48,7 @@ typedef std::vector<Widget*> WidgetList;
 /*! @brief Root object for UI objects.
  *  @ingroup ui
  */
-class Desktop : public Trackable
+class Desktop : public input::Focus, public Trackable
 {
   friend class Widget;
 public:

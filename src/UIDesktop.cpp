@@ -63,11 +63,6 @@ Desktop::Desktop(input::Context& initContext):
   draggedWidget(NULL),
   hoveredWidget(NULL)
 {
-  context.getKeyPressedSignal().connect(*this, &Desktop::onKeyPressed);
-  context.getCharInputSignal().connect(*this, &Desktop::onCharInput);
-  context.getButtonClickedSignal().connect(*this, &Desktop::onButtonClicked);
-  context.getCursorMovedSignal().connect(*this, &Desktop::onCursorMoved);
-  context.getWheelTurnedSignal().connect(*this, &Desktop::onWheelTurned);
 }
 
 Desktop::~Desktop(void)

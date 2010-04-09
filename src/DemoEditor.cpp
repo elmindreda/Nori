@@ -223,14 +223,15 @@ bool Editor::init(const String& showName)
     input::Context* context = input::Context::get();
     context->getResizedSignal().connect(*this, &Editor::onResized);
     context->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
+
+    desktop = new UI::Desktop(*context);
+    context->setFocus(desktop);
   }
 
   GL::Context* context = GL::Context::get();
   context->getCloseRequestSignal().connect(*this, &Editor::onCloseRequest);
 
   const float em = UI::Renderer::get()->getDefaultEM();
-
-  desktop = new UI::Desktop(*input::Context::get());
 
   book = new UI::Book();
   desktop->addRootWidget(*book);
