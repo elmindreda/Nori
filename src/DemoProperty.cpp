@@ -603,9 +603,7 @@ void ColorKeyRGB::setValue(ColorRGB newValue)
 
 String ColorKeyRGB::asString(void) const
 {
-  String result;
-  value.convertToString(result);
-  return result;
+  return value.asString();
 }
 
 void ColorKeyRGB::setStringValue(const String& newValue)
