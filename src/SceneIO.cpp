@@ -67,6 +67,43 @@ const unsigned int GRAPH_XML_VERSION = 1;
 
 ///////////////////////////////////////////////////////////////////////
 
+NodeInfo::NodeInfo(NodeType& initType, const Transform3& initTransform):
+  type(initType),
+  transform(initTransform)
+{
+}
+
+void NodeInfo::addParameter(const String& name, const String& value)
+{
+  parameters[name] = value;
+}
+
+bool NodeInfo::hasParameter(const String& name) const
+{
+  return parameters.find(name) != parameters.end();
+}
+
+const String& NodeInfo::getParameterValue(const String& name) const
+{
+  ParameterMap::const_iterator i = parameters.find(name);
+  if (i == parameters.end())
+    throw Exception("Invalid scene graph node parameter name");
+
+  return i->second;
+}
+
+NodeType& NodeInfo::getType(void) const
+{
+  return type;
+}
+
+const Transform3& NodeInfo::getTransform(void) const
+{
+  return transform;
+}
+
+///////////////////////////////////////////////////////////////////////
+
 GraphCodecXML::GraphCodecXML(void):
   GraphCodec("Scene graph XML codec")
 {
@@ -81,7 +118,6 @@ Graph* GraphCodecXML::read(const Path& path, const String& name)
 Graph* GraphCodecXML::read(Stream& stream, const String& name)
 {
   graphName = name;
-
   currentNode = NULL;
 
   if (!XML::Codec::read(stream))
@@ -129,6 +165,34 @@ bool GraphCodecXML::write(Stream& stream, const Graph& graph)
   return true;
 }
 
+bool GraphCodecXML::createNode(Node* parent, const NodeInfo& info)
+{
+  Node* node = info.getType().createNode();
+  if (!node)
+  {
+    Log::writeError("Failed to create node of type \'%s\'",
+                    info.getType().getName().c_str());
+    return false;
+  }
+
+  node->getLocalTransform() = info.getTransform();
+
+  if (parent)
+    parent->addChild(*node);
+  else
+    graph->addNode(*node);
+
+  const NodeInfo::List& children = info.getChildren();
+
+  for (NodeInfo::List::const_iterator c = children.begin();  c != children.end();  c++)
+  {
+    if (!createNode(node, **c))
+      return false;
+  }
+
+  return true;
+}
+
 bool GraphCodecXML::onBeginElement(const String& name)
 {
   if (name == "graph")
@@ -154,24 +218,24 @@ bool GraphCodecXML::onBeginElement(const String& name)
   {
     if (name == "node")
     {
-      String typeName = readString("type");
-
-      NodeType* type = NodeType::findInstance(typeName);
+      NodeType* type = NodeType::findInstance(readString("type"));
       if (!type)
       {
-	Log::writeError("Scene graph node type \'%s\' does not exist", typeName.c_str());
+	Log::writeError("Scene graph node type \'%s\' does not exist",
+                        type->getName().c_str());
 	return false;
       }
 
-      Node* node = type->createNode();
-      if (!node)
-      {
-	Log::writeError("Failed to create node of type \'%s\'", typeName.c_str());
-	return false;
-      }
+      Transform3 transform;
+      transform.position = Vec3(readString("position"));
+      transform.rotation = Quat(readString("rotation"));
+
+      NodeInfo* node = new NodeInfo(*type, transform);
 
       if (currentNode)
-	currentNode->addChild(*node);
+        currentNode->addChild(*node);
+      else
+        roots.push_back(node);
 
       currentNode = node;
       return true;

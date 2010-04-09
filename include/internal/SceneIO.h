@@ -41,6 +41,24 @@ typedef ResourceCodec<Graph> GraphCodec;
 
 ///////////////////////////////////////////////////////////////////////
 
+class NodeInfo : public moira::Node<NodeInfo>
+{
+public:
+  NodeInfo(NodeType& type, const Transform3& transform);
+  void addParameter(const String& name, const String& value);
+  bool hasParameter(const String& name) const;
+  const String& getParameterValue(const String& name) const;
+  NodeType& getType(void) const;
+  const Transform3& getTransform(void) const;
+private:
+  typedef std::map<String, String> ParameterMap;
+  NodeType& type;
+  Transform3 transform;
+  ParameterMap parameters;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 class GraphCodecXML : public GraphCodec, public XML::Codec
 {
 public:
@@ -50,11 +68,14 @@ public:
   bool write(const Path& path, const Graph& graph);
   bool write(Stream& stream, const Graph& graph);
 private:
+  bool createNode(Node* parent, const NodeInfo& info);
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
+  typedef std::vector<NodeInfo*> NodeList;
   Ptr<Graph> graph;
   String graphName;
-  Node* currentNode;
+  NodeList roots;
+  NodeInfo* currentNode;
 };
 
 ///////////////////////////////////////////////////////////////////////
