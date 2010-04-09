@@ -608,7 +608,7 @@ String ColorKeyRGB::asString(void) const
 
 void ColorKeyRGB::setStringValue(const String& newValue)
 {
-  value = newValue;
+  value = ColorRGB(newValue);
 }
 
 ///////////////////////////////////////////////////////////////////////
