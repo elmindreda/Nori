@@ -132,6 +132,21 @@ Graph* GraphCodecXML::read(Stream& stream, const String& name)
     return NULL;
   }
 
+  for (NodeInfo::List::const_iterator i = roots.begin();  i != roots.end();  i++)
+  {
+    if (!createNode(NULL, **i))
+    {
+      graph = NULL;
+      break;
+    }
+  }
+
+  while (!roots.empty())
+  {
+    delete roots.back();
+    roots.pop_back();
+  }
+
   return graph.detachObject();
 }
 
