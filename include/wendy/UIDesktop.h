@@ -58,13 +58,10 @@ public:
   /*! Destructor.
    */
   ~Desktop(void);
-  void addRootWidget(Widget& widget);
   /*! Draws all root level widgets.
    */
   void drawRootWidgets(void);
   void destroyRootWidgets(void);
-  void bringWidgetToFront(Widget& widget);
-  void sendWidgetToBack(Widget& widget);
   /*! Searches for a widget at the specified point.
    *  @param[in] point The point at which to search.
    *  @return The widget at the specified point, or @c NULL if no matching

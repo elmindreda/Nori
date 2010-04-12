@@ -58,7 +58,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Window::Window(const String& initTitle):
+Window::Window(Desktop& desktop, Widget* parent, const String& initTitle):
+  Widget(desktop, parent),
   title(initTitle)
 {
 }

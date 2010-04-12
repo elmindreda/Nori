@@ -42,7 +42,7 @@ using namespace moira;
 class Scroller : public Widget
 {
 public:
-  Scroller(Orientation orientation = HORIZONTAL);
+  Scroller(Desktop& desktop, Widget* parent, Orientation orientation);
   Orientation getOrientation(void) const;
   float getMinValue(void) const;
   float getMaxValue(void) const;

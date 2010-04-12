@@ -42,7 +42,7 @@ using namespace moira;
 class View : public Widget
 {
 public:
-  View(void);
+  View(Desktop& desktop, Widget* parent = NULL);
   Widget* getInner(void) const;
 private:
   void draw(void) const;

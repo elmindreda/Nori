@@ -58,7 +58,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Progress::Progress(Orientation initOrientation):
+Progress::Progress(Desktop& desktop, Widget* parent, Orientation initOrientation):
+  Widget(desktop, parent),
   minValue(0.f),
   maxValue(1.f),
   value(0.f),

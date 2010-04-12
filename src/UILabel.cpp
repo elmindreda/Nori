@@ -58,7 +58,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Label::Label(const String& initText):
+Label::Label(Desktop& desktop, Widget* parent, const String& initText):
+  Widget(desktop, parent),
   text(initText)
 {
   Renderer* renderer = Renderer::get();

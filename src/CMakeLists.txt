@@ -24,8 +24,8 @@ if(WENDY_INCLUDE_UI_SYSTEM)
 endif(WENDY_INCLUDE_UI_SYSTEM)
 
 if(WENDY_INCLUDE_DEMO_SYSTEM)
-  list(APPEND wendy_SOURCES DemoConfig.cpp DemoEditor.cpp DemoEffect.cpp
-                            DemoPlayer.cpp DemoProperty.cpp DemoShow.cpp
+  list(APPEND wendy_SOURCES DemoEditor.cpp DemoEffect.cpp DemoPlayer.cpp
+                            DemoProperty.cpp DemoShow.cpp
                             DemoShowIO.cpp DemoTimeline.cpp)
 endif(WENDY_INCLUDE_DEMO_SYSTEM)
 

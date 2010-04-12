@@ -71,14 +71,10 @@ class Widget : public Trackable
 public:
   /*! Constructor.
    */
-  Widget(void);
+  Widget(Desktop& desktop, Widget* parent = NULL);
   /*! Destructor.
    */
   ~Widget(void);
-  void remove(void);
-  /*! Adds a widget as a child to this widget.
-   */
-  void addChild(Widget& child);
   void destroyChildren(void);
   /*! Searches for a widget at the specified point.
    *  @param[in] point The point at which to search.
@@ -141,7 +137,7 @@ public:
    */
   bool isBeingDragged(void) const;
   bool isChildOf(const Widget& widget) const;
-  Desktop* getDesktop(void) const;
+  Desktop& getDesktop(void) const;
   /*! @return The parent of this widget, or @c NULL if it has no parent.
    */
   Widget* getParent(void) const;
@@ -196,10 +192,7 @@ protected:
   virtual void draw(void) const;
   virtual void addedChild(Widget& child);
   virtual void removedChild(Widget& child);
-  virtual void addedToParent(Widget& parent);
-  virtual void removedFromParent(Widget& parent);
 private:
-  void setDesktop(Desktop* newDesktop);
   Signal1<void, Widget&> destroyedSignal;
   Signal1<void, Widget&> areaChangedSignal;
   Signal2<void, Widget&, bool> focusChangedSignal;
@@ -213,7 +206,7 @@ private:
   Signal2<void, Widget&, const Vec2&> dragBegunSignal;
   Signal2<void, Widget&, const Vec2&> dragMovedSignal;
   Signal2<void, Widget&, const Vec2&> dragEndedSignal;
-  Desktop* desktop;
+  Desktop& desktop;
   Widget* parent;
   WidgetList children;
   bool enabled;

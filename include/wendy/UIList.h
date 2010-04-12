@@ -42,7 +42,7 @@ using namespace moira;
 class List : public Widget
 {
 public:
-  List(void);
+  List(Desktop& desktop, Widget* parent = NULL);
   ~List(void);
   void addItem(Item& item);
   void removeItem(Item& item);

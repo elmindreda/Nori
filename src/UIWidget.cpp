@@ -57,74 +57,54 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Widget::Widget(void):
-  desktop(NULL),
-  parent(NULL),
+Widget::Widget(Desktop& initDesktop, Widget* initParent):
+  desktop(initDesktop),
+  parent(initParent),
   enabled(true),
   visible(true),
   draggable(false),
   area(0.f, 0.f, 0.f, 0.f)
 {
+  if (parent)
+  {
+    if (&desktop != &(parent->getDesktop()))
+      throw Exception("Parent widget has different desktop");
+
+    for (Widget* ancestor = parent;  ancestor;  ancestor = ancestor->parent)
+    {
+      if (ancestor == this)
+        throw Exception("Widget hierarchy loops are not allowed");
+    }
+
+    parent->children.push_back(this);
+    parent->addedChild(*this);
+  }
+  else
+    desktop.roots.push_back(this);
 }
 
 Widget::~Widget(void)
 {
   destroyChildren();
-  remove();
-  destroyedSignal.emit(*this);
-}
-
-void Widget::remove(void)
-{
-  if (!desktop && !parent)
-    return;
 
   WidgetList* siblings;
 
   if (parent)
     siblings = &(parent->children);
   else
-    siblings = &(desktop->roots);
+    siblings = &(desktop.roots);
 
   WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
   if (i != siblings->end())
   {
     siblings->erase(i);
+    desktop.removedWidget(*this);
 
-    Desktop* oldDesktop = desktop;
-    setDesktop(NULL);
-
-    Widget* oldParent = parent;
-    parent = NULL;
-
-    if (oldDesktop)
-      oldDesktop->removedWidget(*this);
-
-    if (oldParent)
-    {
-      oldParent->removedChild(*this);
-      removedFromParent(*oldParent);
-    }
-  }
-}
-
-void Widget::addChild(Widget& child)
-{
-  // We don't allow cycles
-  for (Widget* widget = this;  widget;  widget = widget->parent)
-  {
-    if (widget == &child)
-      return;
+    if (parent)
+      parent->removedChild(*this);
   }
 
-  child.remove();
-
-  children.push_back(&child);
-  child.parent = this;
-  child.setDesktop(desktop);
-
-  addedChild(child);
-  child.addedToParent(*this);
+  destroyedSignal.emit(*this);
 }
 
 void Widget::destroyChildren(void)
@@ -172,23 +152,17 @@ void Widget::disable(void)
 
 void Widget::activate(void)
 {
-  if (!desktop)
-    return;
-
-  desktop->setActiveWidget(this);
+  desktop.setActiveWidget(this);
 }
 
 void Widget::bringToFront(void)
 {
-  if (!desktop)
-    return;
-
   WidgetList* siblings;
 
   if (parent)
     siblings = &(parent->children);
   else
-    siblings = &(desktop->roots);
+    siblings = &(desktop.roots);
 
   WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
   siblings->erase(i);
@@ -197,15 +171,12 @@ void Widget::bringToFront(void)
 
 void Widget::sendToBack(void)
 {
-  if (!desktop)
-    return;
-
   WidgetList* siblings;
 
   if (parent)
     siblings = &(parent->children);
   else
-    siblings = &(desktop->roots);
+    siblings = &(desktop.roots);
 
   WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
   siblings->erase(i);
@@ -215,7 +186,7 @@ void Widget::sendToBack(void)
 void Widget::cancelDragging(void)
 {
   if (isBeingDragged())
-    desktop->cancelDragging();
+    desktop.cancelDragging();
 }
 
 bool Widget::isEnabled(void) const
@@ -231,9 +202,6 @@ bool Widget::isEnabled(void) const
 
 bool Widget::isVisible(void) const
 {
-  if (!desktop)
-    return false;
-
   if (!visible)
     return false;
 
@@ -245,18 +213,12 @@ bool Widget::isVisible(void) const
 
 bool Widget::isActive(void) const
 {
-  if (!desktop)
-    return false;
-
-  return desktop->getActiveWidget() == this;
+  return desktop.getActiveWidget() == this;
 }
 
 bool Widget::isUnderCursor(void) const
 {
-  if (!desktop)
-    return false;
-
-  return desktop->getHoveredWidget() == this;
+  return desktop.getHoveredWidget() == this;
 }
 
 bool Widget::isDraggable(void) const
@@ -266,10 +228,7 @@ bool Widget::isDraggable(void) const
 
 bool Widget::isBeingDragged(void) const
 {
-  if (!desktop)
-    return false;
-
-  return desktop->getDraggedWidget() == this;
+  return desktop.getDraggedWidget() == this;
 }
 
 bool Widget::isChildOf(const Widget& widget) const
@@ -283,7 +242,7 @@ bool Widget::isChildOf(const Widget& widget) const
   return false;
 }
 
-Desktop* Widget::getDesktop(void) const
+Desktop& Widget::getDesktop(void) const
 {
   return desktop;
 }
@@ -351,7 +310,7 @@ void Widget::setDraggable(bool newState)
 {
   draggable = newState;
 
-  if (desktop && !draggable)
+  if (!draggable)
     cancelDragging();
 }
 
@@ -435,22 +394,6 @@ void Widget::addedChild(Widget& child)
 
 void Widget::removedChild(Widget& child)
 {
-}
-
-void Widget::addedToParent(Widget& parent)
-{
-}
-
-void Widget::removedFromParent(Widget& parent)
-{
-}
-
-void Widget::setDesktop(Desktop* newDesktop)
-{
-  desktop = newDesktop;
-
-  for (WidgetList::const_iterator c = children.begin();  c != children.end();  c++)
-    (*c)->setDesktop(desktop);
 }
 
 ///////////////////////////////////////////////////////////////////////

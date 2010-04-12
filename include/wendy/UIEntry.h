@@ -42,7 +42,7 @@ using namespace moira;
 class Entry : public Widget
 {
 public:
-  Entry(const String& text = "");
+  Entry(Desktop& desktop, Widget* parent = NULL, const String& text = "");
   const String& getText(void) const;
   void setText(const String& newText);
   unsigned int getCaretPosition(void) const;

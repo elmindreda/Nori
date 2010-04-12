@@ -37,10 +37,14 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+class Book;
+
+///////////////////////////////////////////////////////////////////////
+
 class Page : public Widget
 {
 public:
-  Page(const String& text);
+  Page(Desktop& desktop, Book& book, const String& text);
   const String& getText(void) const;
   void setText(const String& newText);
 protected:
@@ -56,7 +60,7 @@ private:
 class Book : public Widget
 {
 public:
-  Book(void);
+  Book(Desktop& desktop, Widget* parent = NULL);
   Page* getActivePage(void) const;
   void setActivePage(Page* newPage);
   SignalProxy1<void, Book&> getPageChangedSignal(void);

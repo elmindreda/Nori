@@ -58,10 +58,10 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-View::View(void)
+View::View(Desktop& desktop, Widget* parent):
+  Widget(desktop, parent)
 {
-  inner = new Widget();
-  addChild(*inner);
+  inner = new Widget(desktop, this);
 }
 
 Widget* View::getInner(void) const

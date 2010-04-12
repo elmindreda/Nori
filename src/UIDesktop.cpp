@@ -68,13 +68,9 @@ Desktop::Desktop(input::Context& initContext):
 Desktop::~Desktop(void)
 {
   destroyRootWidgets();
-}
 
-void Desktop::addRootWidget(Widget& widget)
-{
-  widget.remove();
-  roots.push_back(&widget);
-  widget.setDesktop(this);
+  if (context.getFocus() == this)
+    context.setFocus(NULL);
 }
 
 void Desktop::drawRootWidgets(void)
@@ -93,18 +89,6 @@ void Desktop::destroyRootWidgets(void)
 {
   while (!roots.empty())
     delete roots.back();
-}
-
-void Desktop::bringWidgetToFront(Widget& widget)
-{
-  if (widget.desktop != this)
-    return;
-}
-
-void Desktop::sendWidgetToBack(Widget& widget)
-{
-  if (widget.desktop != this)
-    return;
 }
 
 Widget* Desktop::findWidgetByPoint(const Vec2& point)
@@ -165,8 +149,8 @@ void Desktop::setActiveWidget(Widget* widget)
 
   if (widget)
   {
-    if (widget->desktop != this)
-      return;
+    if (&(widget->desktop) != this)
+      throw Exception("Cannot activate widget from other desktop");
 
     if (!widget->isVisible() || !widget->isEnabled())
       return;

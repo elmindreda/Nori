@@ -42,7 +42,7 @@ using namespace moira;
 class Progress : public Widget
 {
 public:
-  Progress(Orientation orientation = HORIZONTAL);
+  Progress(Desktop& desktop, Widget* parent, Orientation orientation);
   float getMinValue(void) const;
   float getMaxValue(void) const;
   void setValueRange(float newMinValue, float newMaxValue);

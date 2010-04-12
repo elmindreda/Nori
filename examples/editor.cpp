@@ -51,7 +51,7 @@ bool setup(void)
   return true;
 }
 
-}
+} /*namespace*/
 
 CubeEffect::CubeEffect(demo::EffectType& type, const String& name):
   demo::Effect(type, name)
@@ -129,6 +129,7 @@ int main(int argc, char** argv)
 
     demo::Editor::destroy();
     UI::Renderer::destroy();
+    input::Context::destroy();
     GL::Renderer::destroy();
     GL::Context::destroy();
   }

@@ -42,9 +42,9 @@ using namespace moira;
 class Menu : public Widget
 {
 public:
-  Menu(void);
+  Menu(Desktop& desktop, Widget* parent = NULL);
   ~Menu(void);
-  void display(Desktop& desktop);
+  void display(void);
   void addItem(Item& item);
   void addItemAt(Item& item, unsigned int index);
   void removeItem(Item& item);

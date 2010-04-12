@@ -42,7 +42,7 @@ using namespace moira;
 class ColorPickerRGB : public Widget
 {
 public:
-  ColorPickerRGB(void);
+  ColorPickerRGB(Desktop& desktop, Widget* parent = NULL);
   const ColorRGB& getValue(void) const;
   void setValue(const ColorRGB& newValue);
   SignalProxy1<void, ColorPickerRGB&> getValueChangedSignal(void);

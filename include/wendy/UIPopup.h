@@ -42,7 +42,7 @@ using namespace moira;
 class Popup : public Widget
 {
 public:
-  Popup(void);
+  Popup(Desktop& desktop, Widget* parent = NULL);
   void addItem(Item& item);
   void addItem(const String& value);
   void removeItem(Item& item);

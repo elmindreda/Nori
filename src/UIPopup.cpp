@@ -60,7 +60,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Popup::Popup(void):
+Popup::Popup(Desktop& desktop, Widget* parent):
+  Widget(desktop, parent),
   selection(0)
 {
   const float em = Renderer::get()->getDefaultEM();
@@ -70,7 +71,7 @@ Popup::Popup(void):
   getKeyPressedSignal().connect(*this, &Popup::onKeyPressed);
   getButtonClickedSignal().connect(*this, &Popup::onButtonClicked);
 
-  menu = new Menu();
+  menu = new Menu(desktop);
   menu->getItemSelectedSignal().connect(*this, &Popup::onItemSelected);
 }
 
@@ -171,7 +172,7 @@ void Popup::display(void)
   const float width = std::max(menu->getArea().size.x, getArea().size.x);
   menu->setArea(Rect(getGlobalArea().position,
                      Vec2(width, menu->getArea().size.y)));
-  menu->display(*getDesktop());
+  menu->display();
 }
 
 void Popup::onButtonClicked(Widget& widget,

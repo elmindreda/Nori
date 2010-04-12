@@ -42,7 +42,7 @@ using namespace moira;
 class Slider : public Widget
 {
 public:
-  Slider(Orientation orientation = HORIZONTAL);
+  Slider(Desktop& desktop, Widget* parent, Orientation orientation);
   Orientation getOrientation(void) const;
   float getMinValue(void) const;
   float getMaxValue(void) const;

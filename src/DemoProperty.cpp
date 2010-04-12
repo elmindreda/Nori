@@ -240,13 +240,7 @@ FloatKey::FloatKey(Property& property):
 
 UI::Widget* FloatKey::createManipulator(void)
 {
-  FloatProperty& property = dynamic_cast<FloatProperty&>(getProperty());
-
-  UI::Slider* slider = new UI::Slider(UI::HORIZONTAL);
-  slider->setValueRange(property.getMinValue(), property.getMaxValue());
-  slider->getValueChangedSignal().connect(*this, &FloatKey::onValueChanged);
-
-  return slider;
+  return NULL;
 }
 
 float FloatKey::getValue(void) const

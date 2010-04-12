@@ -60,18 +60,17 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-ColorPickerRGB::ColorPickerRGB(void)
+ColorPickerRGB::ColorPickerRGB(Desktop& desktop, Widget* parent):
+  Widget(desktop, parent)
 {
-  Layout* sliderLayout = new Layout(VERTICAL);
+  Layout* sliderLayout = new Layout(desktop, this, VERTICAL);
   sliderLayout->setBorderSize(1.f);
-  addChild(*sliderLayout);
 
   for (unsigned int i = 0;  i < 3;  i++)
   {
-    sliders[i] = new Slider(HORIZONTAL);
+    sliders[i] = new Slider(desktop, sliderLayout, HORIZONTAL);
     sliders[i]->setValueRange(0.f, 1.f);
     sliders[i]->getValueChangedSignal().connect(*this, &ColorPickerRGB::onValueChanged);
-    sliderLayout->addChild(*sliders[i]);
   }
 
   // TODO: Set size.

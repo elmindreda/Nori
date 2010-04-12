@@ -58,24 +58,22 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Layout::Layout(Orientation initOrientation, bool initExpanding):
+Layout::Layout(Desktop& desktop,
+               Widget* parent,
+               Orientation initOrientation,
+               bool initExpanding):
+  Widget(desktop, parent),
   orientation(initOrientation),
   expanding(initExpanding),
   borderSize(1.f)
 {
-  if (!expanding)
+  if (expanding)
+  {
+    if (parent)
+      parent->getAreaChangedSignal().connect(*this, &Layout::onAreaChanged);
+  }
+  else
     getAreaChangedSignal().connect(*this, &Layout::onAreaChanged);
-}
-
-void Layout::addChild(Widget& child)
-{
-  Widget::addChild(child);
-}
-
-void Layout::addChild(Widget& child, float size)
-{
-  Widget::addChild(child);
-  sizes[&child] = size;
 }
 
 bool Layout::isExpanding(void) const
@@ -129,21 +127,6 @@ void Layout::removedChild(Widget& child)
 {
   sizes.erase(&child);
   update();
-}
-
-void Layout::addedToParent(Widget& parent)
-{
-  if (expanding)
-  {
-    parentAreaSlot = parent.getAreaChangedSignal().connect(*this, &Layout::onAreaChanged);
-    onAreaChanged(parent);
-  }
-}
-
-void Layout::removedFromParent(Widget& parent)
-{
-  if (expanding)
-    parentAreaSlot = NULL;
 }
 
 void Layout::onAreaChanged(Widget& widget)

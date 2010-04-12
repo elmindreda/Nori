@@ -74,7 +74,8 @@ struct ItemComparator
 
 ///////////////////////////////////////////////////////////////////////
 
-Menu::Menu(void):
+Menu::Menu(Desktop& desktop, Widget* parent):
+  Widget(desktop, parent),
   selection(0)
 {
   getCursorMovedSignal().connect(*this, &Menu::onCursorMoved);
@@ -92,11 +93,8 @@ Menu::~Menu(void)
   destroyItems();
 }
 
-void Menu::display(Desktop& desktop)
+void Menu::display(void)
 {
-  if (getDesktop() != &desktop)
-    desktop.addRootWidget(*this);
-
   selection = 0;
   setVisible(true);
   bringToFront();

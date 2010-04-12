@@ -58,7 +58,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Slider::Slider(Orientation initOrientation):
+Slider::Slider(Desktop& desktop, Widget* parent, Orientation initOrientation):
+  Widget(desktop, parent),
   minValue(0.f),
   maxValue(1.f),
   stepSize(1.f),

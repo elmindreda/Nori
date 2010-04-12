@@ -42,7 +42,7 @@ using namespace moira;
 class Canvas : public Widget
 {
 public:
-  Canvas(void);
+  Canvas(Desktop& desktop, Widget* parent = NULL);
   SignalProxy1<void, const Canvas&> getDrawSignal(void);
 protected:
   void draw(void) const;

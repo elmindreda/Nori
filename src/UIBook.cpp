@@ -58,7 +58,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Page::Page(const String& initText):
+Page::Page(Desktop& desktop, Book& book, const String& initText):
+  Widget(desktop, &book),
   text(initText)
 {
 }
@@ -96,7 +97,8 @@ void Page::draw(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-Book::Book(void):
+Book::Book(Desktop& desktop, Widget* parent):
+  Widget(desktop, parent),
   activePage(NULL)
 {
   getKeyPressedSignal().connect(*this, &Book::onKeyPressed);

@@ -58,7 +58,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Canvas::Canvas(void)
+Canvas::Canvas(Desktop& desktop, Widget* parent):
+  Widget(desktop, parent)
 {
 }
 

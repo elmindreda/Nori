@@ -58,7 +58,8 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Button::Button(const String& initText):
+Button::Button(Desktop& desktop, Widget* parent, const String& initText):
+  Widget(desktop, parent),
   text(initText)
 {
   Renderer* renderer = Renderer::get();
