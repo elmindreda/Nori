@@ -66,7 +66,7 @@ Scroller::Scroller(Desktop& desktop, Widget* parent, Orientation initOrientation
   percentage(0.5f),
   orientation(initOrientation)
 {
-  const float em = Renderer::get()->getDefaultEM();
+  const float em = desktop.getRenderer().getDefaultEM();
 
   if (orientation == HORIZONTAL)
     setSize(Vec2(em * 10.f, em * 1.5f));
@@ -132,10 +132,10 @@ void Scroller::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Renderer* renderer = Renderer::get();
-  if (renderer->pushClipArea(area))
+  Renderer& renderer = getDesktop().getRenderer();
+  if (renderer.pushClipArea(area))
   {
-    renderer->drawWell(area, getState());
+    renderer.drawWell(area, getState());
 
     if (minValue != maxValue)
     {
@@ -159,12 +159,12 @@ void Scroller::draw(void) const
 		       size);
       }
 
-      renderer->drawHandle(handleArea, getState());
+      renderer.drawHandle(handleArea, getState());
     }
 
     Widget::draw();
 
-    renderer->popClipArea();
+    renderer.popClipArea();
   }
 }
 
@@ -314,7 +314,7 @@ void Scroller::setValue(float newValue, bool notify)
 
 float Scroller::getHandleSize(void) const
 {
-  const float em = Renderer::get()->getDefaultEM();
+  const float em = getDesktop().getRenderer().getDefaultEM();
 
   if (orientation == HORIZONTAL)
     return std::max(getArea().size.x * percentage, em);

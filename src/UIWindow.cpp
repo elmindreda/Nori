@@ -68,14 +68,14 @@ void Window::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Renderer* renderer = Renderer::get();
-  if (renderer->pushClipArea(area))
+  Renderer& renderer = getDesktop().getRenderer();
+  if (renderer.pushClipArea(area))
   {
-    renderer->drawFrame(area, getState());
+    renderer.drawFrame(area, getState());
 
     Widget::draw();
 
-    renderer->popClipArea();
+    renderer.popClipArea();
   }
 }
 

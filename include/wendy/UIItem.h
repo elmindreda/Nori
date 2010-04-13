@@ -37,6 +37,10 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+typedef unsigned int ItemID;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @ingroup ui
  */
 class Item
@@ -44,18 +48,19 @@ class Item
   friend class List;
   friend class Menu;
 public:
-  Item(const String& value = "", unsigned int ID = 0);
+  Item(Desktop& desktop, const String& value = "", ItemID ID = 0);
   virtual bool operator < (const Item& other) const;
   virtual float getWidth(void) const;
   virtual float getHeight(void) const;
-  virtual unsigned int getID(void) const;
+  virtual ItemID getID(void) const;
   virtual const String& asString(void) const;
   virtual void setStringValue(const String& newValue);
 protected:
   virtual void draw(const Rect& area, WidgetState state) const;
+  Desktop& desktop;
 private:
   String value;
-  unsigned int ID;
+  ItemID ID;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -71,7 +76,7 @@ typedef std::vector<Item*> ItemList;
 class SeparatorItem : public Item
 {
 public:
-  SeparatorItem(void);
+  SeparatorItem(Desktop& desktop);
   float getWidth(void) const;
   float getHeight(void) const;
 protected:
@@ -85,9 +90,10 @@ protected:
 class TextureItem : public Item
 {
 public:
-  TextureItem(GL::Texture& texture,
+  TextureItem(Desktop& desktop,
+              GL::Texture& texture,
               const String& name = "",
-	      unsigned int ID = 0);
+	      ItemID ID = 0);
   float getWidth(void) const;
   float getHeight(void) const;
   GL::Texture& getTexture(void) const;

@@ -56,8 +56,9 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
-Desktop::Desktop(input::Context& initContext):
+Desktop::Desktop(input::Context& initContext, UI::Renderer& initRenderer):
   context(initContext),
+  renderer(initRenderer),
   dragging(false),
   activeWidget(NULL),
   draggedWidget(NULL),
@@ -120,6 +121,11 @@ void Desktop::cancelDragging(void)
     draggedWidget = NULL;
     dragging = false;
   }
+}
+
+Renderer& Desktop::getRenderer(void) const
+{
+  return renderer;
 }
 
 const WidgetList& Desktop::getRootWidgets(void) const

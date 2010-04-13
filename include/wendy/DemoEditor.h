@@ -42,6 +42,7 @@ using namespace moira;
 class Editor : public Singleton<Editor>, public Trackable
 {
 public:
+  ~Editor(void);
   void run(void);
   bool isSimple(void) const;
   bool isModified(void) const;
@@ -82,7 +83,8 @@ private:
   bool simple;
   bool modified;
   bool quitting;
-  UI::Book* book;
+  Ptr<UI::Book> book;
+  Ptr<UI::Renderer> renderer;
   Ptr<UI::Desktop> desktop;
   UI::Canvas* canvas;
   UI::List* effectType;

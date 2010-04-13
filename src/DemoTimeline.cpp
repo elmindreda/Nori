@@ -29,6 +29,7 @@
 
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
@@ -113,8 +114,8 @@ void TrackPanel::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  UI::Renderer* renderer = UI::Renderer::get();
-  if (renderer->pushClipArea(area))
+  UI::Renderer& renderer = getDesktop().getRenderer();
+  if (renderer.pushClipArea(area))
   {
     UI::Widget::draw();
 
@@ -122,15 +123,15 @@ void TrackPanel::draw(void) const
                             timeline.getParentEffect().getGlobalOffset();
     const float position = (float) (timeline.getTimeElapsed() - timeOffset) *
                            timeline.getSecondWidth();
-    const float width = renderer->getDefaultEM() / 3.f;
+    const float width = renderer.getDefaultEM() / 3.f;
 
     Rect markerArea;
     markerArea.set(area.position.x + position - width / 2.f, area.position.y,
                    width, area.size.y);
 
-    renderer->fillRectangle(markerArea, ColorRGBA(0.3f, 0.3f, 0.3f, 0.5f));
+    renderer.fillRectangle(markerArea, ColorRGBA(0.3f, 0.3f, 0.3f, 0.5f));
 
-    renderer->popClipArea();
+    renderer.popClipArea();
   }
 }
 
@@ -154,7 +155,7 @@ void TrackPanel::updateTracks(void)
 {
   const UI::WidgetList& children = getChildren();
 
-  const float em = UI::Renderer::get()->getDefaultEM();
+  const float em = getDesktop().getRenderer().getDefaultEM();
   const float height = em * 2.f;
   const float visible = getArea().size.y;
 
@@ -209,7 +210,7 @@ TimelineRuler::TimelineRuler(UI::Desktop& desktop,
   Widget(desktop, parent),
   timeline(initTimeline)
 {
-  const float em = UI::Renderer::get()->getDefaultEM();
+  const float em = desktop.getRenderer().getDefaultEM();
 
   getButtonClickedSignal().connect(*this, &TimelineRuler::onButtonClicked);
   getDragMovedSignal().connect(*this, &TimelineRuler::onDragMoved);
@@ -237,12 +238,12 @@ void TimelineRuler::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  UI::Renderer* renderer = UI::Renderer::get();
-  if (renderer->pushClipArea(area))
+  UI::Renderer& renderer = getDesktop().getRenderer();
+  if (renderer.pushClipArea(area))
   {
-    renderer->drawFrame(area, getState());
+    renderer.drawFrame(area, getState());
 
-    const float em = renderer->getDefaultEM();
+    const float em = renderer.getDefaultEM();
     const float width = timeline.getSecondWidth();
     const float start = (float) timeline.getWindowStart();
     const float offset = (1.f - start + floorf(start)) * width;
@@ -259,7 +260,7 @@ void TimelineRuler::draw(void) const
       segment.start = area.position + Vec2(position, area.size.y / 2.f);
       segment.end = area.position + Vec2(position, area.size.y);
 
-      renderer->drawLine(segment, ColorRGBA::BLACK);
+      renderer.drawLine(segment, ColorRGBA::BLACK);
 
       if ((index + i) % 10 == 0)
       {
@@ -270,7 +271,7 @@ void TimelineRuler::draw(void) const
         String digits;
         Variant::convertToString(digits, (index + (int) i) % 60);
 
-        renderer->drawText(digitArea, digits);
+        renderer.drawText(digitArea, digits);
       }
     }
 
@@ -283,12 +284,12 @@ void TimelineRuler::draw(void) const
     triangle.P[1] = Vec2(position - area.size.y / 2.f, area.size.y) + area.position;
     triangle.P[2] = Vec2(position, 0.f) + area.position;
 
-    renderer->fillTriangle(triangle, ColorRGBA(0.8f, 0.1f, 0.1f, 1.f));
-    renderer->drawTriangle(triangle, ColorRGBA::BLACK);
+    renderer.fillTriangle(triangle, ColorRGBA(0.8f, 0.1f, 0.1f, 1.f));
+    renderer.drawTriangle(triangle, ColorRGBA::BLACK);
 
     UI::Widget::draw();
 
-    renderer->popClipArea();
+    renderer.popClipArea();
   }
 }
 
@@ -333,7 +334,7 @@ EffectTrack::EffectTrack(UI::Desktop& desktop,
   effect(initEffect),
   mode(NOT_DRAGGING)
 {
-  const float em = UI::Renderer::get()->getDefaultEM();
+  const float em = desktop.getRenderer().getDefaultEM();
 
   getDragBegunSignal().connect(*this, &EffectTrack::onDragBegun);
   getDragMovedSignal().connect(*this, &EffectTrack::onDragMoved);
@@ -352,8 +353,8 @@ void EffectTrack::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  UI::Renderer* renderer = UI::Renderer::get();
-  if (renderer->pushClipArea(area))
+  UI::Renderer& renderer = getDesktop().getRenderer();
+  if (renderer.pushClipArea(area))
   {
     const float size = getHandleSize();
     const float offset = getHandleOffset();
@@ -367,27 +368,27 @@ void EffectTrack::draw(void) const
     if (effect.isActive())
       color.set(0.1f, 0.7f, 0.1f, 1.f);
     else
-      color.set(renderer->getWidgetColor(), 1.f);
+      color.set(renderer.getWidgetColor(), 1.f);
 
-    renderer->fillRectangle(effectArea, color);
-    renderer->drawRectangle(effectArea, ColorRGBA::BLACK);
+    renderer.fillRectangle(effectArea, color);
+    renderer.drawRectangle(effectArea, ColorRGBA::BLACK);
 
-    renderer->drawText(effectArea, effect.getName());
+    renderer.drawText(effectArea, effect.getName());
 
-    const float em = renderer->getDefaultEM();
+    const float em = renderer.getDefaultEM();
 
     Rect handleArea;
     handleArea.size.set(em, effectArea.size.y);
 
     handleArea.position = effectArea.position - Vec2(em, 0.f);
-    renderer->drawHandle(handleArea, getState());
+    renderer.drawHandle(handleArea, getState());
 
     handleArea.position = effectArea.position + Vec2(effectArea.size.x, 0.f);
-    renderer->drawHandle(handleArea, getState());
+    renderer.drawHandle(handleArea, getState());
 
     UI::Widget::draw();
 
-    renderer->popClipArea();
+    renderer.popClipArea();
   }
 }
 
@@ -395,9 +396,9 @@ void EffectTrack::onDragBegun(Widget& widget, const Vec2& point)
 {
   const float position = transformToLocal(point).x;
 
-  UI::Renderer* renderer = UI::Renderer::get();
+  UI::Renderer& renderer = getDesktop().getRenderer();
 
-  const float em = renderer->getDefaultEM();
+  const float em = renderer.getDefaultEM();
   const float size = getHandleSize();
   const float offset = getHandleOffset();
 
@@ -485,7 +486,7 @@ PropertyTrack::PropertyTrack(UI::Desktop& desktop,
   property(initProperty),
   draggedKey(NULL)
 {
-  const float em = UI::Renderer::get()->getDefaultEM();
+  const float em = desktop.getRenderer().getDefaultEM();
 
   getKeyPressedSignal().connect(*this, &PropertyTrack::onKeyPressed);
   getDragBegunSignal().connect(*this, &PropertyTrack::onDragBegun);
@@ -505,8 +506,8 @@ void PropertyTrack::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  UI::Renderer* renderer = UI::Renderer::get();
-  if (renderer->pushClipArea(area))
+  UI::Renderer& renderer = getDesktop().getRenderer();
+  if (renderer.pushClipArea(area))
   {
     Rect wellArea;
     wellArea.position.set(area.position.x - (float) timeline.getWindowStart() * timeline.getSecondWidth(),
@@ -514,10 +515,10 @@ void PropertyTrack::draw(void) const
     wellArea.size.set((float) property.getEffect().getDuration() * timeline.getSecondWidth(),
                       area.size.y);
 
-    renderer->drawWell(wellArea, getState());
-    renderer->drawText(wellArea, property.getName());
+    renderer.drawWell(wellArea, getState());
+    renderer.drawText(wellArea, property.getName());
 
-    const float em = renderer->getDefaultEM();
+    const float em = renderer.getDefaultEM();
 
     const Property::KeyList& keys = property.getKeys();
 
@@ -531,10 +532,10 @@ void PropertyTrack::draw(void) const
                               area.position.y);
       handleArea.size.set(em, area.size.y);
 
-      renderer->drawHandle(handleArea, getState());
+      renderer.drawHandle(handleArea, getState());
     }
 
-    renderer->popClipArea();
+    renderer.popClipArea();
   }
 }
 
@@ -556,11 +557,11 @@ void PropertyTrack::onDragBegun(Widget& widget, const Vec2& point)
 {
   float position = transformToLocal(point).x;
 
-  UI::Renderer* renderer = UI::Renderer::get();
+  UI::Renderer& renderer = getDesktop().getRenderer();
 
   const Property::KeyList& keys = property.getKeys();
 
-  const float em = renderer->getDefaultEM();
+  const float em = renderer.getDefaultEM();
 
   for (unsigned int i = 0;  i < keys.size();  i++)
   {
@@ -632,19 +633,19 @@ Timeline::Timeline(UI::Desktop& desktop, UI::Widget* parent, Show& initShow):
   scroller->getValueChangedSignal().connect(*this, &Timeline::onValueChanged);
 
   effectMenu = new UI::Menu(desktop);
-  effectMenu->addItem(*new UI::Item("Delete", MENU_DELETE));
-  effectMenu->addItem(*new UI::SeparatorItem());
-  effectMenu->addItem(*new UI::Item("Rename", MENU_RENAME));
-  effectMenu->addItem(*new UI::SeparatorItem());
-  effectMenu->addItem(*new UI::Item("Move Up", MENU_MOVE_UP));
-  effectMenu->addItem(*new UI::Item("Move Down", MENU_MOVE_DOWN));
-  effectMenu->addItem(*new UI::SeparatorItem());
-  effectMenu->addItem(*new UI::Item("Enter", MENU_ENTER));
+  effectMenu->addItem(*new UI::Item(desktop, "Delete", MENU_DELETE));
+  effectMenu->addItem(*new UI::SeparatorItem(desktop));
+  effectMenu->addItem(*new UI::Item(desktop, "Rename", MENU_RENAME));
+  effectMenu->addItem(*new UI::SeparatorItem(desktop));
+  effectMenu->addItem(*new UI::Item(desktop, "Move Up", MENU_MOVE_UP));
+  effectMenu->addItem(*new UI::Item(desktop, "Move Down", MENU_MOVE_DOWN));
+  effectMenu->addItem(*new UI::SeparatorItem(desktop));
+  effectMenu->addItem(*new UI::Item(desktop, "Enter", MENU_ENTER));
   effectMenu->getItemSelectedSignal().connect(*this, &Timeline::onItemSelected);
 
   canvasMenu = new UI::Menu(desktop);
-  canvasMenu->addItem(*new UI::Item("Exit All", MENU_EXIT_ALL));
-  canvasMenu->addItem(*new UI::Item("Exit Parent", MENU_EXIT_PARENT));
+  canvasMenu->addItem(*new UI::Item(desktop, "Exit All", MENU_EXIT_ALL));
+  canvasMenu->addItem(*new UI::Item(desktop, "Exit Parent", MENU_EXIT_PARENT));
   canvasMenu->getItemSelectedSignal().connect(*this, &Timeline::onItemSelected);
 
   setParentEffect(show.getRootEffect());
@@ -741,7 +742,7 @@ Time Timeline::getVisibleDuration(void) const
 
 float Timeline::getSecondWidth(void) const
 {
-  const float em = UI::Renderer::get()->getDefaultEM();
+  const float em = getDesktop().getRenderer().getDefaultEM();
 
   return em * zoom;
 }
@@ -829,12 +830,12 @@ void Timeline::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  UI::Renderer* renderer = UI::Renderer::get();
-  if (renderer->pushClipArea(area))
+  UI::Renderer& renderer = getDesktop().getRenderer();
+  if (renderer.pushClipArea(area))
   {
     UI::Widget::draw();
 
-    renderer->popClipArea();
+    renderer.popClipArea();
   }
 }
 

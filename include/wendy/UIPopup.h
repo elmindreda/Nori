@@ -44,7 +44,7 @@ class Popup : public Widget
 public:
   Popup(Desktop& desktop, Widget* parent = NULL);
   void addItem(Item& item);
-  void addItem(const String& value);
+  void addItem(const String& value, ItemID ID = 0);
   void removeItem(Item& item);
   void destroyItems(void);
   unsigned int getSelection(void) const;

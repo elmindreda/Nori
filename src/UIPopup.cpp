@@ -64,7 +64,7 @@ Popup::Popup(Desktop& desktop, Widget* parent):
   Widget(desktop, parent),
   selection(0)
 {
-  const float em = Renderer::get()->getDefaultEM();
+  const float em = desktop.getRenderer().getDefaultEM();
 
   setSize(Vec2(em * 10.f, em * 2.f));
 
@@ -80,9 +80,9 @@ void Popup::addItem(Item& item)
   menu->addItem(item);
 }
 
-void Popup::addItem(const String& value)
+void Popup::addItem(const String& value, ItemID ID)
 {
-  Item* item = new Item(value);
+  Item* item = new Item(getDesktop(), value, ID);
   menu->addItem(*item);
 }
 
@@ -143,27 +143,27 @@ void Popup::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Renderer* renderer = Renderer::get();
-  if (renderer->pushClipArea(area))
+  Renderer& renderer = getDesktop().getRenderer();
+  if (renderer.pushClipArea(area))
   {
-    renderer->drawFrame(area, getState());
+    renderer.drawFrame(area, getState());
 
     if (selection < menu->getItemCount())
     {
       const Item* item = menu->getItem(selection);
 
-      const float em = Renderer::get()->getDefaultEM();
+      const float em = renderer.getDefaultEM();
 
       Rect textArea = area;
       textArea.position.x += em / 2.f;
       textArea.size.x -= em;
 
-      renderer->drawText(textArea, item->asString(), LEFT_ALIGNED);
+      renderer.drawText(textArea, item->asString(), LEFT_ALIGNED);
     }
 
     Widget::draw();
 
-    renderer->popClipArea();
+    renderer.popClipArea();
   }
 }
 

@@ -65,7 +65,7 @@ Progress::Progress(Desktop& desktop, Widget* parent, Orientation initOrientation
   value(0.f),
   orientation(initOrientation)
 {
-  const float em = Renderer::get()->getDefaultEM();
+  const float em = desktop.getRenderer().getDefaultEM();
 
   if (orientation == HORIZONTAL)
     setSize(Vec2(em * 10.f, em * 1.5f));
@@ -118,10 +118,10 @@ void Progress::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Renderer* renderer = Renderer::get();
-  if (renderer->pushClipArea(area))
+  Renderer& renderer = getDesktop().getRenderer();
+  if (renderer.pushClipArea(area))
   {
-    renderer->drawWell(area, getState());
+    renderer.drawWell(area, getState());
 
     const float position = (value - minValue) / (maxValue - minValue);
 
@@ -142,11 +142,11 @@ void Progress::draw(void) const
 		     10.f);
     }
 
-    renderer->drawHandle(handleArea, getState());
+    renderer.drawHandle(handleArea, getState());
 
     Widget::draw();
 
-    renderer->popClipArea();
+    renderer.popClipArea();
   }
 }
 

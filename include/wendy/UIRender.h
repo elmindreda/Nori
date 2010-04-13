@@ -102,7 +102,7 @@ public:
  *
  *  @remarks This should probable be made overridable at some point.
  */
-class Renderer : public Singleton<Renderer>
+class Renderer
 {
 public:
   /*! Pushes a clipping area onto the clip stack. The current
@@ -152,16 +152,17 @@ public:
   const ColorRGB& getWellColor(void);
   const ColorRGB& getSelectionColor(void);
   const ColorRGB& getSelectedTextColor(void);
-  render::Font* getDefaultFont(void);
-  render::Font* getCurrentFont(void);
+  render::Font& getDefaultFont(void);
+  render::Font& getCurrentFont(void);
   void setCurrentFont(render::Font* newFont);
   float getDefaultEM(void) const;
   float getCurrentEM(void) const;
-  static bool create(void);
+  static Renderer* createInstance(GL::Renderer& renderer);
 private:
-  Renderer(void);
+  Renderer(GL::Renderer& renderer);
   bool init(void);
   void setDrawingState(const ColorRGBA& color, bool wireframe);
+  GL::Renderer& renderer;
   RectClipStackf clipAreaStack;
   ColorRGB widgetColor;
   ColorRGB textColor;

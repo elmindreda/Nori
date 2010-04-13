@@ -29,8 +29,10 @@
 
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLBuffer.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLProgram.h>
+#include <wendy/GLRender.h>
 #include <wendy/GLState.h>
 
 #include <wendy/RenderMaterial.h>

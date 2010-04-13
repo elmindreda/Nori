@@ -62,16 +62,16 @@ Label::Label(Desktop& desktop, Widget* parent, const String& initText):
   Widget(desktop, parent),
   text(initText)
 {
-  Renderer* renderer = Renderer::get();
+  Renderer& renderer = desktop.getRenderer();
 
-  const float em = renderer->getDefaultEM();
+  const float em = renderer.getDefaultEM();
 
   float textWidth;
 
   if (text.empty())
     textWidth = em * 3.f;
   else
-    textWidth = renderer->getDefaultFont()->getTextMetrics(text).size.x;
+    textWidth = renderer.getDefaultFont().getTextMetrics(text).size.x;
 
   setSize(Vec2(em * 2.f + textWidth, em * 2.f));
 }
@@ -113,14 +113,14 @@ void Label::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Renderer* renderer = Renderer::get();
-  if (renderer->pushClipArea(area))
+  Renderer& renderer = getDesktop().getRenderer();
+  if (renderer.pushClipArea(area))
   {
-    renderer->drawText(area, text, textAlignment);
+    renderer.drawText(area, text, textAlignment);
 
     Widget::draw();
 
-    renderer->popClipArea();
+    renderer.popClipArea();
   }
 }
 

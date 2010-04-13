@@ -54,7 +54,7 @@ class Desktop : public input::Focus, public Trackable
 public:
   /*! Constructor.
    */
-  Desktop(input::Context& context);
+  Desktop(input::Context& context, Renderer& renderer);
   /*! Destructor.
    */
   ~Desktop(void);
@@ -71,6 +71,7 @@ public:
    */
   Widget* findWidgetByPoint(const Vec2& point);
   void cancelDragging(void);
+  Renderer& getRenderer(void) const;
   /*! @return The root widgets of this desktop.
    */
   const WidgetList& getRootWidgets(void) const;
@@ -91,6 +92,7 @@ private:
   void onWheelTurned(int offset);
   Signal2<void, Desktop&, bool> focusChangedSignal;
   input::Context& context;
+  Renderer& renderer;
   bool dragging;
   WidgetList roots;
   Widget* activeWidget;

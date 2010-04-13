@@ -64,7 +64,7 @@ Entry::Entry(Desktop& desktop, Widget* parent, const String& initText):
   startPosition(0),
   caretPosition(0)
 {
-  const float em = Renderer::get()->getDefaultEM();
+  const float em = getDesktop().getRenderer().getDefaultEM();
 
   setSize(Vec2(em * 10.f, em * 1.5f));
 
@@ -107,18 +107,18 @@ void Entry::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Renderer* renderer = Renderer::get();
-  if (renderer->pushClipArea(area))
+  Renderer& renderer = getDesktop().getRenderer();
+  if (renderer.pushClipArea(area))
   {
-    renderer->drawWell(area, getState());
+    renderer.drawWell(area, getState());
 
-    const float em = renderer->getDefaultEM();
+    const float em = renderer.getDefaultEM();
 
     Rect textArea = area;
     textArea.position.x += em / 2.f;
     textArea.size.x -= em;
 
-    renderer->drawText(textArea, text, LEFT_ALIGNED);
+    renderer.drawText(textArea, text, LEFT_ALIGNED);
 
     if (isActive() && ((unsigned int) (Timer::getCurrentTime() * 2.f) & 1))
     {
@@ -127,7 +127,7 @@ void Entry::draw(void) const
       if (caretPosition > startPosition)
       {
 	render::Font::LayoutList layouts;
-	renderer->getDefaultFont()->getTextLayout(layouts, text.substr(startPosition, caretPosition));
+	renderer.getDefaultFont().getTextLayout(layouts, text.substr(startPosition, caretPosition));
 
 	const render::Font::Layout& glyph = layouts[caretPosition - 1];
 	position = glyph.penOffset.x + glyph.area.size.x;
@@ -139,12 +139,12 @@ void Entry::draw(void) const
       segment.end.set(textArea.position.x + position,
                       textArea.position.y + textArea.size.y);
 
-      renderer->drawLine(segment, ColorRGBA::BLACK);
+      renderer.drawLine(segment, ColorRGBA::BLACK);
     }
 
     Widget::draw();
 
-    renderer->popClipArea();
+    renderer.popClipArea();
   }
 }
 
@@ -155,12 +155,12 @@ void Entry::onButtonClicked(Widget& widget,
 {
   float position = transformToLocal(point).x;
 
-  Renderer* renderer = Renderer::get();
+  Renderer& renderer = getDesktop().getRenderer();
 
-  const float em = renderer->getDefaultEM();
+  const float em = renderer.getDefaultEM();
 
   render::Font::LayoutList layouts;
-  renderer->getDefaultFont()->getTextLayout(layouts, text.substr(startPosition, String::npos));
+  renderer.getDefaultFont().getTextLayout(layouts, text.substr(startPosition, String::npos));
 
   float offset = em / 2.f;
   unsigned int index;

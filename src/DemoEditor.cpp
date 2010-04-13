@@ -76,6 +76,14 @@ using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
+Editor::~Editor(void)
+{
+  book = NULL;
+  desktop = NULL;
+  renderer = NULL;
+  show = NULL;
+}
+
 void Editor::run(void)
 {
   togglePaused();
@@ -224,14 +232,16 @@ bool Editor::init(const String& showName)
     context->getResizedSignal().connect(*this, &Editor::onResized);
     context->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
 
-    desktop = new UI::Desktop(*context);
+    renderer = UI::Renderer::createInstance(*GL::Renderer::get());
+
+    desktop = new UI::Desktop(*context, *renderer);
     context->setFocus(desktop);
   }
 
   GL::Context* context = GL::Context::get();
   context->getCloseRequestSignal().connect(*this, &Editor::onCloseRequest);
 
-  const float em = UI::Renderer::get()->getDefaultEM();
+  const float em = renderer->getDefaultEM();
 
   book = new UI::Book(*desktop);
 
@@ -289,7 +299,7 @@ bool Editor::init(const String& showName)
 
       for (unsigned int i = 0;  i < instances.size();  i++)
       {
-	UI::Item* item = new UI::Item(instances[i]->getName());
+	UI::Item* item = new UI::Item(*desktop, instances[i]->getName());
 	effectType->addItem(*item);
       }
     }

@@ -236,10 +236,10 @@ void List::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Renderer* renderer = Renderer::get();
-  if (renderer->pushClipArea(area))
+  Renderer& renderer = getDesktop().getRenderer();
+  if (renderer.pushClipArea(area))
   {
-    renderer->drawWell(area, getState());
+    renderer.drawWell(area, getState());
 
     float start = area.size.y;
 
@@ -262,7 +262,7 @@ void List::draw(void) const
 
     Widget::draw();
 
-    renderer->popClipArea();
+    renderer.popClipArea();
   }
 }
 
