@@ -962,42 +962,6 @@ void ProgramInterface::addVarying(const String& name, Varying::Type type)
 
 bool ProgramInterface::matches(const Program& program, bool verbose) const
 {
-  if (program.getUniformCount() != uniforms.size())
-  {
-    if (verbose)
-    {
-      Log::writeError("Program \'%s\' uniform count mismatch (should be %u)",
-                      program.getName().c_str(),
-                      uniforms.size());
-    }
-
-    return false;
-  }
-
-  if (program.getSamplerCount() != samplers.size())
-  {
-    if (verbose)
-    {
-      Log::writeError("Program \'%s\' sampler count mismatch (should be %u)",
-                      program.getName().c_str(),
-                      samplers.size());
-    }
-
-    return false;
-  }
-
-  if (program.getVaryingCount() != varyings.size())
-  {
-    if (verbose)
-    {
-      Log::writeError("Program \'%s\' varying count mismatch; should be %u",
-                      program.getName().c_str(),
-                      varyings.size());
-    }
-
-    return false;
-  }
-
   for (unsigned int i = 0;  i < uniforms.size();  i++)
   {
     const UniformList::value_type& entry = uniforms[i];
