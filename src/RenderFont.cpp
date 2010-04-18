@@ -362,7 +362,13 @@ bool Font::init(const moira::Font& font)
     texture = GL::Texture::createInstance(*context, Image(PixelFormat::R8, width, height), 0);
     if (!texture)
       return false;
+
+    texture->setFilterMode(GL::FILTER_NEAREST);
   }
+
+  Vec2 texelOffset;
+  texelOffset.x = 0.25f / texture->getWidth();
+  texelOffset.y = 0.25f / texture->getHeight();
 
   // Create render pass
   {
@@ -439,8 +445,8 @@ bool Font::init(const moira::Font& font)
     if (!textureImage.copyFrom(image, texelPosition.x, texelPosition.y))
       return false;
 
-    glyph.area.position.set(texelPosition.x / (float) textureImage.getWidth(),
-			    texelPosition.y / (float) textureImage.getHeight());
+    glyph.area.position.set(texelPosition.x / (float) textureImage.getWidth() + texelOffset.x,
+			    texelPosition.y / (float) textureImage.getHeight() + texelOffset.y);
     glyph.area.size.set(image.getWidth() / (float) textureImage.getWidth(),
 			image.getHeight() / (float) textureImage.getHeight());
 
