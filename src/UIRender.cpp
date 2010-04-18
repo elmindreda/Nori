@@ -518,7 +518,7 @@ bool Renderer::init(void)
 
     if (!interface.matches(*drawProgram, true))
     {
-      Log::writeError("UI drawing shader program does not have the required uniforms");
+      Log::writeError("UI drawing shader program does not conform to the required interface");
       return false;
     }
 
@@ -544,7 +544,7 @@ bool Renderer::init(void)
 
     if (!interface.matches(*blitProgram, true))
     {
-      Log::writeError("UI blitting shader program does not have the required uniforms");
+      Log::writeError("UI blitting shader program does not conform to the required interface");
       return false;
     }
 

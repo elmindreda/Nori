@@ -387,7 +387,7 @@ bool Font::init(const moira::Font& font)
 
     if (!interface.matches(*program, true))
     {
-      Log::writeError("Font shader program does not have the required uniforms");
+      Log::writeError("Font shader program does not conform to the required interface");
       return false;
     }
 
