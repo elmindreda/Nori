@@ -512,7 +512,11 @@ bool Renderer::init(void)
       return false;
     }
 
-    if (!drawProgram->findUniform("color"))
+    GL::ProgramInterface interface;
+    interface.addUniform("color", GL::Uniform::FLOAT_VEC4);
+    interface.addVarying("position", GL::Varying::FLOAT_VEC2);
+
+    if (!interface.matches(*drawProgram, true))
     {
       Log::writeError("UI drawing shader program does not have the required uniforms");
       return false;
@@ -533,7 +537,12 @@ bool Renderer::init(void)
       return false;
     }
 
-    if (!blitProgram->findSampler("image"))
+    GL::ProgramInterface interface;
+    interface.addSampler("image", GL::Sampler::SAMPLER_2D);
+    interface.addVarying("position", GL::Varying::FLOAT_VEC2);
+    interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
+
+    if (!interface.matches(*blitProgram, true))
     {
       Log::writeError("UI blitting shader program does not have the required uniforms");
       return false;
