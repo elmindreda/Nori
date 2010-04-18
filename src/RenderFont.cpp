@@ -379,7 +379,11 @@ bool Font::init(const moira::Font& font)
       return false;
     }
 
-    if (!program->findSampler("glyphs") || !program->findUniform("color"))
+    GL::ProgramInterface interface;
+    interface.addSampler("glyphs", GL::Sampler::SAMPLER_2D);
+    interface.addUniform("color", GL::Uniform::FLOAT_VEC4);
+
+    if (!interface.matches(*program, true))
     {
       Log::writeError("Font shader program does not have the required uniforms");
       return false;
