@@ -474,7 +474,7 @@ Renderer* Renderer::createInstance(GL::Renderer& renderer)
 {
   Ptr<Renderer> instance(new Renderer(renderer));
   if (!instance->init())
-    return false;
+    return NULL;
 
   return instance.detachObject();
 }
