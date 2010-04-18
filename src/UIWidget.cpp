@@ -70,12 +70,6 @@ Widget::Widget(Desktop& initDesktop, Widget* initParent):
     if (&desktop != &(parent->getDesktop()))
       throw Exception("Parent widget has different desktop");
 
-    for (Widget* ancestor = parent;  ancestor;  ancestor = ancestor->parent)
-    {
-      if (ancestor == this)
-        throw Exception("Widget hierarchy loops are not allowed");
-    }
-
     parent->children.push_back(this);
     parent->addedChild(*this);
   }
