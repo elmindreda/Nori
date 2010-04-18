@@ -233,6 +233,8 @@ bool Editor::init(const String& showName)
     context->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
 
     renderer = UI::Renderer::createInstance(*GL::Renderer::get());
+    if (!renderer)
+      return false;
 
     desktop = new UI::Desktop(*context, *renderer);
     context->setFocus(desktop);
