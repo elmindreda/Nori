@@ -482,12 +482,9 @@ bool Renderer::allocateVertices(VertexRange& range,
       return false;
     }
 
-    String specification;
-    format.getSpecification(specification);
-
     Log::write("Allocated vertex pool of size %u format \'%s\'",
                actualCount,
-	       specification.c_str());
+	       format.asString().c_str());
 
     slot->available = slot->vertexBuffer->getCount();
   }
