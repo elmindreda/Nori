@@ -689,7 +689,14 @@ void ProgramState::setProgram(Program* newProgram)
   if (program)
   {
     for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
-      samplers.push_back(new SamplerState(program->getSampler(i)));
+    {
+      Sampler& sampler = program->getSampler(i);
+
+      if (GL::Renderer::get()->isReservedSampler(sampler.getName()))
+	continue;
+
+      samplers.push_back(new SamplerState(sampler));
+    }
 
     for (unsigned int i = 0;  i < program->getUniformCount();  i++)
     {
