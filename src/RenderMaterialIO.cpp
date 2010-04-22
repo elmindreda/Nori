@@ -269,12 +269,81 @@ bool MaterialCodec::write(Stream& stream, const Material& material)
 
             Ref<GL::Texture> texture;
             state.getTexture(texture);
-            if (texture)
+            if (!texture)
               continue;
 
             beginElement("sampler");
             addAttribute("name", state.getSampler().getName());
             addAttribute("texture", texture->getName());
+            endElement();
+          }
+
+          for (unsigned int i = 0;  i < pass.getUniformCount();  i++)
+          {
+            const GL::UniformState& state = pass.getUniformState(i);
+
+            beginElement("uniform");
+            addAttribute("name", state.getUniform().getName());
+
+            switch (state.getUniform().getType())
+            {
+              case GL::Uniform::FLOAT:
+              {
+                float value;
+                state.getValue(value);
+                addAttribute("value", value);
+                break;
+              }
+
+              case GL::Uniform::FLOAT_VEC2:
+              {
+                Vec2 value;
+                state.getValue(value);
+                addAttribute("value", value.asString());
+                break;
+              }
+
+              case GL::Uniform::FLOAT_VEC3:
+              {
+                Vec3 value;
+                state.getValue(value);
+                addAttribute("value", value.asString());
+                break;
+              }
+
+              case GL::Uniform::FLOAT_VEC4:
+              {
+                Vec4 value;
+                state.getValue(value);
+                addAttribute("value", value.asString());
+                break;
+              }
+
+              case GL::Uniform::FLOAT_MAT2:
+              {
+                Mat2 value;
+                state.getValue(value);
+                addAttribute("value", value.asString());
+                break;
+              }
+
+              case GL::Uniform::FLOAT_MAT3:
+              {
+                Mat3 value;
+                state.getValue(value);
+                addAttribute("value", value.asString());
+                break;
+              }
+
+              case GL::Uniform::FLOAT_MAT4:
+              {
+                Mat4 value;
+                state.getValue(value);
+                addAttribute("value", value.asString());
+                break;
+              }
+            }
+
             endElement();
           }
 
@@ -495,7 +564,7 @@ bool MaterialCodec::onBeginElement(const String& name)
           return true;
         }
 
-        if (currentPass->getProgram())
+        if (GL::Program* program = currentPass->getProgram())
         {
           if (name == "sampler")
           {
@@ -503,14 +572,14 @@ bool MaterialCodec::onBeginElement(const String& name)
             if (samplerName.empty())
             {
               Log::writeWarning("Shader program \'%s\' lists unnamed sampler uniform",
-                                currentPass->getProgram()->getName().c_str());
+                                program->getName().c_str());
               return true;
             }
 
-            if (!currentPass->getProgram()->findSampler(samplerName))
+            if (!program->findSampler(samplerName))
             {
               Log::writeWarning("Shader program \'%s\' does not have sampler uniform \'%s\'",
-                                currentPass->getProgram()->getName().c_str(),
+                                program->getName().c_str(),
                                 samplerName.c_str());
               return true;
             }
@@ -524,6 +593,53 @@ bool MaterialCodec::onBeginElement(const String& name)
               return false;
 
             currentPass->getSamplerState(samplerName).setTexture(texture);
+            return true;
+          }
+
+          if (name == "uniform")
+          {
+            String uniformName = readString("name");
+            if (uniformName.empty())
+            {
+              Log::writeWarning("Shader program \'%s\' lists unnamed uniform",
+                                program->getName().c_str());
+              return true;
+            }
+
+            GL::Uniform* uniform = program->findUniform(uniformName);
+            if (!uniform)
+            {
+              Log::writeWarning("Shader program \'%s\' does not have uniform \'%s\'",
+                                program->getName().c_str(),
+                                uniformName.c_str());
+              return true;
+            }
+
+            switch (uniform->getType())
+            {
+              case GL::Uniform::FLOAT:
+                currentPass->getUniformState(uniformName).setValue(readFloat("value"));
+                break;
+              case GL::Uniform::FLOAT_VEC2:
+                currentPass->getUniformState(uniformName).setValue(Vec2(readString("value")));
+                break;
+              case GL::Uniform::FLOAT_VEC3:
+                currentPass->getUniformState(uniformName).setValue(Vec3(readString("value")));
+                break;
+              case GL::Uniform::FLOAT_VEC4:
+                currentPass->getUniformState(uniformName).setValue(Vec4(readString("value")));
+                break;
+              case GL::Uniform::FLOAT_MAT2:
+                currentPass->getUniformState(uniformName).setValue(Mat2(readString("value")));
+                break;
+              case GL::Uniform::FLOAT_MAT3:
+                currentPass->getUniformState(uniformName).setValue(Mat3(readString("value")));
+                break;
+              case GL::Uniform::FLOAT_MAT4:
+                currentPass->getUniformState(uniformName).setValue(Mat4(readString("value")));
+                break;
+            }
+
             return true;
           }
         }
