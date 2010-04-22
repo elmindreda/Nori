@@ -53,7 +53,7 @@ const unsigned int TEXTURE_XML_VERSION = 1;
 Bimap<String, FilterMode> filterModeMap;
 Bimap<String, AddressMode> addressModeMap;
 
-}
+} /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -151,6 +151,21 @@ bool TextureCodec::onBeginElement(const String& name)
       return false;
     }
 
+    unsigned int flags = Texture::DEFAULT;
+
+    // Parse flags
+    {
+      bool defaultValue;
+
+      defaultValue = (Texture::DEFAULT | Texture::MIPMAPPED) ? true : false;
+      if (readBoolean("mipmapped", defaultValue) != defaultValue)
+	flags ^= Texture::MIPMAPPED;
+
+      defaultValue = (Texture::DEFAULT | Texture::RECTANGULAR) ? true : false;
+      if (readBoolean("rectangular", defaultValue) != defaultValue)
+	flags ^= Texture::RECTANGULAR;
+    }
+
     String imageName = readString("image");
     if (imageName.empty())
     {
@@ -165,21 +180,6 @@ bool TextureCodec::onBeginElement(const String& name)
                       imageName.c_str(),
 		      textureName.c_str());
       return false;
-    }
-
-    unsigned int flags = Texture::DEFAULT;
-
-    // Parse flags
-    {
-      bool defaultValue;
-
-      defaultValue = (Texture::DEFAULT | Texture::MIPMAPPED) ? true : false;
-      if (readBoolean("mipmapped", defaultValue) != defaultValue)
-	flags ^= Texture::MIPMAPPED;
-
-      defaultValue = (Texture::DEFAULT | Texture::RECTANGULAR) ? true : false;
-      if (readBoolean("rectangular", defaultValue) != defaultValue)
-	flags ^= Texture::RECTANGULAR;
     }
 
     Context* context = Context::get();

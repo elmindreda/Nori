@@ -89,31 +89,6 @@ unsigned int getClosestPower(unsigned int value, unsigned int maximum)
   return result;
 }
 
-GLint unmipmapMinFilter(GLint minFilter)
-{
-  if (minFilter == GL_NEAREST_MIPMAP_NEAREST ||
-      minFilter == GL_NEAREST_MIPMAP_LINEAR)
-    return GL_NEAREST;
-  else if (minFilter == GL_LINEAR_MIPMAP_NEAREST ||
-	   minFilter == GL_LINEAR_MIPMAP_LINEAR)
-    return GL_LINEAR;
-
-  return minFilter;
-}
-
-GLint convertAddressMode(AddressMode mode)
-{
-  switch (mode)
-  {
-    case ADDRESS_WRAP:
-      return GL_REPEAT;
-    case ADDRESS_CLAMP:
-      return GL_CLAMP_TO_EDGE;
-    default:
-      throw Exception("Invalid address mode");
-  }
-}
-
 GLint convertFilterMode(FilterMode mode, bool mipmapped)
 {
   switch (mode)
@@ -150,6 +125,8 @@ GLint convertFilterMode(FilterMode mode, bool mipmapped)
 Bimap<PixelFormat, GLenum> formatMap;
 Bimap<PixelFormat, GLenum> genericFormatMap;
 Bimap<PixelFormat::Type, GLenum> typeMap;
+Bimap<ImageCube::Face, GLenum> faceMap;
+Bimap<AddressMode, GLenum> addressMap;
 
 } /*namespace*/
 
@@ -166,9 +143,6 @@ bool TextureImage::copyFrom(const moira::Image& source, unsigned int x, unsigned
     Log::writeError("Cannot copy texture data from source image of different pixel format");
     return false;
   }
-
-  // Moira has y-axis down, OpenGL has y-axis up
-  final.flipHorizontal();
 
   if (texture.textureTarget == GL_TEXTURE_1D)
   {
@@ -299,8 +273,6 @@ bool TextureImage::copyTo(moira::Image& result) const
   }
 #endif
 
-  result.flipHorizontal();
-
   return true;
 }
 
@@ -397,6 +369,11 @@ bool Texture::isMipmapped(void) const
   return (flags & MIPMAPPED) ? true : false;
 }
 
+bool Texture::isCubeMap(void) const
+{
+  return textureTarget == GL_TEXTURE_CUBE_MAP;
+}
+
 unsigned int Texture::getWidth(unsigned int level)
 {
   return getImage(level).getWidth();
@@ -457,15 +434,16 @@ void Texture::setAddressMode(AddressMode newMode)
 {
   if (newMode != addressMode)
   {
-    GLint mode = convertAddressMode(addressMode);
+    if (!addressMap.hasKey(newMode))
+      return;
 
     cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_FALSE);
 
     glBindTexture(textureTarget, textureID);
-    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, mode);
+    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, addressMap[newMode]);
 
     if (textureTarget != GL_TEXTURE_1D)
-      glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, mode);
+      glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, addressMap[newMode]);
 
     cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
 
@@ -492,12 +470,24 @@ Context& Texture::getContext(void) const
 }
 
 Texture* Texture::createInstance(Context& context,
-                                 const moira::Image& image,
+                                 const moira::Image& source,
 				 unsigned int flags,
 				 const String& name)
 {
   Ptr<Texture> texture(new Texture(context, name));
-  if (!texture->init(image, flags))
+  if (!texture->init(source, flags))
+    return NULL;
+
+  return texture.detachObject();
+}
+
+Texture* Texture::createInstance(Context& context,
+                                 const ImageCube& source,
+				 unsigned int flags,
+				 const String& name)
+{
+  Ptr<Texture> texture(new Texture(context, name));
+  if (!texture->init(source, flags))
     return NULL;
 
   return texture.detachObject();
@@ -522,7 +512,7 @@ Texture::Texture(const Texture& source):
 {
 }
 
-bool Texture::init(const moira::Image& image, unsigned int initFlags)
+bool Texture::init(void)
 {
   if (formatMap.isEmpty())
   {
@@ -553,15 +543,39 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
     typeMap[PixelFormat::UINT32] = GL_UNSIGNED_INT;
   }
 
-  if (!formatMap.hasKey(image.getFormat()))
+  if (faceMap.isEmpty())
+  {
+    faceMap[ImageCube::POSITIVE_X] = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+    faceMap[ImageCube::NEGATIVE_X] = GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
+    faceMap[ImageCube::POSITIVE_Y] = GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
+    faceMap[ImageCube::NEGATIVE_Y] = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
+    faceMap[ImageCube::POSITIVE_Z] = GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+    faceMap[ImageCube::NEGATIVE_Z] = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+  }
+
+  if (addressMap.isEmpty())
+  {
+    addressMap[ADDRESS_WRAP] = GL_REPEAT;
+    addressMap[ADDRESS_CLAMP] = GL_CLAMP_TO_EDGE;
+  }
+
+  return true;
+}
+
+bool Texture::init(const moira::Image& source, unsigned int initFlags)
+{
+  if (!init())
+    return false;
+
+  if (!formatMap.hasKey(source.getFormat()))
   {
     Log::writeError("Source image for texture \'%s\' has unsupported pixel format \'%s\'",
                     getName().c_str(),
-                    image.getFormat().asString().c_str());
+                    source.getFormat().asString().c_str());
     return false;
   }
 
-  if (!typeMap.hasKey(image.getFormat().getType()))
+  if (!typeMap.hasKey(source.getFormat().getType()))
   {
     Log::writeError("Source image for texture \'%s\' has unsupported component type",
                     getName().c_str());
@@ -574,7 +588,7 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
 
   if (flags & RECTANGULAR)
   {
-    if (image.getDimensionCount() > 2)
+    if (source.getDimensionCount() > 2)
     {
       Log::writeError("Rectangular textures cannot have more than two dimensions");
       return false;
@@ -590,9 +604,9 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
   }
   else
   {
-    if (image.getDimensionCount() == 1)
+    if (source.getDimensionCount() == 1)
       textureTarget = GL_TEXTURE_1D;
-    else if (image.getDimensionCount() == 2)
+    else if (source.getDimensionCount() == 2)
       textureTarget = GL_TEXTURE_2D;
     else
     {
@@ -604,19 +618,16 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
   }
 
   // Save source image dimensions
-  sourceWidth = image.getWidth();
-  sourceHeight = image.getHeight();
+  sourceWidth = source.getWidth();
+  sourceHeight = source.getHeight();
 
   unsigned int width, height;
 
-  moira::Image source = image;
+  moira::Image final = source;
 
   // Adapt source image to OpenGL restrictions
   {
-    format = source.getFormat();
-
-    // Moira has y-axis down, OpenGL has y-axis up
-    source.flipHorizontal();
+    format = final.getFormat();
 
     // Figure out target dimensions for rescaling
 
@@ -642,7 +653,7 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
     }
 
     // Rescale source image (no-op if the sizes are equal)
-    if (!source.resize(width, height))
+    if (!final.resize(width, height))
     {
       Log::writeError("Failed to rescale image for texture \'%s\'", getName().c_str());
       return false;
@@ -663,24 +674,24 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
   {
     glTexImage1D(textureTarget,
                   0,
-                  formatMap[source.getFormat()],
-                  source.getWidth(),
+                  formatMap[final.getFormat()],
+                  final.getWidth(),
                   0,
-                  genericFormatMap[source.getFormat()],
-                  typeMap[source.getFormat().getType()],
-                  source.getPixels());
+                  genericFormatMap[final.getFormat()],
+                  typeMap[final.getFormat().getType()],
+                  final.getPixels());
   }
   else
   {
     glTexImage2D(textureTarget,
                   0,
-                  formatMap[source.getFormat()],
-                  source.getWidth(),
-                  source.getHeight(),
+                  formatMap[final.getFormat()],
+                  final.getWidth(),
+                  final.getHeight(),
                   0,
-                  genericFormatMap[source.getFormat()],
-                  typeMap[source.getFormat().getType()],
-                  source.getPixels());
+                  genericFormatMap[final.getFormat()],
+                  typeMap[final.getFormat().getType()],
+                  final.getPixels());
   }
 
   if (flags & MIPMAPPED)
@@ -708,7 +719,7 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
   {
     glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    TextureImageRef image = new TextureImage(*this, 0, source.getWidth(), source.getHeight());
+    TextureImageRef image = new TextureImage(*this, 0, final.getWidth(), final.getHeight());
     images.push_back(image);
   }
 
@@ -717,6 +728,167 @@ bool Texture::init(const moira::Image& image, unsigned int initFlags)
 
   if (textureTarget != GL_TEXTURE_1D)
     glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
+
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR)
+  {
+    Log::writeError("Error during creation of texture \'%s\': %s",
+                    getName().c_str(),
+		    gluErrorString(error));
+    return false;
+  }
+
+  return true;
+}
+
+bool Texture::init(const ImageCube& source, unsigned int initFlags)
+{
+  if (!init())
+    return false;
+
+  // Check image dimensions
+  {
+    if (!source.isPOT())
+    {
+      Log::writeError("Source images for texture \'%s\' do not have POT dimensions",
+                      getName().c_str());
+      return false;
+    }
+
+    if (!source.isSquare())
+    {
+      Log::writeError("Source images for texture \'%s\' are not square",
+                      getName().c_str());
+      return false;
+    }
+
+    if (!source.hasSameSize())
+    {
+      Log::writeError("Source images for texture \'%s\' do not have the same size",
+                      getName().c_str());
+      return false;
+    }
+
+    sourceWidth = source.images[0]->getWidth();
+    sourceHeight = source.images[0]->getHeight();
+
+    const unsigned int maxSize = context.getLimits().getMaxTextureCubeSize();
+
+    if (sourceWidth > maxSize)
+    {
+      Log::writeError("Source images for texture \'%s\' are too large; maximum size is %ux%u",
+                      getName().c_str(),
+                      maxSize, maxSize);
+      return false;
+    }
+  }
+
+  // Check image formats
+  {
+    if (!source.hasSameFormat())
+    {
+      Log::writeError("Source images for texture \'%s\' do not have same format",
+                      getName().c_str());
+      return false;
+    }
+
+    format = source.images[0]->getFormat();
+
+    if (!formatMap.hasKey(format))
+    {
+      Log::writeError("Source images for texture \'%s\' have unsupported pixel format \'%s\'",
+                      getName().c_str(),
+                      format.asString().c_str());
+      return false;
+    }
+
+    if (!typeMap.hasKey(format.getType()))
+    {
+      Log::writeError("Source images for texture \'%s\' have unsupported component type",
+                      getName().c_str());
+      return false;
+    }
+  }
+
+  // Check creation flags
+  {
+    flags = initFlags;
+
+    if (flags & RECTANGULAR)
+    {
+      Log::writeError("Invalid flags for texture \'%s\': cube maps cannot be rectangular",
+                      getName().c_str());
+      return false;
+    }
+  }
+
+  textureTarget = GL_TEXTURE_CUBE_MAP;
+
+  // Clear any errors
+  glGetError();
+
+  cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_FALSE);
+
+  // Reimburse hamster wheel
+  glGenTextures(1, &textureID);
+  glBindTexture(textureTarget, textureID);
+
+  for (unsigned int i = 0;  i < 6;  i++)
+  {
+    GLenum faceTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
+
+    moira::Image& image = *source.images[i];
+
+    glTexImage2D(faceTarget,
+                 0,
+                 formatMap[image.getFormat()],
+                 image.getWidth(),
+                 image.getHeight(),
+                 0,
+                 genericFormatMap[image.getFormat()],
+                 typeMap[image.getFormat().getType()],
+                 image.getPixels());
+  }
+
+  if (flags & MIPMAPPED)
+  {
+    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+    glGenerateMipmapEXT(textureTarget);
+
+    unsigned int level = 0;
+
+    for (;;)
+    {
+      unsigned int width, height;
+
+      glGetTexLevelParameteriv(textureTarget, level, GL_TEXTURE_WIDTH, (int*) &width);
+      glGetTexLevelParameteriv(textureTarget, level, GL_TEXTURE_HEIGHT, (int*) &height);
+
+      if (width == 0)
+        break;
+
+      TextureImageRef image = new TextureImage(*this, level, width, height);
+      images.push_back(image);
+
+      level++;
+    }
+  }
+  else
+  {
+    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    unsigned int width, height;
+
+    glGetTexLevelParameteriv(textureTarget, 0, GL_TEXTURE_WIDTH, (int*) &width);
+    glGetTexLevelParameteriv(textureTarget, 0, GL_TEXTURE_HEIGHT, (int*) &height);
+
+    TextureImageRef image = new TextureImage(*this, 0, width, height);
+    images.push_back(image);
+  }
+
+  glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
 

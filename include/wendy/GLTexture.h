@@ -154,7 +154,16 @@ public:
   /*! @return @c true if this texture is mipmapped, otherwise @c false.
    */
   bool isMipmapped(void) const;
+  /*! @return @c true if this texture is a cube map, otherwise @c false.
+   */
+  bool isCubeMap(void) const;
+  /*! @param[in] level The desired mipmap level.
+   *  @return The width, in pixels, of the specified mipmap level of this texture.
+   */
   unsigned int getWidth(unsigned int level = 0);
+  /*! @param[in] level The desired mipmap level.
+   *  @return The height, in pixels, of the specified mipmap level of this texture.
+   */
   unsigned int getHeight(unsigned int level = 0);
   /*! @return The width, in pixels, of the source image.
    */
@@ -165,6 +174,9 @@ public:
   /*! @return The number of mipmap levels in this texture.
    */
   unsigned int getImageCount(void) const;
+  /*! @param[in] level The desired mipmap level.
+   *  @return The specified mipmap level.
+   */
   TextureImage& getImage(unsigned int level = 0);
   /*! @return The sampler filter mode of this texture.
    */
@@ -183,6 +195,8 @@ public:
   /*! @return The image format of this texture.
    */
   const PixelFormat& getFormat(void) const;
+  /*! @return The context used to create this texture.
+   */
   Context& getContext(void) const;
   /*! Creates a texture from the specified image.
    *  @param[in] image The image data to use.
@@ -191,13 +205,19 @@ public:
    *  automatically generate a name.
    */
   static Texture* createInstance(Context& context,
-                                 const moira::Image& image,
+                                 const moira::Image& source,
+                                 unsigned int flags,
+				 const String& name = "");
+  static Texture* createInstance(Context& context,
+                                 const ImageCube& source,
                                  unsigned int flags,
 				 const String& name = "");
 private:
   Texture(Context& context, const String& name);
   Texture(const Texture& source);
-  bool init(const moira::Image& image, unsigned int flags);
+  bool init(void);
+  bool init(const moira::Image& source, unsigned int flags);
+  bool init(const ImageCube& source, unsigned int flags);
   Texture& operator = (const Texture& source);
   typedef std::vector<TextureImageRef> ImageList;
   Context& context;
