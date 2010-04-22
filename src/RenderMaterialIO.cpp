@@ -61,13 +61,10 @@ namespace
 Bimap<String, GL::CullMode> cullModeMap;
 Bimap<String, GL::BlendFactor> blendFactorMap;
 Bimap<String, GL::Function> functionMap;
-/*
-Bimap<String, GLenum> operationMap;
-*/
 
 const unsigned int RENDER_MATERIAL_XML_VERSION = 4;
 
-}
+} /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -117,34 +114,6 @@ Material* MaterialCodec::read(Stream& stream, const String& name)
     functionMap["greater"] = GL::ALLOW_GREATER;
     functionMap["greater or equal"] = GL::ALLOW_GREATER_EQUAL;
   }
-
-  /*
-  if (operationMap.isEmpty())
-  {
-    operationMap["keep"] = GL_KEEP;
-    operationMap["reset"] = GL_ZERO;
-    operationMap["replace"] = GL_REPLACE;
-    operationMap["increment"] = GL_INCR;
-    operationMap["decrement"] = GL_DECR;
-    operationMap["invert"] = GL_INVERT;
-  }
-
-  if (filterMap.isEmpty())
-  {
-    filterMap["nearest"] = GL_NEAREST;
-    filterMap["linear"] = GL_LINEAR;
-    filterMap["nearest mipmap nearest"] = GL_NEAREST_MIPMAP_NEAREST;
-    filterMap["nearest mipmap linear"] = GL_NEAREST_MIPMAP_LINEAR;
-    filterMap["linear mipmap nearest"] = GL_LINEAR_MIPMAP_NEAREST;
-    filterMap["linear mipmap linear"] = GL_LINEAR_MIPMAP_LINEAR;
-  }
-
-  if (addressModeMap.isEmpty())
-  {
-    addressModeMap["wrap"] = GL_REPEAT;
-    addressModeMap["clamp"] = GL_CLAMP;
-  }
-  */
 
   currentTechnique = NULL;
   currentPass = NULL;
@@ -227,27 +196,6 @@ bool MaterialCodec::write(Stream& stream, const Material& material)
           addAttribute("function", functionMap[pass.getDepthFunction()]);
           endElement();
         }
-
-        /*
-        if (pass.isStencilTesting() != defaults.isStencilTesting() ||
-            pass.getStencilFunction() != defaults.getStencilFunction() ||
-            pass.getStencilReference() != defaults.getStencilReference() ||
-            pass.getStencilMask() != defaults.getStencilMask() ||
-            pass.getStencilFailOperation() != defaults.getStencilFailOperation() ||
-            pass.getDepthPassOperation() != defaults.getDepthPassOperation() ||
-            pass.getDepthFailOperation() != defaults.getDepthFailOperation())
-        {
-          beginElement("stencil");
-          addAttribute("testing", pass.isStencilTesting());
-          addAttribute("function", functionMap[pass.getStencilFunction()]);
-          addAttribute("reference", pass.getStencilReference());
-          addAttribute("mask", pass.getStencilMask());
-          addAttribute("stencil-failed", operationMap[pass.getStencilFailOperation()]);
-          addAttribute("depth-failed", operationMap[pass.getDepthFailOperation()]);
-          addAttribute("depth-passed", operationMap[pass.getDepthPassOperation()]);
-          endElement();
-        }
-        */
 
         if (pass.isWireframe() != defaults.isWireframe() ||
             pass.getCullMode() != defaults.getCullMode())
@@ -473,52 +421,6 @@ bool MaterialCodec::onBeginElement(const String& name)
           return true;
         }
 
-        /*
-        if (name == "stencil")
-        {
-          currentPass->setStencilTesting(readBoolean("testing", currentPass->isStencilTesting()));
-
-          String functionName = readString("function");
-          if (!functionMap.hasKey(functionName))
-            return false;
-
-          currentPass->setStencilFunction(functionMap[functionName]);
-
-          String operationName;
-
-          operationName = readString("stencil-failed");
-          if (operationMap.hasKey(operationName))
-            currentPass->setStencilOperations(operationMap[operationName],
-                                              currentPass->getDepthFailOperation(),
-                                              currentPass->getDepthPassOperation());
-          else
-            return false;
-
-          operationName = readString("depth-failed");
-          if (operationMap.hasKey(operationName))
-            currentPass->setStencilOperations(currentPass->getStencilFailOperation(),
-                                              operationMap[operationName],
-                                              currentPass->getDepthPassOperation());
-          else
-            return false;
-
-          operationName = readString("depth-passed");
-          if (operationMap.hasKey(operationName))
-            currentPass->setStencilOperations(currentPass->getStencilFailOperation(),
-                                              currentPass->getDepthFailOperation(),
-                                              operationMap[operationName]);
-          else
-            return false;
-
-          const unsigned int reference = readInteger("reference", currentPass->getStencilReference());
-          const unsigned int mask = readInteger("mask", currentPass->getStencilMask());
-
-          currentPass->setStencilValues(reference, mask);
-
-          return true;
-        }
-        */
-
         if (name == "polygon")
         {
           currentPass->setWireframe(readBoolean("wireframe"));
@@ -643,48 +545,6 @@ bool MaterialCodec::onBeginElement(const String& name)
             return true;
           }
         }
-
-        /*
-        if (name == "filter")
-        {
-          String filterName;
-
-          filterName = readString("min");
-          if (!filterName.empty())
-          {
-            if (filterMap.hasKey(filterName))
-              currentLayer->setFilters(filterMap[filterName],
-                                       currentLayer->getMagFilter());
-            else
-              Log::writeError("Invalid texture layer min filter type \'%s\'",
-                              filterName.c_str());
-          }
-
-          filterName = readString("mag");
-          if (!filterName.empty())
-          {
-            if (filterMap.hasKey(filterName))
-              currentLayer->setFilters(currentLayer->getMinFilter(),
-                                       filterMap[filterName]);
-            else
-              Log::writeError("Invalid texture layer mag filter type \'%s\'",
-                              filterName.c_str());
-          }
-        }
-
-        if (name == "address")
-        {
-          String addressModeName = readString("mode");
-          if (!addressModeName.empty())
-          {
-            if (addressModeMap.hasKey(addressModeName))
-              currentLayer->setAddressMode(addressModeMap[addressModeName]);
-            else
-              Log::writeError("Invalid texture layer address mode \'%s\'",
-                              addressModeName.c_str());
-          }
-        }
-        */
       }
     }
   }
