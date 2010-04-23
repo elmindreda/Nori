@@ -48,27 +48,6 @@ class Node;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! Scene node enqueueing phase type enumeration.
- *  @ingroup scene
- */
-enum QueuePhase
-{
-  /*! Light collection phase.
-   */
-  COLLECT_LIGHTS,
-  /*! Collection phase for operations used to render stencil shadow volumes.
-   */
-  COLLECT_SHADOW_VOLUMES,
-  /*! Collection phase for operations used to render a shadow map.
-   */
-  COLLECT_SHADOW_OBJECTS,
-  /*! Default geometry collection phase.
-   */
-  COLLECT_GEOMETRY,
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief %Scene graph node factory super class.
  *  @ingroup scene
  */
@@ -188,9 +167,8 @@ protected:
    *  operations required to render this scene node should be put into the
    *  specified render queue.
    *  @param[in,out] queue The render queue for collecting operations.
-   *  @param[in] phase The current enqueueing phase.
    */
-  virtual void enqueue(render::Queue& queue, QueuePhase phase) const;
+  virtual void enqueue(render::Queue& queue) const;
 private:
   void invalidateBounds(void);
   bool updateWorldTransform(void) const;
@@ -243,7 +221,7 @@ public:
   void setLight(render::Light* newLight);
 protected:
   void update(Time deltaTime);
-  void enqueue(render::Queue& queue, QueuePhase phase) const;
+  void enqueue(render::Queue& queue) const;
 private:
   Ref<render::Light> light;
 };
@@ -258,7 +236,7 @@ public:
   render::Mesh* getMesh(void) const;
   void setMesh(render::Mesh* mesh);
 protected:
-  void enqueue(render::Queue& queue, QueuePhase phase) const;
+  void enqueue(render::Queue& queue) const;
 private:
   Ref<render::Mesh> mesh;
 };
@@ -291,7 +269,7 @@ public:
   const Vec2& getSpriteSize(void) const;
   void setSpriteSize(const Vec2& newSize);
 protected:
-  void enqueue(render::Queue& queue, QueuePhase phase) const;
+  void enqueue(render::Queue& queue) const;
 private:
   Ref<render::Material> material;
   Vec2 spriteSize;
@@ -310,7 +288,7 @@ public:
 protected:
   void update(Time deltaTime);
   void restart(void);
-  void enqueue(render::Queue& queue, QueuePhase phase) const;
+  void enqueue(render::Queue& queue) const;
 private:
   String systemName;
   Time elapsed;

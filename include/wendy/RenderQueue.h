@@ -112,6 +112,24 @@ typedef std::vector<const Operation*> OperationList;
 class Queue
 {
 public:
+  /*! Queue phase type enumeration.
+  */
+  enum Phase
+  {
+    /*! Light collection phase.
+    */
+    COLLECT_LIGHTS,
+    /*! Collection phase for operations used to render stencil shadow volumes.
+    */
+    COLLECT_SHADOW_VOLUMES,
+    /*! Collection phase for operations used to render a shadow map.
+    */
+    COLLECT_SHADOW_OBJECTS,
+    /*! Geometry collection phase.
+     *  This is the default phase.
+    */
+    COLLECT_GEOMETRY,
+  };
   /*! Constructor. Creates a render queue for the specified camera, optionally
    *  with the specified light and name.
    *  @param[in] camera The camera to use.
@@ -138,6 +156,13 @@ public:
    *  @param[in] passName The name of render passes to use.
    */
   void render(const String& passName = "") const;
+  /*! @return The current colleciton phase of this render queue.
+   */
+  Phase getPhase(void) const;
+  /*! Sets the collection phase of this render queue.
+   *  @param[in] newPhase The desired collection phase.
+   */
+  void setPhase(Phase newPhase);
   /*! @return The camera used by this render queue.
    */
   const Camera& getCamera(void) const;
@@ -157,6 +182,7 @@ private:
   Light* light;
   LightState lights;
   List operations;
+  Phase phase;
   mutable OperationList sortedOperations;
   mutable bool sorted;
 };
@@ -176,7 +202,7 @@ public:
   /*! Destructor.
    */
   virtual ~Renderable(void);
-  /*! Queries the renderable for render operations.
+  /*! Queries this renderable for render operations.
    *  @param[in,out] queue The render queue where the operations are to
    *  be created.
    *  @param[in] transform The local-to-world transform.

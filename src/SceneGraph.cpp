@@ -231,7 +231,7 @@ void Node::restart(void)
 {
 }
 
-void Node::enqueue(render::Queue& queue, QueuePhase phase) const
+void Node::enqueue(render::Queue& queue) const
 {
   const List& children = getChildren();
 
@@ -250,7 +250,7 @@ void Node::enqueue(render::Queue& queue, QueuePhase phase) const
     const Frustum& frustum = queue.getCamera().getFrustum();
 
     if (frustum.intersects(worldBounds))
-      node.enqueue(queue, phase);
+      node.enqueue(queue);
   }
 }
 
@@ -315,10 +315,7 @@ void Graph::enqueue(render::Queue& queue) const
   query(queue.getCamera().getFrustum(), nodes);
 
   for (Node::List::const_iterator i = nodes.begin();  i != nodes.end();  i++)
-    (*i)->enqueue(queue, COLLECT_LIGHTS);
-
-  for (Node::List::const_iterator i = nodes.begin();  i != nodes.end();  i++)
-    (*i)->enqueue(queue, COLLECT_GEOMETRY);
+    (*i)->enqueue(queue);
 }
 
 void Graph::query(const Sphere& bounds, Node::List& nodes) const
@@ -420,11 +417,11 @@ void LightNode::update(Time deltaTime)
   setLocalBounds(light->getBounds());
 }
 
-void LightNode::enqueue(render::Queue& queue, QueuePhase phase) const
+void LightNode::enqueue(render::Queue& queue) const
 {
-  Node::enqueue(queue, phase);
+  Node::enqueue(queue);
 
-  if (phase != COLLECT_LIGHTS)
+  if (queue.getPhase() != render::Queue::COLLECT_LIGHTS)
     return;
 
   /*
@@ -466,11 +463,11 @@ void MeshNode::setMesh(render::Mesh* newMesh)
   setLocalBounds(mesh->getBounds());
 }
 
-void MeshNode::enqueue(render::Queue& queue, QueuePhase phase) const
+void MeshNode::enqueue(render::Queue& queue) const
 {
-  Node::enqueue(queue, phase);
+  Node::enqueue(queue);
 
-  if (phase == COLLECT_GEOMETRY)
+  if (queue.getPhase() == render::Queue::COLLECT_GEOMETRY)
   {
     if (mesh)
       mesh->enqueue(queue, getWorldTransform());
@@ -528,11 +525,11 @@ void SpriteNode::setSpriteSize(const Vec2& newSize)
   setLocalBounds(Sphere(Vec3::ZERO, (newSize / 2.f).length()));
 }
 
-void SpriteNode::enqueue(render::Queue& queue, QueuePhase phase) const
+void SpriteNode::enqueue(render::Queue& queue) const
 {
-  Node::enqueue(queue, phase);
+  Node::enqueue(queue);
 
-  if (phase == COLLECT_GEOMETRY)
+  if (queue.getPhase() == render::Queue::COLLECT_GEOMETRY)
   {
     render::Sprite3 sprite;
     sprite.size = spriteSize;
@@ -581,11 +578,11 @@ void ParticleSystemNode::restart(void)
   elapsed = 0.0;
 }
 
-void ParticleSystemNode::enqueue(render::Queue& queue, QueuePhase phase) const
+void ParticleSystemNode::enqueue(render::Queue& queue) const
 {
-  Node::enqueue(queue, phase);
+  Node::enqueue(queue);
 
-  if (phase == COLLECT_GEOMETRY)
+  if (queue.getPhase() == render::Queue::COLLECT_GEOMETRY)
   {
     render::ParticleSystem* system = render::ParticleSystem::findInstance(systemName);
     if (!system)

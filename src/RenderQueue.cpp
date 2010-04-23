@@ -91,6 +91,7 @@ bool Operation::operator < (const Operation& other) const
 Queue::Queue(const Camera& initCamera, Light* initLight):
   camera(initCamera),
   light(initLight),
+  phase(COLLECT_GEOMETRY),
   sorted(false)
 {
 }
@@ -146,6 +147,16 @@ void Queue::render(const String& passName) const
       renderer->render(operation.range);
     }
   }
+}
+
+Queue::Phase Queue::getPhase(void) const
+{
+  return phase;
+}
+
+void Queue::setPhase(Phase newPhase)
+{
+  phase = newPhase;
 }
 
 const Camera& Queue::getCamera(void) const
