@@ -417,7 +417,7 @@ void LightNode::update(Time deltaTime)
 {
   Node::update(deltaTime);
 
-  //setLocalBounds(light->getBounds());
+  setLocalBounds(light->getBounds());
 }
 
 void LightNode::enqueue(render::Queue& queue, QueuePhase phase) const
