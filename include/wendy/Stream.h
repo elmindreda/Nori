@@ -30,7 +30,7 @@
 #include <sys/types.h>
 #endif
 
-#include <stdio.h>
+#include <cstdio>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -143,7 +143,7 @@ protected:
   PosixStream(const PosixStream& source);
   bool convertFlags(unsigned int flags, String& mode);
   PosixStream& operator = (const PosixStream& source);
-  FILE* file;
+  std::FILE* file;
   unsigned int flags;
 };
 
