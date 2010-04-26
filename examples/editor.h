@@ -4,7 +4,6 @@ class Demo : public Trackable
 public:
   ~Demo(void);
   bool init(void);
-  void run(void);
 private:
   Ptr<UI::Renderer> renderer;
 };
