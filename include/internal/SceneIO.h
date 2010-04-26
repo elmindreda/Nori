@@ -26,6 +26,11 @@
 #define WENDY_SCENEIO_H
 ///////////////////////////////////////////////////////////////////////
 
+#include <wendy/Node.h>
+#include <wendy/XML.h>
+
+///////////////////////////////////////////////////////////////////////
+
 namespace wendy
 {
   namespace scene
@@ -40,15 +45,17 @@ typedef ResourceCodec<Graph> GraphCodec;
 class NodeInfo : public wendy::Node<NodeInfo>
 {
 public:
-  NodeInfo(NodeType& type, const Transform3& transform);
+  NodeInfo(NodeType& type, const String& nodeName, const Transform3& transform);
   void addParameter(const String& name, const String& value);
   bool hasParameter(const String& name) const;
   const String& getParameterValue(const String& name) const;
   NodeType& getType(void) const;
+  const String& getName(void) const;
   const Transform3& getTransform(void) const;
 private:
   typedef std::map<String, String> ParameterMap;
   NodeType& type;
+  String name;
   Transform3 transform;
   ParameterMap parameters;
 };

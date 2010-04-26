@@ -28,6 +28,7 @@
 
 #include <wendy/Quaternion.h>
 #include <wendy/Transform.h>
+#include <wendy/Plane.h>
 #include <wendy/Frustum.h>
 
 ///////////////////////////////////////////////////////////////////////
