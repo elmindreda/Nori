@@ -38,10 +38,6 @@
 #include <unistd.h>
 #endif
 
-#if WENDY_HAVE_ERRNO_H
-#include <errno.h>
-#endif
-
 #ifdef _WIN32
 
 #if WENDY_HAVE_DIRECT_H
@@ -52,6 +48,7 @@
 
 #include <zlib.h>
 
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -72,17 +69,17 @@ Stream::~Stream(void)
 PosixStream::~PosixStream(void)
 {
   if (file)
-    fclose(file);
+    std::fclose(file);
 }
 
 size_t PosixStream::read(void* data, size_t size)
 {
   if (isSeekable())
-    fseek(file, 0, SEEK_CUR);
+    std::fseek(file, 0, SEEK_CUR);
 
-  const size_t bytesRead = fread(data, 1, size, file);
+  const size_t bytesRead = std::fread(data, 1, size, file);
 
-  if (ferror(file))
+  if (std::ferror(file))
   {
     // TODO: report error!
   }
@@ -93,11 +90,11 @@ size_t PosixStream::read(void* data, size_t size)
 size_t PosixStream::write(const void* data, size_t size)
 {
   if (isSeekable())
-    fseek(file, 0, SEEK_CUR);
+    std::fseek(file, 0, SEEK_CUR);
 
-  const size_t bytesWritten = fwrite(data, 1, size, file);
+  const size_t bytesWritten = std::fwrite(data, 1, size, file);
 
-  if (ferror(file))
+  if (std::ferror(file))
   {
     // TODO: report error!
   }
@@ -107,12 +104,12 @@ size_t PosixStream::write(const void* data, size_t size)
 
 void PosixStream::flush(void)
 {
-  fflush(file);
+  std::fflush(file);
 }
 
 bool PosixStream::isEOF(void) const
 {
-  return feof(file) != 0;
+  return std::feof(file) != 0;
 }
 
 bool PosixStream::isReadable(void) const
@@ -144,7 +141,7 @@ off64_t PosixStream::getSize(void) const
 
 off64_t PosixStream::getPosition(void) const
 {
-  const off64_t position = ftell(file);
+  const off64_t position = std::ftell(file);
 
   if (position == (off64_t) -1)
   {
@@ -160,7 +157,7 @@ bool PosixStream::setPosition(off64_t position)
   if (!isSeekable())
     return false;
 
-  if (fseek(file, (size_t) position, SEEK_SET) != 0)
+  if (std::fseek(file, (size_t) position, SEEK_SET) != 0)
   {
     Log::writeWarning("Failed to set file position: %s", strerror(errno));
     return false;
@@ -244,7 +241,7 @@ bool FileStream::init(const Path& initPath, unsigned int initFlags)
   if (!convertFlags(flags, mode))
     return false;
 
-  file = fopen(path.asString().c_str(), mode.c_str());
+  file = std::fopen(path.asString().c_str(), mode.c_str());
   if (!file)
   {
     Log::writeError("Failed to open file %s: %s",

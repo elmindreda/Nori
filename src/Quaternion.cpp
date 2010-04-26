@@ -31,9 +31,8 @@
 #include <wendy/Quaternion.h>
 
 #include <sstream>
-
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 ///////////////////////////////////////////////////////////////////////
 

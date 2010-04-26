@@ -28,6 +28,7 @@
 #include <wendy/Vector.h>
 #include <wendy/Vertex.h>
 
+#include <cctype>
 #include <sstream>
 
 ///////////////////////////////////////////////////////////////////////

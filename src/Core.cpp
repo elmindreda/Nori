@@ -27,6 +27,7 @@
 
 #include <wendy/Core.h>
 
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -37,7 +38,7 @@
 
 float log2f(float x)
 {
-  return (float) log(x) / (float) log(2.f);
+  return (float) std::log(x) / (float) std::log(2.f);
 }
 
 float fminf(float x, float y)
@@ -69,9 +70,9 @@ int vasprintf(char** result, const char* format, va_list vl)
   if (vsnprintf(buffer, sizeof(buffer), format, vl) < 0)
     buffer[sizeof(buffer) - 1] = '\0';
 
-  size_t length = ::strlen(buffer);
+  size_t length = std::strlen(buffer);
   *result = (char*) ::malloc(length + 1);
-  strcpy(*result, buffer);
+  std::strcpy(*result, buffer);
 
   return (int) length;
 }
@@ -82,7 +83,7 @@ int vasprintf(char** result, const char* format, va_list vl)
 
 float strtof(const char* nptr, char** endptr)
 {
-  return (float) strtod(nptr, endptr);
+  return (float) std::strtod(nptr, endptr);
 }
 
 #endif /*WENDY_HAVE_STRTOF*/
@@ -93,8 +94,8 @@ size_t strlcat(char* target, const char* source, size_t size)
 {
   size_t target_length, source_length, append_length;
 
-  target_length = strlen(target);
-  source_length = strlen(source);
+  target_length = std::strlen(target);
+  source_length = std::strlen(source);
 
   if (target_length >= size)
     return size;
@@ -107,7 +108,7 @@ size_t strlcat(char* target, const char* source, size_t size)
     append_length = source_length;
 
   if (append_length > 0)
-    strncat(target, source, append_length);
+    std::strncat(target, source, append_length);
 
   return target_length + source_length;
 }
@@ -120,7 +121,7 @@ size_t strlcpy(char* target, const char* source, size_t size)
 {
   size_t source_length, copy_length;
 
-  source_length = strlen(source);
+  source_length = std::strlen(source);
 
   if (size == 0)
     return source_length;
@@ -130,7 +131,7 @@ size_t strlcpy(char* target, const char* source, size_t size)
   else
     copy_length = size - 1;
 
-  strncpy(target, source, copy_length);
+  std::strncpy(target, source, copy_length);
 
   if (copy_length >= size)
     target[size - 1] = '\0';

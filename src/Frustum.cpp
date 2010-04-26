@@ -35,7 +35,7 @@
 #include <wendy/AABB.h>
 #include <wendy/Frustum.h>
 
-#include <math.h>
+#include <cmath>
 
 ///////////////////////////////////////////////////////////////////////
 
