@@ -214,7 +214,7 @@ bool GraphCodecXML::createNode(Node* parent, const NodeInfo& info)
   if (parent)
     parent->addChild(*node);
   else
-    graph->addNode(*node);
+    graph->addRootNode(*node);
 
   const NodeInfo::List& children = info.getChildren();
 

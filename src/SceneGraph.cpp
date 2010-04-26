@@ -91,6 +91,7 @@ NodeType::~NodeType(void)
 Node::Node(const String& initName):
   name(initName),
   parent(NULL),
+  graph(NULL),
   visible(true),
   dirtyWorld(false),
   dirtyBounds(false)
@@ -112,6 +113,7 @@ bool Node::addChild(Node& child)
 
   children.push_back(&child);
   child.parent = this;
+  child.setGraph(graph);
   child.addedToParent(*this);
 
   invalidateBounds();
@@ -124,7 +126,19 @@ void Node::removeFromParent(void)
   {
     List& siblings = parent->children;
     siblings.erase(std::find(siblings.begin(), siblings.end(), this));
+
     parent = NULL;
+    setGraph(NULL);
+
+    removedFromParent();
+  }
+  else if (graph)
+  {
+    List& roots = graph->roots;
+    roots.erase(std::find(roots.begin(), roots.end(), this));
+
+    setGraph(NULL);
+
     removedFromParent();
   }
 }
@@ -166,6 +180,11 @@ const String& Node::getName(void) const
 void Node::setName(const String& newName)
 {
   name = newName;
+}
+
+Graph* Node::getGraph(void) const
+{
+  return graph;
 }
 
 Node* Node::getParent(void) const
@@ -320,6 +339,14 @@ bool Node::updateWorldTransform(void) const
   return false;
 }
 
+void Node::setGraph(Graph* newGraph)
+{
+  graph = newGraph;
+
+  for (List::const_iterator c = children.begin();  c != children.end();  c++)
+    (*c)->setGraph(graph);
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 Graph::Graph(const String& name):
@@ -330,11 +357,7 @@ Graph::Graph(const String& name):
 
 Graph::~Graph(void)
 {
-  while (!roots.empty())
-  {
-    delete roots.back();
-    roots.pop_back();
-  }
+  destroyRootNodes();
 }
 
 void Graph::enqueue(render::Queue& queue) const
@@ -378,24 +401,19 @@ void Graph::query(const Frustum& frustum, Node::List& nodes) const
   }
 }
 
-void Graph::addNode(Node& node)
+void Graph::addRootNode(Node& node)
 {
   if (std::find(roots.begin(), roots.end(), &node) != roots.end())
     return;
 
   roots.push_back(&node);
+  node.setGraph(this);
 }
 
-void Graph::removeNode(Node& node)
+void Graph::destroyRootNodes(void)
 {
-  Node::List::iterator i = std::find(roots.begin(), roots.end(), &node);
-  if (i != roots.end())
-    roots.erase(i);
-}
-
-void Graph::removeNodes(void)
-{
-  roots.clear();
+  while (!roots.empty())
+    delete roots.back();
 }
 
 const Node::List& Graph::getNodes(void) const

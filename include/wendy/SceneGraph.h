@@ -41,6 +41,7 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 class Node;
+class Graph;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -119,6 +120,7 @@ public:
   bool hasChildren(void) const;
   const String& getName(void) const;
   void setName(const String& newName);
+  Graph* getGraph(void) const;
   /*! @return The parent of this node.
    */
   Node* getParent(void) const;
@@ -170,8 +172,10 @@ protected:
 private:
   void invalidateBounds(void);
   bool updateWorldTransform(void) const;
+  void setGraph(Graph* newGraph);
   String name;
   Node* parent;
+  Graph* graph;
   List children;
   bool visible;
   Transform3 local;
@@ -192,15 +196,15 @@ private:
  */
 class Graph : public Resource<Graph>
 {
+  friend class Node;
 public:
   Graph(const String& name = "");
   ~Graph(void);
   void enqueue(render::Queue& queue) const;
   void query(const Sphere& bounds, Node::List& nodes) const;
   void query(const Frustum& frustum, Node::List& nodes) const;
-  void addNode(Node& node);
-  void removeNode(Node& node);
-  void removeNodes(void);
+  void addRootNode(Node& node);
+  void destroyRootNodes(void);
   const Node::List& getNodes(void) const;
   Time getTimeElapsed(void) const;
   void setTimeElapsed(Time newTime);
