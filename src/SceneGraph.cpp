@@ -266,16 +266,12 @@ void Node::removedFromParent(void)
   dirtyWorld = true;
 }
 
-void Node::update(Time deltaTime)
+void Node::update(void)
 {
   const List& children = getChildren();
 
   for (List::const_iterator i = children.begin();  i != children.end();  i++)
-    (*i)->update(deltaTime);
-}
-
-void Node::restart(void)
-{
+    (*i)->update();
 }
 
 void Node::enqueue(render::Queue& queue) const
@@ -350,14 +346,19 @@ void Node::setGraph(Graph* newGraph)
 ///////////////////////////////////////////////////////////////////////
 
 Graph::Graph(const String& name):
-  Resource<Graph>(name),
-  currentTime(0.0)
+  Resource<Graph>(name)
 {
 }
 
 Graph::~Graph(void)
 {
   destroyRootNodes();
+}
+
+void Graph::update(void)
+{
+  for (Node::List::const_iterator i = roots.begin();  i != roots.end();  i++)
+    (*i)->update();
 }
 
 void Graph::enqueue(render::Queue& queue) const
@@ -421,29 +422,6 @@ const Node::List& Graph::getNodes(void) const
   return roots;
 }
 
-Time Graph::getTimeElapsed(void) const
-{
-  return currentTime;
-}
-
-void Graph::setTimeElapsed(Time newTime)
-{
-  Time deltaTime = newTime - currentTime;
-
-  if (deltaTime < 0.0)
-  {
-    for (Node::List::const_iterator i = roots.begin();  i != roots.end();  i++)
-      (*i)->restart();
-
-    deltaTime = newTime;
-  }
-
-  for (Node::List::const_iterator i = roots.begin();  i != roots.end();  i++)
-    (*i)->update(deltaTime);
-
-  currentTime = newTime;
-}
-
 ///////////////////////////////////////////////////////////////////////
 
 LightNode::LightNode(const String& name):
@@ -461,9 +439,9 @@ void LightNode::setLight(render::Light* newLight)
   light = newLight;
 }
 
-void LightNode::update(Time deltaTime)
+void LightNode::update(void)
 {
-  Node::update(deltaTime);
+  Node::update();
 
   setLocalBounds(light->getBounds());
 }
@@ -547,9 +525,9 @@ void CameraNode::setCamera(render::Camera* newCamera)
   camera = newCamera;
 }
 
-void CameraNode::update(Time deltaTime)
+void CameraNode::update(void)
 {
-  Node::update(deltaTime);
+  Node::update();
 
   if (!camera)
     return;
@@ -603,8 +581,7 @@ void SpriteNode::enqueue(render::Queue& queue) const
 ///////////////////////////////////////////////////////////////////////
 
 ParticleSystemNode::ParticleSystemNode(const String& name):
-  Node(name),
-  elapsed(0.0)
+  Node(name)
 {
 }
 
@@ -618,11 +595,9 @@ void ParticleSystemNode::setSystemName(const String& newSystemName)
   systemName = newSystemName;
 }
 
-void ParticleSystemNode::update(Time deltaTime)
+void ParticleSystemNode::update(void)
 {
-  Node::update(deltaTime);
-
-  elapsed += deltaTime;
+  Node::update();
 
   render::ParticleSystem* system = render::ParticleSystem::findInstance(systemName);
   if (!system)
@@ -632,13 +607,7 @@ void ParticleSystemNode::update(Time deltaTime)
   }
 
   system->setTransform(getWorldTransform());
-  system->setTimeElapsed(elapsed);
   setLocalBounds(system->getBounds());
-}
-
-void ParticleSystemNode::restart(void)
-{
-  elapsed = 0.0;
 }
 
 void ParticleSystemNode::enqueue(render::Queue& queue) const

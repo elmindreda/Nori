@@ -157,12 +157,8 @@ protected:
   virtual void removedFromParent(void);
   /*! Called when the scene graph is updated.  This is the correct place to put
    *  per-frame operations which affect the transform or bounds.
-   *  @param[in] deltaTime The time elapsed, in seconds, since the last update.
    */
-  virtual void update(Time deltaTime);
-  /*! Called when the scene graph time is reset.
-   */
-  virtual void restart(void);
+  virtual void update(void);
   /*! Called when the scene graph is collecting rendering information.  All the
    *  operations required to render this scene node should be put into the
    *  specified render queue.
@@ -200,17 +196,15 @@ class Graph : public Resource<Graph>
 public:
   Graph(const String& name = "");
   ~Graph(void);
+  void update(void);
   void enqueue(render::Queue& queue) const;
   void query(const Sphere& bounds, Node::List& nodes) const;
   void query(const Frustum& frustum, Node::List& nodes) const;
   void addRootNode(Node& node);
   void destroyRootNodes(void);
   const Node::List& getNodes(void) const;
-  Time getTimeElapsed(void) const;
-  void setTimeElapsed(Time newTime);
 private:
   Node::List roots;
-  Time currentTime;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -224,7 +218,7 @@ public:
   render::Light* getLight(void) const;
   void setLight(render::Light* newLight);
 protected:
-  void update(Time deltaTime);
+  void update(void);
   void enqueue(render::Queue& queue) const;
 private:
   Ref<render::Light> light;
@@ -257,7 +251,7 @@ public:
   render::Camera* getCamera(void) const;
   void setCamera(render::Camera* newCamera);
 protected:
-  void update(Time deltaTime);
+  void update(void);
 private:
   Ref<render::Camera> camera;
 };
@@ -292,12 +286,11 @@ public:
   const String& getSystemName(void) const;
   void setSystemName(const String& newSystemName);
 protected:
-  void update(Time deltaTime);
+  void update(void);
   void restart(void);
   void enqueue(render::Queue& queue) const;
 private:
   String systemName;
-  Time elapsed;
 };
 
 ///////////////////////////////////////////////////////////////////////

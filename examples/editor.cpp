@@ -124,7 +124,7 @@ void CubeEffect::update(Time deltaTime)
 {
   meshNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f), (float) getTimeElapsed());
 
-  graph.setTimeElapsed(getTimeElapsed());
+  graph.update();
 }
 
 int main(int argc, char** argv)
