@@ -381,9 +381,7 @@ void Graph::query(const Frustum& frustum, Node::List& nodes) const
 
 void Graph::addRootNode(Node& node)
 {
-  if (std::find(roots.begin(), roots.end(), &node) != roots.end())
-    return;
-
+  node.removeFromParent();
   roots.push_back(&node);
   node.setGraph(this);
 }
