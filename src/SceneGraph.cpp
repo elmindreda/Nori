@@ -88,7 +88,8 @@ NodeType::~NodeType(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-Node::Node(void):
+Node::Node(const String& initName):
+  name(initName),
   parent(NULL),
   visible(true),
   dirtyWorld(false),
@@ -417,6 +418,11 @@ void Graph::setTimeElapsed(Time newTime)
 
 ///////////////////////////////////////////////////////////////////////
 
+LightNode::LightNode(const String& name):
+  Node(name)
+{
+}
+
 render::Light* LightNode::getLight(void) const
 {
   return light;
@@ -469,6 +475,11 @@ void LightNode::enqueue(render::Queue& queue) const
 
 ///////////////////////////////////////////////////////////////////////
 
+MeshNode::MeshNode(const String& name):
+  Node(name)
+{
+}
+
 render::Mesh* MeshNode::getMesh(void) const
 {
   return mesh;
@@ -493,6 +504,11 @@ void MeshNode::enqueue(render::Queue& queue) const
 
 ///////////////////////////////////////////////////////////////////////
 
+CameraNode::CameraNode(const String& name):
+  Node(name)
+{
+}
+
 render::Camera* CameraNode::getCamera(void) const
 {
   return camera;
@@ -515,7 +531,8 @@ void CameraNode::update(Time deltaTime)
 
 ///////////////////////////////////////////////////////////////////////
 
-SpriteNode::SpriteNode(void)
+SpriteNode::SpriteNode(const String& name):
+  Node(name)
 {
   setSpriteSize(Vec2(1.f, 1.f));
 }
@@ -557,7 +574,8 @@ void SpriteNode::enqueue(render::Queue& queue) const
 
 ///////////////////////////////////////////////////////////////////////
 
-ParticleSystemNode::ParticleSystemNode(void):
+ParticleSystemNode::ParticleSystemNode(const String& name):
+  Node(name),
   elapsed(0.0)
 {
 }

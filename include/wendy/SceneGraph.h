@@ -88,7 +88,7 @@ public:
   typedef std::vector<Node*> List;
   /*! Constructor.
    */
-  Node(void);
+  explicit Node(const String& name = "");
   /*! Copy constructor.
    */
   Node(const Node& source);
@@ -117,6 +117,8 @@ public:
   /*! @return @c true if this node has any children, otherwise @c false.
    */
   bool hasChildren(void) const;
+  const String& getName(void) const;
+  void setName(const String& newName);
   /*! @return The parent of this node.
    */
   Node* getParent(void) const;
@@ -168,6 +170,7 @@ protected:
 private:
   void invalidateBounds(void);
   bool updateWorldTransform(void) const;
+  String name;
   Node* parent;
   List children;
   bool visible;
@@ -213,6 +216,7 @@ private:
 class LightNode : public Node
 {
 public:
+  explicit LightNode(const String& name = "");
   render::Light* getLight(void) const;
   void setLight(render::Light* newLight);
 protected:
@@ -229,6 +233,7 @@ private:
 class MeshNode : public Node
 {
 public:
+  explicit MeshNode(const String& name = "");
   render::Mesh* getMesh(void) const;
   void setMesh(render::Mesh* mesh);
 protected:
@@ -244,6 +249,7 @@ private:
 class CameraNode : public Node
 {
 public:
+  explicit CameraNode(const String& name = "");
   render::Camera* getCamera(void) const;
   void setCamera(render::Camera* newCamera);
 protected:
@@ -259,7 +265,7 @@ private:
 class SpriteNode : public Node
 {
 public:
-  SpriteNode(void);
+  explicit SpriteNode(const String& name = "");
   render::Material* getMaterial(void) const;
   void setMaterial(render::Material* newMaterial);
   const Vec2& getSpriteSize(void) const;
@@ -278,7 +284,7 @@ private:
 class ParticleSystemNode : public Node
 {
 public:
-  ParticleSystemNode(void);
+  explicit ParticleSystemNode(const String& name = "");
   const String& getSystemName(void) const;
   void setSystemName(const String& newSystemName);
 protected:
