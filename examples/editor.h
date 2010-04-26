@@ -1,4 +1,14 @@
 
+class Demo : public Trackable
+{
+public:
+  ~Demo(void);
+  bool init(void);
+  void run(void);
+private:
+  Ptr<UI::Renderer> renderer;
+};
+
 class CubeEffect : public demo::Effect
 {
 public:
@@ -13,5 +23,4 @@ protected:
   scene::CameraNode* cameraNode;
   scene::MeshNode* meshNode;
 };
-
 

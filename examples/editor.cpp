@@ -5,10 +5,18 @@ using namespace wendy;
 
 #include "editor.h"
 
-namespace
+Demo::~Demo(void)
 {
+  demo::Editor::destroy();
 
-bool setup(void)
+  renderer = NULL;
+
+  input::Context::destroy();
+  GL::Renderer::destroy();
+  GL::Context::destroy();
+}
+
+bool Demo::init(void)
 {
   Image::addSearchPath(Path("media"));
   Font::addSearchPath(Path("media"));
@@ -20,19 +28,25 @@ bool setup(void)
   render::Material::addSearchPath(Path("media"));
   demo::Show::addSearchPath(Path("."));
 
-  if (!GL::Renderer::create(*GL::Context::get()))
+  if (!GL::Context::create(GL::ContextMode()))
+    return false;
+
+  GL::Context* context = GL::Context::get();
+
+  if (!GL::Renderer::create(*context))
   {
     Log::writeError("Unable to create OpenGL renderer");
     return false;
   }
 
-  if (!input::Context::create(*GL::Context::get()))
+  if (!input::Context::create(*context))
   {
     Log::writeError("Unable to create input context");
     return false;
   }
 
-  if (!UI::Renderer::create())
+  renderer = UI::Renderer::createInstance(*GL::Renderer::get());
+  if (!renderer)
   {
     Log::writeError("Unable to create UI renderer");
     return false;
@@ -49,8 +63,6 @@ bool setup(void)
   demo::Editor::get()->setVisible(true);
   return true;
 }
-
-} /*namespace*/
 
 CubeEffect::CubeEffect(demo::EffectType& type, const String& name):
   demo::Effect(type, name)
@@ -72,7 +84,7 @@ bool CubeEffect::init(void)
 
   lightNode = new scene::LightNode();
   lightNode->setLight(light);
-  graph.addNode(*lightNode);
+  graph.addRootNode(*lightNode);
 
   light = new render::Light();
   //light->setType(Light::DIRECTIONAL);
@@ -81,7 +93,7 @@ bool CubeEffect::init(void)
   lightNode = new scene::LightNode();
   lightNode->setLight(light);
   lightNode->getLocalTransform().rotation.setAxisRotation(Vec3::Y, (float) M_PI / 4.f);
-  graph.addNode(*lightNode);
+  graph.addRootNode(*lightNode);
 
   camera = new render::Camera();
   camera->setFOV(60.f);
@@ -90,11 +102,11 @@ bool CubeEffect::init(void)
   cameraNode = new scene::CameraNode();
   cameraNode->setCamera(camera);
   cameraNode->getLocalTransform().position.z = cube->getBounds().radius * 3.f;
-  graph.addNode(*cameraNode);
+  graph.addRootNode(*cameraNode);
 
   meshNode = new scene::MeshNode();
   meshNode->setMesh(cube);
-  graph.addNode(*meshNode);
+  graph.addRootNode(*meshNode);
 
   return true;
 }
@@ -120,23 +132,14 @@ int main(int argc, char** argv)
   if (!wendy::initialize())
     exit(1);
 
-  GL::ContextMode mode(800, 600, 32, 16, 0, 0, GL::ContextMode::WINDOWED);
-  if (GL::Context::create(mode))
+  Ptr<Demo> demo(new Demo());
+  if (demo->init())
   {
-    if (setup())
-      demo::Editor::get()->run();
+    demo::Editor::get()->setVisible(true);
+    demo::Editor::get()->run();
+  }
 
-    demo::Editor::destroy();
-    UI::Renderer::destroy();
-    input::Context::destroy();
-    GL::Renderer::destroy();
-    GL::Context::destroy();
-  }
-  else
-  {
-    Log::writeError("Punt");
-    exit(1);
-  }
+  demo = NULL;
 
   wendy::shutdown();
   exit(0);
