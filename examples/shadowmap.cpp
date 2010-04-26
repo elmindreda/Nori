@@ -95,7 +95,7 @@ bool Demo::init(void)
 
   meshNode = new scene::MeshNode();
   meshNode->setMesh(mesh);
-  graph.addNode(*meshNode);
+  graph.addRootNode(*meshNode);
 
   viewCamera = new render::Camera();
   viewCamera->setFOV(60.f);
@@ -104,7 +104,7 @@ bool Demo::init(void)
   viewCameraNode = new scene::CameraNode();
   viewCameraNode->setCamera(viewCamera);
   viewCameraNode->getLocalTransform().position.z = radius * 2.f;
-  graph.addNode(*viewCameraNode);
+  graph.addRootNode(*viewCameraNode);
 
   lightCamera = new render::Camera();
   lightCamera->setFOV(60.f);
@@ -115,7 +115,7 @@ bool Demo::init(void)
   lightCameraNode->setCamera(lightCamera);
   lightCameraNode->getLocalTransform().position.set(radius * 2.f, 0.f, radius * 2.f);
   lightCameraNode->getLocalTransform().rotation.setAxisRotation(Vec3::Y, (float) M_PI / 4.f);
-  graph.addNode(*lightCameraNode);
+  graph.addRootNode(*lightCameraNode);
 
   timer.start();
 

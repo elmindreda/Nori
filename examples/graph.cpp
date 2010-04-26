@@ -53,7 +53,7 @@ bool Demo::init(void)
 
   meshNode = new scene::MeshNode();
   meshNode->setMesh(mesh);
-  graph.addNode(*meshNode);
+  graph.addRootNode(*meshNode);
 
   camera = new render::Camera();
   camera->setFOV(60.f);
@@ -62,7 +62,7 @@ bool Demo::init(void)
   cameraNode = new scene::CameraNode();
   cameraNode->setCamera(camera);
   cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
-  graph.addNode(*cameraNode);
+  graph.addRootNode(*cameraNode);
 
   timer.start();
 
