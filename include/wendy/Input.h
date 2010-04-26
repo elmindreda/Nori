@@ -33,10 +33,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-using namespace moira;
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Input key.
  *  @ingroup input
  *
@@ -166,7 +162,6 @@ private:
   static void mousePosCallback(int x, int y);
   static void mouseButtonCallback(int button, int action);
   static void mouseWheelCallback(int position);
-  typedef std::map<int, int> KeyMap;
   Signal2<void, unsigned int, unsigned int> resizedSignal;
   Signal2<void, Key, bool> keyPressedSignal;
   Signal1<void, wchar_t> charInputSignal;
@@ -178,8 +173,6 @@ private:
   Focus* currentFocus;
   bool cursorCaptured;
   mutable Vec2i cursorPosition;
-  static KeyMap internalMap;
-  static KeyMap externalMap;
   static Context* instance;
 };
 

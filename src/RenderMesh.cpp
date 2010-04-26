@@ -23,9 +23,29 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
-
 #include <wendy/Config.h>
+
+#include <wendy/Core.h>
+#include <wendy/Block.h>
+#include <wendy/Color.h>
+#include <wendy/Vector.h>
+#include <wendy/Matrix.h>
+#include <wendy/Rectangle.h>
+#include <wendy/Plane.h>
+#include <wendy/Sphere.h>
+#include <wendy/Quaternion.h>
+#include <wendy/Transform.h>
+#include <wendy/Frustum.h>
+#include <wendy/Pixel.h>
+#include <wendy/Vertex.h>
+#include <wendy/Timer.h>
+#include <wendy/Signal.h>
+#include <wendy/Path.h>
+#include <wendy/Stream.h>
+#include <wendy/Managed.h>
+#include <wendy/Resource.h>
+#include <wendy/Image.h>
+#include <wendy/Mesh.h>
 
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
@@ -47,10 +67,6 @@ namespace wendy
 {
   namespace render
   {
-
-///////////////////////////////////////////////////////////////////////
-
-using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -96,7 +112,7 @@ const Mesh::GeometryList& Mesh::getGeometries(void)
   return geometries;
 }
 
-Mesh* Mesh::createInstance(const moira::Mesh& mesh, const String& name)
+Mesh* Mesh::createInstance(const wendy::Mesh& mesh, const String& name)
 {
   Ptr<Mesh> renderMesh(new Mesh(name));
   if (!renderMesh->init(mesh))
@@ -106,12 +122,12 @@ Mesh* Mesh::createInstance(const moira::Mesh& mesh, const String& name)
 }
 
 Mesh::Mesh(const String& name):
-  DerivedResource<Mesh, moira::Mesh>(name)
+  DerivedResource<Mesh, wendy::Mesh>(name)
 {
 }
 
 Mesh::Mesh(const Mesh& source):
-  DerivedResource<Mesh, moira::Mesh>(source)
+  DerivedResource<Mesh, wendy::Mesh>(source)
 {
   // NOTE: Not implemented.
 }
@@ -123,14 +139,14 @@ Mesh& Mesh::operator = (const Mesh& source)
   return *this;
 }
 
-bool Mesh::init(const moira::Mesh& mesh)
+bool Mesh::init(const wendy::Mesh& mesh)
 {
   size_t indexCount = 0;
 
   for (size_t i = 0;  i < mesh.geometries.size();  i++)
     indexCount += mesh.geometries[i].triangles.size() * 3;
 
-  GL::VertexFormat format;
+  VertexFormat format;
 
   if (!format.createComponents("3f:position 3f:normal 2f:mapping"))
     return false;
@@ -140,7 +156,6 @@ bool Mesh::init(const moira::Mesh& mesh)
   if (!vertexBuffer)
     return false;
 
-  // NOTE: This may not be portable to really weird platforms.
   vertexBuffer->copyFrom(&mesh.vertices[0], mesh.vertices.size());
 
   GL::IndexBuffer::Type indexType;
@@ -158,7 +173,7 @@ bool Mesh::init(const moira::Mesh& mesh)
 
   size_t indexBase = 0;
 
-  for (moira::Mesh::GeometryList::const_iterator i = mesh.geometries.begin();  i != mesh.geometries.end();  i++)
+  for (wendy::Mesh::GeometryList::const_iterator i = mesh.geometries.begin();  i != mesh.geometries.end();  i++)
   {
     indexCount = (*i).triangles.size() * 3;
 

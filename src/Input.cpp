@@ -23,9 +23,14 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
-
 #include <wendy/Config.h>
+
+#include <wendy/Core.h>
+#include <wendy/Color.h>
+#include <wendy/Vector.h>
+#include <wendy/Rectangle.h>
+#include <wendy/Pixel.h>
+#include <wendy/Signal.h>
 
 #include <wendy/GLContext.h>
 
@@ -33,16 +38,26 @@
 
 #include <GL/glfw.h>
 
+#include <map>
+
+///////////////////////////////////////////////////////////////////////
+
+namespace
+{
+
+typedef std::map<int, int> KeyMap;
+
+KeyMap internalMap;
+KeyMap externalMap;
+
+} /*namespace*/
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
   namespace input
   {
-
-///////////////////////////////////////////////////////////////////////
-
-using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -233,7 +248,7 @@ Context::Context(GL::Context& initContext):
   // TODO: Remove this upon the arrival of GLFW_USER_DATA.
   instance = this;
 
-  if (!internalMap.size())
+  if (internalMap.empty())
   {
     // Jag kom på en sak. Du luktar struts.
     // Jag tänker inte fira jul med dig.
@@ -275,7 +290,7 @@ Context::Context(GL::Context& initContext):
     internalMap[Key::F12] = GLFW_KEY_F12;
   }
 
-  if (!externalMap.size())
+  if (externalMap.empty())
   {
     // Jag ska förgöra er alla med min blöta katt.
 
@@ -411,9 +426,6 @@ void Context::mouseWheelCallback(int position)
 
   instance->wheelPosition = position;
 }
-
-Context::KeyMap Context::internalMap;
-Context::KeyMap Context::externalMap;
 
 Context* Context::instance = NULL;
 

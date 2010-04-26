@@ -1,6 +1,19 @@
 
+include_directories(${libpng_SOURCE_DIR}
+                    ${zlib_SOURCE_DIR}
+		    ${expat_SOURCE_DIR}
+		    ${PCRE_SOURCE_DIR}
+                    ${GLEW_SOURCE_DIR}
+                    ${glfw_SOURCE_DIR})
+
 set(wendy_SOURCES
     Wendy.cpp
+
+    AABB.cpp Block.cpp Color.cpp Core.cpp Font.cpp FontIO.cpp Frustum.cpp
+    Image.cpp ImageIO.cpp Managed.cpp Matrix.cpp Mesh.cpp MeshIO.cpp OBB.cpp
+    Pattern.cpp Path.cpp Pixel.cpp Plane.cpp Portability.cpp Quaternion.cpp
+    Random.cpp Ray.cpp Rectangle.cpp Signal.cpp Sphere.cpp Stream.cpp Timer.cpp
+    Transform.cpp Triangle.cpp Variant.cpp Vector.cpp Vertex.cpp XML.cpp
 
     GLBuffer.cpp GLContext.cpp GLProgram.cpp GLProgramIO.cpp GLRender.cpp
     GLState.cpp GLTexture.cpp GLTextureIO.cpp GLVertex.cpp
@@ -20,18 +33,18 @@ if(WENDY_INCLUDE_UI_SYSTEM)
                             UIDesktop.cpp UIEntry.cpp UIItem.cpp UILabel.cpp
                             UILayout.cpp UIList.cpp UIMenu.cpp UIPopup.cpp
                             UIProgress.cpp UIRender.cpp UIScroller.cpp
-                            UISlider.cpp UIView.cpp UIWidget.cpp UIWindow.cpp)
+                            UISlider.cpp UIWidget.cpp)
 endif(WENDY_INCLUDE_UI_SYSTEM)
 
 if(WENDY_INCLUDE_DEMO_SYSTEM)
-  list(APPEND wendy_SOURCES DemoEditor.cpp DemoEffect.cpp DemoPlayer.cpp
-                            DemoProperty.cpp DemoShow.cpp
-                            DemoShowIO.cpp DemoTimeline.cpp)
+  list(APPEND wendy_SOURCES DemoEditor.cpp DemoEffect.cpp DemoProperty.cpp
+                            DemoShow.cpp DemoShowIO.cpp DemoTimeline.cpp)
 endif(WENDY_INCLUDE_DEMO_SYSTEM)
 
 add_library(wendy STATIC ${wendy_SOURCES})
-add_dependencies(wendy moira)
 set_target_properties(wendy PROPERTIES COMPILE_DEFINITIONS_DEBUG WENDY_DEBUG)
 
-install(TARGETS wendy ARCHIVE DESTINATION lib)
+if(UNIX)
+  add_dependencies(wendy signal)
+endif(UNIX)
 

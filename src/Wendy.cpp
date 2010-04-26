@@ -23,9 +23,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
-
 #include <wendy/Wendy.h>
+
+#include <internal/ImageIO.h>
+#include <internal/FontIO.h>
+#include <internal/MeshIO.h>
 
 #include <internal/GLTextureIO.h>
 #include <internal/GLProgramIO.h>
@@ -49,12 +51,13 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-using namespace moira;
-
-///////////////////////////////////////////////////////////////////////
-
 namespace
 {
+
+Ptr<ImageCodec> imageCodecPNG;
+Ptr<FontCodec> fontCodecXML;
+Ptr<MeshCodecOBJ> meshCodecOBJ;
+Ptr<MeshCodecXML> meshCodecXML;
 
 Ptr<GL::TextureCodec> textureCodec;
 Ptr<GL::VertexProgramCodec> vertexProgramCodec;
@@ -76,15 +79,12 @@ Ptr<scene::NodeType> sceneParticleNodeType;
 Ptr<demo::ShowCodec> showCodec;
 #endif
 
-}
+} /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
 bool initialize(void)
 {
-  if (!moira::initialize())
-    return false;
-
   atexit(shutdown);
 
   if (!glfwInit())
@@ -92,6 +92,11 @@ bool initialize(void)
     Log::writeError("Failed to initialize GLFW");
     return false;
   }
+
+  imageCodecPNG = new ImageCodecPNG();
+  fontCodecXML = new FontCodecXML();
+  meshCodecOBJ = new MeshCodecOBJ();
+  meshCodecXML = new MeshCodecXML();
 
   textureCodec = new GL::TextureCodec();
   vertexProgramCodec = new GL::VertexProgramCodec();
@@ -119,6 +124,11 @@ void shutdown(void)
 {
   GL::Context::destroy();
 
+  imageCodecPNG = NULL;
+  fontCodecXML = NULL;
+  meshCodecOBJ = NULL;
+  meshCodecXML = NULL;
+
   textureCodec = NULL;
   vertexProgramCodec = NULL;
   fragmentProgramCodec = NULL;
@@ -139,8 +149,6 @@ void shutdown(void)
 #endif
 
   glfwTerminate();
-
-  moira::shutdown();
 }
 
 ///////////////////////////////////////////////////////////////////////

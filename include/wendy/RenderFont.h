@@ -37,16 +37,12 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-using namespace moira;
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief %Font layout and rendering object.
  *
  *  This class provides layout and rendering of a single font, using data
- *  from a moira::Font object.
+ *  from a wendy::Font object.
  */
-class Font : public DerivedResource<Font, moira::Font>, public RefObject
+class Font : public DerivedResource<Font, wendy::Font>, public RefObject
 {
 public:
   class Layout;
@@ -90,14 +86,14 @@ public:
   static Font* createInstance(const Path& path,
 			      const String& characters,
 			      const String& name = "");
-  static Font* createInstance(const moira::Font& font,
+  static Font* createInstance(const wendy::Font& font,
                               const String& name = "");
 private:
   class Glyph;
   Font(const String& name);
   Font(const Font& source);
   Font& operator = (const Font& source);
-  bool init(const moira::Font& font);
+  bool init(const wendy::Font& font);
   const Glyph* getGlyph(char character) const;
   typedef std::list<Glyph> GlyphList;
   typedef std::map<char, Glyph*> GlyphMap;

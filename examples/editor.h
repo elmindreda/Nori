@@ -7,6 +7,7 @@ public:
 protected:
   void render(void) const;
   void update(Time deltaTime);
+  Ptr<UI::Renderer> renderer;
   scene::Graph graph;
   Ref<render::Camera> camera;
   scene::CameraNode* cameraNode;

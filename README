@@ -42,9 +42,12 @@ operating systems, and for which there are windows binaries on their site:
 
 Wendy depends on the following external libraries:
 
+  expat (for reading XML files)
+  libpng (for reading and writing PNG files)
+  PCRE (for regular expression support)
+  zlib (for compressed data streams)
   GLEW (http://glew.sourceforge.net/)
   GLFW (http://glfw.sourceforge.net/)
-  Moira (http://www.elmindreda.org/moira/)
 
 
 4. Installing Wendy

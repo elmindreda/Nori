@@ -23,9 +23,29 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
-
 #include <wendy/Config.h>
+
+#include <wendy/Core.h>
+#include <wendy/Block.h>
+#include <wendy/Color.h>
+#include <wendy/Vector.h>
+#include <wendy/Matrix.h>
+#include <wendy/Rectangle.h>
+#include <wendy/Plane.h>
+#include <wendy/Quaternion.h>
+#include <wendy/Transform.h>
+#include <wendy/Sphere.h>
+#include <wendy/Frustum.h>
+#include <wendy/Random.h>
+#include <wendy/Pixel.h>
+#include <wendy/Vertex.h>
+#include <wendy/Timer.h>
+#include <wendy/Signal.h>
+#include <wendy/Path.h>
+#include <wendy/Stream.h>
+#include <wendy/Managed.h>
+#include <wendy/Resource.h>
+#include <wendy/Image.h>
 
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
@@ -47,10 +67,6 @@ namespace wendy
 {
   namespace render
   {
-
-///////////////////////////////////////////////////////////////////////
-
-using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 

@@ -1,6 +1,47 @@
 
 #define WENDY_VERSION "@VERSION@"
 
+/* Define this to 1 if strtof is available */
+#cmakedefine WENDY_HAVE_STRTOF 1
+/* Define this to 1 if strlcat is available */
+#cmakedefine WENDY_HAVE_STRLCAT 1
+/* Define this to 1 if strlcpy is available */
+#cmakedefine WENDY_HAVE_STRLCPY 1
+/* Define this to 1 if vasprintf is available */
+#cmakedefine WENDY_HAVE_VASPRINTF 1
+
+/* Define this to 1 if sys/types.h is available */
+#cmakedefine WENDY_HAVE_SYS_TYPES_H 1
+/* Define this to 1 if sys/stat.h is available */
+#cmakedefine WENDY_HAVE_SYS_STAT_H 1
+/* Define this to 1 if sys/time.h is available */
+#cmakedefine WENDY_HAVE_SYS_TIME_H 1
+/* Define this to 1 if stdarg.h is available */
+#cmakedefine WENDY_HAVE_STDARG_H 1
+/* Define this to 1 if fcntl.h is available */
+#cmakedefine WENDY_HAVE_FCNTL_H 1
+/* Define this to 1 if unistd.h is available */
+#cmakedefine WENDY_HAVE_UNISTD_H 1
+/* Define this to 1 if dirent.h is available */
+#cmakedefine WENDY_HAVE_DIRENT_H 1
+/* Define this to 1 if string.h is available */
+#cmakedefine WENDY_HAVE_STRING_H 1
+/* Define this to 1 if malloc.h is available */
+#cmakedefine WENDY_HAVE_MALLOC_H 1
+/* Define this to 1 if errno.h is available */
+#cmakedefine WENDY_HAVE_ERRNO_H 1
+/* Define this to 1 if ctype.h is available */
+#cmakedefine WENDY_HAVE_CTYPE_H 1
+/* Define this to 1 if memory.h is available */
+#cmakedefine WENDY_HAVE_MEMORY_H 1
+
+/* Define this to 1 if io.h is available */
+#cmakedefine WENDY_HAVE_IO_H 1
+/* Define this to 1 if direct.h is available */
+#cmakedefine WENDY_HAVE_DIRECT_H 1
+/* Define this to 1 if windows.h is available */
+#cmakedefine WENDY_HAVE_WINDOWS_H 1
+
 #cmakedefine WENDY_INCLUDE_SCENE_GRAPH 1
 
 #cmakedefine WENDY_INCLUDE_UI_SYSTEM 1

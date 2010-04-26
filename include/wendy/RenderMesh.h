@@ -45,7 +45,7 @@ namespace wendy
  *  render material and primitive mode.
  */
 class Mesh : public Renderable,
-             public DerivedResource<Mesh, moira::Mesh>,
+             public DerivedResource<Mesh, wendy::Mesh>,
 	     public RefObject
 {
 public:
@@ -62,12 +62,12 @@ public:
    *  @param[in] name The desired name of the created renderable mesh.
    *  @return The newly created renderable mesh, or @c NULL if an error occurred.
    */
-  static Mesh* createInstance(const moira::Mesh& mesh, const String& name = "");
+  static Mesh* createInstance(const wendy::Mesh& mesh, const String& name = "");
 private:
   Mesh(const String& name);
   Mesh(const Mesh& source);
   Mesh& operator = (const Mesh& source);
-  bool init(const moira::Mesh& mesh);
+  bool init(const wendy::Mesh& mesh);
   GeometryList geometries;
   Ref<GL::VertexBuffer> vertexBuffer;
   Ref<GL::IndexBuffer> indexBuffer;

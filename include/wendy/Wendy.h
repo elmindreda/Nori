@@ -35,29 +35,6 @@
  *  also serves as a suitable introduction to engine design, due to its
  *  (relatively) small size and (hopefully) consistent design.
  *
- *  The Wendy engine is built on top of the Moira utility library, which
- *  provides resource management, math classes, animation, image and mesh data
- *  management, generalised I/O, signals and more.
- *
- *  @section overview Overview
- *
- *  Some notable features of Wendy are:
- *
- *  - Multipass, multi-technique @link wendy::render::Material material
- *    @endlink descriptors with support for multitexturing and Cg shaders.
- *  - Extensible @link wendy::render::ParticleSystem particle system @endlink with
- *    generic emitters and affectors.
- *  - @link wendy::render::Queue Render queue @endlink system with automatic
- *    opacity, distance and material sorting.
- *  - Basic @link scene scene graph @endlink management.
- *  - Hierarchial @link demo demo effect system @endlink with local time,
- *    animable properties and built-in real-time effect sequencer / editor.
- *  - Extensible @link ui user interface library @endlink and supporting 2D
- *    rendering interface.
- *  - @link opengl OpenGL wrapper API @endlink, providing automatic resource
- *    management and many useful helper classes, in case you need to implement
- *    custom rendering.
- *
  *  @section license License
  *
  *  This software is provided 'as-is', without any express or implied warranty.
@@ -96,9 +73,48 @@
 
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
-
 #include <wendy/Config.h>
+
+#include <wendy/Portability.h>
+
+#include <wendy/Core.h>
+#include <wendy/Block.h>
+#include <wendy/Bimap.h>
+#include <wendy/Signal.h>
+#include <wendy/Variant.h>
+#include <wendy/Node.h>
+#include <wendy/Timer.h>
+
+#include <wendy/Color.h>
+#include <wendy/Vector.h>
+#include <wendy/Matrix.h>
+#include <wendy/Quaternion.h>
+#include <wendy/Transform.h>
+#include <wendy/Random.h>
+
+#include <wendy/AABB.h>
+#include <wendy/Segment.h>
+#include <wendy/Rectangle.h>
+#include <wendy/Plane.h>
+#include <wendy/Ray.h>
+#include <wendy/Sphere.h>
+#include <wendy/Triangle.h>
+#include <wendy/Frustum.h>
+#include <wendy/Bezier.h>
+
+#include <wendy/Pattern.h>
+
+#include <wendy/Path.h>
+#include <wendy/Stream.h>
+#include <wendy/Managed.h>
+#include <wendy/Resource.h>
+#include <wendy/XML.h>
+
+#include <wendy/Pixel.h>
+#include <wendy/Image.h>
+#include <wendy/Font.h>
+#include <wendy/Vertex.h>
+#include <wendy/Mesh.h>
 
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
@@ -127,10 +143,8 @@
 #include <wendy/UIRender.h>
 #include <wendy/UIDesktop.h>
 #include <wendy/UIWidget.h>
-#include <wendy/UIWindow.h>
 #include <wendy/UIScroller.h>
 #include <wendy/UIBook.h>
-#include <wendy/UIView.h>
 #include <wendy/UICanvas.h>
 #include <wendy/UILayout.h>
 #include <wendy/UILabel.h>

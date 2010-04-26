@@ -23,9 +23,9 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
-
 #include <wendy/Config.h>
+
+#include <wendy/Bimap.h>
 
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
@@ -38,10 +38,6 @@ namespace wendy
 {
   namespace GL
   {
-
-///////////////////////////////////////////////////////////////////////
-
-using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -173,7 +169,7 @@ bool TextureCodec::onBeginElement(const String& name)
       return false;
     }
 
-    Ref<moira::Image> image = moira::Image::readInstance(imageName);
+    Ref<wendy::Image> image = wendy::Image::readInstance(imageName);
     if (!image)
     {
       Log::writeError("Failed to load image %s for texture %s",

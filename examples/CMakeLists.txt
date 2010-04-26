@@ -7,13 +7,13 @@ add_executable(shadowmap WIN32 MACOSX_BUNDLE shadowmap.cpp)
 add_executable(water WIN32 MACOSX_BUNDLE water.cpp)
 add_executable(widgets WIN32 MACOSX_BUNDLE widgets.cpp)
 
-target_link_libraries(bloom wendy moira ${WENDY_LIBRARIES})
-target_link_libraries(editor wendy moira ${WENDY_LIBRARIES})
-target_link_libraries(font wendy moira ${WENDY_LIBRARIES})
-target_link_libraries(graph wendy moira ${WENDY_LIBRARIES})
-target_link_libraries(shadowmap wendy moira ${WENDY_LIBRARIES})
-target_link_libraries(water wendy moira ${WENDY_LIBRARIES})
-target_link_libraries(widgets wendy moira ${WENDY_LIBRARIES})
+target_link_libraries(bloom wendy ${WENDY_LIBRARIES})
+target_link_libraries(editor wendy ${WENDY_LIBRARIES})
+target_link_libraries(font wendy ${WENDY_LIBRARIES})
+target_link_libraries(graph wendy ${WENDY_LIBRARIES})
+target_link_libraries(shadowmap wendy ${WENDY_LIBRARIES})
+target_link_libraries(water wendy ${WENDY_LIBRARIES})
+target_link_libraries(widgets wendy ${WENDY_LIBRARIES})
 
 set_target_properties(bloom PROPERTIES
   MACOSX_BUNDLE_BUNDLE_NAME Bloom

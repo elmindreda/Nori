@@ -23,9 +23,13 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
-
 #include <wendy/Config.h>
+
+#include <wendy/Core.h>
+#include <wendy/Block.h>
+#include <wendy/Path.h>
+#include <wendy/Stream.h>
+#include <wendy/XML.h>
 
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
@@ -42,16 +46,12 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-using namespace moira;
-
-///////////////////////////////////////////////////////////////////////
-
 namespace
 {
 
 const unsigned int PROGRAM_XML_VERSION = 2;
 
-}
+} /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 

@@ -23,13 +23,21 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
-
 #include <wendy/Config.h>
+
+#include <wendy/Core.h>
+#include <wendy/Color.h>
+#include <wendy/Vector.h>
+#include <wendy/Rectangle.h>
+#include <wendy/Sphere.h>
+#include <wendy/Pixel.h>
+#include <wendy/Signal.h>
 
 #include <wendy/GLContext.h>
 
 #include <wendy/RenderLight.h>
+
+#include <algorithm>
 
 ///////////////////////////////////////////////////////////////////////
 

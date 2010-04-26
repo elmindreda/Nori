@@ -23,13 +23,12 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
-
 #include <wendy/Config.h>
+
+#include <wendy/Bimap.h>
 
 #include <wendy/GLContext.h>
 #include <wendy/GLVertex.h>
-#include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
 
 #define GLEW_STATIC
@@ -133,7 +132,7 @@ GLenum convertToGenericGL(const PixelFormat& format)
   return genericFormatMap[format];
 }
 
-}
+} /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 

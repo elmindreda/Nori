@@ -23,9 +23,28 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
-
 #include <wendy/Config.h>
+
+#include <wendy/Core.h>
+#include <wendy/Block.h>
+#include <wendy/Color.h>
+#include <wendy/Vector.h>
+#include <wendy/Matrix.h>
+#include <wendy/Rectangle.h>
+#include <wendy/Plane.h>
+#include <wendy/Quaternion.h>
+#include <wendy/Transform.h>
+#include <wendy/Frustum.h>
+#include <wendy/Pixel.h>
+#include <wendy/Vertex.h>
+#include <wendy/Timer.h>
+#include <wendy/Signal.h>
+#include <wendy/Path.h>
+#include <wendy/Stream.h>
+#include <wendy/Managed.h>
+#include <wendy/Resource.h>
+#include <wendy/Image.h>
+#include <wendy/Font.h>
 
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
@@ -47,10 +66,6 @@ namespace wendy
 {
   namespace render
   {
-
-///////////////////////////////////////////////////////////////////////
-
-using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -300,14 +315,14 @@ Font* Font::createInstance(const Path& path,
 			   const String& characters,
 			   const String& name)
 {
-  Ptr<moira::Font> font(moira::Font::readInstance(path, characters));
+  Ptr<wendy::Font> font(wendy::Font::readInstance(path, characters));
   if (!font)
     return NULL;
 
   return createInstance(*font, name);
 }
 
-Font* Font::createInstance(const moira::Font& font, const String& name)
+Font* Font::createInstance(const wendy::Font& font, const String& name)
 {
   Ptr<Font> renderFont(new Font(name));
   if (!renderFont->init(font))
@@ -317,12 +332,12 @@ Font* Font::createInstance(const moira::Font& font, const String& name)
 }
 
 Font::Font(const String& name):
-  DerivedResource<Font, moira::Font>(name)
+  DerivedResource<Font, wendy::Font>(name)
 {
 }
 
 Font::Font(const Font& source):
-  DerivedResource<Font, moira::Font>(source)
+  DerivedResource<Font, wendy::Font>(source)
 {
   // NOTE: Not implemented.
 }
@@ -334,7 +349,7 @@ Font& Font::operator = (const Font& source)
   return *this;
 }
 
-bool Font::init(const moira::Font& font)
+bool Font::init(const wendy::Font& font)
 {
   GL::Context* context = GL::Context::get();
 
@@ -411,7 +426,7 @@ bool Font::init(const moira::Font& font)
     Glyph& glyph = glyphs.back();
     glyphMap[characters[i]] = &glyph;
 
-    const moira::Font::Glyph* sourceGlyph = font.getGlyph(characters[i]);
+    const wendy::Font::Glyph* sourceGlyph = font.getGlyph(characters[i]);
     if (!sourceGlyph)
     {
       if (std::isgraph(characters[i]))

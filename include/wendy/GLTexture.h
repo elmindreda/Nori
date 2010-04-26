@@ -26,14 +26,20 @@
 #define WENDY_GLTEXTURE_H
 ///////////////////////////////////////////////////////////////////////
 
+#include <wendy/Core.h>
+#include <wendy/Block.h>
+#include <wendy/Path.h>
+#include <wendy/Stream.h>
+#include <wendy/Managed.h>
+#include <wendy/Resource.h>
+#include <wendy/Image.h>
+
+///////////////////////////////////////////////////////////////////////
+
 namespace wendy
 {
   namespace GL
   {
-
-///////////////////////////////////////////////////////////////////////
-
-using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -91,14 +97,14 @@ public:
    *  @param[in] x The x-coordinate of the area within this image to update.
    *  @param[in] y The y-coordinate of the area within this image to update.
    */
-  bool copyFrom(const moira::Image& source, unsigned int x, unsigned int y);
+  bool copyFrom(const wendy::Image& source, unsigned int x, unsigned int y);
   /*! Updates this texture image with the contents of the current color buffer
    *  at the specified coordinates.
    *  @param[in] x The x-coordinate of the desired area within the current color buffer.
    *  @param[in] y The y-coordinate of the desired area within the current color buffer.
    */
   bool copyFromColorBuffer(unsigned int x, unsigned int y);
-  bool copyTo(moira::Image& result) const;
+  bool copyTo(wendy::Image& result) const;
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
   const PixelFormat& getFormat(void) const;
@@ -205,7 +211,7 @@ public:
    *  automatically generate a name.
    */
   static Texture* createInstance(Context& context,
-                                 const moira::Image& source,
+                                 const wendy::Image& source,
                                  unsigned int flags,
 				 const String& name = "");
   static Texture* createInstance(Context& context,
@@ -216,7 +222,7 @@ private:
   Texture(Context& context, const String& name);
   Texture(const Texture& source);
   bool init(void);
-  bool init(const moira::Image& source, unsigned int flags);
+  bool init(const wendy::Image& source, unsigned int flags);
   bool init(const ImageCube& source, unsigned int flags);
   Texture& operator = (const Texture& source);
   typedef std::vector<TextureImageRef> ImageList;

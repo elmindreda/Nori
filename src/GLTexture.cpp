@@ -23,9 +23,9 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
-
 #include <wendy/Config.h>
+
+#include <wendy/Bimap.h>
 
 #include <wendy/GLContext.h>
 #include <wendy/GLTexture.h>
@@ -42,10 +42,6 @@ namespace wendy
 {
   namespace GL
   {
-
-///////////////////////////////////////////////////////////////////////
-
-using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -132,9 +128,9 @@ Bimap<AddressMode, GLenum> addressMap;
 
 ///////////////////////////////////////////////////////////////////////
 
-bool TextureImage::copyFrom(const moira::Image& source, unsigned int x, unsigned int y)
+bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned int y)
 {
-  moira::Image final = source;
+  wendy::Image final = source;
 
   if (final.getFormat() != texture.format)
   {
@@ -247,9 +243,9 @@ bool TextureImage::copyFromColorBuffer(unsigned int x, unsigned int y)
   return true;
 }
 
-bool TextureImage::copyTo(moira::Image& result) const
+bool TextureImage::copyTo(wendy::Image& result) const
 {
-  result = moira::Image(texture.format, width, height);
+  result = wendy::Image(texture.format, width, height);
 
   cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_FALSE);
 
@@ -470,7 +466,7 @@ Context& Texture::getContext(void) const
 }
 
 Texture* Texture::createInstance(Context& context,
-                                 const moira::Image& source,
+                                 const wendy::Image& source,
 				 unsigned int flags,
 				 const String& name)
 {
@@ -562,7 +558,7 @@ bool Texture::init(void)
   return true;
 }
 
-bool Texture::init(const moira::Image& source, unsigned int initFlags)
+bool Texture::init(const wendy::Image& source, unsigned int initFlags)
 {
   if (!init())
     return false;
@@ -623,7 +619,7 @@ bool Texture::init(const moira::Image& source, unsigned int initFlags)
 
   unsigned int width, height;
 
-  moira::Image final = source;
+  wendy::Image final = source;
 
   // Adapt source image to OpenGL restrictions
   {
@@ -839,7 +835,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
   {
     GLenum faceTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
 
-    moira::Image& image = *source.images[i];
+    wendy::Image& image = *source.images[i];
 
     glTexImage2D(faceTarget,
                  0,

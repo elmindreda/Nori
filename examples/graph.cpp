@@ -1,7 +1,6 @@
 
 #include <wendy/Wendy.h>
 
-using namespace moira;
 using namespace wendy;
 
 class Demo : public Trackable

@@ -23,8 +23,6 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
-
 #include <wendy/Config.h>
 
 #include <wendy/GLVertex.h>

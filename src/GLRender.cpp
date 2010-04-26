@@ -23,8 +23,6 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <moira/Moira.h>
-
 #include <wendy/Config.h>
 
 #include <wendy/GLContext.h>
@@ -46,10 +44,6 @@ namespace wendy
 {
   namespace GL
   {
-
-///////////////////////////////////////////////////////////////////////
-
-using namespace moira;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -693,7 +687,7 @@ bool Renderer::init(void)
     // TODO: Create DXM-colored source image.
 
     defaultTexture = Texture::createInstance(context,
-                                             moira::Image(PixelFormat::RGB8, 20, 20),
+                                             wendy::Image(PixelFormat::RGB8, 20, 20),
                                              Texture::DEFAULT,
                                              "default");
     if (!defaultTexture)
