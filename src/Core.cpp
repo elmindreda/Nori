@@ -71,7 +71,7 @@ int vasprintf(char** result, const char* format, va_list vl)
     buffer[sizeof(buffer) - 1] = '\0';
 
   size_t length = std::strlen(buffer);
-  *result = (char*) ::malloc(length + 1);
+  *result = (char*) std::malloc(length + 1);
   std::strcpy(*result, buffer);
 
   return (int) length;
