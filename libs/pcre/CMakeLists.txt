@@ -69,6 +69,8 @@ endif(NEWLINE STREQUAL "")
 
 configure_file(${PCRE_SOURCE_DIR}/config.h.cmake ${PCRE_BINARY_DIR}/config.h)
 
+include_directories(${PCRE_BINARY_DIR})
+
 add_definitions(-DHAVE_CONFIG_H -DPCRE_STATIC)
 
 if(MSVC)
