@@ -24,14 +24,10 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Config.h>
-#include <wendy/Portability.h>
+
 #include <wendy/Core.h>
 #include <wendy/Pattern.h>
 #include <wendy/Path.h>
-
-#if WENDY_HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 #if WENDY_HAVE_SYS_STAT_H
 #include <sys/stat.h>
@@ -49,10 +45,6 @@
 #include <unistd.h>
 #endif
 
-#if WENDY_HAVE_STDARG_H
-#include <stdarg.h>
-#endif
-
 #if WENDY_HAVE_DIRENT_H
 #include <dirent.h>
 #endif
@@ -65,8 +57,7 @@
 #include <io.h>
 #endif
 
-#include <stdio.h>
-
+#include <cstdio>
 #include <cstdlib>
 
 ///////////////////////////////////////////////////////////////////////

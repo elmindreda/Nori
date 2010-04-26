@@ -24,22 +24,14 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Config.h>
-#include <wendy/Portability.h>
+
 #include <wendy/Core.h>
 #include <wendy/Block.h>
 #include <wendy/Path.h>
 #include <wendy/Stream.h>
 
-#if WENDY_HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
 #if WENDY_HAVE_SYS_STAT_H
 #include <sys/stat.h>
-#endif
-
-#if WENDY_HAVE_STDARG_H
-#include <stdarg.h>
 #endif
 
 #if WENDY_HAVE_UNISTD_H

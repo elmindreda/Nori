@@ -26,12 +26,75 @@
 #define WENDY_CORE_H
 ///////////////////////////////////////////////////////////////////////
 
+#include <string>
+#include <vector>
+#include <cstdarg>
+
+#if WENDY_HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
 #ifndef NULL
 #define NULL 0
 #endif
 
-#include <string>
-#include <vector>
+///////////////////////////////////////////////////////////////////////
+
+#ifdef _MSC_VER
+
+// Don't consider the libc to be obsolete
+#pragma warning( disable: 4996 )
+
+#define _USE_MATH_DEFINES
+
+#define snprintf _snprintf
+#define strcasecmp stricmp
+
+// This is only needed for versions below Visual C++ 2008
+#if _MSC_VER < 1500
+#define vsnprintf _vsnprintf
+#endif
+
+#define F_OK 0
+#define W_OK 2
+#define R_OK 4
+
+#define S_ISDIR(x) ((x) & _S_IFDIR)
+#define S_ISREG(x) ((x) & _S_IFREG)
+
+typedef __int64 off64_t;
+
+float fminf(float x, float y);
+float fmaxf(float x, float y);
+float log2f(float x);
+
+#endif /*_MSC_VER*/
+
+///////////////////////////////////////////////////////////////////////
+
+#ifdef __APPLE_CC__
+
+typedef off_t off64_t;
+
+#endif /*__APPLE_CC__*/
+
+///////////////////////////////////////////////////////////////////////
+
+#if !WENDY_HAVE_VASPRINTF
+int vasprintf(char** result, const char* format, va_list vl);
+#endif /*WENDY_HAVE_VASPRINTF*/
+
+#if !WENDY_HAVE_STRTOF
+float strtof(const char* nptr, char** endptr);
+#endif /*WENDY_HAVE_STRTOF*/
+
+#if !WENDY_HAVE_STRLCAT
+size_t strlcat(char* target, const char* source, size_t size);
+#endif /*WENDY_HAVE_STRLCAT*/
+
+#if !WENDY_HAVE_STRLCPY
+size_t strlcpy(char* target, const char* source, size_t size);
+#endif /*WENDY_HAVE_STRLCPY*/
 
 ///////////////////////////////////////////////////////////////////////
 

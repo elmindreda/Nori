@@ -24,16 +24,121 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Config.h>
-#include <wendy/Portability.h>
+
 #include <wendy/Core.h>
 
-#if WENDY_HAVE_STDARG_H
-#include <stdarg.h>
-#endif
-
-#include <stdio.h>
-
+#include <cstdio>
 #include <cstdlib>
+#include <cstring>
+
+///////////////////////////////////////////////////////////////////////
+
+#ifdef _MSC_VER
+
+float log2f(float x)
+{
+  return (float) log(x) / (float) log(2.f);
+}
+
+float fminf(float x, float y)
+{
+  if (x < y)
+    return x;
+  else
+    return y;
+}
+
+float fmaxf(float x, float y)
+{
+  if (x > y)
+    return x;
+  else
+    return y;
+}
+
+#endif /*_MSC_VER*/
+
+///////////////////////////////////////////////////////////////////////
+
+#if !WENDY_HAVE_VASPRINTF
+
+int vasprintf(char** result, const char* format, va_list vl)
+{
+  char buffer[65536];
+
+  if (vsnprintf(buffer, sizeof(buffer), format, vl) < 0)
+    buffer[sizeof(buffer) - 1] = '\0';
+
+  size_t length = ::strlen(buffer);
+  *result = (char*) ::malloc(length + 1);
+  strcpy(*result, buffer);
+
+  return (int) length;
+}
+
+#endif /*WENDY_HAVE_VASPRINTF*/
+
+#if !WENDY_HAVE_STRTOF
+
+float strtof(const char* nptr, char** endptr)
+{
+  return (float) strtod(nptr, endptr);
+}
+
+#endif /*WENDY_HAVE_STRTOF*/
+
+#if !WENDY_HAVE_STRLCAT
+
+size_t strlcat(char* target, const char* source, size_t size)
+{
+  size_t target_length, source_length, append_length;
+
+  target_length = strlen(target);
+  source_length = strlen(source);
+
+  if (target_length >= size)
+    return size;
+
+  if (source_length == 0)
+    return target_length;
+
+  append_length = size - (target_length + 1);
+  if (append_length > source_length)
+    append_length = source_length;
+
+  if (append_length > 0)
+    strncat(target, source, append_length);
+
+  return target_length + source_length;
+}
+
+#endif /*WENDY_HAVE_STRLCAT*/
+
+#if !WENDY_HAVE_STRLCPY
+
+size_t strlcpy(char* target, const char* source, size_t size)
+{
+  size_t source_length, copy_length;
+
+  source_length = strlen(source);
+
+  if (size == 0)
+    return source_length;
+
+  if (source_length < size - 1)
+    copy_length = source_length;
+  else
+    copy_length = size - 1;
+
+  strncpy(target, source, copy_length);
+
+  if (copy_length >= size)
+    target[size - 1] = '\0';
+
+  return source_length;
+}
+
+#endif /*WENDY_HAVE_STRLCPY*/
 
 ///////////////////////////////////////////////////////////////////////
 

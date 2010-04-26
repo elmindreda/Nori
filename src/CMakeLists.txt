@@ -11,9 +11,9 @@ set(wendy_SOURCES
 
     AABB.cpp Block.cpp Color.cpp Core.cpp Font.cpp FontIO.cpp Frustum.cpp
     Image.cpp ImageIO.cpp Managed.cpp Matrix.cpp Mesh.cpp MeshIO.cpp OBB.cpp
-    Pattern.cpp Path.cpp Pixel.cpp Plane.cpp Portability.cpp Quaternion.cpp
-    Random.cpp Ray.cpp Rectangle.cpp Signal.cpp Sphere.cpp Stream.cpp Timer.cpp
-    Transform.cpp Triangle.cpp Variant.cpp Vector.cpp Vertex.cpp XML.cpp
+    Pattern.cpp Path.cpp Pixel.cpp Plane.cpp Quaternion.cpp Random.cpp Ray.cpp
+    Rectangle.cpp Signal.cpp Sphere.cpp Stream.cpp Timer.cpp Transform.cpp
+    Triangle.cpp Variant.cpp Vector.cpp Vertex.cpp XML.cpp
 
     GLBuffer.cpp GLContext.cpp GLProgram.cpp GLProgramIO.cpp GLRender.cpp
     GLState.cpp GLTexture.cpp GLTextureIO.cpp GLVertex.cpp

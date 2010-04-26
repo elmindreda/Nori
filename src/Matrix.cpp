@@ -24,8 +24,8 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Config.h>
+
 #include <wendy/Core.h>
-#include <wendy/Portability.h>
 #include <wendy/Vector.h>
 #include <wendy/Quaternion.h>
 #include <wendy/Matrix.h>

@@ -24,7 +24,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Config.h>
-#include <wendy/Portability.h>
+
 #include <wendy/Core.h>
 #include <wendy/Block.h>
 #include <wendy/Path.h>
@@ -37,9 +37,8 @@
 #define XML_STATIC
 #include <expat.h>
 
-#include <stdlib.h>
-#include <errno.h>
-
+#include <cerrno>
+#include <cstdlib>
 #include <cstring>
 
 ///////////////////////////////////////////////////////////////////////

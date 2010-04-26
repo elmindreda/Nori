@@ -75,8 +75,6 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/Portability.h>
-
 #include <wendy/Core.h>
 #include <wendy/Block.h>
 #include <wendy/Bimap.h>
