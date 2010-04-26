@@ -218,7 +218,7 @@ void Log::writeError(const char* format, ...)
   if (Log* log = Log::get())
     log->write(ERROR, "Error: %s", message);
   else
-    fprintf(stderr, "Error: %s\n", message);
+    std::fprintf(stderr, "Error: %s\n", message);
 
   std::free(message);
 }
@@ -239,7 +239,7 @@ void Log::writeWarning(const char* format, ...)
   if (Log* log = Log::get())
     log->write(WARNING, "Warning: %s", message);
   else
-    fprintf(stderr, "Warning: %s\n", message);
+    std::fprintf(stderr, "Warning: %s\n", message);
 
   std::free(message);
 }
@@ -260,7 +260,7 @@ void Log::write(const char* format, ...)
   if (Log* log = Log::get())
     log->write(INFORMATION, "%s", message);
   else
-    fprintf(stderr, "%s\n", message);
+    std::fprintf(stderr, "%s\n", message);
 
   std::free(message);
 }
