@@ -3,7 +3,6 @@
 
 #include <cstdlib>
 
-using namespace moira;
 using namespace wendy;
 
 namespace

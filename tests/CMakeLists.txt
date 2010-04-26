@@ -4,10 +4,10 @@ add_executable(clear WIN32 MACOSX_BUNDLE clear.cpp)
 add_executable(particles WIN32 MACOSX_BUNDLE particles.cpp)
 add_executable(sprite3 WIN32 MACOSX_BUNDLE sprite3.cpp)
 
-target_link_libraries(sprite2 wendy moira ${WENDY_LIBRARIES})
-target_link_libraries(clear wendy moira ${WENDY_LIBRARIES})
-target_link_libraries(particles wendy moira ${WENDY_LIBRARIES})
-target_link_libraries(sprite3 wendy moira ${WENDY_LIBRARIES})
+target_link_libraries(sprite2 wendy ${WENDY_LIBRARIES})
+target_link_libraries(clear wendy ${WENDY_LIBRARIES})
+target_link_libraries(particles wendy ${WENDY_LIBRARIES})
+target_link_libraries(sprite3 wendy ${WENDY_LIBRARIES})
 
 set_target_properties(sprite2 PROPERTIES
   MACOSX_BUNDLE_BUNDLE_NAME Sprite2

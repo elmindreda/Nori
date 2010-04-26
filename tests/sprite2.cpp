@@ -4,7 +4,6 @@
 namespace
 {
 
-using namespace moira;
 using namespace wendy;
 
 class Test
