@@ -158,6 +158,16 @@ bool Node::hasChildren(void) const
   return !children.empty();
 }
 
+const String& Node::getName(void) const
+{
+  return name;
+}
+
+void Node::setName(const String& newName)
+{
+  name = newName;
+}
+
 Node* Node::getParent(void) const
 {
   return parent;
