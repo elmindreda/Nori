@@ -27,15 +27,7 @@
 #include <wendy/Core.h>
 #include <wendy/Timer.h>
 
-#if WENDY_HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-
-#include <time.h>
-
-#if _WIN32
-#include <windows.h>
-#endif
+#include <GL/glfw.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -125,26 +117,7 @@ void Timer::setTime(Time time)
 
 Time Timer::getCurrentTime(void)
 {
-#if _WIN32
-  static Time timeSlice = 0.0;
-
-  if (!timeSlice)
-  {
-    __int64 frequency;
-    QueryPerformanceFrequency((LARGE_INTEGER*) &frequency);
-    timeSlice = 1.0 / (Time) frequency;
-  }
-
-  __int64 currentTime;
-  QueryPerformanceCounter((LARGE_INTEGER*) &currentTime);
-
-  return (Time) currentTime * timeSlice;
-#else
-  struct timeval tv;
-
-  gettimeofday(&tv, NULL);
-  return (Time) (tv.tv_sec + tv.tv_usec / 1000000.0);
-#endif
+  return glfwGetTime();
 }
 
 ///////////////////////////////////////////////////////////////////////
