@@ -73,6 +73,7 @@ public:
   KeyFrame3& getKeyFrame(size_t index);
   const KeyFrame3& getKeyFrame(size_t index) const;
   Time getDuration(void) const;
+  float getLength(float tolerance = 0.5f) const;
 private:
   typedef std::vector<KeyFrame3> KeyFrameList;
   void sortKeyFrames(void);

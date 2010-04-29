@@ -227,6 +227,27 @@ Time Anim3::getDuration(void) const
   return keyframes.back().moment;
 }
 
+float Anim3::getLength(float tolerance) const
+{
+  if (keyframes.size() < 2)
+    return 0.f;
+
+  float length = 0.f;
+  BezierCurve3 curve;
+
+  for (size_t i = 1;  i < keyframes.size();  i++)
+  {
+    curve.P[0] = keyframes[i - 1].transform.position;
+    curve.P[1] = keyframes[i - 1].direction;
+    curve.P[2] = -keyframes[i].direction;
+    curve.P[3] = keyframes[i].transform.position;
+
+    length += curve.length(tolerance);
+  }
+
+  return length;
+}
+
 void Anim3::sortKeyFrames(void)
 {
   std::stable_sort(keyframes.begin(), keyframes.end());
