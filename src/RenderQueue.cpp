@@ -198,6 +198,7 @@ const OperationList& Queue::getOperations(void) const
     for (List::const_iterator o = operations.begin();  o != operations.end();  o++)
     {
       (*o).blending = (*o).technique->isBlending();
+      (*o).hash = hashString((*o).technique->getName());
       sortedOperations.push_back(&(*o));
     }
 
