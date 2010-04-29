@@ -55,13 +55,6 @@ void Pass::apply(void) const
   RenderState::apply();
 }
 
-bool Pass::isCompatible(void) const
-{
-  // TODO: The code.
-
-  return true;
-}
-
 const String& Pass::getName(void) const
 {
   return name;
@@ -137,17 +130,6 @@ const Pass* Technique::findPass(const String& name) const
   }
 
   return NULL;
-}
-
-bool Technique::isCompatible(void) const
-{
-  for (List::const_iterator i = passes.begin();  i != passes.end();  i++)
-  {
-    if (!(*i).isCompatible())
-      return false;
-  }
-
-  return true;
 }
 
 bool Technique::isBlending(void) const
@@ -290,35 +272,19 @@ Technique* Material::getActiveTechnique(void) const
 {
   if (!active)
   {
-    if (!validateTechniques())
-      return NULL;
-  }
+    float bestQuality = 0.f;
 
-  return active;
-}
-
-bool Material::validateTechniques(void) const
-{
-  List validated;
-
-  for (List::const_iterator i = techniques.begin();  i != techniques.end();  i++)
-  {
-    if ((*i)->isCompatible())
-      validated.push_back(*i);
-  }
-
-  float quality = 0.f;
-
-  for (List::const_iterator i = techniques.begin();  i != techniques.end();  i++)
-  {
-    if ((*i)->getQuality() >= quality)
+    for (List::const_iterator i = techniques.begin();  i != techniques.end();  i++)
     {
-      active = *i;
-      quality = (*i)->getQuality();
+      if ((*i)->getQuality() > bestQuality)
+      {
+        active = *i;
+        bestQuality = (*i)->getQuality();
+      }
     }
   }
 
-  return active != NULL;
+  return active;
 }
 
 ///////////////////////////////////////////////////////////////////////

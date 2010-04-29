@@ -49,7 +49,6 @@ public:
   /*! Destructor.
    */
   void apply(void) const;
-  bool isCompatible(void) const;
   const String& getName(void) const;
   /*! Resets all values in this %render pass to their defaults.
    */
@@ -99,7 +98,6 @@ public:
    *  @return The desired %render pass, or @c NULL if no such pass exists.
    */
   const Pass* findPass(const String& name) const;
-  bool isCompatible(void) const;
   /*! @return @c true if this technique uses framebuffer blending, otherwise
    *  @c false.
    *  @note A blending technique is defined as a technique where the first non-named
@@ -178,7 +176,6 @@ public:
    */
   Technique* getActiveTechnique(void) const;
 private:
-  bool validateTechniques(void) const;
   typedef std::vector<Technique*> List;
   List techniques;
   mutable Technique* active;
