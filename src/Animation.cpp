@@ -30,7 +30,6 @@
 #include <wendy/Vector.h>
 #include <wendy/Bezier.h>
 #include <wendy/Quaternion.h>
-#include <wendy/Matrix.h>
 #include <wendy/Transform.h>
 #include <wendy/Managed.h>
 #include <wendy/Path.h>
@@ -71,6 +70,11 @@ const Transform3& KeyFrame3::getTransform(void) const
   return transform;
 }
 
+const Vec3& KeyFrame3::getDirection(void) const
+{
+  return direction;
+}
+
 void KeyFrame3::setTransform(const Transform3& newTransform)
 {
   transform = newTransform;
@@ -84,6 +88,11 @@ void KeyFrame3::setPosition(const Vec3& newPosition)
 void KeyFrame3::setRotation(const Quat& newRotation)
 {
   transform.rotation = newRotation;
+}
+
+void KeyFrame3::setDirection(const Vec3& newDirection)
+{
+  direction = newDirection;
 }
 
 ///////////////////////////////////////////////////////////////////////

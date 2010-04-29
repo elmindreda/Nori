@@ -28,9 +28,7 @@
 #include <wendy/Core.h>
 #include <wendy/Block.h>
 #include <wendy/Vector.h>
-#include <wendy/Bezier.h>
 #include <wendy/Quaternion.h>
-#include <wendy/Matrix.h>
 #include <wendy/Transform.h>
 #include <wendy/Managed.h>
 #include <wendy/Path.h>
