@@ -69,6 +69,7 @@ public:
   size_t getKeyFrameCount(void) const;
   KeyFrame3& getKeyFrame(size_t index);
   const KeyFrame3& getKeyFrame(size_t index) const;
+  Time getDuration(void) const;
 private:
   typedef std::vector<KeyFrame3> KeyFrameList;
   void sortKeyFrames(void);

@@ -196,6 +196,14 @@ const KeyFrame3& Anim3::getKeyFrame(size_t index) const
   return keyframes[index];
 }
 
+Time Anim3::getDuration(void) const
+{
+  if (keyframes.empty())
+    return 0.0;
+
+  return keyframes.back().getMoment();
+}
+
 void Anim3::sortKeyFrames(void)
 {
   std::stable_sort(keyframes.begin(), keyframes.end());
