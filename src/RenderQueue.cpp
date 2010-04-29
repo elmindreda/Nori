@@ -137,7 +137,7 @@ Operation& Queue::createOperation(void)
 void Queue::destroyOperations(void)
 {
   operations.clear();
-  sorted = false;
+  sorted = true;
 }
 
 void Queue::render(const String& passName) const
