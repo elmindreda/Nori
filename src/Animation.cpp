@@ -102,6 +102,12 @@ Anim3::Anim3(const String& name):
 {
 }
 
+Anim3::Anim3(const Anim3& source):
+  Resource<Anim3>("")
+{
+  operator = (source);
+}
+
 void Anim3::createKeyFrame(Time moment,
                            const Transform3& transform,
                            const Vec3& direction)
@@ -109,9 +115,11 @@ void Anim3::createKeyFrame(Time moment,
   moment = std::max(moment, 0.0);
 
   keyframes.push_back(KeyFrame3(*this));
-  keyframes.back().setTransform(transform);
-  keyframes.back().setDirection(direction);
-  keyframes.back().setMoment(moment);
+  keyframes.back().transform = transform;
+  keyframes.back().direction = direction;
+  keyframes.back().moment = moment;
+
+  sortKeyFrames();
 }
 
 void Anim3::destroyKeyFrame(KeyFrame3& frame)
@@ -145,40 +153,55 @@ void Anim3::evaluate(Time moment, Transform3& result) const
 
   for (index = 0;  index < keyframes.size();  index++)
   {
-    if (keyframes[index].getMoment() > moment)
+    if (keyframes[index].moment > moment)
       break;
   }
 
   if (index == 0)
   {
-    result = keyframes.front().getTransform();
+    result = keyframes.front().transform;
     return;
   }
 
   if (index == keyframes.size())
   {
-    result = keyframes.back().getTransform();
+    result = keyframes.back().transform;
     return;
   }
 
   const KeyFrame3& startFrame = keyframes[index - 1];
   const KeyFrame3& endFrame = keyframes[index];
 
-  const float t = (moment - startFrame.getMoment()) /
-                  (endFrame.getMoment() - startFrame.getMoment());
+  const float t = (moment - startFrame.moment) /
+                  (endFrame.moment - startFrame.moment);
 
-  const Quat& startRot = startFrame.getTransform().rotation;
-  const Quat& endRot = endFrame.getTransform().rotation;
+  const Quat& startRot = startFrame.transform.rotation;
+  const Quat& endRot = endFrame.transform.rotation;
 
   result.rotation = startRot.interpolateTo(t, endRot);
 
   BezierCurve3 curve;
-  curve.P[0] = startFrame.getTransform().position;
-  curve.P[1] = startFrame.getDirection();
-  curve.P[2] = -endFrame.getDirection();
-  curve.P[3] = endFrame.getTransform().position;
+  curve.P[0] = startFrame.transform.position;
+  curve.P[1] = startFrame.direction;
+  curve.P[2] = -endFrame.direction;
+  curve.P[3] = endFrame.transform.position;
 
   result.position = curve(t);
+}
+
+Anim3& Anim3::operator = (const Anim3& source)
+{
+  keyframes.reserve(source.keyframes.size());
+
+  for (KeyFrameList::const_iterator f = source.keyframes.begin();  f != source.keyframes.end();  f++)
+  {
+    keyframes.push_back(KeyFrame3(*this));
+    keyframes.back().transform = f->transform;
+    keyframes.back().direction = f->direction;
+    keyframes.back().moment = f->moment;
+  }
+
+  return *this;
 }
 
 size_t Anim3::getKeyFrameCount(void) const
@@ -201,7 +224,7 @@ Time Anim3::getDuration(void) const
   if (keyframes.empty())
     return 0.0;
 
-  return keyframes.back().getMoment();
+  return keyframes.back().moment;
 }
 
 void Anim3::sortKeyFrames(void)

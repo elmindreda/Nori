@@ -37,6 +37,7 @@ class Anim3;
 
 class KeyFrame3
 {
+  friend class Anim3;
 public:
   KeyFrame3(Anim3& animation);
   bool operator < (const KeyFrame3& other) const;
@@ -62,10 +63,12 @@ class Anim3 : public Resource<Anim3>
   friend class KeyFrame3;
 public:
   Anim3(const String& name = "");
+  Anim3(const Anim3& source);
   void createKeyFrame(Time moment, const Transform3& transform, const Vec3& direction);
   void destroyKeyFrame(KeyFrame3& frame);
   void destroyKeyFrames(void);
   void evaluate(Time moment, Transform3& result) const;
+  Anim3& operator = (const Anim3& source);
   size_t getKeyFrameCount(void) const;
   KeyFrame3& getKeyFrame(size_t index);
   const KeyFrame3& getKeyFrame(size_t index) const;
