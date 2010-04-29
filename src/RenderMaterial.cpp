@@ -139,22 +139,6 @@ const Pass* Technique::findPass(const String& name) const
   return NULL;
 }
 
-bool Technique::operator < (const Technique& other) const
-{
-  // Materials with blending always go last
-  if (isBlending() != other.isBlending())
-  {
-    if (isBlending())
-      return false;
-    else
-      return true;
-  }
-
-  // TODO: Fix this!
-
-  return getName() < other.getName();
-}
-
 bool Technique::isCompatible(void) const
 {
   for (List::const_iterator i = passes.begin();  i != passes.end();  i++)

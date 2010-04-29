@@ -99,10 +99,6 @@ public:
    *  @return The desired %render pass, or @c NULL if no such pass exists.
    */
   const Pass* findPass(const String& name) const;
-  /*! Comparison operator to enable sorting.
-   *  @param other The object to compare to.
-   */
-  bool operator < (const Technique& other) const;
   bool isCompatible(void) const;
   /*! @return @c true if this technique uses framebuffer blending, otherwise
    *  @c false.

@@ -91,6 +91,7 @@ public:
   float distance;
 private:
   mutable bool blending;
+  mutable unsigned int hash;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -104,6 +105,9 @@ typedef std::vector<const Operation*> OperationList;
 
 /*! @brief Render operation queue.
  *  @ingroup renderer
+ *
+ *  @remarks To avoid thrashing the heap, keep your queue objects around
+ *  between frames when possible.
  */
 class Queue
 {
@@ -173,7 +177,7 @@ public:
    */
   const LightState& getLights(void) const;
 private:
-  typedef std::list<Operation> List;
+  typedef std::vector<Operation> List;
   const Camera& camera;
   Light* light;
   LightState lights;

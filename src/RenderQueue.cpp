@@ -60,6 +60,26 @@ struct OperationComparator
   }
 };
 
+/* Hash function used in the ELF executable format
+ */
+unsigned int hashString(const String& string)
+{
+  unsigned int hash = 0;
+  unsigned int temp;
+
+  for (String::const_iterator c = string.begin();  c != string.end();  c++)
+  {
+    hash = (hash << 4) + *c;
+
+    if (temp = hash & 0xf0000000)
+      hash ^= temp >> 24;
+
+    hash &= ~temp;
+  }
+
+  return hash;
+}
+
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
@@ -72,12 +92,18 @@ Operation::Operation(void):
 
 bool Operation::operator < (const Operation& other) const
 {
-  // Sort blending operations by distance
+  // Sort blending operations by reverse distance
   if (blending && other.blending)
     return distance > other.distance;
 
-  // ...and then by pass
-  return (*technique) < (*other.technique);
+  // Put blending operations last
+  if (blending)
+    return false;
+  else if (other.blending)
+    return true;
+
+  // Sort opaque operations by technique (i.e. material)
+  return hash < other.hash;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -104,8 +130,8 @@ Operation& Queue::createOperation(void)
 {
   sorted = false;
 
-  operations.push_front(Operation());
-  return operations.front();
+  operations.push_back(Operation());
+  return operations.back();
 }
 
 void Queue::destroyOperations(void)
@@ -169,10 +195,10 @@ const OperationList& Queue::getOperations(void) const
   {
     sortedOperations.clear();
     sortedOperations.reserve(operations.size());
-    for (List::const_iterator i = operations.begin();  i != operations.end();  i++)
+    for (List::const_iterator o = operations.begin();  o != operations.end();  o++)
     {
-      (*i).blending = (*i).technique->isBlending();
-      sortedOperations.push_back(&(*i));
+      (*o).blending = (*o).technique->isBlending();
+      sortedOperations.push_back(&(*o));
     }
 
     OperationComparator comparator;
