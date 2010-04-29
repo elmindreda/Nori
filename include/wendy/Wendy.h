@@ -101,6 +101,8 @@
 #include <wendy/Bezier.h>
 
 #include <wendy/Pattern.h>
+#include <wendy/Pixel.h>
+#include <wendy/Vertex.h>
 
 #include <wendy/Path.h>
 #include <wendy/Stream.h>
@@ -108,10 +110,9 @@
 #include <wendy/Resource.h>
 #include <wendy/XML.h>
 
-#include <wendy/Pixel.h>
+#include <wendy/Animation.h>
 #include <wendy/Image.h>
 #include <wendy/Font.h>
-#include <wendy/Vertex.h>
 #include <wendy/Mesh.h>
 
 #include <wendy/GLContext.h>

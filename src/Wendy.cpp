@@ -25,6 +25,7 @@
 
 #include <wendy/Wendy.h>
 
+#include <internal/AnimationIO.h>
 #include <internal/ImageIO.h>
 #include <internal/FontIO.h>
 #include <internal/MeshIO.h>
@@ -54,6 +55,7 @@ namespace wendy
 namespace
 {
 
+Ptr<Anim3CodecXML> anim3CodecXML;
 Ptr<ImageCodec> imageCodecPNG;
 Ptr<FontCodec> fontCodecXML;
 Ptr<MeshCodecOBJ> meshCodecOBJ;
@@ -93,6 +95,7 @@ bool initialize(void)
     return false;
   }
 
+  anim3CodecXML = new Anim3CodecXML();
   imageCodecPNG = new ImageCodecPNG();
   fontCodecXML = new FontCodecXML();
   meshCodecOBJ = new MeshCodecOBJ();
@@ -124,6 +127,7 @@ void shutdown(void)
 {
   GL::Context::destroy();
 
+  anim3CodecXML = NULL;
   imageCodecPNG = NULL;
   fontCodecXML = NULL;
   meshCodecOBJ = NULL;
