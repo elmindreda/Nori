@@ -340,43 +340,6 @@ void Quat::setAxisRotation(const Vec3& axis, float angle)
 
 ///////////////////////////////////////////////////////////////////////
 
-void QuatTrack::evaluate(float t, Quat& result) const
-{
-  if (points.size() == 0)
-  {
-    result.setIdentity();
-    return;
-  }
-
-  if ((t <= 0.f) || (points.size() == 1))
-  {
-    result = points.front();
-    return;
-  }
-
-  if (t >= 1.f)
-  {
-    result = points.back();
-    return;
-  }
-
-  unsigned int source = (unsigned int) (t * (points.size() - 1));
-  unsigned int target = source + 1;
-
-  const float tt = (t * (points.size() - 1)) - (float) source;
-
-  result = points[source].interpolateTo(tt, points[target]);
-}
-
-Quat QuatTrack::operator () (float t) const
-{
-  Quat result;
-  evaluate(t, result);
-  return result;
-}
-
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
