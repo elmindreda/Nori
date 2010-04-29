@@ -84,7 +84,7 @@ typedef BezierPoint<Vec3> BezierPoint3;
 /*! @brief N-dimensional cubic Bézier segment path with first order continuity.
  */
 template <typename T>
-class BezierTrack
+class BezierSpline
 {
 public:
   typedef std::vector<BezierPoint<T> > PointList;
@@ -97,8 +97,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-typedef BezierTrack<Vec2> BezierTrack2;
-typedef BezierTrack<Vec3> BezierTrack3;
+typedef BezierSpline<Vec2> BezierSpline2;
+typedef BezierSpline<Vec3> BezierSpline3;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -239,7 +239,7 @@ inline void BezierPoint<T>::set(const T& newPosition, const T& newDirection)
 ///////////////////////////////////////////////////////////////////////
 
 template <typename T>
-inline void BezierTrack<T>::evaluate(float t, T& result) const
+inline void BezierSpline<T>::evaluate(float t, T& result) const
 {
   if (points.size() == 0)
   {
@@ -272,7 +272,7 @@ inline void BezierTrack<T>::evaluate(float t, T& result) const
 }
 
 template <typename T>
-inline T BezierTrack<T>::operator () (float t) const
+inline T BezierSpline<T>::operator () (float t) const
 {
   T result;
   evaluate(t, result);
@@ -280,8 +280,8 @@ inline T BezierTrack<T>::operator () (float t) const
 }
 
 template <typename T>
-inline void BezierTrack<T>::tessellate(typename BezierCurve<T>::PointList& result,
-                                       float tolerance) const
+inline void BezierSpline<T>::tessellate(typename BezierCurve<T>::PointList& result,
+                                        float tolerance) const
 {
   if (points.empty())
     return;
