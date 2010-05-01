@@ -130,7 +130,7 @@ void Demo::run(void)
   {
     Time currentTime = timer.getTime();
 
-    graph.setTimeElapsed(currentTime);
+    graph.update();
 
     // Calculate back-projection matrix for this frame
     {

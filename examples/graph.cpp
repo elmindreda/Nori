@@ -80,7 +80,7 @@ void Demo::run(void)
     meshNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f),
 							   (float) currentTime);
 
-    graph.setTimeElapsed(currentTime);
+    graph.update();
 
     context->clearDepthBuffer();
     context->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));

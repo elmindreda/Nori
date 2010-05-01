@@ -71,7 +71,7 @@ bool Demo::init(void)
 
   cameraNode = new scene::CameraNode();
   cameraNode->setCamera(camera);
-  graph.addNode(*cameraNode);
+  graph.addRootNode(*cameraNode);
 
   timer.start();
 
@@ -82,7 +82,7 @@ void Demo::run(void)
 {
   do
   {
-    graph.setTimeElapsed(timer.getTime());
+    graph.update();
 
     render::Queue queue(*camera);
     graph.enqueue(queue);

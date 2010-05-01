@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <show title="Editor" music="" >
- <effect name="Clear screen" type="Clear screen" start="0.000000" duration="10.000000" >
+ <effect name="Clear screen" type="Clear screen" start="0.000000" duration="70.000000" >
   <property name="Color" />
  </effect>
- <effect name="Shader cube" type="Shader cube" start="0.000000" duration="10.000000" />
+ <effect name="Shader cube" type="Shader cube" start="0.000000" duration="70.000000" />
 </show>

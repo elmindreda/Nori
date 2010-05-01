@@ -160,7 +160,7 @@ void Demo::run(void)
 
   do
   {
-    graph.setTimeElapsed(timer.getTime());
+    graph.update();
 
     render::Sprite2 sprite;
     sprite.position.set(0.5f, 0.5f);
