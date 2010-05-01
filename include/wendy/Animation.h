@@ -31,15 +31,15 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-class Anim3;
+class AnimTrack3;
 
 ///////////////////////////////////////////////////////////////////////
 
 class KeyFrame3
 {
-  friend class Anim3;
+  friend class AnimTrack3;
 public:
-  KeyFrame3(Anim3& animation);
+  KeyFrame3(AnimTrack3& track);
   bool operator < (const KeyFrame3& other) const;
   Time getMoment(void) const;
   void setMoment(Time newMoment);
@@ -50,7 +50,7 @@ public:
   void setRotation(const Quat& newRotation);
   void setDirection(const Vec3& newDirection);
 private:
-  Anim3* animation;
+  AnimTrack3* track;
   Transform3 transform;
   Vec3 direction;
   Time moment;
@@ -58,26 +58,50 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class Anim3 : public Resource<Anim3>
+class AnimTrack3
 {
   friend class KeyFrame3;
 public:
-  Anim3(const String& name = "");
-  Anim3(const Anim3& source);
+  AnimTrack3(const String& name);
+  AnimTrack3(const AnimTrack3& source);
   void createKeyFrame(Time moment, const Transform3& transform, const Vec3& direction);
   void destroyKeyFrame(KeyFrame3& frame);
   void destroyKeyFrames(void);
   void evaluate(Time moment, Transform3& result) const;
-  Anim3& operator = (const Anim3& source);
+  AnimTrack3& operator = (const AnimTrack3& source);
   size_t getKeyFrameCount(void) const;
   KeyFrame3& getKeyFrame(size_t index);
   const KeyFrame3& getKeyFrame(size_t index) const;
+  const String& getName(void) const;
   Time getDuration(void) const;
   float getLength(float tolerance = 0.5f) const;
 private:
   typedef std::vector<KeyFrame3> KeyFrameList;
   void sortKeyFrames(void);
   KeyFrameList keyframes;
+  String name;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class Anim3 : public Resource<Anim3>
+{
+public:
+  Anim3(const String& name = "");
+  Anim3(const Anim3& source);
+  ~Anim3(void);
+  Anim3& operator = (const Anim3& source);
+  AnimTrack3& createTrack(const String& name);
+  void destroyTrack(AnimTrack3& track);
+  void destroyTracks(void);
+  AnimTrack3* findTrack(const String& name);
+  const AnimTrack3* findTrack(const String& name) const;
+  size_t getTrackCount(void) const;
+  AnimTrack3& getTrack(size_t index);
+  const AnimTrack3& getTrack(size_t index) const;
+private:
+  typedef std::vector<AnimTrack3*> TrackList;
+  TrackList tracks;
 };
 
 ///////////////////////////////////////////////////////////////////////

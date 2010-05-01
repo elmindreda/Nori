@@ -69,6 +69,7 @@ Anim3* Anim3CodecXML::read(const Path& path, const String& name)
 Anim3* Anim3CodecXML::read(Stream& stream, const String& name)
 {
   animName = name;
+  currentTrack = NULL;
 
   if (!XML::Codec::read(stream))
   {
@@ -93,15 +94,25 @@ bool Anim3CodecXML::write(Stream& stream, const Anim3& animation)
     beginElement("animation");
     addAttribute("version", ANIM3_XML_VERSION);
 
-    for (size_t i = 0;  i < animation.getKeyFrameCount();  i++)
+    for (size_t i = 0;  i < animation.getTrackCount();  i++)
     {
-      const KeyFrame3& keyframe = animation.getKeyFrame(i);
+      const AnimTrack3& track = animation.getTrack(i);
 
-      beginElement("keyframe");
-      addAttribute("moment", keyframe.getMoment());
-      addAttribute("position", keyframe.getTransform().position.asString());
-      addAttribute("rotation", keyframe.getTransform().rotation.asString());
-      addAttribute("direction", keyframe.getDirection().asString());
+      beginElement("track");
+      addAttribute("name", track.getName());
+
+      for (size_t j = 0;  j < track.getKeyFrameCount();  j++)
+      {
+        const KeyFrame3& keyframe = track.getKeyFrame(i);
+
+        beginElement("keyframe");
+        addAttribute("moment", keyframe.getMoment());
+        addAttribute("position", keyframe.getTransform().position.asString());
+        addAttribute("rotation", keyframe.getTransform().rotation.asString());
+        addAttribute("direction", keyframe.getDirection().asString());
+        endElement();
+      }
+
       endElement();
     }
 
@@ -127,7 +138,7 @@ bool Anim3CodecXML::onBeginElement(const String& name)
   {
     if (animation)
     {
-      Log::writeError("Only one animation per file allowed");
+      Log::writeError("Only one 3D animation per file allowed");
       return false;
     }
 
@@ -147,19 +158,42 @@ bool Anim3CodecXML::onBeginElement(const String& name)
 
   if (animation)
   {
-    if (name == "keyframe")
+    if (name == "track")
     {
-      Time moment = readFloat("moment");
+      if (currentTrack)
+      {
+        Log::writeError("3D animation tracks may not be nested");
+        return false;
+      }
 
-      Transform3 transform;
-      transform.position = Vec3(readString("position"));
-      transform.rotation = Quat(readString("rotation"));
-      transform.rotation.normalize();
+      String name = readString("name");
 
-      Vec3 direction = Vec3(readString("direction"));
+      if (name.empty())
+      {
+        Log::writeError("3D animation track names may not be empty");
+        return false;
+      }
 
-      animation->createKeyFrame(moment, transform, direction);
+      currentTrack = &(animation->createTrack(name));
       return true;
+    }
+
+    if (currentTrack)
+    {
+      if (name == "keyframe")
+      {
+        Time moment = readFloat("moment");
+
+        Transform3 transform;
+        transform.position = Vec3(readString("position"));
+        transform.rotation = Quat(readString("rotation"));
+        transform.rotation.normalize();
+
+        Vec3 direction = Vec3(readString("direction"));
+
+        currentTrack->createKeyFrame(moment, transform, direction);
+        return true;
+      }
     }
   }
 

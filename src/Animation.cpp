@@ -44,8 +44,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-KeyFrame3::KeyFrame3(Anim3& initAnimation):
-  animation(&initAnimation)
+KeyFrame3::KeyFrame3(AnimTrack3& initTrack):
+  track(&initTrack)
 {
 }
 
@@ -62,7 +62,7 @@ Time KeyFrame3::getMoment(void) const
 void KeyFrame3::setMoment(Time newMoment)
 {
   moment = newMoment;
-  animation->sortKeyFrames();
+  track->sortKeyFrames();
 }
 
 const Transform3& KeyFrame3::getTransform(void) const
@@ -97,20 +97,19 @@ void KeyFrame3::setDirection(const Vec3& newDirection)
 
 ///////////////////////////////////////////////////////////////////////
 
-Anim3::Anim3(const String& name):
-  Resource<Anim3>(name)
+AnimTrack3::AnimTrack3(const String& initName):
+  name(initName)
 {
 }
 
-Anim3::Anim3(const Anim3& source):
-  Resource<Anim3>("")
+AnimTrack3::AnimTrack3(const AnimTrack3& source)
 {
   operator = (source);
 }
 
-void Anim3::createKeyFrame(Time moment,
-                           const Transform3& transform,
-                           const Vec3& direction)
+void AnimTrack3::createKeyFrame(Time moment,
+                                const Transform3& transform,
+                                const Vec3& direction)
 {
   moment = std::max(moment, 0.0);
 
@@ -122,7 +121,7 @@ void Anim3::createKeyFrame(Time moment,
   sortKeyFrames();
 }
 
-void Anim3::destroyKeyFrame(KeyFrame3& frame)
+void AnimTrack3::destroyKeyFrame(KeyFrame3& frame)
 {
   for (KeyFrameList::iterator f = keyframes.begin();  f != keyframes.end();  f++)
   {
@@ -134,12 +133,12 @@ void Anim3::destroyKeyFrame(KeyFrame3& frame)
   }
 }
 
-void Anim3::destroyKeyFrames(void)
+void AnimTrack3::destroyKeyFrames(void)
 {
   keyframes.clear();
 }
 
-void Anim3::evaluate(Time moment, Transform3& result) const
+void AnimTrack3::evaluate(Time moment, Transform3& result) const
 {
   if (keyframes.empty())
   {
@@ -189,7 +188,7 @@ void Anim3::evaluate(Time moment, Transform3& result) const
   result.position = curve(t);
 }
 
-Anim3& Anim3::operator = (const Anim3& source)
+AnimTrack3& AnimTrack3::operator = (const AnimTrack3& source)
 {
   keyframes.reserve(source.keyframes.size());
 
@@ -201,25 +200,31 @@ Anim3& Anim3::operator = (const Anim3& source)
     keyframes.back().moment = f->moment;
   }
 
+  name = source.name;
   return *this;
 }
 
-size_t Anim3::getKeyFrameCount(void) const
+size_t AnimTrack3::getKeyFrameCount(void) const
 {
   return keyframes.size();
 }
 
-KeyFrame3& Anim3::getKeyFrame(size_t index)
+KeyFrame3& AnimTrack3::getKeyFrame(size_t index)
 {
   return keyframes[index];
 }
 
-const KeyFrame3& Anim3::getKeyFrame(size_t index) const
+const KeyFrame3& AnimTrack3::getKeyFrame(size_t index) const
 {
   return keyframes[index];
 }
 
-Time Anim3::getDuration(void) const
+const String& AnimTrack3::getName(void) const
+{
+  return name;
+}
+
+Time AnimTrack3::getDuration(void) const
 {
   if (keyframes.empty())
     return 0.0;
@@ -227,7 +232,7 @@ Time Anim3::getDuration(void) const
   return keyframes.back().moment;
 }
 
-float Anim3::getLength(float tolerance) const
+float AnimTrack3::getLength(float tolerance) const
 {
   if (keyframes.size() < 2)
     return 0.f;
@@ -248,9 +253,102 @@ float Anim3::getLength(float tolerance) const
   return length;
 }
 
-void Anim3::sortKeyFrames(void)
+void AnimTrack3::sortKeyFrames(void)
 {
   std::stable_sort(keyframes.begin(), keyframes.end());
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Anim3::Anim3(const String& name):
+  Resource<Anim3>(name)
+{
+}
+
+Anim3::Anim3(const Anim3& source):
+  Resource<Anim3>("")
+{
+  operator = (source);
+}
+
+Anim3::~Anim3(void)
+{
+  destroyTracks();
+}
+
+Anim3& Anim3::operator = (const Anim3& source)
+{
+  destroyTracks();
+  tracks.reserve(source.tracks.size());
+
+  for (TrackList::const_iterator t = tracks.begin();  t != tracks.end();  t++)
+    tracks.push_back(new AnimTrack3(**t));
+
+  return *this;
+}
+
+AnimTrack3& Anim3::createTrack(const String& name)
+{
+  tracks.push_back(new AnimTrack3(name));
+  return *tracks.back();
+}
+
+void Anim3::destroyTrack(AnimTrack3& track)
+{
+  for (TrackList::iterator t = tracks.begin();  t != tracks.end();  t++)
+  {
+    if (*t == &track)
+    {
+      tracks.erase(t);
+      break;
+    }
+  }
+}
+
+void Anim3::destroyTracks(void)
+{
+  while (!tracks.empty())
+  {
+    delete tracks.back();
+    tracks.pop_back();
+  }
+}
+
+AnimTrack3* Anim3::findTrack(const String& name)
+{
+  for (TrackList::const_iterator t = tracks.begin();  t != tracks.end();  t++)
+  {
+    if ((*t)->getName() == name)
+      return *t;
+  }
+
+  return NULL;
+}
+
+const AnimTrack3* Anim3::findTrack(const String& name) const
+{
+  for (TrackList::const_iterator t = tracks.begin();  t != tracks.end();  t++)
+  {
+    if ((*t)->getName() == name)
+      return *t;
+  }
+
+  return NULL;
+}
+
+size_t Anim3::getTrackCount(void) const
+{
+  return tracks.size();
+}
+
+AnimTrack3& Anim3::getTrack(size_t index)
+{
+  return *tracks[index];
+}
+
+const AnimTrack3& Anim3::getTrack(size_t index) const
+{
+  return *tracks[index];
 }
 
 ///////////////////////////////////////////////////////////////////////

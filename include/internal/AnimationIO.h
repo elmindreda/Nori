@@ -47,6 +47,7 @@ private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
   Ptr<Anim3> animation;
+  AnimTrack3* currentTrack;
   String animName;
 };
 
