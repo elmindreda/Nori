@@ -813,15 +813,6 @@ static int createContext( const _GLFWwndconfig *wndconfig, GLXFBConfigID fbconfi
     int flags, dummy, index;
     GLXFBConfig *fbconfig;
 
-    if( wndconfig->glMajor > 2 )
-    {
-        if( !_glfwWin.has_GLX_ARB_create_context )
-        {
-            fprintf(stderr, "GLX_ARB_create_context extension not found\n");
-            return GL_FALSE;
-        }
-    }
-
     // Retrieve the previously selected GLXFBConfig
     {
         index = 0;
@@ -874,7 +865,7 @@ static int createContext( const _GLFWwndconfig *wndconfig, GLXFBConfigID fbconfi
     {
         index = 0;
 
-        if( wndconfig->glMajor != 0 || wndconfig->glMinor != 0 )
+        if( wndconfig->glMajor != 1 || wndconfig->glMinor != 0 )
         {
             // Request an explicitly versioned context
 
@@ -960,6 +951,8 @@ static int createContext( const _GLFWwndconfig *wndconfig, GLXFBConfigID fbconfi
 
     return GL_TRUE;
 }
+
+#undef setGLXattrib
 
 
 //========================================================================
@@ -1782,23 +1775,8 @@ void _glfwPlatformPollEvents( void )
     // Did we get mouse movement in locked cursor mode?
     if( _glfwInput.MouseMoved && _glfwWin.mouseLock )
     {
-        int maxx, minx, maxy, miny;
-
-        // Calculate movement threshold
-        minx = _glfwWin.width / 4;
-        maxx = (_glfwWin.width * 3) / 4;
-        miny = _glfwWin.height / 4;
-        maxy = (_glfwWin.height * 3) / 4;
-
-        // Did the mouse cursor move beyond our movement threshold
-        if(_glfwInput.CursorPosX < minx || _glfwInput.CursorPosX > maxx ||
-           _glfwInput.CursorPosY < miny || _glfwInput.CursorPosY > maxy)
-        {
-            // Move the mouse pointer back to the window center so that it
-            // does not wander off...
-            _glfwPlatformSetMouseCursorPos( _glfwWin.width/2,
-                                            _glfwWin.height/2 );
-        }
+        _glfwPlatformSetMouseCursorPos( _glfwWin.width/2,
+                                        _glfwWin.height/2 );
     }
 
     // Was the window (un)iconified?

@@ -45,6 +45,14 @@ typedef void *id;
 
 #include "GL/glfw.h"
 
+
+#ifndef GL_VERSION_3_0
+
+typedef const GLubyte * (APIENTRY *PFNGLGETSTRINGIPROC) (GLenum, GLuint);
+
+#endif /*GL_VERSION_3_0*/
+
+
 //========================================================================
 // GLFW platform specific types
 //========================================================================
@@ -108,6 +116,8 @@ struct _GLFWwin_struct {
     int       has_GL_ARB_texture_non_power_of_two;
     int       glMajor, glMinor, glRevision;
     int       glForward, glDebug, glProfile;
+
+    PFNGLGETSTRINGIPROC GetStringi;
 
 // ========= PLATFORM SPECIFIC PART ======================================
 

@@ -35,6 +35,10 @@
 //****                  GLFW internal functions                       ****
 //************************************************************************
 
+#ifndef GL_VERSION_3_0
+#define GL_NUM_EXTENSIONS 0x821D
+#endif
+
 //========================================================================
 // Parses the OpenGL version string and extracts the version number
 //========================================================================
@@ -132,6 +136,8 @@ GLFWAPI int GLFWAPIENTRY glfwExtensionSupported( const char *extension )
 {
     const GLubyte *extensions;
     GLubyte *where;
+    GLint count;
+    int i;
 
     // Is GLFW initialized?
     if( !_glfwInitialized || !_glfwWin.opened )
@@ -146,20 +152,36 @@ GLFWAPI int GLFWAPIENTRY glfwExtensionSupported( const char *extension )
         return GL_FALSE;
     }
 
-    // Check if extension is in the standard OpenGL extensions string
-    extensions = glGetString( GL_EXTENSIONS );
-    if( extensions != NULL )
+    if( _glfwWin.glMajor < 3 )
     {
-        if( _glfwStringInExtensionString( extension, extensions ) )
+        // Check if extension is in the standard OpenGL extensions string
+        extensions = glGetString( GL_EXTENSIONS );
+        if( extensions != NULL )
+        {
+            if( _glfwStringInExtensionString( extension, extensions ) )
+            {
+                return GL_TRUE;
+            }
+        }
+
+        // Additional platform specific extension checking (e.g. WGL)
+        if( _glfwPlatformExtensionSupported( extension ) )
         {
             return GL_TRUE;
         }
     }
-
-    // Additional platform specific extension checking (e.g. WGL)
-    if( _glfwPlatformExtensionSupported( extension ) )
+    else
     {
-        return GL_TRUE;
+        glGetIntegerv( GL_NUM_EXTENSIONS, &count );
+
+        for( i = 0;  i < count;  i++ )
+        {
+             if( strcmp( (const char*) _glfwWin.GetStringi( GL_EXTENSIONS, i ),
+                         extension ) == 0 )
+             {
+                 return GL_TRUE;
+             }
+        }
     }
 
     return GL_FALSE;

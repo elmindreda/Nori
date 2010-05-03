@@ -189,6 +189,14 @@ typedef GLXContext (*PFNGLXCREATECONTEXTATTRIBSARBPROC)( Display *display, GLXFB
 #endif /*GLX_ARB_create_context_profile*/
 
 
+#ifndef GL_VERSION_3_0
+
+typedef const GLubyte * (APIENTRY *PFNGLGETSTRINGIPROC) (GLenum, GLuint);
+
+#endif /*GL_VERSION_3_0*/
+
+
+
 //========================================================================
 // Global variables (GLFW internals)
 //========================================================================
@@ -247,6 +255,8 @@ struct _GLFWwin_struct {
     int       has_GL_ARB_texture_non_power_of_two;
     int       glMajor, glMinor, glRevision;
     int       glForward, glDebug, glProfile;
+
+    PFNGLGETSTRINGIPROC GetStringi;
 
 
 // ========= PLATFORM SPECIFIC PART ======================================

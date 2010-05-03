@@ -165,9 +165,13 @@ extern "C" {
   #include <OpenGL/glu.h>
  #endif
 #else
- #include <GL/gl.h>
- #ifndef GLFW_NO_GLU
-  #include <GL/glu.h>
+ #ifdef GLFW_INCLUDE_GL3
+  #include <GL3/gl3.h>
+ #else
+  #include <GL/gl.h>
+  #ifndef GLFW_NO_GLU
+   #include <GL/glu.h>
+  #endif
  #endif
 #endif
 

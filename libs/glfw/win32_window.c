@@ -308,7 +308,7 @@ static HGLRC createContext( HDC dc, const _GLFWwndconfig* wndconfig, int pixelFo
     {
         // Use the newer wglCreateContextAttribsARB
 
-        if( wndconfig->glMajor != 0 || wndconfig->glMinor != 0 )
+        if( wndconfig->glMajor != 1 || wndconfig->glMinor != 0 )
         {
             // Request an explicitly versioned context
 
