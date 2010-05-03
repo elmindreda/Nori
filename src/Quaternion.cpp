@@ -214,8 +214,6 @@ void Quat::setIdentity(void)
 
 void Quat::setEulerRotation(const Vec3& angles)
 {
-  // TODO: implement!
-  /*
   const float cosX = cosf(angles.x * 0.5f);
   const float cosY = cosf(angles.y * 0.5f);
   const float cosZ = cosf(angles.z * 0.5f);
@@ -228,7 +226,6 @@ void Quat::setEulerRotation(const Vec3& angles)
   x = sinX * cosY * cosZ - cosX * sinY * sinZ;
   y = cosX * sinY * cosZ + sinX * cosY * sinZ;
   z = cosX * cosY * sinZ - sinX * sinY * cosZ;
-  */
 }
 
 void Quat::setMatrixRotation(const Mat3& matrix)
