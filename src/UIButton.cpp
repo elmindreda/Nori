@@ -52,8 +52,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Button::Button(Desktop& desktop, Widget* parent, const String& initText):
-  Widget(desktop, parent),
+Button::Button(Desktop& desktop, const String& initText):
+  Widget(desktop),
   text(initText)
 {
   Renderer& renderer = getDesktop().getRenderer();

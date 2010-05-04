@@ -52,8 +52,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Page::Page(Desktop& desktop, Book& book, const String& initText):
-  Widget(desktop, &book),
+Page::Page(Desktop& desktop, const String& initText):
+  Widget(desktop),
   text(initText)
 {
 }
@@ -91,8 +91,8 @@ void Page::draw(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-Book::Book(Desktop& desktop, Widget* parent):
-  Widget(desktop, parent),
+Book::Book(Desktop& desktop):
+  Widget(desktop),
   activePage(NULL)
 {
   getKeyPressedSignal().connect(*this, &Book::onKeyPressed);

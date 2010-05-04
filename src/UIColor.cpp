@@ -54,17 +54,19 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-ColorPickerRGB::ColorPickerRGB(Desktop& desktop, Widget* parent):
-  Widget(desktop, parent)
+ColorPickerRGB::ColorPickerRGB(Desktop& desktop):
+  Widget(desktop)
 {
-  Layout* sliderLayout = new Layout(desktop, this, VERTICAL);
+  Layout* sliderLayout = new Layout(desktop, VERTICAL);
   sliderLayout->setBorderSize(1.f);
+  addChild(*sliderLayout);
 
   for (unsigned int i = 0;  i < 3;  i++)
   {
-    sliders[i] = new Slider(desktop, sliderLayout, HORIZONTAL);
+    sliders[i] = new Slider(desktop, HORIZONTAL);
     sliders[i]->setValueRange(0.f, 1.f);
     sliders[i]->getValueChangedSignal().connect(*this, &ColorPickerRGB::onValueChanged);
+    sliderLayout->addChild(*sliders[i]);
   }
 
   // TODO: Set size.

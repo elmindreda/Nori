@@ -38,7 +38,7 @@ namespace wendy
 class Button : public Widget
 {
 public:
-  Button(Desktop& desktop, Widget* parent = NULL, const String& text = "");
+  Button(Desktop& desktop, const String& text = "");
   const String& getText(void) const;
   void setText(const String& newText);
   SignalProxy1<void, Button&> getPushedSignal(void);

@@ -38,7 +38,7 @@ namespace wendy
 class Progress : public Widget
 {
 public:
-  Progress(Desktop& desktop, Widget* parent, Orientation orientation);
+  Progress(Desktop& desktop, Orientation orientation);
   float getMinValue(void) const;
   float getMaxValue(void) const;
   void setValueRange(float newMinValue, float newMaxValue);

@@ -267,47 +267,54 @@ bool Editor::init(const String& showName)
   const float em = renderer->getDefaultEM();
 
   book = new UI::Book(*desktop);
+  desktop->addRootWidget(*book);
 
-  UI::Page* timelinePage = new UI::Page(*desktop, *book, "Timeline Editor");
+  UI::Page* timelinePage = new UI::Page(*desktop, "Timeline Editor");
+  book->addChild(*timelinePage);
 
   {
-    UI::Layout* mainLayout = new UI::Layout(*desktop, timelinePage, UI::VERTICAL);
+    UI::Layout* mainLayout = new UI::Layout(*desktop, UI::VERTICAL);
+    timelinePage->addChild(*mainLayout);
 
-    UI::Layout* upperLayout = new UI::Layout(*desktop, mainLayout, UI::HORIZONTAL, false);
+    UI::Layout* upperLayout = new UI::Layout(*desktop, UI::HORIZONTAL, false);
     upperLayout->setBorderSize(3.f);
-    mainLayout->setChildSize(*upperLayout, 0.f);
+    mainLayout->addChild(*upperLayout, 0.f);
 
-    canvas = new UI::Canvas(*desktop, upperLayout);
+    canvas = new UI::Canvas(*desktop);
     canvas->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
     canvas->getDrawSignal().connect(*this, &Editor::onDrawShowCanvas);
-    upperLayout->setChildSize(*canvas, 0.f);
+    upperLayout->addChild(*canvas, 0.f);
 
-    UI::Layout* controlLayout = new UI::Layout(*desktop, upperLayout, UI::HORIZONTAL, false);
+    UI::Layout* controlLayout = new UI::Layout(*desktop, UI::HORIZONTAL, false);
     controlLayout->setBorderSize(0.f);
-    upperLayout->setChildSize(*controlLayout, 0.f);
+    upperLayout->addChild(*controlLayout, 0.f);
 
-    UI::Layout* commandLayout = new UI::Layout(*desktop, controlLayout, UI::VERTICAL, false);
+    UI::Layout* commandLayout = new UI::Layout(*desktop, UI::VERTICAL, false);
     commandLayout->setBorderSize(3.f);
-    controlLayout->setChildSize(*commandLayout, 0.f);
+    controlLayout->addChild(*commandLayout, 0.f);
 
     UI::Button* button;
 
-    button = new UI::Button(*desktop, commandLayout, "Create Effect");
+    button = new UI::Button(*desktop, "Create Effect");
     button->getPushedSignal().connect(*this, &Editor::onCreateEffect);
+    commandLayout->addChild(*button);
 
-    button = new UI::Button(*desktop, commandLayout, "Destroy All Effects");
+    button = new UI::Button(*desktop, "Destroy All Effects");
     button->getPushedSignal().connect(*this, &Editor::onDestroyAllEffects);
+    commandLayout->addChild(*button);
 
     UI::Label* label;
 
-    label = new UI::Label(*desktop, commandLayout, "Effect Name");
+    label = new UI::Label(*desktop, "Effect Name");
+    commandLayout->addChild(*label);
 
-    nameEntry = new UI::Entry(*desktop, commandLayout);
+    nameEntry = new UI::Entry(*desktop);
     nameEntry->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
     nameEntry->disable();
+    commandLayout->addChild(*nameEntry);
 
-    effectType = new UI::List(*desktop, controlLayout);
-    controlLayout->setChildSize(*effectType, 0.f);
+    effectType = new UI::List(*desktop);
+    controlLayout->addChild(*effectType, 0.f);
 
     // Build effect type list
     {
@@ -327,85 +334,102 @@ bool Editor::init(const String& showName)
       }
     }
 
-    UI::Layout* timelineLayout = new UI::Layout(*desktop, mainLayout, UI::VERTICAL, false);
+    UI::Layout* timelineLayout = new UI::Layout(*desktop, UI::VERTICAL, false);
     timelineLayout->setBorderSize(3.f);
-    mainLayout->setChildSize(*timelineLayout, 0.f);
+    mainLayout->addChild(*timelineLayout, 0.f);
 
-    UI::Layout* playLayout = new UI::Layout(*desktop, timelineLayout, UI::HORIZONTAL, false);
+    UI::Layout* playLayout = new UI::Layout(*desktop, UI::HORIZONTAL, false);
     playLayout->setSize(Vec2(em * 2.f, em * 2.f));
+    timelineLayout->addChild(*playLayout);
 
-    UI::Slider* zoomSlider = new UI::Slider(*desktop, playLayout, UI::HORIZONTAL);
+    UI::Slider* zoomSlider = new UI::Slider(*desktop, UI::HORIZONTAL);
     zoomSlider->setSize(Vec2(em * 10.f, 0.f));
     zoomSlider->setValueRange(1.f, 10.f);
     zoomSlider->setValue(1.f);
     zoomSlider->getValueChangedSignal().connect(*this, &Editor::onZoomChanged);
+    playLayout->addChild(*zoomSlider);
 
-    timeDisplay = new UI::Label(*desktop, playLayout);
+    timeDisplay = new UI::Label(*desktop);
     timeDisplay->setTextAlignment(UI::CENTERED_ON_X);
-    playLayout->setChildSize(*timeDisplay, 0.f);
+    playLayout->addChild(*timeDisplay, 0.f);
 
-    parentPopup = new UI::Popup(*desktop, playLayout);
+    parentPopup = new UI::Popup(*desktop);
     parentPopup->setSize(Vec2(em * 10.f, 0.f));
     parentPopup->getItemSelectedSignal().connect(*this, &Editor::onParentSelected);
+    playLayout->addChild(*parentPopup);
 
-    button = new UI::Button(*desktop, playLayout, "Maali");
+    button = new UI::Button(*desktop, "Maali");
     button->setSize(Vec2(em * 6.f, 0.f));
     button->getPushedSignal().connect(*this, &Editor::onMaali);
+    playLayout->addChild(*button);
 
-    button = new UI::Button(*desktop, playLayout, "||");
+    button = new UI::Button(*desktop, "||");
     button->setSize(Vec2(em * 4.f, 0.f));
     button->getPushedSignal().connect(*this, &Editor::onPauseResume);
+    playLayout->addChild(*button);
 
-    button = new UI::Button(*desktop, playLayout, "|<");
+    button = new UI::Button(*desktop, "|<");
     button->setSize(Vec2(em * 4.f, 0.f));
     button->getPushedSignal().connect(*this, &Editor::onRewind);
+    playLayout->addChild(*button);
 
-    timeline = new Timeline(*desktop, timelineLayout, *show);
+    timeline = new Timeline(*desktop, *show);
     timeline->getTimeChangedSignal().connect(*this, &Editor::onTimeChanged);
     timeline->getParentChangedSignal().connect(*this, &Editor::onParentChanged);
     timeline->getEffectSelectedSignal().connect(*this, &Editor::onSelectionChanged);
-    timelineLayout->setChildSize(*timeline, 0.f);
+    timelineLayout->addChild(*timeline, 0.f);
   }
 
-  UI::Page* showPage = new UI::Page(*desktop, *book, "Show Editor");
+  UI::Page* showPage = new UI::Page(*desktop, "Show Editor");
+  book->addChild(*showPage);
 
   {
-    UI::Layout* mainLayout = new UI::Layout(*desktop, showPage, UI::VERTICAL);
+    UI::Layout* mainLayout = new UI::Layout(*desktop, UI::VERTICAL);
     mainLayout->setBorderSize(3.f);
+    showPage->addChild(*mainLayout);
 
     UI::Label* label;
     UI::Button* button;
 
-    label = new UI::Label(*desktop, mainLayout, "Show Path: " + show->getSourcePath().asString());
+    label = new UI::Label(*desktop, "Show Path: " + show->getSourcePath().asString());
+    mainLayout->addChild(*label);
 
-    button = new UI::Button(*desktop, mainLayout, "Load Show");
+    button = new UI::Button(*desktop, "Load Show");
     button->getPushedSignal().connect(*this, &Editor::onLoadShow);
+    mainLayout->addChild(*button);
 
-    button = new UI::Button(*desktop, mainLayout, "Save Show");
+    button = new UI::Button(*desktop, "Save Show");
     button->getPushedSignal().connect(*this, &Editor::onSaveShow);
+    mainLayout->addChild(*button);
 
-    label = new UI::Label(*desktop, mainLayout, "Show Title");
+    label = new UI::Label(*desktop, "Show Title");
+    mainLayout->addChild(*label);
 
-    titleEntry = new UI::Entry(*desktop, mainLayout);
+    titleEntry = new UI::Entry(*desktop);
     titleEntry->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
     titleEntry->setText(show->getTitle());
+    mainLayout->addChild(*titleEntry);
 
-    label = new UI::Label(*desktop, mainLayout, "Music Path");
+    label = new UI::Label(*desktop, "Music Path");
+    mainLayout->addChild(*label);
 
-    musicEntry = new UI::Entry(*desktop, mainLayout);
+    musicEntry = new UI::Entry(*desktop);
     musicEntry->setText(show->getMusicPath().asString());
+    mainLayout->addChild(*musicEntry);
 
     // Set aspect ratio(s)
     // Set default mode
   }
 
-  UI::Page* aboutPage = new UI::Page(*desktop, *book, "About Wendy");
+  UI::Page* aboutPage = new UI::Page(*desktop, "About Wendy");
+  book->addChild(*aboutPage);
 
   {
-    UI::Layout* mainLayout = new UI::Layout(*desktop, aboutPage, UI::VERTICAL);
+    UI::Layout* mainLayout = new UI::Layout(*desktop, UI::VERTICAL);
+    aboutPage->addChild(*mainLayout);
 
-    UI::Label* aboutLabel = new UI::Label(*desktop, mainLayout);
-    mainLayout->setChildSize(*aboutLabel, 0.f);
+    UI::Label* aboutLabel = new UI::Label(*desktop);
+    mainLayout->addChild(*aboutLabel, 0.f);
 
     aboutLabel->setText("The Wendy demo system, version " WENDY_VERSION "\n"
                         "Copyright (c) 2009 Camilla Berglund <elmindreda@elmindreda.org>\n"

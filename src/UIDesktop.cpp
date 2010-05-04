@@ -68,6 +68,12 @@ Desktop::~Desktop(void)
     context.setFocus(NULL);
 }
 
+void Desktop::addRootWidget(Widget& root)
+{
+  root.removeFromParent();
+  roots.push_back(&root);
+}
+
 void Desktop::drawRootWidgets(void)
 {
   GL::Renderer::get()->setProjectionMatrix2D((float) context.getWidth(),

@@ -38,7 +38,7 @@ namespace wendy
 class Canvas : public Widget
 {
 public:
-  Canvas(Desktop& desktop, Widget* parent = NULL);
+  Canvas(Desktop& desktop);
   SignalProxy1<void, const Canvas&> getDrawSignal(void);
 protected:
   void draw(void) const;

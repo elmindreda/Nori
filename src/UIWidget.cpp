@@ -51,30 +51,47 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Widget::Widget(Desktop& initDesktop, Widget* initParent):
+Widget::Widget(Desktop& initDesktop):
   desktop(initDesktop),
-  parent(initParent),
+  parent(NULL),
   enabled(true),
   visible(true),
   draggable(false),
   area(0.f, 0.f, 0.f, 0.f)
 {
-  if (parent)
-  {
-    if (&desktop != &(parent->getDesktop()))
-      throw Exception("Parent widget has different desktop");
-
-    parent->children.push_back(this);
-    parent->addedChild(*this);
-  }
-  else
-    desktop.roots.push_back(this);
 }
 
 Widget::~Widget(void)
 {
   destroyChildren();
+  removeFromParent();
 
+  destroyedSignal.emit(*this);
+}
+
+void Widget::addChild(Widget& child)
+{
+  if (&desktop != &(child.getDesktop()))
+    throw Exception("Child widget has different desktop");
+
+  if (&child == this || isChildOf(child))
+    throw Exception("Widget graph loops are not permitted");
+
+  child.removeFromParent();
+  child.parent = this;
+  children.push_back(&child);
+  addedChild(child);
+  child.addedToParent(*this);
+}
+
+void Widget::destroyChildren(void)
+{
+  while (!children.empty())
+    delete children.back();
+}
+
+void Widget::removeFromParent(void)
+{
   WidgetList* siblings;
 
   if (parent)
@@ -89,16 +106,14 @@ Widget::~Widget(void)
     desktop.removedWidget(*this);
 
     if (parent)
-      parent->removedChild(*this);
+    {
+      Widget* oldParent = parent;
+      parent = NULL;
+
+      oldParent->removedChild(*this);
+      removedFromParent(*oldParent);
+    }
   }
-
-  destroyedSignal.emit(*this);
-}
-
-void Widget::destroyChildren(void)
-{
-  while (!children.empty())
-    delete children.back();
 }
 
 Widget* Widget::findByPoint(const Vec2& point)
@@ -381,6 +396,14 @@ void Widget::addedChild(Widget& child)
 }
 
 void Widget::removedChild(Widget& child)
+{
+}
+
+void Widget::addedToParent(Widget& parent)
+{
+}
+
+void Widget::removedFromParent(Widget& parent)
 {
 }
 

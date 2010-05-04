@@ -52,8 +52,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Progress::Progress(Desktop& desktop, Widget* parent, Orientation initOrientation):
-  Widget(desktop, parent),
+Progress::Progress(Desktop& desktop, Orientation initOrientation):
+  Widget(desktop),
   minValue(0.f),
   maxValue(1.f),
   value(0.f),

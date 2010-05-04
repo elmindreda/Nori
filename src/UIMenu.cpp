@@ -68,8 +68,8 @@ struct ItemComparator
 
 ///////////////////////////////////////////////////////////////////////
 
-Menu::Menu(Desktop& desktop, Widget* parent):
-  Widget(desktop, parent),
+Menu::Menu(Desktop& desktop):
+  Widget(desktop),
   selection(0)
 {
   getCursorMovedSignal().connect(*this, &Menu::onCursorMoved);

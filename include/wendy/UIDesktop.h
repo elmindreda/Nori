@@ -56,6 +56,7 @@ public:
   /*! Destructor.
    */
   ~Desktop(void);
+  void addRootWidget(Widget& root);
   /*! Draws all root level widgets.
    */
   void drawRootWidgets(void);

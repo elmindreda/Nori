@@ -38,7 +38,7 @@ namespace wendy
 class Menu : public Widget
 {
 public:
-  Menu(Desktop& desktop, Widget* parent = NULL);
+  Menu(Desktop& desktop);
   ~Menu(void);
   void display(void);
   void addItem(Item& item);

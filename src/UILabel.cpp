@@ -52,8 +52,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Label::Label(Desktop& desktop, Widget* parent, const String& initText):
-  Widget(desktop, parent),
+Label::Label(Desktop& desktop, const String& initText):
+  Widget(desktop),
   text(initText)
 {
   Renderer& renderer = desktop.getRenderer();

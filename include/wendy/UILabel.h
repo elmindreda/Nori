@@ -38,7 +38,7 @@ namespace wendy
 class Label : public Widget
 {
 public:
-  Label(Desktop& desktop, Widget* parent = NULL, const String& text = "");
+  Label(Desktop& desktop, const String& text = "");
   const String& getText(void) const;
   void setText(const String& newText);
   void setText(const char* format, ...);

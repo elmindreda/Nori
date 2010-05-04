@@ -52,8 +52,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Canvas::Canvas(Desktop& desktop, Widget* parent):
-  Widget(desktop, parent)
+Canvas::Canvas(Desktop& desktop):
+  Widget(desktop)
 {
 }
 

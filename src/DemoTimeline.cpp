@@ -103,7 +103,7 @@ namespace
 class TrackPanel : public UI::Widget
 {
 public:
-  TrackPanel(UI::Desktop& desktop, UI::Widget* parent, Timeline& timeline);
+  TrackPanel(UI::Desktop& desktop, Timeline& timeline);
 protected:
   void draw(void) const;
   void addedChild(Widget& child);
@@ -116,19 +116,18 @@ private:
   UI::Scroller* scroller;
 };
 
-TrackPanel::TrackPanel(UI::Desktop& desktop,
-                       UI::Widget* parent,
-                       Timeline& initTimeline):
-  Widget(desktop, parent),
+TrackPanel::TrackPanel(UI::Desktop& desktop, Timeline& initTimeline):
+  Widget(desktop),
   timeline(initTimeline),
   scroller(NULL)
 {
   getAreaChangedSignal().connect(*this, &TrackPanel::onAreaChanged);
 
-  scroller = new UI::Scroller(desktop, this, UI::VERTICAL);
+  scroller = new UI::Scroller(desktop, UI::VERTICAL);
   scroller->setValueRange(0.f, 1.f);
   scroller->setPercentage(1.f);
   scroller->getValueChangedSignal().connect(*this, &TrackPanel::onValueChanged);
+  addChild(*scroller);
 }
 
 void TrackPanel::draw(void) const
@@ -225,10 +224,8 @@ void TrackPanel::onValueChanged(UI::Scroller& scroller)
 
 ///////////////////////////////////////////////////////////////////////
 
-TimelineRuler::TimelineRuler(UI::Desktop& desktop,
-                             UI::Widget* parent,
-                             Timeline& initTimeline):
-  Widget(desktop, parent),
+TimelineRuler::TimelineRuler(UI::Desktop& desktop, Timeline& initTimeline):
+  Widget(desktop),
   timeline(initTimeline)
 {
   const float em = desktop.getRenderer().getDefaultEM();
@@ -346,11 +343,8 @@ void TimelineRuler::onDragMoved(Widget& widget, const Vec2& point)
 
 ///////////////////////////////////////////////////////////////////////
 
-EffectTrack::EffectTrack(UI::Desktop& desktop,
-                         UI::Widget* parent,
-                         Timeline& initTimeline,
-                         Effect& initEffect):
-  Widget(desktop, parent),
+EffectTrack::EffectTrack(UI::Desktop& desktop, Timeline& initTimeline, Effect& initEffect):
+  Widget(desktop),
   timeline(initTimeline),
   effect(initEffect),
   mode(NOT_DRAGGING)
@@ -498,11 +492,8 @@ float EffectTrack::getHandleOffset(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-PropertyTrack::PropertyTrack(UI::Desktop& desktop,
-                             UI::Widget* parent,
-                             Timeline& initTimeline,
-                             Property& initProperty):
-  Widget(desktop, parent),
+PropertyTrack::PropertyTrack(UI::Desktop& desktop, Timeline& initTimeline, Property& initProperty):
+  Widget(desktop),
   timeline(initTimeline),
   property(initProperty),
   draggedKey(NULL)
@@ -628,8 +619,8 @@ void PropertyTrack::onDragEnded(Widget& widget, const Vec2& point)
 
 ///////////////////////////////////////////////////////////////////////
 
-Timeline::Timeline(UI::Desktop& desktop, UI::Widget* parent, Show& initShow):
-  Widget(desktop, parent),
+Timeline::Timeline(UI::Desktop& desktop, Show& initShow):
+  Widget(desktop),
   show(initShow),
   parent(NULL),
   selected(NULL),
@@ -639,19 +630,23 @@ Timeline::Timeline(UI::Desktop& desktop, UI::Widget* parent, Show& initShow):
 {
   getAreaChangedSignal().connect(*this, &Timeline::onAreaChanged);
 
-  UI::Layout* mainLayout = new UI::Layout(desktop, this, UI::HORIZONTAL);
+  UI::Layout* mainLayout = new UI::Layout(desktop, UI::HORIZONTAL);
+  addChild(*mainLayout);
 
-  UI::Layout* vertLayout = new UI::Layout(desktop, mainLayout, UI::VERTICAL, false);
+  UI::Layout* vertLayout = new UI::Layout(desktop, UI::VERTICAL, false);
+  mainLayout->addChild(*vertLayout);
 
-  ruler = new TimelineRuler(desktop, vertLayout, *this);
+  ruler = new TimelineRuler(desktop, *this);
   ruler->getTimeChangedSignal().connect(*this, &Timeline::onTimeChanged);
+  vertLayout->addChild(*ruler);
 
-  trackPanel = new TrackPanel(desktop, vertLayout, *this);
+  trackPanel = new TrackPanel(desktop, *this);
   trackPanel->getButtonClickedSignal().connect(*this, &Timeline::onButtonClicked);
-  vertLayout->setChildSize(*trackPanel, 0.f);
+  vertLayout->addChild(*trackPanel, 0.f);
 
-  scroller = new UI::Scroller(desktop, vertLayout, UI::HORIZONTAL);
+  scroller = new UI::Scroller(desktop, UI::HORIZONTAL);
   scroller->getValueChangedSignal().connect(*this, &Timeline::onValueChanged);
+  vertLayout->addChild(*scroller);
 
   effectMenu = new UI::Menu(desktop);
   effectMenu->addItem(*new UI::Item(desktop, "Delete", MENU_DELETE));
@@ -663,11 +658,13 @@ Timeline::Timeline(UI::Desktop& desktop, UI::Widget* parent, Show& initShow):
   effectMenu->addItem(*new UI::SeparatorItem(desktop));
   effectMenu->addItem(*new UI::Item(desktop, "Enter", MENU_ENTER));
   effectMenu->getItemSelectedSignal().connect(*this, &Timeline::onItemSelected);
+  desktop.addRootWidget(*effectMenu);
 
   canvasMenu = new UI::Menu(desktop);
   canvasMenu->addItem(*new UI::Item(desktop, "Exit All", MENU_EXIT_ALL));
   canvasMenu->addItem(*new UI::Item(desktop, "Exit Parent", MENU_EXIT_PARENT));
   canvasMenu->getItemSelectedSignal().connect(*this, &Timeline::onItemSelected);
+  desktop.addRootWidget(*canvasMenu);
 
   setParentEffect(show.getRootEffect());
 }
@@ -871,15 +868,17 @@ void Timeline::updateScroller(void)
 
 void Timeline::createTrack(Property& property)
 {
-  PropertyTrack* track = new PropertyTrack(getDesktop(), trackPanel, *this, property);
+  PropertyTrack* track = new PropertyTrack(getDesktop(), *this, property);
   track->getButtonClickedSignal().connect(*this, &Timeline::onButtonClicked);
+  trackPanel->addChild(*track);
   tracks.push_back(track);
 }
 
 void Timeline::createTrack(Effect& effect)
 {
-  EffectTrack* track = new EffectTrack(getDesktop(), trackPanel, *this, effect);
+  EffectTrack* track = new EffectTrack(getDesktop(), *this, effect);
   track->getButtonClickedSignal().connect(*this, &Timeline::onButtonClicked);
+  trackPanel->addChild(*track);
   tracks.push_back(track);
 }
 

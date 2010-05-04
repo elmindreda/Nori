@@ -38,7 +38,7 @@ namespace wendy
 class ColorPickerRGB : public Widget
 {
 public:
-  ColorPickerRGB(Desktop& desktop, Widget* parent = NULL);
+  ColorPickerRGB(Desktop& desktop);
   const ColorRGB& getValue(void) const;
   void setValue(const ColorRGB& newValue);
   SignalProxy1<void, ColorPickerRGB&> getValueChangedSignal(void);

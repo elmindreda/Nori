@@ -42,7 +42,7 @@ class Timeline;
 class TimelineRuler : public UI::Widget
 {
 public:
-  TimelineRuler(UI::Desktop& desktop, UI::Widget* parent, Timeline& timeline);
+  TimelineRuler(UI::Desktop& desktop, Timeline& timeline);
   Time getTimeElapsed(void) const;
   void setTimeElapsed(Time newTime);
   SignalProxy1<void, TimelineRuler&> getTimeChangedSignal(void);
@@ -65,10 +65,7 @@ private:
 class EffectTrack : public UI::Widget
 {
 public:
-  EffectTrack(UI::Desktop& desktop,
-              UI::Widget* parent,
-              Timeline& timeline,
-              Effect& effect);
+  EffectTrack(UI::Desktop& desktop, Timeline& timeline, Effect& effect);
   Effect& getEffect(void) const;
 private:
   enum DragMode
@@ -98,10 +95,7 @@ private:
 class PropertyTrack : public UI::Widget
 {
 public:
-  PropertyTrack(UI::Desktop& desktop,
-                UI::Widget* parent,
-                Timeline& timeline,
-                Property& property);
+  PropertyTrack(UI::Desktop& desktop, Timeline& timeline, Property& property);
   Property& getParameter(void) const;
 private:
   void draw(void) const;
@@ -121,7 +115,7 @@ private:
 class Timeline : public UI::Widget
 {
 public:
-  Timeline(UI::Desktop& desktop, UI::Widget* parent, Show& show);
+  Timeline(UI::Desktop& desktop, Show& show);
   bool createEffect(EffectType& type);
   void destroyEffect(void);
   Time getWindowStart(void) const;

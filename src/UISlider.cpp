@@ -52,8 +52,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Slider::Slider(Desktop& desktop, Widget* parent, Orientation initOrientation):
-  Widget(desktop, parent),
+Slider::Slider(Desktop& desktop, Orientation initOrientation):
+  Widget(desktop),
   minValue(0.f),
   maxValue(1.f),
   stepSize(1.f),

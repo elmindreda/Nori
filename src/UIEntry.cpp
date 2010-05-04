@@ -52,8 +52,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Entry::Entry(Desktop& desktop, Widget* parent, const String& initText):
-  Widget(desktop, parent),
+Entry::Entry(Desktop& desktop, const String& initText):
+  Widget(desktop),
   text(initText),
   startPosition(0),
   caretPosition(0)

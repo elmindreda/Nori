@@ -67,11 +67,13 @@ class Widget : public Trackable
 public:
   /*! Constructor.
    */
-  Widget(Desktop& desktop, Widget* parent = NULL);
+  Widget(Desktop& desktop);
   /*! Destructor.
    */
   ~Widget(void);
+  void addChild(Widget& child);
   void destroyChildren(void);
+  void removeFromParent(void);
   /*! Searches for a widget at the specified point.
    *  @param[in] point The point at which to search.
    *  @return The widget at the specified point, or @c NULL if no matching
@@ -188,6 +190,8 @@ protected:
   virtual void draw(void) const;
   virtual void addedChild(Widget& child);
   virtual void removedChild(Widget& child);
+  virtual void addedToParent(Widget& parent);
+  virtual void removedFromParent(Widget& parent);
 private:
   Signal1<void, Widget&> destroyedSignal;
   Signal1<void, Widget&> areaChangedSignal;

@@ -54,8 +54,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Popup::Popup(Desktop& desktop, Widget* parent):
-  Widget(desktop, parent),
+Popup::Popup(Desktop& desktop):
+  Widget(desktop),
   selection(0)
 {
   const float em = desktop.getRenderer().getDefaultEM();
@@ -67,6 +67,7 @@ Popup::Popup(Desktop& desktop, Widget* parent):
 
   menu = new Menu(desktop);
   menu->getItemSelectedSignal().connect(*this, &Popup::onItemSelected);
+  desktop.addRootWidget(*menu);
 }
 
 void Popup::addItem(Item& item)

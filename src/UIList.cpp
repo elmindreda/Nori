@@ -72,8 +72,8 @@ struct ItemComparator
 
 ///////////////////////////////////////////////////////////////////////
 
-List::List(Desktop& desktop, Widget* parent):
-  Widget(desktop, parent),
+List::List(Desktop& desktop):
+  Widget(desktop),
   offset(0),
   selection(0)
 {
@@ -82,10 +82,11 @@ List::List(Desktop& desktop, Widget* parent):
   getKeyPressedSignal().connect(*this, &List::onKeyPressed);
   getWheelTurnedSignal().connect(*this, &List::onWheelTurned);
 
-  scroller = new Scroller(desktop, this, VERTICAL);
+  scroller = new Scroller(desktop, VERTICAL);
   scroller->setValueRange(0.f, 1.f);
   scroller->setPercentage(1.f);
   scroller->getValueChangedSignal().connect(*this, &List::onValueChanged);
+  addChild(*scroller);
 
   onAreaChanged(*this);
 }
