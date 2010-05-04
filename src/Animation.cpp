@@ -63,6 +63,7 @@ void KeyFrame3::setMoment(Time newMoment)
 {
   moment = newMoment;
   track->sortKeyFrames();
+  track->flipRotations();
 }
 
 const Transform3& KeyFrame3::getTransform(void) const
@@ -116,9 +117,7 @@ void AnimTrack3::createKeyFrame(Time moment,
   keyframes.push_back(KeyFrame3(*this));
   keyframes.back().transform = transform;
   keyframes.back().direction = direction;
-  keyframes.back().moment = moment;
-
-  sortKeyFrames();
+  keyframes.back().setMoment(moment);
 }
 
 void AnimTrack3::destroyKeyFrame(KeyFrame3& frame)
@@ -256,6 +255,18 @@ float AnimTrack3::getLength(float tolerance) const
 void AnimTrack3::sortKeyFrames(void)
 {
   std::stable_sort(keyframes.begin(), keyframes.end());
+}
+
+void AnimTrack3::flipRotations(void)
+{
+  for (size_t i = 1;  i < keyframes.size();  i++)
+  {
+    Quat& R0 = keyframes[i - 1].transform.rotation;
+    Quat& R1 = keyframes[i].transform.rotation;
+
+    if (R0.dot(R1) < 0.f)
+      R1 = -R1;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////

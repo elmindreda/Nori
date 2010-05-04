@@ -78,6 +78,7 @@ public:
 private:
   typedef std::vector<KeyFrame3> KeyFrameList;
   void sortKeyFrames(void);
+  void flipRotations(void);
   KeyFrameList keyframes;
   String name;
 };
