@@ -26,60 +26,12 @@
 #include <wendy/Config.h>
 
 #include <wendy/Core.h>
-#include <wendy/Bimap.h>
-#include <wendy/Block.h>
 #include <wendy/Variant.h>
-#include <wendy/Node.h>
-#include <wendy/Color.h>
-#include <wendy/Vector.h>
-#include <wendy/Matrix.h>
-#include <wendy/Rectangle.h>
-#include <wendy/Plane.h>
-#include <wendy/Segment.h>
-#include <wendy/Triangle.h>
-#include <wendy/Bezier.h>
-#include <wendy/Quaternion.h>
-#include <wendy/Transform.h>
-#include <wendy/Sphere.h>
-#include <wendy/Frustum.h>
-#include <wendy/Random.h>
-#include <wendy/Pixel.h>
-#include <wendy/Vertex.h>
-#include <wendy/Timer.h>
-#include <wendy/Signal.h>
-#include <wendy/Path.h>
-#include <wendy/Stream.h>
-#include <wendy/Managed.h>
-#include <wendy/Resource.h>
-#include <wendy/Image.h>
-#include <wendy/Font.h>
-
-#include <wendy/GLContext.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLProgram.h>
-#include <wendy/GLVertex.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLRender.h>
-#include <wendy/GLState.h>
-
-#include <wendy/RenderMaterial.h>
-#include <wendy/RenderFont.h>
-
-#include <wendy/Input.h>
 
 #include <wendy/UIRender.h>
 #include <wendy/UIDesktop.h>
 #include <wendy/UIWidget.h>
-#include <wendy/UICanvas.h>
-#include <wendy/UIScroller.h>
-#include <wendy/UISlider.h>
 #include <wendy/UILayout.h>
-#include <wendy/UIButton.h>
-#include <wendy/UILabel.h>
-#include <wendy/UIItem.h>
-#include <wendy/UIList.h>
-#include <wendy/UIMenu.h>
 
 #include <wendy/DemoProperty.h>
 #include <wendy/DemoEffect.h>

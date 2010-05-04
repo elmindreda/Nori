@@ -26,6 +26,15 @@
 #define WENDY_DEMOPROPERTY_H
 ///////////////////////////////////////////////////////////////////////
 
+#include <wendy/Bimap.h>
+
+#include <wendy/UIRender.h>
+#include <wendy/UIDesktop.h>
+#include <wendy/UIWidget.h>
+#include <wendy/UISlider.h>
+
+///////////////////////////////////////////////////////////////////////
+
 namespace wendy
 {
   namespace demo

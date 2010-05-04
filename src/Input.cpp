@@ -25,8 +25,6 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/GLContext.h>
-
 #include <wendy/Input.h>
 
 #include <GL/glfw.h>

@@ -26,6 +26,17 @@
 #define WENDY_DEMOEDITOR_H
 ///////////////////////////////////////////////////////////////////////
 
+#include <wendy/UIBook.h>
+#include <wendy/UICanvas.h>
+#include <wendy/UIEntry.h>
+#include <wendy/UILabel.h>
+#include <wendy/UIItem.h>
+#include <wendy/UIList.h>
+#include <wendy/UIMenu.h>
+#include <wendy/UIPopup.h>
+
+///////////////////////////////////////////////////////////////////////
+
 namespace wendy
 {
   namespace demo
