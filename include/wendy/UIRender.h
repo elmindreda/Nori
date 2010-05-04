@@ -26,9 +26,22 @@
 #define WENDY_UIRENDERER_H
 ///////////////////////////////////////////////////////////////////////
 
+#include <wendy/Core.h>
+#include <wendy/Vector.h>
 #include <wendy/Bezier.h>
 #include <wendy/Segment.h>
 #include <wendy/Triangle.h>
+
+#include <wendy/GLContext.h>
+#include <wendy/GLTexture.h>
+#include <wendy/GLVertex.h>
+#include <wendy/GLBuffer.h>
+#include <wendy/GLProgram.h>
+#include <wendy/GLRender.h>
+#include <wendy/GLState.h>
+
+#include <wendy/RenderMaterial.h>
+#include <wendy/RenderFont.h>
 
 ///////////////////////////////////////////////////////////////////////
 
