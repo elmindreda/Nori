@@ -53,6 +53,7 @@ public:
   Quat interpolateTo(float t, const Quat& other) const;
   operator float* (void);
   operator const float* (void) const;
+  Quat operator - (void) const;
   Quat operator * (float value) const;
   Quat operator / (float value) const;
   Quat operator + (const Quat& quat) const;

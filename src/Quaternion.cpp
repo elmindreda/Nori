@@ -137,6 +137,11 @@ Quat::operator const float* (void) const
   return &(w);
 }
 
+Quat Quat::operator - (void) const
+{
+  return Quat(-w, -x, -y, -z);
+}
+
 Quat Quat::operator * (float value) const
 {
   return Quat(w * value, x * value, y * value, z * value);
