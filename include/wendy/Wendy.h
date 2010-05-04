@@ -133,6 +133,7 @@
 #include <wendy/RenderMesh.h>
 
 #include <wendy/Input.h>
+#include <wendy/InputCamera.h>
 
 #if WENDY_INCLUDE_SCENE_GRAPH
 #include <wendy/SceneGraph.h>

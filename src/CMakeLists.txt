@@ -19,7 +19,7 @@ set(wendy_SOURCES
     GLBuffer.cpp GLContext.cpp GLProgram.cpp GLProgramIO.cpp GLRender.cpp
     GLState.cpp GLTexture.cpp GLTextureIO.cpp GLVertex.cpp
 
-    Input.cpp
+    Input.cpp InputCamera.cpp
 
     RenderCamera.cpp RenderFont.cpp RenderLight.cpp RenderMesh.cpp
     RenderMaterial.cpp RenderMaterialIO.cpp RenderParticle.cpp RenderQueue.cpp
