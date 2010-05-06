@@ -720,17 +720,28 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   }
 
   glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
 
-  if (textureTarget != GL_TEXTURE_1D)
-    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  if (textureTarget == GL_TEXTURE_RECTANGLE_ARB)
+  {
+    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    addressMode = ADDRESS_CLAMP;
+  }
+  else
+  {
+    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
+
+    if (textureTarget != GL_TEXTURE_1D)
+      glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  }
 
   cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
 
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
   {
-    Log::writeError("Error during creation of texture \'%s\': %s",
+    Log::writeError("OpenGL error during creation of texture \'%s\': %s",
                     getName().c_str(),
 		    gluErrorString(error));
     return false;
@@ -891,7 +902,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
   {
-    Log::writeError("Error during creation of texture \'%s\': %s",
+    Log::writeError("OpenGL error during creation of texture \'%s\': %s",
                     getName().c_str(),
 		    gluErrorString(error));
     return false;
