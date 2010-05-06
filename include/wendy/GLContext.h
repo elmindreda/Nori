@@ -198,6 +198,7 @@ public:
   /*! Constructor.
    */
   Limits(Context& context);
+  unsigned int getMaxDrawBuffers(void) const;
   /*! @return The number of available clip planes.
    */
   unsigned int getMaxClipPlanes(void) const;
@@ -221,6 +222,7 @@ public:
   unsigned int getMaxVertexAttributes(void) const;
 private:
   Context& context;
+  unsigned int maxDrawBuffers;
   unsigned int maxClipPlanes;
   unsigned int maxFragmentTextureImageUnits;
   unsigned int maxVertexTextureImageUnits;
@@ -330,6 +332,14 @@ typedef Ref<Image> ImageRef;
 class ImageCanvas : public Canvas
 {
 public:
+  enum Attachment
+  {
+    COLOR_BUFFER0,
+    COLOR_BUFFER1,
+    COLOR_BUFFER2,
+    COLOR_BUFFER3,
+    DEPTH_BUFFER,
+  };
   ~ImageCanvas(void);
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
@@ -337,12 +347,14 @@ public:
    */
   Image* getColorBuffer(void) const;
   Image* getDepthBuffer(void) const;
+  Image* getBuffer(Attachment attachment) const;
   /*! Sets the image to use as the color buffer for this canvas.
    *  @param[in] newImage The desired image, or @c NULL to detach the currently
    *  set image.
    */
   bool setColorBuffer(Image* newImage);
   bool setDepthBuffer(Image* newImage);
+  bool setBuffer(Attachment attachment, Image* newImage);
   /*! Creates a texture canvas for the specified texture.
    */
   static ImageCanvas* createInstance(Context& context,
@@ -355,8 +367,7 @@ private:
   unsigned int width;
   unsigned int height;
   unsigned int bufferID;
-  ImageRef colorBuffer;
-  ImageRef depthBuffer;
+  ImageRef buffers[5];
 };
 
 ///////////////////////////////////////////////////////////////////////

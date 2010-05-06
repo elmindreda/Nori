@@ -81,6 +81,58 @@ const char* getFramebufferStatusMessage(GLenum status)
   }
 }
 
+GLenum convertToGL(ImageCanvas::Attachment attachment)
+{
+  switch (attachment)
+  {
+    case ImageCanvas::COLOR_BUFFER0:
+      return GL_COLOR_ATTACHMENT0_EXT;
+    case ImageCanvas::COLOR_BUFFER1:
+      return GL_COLOR_ATTACHMENT1_EXT;
+    case ImageCanvas::COLOR_BUFFER2:
+      return GL_COLOR_ATTACHMENT2_EXT;
+    case ImageCanvas::COLOR_BUFFER3:
+      return GL_COLOR_ATTACHMENT3_EXT;
+    case ImageCanvas::DEPTH_BUFFER:
+      return GL_DEPTH_ATTACHMENT_EXT;
+    default:
+      throw Exception("Invalid image canvas attachment");
+  }
+}
+
+const char* getAttachmentName(ImageCanvas::Attachment attachment)
+{
+  switch (attachment)
+  {
+    case ImageCanvas::COLOR_BUFFER0:
+      return "color buffer 0";
+    case ImageCanvas::COLOR_BUFFER1:
+      return "color buffer 1";
+    case ImageCanvas::COLOR_BUFFER2:
+      return "color buffer 2";
+    case ImageCanvas::COLOR_BUFFER3:
+      return "color buffer 3";
+    case ImageCanvas::DEPTH_BUFFER:
+      return "depth buffer";
+    default:
+      return "unknown buffer";
+  }
+}
+
+bool isAttachmentColor(ImageCanvas::Attachment attachment)
+{
+  switch (attachment)
+  {
+    case ImageCanvas::COLOR_BUFFER0:
+    case ImageCanvas::COLOR_BUFFER1:
+    case ImageCanvas::COLOR_BUFFER2:
+    case ImageCanvas::COLOR_BUFFER3:
+      return true;
+    default:
+      return false;
+  }
+}
+
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
@@ -160,6 +212,7 @@ void ContextMode::set(unsigned int width,
 
 Limits::Limits(Context& initContext):
   context(initContext),
+  maxDrawBuffers(0),
   maxClipPlanes(0),
   maxFragmentTextureImageUnits(0),
   maxVertexTextureImageUnits(0),
@@ -168,6 +221,7 @@ Limits::Limits(Context& initContext):
   maxTextureRectangleSize(0),
   maxVertexAttributes(0)
 {
+  maxDrawBuffers = getIntegerParameter(GL_MAX_DRAW_BUFFERS_ARB);
   maxClipPlanes = getIntegerParameter(GL_MAX_CLIP_PLANES);
   maxFragmentTextureImageUnits = getIntegerParameter(GL_MAX_TEXTURE_IMAGE_UNITS);
   maxVertexTextureImageUnits = getIntegerParameter(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
@@ -175,6 +229,11 @@ Limits::Limits(Context& initContext):
   maxTextureCubeSize = getIntegerParameter(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB);
   maxTextureRectangleSize = getIntegerParameter(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB);
   maxVertexAttributes = getIntegerParameter(GL_MAX_VERTEX_ATTRIBS_ARB);
+}
+
+unsigned int Limits::getMaxDrawBuffers(void) const
+{
+  return maxDrawBuffers;
 }
 
 unsigned int Limits::getMaxClipPlanes(void) const
@@ -333,47 +392,37 @@ unsigned int ImageCanvas::getHeight(void) const
 
 Image* ImageCanvas::getColorBuffer(void) const
 {
-  return colorBuffer;
+  return buffers[COLOR_BUFFER0];
 }
 
 Image* ImageCanvas::getDepthBuffer(void) const
 {
-  return depthBuffer;
+  return buffers[DEPTH_BUFFER];
 }
 
-bool ImageCanvas::setColorBuffer(Image* newImage)
+Image* ImageCanvas::getBuffer(Attachment attachment) const
 {
-  if (newImage)
-  {
-    if (newImage->getWidth() != width || newImage->getHeight() != height)
-    {
-      Log::writeError("Specified color buffer image object does not match canvas dimensions");
-      return false;
-    }
-  }
-
-  const Canvas* previous = getCurrent();
-  apply();
-
-  if (colorBuffer)
-    colorBuffer->detach(GL_COLOR_ATTACHMENT0_EXT);
-
-  colorBuffer = newImage;
-
-  if (colorBuffer)
-    colorBuffer->attach(GL_COLOR_ATTACHMENT0_EXT);
-
-  previous->apply();
-  return true;
+  return buffers[attachment];
 }
 
 bool ImageCanvas::setDepthBuffer(Image* newImage)
 {
+  return setBuffer(DEPTH_BUFFER, newImage);
+}
+
+bool ImageCanvas::setColorBuffer(Image* newImage)
+{
+  return setBuffer(COLOR_BUFFER0, newImage);
+}
+
+bool ImageCanvas::setBuffer(Attachment attachment, Image* newImage)
+{
   if (newImage)
   {
     if (newImage->getWidth() != width || newImage->getHeight() != height)
     {
-      Log::writeError("Specified depth buffer image object does not match canvas dimensions");
+      Log::writeError("Specified %s image object does not match canvas dimensions",
+                      getAttachmentName(attachment));
       return false;
     }
   }
@@ -381,13 +430,13 @@ bool ImageCanvas::setDepthBuffer(Image* newImage)
   const Canvas* previous = getCurrent();
   apply();
 
-  if (depthBuffer)
-    depthBuffer->detach(GL_DEPTH_ATTACHMENT_EXT);
+  if (buffers[attachment])
+    buffers[attachment]->detach(convertToGL(attachment));
 
-  depthBuffer = newImage;
+  buffers[attachment] = newImage;
 
-  if (depthBuffer)
-    depthBuffer->attach(GL_DEPTH_ATTACHMENT_EXT);
+  if (buffers[attachment])
+    buffers[attachment]->attach(convertToGL(attachment));
 
   previous->apply();
   return true;
@@ -434,6 +483,19 @@ void ImageCanvas::apply(void) const
   if (!isCurrent())
   {
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
+
+    GLenum enables[5];
+    size_t count = 0;
+
+    for (size_t i = 0;  i < sizeof(enables) / sizeof(enables[0]);  i++)
+    {
+      Attachment attachment = (Attachment) i;
+
+      if (buffers[i] && isAttachmentColor(attachment))
+        enables[count++] = convertToGL(attachment);
+    }
+
+    glDrawBuffersARB(count, enables);
 
 #if WENDY_DEBUG
   GLenum error = glGetError();
@@ -698,6 +760,12 @@ bool Context::init(const ContextMode& initMode)
     if (!GLEW_ARB_texture_rectangle && !GLEW_EXT_texture_rectangle)
     {
       Log::writeError("Rectangular textures ({ARB|EXT}_texture_rectangle) are required but not supported");
+      return false;
+    }
+
+    if (!GLEW_ARB_draw_buffers)
+    {
+      Log::writeError("Draw buffers (ARB_draw_buffers) are required but not supported");
       return false;
     }
 
