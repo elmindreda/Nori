@@ -49,6 +49,7 @@ public:
   void transpose(void);
   void normalize(void);
   void rotateVector(Vec2& vector) const;
+  float determinant(void) const;
   operator float* (void);
   operator const float* (void) const;
   float operator () (unsigned int column, unsigned int row) const;
@@ -81,6 +82,7 @@ public:
   void transpose(void);
   void normalize(void);
   void rotateVector(Vec3& vector) const;
+  float determinant(void) const;
   operator float* (void);
   operator const float* (void) const;
   float operator () (unsigned int column, unsigned int row) const;

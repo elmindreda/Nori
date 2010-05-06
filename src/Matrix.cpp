@@ -75,6 +75,11 @@ void Mat2::normalize(void)
   // TODO: Implement.
 }
 
+float Mat2::determinant(void) const
+{
+  return x.x * y.y - x.y * y.x;
+}
+
 Mat2::operator float* (void)
 {
   return &(x.x);
@@ -230,6 +235,13 @@ void Mat3::transpose(void)
 void Mat3::normalize(void)
 {
   // TODO: Implement.
+}
+
+float Mat3::determinant(void) const
+{
+  return x.x * (y.y * z.z - z.y * y.z) -
+         y.x * (x.y * z.z - z.y * x.z) +
+         z.x * (x.y * y.z - y.y * x.z);
 }
 
 Mat3::operator float* (void)
