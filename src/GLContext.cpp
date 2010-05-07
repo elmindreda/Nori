@@ -833,7 +833,12 @@ bool Context::init(const ContextMode& initMode)
     cgGLSetManageTextureParameters((CGcontext) cgContextID, CG_TRUE);
     cgSetLockingPolicy(CG_NO_LOCKS_POLICY);
     cgSetParameterSettingMode((CGcontext) cgContextID, CG_IMMEDIATE_PARAMETER_SETTING);
+
+#if WENDY_DEBUG
     cgGLSetDebugMode(CG_TRUE);
+#else
+    cgGLSetDebugMode(CG_FALSE);
+#endif
 
     error = cgGetError();
     if (error != CG_NO_ERROR)
