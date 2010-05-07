@@ -12,14 +12,13 @@ float4 main(uniform samplerRECT colorbuffer,
             uniform float maxZ,
             uniform float halfFOV,
             uniform float aspect,
-            in Light light,
             */
+            uniform Light light,
             in float2 mapping) : COLOR
 {
   float3 color = texRECT(colorbuffer, mapping).rgb;
   float3 normal = texRECT(normalbuffer, mapping).xyz * 2 - float(0.5);
 
-  //return float4(color * light.color * dot(normal, light.direction), 1);
-  return float4(color * dot(normal, float3(1, 0, 0)), 1);
+  return float4(color * light.color * dot(normal, light.direction), 1);
 }
 

@@ -3,7 +3,7 @@
   <technique quality="1">
     <pass>
       <program name="defrender">
-        <uniform name="color" value="1 0.2 0.2" />
+        <uniform name="color" value="0.8 0.8 0.8" />
       </program>
     </pass>
   </technique>

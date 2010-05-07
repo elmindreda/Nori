@@ -1,30 +1,16 @@
 
-struct Light
-{
-  float3 direction;
-  float3 color;
-};
-
 struct Out
 {
   float4 position : POSITION;
   float2 mapping;
-  //Light light;
 };
 
-Out main(uniform float4x4 P,
-         uniform float4x4 MV,
-         uniform Light light,
-         in float2 position,
-         in float2 mapping)
+Out main(uniform float4x4 P, in float2 position, in float2 mapping)
 {
   Out result;
 
   result.position = mul(P, float4(position, 0, 1));
   result.mapping = mapping;
-
-  //result.light.direction = mul(MV, float4(light.direction, 0));
-  //result.light.color = light.color;
 
   return result;
 }
