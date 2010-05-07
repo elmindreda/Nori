@@ -8,8 +8,8 @@ struct Out
 Out main(uniform float3 color, in float3 normal)
 {
   Out result;
-  result.color = float4(1, 0, 0, 1);
-  result.normal = float4(normal, 0);
+  result.color = float4(color, 1);
+  result.normal = float4(normal / 2 + float3(0.5), 0);
   return result;
 }
 
