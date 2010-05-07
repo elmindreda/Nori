@@ -143,7 +143,8 @@ bool Demo::init(void)
     scene::MeshNode* meshNode = new scene::MeshNode();
     meshNode->setMesh(mesh);
     meshNode->getLocalTransform().position = position.generate();
-    meshNode->getLocalTransform().rotation.setAxisRotation(axis.generate().normalized(), angle.generate());
+    meshNode->getLocalTransform().rotation.setAxisRotation(axis.generate().normalized(),
+                                                           angle.generate());
     rootNode->addChild(*meshNode);
   }
 
@@ -175,7 +176,9 @@ void Demo::run(void)
 
   render::Sprite2 sprite;
   sprite.position.set(0.5f, 0.5f);
-  sprite.mapping.set(0.25f, 0.25f, 0.25f + canvas->getWidth(), 0.25f + canvas->getHeight());
+  sprite.mapping.set(0.25f, 0.25f,
+                     0.25f + canvas->getWidth(),
+                     0.25f + canvas->getHeight());
 
   do
   {
