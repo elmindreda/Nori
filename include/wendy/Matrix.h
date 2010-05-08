@@ -39,6 +39,9 @@ class Quat;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief 2x2 matrix.
+ *  @remarks Each vector represents a column.
+ */
 class Mat2
 {
 public:
@@ -72,6 +75,9 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief 3x3 matrix.
+ *  @remarks Each vector represents a column.
+ */
 class Mat3
 {
 public:
@@ -109,6 +115,9 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief 4x4 matrix.
+ *  @remarks Each vector represents a column.
+ */
 class Mat4
 {
 public:
@@ -157,6 +166,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Matrix stack template.
+ */
 template <typename T>
 class MatrixStack
 {
