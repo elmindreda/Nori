@@ -75,6 +75,16 @@ void Mat2::normalize(void)
   // TODO: Implement.
 }
 
+void Mat2::rotateVector(Vec2& vector) const
+{
+  Vec2 temp;
+
+  temp.x = vector.x * x.x + vector.y * y.x;
+  temp.y = vector.x * x.y + vector.y * y.y;
+
+  vector = temp;
+}
+
 float Mat2::determinant(void) const
 {
   return x.x * y.y - x.y * y.x;
@@ -90,12 +100,12 @@ Mat2::operator const float* (void) const
   return &(x.x);
 }
 
-float Mat2::operator () (unsigned int column, unsigned int row) const
+float Mat2::operator () (unsigned int row, unsigned int column) const
 {
   return (&(x.x))[column * 2 + row];
 }
 
-float& Mat2::operator () (unsigned int column, unsigned int row)
+float& Mat2::operator () (unsigned int row, unsigned int column)
 {
   return (&(x.x))[column * 2 + row];
 }
@@ -150,16 +160,6 @@ Mat2& Mat2::operator *= (const Mat2& matrix)
   result.y.y = x.y * matrix.y.x + y.y * matrix.y.y;
 
   return operator = (result);
-}
-
-void Mat2::rotateVector(Vec2& vector) const
-{
-  Vec2 temp;
-
-  temp.x = vector.x * x.x + vector.y * y.x;
-  temp.y = vector.x * x.y + vector.y * y.y;
-
-  vector = temp;
 }
 
 String Mat2::asString(void) const
@@ -254,12 +254,12 @@ Mat3::operator const float* (void) const
   return &(x.x);
 }
 
-float Mat3::operator () (unsigned int column, unsigned int row) const
+float Mat3::operator () (unsigned int row, unsigned int column) const
 {
   return (&(x.x))[column * 3 + row];
 }
 
-float& Mat3::operator () (unsigned int column, unsigned int row)
+float& Mat3::operator () (unsigned int row, unsigned int column)
 {
   return (&(x.x))[column * 3 + row];
 }
@@ -534,12 +534,12 @@ Mat4::operator const float* (void) const
   return &(x.x);
 }
 
-float Mat4::operator () (unsigned int column, unsigned int row) const
+float Mat4::operator () (unsigned int row, unsigned int column) const
 {
   return (&(x.x))[column * 4 + row];
 }
 
-float& Mat4::operator () (unsigned int column, unsigned int row)
+float& Mat4::operator () (unsigned int row, unsigned int column)
 {
   return (&(x.x))[column * 4 + row];
 }

@@ -52,8 +52,8 @@ public:
   float determinant(void) const;
   operator float* (void);
   operator const float* (void) const;
-  float operator () (unsigned int column, unsigned int row) const;
-  float& operator () (unsigned int column, unsigned int row);
+  float operator () (unsigned int row, unsigned int column) const;
+  float& operator () (unsigned int row, unsigned int column);
   Mat2 operator + (const Mat2& matrix) const;
   Mat2 operator - (const Mat2& matrix) const;
   Mat2 operator * (const Mat2& matrix) const;
@@ -85,8 +85,8 @@ public:
   float determinant(void) const;
   operator float* (void);
   operator const float* (void) const;
-  float operator () (unsigned int column, unsigned int row) const;
-  float& operator () (unsigned int column, unsigned int row);
+  float operator () (unsigned int row, unsigned int column) const;
+  float& operator () (unsigned int row, unsigned int column);
   Mat3 operator + (const Mat3& matrix) const;
   Mat3 operator - (const Mat3& matrix) const;
   Mat3 operator * (const Mat3& matrix) const;
@@ -124,8 +124,8 @@ public:
   void translateVector(Vec3& vector) const;
   operator float* (void);
   operator const float* (void) const;
-  float operator () (unsigned int column, unsigned int row) const;
-  float& operator () (unsigned int column, unsigned int row);
+  float operator () (unsigned int row, unsigned int column) const;
+  float& operator () (unsigned int row, unsigned int column);
   Mat4 operator + (const Mat4& matrix) const;
   Mat4 operator - (const Mat4& matrix) const;
   Mat4 operator * (const Mat4& matrix) const;
