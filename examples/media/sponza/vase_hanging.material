@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<material version="4">
+  <technique quality="1">
+    <pass>
+      <program name="render_mapped">
+        <sampler name="colormap" texture="vase_hanging_diff" />
+      </program>
+    </pass>
+  </technique>
+</material>
