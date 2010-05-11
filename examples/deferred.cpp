@@ -207,7 +207,7 @@ void Demo::run(void)
     for (LightList::const_iterator i = lights.begin();  i != lights.end();  i++)
     {
       Vec3 direction = i->direction;
-      controller.getTransform().rotation.rotateVector(direction);
+      camera->getViewTransform().rotation.rotateVector(direction);
       lightPass.getUniformState("light.direction").setValue(direction);
 
       Vec3 color(i->color.r, i->color.g, i->color.b);
