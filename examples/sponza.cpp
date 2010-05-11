@@ -19,7 +19,7 @@ public:
   void run(void);
 private:
   bool render(void);
-  input::MayaCamera controller;
+  input::SpectatorCamera controller;
   Ref<GL::ImageCanvas> canvas;
   GL::RenderState lightPass;
   GL::RenderState blitPass;
@@ -164,6 +164,7 @@ bool Demo::init(void)
 
   camera = new render::Camera();
   camera->setFOV(60.f);
+  camera->setDepthRange(0.1f, 500.f);
 
   cameraNode = new scene::CameraNode();
   cameraNode->setCamera(camera);
@@ -187,8 +188,10 @@ void Demo::run(void)
 
   do
   {
-    currentTime = timer.getTime();
+    const Time deltaTime = timer.getTime() - currentTime;
+    currentTime += deltaTime;
 
+    controller.update(deltaTime);
     cameraNode->getLocalTransform() = controller.getTransform();
 
     graph.update();
