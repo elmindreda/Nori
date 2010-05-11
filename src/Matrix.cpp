@@ -60,7 +60,15 @@ Mat2::Mat2(const String& string)
 
 void Mat2::invert(void)
 {
-  // TODO: Implement.
+  const float invDet = 1.f / determinant();
+
+  Mat2 temp;
+  temp.x.x = y.y * invDet;
+  temp.x.y = -x.y * invDet;
+  temp.y.x = -y.x * invDet;
+  temp.y.y = x.x * invDet;
+
+  operator = (temp);
 }
 
 void Mat2::transpose(void)
