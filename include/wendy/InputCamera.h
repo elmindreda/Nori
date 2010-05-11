@@ -63,6 +63,37 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+class SpectatorCamera : public Focus
+{
+public:
+  SpectatorCamera(void);
+  void update(Time deltaTime);
+  void onKeyPressed(Key key, bool pressed);
+  void onButtonClicked(Button button, bool clicked);
+  void onCursorMoved(const Vec2i& position);
+  void onFocusChanged(bool activated);
+  const Transform3& getTransform(void) const;
+private:
+  enum Direction
+  {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+    FORWARD,
+    BACK,
+  };
+  void updateTransform(void);
+  Transform3 transform;
+  Vec2i lastPosition;
+  float angleX;
+  float angleY;
+  bool directions[6];
+  bool turbo;
+};
+
+///////////////////////////////////////////////////////////////////////
+
   } /*namespace input*/
 } /*namespace wendy*/
 
