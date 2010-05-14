@@ -92,7 +92,7 @@ Operation::Operation(void):
 
 bool Operation::operator < (const Operation& other) const
 {
-  // Sort blending operations by reverse distance
+  // Sort blending operations back to front
   if (blending && other.blending)
     return distance > other.distance;
 
@@ -103,7 +103,11 @@ bool Operation::operator < (const Operation& other) const
     return true;
 
   // Sort opaque operations by technique (i.e. material)
-  return hash < other.hash;
+  if (hash != other.hash)
+    return hash < other.hash;
+
+  // Sort operations with same technique front to back
+  return distance < other.distance;
 }
 
 ///////////////////////////////////////////////////////////////////////
