@@ -178,7 +178,6 @@ void SpectatorCamera::update(Time deltaTime)
     direction.x += 1.f;
 
   transform.rotation.rotateVector(direction);
-
   transform.position += direction * speed * deltaTime;
 }
 
