@@ -1,0 +1,20 @@
+
+struct Out
+{
+  float4 position : POSITION;
+  float2 mapping;
+  float3 eyevec;
+};
+
+Out main(uniform float4x4 P,
+         in float2 position,
+         in float2 mapping,
+         in float3 eyevec)
+{
+  Out result;
+  result.position = mul(P, float4(position, 0, 1));
+  result.mapping = mapping;
+  result.eyevec = eyevec;
+  return result;
+}
+

@@ -11,8 +11,11 @@ float4 main(uniform samplerRECT colorbuffer,
             in float2 mapping) : COLOR
 {
   float3 color = texRECT(colorbuffer, mapping).rgb;
-  float3 normal = normalize((texRECT(normalbuffer, mapping).xyz - float3(0.5)) * 2);
+  float3 N = normalize(texRECT(normalbuffer, mapping).xyz - 0.5);
 
-  return float4(color * light.color * saturate(dot(normal, light.direction)), 1);
+  float Ia = 0.2;
+  float Id = saturate(dot(N, light.direction));
+
+  return float4(color * light.color * (Ia + Id), 1);
 }
 
