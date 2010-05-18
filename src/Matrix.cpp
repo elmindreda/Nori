@@ -566,25 +566,25 @@ Mat4 Mat4::operator * (const Mat4& matrix) const
 {
   Mat4 result;
 
-  result.x.x = x.x * matrix.x.x + y.x * matrix.x.y + z.x * matrix.x.z;
-  result.y.x = x.x * matrix.y.x + y.x * matrix.y.y + z.x * matrix.y.z;
-  result.z.x = x.x * matrix.z.x + y.x * matrix.z.y + z.x * matrix.z.z;
-  result.w.x = x.x * matrix.w.x + y.x * matrix.w.y + z.x * matrix.w.z + w.x;
+  result.x.x = x.x * matrix.x.x + y.x * matrix.x.y + z.x * matrix.x.z + w.x * matrix.x.w;
+  result.y.x = x.x * matrix.y.x + y.x * matrix.y.y + z.x * matrix.y.z + w.x * matrix.y.w;
+  result.z.x = x.x * matrix.z.x + y.x * matrix.z.y + z.x * matrix.z.z + w.x * matrix.z.w;
+  result.w.x = x.x * matrix.w.x + y.x * matrix.w.y + z.x * matrix.w.z + w.x * matrix.w.w;
 
-  result.x.y = x.y * matrix.x.x + y.y * matrix.x.y + z.y * matrix.x.z;
-  result.y.y = x.y * matrix.y.x + y.y * matrix.y.y + z.y * matrix.y.z;
-  result.z.y = x.y * matrix.z.x + y.y * matrix.z.y + z.y * matrix.z.z;
-  result.w.y = x.y * matrix.w.x + y.y * matrix.w.y + z.y * matrix.w.z + w.y;
+  result.x.y = x.y * matrix.x.x + y.y * matrix.x.y + z.y * matrix.x.z + w.y * matrix.x.w;
+  result.y.y = x.y * matrix.y.x + y.y * matrix.y.y + z.y * matrix.y.z + w.y * matrix.y.w;
+  result.z.y = x.y * matrix.z.x + y.y * matrix.z.y + z.y * matrix.z.z + w.y * matrix.z.w;
+  result.w.y = x.y * matrix.w.x + y.y * matrix.w.y + z.y * matrix.w.z + w.y * matrix.w.w;
 
-  result.x.z = x.z * matrix.x.x + y.z * matrix.x.y + z.z * matrix.x.z;
-  result.y.z = x.z * matrix.y.x + y.z * matrix.y.y + z.z * matrix.y.z;
-  result.z.z = x.z * matrix.z.x + y.z * matrix.z.y + z.z * matrix.z.z;
-  result.w.z = x.z * matrix.w.x + y.z * matrix.w.y + z.z * matrix.w.z + w.z;
+  result.x.z = x.z * matrix.x.x + y.z * matrix.x.y + z.z * matrix.x.z + w.z * matrix.x.w;
+  result.y.z = x.z * matrix.y.x + y.z * matrix.y.y + z.z * matrix.y.z + w.z * matrix.y.w;
+  result.z.z = x.z * matrix.z.x + y.z * matrix.z.y + z.z * matrix.z.z + w.z * matrix.z.w;
+  result.w.z = x.z * matrix.w.x + y.z * matrix.w.y + z.z * matrix.w.z + w.z * matrix.w.w;
 
-  result.x.w = 0.f;
-  result.y.w = 0.f;
-  result.z.w = 0.f;
-  result.w.w = 1.f;
+  result.x.w = x.w * matrix.x.x + y.w * matrix.x.y + z.w * matrix.x.z + w.w * matrix.x.w;
+  result.y.w = x.w * matrix.y.x + y.w * matrix.y.y + z.w * matrix.y.z + w.w * matrix.y.w;
+  result.z.w = x.w * matrix.z.x + y.w * matrix.z.y + z.w * matrix.z.z + w.w * matrix.z.w;
+  result.w.w = x.w * matrix.w.x + y.w * matrix.w.y + z.w * matrix.w.z + w.w * matrix.w.w;
 
   return result;
 }
