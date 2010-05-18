@@ -20,11 +20,11 @@ struct Vertex
 {
   Vec2 position;
   Vec2 mapping;
-  Vec3 eyevec;
+  Vec2 clipOverF;
   static VertexFormat format;
 };
 
-VertexFormat Vertex::format("2f:position 2f:mapping 3f:eyevec");
+VertexFormat Vertex::format("2f:position 2f:mapping 2f:clipOverF");
 
 typedef std::vector<Light> LightList;
 
@@ -162,7 +162,7 @@ bool Demo::init(void)
     interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
     interface.addVarying("position", GL::Varying::FLOAT_VEC2);
     interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
-    interface.addVarying("eyevec", GL::Varying::FLOAT_VEC3);
+    interface.addVarying("clipOverF", GL::Varying::FLOAT_VEC2);
 
     if (!interface.matches(*lightProgram, true))
       return false;
@@ -336,19 +336,19 @@ void Demo::renderLight(const Light& light)
 
   vertices[0].mapping.set(0.5f, 0.5f);
   vertices[0].position.set(0.f, 0.f);
-  vertices[0].eyevec.set(-f * aspect, -f, 0.f);
+  vertices[0].clipOverF.set(-f * aspect, -f);
 
   vertices[1].mapping.set(canvas->getWidth() + 0.5f, 0.5f);
   vertices[1].position.set(1.f, 0.f);
-  vertices[1].eyevec.set(f * aspect, -f, 0.f);
+  vertices[1].clipOverF.set(f * aspect, -f);
 
   vertices[2].mapping.set(canvas->getWidth() + 0.5f, canvas->getHeight() + 0.5f);
   vertices[2].position.set(1.f, 1.f);
-  vertices[2].eyevec.set(f * aspect, f, 0.f);
+  vertices[2].clipOverF.set(f * aspect, f);
 
   vertices[3].mapping.set(0.5f, canvas->getHeight() + 0.5f);
   vertices[3].position.set(0.f, 1.f);
-  vertices[3].eyevec.set(-f * aspect, f, 0.f);
+  vertices[3].clipOverF.set(-f * aspect, f);
 
   range.copyFrom(vertices);
 
