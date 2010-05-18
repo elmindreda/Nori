@@ -183,8 +183,8 @@ Transform3& Transform3::operator *= (const Transform3& parent)
 
 void Transform3::setIdentity(void)
 {
-  rotation.set(1.f, 0.f, 0.f, 0.f);
-  position.set(0.f, 0.f, 0.f);
+  rotation.setIdentity();
+  position = Vec3::ZERO;
 }
 
 void Transform3::set(const Vec3& newPosition, const Quat& newRotation)
