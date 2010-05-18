@@ -78,12 +78,7 @@ void Mat2::transpose(void)
   temp = x.y; x.y = y.x; y.x = temp;
 }
 
-void Mat2::normalize(void)
-{
-  // TODO: Implement.
-}
-
-void Mat2::rotateVector(Vec2& vector) const
+void Mat2::transformVector(Vec2& vector) const
 {
   Vec2 temp;
 
@@ -141,6 +136,13 @@ Mat2 Mat2::operator * (const Mat2& matrix) const
   return result;
 }
 
+Vec2 Mat2::operator * (const Vec2& vector) const
+{
+  Vec2 result = vector;
+  transformVector(result);
+  return result;
+}
+
 Mat2& Mat2::operator += (const Mat2& matrix)
 {
   x += matrix.x;
@@ -192,7 +194,7 @@ void Mat2::set(const Vec2& sx, const Vec2& sy)
   y = sy;
 }
 
-void Mat2::setRotation(const float angle)
+void Mat2::setEulerRotation(const float angle)
 {
   const float sina = sinf(angle);
   const float cosa = cosf(angle);
@@ -226,11 +228,6 @@ Mat3::Mat3(const String& string)
   stream >> z.x >> z.y >> z.z;
 }
 
-void Mat3::invert(void)
-{
-  // TODO: Implement.
-}
-
 void Mat3::transpose(void)
 {
   float temp;
@@ -240,9 +237,15 @@ void Mat3::transpose(void)
   temp = y.z; y.z = z.y; z.y = temp;
 }
 
-void Mat3::normalize(void)
+void Mat3::transformVector(Vec3& vector) const
 {
-  // TODO: Implement.
+  Vec3 temp;
+
+  temp.x = vector.x * x.x + vector.y * y.x + vector.z * z.x;
+  temp.y = vector.x * x.y + vector.y * y.y + vector.z * z.y;
+  temp.z = vector.x * x.z + vector.y * y.z + vector.z * z.z;
+
+  vector = temp;
 }
 
 float Mat3::determinant(void) const
@@ -301,6 +304,13 @@ Mat3 Mat3::operator * (const Mat3& matrix) const
   return result;
 }
 
+Vec3 Mat3::operator * (const Vec3& vector) const
+{
+  Vec3 result = vector;
+  transformVector(result);
+  return result;
+}
+
 Mat3& Mat3::operator += (const Mat3& matrix)
 {
   x += matrix.x;
@@ -336,17 +346,6 @@ Mat3& Mat3::operator *= (const Mat3& matrix)
   result.z.z = x.z * matrix.z.x + y.z * matrix.z.y + z.z * matrix.z.z;
 
   return operator = (result);
-}
-
-void Mat3::rotateVector(Vec3& vector) const
-{
-  Vec3 temp;
-
-  temp.x = vector.x * x.x + vector.y * y.x + vector.z * z.x;
-  temp.y = vector.x * x.y + vector.y * y.y + vector.z * z.y;
-  temp.z = vector.x * x.z + vector.y * y.z + vector.z * z.z;
-
-  vector = temp;
 }
 
 String Mat3::asString(void) const
@@ -387,11 +386,6 @@ void Mat3::setQuatRotation(const Quat& quat)
   z.x = 2.f * quat.x * quat.z + 2.f * quat.w * quat.y;
   z.y = 2.f * quat.y * quat.z - 2.f * quat.w * quat.x;
   z.z = 1.f - 2.f * quat.x * quat.x - 2.f * quat.y * quat.y;
-}
-
-void Mat3::setEulerRotation(const Vec3& angles)
-{
-  // TODO: Implement.
 }
 
 void Mat3::setVectorRotation(const Vec3& vector)
@@ -469,11 +463,6 @@ Mat4::Mat4(const String& string)
   stream >> w.x >> w.y >> w.z >> w.w;
 }
 
-void Mat4::invert(void)
-{
-  // TODO: implement!
-}
-
 void Mat4::transpose(void)
 {
   float temp;
@@ -484,11 +473,6 @@ void Mat4::transpose(void)
   temp = y.z; y.z = z.y; z.y = temp;
   temp = y.w; y.w = w.y; w.y = temp;
   temp = z.w; z.w = w.z; w.z = temp;
-}
-
-void Mat4::normalize(void)
-{
-  // TODO: implement!
 }
 
 void Mat4::transformVector(Vec3& vector) const
@@ -589,6 +573,13 @@ Mat4 Mat4::operator * (const Mat4& matrix) const
   return result;
 }
 
+Vec4 Mat4::operator * (const Vec4& vector) const
+{
+  Vec4 result = vector;
+  transformVector(result);
+  return result;
+}
+
 Mat4& Mat4::operator += (const Mat4& matrix)
 {
   x += matrix.x;
@@ -662,29 +653,6 @@ void Mat4::set(const Vec4& sx, const Vec4& sy, const Vec4& sz, const Vec4& sw)
   y = sy;
   z = sz;
   w = sw;
-}
-
-void Mat4::setEulerRotation(const Vec3& angles)
-{
-  // TODO: implement!
-  /*
-  Vec3 sin, cos;
-
-  sin.set(sinf(angles.x), sinf(angles.y), sinf(angles.z));
-  cos.set(cosf(angles.x), cosf(angles.y), cosf(angles.z));
-
-  x.x = cos.y * cos.z;
-  x.y = sin.x * sin.y * cos.z - cos.x * sin.z;
-  x.z = cos.x * sin.y * cos.z + sin.x * sin.z;
-
-  y.x = cos.y * sin.z;
-  y.y = cos.x * cos.z + sin.x * sin.y * sin.z;
-  y.z = cos.x * sin.y * sin.z - sin.x * cos.z;
-
-  z.x = -sin.y;
-  z.y = sin.x * cos.y;
-  z.z = cos.x * cos.y;
-  */
 }
 
 void Mat4::setQuatRotation(const Quat& quat)
@@ -780,36 +748,6 @@ void Mat4::setMatrixRotation(const Mat3& matrix)
   z.x = matrix.z.x;
   z.y = matrix.z.y;
   z.z = matrix.z.z;
-}
-
-void Mat4::getScaling(Vec3& scaling) const
-{
-  Vec3 axis;
-
-  axis.x = x.x;
-  axis.y = y.x;
-  axis.z = z.x;
-
-  scaling.x = axis.length();
-
-  axis.x = x.y;
-  axis.y = y.y;
-  axis.z = z.y;
-
-  scaling.y = axis.length();
-
-  axis.x = x.z;
-  axis.y = y.z;
-  axis.z = z.z;
-
-  scaling.z = axis.length();
-}
-
-void Mat4::setScaling(const Vec3& scaling)
-{
-  x.x = scaling.x;
-  y.y = scaling.y;
-  z.z = scaling.z;
 }
 
 void Mat4::getTranslation(Vec3& vector) const

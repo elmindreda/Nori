@@ -50,8 +50,7 @@ public:
   explicit Mat2(const String& string);
   void invert(void);
   void transpose(void);
-  void normalize(void);
-  void rotateVector(Vec2& vector) const;
+  void transformVector(Vec2& vector) const;
   float determinant(void) const;
   operator float* (void);
   operator const float* (void) const;
@@ -60,6 +59,7 @@ public:
   Mat2 operator + (const Mat2& matrix) const;
   Mat2 operator - (const Mat2& matrix) const;
   Mat2 operator * (const Mat2& matrix) const;
+  Vec2 operator * (const Vec2& vector) const;
   Mat2& operator += (const Mat2& matrix);
   Mat2& operator -= (const Mat2& matrix);
   Mat2& operator *= (const Mat2& matrix);
@@ -68,7 +68,7 @@ public:
   String asString(void) const;
   void setIdentity(void);
   void set(const Vec2& sx, const Vec2& sy);
-  void setRotation(const float angle);
+  void setEulerRotation(const float angle);
   Vec2 x;
   Vec2 y;
 };
@@ -84,10 +84,8 @@ public:
   Mat3(void);
   Mat3(const Vec3& sx, const Vec3& sy, const Vec3& sz);
   explicit Mat3(const String& string);
-  void invert(void);
   void transpose(void);
-  void normalize(void);
-  void rotateVector(Vec3& vector) const;
+  void transformVector(Vec3& vector) const;
   float determinant(void) const;
   operator float* (void);
   operator const float* (void) const;
@@ -96,6 +94,7 @@ public:
   Mat3 operator + (const Mat3& matrix) const;
   Mat3 operator - (const Mat3& matrix) const;
   Mat3 operator * (const Mat3& matrix) const;
+  Vec3 operator * (const Vec3& vector) const;
   Mat3& operator += (const Mat3& matrix);
   Mat3& operator -= (const Mat3& matrix);
   Mat3& operator *= (const Mat3& matrix);
@@ -105,7 +104,6 @@ public:
   void setIdentity(void);
   void set(const Vec3& sx, const Vec3& sy, const Vec3& sz);
   void setQuatRotation(const Quat& quat);
-  void setEulerRotation(const Vec3& angles);
   void setVectorRotation(const Vec3& vector);
   void setAxisRotation(const Vec3& axis, float angle);
   Vec3 x;
@@ -124,9 +122,7 @@ public:
   Mat4(void);
   Mat4(const Vec4& sx, const Vec4& sy, const Vec4& sz, const Vec4& sw);
   explicit Mat4(const String& string);
-  void invert(void);
   void transpose(void);
-  void normalize(void);
   void transformVector(Vec3& vector) const;
   void transformVector(Vec4& vector) const;
   void rotateVector(Vec3& vector) const;
@@ -138,6 +134,7 @@ public:
   Mat4 operator + (const Mat4& matrix) const;
   Mat4 operator - (const Mat4& matrix) const;
   Mat4 operator * (const Mat4& matrix) const;
+  Vec4 operator * (const Vec4& vector) const;
   Mat4& operator += (const Mat4& matrix);
   Mat4& operator -= (const Mat4& matrix);
   Mat4& operator *= (const Mat4& matrix);
@@ -146,14 +143,11 @@ public:
   String asString(void) const;
   void setIdentity(void);
   void set(const Vec4& sx, const Vec4& sy, const Vec4& sz, const Vec4& sw);
-  void setEulerRotation(const Vec3& angles);
   void setQuatRotation(const Quat& quat);
   void setVectorRotation(const Vec3& vector);
   void setAxisRotation(const Vec3& axis, float angle);
   void getMatrixRotation(Mat3& matrix) const;
   void setMatrixRotation(const Mat3& matrix);
-  void getScaling(Vec3& scaling) const;
-  void setScaling(const Vec3& scaling);
   void getTranslation(Vec3& vector) const;
   void setTranslation(const Vec3& vector);
   void setProjection2D(float width, float height);
