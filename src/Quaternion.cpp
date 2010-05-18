@@ -89,7 +89,7 @@ void Quat::rotateVector(Vec3& vector) const
   Mat3 matrix;
 
   matrix.setQuatRotation(*this);
-  matrix.rotateVector(vector);
+  matrix.transformVector(vector);
 }
 
 float Quat::dot(const Quat& other) const
