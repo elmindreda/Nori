@@ -131,10 +131,13 @@ bool Demo::init(void)
     GL::ProgramInterface interface;
     interface.addSampler("colorbuffer", GL::Sampler::SAMPLER_RECT);
     interface.addSampler("normalbuffer", GL::Sampler::SAMPLER_RECT);
+    interface.addUniform("nearZ", GL::Uniform::FLOAT);
+    interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
     interface.addUniform("light.direction", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
     interface.addVarying("position", GL::Varying::FLOAT_VEC2);
     interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
+    interface.addVarying("clipOverF", GL::Varying::FLOAT_VEC2);
 
     if (!interface.matches(*lightProgram, true))
       return false;
@@ -145,6 +148,7 @@ bool Demo::init(void)
     dirLightPass.setProgram(lightProgram);
     dirLightPass.getSamplerState("colorbuffer").setTexture(colorTexture);
     dirLightPass.getSamplerState("normalbuffer").setTexture(normalTexture);
+    dirLightPass.getSamplerState("depthbuffer").setTexture(depthTexture);
   }
 
   // Set up lighting pass
@@ -157,11 +161,11 @@ bool Demo::init(void)
     interface.addSampler("colorbuffer", GL::Sampler::SAMPLER_RECT);
     interface.addSampler("normalbuffer", GL::Sampler::SAMPLER_RECT);
     interface.addSampler("depthbuffer", GL::Sampler::SAMPLER_RECT);
+    interface.addUniform("nearZ", GL::Uniform::FLOAT);
+    interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
     interface.addUniform("light.position", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.linear", GL::Uniform::FLOAT);
-    interface.addUniform("nearZ", GL::Uniform::FLOAT);
-    interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
     interface.addVarying("position", GL::Varying::FLOAT_VEC2);
     interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
     interface.addVarying("clipOverF", GL::Varying::FLOAT_VEC2);
@@ -300,6 +304,9 @@ void Demo::renderLight(const Light& light)
 {
   if (light.type == Light::POINT)
   {
+    pointLightPass.getUniformState("nearZ").setValue(camera->getMinDepth());
+    pointLightPass.getUniformState("nearOverFarZminusOne").setValue(camera->getMinDepth() / camera->getMaxDepth() - 1.f);
+
     Vec3 position = light.position;
     camera->getViewTransform().transformVector(position);
     pointLightPass.getUniformState("light.position").setValue(position);
@@ -309,13 +316,13 @@ void Demo::renderLight(const Light& light)
 
     pointLightPass.getUniformState("light.linear").setValue(light.linear);
 
-    pointLightPass.getUniformState("nearZ").setValue(camera->getMinDepth());
-    pointLightPass.getUniformState("nearOverFarZminusOne").setValue(camera->getMinDepth() / camera->getMaxDepth() - 1.f);
-
     pointLightPass.apply();
   }
   else if (light.type == Light::DIRECTIONAL)
   {
+    dirLightPass.getUniformState("nearZ").setValue(camera->getMinDepth());
+    dirLightPass.getUniformState("nearOverFarZminusOne").setValue(camera->getMinDepth() / camera->getMaxDepth() - 1.f);
+
     Vec3 direction = light.direction;
     camera->getViewTransform().rotation.rotateVector(direction);
     dirLightPass.getUniformState("light.direction").setValue(direction);
