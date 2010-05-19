@@ -94,24 +94,25 @@ Transform2::operator Mat3 (void) const
   return result;
 }
 
-Transform2 Transform2::operator * (const Transform2& parent) const
+Transform2 Transform2::operator * (const Transform2& other) const
 {
   Transform2 result(*this);
-  result *= parent;
+  result *= other;
   return result;
 }
 
-Transform2& Transform2::operator *= (const Transform2& parent)
+Transform2& Transform2::operator *= (const Transform2& other)
 {
-  parent.rotateVector(position);
-  position += parent.position;
-  angle += parent.angle;
+  Vec2 local = other.position;
+  rotateVector(local);
+  position += local;
+  angle += other.angle;
   return *this;
 }
 
 void Transform2::setIdentity(void)
 {
-  position.set(0.f, 0.f);
+  position = Vec2::ZERO;
   angle = 0.f;
 }
 
@@ -166,18 +167,19 @@ Transform3::operator Mat4 (void) const
   return result;
 }
 
-Transform3 Transform3::operator * (const Transform3& parent) const
+Transform3 Transform3::operator * (const Transform3& other) const
 {
   Transform3 result(*this);
-  result *= parent;
+  result *= other;
   return result;
 }
 
-Transform3& Transform3::operator *= (const Transform3& parent)
+Transform3& Transform3::operator *= (const Transform3& other)
 {
-  parent.rotateVector(position);
-  position += parent.position;
-  rotation = parent.rotation * rotation;
+  Vec3 local = other.position;
+  rotateVector(local);
+  position += local;
+  rotation *= other.rotation;
   return *this;
 }
 

@@ -46,8 +46,8 @@ public:
   void translateVector(Vec2& vector) const;
   void transformVector(Vec2& vector) const;
   operator Mat3 (void) const;
-  Transform2 operator * (const Transform2& parent) const;
-  Transform2& operator *= (const Transform2& parent);
+  Transform2 operator * (const Transform2& other) const;
+  Transform2& operator *= (const Transform2& other);
   void setIdentity(void);
   void set(const Vec2& newPosition, float newAngle);
   Vec2 position;
@@ -66,8 +66,8 @@ public:
   void translateVector(Vec3& vector) const;
   void transformVector(Vec3& vector) const;
   operator Mat4 (void) const;
-  Transform3 operator * (const Transform3& parent) const;
-  Transform3& operator *= (const Transform3& parent);
+  Transform3 operator * (const Transform3& other) const;
+  Transform3& operator *= (const Transform3& other);
   void setIdentity(void);
   void set(const Vec3& newPosition, const Quat& newRotation);
   Vec3 position;

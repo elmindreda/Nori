@@ -282,12 +282,13 @@ void Node::invalidateBounds(void)
 
 bool Node::updateWorldTransform(void) const
 {
-  world = local;
   if (const Node* parent = getParent())
   {
     parent->updateWorldTransform();
-    world *= parent->world;
+    world = parent->world * local;
   }
+  else
+    world = local;
 
   /* TODO: Fix this.
 
