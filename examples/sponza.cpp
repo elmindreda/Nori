@@ -13,6 +13,7 @@ struct Light
   Vec3 direction;
   Vec3 position;
   ColorRGB color;
+  float linear;
   Type type;
 };
 
@@ -158,6 +159,7 @@ bool Demo::init(void)
     interface.addSampler("depthbuffer", GL::Sampler::SAMPLER_RECT);
     interface.addUniform("light.position", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
+    interface.addUniform("light.linear", GL::Uniform::FLOAT);
     interface.addUniform("nearZ", GL::Uniform::FLOAT);
     interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
     interface.addVarying("position", GL::Varying::FLOAT_VEC2);
@@ -218,8 +220,9 @@ bool Demo::init(void)
   graph.addRootNode(*cameraNode);
 
   lights.resize(1);
-  lights[0].position = Vec3(0.f, 20.f, 0.f);
-  lights[0].color.set(1.f, 1.f, 1.f);
+  lights[0].position = Vec3::ZERO;
+  lights[0].color = ColorRGB::WHITE;
+  lights[0].linear = 0.05f;
   lights[0].type = Light::POINT;
 
   timer.start();
@@ -244,7 +247,7 @@ void Demo::run(void)
     const Time deltaTime = timer.getTime() - currentTime;
     currentTime += deltaTime;
 
-    lights[0].position.y = sinf(currentTime) * 40.f + 20.f;
+    lights[0].position.y = sinf(currentTime) * 40.f + 45.f;
 
     controller.update(deltaTime);
     cameraNode->getLocalTransform() = controller.getTransform();
@@ -303,6 +306,8 @@ void Demo::renderLight(const Light& light)
 
     Vec3 color(light.color.r, light.color.g, light.color.b);
     pointLightPass.getUniformState("light.color").setValue(color);
+
+    pointLightPass.getUniformState("light.linear").setValue(light.linear);
 
     pointLightPass.getUniformState("nearZ").setValue(camera->getMinDepth());
     pointLightPass.getUniformState("nearOverFarZminusOne").setValue(camera->getMinDepth() / camera->getMaxDepth() - 1.f);

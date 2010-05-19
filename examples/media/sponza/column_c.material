@@ -2,8 +2,9 @@
 <material version="4">
   <technique quality="1">
     <pass>
-      <program name="render_mapped">
+      <program name="render_normal">
         <sampler name="colormap" texture="column_c_diff" />
+        <sampler name="normalmap" texture="column_c_ns" />
       </program>
     </pass>
   </technique>

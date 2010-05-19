@@ -2,8 +2,9 @@
 <material version="4">
   <technique quality="1">
     <pass>
-      <program name="render_solid">
-        <uniform name="color" value="0.694118 0.345098 0.105882" />
+      <program name="render_normal">
+        <sampler name="colormap" texture="wire_diff" />
+        <sampler name="normalmap" texture="wire_ns" />
       </program>
     </pass>
   </technique>

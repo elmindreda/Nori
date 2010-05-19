@@ -16,7 +16,7 @@ Out main(uniform sampler2D colormap,
 
   Out result;
   result.color = color;
-  result.normal = float4(normalize(normal) / 2 + float3(0.5), 0);
+  result.normal = float4(normalize(normal) / 2 + 0.5, 0);
   return result;
 }
 
