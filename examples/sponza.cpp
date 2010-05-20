@@ -32,11 +32,14 @@ typedef std::vector<Light> LightList;
 class Demo : public Trackable
 {
 public:
+  Demo(void);
   ~Demo(void);
   bool init(void);
   void run(void);
 private:
   void renderLight(const Light& light);
+  void onKeyPressed(input::Key key, bool pressed);
+  void onButtonClicked(input::Button button, bool clicked);
   input::SpectatorCamera controller;
   Ref<GL::ImageCanvas> canvas;
   GL::RenderState dirLightPass;
@@ -51,10 +54,34 @@ private:
   LightList lights;
   Timer timer;
   Time currentTime;
+  bool quitting;
+  bool debugging;
 };
+
+Demo::Demo(void):
+  quitting(false),
+  debugging(false),
+  currentTime(0.0),
+  cameraNode(NULL)
+{
+}
 
 Demo::~Demo(void)
 {
+  graph.destroyRootNodes();
+
+  camera = NULL;
+
+  canvas = NULL;
+
+  colorTexture = NULL;
+  depthTexture = NULL;
+  normalTexture = NULL;
+
+  dirLightPass.setProgram(NULL);
+  pointLightPass.setProgram(NULL);
+  blitPass.setProgram(NULL);
+
   input::Context::destroy();
   GL::Renderer::destroy();
   GL::Context::destroy();
@@ -79,10 +106,13 @@ bool Demo::init(void)
   const unsigned int width = context->getCurrentCanvas().getWidth();
   const unsigned int height = context->getCurrentCanvas().getHeight();
 
-  if (!GL::Renderer::create(*context))
+  if (!input::Context::create(*context))
     return false;
 
-  if (!input::Context::create(*context))
+  input::Context::get()->getKeyPressedSignal().connect(*this, &Demo::onKeyPressed);
+  input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
+
+  if (!GL::Renderer::create(*context))
     return false;
 
   // Set up G-buffer
@@ -182,8 +212,7 @@ bool Demo::init(void)
     pointLightPass.getSamplerState("depthbuffer").setTexture(depthTexture);
   }
 
-  // Set up blit pass
-  /*
+  // Set up debug buffer blit pass
   {
     GL::ProgramRef blitProgram = GL::Program::readInstance("blit");
     if (!blitProgram)
@@ -201,7 +230,6 @@ bool Demo::init(void)
     blitPass.setDepthWriting(false);
     blitPass.setProgram(blitProgram);
   }
-  */
 
   Ref<render::Mesh> mesh = render::Mesh::readInstance("sponza");
   if (!mesh)
@@ -245,9 +273,6 @@ void Demo::run(void)
 
   do
   {
-    if (input::Context::get()->isKeyDown(input::Key::ESCAPE))
-      break;
-
     const Time deltaTime = timer.getTime() - currentTime;
     currentTime += deltaTime;
 
@@ -275,7 +300,7 @@ void Demo::run(void)
     for (LightList::const_iterator i = lights.begin();  i != lights.end();  i++)
       renderLight(*i);
 
-    /*
+    if (debugging)
     {
       render::Sprite2 sprite;
       sprite.size.set(0.25f, 0.25f);
@@ -295,9 +320,8 @@ void Demo::run(void)
       sprite.position.set(0.f + sprite.size.x / 2.f, 1.f - 1.5f * sprite.size.y);
       sprite.render();
     }
-    */
   }
-  while (context->update());
+  while (not quitting and context->update());
 }
 
 void Demo::renderLight(const Light& light)
@@ -365,6 +389,33 @@ void Demo::renderLight(const Light& light)
   range.copyFrom(vertices);
 
   renderer->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+}
+
+void Demo::onKeyPressed(input::Key key, bool pressed)
+{
+  if (!pressed)
+    return;
+
+  switch (key)
+  {
+    case input::Key::TAB:
+      debugging = not debugging;
+      break;
+
+    case input::Key::ESCAPE:
+      quitting = true;
+      break;
+  }
+}
+
+void Demo::onButtonClicked(input::Button button, bool clicked)
+{
+  if (!clicked)
+    return;
+
+  if (button == input::Button::LEFT)
+  {
+  }
 }
 
 int main()
