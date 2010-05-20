@@ -151,7 +151,6 @@ void Queue::render(const String& passName) const
     throw Exception("Cannot render render queue without a renderer");
 
   camera.apply();
-  lights.apply();
 
   const OperationList& operations = getOperations();
 

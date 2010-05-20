@@ -40,16 +40,37 @@ namespace wendy
 class Light : public RefObject
 {
 public:
+  enum Type
+  {
+    DIRECTIONAL,
+    POINT,
+    SPOTLIGHT,
+  };
   Light(void);
-  const ColorRGB& getIntensity(void) const;
-  void setIntensity(const ColorRGB& newColor);
+  Type getType(void) const;
+  void setType(Type newType);
+  const ColorRGB& getColor(void) const;
+  void setColor(const ColorRGB& newColor);
   const Vec3& getPosition(void) const;
   void setPosition(const Vec3& newPosition);
+  const Vec3& getDirection(void) const;
+  void setDirection(const Vec3& newDirection);
+  float getConstantAttenuation(void) const;
+  void setConstantAttenuation(float newValue);
+  float getLinearAttenuation(void) const;
+  void setLinearAttenuation(float newValue);
+  float getQuadraticAttenuation(void) const;
+  void setQuadraticAttenuation(float newValue);
   const Sphere& getBounds(void) const;
   void setBounds(const Sphere& newBounds);
 private:
-  ColorRGB intensity;
+  Type type;
+  ColorRGB color;
   Vec3 position;
+  Vec3 direction;
+  float constant;
+  float linear;
+  float quadratic;
   Sphere bounds;
 };
 
@@ -62,19 +83,14 @@ typedef Ref<Light> LightRef;
 class LightState
 {
 public:
-  LightState(void);
-  void apply(void) const;
   void attachLight(Light& light);
   void detachLight(Light& light);
   void detachLights(void);
   unsigned int getLightCount(void) const;
   Light& getLight(unsigned int index) const;
-  static const LightState& getCurrent(void);
 private:
-  static void onContextDestroy(void);
   typedef std::vector<LightRef> List;
   List lights;
-  static LightState current;
 };
 
 ///////////////////////////////////////////////////////////////////////

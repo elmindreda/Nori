@@ -344,6 +344,13 @@ void Graph::enqueue(render::Queue& queue) const
   Node::List nodes;
   query(queue.getCamera().getFrustum(), nodes);
 
+  queue.setPhase(render::Queue::COLLECT_LIGHTS);
+
+  for (Node::List::const_iterator i = nodes.begin();  i != nodes.end();  i++)
+    (*i)->enqueue(queue);
+
+  queue.setPhase(render::Queue::COLLECT_GEOMETRY);
+
   for (Node::List::const_iterator i = nodes.begin();  i != nodes.end();  i++)
     (*i)->enqueue(queue);
 }
@@ -419,40 +426,39 @@ void LightNode::update(void)
 {
   Node::update();
 
-  setLocalBounds(light->getBounds());
+  if (light)
+  {
+    const Transform3& world = getWorldTransform();
+
+    if (light->getType() == render::Light::DIRECTIONAL ||
+        light->getType() == render::Light::SPOTLIGHT)
+    {
+      Vec3 direction(0.f, 0.f, -1.f);
+      world.rotateVector(direction);
+      light->setDirection(direction);
+    }
+
+    if (light->getType() == render::Light::POINT ||
+        light->getType() == render::Light::SPOTLIGHT)
+    {
+      light->setPosition(world.position);
+    }
+
+    setLocalBounds(Sphere(Vec3::ZERO, light->getBounds().radius));
+  }
+  else
+    setLocalBounds(Sphere(Vec3::ZERO, 0.f));
 }
 
 void LightNode::enqueue(render::Queue& queue) const
 {
   Node::enqueue(queue);
 
-  if (queue.getPhase() != render::Queue::COLLECT_LIGHTS)
-    return;
-
-  /*
-  const Transform3& world = getWorldTransform();
-
-  switch (light->getType())
+  if (light)
   {
-    case Light::DIRECTIONAL:
-    {
-      Vec3 direction(0.f, 0.f, 1.f);
-      world.rotateVector(direction);
-      light->setDirection(direction);
-      break;
-    }
-
-    case Light::POINT:
-    {
-      Vec3 position(0.f, 0.f, 0.f);
-      world.transformVector(position);
-      light->setPosition(position);
-      break;
-    }
+    if (queue.getPhase() == render::Queue::COLLECT_LIGHTS)
+      queue.attachLight(*light);
   }
-  */
-
-  queue.attachLight(*light);
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -41,20 +41,35 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 Light::Light(void):
-  intensity(ColorRGB::WHITE),
+  type(DIRECTIONAL),
+  color(ColorRGB::WHITE),
   position(Vec3::ZERO),
+  direction(0.f, 0.f, -1.f),
+  constant(1.f),
+  linear(0.f),
+  quadratic(0.f),
   bounds(Vec3::ZERO, 1.f)
 {
 }
 
-const ColorRGB& Light::getIntensity(void) const
+Light::Type Light::getType(void) const
 {
-  return intensity;
+  return type;
 }
 
-void Light::setIntensity(const ColorRGB& newIntensity)
+void Light::setType(Type newType)
 {
-  intensity = newIntensity;
+  type = newType;
+}
+
+const ColorRGB& Light::getColor(void) const
+{
+  return color;
+}
+
+void Light::setColor(const ColorRGB& newColor)
+{
+  color = newColor;
 }
 
 const Vec3& Light::getPosition(void) const
@@ -65,6 +80,46 @@ const Vec3& Light::getPosition(void) const
 void Light::setPosition(const Vec3& newPosition)
 {
   position = newPosition;
+}
+
+const Vec3& Light::getDirection(void) const
+{
+  return direction;
+}
+
+void Light::setDirection(const Vec3& newDirection)
+{
+  direction = newDirection;
+}
+
+float Light::getConstantAttenuation(void) const
+{
+  return constant;
+}
+
+void Light::setConstantAttenuation(float newValue)
+{
+  constant = newValue;
+}
+
+float Light::getLinearAttenuation(void) const
+{
+  return linear;
+}
+
+void Light::setLinearAttenuation(float newValue)
+{
+  linear = newValue;
+}
+
+float Light::getQuadraticAttenuation(void) const
+{
+  return quadratic;
+}
+
+void Light::setQuadraticAttenuation(float newValue)
+{
+  quadratic = newValue;
 }
 
 const Sphere& Light::getBounds(void) const
@@ -78,25 +133,6 @@ void Light::setBounds(const Sphere& newBounds)
 }
 
 ///////////////////////////////////////////////////////////////////////
-
-LightState::LightState(void)
-{
-  static bool initialized = false;
-
-  if (!initialized)
-  {
-    GL::Context* context = GL::Context::get();
-    if (context)
-    {
-      context->getDestroySignal().connect(onContextDestroy);
-      initialized = true;
-    }
-  }
-}
-
-void LightState::apply(void) const
-{
-}
 
 void LightState::attachLight(Light& light)
 {
@@ -128,18 +164,6 @@ Light& LightState::getLight(unsigned int index) const
 {
   return *lights[index];
 }
-
-const LightState& LightState::getCurrent(void)
-{
-  return current;
-}
-
-void LightState::onContextDestroy(void)
-{
-  current.detachLights();
-}
-
-LightState LightState::current;
 
 ///////////////////////////////////////////////////////////////////////
 

@@ -3,21 +3,7 @@
 
 using namespace wendy;
 
-struct Light
-{
-  enum Type
-  {
-    POINT,
-    DIRECTIONAL,
-  };
-  Vec3 direction;
-  Vec3 position;
-  ColorRGB color;
-  float linear;
-  Type type;
-};
-
-struct Vertex
+struct LightVertex
 {
   Vec2 position;
   Vec2 mapping;
@@ -25,9 +11,7 @@ struct Vertex
   static VertexFormat format;
 };
 
-VertexFormat Vertex::format("2f:position 2f:mapping 2f:clipOverF");
-
-typedef std::vector<Light> LightList;
+VertexFormat LightVertex::format("2f:position 2f:mapping 2f:clipOverF");
 
 class Demo : public Trackable
 {
@@ -37,7 +21,7 @@ public:
   bool init(void);
   void run(void);
 private:
-  void renderLight(const Light& light);
+  void renderLight(const render::Light& light);
   void onKeyPressed(input::Key key, bool pressed);
   void onButtonClicked(input::Button button, bool clicked);
   input::SpectatorCamera controller;
@@ -51,7 +35,7 @@ private:
   Ref<render::Camera> camera;
   scene::Graph graph;
   scene::CameraNode* cameraNode;
-  LightList lights;
+  scene::LightNode* lightNode;
   Timer timer;
   Time currentTime;
   bool quitting;
@@ -251,11 +235,14 @@ bool Demo::init(void)
   cameraNode->setCamera(camera);
   graph.addRootNode(*cameraNode);
 
-  lights.resize(1);
-  lights[0].position = Vec3::ZERO;
-  lights[0].color = ColorRGB::WHITE;
-  lights[0].linear = 0.05f;
-  lights[0].type = Light::POINT;
+  render::LightRef light = new render::Light();
+  light->setType(render::Light::POINT);
+  light->setLinearAttenuation(0.05f);
+  light->setBounds(Sphere(Vec3::ZERO, 500.f));
+
+  lightNode = new scene::LightNode();
+  lightNode->setLight(light);
+  graph.addRootNode(*lightNode);
 
   timer.start();
 
@@ -276,7 +263,7 @@ void Demo::run(void)
     const Time deltaTime = timer.getTime() - currentTime;
     currentTime += deltaTime;
 
-    lights[0].position.y = sinf(currentTime) * 40.f + 45.f;
+    lightNode->getLocalTransform().position.y = sinf(currentTime) * 40.f + 45.f;
 
     controller.update(deltaTime);
     cameraNode->getLocalTransform() = controller.getTransform();
@@ -289,7 +276,6 @@ void Demo::run(void)
 
     graph.enqueue(queue);
     queue.render();
-    queue.destroyOperations();
 
     context->setScreenCanvasCurrent();
     context->clearDepthBuffer();
@@ -297,8 +283,9 @@ void Demo::run(void)
 
     renderer->setProjectionMatrix2D(1.f, 1.f);
 
-    for (LightList::const_iterator i = lights.begin();  i != lights.end();  i++)
-      renderLight(*i);
+    const render::LightState& lights = queue.getLights();
+    for (unsigned int i = 0;  i < lights.getLightCount();  i++)
+      renderLight(lights.getLight(i));
 
     if (debugging)
     {
@@ -320,38 +307,41 @@ void Demo::run(void)
       sprite.position.set(0.f + sprite.size.x / 2.f, 1.f - 1.5f * sprite.size.y);
       sprite.render();
     }
+
+    queue.destroyOperations();
+    queue.detachLights();
   }
   while (not quitting and context->update());
 }
 
-void Demo::renderLight(const Light& light)
+void Demo::renderLight(const render::Light& light)
 {
-  if (light.type == Light::POINT)
+  if (light.getType() == render::Light::POINT)
   {
     pointLightPass.getUniformState("nearZ").setValue(camera->getMinDepth());
     pointLightPass.getUniformState("nearOverFarZminusOne").setValue(camera->getMinDepth() / camera->getMaxDepth() - 1.f);
 
-    Vec3 position = light.position;
+    Vec3 position = light.getPosition();
     camera->getViewTransform().transformVector(position);
     pointLightPass.getUniformState("light.position").setValue(position);
 
-    Vec3 color(light.color.r, light.color.g, light.color.b);
+    Vec3 color(light.getColor().r, light.getColor().g, light.getColor().b);
     pointLightPass.getUniformState("light.color").setValue(color);
 
-    pointLightPass.getUniformState("light.linear").setValue(light.linear);
+    pointLightPass.getUniformState("light.linear").setValue(light.getLinearAttenuation());
 
     pointLightPass.apply();
   }
-  else if (light.type == Light::DIRECTIONAL)
+  else if (light.getType() == render::Light::DIRECTIONAL)
   {
     dirLightPass.getUniformState("nearZ").setValue(camera->getMinDepth());
     dirLightPass.getUniformState("nearOverFarZminusOne").setValue(camera->getMinDepth() / camera->getMaxDepth() - 1.f);
 
-    Vec3 direction = light.direction;
+    Vec3 direction = light.getDirection();
     camera->getViewTransform().rotation.rotateVector(direction);
     dirLightPass.getUniformState("light.direction").setValue(direction);
 
-    Vec3 color(light.color.r, light.color.g, light.color.b);
+    Vec3 color(light.getColor().r, light.getColor().g, light.getColor().b);
     dirLightPass.getUniformState("light.color").setValue(color);
 
     dirLightPass.apply();
@@ -361,10 +351,10 @@ void Demo::renderLight(const Light& light)
 
   GL::VertexRange range;
 
-  if (!renderer->allocateVertices(range, 4, Vertex::format))
+  if (!renderer->allocateVertices(range, 4, LightVertex::format))
     return;
 
-  Vertex vertices[4];
+  LightVertex vertices[4];
 
   const float radians = camera->getFOV() * (float) M_PI / 180.f;
   const float f = tanf(radians / 2.f);
