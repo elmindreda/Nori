@@ -63,7 +63,13 @@ struct Face
 
 typedef std::vector<Face> FaceList;
 
-typedef std::map<String, FaceList> FaceMap;
+struct FaceGroup
+{
+  FaceList faces;
+  String name;
+};
+
+typedef std::vector<FaceGroup> FaceGroupList;
 
 const unsigned int MESH_XML_VERSION = 1;
 
@@ -94,10 +100,10 @@ Mesh* MeshCodecOBJ::read(Stream& stream, const String& name)
   std::vector<Vec3> normals;
   std::vector<Vec2> texcoords;
 
-  FaceMap faceMap;
+  FaceGroupList groups;
+  FaceGroup* group = NULL;
 
   String meshName;
-  String shaderName = "default";
 
   while (source->readLine(line))
   {
@@ -148,7 +154,22 @@ Mesh* MeshCodecOBJ::read(Stream& stream, const String& name)
     }
     else if (command == "usemtl")
     {
-      shaderName = readName(&text);
+      String shaderName = readName(&text);
+
+      group = NULL;
+
+      for (FaceGroupList::iterator g = groups.begin();  g != groups.end();  g++)
+      {
+        if (g->name == shaderName)
+          group = &(*g);
+      }
+
+      if (!group)
+      {
+        groups.push_back(FaceGroup());
+        groups.back().name = shaderName;
+        group = &(groups.back());
+      }
     }
     else if (command == "mtllib")
     {
@@ -156,6 +177,12 @@ Mesh* MeshCodecOBJ::read(Stream& stream, const String& name)
     }
     else if (command == "f")
     {
+      if (!group)
+      {
+        Log::writeError("Expected \'usemtl\' but found \'f\' in OBJ file");
+        return NULL;
+      }
+
       std::vector<Triplet> triplets;
 
       while (*text != '\0')
@@ -189,12 +216,10 @@ Mesh* MeshCodecOBJ::read(Stream& stream, const String& name)
 	  text++;
       }
 
-      FaceList& faces = faceMap[shaderName];
-
       for (unsigned int i = 2;  i < triplets.size();  i++)
       {
-	faces.push_back(Face());
-	Face& face = faces.back();
+	group->faces.push_back(Face());
+	Face& face = group->faces.back();
 
 	face.p[0] = triplets[0];
 	face.p[1] = triplets[i - 1];
@@ -214,14 +239,14 @@ Mesh* MeshCodecOBJ::read(Stream& stream, const String& name)
 
   VertexMerger merger(mesh->vertices);
 
-  for (FaceMap::const_iterator i = faceMap.begin();  i != faceMap.end();  i++)
+  for (FaceGroupList::const_iterator g = groups.begin();  g != groups.end();  g++)
   {
     mesh->geometries.push_back(MeshGeometry());
     MeshGeometry& geometry = mesh->geometries.back();
 
-    const FaceList& faces = (*i).second;
+    const FaceList& faces = g->faces;
 
-    geometry.shaderName = (*i).first;
+    geometry.shaderName = g->name;
     geometry.triangles.resize(faces.size());
 
     for (unsigned int i = 0;  i < faces.size();  i++)
