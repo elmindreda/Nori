@@ -306,6 +306,12 @@ void Demo::run(void)
 
       sprite.position.set(0.f + sprite.size.x / 2.f, 1.f - 1.5f * sprite.size.y);
       sprite.render();
+
+      blitPass.getSamplerState("image").setTexture(depthTexture);
+      blitPass.apply();
+
+      sprite.position.set(0.f + sprite.size.x / 2.f, 1.f - 2.5f * sprite.size.y);
+      sprite.render();
     }
 
     queue.destroyOperations();
