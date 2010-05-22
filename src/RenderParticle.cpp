@@ -456,7 +456,7 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& vertexRange,
 
   if (!renderer->allocateIndices(indexRange,
                                  activeParticles.size() * 6,
-				 GL::IndexBuffer::USHORT))
+				 GL::IndexBuffer::UINT16))
     return false;
 
   GL::IndexRangeLock<unsigned short> indices(indexRange);

@@ -483,12 +483,12 @@ size_t IndexBuffer::getTypeSize(Type type)
 {
   switch (type)
   {
-    case IndexBuffer::UINT:
-      return sizeof(GLuint);
-    case IndexBuffer::USHORT:
-      return sizeof(GLushort);
-    case IndexBuffer::UBYTE:
+    case IndexBuffer::UINT8:
       return sizeof(GLubyte);
+    case IndexBuffer::UINT16:
+      return sizeof(GLushort);
+    case IndexBuffer::UINT32:
+      return sizeof(GLuint);
     default:
       Log::writeError("Invalid index buffer type %u", type);
       return 0;
@@ -498,7 +498,7 @@ size_t IndexBuffer::getTypeSize(Type type)
 IndexBuffer::IndexBuffer(const String& name):
   Managed<IndexBuffer>(name),
   locked(false),
-  type(UINT),
+  type(UINT32),
   usage(STATIC),
   bufferID(0),
   count(0)
@@ -857,6 +857,44 @@ unsigned int PrimitiveRange::getStart(void) const
 unsigned int PrimitiveRange::getCount(void) const
 {
   return count;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+template <>
+IndexRangeLock<uint8_t>::IndexRangeLock(IndexRange& initRange):
+  range(initRange),
+  indices(NULL)
+{
+  if (range.getIndexBuffer())
+  {
+    if (range.getIndexBuffer()->getType() != IndexBuffer::UINT8)
+      throw Exception("Index buffer lock type mismatch");
+  }
+}
+
+template <>
+IndexRangeLock<uint16_t>::IndexRangeLock(IndexRange& initRange):
+  range(initRange),
+  indices(NULL)
+{
+  if (range.getIndexBuffer())
+  {
+    if (range.getIndexBuffer()->getType() != IndexBuffer::UINT16)
+      throw Exception("Index buffer lock type mismatch");
+  }
+}
+
+template <>
+IndexRangeLock<uint32_t>::IndexRangeLock(IndexRange& initRange):
+  range(initRange),
+  indices(NULL)
+{
+  if (range.getIndexBuffer())
+  {
+    if (range.getIndexBuffer()->getType() != IndexBuffer::UINT32)
+      throw Exception("Index buffer lock type mismatch");
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////

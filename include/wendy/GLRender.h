@@ -104,7 +104,7 @@ public:
    */
   bool allocateIndices(IndexRange& range,
 		       unsigned int count,
-                       IndexBuffer::Type type = IndexBuffer::UBYTE);
+                       IndexBuffer::Type type);
   /*! Allocates a range of temporary vertices of the specified format.
    *  @param[out] range The newly allocated vertex range.
    *  @param[in] count The number of vertices to allocate.

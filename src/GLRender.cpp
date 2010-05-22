@@ -92,12 +92,12 @@ GLenum convertType(IndexBuffer::Type type)
 {
   switch (type)
   {
-    case IndexBuffer::UINT:
-      return GL_UNSIGNED_INT;
-    case IndexBuffer::USHORT:
-      return GL_UNSIGNED_SHORT;
-    case IndexBuffer::UBYTE:
+    case IndexBuffer::UINT8:
       return GL_UNSIGNED_BYTE;
+    case IndexBuffer::UINT16:
+      return GL_UNSIGNED_SHORT;
+    case IndexBuffer::UINT32:
+      return GL_UNSIGNED_INT;
     default:
       throw Exception("Invalid index buffer type");
   }

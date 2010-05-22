@@ -121,7 +121,7 @@ public:
    */
   static VertexBuffer* createInstance(unsigned int count,
                                       const VertexFormat& format,
-				      Usage usage = STATIC,
+				      Usage usage,
 				      const String& name = "");
 private:
   VertexBuffer(const String& name);
@@ -151,15 +151,15 @@ public:
    */
   enum Type
   {
-    /*! Indices are of type unsigned int.
+    /*! Indices are 8-bit unsigned integers.
      */
-    UINT,
-    /*! Indices are of type unsigned short.
+    UINT8,
+    /*! Indices are 16-bit unsigned integers.
      */
-    USHORT,
-    /*! Indices are of type unsigned char.
+    UINT16,
+    /*! Indices are 32-bit unsigned integers.
      */
-    UBYTE,
+    UINT32,
   };
   /*! Index buffer usage hint enumeration.
    */
@@ -217,8 +217,8 @@ public:
    *  @return The newly created index buffer, or @c NULL if an error occurred.
    */
   static IndexBuffer* createInstance(unsigned int count,
-				     Type type = UINT,
-				     Usage usage = STATIC,
+				     Type type,
+				     Usage usage,
 				     const String& name = "");
   /*! @return The size, in bytes, of the specified element type.
    */
@@ -534,42 +534,6 @@ inline IndexRangeLock<T>::IndexRangeLock(IndexRange& initRange):
   indices(NULL)
 {
   throw Exception("Invalid index type");
-}
-
-template <>
-inline IndexRangeLock<unsigned char>::IndexRangeLock(IndexRange& initRange):
-  range(initRange),
-  indices(NULL)
-{
-  if (range.getIndexBuffer())
-  {
-    if (range.getIndexBuffer()->getType() != IndexBuffer::UBYTE)
-      throw Exception("Index buffer lock type mismatch");
-  }
-}
-
-template <>
-inline IndexRangeLock<unsigned short>::IndexRangeLock(IndexRange& initRange):
-  range(initRange),
-  indices(NULL)
-{
-  if (range.getIndexBuffer())
-  {
-    if (range.getIndexBuffer()->getType() != IndexBuffer::USHORT)
-      throw Exception("Index buffer lock type mismatch");
-  }
-}
-
-template <>
-inline IndexRangeLock<unsigned int>::IndexRangeLock(IndexRange& initRange):
-  range(initRange),
-  indices(NULL)
-{
-  if (range.getIndexBuffer())
-  {
-    if (range.getIndexBuffer()->getType() != IndexBuffer::UINT)
-      throw Exception("Index buffer lock type mismatch");
-  }
 }
 
 template <typename T>

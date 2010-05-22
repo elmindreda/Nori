@@ -39,6 +39,8 @@
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderSprite.h>
 
+#include <stdint.h>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -331,14 +333,14 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
     return;
 
   GL::IndexRange indexRange;
-  if (!renderer->allocateIndices(indexRange, 6 * slots.size(), GL::IndexBuffer::USHORT))
+  if (!renderer->allocateIndices(indexRange, 6 * slots.size(), GL::IndexBuffer::UINT16))
     return;
 
   GL::VertexRangeLock<GL::Vertex2ft3fv> vertices(vertexRange);
   if (!vertices)
     return;
 
-  GL::IndexRangeLock<unsigned short> indices(indexRange);
+  GL::IndexRangeLock<uint16_t> indices(indexRange);
   if (!indices)
     return;
 

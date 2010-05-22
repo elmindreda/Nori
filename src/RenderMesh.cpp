@@ -39,6 +39,8 @@
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderMesh.h>
 
+#include <stdint.h>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -130,7 +132,8 @@ bool Mesh::init(const wendy::Mesh& mesh)
     return false;
 
   vertexBuffer = GL::VertexBuffer::createInstance((unsigned int) mesh.vertices.size(),
-                                                  format);
+                                                  format,
+                                                  GL::VertexBuffer::STATIC);
   if (!vertexBuffer)
     return false;
 
@@ -139,13 +142,15 @@ bool Mesh::init(const wendy::Mesh& mesh)
   GL::IndexBuffer::Type indexType;
 
   if (indexCount <= (1 << 8))
-    indexType = GL::IndexBuffer::UBYTE;
+    indexType = GL::IndexBuffer::UINT8;
   else if (indexCount <= (1 << 16))
-    indexType = GL::IndexBuffer::USHORT;
+    indexType = GL::IndexBuffer::UINT16;
   else
-    indexType = GL::IndexBuffer::UINT;
+    indexType = GL::IndexBuffer::UINT32;
 
-  indexBuffer = GL::IndexBuffer::createInstance(indexCount, indexType);
+  indexBuffer = GL::IndexBuffer::createInstance(indexCount,
+                                                indexType,
+                                                GL::IndexBuffer::STATIC);
   if (!indexBuffer)
     return false;
 
@@ -171,9 +176,9 @@ bool Mesh::init(const wendy::Mesh& mesh)
 
     size_t index = 0;
 
-    if (indexType == GL::IndexBuffer::UBYTE)
+    if (indexType == GL::IndexBuffer::UINT8)
     {
-      GL::IndexRangeLock<unsigned char> indices(range);
+      GL::IndexRangeLock<uint8_t> indices(range);
       if (!indices)
         return false;
 
@@ -186,9 +191,9 @@ bool Mesh::init(const wendy::Mesh& mesh)
         indices[index++] = (*j).indices[2];
       }
     }
-    else if (indexType == GL::IndexBuffer::USHORT)
+    else if (indexType == GL::IndexBuffer::UINT16)
     {
-      GL::IndexRangeLock<unsigned short> indices(range);
+      GL::IndexRangeLock<uint16_t> indices(range);
       if (!indices)
         return false;
 
@@ -203,7 +208,7 @@ bool Mesh::init(const wendy::Mesh& mesh)
     }
     else
     {
-      GL::IndexRangeLock<unsigned int> indices(range);
+      GL::IndexRangeLock<uint32_t> indices(range);
       if (!indices)
         return false;
 
