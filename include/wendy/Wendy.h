@@ -132,6 +132,8 @@
 #include <wendy/RenderParticle.h>
 #include <wendy/RenderMesh.h>
 
+#include <wendy/Deferred.h>
+
 #include <wendy/Input.h>
 #include <wendy/InputCamera.h>
 

@@ -23,7 +23,9 @@ set(wendy_SOURCES
 
     RenderCamera.cpp RenderFont.cpp RenderLight.cpp RenderMesh.cpp
     RenderMaterial.cpp RenderMaterialIO.cpp RenderParticle.cpp RenderQueue.cpp
-    RenderSprite.cpp)
+    RenderSprite.cpp
+    
+    Deferred.cpp)
 
 if(WENDY_INCLUDE_SCENE_GRAPH)
   list(APPEND wendy_SOURCES SceneGraph.cpp SceneIO.cpp)
