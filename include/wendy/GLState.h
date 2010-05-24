@@ -156,6 +156,10 @@ public:
   void setValue(const Vec3& newValue);
   void getValue(Vec4& result) const;
   void setValue(const Vec4& newValue);
+  void getValue(ColorRGB& result) const;
+  void setValue(const ColorRGB& newValue);
+  void getValue(ColorRGBA& result) const;
+  void setValue(const ColorRGBA& newValue);
   void getValue(Mat2& result) const;
   void setValue(const Mat2& newValue);
   void getValue(Mat3& result) const;

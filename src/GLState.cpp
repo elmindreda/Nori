@@ -434,6 +434,26 @@ void UniformState::setValue(const Vec4& newValue)
   *reinterpret_cast<Vec4*>(data) = newValue;
 }
 
+void UniformState::getValue(ColorRGB& result) const
+{
+  result = *reinterpret_cast<const ColorRGB*>(data);
+}
+
+void UniformState::setValue(const ColorRGB& newValue)
+{
+  *reinterpret_cast<ColorRGB*>(data) = newValue;
+}
+
+void UniformState::getValue(ColorRGBA& result) const
+{
+  result = *reinterpret_cast<const ColorRGBA*>(data);
+}
+
+void UniformState::setValue(const ColorRGBA& newValue)
+{
+  *reinterpret_cast<ColorRGBA*>(data) = newValue;
+}
+
 void UniformState::getValue(Mat2& result) const
 {
   result = *reinterpret_cast<const Mat2*>(data);
