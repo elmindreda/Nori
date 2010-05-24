@@ -47,6 +47,8 @@ public:
     SPOTLIGHT,
   };
   Light(void);
+  bool isShadowCasting(void) const;
+  void setShadowCasting(bool enabled);
   Type getType(void) const;
   void setType(Type newType);
   const ColorRGB& getColor(void) const;
@@ -64,6 +66,7 @@ public:
   const Sphere& getBounds(void) const;
   void setBounds(const Sphere& newBounds);
 private:
+  bool castsShadow;
   Type type;
   ColorRGB color;
   Vec3 position;

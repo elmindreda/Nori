@@ -41,6 +41,7 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 Light::Light(void):
+  castsShadow(false),
   type(DIRECTIONAL),
   color(ColorRGB::WHITE),
   position(Vec3::ZERO),
@@ -50,6 +51,16 @@ Light::Light(void):
   quadratic(0.f),
   bounds(Vec3::ZERO, 1.f)
 {
+}
+
+bool Light::isShadowCasting(void) const
+{
+  return castsShadow;
+}
+
+void Light::setShadowCasting(bool enabled)
+{
+  castsShadow = enabled;
 }
 
 Light::Type Light::getType(void) const
