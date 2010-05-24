@@ -48,7 +48,6 @@ public:
   String asString(void) const;
   Vec2 interpolateTo(float t, const Vec2& other) const;
   Vec2 absolute(void) const;
-  Vec2& scaleBy(float factor);
   Vec2& scaleTo(float length);
   Vec2& negate(void);
   Vec2& normalize(void);
@@ -131,7 +130,6 @@ public:
   Vec3 cross(const Vec3& vector) const;
   Vec3 interpolateTo(float t, const Vec3& other) const;
   Vec3 absolute(void) const;
-  Vec3& scaleBy(float factor);
   Vec3& scaleTo(float length);
   Vec3& mirrorBy(const Vec3& vector);
   Vec3& negate(void);
@@ -186,7 +184,6 @@ public:
   Vec4 cross(const Vec4& vector) const;
   Vec4 interpolateTo(float t, const Vec4& other) const;
   Vec4 absolute(void) const;
-  Vec4& scaleBy(float factor);
   Vec4& scaleTo(float length);
   Vec4& normalize(void);
   Vec4 normalized(void) const;

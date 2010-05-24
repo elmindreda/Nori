@@ -453,14 +453,6 @@ Vec3 Vec3::absolute(void) const
   return Vec3(fabsf(x), fabsf(y), fabsf(z));
 }
 
-Vec3& Vec3::scaleBy(float factor)
-{
-  x *= factor;
-  y *= factor;
-  z *= factor;
-  return *this;
-}
-
 Vec3& Vec3::scaleTo(float len)
 {
   const float scale = len / length();
