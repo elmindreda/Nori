@@ -39,6 +39,8 @@
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderParticle.h>
 
+#include <stdint.h>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -459,7 +461,7 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& vertexRange,
 				 GL::IndexBuffer::UINT16))
     return false;
 
-  GL::IndexRangeLock<unsigned short> indices(indexRange);
+  GL::IndexRangeLock<uint16_t> indices(indexRange);
 
   base = vertexRange.getStart();
 
