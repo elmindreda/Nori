@@ -247,6 +247,8 @@ Technique* Material::findTechnique(const String& name)
 
 Material& Material::operator = (const Material& source)
 {
+  destroyTechniques();
+
   for (List::const_iterator i = source.techniques.begin();  i != source.techniques.end();  i++)
     techniques.push_back(new Technique(**i));
 
