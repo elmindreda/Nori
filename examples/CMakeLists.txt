@@ -7,7 +7,6 @@ add_executable(graph WIN32 MACOSX_BUNDLE graph.cpp)
 add_executable(shadowmap WIN32 MACOSX_BUNDLE shadowmap.cpp)
 add_executable(sponza WIN32 MACOSX_BUNDLE sponza.cpp)
 add_executable(water WIN32 MACOSX_BUNDLE water.cpp)
-add_executable(widgets WIN32 MACOSX_BUNDLE widgets.cpp)
 
 target_link_libraries(bloom wendy ${WENDY_LIBRARIES})
 target_link_libraries(deferred wendy ${WENDY_LIBRARIES})
@@ -17,7 +16,6 @@ target_link_libraries(graph wendy ${WENDY_LIBRARIES})
 target_link_libraries(shadowmap wendy ${WENDY_LIBRARIES})
 target_link_libraries(sponza wendy ${WENDY_LIBRARIES})
 target_link_libraries(water wendy ${WENDY_LIBRARIES})
-target_link_libraries(widgets wendy ${WENDY_LIBRARIES})
 
 set_target_properties(bloom PROPERTIES
   MACOSX_BUNDLE_BUNDLE_NAME Bloom
@@ -51,20 +49,16 @@ set_target_properties(water PROPERTIES
   MACOSX_BUNDLE_BUNDLE_NAME Water
   MACOSX_BUNDLE_GUI_IDENTIFIER org.elmindreda.wendy.water)
 
-set_target_properties(widgets PROPERTIES
-  MACOSX_BUNDLE_BUNDLE_NAME Widgets
-  MACOSX_BUNDLE_GUI_IDENTIFIER org.elmindreda.wendy.widgets)
-
-set_target_properties(bloom deferred editor font graph shadowmap sponza water widgets PROPERTIES
+set_target_properties(bloom deferred editor font graph shadowmap sponza water PROPERTIES
   DEBUG_POSTFIX "_debug")
 
 if(MSVC)
-  set_target_properties(bloom deferred editor font graph shadowmap sponza water widgets PROPERTIES
+  set_target_properties(bloom deferred editor font graph shadowmap sponza water PROPERTIES
     LINK_FLAGS "/ENTRY:mainCRTStartup")
 endif(MSVC)
 
 if(CYGWIN)
-  set_target_properties(bloom deferred editor font graph shadowmap sponza water widgets PROPERTIES
+  set_target_properties(bloom deferred editor font graph shadowmap sponza water PROPERTIES
     COMPILE_FLAGS "-mno-cygwin"
     LINK_FLAGS "-mno-cygwin -mwindows")
 endif(CYGWIN)
