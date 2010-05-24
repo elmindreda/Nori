@@ -295,7 +295,11 @@ void Varying::enable(size_t stride, size_t offset)
   {
     CGerror error = cgGetError();
     if (error != CG_NO_ERROR)
-      Log::writeError("Failed to enable varying \'%s\': %s", name.c_str(), cgGetErrorString(error));
+    {
+      Log::writeError("Failed to enable varying \'%s\': %s",
+                      name.c_str(),
+                      cgGetErrorString(error));
+    }
   }
 #endif
 
@@ -309,7 +313,11 @@ void Varying::enable(size_t stride, size_t offset)
   {
     CGerror error = cgGetError();
     if (error != CG_NO_ERROR)
-      Log::writeError("Failed to set varying \'%s\': %s", name.c_str(), cgGetErrorString(error));
+    {
+      Log::writeError("Failed to set varying \'%s\': %s",
+                      name.c_str(),
+                      cgGetErrorString(error));
+    }
   }
 #endif
 }
@@ -321,7 +329,11 @@ void Varying::disable(void)
 #if WENDY_DEBUG
   CGerror error = cgGetError();
   if (error != CG_NO_ERROR)
-    Log::writeError("Failed to disable varying \'%s\': %s", name.c_str(), cgGetErrorString(error));
+  {
+    Log::writeError("Failed to disable varying \'%s\': %s",
+                    name.c_str(),
+                    cgGetErrorString(error));
+  }
 #endif
 }
 
@@ -382,7 +394,9 @@ void Uniform::setValue(float newValue)
 {
   if (type != FLOAT)
   {
-    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float", name.c_str(), program.getName().c_str());
+    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float",
+                    name.c_str(),
+                    program.getName().c_str());
     return;
   }
 
@@ -393,7 +407,9 @@ void Uniform::setValue(const Vec2& newValue)
 {
   if (type != FLOAT_VEC2)
   {
-    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float2", name.c_str(), program.getName().c_str());
+    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float2",
+                    name.c_str(),
+                    program.getName().c_str());
     return;
   }
 
@@ -404,7 +420,9 @@ void Uniform::setValue(const Vec3& newValue)
 {
   if (type != FLOAT_VEC3)
   {
-    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float3", name.c_str(), program.getName().c_str());
+    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float3",
+                    name.c_str(),
+                    program.getName().c_str());
     return;
   }
 
@@ -415,7 +433,9 @@ void Uniform::setValue(const Vec4& newValue)
 {
   if (type != FLOAT_VEC4)
   {
-    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float4", name.c_str(), program.getName().c_str());
+    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float4",
+                    name.c_str(),
+                    program.getName().c_str());
     return;
   }
 
@@ -426,7 +446,9 @@ void Uniform::setValue(const Mat2& newValue)
 {
   if (type != FLOAT_MAT2)
   {
-    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float2x2", name.c_str(), program.getName().c_str());
+    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float2x2",
+                    name.c_str(),
+                    program.getName().c_str());
     return;
   }
 
@@ -437,7 +459,9 @@ void Uniform::setValue(const Mat3& newValue)
 {
   if (type != FLOAT_MAT3)
   {
-    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float3x3", name.c_str(), program.getName().c_str());
+    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float3x3",
+                    name.c_str(),
+                    program.getName().c_str());
     return;
   }
 
@@ -448,7 +472,9 @@ void Uniform::setValue(const Mat4& newValue)
 {
   if (type != FLOAT_MAT4)
   {
-    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float4x4", name.c_str(), program.getName().c_str());
+    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float4x4",
+                    name.c_str(),
+                    program.getName().c_str());
     return;
   }
 
@@ -495,7 +521,12 @@ void Sampler::setTexture(Texture& newTexture)
   {
     CGerror error = cgGetError();
     if (error != CG_NO_ERROR)
-      Log::writeError("Failed to set sampler \'%s\' to \'%s\': %s", name.c_str(), newTexture.getName().c_str(), cgGetErrorString(error));
+    {
+      Log::writeError("Failed to set sampler \'%s\' to \'%s\': %s",
+                      name.c_str(),
+                      newTexture.getName().c_str(),
+                      cgGetErrorString(error));
+    }
   }
 #endif
 }
@@ -673,7 +704,9 @@ Program::~Program(void)
 
 Varying* Program::findVarying(const String& name)
 {
-  VaryingList::const_iterator i = std::find_if(varyings.begin(), varyings.end(), NameComparator<Varying>(name));
+  VaryingList::const_iterator i = std::find_if(varyings.begin(),
+                                               varyings.end(),
+                                               NameComparator<Varying>(name));
   if (i == varyings.end())
     return NULL;
 
@@ -682,7 +715,9 @@ Varying* Program::findVarying(const String& name)
 
 const Varying* Program::findVarying(const String& name) const
 {
-  VaryingList::const_iterator i = std::find_if(varyings.begin(), varyings.end(), NameComparator<Varying>(name));
+  VaryingList::const_iterator i = std::find_if(varyings.begin(),
+                                               varyings.end(),
+                                               NameComparator<Varying>(name));
   if (i == varyings.end())
     return NULL;
 
@@ -691,7 +726,9 @@ const Varying* Program::findVarying(const String& name) const
 
 Uniform* Program::findUniform(const String& name)
 {
-  UniformList::const_iterator i = std::find_if(uniforms.begin(), uniforms.end(), NameComparator<Uniform>(name));
+  UniformList::const_iterator i = std::find_if(uniforms.begin(),
+                                               uniforms.end(),
+                                               NameComparator<Uniform>(name));
   if (i == uniforms.end())
     return NULL;
 
@@ -700,7 +737,9 @@ Uniform* Program::findUniform(const String& name)
 
 const Uniform* Program::findUniform(const String& name) const
 {
-  UniformList::const_iterator i = std::find_if(uniforms.begin(), uniforms.end(), NameComparator<Uniform>(name));
+  UniformList::const_iterator i = std::find_if(uniforms.begin(),
+                                               uniforms.end(),
+                                               NameComparator<Uniform>(name));
   if (i == uniforms.end())
     return NULL;
 
@@ -709,7 +748,9 @@ const Uniform* Program::findUniform(const String& name) const
 
 Sampler* Program::findSampler(const String& name)
 {
-  SamplerList::const_iterator i = std::find_if(samplers.begin(), samplers.end(), NameComparator<Sampler>(name));
+  SamplerList::const_iterator i = std::find_if(samplers.begin(),
+                                               samplers.end(),
+                                               NameComparator<Sampler>(name));
   if (i == samplers.end())
     return NULL;
 
@@ -718,7 +759,9 @@ Sampler* Program::findSampler(const String& name)
 
 const Sampler* Program::findSampler(const String& name) const
 {
-  SamplerList::const_iterator i = std::find_if(samplers.begin(), samplers.end(), NameComparator<Sampler>(name));
+  SamplerList::const_iterator i = std::find_if(samplers.begin(),
+                                               samplers.end(),
+                                               NameComparator<Sampler>(name));
   if (i == samplers.end())
     return NULL;
 
