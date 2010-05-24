@@ -3,14 +3,6 @@
 
 using namespace wendy;
 
-struct Light
-{
-  Vec3 direction;
-  ColorRGB color;
-};
-
-typedef std::vector<Light> LightList;
-
 class Demo : public Trackable
 {
 public:
@@ -20,22 +12,22 @@ public:
 private:
   bool render(void);
   input::MayaCamera controller;
-  Ref<GL::ImageCanvas> canvas;
-  GL::RenderState lightPass;
-  GL::TextureRef colorTexture;
-  GL::TextureRef depthTexture;
-  GL::TextureRef normalTexture;
+  Ptr<deferred::Renderer> renderer;
   Ref<render::Camera> camera;
   scene::Graph graph;
   scene::Node* rootNode;
   scene::CameraNode* cameraNode;
-  LightList lights;
   Timer timer;
   Time currentTime;
 };
 
 Demo::~Demo(void)
 {
+  graph.destroyRootNodes();
+
+  camera = NULL;
+  renderer = NULL;
+
   input::Context::destroy();
   GL::Renderer::destroy();
   GL::Context::destroy();
@@ -57,79 +49,22 @@ bool Demo::init(void)
   GL::Context* context = GL::Context::get();
   context->setTitle("Deferred Rendering");
 
-  const unsigned int width = context->getCurrentCanvas().getWidth();
-  const unsigned int height = context->getCurrentCanvas().getHeight();
+  const unsigned int width = context->getScreenCanvas().getWidth();
+  const unsigned int height = context->getScreenCanvas().getHeight();
 
   if (!GL::Renderer::create(*context))
+    return false;
+
+  renderer = deferred::Renderer::create(*context, deferred::Config(width, height));
+  if (!renderer)
     return false;
 
   if (!input::Context::create(*context))
     return false;
 
-  input::Context::get()->setFocus(&controller);
-
-  canvas = GL::ImageCanvas::createInstance(*context, width, height);
-  if (!canvas)
-    return false;
-
-  colorTexture = GL::Texture::createInstance(*context,
-                                             Image(PixelFormat::RGBA8, width, height),
-                                             GL::Texture::RECTANGULAR,
-                                             "colorbuffer");
-  if (!colorTexture)
-    return false;
-
-  colorTexture->setFilterMode(GL::FILTER_NEAREST);
-  canvas->setBuffer(GL::ImageCanvas::COLOR_BUFFER0, &(colorTexture->getImage(0)));
-
-  normalTexture = GL::Texture::createInstance(*context,
-                                              Image(PixelFormat::RGBA8, width, height),
-                                              GL::Texture::RECTANGULAR,
-                                              "normalbuffer");
-  if (!normalTexture)
-    return false;
-
-  normalTexture->setFilterMode(GL::FILTER_NEAREST);
-  canvas->setBuffer(GL::ImageCanvas::COLOR_BUFFER1, &(normalTexture->getImage(0)));
-
-  depthTexture = GL::Texture::createInstance(*context,
-                                             Image(PixelFormat::DEPTH32, width, height),
-                                             GL::Texture::RECTANGULAR,
-                                             "depthbuffer");
-  if (!depthTexture)
-    return false;
-
-  depthTexture->setFilterMode(GL::FILTER_NEAREST);
-  canvas->setBuffer(GL::ImageCanvas::DEPTH_BUFFER, &(depthTexture->getImage(0)));
-
-  GL::ProgramRef lightProgram = GL::Program::readInstance("deflight");
-  if (!lightProgram)
-    return false;
-
-  GL::ProgramInterface interface;
-  interface.addSampler("colorbuffer", GL::Sampler::SAMPLER_RECT);
-  interface.addSampler("normalbuffer", GL::Sampler::SAMPLER_RECT);
-  interface.addUniform("light.direction", GL::Uniform::FLOAT_VEC3);
-  interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
-  interface.addVarying("position", GL::Varying::FLOAT_VEC2);
-  interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
-
-  if (!interface.matches(*lightProgram, true))
-    return false;
-
-  lightPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ONE);
-  lightPass.setDepthTesting(false);
-  lightPass.setDepthWriting(false);
-  lightPass.setProgram(lightProgram);
-  lightPass.getSamplerState("colorbuffer").setTexture(colorTexture);
-  lightPass.getSamplerState("normalbuffer").setTexture(normalTexture);
-
   Ref<render::Mesh> mesh = render::Mesh::readInstance("cube");
   if (!mesh)
-  {
-    Log::writeError("Failed to load mesh");
     return false;
-  }
 
   rootNode = new scene::Node();
   graph.addRootNode(*rootNode);
@@ -149,6 +84,7 @@ bool Demo::init(void)
   }
 
   camera = new render::Camera();
+  camera->setDepthRange(0.5f, 500.f);
   camera->setFOV(60.f);
 
   cameraNode = new scene::CameraNode();
@@ -156,11 +92,28 @@ bool Demo::init(void)
   cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
   graph.addRootNode(*cameraNode);
 
-  lights.resize(2);
-  lights[0].direction = Vec3(1.f, 1.f, 1.f).normalized();
-  lights[0].color.set(1.f, 0.3f, 0.3f);
-  lights[1].direction = Vec3(-1.f, 0.f, 0.f).normalized();
-  lights[1].color.set(0.7f, 0.2f, 0.8f);
+  scene::LightNode* lightNode;
+  render::LightRef light;
+
+  light = new render::Light();
+  light->setColor(ColorRGB(1.f, 0.3f, 0.3f));
+  light->setBounds(Sphere(Vec3::ZERO, 50.f));
+
+  lightNode = new scene::LightNode();
+  lightNode->getLocalTransform().rotation.setAxisRotation(Vec3::Y, M_PI / 2.f);
+  lightNode->setLight(light);
+  graph.addRootNode(*lightNode);
+
+  light = new render::Light();
+  light->setColor(ColorRGB(0.7f, 0.2f, 0.8f));
+  light->setBounds(Sphere(Vec3::ZERO, 50.f));
+
+  lightNode = new scene::LightNode();
+  lightNode->getLocalTransform().rotation.setAxisRotation(Vec3::Y, -M_PI / 2.f);
+  lightNode->setLight(light);
+  graph.addRootNode(*lightNode);
+
+  input::Context::get()->setFocus(&controller);
 
   timer.start();
 
@@ -170,15 +123,8 @@ bool Demo::init(void)
 void Demo::run(void)
 {
   GL::Context* context = GL::Context::get();
-  GL::Renderer* renderer = GL::Renderer::get();
 
   render::Queue queue(*camera);
-
-  render::Sprite2 sprite;
-  sprite.position.set(0.5f, 0.5f);
-  sprite.mapping.set(0.25f, 0.25f,
-                     0.25f + canvas->getWidth(),
-                     0.25f + canvas->getHeight());
 
   do
   {
@@ -189,33 +135,15 @@ void Demo::run(void)
     cameraNode->getLocalTransform() = controller.getTransform();
 
     graph.update();
-
-    context->setCurrentCanvas(*canvas);
-    context->clearDepthBuffer();
-    context->clearColorBuffer(ColorRGBA::BLACK);
-
     graph.enqueue(queue);
-    queue.render();
-    queue.destroyOperations();
 
-    context->setScreenCanvasCurrent();
     context->clearDepthBuffer();
     context->clearColorBuffer(ColorRGBA::BLACK);
 
-    renderer->setProjectionMatrix2D(1.f, 1.f);
+    renderer->render(queue);
 
-    for (LightList::const_iterator i = lights.begin();  i != lights.end();  i++)
-    {
-      Vec3 direction = i->direction;
-      camera->getViewTransform().rotation.rotateVector(direction);
-      lightPass.getUniformState("light.direction").setValue(direction);
-
-      Vec3 color(i->color.r, i->color.g, i->color.b);
-      lightPass.getUniformState("light.color").setValue(color);
-
-      lightPass.apply();
-      sprite.render();
-    }
+    queue.destroyOperations();
+    queue.detachLights();
   }
   while (context->update());
 }
