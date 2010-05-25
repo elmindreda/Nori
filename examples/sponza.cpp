@@ -96,8 +96,7 @@ bool Demo::init(void)
 
   render::LightRef light = new render::Light();
   light->setType(render::Light::POINT);
-  light->setLinearAttenuation(0.05f);
-  light->setBounds(Sphere(Vec3::ZERO, 500.f));
+  light->setRadius(500.f);
 
   lightNode = new scene::LightNode();
   lightNode->setLight(light);

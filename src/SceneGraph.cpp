@@ -444,7 +444,7 @@ void LightNode::update(void)
       light->setPosition(world.position);
     }
 
-    setLocalBounds(Sphere(Vec3::ZERO, light->getBounds().radius));
+    setLocalBounds(Sphere(Vec3::ZERO, light->getRadius()));
   }
   else
     setLocalBounds(Sphere(Vec3::ZERO, 0.f));
@@ -464,8 +464,19 @@ void LightNode::enqueue(render::Queue& queue) const
 ///////////////////////////////////////////////////////////////////////
 
 MeshNode::MeshNode(const String& name):
-  Node(name)
+  Node(name),
+  shadowCaster(true)
 {
+}
+
+bool MeshNode::isShadowCaster(void) const
+{
+  return shadowCaster;
+}
+
+void MeshNode::setCastsShadows(bool enabled)
+{
+  shadowCaster = enabled;
 }
 
 render::Mesh* MeshNode::getMesh(void) const
@@ -483,10 +494,13 @@ void MeshNode::enqueue(render::Queue& queue) const
 {
   Node::enqueue(queue);
 
-  if (queue.getPhase() == render::Queue::COLLECT_GEOMETRY)
+  if (mesh)
   {
-    if (mesh)
+    if ((queue.getPhase() == render::Queue::COLLECT_GEOMETRY) ||
+        (queue.getPhase() == render::Queue::COLLECT_SHADOW_CASTERS && shadowCaster))
+    {
       mesh->enqueue(queue, getWorldTransform());
+    }
   }
 }
 

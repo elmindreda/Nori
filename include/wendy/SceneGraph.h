@@ -232,12 +232,15 @@ class MeshNode : public Node
 {
 public:
   explicit MeshNode(const String& name = "");
+  bool isShadowCaster(void) const;
+  void setCastsShadows(bool enabled);
   render::Mesh* getMesh(void) const;
   void setMesh(render::Mesh* mesh);
 protected:
   void enqueue(render::Queue& queue) const;
 private:
   Ref<render::Mesh> mesh;
+  bool shadowCaster;
 };
 
 ///////////////////////////////////////////////////////////////////////

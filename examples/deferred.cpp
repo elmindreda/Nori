@@ -97,7 +97,7 @@ bool Demo::init(void)
 
   light = new render::Light();
   light->setColor(ColorRGB(1.f, 0.3f, 0.3f));
-  light->setBounds(Sphere(Vec3::ZERO, 50.f));
+  light->setRadius(50.f);
 
   lightNode = new scene::LightNode();
   lightNode->getLocalTransform().rotation.setAxisRotation(Vec3::Y, M_PI / 2.f);
@@ -106,7 +106,7 @@ bool Demo::init(void)
 
   light = new render::Light();
   light->setColor(ColorRGB(0.7f, 0.2f, 0.8f));
-  light->setBounds(Sphere(Vec3::ZERO, 50.f));
+  light->setRadius(50.f);
 
   lightNode = new scene::LightNode();
   lightNode->getLocalTransform().rotation.setAxisRotation(Vec3::Y, -M_PI / 2.f);

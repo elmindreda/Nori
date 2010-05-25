@@ -43,13 +43,10 @@ namespace wendy
 Light::Light(void):
   castsShadow(false),
   type(DIRECTIONAL),
+  radius(10.f),
   color(ColorRGB::WHITE),
   position(Vec3::ZERO),
-  direction(0.f, 0.f, -1.f),
-  constant(1.f),
-  linear(0.f),
-  quadratic(0.f),
-  bounds(Vec3::ZERO, 1.f)
+  direction(0.f, 0.f, -1.f)
 {
 }
 
@@ -71,6 +68,16 @@ Light::Type Light::getType(void) const
 void Light::setType(Type newType)
 {
   type = newType;
+}
+
+float Light::getRadius(void) const
+{
+  return radius;
+}
+
+void Light::setRadius(float newRadius)
+{
+  radius = newRadius;
 }
 
 const ColorRGB& Light::getColor(void) const
@@ -103,44 +110,14 @@ void Light::setDirection(const Vec3& newDirection)
   direction = newDirection;
 }
 
-float Light::getConstantAttenuation(void) const
+GL::Texture* Light::getDistAttTexture(void) const
 {
-  return constant;
+  return distAttTexture;
 }
 
-void Light::setConstantAttenuation(float newValue)
+void Light::setDistAttTexture(GL::Texture* newTexture)
 {
-  constant = newValue;
-}
-
-float Light::getLinearAttenuation(void) const
-{
-  return linear;
-}
-
-void Light::setLinearAttenuation(float newValue)
-{
-  linear = newValue;
-}
-
-float Light::getQuadraticAttenuation(void) const
-{
-  return quadratic;
-}
-
-void Light::setQuadraticAttenuation(float newValue)
-{
-  quadratic = newValue;
-}
-
-const Sphere& Light::getBounds(void) const
-{
-  return bounds;
-}
-
-void Light::setBounds(const Sphere& newBounds)
-{
-  bounds = newBounds;
+  distAttTexture = newTexture;
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -26,7 +26,7 @@
 #define WENDY_RENDERLIGHT_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Sphere.h>
+#include <wendy/GLTexture.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -51,30 +51,24 @@ public:
   void setShadowCasting(bool enabled);
   Type getType(void) const;
   void setType(Type newType);
+  float getRadius(void) const;
+  void setRadius(float newRadius);
   const ColorRGB& getColor(void) const;
   void setColor(const ColorRGB& newColor);
   const Vec3& getPosition(void) const;
   void setPosition(const Vec3& newPosition);
   const Vec3& getDirection(void) const;
   void setDirection(const Vec3& newDirection);
-  float getConstantAttenuation(void) const;
-  void setConstantAttenuation(float newValue);
-  float getLinearAttenuation(void) const;
-  void setLinearAttenuation(float newValue);
-  float getQuadraticAttenuation(void) const;
-  void setQuadraticAttenuation(float newValue);
-  const Sphere& getBounds(void) const;
-  void setBounds(const Sphere& newBounds);
+  GL::Texture* getDistAttTexture(void) const;
+  void setDistAttTexture(GL::Texture* newTexture);
 private:
   bool castsShadow;
   Type type;
+  float radius;
   ColorRGB color;
   Vec3 position;
   Vec3 direction;
-  float constant;
-  float linear;
-  float quadratic;
-  Sphere bounds;
+  GL::TextureRef distAttTexture;
 };
 
 ///////////////////////////////////////////////////////////////////////

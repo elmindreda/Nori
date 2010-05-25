@@ -26,6 +26,9 @@
 #define WENDY_RENDERPARTICLE_H
 ///////////////////////////////////////////////////////////////////////
 
+#include <wendy/Core.h>
+#include <wendy/Vector.h>
+#include <wendy/Sphere.h>
 #include <wendy/Random.h>
 
 #include <list>

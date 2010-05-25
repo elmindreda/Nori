@@ -26,6 +26,10 @@
 #define WENDY_RENDERQUEUE_H
 ///////////////////////////////////////////////////////////////////////
 
+#include <wendy/GLContext.h>
+#include <wendy/GLVertex.h>
+#include <wendy/GLBuffer.h>
+
 #include <list>
 
 ///////////////////////////////////////////////////////////////////////
@@ -119,12 +123,9 @@ public:
     /*! Light collection phase.
     */
     COLLECT_LIGHTS,
-    /*! Collection phase for operations used to render stencil shadow volumes.
-    */
-    COLLECT_SHADOW_VOLUMES,
     /*! Collection phase for operations used to render a shadow map.
     */
-    COLLECT_SHADOW_OBJECTS,
+    COLLECT_SHADOW_CASTERS,
     /*! Geometry collection phase.
      *  This is the default phase.
     */

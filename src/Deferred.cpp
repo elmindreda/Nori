@@ -107,7 +107,8 @@ void Renderer::renderLight(const render::Camera& camera, const render::Light& li
     pointLightPass.getUniformState("light.position").setValue(position);
 
     pointLightPass.getUniformState("light.color").setValue(light.getColor());
-    pointLightPass.getUniformState("light.linear").setValue(light.getLinearAttenuation());
+    pointLightPass.getUniformState("light.radius").setValue(light.getRadius());
+    pointLightPass.getSamplerState("light.distAttTexture").setTexture(light.getDistAttTexture());
 
     pointLightPass.apply();
   }
@@ -266,6 +267,7 @@ bool Renderer::init(const Config& config)
 
     interface.addUniform("nearZ", GL::Uniform::FLOAT);
     interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
+
     interface.addUniform("light.direction", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
 
@@ -305,9 +307,11 @@ bool Renderer::init(const Config& config)
 
     interface.addUniform("nearZ", GL::Uniform::FLOAT);
     interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
+
     interface.addUniform("light.position", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
-    interface.addUniform("light.linear", GL::Uniform::FLOAT);
+    interface.addUniform("light.radius", GL::Uniform::FLOAT);
+    interface.addSampler("light.distAttTexture", GL::Sampler::SAMPLER_1D);
 
     interface.addVarying("position", GL::Varying::FLOAT_VEC2);
     interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
