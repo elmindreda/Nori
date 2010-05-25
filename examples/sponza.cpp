@@ -50,10 +50,13 @@ bool Demo::init(void)
   Image::addSearchPath(Path("media/sponza"));
   Mesh::addSearchPath(Path("media/sponza"));
   GL::Texture::addSearchPath(Path("media/sponza"));
-  GL::VertexProgram::addSearchPath(Path("media/sponza"));
-  GL::FragmentProgram::addSearchPath(Path("media/sponza"));
-  GL::Program::addSearchPath(Path("media/sponza"));
   render::Material::addSearchPath(Path("media/sponza"));
+
+  Image::addSearchPath(Path("media/deferred"));
+  GL::Texture::addSearchPath(Path("media/deferred"));
+  GL::VertexProgram::addSearchPath(Path("media/deferred"));
+  GL::FragmentProgram::addSearchPath(Path("media/deferred"));
+  GL::Program::addSearchPath(Path("media/deferred"));
 
   if (!GL::Context::create(GL::ContextMode()))
     return false;
@@ -77,6 +80,10 @@ bool Demo::init(void)
   if (!renderer)
     return false;
 
+  GL::TextureRef distAttTexture = GL::Texture::readInstance("distatt");
+  if (!distAttTexture)
+    return false;
+
   Ref<render::Mesh> mesh = render::Mesh::readInstance("sponza");
   if (!mesh)
     return false;
@@ -96,7 +103,8 @@ bool Demo::init(void)
 
   render::LightRef light = new render::Light();
   light->setType(render::Light::POINT);
-  light->setRadius(500.f);
+  light->setRadius(100.f);
+  light->setDistAttTexture(distAttTexture);
 
   lightNode = new scene::LightNode();
   lightNode->setLight(light);

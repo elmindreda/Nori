@@ -83,33 +83,40 @@ bool Demo::init(void)
     rootNode->addChild(*meshNode);
   }
 
+  GL::TextureRef distAttTexture = GL::Texture::readInstance("distatt");
+  if (!distAttTexture)
+    return false;
+
   camera = new render::Camera();
   camera->setDepthRange(0.5f, 500.f);
   camera->setFOV(60.f);
 
   cameraNode = new scene::CameraNode();
   cameraNode->setCamera(camera);
-  cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
   graph.addRootNode(*cameraNode);
 
   scene::LightNode* lightNode;
   render::LightRef light;
 
   light = new render::Light();
+  light->setType(render::Light::POINT);
   light->setColor(ColorRGB(1.f, 0.3f, 0.3f));
-  light->setRadius(50.f);
+  light->setRadius(10.f);
+  light->setDistAttTexture(distAttTexture);
 
   lightNode = new scene::LightNode();
-  lightNode->getLocalTransform().rotation.setAxisRotation(Vec3::Y, M_PI / 2.f);
+  lightNode->getLocalTransform().position.set(-5.f, 0.f, 0.f);
   lightNode->setLight(light);
   graph.addRootNode(*lightNode);
 
   light = new render::Light();
+  light->setType(render::Light::POINT);
   light->setColor(ColorRGB(0.7f, 0.2f, 0.8f));
-  light->setRadius(50.f);
+  light->setRadius(10.f);
+  light->setDistAttTexture(distAttTexture);
 
   lightNode = new scene::LightNode();
-  lightNode->getLocalTransform().rotation.setAxisRotation(Vec3::Y, -M_PI / 2.f);
+  lightNode->getLocalTransform().position.set(5.f, 0.f, 0.f);
   lightNode->setLight(light);
   graph.addRootNode(*lightNode);
 

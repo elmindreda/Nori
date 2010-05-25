@@ -3,7 +3,8 @@ struct Light
 {
   float3 position;
   float3 color;
-  float linear;
+  float radius;
+  sampler1D distAttTexture;
 };
 
 float4 main(uniform samplerRECT colorbuffer,
@@ -15,22 +16,32 @@ float4 main(uniform samplerRECT colorbuffer,
             in float2 mapping,
             in float2 clipOverF) : COLOR
 {
+  float minusPz = nearZ / (texRECT(depthbuffer, mapping).r * nearOverFarZminusOne + 1);
+  float3 P = float3(clipOverF.x, clipOverF.y, -1) * minusPz;
+
+  float dist = distance(P, light.position);
+  if (dist > light.radius)
+    return float4(0);
+
   float4 NS = texRECT(normalbuffer, mapping);
   float3 Cs = texRECT(colorbuffer, mapping).rgb;
-  float minusPz = nearZ / (texRECT(depthbuffer, mapping).r * nearOverFarZminusOne + 1);
 
-  float3 P = float3(clipOverF.x * minusPz, clipOverF.y * minusPz, -minusPz);
   float3 L = normalize(light.position - P);
   float3 N = normalize(NS.xyz - 0.5);
-  float3 R = reflect(L, N);
-  float3 E = normalize(P);
 
-  float Ia = 0.2;
   float Id = saturate(dot(N, L));
-  float Is = saturate(dot(R, E));
+  float Is = 0.0;
 
-  float att = 1.0 / (distance(P, light.position) * light.linear);
+  if (NS.a > 0.0)
+  {
+    float3 R = reflect(L, N);
+    float3 E = normalize(P);
 
-  return float4(Cs * light.color * (Ia + Id + NS.a * pow(Is, 10)) * att, 1);
+    Is = pow(saturate(dot(R, E)), 10) * NS.a;
+  }
+
+  float att = tex1D(light.distAttTexture, dist / light.radius).r;
+
+  return float4(Cs * light.color * (Id + Is) * att, 1);
 }
 
