@@ -271,7 +271,7 @@ Technique* Material::getActiveTechnique(void) const
 
     for (List::const_iterator i = techniques.begin();  i != techniques.end();  i++)
     {
-      if ((*i)->getQuality() > bestQuality)
+      if ((*i)->getQuality() >= bestQuality)
       {
         active = *i;
         bestQuality = (*i)->getQuality();
