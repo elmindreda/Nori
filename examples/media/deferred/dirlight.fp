@@ -18,7 +18,7 @@ float4 main(uniform samplerRECT colorbuffer,
   half3 Cs = texRECT(colorbuffer, mapping).rgb;
   half minusPz = nearZ / (texRECT(depthbuffer, mapping).r * nearOverFarZminusOne + 1);
 
-  half3 P = half3(clipOverF.x * minusPz, clipOverF.y * minusPz, -minusPz);
+  half3 P = half3(clipOverF.x, clipOverF.y, -1) * minusPz;
   half3 N = normalize(NS.xyz - 0.5);
   half3 L = light.direction;
 
