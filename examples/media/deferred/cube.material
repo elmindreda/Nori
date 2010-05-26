@@ -4,6 +4,7 @@
     <pass>
       <program name="render_solid">
         <uniform name="color" value="0.8 0.8 0.8" />
+        <uniform name="mask" value="1" />
       </program>
     </pass>
   </technique>
