@@ -71,9 +71,9 @@ bool Demo::init(void)
 
   RandomRange angle(0.f, M_PI * 2.f);
   RandomVolume axis(Vec3(-1.f, -1.f, -1.f), Vec3(1.f, 1.f, 1.f));
-  RandomVolume position(Vec3(-2.f, -2.f, -2.f), Vec3(2.f, 2.f, 2.f));
+  RandomVolume position(Vec3(-20.f, -2.f, -20.f), Vec3(20.f, 2.f, 20.f));
 
-  for (size_t i = 0;  i < 20;  i++)
+  for (size_t i = 0;  i < 200;  i++)
   {
     scene::MeshNode* meshNode = new scene::MeshNode();
     meshNode->setMesh(mesh);
@@ -105,7 +105,7 @@ bool Demo::init(void)
   light->setDistAttTexture(distAttTexture);
 
   lightNode = new scene::LightNode();
-  lightNode->getLocalTransform().position.set(-5.f, 0.f, 0.f);
+  lightNode->getLocalTransform().position.set(-5.f, 4.f, 0.f);
   lightNode->setLight(light);
   graph.addRootNode(*lightNode);
 
@@ -116,7 +116,7 @@ bool Demo::init(void)
   light->setDistAttTexture(distAttTexture);
 
   lightNode = new scene::LightNode();
-  lightNode->getLocalTransform().position.set(5.f, 0.f, 0.f);
+  lightNode->getLocalTransform().position.set(5.f, 4.f, 0.f);
   lightNode->setLight(light);
   graph.addRootNode(*lightNode);
 
