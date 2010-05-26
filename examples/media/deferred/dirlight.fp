@@ -21,13 +21,18 @@ float4 main(uniform samplerRECT colorbuffer,
   half3 P = half3(clipOverF.x * minusPz, clipOverF.y * minusPz, -minusPz);
   half3 N = normalize(NS.xyz - 0.5);
   half3 L = light.direction;
-  half3 R = reflect(L, N);
-  half3 E = normalize(P);
 
-  half Ia = 0.2;
   half Id = saturate(dot(N, light.direction));
-  half Is = saturate(dot(R, E));
+  half Is = 0.0;
 
-  return float4(Cs * light.color * (Ia + Id + NS.a * pow(Is, 10)), 1);
+  if (NS.a > 0.0)
+  {
+    half3 R = reflect(L, N);
+    half3 E = normalize(P);
+
+    Is = pow(saturate(dot(R, E)), 10) * NS.a;
+  }
+
+  return float4(Cs * light.color * (Id + Ia), 1);
 }
 
