@@ -33,6 +33,6 @@ float4 main(uniform samplerRECT colorTexture,
     Is = pow(saturate(dot(R, E)), 10) * NS.a;
   }
 
-  return float4(Cs * light.color * (Id + Ia), 1);
+  return float4(Cs * light.color * (Id + Is), 1);
 }
 
