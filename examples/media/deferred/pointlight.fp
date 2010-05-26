@@ -7,24 +7,24 @@ struct Light
   sampler1D distAttTexture;
 };
 
-float4 main(uniform samplerRECT colorbuffer,
-            uniform samplerRECT normalbuffer,
-            uniform samplerRECT depthbuffer,
+float4 main(uniform samplerRECT colorTexture,
+            uniform samplerRECT normalTexture,
+            uniform samplerRECT depthTexture,
             uniform float nearZ,
             uniform float nearOverFarZminusOne,
             uniform Light light,
             in float2 mapping,
             in float2 clipOverF) : COLOR
 {
-  half minusPz = nearZ / (texRECT(depthbuffer, mapping).r * nearOverFarZminusOne + 1);
+  half minusPz = nearZ / (texRECT(depthTexture, mapping).r * nearOverFarZminusOne + 1);
   half3 P = half3(clipOverF.x, clipOverF.y, -1) * minusPz;
 
   half dist = distance(P, light.position);
   if (dist > light.radius)
     return float4(0);
 
-  half4 NS = texRECT(normalbuffer, mapping);
-  half3 Cs = texRECT(colorbuffer, mapping).rgb;
+  half4 NS = texRECT(normalTexture, mapping);
+  half3 Cs = texRECT(colorTexture, mapping).rgb;
 
   half3 L = normalize(light.position - P);
   half3 N = normalize(NS.xyz - 0.5);

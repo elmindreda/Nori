@@ -261,9 +261,9 @@ bool Renderer::init(const Config& config)
 
     GL::ProgramInterface interface;
 
-    interface.addSampler("colorbuffer", GL::Sampler::SAMPLER_RECT);
-    interface.addSampler("normalbuffer", GL::Sampler::SAMPLER_RECT);
-    interface.addSampler("depthbuffer", GL::Sampler::SAMPLER_RECT);
+    interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
+    interface.addSampler("normalTexture", GL::Sampler::SAMPLER_RECT);
+    interface.addSampler("depthTexture", GL::Sampler::SAMPLER_RECT);
 
     interface.addUniform("nearZ", GL::Uniform::FLOAT);
     interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
@@ -285,9 +285,9 @@ bool Renderer::init(const Config& config)
     dirLightPass.setDepthTesting(false);
     dirLightPass.setDepthWriting(false);
     dirLightPass.setProgram(lightProgram);
-    dirLightPass.getSamplerState("colorbuffer").setTexture(colorTexture);
-    dirLightPass.getSamplerState("normalbuffer").setTexture(normalTexture);
-    dirLightPass.getSamplerState("depthbuffer").setTexture(depthTexture);
+    dirLightPass.getSamplerState("colorTexture").setTexture(colorTexture);
+    dirLightPass.getSamplerState("normalTexture").setTexture(normalTexture);
+    dirLightPass.getSamplerState("depthTexture").setTexture(depthTexture);
   }
 
   // Set up point light pass
@@ -301,9 +301,9 @@ bool Renderer::init(const Config& config)
 
     GL::ProgramInterface interface;
 
-    interface.addSampler("colorbuffer", GL::Sampler::SAMPLER_RECT);
-    interface.addSampler("normalbuffer", GL::Sampler::SAMPLER_RECT);
-    interface.addSampler("depthbuffer", GL::Sampler::SAMPLER_RECT);
+    interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
+    interface.addSampler("normalTexture", GL::Sampler::SAMPLER_RECT);
+    interface.addSampler("depthTexture", GL::Sampler::SAMPLER_RECT);
 
     interface.addUniform("nearZ", GL::Uniform::FLOAT);
     interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
@@ -327,9 +327,9 @@ bool Renderer::init(const Config& config)
     pointLightPass.setDepthTesting(false);
     pointLightPass.setDepthWriting(false);
     pointLightPass.setProgram(lightProgram);
-    pointLightPass.getSamplerState("colorbuffer").setTexture(colorTexture);
-    pointLightPass.getSamplerState("normalbuffer").setTexture(normalTexture);
-    pointLightPass.getSamplerState("depthbuffer").setTexture(depthTexture);
+    pointLightPass.getSamplerState("colorTexture").setTexture(colorTexture);
+    pointLightPass.getSamplerState("normalTexture").setTexture(normalTexture);
+    pointLightPass.getSamplerState("depthTexture").setTexture(depthTexture);
   }
 
   return true;
