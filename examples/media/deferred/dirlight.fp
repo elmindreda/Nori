@@ -14,19 +14,19 @@ float4 main(uniform samplerRECT colorbuffer,
             in float2 mapping,
             in float2 clipOverF) : COLOR
 {
-  float4 NS = texRECT(normalbuffer, mapping);
-  float3 Cs = texRECT(colorbuffer, mapping).rgb;
-  float minusPz = nearZ / (texRECT(depthbuffer, mapping).r * nearOverFarZminusOne + 1);
+  half4 NS = texRECT(normalbuffer, mapping);
+  half3 Cs = texRECT(colorbuffer, mapping).rgb;
+  half minusPz = nearZ / (texRECT(depthbuffer, mapping).r * nearOverFarZminusOne + 1);
 
-  float3 P = float3(clipOverF.x * minusPz, clipOverF.y * minusPz, -minusPz);
-  float3 N = normalize(NS.xyz - 0.5);
-  float3 L = light.direction;
-  float3 R = reflect(L, N);
-  float3 E = normalize(P);
+  half3 P = half3(clipOverF.x * minusPz, clipOverF.y * minusPz, -minusPz);
+  half3 N = normalize(NS.xyz - 0.5);
+  half3 L = light.direction;
+  half3 R = reflect(L, N);
+  half3 E = normalize(P);
 
-  float Ia = 0.2;
-  float Id = saturate(dot(N, light.direction));
-  float Is = saturate(dot(R, E));
+  half Ia = 0.2;
+  half Id = saturate(dot(N, light.direction));
+  half Is = saturate(dot(R, E));
 
   return float4(Cs * light.color * (Ia + Id + NS.a * pow(Is, 10)), 1);
 }

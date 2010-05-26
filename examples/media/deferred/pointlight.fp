@@ -16,31 +16,31 @@ float4 main(uniform samplerRECT colorbuffer,
             in float2 mapping,
             in float2 clipOverF) : COLOR
 {
-  float minusPz = nearZ / (texRECT(depthbuffer, mapping).r * nearOverFarZminusOne + 1);
-  float3 P = float3(clipOverF.x, clipOverF.y, -1) * minusPz;
+  half minusPz = nearZ / (texRECT(depthbuffer, mapping).r * nearOverFarZminusOne + 1);
+  half3 P = half3(clipOverF.x, clipOverF.y, -1) * minusPz;
 
-  float dist = distance(P, light.position);
+  half dist = distance(P, light.position);
   if (dist > light.radius)
     return float4(0);
 
-  float4 NS = texRECT(normalbuffer, mapping);
-  float3 Cs = texRECT(colorbuffer, mapping).rgb;
+  half4 NS = texRECT(normalbuffer, mapping);
+  half3 Cs = texRECT(colorbuffer, mapping).rgb;
 
-  float3 L = normalize(light.position - P);
-  float3 N = normalize(NS.xyz - 0.5);
+  half3 L = normalize(light.position - P);
+  half3 N = normalize(NS.xyz - 0.5);
 
-  float Id = saturate(dot(N, L));
-  float Is = 0.0;
+  half Id = saturate(dot(N, L));
+  half Is = 0.0;
 
   if (NS.a > 0.0)
   {
-    float3 R = reflect(L, N);
-    float3 E = normalize(P);
+    half3 R = reflect(L, N);
+    half3 E = normalize(P);
 
     Is = pow(saturate(dot(R, E)), 10) * NS.a;
   }
 
-  float att = tex1D(light.distAttTexture, dist / light.radius).r;
+  half att = tex1D(light.distAttTexture, dist / light.radius).r;
 
   return float4(Cs * light.color * (Id + Is) * att, 1);
 }
