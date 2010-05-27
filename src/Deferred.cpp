@@ -252,7 +252,7 @@ bool Renderer::init(const Config& config)
 
   // Set up directional light pass
   {
-    GL::ProgramRef lightProgram = GL::Program::readInstance("dirlight");
+    GL::ProgramRef lightProgram = GL::Program::readInstance("DeferredDirLight");
     if (!lightProgram)
     {
       Log::writeError("Failed to read deferred renderer directional light program");
@@ -292,7 +292,7 @@ bool Renderer::init(const Config& config)
 
   // Set up point light pass
   {
-    GL::ProgramRef lightProgram = GL::Program::readInstance("pointlight");
+    GL::ProgramRef lightProgram = GL::Program::readInstance("DeferredPointLight");
     if (!lightProgram)
     {
       Log::writeError("Failed to read deferred renderer point light program");

@@ -35,12 +35,13 @@ Demo::~Demo(void)
 
 bool Demo::init(void)
 {
+  GL::VertexProgram::addSearchPath(Path("../media"));
+  GL::FragmentProgram::addSearchPath(Path("../media"));
+  GL::Program::addSearchPath(Path("../media"));
+
   Image::addSearchPath(Path("media/deferred"));
   Mesh::addSearchPath(Path("media/deferred"));
   GL::Texture::addSearchPath(Path("media/deferred"));
-  GL::VertexProgram::addSearchPath(Path("media/deferred"));
-  GL::FragmentProgram::addSearchPath(Path("media/deferred"));
-  GL::Program::addSearchPath(Path("media/deferred"));
   render::Material::addSearchPath(Path("media/deferred"));
 
   if (!GL::Context::create(GL::ContextMode()))
