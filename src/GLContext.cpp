@@ -212,6 +212,7 @@ void ContextMode::set(unsigned int width,
 
 Limits::Limits(Context& initContext):
   context(initContext),
+  maxColorAttachments(0),
   maxDrawBuffers(0),
   maxClipPlanes(0),
   maxFragmentTextureImageUnits(0),
@@ -221,6 +222,7 @@ Limits::Limits(Context& initContext):
   maxTextureRectangleSize(0),
   maxVertexAttributes(0)
 {
+  maxColorAttachments = getIntegerParameter(GL_MAX_COLOR_ATTACHMENTS_EXT);
   maxDrawBuffers = getIntegerParameter(GL_MAX_DRAW_BUFFERS_ARB);
   maxClipPlanes = getIntegerParameter(GL_MAX_CLIP_PLANES);
   maxFragmentTextureImageUnits = getIntegerParameter(GL_MAX_TEXTURE_IMAGE_UNITS);
