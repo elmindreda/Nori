@@ -130,8 +130,6 @@ public:
   /*! @return The context this renderer was created for.
    */
   Context& getContext(void) const;
-  Texture& getDefaultTexture(void) const;
-  Program& getDefaultProgram(void) const;
   Program* getCurrentProgram(void) const;
   const PlaneList& getClipPlanes(void) const;
   const Mat4& getModelMatrix(void) const;
@@ -221,8 +219,6 @@ private:
   SamplerList reservedSamplers;
   Ref<Program> currentProgram;
   PlaneList planes;
-  Ref<Texture> defaultTexture;
-  Ref<Program> defaultProgram;
   Stats* stats;
 };
 

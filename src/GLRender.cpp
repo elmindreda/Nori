@@ -546,16 +546,6 @@ Context& Renderer::getContext(void) const
   return context;
 }
 
-Texture& Renderer::getDefaultTexture(void) const
-{
-  return *defaultTexture;
-}
-
-Program& Renderer::getDefaultProgram(void) const
-{
-  return *defaultProgram;
-}
-
 Program* Renderer::getCurrentProgram(void) const
 {
   return currentProgram;
@@ -680,24 +670,6 @@ bool Renderer::init(void)
   reserveUniform("MV", Uniform::FLOAT_MAT4).connect(requestModelViewMatrix);
   reserveUniform("VP", Uniform::FLOAT_MAT4).connect(requestViewProjectionMatrix);
   reserveUniform("MVP", Uniform::FLOAT_MAT4).connect(requestModelViewProjectionMatrix);
-
-  defaultTexture = Texture::findInstance("default");
-  if (!defaultTexture)
-  {
-    // TODO: Create DXM-colored source image.
-
-    defaultTexture = Texture::createInstance(context,
-                                             wendy::Image(PixelFormat::RGB8, 20, 20),
-                                             Texture::DEFAULT,
-                                             "default");
-    if (!defaultTexture)
-    {
-      Log::writeError("Failed to create default texture");
-      return false;
-    }
-  }
-
-  // TODO: Create default shader program(s).
 
   context.getFinishSignal().connect(*this, &Renderer::onContextFinish);
   return true;
