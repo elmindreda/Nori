@@ -233,6 +233,11 @@ Limits::Limits(Context& initContext):
   maxVertexAttributes = getIntegerParameter(GL_MAX_VERTEX_ATTRIBS_ARB);
 }
 
+unsigned int Limits::getMaxColorAttachments(void) const
+{
+  return maxColorAttachments;
+}
+
 unsigned int Limits::getMaxDrawBuffers(void) const
 {
   return maxDrawBuffers;
@@ -429,6 +434,25 @@ bool ImageCanvas::setBuffer(Attachment attachment, Image* newImage)
     }
   }
 
+  if (isAttachmentColor(attachment))
+  {
+    unsigned int index = attachment - COLOR_BUFFER0;
+
+    if (index >= context.getLimits().getMaxColorAttachments())
+    {
+      Log::writeError("OpenGL context supports at most %u FBO color attachments",
+                      context.getLimits().getMaxColorAttachments());
+      return false;
+    }
+
+    if (index >= context.getLimits().getMaxDrawBuffers())
+    {
+      Log::writeError("OpenGL context supports at most %u draw buffers",
+                      context.getLimits().getMaxDrawBuffers());
+      return false;
+    }
+  }
+
   const Canvas* previous = getCurrent();
   apply();
 
@@ -497,7 +521,10 @@ void ImageCanvas::apply(void) const
         enables[count++] = convertToGL(attachment);
     }
 
-    glDrawBuffersARB(count, enables);
+    if (count)
+      glDrawBuffersARB(count, enables);
+    else
+      glDrawBuffer(GL_NONE);
 
 #if WENDY_DEBUG
   GLenum error = glGetError();
