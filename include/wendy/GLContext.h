@@ -198,7 +198,12 @@ public:
   /*! Constructor.
    */
   Limits(Context& context);
+  /*! @return The maximum number of color buffers that can be attached to to an
+   *  image canvas (FBO).
+   */
   unsigned int getMaxColorAttachments(void) const;
+  /*! @return The maximum number of simultaneously active color buffers.
+   */
   unsigned int getMaxDrawBuffers(void) const;
   /*! @return The number of available clip planes.
    */
