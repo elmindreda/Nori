@@ -198,6 +198,7 @@ public:
   /*! Constructor.
    */
   Limits(Context& context);
+  unsigned int getMaxColorAttachments(void) const;
   unsigned int getMaxDrawBuffers(void) const;
   /*! @return The number of available clip planes.
    */
@@ -222,6 +223,7 @@ public:
   unsigned int getMaxVertexAttributes(void) const;
 private:
   Context& context;
+  unsigned int maxColorAttachments;
   unsigned int maxDrawBuffers;
   unsigned int maxClipPlanes;
   unsigned int maxFragmentTextureImageUnits;
