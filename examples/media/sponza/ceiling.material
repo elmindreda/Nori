@@ -2,7 +2,7 @@
 <material version="4">
   <technique quality="1">
     <pass>
-      <program name="render_normal">
+      <program name="DeferredMappedNormalSpecular">
         <sampler name="colormap" texture="ceiling_diff" />
         <sampler name="normalmap" texture="ceiling_ns" />
       </program>

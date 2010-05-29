@@ -3,7 +3,7 @@
   <technique quality="1">
     <pass>
       <polygon cull="none" />
-      <program name="render_masked">
+      <program name="DeferredMappedMasked">
         <sampler name="colormap" texture="chain_diff" />
       </program>
     </pass>
