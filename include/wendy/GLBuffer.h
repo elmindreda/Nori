@@ -557,7 +557,7 @@ inline IndexRangeLock<T>::operator T* (void)
 }
 
 template <>
-IndexRangeLock<uint8_t>::IndexRangeLock(IndexRange& initRange):
+inline IndexRangeLock<uint8_t>::IndexRangeLock(IndexRange& initRange):
   range(initRange),
   indices(NULL)
 {
@@ -569,7 +569,7 @@ IndexRangeLock<uint8_t>::IndexRangeLock(IndexRange& initRange):
 }
 
 template <>
-IndexRangeLock<uint16_t>::IndexRangeLock(IndexRange& initRange):
+inline IndexRangeLock<uint16_t>::IndexRangeLock(IndexRange& initRange):
   range(initRange),
   indices(NULL)
 {
@@ -581,7 +581,7 @@ IndexRangeLock<uint16_t>::IndexRangeLock(IndexRange& initRange):
 }
 
 template <>
-IndexRangeLock<uint32_t>::IndexRangeLock(IndexRange& initRange):
+inline IndexRangeLock<uint32_t>::IndexRangeLock(IndexRange& initRange):
   range(initRange),
   indices(NULL)
 {
