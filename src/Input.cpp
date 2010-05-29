@@ -109,6 +109,13 @@ void Focus::onFocusChanged(bool activated)
 Context::~Context(void)
 {
   setFocus(NULL);
+
+  glfwSetMousePosCallback(NULL);
+  glfwSetMouseButtonCallback(NULL);
+  glfwSetKeyCallback(NULL);
+  glfwSetCharCallback(NULL);
+  glfwSetMouseWheelCallback(NULL);
+
   instance = NULL;
 }
 
@@ -241,9 +248,6 @@ Context::Context(GL::Context& initContext):
 
   if (internalMap.empty())
   {
-    // Jag kom på en sak. Du luktar struts.
-    // Jag tänker inte fira jul med dig.
-
     internalMap[Key::SPACE] = GLFW_KEY_SPACE;
     internalMap[Key::ESCAPE] = GLFW_KEY_ESC;
     internalMap[Key::TAB] = GLFW_KEY_TAB;
@@ -283,8 +287,6 @@ Context::Context(GL::Context& initContext):
 
   if (externalMap.empty())
   {
-    // Jag ska förgöra er alla med min blöta katt.
-
     externalMap[GLFW_KEY_SPACE] = Key::SPACE;
     externalMap[GLFW_KEY_ESC] = Key::ESCAPE;
     externalMap[GLFW_KEY_TAB] = Key::TAB;
