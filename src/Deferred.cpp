@@ -245,9 +245,23 @@ bool Renderer::init(const Config& config)
       return false;
     }
 
-    canvas->setBuffer(GL::ImageCanvas::COLOR_BUFFER0, &(colorTexture->getImage(0)));
-    canvas->setBuffer(GL::ImageCanvas::COLOR_BUFFER1, &(normalTexture->getImage(0)));
-    canvas->setBuffer(GL::ImageCanvas::DEPTH_BUFFER, &(depthTexture->getImage(0)));
+    if (!canvas->setBuffer(GL::ImageCanvas::COLOR_BUFFER0, &(colorTexture->getImage(0))))
+    {
+      Log::writeError("Failed to attach color texture to G-buffer");
+      return false;
+    }
+
+    if (!canvas->setBuffer(GL::ImageCanvas::COLOR_BUFFER1, &(normalTexture->getImage(0))))
+    {
+      Log::writeError("Failed to attach normal/specularity texture to G-buffer");
+      return false;
+    }
+
+    if (!canvas->setBuffer(GL::ImageCanvas::DEPTH_BUFFER, &(depthTexture->getImage(0))))
+    {
+      Log::writeError("Failed to attach depth texture to G-buffer");
+      return false;
+    }
   }
 
   // Set up directional light pass
