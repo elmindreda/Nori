@@ -281,7 +281,7 @@ static int convertMacKeyCode( unsigned int macKeyCode )
     if( _glfwWin.mouseLock )
     {
         _glfwInput.MousePosX += [event deltaX];
-        _glfwInput.MousePosY -= [event deltaY];
+        _glfwInput.MousePosY += [event deltaY];
     }
     else
     {
@@ -428,6 +428,13 @@ int  _glfwPlatformOpenWindow( int width, int height,
     _glfwWin.window = nil;
     _glfwWin.context = nil;
     _glfwWin.delegate = nil;
+
+    // Fail if OpenGL 3.0 or above was requested
+    if( wndconfig->glMajor > 2 )
+    {
+        _glfwPlatformCloseWindow();
+        return GL_FALSE;
+    }
 
     _glfwWin.delegate = [[GLFWWindowDelegate alloc] init];
     if( _glfwWin.delegate == nil )
