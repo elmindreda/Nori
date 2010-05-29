@@ -31,6 +31,8 @@
 #include <wendy/Vertex.h>
 #include <wendy/Managed.h>
 
+#include <stdint.h>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -552,6 +554,42 @@ inline IndexRangeLock<T>::operator T* (void)
   indices = (T*) range.lock();
 
   return indices;
+}
+
+template <>
+IndexRangeLock<uint8_t>::IndexRangeLock(IndexRange& initRange):
+  range(initRange),
+  indices(NULL)
+{
+  if (range.getIndexBuffer())
+  {
+    if (range.getIndexBuffer()->getType() != IndexBuffer::UINT8)
+      throw Exception("Index buffer lock type mismatch");
+  }
+}
+
+template <>
+IndexRangeLock<uint16_t>::IndexRangeLock(IndexRange& initRange):
+  range(initRange),
+  indices(NULL)
+{
+  if (range.getIndexBuffer())
+  {
+    if (range.getIndexBuffer()->getType() != IndexBuffer::UINT16)
+      throw Exception("Index buffer lock type mismatch");
+  }
+}
+
+template <>
+IndexRangeLock<uint32_t>::IndexRangeLock(IndexRange& initRange):
+  range(initRange),
+  indices(NULL)
+{
+  if (range.getIndexBuffer())
+  {
+    if (range.getIndexBuffer()->getType() != IndexBuffer::UINT32)
+      throw Exception("Index buffer lock type mismatch");
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////

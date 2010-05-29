@@ -100,9 +100,14 @@ if(WIN32)
   include_directories($ENV{CG_INC_PATH})
 endif(WIN32)
 
+set(WENDY_INCLUDE_DIRS ${wendy_SOURCE_DIR}/include ${wendy_BINARY_DIR}/include)
+
+if(WIN32)
+  list(APPEND WENDY_INCLUDE_DIRS ${wendy_SOURCE_DIR}/build/windows)
+endif(WIN32)
+
 set(WENDY_LIBRARIES ${wendy_LIBRARIES} CACHE STRING "Libraries used by Wendy")
-set(WENDY_INCLUDE_DIRS ${wendy_SOURCE_DIR}/include
-		       ${wendy_BINARY_DIR}/include
+set(WENDY_INCLUDE_DIRS ${WENDY_INCLUDE_DIRS}
     CACHE STRING "Include directories for Wendy")
 
 include_directories(${WENDY_INCLUDE_DIRS})

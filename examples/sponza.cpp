@@ -144,7 +144,7 @@ void Demo::run(void)
     queue.destroyOperations();
     queue.detachLights();
   }
-  while (not quitting and context->update());
+  while (!quitting && context->update());
 }
 
 void Demo::onKeyPressed(input::Key key, bool pressed)
@@ -155,7 +155,7 @@ void Demo::onKeyPressed(input::Key key, bool pressed)
   switch (key)
   {
     case input::Key::TAB:
-      debugging = not debugging;
+      debugging = !debugging;
       break;
 
     case input::Key::ESCAPE:
