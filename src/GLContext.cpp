@@ -1364,10 +1364,13 @@ bool Context::init(const ContextMode& initMode)
   }
 
   {
+    int width, height;
+    glfwGetWindowSize(&width, &height);
+
     // This needs to be done before setting the window size callback
     screenCanvas = new ScreenCanvas(*this);
-    screenCanvas->mode.width = initMode.width;
-    screenCanvas->mode.height = initMode.height;
+    screenCanvas->mode.width = width;
+    screenCanvas->mode.height = height;
 
     // Read back actual (as opposed to desired) framebuffer properties
     screenCanvas->mode.colorBits = glfwGetWindowParam(GLFW_RED_BITS) +
