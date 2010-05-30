@@ -25,12 +25,12 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/GLContext.h>
+#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
-#include <wendy/GLRender.h>
+#include <wendy/GLContext.h>
 #include <wendy/GLState.h>
 
 #include <wendy/RenderCamera.h>
@@ -131,7 +131,8 @@ bool Mesh::init(const wendy::Mesh& mesh)
   if (!format.createComponents("3f:position 3f:normal 2f:mapping"))
     return false;
 
-  vertexBuffer = GL::VertexBuffer::createInstance((unsigned int) mesh.vertices.size(),
+  vertexBuffer = GL::VertexBuffer::createInstance(*GL::Context::get(),
+                                                  (unsigned int) mesh.vertices.size(),
                                                   format,
                                                   GL::VertexBuffer::STATIC);
   if (!vertexBuffer)
@@ -148,7 +149,8 @@ bool Mesh::init(const wendy::Mesh& mesh)
   else
     indexType = GL::IndexBuffer::UINT32;
 
-  indexBuffer = GL::IndexBuffer::createInstance(indexCount,
+  indexBuffer = GL::IndexBuffer::createInstance(*GL::Context::get(),
+                                                indexCount,
                                                 indexType,
                                                 GL::IndexBuffer::STATIC);
   if (!indexBuffer)

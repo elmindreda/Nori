@@ -32,7 +32,7 @@ private:
 Demo::~Demo(void)
 {
   input::Context::destroy();
-  GL::Renderer::destroy();
+  render::GeometryPool::destroy();
   GL::Context::destroy();
 }
 
@@ -52,13 +52,11 @@ bool Demo::init(void)
   GL::Context* context = GL::Context::get();
   context->setTitle("Shadow Map");
 
-  if (!GL::Renderer::create(*context))
+  if (!render::GeometryPool::create(*context))
     return false;
 
-  GL::Renderer* renderer = GL::Renderer::get();
-
-  renderer->reserveUniform("WL", GL::Uniform::FLOAT_MAT4).connect(*this, &Demo::onRequestedWL);
-  renderer->reserveUniform("light", GL::Uniform::FLOAT_VEC3).connect(*this, &Demo::onRequestedLight);
+  context->reserveUniform("WL", GL::Uniform::FLOAT_MAT4).connect(*this, &Demo::onRequestedWL);
+  context->reserveUniform("light", GL::Uniform::FLOAT_VEC3).connect(*this, &Demo::onRequestedLight);
 
   if (!input::Context::create(*context))
     return false;

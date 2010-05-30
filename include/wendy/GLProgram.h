@@ -212,7 +212,7 @@ private:
  */
 class Program : public RefObject, public Resource<Program>
 {
-  friend class Renderer;
+  friend class Context;
 public:
   ~Program(void);
   Varying* findVarying(const String& name);

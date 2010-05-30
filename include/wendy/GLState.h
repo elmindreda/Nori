@@ -28,6 +28,7 @@
 
 #include <wendy/Core.h>
 #include <wendy/Vector.h>
+#include <wendy/Color.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -91,6 +92,23 @@ enum Operation
   OP_INVERT,
   OP_INCREASE_WRAP,
   OP_DECREASE_WRAP
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! Comparison function enumeration.
+ *  @ingroup opengl
+ */
+enum Function
+{
+  ALLOW_NEVER,
+  ALLOW_ALWAYS,
+  ALLOW_EQUAL,
+  ALLOW_NOT_EQUAL,
+  ALLOW_LESSER,
+  ALLOW_LESSER_EQUAL,
+  ALLOW_GREATER,
+  ALLOW_GREATER_EQUAL,
 };
 
 ///////////////////////////////////////////////////////////////////////

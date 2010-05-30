@@ -204,7 +204,7 @@ bool Editor::init(const String& showName)
     context->getResizedSignal().connect(*this, &Editor::onResized);
     context->getKeyPressedSignal().connect(*this, &Editor::onKeyPressed);
 
-    renderer = UI::Renderer::createInstance(*GL::Renderer::get());
+    renderer = UI::Renderer::createInstance(*render::GeometryPool::get());
     if (!renderer)
       return false;
 
@@ -498,9 +498,8 @@ void Editor::onResized(unsigned int width, unsigned int height)
 void Editor::onDrawShowCanvas(const UI::Canvas& canvas)
 {
   GL::Context* context = GL::Context::get();
-  GL::Renderer* renderer = GL::Renderer::get();
 
-  Mat4 oldProjection = renderer->getProjectionMatrix();
+  Mat4 oldProjection = context->getProjectionMatrix();
   Rect oldViewport = context->getViewportArea();
   Rect oldScissor = context->getScissorArea();
 
@@ -516,7 +515,7 @@ void Editor::onDrawShowCanvas(const UI::Canvas& canvas)
 
   context->setScissorArea(oldScissor);
   context->setViewportArea(oldViewport);
-  renderer->setProjectionMatrix(oldProjection);
+  context->setProjectionMatrix(oldProjection);
 }
 
 void Editor::onKeyPressed(input::Key key, bool pressed)

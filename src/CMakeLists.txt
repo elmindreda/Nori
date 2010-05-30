@@ -16,14 +16,14 @@ set(wendy_SOURCES
     Sphere.cpp Stream.cpp Timer.cpp Transform.cpp Triangle.cpp Variant.cpp
     Vector.cpp Vertex.cpp XML.cpp
 
-    GLBuffer.cpp GLContext.cpp GLProgram.cpp GLProgramIO.cpp GLRender.cpp
-    GLState.cpp GLTexture.cpp GLTextureIO.cpp GLVertex.cpp
+    GLBuffer.cpp GLContext.cpp GLProgram.cpp GLProgramIO.cpp GLState.cpp
+    GLTexture.cpp GLTextureIO.cpp GLVertex.cpp
 
     Input.cpp InputCamera.cpp
 
     RenderCamera.cpp RenderFont.cpp RenderLight.cpp RenderMesh.cpp
-    RenderMaterial.cpp RenderMaterialIO.cpp RenderParticle.cpp RenderQueue.cpp
-    RenderSprite.cpp
+    RenderMaterial.cpp RenderMaterialIO.cpp RenderParticle.cpp RenderPool.cpp
+    RenderQueue.cpp RenderSprite.cpp
     
     Deferred.cpp)
 

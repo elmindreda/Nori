@@ -42,6 +42,10 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+class Context;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Memory locking type enumeration.
  *  @ingroup opengl
  */
@@ -60,12 +64,28 @@ enum LockType
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Primitive type enumeration.
+ *  @ingroup opengl
+ */
+enum PrimitiveType
+{
+  POINT_LIST,
+  LINE_LIST,
+  LINE_STRIP,
+  LINE_LOOP,
+  TRIANGLE_LIST,
+  TRIANGLE_STRIP,
+  TRIANGLE_FAN,
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Vertex buffer.
  *  @ingroup opengl
  */
 class VertexBuffer : public Managed<VertexBuffer>, public RefObject
 {
-  friend class Renderer;
+  friend class Context;
 public:
   /*! Vertex buffer usage hint enumeration.
    */
@@ -121,17 +141,19 @@ public:
    *  @param name The desired name of the vertex buffer.
    *  @return The newly created vertex buffer, or @c NULL if an error occurred.
    */
-  static VertexBuffer* createInstance(unsigned int count,
+  static VertexBuffer* createInstance(Context& context,
+                                      unsigned int count,
                                       const VertexFormat& format,
 				      Usage usage,
 				      const String& name = "");
 private:
-  VertexBuffer(const String& name);
+  VertexBuffer(Context& context, const String& name);
   VertexBuffer(const VertexBuffer& source);
   VertexBuffer& operator = (const VertexBuffer& source);
   bool init(const VertexFormat& format, unsigned int count, Usage usage);
   void apply(void) const;
   static void invalidateCurrent(void);
+  Context& context;
   bool locked;
   VertexFormat format;
   unsigned int bufferID;
@@ -147,7 +169,7 @@ private:
  */
 class IndexBuffer : public Managed<IndexBuffer>, public RefObject
 {
-  friend class Renderer;
+  friend class Context;
 public:
   /*! Index buffer element type enumeration.
    */
@@ -218,7 +240,8 @@ public:
    *  @param name The desired name of the index buffer.
    *  @return The newly created index buffer, or @c NULL if an error occurred.
    */
-  static IndexBuffer* createInstance(unsigned int count,
+  static IndexBuffer* createInstance(Context& context,
+                                     unsigned int count,
 				     Type type,
 				     Usage usage,
 				     const String& name = "");
@@ -226,12 +249,13 @@ public:
    */
   static size_t getTypeSize(Type type);
 private:
-  IndexBuffer(const String& name);
+  IndexBuffer(Context& context, const String& name);
   IndexBuffer(const IndexBuffer& source);
   IndexBuffer& operator = (const IndexBuffer& source);
   bool init(unsigned int count, Type type, Usage usage);
   void apply(void) const;
   static void invalidateCurrent(void);
+  Context& context;
   bool locked;
   Type type;
   Usage usage;

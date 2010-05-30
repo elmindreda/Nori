@@ -20,7 +20,7 @@ private:
 Demo::~Demo(void)
 {
   input::Context::destroy();
-  GL::Renderer::destroy();
+  render::GeometryPool::destroy();
   GL::Context::destroy();
 }
 
@@ -40,7 +40,7 @@ bool Demo::init(void)
   GL::Context* context = GL::Context::get();
   context->setTitle("Cube Map");
 
-  if (!GL::Renderer::create(*context))
+  if (!render::GeometryPool::create(*context))
     return false;
 
   if (!input::Context::create(*context))

@@ -24,7 +24,7 @@ Test::~Test(void)
   system.setMaterial(NULL);
   material = NULL;
 
-  GL::Renderer::destroy();
+  render::GeometryPool::destroy();
 
   GL::Context::destroy();
 }
@@ -40,7 +40,7 @@ bool Test::init(void)
   GL::Context* context = GL::Context::get();
   context->setTitle("Particles");
 
-  if (!GL::Renderer::create(*context))
+  if (!render::GeometryPool::create(*context))
   {
     Log::writeError("Failed to create OpenGL renderer");
     return false;

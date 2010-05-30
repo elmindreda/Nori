@@ -25,17 +25,10 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/GLContext.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLVertex.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLProgram.h>
-#include <wendy/GLRender.h>
-#include <wendy/GLState.h>
-
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
+#include <wendy/RenderPool.h>
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderSprite.h>
 
@@ -148,7 +141,7 @@ void realizeSpriteVertices(GL::Vertex2ft3fv* vertices,
     Log::writeError("Unknown sprite type %u", type);
 }
 
-}
+} /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -162,15 +155,13 @@ void Sprite2::render(void) const
   GL::Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
-  GL::Renderer* renderer = GL::Renderer::get();
-
   GL::VertexRange range;
-  if (!renderer->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
+  if (!GeometryPool::get()->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
     return;
 
   range.copyFrom(vertices);
 
-  renderer->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  GL::Context::get()->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 }
 
 void Sprite2::render(const Material& material) const
@@ -178,10 +169,8 @@ void Sprite2::render(const Material& material) const
   GL::Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
-  GL::Renderer* renderer = GL::Renderer::get();
-
   GL::VertexRange range;
-  if (!renderer->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
+  if (!GeometryPool::get()->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -191,7 +180,7 @@ void Sprite2::render(const Material& material) const
   for (unsigned int pass = 0;  pass < technique->getPassCount();  pass++)
   {
     technique->applyPass(pass);
-    renderer->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+    GL::Context::get()->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
   }
 }
 
@@ -233,9 +222,9 @@ Sprite3::Sprite3(void)
 
 void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
 {
-  if (!GL::Renderer::get())
+  if (!GeometryPool::get())
   {
-    Log::writeError("Cannot enqueue sprite without a renderer");
+    Log::writeError("Cannot enqueue sprite without a geometry pool");
     return;
   }
 
@@ -254,7 +243,7 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
   }
 
   GL::VertexRange range;
-  if (!GL::Renderer::get()->allocateVertices(range, 4, GL::Vertex2ft3fv::format))
+  if (!GeometryPool::get()->allocateVertices(range, 4, GL::Vertex2ft3fv::format))
     return;
 
   const Vec3 camera = queue.getCamera().getTransform().position;
@@ -307,8 +296,8 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   if (slots.empty())
     return;
 
-  GL::Renderer* renderer = GL::Renderer::get();
-  if (!renderer)
+  GeometryPool* pool = GeometryPool::get();
+  if (!pool)
   {
     Log::writeError("Cannot enqueue sprite cloud without a renderer");
     return;
@@ -329,11 +318,11 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   }
 
   GL::VertexRange vertexRange;
-  if (!renderer->allocateVertices(vertexRange, 4 * slots.size(), GL::Vertex2ft3fv::format))
+  if (!pool->allocateVertices(vertexRange, 4 * slots.size(), GL::Vertex2ft3fv::format))
     return;
 
   GL::IndexRange indexRange;
-  if (!renderer->allocateIndices(indexRange, 6 * slots.size(), GL::IndexBuffer::UINT16))
+  if (!pool->allocateIndices(indexRange, 6 * slots.size(), GL::IndexBuffer::UINT16))
     return;
 
   GL::VertexRangeLock<GL::Vertex2ft3fv> vertices(vertexRange);

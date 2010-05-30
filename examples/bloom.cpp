@@ -29,7 +29,7 @@ private:
 Demo::~Demo(void)
 {
   input::Context::destroy();
-  GL::Renderer::destroy();
+  render::GeometryPool::destroy();
   GL::Context::destroy();
 }
 
@@ -49,7 +49,7 @@ bool Demo::init(void)
   GL::Context* context = GL::Context::get();
   context->setTitle("Bloom");
 
-  if (!GL::Renderer::create(*context))
+  if (!render::GeometryPool::create(*context))
     return false;
 
   if (!input::Context::create(*context))
@@ -156,6 +156,8 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
+  GL::Context* context = GL::Context::get();
+
   render::Queue queue(*camera);
 
   do
@@ -167,15 +169,13 @@ void Demo::run(void)
 
     graph.enqueue(queue);
 
-    GL::Context* context = GL::Context::get();
     context->setCurrentCanvas(*canvases[0]);
     context->clearDepthBuffer();
     context->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
     queue.render("bloom");
 
-    GL::Renderer* renderer = GL::Renderer::get();
-    renderer->setProjectionMatrix2D(1.f, 1.f);
+    context->setProjectionMatrix2D(1.f, 1.f);
 
     for (unsigned int i = 0;  i < 2;  i++)
     {
@@ -200,14 +200,14 @@ void Demo::run(void)
 
     queue.render();
 
-    renderer->setProjectionMatrix2D(1.f, 1.f);
+    context->setProjectionMatrix2D(1.f, 1.f);
 
     composePass.apply();
     sprite.render();
 
     queue.destroyOperations();
   }
-  while (GL::Context::get()->update());
+  while (context->update());
 }
 
 void Demo::onButtonClicked(input::Button button, bool clicked)

@@ -21,7 +21,7 @@ private:
 
 Demo::~Demo(void)
 {
-  GL::Renderer::destroy();
+  render::GeometryPool::destroy();
   GL::Context::destroy();
 }
 
@@ -41,7 +41,7 @@ bool Demo::init(void)
   GL::Context* context = GL::Context::get();
   context->setTitle("Program");
 
-  if (!GL::Renderer::create(*context))
+  if (!render::GeometryPool::create(*context))
     return false;
 
   Ref<render::Mesh> mesh = render::Mesh::readInstance("cube");

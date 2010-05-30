@@ -25,12 +25,10 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/GLContext.h>
+#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
-#include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
-#include <wendy/GLRender.h>
 #include <wendy/GLState.h>
 
 #include <wendy/RenderCamera.h>
@@ -146,9 +144,9 @@ void Queue::destroyOperations(void)
 
 void Queue::render(const String& passName) const
 {
-  GL::Renderer* renderer = GL::Renderer::get();
-  if (!renderer)
-    throw Exception("Cannot render render queue without a renderer");
+  GL::Context* context = GL::Context::get();
+  if (!context)
+    throw Exception("Cannot render render queue without an OpenGL context");
 
   camera.apply();
 
@@ -166,8 +164,8 @@ void Queue::render(const String& passName) const
 
       pass.apply();
 
-      renderer->setModelMatrix(operation.transform);
-      renderer->render(operation.range);
+      context->setModelMatrix(operation.transform);
+      context->render(operation.range);
     }
   }
 }

@@ -53,7 +53,7 @@ void Alignment::set(HorzAlignment newHorizontal, VertAlignment newVertical)
 
 bool Renderer::pushClipArea(const Rect& area)
 {
-  GL::Context& context = renderer.getContext();
+  GL::Context& context = pool.getContext();
 
   GL::Canvas& canvas = context.getCurrentCanvas();
 
@@ -78,7 +78,7 @@ void Renderer::popClipArea(void)
 
   clipAreaStack.pop();
 
-  GL::Context& context = renderer.getContext();
+  GL::Context& context = pool.getContext();
 
   context.setScissorArea(clipAreaStack.getTotal());
 }
@@ -89,14 +89,14 @@ void Renderer::drawPoint(const Vec2& point, const ColorRGBA& color)
   vertex.position = point;
 
   GL::VertexRange range;
-  if (!renderer.allocateVertices(range, 1, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 1, GL::Vertex2fv::format))
     return;
 
   range.copyFrom(&vertex);
 
   setDrawingState(color, true);
 
-  renderer.render(GL::PrimitiveRange(GL::POINT_LIST, range));
+  pool.getContext().render(GL::PrimitiveRange(GL::POINT_LIST, range));
 }
 
 void Renderer::drawLine(const Segment2& segment, const ColorRGBA& color)
@@ -106,14 +106,14 @@ void Renderer::drawLine(const Segment2& segment, const ColorRGBA& color)
   vertices[1].position = segment.end;
 
   GL::VertexRange range;
-  if (!renderer.allocateVertices(range, 2, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 2, GL::Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
 
   setDrawingState(color, true);
 
-  renderer.render(GL::PrimitiveRange(GL::LINE_LIST, range));
+  pool.getContext().render(GL::PrimitiveRange(GL::LINE_LIST, range));
 }
 
 void Renderer::drawTriangle(const Triangle2& triangle, const ColorRGBA& color)
@@ -124,14 +124,14 @@ void Renderer::drawTriangle(const Triangle2& triangle, const ColorRGBA& color)
   vertices[2].position = triangle.P[2];
 
   GL::VertexRange range;
-  if (!renderer.allocateVertices(range, 3, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 3, GL::Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
 
   setDrawingState(color, true);
 
-  renderer.render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
+  pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
 }
 
 void Renderer::drawBezier(const BezierCurve2& spline, const ColorRGBA& color)
@@ -140,7 +140,7 @@ void Renderer::drawBezier(const BezierCurve2& spline, const ColorRGBA& color)
   spline.tessellate(points);
 
   GL::VertexRange range;
-  if (!renderer.allocateVertices(range, points.size(), GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, points.size(), GL::Vertex2fv::format))
     return;
 
   // Realize vertices
@@ -153,7 +153,7 @@ void Renderer::drawBezier(const BezierCurve2& spline, const ColorRGBA& color)
 
   setDrawingState(color, true);
 
-  renderer.render(GL::PrimitiveRange(GL::LINE_STRIP, range));
+  pool.getContext().render(GL::PrimitiveRange(GL::LINE_STRIP, range));
 }
 
 void Renderer::drawRectangle(const Rect& rectangle, const ColorRGBA& color)
@@ -174,14 +174,14 @@ void Renderer::drawRectangle(const Rect& rectangle, const ColorRGBA& color)
   vertices[3].position.set(minX, maxY);
 
   GL::VertexRange range;
-  if (!renderer.allocateVertices(range, 4, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 4, GL::Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
 
   setDrawingState(color, true);
 
-  renderer.render(GL::PrimitiveRange(GL::LINE_LOOP, range));
+  pool.getContext().render(GL::PrimitiveRange(GL::LINE_LOOP, range));
 }
 
 void Renderer::fillTriangle(const Triangle2& triangle, const ColorRGBA& color)
@@ -192,14 +192,14 @@ void Renderer::fillTriangle(const Triangle2& triangle, const ColorRGBA& color)
   vertices[2].position = triangle.P[2];
 
   GL::VertexRange range;
-  if (!renderer.allocateVertices(range, 3, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 3, GL::Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
 
   setDrawingState(color, false);
 
-  renderer.render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
+  pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
 }
 
 void Renderer::fillRectangle(const Rect& rectangle, const ColorRGBA& color)
@@ -220,14 +220,14 @@ void Renderer::fillRectangle(const Rect& rectangle, const ColorRGBA& color)
   vertices[3].position.set(minX, maxY);
 
   GL::VertexRange range;
-  if (!renderer.allocateVertices(range, 4, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 4, GL::Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
 
   setDrawingState(color, false);
 
-  renderer.render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 }
 
 void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
@@ -252,7 +252,7 @@ void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
   vertices[3].position.set(minX, maxY);
 
   GL::VertexRange range;
-  if (!renderer.allocateVertices(range, 4, GL::Vertex2ft2fv::format))
+  if (!pool.allocateVertices(range, 4, GL::Vertex2ft2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -260,7 +260,7 @@ void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
   blitPass.getSamplerState("image").setTexture(&texture);
   blitPass.apply();
 
-  renderer.render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 
   blitPass.getSamplerState("image").setTexture(NULL);
 }
@@ -451,17 +451,17 @@ void Renderer::setCurrentFont(render::Font* newFont)
     currentFont = defaultFont;
 }
 
-Renderer* Renderer::createInstance(GL::Renderer& renderer)
+Renderer* Renderer::createInstance(render::GeometryPool& pool)
 {
-  Ptr<Renderer> instance(new Renderer(renderer));
-  if (!instance->init())
+  Ptr<Renderer> renderer(new Renderer(pool));
+  if (!renderer->init())
     return NULL;
 
-  return instance.detachObject();
+  return renderer.detachObject();
 }
 
-Renderer::Renderer(GL::Renderer& initRenderer):
-  renderer(initRenderer)
+Renderer::Renderer(render::GeometryPool& initPool):
+  pool(initPool)
 {
 }
 

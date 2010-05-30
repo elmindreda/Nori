@@ -25,18 +25,18 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/GLContext.h>
+#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
-#include <wendy/GLRender.h>
 #include <wendy/GLState.h>
 
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
+#include <wendy/RenderPool.h>
 #include <wendy/RenderParticle.h>
 
 #include <stdint.h>
@@ -388,16 +388,16 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& vertexRange,
                                      GL::IndexRange& indexRange,
 		                     const Vec3& camera) const
 {
-  GL::Renderer* renderer = GL::Renderer::get();
-  if (!renderer)
+  GeometryPool* pool = GeometryPool::get();
+  if (!pool)
   {
-    Log::writeError("Cannot render particles without a renderer");
+    Log::writeError("Cannot render particles without a geometry pool");
     return false;
   }
 
-  if (!renderer->allocateVertices(vertexRange,
-                                  activeParticles.size() * 4,
-				  GL::Vertex4fc2ft3fv::format))
+  if (!pool->allocateVertices(vertexRange,
+                              activeParticles.size() * 4,
+			      GL::Vertex4fc2ft3fv::format))
     return false;
 
   GL::VertexRangeLock<GL::Vertex4fc2ft3fv> vertices(vertexRange);
@@ -456,9 +456,9 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& vertexRange,
     base += 4;
   }
 
-  if (!renderer->allocateIndices(indexRange,
-                                 activeParticles.size() * 6,
-				 GL::IndexBuffer::UINT16))
+  if (!pool->allocateIndices(indexRange,
+                             activeParticles.size() * 6,
+			     GL::IndexBuffer::UINT16))
     return false;
 
   GL::IndexRangeLock<uint16_t> indices(indexRange);

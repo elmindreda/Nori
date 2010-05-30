@@ -30,8 +30,6 @@
 #include <wendy/Quaternion.h>
 #include <wendy/Transform.h>
 
-#include <wendy/GLContext.h>
-
 #include <wendy/Input.h>
 #include <wendy/InputCamera.h>
 

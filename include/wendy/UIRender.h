@@ -32,15 +32,16 @@
 #include <wendy/Segment.h>
 #include <wendy/Triangle.h>
 
-#include <wendy/GLContext.h>
+#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
-#include <wendy/GLRender.h>
+#include <wendy/GLContext.h>
 #include <wendy/GLState.h>
 
 #include <wendy/RenderMaterial.h>
+#include <wendy/RenderPool.h>
 #include <wendy/RenderFont.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -172,12 +173,12 @@ public:
   void setCurrentFont(render::Font* newFont);
   float getDefaultEM(void) const;
   float getCurrentEM(void) const;
-  static Renderer* createInstance(GL::Renderer& renderer);
+  static Renderer* createInstance(render::GeometryPool& pool);
 private:
-  Renderer(GL::Renderer& renderer);
+  Renderer(render::GeometryPool& pool);
   bool init(void);
   void setDrawingState(const ColorRGBA& color, bool wireframe);
-  GL::Renderer& renderer;
+  render::GeometryPool& pool;
   RectClipStackf clipAreaStack;
   ColorRGB widgetColor;
   ColorRGB textColor;

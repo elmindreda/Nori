@@ -12,7 +12,7 @@ Demo::~Demo(void)
   renderer = NULL;
 
   input::Context::destroy();
-  GL::Renderer::destroy();
+  render::GeometryPool::destroy();
   GL::Context::destroy();
 }
 
@@ -33,7 +33,7 @@ bool Demo::init(void)
 
   GL::Context* context = GL::Context::get();
 
-  if (!GL::Renderer::create(*context))
+  if (!render::GeometryPool::create(*context))
   {
     Log::writeError("Unable to create OpenGL renderer");
     return false;
@@ -45,7 +45,7 @@ bool Demo::init(void)
     return false;
   }
 
-  renderer = UI::Renderer::createInstance(*GL::Renderer::get());
+  renderer = UI::Renderer::createInstance(*render::GeometryPool::get());
   if (!renderer)
   {
     Log::writeError("Unable to create UI renderer");

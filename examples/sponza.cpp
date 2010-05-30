@@ -41,7 +41,7 @@ Demo::~Demo(void)
   renderer = NULL;
 
   input::Context::destroy();
-  GL::Renderer::destroy();
+  render::GeometryPool::destroy();
   GL::Context::destroy();
 }
 
@@ -74,7 +74,7 @@ bool Demo::init(void)
   input::Context::get()->getKeyPressedSignal().connect(*this, &Demo::onKeyPressed);
   input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
 
-  if (!GL::Renderer::create(*context))
+  if (!render::GeometryPool::create(*context))
     return false;
 
   renderer = deferred::Renderer::create(*context, deferred::Config(width, height));

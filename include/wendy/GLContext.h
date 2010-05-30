@@ -29,9 +29,12 @@
 #include <wendy/Core.h>
 #include <wendy/Color.h>
 #include <wendy/Vector.h>
+#include <wendy/Matrix.h>
+#include <wendy/Plane.h>
 #include <wendy/Rectangle.h>
 #include <wendy/Pixel.h>
 #include <wendy/Signal.h>
+#include <wendy/Timer.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -43,49 +46,7 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 class Context;
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @defgroup opengl OpenGL wrapper API
- *
- *  These classes wrap parts of the OpenGL API, maintaining a rather close
- *  mapping to the underlying concepts, but providing useful services and a
- *  semblance of automatic resource management. They are used by most
- *  higher-level components such as the 3D rendering pipeline.
- */
-
-///////////////////////////////////////////////////////////////////////
-
-/*! Comparison function enumeration.
- *  @ingroup opengl
- */
-enum Function
-{
-  ALLOW_NEVER,
-  ALLOW_ALWAYS,
-  ALLOW_EQUAL,
-  ALLOW_NOT_EQUAL,
-  ALLOW_LESSER,
-  ALLOW_LESSER_EQUAL,
-  ALLOW_GREATER,
-  ALLOW_GREATER_EQUAL,
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Primitive type enumeration.
- *  @ingroup opengl
- */
-enum PrimitiveType
-{
-  POINT_LIST,
-  LINE_LIST,
-  LINE_STRIP,
-  LINE_LOOP,
-  TRIANGLE_LIST,
-  TRIANGLE_STRIP,
-  TRIANGLE_FAN,
-};
+class PrimitiveRange;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -310,29 +271,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingoup opengl
- */
-class Image : public RefObject
-{
-  friend class ImageCanvas;
-public:
-  virtual ~Image(void);
-  virtual unsigned int getWidth(void) const = 0;
-  virtual unsigned int getHeight(void) const = 0;
-  virtual const PixelFormat& getFormat(void) const = 0;
-protected:
-  virtual void attach(int attachment) = 0;
-  virtual void detach(int attachment) = 0;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup opengl
- */
-typedef Ref<Image> ImageRef;
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief %Canvas for rendering to a texture.
  *  @ingroup opengl
  */
@@ -379,12 +317,44 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief %Render statistics.
+ *  @ingroup opengl
+ */
+class Stats
+{
+public:
+  class Frame
+  {
+  public:
+    Frame(void);
+    unsigned int passCount;
+    unsigned int vertexCount;
+    unsigned int pointCount;
+    unsigned int lineCount;
+    unsigned int triangleCount;
+    Time duration;
+  };
+  typedef std::deque<Frame> FrameQueue;
+  Stats(void);
+  void addFrame(void);
+  void addPasses(unsigned int count);
+  void addPrimitives(PrimitiveType type, unsigned int count);
+  float getFrameRate(void) const;
+  unsigned int getFrameCount(void) const;
+  const Frame& getFrame(void) const;
+private:
+  unsigned int frameCount;
+  float frameRate;
+  FrameQueue frames;
+  Timer timer;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief OpenGL context singleton.
  *  @ingroup opengl
  *
- *  This class encapsulates the OpenGL context and its associtated window.  It
- *  also initializes the GLEW library, allowing use of the GLEW booleans in
- *  client code for the entire lifetime of the context.
+ *  This class encapsulates the OpenGL context and its associtated window.
  */
 class Context : public Singleton<Context>
 {
@@ -393,6 +363,7 @@ class Context : public Singleton<Context>
   friend class VertexProgram;
   friend class FragmentProgram;
 public:
+  typedef std::vector<Plane> PlaneList;
   /*! Destructor.
    */
   ~Context(void);
@@ -408,16 +379,31 @@ public:
    *  @param[in] value The stencil value to clear the stencil buffer with.
    */
   void clearStencilBuffer(unsigned int value = 0);
+  /*! Renders the current primitive range to the current canvas, using the
+   *  current shader program and transforms.
+   *  @pre A shader program must be set before calling this method.
+   */
+  void render(const PrimitiveRange& range);
   /*! Updates the screen.
    */
   bool update(void);
+  SignalProxy1<void, Uniform&> reserveUniform(const String& name, Uniform::Type type);
+  SignalProxy1<void, Sampler&> reserveSampler(const String& name, Sampler::Type type);
+  /*! @return @c true if the specified uniform name is reserved,
+   *  otherwise @c false.
+   */
+  bool isReservedUniform(const String& name) const;
+  /*! @return @c true if the specified sampler name is reserved,
+   *  otherwise @c false.
+   */
+  bool isReservedSampler(const String& name) const;
   /*! @return The current scissor rectangle.
    */
   const Rect& getScissorArea(void) const;
+  void setScissorArea(const Rect& newArea);
   /*! @return The current viewport rectangle.
    */
   const Rect& getViewportArea(void) const;
-  void setScissorArea(const Rect& newArea);
   /*! Sets the current viewport rectangle.
    *  @param[in] newArea The desired viewport rectangle.
    */
@@ -436,6 +422,42 @@ public:
    *  @return @c true if successful, or @c false otherwise.
    */
   bool setCurrentCanvas(Canvas& newCanvas);
+  Program* getCurrentProgram(void) const;
+  /*! Sets the current shader program for use when rendering.
+   *  @param[in] newProgram The desired shader program, or @c NULL to detach
+   *  the current shader program.
+   */
+  void setCurrentProgram(Program* newProgram);
+  const PlaneList& getClipPlanes(void) const;
+  bool setClipPlanes(const PlaneList& newPlanes);
+  const Mat4& getModelMatrix(void) const;
+  void setModelMatrix(const Mat4& newMatrix);
+  const Mat4& getViewMatrix(void) const;
+  void setViewMatrix(const Mat4& newMatrix);
+  const Mat4& getProjectionMatrix(void) const;
+  /*! Sets the projection matrix.
+   *  @param[in] newMatrix The desired projection matrix.
+   */
+  void setProjectionMatrix(const Mat4& newMatrix);
+  /*! Sets an orthographic projection matrix as ([0..width], [0..height], [-1, 1]).
+   *  @param[in] width The width of the projected space.
+   *  @param[in] height The height of the projected space.
+   */
+  void setProjectionMatrix2D(float width, float height);
+  /*! Sets a perspective projection matrix.
+   *  @param[in] FOV The desired field of view of the projection.
+   *  @param[in] aspect The desired aspect ratio of the projection.
+   *  @param[in] nearZ The desired near plane distance of the projection.
+   *  @param[in] farZ The desired far plane distance of the projection.
+   *  @remarks If @a aspect is set to zero, the aspect ratio is calculated from
+   *  the dimensions of the current viewport.
+   */
+  void setProjectionMatrix3D(float FOV = 90.f,
+                             float aspect = 0.f,
+	                     float nearZ = 0.01f,
+	                     float farZ = 1000.f);
+  Stats* getStats(void) const;
+  void setStats(Stats* newStats);
   /*! @return The title of the context window.
    */
   const String& getTitle(void) const;
@@ -471,6 +493,24 @@ public:
    */
   static void getScreenModes(ScreenModeList& result);
 private:
+  /*! @internal
+   */
+  struct ReservedUniform
+  {
+    String name;
+    Uniform::Type type;
+    Signal1<void, Uniform&> signal;
+  };
+  /*! @internal
+   */
+  struct ReservedSampler
+  {
+    String name;
+    Sampler::Type type;
+    Signal1<void, Sampler&> signal;
+  };
+  typedef std::list<ReservedUniform> UniformList;
+  typedef std::list<ReservedSampler> SamplerList;
   Context(void);
   Context(const Context& source);
   Context& operator = (const Context& source);
@@ -489,6 +529,14 @@ private:
   int cgFragmentProfile;
   Rect scissorArea;
   Rect viewportArea;
+  Mat4 modelMatrix;
+  Mat4 viewMatrix;
+  Mat4 projectionMatrix;
+  UniformList reservedUniforms;
+  SamplerList reservedSamplers;
+  Ref<Program> currentProgram;
+  PlaneList planes;
+  Stats* stats;
   Ref<Canvas> currentCanvas;
   Ref<ScreenCanvas> screenCanvas;
   static Context* instance;

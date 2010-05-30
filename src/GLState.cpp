@@ -25,12 +25,11 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/GLContext.h>
+#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
-#include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
-#include <wendy/GLRender.h>
+#include <wendy/GLContext.h>
 #include <wendy/GLState.h>
 
 #define GLEW_STATIC
@@ -595,7 +594,7 @@ void ProgramState::apply(void) const
     for (SamplerList::const_iterator i = samplers.begin();  i != samplers.end();  i++)
       (**i).apply();
 
-    Renderer::get()->setCurrentProgram(program);
+    Context::get()->setCurrentProgram(program);
   }
 }
 
@@ -706,7 +705,7 @@ void ProgramState::setProgram(Program* newProgram)
     {
       Sampler& sampler = program->getSampler(i);
 
-      if (GL::Renderer::get()->isReservedSampler(sampler.getName()))
+      if (Context::get()->isReservedSampler(sampler.getName()))
 	continue;
 
       samplers.push_back(new SamplerState(sampler));
@@ -716,7 +715,7 @@ void ProgramState::setProgram(Program* newProgram)
     {
       Uniform& uniform = program->getUniform(i);
 
-      if (GL::Renderer::get()->isReservedUniform(uniform.getName()))
+      if (Context::get()->isReservedUniform(uniform.getName()))
 	continue;
 
       uniforms.push_back(new UniformState(uniform));
@@ -748,9 +747,9 @@ void ProgramState::destroyProgramState(void)
 
 void RenderState::apply(void) const
 {
-  if (Renderer* renderer = Renderer::get())
+  if (Context* context = Context::get())
   {
-    if (Stats* stats = renderer->getStats())
+    if (Stats* stats = context->getStats())
       stats->addPasses(1);
   }
 

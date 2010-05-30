@@ -25,11 +25,11 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/GLContext.h>
-#include <wendy/GLVertex.h>
+#include <wendy/GLImage.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
+#include <wendy/GLContext.h>
 #include <wendy/GLState.h>
 
 #include <wendy/RenderCamera.h>

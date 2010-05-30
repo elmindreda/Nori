@@ -25,7 +25,8 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/GLContext.h>
+#include <wendy/Core.h>
+#include <wendy/Color.h>
 
 #include <wendy/RenderLight.h>
 

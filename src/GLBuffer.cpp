@@ -27,8 +27,7 @@
 
 #include <wendy/Bimap.h>
 
-#include <wendy/GLContext.h>
-#include <wendy/GLVertex.h>
+#include <wendy/GLImage.h>
 #include <wendy/GLBuffer.h>
 
 #define GLEW_STATIC
@@ -251,20 +250,22 @@ unsigned int VertexBuffer::getCount(void) const
   return count;
 }
 
-VertexBuffer* VertexBuffer::createInstance(unsigned int count,
+VertexBuffer* VertexBuffer::createInstance(Context& context,
+                                           unsigned int count,
                                            const VertexFormat& format,
 					   Usage usage,
 					   const String& name)
 {
-  Ptr<VertexBuffer> buffer(new VertexBuffer(name));
+  Ptr<VertexBuffer> buffer(new VertexBuffer(context, name));
   if (!buffer->init(format, count, usage))
     return NULL;
 
   return buffer.detachObject();
 }
 
-VertexBuffer::VertexBuffer(const String& name):
+VertexBuffer::VertexBuffer(Context& initContext, const String& name):
   Managed<VertexBuffer>(name),
+  context(initContext),
   locked(false),
   bufferID(0),
   count(0),
@@ -273,7 +274,8 @@ VertexBuffer::VertexBuffer(const String& name):
 }
 
 VertexBuffer::VertexBuffer(const VertexBuffer& source):
-  Managed<VertexBuffer>(source)
+  Managed<VertexBuffer>(source),
+  context(source.context)
 {
   // NOTE: Not implemented.
 }
@@ -289,12 +291,6 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
 			unsigned int initCount,
 			Usage initUsage)
 {
-  if (!Context::get())
-  {
-    Log::writeError("Cannot create vertex buffer without OpenGL context");
-    return false;
-  }
-
   // Clear any errors
   glGetError();
 
@@ -467,12 +463,13 @@ unsigned int IndexBuffer::getCount(void) const
   return count;
 }
 
-IndexBuffer* IndexBuffer::createInstance(unsigned int count,
+IndexBuffer* IndexBuffer::createInstance(Context& context,
+                                         unsigned int count,
 					 Type type,
 					 Usage usage,
 					 const String& name)
 {
-  Ptr<IndexBuffer> buffer(new IndexBuffer(name));
+  Ptr<IndexBuffer> buffer(new IndexBuffer(context, name));
   if (!buffer->init(count, type, usage))
     return NULL;
 
@@ -495,8 +492,9 @@ size_t IndexBuffer::getTypeSize(Type type)
   }
 }
 
-IndexBuffer::IndexBuffer(const String& name):
+IndexBuffer::IndexBuffer(Context& initContext, const String& name):
   Managed<IndexBuffer>(name),
+  context(initContext),
   locked(false),
   type(UINT32),
   usage(STATIC),
@@ -506,7 +504,8 @@ IndexBuffer::IndexBuffer(const String& name):
 }
 
 IndexBuffer::IndexBuffer(const IndexBuffer& source):
-  Managed<IndexBuffer>(source)
+  Managed<IndexBuffer>(source),
+  context(source.context)
 {
   // NOTE: Not implemented.
 }
@@ -520,12 +519,6 @@ IndexBuffer& IndexBuffer::operator = (const IndexBuffer& source)
 
 bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
 {
-  if (!Context::get())
-  {
-    Log::writeError("Cannot create index buffer without OpenGL context");
-    return false;
-  }
-
   // Clear any errors
   glGetError();
 

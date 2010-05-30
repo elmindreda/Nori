@@ -25,15 +25,15 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/GLContext.h>
-#include <wendy/GLVertex.h>
+#include <wendy/GLImage.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
-#include <wendy/GLRender.h>
+#include <wendy/GLContext.h>
 
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
+#include <wendy/RenderPool.h>
 
 #include <wendy/Deferred.h>
 
@@ -73,8 +73,6 @@ Config::Config(unsigned int initWidth, unsigned int initHeight):
 
 void Renderer::render(const render::Queue& queue)
 {
-  GL::Renderer* renderer = GL::Renderer::get();
-
   context.setCurrentCanvas(*canvas);
   context.clearDepthBuffer();
   context.clearColorBuffer(ColorRGBA::BLACK);
@@ -82,8 +80,7 @@ void Renderer::render(const render::Queue& queue)
   queue.render();
 
   context.setScreenCanvasCurrent();
-
-  renderer->setProjectionMatrix2D(1.f, 1.f);
+  context.setProjectionMatrix2D(1.f, 1.f);
 
   const render::LightState& lights = queue.getLights();
   for (unsigned int i = 0;  i < lights.getLightCount();  i++)
@@ -92,8 +89,6 @@ void Renderer::render(const render::Queue& queue)
 
 void Renderer::renderLight(const render::Camera& camera, const render::Light& light)
 {
-  GL::Renderer* renderer = GL::Renderer::get();
-
   const float nearZ = camera.getMinDepth();
   const float nearOverFarZminusOne = nearZ / camera.getMaxDepth() - 1.f;
 
@@ -133,7 +128,7 @@ void Renderer::renderLight(const render::Camera& camera, const render::Light& li
 
   GL::VertexRange range;
 
-  if (!renderer->allocateVertices(range, 4, LightVertex::format))
+  if (!render::GeometryPool::get()->allocateVertices(range, 4, LightVertex::format))
     return;
 
   LightVertex vertices[4];
@@ -160,7 +155,7 @@ void Renderer::renderLight(const render::Camera& camera, const render::Light& li
 
   range.copyFrom(vertices);
 
-  renderer->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  context.render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 }
 
 GL::Texture& Renderer::getColorTexture(void) const

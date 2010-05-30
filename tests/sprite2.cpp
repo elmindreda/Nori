@@ -21,7 +21,7 @@ Test::~Test(void)
 {
   material = NULL;
 
-  GL::Renderer::destroy();
+  render::GeometryPool::destroy();
 
   GL::Context::destroy();
 }
@@ -37,7 +37,7 @@ bool Test::init(void)
   GL::Context* context = GL::Context::get();
   context->setTitle("Sprite 2D");
 
-  if (!GL::Renderer::create(*context))
+  if (!render::GeometryPool::create(*context))
   {
     Log::writeError("Failed to create OpenGL renderer");
     return false;
@@ -73,8 +73,7 @@ void Test::run(void)
     sprite.size.set(0.5f, 0.5f);
     sprite.angle = timer.getTime();
 
-    GL::Renderer* renderer = GL::Renderer::get();
-    renderer->setProjectionMatrix2D(4.f / 3.f, 1.f);
+    context->setProjectionMatrix2D(4.f / 3.f, 1.f);
 
     sprite.render(*material);
   }

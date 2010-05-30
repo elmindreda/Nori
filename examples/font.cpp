@@ -20,7 +20,7 @@ Demo::~Demo(void)
 {
   font = NULL;
 
-  GL::Renderer::destroy();
+  render::GeometryPool::destroy();
   GL::Context::destroy();
 }
 
@@ -41,7 +41,7 @@ bool Demo::init(void)
   GL::Context* context = GL::Context::get();
   context->setTitle("Fonts");
 
-  if (!GL::Renderer::create(*GL::Context::get()))
+  if (!render::GeometryPool::create(*GL::Context::get()))
     return false;
 
   font = render::Font::readInstance("default");
@@ -56,9 +56,9 @@ bool Demo::init(void)
 
 bool Demo::render(void)
 {
-  GL::Context::get()->clearColorBuffer();
-
-  GL::Renderer::get()->setProjectionMatrix2D(640.f, 480.f);
+  GL::Context* context = GL::Context::get();
+  context->clearColorBuffer();
+  context->setProjectionMatrix2D(640.f, 480.f);
 
   String text = "In A.D. 2101, war was beginning\n"
 		"What happen?\n"

@@ -25,12 +25,11 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/GLContext.h>
+#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
-#include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
-#include <wendy/GLRender.h>
+#include <wendy/GLContext.h>
 
 #include <wendy/RenderCamera.h>
 
@@ -55,15 +54,15 @@ Camera::Camera(void):
 
 void Camera::apply(void) const
 {
-  GL::Renderer* renderer = GL::Renderer::get();
-  if (!renderer)
+  GL::Context* context = GL::Context::get();
+  if (!context)
   {
-    Log::writeError("Cannot make camera current without a renderer");
+    Log::writeError("Cannot make camera current without an OpenGL context");
     return;
   }
 
-  renderer->setProjectionMatrix3D(FOV, aspectRatio, minDepth, maxDepth);
-  renderer->setViewMatrix(getViewTransform());
+  context->setProjectionMatrix3D(FOV, aspectRatio, minDepth, maxDepth);
+  context->setViewMatrix(getViewTransform());
 }
 
 float Camera::getFOV(void) const

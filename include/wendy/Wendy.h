@@ -115,18 +115,19 @@
 #include <wendy/Font.h>
 #include <wendy/Mesh.h>
 
-#include <wendy/GLContext.h>
+#include <wendy/GLImage.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
-#include <wendy/GLRender.h>
+#include <wendy/GLContext.h>
 #include <wendy/GLState.h>
 
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
+#include <wendy/RenderPool.h>
 #include <wendy/RenderSprite.h>
 #include <wendy/RenderFont.h>
 #include <wendy/RenderParticle.h>

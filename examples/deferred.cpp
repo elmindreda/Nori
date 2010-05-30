@@ -29,7 +29,7 @@ Demo::~Demo(void)
   renderer = NULL;
 
   input::Context::destroy();
-  GL::Renderer::destroy();
+  render::GeometryPool::destroy();
   GL::Context::destroy();
 }
 
@@ -53,7 +53,7 @@ bool Demo::init(void)
   const unsigned int width = context->getScreenCanvas().getWidth();
   const unsigned int height = context->getScreenCanvas().getHeight();
 
-  if (!GL::Renderer::create(*context))
+  if (!render::GeometryPool::create(*context))
     return false;
 
   renderer = deferred::Renderer::create(*context, deferred::Config(width, height));
