@@ -50,6 +50,16 @@ class PrimitiveRange;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @defgroup opengl OpenGL wrapper API
+ *
+ *  These classes wrap parts of the OpenGL API, maintaining a rather close
+ *  mapping to the underlying concepts, but providing useful services and a
+ *  semblance of automatic resource management. They are used by most
+ *  higher-level components such as the 3D rendering pipeline.
+ */
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Screen mode.
  *  @ingroup opengl
  */
