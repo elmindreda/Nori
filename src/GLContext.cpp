@@ -1363,6 +1363,7 @@ bool Context::init(const ContextMode& initMode)
     }
   }
 
+  // Create and apply screen canvas
   {
     int width, height;
     glfwGetWindowSize(&width, &height);
