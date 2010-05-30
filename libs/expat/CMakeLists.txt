@@ -29,5 +29,5 @@ include_directories(${expat_SOURCE_DIR} ${expat_BINARY_DIR})
 
 add_definitions(-DHAVE_EXPAT_CONFIG_H)
 
-add_library(expat STATIC xmlparse.c xmlrole.c xmltok.c xmltok_impl.c xmltok_ns.c)
+add_library(expat STATIC xmlparse.c xmlrole.c xmltok.c)
 
