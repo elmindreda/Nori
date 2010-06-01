@@ -486,7 +486,7 @@ bool Renderer::init(void)
 
   // Set up drawing render pass
   {
-    Ref<GL::Program> drawProgram = GL::Program::readInstance("uidraw");
+    Ref<GL::Program> drawProgram = GL::Program::readInstance("UIRenderSolid");
     if (!drawProgram)
     {
       Log::writeError("Failed to load UI drawing shader program");
@@ -511,7 +511,7 @@ bool Renderer::init(void)
 
   // Set up blitting render pass
   {
-    Ref<GL::Program> blitProgram = GL::Program::readInstance("uiblit");
+    Ref<GL::Program> blitProgram = GL::Program::readInstance("UIRenderMapped");
     if (!blitProgram)
     {
       Log::writeError("Failed to load UI blitting shader program");

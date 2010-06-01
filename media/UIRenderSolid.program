@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <program version="2" >
-  <vertex name="uiblit" />
-  <fragment name="uiblit" />
+  <vertex name="UIRenderSolid" />
+  <fragment name="UIRenderSolid" />
 </program>
