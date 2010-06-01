@@ -205,7 +205,7 @@ void Demo::run(void)
     composePass.apply();
     sprite.render();
 
-    queue.destroyOperations();
+    queue.removeOperations();
   }
   while (context->update());
 }

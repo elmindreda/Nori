@@ -73,12 +73,13 @@ void Mesh::enqueue(Queue& queue, const Transform3& transform) const
       return;
     }
 
-    Operation& operation = queue.createOperation();
+    Operation operation;
     operation.range = GL::PrimitiveRange((*i)->getPrimitiveType(),
                                          *vertexBuffer,
                                          (*i)->getIndexRange());
     operation.transform = transform;
     operation.technique = technique;
+    queue.addOperation(operation);
   }
 }
 

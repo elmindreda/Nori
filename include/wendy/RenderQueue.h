@@ -94,8 +94,8 @@ public:
    */
   float distance;
 private:
-  mutable bool blending;
-  mutable unsigned int hash;
+  bool blending;
+  unsigned int hash;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -148,10 +148,10 @@ public:
   /*! Creates a render operation in this render queue.
    *  @return The created operation.
    */
-  Operation& createOperation(void);
+  void addOperation(const Operation& operation);
   /*! Destroys all render operations in this render queue.
    */
-  void destroyOperations(void);
+  void removeOperations(void);
   /*! Renders the operations in this render queue, using the specified camera
    *  and the attached lights.
    *  @param[in] passName The name of render passes to use.

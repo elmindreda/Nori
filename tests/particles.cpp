@@ -103,7 +103,7 @@ void Test::run(void)
 
     system.enqueue(queue, Transform3());
     queue.render();
-    queue.destroyOperations();
+    queue.removeOperations();
   }
   while (context->update());
 }

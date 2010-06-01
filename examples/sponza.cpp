@@ -142,7 +142,7 @@ void Demo::run(void)
 
     renderer->render(queue);
 
-    queue.destroyOperations();
+    queue.removeOperations();
     queue.detachLights();
   }
   while (!quitting && context->update());

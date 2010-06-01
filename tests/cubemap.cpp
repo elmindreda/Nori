@@ -96,7 +96,7 @@ void Demo::run(void)
 
     graph.enqueue(queue);
     queue.render();
-    queue.destroyOperations();
+    queue.removeOperations();
   }
   while (context->update());
 }

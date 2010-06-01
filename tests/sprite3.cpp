@@ -80,7 +80,7 @@ void Test::run(void)
 
     sprite.enqueue(queue, Transform3());
     queue.render();
-    queue.destroyOperations();
+    queue.removeOperations();
   }
   while (context->update());
 }

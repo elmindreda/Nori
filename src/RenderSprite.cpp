@@ -255,11 +255,12 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
   Vec3 position = Vec3::ZERO;
   transform.transformVector(position);
 
-  Operation& operation = queue.createOperation();
+  Operation operation;
   operation.range = GL::PrimitiveRange(GL::TRIANGLE_FAN, range);
   operation.transform = transform;
   operation.technique = technique;
   operation.distance = (position - camera).length();
+  queue.addOperation(operation);
 }
 
 void Sprite3::realizeVertices(GL::Vertex2ft3fv* vertices,

@@ -25,12 +25,6 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/GLImage.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLProgram.h>
-#include <wendy/GLState.h>
-
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
@@ -128,15 +122,16 @@ void Queue::detachLights(void)
   lights.detachLights();
 }
 
-Operation& Queue::createOperation(void)
+void Queue::addOperation(const Operation& operation)
 {
   sorted = false;
 
-  operations.push_back(Operation());
-  return operations.back();
+  operations.push_back(operation);
+  operations.back().hash = hashString(operation.technique->getName());
+  operations.back().blending = operation.technique->isBlending();
 }
 
-void Queue::destroyOperations(void)
+void Queue::removeOperations(void)
 {
   operations.clear();
   sorted = false;
@@ -197,11 +192,7 @@ const OperationList& Queue::getOperations(void) const
     sortedOperations.clear();
     sortedOperations.reserve(operations.size());
     for (List::const_iterator o = operations.begin();  o != operations.end();  o++)
-    {
-      (*o).blending = (*o).technique->isBlending();
-      (*o).hash = hashString((*o).technique->getName());
       sortedOperations.push_back(&(*o));
-    }
 
     OperationComparator comparator;
     std::sort(sortedOperations.begin(),

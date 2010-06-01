@@ -25,11 +25,6 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/GLImage.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLProgram.h>
-#include <wendy/GLContext.h>
-
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
