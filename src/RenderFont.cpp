@@ -367,7 +367,7 @@ bool Font::init(const wendy::Font& font)
 
   // Create render pass
   {
-    Ref<GL::Program> program = GL::Program::readInstance("font");
+    Ref<GL::Program> program = GL::Program::readInstance("RenderFont");
     if (!program)
     {
       Log::writeError("Unable to read font glyph shader program");

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <program version="2" >
-  <vertex name="font" />
-  <fragment name="font" />
+  <vertex name="RenderFont" />
+  <fragment name="RenderFont" />
 </program>

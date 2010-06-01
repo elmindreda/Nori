@@ -26,11 +26,12 @@ Demo::~Demo(void)
 
 bool Demo::init(void)
 {
+  GL::VertexProgram::addSearchPath(Path("../media"));
+  GL::FragmentProgram::addSearchPath(Path("../media"));
+  GL::Program::addSearchPath(Path("../media"));
+
   Image::addSearchPath(Path("media"));
   Font::addSearchPath(Path("media"));
-  GL::VertexProgram::addSearchPath(Path("media"));
-  GL::FragmentProgram::addSearchPath(Path("media"));
-  GL::Program::addSearchPath(Path("media"));
 
   if (!GL::Context::create(GL::ContextMode()))
   {
