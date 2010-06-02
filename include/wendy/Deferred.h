@@ -51,6 +51,7 @@ class Renderer
 {
 public:
   void render(const render::Queue& queue);
+  void renderAmbientLight(const render::Camera& camera, const ColorRGB& color, bool occlusion);
   void renderLight(const render::Camera& camera, const render::Light& light);
   GL::Texture& getColorTexture(void) const;
   GL::Texture& getNormalTexture(void) const;
@@ -59,6 +60,7 @@ public:
 private:
   Renderer(GL::Context& context);
   bool init(const Config& config);
+  void renderLightQuad(const render::Camera& camera);
   GL::Context& context;
   Ref<GL::ImageCanvas> canvas;
   GL::TextureRef depthTexture;
@@ -66,6 +68,8 @@ private:
   GL::TextureRef normalTexture;
   GL::RenderState dirLightPass;
   GL::RenderState pointLightPass;
+  GL::RenderState ambientLightPass;
+  GL::RenderState aoLightPass;
 };
 
 ///////////////////////////////////////////////////////////////////////

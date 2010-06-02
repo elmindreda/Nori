@@ -68,18 +68,43 @@ Config::Config(unsigned int initWidth, unsigned int initHeight):
 
 void Renderer::render(const render::Queue& queue)
 {
+  GL::Canvas& previousCanvas = context.getCurrentCanvas();
+
   context.setCurrentCanvas(*canvas);
   context.clearDepthBuffer();
   context.clearColorBuffer(ColorRGBA::BLACK);
 
   queue.render();
 
-  context.setScreenCanvasCurrent();
+  context.setCurrentCanvas(previousCanvas);
   context.setProjectionMatrix2D(1.f, 1.f);
 
   const render::LightState& lights = queue.getLights();
   for (unsigned int i = 0;  i < lights.getLightCount();  i++)
     renderLight(queue.getCamera(), lights.getLight(i));
+}
+
+void Renderer::renderAmbientLight(const render::Camera& camera, const ColorRGB& color, bool occlusion)
+{
+  if (occlusion)
+  {
+    const float nearZ = camera.getMinDepth();
+    const float nearOverFarZminusOne = nearZ / camera.getMaxDepth() - 1.f;
+
+    aoLightPass.getUniformState("nearZ").setValue(nearZ);
+    aoLightPass.getUniformState("nearOverFarZminusOne").setValue(nearOverFarZminusOne);
+
+    aoLightPass.getUniformState("light.color").setValue(color);
+
+    aoLightPass.apply();
+  }
+  else
+  {
+    ambientLightPass.getUniformState("light.color").setValue(color);
+    ambientLightPass.apply();
+  }
+
+  renderLightQuad(camera);
 }
 
 void Renderer::renderLight(const render::Camera& camera, const render::Light& light)
@@ -121,36 +146,7 @@ void Renderer::renderLight(const render::Camera& camera, const render::Light& li
     return;
   }
 
-  GL::VertexRange range;
-
-  if (!render::GeometryPool::get()->allocateVertices(range, 4, LightVertex::format))
-    return;
-
-  LightVertex vertices[4];
-
-  const float radians = camera.getFOV() * (float) M_PI / 180.f;
-  const float f = tanf(radians / 2.f);
-  const float aspect = camera.getAspectRatio();
-
-  vertices[0].mapping.set(0.5f, 0.5f);
-  vertices[0].position.set(0.f, 0.f);
-  vertices[0].clipOverF.set(-f * aspect, -f);
-
-  vertices[1].mapping.set(canvas->getWidth() + 0.5f, 0.5f);
-  vertices[1].position.set(1.f, 0.f);
-  vertices[1].clipOverF.set(f * aspect, -f);
-
-  vertices[2].mapping.set(canvas->getWidth() + 0.5f, canvas->getHeight() + 0.5f);
-  vertices[2].position.set(1.f, 1.f);
-  vertices[2].clipOverF.set(f * aspect, f);
-
-  vertices[3].mapping.set(0.5f, canvas->getHeight() + 0.5f);
-  vertices[3].position.set(0.f, 1.f);
-  vertices[3].clipOverF.set(-f * aspect, f);
-
-  range.copyFrom(vertices);
-
-  context.render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  renderLightQuad(camera);
 }
 
 GL::Texture& Renderer::getColorTexture(void) const
@@ -254,6 +250,35 @@ bool Renderer::init(const Config& config)
     }
   }
 
+  // Set up ambient light pass
+  {
+    GL::ProgramRef lightProgram = GL::Program::readInstance("DeferredAmbientLight");
+    if (!lightProgram)
+    {
+      Log::writeError("Failed to read deferred renderer ambient light program");
+      return false;
+    }
+
+    GL::ProgramInterface interface;
+    interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
+    interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
+    interface.addVarying("position", GL::Varying::FLOAT_VEC2);
+    interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
+    interface.addVarying("clipOverF", GL::Varying::FLOAT_VEC2);
+
+    if (!interface.matches(*lightProgram, true))
+    {
+      Log::writeError("Deferred renderer ambient light program does not match the required interface");
+      return false;
+    }
+
+    ambientLightPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ONE);
+    ambientLightPass.setDepthTesting(false);
+    ambientLightPass.setDepthWriting(false);
+    ambientLightPass.setProgram(lightProgram);
+    ambientLightPass.getSamplerState("colorTexture").setTexture(colorTexture);
+  }
+
   // Set up directional light pass
   {
     GL::ProgramRef lightProgram = GL::Program::readInstance("DeferredDirLight");
@@ -264,17 +289,13 @@ bool Renderer::init(const Config& config)
     }
 
     GL::ProgramInterface interface;
-
     interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
     interface.addSampler("normalTexture", GL::Sampler::SAMPLER_RECT);
     interface.addSampler("depthTexture", GL::Sampler::SAMPLER_RECT);
-
     interface.addUniform("nearZ", GL::Uniform::FLOAT);
     interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
-
     interface.addUniform("light.direction", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
-
     interface.addVarying("position", GL::Varying::FLOAT_VEC2);
     interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
     interface.addVarying("clipOverF", GL::Varying::FLOAT_VEC2);
@@ -308,15 +329,12 @@ bool Renderer::init(const Config& config)
     interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
     interface.addSampler("normalTexture", GL::Sampler::SAMPLER_RECT);
     interface.addSampler("depthTexture", GL::Sampler::SAMPLER_RECT);
-
     interface.addUniform("nearZ", GL::Uniform::FLOAT);
     interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
-
     interface.addUniform("light.position", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.radius", GL::Uniform::FLOAT);
     interface.addSampler("light.distAttTexture", GL::Sampler::SAMPLER_1D);
-
     interface.addVarying("position", GL::Varying::FLOAT_VEC2);
     interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
     interface.addVarying("clipOverF", GL::Varying::FLOAT_VEC2);
@@ -337,6 +355,50 @@ bool Renderer::init(const Config& config)
   }
 
   return true;
+}
+
+void Renderer::renderLightQuad(const render::Camera& camera)
+{
+  render::GeometryPool* pool = render::GeometryPool::get();
+  if (!pool)
+  {
+    Log::writeError("Cannot render deferred lighting without a geometry pool");
+    return;
+  }
+
+  GL::VertexRange range;
+
+  if (!pool->allocateVertices(range, 4, LightVertex::format))
+  {
+    Log::writeError("Failed to allocate vertices for deferred lighting");
+    return;
+  }
+
+  LightVertex vertices[4];
+
+  const float radians = camera.getFOV() * (float) M_PI / 180.f;
+  const float f = tanf(radians / 2.f);
+  const float aspect = camera.getAspectRatio();
+
+  vertices[0].mapping.set(0.5f, 0.5f);
+  vertices[0].position.set(0.f, 0.f);
+  vertices[0].clipOverF.set(-f * aspect, -f);
+
+  vertices[1].mapping.set(canvas->getWidth() + 0.5f, 0.5f);
+  vertices[1].position.set(1.f, 0.f);
+  vertices[1].clipOverF.set(f * aspect, -f);
+
+  vertices[2].mapping.set(canvas->getWidth() + 0.5f, canvas->getHeight() + 0.5f);
+  vertices[2].position.set(1.f, 1.f);
+  vertices[2].clipOverF.set(f * aspect, f);
+
+  vertices[3].mapping.set(0.5f, canvas->getHeight() + 0.5f);
+  vertices[3].position.set(0.f, 1.f);
+  vertices[3].clipOverF.set(-f * aspect, f);
+
+  range.copyFrom(vertices);
+
+  context.render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 }
 
 ///////////////////////////////////////////////////////////////////////

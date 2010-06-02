@@ -104,7 +104,7 @@ bool Demo::init(void)
 
   render::LightRef light = new render::Light();
   light->setType(render::Light::POINT);
-  light->setRadius(100.f);
+  light->setRadius(50.f);
   light->setDistAttTexture(distAttTexture);
 
   lightNode = new scene::LightNode();
@@ -141,6 +141,7 @@ void Demo::run(void)
     context->clearColorBuffer(ColorRGBA::BLACK);
 
     renderer->render(queue);
+    renderer->renderAmbientLight(queue.getCamera(), ColorRGB(0.2f, 0.2f, 0.2f), false);
 
     queue.removeOperations();
     queue.detachLights();
