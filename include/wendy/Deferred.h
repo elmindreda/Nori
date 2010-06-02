@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy default deferred renderer
+// Wendy deferred renderer
 // Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
