@@ -49,7 +49,7 @@ namespace wendy
 namespace
 {
 
-GLenum convertCullMode(CullMode mode)
+GLenum convertToGL(CullMode mode)
 {
   switch (mode)
   {
@@ -59,9 +59,10 @@ GLenum convertCullMode(CullMode mode)
       return GL_BACK;
     case CULL_BOTH:
       return GL_FRONT_AND_BACK;
-    default:
-      throw Exception("Invalid cull mode");
   }
+
+  Log::writeError("Invalid cull mode %u", mode);
+  return 0;
 }
 
 CullMode invertCullMode(CullMode mode)
@@ -76,12 +77,13 @@ CullMode invertCullMode(CullMode mode)
       return CULL_FRONT;
     case CULL_BOTH:
       return CULL_NONE;
-    default:
-      throw Exception("Invalid cull mode");
   }
+
+  Log::writeError("Invalid cull mode %u", mode);
+  return (CullMode) 0;
 }
 
-GLenum convertBlendFactor(BlendFactor factor)
+GLenum convertToGL(BlendFactor factor)
 {
   switch (factor)
   {
@@ -105,12 +107,13 @@ GLenum convertBlendFactor(BlendFactor factor)
       return GL_ONE_MINUS_SRC_ALPHA;
     case BLEND_ONE_MINUS_DST_ALPHA:
       return GL_ONE_MINUS_DST_ALPHA;
-    default:
-      throw Exception("Invalid blend factor");
   }
+
+  Log::writeError("Invalid blend factor %u", factor);
+  return 0;
 }
 
-GLenum convertFunction(Function function)
+GLenum convertToGL(Function function)
 {
   switch (function)
   {
@@ -130,12 +133,13 @@ GLenum convertFunction(Function function)
       return GL_GREATER;
     case ALLOW_GREATER_EQUAL:
       return GL_GEQUAL;
-    default:
-      throw Exception("Invalid function");
   }
+
+  Log::writeError("Invalid comparison function %u", function);
+  return 0;
 }
 
-GLenum convertOperation(Operation operation)
+GLenum convertToGL(Operation operation)
 {
   switch (operation)
   {
@@ -155,9 +159,10 @@ GLenum convertOperation(Operation operation)
       return GL_INCR_WRAP;
     case OP_DECREASE_WRAP:
       return GL_DECR_WRAP;
-    default:
-      throw Exception("Invalid stencil operation");
   }
+
+  Log::writeError("Invalid stencil operation %u", operation);
+  return 0;
 }
 
 template <typename T>
@@ -225,7 +230,7 @@ void StencilState::apply(void) const
         data.reference != cache.reference ||
         data.writeMask != cache.writeMask)
     {
-      glStencilFunc(convertFunction(data.function), data.reference, data.writeMask);
+      glStencilFunc(convertToGL(data.function), data.reference, data.writeMask);
 
       cache.function = data.function;
       cache.reference = data.reference;
@@ -236,9 +241,9 @@ void StencilState::apply(void) const
         data.depthFailed != cache.depthFailed ||
         data.depthPassed != cache.depthPassed)
     {
-      glStencilOp(convertOperation(data.stencilFailed),
-                  convertOperation(data.depthFailed),
-		  convertOperation(data.depthPassed));
+      glStencilOp(convertToGL(data.stencilFailed),
+                  convertToGL(data.depthFailed),
+		  convertToGL(data.depthPassed));
 
       cache.stencilFailed = data.stencilFailed;
       cache.depthFailed = data.depthFailed;
@@ -769,7 +774,7 @@ void RenderState::apply(void) const
       setBooleanState(GL_CULL_FACE, cullMode != CULL_NONE);
 
     if (cullMode != CULL_NONE)
-      glCullFace(convertCullMode(cullMode));
+      glCullFace(convertToGL(cullMode));
 
     cache.cullMode = cullMode;
   }
@@ -779,7 +784,7 @@ void RenderState::apply(void) const
     setBooleanState(GL_BLEND, data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO);
 
     if (data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO)
-      glBlendFunc(convertBlendFactor(data.srcFactor), convertBlendFactor(data.dstFactor));
+      glBlendFunc(convertToGL(data.srcFactor), convertToGL(data.dstFactor));
 
     cache.srcFactor = data.srcFactor;
     cache.dstFactor = data.dstFactor;
@@ -796,7 +801,7 @@ void RenderState::apply(void) const
       // Set depth buffer function.
       if (data.depthFunction != cache.depthFunction)
       {
-        glDepthFunc(convertFunction(data.depthFunction));
+        glDepthFunc(convertToGL(data.depthFunction));
         cache.depthFunction = data.depthFunction;
       }
     }
@@ -808,7 +813,7 @@ void RenderState::apply(void) const
 
       if (cache.depthFunction != depthFunction)
       {
-        glDepthFunc(convertFunction(depthFunction));
+        glDepthFunc(convertToGL(depthFunction));
         cache.depthFunction = depthFunction;
       }
     }
@@ -968,10 +973,10 @@ void RenderState::force(void) const
 
   setBooleanState(GL_CULL_FACE, cullMode != CULL_NONE);
   if (cullMode != CULL_NONE)
-    glCullFace(convertCullMode(cullMode));
+    glCullFace(convertToGL(cullMode));
 
   setBooleanState(GL_BLEND, data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO);
-  glBlendFunc(convertBlendFactor(data.srcFactor), convertBlendFactor(data.dstFactor));
+  glBlendFunc(convertToGL(data.srcFactor), convertToGL(data.dstFactor));
 
   glDepthMask(data.depthWriting ? GL_TRUE : GL_FALSE);
   setBooleanState(GL_DEPTH_TEST, data.depthTesting || data.depthWriting);
@@ -979,11 +984,11 @@ void RenderState::force(void) const
   if (data.depthWriting && !data.depthTesting)
   {
     const Function depthFunction = ALLOW_ALWAYS;
-    glDepthFunc(convertFunction(depthFunction));
+    glDepthFunc(convertToGL(depthFunction));
     cache.depthFunction = depthFunction;
   }
   else
-    glDepthFunc(convertFunction(data.depthFunction));
+    glDepthFunc(convertToGL(data.depthFunction));
 
   const GLboolean state = data.colorWriting ? GL_TRUE : GL_FALSE;
   glColorMask(state, state, state, state);

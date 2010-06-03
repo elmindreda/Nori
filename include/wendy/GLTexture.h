@@ -225,7 +225,6 @@ public:
 private:
   Texture(Context& context, const String& name);
   Texture(const Texture& source);
-  bool init(void);
   bool init(const wendy::Image& source, unsigned int flags);
   bool init(const ImageCube& source, unsigned int flags);
   Texture& operator = (const Texture& source);

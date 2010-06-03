@@ -36,6 +36,8 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
+#include <internal/GLConvert.h>
+
 #include <Cg/cg.h>
 #include <Cg/cgGL.h>
 
@@ -88,7 +90,21 @@ unsigned int getClosestPower(unsigned int value, unsigned int maximum)
   return result;
 }
 
-GLint convertFilterMode(FilterMode mode, bool mipmapped)
+GLenum convertToGL(AddressMode mode)
+{
+  switch (mode)
+  {
+    case ADDRESS_WRAP:
+      return GL_REPEAT;
+    case ADDRESS_CLAMP:
+      return GL_CLAMP_TO_EDGE;
+  }
+
+  Log::writeError("Invalid texture address mode %u", mode);
+  return 0;
+}
+
+GLint convertToGL(FilterMode mode, bool mipmapped)
 {
   switch (mode)
   {
@@ -115,17 +131,33 @@ GLint convertFilterMode(FilterMode mode, bool mipmapped)
       else
 	return GL_LINEAR;
     }
-
-    default:
-      throw Exception("Invalid filter mode");
   }
+
+  Log::write("Invalid texture filter mode %u", mode);
+  return 0;
 }
 
-Bimap<PixelFormat, GLenum> formatMap;
-Bimap<PixelFormat, GLenum> genericFormatMap;
-Bimap<PixelFormat::Type, GLenum> typeMap;
-Bimap<ImageCube::Face, GLenum> faceMap;
-Bimap<AddressMode, GLenum> addressMap;
+GLenum convertToGL(ImageCube::Face face)
+{
+  switch (face)
+  {
+    case ImageCube::POSITIVE_X:
+      return GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+    case ImageCube::NEGATIVE_X:
+      return GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
+    case ImageCube::POSITIVE_Y:
+      return GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
+    case ImageCube::NEGATIVE_Y:
+      return GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
+    case ImageCube::POSITIVE_Z:
+      return GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+    case ImageCube::NEGATIVE_Z:
+      return GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+  }
+
+  Log::writeError("Invalid image cube face %u", face);
+  return 0;
+}
 
 } /*namespace*/
 
@@ -160,7 +192,7 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
                     level,
 		    x,
 		    final.getWidth(),
-                    genericFormatMap[texture.format],
+                    convertToGenericGL(texture.format),
                     GL_UNSIGNED_BYTE,
 		    final.getPixels());
 
@@ -183,7 +215,7 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
                     level,
 		    x, y,
 		    final.getWidth(), final.getHeight(),
-                    genericFormatMap[texture.format],
+                    convertToGenericGL(texture.format),
                     GL_UNSIGNED_BYTE,
 		    final.getPixels());
 
@@ -257,7 +289,7 @@ bool TextureImage::copyTo(wendy::Image& result) const
 
   glGetTexImage(texture.textureTarget,
                 level,
-		genericFormatMap[texture.format],
+		convertToGenericGL(texture.format),
 		GL_UNSIGNED_BYTE,
 		result.getPixels());
 
@@ -413,10 +445,10 @@ void Texture::setFilterMode(FilterMode newMode)
 
     glTexParameteri(textureTarget,
                     GL_TEXTURE_MIN_FILTER,
-		    convertFilterMode(newMode, isMipmapped()));
+		    convertToGL(newMode, isMipmapped()));
     glTexParameteri(textureTarget,
                     GL_TEXTURE_MAG_FILTER,
-		    convertFilterMode(newMode, false));
+		    convertToGL(newMode, false));
 
     filterMode = newMode;
 
@@ -433,16 +465,16 @@ void Texture::setAddressMode(AddressMode newMode)
 {
   if (newMode != addressMode)
   {
-    if (!addressMap.hasKey(newMode))
+    if (!convertToGL(newMode))
       return;
 
     cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_FALSE);
 
     glBindTexture(textureTarget, textureID);
-    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, addressMap[newMode]);
+    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, convertToGL(newMode));
 
     if (textureTarget != GL_TEXTURE_1D)
-      glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, addressMap[newMode]);
+      glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, convertToGL(newMode));
 
     cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
 
@@ -511,62 +543,9 @@ Texture::Texture(const Texture& source):
 {
 }
 
-bool Texture::init(void)
-{
-  if (formatMap.isEmpty())
-  {
-    formatMap[PixelFormat::R8] = GL_LUMINANCE8;
-    formatMap[PixelFormat::RG8] = GL_LUMINANCE8_ALPHA8;
-    formatMap[PixelFormat::RGB8] = GL_RGB8;
-    formatMap[PixelFormat::RGBA8] = GL_RGBA8;
-    formatMap[PixelFormat::DEPTH16] = GL_DEPTH_COMPONENT16;
-    formatMap[PixelFormat::DEPTH24] = GL_DEPTH_COMPONENT24;
-    formatMap[PixelFormat::DEPTH32] = GL_DEPTH_COMPONENT32;
-  }
-
-  if (genericFormatMap.isEmpty())
-  {
-    genericFormatMap[PixelFormat::R8] = GL_LUMINANCE;
-    genericFormatMap[PixelFormat::RG8] = GL_LUMINANCE_ALPHA;
-    genericFormatMap[PixelFormat::RGB8] = GL_RGB;
-    genericFormatMap[PixelFormat::RGBA8] = GL_RGBA;
-    genericFormatMap[PixelFormat::DEPTH16] = GL_DEPTH_COMPONENT;
-    genericFormatMap[PixelFormat::DEPTH24] = GL_DEPTH_COMPONENT;
-    genericFormatMap[PixelFormat::DEPTH32] = GL_DEPTH_COMPONENT;
-  }
-
-  if (typeMap.isEmpty())
-  {
-    typeMap[PixelFormat::UINT8] = GL_UNSIGNED_BYTE;
-    typeMap[PixelFormat::UINT16] = GL_UNSIGNED_SHORT;
-    typeMap[PixelFormat::UINT32] = GL_UNSIGNED_INT;
-  }
-
-  if (faceMap.isEmpty())
-  {
-    faceMap[ImageCube::POSITIVE_X] = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
-    faceMap[ImageCube::NEGATIVE_X] = GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
-    faceMap[ImageCube::POSITIVE_Y] = GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
-    faceMap[ImageCube::NEGATIVE_Y] = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
-    faceMap[ImageCube::POSITIVE_Z] = GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
-    faceMap[ImageCube::NEGATIVE_Z] = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
-  }
-
-  if (addressMap.isEmpty())
-  {
-    addressMap[ADDRESS_WRAP] = GL_REPEAT;
-    addressMap[ADDRESS_CLAMP] = GL_CLAMP_TO_EDGE;
-  }
-
-  return true;
-}
-
 bool Texture::init(const wendy::Image& source, unsigned int initFlags)
 {
-  if (!init())
-    return false;
-
-  if (!formatMap.hasKey(source.getFormat()))
+  if (!convertToGL(source.getFormat()))
   {
     Log::writeError("Source image for texture \'%s\' has unsupported pixel format \'%s\'",
                     getName().c_str(),
@@ -574,7 +553,7 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
     return false;
   }
 
-  if (!typeMap.hasKey(source.getFormat().getType()))
+  if (!convertToGL(source.getFormat().getType()))
   {
     Log::writeError("Source image for texture \'%s\' has unsupported component type",
                     getName().c_str());
@@ -673,23 +652,23 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   {
     glTexImage1D(textureTarget,
                   0,
-                  formatMap[final.getFormat()],
+                  convertToGL(final.getFormat()),
                   final.getWidth(),
                   0,
-                  genericFormatMap[final.getFormat()],
-                  typeMap[final.getFormat().getType()],
+                  convertToGenericGL(final.getFormat()),
+                  convertToGL(final.getFormat().getType()),
                   final.getPixels());
   }
   else
   {
     glTexImage2D(textureTarget,
                   0,
-                  formatMap[final.getFormat()],
+                  convertToGL(final.getFormat()),
                   final.getWidth(),
                   final.getHeight(),
                   0,
-                  genericFormatMap[final.getFormat()],
-                  typeMap[final.getFormat().getType()],
+                  convertToGenericGL(final.getFormat()),
+                  convertToGL(final.getFormat().getType()),
                   final.getPixels());
   }
 
@@ -755,9 +734,6 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
 
 bool Texture::init(const ImageCube& source, unsigned int initFlags)
 {
-  if (!init())
-    return false;
-
   // Check image dimensions
   {
     if (!source.isPOT())
@@ -806,7 +782,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
 
     format = source.images[0]->getFormat();
 
-    if (!formatMap.hasKey(format))
+    if (!convertToGL(format))
     {
       Log::writeError("Source images for texture \'%s\' have unsupported pixel format \'%s\'",
                       getName().c_str(),
@@ -814,7 +790,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
       return false;
     }
 
-    if (!typeMap.hasKey(format.getType()))
+    if (!convertToGL(format.getType()))
     {
       Log::writeError("Source images for texture \'%s\' have unsupported component type",
                       getName().c_str());
@@ -853,12 +829,12 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
 
     glTexImage2D(faceTarget,
                  0,
-                 formatMap[image.getFormat()],
+                 convertToGL(image.getFormat()),
                  image.getWidth(),
                  image.getHeight(),
                  0,
-                 genericFormatMap[image.getFormat()],
-                 typeMap[image.getFormat().getType()],
+                 convertToGenericGL(image.getFormat()),
+                 convertToGL(image.getFormat().getType()),
                  image.getPixels());
   }
 

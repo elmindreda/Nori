@@ -33,6 +33,8 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
+#include <internal/GLConvert.h>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -45,7 +47,7 @@ namespace wendy
 namespace
 {
 
-GLenum convertLockType(LockType type)
+GLenum convertToGL(LockType type)
 {
   switch (type)
   {
@@ -55,29 +57,13 @@ GLenum convertLockType(LockType type)
       return GL_WRITE_ONLY_ARB;
     case LOCK_READ_WRITE:
       return GL_READ_WRITE_ARB;
-    default:
-      Log::writeError("Invalid lock type %u", type);
-      return 0;
   }
+
+  Log::writeError("Invalid lock type %u", type);
+  return 0;
 }
 
-GLenum convertUsage(VertexBuffer::Usage usage)
-{
-  switch (usage)
-  {
-    case VertexBuffer::STATIC:
-      return GL_STATIC_DRAW_ARB;
-    case VertexBuffer::STREAM:
-      return GL_STREAM_DRAW_ARB;
-    case VertexBuffer::DYNAMIC:
-      return GL_DYNAMIC_DRAW_ARB;
-    default:
-      Log::writeError("Invalid vertex buffer usage %u", usage);
-      return 0;
-  }
-}
-
-GLenum convertUsage(IndexBuffer::Usage usage)
+GLenum convertToGL(IndexBuffer::Usage usage)
 {
   switch (usage)
   {
@@ -87,48 +73,26 @@ GLenum convertUsage(IndexBuffer::Usage usage)
       return GL_STREAM_DRAW_ARB;
     case IndexBuffer::DYNAMIC:
       return GL_DYNAMIC_DRAW_ARB;
-    default:
-      Log::writeError("Invalid index buffer usage %u", usage);
-      return 0;
   }
+
+  Log::writeError("Invalid index buffer usage %u", usage);
+  return 0;
 }
 
-Bimap<PixelFormat, GLenum> formatMap;
-
-GLenum convertToGL(const PixelFormat& format)
+GLenum convertToGL(VertexBuffer::Usage usage)
 {
-  if (formatMap.isEmpty())
+  switch (usage)
   {
-    formatMap[PixelFormat::R8] = GL_ALPHA8;
-    formatMap[PixelFormat::RG8] = GL_LUMINANCE8_ALPHA8;
-    formatMap[PixelFormat::RGB8] = GL_RGB8;
-    formatMap[PixelFormat::RGBA8] = GL_RGBA8;
-    formatMap[PixelFormat::DEPTH16] = GL_DEPTH_COMPONENT16_ARB;
-    formatMap[PixelFormat::DEPTH24] = GL_DEPTH_COMPONENT24_ARB;
-    formatMap[PixelFormat::DEPTH32] = GL_DEPTH_COMPONENT32_ARB;
-    formatMap.setDefaults(PixelFormat(), 0);
+    case VertexBuffer::STATIC:
+      return GL_STATIC_DRAW_ARB;
+    case VertexBuffer::STREAM:
+      return GL_STREAM_DRAW_ARB;
+    case VertexBuffer::DYNAMIC:
+      return GL_DYNAMIC_DRAW_ARB;
   }
 
-  return formatMap[format];
-}
-
-Bimap<PixelFormat, GLenum> genericFormatMap;
-
-GLenum convertToGenericGL(const PixelFormat& format)
-{
-  if (genericFormatMap.isEmpty())
-  {
-    genericFormatMap[PixelFormat::R8] = GL_ALPHA;
-    genericFormatMap[PixelFormat::RG8] = GL_LUMINANCE_ALPHA;
-    genericFormatMap[PixelFormat::RGB8] = GL_RGB;
-    genericFormatMap[PixelFormat::RGBA8] = GL_RGBA;
-    genericFormatMap[PixelFormat::DEPTH16] = GL_DEPTH_COMPONENT;
-    genericFormatMap[PixelFormat::DEPTH24] = GL_DEPTH_COMPONENT;
-    genericFormatMap[PixelFormat::DEPTH32] = GL_DEPTH_COMPONENT;
-    genericFormatMap.setDefaults(PixelFormat(), 0);
-  }
-
-  return genericFormatMap[format];
+  Log::writeError("Invalid vertex buffer usage %u", usage);
+  return 0;
 }
 
 } /*namespace*/
@@ -158,7 +122,7 @@ void* VertexBuffer::lock(LockType type)
 
   apply();
 
-  void* mapping = glMapBufferARB(GL_ARRAY_BUFFER_ARB, convertLockType(type));
+  void* mapping = glMapBufferARB(GL_ARRAY_BUFFER_ARB, convertToGL(type));
   if (mapping == NULL)
   {
     Log::writeError("Unable to lock vertex buffer \'%s\': %s",
@@ -301,7 +265,7 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
   glBufferDataARB(GL_ARRAY_BUFFER_ARB,
 		  initCount * initFormat.getSize(),
 		  NULL,
-		  convertUsage(initUsage));
+		  convertToGL(initUsage));
 
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)
@@ -371,7 +335,7 @@ void* IndexBuffer::lock(LockType type)
 
   apply();
 
-  void* mapping = glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, convertLockType(type));
+  void* mapping = glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, convertToGL(type));
   if (mapping == NULL)
   {
     Log::writeError("Unable to lock index buffer \'%s\': %s",
@@ -529,7 +493,7 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
   glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
 		  initCount * getTypeSize(initType),
 		  NULL,
-		  convertUsage(initUsage));
+		  convertToGL(initUsage));
 
   GLenum error = glGetError();
   if (error != GL_NO_ERROR)

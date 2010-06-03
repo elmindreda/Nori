@@ -33,6 +33,8 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
+#include <internal/GLConvert.h>
+
 #include <GL/glfw.h>
 
 #include <Cg/cg.h>
@@ -79,9 +81,10 @@ const char* getFramebufferStatusMessage(GLenum status)
       return "Incomplete framebuffer read buffer";
     case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
       return "Framebuffer configuration is unsupported";
-    default:
-      return "Unknown framebuffer status";
   }
+
+  Log::writeError("Unknown OpenGL framebuffer status %u", status);
+  return "Unknown framebuffer status";
 }
 
 GLenum convertToGL(ImageCanvas::Attachment attachment)
@@ -98,9 +101,10 @@ GLenum convertToGL(ImageCanvas::Attachment attachment)
       return GL_COLOR_ATTACHMENT3_EXT;
     case ImageCanvas::DEPTH_BUFFER:
       return GL_DEPTH_ATTACHMENT_EXT;
-    default:
-      throw Exception("Invalid image canvas attachment");
   }
+
+  Log::writeError("Invalid image canvas attachment %u", attachment);
+  return 0;
 }
 
 const char* getAttachmentName(ImageCanvas::Attachment attachment)
@@ -117,12 +121,13 @@ const char* getAttachmentName(ImageCanvas::Attachment attachment)
       return "color buffer 3";
     case ImageCanvas::DEPTH_BUFFER:
       return "depth buffer";
-    default:
-      return "unknown buffer";
   }
+
+  Log::writeError("Invalid image canvas attachment %u", attachment);
+  return "unknown buffer";
 }
 
-bool isAttachmentColor(ImageCanvas::Attachment attachment)
+bool isColorAttachment(ImageCanvas::Attachment attachment)
 {
   switch (attachment)
   {
@@ -136,7 +141,7 @@ bool isAttachmentColor(ImageCanvas::Attachment attachment)
   }
 }
 
-GLenum convertPrimitiveType(PrimitiveType type)
+GLenum convertToGL(PrimitiveType type)
 {
   switch (type)
   {
@@ -154,39 +159,10 @@ GLenum convertPrimitiveType(PrimitiveType type)
       return GL_TRIANGLE_STRIP;
     case TRIANGLE_FAN:
       return GL_TRIANGLE_FAN;
-    default:
-      throw Exception("Invalid primitive type");
   }
-}
 
-GLenum convertType(VertexComponent::Type type)
-{
-  switch (type)
-  {
-    case VertexComponent::DOUBLE:
-      return GL_DOUBLE;
-    case VertexComponent::FLOAT:
-      return GL_FLOAT;
-    case VertexComponent::INT:
-      return GL_INT;
-    default:
-      throw Exception("Invalid vertex component type");
-  }
-}
-
-GLenum convertType(IndexBuffer::Type type)
-{
-  switch (type)
-  {
-    case IndexBuffer::UINT8:
-      return GL_UNSIGNED_BYTE;
-    case IndexBuffer::UINT16:
-      return GL_UNSIGNED_SHORT;
-    case IndexBuffer::UINT32:
-      return GL_UNSIGNED_INT;
-    default:
-      throw Exception("Invalid index buffer type");
-  }
+  Log::writeError("Invalid primitive type %u", type);
+  return 0;
 }
 
 bool compatible(const Varying& varying, const VertexComponent& component)
@@ -577,7 +553,7 @@ bool ImageCanvas::setBuffer(Attachment attachment, Image* newImage)
     }
   }
 
-  if (isAttachmentColor(attachment))
+  if (isColorAttachment(attachment))
   {
     unsigned int index = attachment - COLOR_BUFFER0;
 
@@ -660,7 +636,7 @@ void ImageCanvas::apply(void) const
     {
       Attachment attachment = (Attachment) i;
 
-      if (buffers[i] && isAttachmentColor(attachment))
+      if (buffers[i] && isColorAttachment(attachment))
         enables[count++] = convertToGL(attachment);
     }
 
@@ -895,14 +871,14 @@ void Context::render(const PrimitiveRange& range)
 
   if (indexBuffer)
   {
-    glDrawElements(convertPrimitiveType(range.getType()),
+    glDrawElements(convertToGL(range.getType()),
                    range.getCount(),
-		   convertType(indexBuffer->getType()),
+		   convertToGL(indexBuffer->getType()),
 		   (GLvoid*) (IndexBuffer::getTypeSize(indexBuffer->getType()) * range.getStart()));
   }
   else
   {
-    glDrawArrays(convertPrimitiveType(range.getType()),
+    glDrawArrays(convertToGL(range.getType()),
                  range.getStart(),
 		 range.getCount());
   }
