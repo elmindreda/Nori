@@ -51,7 +51,7 @@ class Renderer
 {
 public:
   void render(const render::Queue& queue);
-  void renderAmbientLight(const render::Camera& camera, const ColorRGB& color, bool occlusion);
+  void renderAmbientLight(const render::Camera& camera, const ColorRGB& color);
   void renderLight(const render::Camera& camera, const render::Light& light);
   GL::Texture& getColorTexture(void) const;
   GL::Texture& getNormalTexture(void) const;
@@ -69,7 +69,6 @@ private:
   GL::RenderState dirLightPass;
   GL::RenderState pointLightPass;
   GL::RenderState ambientLightPass;
-  GL::RenderState aoLightPass;
 };
 
 ///////////////////////////////////////////////////////////////////////

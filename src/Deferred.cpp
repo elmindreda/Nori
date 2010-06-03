@@ -84,25 +84,10 @@ void Renderer::render(const render::Queue& queue)
     renderLight(queue.getCamera(), lights.getLight(i));
 }
 
-void Renderer::renderAmbientLight(const render::Camera& camera, const ColorRGB& color, bool occlusion)
+void Renderer::renderAmbientLight(const render::Camera& camera, const ColorRGB& color)
 {
-  if (occlusion)
-  {
-    const float nearZ = camera.getMinDepth();
-    const float nearOverFarZminusOne = nearZ / camera.getMaxDepth() - 1.f;
-
-    aoLightPass.getUniformState("nearZ").setValue(nearZ);
-    aoLightPass.getUniformState("nearOverFarZminusOne").setValue(nearOverFarZminusOne);
-
-    aoLightPass.getUniformState("light.color").setValue(color);
-
-    aoLightPass.apply();
-  }
-  else
-  {
-    ambientLightPass.getUniformState("light.color").setValue(color);
-    ambientLightPass.apply();
-  }
+  ambientLightPass.getUniformState("light.color").setValue(color);
+  ambientLightPass.apply();
 
   renderLightQuad(camera);
 }
