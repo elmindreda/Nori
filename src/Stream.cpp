@@ -80,9 +80,7 @@ size_t PosixStream::read(void* data, size_t size)
   const size_t bytesRead = std::fread(data, 1, size, file);
 
   if (std::ferror(file))
-  {
-    // TODO: report error!
-  }
+    Log::writeError("Error reading file: %s", strerror(errno));
 
   return bytesRead;
 }
@@ -95,9 +93,7 @@ size_t PosixStream::write(const void* data, size_t size)
   const size_t bytesWritten = std::fwrite(data, 1, size, file);
 
   if (std::ferror(file))
-  {
-    // TODO: report error!
-  }
+    Log::writeError("Error writing file: %s", strerror(errno));
 
   return bytesWritten;
 }
