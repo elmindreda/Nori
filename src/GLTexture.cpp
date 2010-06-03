@@ -515,7 +515,7 @@ bool Texture::init(void)
 {
   if (formatMap.isEmpty())
   {
-    formatMap[PixelFormat::R8] = GL_ALPHA8;
+    formatMap[PixelFormat::R8] = GL_LUMINANCE8;
     formatMap[PixelFormat::RG8] = GL_LUMINANCE8_ALPHA8;
     formatMap[PixelFormat::RGB8] = GL_RGB8;
     formatMap[PixelFormat::RGBA8] = GL_RGBA8;
@@ -526,7 +526,7 @@ bool Texture::init(void)
 
   if (genericFormatMap.isEmpty())
   {
-    genericFormatMap[PixelFormat::R8] = GL_ALPHA;
+    genericFormatMap[PixelFormat::R8] = GL_LUMINANCE;
     genericFormatMap[PixelFormat::RG8] = GL_LUMINANCE_ALPHA;
     genericFormatMap[PixelFormat::RGB8] = GL_RGB;
     genericFormatMap[PixelFormat::RGBA8] = GL_RGBA;
