@@ -141,7 +141,7 @@ void Demo::run(void)
     context->clearColorBuffer(ColorRGBA::BLACK);
 
     renderer->render(queue);
-    renderer->renderAmbientLight(queue.getCamera(), ColorRGB(0.2f, 0.2f, 0.2f), false);
+    renderer->renderAmbientLight(queue.getCamera(), ColorRGB(0.2f, 0.2f, 0.2f));
 
     queue.removeOperations();
     queue.detachLights();
