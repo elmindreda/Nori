@@ -359,7 +359,7 @@ bool ImageCubeCodecXML::write(Stream& stream, const ImageCube& cube)
   }
   catch (Exception& exception)
   {
-    Log::writeError("Failed to write image cube specification %s: %s",
+    Log::writeError("Failed to write image cube specification \'%s\': %s",
                     cube.getName().c_str(),
 		    exception.what());
     setStream(NULL);

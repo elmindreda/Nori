@@ -168,14 +168,14 @@ bool TextureCodec::onBeginElement(const String& name)
     String imageName = readString("image");
     if (imageName.empty())
     {
-      Log::writeError("No image specified for texture %s", textureName.c_str());
+      Log::writeError("No image specified for texture \'%s\'", textureName.c_str());
       return false;
     }
 
     Ref<wendy::Image> image = wendy::Image::readInstance(imageName);
     if (!image)
     {
-      Log::writeError("Failed to load image %s for texture %s",
+      Log::writeError("Failed to load image \'%s\' for texture \'%s\'",
                       imageName.c_str(),
 		      textureName.c_str());
       return false;

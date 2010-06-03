@@ -161,7 +161,7 @@ void ParticleSystem::enqueue(Queue& queue, const Transform3& transform) const
   Technique* technique = material->getActiveTechnique();
   if (!technique)
   {
-    Log::writeError("Material %s has no active technique", material->getName().c_str());
+    Log::writeError("Material \'%s\' has no active technique", material->getName().c_str());
     return;
   }
 

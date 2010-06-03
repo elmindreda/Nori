@@ -122,7 +122,7 @@ bool Anim3CodecXML::write(Stream& stream, const Anim3& animation)
   }
   catch (Exception& exception)
   {
-    Log::writeError("Failed to write 3D animation %s: %s",
+    Log::writeError("Failed to write 3D animation \'%s\': %s",
                     animation.getName().c_str(),
 		    exception.what());
     setStream(NULL);

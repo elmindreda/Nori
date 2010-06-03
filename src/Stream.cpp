@@ -244,7 +244,7 @@ bool FileStream::init(const Path& initPath, unsigned int initFlags)
   file = std::fopen(path.asString().c_str(), mode.c_str());
   if (!file)
   {
-    Log::writeError("Failed to open file %s: %s",
+    Log::writeError("Failed to open file \'%s\': %s",
                     path.asString().c_str(),
 		    strerror(errno));
     return false;

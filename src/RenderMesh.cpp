@@ -68,7 +68,7 @@ void Mesh::enqueue(Queue& queue, const Transform3& transform) const
     const Technique* technique = material->getActiveTechnique();
     if (!technique)
     {
-      Log::writeError("Material %s has no active technique",
+      Log::writeError("Material \'%s\' has no active technique",
                       material->getName().c_str());
       return;
     }

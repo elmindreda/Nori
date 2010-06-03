@@ -597,7 +597,7 @@ void ParticleSystemNode::update(void)
   render::ParticleSystem* system = render::ParticleSystem::findInstance(systemName);
   if (!system)
   {
-    Log::writeError("Cannot find particle system %s for updating", systemName.c_str());
+    Log::writeError("Cannot find particle system \'%s\' for updating", systemName.c_str());
     return;
   }
 
@@ -614,7 +614,7 @@ void ParticleSystemNode::enqueue(render::Queue& queue) const
     render::ParticleSystem* system = render::ParticleSystem::findInstance(systemName);
     if (!system)
     {
-      Log::writeError("Cannot find particle system %s for enqueueing", systemName.c_str());
+      Log::writeError("Cannot find particle system \'%s\' for enqueueing", systemName.c_str());
       return;
     }
 

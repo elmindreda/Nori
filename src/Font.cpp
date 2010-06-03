@@ -235,7 +235,7 @@ bool Font::init(const Image& image, const String& initCharacters)
 {
   if (image.getFormat() != PixelFormat::R8)
   {
-    Log::writeError("Invalid pixel format %s for font source image %s",
+    Log::writeError("Invalid pixel format \'%s\' for font source image \'%s\'",
                     image.getFormat().asString().c_str(),
                     image.getName().c_str());
     return false;
@@ -290,7 +290,7 @@ bool Font::init(const Image& image, const String& initCharacters)
 
     if (index == characters.size())
     {
-      Log::writeError("Not enough characters for font %s", getName().c_str());
+      Log::writeError("Not enough characters for font \'%s\'", getName().c_str());
       return false;
     }
 

@@ -430,7 +430,7 @@ bool MeshCodecXML::write(Stream& stream, const Mesh& mesh)
   }
   catch (Exception& exception)
   {
-    Log::writeError("Failed to write mesh %s: %s", mesh.getName().c_str(), exception.what());
+    Log::writeError("Failed to write mesh \'%s\': %s", mesh.getName().c_str(), exception.what());
     setStream(NULL);
     return false;
   }
