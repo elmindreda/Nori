@@ -101,21 +101,24 @@ bool PixelFormat::operator != (const PixelFormat& other) const
 
 size_t PixelFormat::getSize(void) const
 {
-  unsigned int channelCount = getChannelCount();
+  return getChannelSize() * getChannelCount();
+}
 
+size_t PixelFormat::getChannelSize(void) const
+{
   switch (type)
   {
     case DUMMY:
       return 0;
     case UINT8:
-      return channelCount;
+      return 1;
     case UINT16:
-      return channelCount * 2;
+      return 2;
     case UINT24:
-      return channelCount * 3;
+      return 3;
     case UINT32:
     case FLOAT32:
-      return channelCount * 4;
+      return 4;
     default:
       throw Exception("Invalid pixel format type");
   }

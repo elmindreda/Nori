@@ -79,6 +79,9 @@ public:
   /*! @return The size, in bytes, of a pixel in this pixel format.
    */
   size_t getSize(void) const;
+  /*! @return The size, in bytes, of a channel of a pixel in this pixel format.
+   */
+  size_t getChannelSize(void) const;
   /*! @return The channel data type of this pixel format.
    */
   Type getType(void) const;
