@@ -27,7 +27,7 @@
 
 #include <wendy/Bimap.h>
 
-#include <wendy/GLImage.h>
+#include <wendy/OpenGL.h>
 #include <wendy/GLBuffer.h>
 
 #define GLEW_STATIC

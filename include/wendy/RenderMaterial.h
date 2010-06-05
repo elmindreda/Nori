@@ -26,7 +26,7 @@
 #define WENDY_RENDERSTYLE_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/GLImage.h>
+#include <wendy/OpenGL.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>

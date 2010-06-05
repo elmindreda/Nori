@@ -31,7 +31,7 @@
 #include <wendy/Stream.h>
 #include <wendy/XML.h>
 
-#include <wendy/GLImage.h>
+#include <wendy/OpenGL.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>

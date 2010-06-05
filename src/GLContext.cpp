@@ -25,7 +25,7 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/GLImage.h>
+#include <wendy/OpenGL.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLContext.h>

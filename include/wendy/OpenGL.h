@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy default renderer
-// Copyright (c) 2008 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy OpenGL library
+// Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,80 +22,52 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_RENDERLIGHT_H
-#define WENDY_RENDERLIGHT_H
+#ifndef WENDY_OPENGL_H
+#define WENDY_OPENGL_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/OpenGL.h>
-#include <wendy/GLTexture.h>
+#include <wendy/Core.h>
+#include <wendy/Pixel.h>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace render
+  namespace GL
   {
 
 ///////////////////////////////////////////////////////////////////////
 
-class Light : public RefObject
+bool checkGL(const char* format, ...);
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingoup opengl
+ */
+class Image : public RefObject
 {
+  friend class ImageCanvas;
 public:
-  enum Type
-  {
-    DIRECTIONAL,
-    POINT,
-    SPOTLIGHT,
-  };
-  Light(void);
-  bool isShadowCasting(void) const;
-  void setShadowCasting(bool enabled);
-  Type getType(void) const;
-  void setType(Type newType);
-  float getRadius(void) const;
-  void setRadius(float newRadius);
-  const ColorRGB& getColor(void) const;
-  void setColor(const ColorRGB& newColor);
-  const Vec3& getPosition(void) const;
-  void setPosition(const Vec3& newPosition);
-  const Vec3& getDirection(void) const;
-  void setDirection(const Vec3& newDirection);
-  GL::Texture* getDistAttTexture(void) const;
-  void setDistAttTexture(GL::Texture* newTexture);
-private:
-  bool castsShadow;
-  Type type;
-  float radius;
-  ColorRGB color;
-  Vec3 position;
-  Vec3 direction;
-  GL::TextureRef distAttTexture;
+  virtual ~Image(void);
+  virtual unsigned int getWidth(void) const = 0;
+  virtual unsigned int getHeight(void) const = 0;
+  virtual const PixelFormat& getFormat(void) const = 0;
+protected:
+  virtual void attach(int attachment) = 0;
+  virtual void detach(int attachment) = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-typedef Ref<Light> LightRef;
+/*! @ingroup opengl
+ */
+typedef Ref<Image> ImageRef;
 
 ///////////////////////////////////////////////////////////////////////
 
-class LightState
-{
-public:
-  void attachLight(Light& light);
-  void detachLight(Light& light);
-  void detachLights(void);
-  unsigned int getLightCount(void) const;
-  Light& getLight(unsigned int index) const;
-private:
-  typedef std::vector<LightRef> List;
-  List lights;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-  } /*namespace render*/
+  } /*namespace GL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_RENDERLIGHT_H*/
+#endif /*WENDY_OPENGL_H*/
 ///////////////////////////////////////////////////////////////////////

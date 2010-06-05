@@ -26,7 +26,7 @@
 #define WENDY_INPUT_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/GLImage.h>
+#include <wendy/OpenGL.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLContext.h>

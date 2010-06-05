@@ -32,7 +32,7 @@
 #include <wendy/Segment.h>
 #include <wendy/Triangle.h>
 
-#include <wendy/GLImage.h>
+#include <wendy/OpenGL.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>

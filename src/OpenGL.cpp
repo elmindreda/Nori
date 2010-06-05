@@ -22,12 +22,17 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_GLIMAGE_H
-#define WENDY_GLIMAGE_H
-///////////////////////////////////////////////////////////////////////
 
+#include <wendy/Config.h>
 #include <wendy/Core.h>
-#include <wendy/Pixel.h>
+
+#include <wendy/OpenGL.h>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
+
+#include <cstdlib>
+#include <cstdio>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -38,32 +43,35 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingoup opengl
- */
-class Image : public RefObject
+bool checkGL(const char* format, ...)
 {
-  friend class ImageCanvas;
-public:
-  virtual ~Image(void);
-  virtual unsigned int getWidth(void) const = 0;
-  virtual unsigned int getHeight(void) const = 0;
-  virtual const PixelFormat& getFormat(void) const = 0;
-protected:
-  virtual void attach(int attachment) = 0;
-  virtual void detach(int attachment) = 0;
-};
+  GLenum error = glGetError();
+  if (error == GL_NO_ERROR)
+    return true;
 
-///////////////////////////////////////////////////////////////////////
+  va_list vl;
+  char* message;
+  int result;
 
-/*! @ingroup opengl
- */
-typedef Ref<Image> ImageRef;
+  va_start(vl, format);
+  result = vasprintf(&message, format, vl);
+  va_end(vl);
+
+  if (result < 0)
+  {
+    Log::writeError("Error formatting error message for OpenGL error %u", error);
+    return false;
+  }
+
+  Log::writeError("%s: %s", message, gluErrorString(error));
+
+  std::free(message);
+  return false;
+}
 
 ///////////////////////////////////////////////////////////////////////
 
   } /*namespace GL*/
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_GLIMAGE_H*/
 ///////////////////////////////////////////////////////////////////////
