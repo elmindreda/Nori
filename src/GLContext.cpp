@@ -483,9 +483,7 @@ void ScreenCanvas::apply(void) const
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
 #if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-    Log::writeError("Error when applying screen canvas: %s", gluErrorString(error));
+    checkGL("Error when applying screen canvas");
 #endif
 
     Canvas::apply();
@@ -612,12 +610,8 @@ bool ImageCanvas::init(unsigned int initWidth, unsigned int initHeight)
   glGenFramebuffersEXT(1, &bufferID);
 
 #if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-  {
-    Log::writeError("Error during image canvas creation: %s", gluErrorString(error));
+  if (!checkGL("Error during image canvas creation"))
     return false;
-  }
 #endif
 
   return true;
@@ -646,9 +640,7 @@ void ImageCanvas::apply(void) const
       glDrawBuffer(GL_NONE);
 
 #if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-    Log::writeError("Error when applying image canvas: %s", gluErrorString(error));
+    checkGL("Error when applying image canvas");
 #endif
 
     Canvas::apply();

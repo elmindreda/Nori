@@ -260,9 +260,7 @@ void StencilState::apply(void) const
   }
 
 #if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-    Log::writeError("Error when applying stencil state: %s", gluErrorString(error));
+  checkGL("Error when applying stencil state");
 #endif
 
   data.dirty = false;
@@ -355,9 +353,7 @@ void StencilState::force(void) const
   glStencilOp(data.stencilFailed, data.depthFailed, data.depthPassed);
 
 #if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-    Log::writeWarning("Error when forcing stencil state: %s", gluErrorString(error));
+  checkGL("Error when forcing stencil state");
 #endif
 
   cache.dirty = data.dirty = false;
@@ -845,9 +841,7 @@ void RenderState::apply(void) const
   }
 
 #if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-    Log::writeError("Error when applying render state: %s", gluErrorString(error));
+  checkGL("Error when applying render state");
 #endif
 
   ProgramState::apply();
@@ -997,9 +991,7 @@ void RenderState::force(void) const
   glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
 
 #if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-    Log::writeWarning("Error when forcing render pass: %s", gluErrorString(error));
+  checkGL("Error when forcing render state");
 #endif
 
   ProgramState::apply();

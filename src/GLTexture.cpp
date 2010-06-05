@@ -223,13 +223,10 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
   }
 
 #if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
+  if (!checkGL("Error during copy from image into level %u of texture \'%s\'",
+               level,
+               texture.getName().c_str()))
   {
-    Log::writeError("Error during copy into level %u of texture \'%s\': %s",
-                    level,
-                    texture.getName().c_str(),
-		    gluErrorString(error));
     return false;
   }
 #endif
@@ -264,13 +261,10 @@ bool TextureImage::copyFromColorBuffer(unsigned int x, unsigned int y)
   cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_TRUE);
 
 #if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
+  if (!checkGL("Error during copy from color buffer to level %u of texture \'%s\'",
+               level,
+               texture.getName().c_str()))
   {
-    Log::writeError("Error during copy from color buffer to level %u of texture \'%s\': %s",
-                    level,
-                    texture.getName().c_str(),
-		    gluErrorString(error));
     return false;
   }
 #endif
@@ -296,10 +290,10 @@ bool TextureImage::copyTo(wendy::Image& result) const
   cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_TRUE);
 
 #if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
+  if (!checkGL("Error during copy to image from level %u of texture \'%s\'",
+               level,
+               texture.getName().c_str()))
   {
-    Log::writeError("Error during texture image retrieval: %s", gluErrorString(error));
     return false;
   }
 #endif
@@ -354,9 +348,9 @@ void TextureImage::attach(int attachment)
                               level);
 
 #if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-    Log::writeError("Error when applying texture image: %s", gluErrorString(error));
+  checkGL("Error when attaching level %u of texture \'%s\' to image canvas",
+          level,
+          texture.getName().c_str());
 #endif
 }
 
@@ -376,9 +370,9 @@ void TextureImage::detach(int attachment)
                               0);
 
 #if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-    Log::writeError("Error when applying texture image: %s", gluErrorString(error));
+  checkGL("Error when detaching level %u of texture \'%s\' from image canvas",
+          level,
+          texture.getName().c_str());
 #endif
 }
 
@@ -720,12 +714,10 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
 
   cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
 
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
+  if (!checkGL("OpenGL error during creation of texture \'%s\' of format \'%s\'",
+               getName().c_str(),
+               format.asString().c_str()))
   {
-    Log::writeError("OpenGL error during creation of texture \'%s\': %s",
-                    getName().c_str(),
-		    gluErrorString(error));
     return false;
   }
 
@@ -878,12 +870,10 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
 
   cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
 
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
+  if (!checkGL("OpenGL error during creation of texture \'%s\' of format \'%s\'",
+               getName().c_str(),
+               format.asString().c_str()))
   {
-    Log::writeError("OpenGL error during creation of texture \'%s\': %s",
-                    getName().c_str(),
-		    gluErrorString(error));
     return false;
   }
 

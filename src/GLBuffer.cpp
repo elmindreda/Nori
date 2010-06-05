@@ -125,7 +125,7 @@ void* VertexBuffer::lock(LockType type)
   void* mapping = glMapBufferARB(GL_ARRAY_BUFFER_ARB, convertToGL(type));
   if (mapping == NULL)
   {
-    Log::writeError("Unable to lock vertex buffer \'%s\': %s",
+    Log::writeError("Failed to lock vertex buffer \'%s\': %s",
                     getName().c_str(),
                     gluErrorString(glGetError()));
     return NULL;
@@ -255,6 +255,10 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
 			unsigned int initCount,
 			Usage initUsage)
 {
+  format = initFormat;
+  usage = initUsage;
+  count = initCount;
+
   // Clear any errors
   glGetError();
 
@@ -263,21 +267,16 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
   apply();
 
   glBufferDataARB(GL_ARRAY_BUFFER_ARB,
-		  initCount * initFormat.getSize(),
+		  count * format.getSize(),
 		  NULL,
-		  convertToGL(initUsage));
+		  convertToGL(usage));
 
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
+  if (!checkGL("Error during creation of vertex buffer \'%s\' of format \'%s\'",
+               getName().c_str(),
+               format.asString().c_str()))
   {
-    Log::writeWarning("Error during vertex buffer object creation: \'%s\'",
-                      gluErrorString(error));
     return false;
   }
-
-  format = initFormat;
-  usage = initUsage;
-  count = initCount;
 
   return true;
 }
@@ -290,14 +289,8 @@ void VertexBuffer::apply(void) const
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
 
 #if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-  {
-    Log::writeWarning("Failed to apply index buffer \'%s\': %s",
-                      getName().c_str(),
-                      gluErrorString(error));
+  if (!checkGL("Failed to apply index buffer \'%s\'", getName().c_str()))
     return;
-  }
 #endif
 
   current = const_cast<VertexBuffer*>(this);
@@ -338,7 +331,7 @@ void* IndexBuffer::lock(LockType type)
   void* mapping = glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, convertToGL(type));
   if (mapping == NULL)
   {
-    Log::writeError("Unable to lock index buffer \'%s\': %s",
+    Log::writeError("Failed to lock index buffer \'%s\': %s",
                     getName().c_str(),
                     gluErrorString(glGetError()));
     return NULL;
@@ -483,6 +476,10 @@ IndexBuffer& IndexBuffer::operator = (const IndexBuffer& source)
 
 bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
 {
+  type = initType;
+  usage = initUsage;
+  count = initCount;
+
   // Clear any errors
   glGetError();
 
@@ -491,20 +488,17 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
   apply();
 
   glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-		  initCount * getTypeSize(initType),
+		  count * getTypeSize(type),
 		  NULL,
-		  convertToGL(initUsage));
+		  convertToGL(usage));
 
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
+  if (!checkGL("Error during creation of index buffer \'%s\' of element size %u",
+               getName().c_str(),
+               getTypeSize(type)))
   {
-    Log::writeWarning("Error during vertex buffer object creation: %s", gluErrorString(error));
     return false;
   }
 
-  type = initType;
-  usage = initUsage;
-  count = initCount;
   return true;
 }
 
@@ -516,14 +510,8 @@ void IndexBuffer::apply(void) const
   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
 
 #if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
-  {
-    Log::writeWarning("Failed to apply index buffer \'%s\': %s",
-                      getName().c_str(),
-                      gluErrorString(error));
+  if (!checkGL("Failed to apply index buffer \'%s\'", getName().c_str()))
     return;
-  }
 #endif
 
   current = const_cast<IndexBuffer*>(this);
@@ -869,14 +857,12 @@ bool RenderBuffer::init(const PixelFormat& initFormat,
   glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, bufferID);
   glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, convertToGenericGL(format), width, height);
 
-#if WENDY_DEBUG
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR)
+  if (!checkGL("Error during creation of render buffer \'%s\' of format \'%s\'",
+               getName().c_str(),
+               format.asString().c_str()))
   {
-    Log::writeError("Error during render buffer creation: %s", gluErrorString(error));
     return false;
   }
-#endif
 
   return true;
 }
