@@ -384,22 +384,20 @@ bool Image::resize(unsigned int targetWidth,
   return true;
 }
 
-void Image::transformTo(const PixelFormat& targetFormat, PixelTransform& transform)
+bool Image::transformTo(const PixelFormat& targetFormat, PixelTransform& transform)
 {
   if (format == targetFormat)
-    return;
+    return true;
 
-  // TODO: The code.
+  if (!transform.supports(targetFormat, format))
+    return false;
+
+  Block target(width * height * targetFormat.getSize());
+  transform.convert(target, targetFormat, data, format, width * height);
+  data.attach(target.detach(), target.getSize());
+
   format = targetFormat;
-}
-
-void Image::convertTo(PixelFormat::Type targetType)
-{
-  if (format.getType() == targetType)
-    return;
-
-  // TODO: The code.
-  format = PixelFormat(format.getSemantic(), targetType);
+  return true;
 }
 
 bool Image::crop(const Recti& area)

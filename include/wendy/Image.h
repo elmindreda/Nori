@@ -85,11 +85,7 @@ public:
    *  @param[in] targetFormat The desired pixel format.
    *  @param[in] transform The pixel transform to use.
    */
-  void transformTo(const PixelFormat& targetFormat, PixelTransform& transform);
-  /*! Converts this image to the specified channel data type.
-   *  @param targetType The data type to convert to.
-   */
-  void convertTo(PixelFormat::Type targetType);
+  bool transformTo(const PixelFormat& targetFormat, PixelTransform& transform);
   /*! Sets this image to the specified area of the current image data.
    *  @param area The desired area.
    *  @return @c true if successful, otherwise @c false.
