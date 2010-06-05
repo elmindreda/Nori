@@ -836,42 +836,42 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
                  convertToGenericGL(image.getFormat()),
                  convertToGL(image.getFormat().getType()),
                  image.getPixels());
-  }
 
-  if (flags & MIPMAPPED)
-  {
-    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-    glGenerateMipmapEXT(textureTarget);
-
-    unsigned int level = 0;
-
-    for (;;)
+    if (flags & MIPMAPPED)
     {
+      glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+      glGenerateMipmapEXT(textureTarget);
+
+      unsigned int level = 0;
+
+      for (;;)
+      {
+        unsigned int width, height;
+
+        glGetTexLevelParameteriv(faceTarget, level, GL_TEXTURE_WIDTH, (int*) &width);
+        glGetTexLevelParameteriv(faceTarget, level, GL_TEXTURE_HEIGHT, (int*) &height);
+
+        if (width == 0)
+          break;
+
+        TextureImageRef image = new TextureImage(*this, level, width, height);
+        images.push_back(image);
+
+        level++;
+      }
+    }
+    else
+    {
+      glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
       unsigned int width, height;
 
-      glGetTexLevelParameteriv(textureTarget, level, GL_TEXTURE_WIDTH, (int*) &width);
-      glGetTexLevelParameteriv(textureTarget, level, GL_TEXTURE_HEIGHT, (int*) &height);
+      glGetTexLevelParameteriv(faceTarget, 0, GL_TEXTURE_WIDTH, (int*) &width);
+      glGetTexLevelParameteriv(faceTarget, 0, GL_TEXTURE_HEIGHT, (int*) &height);
 
-      if (width == 0)
-        break;
-
-      TextureImageRef image = new TextureImage(*this, level, width, height);
+      TextureImageRef image = new TextureImage(*this, 0, width, height);
       images.push_back(image);
-
-      level++;
     }
-  }
-  else
-  {
-    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    unsigned int width, height;
-
-    glGetTexLevelParameteriv(textureTarget, 0, GL_TEXTURE_WIDTH, (int*) &width);
-    glGetTexLevelParameteriv(textureTarget, 0, GL_TEXTURE_HEIGHT, (int*) &height);
-
-    TextureImageRef image = new TextureImage(*this, 0, width, height);
-    images.push_back(image);
   }
 
   glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

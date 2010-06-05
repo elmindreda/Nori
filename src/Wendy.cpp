@@ -57,6 +57,7 @@ namespace
 
 Ptr<Anim3CodecXML> anim3CodecXML;
 Ptr<ImageCodec> imageCodecPNG;
+Ptr<ImageCubeCodec> imageCubeCodecXML;
 Ptr<FontCodec> fontCodecXML;
 Ptr<MeshCodecOBJ> meshCodecOBJ;
 Ptr<MeshCodecXML> meshCodecXML;
@@ -97,6 +98,7 @@ bool initialize(void)
 
   anim3CodecXML = new Anim3CodecXML();
   imageCodecPNG = new ImageCodecPNG();
+  imageCubeCodecXML = new ImageCubeCodecXML();
   fontCodecXML = new FontCodecXML();
   meshCodecOBJ = new MeshCodecOBJ();
   meshCodecXML = new MeshCodecXML();
@@ -129,6 +131,7 @@ void shutdown(void)
 
   anim3CodecXML = NULL;
   imageCodecPNG = NULL;
+  imageCubeCodecXML = NULL;
   fontCodecXML = NULL;
   meshCodecOBJ = NULL;
   meshCodecXML = NULL;

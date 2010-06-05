@@ -2,6 +2,7 @@
 struct Out
 {
   float4 position : POSITION;
+  float3 eyepos;
   float3 normal;
 };
 
@@ -12,6 +13,7 @@ Out main(uniform float4x4 MVP,
 {
   Out result;
   result.position = mul(MVP, float4(position, 1));
+  result.eyepos = mul(MV, float4(position, 1));
   result.normal = mul(MV, float4(normal, 0));
   return result;
 }

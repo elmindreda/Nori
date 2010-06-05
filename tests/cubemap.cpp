@@ -3,10 +3,10 @@
 
 using namespace wendy;
 
-class Demo : public Trackable
+class Test : public Trackable
 {
 public:
-  ~Demo(void);
+  ~Test(void);
   bool init(void);
   void run(void);
 private:
@@ -17,16 +17,16 @@ private:
   scene::CameraNode* cameraNode;
 };
 
-Demo::~Demo(void)
+Test::~Test(void)
 {
   input::Context::destroy();
-  render::GeometryPool::destroy();
   GL::Context::destroy();
 }
 
-bool Demo::init(void)
+bool Test::init(void)
 {
   Image::addSearchPath(Path("media"));
+  ImageCube::addSearchPath(Path("media"));
   Mesh::addSearchPath(Path("media"));
   GL::Texture::addSearchPath(Path("media"));
   GL::VertexProgram::addSearchPath(Path("media"));
@@ -39,9 +39,6 @@ bool Demo::init(void)
 
   GL::Context* context = GL::Context::get();
   context->setTitle("Cube Map");
-
-  if (!render::GeometryPool::create(*context))
-    return false;
 
   if (!input::Context::create(*context))
     return false;
@@ -80,7 +77,7 @@ bool Demo::init(void)
   return true;
 }
 
-void Demo::run(void)
+void Test::run(void)
 {
   GL::Context* context = GL::Context::get();
 
@@ -106,11 +103,11 @@ int main()
   if (!wendy::initialize())
     exit(1);
 
-  Ptr<Demo> demo(new Demo());
-  if (demo->init())
-    demo->run();
+  Ptr<Test> test(new Test());
+  if (test->init())
+    test->run();
 
-  demo = NULL;
+  test = NULL;
 
   wendy::shutdown();
   exit(0);

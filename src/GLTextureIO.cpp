@@ -165,27 +165,46 @@ bool TextureCodec::onBeginElement(const String& name)
 	flags ^= Texture::RECTANGULAR;
     }
 
+    Context* context = Context::get();
+
     String imageName = readString("image");
     if (imageName.empty())
     {
-      Log::writeError("No image specified for texture \'%s\'", textureName.c_str());
-      return false;
-    }
+      imageName = readString("imagecube");
+      if (imageName.empty())
+      {
+        Log::writeError("No image specified for texture \'%s\'", textureName.c_str());
+        return false;
+      }
 
-    Ref<wendy::Image> image = wendy::Image::readInstance(imageName);
-    if (!image)
+      Ref<wendy::ImageCube> source = wendy::ImageCube::readInstance(imageName);
+      if (!source)
+      {
+        Log::writeError("Failed to load image cube \'%s\' for texture \'%s\'",
+                        imageName.c_str(),
+                        textureName.c_str());
+        return false;
+      }
+
+      texture = Texture::createInstance(*context, *source, flags, textureName);
+      if (!texture)
+        return false;
+    }
+    else
     {
-      Log::writeError("Failed to load image \'%s\' for texture \'%s\'",
-                      imageName.c_str(),
-		      textureName.c_str());
-      return false;
+      Ref<wendy::Image> source = wendy::Image::readInstance(imageName);
+      if (!source)
+      {
+        Log::writeError("Failed to load image \'%s\' for texture \'%s\'",
+                        imageName.c_str(),
+                        textureName.c_str());
+        return false;
+      }
+
+      texture = Texture::createInstance(*context, *source, flags, textureName);
+      if (!texture)
+        return false;
     }
-
-    Context* context = Context::get();
-
-    texture = Texture::createInstance(*context, *image, flags, textureName);
-    if (!texture)
-      return false;
 
     String filterModeName = readString("filter");
     if (!filterModeName.empty())
