@@ -166,7 +166,7 @@ typedef Ref<Image> ImageRef;
 
 /*! @brief %Image cube object.
  */
-class ImageCube : public Resource<ImageCube>
+class ImageCube : public Resource<ImageCube>, public RefObject
 {
 public:
   enum Face
