@@ -105,8 +105,6 @@ GLenum convertToGL(const PixelFormat& format)
           return GL_LUMINANCE8;
         case PixelFormat::RG:
           return GL_LUMINANCE8_ALPHA8;
-        case PixelFormat::RGB:
-          return GL_RGB8;
         case PixelFormat::RGBA:
           return GL_RGBA8;
       }
@@ -156,8 +154,6 @@ GLenum convertToGenericGL(const PixelFormat& format)
           return GL_LUMINANCE;
         case PixelFormat::RG:
           return GL_LUMINANCE_ALPHA;
-        case PixelFormat::RGB:
-          return GL_RGB;
         case PixelFormat::RGBA:
           return GL_RGBA;
       }

@@ -539,15 +539,31 @@ Texture::Texture(const Texture& source):
 
 bool Texture::init(const wendy::Image& source, unsigned int initFlags)
 {
-  if (!convertToGL(source.getFormat()))
+  wendy::Image final = source;
+
+  if (final.getFormat().getSemantic() == PixelFormat::RGB)
+  {
+    RGBtoRGBA transform;
+    if (!final.transformTo(PixelFormat(PixelFormat::RGBA, final.getFormat().getType()),
+                      transform))
+    {
+      Log::writeError("Failed to convert RGB source image for texture \'%s\' to RGBA",
+                      getName().c_str());
+      return false;
+    }
+  }
+
+  format = final.getFormat();
+
+  if (!convertToGL(final.getFormat()))
   {
     Log::writeError("Source image for texture \'%s\' has unsupported pixel format \'%s\'",
                     getName().c_str(),
-                    source.getFormat().asString().c_str());
+                    final.getFormat().asString().c_str());
     return false;
   }
 
-  if (!convertToGL(source.getFormat().getType()))
+  if (!convertToGL(final.getFormat().getType()))
   {
     Log::writeError("Source image for texture \'%s\' has unsupported component type",
                     getName().c_str());
@@ -560,7 +576,7 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
 
   if (flags & RECTANGULAR)
   {
-    if (source.getDimensionCount() > 2)
+    if (final.getDimensionCount() > 2)
     {
       Log::writeError("Rectangular textures cannot have more than two dimensions");
       return false;
@@ -576,9 +592,9 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   }
   else
   {
-    if (source.getDimensionCount() == 1)
+    if (final.getDimensionCount() == 1)
       textureTarget = GL_TEXTURE_1D;
-    else if (source.getDimensionCount() == 2)
+    else if (final.getDimensionCount() == 2)
       textureTarget = GL_TEXTURE_2D;
     else
     {
@@ -590,17 +606,13 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   }
 
   // Save source image dimensions
-  sourceWidth = source.getWidth();
-  sourceHeight = source.getHeight();
+  sourceWidth = final.getWidth();
+  sourceHeight = final.getHeight();
 
   unsigned int width, height;
 
-  wendy::Image final = source;
-
   // Adapt source image to OpenGL restrictions
   {
-    format = final.getFormat();
-
     // Figure out target dimensions for rescaling
 
     if (flags & RECTANGULAR)
