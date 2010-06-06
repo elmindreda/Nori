@@ -165,7 +165,7 @@ GLenum convertToGL(PrimitiveType type)
   return 0;
 }
 
-bool compatible(const Varying& varying, const VertexComponent& component)
+bool isCompatible(const Varying& varying, const VertexComponent& component)
 {
   switch (varying.getType())
   {
@@ -832,7 +832,7 @@ void Context::render(const PrimitiveRange& range)
       return;
     }
 
-    if (!compatible(varying, *component))
+    if (!isCompatible(varying, *component))
     {
       Log::writeError("Varying parameter \'%s\' of shader program \'%s\' has incompatible type",
                       varying.getName().c_str(),
