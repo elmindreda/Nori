@@ -1286,12 +1286,8 @@ bool Context::init(const ContextMode& initMode)
     cgGLEnableProfile((CGprofile) cgVertexProfile);
     cgGLSetOptimalOptions((CGprofile) cgVertexProfile);
 
-    error = cgGetError();
-    if (error != CG_NO_ERROR)
-    {
-      Log::writeError("Failed to set up Cg vertex profile: %s", cgGetErrorString(error));
+    if (!checkCg("Failed to set up Cg vertex profile"))
       return false;
-    }
 
     cgFragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
     if (cgFragmentProfile == CG_PROFILE_UNKNOWN)
@@ -1306,12 +1302,8 @@ bool Context::init(const ContextMode& initMode)
     cgGLEnableProfile((CGprofile) cgFragmentProfile);
     cgGLSetOptimalOptions((CGprofile) cgFragmentProfile);
 
-    error = cgGetError();
-    if (error != CG_NO_ERROR)
-    {
-      Log::writeError("Failed to set up Cg fragment profile: %s", cgGetErrorString(error));
+    if (!checkCg("Failed to set up Cg fragment profile"))
       return false;
-    }
 
     cgGLSetManageTextureParameters((CGcontext) cgContextID, CG_TRUE);
     cgSetLockingPolicy(CG_NO_LOCKS_POLICY);
@@ -1323,12 +1315,8 @@ bool Context::init(const ContextMode& initMode)
     cgGLSetDebugMode(CG_FALSE);
 #endif
 
-    error = cgGetError();
-    if (error != CG_NO_ERROR)
-    {
-      Log::writeError("Failed to set Cg options: %s", cgGetErrorString(error));
+    if (!checkCg("Failed to set Cg options"))
       return false;
-    }
   }
 
   // Create and apply screen canvas

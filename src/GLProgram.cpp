@@ -293,15 +293,9 @@ void Varying::enable(size_t stride, size_t offset)
   cgGLEnableClientState((CGparameter) varyingID);
 
 #if WENDY_DEBUG
-  {
-    CGerror error = cgGetError();
-    if (error != CG_NO_ERROR)
-    {
-      Log::writeError("Failed to enable varying \'%s\': %s",
-                      name.c_str(),
-                      cgGetErrorString(error));
-    }
-  }
+  checkCg("Failed to enable varying \'%s\' of program \'%s\'",
+          name.c_str(),
+          program.getName().c_str());
 #endif
 
   cgGLSetParameterPointer((CGparameter) varyingID,
@@ -311,15 +305,9 @@ void Varying::enable(size_t stride, size_t offset)
 			  (const void*) offset);
 
 #if WENDY_DEBUG
-  {
-    CGerror error = cgGetError();
-    if (error != CG_NO_ERROR)
-    {
-      Log::writeError("Failed to set varying \'%s\': %s",
-                      name.c_str(),
-                      cgGetErrorString(error));
-    }
-  }
+  checkCg("Failed to set varying \'%s\' of program \'%s\'",
+          name.c_str(),
+          program.getName().c_str());
 #endif
 }
 
@@ -328,13 +316,9 @@ void Varying::disable(void)
   cgGLDisableClientState((CGparameter) varyingID);
 
 #if WENDY_DEBUG
-  CGerror error = cgGetError();
-  if (error != CG_NO_ERROR)
-  {
-    Log::writeError("Failed to disable varying \'%s\': %s",
-                    name.c_str(),
-                    cgGetErrorString(error));
-  }
+  checkCg("Failed to disable varying \'%s\' of program \'%s\'",
+          name.c_str(),
+          program.getName().c_str());
 #endif
 }
 
@@ -519,16 +503,10 @@ void Sampler::setTexture(Texture& newTexture)
   cgGLSetTextureParameter((CGparameter) samplerID, newTexture.textureID);
 
 #if WENDY_DEBUG
-  {
-    CGerror error = cgGetError();
-    if (error != CG_NO_ERROR)
-    {
-      Log::writeError("Failed to set sampler \'%s\' to \'%s\': %s",
-                      name.c_str(),
-                      newTexture.getName().c_str(),
-                      cgGetErrorString(error));
-    }
-  }
+  checkCg("Failed to set sampler \'%s\' of program \'%s\' to texture \'%s\'",
+          name.c_str(),
+          program.getName().c_str(),
+          newTexture.getName().c_str());
 #endif
 }
 
@@ -850,30 +828,18 @@ Program::Program(const Program& source):
 
 bool Program::init(VertexProgram& initVertexProgram, FragmentProgram& initFragmentProgram)
 {
-  CGerror error;
-
   vertexProgram = &initVertexProgram;
   fragmentProgram = &initFragmentProgram;
 
   cgGLLoadProgram((CGprogram) vertexProgram->programID);
-  error = cgGetError();
-  if (error != CG_NO_ERROR)
-  {
-    Log::writeError("Failed to load vertex program \'%s\': %s",
-                    vertexProgram->getName().c_str(),
-                    cgGetErrorString(error));
+
+  if (!checkCg("Failed to load vertex program \'%s\'", vertexProgram->getName().c_str()))
     return false;
-  }
 
   cgGLLoadProgram((CGprogram) fragmentProgram->programID);
-  error = cgGetError();
-  if (error != CG_NO_ERROR)
-  {
-    Log::writeError("Failed to load fragment program \'%s\': %s",
-                    fragmentProgram->getName().c_str(),
-                    cgGetErrorString(error));
+
+  if (!checkCg("Failed to load fragment program \'%s\'", fragmentProgram->getName().c_str()))
     return false;
-  }
 
   CGparameter parameter;
 

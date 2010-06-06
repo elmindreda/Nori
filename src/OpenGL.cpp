@@ -31,6 +31,9 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
+#include <Cg/cg.h>
+#include <Cg/cgGL.h>
+
 #include <cstdlib>
 #include <cstdio>
 
@@ -64,6 +67,32 @@ bool checkGL(const char* format, ...)
   }
 
   Log::writeError("%s: %s", message, gluErrorString(error));
+
+  std::free(message);
+  return false;
+}
+
+bool checkCg(const char* format, ...)
+{
+  CGerror error = cgGetError();
+  if (error == CG_NO_ERROR)
+    return true;
+
+  va_list vl;
+  char* message;
+  int result;
+
+  va_start(vl, format);
+  result = vasprintf(&message, format, vl);
+  va_end(vl);
+
+  if (result < 0)
+  {
+    Log::writeError("Error formatting error message for Cg error %u", error);
+    return false;
+  }
+
+  Log::writeError("%s: %s", message, cgGetErrorString(error));
 
   std::free(message);
   return false;
