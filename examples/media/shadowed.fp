@@ -13,7 +13,7 @@ float4 main(uniform sampler2D depthmap,
   if (depth >= lightpos.z / lightpos.w)
   {
     float3 L = normalize(lightvec);
-    float3 Id = saturate(dot(normal, L)) * tex2Dproj(spotmask, lightpos);
+    float3 Id = saturate(dot(normal, L)) * tex2Dproj(spotmask, lightpos).r;
 
     return float4(C * (Ia + Id), 1);
   }
