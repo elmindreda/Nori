@@ -58,6 +58,7 @@ public:
     UINT16,
     UINT24,
     UINT32,
+    FLOAT16,
     FLOAT32,
   };
   /*! Default constructor.
@@ -96,19 +97,24 @@ public:
   String asString(void) const;
   static const PixelFormat R8;
   static const PixelFormat R16;
+  static const PixelFormat R16F;
   static const PixelFormat R32F;
   static const PixelFormat RG8;
   static const PixelFormat RG16;
+  static const PixelFormat RG16F;
   static const PixelFormat RG32F;
   static const PixelFormat RGB8;
   static const PixelFormat RGB16;
+  static const PixelFormat RGB16F;
   static const PixelFormat RGB32F;
   static const PixelFormat RGBA8;
   static const PixelFormat RGBA16;
+  static const PixelFormat RGBA16F;
   static const PixelFormat RGBA32F;
   static const PixelFormat DEPTH16;
   static const PixelFormat DEPTH24;
   static const PixelFormat DEPTH32;
+  static const PixelFormat DEPTH16F;
   static const PixelFormat DEPTH32F;
 private:
   Semantic semantic;

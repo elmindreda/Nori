@@ -84,6 +84,8 @@ PixelFormat::PixelFormat(const String& specification):
     type = UINT24;
   else if (typeName == "32")
     type = UINT32;
+  else if (typeName == "16f")
+    type = FLOAT16;
   else if (typeName == "32f")
     type = FLOAT32;
   else
@@ -114,6 +116,7 @@ size_t PixelFormat::getChannelSize(void) const
     case UINT8:
       return 1;
     case UINT16:
+    case FLOAT16:
       return 2;
     case UINT24:
       return 3;
@@ -194,6 +197,9 @@ String PixelFormat::asString(void) const
     case UINT32:
       result << "32";
       break;
+    case FLOAT16:
+      result << "16f";
+      break;
     case FLOAT32:
       result << "32f";
       break;
@@ -206,19 +212,28 @@ String PixelFormat::asString(void) const
 
 const PixelFormat PixelFormat::R8(PixelFormat::R, PixelFormat::UINT8);
 const PixelFormat PixelFormat::R16(PixelFormat::R, PixelFormat::UINT16);
+const PixelFormat PixelFormat::R16F(PixelFormat::R, PixelFormat::FLOAT16);
 const PixelFormat PixelFormat::R32F(PixelFormat::R, PixelFormat::FLOAT32);
+
 const PixelFormat PixelFormat::RG8(PixelFormat::RG, PixelFormat::UINT8);
 const PixelFormat PixelFormat::RG16(PixelFormat::RG, PixelFormat::UINT16);
+const PixelFormat PixelFormat::RG16F(PixelFormat::RG, PixelFormat::FLOAT16);
 const PixelFormat PixelFormat::RG32F(PixelFormat::RG, PixelFormat::FLOAT32);
+
 const PixelFormat PixelFormat::RGB8(PixelFormat::RGB, PixelFormat::UINT8);
 const PixelFormat PixelFormat::RGB16(PixelFormat::RGB, PixelFormat::UINT16);
+const PixelFormat PixelFormat::RGB16F(PixelFormat::RGB, PixelFormat::FLOAT16);
 const PixelFormat PixelFormat::RGB32F(PixelFormat::RGB, PixelFormat::FLOAT32);
+
 const PixelFormat PixelFormat::RGBA8(PixelFormat::RGBA, PixelFormat::UINT8);
 const PixelFormat PixelFormat::RGBA16(PixelFormat::RGBA, PixelFormat::UINT16);
+const PixelFormat PixelFormat::RGBA16F(PixelFormat::RGBA, PixelFormat::FLOAT16);
 const PixelFormat PixelFormat::RGBA32F(PixelFormat::RGBA, PixelFormat::FLOAT32);
+
 const PixelFormat PixelFormat::DEPTH16(PixelFormat::DEPTH, PixelFormat::UINT16);
 const PixelFormat PixelFormat::DEPTH24(PixelFormat::DEPTH, PixelFormat::UINT24);
 const PixelFormat PixelFormat::DEPTH32(PixelFormat::DEPTH, PixelFormat::UINT32);
+const PixelFormat PixelFormat::DEPTH16F(PixelFormat::DEPTH, PixelFormat::FLOAT16);
 const PixelFormat PixelFormat::DEPTH32F(PixelFormat::DEPTH, PixelFormat::FLOAT32);
 
 ///////////////////////////////////////////////////////////////////////
