@@ -175,6 +175,10 @@ void VertexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsign
 
   const size_t size = format.getSize();
   glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
+
+#if WENDY_DEBUG
+  checkGL("Error during copy to vertex buffer \'%s\'", getName().c_str());
+#endif
 }
 
 void VertexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int start)
@@ -197,6 +201,10 @@ void VertexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int s
 
   const size_t size = format.getSize();
   glGetBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
+
+#if WENDY_DEBUG
+  checkGL("Error during copy from vertex buffer \'%s\'", getName().c_str());
+#endif
 }
 
 VertexBuffer::Usage VertexBuffer::getUsage(void) const
@@ -381,6 +389,10 @@ void IndexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsigne
 
   const size_t size = getTypeSize(type);
   glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
+
+#if WENDY_DEBUG
+  checkGL("Error during copy to index buffer \'%s\'", getName().c_str());
+#endif
 }
 
 void IndexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int start)
@@ -403,6 +415,10 @@ void IndexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int st
 
   const size_t size = getTypeSize(type);
   glGetBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
+
+#if WENDY_DEBUG
+  checkGL("Error during copy from index buffer \'%s\'", getName().c_str());
+#endif
 }
 
 IndexBuffer::Type IndexBuffer::getType(void) const

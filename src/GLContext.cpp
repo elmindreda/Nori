@@ -764,6 +764,10 @@ void Context::clearColorBuffer(const ColorRGBA& color)
   glClearColor(color.r, color.g, color.b, color.a);
   glClear(GL_COLOR_BUFFER_BIT);
   glPopAttrib();
+
+#if WENDY_DEBUG
+  checkGL("Error during color buffer clearing");
+#endif
 }
 
 void Context::clearDepthBuffer(float depth)
@@ -773,6 +777,10 @@ void Context::clearDepthBuffer(float depth)
   glClearDepth(depth);
   glClear(GL_DEPTH_BUFFER_BIT);
   glPopAttrib();
+
+#if WENDY_DEBUG
+  checkGL("Error during depth buffer clearing");
+#endif
 }
 
 void Context::clearStencilBuffer(unsigned int value)
@@ -782,6 +790,10 @@ void Context::clearStencilBuffer(unsigned int value)
   glClearStencil(value);
   glClear(GL_STENCIL_BUFFER_BIT);
   glPopAttrib();
+
+#if WENDY_DEBUG
+  checkGL("Error during stencil buffer clearing");
+#endif
 }
 
 void Context::render(const PrimitiveRange& range)
@@ -1035,9 +1047,11 @@ bool Context::setClipPlanes(const PlaneList& newPlanes)
   }
 
   for ( ;  index < limits->getMaxClipPlanes();  index++)
-  {
     glDisable(GL_CLIP_PLANE0 + index);
-  }
+
+#if WENDY_DEBUG
+  checkGL("Error during user clip plane setup");
+#endif
 
   return true;
 }
