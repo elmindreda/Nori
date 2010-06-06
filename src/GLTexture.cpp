@@ -192,8 +192,8 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
                     level,
 		    x,
 		    final.getWidth(),
-                    convertToGenericGL(texture.format),
-                    GL_UNSIGNED_BYTE,
+                    convertToGL(texture.format.getSemantic()),
+                    convertToGL(texture.format.getType()),
 		    final.getPixels());
 
     cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_TRUE);
@@ -215,8 +215,8 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
                     level,
 		    x, y,
 		    final.getWidth(), final.getHeight(),
-                    convertToGenericGL(texture.format),
-                    GL_UNSIGNED_BYTE,
+                    convertToGL(texture.format.getSemantic()),
+                    convertToGL(texture.format.getType()),
 		    final.getPixels());
 
     cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_TRUE);
@@ -283,8 +283,8 @@ bool TextureImage::copyTo(wendy::Image& result) const
 
   glGetTexImage(texture.textureTarget,
                 level,
-		convertToGenericGL(texture.format),
-		GL_UNSIGNED_BYTE,
+		convertToGL(texture.format.getSemantic()),
+		convertToGL(texture.format.getType()),
 		result.getPixels());
 
   cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_TRUE);
@@ -545,28 +545,26 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   {
     RGBtoRGBA transform;
     if (!final.transformTo(PixelFormat(PixelFormat::RGBA, final.getFormat().getType()),
-                      transform))
+                           transform))
     {
       Log::writeError("Failed to convert RGB source image for texture \'%s\' to RGBA",
                       getName().c_str());
       return false;
     }
+
+    Log::write("Transformed source image for texture \'%s\' from \'%s\' to \'%s\'",
+               getName().c_str(),
+               source.getFormat().asString().c_str(),
+               final.getFormat().asString().c_str());
   }
 
   format = final.getFormat();
 
-  if (!convertToGL(final.getFormat()))
+  if (!convertToGL(format))
   {
     Log::writeError("Source image for texture \'%s\' has unsupported pixel format \'%s\'",
                     getName().c_str(),
-                    final.getFormat().asString().c_str());
-    return false;
-  }
-
-  if (!convertToGL(final.getFormat().getType()))
-  {
-    Log::writeError("Source image for texture \'%s\' has unsupported component type",
-                    getName().c_str());
+                    format.asString().c_str());
     return false;
   }
 
@@ -658,23 +656,23 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   {
     glTexImage1D(textureTarget,
                   0,
-                  convertToGL(final.getFormat()),
+                  convertToGL(format),
                   final.getWidth(),
                   0,
-                  convertToGenericGL(final.getFormat()),
-                  convertToGL(final.getFormat().getType()),
+                  convertToGL(format.getSemantic()),
+                  convertToGL(format.getType()),
                   final.getPixels());
   }
   else
   {
     glTexImage2D(textureTarget,
                   0,
-                  convertToGL(final.getFormat()),
+                  convertToGL(format),
                   final.getWidth(),
                   final.getHeight(),
                   0,
-                  convertToGenericGL(final.getFormat()),
-                  convertToGL(final.getFormat().getType()),
+                  convertToGL(format.getSemantic()),
+                  convertToGL(format.getType()),
                   final.getPixels());
   }
 
@@ -837,7 +835,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
                  image.getWidth(),
                  image.getHeight(),
                  0,
-                 convertToGenericGL(image.getFormat()),
+                 convertToGL(image.getFormat().getSemantic()),
                  convertToGL(image.getFormat().getType()),
                  image.getPixels());
 

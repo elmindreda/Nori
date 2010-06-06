@@ -37,7 +37,8 @@ GLenum convertToGL(IndexBuffer::Type type);
 GLenum convertToGL(VertexComponent::Type type);
 GLenum convertToGL(PixelFormat::Type type);
 GLenum convertToGL(const PixelFormat& format);
-GLenum convertToGenericGL(const PixelFormat& format);
+GLenum convertToGL(PixelFormat::Type type);
+GLenum convertToGL(PixelFormat::Semantic semantic);
 
 ///////////////////////////////////////////////////////////////////////
 

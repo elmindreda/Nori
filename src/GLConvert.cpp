@@ -87,9 +87,31 @@ GLenum convertToGL(PixelFormat::Type type)
       return GL_UNSIGNED_SHORT;
     case PixelFormat::UINT32:
       return GL_UNSIGNED_INT;
+    case PixelFormat::FLOAT16:
+      return GL_HALF_FLOAT_ARB;
+    case PixelFormat::FLOAT32:
+      return GL_FLOAT;
   }
 
   Log::writeError("No OpenGL equivalent for pixel format type %u", type);
+  return 0;
+}
+
+GLenum convertToGL(PixelFormat::Semantic semantic)
+{
+  switch (semantic)
+  {
+    case PixelFormat::R:
+      return GL_LUMINANCE;
+    case PixelFormat::RG:
+      return GL_LUMINANCE_ALPHA;
+    case PixelFormat::RGBA:
+      return GL_RGBA;
+    case PixelFormat::DEPTH:
+      return GL_DEPTH_COMPONENT;
+  }
+
+  Log::writeError("No OpenGL equivalent for pixel format semantic %u", semantic);
   return 0;
 }
 
@@ -135,52 +157,45 @@ GLenum convertToGL(const PixelFormat& format)
 
       break;
     }
-  }
 
-  Log::writeError("No OpenGL equivalent for pixel format \'%s\'",
-                  format.asString().c_str());
-  return 0;
-}
-
-GLenum convertToGenericGL(const PixelFormat& format)
-{
-  switch (format.getType())
-  {
-    case PixelFormat::UINT8:
+    case PixelFormat::FLOAT16:
     {
+      if (!GLEW_ARB_texture_float)
+      {
+        Log::writeError("Floating point textures (ARB_texture_float) not supported; cannot convert pixel format");
+        return 0;
+      }
+
       switch (format.getSemantic())
       {
         case PixelFormat::R:
-          return GL_LUMINANCE;
+          return GL_LUMINANCE16F_ARB;
         case PixelFormat::RG:
-          return GL_LUMINANCE_ALPHA;
+          return GL_LUMINANCE_ALPHA16F_ARB;
         case PixelFormat::RGBA:
-          return GL_RGBA;
+          return GL_RGBA16F_ARB;
       }
 
       break;
     }
 
-    case PixelFormat::UINT16:
+    case PixelFormat::FLOAT32:
     {
-      if (format.getSemantic() == PixelFormat::DEPTH)
-        return GL_DEPTH_COMPONENT;
+      if (!GLEW_ARB_texture_float)
+      {
+        Log::writeError("Floating point textures (ARB_texture_float) not supported; cannot convert pixel format");
+        return 0;
+      }
 
-      break;
-    }
-
-    case PixelFormat::UINT24:
-    {
-      if (format.getSemantic() == PixelFormat::DEPTH)
-        return GL_DEPTH_COMPONENT;
-
-      break;
-    }
-
-    case PixelFormat::UINT32:
-    {
-      if (format.getSemantic() == PixelFormat::DEPTH)
-        return GL_DEPTH_COMPONENT;
+      switch (format.getSemantic())
+      {
+        case PixelFormat::R:
+          return GL_LUMINANCE32F_ARB;
+        case PixelFormat::RG:
+          return GL_LUMINANCE_ALPHA32F_ARB;
+        case PixelFormat::RGBA:
+          return GL_RGBA32F_ARB;
+      }
 
       break;
     }

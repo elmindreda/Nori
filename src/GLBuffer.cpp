@@ -855,7 +855,10 @@ bool RenderBuffer::init(const PixelFormat& initFormat,
 
   glGenRenderbuffersEXT(1, &bufferID);
   glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, bufferID);
-  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, convertToGenericGL(format), width, height);
+  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,
+                           convertToGL(format.getSemantic()),
+                           width,
+                           height);
 
   if (!checkGL("Error during creation of render buffer \'%s\' of format \'%s\'",
                getName().c_str(),
