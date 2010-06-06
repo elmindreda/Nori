@@ -171,7 +171,7 @@ bool compatible(const Varying& varying, const VertexComponent& component)
   {
     case Varying::FLOAT:
     {
-      if (component.getType() == VertexComponent::FLOAT &&
+      if (component.getType() == VertexComponent::FLOAT32 &&
           component.getElementCount() == 1)
         return true;
 
@@ -180,7 +180,7 @@ bool compatible(const Varying& varying, const VertexComponent& component)
 
     case Varying::FLOAT_VEC2:
     {
-      if (component.getType() == VertexComponent::FLOAT &&
+      if (component.getType() == VertexComponent::FLOAT32 &&
           component.getElementCount() == 2)
         return true;
 
@@ -189,7 +189,7 @@ bool compatible(const Varying& varying, const VertexComponent& component)
 
     case Varying::FLOAT_VEC3:
     {
-      if (component.getType() == VertexComponent::FLOAT &&
+      if (component.getType() == VertexComponent::FLOAT32 &&
           component.getElementCount() == 3)
         return true;
 
@@ -198,7 +198,7 @@ bool compatible(const Varying& varying, const VertexComponent& component)
 
     case Varying::FLOAT_VEC4:
     {
-      if (component.getType() == VertexComponent::FLOAT &&
+      if (component.getType() == VertexComponent::FLOAT32 &&
           component.getElementCount() == 4)
         return true;
 

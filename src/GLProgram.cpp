@@ -1109,7 +1109,7 @@ bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
     if (!component)
       return false;
 
-    if (component->getType() != VertexComponent::FLOAT)
+    if (component->getType() != VertexComponent::FLOAT32)
       return false;
 
     if ((component->getElementCount() == 1 && entry.second != Varying::FLOAT) ||

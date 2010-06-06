@@ -61,12 +61,13 @@ size_t VertexComponent::getSize(void) const
 {
   switch (type)
   {
-    case DOUBLE:
-      return sizeof(double) * count;
-    case FLOAT:
-      return sizeof(float) * count;
-    case INT:
-      return sizeof(int) * count;
+    case FLOAT32:
+    case INT32:
+      return 4 * count;
+    case INT16:
+      return 2 * count;
+    case INT8:
+      return 1 * count;
     default:
       return 0;
   }
@@ -151,14 +152,17 @@ bool VertexFormat::createComponents(const String& specification)
 
     switch (tolower(*command))
     {
-      case 'd':
-	type = VertexComponent::DOUBLE;
-	break;
       case 'f':
-	type = VertexComponent::FLOAT;
+	type = VertexComponent::FLOAT32;
 	break;
       case 'i':
-	type = VertexComponent::INT;
+	type = VertexComponent::INT32;
+	break;
+      case 's':
+	type = VertexComponent::INT16;
+	break;
+      case 'b':
+	type = VertexComponent::INT8;
 	break;
       default:
 	if (std::isgraph(*command))
@@ -249,14 +253,17 @@ String VertexFormat::asString(void) const
 
     switch ((*i).type)
     {
-      case VertexComponent::DOUBLE:
-	result << 'd';
-	break;
-      case VertexComponent::FLOAT:
+      case VertexComponent::FLOAT32:
 	result << 'f';
 	break;
-      case VertexComponent::INT:
+      case VertexComponent::INT32:
 	result << 'i';
+	break;
+      case VertexComponent::INT16:
+	result << 's';
+	break;
+      case VertexComponent::INT8:
+	result << 'b';
 	break;
       default:
         return "invalid";

@@ -48,19 +48,22 @@ public:
    */
   enum Type
   {
-    /*! Component elements are doubles.
+    /*! Component elements are 32-bit floating-point (float).
      */
-    DOUBLE,
-    /*! Component elements are floats.
+    FLOAT32,
+    /*! Component elements are 32-bit integers (int).
      */
-    FLOAT,
-    /*! Component elements are ints.
+    INT32,
+    /*! Component elements are 16-bit integers (short).
      */
-    INT,
+    INT16,
+    /*! Component elements are 8-bit integers (char).
+     */
+    INT8,
   };
   /*! Constructor.
    */
-  VertexComponent(const String& name, size_t count, Type type = FLOAT);
+  VertexComponent(const String& name, size_t count, Type type);
   /*! Equality operator.
    */
   bool operator == (const VertexComponent& other) const;
@@ -112,7 +115,7 @@ public:
   explicit VertexFormat(const String& specification);
   bool createComponent(const String& name,
                        size_t count,
-		       VertexComponent::Type type = VertexComponent::FLOAT);
+		       VertexComponent::Type type);
   bool createComponents(const String& specification);
   void destroyComponents(void);
   const VertexComponent* findComponent(const String& name) const;
