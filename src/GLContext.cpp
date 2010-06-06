@@ -786,15 +786,16 @@ void Context::clearStencilBuffer(unsigned int value)
 
 void Context::render(const PrimitiveRange& range)
 {
-  if (range.isEmpty())
-  {
-    Log::writeWarning("Rendering empty primitive range");
-    return;
-  }
-
   if (!currentProgram)
   {
     Log::writeError("Unable to render without a current shader program");
+    return;
+  }
+
+  if (range.isEmpty())
+  {
+    Log::writeWarning("Rendering empty primitive range with shader program \'%s\'",
+                      currentProgram->getName().c_str());
     return;
   }
 
