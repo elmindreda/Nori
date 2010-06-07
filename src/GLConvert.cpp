@@ -107,6 +107,8 @@ GLenum convertToGL(PixelFormat::Semantic semantic)
       return GL_LUMINANCE;
     case PixelFormat::RG:
       return GL_LUMINANCE_ALPHA;
+    case PixelFormat::RGB:
+      return GL_RGB;
     case PixelFormat::RGBA:
       return GL_RGBA;
     case PixelFormat::DEPTH:
@@ -129,6 +131,8 @@ GLenum convertToGL(const PixelFormat& format)
           return GL_LUMINANCE8;
         case PixelFormat::RG:
           return GL_LUMINANCE8_ALPHA8;
+        case PixelFormat::RGB:
+          return GL_RGB8;
         case PixelFormat::RGBA:
           return GL_RGBA8;
       }
@@ -174,6 +178,8 @@ GLenum convertToGL(const PixelFormat& format)
           return GL_LUMINANCE16F_ARB;
         case PixelFormat::RG:
           return GL_LUMINANCE_ALPHA16F_ARB;
+        case PixelFormat::RGB:
+          return GL_RGB16F_ARB;
         case PixelFormat::RGBA:
           return GL_RGBA16F_ARB;
       }
@@ -195,6 +201,8 @@ GLenum convertToGL(const PixelFormat& format)
           return GL_LUMINANCE32F_ARB;
         case PixelFormat::RG:
           return GL_LUMINANCE_ALPHA32F_ARB;
+        case PixelFormat::RGB:
+          return GL_RGB32F_ARB;
         case PixelFormat::RGBA:
           return GL_RGBA32F_ARB;
       }

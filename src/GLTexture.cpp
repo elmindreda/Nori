@@ -448,6 +448,10 @@ void Texture::setFilterMode(FilterMode newMode)
 
     cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
   }
+
+#if WENDY_DEBUG
+  checkGL("Error when changing filter mode for texture \'%s\'", getName().c_str());
+#endif
 }
 
 AddressMode Texture::getAddressMode(void) const
@@ -474,6 +478,10 @@ void Texture::setAddressMode(AddressMode newMode)
 
     addressMode = newMode;
   }
+
+#if WENDY_DEBUG
+  checkGL("Error when changing address mode for texture \'%s\'", getName().c_str());
+#endif
 }
 
 const PixelFormat& Texture::getFormat(void) const
@@ -540,23 +548,6 @@ Texture::Texture(const Texture& source):
 bool Texture::init(const wendy::Image& source, unsigned int initFlags)
 {
   wendy::Image final = source;
-
-  if (final.getFormat().getSemantic() == PixelFormat::RGB)
-  {
-    RGBtoRGBA transform;
-    if (!final.transformTo(PixelFormat(PixelFormat::RGBA, final.getFormat().getType()),
-                           transform))
-    {
-      Log::writeError("Failed to convert RGB source image for texture \'%s\' to RGBA",
-                      getName().c_str());
-      return false;
-    }
-
-    Log::write("Transformed source image for texture \'%s\' from \'%s\' to \'%s\'",
-               getName().c_str(),
-               source.getFormat().asString().c_str(),
-               final.getFormat().asString().c_str());
-  }
 
   format = final.getFormat();
 
