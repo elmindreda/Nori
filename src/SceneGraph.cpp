@@ -246,8 +246,7 @@ void Node::update(void)
 {
   const List& children = getChildren();
 
-  for (List::const_iterator i = children.begin();  i != children.end();  i++)
-    (*i)->update();
+  std::for_each(children.begin(), children.end(), std::mem_fun(&Node::update));
 }
 
 void Node::enqueue(render::Queue& queue) const
@@ -334,8 +333,7 @@ Graph::~Graph(void)
 
 void Graph::update(void)
 {
-  for (Node::List::const_iterator i = roots.begin();  i != roots.end();  i++)
-    (*i)->update();
+  std::for_each(roots.begin(), roots.end(), std::mem_fun(&Node::update));
 }
 
 void Graph::enqueue(render::Queue& queue) const
