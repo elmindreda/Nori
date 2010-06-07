@@ -62,7 +62,7 @@ unsigned int getNextPower(unsigned int value)
   return 1 << (count + 1);
 }
 
-}
+} /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
