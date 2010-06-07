@@ -83,9 +83,8 @@ bool ShowCodec::write(Stream& stream, const Show& show)
     addAttribute("title", show.getTitle());
     addAttribute("music", show.getMusicPath().asString());
 
-    const Effect::List& children = show.getRootEffect().getChildren();
-
-    for (Effect::List::const_iterator i = children.begin();  i != children.end();  i++)
+    const Effect::List& effects = show.getEffects();
+    for (Effect::List::const_iterator i = effects.begin();  i != effects.end();  i++)
       writeEffect(**i);
 
     endElement();
@@ -113,7 +112,6 @@ bool ShowCodec::onBeginElement(const String& name)
 
     show->setTitle(readString("title"));
     show->setMusicPath(Path(readString("music")));
-    effectStack.push(&(show->getRootEffect()));
     return true;
   }
 
@@ -137,7 +135,11 @@ bool ShowCodec::onBeginElement(const String& name)
       effect->setStartTime(readFloat("start"));
       effect->setDuration(readFloat("duration"));
 
-      effectStack.top()->addChild(*effect);
+      if (effectStack.empty())
+        show->addEffect(*effect);
+      else
+        effectStack.top()->addChild(*effect);
+
       effectStack.push(effect);
       return true;
     }

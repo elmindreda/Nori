@@ -38,14 +38,27 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+void Show::addEffect(Effect& effect)
+{
+  effect.removeFromParent();
+  effects.push_back(&effect);
+  effect.setShow(this);
+}
+
+void Show::destroyEffects(void)
+{
+  while (!effects.empty())
+    delete effects.back();
+}
+
 void Show::prepare(void) const
 {
-  root->prepare();
+  std::for_each(effects.begin(), effects.end(), std::mem_fun(&Effect::prepare));
 }
 
 void Show::render(void) const
 {
-  root->render();
+  std::for_each(effects.begin(), effects.end(), std::mem_fun(&Effect::render));
 }
 
 const String& Show::getTitle(void) const
@@ -56,6 +69,11 @@ const String& Show::getTitle(void) const
 void Show::setTitle(const String& newTitle)
 {
   title = newTitle;
+}
+
+const Effect::List& Show::getEffects(void) const
+{
+  return effects;
 }
 
 const Path& Show::getMusicPath(void) const
@@ -72,9 +90,7 @@ Time Show::getDuration(void) const
 {
   Time duration = 0.0;
 
-  const Effect::List& children = root->getChildren();
-
-  for (Effect::List::const_iterator i = children.begin();  i != children.end();  i++)
+  for (Effect::List::const_iterator i = effects.begin();  i != effects.end();  i++)
     duration = std::max(duration, (*i)->start + (*i)->duration);
 
   return duration;
@@ -82,27 +98,15 @@ Time Show::getDuration(void) const
 
 Time Show::getTimeElapsed(void) const
 {
-  return root->getTimeElapsed();
+  return elapsed;
 }
 
 void Show::setTimeElapsed(Time newTime)
 {
-  newTime = std::max(newTime, 0.0);
+  elapsed = std::max(newTime, 0.0);
 
-  // TODO: Remove this hack.
-  root->setDuration(getDuration());
-
-  updateEffect(*root, newTime);
-}
-
-Effect& Show::getRootEffect(void)
-{
-  return *root;
-}
-
-const Effect& Show::getRootEffect(void) const
-{
-  return *root;
+  for (Effect::List::const_iterator i = effects.begin();  i != effects.end();  i++)
+    updateEffect(**i, elapsed);
 }
 
 Show* Show::createInstance(const String& name)
@@ -134,13 +138,6 @@ bool Show::init(void)
 
     if (!EffectType::findInstance(name))
       new EffectTemplate<ClearEffect>(name);
-  }
-
-  root = EffectType::findInstance("Null effect")->createEffect("Root effect");
-  if (!root)
-  {
-    Log::writeError("Failed to create root effect");
-    return false;
   }
 
   title = "Demo";

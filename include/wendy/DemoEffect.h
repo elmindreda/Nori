@@ -26,10 +26,6 @@
 #define WENDY_DEMOEFFECT_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Node.h>
-
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
   namespace demo
@@ -47,6 +43,7 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 class Effect;
+class Show;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -85,17 +82,30 @@ public:
 /*! @brief Demo effect base class.
  *  @ingroup demo
  */
-class Effect : public Node<Effect>, public Managed<Effect>
+class Effect
 {
   friend class Show;
   friend class Property;
 public:
+  typedef std::vector<Effect*> List;
   typedef std::vector<Property*> PropertyList;
   Effect(EffectType& type, const String& name = "");
   ~Effect(void);
+  bool addChild(Effect& child);
+  void destroyChildren(void);
+  void removeFromParent(void);
   Property* findProperty(const String& name);
   bool isActive(void) const;
+  bool isChildOf(const Effect& effect) const;
   EffectType& getType(void) const;
+  const String& getName(void) const;
+  Show* getShow(void) const;
+  /*! @return The parent of this widget, or @c NULL if it has no parent.
+   */
+  Effect* getParent(void) const;
+  /*! @return The child widgets of this widget.
+   */
+  const List& getChildren(void) const;
   Time getGlobalOffset(void) const;
   Time getStartTime(void) const;
   void setStartTime(Time newTime);
@@ -111,9 +121,14 @@ protected:
   virtual void update(Time deltaTime);
   virtual void restart(void);
 private:
+  void setShow(Show* newShow);
+  EffectType& type;
+  String name;
+  Show* show;
+  Effect* parent;
+  List children;
   bool active;
   bool updated;
-  EffectType& type;
   Time start;
   Time duration;
   Time elapsed;

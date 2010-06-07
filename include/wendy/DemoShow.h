@@ -38,27 +38,31 @@ namespace wendy
  */
 class Show : public Resource<Show>
 {
+  friend class Effect;
 public:
+  void addEffect(Effect& effect);
+  void removeEffect(Effect& effect);
+  void destroyEffects(void);
   void prepare(void) const;
   void render(void) const;
   const String& getTitle(void) const;
   void setTitle(const String& newTitle);
+  const Effect::List& getEffects(void) const;
   const Path& getMusicPath(void) const;
   void setMusicPath(const Path& newPath);
   Time getDuration(void) const;
   Time getTimeElapsed(void) const;
   void setTimeElapsed(Time newTime);
-  Effect& getRootEffect(void);
-  const Effect& getRootEffect(void) const;
   static Show* createInstance(const String& name = "");
 private:
   Show(const String& name);
   bool init(void);
   void updateEffect(Effect& effect, Time newTime);
   void deactivateChildren(Effect& effect);
-  Ptr<Effect> root;
   String title;
+  Effect::List effects;
   Path musicPath;
+  Time elapsed;
 };
 
 ///////////////////////////////////////////////////////////////////////

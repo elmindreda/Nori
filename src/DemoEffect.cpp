@@ -27,6 +27,7 @@
 
 #include <wendy/DemoProperty.h>
 #include <wendy/DemoEffect.h>
+#include <wendy/DemoShow.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -44,9 +45,11 @@ EffectType::EffectType(const String& name):
 
 ///////////////////////////////////////////////////////////////////////
 
-Effect::Effect(EffectType& initType, const String& name):
-  Managed<Effect>(name),
+Effect::Effect(EffectType& initType, const String& initName):
   type(initType),
+  name(initName),
+  show(NULL),
+  parent(NULL),
   active(false),
   updated(false),
   start(0.0),
@@ -57,8 +60,49 @@ Effect::Effect(EffectType& initType, const String& name):
 
 Effect::~Effect(void)
 {
+  destroyChildren();
+  removeFromParent();
+
   while (!properties.empty())
     delete properties.back();
+}
+
+bool Effect::addChild(Effect& child)
+{
+  if (isChildOf(child))
+    return false;
+
+  child.removeFromParent();
+
+  children.push_back(&child);
+  child.parent = this;
+  child.setShow(show);
+
+  return true;
+}
+
+void Effect::destroyChildren(void)
+{
+  while (!children.empty())
+    delete children.back();
+}
+
+void Effect::removeFromParent(void)
+{
+  if (parent)
+  {
+    List& siblings = parent->children;
+    siblings.erase(std::find(siblings.begin(), siblings.end(), this));
+
+    parent = NULL;
+  }
+  else if (show)
+  {
+    List& effects = show->effects;
+    effects.erase(std::find(effects.begin(), effects.end(), this));
+  }
+
+  setShow(NULL);
 }
 
 Property* Effect::findProperty(const String& name)
@@ -77,9 +121,42 @@ bool Effect::isActive(void) const
   return active;
 }
 
+bool Effect::isChildOf(const Effect& effect) const
+{
+  if (parent != NULL)
+  {
+    if (parent == &effect)
+      return true;
+
+    return parent->isChildOf(effect);
+  }
+
+  return false;
+}
+
 EffectType& Effect::getType(void) const
 {
   return type;
+}
+
+const String& Effect::getName(void) const
+{
+  return name;
+}
+
+Show* Effect::getShow(void) const
+{
+  return show;
+}
+
+Effect* Effect::getParent(void) const
+{
+  return parent;
+}
+
+const Effect::List& Effect::getChildren(void) const
+{
+  return children;
 }
 
 Time Effect::getGlobalOffset(void) const
@@ -169,6 +246,14 @@ void Effect::update(Time deltaTime)
 
 void Effect::restart(void)
 {
+}
+
+void Effect::setShow(Show* newShow)
+{
+  show = newShow;
+
+  for (List::const_iterator c = children.begin();  c != children.end();  c++)
+    (*c)->setShow(show);
 }
 
 ///////////////////////////////////////////////////////////////////////
