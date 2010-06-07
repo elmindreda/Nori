@@ -71,13 +71,17 @@ void Label::setText(const char* format, ...)
 {
   va_list vl;
   char* newText;
+  int result;
 
   va_start(vl, format);
-  vasprintf(&newText, format, vl);
+  result = vasprintf(&newText, format, vl);
   va_end(vl);
 
+  if (result < 0)
+    return;
+
   text = newText;
-  free(newText);
+  std::free(newText);
 }
 
 const Alignment& Label::getTextAlignment(void) const
