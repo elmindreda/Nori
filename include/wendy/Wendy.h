@@ -166,8 +166,6 @@
 #include <wendy/DemoProperty.h>
 #include <wendy/DemoEffect.h>
 #include <wendy/DemoShow.h>
-#include <wendy/DemoTimeline.h>
-#include <wendy/DemoEditor.h>
 #endif
 
 ///////////////////////////////////////////////////////////////////////
