@@ -107,11 +107,9 @@ void Entry::draw(void) const
 
       if (caretPosition > startPosition)
       {
-	render::Font::LayoutList layouts;
-	renderer.getDefaultFont().getTextLayout(layouts, text.substr(startPosition, caretPosition));
-
-	const render::Font::Layout& glyph = layouts[caretPosition - 1];
-	position = glyph.penOffset.x + glyph.area.size.x;
+	render::Font& font = renderer.getDefaultFont();
+        Rect metrics = font.getTextMetrics(text.substr(startPosition, caretPosition));
+	position = metrics.size.x;
       }
 
       Segment2 segment;
@@ -134,23 +132,23 @@ void Entry::onButtonClicked(Widget& widget,
 			    input::Button button,
 			    bool clicked)
 {
-  float position = transformToLocal(point).x;
-
   Renderer& renderer = getDesktop().getRenderer();
 
   const float em = renderer.getDefaultEM();
+  const float offset = em / 2.f;
+  float position = transformToLocal(point).x - offset;
 
   render::Font::LayoutList layouts;
   renderer.getDefaultFont().getTextLayout(layouts, text.substr(startPosition, String::npos));
 
-  float offset = em / 2.f;
   unsigned int index;
 
   // TODO: Improve this, it sucks.
 
   for (index = 0;  index < layouts.size();  index++)
   {
-    if (offset + layouts[index].penOffset.x > position)
+    position -= layouts[index].advance.x;
+    if (position < 0.f)
       break;
   }
 

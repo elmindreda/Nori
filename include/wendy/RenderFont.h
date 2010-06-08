@@ -52,11 +52,11 @@ public:
   /*! Renders the specified text at the current pen position.
    *  @param text The text to render.
    */
-  void drawText(const Vec2 penPosition, const ColorRGBA& color, const String& text) const;
+  void drawText(const Vec2& penPosition, const ColorRGBA& color, const String& text) const;
   /*! Renders the specified text at the current pen position.
    *  @param format The format string for the text to render.
    */
-  void drawText(const Vec2 penPosition, const ColorRGBA& color, const char* format, ...) const;
+  void drawText(const Vec2& penPosition, const ColorRGBA& color, const char* format, ...) const;
   /*! @return The width, in pixels, of the character cell for this font.
    */
   float getWidth(void) const;
@@ -96,7 +96,12 @@ private:
   Font(const Font& source);
   Font& operator = (const Font& source);
   bool init(const wendy::Font& font);
-  const Glyph* getGlyph(char character) const;
+  const Glyph* findGlyph(char character) const;
+  bool getGlyphLayout(Layout& layout, char character) const;
+  void getGlyphLayout(Layout& layout, const Glyph& glyph, char character) const;
+  void realizeVertices(const Rect& pixelArea,
+                       const Rect& texelArea,
+                       GL::Vertex2ft2fv* vertices) const;
   typedef std::list<Glyph> GlyphList;
   typedef std::map<char, Glyph*> GlyphMap;
   GlyphList glyphs;
@@ -115,7 +120,7 @@ class Font::Layout
 {
 public:
   Rect area;
-  Vec2 penOffset;
+  Vec2 advance;
   char character;
 };
 
@@ -126,7 +131,6 @@ public:
 class Font::Glyph
 {
 public:
-  void realizeVertices(Vec2 penPosition, GL::Vertex2ft2fv* vertices) const;
   Rect area;
   Vec2 bearing;
   Vec2 size;

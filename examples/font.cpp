@@ -6,6 +6,24 @@ using namespace wendy;
 namespace
 {
 
+const char* lines[] =
+{
+  "In A.D. 2101, war was beginning",
+  "What happen?",
+  "Somebody set up us the bomb.",
+  "We get signal.",
+  "What?",
+  "Main screen turn on.",
+  "It's you.",
+  "How are you gentlemen?",
+  "All your base are belong to us.",
+  "You are on the way to destruction.",
+  "What you say?",
+  "You have no chance to survive make your time.",
+  "Ha ha ha ....",
+  NULL
+};
+
 class Demo : public Trackable
 {
 public:
@@ -61,23 +79,15 @@ bool Demo::render(void)
   context->clearColorBuffer();
   context->setProjectionMatrix2D(640.f, 480.f);
 
-  String text = "In A.D. 2101, war was beginning\n"
-		"What happen?\n"
-		"Somebody set up us the bomb.\n"
-		"We get signal.\n"
-		"What?\n"
-		"Main screen turn on.\n"
-		"It's you.\n"
-		"How are you gentlemen?\n"
-                "All your base are belong to us.\n"
-                "You are on the way to destruction.\n"
-		"What you say?\n"
-                "You have no chance to survive make your time.\n"
-		"Ha ha ha ....";
+  const float em = font->getHeight();
 
   Vec2 pen(100.f, 400.f);
 
-  font->drawText(pen, ColorRGBA::WHITE, text);
+  for (size_t i = 0;  lines[i];  i++)
+  {
+    font->drawText(pen, ColorRGBA::WHITE, lines[i]);
+    pen.y -= em * 1.5;
+  }
 
   return true;
 }

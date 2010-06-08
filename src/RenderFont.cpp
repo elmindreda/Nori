@@ -66,7 +66,7 @@ unsigned int getNextPower(unsigned int value)
 
 ///////////////////////////////////////////////////////////////////////
 
-void Font::drawText(const Vec2 penPosition, const ColorRGBA& color, const String& text) const
+void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const String& text) const
 {
   GL::VertexRange vertexRange;
   if (!GeometryPool::get()->allocateVertices(vertexRange,
@@ -81,11 +81,9 @@ void Font::drawText(const Vec2 penPosition, const ColorRGBA& color, const String
 
   // Realize vertices for glyphs
   {
-    Vec2 roundedPen = penPosition;
-    roundedPen.x = floorf(roundedPen.x + 0.5f);
-    roundedPen.y = floorf(roundedPen.y + 0.5f);
-
-    Vec2 penOffset(0.f, 0.f);
+    Vec2 roundedPen;
+    roundedPen.x = floorf(penPosition.x + 0.5f);
+    roundedPen.y = floorf(penPosition.y + 0.5f);
 
     GL::VertexRangeLock<GL::Vertex2ft2fv> vertices(vertexRange);
     if (!vertices)
@@ -94,49 +92,19 @@ void Font::drawText(const Vec2 penPosition, const ColorRGBA& color, const String
       return;
     }
 
+    Layout layout;
+
     for (String::const_iterator c = text.begin();  c != text.end();  c++)
     {
-      switch (*c)
+      if (const Glyph* glyph = findGlyph(*c))
       {
-	case '\t':
-	{
-	  penOffset.x += size.x * 3.f;
-	  break;
-	}
+        getGlyphLayout(layout, *glyph, *c);
+        layout.area.position += roundedPen;
+        roundedPen += layout.advance;
 
-	case '\n':
-	{
-	  penOffset.x = 0.f;
-	  penOffset.y -= size.y * 1.2f;
-	  break;
-	}
-
-	case ' ':
-	{
-	  const Glyph* glyph = getGlyph(*c);
-	  if (!glyph)
-	    continue;
-
-	  penOffset.x += glyph->advance;
-	  break;
-	}
-
-	default:
-	{
-	  const Glyph* glyph = getGlyph(*c);
-	  if (!glyph)
-	    continue;
-
-	  glyph->realizeVertices(roundedPen + penOffset, vertices + count);
-	  count += 6;
-
-	  penOffset.x += glyph->advance;
-	  break;
-	}
+        realizeVertices(layout.area, glyph->area, vertices + count);
+        count += 6;
       }
-
-      penOffset.x = floorf(penOffset.x + 0.5f);
-      penOffset.y = floorf(penOffset.y + 0.5f);
     }
   }
 
@@ -149,7 +117,7 @@ void Font::drawText(const Vec2 penPosition, const ColorRGBA& color, const String
 				                count));
 }
 
-void Font::drawText(const Vec2 penPosition, const ColorRGBA& color, const char* format, ...) const
+void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const char* format, ...) const
 {
   va_list vl;
   char* text;
@@ -189,13 +157,15 @@ float Font::getDescender(void) const
 
 Rect Font::getTextMetrics(const String& text) const
 {
-  Rect result(Vec2::ZERO, Vec2::ZERO);
+  Rect result(0.f, 0.f, 0.f, 0.f);
 
-  LayoutList layout;
-  getTextLayout(layout, text);
+  Layout layout;
 
-  for (LayoutList::const_iterator i = layout.begin();  i != layout.end();  i++)
-    result.envelop((*i).area);
+  for (String::const_iterator c = text.begin();  c != text.end();  c++)
+  {
+    if (getGlyphLayout(layout, *c))
+      result.envelop(layout.area);
+  }
 
   return result;
 }
@@ -221,55 +191,12 @@ Rect Font::getTextMetrics(const char* format, ...) const
 
 void Font::getTextLayout(LayoutList& result, const String& text) const
 {
-  Vec2 pen(0.f, 0.f);
-
   for (String::const_iterator c = text.begin();  c != text.end();  c++)
   {
     Layout layout;
-    layout.character = *c;
-    layout.penOffset = pen;
 
-    switch (*c)
-    {
-      case '\t':
-      {
-	layout.area.set(pen, Vec2::ZERO);
-	pen.x += size.x * 3.f;
-	break;
-      }
-
-      case '\n':
-      {
-	layout.area.set(pen, Vec2::ZERO);
-	pen.x = 0.f;
-	pen.y -= size.y * 1.2f;
-	break;
-      }
-
-      default:
-      {
-	const Glyph* glyph = getGlyph(*c);
-	if (!glyph)
-	{
-	  glyph = getGlyph('?');
-	  if (!glyph)
-	    continue;
-	}
-
-	layout.area.position.x = pen.x + glyph->bearing.x;
-	layout.area.position.y = pen.y - glyph->size.y + glyph->bearing.y;
-	layout.area.size.set((float) glyph->size.x,
-	                     (float) glyph->size.y);
-
-	pen.x += glyph->advance;
-	break;
-      }
-    }
-
-    result.push_back(layout);
-
-    pen.x = floorf(pen.x + 0.5f);
-    pen.y = floorf(pen.y + 0.5f);
+    if (getGlyphLayout(layout, *c))
+      result.push_back(layout);
   }
 }
 
@@ -458,7 +385,7 @@ bool Font::init(const wendy::Font& font)
   return true;
 }
 
-const Font::Glyph* Font::getGlyph(char character) const
+const Font::Glyph* Font::findGlyph(char character) const
 {
   GlyphMap::const_iterator i = glyphMap.find(character);
   if (i == glyphMap.end())
@@ -467,16 +394,36 @@ const Font::Glyph* Font::getGlyph(char character) const
   return (*i).second;
 }
 
-///////////////////////////////////////////////////////////////////////
-
-void Font::Glyph::realizeVertices(Vec2 penPosition, GL::Vertex2ft2fv* vertices) const
+bool Font::getGlyphLayout(Layout& layout, char character) const
 {
-  const Rect& ta = area;
+  const Glyph* glyph = findGlyph(character);
+  if (!glyph)
+    return false;
 
-  Rect pa;
-  pa.position = penPosition;
-  pa.position.y += bearing.y - size.y;
-  pa.size = size;
+  getGlyphLayout(layout, *glyph, character);
+  return true;
+}
+
+void Font::getGlyphLayout(Layout& layout, const Glyph& glyph, char character) const
+{
+  layout.character = character;
+
+  layout.area.position.x = glyph.bearing.x;
+  layout.area.position.y = glyph.bearing.y - glyph.size.y;
+  layout.area.size.x = (float) glyph.size.x;
+  layout.area.size.y = (float) glyph.size.y;
+
+  layout.advance.set(glyph.advance, 0.f);
+  layout.advance.x = floorf(layout.advance.x + 0.5f);
+  layout.advance.y = floorf(layout.advance.y + 0.5f);
+}
+
+void Font::realizeVertices(const Rect& pixelArea,
+                           const Rect& texelArea,
+                           GL::Vertex2ft2fv* vertices) const
+{
+  const Rect& pa = pixelArea;
+  const Rect& ta = texelArea;
 
   vertices[0].mapping.set(ta.position.x, ta.position.y);
   vertices[0].position.set(pa.position.x, pa.position.y);
