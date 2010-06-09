@@ -65,22 +65,6 @@ enum LockType
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Primitive type enumeration.
- *  @ingroup opengl
- */
-enum PrimitiveType
-{
-  POINT_LIST,
-  LINE_LIST,
-  LINE_STRIP,
-  LINE_LOOP,
-  TRIANGLE_LIST,
-  TRIANGLE_STRIP,
-  TRIANGLE_FAN,
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Vertex buffer.
  *  @ingroup opengl
  */

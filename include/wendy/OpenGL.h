@@ -38,6 +38,22 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Primitive type enumeration.
+ *  @ingroup opengl
+ */
+enum PrimitiveType
+{
+  POINT_LIST,
+  LINE_LIST,
+  LINE_STRIP,
+  LINE_LOOP,
+  TRIANGLE_LIST,
+  TRIANGLE_STRIP,
+  TRIANGLE_FAN,
+};
+
+///////////////////////////////////////////////////////////////////////
+
 bool checkGL(const char* format, ...);
 bool checkCg(const char* format, ...);
 
