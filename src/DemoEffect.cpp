@@ -25,6 +25,10 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/OpenGL.h>
+#include <wendy/GLProgram.h>
+#include <wendy/GLContext.h>
+
 #include <wendy/DemoProperty.h>
 #include <wendy/DemoEffect.h>
 #include <wendy/DemoShow.h>

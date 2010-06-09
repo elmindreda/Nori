@@ -26,12 +26,10 @@
 #define WENDY_DEMOPROPERTY_H
 ///////////////////////////////////////////////////////////////////////
 
+#include <wendy/Core.h>
 #include <wendy/Bimap.h>
 
-#include <wendy/UIRender.h>
-#include <wendy/UIDesktop.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UISlider.h>
+#include <wendy/RenderMaterial.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -50,12 +48,11 @@ class Effect;
 /*! @brief Demo effect property key superclass.
  *  @ingroup demo
  */
-class PropertyKey : public Trackable
+class PropertyKey
 {
 public:
   PropertyKey(Property& property);
   virtual ~PropertyKey(void);
-  virtual UI::Widget* createManipulator(void) = 0;
   virtual String asString(void) const = 0;
   virtual void setStringValue(const String& newValue) = 0;
   Property& getProperty(void) const;
@@ -130,13 +127,11 @@ class FloatKey : public PropertyKey
 {
 public:
   FloatKey(Property& property);
-  UI::Widget* createManipulator(void);
   float getValue(void) const;
   void setValue(float newValue);
   String asString(void) const;
   void setStringValue(const String& newValue);
 private:
-  void onValueChanged(UI::Slider& slider);
   float value;
 };
 
@@ -170,7 +165,6 @@ class BooleanKey : public PropertyKey
 {
 public:
   BooleanKey(Property& property);
-  UI::Widget* createManipulator(void);
   bool getValue(void) const;
   void setValue(bool newValue);
   String asString(void) const;
@@ -202,7 +196,6 @@ class EnumKey : public PropertyKey
 {
 public:
   EnumKey(Property& property);
-  UI::Widget* createManipulator(void);
   unsigned int getValue(void) const;
   void setValue(unsigned int newValue);
   String asString(void) const;
@@ -238,7 +231,6 @@ class TextureKey : public PropertyKey
 {
 public:
   TextureKey(Property& property);
-  UI::Widget* createManipulator(void);
   GL::Texture* getValue(void) const;
   void setValue(GL::Texture* newTexture);
   String asString(void) const;
@@ -271,7 +263,6 @@ class MaterialKey : public PropertyKey
 {
 public:
   MaterialKey(Property& property);
-  UI::Widget* createManipulator(void);
   render::Material* getValue(void) const;
   void setValue(render::Material* newMaterial);
   String asString(void) const;
@@ -304,7 +295,6 @@ class ColorKeyRGB : public PropertyKey
 {
 public:
   ColorKeyRGB(Property& property);
-  UI::Widget* createManipulator(void);
   ColorRGB getValue(void) const;
   void setValue(ColorRGB newValue);
   String asString(void) const;

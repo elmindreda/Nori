@@ -219,11 +219,6 @@ FloatKey::FloatKey(Property& property):
 {
 }
 
-UI::Widget* FloatKey::createManipulator(void)
-{
-  return NULL;
-}
-
 float FloatKey::getValue(void) const
 {
   return value;
@@ -252,11 +247,6 @@ void FloatKey::setStringValue(const String& newValue)
   value = Variant::convertToFloat(newValue);
   value = std::max(std::min(value, property.getMaxValue()),
                    property.getMinValue());
-}
-
-void FloatKey::onValueChanged(UI::Slider& slider)
-{
-  value = slider.getValue();
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -299,11 +289,6 @@ BooleanKey::BooleanKey(Property& property):
   PropertyKey(property),
   value(false)
 {
-}
-
-UI::Widget* BooleanKey::createManipulator(void)
-{
-  return NULL;
 }
 
 bool BooleanKey::getValue(void) const
@@ -353,11 +338,6 @@ EnumKey::EnumKey(Property& property):
   PropertyKey(property),
   value(0)
 {
-}
-
-UI::Widget* EnumKey::createManipulator(void)
-{
-  return NULL;
 }
 
 unsigned int EnumKey::getValue(void) const
@@ -426,11 +406,6 @@ TextureKey::TextureKey(Property& property):
 {
 }
 
-UI::Widget* TextureKey::createManipulator(void)
-{
-  return NULL;
-}
-
 GL::Texture* TextureKey::getValue(void) const
 {
   return texture;
@@ -491,11 +466,6 @@ GL::Texture* TextureProperty::interpolateKeys(const TextureKey& start,
 MaterialKey::MaterialKey(Property& property):
   PropertyKey(property)
 {
-}
-
-UI::Widget* MaterialKey::createManipulator(void)
-{
-  return NULL;
 }
 
 render::Material* MaterialKey::getValue(void) const
@@ -559,11 +529,6 @@ ColorKeyRGB::ColorKeyRGB(Property& property):
   PropertyKey(property),
   value(ColorRGB::BLACK)
 {
-}
-
-UI::Widget* ColorKeyRGB::createManipulator(void)
-{
-  return NULL;
 }
 
 ColorRGB ColorKeyRGB::getValue(void) const
