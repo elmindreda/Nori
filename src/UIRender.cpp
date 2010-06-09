@@ -403,9 +403,19 @@ const ColorRGB& Renderer::getWidgetColor(void)
   return widgetColor;
 }
 
+void Renderer::setWidgetColor(const ColorRGB& newColor)
+{
+  widgetColor = newColor;
+}
+
 const ColorRGB& Renderer::getTextColor(void)
 {
   return textColor;
+}
+
+void Renderer::setTextColor(const ColorRGB& newColor)
+{
+  textColor = newColor;
 }
 
 const ColorRGB& Renderer::getWellColor(void)
@@ -413,14 +423,29 @@ const ColorRGB& Renderer::getWellColor(void)
   return wellColor;
 }
 
-const ColorRGB& Renderer::getSelectedTextColor(void)
+void Renderer::setWellColor(const ColorRGB& newColor)
 {
-  return selectedTextColor;
+  wellColor = newColor;
 }
 
 const ColorRGB& Renderer::getSelectionColor(void)
 {
   return selectionColor;
+}
+
+void Renderer::setSelectionColor(const ColorRGB& newColor)
+{
+  selectionColor = newColor;
+}
+
+const ColorRGB& Renderer::getSelectedTextColor(void)
+{
+  return selectedTextColor;
+}
+
+void Renderer::setSelectedTextColor(const ColorRGB& newColor)
+{
+  selectedTextColor = newColor;
 }
 
 render::Font& Renderer::getCurrentFont(void)

@@ -164,10 +164,15 @@ public:
   void drawHandle(const Rect& area, WidgetState state);
   void drawButton(const Rect& area, WidgetState state, const String& text = "");
   const ColorRGB& getWidgetColor(void);
+  void setWidgetColor(const ColorRGB& newColor);
   const ColorRGB& getTextColor(void);
+  void setTextColor(const ColorRGB& newColor);
   const ColorRGB& getWellColor(void);
+  void setWellColor(const ColorRGB& newColor);
   const ColorRGB& getSelectionColor(void);
+  void setSelectionColor(const ColorRGB& newColor);
   const ColorRGB& getSelectedTextColor(void);
+  void setSelectedTextColor(const ColorRGB& newColor);
   render::Font& getDefaultFont(void);
   render::Font& getCurrentFont(void);
   void setCurrentFont(render::Font* newFont);
