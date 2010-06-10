@@ -160,11 +160,16 @@ Rect Font::getTextMetrics(const String& text) const
   Rect result(0.f, 0.f, 0.f, 0.f);
 
   Layout layout;
+  Vec2 penPosition(Vec2::ZERO);
 
   for (String::const_iterator c = text.begin();  c != text.end();  c++)
   {
     if (getGlyphLayout(layout, *c))
+    {
+      layout.area.position += penPosition;
       result.envelop(layout.area);
+      penPosition += layout.advance;
+    }
   }
 
   return result;
