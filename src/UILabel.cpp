@@ -41,7 +41,8 @@ namespace wendy
 
 Label::Label(Desktop& desktop, const String& initText):
   Widget(desktop),
-  text(initText)
+  text(initText),
+  textAlignment(LEFT_ALIGNED)
 {
   Renderer& renderer = desktop.getRenderer();
 
