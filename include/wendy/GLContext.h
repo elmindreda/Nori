@@ -487,6 +487,7 @@ public:
   /*! @return The signal for context resizing.
    */
   SignalProxy2<void, unsigned int, unsigned int> getResizedSignal(void);
+  SignalProxy0<void> getRefreshSignal(void);
   /*! Creates the context singleton object, using the specified settings.
     *  @param[in] mode The requested context settings.
     *  @return @c true if successful, or @c false otherwise.
@@ -529,9 +530,11 @@ private:
   void updateViewportArea(void);
   static void sizeCallback(int width, int height);
   static int closeCallback(void);
+  static void refreshCallback(void);
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
   Signal2<void, unsigned int, unsigned int> resizedSignal;
+  Signal0<void> refreshSignal;
   String title;
   Ptr<Limits> limits;
   void* cgContextID;

@@ -1143,6 +1143,11 @@ SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal(void)
   return resizedSignal;
 }
 
+SignalProxy0<void> Context::getRefreshSignal(void)
+{
+  return refreshSignal;
+}
+
 bool Context::create(const ContextMode& mode)
 {
   Ptr<Context> context(new Context());
@@ -1363,6 +1368,7 @@ bool Context::init(const ContextMode& initMode)
 
     glfwSetWindowSizeCallback(sizeCallback);
     glfwSetWindowCloseCallback(closeCallback);
+    glfwSetWindowRefreshCallback(refreshCallback);
 
     glfwSwapInterval(1);
   }
@@ -1430,6 +1436,11 @@ int Context::closeCallback(void)
     return 1;
 
   return 0;
+}
+
+void Context::refreshCallback(void)
+{
+  instance->refreshSignal.emit();
 }
 
 Context* Context::instance = NULL;
