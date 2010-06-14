@@ -55,14 +55,14 @@ float Item::getWidth(void) const
 {
   Renderer& renderer = desktop.getRenderer();
 
-  const float em = renderer.getDefaultEM();
+  const float em = renderer.getCurrentEM();
 
   float width = em * 2.f;
 
   if (value.empty())
     width += em * 3.f;
   else
-    width += renderer.getDefaultFont().getTextMetrics(value).size.x;
+    width += renderer.getCurrentFont().getTextMetrics(value).size.x;
 
   return width;
 }
@@ -92,7 +92,7 @@ void Item::draw(const Rect& area, WidgetState state) const
   Renderer& renderer = desktop.getRenderer();
   if (renderer.pushClipArea(area))
   {
-    const float em = renderer.getDefaultEM();
+    const float em = renderer.getCurrentEM();
 
     Rect textArea = area;
     textArea.position.x += em / 2.f;
@@ -115,14 +115,14 @@ SeparatorItem::SeparatorItem(Desktop& desktop):
 
 float SeparatorItem::getWidth(void) const
 {
-  const float em = desktop.getRenderer().getDefaultEM();
+  const float em = desktop.getRenderer().getCurrentEM();
 
   return em * 3.f;
 }
 
 float SeparatorItem::getHeight(void) const
 {
-  const float em = desktop.getRenderer().getDefaultEM();
+  const float em = desktop.getRenderer().getCurrentEM();
 
   return em / 2.f;
 }
@@ -155,14 +155,14 @@ TextureItem::TextureItem(Desktop& desktop,
 
 float TextureItem::getWidth(void) const
 {
-  const float em = desktop.getRenderer().getDefaultEM();
+  const float em = desktop.getRenderer().getCurrentEM();
 
   return Item::getWidth() + em * 3.f;
 }
 
 float TextureItem::getHeight(void) const
 {
-  const float em = desktop.getRenderer().getDefaultEM();
+  const float em = desktop.getRenderer().getCurrentEM();
 
   return em * 3.f;
 }
@@ -177,7 +177,7 @@ void TextureItem::draw(const Rect& area, WidgetState state) const
   Renderer& renderer = desktop.getRenderer();
   if (renderer.pushClipArea(area))
   {
-    const float em = renderer.getDefaultEM();
+    const float em = renderer.getCurrentEM();
 
     if (state == STATE_SELECTED)
       renderer.fillRectangle(area, ColorRGBA(renderer.getSelectionColor(), 1.f));

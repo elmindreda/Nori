@@ -45,7 +45,7 @@ Popup::Popup(Desktop& desktop):
   Widget(desktop),
   selection(0)
 {
-  const float em = desktop.getRenderer().getDefaultEM();
+  const float em = desktop.getRenderer().getCurrentEM();
 
   setSize(Vec2(em * 10.f, em * 2.f));
 
@@ -134,7 +134,7 @@ void Popup::draw(void) const
     {
       const Item* item = menu->getItem(selection);
 
-      const float em = renderer.getDefaultEM();
+      const float em = renderer.getCurrentEM();
 
       Rect textArea = area;
       textArea.position.x += em / 2.f;

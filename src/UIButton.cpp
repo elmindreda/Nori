@@ -45,14 +45,14 @@ Button::Button(Desktop& desktop, const String& initText):
 {
   Renderer& renderer = getDesktop().getRenderer();
 
-  const float em = renderer.getDefaultEM();
+  const float em = renderer.getCurrentEM();
 
   float textWidth;
 
   if (text.empty())
     textWidth = em * 3.f;
   else
-    textWidth = renderer.getDefaultFont().getTextMetrics(text).size.x;
+    textWidth = renderer.getCurrentFont().getTextMetrics(text).size.x;
 
   setSize(Vec2(em * 2.f + textWidth, em * 2.f));
 

@@ -46,7 +46,7 @@ Progress::Progress(Desktop& desktop, Orientation initOrientation):
   value(0.f),
   orientation(initOrientation)
 {
-  const float em = desktop.getRenderer().getDefaultEM();
+  const float em = desktop.getRenderer().getCurrentEM();
 
   if (orientation == HORIZONTAL)
     setSize(Vec2(em * 10.f, em * 1.5f));

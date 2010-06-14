@@ -47,7 +47,7 @@ Slider::Slider(Desktop& desktop, Orientation initOrientation):
   value(0.f),
   orientation(initOrientation)
 {
-  const float em = desktop.getRenderer().getDefaultEM();
+  const float em = desktop.getRenderer().getCurrentEM();
 
   if (orientation == HORIZONTAL)
     setSize(Vec2(em * 10.f, em * 1.5f));
@@ -119,7 +119,7 @@ void Slider::draw(void) const
 
     const float position = (value - minValue) / (maxValue - minValue);
 
-    const float em = renderer.getDefaultEM();
+    const float em = renderer.getCurrentEM();
 
     Rect handleArea;
 
@@ -191,7 +191,7 @@ void Slider::onDragMoved(Widget& widget, const Vec2& position)
 
 void Slider::setValue(const Vec2& position)
 {
-  const float em = getDesktop().getRenderer().getDefaultEM();
+  const float em = getDesktop().getRenderer().getCurrentEM();
 
   float scale;
 

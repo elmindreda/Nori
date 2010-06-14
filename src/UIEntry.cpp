@@ -45,7 +45,7 @@ Entry::Entry(Desktop& desktop, const String& initText):
   startPosition(0),
   caretPosition(0)
 {
-  const float em = getDesktop().getRenderer().getDefaultEM();
+  const float em = getDesktop().getRenderer().getCurrentEM();
 
   setSize(Vec2(em * 10.f, em * 1.5f));
 
@@ -93,7 +93,7 @@ void Entry::draw(void) const
   {
     renderer.drawWell(area, getState());
 
-    const float em = renderer.getDefaultEM();
+    const float em = renderer.getCurrentEM();
 
     Rect textArea = area;
     textArea.position.x += em / 2.f;
@@ -107,7 +107,7 @@ void Entry::draw(void) const
 
       if (caretPosition > startPosition)
       {
-	render::Font& font = renderer.getDefaultFont();
+	render::Font& font = renderer.getCurrentFont();
         Rect metrics = font.getTextMetrics(text.substr(startPosition, caretPosition));
 	position = metrics.size.x;
       }
@@ -134,12 +134,12 @@ void Entry::onButtonClicked(Widget& widget,
 {
   Renderer& renderer = getDesktop().getRenderer();
 
-  const float em = renderer.getDefaultEM();
+  const float em = renderer.getCurrentEM();
   const float offset = em / 2.f;
   float position = transformToLocal(point).x - offset;
 
   render::Font::LayoutList layouts;
-  renderer.getDefaultFont().getTextLayout(layouts, text.substr(startPosition, String::npos));
+  renderer.getCurrentFont().getTextLayout(layouts, text.substr(startPosition, String::npos));
 
   unsigned int index;
 

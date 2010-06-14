@@ -47,7 +47,7 @@ Scroller::Scroller(Desktop& desktop, Orientation initOrientation):
   percentage(0.5f),
   orientation(initOrientation)
 {
-  const float em = desktop.getRenderer().getDefaultEM();
+  const float em = desktop.getRenderer().getCurrentEM();
 
   if (orientation == HORIZONTAL)
     setSize(Vec2(em * 10.f, em * 1.5f));
@@ -295,7 +295,7 @@ void Scroller::setValue(float newValue, bool notify)
 
 float Scroller::getHandleSize(void) const
 {
-  const float em = getDesktop().getRenderer().getDefaultEM();
+  const float em = getDesktop().getRenderer().getCurrentEM();
 
   if (orientation == HORIZONTAL)
     return std::max(getArea().size.x * percentage, em);

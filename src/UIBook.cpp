@@ -114,7 +114,7 @@ void Book::draw(void) const
 
     if (!pages.empty())
     {
-      const float em = renderer.getDefaultEM();
+      const float em = renderer.getCurrentEM();
 
       const Vec2& size = getArea().size;
 
@@ -151,7 +151,7 @@ void Book::addedChild(Widget& child)
 {
   if (Page* page = dynamic_cast<Page*>(&child))
   {
-    const float em = getDesktop().getRenderer().getDefaultEM();
+    const float em = getDesktop().getRenderer().getCurrentEM();
 
     const Vec2& size = getArea().size;
 
@@ -220,7 +220,7 @@ void Book::onAreaChanged(Widget& widget)
   PageList pages;
   getPages(pages);
 
-  const float em = getDesktop().getRenderer().getDefaultEM();
+  const float em = getDesktop().getRenderer().getCurrentEM();
 
   const Vec2& size = getArea().size;
 
