@@ -67,7 +67,9 @@ Ptr<GL::VertexProgramCodec> vertexProgramCodec;
 Ptr<GL::FragmentProgramCodec> fragmentProgramCodec;
 Ptr<GL::ProgramCodec> programCodec;
 
+#if WENDY_INCLUDE_RENDERER
 Ptr<render::MaterialCodec> renderMaterialCodec;
+#endif
 
 #if WENDY_INCLUDE_SCENE_GRAPH
 Ptr<scene::GraphCodecXML> sceneGraphCodec;
@@ -107,7 +109,10 @@ bool initialize(void)
   vertexProgramCodec = new GL::VertexProgramCodec();
   fragmentProgramCodec = new GL::FragmentProgramCodec();
   programCodec = new GL::ProgramCodec();
+
+#if WENDY_INCLUDE_RENDERER
   renderMaterialCodec = new render::MaterialCodec();
+#endif
 
 #if WENDY_INCLUDE_SCENE_GRAPH
   sceneGraphCodec = new scene::GraphCodecXML();
@@ -140,7 +145,10 @@ void shutdown(void)
   vertexProgramCodec = NULL;
   fragmentProgramCodec = NULL;
   programCodec = NULL;
+
+#if WENDY_INCLUDE_RENDERER
   renderMaterialCodec = NULL;
+#endif
 
 #if WENDY_INCLUDE_SCENE_GRAPH
   sceneGraphCodec = NULL;

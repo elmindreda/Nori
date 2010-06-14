@@ -19,13 +19,14 @@ set(wendy_SOURCES
     OpenGL.cpp GLBuffer.cpp GLContext.cpp GLConvert.cpp GLProgram.cpp
     GLProgramIO.cpp GLState.cpp GLTexture.cpp GLTextureIO.cpp GLVertex.cpp
 
-    Input.cpp InputCamera.cpp
+    Input.cpp InputCamera.cpp)
 
-    RenderCamera.cpp RenderFont.cpp RenderLight.cpp RenderMesh.cpp
-    RenderMaterial.cpp RenderMaterialIO.cpp RenderParticle.cpp RenderPool.cpp
-    RenderQueue.cpp RenderSprite.cpp
-    
-    Deferred.cpp)
+if(WENDY_INCLUDE_RENDERER)
+    list(APPEND wendy_SOURCES RenderCamera.cpp RenderFont.cpp RenderLight.cpp RenderMesh.cpp
+                              RenderMaterial.cpp RenderMaterialIO.cpp
+                              RenderParticle.cpp RenderPool.cpp RenderQueue.cpp
+                              RenderSprite.cpp Deferred.cpp)
+endif(WENDY_INCLUDE_RENDERER)
 
 if(WENDY_INCLUDE_SCENE_GRAPH)
   list(APPEND wendy_SOURCES SceneGraph.cpp SceneIO.cpp)

@@ -123,6 +123,10 @@
 #include <wendy/GLContext.h>
 #include <wendy/GLState.h>
 
+#include <wendy/Input.h>
+#include <wendy/InputCamera.h>
+
+#if WENDY_INCLUDE_RENDERER
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
@@ -134,9 +138,7 @@
 #include <wendy/RenderMesh.h>
 
 #include <wendy/Deferred.h>
-
-#include <wendy/Input.h>
-#include <wendy/InputCamera.h>
+#endif
 
 #if WENDY_INCLUDE_SCENE_GRAPH
 #include <wendy/SceneGraph.h>

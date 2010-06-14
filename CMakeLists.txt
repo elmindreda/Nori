@@ -7,6 +7,7 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
+option(WENDY_INCLUDE_RENDERER "Include the renderer" ON)
 option(WENDY_INCLUDE_SCENE_GRAPH "Include the scene graph" ON)
 option(WENDY_INCLUDE_UI_SYSTEM "Include the UI library" ON)
 option(WENDY_INCLUDE_DEMO_SYSTEM "Include the demo system" ON)

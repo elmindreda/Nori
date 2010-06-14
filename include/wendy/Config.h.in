@@ -42,6 +42,8 @@
 /* Define this to 1 if windows.h is available */
 #cmakedefine WENDY_HAVE_WINDOWS_H 1
 
+#cmakedefine WENDY_INCLUDE_RENDERER 1
+
 #cmakedefine WENDY_INCLUDE_SCENE_GRAPH 1
 
 #cmakedefine WENDY_INCLUDE_UI_SYSTEM 1
