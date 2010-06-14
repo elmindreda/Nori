@@ -895,16 +895,27 @@ void Context::render(const PrimitiveRange& range)
     program.getVarying(i).disable();
 }
 
+void Context::refresh(void)
+{
+  needsRefresh = true;
+}
+
 bool Context::update(void)
 {
   glfwSwapBuffers();
-
   finishSignal.emit();
+  needsRefresh = false;
 
   if (stats)
     stats->addFrame();
 
-  return glfwGetWindowParam(GLFW_OPENED) == GL_TRUE;
+  if (refreshMode == MANUAL_REFRESH)
+  {
+    while (!needsRefresh && !needsClosing)
+      glfwWaitEvents();
+  }
+
+  return !needsClosing;
 }
 
 SignalProxy1<void, Uniform&> Context::reserveUniform(const String& name, Uniform::Type type)
@@ -955,6 +966,21 @@ bool Context::isReservedSampler(const String& name) const
   }
 
   return false;
+}
+
+Context::RefreshMode Context::getRefreshMode(void) const
+{
+  return refreshMode;
+}
+
+void Context::setRefreshMode(RefreshMode newMode)
+{
+  refreshMode = newMode;
+
+  if (refreshMode == AUTOMATIC_REFRESH)
+    glfwEnable(GLFW_AUTO_POLL_EVENTS);
+  else
+    glfwDisable(GLFW_AUTO_POLL_EVENTS);
 }
 
 const Rect& Context::getScissorArea(void) const
@@ -1143,11 +1169,6 @@ SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal(void)
   return resizedSignal;
 }
 
-SignalProxy0<void> Context::getRefreshSignal(void)
-{
-  return refreshSignal;
-}
-
 bool Context::create(const ContextMode& mode)
 {
   Ptr<Context> context(new Context());
@@ -1187,6 +1208,9 @@ Context::Context(void):
   cgContextID(NULL),
   cgVertexProfile(CG_PROFILE_UNKNOWN),
   cgFragmentProfile(CG_PROFILE_UNKNOWN),
+  refreshMode(AUTOMATIC_REFRESH),
+  needsRefresh(false),
+  needsClosing(false),
   currentProgram(NULL),
   stats(NULL)
 {
@@ -1427,20 +1451,19 @@ void Context::sizeCallback(int width, int height)
 
 int Context::closeCallback(void)
 {
-  typedef std::list<bool> ResultList;
-  ResultList results;
+  std::list<bool> results;
 
   instance->closeRequestSignal.emit(results);
 
   if (std::find(results.begin(), results.end(), false) == results.end())
-    return 1;
+    instance->needsClosing = true;
 
-  return 0;
+  return GL_TRUE;
 }
 
 void Context::refreshCallback(void)
 {
-  instance->refreshSignal.emit();
+  instance->needsRefresh = true;
 }
 
 Context* Context::instance = NULL;

@@ -373,6 +373,11 @@ class Context : public Singleton<Context>
   friend class VertexProgram;
   friend class FragmentProgram;
 public:
+  enum RefreshMode
+  {
+    AUTOMATIC_REFRESH,
+    MANUAL_REFRESH,
+  };
   typedef std::vector<Plane> PlaneList;
   /*! Destructor.
    */
@@ -396,6 +401,7 @@ public:
   void render(const PrimitiveRange& range);
   /*! Updates the screen.
    */
+  void refresh(void);
   bool update(void);
   SignalProxy1<void, Uniform&> reserveUniform(const String& name, Uniform::Type type);
   SignalProxy1<void, Sampler&> reserveSampler(const String& name, Sampler::Type type);
@@ -407,6 +413,8 @@ public:
    *  otherwise @c false.
    */
   bool isReservedSampler(const String& name) const;
+  RefreshMode getRefreshMode(void) const;
+  void setRefreshMode(RefreshMode newMode);
   /*! @return The current scissor rectangle.
    */
   const Rect& getScissorArea(void) const;
@@ -487,7 +495,6 @@ public:
   /*! @return The signal for context resizing.
    */
   SignalProxy2<void, unsigned int, unsigned int> getResizedSignal(void);
-  SignalProxy0<void> getRefreshSignal(void);
   /*! Creates the context singleton object, using the specified settings.
     *  @param[in] mode The requested context settings.
     *  @return @c true if successful, or @c false otherwise.
@@ -534,12 +541,14 @@ private:
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
   Signal2<void, unsigned int, unsigned int> resizedSignal;
-  Signal0<void> refreshSignal;
   String title;
   Ptr<Limits> limits;
   void* cgContextID;
   int cgVertexProfile;
   int cgFragmentProfile;
+  RefreshMode refreshMode;
+  bool needsRefresh;
+  bool needsClosing;
   Rect scissorArea;
   Rect viewportArea;
   Mat4 modelMatrix;
