@@ -108,6 +108,9 @@ void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const Strin
     }
   }
 
+  if (!count)
+    return;
+
   pass.getUniformState("color").setValue(color);
   pass.apply();
 
