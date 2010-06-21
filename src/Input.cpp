@@ -76,6 +76,10 @@ Button::operator unsigned int (void) const
 
 ///////////////////////////////////////////////////////////////////////
 
+Focus::~Focus(void)
+{
+}
+
 void Focus::onContextResized(unsigned int width, unsigned int height)
 {
 }

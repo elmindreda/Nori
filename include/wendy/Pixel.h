@@ -128,6 +128,7 @@ private:
 class PixelTransform
 {
 public:
+  virtual ~PixelTransform(void);
   virtual bool supports(const PixelFormat& targetFormat,
                         const PixelFormat& sourceFormat) = 0;
   virtual void convert(void* target,

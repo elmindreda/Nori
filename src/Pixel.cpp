@@ -238,6 +238,12 @@ const PixelFormat PixelFormat::DEPTH32F(PixelFormat::DEPTH, PixelFormat::FLOAT32
 
 ///////////////////////////////////////////////////////////////////////
 
+PixelTransform::~PixelTransform(void)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
 bool RGBtoRGBA::supports(const PixelFormat& targetFormat,
                          const PixelFormat& sourceFormat)
 {

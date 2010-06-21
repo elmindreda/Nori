@@ -89,6 +89,7 @@ private:
 class Focus
 {
 public:
+  virtual ~Focus(void);
   virtual void onContextResized(unsigned int width, unsigned int height);
   virtual void onKeyPressed(Key key, bool pressed);
   virtual void onCharInput(wchar_t character);

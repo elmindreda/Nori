@@ -117,7 +117,7 @@ void samplePixelsLinear1D(Byte* target,
                           unsigned int sourceWidth,
                           const PixelFormat& format)
 {
-  switch (format.getSemantic())
+  switch (format.getType())
   {
     case PixelFormat::UINT8:
       samplePixelsLinear1D<uint8_t>(target, targetWidth,
@@ -244,7 +244,7 @@ void samplePixelsLinear2D(Byte* target,
                           unsigned int sourceHeight,
                           const PixelFormat& format)
 {
-  switch (format.getSemantic())
+  switch (format.getType())
   {
     case PixelFormat::UINT8:
       samplePixelsLinear2D<uint8_t>(target, targetWidth, targetHeight,

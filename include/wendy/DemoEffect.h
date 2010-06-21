@@ -90,7 +90,7 @@ public:
   typedef std::vector<Effect*> List;
   typedef std::vector<Property*> PropertyList;
   Effect(EffectType& type, const String& name = "");
-  ~Effect(void);
+  virtual ~Effect(void);
   bool addChild(Effect& child);
   void destroyChildren(void);
   void removeFromParent(void);

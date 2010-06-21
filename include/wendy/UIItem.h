@@ -47,6 +47,7 @@ class Item
   friend class Menu;
 public:
   Item(Desktop& desktop, const String& value = "", ItemID ID = 0);
+  virtual ~Item(void);
   virtual bool operator < (const Item& other) const;
   virtual float getWidth(void) const;
   virtual float getHeight(void) const;

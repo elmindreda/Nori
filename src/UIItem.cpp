@@ -46,6 +46,10 @@ Item::Item(Desktop& initDesktop, const String& initValue, ItemID initID):
 {
 }
 
+Item::~Item(void)
+{
+}
+
 bool Item::operator < (const Item& other) const
 {
   return value < other.value;
