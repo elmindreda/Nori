@@ -178,6 +178,7 @@ public:
   void setCurrentFont(render::Font* newFont);
   float getDefaultEM(void) const;
   float getCurrentEM(void) const;
+  render::GeometryPool& getGeometryPool(void) const;
   static Renderer* createInstance(render::GeometryPool& pool);
 private:
   Renderer(render::GeometryPool& pool);

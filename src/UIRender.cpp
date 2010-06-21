@@ -476,6 +476,11 @@ void Renderer::setCurrentFont(render::Font* newFont)
     currentFont = defaultFont;
 }
 
+render::GeometryPool& Renderer::getGeometryPool(void) const
+{
+  return pool;
+}
+
 Renderer* Renderer::createInstance(render::GeometryPool& pool)
 {
   Ptr<Renderer> renderer(new Renderer(pool));
