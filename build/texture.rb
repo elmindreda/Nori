@@ -40,7 +40,7 @@ getopt.each_option do |opt,arg|
     when '--verbose'
       verbose = true
 
-    when '--path'
+    when '--dir'
       unless File.directory?(arg)
         $stderr.puts "#{arg} is not a directory"
         exit 1
@@ -88,7 +88,8 @@ ARGV.each do |path|
       texture_attrs['image'] = name
       root = document.add_element('texture', texture_attrs)
 
-      document.write(file, 0)
+      formatter = REXML::Formatters::Pretty.new(2, true)
+      formatter.write(document, file)
     end
     $stderr.puts "Created #{texture_path}" if verbose
   rescue
