@@ -94,7 +94,7 @@ bool Pattern::matches(const String& text) const
   }
 
   // Check if the whole text was matched
-  if (results[0] != 0 || results[1] != text.length())
+  if (results[0] != 0 || (size_t) results[1] != text.length())
     return false;
 
   return true;

@@ -421,7 +421,7 @@ bool Image::crop(const Recti& area)
 
   Block scratch(targetArea.size.x * targetArea.size.y * pixelSize);
 
-  for (unsigned int y = 0;  y < targetArea.size.y;  y++)
+  for (int y = 0;  y < targetArea.size.y;  y++)
   {
     scratch.copyFrom(data + ((y + targetArea.position.y) * width + targetArea.position.x) * pixelSize,
                      targetArea.size.x * pixelSize,
@@ -565,7 +565,7 @@ Image* Image::getArea(const Recti& area)
 
   Image* result = new Image(format, targetArea.size.x, targetArea.size.y);
 
-  for (unsigned int y = 0;  y < targetArea.size.y;  y++)
+  for (int y = 0;  y < targetArea.size.y;  y++)
   {
     const Byte* source = data + ((y + targetArea.position.y) * width + targetArea.position.x) * pixelSize;
     Byte* target = result->data + y * result->width * pixelSize;
