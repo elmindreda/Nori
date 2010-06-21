@@ -41,9 +41,9 @@ namespace wendy
 
 Layout::Layout(Desktop& desktop, Orientation initOrientation, bool initExpanding):
   Widget(desktop),
+  borderSize(1.f),
   orientation(initOrientation),
-  expanding(initExpanding),
-  borderSize(1.f)
+  expanding(initExpanding)
 {
   if (!expanding)
     getAreaChangedSignal().connect(*this, &Layout::onAreaChanged);
