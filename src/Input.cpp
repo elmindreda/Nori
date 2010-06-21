@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy input library
 // Copyright (c) 2009 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
