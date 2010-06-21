@@ -516,7 +516,11 @@ inline VertexRangeLock<T>::VertexRangeLock(VertexRange& initRange):
   range(initRange),
   vertices(NULL)
 {
-  // TODO: Type matching.
+  if (VertexBuffer* vertexBuffer = range.getVertexBuffer())
+  {
+    if (T::format != vertexBuffer->getFormat())
+      throw Exception("Vertex buffer format mismatch for vertex range lock");
+  }
 }
 
 template <typename T>
