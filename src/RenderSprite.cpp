@@ -72,7 +72,7 @@ void rotateVec3(Vec3& vector, float angle)
 }
 
 void realizeSpriteVertices(GL::Vertex2ft3fv* vertices,
-			   const Vec3& camera,
+			   const Vec3& cameraPosition,
                            const Vec3& position,
 		           const Vec2& size,
 		           float angle,
@@ -102,7 +102,7 @@ void realizeSpriteVertices(GL::Vertex2ft3fv* vertices,
   }
   else if (type == SPHERICAL_SPRITE)
   {
-    Vec3 direction = (camera - position).normalized();
+    Vec3 direction = (cameraPosition - position).normalized();
 
     Quat final;
     final.setVectorRotation(direction);
@@ -246,10 +246,10 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
   if (!GeometryPool::get()->allocateVertices(range, 4, GL::Vertex2ft3fv::format))
     return;
 
-  const Vec3 camera = queue.getCamera().getTransform().position;
+  const Vec3 cameraPosition = queue.getCamera().getTransform().position;
 
   GL::Vertex2ft3fv vertices[4];
-  realizeVertices(vertices, transform, camera);
+  realizeVertices(vertices, transform, cameraPosition);
   range.copyFrom(vertices);
 
   Vec3 position = Vec3::ZERO;
@@ -259,18 +259,18 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
   operation.range = GL::PrimitiveRange(GL::TRIANGLE_FAN, range);
   operation.transform = transform;
   operation.technique = technique;
-  operation.distance = (position - camera).length();
+  operation.distance = (position - cameraPosition).length();
   queue.addOperation(operation);
 }
 
 void Sprite3::realizeVertices(GL::Vertex2ft3fv* vertices,
                               const Transform3& transform,
-                              const Vec3& camera) const
+                              const Vec3& cameraPosition) const
 {
   Transform3 inverse = transform;
   inverse.invert();
 
-  Vec3 localCamera = camera;
+  Vec3 localCamera = cameraPosition;
   inverse.transformVector(localCamera);
 
   realizeSpriteVertices(vertices, localCamera, position, size, angle, type);
@@ -326,42 +326,59 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   if (!pool->allocateIndices(indexRange, 6 * slots.size(), GL::IndexBuffer::UINT16))
     return;
 
-  GL::VertexRangeLock<GL::Vertex2ft3fv> vertices(vertexRange);
-  if (!vertices)
-    return;
+  const Vec3 cameraPosition = queue.getCamera().getTransform().position;
 
-  GL::IndexRangeLock<uint16_t> indices(indexRange);
-  if (!indices)
-    return;
+  // Realize sprite vertices
+  {
+    GL::VertexRangeLock<GL::Vertex2ft3fv> vertices(vertexRange);
+    if (!vertices)
+      return;
 
-  const Vec3 camera = queue.getCamera().getTransform().position;
+    realizeVertices(vertices, transform, cameraPosition);
+  }
 
-  /* TODO: Make this not use quads.
-  realizeVertices(vertices, transform, camera);
-  range.unlock();
+  // Realize sprite indices
+  {
+    GL::IndexRangeLock<uint16_t> indices(indexRange);
+    if (!indices)
+      return;
+
+    unsigned int base = vertexRange.getStart();
+
+    for (unsigned int i = 0;  i < slots.size();  i++)
+    {
+      indices[i * 6 + 0] = base + i * 4 + 0;
+      indices[i * 6 + 1] = base + i * 4 + 1;
+      indices[i * 6 + 2] = base + i * 4 + 2;
+
+      indices[i * 6 + 3] = base + i * 4 + 2;
+      indices[i * 6 + 4] = base + i * 4 + 3;
+      indices[i * 6 + 5] = base + i * 4 + 0;
+    }
+  }
 
   Vec3 position = Vec3::ZERO;
   transform.transformVector(position);
 
-  Operation& operation = queue.createOperation();
-  operation.vertexBuffer = range.getVertexBuffer();
-  operation.start = range.getStart();
-  operation.count = range.getCount();
-  operation.renderMode = GL_QUADS;
-  operation.transform = transform;
+  Operation operation;
   operation.technique = technique;
-  operation.distance = (position - camera).length();
-  */
+  operation.distance = (position - cameraPosition).length();
+  operation.transform = transform;
+  operation.range = GL::PrimitiveRange(GL::TRIANGLE_LIST,
+                                       *vertexRange.getVertexBuffer(),
+                                       indexRange);
+
+  queue.addOperation(operation);
 }
 
 void SpriteCloud3::realizeVertices(GL::Vertex2ft3fv* vertices,
                                    const Transform3& transform,
-                                   const Vec3& camera) const
+                                   const Vec3& cameraPosition) const
 {
   Transform3 inverse = transform;
   inverse.invert();
 
-  Vec3 localCamera = camera;
+  Vec3 localCamera = cameraPosition;
   inverse.transformVector(localCamera);
 
   for (unsigned int i = 0;  i < slots.size();  i++)

@@ -69,7 +69,7 @@ public:
   void enqueue(Queue& queue, const Transform3& transform) const;
   void realizeVertices(GL::Vertex2ft3fv* vertices,
                        const Transform3& transform,
-                       const Vec3& camera) const;
+                       const Vec3& cameraPosition) const;
   void setDefaults(void);
   Vec3 position;
   Vec2 size;
@@ -95,7 +95,7 @@ public:
   void enqueue(Queue& queue, const Transform3& transform) const;
   void realizeVertices(GL::Vertex2ft3fv* vertices,
                        const Transform3& transform,
-                       const Vec3& camera) const;
+                       const Vec3& cameraPosition) const;
   typedef std::vector<Slot> SlotList;
   SlotList slots;
   SpriteType3 type;
