@@ -1,11 +1,11 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        enable.c
 // Platform:    Any
 // API version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -237,7 +237,7 @@ static void disableAutoPollEvents( void )
 // Enable certain GLFW/window/system functions.
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwEnable( int token )
+GLFWAPI void glfwEnable( int token )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized )
@@ -275,7 +275,7 @@ GLFWAPI void GLFWAPIENTRY glfwEnable( int token )
 // Disable certain GLFW/window/system functions.
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwDisable( int token )
+GLFWAPI void glfwDisable( int token )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized )

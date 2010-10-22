@@ -1,11 +1,11 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        win32_window.c
-// Platform:    Windows
+// Platform:    Win32/WGL
 // API version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -1360,11 +1360,6 @@ int _glfwPlatformOpenWindow( int width, int height,
 
     setForegroundWindow( _glfwWin.window );
     SetFocus( _glfwWin.window );
-
-    // Start by clearing the front buffer to black (avoid ugly desktop
-    // remains in our OpenGL window)
-    glClear( GL_COLOR_BUFFER_BIT );
-    _glfw_SwapBuffers( _glfwWin.DC );
 
     return GL_TRUE;
 }

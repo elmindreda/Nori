@@ -1,11 +1,11 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        win32_time.c
-// Platform:    Windows
+// Platform:    Win32/WGL
 // API version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -114,33 +114,5 @@ void _glfwPlatformSetTime( double t )
     {
         _glfwLibrary.Timer.t0_32 = _glfw_timeGetTime() - (int)(t*1000.0);
     }
-}
-
-
-//========================================================================
-// Put a thread to sleep for a specified amount of time
-//========================================================================
-
-void _glfwPlatformSleep( double time )
-{
-    DWORD t;
-
-    if( time == 0.0 )
-    {
-	t = 0;
-    }
-    else if( time < 0.001 )
-    {
-        t = 1;
-    }
-    else if( time > 2147483647.0 )
-    {
-        t = 2147483647;
-    }
-    else
-    {
-        t = (DWORD)(time*1000.0 + 0.5);
-    }
-    Sleep( t );
 }
 

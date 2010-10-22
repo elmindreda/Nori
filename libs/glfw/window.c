@@ -1,11 +1,11 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        window.c
 // Platform:    Any
 // API version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -435,7 +435,7 @@ const _GLFWfbconfig *_glfwChooseFBConfig( const _GLFWfbconfig *desired,
 // Create the GLFW window and its associated context
 //========================================================================
 
-GLFWAPI int GLFWAPIENTRY glfwOpenWindow( int width, int height,
+GLFWAPI int glfwOpenWindow( int width, int height,
     int redbits, int greenbits, int bluebits, int alphabits,
     int depthbits, int stencilbits, int mode )
 {
@@ -496,13 +496,13 @@ GLFWAPI int GLFWAPIENTRY glfwOpenWindow( int width, int height,
     if( wndconfig.glProfile &&
         ( wndconfig.glMajor < 3 || ( wndconfig.glMajor == 3 && wndconfig.glMinor < 2 ) ) )
     {
-        // Context profiles are only defined for version 3.2 and above
+        // Context profiles are only defined for OpenGL version 3.2 and above
         return GL_FALSE;
     }
 
     if( wndconfig.glForward && wndconfig.glMajor < 3 )
     {
-        // Forward-compatible contexts are only defined for version 3.0 and above
+        // Forward-compatible contexts are only defined for OpenGL version 3.0 and above
         return GL_FALSE;
     }
 
@@ -605,6 +605,11 @@ GLFWAPI int GLFWAPIENTRY glfwOpenWindow( int width, int height,
         glfwDisable( GLFW_MOUSE_CURSOR );
     }
 
+    // Start by clearing the front buffer to black (avoid ugly desktop
+    // remains in our OpenGL window)
+    glClear( GL_COLOR_BUFFER_BIT );
+    _glfwPlatformSwapBuffers();
+
     return GL_TRUE;
 }
 
@@ -613,7 +618,7 @@ GLFWAPI int GLFWAPIENTRY glfwOpenWindow( int width, int height,
 // Set hints for opening the window
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwOpenWindowHint( int target, int hint )
+GLFWAPI void glfwOpenWindowHint( int target, int hint )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized )
@@ -675,7 +680,7 @@ GLFWAPI void GLFWAPIENTRY glfwOpenWindowHint( int target, int hint )
 // Properly kill the window / video display
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwCloseWindow( void )
+GLFWAPI void glfwCloseWindow( void )
 {
     if( !_glfwInitialized )
     {
@@ -696,7 +701,7 @@ GLFWAPI void GLFWAPIENTRY glfwCloseWindow( void )
 // glfwSetWindowTitle() - Set the window title
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwSetWindowTitle( const char *title )
+GLFWAPI void glfwSetWindowTitle( const char *title )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized || !_glfwWin.opened )
@@ -713,7 +718,7 @@ GLFWAPI void GLFWAPIENTRY glfwSetWindowTitle( const char *title )
 // glfwGetWindowSize() - Get the window size
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwGetWindowSize( int *width, int *height )
+GLFWAPI void glfwGetWindowSize( int *width, int *height )
 {
     if( width != NULL )
     {
@@ -730,7 +735,7 @@ GLFWAPI void GLFWAPIENTRY glfwGetWindowSize( int *width, int *height )
 // glfwSetWindowSize() - Set the window size
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwSetWindowSize( int width, int height )
+GLFWAPI void glfwSetWindowSize( int width, int height )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized || !_glfwWin.opened || _glfwWin.iconified )
@@ -757,7 +762,7 @@ GLFWAPI void GLFWAPIENTRY glfwSetWindowSize( int width, int height )
 // glfwSetWindowPos() - Set the window position
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwSetWindowPos( int x, int y )
+GLFWAPI void glfwSetWindowPos( int x, int y )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized || !_glfwWin.opened || _glfwWin.fullscreen ||
@@ -775,7 +780,7 @@ GLFWAPI void GLFWAPIENTRY glfwSetWindowPos( int x, int y )
 // glfwIconfyWindow() - Window iconification
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwIconifyWindow( void )
+GLFWAPI void glfwIconifyWindow( void )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized || !_glfwWin.opened || _glfwWin.iconified )
@@ -792,7 +797,7 @@ GLFWAPI void GLFWAPIENTRY glfwIconifyWindow( void )
 // glfwRestoreWindow() - Window un-iconification
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwRestoreWindow( void )
+GLFWAPI void glfwRestoreWindow( void )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized || !_glfwWin.opened || !_glfwWin.iconified )
@@ -809,11 +814,10 @@ GLFWAPI void GLFWAPIENTRY glfwRestoreWindow( void )
 
 
 //========================================================================
-// glfwSwapBuffers() - Swap buffers (double-buffering) and poll any new
-// events
+// Swap buffers (double-buffering) and poll any new events
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwSwapBuffers( void )
+GLFWAPI void glfwSwapBuffers( void )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized || !_glfwWin.opened )
@@ -821,16 +825,16 @@ GLFWAPI void GLFWAPIENTRY glfwSwapBuffers( void )
         return;
     }
 
-    // Check for window messages
-    if( _glfwWin.autoPollEvents )
-    {
-        glfwPollEvents();
-    }
-
     // Update display-buffer
     if( _glfwWin.opened )
     {
         _glfwPlatformSwapBuffers();
+    }
+
+    // Check for window messages
+    if( _glfwWin.autoPollEvents )
+    {
+        glfwPollEvents();
     }
 }
 
@@ -839,7 +843,7 @@ GLFWAPI void GLFWAPIENTRY glfwSwapBuffers( void )
 // glfwSwapInterval() - Set double buffering swap interval (0 = vsync off)
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwSwapInterval( int interval )
+GLFWAPI void glfwSwapInterval( int interval )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized || !_glfwWin.opened )
@@ -856,7 +860,7 @@ GLFWAPI void GLFWAPIENTRY glfwSwapInterval( int interval )
 // glfwGetWindowParam() - Get window parameter
 //========================================================================
 
-GLFWAPI int GLFWAPIENTRY glfwGetWindowParam( int param )
+GLFWAPI int glfwGetWindowParam( int param )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized )
@@ -936,7 +940,7 @@ GLFWAPI int GLFWAPIENTRY glfwGetWindowParam( int param )
 // changes
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwSetWindowSizeCallback( GLFWwindowsizefun cbfun )
+GLFWAPI void glfwSetWindowSizeCallback( GLFWwindowsizefun cbfun )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized || !_glfwWin.opened )
@@ -960,7 +964,7 @@ GLFWAPI void GLFWAPIENTRY glfwSetWindowSizeCallback( GLFWwindowsizefun cbfun )
 // events
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwSetWindowCloseCallback( GLFWwindowclosefun cbfun )
+GLFWAPI void glfwSetWindowCloseCallback( GLFWwindowclosefun cbfun )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized || !_glfwWin.opened )
@@ -978,7 +982,7 @@ GLFWAPI void GLFWAPIENTRY glfwSetWindowCloseCallback( GLFWwindowclosefun cbfun )
 // refresh events
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwSetWindowRefreshCallback( GLFWwindowrefreshfun cbfun )
+GLFWAPI void glfwSetWindowRefreshCallback( GLFWwindowrefreshfun cbfun )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized || !_glfwWin.opened )
@@ -995,7 +999,7 @@ GLFWAPI void GLFWAPIENTRY glfwSetWindowRefreshCallback( GLFWwindowrefreshfun cbf
 // glfwPollEvents() - Poll for new window and input events
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwPollEvents( void )
+GLFWAPI void glfwPollEvents( void )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized || !_glfwWin.opened )
@@ -1012,7 +1016,7 @@ GLFWAPI void GLFWAPIENTRY glfwPollEvents( void )
 // glfwWaitEvents() - Wait for new window and input events
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwWaitEvents( void )
+GLFWAPI void glfwWaitEvents( void )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized || !_glfwWin.opened )

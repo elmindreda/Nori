@@ -1,8 +1,8 @@
 
 project(glfw C)
 
-set(glfw_SOURCES enable.c fullscreen.c glext.c image.c init.c input.c joystick.c
-                 stream.c tga.c thread.c time.c window.c)
+set(glfw_SOURCES enable.c fullscreen.c glext.c init.c input.c joystick.c
+                 time.c window.c)
 
 if(APPLE)
 
@@ -65,7 +65,7 @@ if(UNIX AND NOT APPLE AND NOT CYGWIN)
   endif(GLXGETPROCADDRESS)
 
   list(APPEND glfw_SOURCES x11_enable.c x11_fullscreen.c x11_glext.c x11_init.c
-                           x11_joystick.c x11_keysym2unicode.c x11_thread.c
+                           x11_joystick.c x11_keysym2unicode.c
                            x11_time.c x11_window.c)
 
 endif(UNIX AND NOT APPLE AND NOT CYGWIN)
@@ -79,7 +79,7 @@ if(WIN32)
 
   list(APPEND glfw_SOURCES win32_dllmain.c win32_enable.c win32_fullscreen.c
                            win32_glext.c win32_init.c win32_joystick.c
-                           win32_thread.c win32_time.c win32_window.c)
+                           win32_time.c win32_window.c)
 
 endif(WIN32)
 

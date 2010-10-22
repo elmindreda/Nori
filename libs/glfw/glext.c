@@ -1,11 +1,11 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        glext.c
 // Platform:    Any
 // API version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -128,11 +128,10 @@ int _glfwStringInExtensionString( const char *string,
 //************************************************************************
 
 //========================================================================
-// glfwExtensionSupported() - Check if an OpenGL extension is available
-// at runtime
+// Check if an OpenGL extension is available at runtime
 //========================================================================
 
-GLFWAPI int GLFWAPIENTRY glfwExtensionSupported( const char *extension )
+GLFWAPI int glfwExtensionSupported( const char *extension )
 {
     const GLubyte *extensions;
     GLubyte *where;
@@ -154,7 +153,8 @@ GLFWAPI int GLFWAPIENTRY glfwExtensionSupported( const char *extension )
 
     if( _glfwWin.glMajor < 3 )
     {
-        // Check if extension is in the standard OpenGL extensions string
+        // Check if extension is in the old style OpenGL extensions string
+
         extensions = glGetString( GL_EXTENSIONS );
         if( extensions != NULL )
         {
@@ -163,15 +163,11 @@ GLFWAPI int GLFWAPIENTRY glfwExtensionSupported( const char *extension )
                 return GL_TRUE;
             }
         }
-
-        // Additional platform specific extension checking (e.g. WGL)
-        if( _glfwPlatformExtensionSupported( extension ) )
-        {
-            return GL_TRUE;
-        }
     }
     else
     {
+        // Check if extension is in the modern OpenGL extensions string list
+
         glGetIntegerv( GL_NUM_EXTENSIONS, &count );
 
         for( i = 0;  i < count;  i++ )
@@ -184,6 +180,12 @@ GLFWAPI int GLFWAPIENTRY glfwExtensionSupported( const char *extension )
         }
     }
 
+    // Additional platform specific extension checking (e.g. WGL)
+    if( _glfwPlatformExtensionSupported( extension ) )
+    {
+        return GL_TRUE;
+    }
+
     return GL_FALSE;
 }
 
@@ -193,7 +195,7 @@ GLFWAPI int GLFWAPIENTRY glfwExtensionSupported( const char *extension )
 // This function can be used to get access to extended OpenGL functions.
 //========================================================================
 
-GLFWAPI void * GLFWAPIENTRY glfwGetProcAddress( const char *procname )
+GLFWAPI void * glfwGetProcAddress( const char *procname )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized || !_glfwWin.opened )
@@ -209,7 +211,7 @@ GLFWAPI void * GLFWAPIENTRY glfwGetProcAddress( const char *procname )
 // Returns the OpenGL version
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwGetGLVersion( int *major, int *minor, int *rev )
+GLFWAPI void glfwGetGLVersion( int *major, int *minor, int *rev )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized || !_glfwWin.opened )

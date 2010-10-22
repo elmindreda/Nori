@@ -1,11 +1,11 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        internal.h
 // Platform:    Any
 // API version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -153,17 +153,6 @@ GLFWGLOBAL int _glfwInitialized;
 #endif
 
 
-//------------------------------------------------------------------------
-// Abstract data stream (for image I/O)
-//------------------------------------------------------------------------
-typedef struct {
-    FILE*   file;
-    void*   data;
-    long    position;
-    long    size;
-} _GLFWstream;
-
-
 //========================================================================
 // Prototypes for platform specific implementation functions
 //========================================================================
@@ -189,26 +178,9 @@ int _glfwPlatformGetJoystickParam( int joy, int param );
 int _glfwPlatformGetJoystickPos( int joy, float *pos, int numaxes );
 int _glfwPlatformGetJoystickButtons( int joy, unsigned char *buttons, int numbuttons );
 
-// Threads
-GLFWthread _glfwPlatformCreateThread( GLFWthreadfun fun, void *arg );
-void _glfwPlatformDestroyThread( GLFWthread ID );
-int _glfwPlatformWaitThread( GLFWthread ID, int waitmode );
-GLFWthread _glfwPlatformGetThreadID( void );
-GLFWmutex _glfwPlatformCreateMutex( void );
-void _glfwPlatformDestroyMutex( GLFWmutex mutex );
-void _glfwPlatformLockMutex( GLFWmutex mutex );
-void _glfwPlatformUnlockMutex( GLFWmutex mutex );
-GLFWcond _glfwPlatformCreateCond( void );
-void _glfwPlatformDestroyCond( GLFWcond cond );
-void _glfwPlatformWaitCond( GLFWcond cond, GLFWmutex mutex, double timeout );
-void _glfwPlatformSignalCond( GLFWcond cond );
-void _glfwPlatformBroadcastCond( GLFWcond cond );
-int _glfwPlatformGetNumberOfProcessors( void );
-
 // Time
 double _glfwPlatformGetTime( void );
 void _glfwPlatformSetTime( double time );
-void _glfwPlatformSleep( double time );
 
 // Window management
 int  _glfwPlatformOpenWindow( int width, int height, const _GLFWwndconfig *wndconfig, const _GLFWfbconfig *fbconfig );
@@ -242,25 +214,9 @@ void _glfwInputKey( int key, int action );
 void _glfwInputChar( int character, int action );
 void _glfwInputMouseClick( int button, int action );
 
-// Threads (thread.c)
-_GLFWthread * _glfwGetThreadPointer( int ID );
-void _glfwAppendThread( _GLFWthread * t );
-void _glfwRemoveThread( _GLFWthread * t );
-
 // OpenGL extensions (glext.c)
 void _glfwParseGLVersion( int *major, int *minor, int *rev );
 int _glfwStringInExtensionString( const char *string, const GLubyte *extensions );
-
-// Abstracted data streams (stream.c)
-int _glfwOpenFileStream( _GLFWstream *stream, const char *name, const char *mode );
-int _glfwOpenBufferStream( _GLFWstream *stream, void *data, long size );
-long _glfwReadStream( _GLFWstream *stream, void *data, long size );
-long _glfwTellStream( _GLFWstream *stream );
-int _glfwSeekStream( _GLFWstream *stream, long offset, int whence );
-void _glfwCloseStream( _GLFWstream *stream );
-
-// Targa image I/O (tga.c)
-int _glfwReadTGA( _GLFWstream *s, GLFWimage *img, int flags );
 
 // Framebuffer configs
 const _GLFWfbconfig *_glfwChooseFBConfig( const _GLFWfbconfig *desired,

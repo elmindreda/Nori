@@ -1,11 +1,11 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        init.c
 // Platform:    Any
 // API version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -40,7 +40,7 @@
 // glfwInit() - Initialize various GLFW state
 //========================================================================
 
-GLFWAPI int GLFWAPIENTRY glfwInit( void )
+GLFWAPI int glfwInit( void )
 {
     // Is GLFW already initialized?
     if( _glfwInitialized )
@@ -75,10 +75,10 @@ GLFWAPI int GLFWAPIENTRY glfwInit( void )
 
 
 //========================================================================
-// glfwTerminate() - Close window and kill all threads.
+// Close window and shut down library
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwTerminate( void )
+GLFWAPI void glfwTerminate( void )
 {
     // Is GLFW initialized?
     if( !_glfwInitialized )
@@ -101,8 +101,7 @@ GLFWAPI void GLFWAPIENTRY glfwTerminate( void )
 // glfwGetVersion() - Get GLFW version
 //========================================================================
 
-GLFWAPI void GLFWAPIENTRY glfwGetVersion( int *major, int *minor,
-    int *rev )
+GLFWAPI void glfwGetVersion( int *major, int *minor, int *rev )
 {
     if( major != NULL ) *major = GLFW_VERSION_MAJOR;
     if( minor != NULL ) *minor = GLFW_VERSION_MINOR;

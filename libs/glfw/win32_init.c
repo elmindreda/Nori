@@ -1,11 +1,11 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        win32_init.c
-// Platform:    Windows
+// Platform:    Win32/WGL
 // API version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -139,69 +139,6 @@ static void _glfwFreeLibraries( void )
 
 
 //========================================================================
-// _glfwInitThreads() - Initialize GLFW thread package
-//========================================================================
-
-static void _glfwInitThreads( void )
-{
-    // Initialize critical section handle
-    InitializeCriticalSection( &_glfwThrd.CriticalSection );
-
-    // The first thread (the main thread) has ID 0
-    _glfwThrd.NextID = 0;
-
-    // Fill out information about the main thread (this thread)
-    _glfwThrd.First.ID       = _glfwThrd.NextID ++;
-    _glfwThrd.First.Function = NULL;
-    _glfwThrd.First.Handle   = GetCurrentThread();
-    _glfwThrd.First.WinID    = GetCurrentThreadId();
-    _glfwThrd.First.Previous = NULL;
-    _glfwThrd.First.Next     = NULL;
-}
-
-
-//========================================================================
-// _glfwTerminateThreads() - Terminate GLFW thread package
-//========================================================================
-
-static void _glfwTerminateThreads( void )
-{
-    _GLFWthread *t, *t_next;
-
-    // Enter critical section
-    ENTER_THREAD_CRITICAL_SECTION
-
-    // Kill all threads (NOTE: THE USER SHOULD WAIT FOR ALL THREADS TO
-    // DIE, _BEFORE_ CALLING glfwTerminate()!!!)
-    t = _glfwThrd.First.Next;
-    while( t != NULL )
-    {
-        // Get pointer to next thread
-        t_next = t->Next;
-
-        // Simply murder the process, no mercy!
-        if( TerminateThread( t->Handle, 0 ) )
-        {
-            // Close thread handle
-            CloseHandle( t->Handle );
-
-            // Free memory allocated for this thread
-            free( (void *) t );
-        }
-
-        // Select next thread in list
-        t = t_next;
-    }
-
-    // Leave critical section
-    LEAVE_THREAD_CRITICAL_SECTION
-
-    // Delete critical section handle
-    DeleteCriticalSection( &_glfwThrd.CriticalSection );
-}
-
-
-//========================================================================
 // _glfwTerminate_atexit() - Terminate GLFW when exiting application
 //========================================================================
 
@@ -309,9 +246,6 @@ int _glfwPlatformInit( void )
     // System keys are not disabled
     _glfwWin.keyboardHook = NULL;
 
-    // Initialise thread package
-    _glfwInitThreads();
-
     // Install atexit() routine
     atexit( _glfwTerminate_atexit );
 
@@ -323,22 +257,13 @@ int _glfwPlatformInit( void )
 
 
 //========================================================================
-// _glfwPlatformTerminate() - Close window and kill all threads
+// Close window and shut down library
 //========================================================================
 
 int _glfwPlatformTerminate( void )
 {
-    // Only the main thread is allowed to do this...
-    if( GetCurrentThreadId() != _glfwThrd.First.WinID )
-    {
-        return GL_FALSE;
-    }
-
     // Close OpenGL window
     glfwCloseWindow();
-
-    // Kill thread package
-    _glfwTerminateThreads();
 
     // Enable system keys again (if they were disabled)
     glfwEnable( GLFW_SYSTEM_KEYS );

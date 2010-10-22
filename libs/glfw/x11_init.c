@@ -1,11 +1,11 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        x11_init.c
-// Platform:    X11 (Unix)
+// Platform:    X11/GLX
 // API version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -35,72 +35,6 @@
 //************************************************************************
 //****                  GLFW internal functions                       ****
 //************************************************************************
-
-//========================================================================
-// Initialize GLFW thread package
-//========================================================================
-
-static void initThreads( void )
-{
-    // Initialize critical section handle
-#ifdef _GLFW_HAS_PTHREAD
-    (void) pthread_mutex_init( &_glfwThrd.CriticalSection, NULL );
-#endif
-
-    // The first thread (the main thread) has ID 0
-    _glfwThrd.NextID = 0;
-
-    // Fill out information about the main thread (this thread)
-    _glfwThrd.First.ID       = _glfwThrd.NextID++;
-    _glfwThrd.First.Function = NULL;
-    _glfwThrd.First.Previous = NULL;
-    _glfwThrd.First.Next     = NULL;
-#ifdef _GLFW_HAS_PTHREAD
-    _glfwThrd.First.PosixID  = pthread_self();
-#endif
-}
-
-
-//========================================================================
-// Terminate GLFW thread package
-//========================================================================
-
-static void terminateThreads( void )
-{
-#ifdef _GLFW_HAS_PTHREAD
-
-    _GLFWthread *t, *t_next;
-
-    // Enter critical section
-    ENTER_THREAD_CRITICAL_SECTION
-
-    // Kill all threads (NOTE: THE USER SHOULD WAIT FOR ALL THREADS TO
-    // DIE, _BEFORE_ CALLING glfwTerminate()!!!)
-    t = _glfwThrd.First.Next;
-    while( t != NULL )
-    {
-        // Get pointer to next thread
-        t_next = t->Next;
-
-        // Simply murder the process, no mercy!
-        pthread_kill( t->PosixID, SIGKILL );
-
-        // Free memory allocated for this thread
-        free( (void *) t );
-
-        // Select next thread in list
-        t = t_next;
-    }
-
-    // Leave critical section
-    LEAVE_THREAD_CRITICAL_SECTION
-
-    // Delete critical section handle
-    pthread_mutex_destroy( &_glfwThrd.CriticalSection );
-
-#endif // _GLFW_HAS_PTHREAD
-}
-
 
 //========================================================================
 // Dynamically load libraries
@@ -227,9 +161,6 @@ int _glfwPlatformInit( void )
         return GL_FALSE;
     }
 
-    // Initialize thread package
-    initThreads();
-
     // Try to load libGL.so if necessary
     initLibraries();
 
@@ -247,24 +178,13 @@ int _glfwPlatformInit( void )
 
 
 //========================================================================
-// Close window and kill all threads
+// Close window and shut down library
 //========================================================================
 
 int _glfwPlatformTerminate( void )
 {
-#ifdef _GLFW_HAS_PTHREAD
-    // Only the main thread is allowed to do this...
-    if( pthread_self() != _glfwThrd.First.PosixID )
-    {
-        return GL_FALSE;
-    }
-#endif // _GLFW_HAS_PTHREAD
-
     // Close OpenGL window
     glfwCloseWindow();
-
-    // Kill thread package
-    terminateThreads();
 
     // Terminate display
     terminateDisplay();

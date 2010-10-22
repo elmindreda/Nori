@@ -1,11 +1,11 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        platform.h
-// Platform:    Windows
+// Platform:    Win32/WGL
 // API version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -43,6 +43,7 @@
 // Include files
 #include <windows.h>
 #include <mmsystem.h>
+
 #include "GL/glfw.h"
 
 
@@ -445,65 +446,6 @@ GLFWGLOBAL struct {
 #endif
 
 } _glfwLibrary;
-
-
-//------------------------------------------------------------------------
-// Thread record (one for each thread)
-//------------------------------------------------------------------------
-typedef struct _GLFWthread_struct _GLFWthread;
-
-struct _GLFWthread_struct {
-
-// ========= PLATFORM INDEPENDENT MANDATORY PART =========================
-
-    // Pointer to previous and next threads in linked list
-    _GLFWthread   *Previous, *Next;
-
-    // GLFW user side thread information
-    GLFWthread    ID;
-    GLFWthreadfun Function;
-
-// ========= PLATFORM SPECIFIC PART ======================================
-
-    // System side thread information
-    HANDLE        Handle;
-    DWORD         WinID;
-
-};
-
-
-//------------------------------------------------------------------------
-// General thread information
-//------------------------------------------------------------------------
-GLFWGLOBAL struct {
-
-// ========= PLATFORM INDEPENDENT MANDATORY PART =========================
-
-    // Next thread ID to use (increments for every created thread)
-    GLFWthread       NextID;
-
-    // First thread in linked list (always the main thread)
-    _GLFWthread      First;
-
-// ========= PLATFORM SPECIFIC PART ======================================
-
-    // Critical section lock
-    CRITICAL_SECTION CriticalSection;
-
-} _glfwThrd;
-
-
-
-//========================================================================
-// Macros for encapsulating critical code sections (i.e. making parts
-// of GLFW thread safe)
-//========================================================================
-
-// Thread list management
-#define ENTER_THREAD_CRITICAL_SECTION \
-        EnterCriticalSection( &_glfwThrd.CriticalSection );
-#define LEAVE_THREAD_CRITICAL_SECTION \
-        LeaveCriticalSection( &_glfwThrd.CriticalSection );
 
 
 //========================================================================

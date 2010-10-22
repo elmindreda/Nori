@@ -1,11 +1,10 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        platform.h
-// Platform:    Mac OS X
+// Platform:    Cocoa/NSOpenGL
 // API Version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -40,8 +39,6 @@
 #else
 typedef void *id;
 #endif
-
-#include <pthread.h>
 
 #include "GL/glfw.h"
 
@@ -187,67 +184,6 @@ GLFWGLOBAL struct {
     double WheelPosFloating;
 
 } _glfwInput;
-
-//------------------------------------------------------------------------
-// Thread information
-//------------------------------------------------------------------------
-typedef struct _GLFWthread_struct _GLFWthread;
-
-// Thread record (one for each thread)
-struct _GLFWthread_struct {
-
-    // Pointer to previous and next threads in linked list
-    _GLFWthread   *Previous, *Next;
-
-    // GLFW user side thread information
-    GLFWthread    ID;
-    GLFWthreadfun Function;
-
-    // System side thread information
-    pthread_t     PosixID;
-};
-
-// General thread information
-GLFWGLOBAL struct {
-
-    // Critical section lock
-    pthread_mutex_t  CriticalSection;
-
-    // Next thread ID to use (increments for every created thread)
-    GLFWthread       NextID;
-
-    // First thread in linked list (always the main thread)
-    _GLFWthread      First;
-
-} _glfwThrd;
-
-
-//========================================================================
-// Macros for encapsulating critical code sections (i.e. making parts
-// of GLFW thread safe)
-//========================================================================
-
-// Define so we can use the same thread code as X11
-#define _glfw_numprocessors(n) { \
-    int mib[2], ncpu; \
-    size_t len = 1; \
-    mib[0] = CTL_HW; \
-    mib[1] = HW_NCPU; \
-    n      = 1; \
-    if( sysctl( mib, 2, &ncpu, &len, NULL, 0 ) != -1 ) \
-    { \
-        if( len > 0 ) \
-        { \
-            n = ncpu; \
-        } \
-    } \
-}
-
-// Thread list management
-#define ENTER_THREAD_CRITICAL_SECTION \
-pthread_mutex_lock( &_glfwThrd.CriticalSection );
-#define LEAVE_THREAD_CRITICAL_SECTION \
-pthread_mutex_unlock( &_glfwThrd.CriticalSection );
 
 
 #endif // _platform_h_

@@ -1,11 +1,10 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        macosx_init.m
-// Platform:    Mac OS X
+// Platform:    Cocoa/NSOpenGL
 // API Version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -32,6 +31,28 @@
 #include <crt_externs.h>
 
 #include "internal.h"
+
+@interface GLFWApplication : NSApplication
+@end
+
+@implementation GLFWApplication
+
+// From http://cocoadev.com/index.pl?GameKeyboardHandlingAlmost
+// This works around an AppKit bug, where key up events while holding
+// down the command key don't get sent to the key window.
+- (void)sendEvent:(NSEvent *)event
+{
+    if( [event type] == NSKeyUp && ( [event modifierFlags] & NSCommandKeyMask ) )
+    {
+        [[self keyWindow] sendEvent:event];
+    }
+    else
+    {
+        [super sendEvent:event];
+    }
+}
+
+@end
 
 // Prior to Snow Leopard, we need to use this oddly-named semi-private API
 // to get the application menu working properly.  Need to be careful in
@@ -164,24 +185,14 @@ static void setUpMenuBar( void )
 }
 
 //========================================================================
-// Initialize GLFW thread package
+// Terminate GLFW when exiting application
 //========================================================================
 
-static void initThreads( void )
+static void glfw_atexit( void )
 {
-    // Initialize critical section handle
-    (void) pthread_mutex_init( &_glfwThrd.CriticalSection, NULL );
-
-    // The first thread (the main thread) has ID 0
-    _glfwThrd.NextID = 0;
-
-    // Fill out information about the main thread (this thread)
-    _glfwThrd.First.ID       = _glfwThrd.NextID ++;
-    _glfwThrd.First.Function = NULL;
-    _glfwThrd.First.PosixID  = pthread_self();
-    _glfwThrd.First.Previous = NULL;
-    _glfwThrd.First.Next     = NULL;
+    glfwTerminate();
 }
+
 
 //************************************************************************
 //****               Platform implementation functions                ****
@@ -196,7 +207,7 @@ int _glfwPlatformInit( void )
     _glfwLibrary.AutoreleasePool = [[NSAutoreleasePool alloc] init];
 
     // Implicitly create shared NSApplication instance
-    [NSApplication sharedApplication];
+    [GLFWApplication sharedApplication];
 
     NSString* resourcePath = [[NSBundle mainBundle] resourcePath];
 
@@ -210,7 +221,8 @@ int _glfwPlatformInit( void )
 
     [NSApp finishLaunching];
 
-    initThreads();
+    // Install atexit routine
+    atexit( glfw_atexit );
 
     _glfwPlatformSetTime( 0.0 );
 
@@ -226,11 +238,8 @@ int _glfwPlatformInit( void )
 
 int _glfwPlatformTerminate( void )
 {
-    // TODO: Fail unless this is the main thread
-
     glfwCloseWindow();
 
-    // TODO: Kill all non-main threads?
     // TODO: Probably other cleanup
 
     [_glfwLibrary.AutoreleasePool release];
