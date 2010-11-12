@@ -143,6 +143,7 @@ void MayaCamera::updateTransform(void)
 
 SpectatorCamera::SpectatorCamera(void):
   lastPosition(0, 0),
+  speed(3.f),
   angleX(0.f),
   angleY(0.f),
   turbo(false)
@@ -153,12 +154,12 @@ SpectatorCamera::SpectatorCamera(void):
 
 void SpectatorCamera::update(Time deltaTime)
 {
-  float speed;
+  float multiplier;
 
   if (turbo)
-    speed = 9.f;
+    multiplier = 3.f;
   else
-    speed = 3.f;
+    multiplier = 1.f;
 
   Vec3 direction(Vec3::ZERO);
 
@@ -176,7 +177,7 @@ void SpectatorCamera::update(Time deltaTime)
     direction.x += 1.f;
 
   transform.rotation.rotateVector(direction);
-  transform.position += direction * speed * deltaTime;
+  transform.position += direction * speed * multiplier * deltaTime;
 }
 
 void SpectatorCamera::onKeyPressed(Key key, bool pressed)
@@ -274,6 +275,16 @@ void SpectatorCamera::onFocusChanged(bool activated)
 const Transform3& SpectatorCamera::getTransform(void) const
 {
   return transform;
+}
+
+float SpectatorCamera::getSpeed(void) const
+{
+  return speed;
+}
+
+void SpectatorCamera::setSpeed(float newSpeed)
+{
+  speed = newSpeed;
 }
 
 void SpectatorCamera::updateTransform(void)

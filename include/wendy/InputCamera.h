@@ -73,6 +73,8 @@ public:
   void onCursorMoved(const Vec2i& position);
   void onFocusChanged(bool activated);
   const Transform3& getTransform(void) const;
+  float getSpeed(void) const;
+  void setSpeed(float newSpeed);
 private:
   enum Direction
   {
@@ -88,6 +90,7 @@ private:
   Vec2i lastPosition;
   float angleX;
   float angleY;
+  float speed;
   bool directions[6];
   bool turbo;
 };
