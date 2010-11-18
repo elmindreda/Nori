@@ -68,9 +68,6 @@ find_package(OpenGL REQUIRED)
 add_subdirectory(libs)
 list(APPEND wendy_LIBRARIES expat png z pcre GLEW glfw ${GLFW_LIBRARIES})
 
-find_package(GLU REQUIRED)
-list(APPEND wendy_LIBRARIES ${OPENGL_glu_LIBRARY})
-
 if(APPLE)
 
   find_library(CG_LIBRARY Cg)
