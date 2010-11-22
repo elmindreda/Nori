@@ -46,7 +46,7 @@ namespace wendy
 namespace
 {
 
-void rotateVec2(Vec2& vector, float angle)
+void rotateByZ(Vec2& vector, float angle)
 {
   const float sina = sinf(angle);
   const float cosa = cosf(angle);
@@ -58,7 +58,7 @@ void rotateVec2(Vec2& vector, float angle)
   vector = result;
 }
 
-void rotateVec3(Vec3& vector, float angle)
+void rotateByZ(Vec3& vector, float angle)
 {
   const float sina = sinf(angle);
   const float cosa = cosf(angle);
@@ -73,72 +73,68 @@ void rotateVec3(Vec3& vector, float angle)
 
 void realizeSpriteVertices(GL::Vertex2ft3fv* vertices,
 			   const Vec3& cameraPosition,
-                           const Vec3& position,
+                           const Vec3& spritePosition,
 		           const Vec2& size,
 		           float angle,
 			   SpriteType3 type)
 {
+  Vec3 axisX, axisY;
   const Vec2 offset(size.x / 2.f, size.y / 2.f);
 
   if (type == STATIC_SPRITE)
   {
-    vertices[0].mapping.set(0.f, 0.f);
-    vertices[0].position.set(-offset.x, -offset.y, 0.f);
-    vertices[1].mapping.set(1.f, 0.f);
-    vertices[1].position.set( offset.x, -offset.y, 0.f);
-    vertices[2].mapping.set(1.f, 1.f);
-    vertices[2].position.set( offset.x,  offset.y, 0.f);
-    vertices[3].mapping.set(0.f, 1.f);
-    vertices[3].position.set(-offset.x,  offset.y, 0.f);
-
-    for (unsigned int i = 0;  i < 4;  i++)
-    {
-      rotateVec3(vertices[i].position, angle);
-      vertices[i].position += position;
-    }
-  }
-  else if (type == CYLINDRIC_SPRITE)
-  {
-  }
-  else if (type == SPHERICAL_SPRITE)
-  {
-    Vec3 direction = (cameraPosition - position).normalized();
-
-    Quat final;
-    final.setVectorRotation(direction);
+    axisX.set(offset.x, 0.f, 0.f);
+    axisY.set(0.f, offset.y, 0.f);
 
     if (angle != 0.f)
     {
-      Quat local;
-      local.setAxisRotation(Vec3(0.f, 0.f, 1.f), angle);
-
-      final = final * local;
+      rotateByZ(axisX, angle);
+      rotateByZ(axisY, angle);
     }
+  }
+  else if (type == CYLINDRIC_SPRITE || type == SPHERICAL_SPRITE)
+  {
+    Vec3 axisZ(cameraPosition.x - spritePosition.x,
+               0.f,
+               cameraPosition.z - spritePosition.z);
 
-    Vec3 positions[4];
+    if (axisZ.lengthSquared() < 0.001f)
+      axisZ.set(0.f, 0.f, 1.f);
+    else
+      axisZ.normalize();
 
-    positions[0].set(-offset.x, -offset.y, 0.f);
-    positions[1].set( offset.x, -offset.y, 0.f);
-    positions[2].set( offset.x,  offset.y, 0.f);
-    positions[3].set(-offset.x,  offset.y, 0.f);
+    axisY.set(0.f, offset.y, 0.f);
 
-    for (unsigned int i = 0;  i < 4;  i++)
+    axisX = axisZ.cross(axisY);
+    axisX.scaleTo(offset.x);
+
+    if (type == SPHERICAL_SPRITE)
     {
-      final.rotateVector(positions[i]);
-      positions[i] += position;
+      axisZ = (cameraPosition - spritePosition).normalized();
+
+      axisY = axisX.cross(axisZ);
+      axisY.scaleTo(offset.y);
     }
 
-    vertices[0].mapping.set(0.f, 0.f);
-    vertices[0].position = positions[0];
-    vertices[1].mapping.set(1.f, 0.f);
-    vertices[1].position = positions[1];
-    vertices[2].mapping.set(1.f, 1.f);
-    vertices[2].position = positions[2];
-    vertices[3].mapping.set(0.f, 1.f);
-    vertices[3].position = positions[3];
+    if (angle != 0.f)
+    {
+      Quat rotZ;
+      rotZ.setAxisRotation(axisZ, angle);
+      rotZ.rotateVector(axisX);
+      rotZ.rotateVector(axisY);
+    }
   }
   else
     Log::writeError("Unknown sprite type %u", type);
+
+  vertices[0].mapping.set(0.f, 0.f);
+  vertices[0].position = spritePosition - axisX - axisY;
+  vertices[1].mapping.set(1.f, 0.f);
+  vertices[1].position = spritePosition + axisX - axisY;
+  vertices[2].mapping.set(1.f, 1.f);
+  vertices[2].position = spritePosition + axisX + axisY;
+  vertices[3].mapping.set(0.f, 1.f);
+  vertices[3].position = spritePosition - axisX + axisY;
 }
 
 } /*namespace*/
@@ -200,7 +196,7 @@ void Sprite2::realizeVertices(GL::Vertex2ft2fv* vertices) const
 
   for (unsigned int i = 0;  i < 4;  i++)
   {
-    rotateVec2(vertices[i].position, angle);
+    rotateByZ(vertices[i].position, angle);
     vertices[i].position += position;
   }
 }
@@ -273,7 +269,7 @@ void Sprite3::realizeVertices(GL::Vertex2ft3fv* vertices,
   Vec3 localCamera = cameraPosition;
   inverse.transformVector(localCamera);
 
-  realizeSpriteVertices(vertices, localCamera, position, size, angle, type);
+  realizeSpriteVertices(vertices, cameraPosition, position, size, angle, type);
 }
 
 void Sprite3::setDefaults(void)
