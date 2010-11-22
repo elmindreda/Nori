@@ -84,12 +84,16 @@ void Quat::normalize(void)
 
 void Quat::rotateVector(Vec3& vector) const
 {
-  // TODO: Replace with sane code.
+  // This was borrowed from Ogre3D who borrowed it from nVidia
 
-  Mat3 matrix;
+  Vec3 qvec(x, y, z);
 
-  matrix.setQuatRotation(*this);
-  matrix.transformVector(vector);
+  Vec3 uv = qvec.cross(vector);
+  Vec3 uuv = qvec.cross(uv) * 2.f;
+
+  uv *= (2.f * w);
+
+  vector += uv + uuv;
 }
 
 float Quat::dot(const Quat& other) const
