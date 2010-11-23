@@ -44,11 +44,22 @@ namespace wendy
 namespace
 {
 
-struct OperationComparator
+struct OpaqueOperationComparator
 {
   inline bool operator () (const Operation* x, const Operation* y)
   {
-    return *x < *y;
+    if (x->hash != y->hash)
+      return x->hash < y->hash;
+
+    return x->distance < y->distance;
+  }
+};
+
+struct BlendedOperationComparator
+{
+  inline bool operator () (const Operation* x, const Operation* y)
+  {
+    return x->distance > y->distance;
   }
 };
 
@@ -82,33 +93,14 @@ Operation::Operation(void):
 {
 }
 
-bool Operation::operator < (const Operation& other) const
-{
-  // Sort blending operations back to front
-  if (blending && other.blending)
-    return distance > other.distance;
-
-  // Put blending operations last
-  if (blending)
-    return false;
-  else if (other.blending)
-    return true;
-
-  // Sort opaque operations by technique (i.e. material)
-  if (hash != other.hash)
-    return hash < other.hash;
-
-  // Sort operations with same technique front to back
-  return distance < other.distance;
-}
-
 ///////////////////////////////////////////////////////////////////////
 
 Queue::Queue(const Camera& initCamera, Light* initLight):
   camera(initCamera),
   light(initLight),
   phase(COLLECT_GEOMETRY),
-  sorted(false)
+  sortedOpaque(false),
+  sortedBlended(false)
 {
 }
 
@@ -124,45 +116,35 @@ void Queue::detachLights(void)
 
 void Queue::addOperation(const Operation& operation)
 {
-  sorted = false;
-
-  operations.push_back(operation);
-  operations.back().hash = hashString(operation.technique->getName());
-  operations.back().blending = operation.technique->isBlending();
+  if (operation.technique->isBlending())
+  {
+    blendedOperations.push_back(operation);
+    blendedOperations.back().hash = hashString(operation.technique->getName());
+    sortedBlended = false;
+  }
+  else
+  {
+    opaqueOperations.push_back(operation);
+    opaqueOperations.back().hash = hashString(operation.technique->getName());
+    sortedOpaque = false;
+  }
 }
 
 void Queue::removeOperations(void)
 {
-  operations.clear();
-  sorted = false;
+  opaqueOperations.clear();
+  sortedOpaque = false;
+
+  blendedOperations.clear();
+  sortedBlended = false;
 }
 
 void Queue::render(const String& passName) const
 {
-  GL::Context* context = GL::Context::get();
-  if (!context)
-    throw Exception("Cannot render render queue without an OpenGL context");
-
   camera.apply();
 
-  const OperationList& operations = getOperations();
-
-  for (OperationList::const_iterator o = operations.begin();  o != operations.end();  o++)
-  {
-    const Operation& operation = **o;
-
-    for (unsigned int i = 0;  i < operation.technique->getPassCount();  i++)
-    {
-      const Pass& pass = operation.technique->getPass(i);
-      if (pass.getName() != passName)
-	continue;
-
-      pass.apply();
-
-      context->setModelMatrix(operation.transform);
-      context->render(operation.range);
-    }
-  }
+  renderOperations(getOpaqueOperations(), passName);
+  renderOperations(getBlendedOperations(), passName);
 }
 
 Queue::Phase Queue::getPhase(void) const
@@ -185,29 +167,77 @@ Light* Queue::getActiveLight(void) const
   return light;
 }
 
-const OperationList& Queue::getOperations(void) const
+const OperationList& Queue::getOpaqueOperations(void) const
 {
-  if (!sorted)
+  if (!sortedOpaque)
   {
-    sortedOperations.clear();
-    sortedOperations.reserve(operations.size());
-    for (List::const_iterator o = operations.begin();  o != operations.end();  o++)
-      sortedOperations.push_back(&(*o));
+    const List& operations = opaqueOperations;
 
-    OperationComparator comparator;
-    std::sort(sortedOperations.begin(),
-              sortedOperations.end(),
+    sortedOpaqueOps.clear();
+    sortedOpaqueOps.reserve(opaqueOperations.size());
+    for (List::const_iterator o = operations.begin();  o != operations.end();  o++)
+      sortedOpaqueOps.push_back(&(*o));
+
+    OpaqueOperationComparator comparator;
+    std::sort(sortedOpaqueOps.begin(),
+              sortedOpaqueOps.end(),
 	      comparator);
 
-    sorted = true;
+    sortedOpaque = true;
   }
 
-  return sortedOperations;
+  return sortedOpaqueOps;
+}
+
+const OperationList& Queue::getBlendedOperations(void) const
+{
+  if (!sortedBlended)
+  {
+    const List& operations = blendedOperations;
+
+    sortedBlendedOps.clear();
+    sortedBlendedOps.reserve(blendedOperations.size());
+    for (List::const_iterator o = operations.begin();  o != operations.end();  o++)
+      sortedBlendedOps.push_back(&(*o));
+
+    BlendedOperationComparator comparator;
+    std::sort(sortedBlendedOps.begin(),
+              sortedBlendedOps.end(),
+	      comparator);
+
+    sortedBlended = true;
+  }
+
+  return sortedBlendedOps;
 }
 
 const LightState& Queue::getLights(void) const
 {
   return lights;
+}
+
+void Queue::renderOperations(const OperationList& operations, const String& passName) const
+{
+  GL::Context* context = GL::Context::get();
+  if (!context)
+    throw Exception("Cannot render render queue without an OpenGL context");
+
+  for (OperationList::const_iterator o = operations.begin();  o != operations.end();  o++)
+  {
+    const Operation& operation = **o;
+
+    for (unsigned int i = 0;  i < operation.technique->getPassCount();  i++)
+    {
+      const Pass& pass = operation.technique->getPass(i);
+      if (pass.getName() != passName)
+	continue;
+
+      pass.apply();
+
+      context->setModelMatrix(operation.transform);
+      context->render(operation.range);
+    }
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////

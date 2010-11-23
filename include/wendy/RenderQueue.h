@@ -69,15 +69,10 @@ class LightState;
  */
 class Operation
 {
-  friend class Queue;
 public:
   /*! Constructor.
    */
   Operation(void);
-  /*! Comparison operator to enable sorting.
-   *  @param other The object to compare to.
-   */
-  bool operator < (const Operation& other) const;
   /*! The primitive range to render.
    */
   GL::PrimitiveRange range;
@@ -93,8 +88,8 @@ public:
    *  operations.
    */
   float distance;
-private:
-  bool blending;
+  /*! Hash value for sorting. Used by the Queue class.
+   */
   unsigned int hash;
 };
 
@@ -171,21 +166,29 @@ public:
    *  collecting geometry for a light.
    */
   Light* getActiveLight(void) const;
-  /*! @return The render operations in this render queue.
+  /*! @return The opaque render operations in this render queue.
    */
-  const OperationList& getOperations(void) const;
+  const OperationList& getOpaqueOperations(void) const;
+  /*! @return The blended render operations in this render queue.
+   */
+  const OperationList& getBlendedOperations(void) const;
   /*! @return The lights attached to this render queue.
    */
   const LightState& getLights(void) const;
 private:
   typedef std::vector<Operation> List;
+  void renderOperations(const OperationList& operations,
+                        const String& passName) const;
   const Camera& camera;
   Light* light;
   LightState lights;
-  List operations;
+  List opaqueOperations;
+  List blendedOperations;
   Phase phase;
-  mutable OperationList sortedOperations;
-  mutable bool sorted;
+  mutable OperationList sortedOpaqueOps;
+  mutable OperationList sortedBlendedOps;
+  mutable bool sortedOpaque;
+  mutable bool sortedBlended;
 };
 
 ///////////////////////////////////////////////////////////////////////
