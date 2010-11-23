@@ -105,14 +105,14 @@ void realizeSpriteVertices(GL::Vertex2ft3fv* vertices,
 
     axisY.set(0.f, offset.y, 0.f);
 
-    axisX = axisZ.cross(axisY);
+    axisX = axisY.cross(axisZ);
     axisX.scaleTo(offset.x);
 
     if (type == SPHERICAL_SPRITE)
     {
       axisZ = (cameraPosition - spritePosition).normalized();
 
-      axisY = axisX.cross(axisZ);
+      axisY = axisZ.cross(axisX);
       axisY.scaleTo(offset.y);
     }
 
