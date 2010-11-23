@@ -252,6 +252,7 @@ private:
   VaryingList varyings;
   UniformList uniforms;
   SamplerList samplers;
+  static Program* current;
 };
 
 ///////////////////////////////////////////////////////////////////////

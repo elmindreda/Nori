@@ -662,6 +662,9 @@ FragmentProgram& FragmentProgram::operator = (const FragmentProgram& source)
 
 Program::~Program(void)
 {
+  if (current == this)
+    current = NULL;
+
   while (!varyings.empty())
   {
     delete varyings.back();
@@ -938,8 +941,13 @@ bool Program::init(VertexProgram& initVertexProgram, FragmentProgram& initFragme
 
 void Program::apply(void) const
 {
+  if (current == this)
+    return;
+
   cgGLBindProgram((CGprogram) vertexProgram->programID);
   cgGLBindProgram((CGprogram) fragmentProgram->programID);
+
+  current = const_cast<Program*>(this);
 }
 
 Program& Program::operator = (const Program& source)
@@ -1087,6 +1095,8 @@ bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
 
   return true;
 }
+
+Program* Program::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 
