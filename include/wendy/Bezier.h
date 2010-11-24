@@ -81,7 +81,7 @@ typedef BezierPoint<Vec3> BezierPoint3;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief N-dimensional cubic Bézier segment path with first order continuity.
+/*! @brief N-dimensional cubic Bézier spline with first order continuity.
  */
 template <typename T>
 class BezierSpline
