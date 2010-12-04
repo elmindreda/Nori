@@ -208,7 +208,7 @@ void VertexFormat::destroyComponents(void)
 const VertexComponent* VertexFormat::findComponent(const String& name) const
 {
   for (ComponentList::const_iterator i = components.begin();  i != components.end();  i++)
-    if ((*i).getName() == name)
+    if (i->getName() == name)
       return &(*i);
 
   return NULL;
@@ -234,7 +234,7 @@ size_t VertexFormat::getSize(void) const
   size_t size = 0;
 
   for (ComponentList::const_iterator i = components.begin();  i != components.end();  i++)
-    size += (*i).getSize();
+    size += i->getSize();
 
   return size;
 }
@@ -250,9 +250,9 @@ String VertexFormat::asString(void) const
 
   for (ComponentList::const_iterator i = components.begin();  i != components.end();  i++)
   {
-    result << (*i).count;
+    result << i->count;
 
-    switch ((*i).type)
+    switch (i->type)
     {
       case VertexComponent::FLOAT32:
 	result << 'f';
@@ -270,7 +270,7 @@ String VertexFormat::asString(void) const
         return "invalid";
     }
 
-    result << ':' << (*i).name << ' ';
+    result << ':' << i->name << ' ';
   }
 
   return result.str();
