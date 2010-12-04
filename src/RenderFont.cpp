@@ -28,7 +28,6 @@
 #include <wendy/OpenGL.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
-#include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLState.h>
@@ -71,7 +70,7 @@ void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const Strin
   GL::VertexRange vertexRange;
   if (!GeometryPool::get()->allocateVertices(vertexRange,
                                              text.size() * 6,
-                                             GL::Vertex2ft2fv::format))
+                                             Vertex2ft2fv::format))
   {
     Log::writeError("Failed to allocate vertices for text drawing");
     return;
@@ -85,7 +84,7 @@ void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const Strin
     roundedPen.x = floorf(penPosition.x + 0.5f);
     roundedPen.y = floorf(penPosition.y + 0.5f);
 
-    GL::VertexRangeLock<GL::Vertex2ft2fv> vertices(vertexRange);
+    GL::VertexRangeLock<Vertex2ft2fv> vertices(vertexRange);
     if (!vertices)
     {
       Log::writeError("Failed to lock vertices for text drawing");
@@ -428,7 +427,7 @@ void Font::getGlyphLayout(Layout& layout, const Glyph& glyph, char character) co
 
 void Font::realizeVertices(const Rect& pixelArea,
                            const Rect& texelArea,
-                           GL::Vertex2ft2fv* vertices) const
+                           Vertex2ft2fv* vertices) const
 {
   const Rect& pa = pixelArea;
   const Rect& ta = texelArea;

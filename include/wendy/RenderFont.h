@@ -101,7 +101,7 @@ private:
   void getGlyphLayout(Layout& layout, const Glyph& glyph, char character) const;
   void realizeVertices(const Rect& pixelArea,
                        const Rect& texelArea,
-                       GL::Vertex2ft2fv* vertices) const;
+                       Vertex2ft2fv* vertices) const;
   typedef std::list<Glyph> GlyphList;
   typedef std::map<char, Glyph*> GlyphMap;
   GlyphList glyphs;

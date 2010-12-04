@@ -27,7 +27,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/GLContext.h>
-#include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 
 #include <list>

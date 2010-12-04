@@ -27,7 +27,6 @@
 
 #include <wendy/OpenGL.h>
 #include <wendy/GLTexture.h>
-#include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLState.h>
@@ -398,10 +397,10 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& vertexRange,
 
   if (!pool->allocateVertices(vertexRange,
                               activeParticles.size() * 4,
-			      GL::Vertex4fc2ft3fv::format))
+			      Vertex4fc2ft3fv::format))
     return false;
 
-  GL::VertexRangeLock<GL::Vertex4fc2ft3fv> vertices(vertexRange);
+  GL::VertexRangeLock<Vertex4fc2ft3fv> vertices(vertexRange);
   if (!vertices)
     return false;
 

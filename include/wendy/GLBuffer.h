@@ -28,6 +28,7 @@
 
 #include <wendy/Core.h>
 #include <wendy/Vector.h>
+#include <wendy/Color.h>
 #include <wendy/Pixel.h>
 #include <wendy/Vertex.h>
 #include <wendy/Managed.h>

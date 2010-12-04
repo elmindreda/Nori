@@ -50,7 +50,7 @@ public:
   Sprite2(void);
   void render(void) const;
   void render(const Material& material) const;
-  void realizeVertices(GL::Vertex2ft2fv* vertices) const;
+  void realizeVertices(Vertex2ft2fv* vertices) const;
   void setDefaults(void);
   Rect mapping;
   Vec2 position;
@@ -67,7 +67,7 @@ class Sprite3 : public Renderable
 public:
   Sprite3(void);
   void enqueue(Queue& queue, const Transform3& transform) const;
-  void realizeVertices(GL::Vertex2ft3fv* vertices,
+  void realizeVertices(Vertex2ft3fv* vertices,
                        const Transform3& transform,
                        const Vec3& cameraPosition) const;
   void setDefaults(void);
@@ -93,7 +93,7 @@ public:
   };
   SpriteCloud3(void);
   void enqueue(Queue& queue, const Transform3& transform) const;
-  void realizeVertices(GL::Vertex2ft3fv* vertices,
+  void realizeVertices(Vertex2ft3fv* vertices,
                        const Transform3& transform,
                        const Vec3& cameraPosition) const;
   typedef std::vector<Slot> SlotList;

@@ -17,7 +17,7 @@ set(wendy_SOURCES
     Vector.cpp Vertex.cpp XML.cpp
 
     OpenGL.cpp GLBuffer.cpp GLContext.cpp GLConvert.cpp GLProgram.cpp
-    GLProgramIO.cpp GLState.cpp GLTexture.cpp GLTextureIO.cpp GLVertex.cpp
+    GLProgramIO.cpp GLState.cpp GLTexture.cpp GLTextureIO.cpp
 
     Input.cpp InputCamera.cpp)
 

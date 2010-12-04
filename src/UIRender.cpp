@@ -85,11 +85,11 @@ void Renderer::popClipArea(void)
 
 void Renderer::drawPoint(const Vec2& point, const ColorRGBA& color)
 {
-  GL::Vertex2fv vertex;
+  Vertex2fv vertex;
   vertex.position = point;
 
   GL::VertexRange range;
-  if (!pool.allocateVertices(range, 1, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 1, Vertex2fv::format))
     return;
 
   range.copyFrom(&vertex);
@@ -101,12 +101,12 @@ void Renderer::drawPoint(const Vec2& point, const ColorRGBA& color)
 
 void Renderer::drawLine(const Segment2& segment, const ColorRGBA& color)
 {
-  GL::Vertex2fv vertices[2];
+  Vertex2fv vertices[2];
   vertices[0].position = segment.start;
   vertices[1].position = segment.end;
 
   GL::VertexRange range;
-  if (!pool.allocateVertices(range, 2, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 2, Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -118,13 +118,13 @@ void Renderer::drawLine(const Segment2& segment, const ColorRGBA& color)
 
 void Renderer::drawTriangle(const Triangle2& triangle, const ColorRGBA& color)
 {
-  GL::Vertex2fv vertices[3];
+  Vertex2fv vertices[3];
   vertices[0].position = triangle.P[0];
   vertices[1].position = triangle.P[1];
   vertices[2].position = triangle.P[2];
 
   GL::VertexRange range;
-  if (!pool.allocateVertices(range, 3, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 3, Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -140,12 +140,12 @@ void Renderer::drawBezier(const BezierCurve2& spline, const ColorRGBA& color)
   spline.tessellate(points);
 
   GL::VertexRange range;
-  if (!pool.allocateVertices(range, points.size(), GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, points.size(), Vertex2fv::format))
     return;
 
   // Realize vertices
   {
-    GL::VertexRangeLock<GL::Vertex2fv> vertices(range);
+    GL::VertexRangeLock<Vertex2fv> vertices(range);
 
     for (unsigned int i = 0;  i < points.size();  i++)
       vertices[i].position = points[i];
@@ -167,14 +167,14 @@ void Renderer::drawRectangle(const Rect& rectangle, const ColorRGBA& color)
   maxX -= 1.f;
   maxY -= 1.f;
 
-  GL::Vertex2fv vertices[4];
+  Vertex2fv vertices[4];
   vertices[0].position.set(minX, minY);
   vertices[1].position.set(maxX, minY);
   vertices[2].position.set(maxX, maxY);
   vertices[3].position.set(minX, maxY);
 
   GL::VertexRange range;
-  if (!pool.allocateVertices(range, 4, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 4, Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -186,13 +186,13 @@ void Renderer::drawRectangle(const Rect& rectangle, const ColorRGBA& color)
 
 void Renderer::fillTriangle(const Triangle2& triangle, const ColorRGBA& color)
 {
-  GL::Vertex2fv vertices[3];
+  Vertex2fv vertices[3];
   vertices[0].position = triangle.P[0];
   vertices[1].position = triangle.P[1];
   vertices[2].position = triangle.P[2];
 
   GL::VertexRange range;
-  if (!pool.allocateVertices(range, 3, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 3, Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -213,14 +213,14 @@ void Renderer::fillRectangle(const Rect& rectangle, const ColorRGBA& color)
   maxX -= 1.f;
   maxY -= 1.f;
 
-  GL::Vertex2fv vertices[4];
+  Vertex2fv vertices[4];
   vertices[0].position.set(minX, minY);
   vertices[1].position.set(maxX, minY);
   vertices[2].position.set(maxX, maxY);
   vertices[3].position.set(minX, maxY);
 
   GL::VertexRange range;
-  if (!pool.allocateVertices(range, 4, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 4, Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -241,7 +241,7 @@ void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
   maxX -= 1.f;
   maxY -= 1.f;
 
-  GL::Vertex2ft2fv vertices[4];
+  Vertex2ft2fv vertices[4];
   vertices[0].mapping.set(0.f, 0.f);
   vertices[0].position.set(minX, minY);
   vertices[1].mapping.set(1.f, 0.f);
@@ -252,7 +252,7 @@ void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
   vertices[3].position.set(minX, maxY);
 
   GL::VertexRange range;
-  if (!pool.allocateVertices(range, 4, GL::Vertex2ft2fv::format))
+  if (!pool.allocateVertices(range, 4, Vertex2ft2fv::format))
     return;
 
   range.copyFrom(vertices);

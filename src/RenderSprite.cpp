@@ -71,7 +71,7 @@ void rotateByZ(Vec3& vector, float angle)
   vector = result;
 }
 
-void realizeSpriteVertices(GL::Vertex2ft3fv* vertices,
+void realizeSpriteVertices(Vertex2ft3fv* vertices,
 			   const Vec3& cameraPosition,
                            const Vec3& spritePosition,
 		           const Vec2& size,
@@ -148,11 +148,11 @@ Sprite2::Sprite2(void)
 
 void Sprite2::render(void) const
 {
-  GL::Vertex2ft2fv vertices[4];
+  Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
   GL::VertexRange range;
-  if (!GeometryPool::get()->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
+  if (!GeometryPool::get()->allocateVertices(range, 4, Vertex2ft2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -162,11 +162,11 @@ void Sprite2::render(void) const
 
 void Sprite2::render(const Material& material) const
 {
-  GL::Vertex2ft2fv vertices[4];
+  Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
   GL::VertexRange range;
-  if (!GeometryPool::get()->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
+  if (!GeometryPool::get()->allocateVertices(range, 4, Vertex2ft2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -180,7 +180,7 @@ void Sprite2::render(const Material& material) const
   }
 }
 
-void Sprite2::realizeVertices(GL::Vertex2ft2fv* vertices) const
+void Sprite2::realizeVertices(Vertex2ft2fv* vertices) const
 {
   const Vec2 offset(size.x / 2.f, size.y / 2.f);
 
@@ -239,12 +239,12 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
   }
 
   GL::VertexRange range;
-  if (!GeometryPool::get()->allocateVertices(range, 4, GL::Vertex2ft3fv::format))
+  if (!GeometryPool::get()->allocateVertices(range, 4, Vertex2ft3fv::format))
     return;
 
   const Vec3 cameraPosition = queue.getCamera().getTransform().position;
 
-  GL::Vertex2ft3fv vertices[4];
+  Vertex2ft3fv vertices[4];
   realizeVertices(vertices, transform, cameraPosition);
   range.copyFrom(vertices);
 
@@ -259,7 +259,7 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
   queue.addOperation(operation);
 }
 
-void Sprite3::realizeVertices(GL::Vertex2ft3fv* vertices,
+void Sprite3::realizeVertices(Vertex2ft3fv* vertices,
                               const Transform3& transform,
                               const Vec3& cameraPosition) const
 {
@@ -315,7 +315,7 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   }
 
   GL::VertexRange vertexRange;
-  if (!pool->allocateVertices(vertexRange, 4 * slots.size(), GL::Vertex2ft3fv::format))
+  if (!pool->allocateVertices(vertexRange, 4 * slots.size(), Vertex2ft3fv::format))
     return;
 
   GL::IndexRange indexRange;
@@ -326,7 +326,7 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
 
   // Realize sprite vertices
   {
-    GL::VertexRangeLock<GL::Vertex2ft3fv> vertices(vertexRange);
+    GL::VertexRangeLock<Vertex2ft3fv> vertices(vertexRange);
     if (!vertices)
       return;
 
@@ -367,7 +367,7 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   queue.addOperation(operation);
 }
 
-void SpriteCloud3::realizeVertices(GL::Vertex2ft3fv* vertices,
+void SpriteCloud3::realizeVertices(Vertex2ft3fv* vertices,
                                    const Transform3& transform,
                                    const Vec3& cameraPosition) const
 {
