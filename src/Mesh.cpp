@@ -98,17 +98,17 @@ void Mesh::merge(const Mesh& other)
 
   for (GeometryList::const_iterator i = other.geometries.begin();  i != other.geometries.end();  i++)
   {
-    MeshGeometry* geometry = findGeometry((*i).shaderName);
+    MeshGeometry* geometry = findGeometry(i->shaderName);
     if (!geometry)
     {
       geometries.push_back(MeshGeometry());
       geometry = &(geometries.back());
-      geometry->shaderName = (*i).shaderName;
+      geometry->shaderName = i->shaderName;
     }
 
     geometry->triangles.insert(geometry->triangles.end(),
-                               (*i).triangles.begin(),
-                               (*i).triangles.end());
+                               i->triangles.begin(),
+                               i->triangles.end());
   }
 }
 
