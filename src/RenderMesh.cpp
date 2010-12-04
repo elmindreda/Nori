@@ -49,20 +49,11 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Mesh::~Mesh(void)
-{
-  while (!geometries.empty())
-  {
-    delete geometries.back();
-    geometries.pop_back();
-  }
-}
-
 void Mesh::enqueue(Queue& queue, const Transform3& transform) const
 {
-  for (GeometryList::const_iterator i = geometries.begin();  i != geometries.end();  i++)
+  for (GeometryList::const_iterator g = geometries.begin();  g != geometries.end();  g++)
   {
-    Material* material = (*i)->getMaterial();
+    Material* material = g->getMaterial();
 
     const Technique* technique = material->getActiveTechnique();
     if (!technique)
@@ -73,9 +64,9 @@ void Mesh::enqueue(Queue& queue, const Transform3& transform) const
     }
 
     Operation operation;
-    operation.range = GL::PrimitiveRange((*i)->getPrimitiveType(),
+    operation.range = GL::PrimitiveRange(g->getPrimitiveType(),
                                          *vertexBuffer,
-                                         (*i)->getIndexRange());
+                                         g->getIndexRange());
     operation.transform = transform;
     operation.technique = technique;
     queue.addOperation(operation);
@@ -158,23 +149,22 @@ bool Mesh::init(const wendy::Mesh& mesh)
 
   size_t indexBase = 0;
 
-  for (wendy::Mesh::GeometryList::const_iterator i = mesh.geometries.begin();  i != mesh.geometries.end();  i++)
+  for (wendy::Mesh::GeometryList::const_iterator g = mesh.geometries.begin();  g != mesh.geometries.end();  g++)
   {
-    indexCount = (*i).triangles.size() * 3;
+    indexCount = g->triangles.size() * 3;
 
-    Ref<Material> material = Material::readInstance((*i).shaderName);
+    Ref<Material> material = Material::readInstance(g->shaderName);
     if (!material)
     {
       Log::writeError("Cannot find material \'%s\' for mesh \'%s\'",
-                      (*i).shaderName.c_str(),
+                      g->shaderName.c_str(),
 		      getName().c_str());
       return false;
     }
 
     GL::IndexRange range(*indexBuffer, indexBase, indexCount);
 
-    Geometry* geometry = new Geometry(range, GL::TRIANGLE_LIST, material);
-    geometries.push_back(geometry);
+    geometries.push_back(Geometry(range, GL::TRIANGLE_LIST, material));
 
     size_t index = 0;
 
@@ -184,8 +174,8 @@ bool Mesh::init(const wendy::Mesh& mesh)
       if (!indices)
         return false;
 
-      for (MeshGeometry::TriangleList::const_iterator j = (*i).triangles.begin();
-           j != (*i).triangles.end();
+      for (MeshGeometry::TriangleList::const_iterator j = g->triangles.begin();
+           j != g->triangles.end();
            j++)
       {
         indices[index++] = (*j).indices[0];
@@ -199,8 +189,8 @@ bool Mesh::init(const wendy::Mesh& mesh)
       if (!indices)
         return false;
 
-      for (MeshGeometry::TriangleList::const_iterator j = (*i).triangles.begin();
-           j != (*i).triangles.end();
+      for (MeshGeometry::TriangleList::const_iterator j = g->triangles.begin();
+           j != g->triangles.end();
            j++)
       {
         indices[index++] = (*j).indices[0];
@@ -214,8 +204,8 @@ bool Mesh::init(const wendy::Mesh& mesh)
       if (!indices)
         return false;
 
-      for (MeshGeometry::TriangleList::const_iterator j = (*i).triangles.begin();
-           j != (*i).triangles.end();
+      for (MeshGeometry::TriangleList::const_iterator j = g->triangles.begin();
+           j != g->triangles.end();
            j++)
       {
         indices[index++] = (*j).indices[0];

@@ -55,8 +55,7 @@ class Mesh : public Renderable,
 {
 public:
   class Geometry;
-  typedef std::vector<Geometry*> GeometryList;
-  ~Mesh(void);
+  typedef std::vector<Geometry> GeometryList;
   void enqueue(Queue& queue, const Transform3& transform) const;
   /*! @return The bounding sphere of this mesh.
    */
