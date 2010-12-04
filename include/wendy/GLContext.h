@@ -60,6 +60,17 @@ class PrimitiveRange;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Context window mode.
+ *  @ingroup opengl
+ */
+enum WindowMode
+{
+  WINDOWED,
+  FULLSCREEN,
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Screen mode.
  *  @ingroup opengl
  */
@@ -112,14 +123,6 @@ typedef std::vector<ScreenMode> ScreenModeList;
 class ContextMode : public ScreenMode
 {
 public:
-  enum {
-    /*! Create a windowed context, if supported.
-     */
-    WINDOWED = 1,
-    /*! Default flags.
-     */
-    DEFAULT = WINDOWED,
-  };
   /*! Default constructor.
    */
   ContextMode(void);
@@ -131,7 +134,7 @@ public:
 	      unsigned int depthBits = 0,
 	      unsigned int stencilBits = 0,
 	      unsigned int samples = 0,
-	      unsigned int flags = DEFAULT);
+	      WindowMode mode = WINDOWED);
   /*! Resets all value to their defaults.
    */
   void setDefaults(void);
@@ -143,7 +146,7 @@ public:
 	   unsigned int newDepthBits = 0,
 	   unsigned int newStencilBits = 0,
 	   unsigned int newSamples = 0,
-	   unsigned int newFlags = DEFAULT);
+	   WindowMode newFlags = WINDOWED);
   /*! The desired depth buffer bit depth.
    */
   unsigned int depthBits;
@@ -153,9 +156,9 @@ public:
   /*! The desired number of FSAA samples.
    */
   unsigned int samples;
-  /*! The desired modification flags.
+  /*! The desired window mode.
    */
-  unsigned int flags;
+  WindowMode mode;
 };
 
 ///////////////////////////////////////////////////////////////////////

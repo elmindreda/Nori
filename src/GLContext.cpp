@@ -297,18 +297,18 @@ ContextMode::ContextMode(unsigned int width,
 			 unsigned int initDepthBits,
 			 unsigned int initStencilBits,
 			 unsigned int initSamples,
-			 unsigned int initFlags):
+			 WindowMode initMode):
   ScreenMode(width, height, colorBits),
   depthBits(initDepthBits),
   stencilBits(initStencilBits),
   samples(initSamples),
-  flags(initFlags)
+  mode(initMode)
 {
 }
 
 void ContextMode::setDefaults(void)
 {
-  set(640, 480, 32, 32, 0, 0, DEFAULT);
+  set(640, 480, 32, 32, 0, 0, WINDOWED);
 }
 
 void ContextMode::set(unsigned int width,
@@ -317,14 +317,14 @@ void ContextMode::set(unsigned int width,
 		      unsigned int newDepthBits,
 		      unsigned int newStencilBits,
 		      unsigned int newSamples,
-		      unsigned int newFlags)
+		      WindowMode newMode)
 {
   ScreenMode::set(width, height, colorBits);
 
   depthBits = newDepthBits;
   stencilBits = newStencilBits;
   samples = newSamples;
-  flags = newFlags;
+  mode = newMode;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1245,19 +1245,19 @@ bool Context::init(const ContextMode& initMode)
     if (colorBits > 24)
       colorBits = 24;
 
-    unsigned int flags;
+    unsigned int mode;
 
-    if (initMode.flags & ContextMode::WINDOWED)
-      flags = GLFW_WINDOW;
+    if (initMode.mode == WINDOWED)
+      mode = GLFW_WINDOW;
     else
-      flags = GLFW_FULLSCREEN;
+      mode = GLFW_FULLSCREEN;
 
     if (initMode.samples)
       glfwOpenWindowHint(GLFW_FSAA_SAMPLES, initMode.samples);
 
     if (!glfwOpenWindow(initMode.width, initMode.height,
                         colorBits / 3, colorBits / 3, colorBits / 3, 0,
-                        initMode.depthBits, initMode.stencilBits, flags))
+                        initMode.depthBits, initMode.stencilBits, mode))
     {
       Log::writeError("Unable to create GLFW window");
       return false;
@@ -1378,7 +1378,7 @@ bool Context::init(const ContextMode& initMode)
     screenCanvas->mode.depthBits = glfwGetWindowParam(GLFW_DEPTH_BITS);
     screenCanvas->mode.stencilBits = glfwGetWindowParam(GLFW_STENCIL_BITS);
     screenCanvas->mode.samples = glfwGetWindowParam(GLFW_FSAA_SAMPLES);
-    screenCanvas->mode.flags = initMode.flags;
+    screenCanvas->mode.mode = initMode.mode;
 
     setScreenCanvasCurrent();
   }
