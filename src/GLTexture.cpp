@@ -165,9 +165,7 @@ GLenum convertToGL(ImageCube::Face face)
 
 bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned int y)
 {
-  wendy::Image final = source;
-
-  if (final.getFormat() != texture.format)
+  if (source.getFormat() != texture.format)
   {
     // TODO: Convert to compatible pixel format
 
@@ -177,7 +175,7 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
 
   if (texture.textureTarget == GL_TEXTURE_1D)
   {
-    if (final.getDimensionCount() > 1)
+    if (source.getDimensionCount() > 1)
     {
       Log::writeError("Cannot blt to texture; source image has too many dimensions");
       return false;
@@ -191,16 +189,16 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
     glTexSubImage1D(texture.textureTarget,
                     level,
 		    x,
-		    final.getWidth(),
+		    source.getWidth(),
                     convertToGL(texture.format.getSemantic()),
                     convertToGL(texture.format.getType()),
-		    final.getPixels());
+		    source.getPixels());
 
     cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_TRUE);
   }
   else
   {
-    if (final.getDimensionCount() > 2)
+    if (source.getDimensionCount() > 2)
     {
       Log::writeError("Cannot blt to texture; source image has too many dimensions");
       return false;
@@ -214,10 +212,10 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
     glTexSubImage2D(texture.textureTarget,
                     level,
 		    x, y,
-		    final.getWidth(), final.getHeight(),
+		    source.getWidth(), source.getHeight(),
                     convertToGL(texture.format.getSemantic()),
                     convertToGL(texture.format.getType()),
-		    final.getPixels());
+		    source.getPixels());
 
     cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_TRUE);
   }
