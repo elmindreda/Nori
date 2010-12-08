@@ -32,7 +32,6 @@
 #include <wendy/Quaternion.h>
 #include <wendy/Transform.h>
 #include <wendy/Path.h>
-#include <wendy/Stream.h>
 #include <wendy/Resource.h>
 #include <wendy/XML.h>
 #include <wendy/Animation.h>
@@ -386,11 +385,11 @@ Ref<Anim3> Anim3Reader::read(const Path& path)
   info.path = path;
   currentTrack = NULL;
 
-  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::READABLE));
+  std::ifstream stream(path.asString().c_str());
   if (!stream)
     return NULL;
 
-  if (!XML::Reader::read(*stream))
+  if (!XML::Reader::read(stream))
   {
     animation = NULL;
     return NULL;
@@ -476,13 +475,13 @@ bool Anim3Reader::onEndElement(const String& name)
 
 bool Anim3Writer::write(const Path& path, const Anim3& animation)
 {
-  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::WRITABLE | Stream::OVERWRITE));
+  std::ofstream stream(path.asString().c_str());
   if (!stream)
     return false;
 
   try
   {
-    setStream(stream);
+    setStream(&stream);
 
     beginElement("animation");
     addAttribute("version", ANIM3_XML_VERSION);

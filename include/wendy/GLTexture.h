@@ -31,7 +31,6 @@
 #include <wendy/Vector.h>
 #include <wendy/Rectangle.h>
 #include <wendy/Path.h>
-#include <wendy/Stream.h>
 #include <wendy/Resource.h>
 #include <wendy/Pixel.h>
 #include <wendy/XML.h>

@@ -28,7 +28,6 @@
 #include <wendy/Core.h>
 #include <wendy/Block.h>
 #include <wendy/Path.h>
-#include <wendy/Stream.h>
 #include <wendy/Vector.h>
 #include <wendy/Quaternion.h>
 #include <wendy/Color.h>
@@ -93,7 +92,7 @@ Reader::~Reader(void)
 {
 }
 
-bool Reader::read(Stream& stream)
+bool Reader::read(std::istream& stream)
 {
   parser = XML_ParserCreate(NULL);
   if (parser == NULL)
@@ -107,16 +106,12 @@ bool Reader::read(Stream& stream)
   XML_SetEndCdataSectionHandler((XML_Parser) parser, endCharacterDataHandler);
   XML_SetUserData((XML_Parser) parser, this);
 
-  TextStream textStream(stream, false);
-
-  String text;
-  text.reserve(65536);
-
+  String line;
   bool result = true;
 
-  while (textStream.readText(text, text.capacity()))
+  while (std::getline(stream, line).good())
   {
-    if (!XML_Parse((XML_Parser) parser, text.c_str(), (unsigned int) text.length(), textStream.isEOF()))
+    if (!XML_Parse((XML_Parser) parser, line.data(), line.length(), stream.eof()))
     {
       Log::writeError("Failed to parse XML: %s", XML_ErrorString(XML_GetErrorCode((XML_Parser) parser)));
       result = false;
@@ -366,16 +361,16 @@ Writer::Writer(void):
 void Writer::beginElement(const String& name)
 {
   if (stack.empty())
-    stream->writeLine("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>");
+    *stream << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>" << std::endl;
   else
     closeElement();
 
   const char space = ' ';
 
   for (unsigned int i = 0;  i < stack.size();  i++)
-    stream->writeItem(space);
+    *stream << space;
 
-  stream->writeText("<%s", name.c_str());
+  *stream << '<' << name;
 
   stack.push(name);
   closed = false;
@@ -394,15 +389,16 @@ void Writer::endElement(void)
     const char space = ' ';
 
     for (unsigned int i = 0;  i < stack.size() - 1;  i++)
-      stream->writeItem(space);
-    stream->writeLine("</%s>", name.c_str());
+      *stream << space;
+
+    *stream << "</" << name << ">" << std::endl;
   }
   else
   {
     if (simple)
-      stream->writeLine("/>");
+      *stream << "/>" << std::endl;
     else
-      stream->writeLine(" />");
+      *stream << " />" << std::endl;
 
     closed = true;
   }
@@ -425,7 +421,7 @@ void Writer::addAttribute(const String& name, const bool& value)
   if (closed)
     throw Exception("Attribute added outside element");
 
-  stream->writeText(" %s=\"%u\"", name.c_str(), value ? 1 : 0);
+  *stream << " " << name << "=\"" << (value ? 1 : 0) << "\"";
   simple = false;
 }
 
@@ -435,7 +431,7 @@ void Writer::addAttribute(const String& name, const int& value)
   if (closed)
     throw Exception("Attribute added outside element");
 
-  stream->writeText(" %s=\"%i\"", name.c_str(), value);
+  *stream << " " << name << "=\"" << value << "\"";
   simple = false;
 }
 
@@ -445,7 +441,7 @@ void Writer::addAttribute(const String& name, const unsigned int& value)
   if (closed)
     throw Exception("Attribute added outside element");
 
-  stream->writeText(" %s=\"%u\"", name.c_str(), value);
+  *stream << " " << name << "=\"" << value << "\"";
   simple = false;
 }
 
@@ -455,7 +451,7 @@ void Writer::addAttribute(const String& name, const float& value)
   if (closed)
     throw Exception("Attribute added outside element");
 
-  stream->writeText(" %s=\"%f\"", name.c_str(), value);
+  *stream << " " << name << "=\"" << value << "\"";
   simple = false;
 }
 
@@ -465,7 +461,7 @@ void Writer::addAttribute(const String& name, const Time& value)
   if (closed)
     throw Exception("Attribute added outside element");
 
-  stream->writeText(" %s=\"%f\"", name.c_str(), value);
+  *stream << " " << name << "=\"" << value << "\"";
   simple = false;
 }
 
@@ -475,7 +471,7 @@ void Writer::addAttribute(const String& name, const String& value)
   if (closed)
     throw Exception("Attribute added outside element");
 
-  stream->writeText(" %s=\"%s\"", name.c_str(), escapeString(value).c_str());
+  *stream << " " << name << "=\"" << escapeString(value) << "\"";
   simple = false;
 }
 
@@ -520,15 +516,12 @@ void Writer::addAttributes(const Vec4& value)
   addAttribute("w", value.w);
 }
 
-void Writer::setStream(Stream* newStream)
+void Writer::setStream(std::ostream* newStream)
 {
-  if (newStream)
-    stream = new TextStream(*newStream, false);
-  else
-    stream = NULL;
+  stream = newStream;
 }
 
-TextStream* Writer::getStream(void)
+std::ostream* Writer::getStream(void)
 {
   return stream;
 }
@@ -543,9 +536,9 @@ void Writer::closeElement(void)
   if (!closed)
   {
     if (simple)
-      stream->writeLine(">");
+      *stream << ">" << std::endl;
     else
-      stream->writeLine(" >");
+      *stream << " >" << std::endl;
 
     closed = true;
     simple = true;

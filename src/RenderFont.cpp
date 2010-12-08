@@ -439,11 +439,11 @@ Ref<Font> FontReader::read(const Path& path)
 {
   info.path = path;
 
-  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::READABLE));
+  std::ifstream stream(path.asString().c_str());
   if (!stream)
     return NULL;
 
-  if (!XML::Reader::read(*stream))
+  if (!XML::Reader::read(stream))
   {
     font = NULL;
     return NULL;

@@ -31,7 +31,6 @@
 #include <wendy/Rectangle.h>
 #include <wendy/Path.h>
 #include <wendy/Pixel.h>
-#include <wendy/Stream.h>
 #include <wendy/Resource.h>
 #include <wendy/XML.h>
 #include <wendy/Image.h>
@@ -333,19 +332,19 @@ void writeWarningPNG(png_structp context, png_const_charp warning)
 
 void readStreamPNG(png_structp context, png_bytep data, png_size_t length)
 {
-  Stream* stream = reinterpret_cast<Stream*>(png_get_io_ptr(context));
-  stream->readItems(data, length);
+  std::ifstream* stream = reinterpret_cast<std::ifstream*>(png_get_io_ptr(context));
+  stream->read((char*) data, length);
 }
 
 void writeStreamPNG(png_structp context, png_bytep data, png_size_t length)
 {
-  Stream* stream = reinterpret_cast<Stream*>(png_get_io_ptr(context));
-  stream->writeItems(data, length);
+  std::ofstream* stream = reinterpret_cast<std::ofstream*>(png_get_io_ptr(context));
+  stream->write((char*) data, length);
 }
 
 void flushStreamPNG(png_structp context)
 {
-  Stream* stream = reinterpret_cast<Stream*>(png_get_io_ptr(context));
+  std::ofstream* stream = reinterpret_cast<std::ofstream*>(png_get_io_ptr(context));
   stream->flush();
 }
 
@@ -757,7 +756,7 @@ ImageReader::ImageReader(ResourceIndex& index):
 
 Ref<Image> ImageReader::read(const Path& path)
 {
-  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::READABLE));
+  std::ifstream stream(path.asString().c_str());
   if (!stream)
     return NULL;
 
@@ -765,7 +764,7 @@ Ref<Image> ImageReader::read(const Path& path)
   {
     unsigned char header[8];
 
-    if (!stream->read(header, sizeof(header)))
+    if (!stream.read((char*) header, sizeof(header)))
     {
       Log::writeError("Unable to read PNG file header");
       return NULL;
@@ -863,9 +862,9 @@ Ref<Image> ImageReader::read(const Path& path)
 
 bool ImageWriter::write(const Path& path, const Image& image)
 {
-  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::WRITABLE | Stream::OVERWRITE));
+  std::ofstream stream(path.asString().c_str());
   if (!stream)
-    return NULL;
+    return false;
 
   png_structp context = png_create_write_struct(PNG_LIBPNG_VER_STRING,
                                                 NULL,
@@ -937,13 +936,13 @@ ImageCubeReader::ImageCubeReader(ResourceIndex& index):
 
 Ref<ImageCube> ImageCubeReader::read(const Path& path)
 {
-  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::READABLE));
+  std::ifstream stream(path.asString().c_str());
   if (!stream)
     return NULL;
 
   cube = new ImageCube(ResourceInfo(getIndex(), path));
 
-  if (!XML::Reader::read(*stream))
+  if (!XML::Reader::read(stream))
   {
     cube = NULL;
     return NULL;

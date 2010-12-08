@@ -27,6 +27,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <stack>
+#include <fstream>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -43,7 +44,7 @@ public:
   virtual ~Reader(void);
 protected:
   Reader(void);
-  bool read(Stream& source);
+  bool read(std::istream& stream);
   virtual bool onBeginElement(const String& name) = 0;
   virtual bool onEndElement(const String& name) = 0;
   virtual bool onCDATA(const String& data);
@@ -85,15 +86,15 @@ protected:
   void addAttribute(const String& name, const T& value);
   template <typename T>
   void addAttributes(const T& value);
-  void setStream(Stream* newStream);
-  TextStream* getStream(void);
+  void setStream(std::ostream* newStream);
+  std::ostream* getStream(void);
 private:
   Writer(const Writer& source);
   void closeElement(void);
   Writer& operator = (const Writer& source);
   typedef std::stack<String> NameStack;
   NameStack stack;
-  Ptr<TextStream> stream;
+  std::ostream* stream;
   bool closed;
   bool simple;
 };

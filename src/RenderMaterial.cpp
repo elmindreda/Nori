@@ -350,11 +350,11 @@ Ref<Material> MaterialReader::read(const Path& path)
   currentTechnique = NULL;
   currentPass = NULL;
 
-  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::READABLE));
+  std::ifstream stream(path.asString().c_str());
   if (!stream)
     return NULL;
 
-  if (!XML::Reader::read(*stream))
+  if (!XML::Reader::read(stream))
   {
     material = NULL;
     return NULL;
@@ -640,7 +640,7 @@ bool MaterialReader::onEndElement(const String& name)
 
 bool MaterialWriter::write(const Path& path, const Material& material)
 {
-  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::WRITABLE | Stream::OVERWRITE));
+  std::ofstream stream(path.asString().c_str());
   if (!stream)
     return false;
 
@@ -648,7 +648,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
 
   try
   {
-    setStream(stream);
+    setStream(&stream);
 
     beginElement("material");
     addAttribute("version", (int) RENDER_MATERIAL_XML_VERSION);

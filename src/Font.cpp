@@ -31,7 +31,6 @@
 #include <wendy/Vector.h>
 #include <wendy/Rectangle.h>
 #include <wendy/Path.h>
-#include <wendy/Stream.h>
 #include <wendy/Resource.h>
 #include <wendy/Pixel.h>
 #include <wendy/XML.h>
@@ -134,11 +133,11 @@ Ref<Font> FontReader::read(const Path& path)
 {
   font = new Font(ResourceInfo(getIndex(), path));
 
-  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::READABLE));
+  std::ifstream stream(path.asString().c_str());
   if (!stream)
     return NULL;
 
-  if (!XML::Reader::read(*stream))
+  if (!XML::Reader::read(stream))
   {
     font = NULL;
     return NULL;

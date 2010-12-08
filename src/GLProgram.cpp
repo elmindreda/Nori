@@ -1113,14 +1113,17 @@ VertexProgramReader::VertexProgramReader(Context& initContext):
 
 Ref<VertexProgram> VertexProgramReader::read(const Path& path)
 {
-  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::READABLE));
+  std::ifstream stream(path.asString().c_str());
   if (!stream)
     return NULL;
 
-  TextStream textStream(*stream, false);
+  stream.seekg(0, std::ios::end);
 
   String text;
-  textStream.readText(text, (size_t) textStream.getSize());
+  text.resize(stream.tellg());
+
+  stream.seekg(0, std::ios::beg);
+  stream.read(&text[0], text.size());
 
   ResourceInfo info(getIndex(), path);
 
@@ -1137,14 +1140,17 @@ FragmentProgramReader::FragmentProgramReader(Context& initContext):
 
 Ref<FragmentProgram> FragmentProgramReader::read(const Path& path)
 {
-  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::READABLE));
+  std::ifstream stream(path.asString().c_str());
   if (!stream)
     return NULL;
 
-  TextStream textStream(*stream, false);
+  stream.seekg(0, std::ios::end);
 
   String text;
-  textStream.readText(text, (size_t) textStream.getSize());
+  text.resize(stream.tellg());
+
+  stream.seekg(0, std::ios::beg);
+  stream.read(&text[0], text.size());
 
   ResourceInfo info(getIndex(), path);
 
@@ -1164,11 +1170,11 @@ Ref<Program> ProgramReader::read(const Path& path)
 {
   info.path = path;
 
-  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::READABLE));
+  std::ifstream stream(path.asString().c_str());
   if (!stream)
     return NULL;
 
-  if (!XML::Reader::read(*stream))
+  if (!XML::Reader::read(stream))
   {
     vertexProgram = NULL;
     fragmentProgram = NULL;

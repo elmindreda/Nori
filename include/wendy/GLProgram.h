@@ -33,7 +33,6 @@
 #include <wendy/Matrix.h>
 #include <wendy/Vertex.h>
 #include <wendy/Path.h>
-#include <wendy/Stream.h>
 #include <wendy/Resource.h>
 #include <wendy/XML.h>
 

@@ -31,7 +31,6 @@
 #include <wendy/Rectangle.h>
 #include <wendy/Block.h>
 #include <wendy/Path.h>
-#include <wendy/Stream.h>
 #include <wendy/Resource.h>
 #include <wendy/Font.h>
 
