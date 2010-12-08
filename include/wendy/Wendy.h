@@ -30,10 +30,10 @@
  *
  *  @section intro Introduction
  *
- *  This is the reference documentation for the Wendy engine, a simple demo and
- *  game engine using OpenGL and OpenAL. It is the hope of the author that it
- *  also serves as a suitable introduction to engine design, due to its
- *  (relatively) small size and (hopefully) consistent design.
+ *  This is the reference documentation for the Wendy engine, a simple engine
+ *  using OpenGL. It is the hope of the author that it also serves as a
+ *  suitable introduction to engine design, due to its (relatively) small size
+ *  and (hopefully) consistent design.
  *
  *  @section license License
  *
@@ -53,22 +53,6 @@
  *      must not be misrepresented as being the original software.
  *   -# This notice may not be removed or altered from any source
  *      distribution.
- */
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @defgroup io I/O classes
- *
- *  These classes provide I/O for various other parts of the system, mostly
- *  by implementing resource system codecs.
- */
-
-/*! @defgroup default Default extensions
- *
- *  These classes are not conceptually a part of the core Wendy library, but
- *  are default implementations of commonly used extensions of the core objects
- *  provided by the system. They are provided both to speed up development and
- *  to serve as examples of correct use of the core classes.
  */
 
 ///////////////////////////////////////////////////////////////////////

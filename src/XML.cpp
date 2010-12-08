@@ -109,7 +109,7 @@ bool Reader::read(std::istream& stream)
   String line;
   bool result = true;
 
-  while (std::getline(stream, line).good())
+  while (std::getline(stream, line))
   {
     if (!XML_Parse((XML_Parser) parser, line.data(), line.length(), stream.eof()))
     {

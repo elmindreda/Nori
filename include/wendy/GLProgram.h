@@ -27,7 +27,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.h>
-#include <wendy/Block.h>
 #include <wendy/Vector.h>
 #include <wendy/Color.h>
 #include <wendy/Matrix.h>
