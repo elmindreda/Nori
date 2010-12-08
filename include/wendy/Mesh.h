@@ -95,7 +95,7 @@ public:
  *  This is an ideal mesh representation intended for ease of use
  *  during calculations.  It is not intended for real-time use.
  */
-class Mesh : public Resource<Mesh>
+class Mesh : public Resource
 {
 public:
   enum NormalType
@@ -106,11 +106,7 @@ public:
   /*! Constructor.
    *  @param name The desired name of the mesh.
    */
-  Mesh(const String& name = "");
-  /*! Merges neighbouring vertices according to the specified tolerance
-   *  value.
-   */
-  void weld(float tolerance);
+  Mesh(const ResourceInfo& info);
   /*! Merges the specified mesh with this mesh.
    */
   void merge(const Mesh& other);
@@ -199,6 +195,20 @@ private:
   VertexList vertices;
   unsigned int targetCount;
   NormalMode mode;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class MeshReader : public ResourceReader
+{
+public:
+  MeshReader(ResourceIndex& index);
+  Ref<Mesh> read(const Path& path);
+private:
+  String parseName(const char** text);
+  int parseInteger(const char** text);
+  float parseFloat(const char** text);
+  bool interesting(const char** text);
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -34,8 +34,8 @@
 #include <wendy/Vertex.h>
 #include <wendy/Path.h>
 #include <wendy/Stream.h>
-#include <wendy/Managed.h>
 #include <wendy/Resource.h>
+#include <wendy/XML.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -161,17 +161,17 @@ private:
 /*! @brief Vertex program object.
  *  @ingroup opengl
  */
-class VertexProgram : public RefObject, public Resource<VertexProgram>
+class VertexProgram : public Resource
 {
   friend class Program;
 public:
   ~VertexProgram(void);
   const String& getText(void) const;
-  static VertexProgram* createInstance(Context& context,
-                                       const String& text,
-                                       const String& name = "");
+  static VertexProgram* createInstance(const ResourceInfo& info,
+                                       Context& context,
+                                       const String& text);
 private:
-  VertexProgram(Context& context, const String& name);
+  VertexProgram(const ResourceInfo& info, Context& context);
   VertexProgram(const VertexProgram& source);
   bool init(const String& initText);
   VertexProgram& operator = (const VertexProgram& source);
@@ -182,20 +182,24 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+typedef Ref<VertexProgram> VertexProgramRef;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Fragment program object.
  *  @ingroup opengl
  */
-class FragmentProgram : public RefObject, public Resource<FragmentProgram>
+class FragmentProgram : public Resource
 {
   friend class Program;
 public:
   ~FragmentProgram(void);
   const String& getText(void) const;
-  static FragmentProgram* createInstance(Context& context,
-                                         const String& text,
-                                         const String& name = "");
+  static FragmentProgram* createInstance(const ResourceInfo& info,
+                                         Context& context,
+                                         const String& text);
 private:
-  FragmentProgram(Context& context, const String& name);
+  FragmentProgram(const ResourceInfo& info, Context& context);
   FragmentProgram(const FragmentProgram& source);
   bool init(const String& initText);
   FragmentProgram& operator = (const FragmentProgram& source);
@@ -206,12 +210,16 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+typedef Ref<FragmentProgram> FragmentProgramRef;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Combined program object.
  *  @ingroup opengl
  *
  *  Represents a complete set of GPU programs.
  */
-class Program : public RefObject, public Resource<Program>
+class Program : public Resource
 {
   friend class Context;
 public:
@@ -233,12 +241,12 @@ public:
   const Sampler& getSampler(unsigned int index) const;
   VertexProgram& getVertexProgram(void) const;
   FragmentProgram& getFragmentProgram(void) const;
-  static Program* createInstance(Context& context,
+  static Program* createInstance(const ResourceInfo& info,
+                                 Context& context,
                                  VertexProgram& vertexProgram,
-                                 FragmentProgram& fragmentProgram,
-				 const String& name = "");
+                                 FragmentProgram& fragmentProgram);
 private:
-  Program(Context& context, const String& name);
+  Program(const ResourceInfo& info, Context& context);
   Program(const Program& source);
   bool init(VertexProgram& vertexProgram, FragmentProgram& fragmentProgram);
   void apply(void) const;
@@ -280,6 +288,54 @@ private:
   UniformList uniforms;
   SamplerList samplers;
   VaryingList varyings;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Vertex program reader.
+ *  @ingroup io
+ */
+class VertexProgramReader : public ResourceReader
+{
+public:
+  VertexProgramReader(Context& context);
+  VertexProgramRef read(const Path& path);
+private:
+  Context& context;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Fragment program reader.
+ *  @ingroup io
+ */
+class FragmentProgramReader : public ResourceReader
+{
+public:
+  FragmentProgramReader(Context& context);
+  FragmentProgramRef read(const Path& path);
+private:
+  Context& context;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Shader program XML codec.
+ *  @ingroup io
+ */
+class ProgramReader : public ResourceReader, public XML::Reader
+{
+public:
+  ProgramReader(Context& context);
+  ProgramRef read(const Path& path);
+private:
+  bool onBeginElement(const String& name);
+  bool onEndElement(const String& name);
+  Context& context;
+  Ptr<Program> program;
+  ResourceInfo info;
+  VertexProgramRef vertexProgram;
+  FragmentProgramRef fragmentProgram;
 };
 
 ///////////////////////////////////////////////////////////////////////

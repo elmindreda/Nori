@@ -218,7 +218,7 @@ public:
   inline Ref(const Ref<T>& source);
   /*! Destructor
    */
-  inline virtual ~Ref(void);
+  inline ~Ref(void);
   /*! Cast operator.
    */
   inline operator T* (void) const;

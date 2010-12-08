@@ -505,18 +505,23 @@ bool Renderer::init(void)
 
   clipAreaStack.push(Rect(0.f, 0.f, 1.f, 1.f));
 
-  defaultFont = render::Font::readInstance("default");
-  if (!defaultFont)
+  // Load default font
   {
-    Log::writeError("Failed to load default font");
-    return false;
-  }
+    render::FontReader reader(pool);
+    defaultFont = reader.read(Path("wendy/default.renderfont"));
+    if (!defaultFont)
+    {
+      Log::writeError("Failed to load default font");
+      return false;
+    }
 
-  currentFont = defaultFont;
+    currentFont = defaultFont;
+  }
 
   // Set up drawing render pass
   {
-    Ref<GL::Program> drawProgram = GL::Program::readInstance("UIRenderSolid");
+    GL::ProgramReader reader(pool.getContext());
+    Ref<GL::Program> drawProgram = reader.read(Path("wendy/UIRenderSolid.program"));
     if (!drawProgram)
     {
       Log::writeError("Failed to load UI drawing shader program");
@@ -541,7 +546,8 @@ bool Renderer::init(void)
 
   // Set up blitting render pass
   {
-    Ref<GL::Program> blitProgram = GL::Program::readInstance("UIRenderMapped");
+    GL::ProgramReader reader(pool.getContext());
+    Ref<GL::Program> blitProgram = reader.read(Path("wendy/UIRenderMapped.program"));
     if (!blitProgram)
     {
       Log::writeError("Failed to load UI blitting shader program");

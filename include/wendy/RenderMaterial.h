@@ -139,12 +139,12 @@ private:
 /*! @brief Multi-technique material descriptor.
  *  @ingroup renderer
  */
-class Material : public Resource<Material>, public RefObject
+class Material : public Resource
 {
 public:
   /*! Constructor.
    */
-  Material(const String& name = "");
+  Material(const ResourceInfo& info);
   /*! Copy constructor.
    */
   Material(const Material& source);
@@ -185,6 +185,37 @@ private:
   typedef std::vector<Technique*> List;
   List techniques;
   mutable Technique* active;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Codec for XML format render materials.
+ *  @ingroup io
+ */
+class MaterialReader : ResourceReader, public XML::Reader
+{
+public:
+  MaterialReader(GL::Context& context);
+  Ref<Material> read(const Path& path);
+private:
+  bool onBeginElement(const String& name);
+  bool onEndElement(const String& name);
+  GL::Context& context;
+  Ptr<Material> material;
+  ResourceInfo info;
+  Technique* currentTechnique;
+  Pass* currentPass;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Codec for XML format render materials.
+ *  @ingroup io
+ */
+class MaterialWriter : public XML::Writer
+{
+public:
+  bool write(const Path& path, const Material& material);
 };
 
 ///////////////////////////////////////////////////////////////////////

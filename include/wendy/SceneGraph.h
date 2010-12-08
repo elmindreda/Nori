@@ -45,37 +45,6 @@ class Graph;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief %Scene graph node factory super class.
- *  @ingroup scene
- */
-class NodeType : public Managed<NodeType>
-{
-public:
-  /*! Constructor.
-   *  @param[in] name The desired name of this scene node type.
-   */
-  NodeType(const String& name);
-  /*! Destructor.
-   */
-  virtual ~NodeType(void);
-  virtual Node* createNode(void) = 0;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief %Scene graph node factory template.
- *  @ingroup scene
- */
-template <typename T>
-class NodeTemplate : public NodeType
-{
-public:
-  inline NodeTemplate(const String& name);
-  inline Node* createNode(void);
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief %Scene graph node base class.
  *  @ingroup scene
  *
@@ -190,11 +159,10 @@ private:
  *  This class represents a single scene graph, and is a logical tree root node,
  *  although it doesn't have a transform or bounds.
  */
-class Graph : public Resource<Graph>
+class Graph
 {
   friend class Node;
 public:
-  Graph(const String& name = "");
   ~Graph(void);
   void update(void);
   void enqueue(render::Queue& queue) const;
@@ -286,29 +254,15 @@ class ParticleSystemNode : public Node
 {
 public:
   explicit ParticleSystemNode(const String& name = "");
-  const String& getSystemName(void) const;
-  void setSystemName(const String& newSystemName);
+  render::ParticleSystem* getSystem(void) const;
+  void setSystem(render::ParticleSystem* newSystem);
 protected:
   void update(void);
   void restart(void);
   void enqueue(render::Queue& queue) const;
 private:
-  String systemName;
+  Ref<render::ParticleSystem> system;
 };
-
-///////////////////////////////////////////////////////////////////////
-
-template <typename T>
-inline NodeTemplate<T>::NodeTemplate(const String& name):
-  NodeType(name)
-{
-}
-
-template <typename T>
-inline Node* NodeTemplate<T>::createNode(void)
-{
-  return new T();
-}
 
 ///////////////////////////////////////////////////////////////////////
 

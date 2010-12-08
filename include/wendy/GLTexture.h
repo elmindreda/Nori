@@ -32,9 +32,9 @@
 #include <wendy/Rectangle.h>
 #include <wendy/Path.h>
 #include <wendy/Stream.h>
-#include <wendy/Managed.h>
 #include <wendy/Resource.h>
 #include <wendy/Pixel.h>
+#include <wendy/XML.h>
 #include <wendy/Image.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -134,7 +134,7 @@ typedef Ref<TextureImage> TextureImageRef;
 /*! @brief %Texture object.
  *  @ingroup opengl
  */
-class Texture : public Resource<Texture>, public RefObject
+class Texture : public Resource
 {
   friend class Sampler;
   friend class TextureImage;
@@ -211,19 +211,21 @@ public:
   /*! Creates a texture from the specified image.
    *  @param[in] image The image data to use.
    *  @param[in] flags The creation flags.
-   *  @param[in] name The desired name of the texture, or the empty string to
-   *  automatically generate a name.
    */
-  static Texture* createInstance(Context& context,
+  static Texture* createInstance(const ResourceInfo& info,
+                                 Context& context,
                                  const wendy::Image& source,
-                                 unsigned int flags,
-				 const String& name = "");
-  static Texture* createInstance(Context& context,
+                                 unsigned int flags);
+  /*! Creates a texture from the specified image cube.
+   *  @param[in] image The image cube data to use.
+   *  @param[in] flags The creation flags.
+   */
+  static Texture* createInstance(const ResourceInfo& info,
+                                 Context& context,
                                  const ImageCube& source,
-                                 unsigned int flags,
-				 const String& name = "");
+                                 unsigned int flags);
 private:
-  Texture(Context& context, const String& name);
+  Texture(const ResourceInfo& info, Context& context);
   Texture(const Texture& source);
   bool init(const wendy::Image& source, unsigned int flags);
   bool init(const ImageCube& source, unsigned int flags);
@@ -244,6 +246,21 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 typedef Ref<Texture> TextureRef;
+
+///////////////////////////////////////////////////////////////////////
+
+class TextureReader : public ResourceReader, public XML::Reader
+{
+public:
+  TextureReader(Context& context);
+  Ref<Texture> read(const Path& path);
+private:
+  bool onBeginElement(const String& name);
+  bool onEndElement(const String& name);
+  Context& context;
+  Ptr<Texture> texture;
+  ResourceInfo info;
+};
 
 ///////////////////////////////////////////////////////////////////////
 

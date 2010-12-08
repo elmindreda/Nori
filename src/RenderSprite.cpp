@@ -234,7 +234,7 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
   if (!technique)
   {
     Log::writeError("Material \'%s\' has no active technique",
-                    material->getName().c_str());
+                    material->getPath().asString().c_str());
     return;
   }
 
@@ -310,7 +310,7 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   if (!technique)
   {
     Log::writeError("Material \'%s\' has no active technique",
-                    material->getName().c_str());
+                    material->getPath().asString().c_str());
     return;
   }
 

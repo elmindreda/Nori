@@ -159,6 +159,11 @@ GLenum convertToGL(ImageCube::Face face)
   return 0;
 }
 
+Bimap<String, FilterMode> filterModeMap;
+Bimap<String, AddressMode> addressModeMap;
+
+const unsigned int TEXTURE_XML_VERSION = 1;
+
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
@@ -272,7 +277,7 @@ bool TextureImage::copyFromColorBuffer(unsigned int x, unsigned int y)
 
 bool TextureImage::copyTo(wendy::Image& result) const
 {
-  result = wendy::Image(texture.format, width, height);
+  result = wendy::Image(texture.getIndex(), texture.format, width, height);
 
   cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_FALSE);
 
@@ -500,32 +505,32 @@ Context& Texture::getContext(void) const
   return context;
 }
 
-Texture* Texture::createInstance(Context& context,
+Texture* Texture::createInstance(const ResourceInfo& info,
+                                 Context& context,
                                  const wendy::Image& source,
-				 unsigned int flags,
-				 const String& name)
+				 unsigned int flags)
 {
-  Ptr<Texture> texture(new Texture(context, name));
+  Ptr<Texture> texture(new Texture(info, context));
   if (!texture->init(source, flags))
     return NULL;
 
   return texture.detachObject();
 }
 
-Texture* Texture::createInstance(Context& context,
+Texture* Texture::createInstance(const ResourceInfo& info,
+                                 Context& context,
                                  const ImageCube& source,
-				 unsigned int flags,
-				 const String& name)
+				 unsigned int flags)
 {
-  Ptr<Texture> texture(new Texture(context, name));
+  Ptr<Texture> texture(new Texture(info, context));
   if (!texture->init(source, flags))
     return NULL;
 
   return texture.detachObject();
 }
 
-Texture::Texture(Context& initContext, const String& name):
-  Resource<Texture>(name),
+Texture::Texture(const ResourceInfo& info, Context& initContext):
+  Resource(info, "GL::Texture"),
   context(initContext),
   textureTarget(0),
   textureID(0),
@@ -538,7 +543,7 @@ Texture::Texture(Context& initContext, const String& name):
 }
 
 Texture::Texture(const Texture& source):
-  Resource<Texture>(""),
+  Resource(source),
   context(source.context)
 {
 }
@@ -552,7 +557,7 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   if (!convertToGL(format))
   {
     Log::writeError("Source image for texture \'%s\' has unsupported pixel format \'%s\'",
-                    getName().c_str(),
+                    getPath().asString().c_str(),
                     format.asString().c_str());
     return false;
   }
@@ -626,7 +631,7 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
     // Rescale source image (no-op if the sizes are equal)
     if (!final.resize(width, height))
     {
-      Log::writeError("Failed to rescale image for texture \'%s\'", getName().c_str());
+      Log::writeError("Failed to rescale image for texture \'%s\'", getPath().asString().c_str());
       return false;
     }
   }
@@ -714,7 +719,7 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
 
   if (!checkGL("OpenGL error during creation of texture \'%s\' of format \'%s\'",
-               getName().c_str(),
+               getPath().asString().c_str(),
                format.asString().c_str()))
   {
     return false;
@@ -730,21 +735,21 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
     if (!source.isPOT())
     {
       Log::writeError("Source images for texture \'%s\' do not have POT dimensions",
-                      getName().c_str());
+                      getPath().asString().c_str());
       return false;
     }
 
     if (!source.isSquare())
     {
       Log::writeError("Source images for texture \'%s\' are not square",
-                      getName().c_str());
+                      getPath().asString().c_str());
       return false;
     }
 
     if (!source.hasSameSize())
     {
       Log::writeError("Source images for texture \'%s\' do not have the same size",
-                      getName().c_str());
+                      getPath().asString().c_str());
       return false;
     }
 
@@ -756,7 +761,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
     if (sourceWidth > maxSize)
     {
       Log::writeError("Source images for texture \'%s\' are too large; maximum size is %ux%u",
-                      getName().c_str(),
+                      getPath().asString().c_str(),
                       maxSize, maxSize);
       return false;
     }
@@ -767,7 +772,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
     if (!source.hasSameFormat())
     {
       Log::writeError("Source images for texture \'%s\' do not have same format",
-                      getName().c_str());
+                      getPath().asString().c_str());
       return false;
     }
 
@@ -776,7 +781,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
     if (!convertToGL(format))
     {
       Log::writeError("Source images for texture \'%s\' have unsupported pixel format \'%s\'",
-                      getName().c_str(),
+                      getPath().asString().c_str(),
                       format.asString().c_str());
       return false;
     }
@@ -784,7 +789,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
     if (!convertToGL(format.getType()))
     {
       Log::writeError("Source images for texture \'%s\' have unsupported component type",
-                      getName().c_str());
+                      getPath().asString().c_str());
       return false;
     }
   }
@@ -796,7 +801,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
     if (flags & RECTANGULAR)
     {
       Log::writeError("Invalid flags for texture \'%s\': cube maps cannot be rectangular",
-                      getName().c_str());
+                      getPath().asString().c_str());
       return false;
     }
   }
@@ -870,7 +875,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
   cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
 
   if (!checkGL("OpenGL error during creation of texture \'%s\' of format \'%s\'",
-               getName().c_str(),
+               getPath().asString().c_str(),
                format.asString().c_str()))
   {
     return false;
@@ -882,6 +887,161 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
 Texture& Texture::operator = (const Texture& source)
 {
   return *this;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+TextureReader::TextureReader(Context& initContext):
+  ResourceReader(initContext.getIndex()),
+  context(initContext),
+  info(initContext.getIndex())
+{
+  if (addressModeMap.isEmpty())
+  {
+    addressModeMap["wrap"] = ADDRESS_WRAP;
+    addressModeMap["clamp"] = ADDRESS_CLAMP;
+  }
+
+  if (filterModeMap.isEmpty())
+  {
+    filterModeMap["nearest"] = FILTER_NEAREST;
+    filterModeMap["bilinear"] = FILTER_BILINEAR;
+    filterModeMap["trilinear"] = FILTER_TRILINEAR;
+  }
+}
+
+Ref<Texture> TextureReader::read(const Path& path)
+{
+  info.path = path;
+
+  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::READABLE));
+  if (!stream)
+    return NULL;
+
+  if (!XML::Reader::read(*stream))
+  {
+    texture = NULL;
+    return NULL;
+  }
+
+  if (!texture)
+  {
+    Log::writeError("No texture specification found in file");
+    return NULL;
+  }
+
+  return texture.detachObject();
+}
+
+bool TextureReader::onBeginElement(const String& name)
+{
+  if (name == "texture")
+  {
+    if (texture)
+    {
+      Log::writeError("Only one texture specification per file allowed");
+      return false;
+    }
+
+    const unsigned int version = readInteger("version");
+    if (version != TEXTURE_XML_VERSION)
+    {
+      Log::writeError("Texture specification XML format version mismatch");
+      return false;
+    }
+
+    unsigned int flags = Texture::DEFAULT;
+
+    // Parse flags
+    {
+      bool defaultValue;
+
+      defaultValue = (Texture::DEFAULT | Texture::MIPMAPPED) ? true : false;
+      if (readBoolean("mipmapped", defaultValue) != defaultValue)
+	flags ^= Texture::MIPMAPPED;
+
+      defaultValue = (Texture::DEFAULT | Texture::RECTANGULAR) ? true : false;
+      if (readBoolean("rectangular", defaultValue) != defaultValue)
+	flags ^= Texture::RECTANGULAR;
+    }
+
+    Path imagePath(readString("image"));
+    if (imagePath.asString().empty())
+    {
+      imagePath = readString("imagecube");
+      if (imagePath.asString().empty())
+      {
+        Log::writeError("No image specified for texture \'%s\'",
+                        info.path.asString().c_str());
+        return false;
+      }
+
+      ImageCubeReader reader(getIndex());
+      Ref<ImageCube> source = reader.read(imagePath);
+      if (!source)
+      {
+        Log::writeError("Failed to load image cube \'%s\' for texture \'%s\'",
+                        imagePath.asString().c_str(),
+                        info.path.asString().c_str());
+        return false;
+      }
+
+      texture = Texture::createInstance(info, context, *source, flags);
+      if (!texture)
+        return false;
+    }
+    else
+    {
+      ImageReader reader(getIndex());
+      Ref<wendy::Image> source = reader.read(imagePath);
+      if (!source)
+      {
+        Log::writeError("Failed to load image \'%s\' for texture \'%s\'",
+                        imagePath.asString().c_str(),
+                        info.path.asString().c_str());
+        return false;
+      }
+
+      texture = Texture::createInstance(info, context, *source, flags);
+      if (!texture)
+        return false;
+    }
+
+    String filterModeName = readString("filter");
+    if (!filterModeName.empty())
+    {
+      if (filterModeMap.hasKey(filterModeName))
+	texture->setFilterMode(filterModeMap[filterModeName]);
+      else
+      {
+	Log::writeError("Invalid filter mode name \'%s\'",
+                        filterModeName.c_str());
+	return false;
+      }
+    }
+
+    String addressModeName = readString("address");
+    if (!addressModeName.empty())
+    {
+      if (addressModeMap.hasKey(addressModeName))
+	texture->setAddressMode(addressModeMap[addressModeName]);
+      else
+      {
+	Log::writeError("Invalid address mode name \'%s\'",
+                        addressModeName.c_str());
+	return false;
+      }
+    }
+
+    return true;
+  }
+
+  return true;
+}
+
+bool TextureReader::onEndElement(const String& name)
+{
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////

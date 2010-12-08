@@ -59,7 +59,7 @@ void Mesh::enqueue(Queue& queue, const Transform3& transform) const
     if (!technique)
     {
       Log::writeError("Material \'%s\' has no active technique",
-                      material->getName().c_str());
+                      material->getPath().asString().c_str());
       return;
     }
 
@@ -83,22 +83,26 @@ const Mesh::GeometryList& Mesh::getGeometries(void)
   return geometries;
 }
 
-Mesh* Mesh::createInstance(const wendy::Mesh& mesh, const String& name)
+Mesh* Mesh::createInstance(const ResourceInfo& info,
+                           GL::Context& context,
+                           const wendy::Mesh& mesh)
 {
-  Ptr<Mesh> renderMesh(new Mesh(name));
+  Ptr<Mesh> renderMesh(new Mesh(info, context));
   if (!renderMesh->init(mesh))
     return NULL;
 
   return renderMesh.detachObject();
 }
 
-Mesh::Mesh(const String& name):
-  DerivedResource<Mesh, wendy::Mesh>(name)
+Mesh::Mesh(const ResourceInfo& info, GL::Context& initContext):
+  Resource(info, "render::Mesh"),
+  context(initContext)
 {
 }
 
 Mesh::Mesh(const Mesh& source):
-  DerivedResource<Mesh, wendy::Mesh>(source)
+  Resource(source),
+  context(source.context)
 {
   // NOTE: Not implemented.
 }
@@ -153,12 +157,13 @@ bool Mesh::init(const wendy::Mesh& mesh)
   {
     indexCount = g->triangles.size() * 3;
 
-    Ref<Material> material = Material::readInstance(g->shaderName);
+    MaterialReader reader(context);
+    Ref<Material> material = reader.read(Path(g->shaderName));
     if (!material)
     {
       Log::writeError("Cannot find material \'%s\' for mesh \'%s\'",
                       g->shaderName.c_str(),
-		      getName().c_str());
+		      getPath().asString().c_str());
       return false;
     }
 

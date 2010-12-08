@@ -61,6 +61,8 @@ unsigned int getNextPower(unsigned int value)
   return 1 << (count + 1);
 }
 
+const unsigned int FONT_XML_VERSION = 1;
+
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
@@ -68,9 +70,7 @@ unsigned int getNextPower(unsigned int value)
 void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const String& text) const
 {
   GL::VertexRange vertexRange;
-  if (!GeometryPool::get()->allocateVertices(vertexRange,
-                                             text.size() * 6,
-                                             Vertex2ft2fv::format))
+  if (!pool.allocateVertices(vertexRange, text.size() * 6, Vertex2ft2fv::format))
   {
     Log::writeError("Failed to allocate vertices for text drawing");
     return;
@@ -113,10 +113,10 @@ void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const Strin
   pass.getUniformState("color").setValue(color);
   pass.apply();
 
-  GL::Context::get()->render(GL::PrimitiveRange(GL::TRIANGLE_LIST,
-                                                *vertexRange.getVertexBuffer(),
-				                vertexRange.getStart(),
-				                count));
+  pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_LIST,
+                                              *vertexRange.getVertexBuffer(),
+				              vertexRange.getStart(),
+				              count));
 }
 
 void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const char* format, ...) const
@@ -225,33 +225,27 @@ void Font::getTextLayout(LayoutList& layout, const char* format, ...) const
   std::free(text);
 }
 
-Font* Font::createInstance(const Path& path,
-			   const String& characters,
-			   const String& name)
+Ref<Font> Font::createInstance(const ResourceInfo& info,
+                               GeometryPool& pool,
+                               const wendy::Font& font,
+                               GL::Program& program)
 {
-  Ptr<wendy::Font> font(wendy::Font::readInstance(path, characters));
-  if (!font)
-    return NULL;
-
-  return createInstance(*font, name);
-}
-
-Font* Font::createInstance(const wendy::Font& font, const String& name)
-{
-  Ptr<Font> renderFont(new Font(name));
-  if (!renderFont->init(font))
+  Ptr<Font> renderFont(new Font(info, pool));
+  if (!renderFont->init(font, program))
     return NULL;
 
   return renderFont.detachObject();
 }
 
-Font::Font(const String& name):
-  DerivedResource<Font, wendy::Font>(name)
+Font::Font(const ResourceInfo& info, GeometryPool& initPool):
+  Resource(info, "render::Font"),
+  pool(initPool)
 {
 }
 
 Font::Font(const Font& source):
-  DerivedResource<Font, wendy::Font>(source)
+  Resource(source),
+  pool(source.pool)
 {
   // NOTE: Not implemented.
 }
@@ -263,32 +257,40 @@ Font& Font::operator = (const Font& source)
   return *this;
 }
 
-bool Font::init(const wendy::Font& font)
+bool Font::init(const wendy::Font& font, GL::Program& program)
 {
-  GL::Context* context = GL::Context::get();
+  const unsigned int maxSize = pool.getContext().getLimits().getMaxTextureSize();
 
-  const String& characters = font.getCharacters();
+  unsigned int maxWidth = 0, maxHeight = 0;
 
-  const unsigned int maxSize = context->getLimits().getMaxTextureSize();
+  for (size_t i = 0;  i < font.glyphs.size();  i++)
+  {
+    const unsigned int width = font.glyphs[i].image->getWidth();
+    if (maxWidth < width)
+      maxWidth = width;
 
-  const unsigned int glyphWidth = (unsigned int) ceilf(font.getWidth()) + 1;
-  const unsigned int glyphHeight = (unsigned int) ceilf(font.getHeight()) + 1;
+    const unsigned int height = font.glyphs[i].image->getHeight();
+    if (maxHeight < height)
+      maxHeight = height;
+  }
 
   Ref<GL::Texture> texture;
 
   // Create texture
   {
-    unsigned int width = glyphWidth * characters.size() + 1;
+    unsigned int width = maxWidth * font.glyphs.size() + 1;
     width = std::min(getNextPower(width), maxSize);
 
-    unsigned int rows = characters.size() * glyphWidth / (width - 1);
-    if (glyphWidth % (width - 1))
+    unsigned int rows = font.glyphs.size() * maxWidth / (width - 1);
+    if (maxWidth % (width - 1))
       rows++;
 
-    unsigned int height = glyphHeight * rows + 1;
+    unsigned int height = maxHeight * rows + 1;
     height = std::min(getNextPower(height), maxSize);
 
-    texture = GL::Texture::createInstance(*context, Image(PixelFormat::R8, width, height), 0);
+    Image image(getIndex(), PixelFormat::R8, width, height);
+
+    texture = GL::Texture::createInstance(getIndex(), pool.getContext(), image, 0);
     if (!texture)
       return false;
 
@@ -301,26 +303,19 @@ bool Font::init(const wendy::Font& font)
 
   // Create render pass
   {
-    Ref<GL::Program> program = GL::Program::readInstance("RenderFont");
-    if (!program)
-    {
-      Log::writeError("Unable to read font glyph shader program");
-      return false;
-    }
-
     GL::ProgramInterface interface;
     interface.addSampler("glyphs", GL::Sampler::SAMPLER_2D);
     interface.addUniform("color", GL::Uniform::FLOAT_VEC4);
     interface.addVarying("position", GL::Varying::FLOAT_VEC2);
     interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
 
-    if (!interface.matches(*program, true))
+    if (!interface.matches(program, true))
     {
       Log::writeError("Font shader program does not conform to the required interface");
       return false;
     }
 
-    pass.setProgram(program);
+    pass.setProgram(&program);
     pass.setDepthTesting(false);
     pass.setDepthWriting(false);
     pass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
@@ -334,28 +329,17 @@ bool Font::init(const wendy::Font& font)
 
   GL::TextureImage& textureImage = texture->getImage(0);
 
-  for (unsigned int i = 0;  i < characters.size();  i++)
+  for (unsigned int i = 0;  i < font.glyphs.size();  i++)
   {
     glyphs.push_back(Glyph());
     Glyph& glyph = glyphs.back();
-    glyphMap[characters[i]] = &glyph;
 
-    const wendy::Font::Glyph* sourceGlyph = font.getGlyph(characters[i]);
-    if (!sourceGlyph)
-    {
-      if (std::isgraph(characters[i]))
-	Log::writeError("No glyph for character \'%c\'", characters[i]);
-      else
-	Log::writeError("No glyph for character 0x%02x", (unsigned int) characters[i]);
+    const wendy::FontGlyph& sourceGlyph = font.glyphs[i];
+    Ref<Image> image = sourceGlyph.image;
 
-      return false;
-    }
-
-    const Image& image = sourceGlyph->getImage();
-
-    glyph.advance = sourceGlyph->getAdvance();
-    glyph.bearing = sourceGlyph->getBearing();
-    glyph.size.set((float) image.getWidth(), (float) image.getHeight());
+    glyph.advance = sourceGlyph.advance;
+    glyph.bearing = sourceGlyph.bearing;
+    glyph.size.set((float) image->getWidth(), (float) image->getHeight());
 
     if (glyph.bearing.y > ascender)
       ascender = glyph.bearing.y;
@@ -363,42 +347,39 @@ bool Font::init(const wendy::Font& font)
     if (glyph.size.y - glyph.bearing.y > descender)
       descender = glyph.size.y - glyph.bearing.y;
 
-    if (texelPosition.x + image.getWidth() + 2 > textureImage.getWidth())
+    if (texelPosition.x + image->getWidth() + 2 > textureImage.getWidth())
     {
       texelPosition.x = 1;
-      texelPosition.y += (int) glyphHeight;
+      texelPosition.y += (int) maxHeight;
 
-      if (texelPosition.y + image.getHeight() + 2 > textureImage.getHeight())
+      if (texelPosition.y + image->getHeight() + 2 > textureImage.getHeight())
       {
 	// TODO: Allocate next texture.
 	// TODO: Add texture pointer to glyphs.
-	Log::writeError("Not enough room in texture for font \'%s\'", getName().c_str());
+	Log::writeError("Not enough room in texture for font \'%s\'",
+                        getPath().asString().c_str());
 	return false;
       }
     }
 
-    if (!textureImage.copyFrom(image, texelPosition.x, texelPosition.y))
+    if (!textureImage.copyFrom(*image, texelPosition.x, texelPosition.y))
       return false;
 
     glyph.area.position.set(texelPosition.x / (float) textureImage.getWidth() + texelOffset.x,
 			    texelPosition.y / (float) textureImage.getHeight() + texelOffset.y);
-    glyph.area.size.set(image.getWidth() / (float) textureImage.getWidth(),
-			image.getHeight() / (float) textureImage.getHeight());
+    glyph.area.size.set(image->getWidth() / (float) textureImage.getWidth(),
+			image->getHeight() / (float) textureImage.getHeight());
 
-    texelPosition.x += image.getWidth() + 1;
+    texelPosition.x += image->getWidth() + 1;
   }
 
-  size.set(font.getWidth(), font.getHeight());
+  size.set(maxWidth, maxHeight);
   return true;
 }
 
 const Font::Glyph* Font::findGlyph(char character) const
 {
-  GlyphMap::const_iterator i = glyphMap.find(character);
-  if (i == glyphMap.end())
-    return NULL;
-
-  return (*i).second;
+  return characters[character];
 }
 
 bool Font::getGlyphLayout(Layout& layout, char character) const
@@ -443,6 +424,99 @@ void Font::realizeVertices(const Rect& pixelArea,
   vertices[4].mapping.set(ta.position.x, ta.position.y + ta.size.y);
   vertices[4].position.set(pa.position.x, pa.position.y + pa.size.y);
   vertices[5] = vertices[0];
+}
+
+///////////////////////////////////////////////////////////////////////
+
+FontReader::FontReader(GeometryPool& initPool):
+  ResourceReader(initPool.getContext().getIndex()),
+  pool(initPool),
+  info(getIndex())
+{
+}
+
+Ref<Font> FontReader::read(const Path& path)
+{
+  info.path = path;
+
+  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::READABLE));
+  if (!stream)
+    return NULL;
+
+  if (!XML::Reader::read(*stream))
+  {
+    font = NULL;
+    return NULL;
+  }
+
+  return font.detachObject();
+}
+
+bool FontReader::onBeginElement(const String& name)
+{
+  if (name == "font")
+  {
+    if (font)
+    {
+      Log::writeError("Only one font per file allowed");
+      return false;
+    }
+
+    const unsigned int version = readInteger("version");
+    if (version != FONT_XML_VERSION)
+    {
+      Log::writeError("Font specification XML format version mismatch");
+      return false;
+    }
+
+    Path dataPath(readString("data"));
+    if (dataPath.asString().empty())
+    {
+      Log::writeError("Font data path for render font \'%s\' is empty",
+                      info.path.asString().c_str());
+      return false;
+    }
+
+    wendy::FontReader fontReader(getIndex());
+    Ref<wendy::Font> data = fontReader.read(dataPath);
+    if (!data)
+    {
+      Log::writeError("Failed to load font data \'%s\' for render font \'%s\'",
+                      dataPath.asString().c_str(),
+                      info.path.asString().c_str());
+      return false;
+    }
+
+    Path programPath(readString("program"));
+    if (programPath.asString().empty())
+    {
+      Log::writeError("Shader program path for render font \'%s\' is empty",
+                      info.path.asString().c_str());
+      return false;
+    }
+
+    GL::ProgramReader programReader(pool.getContext());
+    Ref<GL::Program> program = programReader.read(programPath);
+    {
+      Log::writeError("Failed to load shader program \'%s\' for render font \'%s\'",
+                      programPath.asString().c_str(),
+                      info.path.asString().c_str());
+      return false;
+    }
+
+    font = Font::createInstance(info, pool, *data, *program);
+    if (!font)
+      return false;
+
+    return true;
+  }
+
+  return true;
+}
+
+bool FontReader::onEndElement(const String& name)
+{
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////

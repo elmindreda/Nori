@@ -32,11 +32,13 @@
 #include <wendy/Rectangle.h>
 #include <wendy/Path.h>
 #include <wendy/Stream.h>
-#include <wendy/Managed.h>
 #include <wendy/Resource.h>
 #include <wendy/Pixel.h>
+#include <wendy/XML.h>
 #include <wendy/Image.h>
 #include <wendy/Font.h>
+
+#include <cstring>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -94,12 +96,20 @@ unsigned int findEndY(const Image& image)
   return endY;
 }
 
-}
+const unsigned int FONT_XML_VERSION = 1;
+
+} /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
+Font::Font(const ResourceInfo& info):
+  Resource(info, "Font")
+{
+  std::memset(characters, 0, sizeof(characters));
+}
+
 Font::Font(const Font& source):
-  Resource<Font>(source)
+  Resource(source)
 {
   operator = (source);
 }
@@ -108,143 +118,47 @@ Font& Font::operator = (const Font& source)
 {
   glyphs = source.glyphs;
 
-  for (GlyphMap::const_iterator i = source.glyphMap.begin();  i != source.glyphMap.end();  i++)
-  {
-    for (GlyphList::iterator j = glyphs.begin();  j != glyphs.end();  j++)
-    {
-      if ((*j).index == (*i).second->index)
-      {
-	glyphMap[(*i).first] = &(*j);
-	break;
-      }
-    }
-  }
+  std::memcpy(characters, source.characters, sizeof(characters));
 
-  characters = source.characters;
-  size = source.size;
   return *this;
 }
 
-float Font::getWidth(void) const
+///////////////////////////////////////////////////////////////////////
+
+FontReader::FontReader(ResourceIndex& index):
+  ResourceReader(index)
 {
-  return size.x;
 }
 
-float Font::getHeight(void) const
+Ref<Font> FontReader::read(const Path& path)
 {
-  return size.y;
-}
+  font = new Font(ResourceInfo(getIndex(), path));
 
-const Font::Glyph* Font::getGlyph(char character) const
-{
-  GlyphMap::const_iterator i = glyphMap.find(character);
-  if (i == glyphMap.end())
+  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::READABLE));
+  if (!stream)
     return NULL;
 
-  return (*i).second;
-}
-
-float Font::getKerning(char first, char second) const
-{
-  return 0.f;
-}
-
-const String& Font::getCharacters(void) const
-{
-  return characters;
-}
-
-Vec2 Font::getTextSize(const String& text) const
-{
-  return getTextMetrics(text).size;
-}
-
-Rect Font::getTextMetrics(const String& text) const
-{
-  Rect result(0.f, 0.f, 0.f, 0.f);
-
-  Vec2 pen(0.f, 0.f);
-
-  for (String::const_iterator c = text.begin();  c != text.end();  c++)
+  if (!XML::Reader::read(*stream))
   {
-    GlyphMap::const_iterator i = glyphMap.find(*c);
-    if (i == glyphMap.end())
-      continue;
-
-    Glyph* glyph = (*i).second;
-
-    Rect area;
-    area.position.x = pen.x + glyph->bearing.x;
-    area.position.y = pen.y - glyph->image->getHeight() + glyph->bearing.y;
-    area.size.set((float) glyph->image->getWidth(),
-                  (float) glyph->image->getHeight());
-
-    result.envelop(area);
-
-    pen.x += glyph->advance;
-  }
-
-  return result;
-}
-
-Font* Font::createInstance(const Image& image,
-                           const String& characters,
-                           const String& name)
-{
-  Ptr<Font> font(new Font(name));
-  if (!font->init(image, characters))
+    font = NULL;
     return NULL;
+  }
 
   return font.detachObject();
 }
 
-Font* Font::readInstance(const String& name)
-{
-  return Resource<Font>::readInstance(name);
-}
-
-Font* Font::readInstance(const Path& path,
-                         const String& characters,
-                         const String& name)
-{
-  Ref<Image> image = Image::readInstance(path);
-  if (!image)
-    return NULL;
-
-  return createInstance(*image, characters, name);
-}
-
-Font* Font::readInstance(Stream& stream,
-                         const String& characters,
-                         const String& name)
-{
-  Ref<Image> image = Image::readInstance(stream);
-  if (!image)
-    return NULL;
-
-  return createInstance(*image, characters, name);
-}
-
-Font::Font(const String& name):
-  Resource<Font>(name),
-  size(0.f, 0.f)
-{
-}
-
-bool Font::init(const Image& image, const String& initCharacters)
+bool FontReader::extractGlyphs(const Image& image, const String& characters)
 {
   if (image.getFormat() != PixelFormat::R8)
   {
-    Log::writeError("Invalid pixel format \'%s\' for font source image \'%s\'",
-                    image.getFormat().asString().c_str(),
-                    image.getName().c_str());
+    Log::writeError("Image \'%s\' for font \'%s\' has invalid pixel format \'%s\'",
+                    image.getPath().asString().c_str(),
+                    font->getPath().asString().c_str(),
+                    image.getFormat().asString().c_str());
     return false;
   }
 
-
   Image source = image;
-
-  characters = initCharacters;
 
   // Crop top and bottom parts
   {
@@ -290,7 +204,8 @@ bool Font::init(const Image& image, const String& initCharacters)
 
     if (index == characters.size())
     {
-      Log::writeError("Not enough characters for font \'%s\'", getName().c_str());
+      Log::writeError("Font \'%s\' has less characters than glyphs",
+                      font->getPath().asString().c_str());
       return false;
     }
 
@@ -310,51 +225,42 @@ bool Font::init(const Image& image, const String& initCharacters)
 	break;
     }
 
-    Image* image = source.getArea(Recti(startX, 0, endX - startX, source.getHeight()));
-    if (!image)
+    Ref<Image> glyphImage = source.getArea(Recti(startX, 0, endX - startX, source.getHeight()));
+    if (!glyphImage)
       return false;
 
-    if (image->getWidth() > size.x)
-      size.x = (float) image->getWidth();
+    font->glyphs.push_back(FontGlyph());
+    FontGlyph& glyph = font->glyphs.back();
+    glyph.bearing.set(0.f, glyphImage->getHeight() / 2.f);
+    glyph.advance = (float) glyphImage->getWidth();
+    glyph.image = glyphImage;
 
-    if (image->getHeight() > size.y)
-      size.y = (float) image->getHeight();
-
-    glyphs.push_back(Glyph());
-    Glyph& glyph = glyphs.back();
-
-    glyphMap[characters[index]] = &glyph;
-
-    glyph.bearing.set(0.f, image->getHeight() / 2.f);
-    glyph.advance = (float) image->getWidth();
-    glyph.index = index++;
-    glyph.image = image;
+    font->characters[characters[index]] = &glyph;
 
     startX = endX;
   }
 
   // HACK: Make digits same width
   {
-    std::vector<Glyph*> glyphs;
+    std::vector<FontGlyph*> digitGlyphs;
 
     float maxAdvance = 0.f;
 
     for (char c = '0';  c <= '9';  c++)
     {
-      GlyphMap::iterator i = glyphMap.find(c);
-      if (i == glyphMap.end())
-	continue;
+      FontGlyph* glyph = font->characters[c];
+      if (!glyph)
+        continue;
 
-      Glyph* glyph = (*i).second;
       if (glyph->advance > maxAdvance)
 	maxAdvance = glyph->advance;
 
-      glyphs.push_back(glyph);
+      digitGlyphs.push_back(glyph);
     }
 
-    for (unsigned int i = 0;  i < glyphs.size();  i++)
+    for (size_t i = 0;  i < digitGlyphs.size();  i++)
     {
-      Glyph* glyph = glyphs[i];
+      FontGlyph* glyph = digitGlyphs[i];
 
       glyph->bearing.x = (maxAdvance - glyph->advance) / 2.f;
       glyph->advance = maxAdvance;
@@ -365,78 +271,76 @@ bool Font::init(const Image& image, const String& initCharacters)
   {
     float meanAdvance = 0.f;
 
-    for (GlyphList::const_iterator i = glyphs.begin();  i != glyphs.end();  i++)
-      meanAdvance += (*i).advance;
+    for (size_t i = 0;  i < font->glyphs.size();  i++)
+      meanAdvance += font->glyphs[i].advance;
 
-    meanAdvance /= (float) glyphs.size();
+    meanAdvance /= (float) font->glyphs.size();
 
-    for (GlyphList::iterator i = glyphs.begin();  i != glyphs.end();  i++)
-      (*i).advance += meanAdvance * 0.2f;
+    for (size_t i = 0;  i < font->glyphs.size();  i++)
+      font->glyphs[i].advance += meanAdvance * 0.2f;
 
-    if (characters.find(' ') == String::npos)
+    if (!font->characters[' '])
     {
       // HACK: Create space glyph if not already present
 
-      glyphs.push_back(Glyph());
-      Glyph& glyph = glyphs.back();
-
-      glyphMap[' '] = &glyph;
+      font->glyphs.push_back(FontGlyph());
+      FontGlyph& glyph = font->glyphs.back();
 
       glyph.bearing.set(0.f, 0.f);
       glyph.advance = meanAdvance * 0.6f;
-      glyph.index = index++;
-      glyph.image = new Image(source.getFormat(), 1, 1);
+      glyph.image = new Image(getIndex(), source.getFormat(), 1, 1);
 
-      characters.push_back(' ');
+      font->characters[' '] = &glyph;
     }
   }
 
   return true;
 }
 
-///////////////////////////////////////////////////////////////////////
-
-Font::Glyph::Glyph(void)
+bool FontReader::onBeginElement(const String& name)
 {
+  if (name == "font")
+  {
+    if (font)
+    {
+      Log::writeError("Only one font per file allowed");
+      return false;
+    }
+
+    const unsigned int version = readInteger("version");
+    if (version != FONT_XML_VERSION)
+    {
+      Log::writeError("Font specification XML format version mismatch");
+      return false;
+    }
+
+    String characters = readString("characters");
+    if (characters.empty())
+    {
+      Log::writeError("No characters specified for font");
+      return false;
+    }
+
+    Path imagePath(readString("image"));
+
+    ImageReader reader(getIndex());
+    ImageRef image = reader.read(imagePath);
+    if (!image)
+    {
+      Log::writeError("Cannot find image '%s' for font",
+                      imagePath.asString().c_str());
+      return false;
+    }
+
+    return true;
+  }
+
+  return true;
 }
 
-Font::Glyph::Glyph(const Glyph& source)
+bool FontReader::onEndElement(const String& name)
 {
-  operator = (source);
-}
-
-Font::Glyph& Font::Glyph::operator = (const Glyph& source)
-{
-  bearing = source.bearing;
-  advance = source.advance;
-  index = source.index;
-
-  if (source.image)
-    image = new Image(*source.image);
-  else
-    image = NULL;
-
-  return *this;
-}
-
-unsigned int Font::Glyph::getIndex(void) const
-{
-  return index;
-}
-
-const Image& Font::Glyph::getImage(void) const
-{
-  return *image;
-}
-
-const Vec2& Font::Glyph::getBearing(void) const
-{
-  return bearing;
-}
-
-float Font::Glyph::getAdvance(void) const
-{
-  return advance;
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -167,9 +167,12 @@ bool Renderer::init(const Config& config)
 {
   // Create G-buffer color/emission texture
   {
-    Image data(PixelFormat::RGBA8, config.width, config.height);
+    Image image(context.getIndex(), PixelFormat::RGBA8, config.width, config.height);
 
-    colorTexture = GL::Texture::createInstance(context, data, GL::Texture::RECTANGULAR);
+    colorTexture = GL::Texture::createInstance(context.getIndex(),
+                                               context,
+                                               image,
+                                               GL::Texture::RECTANGULAR);
     if (!colorTexture)
     {
       Log::writeError("Failed to create color texture for deferred renderer");
@@ -181,9 +184,12 @@ bool Renderer::init(const Config& config)
 
   // Create G-buffer normal/specularity texture
   {
-    Image data(PixelFormat::RGBA8, config.width, config.height);
+    Image image(context.getIndex(), PixelFormat::RGBA8, config.width, config.height);
 
-    normalTexture = GL::Texture::createInstance(context, data, GL::Texture::RECTANGULAR);
+    normalTexture = GL::Texture::createInstance(context.getIndex(),
+                                                context,
+                                                image,
+                                                GL::Texture::RECTANGULAR);
     if (!normalTexture)
     {
       Log::writeError("Failed to create normal/specularity texture for deferred renderer");
@@ -195,9 +201,12 @@ bool Renderer::init(const Config& config)
 
   // Create G-buffer depth texture
   {
-    Image data(PixelFormat::DEPTH32, config.width, config.height);
+    Image image(context.getIndex(), PixelFormat::DEPTH32, config.width, config.height);
 
-    depthTexture = GL::Texture::createInstance(context, data, GL::Texture::RECTANGULAR);
+    depthTexture = GL::Texture::createInstance(context.getIndex(),
+                                               context,
+                                               image,
+                                               GL::Texture::RECTANGULAR);
     if (!depthTexture)
     {
       Log::writeError("Failed to create depth texture for deferred renderer");
@@ -237,7 +246,8 @@ bool Renderer::init(const Config& config)
 
   // Set up ambient light pass
   {
-    GL::ProgramRef lightProgram = GL::Program::readInstance("DeferredAmbientLight");
+    GL::ProgramReader reader(context);
+    GL::ProgramRef lightProgram = reader.read(Path("DeferredAmbientLight"));
     if (!lightProgram)
     {
       Log::writeError("Failed to read deferred renderer ambient light program");
@@ -266,7 +276,8 @@ bool Renderer::init(const Config& config)
 
   // Set up directional light pass
   {
-    GL::ProgramRef lightProgram = GL::Program::readInstance("DeferredDirLight");
+    GL::ProgramReader reader(context);
+    GL::ProgramRef lightProgram = reader.read(Path("DeferredDirLight"));
     if (!lightProgram)
     {
       Log::writeError("Failed to read deferred renderer directional light program");
@@ -302,7 +313,8 @@ bool Renderer::init(const Config& config)
 
   // Set up point light pass
   {
-    GL::ProgramRef lightProgram = GL::Program::readInstance("DeferredPointLight");
+    GL::ProgramReader reader(context);
+    GL::ProgramRef lightProgram = reader.read(Path("DeferredPointLight"));
     if (!lightProgram)
     {
       Log::writeError("Failed to read deferred renderer point light program");

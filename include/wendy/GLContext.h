@@ -489,6 +489,9 @@ public:
   /*! @return The limits of this context.
    */
   const Limits& getLimits(void) const;
+  /*! @return The resource index used by this context.
+   */
+  ResourceIndex& getIndex(void) const;
   /*! @return The signal for per-frame post-render clean-up.
    */
   SignalProxy0<void> getFinishSignal(void);
@@ -502,7 +505,7 @@ public:
     *  @param[in] mode The requested context settings.
     *  @return @c true if successful, or @c false otherwise.
     */
-  static bool create(const ContextMode& mode = ContextMode());
+  static bool create(ResourceIndex& index, const ContextMode& mode = ContextMode());
   /*! @return The signal for creation of a context object.
    */
   static SignalProxy0<void> getCreateSignal(void);
@@ -532,7 +535,7 @@ private:
   };
   typedef std::list<ReservedUniform> UniformList;
   typedef std::list<ReservedSampler> SamplerList;
-  Context(void);
+  Context(ResourceIndex& index);
   Context(const Context& source);
   Context& operator = (const Context& source);
   bool init(const ContextMode& mode);
@@ -541,6 +544,7 @@ private:
   static void sizeCallback(int width, int height);
   static int closeCallback(void);
   static void refreshCallback(void);
+  ResourceIndex& index;
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
   Signal2<void, unsigned int, unsigned int> resizedSignal;

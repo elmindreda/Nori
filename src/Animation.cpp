@@ -31,16 +31,27 @@
 #include <wendy/Bezier.h>
 #include <wendy/Quaternion.h>
 #include <wendy/Transform.h>
-#include <wendy/Managed.h>
 #include <wendy/Path.h>
 #include <wendy/Stream.h>
 #include <wendy/Resource.h>
+#include <wendy/XML.h>
 #include <wendy/Animation.h>
+
+#include <algorithm>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
+
+///////////////////////////////////////////////////////////////////////
+
+namespace
+{
+
+const unsigned int ANIM3_XML_VERSION = 1;
+
+} /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -271,13 +282,13 @@ void AnimTrack3::flipRotations(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-Anim3::Anim3(const String& name):
-  Resource<Anim3>(name)
+Anim3::Anim3(const ResourceInfo& info):
+  Resource(info, "Anim3")
 {
 }
 
 Anim3::Anim3(const Anim3& source):
-  Resource<Anim3>("")
+  Resource(source)
 {
   operator = (source);
 }
@@ -360,6 +371,158 @@ AnimTrack3& Anim3::getTrack(size_t index)
 const AnimTrack3& Anim3::getTrack(size_t index) const
 {
   return *tracks[index];
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Anim3Reader::Anim3Reader(ResourceIndex& index):
+  ResourceReader(index),
+  info(index)
+{
+}
+
+Ref<Anim3> Anim3Reader::read(const Path& path)
+{
+  info.path = path;
+  currentTrack = NULL;
+
+  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::READABLE));
+  if (!stream)
+    return NULL;
+
+  if (!XML::Reader::read(*stream))
+  {
+    animation = NULL;
+    return NULL;
+  }
+
+  return animation.detachObject();
+}
+
+bool Anim3Reader::onBeginElement(const String& name)
+{
+  if (name == "animation")
+  {
+    if (animation)
+    {
+      Log::writeError("Only one 3D animation per file allowed");
+      return false;
+    }
+
+    const unsigned int version = readInteger("version");
+    if (version != ANIM3_XML_VERSION)
+    {
+      Log::writeError("3D animation XML format version mismatch");
+      return false;
+    }
+
+    animation = new Anim3(info);
+    if (!animation)
+      return false;
+
+    return true;
+  }
+
+  if (animation)
+  {
+    if (name == "track")
+    {
+      if (currentTrack)
+      {
+        Log::writeError("3D animation tracks may not be nested");
+        return false;
+      }
+
+      String name = readString("name");
+
+      if (name.empty())
+      {
+        Log::writeError("3D animation track names may not be empty");
+        return false;
+      }
+
+      currentTrack = &(animation->createTrack(name));
+      return true;
+    }
+
+    if (currentTrack)
+    {
+      if (name == "keyframe")
+      {
+        Time moment = readFloat("moment");
+
+        Transform3 transform;
+        transform.position = Vec3(readString("position"));
+        transform.rotation = Quat(readString("rotation"));
+        transform.rotation.normalize();
+
+        Vec3 direction = Vec3(readString("direction"));
+
+        currentTrack->createKeyFrame(moment, transform, direction);
+        return true;
+      }
+    }
+  }
+
+  return true;
+}
+
+bool Anim3Reader::onEndElement(const String& name)
+{
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+bool Anim3Writer::write(const Path& path, const Anim3& animation)
+{
+  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::WRITABLE | Stream::OVERWRITE));
+  if (!stream)
+    return false;
+
+  try
+  {
+    setStream(stream);
+
+    beginElement("animation");
+    addAttribute("version", ANIM3_XML_VERSION);
+
+    for (size_t i = 0;  i < animation.getTrackCount();  i++)
+    {
+      const AnimTrack3& track = animation.getTrack(i);
+
+      beginElement("track");
+      addAttribute("name", track.getName());
+
+      for (size_t j = 0;  j < track.getKeyFrameCount();  j++)
+      {
+        const KeyFrame3& keyframe = track.getKeyFrame(i);
+
+        beginElement("keyframe");
+        addAttribute("moment", keyframe.getMoment());
+        addAttribute("position", keyframe.getTransform().position.asString());
+        addAttribute("rotation", keyframe.getTransform().rotation.asString());
+        addAttribute("direction", keyframe.getDirection().asString());
+        endElement();
+      }
+
+      endElement();
+    }
+
+    endElement();
+
+    setStream(NULL);
+  }
+  catch (Exception& exception)
+  {
+    Log::writeError("Failed to write 3D animation to \'%s\': %s",
+                    path.asString().c_str(),
+		    exception.what());
+    setStream(NULL);
+    return false;
+  }
+
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////

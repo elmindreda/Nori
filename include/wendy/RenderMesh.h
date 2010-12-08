@@ -49,9 +49,7 @@ namespace wendy
  *  Mesh::Geometry objects. Each geometry is a part of the mesh using a single
  *  render material and primitive mode.
  */
-class Mesh : public Renderable,
-             public DerivedResource<Mesh, wendy::Mesh>,
-	     public RefObject
+class Mesh : public Renderable, public Resource
 {
 public:
   class Geometry;
@@ -66,12 +64,15 @@ public:
    *  @param[in] name The desired name of the created renderable mesh.
    *  @return The newly created renderable mesh, or @c NULL if an error occurred.
    */
-  static Mesh* createInstance(const wendy::Mesh& mesh, const String& name = "");
+  static Mesh* createInstance(const ResourceInfo& info,
+                              GL::Context& context,
+                              const wendy::Mesh& mesh);
 private:
-  Mesh(const String& name);
+  Mesh(const ResourceInfo& info, GL::Context& context);
   Mesh(const Mesh& source);
   Mesh& operator = (const Mesh& source);
   bool init(const wendy::Mesh& mesh);
+  GL::Context& context;
   GeometryList geometries;
   Ref<GL::VertexBuffer> vertexBuffer;
   Ref<GL::IndexBuffer> indexBuffer;

@@ -53,17 +53,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-NodeType::NodeType(const String& name):
-  Managed<NodeType>(name)
-{
-}
-
-NodeType::~NodeType(void)
-{
-}
-
-///////////////////////////////////////////////////////////////////////
-
 Node::Node(const String& initName):
   name(initName),
   parent(NULL),
@@ -321,11 +310,6 @@ void Node::setGraph(Graph* newGraph)
 
 ///////////////////////////////////////////////////////////////////////
 
-Graph::Graph(const String& name):
-  Resource<Graph>(name)
-{
-}
-
 Graph::~Graph(void)
 {
   destroyRootNodes();
@@ -578,26 +562,22 @@ ParticleSystemNode::ParticleSystemNode(const String& name):
 {
 }
 
-const String& ParticleSystemNode::getSystemName(void) const
+render::ParticleSystem* ParticleSystemNode::getSystem(void) const
 {
-  return systemName;
+  return system;
 }
 
-void ParticleSystemNode::setSystemName(const String& newSystemName)
+void ParticleSystemNode::setSystem(render::ParticleSystem* newSystem)
 {
-  systemName = newSystemName;
+  system = newSystem;
 }
 
 void ParticleSystemNode::update(void)
 {
   Node::update();
 
-  render::ParticleSystem* system = render::ParticleSystem::findInstance(systemName);
   if (!system)
-  {
-    Log::writeError("Cannot find particle system \'%s\' for updating", systemName.c_str());
     return;
-  }
 
   system->setTransform(getWorldTransform());
   setLocalBounds(system->getBounds());
@@ -609,12 +589,8 @@ void ParticleSystemNode::enqueue(render::Queue& queue) const
 
   if (queue.getPhase() == render::Queue::COLLECT_GEOMETRY)
   {
-    render::ParticleSystem* system = render::ParticleSystem::findInstance(systemName);
     if (!system)
-    {
-      Log::writeError("Cannot find particle system \'%s\' for enqueueing", systemName.c_str());
       return;
-    }
 
     system->enqueue(queue, Transform3());
   }

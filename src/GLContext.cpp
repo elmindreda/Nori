@@ -807,7 +807,7 @@ void Context::render(const PrimitiveRange& range)
   if (range.isEmpty())
   {
     Log::writeWarning("Rendering empty primitive range with shader program \'%s\'",
-                      currentProgram->getName().c_str());
+                      currentProgram->getPath().asString().c_str());
     return;
   }
 
@@ -828,7 +828,7 @@ void Context::render(const PrimitiveRange& range)
   if (program.getVaryingCount() > format.getComponentCount())
   {
     Log::writeError("Shader program \'%s\' has more varying parameters than vertex format has components",
-                    program.getName().c_str());
+                    program.getPath().asString().c_str());
     return;
   }
 
@@ -841,7 +841,7 @@ void Context::render(const PrimitiveRange& range)
     {
       Log::writeError("Varying parameter \'%s\' of shader program \'%s\' has no corresponding vertex format component",
                       varying.getName().c_str(),
-                      program.getName().c_str());
+                      program.getPath().asString().c_str());
       return;
     }
 
@@ -849,7 +849,7 @@ void Context::render(const PrimitiveRange& range)
     {
       Log::writeError("Varying parameter \'%s\' of shader program \'%s\' has incompatible type",
                       varying.getName().c_str(),
-                      program.getName().c_str());
+                      program.getPath().asString().c_str());
       return;
     }
 
@@ -1149,6 +1149,11 @@ void Context::setTitle(const String& newTitle)
   title = newTitle;
 }
 
+ResourceIndex& Context::getIndex(void) const
+{
+  return index;
+}
+
 const Limits& Context::getLimits(void) const
 {
   return *limits;
@@ -1169,9 +1174,9 @@ SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal(void)
   return resizedSignal;
 }
 
-bool Context::create(const ContextMode& mode)
+bool Context::create(ResourceIndex& index, const ContextMode& mode)
 {
-  Ptr<Context> context(new Context());
+  Ptr<Context> context(new Context(index));
   if (!context->init(mode))
     return false;
 
@@ -1204,7 +1209,8 @@ void Context::getScreenModes(ScreenModeList& result)
   }
 }
 
-Context::Context(void):
+Context::Context(ResourceIndex& initIndex):
+  index(initIndex),
   cgContextID(NULL),
   cgVertexProfile(CG_PROFILE_UNKNOWN),
   cgFragmentProfile(CG_PROFILE_UNKNOWN),
@@ -1222,7 +1228,8 @@ Context::Context(void):
   instance = this;
 }
 
-Context::Context(const Context& source)
+Context::Context(const Context& source):
+  index(source.index)
 {
   // NOTE: Not implemented.
 }

@@ -177,7 +177,7 @@ private:
  *  billboards. If you wish to render particles using another method, inherit
  *  from this class.
  */
-class ParticleSystem : public Renderable, public Managed<ParticleSystem>
+class ParticleSystem : public Renderable, public RefObject
 {
 public:
   enum PeriodType
@@ -187,7 +187,7 @@ public:
   };
   /*! Constructor.
    */
-  ParticleSystem(const String& name = "");
+  ParticleSystem(void);
   /*! Destructor.
    */
   ~ParticleSystem(void);

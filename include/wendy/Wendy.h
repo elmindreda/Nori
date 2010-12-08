@@ -106,7 +106,6 @@
 
 #include <wendy/Path.h>
 #include <wendy/Stream.h>
-#include <wendy/Managed.h>
 #include <wendy/Resource.h>
 #include <wendy/XML.h>
 
@@ -161,12 +160,6 @@
 #include <wendy/UIMenu.h>
 #include <wendy/UIPopup.h>
 #include <wendy/UIColor.h>
-#endif
-
-#if WENDY_INCLUDE_DEMO_SYSTEM
-#include <wendy/DemoProperty.h>
-#include <wendy/DemoEffect.h>
-#include <wendy/DemoShow.h>
 #endif
 
 ///////////////////////////////////////////////////////////////////////

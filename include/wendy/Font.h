@@ -26,7 +26,7 @@
 #define WENDY_FONT_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <list>
+#include <vector>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -40,58 +40,39 @@ class Image;
 
 ///////////////////////////////////////////////////////////////////////
 
-class Font : public Resource<Font>, public RefObject
+class FontGlyph
 {
 public:
-  class Glyph;
-  Font(const Font& source);
-  Font& operator = (const Font& source);
-  float getWidth(void) const;
-  float getHeight(void) const;
-  const Glyph* getGlyph(char character) const;
-  float getKerning(char first, char second) const;
-  const String& getCharacters(void) const;
-  Vec2 getTextSize(const String& text) const;
-  Rect getTextMetrics(const String& text) const;
-  static Font* createInstance(const Image& image,
-                              const String& characters,
-			      const String& name = "");
-  static Font* readInstance(const String& name);
-  static Font* readInstance(const Path& path,
-                            const String& characters,
-			    const String& name = "");
-  static Font* readInstance(Stream& stream,
-                            const String& characters,
-			    const String& name = "");
-private:
-  Font(const String& name);
-  bool init(const Image& image, const String& characters);
-  typedef std::list<Glyph> GlyphList;
-  typedef std::map<char, Glyph*> GlyphMap;
-  GlyphList glyphs;
-  GlyphMap glyphMap;
-  String characters;
-  Vec2 size;
+  Vec2 bearing;
+  float advance;
+  Ref<Image> image;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-class Font::Glyph
+class Font : public Resource
 {
-  friend class Font;
 public:
-  Glyph(void);
-  Glyph(const Glyph& source);
-  Glyph& operator = (const Glyph& source);
-  unsigned int getIndex(void) const;
-  const Image& getImage(void) const;
-  const Vec2& getBearing(void) const;
-  float getAdvance(void) const;
+  typedef std::vector<FontGlyph> GlyphList;
+  Font(const ResourceInfo& info);
+  Font(const Font& source);
+  Font& operator = (const Font& source);
+  GlyphList glyphs;
+  FontGlyph* characters[256];
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class FontReader : public ResourceReader, public XML::Reader
+{
+public:
+  FontReader(ResourceIndex& index);
+  Ref<Font> read(const Path& path);
 private:
-  Vec2 bearing;
-  float advance;
-  unsigned int index;
-  Ref<Image> image;
+  bool extractGlyphs(const Image& image, const String& characters);
+  bool onBeginElement(const String& name);
+  bool onEndElement(const String& name);
+  Ptr<Font> font;
 };
 
 ///////////////////////////////////////////////////////////////////////

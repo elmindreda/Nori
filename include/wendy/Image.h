@@ -35,7 +35,7 @@ namespace wendy
  *
  *  This is the standard container for all forms of 1D and 2D image data.
  */
-class Image : public Resource<Image>, public RefObject
+class Image : public Resource
 {
 public:
   enum Method
@@ -64,12 +64,12 @@ public:
    *
    *  @remarks No, you cannot create an empty image object.
    */
-  Image(const PixelFormat& format,
+  Image(const ResourceInfo& info,
+        const PixelFormat& format,
         unsigned int width,
         unsigned int height,
         const void* data = NULL,
-        size_t pitch = 0,
-        const String& name = "");
+        size_t pitch = 0);
   /*! Copy constructor.
    */
   Image(const Image& source);
@@ -146,7 +146,7 @@ public:
   /*! Returns an image containing the specified area of this image.
    *  @param area The desired area of this image.
    */
-  Image* getArea(const Recti& area);
+  Ref<Image> getArea(const Recti& area);
 private:
   unsigned int width;
   unsigned int height;
@@ -162,7 +162,7 @@ typedef Ref<Image> ImageRef;
 
 /*! @brief %Image cube object.
  */
-class ImageCube : public Resource<ImageCube>, public RefObject
+class ImageCube : public Resource
 {
 public:
   enum Face
@@ -174,8 +174,9 @@ public:
     POSITIVE_Z,
     NEGATIVE_Z,
   };
-  ImageCube(const String& name = "");
-  ImageCube* clone(void) const;
+  ImageCube(const ResourceInfo& info);
+  ImageCube(const ImageCube& source);
+  Ref<ImageCube> clone(void) const;
   /*! @return @c true if all images have power-of-two dimensions, otherwise @c false.
    */
   bool isPOT(void) const;
@@ -191,7 +192,37 @@ public:
   /*! @return @c true if all images have the same size, otherwise @c false.
    */
   bool hasSameSize(void) const;
-  Ref<Image> images[6];
+  ImageRef images[6];
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class ImageReader : public ResourceReader
+{
+public:
+  ImageReader(ResourceIndex& index);
+  Ref<Image> read(const Path& path);
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class ImageWriter
+{
+public:
+  bool write(const Path& path, const Image& image);
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class ImageCubeReader : public ResourceReader, public XML::Reader
+{
+public:
+  ImageCubeReader(ResourceIndex& index);
+  Ref<ImageCube> read(const Path& path);
+private:
+  bool onBeginElement(const String& name);
+  bool onEndElement(const String& name);
+  Ptr<ImageCube> cube;
 };
 
 ///////////////////////////////////////////////////////////////////////

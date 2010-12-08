@@ -39,6 +39,7 @@
 #include <wendy/RenderParticle.h>
 
 #include <stdint.h>
+#include <algorithm>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -117,8 +118,7 @@ ParticleAffector& ParticleAffector::operator = (const ParticleAffector& source)
 
 ///////////////////////////////////////////////////////////////////////
 
-ParticleSystem::ParticleSystem(const String& name):
-  Managed<ParticleSystem>(name),
+ParticleSystem::ParticleSystem(void):
   updateBounds(true),
   currentTime(0.0),
   periodType(VARIABLE_PERIOD)
@@ -160,7 +160,8 @@ void ParticleSystem::enqueue(Queue& queue, const Transform3& transform) const
   Technique* technique = material->getActiveTechnique();
   if (!technique)
   {
-    Log::writeError("Material \'%s\' has no active technique", material->getName().c_str());
+    Log::writeError("Material \'%s\' has no active technique",
+                    material->getPath().asString().c_str());
     return;
   }
 
@@ -371,8 +372,7 @@ void ParticleSystem::removedParticle(Particle& particle,
 {
 }
 
-ParticleSystem::ParticleSystem(const ParticleSystem& source):
-  Managed<ParticleSystem>(source)
+ParticleSystem::ParticleSystem(const ParticleSystem& source)
 {
   // NOTE: Not implemented.
 }
