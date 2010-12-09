@@ -38,22 +38,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-namespace
-{
-
-String createRandomName(void)
-{
-  String name = "auto:";
-  for (unsigned int i = 0;  i < 8;  i++)
-    name.push_back('a' + std::rand() % ('z' - 'a' + 1));
-
-  return name;
-}
-
-} /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
-
 ResourceInfo::ResourceInfo(ResourceIndex& initIndex,
                            const Path& initPath):
   index(initIndex),
@@ -63,29 +47,30 @@ ResourceInfo::ResourceInfo(ResourceIndex& initIndex,
 
 ///////////////////////////////////////////////////////////////////////
 
-Resource::Resource(const ResourceInfo& info,
-                   const String& typeName):
-  type(info.index.getType(typeName)),
+Resource::Resource(const ResourceInfo& info):
+  index(info.index),
   path(info.path)
 {
   if (!path.asString().empty())
   {
-    if (type.findResource(path))
+    if (index.findResource(path))
       throw Exception("Duplicate path for resource");
   }
 
-  type.resources.push_back(this);
+  index.resources.push_back(this);
 }
 
 Resource::Resource(const Resource& source):
-  type(source.type)
+  index(source.index)
 {
-  type.resources.push_back(this);
+  index.resources.push_back(this);
 }
 
 Resource::~Resource(void)
 {
-  type.resources.erase(std::find(type.resources.begin(), type.resources.end(), this));
+  index.resources.erase(std::find(index.resources.begin(),
+                                  index.resources.end(),
+                                  this));
 }
 
 const Path& Resource::getPath(void) const
@@ -95,18 +80,18 @@ const Path& Resource::getPath(void) const
 
 ResourceIndex& Resource::getIndex(void) const
 {
-  return type.getIndex();
+  return index;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-ResourceType::ResourceType(ResourceIndex& initIndex, const String& initName):
-  index(&initIndex),
-  name(initName)
+ResourceIndex::~ResourceIndex(void)
 {
+  if (!resources.empty())
+    throw Exception("Resource index destroyed with attached resources");
 }
 
-ResourceRef ResourceType::findResource(const Path& path) const
+Resource* ResourceIndex::findResource(const Path& path) const
 {
   for (List::const_iterator i = resources.begin();  i != resources.end();  i++)
   {
@@ -115,49 +100,6 @@ ResourceRef ResourceType::findResource(const Path& path) const
   }
 
   return NULL;
-}
-
-bool ResourceType::isEmpty(void) const
-{
-  return resources.empty();
-}
-
-const String& ResourceType::getName(void) const
-{
-  return name;
-}
-
-ResourceIndex& ResourceType::getIndex(void) const
-{
-  return *index;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-ResourceIndex::~ResourceIndex(void)
-{
-  for (TypeList::iterator i = types.begin();  i != types.end();  i++)
-  {
-    if (!i->isEmpty())
-      throw Exception("Resource index destroyed with attached resources");
-  }
-}
-
-ResourceType& ResourceIndex::getType(const String& name)
-{
-  for (TypeList::iterator i = types.begin();  i != types.end();  i++)
-  {
-    if (i->getName() == name)
-      return *i;
-  }
-
-  types.push_back(ResourceType(*this, name));
-  return types.back();
-}
-
-const ResourceIndex::TypeList& ResourceIndex::getTypes(void)
-{
-  return types;
 }
 
 ///////////////////////////////////////////////////////////////////////

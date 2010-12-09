@@ -95,7 +95,7 @@ Mesh* Mesh::createInstance(const ResourceInfo& info,
 }
 
 Mesh::Mesh(const ResourceInfo& info, GL::Context& initContext):
-  Resource(info, "render::Mesh"),
+  Resource(info),
   context(initContext)
 {
 }

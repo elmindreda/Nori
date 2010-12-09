@@ -97,12 +97,14 @@ unsigned int findEndY(const Image& image)
 
 const unsigned int FONT_XML_VERSION = 1;
 
+const char* FONT_TYPE_NAME = "Font";
+
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
 Font::Font(const ResourceInfo& info):
-  Resource(info, "Font")
+  Resource(info)
 {
   std::memset(characters, 0, sizeof(characters));
 }
@@ -131,6 +133,9 @@ FontReader::FontReader(ResourceIndex& index):
 
 Ref<Font> FontReader::read(const Path& path)
 {
+  if (Resource* cache = getIndex().findResource(path))
+    return dynamic_cast<Font*>(cache);
+
   font = new Font(ResourceInfo(getIndex(), path));
 
   std::ifstream stream(path.asString().c_str());

@@ -191,6 +191,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Base class for references.
+ */
 class RefBase
 {
 protected:
@@ -362,9 +364,7 @@ inline Ptr<T>::~Ptr(void)
 template <typename T>
 inline T* Ptr<T>::detachObject(void)
 {
-  T* temp;
-
-  temp = object;
+  T* temp = object;
   object = NULL;
   return temp;
 }

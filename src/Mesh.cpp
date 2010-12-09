@@ -26,17 +26,16 @@
 #include <wendy/Config.h>
 
 #include <wendy/Core.h>
-#include <wendy/Block.h>
 #include <wendy/Vector.h>
 #include <wendy/AABB.h>
 #include <wendy/Sphere.h>
 #include <wendy/Path.h>
-#include <wendy/Stream.h>
 #include <wendy/Resource.h>
 #include <wendy/Mesh.h>
 
 #include <limits>
 #include <cstdlib>
+#include <fstream>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -99,7 +98,7 @@ void MeshTriangle::setEdges(unsigned int a, unsigned int b, unsigned int c)
 ///////////////////////////////////////////////////////////////////////
 
 Mesh::Mesh(const ResourceInfo& info):
-  Resource(info, "Mesh")
+  Resource(info)
 {
 }
 
@@ -419,11 +418,12 @@ MeshReader::MeshReader(ResourceIndex& index):
 
 Ref<Mesh> MeshReader::read(const Path& path)
 {
-  Ptr<FileStream> stream(FileStream::createInstance(path, Stream::READABLE));
+  if (Resource* cache = getIndex().findResource(path))
+    return dynamic_cast<Mesh*>(cache);
+
+  std::ifstream stream(path.asString().c_str());
   if (!stream)
     return NULL;
-
-  TextStream source(*stream, false);
 
   String line;
 
@@ -434,7 +434,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
   FaceGroupList groups;
   FaceGroup* group = NULL;
 
-  while (source.readLine(line))
+  while (std::getline(stream, line))
   {
     const char* text = line.c_str();
 

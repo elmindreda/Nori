@@ -26,7 +26,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/Core.h>
-#include <wendy/Block.h>
 #include <wendy/Vector.h>
 #include <wendy/Bezier.h>
 #include <wendy/Quaternion.h>
@@ -282,7 +281,7 @@ void AnimTrack3::flipRotations(void)
 ///////////////////////////////////////////////////////////////////////
 
 Anim3::Anim3(const ResourceInfo& info):
-  Resource(info, "Anim3")
+  Resource(info)
 {
 }
 
@@ -382,6 +381,9 @@ Anim3Reader::Anim3Reader(ResourceIndex& index):
 
 Ref<Anim3> Anim3Reader::read(const Path& path)
 {
+  if (Resource* cache = getIndex().findResource(path))
+    return dynamic_cast<Anim3*>(cache);
+
   info.path = path;
   currentTrack = NULL;
 

@@ -195,7 +195,7 @@ void Technique::setQuality(float newQuality)
 ///////////////////////////////////////////////////////////////////////
 
 Material::Material(const ResourceInfo& info):
-  Resource(info, "render::Material"),
+  Resource(info),
   active(NULL)
 {
 }
@@ -345,6 +345,9 @@ MaterialReader::MaterialReader(GL::Context& initContext):
 
 Ref<Material> MaterialReader::read(const Path& path)
 {
+  if (Resource* cache = getIndex().findResource(path))
+    return dynamic_cast<Material*>(cache);
+
   info.path = path;
 
   currentTechnique = NULL;

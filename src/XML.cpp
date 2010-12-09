@@ -26,7 +26,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/Core.h>
-#include <wendy/Block.h>
 #include <wendy/Path.h>
 #include <wendy/Vector.h>
 #include <wendy/Quaternion.h>
@@ -138,97 +137,6 @@ bool Reader::onEndElement(const String& name)
 bool Reader::onCDATA(const String& data)
 {
   return true;
-}
-
-template <>
-void Reader::readAttributes(Vec2& value)
-{
-  value.x = readFloat("x", 0.f);
-  value.y = readFloat("y", 0.f);
-}
-
-template <>
-void Reader::readAttributes(Vec3& value)
-{
-  value.x = readFloat("x", 0.f);
-  value.y = readFloat("y", 0.f);
-  value.z = readFloat("z", 0.f);
-}
-
-template <>
-void Reader::readAttributes(Vec4& value)
-{
-  value.x = readFloat("x", 0.f);
-  value.y = readFloat("y", 0.f);
-  value.z = readFloat("z", 0.f);
-  value.w = readFloat("w", 0.f);
-}
-
-template <>
-void Reader::readAttributes(ColorRGB& value)
-{
-  value.r = readFloat("r", 0.f);
-  value.g = readFloat("g", 0.f);
-  value.b = readFloat("b", 0.f);
-}
-
-template <>
-void Reader::readAttributes(ColorRGBA& value)
-{
-  value.r = readFloat("r", 0.f);
-  value.g = readFloat("g", 0.f);
-  value.b = readFloat("b", 0.f);
-  value.a = readFloat("a", 0.f);
-}
-
-template <>
-void Reader::readAttributes(Vec2& value, const Vec2& defaultValue)
-{
-  value.x = readFloat("x", defaultValue.x);
-  value.y = readFloat("y", defaultValue.y);
-}
-
-template <>
-void Reader::readAttributes(Vec3& value, const Vec3& defaultValue)
-{
-  value.x = readFloat("x", defaultValue.x);
-  value.y = readFloat("y", defaultValue.y);
-  value.z = readFloat("z", defaultValue.z);
-}
-
-template <>
-void Reader::readAttributes(Vec4& value, const Vec4& defaultValue)
-{
-  value.x = readFloat("x", defaultValue.x);
-  value.y = readFloat("y", defaultValue.y);
-  value.z = readFloat("z", defaultValue.z);
-  value.w = readFloat("w", defaultValue.w);
-}
-
-template <>
-void Reader::readAttributes(Quat& value, const Quat& defaultValue)
-{
-  value.x = readFloat("x", defaultValue.x);
-  value.y = readFloat("y", defaultValue.y);
-  value.z = readFloat("z", defaultValue.z);
-  value.w = readFloat("w", defaultValue.w);
-}
-
-template <>
-void Reader::readAttributes(ColorRGB& value, const ColorRGB& defaultValue)
-{
-  value.r = readFloat("r", defaultValue.r);
-  value.g = readFloat("g", defaultValue.g);
-  value.b = readFloat("b", defaultValue.b);
-}
-
-template <>
-void Reader::readAttributes(ColorRGBA& value, const ColorRGBA& defaultValue)
-{
-  value.r = readFloat("r", defaultValue.r);
-  value.g = readFloat("g", defaultValue.g);
-  value.b = readFloat("b", defaultValue.b);
-  value.a = readFloat("a", defaultValue.a);
 }
 
 bool Reader::readBoolean(const String& name, bool defaultValue)
@@ -473,47 +381,6 @@ void Writer::addAttribute(const String& name, const String& value)
 
   *stream << " " << name << "=\"" << escapeString(value) << "\"";
   simple = false;
-}
-
-template <>
-void Writer::addAttributes(const ColorRGB& value)
-{
-  addAttribute("r", value.r);
-  addAttribute("g", value.g);
-  addAttribute("b", value.b);
-}
-
-template <>
-void Writer::addAttributes(const ColorRGBA& value)
-{
-  addAttribute("r", value.r);
-  addAttribute("g", value.g);
-  addAttribute("b", value.b);
-  addAttribute("a", value.a);
-}
-
-template <>
-void Writer::addAttributes(const Vec2& value)
-{
-  addAttribute("x", value.x);
-  addAttribute("y", value.y);
-}
-
-template <>
-void Writer::addAttributes(const Vec3& value)
-{
-  addAttribute("x", value.x);
-  addAttribute("y", value.y);
-  addAttribute("z", value.z);
-}
-
-template <>
-void Writer::addAttributes(const Vec4& value)
-{
-  addAttribute("x", value.x);
-  addAttribute("y", value.y);
-  addAttribute("z", value.z);
-  addAttribute("w", value.w);
 }
 
 void Writer::setStream(std::ostream* newStream)

@@ -560,7 +560,7 @@ VertexProgram* VertexProgram::createInstance(const ResourceInfo& info,
 }
 
 VertexProgram::VertexProgram(const ResourceInfo& info, Context& initContext):
-  Resource(info, "GL::VertexProgram"),
+  Resource(info),
   context(initContext),
   programID(NULL)
 {
@@ -624,7 +624,7 @@ FragmentProgram* FragmentProgram::createInstance(const ResourceInfo& info,
 }
 
 FragmentProgram::FragmentProgram(const ResourceInfo& info, Context& initContext):
-  Resource(info, "GL::FragmentProgram"),
+  Resource(info),
   context(initContext),
   programID(NULL)
 {
@@ -823,7 +823,7 @@ Program* Program::createInstance(const ResourceInfo& info,
 }
 
 Program::Program(const ResourceInfo& info, Context& initContext):
-  Resource(info, "GL::Program"),
+  Resource(info),
   context(initContext)
 {
 }
@@ -1113,6 +1113,9 @@ VertexProgramReader::VertexProgramReader(Context& initContext):
 
 Ref<VertexProgram> VertexProgramReader::read(const Path& path)
 {
+  if (Resource* cache = getIndex().findResource(path))
+    return dynamic_cast<VertexProgram*>(cache);
+
   std::ifstream stream(path.asString().c_str());
   if (!stream)
     return NULL;
@@ -1140,6 +1143,9 @@ FragmentProgramReader::FragmentProgramReader(Context& initContext):
 
 Ref<FragmentProgram> FragmentProgramReader::read(const Path& path)
 {
+  if (Resource* cache = getIndex().findResource(path))
+    return dynamic_cast<FragmentProgram*>(cache);
+
   std::ifstream stream(path.asString().c_str());
   if (!stream)
     return NULL;
@@ -1168,6 +1174,9 @@ ProgramReader::ProgramReader(Context& initContext):
 
 Ref<Program> ProgramReader::read(const Path& path)
 {
+  if (Resource* cache = getIndex().findResource(path))
+    return dynamic_cast<Program*>(cache);
+
   info.path = path;
 
   std::ifstream stream(path.asString().c_str());

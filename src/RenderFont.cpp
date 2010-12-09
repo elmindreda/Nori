@@ -238,7 +238,7 @@ Ref<Font> Font::createInstance(const ResourceInfo& info,
 }
 
 Font::Font(const ResourceInfo& info, GeometryPool& initPool):
-  Resource(info, "render::Font"),
+  Resource(info),
   pool(initPool)
 {
 }
@@ -437,6 +437,9 @@ FontReader::FontReader(GeometryPool& initPool):
 
 Ref<Font> FontReader::read(const Path& path)
 {
+  if (Resource* cache = getIndex().findResource(path))
+    return dynamic_cast<Font*>(cache);
+
   info.path = path;
 
   std::ifstream stream(path.asString().c_str());

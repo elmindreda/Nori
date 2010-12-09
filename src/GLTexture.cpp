@@ -530,7 +530,7 @@ Texture* Texture::createInstance(const ResourceInfo& info,
 }
 
 Texture::Texture(const ResourceInfo& info, Context& initContext):
-  Resource(info, "GL::Texture"),
+  Resource(info),
   context(initContext),
   textureTarget(0),
   textureID(0),
@@ -912,6 +912,9 @@ TextureReader::TextureReader(Context& initContext):
 
 Ref<Texture> TextureReader::read(const Path& path)
 {
+  if (Resource* cache = getIndex().findResource(path))
+    return dynamic_cast<Texture*>(cache);
+
   info.path = path;
 
   std::ifstream stream(path.asString().c_str());

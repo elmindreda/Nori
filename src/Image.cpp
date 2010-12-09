@@ -360,7 +360,7 @@ Image::Image(const ResourceInfo& info,
              unsigned int initHeight,
              const void* initData,
              size_t pitch):
-  Resource(info, "Image"),
+  Resource(info),
   width(initWidth),
   height(initHeight),
   format(initFormat)
@@ -656,7 +656,7 @@ Ref<Image> Image::getArea(const Recti& area)
 ///////////////////////////////////////////////////////////////////////
 
 ImageCube::ImageCube(const ResourceInfo& info):
-  Resource(info, "ImageCube")
+  Resource(info)
 {
 }
 
@@ -756,6 +756,9 @@ ImageReader::ImageReader(ResourceIndex& index):
 
 Ref<Image> ImageReader::read(const Path& path)
 {
+  if (Resource* cache = getIndex().findResource(path))
+    return dynamic_cast<Image*>(cache);
+
   std::ifstream stream(path.asString().c_str());
   if (!stream)
     return NULL;
@@ -936,6 +939,9 @@ ImageCubeReader::ImageCubeReader(ResourceIndex& index):
 
 Ref<ImageCube> ImageCubeReader::read(const Path& path)
 {
+  if (Resource* cache = getIndex().findResource(path))
+    return dynamic_cast<ImageCube*>(cache);
+
   std::ifstream stream(path.asString().c_str());
   if (!stream)
     return NULL;

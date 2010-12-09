@@ -35,7 +35,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-class ResourceType;
 class ResourceIndex;
 
 ///////////////////////////////////////////////////////////////////////
@@ -43,8 +42,7 @@ class ResourceIndex;
 class ResourceInfo
 {
 public:
-  ResourceInfo(ResourceIndex& index,
-               const Path& path = Path());
+  ResourceInfo(ResourceIndex& index, const Path& path = Path());
   ResourceIndex& index;
   Path path;
 };
@@ -54,49 +52,27 @@ public:
 class Resource : public RefObject
 {
 public:
-  Resource(const ResourceInfo& info, const String& typeName);
+  Resource(const ResourceInfo& info);
   Resource(const Resource& source);
   virtual ~Resource(void);
   const Path& getPath(void) const;
   ResourceIndex& getIndex(void) const;
 public:
-  ResourceType& type;
+  ResourceIndex& index;
   Path path;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-typedef Ref<Resource> ResourceRef;
-
-///////////////////////////////////////////////////////////////////////
-
-class ResourceType
-{
-  friend class Resource;
-public:
-  ResourceType(ResourceIndex& index, const String& name);
-  ResourceRef findResource(const Path& path) const;
-  bool isEmpty(void) const;
-  const String& getName(void) const;
-  ResourceIndex& getIndex(void) const;
-private:
-  typedef std::vector<Resource*> List;
-  ResourceIndex* index;
-  List resources;
-  String name;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
 class ResourceIndex
 {
+  friend class Resource;
 public:
-  typedef std::vector<ResourceType> TypeList;
   ~ResourceIndex(void);
-  ResourceType& getType(const String& name);
-  const TypeList& getTypes(void);
+  Resource* findResource(const Path& path) const;
 private:
-  TypeList types;
+  typedef std::vector<Resource*> List;
+  List resources;
 };
 
 ///////////////////////////////////////////////////////////////////////
