@@ -481,7 +481,7 @@ render::GeometryPool& Renderer::getGeometryPool(void) const
   return pool;
 }
 
-Renderer* Renderer::createInstance(render::GeometryPool& pool)
+Renderer* Renderer::create(render::GeometryPool& pool)
 {
   Ptr<Renderer> renderer(new Renderer(pool));
   if (!renderer->init())

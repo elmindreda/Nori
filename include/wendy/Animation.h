@@ -115,7 +115,7 @@ public:
 private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
-  Ptr<Anim3> animation;
+  Ref<Anim3> animation;
   ResourceInfo info;
   AnimTrack3* currentTrack;
 };

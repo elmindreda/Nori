@@ -212,16 +212,16 @@ unsigned int VertexBuffer::getCount(void) const
   return count;
 }
 
-VertexBuffer* VertexBuffer::createInstance(Context& context,
-                                           unsigned int count,
-                                           const VertexFormat& format,
-					   Usage usage)
+Ref<VertexBuffer> VertexBuffer::create(Context& context,
+                                       unsigned int count,
+                                       const VertexFormat& format,
+				       Usage usage)
 {
-  Ptr<VertexBuffer> buffer(new VertexBuffer(context));
+  Ref<VertexBuffer> buffer(new VertexBuffer(context));
   if (!buffer->init(format, count, usage))
     return NULL;
 
-  return buffer.detachObject();
+  return buffer;
 }
 
 VertexBuffer::VertexBuffer(Context& initContext):
@@ -412,16 +412,16 @@ unsigned int IndexBuffer::getCount(void) const
   return count;
 }
 
-IndexBuffer* IndexBuffer::createInstance(Context& context,
-                                         unsigned int count,
-					 Type type,
-					 Usage usage)
+Ref<IndexBuffer> IndexBuffer::create(Context& context,
+                                     unsigned int count,
+				     Type type,
+				     Usage usage)
 {
-  Ptr<IndexBuffer> buffer(new IndexBuffer(context));
+  Ref<IndexBuffer> buffer(new IndexBuffer(context));
   if (!buffer->init(count, type, usage))
     return NULL;
 
-  return buffer.detachObject();
+  return buffer;
 }
 
 size_t IndexBuffer::getTypeSize(Type type)
@@ -498,7 +498,7 @@ void IndexBuffer::apply(void) const
   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
 
 #if WENDY_DEBUG
-  if (!checkGL("Failed to apply index buffer");
+  if (!checkGL("Failed to apply index buffer"))
     return;
 #endif
 
@@ -815,15 +815,15 @@ const PixelFormat& RenderBuffer::getFormat(void) const
   return format;
 }
 
-RenderBuffer* RenderBuffer::createInstance(const PixelFormat& format,
-                                           unsigned int width,
-                                           unsigned int height)
+Ref<RenderBuffer> RenderBuffer::create(const PixelFormat& format,
+                                       unsigned int width,
+                                       unsigned int height)
 {
-  Ptr<RenderBuffer> buffer(new RenderBuffer());
+  Ref<RenderBuffer> buffer(new RenderBuffer());
   if (!buffer->init(format, width, height))
     return NULL;
 
-  return buffer.detachObject();
+  return buffer;
 }
 
 RenderBuffer::RenderBuffer(void):

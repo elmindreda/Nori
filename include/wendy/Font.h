@@ -57,6 +57,7 @@ public:
   Font(const ResourceInfo& info);
   Font(const Font& source);
   Font& operator = (const Font& source);
+  static Ref<Font> read(ResourceIndex& index, const Path& path);
   GlyphList glyphs;
   FontGlyph* characters[256];
 };
@@ -72,7 +73,8 @@ private:
   bool extractGlyphs(const Image& image, const String& characters);
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
-  Ptr<Font> font;
+  Ref<Font> font;
+  ResourceInfo info;
 };
 
 ///////////////////////////////////////////////////////////////////////

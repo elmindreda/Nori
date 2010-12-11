@@ -127,7 +127,7 @@ PatternMatch* Pattern::match(const String& text) const
   return new PatternMatch(text, ranges, count);
 }
 
-Pattern* Pattern::createInstance(const String& source)
+Pattern* Pattern::create(const String& source)
 {
   Ptr<Pattern> pattern(new Pattern());
   if (!pattern->init(source))

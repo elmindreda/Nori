@@ -51,7 +51,7 @@ Resource::Resource(const ResourceInfo& info):
   index(info.index),
   path(info.path)
 {
-  if (!path.asString().empty())
+  if (!path.isEmpty())
   {
     if (index.findResource(path))
       throw Exception("Duplicate path for resource");
@@ -91,6 +91,26 @@ ResourceIndex::~ResourceIndex(void)
     throw Exception("Resource index destroyed with attached resources");
 }
 
+bool ResourceIndex::addSearchPath(const Path& path)
+{
+  if (!path.isDirectory())
+  {
+    Log::writeError("Failed to add invalid resource search path \'%s\'",
+                    path.asString().c_str());
+    return false;
+  }
+
+  if (std::find(paths.begin(), paths.end(), path) == paths.end())
+    paths.push_back(path);
+
+  return true;
+}
+
+void ResourceIndex::removeSearchPath(const Path& path)
+{
+  paths.erase(std::find(paths.begin(), paths.end(), path));
+}
+
 Resource* ResourceIndex::findResource(const Path& path) const
 {
   for (List::const_iterator i = resources.begin();  i != resources.end();  i++)
@@ -100,6 +120,11 @@ Resource* ResourceIndex::findResource(const Path& path) const
   }
 
   return NULL;
+}
+
+const PathList& ResourceIndex::getSearchPaths(void) const
+{
+  return paths;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -112,6 +137,45 @@ ResourceReader::ResourceReader(ResourceIndex& index):
 ResourceIndex& ResourceReader::getIndex(void) const
 {
   return index;
+}
+
+bool ResourceReader::open(std::ifstream& stream, const Path& path) const
+{
+  Path full = path;
+
+  if (find(full))
+  {
+    stream.open(full.asString().c_str());
+    if (!stream.fail())
+      return true;
+  }
+
+  return false;
+}
+
+bool ResourceReader::find(Path& path) const
+{
+  const PathList& paths = index.getSearchPaths();
+
+  if (paths.empty())
+  {
+    if (path.isFile())
+      return true;
+  }
+  else
+  {
+    for (size_t i = 0;  i < paths.size();  i++)
+    {
+      Path full = paths[i] + path.asString();
+      if (full.isFile())
+      {
+        path = full;
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 ///////////////////////////////////////////////////////////////////////

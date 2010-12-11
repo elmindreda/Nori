@@ -585,7 +585,9 @@ bool ImageCanvas::setBuffer(Attachment attachment, Image* newImage)
   return true;
 }
 
-ImageCanvas* ImageCanvas::createInstance(Context& context, unsigned int width, unsigned int height)
+ImageCanvas* ImageCanvas::create(Context& context,
+                                 unsigned int width,
+                                 unsigned int height)
 {
   Ptr<ImageCanvas> canvas(new ImageCanvas(context));
   if (!canvas->init(width, height))
@@ -1174,7 +1176,7 @@ SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal(void)
   return resizedSignal;
 }
 
-bool Context::create(ResourceIndex& index, const ContextMode& mode)
+bool Context::createSingleton(ResourceIndex& index, const ContextMode& mode)
 {
   Ptr<Context> context(new Context(index));
   if (!context->init(mode))

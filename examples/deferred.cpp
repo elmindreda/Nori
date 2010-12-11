@@ -11,6 +11,7 @@ public:
   void run(void);
 private:
   bool render(void);
+  ResourceIndex index;
   input::MayaCamera controller;
   Ptr<deferred::Renderer> renderer;
   Ref<render::Camera> camera;
@@ -35,16 +36,10 @@ Demo::~Demo(void)
 
 bool Demo::init(void)
 {
-  GL::VertexProgram::addSearchPath(Path("../media"));
-  GL::FragmentProgram::addSearchPath(Path("../media"));
-  GL::Program::addSearchPath(Path("../media"));
+  index.addSearchPath(Path("../media"));
+  index.addSearchPath(Path("media"));
 
-  Image::addSearchPath(Path("media/deferred"));
-  Mesh::addSearchPath(Path("media/deferred"));
-  GL::Texture::addSearchPath(Path("media/deferred"));
-  render::Material::addSearchPath(Path("media/deferred"));
-
-  if (!GL::Context::create(GL::ContextMode()))
+  if (!GL::Context::createSingleton(index))
     return false;
 
   GL::Context* context = GL::Context::get();
@@ -53,17 +48,17 @@ bool Demo::init(void)
   const unsigned int width = context->getScreenCanvas().getWidth();
   const unsigned int height = context->getScreenCanvas().getHeight();
 
-  if (!render::GeometryPool::create(*context))
+  if (!render::GeometryPool::createSingleton(*context))
     return false;
 
   renderer = deferred::Renderer::create(*context, deferred::Config(width, height));
   if (!renderer)
     return false;
 
-  if (!input::Context::create(*context))
+  if (!input::Context::createSingleton(*context))
     return false;
 
-  Ref<render::Mesh> mesh = render::Mesh::readInstance("cube");
+  Ref<render::Mesh> mesh = render::MeshReader(*context).read(Path("cube.obj"));
   if (!mesh)
     return false;
 
@@ -84,7 +79,7 @@ bool Demo::init(void)
     rootNode->addChild(*meshNode);
   }
 
-  GL::TextureRef distAttTexture = GL::Texture::readInstance("distatt");
+  Ref<GL::Texture> distAttTexture = GL::Texture::read(*context, Path("distatt.texture"));
   if (!distAttTexture)
     return false;
 

@@ -125,10 +125,10 @@ public:
    *  @param usage The desired usage hint.
    *  @return The newly created vertex buffer, or @c NULL if an error occurred.
    */
-  static VertexBuffer* createInstance(Context& context,
-                                      unsigned int count,
-                                      const VertexFormat& format,
-				      Usage usage);
+  static Ref<VertexBuffer> create(Context& context,
+                                  unsigned int count,
+                                  const VertexFormat& format,
+				  Usage usage);
 private:
   VertexBuffer(Context& context);
   VertexBuffer(const VertexBuffer& source);
@@ -144,10 +144,6 @@ private:
   Usage usage;
   static VertexBuffer* current;
 };
-
-///////////////////////////////////////////////////////////////////////
-
-typedef Ref<VertexBuffer> VertexBufferRef;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -226,10 +222,10 @@ public:
    *  @param usage The desired usage hint.
    *  @return The newly created index buffer, or @c NULL if an error occurred.
    */
-  static IndexBuffer* createInstance(Context& context,
-                                     unsigned int count,
-				     Type type,
-				     Usage usage);
+  static Ref<IndexBuffer> create(Context& context,
+                                 unsigned int count,
+				 Type type,
+				 Usage usage);
   /*! @return The size, in bytes, of the specified element type.
    */
   static size_t getTypeSize(Type type);
@@ -248,10 +244,6 @@ private:
   unsigned int count;
   static IndexBuffer* current;
 };
-
-///////////////////////////////////////////////////////////////////////
-
-typedef Ref<IndexBuffer> IndexBufferRef;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -498,9 +490,9 @@ public:
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
   const PixelFormat& getFormat(void) const;
-  static RenderBuffer* createInstance(const PixelFormat& format,
-                                      unsigned int width,
-                                      unsigned int height);
+  static Ref<RenderBuffer> create(const PixelFormat& format,
+                                  unsigned int width,
+                                  unsigned int height);
 private:
   RenderBuffer(void);
   bool init(const PixelFormat& format, unsigned int width, unsigned int height);

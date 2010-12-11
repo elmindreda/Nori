@@ -307,6 +307,12 @@ void Mesh::getBounds(Sphere& bounds) const
     bounds.envelop(vertices[i].position);
 }
 
+Ref<Mesh> Mesh::read(ResourceIndex& index, const Path& path)
+{
+  MeshReader reader(index);
+  return reader.read(path);
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 VertexMerger::VertexMerger(void):
@@ -421,8 +427,10 @@ Ref<Mesh> MeshReader::read(const Path& path)
   if (Resource* cache = getIndex().findResource(path))
     return dynamic_cast<Mesh*>(cache);
 
-  std::ifstream stream(path.asString().c_str());
-  if (!stream)
+  ResourceInfo info(getIndex(), path);
+
+  std::ifstream stream;
+  if (!open(stream, info.path))
     return NULL;
 
   String line;
@@ -559,7 +567,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
       Log::writeWarning("Unknown command \'%s\' in OBJ file", command.c_str());
   }
 
-  Ref<Mesh> mesh = new Mesh(ResourceInfo(getIndex(), path));
+  Ref<Mesh> mesh = new Mesh(info);
 
   mesh->vertices.resize(positions.size());
 

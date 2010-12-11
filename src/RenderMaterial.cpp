@@ -301,6 +301,12 @@ Technique* Material::getActiveTechnique(void) const
   return active;
 }
 
+Ref<Material> Material::read(GL::Context& context, const Path& path)
+{
+  MaterialReader reader(context);
+  return reader.read(path);
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 MaterialReader::MaterialReader(GL::Context& initContext):
@@ -349,12 +355,11 @@ Ref<Material> MaterialReader::read(const Path& path)
     return dynamic_cast<Material*>(cache);
 
   info.path = path;
-
   currentTechnique = NULL;
   currentPass = NULL;
 
-  std::ifstream stream(path.asString().c_str());
-  if (!stream)
+  std::ifstream stream;
+  if (!open(stream, info.path))
     return NULL;
 
   if (!XML::Reader::read(stream))
@@ -498,7 +503,7 @@ bool MaterialReader::onBeginElement(const String& name)
         if (name == "program")
         {
           Path programPath(readString("path"));
-          if (programPath.asString().empty())
+          if (programPath.isEmpty())
           {
             Log::writeError("Shader program path missing");
             return false;
@@ -543,17 +548,22 @@ bool MaterialReader::onBeginElement(const String& name)
             }
 
             Path texturePath(readString("texture"));
-            if (texturePath.asString().empty())
+            if (texturePath.isEmpty())
             {
               Log::writeError("Texture path missing for sampler \'%s\'",
                               samplerName.c_str());
               return true;
             }
 
-            GL::TextureReader reader(context);
-            Ref<GL::Texture> texture = reader.read(texturePath);
+            Ref<GL::Texture> texture = GL::Texture::read(context, texturePath);
             if (!texture)
+            {
+              Log::writeError("Failed to find texture \'%s\' for sampler \'%s\' of material \'%s\'",
+                              texturePath.asString().c_str(),
+                              samplerName.c_str(),
+                              material->getPath().asString().c_str());
               return false;
+            }
 
             currentPass->getSamplerState(samplerName).setTexture(texture);
             return true;

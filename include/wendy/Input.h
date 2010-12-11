@@ -159,7 +159,7 @@ public:
   /*! @return The context underlying this input manager.
    */
   GL::Context& getContext(void) const;
-  static bool create(GL::Context& context);
+  static bool createSingleton(GL::Context& context);
 private:
   Context(GL::Context& context);
   Context(const Context& source);

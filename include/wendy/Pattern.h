@@ -90,7 +90,7 @@ public:
    *  @param[in] source The pattern expression to use.
    *  @return The newly created pattern object.
    */
-  static Pattern* createInstance(const String& source);
+  static Pattern* create(const String& source);
 private:
   Pattern(void);
   Pattern(const Pattern& source);

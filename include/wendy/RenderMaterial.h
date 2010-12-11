@@ -181,6 +181,7 @@ public:
    *  technique is active.
    */
   Technique* getActiveTechnique(void) const;
+  static Ref<Material> read(GL::Context& context, const Path& path);
 private:
   typedef std::vector<Technique*> List;
   List techniques;
@@ -201,7 +202,7 @@ private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
   GL::Context& context;
-  Ptr<Material> material;
+  Ref<Material> material;
   ResourceInfo info;
   Technique* currentTechnique;
   Pass* currentPass;

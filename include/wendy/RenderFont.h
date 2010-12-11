@@ -88,10 +88,11 @@ public:
   /*! Calculates the layout of glyphs for the specified text.
    */
   void getTextLayout(LayoutList& result, const char* format, ...) const;
-  static Ref<Font> createInstance(const ResourceInfo& info,
-                                  GeometryPool& pool,
-                                  const wendy::Font& font,
-                                  GL::Program& program);
+  static Ref<Font> create(const ResourceInfo& info,
+                          GeometryPool& pool,
+                          const wendy::Font& data,
+                          GL::Program& program);
+  static Ref<Font> read(GeometryPool& pool, const Path& path);
 private:
   class Glyph;
   Font(const ResourceInfo& info, GeometryPool& pool);
@@ -150,7 +151,7 @@ private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
   GeometryPool& pool;
-  Ptr<Font> font;
+  Ref<Font> font;
   ResourceInfo info;
 };
 

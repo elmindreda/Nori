@@ -141,6 +141,7 @@ public:
   /*! Calculates the bounding sphere of this mesh.
    */
   void getBounds(Sphere& bounds) const;
+  static Ref<Mesh> read(ResourceIndex& index, const Path& path);
   typedef std::vector<MeshGeometry> GeometryList;
   typedef std::vector<MeshVertex> VertexList;
   typedef std::vector<MeshEdge> EdgeList;

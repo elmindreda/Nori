@@ -49,6 +49,15 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+namespace
+{
+
+const unsigned int MESH_XML_VERSION = 1;
+
+} /*namespace*/
+
+///////////////////////////////////////////////////////////////////////
+
 void Mesh::enqueue(Queue& queue, const Transform3& transform) const
 {
   for (GeometryList::const_iterator g = geometries.begin();  g != geometries.end();  g++)
@@ -64,7 +73,7 @@ void Mesh::enqueue(Queue& queue, const Transform3& transform) const
     }
 
     Operation operation;
-    operation.range = GL::PrimitiveRange(g->getPrimitiveType(),
+    operation.range = GL::PrimitiveRange(GL::TRIANGLE_LIST,
                                          *vertexBuffer,
                                          g->getIndexRange());
     operation.transform = transform;
@@ -83,15 +92,36 @@ const Mesh::GeometryList& Mesh::getGeometries(void)
   return geometries;
 }
 
-Mesh* Mesh::createInstance(const ResourceInfo& info,
-                           GL::Context& context,
-                           const wendy::Mesh& mesh)
+GL::VertexBuffer& Mesh::getVertexBuffer(void)
 {
-  Ptr<Mesh> renderMesh(new Mesh(info, context));
-  if (!renderMesh->init(mesh))
+  return *vertexBuffer;
+}
+
+const GL::VertexBuffer& Mesh::getVertexBuffer(void) const
+{
+  return *vertexBuffer;
+}
+
+GL::IndexBuffer& Mesh::getIndexBuffer(void)
+{
+  return *indexBuffer;
+}
+
+const GL::IndexBuffer& Mesh::getIndexBuffer(void) const
+{
+  return *indexBuffer;
+}
+
+Ref<Mesh> Mesh::create(const ResourceInfo& info,
+                       GL::Context& context,
+                       const wendy::Mesh& data,
+                       const MaterialMap& materials)
+{
+  Ref<Mesh> mesh(new Mesh(info, context));
+  if (!mesh->init(data, materials))
     return NULL;
 
-  return renderMesh.detachObject();
+  return mesh;
 }
 
 Mesh::Mesh(const ResourceInfo& info, GL::Context& initContext):
@@ -114,22 +144,32 @@ Mesh& Mesh::operator = (const Mesh& source)
   return *this;
 }
 
-bool Mesh::init(const wendy::Mesh& mesh)
+bool Mesh::init(const wendy::Mesh& mesh, const MaterialMap& materials)
 {
   size_t indexCount = 0;
 
   for (size_t i = 0;  i < mesh.geometries.size();  i++)
+  {
+    const String& name = mesh.geometries[i].shaderName;
+    if (materials.find(name) == materials.end())
+    {
+      Log::writeError("Missing path for material \'%s\' of render mesh \'%s\'",
+                      name.c_str(),
+                      getPath().asString().c_str());
+    }
+
     indexCount += mesh.geometries[i].triangles.size() * 3;
+  }
 
   VertexFormat format;
 
   if (!format.createComponents("3f:position 3f:normal 2f:mapping"))
     return false;
 
-  vertexBuffer = GL::VertexBuffer::createInstance(*GL::Context::get(),
-                                                  (unsigned int) mesh.vertices.size(),
-                                                  format,
-                                                  GL::VertexBuffer::STATIC);
+  vertexBuffer = GL::VertexBuffer::create(*GL::Context::get(),
+                                          (unsigned int) mesh.vertices.size(),
+                                          format,
+                                          GL::VertexBuffer::STATIC);
   if (!vertexBuffer)
     return false;
 
@@ -144,10 +184,10 @@ bool Mesh::init(const wendy::Mesh& mesh)
   else
     indexType = GL::IndexBuffer::UINT32;
 
-  indexBuffer = GL::IndexBuffer::createInstance(*GL::Context::get(),
-                                                indexCount,
-                                                indexType,
-                                                GL::IndexBuffer::STATIC);
+  indexBuffer = GL::IndexBuffer::create(*GL::Context::get(),
+                                        indexCount,
+                                        indexType,
+                                        GL::IndexBuffer::STATIC);
   if (!indexBuffer)
     return false;
 
@@ -157,11 +197,10 @@ bool Mesh::init(const wendy::Mesh& mesh)
   {
     indexCount = g->triangles.size() * 3;
 
-    MaterialReader reader(context);
-    Ref<Material> material = reader.read(Path(g->shaderName));
+    Ref<Material> material = Material::read(context, materials.find(g->shaderName)->second);
     if (!material)
     {
-      Log::writeError("Cannot find material \'%s\' for mesh \'%s\'",
+      Log::writeError("Cannot find material \'%s\' for render mesh \'%s\'",
                       g->shaderName.c_str(),
 		      getPath().asString().c_str());
       return false;
@@ -169,7 +208,7 @@ bool Mesh::init(const wendy::Mesh& mesh)
 
     GL::IndexRange range(*indexBuffer, indexBase, indexCount);
 
-    geometries.push_back(Geometry(range, GL::TRIANGLE_LIST, material));
+    geometries.push_back(Geometry(range, material));
 
     size_t index = 0;
 
@@ -227,13 +266,17 @@ bool Mesh::init(const wendy::Mesh& mesh)
   return true;
 }
 
+Ref<Mesh> Mesh::read(GL::Context& context, const Path& path)
+{
+  MeshReader reader(context);
+  return reader.read(path);
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 Mesh::Geometry::Geometry(const GL::IndexRange& initRange,
-                         GL::PrimitiveType initPrimitiveType,
                          Material* initMaterial):
   range(initRange),
-  primitiveType(initPrimitiveType),
   material(initMaterial)
 {
 }
@@ -241,11 +284,6 @@ Mesh::Geometry::Geometry(const GL::IndexRange& initRange,
 const GL::IndexRange& Mesh::Geometry::getIndexRange(void) const
 {
   return range;
-}
-
-GL::PrimitiveType Mesh::Geometry::getPrimitiveType(void) const
-{
-  return primitiveType;
 }
 
 Material* Mesh::Geometry::getMaterial(void) const
@@ -256,6 +294,104 @@ Material* Mesh::Geometry::getMaterial(void) const
 void Mesh::Geometry::setMaterial(Material* newMaterial)
 {
   material = newMaterial;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+MeshReader::MeshReader(GL::Context& initContext):
+  ResourceReader(initContext.getIndex()),
+  context(initContext),
+  info(getIndex())
+{
+}
+
+Ref<Mesh> MeshReader::read(const Path& path)
+{
+  if (Resource* cache = getIndex().findResource(path))
+    return dynamic_cast<Mesh*>(cache);
+
+  info.path = path;
+
+  std::ifstream stream;
+  if (!open(stream, info.path))
+    return NULL;
+
+  if (!XML::Reader::read(stream))
+  {
+    data = NULL;
+    return NULL;
+  }
+
+  if (!data)
+    return NULL;
+
+  Ref<Mesh> mesh = Mesh::create(info, context, *data, materials);
+  if (!mesh)
+    return NULL;
+
+  return mesh;
+}
+
+bool MeshReader::onBeginElement(const String& name)
+{
+  if (name == "mesh")
+  {
+    const unsigned int version = readInteger("version");
+    if (version != MESH_XML_VERSION)
+    {
+      Log::writeError("Mesh specification XML format version mismatch");
+      return false;
+    }
+
+    Path dataPath(readString("data"));
+    if (dataPath.isEmpty())
+    {
+      Log::writeError("Mesh data path for render mesh \'%s\' is empty",
+                      info.path.asString().c_str());
+      return false;
+    }
+
+    data = wendy::Mesh::read(getIndex(), dataPath);
+    if (!data)
+    {
+      Log::writeError("Failed to load mesh data \'%s\' for render mesh \'%s\'",
+                      dataPath.asString().c_str(),
+                      info.path.asString().c_str());
+      return false;
+    }
+
+    return true;
+  }
+
+  if (name == "material")
+  {
+    String name(readString("name"));
+    if (name.empty())
+    {
+      Log::writeError("Empty material name in render mesh specification \'%s\'",
+                      info.path.asString().c_str());
+      return false;
+    }
+
+    Path path(readString("path"));
+    if (path.isEmpty())
+    {
+      Log::writeError("Empty path for material name \'%s\' in render mesh specification \'%s\'",
+                      name.c_str(),
+                      info.path.asString().c_str());
+      return false;
+    }
+
+    materials[name] = path;
+    return true;
+  }
+
+  return true;
+}
+
+bool MeshReader::onEndElement(const String& name)
+{
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////

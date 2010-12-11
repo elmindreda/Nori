@@ -236,7 +236,7 @@ GL::Context& Context::getContext(void) const
   return context;
 }
 
-bool Context::create(GL::Context& context)
+bool Context::createSingleton(GL::Context& context)
 {
   set(new Context(context));
   return true;

@@ -27,6 +27,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <vector>
+#include <fstream>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -69,9 +70,13 @@ class ResourceIndex
   friend class Resource;
 public:
   ~ResourceIndex(void);
+  bool addSearchPath(const Path& path);
+  void removeSearchPath(const Path& path);
   Resource* findResource(const Path& path) const;
+  const PathList& getSearchPaths(void) const;
 private:
   typedef std::vector<Resource*> List;
+  PathList paths;
   List resources;
 };
 
@@ -82,7 +87,10 @@ class ResourceReader
 public:
   ResourceReader(ResourceIndex& index);
   ResourceIndex& getIndex(void) const;
+protected:
+  bool open(std::ifstream& stream, const Path& path) const;
 private:
+  bool find(Path& path) const;
   ResourceIndex& index;
 };
 

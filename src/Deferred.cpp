@@ -169,10 +169,10 @@ bool Renderer::init(const Config& config)
   {
     Image image(context.getIndex(), PixelFormat::RGBA8, config.width, config.height);
 
-    colorTexture = GL::Texture::createInstance(context.getIndex(),
-                                               context,
-                                               image,
-                                               GL::Texture::RECTANGULAR);
+    colorTexture = GL::Texture::create(context.getIndex(),
+                                       context,
+                                       image,
+                                       GL::Texture::RECTANGULAR);
     if (!colorTexture)
     {
       Log::writeError("Failed to create color texture for deferred renderer");
@@ -186,10 +186,10 @@ bool Renderer::init(const Config& config)
   {
     Image image(context.getIndex(), PixelFormat::RGBA8, config.width, config.height);
 
-    normalTexture = GL::Texture::createInstance(context.getIndex(),
-                                                context,
-                                                image,
-                                                GL::Texture::RECTANGULAR);
+    normalTexture = GL::Texture::create(context.getIndex(),
+                                        context,
+                                        image,
+                                        GL::Texture::RECTANGULAR);
     if (!normalTexture)
     {
       Log::writeError("Failed to create normal/specularity texture for deferred renderer");
@@ -203,10 +203,10 @@ bool Renderer::init(const Config& config)
   {
     Image image(context.getIndex(), PixelFormat::DEPTH32, config.width, config.height);
 
-    depthTexture = GL::Texture::createInstance(context.getIndex(),
-                                               context,
-                                               image,
-                                               GL::Texture::RECTANGULAR);
+    depthTexture = GL::Texture::create(context.getIndex(),
+                                       context,
+                                       image,
+                                       GL::Texture::RECTANGULAR);
     if (!depthTexture)
     {
       Log::writeError("Failed to create depth texture for deferred renderer");
@@ -218,7 +218,7 @@ bool Renderer::init(const Config& config)
 
   // Set up G-buffer canvas
   {
-    canvas = GL::ImageCanvas::createInstance(context, config.width, config.height);
+    canvas = GL::ImageCanvas::create(context, config.width, config.height);
     if (!canvas)
     {
       Log::writeError("Failed to create image canvas for deferred renderer");
@@ -246,9 +246,8 @@ bool Renderer::init(const Config& config)
 
   // Set up ambient light pass
   {
-    GL::ProgramReader reader(context);
-    GL::ProgramRef lightProgram = reader.read(Path("DeferredAmbientLight"));
-    if (!lightProgram)
+    Ref<GL::Program> program = GL::Program::read(context, Path("wendy/DeferredAmbientLight.program"));
+    if (!program)
     {
       Log::writeError("Failed to read deferred renderer ambient light program");
       return false;
@@ -261,7 +260,7 @@ bool Renderer::init(const Config& config)
     interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
     interface.addVarying("clipOverF", GL::Varying::FLOAT_VEC2);
 
-    if (!interface.matches(*lightProgram, true))
+    if (!interface.matches(*program, true))
     {
       Log::writeError("Deferred renderer ambient light program does not match the required interface");
       return false;
@@ -270,15 +269,14 @@ bool Renderer::init(const Config& config)
     ambientLightPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ONE);
     ambientLightPass.setDepthTesting(false);
     ambientLightPass.setDepthWriting(false);
-    ambientLightPass.setProgram(lightProgram);
+    ambientLightPass.setProgram(program);
     ambientLightPass.getSamplerState("colorTexture").setTexture(colorTexture);
   }
 
   // Set up directional light pass
   {
-    GL::ProgramReader reader(context);
-    GL::ProgramRef lightProgram = reader.read(Path("DeferredDirLight"));
-    if (!lightProgram)
+    Ref<GL::Program> program = GL::Program::read(context, Path("wendy/DeferredDirLight.program"));
+    if (!program)
     {
       Log::writeError("Failed to read deferred renderer directional light program");
       return false;
@@ -296,7 +294,7 @@ bool Renderer::init(const Config& config)
     interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
     interface.addVarying("clipOverF", GL::Varying::FLOAT_VEC2);
 
-    if (!interface.matches(*lightProgram, true))
+    if (!interface.matches(*program, true))
     {
       Log::writeError("Deferred renderer directional light program does not match the required interface");
       return false;
@@ -305,7 +303,7 @@ bool Renderer::init(const Config& config)
     dirLightPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ONE);
     dirLightPass.setDepthTesting(false);
     dirLightPass.setDepthWriting(false);
-    dirLightPass.setProgram(lightProgram);
+    dirLightPass.setProgram(program);
     dirLightPass.getSamplerState("colorTexture").setTexture(colorTexture);
     dirLightPass.getSamplerState("normalTexture").setTexture(normalTexture);
     dirLightPass.getSamplerState("depthTexture").setTexture(depthTexture);
@@ -313,9 +311,8 @@ bool Renderer::init(const Config& config)
 
   // Set up point light pass
   {
-    GL::ProgramReader reader(context);
-    GL::ProgramRef lightProgram = reader.read(Path("DeferredPointLight"));
-    if (!lightProgram)
+    Ref<GL::Program> program = GL::Program::read(context, Path("wendy/DeferredPointLight.program"));
+    if (!program)
     {
       Log::writeError("Failed to read deferred renderer point light program");
       return false;
@@ -336,7 +333,7 @@ bool Renderer::init(const Config& config)
     interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
     interface.addVarying("clipOverF", GL::Varying::FLOAT_VEC2);
 
-    if (!interface.matches(*lightProgram, true))
+    if (!interface.matches(*program, true))
     {
       Log::writeError("Deferred renderer point light program does not match the required interface");
       return false;
@@ -345,7 +342,7 @@ bool Renderer::init(const Config& config)
     pointLightPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ONE);
     pointLightPass.setDepthTesting(false);
     pointLightPass.setDepthWriting(false);
-    pointLightPass.setProgram(lightProgram);
+    pointLightPass.setProgram(program);
     pointLightPass.getSamplerState("colorTexture").setTexture(colorTexture);
     pointLightPass.getSamplerState("normalTexture").setTexture(normalTexture);
     pointLightPass.getSamplerState("depthTexture").setTexture(depthTexture);

@@ -165,9 +165,10 @@ class VertexProgram : public Resource
 public:
   ~VertexProgram(void);
   const String& getText(void) const;
-  static VertexProgram* createInstance(const ResourceInfo& info,
-                                       Context& context,
-                                       const String& text);
+  static Ref<VertexProgram> create(const ResourceInfo& info,
+                                   Context& context,
+                                   const String& text);
+  static Ref<VertexProgram> read(Context& context, const Path& path);
 private:
   VertexProgram(const ResourceInfo& info, Context& context);
   VertexProgram(const VertexProgram& source);
@@ -180,10 +181,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-typedef Ref<VertexProgram> VertexProgramRef;
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Fragment program object.
  *  @ingroup opengl
  */
@@ -193,9 +190,10 @@ class FragmentProgram : public Resource
 public:
   ~FragmentProgram(void);
   const String& getText(void) const;
-  static FragmentProgram* createInstance(const ResourceInfo& info,
-                                         Context& context,
-                                         const String& text);
+  static Ref<FragmentProgram> create(const ResourceInfo& info,
+                                     Context& context,
+                                     const String& text);
+  static Ref<FragmentProgram> read(Context& context, const Path& path);
 private:
   FragmentProgram(const ResourceInfo& info, Context& context);
   FragmentProgram(const FragmentProgram& source);
@@ -205,10 +203,6 @@ private:
   void* programID;
   String text;
 };
-
-///////////////////////////////////////////////////////////////////////
-
-typedef Ref<FragmentProgram> FragmentProgramRef;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -239,10 +233,11 @@ public:
   const Sampler& getSampler(unsigned int index) const;
   VertexProgram& getVertexProgram(void) const;
   FragmentProgram& getFragmentProgram(void) const;
-  static Program* createInstance(const ResourceInfo& info,
-                                 Context& context,
-                                 VertexProgram& vertexProgram,
-                                 FragmentProgram& fragmentProgram);
+  static Ref<Program> create(const ResourceInfo& info,
+                             Context& context,
+                             VertexProgram& vertexProgram,
+                             FragmentProgram& fragmentProgram);
+  static Ref<Program> read(Context& context, const Path& path);
 private:
   Program(const ResourceInfo& info, Context& context);
   Program(const Program& source);
@@ -261,10 +256,6 @@ private:
   SamplerList samplers;
   static Program* current;
 };
-
-///////////////////////////////////////////////////////////////////////
-
-typedef Ref<Program> ProgramRef;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -297,7 +288,7 @@ class VertexProgramReader : public ResourceReader
 {
 public:
   VertexProgramReader(Context& context);
-  VertexProgramRef read(const Path& path);
+  Ref<VertexProgram> read(const Path& path);
 private:
   Context& context;
 };
@@ -311,7 +302,7 @@ class FragmentProgramReader : public ResourceReader
 {
 public:
   FragmentProgramReader(Context& context);
-  FragmentProgramRef read(const Path& path);
+  Ref<FragmentProgram> read(const Path& path);
 private:
   Context& context;
 };
@@ -325,15 +316,15 @@ class ProgramReader : public ResourceReader, public XML::Reader
 {
 public:
   ProgramReader(Context& context);
-  ProgramRef read(const Path& path);
+  Ref<Program> read(const Path& path);
 private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
   Context& context;
-  Ptr<Program> program;
+  Ref<Program> program;
   ResourceInfo info;
-  VertexProgramRef vertexProgram;
-  FragmentProgramRef fragmentProgram;
+  Ref<VertexProgram> vertexProgram;
+  Ref<FragmentProgram> fragmentProgram;
 };
 
 ///////////////////////////////////////////////////////////////////////

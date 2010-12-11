@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<program version="2" >
-  <vertex name="cube" />
-  <fragment name="cube" />
+<program version="3" >
+  <vertex path="cube.vp" />
+  <fragment path="cube.fp" />
 </program>

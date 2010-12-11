@@ -13,6 +13,7 @@ private:
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const Vec2i& position);
   void onWheelTurned(int position);
+  ResourceIndex index;
   Ref<GL::Texture> textures[2];
   Ref<GL::ImageCanvas> canvases[2];
   GL::RenderState horzPass;
@@ -28,6 +29,18 @@ private:
 
 Demo::~Demo(void)
 {
+  for (int i = 0;  i < 2;  i++)
+  {
+    textures[i] = NULL;
+    canvases[i] = NULL;
+  }
+
+  horzPass.setProgram(NULL);
+  vertPass.setProgram(NULL);
+  composePass.setProgram(NULL);
+
+  graph.destroyRootNodes();
+
   input::Context::destroy();
   render::GeometryPool::destroy();
   GL::Context::destroy();
@@ -35,24 +48,19 @@ Demo::~Demo(void)
 
 bool Demo::init(void)
 {
-  Image::addSearchPath(Path("media"));
-  Mesh::addSearchPath(Path("media"));
-  GL::Texture::addSearchPath(Path("media"));
-  GL::VertexProgram::addSearchPath(Path("media"));
-  GL::FragmentProgram::addSearchPath(Path("media"));
-  GL::Program::addSearchPath(Path("media"));
-  render::Material::addSearchPath(Path("media"));
+  if (!index.addSearchPath(Path("media")))
+    return false;
 
-  if (!GL::Context::create(GL::ContextMode()))
+  if (!GL::Context::createSingleton(index))
     return false;
 
   GL::Context* context = GL::Context::get();
   context->setTitle("Bloom");
 
-  if (!render::GeometryPool::create(*context))
+  if (!render::GeometryPool::createSingleton(*context))
     return false;
 
-  if (!input::Context::create(*context))
+  if (!input::Context::createSingleton(*context))
     return false;
 
   input::Context::get()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
@@ -61,16 +69,18 @@ bool Demo::init(void)
 
   const int size = 32;
 
-  GL::ImageRef depthBuffer = GL::RenderBuffer::createInstance(PixelFormat::DEPTH24, size, size);
+  Ref<GL::RenderBuffer> depthBuffer = GL::RenderBuffer::create(PixelFormat::DEPTH24, size, size);
   if (!depthBuffer)
   {
     Log::writeError("Failed to create depth render buffer");
     return false;
   }
 
-  for (unsigned int i = 0;  i < 2;  i++)
+  for (int i = 0;  i < 2;  i++)
   {
-    textures[i] = GL::Texture::createInstance(*context, Image(PixelFormat::RGBA8, size, size), 0);
+    Image data(index, PixelFormat::RGBA8, size, size);
+
+    textures[i] = GL::Texture::create(index, *context, data, 0);
     if (!textures[i])
     {
       Log::writeError("Failed to create canvas texture");
@@ -81,7 +91,7 @@ bool Demo::init(void)
 
     GL::ImageRef colorBuffer = &(textures[i]->getImage(0));
 
-    canvases[i] = GL::ImageCanvas::createInstance(*context, size, size);
+    canvases[i] = GL::ImageCanvas::create(*context, size, size);
     if (!canvases[i])
     {
       Log::writeError("Failed to create canvas");
@@ -94,60 +104,68 @@ bool Demo::init(void)
 
   const Vec2 scale(1.f / size, 1.f / size);
 
-  Ref<GL::Program> program;
-
-  program = GL::Program::readInstance("horzblur");
-  if (!program)
-    return false;
-
-  horzPass.setDepthTesting(false);
-  horzPass.setDepthWriting(false);
-  horzPass.setProgram(program);
-  horzPass.getSamplerState("image").setTexture(textures[0]);
-  horzPass.getUniformState("scale").setValue(scale);
-
-  program = GL::Program::readInstance("vertblur");
-  if (!program)
-    return false;
-
-  vertPass.setDepthTesting(false);
-  vertPass.setDepthWriting(false);
-  vertPass.setProgram(program);
-  vertPass.getSamplerState("image").setTexture(textures[1]);
-  vertPass.getUniformState("scale").setValue(scale);
-
-  program = GL::Program::readInstance("compose");
-  if (!program)
+  // Load bloom post-processing programs
   {
-    Log::writeError("Failed to load compose program");
-    return false;
+    Ref<GL::Program> program;
+    GL::ProgramReader reader(*context);
+
+    program = reader.read(Path("horzblur.program"));
+    if (!program)
+      return false;
+
+    horzPass.setDepthTesting(false);
+    horzPass.setDepthWriting(false);
+    horzPass.setProgram(program);
+    horzPass.getSamplerState("image").setTexture(textures[0]);
+    horzPass.getUniformState("scale").setValue(scale);
+
+    program = reader.read(Path("vertblur.program"));
+    if (!program)
+      return false;
+
+    vertPass.setDepthTesting(false);
+    vertPass.setDepthWriting(false);
+    vertPass.setProgram(program);
+    vertPass.getSamplerState("image").setTexture(textures[1]);
+    vertPass.getUniformState("scale").setValue(scale);
+
+    program = reader.read(Path("compose.program"));
+    if (!program)
+    {
+      Log::writeError("Failed to load compose program");
+      return false;
+    }
+
+    composePass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ONE);
+    composePass.setDepthTesting(false);
+    composePass.setDepthWriting(false);
+    composePass.setProgram(program);
+    composePass.getSamplerState("image").setTexture(textures[0]);
   }
 
-  composePass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ONE);
-  composePass.setDepthTesting(false);
-  composePass.setDepthWriting(false);
-  composePass.setProgram(program);
-  composePass.getSamplerState("image").setTexture(textures[0]);
-
-  Ref<render::Mesh> mesh = render::Mesh::readInstance("cube");
-  if (!mesh)
+  // Set up scene
   {
-    Log::writeError("Failed to load mesh");
-    return false;
+    render::MeshReader reader(*context);
+    Ref<render::Mesh> mesh = reader.read(Path("cube.mesh"));
+    if (!mesh)
+    {
+      Log::writeError("Failed to load mesh");
+      return false;
+    }
+
+    meshNode = new scene::MeshNode();
+    meshNode->setMesh(mesh);
+    graph.addRootNode(*meshNode);
+
+    camera = new render::Camera();
+    camera->setFOV(60.f);
+    camera->setAspectRatio(4.f / 3.f);
+
+    cameraNode = new scene::CameraNode();
+    cameraNode->setCamera(camera);
+    cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
+    graph.addRootNode(*cameraNode);
   }
-
-  meshNode = new scene::MeshNode();
-  meshNode->setMesh(mesh);
-  graph.addRootNode(*meshNode);
-
-  camera = new render::Camera();
-  camera->setFOV(60.f);
-  camera->setAspectRatio(4.f / 3.f);
-
-  cameraNode = new scene::CameraNode();
-  cameraNode->setCamera(camera);
-  cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
-  graph.addRootNode(*cameraNode);
 
   timer.start();
 

@@ -78,7 +78,7 @@ public:
    *  @param[in] context The context to create the renderer for.
    *  @return @c true if successful, or @c false if an error occurred.
    */
-  static bool create(GL::Context& context);
+  static bool createSingleton(GL::Context& context);
 private:
   /*! @internal
    */

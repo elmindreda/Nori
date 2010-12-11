@@ -208,21 +208,32 @@ public:
    */
   Context& getContext(void) const;
   /*! Creates a texture from the specified image.
+   *  @param[in] info The resource info for the texture.
+   *  $param[in] context The OpenGL context within which to create the
+   *  texture.
    *  @param[in] image The image data to use.
    *  @param[in] flags The creation flags.
    */
-  static Texture* createInstance(const ResourceInfo& info,
-                                 Context& context,
-                                 const wendy::Image& source,
-                                 unsigned int flags);
+  static Ref<Texture> create(const ResourceInfo& info,
+                             Context& context,
+                             const wendy::Image& source,
+                             unsigned int flags);
   /*! Creates a texture from the specified image cube.
+   *  @param[in] info The resource info for the texture.
+   *  $param[in] context The OpenGL context within which to create the
+   *  texture.
    *  @param[in] image The image cube data to use.
    *  @param[in] flags The creation flags.
    */
-  static Texture* createInstance(const ResourceInfo& info,
-                                 Context& context,
-                                 const ImageCube& source,
-                                 unsigned int flags);
+  static Ref<Texture> create(const ResourceInfo& info,
+                             Context& context,
+                             const ImageCube& source,
+                             unsigned int flags);
+  /*! Creates a texture using the specified texture specification file.
+   *  @param[in] index The resource index within which to create the texture.
+   *  @param[in] path The path of the texture specification file to use.
+   */
+  static Ref<Texture> read(Context& context, const Path& path);
 private:
   Texture(const ResourceInfo& info, Context& context);
   Texture(const Texture& source);
@@ -257,7 +268,7 @@ private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
   Context& context;
-  Ptr<Texture> texture;
+  Ref<Texture> texture;
   ResourceInfo info;
 };
 

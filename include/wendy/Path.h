@@ -36,6 +36,11 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 class Pattern;
+class Path;
+
+///////////////////////////////////////////////////////////////////////
+
+typedef std::vector<Path> PathList;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -46,9 +51,6 @@ class Pattern;
 class Path
 {
 public:
-  /*! List of paths. Used to return child paths.
-   */
-  typedef std::vector<Path> List;
   /*! Constructor. Creates a path object with the specified name.
    */
   explicit Path(const String& name = "");
@@ -82,6 +84,9 @@ public:
   /*! Assignment operator.
    */
   Path& operator = (const String& newName);
+  /*! @return @c true if this path is empty, otherwise @c false.
+   */
+  bool isEmpty(void) const;
   /*! @return @c true if the file or directory is readable, otherwise
    *  @c false.
    */
@@ -108,14 +113,17 @@ public:
    *  @param[in,out] children The resulting list of paths.
    *  @return @c true if successful, otherwise @c false.
    */
-  bool getChildren(List& children) const;
-  bool getChildren(List& children, const Pattern& pattern) const;
+  bool getChildren(PathList& children) const;
+  bool getChildren(PathList& children, const Pattern& pattern) const;
   /*! @return The suffix of the name of the represented path, or the empty
    *  string if no suffix is present.
    */
   String getSuffix(void) const;
+  /*! @return The name part of the filename, without the directory or suffix parts.
+   */
+  String getName(void) const;
 private:
-  String name;
+  String path;
 };
 
 ///////////////////////////////////////////////////////////////////////

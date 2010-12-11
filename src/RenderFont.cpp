@@ -225,16 +225,22 @@ void Font::getTextLayout(LayoutList& layout, const char* format, ...) const
   std::free(text);
 }
 
-Ref<Font> Font::createInstance(const ResourceInfo& info,
-                               GeometryPool& pool,
-                               const wendy::Font& font,
-                               GL::Program& program)
+Ref<Font> Font::create(const ResourceInfo& info,
+                       GeometryPool& pool,
+                       const wendy::Font& data,
+                       GL::Program& program)
 {
-  Ptr<Font> renderFont(new Font(info, pool));
-  if (!renderFont->init(font, program))
+  Ref<Font> font(new Font(info, pool));
+  if (!font->init(data, program))
     return NULL;
 
-  return renderFont.detachObject();
+  return font;
+}
+
+Ref<Font> Font::read(GeometryPool& pool, const Path& path)
+{
+  FontReader reader(pool);
+  return reader.read(path);
 }
 
 Font::Font(const ResourceInfo& info, GeometryPool& initPool):
@@ -290,7 +296,7 @@ bool Font::init(const wendy::Font& font, GL::Program& program)
 
     Image image(getIndex(), PixelFormat::R8, width, height);
 
-    texture = GL::Texture::createInstance(getIndex(), pool.getContext(), image, 0);
+    texture = GL::Texture::create(getIndex(), pool.getContext(), image, 0);
     if (!texture)
       return false;
 
@@ -442,8 +448,8 @@ Ref<Font> FontReader::read(const Path& path)
 
   info.path = path;
 
-  std::ifstream stream(path.asString().c_str());
-  if (!stream)
+  std::ifstream stream;
+  if (!open(stream, info.path))
     return NULL;
 
   if (!XML::Reader::read(stream))
@@ -473,7 +479,7 @@ bool FontReader::onBeginElement(const String& name)
     }
 
     Path dataPath(readString("data"));
-    if (dataPath.asString().empty())
+    if (dataPath.isEmpty())
     {
       Log::writeError("Font data path for render font \'%s\' is empty",
                       info.path.asString().c_str());
@@ -491,7 +497,7 @@ bool FontReader::onBeginElement(const String& name)
     }
 
     Path programPath(readString("program"));
-    if (programPath.asString().empty())
+    if (programPath.isEmpty())
     {
       Log::writeError("Shader program path for render font \'%s\' is empty",
                       info.path.asString().c_str());
@@ -500,6 +506,7 @@ bool FontReader::onBeginElement(const String& name)
 
     GL::ProgramReader programReader(pool.getContext());
     Ref<GL::Program> program = programReader.read(programPath);
+    if (!program)
     {
       Log::writeError("Failed to load shader program \'%s\' for render font \'%s\'",
                       programPath.asString().c_str(),
@@ -507,7 +514,7 @@ bool FontReader::onBeginElement(const String& name)
       return false;
     }
 
-    font = Font::createInstance(info, pool, *data, *program);
+    font = Font::create(info, pool, *data, *program);
     if (!font)
       return false;
 

@@ -228,7 +228,7 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
 #if WENDY_DEBUG
   if (!checkGL("Error during copy from image into level %u of texture \'%s\'",
                level,
-               texture.getName().c_str()))
+               texture.getPath().asString().c_str()))
   {
     return false;
   }
@@ -266,7 +266,7 @@ bool TextureImage::copyFromColorBuffer(unsigned int x, unsigned int y)
 #if WENDY_DEBUG
   if (!checkGL("Error during copy from color buffer to level %u of texture \'%s\'",
                level,
-               texture.getName().c_str()))
+               texture.getPath().asString().c_str()))
   {
     return false;
   }
@@ -295,7 +295,7 @@ bool TextureImage::copyTo(wendy::Image& result) const
 #if WENDY_DEBUG
   if (!checkGL("Error during copy to image from level %u of texture \'%s\'",
                level,
-               texture.getName().c_str()))
+               texture.getPath().asString().c_str()))
   {
     return false;
   }
@@ -353,7 +353,7 @@ void TextureImage::attach(int attachment)
 #if WENDY_DEBUG
   checkGL("Error when attaching level %u of texture \'%s\' to image canvas",
           level,
-          texture.getName().c_str());
+          texture.getPath().asString().c_str());
 #endif
 }
 
@@ -375,7 +375,7 @@ void TextureImage::detach(int attachment)
 #if WENDY_DEBUG
   checkGL("Error when detaching level %u of texture \'%s\' from image canvas",
           level,
-          texture.getName().c_str());
+          texture.getPath().asString().c_str());
 #endif
 }
 
@@ -453,7 +453,8 @@ void Texture::setFilterMode(FilterMode newMode)
   }
 
 #if WENDY_DEBUG
-  checkGL("Error when changing filter mode for texture \'%s\'", getName().c_str());
+  checkGL("Error when changing filter mode for texture \'%s\'",
+          getPath().asString().c_str());
 #endif
 }
 
@@ -483,7 +484,8 @@ void Texture::setAddressMode(AddressMode newMode)
   }
 
 #if WENDY_DEBUG
-  checkGL("Error when changing address mode for texture \'%s\'", getName().c_str());
+  checkGL("Error when changing address mode for texture \'%s\'",
+          getPath().asString().c_str());
 #endif
 }
 
@@ -505,28 +507,34 @@ Context& Texture::getContext(void) const
   return context;
 }
 
-Texture* Texture::createInstance(const ResourceInfo& info,
-                                 Context& context,
-                                 const wendy::Image& source,
-				 unsigned int flags)
+Ref<Texture> Texture::create(const ResourceInfo& info,
+                             Context& context,
+                             const wendy::Image& source,
+			     unsigned int flags)
 {
-  Ptr<Texture> texture(new Texture(info, context));
+  Ref<Texture> texture(new Texture(info, context));
   if (!texture->init(source, flags))
     return NULL;
 
-  return texture.detachObject();
+  return texture;
 }
 
-Texture* Texture::createInstance(const ResourceInfo& info,
-                                 Context& context,
-                                 const ImageCube& source,
-				 unsigned int flags)
+Ref<Texture> Texture::create(const ResourceInfo& info,
+                             Context& context,
+                             const ImageCube& source,
+			     unsigned int flags)
 {
-  Ptr<Texture> texture(new Texture(info, context));
+  Ref<Texture> texture(new Texture(info, context));
   if (!texture->init(source, flags))
     return NULL;
 
-  return texture.detachObject();
+  return texture;
+}
+
+Ref<Texture> Texture::read(Context& context, const Path& path)
+{
+  TextureReader reader(context);
+  return reader.read(path);
 }
 
 Texture::Texture(const ResourceInfo& info, Context& initContext):
@@ -917,8 +925,8 @@ Ref<Texture> TextureReader::read(const Path& path)
 
   info.path = path;
 
-  std::ifstream stream(path.asString().c_str());
-  if (!stream)
+  std::ifstream stream;
+  if (!open(stream, info.path))
     return NULL;
 
   if (!XML::Reader::read(stream))
@@ -969,18 +977,17 @@ bool TextureReader::onBeginElement(const String& name)
     }
 
     Path imagePath(readString("image"));
-    if (imagePath.asString().empty())
+    if (imagePath.isEmpty())
     {
       imagePath = readString("imagecube");
-      if (imagePath.asString().empty())
+      if (imagePath.isEmpty())
       {
         Log::writeError("No image specified for texture \'%s\'",
                         info.path.asString().c_str());
         return false;
       }
 
-      ImageCubeReader reader(getIndex());
-      Ref<ImageCube> source = reader.read(imagePath);
+      Ref<ImageCube> source = ImageCube::read(getIndex(), imagePath);
       if (!source)
       {
         Log::writeError("Failed to load image cube \'%s\' for texture \'%s\'",
@@ -989,14 +996,13 @@ bool TextureReader::onBeginElement(const String& name)
         return false;
       }
 
-      texture = Texture::createInstance(info, context, *source, flags);
+      texture = Texture::create(info, context, *source, flags);
       if (!texture)
         return false;
     }
     else
     {
-      ImageReader reader(getIndex());
-      Ref<wendy::Image> source = reader.read(imagePath);
+      Ref<wendy::Image> source = wendy::Image::read(getIndex(), imagePath);
       if (!source)
       {
         Log::writeError("Failed to load image \'%s\' for texture \'%s\'",
@@ -1005,7 +1011,7 @@ bool TextureReader::onBeginElement(const String& name)
         return false;
       }
 
-      texture = Texture::createInstance(info, context, *source, flags);
+      texture = Texture::create(info, context, *source, flags);
       if (!texture)
         return false;
     }

@@ -97,8 +97,6 @@ unsigned int findEndY(const Image& image)
 
 const unsigned int FONT_XML_VERSION = 1;
 
-const char* FONT_TYPE_NAME = "Font";
-
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
@@ -124,10 +122,17 @@ Font& Font::operator = (const Font& source)
   return *this;
 }
 
+Ref<Font> Font::read(ResourceIndex& index, const Path& path)
+{
+  FontReader reader(index);
+  return reader.read(path);
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 FontReader::FontReader(ResourceIndex& index):
-  ResourceReader(index)
+  ResourceReader(index),
+  info(index)
 {
 }
 
@@ -136,10 +141,10 @@ Ref<Font> FontReader::read(const Path& path)
   if (Resource* cache = getIndex().findResource(path))
     return dynamic_cast<Font*>(cache);
 
-  font = new Font(ResourceInfo(getIndex(), path));
+  info.path = path;
 
-  std::ifstream stream(path.asString().c_str());
-  if (!stream)
+  std::ifstream stream;
+  if (!open(stream, info.path))
     return NULL;
 
   if (!XML::Reader::read(stream))
@@ -335,6 +340,11 @@ bool FontReader::onBeginElement(const String& name)
                       imagePath.asString().c_str());
       return false;
     }
+
+    font = new Font(info);
+
+    if (!extractGlyphs(*image, characters))
+      return false;
 
     return true;
   }

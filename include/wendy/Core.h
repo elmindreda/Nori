@@ -221,6 +221,11 @@ public:
   /*! Destructor
    */
   inline ~Ref(void);
+  /*! Detaches the currently referenced object.
+   * @return The currently reference object.
+   * @remarks Use with care.
+   */
+  inline Ref<T> detachObject(void);
   /*! Cast operator.
    */
   inline operator T* (void) const;
@@ -449,6 +454,14 @@ template <typename T>
 inline Ref<T>::~Ref(void)
 {
   operator = (NULL);
+}
+
+template <typename T>
+inline Ref<T> Ref<T>::detachObject(void)
+{
+  Ref<T> result = object;
+  operator = (NULL);
+  return result;
 }
 
 template <typename T>

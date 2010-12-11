@@ -72,10 +72,10 @@ bool GeometryPool::allocateIndices(GL::IndexRange& range,
     const unsigned int grainSize = 65536;
     const unsigned int actualCount = grainSize * ((count + grainSize - 1) / grainSize);
 
-    slot->indexBuffer = GL::IndexBuffer::createInstance(context,
-                                                        actualCount,
-                                                        type,
-						        GL::IndexBuffer::DYNAMIC);
+    slot->indexBuffer = GL::IndexBuffer::create(context,
+                                                actualCount,
+                                                type,
+					        GL::IndexBuffer::DYNAMIC);
     if (!slot->indexBuffer)
     {
       indexBufferPool.pop_back();
@@ -126,10 +126,10 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
     const unsigned int grainSize = 65536;
     const unsigned int actualCount = grainSize * ((count + grainSize - 1) / grainSize);
 
-    slot->vertexBuffer = GL::VertexBuffer::createInstance(context,
-                                                          actualCount,
-                                                          format,
-						          GL::VertexBuffer::DYNAMIC);
+    slot->vertexBuffer = GL::VertexBuffer::create(context,
+                                                  actualCount,
+                                                  format,
+						  GL::VertexBuffer::DYNAMIC);
     if (!slot->vertexBuffer)
     {
       vertexBufferPool.pop_back();
@@ -156,7 +156,7 @@ GL::Context& GeometryPool::getContext(void) const
   return context;
 }
 
-bool GeometryPool::create(GL::Context& context)
+bool GeometryPool::createSingleton(GL::Context& context)
 {
   Ptr<GeometryPool> pool(new GeometryPool(context));
   if (!pool->init())

@@ -300,7 +300,7 @@ void Varying::enable(size_t stride, size_t offset)
 #if WENDY_DEBUG
   checkCg("Failed to enable varying \'%s\' of program \'%s\'",
           name.c_str(),
-          program.getName().c_str());
+          program.getPath().asString().c_str());
 #endif
 
   cgGLSetParameterPointer((CGparameter) varyingID,
@@ -312,7 +312,7 @@ void Varying::enable(size_t stride, size_t offset)
 #if WENDY_DEBUG
   checkCg("Failed to set varying \'%s\' of program \'%s\'",
           name.c_str(),
-          program.getName().c_str());
+          program.getPath().asString().c_str());
 #endif
 }
 
@@ -323,7 +323,7 @@ void Varying::disable(void)
 #if WENDY_DEBUG
   checkCg("Failed to disable varying \'%s\' of program \'%s\'",
           name.c_str(),
-          program.getName().c_str());
+          program.getPath().asString().c_str());
 #endif
 }
 
@@ -511,7 +511,7 @@ void Sampler::setTexture(Texture& newTexture)
   checkCg("Failed to set sampler \'%s\' of program \'%s\' to texture \'%s\'",
           name.c_str(),
           program.getPath().asString().c_str(),
-          newTexture.getName().c_str());
+          newTexture.getPath().asString().c_str());
 #endif
 }
 
@@ -548,15 +548,21 @@ const String& VertexProgram::getText(void) const
   return text;
 }
 
-VertexProgram* VertexProgram::createInstance(const ResourceInfo& info,
-                                             Context& context,
-                                             const String& text)
+Ref<VertexProgram> VertexProgram::create(const ResourceInfo& info,
+                                         Context& context,
+                                         const String& text)
 {
-  Ptr<VertexProgram> program(new VertexProgram(info, context));
+  Ref<VertexProgram> program(new VertexProgram(info, context));
   if (!program->init(text))
     return NULL;
 
-  return program.detachObject();
+  return program;
+}
+
+Ref<VertexProgram> VertexProgram::read(Context& context, const Path& path)
+{
+  VertexProgramReader reader(context);
+  return reader.read(path);
 }
 
 VertexProgram::VertexProgram(const ResourceInfo& info, Context& initContext):
@@ -612,15 +618,21 @@ const String& FragmentProgram::getText(void) const
   return text;
 }
 
-FragmentProgram* FragmentProgram::createInstance(const ResourceInfo& info,
-                                                 Context& context,
-                                                 const String& text)
+Ref<FragmentProgram> FragmentProgram::create(const ResourceInfo& info,
+                                             Context& context,
+                                             const String& text)
 {
-  Ptr<FragmentProgram> program(new FragmentProgram(info, context));
+  Ref<FragmentProgram> program(new FragmentProgram(info, context));
   if (!program->init(text))
     return NULL;
 
-  return program.detachObject();
+  return program;
+}
+
+Ref<FragmentProgram> FragmentProgram::read(Context& context, const Path& path)
+{
+  FragmentProgramReader reader(context);
+  return reader.read(path);
 }
 
 FragmentProgram::FragmentProgram(const ResourceInfo& info, Context& initContext):
@@ -810,16 +822,22 @@ FragmentProgram& Program::getFragmentProgram(void) const
   return *fragmentProgram;
 }
 
-Program* Program::createInstance(const ResourceInfo& info,
-                                 Context& context,
-                                 VertexProgram& vertexProgram,
-				 FragmentProgram& fragmentProgram)
+Ref<Program> Program::create(const ResourceInfo& info,
+                             Context& context,
+                             VertexProgram& vertexProgram,
+			     FragmentProgram& fragmentProgram)
 {
-  Ptr<Program> program(new Program(info, context));
+  Ref<Program> program(new Program(info, context));
   if (!program->init(vertexProgram, fragmentProgram))
     return NULL;
 
-  return program.detachObject();
+  return program;
+}
+
+Ref<Program> Program::read(Context& context, const Path& path)
+{
+  ProgramReader reader(context);
+  return reader.read(path);
 }
 
 Program::Program(const ResourceInfo& info, Context& initContext):
@@ -1116,8 +1134,10 @@ Ref<VertexProgram> VertexProgramReader::read(const Path& path)
   if (Resource* cache = getIndex().findResource(path))
     return dynamic_cast<VertexProgram*>(cache);
 
-  std::ifstream stream(path.asString().c_str());
-  if (!stream)
+  ResourceInfo info(getIndex(), path);
+
+  std::ifstream stream;
+  if (!open(stream, info.path))
     return NULL;
 
   stream.seekg(0, std::ios::end);
@@ -1128,9 +1148,7 @@ Ref<VertexProgram> VertexProgramReader::read(const Path& path)
   stream.seekg(0, std::ios::beg);
   stream.read(&text[0], text.size());
 
-  ResourceInfo info(getIndex(), path);
-
-  return VertexProgram::createInstance(info, context, text);
+  return VertexProgram::create(info, context, text);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1146,8 +1164,10 @@ Ref<FragmentProgram> FragmentProgramReader::read(const Path& path)
   if (Resource* cache = getIndex().findResource(path))
     return dynamic_cast<FragmentProgram*>(cache);
 
-  std::ifstream stream(path.asString().c_str());
-  if (!stream)
+  ResourceInfo info(getIndex(), path);
+
+  std::ifstream stream;
+  if (!open(stream, info.path))
     return NULL;
 
   stream.seekg(0, std::ios::end);
@@ -1158,9 +1178,7 @@ Ref<FragmentProgram> FragmentProgramReader::read(const Path& path)
   stream.seekg(0, std::ios::beg);
   stream.read(&text[0], text.size());
 
-  ResourceInfo info(getIndex(), path);
-
-  return FragmentProgram::createInstance(info, context, text);
+  return FragmentProgram::create(info, context, text);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1179,8 +1197,8 @@ Ref<Program> ProgramReader::read(const Path& path)
 
   info.path = path;
 
-  std::ifstream stream(path.asString().c_str());
-  if (!stream)
+  std::ifstream stream;
+  if (!open(stream, info.path))
     return NULL;
 
   if (!XML::Reader::read(stream))
@@ -1232,7 +1250,7 @@ bool ProgramReader::onBeginElement(const String& name)
     }
 
     Path vertexProgramPath(readString("path"));
-    if (vertexProgramPath.asString().empty())
+    if (vertexProgramPath.isEmpty())
     {
       Log::writeError("Vertex program name in shader program \'%s\' is empty",
                       info.path.asString().c_str());
@@ -1260,8 +1278,8 @@ bool ProgramReader::onBeginElement(const String& name)
       return false;
     }
 
-    Path fragmentProgramPath(readString("name"));
-    if (fragmentProgramPath.asString().empty())
+    Path fragmentProgramPath(readString("path"));
+    if (fragmentProgramPath.isEmpty())
     {
       Log::writeError("Fragment program name in shader program \'%s\' is empty",
                       info.path.asString().c_str());
@@ -1302,7 +1320,7 @@ bool ProgramReader::onEndElement(const String& name)
       return false;
     }
 
-    program = Program::createInstance(info, context, *vertexProgram, *fragmentProgram);
+    program = Program::create(info, context, *vertexProgram, *fragmentProgram);
     if (!program)
       return false;
 

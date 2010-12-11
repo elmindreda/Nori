@@ -315,9 +315,9 @@ public:
   bool setBuffer(Attachment attachment, Image* newImage);
   /*! Creates a texture canvas for the specified texture.
    */
-  static ImageCanvas* createInstance(Context& context,
-                                     unsigned int width,
-                                     unsigned int height);
+  static ImageCanvas* create(Context& context,
+                             unsigned int width,
+                             unsigned int height);
 private:
   ImageCanvas(Context& context);
   bool init(unsigned int width, unsigned int height);
@@ -505,7 +505,7 @@ public:
     *  @param[in] mode The requested context settings.
     *  @return @c true if successful, or @c false otherwise.
     */
-  static bool create(ResourceIndex& index, const ContextMode& mode = ContextMode());
+  static bool createSingleton(ResourceIndex& index, const ContextMode& mode = ContextMode());
   /*! @return The signal for creation of a context object.
    */
   static SignalProxy0<void> getCreateSignal(void);

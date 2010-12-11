@@ -178,7 +178,7 @@ public:
   float getDefaultEM(void) const;
   float getCurrentEM(void) const;
   render::GeometryPool& getGeometryPool(void) const;
-  static Renderer* createInstance(render::GeometryPool& pool);
+  static Renderer* create(render::GeometryPool& pool);
 private:
   Renderer(render::GeometryPool& pool);
   bool init(void);

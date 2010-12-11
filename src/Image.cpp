@@ -653,6 +653,12 @@ Ref<Image> Image::getArea(const Recti& area)
   return result;
 }
 
+Ref<Image> Image::read(ResourceIndex& index, const Path& path)
+{
+  ImageReader reader(index);
+  return reader.read(path);
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 ImageCube::ImageCube(const ResourceInfo& info):
@@ -747,6 +753,12 @@ bool ImageCube::hasSameSize(void) const
   return true;
 }
 
+Ref<ImageCube> ImageCube::read(ResourceIndex& index, const Path& path)
+{
+  ImageCubeReader reader(index);
+  return reader.read(path);
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 ImageReader::ImageReader(ResourceIndex& index):
@@ -759,8 +771,10 @@ Ref<Image> ImageReader::read(const Path& path)
   if (Resource* cache = getIndex().findResource(path))
     return dynamic_cast<Image*>(cache);
 
-  std::ifstream stream(path.asString().c_str());
-  if (!stream)
+  ResourceInfo info(getIndex(), path);
+
+  std::ifstream stream;
+  if (!open(stream, info.path))
     return NULL;
 
   // Check if file is valid
@@ -793,7 +807,7 @@ Ref<Image> ImageReader::read(const Path& path)
     if (!context)
       return NULL;
 
-    png_set_read_fn(context, stream, readStreamPNG);
+    png_set_read_fn(context, &stream, readStreamPNG);
 
     pngInfo = png_create_info_struct(context);
     if (!pngInfo)
@@ -840,7 +854,6 @@ Ref<Image> ImageReader::read(const Path& path)
     height = png_get_image_height(context, pngInfo);
   }
 
-  ResourceInfo info(getIndex(), path);
   Ref<Image> result(new Image(info, format, width, height));
 
   // Read image data
@@ -942,11 +955,13 @@ Ref<ImageCube> ImageCubeReader::read(const Path& path)
   if (Resource* cache = getIndex().findResource(path))
     return dynamic_cast<ImageCube*>(cache);
 
-  std::ifstream stream(path.asString().c_str());
-  if (!stream)
+  ResourceInfo info(getIndex(), path);
+
+  std::ifstream stream;
+  if (!open(stream, info.path))
     return NULL;
 
-  cube = new ImageCube(ResourceInfo(getIndex(), path));
+  cube = new ImageCube(info);
 
   if (!XML::Reader::read(stream))
   {
