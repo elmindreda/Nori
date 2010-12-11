@@ -7,7 +7,7 @@
       </program>
     </pass>
     <pass name="bloom">
-      <program path="cubespecular.program" />
+      <program path="bloom_specular.program" />
     </pass>
   </technique>
 </material>

@@ -509,12 +509,11 @@ bool MaterialReader::onBeginElement(const String& name)
             return false;
           }
 
-          GL::ProgramReader reader(context);
-          Ref<GL::Program> program = reader.read(programPath);
+          Ref<GL::Program> program = GL::Program::read(context, programPath);
           if (!program)
           {
             Log::writeWarning("Failed to load shader program \'%s\'; skipping technique %u in material \'%s\'",
-                              info.path.asString().c_str(),
+                              programPath.asString().c_str(),
                               material->getTechniqueCount(),
                               material->getPath().asString().c_str());
 

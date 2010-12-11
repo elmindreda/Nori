@@ -48,7 +48,7 @@ Demo::~Demo(void)
 
 bool Demo::init(void)
 {
-  if (!index.addSearchPath(Path("media")))
+  if (!index.addSearchPath(Path("../media")))
     return false;
 
   if (!GL::Context::createSingleton(index))

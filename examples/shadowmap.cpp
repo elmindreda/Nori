@@ -38,13 +38,7 @@ Demo::~Demo(void)
 
 bool Demo::init(void)
 {
-  Image::addSearchPath(Path("media"));
-  Mesh::addSearchPath(Path("media"));
-  GL::Texture::addSearchPath(Path("media"));
-  GL::VertexProgram::addSearchPath(Path("media"));
-  GL::FragmentProgram::addSearchPath(Path("media"));
-  GL::Program::addSearchPath(Path("media"));
-  render::Material::addSearchPath(Path("media"));
+  index.addSearchPath(Path("../media"));
 
   if (!GL::Context::create(GL::ContextMode()))
     return false;
@@ -67,15 +61,15 @@ bool Demo::init(void)
 
   const unsigned int size = 512;
 
-  depthmap = GL::Texture::createInstance(*context, Image(PixelFormat::DEPTH32, size, size), 0, "depthmap");
+  depthmap = GL::Texture::create(*context, Image(PixelFormat::DEPTH32, size, size), 0);
   if (!depthmap)
     return false;
 
-  colormap = GL::Texture::createInstance(*context, Image(PixelFormat::RGBA8, size, size), 0);
+  colormap = GL::Texture::create(*context, Image(PixelFormat::RGBA8, size, size), 0);
   if (!colormap)
     return false;
 
-  canvas = GL::ImageCanvas::createInstance(*context, size, size);
+  canvas = GL::ImageCanvas::create(*context, size, size);
   if (!canvas)
     return false;
 
