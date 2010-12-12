@@ -1,6 +1,8 @@
 
 #include <wendy/Wendy.h>
 
+#include <cstdlib>
+
 using namespace wendy;
 
 class Demo : public Trackable
@@ -13,6 +15,7 @@ public:
 private:
   void onKeyPressed(input::Key key, bool pressed);
   void onButtonClicked(input::Button button, bool clicked);
+  ResourceIndex index;
   input::SpectatorCamera controller;
   Ptr<deferred::Renderer> renderer;
   Ref<render::Camera> camera;
@@ -47,19 +50,13 @@ Demo::~Demo(void)
 
 bool Demo::init(void)
 {
-  GL::VertexProgram::addSearchPath(Path("../media"));
-  GL::FragmentProgram::addSearchPath(Path("../media"));
-  GL::Program::addSearchPath(Path("../media"));
+  if (!index.addSearchPath(Path("../media")))
+    return false;
 
-  Image::addSearchPath(Path("media/sponza"));
-  Mesh::addSearchPath(Path("media/sponza"));
-  GL::Texture::addSearchPath(Path("media/sponza"));
-  render::Material::addSearchPath(Path("media/sponza"));
+  if (!index.addSearchPath(Path("media/sponza")))
+    return false;
 
-  Image::addSearchPath(Path("media/deferred"));
-  GL::Texture::addSearchPath(Path("media/deferred"));
-
-  if (!GL::Context::create(GL::ContextMode()))
+  if (!GL::Context::createSingleton(index))
     return false;
 
   GL::Context* context = GL::Context::get();
@@ -68,24 +65,24 @@ bool Demo::init(void)
   const unsigned int width = context->getScreenCanvas().getWidth();
   const unsigned int height = context->getScreenCanvas().getHeight();
 
-  if (!input::Context::create(*context))
+  if (!input::Context::createSingleton(*context))
     return false;
 
   input::Context::get()->getKeyPressedSignal().connect(*this, &Demo::onKeyPressed);
   input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
 
-  if (!render::GeometryPool::create(*context))
+  if (!render::GeometryPool::createSingleton(*context))
     return false;
 
   renderer = deferred::Renderer::create(*context, deferred::Config(width, height));
   if (!renderer)
     return false;
 
-  GL::TextureRef distAttTexture = GL::Texture::readInstance("distatt");
+  Ref<GL::Texture> distAttTexture = GL::Texture::read(*context, Path("distatt"));
   if (!distAttTexture)
     return false;
 
-  Ref<render::Mesh> mesh = render::Mesh::readInstance("sponza");
+  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("sponza"));
   if (!mesh)
     return false;
 
@@ -180,7 +177,7 @@ void Demo::onButtonClicked(input::Button button, bool clicked)
 int main()
 {
   if (!wendy::initialize())
-    exit(1);
+    std::exit(EXIT_FAILURE);
 
   Ptr<Demo> demo(new Demo());
   if (demo->init())
@@ -189,6 +186,6 @@ int main()
   demo = NULL;
 
   wendy::shutdown();
-  exit(0);
+  std::exit(EXIT_SUCCESS);
 }
 
