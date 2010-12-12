@@ -55,22 +55,24 @@ Resource::Resource(const ResourceInfo& info):
   {
     if (index.findResource(path))
       throw Exception("Duplicate path for resource");
-  }
 
-  index.resources.push_back(this);
+    index.resources.push_back(this);
+  }
 }
 
 Resource::Resource(const Resource& source):
   index(source.index)
 {
-  index.resources.push_back(this);
 }
 
 Resource::~Resource(void)
 {
-  index.resources.erase(std::find(index.resources.begin(),
-                                  index.resources.end(),
-                                  this));
+  if (!path.isEmpty())
+  {
+    index.resources.erase(std::find(index.resources.begin(),
+                                    index.resources.end(),
+                                    this));
+  }
 }
 
 const Path& Resource::getPath(void) const
