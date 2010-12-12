@@ -532,9 +532,6 @@ Program::~Program(void)
 
   if (fragmentProgramID)
     cgDestroyProgram((CGprogram) fragmentProgramID);
-
-  if (programID)
-    cgDestroyProgram((CGprogram) programID);
 }
 
 Varying* Program::findVarying(const String& name)
@@ -674,7 +671,9 @@ Program::Program(const ResourceInfo& info, Context& initContext):
 
 Program::Program(const Program& source):
   Resource(source),
-  context(source.context)
+  context(source.context),
+  vertexProgramID(0),
+  fragmentProgramID(0)
 {
 }
 

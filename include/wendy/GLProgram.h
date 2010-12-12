@@ -213,7 +213,6 @@ private:
   typedef std::vector<Uniform> UniformList;
   typedef std::vector<Sampler> SamplerList;
   Context& context;
-  void* programID;
   void* vertexProgramID;
   void* fragmentProgramID;
   VaryingList varyings;
