@@ -261,7 +261,7 @@ bool Mesh::init(const wendy::Mesh& mesh, const MaterialMap& materials)
     indexBase += indexCount;
   }
 
-  mesh.getBounds(bounds);
+  mesh.generateBounds(bounds);
 
   return true;
 }

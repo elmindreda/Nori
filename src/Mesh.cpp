@@ -147,9 +147,9 @@ MeshGeometry* Mesh::findGeometry(const String& shaderName)
   return NULL;
 }
 
-void Mesh::calculateNormals(NormalType type)
+void Mesh::generateNormals(NormalType type)
 {
-  calculateTriangleNormals();
+  generateTriangleNormals();
 
   VertexMerger merger(vertices);
 
@@ -174,7 +174,7 @@ void Mesh::calculateNormals(NormalType type)
   merger.realizeVertices(vertices);
 }
 
-void Mesh::calculateTriangleNormals(void)
+void Mesh::generateTriangleNormals(void)
 {
   for (unsigned int i = 0;  i < geometries.size();  i++)
   {
@@ -190,7 +190,7 @@ void Mesh::calculateTriangleNormals(void)
   }
 }
 
-void Mesh::calculateEdges(void)
+void Mesh::generateEdges(void)
 {
   for (unsigned int i = 0;  i < geometries.size();  i++)
   {
@@ -226,38 +226,7 @@ void Mesh::calculateEdges(void)
   }
 }
 
-bool Mesh::isValid(void) const
-{
-  if (vertices.size() == 0)
-    return false;
-
-  unsigned int index;
-
-  for (index = 0;  index < geometries.size();  index++)
-  {
-    if (geometries[index].triangles.size() > 0)
-      break;
-  }
-
-  if (index == geometries.size())
-    return false;
-
-  // TODO: Triangle, edge and vertex validation.
-
-  return true;
-}
-
-unsigned int Mesh::getTriangleCount(void) const
-{
-  unsigned int count = 0;
-
-  for (unsigned int i = 0;  i < geometries.size();  i++)
-    count += (unsigned int) geometries[i].triangles.size();
-
-  return count;
-}
-
-void Mesh::getBounds(AABB& bounds) const
+void Mesh::generateBounds(AABB& bounds) const
 {
   if (vertices.empty())
   {
@@ -291,7 +260,7 @@ void Mesh::getBounds(AABB& bounds) const
   bounds.setBounds(minX, minY, minZ, maxX, maxY, maxZ);
 }
 
-void Mesh::getBounds(Sphere& bounds) const
+void Mesh::generateBounds(Sphere& bounds) const
 {
   bounds.radius = 0.f;
 
@@ -305,6 +274,37 @@ void Mesh::getBounds(Sphere& bounds) const
 
   for (unsigned int i = 1;  i < vertices.size();  i++)
     bounds.envelop(vertices[i].position);
+}
+
+bool Mesh::isValid(void) const
+{
+  if (vertices.size() == 0)
+    return false;
+
+  unsigned int index;
+
+  for (index = 0;  index < geometries.size();  index++)
+  {
+    if (geometries[index].triangles.size() > 0)
+      break;
+  }
+
+  if (index == geometries.size())
+    return false;
+
+  // TODO: Triangle, edge and vertex validation.
+
+  return true;
+}
+
+unsigned int Mesh::getTriangleCount(void) const
+{
+  unsigned int count = 0;
+
+  for (unsigned int i = 0;  i < geometries.size();  i++)
+    count += (unsigned int) geometries[i].triangles.size();
+
+  return count;
 }
 
 Ref<Mesh> Mesh::read(ResourceIndex& index, const Path& path)
