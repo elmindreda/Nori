@@ -343,11 +343,10 @@ unsigned int VertexMerger::addAttributeLayer(unsigned int vertexIndex,
 
   if (mode == PRESERVE_NORMALS)
   {
-    for (unsigned int i = 0;  i < vertex.layers.size();  i++)
+    for (Vertex::LayerList::iterator i = vertex.layers.begin();  i != vertex.layers.end();  i++)
     {
-      if (vertex.layers[i].normal.dot(normal) > 0.95f &&
-          vertex.layers[i].texcoord == texcoord)
-        return vertex.layers[i].index;
+      if (i->normal.dot(normal) > 0.95f && i->texcoord == texcoord)
+        return i->index;
     }
 
     vertex.layers.push_back(VertexLayer());
@@ -363,9 +362,9 @@ unsigned int VertexMerger::addAttributeLayer(unsigned int vertexIndex,
   {
     unsigned int index = 0;
 
-    while (index < vertex.layers.size())
+    for (Vertex::LayerList::iterator i = vertex.layers.begin();  i != vertex.layers.end();  i++)
     {
-      if (vertex.layers[index].texcoord == texcoord)
+      if (i->texcoord == texcoord)
         break;
 
       index++;
@@ -384,8 +383,8 @@ unsigned int VertexMerger::addAttributeLayer(unsigned int vertexIndex,
       index = vertex.layers.size() - 1;
     }
 
-    for (unsigned int i = 0;  i < vertex.layers.size();  i++)
-      vertex.layers[i].normal += normal;
+    for (Vertex::LayerList::iterator i = vertex.layers.begin();  i != vertex.layers.end();  i++)
+      i->normal += normal;
 
     return vertex.layers[index].index;
   }
