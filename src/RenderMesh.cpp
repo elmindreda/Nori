@@ -166,7 +166,7 @@ bool Mesh::init(const wendy::Mesh& mesh, const MaterialMap& materials)
   if (!format.createComponents("3f:position 3f:normal 2f:mapping"))
     return false;
 
-  vertexBuffer = GL::VertexBuffer::create(*GL::Context::get(),
+  vertexBuffer = GL::VertexBuffer::create(context,
                                           (unsigned int) mesh.vertices.size(),
                                           format,
                                           GL::VertexBuffer::STATIC);
@@ -184,7 +184,7 @@ bool Mesh::init(const wendy::Mesh& mesh, const MaterialMap& materials)
   else
     indexType = GL::IndexBuffer::UINT32;
 
-  indexBuffer = GL::IndexBuffer::create(*GL::Context::get(),
+  indexBuffer = GL::IndexBuffer::create(context,
                                         indexCount,
                                         indexType,
                                         GL::IndexBuffer::STATIC);
