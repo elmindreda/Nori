@@ -44,6 +44,10 @@ namespace wendy
 namespace
 {
 
+/* Comparator for opaque render operations.
+ *
+ * Sorts first by material and then front to back.
+ */
 struct OpaqueOperationComparator
 {
   inline bool operator () (const Operation* x, const Operation* y)
@@ -55,6 +59,10 @@ struct OpaqueOperationComparator
   }
 };
 
+/* Comparator for blended render operations.
+ *
+ * Sorts back to front.
+ */
 struct BlendedOperationComparator
 {
   inline bool operator () (const Operation* x, const Operation* y)
@@ -65,10 +73,10 @@ struct BlendedOperationComparator
 
 /* Hash function used in the ELF executable format
  */
-unsigned int hashString(const String& string)
+uint32_t hashString(const String& string)
 {
-  unsigned int hash = 0;
-  unsigned int temp;
+  uint32_t hash = 0;
+  uint32_t temp;
 
   for (String::const_iterator c = string.begin();  c != string.end();  c++)
   {
@@ -118,24 +126,24 @@ void Queue::addOperation(const Operation& operation)
 {
   if (operation.technique->isBlending())
   {
-    blendedOperations.push_back(operation);
-    blendedOperations.back().hash = hashString(operation.technique->getName());
+    blendedOps.push_back(operation);
+    blendedOps.back().hash = hashString(operation.technique->getName());
     sortedBlended = false;
   }
   else
   {
-    opaqueOperations.push_back(operation);
-    opaqueOperations.back().hash = hashString(operation.technique->getName());
+    opaqueOps.push_back(operation);
+    opaqueOps.back().hash = hashString(operation.technique->getName());
     sortedOpaque = false;
   }
 }
 
 void Queue::removeOperations(void)
 {
-  opaqueOperations.clear();
+  opaqueOps.clear();
   sortedOpaque = false;
 
-  blendedOperations.clear();
+  blendedOps.clear();
   sortedBlended = false;
 }
 
@@ -171,17 +179,15 @@ const OperationList& Queue::getOpaqueOperations(void) const
 {
   if (!sortedOpaque)
   {
-    const List& operations = opaqueOperations;
+    const List& ops = opaqueOps;
 
     sortedOpaqueOps.clear();
-    sortedOpaqueOps.reserve(opaqueOperations.size());
-    for (List::const_iterator o = operations.begin();  o != operations.end();  o++)
+    sortedOpaqueOps.reserve(opaqueOps.size());
+    for (List::const_iterator o = ops.begin();  o != ops.end();  o++)
       sortedOpaqueOps.push_back(&(*o));
 
     OpaqueOperationComparator comparator;
-    std::sort(sortedOpaqueOps.begin(),
-              sortedOpaqueOps.end(),
-	      comparator);
+    std::sort(sortedOpaqueOps.begin(), sortedOpaqueOps.end(), comparator);
 
     sortedOpaque = true;
   }
@@ -193,17 +199,15 @@ const OperationList& Queue::getBlendedOperations(void) const
 {
   if (!sortedBlended)
   {
-    const List& operations = blendedOperations;
+    const List& ops = blendedOps;
 
     sortedBlendedOps.clear();
-    sortedBlendedOps.reserve(blendedOperations.size());
-    for (List::const_iterator o = operations.begin();  o != operations.end();  o++)
+    sortedBlendedOps.reserve(blendedOps.size());
+    for (List::const_iterator o = ops.begin();  o != ops.end();  o++)
       sortedBlendedOps.push_back(&(*o));
 
     BlendedOperationComparator comparator;
-    std::sort(sortedBlendedOps.begin(),
-              sortedBlendedOps.end(),
-	      comparator);
+    std::sort(sortedBlendedOps.begin(), sortedBlendedOps.end(), comparator);
 
     sortedBlended = true;
   }
@@ -216,26 +220,27 @@ const LightState& Queue::getLights(void) const
   return lights;
 }
 
-void Queue::renderOperations(const OperationList& operations, const String& passName) const
+void Queue::renderOperations(const OperationList& ops,
+                             const String& passName) const
 {
   GL::Context* context = GL::Context::get();
   if (!context)
     throw Exception("Cannot render render queue without an OpenGL context");
 
-  for (OperationList::const_iterator o = operations.begin();  o != operations.end();  o++)
+  for (OperationList::const_iterator o = ops.begin();  o != ops.end();  o++)
   {
-    const Operation& operation = **o;
+    const Operation& op = **o;
 
-    for (unsigned int i = 0;  i < operation.technique->getPassCount();  i++)
+    for (unsigned int i = 0;  i < op.technique->getPassCount();  i++)
     {
-      const Pass& pass = operation.technique->getPass(i);
+      const Pass& pass = op.technique->getPass(i);
       if (pass.getName() != passName)
 	continue;
 
       pass.apply();
 
-      context->setModelMatrix(operation.transform);
-      context->render(operation.range);
+      context->setModelMatrix(op.transform);
+      context->render(op.range);
     }
   }
 }

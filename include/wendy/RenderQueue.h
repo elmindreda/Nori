@@ -29,8 +29,6 @@
 #include <wendy/GLContext.h>
 #include <wendy/GLBuffer.h>
 
-#include <list>
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -89,7 +87,7 @@ public:
   float distance;
   /*! Hash value for sorting. Used by the Queue class.
    */
-  unsigned int hash;
+  uint32_t hash;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -181,8 +179,8 @@ private:
   const Camera& camera;
   Light* light;
   LightState lights;
-  List opaqueOperations;
-  List blendedOperations;
+  List opaqueOps;
+  List blendedOps;
   Phase phase;
   mutable OperationList sortedOpaqueOps;
   mutable OperationList sortedBlendedOps;
