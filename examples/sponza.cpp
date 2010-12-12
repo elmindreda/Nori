@@ -53,7 +53,7 @@ bool Demo::init(void)
   if (!index.addSearchPath(Path("../media")))
     return false;
 
-  if (!index.addSearchPath(Path("media/sponza")))
+  if (!index.addSearchPath(Path("../media/sponza")))
     return false;
 
   if (!GL::Context::createSingleton(index))
@@ -101,7 +101,7 @@ bool Demo::init(void)
 
   render::LightRef light = new render::Light();
   light->setType(render::Light::POINT);
-  light->setRadius(50.f);
+  light->setRadius(100.f);
   light->setDistAttTexture(distAttTexture);
 
   lightNode = new scene::LightNode();
