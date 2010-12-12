@@ -713,7 +713,7 @@ bool FontReader::extractGlyphs(FontData& data,
 
     meanAdvance /= (float) data.glyphs.size();
 
-    for (size_t i = 0;  i < data.glyphs.size();  i++)
+    for (int i = 0;  i < data.glyphs.size();  i++)
       data.glyphs[i].advance += meanAdvance * 0.2f;
 
     if (data.characters[' '] == -1)
