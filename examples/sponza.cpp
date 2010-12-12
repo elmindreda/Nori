@@ -74,7 +74,8 @@ bool Demo::init(void)
   if (!render::GeometryPool::createSingleton(*context))
     return false;
 
-  renderer = deferred::Renderer::create(*context, deferred::Config(width, height));
+  renderer = deferred::Renderer::create(*render::GeometryPool::getSingleton(),
+                                        deferred::Config(width, height));
   if (!renderer)
     return false;
 
