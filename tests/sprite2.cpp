@@ -75,7 +75,7 @@ void Test::run(void)
 
     context->setProjectionMatrix2D(4.f / 3.f, 1.f);
 
-    sprite.render(*material);
+    sprite.render(*render::GeometryPool::getSingleton(), *material);
   }
   while (context->update());
 }

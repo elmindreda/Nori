@@ -204,14 +204,14 @@ void Demo::run(void)
       context->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
       horzPass.apply();
-      sprite.render();
+      sprite.render(*render::GeometryPool::getSingleton());
 
       context->setCurrentCanvas(*canvases[0]);
       context->clearDepthBuffer();
       context->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
       vertPass.apply();
-      sprite.render();
+      sprite.render(*render::GeometryPool::getSingleton());
     }
 
     context->setScreenCanvasCurrent();
@@ -223,7 +223,7 @@ void Demo::run(void)
     context->setProjectionMatrix2D(1.f, 1.f);
 
     composePass.apply();
-    sprite.render();
+    sprite.render(*render::GeometryPool::getSingleton());
 
     queue.removeOperations();
   }

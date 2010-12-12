@@ -33,6 +33,10 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+class GeometryPool;
+
+///////////////////////////////////////////////////////////////////////
+
 enum SpriteType3
 {
   STATIC_SPRITE,
@@ -48,8 +52,8 @@ class Sprite2
 {
 public:
   Sprite2(void);
-  void render(void) const;
-  void render(const Material& material) const;
+  void render(GeometryPool& pool) const;
+  void render(GeometryPool& pool, const Material& material) const;
   void realizeVertices(Vertex2ft2fv* vertices) const;
   void setDefaults(void);
   Rect mapping;

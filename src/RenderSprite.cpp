@@ -146,27 +146,27 @@ Sprite2::Sprite2(void)
   setDefaults();
 }
 
-void Sprite2::render(void) const
+void Sprite2::render(GeometryPool& pool) const
 {
   Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
   GL::VertexRange range;
-  if (!GeometryPool::getSingleton()->allocateVertices(range, 4, Vertex2ft2fv::format))
+  if (!pool.allocateVertices(range, 4, Vertex2ft2fv::format))
     return;
 
   range.copyFrom(vertices);
 
-  GL::Context::getSingleton()->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 }
 
-void Sprite2::render(const Material& material) const
+void Sprite2::render(GeometryPool& pool, const Material& material) const
 {
   Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
   GL::VertexRange range;
-  if (!GeometryPool::getSingleton()->allocateVertices(range, 4, Vertex2ft2fv::format))
+  if (!pool.allocateVertices(range, 4, Vertex2ft2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -176,7 +176,7 @@ void Sprite2::render(const Material& material) const
   for (unsigned int pass = 0;  pass < technique->getPassCount();  pass++)
   {
     technique->applyPass(pass);
-    GL::Context::getSingleton()->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+    pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
   }
 }
 
