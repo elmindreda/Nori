@@ -258,15 +258,9 @@ inline bool NameComparator<T>::operator () (const T& object)
   return name == object.getName();
 }
 
-template <typename T>
-inline bool NameComparator<T>::operator () (const T* object)
-{
-  return name == object->getName();
-}
-
 const unsigned int PROGRAM_XML_VERSION = 3;
 
-}
+} /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -300,7 +294,7 @@ void Varying::enable(size_t stride, size_t offset)
 #if WENDY_DEBUG
   checkCg("Failed to enable varying \'%s\' of program \'%s\'",
           name.c_str(),
-          program.getPath().asString().c_str());
+          program->getPath().asString().c_str());
 #endif
 
   cgGLSetParameterPointer((CGparameter) varyingID,
@@ -312,7 +306,7 @@ void Varying::enable(size_t stride, size_t offset)
 #if WENDY_DEBUG
   checkCg("Failed to set varying \'%s\' of program \'%s\'",
           name.c_str(),
-          program.getPath().asString().c_str());
+          program->getPath().asString().c_str());
 #endif
 }
 
@@ -323,28 +317,18 @@ void Varying::disable(void)
 #if WENDY_DEBUG
   checkCg("Failed to disable varying \'%s\' of program \'%s\'",
           name.c_str(),
-          program.getPath().asString().c_str());
+          program->getPath().asString().c_str());
 #endif
 }
 
 Program& Varying::getProgram(void) const
 {
-  return program;
+  return *program;
 }
 
 Varying::Varying(Program& initProgram):
-  program(initProgram)
+  program(&initProgram)
 {
-}
-
-Varying::Varying(const Varying& source):
-  program(source.program)
-{
-}
-
-Varying& Varying::operator = (const Varying& source)
-{
-  return *this;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -386,7 +370,7 @@ void Uniform::setValue(float newValue)
   {
     Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float",
                     name.c_str(),
-                    program.getPath().asString().c_str());
+                    program->getPath().asString().c_str());
     return;
   }
 
@@ -399,7 +383,7 @@ void Uniform::setValue(const Vec2& newValue)
   {
     Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float2",
                     name.c_str(),
-                    program.getPath().asString().c_str());
+                    program->getPath().asString().c_str());
     return;
   }
 
@@ -412,7 +396,7 @@ void Uniform::setValue(const Vec3& newValue)
   {
     Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float3",
                     name.c_str(),
-                    program.getPath().asString().c_str());
+                    program->getPath().asString().c_str());
     return;
   }
 
@@ -425,7 +409,7 @@ void Uniform::setValue(const Vec4& newValue)
   {
     Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float4",
                     name.c_str(),
-                    program.getPath().asString().c_str());
+                    program->getPath().asString().c_str());
     return;
   }
 
@@ -438,7 +422,7 @@ void Uniform::setValue(const Mat2& newValue)
   {
     Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float2x2",
                     name.c_str(),
-                    program.getPath().asString().c_str());
+                    program->getPath().asString().c_str());
     return;
   }
 
@@ -451,7 +435,7 @@ void Uniform::setValue(const Mat3& newValue)
   {
     Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float3x3",
                     name.c_str(),
-                    program.getPath().asString().c_str());
+                    program->getPath().asString().c_str());
     return;
   }
 
@@ -464,7 +448,7 @@ void Uniform::setValue(const Mat4& newValue)
   {
     Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float4x4",
                     name.c_str(),
-                    program.getPath().asString().c_str());
+                    program->getPath().asString().c_str());
     return;
   }
 
@@ -473,22 +457,12 @@ void Uniform::setValue(const Mat4& newValue)
 
 Program& Uniform::getProgram(void) const
 {
-  return program;
+  return *program;
 }
 
 Uniform::Uniform(Program& initProgram):
-  program(initProgram)
+  program(&initProgram)
 {
-}
-
-Uniform::Uniform(const Uniform& source):
-  program(source.program)
-{
-}
-
-Uniform& Uniform::operator = (const Uniform& source)
-{
-  return *this;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -510,29 +484,19 @@ void Sampler::setTexture(Texture& newTexture)
 #if WENDY_DEBUG
   checkCg("Failed to set sampler \'%s\' of program \'%s\' to texture \'%s\'",
           name.c_str(),
-          program.getPath().asString().c_str(),
+          program->getPath().asString().c_str(),
           newTexture.getPath().asString().c_str());
 #endif
 }
 
 Program& Sampler::getProgram(void) const
 {
-  return program;
+  return *program;
 }
 
 Sampler::Sampler(Program& initProgram):
-  program(initProgram)
+  program(&initProgram)
 {
-}
-
-Sampler::Sampler(const Sampler& source):
-  program(source.program)
-{
-}
-
-Sampler& Sampler::operator = (const Sampler& source)
-{
-  return *this;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -677,36 +641,15 @@ FragmentProgram& FragmentProgram::operator = (const FragmentProgram& source)
 
 ///////////////////////////////////////////////////////////////////////
 
-Program::~Program(void)
-{
-  while (!varyings.empty())
-  {
-    delete varyings.back();
-    varyings.pop_back();
-  }
-
-  while (!uniforms.empty())
-  {
-    delete uniforms.back();
-    uniforms.pop_back();
-  }
-
-  while (!samplers.empty())
-  {
-    delete samplers.back();
-    samplers.pop_back();
-  }
-}
-
 Varying* Program::findVarying(const String& name)
 {
-  VaryingList::const_iterator i = std::find_if(varyings.begin(),
-                                               varyings.end(),
-                                               NameComparator<Varying>(name));
+  VaryingList::iterator i = std::find_if(varyings.begin(),
+                                         varyings.end(),
+                                         NameComparator<Varying>(name));
   if (i == varyings.end())
     return NULL;
 
-  return *i;
+  return &(*i);
 }
 
 const Varying* Program::findVarying(const String& name) const
@@ -717,18 +660,18 @@ const Varying* Program::findVarying(const String& name) const
   if (i == varyings.end())
     return NULL;
 
-  return *i;
+  return &(*i);
 }
 
 Uniform* Program::findUniform(const String& name)
 {
-  UniformList::const_iterator i = std::find_if(uniforms.begin(),
-                                               uniforms.end(),
-                                               NameComparator<Uniform>(name));
+  UniformList::iterator i = std::find_if(uniforms.begin(),
+                                         uniforms.end(),
+                                         NameComparator<Uniform>(name));
   if (i == uniforms.end())
     return NULL;
 
-  return *i;
+  return &(*i);
 }
 
 const Uniform* Program::findUniform(const String& name) const
@@ -739,18 +682,18 @@ const Uniform* Program::findUniform(const String& name) const
   if (i == uniforms.end())
     return NULL;
 
-  return *i;
+  return &(*i);
 }
 
 Sampler* Program::findSampler(const String& name)
 {
-  SamplerList::const_iterator i = std::find_if(samplers.begin(),
-                                               samplers.end(),
-                                               NameComparator<Sampler>(name));
+  SamplerList::iterator i = std::find_if(samplers.begin(),
+                                         samplers.end(),
+                                         NameComparator<Sampler>(name));
   if (i == samplers.end())
     return NULL;
 
-  return *i;
+  return &(*i);
 }
 
 const Sampler* Program::findSampler(const String& name) const
@@ -761,7 +704,7 @@ const Sampler* Program::findSampler(const String& name) const
   if (i == samplers.end())
     return NULL;
 
-  return *i;
+  return &(*i);
 }
 
 unsigned int Program::getVaryingCount(void) const
@@ -771,12 +714,12 @@ unsigned int Program::getVaryingCount(void) const
 
 Varying& Program::getVarying(unsigned int index)
 {
-  return *varyings[index];
+  return varyings[index];
 }
 
 const Varying& Program::getVarying(unsigned int index) const
 {
-  return *varyings[index];
+  return varyings[index];
 }
 
 unsigned int Program::getUniformCount(void) const
@@ -786,12 +729,12 @@ unsigned int Program::getUniformCount(void) const
 
 Uniform& Program::getUniform(unsigned int index)
 {
-  return *uniforms[index];
+  return uniforms[index];
 }
 
 const Uniform& Program::getUniform(unsigned int index) const
 {
-  return *uniforms[index];
+  return uniforms[index];
 }
 
 unsigned int Program::getSamplerCount(void) const
@@ -801,12 +744,12 @@ unsigned int Program::getSamplerCount(void) const
 
 Sampler& Program::getSampler(unsigned int index)
 {
-  return *samplers[index];
+  return samplers[index];
 }
 
 const Sampler& Program::getSampler(unsigned int index) const
 {
-  return *samplers[index];
+  return samplers[index];
 }
 
 VertexProgram& Program::getVertexProgram(void) const
@@ -881,12 +824,11 @@ bool Program::init(VertexProgram& initVertexProgram, FragmentProgram& initFragme
 
 	CGtype type = cgGetParameterType(parameter);
 
-	Varying* varying = new Varying(*this);
-	varying->name = cgGetParameterName(parameter);
-	varying->type = convertVaryingType(type);
-	varying->varyingID = parameter;
-
-	varyings.push_back(varying);
+        varyings.push_back(Varying(*this));
+	Varying& varying = varyings.back();
+	varying.name = cgGetParameterName(parameter);
+	varying.type = convertVaryingType(type);
+	varying.varyingID = parameter;
       }
       else if (variability == CG_UNIFORM)
       {
@@ -894,21 +836,19 @@ bool Program::init(VertexProgram& initVertexProgram, FragmentProgram& initFragme
 
 	if (isSamplerType(type))
 	{
-	  Sampler* sampler = new Sampler(*this);
-	  sampler->name = cgGetParameterName(parameter);
-	  sampler->type = convertSamplerType(type);
-	  sampler->samplerID = parameter;
-
-	  samplers.push_back(sampler);
+          samplers.push_back(Sampler(*this));
+	  Sampler& sampler = samplers.back();
+	  sampler.name = cgGetParameterName(parameter);
+	  sampler.type = convertSamplerType(type);
+	  sampler.samplerID = parameter;
 	}
 	else if (isUniformType(type))
 	{
-	  Uniform* uniform = new Uniform(*this);
-	  uniform->name = cgGetParameterName(parameter);
-	  uniform->type = convertUniformType(type);
-	  uniform->uniformID = parameter;
-
-	  uniforms.push_back(uniform);
+          uniforms.push_back(Uniform(*this));
+	  Uniform& uniform = uniforms.back();
+	  uniform.name = cgGetParameterName(parameter);
+	  uniform.type = convertUniformType(type);
+	  uniform.uniformID = parameter;
 	}
 	else
 	  Log::writeError("Unknown Cg parameter type");
@@ -932,21 +872,19 @@ bool Program::init(VertexProgram& initVertexProgram, FragmentProgram& initFragme
 
 	if (isSamplerType(type))
 	{
-	  Sampler* sampler = new Sampler(*this);
-	  sampler->name = cgGetParameterName(parameter);
-	  sampler->type = convertSamplerType(type);
-	  sampler->samplerID = parameter;
-
-	  samplers.push_back(sampler);
+          samplers.push_back(Sampler(*this));
+	  Sampler& sampler = samplers.back();
+	  sampler.name = cgGetParameterName(parameter);
+	  sampler.type = convertSamplerType(type);
+	  sampler.samplerID = parameter;
 	}
 	else if (isUniformType(type))
 	{
-	  Uniform* uniform = new Uniform(*this);
-	  uniform->name = cgGetParameterName(parameter);
-	  uniform->type = convertUniformType(type);
-	  uniform->uniformID = parameter;
-
-	  uniforms.push_back(uniform);
+          uniforms.push_back(Uniform(*this));
+	  Uniform& uniform = uniforms.back();
+	  uniform.name = cgGetParameterName(parameter);
+	  uniform.type = convertUniformType(type);
+	  uniform.uniformID = parameter;
 	}
 	else
 	  Log::writeError("Unknown Cg parameter type");
@@ -989,7 +927,7 @@ void ProgramInterface::addVarying(const String& name, Varying::Type type)
 
 bool ProgramInterface::matches(const Program& program, bool verbose) const
 {
-  for (unsigned int i = 0;  i < uniforms.size();  i++)
+  for (int i = 0;  i < uniforms.size();  i++)
   {
     const UniformList::value_type& entry = uniforms[i];
 
@@ -1020,7 +958,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     }
   }
 
-  for (unsigned int i = 0;  i < samplers.size();  i++)
+  for (int i = 0;  i < samplers.size();  i++)
   {
     const SamplerList::value_type& entry = samplers[i];
 
@@ -1051,7 +989,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     }
   }
 
-  for (unsigned int i = 0;  i < varyings.size();  i++)
+  for (int i = 0;  i < varyings.size();  i++)
   {
     const VaryingList::value_type& entry = varyings[i];
 
@@ -1090,7 +1028,7 @@ bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
   if (format.getComponentCount() != varyings.size())
     return false;
 
-  for (unsigned int i = 0;  i < varyings.size();  i++)
+  for (int i = 0;  i < varyings.size();  i++)
   {
     const VaryingList::value_type& entry = varyings[i];
 

@@ -73,9 +73,7 @@ public:
   Program& getProgram(void) const;
 private:
   Varying(Program& program);
-  Varying(const Varying& source);
-  Varying& operator = (const Varying& source);
-  Program& program;
+  Program* program;
   Type type;
   String name;
   void* varyingID;
@@ -115,9 +113,7 @@ public:
   Program& getProgram(void) const;
 private:
   Uniform(Program& program);
-  Uniform(const Uniform& source);
-  Uniform& operator = (const Uniform& source);
-  Program& program;
+  Program* program;
   String name;
   Type type;
   void* uniformID;
@@ -146,9 +142,7 @@ public:
   Program& getProgram(void) const;
 private:
   Sampler(Program& program);
-  Sampler(const Sampler& source);
-  Sampler& operator = (const Sampler& source);
-  Program& program;
+  Program* program;
   String name;
   Type type;
   void* samplerID;
@@ -215,7 +209,6 @@ class Program : public Resource
 {
   friend class Context;
 public:
-  ~Program(void);
   Varying* findVarying(const String& name);
   const Varying* findVarying(const String& name) const;
   Uniform* findUniform(const String& name);
@@ -244,9 +237,9 @@ private:
   bool init(VertexProgram& vertexProgram, FragmentProgram& fragmentProgram);
   void apply(void) const;
   Program& operator = (const Program& source);
-  typedef std::vector<Varying*> VaryingList;
-  typedef std::vector<Uniform*> UniformList;
-  typedef std::vector<Sampler*> SamplerList;
+  typedef std::vector<Varying> VaryingList;
+  typedef std::vector<Uniform> UniformList;
+  typedef std::vector<Sampler> SamplerList;
   Context& context;
   Ref<VertexProgram> vertexProgram;
   Ref<FragmentProgram> fragmentProgram;
