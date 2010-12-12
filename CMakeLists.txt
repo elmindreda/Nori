@@ -88,7 +88,7 @@ endif(APPLE)
 
 # Ugly fix for Cg depending on pthreads
 if(UNIX AND NOT CYGWIN)
-  list(APPEND wendy_LIBRARIES -pthread)
+  list(APPEND wendy_LIBRARIES pthread)
 endif(UNIX AND NOT CYGWIN)
 
 if(WIN32)
