@@ -1,6 +1,8 @@
 
 #include <wendy/Wendy.h>
 
+#include <cstdlib>
+
 using namespace wendy;
 
 class Demo : public Trackable
@@ -15,6 +17,7 @@ private:
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const Vec2i& position);
   void onWheelTurned(int position);
+  ResourceIndex index;
   Ref<GL::ImageCanvas> canvas;
   Ref<GL::Texture> depthmap;
   Ref<GL::Texture> colormap;
@@ -31,6 +34,12 @@ private:
 
 Demo::~Demo(void)
 {
+  graph.destroyRootNodes();
+
+  canvas = NULL;
+  depthmap = NULL;
+  colormap = NULL;
+
   input::Context::destroy();
   render::GeometryPool::destroy();
   GL::Context::destroy();
@@ -40,19 +49,19 @@ bool Demo::init(void)
 {
   index.addSearchPath(Path("../media"));
 
-  if (!GL::Context::create(GL::ContextMode()))
+  if (!GL::Context::createSingleton(index))
     return false;
 
   GL::Context* context = GL::Context::get();
   context->setTitle("Shadow Map");
 
-  if (!render::GeometryPool::create(*context))
+  if (!render::GeometryPool::createSingleton(*context))
     return false;
 
   context->reserveUniform("WL", GL::Uniform::FLOAT_MAT4).connect(*this, &Demo::onRequestedWL);
   context->reserveUniform("light", GL::Uniform::FLOAT_VEC3).connect(*this, &Demo::onRequestedLight);
 
-  if (!input::Context::create(*context))
+  if (!input::Context::createSingleton(*context))
     return false;
 
   input::Context::get()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
@@ -229,7 +238,7 @@ void Demo::onWheelTurned(int offset)
 int main()
 {
   if (!wendy::initialize())
-    exit(1);
+    std::exit(EXIT_FAILURE);
 
   Ptr<Demo> demo(new Demo());
   if (demo->init())
@@ -238,6 +247,6 @@ int main()
   demo = NULL;
 
   wendy::shutdown();
-  exit(0);
+  std::exit(EXIT_SUCCESS);
 }
 

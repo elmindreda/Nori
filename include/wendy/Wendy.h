@@ -63,8 +63,6 @@
 #include <wendy/Block.h>
 #include <wendy/Bimap.h>
 #include <wendy/Signal.h>
-#include <wendy/Variant.h>
-#include <wendy/Node.h>
 #include <wendy/Timer.h>
 
 #include <wendy/Color.h>
@@ -105,7 +103,6 @@
 #include <wendy/GLState.h>
 
 #include <wendy/Input.h>
-#include <wendy/InputCamera.h>
 
 #if WENDY_INCLUDE_RENDERER
 #include <wendy/RenderCamera.h>

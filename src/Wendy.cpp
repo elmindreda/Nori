@@ -36,8 +36,6 @@ namespace wendy
 
 bool initialize(void)
 {
-  atexit(shutdown);
-
   if (!glfwInit())
   {
     Log::writeError("Failed to initialize GLFW");
@@ -49,8 +47,6 @@ bool initialize(void)
 
 void shutdown(void)
 {
-  GL::Context::destroy();
-
   glfwTerminate();
 }
 

@@ -1,6 +1,8 @@
 
 #include <wendy/Wendy.h>
 
+#include <cstdlib>
+
 using namespace wendy;
 
 class Demo : public Trackable
@@ -11,6 +13,7 @@ public:
   void run(void);
 private:
   bool render(void);
+  ResourceIndex index;
   Ref<render::Camera> camera;
   scene::Graph graph;
   scene::MeshNode* meshNode;
@@ -27,24 +30,19 @@ Demo::~Demo(void)
 
 bool Demo::init(void)
 {
-  Image::addSearchPath(Path("media"));
-  Mesh::addSearchPath(Path("media"));
-  GL::Texture::addSearchPath(Path("media"));
-  GL::VertexProgram::addSearchPath(Path("media"));
-  GL::FragmentProgram::addSearchPath(Path("media"));
-  GL::Program::addSearchPath(Path("media"));
-  render::Material::addSearchPath(Path("media"));
+  if (!index.addSearchPath(Path("../media")))
+    return false;
 
-  if (!GL::Context::create(GL::ContextMode()))
+  if (!GL::Context::createSingleton(index))
     return false;
 
   GL::Context* context = GL::Context::get();
   context->setTitle("Program");
 
-  if (!render::GeometryPool::create(*context))
+  if (!render::GeometryPool::createSingleton(*context))
     return false;
 
-  Ref<render::Mesh> mesh = render::Mesh::readInstance("cube");
+  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("cube.mesh"));
   if (!mesh)
   {
     Log::writeError("Failed to load mesh");
@@ -95,7 +93,7 @@ void Demo::run(void)
 int main()
 {
   if (!wendy::initialize())
-    exit(1);
+    std::exit(EXIT_FAILURE);
 
   Ptr<Demo> demo(new Demo());
   if (demo->init())
@@ -104,6 +102,6 @@ int main()
   demo = NULL;
 
   wendy::shutdown();
-  exit(0);
+  std::exit(EXIT_SUCCESS);
 }
 

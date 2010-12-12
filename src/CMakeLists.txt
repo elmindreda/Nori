@@ -9,24 +9,24 @@ include_directories(${libpng_SOURCE_DIR}
 set(wendy_SOURCES
     Wendy.cpp
 
-    AABB.cpp Animation.cpp Block.cpp Color.cpp Core.cpp
-    Font.cpp Frustum.cpp Image.cpp Matrix.cpp Mesh.cpp
-    OBB.cpp Pattern.cpp Path.cpp Pixel.cpp Plane.cpp Quaternion.cpp
-    Random.cpp Ray.cpp Rectangle.cpp Resource.cpp Signal.cpp Sphere.cpp
-    Timer.cpp Transform.cpp Triangle.cpp Variant.cpp Vector.cpp
+    AABB.cpp Animation.cpp Block.cpp Color.cpp Core.cpp Font.cpp Frustum.cpp
+    Image.cpp Matrix.cpp Mesh.cpp OBB.cpp Pattern.cpp Path.cpp Pixel.cpp
+    Plane.cpp Quaternion.cpp Random.cpp Ray.cpp Rectangle.cpp Resource.cpp
+    Signal.cpp Sphere.cpp Timer.cpp Transform.cpp Triangle.cpp Vector.cpp
     Vertex.cpp XML.cpp
 
     OpenGL.cpp GLBuffer.cpp GLContext.cpp GLConvert.cpp GLProgram.cpp
     GLState.cpp GLTexture.cpp
 
-    Input.cpp InputCamera.cpp)
+    Input.cpp)
 
 if(WENDY_INCLUDE_RENDERER)
-  list(APPEND wendy_SOURCES RenderCamera.cpp RenderFont.cpp
-                            RenderLight.cpp RenderMesh.cpp RenderMaterial.cpp
-                            RenderParticle.cpp
-                            RenderPool.cpp RenderQueue.cpp RenderSprite.cpp
-                            Deferred.cpp)
+  list(APPEND wendy_SOURCES
+       RenderCamera.cpp RenderFont.cpp RenderLight.cpp RenderMesh.cpp
+       RenderMaterial.cpp RenderParticle.cpp RenderPool.cpp RenderQueue.cpp
+       RenderSprite.cpp
+
+       Deferred.cpp)
 endif(WENDY_INCLUDE_RENDERER)
 
 if(WENDY_INCLUDE_SCENE_GRAPH)
@@ -34,11 +34,11 @@ if(WENDY_INCLUDE_SCENE_GRAPH)
 endif(WENDY_INCLUDE_SCENE_GRAPH)
 
 if(WENDY_INCLUDE_UI_SYSTEM)
-  list(APPEND wendy_SOURCES UIBook.cpp UIButton.cpp UICanvas.cpp UIColor.cpp
-                            UIDesktop.cpp UIEntry.cpp UIItem.cpp UILabel.cpp
-                            UILayout.cpp UIList.cpp UIMenu.cpp UIPopup.cpp
-                            UIProgress.cpp UIRender.cpp UIScroller.cpp
-                            UISlider.cpp UIWidget.cpp)
+  list(APPEND wendy_SOURCES
+       UIBook.cpp UIButton.cpp UICanvas.cpp UIColor.cpp UIDesktop.cpp
+       UIEntry.cpp UIItem.cpp UILabel.cpp UILayout.cpp UIList.cpp UIMenu.cpp
+       UIPopup.cpp UIProgress.cpp UIRender.cpp UIScroller.cpp UISlider.cpp
+       UIWidget.cpp)
 endif(WENDY_INCLUDE_UI_SYSTEM)
 
 add_library(wendy STATIC ${wendy_SOURCES})

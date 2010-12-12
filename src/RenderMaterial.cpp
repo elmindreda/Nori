@@ -113,7 +113,7 @@ void Technique::destroyPasses(void)
 
 void Technique::applyPass(unsigned int index) const
 {
-  getPass(index).apply();
+  passes[index].apply();
 }
 
 Pass* Technique::findPass(const String& name)
@@ -123,7 +123,7 @@ Pass* Technique::findPass(const String& name)
 
   for (List::iterator i = passes.begin();  i != passes.end();  i++)
   {
-    if ((*i).getName() == name)
+    if (i->getName() == name)
       return &(*i);
   }
 
@@ -137,7 +137,7 @@ const Pass* Technique::findPass(const String& name) const
 
   for (List::const_iterator i = passes.begin();  i != passes.end();  i++)
   {
-    if ((*i).getName() == name)
+    if (i->getName() == name)
       return &(*i);
   }
 
@@ -148,10 +148,10 @@ bool Technique::isBlending(void) const
 {
   for (List::const_iterator i = passes.begin();  i != passes.end();  i++)
   {
-    if (!(*i).getName().empty())
+    if (!i->getName().empty())
       continue;
 
-    if ((*i).isBlending())
+    if (i->isBlending())
       return true;
   }
 
@@ -160,16 +160,12 @@ bool Technique::isBlending(void) const
 
 Pass& Technique::getPass(unsigned int index)
 {
-  List::iterator pass = passes.begin();
-  std::advance(pass, index);
-  return *pass;
+  return passes[index];
 }
 
 const Pass& Technique::getPass(unsigned int index) const
 {
-  List::const_iterator pass = passes.begin();
-  std::advance(pass, index);
-  return *pass;
+  return passes[index];
 }
 
 unsigned int Technique::getPassCount(void) const

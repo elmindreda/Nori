@@ -38,6 +38,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <cstdarg>
+#include <cstring>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -247,6 +248,7 @@ Font::Font(const ResourceInfo& info, GeometryPool& initPool):
   Resource(info),
   pool(initPool)
 {
+  std::memset(characters, 0, sizeof(characters));
 }
 
 Font::Font(const Font& source):
@@ -282,7 +284,7 @@ bool Font::init(const wendy::Font& font, GL::Program& program)
 
   Ref<GL::Texture> texture;
 
-  // Create texture
+  // Create glyph texture
   {
     unsigned int width = maxWidth * font.glyphs.size() + 1;
     width = std::min(getNextPower(width), maxSize);
@@ -337,10 +339,17 @@ bool Font::init(const wendy::Font& font, GL::Program& program)
 
   for (unsigned int i = 0;  i < font.glyphs.size();  i++)
   {
+    const wendy::FontGlyph& sourceGlyph = font.glyphs[i];
+
     glyphs.push_back(Glyph());
     Glyph& glyph = glyphs.back();
 
-    const wendy::FontGlyph& sourceGlyph = font.glyphs[i];
+    for (unsigned int i = 0;  i < 256;  i++)
+    {
+      if (font.characters[i] == &sourceGlyph)
+        characters[i] = &glyph;
+    }
+
     Ref<Image> image = sourceGlyph.image;
 
     glyph.advance = sourceGlyph.advance;

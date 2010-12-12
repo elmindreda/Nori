@@ -32,8 +32,6 @@
 #include <wendy/GLProgram.h>
 #include <wendy/GLState.h>
 
-#include <list>
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -128,7 +126,7 @@ public:
   float getQuality(void) const;
   void setQuality(float newQuality);
 private:
-  typedef std::list<Pass> List;
+  typedef std::vector<Pass> List;
   List passes;
   String name;
   float quality;

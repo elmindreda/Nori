@@ -234,7 +234,9 @@ bool FontReader::extractGlyphs(const Image& image, const String& characters)
 	break;
     }
 
-    Ref<Image> glyphImage = source.getArea(Recti(startX, 0, endX - startX, source.getHeight()));
+    Recti area(startX, 0, endX - startX, source.getHeight());
+
+    Ref<Image> glyphImage = source.getArea(area);
     if (!glyphImage)
       return false;
 

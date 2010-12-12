@@ -1,6 +1,8 @@
 
 #include <wendy/Wendy.h>
 
+#include <cstdlib>
+
 using namespace wendy;
 
 namespace
@@ -31,7 +33,8 @@ public:
   bool init(void);
   bool render(void);
 private:
-  Ptr<render::Font> font;
+  ResourceIndex index;
+  Ref<render::Font> font;
 };
 
 Demo::~Demo(void)
@@ -44,26 +47,24 @@ Demo::~Demo(void)
 
 bool Demo::init(void)
 {
-  GL::VertexProgram::addSearchPath(Path("../media"));
-  GL::FragmentProgram::addSearchPath(Path("../media"));
-  GL::Program::addSearchPath(Path("../media"));
+  if (!index.addSearchPath(Path("../media")))
+    return false;
 
-  Image::addSearchPath(Path("media"));
-  Font::addSearchPath(Path("media"));
-
-  if (!GL::Context::create(GL::ContextMode()))
+  if (!GL::Context::createSingleton(index))
   {
     Log::writeError("Failed to create OpenGL context");
     return false;
   }
 
   GL::Context* context = GL::Context::get();
-  context->setTitle("Fonts");
+  context->setTitle("Font Test");
+  context->setRefreshMode(GL::Context::MANUAL_REFRESH);
 
-  if (!render::GeometryPool::create(*GL::Context::get()))
+  if (!render::GeometryPool::createSingleton(*context))
     return false;
 
-  font = render::Font::readInstance("default");
+  font = render::Font::read(*render::GeometryPool::get(),
+                            Path("wendy/default.renderfont"));
   if (!font)
   {
     Log::writeError("Failed to load font");
@@ -92,12 +93,12 @@ bool Demo::render(void)
   return true;
 }
 
-}
+} /*namespace*/
 
 int main(int argc, char** argv)
 {
   if (!wendy::initialize())
-    exit(1);
+    std::exit(EXIT_FAILURE);
 
   Ptr<Demo> demo(new Demo());
   if (demo->init())
@@ -112,6 +113,6 @@ int main(int argc, char** argv)
   demo = NULL;
 
   wendy::shutdown();
-  exit(0);
+  std::exit(EXIT_SUCCESS);
 }
 
