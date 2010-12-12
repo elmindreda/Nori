@@ -598,13 +598,13 @@ void ProgramState::apply(void) const
 
 ProgramState& ProgramState::operator = (const ProgramState& source)
 {
-  setProgram(source.program);
+  destroyProgramState();
 
-  for (SamplerList::const_iterator s = source.samplers.begin();  s != source.samplers.end();  s++)
-    samplers.push_back(SamplerState(*s));
-
-  for (UniformList::const_iterator s = source.uniforms.begin();  s != source.uniforms.end();  s++)
-    uniforms.push_back(UniformState(*s));
+  if (program = source.program)
+  {
+    samplers = source.samplers;
+    uniforms = source.uniforms;
+  }
 
   return *this;
 }
