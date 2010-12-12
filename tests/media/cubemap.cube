@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
-<image-cube version="1">
-  <positive-x name="cubemap_px" />
-  <negative-x name="cubemap_nx" />
-  <positive-y name="cubemap_py" />
-  <negative-y name="cubemap_ny" />
-  <positive-z name="cubemap_pz" />
-  <negative-z name="cubemap_nz" />
-</image-cube>
