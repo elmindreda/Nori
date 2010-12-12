@@ -13,6 +13,7 @@ private:
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const Vec2i& position);
   void onWheelTurned(int position);
+  ResourceIndex index;
   Ref<GL::Texture> texture;
   Ptr<GL::ImageCanvas> canvas;
   Ref<render::Camera> camera;
@@ -31,35 +32,30 @@ Demo::~Demo(void)
 
 bool Demo::init(void)
 {
-  Image::addSearchPath(Path("media"));
-  GL::Texture::addSearchPath(Path("media"));
-  GL::VertexProgram::addSearchPath(Path("media"));
-  GL::FragmentProgram::addSearchPath(Path("media"));
-  GL::Program::addSearchPath(Path("media"));
-  render::Material::addSearchPath(Path("media"));
+  if (!index.addSearchPath(Path("media")))
+    return false;
 
-  GL::ContextMode mode(640, 480, 32, 16, 0, 0, GL::ContextMode::WINDOWED);
-  if (!GL::Context::create(mode))
+  if (!GL::Context::createSingleton(index))
     return false;
 
   GL::Context* context = GL::Context::get();
   context->setTitle("Water");
 
-  if (!render::GeometryPool::create(*context))
+  if (!render::GeometryPool::createSingleton(*context))
     return false;
 
-  if (!input::Context::create(*context))
+  if (!input::Context::createSingleton(*context))
     return false;
 
   input::Context::get()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
   input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
   input::Context::get()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
 
-  texture = GL::Texture::createInstance(*context, Image(PixelFormat::RGB8, 64, 64), 0);
+  texture = GL::Texture::create(index, *context, Image(index, PixelFormat::RGB8, 64, 64), 0);
   if (!texture)
     return false;
 
-  canvas = GL::ImageCanvas::createInstance(*context, 64, 64);
+  canvas = GL::ImageCanvas::create(*context, 64, 64);
   if (!canvas)
     return false;
 
