@@ -64,8 +64,10 @@ void Desktop::addRootWidget(Widget& root)
 
 void Desktop::drawRootWidgets(void)
 {
-  GL::Context::get()->setProjectionMatrix2D((float) context.getWidth(),
-                                            (float) context.getHeight());
+  render::GeometryPool& pool = renderer.getGeometryPool();
+
+  pool.getContext().setProjectionMatrix2D((float) context.getWidth(),
+                                          (float) context.getHeight());
 
   for (WidgetList::iterator i = roots.begin();  i != roots.end();  i++)
   {
