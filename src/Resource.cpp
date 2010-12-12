@@ -95,7 +95,7 @@ bool ResourceIndex::addSearchPath(const Path& path)
 {
   if (!path.isDirectory())
   {
-    Log::writeError("Failed to add invalid resource search path \'%s\'",
+    Log::writeError("Resource search path \'%s\' does not exist",
                     path.asString().c_str());
     return false;
   }
