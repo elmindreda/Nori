@@ -879,8 +879,12 @@ Ref<Image> ImageReader::read(const Path& path)
 bool ImageWriter::write(const Path& path, const Image& image)
 {
   std::ofstream stream(path.asString().c_str());
-  if (!stream)
+  if (!stream.is_open())
+  {
+    Log::writeError("Failed to open \'%s\' for writing",
+                    path.asString().c_str());
     return false;
+  }
 
   png_structp context = png_create_write_struct(PNG_LIBPNG_VER_STRING,
                                                 NULL,
@@ -892,7 +896,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
     return false;
   }
 
-  png_set_write_fn(context, stream, writeStreamPNG, flushStreamPNG);
+  png_set_write_fn(context, &stream, writeStreamPNG, flushStreamPNG);
   png_set_filter(context, 0, PNG_FILTER_NONE);
 
   png_infop info = png_create_info_struct(context);
