@@ -50,6 +50,28 @@ class Program;
 
 ///////////////////////////////////////////////////////////////////////
 
+class VertexProgram
+{
+public:
+  VertexProgram(void);
+  VertexProgram(const String& text, const Path& path = Path());
+  String text;
+  Path path;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class FragmentProgram
+{
+public:
+  FragmentProgram(void);
+  FragmentProgram(const String& text, const Path& path = Path());
+  String text;
+  Path path;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Shader program vertex varying.
  *  @ingroup opengl
  */
@@ -150,56 +172,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Vertex program object.
- *  @ingroup opengl
- */
-class VertexProgram : public Resource
-{
-  friend class Program;
-public:
-  ~VertexProgram(void);
-  const String& getText(void) const;
-  static Ref<VertexProgram> create(const ResourceInfo& info,
-                                   Context& context,
-                                   const String& text);
-  static Ref<VertexProgram> read(Context& context, const Path& path);
-private:
-  VertexProgram(const ResourceInfo& info, Context& context);
-  VertexProgram(const VertexProgram& source);
-  bool init(const String& initText);
-  VertexProgram& operator = (const VertexProgram& source);
-  Context& context;
-  void* programID;
-  String text;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Fragment program object.
- *  @ingroup opengl
- */
-class FragmentProgram : public Resource
-{
-  friend class Program;
-public:
-  ~FragmentProgram(void);
-  const String& getText(void) const;
-  static Ref<FragmentProgram> create(const ResourceInfo& info,
-                                     Context& context,
-                                     const String& text);
-  static Ref<FragmentProgram> read(Context& context, const Path& path);
-private:
-  FragmentProgram(const ResourceInfo& info, Context& context);
-  FragmentProgram(const FragmentProgram& source);
-  bool init(const String& initText);
-  FragmentProgram& operator = (const FragmentProgram& source);
-  Context& context;
-  void* programID;
-  String text;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Combined program object.
  *  @ingroup opengl
  *
@@ -209,6 +181,7 @@ class Program : public Resource
 {
   friend class Context;
 public:
+  ~Program(void);
   Varying* findVarying(const String& name);
   const Varying* findVarying(const String& name) const;
   Uniform* findUniform(const String& name);
@@ -224,26 +197,25 @@ public:
   unsigned int getSamplerCount(void) const;
   Sampler& getSampler(unsigned int index);
   const Sampler& getSampler(unsigned int index) const;
-  VertexProgram& getVertexProgram(void) const;
-  FragmentProgram& getFragmentProgram(void) const;
   static Ref<Program> create(const ResourceInfo& info,
                              Context& context,
-                             VertexProgram& vertexProgram,
-                             FragmentProgram& fragmentProgram);
+                             const VertexProgram& vertexProgram,
+                             const FragmentProgram& fragmentProgram);
   static Ref<Program> read(Context& context, const Path& path);
 private:
   Program(const ResourceInfo& info, Context& context);
   Program(const Program& source);
-  bool init(VertexProgram& vertexProgram, FragmentProgram& fragmentProgram);
+  bool init(const VertexProgram& vertexProgram,
+            const FragmentProgram& fragmentProgram);
   void apply(void) const;
   Program& operator = (const Program& source);
   typedef std::vector<Varying> VaryingList;
   typedef std::vector<Uniform> UniformList;
   typedef std::vector<Sampler> SamplerList;
   Context& context;
-  Ref<VertexProgram> vertexProgram;
-  Ref<FragmentProgram> fragmentProgram;
   void* programID;
+  void* vertexProgramID;
+  void* fragmentProgramID;
   VaryingList varyings;
   UniformList uniforms;
   SamplerList samplers;
@@ -273,34 +245,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Vertex program reader.
- *  @ingroup io
- */
-class VertexProgramReader : public ResourceReader
-{
-public:
-  VertexProgramReader(Context& context);
-  Ref<VertexProgram> read(const Path& path);
-private:
-  Context& context;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Fragment program reader.
- *  @ingroup io
- */
-class FragmentProgramReader : public ResourceReader
-{
-public:
-  FragmentProgramReader(Context& context);
-  Ref<FragmentProgram> read(const Path& path);
-private:
-  Context& context;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Shader program XML codec.
  *  @ingroup io
  */
@@ -312,11 +256,12 @@ public:
 private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
+  bool readTextFile(String& text, const Path& path);
   Context& context;
   Ref<Program> program;
   ResourceInfo info;
-  Ref<VertexProgram> vertexProgram;
-  Ref<FragmentProgram> fragmentProgram;
+  Ptr<VertexProgram> vertexProgram;
+  Ptr<FragmentProgram> fragmentProgram;
 };
 
 ///////////////////////////////////////////////////////////////////////

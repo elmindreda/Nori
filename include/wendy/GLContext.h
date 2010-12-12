@@ -373,8 +373,7 @@ class Context : public Singleton<Context>
 {
   friend class Texture;
   friend class TextureImage;
-  friend class VertexProgram;
-  friend class FragmentProgram;
+  friend class Program;
 public:
   enum RefreshMode
   {

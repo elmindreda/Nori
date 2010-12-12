@@ -264,6 +264,30 @@ const unsigned int PROGRAM_XML_VERSION = 3;
 
 ///////////////////////////////////////////////////////////////////////
 
+VertexProgram::VertexProgram(void)
+{
+}
+
+VertexProgram::VertexProgram(const String& initText, const Path& initPath):
+  text(initText),
+  path(initPath)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
+FragmentProgram::FragmentProgram(void)
+{
+}
+
+FragmentProgram::FragmentProgram(const String& initText, const Path& initPath):
+  text(initText),
+  path(initPath)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
 bool Varying::isScalar(void) const
 {
   return type == FLOAT;
@@ -501,145 +525,17 @@ Sampler::Sampler(Program& initProgram):
 
 ///////////////////////////////////////////////////////////////////////
 
-VertexProgram::~VertexProgram(void)
+Program::~Program(void)
 {
+  if (vertexProgramID)
+    cgDestroyProgram((CGprogram) vertexProgramID);
+
+  if (fragmentProgramID)
+    cgDestroyProgram((CGprogram) fragmentProgramID);
+
   if (programID)
     cgDestroyProgram((CGprogram) programID);
 }
-
-const String& VertexProgram::getText(void) const
-{
-  return text;
-}
-
-Ref<VertexProgram> VertexProgram::create(const ResourceInfo& info,
-                                         Context& context,
-                                         const String& text)
-{
-  Ref<VertexProgram> program(new VertexProgram(info, context));
-  if (!program->init(text))
-    return NULL;
-
-  return program;
-}
-
-Ref<VertexProgram> VertexProgram::read(Context& context, const Path& path)
-{
-  VertexProgramReader reader(context);
-  return reader.read(path);
-}
-
-VertexProgram::VertexProgram(const ResourceInfo& info, Context& initContext):
-  Resource(info),
-  context(initContext),
-  programID(NULL)
-{
-}
-
-VertexProgram::VertexProgram(const VertexProgram& source):
-  Resource(source),
-  context(source.context)
-{
-}
-
-bool VertexProgram::init(const String& initText)
-{
-  text = initText;
-
-  programID = cgCreateProgram((CGcontext) context.cgContextID,
-                              CG_SOURCE,
-			      text.c_str(),
-			      (CGprofile) context.cgVertexProfile,
-			      NULL,
-			      NULL);
-  if (!programID)
-  {
-    Log::writeError("Failed to compile Cg vertex program \'%s\':\n%s\n%s",
-                    getPath().asString().c_str(),
-                    cgGetErrorString(cgGetError()),
-		    cgGetLastListing((CGcontext) context.cgContextID));
-    return false;
-  }
-
-  return true;
-}
-
-VertexProgram& VertexProgram::operator = (const VertexProgram& source)
-{
-  return *this;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-FragmentProgram::~FragmentProgram(void)
-{
-  if (programID)
-    cgDestroyProgram((CGprogram) programID);
-}
-
-const String& FragmentProgram::getText(void) const
-{
-  return text;
-}
-
-Ref<FragmentProgram> FragmentProgram::create(const ResourceInfo& info,
-                                             Context& context,
-                                             const String& text)
-{
-  Ref<FragmentProgram> program(new FragmentProgram(info, context));
-  if (!program->init(text))
-    return NULL;
-
-  return program;
-}
-
-Ref<FragmentProgram> FragmentProgram::read(Context& context, const Path& path)
-{
-  FragmentProgramReader reader(context);
-  return reader.read(path);
-}
-
-FragmentProgram::FragmentProgram(const ResourceInfo& info, Context& initContext):
-  Resource(info),
-  context(initContext),
-  programID(NULL)
-{
-}
-
-FragmentProgram::FragmentProgram(const FragmentProgram& source):
-  Resource(source),
-  context(source.context)
-{
-}
-
-bool FragmentProgram::init(const String& initText)
-{
-  text = initText;
-
-  programID = cgCreateProgram((CGcontext) context.cgContextID,
-                              CG_SOURCE,
-			      text.c_str(),
-			      (CGprofile) context.cgFragmentProfile,
-			      NULL,
-			      NULL);
-  if (!programID)
-  {
-    Log::writeError("Failed to compile Cg fragment program \'%s\':\n%s\n%s",
-                    getPath().asString().c_str(),
-                    cgGetErrorString(cgGetError()),
-		    cgGetLastListing((CGcontext) context.cgContextID));
-    return false;
-  }
-
-  return true;
-}
-
-FragmentProgram& FragmentProgram::operator = (const FragmentProgram& source)
-{
-  return *this;
-}
-
-///////////////////////////////////////////////////////////////////////
 
 Varying* Program::findVarying(const String& name)
 {
@@ -752,20 +648,10 @@ const Sampler& Program::getSampler(unsigned int index) const
   return samplers[index];
 }
 
-VertexProgram& Program::getVertexProgram(void) const
-{
-  return *vertexProgram;
-}
-
-FragmentProgram& Program::getFragmentProgram(void) const
-{
-  return *fragmentProgram;
-}
-
 Ref<Program> Program::create(const ResourceInfo& info,
                              Context& context,
-                             VertexProgram& vertexProgram,
-			     FragmentProgram& fragmentProgram)
+                             const VertexProgram& vertexProgram,
+			     const FragmentProgram& fragmentProgram)
 {
   Ref<Program> program(new Program(info, context));
   if (!program->init(vertexProgram, fragmentProgram))
@@ -792,25 +678,58 @@ Program::Program(const Program& source):
 {
 }
 
-bool Program::init(VertexProgram& initVertexProgram, FragmentProgram& initFragmentProgram)
+bool Program::init(const VertexProgram& vertexProgram,
+                   const FragmentProgram& fragmentProgram)
 {
-  vertexProgram = &initVertexProgram;
-  fragmentProgram = &initFragmentProgram;
-
-  cgGLLoadProgram((CGprogram) vertexProgram->programID);
-
-  if (!checkCg("Failed to load vertex program \'%s\'", vertexProgram->getPath().asString().c_str()))
+  vertexProgramID = cgCreateProgram((CGcontext) context.cgContextID,
+                                    CG_SOURCE,
+			            vertexProgram.text.c_str(),
+			            (CGprofile) context.cgVertexProfile,
+			            NULL,
+			            NULL);
+  if (!vertexProgramID)
+  {
+    Log::writeError("Failed to compile Cg vertex program \'%s\':\n%s\n%s",
+                    vertexProgram.path.asString().c_str(),
+                    cgGetErrorString(cgGetError()),
+		    cgGetLastListing((CGcontext) context.cgContextID));
     return false;
+  }
 
-  cgGLLoadProgram((CGprogram) fragmentProgram->programID);
-
-  if (!checkCg("Failed to load fragment program \'%s\'", fragmentProgram->getPath().asString().c_str()))
+  fragmentProgramID = cgCreateProgram((CGcontext) context.cgContextID,
+                                      CG_SOURCE,
+			              fragmentProgram.text.c_str(),
+			              (CGprofile) context.cgFragmentProfile,
+			              NULL,
+			              NULL);
+  if (!fragmentProgramID)
+  {
+    Log::writeError("Failed to compile Cg fragment program \'%s\':\n%s\n%s",
+                    fragmentProgram.path.asString().c_str(),
+                    cgGetErrorString(cgGetError()),
+		    cgGetLastListing((CGcontext) context.cgContextID));
     return false;
+  }
+
+  cgGLLoadProgram((CGprogram) vertexProgramID);
+
+  if (!checkCg("Failed to load vertex program \'%s\'",
+               vertexProgram.path.asString().c_str()))
+  {
+    return false;
+  }
+
+  cgGLLoadProgram((CGprogram) fragmentProgramID);
+
+  if (!checkCg("Failed to load fragment program \'%s\'",
+               fragmentProgram.path.asString().c_str()))
+  {
+    return false;
+  }
 
   CGparameter parameter;
 
-  parameter = cgGetFirstLeafParameter((CGprogram) vertexProgram->programID,
-                                      CG_PROGRAM);
+  parameter = cgGetFirstLeafParameter((CGprogram) vertexProgramID, CG_PROGRAM);
 
   while (parameter)
   {
@@ -858,8 +777,7 @@ bool Program::init(VertexProgram& initVertexProgram, FragmentProgram& initFragme
     parameter = cgGetNextLeafParameter(parameter);
   }
 
-  parameter = cgGetFirstLeafParameter((CGprogram) fragmentProgram->programID,
-                                      CG_PROGRAM);
+  parameter = cgGetFirstLeafParameter((CGprogram) fragmentProgramID, CG_PROGRAM);
 
   while (parameter)
   {
@@ -899,8 +817,8 @@ bool Program::init(VertexProgram& initVertexProgram, FragmentProgram& initFragme
 
 void Program::apply(void) const
 {
-  cgGLBindProgram((CGprogram) vertexProgram->programID);
-  cgGLBindProgram((CGprogram) fragmentProgram->programID);
+  cgGLBindProgram((CGprogram) vertexProgramID);
+  cgGLBindProgram((CGprogram) fragmentProgramID);
 }
 
 Program& Program::operator = (const Program& source)
@@ -1051,66 +969,6 @@ bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
 
 ///////////////////////////////////////////////////////////////////////
 
-VertexProgramReader::VertexProgramReader(Context& initContext):
-  ResourceReader(initContext.getIndex()),
-  context(initContext)
-{
-}
-
-Ref<VertexProgram> VertexProgramReader::read(const Path& path)
-{
-  if (Resource* cache = getIndex().findResource(path))
-    return dynamic_cast<VertexProgram*>(cache);
-
-  ResourceInfo info(getIndex(), path);
-
-  std::ifstream stream;
-  if (!open(stream, info.path))
-    return NULL;
-
-  stream.seekg(0, std::ios::end);
-
-  String text;
-  text.resize(stream.tellg());
-
-  stream.seekg(0, std::ios::beg);
-  stream.read(&text[0], text.size());
-
-  return VertexProgram::create(info, context, text);
-}
-
-///////////////////////////////////////////////////////////////////////
-
-FragmentProgramReader::FragmentProgramReader(Context& initContext):
-  ResourceReader(initContext.getIndex()),
-  context(initContext)
-{
-}
-
-Ref<FragmentProgram> FragmentProgramReader::read(const Path& path)
-{
-  if (Resource* cache = getIndex().findResource(path))
-    return dynamic_cast<FragmentProgram*>(cache);
-
-  ResourceInfo info(getIndex(), path);
-
-  std::ifstream stream;
-  if (!open(stream, info.path))
-    return NULL;
-
-  stream.seekg(0, std::ios::end);
-
-  String text;
-  text.resize(stream.tellg());
-
-  stream.seekg(0, std::ios::beg);
-  stream.read(&text[0], text.size());
-
-  return FragmentProgram::create(info, context, text);
-}
-
-///////////////////////////////////////////////////////////////////////
-
 ProgramReader::ProgramReader(Context& initContext):
   ResourceReader(initContext.getIndex()),
   context(initContext),
@@ -1173,28 +1031,29 @@ bool ProgramReader::onBeginElement(const String& name)
   {
     if (vertexProgram)
     {
-      Log::writeError("Cannot nest vertex programs");
+      Log::writeError("Program specification \'%s\' contains more than one vertex program",
+                      info.path.asString().c_str());
       return false;
     }
 
-    Path vertexProgramPath(readString("path"));
-    if (vertexProgramPath.isEmpty())
+    Path path(readString("path"));
+    if (path.isEmpty())
     {
-      Log::writeError("Vertex program name in shader program \'%s\' is empty",
+      Log::writeError("Vertex program path in shader program \'%s\' is empty",
                       info.path.asString().c_str());
       return true;
     }
 
-    VertexProgramReader reader(context);
-    vertexProgram = reader.read(vertexProgramPath);
-    if (!vertexProgram)
+    String text;
+    if (!readTextFile(text, path))
     {
       Log::writeError("Cannot find vertex program \'%s\' for shader program \'%s\'",
-                      vertexProgramPath.asString().c_str(),
+                      path.asString().c_str(),
 		      info.path.asString().c_str());
       return false;
     }
 
+    vertexProgram = new VertexProgram(text, path);
     return true;
   }
 
@@ -1202,28 +1061,29 @@ bool ProgramReader::onBeginElement(const String& name)
   {
     if (fragmentProgram)
     {
-      Log::writeError("Cannot nest fragment programs");
+      Log::writeError("Program specification \'%s\' contains more than one fragment program",
+                      info.path.asString().c_str());
       return false;
     }
 
-    Path fragmentProgramPath(readString("path"));
-    if (fragmentProgramPath.isEmpty())
+    Path path(readString("path"));
+    if (path.isEmpty())
     {
-      Log::writeError("Fragment program name in shader program \'%s\' is empty",
+      Log::writeError("Fragment program path in shader program \'%s\' is empty",
                       info.path.asString().c_str());
       return true;
     }
 
-    FragmentProgramReader reader(context);
-    fragmentProgram = reader.read(fragmentProgramPath);
-    if (!fragmentProgram)
+    String text;
+    if (!readTextFile(text, path))
     {
       Log::writeError("Cannot find fragment program \'%s\' for shader program \'%s\'",
-                      fragmentProgramPath.asString().c_str(),
+                      path.asString().c_str(),
 		      info.path.asString().c_str());
       return false;
     }
 
+    fragmentProgram = new FragmentProgram(text, path);
     return true;
   }
 
@@ -1258,6 +1118,21 @@ bool ProgramReader::onEndElement(const String& name)
     return true;
   }
 
+  return true;
+}
+
+bool ProgramReader::readTextFile(String& text, const Path& path)
+{
+  std::ifstream stream;
+  if (!open(stream, path))
+    return false;
+
+  stream.seekg(0, std::ios::end);
+
+  text.resize(stream.tellg());
+
+  stream.seekg(0, std::ios::beg);
+  stream.read(&text[0], text.size());
   return true;
 }
 
