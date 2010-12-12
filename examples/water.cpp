@@ -1,6 +1,8 @@
 
 #include <wendy/Wendy.h>
 
+#include <cstdlib>
+
 using namespace wendy;
 
 class Demo : public Trackable
@@ -32,7 +34,7 @@ Demo::~Demo(void)
 
 bool Demo::init(void)
 {
-  if (!index.addSearchPath(Path("media")))
+  if (!index.addSearchPath(Path("../media")))
     return false;
 
   if (!GL::Context::createSingleton(index))
@@ -144,7 +146,7 @@ void Demo::onWheelTurned(int offset)
 int main(void)
 {
   if (!wendy::initialize())
-    exit(1);
+    std::exit(EXIT_FAILURE);
 
   Ptr<Demo> demo(new Demo());
   if (demo->init())
@@ -153,6 +155,6 @@ int main(void)
   demo = NULL;
 
   wendy::shutdown();
-  exit(0);
+  std::exit(EXIT_SUCCESS);
 }
 
