@@ -64,7 +64,7 @@ bool Demo::init(void)
     return false;
 
   font = render::Font::read(*render::GeometryPool::get(),
-                            Path("wendy/default.renderfont"));
+                            Path("wendy/default.font"));
   if (!font)
   {
     Log::writeError("Failed to load font");
