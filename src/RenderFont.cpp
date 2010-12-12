@@ -52,6 +52,52 @@ namespace wendy
 namespace
 {
 
+unsigned int findStartY(const Image& image)
+{
+  const Byte* pixels = (const Byte*) image.getPixels();
+
+  unsigned int startY;
+
+  for (startY = 0;  startY < image.getHeight();  startY++)
+  {
+    unsigned int x;
+
+    for (x = 0;  x < image.getWidth();  x++)
+    {
+      if (pixels[x + startY * image.getWidth()] > 0)
+	break;
+    }
+
+    if (x < image.getWidth())
+      break;
+  }
+
+  return startY;
+}
+
+unsigned int findEndY(const Image& image)
+{
+  const Byte* pixels = (const Byte*) image.getPixels();
+
+  unsigned int endY;
+
+  for (endY = image.getHeight();  endY > 0;  endY--)
+  {
+    unsigned int x;
+
+    for (x = 0;  x < image.getWidth();  x++)
+    {
+      if (pixels[x + (endY - 1) * image.getWidth()] > 0)
+	break;
+    }
+
+    if (x < image.getWidth())
+      break;
+  }
+
+  return endY;
+}
+
 unsigned int getNextPower(unsigned int value)
 {
   unsigned int count = 0;
@@ -65,6 +111,27 @@ unsigned int getNextPower(unsigned int value)
 const unsigned int FONT_XML_VERSION = 1;
 
 } /*namespace*/
+
+///////////////////////////////////////////////////////////////////////
+
+FontData::FontData(void)
+{
+  for (int i = 0;  i < 256;  i++)
+    characters[i] = -1;
+}
+
+FontData::FontData(const FontData& source)
+{
+  operator = (source);
+}
+
+FontData& FontData::operator = (const FontData& source)
+{
+  glyphs = source.glyphs;
+
+  std::memcpy(characters, source.characters, sizeof(characters));
+  return *this;
+}
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -228,11 +295,10 @@ void Font::getTextLayout(LayoutList& layout, const char* format, ...) const
 
 Ref<Font> Font::create(const ResourceInfo& info,
                        GeometryPool& pool,
-                       const wendy::Font& data,
-                       GL::Program& program)
+                       const FontData& data)
 {
   Ref<Font> font(new Font(info, pool));
-  if (!font->init(data, program))
+  if (!font->init(data))
     return NULL;
 
   return font;
@@ -265,19 +331,19 @@ Font& Font::operator = (const Font& source)
   return *this;
 }
 
-bool Font::init(const wendy::Font& font, GL::Program& program)
+bool Font::init(const FontData& data)
 {
-  const unsigned int maxSize = pool.getContext().getLimits().getMaxTextureSize();
-
   unsigned int maxWidth = 0, maxHeight = 0;
 
-  for (size_t i = 0;  i < font.glyphs.size();  i++)
+  for (int i = 0;  i < data.glyphs.size();  i++)
   {
-    const unsigned int width = font.glyphs[i].image->getWidth();
+    const FontGlyphData& glyph = data.glyphs[i];
+
+    const unsigned int width = glyph.image->getWidth();
     if (maxWidth < width)
       maxWidth = width;
 
-    const unsigned int height = font.glyphs[i].image->getHeight();
+    const unsigned int height = glyph.image->getHeight();
     if (maxHeight < height)
       maxHeight = height;
   }
@@ -286,21 +352,32 @@ bool Font::init(const wendy::Font& font, GL::Program& program)
 
   // Create glyph texture
   {
-    unsigned int width = maxWidth * font.glyphs.size() + 1;
+    const unsigned int maxSize = pool.getContext().getLimits().getMaxTextureSize();
+
+    unsigned int width = (maxWidth + 1) * data.glyphs.size() + 1;
     width = std::min(getNextPower(width), maxSize);
 
-    unsigned int rows = font.glyphs.size() * maxWidth / (width - 1);
+    unsigned int rows = data.glyphs.size() * maxWidth / (width - 1);
     if (maxWidth % (width - 1))
       rows++;
 
-    unsigned int height = maxHeight * rows + 1;
+    unsigned int height = (maxHeight + 1) * rows + 1;
     height = std::min(getNextPower(height), maxSize);
 
     Image image(getIndex(), PixelFormat::R8, width, height);
 
     texture = GL::Texture::create(getIndex(), pool.getContext(), image, 0);
     if (!texture)
+    {
+      Log::writeError("Failed to create glyph texture for font \'%s\'",
+                      getPath().asString().c_str());
       return false;
+    }
+
+    Log::write("Allocated %ux%u texture for font \'%s\'",
+               texture->getWidth(),
+               texture->getHeight(),
+               getPath().asString().c_str());
 
     texture->setFilterMode(GL::FILTER_NEAREST);
   }
@@ -311,19 +388,32 @@ bool Font::init(const wendy::Font& font, GL::Program& program)
 
   // Create render pass
   {
+    Path programPath("wendy/RenderFont.program");
+
+    Ref<GL::Program> program = GL::Program::read(pool.getContext(), programPath);
+    if (!program)
+    {
+      Log::writeError("Failed to read shader program \'%s\' for font \'%s\'",
+                      programPath.asString().c_str(),
+                      getPath().asString().c_str());
+      return false;
+    }
+
     GL::ProgramInterface interface;
     interface.addSampler("glyphs", GL::Sampler::SAMPLER_2D);
     interface.addUniform("color", GL::Uniform::FLOAT_VEC4);
     interface.addVarying("position", GL::Varying::FLOAT_VEC2);
     interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
 
-    if (!interface.matches(program, true))
+    if (!interface.matches(*program, true))
     {
-      Log::writeError("Font shader program does not conform to the required interface");
+      Log::writeError("Shader program \'%s\' for font \'%s\' does not conform to the required interface",
+                      programPath.asString().c_str(),
+                      getPath().asString().c_str());
       return false;
     }
 
-    pass.setProgram(&program);
+    pass.setProgram(program);
     pass.setDepthTesting(false);
     pass.setDepthWriting(false);
     pass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
@@ -336,24 +426,28 @@ bool Font::init(const wendy::Font& font, GL::Program& program)
   Vec2i texelPosition(1, 1);
 
   GL::TextureImage& textureImage = texture->getImage(0);
+  const unsigned int textureWidth = textureImage.getWidth();
+  const unsigned int textureHeight = textureImage.getHeight();
 
-  for (unsigned int i = 0;  i < font.glyphs.size();  i++)
+  glyphs.reserve(data.glyphs.size());
+
+  for (int i = 0;  i < data.glyphs.size();  i++)
   {
-    const wendy::FontGlyph& sourceGlyph = font.glyphs[i];
+    const FontGlyphData& glyphData = data.glyphs[i];
 
     glyphs.push_back(Glyph());
     Glyph& glyph = glyphs.back();
 
-    for (unsigned int i = 0;  i < 256;  i++)
+    for (int c = 0;  c < 256;  c++)
     {
-      if (font.characters[i] == &sourceGlyph)
-        characters[i] = &glyph;
+      if (data.characters[c] == i)
+        characters[c] = &glyph;
     }
 
-    Ref<Image> image = sourceGlyph.image;
+    Ref<Image> image = glyphData.image;
 
-    glyph.advance = sourceGlyph.advance;
-    glyph.bearing = sourceGlyph.bearing;
+    glyph.advance = glyphData.advance;
+    glyph.bearing = glyphData.bearing;
     glyph.size.set((float) image->getWidth(), (float) image->getHeight());
 
     if (glyph.bearing.y > ascender)
@@ -362,28 +456,32 @@ bool Font::init(const wendy::Font& font, GL::Program& program)
     if (glyph.size.y - glyph.bearing.y > descender)
       descender = glyph.size.y - glyph.bearing.y;
 
-    if (texelPosition.x + image->getWidth() + 2 > textureImage.getWidth())
+    if (texelPosition.x + image->getWidth() + 2 > textureWidth)
     {
       texelPosition.x = 1;
       texelPosition.y += (int) maxHeight;
 
-      if (texelPosition.y + image->getHeight() + 2 > textureImage.getHeight())
+      if (texelPosition.y + image->getHeight() + 2 > textureHeight)
       {
 	// TODO: Allocate next texture.
 	// TODO: Add texture pointer to glyphs.
-	Log::writeError("Not enough room in texture for font \'%s\'",
+	Log::writeError("Not enough room in glyph texture for font \'%s\'",
                         getPath().asString().c_str());
 	return false;
       }
     }
 
     if (!textureImage.copyFrom(*image, texelPosition.x, texelPosition.y))
+    {
+      Log::writeError("Failed to copy glyph image data for font \'%s\'",
+                      getPath().asString().c_str());
       return false;
+    }
 
-    glyph.area.position.set(texelPosition.x / (float) textureImage.getWidth() + texelOffset.x,
-			    texelPosition.y / (float) textureImage.getHeight() + texelOffset.y);
-    glyph.area.size.set(image->getWidth() / (float) textureImage.getWidth(),
-			image->getHeight() / (float) textureImage.getHeight());
+    glyph.area.position.set(texelPosition.x / (float) textureWidth + texelOffset.x,
+			    texelPosition.y / (float) textureHeight + texelOffset.y);
+    glyph.area.size.set(image->getWidth() / (float) textureWidth,
+			image->getHeight() / (float) textureHeight);
 
     texelPosition.x += image->getWidth() + 1;
   }
@@ -470,60 +568,222 @@ Ref<Font> FontReader::read(const Path& path)
   return font.detachObject();
 }
 
+bool FontReader::extractGlyphs(FontData& data,
+                               const Image& image,
+                               const String& characters)
+{
+  if (image.getFormat() != PixelFormat::R8)
+  {
+    Log::writeError("Image \'%s\' for font \'%s\' has invalid pixel format \'%s\'",
+                    image.getPath().asString().c_str(),
+                    info.path.asString().c_str(),
+                    image.getFormat().asString().c_str());
+    return false;
+  }
+
+  Image source = image;
+
+  // Crop top and bottom parts
+  {
+    const unsigned int startY = findStartY(source);
+    if (startY == source.getHeight())
+    {
+      Log::writeError("No glyphs found in source image for font \'%s\'",
+                      info.path.asString().c_str());
+      return false;
+    }
+
+    const unsigned int endY = findEndY(source);
+
+    if (!source.crop(Recti(0, startY, source.getWidth(), endY - startY)))
+    {
+      Log::writeError("Failed to crop source image for font \'%s\'",
+                      info.path.asString().c_str());
+      return false;
+    }
+  }
+
+  data.glyphs.reserve(characters.length());
+
+  const Byte* pixels = (const Byte*) source.getPixels();
+
+  unsigned int index = 0, startX = 0, endX;
+
+  for (;;)
+  {
+    // Find left edge of glyph, if any
+
+    while (startX < source.getWidth())
+    {
+      unsigned int y;
+
+      for (y = 0;  y < source.getHeight();  y++)
+      {
+	if (pixels[startX + y * source.getWidth()] > 0)
+	  break;
+      }
+
+      if (y < source.getHeight())
+	break;
+
+      startX++;
+    }
+
+    if (startX == source.getWidth())
+      break;
+
+    if (index == characters.size())
+    {
+      Log::writeError("Font \'%s\' has less characters than glyphs",
+                      info.path.asString().c_str());
+      return false;
+    }
+
+    // Find right edge of glyph
+
+    for (endX = startX + 1;  endX < source.getWidth();  endX++)
+    {
+      unsigned int y;
+
+      for (y = 0;  y < source.getHeight();  y++)
+      {
+	if (pixels[endX + y * source.getWidth()] > 0)
+	  break;
+      }
+
+      if (y == source.getHeight())
+	break;
+    }
+
+    Recti area(startX, 0, endX - startX, source.getHeight());
+
+    Ref<Image> glyphImage = source.getArea(area);
+    if (!glyphImage)
+    {
+      Log::writeError("Failed to extract glyph image for font \'%s\'",
+                      info.path.asString().c_str());
+      return false;
+    }
+
+    data.characters[characters[index++]] = data.glyphs.size();
+
+    data.glyphs.push_back(FontGlyphData());
+    FontGlyphData& glyph = data.glyphs.back();
+    glyph.bearing.set(0.f, glyphImage->getHeight() / 2.f);
+    glyph.advance = (float) glyphImage->getWidth();
+    glyph.image = glyphImage;
+
+    startX = endX;
+  }
+
+  // HACK: Make digits same width
+  {
+    std::vector<FontGlyphData*> digitGlyphs;
+
+    float maxAdvance = 0.f;
+
+    for (int c = '0';  c <= '9';  c++)
+    {
+      const int index = data.characters[c];
+      if (index == -1)
+        continue;
+
+      FontGlyphData& glyph = data.glyphs[index];
+      if (glyph.advance > maxAdvance)
+	maxAdvance = glyph.advance;
+
+      digitGlyphs.push_back(&glyph);
+    }
+
+    for (int i = 0;  i < digitGlyphs.size();  i++)
+    {
+      FontGlyphData& glyph = *digitGlyphs[i];
+
+      glyph.bearing.x = (maxAdvance - glyph.advance) / 2.f;
+      glyph.advance = maxAdvance;
+    }
+  }
+
+  // HACK: Introduce 'tasteful' spacing
+  {
+    float meanAdvance = 0.f;
+
+    for (int i = 0;  i < data.glyphs.size();  i++)
+      meanAdvance += data.glyphs[i].advance;
+
+    meanAdvance /= (float) data.glyphs.size();
+
+    for (size_t i = 0;  i < data.glyphs.size();  i++)
+      data.glyphs[i].advance += meanAdvance * 0.2f;
+
+    if (data.characters[' '] == -1)
+    {
+      // HACK: Create space glyph if not already present
+
+      data.characters[' '] = data.glyphs.size();
+
+      data.glyphs.push_back(FontGlyphData());
+      FontGlyphData& glyph = data.glyphs.back();
+
+      glyph.bearing.set(0.f, 0.f);
+      glyph.advance = meanAdvance * 0.6f;
+      glyph.image = new Image(getIndex(), source.getFormat(), 1, 1);
+    }
+  }
+
+  return true;
+}
+
 bool FontReader::onBeginElement(const String& name)
 {
   if (name == "font")
   {
     if (font)
     {
-      Log::writeError("Only one font per file allowed");
+      Log::writeError("More than one font specification found in font \'%s\'",
+                      info.path.asString().c_str());
       return false;
     }
 
     const unsigned int version = readInteger("version");
     if (version != FONT_XML_VERSION)
     {
-      Log::writeError("Font specification XML format version mismatch");
-      return false;
-    }
-
-    Path dataPath(readString("data"));
-    if (dataPath.isEmpty())
-    {
-      Log::writeError("Font data path for render font \'%s\' is empty",
+      Log::writeError("XML format version mismatch in font \'%s\'",
                       info.path.asString().c_str());
       return false;
     }
 
-    wendy::FontReader fontReader(getIndex());
-    Ref<wendy::Font> data = fontReader.read(dataPath);
-    if (!data)
+    String characters = readString("characters");
+    if (characters.empty())
     {
-      Log::writeError("Failed to load font data \'%s\' for render font \'%s\'",
-                      dataPath.asString().c_str(),
+      Log::writeError("No characters specified for font \'%s\'",
                       info.path.asString().c_str());
       return false;
     }
 
-    Path programPath(readString("program"));
-    if (programPath.isEmpty())
+    Path imagePath(readString("image"));
+    if (imagePath.isEmpty())
     {
-      Log::writeError("Shader program path for render font \'%s\' is empty",
+      Log::writeError("Image path missing for font \'%s\'",
                       info.path.asString().c_str());
       return false;
     }
 
-    GL::ProgramReader programReader(pool.getContext());
-    Ref<GL::Program> program = programReader.read(programPath);
-    if (!program)
+    Ref<Image> image = Image::read(getIndex(), imagePath);
+    if (!image)
     {
-      Log::writeError("Failed to load shader program \'%s\' for render font \'%s\'",
-                      programPath.asString().c_str(),
+      Log::writeError("Cannot find image \'%s\' for font \'%s\'",
+                      imagePath.asString().c_str(),
                       info.path.asString().c_str());
       return false;
     }
 
-    font = Font::create(info, pool, *data, *program);
+    FontData data;
+
+    if (!extractGlyphs(data, *image, characters))
+      return false;
+
+    font = Font::create(info, pool, data);
     if (!font)
       return false;
 

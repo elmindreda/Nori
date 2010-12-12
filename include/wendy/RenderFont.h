@@ -26,19 +26,33 @@
 #define WENDY_RENDERFONT_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Vector.h>
-#include <wendy/Color.h>
-#include <wendy/Rectangle.h>
-#include <wendy/Path.h>
-#include <wendy/Resource.h>
-#include <wendy/Font.h>
-
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
   namespace render
   {
+
+///////////////////////////////////////////////////////////////////////
+
+class FontGlyphData
+{
+public:
+  Vec2 bearing;
+  float advance;
+  Ref<Image> image;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class FontData
+{
+public:
+  typedef std::vector<FontGlyphData> GlyphList;
+  FontData(void);
+  FontData(const FontData& source);
+  FontData& operator = (const FontData& source);
+  GlyphList glyphs;
+  int characters[256];
+};
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -90,15 +104,14 @@ public:
   void getTextLayout(LayoutList& result, const char* format, ...) const;
   static Ref<Font> create(const ResourceInfo& info,
                           GeometryPool& pool,
-                          const wendy::Font& data,
-                          GL::Program& program);
+                          const FontData& data);
   static Ref<Font> read(GeometryPool& pool, const Path& path);
 private:
   class Glyph;
   Font(const ResourceInfo& info, GeometryPool& pool);
   Font(const Font& source);
   Font& operator = (const Font& source);
-  bool init(const wendy::Font& font, GL::Program& program);
+  bool init(const FontData& font);
   const Glyph* findGlyph(char character) const;
   bool getGlyphLayout(Layout& layout, char character) const;
   void getGlyphLayout(Layout& layout, const Glyph& glyph, char character) const;
@@ -148,6 +161,7 @@ public:
   FontReader(GeometryPool& pool);
   Ref<Font> read(const Path& path);
 private:
+  bool extractGlyphs(FontData& data, const Image& image, const String& characters);
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
   GeometryPool& pool;

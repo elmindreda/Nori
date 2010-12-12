@@ -92,7 +92,6 @@
 
 #include <wendy/Animation.h>
 #include <wendy/Image.h>
-#include <wendy/Font.h>
 #include <wendy/Mesh.h>
 
 #include <wendy/OpenGL.h>
