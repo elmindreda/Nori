@@ -43,9 +43,9 @@ Demo::~Demo(void)
   camera = NULL;
   renderer = NULL;
 
-  input::Context::destroy();
-  render::GeometryPool::destroy();
-  GL::Context::destroy();
+  input::Context::destroySingleton();
+  render::GeometryPool::destroySingleton();
+  GL::Context::destroySingleton();
 }
 
 bool Demo::init(void)
@@ -59,7 +59,7 @@ bool Demo::init(void)
   if (!GL::Context::createSingleton(index))
     return false;
 
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Sponza Atrium");
 
   const unsigned int width = context->getScreenCanvas().getWidth();
@@ -68,8 +68,8 @@ bool Demo::init(void)
   if (!input::Context::createSingleton(*context))
     return false;
 
-  input::Context::get()->getKeyPressedSignal().connect(*this, &Demo::onKeyPressed);
-  input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
+  input::Context::getSingleton()->getKeyPressedSignal().connect(*this, &Demo::onKeyPressed);
+  input::Context::getSingleton()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
 
   if (!render::GeometryPool::createSingleton(*context))
     return false;
@@ -110,14 +110,14 @@ bool Demo::init(void)
 
   timer.start();
 
-  input::Context::get()->setFocus(&controller);
+  input::Context::getSingleton()->setFocus(&controller);
 
   return true;
 }
 
 void Demo::run(void)
 {
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
 
   render::Queue queue(*camera);
 

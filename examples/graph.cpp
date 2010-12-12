@@ -24,8 +24,10 @@ private:
 
 Demo::~Demo(void)
 {
-  render::GeometryPool::destroy();
-  GL::Context::destroy();
+  graph.destroyRootNodes();
+
+  render::GeometryPool::destroySingleton();
+  GL::Context::destroySingleton();
 }
 
 bool Demo::init(void)
@@ -36,7 +38,7 @@ bool Demo::init(void)
   if (!GL::Context::createSingleton(index))
     return false;
 
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Program");
 
   if (!render::GeometryPool::createSingleton(*context))
@@ -69,7 +71,7 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
 
   do
   {

@@ -599,7 +599,7 @@ void ProgramState::apply(void) const
     for (SamplerList::const_iterator i = samplers.begin();  i != samplers.end();  i++)
       (**i).apply();
 
-    Context::get()->setCurrentProgram(program);
+    Context::getSingleton()->setCurrentProgram(program);
   }
 }
 
@@ -710,7 +710,7 @@ void ProgramState::setProgram(Program* newProgram)
     {
       Sampler& sampler = program->getSampler(i);
 
-      if (Context::get()->isReservedSampler(sampler.getName()))
+      if (Context::getSingleton()->isReservedSampler(sampler.getName()))
 	continue;
 
       samplers.push_back(new SamplerState(sampler));
@@ -720,7 +720,7 @@ void ProgramState::setProgram(Program* newProgram)
     {
       Uniform& uniform = program->getUniform(i);
 
-      if (Context::get()->isReservedUniform(uniform.getName()))
+      if (Context::getSingleton()->isReservedUniform(uniform.getName()))
 	continue;
 
       uniforms.push_back(new UniformState(uniform));
@@ -752,7 +752,7 @@ void ProgramState::destroyProgramState(void)
 
 void RenderState::apply(void) const
 {
-  if (Context* context = Context::get())
+  if (Context* context = Context::getSingleton())
   {
     if (Stats* stats = context->getStats())
       stats->addPasses(1);

@@ -223,7 +223,7 @@ const LightState& Queue::getLights(void) const
 void Queue::renderOperations(const OperationList& ops,
                              const String& passName) const
 {
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
   if (!context)
     throw Exception("Cannot render render queue without an OpenGL context");
 

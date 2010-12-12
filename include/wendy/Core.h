@@ -287,10 +287,10 @@ public:
   virtual ~Singleton(void);
   /*! Deletes the singleton instance.
    */
-  static inline void destroy(void);
+  static inline void destroySingleton(void);
   /*! @return The singleton instance if available, otherwise @c NULL.
    */
-  static inline T* get(void);
+  static inline T* getSingleton(void);
 protected:
   /*! Sets the singleton instance.
    *  @param newObject [in] The instance to set.
@@ -513,13 +513,13 @@ inline Singleton<T>::~Singleton(void)
 }
 
 template <typename T>
-inline void Singleton<T>::destroy(void)
+inline void Singleton<T>::destroySingleton(void)
 {
   object = NULL;
 }
 
 template <typename T>
-inline T* Singleton<T>::get(void)
+inline T* Singleton<T>::getSingleton(void)
 {
   return object;
 }

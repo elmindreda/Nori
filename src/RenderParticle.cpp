@@ -388,7 +388,7 @@ bool ParticleSystem::realizeVertices(GL::VertexRange& vertexRange,
                                      GL::IndexRange& indexRange,
 		                     const Vec3& camera) const
 {
-  GeometryPool* pool = GeometryPool::get();
+  GeometryPool* pool = GeometryPool::getSingleton();
   if (!pool)
   {
     Log::writeError("Cannot render particles without a geometry pool");

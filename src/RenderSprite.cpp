@@ -152,12 +152,12 @@ void Sprite2::render(void) const
   realizeVertices(vertices);
 
   GL::VertexRange range;
-  if (!GeometryPool::get()->allocateVertices(range, 4, Vertex2ft2fv::format))
+  if (!GeometryPool::getSingleton()->allocateVertices(range, 4, Vertex2ft2fv::format))
     return;
 
   range.copyFrom(vertices);
 
-  GL::Context::get()->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  GL::Context::getSingleton()->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 }
 
 void Sprite2::render(const Material& material) const
@@ -166,7 +166,7 @@ void Sprite2::render(const Material& material) const
   realizeVertices(vertices);
 
   GL::VertexRange range;
-  if (!GeometryPool::get()->allocateVertices(range, 4, Vertex2ft2fv::format))
+  if (!GeometryPool::getSingleton()->allocateVertices(range, 4, Vertex2ft2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -176,7 +176,7 @@ void Sprite2::render(const Material& material) const
   for (unsigned int pass = 0;  pass < technique->getPassCount();  pass++)
   {
     technique->applyPass(pass);
-    GL::Context::get()->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+    GL::Context::getSingleton()->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
   }
 }
 
@@ -218,7 +218,7 @@ Sprite3::Sprite3(void)
 
 void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
 {
-  if (!GeometryPool::get())
+  if (!GeometryPool::getSingleton())
   {
     Log::writeError("Cannot enqueue sprite without a geometry pool");
     return;
@@ -239,7 +239,7 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
   }
 
   GL::VertexRange range;
-  if (!GeometryPool::get()->allocateVertices(range, 4, Vertex2ft3fv::format))
+  if (!GeometryPool::getSingleton()->allocateVertices(range, 4, Vertex2ft3fv::format))
     return;
 
   const Vec3 cameraPosition = queue.getCamera().getTransform().position;
@@ -293,7 +293,7 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   if (slots.empty())
     return;
 
-  GeometryPool* pool = GeometryPool::get();
+  GeometryPool* pool = GeometryPool::getSingleton();
   if (!pool)
   {
     Log::writeError("Cannot enqueue sprite cloud without a renderer");

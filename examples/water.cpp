@@ -27,9 +27,9 @@ private:
 
 Demo::~Demo(void)
 {
-  input::Context::destroy();
-  render::GeometryPool::destroy();
-  GL::Context::destroy();
+  input::Context::destroySingleton();
+  render::GeometryPool::destroySingleton();
+  GL::Context::destroySingleton();
 }
 
 bool Demo::init(void)
@@ -40,7 +40,7 @@ bool Demo::init(void)
   if (!GL::Context::createSingleton(index))
     return false;
 
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Water");
 
   if (!render::GeometryPool::createSingleton(*context))
@@ -49,9 +49,9 @@ bool Demo::init(void)
   if (!input::Context::createSingleton(*context))
     return false;
 
-  input::Context::get()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
-  input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
-  input::Context::get()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
+  input::Context::getSingleton()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
+  input::Context::getSingleton()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
+  input::Context::getSingleton()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
 
   texture = GL::Texture::create(index, *context, Image(index, PixelFormat::RGB8, 64, 64), 0);
   if (!texture)
@@ -78,6 +78,8 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
+  GL::Context* context = GL::Context::getSingleton();
+
   do
   {
     graph.update();
@@ -85,19 +87,17 @@ void Demo::run(void)
     render::Queue queue(*camera);
     graph.enqueue(queue);
 
-    GL::Context* context = GL::Context::get();
-
     context->clearDepthBuffer();
     context->clearColorBuffer(ColorRGBA::BLACK);
 
     queue.render();
   }
-  while (GL::Context::get()->update());
+  while (context->update());
 }
 
 void Demo::onButtonClicked(input::Button button, bool clicked)
 {
-  input::Context* context = input::Context::get();
+  input::Context* context = input::Context::getSingleton();
 
   if (clicked)
   {
@@ -110,7 +110,7 @@ void Demo::onButtonClicked(input::Button button, bool clicked)
 
 void Demo::onCursorMoved(const Vec2i& position)
 {
-  input::Context* context = input::Context::get();
+  input::Context* context = input::Context::getSingleton();
 
   if (context->isCursorCaptured())
   {

@@ -353,7 +353,7 @@ bool Renderer::init(const Config& config)
 
 void Renderer::renderLightQuad(const render::Camera& camera)
 {
-  render::GeometryPool* pool = render::GeometryPool::get();
+  render::GeometryPool* pool = render::GeometryPool::getSingleton();
   if (!pool)
   {
     Log::writeError("Cannot render deferred lighting without a geometry pool");

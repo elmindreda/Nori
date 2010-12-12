@@ -41,8 +41,8 @@ Demo::~Demo(void)
 {
   font = NULL;
 
-  render::GeometryPool::destroy();
-  GL::Context::destroy();
+  render::GeometryPool::destroySingleton();
+  GL::Context::destroySingleton();
 }
 
 bool Demo::init(void)
@@ -56,14 +56,14 @@ bool Demo::init(void)
     return false;
   }
 
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Font Test");
   context->setRefreshMode(GL::Context::MANUAL_REFRESH);
 
   if (!render::GeometryPool::createSingleton(*context))
     return false;
 
-  font = render::Font::read(*render::GeometryPool::get(),
+  font = render::Font::read(*render::GeometryPool::getSingleton(),
                             Path("wendy/default.font"));
   if (!font)
   {
@@ -76,7 +76,7 @@ bool Demo::init(void)
 
 bool Demo::render(void)
 {
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
   context->clearColorBuffer();
   context->setProjectionMatrix2D(640.f, 480.f);
 
@@ -107,7 +107,7 @@ int main(int argc, char** argv)
     {
       demo->render();
     }
-    while (GL::Context::get()->update());
+    while (GL::Context::getSingleton()->update());
   }
 
   demo = NULL;

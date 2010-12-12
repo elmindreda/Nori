@@ -211,25 +211,25 @@ bool isCompatible(const Varying& varying, const VertexComponent& component)
 
 void requestModelMatrix(Uniform& uniform)
 {
-  Context* context = Context::get();
+  Context* context = Context::getSingleton();
   uniform.setValue(context->getModelMatrix());
 }
 
 void requestViewMatrix(Uniform& uniform)
 {
-  Context* context = Context::get();
+  Context* context = Context::getSingleton();
   uniform.setValue(context->getViewMatrix());
 }
 
 void requestProjectionMatrix(Uniform& uniform)
 {
-  Context* context = Context::get();
+  Context* context = Context::getSingleton();
   uniform.setValue(context->getProjectionMatrix());
 }
 
 void requestModelViewMatrix(Uniform& uniform)
 {
-  Context* context = Context::get();
+  Context* context = Context::getSingleton();
   Mat4 value = context->getViewMatrix();
   value *= context->getModelMatrix();
   uniform.setValue(value);
@@ -237,7 +237,7 @@ void requestModelViewMatrix(Uniform& uniform)
 
 void requestViewProjectionMatrix(Uniform& uniform)
 {
-  Context* context = Context::get();
+  Context* context = Context::getSingleton();
   Mat4 value = context->getProjectionMatrix();
   value *= context->getViewMatrix();
   uniform.setValue(value);
@@ -245,7 +245,7 @@ void requestViewProjectionMatrix(Uniform& uniform)
 
 void requestModelViewProjectionMatrix(Uniform& uniform)
 {
-  Context* context = Context::get();
+  Context* context = Context::getSingleton();
   Mat4 value = context->getProjectionMatrix();
   value *= context->getViewMatrix();
   value *= context->getModelMatrix();

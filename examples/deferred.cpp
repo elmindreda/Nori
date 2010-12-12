@@ -31,9 +31,9 @@ Demo::~Demo(void)
   camera = NULL;
   renderer = NULL;
 
-  input::Context::destroy();
-  render::GeometryPool::destroy();
-  GL::Context::destroy();
+  input::Context::destroySingleton();
+  render::GeometryPool::destroySingleton();
+  GL::Context::destroySingleton();
 }
 
 bool Demo::init(void)
@@ -44,7 +44,7 @@ bool Demo::init(void)
   if (!GL::Context::createSingleton(index))
     return false;
 
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Deferred Rendering");
 
   const unsigned int width = context->getScreenCanvas().getWidth();
@@ -122,7 +122,7 @@ bool Demo::init(void)
   lightNode->setLight(light);
   graph.addRootNode(*lightNode);
 
-  input::Context::get()->setFocus(&controller);
+  input::Context::getSingleton()->setFocus(&controller);
 
   timer.start();
 
@@ -131,7 +131,7 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
 
   render::Queue queue(*camera);
 

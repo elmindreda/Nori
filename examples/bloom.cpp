@@ -43,9 +43,9 @@ Demo::~Demo(void)
 
   graph.destroyRootNodes();
 
-  input::Context::destroy();
-  render::GeometryPool::destroy();
-  GL::Context::destroy();
+  input::Context::destroySingleton();
+  render::GeometryPool::destroySingleton();
+  GL::Context::destroySingleton();
 }
 
 bool Demo::init(void)
@@ -56,7 +56,7 @@ bool Demo::init(void)
   if (!GL::Context::createSingleton(index))
     return false;
 
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Bloom");
 
   if (!render::GeometryPool::createSingleton(*context))
@@ -65,9 +65,9 @@ bool Demo::init(void)
   if (!input::Context::createSingleton(*context))
     return false;
 
-  input::Context::get()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
-  input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
-  input::Context::get()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
+  input::Context::getSingleton()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
+  input::Context::getSingleton()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
+  input::Context::getSingleton()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
 
   const int size = 32;
 
@@ -176,7 +176,7 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
 
   render::Queue queue(*camera);
 
@@ -232,7 +232,7 @@ void Demo::run(void)
 
 void Demo::onButtonClicked(input::Button button, bool clicked)
 {
-  input::Context* context = input::Context::get();
+  input::Context* context = input::Context::getSingleton();
 
   if (clicked)
   {
@@ -245,7 +245,7 @@ void Demo::onButtonClicked(input::Button button, bool clicked)
 
 void Demo::onCursorMoved(const Vec2i& position)
 {
-  input::Context* context = input::Context::get();
+  input::Context* context = input::Context::getSingleton();
 
   if (context->isCursorCaptured())
   {

@@ -18,7 +18,7 @@ bool init(void)
     return false;
   }
 
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Clear screen");
 
   return true;
@@ -40,7 +40,7 @@ int main(void)
     std::exit(1);
   }
 
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
 
   do
   {
@@ -48,7 +48,7 @@ int main(void)
   }
   while (context->update());
 
-  GL::Context::destroy();
+  GL::Context::destroySingleton();
 
   wendy::shutdown();
   std::exit(0);

@@ -24,9 +24,8 @@ Test::~Test(void)
 {
   material = NULL;
 
-  render::GeometryPool::destroy();
-
-  GL::Context::destroy();
+  render::GeometryPool::destroySingleton();
+  GL::Context::destroySingleton();
 }
 
 bool Test::init(void)
@@ -40,7 +39,7 @@ bool Test::init(void)
     return false;
   }
 
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Particles");
 
   if (!render::GeometryPool::createSingleton(*context))
@@ -62,7 +61,7 @@ bool Test::init(void)
 
 void Test::run(void)
 {
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
 
   do
   {

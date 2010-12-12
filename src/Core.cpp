@@ -215,7 +215,7 @@ void Log::writeError(const char* format, ...)
   if (result < 0)
     return;
 
-  if (Log* log = Log::get())
+  if (Log* log = Log::getSingleton())
     log->write(ERROR, "Error: %s", message);
   else
     std::fprintf(stderr, "Error: %s\n", message);
@@ -236,7 +236,7 @@ void Log::writeWarning(const char* format, ...)
   if (result < 0)
     return;
 
-  if (Log* log = Log::get())
+  if (Log* log = Log::getSingleton())
     log->write(WARNING, "Warning: %s", message);
   else
     std::fprintf(stderr, "Warning: %s\n", message);
@@ -257,7 +257,7 @@ void Log::write(const char* format, ...)
   if (result < 0)
     return;
 
-  if (Log* log = Log::get())
+  if (Log* log = Log::getSingleton())
     log->write(INFORMATION, "%s", message);
   else
     std::fprintf(stderr, "%s\n", message);

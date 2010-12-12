@@ -54,7 +54,7 @@ Camera::Camera(void):
 
 void Camera::apply(void) const
 {
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
   if (!context)
   {
     Log::writeError("Cannot make camera current without an OpenGL context");

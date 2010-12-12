@@ -24,8 +24,8 @@ Test::~Test(void)
 {
   graph.destroyRootNodes();
 
-  input::Context::destroy();
-  GL::Context::destroy();
+  input::Context::destroySingleton();
+  GL::Context::destroySingleton();
 }
 
 bool Test::init(void)
@@ -36,13 +36,13 @@ bool Test::init(void)
   if (!GL::Context::createSingleton(index))
     return false;
 
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Cube Map");
 
   if (!input::Context::createSingleton(*context))
     return false;
 
-  input::Context::get()->setFocus(&controller);
+  input::Context::getSingleton()->setFocus(&controller);
 
   Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("cube_cubemapped.mesh"));
   if (!mesh)
@@ -78,7 +78,7 @@ bool Test::init(void)
 
 void Test::run(void)
 {
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
 
   render::Queue queue(*camera);
 

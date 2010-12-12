@@ -446,7 +446,7 @@ void MayaCamera::onKeyPressed(Key key, bool pressed)
 
 void MayaCamera::onButtonClicked(Button button, bool clicked)
 {
-  Context* context = Context::get();
+  Context* context = Context::getSingleton();
 
   if (clicked)
   {
@@ -649,7 +649,7 @@ void SpectatorCamera::onCursorMoved(const Vec2i& position)
 
 void SpectatorCamera::onFocusChanged(bool activated)
 {
-  Context* context = Context::get();
+  Context* context = Context::getSingleton();
 
   if (activated)
     context->captureCursor();
