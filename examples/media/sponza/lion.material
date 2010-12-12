@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<material version="4">
+<material version="5">
   <technique quality="1">
     <pass>
-      <program name="DeferredMapped">
-        <sampler name="colormap" texture="lion_diff" />
+      <program path="wendy/DeferredMapped.program">
+        <sampler name="colormap" texture="lion_diff.texture" />
       </program>
     </pass>
   </technique>

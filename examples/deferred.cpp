@@ -60,7 +60,7 @@ bool Demo::init(void)
   if (!input::Context::createSingleton(*context))
     return false;
 
-  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("deferred/cube.mesh"));
+  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("cube_deferred.mesh"));
   if (!mesh)
   {
     Log::writeError("Failed to read mesh");
@@ -84,7 +84,7 @@ bool Demo::init(void)
     rootNode->addChild(*meshNode);
   }
 
-  Ref<GL::Texture> distAttTexture = GL::Texture::read(*context, Path("deferred/distatt.texture"));
+  Ref<GL::Texture> distAttTexture = GL::Texture::read(*context, Path("attenuation.texture"));
   if (!distAttTexture)
     return false;
 

@@ -78,11 +78,11 @@ bool Demo::init(void)
   if (!renderer)
     return false;
 
-  Ref<GL::Texture> distAttTexture = GL::Texture::read(*context, Path("distatt"));
+  Ref<GL::Texture> distAttTexture = GL::Texture::read(*context, Path("attenuation.texture"));
   if (!distAttTexture)
     return false;
 
-  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("sponza"));
+  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("sponza.mesh"));
   if (!mesh)
     return false;
 
