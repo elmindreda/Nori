@@ -70,7 +70,10 @@ bool Demo::init(void)
 
   const unsigned int size = 512;
 
-  depthmap = GL::Texture::create(index, *context, Image(index, PixelFormat::DEPTH32, size, size), 0);
+  depthmap = GL::Texture::create(ResourceInfo(index, Path("depthmap")),
+                                 *context,
+                                 Image(index, PixelFormat::DEPTH32, size, size),
+                                 0);
   if (!depthmap)
     return false;
 
@@ -85,7 +88,7 @@ bool Demo::init(void)
   canvas->setDepthBuffer(&depthmap->getImage());
   canvas->setColorBuffer(&colormap->getImage());
 
-  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("hills"));
+  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("cube_shadowmap.mesh"));
   if (!mesh)
   {
     Log::writeError("Failed to load mesh");

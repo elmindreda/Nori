@@ -501,7 +501,8 @@ bool MaterialReader::onBeginElement(const String& name)
           Path programPath(readString("path"));
           if (programPath.isEmpty())
           {
-            Log::writeError("Shader program path missing");
+            Log::writeError("Shader program path missing in material \'%s\'",
+                            material->getPath().asString().c_str());
             return false;
           }
 
