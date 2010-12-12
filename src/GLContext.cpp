@@ -834,7 +834,7 @@ void Context::render(const PrimitiveRange& range)
     return;
   }
 
-  for (unsigned int i = 0;  i < program.getVaryingCount();  i++)
+  for (int i = 0;  i < program.getVaryingCount();  i++)
   {
     Varying& varying = program.getVarying(i);
 
