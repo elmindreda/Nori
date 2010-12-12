@@ -1,6 +1,8 @@
 
 #include <wendy/Wendy.h>
 
+#include <cstdlib>
+
 using namespace wendy;
 
 class Test : public Trackable
@@ -11,6 +13,7 @@ public:
   void run(void);
 private:
   bool render(void);
+  ResourceIndex index;
   input::MayaCamera controller;
   Ref<render::Camera> camera;
   scene::Graph graph;
@@ -19,33 +22,29 @@ private:
 
 Test::~Test(void)
 {
+  graph.destroyRootNodes();
+
   input::Context::destroy();
   GL::Context::destroy();
 }
 
 bool Test::init(void)
 {
-  Image::addSearchPath(Path("media"));
-  ImageCube::addSearchPath(Path("media"));
-  Mesh::addSearchPath(Path("media"));
-  GL::Texture::addSearchPath(Path("media"));
-  GL::VertexProgram::addSearchPath(Path("media"));
-  GL::FragmentProgram::addSearchPath(Path("media"));
-  GL::Program::addSearchPath(Path("media"));
-  render::Material::addSearchPath(Path("media"));
+  if (!index.addSearchPath(Path("../media")))
+    return false;
 
-  if (!GL::Context::create(GL::ContextMode()))
+  if (!GL::Context::createSingleton(index))
     return false;
 
   GL::Context* context = GL::Context::get();
   context->setTitle("Cube Map");
 
-  if (!input::Context::create(*context))
+  if (!input::Context::createSingleton(*context))
     return false;
 
   input::Context::get()->setFocus(&controller);
 
-  Ref<render::Mesh> mesh = render::Mesh::readInstance("cube");
+  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("cube_cubemapped.mesh"));
   if (!mesh)
   {
     Log::writeError("Failed to load mesh");
@@ -101,7 +100,7 @@ void Test::run(void)
 int main()
 {
   if (!wendy::initialize())
-    exit(1);
+    std::exit(EXIT_FAILURE);
 
   Ptr<Test> test(new Test());
   if (test->init())
@@ -110,6 +109,6 @@ int main()
   test = NULL;
 
   wendy::shutdown();
-  exit(0);
+  std::exit(EXIT_SUCCESS);
 }
 

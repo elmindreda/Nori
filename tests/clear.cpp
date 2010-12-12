@@ -8,11 +8,11 @@ using namespace wendy;
 namespace
 {
 
+ResourceIndex index;
+
 bool init(void)
 {
-  GL::ContextMode mode(640, 480, 32, 32, 0, GL::ContextMode::WINDOWED);
-
-  if (!GL::Context::create(mode))
+  if (!GL::Context::createSingleton(index))
   {
     Log::writeError("Failed to create OpenGL context");
     return false;
@@ -24,7 +24,7 @@ bool init(void)
   return true;
 }
 
-}
+} /*namespace*/
 
 int main(void)
 {
