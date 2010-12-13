@@ -599,8 +599,9 @@ void ProgramState::apply(void) const
 ProgramState& ProgramState::operator = (const ProgramState& source)
 {
   destroyProgramState();
+  program = source.program;
 
-  if (program = source.program)
+  if (program)
   {
     samplers = source.samplers;
     uniforms = source.uniforms;
