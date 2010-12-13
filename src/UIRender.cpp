@@ -507,11 +507,13 @@ bool Renderer::init(void)
 
   // Load default font
   {
-    render::FontReader reader(pool);
-    defaultFont = reader.read(Path("wendy/default.renderfont"));
+    Path path("wendy/default.font");
+
+    defaultFont = render::Font::read(pool, path);
     if (!defaultFont)
     {
-      Log::writeError("Failed to load default font");
+      Log::writeError("Failed to load default UI font \'%s\'",
+                      path.asString().c_str());
       return false;
     }
 
@@ -520,11 +522,13 @@ bool Renderer::init(void)
 
   // Set up drawing render pass
   {
-    GL::ProgramReader reader(pool.getContext());
-    Ref<GL::Program> drawProgram = reader.read(Path("wendy/UIRenderSolid.program"));
-    if (!drawProgram)
+    Path path("wendy/UIRenderSolid.program");
+
+    Ref<GL::Program> program = GL::Program::read(pool.getContext(), path);
+    if (!program)
     {
-      Log::writeError("Failed to load UI drawing shader program");
+      Log::writeError("Failed to load UI drawing shader program \'%s\'",
+                      path.asString().c_str());
       return false;
     }
 
@@ -532,13 +536,14 @@ bool Renderer::init(void)
     interface.addUniform("color", GL::Uniform::FLOAT_VEC4);
     interface.addVarying("position", GL::Varying::FLOAT_VEC2);
 
-    if (!interface.matches(*drawProgram, true))
+    if (!interface.matches(*program, true))
     {
-      Log::writeError("UI drawing shader program does not conform to the required interface");
+      Log::writeError("UI drawing shader program \'%s\' does not conform to the required interface",
+                      path.asString().c_str());
       return false;
     }
 
-    drawPass.setProgram(drawProgram);
+    drawPass.setProgram(program);
     drawPass.setCullMode(GL::CULL_NONE);
     drawPass.setDepthTesting(false);
     drawPass.setDepthWriting(false);
@@ -546,11 +551,13 @@ bool Renderer::init(void)
 
   // Set up blitting render pass
   {
-    GL::ProgramReader reader(pool.getContext());
-    Ref<GL::Program> blitProgram = reader.read(Path("wendy/UIRenderMapped.program"));
-    if (!blitProgram)
+    Path path("wendy/UIRenderMapped.program");
+
+    Ref<GL::Program> program = GL::Program::read(pool.getContext(), path);
+    if (!program)
     {
-      Log::writeError("Failed to load UI blitting shader program");
+      Log::writeError("Failed to load UI blitting shader program \'%s\'",
+                      path.asString().c_str());
       return false;
     }
 
@@ -559,13 +566,14 @@ bool Renderer::init(void)
     interface.addVarying("position", GL::Varying::FLOAT_VEC2);
     interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
 
-    if (!interface.matches(*blitProgram, true))
+    if (!interface.matches(*program, true))
     {
-      Log::writeError("UI blitting shader program does not conform to the required interface");
+      Log::writeError("UI blitting shader program \'%s\' does not conform to the required interface",
+                      path.asString().c_str());
       return false;
     }
 
-    blitPass.setProgram(blitProgram);
+    blitPass.setProgram(program);
     blitPass.setCullMode(GL::CULL_NONE);
     blitPass.setDepthTesting(false);
     blitPass.setDepthWriting(false);
