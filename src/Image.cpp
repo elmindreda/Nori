@@ -401,7 +401,7 @@ Image::Image(const ResourceInfo& info,
   else
   {
     const size_t size = width * height * format.getSize();
-    data.reserve(size);
+    data.resize(size);
     std::memset(data, 0, size);
   }
 }

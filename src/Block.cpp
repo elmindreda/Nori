@@ -40,7 +40,6 @@ namespace wendy
 
 Block::Block(size_t initSize):
   size(0),
-  grain(0),
   data(NULL)
 {
   resize(initSize);
@@ -48,16 +47,14 @@ Block::Block(size_t initSize):
 
 Block::Block(const Byte* source, size_t sourceSize):
   size(0),
-  grain(0),
   data(NULL)
 {
-  reserve(sourceSize);
+  resize(sourceSize);
   std::memcpy(data, source, sourceSize);
 }
 
 Block::Block(const Block& source):
   size(0),
-  grain(0),
   data(NULL)
 {
   operator = (source);
@@ -75,7 +72,7 @@ void Block::copyTo(Byte* target, size_t targetSize, size_t offset) const
 
 void Block::copyFrom(const Byte* source, size_t sourceSize, size_t offset)
 {
-  reserve(sourceSize + offset);
+  resize(sourceSize + offset);
   std::memcpy(data + offset, source, sourceSize);
 }
 
@@ -85,9 +82,6 @@ void Block::resize(size_t newSize)
     destroy();
   else
   {
-    if (grain != 0)
-      newSize = grain * ((newSize + grain - 1) / grain);
-
     if (size == 0)
       data = (Byte*) std::malloc(newSize);
     else
@@ -101,12 +95,6 @@ void Block::resize(size_t newSize)
 
     size = newSize;
   }
-}
-
-void Block::reserve(size_t minSize)
-{
-  if (minSize > size)
-    resize(minSize);
 }
 
 void Block::attach(Byte* newData, size_t newSize)
@@ -163,16 +151,6 @@ Block& Block::operator = (const Block& source)
 size_t Block::getSize(void) const
 {
   return size;
-}
-
-size_t Block::getGrain(void) const
-{
-  return grain;
-}
-
-void Block::setGrain(size_t newGrain)
-{
-  grain = newGrain;
 }
 
 Byte* Block::getData(void)
