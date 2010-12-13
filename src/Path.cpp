@@ -333,11 +333,13 @@ String Path::getName(void) const
 
   if (start == String::npos)
     start = 0;
+  else
+    start++;
 
   if (end != String::npos && end < start)
     end = String::npos;
 
-  return path.substr(start, end);
+  return path.substr(start, end - start);
 }
 
 ///////////////////////////////////////////////////////////////////////
