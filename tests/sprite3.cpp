@@ -69,7 +69,7 @@ void Test::run(void)
   sprite.material = material;
   sprite.type = render::STATIC_SPRITE;
 
-  render::Queue queue(camera);
+  render::Queue queue(*render::GeometryPool::getSingleton(), camera);
 
   do
   {

@@ -50,6 +50,7 @@ namespace wendy
 
 class Light;
 class LightState;
+class GeometryPool;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -129,7 +130,7 @@ public:
    *  @param[in] light The light to collect geometry for, or @c NULL to not
    *  collect for a light.
    */
-  Queue(const Camera& camera, Light* light = NULL);
+  Queue(GeometryPool& pool, const Camera& camera, Light* light = NULL);
   /*! Attaches a light to this render queue.
    *  @param[in] light The light to attach.
    */
@@ -156,6 +157,9 @@ public:
    *  @param[in] newPhase The desired collection phase.
    */
   void setPhase(Phase newPhase);
+  /*! @return The geometry pool used by this render queue.
+   */
+  GeometryPool& getGeometryPool(void) const;
   /*! @return The camera used by this render queue.
    */
   const Camera& getCamera(void) const;
@@ -176,6 +180,7 @@ private:
   typedef std::vector<Operation> List;
   void renderOperations(const OperationList& operations,
                         const String& passName) const;
+  GeometryPool& pool;
   const Camera& camera;
   Light* light;
   LightState lights;

@@ -80,11 +80,11 @@ void Demo::run(void)
 {
   GL::Context* context = GL::Context::getSingleton();
 
+  render::Queue queue(*render::GeometryPool::getSingleton(), *camera);
+
   do
   {
     graph.update();
-
-    render::Queue queue(*camera);
     graph.enqueue(queue);
 
     context->clearDepthBuffer();

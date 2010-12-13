@@ -26,6 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/RenderCamera.h>
+#include <wendy/RenderPool.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
@@ -103,7 +104,10 @@ Operation::Operation(void):
 
 ///////////////////////////////////////////////////////////////////////
 
-Queue::Queue(const Camera& initCamera, Light* initLight):
+Queue::Queue(GeometryPool& initPool,
+             const Camera& initCamera,
+             Light* initLight):
+  pool(initPool),
   camera(initCamera),
   light(initLight),
   phase(COLLECT_GEOMETRY),
@@ -149,7 +153,7 @@ void Queue::removeOperations(void)
 
 void Queue::render(const String& passName) const
 {
-  camera.apply();
+  camera.apply(pool.getContext());
 
   renderOperations(getOpaqueOperations(), passName);
   renderOperations(getBlendedOperations(), passName);
@@ -163,6 +167,11 @@ Queue::Phase Queue::getPhase(void) const
 void Queue::setPhase(Phase newPhase)
 {
   phase = newPhase;
+}
+
+GeometryPool& Queue::getGeometryPool(void) const
+{
+  return pool;
 }
 
 const Camera& Queue::getCamera(void) const
@@ -223,10 +232,6 @@ const LightState& Queue::getLights(void) const
 void Queue::renderOperations(const OperationList& ops,
                              const String& passName) const
 {
-  GL::Context* context = GL::Context::getSingleton();
-  if (!context)
-    throw Exception("Cannot render render queue without an OpenGL context");
-
   for (OperationList::const_iterator o = ops.begin();  o != ops.end();  o++)
   {
     const Operation& op = **o;
@@ -239,8 +244,8 @@ void Queue::renderOperations(const OperationList& ops,
 
       pass.apply();
 
-      context->setModelMatrix(op.transform);
-      context->render(op.range);
+      pool.getContext().setModelMatrix(op.transform);
+      pool.getContext().render(op.range);
     }
   }
 }

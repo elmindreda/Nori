@@ -73,6 +73,8 @@ void Demo::run(void)
 {
   GL::Context* context = GL::Context::getSingleton();
 
+  render::Queue queue(*render::GeometryPool::getSingleton(), *camera);
+
   do
   {
     currentTime = timer.getTime();
@@ -85,7 +87,6 @@ void Demo::run(void)
     context->clearDepthBuffer();
     context->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
 
-    render::Queue queue(*camera);
     graph.enqueue(queue);
     queue.render();
   }

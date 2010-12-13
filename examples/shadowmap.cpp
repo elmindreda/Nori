@@ -161,7 +161,7 @@ void Demo::run(void)
       context->clearDepthBuffer();
       context->clearColorBuffer();
 
-      render::Queue queue(*lightCamera);
+      render::Queue queue(*render::GeometryPool::getSingleton(), *lightCamera);
       graph.enqueue(queue);
       queue.render("shadowmap");
     }
@@ -172,7 +172,7 @@ void Demo::run(void)
       context->clearDepthBuffer();
       context->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
 
-      render::Queue queue(*viewCamera);
+      render::Queue queue(*render::GeometryPool::getSingleton(), *viewCamera);
       graph.enqueue(queue);
       queue.render();
     }

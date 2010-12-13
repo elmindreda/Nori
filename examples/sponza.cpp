@@ -120,7 +120,7 @@ void Demo::run(void)
 {
   GL::Context* context = GL::Context::getSingleton();
 
-  render::Queue queue(*camera);
+  render::Queue queue(*render::GeometryPool::getSingleton(), *camera);
 
   do
   {
