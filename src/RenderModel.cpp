@@ -148,21 +148,20 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
 {
   int indexCount = 0;
 
-  for (int i = 0;  i < data.geometries.size();  i++)
+  for (Mesh::GeometryList::const_iterator g = data.geometries.begin();  g != data.geometries.end();  g++)
   {
-    const String& name = data.geometries[i].shaderName;
-    if (materials.find(name) == materials.end())
+    if (materials.find(g->shaderName) == materials.end())
     {
       Log::writeError("Missing path for material \'%s\' of render mesh \'%s\'",
-                      name.c_str(),
+                      g->shaderName.c_str(),
                       getPath().asString().c_str());
+      return false;
     }
 
-    indexCount += data.geometries[i].triangles.size() * 3;
+    indexCount += g->triangles.size() * 3;
   }
 
   VertexFormat format;
-
   if (!format.createComponents("3f:position 3f:normal 2f:mapping"))
     return false;
 
@@ -197,7 +196,9 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
   {
     indexCount = g->triangles.size() * 3;
 
-    Ref<Material> material = Material::read(context, materials.find(g->shaderName)->second);
+    Path materialPath = materials.find(g->shaderName)->second;
+
+    Ref<Material> material = Material::read(context, materialPath);
     if (!material)
     {
       Log::writeError("Cannot find material \'%s\' for render mesh \'%s\'",
@@ -309,6 +310,7 @@ Ref<Model> ModelReader::read(const Path& path)
   if (Resource* cache = getIndex().findResource(path))
     return dynamic_cast<Model*>(cache);
 
+  materials.clear();
   info.path = path;
 
   std::ifstream stream;
