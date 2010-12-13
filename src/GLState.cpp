@@ -592,7 +592,7 @@ void ProgramState::apply(void) const
     for (SamplerList::const_iterator i = samplers.begin();  i != samplers.end();  i++)
       i->apply();
 
-    Context::getSingleton()->setCurrentProgram(program);
+    program->getContext().setCurrentProgram(program);
   }
 }
 
@@ -703,7 +703,7 @@ void ProgramState::setProgram(Program* newProgram)
     {
       Sampler& sampler = program->getSampler(i);
 
-      if (Context::getSingleton()->isReservedSampler(sampler.getName()))
+      if (program->getContext().isReservedSampler(sampler.getName()))
 	continue;
 
       samplers.push_back(SamplerState(sampler));
@@ -713,7 +713,7 @@ void ProgramState::setProgram(Program* newProgram)
     {
       Uniform& uniform = program->getUniform(i);
 
-      if (Context::getSingleton()->isReservedUniform(uniform.getName()))
+      if (program->getContext().isReservedUniform(uniform.getName()))
 	continue;
 
       uniforms.push_back(UniformState(uniform));

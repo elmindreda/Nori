@@ -197,6 +197,7 @@ public:
   unsigned int getSamplerCount(void) const;
   Sampler& getSampler(unsigned int index);
   const Sampler& getSampler(unsigned int index) const;
+  Context& getContext(void) const;
   static Ref<Program> create(const ResourceInfo& info,
                              Context& context,
                              const VertexProgram& vertexProgram,

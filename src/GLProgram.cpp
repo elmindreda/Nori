@@ -645,6 +645,11 @@ const Sampler& Program::getSampler(unsigned int index) const
   return samplers[index];
 }
 
+Context& Program::getContext(void) const
+{
+  return context;
+}
+
 Ref<Program> Program::create(const ResourceInfo& info,
                              Context& context,
                              const VertexProgram& vertexProgram,
