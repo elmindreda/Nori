@@ -34,14 +34,15 @@ public:
   bool render(void);
 private:
   ResourceIndex index;
+  Ptr<render::GeometryPool> pool;
   Ref<render::Font> font;
 };
 
 Demo::~Demo(void)
 {
   font = NULL;
+  pool = NULL;
 
-  render::GeometryPool::destroySingleton();
   GL::Context::destroySingleton();
 }
 
@@ -60,11 +61,9 @@ bool Demo::init(void)
   context->setTitle("Font Test");
   context->setRefreshMode(GL::Context::MANUAL_REFRESH);
 
-  if (!render::GeometryPool::createSingleton(*context))
-    return false;
+  pool = new render::GeometryPool(*context);
 
-  font = render::Font::read(*render::GeometryPool::getSingleton(),
-                            Path("wendy/default.font"));
+  font = render::Font::read(*pool, Path("wendy/default.font"));
   if (!font)
   {
     Log::writeError("Failed to load font");

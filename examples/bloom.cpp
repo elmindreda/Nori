@@ -16,6 +16,7 @@ private:
   void onCursorMoved(const Vec2i& position);
   void onWheelTurned(int position);
   ResourceIndex index;
+  Ptr<render::GeometryPool> pool;
   Ref<GL::Texture> textures[2];
   Ref<GL::ImageCanvas> canvases[2];
   GL::RenderState horzPass;
@@ -43,8 +44,9 @@ Demo::~Demo(void)
 
   graph.destroyRootNodes();
 
+  pool = NULL;
+
   input::Context::destroySingleton();
-  render::GeometryPool::destroySingleton();
   GL::Context::destroySingleton();
 }
 
@@ -59,15 +61,14 @@ bool Demo::init(void)
   GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Bloom");
 
-  if (!render::GeometryPool::createSingleton(*context))
-    return false;
-
   if (!input::Context::createSingleton(*context))
     return false;
 
   input::Context::getSingleton()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
   input::Context::getSingleton()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
   input::Context::getSingleton()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
+
+  pool = new render::GeometryPool(*context);
 
   const int size = 32;
 
@@ -176,9 +177,8 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  GL::Context* context = GL::Context::getSingleton();
-
-  render::Queue queue(*render::GeometryPool::getSingleton(), *camera);
+  render::Queue queue(*pool, *camera);
+  GL::Context& context = pool->getContext();
 
   do
   {
@@ -189,45 +189,45 @@ void Demo::run(void)
 
     graph.enqueue(queue);
 
-    context->setCurrentCanvas(*canvases[0]);
-    context->clearDepthBuffer();
-    context->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
+    context.setCurrentCanvas(*canvases[0]);
+    context.clearDepthBuffer();
+    context.clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
     queue.render("bloom");
 
-    context->setProjectionMatrix2D(1.f, 1.f);
+    context.setProjectionMatrix2D(1.f, 1.f);
 
     for (unsigned int i = 0;  i < 2;  i++)
     {
-      context->setCurrentCanvas(*canvases[1]);
-      context->clearDepthBuffer();
-      context->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
+      context.setCurrentCanvas(*canvases[1]);
+      context.clearDepthBuffer();
+      context.clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
       horzPass.apply();
-      sprite.render(*render::GeometryPool::getSingleton());
+      sprite.render(*pool);
 
-      context->setCurrentCanvas(*canvases[0]);
-      context->clearDepthBuffer();
-      context->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
+      context.setCurrentCanvas(*canvases[0]);
+      context.clearDepthBuffer();
+      context.clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
       vertPass.apply();
-      sprite.render(*render::GeometryPool::getSingleton());
+      sprite.render(*pool);
     }
 
-    context->setScreenCanvasCurrent();
-    context->clearDepthBuffer();
-    context->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
+    context.setScreenCanvasCurrent();
+    context.clearDepthBuffer();
+    context.clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
     queue.render();
 
-    context->setProjectionMatrix2D(1.f, 1.f);
+    context.setProjectionMatrix2D(1.f, 1.f);
 
     composePass.apply();
-    sprite.render(*render::GeometryPool::getSingleton());
+    sprite.render(*pool);
 
     queue.removeOperations();
   }
-  while (context->update());
+  while (context.update());
 }
 
 void Demo::onButtonClicked(input::Button button, bool clicked)

@@ -16,6 +16,7 @@ public:
   void run(void);
 private:
   ResourceIndex index;
+  Ptr<render::GeometryPool> pool;
   Ref<render::Material> material;
   Timer timer;
 };
@@ -23,8 +24,8 @@ private:
 Test::~Test(void)
 {
   material = NULL;
+  pool = NULL;
 
-  render::GeometryPool::destroySingleton();
   GL::Context::destroySingleton();
 }
 
@@ -42,11 +43,7 @@ bool Test::init(void)
   GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Particles");
 
-  if (!render::GeometryPool::createSingleton(*context))
-  {
-    Log::writeError("Failed to create OpenGL renderer");
-    return false;
-  }
+  pool = new render::GeometryPool(*context);
 
   material = render::Material::read(*context, Path("sprite2.material"));
   if (!material)
@@ -61,23 +58,23 @@ bool Test::init(void)
 
 void Test::run(void)
 {
-  GL::Context* context = GL::Context::getSingleton();
+  GL::Context& context = pool->getContext();
 
   do
   {
-    context->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
-    context->clearDepthBuffer();
+    context.clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
+    context.clearDepthBuffer();
 
     render::Sprite2 sprite;
     sprite.position.set(4.f / 3.f / 2.f, 0.5f);
     sprite.size.set(0.5f, 0.5f);
     sprite.angle = timer.getTime();
 
-    context->setProjectionMatrix2D(4.f / 3.f, 1.f);
+    context.setProjectionMatrix2D(4.f / 3.f, 1.f);
 
-    sprite.render(*render::GeometryPool::getSingleton(), *material);
+    sprite.render(*pool, *material);
   }
-  while (context->update());
+  while (context.update());
 }
 
 } /*namespace*/

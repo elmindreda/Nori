@@ -14,6 +14,7 @@ public:
 private:
   bool render(void);
   ResourceIndex index;
+  Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
   scene::Graph graph;
   scene::MeshNode* meshNode;
@@ -26,7 +27,8 @@ Demo::~Demo(void)
 {
   graph.destroyRootNodes();
 
-  render::GeometryPool::destroySingleton();
+  pool = NULL;
+
   GL::Context::destroySingleton();
 }
 
@@ -41,8 +43,7 @@ bool Demo::init(void)
   GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Program");
 
-  if (!render::GeometryPool::createSingleton(*context))
-    return false;
+  pool = new render::GeometryPool(*context);
 
   Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("cube.mesh"));
   if (!mesh)
@@ -71,9 +72,8 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  GL::Context* context = GL::Context::getSingleton();
-
-  render::Queue queue(*render::GeometryPool::getSingleton(), *camera);
+  render::Queue queue(*pool, *camera);
+  GL::Context& context = pool->getContext();
 
   do
   {
@@ -84,13 +84,13 @@ void Demo::run(void)
 
     graph.update();
 
-    context->clearDepthBuffer();
-    context->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
+    context.clearDepthBuffer();
+    context.clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
 
     graph.enqueue(queue);
     queue.render();
   }
-  while (context->update());
+  while (context.update());
 }
 
 int main()

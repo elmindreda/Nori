@@ -15,6 +15,7 @@ private:
   bool render(void);
   ResourceIndex index;
   input::MayaCamera controller;
+  Ptr<render::GeometryPool> pool;
   Ptr<deferred::Renderer> renderer;
   Ref<render::Camera> camera;
   scene::Graph graph;
@@ -30,9 +31,9 @@ Demo::~Demo(void)
 
   camera = NULL;
   renderer = NULL;
+  pool = NULL;
 
   input::Context::destroySingleton();
-  render::GeometryPool::destroySingleton();
   GL::Context::destroySingleton();
 }
 
@@ -50,11 +51,9 @@ bool Demo::init(void)
   const unsigned int width = context->getScreenCanvas().getWidth();
   const unsigned int height = context->getScreenCanvas().getHeight();
 
-  if (!render::GeometryPool::createSingleton(*context))
-    return false;
+  pool = new render::GeometryPool(*context);
 
-  renderer = deferred::Renderer::create(*render::GeometryPool::getSingleton(),
-                                        deferred::Config(width, height));
+  renderer = deferred::Renderer::create(*pool, deferred::Config(width, height));
   if (!renderer)
     return false;
 
@@ -132,9 +131,8 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  GL::Context* context = GL::Context::getSingleton();
-
-  render::Queue queue(*render::GeometryPool::getSingleton(), *camera);
+  render::Queue queue(*pool, *camera);
+  GL::Context& context = pool->getContext();
 
   do
   {
@@ -147,15 +145,15 @@ void Demo::run(void)
     graph.update();
     graph.enqueue(queue);
 
-    context->clearDepthBuffer();
-    context->clearColorBuffer(ColorRGBA::BLACK);
+    context.clearDepthBuffer();
+    context.clearColorBuffer(ColorRGBA::BLACK);
 
     renderer->render(queue);
 
     queue.removeOperations();
     queue.detachLights();
   }
-  while (context->update());
+  while (context.update());
 }
 
 int main()

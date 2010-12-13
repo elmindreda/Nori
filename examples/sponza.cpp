@@ -17,8 +17,9 @@ private:
   void onButtonClicked(input::Button button, bool clicked);
   ResourceIndex index;
   input::SpectatorCamera controller;
-  Ptr<deferred::Renderer> renderer;
+  Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
+  Ptr<deferred::Renderer> renderer;
   scene::Graph graph;
   scene::CameraNode* cameraNode;
   scene::LightNode* lightNode;
@@ -42,9 +43,9 @@ Demo::~Demo(void)
 
   camera = NULL;
   renderer = NULL;
+  pool = NULL;
 
   input::Context::destroySingleton();
-  render::GeometryPool::destroySingleton();
   GL::Context::destroySingleton();
 }
 
@@ -71,11 +72,9 @@ bool Demo::init(void)
   input::Context::getSingleton()->getKeyPressedSignal().connect(*this, &Demo::onKeyPressed);
   input::Context::getSingleton()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
 
-  if (!render::GeometryPool::createSingleton(*context))
-    return false;
+  pool = new render::GeometryPool(*context);
 
-  renderer = deferred::Renderer::create(*render::GeometryPool::getSingleton(),
-                                        deferred::Config(width, height));
+  renderer = deferred::Renderer::create(*pool, deferred::Config(width, height));
   if (!renderer)
     return false;
 
@@ -118,9 +117,8 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  GL::Context* context = GL::Context::getSingleton();
-
-  render::Queue queue(*render::GeometryPool::getSingleton(), *camera);
+  render::Queue queue(*pool, *camera);
+  GL::Context& context = pool->getContext();
 
   do
   {
@@ -135,8 +133,8 @@ void Demo::run(void)
     graph.update();
     graph.enqueue(queue);
 
-    context->clearDepthBuffer();
-    context->clearColorBuffer(ColorRGBA::BLACK);
+    context.clearDepthBuffer();
+    context.clearColorBuffer(ColorRGBA::BLACK);
 
     renderer->render(queue);
     renderer->renderAmbientLight(queue.getCamera(), ColorRGB(0.2f, 0.2f, 0.2f));
@@ -144,7 +142,7 @@ void Demo::run(void)
     queue.removeOperations();
     queue.detachLights();
   }
-  while (!quitting && context->update());
+  while (!quitting && context.update());
 }
 
 void Demo::onKeyPressed(input::Key key, bool pressed)

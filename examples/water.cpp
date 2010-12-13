@@ -18,6 +18,7 @@ private:
   ResourceIndex index;
   Ref<GL::Texture> texture;
   Ptr<GL::ImageCanvas> canvas;
+  Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
   scene::Graph graph;
   scene::CameraNode* cameraNode;
@@ -27,8 +28,14 @@ private:
 
 Demo::~Demo(void)
 {
+  graph.destroyRootNodes();
+
+  camera = NULL;
+  canvas = NULL;
+  texture = NULL;
+  pool = NULL;
+
   input::Context::destroySingleton();
-  render::GeometryPool::destroySingleton();
   GL::Context::destroySingleton();
 }
 
@@ -43,15 +50,14 @@ bool Demo::init(void)
   GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Water");
 
-  if (!render::GeometryPool::createSingleton(*context))
-    return false;
-
   if (!input::Context::createSingleton(*context))
     return false;
 
   input::Context::getSingleton()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
   input::Context::getSingleton()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
   input::Context::getSingleton()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
+
+  pool = new render::GeometryPool(*context);
 
   texture = GL::Texture::create(index, *context, Image(index, PixelFormat::RGB8, 64, 64), 0);
   if (!texture)
@@ -78,21 +84,20 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  GL::Context* context = GL::Context::getSingleton();
-
-  render::Queue queue(*render::GeometryPool::getSingleton(), *camera);
+  render::Queue queue(*pool, *camera);
+  GL::Context& context = pool->getContext();
 
   do
   {
     graph.update();
     graph.enqueue(queue);
 
-    context->clearDepthBuffer();
-    context->clearColorBuffer(ColorRGBA::BLACK);
+    context.clearDepthBuffer();
+    context.clearColorBuffer(ColorRGBA::BLACK);
 
     queue.render();
   }
-  while (context->update());
+  while (context.update());
 }
 
 void Demo::onButtonClicked(input::Button button, bool clicked)

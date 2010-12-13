@@ -41,6 +41,12 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+GeometryPool::GeometryPool(GL::Context& initContext):
+  context(initContext)
+{
+  context.getFinishSignal().connect(*this, &GeometryPool::onContextFinish);
+}
+
 bool GeometryPool::allocateIndices(GL::IndexRange& range,
 		                   unsigned int count,
                                    GL::IndexBuffer::Type type)
@@ -154,27 +160,6 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
 GL::Context& GeometryPool::getContext(void) const
 {
   return context;
-}
-
-bool GeometryPool::createSingleton(GL::Context& context)
-{
-  Ptr<GeometryPool> pool(new GeometryPool(context));
-  if (!pool->init())
-    return false;
-
-  set(pool.detachObject());
-  return true;
-}
-
-GeometryPool::GeometryPool(GL::Context& initContext):
-  context(initContext)
-{
-}
-
-bool GeometryPool::init(void)
-{
-  context.getFinishSignal().connect(*this, &GeometryPool::onContextFinish);
-  return true;
 }
 
 void GeometryPool::onContextFinish(void)

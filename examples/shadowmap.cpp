@@ -21,6 +21,7 @@ private:
   Ref<GL::ImageCanvas> canvas;
   Ref<GL::Texture> depthmap;
   Ref<GL::Texture> colormap;
+  Ptr<render::GeometryPool> pool;
   Ref<render::Camera> lightCamera;
   Ref<render::Camera> viewCamera;
   scene::Graph graph;
@@ -39,9 +40,9 @@ Demo::~Demo(void)
   canvas = NULL;
   depthmap = NULL;
   colormap = NULL;
+  pool = NULL;
 
   input::Context::destroySingleton();
-  render::GeometryPool::destroySingleton();
   GL::Context::destroySingleton();
 }
 
@@ -55,9 +56,6 @@ bool Demo::init(void)
   GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Shadow Map");
 
-  if (!render::GeometryPool::createSingleton(*context))
-    return false;
-
   context->reserveUniform("WL", GL::Uniform::FLOAT_MAT4).connect(*this, &Demo::onRequestedWL);
   context->reserveUniform("light", GL::Uniform::FLOAT_VEC3).connect(*this, &Demo::onRequestedLight);
 
@@ -67,6 +65,8 @@ bool Demo::init(void)
   input::Context::getSingleton()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
   input::Context::getSingleton()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
   input::Context::getSingleton()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
+
+  pool = new render::GeometryPool(*context);
 
   const unsigned int size = 512;
 
@@ -128,7 +128,7 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  GL::Context* context = GL::Context::getSingleton();
+  GL::Context& context = pool->getContext();
 
   do
   {
@@ -157,27 +157,27 @@ void Demo::run(void)
 
     // Render shadow map
     {
-      context->setCurrentCanvas(*canvas);
-      context->clearDepthBuffer();
-      context->clearColorBuffer();
+      context.setCurrentCanvas(*canvas);
+      context.clearDepthBuffer();
+      context.clearColorBuffer();
 
-      render::Queue queue(*render::GeometryPool::getSingleton(), *lightCamera);
+      render::Queue queue(*pool, *lightCamera);
       graph.enqueue(queue);
       queue.render("shadowmap");
     }
 
     // Render view
     {
-      context->setScreenCanvasCurrent();
-      context->clearDepthBuffer();
-      context->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
+      context.setScreenCanvasCurrent();
+      context.clearDepthBuffer();
+      context.clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
 
-      render::Queue queue(*render::GeometryPool::getSingleton(), *viewCamera);
+      render::Queue queue(*pool, *viewCamera);
       graph.enqueue(queue);
       queue.render();
     }
   }
-  while (context->update());
+  while (context.update());
 }
 
 void Demo::onRequestedWL(GL::Uniform& uniform)

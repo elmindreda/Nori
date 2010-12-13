@@ -15,6 +15,7 @@ private:
   bool render(void);
   ResourceIndex index;
   input::MayaCamera controller;
+  Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
   scene::Graph graph;
   scene::CameraNode* cameraNode;
@@ -23,6 +24,8 @@ private:
 Test::~Test(void)
 {
   graph.destroyRootNodes();
+
+  pool = NULL;
 
   input::Context::destroySingleton();
   GL::Context::destroySingleton();
@@ -43,6 +46,8 @@ bool Test::init(void)
     return false;
 
   input::Context::getSingleton()->setFocus(&controller);
+
+  pool = new render::GeometryPool(*context);
 
   Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("cube_cubemapped.mesh"));
   if (!mesh)
@@ -78,23 +83,22 @@ bool Test::init(void)
 
 void Test::run(void)
 {
-  GL::Context* context = GL::Context::getSingleton();
-
-  render::Queue queue(*render::GeometryPool::getSingleton(), *camera);
+  render::Queue queue(*pool, *camera);
+  GL::Context& context = pool->getContext();
 
   do
   {
     cameraNode->getLocalTransform() = controller.getTransform();
     graph.update();
 
-    context->clearDepthBuffer();
-    context->clearColorBuffer(ColorRGBA::BLACK);
+    context.clearDepthBuffer();
+    context.clearColorBuffer(ColorRGBA::BLACK);
 
     graph.enqueue(queue);
     queue.render();
     queue.removeOperations();
   }
-  while (context->update());
+  while (context.update());
 }
 
 int main()
