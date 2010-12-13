@@ -218,12 +218,6 @@ Sprite3::Sprite3(void)
 
 void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
 {
-  if (!GeometryPool::getSingleton())
-  {
-    Log::writeError("Cannot enqueue sprite without a geometry pool");
-    return;
-  }
-
   if (!material)
   {
     Log::writeError("Cannot enqueue sprite without a material");
@@ -239,7 +233,7 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
   }
 
   GL::VertexRange range;
-  if (!GeometryPool::getSingleton()->allocateVertices(range, 4, Vertex2ft3fv::format))
+  if (!queue.getGeometryPool().allocateVertices(range, 4, Vertex2ft3fv::format))
     return;
 
   const Vec3 cameraPosition = queue.getCamera().getTransform().position;
@@ -293,13 +287,6 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   if (slots.empty())
     return;
 
-  GeometryPool* pool = GeometryPool::getSingleton();
-  if (!pool)
-  {
-    Log::writeError("Cannot enqueue sprite cloud without a renderer");
-    return;
-  }
-
   if (!material)
   {
     Log::writeError("Cannot enqueue sprite cloud without a material");
@@ -315,12 +302,22 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   }
 
   GL::VertexRange vertexRange;
-  if (!pool->allocateVertices(vertexRange, 4 * slots.size(), Vertex2ft3fv::format))
+  if (!queue.getGeometryPool().allocateVertices(vertexRange,
+                                                4 * slots.size(),
+                                                Vertex2ft3fv::format))
+  {
+    Log::writeError("Failed to allocate vertices for sprite cloud");
     return;
+  }
 
   GL::IndexRange indexRange;
-  if (!pool->allocateIndices(indexRange, 6 * slots.size(), GL::IndexBuffer::UINT16))
+  if (!queue.getGeometryPool().allocateIndices(indexRange,
+                                               6 * slots.size(),
+                                               GL::IndexBuffer::UINT16))
+  {
+    Log::writeError("Failed to allocate indices for sprite cloud");
     return;
+  }
 
   const Vec3 cameraPosition = queue.getCamera().getTransform().position;
 
@@ -328,7 +325,10 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   {
     GL::VertexRangeLock<Vertex2ft3fv> vertices(vertexRange);
     if (!vertices)
+    {
+      Log::writeError("Failed to lock vertex range for sprite cloud");
       return;
+    }
 
     realizeVertices(vertices, transform, cameraPosition);
   }
@@ -337,7 +337,10 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   {
     GL::IndexRangeLock<uint16_t> indices(indexRange);
     if (!indices)
+    {
+      Log::writeError("Failed to lock index range for sprite cloud");
       return;
+    }
 
     unsigned int base = vertexRange.getStart();
 
