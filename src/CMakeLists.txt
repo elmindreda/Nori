@@ -23,8 +23,7 @@ set(wendy_SOURCES
 if(WENDY_INCLUDE_RENDERER)
   list(APPEND wendy_SOURCES
        RenderCamera.cpp RenderFont.cpp RenderLight.cpp RenderMesh.cpp
-       RenderMaterial.cpp RenderParticle.cpp RenderPool.cpp RenderQueue.cpp
-       RenderSprite.cpp
+       RenderMaterial.cpp RenderPool.cpp RenderQueue.cpp RenderSprite.cpp
 
        Deferred.cpp)
 endif(WENDY_INCLUDE_RENDERER)

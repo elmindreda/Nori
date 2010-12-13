@@ -248,24 +248,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup scene
- */
-class ParticleSystemNode : public Node
-{
-public:
-  explicit ParticleSystemNode(const String& name = "");
-  render::ParticleSystem* getSystem(void) const;
-  void setSystem(render::ParticleSystem* newSystem);
-protected:
-  void update(void);
-  void restart(void);
-  void enqueue(render::Queue& queue) const;
-private:
-  Ref<render::ParticleSystem> system;
-};
-
-///////////////////////////////////////////////////////////////////////
-
   } /*namespace scene*/
 } /*namespace wendy*/
 

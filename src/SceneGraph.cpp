@@ -37,7 +37,6 @@
 #include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderSprite.h>
-#include <wendy/RenderParticle.h>
 #include <wendy/RenderMesh.h>
 
 #include <wendy/SceneGraph.h>
@@ -552,47 +551,6 @@ void SpriteNode::enqueue(render::Queue& queue) const
     sprite.size = spriteSize;
     sprite.material = material;
     sprite.enqueue(queue, getWorldTransform());
-  }
-}
-
-///////////////////////////////////////////////////////////////////////
-
-ParticleSystemNode::ParticleSystemNode(const String& name):
-  Node(name)
-{
-}
-
-render::ParticleSystem* ParticleSystemNode::getSystem(void) const
-{
-  return system;
-}
-
-void ParticleSystemNode::setSystem(render::ParticleSystem* newSystem)
-{
-  system = newSystem;
-}
-
-void ParticleSystemNode::update(void)
-{
-  Node::update();
-
-  if (!system)
-    return;
-
-  system->setTransform(getWorldTransform());
-  setLocalBounds(system->getBounds());
-}
-
-void ParticleSystemNode::enqueue(render::Queue& queue) const
-{
-  Node::enqueue(queue);
-
-  if (queue.getPhase() == render::Queue::COLLECT_GEOMETRY)
-  {
-    if (!system)
-      return;
-
-    system->enqueue(queue, Transform3());
   }
 }
 
