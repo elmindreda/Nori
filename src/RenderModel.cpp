@@ -146,9 +146,9 @@ Model& Model::operator = (const Model& source)
 
 bool Model::init(const Mesh& data, const MaterialMap& materials)
 {
-  size_t indexCount = 0;
+  int indexCount = 0;
 
-  for (size_t i = 0;  i < data.geometries.size();  i++)
+  for (int i = 0;  i < data.geometries.size();  i++)
   {
     const String& name = data.geometries[i].shaderName;
     if (materials.find(name) == materials.end())
@@ -191,7 +191,7 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
   if (!indexBuffer)
     return false;
 
-  size_t indexBase = 0;
+  int indexBase = 0;
 
   for (Mesh::GeometryList::const_iterator g = data.geometries.begin();  g != data.geometries.end();  g++)
   {
@@ -210,7 +210,7 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
 
     geometries.push_back(Geometry(range, material));
 
-    size_t index = 0;
+    int index = 0;
 
     if (indexType == GL::IndexBuffer::UINT8)
     {
