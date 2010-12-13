@@ -31,12 +31,15 @@ set_target_properties(cubemap PROPERTIES
 
 if(MSVC)
   # Tell MSVC to use main instead of WinMain for Windows subsystem executables
-  set_target_properties(clear sprite2 sprite3 cubemap PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup")
+  set_target_properties(clear sprite2 sprite3 cubemap PROPERTIES
+    LINK_FLAGS "/ENTRY:mainCRTStartup")
 endif(MSVC)
 
 if(CYGWIN)
   # Set cross-compile and subsystem compile and link flags
-  set_target_properties(clear sprite2 sprite3 cubemap PROPERTIES COMPILE_FLAGS "-mno-cygwin")
-  set_target_properties(clear sprite2 sprite3 cubemap PROPERTIES LINK_FLAGS "-mno-cygwin -mwindows")
+  set_target_properties(clear sprite2 sprite3 cubemap PROPERTIES
+    COMPILE_FLAGS "-mno-cygwin")
+  set_target_properties(clear sprite2 sprite3 cubemap PROPERTIES
+    LINK_FLAGS "-mno-cygwin -mwindows")
 endif(CYGWIN)
 
