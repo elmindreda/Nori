@@ -37,7 +37,7 @@
 #include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderSprite.h>
-#include <wendy/RenderMesh.h>
+#include <wendy/RenderModel.h>
 
 #include <wendy/SceneGraph.h>
 
@@ -443,43 +443,43 @@ void LightNode::enqueue(render::Queue& queue) const
 
 ///////////////////////////////////////////////////////////////////////
 
-MeshNode::MeshNode(const String& name):
+ModelNode::ModelNode(const String& name):
   Node(name),
   shadowCaster(true)
 {
 }
 
-bool MeshNode::isShadowCaster(void) const
+bool ModelNode::isShadowCaster(void) const
 {
   return shadowCaster;
 }
 
-void MeshNode::setCastsShadows(bool enabled)
+void ModelNode::setCastsShadows(bool enabled)
 {
   shadowCaster = enabled;
 }
 
-render::Mesh* MeshNode::getMesh(void) const
+render::Model* ModelNode::getModel(void) const
 {
-  return mesh;
+  return model;
 }
 
-void MeshNode::setMesh(render::Mesh* newMesh)
+void ModelNode::setModel(render::Model* newModel)
 {
-  mesh = newMesh;
-  setLocalBounds(mesh->getBounds());
+  model = newModel;
+  setLocalBounds(model->getBounds());
 }
 
-void MeshNode::enqueue(render::Queue& queue) const
+void ModelNode::enqueue(render::Queue& queue) const
 {
   Node::enqueue(queue);
 
-  if (mesh)
+  if (model)
   {
     if ((queue.getPhase() == render::Queue::COLLECT_GEOMETRY) ||
         (queue.getPhase() == render::Queue::COLLECT_SHADOW_CASTERS && shadowCaster))
     {
-      mesh->enqueue(queue, getWorldTransform());
+      model->enqueue(queue, getWorldTransform());
     }
   }
 }

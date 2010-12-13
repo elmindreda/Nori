@@ -36,7 +36,7 @@
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
-#include <wendy/RenderMesh.h>
+#include <wendy/RenderModel.h>
 
 #include <stdint.h>
 
@@ -52,13 +52,13 @@ namespace wendy
 namespace
 {
 
-const unsigned int MESH_XML_VERSION = 1;
+const unsigned int MODEL_XML_VERSION = 1;
 
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
-void Mesh::enqueue(Queue& queue, const Transform3& transform) const
+void Model::enqueue(Queue& queue, const Transform3& transform) const
 {
   for (GeometryList::const_iterator g = geometries.begin();  g != geometries.end();  g++)
   {
@@ -82,75 +82,75 @@ void Mesh::enqueue(Queue& queue, const Transform3& transform) const
   }
 }
 
-const Sphere& Mesh::getBounds(void) const
+const Sphere& Model::getBounds(void) const
 {
   return bounds;
 }
 
-const Mesh::GeometryList& Mesh::getGeometries(void)
+const Model::GeometryList& Model::getGeometries(void)
 {
   return geometries;
 }
 
-GL::VertexBuffer& Mesh::getVertexBuffer(void)
+GL::VertexBuffer& Model::getVertexBuffer(void)
 {
   return *vertexBuffer;
 }
 
-const GL::VertexBuffer& Mesh::getVertexBuffer(void) const
+const GL::VertexBuffer& Model::getVertexBuffer(void) const
 {
   return *vertexBuffer;
 }
 
-GL::IndexBuffer& Mesh::getIndexBuffer(void)
+GL::IndexBuffer& Model::getIndexBuffer(void)
 {
   return *indexBuffer;
 }
 
-const GL::IndexBuffer& Mesh::getIndexBuffer(void) const
+const GL::IndexBuffer& Model::getIndexBuffer(void) const
 {
   return *indexBuffer;
 }
 
-Ref<Mesh> Mesh::create(const ResourceInfo& info,
-                       GL::Context& context,
-                       const wendy::Mesh& data,
-                       const MaterialMap& materials)
+Ref<Model> Model::create(const ResourceInfo& info,
+                         GL::Context& context,
+                         const Mesh& data,
+                         const MaterialMap& materials)
 {
-  Ref<Mesh> mesh(new Mesh(info, context));
-  if (!mesh->init(data, materials))
+  Ref<Model> model(new Model(info, context));
+  if (!model->init(data, materials))
     return NULL;
 
-  return mesh;
+  return model;
 }
 
-Mesh::Mesh(const ResourceInfo& info, GL::Context& initContext):
+Model::Model(const ResourceInfo& info, GL::Context& initContext):
   Resource(info),
   context(initContext)
 {
 }
 
-Mesh::Mesh(const Mesh& source):
+Model::Model(const Model& source):
   Resource(source),
   context(source.context)
 {
   // NOTE: Not implemented.
 }
 
-Mesh& Mesh::operator = (const Mesh& source)
+Model& Model::operator = (const Model& source)
 {
   // NOTE: Not implemented.
 
   return *this;
 }
 
-bool Mesh::init(const wendy::Mesh& mesh, const MaterialMap& materials)
+bool Model::init(const Mesh& data, const MaterialMap& materials)
 {
   size_t indexCount = 0;
 
-  for (size_t i = 0;  i < mesh.geometries.size();  i++)
+  for (size_t i = 0;  i < data.geometries.size();  i++)
   {
-    const String& name = mesh.geometries[i].shaderName;
+    const String& name = data.geometries[i].shaderName;
     if (materials.find(name) == materials.end())
     {
       Log::writeError("Missing path for material \'%s\' of render mesh \'%s\'",
@@ -158,7 +158,7 @@ bool Mesh::init(const wendy::Mesh& mesh, const MaterialMap& materials)
                       getPath().asString().c_str());
     }
 
-    indexCount += mesh.geometries[i].triangles.size() * 3;
+    indexCount += data.geometries[i].triangles.size() * 3;
   }
 
   VertexFormat format;
@@ -167,13 +167,13 @@ bool Mesh::init(const wendy::Mesh& mesh, const MaterialMap& materials)
     return false;
 
   vertexBuffer = GL::VertexBuffer::create(context,
-                                          (unsigned int) mesh.vertices.size(),
+                                          (unsigned int) data.vertices.size(),
                                           format,
                                           GL::VertexBuffer::STATIC);
   if (!vertexBuffer)
     return false;
 
-  vertexBuffer->copyFrom(&mesh.vertices[0], mesh.vertices.size());
+  vertexBuffer->copyFrom(&data.vertices[0], data.vertices.size());
 
   GL::IndexBuffer::Type indexType;
 
@@ -193,7 +193,7 @@ bool Mesh::init(const wendy::Mesh& mesh, const MaterialMap& materials)
 
   size_t indexBase = 0;
 
-  for (wendy::Mesh::GeometryList::const_iterator g = mesh.geometries.begin();  g != mesh.geometries.end();  g++)
+  for (Mesh::GeometryList::const_iterator g = data.geometries.begin();  g != data.geometries.end();  g++)
   {
     indexCount = g->triangles.size() * 3;
 
@@ -261,54 +261,53 @@ bool Mesh::init(const wendy::Mesh& mesh, const MaterialMap& materials)
     indexBase += indexCount;
   }
 
-  mesh.generateBounds(bounds);
-
+  data.generateBounds(bounds);
   return true;
 }
 
-Ref<Mesh> Mesh::read(GL::Context& context, const Path& path)
+Ref<Model> Model::read(GL::Context& context, const Path& path)
 {
-  MeshReader reader(context);
+  ModelReader reader(context);
   return reader.read(path);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-Mesh::Geometry::Geometry(const GL::IndexRange& initRange,
-                         Material* initMaterial):
+Model::Geometry::Geometry(const GL::IndexRange& initRange,
+                          Material* initMaterial):
   range(initRange),
   material(initMaterial)
 {
 }
 
-const GL::IndexRange& Mesh::Geometry::getIndexRange(void) const
+const GL::IndexRange& Model::Geometry::getIndexRange(void) const
 {
   return range;
 }
 
-Material* Mesh::Geometry::getMaterial(void) const
+Material* Model::Geometry::getMaterial(void) const
 {
   return material;
 }
 
-void Mesh::Geometry::setMaterial(Material* newMaterial)
+void Model::Geometry::setMaterial(Material* newMaterial)
 {
   material = newMaterial;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-MeshReader::MeshReader(GL::Context& initContext):
+ModelReader::ModelReader(GL::Context& initContext):
   ResourceReader(initContext.getIndex()),
   context(initContext),
   info(getIndex())
 {
 }
 
-Ref<Mesh> MeshReader::read(const Path& path)
+Ref<Model> ModelReader::read(const Path& path)
 {
   if (Resource* cache = getIndex().findResource(path))
-    return dynamic_cast<Mesh*>(cache);
+    return dynamic_cast<Model*>(cache);
 
   info.path = path;
 
@@ -325,33 +324,33 @@ Ref<Mesh> MeshReader::read(const Path& path)
   if (!data)
     return NULL;
 
-  Ref<Mesh> mesh = Mesh::create(info, context, *data, materials);
+  Ref<Model> mesh = Model::create(info, context, *data, materials);
   if (!mesh)
     return NULL;
 
   return mesh;
 }
 
-bool MeshReader::onBeginElement(const String& name)
+bool ModelReader::onBeginElement(const String& name)
 {
   if (name == "mesh")
   {
     const unsigned int version = readInteger("version");
-    if (version != MESH_XML_VERSION)
+    if (version != MODEL_XML_VERSION)
     {
-      Log::writeError("Mesh specification XML format version mismatch");
+      Log::writeError("Model specification XML format version mismatch");
       return false;
     }
 
     Path dataPath(readString("data"));
     if (dataPath.isEmpty())
     {
-      Log::writeError("Mesh data path for render mesh \'%s\' is empty",
+      Log::writeError("Model data path for render mesh \'%s\' is empty",
                       info.path.asString().c_str());
       return false;
     }
 
-    data = wendy::Mesh::read(getIndex(), dataPath);
+    data = Mesh::read(getIndex(), dataPath);
     if (!data)
     {
       Log::writeError("Failed to load mesh data \'%s\' for render mesh \'%s\'",
@@ -389,7 +388,7 @@ bool MeshReader::onBeginElement(const String& name)
   return true;
 }
 
-bool MeshReader::onEndElement(const String& name)
+bool ModelReader::onEndElement(const String& name)
 {
   return true;
 }

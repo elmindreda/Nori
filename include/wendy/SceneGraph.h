@@ -196,18 +196,18 @@ private:
 
 /*! @ingroup scene
  */
-class MeshNode : public Node
+class ModelNode : public Node
 {
 public:
-  explicit MeshNode(const String& name = "");
+  explicit ModelNode(const String& name = "");
   bool isShadowCaster(void) const;
   void setCastsShadows(bool enabled);
-  render::Mesh* getMesh(void) const;
-  void setMesh(render::Mesh* mesh);
+  render::Model* getModel(void) const;
+  void setModel(render::Model* newModel);
 protected:
   void enqueue(render::Queue& queue) const;
 private:
-  Ref<render::Mesh> mesh;
+  Ref<render::Model> model;
   bool shadowCaster;
 };
 

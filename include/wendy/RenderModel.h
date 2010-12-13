@@ -46,10 +46,10 @@ namespace wendy
  *  @ingroup renderer
  *
  *  This class represents a single static mesh, consisting of one or more
- *  Mesh::Geometry objects. Each geometry is a part of the mesh using a single
- *  render material and primitive mode.
+ *  Model::Geometry objects. Each geometry is a part of the mesh using a single
+ *  %render material and primitive mode.
  */
-class Mesh : public Renderable, public Resource
+class Model : public Renderable, public Resource
 {
 public:
   class Geometry;
@@ -81,22 +81,22 @@ public:
    *  @return The newly created renderable mesh, or @c NULL if an error
    *  occurred.
    */
-  static Ref<Mesh> create(const ResourceInfo& info,
-                          GL::Context& context,
-                          const wendy::Mesh& data,
-                          const MaterialMap& materials);
+  static Ref<Model> create(const ResourceInfo& info,
+                           GL::Context& context,
+                           const Mesh& data,
+                           const MaterialMap& materials);
   /*! Creates a renderable mesh specification using the specified file.
    *  @param[in] context The OpenGL context within which to create the texture.
    *  @param[in] path The path of the specification file to use.
    *  @return The newly created renderable mesh, or @c NULL if an error
    *  occurred.
    */
-  static Ref<Mesh> read(GL::Context& context, const Path& path);
+  static Ref<Model> read(GL::Context& context, const Path& path);
 private:
-  Mesh(const ResourceInfo& info, GL::Context& context);
-  Mesh(const Mesh& source);
-  Mesh& operator = (const Mesh& source);
-  bool init(const wendy::Mesh& mesh, const MaterialMap& materials);
+  Model(const ResourceInfo& info, GL::Context& context);
+  Model(const Model& source);
+  Model& operator = (const Model& source);
+  bool init(const Mesh& data, const MaterialMap& materials);
   GL::Context& context;
   GeometryList geometries;
   Ref<GL::VertexBuffer> vertexBuffer;
@@ -106,13 +106,13 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief %Renderable mesh subset.
+/*! @brief %Renderable model subset.
  *  @ingroup renderer
  *
  *  This class represents a subset of a mesh, using a single %render material
  *  and a single primitive mode.
  */
-class Mesh::Geometry
+class Model::Geometry
 {
 public:
   /*! Constructor.
@@ -134,18 +134,18 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class MeshReader : public ResourceReader, public XML::Reader
+class ModelReader : public ResourceReader, public XML::Reader
 {
 public:
-  MeshReader(GL::Context& context);
-  Ref<Mesh> read(const Path& path);
+  ModelReader(GL::Context& context);
+  Ref<Model> read(const Path& path);
 private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
   GL::Context& context;
   ResourceInfo info;
-  Ref<wendy::Mesh> data;
-  Mesh::MaterialMap materials;
+  Ref<Mesh> data;
+  Model::MaterialMap materials;
 };
 
 ///////////////////////////////////////////////////////////////////////

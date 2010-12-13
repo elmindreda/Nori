@@ -111,7 +111,7 @@
 #include <wendy/RenderPool.h>
 #include <wendy/RenderSprite.h>
 #include <wendy/RenderFont.h>
-#include <wendy/RenderMesh.h>
+#include <wendy/RenderModel.h>
 
 #include <wendy/Deferred.h>
 #endif
