@@ -71,12 +71,13 @@ class Technique
 public:
   /*! Constructor.
    */
-  Technique(const String& name);
+  Technique(const String& name = "");
   /*! Creates a new %render pass in this technique.
    *  @param[in] name The name of the %render pass, if it is a pass intended for
    *  a custom %render stage, or the empty string to place it in the default
    *  pass group.
    *  @return The newly created %render pass.
+   *
    *  @remarks The passes are rendered in creation order.
    *  @remarks Non-empty %render pass names must be unique.
    *  @remarks Named %render passes will be ignored by the default %render mechanisms.
