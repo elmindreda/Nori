@@ -257,6 +257,11 @@ void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
 
   range.copyFrom(vertices);
 
+  if (texture.getFormat().getSemantic() == PixelFormat::RGBA)
+    blitPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
+  else
+    blitPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ZERO);
+
   blitPass.getSamplerState("image").setTexture(&texture);
   blitPass.apply();
 
