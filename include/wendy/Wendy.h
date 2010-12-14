@@ -57,42 +57,7 @@
 
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
-
-#include <wendy/Core.h>
-#include <wendy/Block.h>
-#include <wendy/Bimap.h>
-#include <wendy/Signal.h>
-#include <wendy/Timer.h>
-
-#include <wendy/Color.h>
-#include <wendy/Vector.h>
-#include <wendy/Matrix.h>
-#include <wendy/Quaternion.h>
-#include <wendy/Transform.h>
-#include <wendy/Random.h>
-
-#include <wendy/AABB.h>
-#include <wendy/Segment.h>
-#include <wendy/Rectangle.h>
-#include <wendy/Plane.h>
-#include <wendy/Ray.h>
-#include <wendy/Sphere.h>
-#include <wendy/Triangle.h>
-#include <wendy/Frustum.h>
-#include <wendy/Bezier.h>
-
-#include <wendy/Pattern.h>
-#include <wendy/Pixel.h>
-#include <wendy/Vertex.h>
-
-#include <wendy/Path.h>
-#include <wendy/Resource.h>
-#include <wendy/XML.h>
-
-#include <wendy/Animation.h>
-#include <wendy/Image.h>
-#include <wendy/Mesh.h>
+#include <wendy/WendyCore.h>
 
 #include <wendy/OpenGL.h>
 #include <wendy/GLTexture.h>
