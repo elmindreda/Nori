@@ -73,6 +73,8 @@ public:
   bool addSearchPath(const Path& path);
   void removeSearchPath(const Path& path);
   Resource* findResource(const Path& path) const;
+  bool openFile(std::ifstream& stream, const Path& path) const;
+  bool findFile(Path& path) const;
   const PathList& getSearchPaths(void) const;
 private:
   typedef std::vector<Resource*> List;
@@ -87,10 +89,7 @@ class ResourceReader
 public:
   ResourceReader(ResourceIndex& index);
   ResourceIndex& getIndex(void) const;
-protected:
-  bool open(std::ifstream& stream, const Path& path) const;
 private:
-  bool find(Path& path) const;
   ResourceIndex& index;
 };
 

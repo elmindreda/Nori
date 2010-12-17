@@ -429,7 +429,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
   ResourceInfo info(getIndex(), path);
 
   std::ifstream stream;
-  if (!open(stream, info.path))
+  if (!getIndex().openFile(stream, info.path))
     return NULL;
 
   String line;

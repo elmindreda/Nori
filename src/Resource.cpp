@@ -124,28 +124,11 @@ Resource* ResourceIndex::findResource(const Path& path) const
   return NULL;
 }
 
-const PathList& ResourceIndex::getSearchPaths(void) const
-{
-  return paths;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-ResourceReader::ResourceReader(ResourceIndex& index):
-  index(index)
-{
-}
-
-ResourceIndex& ResourceReader::getIndex(void) const
-{
-  return index;
-}
-
-bool ResourceReader::open(std::ifstream& stream, const Path& path) const
+bool ResourceIndex::openFile(std::ifstream& stream, const Path& path) const
 {
   Path full = path;
 
-  if (find(full))
+  if (findFile(full))
   {
     stream.open(full.asString().c_str());
     if (!stream.fail())
@@ -155,10 +138,8 @@ bool ResourceReader::open(std::ifstream& stream, const Path& path) const
   return false;
 }
 
-bool ResourceReader::find(Path& path) const
+bool ResourceIndex::findFile(Path& path) const
 {
-  const PathList& paths = index.getSearchPaths();
-
   if (paths.empty())
   {
     if (path.isFile())
@@ -178,6 +159,23 @@ bool ResourceReader::find(Path& path) const
   }
 
   return false;
+}
+
+const PathList& ResourceIndex::getSearchPaths(void) const
+{
+  return paths;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+ResourceReader::ResourceReader(ResourceIndex& index):
+  index(index)
+{
+}
+
+ResourceIndex& ResourceReader::getIndex(void) const
+{
+  return index;
 }
 
 ///////////////////////////////////////////////////////////////////////

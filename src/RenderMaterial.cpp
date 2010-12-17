@@ -355,7 +355,7 @@ Ref<Material> MaterialReader::read(const Path& path)
   currentPass = NULL;
 
   std::ifstream stream;
-  if (!open(stream, info.path))
+  if (!getIndex().openFile(stream, info.path))
     return NULL;
 
   if (!XML::Reader::read(stream))

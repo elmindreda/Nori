@@ -388,7 +388,7 @@ Ref<Anim3> Anim3Reader::read(const Path& path)
   currentTrack = NULL;
 
   std::ifstream stream;
-  if (!open(stream, info.path))
+  if (!getIndex().openFile(stream, info.path))
     return NULL;
 
   if (!XML::Reader::read(stream))

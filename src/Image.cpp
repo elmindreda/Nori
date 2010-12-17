@@ -774,7 +774,7 @@ Ref<Image> ImageReader::read(const Path& path)
   ResourceInfo info(getIndex(), path);
 
   std::ifstream stream;
-  if (!open(stream, info.path))
+  if (!getIndex().openFile(stream, info.path))
     return NULL;
 
   // Check if file is valid
@@ -962,7 +962,7 @@ Ref<ImageCube> ImageCubeReader::read(const Path& path)
   ResourceInfo info(getIndex(), path);
 
   std::ifstream stream;
-  if (!open(stream, info.path))
+  if (!getIndex().openFile(stream, info.path))
     return NULL;
 
   cube = new ImageCube(info);

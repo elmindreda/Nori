@@ -988,7 +988,7 @@ Ref<Program> ProgramReader::read(const Path& path)
   info.path = path;
 
   std::ifstream stream;
-  if (!open(stream, info.path))
+  if (!getIndex().openFile(stream, info.path))
     return NULL;
 
   if (!XML::Reader::read(stream))
@@ -1128,7 +1128,7 @@ bool ProgramReader::onEndElement(const String& name)
 bool ProgramReader::readTextFile(String& text, const Path& path)
 {
   std::ifstream stream;
-  if (!open(stream, path))
+  if (!getIndex().openFile(stream, path))
     return false;
 
   stream.seekg(0, std::ios::end);
