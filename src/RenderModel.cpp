@@ -330,6 +330,7 @@ Ref<Model> ModelReader::read(const Path& path)
   if (!mesh)
     return NULL;
 
+  data = NULL;
   return mesh;
 }
 
