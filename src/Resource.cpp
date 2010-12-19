@@ -130,7 +130,7 @@ bool ResourceIndex::openFile(std::ifstream& stream, const Path& path) const
 
   if (findFile(full))
   {
-    stream.open(full.asString().c_str());
+    stream.open(full.asString().c_str(), std::ios::in | std::ios::binary);
     if (!stream.fail())
       return true;
   }
