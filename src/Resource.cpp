@@ -147,7 +147,7 @@ bool ResourceReader::open(std::ifstream& stream, const Path& path) const
 
   if (find(full))
   {
-    stream.open(full.asString().c_str());
+    stream.open(full.asString().c_str(), std::ios::in | std::ios::binary);
     if (!stream.fail())
       return true;
   }

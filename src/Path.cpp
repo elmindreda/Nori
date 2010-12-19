@@ -91,7 +91,7 @@ Path::Path(const char* format, ...)
 
 bool Path::createDirectory(void) const
 {
-#ifdef _MSC_VER
+#ifdef _WIN32
   return _mkdir(path.c_str()) == 0;
 #else
   return mkdir(path.c_str(), 0777) == 0;
@@ -100,7 +100,7 @@ bool Path::createDirectory(void) const
 
 bool Path::destroyDirectory(void) const
 {
-#ifdef _MSC_VER
+#ifdef _WIN32
   return _rmdir(path.c_str()) == 0;
 #else
   return rmdir(path.c_str()) == 0;
@@ -109,7 +109,7 @@ bool Path::destroyDirectory(void) const
 
 bool Path::exists(void) const
 {
-#ifdef _MSC_VER
+#ifdef _WIN32
   return _access(path.c_str(), F_OK) == 0;
 #else
   return access(path.c_str(), F_OK) == 0;
@@ -178,7 +178,7 @@ bool Path::isEmpty(void) const
 
 bool Path::isReadable(void) const
 {
-#ifdef _MSC_VER
+#ifdef _WIN32
   return _access(path.c_str(), R_OK) == 0;
 #else
   return access(path.c_str(), R_OK) == 0;
@@ -187,7 +187,7 @@ bool Path::isReadable(void) const
 
 bool Path::isWritable(void) const
 {
-#ifdef _MSC_VER
+#ifdef _WIN32
   return _access(path.c_str(), W_OK) == 0;
 #else
   return access(path.c_str(), W_OK) == 0;
@@ -196,7 +196,7 @@ bool Path::isWritable(void) const
 
 bool Path::isFile(void) const
 {
-#ifdef _MSC_VER
+#ifdef _WIN32
   struct _stati64 sb;
 
   if (_stati64(path.c_str(), &sb) != 0)
@@ -213,7 +213,7 @@ bool Path::isFile(void) const
 
 bool Path::isDirectory(void) const
 {
-#ifdef _MSC_VER
+#ifdef _WIN32
   struct _stati64 sb;
 
   if (_stati64(path.c_str(), &sb) != 0)

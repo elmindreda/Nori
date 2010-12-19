@@ -335,7 +335,7 @@ bool Font::init(const FontData& data)
 {
   unsigned int maxWidth = 0, maxHeight = 0;
 
-  for (int i = 0;  i < data.glyphs.size();  i++)
+  for (size_t i = 0;  i < data.glyphs.size();  i++)
   {
     const FontGlyphData& glyph = data.glyphs[i];
 
@@ -431,7 +431,7 @@ bool Font::init(const FontData& data)
 
   glyphs.reserve(data.glyphs.size());
 
-  for (int i = 0;  i < data.glyphs.size();  i++)
+  for (size_t i = 0;  i < data.glyphs.size();  i++)
   {
     const FontGlyphData& glyphData = data.glyphs[i];
 

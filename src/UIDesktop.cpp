@@ -104,7 +104,8 @@ void Desktop::cancelDragging(void)
     Vec2i cursorPosition = context.getCursorPosition();
     cursorPosition.y = context.getHeight() - cursorPosition.y;
 
-    const Vec2 scaledPosition(cursorPosition.x, cursorPosition.y);
+    const Vec2 scaledPosition((float) cursorPosition.x,
+                              (float) cursorPosition.y);
 
     draggedWidget->dragEndedSignal.emit(*draggedWidget, scaledPosition);
 
@@ -166,7 +167,8 @@ void Desktop::updateHoveredWidget(void)
   Vec2i cursorPosition = context.getCursorPosition();
   cursorPosition.y = context.getHeight() - cursorPosition.y;
 
-  const Vec2 scaledPosition(cursorPosition.x, cursorPosition.y);
+  const Vec2 scaledPosition((float) cursorPosition.x,
+                            (float) cursorPosition.y);
 
   Widget* newWidget = findWidgetByPoint(scaledPosition);
 
@@ -227,7 +229,8 @@ void Desktop::onCursorMoved(const Vec2i& position)
   Vec2i cursorPosition = context.getCursorPosition();
   cursorPosition.y = context.getHeight() - cursorPosition.y;
 
-  const Vec2 scaledPosition(cursorPosition.x, cursorPosition.y);
+  const Vec2 scaledPosition((float) cursorPosition.x,
+                            (float) cursorPosition.y);
 
   if (hoveredWidget)
     hoveredWidget->cursorMovedSignal.emit(*hoveredWidget, scaledPosition);
@@ -251,7 +254,8 @@ void Desktop::onButtonClicked(input::Button button, bool clicked)
   Vec2i cursorPosition = context.getCursorPosition();
   cursorPosition.y = context.getHeight() - cursorPosition.y;
 
-  const Vec2 scaledPosition(cursorPosition.x, cursorPosition.y);
+  const Vec2 scaledPosition((float) cursorPosition.x,
+                            (float) cursorPosition.y);
 
   if (clicked)
   {
