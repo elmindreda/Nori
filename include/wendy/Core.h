@@ -64,21 +64,11 @@
 #define S_ISDIR(x) ((x) & _S_IFDIR)
 #define S_ISREG(x) ((x) & _S_IFREG)
 
-typedef __int64 off64_t;
-
 float fminf(float x, float y);
 float fmaxf(float x, float y);
 float log2f(float x);
 
 #endif /*_MSC_VER*/
-
-///////////////////////////////////////////////////////////////////////
-
-#ifdef __APPLE_CC__
-
-typedef off_t off64_t;
-
-#endif /*__APPLE_CC__*/
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -116,10 +106,6 @@ typedef double Time;
 /*! String type.
  */
 typedef std::string String;
-
-/*! Generic function pointer type.
- */
-typedef void (*EntryPoint)(void);
 
 ///////////////////////////////////////////////////////////////////////
 
