@@ -72,26 +72,6 @@ struct BlendedOperationComparator
   }
 };
 
-/* Hash function used in the ELF executable format
- */
-uint32_t hashString(const String& string)
-{
-  uint32_t hash = 0;
-  uint32_t temp;
-
-  for (String::const_iterator c = string.begin();  c != string.end();  c++)
-  {
-    hash = (hash << 4) + *c;
-
-    if (temp = hash & 0xf0000000)
-      hash ^= temp >> 24;
-
-    hash &= ~temp;
-  }
-
-  return hash;
-}
-
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////

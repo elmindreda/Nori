@@ -32,8 +32,6 @@
 #include <wendy/Pixel.h>
 #include <wendy/Vertex.h>
 
-#include <stdint.h>
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy

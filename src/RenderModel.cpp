@@ -38,8 +38,6 @@
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderModel.h>
 
-#include <stdint.h>
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy

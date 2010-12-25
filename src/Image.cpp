@@ -35,8 +35,6 @@
 #include <wendy/XML.h>
 #include <wendy/Image.h>
 
-#include <stdint.h>
-
 #include <cstring>
 #include <cmath>
 

@@ -32,8 +32,6 @@
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderSprite.h>
 
-#include <stdint.h>
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
