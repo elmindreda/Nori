@@ -50,6 +50,9 @@ class Program;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Vertex program text container.
+ *  @ingroup opengl
+ */
 class VertexProgram
 {
 public:
@@ -61,6 +64,9 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Fragment program text container.
+ *  @ingroup opengl
+ */
 class FragmentProgram
 {
 public:
