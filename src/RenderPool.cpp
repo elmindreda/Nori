@@ -61,7 +61,7 @@ bool GeometryPool::allocateIndices(GL::IndexRange& range,
 
   for (IndexBufferList::iterator i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
   {
-    if ((*i).indexBuffer->getType() == type && (*i).available >= count)
+    if (i->indexBuffer->getType() == type && i->available >= count)
     {
       slot = &(*i);
       break;
@@ -115,7 +115,7 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
 
   for (VertexBufferList::iterator i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
   {
-    if ((*i).vertexBuffer->getFormat() == format && (*i).available >= count)
+    if (i->vertexBuffer->getFormat() == format && i->available >= count)
     {
       slot = &(*i);
       break;
@@ -165,10 +165,10 @@ GL::Context& GeometryPool::getContext(void) const
 void GeometryPool::onContextFinish(void)
 {
   for (IndexBufferList::iterator i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
-    (*i).available = (*i).indexBuffer->getCount();
+    i->available = i->indexBuffer->getCount();
 
   for (VertexBufferList::iterator i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
-    (*i).available = (*i).vertexBuffer->getCount();
+    i->available = i->vertexBuffer->getCount();
 }
 
 ///////////////////////////////////////////////////////////////////////

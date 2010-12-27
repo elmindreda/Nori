@@ -142,7 +142,7 @@ bool Context::isKeyDown(const Key& key) const
 
   KeyMap::const_iterator i = internalMap.find(externalKey);
   if (i != internalMap.end())
-    externalKey = (*i).second;
+    externalKey = i->second;
 
   return (glfwGetKey(externalKey) == GLFW_PRESS) ? true : false;
 }
@@ -371,7 +371,7 @@ void Context::keyboardCallback(int key, int action)
     if (i == externalMap.end())
       return;
 
-    key = (*i).second;
+    key = i->second;
   }
 
   const bool pressed = (action == GLFW_PRESS) ? true : false;

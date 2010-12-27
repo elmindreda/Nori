@@ -1066,7 +1066,7 @@ bool Context::setClipPlanes(const PlaneList& newPlanes)
   {
     // TODO: Verify this.
 
-    const double equation[4] = { (*p).normal.x, (*p).normal.y, (*p).normal.z, (*p).distance };
+    const double equation[4] = { p->normal.x, p->normal.y, p->normal.z, p->distance };
 
     glEnable(GL_CLIP_PLANE0 + index);
     glClipPlane(GL_CLIP_PLANE0 + index, equation);

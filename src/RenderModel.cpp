@@ -221,9 +221,9 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
            j != g->triangles.end();
            j++)
       {
-        indices[index++] = (*j).indices[0];
-        indices[index++] = (*j).indices[1];
-        indices[index++] = (*j).indices[2];
+        indices[index++] = j->indices[0];
+        indices[index++] = j->indices[1];
+        indices[index++] = j->indices[2];
       }
     }
     else if (indexType == GL::IndexBuffer::UINT16)
@@ -236,9 +236,9 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
            j != g->triangles.end();
            j++)
       {
-        indices[index++] = (*j).indices[0];
-        indices[index++] = (*j).indices[1];
-        indices[index++] = (*j).indices[2];
+        indices[index++] = j->indices[0];
+        indices[index++] = j->indices[1];
+        indices[index++] = j->indices[2];
       }
     }
     else
@@ -251,9 +251,9 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
            j != g->triangles.end();
            j++)
       {
-        indices[index++] = (*j).indices[0];
-        indices[index++] = (*j).indices[1];
-        indices[index++] = (*j).indices[2];
+        indices[index++] = j->indices[0];
+        indices[index++] = j->indices[1];
+        indices[index++] = j->indices[2];
       }
     }
 

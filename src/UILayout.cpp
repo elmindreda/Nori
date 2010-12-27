@@ -87,7 +87,7 @@ float Layout::getChildSize(Widget& child) const
   if (i == sizes.end())
     return 0.f;
 
-  return (*i).second;
+  return i->second;
 }
 
 void Layout::setChildSize(Widget& child, float newSize)
