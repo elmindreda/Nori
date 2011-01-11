@@ -152,7 +152,7 @@ void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const Strin
     roundedPen.x = floorf(penPosition.x + 0.5f);
     roundedPen.y = floorf(penPosition.y + 0.5f);
 
-    GL::VertexRangeLock<Vertex2ft2fv> vertices(vertexRange);
+    Vertex2ft2fv* vertices = (Vertex2ft2fv*) vertexRange.lock();
     if (!vertices)
     {
       logError("Failed to lock vertices for text drawing");
@@ -173,6 +173,8 @@ void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const Strin
         count += 6;
       }
     }
+
+    vertexRange.unlock();
   }
 
   if (!count)
