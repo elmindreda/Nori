@@ -683,6 +683,99 @@ void SpectatorCamera::updateTransform(void)
 
 ///////////////////////////////////////////////////////////////////////
 
+TextController::TextController(void):
+  caretPosition(0)
+{
+}
+
+void TextController::onKeyPressed(Key key, bool pressed)
+{
+  if (!pressed)
+    return;
+
+  switch (key)
+  {
+    case input::Key::BACKSPACE:
+    {
+      if (!text.empty() && caretPosition > 0)
+      {
+	text.erase(caretPosition - 1, 1);
+	setCaretPosition(caretPosition - 1);
+      }
+
+      break;
+    }
+
+    case input::Key::DELETE:
+    {
+      if (!text.empty() && caretPosition < text.length())
+	text.erase(caretPosition, 1);
+
+      break;
+    }
+
+    case input::Key::LEFT:
+    {
+      if (caretPosition > 0)
+	setCaretPosition(caretPosition - 1);
+      break;
+    }
+
+    case input::Key::RIGHT:
+    {
+      setCaretPosition(caretPosition + 1);
+      break;
+    }
+
+    case input::Key::HOME:
+    {
+      setCaretPosition(0);
+      break;
+    }
+
+    case input::Key::END:
+    {
+      setCaretPosition(text.length());
+      break;
+    }
+  }
+}
+
+void TextController::onCharInput(wchar_t character)
+{
+  if (character < 256)
+  {
+    text.insert(caretPosition, 1, (char) character);
+    setCaretPosition(caretPosition + 1);
+  }
+}
+
+const String& TextController::getText(void) const
+{
+  return text;
+}
+
+void TextController::setText(const String& newText)
+{
+  text = newText;
+  setCaretPosition(caretPosition);
+}
+
+unsigned int TextController::getCaretPosition(void) const
+{
+  return caretPosition;
+}
+
+void TextController::setCaretPosition(unsigned int newPosition)
+{
+  if (newPosition > text.length())
+    caretPosition = text.length();
+  else
+    caretPosition = newPosition;
+}
+
+///////////////////////////////////////////////////////////////////////
+
   } /*namespace input*/
 } /*namespace wendy*/
 

@@ -259,6 +259,23 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+class TextController : public Focus
+{
+public:
+  TextController(void);
+  void onKeyPressed(Key key, bool pressed);
+  void onCharInput(wchar_t character);
+  const String& getText(void) const;
+  void setText(const String& newText);
+  unsigned int getCaretPosition(void) const;
+  void setCaretPosition(unsigned int newPosition);
+private:
+  String text;
+  unsigned int caretPosition;
+};
+
+///////////////////////////////////////////////////////////////////////
+
   } /*namespace input*/
 } /*namespace wendy*/
 
