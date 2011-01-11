@@ -112,9 +112,9 @@ private:
   Font(const Font& source);
   Font& operator = (const Font& source);
   bool init(const FontData& font);
-  const Glyph* findGlyph(char character) const;
-  bool getGlyphLayout(Layout& layout, char character) const;
-  void getGlyphLayout(Layout& layout, const Glyph& glyph, char character) const;
+  const Glyph* findGlyph(uint8_t character) const;
+  bool getGlyphLayout(Layout& layout, uint8_t character) const;
+  void getGlyphLayout(Layout& layout, const Glyph& glyph, uint8_t character) const;
   void realizeVertices(const Rect& pixelArea,
                        const Rect& texelArea,
                        Vertex2ft2fv* vertices) const;

@@ -189,7 +189,9 @@ void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const Strin
 				              count));
 }
 
-void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const char* format, ...) const
+void Font::drawText(const Vec2& penPosition,
+                    const ColorRGBA& color,
+                    const char* format, ...) const
 {
   va_list vl;
   char* text;
@@ -433,7 +435,7 @@ bool Font::init(const FontData& data)
 
   glyphs.reserve(data.glyphs.size());
 
-  for (size_t i = 0;  i < data.glyphs.size();  i++)
+  for (int i = 0;  i < data.glyphs.size();  i++)
   {
     const FontGlyphData& glyphData = data.glyphs[i];
 
@@ -492,12 +494,12 @@ bool Font::init(const FontData& data)
   return true;
 }
 
-const Font::Glyph* Font::findGlyph(char character) const
+const Font::Glyph* Font::findGlyph(uint8_t character) const
 {
   return characters[character];
 }
 
-bool Font::getGlyphLayout(Layout& layout, char character) const
+bool Font::getGlyphLayout(Layout& layout, uint8_t character) const
 {
   const Glyph* glyph = findGlyph(character);
   if (!glyph)
@@ -507,7 +509,7 @@ bool Font::getGlyphLayout(Layout& layout, char character) const
   return true;
 }
 
-void Font::getGlyphLayout(Layout& layout, const Glyph& glyph, char character) const
+void Font::getGlyphLayout(Layout& layout, const Glyph& glyph, uint8_t character) const
 {
   layout.character = character;
 
