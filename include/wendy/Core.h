@@ -138,20 +138,20 @@ uint32_t hashString(const String& string);
  */
 uint32_t hashString(const char* string);
 
-/*! Writes an error message log entry to the current log object,
- *  or to stderr if there is no current log object.
+/*! Writes an error message log entry to the log consumers,
+ *  or to stderr if there are no log consumers.
  *  @param format [in] The formatting string for the log entry.
  */
 void logError(const char* format, ...);
 
-/*! Writes a warning message log entry to the current log object,
- *  or to stderr if there is no current log object.
+/*! Writes a warning message log entry to the log consumers,
+ *  or to stderr if there are no log consumers.
  *  @param format [in] The formatting string for the log entry.
  */
 void logWarning(const char* format, ...);
 
-/*! Writes an informational message log entry to the current log object,
- *  or to stderr if there is no current log object.
+/*! Writes an informational  message log entry to the log consumers,
+ *  or to stderr if there are no log consumers.
  *  @param format [in] The formatting string for the log entry.
  */
 void log(const char* format, ...);
