@@ -112,14 +112,14 @@ bool VertexFormat::createComponent(const String& name,
 {
   if (count < 1 || count > 4)
   {
-    Log::writeError("Vertex components must have between 1 and 4 elements");
+    logError("Vertex components must have between 1 and 4 elements");
     return false;
   }
 
   if (findComponent(name))
   {
-    Log::writeError("Duplicate vertex component name \'%s\' detected; vertex components must have unique names",
-                    name.c_str());
+    logError("Duplicate vertex component name \'%s\' detected; vertex components must have unique names",
+             name.c_str());
     return false;
   }
 
@@ -138,14 +138,14 @@ bool VertexFormat::createComponents(const String& specification)
   {
     if (*command < '1' || *command > '4')
     {
-      Log::writeError("Invalid vertex component element count");
+      logError("Invalid vertex component element count");
       return false;
     }
 
     const size_t count = *command - '0';
     if (++command == specification.end())
     {
-      Log::writeError("Unexpected end of vertex format specification");
+      logError("Unexpected end of vertex format specification");
       return false;
     }
 
@@ -167,21 +167,21 @@ bool VertexFormat::createComponents(const String& specification)
 	break;
       default:
 	if (std::isgraph(*command))
-	  Log::writeError("Invalid vertex component type \'%c\'", *command);
+	  logError("Invalid vertex component type \'%c\'", *command);
 	else
-	  Log::writeError("Invalid vertex component type 0x%02x", *command);
+	  logError("Invalid vertex component type 0x%02x", *command);
 	return false;
     }
 
     if (++command == specification.end())
     {
-      Log::writeError("Unexpected end of vertex format specification");
+      logError("Unexpected end of vertex format specification");
       return false;
     }
 
     if (*command != ':')
     {
-      Log::writeError("Invalid vertex component specification; expected \':\'");
+      logError("Invalid vertex component specification; expected \':\'");
       return false;
     }
 

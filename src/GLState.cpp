@@ -65,7 +65,7 @@ GLenum convertToGL(CullMode mode)
       return GL_FRONT_AND_BACK;
   }
 
-  Log::writeError("Invalid cull mode %u", mode);
+  logError("Invalid cull mode %u", mode);
   return 0;
 }
 
@@ -83,7 +83,7 @@ CullMode invertCullMode(CullMode mode)
       return CULL_NONE;
   }
 
-  Log::writeError("Invalid cull mode %u", mode);
+  logError("Invalid cull mode %u", mode);
   return (CullMode) 0;
 }
 
@@ -113,7 +113,7 @@ GLenum convertToGL(BlendFactor factor)
       return GL_ONE_MINUS_DST_ALPHA;
   }
 
-  Log::writeError("Invalid blend factor %u", factor);
+  logError("Invalid blend factor %u", factor);
   return 0;
 }
 
@@ -139,7 +139,7 @@ GLenum convertToGL(Function function)
       return GL_GEQUAL;
   }
 
-  Log::writeError("Invalid comparison function %u", function);
+  logError("Invalid comparison function %u", function);
   return 0;
 }
 
@@ -165,7 +165,7 @@ GLenum convertToGL(Operation operation)
       return GL_DECR_WRAP;
   }
 
-  Log::writeError("Invalid stencil operation %u", operation);
+  logError("Invalid stencil operation %u", operation);
   return 0;
 }
 

@@ -88,7 +88,7 @@ bool Pattern::matches(const String& text) const
   if (pairs < 0)
   {
     if (pairs != PCRE_ERROR_NOMATCH)
-      Log::writeError("Error when matching pattern");
+      logError("Error when matching pattern");
 
     return false;
   }
@@ -119,7 +119,7 @@ PatternMatch* Pattern::match(const String& text) const
   if (count < 0)
   {
     if (count != PCRE_ERROR_NOMATCH)
-      Log::writeError("Error when matching pattern");
+      logError("Error when matching pattern");
 
     return NULL;
   }
@@ -154,7 +154,7 @@ bool Pattern::init(const String& source)
   object = pcre_compile(source.c_str(), 0, &message, &offset, NULL);
   if (!object)
   {
-    Log::writeError("Failed to compile PCRE pattern: %s", message);
+    logError("Failed to compile PCRE pattern: %s", message);
     return false;
   }
 

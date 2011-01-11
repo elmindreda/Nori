@@ -88,7 +88,7 @@ bool GeometryPool::allocateIndices(GL::IndexRange& range,
       return false;
     }
 
-    Log::write("Allocated index pool of size %u", actualCount);
+    log("Allocated index pool of size %u", actualCount);
 
     slot->available = slot->indexBuffer->getCount();
   }
@@ -142,9 +142,9 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
       return false;
     }
 
-    Log::write("Allocated vertex pool of size %u format \'%s\'",
-               actualCount,
-	       format.asString().c_str());
+    log("Allocated vertex pool of size %u format \'%s\'",
+        actualCount,
+	format.asString().c_str());
 
     slot->available = slot->vertexBuffer->getCount();
   }

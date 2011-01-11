@@ -65,8 +65,8 @@ void Model::enqueue(Queue& queue, const Transform3& transform) const
     const Technique* technique = material->getActiveTechnique();
     if (!technique)
     {
-      Log::writeError("Material \'%s\' has no active technique",
-                      material->getPath().asString().c_str());
+      logError("Material \'%s\' has no active technique",
+               material->getPath().asString().c_str());
       return;
     }
 
@@ -150,9 +150,9 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
   {
     if (materials.find(g->shaderName) == materials.end())
     {
-      Log::writeError("Missing path for material \'%s\' of render mesh \'%s\'",
-                      g->shaderName.c_str(),
-                      getPath().asString().c_str());
+      logError("Missing path for material \'%s\' of render mesh \'%s\'",
+               g->shaderName.c_str(),
+               getPath().asString().c_str());
       return false;
     }
 
@@ -199,9 +199,9 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
     Ref<Material> material = Material::read(context, materialPath);
     if (!material)
     {
-      Log::writeError("Cannot find material \'%s\' for render mesh \'%s\'",
-                      g->shaderName.c_str(),
-		      getPath().asString().c_str());
+      logError("Cannot find material \'%s\' for render mesh \'%s\'",
+               g->shaderName.c_str(),
+	       getPath().asString().c_str());
       return false;
     }
 
@@ -339,24 +339,24 @@ bool ModelReader::onBeginElement(const String& name)
     const unsigned int version = readInteger("version");
     if (version != MODEL_XML_VERSION)
     {
-      Log::writeError("Model specification XML format version mismatch");
+      logError("Model specification XML format version mismatch");
       return false;
     }
 
     Path dataPath(readString("data"));
     if (dataPath.isEmpty())
     {
-      Log::writeError("Model data path for render mesh \'%s\' is empty",
-                      info.path.asString().c_str());
+      logError("Model data path for render mesh \'%s\' is empty",
+               info.path.asString().c_str());
       return false;
     }
 
     data = Mesh::read(getIndex(), dataPath);
     if (!data)
     {
-      Log::writeError("Failed to load mesh data \'%s\' for render mesh \'%s\'",
-                      dataPath.asString().c_str(),
-                      info.path.asString().c_str());
+      logError("Failed to load mesh data \'%s\' for render mesh \'%s\'",
+               dataPath.asString().c_str(),
+               info.path.asString().c_str());
       return false;
     }
 
@@ -368,17 +368,17 @@ bool ModelReader::onBeginElement(const String& name)
     String name(readString("name"));
     if (name.empty())
     {
-      Log::writeError("Empty material name in render mesh specification \'%s\'",
-                      info.path.asString().c_str());
+      logError("Empty material name in render mesh specification \'%s\'",
+               info.path.asString().c_str());
       return false;
     }
 
     Path path(readString("path"));
     if (path.isEmpty())
     {
-      Log::writeError("Empty path for material name \'%s\' in render mesh specification \'%s\'",
-                      name.c_str(),
-                      info.path.asString().c_str());
+      logError("Empty path for material name \'%s\' in render mesh specification \'%s\'",
+               name.c_str(),
+               info.path.asString().c_str());
       return false;
     }
 

@@ -38,7 +38,7 @@ bool initialize(void)
 {
   if (!glfwInit())
   {
-    Log::writeError("Failed to initialize GLFW");
+    logError("Failed to initialize GLFW");
     return false;
   }
 

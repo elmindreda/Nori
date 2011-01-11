@@ -515,7 +515,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
     {
       if (!group)
       {
-        Log::writeError("Expected \'usemtl\' but found \'f\' in OBJ file");
+        logError("Expected \'usemtl\' but found \'f\' in OBJ file");
         return NULL;
       }
 
@@ -530,7 +530,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
 
 	if (*text++ != '/')
 	{
-	  Log::writeError("Expected but missing \'/\' in OBJ file");
+	  logError("Expected but missing \'/\' in OBJ file");
 	  return NULL;
 	}
 
@@ -540,7 +540,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
 
 	if (*text++ != '/')
 	{
-	  Log::writeError("Expected but missing \'/\' in OBJ file");
+	  logError("Expected but missing \'/\' in OBJ file");
 	  return NULL;
 	}
 
@@ -563,7 +563,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
       }
     }
     else
-      Log::writeWarning("Unknown command \'%s\' in OBJ file", command.c_str());
+      logWarning("Unknown command \'%s\' in OBJ file", command.c_str());
   }
 
   Ref<Mesh> mesh = new Mesh(info);

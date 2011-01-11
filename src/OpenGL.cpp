@@ -62,11 +62,11 @@ bool checkGL(const char* format, ...)
 
   if (result < 0)
   {
-    Log::writeError("Error formatting error message for OpenGL error %u", error);
+    logError("Error formatting error message for OpenGL error %u", error);
     return false;
   }
 
-  Log::writeError("%s: %s", message, gluErrorString(error));
+  logError("%s: %s", message, gluErrorString(error));
 
   std::free(message);
   return false;
@@ -88,11 +88,11 @@ bool checkCg(const char* format, ...)
 
   if (result < 0)
   {
-    Log::writeError("Error formatting error message for Cg error %u", error);
+    logError("Error formatting error message for Cg error %u", error);
     return false;
   }
 
-  Log::writeError("%s: %s", message, cgGetErrorString(error));
+  logError("%s: %s", message, cgGetErrorString(error));
 
   std::free(message);
   return false;

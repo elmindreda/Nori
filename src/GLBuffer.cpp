@@ -59,7 +59,7 @@ GLenum convertToGL(LockType type)
       return GL_READ_WRITE_ARB;
   }
 
-  Log::writeError("Invalid lock type %u", type);
+  logError("Invalid lock type %u", type);
   return 0;
 }
 
@@ -75,7 +75,7 @@ GLenum convertToGL(IndexBuffer::Usage usage)
       return GL_DYNAMIC_DRAW_ARB;
   }
 
-  Log::writeError("Invalid index buffer usage %u", usage);
+  logError("Invalid index buffer usage %u", usage);
   return 0;
 }
 
@@ -91,7 +91,7 @@ GLenum convertToGL(VertexBuffer::Usage usage)
       return GL_DYNAMIC_DRAW_ARB;
   }
 
-  Log::writeError("Invalid vertex buffer usage %u", usage);
+  logError("Invalid vertex buffer usage %u", usage);
   return 0;
 }
 
@@ -102,7 +102,7 @@ GLenum convertToGL(VertexBuffer::Usage usage)
 VertexBuffer::~VertexBuffer(void)
 {
   if (locked)
-    Log::writeWarning("Vertex buffer destroyed while locked");
+    logWarning("Vertex buffer destroyed while locked");
 
   if (current == this)
     invalidateCurrent();
@@ -115,7 +115,7 @@ void* VertexBuffer::lock(LockType type)
 {
   if (locked)
   {
-    Log::writeError("Vertex buffer already locked");
+    logError("Vertex buffer already locked");
     return NULL;
   }
 
@@ -124,8 +124,8 @@ void* VertexBuffer::lock(LockType type)
   void* mapping = glMapBufferARB(GL_ARRAY_BUFFER_ARB, convertToGL(type));
   if (mapping == NULL)
   {
-    Log::writeError("Failed to lock vertex buffer: %s",
-                    gluErrorString(glGetError()));
+    logError("Failed to lock vertex buffer: %s",
+             gluErrorString(glGetError()));
     return NULL;
   }
 
@@ -137,14 +137,14 @@ void VertexBuffer::unlock(void)
 {
   if (!locked)
   {
-    Log::writeWarning("Cannot unlock non-locked vertex buffer");
+    logWarning("Cannot unlock non-locked vertex buffer");
     return;
   }
 
   apply();
 
   if (!glUnmapBufferARB(GL_ARRAY_BUFFER_ARB))
-    Log::writeWarning("Data for vertex buffer was corrupted");
+    logWarning("Data for vertex buffer was corrupted");
 
   locked = false;
 }
@@ -153,13 +153,13 @@ void VertexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsign
 {
   if (locked)
   {
-    Log::writeError("Cannot copy data into locked vertex buffer");
+    logError("Cannot copy data into locked vertex buffer");
     return;
   }
 
   if (start + sourceCount > count)
   {
-    Log::writeError("Too many vertices submitted to vertex buffer");
+    logError("Too many vertices submitted to vertex buffer");
     return;
   }
 
@@ -177,13 +177,13 @@ void VertexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int s
 {
   if (locked)
   {
-    Log::writeError("Cannot copy data from locked vertex buffer");
+    logError("Cannot copy data from locked vertex buffer");
     return;
   }
 
   if (start + targetCount > count)
   {
-    Log::writeError("Too many vertices requested from vertex buffer");
+    logError("Too many vertices requested from vertex buffer");
     return;
   }
 
@@ -302,7 +302,7 @@ VertexBuffer* VertexBuffer::current = NULL;
 IndexBuffer::~IndexBuffer(void)
 {
   if (locked)
-    Log::writeWarning("Index buffer destroyed while locked");
+    logWarning("Index buffer destroyed while locked");
 
   if (current == this)
     invalidateCurrent();
@@ -315,7 +315,7 @@ void* IndexBuffer::lock(LockType type)
 {
   if (locked)
   {
-    Log::writeError("Index buffer already locked");
+    logError("Index buffer already locked");
     return NULL;
   }
 
@@ -324,8 +324,8 @@ void* IndexBuffer::lock(LockType type)
   void* mapping = glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, convertToGL(type));
   if (mapping == NULL)
   {
-    Log::writeError("Failed to lock index buffer: %s",
-                    gluErrorString(glGetError()));
+    logError("Failed to lock index buffer: %s",
+             gluErrorString(glGetError()));
     return NULL;
   }
 
@@ -337,14 +337,14 @@ void IndexBuffer::unlock(void)
 {
   if (!locked)
   {
-    Log::writeWarning("Cannot unlock non-locked index buffer");
+    logWarning("Cannot unlock non-locked index buffer");
     return;
   }
 
   apply();
 
   if (!glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB))
-    Log::writeWarning("Data for index buffer was corrupted");
+    logWarning("Data for index buffer was corrupted");
 
   locked = false;
 }
@@ -353,13 +353,13 @@ void IndexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsigne
 {
   if (locked)
   {
-    Log::writeError("Cannot copy data into locked index buffer");
+    logError("Cannot copy data into locked index buffer");
     return;
   }
 
   if (start + sourceCount > count)
   {
-    Log::writeError("Too many indices submitted to index buffer");
+    logError("Too many indices submitted to index buffer");
     return;
   }
 
@@ -377,13 +377,13 @@ void IndexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int st
 {
   if (locked)
   {
-    Log::writeError("Cannot copy data from locked index buffer");
+    logError("Cannot copy data from locked index buffer");
     return;
   }
 
   if (start + targetCount > count)
   {
-    Log::writeError("Too many indices requested from index buffer");
+    logError("Too many indices requested from index buffer");
     return;
   }
 
@@ -435,7 +435,7 @@ size_t IndexBuffer::getTypeSize(Type type)
     case IndexBuffer::UINT32:
       return sizeof(GLuint);
     default:
-      Log::writeError("Invalid index buffer type %u", type);
+      logError("Invalid index buffer type %u", type);
       return 0;
   }
 }
@@ -543,7 +543,7 @@ void* VertexRange::lock(LockType type) const
 {
   if (!vertexBuffer || count == 0)
   {
-    Log::writeError("Cannot lock empty vertex buffer range");
+    logError("Cannot lock empty vertex buffer range");
     return NULL;
   }
 
@@ -558,7 +558,7 @@ void VertexRange::unlock(void) const
 {
   if (!vertexBuffer)
   {
-    Log::writeError("Cannot unlock non-locked vertex buffer");
+    logError("Cannot unlock non-locked vertex buffer");
     return;
   }
 
@@ -627,7 +627,7 @@ void* IndexRange::lock(LockType type) const
 {
   if (!indexBuffer || count == 0)
   {
-    Log::writeError("Cannot lock empty index buffer range");
+    logError("Cannot lock empty index buffer range");
     return NULL;
   }
 
@@ -642,7 +642,7 @@ void IndexRange::unlock(void) const
 {
   if (!indexBuffer)
   {
-    Log::writeError("Cannot unlock non-locked index buffer");
+    logError("Cannot unlock non-locked index buffer");
     return;
   }
 

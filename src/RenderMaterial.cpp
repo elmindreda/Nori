@@ -366,8 +366,8 @@ Ref<Material> MaterialReader::read(const Path& path)
 
   if (!material || !material->getTechniqueCount())
   {
-    Log::writeError("No valid techniques found in material \'%s\'",
-                    info.path.asString().c_str());
+    logError("No valid techniques found in material \'%s\'",
+             info.path.asString().c_str());
 
     material = NULL;
     return NULL;
@@ -382,14 +382,14 @@ bool MaterialReader::onBeginElement(const String& name)
   {
     if (material)
     {
-      Log::writeError("Only one material per file allowed");
+      logError("Only one material per file allowed");
       return false;
     }
 
     const unsigned int version = readInteger("version");
     if (version != RENDER_MATERIAL_XML_VERSION)
     {
-      Log::writeError("Material XML format version mismatch");
+      logError("Material XML format version mismatch");
       return false;
     }
 
@@ -428,7 +428,7 @@ bool MaterialReader::onBeginElement(const String& name)
                                            currentPass->getDstFactor());
             else
             {
-              Log::writeError("Invalid blend factor name \'%s\'", srcFactorName.c_str());
+              logError("Invalid blend factor name \'%s\'", srcFactorName.c_str());
               return false;
             }
           }
@@ -441,8 +441,8 @@ bool MaterialReader::onBeginElement(const String& name)
                                            blendFactorMap[dstFactorName]);
             else
             {
-              Log::writeError("Invalid blend factor name \'%s\'",
-                              dstFactorName.c_str());
+              logError("Invalid blend factor name \'%s\'",
+                       dstFactorName.c_str());
               return false;
             }
           }
@@ -468,8 +468,8 @@ bool MaterialReader::onBeginElement(const String& name)
               currentPass->setDepthFunction(functionMap[functionName]);
             else
             {
-              Log::writeError("Invalid depth test function name \'%s\'",
-                              functionName.c_str());
+              logError("Invalid depth test function name \'%s\'",
+                       functionName.c_str());
               return false;
             }
           }
@@ -488,7 +488,7 @@ bool MaterialReader::onBeginElement(const String& name)
               currentPass->setCullMode(cullModeMap[cullModeName]);
             else
             {
-              Log::writeError("Invalid cull mode \'%s\'", cullModeName.c_str());
+              logError("Invalid cull mode \'%s\'", cullModeName.c_str());
               return false;
             }
           }
@@ -501,18 +501,18 @@ bool MaterialReader::onBeginElement(const String& name)
           Path programPath(readString("path"));
           if (programPath.isEmpty())
           {
-            Log::writeError("Shader program path missing in material \'%s\'",
-                            material->getPath().asString().c_str());
+            logError("Shader program path missing in material \'%s\'",
+                     material->getPath().asString().c_str());
             return false;
           }
 
           Ref<GL::Program> program = GL::Program::read(context, programPath);
           if (!program)
           {
-            Log::writeWarning("Failed to load shader program \'%s\'; skipping technique %u in material \'%s\'",
-                              programPath.asString().c_str(),
-                              material->getTechniqueCount(),
-                              material->getPath().asString().c_str());
+            logWarning("Failed to load shader program \'%s\'; skipping technique %u in material \'%s\'",
+                       programPath.asString().c_str(),
+                       material->getTechniqueCount(),
+                       material->getPath().asString().c_str());
 
             material->destroyTechnique(*currentTechnique);
             currentTechnique = NULL;
@@ -530,34 +530,34 @@ bool MaterialReader::onBeginElement(const String& name)
             String samplerName = readString("name");
             if (samplerName.empty())
             {
-              Log::writeWarning("Shader program \'%s\' lists unnamed sampler uniform",
-                                program->getPath().asString().c_str());
+              logWarning("Shader program \'%s\' lists unnamed sampler uniform",
+                         program->getPath().asString().c_str());
               return true;
             }
 
             if (!program->findSampler(samplerName))
             {
-              Log::writeWarning("Shader program \'%s\' does not have sampler uniform \'%s\'",
-                                program->getPath().asString().c_str(),
-                                samplerName.c_str());
+              logWarning("Shader program \'%s\' does not have sampler uniform \'%s\'",
+                         program->getPath().asString().c_str(),
+                         samplerName.c_str());
               return true;
             }
 
             Path texturePath(readString("texture"));
             if (texturePath.isEmpty())
             {
-              Log::writeError("Texture path missing for sampler \'%s\'",
-                              samplerName.c_str());
+              logError("Texture path missing for sampler \'%s\'",
+                       samplerName.c_str());
               return true;
             }
 
             Ref<GL::Texture> texture = GL::Texture::read(context, texturePath);
             if (!texture)
             {
-              Log::writeError("Failed to find texture \'%s\' for sampler \'%s\' of material \'%s\'",
-                              texturePath.asString().c_str(),
-                              samplerName.c_str(),
-                              material->getPath().asString().c_str());
+              logError("Failed to find texture \'%s\' for sampler \'%s\' of material \'%s\'",
+                       texturePath.asString().c_str(),
+                       samplerName.c_str(),
+                       material->getPath().asString().c_str());
               return false;
             }
 
@@ -570,17 +570,17 @@ bool MaterialReader::onBeginElement(const String& name)
             String uniformName = readString("name");
             if (uniformName.empty())
             {
-              Log::writeWarning("Shader program \'%s\' lists unnamed uniform",
-                                program->getPath().asString().c_str());
+              logWarning("Shader program \'%s\' lists unnamed uniform",
+                         program->getPath().asString().c_str());
               return true;
             }
 
             GL::Uniform* uniform = program->findUniform(uniformName);
             if (!uniform)
             {
-              Log::writeWarning("Shader program \'%s\' does not have uniform \'%s\'",
-                                program->getPath().asString().c_str(),
-                                uniformName.c_str());
+              logWarning("Shader program \'%s\' does not have uniform \'%s\'",
+                         program->getPath().asString().c_str(),
+                         uniformName.c_str());
               return true;
             }
 
@@ -818,9 +818,9 @@ bool MaterialWriter::write(const Path& path, const Material& material)
   }
   catch (Exception& exception)
   {
-    Log::writeError("Failed to write material \'%s\': %s",
-                    material.getPath().asString().c_str(),
-                    exception.what());
+    logError("Failed to write material \'%s\': %s",
+             material.getPath().asString().c_str(),
+             exception.what());
     setStream(NULL);
     return false;
   }

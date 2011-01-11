@@ -72,7 +72,7 @@ void Renderer::popClipArea(void)
 {
   if (clipAreaStack.getCount() == 1)
   {
-    Log::writeError("Cannot pop empty clip area stack");
+    logError("Cannot pop empty clip area stack");
     return;
   }
 
@@ -295,7 +295,7 @@ void Renderer::drawText(const Rect& area,
                       (metrics.position.x + metrics.size.x);
       break;
     default:
-      Log::writeError("Invalid horizontal alignment");
+      logError("Invalid horizontal alignment");
       return;
   }
 
@@ -312,7 +312,7 @@ void Renderer::drawText(const Rect& area,
                       (metrics.position.y + metrics.size.y);
       break;
     default:
-      Log::writeError("Invalid vertical alignment");
+      logError("Invalid vertical alignment");
       return;
   }
 
@@ -343,7 +343,7 @@ void Renderer::drawText(const Rect& area,
       break;
 
     default:
-      Log::writeError("Invalid widget state %u", state);
+      logError("Invalid widget state %u", state);
       break;
   }
 }
@@ -517,8 +517,8 @@ bool Renderer::init(void)
     defaultFont = render::Font::read(pool, path);
     if (!defaultFont)
     {
-      Log::writeError("Failed to load default UI font \'%s\'",
-                      path.asString().c_str());
+      logError("Failed to load default UI font \'%s\'",
+               path.asString().c_str());
       return false;
     }
 
@@ -532,8 +532,8 @@ bool Renderer::init(void)
     Ref<GL::Program> program = GL::Program::read(pool.getContext(), path);
     if (!program)
     {
-      Log::writeError("Failed to load UI drawing shader program \'%s\'",
-                      path.asString().c_str());
+      logError("Failed to load UI drawing shader program \'%s\'",
+               path.asString().c_str());
       return false;
     }
 
@@ -543,8 +543,8 @@ bool Renderer::init(void)
 
     if (!interface.matches(*program, true))
     {
-      Log::writeError("UI drawing shader program \'%s\' does not conform to the required interface",
-                      path.asString().c_str());
+      logError("UI drawing shader program \'%s\' does not conform to the required interface",
+               path.asString().c_str());
       return false;
     }
 
@@ -561,8 +561,8 @@ bool Renderer::init(void)
     Ref<GL::Program> program = GL::Program::read(pool.getContext(), path);
     if (!program)
     {
-      Log::writeError("Failed to load UI blitting shader program \'%s\'",
-                      path.asString().c_str());
+      logError("Failed to load UI blitting shader program \'%s\'",
+               path.asString().c_str());
       return false;
     }
 
@@ -573,8 +573,8 @@ bool Renderer::init(void)
 
     if (!interface.matches(*program, true))
     {
-      Log::writeError("UI blitting shader program \'%s\' does not conform to the required interface",
-                      path.asString().c_str());
+      logError("UI blitting shader program \'%s\' does not conform to the required interface",
+               path.asString().c_str());
       return false;
     }
 

@@ -392,9 +392,9 @@ void Uniform::setValue(float newValue)
 {
   if (type != FLOAT)
   {
-    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float",
-                    name.c_str(),
-                    program->getPath().asString().c_str());
+    logError("Uniform \'%s\' in program \'%s\' is not of type float",
+             name.c_str(),
+             program->getPath().asString().c_str());
     return;
   }
 
@@ -405,9 +405,9 @@ void Uniform::setValue(const Vec2& newValue)
 {
   if (type != FLOAT_VEC2)
   {
-    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float2",
-                    name.c_str(),
-                    program->getPath().asString().c_str());
+    logError("Uniform \'%s\' in program \'%s\' is not of type float2",
+             name.c_str(),
+             program->getPath().asString().c_str());
     return;
   }
 
@@ -418,9 +418,9 @@ void Uniform::setValue(const Vec3& newValue)
 {
   if (type != FLOAT_VEC3)
   {
-    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float3",
-                    name.c_str(),
-                    program->getPath().asString().c_str());
+    logError("Uniform \'%s\' in program \'%s\' is not of type float3",
+             name.c_str(),
+             program->getPath().asString().c_str());
     return;
   }
 
@@ -431,9 +431,9 @@ void Uniform::setValue(const Vec4& newValue)
 {
   if (type != FLOAT_VEC4)
   {
-    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float4",
-                    name.c_str(),
-                    program->getPath().asString().c_str());
+    logError("Uniform \'%s\' in program \'%s\' is not of type float4",
+             name.c_str(),
+             program->getPath().asString().c_str());
     return;
   }
 
@@ -444,9 +444,9 @@ void Uniform::setValue(const Mat2& newValue)
 {
   if (type != FLOAT_MAT2)
   {
-    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float2x2",
-                    name.c_str(),
-                    program->getPath().asString().c_str());
+    logError("Uniform \'%s\' in program \'%s\' is not of type float2x2",
+             name.c_str(),
+             program->getPath().asString().c_str());
     return;
   }
 
@@ -457,9 +457,9 @@ void Uniform::setValue(const Mat3& newValue)
 {
   if (type != FLOAT_MAT3)
   {
-    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float3x3",
-                    name.c_str(),
-                    program->getPath().asString().c_str());
+    logError("Uniform \'%s\' in program \'%s\' is not of type float3x3",
+             name.c_str(),
+             program->getPath().asString().c_str());
     return;
   }
 
@@ -470,9 +470,9 @@ void Uniform::setValue(const Mat4& newValue)
 {
   if (type != FLOAT_MAT4)
   {
-    Log::writeError("Uniform \'%s\' in program \'%s\' is not of type float4x4",
-                    name.c_str(),
-                    program->getPath().asString().c_str());
+    logError("Uniform \'%s\' in program \'%s\' is not of type float4x4",
+             name.c_str(),
+             program->getPath().asString().c_str());
     return;
   }
 
@@ -693,10 +693,10 @@ bool Program::init(const VertexProgram& vertexProgram,
 			            NULL);
   if (!vertexProgramID)
   {
-    Log::writeError("Failed to compile Cg vertex program \'%s\':\n%s\n%s",
-                    vertexProgram.path.asString().c_str(),
-                    cgGetErrorString(cgGetError()),
-		    cgGetLastListing((CGcontext) context.cgContextID));
+    logError("Failed to compile Cg vertex program \'%s\':\n%s\n%s",
+             vertexProgram.path.asString().c_str(),
+             cgGetErrorString(cgGetError()),
+	     cgGetLastListing((CGcontext) context.cgContextID));
     return false;
   }
 
@@ -708,10 +708,10 @@ bool Program::init(const VertexProgram& vertexProgram,
 			              NULL);
   if (!fragmentProgramID)
   {
-    Log::writeError("Failed to compile Cg fragment program \'%s\':\n%s\n%s",
-                    fragmentProgram.path.asString().c_str(),
-                    cgGetErrorString(cgGetError()),
-		    cgGetLastListing((CGcontext) context.cgContextID));
+    logError("Failed to compile Cg fragment program \'%s\':\n%s\n%s",
+             fragmentProgram.path.asString().c_str(),
+             cgGetErrorString(cgGetError()),
+	     cgGetLastListing((CGcontext) context.cgContextID));
     return false;
   }
 
@@ -774,7 +774,7 @@ bool Program::init(const VertexProgram& vertexProgram,
 	  uniform.uniformID = parameter;
 	}
 	else
-	  Log::writeError("Unknown Cg parameter type");
+	  logError("Unknown Cg parameter type");
       }
     }
 
@@ -809,7 +809,7 @@ bool Program::init(const VertexProgram& vertexProgram,
 	  uniform.uniformID = parameter;
 	}
 	else
-	  Log::writeError("Unknown Cg parameter type");
+	  logError("Unknown Cg parameter type");
       }
     }
 
@@ -858,9 +858,9 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	Log::writeError("Uniform \'%s\' missing in program \'%s\'",
-	                entry.first.c_str(),
-			program.getPath().asString().c_str());
+	logError("Uniform \'%s\' missing in program \'%s\'",
+	         entry.first.c_str(),
+		 program.getPath().asString().c_str());
       }
 
       return false;
@@ -870,10 +870,10 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	Log::writeError("Uniform \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
-	                entry.first.c_str(),
-			program.getPath().asString().c_str(),
-			getTypeName(entry.second));
+	logError("Uniform \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
+	         entry.first.c_str(),
+		 program.getPath().asString().c_str(),
+		 getTypeName(entry.second));
       }
 
       return false;
@@ -889,9 +889,9 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	Log::writeError("Sampler \'%s\' missing in program \'%s\'",
-	                entry.first.c_str(),
-			program.getPath().asString().c_str());
+	logError("Sampler \'%s\' missing in program \'%s\'",
+	         entry.first.c_str(),
+		 program.getPath().asString().c_str());
       }
 
       return false;
@@ -901,10 +901,10 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	Log::writeError("Sampler \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
-	                entry.first.c_str(),
-			program.getPath().asString().c_str(),
-			getTypeName(entry.second));
+	logError("Sampler \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
+	         entry.first.c_str(),
+		 program.getPath().asString().c_str(),
+		 getTypeName(entry.second));
       }
 
       return false;
@@ -920,9 +920,9 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	Log::writeError("Varying \'%s\' missing in program \'%s\'",
-	                entry.first.c_str(),
-			program.getPath().asString().c_str());
+	logError("Varying \'%s\' missing in program \'%s\'",
+	         entry.first.c_str(),
+		 program.getPath().asString().c_str());
       }
 
       return false;
@@ -932,10 +932,10 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	Log::writeError("Varying \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
-	                entry.first.c_str(),
-			program.getPath().asString().c_str(),
-			getTypeName(entry.second));
+	logError("Varying \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
+	         entry.first.c_str(),
+		 program.getPath().asString().c_str(),
+		 getTypeName(entry.second));
       }
 
       return false;
@@ -1004,7 +1004,7 @@ Ref<Program> ProgramReader::read(const Path& path)
 
   if (!program)
   {
-    Log::writeError("No shader program specification found in file");
+    logError("No shader program specification found in file");
     return NULL;
   }
 
@@ -1017,14 +1017,14 @@ bool ProgramReader::onBeginElement(const String& name)
   {
     if (program)
     {
-      Log::writeError("Only one shader program per file allowed");
+      logError("Only one shader program per file allowed");
       return false;
     }
 
     const unsigned int version = readInteger("version");
     if (version != PROGRAM_XML_VERSION)
     {
-      Log::writeError("Shader program XML format version mismatch");
+      logError("Shader program XML format version mismatch");
       return false;
     }
 
@@ -1035,25 +1035,25 @@ bool ProgramReader::onBeginElement(const String& name)
   {
     if (vertexProgram)
     {
-      Log::writeError("Program specification \'%s\' contains more than one vertex program",
-                      info.path.asString().c_str());
+      logError("Program specification \'%s\' contains more than one vertex program",
+               info.path.asString().c_str());
       return false;
     }
 
     Path path(readString("path"));
     if (path.isEmpty())
     {
-      Log::writeError("Vertex program path in shader program \'%s\' is empty",
-                      info.path.asString().c_str());
+      logError("Vertex program path in shader program \'%s\' is empty",
+               info.path.asString().c_str());
       return true;
     }
 
     String text;
     if (!readTextFile(text, path))
     {
-      Log::writeError("Cannot find vertex program \'%s\' for shader program \'%s\'",
-                      path.asString().c_str(),
-		      info.path.asString().c_str());
+      logError("Cannot find vertex program \'%s\' for shader program \'%s\'",
+               path.asString().c_str(),
+	       info.path.asString().c_str());
       return false;
     }
 
@@ -1065,25 +1065,25 @@ bool ProgramReader::onBeginElement(const String& name)
   {
     if (fragmentProgram)
     {
-      Log::writeError("Program specification \'%s\' contains more than one fragment program",
-                      info.path.asString().c_str());
+      logError("Program specification \'%s\' contains more than one fragment program",
+               info.path.asString().c_str());
       return false;
     }
 
     Path path(readString("path"));
     if (path.isEmpty())
     {
-      Log::writeError("Fragment program path in shader program \'%s\' is empty",
-                      info.path.asString().c_str());
+      logError("Fragment program path in shader program \'%s\' is empty",
+               info.path.asString().c_str());
       return true;
     }
 
     String text;
     if (!readTextFile(text, path))
     {
-      Log::writeError("Cannot find fragment program \'%s\' for shader program \'%s\'",
-                      path.asString().c_str(),
-		      info.path.asString().c_str());
+      logError("Cannot find fragment program \'%s\' for shader program \'%s\'",
+               path.asString().c_str(),
+	       info.path.asString().c_str());
       return false;
     }
 
@@ -1100,15 +1100,15 @@ bool ProgramReader::onEndElement(const String& name)
   {
     if (!vertexProgram)
     {
-      Log::writeError("Vertex program missing for shader program \'%s\'",
-		      info.path.asString().c_str());
+      logError("Vertex program missing for shader program \'%s\'",
+	       info.path.asString().c_str());
       return false;
     }
 
     if (!fragmentProgram)
     {
-      Log::writeError("Fragment program missing for shader program \'%s\'",
-		      info.path.asString().c_str());
+      logError("Fragment program missing for shader program \'%s\'",
+	       info.path.asString().c_str());
       return false;
     }
 

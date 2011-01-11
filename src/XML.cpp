@@ -96,7 +96,7 @@ bool Reader::read(std::istream& stream)
   parser = XML_ParserCreate(NULL);
   if (parser == NULL)
   {
-    Log::writeError("Failed to create XML parser");
+    logError("Failed to create XML parser");
     return false;
   }
 
@@ -112,7 +112,8 @@ bool Reader::read(std::istream& stream)
   {
     if (!XML_Parse((XML_Parser) parser, line.data(), line.length(), stream.eof()))
     {
-      Log::writeError("Failed to parse XML: %s", XML_ErrorString(XML_GetErrorCode((XML_Parser) parser)));
+      logError("Failed to parse XML: %s",
+               XML_ErrorString(XML_GetErrorCode((XML_Parser) parser)));
       result = false;
     }
 

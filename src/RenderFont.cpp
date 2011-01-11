@@ -140,7 +140,7 @@ void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const Strin
   GL::VertexRange vertexRange;
   if (!pool.allocateVertices(vertexRange, text.size() * 6, Vertex2ft2fv::format))
   {
-    Log::writeError("Failed to allocate vertices for text drawing");
+    logError("Failed to allocate vertices for text drawing");
     return;
   }
 
@@ -155,7 +155,7 @@ void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const Strin
     GL::VertexRangeLock<Vertex2ft2fv> vertices(vertexRange);
     if (!vertices)
     {
-      Log::writeError("Failed to lock vertices for text drawing");
+      logError("Failed to lock vertices for text drawing");
       return;
     }
 
@@ -369,15 +369,15 @@ bool Font::init(const FontData& data)
     texture = GL::Texture::create(getIndex(), pool.getContext(), image, 0);
     if (!texture)
     {
-      Log::writeError("Failed to create glyph texture for font \'%s\'",
-                      getPath().asString().c_str());
+      logError("Failed to create glyph texture for font \'%s\'",
+               getPath().asString().c_str());
       return false;
     }
 
-    Log::write("Allocated %ux%u texture for font \'%s\'",
-               texture->getWidth(),
-               texture->getHeight(),
-               getPath().asString().c_str());
+    log("Allocated %ux%u texture for font \'%s\'",
+        texture->getWidth(),
+        texture->getHeight(),
+        getPath().asString().c_str());
 
     texture->setFilterMode(GL::FILTER_NEAREST);
   }
@@ -393,9 +393,9 @@ bool Font::init(const FontData& data)
     Ref<GL::Program> program = GL::Program::read(pool.getContext(), programPath);
     if (!program)
     {
-      Log::writeError("Failed to read shader program \'%s\' for font \'%s\'",
-                      programPath.asString().c_str(),
-                      getPath().asString().c_str());
+      logError("Failed to read shader program \'%s\' for font \'%s\'",
+               programPath.asString().c_str(),
+               getPath().asString().c_str());
       return false;
     }
 
@@ -407,9 +407,9 @@ bool Font::init(const FontData& data)
 
     if (!interface.matches(*program, true))
     {
-      Log::writeError("Shader program \'%s\' for font \'%s\' does not conform to the required interface",
-                      programPath.asString().c_str(),
-                      getPath().asString().c_str());
+      logError("Shader program \'%s\' for font \'%s\' does not conform to the required interface",
+               programPath.asString().c_str(),
+               getPath().asString().c_str());
       return false;
     }
 
@@ -465,16 +465,16 @@ bool Font::init(const FontData& data)
       {
 	// TODO: Allocate next texture.
 	// TODO: Add texture pointer to glyphs.
-	Log::writeError("Not enough room in glyph texture for font \'%s\'",
-                        getPath().asString().c_str());
+	logError("Not enough room in glyph texture for font \'%s\'",
+                 getPath().asString().c_str());
 	return false;
       }
     }
 
     if (!textureImage.copyFrom(*image, texelPosition.x, texelPosition.y))
     {
-      Log::writeError("Failed to copy glyph image data for font \'%s\'",
-                      getPath().asString().c_str());
+      logError("Failed to copy glyph image data for font \'%s\'",
+               getPath().asString().c_str());
       return false;
     }
 
@@ -574,10 +574,10 @@ bool FontReader::extractGlyphs(FontData& data,
 {
   if (image.getFormat() != PixelFormat::R8)
   {
-    Log::writeError("Image \'%s\' for font \'%s\' has invalid pixel format \'%s\'",
-                    image.getPath().asString().c_str(),
-                    info.path.asString().c_str(),
-                    image.getFormat().asString().c_str());
+    logError("Image \'%s\' for font \'%s\' has invalid pixel format \'%s\'",
+             image.getPath().asString().c_str(),
+             info.path.asString().c_str(),
+             image.getFormat().asString().c_str());
     return false;
   }
 
@@ -588,8 +588,8 @@ bool FontReader::extractGlyphs(FontData& data,
     const unsigned int startY = findStartY(source);
     if (startY == source.getHeight())
     {
-      Log::writeError("No glyphs found in source image for font \'%s\'",
-                      info.path.asString().c_str());
+      logError("No glyphs found in source image for font \'%s\'",
+               info.path.asString().c_str());
       return false;
     }
 
@@ -597,8 +597,8 @@ bool FontReader::extractGlyphs(FontData& data,
 
     if (!source.crop(Recti(0, startY, source.getWidth(), endY - startY)))
     {
-      Log::writeError("Failed to crop source image for font \'%s\'",
-                      info.path.asString().c_str());
+      logError("Failed to crop source image for font \'%s\'",
+               info.path.asString().c_str());
       return false;
     }
   }
@@ -634,8 +634,8 @@ bool FontReader::extractGlyphs(FontData& data,
 
     if (index == characters.size())
     {
-      Log::writeError("Font \'%s\' has less characters than glyphs",
-                      info.path.asString().c_str());
+      logError("Font \'%s\' has less characters than glyphs",
+               info.path.asString().c_str());
       return false;
     }
 
@@ -660,8 +660,8 @@ bool FontReader::extractGlyphs(FontData& data,
     Ref<Image> glyphImage = source.getArea(area);
     if (!glyphImage)
     {
-      Log::writeError("Failed to extract glyph image for font \'%s\'",
-                      info.path.asString().c_str());
+      logError("Failed to extract glyph image for font \'%s\'",
+               info.path.asString().c_str());
       return false;
     }
 
@@ -740,41 +740,41 @@ bool FontReader::onBeginElement(const String& name)
   {
     if (font)
     {
-      Log::writeError("More than one font specification found in font \'%s\'",
-                      info.path.asString().c_str());
+      logError("More than one font specification found in font \'%s\'",
+               info.path.asString().c_str());
       return false;
     }
 
     const unsigned int version = readInteger("version");
     if (version != FONT_XML_VERSION)
     {
-      Log::writeError("XML format version mismatch in font \'%s\'",
-                      info.path.asString().c_str());
+      logError("XML format version mismatch in font \'%s\'",
+               info.path.asString().c_str());
       return false;
     }
 
     String characters = readString("characters");
     if (characters.empty())
     {
-      Log::writeError("No characters specified for font \'%s\'",
-                      info.path.asString().c_str());
+      logError("No characters specified for font \'%s\'",
+               info.path.asString().c_str());
       return false;
     }
 
     Path imagePath(readString("image"));
     if (imagePath.isEmpty())
     {
-      Log::writeError("Image path missing for font \'%s\'",
-                      info.path.asString().c_str());
+      logError("Image path missing for font \'%s\'",
+               info.path.asString().c_str());
       return false;
     }
 
     Ref<Image> image = Image::read(getIndex(), imagePath);
     if (!image)
     {
-      Log::writeError("Cannot find image \'%s\' for font \'%s\'",
-                      imagePath.asString().c_str(),
-                      info.path.asString().c_str());
+      logError("Cannot find image \'%s\' for font \'%s\'",
+               imagePath.asString().c_str(),
+               info.path.asString().c_str());
       return false;
     }
 

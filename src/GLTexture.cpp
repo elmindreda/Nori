@@ -100,7 +100,7 @@ GLenum convertToGL(AddressMode mode)
       return GL_CLAMP_TO_EDGE;
   }
 
-  Log::writeError("Invalid texture address mode %u", mode);
+  logError("Invalid texture address mode %u", mode);
   return 0;
 }
 
@@ -133,7 +133,7 @@ GLint convertToGL(FilterMode mode, bool mipmapped)
     }
   }
 
-  Log::write("Invalid texture filter mode %u", mode);
+  log("Invalid texture filter mode %u", mode);
   return 0;
 }
 
@@ -155,7 +155,7 @@ GLenum convertToGL(ImageCube::Face face)
       return GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
   }
 
-  Log::writeError("Invalid image cube face %u", face);
+  logError("Invalid image cube face %u", face);
   return 0;
 }
 
@@ -174,7 +174,7 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
   {
     // TODO: Convert to compatible pixel format
 
-    Log::writeError("Cannot copy texture data from source image of different pixel format");
+    logError("Cannot copy texture data from source image of different pixel format");
     return false;
   }
 
@@ -182,7 +182,7 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
   {
     if (source.getDimensionCount() > 1)
     {
-      Log::writeError("Cannot blt to texture; source image has too many dimensions");
+      logError("Cannot blt to texture; source image has too many dimensions");
       return false;
     }
 
@@ -205,7 +205,7 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
   {
     if (source.getDimensionCount() > 2)
     {
-      Log::writeError("Cannot blt to texture; source image has too many dimensions");
+      logError("Cannot blt to texture; source image has too many dimensions");
       return false;
     }
 
@@ -564,9 +564,9 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
 
   if (!convertToGL(format))
   {
-    Log::writeError("Source image for texture \'%s\' has unsupported pixel format \'%s\'",
-                    getPath().asString().c_str(),
-                    format.asString().c_str());
+    logError("Source image for texture \'%s\' has unsupported pixel format \'%s\'",
+             getPath().asString().c_str(),
+             format.asString().c_str());
     return false;
   }
 
@@ -578,13 +578,13 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   {
     if (final.getDimensionCount() > 2)
     {
-      Log::writeError("Rectangular textures cannot have more than two dimensions");
+      logError("Rectangular textures cannot have more than two dimensions");
       return false;
     }
 
     if (flags & MIPMAPPED)
     {
-      Log::writeError("Rectangular textures cannot be mipmapped");
+      logError("Rectangular textures cannot be mipmapped");
       return false;
     }
 
@@ -600,7 +600,7 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
     {
       // TODO: Support 3D textures
 
-      Log::writeError("3D POT textures not supported by Wendy yet");
+      logError("3D POT textures not supported by Wendy yet");
       return false;
     }
   }
@@ -639,7 +639,8 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
     // Rescale source image (no-op if the sizes are equal)
     if (!final.resize(width, height))
     {
-      Log::writeError("Failed to rescale image for texture \'%s\'", getPath().asString().c_str());
+      logError("Failed to rescale image for texture \'%s\'",
+               getPath().asString().c_str());
       return false;
     }
   }
@@ -742,22 +743,22 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
   {
     if (!source.isPOT())
     {
-      Log::writeError("Source images for texture \'%s\' do not have POT dimensions",
-                      getPath().asString().c_str());
+      logError("Source images for texture \'%s\' do not have POT dimensions",
+               getPath().asString().c_str());
       return false;
     }
 
     if (!source.isSquare())
     {
-      Log::writeError("Source images for texture \'%s\' are not square",
-                      getPath().asString().c_str());
+      logError("Source images for texture \'%s\' are not square",
+               getPath().asString().c_str());
       return false;
     }
 
     if (!source.hasSameSize())
     {
-      Log::writeError("Source images for texture \'%s\' do not have the same size",
-                      getPath().asString().c_str());
+      logError("Source images for texture \'%s\' do not have the same size",
+               getPath().asString().c_str());
       return false;
     }
 
@@ -768,9 +769,9 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
 
     if (sourceWidth > maxSize)
     {
-      Log::writeError("Source images for texture \'%s\' are too large; maximum size is %ux%u",
-                      getPath().asString().c_str(),
-                      maxSize, maxSize);
+      logError("Source images for texture \'%s\' are too large; maximum size is %ux%u",
+               getPath().asString().c_str(),
+               maxSize, maxSize);
       return false;
     }
   }
@@ -779,8 +780,8 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
   {
     if (!source.hasSameFormat())
     {
-      Log::writeError("Source images for texture \'%s\' do not have same format",
-                      getPath().asString().c_str());
+      logError("Source images for texture \'%s\' do not have same format",
+               getPath().asString().c_str());
       return false;
     }
 
@@ -788,16 +789,16 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
 
     if (!convertToGL(format))
     {
-      Log::writeError("Source images for texture \'%s\' have unsupported pixel format \'%s\'",
-                      getPath().asString().c_str(),
-                      format.asString().c_str());
+      logError("Source images for texture \'%s\' have unsupported pixel format \'%s\'",
+               getPath().asString().c_str(),
+               format.asString().c_str());
       return false;
     }
 
     if (!convertToGL(format.getType()))
     {
-      Log::writeError("Source images for texture \'%s\' have unsupported component type",
-                      getPath().asString().c_str());
+      logError("Source images for texture \'%s\' have unsupported component type",
+               getPath().asString().c_str());
       return false;
     }
   }
@@ -808,8 +809,8 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
 
     if (flags & RECTANGULAR)
     {
-      Log::writeError("Invalid flags for texture \'%s\': cube maps cannot be rectangular",
-                      getPath().asString().c_str());
+      logError("Invalid flags for texture \'%s\': cube maps cannot be rectangular",
+               getPath().asString().c_str());
       return false;
     }
   }
@@ -937,7 +938,7 @@ Ref<Texture> TextureReader::read(const Path& path)
 
   if (!texture)
   {
-    Log::writeError("No texture specification found in file");
+    logError("No texture specification found in file");
     return NULL;
   }
 
@@ -950,14 +951,14 @@ bool TextureReader::onBeginElement(const String& name)
   {
     if (texture)
     {
-      Log::writeError("Only one texture specification per file allowed");
+      logError("Only one texture specification per file allowed");
       return false;
     }
 
     const unsigned int version = readInteger("version");
     if (version != TEXTURE_XML_VERSION)
     {
-      Log::writeError("Texture specification XML format version mismatch");
+      logError("Texture specification XML format version mismatch");
       return false;
     }
 
@@ -982,17 +983,17 @@ bool TextureReader::onBeginElement(const String& name)
       imagePath = readString("imagecube");
       if (imagePath.isEmpty())
       {
-        Log::writeError("No image specified for texture \'%s\'",
-                        info.path.asString().c_str());
+        logError("No image specified for texture \'%s\'",
+                 info.path.asString().c_str());
         return false;
       }
 
       Ref<ImageCube> source = ImageCube::read(getIndex(), imagePath);
       if (!source)
       {
-        Log::writeError("Failed to load image cube \'%s\' for texture \'%s\'",
-                        imagePath.asString().c_str(),
-                        info.path.asString().c_str());
+        logError("Failed to load image cube \'%s\' for texture \'%s\'",
+                 imagePath.asString().c_str(),
+                 info.path.asString().c_str());
         return false;
       }
 
@@ -1005,9 +1006,9 @@ bool TextureReader::onBeginElement(const String& name)
       Ref<wendy::Image> source = wendy::Image::read(getIndex(), imagePath);
       if (!source)
       {
-        Log::writeError("Failed to load image \'%s\' for texture \'%s\'",
-                        imagePath.asString().c_str(),
-                        info.path.asString().c_str());
+        logError("Failed to load image \'%s\' for texture \'%s\'",
+                 imagePath.asString().c_str(),
+                 info.path.asString().c_str());
         return false;
       }
 
@@ -1023,8 +1024,8 @@ bool TextureReader::onBeginElement(const String& name)
 	texture->setFilterMode(filterModeMap[filterModeName]);
       else
       {
-	Log::writeError("Invalid filter mode name \'%s\'",
-                        filterModeName.c_str());
+	logError("Invalid filter mode name \'%s\'",
+                 filterModeName.c_str());
 	return false;
       }
     }
@@ -1036,8 +1037,8 @@ bool TextureReader::onBeginElement(const String& name)
 	texture->setAddressMode(addressModeMap[addressModeName]);
       else
       {
-	Log::writeError("Invalid address mode name \'%s\'",
-                        addressModeName.c_str());
+	logError("Invalid address mode name \'%s\'",
+                 addressModeName.c_str());
 	return false;
       }
     }

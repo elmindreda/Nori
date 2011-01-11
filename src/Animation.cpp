@@ -406,14 +406,14 @@ bool Anim3Reader::onBeginElement(const String& name)
   {
     if (animation)
     {
-      Log::writeError("Only one 3D animation per file allowed");
+      logError("Only one 3D animation per file allowed");
       return false;
     }
 
     const unsigned int version = readInteger("version");
     if (version != ANIM3_XML_VERSION)
     {
-      Log::writeError("3D animation XML format version mismatch");
+      logError("3D animation XML format version mismatch");
       return false;
     }
 
@@ -430,7 +430,7 @@ bool Anim3Reader::onBeginElement(const String& name)
     {
       if (currentTrack)
       {
-        Log::writeError("3D animation tracks may not be nested");
+        logError("3D animation tracks may not be nested");
         return false;
       }
 
@@ -438,7 +438,7 @@ bool Anim3Reader::onBeginElement(const String& name)
 
       if (name.empty())
       {
-        Log::writeError("3D animation track names may not be empty");
+        logError("3D animation track names may not be empty");
         return false;
       }
 
@@ -516,9 +516,9 @@ bool Anim3Writer::write(const Path& path, const Anim3& animation)
   }
   catch (Exception& exception)
   {
-    Log::writeError("Failed to write 3D animation to \'%s\': %s",
-                    path.asString().c_str(),
-		    exception.what());
+    logError("Failed to write 3D animation to \'%s\': %s",
+             path.asString().c_str(),
+	     exception.what());
     setStream(NULL);
     return false;
   }

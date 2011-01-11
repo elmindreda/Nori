@@ -123,7 +123,7 @@ void realizeSpriteVertices(Vertex2ft3fv* vertices,
     }
   }
   else
-    Log::writeError("Unknown sprite type %u", type);
+    logError("Unknown sprite type %u", type);
 
   vertices[0].mapping.set(0.f, 0.f);
   vertices[0].position = spritePosition - axisX - axisY;
@@ -218,15 +218,15 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
 {
   if (!material)
   {
-    Log::writeError("Cannot enqueue sprite without a material");
+    logError("Cannot enqueue sprite without a material");
     return;
   }
 
   const Technique* technique = material->getActiveTechnique();
   if (!technique)
   {
-    Log::writeError("Material \'%s\' has no active technique",
-                    material->getPath().asString().c_str());
+    logError("Material \'%s\' has no active technique",
+             material->getPath().asString().c_str());
     return;
   }
 
@@ -287,15 +287,15 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
 
   if (!material)
   {
-    Log::writeError("Cannot enqueue sprite cloud without a material");
+    logError("Cannot enqueue sprite cloud without a material");
     return;
   }
 
   const Technique* technique = material->getActiveTechnique();
   if (!technique)
   {
-    Log::writeError("Material \'%s\' has no active technique",
-                    material->getPath().asString().c_str());
+    logError("Material \'%s\' has no active technique",
+             material->getPath().asString().c_str());
     return;
   }
 
@@ -304,7 +304,7 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
                                                 4 * slots.size(),
                                                 Vertex2ft3fv::format))
   {
-    Log::writeError("Failed to allocate vertices for sprite cloud");
+    logError("Failed to allocate vertices for sprite cloud");
     return;
   }
 
@@ -313,7 +313,7 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
                                                6 * slots.size(),
                                                GL::IndexBuffer::UINT16))
   {
-    Log::writeError("Failed to allocate indices for sprite cloud");
+    logError("Failed to allocate indices for sprite cloud");
     return;
   }
 
@@ -324,7 +324,7 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
     GL::VertexRangeLock<Vertex2ft3fv> vertices(vertexRange);
     if (!vertices)
     {
-      Log::writeError("Failed to lock vertex range for sprite cloud");
+      logError("Failed to lock vertex range for sprite cloud");
       return;
     }
 
@@ -336,7 +336,7 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
     GL::IndexRangeLock<uint16_t> indices(indexRange);
     if (!indices)
     {
-      Log::writeError("Failed to lock index range for sprite cloud");
+      logError("Failed to lock index range for sprite cloud");
       return;
     }
 

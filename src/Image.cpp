@@ -320,12 +320,12 @@ bool getDecodeConversionFormatPNG(PixelFormat& result, int format)
 
 void writeErrorPNG(png_structp context, png_const_charp error)
 {
-  Log::writeError("libpng error: %s", error);
+  logError("libpng error: %s", error);
 }
 
 void writeWarningPNG(png_structp context, png_const_charp warning)
 {
-  Log::writeWarning("libpng warning: %s", warning);
+  logWarning("libpng warning: %s", warning);
 }
 
 void readStreamPNG(png_structp context, png_bytep data, png_size_t length)
@@ -447,7 +447,7 @@ bool Image::resize(unsigned int targetWidth,
     }
 
     default:
-      Log::writeError("Invalid image resampling filter");
+      logError("Invalid image resampling filter");
       return false;
   }
 
@@ -480,7 +480,7 @@ bool Image::crop(const Recti& area)
       area.size.x < 0 || area.size.y < 0 ||
       area.position.x >= (int) width || area.position.y >= (int) height)
   {
-    Log::writeError("Invalid image area dimensions");
+    logError("Invalid image area dimensions");
     return false;
   }
 
@@ -781,13 +781,13 @@ Ref<Image> ImageReader::read(const Path& path)
 
     if (!stream.read((char*) header, sizeof(header)))
     {
-      Log::writeError("Unable to read PNG file header");
+      logError("Unable to read PNG file header");
       return NULL;
     }
 
     if (png_sig_cmp(header, 0, sizeof(header)))
     {
-      Log::writeError("File is not a valid PNG file");
+      logError("File is not a valid PNG file");
       return NULL;
     }
   }
@@ -836,7 +836,7 @@ Ref<Image> ImageReader::read(const Path& path)
     {
       png_destroy_read_struct(&context, &pngInfo, &pngEndInfo);
 
-      Log::writeError("Unsupported bit depth in PNG file");
+      logError("Unsupported bit depth in PNG file");
       return NULL;
     }
 
@@ -844,7 +844,7 @@ Ref<Image> ImageReader::read(const Path& path)
     {
       png_destroy_read_struct(&context, &pngInfo, &pngEndInfo);
 
-      Log::writeError("Unsupported color type in PNG file");
+      logError("Unsupported color type in PNG file");
       return NULL;
     }
 
@@ -879,8 +879,8 @@ bool ImageWriter::write(const Path& path, const Image& image)
   std::ofstream stream(path.asString().c_str());
   if (!stream.is_open())
   {
-    Log::writeError("Failed to open \'%s\' for writing",
-                    path.asString().c_str());
+    logError("Failed to open \'%s\' for writing",
+             path.asString().c_str());
     return false;
   }
 
@@ -890,7 +890,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
 						writeWarningPNG);
   if (!context)
   {
-    Log::writeError("Unable to create write struct");
+    logError("Unable to create write struct");
     return false;
   }
 
@@ -901,7 +901,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
   if (!info)
   {
     png_destroy_write_struct(&context, png_infopp_NULL);
-    Log::writeError("Unable to create info struct");
+    logError("Unable to create info struct");
     return false;
   }
 
@@ -910,7 +910,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
   if (!getEncodeConversionFormatPNG(format, image.getFormat()))
   {
     png_destroy_write_struct(&context, &info);
-    Log::writeError("Unable to encode image format");
+    logError("Unable to encode image format");
     return false;
   }
 
@@ -981,7 +981,7 @@ bool ImageCubeReader::onBeginElement(const String& name)
     const unsigned int version = readInteger("version");
     if (version != IMAGE_CUBE_XML_VERSION)
     {
-      Log::writeError("Image cube specification XML format version mismatch");
+      logError("Image cube specification XML format version mismatch");
       return false;
     }
 

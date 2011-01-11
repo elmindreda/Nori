@@ -127,7 +127,7 @@ void Renderer::renderLight(const render::Camera& camera, const render::Light& li
   }
   else
   {
-    Log::writeError("Unsupported light type %u", light.getType());
+    logError("Unsupported light type %u", light.getType());
     return;
   }
 
@@ -177,7 +177,7 @@ bool Renderer::init(const Config& config)
                                        GL::Texture::RECTANGULAR);
     if (!colorTexture)
     {
-      Log::writeError("Failed to create color texture for deferred renderer");
+      logError("Failed to create color texture for deferred renderer");
       return false;
     }
 
@@ -196,7 +196,7 @@ bool Renderer::init(const Config& config)
                                         GL::Texture::RECTANGULAR);
     if (!normalTexture)
     {
-      Log::writeError("Failed to create normal/specularity texture for deferred renderer");
+      logError("Failed to create normal/specularity texture for deferred renderer");
       return false;
     }
 
@@ -215,7 +215,7 @@ bool Renderer::init(const Config& config)
                                        GL::Texture::RECTANGULAR);
     if (!depthTexture)
     {
-      Log::writeError("Failed to create depth texture for deferred renderer");
+      logError("Failed to create depth texture for deferred renderer");
       return false;
     }
 
@@ -227,25 +227,25 @@ bool Renderer::init(const Config& config)
     canvas = GL::ImageCanvas::create(pool.getContext(), config.width, config.height);
     if (!canvas)
     {
-      Log::writeError("Failed to create image canvas for deferred renderer");
+      logError("Failed to create image canvas for deferred renderer");
       return false;
     }
 
     if (!canvas->setBuffer(GL::ImageCanvas::COLOR_BUFFER0, &(colorTexture->getImage(0))))
     {
-      Log::writeError("Failed to attach color texture to G-buffer");
+      logError("Failed to attach color texture to G-buffer");
       return false;
     }
 
     if (!canvas->setBuffer(GL::ImageCanvas::COLOR_BUFFER1, &(normalTexture->getImage(0))))
     {
-      Log::writeError("Failed to attach normal/specularity texture to G-buffer");
+      logError("Failed to attach normal/specularity texture to G-buffer");
       return false;
     }
 
     if (!canvas->setBuffer(GL::ImageCanvas::DEPTH_BUFFER, &(depthTexture->getImage(0))))
     {
-      Log::writeError("Failed to attach depth texture to G-buffer");
+      logError("Failed to attach depth texture to G-buffer");
       return false;
     }
   }
@@ -255,7 +255,7 @@ bool Renderer::init(const Config& config)
     Ref<GL::Program> program = GL::Program::read(pool.getContext(), Path("wendy/DeferredAmbientLight.program"));
     if (!program)
     {
-      Log::writeError("Failed to read deferred renderer ambient light program");
+      logError("Failed to read deferred renderer ambient light program");
       return false;
     }
 
@@ -268,8 +268,8 @@ bool Renderer::init(const Config& config)
 
     if (!interface.matches(*program, true))
     {
-      Log::writeError("\'%s\' does not match the required interface",
-                      program->getPath().asString().c_str());
+      logError("\'%s\' does not match the required interface",
+               program->getPath().asString().c_str());
       return false;
     }
 
@@ -285,7 +285,7 @@ bool Renderer::init(const Config& config)
     Ref<GL::Program> program = GL::Program::read(pool.getContext(), Path("wendy/DeferredDirLight.program"));
     if (!program)
     {
-      Log::writeError("Failed to read deferred renderer directional light program");
+      logError("Failed to read deferred renderer directional light program");
       return false;
     }
 
@@ -303,8 +303,8 @@ bool Renderer::init(const Config& config)
 
     if (!interface.matches(*program, true))
     {
-      Log::writeError("\'%s\' does not match the required interface",
-                      program->getPath().asString().c_str());
+      logError("\'%s\' does not match the required interface",
+               program->getPath().asString().c_str());
       return false;
     }
 
@@ -322,7 +322,7 @@ bool Renderer::init(const Config& config)
     Ref<GL::Program> program = GL::Program::read(pool.getContext(), Path("wendy/DeferredPointLight.program"));
     if (!program)
     {
-      Log::writeError("Failed to read deferred renderer point light program");
+      logError("Failed to read deferred renderer point light program");
       return false;
     }
 
@@ -343,8 +343,8 @@ bool Renderer::init(const Config& config)
 
     if (!interface.matches(*program, true))
     {
-      Log::writeError("\'%s\' does not match the required interface",
-                      program->getPath().asString().c_str());
+      logError("\'%s\' does not match the required interface",
+               program->getPath().asString().c_str());
       return false;
     }
 
@@ -366,7 +366,7 @@ void Renderer::renderLightQuad(const render::Camera& camera)
 
   if (!pool.allocateVertices(range, 4, LightVertex::format))
   {
-    Log::writeError("Failed to allocate vertices for deferred lighting");
+    logError("Failed to allocate vertices for deferred lighting");
     return;
   }
 
