@@ -570,7 +570,8 @@ Ref<Font> FontReader::read(const Path& path)
 
 bool FontReader::extractGlyphs(FontData& data,
                                const Image& image,
-                               const String& characters)
+                               const String& characters,
+                               bool fixedWidth)
 {
   if (image.getFormat() != PixelFormat::R8)
   {
@@ -704,31 +705,53 @@ bool FontReader::extractGlyphs(FontData& data,
     }
   }
 
-  // HACK: Introduce 'tasteful' spacing
+  float maxAdvance = 0.f;
+  float meanAdvance = 0.f;
+
+  for (int i = 0;  i < data.glyphs.size();  i++)
   {
-    float meanAdvance = 0.f;
+    FontGlyphData& glyph = data.glyphs[i];
 
+    maxAdvance = fmaxf(maxAdvance, glyph.advance);
+    meanAdvance += glyph.advance;
+  }
+
+  meanAdvance /= (float) data.glyphs.size();
+
+  if (data.characters[' '] == -1)
+  {
+    // HACK: Create space glyph if not already present
+
+    data.characters[' '] = data.glyphs.size();
+
+    data.glyphs.push_back(FontGlyphData());
+    FontGlyphData& glyph = data.glyphs.back();
+
+    glyph.bearing.set(0.f, 0.f);
+    glyph.image = new Image(getIndex(), source.getFormat(), 1, 1);
+
+    if (fixedWidth)
+      glyph.advance = maxAdvance;
+    else
+      glyph.advance = meanAdvance * 0.6f;
+  }
+
+  // HACK: Introduce 'tasteful' spacing
+
+  if (fixedWidth)
+  {
     for (int i = 0;  i < data.glyphs.size();  i++)
-      meanAdvance += data.glyphs[i].advance;
+    {
+      FontGlyphData& glyph = data.glyphs[i];
 
-    meanAdvance /= (float) data.glyphs.size();
-
+      glyph.advance = maxAdvance;
+      glyph.bearing.x = (glyph.advance - glyph.image->getWidth()) / 2.f;
+    }
+  }
+  else
+  {
     for (int i = 0;  i < data.glyphs.size();  i++)
       data.glyphs[i].advance += meanAdvance * 0.2f;
-
-    if (data.characters[' '] == -1)
-    {
-      // HACK: Create space glyph if not already present
-
-      data.characters[' '] = data.glyphs.size();
-
-      data.glyphs.push_back(FontGlyphData());
-      FontGlyphData& glyph = data.glyphs.back();
-
-      glyph.bearing.set(0.f, 0.f);
-      glyph.advance = meanAdvance * 0.6f;
-      glyph.image = new Image(getIndex(), source.getFormat(), 1, 1);
-    }
   }
 
   return true;
@@ -778,9 +801,11 @@ bool FontReader::onBeginElement(const String& name)
       return false;
     }
 
+    bool fixedWidth = readBoolean("fixed", false);
+
     FontData data;
 
-    if (!extractGlyphs(data, *image, characters))
+    if (!extractGlyphs(data, *image, characters, fixedWidth))
       return false;
 
     font = Font::create(info, pool, data);
