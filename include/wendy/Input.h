@@ -272,6 +272,8 @@ public:
 private:
   String text;
   unsigned int caretPosition;
+  bool lctrl;
+  bool rctrl;
 };
 
 ///////////////////////////////////////////////////////////////////////

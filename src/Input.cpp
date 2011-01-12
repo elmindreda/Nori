@@ -684,19 +684,21 @@ void SpectatorCamera::updateTransform(void)
 ///////////////////////////////////////////////////////////////////////
 
 TextController::TextController(void):
-  caretPosition(0)
+  caretPosition(0),
+  lctrl(false),
+  rctrl(false)
 {
 }
 
 void TextController::onKeyPressed(Key key, bool pressed)
 {
-  if (!pressed)
-    return;
-
   switch (key)
   {
     case input::Key::BACKSPACE:
     {
+      if (!pressed)
+        break;
+
       if (!text.empty() && caretPosition > 0)
       {
 	text.erase(caretPosition - 1, 1);
@@ -708,6 +710,9 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
     case input::Key::DELETE:
     {
+      if (!pressed)
+        break;
+
       if (!text.empty() && caretPosition < text.length())
 	text.erase(caretPosition, 1);
 
@@ -716,6 +721,9 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
     case input::Key::LEFT:
     {
+      if (!pressed)
+        break;
+
       if (caretPosition > 0)
 	setCaretPosition(caretPosition - 1);
       break;
@@ -723,19 +731,59 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
     case input::Key::RIGHT:
     {
+      if (!pressed)
+        break;
+
       setCaretPosition(caretPosition + 1);
       break;
     }
 
     case input::Key::HOME:
     {
+      if (!pressed)
+        break;
+
       setCaretPosition(0);
       break;
     }
 
     case input::Key::END:
     {
+      if (!pressed)
+        break;
+
       setCaretPosition(text.length());
+      break;
+    }
+
+    case input::Key::LCTRL:
+    {
+      lctrl = pressed;
+      break;
+    }
+
+    case input::Key::RCTRL:
+    {
+      rctrl = pressed;
+      break;
+    }
+
+    case 'U':
+    {
+      if (pressed && (lctrl || rctrl))
+      {
+        text.erase(0, caretPosition);
+        caretPosition = 0;
+      }
+
+      break;
+    }
+
+    case 'E':
+    {
+      if (pressed && (lctrl || rctrl))
+        setCaretPosition(text.length());
+
       break;
     }
   }
@@ -743,6 +791,9 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
 void TextController::onCharInput(wchar_t character)
 {
+  if (lctrl || rctrl)
+    return;
+
   if (character < 256)
   {
     text.insert(caretPosition, 1, (char) character);
