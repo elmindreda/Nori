@@ -816,16 +816,8 @@ void TextController::onKeyPressed(Key key, bool pressed)
             pos++;
         }
 
-        if (pos)
-        {
-          text.erase(pos, caretPosition - pos);
-          setCaretPosition(pos);
-        }
-        else
-        {
-          text.clear();
-          setCaretPosition(0);
-        }
+        text.erase(pos, caretPosition - pos);
+        setCaretPosition(pos);
       }
 
       break;
