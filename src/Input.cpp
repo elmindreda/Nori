@@ -773,7 +773,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
       if (pressed && (lctrl || rctrl))
       {
         text.erase(0, caretPosition);
-        caretPosition = 0;
+        setCaretPosition(0);
       }
 
       break;
@@ -799,25 +799,32 @@ void TextController::onKeyPressed(Key key, bool pressed)
     {
       if (pressed && (lctrl || rctrl))
       {
-        size_t end = caretPosition;
+        size_t pos = caretPosition;
 
-        if (end == text.length())
-          end--;
+        if (pos == text.length())
+          pos--;
 
-        while (end > 0 && text[end] == ' ')
-          end--;
+        while (pos > 0 && text[pos] == ' ')
+          pos--;
 
-        size_t pos = text.find_last_of(' ', end);
-        if (pos == String::npos)
+        if (pos > 0)
         {
-          text.clear();
-          caretPosition = 0;
+          pos = text.rfind(' ', pos);
+          if (pos == String::npos)
+            pos = 0;
+          else
+            pos++;
+        }
+
+        if (pos)
+        {
+          text.erase(pos, caretPosition - pos);
+          setCaretPosition(pos);
         }
         else
         {
-          pos += 1;
-          text.erase(pos, caretPosition - pos);
-          caretPosition = pos;
+          text.clear();
+          setCaretPosition(0);
         }
       }
 
