@@ -848,12 +848,12 @@ void TextController::setText(const String& newText)
   setCaretPosition(caretPosition);
 }
 
-unsigned int TextController::getCaretPosition(void) const
+size_t TextController::getCaretPosition(void) const
 {
   return caretPosition;
 }
 
-void TextController::setCaretPosition(unsigned int newPosition)
+void TextController::setCaretPosition(size_t newPosition)
 {
   if (newPosition > text.length())
     caretPosition = text.length();

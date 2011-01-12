@@ -267,11 +267,11 @@ public:
   void onCharInput(wchar_t character);
   const String& getText(void) const;
   void setText(const String& newText);
-  unsigned int getCaretPosition(void) const;
-  void setCaretPosition(unsigned int newPosition);
+  size_t getCaretPosition(void) const;
+  void setCaretPosition(size_t newPosition);
 private:
   String text;
-  unsigned int caretPosition;
+  size_t caretPosition;
   bool lctrl;
   bool rctrl;
 };
