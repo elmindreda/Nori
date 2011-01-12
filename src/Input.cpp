@@ -779,10 +779,47 @@ void TextController::onKeyPressed(Key key, bool pressed)
       break;
     }
 
+    case 'A':
+    {
+      if (pressed && (lctrl || rctrl))
+        setCaretPosition(0);
+
+      break;
+    }
+
     case 'E':
     {
       if (pressed && (lctrl || rctrl))
         setCaretPosition(text.length());
+
+      break;
+    }
+
+    case 'W':
+    {
+      if (pressed && (lctrl || rctrl))
+      {
+        size_t end = caretPosition;
+
+        if (end == text.length())
+          end--;
+
+        while (end > 0 && text[end] == ' ')
+          end--;
+
+        size_t pos = text.find_last_of(' ', end);
+        if (pos == String::npos)
+        {
+          text.clear();
+          caretPosition = 0;
+        }
+        else
+        {
+          pos += 1;
+          text.erase(pos, caretPosition - pos);
+          caretPosition = pos;
+        }
+      }
 
       break;
     }
