@@ -1,6 +1,8 @@
 
 #include <wendy/Wendy.h>
 
+#include <cstdlib>
+
 using namespace wendy;
 
 class Demo : public Trackable
@@ -15,9 +17,11 @@ private:
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const Vec2i& position);
   void onWheelTurned(int position);
+  ResourceIndex index;
   Ref<GL::ImageCanvas> canvas;
   Ref<GL::Texture> depthmap;
   Ref<GL::Texture> colormap;
+  Ptr<render::GeometryPool> pool;
   Ref<render::Camera> lightCamera;
   Ref<render::Camera> viewCamera;
   scene::Graph graph;
@@ -31,58 +35,60 @@ private:
 
 Demo::~Demo(void)
 {
-  input::Context::destroy();
-  render::GeometryPool::destroy();
-  GL::Context::destroy();
+  graph.destroyRootNodes();
+
+  canvas = NULL;
+  depthmap = NULL;
+  colormap = NULL;
+  pool = NULL;
+
+  input::Context::destroySingleton();
+  GL::Context::destroySingleton();
 }
 
 bool Demo::init(void)
 {
-  Image::addSearchPath(Path("media"));
-  Mesh::addSearchPath(Path("media"));
-  GL::Texture::addSearchPath(Path("media"));
-  GL::VertexProgram::addSearchPath(Path("media"));
-  GL::FragmentProgram::addSearchPath(Path("media"));
-  GL::Program::addSearchPath(Path("media"));
-  render::Material::addSearchPath(Path("media"));
+  index.addSearchPath(Path("../media"));
 
-  if (!GL::Context::create(GL::ContextMode()))
+  if (!GL::Context::createSingleton(index))
     return false;
 
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Shadow Map");
-
-  if (!render::GeometryPool::create(*context))
-    return false;
 
   context->reserveUniform("WL", GL::Uniform::FLOAT_MAT4).connect(*this, &Demo::onRequestedWL);
   context->reserveUniform("light", GL::Uniform::FLOAT_VEC3).connect(*this, &Demo::onRequestedLight);
 
-  if (!input::Context::create(*context))
+  if (!input::Context::createSingleton(*context))
     return false;
 
-  input::Context::get()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
-  input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
-  input::Context::get()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
+  input::Context::getSingleton()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
+  input::Context::getSingleton()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
+  input::Context::getSingleton()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
+
+  pool = new render::GeometryPool(*context);
 
   const unsigned int size = 512;
 
-  depthmap = GL::Texture::createInstance(*context, Image(PixelFormat::DEPTH32, size, size), 0, "depthmap");
+  depthmap = GL::Texture::create(ResourceInfo(index, Path("depthmap")),
+                                 *context,
+                                 Image(index, PixelFormat::DEPTH32, size, size),
+                                 0);
   if (!depthmap)
     return false;
 
-  colormap = GL::Texture::createInstance(*context, Image(PixelFormat::RGBA8, size, size), 0);
+  colormap = GL::Texture::create(index, *context, Image(index, PixelFormat::RGBA8, size, size), 0);
   if (!colormap)
     return false;
 
-  canvas = GL::ImageCanvas::createInstance(*context, size, size);
+  canvas = GL::ImageCanvas::create(*context, size, size);
   if (!canvas)
     return false;
 
   canvas->setDepthBuffer(&depthmap->getImage());
   canvas->setColorBuffer(&colormap->getImage());
 
-  Ref<render::Mesh> mesh = render::Mesh::readInstance("hills");
+  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("cube_shadowmap.mesh"));
   if (!mesh)
   {
     Log::writeError("Failed to load mesh");
@@ -122,7 +128,7 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  GL::Context* context = GL::Context::get();
+  GL::Context& context = pool->getContext();
 
   do
   {
@@ -151,27 +157,27 @@ void Demo::run(void)
 
     // Render shadow map
     {
-      context->setCurrentCanvas(*canvas);
-      context->clearDepthBuffer();
-      context->clearColorBuffer();
+      context.setCurrentCanvas(*canvas);
+      context.clearDepthBuffer();
+      context.clearColorBuffer();
 
-      render::Queue queue(*lightCamera);
+      render::Queue queue(*pool, *lightCamera);
       graph.enqueue(queue);
       queue.render("shadowmap");
     }
 
     // Render view
     {
-      context->setScreenCanvasCurrent();
-      context->clearDepthBuffer();
-      context->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
+      context.setScreenCanvasCurrent();
+      context.clearDepthBuffer();
+      context.clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
 
-      render::Queue queue(*viewCamera);
+      render::Queue queue(*pool, *viewCamera);
       graph.enqueue(queue);
       queue.render();
     }
   }
-  while (context->update());
+  while (context.update());
 }
 
 void Demo::onRequestedWL(GL::Uniform& uniform)
@@ -186,7 +192,7 @@ void Demo::onRequestedLight(GL::Uniform& uniform)
 
 void Demo::onButtonClicked(input::Button button, bool clicked)
 {
-  input::Context* context = input::Context::get();
+  input::Context* context = input::Context::getSingleton();
 
   if (clicked)
   {
@@ -199,7 +205,7 @@ void Demo::onButtonClicked(input::Button button, bool clicked)
 
 void Demo::onCursorMoved(const Vec2i& position)
 {
-  input::Context* context = input::Context::get();
+  input::Context* context = input::Context::getSingleton();
 
   if (context->isCursorCaptured())
   {
@@ -235,7 +241,7 @@ void Demo::onWheelTurned(int offset)
 int main()
 {
   if (!wendy::initialize())
-    exit(1);
+    std::exit(EXIT_FAILURE);
 
   Ptr<Demo> demo(new Demo());
   if (demo->init())
@@ -244,6 +250,6 @@ int main()
   demo = NULL;
 
   wendy::shutdown();
-  exit(0);
+  std::exit(EXIT_SUCCESS);
 }
 

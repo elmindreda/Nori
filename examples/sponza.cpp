@@ -1,6 +1,8 @@
 
 #include <wendy/Wendy.h>
 
+#include <cstdlib>
+
 using namespace wendy;
 
 class Demo : public Trackable
@@ -13,9 +15,11 @@ public:
 private:
   void onKeyPressed(input::Key key, bool pressed);
   void onButtonClicked(input::Button button, bool clicked);
+  ResourceIndex index;
   input::SpectatorCamera controller;
-  Ptr<deferred::Renderer> renderer;
+  Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
+  Ptr<deferred::Renderer> renderer;
   scene::Graph graph;
   scene::CameraNode* cameraNode;
   scene::LightNode* lightNode;
@@ -39,53 +43,46 @@ Demo::~Demo(void)
 
   camera = NULL;
   renderer = NULL;
+  pool = NULL;
 
-  input::Context::destroy();
-  render::GeometryPool::destroy();
-  GL::Context::destroy();
+  input::Context::destroySingleton();
+  GL::Context::destroySingleton();
 }
 
 bool Demo::init(void)
 {
-  GL::VertexProgram::addSearchPath(Path("../media"));
-  GL::FragmentProgram::addSearchPath(Path("../media"));
-  GL::Program::addSearchPath(Path("../media"));
-
-  Image::addSearchPath(Path("media/sponza"));
-  Mesh::addSearchPath(Path("media/sponza"));
-  GL::Texture::addSearchPath(Path("media/sponza"));
-  render::Material::addSearchPath(Path("media/sponza"));
-
-  Image::addSearchPath(Path("media/deferred"));
-  GL::Texture::addSearchPath(Path("media/deferred"));
-
-  if (!GL::Context::create(GL::ContextMode()))
+  if (!index.addSearchPath(Path("../media")))
     return false;
 
-  GL::Context* context = GL::Context::get();
+  if (!index.addSearchPath(Path("../media/sponza")))
+    return false;
+
+  if (!GL::Context::createSingleton(index))
+    return false;
+
+  GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Sponza Atrium");
 
   const unsigned int width = context->getScreenCanvas().getWidth();
   const unsigned int height = context->getScreenCanvas().getHeight();
 
-  if (!input::Context::create(*context))
+  if (!input::Context::createSingleton(*context))
     return false;
 
-  input::Context::get()->getKeyPressedSignal().connect(*this, &Demo::onKeyPressed);
-  input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
+  input::Context::getSingleton()->getKeyPressedSignal().connect(*this, &Demo::onKeyPressed);
+  input::Context::getSingleton()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
 
-  if (!render::GeometryPool::create(*context))
-    return false;
+  pool = new render::GeometryPool(*context);
 
-  renderer = deferred::Renderer::create(*context, deferred::Config(width, height));
+  renderer = deferred::Renderer::create(*pool, deferred::Config(width, height));
   if (!renderer)
     return false;
 
-  GL::TextureRef distAttTexture = GL::Texture::readInstance("distatt");
+  Ref<GL::Texture> distAttTexture = GL::Texture::read(*context, Path("attenuation.texture"));
   if (!distAttTexture)
     return false;
 
-  Ref<render::Mesh> mesh = render::Mesh::readInstance("sponza");
+  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("sponza.mesh"));
   if (!mesh)
     return false;
 
@@ -104,7 +101,7 @@ bool Demo::init(void)
 
   render::LightRef light = new render::Light();
   light->setType(render::Light::POINT);
-  light->setRadius(50.f);
+  light->setRadius(100.f);
   light->setDistAttTexture(distAttTexture);
 
   lightNode = new scene::LightNode();
@@ -113,16 +110,15 @@ bool Demo::init(void)
 
   timer.start();
 
-  input::Context::get()->setFocus(&controller);
+  input::Context::getSingleton()->setFocus(&controller);
 
   return true;
 }
 
 void Demo::run(void)
 {
-  GL::Context* context = GL::Context::get();
-
-  render::Queue queue(*camera);
+  render::Queue queue(*pool, *camera);
+  GL::Context& context = pool->getContext();
 
   do
   {
@@ -137,8 +133,8 @@ void Demo::run(void)
     graph.update();
     graph.enqueue(queue);
 
-    context->clearDepthBuffer();
-    context->clearColorBuffer(ColorRGBA::BLACK);
+    context.clearDepthBuffer();
+    context.clearColorBuffer(ColorRGBA::BLACK);
 
     renderer->render(queue);
     renderer->renderAmbientLight(queue.getCamera(), ColorRGB(0.2f, 0.2f, 0.2f));
@@ -146,7 +142,7 @@ void Demo::run(void)
     queue.removeOperations();
     queue.detachLights();
   }
-  while (!quitting && context->update());
+  while (!quitting && context.update());
 }
 
 void Demo::onKeyPressed(input::Key key, bool pressed)
@@ -180,7 +176,7 @@ void Demo::onButtonClicked(input::Button button, bool clicked)
 int main()
 {
   if (!wendy::initialize())
-    exit(1);
+    std::exit(EXIT_FAILURE);
 
   Ptr<Demo> demo(new Demo());
   if (demo->init())
@@ -189,6 +185,6 @@ int main()
   demo = NULL;
 
   wendy::shutdown();
-  exit(0);
+  std::exit(EXIT_SUCCESS);
 }
 

@@ -31,6 +31,8 @@
 #include <wendy/UIItem.h>
 #include <wendy/UIMenu.h>
 
+#include <algorithm>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy

@@ -30,6 +30,8 @@
 #include <wendy/UIWidget.h>
 #include <wendy/UILabel.h>
 
+#include <cstdlib>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy

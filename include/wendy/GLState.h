@@ -166,6 +166,7 @@ class UniformState
 public:
   UniformState(Uniform& uniform);
   UniformState(const UniformState& source);
+  UniformState& operator = (const UniformState& source);
   void getValue(float& result) const;
   void setValue(const float newValue);
   void getValue(Vec2& result) const;
@@ -187,8 +188,7 @@ public:
   Uniform& getUniform(void) const;
 private:
   void apply(void) const;
-  UniformState& operator = (const UniformState& source);
-  Uniform& uniform;
+  Uniform* uniform;
   float data[16];
 };
 
@@ -203,13 +203,13 @@ class SamplerState
 public:
   SamplerState(Sampler& sampler);
   SamplerState(const SamplerState& source);
+  SamplerState& operator = (const SamplerState& source);
   void getTexture(Ref<Texture>& result) const;
   void setTexture(Texture* newTexture);
   Sampler& getSampler(void) const;
 private:
   void apply(void) const;
-  SamplerState& operator = (const SamplerState& source);
-  Sampler& sampler;
+  Sampler* sampler;
   Ref<Texture> texture;
 };
 
@@ -277,8 +277,8 @@ public:
   void setDefaults(void);
 private:
   void destroyProgramState(void);
-  typedef std::vector<UniformState*> UniformList;
-  typedef std::vector<SamplerState*> SamplerList;
+  typedef std::vector<UniformState> UniformList;
+  typedef std::vector<SamplerState> SamplerList;
   Ref<Program> program;
   UniformList uniforms;
   SamplerList samplers;

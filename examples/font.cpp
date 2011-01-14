@@ -1,6 +1,8 @@
 
 #include <wendy/Wendy.h>
 
+#include <cstdlib>
+
 using namespace wendy;
 
 namespace
@@ -31,39 +33,37 @@ public:
   bool init(void);
   bool render(void);
 private:
-  Ptr<render::Font> font;
+  ResourceIndex index;
+  Ptr<render::GeometryPool> pool;
+  Ref<render::Font> font;
 };
 
 Demo::~Demo(void)
 {
   font = NULL;
+  pool = NULL;
 
-  render::GeometryPool::destroy();
-  GL::Context::destroy();
+  GL::Context::destroySingleton();
 }
 
 bool Demo::init(void)
 {
-  GL::VertexProgram::addSearchPath(Path("../media"));
-  GL::FragmentProgram::addSearchPath(Path("../media"));
-  GL::Program::addSearchPath(Path("../media"));
+  if (!index.addSearchPath(Path("../media")))
+    return false;
 
-  Image::addSearchPath(Path("media"));
-  Font::addSearchPath(Path("media"));
-
-  if (!GL::Context::create(GL::ContextMode()))
+  if (!GL::Context::createSingleton(index))
   {
     Log::writeError("Failed to create OpenGL context");
     return false;
   }
 
-  GL::Context* context = GL::Context::get();
-  context->setTitle("Fonts");
+  GL::Context* context = GL::Context::getSingleton();
+  context->setTitle("Font Test");
+  context->setRefreshMode(GL::Context::MANUAL_REFRESH);
 
-  if (!render::GeometryPool::create(*GL::Context::get()))
-    return false;
+  pool = new render::GeometryPool(*context);
 
-  font = render::Font::readInstance("default");
+  font = render::Font::read(*pool, Path("wendy/default.font"));
   if (!font)
   {
     Log::writeError("Failed to load font");
@@ -75,7 +75,7 @@ bool Demo::init(void)
 
 bool Demo::render(void)
 {
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
   context->clearColorBuffer();
   context->setProjectionMatrix2D(640.f, 480.f);
 
@@ -92,12 +92,12 @@ bool Demo::render(void)
   return true;
 }
 
-}
+} /*namespace*/
 
 int main(int argc, char** argv)
 {
   if (!wendy::initialize())
-    exit(1);
+    std::exit(EXIT_FAILURE);
 
   Ptr<Demo> demo(new Demo());
   if (demo->init())
@@ -106,12 +106,12 @@ int main(int argc, char** argv)
     {
       demo->render();
     }
-    while (GL::Context::get()->update());
+    while (GL::Context::getSingleton()->update());
   }
 
   demo = NULL;
 
   wendy::shutdown();
-  exit(0);
+  std::exit(EXIT_SUCCESS);
 }
 

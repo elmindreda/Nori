@@ -10,7 +10,6 @@ endif(COMMAND cmake_policy)
 option(WENDY_INCLUDE_RENDERER "Include the renderer" ON)
 option(WENDY_INCLUDE_SCENE_GRAPH "Include the scene graph" ON)
 option(WENDY_INCLUDE_UI_SYSTEM "Include the UI library" ON)
-option(WENDY_INCLUDE_DEMO_SYSTEM "Include the demo system" ON)
 option(WENDY_BUILD_EXAMPLES "Build the bundled example programs" OFF)
 option(WENDY_BUILD_TESTS "Build the bundled test programs" OFF)
 
@@ -87,10 +86,9 @@ else()
 
 endif(APPLE)
 
-
 # Ugly fix for Cg depending on pthreads
 if(UNIX AND NOT CYGWIN)
-  list(APPEND wendy_LIBRARIES -pthread)
+  list(APPEND wendy_LIBRARIES pthread)
 endif(UNIX AND NOT CYGWIN)
 
 if(WIN32)

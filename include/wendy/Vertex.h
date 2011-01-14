@@ -132,6 +132,77 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Predefined vertex format.
+ */
+class Vertex3fv
+{
+public:
+  Vec3 position;
+  static const VertexFormat format;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Predefined vertex format.
+ */
+class Vertex3fn3fv
+{
+public:
+  Vec3 normal;
+  Vec3 position;
+  static const VertexFormat format;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Predefined vertex format.
+ */
+class Vertex2fv
+{
+public:
+  Vec2 position;
+  static const VertexFormat format;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Predefined vertex format.
+ */
+class Vertex2ft2fv
+{
+public:
+  Vec2 mapping;
+  Vec2 position;
+  static const VertexFormat format;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Predefined vertex format.
+ */
+class Vertex2ft3fv
+{
+public:
+  Vec2 mapping;
+  Vec3 position;
+  static const VertexFormat format;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Predefined vertex format.
+ */
+class Vertex4fc2ft3fv
+{
+public:
+  ColorRGBA color;
+  Vec2 mapping;
+  Vec3 position;
+  static const VertexFormat format;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

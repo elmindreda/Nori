@@ -39,7 +39,8 @@ namespace wendy
 Timer::Timer(void):
   started(false),
   paused(false),
-  baseTime(0.0)
+  baseTime(0.0),
+  prevTime(0.0)
 {
 }
 
@@ -56,6 +57,7 @@ void Timer::stop(void)
   started = false;
   paused = false;
   baseTime = 0.0;
+  prevTime = 0.0;
 }
 
 void Timer::pause(void)
@@ -113,6 +115,21 @@ void Timer::setTime(Time time)
     else
       baseTime += getTime() - time;
   }
+}
+
+Time Timer::getDeltaTime(void)
+{
+  if (started)
+  {
+    // Since this uses base-relative time, it doesn't need special
+    // cases for the paused state (I hope)
+
+    Time deltaTime = getTime() - prevTime;
+    prevTime += deltaTime;
+    return deltaTime;
+  }
+  else
+    return 0.0;
 }
 
 Time Timer::getCurrentTime(void)

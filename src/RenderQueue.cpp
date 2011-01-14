@@ -26,6 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/RenderCamera.h>
+#include <wendy/RenderPool.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
@@ -44,33 +45,32 @@ namespace wendy
 namespace
 {
 
-struct OperationComparator
+/* Comparator for opaque render operations.
+ *
+ * Sorts first by material and then front to back.
+ */
+struct OpaqueOperationComparator
 {
   inline bool operator () (const Operation* x, const Operation* y)
   {
-    return *x < *y;
+    if (x->hash != y->hash)
+      return x->hash < y->hash;
+
+    return x->distance < y->distance;
   }
 };
 
-/* Hash function used in the ELF executable format
+/* Comparator for blended render operations.
+ *
+ * Sorts back to front.
  */
-unsigned int hashString(const String& string)
+struct BlendedOperationComparator
 {
-  unsigned int hash = 0;
-  unsigned int temp;
-
-  for (String::const_iterator c = string.begin();  c != string.end();  c++)
+  inline bool operator () (const Operation* x, const Operation* y)
   {
-    hash = (hash << 4) + *c;
-
-    if (temp = hash & 0xf0000000)
-      hash ^= temp >> 24;
-
-    hash &= ~temp;
+    return x->distance > y->distance;
   }
-
-  return hash;
-}
+};
 
 } /*namespace*/
 
@@ -82,33 +82,17 @@ Operation::Operation(void):
 {
 }
 
-bool Operation::operator < (const Operation& other) const
-{
-  // Sort blending operations back to front
-  if (blending && other.blending)
-    return distance > other.distance;
-
-  // Put blending operations last
-  if (blending)
-    return false;
-  else if (other.blending)
-    return true;
-
-  // Sort opaque operations by technique (i.e. material)
-  if (hash != other.hash)
-    return hash < other.hash;
-
-  // Sort operations with same technique front to back
-  return distance < other.distance;
-}
-
 ///////////////////////////////////////////////////////////////////////
 
-Queue::Queue(const Camera& initCamera, Light* initLight):
+Queue::Queue(GeometryPool& initPool,
+             const Camera& initCamera,
+             Light* initLight):
+  pool(initPool),
   camera(initCamera),
   light(initLight),
   phase(COLLECT_GEOMETRY),
-  sorted(false)
+  sortedOpaque(false),
+  sortedBlended(false)
 {
 }
 
@@ -124,45 +108,35 @@ void Queue::detachLights(void)
 
 void Queue::addOperation(const Operation& operation)
 {
-  sorted = false;
-
-  operations.push_back(operation);
-  operations.back().hash = hashString(operation.technique->getName());
-  operations.back().blending = operation.technique->isBlending();
+  if (operation.technique->isBlending())
+  {
+    blendedOps.push_back(operation);
+    blendedOps.back().hash = hashString(operation.technique->getName());
+    sortedBlended = false;
+  }
+  else
+  {
+    opaqueOps.push_back(operation);
+    opaqueOps.back().hash = hashString(operation.technique->getName());
+    sortedOpaque = false;
+  }
 }
 
 void Queue::removeOperations(void)
 {
-  operations.clear();
-  sorted = false;
+  opaqueOps.clear();
+  sortedOpaque = false;
+
+  blendedOps.clear();
+  sortedBlended = false;
 }
 
 void Queue::render(const String& passName) const
 {
-  GL::Context* context = GL::Context::get();
-  if (!context)
-    throw Exception("Cannot render render queue without an OpenGL context");
+  camera.apply(pool.getContext());
 
-  camera.apply();
-
-  const OperationList& operations = getOperations();
-
-  for (OperationList::const_iterator o = operations.begin();  o != operations.end();  o++)
-  {
-    const Operation& operation = **o;
-
-    for (unsigned int i = 0;  i < operation.technique->getPassCount();  i++)
-    {
-      const Pass& pass = operation.technique->getPass(i);
-      if (pass.getName() != passName)
-	continue;
-
-      pass.apply();
-
-      context->setModelMatrix(operation.transform);
-      context->render(operation.range);
-    }
-  }
+  renderOperations(getOpaqueOperations(), passName);
+  renderOperations(getBlendedOperations(), passName);
 }
 
 Queue::Phase Queue::getPhase(void) const
@@ -175,6 +149,11 @@ void Queue::setPhase(Phase newPhase)
   phase = newPhase;
 }
 
+GeometryPool& Queue::getGeometryPool(void) const
+{
+  return pool;
+}
+
 const Camera& Queue::getCamera(void) const
 {
   return camera;
@@ -185,29 +164,70 @@ Light* Queue::getActiveLight(void) const
   return light;
 }
 
-const OperationList& Queue::getOperations(void) const
+const OperationList& Queue::getOpaqueOperations(void) const
 {
-  if (!sorted)
+  if (!sortedOpaque)
   {
-    sortedOperations.clear();
-    sortedOperations.reserve(operations.size());
-    for (List::const_iterator o = operations.begin();  o != operations.end();  o++)
-      sortedOperations.push_back(&(*o));
+    const List& ops = opaqueOps;
 
-    OperationComparator comparator;
-    std::sort(sortedOperations.begin(),
-              sortedOperations.end(),
-	      comparator);
+    sortedOpaqueOps.clear();
+    sortedOpaqueOps.reserve(opaqueOps.size());
+    for (List::const_iterator o = ops.begin();  o != ops.end();  o++)
+      sortedOpaqueOps.push_back(&(*o));
 
-    sorted = true;
+    OpaqueOperationComparator comparator;
+    std::sort(sortedOpaqueOps.begin(), sortedOpaqueOps.end(), comparator);
+
+    sortedOpaque = true;
   }
 
-  return sortedOperations;
+  return sortedOpaqueOps;
+}
+
+const OperationList& Queue::getBlendedOperations(void) const
+{
+  if (!sortedBlended)
+  {
+    const List& ops = blendedOps;
+
+    sortedBlendedOps.clear();
+    sortedBlendedOps.reserve(blendedOps.size());
+    for (List::const_iterator o = ops.begin();  o != ops.end();  o++)
+      sortedBlendedOps.push_back(&(*o));
+
+    BlendedOperationComparator comparator;
+    std::sort(sortedBlendedOps.begin(), sortedBlendedOps.end(), comparator);
+
+    sortedBlended = true;
+  }
+
+  return sortedBlendedOps;
 }
 
 const LightState& Queue::getLights(void) const
 {
   return lights;
+}
+
+void Queue::renderOperations(const OperationList& ops,
+                             const String& passName) const
+{
+  for (OperationList::const_iterator o = ops.begin();  o != ops.end();  o++)
+  {
+    const Operation& op = **o;
+
+    for (unsigned int i = 0;  i < op.technique->getPassCount();  i++)
+    {
+      const Pass& pass = op.technique->getPass(i);
+      if (pass.getName() != passName)
+	continue;
+
+      pass.apply();
+
+      pool.getContext().setModelMatrix(op.transform);
+      pool.getContext().render(op.range);
+    }
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////

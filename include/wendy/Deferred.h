@@ -27,6 +27,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/RenderQueue.h>
+#include <wendy/RenderPool.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -56,12 +57,12 @@ public:
   GL::Texture& getColorTexture(void) const;
   GL::Texture& getNormalTexture(void) const;
   GL::Texture& getDepthTexture(void) const;
-  static Renderer* create(GL::Context& context, const Config& config);
+  static Renderer* create(render::GeometryPool& pool, const Config& config);
 private:
-  Renderer(GL::Context& context);
+  Renderer(render::GeometryPool& pool);
   bool init(const Config& config);
   void renderLightQuad(const render::Camera& camera);
-  GL::Context& context;
+  render::GeometryPool& pool;
   Ref<GL::ImageCanvas> canvas;
   GL::TextureRef depthTexture;
   GL::TextureRef colorTexture;

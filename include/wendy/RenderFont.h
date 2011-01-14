@@ -26,16 +26,33 @@
 #define WENDY_RENDERFONT_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Font.h>
-
-#include <list>
-
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
   namespace render
   {
+
+///////////////////////////////////////////////////////////////////////
+
+class FontGlyphData
+{
+public:
+  Vec2 bearing;
+  float advance;
+  Ref<Image> image;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class FontData
+{
+public:
+  typedef std::vector<FontGlyphData> GlyphList;
+  FontData(void);
+  FontData(const FontData& source);
+  FontData& operator = (const FontData& source);
+  GlyphList glyphs;
+  int characters[256];
+};
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -44,7 +61,7 @@ namespace wendy
  *  This class provides layout and rendering of a single font, using data
  *  from a wendy::Font object.
  */
-class Font : public DerivedResource<Font, wendy::Font>, public RefObject
+class Font : public Resource
 {
 public:
   class Layout;
@@ -85,27 +102,26 @@ public:
   /*! Calculates the layout of glyphs for the specified text.
    */
   void getTextLayout(LayoutList& result, const char* format, ...) const;
-  static Font* createInstance(const Path& path,
-			      const String& characters,
-			      const String& name = "");
-  static Font* createInstance(const wendy::Font& font,
-                              const String& name = "");
+  static Ref<Font> create(const ResourceInfo& info,
+                          GeometryPool& pool,
+                          const FontData& data);
+  static Ref<Font> read(GeometryPool& pool, const Path& path);
 private:
   class Glyph;
-  Font(const String& name);
+  Font(const ResourceInfo& info, GeometryPool& pool);
   Font(const Font& source);
   Font& operator = (const Font& source);
-  bool init(const wendy::Font& font);
-  const Glyph* findGlyph(char character) const;
-  bool getGlyphLayout(Layout& layout, char character) const;
-  void getGlyphLayout(Layout& layout, const Glyph& glyph, char character) const;
+  bool init(const FontData& font);
+  const Glyph* findGlyph(uint8_t character) const;
+  bool getGlyphLayout(Layout& layout, uint8_t character) const;
+  void getGlyphLayout(Layout& layout, const Glyph& glyph, uint8_t character) const;
   void realizeVertices(const Rect& pixelArea,
                        const Rect& texelArea,
-                       GL::Vertex2ft2fv* vertices) const;
-  typedef std::list<Glyph> GlyphList;
-  typedef std::map<char, Glyph*> GlyphMap;
+                       Vertex2ft2fv* vertices) const;
+  typedef std::vector<Glyph> GlyphList;
+  GeometryPool& pool;
   GlyphList glyphs;
-  GlyphMap glyphMap;
+  Glyph* characters[256];
   Vec2 size;
   float ascender;
   float descender;
@@ -135,6 +151,25 @@ public:
   Vec2 bearing;
   Vec2 size;
   float advance;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class FontReader : public ResourceReader, public XML::Reader
+{
+public:
+  FontReader(GeometryPool& pool);
+  Ref<Font> read(const Path& path);
+private:
+  bool extractGlyphs(FontData& data,
+                     const Image& image,
+                     const String& characters,
+                     bool fixedWidth);
+  bool onBeginElement(const String& name);
+  bool onEndElement(const String& name);
+  GeometryPool& pool;
+  Ref<Font> font;
+  ResourceInfo info;
 };
 
 ///////////////////////////////////////////////////////////////////////

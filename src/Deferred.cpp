@@ -68,16 +68,16 @@ Config::Config(unsigned int initWidth, unsigned int initHeight):
 
 void Renderer::render(const render::Queue& queue)
 {
-  GL::Canvas& previousCanvas = context.getCurrentCanvas();
+  GL::Canvas& previousCanvas = pool.getContext().getCurrentCanvas();
 
-  context.setCurrentCanvas(*canvas);
-  context.clearDepthBuffer();
-  context.clearColorBuffer(ColorRGBA::BLACK);
+  pool.getContext().setCurrentCanvas(*canvas);
+  pool.getContext().clearDepthBuffer();
+  pool.getContext().clearColorBuffer(ColorRGBA::BLACK);
 
   queue.render();
 
-  context.setCurrentCanvas(previousCanvas);
-  context.setProjectionMatrix2D(1.f, 1.f);
+  pool.getContext().setCurrentCanvas(previousCanvas);
+  pool.getContext().setProjectionMatrix2D(1.f, 1.f);
 
   const render::LightState& lights = queue.getLights();
   for (unsigned int i = 0;  i < lights.getLightCount();  i++)
@@ -127,7 +127,7 @@ void Renderer::renderLight(const render::Camera& camera, const render::Light& li
   }
   else
   {
-    Log::writeError("Unsupported light type %u", light.getType());
+    logError("Unsupported light type %u", light.getType());
     return;
   }
 
@@ -149,17 +149,17 @@ GL::Texture& Renderer::getDepthTexture(void) const
   return *depthTexture;
 }
 
-Renderer* Renderer::create(GL::Context& context, const Config& config)
+Renderer* Renderer::create(render::GeometryPool& pool, const Config& config)
 {
-  Ptr<Renderer> renderer(new Renderer(context));
+  Ptr<Renderer> renderer(new Renderer(pool));
   if (!renderer->init(config))
     return NULL;
 
   return renderer.detachObject();
 }
 
-Renderer::Renderer(GL::Context& initContext):
-  context(initContext)
+Renderer::Renderer(render::GeometryPool& initPool):
+  pool(initPool)
 {
 }
 
@@ -167,12 +167,17 @@ bool Renderer::init(const Config& config)
 {
   // Create G-buffer color/emission texture
   {
-    Image data(PixelFormat::RGBA8, config.width, config.height);
+    Image image(pool.getContext().getIndex(),
+                PixelFormat::RGBA8,
+                config.width, config.height);
 
-    colorTexture = GL::Texture::createInstance(context, data, GL::Texture::RECTANGULAR);
+    colorTexture = GL::Texture::create(pool.getContext().getIndex(),
+                                       pool.getContext(),
+                                       image,
+                                       GL::Texture::RECTANGULAR);
     if (!colorTexture)
     {
-      Log::writeError("Failed to create color texture for deferred renderer");
+      logError("Failed to create color texture for deferred renderer");
       return false;
     }
 
@@ -181,12 +186,17 @@ bool Renderer::init(const Config& config)
 
   // Create G-buffer normal/specularity texture
   {
-    Image data(PixelFormat::RGBA8, config.width, config.height);
+    Image image(pool.getContext().getIndex(),
+                PixelFormat::RGBA8,
+                config.width, config.height);
 
-    normalTexture = GL::Texture::createInstance(context, data, GL::Texture::RECTANGULAR);
+    normalTexture = GL::Texture::create(pool.getContext().getIndex(),
+                                        pool.getContext(),
+                                        image,
+                                        GL::Texture::RECTANGULAR);
     if (!normalTexture)
     {
-      Log::writeError("Failed to create normal/specularity texture for deferred renderer");
+      logError("Failed to create normal/specularity texture for deferred renderer");
       return false;
     }
 
@@ -195,12 +205,17 @@ bool Renderer::init(const Config& config)
 
   // Create G-buffer depth texture
   {
-    Image data(PixelFormat::DEPTH32, config.width, config.height);
+    Image image(pool.getContext().getIndex(),
+                PixelFormat::DEPTH32,
+                config.width, config.height);
 
-    depthTexture = GL::Texture::createInstance(context, data, GL::Texture::RECTANGULAR);
+    depthTexture = GL::Texture::create(pool.getContext().getIndex(),
+                                       pool.getContext(),
+                                       image,
+                                       GL::Texture::RECTANGULAR);
     if (!depthTexture)
     {
-      Log::writeError("Failed to create depth texture for deferred renderer");
+      logError("Failed to create depth texture for deferred renderer");
       return false;
     }
 
@@ -209,38 +224,38 @@ bool Renderer::init(const Config& config)
 
   // Set up G-buffer canvas
   {
-    canvas = GL::ImageCanvas::createInstance(context, config.width, config.height);
+    canvas = GL::ImageCanvas::create(pool.getContext(), config.width, config.height);
     if (!canvas)
     {
-      Log::writeError("Failed to create image canvas for deferred renderer");
+      logError("Failed to create image canvas for deferred renderer");
       return false;
     }
 
     if (!canvas->setBuffer(GL::ImageCanvas::COLOR_BUFFER0, &(colorTexture->getImage(0))))
     {
-      Log::writeError("Failed to attach color texture to G-buffer");
+      logError("Failed to attach color texture to G-buffer");
       return false;
     }
 
     if (!canvas->setBuffer(GL::ImageCanvas::COLOR_BUFFER1, &(normalTexture->getImage(0))))
     {
-      Log::writeError("Failed to attach normal/specularity texture to G-buffer");
+      logError("Failed to attach normal/specularity texture to G-buffer");
       return false;
     }
 
     if (!canvas->setBuffer(GL::ImageCanvas::DEPTH_BUFFER, &(depthTexture->getImage(0))))
     {
-      Log::writeError("Failed to attach depth texture to G-buffer");
+      logError("Failed to attach depth texture to G-buffer");
       return false;
     }
   }
 
   // Set up ambient light pass
   {
-    GL::ProgramRef lightProgram = GL::Program::readInstance("DeferredAmbientLight");
-    if (!lightProgram)
+    Ref<GL::Program> program = GL::Program::read(pool.getContext(), Path("wendy/DeferredAmbientLight.program"));
+    if (!program)
     {
-      Log::writeError("Failed to read deferred renderer ambient light program");
+      logError("Failed to read deferred renderer ambient light program");
       return false;
     }
 
@@ -251,25 +266,26 @@ bool Renderer::init(const Config& config)
     interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
     interface.addVarying("clipOverF", GL::Varying::FLOAT_VEC2);
 
-    if (!interface.matches(*lightProgram, true))
+    if (!interface.matches(*program, true))
     {
-      Log::writeError("Deferred renderer ambient light program does not match the required interface");
+      logError("\'%s\' does not match the required interface",
+               program->getPath().asString().c_str());
       return false;
     }
 
     ambientLightPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ONE);
     ambientLightPass.setDepthTesting(false);
     ambientLightPass.setDepthWriting(false);
-    ambientLightPass.setProgram(lightProgram);
+    ambientLightPass.setProgram(program);
     ambientLightPass.getSamplerState("colorTexture").setTexture(colorTexture);
   }
 
   // Set up directional light pass
   {
-    GL::ProgramRef lightProgram = GL::Program::readInstance("DeferredDirLight");
-    if (!lightProgram)
+    Ref<GL::Program> program = GL::Program::read(pool.getContext(), Path("wendy/DeferredDirLight.program"));
+    if (!program)
     {
-      Log::writeError("Failed to read deferred renderer directional light program");
+      logError("Failed to read deferred renderer directional light program");
       return false;
     }
 
@@ -285,16 +301,17 @@ bool Renderer::init(const Config& config)
     interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
     interface.addVarying("clipOverF", GL::Varying::FLOAT_VEC2);
 
-    if (!interface.matches(*lightProgram, true))
+    if (!interface.matches(*program, true))
     {
-      Log::writeError("Deferred renderer directional light program does not match the required interface");
+      logError("\'%s\' does not match the required interface",
+               program->getPath().asString().c_str());
       return false;
     }
 
     dirLightPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ONE);
     dirLightPass.setDepthTesting(false);
     dirLightPass.setDepthWriting(false);
-    dirLightPass.setProgram(lightProgram);
+    dirLightPass.setProgram(program);
     dirLightPass.getSamplerState("colorTexture").setTexture(colorTexture);
     dirLightPass.getSamplerState("normalTexture").setTexture(normalTexture);
     dirLightPass.getSamplerState("depthTexture").setTexture(depthTexture);
@@ -302,10 +319,10 @@ bool Renderer::init(const Config& config)
 
   // Set up point light pass
   {
-    GL::ProgramRef lightProgram = GL::Program::readInstance("DeferredPointLight");
-    if (!lightProgram)
+    Ref<GL::Program> program = GL::Program::read(pool.getContext(), Path("wendy/DeferredPointLight.program"));
+    if (!program)
     {
-      Log::writeError("Failed to read deferred renderer point light program");
+      logError("Failed to read deferred renderer point light program");
       return false;
     }
 
@@ -324,16 +341,17 @@ bool Renderer::init(const Config& config)
     interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
     interface.addVarying("clipOverF", GL::Varying::FLOAT_VEC2);
 
-    if (!interface.matches(*lightProgram, true))
+    if (!interface.matches(*program, true))
     {
-      Log::writeError("Deferred renderer point light program does not match the required interface");
+      logError("\'%s\' does not match the required interface",
+               program->getPath().asString().c_str());
       return false;
     }
 
     pointLightPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ONE);
     pointLightPass.setDepthTesting(false);
     pointLightPass.setDepthWriting(false);
-    pointLightPass.setProgram(lightProgram);
+    pointLightPass.setProgram(program);
     pointLightPass.getSamplerState("colorTexture").setTexture(colorTexture);
     pointLightPass.getSamplerState("normalTexture").setTexture(normalTexture);
     pointLightPass.getSamplerState("depthTexture").setTexture(depthTexture);
@@ -344,18 +362,11 @@ bool Renderer::init(const Config& config)
 
 void Renderer::renderLightQuad(const render::Camera& camera)
 {
-  render::GeometryPool* pool = render::GeometryPool::get();
-  if (!pool)
-  {
-    Log::writeError("Cannot render deferred lighting without a geometry pool");
-    return;
-  }
-
   GL::VertexRange range;
 
-  if (!pool->allocateVertices(range, 4, LightVertex::format))
+  if (!pool.allocateVertices(range, 4, LightVertex::format))
   {
-    Log::writeError("Failed to allocate vertices for deferred lighting");
+    logError("Failed to allocate vertices for deferred lighting");
     return;
   }
 
@@ -383,7 +394,7 @@ void Renderer::renderLightQuad(const render::Camera& camera)
 
   range.copyFrom(vertices);
 
-  context.render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 }
 
 ///////////////////////////////////////////////////////////////////////

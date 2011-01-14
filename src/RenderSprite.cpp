@@ -32,8 +32,6 @@
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderSprite.h>
 
-#include <stdint.h>
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -46,7 +44,7 @@ namespace wendy
 namespace
 {
 
-void rotateVec2(Vec2& vector, float angle)
+void rotateByZ(Vec2& vector, float angle)
 {
   const float sina = sinf(angle);
   const float cosa = cosf(angle);
@@ -58,7 +56,7 @@ void rotateVec2(Vec2& vector, float angle)
   vector = result;
 }
 
-void rotateVec3(Vec3& vector, float angle)
+void rotateByZ(Vec3& vector, float angle)
 {
   const float sina = sinf(angle);
   const float cosa = cosf(angle);
@@ -71,74 +69,70 @@ void rotateVec3(Vec3& vector, float angle)
   vector = result;
 }
 
-void realizeSpriteVertices(GL::Vertex2ft3fv* vertices,
+void realizeSpriteVertices(Vertex2ft3fv* vertices,
 			   const Vec3& cameraPosition,
-                           const Vec3& position,
+                           const Vec3& spritePosition,
 		           const Vec2& size,
 		           float angle,
 			   SpriteType3 type)
 {
+  Vec3 axisX, axisY;
   const Vec2 offset(size.x / 2.f, size.y / 2.f);
 
   if (type == STATIC_SPRITE)
   {
-    vertices[0].mapping.set(0.f, 0.f);
-    vertices[0].position.set(-offset.x, -offset.y, 0.f);
-    vertices[1].mapping.set(1.f, 0.f);
-    vertices[1].position.set( offset.x, -offset.y, 0.f);
-    vertices[2].mapping.set(1.f, 1.f);
-    vertices[2].position.set( offset.x,  offset.y, 0.f);
-    vertices[3].mapping.set(0.f, 1.f);
-    vertices[3].position.set(-offset.x,  offset.y, 0.f);
-
-    for (unsigned int i = 0;  i < 4;  i++)
-    {
-      rotateVec3(vertices[i].position, angle);
-      vertices[i].position += position;
-    }
-  }
-  else if (type == CYLINDRIC_SPRITE)
-  {
-  }
-  else if (type == SPHERICAL_SPRITE)
-  {
-    Vec3 direction = (cameraPosition - position).normalized();
-
-    Quat final;
-    final.setVectorRotation(direction);
+    axisX.set(offset.x, 0.f, 0.f);
+    axisY.set(0.f, offset.y, 0.f);
 
     if (angle != 0.f)
     {
-      Quat local;
-      local.setAxisRotation(Vec3(0.f, 0.f, 1.f), angle);
-
-      final = final * local;
+      rotateByZ(axisX, angle);
+      rotateByZ(axisY, angle);
     }
+  }
+  else if (type == CYLINDRIC_SPRITE || type == SPHERICAL_SPRITE)
+  {
+    Vec3 axisZ(cameraPosition.x - spritePosition.x,
+               0.f,
+               cameraPosition.z - spritePosition.z);
 
-    Vec3 positions[4];
+    if (axisZ.lengthSquared() < 0.001f)
+      axisZ.set(0.f, 0.f, 1.f);
+    else
+      axisZ.normalize();
 
-    positions[0].set(-offset.x, -offset.y, 0.f);
-    positions[1].set( offset.x, -offset.y, 0.f);
-    positions[2].set( offset.x,  offset.y, 0.f);
-    positions[3].set(-offset.x,  offset.y, 0.f);
+    axisY.set(0.f, offset.y, 0.f);
 
-    for (unsigned int i = 0;  i < 4;  i++)
+    axisX = axisY.cross(axisZ);
+    axisX.scaleTo(offset.x);
+
+    if (type == SPHERICAL_SPRITE)
     {
-      final.rotateVector(positions[i]);
-      positions[i] += position;
+      axisZ = (cameraPosition - spritePosition).normalized();
+
+      axisY = axisZ.cross(axisX);
+      axisY.scaleTo(offset.y);
     }
 
-    vertices[0].mapping.set(0.f, 0.f);
-    vertices[0].position = positions[0];
-    vertices[1].mapping.set(1.f, 0.f);
-    vertices[1].position = positions[1];
-    vertices[2].mapping.set(1.f, 1.f);
-    vertices[2].position = positions[2];
-    vertices[3].mapping.set(0.f, 1.f);
-    vertices[3].position = positions[3];
+    if (angle != 0.f)
+    {
+      Quat rotZ;
+      rotZ.setAxisRotation(axisZ, angle);
+      rotZ.rotateVector(axisX);
+      rotZ.rotateVector(axisY);
+    }
   }
   else
-    Log::writeError("Unknown sprite type %u", type);
+    logError("Unknown sprite type %u", type);
+
+  vertices[0].mapping.set(0.f, 0.f);
+  vertices[0].position = spritePosition - axisX - axisY;
+  vertices[1].mapping.set(1.f, 0.f);
+  vertices[1].position = spritePosition + axisX - axisY;
+  vertices[2].mapping.set(1.f, 1.f);
+  vertices[2].position = spritePosition + axisX + axisY;
+  vertices[3].mapping.set(0.f, 1.f);
+  vertices[3].position = spritePosition - axisX + axisY;
 }
 
 } /*namespace*/
@@ -150,27 +144,27 @@ Sprite2::Sprite2(void)
   setDefaults();
 }
 
-void Sprite2::render(void) const
+void Sprite2::render(GeometryPool& pool) const
 {
-  GL::Vertex2ft2fv vertices[4];
+  Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
   GL::VertexRange range;
-  if (!GeometryPool::get()->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
+  if (!pool.allocateVertices(range, 4, Vertex2ft2fv::format))
     return;
 
   range.copyFrom(vertices);
 
-  GL::Context::get()->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 }
 
-void Sprite2::render(const Material& material) const
+void Sprite2::render(GeometryPool& pool, const Material& material) const
 {
-  GL::Vertex2ft2fv vertices[4];
+  Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
   GL::VertexRange range;
-  if (!GeometryPool::get()->allocateVertices(range, 4, GL::Vertex2ft2fv::format))
+  if (!pool.allocateVertices(range, 4, Vertex2ft2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -180,11 +174,11 @@ void Sprite2::render(const Material& material) const
   for (unsigned int pass = 0;  pass < technique->getPassCount();  pass++)
   {
     technique->applyPass(pass);
-    GL::Context::get()->render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+    pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
   }
 }
 
-void Sprite2::realizeVertices(GL::Vertex2ft2fv* vertices) const
+void Sprite2::realizeVertices(Vertex2ft2fv* vertices) const
 {
   const Vec2 offset(size.x / 2.f, size.y / 2.f);
 
@@ -200,7 +194,7 @@ void Sprite2::realizeVertices(GL::Vertex2ft2fv* vertices) const
 
   for (unsigned int i = 0;  i < 4;  i++)
   {
-    rotateVec2(vertices[i].position, angle);
+    rotateByZ(vertices[i].position, angle);
     vertices[i].position += position;
   }
 }
@@ -222,33 +216,27 @@ Sprite3::Sprite3(void)
 
 void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
 {
-  if (!GeometryPool::get())
-  {
-    Log::writeError("Cannot enqueue sprite without a geometry pool");
-    return;
-  }
-
   if (!material)
   {
-    Log::writeError("Cannot enqueue sprite without a material");
+    logError("Cannot enqueue sprite without a material");
     return;
   }
 
   const Technique* technique = material->getActiveTechnique();
   if (!technique)
   {
-    Log::writeError("Material \'%s\' has no active technique",
-                    material->getName().c_str());
+    logError("Material \'%s\' has no active technique",
+             material->getPath().asString().c_str());
     return;
   }
 
   GL::VertexRange range;
-  if (!GeometryPool::get()->allocateVertices(range, 4, GL::Vertex2ft3fv::format))
+  if (!queue.getGeometryPool().allocateVertices(range, 4, Vertex2ft3fv::format))
     return;
 
   const Vec3 cameraPosition = queue.getCamera().getTransform().position;
 
-  GL::Vertex2ft3fv vertices[4];
+  Vertex2ft3fv vertices[4];
   realizeVertices(vertices, transform, cameraPosition);
   range.copyFrom(vertices);
 
@@ -263,7 +251,7 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
   queue.addOperation(operation);
 }
 
-void Sprite3::realizeVertices(GL::Vertex2ft3fv* vertices,
+void Sprite3::realizeVertices(Vertex2ft3fv* vertices,
                               const Transform3& transform,
                               const Vec3& cameraPosition) const
 {
@@ -273,7 +261,7 @@ void Sprite3::realizeVertices(GL::Vertex2ft3fv* vertices,
   Vec3 localCamera = cameraPosition;
   inverse.transformVector(localCamera);
 
-  realizeSpriteVertices(vertices, localCamera, position, size, angle, type);
+  realizeSpriteVertices(vertices, cameraPosition, position, size, angle, type);
 }
 
 void Sprite3::setDefaults(void)
@@ -297,42 +285,48 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   if (slots.empty())
     return;
 
-  GeometryPool* pool = GeometryPool::get();
-  if (!pool)
-  {
-    Log::writeError("Cannot enqueue sprite cloud without a renderer");
-    return;
-  }
-
   if (!material)
   {
-    Log::writeError("Cannot enqueue sprite cloud without a material");
+    logError("Cannot enqueue sprite cloud without a material");
     return;
   }
 
   const Technique* technique = material->getActiveTechnique();
   if (!technique)
   {
-    Log::writeError("Material \'%s\' has no active technique",
-                    material->getName().c_str());
+    logError("Material \'%s\' has no active technique",
+             material->getPath().asString().c_str());
     return;
   }
 
   GL::VertexRange vertexRange;
-  if (!pool->allocateVertices(vertexRange, 4 * slots.size(), GL::Vertex2ft3fv::format))
+  if (!queue.getGeometryPool().allocateVertices(vertexRange,
+                                                4 * slots.size(),
+                                                Vertex2ft3fv::format))
+  {
+    logError("Failed to allocate vertices for sprite cloud");
     return;
+  }
 
   GL::IndexRange indexRange;
-  if (!pool->allocateIndices(indexRange, 6 * slots.size(), GL::IndexBuffer::UINT16))
+  if (!queue.getGeometryPool().allocateIndices(indexRange,
+                                               6 * slots.size(),
+                                               GL::IndexBuffer::UINT16))
+  {
+    logError("Failed to allocate indices for sprite cloud");
     return;
+  }
 
   const Vec3 cameraPosition = queue.getCamera().getTransform().position;
 
   // Realize sprite vertices
   {
-    GL::VertexRangeLock<GL::Vertex2ft3fv> vertices(vertexRange);
+    GL::VertexRangeLock<Vertex2ft3fv> vertices(vertexRange);
     if (!vertices)
+    {
+      logError("Failed to lock vertex range for sprite cloud");
       return;
+    }
 
     realizeVertices(vertices, transform, cameraPosition);
   }
@@ -341,7 +335,10 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   {
     GL::IndexRangeLock<uint16_t> indices(indexRange);
     if (!indices)
+    {
+      logError("Failed to lock index range for sprite cloud");
       return;
+    }
 
     unsigned int base = vertexRange.getStart();
 
@@ -371,7 +368,7 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   queue.addOperation(operation);
 }
 
-void SpriteCloud3::realizeVertices(GL::Vertex2ft3fv* vertices,
+void SpriteCloud3::realizeVertices(Vertex2ft3fv* vertices,
                                    const Transform3& transform,
                                    const Vec3& cameraPosition) const
 {

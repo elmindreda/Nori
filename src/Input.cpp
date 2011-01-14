@@ -30,6 +30,7 @@
 #include <GL/glfw.h>
 
 #include <map>
+#include <algorithm>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -141,7 +142,7 @@ bool Context::isKeyDown(const Key& key) const
 
   KeyMap::const_iterator i = internalMap.find(externalKey);
   if (i != internalMap.end())
-    externalKey = (*i).second;
+    externalKey = i->second;
 
   return (glfwGetKey(externalKey) == GLFW_PRESS) ? true : false;
 }
@@ -236,7 +237,7 @@ GL::Context& Context::getContext(void) const
   return context;
 }
 
-bool Context::create(GL::Context& context)
+bool Context::createSingleton(GL::Context& context)
 {
   set(new Context(context));
   return true;
@@ -370,7 +371,7 @@ void Context::keyboardCallback(int key, int action)
     if (i == externalMap.end())
       return;
 
-    key = (*i).second;
+    key = i->second;
   }
 
   const bool pressed = (action == GLFW_PRESS) ? true : false;
@@ -425,6 +426,440 @@ void Context::mouseWheelCallback(int position)
 }
 
 Context* Context::instance = NULL;
+
+///////////////////////////////////////////////////////////////////////
+
+MayaCamera::MayaCamera(void):
+  lastPosition(0, 0),
+  target(Vec3::ZERO),
+  angleX(0.f),
+  angleY(0.f),
+  distance(5.f),
+  mode(NONE)
+{
+  updateTransform();
+}
+
+void MayaCamera::onKeyPressed(Key key, bool pressed)
+{
+}
+
+void MayaCamera::onButtonClicked(Button button, bool clicked)
+{
+  Context* context = Context::getSingleton();
+
+  if (clicked)
+  {
+    switch (button)
+    {
+      case Button::LEFT:
+        mode = TUMBLE;
+        break;
+      case Button::MIDDLE:
+        mode = TRACK;
+        break;
+      case Button::RIGHT:
+        mode = DOLLY;
+        break;
+    }
+
+    if (mode != NONE)
+      context->captureCursor();
+  }
+  else
+  {
+    mode = NONE;
+    context->releaseCursor();
+  }
+}
+
+void MayaCamera::onCursorMoved(const Vec2i& position)
+{
+  Vec2i offset = position - lastPosition;
+
+  if (mode == TUMBLE)
+  {
+    angleY += offset.x / 250.f;
+    angleX += offset.y / 250.f;
+    updateTransform();
+  }
+  else if (mode == TRACK)
+  {
+    Vec3 axisX = Vec3::X;
+    Vec3 axisY = Vec3::Y;
+
+    transform.rotation.rotateVector(axisX);
+    transform.rotation.rotateVector(axisY);
+
+    target -= axisX * offset.x / 50.f;
+    target += axisY * offset.y / 50.f;
+    updateTransform();
+  }
+
+  lastPosition = position;
+}
+
+void MayaCamera::onWheelTurned(int offset)
+{
+  distance += (float) offset;
+  updateTransform();
+}
+
+void MayaCamera::onFocusChanged(bool activated)
+{
+}
+
+const Transform3& MayaCamera::getTransform(void) const
+{
+  return transform;
+}
+
+void MayaCamera::updateTransform(void)
+{
+  Vec3 offset = Vec3::Z * distance;
+
+  transform.rotation.setEulerRotation(Vec3(angleX, angleY, 0.f));
+  transform.rotation.rotateVector(offset);
+
+  transform.position = target + offset;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+SpectatorCamera::SpectatorCamera(void):
+  lastPosition(0, 0),
+  speed(3.f),
+  angleX(0.f),
+  angleY(0.f),
+  turbo(false)
+{
+  for (size_t i = 0;  i < sizeof(directions) / sizeof(bool);  i++)
+    directions[i] = false;
+}
+
+void SpectatorCamera::update(Time deltaTime)
+{
+  float multiplier;
+
+  if (turbo)
+    multiplier = 3.f;
+  else
+    multiplier = 1.f;
+
+  Vec3 direction(Vec3::ZERO);
+
+  if (directions[UP])
+    direction.y += 1.f;
+  if (directions[DOWN])
+    direction.y -= 1.f;
+  if (directions[FORWARD])
+    direction.z -= 1.f;
+  if (directions[BACK])
+    direction.z += 1.f;
+  if (directions[LEFT])
+    direction.x -= 1.f;
+  if (directions[RIGHT])
+    direction.x += 1.f;
+
+  transform.rotation.rotateVector(direction);
+  transform.position += direction * speed * multiplier * deltaTime;
+}
+
+void SpectatorCamera::onKeyPressed(Key key, bool pressed)
+{
+  switch (key)
+  {
+    case 'W':
+    {
+      if (pressed)
+        directions[FORWARD] = true;
+      else
+        directions[FORWARD] = false;
+      break;
+    }
+
+    case 'S':
+    {
+      if (pressed)
+        directions[BACK] = true;
+      else
+        directions[BACK] = false;
+      break;
+    }
+
+    case 'A':
+    {
+      if (pressed)
+        directions[LEFT] = true;
+      else
+        directions[LEFT] = false;
+      break;
+    }
+
+    case 'D':
+    {
+      if (pressed)
+        directions[RIGHT] = true;
+      else
+        directions[RIGHT] = false;
+      break;
+    }
+
+    case Key::LCTRL:
+    {
+      if (pressed)
+        directions[DOWN] = true;
+      else
+        directions[DOWN] = false;
+      break;
+    }
+
+    case Key::LSHIFT:
+    {
+      if (pressed)
+        turbo = true;
+      else
+        turbo = false;
+      break;
+    }
+  }
+}
+
+void SpectatorCamera::onButtonClicked(Button button, bool clicked)
+{
+  if (button == Button::RIGHT)
+  {
+    if (clicked)
+      directions[UP] = true;
+    else
+      directions[UP] = false;
+  }
+}
+
+void SpectatorCamera::onCursorMoved(const Vec2i& position)
+{
+  Vec2i offset = position - lastPosition;
+
+  angleY -= offset.x / 250.f;
+  angleX = std::max(std::min(angleX - offset.y / 250.f, (float) M_PI / 2.f), (float) -M_PI / 2.f);
+  updateTransform();
+
+  lastPosition = position;
+}
+
+void SpectatorCamera::onFocusChanged(bool activated)
+{
+  Context* context = Context::getSingleton();
+
+  if (activated)
+    context->captureCursor();
+  else
+    context->releaseCursor();
+}
+
+const Transform3& SpectatorCamera::getTransform(void) const
+{
+  return transform;
+}
+
+float SpectatorCamera::getSpeed(void) const
+{
+  return speed;
+}
+
+void SpectatorCamera::setSpeed(float newSpeed)
+{
+  speed = newSpeed;
+}
+
+void SpectatorCamera::updateTransform(void)
+{
+  transform.rotation.setAxisRotation(Vec3::Y, angleY);
+
+  Quat axisX;
+  axisX.setAxisRotation(Vec3::X, angleX);
+  transform.rotation *= axisX;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+TextController::TextController(void):
+  caretPosition(0),
+  lctrl(false),
+  rctrl(false)
+{
+}
+
+void TextController::onKeyPressed(Key key, bool pressed)
+{
+  switch (key)
+  {
+    case input::Key::BACKSPACE:
+    {
+      if (!pressed)
+        break;
+
+      if (!text.empty() && caretPosition > 0)
+      {
+	text.erase(caretPosition - 1, 1);
+	setCaretPosition(caretPosition - 1);
+      }
+
+      break;
+    }
+
+    case input::Key::DELETE:
+    {
+      if (!pressed)
+        break;
+
+      if (!text.empty() && caretPosition < text.length())
+	text.erase(caretPosition, 1);
+
+      break;
+    }
+
+    case input::Key::LEFT:
+    {
+      if (!pressed)
+        break;
+
+      if (caretPosition > 0)
+	setCaretPosition(caretPosition - 1);
+      break;
+    }
+
+    case input::Key::RIGHT:
+    {
+      if (!pressed)
+        break;
+
+      setCaretPosition(caretPosition + 1);
+      break;
+    }
+
+    case input::Key::HOME:
+    {
+      if (!pressed)
+        break;
+
+      setCaretPosition(0);
+      break;
+    }
+
+    case input::Key::END:
+    {
+      if (!pressed)
+        break;
+
+      setCaretPosition(text.length());
+      break;
+    }
+
+    case input::Key::LCTRL:
+    {
+      lctrl = pressed;
+      break;
+    }
+
+    case input::Key::RCTRL:
+    {
+      rctrl = pressed;
+      break;
+    }
+
+    case 'U':
+    {
+      if (pressed && (lctrl || rctrl))
+      {
+        text.erase(0, caretPosition);
+        setCaretPosition(0);
+      }
+
+      break;
+    }
+
+    case 'A':
+    {
+      if (pressed && (lctrl || rctrl))
+        setCaretPosition(0);
+
+      break;
+    }
+
+    case 'E':
+    {
+      if (pressed && (lctrl || rctrl))
+        setCaretPosition(text.length());
+
+      break;
+    }
+
+    case 'W':
+    {
+      if (pressed && (lctrl || rctrl))
+      {
+        size_t pos = caretPosition;
+
+        if (pos == text.length())
+          pos--;
+
+        while (pos > 0 && text[pos] == ' ')
+          pos--;
+
+        if (pos > 0)
+        {
+          pos = text.rfind(' ', pos);
+          if (pos == String::npos)
+            pos = 0;
+          else
+            pos++;
+        }
+
+        text.erase(pos, caretPosition - pos);
+        setCaretPosition(pos);
+      }
+
+      break;
+    }
+  }
+}
+
+void TextController::onCharInput(wchar_t character)
+{
+  if (lctrl || rctrl)
+    return;
+
+  if (character < 256)
+  {
+    text.insert(caretPosition, 1, (char) character);
+    setCaretPosition(caretPosition + 1);
+  }
+}
+
+const String& TextController::getText(void) const
+{
+  return text;
+}
+
+void TextController::setText(const String& newText)
+{
+  text = newText;
+  setCaretPosition(caretPosition);
+}
+
+size_t TextController::getCaretPosition(void) const
+{
+  return caretPosition;
+}
+
+void TextController::setCaretPosition(size_t newPosition)
+{
+  if (newPosition > text.length())
+    caretPosition = text.length();
+  else
+    caretPosition = newPosition;
+}
 
 ///////////////////////////////////////////////////////////////////////
 

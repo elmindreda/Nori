@@ -27,6 +27,8 @@
 
 #include <wendy/Core.h>
 
+#include <algorithm>
+
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -148,6 +150,116 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+namespace
+{
+
+typedef std::vector<LogConsumer*> ConsumerList;
+
+ConsumerList consumers;
+
+} /*namespace*/
+
+///////////////////////////////////////////////////////////////////////
+
+uint32_t hashString(const String& string)
+{
+  return hashString(string.c_str());
+}
+
+uint32_t hashString(const char* string)
+{
+  // Hash function used in the ELF executable format
+
+  uint32_t hash = 0;
+  uint32_t temp;
+
+  while (*string != '\0')
+  {
+    hash = (hash << 4) + *string;
+
+    if (temp = hash & 0xf0000000)
+      hash ^= temp >> 24;
+
+    hash &= ~temp;
+  }
+
+  return hash;
+}
+
+void logError(const char* format, ...)
+{
+  va_list vl;
+  char* message;
+  int result;
+
+  va_start(vl, format);
+  result = vasprintf(&message, format, vl);
+  va_end(vl);
+
+  if (result < 0)
+    return;
+
+  if (consumers.empty())
+    std::fprintf(stderr, "Error: %s\n", message);
+  else
+  {
+    for (ConsumerList::const_iterator c = consumers.begin();  c != consumers.end();  c++)
+      (*c)->onLogEntry(ERROR_LOG_ENTRY, message);
+  }
+
+  std::free(message);
+}
+
+void logWarning(const char* format, ...)
+{
+  va_list vl;
+  char* message;
+  int result;
+
+  va_start(vl, format);
+  result = vasprintf(&message, format, vl);
+  va_end(vl);
+
+  if (result < 0)
+    return;
+
+  if (consumers.empty())
+    std::fprintf(stderr, "Warning: %s\n", message);
+  else
+  {
+    for (ConsumerList::const_iterator c = consumers.begin();  c != consumers.end();  c++)
+      (*c)->onLogEntry(WARNING_LOG_ENTRY, message);
+  }
+
+  std::free(message);
+}
+
+void log(const char* format, ...)
+{
+  va_list vl;
+  char* message;
+  int result;
+
+  va_start(vl, format);
+  result = vasprintf(&message, format, vl);
+  va_end(vl);
+
+  if (result < 0)
+    return;
+
+  if (consumers.empty())
+    std::fprintf(stderr, "%s\n", message);
+  else
+  {
+    for (ConsumerList::const_iterator c = consumers.begin();  c != consumers.end();  c++)
+      (*c)->onLogEntry(INFO_LOG_ENTRY, message);
+  }
+
+  std::free(message);
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Exception::Exception(const char* initMessage):
   message(initMessage)
 {
@@ -198,71 +310,14 @@ RefObject& RefObject::operator = (const RefObject& source)
 
 ///////////////////////////////////////////////////////////////////////
 
-Log::~Log(void)
+LogConsumer::LogConsumer(void)
 {
+  consumers.push_back(this);
 }
 
-void Log::writeError(const char* format, ...)
+LogConsumer::~LogConsumer(void)
 {
-  va_list vl;
-  char* message;
-  int result;
-
-  va_start(vl, format);
-  result = vasprintf(&message, format, vl);
-  va_end(vl);
-
-  if (result < 0)
-    return;
-
-  if (Log* log = Log::get())
-    log->write(ERROR, "Error: %s", message);
-  else
-    std::fprintf(stderr, "Error: %s\n", message);
-
-  std::free(message);
-}
-
-void Log::writeWarning(const char* format, ...)
-{
-  va_list vl;
-  char* message;
-  int result;
-
-  va_start(vl, format);
-  result = vasprintf(&message, format, vl);
-  va_end(vl);
-
-  if (result < 0)
-    return;
-
-  if (Log* log = Log::get())
-    log->write(WARNING, "Warning: %s", message);
-  else
-    std::fprintf(stderr, "Warning: %s\n", message);
-
-  std::free(message);
-}
-
-void Log::write(const char* format, ...)
-{
-  va_list vl;
-  char* message;
-  int result;
-
-  va_start(vl, format);
-  result = vasprintf(&message, format, vl);
-  va_end(vl);
-
-  if (result < 0)
-    return;
-
-  if (Log* log = Log::get())
-    log->write(INFORMATION, "%s", message);
-  else
-    std::fprintf(stderr, "%s\n", message);
-
-  std::free(message);
+  consumers.erase(std::find(consumers.begin(), consumers.end(), this));
 }
 
 ///////////////////////////////////////////////////////////////////////

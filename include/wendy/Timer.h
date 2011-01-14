@@ -64,6 +64,9 @@ public:
    *  @param newTime [in] The new time, in seconds.
    */
   void setTime(Time newTime);
+  /*! @return The time, in seconds, since the last call to getDeltaTime.
+   */
+  Time getDeltaTime(void);
   /*! @return The current time, in seconds.
    */
   static Time getCurrentTime(void);
@@ -71,6 +74,7 @@ private:
   bool started;
   bool paused;
   Time baseTime;
+  Time prevTime;
 };
 
 ///////////////////////////////////////////////////////////////////////

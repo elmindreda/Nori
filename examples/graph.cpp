@@ -1,6 +1,8 @@
 
 #include <wendy/Wendy.h>
 
+#include <cstdlib>
+
 using namespace wendy;
 
 class Demo : public Trackable
@@ -11,6 +13,8 @@ public:
   void run(void);
 private:
   bool render(void);
+  ResourceIndex index;
+  Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
   scene::Graph graph;
   scene::MeshNode* meshNode;
@@ -21,30 +25,27 @@ private:
 
 Demo::~Demo(void)
 {
-  render::GeometryPool::destroy();
-  GL::Context::destroy();
+  graph.destroyRootNodes();
+
+  pool = NULL;
+
+  GL::Context::destroySingleton();
 }
 
 bool Demo::init(void)
 {
-  Image::addSearchPath(Path("media"));
-  Mesh::addSearchPath(Path("media"));
-  GL::Texture::addSearchPath(Path("media"));
-  GL::VertexProgram::addSearchPath(Path("media"));
-  GL::FragmentProgram::addSearchPath(Path("media"));
-  GL::Program::addSearchPath(Path("media"));
-  render::Material::addSearchPath(Path("media"));
-
-  if (!GL::Context::create(GL::ContextMode()))
+  if (!index.addSearchPath(Path("../media")))
     return false;
 
-  GL::Context* context = GL::Context::get();
+  if (!GL::Context::createSingleton(index))
+    return false;
+
+  GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Program");
 
-  if (!render::GeometryPool::create(*context))
-    return false;
+  pool = new render::GeometryPool(*context);
 
-  Ref<render::Mesh> mesh = render::Mesh::readInstance("cube");
+  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("cube.mesh"));
   if (!mesh)
   {
     Log::writeError("Failed to load mesh");
@@ -71,7 +72,8 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  GL::Context* context = GL::Context::get();
+  render::Queue queue(*pool, *camera);
+  GL::Context& context = pool->getContext();
 
   do
   {
@@ -82,20 +84,19 @@ void Demo::run(void)
 
     graph.update();
 
-    context->clearDepthBuffer();
-    context->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
+    context.clearDepthBuffer();
+    context.clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
 
-    render::Queue queue(*camera);
     graph.enqueue(queue);
     queue.render();
   }
-  while (context->update());
+  while (context.update());
 }
 
 int main()
 {
   if (!wendy::initialize())
-    exit(1);
+    std::exit(EXIT_FAILURE);
 
   Ptr<Demo> demo(new Demo());
   if (demo->init())
@@ -104,6 +105,6 @@ int main()
   demo = NULL;
 
   wendy::shutdown();
-  exit(0);
+  std::exit(EXIT_SUCCESS);
 }
 

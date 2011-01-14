@@ -30,10 +30,10 @@
  *
  *  @section intro Introduction
  *
- *  This is the reference documentation for the Wendy engine, a simple demo and
- *  game engine using OpenGL and OpenAL. It is the hope of the author that it
- *  also serves as a suitable introduction to engine design, due to its
- *  (relatively) small size and (hopefully) consistent design.
+ *  This is the reference documentation for the Wendy engine, a simple engine
+ *  using OpenGL. It is the hope of the author that it also serves as a
+ *  suitable introduction to engine design, due to its (relatively) small size
+ *  and (hopefully) consistent design.
  *
  *  @section license License
  *
@@ -57,74 +57,16 @@
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup io I/O classes
- *
- *  These classes provide I/O for various other parts of the system, mostly
- *  by implementing resource system codecs.
- */
-
-/*! @defgroup default Default extensions
- *
- *  These classes are not conceptually a part of the core Wendy library, but
- *  are default implementations of commonly used extensions of the core objects
- *  provided by the system. They are provided both to speed up development and
- *  to serve as examples of correct use of the core classes.
- */
-
-///////////////////////////////////////////////////////////////////////
-
-#include <wendy/Config.h>
-
-#include <wendy/Core.h>
-#include <wendy/Block.h>
-#include <wendy/Bimap.h>
-#include <wendy/Signal.h>
-#include <wendy/Variant.h>
-#include <wendy/Node.h>
-#include <wendy/Timer.h>
-
-#include <wendy/Color.h>
-#include <wendy/Vector.h>
-#include <wendy/Matrix.h>
-#include <wendy/Quaternion.h>
-#include <wendy/Transform.h>
-#include <wendy/Random.h>
-
-#include <wendy/AABB.h>
-#include <wendy/Segment.h>
-#include <wendy/Rectangle.h>
-#include <wendy/Plane.h>
-#include <wendy/Ray.h>
-#include <wendy/Sphere.h>
-#include <wendy/Triangle.h>
-#include <wendy/Frustum.h>
-#include <wendy/Bezier.h>
-
-#include <wendy/Pattern.h>
-#include <wendy/Pixel.h>
-#include <wendy/Vertex.h>
-
-#include <wendy/Path.h>
-#include <wendy/Stream.h>
-#include <wendy/Managed.h>
-#include <wendy/Resource.h>
-#include <wendy/XML.h>
-
-#include <wendy/Animation.h>
-#include <wendy/Image.h>
-#include <wendy/Font.h>
-#include <wendy/Mesh.h>
+#include <wendy/WendyCore.h>
 
 #include <wendy/OpenGL.h>
 #include <wendy/GLTexture.h>
-#include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLState.h>
 
 #include <wendy/Input.h>
-#include <wendy/InputCamera.h>
 
 #if WENDY_INCLUDE_RENDERER
 #include <wendy/RenderCamera.h>
@@ -134,8 +76,7 @@
 #include <wendy/RenderPool.h>
 #include <wendy/RenderSprite.h>
 #include <wendy/RenderFont.h>
-#include <wendy/RenderParticle.h>
-#include <wendy/RenderMesh.h>
+#include <wendy/RenderModel.h>
 
 #include <wendy/Deferred.h>
 #endif
@@ -162,12 +103,6 @@
 #include <wendy/UIMenu.h>
 #include <wendy/UIPopup.h>
 #include <wendy/UIColor.h>
-#endif
-
-#if WENDY_INCLUDE_DEMO_SYSTEM
-#include <wendy/DemoProperty.h>
-#include <wendy/DemoEffect.h>
-#include <wendy/DemoShow.h>
 #endif
 
 ///////////////////////////////////////////////////////////////////////

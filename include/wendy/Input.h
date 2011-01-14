@@ -26,6 +26,11 @@
 #define WENDY_INPUT_H
 ///////////////////////////////////////////////////////////////////////
 
+#include <wendy/Core.h>
+#include <wendy/Vector.h>
+#include <wendy/Quaternion.h>
+#include <wendy/Transform.h>
+
 #include <wendy/OpenGL.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
@@ -159,7 +164,7 @@ public:
   /*! @return The context underlying this input manager.
    */
   GL::Context& getContext(void) const;
-  static bool create(GL::Context& context);
+  static bool createSingleton(GL::Context& context);
 private:
   Context(GL::Context& context);
   Context(const Context& source);
@@ -182,6 +187,93 @@ private:
   bool cursorCaptured;
   mutable Vec2i cursorPosition;
   static Context* instance;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup input
+ */
+class MayaCamera : public Focus
+{
+public:
+  MayaCamera(void);
+  void onKeyPressed(Key key, bool pressed);
+  void onButtonClicked(Button button, bool clicked);
+  void onCursorMoved(const Vec2i& position);
+  void onWheelTurned(int offset);
+  void onFocusChanged(bool activated);
+  const Transform3& getTransform(void) const;
+private:
+  enum Mode
+  {
+    NONE,
+    TUMBLE,
+    TRACK,
+    DOLLY,
+  };
+  void updateTransform(void);
+  Transform3 transform;
+  Vec2i lastPosition;
+  Vec3 target;
+  float angleX;
+  float angleY;
+  float distance;
+  Mode mode;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup input
+ */
+class SpectatorCamera : public Focus
+{
+public:
+  SpectatorCamera(void);
+  void update(Time deltaTime);
+  void onKeyPressed(Key key, bool pressed);
+  void onButtonClicked(Button button, bool clicked);
+  void onCursorMoved(const Vec2i& position);
+  void onFocusChanged(bool activated);
+  const Transform3& getTransform(void) const;
+  float getSpeed(void) const;
+  void setSpeed(float newSpeed);
+private:
+  enum Direction
+  {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+    FORWARD,
+    BACK,
+  };
+  void updateTransform(void);
+  Transform3 transform;
+  Vec2i lastPosition;
+  float angleX;
+  float angleY;
+  float speed;
+  bool directions[6];
+  bool turbo;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class TextController : public Focus
+{
+public:
+  TextController(void);
+  void onKeyPressed(Key key, bool pressed);
+  void onCharInput(wchar_t character);
+  const String& getText(void) const;
+  void setText(const String& newText);
+  size_t getCaretPosition(void) const;
+  void setCaretPosition(size_t newPosition);
+private:
+  String text;
+  size_t caretPosition;
+  bool lctrl;
+  bool rctrl;
 };
 
 ///////////////////////////////////////////////////////////////////////

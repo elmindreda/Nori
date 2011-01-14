@@ -1,6 +1,8 @@
 
 #include <wendy/Wendy.h>
 
+#include <cstdlib>
+
 using namespace wendy;
 
 class Test : public Trackable
@@ -11,7 +13,9 @@ public:
   void run(void);
 private:
   bool render(void);
+  ResourceIndex index;
   input::MayaCamera controller;
+  Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
   scene::Graph graph;
   scene::CameraNode* cameraNode;
@@ -19,33 +23,33 @@ private:
 
 Test::~Test(void)
 {
-  input::Context::destroy();
-  GL::Context::destroy();
+  graph.destroyRootNodes();
+
+  pool = NULL;
+
+  input::Context::destroySingleton();
+  GL::Context::destroySingleton();
 }
 
 bool Test::init(void)
 {
-  Image::addSearchPath(Path("media"));
-  ImageCube::addSearchPath(Path("media"));
-  Mesh::addSearchPath(Path("media"));
-  GL::Texture::addSearchPath(Path("media"));
-  GL::VertexProgram::addSearchPath(Path("media"));
-  GL::FragmentProgram::addSearchPath(Path("media"));
-  GL::Program::addSearchPath(Path("media"));
-  render::Material::addSearchPath(Path("media"));
-
-  if (!GL::Context::create(GL::ContextMode()))
+  if (!index.addSearchPath(Path("../media")))
     return false;
 
-  GL::Context* context = GL::Context::get();
+  if (!GL::Context::createSingleton(index))
+    return false;
+
+  GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Cube Map");
 
-  if (!input::Context::create(*context))
+  if (!input::Context::createSingleton(*context))
     return false;
 
-  input::Context::get()->setFocus(&controller);
+  input::Context::getSingleton()->setFocus(&controller);
 
-  Ref<render::Mesh> mesh = render::Mesh::readInstance("cube");
+  pool = new render::GeometryPool(*context);
+
+  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("cube_cubemapped.mesh"));
   if (!mesh)
   {
     Log::writeError("Failed to load mesh");
@@ -79,29 +83,28 @@ bool Test::init(void)
 
 void Test::run(void)
 {
-  GL::Context* context = GL::Context::get();
-
-  render::Queue queue(*camera);
+  render::Queue queue(*pool, *camera);
+  GL::Context& context = pool->getContext();
 
   do
   {
     cameraNode->getLocalTransform() = controller.getTransform();
     graph.update();
 
-    context->clearDepthBuffer();
-    context->clearColorBuffer(ColorRGBA::BLACK);
+    context.clearDepthBuffer();
+    context.clearColorBuffer(ColorRGBA::BLACK);
 
     graph.enqueue(queue);
     queue.render();
     queue.removeOperations();
   }
-  while (context->update());
+  while (context.update());
 }
 
 int main()
 {
   if (!wendy::initialize())
-    exit(1);
+    std::exit(EXIT_FAILURE);
 
   Ptr<Test> test(new Test());
   if (test->init())
@@ -110,6 +113,6 @@ int main()
   test = NULL;
 
   wendy::shutdown();
-  exit(0);
+  std::exit(EXIT_SUCCESS);
 }
 

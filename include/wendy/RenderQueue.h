@@ -27,10 +27,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/GLContext.h>
-#include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
-
-#include <list>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -53,6 +50,7 @@ namespace wendy
 
 class Light;
 class LightState;
+class GeometryPool;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -69,15 +67,10 @@ class LightState;
  */
 class Operation
 {
-  friend class Queue;
 public:
   /*! Constructor.
    */
   Operation(void);
-  /*! Comparison operator to enable sorting.
-   *  @param other The object to compare to.
-   */
-  bool operator < (const Operation& other) const;
   /*! The primitive range to render.
    */
   GL::PrimitiveRange range;
@@ -93,9 +86,9 @@ public:
    *  operations.
    */
   float distance;
-private:
-  bool blending;
-  unsigned int hash;
+  /*! Hash value for sorting. Used by the Queue class.
+   */
+  uint32_t hash;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -137,7 +130,7 @@ public:
    *  @param[in] light The light to collect geometry for, or @c NULL to not
    *  collect for a light.
    */
-  Queue(const Camera& camera, Light* light = NULL);
+  Queue(GeometryPool& pool, const Camera& camera, Light* light = NULL);
   /*! Attaches a light to this render queue.
    *  @param[in] light The light to attach.
    */
@@ -164,6 +157,9 @@ public:
    *  @param[in] newPhase The desired collection phase.
    */
   void setPhase(Phase newPhase);
+  /*! @return The geometry pool used by this render queue.
+   */
+  GeometryPool& getGeometryPool(void) const;
   /*! @return The camera used by this render queue.
    */
   const Camera& getCamera(void) const;
@@ -171,21 +167,30 @@ public:
    *  collecting geometry for a light.
    */
   Light* getActiveLight(void) const;
-  /*! @return The render operations in this render queue.
+  /*! @return The opaque render operations in this render queue.
    */
-  const OperationList& getOperations(void) const;
+  const OperationList& getOpaqueOperations(void) const;
+  /*! @return The blended render operations in this render queue.
+   */
+  const OperationList& getBlendedOperations(void) const;
   /*! @return The lights attached to this render queue.
    */
   const LightState& getLights(void) const;
 private:
   typedef std::vector<Operation> List;
+  void renderOperations(const OperationList& operations,
+                        const String& passName) const;
+  GeometryPool& pool;
   const Camera& camera;
   Light* light;
   LightState lights;
-  List operations;
+  List opaqueOps;
+  List blendedOps;
   Phase phase;
-  mutable OperationList sortedOperations;
-  mutable bool sorted;
+  mutable OperationList sortedOpaqueOps;
+  mutable OperationList sortedBlendedOps;
+  mutable bool sortedOpaque;
+  mutable bool sortedBlended;
 };
 
 ///////////////////////////////////////////////////////////////////////

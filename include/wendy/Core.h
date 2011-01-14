@@ -34,6 +34,8 @@
 #include <sys/types.h>
 #endif
 
+#include <stdint.h>
+
 #ifndef NULL
 #define NULL 0
 #endif
@@ -62,21 +64,11 @@
 #define S_ISDIR(x) ((x) & _S_IFDIR)
 #define S_ISREG(x) ((x) & _S_IFREG)
 
-typedef __int64 off64_t;
-
 float fminf(float x, float y);
 float fmaxf(float x, float y);
 float log2f(float x);
 
 #endif /*_MSC_VER*/
-
-///////////////////////////////////////////////////////////////////////
-
-#ifdef __APPLE_CC__
-
-typedef off_t off64_t;
-
-#endif /*__APPLE_CC__*/
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -115,13 +107,54 @@ typedef double Time;
  */
 typedef std::string String;
 
-/*! Generic function pointer type.
- */
-typedef void (*EntryPoint)(void);
-
 ///////////////////////////////////////////////////////////////////////
 
 class RefObject;
+
+///////////////////////////////////////////////////////////////////////
+
+/*! Log entry type enumeration.
+  */
+enum LogEntryType
+{
+  /*! The log entry is an error message.
+    */
+  ERROR_LOG_ENTRY,
+  /*! The log entry is a warning, or a non-critical error message.
+    */
+  WARNING_LOG_ENTRY,
+  /*! The log entry is an informational message.
+    */
+  INFO_LOG_ENTRY,
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! Returns a hash value of the specified string.
+ */
+uint32_t hashString(const String& string);
+
+/*! Returns a hash value of the specified string.
+ */
+uint32_t hashString(const char* string);
+
+/*! Writes an error message log entry to the log consumers,
+ *  or to stderr if there are no log consumers.
+ *  @param format [in] The formatting string for the log entry.
+ */
+void logError(const char* format, ...);
+
+/*! Writes a warning message log entry to the log consumers,
+ *  or to stderr if there are no log consumers.
+ *  @param format [in] The formatting string for the log entry.
+ */
+void logWarning(const char* format, ...);
+
+/*! Writes an informational  message log entry to the log consumers,
+ *  or to stderr if there are no log consumers.
+ *  @param format [in] The formatting string for the log entry.
+ */
+void log(const char* format, ...);
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -191,6 +224,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Base class for references.
+ */
 class RefBase
 {
 protected:
@@ -218,7 +253,12 @@ public:
   inline Ref(const Ref<T>& source);
   /*! Destructor
    */
-  inline virtual ~Ref(void);
+  inline ~Ref(void);
+  /*! Detaches the currently referenced object.
+   * @return The currently reference object.
+   * @remarks Use with care.
+   */
+  inline Ref<T> detachObject(void);
   /*! Cast operator.
    */
   inline operator T* (void) const;
@@ -280,10 +320,10 @@ public:
   virtual ~Singleton(void);
   /*! Deletes the singleton instance.
    */
-  static inline void destroy(void);
+  static inline void destroySingleton(void);
   /*! @return The singleton instance if available, otherwise @c NULL.
    */
-  static inline T* get(void);
+  static inline T* getSingleton(void);
 protected:
   /*! Sets the singleton instance.
    *  @param newObject [in] The instance to set.
@@ -295,53 +335,12 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief System log singleton interface.
- *
- *  Interface for the system log singleton object.
- */
-class Log : public Singleton<Log>
+class LogConsumer
 {
 public:
-  /*! Log entry type enumeration.
-   */
-  enum EntryType
-  {
-    /*! The log entry is an error message.
-     */
-    ERROR,
-    /*! The log entry is a warning, or a non-critical error message.
-     */
-    WARNING,
-    /*! The log entry is an informational message.
-     */
-    INFORMATION,
-  };
-  /*! Destructor.
-   */
-  virtual ~Log(void);
-  /*! Writes a log entry of the specified type to this log object.
-   *  @param type [in] The type of log entry to write.
-   *  @param format [in] The formatting string for the log entry.
-   */
-  virtual void write(EntryType type, const char* format, ...) = 0;
-  /*! @return The literal name of the log entry type.
-   */
-  static const char* getTypeName(EntryType type);
-  /*! Writes an error message log entry to the current log object,
-   *  or to stderr if there is no current log object.
-   *  @param format [in] The formatting string for the log entry.
-   */
-  static void writeError(const char* format, ...);
-  /*! Writes a warning message log entry to the current log object,
-   *  or to stderr if there is no current log object.
-   *  @param format [in] The formatting string for the log entry.
-   */
-  static void writeWarning(const char* format, ...);
-  /*! Writes an informational message log entry to the current log object,
-   *  or to stderr if there is no current log object.
-   *  @param format [in] The formatting string for the log entry.
-   */
-  static void write(const char* format, ...);
+  LogConsumer(void);
+  virtual ~LogConsumer(void);
+  virtual void onLogEntry(LogEntryType type, const char* message) = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -362,9 +361,7 @@ inline Ptr<T>::~Ptr(void)
 template <typename T>
 inline T* Ptr<T>::detachObject(void)
 {
-  T* temp;
-
-  temp = object;
+  T* temp = object;
   object = NULL;
   return temp;
 }
@@ -452,6 +449,14 @@ inline Ref<T>::~Ref(void)
 }
 
 template <typename T>
+inline Ref<T> Ref<T>::detachObject(void)
+{
+  Ref<T> result = object;
+  operator = (NULL);
+  return result;
+}
+
+template <typename T>
 inline Ref<T>::operator T* (void) const
 {
   return object;
@@ -500,13 +505,13 @@ inline Singleton<T>::~Singleton(void)
 }
 
 template <typename T>
-inline void Singleton<T>::destroy(void)
+inline void Singleton<T>::destroySingleton(void)
 {
   object = NULL;
 }
 
 template <typename T>
-inline T* Singleton<T>::get(void)
+inline T* Singleton<T>::getSingleton(void)
 {
   return object;
 }

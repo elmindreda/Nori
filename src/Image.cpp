@@ -31,15 +31,14 @@
 #include <wendy/Rectangle.h>
 #include <wendy/Path.h>
 #include <wendy/Pixel.h>
-#include <wendy/Stream.h>
-#include <wendy/Managed.h>
 #include <wendy/Resource.h>
+#include <wendy/XML.h>
 #include <wendy/Image.h>
-
-#include <stdint.h>
 
 #include <cstring>
 #include <cmath>
+
+#include <png.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -274,17 +273,92 @@ void samplePixelsLinear2D(Byte* target,
   }
 }
 
+bool getEncodeConversionFormatPNG(int& result, const PixelFormat& format)
+{
+  if (format.getType() != PixelFormat::UINT8)
+    return false;
+
+  switch (format.getSemantic())
+  {
+    case PixelFormat::R:
+      result = PNG_COLOR_TYPE_GRAY;
+      return true;
+    case PixelFormat::RG:
+      result = PNG_COLOR_TYPE_GRAY_ALPHA;
+      return true;
+    case PixelFormat::RGB:
+      result = PNG_COLOR_TYPE_RGB;
+      return true;
+    case PixelFormat::RGBA:
+      result = PNG_COLOR_TYPE_RGB_ALPHA;
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool getDecodeConversionFormatPNG(PixelFormat& result, int format)
+{
+  switch (format)
+  {
+    case PNG_COLOR_TYPE_GRAY:
+      result = PixelFormat::R8;
+      return true;
+    case PNG_COLOR_TYPE_GRAY_ALPHA:
+      result = PixelFormat::RG8;
+      return true;
+    case PNG_COLOR_TYPE_RGB:
+      result = PixelFormat::RGB8;
+      return true;
+    case PNG_COLOR_TYPE_RGB_ALPHA:
+      result = PixelFormat::RGBA8;
+      return true;
+  }
+
+  return false;
+}
+
+void writeErrorPNG(png_structp context, png_const_charp error)
+{
+  logError("libpng error: %s", error);
+}
+
+void writeWarningPNG(png_structp context, png_const_charp warning)
+{
+  logWarning("libpng warning: %s", warning);
+}
+
+void readStreamPNG(png_structp context, png_bytep data, png_size_t length)
+{
+  std::ifstream* stream = reinterpret_cast<std::ifstream*>(png_get_io_ptr(context));
+  stream->read((char*) data, length);
+}
+
+void writeStreamPNG(png_structp context, png_bytep data, png_size_t length)
+{
+  std::ofstream* stream = reinterpret_cast<std::ofstream*>(png_get_io_ptr(context));
+  stream->write((char*) data, length);
+}
+
+void flushStreamPNG(png_structp context)
+{
+  std::ofstream* stream = reinterpret_cast<std::ofstream*>(png_get_io_ptr(context));
+  stream->flush();
+}
+
+const unsigned int IMAGE_CUBE_XML_VERSION = 2;
+
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
-Image::Image(const PixelFormat& initFormat,
+Image::Image(const ResourceInfo& info,
+             const PixelFormat& initFormat,
              unsigned int initWidth,
              unsigned int initHeight,
              const void* initData,
-             size_t pitch,
-             const String& name):
-  Resource<Image>(name),
+             size_t pitch):
+  Resource(info),
   width(initWidth),
   height(initHeight),
   format(initFormat)
@@ -325,13 +399,13 @@ Image::Image(const PixelFormat& initFormat,
   else
   {
     const size_t size = width * height * format.getSize();
-    data.reserve(size);
+    data.resize(size);
     std::memset(data, 0, size);
   }
 }
 
 Image::Image(const Image& source):
-  Resource<Image>(source)
+  Resource(source)
 {
   operator = (source);
 }
@@ -373,7 +447,7 @@ bool Image::resize(unsigned int targetWidth,
     }
 
     default:
-      Log::writeError("Invalid image resampling filter");
+      logError("Invalid image resampling filter");
       return false;
   }
 
@@ -406,7 +480,7 @@ bool Image::crop(const Recti& area)
       area.size.x < 0 || area.size.y < 0 ||
       area.position.x >= (int) width || area.position.y >= (int) height)
   {
-    Log::writeError("Invalid image area dimensions");
+    logError("Invalid image area dimensions");
     return false;
   }
 
@@ -549,7 +623,7 @@ unsigned int Image::getDimensionCount(void) const
     return 1;
 }
 
-Image* Image::getArea(const Recti& area)
+Ref<Image> Image::getArea(const Recti& area)
 {
   if (area.position.x >= (int) width || area.position.y >= (int) height)
     return NULL;
@@ -563,7 +637,9 @@ Image* Image::getArea(const Recti& area)
 
   const size_t pixelSize = format.getSize();
 
-  Image* result = new Image(format, targetArea.size.x, targetArea.size.y);
+  ImageRef result = new Image(ResourceInfo(getIndex()),
+                              format,
+                              targetArea.size.x, targetArea.size.y);
 
   for (int y = 0;  y < targetArea.size.y;  y++)
   {
@@ -575,16 +651,27 @@ Image* Image::getArea(const Recti& area)
   return result;
 }
 
+Ref<Image> Image::read(ResourceIndex& index, const Path& path)
+{
+  ImageReader reader(index);
+  return reader.read(path);
+}
+
 ///////////////////////////////////////////////////////////////////////
 
-ImageCube::ImageCube(const String& name):
-  Resource<ImageCube>(name)
+ImageCube::ImageCube(const ResourceInfo& info):
+  Resource(info)
 {
 }
 
-ImageCube* ImageCube::clone(void) const
+ImageCube::ImageCube(const ImageCube& source):
+  Resource(source)
 {
-  ImageCube* result = new ImageCube();
+}
+
+Ref<ImageCube> ImageCube::clone(void) const
+{
+  Ref<ImageCube> result = new ImageCube(getIndex());
 
   for (size_t i = 0;  i < 6;  i++)
     result->images[i] = new Image(*images[i]);
@@ -661,6 +748,317 @@ bool ImageCube::hasSameSize(void) const
       return false;
   }
 
+  return true;
+}
+
+Ref<ImageCube> ImageCube::read(ResourceIndex& index, const Path& path)
+{
+  ImageCubeReader reader(index);
+  return reader.read(path);
+}
+
+///////////////////////////////////////////////////////////////////////
+
+ImageReader::ImageReader(ResourceIndex& index):
+  ResourceReader(index)
+{
+}
+
+Ref<Image> ImageReader::read(const Path& path)
+{
+  if (Resource* cache = getIndex().findResource(path))
+    return dynamic_cast<Image*>(cache);
+
+  ResourceInfo info(getIndex(), path);
+
+  std::ifstream stream;
+  if (!getIndex().openFile(stream, info.path))
+    return NULL;
+
+  // Check if file is valid
+  {
+    unsigned char header[8];
+
+    if (!stream.read((char*) header, sizeof(header)))
+    {
+      logError("Unable to read PNG file header");
+      return NULL;
+    }
+
+    if (png_sig_cmp(header, 0, sizeof(header)))
+    {
+      logError("File is not a valid PNG file");
+      return NULL;
+    }
+  }
+
+  png_structp context;
+  png_infop pngInfo;
+  png_infop pngEndInfo;
+
+  // Set up for image reading
+  {
+    context = png_create_read_struct(PNG_LIBPNG_VER_STRING,
+                                     NULL,
+				     writeErrorPNG,
+				     writeWarningPNG);
+    if (!context)
+      return NULL;
+
+    png_set_read_fn(context, &stream, readStreamPNG);
+
+    pngInfo = png_create_info_struct(context);
+    if (!pngInfo)
+    {
+      png_destroy_read_struct(&context, NULL, NULL);
+      return NULL;
+    }
+
+    pngEndInfo = png_create_info_struct(context);
+    if (!pngEndInfo)
+    {
+      png_destroy_read_struct(&context, &pngInfo, NULL);
+      return NULL;
+    }
+
+    png_set_sig_bytes(context, 8);
+  }
+
+  PixelFormat format;
+  unsigned int width;
+  unsigned int height;
+
+  // Read image information
+  {
+    png_read_png(context, pngInfo, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND, NULL);
+
+    if (png_get_bit_depth(context, pngInfo) != 8)
+    {
+      png_destroy_read_struct(&context, &pngInfo, &pngEndInfo);
+
+      logError("Unsupported bit depth in PNG file");
+      return NULL;
+    }
+
+    if (!getDecodeConversionFormatPNG(format, png_get_color_type(context, pngInfo)))
+    {
+      png_destroy_read_struct(&context, &pngInfo, &pngEndInfo);
+
+      logError("Unsupported color type in PNG file");
+      return NULL;
+    }
+
+    width  = png_get_image_width(context, pngInfo);
+    height = png_get_image_height(context, pngInfo);
+  }
+
+  Ref<Image> result(new Image(info, format, width, height));
+
+  // Read image data
+  {
+    const size_t size = png_get_rowbytes(context, pngInfo);
+
+    png_bytepp rows = png_get_rows(context, pngInfo);
+
+    Byte* data = (Byte*) result->getPixels();
+
+    for (unsigned int i = 0;  i < height;  i++)
+      std::memcpy(data + (height - i - 1) * size, rows[i], size);
+  }
+
+  // Clean up library structures
+  png_destroy_read_struct(&context, &pngInfo, &pngEndInfo);
+
+  return result;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+bool ImageWriter::write(const Path& path, const Image& image)
+{
+  std::ofstream stream(path.asString().c_str());
+  if (!stream.is_open())
+  {
+    logError("Failed to open \'%s\' for writing",
+             path.asString().c_str());
+    return false;
+  }
+
+  png_structp context = png_create_write_struct(PNG_LIBPNG_VER_STRING,
+                                                NULL,
+						writeErrorPNG,
+						writeWarningPNG);
+  if (!context)
+  {
+    logError("Unable to create write struct");
+    return false;
+  }
+
+  png_set_write_fn(context, &stream, writeStreamPNG, flushStreamPNG);
+  png_set_filter(context, 0, PNG_FILTER_NONE);
+
+  png_infop info = png_create_info_struct(context);
+  if (!info)
+  {
+    png_destroy_write_struct(&context, png_infopp_NULL);
+    logError("Unable to create info struct");
+    return false;
+  }
+
+  int format;
+
+  if (!getEncodeConversionFormatPNG(format, image.getFormat()))
+  {
+    png_destroy_write_struct(&context, &info);
+    logError("Unable to encode image format");
+    return false;
+  }
+
+  png_set_IHDR(context,
+               info,
+               image.getWidth(),
+               image.getHeight(),
+               8,
+	       format,
+	       PNG_INTERLACE_NONE,
+	       PNG_COMPRESSION_TYPE_DEFAULT,
+	       PNG_FILTER_TYPE_DEFAULT);
+
+  const Byte* data = (const Byte*) image.getPixels();
+
+  const size_t pixelSize = image.getFormat().getSize();
+
+  const png_byte** rows = new const png_byte* [image.getHeight()];
+
+  for (unsigned int y = 0;  y < image.getHeight();  y++)
+    rows[y] = data + y * image.getWidth() * pixelSize;
+
+  png_set_rows(context, info, const_cast<png_byte**>(rows));
+
+  png_write_png(context, info, PNG_TRANSFORM_IDENTITY, NULL);
+
+  png_destroy_write_struct(&context, &info);
+
+  delete [] rows;
+  rows = NULL;
+
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+ImageCubeReader::ImageCubeReader(ResourceIndex& index):
+  ResourceReader(index)
+{
+}
+
+Ref<ImageCube> ImageCubeReader::read(const Path& path)
+{
+  if (Resource* cache = getIndex().findResource(path))
+    return dynamic_cast<ImageCube*>(cache);
+
+  ResourceInfo info(getIndex(), path);
+
+  std::ifstream stream;
+  if (!getIndex().openFile(stream, info.path))
+    return NULL;
+
+  cube = new ImageCube(info);
+
+  if (!XML::Reader::read(stream))
+  {
+    cube = NULL;
+    return NULL;
+  }
+
+  return cube.detachObject();
+}
+
+bool ImageCubeReader::onBeginElement(const String& name)
+{
+  if (name == "image-cube")
+  {
+    const unsigned int version = readInteger("version");
+    if (version != IMAGE_CUBE_XML_VERSION)
+    {
+      logError("Image cube specification XML format version mismatch");
+      return false;
+    }
+
+    return true;
+  }
+
+  if (name == "positive-x")
+  {
+    ImageReader reader(getIndex());
+    ImageRef image = reader.read(Path(readString("path")));
+    if (!image)
+      return false;
+
+    cube->images[ImageCube::POSITIVE_X] = image;
+    return true;
+  }
+
+  if (name == "negative-x")
+  {
+    ImageReader reader(getIndex());
+    ImageRef image = reader.read(Path(readString("path")));
+    if (!image)
+      return false;
+
+    cube->images[ImageCube::NEGATIVE_X] = image;
+    return true;
+  }
+
+  if (name == "positive-y")
+  {
+    ImageReader reader(getIndex());
+    ImageRef image = reader.read(Path(readString("path")));
+    if (!image)
+      return false;
+
+    cube->images[ImageCube::POSITIVE_Y] = image;
+    return true;
+  }
+
+  if (name == "negative-y")
+  {
+    ImageReader reader(getIndex());
+    ImageRef image = reader.read(Path(readString("path")));
+    if (!image)
+      return false;
+
+    cube->images[ImageCube::NEGATIVE_Y] = image;
+    return true;
+  }
+
+  if (name == "positive-z")
+  {
+    ImageReader reader(getIndex());
+    ImageRef image = reader.read(Path(readString("path")));
+    if (!image)
+      return false;
+
+    cube->images[ImageCube::POSITIVE_Z] = image;
+    return true;
+  }
+
+  if (name == "negative-z")
+  {
+    ImageReader reader(getIndex());
+    ImageRef image = reader.read(Path(readString("path")));
+    if (!image)
+      return false;
+
+    cube->images[ImageCube::NEGATIVE_Z] = image;
+    return true;
+  }
+
+  return true;
+}
+
+bool ImageCubeReader::onEndElement(const String& name)
+{
   return true;
 }
 

@@ -29,6 +29,8 @@
 #include <wendy/UIDesktop.h>
 #include <wendy/UIWidget.h>
 
+#include <algorithm>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy

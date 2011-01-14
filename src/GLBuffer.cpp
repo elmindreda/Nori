@@ -59,7 +59,7 @@ GLenum convertToGL(LockType type)
       return GL_READ_WRITE_ARB;
   }
 
-  Log::writeError("Invalid lock type %u", type);
+  logError("Invalid lock type %u", type);
   return 0;
 }
 
@@ -75,7 +75,7 @@ GLenum convertToGL(IndexBuffer::Usage usage)
       return GL_DYNAMIC_DRAW_ARB;
   }
 
-  Log::writeError("Invalid index buffer usage %u", usage);
+  logError("Invalid index buffer usage %u", usage);
   return 0;
 }
 
@@ -91,7 +91,7 @@ GLenum convertToGL(VertexBuffer::Usage usage)
       return GL_DYNAMIC_DRAW_ARB;
   }
 
-  Log::writeError("Invalid vertex buffer usage %u", usage);
+  logError("Invalid vertex buffer usage %u", usage);
   return 0;
 }
 
@@ -102,8 +102,7 @@ GLenum convertToGL(VertexBuffer::Usage usage)
 VertexBuffer::~VertexBuffer(void)
 {
   if (locked)
-    Log::writeWarning("Vertex buffer \'%s\' destroyed while locked",
-                      getName().c_str());
+    logWarning("Vertex buffer destroyed while locked");
 
   if (current == this)
     invalidateCurrent();
@@ -116,7 +115,7 @@ void* VertexBuffer::lock(LockType type)
 {
   if (locked)
   {
-    Log::writeError("Vertex buffer \'%s\' already locked", getName().c_str());
+    logError("Vertex buffer already locked");
     return NULL;
   }
 
@@ -125,9 +124,8 @@ void* VertexBuffer::lock(LockType type)
   void* mapping = glMapBufferARB(GL_ARRAY_BUFFER_ARB, convertToGL(type));
   if (mapping == NULL)
   {
-    Log::writeError("Failed to lock vertex buffer \'%s\': %s",
-                    getName().c_str(),
-                    gluErrorString(glGetError()));
+    logError("Failed to lock vertex buffer: %s",
+             gluErrorString(glGetError()));
     return NULL;
   }
 
@@ -139,18 +137,14 @@ void VertexBuffer::unlock(void)
 {
   if (!locked)
   {
-    Log::writeWarning("Cannot unlock non-locked vertex buffer \'%s\'",
-                      getName().c_str());
+    logWarning("Cannot unlock non-locked vertex buffer");
     return;
   }
 
   apply();
 
   if (!glUnmapBufferARB(GL_ARRAY_BUFFER_ARB))
-  {
-    Log::writeWarning("Data for vertex buffer \'%s\' was corrupted",
-                      getName().c_str());
-  }
+    logWarning("Data for vertex buffer was corrupted");
 
   locked = false;
 }
@@ -159,15 +153,13 @@ void VertexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsign
 {
   if (locked)
   {
-    Log::writeError("Cannot copy data into locked vertex buffer \'%s\'",
-                    getName().c_str());
+    logError("Cannot copy data into locked vertex buffer");
     return;
   }
 
   if (start + sourceCount > count)
   {
-    Log::writeError("Too many vertices submitted to vertex buffer \'%s\'",
-                    getName().c_str());
+    logError("Too many vertices submitted to vertex buffer");
     return;
   }
 
@@ -177,7 +169,7 @@ void VertexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsign
   glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
 
 #if WENDY_DEBUG
-  checkGL("Error during copy to vertex buffer \'%s\'", getName().c_str());
+  checkGL("Error during copy to vertex buffer");
 #endif
 }
 
@@ -185,15 +177,13 @@ void VertexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int s
 {
   if (locked)
   {
-    Log::writeError("Cannot copy data from locked vertex buffer \'%s\'",
-                    getName().c_str());
+    logError("Cannot copy data from locked vertex buffer");
     return;
   }
 
   if (start + targetCount > count)
   {
-    Log::writeError("Too many vertices requested from vertex buffer \'%s\'",
-                    getName().c_str());
+    logError("Too many vertices requested from vertex buffer");
     return;
   }
 
@@ -203,7 +193,7 @@ void VertexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int s
   glGetBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
 
 #if WENDY_DEBUG
-  checkGL("Error during copy from vertex buffer \'%s\'", getName().c_str());
+  checkGL("Error during copy from vertex buffer");
 #endif
 }
 
@@ -222,21 +212,19 @@ unsigned int VertexBuffer::getCount(void) const
   return count;
 }
 
-VertexBuffer* VertexBuffer::createInstance(Context& context,
-                                           unsigned int count,
-                                           const VertexFormat& format,
-					   Usage usage,
-					   const String& name)
+Ref<VertexBuffer> VertexBuffer::create(Context& context,
+                                       unsigned int count,
+                                       const VertexFormat& format,
+				       Usage usage)
 {
-  Ptr<VertexBuffer> buffer(new VertexBuffer(context, name));
+  Ref<VertexBuffer> buffer(new VertexBuffer(context));
   if (!buffer->init(format, count, usage))
     return NULL;
 
-  return buffer.detachObject();
+  return buffer;
 }
 
-VertexBuffer::VertexBuffer(Context& initContext, const String& name):
-  Managed<VertexBuffer>(name),
+VertexBuffer::VertexBuffer(Context& initContext):
   context(initContext),
   locked(false),
   bufferID(0),
@@ -246,7 +234,6 @@ VertexBuffer::VertexBuffer(Context& initContext, const String& name):
 }
 
 VertexBuffer::VertexBuffer(const VertexBuffer& source):
-  Managed<VertexBuffer>(source),
   context(source.context)
 {
   // NOTE: Not implemented.
@@ -279,8 +266,7 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
 		  NULL,
 		  convertToGL(usage));
 
-  if (!checkGL("Error during creation of vertex buffer \'%s\' of format \'%s\'",
-               getName().c_str(),
+  if (!checkGL("Error during creation of vertex buffer of format \'%s\'",
                format.asString().c_str()))
   {
     return false;
@@ -297,7 +283,7 @@ void VertexBuffer::apply(void) const
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
 
 #if WENDY_DEBUG
-  if (!checkGL("Failed to apply index buffer \'%s\'", getName().c_str()))
+  if (!checkGL("Failed to apply index buffer"))
     return;
 #endif
 
@@ -316,8 +302,7 @@ VertexBuffer* VertexBuffer::current = NULL;
 IndexBuffer::~IndexBuffer(void)
 {
   if (locked)
-    Log::writeWarning("Index buffer \'%s\' destroyed while locked",
-                      getName().c_str());
+    logWarning("Index buffer destroyed while locked");
 
   if (current == this)
     invalidateCurrent();
@@ -330,7 +315,7 @@ void* IndexBuffer::lock(LockType type)
 {
   if (locked)
   {
-    Log::writeError("Index buffer \'%s\' already locked", getName().c_str());
+    logError("Index buffer already locked");
     return NULL;
   }
 
@@ -339,9 +324,8 @@ void* IndexBuffer::lock(LockType type)
   void* mapping = glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, convertToGL(type));
   if (mapping == NULL)
   {
-    Log::writeError("Failed to lock index buffer \'%s\': %s",
-                    getName().c_str(),
-                    gluErrorString(glGetError()));
+    logError("Failed to lock index buffer: %s",
+             gluErrorString(glGetError()));
     return NULL;
   }
 
@@ -353,18 +337,14 @@ void IndexBuffer::unlock(void)
 {
   if (!locked)
   {
-    Log::writeWarning("Cannot unlock non-locked index buffer \'%s\'",
-                      getName().c_str());
+    logWarning("Cannot unlock non-locked index buffer");
     return;
   }
 
   apply();
 
   if (!glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB))
-  {
-    Log::writeWarning("Data for index buffer \'%s\' was corrupted",
-                      getName().c_str());
-  }
+    logWarning("Data for index buffer was corrupted");
 
   locked = false;
 }
@@ -373,15 +353,13 @@ void IndexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsigne
 {
   if (locked)
   {
-    Log::writeError("Cannot copy data into locked index buffer \'%s\'",
-                    getName().c_str());
+    logError("Cannot copy data into locked index buffer");
     return;
   }
 
   if (start + sourceCount > count)
   {
-    Log::writeError("Too many indices submitted to index buffer \'%s\'",
-                    getName().c_str());
+    logError("Too many indices submitted to index buffer");
     return;
   }
 
@@ -391,7 +369,7 @@ void IndexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsigne
   glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
 
 #if WENDY_DEBUG
-  checkGL("Error during copy to index buffer \'%s\'", getName().c_str());
+  checkGL("Error during copy to index buffer");
 #endif
 }
 
@@ -399,15 +377,13 @@ void IndexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int st
 {
   if (locked)
   {
-    Log::writeError("Cannot copy data from locked index buffer \'%s\'",
-                    getName().c_str());
+    logError("Cannot copy data from locked index buffer");
     return;
   }
 
   if (start + targetCount > count)
   {
-    Log::writeError("Too many indices requested from index buffer \'%s\'",
-                    getName().c_str());
+    logError("Too many indices requested from index buffer");
     return;
   }
 
@@ -417,7 +393,7 @@ void IndexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int st
   glGetBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
 
 #if WENDY_DEBUG
-  checkGL("Error during copy from index buffer \'%s\'", getName().c_str());
+  checkGL("Error during copy from index buffer");
 #endif
 }
 
@@ -436,17 +412,16 @@ unsigned int IndexBuffer::getCount(void) const
   return count;
 }
 
-IndexBuffer* IndexBuffer::createInstance(Context& context,
-                                         unsigned int count,
-					 Type type,
-					 Usage usage,
-					 const String& name)
+Ref<IndexBuffer> IndexBuffer::create(Context& context,
+                                     unsigned int count,
+				     Type type,
+				     Usage usage)
 {
-  Ptr<IndexBuffer> buffer(new IndexBuffer(context, name));
+  Ref<IndexBuffer> buffer(new IndexBuffer(context));
   if (!buffer->init(count, type, usage))
     return NULL;
 
-  return buffer.detachObject();
+  return buffer;
 }
 
 size_t IndexBuffer::getTypeSize(Type type)
@@ -460,13 +435,12 @@ size_t IndexBuffer::getTypeSize(Type type)
     case IndexBuffer::UINT32:
       return sizeof(GLuint);
     default:
-      Log::writeError("Invalid index buffer type %u", type);
+      logError("Invalid index buffer type %u", type);
       return 0;
   }
 }
 
-IndexBuffer::IndexBuffer(Context& initContext, const String& name):
-  Managed<IndexBuffer>(name),
+IndexBuffer::IndexBuffer(Context& initContext):
   context(initContext),
   locked(false),
   type(UINT32),
@@ -477,7 +451,6 @@ IndexBuffer::IndexBuffer(Context& initContext, const String& name):
 }
 
 IndexBuffer::IndexBuffer(const IndexBuffer& source):
-  Managed<IndexBuffer>(source),
   context(source.context)
 {
   // NOTE: Not implemented.
@@ -508,8 +481,7 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
 		  NULL,
 		  convertToGL(usage));
 
-  if (!checkGL("Error during creation of index buffer \'%s\' of element size %u",
-               getName().c_str(),
+  if (!checkGL("Error during creation of index buffer of element size %u",
                getTypeSize(type)))
   {
     return false;
@@ -526,7 +498,7 @@ void IndexBuffer::apply(void) const
   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
 
 #if WENDY_DEBUG
-  if (!checkGL("Failed to apply index buffer \'%s\'", getName().c_str()))
+  if (!checkGL("Failed to apply index buffer"))
     return;
 #endif
 
@@ -571,7 +543,7 @@ void* VertexRange::lock(LockType type) const
 {
   if (!vertexBuffer || count == 0)
   {
-    Log::writeError("Cannot lock empty vertex buffer range");
+    logError("Cannot lock empty vertex buffer range");
     return NULL;
   }
 
@@ -586,7 +558,7 @@ void VertexRange::unlock(void) const
 {
   if (!vertexBuffer)
   {
-    Log::writeError("Cannot unlock non-locked vertex buffer");
+    logError("Cannot unlock non-locked vertex buffer");
     return;
   }
 
@@ -655,7 +627,7 @@ void* IndexRange::lock(LockType type) const
 {
   if (!indexBuffer || count == 0)
   {
-    Log::writeError("Cannot lock empty index buffer range");
+    logError("Cannot lock empty index buffer range");
     return NULL;
   }
 
@@ -670,7 +642,7 @@ void IndexRange::unlock(void) const
 {
   if (!indexBuffer)
   {
-    Log::writeError("Cannot unlock non-locked index buffer");
+    logError("Cannot unlock non-locked index buffer");
     return;
   }
 
@@ -843,20 +815,18 @@ const PixelFormat& RenderBuffer::getFormat(void) const
   return format;
 }
 
-RenderBuffer* RenderBuffer::createInstance(const PixelFormat& format,
-                                           unsigned int width,
-                                           unsigned int height,
-                                           const String& name)
+Ref<RenderBuffer> RenderBuffer::create(const PixelFormat& format,
+                                       unsigned int width,
+                                       unsigned int height)
 {
-  Ptr<RenderBuffer> buffer(new RenderBuffer(name));
+  Ref<RenderBuffer> buffer(new RenderBuffer());
   if (!buffer->init(format, width, height))
     return NULL;
 
-  return buffer.detachObject();
+  return buffer;
 }
 
-RenderBuffer::RenderBuffer(const String& name):
-  Managed<RenderBuffer>(name),
+RenderBuffer::RenderBuffer(void):
   bufferID(0)
 {
 }
@@ -876,8 +846,7 @@ bool RenderBuffer::init(const PixelFormat& initFormat,
                            width,
                            height);
 
-  if (!checkGL("Error during creation of render buffer \'%s\' of format \'%s\'",
-               getName().c_str(),
+  if (!checkGL("Error during creation of render buffer of format \'%s\'",
                format.asString().c_str()))
   {
     return false;

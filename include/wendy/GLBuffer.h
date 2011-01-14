@@ -28,11 +28,9 @@
 
 #include <wendy/Core.h>
 #include <wendy/Vector.h>
+#include <wendy/Color.h>
 #include <wendy/Pixel.h>
 #include <wendy/Vertex.h>
-#include <wendy/Managed.h>
-
-#include <stdint.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -68,7 +66,7 @@ enum LockType
 /*! @brief Vertex buffer.
  *  @ingroup opengl
  */
-class VertexBuffer : public Managed<VertexBuffer>, public RefObject
+class VertexBuffer : public RefObject
 {
   friend class Context;
 public:
@@ -123,16 +121,14 @@ public:
    *  @param count The desired number of vertices.
    *  @param format The desired format of the vertices.
    *  @param usage The desired usage hint.
-   *  @param name The desired name of the vertex buffer.
    *  @return The newly created vertex buffer, or @c NULL if an error occurred.
    */
-  static VertexBuffer* createInstance(Context& context,
-                                      unsigned int count,
-                                      const VertexFormat& format,
-				      Usage usage,
-				      const String& name = "");
+  static Ref<VertexBuffer> create(Context& context,
+                                  unsigned int count,
+                                  const VertexFormat& format,
+				  Usage usage);
 private:
-  VertexBuffer(Context& context, const String& name);
+  VertexBuffer(Context& context);
   VertexBuffer(const VertexBuffer& source);
   VertexBuffer& operator = (const VertexBuffer& source);
   bool init(const VertexFormat& format, unsigned int count, Usage usage);
@@ -152,7 +148,7 @@ private:
 /*! @brief Index (or element) buffer.
  *  @ingroup opengl
  */
-class IndexBuffer : public Managed<IndexBuffer>, public RefObject
+class IndexBuffer : public RefObject
 {
   friend class Context;
 public:
@@ -222,19 +218,17 @@ public:
    *  @param count The desired number of index elements.
    *  @param type The desired type of the index elements.
    *  @param usage The desired usage hint.
-   *  @param name The desired name of the index buffer.
    *  @return The newly created index buffer, or @c NULL if an error occurred.
    */
-  static IndexBuffer* createInstance(Context& context,
-                                     unsigned int count,
-				     Type type,
-				     Usage usage,
-				     const String& name = "");
+  static Ref<IndexBuffer> create(Context& context,
+                                 unsigned int count,
+				 Type type,
+				 Usage usage);
   /*! @return The size, in bytes, of the specified element type.
    */
   static size_t getTypeSize(Type type);
 private:
-  IndexBuffer(Context& context, const String& name);
+  IndexBuffer(Context& context);
   IndexBuffer(const IndexBuffer& source);
   IndexBuffer& operator = (const IndexBuffer& source);
   bool init(unsigned int count, Type type, Usage usage);
@@ -487,19 +481,18 @@ private:
 
 /*! @ingroup opengl
  */
-class RenderBuffer : public Image, public Managed<RenderBuffer>
+class RenderBuffer : public Image
 {
 public:
   virtual ~RenderBuffer(void);
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
   const PixelFormat& getFormat(void) const;
-  static RenderBuffer* createInstance(const PixelFormat& format,
-                                      unsigned int width,
-                                      unsigned int height,
-                                      const String& name = "");
+  static Ref<RenderBuffer> create(const PixelFormat& format,
+                                  unsigned int width,
+                                  unsigned int height);
 private:
-  RenderBuffer(const String& name);
+  RenderBuffer(void);
   bool init(const PixelFormat& format, unsigned int width, unsigned int height);
   void attach(int attachment);
   void detach(int attachment);
