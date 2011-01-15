@@ -514,23 +514,21 @@ inline VertexRangeLock<T>::VertexRangeLock(VertexRange& initRange):
     if (T::format != vertexBuffer->getFormat())
       throw Exception("Vertex buffer format mismatch for vertex range lock");
   }
+
+  vertices = (T*) range.lock();
+  if (!vertices)
+    throw Exception("Failed to lock vertex buffer");
 }
 
 template <typename T>
 inline VertexRangeLock<T>::~VertexRangeLock(void)
 {
-  if (vertices)
-    range.unlock();
+  range.unlock();
 }
 
 template <typename T>
 inline VertexRangeLock<T>::operator T* (void)
 {
-  if (vertices)
-    return vertices;
-
-  vertices = (T*) range.lock();
-
   return vertices;
 }
 
@@ -547,18 +545,12 @@ inline IndexRangeLock<T>::IndexRangeLock(IndexRange& initRange):
 template <typename T>
 inline IndexRangeLock<T>::~IndexRangeLock(void)
 {
-  if (indices)
-    range.unlock();
+  range.unlock();
 }
 
 template <typename T>
 inline IndexRangeLock<T>::operator T* (void)
 {
-  if (indices)
-    return indices;
-
-  indices = (T*) range.lock();
-
   return indices;
 }
 
@@ -572,6 +564,10 @@ inline IndexRangeLock<uint8_t>::IndexRangeLock(IndexRange& initRange):
     if (range.getIndexBuffer()->getType() != IndexBuffer::UINT8)
       throw Exception("Index buffer lock type mismatch");
   }
+
+  indices = (uint8_t*) range.lock();
+  if (!indices)
+    throw Exception("Failed to lock index buffer");
 }
 
 template <>
@@ -584,6 +580,10 @@ inline IndexRangeLock<uint16_t>::IndexRangeLock(IndexRange& initRange):
     if (range.getIndexBuffer()->getType() != IndexBuffer::UINT16)
       throw Exception("Index buffer lock type mismatch");
   }
+
+  indices = (uint16_t*) range.lock();
+  if (!indices)
+    throw Exception("Failed to lock index buffer");
 }
 
 template <>
@@ -596,6 +596,10 @@ inline IndexRangeLock<uint32_t>::IndexRangeLock(IndexRange& initRange):
     if (range.getIndexBuffer()->getType() != IndexBuffer::UINT32)
       throw Exception("Index buffer lock type mismatch");
   }
+
+  indices = (uint32_t*) range.lock();
+  if (!indices)
+    throw Exception("Failed to lock index buffer");
 }
 
 ///////////////////////////////////////////////////////////////////////
