@@ -89,6 +89,8 @@ void Demo::run(void)
 
     graph.enqueue(queue);
     queue.render();
+
+    queue.removeOperations();
   }
   while (context.update());
 }
