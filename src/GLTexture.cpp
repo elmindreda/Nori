@@ -244,22 +244,9 @@ bool TextureImage::copyFromColorBuffer(unsigned int x, unsigned int y)
   glBindTexture(texture.textureTarget, texture.textureID);
 
   if (texture.textureTarget == GL_TEXTURE_1D)
-  {
-    glCopyTexSubImage1D(texture.textureTarget,
-                        level,
-			0,
-                        x, y,
-                        width);
-  }
+    glCopyTexSubImage1D(texture.textureTarget, level, 0, x, y, width);
   else
-  {
-    glCopyTexSubImage2D(texture.textureTarget,
-                        level,
-			0, 0,
-                        x, y,
-                        width,
-                        height);
-  }
+    glCopyTexSubImage2D(texture.textureTarget, level, 0, 0, x, y, width, height);
 
   cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_TRUE);
 
