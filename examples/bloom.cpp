@@ -193,7 +193,7 @@ void Demo::run(void)
     context.clearDepthBuffer();
     context.clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
-    queue.render("bloom");
+    queue.render("bloom_specular");
 
     context.setProjectionMatrix2D(1.f, 1.f);
 
