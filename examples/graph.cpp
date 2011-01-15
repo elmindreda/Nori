@@ -45,7 +45,7 @@ bool Demo::init(void)
 
   pool = new render::GeometryPool(*context);
 
-  Ref<render::Model> model = render::Model::read(*context, Path("cube.model"));
+  Ref<render::Model> model = render::Model::read(*context, Path("thingy.model"));
   if (!model)
   {
     logError("Failed to load model");
