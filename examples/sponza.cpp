@@ -82,7 +82,7 @@ bool Demo::init(void)
   if (!distAttTexture)
     return false;
 
-  Ref<render::Model> model = render::Model::read(*context, Path("sponza.mesh"));
+  Ref<render::Model> model = render::Model::read(*context, Path("sponza.model"));
   if (!model)
     return false;
 

@@ -88,7 +88,7 @@ bool Demo::init(void)
   canvas->setDepthBuffer(&depthmap->getImage());
   canvas->setColorBuffer(&colormap->getImage());
 
-  Ref<render::Model> model = render::Model::read(*context, Path("cube_shadowmap.mesh"));
+  Ref<render::Model> model = render::Model::read(*context, Path("cube_shadowmap.model"));
   if (!model)
   {
     logError("Failed to load model");

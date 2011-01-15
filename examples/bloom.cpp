@@ -149,7 +149,7 @@ bool Demo::init(void)
   // Set up scene
   {
     render::ModelReader reader(*context);
-    Ref<render::Model> model = reader.read(Path("cube.mesh"));
+    Ref<render::Model> model = reader.read(Path("cube.model"));
     if (!model)
     {
       logError("Failed to load model");

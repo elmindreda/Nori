@@ -49,7 +49,7 @@ bool Test::init(void)
 
   pool = new render::GeometryPool(*context);
 
-  Ref<render::Model> model = render::Model::read(*context, Path("cube_cubemapped.mesh"));
+  Ref<render::Model> model = render::Model::read(*context, Path("cube_cubemapped.model"));
   if (!model)
   {
     logError("Failed to load model");
