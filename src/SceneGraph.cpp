@@ -37,8 +37,7 @@
 #include <wendy/RenderLight.h>
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderSprite.h>
-#include <wendy/RenderParticle.h>
-#include <wendy/RenderMesh.h>
+#include <wendy/RenderModel.h>
 
 #include <wendy/SceneGraph.h>
 
@@ -50,17 +49,6 @@ namespace wendy
 {
   namespace scene
   {
-
-///////////////////////////////////////////////////////////////////////
-
-NodeType::NodeType(const String& name):
-  Managed<NodeType>(name)
-{
-}
-
-NodeType::~NodeType(void)
-{
-}
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -321,11 +309,6 @@ void Node::setGraph(Graph* newGraph)
 
 ///////////////////////////////////////////////////////////////////////
 
-Graph::Graph(const String& name):
-  Resource<Graph>(name)
-{
-}
-
 Graph::~Graph(void)
 {
   destroyRootNodes();
@@ -460,43 +443,43 @@ void LightNode::enqueue(render::Queue& queue) const
 
 ///////////////////////////////////////////////////////////////////////
 
-MeshNode::MeshNode(const String& name):
+ModelNode::ModelNode(const String& name):
   Node(name),
   shadowCaster(true)
 {
 }
 
-bool MeshNode::isShadowCaster(void) const
+bool ModelNode::isShadowCaster(void) const
 {
   return shadowCaster;
 }
 
-void MeshNode::setCastsShadows(bool enabled)
+void ModelNode::setCastsShadows(bool enabled)
 {
   shadowCaster = enabled;
 }
 
-render::Mesh* MeshNode::getMesh(void) const
+render::Model* ModelNode::getModel(void) const
 {
-  return mesh;
+  return model;
 }
 
-void MeshNode::setMesh(render::Mesh* newMesh)
+void ModelNode::setModel(render::Model* newModel)
 {
-  mesh = newMesh;
-  setLocalBounds(mesh->getBounds());
+  model = newModel;
+  setLocalBounds(model->getBounds());
 }
 
-void MeshNode::enqueue(render::Queue& queue) const
+void ModelNode::enqueue(render::Queue& queue) const
 {
   Node::enqueue(queue);
 
-  if (mesh)
+  if (model)
   {
     if ((queue.getPhase() == render::Queue::COLLECT_GEOMETRY) ||
         (queue.getPhase() == render::Queue::COLLECT_SHADOW_CASTERS && shadowCaster))
     {
-      mesh->enqueue(queue, getWorldTransform());
+      model->enqueue(queue, getWorldTransform());
     }
   }
 }
@@ -568,55 +551,6 @@ void SpriteNode::enqueue(render::Queue& queue) const
     sprite.size = spriteSize;
     sprite.material = material;
     sprite.enqueue(queue, getWorldTransform());
-  }
-}
-
-///////////////////////////////////////////////////////////////////////
-
-ParticleSystemNode::ParticleSystemNode(const String& name):
-  Node(name)
-{
-}
-
-const String& ParticleSystemNode::getSystemName(void) const
-{
-  return systemName;
-}
-
-void ParticleSystemNode::setSystemName(const String& newSystemName)
-{
-  systemName = newSystemName;
-}
-
-void ParticleSystemNode::update(void)
-{
-  Node::update();
-
-  render::ParticleSystem* system = render::ParticleSystem::findInstance(systemName);
-  if (!system)
-  {
-    Log::writeError("Cannot find particle system \'%s\' for updating", systemName.c_str());
-    return;
-  }
-
-  system->setTransform(getWorldTransform());
-  setLocalBounds(system->getBounds());
-}
-
-void ParticleSystemNode::enqueue(render::Queue& queue) const
-{
-  Node::enqueue(queue);
-
-  if (queue.getPhase() == render::Queue::COLLECT_GEOMETRY)
-  {
-    render::ParticleSystem* system = render::ParticleSystem::findInstance(systemName);
-    if (!system)
-    {
-      Log::writeError("Cannot find particle system \'%s\' for enqueueing", systemName.c_str());
-      return;
-    }
-
-    system->enqueue(queue, Transform3());
   }
 }
 

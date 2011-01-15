@@ -72,11 +72,6 @@ public:
    *  @param newSize The new size, in bytes, of this data block.
    */
   void resize(size_t newSize);
-  /*! Assures that the size of this block is at least the specified
-   *  number of bytes.
-   *  @param minSize The minimum desired size, in bytes.
-   */
-  void reserve(size_t minSize);
   void attach(Byte* newData, size_t newSize);
   Byte* detach(void);
   /*! Frees the currently allocated data block.
@@ -94,13 +89,6 @@ public:
   /*! @return The size, in bytes, of this data block.
    */
   size_t getSize(void) const;
-  /*! @return The allocation granularity, or zero if granularity is disabled.
-   */
-  size_t getGrain(void) const;
-  /*! Sets or disables the allocation granularity.
-   *  @param newGrain The desired allocation granularity, or zero to disable.
-   */
-  void setGrain(size_t newGrain);
   /*! @return The data block.
    */
   Byte* getData(void);
@@ -109,7 +97,6 @@ public:
   const Byte* getData(void) const;
 private:
   size_t size;
-  size_t grain;
   Byte* data;
 };
 

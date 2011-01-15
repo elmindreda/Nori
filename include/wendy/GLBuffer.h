@@ -28,11 +28,9 @@
 
 #include <wendy/Core.h>
 #include <wendy/Vector.h>
+#include <wendy/Color.h>
 #include <wendy/Pixel.h>
 #include <wendy/Vertex.h>
-#include <wendy/Managed.h>
-
-#include <stdint.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -68,7 +66,7 @@ enum LockType
 /*! @brief Vertex buffer.
  *  @ingroup opengl
  */
-class VertexBuffer : public Managed<VertexBuffer>, public RefObject
+class VertexBuffer : public RefObject
 {
   friend class Context;
 public:
@@ -123,16 +121,14 @@ public:
    *  @param count The desired number of vertices.
    *  @param format The desired format of the vertices.
    *  @param usage The desired usage hint.
-   *  @param name The desired name of the vertex buffer.
    *  @return The newly created vertex buffer, or @c NULL if an error occurred.
    */
-  static VertexBuffer* createInstance(Context& context,
-                                      unsigned int count,
-                                      const VertexFormat& format,
-				      Usage usage,
-				      const String& name = "");
+  static Ref<VertexBuffer> create(Context& context,
+                                  unsigned int count,
+                                  const VertexFormat& format,
+				  Usage usage);
 private:
-  VertexBuffer(Context& context, const String& name);
+  VertexBuffer(Context& context);
   VertexBuffer(const VertexBuffer& source);
   VertexBuffer& operator = (const VertexBuffer& source);
   bool init(const VertexFormat& format, unsigned int count, Usage usage);
@@ -152,7 +148,7 @@ private:
 /*! @brief Index (or element) buffer.
  *  @ingroup opengl
  */
-class IndexBuffer : public Managed<IndexBuffer>, public RefObject
+class IndexBuffer : public RefObject
 {
   friend class Context;
 public:
@@ -222,19 +218,17 @@ public:
    *  @param count The desired number of index elements.
    *  @param type The desired type of the index elements.
    *  @param usage The desired usage hint.
-   *  @param name The desired name of the index buffer.
    *  @return The newly created index buffer, or @c NULL if an error occurred.
    */
-  static IndexBuffer* createInstance(Context& context,
-                                     unsigned int count,
-				     Type type,
-				     Usage usage,
-				     const String& name = "");
+  static Ref<IndexBuffer> create(Context& context,
+                                 unsigned int count,
+				 Type type,
+				 Usage usage);
   /*! @return The size, in bytes, of the specified element type.
    */
   static size_t getTypeSize(Type type);
 private:
-  IndexBuffer(Context& context, const String& name);
+  IndexBuffer(Context& context);
   IndexBuffer(const IndexBuffer& source);
   IndexBuffer& operator = (const IndexBuffer& source);
   bool init(unsigned int count, Type type, Usage usage);
@@ -487,19 +481,18 @@ private:
 
 /*! @ingroup opengl
  */
-class RenderBuffer : public Image, public Managed<RenderBuffer>
+class RenderBuffer : public Image
 {
 public:
   virtual ~RenderBuffer(void);
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
   const PixelFormat& getFormat(void) const;
-  static RenderBuffer* createInstance(const PixelFormat& format,
-                                      unsigned int width,
-                                      unsigned int height,
-                                      const String& name = "");
+  static Ref<RenderBuffer> create(const PixelFormat& format,
+                                  unsigned int width,
+                                  unsigned int height);
 private:
-  RenderBuffer(const String& name);
+  RenderBuffer(void);
   bool init(const PixelFormat& format, unsigned int width, unsigned int height);
   void attach(int attachment);
   void detach(int attachment);
@@ -521,23 +514,21 @@ inline VertexRangeLock<T>::VertexRangeLock(VertexRange& initRange):
     if (T::format != vertexBuffer->getFormat())
       throw Exception("Vertex buffer format mismatch for vertex range lock");
   }
+
+  vertices = (T*) range.lock();
+  if (!vertices)
+    throw Exception("Failed to lock vertex buffer");
 }
 
 template <typename T>
 inline VertexRangeLock<T>::~VertexRangeLock(void)
 {
-  if (vertices)
-    range.unlock();
+  range.unlock();
 }
 
 template <typename T>
 inline VertexRangeLock<T>::operator T* (void)
 {
-  if (vertices)
-    return vertices;
-
-  vertices = (T*) range.lock();
-
   return vertices;
 }
 
@@ -554,18 +545,12 @@ inline IndexRangeLock<T>::IndexRangeLock(IndexRange& initRange):
 template <typename T>
 inline IndexRangeLock<T>::~IndexRangeLock(void)
 {
-  if (indices)
-    range.unlock();
+  range.unlock();
 }
 
 template <typename T>
 inline IndexRangeLock<T>::operator T* (void)
 {
-  if (indices)
-    return indices;
-
-  indices = (T*) range.lock();
-
   return indices;
 }
 
@@ -579,6 +564,10 @@ inline IndexRangeLock<uint8_t>::IndexRangeLock(IndexRange& initRange):
     if (range.getIndexBuffer()->getType() != IndexBuffer::UINT8)
       throw Exception("Index buffer lock type mismatch");
   }
+
+  indices = (uint8_t*) range.lock();
+  if (!indices)
+    throw Exception("Failed to lock index buffer");
 }
 
 template <>
@@ -591,6 +580,10 @@ inline IndexRangeLock<uint16_t>::IndexRangeLock(IndexRange& initRange):
     if (range.getIndexBuffer()->getType() != IndexBuffer::UINT16)
       throw Exception("Index buffer lock type mismatch");
   }
+
+  indices = (uint16_t*) range.lock();
+  if (!indices)
+    throw Exception("Failed to lock index buffer");
 }
 
 template <>
@@ -603,6 +596,10 @@ inline IndexRangeLock<uint32_t>::IndexRangeLock(IndexRange& initRange):
     if (range.getIndexBuffer()->getType() != IndexBuffer::UINT32)
       throw Exception("Index buffer lock type mismatch");
   }
+
+  indices = (uint32_t*) range.lock();
+  if (!indices)
+    throw Exception("Failed to lock index buffer");
 }
 
 ///////////////////////////////////////////////////////////////////////

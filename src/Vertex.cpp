@@ -26,6 +26,7 @@
 #include <wendy/Config.h>
 #include <wendy/Core.h>
 #include <wendy/Vector.h>
+#include <wendy/Color.h>
 #include <wendy/Vertex.h>
 
 #include <cctype>
@@ -111,14 +112,14 @@ bool VertexFormat::createComponent(const String& name,
 {
   if (count < 1 || count > 4)
   {
-    Log::writeError("Vertex components must have between 1 and 4 elements");
+    logError("Vertex components must have between 1 and 4 elements");
     return false;
   }
 
   if (findComponent(name))
   {
-    Log::writeError("Duplicate vertex component name \'%s\' detected; vertex components must have unique names",
-                    name.c_str());
+    logError("Duplicate vertex component name \'%s\' detected; vertex components must have unique names",
+             name.c_str());
     return false;
   }
 
@@ -137,14 +138,14 @@ bool VertexFormat::createComponents(const String& specification)
   {
     if (*command < '1' || *command > '4')
     {
-      Log::writeError("Invalid vertex component element count");
+      logError("Invalid vertex component element count");
       return false;
     }
 
     const size_t count = *command - '0';
     if (++command == specification.end())
     {
-      Log::writeError("Unexpected end of vertex format specification");
+      logError("Unexpected end of vertex format specification");
       return false;
     }
 
@@ -166,21 +167,21 @@ bool VertexFormat::createComponents(const String& specification)
 	break;
       default:
 	if (std::isgraph(*command))
-	  Log::writeError("Invalid vertex component type \'%c\'", *command);
+	  logError("Invalid vertex component type \'%c\'", *command);
 	else
-	  Log::writeError("Invalid vertex component type 0x%02x", *command);
+	  logError("Invalid vertex component type 0x%02x", *command);
 	return false;
     }
 
     if (++command == specification.end())
     {
-      Log::writeError("Unexpected end of vertex format specification");
+      logError("Unexpected end of vertex format specification");
       return false;
     }
 
     if (*command != ':')
     {
-      Log::writeError("Invalid vertex component specification; expected \':\'");
+      logError("Invalid vertex component specification; expected \':\'");
       return false;
     }
 
@@ -207,7 +208,7 @@ void VertexFormat::destroyComponents(void)
 const VertexComponent* VertexFormat::findComponent(const String& name) const
 {
   for (ComponentList::const_iterator i = components.begin();  i != components.end();  i++)
-    if ((*i).getName() == name)
+    if (i->getName() == name)
       return &(*i);
 
   return NULL;
@@ -233,7 +234,7 @@ size_t VertexFormat::getSize(void) const
   size_t size = 0;
 
   for (ComponentList::const_iterator i = components.begin();  i != components.end();  i++)
-    size += (*i).getSize();
+    size += i->getSize();
 
   return size;
 }
@@ -249,9 +250,9 @@ String VertexFormat::asString(void) const
 
   for (ComponentList::const_iterator i = components.begin();  i != components.end();  i++)
   {
-    result << (*i).count;
+    result << i->count;
 
-    switch ((*i).type)
+    switch (i->type)
     {
       case VertexComponent::FLOAT32:
 	result << 'f';
@@ -269,11 +270,35 @@ String VertexFormat::asString(void) const
         return "invalid";
     }
 
-    result << ':' << (*i).name << ' ';
+    result << ':' << i->name << ' ';
   }
 
   return result.str();
 }
+
+///////////////////////////////////////////////////////////////////////
+
+const VertexFormat Vertex3fv::format("3f:position");
+
+///////////////////////////////////////////////////////////////////////
+
+const VertexFormat Vertex3fn3fv::format("3f:normal 3f:position");
+
+///////////////////////////////////////////////////////////////////////
+
+const VertexFormat Vertex2fv::format("2f:position");
+
+///////////////////////////////////////////////////////////////////////
+
+const VertexFormat Vertex2ft2fv::format("2f:mapping 2f:position");
+
+///////////////////////////////////////////////////////////////////////
+
+const VertexFormat Vertex2ft3fv::format("2f:mapping 3f:position");
+
+///////////////////////////////////////////////////////////////////////
+
+const VertexFormat Vertex4fc2ft3fv::format("4f:color 2f:mapping 3f:position");
 
 ///////////////////////////////////////////////////////////////////////
 

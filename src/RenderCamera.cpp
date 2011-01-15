@@ -52,17 +52,10 @@ Camera::Camera(void):
 {
 }
 
-void Camera::apply(void) const
+void Camera::apply(GL::Context& context) const
 {
-  GL::Context* context = GL::Context::get();
-  if (!context)
-  {
-    Log::writeError("Cannot make camera current without an OpenGL context");
-    return;
-  }
-
-  context->setProjectionMatrix3D(FOV, aspectRatio, minDepth, maxDepth);
-  context->setViewMatrix(getViewTransform());
+  context.setProjectionMatrix3D(FOV, aspectRatio, minDepth, maxDepth);
+  context.setViewMatrix(getViewTransform());
 }
 
 float Camera::getFOV(void) const

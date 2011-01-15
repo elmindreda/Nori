@@ -83,7 +83,7 @@ const char* getFramebufferStatusMessage(GLenum status)
       return "Framebuffer configuration is unsupported";
   }
 
-  Log::writeError("Unknown OpenGL framebuffer status %u", status);
+  logError("Unknown OpenGL framebuffer status %u", status);
   return "Unknown framebuffer status";
 }
 
@@ -103,7 +103,7 @@ GLenum convertToGL(ImageCanvas::Attachment attachment)
       return GL_DEPTH_ATTACHMENT_EXT;
   }
 
-  Log::writeError("Invalid image canvas attachment %u", attachment);
+  logError("Invalid image canvas attachment %u", attachment);
   return 0;
 }
 
@@ -123,7 +123,7 @@ const char* getAttachmentName(ImageCanvas::Attachment attachment)
       return "depth buffer";
   }
 
-  Log::writeError("Invalid image canvas attachment %u", attachment);
+  logError("Invalid image canvas attachment %u", attachment);
   return "unknown buffer";
 }
 
@@ -161,7 +161,7 @@ GLenum convertToGL(PrimitiveType type)
       return GL_TRIANGLE_FAN;
   }
 
-  Log::writeError("Invalid primitive type %u", type);
+  logError("Invalid primitive type %u", type);
   return 0;
 }
 
@@ -211,25 +211,25 @@ bool isCompatible(const Varying& varying, const VertexComponent& component)
 
 void requestModelMatrix(Uniform& uniform)
 {
-  Context* context = Context::get();
+  Context* context = Context::getSingleton();
   uniform.setValue(context->getModelMatrix());
 }
 
 void requestViewMatrix(Uniform& uniform)
 {
-  Context* context = Context::get();
+  Context* context = Context::getSingleton();
   uniform.setValue(context->getViewMatrix());
 }
 
 void requestProjectionMatrix(Uniform& uniform)
 {
-  Context* context = Context::get();
+  Context* context = Context::getSingleton();
   uniform.setValue(context->getProjectionMatrix());
 }
 
 void requestModelViewMatrix(Uniform& uniform)
 {
-  Context* context = Context::get();
+  Context* context = Context::getSingleton();
   Mat4 value = context->getViewMatrix();
   value *= context->getModelMatrix();
   uniform.setValue(value);
@@ -237,7 +237,7 @@ void requestModelViewMatrix(Uniform& uniform)
 
 void requestViewProjectionMatrix(Uniform& uniform)
 {
-  Context* context = Context::get();
+  Context* context = Context::getSingleton();
   Mat4 value = context->getProjectionMatrix();
   value *= context->getViewMatrix();
   uniform.setValue(value);
@@ -245,7 +245,7 @@ void requestViewProjectionMatrix(Uniform& uniform)
 
 void requestModelViewProjectionMatrix(Uniform& uniform)
 {
-  Context* context = Context::get();
+  Context* context = Context::getSingleton();
   Mat4 value = context->getProjectionMatrix();
   value *= context->getViewMatrix();
   value *= context->getModelMatrix();
@@ -297,18 +297,18 @@ ContextMode::ContextMode(unsigned int width,
 			 unsigned int initDepthBits,
 			 unsigned int initStencilBits,
 			 unsigned int initSamples,
-			 unsigned int initFlags):
+			 WindowMode initMode):
   ScreenMode(width, height, colorBits),
   depthBits(initDepthBits),
   stencilBits(initStencilBits),
   samples(initSamples),
-  flags(initFlags)
+  mode(initMode)
 {
 }
 
 void ContextMode::setDefaults(void)
 {
-  set(640, 480, 32, 32, 0, 0, DEFAULT);
+  set(640, 480, 32, 32, 0, 0, WINDOWED);
 }
 
 void ContextMode::set(unsigned int width,
@@ -317,14 +317,14 @@ void ContextMode::set(unsigned int width,
 		      unsigned int newDepthBits,
 		      unsigned int newStencilBits,
 		      unsigned int newSamples,
-		      unsigned int newFlags)
+		      WindowMode newMode)
 {
   ScreenMode::set(width, height, colorBits);
 
   depthBits = newDepthBits;
   stencilBits = newStencilBits;
   samples = newSamples;
-  flags = newFlags;
+  mode = newMode;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -545,8 +545,8 @@ bool ImageCanvas::setBuffer(Attachment attachment, Image* newImage)
   {
     if (newImage->getWidth() != width || newImage->getHeight() != height)
     {
-      Log::writeError("Specified %s image object does not match canvas dimensions",
-                      getAttachmentName(attachment));
+      logError("Specified %s image object does not match canvas dimensions",
+               getAttachmentName(attachment));
       return false;
     }
   }
@@ -557,15 +557,15 @@ bool ImageCanvas::setBuffer(Attachment attachment, Image* newImage)
 
     if (index >= context.getLimits().getMaxColorAttachments())
     {
-      Log::writeError("OpenGL context supports at most %u FBO color attachments",
-                      context.getLimits().getMaxColorAttachments());
+      logError("OpenGL context supports at most %u FBO color attachments",
+               context.getLimits().getMaxColorAttachments());
       return false;
     }
 
     if (index >= context.getLimits().getMaxDrawBuffers())
     {
-      Log::writeError("OpenGL context supports at most %u draw buffers",
-                      context.getLimits().getMaxDrawBuffers());
+      logError("OpenGL context supports at most %u draw buffers",
+               context.getLimits().getMaxDrawBuffers());
       return false;
     }
   }
@@ -585,7 +585,9 @@ bool ImageCanvas::setBuffer(Attachment attachment, Image* newImage)
   return true;
 }
 
-ImageCanvas* ImageCanvas::createInstance(Context& context, unsigned int width, unsigned int height)
+ImageCanvas* ImageCanvas::create(Context& context,
+                                 unsigned int width,
+                                 unsigned int height)
 {
   Ptr<ImageCanvas> canvas(new ImageCanvas(context));
   if (!canvas->init(width, height))
@@ -707,7 +709,7 @@ void Stats::addPrimitives(PrimitiveType type, unsigned int count)
       frame.triangleCount += count - 1;
       break;
     default:
-      Log::writeError("Invalid primitive type %u", type);
+      logError("Invalid primitive type %u", type);
   }
 }
 
@@ -800,14 +802,14 @@ void Context::render(const PrimitiveRange& range)
 {
   if (!currentProgram)
   {
-    Log::writeError("Unable to render without a current shader program");
+    logError("Unable to render without a current shader program");
     return;
   }
 
   if (range.isEmpty())
   {
-    Log::writeWarning("Rendering empty primitive range with shader program \'%s\'",
-                      currentProgram->getName().c_str());
+    logWarning("Rendering empty primitive range with shader program \'%s\'",
+               currentProgram->getPath().asString().c_str());
     return;
   }
 
@@ -827,29 +829,29 @@ void Context::render(const PrimitiveRange& range)
 
   if (program.getVaryingCount() > format.getComponentCount())
   {
-    Log::writeError("Shader program \'%s\' has more varying parameters than vertex format has components",
-                    program.getName().c_str());
+    logError("Shader program \'%s\' has more varying parameters than vertex format has components",
+             program.getPath().asString().c_str());
     return;
   }
 
-  for (unsigned int i = 0;  i < program.getVaryingCount();  i++)
+  for (int i = 0;  i < program.getVaryingCount();  i++)
   {
     Varying& varying = program.getVarying(i);
 
     const VertexComponent* component = format.findComponent(varying.getName());
     if (!component)
     {
-      Log::writeError("Varying parameter \'%s\' of shader program \'%s\' has no corresponding vertex format component",
-                      varying.getName().c_str(),
-                      program.getName().c_str());
+      logError("Varying parameter \'%s\' of shader program \'%s\' has no corresponding vertex format component",
+               varying.getName().c_str(),
+               program.getPath().asString().c_str());
       return;
     }
 
     if (!isCompatible(varying, *component))
     {
-      Log::writeError("Varying parameter \'%s\' of shader program \'%s\' has incompatible type",
-                      varying.getName().c_str(),
-                      program.getName().c_str());
+      logError("Varying parameter \'%s\' of shader program \'%s\' has incompatible type",
+               varying.getName().c_str(),
+               program.getPath().asString().c_str());
       return;
     }
 
@@ -1028,7 +1030,7 @@ bool Context::setCurrentCanvas(Canvas& newCanvas)
 #if WENDY_DEBUG
   GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
   if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
-    Log::writeError("Image canvas is incomplete: %s", getFramebufferStatusMessage(status));
+    logError("Image canvas is incomplete: %s", getFramebufferStatusMessage(status));
 #endif
 
   updateViewportArea();
@@ -1064,7 +1066,7 @@ bool Context::setClipPlanes(const PlaneList& newPlanes)
   {
     // TODO: Verify this.
 
-    const double equation[4] = { (*p).normal.x, (*p).normal.y, (*p).normal.z, (*p).distance };
+    const double equation[4] = { p->normal.x, p->normal.y, p->normal.z, p->distance };
 
     glEnable(GL_CLIP_PLANE0 + index);
     glClipPlane(GL_CLIP_PLANE0 + index, equation);
@@ -1149,6 +1151,11 @@ void Context::setTitle(const String& newTitle)
   title = newTitle;
 }
 
+ResourceIndex& Context::getIndex(void) const
+{
+  return index;
+}
+
 const Limits& Context::getLimits(void) const
 {
   return *limits;
@@ -1169,9 +1176,9 @@ SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal(void)
   return resizedSignal;
 }
 
-bool Context::create(const ContextMode& mode)
+bool Context::createSingleton(ResourceIndex& index, const ContextMode& mode)
 {
-  Ptr<Context> context(new Context());
+  Ptr<Context> context(new Context(index));
   if (!context->init(mode))
     return false;
 
@@ -1204,7 +1211,8 @@ void Context::getScreenModes(ScreenModeList& result)
   }
 }
 
-Context::Context(void):
+Context::Context(ResourceIndex& initIndex):
+  index(initIndex),
   cgContextID(NULL),
   cgVertexProfile(CG_PROFILE_UNKNOWN),
   cgFragmentProfile(CG_PROFILE_UNKNOWN),
@@ -1222,7 +1230,8 @@ Context::Context(void):
   instance = this;
 }
 
-Context::Context(const Context& source)
+Context::Context(const Context& source):
+  index(source.index)
 {
   // NOTE: Not implemented.
 }
@@ -1245,21 +1254,21 @@ bool Context::init(const ContextMode& initMode)
     if (colorBits > 24)
       colorBits = 24;
 
-    unsigned int flags;
+    unsigned int mode;
 
-    if (initMode.flags & ContextMode::WINDOWED)
-      flags = GLFW_WINDOW;
+    if (initMode.mode == WINDOWED)
+      mode = GLFW_WINDOW;
     else
-      flags = GLFW_FULLSCREEN;
+      mode = GLFW_FULLSCREEN;
 
     if (initMode.samples)
       glfwOpenWindowHint(GLFW_FSAA_SAMPLES, initMode.samples);
 
     if (!glfwOpenWindow(initMode.width, initMode.height,
                         colorBits / 3, colorBits / 3, colorBits / 3, 0,
-                        initMode.depthBits, initMode.stencilBits, flags))
+                        initMode.depthBits, initMode.stencilBits, mode))
     {
-      Log::writeError("Unable to create GLFW window");
+      logError("Unable to create GLFW window");
       return false;
     }
   }
@@ -1268,37 +1277,37 @@ bool Context::init(const ContextMode& initMode)
   {
     if (glewInit() != GLEW_OK)
     {
-      Log::writeError("Unable to initialize GLEW");
+      logError("Unable to initialize GLEW");
       return false;
     }
 
     if (!GLEW_ARB_vertex_buffer_object)
     {
-      Log::writeError("Vertex buffer objects (ARB_vertex_buffer_object) are required but not supported");
+      logError("Vertex buffer objects (ARB_vertex_buffer_object) are required but not supported");
       return false;
     }
 
     if (!GLEW_ARB_texture_cube_map)
     {
-      Log::writeError("Cube map textures (ARB_texture_cube_map) are required but not supported");
+      logError("Cube map textures (ARB_texture_cube_map) are required but not supported");
       return false;
     }
 
     if (!GLEW_ARB_texture_rectangle && !GLEW_EXT_texture_rectangle)
     {
-      Log::writeError("Rectangular textures ({ARB|EXT}_texture_rectangle) are required but not supported");
+      logError("Rectangular textures ({ARB|EXT}_texture_rectangle) are required but not supported");
       return false;
     }
 
     if (!GLEW_ARB_draw_buffers)
     {
-      Log::writeError("Draw buffers (ARB_draw_buffers) are required but not supported");
+      logError("Draw buffers (ARB_draw_buffers) are required but not supported");
       return false;
     }
 
     if (!GLEW_EXT_framebuffer_object)
     {
-      Log::writeError("Framebuffer objects (EXT_framebuffer_object) are required but not supported");
+      logError("Framebuffer objects (EXT_framebuffer_object) are required but not supported");
       return false;
     }
   }
@@ -1311,19 +1320,19 @@ bool Context::init(const ContextMode& initMode)
     cgContextID = cgCreateContext();
     if (!cgContextID)
     {
-      Log::writeError("Unable to create Cg context: %s", cgGetErrorString(cgGetError()));
+      logError("Unable to create Cg context: %s", cgGetErrorString(cgGetError()));
       return false;
     }
 
     cgVertexProfile = cgGLGetLatestProfile(CG_GL_VERTEX);
     if (cgVertexProfile == CG_PROFILE_UNKNOWN)
     {
-      Log::writeError("Unable to find any usable Cg vertex profile");
+      logError("Unable to find any usable Cg vertex profile");
       return false;
     }
 
-    Log::write("Cg vertex profile %s selected",
-               cgGetProfileString((CGprofile) cgVertexProfile));
+    log("Cg vertex profile %s selected",
+        cgGetProfileString((CGprofile) cgVertexProfile));
 
     cgGLEnableProfile((CGprofile) cgVertexProfile);
     cgGLSetOptimalOptions((CGprofile) cgVertexProfile);
@@ -1334,12 +1343,12 @@ bool Context::init(const ContextMode& initMode)
     cgFragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
     if (cgFragmentProfile == CG_PROFILE_UNKNOWN)
     {
-      Log::writeError("Unable to find any usable Cg fragment profile");
+      logError("Unable to find any usable Cg fragment profile");
       return false;
     }
 
-    Log::write("Cg fragment profile %s selected",
-               cgGetProfileString((CGprofile) cgFragmentProfile));
+    log("Cg fragment profile %s selected",
+        cgGetProfileString((CGprofile) cgFragmentProfile));
 
     cgGLEnableProfile((CGprofile) cgFragmentProfile);
     cgGLSetOptimalOptions((CGprofile) cgFragmentProfile);
@@ -1378,7 +1387,7 @@ bool Context::init(const ContextMode& initMode)
     screenCanvas->mode.depthBits = glfwGetWindowParam(GLFW_DEPTH_BITS);
     screenCanvas->mode.stencilBits = glfwGetWindowParam(GLFW_STENCIL_BITS);
     screenCanvas->mode.samples = glfwGetWindowParam(GLFW_FSAA_SAMPLES);
-    screenCanvas->mode.flags = initMode.flags;
+    screenCanvas->mode.mode = initMode.mode;
 
     setScreenCanvasCurrent();
   }
@@ -1449,7 +1458,7 @@ void Context::sizeCallback(int width, int height)
 
 int Context::closeCallback(void)
 {
-  std::list<bool> results;
+  std::vector<bool> results;
 
   instance->closeRequestSignal.emit(results);
 

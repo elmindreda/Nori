@@ -26,9 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/Core.h>
-#include <wendy/Block.h>
 #include <wendy/Path.h>
-#include <wendy/Stream.h>
 #include <wendy/Vector.h>
 #include <wendy/Quaternion.h>
 #include <wendy/Color.h>
@@ -93,12 +91,12 @@ Reader::~Reader(void)
 {
 }
 
-bool Reader::read(Stream& stream)
+bool Reader::read(std::istream& stream)
 {
   parser = XML_ParserCreate(NULL);
   if (parser == NULL)
   {
-    Log::writeError("Failed to create XML parser");
+    logError("Failed to create XML parser");
     return false;
   }
 
@@ -107,18 +105,15 @@ bool Reader::read(Stream& stream)
   XML_SetEndCdataSectionHandler((XML_Parser) parser, endCharacterDataHandler);
   XML_SetUserData((XML_Parser) parser, this);
 
-  TextStream textStream(stream, false);
-
-  String text;
-  text.reserve(65536);
-
+  String line;
   bool result = true;
 
-  while (textStream.readText(text, text.capacity()))
+  while (std::getline(stream, line))
   {
-    if (!XML_Parse((XML_Parser) parser, text.c_str(), (unsigned int) text.length(), textStream.isEOF()))
+    if (!XML_Parse((XML_Parser) parser, line.data(), line.length(), stream.eof()))
     {
-      Log::writeError("Failed to parse XML: %s", XML_ErrorString(XML_GetErrorCode((XML_Parser) parser)));
+      logError("Failed to parse XML: %s",
+               XML_ErrorString(XML_GetErrorCode((XML_Parser) parser)));
       result = false;
     }
 
@@ -143,97 +138,6 @@ bool Reader::onEndElement(const String& name)
 bool Reader::onCDATA(const String& data)
 {
   return true;
-}
-
-template <>
-void Reader::readAttributes(Vec2& value)
-{
-  value.x = readFloat("x", 0.f);
-  value.y = readFloat("y", 0.f);
-}
-
-template <>
-void Reader::readAttributes(Vec3& value)
-{
-  value.x = readFloat("x", 0.f);
-  value.y = readFloat("y", 0.f);
-  value.z = readFloat("z", 0.f);
-}
-
-template <>
-void Reader::readAttributes(Vec4& value)
-{
-  value.x = readFloat("x", 0.f);
-  value.y = readFloat("y", 0.f);
-  value.z = readFloat("z", 0.f);
-  value.w = readFloat("w", 0.f);
-}
-
-template <>
-void Reader::readAttributes(ColorRGB& value)
-{
-  value.r = readFloat("r", 0.f);
-  value.g = readFloat("g", 0.f);
-  value.b = readFloat("b", 0.f);
-}
-
-template <>
-void Reader::readAttributes(ColorRGBA& value)
-{
-  value.r = readFloat("r", 0.f);
-  value.g = readFloat("g", 0.f);
-  value.b = readFloat("b", 0.f);
-  value.a = readFloat("a", 0.f);
-}
-
-template <>
-void Reader::readAttributes(Vec2& value, const Vec2& defaultValue)
-{
-  value.x = readFloat("x", defaultValue.x);
-  value.y = readFloat("y", defaultValue.y);
-}
-
-template <>
-void Reader::readAttributes(Vec3& value, const Vec3& defaultValue)
-{
-  value.x = readFloat("x", defaultValue.x);
-  value.y = readFloat("y", defaultValue.y);
-  value.z = readFloat("z", defaultValue.z);
-}
-
-template <>
-void Reader::readAttributes(Vec4& value, const Vec4& defaultValue)
-{
-  value.x = readFloat("x", defaultValue.x);
-  value.y = readFloat("y", defaultValue.y);
-  value.z = readFloat("z", defaultValue.z);
-  value.w = readFloat("w", defaultValue.w);
-}
-
-template <>
-void Reader::readAttributes(Quat& value, const Quat& defaultValue)
-{
-  value.x = readFloat("x", defaultValue.x);
-  value.y = readFloat("y", defaultValue.y);
-  value.z = readFloat("z", defaultValue.z);
-  value.w = readFloat("w", defaultValue.w);
-}
-
-template <>
-void Reader::readAttributes(ColorRGB& value, const ColorRGB& defaultValue)
-{
-  value.r = readFloat("r", defaultValue.r);
-  value.g = readFloat("g", defaultValue.g);
-  value.b = readFloat("b", defaultValue.b);
-}
-
-template <>
-void Reader::readAttributes(ColorRGBA& value, const ColorRGBA& defaultValue)
-{
-  value.r = readFloat("r", defaultValue.r);
-  value.g = readFloat("g", defaultValue.g);
-  value.b = readFloat("b", defaultValue.b);
-  value.a = readFloat("a", defaultValue.a);
 }
 
 bool Reader::readBoolean(const String& name, bool defaultValue)
@@ -366,16 +270,16 @@ Writer::Writer(void):
 void Writer::beginElement(const String& name)
 {
   if (stack.empty())
-    stream->writeLine("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>");
+    *stream << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>" << std::endl;
   else
     closeElement();
 
   const char space = ' ';
 
   for (unsigned int i = 0;  i < stack.size();  i++)
-    stream->writeItem(space);
+    *stream << space;
 
-  stream->writeText("<%s", name.c_str());
+  *stream << '<' << name;
 
   stack.push(name);
   closed = false;
@@ -394,15 +298,16 @@ void Writer::endElement(void)
     const char space = ' ';
 
     for (unsigned int i = 0;  i < stack.size() - 1;  i++)
-      stream->writeItem(space);
-    stream->writeLine("</%s>", name.c_str());
+      *stream << space;
+
+    *stream << "</" << name << ">" << std::endl;
   }
   else
   {
     if (simple)
-      stream->writeLine("/>");
+      *stream << "/>" << std::endl;
     else
-      stream->writeLine(" />");
+      *stream << " />" << std::endl;
 
     closed = true;
   }
@@ -425,7 +330,7 @@ void Writer::addAttribute(const String& name, const bool& value)
   if (closed)
     throw Exception("Attribute added outside element");
 
-  stream->writeText(" %s=\"%u\"", name.c_str(), value ? 1 : 0);
+  *stream << " " << name << "=\"" << (value ? 1 : 0) << "\"";
   simple = false;
 }
 
@@ -435,7 +340,7 @@ void Writer::addAttribute(const String& name, const int& value)
   if (closed)
     throw Exception("Attribute added outside element");
 
-  stream->writeText(" %s=\"%i\"", name.c_str(), value);
+  *stream << " " << name << "=\"" << value << "\"";
   simple = false;
 }
 
@@ -445,7 +350,7 @@ void Writer::addAttribute(const String& name, const unsigned int& value)
   if (closed)
     throw Exception("Attribute added outside element");
 
-  stream->writeText(" %s=\"%u\"", name.c_str(), value);
+  *stream << " " << name << "=\"" << value << "\"";
   simple = false;
 }
 
@@ -455,7 +360,7 @@ void Writer::addAttribute(const String& name, const float& value)
   if (closed)
     throw Exception("Attribute added outside element");
 
-  stream->writeText(" %s=\"%f\"", name.c_str(), value);
+  *stream << " " << name << "=\"" << value << "\"";
   simple = false;
 }
 
@@ -465,7 +370,7 @@ void Writer::addAttribute(const String& name, const Time& value)
   if (closed)
     throw Exception("Attribute added outside element");
 
-  stream->writeText(" %s=\"%f\"", name.c_str(), value);
+  *stream << " " << name << "=\"" << value << "\"";
   simple = false;
 }
 
@@ -475,60 +380,16 @@ void Writer::addAttribute(const String& name, const String& value)
   if (closed)
     throw Exception("Attribute added outside element");
 
-  stream->writeText(" %s=\"%s\"", name.c_str(), escapeString(value).c_str());
+  *stream << " " << name << "=\"" << escapeString(value) << "\"";
   simple = false;
 }
 
-template <>
-void Writer::addAttributes(const ColorRGB& value)
+void Writer::setStream(std::ostream* newStream)
 {
-  addAttribute("r", value.r);
-  addAttribute("g", value.g);
-  addAttribute("b", value.b);
+  stream = newStream;
 }
 
-template <>
-void Writer::addAttributes(const ColorRGBA& value)
-{
-  addAttribute("r", value.r);
-  addAttribute("g", value.g);
-  addAttribute("b", value.b);
-  addAttribute("a", value.a);
-}
-
-template <>
-void Writer::addAttributes(const Vec2& value)
-{
-  addAttribute("x", value.x);
-  addAttribute("y", value.y);
-}
-
-template <>
-void Writer::addAttributes(const Vec3& value)
-{
-  addAttribute("x", value.x);
-  addAttribute("y", value.y);
-  addAttribute("z", value.z);
-}
-
-template <>
-void Writer::addAttributes(const Vec4& value)
-{
-  addAttribute("x", value.x);
-  addAttribute("y", value.y);
-  addAttribute("z", value.z);
-  addAttribute("w", value.w);
-}
-
-void Writer::setStream(Stream* newStream)
-{
-  if (newStream)
-    stream = new TextStream(*newStream, false);
-  else
-    stream = NULL;
-}
-
-TextStream* Writer::getStream(void)
+std::ostream* Writer::getStream(void)
 {
   return stream;
 }
@@ -543,9 +404,9 @@ void Writer::closeElement(void)
   if (!closed)
   {
     if (simple)
-      stream->writeLine(">");
+      *stream << ">" << std::endl;
     else
-      stream->writeLine(" >");
+      *stream << " >" << std::endl;
 
     closed = true;
     simple = true;

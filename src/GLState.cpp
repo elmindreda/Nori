@@ -25,6 +25,9 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/Core.h>
+#include <wendy/Block.h>
+
 #include <wendy/OpenGL.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
@@ -35,6 +38,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
+#include <algorithm>
 #include <cstring>
 
 ///////////////////////////////////////////////////////////////////////
@@ -61,7 +65,7 @@ GLenum convertToGL(CullMode mode)
       return GL_FRONT_AND_BACK;
   }
 
-  Log::writeError("Invalid cull mode %u", mode);
+  logError("Invalid cull mode %u", mode);
   return 0;
 }
 
@@ -79,7 +83,7 @@ CullMode invertCullMode(CullMode mode)
       return CULL_NONE;
   }
 
-  Log::writeError("Invalid cull mode %u", mode);
+  logError("Invalid cull mode %u", mode);
   return (CullMode) 0;
 }
 
@@ -109,7 +113,7 @@ GLenum convertToGL(BlendFactor factor)
       return GL_ONE_MINUS_DST_ALPHA;
   }
 
-  Log::writeError("Invalid blend factor %u", factor);
+  logError("Invalid blend factor %u", factor);
   return 0;
 }
 
@@ -135,7 +139,7 @@ GLenum convertToGL(Function function)
       return GL_GEQUAL;
   }
 
-  Log::writeError("Invalid comparison function %u", function);
+  logError("Invalid comparison function %u", function);
   return 0;
 }
 
@@ -161,7 +165,7 @@ GLenum convertToGL(Operation operation)
       return GL_DECR_WRAP;
   }
 
-  Log::writeError("Invalid stencil operation %u", operation);
+  logError("Invalid stencil operation %u", operation);
   return 0;
 }
 
@@ -188,22 +192,16 @@ inline bool NameComparator<T>::operator () (const T& object)
   return name == object.getName();
 }
 
-template <typename T>
-inline bool NameComparator<T>::operator () (const T* object)
+template <>
+inline bool NameComparator<UniformState>::operator () (const UniformState& object)
 {
-  return name == object->getName();
+  return name == object.getUniform().getName();
 }
 
 template <>
-inline bool NameComparator<UniformState>::operator () (const UniformState* object)
+inline bool NameComparator<SamplerState>::operator () (const SamplerState& object)
 {
-  return name == object->getUniform().getName();
-}
-
-template <>
-inline bool NameComparator<SamplerState>::operator () (const SamplerState* object)
-{
-  return name == object->getSampler().getName();
+  return name == object.getSampler().getName();
 }
 
 } /*namespace*/
@@ -383,7 +381,7 @@ void StencilState::Data::setDefaults(void)
 ///////////////////////////////////////////////////////////////////////
 
 UniformState::UniformState(Uniform& initUniform):
-  uniform(initUniform)
+  uniform(&initUniform)
 {
   std::memset(data, 0, sizeof(data));
 }
@@ -391,6 +389,12 @@ UniformState::UniformState(Uniform& initUniform):
 UniformState::UniformState(const UniformState& source):
   uniform(source.uniform)
 {
+  std::memcpy(data, source.data, sizeof(data));
+}
+
+UniformState& UniformState::operator = (const UniformState& source)
+{
+  uniform = source.uniform;
   std::memcpy(data, source.data, sizeof(data));
 }
 
@@ -486,48 +490,41 @@ void UniformState::setValue(const Mat4& newValue)
 
 Uniform& UniformState::getUniform(void) const
 {
-  return uniform;
+  return *uniform;
 }
 
 void UniformState::apply(void) const
 {
-  switch (uniform.getType())
+  switch (uniform->getType())
   {
     case Uniform::FLOAT:
-      uniform.setValue(*data);
+      uniform->setValue(*data);
       break;
     case Uniform::FLOAT_VEC2:
-      uniform.setValue(*reinterpret_cast<const Vec2*>(data));
+      uniform->setValue(*reinterpret_cast<const Vec2*>(data));
       break;
     case Uniform::FLOAT_VEC3:
-      uniform.setValue(*reinterpret_cast<const Vec3*>(data));
+      uniform->setValue(*reinterpret_cast<const Vec3*>(data));
       break;
     case Uniform::FLOAT_VEC4:
-      uniform.setValue(*reinterpret_cast<const Vec4*>(data));
+      uniform->setValue(*reinterpret_cast<const Vec4*>(data));
       break;
     case Uniform::FLOAT_MAT2:
-      uniform.setValue(*reinterpret_cast<const Mat2*>(data));
+      uniform->setValue(*reinterpret_cast<const Mat2*>(data));
       break;
     case Uniform::FLOAT_MAT3:
-      uniform.setValue(*reinterpret_cast<const Mat3*>(data));
+      uniform->setValue(*reinterpret_cast<const Mat3*>(data));
       break;
     case Uniform::FLOAT_MAT4:
-      uniform.setValue(*reinterpret_cast<const Mat4*>(data));
+      uniform->setValue(*reinterpret_cast<const Mat4*>(data));
       break;
   }
-}
-
-UniformState& UniformState::operator = (const UniformState& source)
-{
-  // NOTE: Not implemented.
-
-  return *this;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 SamplerState::SamplerState(Sampler& initSampler):
-  sampler(initSampler)
+  sampler(&initSampler)
 {
 }
 
@@ -535,6 +532,13 @@ SamplerState::SamplerState(const SamplerState& source):
   sampler(source.sampler)
 {
   texture = source.texture;
+}
+
+SamplerState& SamplerState::operator = (const SamplerState& source)
+{
+  sampler = source.sampler;
+  texture = source.texture;
+  return *this;
 }
 
 void SamplerState::getTexture(Ref<Texture>& result) const
@@ -549,24 +553,17 @@ void SamplerState::setTexture(Texture* newTexture)
 
 Sampler& SamplerState::getSampler(void) const
 {
-  return sampler;
+  return *sampler;
 }
 
 void SamplerState::apply(void) const
 {
   if (texture)
-    sampler.setTexture(*texture);
+    sampler->setTexture(*texture);
   else
   {
     // TODO: Wtf do we do here?
   }
-}
-
-SamplerState& SamplerState::operator = (const SamplerState& source)
-{
-  // NOTE: Not implemented.
-
-  return *this;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -590,24 +587,25 @@ void ProgramState::apply(void) const
   if (program)
   {
     for (UniformList::const_iterator i = uniforms.begin();  i != uniforms.end();  i++)
-      (**i).apply();
+      i->apply();
 
     for (SamplerList::const_iterator i = samplers.begin();  i != samplers.end();  i++)
-      (**i).apply();
+      i->apply();
 
-    Context::get()->setCurrentProgram(program);
+    program->getContext().setCurrentProgram(program);
   }
 }
 
 ProgramState& ProgramState::operator = (const ProgramState& source)
 {
-  setProgram(source.program);
+  destroyProgramState();
+  program = source.program;
 
-  for (SamplerList::const_iterator s = source.samplers.begin();  s != source.samplers.end();  s++)
-    samplers.push_back(new SamplerState(**s));
-
-  for (UniformList::const_iterator s = source.uniforms.begin();  s != source.uniforms.end();  s++)
-    uniforms.push_back(new UniformState(**s));
+  if (program)
+  {
+    samplers = source.samplers;
+    uniforms = source.uniforms;
+  }
 
   return *this;
 }
@@ -619,11 +617,11 @@ unsigned int ProgramState::getUniformCount(void) const
 
 UniformState& ProgramState::getUniformState(const String& name)
 {
-  UniformList::const_iterator i = std::find_if(uniforms.begin(), uniforms.end(), NameComparator<UniformState>(name));
+  UniformList::iterator i = std::find_if(uniforms.begin(), uniforms.end(), NameComparator<UniformState>(name));
   if (i == uniforms.end())
     throw Exception("Render pass uniform state unknown");
 
-  return **i;
+  return *i;
 }
 
 const UniformState& ProgramState::getUniformState(const String& name) const
@@ -632,7 +630,7 @@ const UniformState& ProgramState::getUniformState(const String& name) const
   if (i == uniforms.end())
     throw Exception("Render pass uniform state unknown");
 
-  return **i;
+  return *i;
 }
 
 UniformState& ProgramState::getUniformState(unsigned int index)
@@ -640,7 +638,7 @@ UniformState& ProgramState::getUniformState(unsigned int index)
   if (index >= uniforms.size())
     throw Exception("Render pass uniform state access out of range");
 
-  return *uniforms[index];
+  return uniforms[index];
 }
 
 const UniformState& ProgramState::getUniformState(unsigned int index) const
@@ -648,7 +646,7 @@ const UniformState& ProgramState::getUniformState(unsigned int index) const
   if (index >= uniforms.size())
     throw Exception("Render pass uniform state access out of range");
 
-  return *uniforms[index];
+  return uniforms[index];
 }
 
 unsigned int ProgramState::getSamplerCount(void) const
@@ -658,11 +656,11 @@ unsigned int ProgramState::getSamplerCount(void) const
 
 SamplerState& ProgramState::getSamplerState(const String& name)
 {
-  SamplerList::const_iterator i = std::find_if(samplers.begin(), samplers.end(), NameComparator<SamplerState>(name));
+  SamplerList::iterator i = std::find_if(samplers.begin(), samplers.end(), NameComparator<SamplerState>(name));
   if (i == samplers.end())
     throw Exception("Render pass sampler state unknown");
 
-  return **i;
+  return *i;
 }
 
 const SamplerState& ProgramState::getSamplerState(const String& name) const
@@ -671,7 +669,7 @@ const SamplerState& ProgramState::getSamplerState(const String& name) const
   if (i == samplers.end())
     throw Exception("Render pass sampler state unknown");
 
-  return **i;
+  return *i;
 }
 
 SamplerState& ProgramState::getSamplerState(unsigned int index)
@@ -679,7 +677,7 @@ SamplerState& ProgramState::getSamplerState(unsigned int index)
   if (index >= samplers.size())
     throw Exception("Render pass sampler state access out of range");
 
-  return *samplers[index];
+  return samplers[index];
 }
 
 const SamplerState& ProgramState::getSamplerState(unsigned int index) const
@@ -687,7 +685,7 @@ const SamplerState& ProgramState::getSamplerState(unsigned int index) const
   if (index >= samplers.size())
     throw Exception("Render pass sampler state access out of range");
 
-  return *samplers[index];
+  return samplers[index];
 }
 
 Program* ProgramState::getProgram(void) const
@@ -706,20 +704,20 @@ void ProgramState::setProgram(Program* newProgram)
     {
       Sampler& sampler = program->getSampler(i);
 
-      if (Context::get()->isReservedSampler(sampler.getName()))
+      if (program->getContext().isReservedSampler(sampler.getName()))
 	continue;
 
-      samplers.push_back(new SamplerState(sampler));
+      samplers.push_back(SamplerState(sampler));
     }
 
     for (unsigned int i = 0;  i < program->getUniformCount();  i++)
     {
       Uniform& uniform = program->getUniform(i);
 
-      if (Context::get()->isReservedUniform(uniform.getName()))
+      if (program->getContext().isReservedUniform(uniform.getName()))
 	continue;
 
-      uniforms.push_back(new UniformState(uniform));
+      uniforms.push_back(UniformState(uniform));
     }
   }
 }
@@ -731,24 +729,15 @@ void ProgramState::setDefaults(void)
 
 void ProgramState::destroyProgramState(void)
 {
-  while (!uniforms.empty())
-  {
-    delete uniforms.back();
-    uniforms.pop_back();
-  }
-
-  while (!samplers.empty())
-  {
-    delete samplers.back();
-    samplers.pop_back();
-  }
+  uniforms.clear();
+  samplers.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 void RenderState::apply(void) const
 {
-  if (Context* context = Context::get())
+  if (Context* context = Context::getSingleton())
   {
     if (Stats* stats = context->getStats())
       stats->addPasses(1);

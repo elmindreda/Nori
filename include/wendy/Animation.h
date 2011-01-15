@@ -85,10 +85,10 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class Anim3 : public Resource<Anim3>
+class Anim3 : public Resource
 {
 public:
-  Anim3(const String& name = "");
+  Anim3(const ResourceInfo& info);
   Anim3(const Anim3& source);
   ~Anim3(void);
   Anim3& operator = (const Anim3& source);
@@ -103,6 +103,29 @@ public:
 private:
   typedef std::vector<AnimTrack3*> TrackList;
   TrackList tracks;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class Anim3Reader : public ResourceReader, public XML::Reader
+{
+public:
+  Anim3Reader(ResourceIndex& index);
+  Ref<Anim3> read(const Path& path);
+private:
+  bool onBeginElement(const String& name);
+  bool onEndElement(const String& name);
+  Ref<Anim3> animation;
+  ResourceInfo info;
+  AnimTrack3* currentTrack;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class Anim3Writer : public XML::Writer
+{
+public:
+  bool write(const Path& path, const Anim3& animation);
 };
 
 ///////////////////////////////////////////////////////////////////////

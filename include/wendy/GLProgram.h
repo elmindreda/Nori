@@ -27,14 +27,13 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.h>
-#include <wendy/Block.h>
 #include <wendy/Vector.h>
+#include <wendy/Color.h>
 #include <wendy/Matrix.h>
 #include <wendy/Vertex.h>
 #include <wendy/Path.h>
-#include <wendy/Stream.h>
-#include <wendy/Managed.h>
 #include <wendy/Resource.h>
+#include <wendy/XML.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -48,6 +47,34 @@ namespace wendy
 class Context;
 class Texture;
 class Program;
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Vertex program text container.
+ *  @ingroup opengl
+ */
+class VertexProgram
+{
+public:
+  VertexProgram(void);
+  VertexProgram(const String& text, const Path& path = Path());
+  String text;
+  Path path;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Fragment program text container.
+ *  @ingroup opengl
+ */
+class FragmentProgram
+{
+public:
+  FragmentProgram(void);
+  FragmentProgram(const String& text, const Path& path = Path());
+  String text;
+  Path path;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -74,9 +101,7 @@ public:
   Program& getProgram(void) const;
 private:
   Varying(Program& program);
-  Varying(const Varying& source);
-  Varying& operator = (const Varying& source);
-  Program& program;
+  Program* program;
   Type type;
   String name;
   void* varyingID;
@@ -116,9 +141,7 @@ public:
   Program& getProgram(void) const;
 private:
   Uniform(Program& program);
-  Uniform(const Uniform& source);
-  Uniform& operator = (const Uniform& source);
-  Program& program;
+  Program* program;
   String name;
   Type type;
   void* uniformID;
@@ -147,60 +170,10 @@ public:
   Program& getProgram(void) const;
 private:
   Sampler(Program& program);
-  Sampler(const Sampler& source);
-  Sampler& operator = (const Sampler& source);
-  Program& program;
+  Program* program;
   String name;
   Type type;
   void* samplerID;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Vertex program object.
- *  @ingroup opengl
- */
-class VertexProgram : public RefObject, public Resource<VertexProgram>
-{
-  friend class Program;
-public:
-  ~VertexProgram(void);
-  const String& getText(void) const;
-  static VertexProgram* createInstance(Context& context,
-                                       const String& text,
-                                       const String& name = "");
-private:
-  VertexProgram(Context& context, const String& name);
-  VertexProgram(const VertexProgram& source);
-  bool init(const String& initText);
-  VertexProgram& operator = (const VertexProgram& source);
-  Context& context;
-  void* programID;
-  String text;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Fragment program object.
- *  @ingroup opengl
- */
-class FragmentProgram : public RefObject, public Resource<FragmentProgram>
-{
-  friend class Program;
-public:
-  ~FragmentProgram(void);
-  const String& getText(void) const;
-  static FragmentProgram* createInstance(Context& context,
-                                         const String& text,
-                                         const String& name = "");
-private:
-  FragmentProgram(Context& context, const String& name);
-  FragmentProgram(const FragmentProgram& source);
-  bool init(const String& initText);
-  FragmentProgram& operator = (const FragmentProgram& source);
-  Context& context;
-  void* programID;
-  String text;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -210,7 +183,7 @@ private:
  *
  *  Represents a complete set of GPU programs.
  */
-class Program : public RefObject, public Resource<Program>
+class Program : public Resource
 {
   friend class Context;
 public:
@@ -230,33 +203,29 @@ public:
   unsigned int getSamplerCount(void) const;
   Sampler& getSampler(unsigned int index);
   const Sampler& getSampler(unsigned int index) const;
-  VertexProgram& getVertexProgram(void) const;
-  FragmentProgram& getFragmentProgram(void) const;
-  static Program* createInstance(Context& context,
-                                 VertexProgram& vertexProgram,
-                                 FragmentProgram& fragmentProgram,
-				 const String& name = "");
+  Context& getContext(void) const;
+  static Ref<Program> create(const ResourceInfo& info,
+                             Context& context,
+                             const VertexProgram& vertexProgram,
+                             const FragmentProgram& fragmentProgram);
+  static Ref<Program> read(Context& context, const Path& path);
 private:
-  Program(Context& context, const String& name);
+  Program(const ResourceInfo& info, Context& context);
   Program(const Program& source);
-  bool init(VertexProgram& vertexProgram, FragmentProgram& fragmentProgram);
+  bool init(const VertexProgram& vertexProgram,
+            const FragmentProgram& fragmentProgram);
   void apply(void) const;
   Program& operator = (const Program& source);
-  typedef std::vector<Varying*> VaryingList;
-  typedef std::vector<Uniform*> UniformList;
-  typedef std::vector<Sampler*> SamplerList;
+  typedef std::vector<Varying> VaryingList;
+  typedef std::vector<Uniform> UniformList;
+  typedef std::vector<Sampler> SamplerList;
   Context& context;
-  Ref<VertexProgram> vertexProgram;
-  Ref<FragmentProgram> fragmentProgram;
-  void* programID;
+  void* vertexProgramID;
+  void* fragmentProgramID;
   VaryingList varyings;
   UniformList uniforms;
   SamplerList samplers;
 };
-
-///////////////////////////////////////////////////////////////////////
-
-typedef Ref<Program> ProgramRef;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -278,6 +247,27 @@ private:
   UniformList uniforms;
   SamplerList samplers;
   VaryingList varyings;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Shader program XML codec.
+ *  @ingroup io
+ */
+class ProgramReader : public ResourceReader, public XML::Reader
+{
+public:
+  ProgramReader(Context& context);
+  Ref<Program> read(const Path& path);
+private:
+  bool onBeginElement(const String& name);
+  bool onEndElement(const String& name);
+  bool readTextFile(String& text, const Path& path);
+  Context& context;
+  Ref<Program> program;
+  ResourceInfo info;
+  Ptr<VertexProgram> vertexProgram;
+  Ptr<FragmentProgram> fragmentProgram;
 };
 
 ///////////////////////////////////////////////////////////////////////

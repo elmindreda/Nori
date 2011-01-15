@@ -44,9 +44,10 @@ namespace wendy
 /*! @brief Geometry pool.
  *  @ingroup render
  */
-class GeometryPool : public Trackable, public Singleton<GeometryPool>
+class GeometryPool : public Trackable
 {
 public:
+  GeometryPool(GL::Context& context);
   /*! Allocates a range of temporary indices of the specified type.
    *  @param[out] range The newly allocated index range.
    *  @param[in] count The number of indices to allocate.
@@ -74,11 +75,6 @@ public:
   /*! @return The context this renderer was created for.
    */
   GL::Context& getContext(void) const;
-  /*! Creates the renderer singleton.
-   *  @param[in] context The context to create the renderer for.
-   *  @return @c true if successful, or @c false if an error occurred.
-   */
-  static bool create(GL::Context& context);
 private:
   /*! @internal
    */
@@ -94,8 +90,6 @@ private:
     Ref<GL::VertexBuffer> vertexBuffer;
     unsigned int available;
   };
-  GeometryPool(GL::Context& context);
-  bool init(void);
   void onContextFinish(void);
   typedef std::list<IndexBufferSlot> IndexBufferList;
   typedef std::list<VertexBufferSlot> VertexBufferList;

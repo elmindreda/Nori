@@ -72,7 +72,7 @@ void Renderer::popClipArea(void)
 {
   if (clipAreaStack.getCount() == 1)
   {
-    Log::writeError("Cannot pop empty clip area stack");
+    logError("Cannot pop empty clip area stack");
     return;
   }
 
@@ -85,11 +85,11 @@ void Renderer::popClipArea(void)
 
 void Renderer::drawPoint(const Vec2& point, const ColorRGBA& color)
 {
-  GL::Vertex2fv vertex;
+  Vertex2fv vertex;
   vertex.position = point;
 
   GL::VertexRange range;
-  if (!pool.allocateVertices(range, 1, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 1, Vertex2fv::format))
     return;
 
   range.copyFrom(&vertex);
@@ -101,12 +101,12 @@ void Renderer::drawPoint(const Vec2& point, const ColorRGBA& color)
 
 void Renderer::drawLine(const Segment2& segment, const ColorRGBA& color)
 {
-  GL::Vertex2fv vertices[2];
+  Vertex2fv vertices[2];
   vertices[0].position = segment.start;
   vertices[1].position = segment.end;
 
   GL::VertexRange range;
-  if (!pool.allocateVertices(range, 2, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 2, Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -118,13 +118,13 @@ void Renderer::drawLine(const Segment2& segment, const ColorRGBA& color)
 
 void Renderer::drawTriangle(const Triangle2& triangle, const ColorRGBA& color)
 {
-  GL::Vertex2fv vertices[3];
+  Vertex2fv vertices[3];
   vertices[0].position = triangle.P[0];
   vertices[1].position = triangle.P[1];
   vertices[2].position = triangle.P[2];
 
   GL::VertexRange range;
-  if (!pool.allocateVertices(range, 3, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 3, Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -140,12 +140,12 @@ void Renderer::drawBezier(const BezierCurve2& spline, const ColorRGBA& color)
   spline.tessellate(points);
 
   GL::VertexRange range;
-  if (!pool.allocateVertices(range, points.size(), GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, points.size(), Vertex2fv::format))
     return;
 
   // Realize vertices
   {
-    GL::VertexRangeLock<GL::Vertex2fv> vertices(range);
+    GL::VertexRangeLock<Vertex2fv> vertices(range);
 
     for (unsigned int i = 0;  i < points.size();  i++)
       vertices[i].position = points[i];
@@ -167,14 +167,14 @@ void Renderer::drawRectangle(const Rect& rectangle, const ColorRGBA& color)
   maxX -= 1.f;
   maxY -= 1.f;
 
-  GL::Vertex2fv vertices[4];
+  Vertex2fv vertices[4];
   vertices[0].position.set(minX, minY);
   vertices[1].position.set(maxX, minY);
   vertices[2].position.set(maxX, maxY);
   vertices[3].position.set(minX, maxY);
 
   GL::VertexRange range;
-  if (!pool.allocateVertices(range, 4, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 4, Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -186,13 +186,13 @@ void Renderer::drawRectangle(const Rect& rectangle, const ColorRGBA& color)
 
 void Renderer::fillTriangle(const Triangle2& triangle, const ColorRGBA& color)
 {
-  GL::Vertex2fv vertices[3];
+  Vertex2fv vertices[3];
   vertices[0].position = triangle.P[0];
   vertices[1].position = triangle.P[1];
   vertices[2].position = triangle.P[2];
 
   GL::VertexRange range;
-  if (!pool.allocateVertices(range, 3, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 3, Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -213,14 +213,14 @@ void Renderer::fillRectangle(const Rect& rectangle, const ColorRGBA& color)
   maxX -= 1.f;
   maxY -= 1.f;
 
-  GL::Vertex2fv vertices[4];
+  Vertex2fv vertices[4];
   vertices[0].position.set(minX, minY);
   vertices[1].position.set(maxX, minY);
   vertices[2].position.set(maxX, maxY);
   vertices[3].position.set(minX, maxY);
 
   GL::VertexRange range;
-  if (!pool.allocateVertices(range, 4, GL::Vertex2fv::format))
+  if (!pool.allocateVertices(range, 4, Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -241,7 +241,7 @@ void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
   maxX -= 1.f;
   maxY -= 1.f;
 
-  GL::Vertex2ft2fv vertices[4];
+  Vertex2ft2fv vertices[4];
   vertices[0].mapping.set(0.f, 0.f);
   vertices[0].position.set(minX, minY);
   vertices[1].mapping.set(1.f, 0.f);
@@ -252,10 +252,15 @@ void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
   vertices[3].position.set(minX, maxY);
 
   GL::VertexRange range;
-  if (!pool.allocateVertices(range, 4, GL::Vertex2ft2fv::format))
+  if (!pool.allocateVertices(range, 4, Vertex2ft2fv::format))
     return;
 
   range.copyFrom(vertices);
+
+  if (texture.getFormat().getSemantic() == PixelFormat::RGBA)
+    blitPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
+  else
+    blitPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ZERO);
 
   blitPass.getSamplerState("image").setTexture(&texture);
   blitPass.apply();
@@ -290,7 +295,7 @@ void Renderer::drawText(const Rect& area,
                       (metrics.position.x + metrics.size.x);
       break;
     default:
-      Log::writeError("Invalid horizontal alignment");
+      logError("Invalid horizontal alignment");
       return;
   }
 
@@ -307,7 +312,7 @@ void Renderer::drawText(const Rect& area,
                       (metrics.position.y + metrics.size.y);
       break;
     default:
-      Log::writeError("Invalid vertical alignment");
+      logError("Invalid vertical alignment");
       return;
   }
 
@@ -338,7 +343,7 @@ void Renderer::drawText(const Rect& area,
       break;
 
     default:
-      Log::writeError("Invalid widget state %u", state);
+      logError("Invalid widget state %u", state);
       break;
   }
 }
@@ -481,7 +486,7 @@ render::GeometryPool& Renderer::getGeometryPool(void) const
   return pool;
 }
 
-Renderer* Renderer::createInstance(render::GeometryPool& pool)
+Renderer* Renderer::create(render::GeometryPool& pool)
 {
   Ptr<Renderer> renderer(new Renderer(pool));
   if (!renderer->init())
@@ -505,21 +510,30 @@ bool Renderer::init(void)
 
   clipAreaStack.push(Rect(0.f, 0.f, 1.f, 1.f));
 
-  defaultFont = render::Font::readInstance("default");
-  if (!defaultFont)
+  // Load default font
   {
-    Log::writeError("Failed to load default font");
-    return false;
-  }
+    Path path("wendy/default.font");
 
-  currentFont = defaultFont;
+    defaultFont = render::Font::read(pool, path);
+    if (!defaultFont)
+    {
+      logError("Failed to load default UI font \'%s\'",
+               path.asString().c_str());
+      return false;
+    }
+
+    currentFont = defaultFont;
+  }
 
   // Set up drawing render pass
   {
-    Ref<GL::Program> drawProgram = GL::Program::readInstance("UIRenderSolid");
-    if (!drawProgram)
+    Path path("wendy/UIRenderSolid.program");
+
+    Ref<GL::Program> program = GL::Program::read(pool.getContext(), path);
+    if (!program)
     {
-      Log::writeError("Failed to load UI drawing shader program");
+      logError("Failed to load UI drawing shader program \'%s\'",
+               path.asString().c_str());
       return false;
     }
 
@@ -527,13 +541,14 @@ bool Renderer::init(void)
     interface.addUniform("color", GL::Uniform::FLOAT_VEC4);
     interface.addVarying("position", GL::Varying::FLOAT_VEC2);
 
-    if (!interface.matches(*drawProgram, true))
+    if (!interface.matches(*program, true))
     {
-      Log::writeError("UI drawing shader program does not conform to the required interface");
+      logError("UI drawing shader program \'%s\' does not conform to the required interface",
+               path.asString().c_str());
       return false;
     }
 
-    drawPass.setProgram(drawProgram);
+    drawPass.setProgram(program);
     drawPass.setCullMode(GL::CULL_NONE);
     drawPass.setDepthTesting(false);
     drawPass.setDepthWriting(false);
@@ -541,10 +556,13 @@ bool Renderer::init(void)
 
   // Set up blitting render pass
   {
-    Ref<GL::Program> blitProgram = GL::Program::readInstance("UIRenderMapped");
-    if (!blitProgram)
+    Path path("wendy/UIRenderMapped.program");
+
+    Ref<GL::Program> program = GL::Program::read(pool.getContext(), path);
+    if (!program)
     {
-      Log::writeError("Failed to load UI blitting shader program");
+      logError("Failed to load UI blitting shader program \'%s\'",
+               path.asString().c_str());
       return false;
     }
 
@@ -553,13 +571,14 @@ bool Renderer::init(void)
     interface.addVarying("position", GL::Varying::FLOAT_VEC2);
     interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
 
-    if (!interface.matches(*blitProgram, true))
+    if (!interface.matches(*program, true))
     {
-      Log::writeError("UI blitting shader program does not conform to the required interface");
+      logError("UI blitting shader program \'%s\' does not conform to the required interface",
+               path.asString().c_str());
       return false;
     }
 
-    blitPass.setProgram(blitProgram);
+    blitPass.setProgram(program);
     blitPass.setCullMode(GL::CULL_NONE);
     blitPass.setDepthTesting(false);
     blitPass.setDepthWriting(false);

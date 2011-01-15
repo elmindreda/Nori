@@ -95,7 +95,7 @@ public:
  *  This is an ideal mesh representation intended for ease of use
  *  during calculations.  It is not intended for real-time use.
  */
-class Mesh : public Resource<Mesh>
+class Mesh : public Resource
 {
 public:
   enum NormalType
@@ -106,11 +106,7 @@ public:
   /*! Constructor.
    *  @param name The desired name of the mesh.
    */
-  Mesh(const String& name = "");
-  /*! Merges neighbouring vertices according to the specified tolerance
-   *  value.
-   */
-  void weld(float tolerance);
+  Mesh(const ResourceInfo& info);
   /*! Merges the specified mesh with this mesh.
    */
   void merge(const Mesh& other);
@@ -122,29 +118,30 @@ public:
   /*! Returns the geometry with the specified shader name.
    */
   MeshGeometry* findGeometry(const String& shaderName);
-  /*! Calculates and stores triangle and vertex normals for this
+  /*! Generates and stores triangle and vertex normals for this
    *  mesh, according to the specified generation mode.
    */
-  void calculateNormals(NormalType type = SMOOTH_FACES);
-  /*! Calculates and stores triangle normals for this mesh.
+  void generateNormals(NormalType type = SMOOTH_FACES);
+  /*! Generates and stores triangle normals for this mesh.
    */
-  void calculateTriangleNormals(void);
-  /*! Calculates and stores the edges in this mesh. By default, the edge
+  void generateTriangleNormals(void);
+  /*! Generates and stores the edges in this mesh. By default, the edge
    *  list is not created.
    */
-  void calculateEdges(void);
+  void generateEdges(void);
+  /*! Generates the bounding box of this mesh.
+   */
+  void generateBounds(AABB& bounds) const;
+  /*! Generates the bounding sphere of this mesh.
+   */
+  void generateBounds(Sphere& bounds) const;
   /*! @return @c true if this mesh is valid, otherwise @c false.
    */
   bool isValid(void) const;
   /*! @return The number of triangles in all geometries of this mesh.
    */
   unsigned int getTriangleCount(void) const;
-  /*! Calculates the bounding box of this mesh.
-   */
-  void getBounds(AABB& bounds) const;
-  /*! Calculates the bounding sphere of this mesh.
-   */
-  void getBounds(Sphere& bounds) const;
+  static Ref<Mesh> read(ResourceIndex& index, const Path& path);
   typedef std::vector<MeshGeometry> GeometryList;
   typedef std::vector<MeshVertex> VertexList;
   typedef std::vector<MeshEdge> EdgeList;
@@ -155,7 +152,7 @@ public:
    */
   VertexList vertices;
   /*! The list of edges in this mesh. By default, this is empty, but it
-   *  can be calculated with Mesh::calculateEdges.
+   *  can be generated with Mesh::generateEdges.
    */
   EdgeList edges;
 };
@@ -199,6 +196,20 @@ private:
   VertexList vertices;
   unsigned int targetCount;
   NormalMode mode;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class MeshReader : public ResourceReader
+{
+public:
+  MeshReader(ResourceIndex& index);
+  Ref<Mesh> read(const Path& path);
+private:
+  String parseName(const char** text);
+  int parseInteger(const char** text);
+  float parseFloat(const char** text);
+  bool interesting(const char** text);
 };
 
 ///////////////////////////////////////////////////////////////////////

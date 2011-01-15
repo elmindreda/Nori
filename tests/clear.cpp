@@ -8,23 +8,23 @@ using namespace wendy;
 namespace
 {
 
+ResourceIndex index;
+
 bool init(void)
 {
-  GL::ContextMode mode(640, 480, 32, 32, 0, GL::ContextMode::WINDOWED);
-
-  if (!GL::Context::create(mode))
+  if (!GL::Context::createSingleton(index))
   {
     Log::writeError("Failed to create OpenGL context");
     return false;
   }
 
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Clear screen");
 
   return true;
 }
 
-}
+} /*namespace*/
 
 int main(void)
 {
@@ -40,7 +40,7 @@ int main(void)
     std::exit(1);
   }
 
-  GL::Context* context = GL::Context::get();
+  GL::Context* context = GL::Context::getSingleton();
 
   do
   {
@@ -48,7 +48,7 @@ int main(void)
   }
   while (context->update());
 
-  GL::Context::destroy();
+  GL::Context::destroySingleton();
 
   wendy::shutdown();
   std::exit(0);

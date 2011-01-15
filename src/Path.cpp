@@ -91,78 +91,78 @@ Path::Path(const char* format, ...)
 
 bool Path::createDirectory(void) const
 {
-#ifdef _MSC_VER
-  return _mkdir(name.c_str()) == 0;
+#ifdef _WIN32
+  return _mkdir(path.c_str()) == 0;
 #else
-  return mkdir(name.c_str(), 0777) == 0;
+  return mkdir(path.c_str(), 0777) == 0;
 #endif
 }
 
 bool Path::destroyDirectory(void) const
 {
-#ifdef _MSC_VER
-  return _rmdir(name.c_str()) == 0;
+#ifdef _WIN32
+  return _rmdir(path.c_str()) == 0;
 #else
-  return rmdir(name.c_str()) == 0;
+  return rmdir(path.c_str()) == 0;
 #endif
 }
 
 bool Path::exists(void) const
 {
-#ifdef _MSC_VER
-  return _access(name.c_str(), F_OK) == 0;
+#ifdef _WIN32
+  return _access(path.c_str(), F_OK) == 0;
 #else
-  return access(name.c_str(), F_OK) == 0;
+  return access(path.c_str(), F_OK) == 0;
 #endif
 }
 
 const String& Path::asString(void) const
 {
-  return name;
+  return path;
 }
 
 Path Path::operator + (const String& child) const
 {
-  return Path(name + '/' + child);
+  return Path(path + '/' + child);
 }
 
 Path& Path::operator += (const String& child)
 {
-  String newName = name;
-  newName.append(1, '/');
-  newName.append(child);
+  String newPath = path;
+  newPath.append(1, '/');
+  newPath.append(child);
 
-  return operator = (newName);
+  return operator = (newPath);
 }
 
 bool Path::operator == (const Path& other) const
 {
   // TODO: Implement sane code.
 
-  return name == other.name;
+  return path == other.path;
 }
 
 bool Path::operator != (const Path& other) const
 {
   // TODO: Implement sane code.
 
-  return name != other.name;
+  return path != other.path;
 }
 
-Path& Path::operator = (const String& newName)
+Path& Path::operator = (const String& newPath)
 {
-  name = newName;
+  path = newPath;
 
-  if (!name.empty())
+  if (!path.empty())
   {
     // Remove extraneous trailing slashes
 
-    while (String::size_type end = name.length() - 1)
+    while (String::size_type end = path.length() - 1)
     {
-      if (name[end] != '/')
+      if (path[end] != '/')
 	break;
 
-      name.erase(end);
+      path.erase(end);
     }
 
     // TODO: Compact repeated slashes.
@@ -171,35 +171,40 @@ Path& Path::operator = (const String& newName)
   return *this;
 }
 
+bool Path::isEmpty(void) const
+{
+  return path.empty();
+}
+
 bool Path::isReadable(void) const
 {
-#ifdef _MSC_VER
-  return _access(name.c_str(), R_OK) == 0;
+#ifdef _WIN32
+  return _access(path.c_str(), R_OK) == 0;
 #else
-  return access(name.c_str(), R_OK) == 0;
+  return access(path.c_str(), R_OK) == 0;
 #endif
 }
 
 bool Path::isWritable(void) const
 {
-#ifdef _MSC_VER
-  return _access(name.c_str(), W_OK) == 0;
+#ifdef _WIN32
+  return _access(path.c_str(), W_OK) == 0;
 #else
-  return access(name.c_str(), W_OK) == 0;
+  return access(path.c_str(), W_OK) == 0;
 #endif
 }
 
 bool Path::isFile(void) const
 {
-#ifdef _MSC_VER
+#ifdef _WIN32
   struct _stati64 sb;
 
-  if (_stati64(name.c_str(), &sb) != 0)
+  if (_stati64(path.c_str(), &sb) != 0)
     return false;
 #else
   struct stat64 sb;
 
-  if (stat64(name.c_str(), &sb) != 0)
+  if (stat64(path.c_str(), &sb) != 0)
     return false;
 #endif
 
@@ -208,15 +213,15 @@ bool Path::isFile(void) const
 
 bool Path::isDirectory(void) const
 {
-#ifdef _MSC_VER
+#ifdef _WIN32
   struct _stati64 sb;
 
-  if (_stati64(name.c_str(), &sb) != 0)
+  if (_stati64(path.c_str(), &sb) != 0)
     return false;
 #else
   struct stat64 sb;
 
-  if (stat64(name.c_str(), &sb) != 0)
+  if (stat64(path.c_str(), &sb) != 0)
     return false;
 #endif
 
@@ -227,20 +232,20 @@ Path Path::getParent(void) const
 {
   // TODO: Fix this.
 
-  String::size_type offset = name.find_last_of('/');
+  String::size_type offset = path.find_last_of('/');
   if (offset == String::npos)
     return Path(".");
 
-  return Path(name.substr(0, offset + 1));
+  return Path(path.substr(0, offset + 1));
 }
 
-bool Path::getChildren(List& children) const
+bool Path::getChildren(PathList& children) const
 {
 #if _WIN32
   WIN32_FIND_DATA data;
   HANDLE search;
 
-  search = FindFirstFile(name.c_str(), &data);
+  search = FindFirstFile(path.c_str(), &data);
   if (search == INVALID_HANDLE_VALUE)
     return false;
 
@@ -255,7 +260,7 @@ bool Path::getChildren(List& children) const
   DIR* stream;
   dirent* entry;
 
-  stream = opendir(name.c_str());
+  stream = opendir(path.c_str());
   if (!stream)
     return false;
 
@@ -267,13 +272,13 @@ bool Path::getChildren(List& children) const
   return true;
 }
 
-bool Path::getChildren(List& children, const Pattern& pattern) const
+bool Path::getChildren(PathList& children, const Pattern& pattern) const
 {
 #if _WIN32
   WIN32_FIND_DATA data;
   HANDLE search;
 
-  search = FindFirstFile(name.c_str(), &data);
+  search = FindFirstFile(path.c_str(), &data);
   if (search == INVALID_HANDLE_VALUE)
     return false;
 
@@ -289,7 +294,7 @@ bool Path::getChildren(List& children, const Pattern& pattern) const
   DIR* stream;
   dirent* entry;
 
-  stream = opendir(name.c_str());
+  stream = opendir(path.c_str());
   if (!stream)
     return false;
 
@@ -308,17 +313,33 @@ String Path::getSuffix(void) const
 {
   String last;
 
-  String::size_type start = name.rfind('/');
+  String::size_type start = path.find_last_of('/');
   if (start == String::npos)
-    last = name;
+    last = path;
   else
-    last = name.substr(start, String::npos);
+    last = path.substr(start, String::npos);
 
   String::size_type offset = last.find_last_of('.');
   if (offset == String::npos)
     return "";
 
   return last.substr(offset + 1, String::npos);
+}
+
+String Path::getName(void) const
+{
+  String::size_type start = path.find_last_of('/');
+  String::size_type end = path.find_last_of('.');
+
+  if (start == String::npos)
+    start = 0;
+  else
+    start++;
+
+  if (end != String::npos && end < start)
+    end = String::npos;
+
+  return path.substr(start, end - start);
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -85,8 +85,7 @@ List::~List(void)
 
 void List::addItem(Item& item)
 {
-  ItemList::iterator i = std::find(items.begin(), items.end(), &item);
-  if (i != items.end())
+  if (std::find(items.begin(), items.end(), &item) != items.end())
     return;
 
   items.push_back(&item);

@@ -34,6 +34,10 @@
 #include <wendy/Plane.h>
 #include <wendy/Frustum.h>
 
+#include <wendy/OpenGL.h>
+#include <wendy/GLProgram.h>
+#include <wendy/GLContext.h>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -59,10 +63,10 @@ public:
   /*! Constructor.
    */
   Camera(void);
-  /*! Applies this camera to the projection and modelview matrix stacks and
-   *  makes it current.
+  /*! Applies the transform and view of this camera to the projection and view
+   *  transforms of the specified context.
    */
-  void apply(void) const;
+  void apply(GL::Context& context) const;
   /*! @return The field of view, in degrees, of this camera.
    */
   float getFOV(void) const;

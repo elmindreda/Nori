@@ -60,6 +60,17 @@ class PrimitiveRange;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Context window mode.
+ *  @ingroup opengl
+ */
+enum WindowMode
+{
+  WINDOWED,
+  FULLSCREEN,
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Screen mode.
  *  @ingroup opengl
  */
@@ -112,14 +123,6 @@ typedef std::vector<ScreenMode> ScreenModeList;
 class ContextMode : public ScreenMode
 {
 public:
-  enum {
-    /*! Create a windowed context, if supported.
-     */
-    WINDOWED = 1,
-    /*! Default flags.
-     */
-    DEFAULT = WINDOWED,
-  };
   /*! Default constructor.
    */
   ContextMode(void);
@@ -131,7 +134,7 @@ public:
 	      unsigned int depthBits = 0,
 	      unsigned int stencilBits = 0,
 	      unsigned int samples = 0,
-	      unsigned int flags = DEFAULT);
+	      WindowMode mode = WINDOWED);
   /*! Resets all value to their defaults.
    */
   void setDefaults(void);
@@ -143,7 +146,7 @@ public:
 	   unsigned int newDepthBits = 0,
 	   unsigned int newStencilBits = 0,
 	   unsigned int newSamples = 0,
-	   unsigned int newFlags = DEFAULT);
+	   WindowMode newFlags = WINDOWED);
   /*! The desired depth buffer bit depth.
    */
   unsigned int depthBits;
@@ -153,9 +156,9 @@ public:
   /*! The desired number of FSAA samples.
    */
   unsigned int samples;
-  /*! The desired modification flags.
+  /*! The desired window mode.
    */
-  unsigned int flags;
+  WindowMode mode;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -312,9 +315,9 @@ public:
   bool setBuffer(Attachment attachment, Image* newImage);
   /*! Creates a texture canvas for the specified texture.
    */
-  static ImageCanvas* createInstance(Context& context,
-                                     unsigned int width,
-                                     unsigned int height);
+  static ImageCanvas* create(Context& context,
+                             unsigned int width,
+                             unsigned int height);
 private:
   ImageCanvas(Context& context);
   bool init(unsigned int width, unsigned int height);
@@ -370,8 +373,7 @@ class Context : public Singleton<Context>
 {
   friend class Texture;
   friend class TextureImage;
-  friend class VertexProgram;
-  friend class FragmentProgram;
+  friend class Program;
 public:
   enum RefreshMode
   {
@@ -486,6 +488,9 @@ public:
   /*! @return The limits of this context.
    */
   const Limits& getLimits(void) const;
+  /*! @return The resource index used by this context.
+   */
+  ResourceIndex& getIndex(void) const;
   /*! @return The signal for per-frame post-render clean-up.
    */
   SignalProxy0<void> getFinishSignal(void);
@@ -499,7 +504,7 @@ public:
     *  @param[in] mode The requested context settings.
     *  @return @c true if successful, or @c false otherwise.
     */
-  static bool create(const ContextMode& mode = ContextMode());
+  static bool createSingleton(ResourceIndex& index, const ContextMode& mode = ContextMode());
   /*! @return The signal for creation of a context object.
    */
   static SignalProxy0<void> getCreateSignal(void);
@@ -529,7 +534,7 @@ private:
   };
   typedef std::list<ReservedUniform> UniformList;
   typedef std::list<ReservedSampler> SamplerList;
-  Context(void);
+  Context(ResourceIndex& index);
   Context(const Context& source);
   Context& operator = (const Context& source);
   bool init(const ContextMode& mode);
@@ -538,6 +543,7 @@ private:
   static void sizeCallback(int width, int height);
   static int closeCallback(void);
   static void refreshCallback(void);
+  ResourceIndex& index;
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
   Signal2<void, unsigned int, unsigned int> resizedSignal;

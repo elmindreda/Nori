@@ -31,13 +31,13 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief %Image data object.
- *
- *  This is the standard container for all forms of 1D and 2D image data.
+/*! @brief Container for one- or two-dimensional pixel data.
  */
-class Image : public Resource<Image>, public RefObject
+class Image : public Resource
 {
 public:
+  /*! Sampling method enumeration for image magnification.
+   */
   enum Method
   {
     /*! Use nearest-neighbour sampling.
@@ -51,30 +51,29 @@ public:
     SAMPLE_DEFAULT = SAMPLE_LINEAR,
   };
   /*! Constructor.
-   *  @param format The desired format of the image.
-   *  @param width The desired width of the image. This cannot be zero.
-   *  @param height The desired height of the image. This cannot be zero.
-   *  @param data The pixel data to initialize the image with, or @c NULL to
-   *  initialize it with zeros.
-   *  @param pitch The pitch, in bytes, between consecutive scanlines, or zero
-   *  if the scanlines are contiguous in memory. If @c data is @c NULL, then
-   *  this parameter is ignored.
-   *  @param name The name of the image, or the empty string to automatically
-   *  generate a name.
+   *  @param[in] info The resource information for this image.
+   *  @param[in] format The desired format of the image.
+   *  @param[in] width The desired width of the image. This cannot be zero.
+   *  @param[in] height The desired height of the image. This cannot be zero.
+   *  @param[in] data The pixel data to initialize the image with, or @c NULL
+   *  to initialize it with zeros.
+   *  @param[in] pitch The pitch, in bytes, between consecutive scanlines, or
+   *  zero if the scanlines are contiguous in memory. If @c data is @c NULL,
+   *  then this parameter is ignored.
    *
    *  @remarks No, you cannot create an empty image object.
    */
-  Image(const PixelFormat& format,
+  Image(const ResourceInfo& info,
+        const PixelFormat& format,
         unsigned int width,
         unsigned int height,
         const void* data = NULL,
-        size_t pitch = 0,
-        const String& name = "");
+        size_t pitch = 0);
   /*! Copy constructor.
    */
   Image(const Image& source);
   /*! Changes the size of this image, resampling its pixel data using the
-   * specified filter method.
+   *  specified filter method.
    *  @return @c true if successful, otherwise @c false.
    */
   bool resize(unsigned int newWidth,
@@ -87,10 +86,12 @@ public:
    */
   bool transformTo(const PixelFormat& targetFormat, PixelTransform& transform);
   /*! Sets this image to the specified area of the current image data.
-   *  @param area The desired area.
+   *  @param[in] area The desired area.
    *  @return @c true if successful, otherwise @c false.
+   *
    *  @remarks This method fails if the desired area is completely outside the
    *  current image data.
+   *
    *  @remarks If the desired area is partially outside of the current image
    *  data, the area (and the resulting image) is cropped to fit the current
    *  (existing) image data.
@@ -124,15 +125,16 @@ public:
    */
   const void* getPixels(void) const;
   /*! Helper method to calculate the address of the specified pixel.
-   *  @param x The x coordinate of the desired pixel.
-   *  @param y The y coordinate of the desired pixel.
+   *  @param[in] x The x coordinate of the desired pixel.
+   *  @param[in] y The y coordinate of the desired pixel.
+   *
    *  @return The address of the desired pixel, or @c NULL if the specified
    *  coordinates are outside of the current image data.
    */
   void* getPixel(unsigned int x, unsigned int y);
   /*! Helper method to calculate the address of the specified pixel.
-   *  @param x The x coordinate of the desired pixel.
-   *  @param y The y coordinate of the desired pixel.
+   *  @param[in] x The x coordinate of the desired pixel.
+   *  @param[in] y The y coordinate of the desired pixel.
    *  @return The address of the desired pixel, or @c NULL if the specified
    *  coordinates are outside of the current image data.
    */
@@ -146,7 +148,8 @@ public:
   /*! Returns an image containing the specified area of this image.
    *  @param area The desired area of this image.
    */
-  Image* getArea(const Recti& area);
+  Ref<Image> getArea(const Recti& area);
+  static Ref<Image> read(ResourceIndex& index, const Path& path);
 private:
   unsigned int width;
   unsigned int height;
@@ -162,7 +165,7 @@ typedef Ref<Image> ImageRef;
 
 /*! @brief %Image cube object.
  */
-class ImageCube : public Resource<ImageCube>, public RefObject
+class ImageCube : public Resource
 {
 public:
   enum Face
@@ -174,8 +177,9 @@ public:
     POSITIVE_Z,
     NEGATIVE_Z,
   };
-  ImageCube(const String& name = "");
-  ImageCube* clone(void) const;
+  ImageCube(const ResourceInfo& info);
+  ImageCube(const ImageCube& source);
+  Ref<ImageCube> clone(void) const;
   /*! @return @c true if all images have power-of-two dimensions, otherwise @c false.
    */
   bool isPOT(void) const;
@@ -191,7 +195,40 @@ public:
   /*! @return @c true if all images have the same size, otherwise @c false.
    */
   bool hasSameSize(void) const;
-  Ref<Image> images[6];
+  static Ref<ImageCube> read(ResourceIndex& index, const Path& path);
+  /*! The array of images for the faces of the image cube.
+   */
+  ImageRef images[6];
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class ImageReader : public ResourceReader
+{
+public:
+  ImageReader(ResourceIndex& index);
+  Ref<Image> read(const Path& path);
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class ImageWriter
+{
+public:
+  bool write(const Path& path, const Image& image);
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class ImageCubeReader : public ResourceReader, public XML::Reader
+{
+public:
+  ImageCubeReader(ResourceIndex& index);
+  Ref<ImageCube> read(const Path& path);
+private:
+  bool onBeginElement(const String& name);
+  bool onEndElement(const String& name);
+  Ref<ImageCube> cube;
 };
 
 ///////////////////////////////////////////////////////////////////////

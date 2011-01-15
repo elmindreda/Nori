@@ -25,6 +25,9 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/Core.h>
+#include <wendy/Block.h>
+
 #include <wendy/OpenGL.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLTexture.h>
@@ -57,7 +60,7 @@ GLenum convertToGL(IndexBuffer::Type type)
       return GL_UNSIGNED_INT;
   }
 
-  Log::writeError("Invalid index buffer type %u", type);
+  logError("Invalid index buffer type %u", type);
   return 0;
 }
 
@@ -75,7 +78,7 @@ GLenum convertToGL(VertexComponent::Type type)
       return GL_BYTE;
   }
 
-  Log::writeError("Invalid vertex component type %u", type);
+  logError("Invalid vertex component type %u", type);
   return 0;
 }
 
@@ -95,7 +98,7 @@ GLenum convertToGL(PixelFormat::Type type)
       return GL_FLOAT;
   }
 
-  Log::writeError("No OpenGL equivalent for pixel format type %u", type);
+  logError("No OpenGL equivalent for pixel format type %u", type);
   return 0;
 }
 
@@ -115,7 +118,7 @@ GLenum convertToGL(PixelFormat::Semantic semantic)
       return GL_DEPTH_COMPONENT;
   }
 
-  Log::writeError("No OpenGL equivalent for pixel format semantic %u", semantic);
+  logError("No OpenGL equivalent for pixel format semantic %u", semantic);
   return 0;
 }
 
@@ -168,7 +171,7 @@ GLenum convertToGL(const PixelFormat& format)
     {
       if (!GLEW_ARB_texture_float)
       {
-        Log::writeError("Floating point textures (ARB_texture_float) not supported; cannot convert pixel format");
+        logError("Floating point textures (ARB_texture_float) not supported; cannot convert pixel format");
         return 0;
       }
 
@@ -191,7 +194,7 @@ GLenum convertToGL(const PixelFormat& format)
     {
       if (!GLEW_ARB_texture_float)
       {
-        Log::writeError("Floating point textures (ARB_texture_float) not supported; cannot convert pixel format");
+        logError("Floating point textures (ARB_texture_float) not supported; cannot convert pixel format");
         return 0;
       }
 
@@ -211,8 +214,8 @@ GLenum convertToGL(const PixelFormat& format)
     }
   }
 
-  Log::writeError("No OpenGL equivalent for pixel format \'%s\'",
-                  format.asString().c_str());
+  logError("No OpenGL equivalent for pixel format \'%s\'",
+           format.asString().c_str());
   return 0;
 }
 

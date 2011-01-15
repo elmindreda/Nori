@@ -28,12 +28,9 @@
 
 #include <wendy/OpenGL.h>
 #include <wendy/GLTexture.h>
-#include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLState.h>
-
-#include <list>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -74,12 +71,13 @@ class Technique
 public:
   /*! Constructor.
    */
-  Technique(const String& name);
+  Technique(const String& name = "");
   /*! Creates a new %render pass in this technique.
    *  @param[in] name The name of the %render pass, if it is a pass intended for
    *  a custom %render stage, or the empty string to place it in the default
    *  pass group.
    *  @return The newly created %render pass.
+   *
    *  @remarks The passes are rendered in creation order.
    *  @remarks Non-empty %render pass names must be unique.
    *  @remarks Named %render passes will be ignored by the default %render mechanisms.
@@ -129,7 +127,7 @@ public:
   float getQuality(void) const;
   void setQuality(float newQuality);
 private:
-  typedef std::list<Pass> List;
+  typedef std::vector<Pass> List;
   List passes;
   String name;
   float quality;
@@ -140,12 +138,12 @@ private:
 /*! @brief Multi-technique material descriptor.
  *  @ingroup renderer
  */
-class Material : public Resource<Material>, public RefObject
+class Material : public Resource
 {
 public:
   /*! Constructor.
    */
-  Material(const String& name = "");
+  Material(const ResourceInfo& info);
   /*! Copy constructor.
    */
   Material(const Material& source);
@@ -182,10 +180,42 @@ public:
    *  technique is active.
    */
   Technique* getActiveTechnique(void) const;
+  static Ref<Material> read(GL::Context& context, const Path& path);
 private:
   typedef std::vector<Technique*> List;
   List techniques;
   mutable Technique* active;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Codec for XML format render materials.
+ *  @ingroup io
+ */
+class MaterialReader : ResourceReader, public XML::Reader
+{
+public:
+  MaterialReader(GL::Context& context);
+  Ref<Material> read(const Path& path);
+private:
+  bool onBeginElement(const String& name);
+  bool onEndElement(const String& name);
+  GL::Context& context;
+  Ref<Material> material;
+  ResourceInfo info;
+  Technique* currentTechnique;
+  Pass* currentPass;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Codec for XML format render materials.
+ *  @ingroup io
+ */
+class MaterialWriter : public XML::Writer
+{
+public:
+  bool write(const Path& path, const Material& material);
 };
 
 ///////////////////////////////////////////////////////////////////////

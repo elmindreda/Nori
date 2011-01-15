@@ -1,6 +1,8 @@
 
 #include <wendy/Wendy.h>
 
+#include <cstdlib>
+
 using namespace wendy;
 
 class Demo : public Trackable
@@ -13,8 +15,10 @@ private:
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const Vec2i& position);
   void onWheelTurned(int position);
+  ResourceIndex index;
   Ref<GL::Texture> texture;
   Ptr<GL::ImageCanvas> canvas;
+  Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
   scene::Graph graph;
   scene::CameraNode* cameraNode;
@@ -24,42 +28,42 @@ private:
 
 Demo::~Demo(void)
 {
-  input::Context::destroy();
-  render::GeometryPool::destroy();
-  GL::Context::destroy();
+  graph.destroyRootNodes();
+
+  camera = NULL;
+  canvas = NULL;
+  texture = NULL;
+  pool = NULL;
+
+  input::Context::destroySingleton();
+  GL::Context::destroySingleton();
 }
 
 bool Demo::init(void)
 {
-  Image::addSearchPath(Path("media"));
-  GL::Texture::addSearchPath(Path("media"));
-  GL::VertexProgram::addSearchPath(Path("media"));
-  GL::FragmentProgram::addSearchPath(Path("media"));
-  GL::Program::addSearchPath(Path("media"));
-  render::Material::addSearchPath(Path("media"));
-
-  GL::ContextMode mode(640, 480, 32, 16, 0, 0, GL::ContextMode::WINDOWED);
-  if (!GL::Context::create(mode))
+  if (!index.addSearchPath(Path("../media")))
     return false;
 
-  GL::Context* context = GL::Context::get();
+  if (!GL::Context::createSingleton(index))
+    return false;
+
+  GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Water");
 
-  if (!render::GeometryPool::create(*context))
+  if (!input::Context::createSingleton(*context))
     return false;
 
-  if (!input::Context::create(*context))
-    return false;
+  input::Context::getSingleton()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
+  input::Context::getSingleton()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
+  input::Context::getSingleton()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
 
-  input::Context::get()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
-  input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
-  input::Context::get()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
+  pool = new render::GeometryPool(*context);
 
-  texture = GL::Texture::createInstance(*context, Image(PixelFormat::RGB8, 64, 64), 0);
+  texture = GL::Texture::create(index, *context, Image(index, PixelFormat::RGB8, 64, 64), 0);
   if (!texture)
     return false;
 
-  canvas = GL::ImageCanvas::createInstance(*context, 64, 64);
+  canvas = GL::ImageCanvas::create(*context, 64, 64);
   if (!canvas)
     return false;
 
@@ -80,26 +84,25 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
+  render::Queue queue(*pool, *camera);
+  GL::Context& context = pool->getContext();
+
   do
   {
     graph.update();
-
-    render::Queue queue(*camera);
     graph.enqueue(queue);
 
-    GL::Context* context = GL::Context::get();
-
-    context->clearDepthBuffer();
-    context->clearColorBuffer(ColorRGBA::BLACK);
+    context.clearDepthBuffer();
+    context.clearColorBuffer(ColorRGBA::BLACK);
 
     queue.render();
   }
-  while (GL::Context::get()->update());
+  while (context.update());
 }
 
 void Demo::onButtonClicked(input::Button button, bool clicked)
 {
-  input::Context* context = input::Context::get();
+  input::Context* context = input::Context::getSingleton();
 
   if (clicked)
   {
@@ -112,7 +115,7 @@ void Demo::onButtonClicked(input::Button button, bool clicked)
 
 void Demo::onCursorMoved(const Vec2i& position)
 {
-  input::Context* context = input::Context::get();
+  input::Context* context = input::Context::getSingleton();
 
   if (context->isCursorCaptured())
   {
@@ -148,7 +151,7 @@ void Demo::onWheelTurned(int offset)
 int main(void)
 {
   if (!wendy::initialize())
-    exit(1);
+    std::exit(EXIT_FAILURE);
 
   Ptr<Demo> demo(new Demo());
   if (demo->init())
@@ -157,6 +160,6 @@ int main(void)
   demo = NULL;
 
   wendy::shutdown();
-  exit(0);
+  std::exit(EXIT_SUCCESS);
 }
 

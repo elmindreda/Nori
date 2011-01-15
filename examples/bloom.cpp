@@ -1,6 +1,8 @@
 
 #include <wendy/Wendy.h>
 
+#include <cstdlib>
+
 using namespace wendy;
 
 class Demo : public Trackable
@@ -13,6 +15,8 @@ private:
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const Vec2i& position);
   void onWheelTurned(int position);
+  ResourceIndex index;
+  Ptr<render::GeometryPool> pool;
   Ref<GL::Texture> textures[2];
   Ref<GL::ImageCanvas> canvases[2];
   GL::RenderState horzPass;
@@ -28,49 +32,58 @@ private:
 
 Demo::~Demo(void)
 {
-  input::Context::destroy();
-  render::GeometryPool::destroy();
-  GL::Context::destroy();
+  for (int i = 0;  i < 2;  i++)
+  {
+    textures[i] = NULL;
+    canvases[i] = NULL;
+  }
+
+  horzPass.setProgram(NULL);
+  vertPass.setProgram(NULL);
+  composePass.setProgram(NULL);
+
+  graph.destroyRootNodes();
+
+  pool = NULL;
+
+  input::Context::destroySingleton();
+  GL::Context::destroySingleton();
 }
 
 bool Demo::init(void)
 {
-  Image::addSearchPath(Path("media"));
-  Mesh::addSearchPath(Path("media"));
-  GL::Texture::addSearchPath(Path("media"));
-  GL::VertexProgram::addSearchPath(Path("media"));
-  GL::FragmentProgram::addSearchPath(Path("media"));
-  GL::Program::addSearchPath(Path("media"));
-  render::Material::addSearchPath(Path("media"));
-
-  if (!GL::Context::create(GL::ContextMode()))
+  if (!index.addSearchPath(Path("../media")))
     return false;
 
-  GL::Context* context = GL::Context::get();
+  if (!GL::Context::createSingleton(index))
+    return false;
+
+  GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Bloom");
 
-  if (!render::GeometryPool::create(*context))
+  if (!input::Context::createSingleton(*context))
     return false;
 
-  if (!input::Context::create(*context))
-    return false;
+  input::Context::getSingleton()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
+  input::Context::getSingleton()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
+  input::Context::getSingleton()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
 
-  input::Context::get()->getCursorMovedSignal().connect(*this, &Demo::onCursorMoved);
-  input::Context::get()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
-  input::Context::get()->getWheelTurnedSignal().connect(*this, &Demo::onWheelTurned);
+  pool = new render::GeometryPool(*context);
 
   const int size = 32;
 
-  GL::ImageRef depthBuffer = GL::RenderBuffer::createInstance(PixelFormat::DEPTH24, size, size);
+  Ref<GL::RenderBuffer> depthBuffer = GL::RenderBuffer::create(PixelFormat::DEPTH24, size, size);
   if (!depthBuffer)
   {
     Log::writeError("Failed to create depth render buffer");
     return false;
   }
 
-  for (unsigned int i = 0;  i < 2;  i++)
+  for (int i = 0;  i < 2;  i++)
   {
-    textures[i] = GL::Texture::createInstance(*context, Image(PixelFormat::RGBA8, size, size), 0);
+    Image data(index, PixelFormat::RGBA8, size, size);
+
+    textures[i] = GL::Texture::create(index, *context, data, 0);
     if (!textures[i])
     {
       Log::writeError("Failed to create canvas texture");
@@ -81,7 +94,7 @@ bool Demo::init(void)
 
     GL::ImageRef colorBuffer = &(textures[i]->getImage(0));
 
-    canvases[i] = GL::ImageCanvas::createInstance(*context, size, size);
+    canvases[i] = GL::ImageCanvas::create(*context, size, size);
     if (!canvases[i])
     {
       Log::writeError("Failed to create canvas");
@@ -94,60 +107,68 @@ bool Demo::init(void)
 
   const Vec2 scale(1.f / size, 1.f / size);
 
-  Ref<GL::Program> program;
-
-  program = GL::Program::readInstance("horzblur");
-  if (!program)
-    return false;
-
-  horzPass.setDepthTesting(false);
-  horzPass.setDepthWriting(false);
-  horzPass.setProgram(program);
-  horzPass.getSamplerState("image").setTexture(textures[0]);
-  horzPass.getUniformState("scale").setValue(scale);
-
-  program = GL::Program::readInstance("vertblur");
-  if (!program)
-    return false;
-
-  vertPass.setDepthTesting(false);
-  vertPass.setDepthWriting(false);
-  vertPass.setProgram(program);
-  vertPass.getSamplerState("image").setTexture(textures[1]);
-  vertPass.getUniformState("scale").setValue(scale);
-
-  program = GL::Program::readInstance("compose");
-  if (!program)
+  // Load bloom post-processing programs
   {
-    Log::writeError("Failed to load compose program");
-    return false;
+    Ref<GL::Program> program;
+    GL::ProgramReader reader(*context);
+
+    program = reader.read(Path("horzblur.program"));
+    if (!program)
+      return false;
+
+    horzPass.setDepthTesting(false);
+    horzPass.setDepthWriting(false);
+    horzPass.setProgram(program);
+    horzPass.getSamplerState("image").setTexture(textures[0]);
+    horzPass.getUniformState("scale").setValue(scale);
+
+    program = reader.read(Path("vertblur.program"));
+    if (!program)
+      return false;
+
+    vertPass.setDepthTesting(false);
+    vertPass.setDepthWriting(false);
+    vertPass.setProgram(program);
+    vertPass.getSamplerState("image").setTexture(textures[1]);
+    vertPass.getUniformState("scale").setValue(scale);
+
+    program = reader.read(Path("compose.program"));
+    if (!program)
+    {
+      Log::writeError("Failed to load compose program");
+      return false;
+    }
+
+    composePass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ONE);
+    composePass.setDepthTesting(false);
+    composePass.setDepthWriting(false);
+    composePass.setProgram(program);
+    composePass.getSamplerState("image").setTexture(textures[0]);
   }
 
-  composePass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ONE);
-  composePass.setDepthTesting(false);
-  composePass.setDepthWriting(false);
-  composePass.setProgram(program);
-  composePass.getSamplerState("image").setTexture(textures[0]);
-
-  Ref<render::Mesh> mesh = render::Mesh::readInstance("cube");
-  if (!mesh)
+  // Set up scene
   {
-    Log::writeError("Failed to load mesh");
-    return false;
+    render::MeshReader reader(*context);
+    Ref<render::Mesh> mesh = reader.read(Path("cube.mesh"));
+    if (!mesh)
+    {
+      Log::writeError("Failed to load mesh");
+      return false;
+    }
+
+    meshNode = new scene::MeshNode();
+    meshNode->setMesh(mesh);
+    graph.addRootNode(*meshNode);
+
+    camera = new render::Camera();
+    camera->setFOV(60.f);
+    camera->setAspectRatio(4.f / 3.f);
+
+    cameraNode = new scene::CameraNode();
+    cameraNode->setCamera(camera);
+    cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
+    graph.addRootNode(*cameraNode);
   }
-
-  meshNode = new scene::MeshNode();
-  meshNode->setMesh(mesh);
-  graph.addRootNode(*meshNode);
-
-  camera = new render::Camera();
-  camera->setFOV(60.f);
-  camera->setAspectRatio(4.f / 3.f);
-
-  cameraNode = new scene::CameraNode();
-  cameraNode->setCamera(camera);
-  cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
-  graph.addRootNode(*cameraNode);
 
   timer.start();
 
@@ -156,9 +177,8 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  GL::Context* context = GL::Context::get();
-
-  render::Queue queue(*camera);
+  render::Queue queue(*pool, *camera);
+  GL::Context& context = pool->getContext();
 
   do
   {
@@ -169,50 +189,50 @@ void Demo::run(void)
 
     graph.enqueue(queue);
 
-    context->setCurrentCanvas(*canvases[0]);
-    context->clearDepthBuffer();
-    context->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
+    context.setCurrentCanvas(*canvases[0]);
+    context.clearDepthBuffer();
+    context.clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
     queue.render("bloom");
 
-    context->setProjectionMatrix2D(1.f, 1.f);
+    context.setProjectionMatrix2D(1.f, 1.f);
 
     for (unsigned int i = 0;  i < 2;  i++)
     {
-      context->setCurrentCanvas(*canvases[1]);
-      context->clearDepthBuffer();
-      context->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
+      context.setCurrentCanvas(*canvases[1]);
+      context.clearDepthBuffer();
+      context.clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
       horzPass.apply();
-      sprite.render();
+      sprite.render(*pool);
 
-      context->setCurrentCanvas(*canvases[0]);
-      context->clearDepthBuffer();
-      context->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
+      context.setCurrentCanvas(*canvases[0]);
+      context.clearDepthBuffer();
+      context.clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
       vertPass.apply();
-      sprite.render();
+      sprite.render(*pool);
     }
 
-    context->setScreenCanvasCurrent();
-    context->clearDepthBuffer();
-    context->clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
+    context.setScreenCanvasCurrent();
+    context.clearDepthBuffer();
+    context.clearColorBuffer(ColorRGBA(0.f, 0.f, 0.f, 1.f));
 
     queue.render();
 
-    context->setProjectionMatrix2D(1.f, 1.f);
+    context.setProjectionMatrix2D(1.f, 1.f);
 
     composePass.apply();
-    sprite.render();
+    sprite.render(*pool);
 
     queue.removeOperations();
   }
-  while (context->update());
+  while (context.update());
 }
 
 void Demo::onButtonClicked(input::Button button, bool clicked)
 {
-  input::Context* context = input::Context::get();
+  input::Context* context = input::Context::getSingleton();
 
   if (clicked)
   {
@@ -225,7 +245,7 @@ void Demo::onButtonClicked(input::Button button, bool clicked)
 
 void Demo::onCursorMoved(const Vec2i& position)
 {
-  input::Context* context = input::Context::get();
+  input::Context* context = input::Context::getSingleton();
 
   if (context->isCursorCaptured())
   {
@@ -261,7 +281,7 @@ void Demo::onWheelTurned(int offset)
 int main(void)
 {
   if (!wendy::initialize())
-    exit(1);
+    std::exit(EXIT_FAILURE);
 
   Ptr<Demo> demo(new Demo());
   if (demo->init())
@@ -270,6 +290,6 @@ int main(void)
   demo = NULL;
 
   wendy::shutdown();
-  exit(0);
+  std::exit(EXIT_SUCCESS);
 }
 

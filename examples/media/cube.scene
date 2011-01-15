@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
-<scene version="1">
-  <node type="Camera" />
-  <node type="Mesh" />
-  <node type="Light" />
-</scene>

@@ -34,7 +34,6 @@
 
 #include <wendy/OpenGL.h>
 #include <wendy/GLTexture.h>
-#include <wendy/GLVertex.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLContext.h>
@@ -179,7 +178,7 @@ public:
   float getDefaultEM(void) const;
   float getCurrentEM(void) const;
   render::GeometryPool& getGeometryPool(void) const;
-  static Renderer* createInstance(render::GeometryPool& pool);
+  static Renderer* create(render::GeometryPool& pool);
 private:
   Renderer(render::GeometryPool& pool);
   bool init(void);

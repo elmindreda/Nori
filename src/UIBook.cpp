@@ -30,6 +30,8 @@
 #include <wendy/UIWidget.h>
 #include <wendy/UIBook.h>
 
+#include <algorithm>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy

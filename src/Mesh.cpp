@@ -26,22 +26,50 @@
 #include <wendy/Config.h>
 
 #include <wendy/Core.h>
-#include <wendy/Block.h>
 #include <wendy/Vector.h>
 #include <wendy/AABB.h>
 #include <wendy/Sphere.h>
 #include <wendy/Path.h>
-#include <wendy/Stream.h>
-#include <wendy/Managed.h>
 #include <wendy/Resource.h>
 #include <wendy/Mesh.h>
 
 #include <limits>
+#include <cstdlib>
+#include <fstream>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
+
+///////////////////////////////////////////////////////////////////////
+
+namespace
+{
+
+struct Triplet
+{
+  unsigned int vertex;
+  unsigned int normal;
+  unsigned int texcoord;
+};
+
+struct Face
+{
+  Triplet p[3];
+};
+
+typedef std::vector<Face> FaceList;
+
+struct FaceGroup
+{
+  FaceList faces;
+  String name;
+};
+
+typedef std::vector<FaceGroup> FaceGroupList;
+
+} /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -69,27 +97,9 @@ void MeshTriangle::setEdges(unsigned int a, unsigned int b, unsigned int c)
 
 ///////////////////////////////////////////////////////////////////////
 
-Mesh::Mesh(const String& name):
-  Resource<Mesh>(name)
+Mesh::Mesh(const ResourceInfo& info):
+  Resource(info)
 {
-}
-
-void Mesh::weld(float tolerance)
-{
-  std::vector<unsigned int> indices;
-
-  tolerance *= tolerance;
-
-  for (unsigned int i = 0;  i < vertices.size();  i++)
-  {
-    for (unsigned int j = i + 1;  j < vertices.size();  j++)
-    {
-	    /*
-      if ((vertices[i].position - vertices[j].position).lengthSquared() <= tolerance)
-		    ;
-      */
-    }
-  }
 }
 
 void Mesh::merge(const Mesh& other)
@@ -98,17 +108,17 @@ void Mesh::merge(const Mesh& other)
 
   for (GeometryList::const_iterator i = other.geometries.begin();  i != other.geometries.end();  i++)
   {
-    MeshGeometry* geometry = findGeometry((*i).shaderName);
+    MeshGeometry* geometry = findGeometry(i->shaderName);
     if (!geometry)
     {
       geometries.push_back(MeshGeometry());
       geometry = &(geometries.back());
-      geometry->shaderName = (*i).shaderName;
+      geometry->shaderName = i->shaderName;
     }
 
     geometry->triangles.insert(geometry->triangles.end(),
-                               (*i).triangles.begin(),
-                               (*i).triangles.end());
+                               i->triangles.begin(),
+                               i->triangles.end());
   }
 }
 
@@ -137,9 +147,9 @@ MeshGeometry* Mesh::findGeometry(const String& shaderName)
   return NULL;
 }
 
-void Mesh::calculateNormals(NormalType type)
+void Mesh::generateNormals(NormalType type)
 {
-  calculateTriangleNormals();
+  generateTriangleNormals();
 
   VertexMerger merger(vertices);
 
@@ -164,7 +174,7 @@ void Mesh::calculateNormals(NormalType type)
   merger.realizeVertices(vertices);
 }
 
-void Mesh::calculateTriangleNormals(void)
+void Mesh::generateTriangleNormals(void)
 {
   for (unsigned int i = 0;  i < geometries.size();  i++)
   {
@@ -180,7 +190,7 @@ void Mesh::calculateTriangleNormals(void)
   }
 }
 
-void Mesh::calculateEdges(void)
+void Mesh::generateEdges(void)
 {
   for (unsigned int i = 0;  i < geometries.size();  i++)
   {
@@ -216,38 +226,7 @@ void Mesh::calculateEdges(void)
   }
 }
 
-bool Mesh::isValid(void) const
-{
-  if (vertices.size() == 0)
-    return false;
-
-  unsigned int index;
-
-  for (index = 0;  index < geometries.size();  index++)
-  {
-    if (geometries[index].triangles.size() > 0)
-      break;
-  }
-
-  if (index == geometries.size())
-    return false;
-
-  // TODO: Triangle, edge and vertex validation.
-
-  return true;
-}
-
-unsigned int Mesh::getTriangleCount(void) const
-{
-  unsigned int count = 0;
-
-  for (unsigned int i = 0;  i < geometries.size();  i++)
-    count += (unsigned int) geometries[i].triangles.size();
-
-  return count;
-}
-
-void Mesh::getBounds(AABB& bounds) const
+void Mesh::generateBounds(AABB& bounds) const
 {
   if (vertices.empty())
   {
@@ -281,7 +260,7 @@ void Mesh::getBounds(AABB& bounds) const
   bounds.setBounds(minX, minY, minZ, maxX, maxY, maxZ);
 }
 
-void Mesh::getBounds(Sphere& bounds) const
+void Mesh::generateBounds(Sphere& bounds) const
 {
   bounds.radius = 0.f;
 
@@ -295,6 +274,43 @@ void Mesh::getBounds(Sphere& bounds) const
 
   for (unsigned int i = 1;  i < vertices.size();  i++)
     bounds.envelop(vertices[i].position);
+}
+
+bool Mesh::isValid(void) const
+{
+  if (vertices.size() == 0)
+    return false;
+
+  unsigned int index;
+
+  for (index = 0;  index < geometries.size();  index++)
+  {
+    if (geometries[index].triangles.size() > 0)
+      break;
+  }
+
+  if (index == geometries.size())
+    return false;
+
+  // TODO: Triangle, edge and vertex validation.
+
+  return true;
+}
+
+unsigned int Mesh::getTriangleCount(void) const
+{
+  unsigned int count = 0;
+
+  for (unsigned int i = 0;  i < geometries.size();  i++)
+    count += (unsigned int) geometries[i].triangles.size();
+
+  return count;
+}
+
+Ref<Mesh> Mesh::read(ResourceIndex& index, const Path& path)
+{
+  MeshReader reader(index);
+  return reader.read(path);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -327,11 +343,10 @@ unsigned int VertexMerger::addAttributeLayer(unsigned int vertexIndex,
 
   if (mode == PRESERVE_NORMALS)
   {
-    for (unsigned int i = 0;  i < vertex.layers.size();  i++)
+    for (Vertex::LayerList::iterator i = vertex.layers.begin();  i != vertex.layers.end();  i++)
     {
-      if (vertex.layers[i].normal.dot(normal) > 0.95f &&
-          vertex.layers[i].texcoord == texcoord)
-        return vertex.layers[i].index;
+      if (i->normal.dot(normal) > 0.95f && i->texcoord == texcoord)
+        return i->index;
     }
 
     vertex.layers.push_back(VertexLayer());
@@ -347,9 +362,9 @@ unsigned int VertexMerger::addAttributeLayer(unsigned int vertexIndex,
   {
     unsigned int index = 0;
 
-    while (index < vertex.layers.size())
+    for (Vertex::LayerList::iterator i = vertex.layers.begin();  i != vertex.layers.end();  i++)
     {
-      if (vertex.layers[index].texcoord == texcoord)
+      if (i->texcoord == texcoord)
         break;
 
       index++;
@@ -368,8 +383,8 @@ unsigned int VertexMerger::addAttributeLayer(unsigned int vertexIndex,
       index = vertex.layers.size() - 1;
     }
 
-    for (unsigned int i = 0;  i < vertex.layers.size();  i++)
-      vertex.layers[i].normal += normal;
+    for (Vertex::LayerList::iterator i = vertex.layers.begin();  i != vertex.layers.end();  i++)
+      i->normal += normal;
 
     return vertex.layers[index].index;
   }
@@ -397,6 +412,255 @@ void VertexMerger::realizeVertices(Mesh::VertexList& result) const
 void VertexMerger::setNormalMode(NormalMode newMode)
 {
   mode = newMode;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+MeshReader::MeshReader(ResourceIndex& index):
+  ResourceReader(index)
+{
+}
+
+Ref<Mesh> MeshReader::read(const Path& path)
+{
+  if (Resource* cache = getIndex().findResource(path))
+    return dynamic_cast<Mesh*>(cache);
+
+  ResourceInfo info(getIndex(), path);
+
+  std::ifstream stream;
+  if (!getIndex().openFile(stream, info.path))
+    return NULL;
+
+  String line;
+
+  std::vector<Vec3> positions;
+  std::vector<Vec3> normals;
+  std::vector<Vec2> texcoords;
+
+  FaceGroupList groups;
+  FaceGroup* group = NULL;
+
+  while (std::getline(stream, line))
+  {
+    const char* text = line.c_str();
+
+    if (!interesting(&text))
+      continue;
+
+    String command = parseName(&text);
+
+    if (command == "g")
+    {
+      // Nothing to do here
+    }
+    else if (command == "o")
+    {
+      // Nothing to do here
+    }
+    else if (command == "s")
+    {
+      // Nothing to do here
+    }
+    else if (command == "v")
+    {
+      Vec3 vertex;
+
+      vertex.x = parseFloat(&text);
+      vertex.y = parseFloat(&text);
+      vertex.z = parseFloat(&text);
+      positions.push_back(vertex);
+    }
+    else if (command == "vt")
+    {
+      Vec2 texcoord;
+
+      texcoord.x = parseFloat(&text);
+      texcoord.y = parseFloat(&text);
+      texcoords.push_back(texcoord);
+    }
+    else if (command == "vn")
+    {
+      Vec3 normal;
+
+      normal.x = parseFloat(&text);
+      normal.y = parseFloat(&text);
+      normal.z = parseFloat(&text);
+      normals.push_back(normal);
+    }
+    else if (command == "usemtl")
+    {
+      String shaderName = parseName(&text);
+
+      group = NULL;
+
+      for (FaceGroupList::iterator g = groups.begin();  g != groups.end();  g++)
+      {
+        if (g->name == shaderName)
+          group = &(*g);
+      }
+
+      if (!group)
+      {
+        groups.push_back(FaceGroup());
+        groups.back().name = shaderName;
+        group = &(groups.back());
+      }
+    }
+    else if (command == "mtllib")
+    {
+      // Silently ignore mtllib
+    }
+    else if (command == "f")
+    {
+      if (!group)
+      {
+        logError("Expected \'usemtl\' but found \'f\' in OBJ file");
+        return NULL;
+      }
+
+      std::vector<Triplet> triplets;
+
+      while (*text != '\0')
+      {
+	triplets.push_back(Triplet());
+	Triplet& triplet = triplets.back();
+
+	triplet.vertex = parseInteger(&text);
+
+	if (*text++ != '/')
+	{
+	  logError("Expected but missing \'/\' in OBJ file");
+	  return NULL;
+	}
+
+	triplet.texcoord = 0;
+	if (std::isdigit(*text))
+	  triplet.texcoord = parseInteger(&text);
+
+	if (*text++ != '/')
+	{
+	  logError("Expected but missing \'/\' in OBJ file");
+	  return NULL;
+	}
+
+	triplet.normal = 0;
+	if (std::isdigit(*text))
+	  triplet.normal = parseInteger(&text);
+
+	while (std::isspace(*text))
+	  text++;
+      }
+
+      for (unsigned int i = 2;  i < triplets.size();  i++)
+      {
+	group->faces.push_back(Face());
+	Face& face = group->faces.back();
+
+	face.p[0] = triplets[0];
+	face.p[1] = triplets[i - 1];
+	face.p[2] = triplets[i];
+      }
+    }
+    else
+      logWarning("Unknown command \'%s\' in OBJ file", command.c_str());
+  }
+
+  Ref<Mesh> mesh = new Mesh(info);
+
+  mesh->vertices.resize(positions.size());
+
+  for (unsigned int i = 0;  i < positions.size();  i++)
+    mesh->vertices[i].position = positions[i];
+
+  VertexMerger merger(mesh->vertices);
+
+  for (FaceGroupList::const_iterator g = groups.begin();  g != groups.end();  g++)
+  {
+    mesh->geometries.push_back(MeshGeometry());
+    MeshGeometry& geometry = mesh->geometries.back();
+
+    const FaceList& faces = g->faces;
+
+    geometry.shaderName = g->name;
+    geometry.triangles.resize(faces.size());
+
+    for (unsigned int i = 0;  i < faces.size();  i++)
+    {
+      const Face& face = faces[i];
+      MeshTriangle& triangle = geometry.triangles[i];
+
+      for (unsigned int j = 0;  j < 3;  j++)
+      {
+	const Triplet& point = face.p[j];
+
+	Vec3 normal = Vec3::ZERO;
+	if (point.normal)
+	  normal = normals[point.normal - 1];
+
+	Vec2 texcoord = Vec2::ZERO;
+	if (point.texcoord)
+	  texcoord = texcoords[point.texcoord - 1];
+
+	triangle.indices[j] = merger.addAttributeLayer(point.vertex - 1, normal, texcoord);
+      }
+    }
+  }
+
+  merger.realizeVertices(mesh->vertices);
+
+  return mesh;
+}
+
+String MeshReader::parseName(const char** text)
+{
+  while (std::isspace(**text))
+    (*text)++;
+
+  String result;
+
+  while (std::isalnum(**text) || **text == '_')
+  {
+    result.append(1, **text);
+    (*text)++;
+  }
+
+  if (!result.size())
+    throw Exception("Expected but missing name in OBJ file");
+
+  return result;
+}
+
+int MeshReader::parseInteger(const char** text)
+{
+  char* end;
+
+  const int result = std::strtol(*text, &end, 0);
+  if (end == *text)
+    throw Exception("Expected but missing integer value in OBJ file");
+
+  *text = end;
+  return result;
+}
+
+float MeshReader::parseFloat(const char** text)
+{
+  char* end;
+
+  const float result = strtof(*text, &end);
+  if (end == *text)
+    throw Exception("Expected but missing float value in OBJ file");
+
+  *text = end;
+  return result;
+}
+
+bool MeshReader::interesting(const char** text)
+{
+  if (std::isspace(**text) || **text == '#' || **text == '\0' || **text == '\r')
+    return false;
+
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////

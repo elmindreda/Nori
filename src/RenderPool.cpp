@@ -41,6 +41,12 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+GeometryPool::GeometryPool(GL::Context& initContext):
+  context(initContext)
+{
+  context.getFinishSignal().connect(*this, &GeometryPool::onContextFinish);
+}
+
 bool GeometryPool::allocateIndices(GL::IndexRange& range,
 		                   unsigned int count,
                                    GL::IndexBuffer::Type type)
@@ -55,7 +61,7 @@ bool GeometryPool::allocateIndices(GL::IndexRange& range,
 
   for (IndexBufferList::iterator i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
   {
-    if ((*i).indexBuffer->getType() == type && (*i).available >= count)
+    if (i->indexBuffer->getType() == type && i->available >= count)
     {
       slot = &(*i);
       break;
@@ -72,17 +78,17 @@ bool GeometryPool::allocateIndices(GL::IndexRange& range,
     const unsigned int grainSize = 65536;
     const unsigned int actualCount = grainSize * ((count + grainSize - 1) / grainSize);
 
-    slot->indexBuffer = GL::IndexBuffer::createInstance(context,
-                                                        actualCount,
-                                                        type,
-						        GL::IndexBuffer::DYNAMIC);
+    slot->indexBuffer = GL::IndexBuffer::create(context,
+                                                actualCount,
+                                                type,
+					        GL::IndexBuffer::DYNAMIC);
     if (!slot->indexBuffer)
     {
       indexBufferPool.pop_back();
       return false;
     }
 
-    Log::write("Allocated index pool of size %u", actualCount);
+    log("Allocated index pool of size %u", actualCount);
 
     slot->available = slot->indexBuffer->getCount();
   }
@@ -109,7 +115,7 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
 
   for (VertexBufferList::iterator i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
   {
-    if ((*i).vertexBuffer->getFormat() == format && (*i).available >= count)
+    if (i->vertexBuffer->getFormat() == format && i->available >= count)
     {
       slot = &(*i);
       break;
@@ -126,19 +132,19 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
     const unsigned int grainSize = 65536;
     const unsigned int actualCount = grainSize * ((count + grainSize - 1) / grainSize);
 
-    slot->vertexBuffer = GL::VertexBuffer::createInstance(context,
-                                                          actualCount,
-                                                          format,
-						          GL::VertexBuffer::DYNAMIC);
+    slot->vertexBuffer = GL::VertexBuffer::create(context,
+                                                  actualCount,
+                                                  format,
+						  GL::VertexBuffer::DYNAMIC);
     if (!slot->vertexBuffer)
     {
       vertexBufferPool.pop_back();
       return false;
     }
 
-    Log::write("Allocated vertex pool of size %u format \'%s\'",
-               actualCount,
-	       format.asString().c_str());
+    log("Allocated vertex pool of size %u format \'%s\'",
+        actualCount,
+	format.asString().c_str());
 
     slot->available = slot->vertexBuffer->getCount();
   }
@@ -156,34 +162,13 @@ GL::Context& GeometryPool::getContext(void) const
   return context;
 }
 
-bool GeometryPool::create(GL::Context& context)
-{
-  Ptr<GeometryPool> pool(new GeometryPool(context));
-  if (!pool->init())
-    return false;
-
-  set(pool.detachObject());
-  return true;
-}
-
-GeometryPool::GeometryPool(GL::Context& initContext):
-  context(initContext)
-{
-}
-
-bool GeometryPool::init(void)
-{
-  context.getFinishSignal().connect(*this, &GeometryPool::onContextFinish);
-  return true;
-}
-
 void GeometryPool::onContextFinish(void)
 {
   for (IndexBufferList::iterator i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
-    (*i).available = (*i).indexBuffer->getCount();
+    i->available = i->indexBuffer->getCount();
 
   for (VertexBufferList::iterator i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
-    (*i).available = (*i).vertexBuffer->getCount();
+    i->available = i->vertexBuffer->getCount();
 }
 
 ///////////////////////////////////////////////////////////////////////
