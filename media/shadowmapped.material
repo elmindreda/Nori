@@ -2,7 +2,7 @@
 <material version="5">
   <technique quality="1">
     <pass>
-      <program path="cube_shadowmap.program">
+      <program path="shadowmapped.program">
 	<sampler name="depthmap" texture="depthmap" />
 	<sampler name="spotmask" texture="spotlight_mask.texture" />
       </program>
