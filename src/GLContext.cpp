@@ -1458,7 +1458,7 @@ void Context::sizeCallback(int width, int height)
 
 int Context::closeCallback(void)
 {
-  std::list<bool> results;
+  std::vector<bool> results;
 
   instance->closeRequestSignal.emit(results);
 

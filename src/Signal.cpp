@@ -37,13 +37,16 @@ SignalSlot::SignalSlot(Trackable* initObject):
   object(initObject)
 {
   if (object)
-    object->slots.push_front(this);
+    object->slots.push_back(this);
 }
 
 SignalSlot::~SignalSlot(void)
 {
   if (object)
-    object->slots.remove(this);
+  {
+    Trackable::SlotList& slots = object->slots;
+    slots.erase(std::find(slots.begin(), slots.end(), this));
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -59,7 +62,7 @@ Trackable::Trackable(const Trackable& source)
 Trackable::~Trackable(void)
 {
   while (!slots.empty())
-    delete slots.front();
+    delete slots.back();
 }
 
 Trackable& Trackable::operator = (const Trackable& source)
