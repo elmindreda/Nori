@@ -17,7 +17,7 @@ private:
   Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
   scene::Graph graph;
-  scene::MeshNode* meshNode;
+  scene::ModelNode* modelNode;
   scene::CameraNode* cameraNode;
   Timer timer;
   Time currentTime;
@@ -45,16 +45,16 @@ bool Demo::init(void)
 
   pool = new render::GeometryPool(*context);
 
-  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("cube.mesh"));
-  if (!mesh)
+  Ref<render::Model> model = render::Model::read(*context, Path("cube.mesh"));
+  if (!model)
   {
-    Log::writeError("Failed to load mesh");
+    logError("Failed to load model");
     return false;
   }
 
-  meshNode = new scene::MeshNode();
-  meshNode->setMesh(mesh);
-  graph.addRootNode(*meshNode);
+  modelNode = new scene::ModelNode();
+  modelNode->setModel(model);
+  graph.addRootNode(*modelNode);
 
   camera = new render::Camera();
   camera->setFOV(60.f);
@@ -62,7 +62,7 @@ bool Demo::init(void)
 
   cameraNode = new scene::CameraNode();
   cameraNode->setCamera(camera);
-  cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
+  cameraNode->getLocalTransform().position.z = model->getBounds().radius * 3.f;
   graph.addRootNode(*cameraNode);
 
   timer.start();
@@ -79,8 +79,8 @@ void Demo::run(void)
   {
     currentTime = timer.getTime();
 
-    meshNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f),
-							   (float) currentTime);
+    modelNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f),
+							    (float) currentTime);
 
     graph.update();
 

@@ -49,10 +49,10 @@ bool Test::init(void)
 
   pool = new render::GeometryPool(*context);
 
-  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("cube_cubemapped.mesh"));
-  if (!mesh)
+  Ref<render::Model> model = render::Model::read(*context, Path("cube_cubemapped.mesh"));
+  if (!model)
   {
-    Log::writeError("Failed to load mesh");
+    logError("Failed to load model");
     return false;
   }
 
@@ -62,12 +62,12 @@ bool Test::init(void)
 
   for (size_t i = 0;  i < 20;  i++)
   {
-    scene::MeshNode* meshNode = new scene::MeshNode();
-    meshNode->setMesh(mesh);
-    meshNode->getLocalTransform().position = position.generate();
-    meshNode->getLocalTransform().rotation.setAxisRotation(axis.generate().normalized(),
-                                                           angle.generate());
-    graph.addRootNode(*meshNode);
+    scene::ModelNode* modelNode = new scene::ModelNode();
+    modelNode->setModel(model);
+    modelNode->getLocalTransform().position = position.generate();
+    modelNode->getLocalTransform().rotation.setAxisRotation(axis.generate().normalized(),
+                                                            angle.generate());
+    graph.addRootNode(*modelNode);
   }
 
   camera = new render::Camera();
@@ -75,7 +75,7 @@ bool Test::init(void)
 
   cameraNode = new scene::CameraNode();
   cameraNode->setCamera(camera);
-  cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
+  cameraNode->getLocalTransform().position.z = model->getBounds().radius * 3.f;
   graph.addRootNode(*cameraNode);
 
   return true;

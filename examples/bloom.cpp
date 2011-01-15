@@ -24,7 +24,7 @@ private:
   GL::RenderState composePass;
   Ref<render::Camera> camera;
   scene::Graph graph;
-  scene::MeshNode* meshNode;
+  scene::ModelNode* modelNode;
   scene::CameraNode* cameraNode;
   Timer timer;
   Vec2i oldCursorPosition;
@@ -75,7 +75,7 @@ bool Demo::init(void)
   Ref<GL::RenderBuffer> depthBuffer = GL::RenderBuffer::create(PixelFormat::DEPTH24, size, size);
   if (!depthBuffer)
   {
-    Log::writeError("Failed to create depth render buffer");
+    logError("Failed to create depth render buffer");
     return false;
   }
 
@@ -86,7 +86,7 @@ bool Demo::init(void)
     textures[i] = GL::Texture::create(index, *context, data, 0);
     if (!textures[i])
     {
-      Log::writeError("Failed to create canvas texture");
+      logError("Failed to create canvas texture");
       return false;
     }
 
@@ -97,7 +97,7 @@ bool Demo::init(void)
     canvases[i] = GL::ImageCanvas::create(*context, size, size);
     if (!canvases[i])
     {
-      Log::writeError("Failed to create canvas");
+      logError("Failed to create canvas");
       return false;
     }
 
@@ -135,7 +135,7 @@ bool Demo::init(void)
     program = reader.read(Path("compose.program"));
     if (!program)
     {
-      Log::writeError("Failed to load compose program");
+      logError("Failed to load compose program");
       return false;
     }
 
@@ -148,17 +148,17 @@ bool Demo::init(void)
 
   // Set up scene
   {
-    render::MeshReader reader(*context);
-    Ref<render::Mesh> mesh = reader.read(Path("cube.mesh"));
-    if (!mesh)
+    render::ModelReader reader(*context);
+    Ref<render::Model> model = reader.read(Path("cube.mesh"));
+    if (!model)
     {
-      Log::writeError("Failed to load mesh");
+      logError("Failed to load model");
       return false;
     }
 
-    meshNode = new scene::MeshNode();
-    meshNode->setMesh(mesh);
-    graph.addRootNode(*meshNode);
+    modelNode = new scene::ModelNode();
+    modelNode->setModel(model);
+    graph.addRootNode(*modelNode);
 
     camera = new render::Camera();
     camera->setFOV(60.f);
@@ -166,7 +166,7 @@ bool Demo::init(void)
 
     cameraNode = new scene::CameraNode();
     cameraNode->setCamera(camera);
-    cameraNode->getLocalTransform().position.z = mesh->getBounds().radius * 3.f;
+    cameraNode->getLocalTransform().position.z = model->getBounds().radius * 3.f;
     graph.addRootNode(*cameraNode);
   }
 
@@ -256,14 +256,14 @@ void Demo::onCursorMoved(const Vec2i& position)
     if (offset.x)
     {
       rotation.setAxisRotation(Vec3::Y, offset.x / 50.f);
-      Quat& parent = meshNode->getLocalTransform().rotation;
+      Quat& parent = modelNode->getLocalTransform().rotation;
       parent = rotation * parent;
     }
 
     if (offset.y)
     {
       rotation.setAxisRotation(Vec3::X, offset.y / 50.f);
-      Quat& parent = meshNode->getLocalTransform().rotation;
+      Quat& parent = modelNode->getLocalTransform().rotation;
       parent = rotation * parent;
     }
 
@@ -273,9 +273,9 @@ void Demo::onCursorMoved(const Vec2i& position)
 
 void Demo::onWheelTurned(int offset)
 {
-  const float scale = meshNode->getMesh()->getBounds().radius / 10.f;
+  const float scale = modelNode->getModel()->getBounds().radius / 10.f;
 
-  meshNode->getLocalTransform().position.z += offset * scale;
+  modelNode->getLocalTransform().position.z += offset * scale;
 }
 
 int main(void)

@@ -25,7 +25,7 @@ private:
   Ref<render::Camera> lightCamera;
   Ref<render::Camera> viewCamera;
   scene::Graph graph;
-  scene::MeshNode* meshNode;
+  scene::ModelNode* modelNode;
   scene::CameraNode* lightCameraNode;
   scene::CameraNode* viewCameraNode;
   Timer timer;
@@ -88,18 +88,18 @@ bool Demo::init(void)
   canvas->setDepthBuffer(&depthmap->getImage());
   canvas->setColorBuffer(&colormap->getImage());
 
-  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("cube_shadowmap.mesh"));
-  if (!mesh)
+  Ref<render::Model> model = render::Model::read(*context, Path("cube_shadowmap.mesh"));
+  if (!model)
   {
-    Log::writeError("Failed to load mesh");
+    logError("Failed to load model");
     return false;
   }
 
-  const float radius = mesh->getBounds().radius;
+  const float radius = model->getBounds().radius;
 
-  meshNode = new scene::MeshNode();
-  meshNode->setMesh(mesh);
-  graph.addRootNode(*meshNode);
+  modelNode = new scene::ModelNode();
+  modelNode->setModel(model);
+  graph.addRootNode(*modelNode);
 
   viewCamera = new render::Camera();
   viewCamera->setFOV(60.f);
@@ -216,14 +216,14 @@ void Demo::onCursorMoved(const Vec2i& position)
     if (offset.x)
     {
       rotation.setAxisRotation(Vec3::Y, offset.x / 50.f);
-      Quat& parent = meshNode->getLocalTransform().rotation;
+      Quat& parent = modelNode->getLocalTransform().rotation;
       parent = rotation * parent;
     }
 
     if (offset.y)
     {
       rotation.setAxisRotation(Vec3::X, offset.y / 50.f);
-      Quat& parent = meshNode->getLocalTransform().rotation;
+      Quat& parent = modelNode->getLocalTransform().rotation;
       parent = rotation * parent;
     }
 
@@ -233,9 +233,9 @@ void Demo::onCursorMoved(const Vec2i& position)
 
 void Demo::onWheelTurned(int offset)
 {
-  const float scale = meshNode->getMesh()->getBounds().radius / 10.f;
+  const float scale = modelNode->getModel()->getBounds().radius / 10.f;
 
-  meshNode->getLocalTransform().position.z += offset * scale;
+  modelNode->getLocalTransform().position.z += offset * scale;
 }
 
 int main()

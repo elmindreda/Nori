@@ -82,13 +82,13 @@ bool Demo::init(void)
   if (!distAttTexture)
     return false;
 
-  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("sponza.mesh"));
-  if (!mesh)
+  Ref<render::Model> model = render::Model::read(*context, Path("sponza.mesh"));
+  if (!model)
     return false;
 
-  scene::MeshNode* meshNode = new scene::MeshNode();
-  meshNode->setMesh(mesh);
-  graph.addRootNode(*meshNode);
+  scene::ModelNode* modelNode = new scene::ModelNode();
+  modelNode->setModel(model);
+  graph.addRootNode(*modelNode);
 
   camera = new render::Camera();
   camera->setFOV(60.f);

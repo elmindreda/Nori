@@ -37,7 +37,7 @@ bool Test::init(void)
 
   if (!GL::Context::createSingleton(index))
   {
-    Log::writeError("Failed to create OpenGL context");
+    logError("Failed to create OpenGL context");
     return false;
   }
 
@@ -49,7 +49,7 @@ bool Test::init(void)
   material = render::Material::read(*context, Path("sprite3.material"));
   if (!material)
   {
-    Log::writeError("Failed to load material");
+    logError("Failed to load material");
     return false;
   }
 
@@ -87,14 +87,14 @@ int main(void)
 {
   if (!wendy::initialize())
   {
-    Log::writeError("Failed to initialize Wendy");
+    logError("Failed to initialize Wendy");
     std::exit(EXIT_FAILURE);
   }
 
   Ptr<Test> test(new Test());
   if (!test->init())
   {
-    Log::writeError("Failed to initialize test");
+    logError("Failed to initialize test");
     std::exit(EXIT_FAILURE);
   }
 

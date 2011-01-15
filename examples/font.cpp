@@ -53,7 +53,7 @@ bool Demo::init(void)
 
   if (!GL::Context::createSingleton(index))
   {
-    Log::writeError("Failed to create OpenGL context");
+    logError("Failed to create OpenGL context");
     return false;
   }
 
@@ -66,7 +66,7 @@ bool Demo::init(void)
   font = render::Font::read(*pool, Path("wendy/default.font"));
   if (!font)
   {
-    Log::writeError("Failed to load font");
+    logError("Failed to load font");
     return false;
   }
 
