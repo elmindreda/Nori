@@ -235,6 +235,21 @@ bool isSamplerType(CGtype type)
   }
 }
 
+bool readTextFile(ResourceIndex& index, String& text, const Path& path)
+{
+  std::ifstream stream;
+  if (!index.openFile(stream, path))
+    return false;
+
+  stream.seekg(0, std::ios::end);
+
+  text.resize(stream.tellg());
+
+  stream.seekg(0, std::ios::beg);
+  stream.read(&text[0], text.size());
+  return true;
+}
+
 template <typename T>
 class NameComparator
 {
@@ -259,6 +274,8 @@ inline bool NameComparator<T>::operator () (const T& object)
 }
 
 const unsigned int PROGRAM_XML_VERSION = 3;
+
+Program* compilingProgram = NULL;
 
 } /*namespace*/
 
@@ -685,6 +702,10 @@ Program::Program(const Program& source):
 bool Program::init(const VertexProgram& vertexProgram,
                    const FragmentProgram& fragmentProgram)
 {
+  compilingProgram = this;
+  cgSetCompilerIncludeCallback((CGcontext) context.cgContextID,
+                               (CGIncludeCallbackFunc) Program::onIncludeFile);
+
   vertexProgramID = cgCreateProgram((CGcontext) context.cgContextID,
                                     CG_SOURCE,
                                     vertexProgram.text.c_str(),
@@ -714,6 +735,9 @@ bool Program::init(const VertexProgram& vertexProgram,
              cgGetLastListing((CGcontext) context.cgContextID));
     return false;
   }
+
+  compilingProgram = NULL;
+  cgSetCompilerIncludeCallback((CGcontext) context.cgContextID, NULL);
 
   cgGLLoadProgram((CGprogram) vertexProgramID);
 
@@ -823,6 +847,23 @@ void Program::apply(void) const
 {
   cgGLBindProgram((CGprogram) vertexProgramID);
   cgGLBindProgram((CGprogram) fragmentProgramID);
+}
+
+void Program::onIncludeFile(void* context, const char* name)
+{
+  String source;
+
+  if (!readTextFile(compilingProgram->getIndex(), source, Path(name)))
+  {
+    logError("Failed to read file \'%s\' included by shader program \'%s\'",
+             name,
+             compilingProgram->getPath().asString().c_str());
+    return;
+  }
+
+  cgSetCompilerIncludeString((CGcontext) compilingProgram->context.cgContextID,
+                             name,
+                             source.c_str());
 }
 
 Program& Program::operator = (const Program& source)
@@ -1049,7 +1090,7 @@ bool ProgramReader::onBeginElement(const String& name)
     }
 
     String text;
-    if (!readTextFile(text, path))
+    if (!readTextFile(getIndex(), text, path))
     {
       logError("Cannot find vertex program \'%s\' for shader program \'%s\'",
                path.asString().c_str(),
@@ -1079,7 +1120,7 @@ bool ProgramReader::onBeginElement(const String& name)
     }
 
     String text;
-    if (!readTextFile(text, path))
+    if (!readTextFile(getIndex(), text, path))
     {
       logError("Cannot find fragment program \'%s\' for shader program \'%s\'",
                path.asString().c_str(),
@@ -1122,21 +1163,6 @@ bool ProgramReader::onEndElement(const String& name)
     return true;
   }
 
-  return true;
-}
-
-bool ProgramReader::readTextFile(String& text, const Path& path)
-{
-  std::ifstream stream;
-  if (!getIndex().openFile(stream, path))
-    return false;
-
-  stream.seekg(0, std::ios::end);
-
-  text.resize(stream.tellg());
-
-  stream.seekg(0, std::ios::beg);
-  stream.read(&text[0], text.size());
   return true;
 }
 
