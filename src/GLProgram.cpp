@@ -323,9 +323,9 @@ void Varying::enable(size_t stride, size_t offset)
 
   cgGLSetParameterPointer((CGparameter) varyingID,
                           getElementCount(type),
-			  getVaryingBaseType(type),
-			  stride,
-			  (const void*) offset);
+                          getVaryingBaseType(type),
+                          stride,
+                          (const void*) offset);
 
 #if WENDY_DEBUG
   checkCg("Failed to set varying \'%s\' of program \'%s\'",
@@ -653,7 +653,7 @@ Context& Program::getContext(void) const
 Ref<Program> Program::create(const ResourceInfo& info,
                              Context& context,
                              const VertexProgram& vertexProgram,
-			     const FragmentProgram& fragmentProgram)
+                             const FragmentProgram& fragmentProgram)
 {
   Ref<Program> program(new Program(info, context));
   if (!program->init(vertexProgram, fragmentProgram))
@@ -687,31 +687,31 @@ bool Program::init(const VertexProgram& vertexProgram,
 {
   vertexProgramID = cgCreateProgram((CGcontext) context.cgContextID,
                                     CG_SOURCE,
-			            vertexProgram.text.c_str(),
-			            (CGprofile) context.cgVertexProfile,
-			            NULL,
-			            NULL);
+                                    vertexProgram.text.c_str(),
+                                    (CGprofile) context.cgVertexProfile,
+                                    NULL,
+                                    NULL);
   if (!vertexProgramID)
   {
     logError("Failed to compile Cg vertex program \'%s\':\n%s\n%s",
              vertexProgram.path.asString().c_str(),
              cgGetErrorString(cgGetError()),
-	     cgGetLastListing((CGcontext) context.cgContextID));
+             cgGetLastListing((CGcontext) context.cgContextID));
     return false;
   }
 
   fragmentProgramID = cgCreateProgram((CGcontext) context.cgContextID,
                                       CG_SOURCE,
-			              fragmentProgram.text.c_str(),
-			              (CGprofile) context.cgFragmentProfile,
-			              NULL,
-			              NULL);
+                                      fragmentProgram.text.c_str(),
+                                      (CGprofile) context.cgFragmentProfile,
+                                      NULL,
+                                      NULL);
   if (!fragmentProgramID)
   {
     logError("Failed to compile Cg fragment program \'%s\':\n%s\n%s",
              fragmentProgram.path.asString().c_str(),
              cgGetErrorString(cgGetError()),
-	     cgGetLastListing((CGcontext) context.cgContextID));
+             cgGetLastListing((CGcontext) context.cgContextID));
     return false;
   }
 
@@ -742,39 +742,39 @@ bool Program::init(const VertexProgram& vertexProgram,
       CGenum variability = cgGetParameterVariability(parameter);
       if (variability == CG_VARYING)
       {
-	if (cgGetParameterDirection(parameter) != CG_IN)
-	  continue;
+        if (cgGetParameterDirection(parameter) != CG_IN)
+          continue;
 
-	CGtype type = cgGetParameterType(parameter);
+        CGtype type = cgGetParameterType(parameter);
 
         varyings.push_back(Varying(*this));
-	Varying& varying = varyings.back();
-	varying.name = cgGetParameterName(parameter);
-	varying.type = convertVaryingType(type);
-	varying.varyingID = parameter;
+        Varying& varying = varyings.back();
+        varying.name = cgGetParameterName(parameter);
+        varying.type = convertVaryingType(type);
+        varying.varyingID = parameter;
       }
       else if (variability == CG_UNIFORM)
       {
-	CGtype type = cgGetParameterType(parameter);
+        CGtype type = cgGetParameterType(parameter);
 
-	if (isSamplerType(type))
-	{
+        if (isSamplerType(type))
+        {
           samplers.push_back(Sampler(*this));
-	  Sampler& sampler = samplers.back();
-	  sampler.name = cgGetParameterName(parameter);
-	  sampler.type = convertSamplerType(type);
-	  sampler.samplerID = parameter;
-	}
-	else if (isUniformType(type))
-	{
+          Sampler& sampler = samplers.back();
+          sampler.name = cgGetParameterName(parameter);
+          sampler.type = convertSamplerType(type);
+          sampler.samplerID = parameter;
+        }
+        else if (isUniformType(type))
+        {
           uniforms.push_back(Uniform(*this));
-	  Uniform& uniform = uniforms.back();
-	  uniform.name = cgGetParameterName(parameter);
-	  uniform.type = convertUniformType(type);
-	  uniform.uniformID = parameter;
-	}
-	else
-	  logError("Unknown Cg parameter type");
+          Uniform& uniform = uniforms.back();
+          uniform.name = cgGetParameterName(parameter);
+          uniform.type = convertUniformType(type);
+          uniform.uniformID = parameter;
+        }
+        else
+          logError("Unknown Cg parameter type");
       }
     }
 
@@ -790,26 +790,26 @@ bool Program::init(const VertexProgram& vertexProgram,
       CGenum variability = cgGetParameterVariability(parameter);
       if (variability == CG_UNIFORM)
       {
-	CGtype type = cgGetParameterType(parameter);
+        CGtype type = cgGetParameterType(parameter);
 
-	if (isSamplerType(type))
-	{
+        if (isSamplerType(type))
+        {
           samplers.push_back(Sampler(*this));
-	  Sampler& sampler = samplers.back();
-	  sampler.name = cgGetParameterName(parameter);
-	  sampler.type = convertSamplerType(type);
-	  sampler.samplerID = parameter;
-	}
-	else if (isUniformType(type))
-	{
+          Sampler& sampler = samplers.back();
+          sampler.name = cgGetParameterName(parameter);
+          sampler.type = convertSamplerType(type);
+          sampler.samplerID = parameter;
+        }
+        else if (isUniformType(type))
+        {
           uniforms.push_back(Uniform(*this));
-	  Uniform& uniform = uniforms.back();
-	  uniform.name = cgGetParameterName(parameter);
-	  uniform.type = convertUniformType(type);
-	  uniform.uniformID = parameter;
-	}
-	else
-	  logError("Unknown Cg parameter type");
+          Uniform& uniform = uniforms.back();
+          uniform.name = cgGetParameterName(parameter);
+          uniform.type = convertUniformType(type);
+          uniform.uniformID = parameter;
+        }
+        else
+          logError("Unknown Cg parameter type");
       }
     }
 
@@ -858,9 +858,9 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	logError("Uniform \'%s\' missing in program \'%s\'",
-	         entry.first.c_str(),
-		 program.getPath().asString().c_str());
+        logError("Uniform \'%s\' missing in program \'%s\'",
+                 entry.first.c_str(),
+                 program.getPath().asString().c_str());
       }
 
       return false;
@@ -870,10 +870,10 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	logError("Uniform \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
-	         entry.first.c_str(),
-		 program.getPath().asString().c_str(),
-		 getTypeName(entry.second));
+        logError("Uniform \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
+                 entry.first.c_str(),
+                 program.getPath().asString().c_str(),
+                 getTypeName(entry.second));
       }
 
       return false;
@@ -889,9 +889,9 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	logError("Sampler \'%s\' missing in program \'%s\'",
-	         entry.first.c_str(),
-		 program.getPath().asString().c_str());
+        logError("Sampler \'%s\' missing in program \'%s\'",
+                 entry.first.c_str(),
+                 program.getPath().asString().c_str());
       }
 
       return false;
@@ -901,10 +901,10 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	logError("Sampler \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
-	         entry.first.c_str(),
-		 program.getPath().asString().c_str(),
-		 getTypeName(entry.second));
+        logError("Sampler \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
+                 entry.first.c_str(),
+                 program.getPath().asString().c_str(),
+                 getTypeName(entry.second));
       }
 
       return false;
@@ -920,9 +920,9 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	logError("Varying \'%s\' missing in program \'%s\'",
-	         entry.first.c_str(),
-		 program.getPath().asString().c_str());
+        logError("Varying \'%s\' missing in program \'%s\'",
+                 entry.first.c_str(),
+                 program.getPath().asString().c_str());
       }
 
       return false;
@@ -932,10 +932,10 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	logError("Varying \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
-	         entry.first.c_str(),
-		 program.getPath().asString().c_str(),
-		 getTypeName(entry.second));
+        logError("Varying \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
+                 entry.first.c_str(),
+                 program.getPath().asString().c_str(),
+                 getTypeName(entry.second));
       }
 
       return false;
@@ -1053,7 +1053,7 @@ bool ProgramReader::onBeginElement(const String& name)
     {
       logError("Cannot find vertex program \'%s\' for shader program \'%s\'",
                path.asString().c_str(),
-	       info.path.asString().c_str());
+               info.path.asString().c_str());
       return false;
     }
 
@@ -1083,7 +1083,7 @@ bool ProgramReader::onBeginElement(const String& name)
     {
       logError("Cannot find fragment program \'%s\' for shader program \'%s\'",
                path.asString().c_str(),
-	       info.path.asString().c_str());
+               info.path.asString().c_str());
       return false;
     }
 
@@ -1101,14 +1101,14 @@ bool ProgramReader::onEndElement(const String& name)
     if (!vertexProgram)
     {
       logError("Vertex program missing for shader program \'%s\'",
-	       info.path.asString().c_str());
+               info.path.asString().c_str());
       return false;
     }
 
     if (!fragmentProgram)
     {
       logError("Fragment program missing for shader program \'%s\'",
-	       info.path.asString().c_str());
+               info.path.asString().c_str());
       return false;
     }
 
