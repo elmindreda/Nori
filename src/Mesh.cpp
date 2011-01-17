@@ -535,7 +535,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
         }
 
         triplet.texcoord = 0;
-        if (std::isdigit(*text))
+        if (isdigit(*text))
           triplet.texcoord = parseInteger(&text);
 
         if (*text++ != '/')
@@ -545,10 +545,10 @@ Ref<Mesh> MeshReader::read(const Path& path)
         }
 
         triplet.normal = 0;
-        if (std::isdigit(*text))
+        if (isdigit(*text))
           triplet.normal = parseInteger(&text);
 
-        while (std::isspace(*text))
+        while (isspace(*text))
           text++;
       }
 
@@ -613,12 +613,12 @@ Ref<Mesh> MeshReader::read(const Path& path)
 
 String MeshReader::parseName(const char** text)
 {
-  while (std::isspace(**text))
+  while (isspace(**text))
     (*text)++;
 
   String result;
 
-  while (std::isalnum(**text) || **text == '_')
+  while (isalnum(**text) || **text == '_')
   {
     result.append(1, **text);
     (*text)++;
@@ -656,7 +656,7 @@ float MeshReader::parseFloat(const char** text)
 
 bool MeshReader::interesting(const char** text)
 {
-  if (std::isspace(**text) || **text == '#' || **text == '\0' || **text == '\r')
+  if (isspace(**text) || **text == '#' || **text == '\0' || **text == '\r')
     return false;
 
   return true;
