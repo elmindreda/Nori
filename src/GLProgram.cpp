@@ -1006,7 +1006,9 @@ bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
         (component->getElementCount() == 2 && entry.second != Varying::FLOAT_VEC2) ||
         (component->getElementCount() == 3 && entry.second != Varying::FLOAT_VEC3) ||
         (component->getElementCount() == 4 && entry.second != Varying::FLOAT_VEC4))
+    {
       return false;
+    }
   }
 
   return true;
