@@ -336,8 +336,8 @@ void VertexMerger::importPositions(const Mesh::VertexList& initVertices)
 }
 
 unsigned int VertexMerger::addAttributeLayer(unsigned int vertexIndex,
-			                     const Vec3& normal,
-			                     const Vec2& texcoord)
+                                             const Vec3& normal,
+                                             const Vec2& texcoord)
 {
   Vertex& vertex = vertices[vertexIndex];
 
@@ -523,43 +523,43 @@ Ref<Mesh> MeshReader::read(const Path& path)
 
       while (*text != '\0')
       {
-	triplets.push_back(Triplet());
-	Triplet& triplet = triplets.back();
+        triplets.push_back(Triplet());
+        Triplet& triplet = triplets.back();
 
-	triplet.vertex = parseInteger(&text);
+        triplet.vertex = parseInteger(&text);
 
-	if (*text++ != '/')
-	{
-	  logError("Expected but missing \'/\' in OBJ file");
-	  return NULL;
-	}
+        if (*text++ != '/')
+        {
+          logError("Expected but missing \'/\' in OBJ file");
+          return NULL;
+        }
 
-	triplet.texcoord = 0;
-	if (std::isdigit(*text))
-	  triplet.texcoord = parseInteger(&text);
+        triplet.texcoord = 0;
+        if (std::isdigit(*text))
+          triplet.texcoord = parseInteger(&text);
 
-	if (*text++ != '/')
-	{
-	  logError("Expected but missing \'/\' in OBJ file");
-	  return NULL;
-	}
+        if (*text++ != '/')
+        {
+          logError("Expected but missing \'/\' in OBJ file");
+          return NULL;
+        }
 
-	triplet.normal = 0;
-	if (std::isdigit(*text))
-	  triplet.normal = parseInteger(&text);
+        triplet.normal = 0;
+        if (std::isdigit(*text))
+          triplet.normal = parseInteger(&text);
 
-	while (std::isspace(*text))
-	  text++;
+        while (std::isspace(*text))
+          text++;
       }
 
       for (unsigned int i = 2;  i < triplets.size();  i++)
       {
-	group->faces.push_back(Face());
-	Face& face = group->faces.back();
+        group->faces.push_back(Face());
+        Face& face = group->faces.back();
 
-	face.p[0] = triplets[0];
-	face.p[1] = triplets[i - 1];
-	face.p[2] = triplets[i];
+        face.p[0] = triplets[0];
+        face.p[1] = triplets[i - 1];
+        face.p[2] = triplets[i];
       }
     }
     else
@@ -570,7 +570,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
 
   mesh->vertices.resize(positions.size());
 
-  for (unsigned int i = 0;  i < positions.size();  i++)
+  for (size_t i = 0;  i < positions.size();  i++)
     mesh->vertices[i].position = positions[i];
 
   VertexMerger merger(mesh->vertices);
@@ -585,30 +585,29 @@ Ref<Mesh> MeshReader::read(const Path& path)
     geometry.shaderName = g->name;
     geometry.triangles.resize(faces.size());
 
-    for (unsigned int i = 0;  i < faces.size();  i++)
+    for (size_t i = 0;  i < faces.size();  i++)
     {
       const Face& face = faces[i];
       MeshTriangle& triangle = geometry.triangles[i];
 
-      for (unsigned int j = 0;  j < 3;  j++)
+      for (int j = 0;  j < 3;  j++)
       {
-	const Triplet& point = face.p[j];
+        const Triplet& point = face.p[j];
 
-	Vec3 normal = Vec3::ZERO;
-	if (point.normal)
-	  normal = normals[point.normal - 1];
+        Vec3 normal = Vec3::ZERO;
+        if (point.normal)
+          normal = normals[point.normal - 1];
 
-	Vec2 texcoord = Vec2::ZERO;
-	if (point.texcoord)
-	  texcoord = texcoords[point.texcoord - 1];
+        Vec2 texcoord = Vec2::ZERO;
+        if (point.texcoord)
+          texcoord = texcoords[point.texcoord - 1];
 
-	triangle.indices[j] = merger.addAttributeLayer(point.vertex - 1, normal, texcoord);
+        triangle.indices[j] = merger.addAttributeLayer(point.vertex - 1, normal, texcoord);
       }
     }
   }
 
   merger.realizeVertices(mesh->vertices);
-
   return mesh;
 }
 

@@ -849,7 +849,7 @@ void ProgramInterface::addVarying(const String& name, Varying::Type type)
 
 bool ProgramInterface::matches(const Program& program, bool verbose) const
 {
-  for (int i = 0;  i < uniforms.size();  i++)
+  for (size_t i = 0;  i < uniforms.size();  i++)
   {
     const UniformList::value_type& entry = uniforms[i];
 
@@ -880,7 +880,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     }
   }
 
-  for (int i = 0;  i < samplers.size();  i++)
+  for (size_t i = 0;  i < samplers.size();  i++)
   {
     const SamplerList::value_type& entry = samplers[i];
 
@@ -889,9 +889,9 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	logError("Sampler \'%s\' missing in program \'%s\'",
-	         entry.first.c_str(),
-		 program.getPath().asString().c_str());
+        logError("Sampler \'%s\' missing in program \'%s\'",
+                 entry.first.c_str(),
+                 program.getPath().asString().c_str());
       }
 
       return false;
@@ -901,17 +901,17 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	logError("Sampler \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
-	         entry.first.c_str(),
-		 program.getPath().asString().c_str(),
-		 getTypeName(entry.second));
+        logError("Sampler \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
+                 entry.first.c_str(),
+                 program.getPath().asString().c_str(),
+                 getTypeName(entry.second));
       }
 
       return false;
     }
   }
 
-  for (int i = 0;  i < varyings.size();  i++)
+  for (size_t i = 0;  i < varyings.size();  i++)
   {
     const VaryingList::value_type& entry = varyings[i];
 
@@ -920,9 +920,9 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	logError("Varying \'%s\' missing in program \'%s\'",
-	         entry.first.c_str(),
-		 program.getPath().asString().c_str());
+        logError("Varying \'%s\' missing in program \'%s\'",
+                 entry.first.c_str(),
+                 program.getPath().asString().c_str());
       }
 
       return false;
@@ -932,10 +932,10 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-	logError("Varying \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
-	         entry.first.c_str(),
-		 program.getPath().asString().c_str(),
-		 getTypeName(entry.second));
+        logError("Varying \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
+                 entry.first.c_str(),
+                 program.getPath().asString().c_str(),
+                 getTypeName(entry.second));
       }
 
       return false;
@@ -950,7 +950,7 @@ bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
   if (format.getComponentCount() != varyings.size())
     return false;
 
-  for (int i = 0;  i < varyings.size();  i++)
+  for (size_t i = 0;  i < varyings.size();  i++)
   {
     const VaryingList::value_type& entry = varyings[i];
 

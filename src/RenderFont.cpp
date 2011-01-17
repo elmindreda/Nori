@@ -435,7 +435,7 @@ bool Font::init(const FontData& data)
 
   glyphs.reserve(data.glyphs.size());
 
-  for (int i = 0;  i < data.glyphs.size();  i++)
+  for (size_t i = 0;  i < data.glyphs.size();  i++)
   {
     const FontGlyphData& glyphData = data.glyphs[i];
 
@@ -490,7 +490,7 @@ bool Font::init(const FontData& data)
     texelPosition.x += image->getWidth() + 1;
   }
 
-  size.set(maxWidth, maxHeight);
+  size.set((float) maxWidth, (float) maxHeight);
   return true;
 }
 
@@ -700,7 +700,7 @@ bool FontReader::extractGlyphs(FontData& data,
       digitGlyphs.push_back(&glyph);
     }
 
-    for (int i = 0;  i < digitGlyphs.size();  i++)
+    for (size_t i = 0;  i < digitGlyphs.size();  i++)
     {
       FontGlyphData& glyph = *digitGlyphs[i];
 
@@ -744,7 +744,7 @@ bool FontReader::extractGlyphs(FontData& data,
 
   if (fixedWidth)
   {
-    for (int i = 0;  i < data.glyphs.size();  i++)
+    for (size_t i = 0;  i < data.glyphs.size();  i++)
     {
       FontGlyphData& glyph = data.glyphs[i];
 
@@ -754,7 +754,7 @@ bool FontReader::extractGlyphs(FontData& data,
   }
   else
   {
-    for (int i = 0;  i < data.glyphs.size();  i++)
+    for (size_t i = 0;  i < data.glyphs.size();  i++)
       data.glyphs[i].advance += meanAdvance * 0.2f;
   }
 

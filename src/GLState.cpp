@@ -396,6 +396,7 @@ UniformState& UniformState::operator = (const UniformState& source)
 {
   uniform = source.uniform;
   std::memcpy(data, source.data, sizeof(data));
+  return *this;
 }
 
 void UniformState::getValue(float& result) const
