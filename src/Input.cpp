@@ -491,8 +491,8 @@ void MayaCamera::onCursorMoved(const Vec2i& position)
     transform.rotation.rotateVector(axisX);
     transform.rotation.rotateVector(axisY);
 
-    target -= axisX * offset.x / 50.f;
-    target += axisY * offset.y / 50.f;
+    target -= axisX * (float) offset.x / 50.f;
+    target += axisY * (float) offset.y / 50.f;
     updateTransform();
   }
 
@@ -562,7 +562,7 @@ void SpectatorCamera::update(Time deltaTime)
     direction.x += 1.f;
 
   transform.rotation.rotateVector(direction);
-  transform.position += direction * speed * multiplier * deltaTime;
+  transform.position += direction * speed * multiplier * (float) deltaTime;
 }
 
 void SpectatorCamera::onKeyPressed(Key key, bool pressed)

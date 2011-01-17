@@ -179,8 +179,8 @@ void AnimTrack3::evaluate(Time moment, Transform3& result) const
   const KeyFrame3& startFrame = keyframes[index - 1];
   const KeyFrame3& endFrame = keyframes[index];
 
-  const float t = (moment - startFrame.moment) /
-                  (endFrame.moment - startFrame.moment);
+  const float t = (float) ((moment - startFrame.moment) /
+                           (endFrame.moment - startFrame.moment));
 
   const Quat& startRot = startFrame.transform.rotation;
   const Quat& endRot = endFrame.transform.rotation;

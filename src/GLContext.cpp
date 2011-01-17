@@ -637,7 +637,12 @@ void ImageCanvas::apply(void) const
     }
 
     if (count)
-      glDrawBuffersARB(count, enables);
+    {
+      if (GLEW_VERSION_2_0)
+        glDrawBuffers(count, enables);
+      else
+        glDrawBuffersARB(count, enables);
+    }
     else
       glDrawBuffer(GL_NONE);
 
@@ -834,7 +839,7 @@ void Context::render(const PrimitiveRange& range)
     return;
   }
 
-  for (int i = 0;  i < program.getVaryingCount();  i++)
+  for (size_t i = 0;  i < program.getVaryingCount();  i++)
   {
     Varying& varying = program.getVarying(i);
 
@@ -1299,9 +1304,9 @@ bool Context::init(const ContextMode& initMode)
       return false;
     }
 
-    if (!GLEW_ARB_draw_buffers)
+    if (!GLEW_VERSION_2_0 && !GLEW_ARB_draw_buffers)
     {
-      logError("Draw buffers (ARB_draw_buffers) are required but not supported");
+      logError("Draw buffers are required but not supported");
       return false;
     }
 
