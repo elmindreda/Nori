@@ -69,7 +69,7 @@ bool Demo::init(void)
   rootNode = new scene::Node();
   graph.addRootNode(*rootNode);
 
-  RandomRange angle(0.f, M_PI * 2.f);
+  RandomRange angle(0.f, (float) M_PI * 2.f);
   RandomVolume axis(Vec3(-1.f, -1.f, -1.f), Vec3(1.f, 1.f, 1.f));
   RandomVolume position(Vec3(-20.f, -2.f, -20.f), Vec3(20.f, 2.f, 20.f));
 

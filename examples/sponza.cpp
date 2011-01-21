@@ -125,7 +125,7 @@ void Demo::run(void)
     const Time deltaTime = timer.getTime() - currentTime;
     currentTime += deltaTime;
 
-    lightNode->getLocalTransform().position.y = sinf(currentTime) * 40.f + 45.f;
+    lightNode->getLocalTransform().position.y = sinf((float) currentTime) * 40.f + 45.f;
 
     controller.update(deltaTime);
     cameraNode->getLocalTransform() = controller.getTransform();

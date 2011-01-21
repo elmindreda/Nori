@@ -86,7 +86,7 @@ bool Demo::render(void)
   for (size_t i = 0;  lines[i];  i++)
   {
     font->drawText(pen, ColorRGBA::WHITE, lines[i]);
-    pen.y -= em * 1.5;
+    pen.y -= em * 1.5f;
   }
 
   return true;

@@ -68,7 +68,7 @@ void Test::run(void)
     render::Sprite2 sprite;
     sprite.position.set(4.f / 3.f / 2.f, 0.5f);
     sprite.size.set(0.5f, 0.5f);
-    sprite.angle = timer.getTime();
+    sprite.angle = (float) timer.getTime();
 
     context.setProjectionMatrix2D(4.f / 3.f, 1.f);
 
