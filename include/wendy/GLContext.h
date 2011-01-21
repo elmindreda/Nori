@@ -582,8 +582,6 @@ public:
    */
   static void getScreenModes(ScreenModeList& result);
 private:
-  typedef std::vector<GlobalUniform*> UniformList;
-  typedef std::vector<GlobalSampler*> SamplerList;
   Context(ResourceIndex& index);
   Context(const Context& source);
   Context& operator = (const Context& source);
@@ -595,6 +593,8 @@ private:
   static void refreshCallback(void);
   void onStateApply(unsigned int stateID, Uniform& uniform);
   void onStateApply(unsigned int stateID, Sampler& sampler);
+  typedef std::vector<GlobalUniform*> UniformList;
+  typedef std::vector<GlobalSampler*> SamplerList;
   ResourceIndex& index;
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
