@@ -589,7 +589,7 @@ bool Renderer::init(void)
 
 void Renderer::setDrawingState(const ColorRGBA& color, bool wireframe)
 {
-  drawPass.getUniformState("color").setValue(Vec4(color.r, color.g, color.b, color.a));
+  drawPass.getUniformState("color").setValue(color);
 
   if (color.a == 1.f)
     drawPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ZERO);
