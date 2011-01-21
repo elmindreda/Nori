@@ -36,6 +36,7 @@
 #include <limits>
 #include <cstdlib>
 #include <fstream>
+#include <cctype>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -535,7 +536,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
         }
 
         triplet.texcoord = 0;
-        if (isdigit(*text))
+        if (std::isdigit(*text))
           triplet.texcoord = parseInteger(&text);
 
         if (*text++ != '/')
@@ -545,10 +546,10 @@ Ref<Mesh> MeshReader::read(const Path& path)
         }
 
         triplet.normal = 0;
-        if (isdigit(*text))
+        if (std::isdigit(*text))
           triplet.normal = parseInteger(&text);
 
-        while (isspace(*text))
+        while (std::isspace(*text))
           text++;
       }
 
@@ -613,12 +614,12 @@ Ref<Mesh> MeshReader::read(const Path& path)
 
 String MeshReader::parseName(const char** text)
 {
-  while (isspace(**text))
+  while (std::isspace(**text))
     (*text)++;
 
   String result;
 
-  while (isalnum(**text) || **text == '_')
+  while (std::isalnum(**text) || **text == '_')
   {
     result.append(1, **text);
     (*text)++;
@@ -656,7 +657,7 @@ float MeshReader::parseFloat(const char** text)
 
 bool MeshReader::interesting(const char** text)
 {
-  if (isspace(**text) || **text == '#' || **text == '\0' || **text == '\r')
+  if (std::isspace(**text) || **text == '#' || **text == '\0' || **text == '\r')
     return false;
 
   return true;
