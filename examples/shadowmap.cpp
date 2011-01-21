@@ -12,8 +12,6 @@ public:
   bool init(void);
   void run(void);
 private:
-  void onRequestedWL(GL::Uniform& uniform);
-  void onRequestedLight(GL::Uniform& uniform);
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const Vec2i& position);
   void onWheelTurned(int position);
