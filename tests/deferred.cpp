@@ -40,7 +40,6 @@ Demo::~Demo(void)
 bool Demo::init(void)
 {
   index.addSearchPath(Path("../media"));
-  index.addSearchPath(Path("media"));
 
   if (!GL::Context::createSingleton(index))
     return false;
