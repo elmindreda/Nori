@@ -91,8 +91,8 @@ private:
     unsigned int available;
   };
   void onContextFinish(void);
-  typedef std::list<IndexBufferSlot> IndexBufferList;
-  typedef std::list<VertexBufferSlot> VertexBufferList;
+  typedef std::vector<IndexBufferSlot> IndexBufferList;
+  typedef std::vector<VertexBufferSlot> VertexBufferList;
   GL::Context& context;
   IndexBufferList indexBufferPool;
   VertexBufferList vertexBufferPool;

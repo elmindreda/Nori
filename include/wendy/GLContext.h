@@ -36,8 +36,6 @@
 #include <wendy/Signal.h>
 #include <wendy/Timer.h>
 
-#include <list>
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
