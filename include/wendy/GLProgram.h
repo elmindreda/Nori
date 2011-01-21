@@ -149,38 +149,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Data for a single shader uniform.
- *  @ingroup opengl
- */
-class UniformData
-{
-public:
-  UniformData(void);
-  void applyTo(Uniform& uniform) const;
-  void getValue(float& result) const;
-  void setValue(const float newValue);
-  void getValue(Vec2& result) const;
-  void setValue(const Vec2& newValue);
-  void getValue(Vec3& result) const;
-  void setValue(const Vec3& newValue);
-  void getValue(Vec4& result) const;
-  void setValue(const Vec4& newValue);
-  void getValue(ColorRGB& result) const;
-  void setValue(const ColorRGB& newValue);
-  void getValue(ColorRGBA& result) const;
-  void setValue(const ColorRGBA& newValue);
-  void getValue(Mat2& result) const;
-  void setValue(const Mat2& newValue);
-  void getValue(Mat3& result) const;
-  void setValue(const Mat3& newValue);
-  void getValue(Mat4& result) const;
-  void setValue(const Mat4& newValue);
-private:
-  float data[16];
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Shader sampler uniform.
  *  @ingroup opengl
  */
@@ -206,21 +174,6 @@ private:
   String name;
   Type type;
   void* samplerID;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Data for a single shader sampler uniform.
- *  @ingroup opengl
- */
-class SamplerData
-{
-public:
-  void applyTo(Sampler& sampler) const;
-  Texture* getTexture(void) const;
-  void setTexture(Texture* newTexture);
-private:
-  Ref<Texture> texture;
 };
 
 ///////////////////////////////////////////////////////////////////////

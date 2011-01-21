@@ -39,6 +39,7 @@
 #include <GL/glew.h>
 
 #include <algorithm>
+#include <cstring>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -382,11 +383,125 @@ void StencilState::Data::setDefaults(void)
 UniformState::UniformState(Uniform& initUniform):
   uniform(&initUniform)
 {
+  std::memset(data, 0, sizeof(data));
 }
 
 void UniformState::apply(void) const
 {
-  applyTo(*uniform);
+  switch (uniform->getType())
+  {
+    case Uniform::FLOAT:
+      uniform->setValue(*data);
+      break;
+    case Uniform::FLOAT_VEC2:
+      uniform->setValue(*reinterpret_cast<const Vec2*>(data));
+      break;
+    case Uniform::FLOAT_VEC3:
+      uniform->setValue(*reinterpret_cast<const Vec3*>(data));
+      break;
+    case Uniform::FLOAT_VEC4:
+      uniform->setValue(*reinterpret_cast<const Vec4*>(data));
+      break;
+    case Uniform::FLOAT_MAT2:
+      uniform->setValue(*reinterpret_cast<const Mat2*>(data));
+      break;
+    case Uniform::FLOAT_MAT3:
+      uniform->setValue(*reinterpret_cast<const Mat3*>(data));
+      break;
+    case Uniform::FLOAT_MAT4:
+      uniform->setValue(*reinterpret_cast<const Mat4*>(data));
+      break;
+  }
+}
+
+void UniformState::getValue(float& result) const
+{
+  result = *data;
+}
+
+void UniformState::setValue(float newValue)
+{
+  *data = newValue;
+}
+
+void UniformState::getValue(Vec2& result) const
+{
+  result = *reinterpret_cast<const Vec2*>(data);
+}
+
+void UniformState::setValue(const Vec2& newValue)
+{
+  *reinterpret_cast<Vec2*>(data) = newValue;
+}
+
+void UniformState::getValue(Vec3& result) const
+{
+  result = *reinterpret_cast<const Vec3*>(data);
+}
+
+void UniformState::setValue(const Vec3& newValue)
+{
+  *reinterpret_cast<Vec3*>(data) = newValue;
+}
+
+void UniformState::getValue(Vec4& result) const
+{
+  result = *reinterpret_cast<const Vec4*>(data);
+}
+
+void UniformState::setValue(const Vec4& newValue)
+{
+  *reinterpret_cast<Vec4*>(data) = newValue;
+}
+
+void UniformState::getValue(ColorRGB& result) const
+{
+  result = *reinterpret_cast<const ColorRGB*>(data);
+}
+
+void UniformState::setValue(const ColorRGB& newValue)
+{
+  *reinterpret_cast<ColorRGB*>(data) = newValue;
+}
+
+void UniformState::getValue(ColorRGBA& result) const
+{
+  result = *reinterpret_cast<const ColorRGBA*>(data);
+}
+
+void UniformState::setValue(const ColorRGBA& newValue)
+{
+  *reinterpret_cast<ColorRGBA*>(data) = newValue;
+}
+
+void UniformState::getValue(Mat2& result) const
+{
+  result = *reinterpret_cast<const Mat2*>(data);
+}
+
+void UniformState::setValue(const Mat2& newValue)
+{
+  *reinterpret_cast<Mat2*>(data) = newValue;
+}
+
+void UniformState::getValue(Mat3& result) const
+{
+  result = *reinterpret_cast<const Mat3*>(data);
+}
+
+void UniformState::setValue(const Mat3& newValue)
+{
+  *reinterpret_cast<Mat3*>(data) = newValue;
+}
+
+void UniformState::getValue(Mat4& result) const
+{
+  result = *reinterpret_cast<const Mat4*>(data);
+}
+
+void UniformState::setValue(const Mat4& newValue)
+{
+  *reinterpret_cast<Mat4*>(data) = newValue;
 }
 
 Uniform& UniformState::getUniform(void) const
@@ -417,7 +532,17 @@ SamplerState::SamplerState(Sampler& initSampler):
 
 void SamplerState::apply(void) const
 {
-  applyTo(*sampler);
+  sampler->setTexture(texture);
+}
+
+Texture* SamplerState::getTexture(void) const
+{
+  return texture;
+}
+
+void SamplerState::setTexture(Texture* newTexture)
+{
+  texture = newTexture;
 }
 
 Sampler& SamplerState::getSampler(void) const
