@@ -369,8 +369,11 @@ private:
  */
 class GlobalStateListener
 {
+  friend class GlobalUniform;
+  friend class GlobalSampler;
 public:
   virtual ~GlobalStateListener(void);
+protected:
   virtual void onStateApply(unsigned int stateID, Uniform& uniform) = 0;
   virtual void onStateApply(unsigned int stateID, Sampler& sampler) = 0;
 };
