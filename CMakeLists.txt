@@ -62,54 +62,29 @@ if(WENDY_BUILD_DOCUMENTATION)
   find_package(Doxygen)
 endif(WENDY_BUILD_DOCUMENTATION)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${wendy_SOURCE_DIR}/build/cmake)
+
 find_package(OpenGL REQUIRED)
+find_package(Cg REQUIRED)
 
 add_subdirectory(libs)
-list(APPEND wendy_LIBRARIES expat png z pcre GLEW glfw ${GLFW_LIBRARIES})
 
-if(APPLE)
+list(APPEND wendy_LIBRARIES expat png z pcre GLEW glfw ${GLFW_LIBRARIES} ${CG_LIBRARY} ${CG_GL_LIBRARY})
 
-  find_library(CG_LIBRARY Cg)
-  if(NOT CG_LIBRARY)
-    message(FATAL_ERROR "Cg framework not found")
-  endif(NOT CG_LIBRARY)
-  list(APPEND wendy_LIBRARIES ${CG_LIBRARY})
-
-else()
-
-  find_library(CG_LIBRARY Cg PATHS ENV CG_LIB_PATH)
-  find_library(CGGL_LIBRARY CgGL PATHS ENV CG_LIB_PATH)
-  if(NOT CG_LIBRARY OR NOT CGGL_LIBRARY)
-    message(FATAL_ERROR "Cg libraries not found")
-  endif(NOT CG_LIBRARY OR NOT CGGL_LIBRARY)
-  list(APPEND wendy_LIBRARIES ${CG_LIBRARY} ${CGGL_LIBRARY})
-
-endif(APPLE)
-
-# Ugly fix for Cg depending on pthreads
-if(UNIX AND NOT CYGWIN)
-  list(APPEND wendy_LIBRARIES pthread)
-endif(UNIX AND NOT CYGWIN)
+list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/include ${wendy_BINARY_DIR}/include ${CG_INCLUDE_PATH})
 
 if(WIN32)
-  include_directories($ENV{CG_INC_PATH})
-endif(WIN32)
-
-set(WENDY_INCLUDE_DIRS ${wendy_SOURCE_DIR}/include ${wendy_BINARY_DIR}/include)
-
-if(WIN32)
-  list(APPEND WENDY_INCLUDE_DIRS ${wendy_SOURCE_DIR}/build/windows)
+  list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/build/windows)
 endif(WIN32)
 
 if(MSVC)
-  list(APPEND WENDY_INCLUDE_DIRS ${wendy_SOURCE_DIR}/build/msvc)
+  list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/build/msvc)
 endif(MSVC)
 
 set(WENDY_LIBRARIES ${wendy_LIBRARIES} CACHE STRING "Libraries used by Wendy")
-set(WENDY_INCLUDE_DIRS ${WENDY_INCLUDE_DIRS}
-    CACHE STRING "Include directories for Wendy")
+set(WENDY_INCLUDE_DIRS ${wendy_INCLUDE_DIRS} CACHE STRING "Include directories for Wendy")
 
-include_directories(${WENDY_INCLUDE_DIRS})
+include_directories(${wendy_INCLUDE_DIRS})
 
 configure_file(${wendy_SOURCE_DIR}/include/wendy/Config.h.in
                ${wendy_BINARY_DIR}/include/wendy/Config.h @ONLY)
