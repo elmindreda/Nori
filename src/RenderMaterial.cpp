@@ -723,8 +723,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
           {
             const GL::SamplerState& state = pass.getSamplerState(i);
 
-            Ref<GL::Texture> texture;
-            state.getTexture(texture);
+            Ref<GL::Texture> texture = state.getTexture();
             if (!texture)
               continue;
 

@@ -160,36 +160,29 @@ private:
 /*! @brief State for a single shader uniform.
  *  @ingroup opengl
  */
-class UniformState
+class UniformState : public UniformData
 {
-  friend class ProgramState;
 public:
   UniformState(Uniform& uniform);
-  UniformState(const UniformState& source);
-  UniformState& operator = (const UniformState& source);
-  void getValue(float& result) const;
-  void setValue(const float newValue);
-  void getValue(Vec2& result) const;
-  void setValue(const Vec2& newValue);
-  void getValue(Vec3& result) const;
-  void setValue(const Vec3& newValue);
-  void getValue(Vec4& result) const;
-  void setValue(const Vec4& newValue);
-  void getValue(ColorRGB& result) const;
-  void setValue(const ColorRGB& newValue);
-  void getValue(ColorRGBA& result) const;
-  void setValue(const ColorRGBA& newValue);
-  void getValue(Mat2& result) const;
-  void setValue(const Mat2& newValue);
-  void getValue(Mat3& result) const;
-  void setValue(const Mat3& newValue);
-  void getValue(Mat4& result) const;
-  void setValue(const Mat4& newValue);
+  void apply(void) const;
   Uniform& getUniform(void) const;
 private:
-  void apply(void) const;
   Uniform* uniform;
-  float data[16];
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Binding between a single shader uniform and its global state.
+ *  @ingroup opengl
+ */
+class GlobalUniformState
+{
+public:
+  GlobalUniformState(GlobalUniform& global, Uniform& uniform);
+  void apply(void) const;
+private:
+  GlobalUniform* global;
+  Uniform* uniform;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -197,20 +190,29 @@ private:
 /*! @brief State for a single shader sampler uniform.
  *  @ingroup opengl
  */
-class SamplerState
+class SamplerState : public SamplerData
 {
-  friend class ProgramState;
 public:
   SamplerState(Sampler& sampler);
-  SamplerState(const SamplerState& source);
-  SamplerState& operator = (const SamplerState& source);
-  void getTexture(Ref<Texture>& result) const;
-  void setTexture(Texture* newTexture);
+  void apply(void) const;
   Sampler& getSampler(void) const;
 private:
-  void apply(void) const;
   Sampler* sampler;
-  Ref<Texture> texture;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Binding between a single shader sampler and its global state.
+ *  @ingroup opengl
+ */
+class GlobalSamplerState
+{
+public:
+  GlobalSamplerState(GlobalSampler& global, Sampler& sampler);
+  void apply(void) const;
+private:
+  GlobalSampler* global;
+  Sampler* sampler;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -221,21 +223,9 @@ private:
 class ProgramState
 {
 public:
-  /*! Constructor.
-   */
-  ProgramState(void);
-  /*! Copy constructor.  Performs a deep copy of the contained state.
-   */
-  ProgramState(const ProgramState& source);
-  /*! Destructor.
-   */
-  ~ProgramState(void);
   /*! Applies this shader program state to the current context.
    */
   void apply(void) const;
-  /*! Assignment operator.  Performs a deep copy of the contained state.
-   */
-  ProgramState& operator = (const ProgramState& source);
   /*! @return The number of non-sampler uniforms exposed by this state object.
    */
   unsigned int getUniformCount(void) const;
@@ -279,9 +269,13 @@ private:
   void destroyProgramState(void);
   typedef std::vector<UniformState> UniformList;
   typedef std::vector<SamplerState> SamplerList;
+  typedef std::vector<GlobalUniformState> GlobalUniformList;
+  typedef std::vector<GlobalSamplerState> GlobalSamplerList;
   Ref<Program> program;
   UniformList uniforms;
   SamplerList samplers;
+  GlobalUniformList globalUniforms;
+  GlobalSamplerList globalSamplers;
 };
 
 ///////////////////////////////////////////////////////////////////////

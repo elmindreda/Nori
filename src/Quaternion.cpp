@@ -344,6 +344,8 @@ void Quat::setAxisRotation(const Vec3& axis, float angle)
   normalize();
 }
 
+const Quat Quat::IDENTITY(1.f, 0.f, 0.f, 0.f);
+
 ///////////////////////////////////////////////////////////////////////
 
 } /*namespace wendy*/

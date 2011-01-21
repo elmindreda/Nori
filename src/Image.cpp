@@ -669,16 +669,6 @@ ImageCube::ImageCube(const ImageCube& source):
 {
 }
 
-Ref<ImageCube> ImageCube::clone(void) const
-{
-  Ref<ImageCube> result = new ImageCube(getIndex());
-
-  for (size_t i = 0;  i < 6;  i++)
-    result->images[i] = new Image(*images[i]);
-
-  return result;
-}
-
 bool ImageCube::isPOT(void) const
 {
   if (!isComplete())

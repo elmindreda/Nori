@@ -14,7 +14,7 @@ bool init(void)
 {
   if (!GL::Context::createSingleton(index))
   {
-    Log::writeError("Failed to create OpenGL context");
+    logError("Failed to create OpenGL context");
     return false;
   }
 
@@ -30,14 +30,14 @@ int main(void)
 {
   if (!wendy::initialize())
   {
-    Log::writeError("Failed to initialize Wendy");
-    std::exit(1);
+    logError("Failed to initialize Wendy");
+    std::exit(EXIT_FAILURE);
   }
 
   if (!init())
   {
     wendy::shutdown();
-    std::exit(1);
+    std::exit(EXIT_FAILURE);
   }
 
   GL::Context* context = GL::Context::getSingleton();
@@ -51,6 +51,6 @@ int main(void)
   GL::Context::destroySingleton();
 
   wendy::shutdown();
-  std::exit(0);
+  std::exit(EXIT_SUCCESS);
 }
 

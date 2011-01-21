@@ -179,7 +179,6 @@ public:
   };
   ImageCube(const ResourceInfo& info);
   ImageCube(const ImageCube& source);
-  Ref<ImageCube> clone(void) const;
   /*! @return @c true if all images have power-of-two dimensions, otherwise @c false.
    */
   bool isPOT(void) const;

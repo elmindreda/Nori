@@ -6,7 +6,7 @@
 	<sampler name="checkers" texture="cube.texture" />
       </program>
     </pass>
-    <pass name="bloom">
+    <pass name="bloom_specular">
       <program path="bloom_specular.program" />
     </pass>
   </technique>

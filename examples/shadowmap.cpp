@@ -5,7 +5,7 @@
 
 using namespace wendy;
 
-class Demo : public Trackable
+class Demo : public Trackable, public GL::GlobalStateListener
 {
 public:
   ~Demo(void);
@@ -17,6 +17,13 @@ private:
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const Vec2i& position);
   void onWheelTurned(int position);
+  void onStateApply(unsigned int stateID, GL::Uniform& uniform);
+  void onStateApply(unsigned int stateID, GL::Sampler& sampler);
+  enum
+  {
+    STATE_WL,
+    STATE_LIGHT,
+  };
   ResourceIndex index;
   Ref<GL::ImageCanvas> canvas;
   Ref<GL::Texture> depthmap;
@@ -25,7 +32,7 @@ private:
   Ref<render::Camera> lightCamera;
   Ref<render::Camera> viewCamera;
   scene::Graph graph;
-  scene::MeshNode* meshNode;
+  scene::ModelNode* modelNode;
   scene::CameraNode* lightCameraNode;
   scene::CameraNode* viewCameraNode;
   Timer timer;
@@ -56,8 +63,8 @@ bool Demo::init(void)
   GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Shadow Map");
 
-  context->reserveUniform("WL", GL::Uniform::FLOAT_MAT4).connect(*this, &Demo::onRequestedWL);
-  context->reserveUniform("light", GL::Uniform::FLOAT_VEC3).connect(*this, &Demo::onRequestedLight);
+  context->createGlobalUniform("WL", GL::Uniform::FLOAT_MAT4, STATE_WL).setListener(this);
+  context->createGlobalUniform("light", GL::Uniform::FLOAT_VEC3, STATE_LIGHT).setListener(this);
 
   if (!input::Context::createSingleton(*context))
     return false;
@@ -88,18 +95,18 @@ bool Demo::init(void)
   canvas->setDepthBuffer(&depthmap->getImage());
   canvas->setColorBuffer(&colormap->getImage());
 
-  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("cube_shadowmap.mesh"));
-  if (!mesh)
+  Ref<render::Model> model = render::Model::read(*context, Path("thingy_shadowmap.model"));
+  if (!model)
   {
-    Log::writeError("Failed to load mesh");
+    logError("Failed to load model");
     return false;
   }
 
-  const float radius = mesh->getBounds().radius;
+  const float radius = model->getBounds().radius;
 
-  meshNode = new scene::MeshNode();
-  meshNode->setMesh(mesh);
-  graph.addRootNode(*meshNode);
+  modelNode = new scene::ModelNode();
+  modelNode->setModel(model);
+  graph.addRootNode(*modelNode);
 
   viewCamera = new render::Camera();
   viewCamera->setFOV(60.f);
@@ -180,16 +187,6 @@ void Demo::run(void)
   while (context.update());
 }
 
-void Demo::onRequestedWL(GL::Uniform& uniform)
-{
-  uniform.setValue(WL);
-}
-
-void Demo::onRequestedLight(GL::Uniform& uniform)
-{
-  uniform.setValue(lightCamera->getTransform().position);
-}
-
 void Demo::onButtonClicked(input::Button button, bool clicked)
 {
   input::Context* context = input::Context::getSingleton();
@@ -216,14 +213,14 @@ void Demo::onCursorMoved(const Vec2i& position)
     if (offset.x)
     {
       rotation.setAxisRotation(Vec3::Y, offset.x / 50.f);
-      Quat& parent = meshNode->getLocalTransform().rotation;
+      Quat& parent = modelNode->getLocalTransform().rotation;
       parent = rotation * parent;
     }
 
     if (offset.y)
     {
       rotation.setAxisRotation(Vec3::X, offset.y / 50.f);
-      Quat& parent = meshNode->getLocalTransform().rotation;
+      Quat& parent = modelNode->getLocalTransform().rotation;
       parent = rotation * parent;
     }
 
@@ -233,9 +230,26 @@ void Demo::onCursorMoved(const Vec2i& position)
 
 void Demo::onWheelTurned(int offset)
 {
-  const float scale = meshNode->getMesh()->getBounds().radius / 10.f;
+  const float scale = modelNode->getModel()->getBounds().radius / 10.f;
 
-  meshNode->getLocalTransform().position.z += offset * scale;
+  modelNode->getLocalTransform().position.z += offset * scale;
+}
+
+void Demo::onStateApply(unsigned int stateID, GL::Uniform& uniform)
+{
+  switch (stateID)
+  {
+    case STATE_WL:
+      uniform.setValue(WL);
+      break;
+    case STATE_LIGHT:
+      uniform.setValue(lightCamera->getTransform().position);
+      break;
+  }
+}
+
+void Demo::onStateApply(unsigned int stateID, GL::Sampler& sampler)
+{
 }
 
 int main()

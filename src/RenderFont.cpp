@@ -65,7 +65,7 @@ unsigned int findStartY(const Image& image)
     for (x = 0;  x < image.getWidth();  x++)
     {
       if (pixels[x + startY * image.getWidth()] > 0)
-	break;
+        break;
     }
 
     if (x < image.getWidth())
@@ -88,7 +88,7 @@ unsigned int findEndY(const Image& image)
     for (x = 0;  x < image.getWidth();  x++)
     {
       if (pixels[x + (endY - 1) * image.getWidth()] > 0)
-	break;
+        break;
     }
 
     if (x < image.getWidth())
@@ -185,8 +185,8 @@ void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const Strin
 
   pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_LIST,
                                               *vertexRange.getVertexBuffer(),
-				              vertexRange.getStart(),
-				              count));
+                                              vertexRange.getStart(),
+                                              count));
 }
 
 void Font::drawText(const Vec2& penPosition,
@@ -435,7 +435,7 @@ bool Font::init(const FontData& data)
 
   glyphs.reserve(data.glyphs.size());
 
-  for (int i = 0;  i < data.glyphs.size();  i++)
+  for (size_t i = 0;  i < data.glyphs.size();  i++)
   {
     const FontGlyphData& glyphData = data.glyphs[i];
 
@@ -467,11 +467,11 @@ bool Font::init(const FontData& data)
 
       if (texelPosition.y + image->getHeight() + 2 > textureHeight)
       {
-	// TODO: Allocate next texture.
-	// TODO: Add texture pointer to glyphs.
-	logError("Not enough room in glyph texture for font \'%s\'",
+        // TODO: Allocate next texture.
+        // TODO: Add texture pointer to glyphs.
+        logError("Not enough room in glyph texture for font \'%s\'",
                  getPath().asString().c_str());
-	return false;
+        return false;
       }
     }
 
@@ -483,14 +483,14 @@ bool Font::init(const FontData& data)
     }
 
     glyph.area.position.set(texelPosition.x / (float) textureWidth + texelOffset.x,
-			    texelPosition.y / (float) textureHeight + texelOffset.y);
+                            texelPosition.y / (float) textureHeight + texelOffset.y);
     glyph.area.size.set(image->getWidth() / (float) textureWidth,
-			image->getHeight() / (float) textureHeight);
+                        image->getHeight() / (float) textureHeight);
 
     texelPosition.x += image->getWidth() + 1;
   }
 
-  size.set(maxWidth, maxHeight);
+  size.set((float) maxWidth, (float) maxHeight);
   return true;
 }
 
@@ -624,12 +624,12 @@ bool FontReader::extractGlyphs(FontData& data,
 
       for (y = 0;  y < source.getHeight();  y++)
       {
-	if (pixels[startX + y * source.getWidth()] > 0)
-	  break;
+        if (pixels[startX + y * source.getWidth()] > 0)
+          break;
       }
 
       if (y < source.getHeight())
-	break;
+        break;
 
       startX++;
     }
@@ -652,12 +652,12 @@ bool FontReader::extractGlyphs(FontData& data,
 
       for (y = 0;  y < source.getHeight();  y++)
       {
-	if (pixels[endX + y * source.getWidth()] > 0)
-	  break;
+        if (pixels[endX + y * source.getWidth()] > 0)
+          break;
       }
 
       if (y == source.getHeight())
-	break;
+        break;
     }
 
     Recti area(startX, 0, endX - startX, source.getHeight());
@@ -695,12 +695,12 @@ bool FontReader::extractGlyphs(FontData& data,
 
       FontGlyphData& glyph = data.glyphs[index];
       if (glyph.advance > maxAdvance)
-	maxAdvance = glyph.advance;
+        maxAdvance = glyph.advance;
 
       digitGlyphs.push_back(&glyph);
     }
 
-    for (int i = 0;  i < digitGlyphs.size();  i++)
+    for (size_t i = 0;  i < digitGlyphs.size();  i++)
     {
       FontGlyphData& glyph = *digitGlyphs[i];
 
@@ -712,7 +712,7 @@ bool FontReader::extractGlyphs(FontData& data,
   float maxAdvance = 0.f;
   float meanAdvance = 0.f;
 
-  for (int i = 0;  i < data.glyphs.size();  i++)
+  for (size_t i = 0;  i < data.glyphs.size();  i++)
   {
     FontGlyphData& glyph = data.glyphs[i];
 
@@ -744,7 +744,7 @@ bool FontReader::extractGlyphs(FontData& data,
 
   if (fixedWidth)
   {
-    for (int i = 0;  i < data.glyphs.size();  i++)
+    for (size_t i = 0;  i < data.glyphs.size();  i++)
     {
       FontGlyphData& glyph = data.glyphs[i];
 
@@ -754,7 +754,7 @@ bool FontReader::extractGlyphs(FontData& data,
   }
   else
   {
-    for (int i = 0;  i < data.glyphs.size();  i++)
+    for (size_t i = 0;  i < data.glyphs.size();  i++)
       data.glyphs[i].advance += meanAdvance * 0.2f;
   }
 

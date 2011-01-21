@@ -40,7 +40,6 @@ Demo::~Demo(void)
 bool Demo::init(void)
 {
   index.addSearchPath(Path("../media"));
-  index.addSearchPath(Path("media"));
 
   if (!GL::Context::createSingleton(index))
     return false;
@@ -60,10 +59,10 @@ bool Demo::init(void)
   if (!input::Context::createSingleton(*context))
     return false;
 
-  Ref<render::Mesh> mesh = render::Mesh::read(*context, Path("cube_deferred.mesh"));
-  if (!mesh)
+  Ref<render::Model> model = render::Model::read(*context, Path("cube_deferred.model"));
+  if (!model)
   {
-    Log::writeError("Failed to read mesh");
+    logError("Failed to read model");
     return false;
   }
 
@@ -76,12 +75,12 @@ bool Demo::init(void)
 
   for (size_t i = 0;  i < 200;  i++)
   {
-    scene::MeshNode* meshNode = new scene::MeshNode();
-    meshNode->setMesh(mesh);
-    meshNode->getLocalTransform().position = position.generate();
-    meshNode->getLocalTransform().rotation.setAxisRotation(axis.generate().normalized(),
-                                                           angle.generate());
-    rootNode->addChild(*meshNode);
+    scene::ModelNode* modelNode = new scene::ModelNode();
+    modelNode->setModel(model);
+    modelNode->getLocalTransform().position = position.generate();
+    modelNode->getLocalTransform().rotation.setAxisRotation(axis.generate().normalized(),
+                                                            angle.generate());
+    rootNode->addChild(*modelNode);
   }
 
   Ref<GL::Texture> distAttTexture = GL::Texture::read(*context, Path("attenuation.texture"));

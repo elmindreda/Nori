@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<mesh version="1" data="thingy.obj" >
+  <material name="cube" path="shadowmapped.material" />
+</mesh>
