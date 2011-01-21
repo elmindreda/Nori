@@ -41,6 +41,7 @@
 #include <Cg/cgGL.h>
 
 #include <algorithm>
+#include <cstring>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -508,6 +509,131 @@ Uniform::Uniform(Program& initProgram):
 
 ///////////////////////////////////////////////////////////////////////
 
+UniformData::UniformData(void)
+{
+  std::memset(data, 0, sizeof(data));
+}
+
+void UniformData::applyTo(Uniform& uniform) const
+{
+  switch (uniform.getType())
+  {
+    case Uniform::FLOAT:
+      uniform.setValue(*data);
+      break;
+    case Uniform::FLOAT_VEC2:
+      uniform.setValue(*reinterpret_cast<const Vec2*>(data));
+      break;
+    case Uniform::FLOAT_VEC3:
+      uniform.setValue(*reinterpret_cast<const Vec3*>(data));
+      break;
+    case Uniform::FLOAT_VEC4:
+      uniform.setValue(*reinterpret_cast<const Vec4*>(data));
+      break;
+    case Uniform::FLOAT_MAT2:
+      uniform.setValue(*reinterpret_cast<const Mat2*>(data));
+      break;
+    case Uniform::FLOAT_MAT3:
+      uniform.setValue(*reinterpret_cast<const Mat3*>(data));
+      break;
+    case Uniform::FLOAT_MAT4:
+      uniform.setValue(*reinterpret_cast<const Mat4*>(data));
+      break;
+  }
+}
+
+void UniformData::getValue(float& result) const
+{
+  result = *data;
+}
+
+void UniformData::setValue(float newValue)
+{
+  *data = newValue;
+}
+
+void UniformData::getValue(Vec2& result) const
+{
+  result = *reinterpret_cast<const Vec2*>(data);
+}
+
+void UniformData::setValue(const Vec2& newValue)
+{
+  *reinterpret_cast<Vec2*>(data) = newValue;
+}
+
+void UniformData::getValue(Vec3& result) const
+{
+  result = *reinterpret_cast<const Vec3*>(data);
+}
+
+void UniformData::setValue(const Vec3& newValue)
+{
+  *reinterpret_cast<Vec3*>(data) = newValue;
+}
+
+void UniformData::getValue(Vec4& result) const
+{
+  result = *reinterpret_cast<const Vec4*>(data);
+}
+
+void UniformData::setValue(const Vec4& newValue)
+{
+  *reinterpret_cast<Vec4*>(data) = newValue;
+}
+
+void UniformData::getValue(ColorRGB& result) const
+{
+  result = *reinterpret_cast<const ColorRGB*>(data);
+}
+
+void UniformData::setValue(const ColorRGB& newValue)
+{
+  *reinterpret_cast<ColorRGB*>(data) = newValue;
+}
+
+void UniformData::getValue(ColorRGBA& result) const
+{
+  result = *reinterpret_cast<const ColorRGBA*>(data);
+}
+
+void UniformData::setValue(const ColorRGBA& newValue)
+{
+  *reinterpret_cast<ColorRGBA*>(data) = newValue;
+}
+
+void UniformData::getValue(Mat2& result) const
+{
+  result = *reinterpret_cast<const Mat2*>(data);
+}
+
+void UniformData::setValue(const Mat2& newValue)
+{
+  *reinterpret_cast<Mat2*>(data) = newValue;
+}
+
+void UniformData::getValue(Mat3& result) const
+{
+  result = *reinterpret_cast<const Mat3*>(data);
+}
+
+void UniformData::setValue(const Mat3& newValue)
+{
+  *reinterpret_cast<Mat3*>(data) = newValue;
+}
+
+void UniformData::getValue(Mat4& result) const
+{
+  result = *reinterpret_cast<const Mat4*>(data);
+}
+
+void UniformData::setValue(const Mat4& newValue)
+{
+  *reinterpret_cast<Mat4*>(data) = newValue;
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Sampler::Type Sampler::getType(void) const
 {
   return type;
@@ -518,16 +644,31 @@ const String& Sampler::getName(void) const
   return name;
 }
 
-void Sampler::setTexture(Texture& newTexture)
+void Sampler::setTexture(Texture* newTexture)
 {
-  cgGLSetTextureParameter((CGparameter) samplerID, newTexture.textureID);
+  if (newTexture)
+  {
+    cgGLSetTextureParameter((CGparameter) samplerID, newTexture->textureID);
 
 #if WENDY_DEBUG
-  checkCg("Failed to set sampler \'%s\' of program \'%s\' to texture \'%s\'",
-          name.c_str(),
-          program->getPath().asString().c_str(),
-          newTexture.getPath().asString().c_str());
+    checkCg("Failed to set sampler \'%s\' of program \'%s\' to texture \'%s\'",
+            name.c_str(),
+            program->getPath().asString().c_str(),
+            newTexture->getPath().asString().c_str());
 #endif
+  }
+  else
+  {
+    // This may not be the best solution, but at least it's a solution
+    // We should probably bind a DXM-colored texture instead
+    cgGLSetTextureParameter((CGparameter) samplerID, 0);
+
+#if WENDY_DEBUG
+    checkCg("Failed to set sampler \'%s\' of program \'%s\' to texture zero",
+            name.c_str(),
+            program->getPath().asString().c_str());
+#endif
+  }
 }
 
 Program& Sampler::getProgram(void) const
@@ -538,6 +679,23 @@ Program& Sampler::getProgram(void) const
 Sampler::Sampler(Program& initProgram):
   program(&initProgram)
 {
+}
+
+///////////////////////////////////////////////////////////////////////
+
+void SamplerData::applyTo(Sampler& sampler) const
+{
+  sampler.setTexture(texture);
+}
+
+Texture* SamplerData::getTexture(void) const
+{
+  return texture;
+}
+
+void SamplerData::setTexture(Texture* newTexture)
+{
+  texture = newTexture;
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -39,7 +39,6 @@
 #include <GL/glew.h>
 
 #include <algorithm>
-#include <cstring>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -383,110 +382,11 @@ void StencilState::Data::setDefaults(void)
 UniformState::UniformState(Uniform& initUniform):
   uniform(&initUniform)
 {
-  std::memset(data, 0, sizeof(data));
 }
 
-UniformState::UniformState(const UniformState& source):
-  uniform(source.uniform)
+void UniformState::apply(void) const
 {
-  std::memcpy(data, source.data, sizeof(data));
-}
-
-UniformState& UniformState::operator = (const UniformState& source)
-{
-  uniform = source.uniform;
-  std::memcpy(data, source.data, sizeof(data));
-  return *this;
-}
-
-void UniformState::getValue(float& result) const
-{
-  result = *data;
-}
-
-void UniformState::setValue(float newValue)
-{
-  *data = newValue;
-}
-
-void UniformState::getValue(Vec2& result) const
-{
-  result = *reinterpret_cast<const Vec2*>(data);
-}
-
-void UniformState::setValue(const Vec2& newValue)
-{
-  *reinterpret_cast<Vec2*>(data) = newValue;
-}
-
-void UniformState::getValue(Vec3& result) const
-{
-  result = *reinterpret_cast<const Vec3*>(data);
-}
-
-void UniformState::setValue(const Vec3& newValue)
-{
-  *reinterpret_cast<Vec3*>(data) = newValue;
-}
-
-void UniformState::getValue(Vec4& result) const
-{
-  result = *reinterpret_cast<const Vec4*>(data);
-}
-
-void UniformState::setValue(const Vec4& newValue)
-{
-  *reinterpret_cast<Vec4*>(data) = newValue;
-}
-
-void UniformState::getValue(ColorRGB& result) const
-{
-  result = *reinterpret_cast<const ColorRGB*>(data);
-}
-
-void UniformState::setValue(const ColorRGB& newValue)
-{
-  *reinterpret_cast<ColorRGB*>(data) = newValue;
-}
-
-void UniformState::getValue(ColorRGBA& result) const
-{
-  result = *reinterpret_cast<const ColorRGBA*>(data);
-}
-
-void UniformState::setValue(const ColorRGBA& newValue)
-{
-  *reinterpret_cast<ColorRGBA*>(data) = newValue;
-}
-
-void UniformState::getValue(Mat2& result) const
-{
-  result = *reinterpret_cast<const Mat2*>(data);
-}
-
-void UniformState::setValue(const Mat2& newValue)
-{
-  *reinterpret_cast<Mat2*>(data) = newValue;
-}
-
-void UniformState::getValue(Mat3& result) const
-{
-  result = *reinterpret_cast<const Mat3*>(data);
-}
-
-void UniformState::setValue(const Mat3& newValue)
-{
-  *reinterpret_cast<Mat3*>(data) = newValue;
-}
-
-void UniformState::getValue(Mat4& result) const
-{
-  result = *reinterpret_cast<const Mat4*>(data);
-}
-
-void UniformState::setValue(const Mat4& newValue)
-{
-  *reinterpret_cast<Mat4*>(data) = newValue;
+  applyTo(*uniform);
 }
 
 Uniform& UniformState::getUniform(void) const
@@ -494,32 +394,18 @@ Uniform& UniformState::getUniform(void) const
   return *uniform;
 }
 
-void UniformState::apply(void) const
+///////////////////////////////////////////////////////////////////////
+
+GlobalUniformState::GlobalUniformState(GlobalUniform& initGlobal,
+                                       Uniform& initUniform):
+  global(&initGlobal),
+  uniform(&initUniform)
 {
-  switch (uniform->getType())
-  {
-    case Uniform::FLOAT:
-      uniform->setValue(*data);
-      break;
-    case Uniform::FLOAT_VEC2:
-      uniform->setValue(*reinterpret_cast<const Vec2*>(data));
-      break;
-    case Uniform::FLOAT_VEC3:
-      uniform->setValue(*reinterpret_cast<const Vec3*>(data));
-      break;
-    case Uniform::FLOAT_VEC4:
-      uniform->setValue(*reinterpret_cast<const Vec4*>(data));
-      break;
-    case Uniform::FLOAT_MAT2:
-      uniform->setValue(*reinterpret_cast<const Mat2*>(data));
-      break;
-    case Uniform::FLOAT_MAT3:
-      uniform->setValue(*reinterpret_cast<const Mat3*>(data));
-      break;
-    case Uniform::FLOAT_MAT4:
-      uniform->setValue(*reinterpret_cast<const Mat4*>(data));
-      break;
-  }
+}
+
+void GlobalUniformState::apply(void) const
+{
+  global->applyTo(*uniform);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -529,27 +415,9 @@ SamplerState::SamplerState(Sampler& initSampler):
 {
 }
 
-SamplerState::SamplerState(const SamplerState& source):
-  sampler(source.sampler)
+void SamplerState::apply(void) const
 {
-  texture = source.texture;
-}
-
-SamplerState& SamplerState::operator = (const SamplerState& source)
-{
-  sampler = source.sampler;
-  texture = source.texture;
-  return *this;
-}
-
-void SamplerState::getTexture(Ref<Texture>& result) const
-{
-  result = texture;
-}
-
-void SamplerState::setTexture(Texture* newTexture)
-{
-  texture = newTexture;
+  applyTo(*sampler);
 }
 
 Sampler& SamplerState::getSampler(void) const
@@ -557,31 +425,21 @@ Sampler& SamplerState::getSampler(void) const
   return *sampler;
 }
 
-void SamplerState::apply(void) const
+///////////////////////////////////////////////////////////////////////
+
+GlobalSamplerState::GlobalSamplerState(GlobalSampler& initGlobal,
+                                       Sampler& initSampler):
+  global(&initGlobal),
+  sampler(&initSampler)
 {
-  if (texture)
-    sampler->setTexture(*texture);
-  else
-  {
-    // TODO: Wtf do we do here?
-  }
+}
+
+void GlobalSamplerState::apply(void) const
+{
+  global->applyTo(*sampler);
 }
 
 ///////////////////////////////////////////////////////////////////////
-
-ProgramState::ProgramState(void)
-{
-}
-
-ProgramState::ProgramState(const ProgramState& source)
-{
-  operator = (source);
-}
-
-ProgramState::~ProgramState(void)
-{
-  destroyProgramState();
-}
 
 void ProgramState::apply(void) const
 {
@@ -593,22 +451,14 @@ void ProgramState::apply(void) const
     for (SamplerList::const_iterator i = samplers.begin();  i != samplers.end();  i++)
       i->apply();
 
+    for (GlobalUniformList::const_iterator i = globalUniforms.begin();  i != globalUniforms.end();  i++)
+      i->apply();
+
+    for (GlobalSamplerList::const_iterator i = globalSamplers.begin();  i != globalSamplers.end();  i++)
+      i->apply();
+
     program->getContext().setCurrentProgram(program);
   }
-}
-
-ProgramState& ProgramState::operator = (const ProgramState& source)
-{
-  destroyProgramState();
-  program = source.program;
-
-  if (program)
-  {
-    samplers = source.samplers;
-    uniforms = source.uniforms;
-  }
-
-  return *this;
 }
 
 unsigned int ProgramState::getUniformCount(void) const
@@ -701,24 +551,30 @@ void ProgramState::setProgram(Program* newProgram)
 
   if (program)
   {
+    Context& context = program->getContext();
+
     for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
     {
       Sampler& sampler = program->getSampler(i);
 
-      if (program->getContext().isReservedSampler(sampler.getName()))
-	continue;
-
-      samplers.push_back(SamplerState(sampler));
+      GlobalSampler* global = context.findGlobalSampler(sampler.getName(),
+                                                        sampler.getType());
+      if (global)
+        globalSamplers.push_back(GlobalSamplerState(*global, sampler));
+      else
+        samplers.push_back(SamplerState(sampler));
     }
 
     for (unsigned int i = 0;  i < program->getUniformCount();  i++)
     {
       Uniform& uniform = program->getUniform(i);
 
-      if (program->getContext().isReservedUniform(uniform.getName()))
-	continue;
-
-      uniforms.push_back(UniformState(uniform));
+      GlobalUniform* global = context.findGlobalUniform(uniform.getName(),
+                                                        uniform.getType());
+      if (global)
+        globalUniforms.push_back(GlobalUniformState(*global, uniform));
+      else
+        uniforms.push_back(UniformState(uniform));
     }
   }
 }
@@ -732,6 +588,8 @@ void ProgramState::destroyProgramState(void)
 {
   uniforms.clear();
   samplers.clear();
+  globalUniforms.clear();
+  globalSamplers.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////

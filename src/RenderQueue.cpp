@@ -222,9 +222,10 @@ void Queue::renderOperations(const OperationList& ops,
       if (pass.getName() != passName)
 	continue;
 
+      pool.getContext().setModelMatrix(op.transform);
+
       pass.apply();
 
-      pool.getContext().setModelMatrix(op.transform);
       pool.getContext().render(op.range);
     }
   }

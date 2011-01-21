@@ -366,12 +366,71 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Interface for global shader program state requests.
+ *  @ingroup opengl
+ */
+class GlobalStateListener
+{
+public:
+  virtual ~GlobalStateListener(void);
+  virtual void onStateApply(unsigned int stateID, Uniform& uniform) = 0;
+  virtual void onStateApply(unsigned int stateID, Sampler& sampler) = 0;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Global shader program uniform.
+ *  @ingroup opengl
+ */
+class GlobalUniform
+{
+  friend class Context;
+public:
+  void applyTo(Uniform& uniform) const;
+  const String& getName(void) const;
+  Uniform::Type getType(void) const;
+  unsigned int getID(void) const;
+  GlobalStateListener* getListener(void) const;
+  void setListener(GlobalStateListener* newListener);
+private:
+  GlobalUniform(const String& name, Uniform::Type type, unsigned int ID);
+  String name;
+  Uniform::Type type;
+  unsigned int ID;
+  GlobalStateListener* listener;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Global shader program sampler uniform.
+ *  @ingroup opengl
+ */
+class GlobalSampler
+{
+  friend class Context;
+public:
+  void applyTo(Sampler& sampler) const;
+  const String& getName(void) const;
+  Sampler::Type getType(void) const;
+  unsigned int getID(void) const;
+  GlobalStateListener* getListener(void) const;
+  void setListener(GlobalStateListener* newListener);
+private:
+  GlobalSampler(const String& name, Sampler::Type type, unsigned int ID);
+  String name;
+  Sampler::Type type;
+  unsigned int ID;
+  GlobalStateListener* listener;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief OpenGL context singleton.
  *  @ingroup opengl
  *
  *  This class encapsulates the OpenGL context and its associtated window.
  */
-class Context : public Singleton<Context>
+class Context : public GlobalStateListener, public Singleton<Context>
 {
   friend class Texture;
   friend class TextureImage;
@@ -407,16 +466,20 @@ public:
    */
   void refresh(void);
   bool update(void);
-  SignalProxy1<void, Uniform&> reserveUniform(const String& name, Uniform::Type type);
-  SignalProxy1<void, Sampler&> reserveSampler(const String& name, Sampler::Type type);
-  /*! @return @c true if the specified uniform name is reserved,
+  GlobalUniform& createGlobalUniform(const String& name,
+                                     Uniform::Type type,
+                                     unsigned int ID = 0);
+  GlobalSampler& createGlobalSampler(const String& name,
+                                     Sampler::Type type,
+                                     unsigned int ID = 0);
+  /*! @return @c true if the specified uniform name is global,
    *  otherwise @c false.
    */
-  bool isReservedUniform(const String& name) const;
-  /*! @return @c true if the specified sampler name is reserved,
+  GlobalUniform* findGlobalUniform(const String& name, Uniform::Type type) const;
+  /*! @return @c true if the specified sampler name is global,
    *  otherwise @c false.
    */
-  bool isReservedSampler(const String& name) const;
+  GlobalSampler* findGlobalSampler(const String& name, Sampler::Type type) const;
   RefreshMode getRefreshMode(void) const;
   void setRefreshMode(RefreshMode newMode);
   /*! @return The current scissor rectangle.
@@ -518,24 +581,8 @@ public:
    */
   static void getScreenModes(ScreenModeList& result);
 private:
-  /*! @internal
-   */
-  struct ReservedUniform
-  {
-    String name;
-    Uniform::Type type;
-    Signal1<void, Uniform&> signal;
-  };
-  /*! @internal
-   */
-  struct ReservedSampler
-  {
-    String name;
-    Sampler::Type type;
-    Signal1<void, Sampler&> signal;
-  };
-  typedef std::list<ReservedUniform> UniformList;
-  typedef std::list<ReservedSampler> SamplerList;
+  typedef std::vector<GlobalUniform*> UniformList;
+  typedef std::vector<GlobalSampler*> SamplerList;
   Context(ResourceIndex& index);
   Context(const Context& source);
   Context& operator = (const Context& source);
@@ -545,6 +592,8 @@ private:
   static void sizeCallback(int width, int height);
   static int closeCallback(void);
   static void refreshCallback(void);
+  void onStateApply(unsigned int stateID, Uniform& uniform);
+  void onStateApply(unsigned int stateID, Sampler& sampler);
   ResourceIndex& index;
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
@@ -562,8 +611,14 @@ private:
   Mat4 modelMatrix;
   Mat4 viewMatrix;
   Mat4 projectionMatrix;
-  UniformList reservedUniforms;
-  SamplerList reservedSamplers;
+  Mat4 modelViewMatrix;
+  Mat4 viewProjMatrix;
+  Mat4 modelViewProjMatrix;
+  bool dirtyModelView;
+  bool dirtyViewProj;
+  bool dirtyModelViewProj;
+  UniformList globalUniforms;
+  SamplerList globalSamplers;
   Ref<Program> currentProgram;
   PlaneList planes;
   Stats* stats;

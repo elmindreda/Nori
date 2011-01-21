@@ -209,48 +209,15 @@ bool isCompatible(const Varying& varying, const VertexComponent& component)
   return false;
 }
 
-void requestModelMatrix(Uniform& uniform)
+enum
 {
-  Context* context = Context::getSingleton();
-  uniform.setValue(context->getModelMatrix());
-}
-
-void requestViewMatrix(Uniform& uniform)
-{
-  Context* context = Context::getSingleton();
-  uniform.setValue(context->getViewMatrix());
-}
-
-void requestProjectionMatrix(Uniform& uniform)
-{
-  Context* context = Context::getSingleton();
-  uniform.setValue(context->getProjectionMatrix());
-}
-
-void requestModelViewMatrix(Uniform& uniform)
-{
-  Context* context = Context::getSingleton();
-  Mat4 value = context->getViewMatrix();
-  value *= context->getModelMatrix();
-  uniform.setValue(value);
-}
-
-void requestViewProjectionMatrix(Uniform& uniform)
-{
-  Context* context = Context::getSingleton();
-  Mat4 value = context->getProjectionMatrix();
-  value *= context->getViewMatrix();
-  uniform.setValue(value);
-}
-
-void requestModelViewProjectionMatrix(Uniform& uniform)
-{
-  Context* context = Context::getSingleton();
-  Mat4 value = context->getProjectionMatrix();
-  value *= context->getViewMatrix();
-  value *= context->getModelMatrix();
-  uniform.setValue(value);
-}
+  STATE_MODEL_MATRIX,
+  STATE_VIEW_MATRIX,
+  STATE_PROJECTION_MATRIX,
+  STATE_MODELVIEW_MATRIX,
+  STATE_VIEWPROJECTION_MATRIX,
+  STATE_MODELVIEWPROJECTION_MATRIX,
+};
 
 } /*namespace (and Gandalf)*/
 
@@ -747,6 +714,102 @@ Stats::Frame::Frame(void):
 
 ///////////////////////////////////////////////////////////////////////
 
+GlobalStateListener::~GlobalStateListener(void)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
+GlobalUniform::GlobalUniform(const String& initName,
+                             Uniform::Type initType,
+                             unsigned int initID):
+  name(initName),
+  type(initType),
+  ID(initID),
+  listener(NULL)
+{
+}
+
+void GlobalUniform::applyTo(Uniform& uniform) const
+{
+  if (listener)
+    listener->onStateApply(ID, uniform);
+  else
+    logError("Global uniform \'%s\' has no listener", name.c_str());
+}
+
+const String& GlobalUniform::getName(void) const
+{
+  return name;
+}
+
+Uniform::Type GlobalUniform::getType(void) const
+{
+  return type;
+}
+
+unsigned int GlobalUniform::getID(void) const
+{
+  return ID;
+}
+
+GlobalStateListener* GlobalUniform::getListener(void) const
+{
+  return listener;
+}
+
+void GlobalUniform::setListener(GlobalStateListener* newListener)
+{
+  listener = newListener;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+GlobalSampler::GlobalSampler(const String& initName,
+                             Sampler::Type initType,
+                             unsigned int initID):
+  name(initName),
+  type(initType),
+  ID(initID),
+  listener(NULL)
+{
+}
+
+void GlobalSampler::applyTo(Sampler& sampler) const
+{
+  if (listener)
+    listener->onStateApply(ID, sampler);
+  else
+    logError("Global sampler \'%s\' has no listener", name.c_str());
+}
+
+const String& GlobalSampler::getName(void) const
+{
+  return name;
+}
+
+Sampler::Type GlobalSampler::getType(void) const
+{
+  return type;
+}
+
+unsigned int GlobalSampler::getID(void) const
+{
+  return ID;
+}
+
+GlobalStateListener* GlobalSampler::getListener(void) const
+{
+  return listener;
+}
+
+void GlobalSampler::setListener(GlobalStateListener* newListener)
+{
+  listener = newListener;
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Context::~Context(void)
 {
   destroySignal.emit();
@@ -863,24 +926,6 @@ void Context::render(const PrimitiveRange& range)
     varying.enable(format.getSize(), component->getOffset());
   }
 
-  for (UniformList::const_iterator u = reservedUniforms.begin();  u != reservedUniforms.end();  u++)
-  {
-    if (Uniform* uniform = program.findUniform(u->name))
-    {
-      if (uniform->getType() == u->type)
-        u->signal.emit(*uniform);
-    }
-  }
-
-  for (SamplerList::const_iterator s = reservedSamplers.begin();  s != reservedSamplers.end();  s++)
-  {
-    if (Sampler* sampler = program.findSampler(s->name))
-    {
-      if (sampler->getType() == s->type)
-        s->signal.emit(*sampler);
-    }
-  }
-
   if (indexBuffer)
   {
     glDrawElements(convertToGL(range.getType()),
@@ -925,54 +970,64 @@ bool Context::update(void)
   return !needsClosing;
 }
 
-SignalProxy1<void, Uniform&> Context::reserveUniform(const String& name, Uniform::Type type)
+GlobalUniform& Context::createGlobalUniform(const String& name,
+                                            Uniform::Type type,
+                                            unsigned int ID)
 {
-  if (isReservedUniform(name))
-    throw Exception("Uniform already reserved");
-
-  reservedUniforms.push_back(ReservedUniform());
-
-  ReservedUniform& slot = reservedUniforms.back();
-  slot.name = name;
-  slot.type = type;
-
-  return slot.signal;
-}
-
-SignalProxy1<void, Sampler&> Context::reserveSampler(const String& name, Sampler::Type type)
-{
-  if (isReservedSampler(name))
-    throw Exception("Sampler already reserved");
-
-  reservedSamplers.push_back(ReservedSampler());
-
-  ReservedSampler& slot = reservedSamplers.back();
-  slot.name = name;
-  slot.type = type;
-
-  return slot.signal;
-}
-
-bool Context::isReservedUniform(const String& name) const
-{
-  for (UniformList::const_iterator u = reservedUniforms.begin();  u != reservedUniforms.end();  u++)
+  GlobalUniform* state = findGlobalUniform(name, type);
+  if (state)
   {
-    if (u->name == name)
-      return true;
+    if (state->getID() != ID)
+      throw Exception("Global uniform internal ID mismatch");
+  }
+  else
+  {
+    state = new GlobalUniform(name, type, ID);
+    globalUniforms.push_back(state);
   }
 
-  return false;
+  return *state;
 }
 
-bool Context::isReservedSampler(const String& name) const
+GlobalSampler& Context::createGlobalSampler(const String& name,
+                                            Sampler::Type type,
+                                            unsigned int ID)
 {
-  for (SamplerList::const_iterator s = reservedSamplers.begin();  s != reservedSamplers.end();  s++)
+  GlobalSampler* state = findGlobalSampler(name, type);
+  if (state)
   {
-    if (s->name == name)
-      return true;
+    if (state->getID() != ID)
+      throw Exception("Global sampler uniform internal ID mismatch");
+  }
+  else
+  {
+    state = new GlobalSampler(name, type, ID);
+    globalSamplers.push_back(state);
   }
 
-  return false;
+  return *state;
+}
+
+GlobalUniform* Context::findGlobalUniform(const String& name, Uniform::Type type) const
+{
+  for (UniformList::const_iterator u = globalUniforms.begin();  u != globalUniforms.end();  u++)
+  {
+    if ((*u)->getName() == name && (*u)->getType() == type)
+      return *u;
+  }
+
+  return NULL;
+}
+
+GlobalSampler* Context::findGlobalSampler(const String& name, Sampler::Type type) const
+{
+  for (SamplerList::const_iterator s = globalSamplers.begin();  s != globalSamplers.end();  s++)
+  {
+    if ((*s)->getName() == name && (*s)->getType() == type)
+      return *s;
+  }
+
+  return NULL;
 }
 
 Context::RefreshMode Context::getRefreshMode(void) const
@@ -1097,6 +1152,7 @@ const Mat4& Context::getModelMatrix(void) const
 void Context::setModelMatrix(const Mat4& newMatrix)
 {
   modelMatrix = newMatrix;
+  dirtyModelView = dirtyModelViewProj = true;
 }
 
 const Mat4& Context::getViewMatrix(void) const
@@ -1107,6 +1163,7 @@ const Mat4& Context::getViewMatrix(void) const
 void Context::setViewMatrix(const Mat4& newMatrix)
 {
   viewMatrix = newMatrix;
+  dirtyModelView = dirtyViewProj = dirtyModelViewProj = true;
 }
 
 const Mat4& Context::getProjectionMatrix(void) const
@@ -1117,11 +1174,13 @@ const Mat4& Context::getProjectionMatrix(void) const
 void Context::setProjectionMatrix(const Mat4& newMatrix)
 {
   projectionMatrix = newMatrix;
+  dirtyViewProj = dirtyModelViewProj = true;
 }
 
 void Context::setProjectionMatrix2D(float width, float height)
 {
   projectionMatrix.setProjection2D(width, height);
+  dirtyViewProj = dirtyModelViewProj = true;
 }
 
 void Context::setProjectionMatrix3D(float FOV, float aspect, float nearZ, float farZ)
@@ -1133,6 +1192,7 @@ void Context::setProjectionMatrix3D(float FOV, float aspect, float nearZ, float 
   }
 
   projectionMatrix.setProjection3D(FOV, aspect, nearZ, farZ);
+  dirtyViewProj = dirtyModelViewProj = true;
 }
 
 Stats* Context::getStats(void) const
@@ -1224,6 +1284,9 @@ Context::Context(ResourceIndex& initIndex):
   refreshMode(AUTOMATIC_REFRESH),
   needsRefresh(false),
   needsClosing(false),
+  dirtyModelView(true),
+  dirtyViewProj(true),
+  dirtyModelViewProj(true),
   currentProgram(NULL),
   stats(NULL)
 {
@@ -1409,12 +1472,12 @@ bool Context::init(const ContextMode& initMode)
     glfwSwapInterval(1);
   }
 
-  reserveUniform("M", Uniform::FLOAT_MAT4).connect(requestModelMatrix);
-  reserveUniform("V", Uniform::FLOAT_MAT4).connect(requestViewMatrix);
-  reserveUniform("P", Uniform::FLOAT_MAT4).connect(requestProjectionMatrix);
-  reserveUniform("MV", Uniform::FLOAT_MAT4).connect(requestModelViewMatrix);
-  reserveUniform("VP", Uniform::FLOAT_MAT4).connect(requestViewProjectionMatrix);
-  reserveUniform("MVP", Uniform::FLOAT_MAT4).connect(requestModelViewProjectionMatrix);
+  createGlobalUniform("M", Uniform::FLOAT_MAT4, STATE_MODEL_MATRIX).setListener(this);
+  createGlobalUniform("V", Uniform::FLOAT_MAT4, STATE_VIEW_MATRIX).setListener(this);
+  createGlobalUniform("P", Uniform::FLOAT_MAT4, STATE_PROJECTION_MATRIX).setListener(this);
+  createGlobalUniform("MV", Uniform::FLOAT_MAT4, STATE_MODELVIEW_MATRIX).setListener(this);
+  createGlobalUniform("VP", Uniform::FLOAT_MAT4, STATE_VIEWPROJECTION_MATRIX).setListener(this);
+  createGlobalUniform("MVP", Uniform::FLOAT_MAT4, STATE_MODELVIEWPROJECTION_MATRIX).setListener(this);
 
   return true;
 }
@@ -1476,6 +1539,80 @@ int Context::closeCallback(void)
 void Context::refreshCallback(void)
 {
   instance->needsRefresh = true;
+}
+
+void Context::onStateApply(unsigned int stateID, Uniform& uniform)
+{
+  switch (stateID)
+  {
+    case STATE_MODEL_MATRIX:
+    {
+      uniform.setValue(modelMatrix);
+      break;
+    }
+
+    case STATE_VIEW_MATRIX:
+    {
+      uniform.setValue(viewMatrix);
+      break;
+    }
+
+    case STATE_PROJECTION_MATRIX:
+    {
+      uniform.setValue(projectionMatrix);
+      break;
+    }
+
+    case STATE_MODELVIEW_MATRIX:
+    {
+      if (dirtyModelView)
+      {
+        modelViewMatrix = viewMatrix;
+        modelViewMatrix *= modelMatrix;
+        dirtyModelView = false;
+      }
+
+      uniform.setValue(modelViewMatrix);
+      break;
+    }
+
+    case STATE_VIEWPROJECTION_MATRIX:
+    {
+      if (dirtyViewProj)
+      {
+        viewProjMatrix = projectionMatrix;
+        viewProjMatrix *= viewMatrix;
+        dirtyViewProj = false;
+      }
+
+      uniform.setValue(viewProjMatrix);
+      break;
+    }
+
+    case STATE_MODELVIEWPROJECTION_MATRIX:
+    {
+      if (dirtyModelViewProj)
+      {
+        if (dirtyViewProj)
+        {
+          viewProjMatrix = projectionMatrix;
+          viewProjMatrix *= viewMatrix;
+          dirtyViewProj = false;
+        }
+
+        modelViewProjMatrix = viewProjMatrix;
+        modelViewProjMatrix *= modelMatrix;
+        dirtyModelViewProj = false;
+      }
+
+      uniform.setValue(modelViewProjMatrix);
+      break;
+    }
+  }
+}
+
+void Context::onStateApply(unsigned int stateID, Sampler& sampler)
+{
 }
 
 Context* Context::instance = NULL;
