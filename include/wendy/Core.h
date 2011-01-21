@@ -478,7 +478,7 @@ inline Ref<T>& Ref<T>::operator = (T* newObject)
   {
     decrement(object);
     if (unreferenced(object))
-      delete object;
+      delete static_cast<RefObject*>(object);
   }
 
   object = newObject;
