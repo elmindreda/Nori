@@ -5,7 +5,7 @@
 
 using namespace wendy;
 
-class Demo : public Trackable
+class Demo : public Trackable, public GL::GlobalStateListener
 {
 public:
   ~Demo(void);
@@ -17,6 +17,13 @@ private:
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const Vec2i& position);
   void onWheelTurned(int position);
+  void onStateApply(unsigned int stateID, GL::Uniform& uniform);
+  void onStateApply(unsigned int stateID, GL::Sampler& sampler);
+  enum
+  {
+    STATE_WL,
+    STATE_LIGHT,
+  };
   ResourceIndex index;
   Ref<GL::ImageCanvas> canvas;
   Ref<GL::Texture> depthmap;
@@ -56,8 +63,8 @@ bool Demo::init(void)
   GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Shadow Map");
 
-  context->reserveUniform("WL", GL::Uniform::FLOAT_MAT4).connect(*this, &Demo::onRequestedWL);
-  context->reserveUniform("light", GL::Uniform::FLOAT_VEC3).connect(*this, &Demo::onRequestedLight);
+  context->createGlobalUniform("WL", GL::Uniform::FLOAT_MAT4, STATE_WL).setListener(this);
+  context->createGlobalUniform("light", GL::Uniform::FLOAT_VEC3, STATE_LIGHT).setListener(this);
 
   if (!input::Context::createSingleton(*context))
     return false;
@@ -180,16 +187,6 @@ void Demo::run(void)
   while (context.update());
 }
 
-void Demo::onRequestedWL(GL::Uniform& uniform)
-{
-  uniform.setValue(WL);
-}
-
-void Demo::onRequestedLight(GL::Uniform& uniform)
-{
-  uniform.setValue(lightCamera->getTransform().position);
-}
-
 void Demo::onButtonClicked(input::Button button, bool clicked)
 {
   input::Context* context = input::Context::getSingleton();
@@ -236,6 +233,23 @@ void Demo::onWheelTurned(int offset)
   const float scale = modelNode->getModel()->getBounds().radius / 10.f;
 
   modelNode->getLocalTransform().position.z += offset * scale;
+}
+
+void Demo::onStateApply(unsigned int stateID, GL::Uniform& uniform)
+{
+  switch (stateID)
+  {
+    case STATE_WL:
+      uniform.setValue(WL);
+      break;
+    case STATE_LIGHT:
+      uniform.setValue(lightCamera->getTransform().position);
+      break;
+  }
+}
+
+void Demo::onStateApply(unsigned int stateID, GL::Sampler& sampler)
+{
 }
 
 int main()
