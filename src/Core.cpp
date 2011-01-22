@@ -30,9 +30,10 @@
 #include <algorithm>
 
 #include <cmath>
-#include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cstdio>
+#include <iostream>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -200,7 +201,7 @@ void logError(const char* format, ...)
     return;
 
   if (consumers.empty())
-    std::fprintf(stderr, "Error: %s\n", message);
+    std::cerr << "Error: " << message << std::endl;
   else
   {
     for (ConsumerList::const_iterator c = consumers.begin();  c != consumers.end();  c++)
@@ -224,7 +225,7 @@ void logWarning(const char* format, ...)
     return;
 
   if (consumers.empty())
-    std::fprintf(stderr, "Warning: %s\n", message);
+    std::cerr << "Warning: " << message << std::endl;
   else
   {
     for (ConsumerList::const_iterator c = consumers.begin();  c != consumers.end();  c++)
@@ -248,7 +249,7 @@ void log(const char* format, ...)
     return;
 
   if (consumers.empty())
-    std::fprintf(stderr, "%s\n", message);
+    std::cerr << message << std::endl;
   else
   {
     for (ConsumerList::const_iterator c = consumers.begin();  c != consumers.end();  c++)
