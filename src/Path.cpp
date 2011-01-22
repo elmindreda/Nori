@@ -62,6 +62,19 @@
 
 ///////////////////////////////////////////////////////////////////////
 
+#ifdef _MSC_VER
+
+#define F_OK 0
+#define W_OK 2
+#define R_OK 4
+
+#define S_ISDIR(x) ((x) & _S_IFDIR)
+#define S_ISREG(x) ((x) & _S_IFREG)
+
+#endif /*_MSC_VER*/
+
+///////////////////////////////////////////////////////////////////////
+
 namespace wendy
 {
 
