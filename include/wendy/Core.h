@@ -26,6 +26,10 @@
 #define WENDY_CORE_H
 ///////////////////////////////////////////////////////////////////////
 
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES
+#endif
+
 #include <string>
 #include <vector>
 #include <cstdarg>
@@ -46,8 +50,6 @@
 
 // Don't consider the libc to be obsolete
 #pragma warning( disable: 4996 )
-
-#define _USE_MATH_DEFINES
 
 #define snprintf _snprintf
 #define strcasecmp stricmp
