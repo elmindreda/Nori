@@ -722,10 +722,10 @@ bool FontReader::extractGlyphs(FontData& data,
 
   meanAdvance /= (float) data.glyphs.size();
 
+  // HACK: Create space glyph if not already present
+
   if (data.characters[' '] == -1)
   {
-    // HACK: Create space glyph if not already present
-
     data.characters[' '] = data.glyphs.size();
 
     data.glyphs.push_back(FontGlyphData());
@@ -739,6 +739,11 @@ bool FontReader::extractGlyphs(FontData& data,
     else
       glyph.advance = meanAdvance * 0.6f;
   }
+
+  // HACK: Create tab glyph if not already present
+
+  if (data.characters['\t'] == -1)
+    data.characters['\t'] = data.characters[' '];
 
   // HACK: Introduce 'tasteful' spacing
 
