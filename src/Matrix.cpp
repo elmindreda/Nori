@@ -28,6 +28,7 @@
 #include <wendy/Core.h>
 #include <wendy/Vector.h>
 #include <wendy/Quaternion.h>
+#include <wendy/AABB.h>
 #include <wendy/Matrix.h>
 
 #include <sstream>
@@ -764,7 +765,7 @@ void Mat4::setTranslation(const Vec3& vector)
   w.z = vector.z;
 }
 
-void Mat4::setProjection2D(float width, float height)
+void Mat4::setOrthoProjection(float width, float height)
 {
   x.set(2.f / width, 0.f, 0.f, 0.f);
   y.set(0.f, 2.f / height, 0.f, 0.f);
@@ -772,7 +773,23 @@ void Mat4::setProjection2D(float width, float height)
   w.set(-1.f, -1.f, 0.f, 1.f);
 }
 
-void Mat4::setProjection3D(float FOV, float aspect, float nearZ, float farZ)
+void Mat4::setOrthoProjection(const AABB& volume)
+{
+  float minX, minY, minZ, maxX, maxY, maxZ;
+  volume.getBounds(minX, minY, minZ, maxX, maxY, maxZ);
+
+  Vec3 t;
+  t.x = -(maxX + minX) / (maxX - minX);
+  t.y = -(maxY + minY) / (maxY - minY);
+  t.z = -(maxZ + minZ) / (maxZ - minZ);
+
+  x.set(2.f / (maxX - minX), 0.f, 0.f, 0.f);
+  y.set(0.f, 2.f / (maxY - minY), 0.f, 0.f);
+  z.set(0.f, 0.f, -2.f / (maxZ - minZ), 0.f);
+  w.set(t.x, t.y, t.z, 1.f);
+}
+
+void Mat4::setPerspectiveProjection(float FOV, float aspect, float nearZ, float farZ)
 {
   const float f = 1.f / tanf((FOV * (float) M_PI / 180.f) / 2.f);
 

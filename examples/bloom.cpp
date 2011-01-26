@@ -195,7 +195,7 @@ void Demo::run(void)
 
     queue.render("bloom_specular");
 
-    context.setProjectionMatrix2D(1.f, 1.f);
+    context.setOrthoProjectionMatrix(1.f, 1.f);
 
     for (unsigned int i = 0;  i < 2;  i++)
     {
@@ -220,7 +220,7 @@ void Demo::run(void)
 
     queue.render();
 
-    context.setProjectionMatrix2D(1.f, 1.f);
+    context.setOrthoProjectionMatrix(1.f, 1.f);
 
     composePass.apply();
     sprite.render(*pool);

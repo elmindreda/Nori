@@ -526,22 +526,26 @@ public:
    */
   void setProjectionMatrix(const Mat4& newMatrix);
   /*! Sets an orthographic projection matrix as ([0..width], [0..height], [-1, 1]).
-   *  @param[in] width The width of the projected space.
-   *  @param[in] height The height of the projected space.
+   *  @param[in] width The width of the clipspace volume.
+   *  @param[in] height The height of the clipspace volume.
    */
-  void setProjectionMatrix2D(float width, float height);
+  void setOrthoProjectionMatrix(float width, float height);
+  /*! Sets an orthographic projection matrix as ([minX..maxX], [minY..maxY], [minZ, maxZ]).
+   *  @param[in] volume The clipspace volume.
+   */
+  void setOrthoProjectionMatrix(const AABB& volume);
   /*! Sets a perspective projection matrix.
    *  @param[in] FOV The desired field of view of the projection.
    *  @param[in] aspect The desired aspect ratio of the projection.
    *  @param[in] nearZ The desired near plane distance of the projection.
    *  @param[in] farZ The desired far plane distance of the projection.
    *  @remarks If @a aspect is set to zero, the aspect ratio is calculated from
-   *  the dimensions of the current viewport.
+   *  the dimensions of the current viewport applied to the current canvas.
    */
-  void setProjectionMatrix3D(float FOV = 90.f,
-                             float aspect = 0.f,
-	                     float nearZ = 0.01f,
-	                     float farZ = 1000.f);
+  void setPerspectiveProjectionMatrix(float FOV = 90.f,
+                                      float aspect = 0.f,
+	                              float nearZ = 0.01f,
+	                              float farZ = 1000.f);
   Stats* getStats(void) const;
   void setStats(Stats* newStats);
   /*! @return The title of the context window.

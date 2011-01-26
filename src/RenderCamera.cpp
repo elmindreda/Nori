@@ -54,7 +54,7 @@ Camera::Camera(void):
 
 void Camera::apply(GL::Context& context) const
 {
-  context.setProjectionMatrix3D(FOV, aspectRatio, minDepth, maxDepth);
+  context.setPerspectiveProjectionMatrix(FOV, aspectRatio, minDepth, maxDepth);
   context.setViewMatrix(getViewTransform());
 }
 

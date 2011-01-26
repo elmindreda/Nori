@@ -77,7 +77,7 @@ void Renderer::render(const render::Queue& queue)
   queue.render();
 
   pool.getContext().setCurrentCanvas(previousCanvas);
-  pool.getContext().setProjectionMatrix2D(1.f, 1.f);
+  pool.getContext().setOrthoProjectionMatrix(1.f, 1.f);
 
   const render::LightState& lights = queue.getLights();
   for (unsigned int i = 0;  i < lights.getLightCount();  i++)

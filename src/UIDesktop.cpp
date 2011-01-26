@@ -66,8 +66,8 @@ void Desktop::drawRootWidgets(void)
 {
   render::GeometryPool& pool = renderer.getGeometryPool();
 
-  pool.getContext().setProjectionMatrix2D((float) context.getWidth(),
-                                          (float) context.getHeight());
+  pool.getContext().setOrthoProjectionMatrix((float) context.getWidth(),
+                                             (float) context.getHeight());
 
   for (WidgetList::iterator i = roots.begin();  i != roots.end();  i++)
   {

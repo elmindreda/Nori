@@ -1177,13 +1177,19 @@ void Context::setProjectionMatrix(const Mat4& newMatrix)
   dirtyViewProj = dirtyModelViewProj = true;
 }
 
-void Context::setProjectionMatrix2D(float width, float height)
+void Context::setOrthoProjectionMatrix(float width, float height)
 {
-  projectionMatrix.setProjection2D(width, height);
+  projectionMatrix.setOrthoProjection(width, height);
   dirtyViewProj = dirtyModelViewProj = true;
 }
 
-void Context::setProjectionMatrix3D(float FOV, float aspect, float nearZ, float farZ)
+void Context::setOrthoProjectionMatrix(const AABB& volume)
+{
+  projectionMatrix.setOrthoProjection(volume);
+  dirtyViewProj = dirtyModelViewProj = true;
+}
+
+void Context::setPerspectiveProjectionMatrix(float FOV, float aspect, float nearZ, float farZ)
 {
   if (aspect == 0.f)
   {
@@ -1191,7 +1197,7 @@ void Context::setProjectionMatrix3D(float FOV, float aspect, float nearZ, float 
              (currentCanvas->getHeight() * viewportArea.size.y);
   }
 
-  projectionMatrix.setProjection3D(FOV, aspect, nearZ, farZ);
+  projectionMatrix.setPerspectiveProjection(FOV, aspect, nearZ, farZ);
   dirtyViewProj = dirtyModelViewProj = true;
 }
 

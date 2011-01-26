@@ -36,6 +36,7 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 class Quat;
+class AABB;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -150,8 +151,9 @@ public:
   void setMatrixRotation(const Mat3& matrix);
   void getTranslation(Vec3& vector) const;
   void setTranslation(const Vec3& vector);
-  void setProjection2D(float width, float height);
-  void setProjection3D(float FOV, float aspect, float nearZ, float farZ);
+  void setOrthoProjection(float width, float height);
+  void setOrthoProjection(const AABB& volume);
+  void setPerspectiveProjection(float FOV, float aspect, float nearZ, float farZ);
   Vec4 x;
   Vec4 y;
   Vec4 z;

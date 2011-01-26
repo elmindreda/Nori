@@ -70,7 +70,7 @@ void Test::run(void)
     sprite.size.set(0.5f, 0.5f);
     sprite.angle = (float) timer.getTime();
 
-    context.setProjectionMatrix2D(4.f / 3.f, 1.f);
+    context.setOrthoProjectionMatrix(4.f / 3.f, 1.f);
 
     sprite.render(*pool, *material);
   }

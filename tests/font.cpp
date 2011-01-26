@@ -77,7 +77,7 @@ bool Demo::render(void)
 {
   GL::Context* context = GL::Context::getSingleton();
   context->clearColorBuffer();
-  context->setProjectionMatrix2D(640.f, 480.f);
+  context->setOrthoProjectionMatrix(640.f, 480.f);
 
   const float em = font->getHeight();
 
