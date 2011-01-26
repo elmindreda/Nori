@@ -149,10 +149,10 @@ void Demo::run(void)
       WL.w.set(0.5f, 0.5f, 0.5f, 1.f);
 
       Mat4 LP;
-      LP.setProjection3D(lightCamera->getFOV(),
-                          lightCamera->getAspectRatio(),
-                          lightCamera->getMinDepth(),
-                          lightCamera->getMaxDepth());
+      LP.setPerspectiveProjection(lightCamera->getFOV(),
+                                  lightCamera->getAspectRatio(),
+                                  lightCamera->getMinDepth(),
+                                  lightCamera->getMaxDepth());
       WL *= LP;
 
       Mat4 LV;
