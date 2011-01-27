@@ -59,9 +59,13 @@ Mat2::Mat2(const String& string)
   stream >> y.x >> y.y;
 }
 
-void Mat2::invert(void)
+bool Mat2::invert(void)
 {
-  const float invDet = 1.f / determinant();
+  const float det = determinant();
+  if (det == 0.f)
+    return false;
+
+  const float invDet = 1.f / det;
 
   Mat2 temp;
   temp.x.x = y.y * invDet;
@@ -70,6 +74,7 @@ void Mat2::invert(void)
   temp.y.y = x.x * invDet;
 
   operator = (temp);
+  return true;
 }
 
 void Mat2::transpose(void)

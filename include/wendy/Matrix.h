@@ -49,7 +49,7 @@ public:
   Mat2(void);
   Mat2(const Vec2& sx, const Vec2& sy);
   explicit Mat2(const String& string);
-  void invert(void);
+  bool invert(void);
   void transpose(void);
   void transformVector(Vec2& vector) const;
   float determinant(void) const;
