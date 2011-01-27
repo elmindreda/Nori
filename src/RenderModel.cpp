@@ -144,6 +144,14 @@ Model& Model::operator = (const Model& source)
 
 bool Model::init(const Mesh& data, const MaterialMap& materials)
 {
+  if (!data.isValid())
+  {
+    logError("Mesh \'%s\' for model \'%s\' is not valid",
+             data.getPath().asString().c_str(),
+             getPath().asString().c_str());
+    return false;
+  }
+
   int indexCount = 0;
 
   for (Mesh::GeometryList::const_iterator g = data.geometries.begin();  g != data.geometries.end();  g++)
