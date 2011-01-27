@@ -69,7 +69,9 @@ find_package(Cg REQUIRED)
 
 add_subdirectory(libs)
 
-list(APPEND wendy_LIBRARIES expat png z pcre GLEW glfw ${GLFW_LIBRARIES} ${CG_LIBRARY} ${CG_GL_LIBRARY})
+list(APPEND wendy_CORE_LIBRARIES expat png z pcre)
+
+list(APPEND wendy_LIBRARIES ${wendy_CORE_LIBRARIES} GLEW glfw ${GLFW_LIBRARIES} ${CG_LIBRARY} ${CG_GL_LIBRARY})
 
 list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/include ${wendy_BINARY_DIR}/include ${CG_INCLUDE_PATH})
 
@@ -81,6 +83,7 @@ if(MSVC)
   list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/build/msvc)
 endif(MSVC)
 
+set(WENDY_CORE_LIBRARIES ${wendy_CORE_LIBRARIES} CACHE STRING "Libraries used by Wendy core")
 set(WENDY_LIBRARIES ${wendy_LIBRARIES} CACHE STRING "Libraries used by Wendy")
 set(WENDY_INCLUDE_DIRS ${wendy_INCLUDE_DIRS} CACHE STRING "Include directories for Wendy")
 
