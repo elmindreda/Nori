@@ -234,39 +234,22 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
   if (!queue.getGeometryPool().allocateVertices(range, 4, Vertex2ft3fv::format))
     return;
 
-  const Vec3 cameraPosition = queue.getCamera().getTransform().position;
+  const Vec3 cameraPos = queue.getCamera().getTransform().position;
+  const Vec3 spritePos = transform.position;
 
   Vertex2ft3fv vertices[4];
-  realizeVertices(vertices, transform, cameraPosition);
+  realizeSpriteVertices(vertices, cameraPos, spritePos, size, angle, type);
   range.copyFrom(vertices);
-
-  Vec3 position = Vec3::ZERO;
-  transform.transformVector(position);
 
   Operation operation;
   operation.range = GL::PrimitiveRange(GL::TRIANGLE_FAN, range);
-  operation.transform = transform;
   operation.technique = technique;
-  operation.distance = (position - cameraPosition).length();
+  operation.distance = (spritePos - cameraPos).length();
   queue.addOperation(operation);
-}
-
-void Sprite3::realizeVertices(Vertex2ft3fv* vertices,
-                              const Transform3& transform,
-                              const Vec3& cameraPosition) const
-{
-  Transform3 inverse = transform;
-  inverse.invert();
-
-  Vec3 localCamera = cameraPosition;
-  inverse.transformVector(localCamera);
-
-  realizeSpriteVertices(vertices, cameraPosition, position, size, angle, type);
 }
 
 void Sprite3::setDefaults(void)
 {
-  position.set(0.f, 0.f, 0.f);
   size.set(1.f, 1.f);
   angle = 0.f;
   type = STATIC_SPRITE;

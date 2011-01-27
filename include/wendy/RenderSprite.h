@@ -71,11 +71,7 @@ class Sprite3 : public Renderable
 public:
   Sprite3(void);
   void enqueue(Queue& queue, const Transform3& transform) const;
-  void realizeVertices(Vertex2ft3fv* vertices,
-                       const Transform3& transform,
-                       const Vec3& cameraPosition) const;
   void setDefaults(void);
-  Vec3 position;
   Vec2 size;
   float angle;
   SpriteType3 type;

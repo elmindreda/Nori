@@ -62,10 +62,13 @@ void Test::run(void)
   render::Queue queue(*pool, camera);
   GL::Context& context = pool->getContext();
 
-  render::Sprite3 sprite; sprite.position.set(0.f, 0.f, -3.f);
+  render::Sprite3 sprite;
   sprite.size.set(1.f, 1.f);
   sprite.material = material;
   sprite.type = render::STATIC_SPRITE;
+
+  Transform3 transform;
+  transform.position.z = -3.f;
 
   do
   {
@@ -74,7 +77,7 @@ void Test::run(void)
 
     sprite.angle = timer.getTime();
 
-    sprite.enqueue(queue, Transform3());
+    sprite.enqueue(queue, transform);
     queue.render();
     queue.removeOperations();
   }
