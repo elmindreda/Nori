@@ -279,21 +279,76 @@ void Mesh::generateBounds(Sphere& bounds) const
 
 bool Mesh::isValid(void) const
 {
-  if (vertices.size() == 0)
+  if (vertices.empty())
     return false;
 
-  unsigned int index;
-
-  for (index = 0;  index < geometries.size();  index++)
+  for (unsigned int i = 0;  i < vertices.size();  i++)
   {
-    if (geometries[index].triangles.size() > 0)
-      break;
+    const MeshVertex& vertex = vertices[i];
+
+    if (!finitef(vertex.position.x) ||
+        !finitef(vertex.position.y) ||
+        !finitef(vertex.position.z) ||
+        !finitef(vertex.normal.x) ||
+        !finitef(vertex.normal.y) ||
+        !finitef(vertex.normal.z) ||
+        !finitef(vertex.texcoord.x) ||
+        !finitef(vertex.texcoord.y))
+    {
+      return false;
+    }
   }
 
-  if (index == geometries.size())
-    return false;
+  for (unsigned int i = 0;  i < geometries.size();  i++)
+  {
+    if (geometries[i].triangles.empty())
+      return false;
 
-  // TODO: Triangle, edge and vertex validation.
+    const MeshGeometry::TriangleList& triangles = geometries[i].triangles;
+
+    for (unsigned int j = 0;  j < triangles.size();  j++)
+    {
+      const MeshTriangle& triangle = triangles[j];
+
+      if (!finitef(triangle.normal.x) ||
+          !finitef(triangle.normal.y) ||
+          !finitef(triangle.normal.z))
+      {
+        return false;
+      }
+
+      if (triangle.indices[0] >= vertices.size() ||
+          triangle.indices[1] >= vertices.size() ||
+          triangle.indices[2] >= vertices.size())
+      {
+        return false;
+      }
+
+      if (!edges.empty())
+      {
+        if (triangle.edges[0] >= edges.size() ||
+            triangle.edges[1] >= edges.size() ||
+            triangle.edges[2] >= edges.size())
+        {
+          return false;
+        }
+      }
+    }
+  }
+
+  if (!edges.empty())
+  {
+    for (unsigned int i = 0;  i < edges.size();  i++)
+    {
+      const MeshEdge& edge = edges[i];
+
+      if (edge.indices[0] >= vertices.size() ||
+          edge.indices[1] >= vertices.size())
+      {
+        return false;
+      }
+    }
+  }
 
   return true;
 }
