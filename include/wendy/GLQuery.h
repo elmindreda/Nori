@@ -37,15 +37,37 @@ class Context;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Occlusion query.
+ *  @ingroup opengl
+ */
 class OcclusionQuery
 {
 public:
+  /*! Destructor.
+   */
   ~OcclusionQuery(void);
+  /*! Makes this occlusion query active.
+   *  @note You may only have one active query at any given time.
+   */
   void begin(void);
+  /*! Deactivates this query object.
+   */
   void end(void);
+  /*! @return @c true if this query is active, otherwise @c false.
+   */
   bool isActive(void) const;
+  /*! @return @c true if the result of this query is available, otherwise @c
+   *  false.
+   */
   bool hasResultAvailable(void) const;
+  /*! @return The latest results of this query, or zero if it is active or has
+   *  never been active.
+   */
   unsigned int getResult(void) const;
+  /*! Creates an occlusion query.
+   *  @param[in] context The context within which to create the query.
+   *  @return The newly created query object, or @c NULL if an error occurred.
+   */
   static OcclusionQuery* create(Context& context);
 private:
   OcclusionQuery(Context& context);
