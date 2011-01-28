@@ -55,6 +55,12 @@ OcclusionQuery::~OcclusionQuery(void)
 
 void OcclusionQuery::begin(void)
 {
+  if (active)
+  {
+    logError("Cannot begin already active occlusion query");
+    return;
+  }
+
   glBeginQueryARB(GL_SAMPLES_PASSED_ARB, queryID);
 
   active = true;
@@ -66,6 +72,12 @@ void OcclusionQuery::begin(void)
 
 void OcclusionQuery::end(void)
 {
+  if (!active)
+  {
+    logError("Cannot end non-active occlusion query");
+    return;
+  }
+
   glEndQueryARB(GL_SAMPLES_PASSED_ARB);
 
   active = false;
