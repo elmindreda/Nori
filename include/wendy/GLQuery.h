@@ -44,7 +44,7 @@ public:
   void begin(void);
   void end(void);
   bool isActive(void) const;
-  bool isResultAvailable(void) const;
+  bool hasResultAvailable(void) const;
   unsigned int getResult(void) const;
   static OcclusionQuery* create(Context& context);
 private:

@@ -80,7 +80,7 @@ bool OcclusionQuery::isActive(void) const
   return active;
 }
 
-bool OcclusionQuery::isResultAvailable(void) const
+bool OcclusionQuery::hasResultAvailable(void) const
 {
   if (active)
     return false;
