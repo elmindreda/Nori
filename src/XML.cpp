@@ -220,7 +220,7 @@ const char* Reader::findAttributeValue(const char* name)
 
 void Reader::startElementHandler(void* userData, const char* name, const char** attributes)
 {
-  Reader* reader = reinterpret_cast<Reader*>(userData);
+  Reader* reader = static_cast<Reader*>(userData);
   reader->attributes = attributes;
 
   if (!reader->onBeginElement(name))
@@ -229,8 +229,9 @@ void Reader::startElementHandler(void* userData, const char* name, const char** 
 
 void Reader::endElementHandler(void* userData, const char* name)
 {
-  Reader* reader = reinterpret_cast<Reader*>(userData);
+  Reader* reader = static_cast<Reader*>(userData);
   reader->attributes = NULL;
+
 
   if (!reader->onEndElement(name))
     XML_StopParser((XML_Parser) reader->parser, false);
@@ -238,7 +239,7 @@ void Reader::endElementHandler(void* userData, const char* name)
 
 void Reader::characterDataHandler(void* userData, const char* data, int length)
 {
-  Reader* reader = reinterpret_cast<Reader*>(userData);
+  Reader* reader = static_cast<Reader*>(userData);
   reader->characterData.append(data, length);
 }
 
