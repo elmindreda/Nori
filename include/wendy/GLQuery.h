@@ -44,13 +44,15 @@ class OcclusionQuery
 {
 public:
   /*! Destructor.
+   *  @note You should not destroy active queries.
    */
   ~OcclusionQuery(void);
-  /*! Makes this occlusion query active.
+  /*! Makes this occlusion query active.  As long as it is active, it will
+   *  record the number of rendered samples that pass the depth test.
    *  @note You may only have one active query at any given time.
    */
   void begin(void);
-  /*! Deactivates this query object.
+  /*! Deactivates this query object, making its result available.
    */
   void end(void);
   /*! @return @c true if this query is active, otherwise @c false.
