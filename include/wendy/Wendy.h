@@ -60,6 +60,7 @@
 #include <wendy/WendyCore.h>
 
 #include <wendy/OpenGL.h>
+#include <wendy/GLQuery.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
