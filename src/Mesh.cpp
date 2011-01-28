@@ -42,7 +42,9 @@
 
 #ifdef _MSC_VER
 
-#define finitef _finitef
+#include <float.h>
+
+#define finitef(x) _finite((float) x)
 
 #endif /*_MSC_VER*/
 
