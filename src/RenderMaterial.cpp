@@ -62,19 +62,9 @@ Pass::Pass(const String& initName):
 {
 }
 
-void Pass::apply(void) const
-{
-  RenderState::apply();
-}
-
 const String& Pass::getName(void) const
 {
   return name;
-}
-
-void Pass::setDefaults(void)
-{
-  RenderState::setDefaults();
 }
 
 ///////////////////////////////////////////////////////////////////////

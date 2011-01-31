@@ -52,11 +52,7 @@ public:
   Pass(const String& name = "");
   /*! Destructor.
    */
-  void apply(void) const;
   const String& getName(void) const;
-  /*! Resets all values in this %render pass to their defaults.
-   */
-  void setDefaults(void);
 private:
   String name;
 };
