@@ -570,6 +570,7 @@ void SpectatorCamera::onKeyPressed(Key key, bool pressed)
   switch (key)
   {
     case 'W':
+    case Key::UP:
     {
       if (pressed)
         directions[FORWARD] = true;
@@ -579,6 +580,7 @@ void SpectatorCamera::onKeyPressed(Key key, bool pressed)
     }
 
     case 'S':
+    case Key::DOWN:
     {
       if (pressed)
         directions[BACK] = true;
@@ -588,6 +590,7 @@ void SpectatorCamera::onKeyPressed(Key key, bool pressed)
     }
 
     case 'A':
+    case Key::LEFT:
     {
       if (pressed)
         directions[LEFT] = true;
@@ -597,6 +600,7 @@ void SpectatorCamera::onKeyPressed(Key key, bool pressed)
     }
 
     case 'D':
+    case Key::RIGHT:
     {
       if (pressed)
         directions[RIGHT] = true;
@@ -606,6 +610,7 @@ void SpectatorCamera::onKeyPressed(Key key, bool pressed)
     }
 
     case Key::LCTRL:
+    case Key::RCTRL:
     {
       if (pressed)
         directions[DOWN] = true;
@@ -615,6 +620,7 @@ void SpectatorCamera::onKeyPressed(Key key, bool pressed)
     }
 
     case Key::LSHIFT:
+    case Key::RSHIFT:
     {
       if (pressed)
         turbo = true;
