@@ -114,3 +114,8 @@ install(DIRECTORY ${wendy_SOURCE_DIR}/include/wendy
         DESTINATION include
         FILES_MATCHING PATTERN "*.h")
 
+if(WIN32)
+  install(FILES ${wendy_SOURCE_DIR}/build/windows/wendy/Signal.h
+  DESTINATION include/wendy)
+endif(WIN32)
+

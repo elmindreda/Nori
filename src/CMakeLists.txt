@@ -47,3 +47,5 @@ if(UNIX)
   add_dependencies(wendy signal)
 endif(UNIX)
 
+install(TARGETS wendy ARCHIVE DESTINATION lib)
+
