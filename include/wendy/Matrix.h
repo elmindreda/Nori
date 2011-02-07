@@ -72,6 +72,7 @@ public:
   void setEulerRotation(const float angle);
   Vec2 x;
   Vec2 y;
+  static const Mat2 IDENTITY;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -110,6 +111,7 @@ public:
   Vec3 x;
   Vec3 y;
   Vec3 z;
+  static const Mat3 IDENTITY;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -158,6 +160,7 @@ public:
   Vec4 y;
   Vec4 z;
   Vec4 w;
+  static const Mat4 IDENTITY;
 };
 
 ///////////////////////////////////////////////////////////////////////

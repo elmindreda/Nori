@@ -211,6 +211,8 @@ void Mat2::setEulerRotation(const float angle)
   y.y = cosa;
 }
 
+const Mat2 Mat2::IDENTITY;
+
 ///////////////////////////////////////////////////////////////////////
 
 Mat3::Mat3(void)
@@ -443,6 +445,8 @@ void Mat3::setAxisRotation(const Vec3& axis, float angle)
   y.z = yz + xs;
   z.z = z2 * oneMinusCos + cosAngle;
 }
+
+const Mat3 Mat3::IDENTITY;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -803,6 +807,8 @@ void Mat4::setPerspectiveProjection(float FOV, float aspect, float nearZ, float 
   z.set(0.f, 0.f, (farZ + nearZ) / (nearZ - farZ), -1.f);
   w.set(0.f, 0.f, (2.f * farZ * nearZ) / (nearZ - farZ), 0.f);
 }
+
+const Mat4 Mat4::IDENTITY;
 
 ///////////////////////////////////////////////////////////////////////
 
