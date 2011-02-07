@@ -78,10 +78,6 @@ bool Demo::init(void)
   if (!renderer)
     return false;
 
-  Ref<GL::Texture> distAttTexture = GL::Texture::read(*context, Path("attenuation.texture"));
-  if (!distAttTexture)
-    return false;
-
   Ref<render::Model> model = render::Model::read(*context, Path("sponza.model"));
   if (!model)
     return false;
@@ -102,7 +98,6 @@ bool Demo::init(void)
   render::LightRef light = new render::Light();
   light->setType(render::Light::POINT);
   light->setRadius(100.f);
-  light->setDistAttTexture(distAttTexture);
 
   lightNode = new scene::LightNode();
   lightNode->setLight(light);
@@ -117,7 +112,9 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  render::Queue queue(*pool, *camera);
+  render::Scene scene(*pool, render::Technique::DEFERRED);
+  scene.setAmbientIntensity(ColorRGB(0.2f, 0.2f, 0.2f));
+
   GL::Context& context = pool->getContext();
 
   do
@@ -131,16 +128,15 @@ void Demo::run(void)
     cameraNode->getLocalTransform() = controller.getTransform();
 
     graph.update();
-    graph.enqueue(queue);
+    graph.enqueue(scene, *camera);
 
     context.clearDepthBuffer();
     context.clearColorBuffer(ColorRGBA::BLACK);
 
-    renderer->render(queue);
-    renderer->renderAmbientLight(queue.getCamera(), ColorRGB(0.2f, 0.2f, 0.2f));
+    renderer->render(scene, *camera);
 
-    queue.removeOperations();
-    queue.detachLights();
+    scene.removeOperations();
+    scene.detachLights();
   }
   while (!quitting && context.update());
 }

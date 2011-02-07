@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <program version="3" >
-  <vertex path="compose.vp" />
-  <fragment path="compose.fp" />
+  <vertex path="wendy/Mapped2.vp" />
+  <fragment path="wendy/HorzBlur.fp" />
 </program>

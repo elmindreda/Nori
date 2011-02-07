@@ -79,6 +79,7 @@
 #include <wendy/RenderFont.h>
 #include <wendy/RenderModel.h>
 
+#include <wendy/Forward.h>
 #include <wendy/Deferred.h>
 #endif
 

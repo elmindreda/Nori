@@ -16,6 +16,7 @@ private:
   ResourceIndex index;
   Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
+  Ptr<forward::Renderer> renderer;
   scene::Graph graph;
   scene::ModelNode* modelNode;
   scene::CameraNode* cameraNode;
@@ -45,6 +46,13 @@ bool Demo::init(void)
 
   pool = new render::GeometryPool(*context);
 
+  renderer = forward::Renderer::create(*pool, forward::Config());
+  if (!renderer)
+  {
+    logError("Failed to create forward renderer");
+    return false;
+  }
+
   Ref<render::Model> model = render::Model::read(*context, Path("thingy.model"));
   if (!model)
   {
@@ -72,7 +80,7 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  render::Queue queue(*pool, *camera);
+  render::Scene scene(*pool, render::Technique::FORWARD);
   GL::Context& context = pool->getContext();
 
   do
@@ -87,10 +95,11 @@ void Demo::run(void)
     context.clearDepthBuffer();
     context.clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
 
-    graph.enqueue(queue);
-    queue.render();
+    graph.enqueue(scene, *camera);
+    renderer->render(scene, *camera);
 
-    queue.removeOperations();
+    scene.removeOperations();
+    scene.detachLights();
   }
   while (context.update());
 }

@@ -133,7 +133,7 @@ protected:
    *  specified render queue.
    *  @param[in,out] queue The render queue for collecting operations.
    */
-  virtual void enqueue(render::Queue& queue) const;
+  virtual void enqueue(render::Scene& scene, const render::Camera& camera) const;
 private:
   void invalidateBounds(void);
   bool updateWorldTransform(void) const;
@@ -165,7 +165,7 @@ class Graph
 public:
   ~Graph(void);
   void update(void);
-  void enqueue(render::Queue& queue) const;
+  void enqueue(render::Scene& scene, const render::Camera& camera) const;
   void query(const Sphere& bounds, Node::List& nodes) const;
   void query(const Frustum& frustum, Node::List& nodes) const;
   void addRootNode(Node& node);
@@ -187,7 +187,7 @@ public:
   void setLight(render::Light* newLight);
 protected:
   void update(void);
-  void enqueue(render::Queue& queue) const;
+  void enqueue(render::Scene& scene, const render::Camera& camera) const;
 private:
   Ref<render::Light> light;
 };
@@ -205,7 +205,7 @@ public:
   render::Model* getModel(void) const;
   void setModel(render::Model* newModel);
 protected:
-  void enqueue(render::Queue& queue) const;
+  void enqueue(render::Scene& scene, const render::Camera& camera) const;
 private:
   Ref<render::Model> model;
   bool shadowCaster;
@@ -240,7 +240,7 @@ public:
   const Vec2& getSpriteSize(void) const;
   void setSpriteSize(const Vec2& newSize);
 protected:
-  void enqueue(render::Queue& queue) const;
+  void enqueue(render::Scene& scene, const render::Camera& camera) const;
 private:
   Ref<render::Material> material;
   Vec2 spriteSize;

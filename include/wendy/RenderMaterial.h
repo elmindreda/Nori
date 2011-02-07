@@ -46,16 +46,13 @@ namespace wendy
  */
 class Pass : public GL::RenderState
 {
-public:
-  /*! Constructor.
-   */
-  Pass(const String& name = "");
-  /*! Destructor.
-   */
-  const String& getName(void) const;
-private:
-  String name;
 };
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup renderer
+ */
+typedef std::vector<Pass> PassList;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -65,69 +62,60 @@ private:
 class Technique
 {
 public:
-  /*! Constructor.
+  /*! Technique type enumeration.
    */
-  Technique(const String& name = "");
+  enum Type
+  {
+    /*! This technique is intended for the forward renderer.
+     */
+    FORWARD,
+    /*! This technique is intended for the deferred renderer.
+     */
+    DEFERRED,
+    /*! This technique is intended for rendering shadow maps.
+     */
+    SHADOWMAP,
+  };
+  /*! Constructor.
+   *  @param[in] type The render type of the created technique.
+   */
+  Technique(Type type);
   /*! Creates a new %render pass in this technique.
-   *  @param[in] name The name of the %render pass, if it is a pass intended for
-   *  a custom %render stage, or the empty string to place it in the default
-   *  pass group.
    *  @return The newly created %render pass.
    *
    *  @remarks The passes are rendered in creation order.
-   *  @remarks Non-empty %render pass names must be unique.
-   *  @remarks Named %render passes will be ignored by the default %render mechanisms.
    */
-  Pass& createPass(const String& name = "");
+  Pass& createPass(void);
   /*! Removes the specified %render pass from this technique.
    */
   void destroyPass(Pass& pass);
   /*! Destroys all %render passes in this technique.
    */
   void destroyPasses(void);
-  /*! Applies the %render pass with the specified index.
-   *  @param index The index of the desired %render pass.
+  /*! @return The %render passes in this technique.
    */
-  void applyPass(unsigned int index) const;
-  /*! Searches for the pass with the specified name.
-   *  @param[in] name The name of the desired %render pass.
-   *  @return The desired %render pass, or @c NULL if no such pass exists.
+  const PassList& getPasses(void) const;
+  /*! @return The type of this technique.
    */
-  Pass* findPass(const String& name);
-  /*! Searches for the pass with the specified name.
-   *  @param[in] name The name of the desired %render pass.
-   *  @return The desired %render pass, or @c NULL if no such pass exists.
+  Type getType(void) const;
+  /*! @return The quality of this technique.
    */
-  const Pass* findPass(const String& name) const;
-  /*! @return @c true if this technique uses framebuffer blending, otherwise
-   *  @c false.
-   *  @note A blending technique is defined as a technique where the first non-named
-   *  pass is blending, as it makes little sense to overwrite a blending pass with
-   *  an opaque one.
-   */
-  bool isBlending(void) const;
-  /*! @param index The index of the desired %render pass.
-   *  @return The %render pass at the specified index.
-   */
-  Pass& getPass(unsigned int index);
-  /*! @param index The index of the desired %render pass.
-   *  @return The %render pass at the specified index.
-   */
-  const Pass& getPass(unsigned int index) const;
-  /*! @return The number of %render passes in this technique.
-   */
-  unsigned int getPassCount(void) const;
-  /*! @return The name of this technique.
-   */
-  const String& getName(void) const;
   float getQuality(void) const;
+  /*! Sets the quality of this technique.
+   *  @param[in] newQuality The quality to set.
+   */
   void setQuality(float newQuality);
 private:
-  typedef std::vector<Pass> List;
-  List passes;
-  String name;
+  Type type;
   float quality;
+  PassList passes;
 };
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup renderer
+ */
+typedef std::vector<Technique> TechniqueList;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -140,47 +128,43 @@ public:
   /*! Constructor.
    */
   Material(const ResourceInfo& info);
-  /*! Copy constructor.
+  /*! Creates a technique of the specified type in this %render material.
    */
-  Material(const Material& source);
-  /*! Destructor.
-   */
-  ~Material(void);
-  /*! Creates a technique with the specified name in this %render material.
-   */
-  Technique& createTechnique(const String& name = "");
+  Technique& createTechnique(Technique::Type type);
   /*! Destroys the specified technique.
    */
   void destroyTechnique(Technique& technique);
   /*! Destroys all techniques in this %render material.
    */
   void destroyTechniques(void);
-  /*! Searches for the technique with the specified name.
-   *  @param[in] name The name of the desired technique.
-   *  @return The desired technique, or @c NULL if no such technique exists.
+  /*! Searches for the highest quality technique of the specified type.
+   *  @param[in] type The desired technique type.
+   *  @return The desired technique, or @c NULL if no technique exists of the
+   *  specified type.
    */
-  Technique* findTechnique(const String& name);
-  /*! Assignment operator.
+  Technique* findBestTechnique(Technique::Type type);
+  /*! Searches for the highest quality technique of the specified type.
+   *  @param[in] type The desired technique type.
+   *  @return The desired technique, or @c NULL if no technique exists of the
+   *  specified type.
    */
-  Material& operator = (const Material& source);
-  /*! @return The number of techniques in this %render material.
+  const Technique* findBestTechnique(Technique::Type type) const;
+  /*! @return The techniques in this material.
    */
-  unsigned int getTechniqueCount(void) const;
-  /*! @return The technique at the specified index.
+  TechniqueList& getTechniques(void);
+  /*! @return The techniques in this material.
    */
-  Technique& getTechnique(unsigned int index);
-  /*! @return The technique at the specified index.
+  const TechniqueList& getTechniques(void) const;
+  /*! Loads a material from the specified path using the specified context, or
+   *  returns the already loaded material if it's already present in the
+   *  resource index of the context.
+   *  @param[in] context The context to use.
+   *  @param[in] path The path of the material.
+   *  @return The loaded material, or @c NULL if an error occurred.
    */
-  const Technique& getTechnique(unsigned int index) const;
-  /*! @return The active technique for this %render material, or @c NULL if no
-   *  technique is active.
-   */
-  Technique* getActiveTechnique(void) const;
   static Ref<Material> read(GL::Context& context, const Path& path);
 private:
-  typedef std::vector<Technique*> List;
-  List techniques;
-  mutable Technique* active;
+  TechniqueList techniques;
 };
 
 ///////////////////////////////////////////////////////////////////////

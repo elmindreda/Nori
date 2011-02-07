@@ -41,8 +41,9 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-GeometryPool::GeometryPool(GL::Context& initContext):
-  context(initContext)
+GeometryPool::GeometryPool(GL::Context& initContext, size_t initGranularity):
+  context(initContext),
+  granularity(initGranularity)
 {
   context.getFinishSignal().connect(*this, &GeometryPool::onContextFinish);
 }
@@ -73,10 +74,7 @@ bool GeometryPool::allocateIndices(GL::IndexRange& range,
     indexBufferPool.push_back(IndexBufferSlot());
     slot = &(indexBufferPool.back());
 
-    // Granularity of 64K
-    // TODO: Make granularity configurable or autoconfigured
-    const unsigned int grainSize = 65536;
-    const unsigned int actualCount = grainSize * ((count + grainSize - 1) / grainSize);
+    const unsigned int actualCount = granularity * ((count + granularity - 1) / granularity);
 
     slot->indexBuffer = GL::IndexBuffer::create(context,
                                                 actualCount,
@@ -127,10 +125,7 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
     vertexBufferPool.push_back(VertexBufferSlot());
     slot = &(vertexBufferPool.back());
 
-    // Granularity of 64K
-    // TODO: Make granularity configurable or autoconfigured
-    const unsigned int grainSize = 65536;
-    const unsigned int actualCount = grainSize * ((count + grainSize - 1) / grainSize);
+    const unsigned int actualCount = granularity * ((count + granularity - 1) / granularity);
 
     slot->vertexBuffer = GL::VertexBuffer::create(context,
                                                   actualCount,

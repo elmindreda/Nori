@@ -42,23 +42,12 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 Light::Light(void):
-  castsShadow(false),
   type(DIRECTIONAL),
   radius(10.f),
   color(ColorRGB::WHITE),
   position(Vec3::ZERO),
   direction(0.f, 0.f, -1.f)
 {
-}
-
-bool Light::isShadowCasting(void) const
-{
-  return castsShadow;
-}
-
-void Light::setShadowCasting(bool enabled)
-{
-  castsShadow = enabled;
 }
 
 Light::Type Light::getType(void) const
@@ -111,17 +100,12 @@ void Light::setDirection(const Vec3& newDirection)
   direction = newDirection;
 }
 
-GL::Texture* Light::getDistAttTexture(void) const
-{
-  return distAttTexture;
-}
-
-void Light::setDistAttTexture(GL::Texture* newTexture)
-{
-  distAttTexture = newTexture;
-}
-
 ///////////////////////////////////////////////////////////////////////
+
+LightState::LightState(void):
+  ambient(ColorRGB::BLACK)
+{
+}
 
 void LightState::attachLight(Light& light)
 {
@@ -152,6 +136,16 @@ unsigned int LightState::getLightCount(void) const
 Light& LightState::getLight(unsigned int index) const
 {
   return *lights[index];
+}
+
+const ColorRGB& LightState::getAmbientIntensity(void) const
+{
+  return ambient;
+}
+
+void LightState::setAmbientIntensity(const ColorRGB& newIntensity)
+{
+  ambient = newIntensity;
 }
 
 ///////////////////////////////////////////////////////////////////////

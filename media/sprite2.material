@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<material version="5">
-  <technique quality="1">
+<material version="6">
+  <technique type="forward" quality="1">
     <pass>
-      <program path="sprite2.program">
+      <program path="wendy/Solid2.program">
         <uniform name="color" value="1 0 0" />
       </program>
     </pass>

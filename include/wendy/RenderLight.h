@@ -48,8 +48,6 @@ public:
     SPOTLIGHT,
   };
   Light(void);
-  bool isShadowCasting(void) const;
-  void setShadowCasting(bool enabled);
   Type getType(void) const;
   void setType(Type newType);
   float getRadius(void) const;
@@ -60,16 +58,12 @@ public:
   void setPosition(const Vec3& newPosition);
   const Vec3& getDirection(void) const;
   void setDirection(const Vec3& newDirection);
-  GL::Texture* getDistAttTexture(void) const;
-  void setDistAttTexture(GL::Texture* newTexture);
 private:
-  bool castsShadow;
   Type type;
   float radius;
   ColorRGB color;
   Vec3 position;
   Vec3 direction;
-  GL::TextureRef distAttTexture;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -81,14 +75,18 @@ typedef Ref<Light> LightRef;
 class LightState
 {
 public:
+  LightState(void);
   void attachLight(Light& light);
   void detachLight(Light& light);
   void detachLights(void);
   unsigned int getLightCount(void) const;
   Light& getLight(unsigned int index) const;
+  const ColorRGB& getAmbientIntensity(void) const;
+  void setAmbientIntensity(const ColorRGB& newIntensity);
 private:
   typedef std::vector<LightRef> List;
   List lights;
+  ColorRGB ambient;
 };
 
 ///////////////////////////////////////////////////////////////////////

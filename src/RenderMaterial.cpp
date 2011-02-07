@@ -50,43 +50,29 @@ namespace
 Bimap<String, GL::CullMode> cullModeMap;
 Bimap<String, GL::BlendFactor> blendFactorMap;
 Bimap<String, GL::Function> functionMap;
+Bimap<String, Technique::Type> techniqueTypeMap;
 
-const unsigned int RENDER_MATERIAL_XML_VERSION = 5;
+const unsigned int RENDER_MATERIAL_XML_VERSION = 6;
 
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
-Pass::Pass(const String& initName):
-  name(initName)
-{
-}
-
-const String& Pass::getName(void) const
-{
-  return name;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-Technique::Technique(const String& initName):
-  name(initName),
+Technique::Technique(Type initType):
+  type(initType),
   quality(1.f)
 {
 }
 
-Pass& Technique::createPass(const String& name)
+Pass& Technique::createPass(void)
 {
-  if (findPass(name))
-    throw Exception("Duplicate render pass name");
-
-  passes.push_back(Pass(name));
+  passes.push_back(Pass());
   return passes.back();
 }
 
 void Technique::destroyPass(Pass& pass)
 {
-  for (List::iterator i = passes.begin();  i != passes.end();  i++)
+  for (PassList::iterator i = passes.begin();  i != passes.end();  i++)
   {
     if (&(*i) == &pass)
     {
@@ -101,71 +87,14 @@ void Technique::destroyPasses(void)
   passes.clear();
 }
 
-void Technique::applyPass(unsigned int index) const
+const PassList& Technique::getPasses(void) const
 {
-  passes[index].apply();
+  return passes;
 }
 
-Pass* Technique::findPass(const String& name)
+Technique::Type Technique::getType(void) const
 {
-  if (name.empty())
-    return NULL;
-
-  for (List::iterator i = passes.begin();  i != passes.end();  i++)
-  {
-    if (i->getName() == name)
-      return &(*i);
-  }
-
-  return NULL;
-}
-
-const Pass* Technique::findPass(const String& name) const
-{
-  if (name.empty())
-    return NULL;
-
-  for (List::const_iterator i = passes.begin();  i != passes.end();  i++)
-  {
-    if (i->getName() == name)
-      return &(*i);
-  }
-
-  return NULL;
-}
-
-bool Technique::isBlending(void) const
-{
-  for (List::const_iterator i = passes.begin();  i != passes.end();  i++)
-  {
-    if (!i->getName().empty())
-      continue;
-
-    if (i->isBlending())
-      return true;
-  }
-
-  return false;
-}
-
-Pass& Technique::getPass(unsigned int index)
-{
-  return passes[index];
-}
-
-const Pass& Technique::getPass(unsigned int index) const
-{
-  return passes[index];
-}
-
-unsigned int Technique::getPassCount(void) const
-{
-  return (unsigned int) passes.size();
-}
-
-const String& Technique::getName(void) const
-{
-  return name;
+  return type;
 }
 
 float Technique::getQuality(void) const
@@ -181,110 +110,77 @@ void Technique::setQuality(float newQuality)
 ///////////////////////////////////////////////////////////////////////
 
 Material::Material(const ResourceInfo& info):
-  Resource(info),
-  active(NULL)
+  Resource(info)
 {
 }
 
-Material::Material(const Material& source):
-  Resource(source)
+Technique& Material::createTechnique(Technique::Type type)
 {
-  operator = (source);
-}
-
-Material::~Material(void)
-{
-  destroyTechniques();
-}
-
-Technique& Material::createTechnique(const String& name)
-{
-  if (!name.empty())
-  {
-    if (findTechnique(name))
-      throw Exception("Duplicate technique name");
-  }
-
-  Technique* technique = new Technique(name);
-  techniques.push_back(technique);
-  return *technique;
+  techniques.push_back(Technique(type));
+  return techniques.back();
 }
 
 void Material::destroyTechnique(Technique& technique)
 {
-  if (active == &technique)
-    active = NULL;
-
-  List::iterator i = std::find(techniques.begin(), techniques.end(), &technique);
-  if (i != techniques.end())
-    techniques.erase(i);
+  for (TechniqueList::iterator t = techniques.begin();  t != techniques.end();  t++)
+  {
+    if (&(*t) == &technique)
+    {
+      techniques.erase(t);
+      return;
+    }
+  }
 }
 
 void Material::destroyTechniques(void)
 {
-  while (!techniques.empty())
+  techniques.clear();
+}
+
+Technique* Material::findBestTechnique(Technique::Type type)
+{
+  Technique* best = NULL;
+
+  for (TechniqueList::iterator t = techniques.begin();  t != techniques.end();  t++)
   {
-    delete techniques.back();
-    techniques.pop_back();
-  }
-}
+    if (t->getType() != type)
+      continue;
 
-Technique* Material::findTechnique(const String& name)
-{
-  if (name.empty())
-    return NULL;
+    if (best && best->getQuality() > t->getQuality())
+      continue;
 
-  for (List::iterator i = techniques.begin();  i != techniques.end();  i++)
-  {
-    if ((*i)->getName() == name)
-      return *i;
-  }
-
-  return NULL;
-}
-
-Material& Material::operator = (const Material& source)
-{
-  destroyTechniques();
-
-  for (List::const_iterator i = source.techniques.begin();  i != source.techniques.end();  i++)
-    techniques.push_back(new Technique(**i));
-
-  return *this;
-}
-
-unsigned int Material::getTechniqueCount(void) const
-{
-  return (unsigned int) techniques.size();
-}
-
-Technique& Material::getTechnique(unsigned int index)
-{
-  return *techniques[index];
-}
-
-const Technique& Material::getTechnique(unsigned int index) const
-{
-  return *techniques[index];
-}
-
-Technique* Material::getActiveTechnique(void) const
-{
-  if (!active)
-  {
-    float bestQuality = 0.f;
-
-    for (List::const_iterator i = techniques.begin();  i != techniques.end();  i++)
-    {
-      if ((*i)->getQuality() >= bestQuality)
-      {
-        active = *i;
-        bestQuality = (*i)->getQuality();
-      }
-    }
+    best = &(*t);
   }
 
-  return active;
+  return best;
+}
+
+const Technique* Material::findBestTechnique(Technique::Type type) const
+{
+  const Technique* best = NULL;
+
+  for (TechniqueList::const_iterator t = techniques.begin();  t != techniques.end();  t++)
+  {
+    if (t->getType() != type)
+      continue;
+
+    if (best && best->getQuality() > t->getQuality())
+      continue;
+
+    best = &(*t);
+  }
+
+  return best;
+}
+
+TechniqueList& Material::getTechniques(void)
+{
+  return techniques;
+}
+
+const TechniqueList& Material::getTechniques(void) const
+{
+  return techniques;
 }
 
 Ref<Material> Material::read(GL::Context& context, const Path& path)
@@ -333,6 +229,13 @@ MaterialReader::MaterialReader(GL::Context& initContext):
     functionMap["greater"] = GL::ALLOW_GREATER;
     functionMap["greater or equal"] = GL::ALLOW_GREATER_EQUAL;
   }
+
+  if (techniqueTypeMap.isEmpty())
+  {
+    techniqueTypeMap["forward"] = Technique::FORWARD;
+    techniqueTypeMap["deferred"] = Technique::DEFERRED;
+    techniqueTypeMap["shadowmap"] = Technique::SHADOWMAP;
+  }
 }
 
 Ref<Material> MaterialReader::read(const Path& path)
@@ -354,7 +257,7 @@ Ref<Material> MaterialReader::read(const Path& path)
     return NULL;
   }
 
-  if (!material || !material->getTechniqueCount())
+  if (!material)
   {
     logError("No valid techniques found in material \'%s\'",
              info.path.asString().c_str());
@@ -379,7 +282,8 @@ bool MaterialReader::onBeginElement(const String& name)
     const unsigned int version = readInteger("version");
     if (version != RENDER_MATERIAL_XML_VERSION)
     {
-      logError("Material XML format version mismatch");
+      logError("Material XML format version mismatch in \'%s\'",
+               info.path.asString().c_str());
       return false;
     }
 
@@ -391,7 +295,14 @@ bool MaterialReader::onBeginElement(const String& name)
   {
     if (name == "technique")
     {
-      Technique& technique = material->createTechnique(readString("name"));
+      String typeName = readString("type");
+      if (!techniqueTypeMap.hasKey(typeName))
+      {
+        logError("Invalid technique type \'%s\'", typeName.c_str());
+        return false;
+      }
+
+      Technique& technique = material->createTechnique(techniqueTypeMap[typeName]);
       technique.setQuality(readFloat("quality"));
       currentTechnique = &technique;
       return true;
@@ -401,7 +312,7 @@ bool MaterialReader::onBeginElement(const String& name)
     {
       if (name == "pass")
       {
-        Pass& pass = currentTechnique->createPass(readString("name"));
+        Pass& pass = currentTechnique->createPass();
         currentPass = &pass;
         return true;
       }
@@ -501,7 +412,7 @@ bool MaterialReader::onBeginElement(const String& name)
           {
             logWarning("Failed to load shader program \'%s\'; skipping technique %u in material \'%s\'",
                        programPath.asString().c_str(),
-                       material->getTechniqueCount(),
+                       material->getTechniques().size(),
                        material->getPath().asString().c_str());
 
             material->destroyTechnique(*currentTechnique);
@@ -652,66 +563,63 @@ bool MaterialWriter::write(const Path& path, const Material& material)
     beginElement("material");
     addAttribute("version", (int) RENDER_MATERIAL_XML_VERSION);
 
-    for (unsigned int i = 0;  i < material.getTechniqueCount();  i++)
+    const TechniqueList& techniques = material.getTechniques();
+
+    for (TechniqueList::const_iterator t = techniques.begin();  t != techniques.end();  t++)
     {
-      const Technique& technique = material.getTechnique(i);
-
       beginElement("technique");
-      addAttribute("name", technique.getName());
-      addAttribute("quality", technique.getQuality());
+      addAttribute("type", techniqueTypeMap[t->getType()]);
+      addAttribute("quality", t->getQuality());
 
-      for (unsigned int i = 0;  i < technique.getPassCount();  i++)
+      const PassList& passes = t->getPasses();
+
+      for (PassList::const_iterator p = passes.begin();  p != passes.end();  p++)
       {
-        const Pass& pass = technique.getPass(i);
-
         beginElement("pass");
 
-        if (!pass.getName().empty())
-          addAttribute("name", pass.getName());
-
-        if (pass.getSrcFactor() != defaults.getSrcFactor() ||
-            pass.getDstFactor() != defaults.getDstFactor())
+        if (p->getSrcFactor() != defaults.getSrcFactor() ||
+            p->getDstFactor() != defaults.getDstFactor())
         {
           beginElement("blending");
-          addAttribute("src", blendFactorMap[pass.getSrcFactor()]);
-          addAttribute("dst", blendFactorMap[pass.getDstFactor()]);
+          addAttribute("src", blendFactorMap[p->getSrcFactor()]);
+          addAttribute("dst", blendFactorMap[p->getDstFactor()]);
           endElement();
         }
 
-        if (pass.isColorWriting() != defaults.isColorWriting())
+        if (p->isColorWriting() != defaults.isColorWriting())
         {
           beginElement("color");
-          addAttribute("writing", pass.isColorWriting());
+          addAttribute("writing", p->isColorWriting());
           endElement();
         }
 
-        if (pass.isDepthTesting() != defaults.isDepthTesting() ||
-            pass.isDepthWriting() != defaults.isDepthWriting())
+        if (p->isDepthTesting() != defaults.isDepthTesting() ||
+            p->isDepthWriting() != defaults.isDepthWriting())
         {
           beginElement("depth");
-          addAttribute("testing", pass.isDepthTesting());
-          addAttribute("writing", pass.isDepthWriting());
-          addAttribute("function", functionMap[pass.getDepthFunction()]);
+          addAttribute("testing", p->isDepthTesting());
+          addAttribute("writing", p->isDepthWriting());
+          addAttribute("function", functionMap[p->getDepthFunction()]);
           endElement();
         }
 
-        if (pass.isWireframe() != defaults.isWireframe() ||
-            pass.getCullMode() != defaults.getCullMode())
+        if (p->isWireframe() != defaults.isWireframe() ||
+            p->getCullMode() != defaults.getCullMode())
         {
           beginElement("polygon");
-          addAttribute("wireframe", pass.isWireframe());
-          addAttribute("cull", cullModeMap[pass.getCullMode()]);
+          addAttribute("wireframe", p->isWireframe());
+          addAttribute("cull", cullModeMap[p->getCullMode()]);
           endElement();
         }
 
-        if (GL::Program* program = pass.getProgram())
+        if (GL::Program* program = p->getProgram())
         {
           beginElement("program");
           addAttribute("path", program->getPath().asString());
 
-          for (unsigned int i = 0;  i < pass.getSamplerCount();  i++)
+          for (unsigned int i = 0;  i < p->getSamplerCount();  i++)
           {
-            const GL::SamplerState& state = pass.getSamplerState(i);
+            const GL::SamplerState& state = p->getSamplerState(i);
 
             Ref<GL::Texture> texture = state.getTexture();
             if (!texture)
@@ -723,9 +631,9 @@ bool MaterialWriter::write(const Path& path, const Material& material)
             endElement();
           }
 
-          for (unsigned int i = 0;  i < pass.getUniformCount();  i++)
+          for (unsigned int i = 0;  i < p->getUniformCount();  i++)
           {
-            const GL::UniformState& state = pass.getUniformState(i);
+            const GL::UniformState& state = p->getUniformState(i);
 
             beginElement("uniform");
             addAttribute("name", state.getUniform().getName());

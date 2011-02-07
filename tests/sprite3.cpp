@@ -18,8 +18,8 @@ private:
   ResourceIndex index;
   Ptr<render::GeometryPool> pool;
   Ref<render::Material> material;
-  render::Camera camera;
-  Timer timer;
+  Ref<render::Camera> camera;
+  Ptr<forward::Renderer> renderer;
 };
 
 Test::~Test(void)
@@ -46,6 +46,13 @@ bool Test::init(void)
 
   pool = new render::GeometryPool(*context);
 
+  renderer = forward::Renderer::create(*pool, forward::Config());
+  if (!renderer)
+  {
+    logError("Failed to create forward renderer");
+    return false;
+  }
+
   material = render::Material::read(*context, Path("sprite3.material"));
   if (!material)
   {
@@ -53,13 +60,14 @@ bool Test::init(void)
     return false;
   }
 
-  timer.start();
+  camera = new render::Camera();
+
   return true;
 }
 
 void Test::run(void)
 {
-  render::Queue queue(*pool, camera);
+  render::Scene scene(*pool);
   GL::Context& context = pool->getContext();
 
   render::Sprite3 sprite;
@@ -70,6 +78,9 @@ void Test::run(void)
   Transform3 transform;
   transform.position.z = -3.f;
 
+  Timer timer;
+  timer.start();
+
   do
   {
     context.clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
@@ -77,9 +88,12 @@ void Test::run(void)
 
     sprite.angle = timer.getTime();
 
-    sprite.enqueue(queue, transform);
-    queue.render();
-    queue.removeOperations();
+    sprite.enqueue(scene, *camera, transform);
+
+    renderer->render(scene, *camera);
+
+    scene.removeOperations();
+    scene.detachLights();
   }
   while (context.update());
 }

@@ -25,7 +25,7 @@ if(WENDY_INCLUDE_RENDERER)
        RenderCamera.cpp RenderFont.cpp RenderLight.cpp RenderModel.cpp
        RenderMaterial.cpp RenderPool.cpp RenderQueue.cpp RenderSprite.cpp
 
-       Deferred.cpp)
+       Deferred.cpp Forward.cpp)
 endif(WENDY_INCLUDE_RENDERER)
 
 if(WENDY_INCLUDE_SCENE_GRAPH)

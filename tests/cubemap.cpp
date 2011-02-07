@@ -17,6 +17,7 @@ private:
   input::MayaCamera controller;
   Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
+  Ptr<forward::Renderer> renderer;
   scene::Graph graph;
   scene::CameraNode* cameraNode;
 };
@@ -48,6 +49,13 @@ bool Test::init(void)
   input::Context::getSingleton()->setFocus(&controller);
 
   pool = new render::GeometryPool(*context);
+
+  renderer = forward::Renderer::create(*pool, forward::Config());
+  if (!renderer)
+  {
+    logError("Failed to create forward renderer");
+    return false;
+  }
 
   Path path("cube_cubemapped.model");
 
@@ -85,7 +93,7 @@ bool Test::init(void)
 
 void Test::run(void)
 {
-  render::Queue queue(*pool, *camera);
+  render::Scene scene(*pool, render::Technique::FORWARD);
   GL::Context& context = pool->getContext();
 
   do
@@ -96,9 +104,11 @@ void Test::run(void)
     context.clearDepthBuffer();
     context.clearColorBuffer(ColorRGBA::BLACK);
 
-    graph.enqueue(queue);
-    queue.render();
-    queue.removeOperations();
+    graph.enqueue(scene, *camera);
+    renderer->render(scene, *camera);
+
+    scene.removeOperations();
+    scene.detachLights();
   }
   while (context.update());
 }

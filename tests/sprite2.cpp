@@ -18,7 +18,6 @@ private:
   ResourceIndex index;
   Ptr<render::GeometryPool> pool;
   Ref<render::Material> material;
-  Timer timer;
 };
 
 Test::~Test(void)
@@ -52,13 +51,15 @@ bool Test::init(void)
     return false;
   }
 
-  timer.start();
   return true;
 }
 
 void Test::run(void)
 {
   GL::Context& context = pool->getContext();
+
+  Timer timer;
+  timer.start();
 
   do
   {

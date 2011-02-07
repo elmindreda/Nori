@@ -66,72 +66,33 @@ Config::Config(unsigned int initWidth, unsigned int initHeight):
 
 ///////////////////////////////////////////////////////////////////////
 
-void Renderer::render(const render::Queue& queue)
+void Renderer::render(const render::Scene& scene, const render::Camera& camera)
 {
-  GL::Canvas& previousCanvas = pool.getContext().getCurrentCanvas();
+  GL::Context& context = pool.getContext();
 
-  pool.getContext().setCurrentCanvas(*canvas);
-  pool.getContext().clearDepthBuffer();
-  pool.getContext().clearColorBuffer(ColorRGBA::BLACK);
+  GL::Canvas& previousCanvas = context.getCurrentCanvas();
 
-  queue.render();
+  context.setCurrentCanvas(*canvas);
+  context.clearDepthBuffer();
+  context.clearColorBuffer(ColorRGBA::BLACK);
 
-  pool.getContext().setCurrentCanvas(previousCanvas);
-  pool.getContext().setOrthoProjectionMatrix(1.f, 1.f);
+  context.setViewMatrix(camera.getViewTransform());
+  context.setPerspectiveProjectionMatrix(camera.getFOV(),
+                                         camera.getAspectRatio(),
+                                         camera.getMinDepth(),
+                                         camera.getMaxDepth());
 
-  const render::LightState& lights = queue.getLights();
-  for (unsigned int i = 0;  i < lights.getLightCount();  i++)
-    renderLight(queue.getCamera(), lights.getLight(i));
-}
+  scene.getOpaqueQueue().renderOperations();
 
-void Renderer::renderAmbientLight(const render::Camera& camera, const ColorRGB& color)
-{
-  ambientLightPass.getUniformState("light.color").setValue(color);
-  ambientLightPass.apply();
+  context.setCurrentCanvas(previousCanvas);
+  context.setOrthoProjectionMatrix(1.f, 1.f);
 
-  renderLightQuad(camera);
-}
+  ColorRGB ambient = scene.getAmbientIntensity();
+  if (ambient.r > 0.f || ambient.g > 0.f || ambient.b > 0.f)
+    renderAmbientLight(camera, ambient);
 
-void Renderer::renderLight(const render::Camera& camera, const render::Light& light)
-{
-  const float nearZ = camera.getMinDepth();
-  const float nearOverFarZminusOne = nearZ / camera.getMaxDepth() - 1.f;
-
-  if (light.getType() == render::Light::POINT)
-  {
-    pointLightPass.getUniformState("nearZ").setValue(nearZ);
-    pointLightPass.getUniformState("nearOverFarZminusOne").setValue(nearOverFarZminusOne);
-
-    Vec3 position = light.getPosition();
-    camera.getViewTransform().transformVector(position);
-    pointLightPass.getUniformState("light.position").setValue(position);
-
-    pointLightPass.getUniformState("light.color").setValue(light.getColor());
-    pointLightPass.getUniformState("light.radius").setValue(light.getRadius());
-    pointLightPass.getSamplerState("light.distAttTexture").setTexture(light.getDistAttTexture());
-
-    pointLightPass.apply();
-  }
-  else if (light.getType() == render::Light::DIRECTIONAL)
-  {
-    dirLightPass.getUniformState("nearZ").setValue(nearZ);
-    dirLightPass.getUniformState("nearOverFarZminusOne").setValue(nearOverFarZminusOne);
-
-    Vec3 direction = light.getDirection();
-    camera.getViewTransform().rotation.rotateVector(direction);
-    dirLightPass.getUniformState("light.direction").setValue(direction);
-
-    dirLightPass.getUniformState("light.color").setValue(light.getColor());
-
-    dirLightPass.apply();
-  }
-  else
-  {
-    logError("Unsupported light type %u", light.getType());
-    return;
-  }
-
-  renderLightQuad(camera);
+  for (unsigned int i = 0;  i < scene.getLightCount();  i++)
+    renderLight(camera, scene.getLight(i));
 }
 
 GL::Texture& Renderer::getColorTexture(void) const
@@ -165,14 +126,15 @@ Renderer::Renderer(render::GeometryPool& initPool):
 
 bool Renderer::init(const Config& config)
 {
+  GL::Context& context = pool.getContext();
+  ResourceIndex& index = context.getIndex();
+
   // Create G-buffer color/emission texture
   {
-    Image image(pool.getContext().getIndex(),
-                PixelFormat::RGBA8,
-                config.width, config.height);
+    Image image(index, PixelFormat::RGBA8, config.width, config.height);
 
-    colorTexture = GL::Texture::create(pool.getContext().getIndex(),
-                                       pool.getContext(),
+    colorTexture = GL::Texture::create(index,
+                                       context,
                                        image,
                                        GL::Texture::RECTANGULAR);
     if (!colorTexture)
@@ -186,12 +148,10 @@ bool Renderer::init(const Config& config)
 
   // Create G-buffer normal/specularity texture
   {
-    Image image(pool.getContext().getIndex(),
-                PixelFormat::RGBA8,
-                config.width, config.height);
+    Image image(index, PixelFormat::RGBA8, config.width, config.height);
 
-    normalTexture = GL::Texture::create(pool.getContext().getIndex(),
-                                        pool.getContext(),
+    normalTexture = GL::Texture::create(index,
+                                        context,
                                         image,
                                         GL::Texture::RECTANGULAR);
     if (!normalTexture)
@@ -205,12 +165,10 @@ bool Renderer::init(const Config& config)
 
   // Create G-buffer depth texture
   {
-    Image image(pool.getContext().getIndex(),
-                PixelFormat::DEPTH32,
-                config.width, config.height);
+    Image image(index, PixelFormat::DEPTH32, config.width, config.height);
 
-    depthTexture = GL::Texture::create(pool.getContext().getIndex(),
-                                       pool.getContext(),
+    depthTexture = GL::Texture::create(index,
+                                       context,
                                        image,
                                        GL::Texture::RECTANGULAR);
     if (!depthTexture)
@@ -224,7 +182,7 @@ bool Renderer::init(const Config& config)
 
   // Set up G-buffer canvas
   {
-    canvas = GL::ImageCanvas::create(pool.getContext(), config.width, config.height);
+    canvas = GL::ImageCanvas::create(context, config.width, config.height);
     if (!canvas)
     {
       logError("Failed to create image canvas for deferred renderer");
@@ -252,10 +210,13 @@ bool Renderer::init(const Config& config)
 
   // Set up ambient light pass
   {
-    Ref<GL::Program> program = GL::Program::read(pool.getContext(), Path("wendy/DeferredAmbientLight.program"));
+    Path path("wendy/DeferredAmbientLight.program");
+
+    Ref<GL::Program> program = GL::Program::read(context, path);
     if (!program)
     {
-      logError("Failed to read deferred renderer ambient light program");
+      logError("Failed to read deferred ambient light program \'%s\'",
+               path.asString().c_str());
       return false;
     }
 
@@ -268,7 +229,7 @@ bool Renderer::init(const Config& config)
 
     if (!interface.matches(*program, true))
     {
-      logError("\'%s\' does not match the required interface",
+      logError("Deferred ambient light program \'%s\' does not match the required interface",
                program->getPath().asString().c_str());
       return false;
     }
@@ -282,10 +243,13 @@ bool Renderer::init(const Config& config)
 
   // Set up directional light pass
   {
-    Ref<GL::Program> program = GL::Program::read(pool.getContext(), Path("wendy/DeferredDirLight.program"));
+    Path path("wendy/DeferredDirLight.program");
+
+    Ref<GL::Program> program = GL::Program::read(context, path);
     if (!program)
     {
-      logError("Failed to read deferred renderer directional light program");
+      logError("Failed to read deferred directional light program \'%s\'",
+               path.asString().c_str());
       return false;
     }
 
@@ -303,7 +267,7 @@ bool Renderer::init(const Config& config)
 
     if (!interface.matches(*program, true))
     {
-      logError("\'%s\' does not match the required interface",
+      logError("Deferred directional light program \'%s\' does not match the required interface",
                program->getPath().asString().c_str());
       return false;
     }
@@ -319,10 +283,23 @@ bool Renderer::init(const Config& config)
 
   // Set up point light pass
   {
-    Ref<GL::Program> program = GL::Program::read(pool.getContext(), Path("wendy/DeferredPointLight.program"));
+    Path path("wendy/DeferredPointLight.program");
+
+    Ref<GL::Program> program = GL::Program::read(context, path);
     if (!program)
     {
-      logError("Failed to read deferred renderer point light program");
+      logError("Failed to read deferred point light program \'%s\'",
+               path.asString().c_str());
+      return false;
+    }
+
+    path = "wendy/DistanceAttenuation.texture";
+
+    Ref<GL::Texture> texture = GL::Texture::read(context, path);
+    if (!texture)
+    {
+      logError("Failed to read attenuation texture \'%s\'",
+               path.asString().c_str());
       return false;
     }
 
@@ -343,7 +320,7 @@ bool Renderer::init(const Config& config)
 
     if (!interface.matches(*program, true))
     {
-      logError("\'%s\' does not match the required interface",
+      logError("Deferred point light program \'%s\' does not match the required interface",
                program->getPath().asString().c_str());
       return false;
     }
@@ -355,6 +332,7 @@ bool Renderer::init(const Config& config)
     pointLightPass.getSamplerState("colorTexture").setTexture(colorTexture);
     pointLightPass.getSamplerState("normalTexture").setTexture(normalTexture);
     pointLightPass.getSamplerState("depthTexture").setTexture(depthTexture);
+    pointLightPass.getSamplerState("light.distAttTexture").setTexture(texture);
   }
 
   return true;
@@ -395,6 +373,55 @@ void Renderer::renderLightQuad(const render::Camera& camera)
   range.copyFrom(vertices);
 
   pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+}
+
+void Renderer::renderAmbientLight(const render::Camera& camera, const ColorRGB& color)
+{
+  ambientLightPass.getUniformState("light.color").setValue(color);
+  ambientLightPass.apply();
+
+  renderLightQuad(camera);
+}
+
+void Renderer::renderLight(const render::Camera& camera, const render::Light& light)
+{
+  const float nearZ = camera.getMinDepth();
+  const float nearOverFarZminusOne = nearZ / camera.getMaxDepth() - 1.f;
+
+  if (light.getType() == render::Light::POINT)
+  {
+    pointLightPass.getUniformState("nearZ").setValue(nearZ);
+    pointLightPass.getUniformState("nearOverFarZminusOne").setValue(nearOverFarZminusOne);
+
+    Vec3 position = light.getPosition();
+    camera.getViewTransform().transformVector(position);
+    pointLightPass.getUniformState("light.position").setValue(position);
+
+    pointLightPass.getUniformState("light.color").setValue(light.getColor());
+    pointLightPass.getUniformState("light.radius").setValue(light.getRadius());
+
+    pointLightPass.apply();
+  }
+  else if (light.getType() == render::Light::DIRECTIONAL)
+  {
+    dirLightPass.getUniformState("nearZ").setValue(nearZ);
+    dirLightPass.getUniformState("nearOverFarZminusOne").setValue(nearOverFarZminusOne);
+
+    Vec3 direction = light.getDirection();
+    camera.getViewTransform().rotation.rotateVector(direction);
+    dirLightPass.getUniformState("light.direction").setValue(direction);
+
+    dirLightPass.getUniformState("light.color").setValue(light.getColor());
+
+    dirLightPass.apply();
+  }
+  else
+  {
+    logError("Unsupported light type %u", light.getType());
+    return;
+  }
+
+  renderLightQuad(camera);
 }
 
 ///////////////////////////////////////////////////////////////////////

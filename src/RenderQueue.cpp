@@ -25,7 +25,12 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/RenderCamera.h>
+#include <wendy/Core.h>
+#include <wendy/Vector.h>
+#include <wendy/Matrix.h>
+#include <wendy/Quaternion.h>
+#include <wendy/Transform.h>
+
 #include <wendy/RenderPool.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
@@ -45,190 +50,190 @@ namespace wendy
 namespace
 {
 
-/* Comparator for opaque render operations.
- *
- * Sorts first by material and then front to back.
- */
-struct OpaqueOperationComparator
+struct SortKeyComparator
 {
-  inline bool operator () (const Operation* x, const Operation* y)
+  inline bool operator () (SortKey first, SortKey second)
   {
-    if (x->hash != y->hash)
-      return x->hash < y->hash;
-
-    return x->distance < y->distance;
+    return first.value < second.value;
   }
 };
 
-/* Comparator for blended render operations.
- *
- * Sorts back to front.
- */
-struct BlendedOperationComparator
+inline float clamp(float x, float min, float max)
 {
-  inline bool operator () (const Operation* x, const Operation* y)
-  {
-    return x->distance > y->distance;
-  }
-};
+  return fmaxf(fminf(x, max), min);
+}
 
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
+SortKey SortKey::makeOpaqueKey(uint8_t layer, uint16_t state, float depth)
+{
+  SortKey key;
+  key.layer = layer;
+  key.state = state;
+  key.depth = ((1 << 24) - 1) * clamp(depth, 0.f, 1.f);
+
+  return key;
+}
+
+SortKey SortKey::makeBlendedKey(uint8_t layer, float depth)
+{
+  SortKey key;
+  key.layer = layer;
+  key.state = 0;
+  key.depth = ((1 << 24) - 1) * (1.f - clamp(depth, 0.f, 1.f));
+
+  return key;
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Operation::Operation(void):
-  technique(NULL),
-  distance(0.f)
+  state(NULL)
 {
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-Queue::Queue(GeometryPool& initPool,
-             const Camera& initCamera,
-             Light* initLight):
-  pool(initPool),
-  camera(initCamera),
-  light(initLight),
-  phase(COLLECT_GEOMETRY),
-  sortedOpaque(false),
-  sortedBlended(false)
+Queue::Queue(void):
+  sorted(false)
 {
 }
 
-void Queue::attachLight(Light& light)
+void Queue::addOperation(const Operation& operation, SortKey key)
 {
-  lights.attachLight(light);
-}
+  key.index = (uint16_t) operations.size();
+  keys.push_back(key);
 
-void Queue::detachLights(void)
-{
-  lights.detachLights();
-}
+  operations.push_back(operation);
 
-void Queue::addOperation(const Operation& operation)
-{
-  if (operation.technique->isBlending())
-  {
-    blendedOps.push_back(operation);
-    blendedOps.back().hash = hashString(operation.technique->getName());
-    sortedBlended = false;
-  }
-  else
-  {
-    opaqueOps.push_back(operation);
-    opaqueOps.back().hash = hashString(operation.technique->getName());
-    sortedOpaque = false;
-  }
+  sorted = false;
 }
 
 void Queue::removeOperations(void)
 {
-  opaqueOps.clear();
-  sortedOpaque = false;
-
-  blendedOps.clear();
-  sortedBlended = false;
+  operations.clear();
+  keys.clear();
+  sorted = true;
 }
 
-void Queue::render(const String& passName) const
+void Queue::renderOperations(void) const
 {
-  camera.apply(pool.getContext());
+  GL::Context* context = GL::Context::getSingleton();
 
-  renderOperations(getOpaqueOperations(), passName);
-  renderOperations(getBlendedOperations(), passName);
+  const SortKeyList& keys = getSortKeys();
+
+  for (SortKeyList::const_iterator k = keys.begin();  k != keys.end();  k++)
+  {
+    const Operation& op = operations[k->index];
+
+    context->setModelMatrix(op.transform);
+    op.state->apply();
+    context->render(op.range);
+  }
 }
 
-Queue::Phase Queue::getPhase(void) const
+const OperationList& Queue::getOperations(void) const
 {
-  return phase;
+  return operations;
 }
 
-void Queue::setPhase(Phase newPhase)
+const SortKeyList& Queue::getSortKeys(void) const
 {
-  phase = newPhase;
+  if (!sorted)
+  {
+    std::sort(keys.begin(), keys.end(), SortKeyComparator());
+    sorted = true;
+  }
+
+  return keys;
 }
 
-GeometryPool& Queue::getGeometryPool(void) const
+///////////////////////////////////////////////////////////////////////
+
+Scene::Scene(GeometryPool& initPool, Technique::Type initType):
+  pool(initPool),
+  type(initType)
+{
+}
+
+void Scene::addOperation(const Operation& operation, float depth, uint16_t layer)
+{
+  if (operation.state->isBlending())
+  {
+    SortKey key = SortKey::makeBlendedKey(layer, depth);
+    blendedQueue.addOperation(operation, key);
+  }
+  else
+  {
+    SortKey key = SortKey::makeOpaqueKey(layer, operation.state->getID(), depth);
+    opaqueQueue.addOperation(operation, key);
+  }
+}
+
+void Scene::createOperations(const Transform3& transform,
+                             const GL::PrimitiveRange& range,
+                             const Material& material,
+                             float depth)
+{
+  const Technique* technique = material.findBestTechnique(type);
+  if (!technique)
+    return;
+
+  Operation operation;
+  operation.range = range;
+  operation.transform = transform;
+
+  const PassList& passes = technique->getPasses();
+  uint16_t layer = 0;
+
+  for (PassList::const_iterator p = passes.begin();  p != passes.end();  p++)
+  {
+    operation.state = &(*p);
+    addOperation(operation, depth, layer++);
+  }
+}
+
+void Scene::removeOperations(void)
+{
+  opaqueQueue.removeOperations();
+  blendedQueue.removeOperations();
+}
+
+GeometryPool& Scene::getGeometryPool(void) const
 {
   return pool;
 }
 
-const Camera& Queue::getCamera(void) const
+Queue& Scene::getOpaqueQueue(void)
 {
-  return camera;
+  return opaqueQueue;
 }
 
-Light* Queue::getActiveLight(void) const
+const Queue& Scene::getOpaqueQueue(void) const
 {
-  return light;
+  return opaqueQueue;
 }
 
-const OperationList& Queue::getOpaqueOperations(void) const
+Queue& Scene::getBlendedQueue(void)
 {
-  if (!sortedOpaque)
-  {
-    const List& ops = opaqueOps;
-
-    sortedOpaqueOps.clear();
-    sortedOpaqueOps.reserve(opaqueOps.size());
-    for (List::const_iterator o = ops.begin();  o != ops.end();  o++)
-      sortedOpaqueOps.push_back(&(*o));
-
-    OpaqueOperationComparator comparator;
-    std::sort(sortedOpaqueOps.begin(), sortedOpaqueOps.end(), comparator);
-
-    sortedOpaque = true;
-  }
-
-  return sortedOpaqueOps;
+  return blendedQueue;
 }
 
-const OperationList& Queue::getBlendedOperations(void) const
+const Queue& Scene::getBlendedQueue(void) const
 {
-  if (!sortedBlended)
-  {
-    const List& ops = blendedOps;
-
-    sortedBlendedOps.clear();
-    sortedBlendedOps.reserve(blendedOps.size());
-    for (List::const_iterator o = ops.begin();  o != ops.end();  o++)
-      sortedBlendedOps.push_back(&(*o));
-
-    BlendedOperationComparator comparator;
-    std::sort(sortedBlendedOps.begin(), sortedBlendedOps.end(), comparator);
-
-    sortedBlended = true;
-  }
-
-  return sortedBlendedOps;
+  return blendedQueue;
 }
 
-const LightState& Queue::getLights(void) const
+Technique::Type Scene::getTechniqueType(void) const
 {
-  return lights;
+  return type;
 }
 
-void Queue::renderOperations(const OperationList& ops,
-                             const String& passName) const
+void Scene::setTechniqueType(Technique::Type newType)
 {
-  for (OperationList::const_iterator o = ops.begin();  o != ops.end();  o++)
-  {
-    const Operation& op = **o;
-
-    for (unsigned int i = 0;  i < op.technique->getPassCount();  i++)
-    {
-      const Pass& pass = op.technique->getPass(i);
-      if (pass.getName() != passName)
-	continue;
-
-      pool.getContext().setModelMatrix(op.transform);
-
-      pass.apply();
-
-      pool.getContext().render(op.range);
-    }
-  }
+  type = newType;
 }
 
 ///////////////////////////////////////////////////////////////////////

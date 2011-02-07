@@ -39,6 +39,15 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+class GlobalUniform;
+class GlobalSampler;
+
+///////////////////////////////////////////////////////////////////////
+
+typedef uint16_t StateID;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Cull mode enumeration.
  *  @ingroup opengl
  */
@@ -245,6 +254,12 @@ private:
 class ProgramState
 {
 public:
+  /*! Constructor.
+   */
+  ProgramState(void);
+  /*! Destructor.
+   */
+  ~ProgramState(void);
   /*! Applies this shader program state to the current context.
    */
   void apply(void) const;
@@ -286,6 +301,7 @@ public:
    *  default shader program.
    */
   void setProgram(Program* newProgram);
+  StateID getID(void) const;
   void setDefaults(void);
 private:
   void destroyProgramState(void);
@@ -293,11 +309,15 @@ private:
   typedef std::vector<SamplerState> SamplerList;
   typedef std::vector<GlobalUniformState> GlobalUniformList;
   typedef std::vector<GlobalSamplerState> GlobalSamplerList;
+  typedef std::deque<StateID> IDQueue;
   Ref<Program> program;
   UniformList uniforms;
   SamplerList samplers;
   GlobalUniformList globalUniforms;
   GlobalSamplerList globalSamplers;
+  StateID ID;
+  static IDQueue usedIDs;
+  static StateID nextID;
 };
 
 ///////////////////////////////////////////////////////////////////////

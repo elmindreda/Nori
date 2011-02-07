@@ -237,8 +237,10 @@ void Node::update(void)
   std::for_each(children.begin(), children.end(), std::mem_fun(&Node::update));
 }
 
-void Node::enqueue(render::Queue& queue) const
+void Node::enqueue(render::Scene& scene, const render::Camera& camera) const
 {
+  const Frustum& frustum = camera.getFrustum();
+
   const List& children = getChildren();
 
   for (List::const_iterator i = children.begin();  i != children.end();  i++)
@@ -253,10 +255,8 @@ void Node::enqueue(render::Queue& queue) const
     Sphere worldBounds = node.getTotalBounds();
     worldBounds.transformBy(node.getWorldTransform());
 
-    const Frustum& frustum = queue.getCamera().getFrustum();
-
     if (frustum.intersects(worldBounds))
-      node.enqueue(queue);
+      node.enqueue(scene, camera);
   }
 }
 
@@ -319,20 +319,13 @@ void Graph::update(void)
   std::for_each(roots.begin(), roots.end(), std::mem_fun(&Node::update));
 }
 
-void Graph::enqueue(render::Queue& queue) const
+void Graph::enqueue(render::Scene& scene, const render::Camera& camera) const
 {
   Node::List nodes;
-  query(queue.getCamera().getFrustum(), nodes);
-
-  queue.setPhase(render::Queue::COLLECT_LIGHTS);
+  query(camera.getFrustum(), nodes);
 
   for (Node::List::const_iterator i = nodes.begin();  i != nodes.end();  i++)
-    (*i)->enqueue(queue);
-
-  queue.setPhase(render::Queue::COLLECT_GEOMETRY);
-
-  for (Node::List::const_iterator i = nodes.begin();  i != nodes.end();  i++)
-    (*i)->enqueue(queue);
+    (*i)->enqueue(scene, camera);
 }
 
 void Graph::query(const Sphere& bounds, Node::List& nodes) const
@@ -430,15 +423,12 @@ void LightNode::update(void)
     setLocalBounds(Sphere(Vec3::ZERO, 0.f));
 }
 
-void LightNode::enqueue(render::Queue& queue) const
+void LightNode::enqueue(render::Scene& scene, const render::Camera& camera) const
 {
-  Node::enqueue(queue);
+  Node::enqueue(scene, camera);
 
   if (light)
-  {
-    if (queue.getPhase() == render::Queue::COLLECT_LIGHTS)
-      queue.attachLight(*light);
-  }
+    scene.attachLight(*light);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -470,18 +460,12 @@ void ModelNode::setModel(render::Model* newModel)
   setLocalBounds(model->getBounds());
 }
 
-void ModelNode::enqueue(render::Queue& queue) const
+void ModelNode::enqueue(render::Scene& scene, const render::Camera& camera) const
 {
-  Node::enqueue(queue);
+  Node::enqueue(scene, camera);
 
   if (model)
-  {
-    if ((queue.getPhase() == render::Queue::COLLECT_GEOMETRY) ||
-        (queue.getPhase() == render::Queue::COLLECT_SHADOW_CASTERS && shadowCaster))
-    {
-      model->enqueue(queue, getWorldTransform());
-    }
-  }
+    model->enqueue(scene, camera, getWorldTransform());
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -541,17 +525,14 @@ void SpriteNode::setSpriteSize(const Vec2& newSize)
   setLocalBounds(Sphere(Vec3::ZERO, (newSize / 2.f).length()));
 }
 
-void SpriteNode::enqueue(render::Queue& queue) const
+void SpriteNode::enqueue(render::Scene& scene, const render::Camera& camera) const
 {
-  Node::enqueue(queue);
+  Node::enqueue(scene, camera);
 
-  if (queue.getPhase() == render::Queue::COLLECT_GEOMETRY)
-  {
-    render::Sprite3 sprite;
-    sprite.size = spriteSize;
-    sprite.material = material;
-    sprite.enqueue(queue, getWorldTransform());
-  }
+  render::Sprite3 sprite;
+  sprite.size = spriteSize;
+  sprite.material = material;
+  sprite.enqueue(scene, camera, getWorldTransform());
 }
 
 ///////////////////////////////////////////////////////////////////////

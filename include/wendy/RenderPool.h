@@ -47,13 +47,18 @@ namespace wendy
 class GeometryPool : public Trackable
 {
 public:
-  GeometryPool(GL::Context& context);
+  /*! Constructor.
+   *  @param[in] context The OpenGL context to be used by this pool.
+   *  @param[in] granularity The allocation granularity of this pool.
+   */
+  GeometryPool(GL::Context& context, size_t granularity = 1024);
   /*! Allocates a range of temporary indices of the specified type.
    *  @param[out] range The newly allocated index range.
    *  @param[in] count The number of indices to allocate.
    *  @param[in] type The type of indices to allocate.
    *  @return @c true if the allocation succeeded, or @c false if an
    *  error occurred.
+   *
    *  @remarks The allocated index range is only valid until the end of the
    *  current frame.
    */
@@ -66,13 +71,14 @@ public:
    *  @param[in] format The format of vertices to allocate.
    *  @return @c true if the allocation succeeded, or @c false if an
    *  error occurred.
+   *
    *  @remarks The allocated vertex range is only valid until the end of the
    *  current frame.
    */
   bool allocateVertices(GL::VertexRange& range,
 			unsigned int count,
                         const VertexFormat& format);
-  /*! @return The context this renderer was created for.
+  /*! @return The OpenGL context used by this pool.
    */
   GL::Context& getContext(void) const;
 private:
@@ -94,6 +100,7 @@ private:
   typedef std::vector<IndexBufferSlot> IndexBufferList;
   typedef std::vector<VertexBufferSlot> VertexBufferList;
   GL::Context& context;
+  size_t granularity;
   IndexBufferList indexBufferPool;
   VertexBufferList vertexBufferPool;
 };

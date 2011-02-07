@@ -39,7 +39,6 @@
 #include <wendy/GLContext.h>
 #include <wendy/GLState.h>
 
-#include <wendy/RenderMaterial.h>
 #include <wendy/RenderPool.h>
 #include <wendy/RenderFont.h>
 

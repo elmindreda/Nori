@@ -34,10 +34,6 @@
 #include <wendy/Plane.h>
 #include <wendy/Frustum.h>
 
-#include <wendy/OpenGL.h>
-#include <wendy/GLProgram.h>
-#include <wendy/GLContext.h>
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -51,11 +47,8 @@ namespace wendy
  *  @ingroup renderer
  *
  *  This class is most often used together with the scene graph, but can
- *  also be used standalone, if you wish to render without using a scene
- *  graph but still wish to model a camera.
- *
- *  @remarks This class requires the @link GL::Renderer OpenGL renderer
- *  @endlink .
+ *  also be used standalone if you wish to render without using a scene
+ *  graph but still wish to model a movable camera.
  */
 class Camera : public RefObject
 {
@@ -63,10 +56,6 @@ public:
   /*! Constructor.
    */
   Camera(void);
-  /*! Applies the transform and view of this camera to the projection and view
-   *  transforms of the specified context.
-   */
-  void apply(GL::Context& context) const;
   /*! @return The field of view, in degrees, of this camera.
    */
   float getFOV(void) const;
@@ -119,6 +108,11 @@ public:
   /*! @return The view frustum of this camera.
    */
   const Frustum& getFrustum(void) const;
+  /*! @param[in] A point in world space.
+   *  @return The normalized depth of the point in camera space, within the
+   *  depth range of this camera.
+   */
+  float getNormalizedDepth(const Vec3& point) const;
 private:
   float FOV;
   float aspectRatio;
@@ -127,8 +121,12 @@ private:
   Transform3 transform;
   mutable Transform3 inverse;
   mutable Frustum frustum;
+  mutable Vec3 direction;
+  mutable float dirOffset;
+  mutable float dirFactor;
   mutable bool dirtyFrustum;
   mutable bool dirtyInverse;
+  mutable bool dirtyViewDir;
 };
 
 ///////////////////////////////////////////////////////////////////////

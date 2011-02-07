@@ -566,6 +566,22 @@ void GlobalSamplerState::apply(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
+ProgramState::ProgramState(void)
+{
+  if (usedIDs.empty())
+    ID = nextID++;
+  else
+  {
+    ID = usedIDs.back();
+    usedIDs.pop_back();
+  }
+}
+
+ProgramState::~ProgramState(void)
+{
+  usedIDs.push_front(ID);
+}
+
 void ProgramState::apply(void) const
 {
   if (program)
@@ -704,6 +720,11 @@ void ProgramState::setProgram(Program* newProgram)
   }
 }
 
+StateID ProgramState::getID(void) const
+{
+  return ID;
+}
+
 void ProgramState::setDefaults(void)
 {
   setProgram(NULL);
@@ -716,6 +737,10 @@ void ProgramState::destroyProgramState(void)
   globalUniforms.clear();
   globalSamplers.clear();
 }
+
+ProgramState::IDQueue ProgramState::usedIDs;
+
+StateID ProgramState::nextID = 0;
 
 ///////////////////////////////////////////////////////////////////////
 

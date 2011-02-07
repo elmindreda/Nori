@@ -55,7 +55,7 @@ public:
   class Geometry;
   typedef std::vector<Geometry> GeometryList;
   typedef std::map<String, Path> MaterialMap;
-  void enqueue(Queue& queue, const Transform3& transform) const;
+  void enqueue(Scene& scene, const Camera& camera, const Transform3& transform) const;
   /*! @return The bounding sphere of this mesh.
    */
   const Sphere& getBounds(void) const;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <program version="3" >
-  <vertex path="shadowmapped.vp" />
-  <fragment path="shadowmapped.fp" />
+  <vertex path="wendy/Solid3.vp" />
+  <fragment path="wendy/Solid.fp" />
 </program>

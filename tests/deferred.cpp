@@ -83,10 +83,6 @@ bool Demo::init(void)
     rootNode->addChild(*modelNode);
   }
 
-  Ref<GL::Texture> distAttTexture = GL::Texture::read(*context, Path("attenuation.texture"));
-  if (!distAttTexture)
-    return false;
-
   camera = new render::Camera();
   camera->setDepthRange(0.5f, 500.f);
   camera->setFOV(60.f);
@@ -103,7 +99,6 @@ bool Demo::init(void)
   light->setType(render::Light::POINT);
   light->setColor(ColorRGB(1.f, 0.3f, 0.3f));
   light->setRadius(10.f);
-  light->setDistAttTexture(distAttTexture);
 
   lightNode = new scene::LightNode();
   lightNode->getLocalTransform().position.set(-5.f, 4.f, 0.f);
@@ -114,7 +109,6 @@ bool Demo::init(void)
   light->setType(render::Light::POINT);
   light->setColor(ColorRGB(0.7f, 0.2f, 0.8f));
   light->setRadius(10.f);
-  light->setDistAttTexture(distAttTexture);
 
   lightNode = new scene::LightNode();
   lightNode->getLocalTransform().position.set(5.f, 4.f, 0.f);
@@ -130,7 +124,7 @@ bool Demo::init(void)
 
 void Demo::run(void)
 {
-  render::Queue queue(*pool, *camera);
+  render::Scene scene(*pool, render::Technique::DEFERRED);
   GL::Context& context = pool->getContext();
 
   do
@@ -142,15 +136,15 @@ void Demo::run(void)
     cameraNode->getLocalTransform() = controller.getTransform();
 
     graph.update();
-    graph.enqueue(queue);
+    graph.enqueue(scene, *camera);
 
     context.clearDepthBuffer();
     context.clearColorBuffer(ColorRGBA::BLACK);
 
-    renderer->render(queue);
+    renderer->render(scene, *camera);
 
-    queue.removeOperations();
-    queue.detachLights();
+    scene.removeOperations();
+    scene.detachLights();
   }
   while (context.update());
 }

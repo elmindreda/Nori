@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <program version="3" >
-  <vertex path="sprite2.vp" />
-  <fragment path="solid.fp" />
+  <vertex path="wendy/Solid2.vp" />
+  <fragment path="wendy/Solid.fp" />
 </program>

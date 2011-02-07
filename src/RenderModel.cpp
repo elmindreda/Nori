@@ -56,27 +56,15 @@ const unsigned int MODEL_XML_VERSION = 1;
 
 ///////////////////////////////////////////////////////////////////////
 
-void Model::enqueue(Queue& queue, const Transform3& transform) const
+void Model::enqueue(Scene& scene, const Camera& camera, const Transform3& transform) const
 {
   for (GeometryList::const_iterator g = geometries.begin();  g != geometries.end();  g++)
   {
-    Material* material = g->getMaterial();
+    GL::PrimitiveRange range(GL::TRIANGLE_LIST, *vertexBuffer, g->getIndexRange());
 
-    const Technique* technique = material->getActiveTechnique();
-    if (!technique)
-    {
-      logError("Material \'%s\' has no active technique",
-               material->getPath().asString().c_str());
-      return;
-    }
+    float depth = camera.getNormalizedDepth(transform.position + bounds.center);
 
-    Operation operation;
-    operation.range = GL::PrimitiveRange(GL::TRIANGLE_LIST,
-                                         *vertexBuffer,
-                                         g->getIndexRange());
-    operation.transform = transform;
-    operation.technique = technique;
-    queue.addOperation(operation);
+    scene.createOperations(transform, range, *g->getMaterial(), depth);
   }
 }
 
@@ -144,6 +132,7 @@ Model& Model::operator = (const Model& source)
 
 bool Model::init(const Mesh& data, const MaterialMap& materials)
 {
+  /*
   if (!data.isValid())
   {
     logError("Mesh \'%s\' for model \'%s\' is not valid",
@@ -151,6 +140,7 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
              getPath().asString().c_str());
     return false;
   }
+  */
 
   int indexCount = 0;
 

@@ -158,26 +158,6 @@ void Sprite2::render(GeometryPool& pool) const
   pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 }
 
-void Sprite2::render(GeometryPool& pool, const Material& material) const
-{
-  Vertex2ft2fv vertices[4];
-  realizeVertices(vertices);
-
-  GL::VertexRange range;
-  if (!pool.allocateVertices(range, 4, Vertex2ft2fv::format))
-    return;
-
-  range.copyFrom(vertices);
-
-  const Technique* technique = material.getActiveTechnique();
-
-  for (unsigned int pass = 0;  pass < technique->getPassCount();  pass++)
-  {
-    technique->applyPass(pass);
-    pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
-  }
-}
-
 void Sprite2::realizeVertices(Vertex2ft2fv* vertices) const
 {
   const Vec2 offset(size.x / 2.f, size.y / 2.f);
@@ -214,7 +194,9 @@ Sprite3::Sprite3(void)
   setDefaults();
 }
 
-void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
+void Sprite3::enqueue(Scene& scene,
+                      const Camera& camera,
+                      const Transform3& transform) const
 {
   if (!material)
   {
@@ -222,30 +204,21 @@ void Sprite3::enqueue(Queue& queue, const Transform3& transform) const
     return;
   }
 
-  const Technique* technique = material->getActiveTechnique();
-  if (!technique)
-  {
-    logError("Material \'%s\' has no active technique",
-             material->getPath().asString().c_str());
-    return;
-  }
-
   GL::VertexRange range;
-  if (!queue.getGeometryPool().allocateVertices(range, 4, Vertex2ft3fv::format))
+  if (!scene.getGeometryPool().allocateVertices(range, 4, Vertex2ft3fv::format))
     return;
 
-  const Vec3 cameraPos = queue.getCamera().getTransform().position;
+  const Vec3 cameraPos = camera.getTransform().position;
   const Vec3 spritePos = transform.position;
 
   Vertex2ft3fv vertices[4];
   realizeSpriteVertices(vertices, cameraPos, spritePos, size, angle, type);
   range.copyFrom(vertices);
 
-  Operation operation;
-  operation.range = GL::PrimitiveRange(GL::TRIANGLE_FAN, range);
-  operation.technique = technique;
-  operation.distance = (spritePos - cameraPos).length();
-  queue.addOperation(operation);
+  scene.createOperations(transform,
+                         GL::PrimitiveRange(GL::TRIANGLE_FAN, range),
+                         *material,
+                         camera.getNormalizedDepth(spritePos));
 }
 
 void Sprite3::setDefaults(void)
@@ -263,7 +236,9 @@ SpriteCloud3::SpriteCloud3(void):
 {
 }
 
-void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
+void SpriteCloud3::enqueue(Scene& scene,
+                           const Camera& camera,
+                           const Transform3& transform) const
 {
   if (slots.empty())
     return;
@@ -274,16 +249,8 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
     return;
   }
 
-  const Technique* technique = material->getActiveTechnique();
-  if (!technique)
-  {
-    logError("Material \'%s\' has no active technique",
-             material->getPath().asString().c_str());
-    return;
-  }
-
   GL::VertexRange vertexRange;
-  if (!queue.getGeometryPool().allocateVertices(vertexRange,
+  if (!scene.getGeometryPool().allocateVertices(vertexRange,
                                                 4 * slots.size(),
                                                 Vertex2ft3fv::format))
   {
@@ -292,7 +259,7 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   }
 
   GL::IndexRange indexRange;
-  if (!queue.getGeometryPool().allocateIndices(indexRange,
+  if (!scene.getGeometryPool().allocateIndices(indexRange,
                                                6 * slots.size(),
                                                GL::IndexBuffer::UINT16))
   {
@@ -300,7 +267,7 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
     return;
   }
 
-  const Vec3 cameraPosition = queue.getCamera().getTransform().position;
+  const Vec3 cameraPos = camera.getTransform().position;
 
   // Realize sprite vertices
   {
@@ -311,7 +278,7 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
       return;
     }
 
-    realizeVertices(vertices, transform, cameraPosition);
+    realizeVertices(vertices, transform, cameraPos);
   }
 
   // Realize sprite indices
@@ -340,15 +307,14 @@ void SpriteCloud3::enqueue(Queue& queue, const Transform3& transform) const
   Vec3 position = Vec3::ZERO;
   transform.transformVector(position);
 
-  Operation operation;
-  operation.technique = technique;
-  operation.distance = (position - cameraPosition).length();
-  operation.transform = transform;
-  operation.range = GL::PrimitiveRange(GL::TRIANGLE_LIST,
-                                       *vertexRange.getVertexBuffer(),
-                                       indexRange);
+  GL::PrimitiveRange range(GL::TRIANGLE_LIST,
+                           *vertexRange.getVertexBuffer(),
+                           indexRange);
 
-  queue.addOperation(operation);
+  scene.createOperations(transform,
+                         range,
+                         *material,
+                         camera.getNormalizedDepth(position));
 }
 
 void SpriteCloud3::realizeVertices(Vertex2ft3fv* vertices,

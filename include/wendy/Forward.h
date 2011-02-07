@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy default renderer
-// Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy forward renderer
+// Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,94 +22,45 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_RENDERSPRITE_H
-#define WENDY_RENDERSPRITE_H
+#ifndef WENDY_FORWARD_H
+#define WENDY_FORWARD_H
+///////////////////////////////////////////////////////////////////////
+
+#include <wendy/RenderQueue.h>
+#include <wendy/RenderPool.h>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace render
+  namespace forward
   {
 
 ///////////////////////////////////////////////////////////////////////
 
-class GeometryPool;
-
-///////////////////////////////////////////////////////////////////////
-
-enum SpriteType3
+class Config
 {
-  STATIC_SPRITE,
-  CYLINDRIC_SPRITE,
-  SPHERICAL_SPRITE,
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup renderer
- */
-class Sprite2
+class Renderer
 {
 public:
-  Sprite2(void);
-  void render(GeometryPool& pool) const;
-  void realizeVertices(Vertex2ft2fv* vertices) const;
-  void setDefaults(void);
-  Rect mapping;
-  Vec2 position;
-  Vec2 size;
-  float angle;
+  void render(const render::Scene& scene, const render::Camera& camera);
+  static Renderer* create(render::GeometryPool& pool, const Config& config);
+private:
+  Renderer(render::GeometryPool& pool);
+  bool init(const Config& config);
+  render::GeometryPool& pool;
+  Config config;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup renderer
- */
-class Sprite3 : public Renderable
-{
-public:
-  Sprite3(void);
-  void enqueue(Scene& scene,
-               const Camera& camera,
-               const Transform3& transform) const;
-  void setDefaults(void);
-  Vec2 size;
-  float angle;
-  SpriteType3 type;
-  Ref<Material> material;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup renderer
- */
-class SpriteCloud3 : public Renderable
-{
-public:
-  struct Slot
-  {
-    Vec3 position;
-    float angle;
-    Vec2 size;
-  };
-  SpriteCloud3(void);
-  void enqueue(Scene& scene,
-               const Camera& camera,
-               const Transform3& transform) const;
-  void realizeVertices(Vertex2ft3fv* vertices,
-                       const Transform3& transform,
-                       const Vec3& cameraPosition) const;
-  typedef std::vector<Slot> SlotList;
-  SlotList slots;
-  SpriteType3 type;
-  Ref<Material> material;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-  } /*namespace render*/
+  } /*namespace forward*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_RENDERSPRITE_H*/
+#endif /*WENDY_FORWARD_H*/
 ///////////////////////////////////////////////////////////////////////

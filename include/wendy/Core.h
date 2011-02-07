@@ -92,7 +92,7 @@ namespace wendy
 
 /*! Byte value.
  */
-typedef unsigned char Byte;
+typedef uint8_t Byte;
 
 /*! Time value, in seconds.
  */
@@ -101,6 +101,10 @@ typedef double Time;
 /*! String type.
  */
 typedef std::string String;
+
+/*! String hash type.
+ */
+typedef uint32_t StringHash;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -127,11 +131,11 @@ enum LogEntryType
 
 /*! Returns a hash value of the specified string.
  */
-uint32_t hashString(const String& string);
+StringHash hashString(const String& string);
 
 /*! Returns a hash value of the specified string.
  */
-uint32_t hashString(const char* string);
+StringHash hashString(const char* string);
 
 /*! Writes an error message log entry to the log consumers,
  *  or to stderr if there are no log consumers.

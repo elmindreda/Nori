@@ -25,12 +25,6 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/OpenGL.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLProgram.h>
-#include <wendy/GLContext.h>
-
 #include <wendy/RenderCamera.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -48,14 +42,9 @@ Camera::Camera(void):
   minDepth(0.01f),
   maxDepth(1000.f),
   dirtyFrustum(true),
-  dirtyInverse(true)
+  dirtyInverse(true),
+  dirtyViewDir(true)
 {
-}
-
-void Camera::apply(GL::Context& context) const
-{
-  context.setPerspectiveProjectionMatrix(FOV, aspectRatio, minDepth, maxDepth);
-  context.setViewMatrix(getViewTransform());
 }
 
 float Camera::getFOV(void) const
@@ -95,6 +84,7 @@ void Camera::setDepthRange(float newMinDepth, float newMaxDepth)
   minDepth = newMinDepth;
   maxDepth = newMaxDepth;
   dirtyFrustum = true;
+  dirtyViewDir = true;
 }
 
 const Transform3& Camera::getTransform(void) const
@@ -119,6 +109,7 @@ void Camera::setTransform(const Transform3& newTransform)
   transform = newTransform;
   dirtyFrustum = true;
   dirtyInverse = true;
+  dirtyViewDir = true;
 }
 
 const Frustum& Camera::getFrustum(void) const
@@ -131,6 +122,20 @@ const Frustum& Camera::getFrustum(void) const
   }
 
   return frustum;
+}
+
+float Camera::getNormalizedDepth(const Vec3& point) const
+{
+  if (dirtyViewDir)
+  {
+    direction.set(0.f, 0.f, -1.f);
+    getViewTransform().rotateVector(direction);
+    dirFactor = 1.f / (maxDepth - minDepth);
+    dirOffset = (direction.dot(transform.position) + minDepth) * dirFactor;
+    dirtyViewDir = false;
+  }
+
+  return point.dot(direction) * dirFactor + dirOffset;
 }
 
 ///////////////////////////////////////////////////////////////////////

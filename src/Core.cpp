@@ -162,21 +162,21 @@ ConsumerList consumers;
 
 ///////////////////////////////////////////////////////////////////////
 
-uint32_t hashString(const String& string)
+StringHash hashString(const String& string)
 {
   return hashString(string.c_str());
 }
 
-uint32_t hashString(const char* string)
+StringHash hashString(const char* string)
 {
   // Hash function used in the ELF executable format
 
-  uint32_t hash = 0;
-  uint32_t temp;
+  StringHash hash = 0;
+  StringHash temp;
 
   while (*string != '\0')
   {
-    hash = (hash << 4) + *string;
+    hash = (hash << 4) + *string++;
 
     if (temp = hash & 0xf0000000)
       hash ^= temp >> 24;

@@ -49,21 +49,48 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 class Light;
-class LightState;
 class GeometryPool;
+class Camera;
+class Scene;
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup renderer
+ */
+class SortKey
+{
+public:
+  static SortKey makeOpaqueKey(uint8_t layer, uint16_t state, float depth);
+  static SortKey makeBlendedKey(uint8_t layer, float depth);
+  union
+  {
+    uint64_t value;
+    struct
+    {
+      unsigned layer : 8;
+      unsigned state : 16;
+      unsigned depth : 24;
+      unsigned index : 16;
+    };
+  };
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup renderer
+ */
+typedef std::vector<SortKey> SortKeyList;
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Render operation in the 3D pipeline.
  *  @ingroup renderer
  *
- *  This represents a single render operation, including a style and
- *  local-to-world transformation.
+ *  This represents a single render operation, including render state, a
+ *  primitive range and a local-to-world transformation.
  *
  *  @remarks Note that this class does not include any references to a camera.
- *  The camera transformation is handled by the Camera class, and the
- *  Queue to which your Operation belongs contains a reference to
- *  the camera being used.
+ *  The camera transformation is handled by the Camera class.
  */
 class Operation
 {
@@ -76,27 +103,18 @@ public:
   GL::PrimitiveRange range;
   /*! The render technique to use.
    */
-  const Technique* technique;
-  /*! The local-to-world transformation. Leave this set to identity if the
+  const GL::RenderState* state;
+  /*! The local-to-world transformation.  Leave this set to identity if the
    *  geometry already is in world space.
    */
   Mat4 transform;
-  /*! The distance from the camera to the geometry rendered by this operation.
-   *  It must be set for blending operations, but should also be set for opaque
-   *  operations.
-   */
-  float distance;
-  /*! Hash value for sorting. Used by the Queue class.
-   */
-  uint32_t hash;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Sorted list of render operations.
- *  @ingroup renderer
+/*! @ingroup renderer
  */
-typedef std::vector<const Operation*> OperationList;
+typedef std::vector<Operation> OperationList;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -105,92 +123,66 @@ typedef std::vector<const Operation*> OperationList;
  *
  *  @remarks To avoid thrashing the heap, keep your queue objects around
  *  between frames when possible.
+ *
+ *  @remarks Each queue can only contain 65536 render operations.
  */
 class Queue
 {
 public:
-  /*! Queue phase type enumeration.
-  */
-  enum Phase
-  {
-    /*! Light collection phase.
-    */
-    COLLECT_LIGHTS,
-    /*! Collection phase for operations used to render a shadow map.
-    */
-    COLLECT_SHADOW_CASTERS,
-    /*! Geometry collection phase.
-     *  This is the default phase.
-    */
-    COLLECT_GEOMETRY,
-  };
-  /*! Constructor. Creates a render queue for the specified camera, optionally
-   *  with the specified light and name.
-   *  @param[in] camera The camera to use.
-   *  @param[in] light The light to collect geometry for, or @c NULL to not
-   *  collect for a light.
+  /*! Constructor.
    */
-  Queue(GeometryPool& pool, const Camera& camera, Light* light = NULL);
-  /*! Attaches a light to this render queue.
-   *  @param[in] light The light to attach.
+  Queue(void);
+  /*! Adds a render operation in this render queue.
    */
-  void attachLight(Light& light);
-  /*! Detaches all attached lights from this render queue.
-   */
-  void detachLights(void);
-  /*! Creates a render operation in this render queue.
-   *  @return The created operation.
-   */
-  void addOperation(const Operation& operation);
+  void addOperation(const Operation& operation, SortKey key);
   /*! Destroys all render operations in this render queue.
    */
   void removeOperations(void);
-  /*! Renders the operations in this render queue, using the specified camera
-   *  and the attached lights.
-   *  @param[in] passName The name of render passes to use.
+  /*! Renders the operations in this render queue.
+   *
+   *  @note This method performs no special setup of any kind.  If you need
+   *  that sort of thing, you should retrieve the operations and keys and make
+   *  your own rendering function.
    */
-  void render(const String& passName = "") const;
-  /*! @return The current colleciton phase of this render queue.
+  void renderOperations(void) const;
+  /*! @return The render operations in this render queue.
    */
-  Phase getPhase(void) const;
-  /*! Sets the collection phase of this render queue.
-   *  @param[in] newPhase The desired collection phase.
+  const OperationList& getOperations(void) const;
+  /*! @return The sor keys in this render queue.
    */
-  void setPhase(Phase newPhase);
-  /*! @return The geometry pool used by this render queue.
-   */
-  GeometryPool& getGeometryPool(void) const;
-  /*! @return The camera used by this render queue.
-   */
-  const Camera& getCamera(void) const;
-  /*! @return The light for which to collect geometry, or @c NULL if not
-   *  collecting geometry for a light.
-   */
-  Light* getActiveLight(void) const;
-  /*! @return The opaque render operations in this render queue.
-   */
-  const OperationList& getOpaqueOperations(void) const;
-  /*! @return The blended render operations in this render queue.
-   */
-  const OperationList& getBlendedOperations(void) const;
-  /*! @return The lights attached to this render queue.
-   */
-  const LightState& getLights(void) const;
+  const SortKeyList& getSortKeys(void) const;
 private:
-  typedef std::vector<Operation> List;
-  void renderOperations(const OperationList& operations,
-                        const String& passName) const;
+  OperationList operations;
+  mutable SortKeyList keys;
+  mutable bool sorted;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup renderer
+ */
+class Scene : public LightState
+{
+public:
+  Scene(GeometryPool& pool, Technique::Type type);
+  void addOperation(const Operation& operation, float depth, uint16_t layer = 0);
+  void createOperations(const Transform3& transform,
+                        const GL::PrimitiveRange& range,
+                        const Material& material,
+                        float depth);
+  void removeOperations(void);
+  GeometryPool& getGeometryPool(void) const;
+  Queue& getOpaqueQueue(void);
+  const Queue& getOpaqueQueue(void) const;
+  Queue& getBlendedQueue(void);
+  const Queue& getBlendedQueue(void) const;
+  Technique::Type getTechniqueType(void) const;
+  void setTechniqueType(Technique::Type newType);
+private:
   GeometryPool& pool;
-  const Camera& camera;
-  Light* light;
-  LightState lights;
-  List opaqueOps;
-  List blendedOps;
-  Phase phase;
-  mutable OperationList sortedOpaqueOps;
-  mutable OperationList sortedBlendedOps;
-  mutable bool sortedOpaque;
-  mutable bool sortedBlended;
+  Technique::Type type;
+  Queue opaqueQueue;
+  Queue blendedQueue;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -198,9 +190,8 @@ private:
 /*! @brief Abstract renderable object.
  *  @ingroup renderer
  *
- *  This is the interface for enqueueable, non-scene renderables. It provides a
- *  simple mechanism for retrieving render operations either in local or world
- *  space.
+ *  This is the interface for objects able to be rendered through render
+ *  operations.
  */
 class Renderable
 {
@@ -209,11 +200,14 @@ public:
    */
   virtual ~Renderable(void);
   /*! Queries this renderable for render operations.
-   *  @param[in,out] queue The render queue where the operations are to
+   *  @param[in,out] scene The render scene where the operations are to
    *  be created.
+   *  @param[in] camera The camera for which operations are requested.
    *  @param[in] transform The local-to-world transform.
    */
-  virtual void enqueue(Queue& queue, const Transform3& transform) const = 0;
+  virtual void enqueue(Scene& scene,
+                       const Camera& camera,
+                       const Transform3& transform) const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////
