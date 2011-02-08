@@ -3,7 +3,15 @@
   <technique type="forward" quality="1">
     <pass>
       <program path="cube.program">
-	<sampler name="checkers" texture="cube.texture" />
+        <uniform name="color" value="1 1 1" />
+      </program>
+    </pass>
+  </technique>
+  <technique type="deferred" quality="1">
+    <pass>
+      <program path="wendy/DeferredSolid.program">
+        <uniform name="color" value="1 1 1" />
+        <uniform name="mask" value="1" />
       </program>
     </pass>
   </technique>

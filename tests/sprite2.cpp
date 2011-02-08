@@ -18,6 +18,7 @@ private:
   ResourceIndex index;
   Ptr<render::GeometryPool> pool;
   Ref<render::Material> material;
+  render::Technique* technique;
 };
 
 Test::~Test(void)
@@ -44,10 +45,19 @@ bool Test::init(void)
 
   pool = new render::GeometryPool(*context);
 
-  material = render::Material::read(*context, Path("sprite2.material"));
+  Path path("sprite2.material");
+
+  material = render::Material::read(*context, path);
   if (!material)
   {
-    logError("Failed to load material");
+    logError("Failed to load material \'%s\'", path.asString().c_str());
+    return false;
+  }
+
+  technique = material->findBestTechnique(render::Technique::FORWARD);
+  if (!technique)
+  {
+    logError("Material \'%s\' has no forward technique", path.asString().c_str());
     return false;
   }
 
@@ -57,6 +67,8 @@ bool Test::init(void)
 void Test::run(void)
 {
   GL::Context& context = pool->getContext();
+
+  const render::PassList& passes = technique->getPasses();
 
   Timer timer;
   timer.start();
@@ -71,9 +83,15 @@ void Test::run(void)
     sprite.size.set(0.5f, 0.5f);
     sprite.angle = (float) timer.getTime();
 
+    context.setModelMatrix(Mat4::IDENTITY);
+    context.setViewMatrix(Mat4::IDENTITY);
     context.setOrthoProjectionMatrix(4.f / 3.f, 1.f);
 
-    sprite.render(*pool, *material);
+    for (render::PassList::const_iterator p = passes.begin();  p != passes.end();  p++)
+    {
+      p->apply();
+      sprite.render(*pool);
+    }
   }
   while (context.update());
 }

@@ -53,10 +53,13 @@ bool Test::init(void)
     return false;
   }
 
-  material = render::Material::read(*context, Path("sprite3.material"));
+  Path path("sprite3.material");
+
+  material = render::Material::read(*context, path);
   if (!material)
   {
-    logError("Failed to load material");
+    logError("Failed to load material \'%s\'",
+             path.asString().c_str());
     return false;
   }
 
@@ -67,7 +70,7 @@ bool Test::init(void)
 
 void Test::run(void)
 {
-  render::Scene scene(*pool);
+  render::Scene scene(*pool, render::Technique::FORWARD);
   GL::Context& context = pool->getContext();
 
   render::Sprite3 sprite;
@@ -76,7 +79,7 @@ void Test::run(void)
   sprite.type = render::STATIC_SPRITE;
 
   Transform3 transform;
-  transform.position.z = -3.f;
+  transform.position.z = -1.f;
 
   Timer timer;
   timer.start();

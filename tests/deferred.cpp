@@ -59,7 +59,7 @@ bool Demo::init(void)
   if (!input::Context::createSingleton(*context))
     return false;
 
-  Ref<render::Model> model = render::Model::read(*context, Path("cube_deferred.model"));
+  Ref<render::Model> model = render::Model::read(*context, Path("cube.model"));
   if (!model)
   {
     logError("Failed to read model");
