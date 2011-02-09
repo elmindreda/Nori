@@ -291,33 +291,28 @@ Anim3::Anim3(const Anim3& source):
   operator = (source);
 }
 
-Anim3::~Anim3(void)
-{
-  destroyTracks();
-}
-
 Anim3& Anim3::operator = (const Anim3& source)
 {
   destroyTracks();
   tracks.reserve(source.tracks.size());
 
   for (TrackList::const_iterator t = tracks.begin();  t != tracks.end();  t++)
-    tracks.push_back(new AnimTrack3(**t));
+    tracks.push_back(AnimTrack3(*t));
 
   return *this;
 }
 
 AnimTrack3& Anim3::createTrack(const String& name)
 {
-  tracks.push_back(new AnimTrack3(name));
-  return *tracks.back();
+  tracks.push_back(AnimTrack3(name));
+  return tracks.back();
 }
 
 void Anim3::destroyTrack(AnimTrack3& track)
 {
   for (TrackList::iterator t = tracks.begin();  t != tracks.end();  t++)
   {
-    if (*t == &track)
+    if (&(*t) == &track)
     {
       tracks.erase(t);
       break;
@@ -327,19 +322,15 @@ void Anim3::destroyTrack(AnimTrack3& track)
 
 void Anim3::destroyTracks(void)
 {
-  while (!tracks.empty())
-  {
-    delete tracks.back();
-    tracks.pop_back();
-  }
+  tracks.clear();
 }
 
 AnimTrack3* Anim3::findTrack(const String& name)
 {
-  for (TrackList::const_iterator t = tracks.begin();  t != tracks.end();  t++)
+  for (TrackList::iterator t = tracks.begin();  t != tracks.end();  t++)
   {
-    if ((*t)->getName() == name)
-      return *t;
+    if (t->getName() == name)
+      return &(*t);
   }
 
   return NULL;
@@ -349,8 +340,8 @@ const AnimTrack3* Anim3::findTrack(const String& name) const
 {
   for (TrackList::const_iterator t = tracks.begin();  t != tracks.end();  t++)
   {
-    if ((*t)->getName() == name)
-      return *t;
+    if (t->getName() == name)
+      return &(*t);
   }
 
   return NULL;
@@ -363,12 +354,12 @@ size_t Anim3::getTrackCount(void) const
 
 AnimTrack3& Anim3::getTrack(size_t index)
 {
-  return *tracks[index];
+  return tracks[index];
 }
 
 const AnimTrack3& Anim3::getTrack(size_t index) const
 {
-  return *tracks[index];
+  return tracks[index];
 }
 
 ///////////////////////////////////////////////////////////////////////

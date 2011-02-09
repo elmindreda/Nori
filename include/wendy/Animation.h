@@ -90,7 +90,6 @@ class Anim3 : public Resource
 public:
   Anim3(const ResourceInfo& info);
   Anim3(const Anim3& source);
-  ~Anim3(void);
   Anim3& operator = (const Anim3& source);
   AnimTrack3& createTrack(const String& name);
   void destroyTrack(AnimTrack3& track);
@@ -101,7 +100,7 @@ public:
   AnimTrack3& getTrack(size_t index);
   const AnimTrack3& getTrack(size_t index) const;
 private:
-  typedef std::vector<AnimTrack3*> TrackList;
+  typedef std::vector<AnimTrack3> TrackList;
   TrackList tracks;
 };
 
