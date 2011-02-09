@@ -828,11 +828,19 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
                  convertToGL(image.getFormat().getSemantic()),
                  convertToGL(image.getFormat().getType()),
                  image.getPixels());
+  }
+
+  glGenerateMipmapEXT(textureTarget);
+
+  for (unsigned int i = 0;  i < 6;  i++)
+  {
+    GLenum faceTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
+
+    wendy::Image& image = *source.images[i];
 
     if (flags & MIPMAPPED)
     {
       glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-      glGenerateMipmapEXT(textureTarget);
 
       unsigned int level = 0;
 

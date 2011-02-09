@@ -37,15 +37,15 @@
 #include <cstdlib>
 #include <fstream>
 #include <cctype>
+#include <cmath>
 
 ///////////////////////////////////////////////////////////////////////
 
 #ifdef _MSC_VER
-
 #include <float.h>
-
 #define finitef(x) _finite((float) x)
-
+#else /*_MSC_VER*/
+#define finitef(x) std::isfinite(x)
 #endif /*_MSC_VER*/
 
 ///////////////////////////////////////////////////////////////////////
