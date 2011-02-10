@@ -215,7 +215,7 @@ void Sprite3::enqueue(Scene& scene,
   realizeSpriteVertices(vertices, cameraPos, spritePos, size, angle, type);
   range.copyFrom(vertices);
 
-  scene.createOperations(transform,
+  scene.createOperations(Transform3::IDENTITY,
                          GL::PrimitiveRange(GL::TRIANGLE_FAN, range),
                          *material,
                          camera.getNormalizedDepth(spritePos));
