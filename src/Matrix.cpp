@@ -99,16 +99,6 @@ float Mat2::determinant(void) const
   return x.x * y.y - x.y * y.x;
 }
 
-Mat2::operator float* (void)
-{
-  return &(x.x);
-}
-
-Mat2::operator const float* (void) const
-{
-  return &(x.x);
-}
-
 float Mat2::operator () (unsigned int row, unsigned int column) const
 {
   return (&(x.x))[column * 2 + row];
@@ -261,16 +251,6 @@ float Mat3::determinant(void) const
   return x.x * (y.y * z.z - z.y * y.z) -
          y.x * (x.y * z.z - z.y * x.z) +
          z.x * (x.y * y.z - y.y * x.z);
-}
-
-Mat3::operator float* (void)
-{
-  return &(x.x);
-}
-
-Mat3::operator const float* (void) const
-{
-  return &(x.x);
 }
 
 float Mat3::operator () (unsigned int row, unsigned int column) const
@@ -524,16 +504,6 @@ void Mat4::rotateVector(Vec3& vector) const
   temp.z = vector.x * x.z + vector.y * y.z + vector.z * z.z;
 
   vector = temp;
-}
-
-Mat4::operator float* (void)
-{
-  return &(x.x);
-}
-
-Mat4::operator const float* (void) const
-{
-  return &(x.x);
 }
 
 float Mat4::operator () (unsigned int row, unsigned int column) const

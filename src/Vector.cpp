@@ -119,16 +119,6 @@ Vec2 Vec2::normalized(void) const
   return Vec2(x * scale, y * scale);
 }
 
-Vec2::operator float* (void)
-{
-  return &(x);
-}
-
-Vec2::operator const float* (void) const
-{
-  return &(x);
-}
-
 Vec2 Vec2::operator - (void) const
 {
   return Vec2(-x, -y);
@@ -498,16 +488,6 @@ Vec3 Vec3::normalized(void) const
   return Vec3(x * scale, y * scale, z * scale);
 }
 
-Vec3::operator float* (void)
-{
-  return &(x);
-}
-
-Vec3::operator const float* (void) const
-{
-  return &(x);
-}
-
 Vec3 Vec3::operator - (void) const
 {
   return Vec3(-x, -y, -z);
@@ -739,16 +719,6 @@ Vec4 Vec4::normalized(void) const
   const float scale = 1.f / length();
 
   return Vec4(x * scale, y * scale, z * scale, w * scale);
-}
-
-Vec4::operator float* (void)
-{
-  return &(x);
-}
-
-Vec4::operator const float* (void) const
-{
-  return &(x);
 }
 
 Vec4 Vec4::operator - (void) const

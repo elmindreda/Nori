@@ -52,8 +52,6 @@ public:
   Vec2& negate(void);
   Vec2& normalize(void);
   Vec2 normalized(void) const;
-  operator float* (void);
-  operator const float* (void) const;
   Vec2 operator - (void) const;
   Vec2 operator + (float value) const;
   Vec2 operator - (float value) const;
@@ -135,8 +133,6 @@ public:
   Vec3& negate(void);
   Vec3& normalize(void);
   Vec3 normalized(void) const;
-  operator float* (void);
-  operator const float* (void) const;
   Vec3 operator - (void) const;
   Vec3 operator + (float value) const;
   Vec3 operator - (float value) const;
@@ -187,8 +183,6 @@ public:
   Vec4& scaleTo(float length);
   Vec4& normalize(void);
   Vec4 normalized(void) const;
-  operator float* (void);
-  operator const float* (void) const;
   Vec4 operator - (void) const;
   Vec4 operator + (float value) const;
   Vec4 operator - (float value) const;
