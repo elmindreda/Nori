@@ -52,6 +52,7 @@ public:
   void set(const Vec2& newPosition, float newAngle);
   Vec2 position;
   float angle;
+  static Transform2 IDENTITY;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -72,6 +73,7 @@ public:
   void set(const Vec3& newPosition, const Quat& newRotation);
   Vec3 position;
   Quat rotation;
+  static Transform3 IDENTITY;
 };
 
 ///////////////////////////////////////////////////////////////////////

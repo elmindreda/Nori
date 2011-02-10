@@ -122,6 +122,8 @@ void Transform2::set(const Vec2& newPosition, float newAngle)
   angle = newAngle;
 }
 
+Transform2 Transform2::IDENTITY;
+
 ///////////////////////////////////////////////////////////////////////
 
 Transform3::Transform3(void)
@@ -194,6 +196,8 @@ void Transform3::set(const Vec3& newPosition, const Quat& newRotation)
   position = newPosition;
   rotation = newRotation;
 }
+
+Transform3 Transform3::IDENTITY;
 
 ///////////////////////////////////////////////////////////////////////
 
