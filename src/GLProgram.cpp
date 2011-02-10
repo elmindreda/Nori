@@ -428,7 +428,7 @@ void Uniform::setValue(const Vec2& newValue)
     return;
   }
 
-  cgGLSetParameter2fv((CGparameter) uniformID, newValue);
+  cgGLSetParameter2fv((CGparameter) uniformID, (float*) &newValue);
 }
 
 void Uniform::setValue(const Vec3& newValue)
@@ -441,7 +441,7 @@ void Uniform::setValue(const Vec3& newValue)
     return;
   }
 
-  cgGLSetParameter3fv((CGparameter) uniformID, newValue);
+  cgGLSetParameter3fv((CGparameter) uniformID, (float*) &newValue);
 }
 
 void Uniform::setValue(const Vec4& newValue)
@@ -454,7 +454,7 @@ void Uniform::setValue(const Vec4& newValue)
     return;
   }
 
-  cgGLSetParameter4fv((CGparameter) uniformID, newValue);
+  cgGLSetParameter4fv((CGparameter) uniformID, (float*) &newValue);
 }
 
 void Uniform::setValue(const Mat2& newValue)
@@ -467,7 +467,7 @@ void Uniform::setValue(const Mat2& newValue)
     return;
   }
 
-  cgGLSetMatrixParameterfc((CGparameter) uniformID, newValue);
+  cgGLSetMatrixParameterfc((CGparameter) uniformID, (float*) &newValue);
 }
 
 void Uniform::setValue(const Mat3& newValue)
@@ -480,7 +480,7 @@ void Uniform::setValue(const Mat3& newValue)
     return;
   }
 
-  cgGLSetMatrixParameterfc((CGparameter) uniformID, newValue);
+  cgGLSetMatrixParameterfc((CGparameter) uniformID, (float*) &newValue);
 }
 
 void Uniform::setValue(const Mat4& newValue)
@@ -493,7 +493,7 @@ void Uniform::setValue(const Mat4& newValue)
     return;
   }
 
-  cgGLSetMatrixParameterfc((CGparameter) uniformID, newValue);
+  cgGLSetMatrixParameterfc((CGparameter) uniformID, (float*) &newValue);
 }
 
 Program& Uniform::getProgram(void) const
