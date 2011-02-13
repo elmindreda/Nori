@@ -365,6 +365,12 @@ public:
    *  @c false.
    */
   bool isWireframe(void) const;
+  /*! @return @c true if this render state uses line smoothing, otherwise @c false.
+   */
+  bool isLineSmoothing(void) const;
+  /*! @return @c the width of lines, in pixels.
+   */
+  float getLineWidth(void) const;
   /*! @return The culling mode of this render state.
    */
   CullMode getCullMode(void) const;
@@ -401,6 +407,14 @@ public:
    *  disable it.
    */
   void setWireframe(bool enabled);
+  /*! Sets whether line smoothing is enabled.
+   *  @param[in] enabled @c true to enable line smoothing, or @c false to disable it.
+   */
+  void setLineSmoothing(bool enabled);
+  /*! Sets the width of lines, in pixels.
+   *  @param[in] newWidth The desired new line width.
+   */
+  void setLineWidth(float newWidth);
   /*! Sets the specified primitive culling mode.
    *  @param[in] mode The desired new primitive culling mode.
    */
@@ -426,6 +440,8 @@ private:
     bool depthWriting;
     bool colorWriting;
     bool wireframe;
+    bool lineSmoothing;
+    float lineWidth;
     CullMode cullMode;
     BlendFactor srcFactor;
     BlendFactor dstFactor;

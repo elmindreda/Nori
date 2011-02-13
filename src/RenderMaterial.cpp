@@ -397,6 +397,13 @@ bool MaterialReader::onBeginElement(const String& name)
           return true;
         }
 
+        if (name == "line")
+        {
+          currentPass->setLineSmoothing(readBoolean("smoothing"));
+          currentPass->setLineWidth(readFloat("width"));
+          return true;
+        }
+
         if (name == "program")
         {
           Path programPath(readString("path"));
@@ -609,6 +616,15 @@ bool MaterialWriter::write(const Path& path, const Material& material)
           beginElement("polygon");
           addAttribute("wireframe", p->isWireframe());
           addAttribute("cull", cullModeMap[p->getCullMode()]);
+          endElement();
+        }
+
+        if (p->isLineSmoothing() != defaults.isLineSmoothing() ||
+            p->getLineWidth() != defaults.getLineWidth())
+        {
+          beginElement("line");
+          addAttribute("smoothing", p->isLineSmoothing());
+          addAttribute("width", p->getLineWidth());
           endElement();
         }
 

@@ -641,9 +641,10 @@ void Stats::addFrame(void)
     frames.pop_back();
 
   frameRate = 0.f;
+  const float factor = 1.f / frames.size();
 
-  for (unsigned int i = 0;  i < frames.size();  i++)
-    frameRate += (float) frames[i].duration / frames.size();
+  for (FrameQueue::const_iterator f = frames.begin();  f != frames.end();  f++)
+    frameRate += (float) f->duration * factor;
 }
 
 void Stats::addPasses(unsigned int count)

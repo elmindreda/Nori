@@ -838,6 +838,18 @@ void RenderState::apply(void) const
     cache.wireframe = data.wireframe;
   }
 
+  if (data.lineSmoothing != cache.lineSmoothing)
+  {
+    setBooleanState(GL_LINE_SMOOTH, data.lineSmoothing);
+    cache.lineSmoothing = data.lineSmoothing;
+  }
+
+  if (data.lineWidth != cache.lineWidth)
+  {
+    glLineWidth(data.lineWidth);
+    cache.lineWidth = data.lineWidth;
+  }
+
 #if WENDY_DEBUG
   checkGL("Error when applying render state");
 #endif
@@ -875,6 +887,16 @@ bool RenderState::isColorWriting(void) const
 bool RenderState::isWireframe(void) const
 {
   return data.wireframe;
+}
+
+bool RenderState::isLineSmoothing(void) const
+{
+  return data.lineSmoothing;
+}
+
+float RenderState::getLineWidth(void) const
+{
+  return data.lineWidth;
 }
 
 CullMode RenderState::getCullMode(void) const
@@ -940,6 +962,18 @@ void RenderState::setWireframe(bool enabled)
   data.dirty = true;
 }
 
+void RenderState::setLineSmoothing(bool enabled)
+{
+  data.lineSmoothing = enabled;
+  data.dirty = true;
+}
+
+void RenderState::setLineWidth(float newWidth)
+{
+  data.lineWidth = newWidth;
+  data.dirty = true;
+}
+
 void RenderState::setDefaults(void)
 {
   data.setDefaults();
@@ -988,6 +1022,9 @@ void RenderState::force(void) const
   const GLenum polygonMode = data.wireframe ? GL_LINE : GL_FILL;
   glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
 
+  setBooleanState(GL_LINE_SMOOTH, data.lineSmoothing);
+  glLineWidth(data.lineWidth);
+
 #if WENDY_DEBUG
   checkGL("Error when forcing render state");
 #endif
@@ -1023,6 +1060,8 @@ void RenderState::Data::setDefaults(void)
   depthWriting = true;
   colorWriting = true;
   wireframe = false;
+  lineSmoothing = false;
+  lineWidth = 1.f;
   cullMode = CULL_BACK;
   srcFactor = BLEND_ONE;
   dstFactor = BLEND_ZERO;
