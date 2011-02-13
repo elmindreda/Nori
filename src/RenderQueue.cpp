@@ -70,6 +70,7 @@ inline float clamp(float x, float min, float max)
 SortKey SortKey::makeOpaqueKey(uint8_t layer, uint16_t state, float depth)
 {
   SortKey key;
+  key.value = 0;
   key.layer = layer;
   key.state = state;
   key.depth = ((1 << 24) - 1) * clamp(depth, 0.f, 1.f);
@@ -80,8 +81,8 @@ SortKey SortKey::makeOpaqueKey(uint8_t layer, uint16_t state, float depth)
 SortKey SortKey::makeBlendedKey(uint8_t layer, float depth)
 {
   SortKey key;
+  key.value = 0;
   key.layer = layer;
-  key.state = 0;
   key.depth = ((1 << 24) - 1) * (1.f - clamp(depth, 0.f, 1.f));
 
   return key;
