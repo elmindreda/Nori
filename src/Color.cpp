@@ -87,9 +87,9 @@ ColorRGB::ColorRGB(const ColorHSL& hsl)
       temp.b = (1.f - hsl.h) * 6.f;
     }
 
-    temp.r = fminf(temp.r, 1.f);
-    temp.g = fminf(temp.g, 1.f);
-    temp.b = fminf(temp.b, 1.f);
+    temp.r = std::min(temp.r, 1.f);
+    temp.g = std::min(temp.g, 1.f);
+    temp.b = std::min(temp.b, 1.f);
 
     temp.r = 2.f * hsl.s * temp.r + (1.f - hsl.s);
     temp.g = 2.f * hsl.s * temp.g + (1.f - hsl.s);
@@ -185,12 +185,12 @@ void ColorRGB::clamp(void)
 
 ColorRGB ColorRGB::min(const ColorRGB& color) const
 {
-  return ColorRGB(fminf(r, color.r), fminf(g, color.g), fminf(b, color.b));
+  return ColorRGB(std::min(r, color.r), std::min(g, color.g), std::min(b, color.b));
 }
 
 ColorRGB ColorRGB::max(const ColorRGB& color) const
 {
-  return ColorRGB(fmaxf(r, color.r), fmaxf(g, color.g), fmaxf(b, color.b));
+  return ColorRGB(std::max(r, color.r), std::max(g, color.g), std::max(b, color.b));
 }
 
 String ColorRGB::asString(void) const
@@ -411,18 +411,18 @@ void ColorRGBA::clamp(void)
 
 ColorRGBA ColorRGBA::min(const ColorRGBA& color) const
 {
-  return ColorRGBA(fminf(r, color.r),
-                   fminf(g, color.g),
-		   fminf(b, color.b),
-		   fminf(a, color.a));
+  return ColorRGBA(std::min(r, color.r),
+                   std::min(g, color.g),
+		   std::min(b, color.b),
+		   std::min(a, color.a));
 }
 
 ColorRGBA ColorRGBA::max(const ColorRGBA& color) const
 {
-  return ColorRGBA(fmaxf(r, color.r),
-                   fmaxf(g, color.g),
-		   fmaxf(b, color.b),
-		   fmaxf(a, color.a));
+  return ColorRGBA(std::max(r, color.r),
+                   std::max(g, color.g),
+		   std::max(b, color.b),
+		   std::max(a, color.a));
 }
 
 String ColorRGBA::asString(void) const
@@ -622,8 +622,8 @@ ColorHSL::ColorHSL(float sh, float ss, float sl):
 
 ColorHSL::ColorHSL(const ColorRGB& rgb)
 {
-  const float maxColor = fmaxf(rgb.r, fmaxf(rgb.g, rgb.b));
-  const float minColor = fminf(rgb.r, fminf(rgb.g, rgb.b));
+  const float maxColor = std::max(rgb.r, std::max(rgb.g, rgb.b));
+  const float minColor = std::min(rgb.r, std::min(rgb.g, rgb.b));
   const float delta = maxColor - minColor;
 
   if (delta == 0.f)
@@ -829,8 +829,8 @@ ColorHSV::ColorHSV(float sh, float ss, float sv):
 
 ColorHSV::ColorHSV(const ColorRGB& rgb)
 {
-  const float maxColor = fmaxf(rgb.r, fmaxf(rgb.g, rgb.b));
-  const float minColor = fminf(rgb.r, fminf(rgb.g, rgb.b));
+  const float maxColor = std::max(rgb.r, std::max(rgb.g, rgb.b));
+  const float minColor = std::min(rgb.r, std::min(rgb.g, rgb.b));
 
   v = maxColor;
 

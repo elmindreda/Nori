@@ -44,22 +44,6 @@ float log2f(float x)
   return (float) std::log(x) / (float) std::log(2.f);
 }
 
-float fminf(float x, float y)
-{
-  if (x < y)
-    return x;
-  else
-    return y;
-}
-
-float fmaxf(float x, float y)
-{
-  if (x > y)
-    return x;
-  else
-    return y;
-}
-
 #endif /*_MSC_VER*/
 
 ///////////////////////////////////////////////////////////////////////

@@ -721,7 +721,7 @@ bool FontReader::extractGlyphs(FontData& data,
   {
     FontGlyphData& glyph = data.glyphs[i];
 
-    maxAdvance = fmaxf(maxAdvance, glyph.advance);
+    maxAdvance = std::max(maxAdvance, glyph.advance);
     meanAdvance += glyph.advance;
   }
 

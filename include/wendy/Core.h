@@ -59,8 +59,6 @@
 #define vsnprintf _vsnprintf
 #endif
 
-float fminf(float x, float y);
-float fmaxf(float x, float y);
 float log2f(float x);
 
 #endif /*_MSC_VER*/
