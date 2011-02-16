@@ -358,17 +358,21 @@ bool Font::init(const FontData& data)
   {
     const unsigned int maxSize = pool.getContext().getLimits().getMaxTextureSize();
 
-    unsigned int width = (maxWidth + 1) * data.glyphs.size() + 1;
-    width = std::min(getNextPower(width), maxSize);
+    unsigned int totalWidth = 1;
 
-    unsigned int rows = data.glyphs.size() * maxWidth / (width - 1);
-    if (maxWidth % (width - 1))
+    for (size_t i = 0;  i < data.glyphs.size();  i++)
+      totalWidth += data.glyphs[i].image->getWidth() + 1;
+
+    unsigned int textureWidth = std::min(getNextPower(totalWidth), maxSize);
+
+    unsigned int rows = totalWidth / textureWidth;
+    if (totalWidth % textureWidth)
       rows++;
 
-    unsigned int height = (maxHeight + 1) * rows + 1;
-    height = std::min(getNextPower(height), maxSize);
+    unsigned int textureHeight = (maxHeight + 1) * rows + 1;
+    textureHeight = std::min(getNextPower(textureHeight), maxSize);
 
-    Image image(getIndex(), PixelFormat::R8, width, height);
+    Image image(getIndex(), PixelFormat::R8, textureWidth, textureHeight);
 
     texture = GL::Texture::create(getIndex(), pool.getContext(), image, 0);
     if (!texture)
@@ -378,9 +382,10 @@ bool Font::init(const FontData& data)
       return false;
     }
 
-    log("Allocated %ux%u texture for font \'%s\'",
+    log("Allocated texture of size %ux%u format \'%s\' for font \'%s\'",
         texture->getWidth(),
         texture->getHeight(),
+        texture->getFormat().asString().c_str(),
         getPath().asString().c_str());
 
     texture->setFilterMode(GL::FILTER_NEAREST);
