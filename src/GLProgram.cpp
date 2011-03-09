@@ -351,17 +351,6 @@ void Varying::enable(size_t stride, size_t offset)
 #endif
 }
 
-void Varying::disable(void)
-{
-  cgGLDisableClientState((CGparameter) varyingID);
-
-#if WENDY_DEBUG
-  checkCg("Failed to disable varying \'%s\' of program \'%s\'",
-          name.c_str(),
-          program->getPath().asString().c_str());
-#endif
-}
-
 Program& Varying::getProgram(void) const
 {
   return *program;

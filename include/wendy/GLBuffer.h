@@ -132,15 +132,12 @@ private:
   VertexBuffer(const VertexBuffer& source);
   VertexBuffer& operator = (const VertexBuffer& source);
   bool init(const VertexFormat& format, unsigned int count, Usage usage);
-  void apply(void) const;
-  static void invalidateCurrent(void);
   Context& context;
   bool locked;
   VertexFormat format;
   unsigned int bufferID;
   unsigned int count;
   Usage usage;
-  static VertexBuffer* current;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -232,15 +229,12 @@ private:
   IndexBuffer(const IndexBuffer& source);
   IndexBuffer& operator = (const IndexBuffer& source);
   bool init(unsigned int count, Type type, Usage usage);
-  void apply(void) const;
-  static void invalidateCurrent(void);
   Context& context;
   bool locked;
   Type type;
   Usage usage;
   unsigned int bufferID;
   unsigned int count;
-  static IndexBuffer* current;
 };
 
 ///////////////////////////////////////////////////////////////////////

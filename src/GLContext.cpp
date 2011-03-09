@@ -869,12 +869,6 @@ void Context::clearStencilBuffer(unsigned int value)
 
 void Context::render(const PrimitiveRange& range)
 {
-  if (!currentProgram)
-  {
-    logError("Unable to render without a current shader program");
-    return;
-  }
-
   if (range.isEmpty())
   {
     logWarning("Rendering empty primitive range with shader program \'%s\'",
@@ -882,70 +876,78 @@ void Context::render(const PrimitiveRange& range)
     return;
   }
 
-  // TODO: Optimize this method.
+  setCurrentVertexBuffer(range.getVertexBuffer());
+  setCurrentIndexBuffer(range.getIndexBuffer());
 
-  Program& program = *currentProgram;
-  program.apply();
+  render(range.getType(), range.getStart(), range.getCount());
+}
 
-  const VertexBuffer& vertexBuffer = *(range.getVertexBuffer());
-  vertexBuffer.apply();
-
-  const IndexBuffer* indexBuffer = range.getIndexBuffer();
-  if (indexBuffer)
-    indexBuffer->apply();
-
-  const VertexFormat& format = vertexBuffer.getFormat();
-
-  if (program.getVaryingCount() > format.getComponentCount())
+void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
+{
+  if (!currentProgram)
   {
-    logError("Shader program \'%s\' has more varying parameters than vertex format has components",
-             program.getPath().asString().c_str());
+    logError("Unable to render without a current shader program");
     return;
   }
 
-  for (size_t i = 0;  i < program.getVaryingCount();  i++)
+  if (!currentVertexBuffer)
   {
-    Varying& varying = program.getVarying(i);
-
-    const VertexComponent* component = format.findComponent(varying.getName());
-    if (!component)
-    {
-      logError("Varying parameter \'%s\' of shader program \'%s\' has no corresponding vertex format component",
-               varying.getName().c_str(),
-               program.getPath().asString().c_str());
-      return;
-    }
-
-    if (!isCompatible(varying, *component))
-    {
-      logError("Varying parameter \'%s\' of shader program \'%s\' has incompatible type",
-               varying.getName().c_str(),
-               program.getPath().asString().c_str());
-      return;
-    }
-
-    varying.enable(format.getSize(), component->getOffset());
+    logError("Unable to render without a current vertex buffer");
+    return;
   }
 
-  if (indexBuffer)
+  currentProgram->apply();
+
+  if (dirtyBinding)
   {
-    glDrawElements(convertToGL(range.getType()),
-                   range.getCount(),
-		   convertToGL(indexBuffer->getType()),
-		   (GLvoid*) (IndexBuffer::getTypeSize(indexBuffer->getType()) * range.getStart()));
+    const VertexFormat& format = currentVertexBuffer->getFormat();
+
+    if (currentProgram->getVaryingCount() > format.getComponentCount())
+    {
+      logError("Shader program \'%s\' has more varying parameters than vertex format has components",
+              currentProgram->getPath().asString().c_str());
+      return;
+    }
+
+    for (size_t i = 0;  i < currentProgram->getVaryingCount();  i++)
+    {
+      Varying& varying = currentProgram->getVarying(i);
+
+      const VertexComponent* component = format.findComponent(varying.getName());
+      if (!component)
+      {
+        logError("Varying parameter \'%s\' of shader program \'%s\' has no corresponding vertex format component",
+                varying.getName().c_str(),
+                currentProgram->getPath().asString().c_str());
+        return;
+      }
+
+      if (!isCompatible(varying, *component))
+      {
+        logError("Varying parameter \'%s\' of shader program \'%s\' has incompatible type",
+                varying.getName().c_str(),
+                currentProgram->getPath().asString().c_str());
+        return;
+      }
+
+      varying.enable(format.getSize(), component->getOffset());
+    }
+  }
+
+  if (currentIndexBuffer)
+  {
+    size_t size = IndexBuffer::getTypeSize(currentIndexBuffer->getType());
+
+    glDrawElements(convertToGL(type),
+                   count,
+		   convertToGL(currentIndexBuffer->getType()),
+		   (GLvoid*) (size * start));
   }
   else
-  {
-    glDrawArrays(convertToGL(range.getType()),
-                 range.getStart(),
-		 range.getCount());
-  }
+    glDrawArrays(convertToGL(type), start, count);
 
   if (stats)
-    stats->addPrimitives(range.getType(), range.getCount());
-
-  for (unsigned int i = 0;  i < program.getVaryingCount();  i++)
-    program.getVarying(i).disable();
+    stats->addPrimitives(type, count);
 }
 
 void Context::refresh(void)
@@ -1107,7 +1109,59 @@ Program* Context::getCurrentProgram(void) const
 
 void Context::setCurrentProgram(Program* newProgram)
 {
-  currentProgram = newProgram;
+  if (newProgram != currentProgram)
+  {
+    currentProgram = newProgram;
+    dirtyBinding = true;
+  }
+}
+
+VertexBuffer* Context::getCurrentVertexBuffer(void) const
+{
+  return currentVertexBuffer;
+}
+
+void Context::setCurrentVertexBuffer(VertexBuffer* newVertexBuffer)
+{
+  if (newVertexBuffer != currentVertexBuffer)
+  {
+    currentVertexBuffer = newVertexBuffer;
+    dirtyBinding = true;
+
+    if (currentVertexBuffer)
+      glBindBufferARB(GL_ARRAY_BUFFER_ARB, currentVertexBuffer->bufferID);
+    else
+      glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
+#if WENDY_DEBUG
+    if (!checkGL("Failed to make index buffer current"))
+      return;
+#endif
+  }
+}
+
+IndexBuffer* Context::getCurrentIndexBuffer(void) const
+{
+  return currentIndexBuffer;
+}
+
+void Context::setCurrentIndexBuffer(IndexBuffer* newIndexBuffer)
+{
+  if (newIndexBuffer != currentIndexBuffer)
+  {
+    currentIndexBuffer = newIndexBuffer;
+    dirtyBinding = true;
+
+    if (currentIndexBuffer)
+      glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, currentIndexBuffer->bufferID);
+    else
+      glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+
+#if WENDY_DEBUG
+    if (!checkGL("Failed to apply index buffer"))
+      return;
+#endif
+  }
 }
 
 const Context::PlaneList& Context::getClipPlanes(void) const
@@ -1294,7 +1348,7 @@ Context::Context(ResourceIndex& initIndex):
   dirtyModelView(true),
   dirtyViewProj(true),
   dirtyModelViewProj(true),
-  currentProgram(NULL),
+  dirtyBinding(true),
   stats(NULL)
 {
   // Necessary hack in case GLFW calls a callback before

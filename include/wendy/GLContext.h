@@ -45,6 +45,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+class VertexBuffer;
+class IndexBuffer;
 class Context;
 class PrimitiveRange;
 
@@ -469,6 +471,7 @@ public:
    *  @pre A shader program must be set before calling this method.
    */
   void render(const PrimitiveRange& range);
+  void render(PrimitiveType type, unsigned int start, unsigned int count);
   /*! Makes Context::update to return when in manual refresh mode, forcing
    *  a new iteration of the render loop.
    */
@@ -530,6 +533,10 @@ public:
    *  the current shader program.
    */
   void setCurrentProgram(Program* newProgram);
+  VertexBuffer* getCurrentVertexBuffer(void) const;
+  void setCurrentVertexBuffer(VertexBuffer* newVertexBuffer);
+  IndexBuffer* getCurrentIndexBuffer(void) const;
+  void setCurrentIndexBuffer(IndexBuffer* newIndexBuffer);
   const PlaneList& getClipPlanes(void) const;
   bool setClipPlanes(const PlaneList& newPlanes);
   const Mat4& getModelMatrix(void) const;
@@ -638,9 +645,12 @@ private:
   bool dirtyModelView;
   bool dirtyViewProj;
   bool dirtyModelViewProj;
+  bool dirtyBinding;
   UniformList globalUniforms;
   SamplerList globalSamplers;
   Ref<Program> currentProgram;
+  Ref<VertexBuffer> currentVertexBuffer;
+  Ref<IndexBuffer> currentIndexBuffer;
   PlaneList planes;
   Stats* stats;
   Ref<Canvas> currentCanvas;

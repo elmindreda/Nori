@@ -93,7 +93,6 @@ public:
     FLOAT_VEC4,
   };
   void enable(size_t stride, size_t offset);
-  void disable(void);
   bool isScalar(void) const;
   bool isVector(void) const;
   Type getType(void) const;

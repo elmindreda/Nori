@@ -29,6 +29,8 @@
 
 #include <wendy/OpenGL.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLProgram.h>
+#include <wendy/GLContext.h>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -104,9 +106,6 @@ VertexBuffer::~VertexBuffer(void)
   if (locked)
     logWarning("Vertex buffer destroyed while locked");
 
-  if (current == this)
-    invalidateCurrent();
-
   if (bufferID)
     glDeleteBuffersARB(1, &bufferID);
 }
@@ -119,7 +118,7 @@ void* VertexBuffer::lock(LockType type)
     return NULL;
   }
 
-  apply();
+  context.setCurrentVertexBuffer(this);
 
   void* mapping = glMapBufferARB(GL_ARRAY_BUFFER_ARB, convertToGL(type));
   if (mapping == NULL)
@@ -141,7 +140,7 @@ void VertexBuffer::unlock(void)
     return;
   }
 
-  apply();
+  context.setCurrentVertexBuffer(this);
 
   if (!glUnmapBufferARB(GL_ARRAY_BUFFER_ARB))
     logWarning("Data for vertex buffer was corrupted");
@@ -163,7 +162,7 @@ void VertexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsign
     return;
   }
 
-  apply();
+  context.setCurrentVertexBuffer(this);
 
   const size_t size = format.getSize();
   glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
@@ -187,7 +186,7 @@ void VertexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int s
     return;
   }
 
-  apply();
+  context.setCurrentVertexBuffer(this);
 
   const size_t size = format.getSize();
   glGetBufferSubDataARB(GL_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
@@ -254,12 +253,9 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
   usage = initUsage;
   count = initCount;
 
-  // Clear any errors
-  glGetError();
-
   glGenBuffersARB(1, &bufferID);
 
-  apply();
+  context.setCurrentVertexBuffer(this);
 
   glBufferDataARB(GL_ARRAY_BUFFER_ARB,
 		  count * format.getSize(),
@@ -269,33 +265,12 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
   if (!checkGL("Error during creation of vertex buffer of format \'%s\'",
                format.asString().c_str()))
   {
+    context.setCurrentVertexBuffer(NULL);
     return false;
   }
 
   return true;
 }
-
-void VertexBuffer::apply(void) const
-{
-  if (current == this)
-    return;
-
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
-
-#if WENDY_DEBUG
-  if (!checkGL("Failed to apply index buffer"))
-    return;
-#endif
-
-  current = const_cast<VertexBuffer*>(this);
-}
-
-void VertexBuffer::invalidateCurrent(void)
-{
-  current = NULL;
-}
-
-VertexBuffer* VertexBuffer::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -303,9 +278,6 @@ IndexBuffer::~IndexBuffer(void)
 {
   if (locked)
     logWarning("Index buffer destroyed while locked");
-
-  if (current == this)
-    invalidateCurrent();
 
   if (bufferID)
     glDeleteBuffersARB(1, &bufferID);
@@ -319,13 +291,12 @@ void* IndexBuffer::lock(LockType type)
     return NULL;
   }
 
-  apply();
+  context.setCurrentIndexBuffer(this);
 
   void* mapping = glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, convertToGL(type));
   if (mapping == NULL)
   {
-    logError("Failed to lock index buffer: %s",
-             gluErrorString(glGetError()));
+    logError("Failed to lock index buffer: %s", gluErrorString(glGetError()));
     return NULL;
   }
 
@@ -341,7 +312,7 @@ void IndexBuffer::unlock(void)
     return;
   }
 
-  apply();
+  context.setCurrentIndexBuffer(this);
 
   if (!glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB))
     logWarning("Data for index buffer was corrupted");
@@ -363,7 +334,7 @@ void IndexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsigne
     return;
   }
 
-  apply();
+  context.setCurrentIndexBuffer(this);
 
   const size_t size = getTypeSize(type);
   glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, sourceCount * size, source);
@@ -387,7 +358,7 @@ void IndexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int st
     return;
   }
 
-  apply();
+  context.setCurrentIndexBuffer(this);
 
   const size_t size = getTypeSize(type);
   glGetBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, start * size, targetCount * size, target);
@@ -469,12 +440,9 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
   usage = initUsage;
   count = initCount;
 
-  // Clear any errors
-  glGetError();
-
   glGenBuffersARB(1, &bufferID);
 
-  apply();
+  context.setCurrentIndexBuffer(this);
 
   glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
 		  count * getTypeSize(type),
@@ -484,33 +452,12 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
   if (!checkGL("Error during creation of index buffer of element size %u",
                getTypeSize(type)))
   {
+    context.setCurrentIndexBuffer(NULL);
     return false;
   }
 
   return true;
 }
-
-void IndexBuffer::apply(void) const
-{
-  if (current == this)
-    return;
-
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferID);
-
-#if WENDY_DEBUG
-  if (!checkGL("Failed to apply index buffer"))
-    return;
-#endif
-
-  current = const_cast<IndexBuffer*>(this);
-}
-
-void IndexBuffer::invalidateCurrent(void)
-{
-  current = NULL;
-}
-
-IndexBuffer* IndexBuffer::current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 
