@@ -548,11 +548,8 @@ Sampler::Sampler(Program& initProgram):
 
 Program::~Program(void)
 {
-  if (vertexProgramID)
-    cgDestroyProgram((CGprogram) vertexProgramID);
-
-  if (fragmentProgramID)
-    cgDestroyProgram((CGprogram) fragmentProgramID);
+  if (programID)
+    cgDestroyProgram((CGprogram) programID);
 }
 
 Varying* Program::findVarying(const String& name)
@@ -698,8 +695,7 @@ Program::Program(const ResourceInfo& info, Context& initContext):
 Program::Program(const Program& source):
   Resource(source),
   context(source.context),
-  vertexProgramID(0),
-  fragmentProgramID(0)
+  programID(0)
 {
 }
 
@@ -710,12 +706,12 @@ bool Program::init(const VertexProgram& vertexProgram,
   cgSetCompilerIncludeCallback((CGcontext) context.cgContextID,
                                (CGIncludeCallbackFunc) Program::onIncludeFile);
 
-  vertexProgramID = cgCreateProgram((CGcontext) context.cgContextID,
-                                    CG_SOURCE,
-                                    vertexProgram.text.c_str(),
-                                    (CGprofile) context.cgVertexProfile,
-                                    NULL,
-                                    NULL);
+  CGprogram vertexProgramID = cgCreateProgram((CGcontext) context.cgContextID,
+                                              CG_SOURCE,
+                                              vertexProgram.text.c_str(),
+                                              (CGprofile) context.cgVertexProfile,
+                                              NULL,
+                                              NULL);
   if (!vertexProgramID)
   {
     logError("Failed to compile Cg vertex program \'%s\':\n%s\n%s",
@@ -725,12 +721,12 @@ bool Program::init(const VertexProgram& vertexProgram,
     return false;
   }
 
-  fragmentProgramID = cgCreateProgram((CGcontext) context.cgContextID,
-                                      CG_SOURCE,
-                                      fragmentProgram.text.c_str(),
-                                      (CGprofile) context.cgFragmentProfile,
-                                      NULL,
-                                      NULL);
+  CGprogram fragmentProgramID = cgCreateProgram((CGcontext) context.cgContextID,
+                                                CG_SOURCE,
+                                                fragmentProgram.text.c_str(),
+                                                (CGprofile) context.cgFragmentProfile,
+                                                NULL,
+                                                NULL);
   if (!fragmentProgramID)
   {
     logError("Failed to compile Cg fragment program \'%s\':\n%s\n%s",
@@ -743,105 +739,78 @@ bool Program::init(const VertexProgram& vertexProgram,
   compilingProgram = NULL;
   cgSetCompilerIncludeCallback((CGcontext) context.cgContextID, NULL);
 
-  cgGLLoadProgram((CGprogram) vertexProgramID);
+  programID = cgCombinePrograms2(vertexProgramID, fragmentProgramID);
 
-  if (!checkCg("Failed to load vertex program \'%s\'",
-               vertexProgram.path.asString().c_str()))
+  cgDestroyProgram(vertexProgramID);
+  cgDestroyProgram(fragmentProgramID);
+
+  if (!checkCg("Failed to combine program \'%s\'", getPath().asString().c_str()))
+    return false;
+
+  if (!programID)
   {
+    logError("Failed to combine program \'%s\'", getPath().asString().c_str());
     return false;
   }
 
-  cgGLLoadProgram((CGprogram) fragmentProgramID);
+  cgGLLoadProgram((CGprogram) programID);
 
-  if (!checkCg("Failed to load fragment program \'%s\'",
-               fragmentProgram.path.asString().c_str()))
-  {
+  if (!checkCg("Failed to load program \'%s\'", getPath().asString().c_str()))
     return false;
-  }
 
-  CGparameter parameter;
-
-  parameter = cgGetFirstLeafParameter((CGprogram) vertexProgramID, CG_PROGRAM);
-
-  while (parameter)
+  int count = cgGetNumProgramDomains((CGprogram) programID);
+  for (int i = 0;  i < count;  i++)
   {
-    if (cgGetParameterResource(parameter) != CG_UNDEFINED)
+    CGprogram domainProgramID = cgGetProgramDomainProgram((CGprogram) programID, i);
+
+    for (CGparameter parameter = cgGetFirstLeafParameter(domainProgramID, CG_PROGRAM);
+         parameter;
+         parameter = cgGetNextLeafParameter(parameter))
     {
-      CGenum variability = cgGetParameterVariability(parameter);
-      if (variability == CG_VARYING)
+      if (cgGetParameterResource(parameter) != CG_UNDEFINED)
       {
-        if (cgGetParameterDirection(parameter) != CG_IN)
-          continue;
-
-        CGtype type = cgGetParameterType(parameter);
-
-        varyings.push_back(Varying(*this));
-        Varying& varying = varyings.back();
-        varying.name = cgGetParameterName(parameter);
-        varying.type = convertVaryingType(type);
-        varying.varyingID = parameter;
-      }
-      else if (variability == CG_UNIFORM)
-      {
-        CGtype type = cgGetParameterType(parameter);
-
-        if (isSamplerType(type))
+        CGenum variability = cgGetParameterVariability(parameter);
+        if (variability == CG_VARYING)
         {
-          samplers.push_back(Sampler(*this));
-          Sampler& sampler = samplers.back();
-          sampler.name = cgGetParameterName(parameter);
-          sampler.type = convertSamplerType(type);
-          sampler.samplerID = parameter;
+          if (cgGetProgramDomain(domainProgramID) != CG_VERTEX_DOMAIN)
+            continue;
+
+          if (cgGetParameterDirection(parameter) != CG_IN)
+            continue;
+
+          CGtype type = cgGetParameterType(parameter);
+
+          varyings.push_back(Varying(*this));
+          Varying& varying = varyings.back();
+          varying.name = cgGetParameterName(parameter);
+          varying.type = convertVaryingType(type);
+          varying.varyingID = parameter;
         }
-        else if (isUniformType(type))
+        else if (variability == CG_UNIFORM)
         {
-          uniforms.push_back(Uniform(*this));
-          Uniform& uniform = uniforms.back();
-          uniform.name = cgGetParameterName(parameter);
-          uniform.type = convertUniformType(type);
-          uniform.uniformID = parameter;
+          CGtype type = cgGetParameterType(parameter);
+
+          if (isSamplerType(type))
+          {
+            samplers.push_back(Sampler(*this));
+            Sampler& sampler = samplers.back();
+            sampler.name = cgGetParameterName(parameter);
+            sampler.type = convertSamplerType(type);
+            sampler.samplerID = parameter;
+          }
+          else if (isUniformType(type))
+          {
+            uniforms.push_back(Uniform(*this));
+            Uniform& uniform = uniforms.back();
+            uniform.name = cgGetParameterName(parameter);
+            uniform.type = convertUniformType(type);
+            uniform.uniformID = parameter;
+          }
+          else
+            logError("Unknown Cg parameter type");
         }
-        else
-          logError("Unknown Cg parameter type");
       }
     }
-
-    parameter = cgGetNextLeafParameter(parameter);
-  }
-
-  parameter = cgGetFirstLeafParameter((CGprogram) fragmentProgramID, CG_PROGRAM);
-
-  while (parameter)
-  {
-    if (cgGetParameterResource(parameter) != CG_UNDEFINED)
-    {
-      CGenum variability = cgGetParameterVariability(parameter);
-      if (variability == CG_UNIFORM)
-      {
-        CGtype type = cgGetParameterType(parameter);
-
-        if (isSamplerType(type))
-        {
-          samplers.push_back(Sampler(*this));
-          Sampler& sampler = samplers.back();
-          sampler.name = cgGetParameterName(parameter);
-          sampler.type = convertSamplerType(type);
-          sampler.samplerID = parameter;
-        }
-        else if (isUniformType(type))
-        {
-          uniforms.push_back(Uniform(*this));
-          Uniform& uniform = uniforms.back();
-          uniform.name = cgGetParameterName(parameter);
-          uniform.type = convertUniformType(type);
-          uniform.uniformID = parameter;
-        }
-        else
-          logError("Unknown Cg parameter type");
-      }
-    }
-
-    parameter = cgGetNextLeafParameter(parameter);
   }
 
   return true;
@@ -849,8 +818,7 @@ bool Program::init(const VertexProgram& vertexProgram,
 
 void Program::apply(void) const
 {
-  cgGLBindProgram((CGprogram) vertexProgramID);
-  cgGLBindProgram((CGprogram) fragmentProgramID);
+  cgGLBindProgram((CGprogram) programID);
 }
 
 void Program::onIncludeFile(void* context, const char* name)

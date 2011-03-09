@@ -220,8 +220,7 @@ private:
   typedef std::vector<Uniform> UniformList;
   typedef std::vector<Sampler> SamplerList;
   Context& context;
-  void* vertexProgramID;
-  void* fragmentProgramID;
+  void* programID;
   VaryingList varyings;
   UniformList uniforms;
   SamplerList samplers;
