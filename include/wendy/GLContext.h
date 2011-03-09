@@ -437,9 +437,15 @@ class Context : public GlobalStateListener, public Singleton<Context>
   friend class TextureImage;
   friend class Program;
 public:
+  /*! Refresh mode enumeration.
+   */
   enum RefreshMode
   {
+    /*! The Context::update method does not block.
+     */
     AUTOMATIC_REFRESH,
+    /*! The Context::update method blocks until a refresh is requested.
+     */
     MANUAL_REFRESH,
   };
   typedef std::vector<Plane> PlaneList;
@@ -463,9 +469,14 @@ public:
    *  @pre A shader program must be set before calling this method.
    */
   void render(const PrimitiveRange& range);
-  /*! Updates the screen.
+  /*! Makes Context::update to return when in manual refresh mode, forcing
+   *  a new iteration of the render loop.
    */
   void refresh(void);
+  /*! Swaps the buffer chain, processes any queued events and, in manual
+   *  refresh mode, blocks until either the window is closed or a call to
+   *  Context::refresh is made.
+   */
   bool update(void);
   GlobalUniform& createGlobalUniform(const String& name,
                                      Uniform::Type type,
@@ -481,7 +492,12 @@ public:
    *  otherwise @c false.
    */
   GlobalSampler* findGlobalSampler(const String& name, Sampler::Type type) const;
+  /*! @return The current refresh mode.
+   */
   RefreshMode getRefreshMode(void) const;
+  /*! Sets the refresh mode.
+   *  @param[in] newMode The desired new refresh mode.
+   */
   void setRefreshMode(RefreshMode newMode);
   /*! @return The current scissor rectangle.
    */
