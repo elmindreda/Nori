@@ -896,7 +896,15 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
     return;
   }
 
-  currentProgram->apply();
+  cgGLBindProgram((CGprogram) currentProgram->programID);
+
+#if WENDY_DEBUG
+  if (!checkCg("Failed to bind program \'%s\'",
+               currentProgram->getPath().asString().c_str()))
+  {
+    return;
+  }
+#endif
 
   if (dirtyBinding)
   {
@@ -905,7 +913,7 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
     if (currentProgram->getVaryingCount() > format.getComponentCount())
     {
       logError("Shader program \'%s\' has more varying parameters than vertex format has components",
-              currentProgram->getPath().asString().c_str());
+               currentProgram->getPath().asString().c_str());
       return;
     }
 
@@ -917,21 +925,23 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
       if (!component)
       {
         logError("Varying parameter \'%s\' of shader program \'%s\' has no corresponding vertex format component",
-                varying.getName().c_str(),
-                currentProgram->getPath().asString().c_str());
+                 varying.getName().c_str(),
+                 currentProgram->getPath().asString().c_str());
         return;
       }
 
       if (!isCompatible(varying, *component))
       {
         logError("Varying parameter \'%s\' of shader program \'%s\' has incompatible type",
-                varying.getName().c_str(),
-                currentProgram->getPath().asString().c_str());
+                 varying.getName().c_str(),
+                 currentProgram->getPath().asString().c_str());
         return;
       }
 
       varying.enable(format.getSize(), component->getOffset());
     }
+
+    dirtyBinding = false;
   }
 
   if (currentIndexBuffer)
@@ -1487,7 +1497,7 @@ bool Context::init(const ContextMode& initMode)
 
     cgGLSetManageTextureParameters((CGcontext) cgContextID, CG_TRUE);
     cgSetLockingPolicy(CG_NO_LOCKS_POLICY);
-    cgSetParameterSettingMode((CGcontext) cgContextID, CG_IMMEDIATE_PARAMETER_SETTING);
+    cgSetParameterSettingMode((CGcontext) cgContextID, CG_DEFERRED_PARAMETER_SETTING);
 
 #if WENDY_DEBUG
     cgGLSetDebugMode(CG_TRUE);

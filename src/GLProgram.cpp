@@ -816,11 +816,6 @@ bool Program::init(const VertexProgram& vertexProgram,
   return true;
 }
 
-void Program::apply(void) const
-{
-  cgGLBindProgram((CGprogram) programID);
-}
-
 void Program::onIncludeFile(void* context, const char* name)
 {
   String source;

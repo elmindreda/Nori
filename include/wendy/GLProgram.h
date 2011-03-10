@@ -213,7 +213,6 @@ private:
   Program(const Program& source);
   bool init(const VertexProgram& vertexProgram,
             const FragmentProgram& fragmentProgram);
-  void apply(void) const;
   static void onIncludeFile(void* context, const char* name);
   Program& operator = (const Program& source);
   typedef std::vector<Varying> VaryingList;
