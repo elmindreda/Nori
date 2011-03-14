@@ -37,9 +37,6 @@
 
 #include <GL/glfw.h>
 
-#include <Cg/cg.h>
-#include <Cg/cgGL.h>
-
 #include <algorithm>
 
 ///////////////////////////////////////////////////////////////////////
@@ -165,11 +162,11 @@ GLenum convertToGL(PrimitiveType type)
   return 0;
 }
 
-bool isCompatible(const Varying& varying, const VertexComponent& component)
+bool isCompatible(const Attribute& attribute, const VertexComponent& component)
 {
-  switch (varying.getType())
+  switch (attribute.getType())
   {
-    case Varying::FLOAT:
+    case Attribute::FLOAT:
     {
       if (component.getType() == VertexComponent::FLOAT32 &&
           component.getElementCount() == 1)
@@ -178,7 +175,7 @@ bool isCompatible(const Varying& varying, const VertexComponent& component)
       break;
     }
 
-    case Varying::FLOAT_VEC2:
+    case Attribute::FLOAT_VEC2:
     {
       if (component.getType() == VertexComponent::FLOAT32 &&
           component.getElementCount() == 2)
@@ -187,7 +184,7 @@ bool isCompatible(const Varying& varying, const VertexComponent& component)
       break;
     }
 
-    case Varying::FLOAT_VEC3:
+    case Attribute::FLOAT_VEC3:
     {
       if (component.getType() == VertexComponent::FLOAT32 &&
           component.getElementCount() == 3)
@@ -196,7 +193,7 @@ bool isCompatible(const Varying& varying, const VertexComponent& component)
       break;
     }
 
-    case Varying::FLOAT_VEC4:
+    case Attribute::FLOAT_VEC4:
     {
       if (component.getType() == VertexComponent::FLOAT32 &&
           component.getElementCount() == 4)
@@ -301,22 +298,26 @@ Limits::Limits(Context& initContext):
   maxColorAttachments(0),
   maxDrawBuffers(0),
   maxClipPlanes(0),
-  maxFragmentTextureImageUnits(0),
   maxVertexTextureImageUnits(0),
+  maxFragmentTextureImageUnits(0),
+  maxCombinedTextureImageUnits(0),
   maxTextureSize(0),
   maxTextureCubeSize(0),
   maxTextureRectangleSize(0),
+  maxTextureCoords(0),
   maxVertexAttributes(0)
 {
   maxColorAttachments = getIntegerParameter(GL_MAX_COLOR_ATTACHMENTS_EXT);
-  maxDrawBuffers = getIntegerParameter(GL_MAX_DRAW_BUFFERS_ARB);
+  maxDrawBuffers = getIntegerParameter(GL_MAX_DRAW_BUFFERS);
   maxClipPlanes = getIntegerParameter(GL_MAX_CLIP_PLANES);
-  maxFragmentTextureImageUnits = getIntegerParameter(GL_MAX_TEXTURE_IMAGE_UNITS);
   maxVertexTextureImageUnits = getIntegerParameter(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+  maxFragmentTextureImageUnits = getIntegerParameter(GL_MAX_TEXTURE_IMAGE_UNITS);
+  maxCombinedTextureImageUnits = getIntegerParameter(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
   maxTextureSize = getIntegerParameter(GL_MAX_TEXTURE_SIZE);
-  maxTextureCubeSize = getIntegerParameter(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB);
+  maxTextureCubeSize = getIntegerParameter(GL_MAX_CUBE_MAP_TEXTURE_SIZE);
   maxTextureRectangleSize = getIntegerParameter(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB);
-  maxVertexAttributes = getIntegerParameter(GL_MAX_VERTEX_ATTRIBS_ARB);
+  maxTextureCoords = getIntegerParameter(GL_MAX_TEXTURE_COORDS);
+  maxVertexAttributes = getIntegerParameter(GL_MAX_VERTEX_ATTRIBS);
 }
 
 unsigned int Limits::getMaxColorAttachments(void) const
@@ -334,14 +335,19 @@ unsigned int Limits::getMaxClipPlanes(void) const
   return maxClipPlanes;
 }
 
+unsigned int Limits::getMaxVertexTextureImageUnits(void) const
+{
+  return maxVertexTextureImageUnits;
+}
+
 unsigned int Limits::getMaxFragmentTextureImageUnits(void) const
 {
   return maxFragmentTextureImageUnits;
 }
 
-unsigned int Limits::getMaxVertexTextureImageUnits(void) const
+unsigned int Limits::getMaxCombinedTextureImageUnits(void) const
 {
-  return maxVertexTextureImageUnits;
+  return maxCombinedTextureImageUnits;
 }
 
 unsigned int Limits::getMaxTextureSize(void) const
@@ -357,6 +363,16 @@ unsigned int Limits::getMaxTextureCubeSize(void) const
 unsigned int Limits::getMaxTextureRectangleSize(void) const
 {
   return maxTextureRectangleSize;
+}
+
+unsigned int Limits::getMaxTextureCoords(void) const
+{
+  return maxTextureCoords;
+}
+
+unsigned int Limits::getMaxVertexAttributes(void) const
+{
+  return maxVertexAttributes;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -608,7 +624,7 @@ void ImageCanvas::apply(void) const
       if (GLEW_VERSION_2_0)
         glDrawBuffers(count, enables);
       else
-        glDrawBuffersARB(count, enables);
+        glDrawBuffers(count, enables);
     }
     else
       glDrawBuffer(GL_NONE);
@@ -715,7 +731,7 @@ Stats::Frame::Frame(void):
 
 ///////////////////////////////////////////////////////////////////////
 
-GlobalStateListener::~GlobalStateListener(void)
+GlobalUniformListener::~GlobalUniformListener(void)
 {
 }
 
@@ -754,57 +770,12 @@ unsigned int GlobalUniform::getID(void) const
   return ID;
 }
 
-GlobalStateListener* GlobalUniform::getListener(void) const
+GlobalUniformListener* GlobalUniform::getListener(void) const
 {
   return listener;
 }
 
-void GlobalUniform::setListener(GlobalStateListener* newListener)
-{
-  listener = newListener;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-GlobalSampler::GlobalSampler(const String& initName,
-                             Sampler::Type initType,
-                             unsigned int initID):
-  name(initName),
-  type(initType),
-  ID(initID),
-  listener(NULL)
-{
-}
-
-void GlobalSampler::applyTo(Sampler& sampler) const
-{
-  if (listener)
-    listener->onStateApply(ID, sampler);
-  else
-    logError("Global sampler \'%s\' has no listener", name.c_str());
-}
-
-const String& GlobalSampler::getName(void) const
-{
-  return name;
-}
-
-Sampler::Type GlobalSampler::getType(void) const
-{
-  return type;
-}
-
-unsigned int GlobalSampler::getID(void) const
-{
-  return ID;
-}
-
-GlobalStateListener* GlobalSampler::getListener(void) const
-{
-  return listener;
-}
-
-void GlobalSampler::setListener(GlobalStateListener* newListener)
+void GlobalUniform::setListener(GlobalUniformListener* newListener)
 {
   listener = newListener;
 }
@@ -816,12 +787,6 @@ Context::~Context(void)
   destroySignal.emit();
 
   currentCanvas = NULL;
-
-  if (cgContextID)
-  {
-    cgDestroyContext((CGcontext) cgContextID);
-    cgContextID = NULL;
-  }
 
   glfwCloseWindow();
 
@@ -896,49 +861,39 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
     return;
   }
 
-  cgGLBindProgram((CGprogram) currentProgram->programID);
-
-#if WENDY_DEBUG
-  if (!checkCg("Failed to bind program \'%s\'",
-               currentProgram->getPath().asString().c_str()))
-  {
-    return;
-  }
-#endif
-
   if (dirtyBinding)
   {
     const VertexFormat& format = currentVertexBuffer->getFormat();
 
-    if (currentProgram->getVaryingCount() > format.getComponentCount())
+    if (currentProgram->getAttributeCount() > format.getComponentCount())
     {
-      logError("Shader program \'%s\' has more varying parameters than vertex format has components",
+      logError("Shader program \'%s\' has more attributes than vertex format has components",
                currentProgram->getPath().asString().c_str());
       return;
     }
 
-    for (size_t i = 0;  i < currentProgram->getVaryingCount();  i++)
+    for (size_t i = 0;  i < currentProgram->getAttributeCount();  i++)
     {
-      Varying& varying = currentProgram->getVarying(i);
+      Attribute& attribute = currentProgram->getAttribute(i);
 
-      const VertexComponent* component = format.findComponent(varying.getName());
+      const VertexComponent* component = format.findComponent(attribute.getName());
       if (!component)
       {
-        logError("Varying parameter \'%s\' of shader program \'%s\' has no corresponding vertex format component",
-                 varying.getName().c_str(),
+        logError("Attribute \'%s\' of program \'%s\' has no corresponding vertex format component",
+                 attribute.getName().c_str(),
                  currentProgram->getPath().asString().c_str());
         return;
       }
 
-      if (!isCompatible(varying, *component))
+      if (!isCompatible(attribute, *component))
       {
-        logError("Varying parameter \'%s\' of shader program \'%s\' has incompatible type",
-                 varying.getName().c_str(),
+        logError("Attribute \'%s\' of shader program \'%s\' has incompatible type",
+                 attribute.getName().c_str(),
                  currentProgram->getPath().asString().c_str());
         return;
       }
 
-      varying.enable(format.getSize(), component->getOffset());
+      attribute.enable(format.getSize(), component->getOffset());
     }
 
     dirtyBinding = false;
@@ -1002,42 +957,12 @@ GlobalUniform& Context::createGlobalUniform(const String& name,
   return *state;
 }
 
-GlobalSampler& Context::createGlobalSampler(const String& name,
-                                            Sampler::Type type,
-                                            unsigned int ID)
-{
-  GlobalSampler* state = findGlobalSampler(name, type);
-  if (state)
-  {
-    if (state->getID() != ID)
-      throw Exception("Global sampler uniform internal ID mismatch");
-  }
-  else
-  {
-    state = new GlobalSampler(name, type, ID);
-    globalSamplers.push_back(state);
-  }
-
-  return *state;
-}
-
 GlobalUniform* Context::findGlobalUniform(const String& name, Uniform::Type type) const
 {
   for (UniformList::const_iterator u = globalUniforms.begin();  u != globalUniforms.end();  u++)
   {
     if ((*u)->getName() == name && (*u)->getType() == type)
       return *u;
-  }
-
-  return NULL;
-}
-
-GlobalSampler* Context::findGlobalSampler(const String& name, Sampler::Type type) const
-{
-  for (SamplerList::const_iterator s = globalSamplers.begin();  s != globalSamplers.end();  s++)
-  {
-    if ((*s)->getName() == name && (*s)->getType() == type)
-      return *s;
   }
 
   return NULL;
@@ -1123,6 +1048,11 @@ void Context::setCurrentProgram(Program* newProgram)
   {
     currentProgram = newProgram;
     dirtyBinding = true;
+
+    if (currentProgram)
+      glUseProgram(currentProgram->programID);
+    else
+      glUseProgram(0);
   }
 }
 
@@ -1139,9 +1069,9 @@ void Context::setCurrentVertexBuffer(VertexBuffer* newVertexBuffer)
     dirtyBinding = true;
 
     if (currentVertexBuffer)
-      glBindBufferARB(GL_ARRAY_BUFFER_ARB, currentVertexBuffer->bufferID);
+      glBindBuffer(GL_ARRAY_BUFFER, currentVertexBuffer->bufferID);
     else
-      glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 #if WENDY_DEBUG
     if (!checkGL("Failed to make index buffer current"))
@@ -1163,9 +1093,9 @@ void Context::setCurrentIndexBuffer(IndexBuffer* newIndexBuffer)
     dirtyBinding = true;
 
     if (currentIndexBuffer)
-      glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, currentIndexBuffer->bufferID);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, currentIndexBuffer->bufferID);
     else
-      glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 #if WENDY_DEBUG
     if (!checkGL("Failed to apply index buffer"))
@@ -1349,9 +1279,6 @@ void Context::getScreenModes(ScreenModeList& result)
 
 Context::Context(ResourceIndex& initIndex):
   index(initIndex),
-  cgContextID(NULL),
-  cgVertexProfile(CG_PROFILE_UNKNOWN),
-  cgFragmentProfile(CG_PROFILE_UNKNOWN),
   refreshMode(AUTOMATIC_REFRESH),
   needsRefresh(false),
   needsClosing(false),
@@ -1359,12 +1286,13 @@ Context::Context(ResourceIndex& initIndex):
   dirtyViewProj(true),
   dirtyModelViewProj(true),
   dirtyBinding(true),
+  activeTextureUnit(0),
   stats(NULL)
 {
   // Necessary hack in case GLFW calls a callback before
   // we have had time to call Singleton::set.
 
-  // TODO: Remove this upon the arrival of GLFW_USER_POINTER.
+  // TODO: Remove this upon the arrival of GLFW user pointers.
 
   instance = this;
 }
@@ -1420,27 +1348,15 @@ bool Context::init(const ContextMode& initMode)
       return false;
     }
 
-    if (!GLEW_ARB_vertex_buffer_object)
+    if (!GLEW_VERSION_2_0)
     {
-      logError("Vertex buffer objects (ARB_vertex_buffer_object) are required but not supported");
+      logError("OpenGL 2.0 is required but not supported");
       return false;
     }
 
-    if (!GLEW_ARB_texture_cube_map)
+    if (!GLEW_ARB_texture_rectangle)
     {
-      logError("Cube map textures (ARB_texture_cube_map) are required but not supported");
-      return false;
-    }
-
-    if (!GLEW_ARB_texture_rectangle && !GLEW_EXT_texture_rectangle)
-    {
-      logError("Rectangular textures ({ARB|EXT}_texture_rectangle) are required but not supported");
-      return false;
-    }
-
-    if (!GLEW_VERSION_2_0 && !GLEW_ARB_draw_buffers)
-    {
-      logError("Draw buffers are required but not supported");
+      logError("Rectangular textures (ARB_texture_rectangle) is required but not supported");
       return false;
     }
 
@@ -1454,59 +1370,12 @@ bool Context::init(const ContextMode& initMode)
   // All extensions are there; figure out their limits
   limits = new Limits(*this);
 
-  // Initialize Cg context and profiles
+  // Set up texture unit cache
   {
-    cgContextID = cgCreateContext();
-    if (!cgContextID)
-    {
-      logError("Unable to create Cg context: %s", cgGetErrorString(cgGetError()));
-      return false;
-    }
+    unsigned int unitCount = std::max(limits->getMaxCombinedTextureImageUnits(),
+                                      limits->getMaxTextureCoords());
 
-    cgVertexProfile = cgGLGetLatestProfile(CG_GL_VERTEX);
-    if (cgVertexProfile == CG_PROFILE_UNKNOWN)
-    {
-      logError("Unable to find any usable Cg vertex profile");
-      return false;
-    }
-
-    log("Cg vertex profile %s selected",
-        cgGetProfileString((CGprofile) cgVertexProfile));
-
-    cgGLEnableProfile((CGprofile) cgVertexProfile);
-    cgGLSetOptimalOptions((CGprofile) cgVertexProfile);
-
-    if (!checkCg("Failed to set up Cg vertex profile"))
-      return false;
-
-    cgFragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
-    if (cgFragmentProfile == CG_PROFILE_UNKNOWN)
-    {
-      logError("Unable to find any usable Cg fragment profile");
-      return false;
-    }
-
-    log("Cg fragment profile %s selected",
-        cgGetProfileString((CGprofile) cgFragmentProfile));
-
-    cgGLEnableProfile((CGprofile) cgFragmentProfile);
-    cgGLSetOptimalOptions((CGprofile) cgFragmentProfile);
-
-    if (!checkCg("Failed to set up Cg fragment profile"))
-      return false;
-
-    cgGLSetManageTextureParameters((CGcontext) cgContextID, CG_TRUE);
-    cgSetLockingPolicy(CG_NO_LOCKS_POLICY);
-    cgSetParameterSettingMode((CGcontext) cgContextID, CG_DEFERRED_PARAMETER_SETTING);
-
-#if WENDY_DEBUG
-    cgGLSetDebugMode(CG_TRUE);
-#else
-    cgGLSetDebugMode(CG_FALSE);
-#endif
-
-    if (!checkCg("Failed to set Cg options"))
-      return false;
+    textureUnits.insert(textureUnits.begin(), unitCount, false);
   }
 
   // Create and apply screen canvas
@@ -1579,6 +1448,34 @@ void Context::updateViewportArea(void)
              (GLint) (viewportArea.position.y * height),
 	     (GLsizei) (viewportArea.size.x * width),
 	     (GLsizei) (viewportArea.size.y * height));
+}
+
+Texture* Context::getCurrentTexture(unsigned int unit) const
+{
+  return textureUnits[unit];
+}
+
+void Context::setCurrentTexture(Texture* newTexture)
+{
+  if (textureUnits[activeTextureUnit] != newTexture)
+  {
+    glBindTexture(newTexture->textureTarget, newTexture->textureID);
+    textureUnits[activeTextureUnit] = newTexture;
+  }
+}
+
+unsigned int Context::getActiveTextureUnit(void) const
+{
+  return activeTextureUnit;
+}
+
+void Context::setActiveTextureUnit(unsigned int unit)
+{
+  if (activeTextureUnit != unit)
+  {
+    glActiveTexture(unit);
+    activeTextureUnit = unit;
+  }
 }
 
 void Context::sizeCallback(int width, int height)
@@ -1680,10 +1577,6 @@ void Context::onStateApply(unsigned int stateID, Uniform& uniform)
       break;
     }
   }
-}
-
-void Context::onStateApply(unsigned int stateID, Sampler& sampler)
-{
 }
 
 Context* Context::instance = NULL;

@@ -50,38 +50,24 @@ class Program;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Vertex program text container.
+/*! @brief Shader container.
  *  @ingroup opengl
  */
-class VertexProgram
+class Shader
 {
 public:
-  VertexProgram(void);
-  VertexProgram(const String& text, const Path& path = Path());
+  Shader(void);
+  Shader(const String& text, const Path& path = Path());
   String text;
   Path path;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Fragment program text container.
+/*! @brief Program vertex attribute.
  *  @ingroup opengl
  */
-class FragmentProgram
-{
-public:
-  FragmentProgram(void);
-  FragmentProgram(const String& text, const Path& path = Path());
-  String text;
-  Path path;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Shader program vertex varying.
- *  @ingroup opengl
- */
-class Varying
+class Attribute
 {
   friend class Program;
 public:
@@ -93,27 +79,29 @@ public:
     FLOAT_VEC4,
   };
   void enable(size_t stride, size_t offset);
+  bool operator == (const String& string) const;
   bool isScalar(void) const;
   bool isVector(void) const;
   Type getType(void) const;
   const String& getName(void) const;
   Program& getProgram(void) const;
 private:
-  Varying(Program& program);
+  Attribute(Program& program);
   Program* program;
   Type type;
   String name;
-  void* varyingID;
+  int location;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Shader uniform.
+/*! @brief Program uniform.
  *  @ingroup opengl
  */
 class Uniform
 {
   friend class Program;
+  friend class UniformState;
 public:
   enum Type
   {
@@ -124,60 +112,38 @@ public:
     FLOAT_MAT2,
     FLOAT_MAT3,
     FLOAT_MAT4,
-  };
-  bool isScalar(void) const;
-  bool isVector(void) const;
-  bool isMatrix(void) const;
-  Type getType(void) const;
-  const String& getName(void) const;
-  void setValue(float newValue);
-  void setValue(const Vec2& newValue);
-  void setValue(const Vec3& newValue);
-  void setValue(const Vec4& newValue);
-  void setValue(const Mat2& newValue);
-  void setValue(const Mat3& newValue);
-  void setValue(const Mat4& newValue);
-  Program& getProgram(void) const;
-private:
-  Uniform(Program& program);
-  Program* program;
-  String name;
-  Type type;
-  void* uniformID;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Shader sampler uniform.
- *  @ingroup opengl
- */
-class Sampler
-{
-  friend class Program;
-public:
-  enum Type
-  {
+    BOOL,
+    BOOL_VEC2,
+    BOOL_VEC3,
+    BOOL_VEC4,
+    INT,
+    INT_VEC2,
+    INT_VEC3,
+    INT_VEC4,
     SAMPLER_1D,
     SAMPLER_2D,
     SAMPLER_3D,
     SAMPLER_RECT,
     SAMPLER_CUBE,
   };
+  bool operator == (const String& string) const;
+  bool isScalar(void) const;
+  bool isVector(void) const;
+  bool isMatrix(void) const;
+  bool isSampler(void) const;
   Type getType(void) const;
   const String& getName(void) const;
-  void setTexture(Texture* newTexture);
-  Program& getProgram(void) const;
 private:
-  Sampler(Program& program);
-  Program* program;
+  Uniform(const String& name, Type type, int location);
+  void copyFrom(const void* data);
   String name;
   Type type;
-  void* samplerID;
+  int location;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Combined program object.
+/*! @brief GPU program;
  *  @ingroup opengl
  *
  *  Represents a complete set of GPU programs.
@@ -187,69 +153,63 @@ class Program : public Resource
   friend class Context;
 public:
   ~Program(void);
-  Varying* findVarying(const String& name);
-  const Varying* findVarying(const String& name) const;
+  Attribute* findAttribute(const String& name);
+  const Attribute* findAttribute(const String& name) const;
   Uniform* findUniform(const String& name);
+  bool isCurrent(void) const;
   const Uniform* findUniform(const String& name) const;
-  Sampler* findSampler(const String& name);
-  const Sampler* findSampler(const String& name) const;
-  unsigned int getVaryingCount(void) const;
-  Varying& getVarying(unsigned int index);
-  const Varying& getVarying(unsigned int index) const;
+  unsigned int getAttributeCount(void) const;
+  Attribute& getAttribute(unsigned int index);
+  const Attribute& getAttribute(unsigned int index) const;
   unsigned int getUniformCount(void) const;
   Uniform& getUniform(unsigned int index);
   const Uniform& getUniform(unsigned int index) const;
-  unsigned int getSamplerCount(void) const;
-  Sampler& getSampler(unsigned int index);
-  const Sampler& getSampler(unsigned int index) const;
   Context& getContext(void) const;
   static Ref<Program> create(const ResourceInfo& info,
                              Context& context,
-                             const VertexProgram& vertexProgram,
-                             const FragmentProgram& fragmentProgram);
+                             const Shader& vertexShader,
+                             const Shader& fragmentShader);
   static Ref<Program> read(Context& context, const Path& path);
 private:
   Program(const ResourceInfo& info, Context& context);
   Program(const Program& source);
-  bool init(const VertexProgram& vertexProgram,
-            const FragmentProgram& fragmentProgram);
-  static void onIncludeFile(void* context, const char* name);
+  bool init(const Shader& vertexShader,
+            const Shader& fragmentShader);
+  bool createUniforms(void);
+  bool createAttributes(void);
   Program& operator = (const Program& source);
-  typedef std::vector<Varying> VaryingList;
+  typedef std::vector<Attribute> AttributeList;
   typedef std::vector<Uniform> UniformList;
-  typedef std::vector<Sampler> SamplerList;
   Context& context;
-  void* programID;
-  VaryingList varyings;
+  unsigned int vertexShaderID;
+  unsigned int fragmentShaderID;
+  unsigned int programID;
+  AttributeList attributes;
   UniformList uniforms;
-  SamplerList samplers;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Shader program interface validator.
+/*! @brief GPU program interface validator.
  *  @ingroup opengl
  */
 class ProgramInterface
 {
 public:
   void addUniform(const String& name, Uniform::Type type);
-  void addSampler(const String& name, Sampler::Type type);
-  void addVarying(const String& name, Varying::Type type);
+  void addAttribute(const String& name, Attribute::Type type);
   bool matches(const Program& program, bool verbose = false) const;
   bool matches(const VertexFormat& format, bool verbose = false) const;
 private:
   typedef std::vector<std::pair<String, Uniform::Type> > UniformList;
-  typedef std::vector<std::pair<String, Sampler::Type> > SamplerList;
-  typedef std::vector<std::pair<String, Varying::Type> > VaryingList;
+  typedef std::vector<std::pair<String, Attribute::Type> > AttributeList;
   UniformList uniforms;
-  SamplerList samplers;
-  VaryingList varyings;
+  AttributeList attributes;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Shader program XML codec.
+/*! @brief GPU program XML codec.
  *  @ingroup io
  */
 class ProgramReader : public ResourceReader, public XML::Reader
@@ -263,8 +223,8 @@ private:
   Context& context;
   Ref<Program> program;
   ResourceInfo info;
-  Ptr<VertexProgram> vertexProgram;
-  Ptr<FragmentProgram> fragmentProgram;
+  Ptr<Shader> vertexShader;
+  Ptr<Shader> fragmentShader;
 };
 
 ///////////////////////////////////////////////////////////////////////

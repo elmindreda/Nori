@@ -46,7 +46,7 @@ OcclusionQuery::~OcclusionQuery(void)
     logError("Occlusion query destroyed while active");
 
   if (queryID)
-    glDeleteQueriesARB(1, &queryID);
+    glDeleteQueries(1, &queryID);
 
 #if WENDY_DEBUG
   checkGL("OpenGL error during occlusion query deletion");
@@ -61,7 +61,7 @@ void OcclusionQuery::begin(void)
     return;
   }
 
-  glBeginQueryARB(GL_SAMPLES_PASSED_ARB, queryID);
+  glBeginQuery(GL_SAMPLES_PASSED, queryID);
 
   active = true;
 
@@ -78,7 +78,7 @@ void OcclusionQuery::end(void)
     return;
   }
 
-  glEndQueryARB(GL_SAMPLES_PASSED_ARB);
+  glEndQuery(GL_SAMPLES_PASSED);
 
   active = false;
 
@@ -98,7 +98,7 @@ bool OcclusionQuery::hasResultAvailable(void) const
     return false;
 
   int available;
-  glGetQueryObjectivARB(queryID, GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+  glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &available);
 
 #if WENDY_DEBUG
   if (!checkGL("OpenGL error during occlusion query result availability check"))
@@ -117,7 +117,7 @@ unsigned int OcclusionQuery::getResult(void) const
   }
 
   unsigned int result;
-  glGetQueryObjectuivARB(queryID, GL_QUERY_RESULT_ARB, &result);
+  glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &result);
 
 #if WENDY_DEBUG
   if (!checkGL("OpenGL error during occlusion query result retrieval"))
@@ -145,13 +145,7 @@ OcclusionQuery::OcclusionQuery(Context& initContext):
 
 bool OcclusionQuery::init(void)
 {
-  if (!GLEW_ARB_occlusion_query)
-  {
-    logError("Failed to create occlusion query object because occlusion queries are not available");
-    return false;
-  }
-
-  glGenQueriesARB(1, &queryID);
+  glGenQueries(1, &queryID);
 
   if (!checkGL("OpenGL error during creation of occlusion query object"))
     return false;

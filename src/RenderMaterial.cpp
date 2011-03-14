@@ -52,7 +52,7 @@ Bimap<String, GL::BlendFactor> blendFactorMap;
 Bimap<String, GL::Function> functionMap;
 Bimap<String, Technique::Type> techniqueTypeMap;
 
-const unsigned int RENDER_MATERIAL_XML_VERSION = 6;
+const unsigned int RENDER_MATERIAL_XML_VERSION = 7;
 
 } /*namespace*/
 
@@ -433,88 +433,84 @@ bool MaterialReader::onBeginElement(const String& name)
 
         if (GL::Program* program = currentPass->getProgram())
         {
-          if (name == "sampler")
-          {
-            String samplerName = readString("name");
-            if (samplerName.empty())
-            {
-              logWarning("Shader program \'%s\' lists unnamed sampler uniform",
-                         program->getPath().asString().c_str());
-              return true;
-            }
-
-            if (!program->findSampler(samplerName))
-            {
-              logWarning("Shader program \'%s\' does not have sampler uniform \'%s\'",
-                         program->getPath().asString().c_str(),
-                         samplerName.c_str());
-              return true;
-            }
-
-            Path texturePath(readString("texture"));
-            if (texturePath.isEmpty())
-            {
-              logError("Texture path missing for sampler \'%s\'",
-                       samplerName.c_str());
-              return true;
-            }
-
-            Ref<GL::Texture> texture = GL::Texture::read(context, texturePath);
-            if (!texture)
-            {
-              logError("Failed to find texture \'%s\' for sampler \'%s\' of material \'%s\'",
-                       texturePath.asString().c_str(),
-                       samplerName.c_str(),
-                       material->getPath().asString().c_str());
-              return false;
-            }
-
-            currentPass->getSamplerState(samplerName).setTexture(texture);
-            return true;
-          }
-
           if (name == "uniform")
           {
             String uniformName = readString("name");
             if (uniformName.empty())
             {
-              logWarning("Shader program \'%s\' lists unnamed uniform",
+              logWarning("Material \'%s\' lists unnamed uniform for program \'%s\'",
+                         material->getPath().asString().c_str(),
                          program->getPath().asString().c_str());
+
+              // This isn't a fatal error, just stupid
               return true;
             }
 
             GL::Uniform* uniform = program->findUniform(uniformName);
             if (!uniform)
             {
-              logWarning("Shader program \'%s\' does not have uniform \'%s\'",
+              logWarning("Program \'%s\' for material \'%s\' does not have uniform \'%s\'",
                          program->getPath().asString().c_str(),
+                         material->getPath().asString().c_str(),
                          uniformName.c_str());
+
+              // This isn't a fatal error, just stupid
               return true;
             }
 
-            switch (uniform->getType())
+            GL::UniformState& state = currentPass->getUniformState(uniformName);
+
+            if (uniform->isSampler())
             {
-              case GL::Uniform::FLOAT:
-                currentPass->getUniformState(uniformName).setValue(readFloat("value"));
-                break;
-              case GL::Uniform::FLOAT_VEC2:
-                currentPass->getUniformState(uniformName).setValue(Vec2(readString("value")));
-                break;
-              case GL::Uniform::FLOAT_VEC3:
-                currentPass->getUniformState(uniformName).setValue(Vec3(readString("value")));
-                break;
-              case GL::Uniform::FLOAT_VEC4:
-                currentPass->getUniformState(uniformName).setValue(Vec4(readString("value")));
-                break;
-              case GL::Uniform::FLOAT_MAT2:
-                currentPass->getUniformState(uniformName).setValue(Mat2(readString("value")));
-                break;
-              case GL::Uniform::FLOAT_MAT3:
-                currentPass->getUniformState(uniformName).setValue(Mat3(readString("value")));
-                break;
-              case GL::Uniform::FLOAT_MAT4:
-                currentPass->getUniformState(uniformName).setValue(Mat4(readString("value")));
-                break;
+              Path texturePath(readString("texture"));
+              if (texturePath.isEmpty())
+              {
+                logError("Texture path missing for uniform \'%s\' of program \'%s\' in material \'%s\'",
+                         uniformName.c_str(),
+                         program->getPath().asString().c_str(),
+                         material->getPath().asString().c_str());
+                return false;
+              }
+
+              Ref<GL::Texture> texture = GL::Texture::read(context, texturePath);
+              if (!texture)
+              {
+                logError("Failed to find texture \'%s\' for uniform \'%s\' of program \'%s\' for material \'%s\'",
+                         texturePath.asString().c_str(),
+                         uniformName.c_str(),
+                         program->getPath().asString().c_str(),
+                         material->getPath().asString().c_str());
+                return false;
+              }
+
+              state.setTexture(texture);
+            }
+            else
+            {
+              switch (uniform->getType())
+              {
+                case GL::Uniform::FLOAT:
+                  state.setValue(readFloat("value"));
+                  break;
+                case GL::Uniform::FLOAT_VEC2:
+                  state.setValue(Vec2(readString("value")));
+                  break;
+                case GL::Uniform::FLOAT_VEC3:
+                  state.setValue(Vec3(readString("value")));
+                  break;
+                case GL::Uniform::FLOAT_VEC4:
+                  state.setValue(Vec4(readString("value")));
+                  break;
+                case GL::Uniform::FLOAT_MAT2:
+                  state.setValue(Mat2(readString("value")));
+                  break;
+                case GL::Uniform::FLOAT_MAT3:
+                  state.setValue(Mat3(readString("value")));
+                  break;
+                case GL::Uniform::FLOAT_MAT4:
+                  state.setValue(Mat4(readString("value")));
+                  break;
+              }
             }
 
             return true;
@@ -633,20 +629,6 @@ bool MaterialWriter::write(const Path& path, const Material& material)
           beginElement("program");
           addAttribute("path", program->getPath().asString());
 
-          for (unsigned int i = 0;  i < p->getSamplerCount();  i++)
-          {
-            const GL::SamplerState& state = p->getSamplerState(i);
-
-            Ref<GL::Texture> texture = state.getTexture();
-            if (!texture)
-              continue;
-
-            beginElement("sampler");
-            addAttribute("name", state.getSampler().getName());
-            addAttribute("texture", texture->getPath().asString());
-            endElement();
-          }
-
           for (unsigned int i = 0;  i < p->getUniformCount();  i++)
           {
             const GL::UniformState& state = p->getUniformState(i);
@@ -654,62 +636,73 @@ bool MaterialWriter::write(const Path& path, const Material& material)
             beginElement("uniform");
             addAttribute("name", state.getUniform().getName());
 
-            switch (state.getUniform().getType())
+            if (state.getUniform().isSampler())
             {
-              case GL::Uniform::FLOAT:
-              {
-                float value;
-                state.getValue(value);
-                addAttribute("value", value);
-                break;
-              }
+              Ref<GL::Texture> texture = state.getTexture();
+              if (!texture)
+                continue;
 
-              case GL::Uniform::FLOAT_VEC2:
+              addAttribute("texture", texture->getPath().asString());
+            }
+            else
+            {
+              switch (state.getUniform().getType())
               {
-                Vec2 value;
-                state.getValue(value);
-                addAttribute("value", value.asString());
-                break;
-              }
+                case GL::Uniform::FLOAT:
+                {
+                  float value;
+                  state.getValue(value);
+                  addAttribute("value", value);
+                  break;
+                }
 
-              case GL::Uniform::FLOAT_VEC3:
-              {
-                Vec3 value;
-                state.getValue(value);
-                addAttribute("value", value.asString());
-                break;
-              }
+                case GL::Uniform::FLOAT_VEC2:
+                {
+                  Vec2 value;
+                  state.getValue(value);
+                  addAttribute("value", value.asString());
+                  break;
+                }
 
-              case GL::Uniform::FLOAT_VEC4:
-              {
-                Vec4 value;
-                state.getValue(value);
-                addAttribute("value", value.asString());
-                break;
-              }
+                case GL::Uniform::FLOAT_VEC3:
+                {
+                  Vec3 value;
+                  state.getValue(value);
+                  addAttribute("value", value.asString());
+                  break;
+                }
 
-              case GL::Uniform::FLOAT_MAT2:
-              {
-                Mat2 value;
-                state.getValue(value);
-                addAttribute("value", value.asString());
-                break;
-              }
+                case GL::Uniform::FLOAT_VEC4:
+                {
+                  Vec4 value;
+                  state.getValue(value);
+                  addAttribute("value", value.asString());
+                  break;
+                }
 
-              case GL::Uniform::FLOAT_MAT3:
-              {
-                Mat3 value;
-                state.getValue(value);
-                addAttribute("value", value.asString());
-                break;
-              }
+                case GL::Uniform::FLOAT_MAT2:
+                {
+                  Mat2 value;
+                  state.getValue(value);
+                  addAttribute("value", value.asString());
+                  break;
+                }
 
-              case GL::Uniform::FLOAT_MAT4:
-              {
-                Mat4 value;
-                state.getValue(value);
-                addAttribute("value", value.asString());
-                break;
+                case GL::Uniform::FLOAT_MAT3:
+                {
+                  Mat3 value;
+                  state.getValue(value);
+                  addAttribute("value", value.asString());
+                  break;
+                }
+
+                case GL::Uniform::FLOAT_MAT4:
+                {
+                  Mat4 value;
+                  state.getValue(value);
+                  addAttribute("value", value.asString());
+                  break;
+                }
               }
             }
 

@@ -169,41 +169,6 @@ GLenum convertToGL(Operation operation)
   return 0;
 }
 
-template <typename T>
-class NameComparator
-{
-public:
-  inline NameComparator(const String& name);
-  inline bool operator () (const T& object);
-  inline bool operator () (const T* object);
-private:
-  const String& name;
-};
-
-template <typename T>
-inline NameComparator<T>::NameComparator(const String& initName):
-  name(initName)
-{
-}
-
-template <typename T>
-inline bool NameComparator<T>::operator () (const T& object)
-{
-  return name == object.getName();
-}
-
-template <>
-inline bool NameComparator<UniformState>::operator () (const UniformState& object)
-{
-  return name == object.getUniform().getName();
-}
-
-template <>
-inline bool NameComparator<SamplerState>::operator () (const SamplerState& object)
-{
-  return name == object.getSampler().getName();
-}
-
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
@@ -383,125 +348,11 @@ void StencilState::Data::setDefaults(void)
 UniformState::UniformState(Uniform& initUniform):
   uniform(&initUniform)
 {
-  std::memset(data, 0, sizeof(data));
 }
 
-void UniformState::apply(void) const
+bool UniformState::operator == (const String& name) const
 {
-  switch (uniform->getType())
-  {
-    case Uniform::FLOAT:
-      uniform->setValue(*data);
-      break;
-    case Uniform::FLOAT_VEC2:
-      uniform->setValue(*reinterpret_cast<const Vec2*>(data));
-      break;
-    case Uniform::FLOAT_VEC3:
-      uniform->setValue(*reinterpret_cast<const Vec3*>(data));
-      break;
-    case Uniform::FLOAT_VEC4:
-      uniform->setValue(*reinterpret_cast<const Vec4*>(data));
-      break;
-    case Uniform::FLOAT_MAT2:
-      uniform->setValue(*reinterpret_cast<const Mat2*>(data));
-      break;
-    case Uniform::FLOAT_MAT3:
-      uniform->setValue(*reinterpret_cast<const Mat3*>(data));
-      break;
-    case Uniform::FLOAT_MAT4:
-      uniform->setValue(*reinterpret_cast<const Mat4*>(data));
-      break;
-  }
-}
-
-void UniformState::getValue(float& result) const
-{
-  result = *data;
-}
-
-void UniformState::setValue(float newValue)
-{
-  *data = newValue;
-}
-
-void UniformState::getValue(Vec2& result) const
-{
-  result = *reinterpret_cast<const Vec2*>(data);
-}
-
-void UniformState::setValue(const Vec2& newValue)
-{
-  *reinterpret_cast<Vec2*>(data) = newValue;
-}
-
-void UniformState::getValue(Vec3& result) const
-{
-  result = *reinterpret_cast<const Vec3*>(data);
-}
-
-void UniformState::setValue(const Vec3& newValue)
-{
-  *reinterpret_cast<Vec3*>(data) = newValue;
-}
-
-void UniformState::getValue(Vec4& result) const
-{
-  result = *reinterpret_cast<const Vec4*>(data);
-}
-
-void UniformState::setValue(const Vec4& newValue)
-{
-  *reinterpret_cast<Vec4*>(data) = newValue;
-}
-
-void UniformState::getValue(ColorRGB& result) const
-{
-  result = *reinterpret_cast<const ColorRGB*>(data);
-}
-
-void UniformState::setValue(const ColorRGB& newValue)
-{
-  *reinterpret_cast<ColorRGB*>(data) = newValue;
-}
-
-void UniformState::getValue(ColorRGBA& result) const
-{
-  result = *reinterpret_cast<const ColorRGBA*>(data);
-}
-
-void UniformState::setValue(const ColorRGBA& newValue)
-{
-  *reinterpret_cast<ColorRGBA*>(data) = newValue;
-}
-
-void UniformState::getValue(Mat2& result) const
-{
-  result = *reinterpret_cast<const Mat2*>(data);
-}
-
-void UniformState::setValue(const Mat2& newValue)
-{
-  *reinterpret_cast<Mat2*>(data) = newValue;
-}
-
-void UniformState::getValue(Mat3& result) const
-{
-  result = *reinterpret_cast<const Mat3*>(data);
-}
-
-void UniformState::setValue(const Mat3& newValue)
-{
-  *reinterpret_cast<Mat3*>(data) = newValue;
-}
-
-void UniformState::getValue(Mat4& result) const
-{
-  result = *reinterpret_cast<const Mat4*>(data);
-}
-
-void UniformState::setValue(const Mat4& newValue)
-{
-  *reinterpret_cast<Mat4*>(data) = newValue;
+  return uniform->getName() == name;
 }
 
 Uniform& UniformState::getUniform(void) const
@@ -509,59 +360,75 @@ Uniform& UniformState::getUniform(void) const
   return *uniform;
 }
 
+void UniformState::apply(void) const
+{
+  if (uniform->isSampler())
+  {
+    if (texture)
+    {
+      glUniform1i(location, texture->textureID);
+
+#if WENDY_DEBUG
+      checkGL("Failed to set uniform \'%s\' of program \'%s\' to texture \'%s\'",
+              uniform->name.c_str(),
+              uniform->program->getPath().asString().c_str(),
+              texture->getPath().asString().c_str());
+#endif
+    }
+    else
+    {
+      // This may not be the best solution, but at least it's a solution
+      // We should probably bind a DXM-colored texture instead
+      glUniform1i(location, 0);
+
+#if WENDY_DEBUG
+      checkGL("Failed to set uniform \'%s\' of program \'%s\' to texture zero",
+              uniform->name.c_str(),
+              uniform->program->getPath().asString().c_str());
+#endif
+    }
+  }
+  else
+  {
+    switch (uniform->getType())
+    {
+      case Uniform::FLOAT:
+        glUniform1fv(uniform->location, 1, data);
+        break;
+      case Uniform::FLOAT_VEC2:
+        glUniform2fv(uniform->location, 1, data);
+        break;
+      case Uniform::FLOAT_VEC3:
+        glUniform3fv(uniform->location, 1, data);
+        break;
+      case Uniform::FLOAT_VEC4:
+        glUniform4fv(uniform->location, 1, data);
+        break;
+      case Uniform::FLOAT_MAT2:
+        glUniformMatrix2fv(uniform->location, 1, GL_FALSE, data);
+        break;
+      case Uniform::FLOAT_MAT3:
+        glUniformMatrix3fv(uniform->location, 1, GL_FALSE, data);
+        break;
+      case Uniform::FLOAT_MAT4:
+        glUniformMatrix4fv(uniform->location, 1, GL_FALSE, data);
+        break;
+    }
+
+#if WENDY_DEBUG
+      checkGL("Failed to set uniform \'%s\' of program \'%s\'",
+              uniform->name.c_str(),
+              uniform->program->getPath().asString().c_str());
+#endif
+  }
+}
+
 ///////////////////////////////////////////////////////////////////////
 
-GlobalUniformState::GlobalUniformState(GlobalUniform& initGlobal,
-                                       Uniform& initUniform):
-  global(&initGlobal),
-  uniform(&initUniform)
+GlobalUniform::GlobalUniform(Uniform& initUniform, unsigned int initID):
+  uniform(initUniform),
+  ID(initID)
 {
-}
-
-void GlobalUniformState::apply(void) const
-{
-  global->applyTo(*uniform);
-}
-
-///////////////////////////////////////////////////////////////////////
-
-SamplerState::SamplerState(Sampler& initSampler):
-  sampler(&initSampler)
-{
-}
-
-void SamplerState::apply(void) const
-{
-  sampler->setTexture(texture);
-}
-
-Texture* SamplerState::getTexture(void) const
-{
-  return texture;
-}
-
-void SamplerState::setTexture(Texture* newTexture)
-{
-  texture = newTexture;
-}
-
-Sampler& SamplerState::getSampler(void) const
-{
-  return *sampler;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-GlobalSamplerState::GlobalSamplerState(GlobalSampler& initGlobal,
-                                       Sampler& initSampler):
-  global(&initGlobal),
-  sampler(&initSampler)
-{
-}
-
-void GlobalSamplerState::apply(void) const
-{
-  global->applyTo(*sampler);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -584,100 +451,144 @@ ProgramState::~ProgramState(void)
 
 void ProgramState::apply(void) const
 {
-  if (program)
+  if (!program)
+    return;
+
+  Context& context = program->getContext();
+
+  context.setCurrentProgram(program);
+
+  for (UniformList::const_iterator u = uniforms.begin();  u != uniforms.end();  u++)
+    u->uniform->copyFrom(&floats[u->index]);
+
+  GlobalUniformState* state = context.getGlobalUniformState();
+
+  for (GlobalUniformList::const_iterator u = globalUniforms.begin();
+       u != globalUniforms.end();
+       u++)
   {
-    for (UniformList::const_iterator i = uniforms.begin();  i != uniforms.end();  i++)
-      i->apply();
-
-    for (SamplerList::const_iterator i = samplers.begin();  i != samplers.end();  i++)
-      i->apply();
-
-    for (GlobalUniformList::const_iterator i = globalUniforms.begin();  i != globalUniforms.end();  i++)
-      i->apply();
-
-    for (GlobalSamplerList::const_iterator i = globalSamplers.begin();  i != globalSamplers.end();  i++)
-      i->apply();
-
-    program->getContext().setCurrentProgram(program);
+    state->update(u->ID, *u->uniform);
   }
 }
 
-unsigned int ProgramState::getUniformCount(void) const
+void ProgramState::getValue(float& result) const
 {
-  return uniforms.size();
+  const UniformState* state = getUniformState(name, UniformState::FLOAT);
+  std::memcpy(&result, &floats[state->index], sizeof(result));
 }
 
-UniformState& ProgramState::getUniformState(const String& name)
+void ProgramState::getValue(Vec2& result) const
 {
-  UniformList::iterator i = std::find_if(uniforms.begin(), uniforms.end(), NameComparator<UniformState>(name));
-  if (i == uniforms.end())
-    throw Exception("Render pass uniform state unknown");
-
-  return *i;
+  const UniformState* state = getUniformState(name, UniformState::FLOAT_VEC2);
+  std::memcpy(&result, &floats[state->index], sizeof(result));
 }
 
-const UniformState& ProgramState::getUniformState(const String& name) const
+void ProgramState::getValue(Vec3& result) const
 {
-  UniformList::const_iterator i = std::find_if(uniforms.begin(), uniforms.end(), NameComparator<UniformState>(name));
-  if (i == uniforms.end())
-    throw Exception("Render pass uniform state unknown");
-
-  return *i;
+  const UniformState* state = getUniformState(name, UniformState::FLOAT_VEC3);
+  std::memcpy(&result, &floats[state->index], sizeof(result));
 }
 
-UniformState& ProgramState::getUniformState(unsigned int index)
+void ProgramState::getValue(Vec4& result) const
 {
-  if (index >= uniforms.size())
-    throw Exception("Render pass uniform state access out of range");
-
-  return uniforms[index];
+  const UniformState* state = getUniformState(name, UniformState::FLOAT_VEC4);
+  std::memcpy(&result, &floats[state->index], sizeof(result));
 }
 
-const UniformState& ProgramState::getUniformState(unsigned int index) const
+void ProgramState::getValue(ColorRGB& result) const
 {
-  if (index >= uniforms.size())
-    throw Exception("Render pass uniform state access out of range");
-
-  return uniforms[index];
+  const UniformState* state = getUniformState(name, UniformState::FLOAT_VEC3);
+  std::memcpy(&result, &floats[state->index], sizeof(result));
 }
 
-unsigned int ProgramState::getSamplerCount(void) const
+void ProgramState::getValue(ColorRGBA& result) const
 {
-  return samplers.size();
+  const UniformState* state = getUniformState(name, UniformState::FLOAT_VEC4);
+  std::memcpy(&result, &floats[state->index], sizeof(result));
 }
 
-SamplerState& ProgramState::getSamplerState(const String& name)
+void ProgramState::getValue(Mat2& result) const
 {
-  SamplerList::iterator i = std::find_if(samplers.begin(), samplers.end(), NameComparator<SamplerState>(name));
-  if (i == samplers.end())
-    throw Exception("Render pass sampler state unknown");
-
-  return *i;
+  const UniformState* state = getUniformState(name, UniformState::FLOAT_MAT2);
+  std::memcpy(&result, &floats[state->index], sizeof(result));
 }
 
-const SamplerState& ProgramState::getSamplerState(const String& name) const
+void ProgramState::getValue(Mat3& result) const
 {
-  SamplerList::const_iterator i = std::find_if(samplers.begin(), samplers.end(), NameComparator<SamplerState>(name));
-  if (i == samplers.end())
-    throw Exception("Render pass sampler state unknown");
-
-  return *i;
+  const UniformState* state = getUniformState(name, UniformState::FLOAT_MAT3);
+  std::memcpy(&result, &floats[state->index], sizeof(result));
 }
 
-SamplerState& ProgramState::getSamplerState(unsigned int index)
+void ProgramState::getValue(Mat4& result) const
 {
-  if (index >= samplers.size())
-    throw Exception("Render pass sampler state access out of range");
-
-  return samplers[index];
+  const UniformState* state = getUniformState(name, UniformState::FLOAT_MAT4);
+  std::memcpy(&result, &floats[state->index], sizeof(result));
 }
 
-const SamplerState& ProgramState::getSamplerState(unsigned int index) const
+void ProgramState::setValue(float newValue)
 {
-  if (index >= samplers.size())
-    throw Exception("Render pass sampler state access out of range");
+  UniformState* state = getUniformState(name, UniformState::FLOAT);
+  std::memcpy(&floats[state->index], &newValue, sizeof(newValue));
+}
 
-  return samplers[index];
+void ProgramState::setValue(const Vec2& newValue)
+{
+  UniformState* state = getUniformState(name, UniformState::FLOAT_VEC2);
+  std::memcpy(&result, &floats[state->index], sizeof(result));
+}
+
+void ProgramState::setValue(const Vec3& newValue)
+{
+  UniformState* state = getUniformState(name, UniformState::FLOAT_VEC3);
+  std::memcpy(&floats[state->index], &newValue, sizeof(newValue));
+}
+
+void ProgramState::setValue(const Vec4& newValue)
+{
+  UniformState* state = getUniformState(name, UniformState::FLOAT_VEC4);
+  std::memcpy(&floats[state->index], &newValue, sizeof(newValue));
+}
+
+void ProgramState::setValue(const ColorRGB& newValue)
+{
+  UniformState* state = getUniformState(name, UniformState::FLOAT_VEC3);
+  std::memcpy(&floats[state->index], &newValue, sizeof(newValue));
+}
+
+void ProgramState::setValue(const ColorRGBA& newValue)
+{
+  UniformState* state = getUniformState(name, UniformState::FLOAT_VEC4);
+  std::memcpy(&floats[state->index], &newValue, sizeof(newValue));
+}
+
+void ProgramState::setValue(const Mat2& newValue)
+{
+  UniformState* state = getUniformState(name, UniformState::FLOAT_MAT2);
+  std::memcpy(&floats[state->index], &newValue, sizeof(newValue));
+}
+
+void ProgramState::setValue(const Mat3& newValue)
+{
+  UniformState* state = getUniformState(name, UniformState::FLOAT_MAT3);
+  std::memcpy(&floats[state->index], &newValue, sizeof(newValue));
+}
+
+void ProgramState::setValue(const Mat4& newValue)
+{
+  UniformState* state = getUniformState(name, UniformState::FLOAT_MAT4);
+  std::memcpy(&floats[state->index], &newValue, sizeof(newValue));
+}
+
+Texture* ProgramState::getSamplerUniformState(void) const
+{
+  UniformState* state = getSamplerUniformState(name);
+  return textures[state->index];
+}
+
+void ProgramState::setSamplerUniformState(Texture* newTexture)
+{
+  const UniformState* state = getSamplerUniformState(name);
+  textures[state->index] = newTexture;
 }
 
 Program* ProgramState::getProgram(void) const
@@ -688,36 +599,40 @@ Program* ProgramState::getProgram(void) const
 void ProgramState::setProgram(Program* newProgram)
 {
   destroyProgramState();
+
   program = newProgram;
+  if (!program)
+    return;
 
-  if (program)
+  Context& context = program->getContext();
+
+  GlobalUniformState* state = context.getGlobalUniformState();
+
+  size_t floatCount = 0;
+  size_t textureCount = 0;
+
+  for (unsigned int i = 0;  i < program->getUniformCount();  i++)
   {
-    Context& context = program->getContext();
+    Uniform& uniform = program->getUniform(i);
 
-    for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
+    if (state && state->isGlobalUniform(uniform.getName(), uniform.getType()))
     {
-      Sampler& sampler = program->getSampler(i);
-
-      GlobalSampler* global = context.findGlobalSampler(sampler.getName(),
-                                                        sampler.getType());
-      if (global)
-        globalSamplers.push_back(GlobalSamplerState(*global, sampler));
-      else
-        samplers.push_back(SamplerState(sampler));
+      unsigned int ID = state->getGlobalUniformID(uniform);
+      globalUniforms.push_back(GlobalUniform(uniform, ID));
     }
-
-    for (unsigned int i = 0;  i < program->getUniformCount();  i++)
+    else
     {
-      Uniform& uniform = program->getUniform(i);
-
-      GlobalUniform* global = context.findGlobalUniform(uniform.getName(),
-                                                        uniform.getType());
-      if (global)
-        globalUniforms.push_back(GlobalUniformState(*global, uniform));
+      if (uniform.isSampler())
+        textureCount++;
       else
-        uniforms.push_back(UniformState(uniform));
+        floatCount += getElementCount(uniform.getType());
+
+      uniforms.push_back(UniformState(uniform));
     }
   }
+
+  textures.resize(textureCount);
+  floats.resize(floatCount);
 }
 
 StateID ProgramState::getID(void) const
@@ -733,9 +648,7 @@ void ProgramState::setDefaults(void)
 void ProgramState::destroyProgramState(void)
 {
   uniforms.clear();
-  samplers.clear();
   globalUniforms.clear();
-  globalSamplers.clear();
 }
 
 ProgramState::IDQueue ProgramState::usedIDs;

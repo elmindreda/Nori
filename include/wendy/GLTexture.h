@@ -86,6 +86,26 @@ enum AddressMode
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup opengl
+ */
+enum TextureType
+{
+  /*! Texture has one-dimensional images with power-of-two dimensions.
+   */
+  TEXTURE_1D,
+  /*! Texture has two-dimensional images with power-of-two dimensions.
+   */
+  TEXTURE_2D,
+  /*! Texture has a single two-dimensional image without power-of-two dimension restrictions.
+   */
+  TEXTURE_RECT,
+  /*! Texture has a cube of two-dimensional, square images with power-of-two dimensions.
+   */
+  TEXTURE_CUBE,
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief %Texture image object.
  *  @ingroup opengl
  */
@@ -135,7 +155,7 @@ typedef Ref<TextureImage> TextureImageRef;
  */
 class Texture : public Resource
 {
-  friend class Sampler;
+  friend class Context;
   friend class TextureImage;
 public:
   enum
@@ -163,9 +183,9 @@ public:
   /*! @return @c true if this texture is mipmapped, otherwise @c false.
    */
   bool isMipmapped(void) const;
-  /*! @return @c true if this texture is a cube map, otherwise @c false.
+  /*! @return The type of this texture.
    */
-  bool isCubeMap(void) const;
+  TextureType getType(void) const;
   /*! @param[in] level The desired mipmap level.
    *  @return The width, in pixels, of the specified mipmap level of this texture.
    */
@@ -242,7 +262,7 @@ private:
   Texture& operator = (const Texture& source);
   typedef std::vector<TextureImageRef> ImageList;
   Context& context;
-  unsigned int textureTarget;
+  TextureType type;
   unsigned int textureID;
   unsigned int sourceWidth;
   unsigned int sourceHeight;

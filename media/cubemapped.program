@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <program version="3" >
-  <vertex path="cubemapped.vp" />
-  <fragment path="cubemapped.fp" />
+  <vertex path="cubemapped.vs" />
+  <fragment path="cubemapped.fs" />
 </program>

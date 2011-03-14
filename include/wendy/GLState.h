@@ -39,11 +39,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-class GlobalUniform;
-class GlobalSampler;
-
-///////////////////////////////////////////////////////////////////////
-
 typedef uint16_t StateID;
 
 ///////////////////////////////////////////////////////////////////////
@@ -166,89 +161,33 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief State for a single shader uniform.
+/*! @brief State for a single program uniform.
  *  @ingroup opengl
  */
 class UniformState
 {
 public:
-  UniformState(Uniform& uniform);
-  void apply(void) const;
-  void getValue(float& result) const;
-  void setValue(const float newValue);
-  void getValue(Vec2& result) const;
-  void setValue(const Vec2& newValue);
-  void getValue(Vec3& result) const;
-  void setValue(const Vec3& newValue);
-  void getValue(Vec4& result) const;
-  void setValue(const Vec4& newValue);
-  void getValue(ColorRGB& result) const;
-  void setValue(const ColorRGB& newValue);
-  void getValue(ColorRGBA& result) const;
-  void setValue(const ColorRGBA& newValue);
-  void getValue(Mat2& result) const;
-  void setValue(const Mat2& newValue);
-  void getValue(Mat3& result) const;
-  void setValue(const Mat3& newValue);
-  void getValue(Mat4& result) const;
-  void setValue(const Mat4& newValue);
-  Uniform& getUniform(void) const;
-private:
-  Uniform* uniform;
-  float data[16];
+  UniformState(Uniform& uniform, unsigned int index);
+  bool operator == (const String& name) const;
+  Uniform uniform;
+  unsigned int index;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Binding between a single shader uniform and its global state.
- *  @ingroup opengl
+/*! @ingroup opengl
  */
-class GlobalUniformState
+class GlobalUniform
 {
 public:
-  GlobalUniformState(GlobalUniform& global, Uniform& uniform);
-  void apply(void) const;
-private:
-  GlobalUniform* global;
-  Uniform* uniform;
+  GlobalUniform(Uniform& uniform, unsigned int ID);
+  Uniform uniform;
+  unsigned int ID;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief State for a single shader sampler uniform.
- *  @ingroup opengl
- */
-class SamplerState
-{
-public:
-  SamplerState(Sampler& sampler);
-  void apply(void) const;
-  Texture* getTexture(void) const;
-  void setTexture(Texture* newTexture);
-  Sampler& getSampler(void) const;
-private:
-  Sampler* sampler;
-  Ref<Texture> texture;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Binding between a single shader sampler and its global state.
- *  @ingroup opengl
- */
-class GlobalSamplerState
-{
-public:
-  GlobalSamplerState(GlobalSampler& global, Sampler& sampler);
-  void apply(void) const;
-private:
-  GlobalSampler* global;
-  Sampler* sampler;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Shader program state.
+/*! @brief GPU program state.
  *  @ingroup opengl
  */
 class ProgramState
@@ -260,62 +199,54 @@ public:
   /*! Destructor.
    */
   ~ProgramState(void);
-  /*! Applies this shader program state to the current context.
+  /*! Applies this GPU program state to the current context.
    */
   void apply(void) const;
-  /*! @return The number of non-sampler uniforms exposed by this state object.
-   */
-  unsigned int getUniformCount(void) const;
-  /*! @return The state object corresponding to the non-sampler uniform with
-   *  the specified name.
-   *  @param[in] name The name of the desired uniform.
-   */
-  UniformState& getUniformState(const String& name);
-  /*! @return The state object corresponding to the non-sampler uniform with
-   *  the specified name.
-   *  @param[in] name The name of the desired uniform.
-   */
-  const UniformState& getUniformState(const String& name) const;
-  /*! @return The non-sampler uniform state object at the specified index.
-   *  @param[in] index The index of the desired non-sampler uniform state
-   *  object.
-   */
-  UniformState& getUniformState(unsigned int index);
-  /*! @return The non-sampler uniform state object at the specified index.
-   *  @param[in] index The index of the desired non-sampler uniform state
-   *  object.
-   */
-  const UniformState& getUniformState(unsigned int index) const;
-  /*! @return The number of sampler uniforms exposed by this state object.
-   */
-  unsigned int getSamplerCount(void) const;
-  SamplerState& getSamplerState(const String& name);
-  const SamplerState& getSamplerState(const String& name) const;
-  SamplerState& getSamplerState(unsigned int index);
-  const SamplerState& getSamplerState(unsigned int index) const;
-  /*! @return The shader program used by this render pass.
-   */
+  void getUniformState(const String& name, float& result) const;
+  void getUniformState(const String& name, Vec2& result) const;
+  void getUniformState(const String& name, Vec3& result) const;
+  void getUniformState(const String& name, Vec4& result) const;
+  void getUniformState(const String& name, ColorRGB& result) const;
+  void getUniformState(const String& name, ColorRGBA& result) const;
+  void getUniformState(const String& name, Mat2& result) const;
+  void getUniformState(const String& name, Mat3& result) const;
+  void getUniformState(const String& name, Mat4& result) const;
+  void setUniformState(const String& name, float newValue);
+  void setUniformState(const String& name, const Vec2& newValue);
+  void setUniformState(const String& name, const Vec3& newValue);
+  void setUniformState(const String& name, const Vec4& newValue);
+  void setUniformState(const String& name, const ColorRGB& newValue);
+  void setUniformState(const String& name, const ColorRGBA& newValue);
+  void setUniformState(const String& name, const Mat2& newValue);
+  void setUniformState(const String& name, const Mat3& newValue);
+  void setUniformState(const String& name, const Mat4& newValue);
+  Texture* getSamplerState(const String& name) const;
+  void setSamplerState(const String& name, Texture* newTexture);
   Program* getProgram(void) const;
-  /*! Sets the shader program used by this render pass.
-   *  @param[in] newProgram The desired shader program, or @c NULL to use the
-   *  default shader program.
+  /*! Sets the GPU program used by this render pass.
+   *  @param[in] newProgram The desired GPU program, or @c NULL to use the
+   *  default GPU program.
    */
   void setProgram(Program* newProgram);
   StateID getID(void) const;
   void setDefaults(void);
 private:
   void destroyProgramState(void);
+  UniformState* getSamplerUniformState(const String& name);
+  const UniformState* getSamplerUniformState(const String& name, Uniform::Type type) const;
+  UniformState* getUniformState(const String& name, Uniform::Type type);
+  const UniformState* getUniformState(const String& name, Uniform::Type type) const;
   typedef std::vector<UniformState> UniformList;
-  typedef std::vector<SamplerState> SamplerList;
-  typedef std::vector<GlobalUniformState> GlobalUniformList;
-  typedef std::vector<GlobalSamplerState> GlobalSamplerList;
+  typedef std::vector<GlobalUniform> GlobalUniformList;
   typedef std::deque<StateID> IDQueue;
+  typedef std::vector<float> FloatList;
+  typedef std::vector<TextureRef> TextureList;
+  StateID ID;
   Ref<Program> program;
   UniformList uniforms;
-  SamplerList samplers;
   GlobalUniformList globalUniforms;
-  GlobalSamplerList globalSamplers;
-  StateID ID;
+  FloatList floats;
+  TextureList textures;
   static IDQueue usedIDs;
   static StateID nextID;
 };

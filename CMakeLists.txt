@@ -65,15 +65,14 @@ endif(WENDY_BUILD_DOCUMENTATION)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${wendy_SOURCE_DIR}/build/cmake)
 
 find_package(OpenGL REQUIRED)
-find_package(Cg REQUIRED)
 
 add_subdirectory(libs)
 
 list(APPEND wendy_CORE_LIBRARIES expat png z pcre)
 
-list(APPEND wendy_LIBRARIES ${wendy_CORE_LIBRARIES} GLEW glfw ${GLFW_LIBRARIES} ${CG_LIBRARY} ${CG_GL_LIBRARY})
+list(APPEND wendy_LIBRARIES ${wendy_CORE_LIBRARIES} GLEW glfw ${GLFW_LIBRARIES})
 
-list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/include ${wendy_BINARY_DIR}/include ${CG_INCLUDE_PATH})
+list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/include ${wendy_BINARY_DIR}/include)
 
 if(WIN32)
   list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/build/windows)

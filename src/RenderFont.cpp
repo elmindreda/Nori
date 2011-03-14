@@ -409,10 +409,10 @@ bool Font::init(const FontData& data)
     }
 
     GL::ProgramInterface interface;
-    interface.addSampler("glyphs", GL::Sampler::SAMPLER_2D);
+    interface.addUniform("glyphs", GL::Uniform::SAMPLER_2D);
     interface.addUniform("color", GL::Uniform::FLOAT_VEC4);
-    interface.addVarying("position", GL::Varying::FLOAT_VEC2);
-    interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
+    interface.addAttribute("position", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("mapping", GL::Attribute::FLOAT_VEC2);
 
     if (!interface.matches(*program, true))
     {
@@ -426,7 +426,7 @@ bool Font::init(const FontData& data)
     pass.setDepthTesting(false);
     pass.setDepthWriting(false);
     pass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
-    pass.getSamplerState("glyphs").setTexture(texture);
+    pass.getUniformState("glyphs").setTexture(texture);
     pass.getUniformState("color").setValue(Vec4(1, 1, 1, 1));
   }
 

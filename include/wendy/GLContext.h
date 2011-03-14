@@ -184,12 +184,15 @@ public:
   /*! @return The number of available clip planes.
    */
   unsigned int getMaxClipPlanes(void) const;
-  /*! @return The number of available fragment program texture image units.
-   */
-  unsigned int getMaxFragmentTextureImageUnits(void) const;
-  /*! @return The number of available vertex program texture image units.
+  /*! @return The number of available vertex shader texture image units.
    */
   unsigned int getMaxVertexTextureImageUnits(void) const;
+  /*! @return The number of available fragment shader texture image units.
+   */
+  unsigned int getMaxFragmentTextureImageUnits(void) const;
+  /*! @return The number of available vertex and fragment shader texture image units.
+   */
+  unsigned int getMaxCombinedTextureImageUnits(void) const;
   /*! @return The maximum size, in pixels, of 2D POT textures.
    */
   unsigned int getMaxTextureSize(void) const;
@@ -199,6 +202,9 @@ public:
   /*! @return The maximum size, in pixels, of non-POT 2D textures.
    */
   unsigned int getMaxTextureRectangleSize(void) const;
+  /*! @return The number of available texture coordinates.
+   */
+  unsigned int getMaxTextureCoords(void) const;
   /*! @return The number of available vertex attributes.
    */
   unsigned int getMaxVertexAttributes(void) const;
@@ -207,12 +213,14 @@ private:
   unsigned int maxColorAttachments;
   unsigned int maxDrawBuffers;
   unsigned int maxClipPlanes;
-  unsigned int maxFragmentTextureImageUnits;
   unsigned int maxVertexTextureImageUnits;
+  unsigned int maxFragmentTextureImageUnits;
+  unsigned int maxCombinedTextureImageUnits;
   unsigned int maxTextureSize;
   unsigned int maxTextureCubeSize;
   unsigned int maxTextureRectangleSize;
   unsigned int maxVertexAttributes;
+  unsigned int maxTextureCoords;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -366,64 +374,19 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Interface for global shader program state requests.
+/*! @brief Interface for global GPU program state requests.
  *  @ingroup opengl
  */
-class GlobalStateListener
+class GlobalProgramState
 {
-  friend class GlobalUniform;
-  friend class GlobalSampler;
 public:
-  virtual ~GlobalStateListener(void);
-protected:
-  virtual void onStateApply(unsigned int stateID, Uniform& uniform) = 0;
-  virtual void onStateApply(unsigned int stateID, Sampler& sampler) = 0;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Global shader program uniform.
- *  @ingroup opengl
- */
-class GlobalUniform
-{
-  friend class Context;
-public:
-  void applyTo(Uniform& uniform) const;
-  const String& getName(void) const;
-  Uniform::Type getType(void) const;
-  unsigned int getID(void) const;
-  GlobalStateListener* getListener(void) const;
-  void setListener(GlobalStateListener* newListener);
-private:
-  GlobalUniform(const String& name, Uniform::Type type, unsigned int ID);
-  String name;
-  Uniform::Type type;
-  unsigned int ID;
-  GlobalStateListener* listener;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Global shader program sampler uniform.
- *  @ingroup opengl
- */
-class GlobalSampler
-{
-  friend class Context;
-public:
-  void applyTo(Sampler& sampler) const;
-  const String& getName(void) const;
-  Sampler::Type getType(void) const;
-  unsigned int getID(void) const;
-  GlobalStateListener* getListener(void) const;
-  void setListener(GlobalStateListener* newListener);
-private:
-  GlobalSampler(const String& name, Sampler::Type type, unsigned int ID);
-  String name;
-  Sampler::Type type;
-  unsigned int ID;
-  GlobalStateListener* listener;
+  virtual ~GlobalProgramState(void);
+  virtual void updateUniform(unsigned int ID, Uniform& uniform) = 0;
+  virtual void updateSampler(unsigned int ID, Sampler& uniform) = 0;
+  virtual bool isUniformGlobal(const String& name, Uniform::Type type) = 0;
+  virtual bool isSamplerGlobal(const String& name, Sampler::Type type) = 0;
+  virtual unsigned int getGlobalID(const String& name, Uniform::Type type) = 0;
+  virtual unsigned int getGlobalID(const String& name, Sampler::Type type) = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -433,11 +396,10 @@ private:
  *
  *  This class encapsulates the OpenGL context and its associtated window.
  */
-class Context : public GlobalStateListener, public Singleton<Context>
+class Context : public Singleton<Context>
 {
   friend class Texture;
-  friend class TextureImage;
-  friend class Program;
+  friend class UniformState;
 public:
   /*! Refresh mode enumeration.
    */
@@ -481,20 +443,8 @@ public:
    *  Context::refresh is made.
    */
   bool update(void);
-  GlobalUniform& createGlobalUniform(const String& name,
-                                     Uniform::Type type,
-                                     unsigned int ID = 0);
-  GlobalSampler& createGlobalSampler(const String& name,
-                                     Sampler::Type type,
-                                     unsigned int ID = 0);
-  /*! @return @c true if the specified uniform name is global,
-   *  otherwise @c false.
-   */
-  GlobalUniform* findGlobalUniform(const String& name, Uniform::Type type) const;
-  /*! @return @c true if the specified sampler name is global,
-   *  otherwise @c false.
-   */
-  GlobalSampler* findGlobalSampler(const String& name, Sampler::Type type) const;
+  GlobalUniformState* getGlobalUniformState(void) const;
+  void setGlobalUniformState(GlobalUniformState* newState);
   /*! @return The current refresh mode.
    */
   RefreshMode getRefreshMode(void) const;
@@ -537,26 +487,40 @@ public:
   void setCurrentVertexBuffer(VertexBuffer* newVertexBuffer);
   IndexBuffer* getCurrentIndexBuffer(void) const;
   void setCurrentIndexBuffer(IndexBuffer* newIndexBuffer);
+  /*! @note Unless you are Wendy, you probably don't need to call this.
+   */
+  Texture* getCurrentTexture(void) const;
+  /*! @note Unless you are Wendy, you probably don't need to call this.
+   */
+  void setCurrentTexture(Texture* newTexture);
+  /*! @note Unless you are Wendy, you probably don't need to call this.
+   */
+  unsigned int getActiveTextureUnit(void) const;
+  /*! @note Unless you are Wendy, you probably don't need to call this.
+   */
+  void setActiveTextureUnit(unsigned int unit);
   const PlaneList& getClipPlanes(void) const;
   bool setClipPlanes(const PlaneList& newPlanes);
+  /*
   const Mat4& getModelMatrix(void) const;
   void setModelMatrix(const Mat4& newMatrix);
   const Mat4& getViewMatrix(void) const;
   void setViewMatrix(const Mat4& newMatrix);
   const Mat4& getProjectionMatrix(void) const;
+  */
   /*! Sets the projection matrix.
    *  @param[in] newMatrix The desired projection matrix.
    */
-  void setProjectionMatrix(const Mat4& newMatrix);
+  //void setProjectionMatrix(const Mat4& newMatrix);
   /*! Sets an orthographic projection matrix as ([0..width], [0..height], [-1, 1]).
    *  @param[in] width The width of the clipspace volume.
    *  @param[in] height The height of the clipspace volume.
    */
-  void setOrthoProjectionMatrix(float width, float height);
+  //void setOrthoProjectionMatrix(float width, float height);
   /*! Sets an orthographic projection matrix as ([minX..maxX], [minY..maxY], [minZ, maxZ]).
    *  @param[in] volume The clipspace volume.
    */
-  void setOrthoProjectionMatrix(const AABB& volume);
+  //void setOrthoProjectionMatrix(const AABB& volume);
   /*! Sets a perspective projection matrix.
    *  @param[in] FOV The desired field of view of the projection.
    *  @param[in] aspect The desired aspect ratio of the projection.
@@ -565,10 +529,12 @@ public:
    *  @remarks If @a aspect is set to zero, the aspect ratio is calculated from
    *  the dimensions of the current viewport applied to the current canvas.
    */
+  /*
   void setPerspectiveProjectionMatrix(float FOV = 90.f,
                                       float aspect = 0.f,
 	                              float nearZ = 0.01f,
 	                              float farZ = 1000.f);
+                                      */
   Stats* getStats(void) const;
   void setStats(Stats* newStats);
   /*! @return The title of the context window.
@@ -618,24 +584,19 @@ private:
   static void sizeCallback(int width, int height);
   static int closeCallback(void);
   static void refreshCallback(void);
-  void onStateApply(unsigned int stateID, Uniform& uniform);
-  void onStateApply(unsigned int stateID, Sampler& sampler);
-  typedef std::vector<GlobalUniform*> UniformList;
-  typedef std::vector<GlobalSampler*> SamplerList;
+  typedef std::vector<TextureRef> TextureList;
   ResourceIndex& index;
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
   Signal2<void, unsigned int, unsigned int> resizedSignal;
   String title;
   Ptr<Limits> limits;
-  void* cgContextID;
-  int cgVertexProfile;
-  int cgFragmentProfile;
   RefreshMode refreshMode;
   bool needsRefresh;
   bool needsClosing;
   Rect scissorArea;
   Rect viewportArea;
+  /*
   Mat4 modelMatrix;
   Mat4 viewMatrix;
   Mat4 projectionMatrix;
@@ -645,9 +606,11 @@ private:
   bool dirtyModelView;
   bool dirtyViewProj;
   bool dirtyModelViewProj;
+  */
   bool dirtyBinding;
-  UniformList globalUniforms;
-  SamplerList globalSamplers;
+  GlobalUniformState* globalUniforms;
+  TextureList textureUnits;
+  unsigned int activeTextureUnit;
   Ref<Program> currentProgram;
   Ref<VertexBuffer> currentVertexBuffer;
   Ref<IndexBuffer> currentIndexBuffer;

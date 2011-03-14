@@ -38,9 +38,6 @@
 
 #include <internal/GLConvert.h>
 
-#include <Cg/cg.h>
-#include <Cg/cgGL.h>
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -178,7 +175,7 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
     return false;
   }
 
-  if (texture.textureTarget == GL_TEXTURE_1D)
+  if (texture.type == TEXTURE_1D)
   {
     if (source.getDimensionCount() > 1)
     {
@@ -186,20 +183,16 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
       return false;
     }
 
-    cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_FALSE);
+    context.setCurrentTexture(texture);
 
-    glBindTexture(texture.textureTarget, texture.textureID);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    glTexSubImage1D(texture.textureTarget,
+    glTexSubImage1D(convertToGL(texture.type),
                     level,
 		    x,
 		    source.getWidth(),
                     convertToGL(texture.format.getSemantic()),
                     convertToGL(texture.format.getType()),
 		    source.getPixels());
-
-    cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_TRUE);
   }
   else
   {
@@ -209,20 +202,16 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
       return false;
     }
 
-    cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_FALSE);
+    context.setCurrentTexture(texture);
 
-    glBindTexture(texture.textureTarget, texture.textureID);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    glTexSubImage2D(texture.textureTarget,
+    glTexSubImage2D(convertToGL(texture.type),
                     level,
 		    x, y,
 		    source.getWidth(), source.getHeight(),
                     convertToGL(texture.format.getSemantic()),
                     convertToGL(texture.format.getType()),
 		    source.getPixels());
-
-    cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_TRUE);
   }
 
 #if WENDY_DEBUG
@@ -239,16 +228,12 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
 
 bool TextureImage::copyFromColorBuffer(unsigned int x, unsigned int y)
 {
-  cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_FALSE);
+  context.setCurrentTexture(texture);
 
-  glBindTexture(texture.textureTarget, texture.textureID);
-
-  if (texture.textureTarget == GL_TEXTURE_1D)
-    glCopyTexSubImage1D(texture.textureTarget, level, 0, x, y, width);
+  if (texture.type == TEXTURE_1D)
+    glCopyTexSubImage1D(convertToGL(texture.type), level, 0, x, y, width);
   else
-    glCopyTexSubImage2D(texture.textureTarget, level, 0, 0, x, y, width, height);
-
-  cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_TRUE);
+    glCopyTexSubImage2D(convertToGL(texture.type), level, 0, 0, x, y, width, height);
 
 #if WENDY_DEBUG
   if (!checkGL("Error during copy from color buffer to level %u of texture \'%s\'",
@@ -266,18 +251,14 @@ bool TextureImage::copyTo(wendy::Image& result) const
 {
   result = wendy::Image(texture.getIndex(), texture.format, width, height);
 
-  cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_FALSE);
+  context.setCurrentTexture(texture);
 
-  glBindTexture(texture.textureTarget, texture.textureID);
   glPixelStorei(GL_PACK_ALIGNMENT, 1);
-
-  glGetTexImage(texture.textureTarget,
+  glGetTexImage(convertToGL(texture.type),
                 level,
 		convertToGL(texture.format.getSemantic()),
 		convertToGL(texture.format.getType()),
 		result.getPixels());
-
-  cgGLSetManageTextureParameters((CGcontext) texture.context.cgContextID, CG_TRUE);
 
 #if WENDY_DEBUG
   if (!checkGL("Error during copy to image from level %u of texture \'%s\'",
@@ -324,16 +305,16 @@ TextureImage::TextureImage(Texture& initTexture,
 
 void TextureImage::attach(int attachment)
 {
-  if (texture.textureTarget == GL_TEXTURE_1D)
+  if (texture.type == TEXTURE_1D)
     glFramebufferTexture1DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
-                              texture.textureTarget,
+                              convertToGL(texture.type),
                               texture.textureID,
                               level);
   else
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
-                              texture.textureTarget,
+                              convertToGL(texture.type),
                               texture.textureID,
                               level);
 
@@ -346,16 +327,16 @@ void TextureImage::attach(int attachment)
 
 void TextureImage::detach(int attachment)
 {
-  if (texture.textureTarget == GL_TEXTURE_1D)
+  if (texture.type == TEXTURE_1D)
     glFramebufferTexture1DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
-                              texture.textureTarget,
+                              convertToGL(texture.type),
                               0,
                               0);
   else
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
-                              texture.textureTarget,
+                              convertToGL(texture.type),
                               0,
                               0);
 
@@ -384,9 +365,9 @@ bool Texture::isMipmapped(void) const
   return (flags & MIPMAPPED) ? true : false;
 }
 
-bool Texture::isCubeMap(void) const
+TextureType Texture::getType(void) const
 {
-  return textureTarget == GL_TEXTURE_CUBE_MAP;
+  return type;
 }
 
 unsigned int Texture::getWidth(unsigned int level)
@@ -423,20 +404,16 @@ void Texture::setFilterMode(FilterMode newMode)
 {
   if (newMode != filterMode)
   {
-    cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_FALSE);
+    context.setCurrentTexture(*this);
 
-    glBindTexture(textureTarget, textureID);
-
-    glTexParameteri(textureTarget,
+    glTexParameteri(convertToGL(type),
                     GL_TEXTURE_MIN_FILTER,
 		    convertToGL(newMode, isMipmapped()));
-    glTexParameteri(textureTarget,
+    glTexParameteri(convertToGL(type),
                     GL_TEXTURE_MAG_FILTER,
 		    convertToGL(newMode, false));
 
     filterMode = newMode;
-
-    cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
   }
 
 #if WENDY_DEBUG
@@ -454,18 +431,12 @@ void Texture::setAddressMode(AddressMode newMode)
 {
   if (newMode != addressMode)
   {
-    if (!convertToGL(newMode))
-      return;
+    context.setCurrentTexture(*this);
 
-    cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_FALSE);
+    glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_S, convertToGL(newMode));
 
-    glBindTexture(textureTarget, textureID);
-    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, convertToGL(newMode));
-
-    if (textureTarget != GL_TEXTURE_1D)
-      glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, convertToGL(newMode));
-
-    cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
+    if (type != TEXTURE_1D)
+      glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_T, convertToGL(newMode));
 
     addressMode = newMode;
   }
@@ -527,7 +498,6 @@ Ref<Texture> Texture::read(Context& context, const Path& path)
 Texture::Texture(const ResourceInfo& info, Context& initContext):
   Resource(info),
   context(initContext),
-  textureTarget(0),
   textureID(0),
   sourceWidth(0),
   sourceHeight(0),
@@ -575,14 +545,14 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
       return false;
     }
 
-    textureTarget = GL_TEXTURE_RECTANGLE_ARB;
+    type = TEXTURE_RECT;
   }
   else
   {
     if (final.getDimensionCount() == 1)
-      textureTarget = GL_TEXTURE_1D;
+      type = TEXTURE_1D;
     else if (final.getDimensionCount() == 2)
-      textureTarget = GL_TEXTURE_2D;
+      type = TEXTURE_2D;
     else
     {
       // TODO: Support 3D textures
@@ -632,19 +602,15 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
     }
   }
 
-  // Clear any errors
-  glGetError();
-
-  cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_FALSE);
-
-  // Contact space station
   glGenTextures(1, &textureID);
-  glBindTexture(textureTarget, textureID);
+
+  context.setCurrentTexture(*this);
+
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-  if (textureTarget == GL_TEXTURE_1D)
+  if (type == TEXTURE_1D)
   {
-    glTexImage1D(textureTarget,
+    glTexImage1D(convertToGL(type),
                   0,
                   convertToGL(format),
                   final.getWidth(),
@@ -655,7 +621,7 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   }
   else
   {
-    glTexImage2D(textureTarget,
+    glTexImage2D(convertToGL(type),
                   0,
                   convertToGL(format),
                   final.getWidth(),
@@ -668,15 +634,15 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
 
   if (flags & MIPMAPPED)
   {
-    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-    glGenerateMipmapEXT(textureTarget);
+    glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+    glGenerateMipmapEXT(convertToGL(type));
 
     unsigned int level = 0;
 
     for (;;)
     {
-      glGetTexLevelParameteriv(textureTarget, level, GL_TEXTURE_WIDTH, (int*) &width);
-      glGetTexLevelParameteriv(textureTarget, level, GL_TEXTURE_HEIGHT, (int*) &height);
+      glGetTexLevelParameteriv(convertToGL(type), level, GL_TEXTURE_WIDTH, (int*) &width);
+      glGetTexLevelParameteriv(convertToGL(type), level, GL_TEXTURE_HEIGHT, (int*) &height);
 
       if (width == 0)
         break;
@@ -689,30 +655,28 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   }
   else
   {
-    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     TextureImageRef image = new TextureImage(*this, 0, final.getWidth(), final.getHeight());
     images.push_back(image);
   }
 
-  glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(convertToGL(type), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  if (textureTarget == GL_TEXTURE_RECTANGLE_ARB)
+  if (type == TEXTURE_RECT)
   {
-    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     addressMode = ADDRESS_CLAMP;
   }
   else
   {
-    glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_S, GL_REPEAT);
 
-    if (textureTarget != GL_TEXTURE_1D)
-      glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    if (type != TEXTURE_1D)
+      glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_T, GL_REPEAT);
   }
-
-  cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
 
   if (!checkGL("OpenGL error during creation of texture \'%s\' of format \'%s\'",
                getPath().asString().c_str(),
@@ -802,16 +766,11 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
     }
   }
 
-  textureTarget = GL_TEXTURE_CUBE_MAP;
+  type = TEXTURE_CUBE;
 
-  // Clear any errors
-  glGetError();
-
-  cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_FALSE);
-
-  // Reimburse hamster wheel
   glGenTextures(1, &textureID);
-  glBindTexture(textureTarget, textureID);
+
+  context.setCurrentTexture(*this);
 
   for (unsigned int i = 0;  i < 6;  i++)
   {
@@ -830,7 +789,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
                  image.getPixels());
   }
 
-  glGenerateMipmapEXT(textureTarget);
+  glGenerateMipmapEXT(convertToGL(type));
 
   for (unsigned int i = 0;  i < 6;  i++)
   {
@@ -840,7 +799,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
 
     if (flags & MIPMAPPED)
     {
-      glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+      glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 
       unsigned int level = 0;
 
@@ -862,7 +821,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
     }
     else
     {
-      glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
       unsigned int width, height;
 
@@ -874,9 +833,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
     }
   }
 
-  glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  cgGLSetManageTextureParameters((CGcontext) context.cgContextID, CG_TRUE);
+  glTexParameteri(convertToGL(type), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   if (!checkGL("OpenGL error during creation of texture \'%s\' of format \'%s\'",
                getPath().asString().c_str(),

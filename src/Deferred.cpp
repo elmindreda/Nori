@@ -221,11 +221,11 @@ bool Renderer::init(const Config& config)
     }
 
     GL::ProgramInterface interface;
-    interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
+    interface.addUniform("colorTexture", GL::Uniform::SAMPLER_RECT);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
-    interface.addVarying("position", GL::Varying::FLOAT_VEC2);
-    interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
-    interface.addVarying("clipOverF", GL::Varying::FLOAT_VEC2);
+    interface.addAttribute("position", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("mapping", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("clipOverF", GL::Attribute::FLOAT_VEC2);
 
     if (!interface.matches(*program, true))
     {
@@ -238,7 +238,7 @@ bool Renderer::init(const Config& config)
     ambientLightPass.setDepthTesting(false);
     ambientLightPass.setDepthWriting(false);
     ambientLightPass.setProgram(program);
-    ambientLightPass.getSamplerState("colorTexture").setTexture(colorTexture);
+    ambientLightPass.getUniformState("colorTexture").setTexture(colorTexture);
   }
 
   // Set up directional light pass
@@ -254,16 +254,16 @@ bool Renderer::init(const Config& config)
     }
 
     GL::ProgramInterface interface;
-    interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
-    interface.addSampler("normalTexture", GL::Sampler::SAMPLER_RECT);
-    interface.addSampler("depthTexture", GL::Sampler::SAMPLER_RECT);
+    interface.addUniform("colorTexture", GL::Uniform::SAMPLER_RECT);
+    interface.addUniform("normalTexture", GL::Uniform::SAMPLER_RECT);
+    interface.addUniform("depthTexture", GL::Uniform::SAMPLER_RECT);
     interface.addUniform("nearZ", GL::Uniform::FLOAT);
     interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
     interface.addUniform("light.direction", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
-    interface.addVarying("position", GL::Varying::FLOAT_VEC2);
-    interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
-    interface.addVarying("clipOverF", GL::Varying::FLOAT_VEC2);
+    interface.addAttribute("position", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("mapping", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("clipOverF", GL::Attribute::FLOAT_VEC2);
 
     if (!interface.matches(*program, true))
     {
@@ -276,9 +276,9 @@ bool Renderer::init(const Config& config)
     dirLightPass.setDepthTesting(false);
     dirLightPass.setDepthWriting(false);
     dirLightPass.setProgram(program);
-    dirLightPass.getSamplerState("colorTexture").setTexture(colorTexture);
-    dirLightPass.getSamplerState("normalTexture").setTexture(normalTexture);
-    dirLightPass.getSamplerState("depthTexture").setTexture(depthTexture);
+    dirLightPass.getUniformState("colorTexture").setTexture(colorTexture);
+    dirLightPass.getUniformState("normalTexture").setTexture(normalTexture);
+    dirLightPass.getUniformState("depthTexture").setTexture(depthTexture);
   }
 
   // Set up point light pass
@@ -305,18 +305,18 @@ bool Renderer::init(const Config& config)
 
     GL::ProgramInterface interface;
 
-    interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
-    interface.addSampler("normalTexture", GL::Sampler::SAMPLER_RECT);
-    interface.addSampler("depthTexture", GL::Sampler::SAMPLER_RECT);
+    interface.addUniform("colorTexture", GL::Uniform::SAMPLER_RECT);
+    interface.addUniform("normalTexture", GL::Uniform::SAMPLER_RECT);
+    interface.addUniform("depthTexture", GL::Uniform::SAMPLER_RECT);
     interface.addUniform("nearZ", GL::Uniform::FLOAT);
     interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
     interface.addUniform("light.position", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.radius", GL::Uniform::FLOAT);
-    interface.addSampler("light.distAttTexture", GL::Sampler::SAMPLER_1D);
-    interface.addVarying("position", GL::Varying::FLOAT_VEC2);
-    interface.addVarying("mapping", GL::Varying::FLOAT_VEC2);
-    interface.addVarying("clipOverF", GL::Varying::FLOAT_VEC2);
+    interface.addUniform("light.distAttTexture", GL::Uniform::SAMPLER_1D);
+    interface.addAttribute("position", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("mapping", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("clipOverF", GL::Attribute::FLOAT_VEC2);
 
     if (!interface.matches(*program, true))
     {
@@ -329,10 +329,10 @@ bool Renderer::init(const Config& config)
     pointLightPass.setDepthTesting(false);
     pointLightPass.setDepthWriting(false);
     pointLightPass.setProgram(program);
-    pointLightPass.getSamplerState("colorTexture").setTexture(colorTexture);
-    pointLightPass.getSamplerState("normalTexture").setTexture(normalTexture);
-    pointLightPass.getSamplerState("depthTexture").setTexture(depthTexture);
-    pointLightPass.getSamplerState("light.distAttTexture").setTexture(texture);
+    pointLightPass.getUniformState("colorTexture").setTexture(colorTexture);
+    pointLightPass.getUniformState("normalTexture").setTexture(normalTexture);
+    pointLightPass.getUniformState("depthTexture").setTexture(depthTexture);
+    pointLightPass.getUniformState("light.distAttTexture").setTexture(texture);
   }
 
   return true;

@@ -146,7 +146,7 @@ GLenum convertToGL(const PixelFormat& format)
     case PixelFormat::UINT16:
     {
       if (format.getSemantic() == PixelFormat::DEPTH)
-        return GL_DEPTH_COMPONENT16_ARB;
+        return GL_DEPTH_COMPONENT16;
 
       break;
     }
@@ -154,7 +154,7 @@ GLenum convertToGL(const PixelFormat& format)
     case PixelFormat::UINT24:
     {
       if (format.getSemantic() == PixelFormat::DEPTH)
-        return GL_DEPTH_COMPONENT24_ARB;
+        return GL_DEPTH_COMPONENT24;
 
       break;
     }
@@ -162,7 +162,7 @@ GLenum convertToGL(const PixelFormat& format)
     case PixelFormat::UINT32:
     {
       if (format.getSemantic() == PixelFormat::DEPTH)
-        return GL_DEPTH_COMPONENT32_ARB;
+        return GL_DEPTH_COMPONENT32;
 
       break;
     }
@@ -216,6 +216,24 @@ GLenum convertToGL(const PixelFormat& format)
 
   logError("No OpenGL equivalent for pixel format \'%s\'",
            format.asString().c_str());
+  return 0;
+}
+
+GLenum convertToGL(TextureType type)
+{
+  switch (type)
+  {
+    case TEXTURE_1D:
+      return GL_TEXTURE_1D;
+    case TEXTURE_2D:
+      return GL_TEXTURE_2D;
+    case TEXTURE_RECT:
+      return GL_TEXTURE_RECTANGLE_ARB;
+    case TEXTURE_CUBE:
+      return GL_TEXTURE_CUBE_MAP;
+  }
+
+  logError("No OpenGL equivalent for texture type %u", type);
   return 0;
 }
 

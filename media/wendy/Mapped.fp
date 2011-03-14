@@ -1,6 +1,15 @@
 
-float4 main(uniform sampler2D image, in float2 mapping) : COLOR
+uniform sampler2D image;
+
+struct VF
 {
-  return tex2D(image, mapping);
+  vec2 mapping;
+};
+
+varying Varyings varyings;
+
+void main()
+{
+  gl_FragColor = texture2D(image, mapping);
 }
 
