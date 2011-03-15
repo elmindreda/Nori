@@ -27,6 +27,7 @@
 
 #include <wendy/OpenGL.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLContext.h>
 
@@ -206,6 +207,7 @@ bool isCompatible(const Attribute& attribute, const VertexComponent& component)
   return false;
 }
 
+/*
 enum
 {
   STATE_MODEL_MATRIX,
@@ -215,6 +217,7 @@ enum
   STATE_VIEWPROJECTION_MATRIX,
   STATE_MODELVIEWPROJECTION_MATRIX,
 };
+*/
 
 } /*namespace (and Gandalf)*/
 
@@ -731,53 +734,8 @@ Stats::Frame::Frame(void):
 
 ///////////////////////////////////////////////////////////////////////
 
-GlobalUniformListener::~GlobalUniformListener(void)
+SharedProgramState::~SharedProgramState(void)
 {
-}
-
-///////////////////////////////////////////////////////////////////////
-
-GlobalUniform::GlobalUniform(const String& initName,
-                             Uniform::Type initType,
-                             unsigned int initID):
-  name(initName),
-  type(initType),
-  ID(initID),
-  listener(NULL)
-{
-}
-
-void GlobalUniform::applyTo(Uniform& uniform) const
-{
-  if (listener)
-    listener->onStateApply(ID, uniform);
-  else
-    logError("Global uniform \'%s\' has no listener", name.c_str());
-}
-
-const String& GlobalUniform::getName(void) const
-{
-  return name;
-}
-
-Uniform::Type GlobalUniform::getType(void) const
-{
-  return type;
-}
-
-unsigned int GlobalUniform::getID(void) const
-{
-  return ID;
-}
-
-GlobalUniformListener* GlobalUniform::getListener(void) const
-{
-  return listener;
-}
-
-void GlobalUniform::setListener(GlobalUniformListener* newListener)
-{
-  listener = newListener;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -786,7 +744,16 @@ Context::~Context(void)
 {
   destroySignal.emit();
 
-  currentCanvas = NULL;
+  setScreenCanvasCurrent();
+  setCurrentVertexBuffer(NULL);
+  setCurrentIndexBuffer(NULL);
+  setCurrentProgram(NULL);
+
+  for (int i = 0;  i < textureUnits.size();  i++)
+  {
+    setActiveTextureUnit(i);
+    setCurrentTexture(NULL);
+  }
 
   glfwCloseWindow();
 
@@ -934,38 +901,62 @@ bool Context::update(void)
     while (!needsRefresh && !needsClosing)
       glfwWaitEvents();
   }
+  else
+    glfwPollEvents();
 
   return !needsClosing;
 }
 
-GlobalUniform& Context::createGlobalUniform(const String& name,
-                                            Uniform::Type type,
-                                            unsigned int ID)
+void Context::createSharedSampler(const String& name,
+                                  Sampler::Type type,
+                                  unsigned int ID)
 {
-  GlobalUniform* state = findGlobalUniform(name, type);
-  if (state)
-  {
-    if (state->getID() != ID)
-      throw Exception("Global uniform internal ID mismatch");
-  }
-  else
-  {
-    state = new GlobalUniform(name, type, ID);
-    globalUniforms.push_back(state);
-  }
+  if (isSharedSampler(name, type))
+    return;
 
-  return *state;
+  samplers.push_back(SharedSampler(name, type, ID));
 }
 
-GlobalUniform* Context::findGlobalUniform(const String& name, Uniform::Type type) const
+void Context::createSharedUniform(const String& name,
+                                  Uniform::Type type,
+                                  unsigned int ID)
 {
-  for (UniformList::const_iterator u = globalUniforms.begin();  u != globalUniforms.end();  u++)
+  if (isSharedUniform(name, type))
+    return;
+
+  uniforms.push_back(SharedUniform(name, type, ID));
+}
+
+bool Context::isSharedSampler(const String& name, Sampler::Type type) const
+{
+  for (SamplerList::const_iterator s = samplers.begin(); s != samplers.end(); s++)
   {
-    if ((*u)->getName() == name && (*u)->getType() == type)
-      return *u;
+    if (s->name == name && s->type == type)
+      return true;
   }
 
-  return NULL;
+  return false;
+}
+
+bool Context::isSharedUniform(const String& name, Uniform::Type type) const
+{
+  for (UniformList::const_iterator u = uniforms.begin(); u != uniforms.end(); u++)
+  {
+    if (u->name == name && u->type == type)
+      return true;
+  }
+
+  return false;
+}
+
+SharedProgramState* Context::getSharedProgramState(void) const
+{
+  return state;
+}
+
+void Context::setSharedProgramState(SharedProgramState* newState)
+{
+  state = newState;
 }
 
 Context::RefreshMode Context::getRefreshMode(void) const
@@ -976,11 +967,6 @@ Context::RefreshMode Context::getRefreshMode(void) const
 void Context::setRefreshMode(RefreshMode newMode)
 {
   refreshMode = newMode;
-
-  if (refreshMode == AUTOMATIC_REFRESH)
-    glfwEnable(GLFW_AUTO_POLL_EVENTS);
-  else
-    glfwDisable(GLFW_AUTO_POLL_EVENTS);
 }
 
 const Rect& Context::getScissorArea(void) const
@@ -1104,6 +1090,47 @@ void Context::setCurrentIndexBuffer(IndexBuffer* newIndexBuffer)
   }
 }
 
+Texture* Context::getCurrentTexture(void) const
+{
+  return textureUnits[activeTextureUnit];
+}
+
+void Context::setCurrentTexture(Texture* newTexture)
+{
+  if (textureUnits[activeTextureUnit] != newTexture)
+  {
+    glBindTexture(convertToGL(newTexture->type), newTexture->textureID);
+    textureUnits[activeTextureUnit] = newTexture;
+
+#if WENDY_DEBUG
+    if (!checkGL("Failed to bind texture \'%s\'",
+                 newTexture->getPath().asString().c_str()))
+    {
+      return;
+    }
+#endif
+  }
+}
+
+unsigned int Context::getActiveTextureUnit(void) const
+{
+  return activeTextureUnit;
+}
+
+void Context::setActiveTextureUnit(unsigned int unit)
+{
+  if (activeTextureUnit != unit)
+  {
+    glActiveTexture(GL_TEXTURE0 + unit);
+    activeTextureUnit = unit;
+
+#if WENDY_DEBUG
+    if (!checkGL("Failed to activate texture unit %u", unit))
+      return;
+#endif
+  }
+}
+
 const Context::PlaneList& Context::getClipPlanes(void) const
 {
   return planes;
@@ -1139,6 +1166,7 @@ bool Context::setClipPlanes(const PlaneList& newPlanes)
   return true;
 }
 
+/*
 const Mat4& Context::getModelMatrix(void) const
 {
   return modelMatrix;
@@ -1195,6 +1223,7 @@ void Context::setPerspectiveProjectionMatrix(float FOV, float aspect, float near
   projectionMatrix.setPerspectiveProjection(FOV, aspect, nearZ, farZ);
   dirtyViewProj = dirtyModelViewProj = true;
 }
+*/
 
 Stats* Context::getStats(void) const
 {
@@ -1282,9 +1311,9 @@ Context::Context(ResourceIndex& initIndex):
   refreshMode(AUTOMATIC_REFRESH),
   needsRefresh(false),
   needsClosing(false),
-  dirtyModelView(true),
-  dirtyViewProj(true),
-  dirtyModelViewProj(true),
+  //dirtyModelView(true),
+  //dirtyViewProj(true),
+  //dirtyModelViewProj(true),
   dirtyBinding(true),
   activeTextureUnit(0),
   stats(NULL)
@@ -1408,16 +1437,19 @@ bool Context::init(const ContextMode& initMode)
     glfwSetWindowSizeCallback(sizeCallback);
     glfwSetWindowCloseCallback(closeCallback);
     glfwSetWindowRefreshCallback(refreshCallback);
+    glfwDisable(GLFW_AUTO_POLL_EVENTS);
 
     glfwSwapInterval(1);
   }
 
-  createGlobalUniform("M", Uniform::FLOAT_MAT4, STATE_MODEL_MATRIX).setListener(this);
-  createGlobalUniform("V", Uniform::FLOAT_MAT4, STATE_VIEW_MATRIX).setListener(this);
-  createGlobalUniform("P", Uniform::FLOAT_MAT4, STATE_PROJECTION_MATRIX).setListener(this);
-  createGlobalUniform("MV", Uniform::FLOAT_MAT4, STATE_MODELVIEW_MATRIX).setListener(this);
-  createGlobalUniform("VP", Uniform::FLOAT_MAT4, STATE_VIEWPROJECTION_MATRIX).setListener(this);
-  createGlobalUniform("MVP", Uniform::FLOAT_MAT4, STATE_MODELVIEWPROJECTION_MATRIX).setListener(this);
+  /*
+  createSharedUniform("M", Uniform::FLOAT_MAT4, STATE_MODEL_MATRIX).setListener(this);
+  createSharedUniform("V", Uniform::FLOAT_MAT4, STATE_VIEW_MATRIX).setListener(this);
+  createSharedUniform("P", Uniform::FLOAT_MAT4, STATE_PROJECTION_MATRIX).setListener(this);
+  createSharedUniform("MV", Uniform::FLOAT_MAT4, STATE_MODELVIEW_MATRIX).setListener(this);
+  createSharedUniform("VP", Uniform::FLOAT_MAT4, STATE_VIEWPROJECTION_MATRIX).setListener(this);
+  createSharedUniform("MVP", Uniform::FLOAT_MAT4, STATE_MODELVIEWPROJECTION_MATRIX).setListener(this);
+  */
 
   return true;
 }
@@ -1448,34 +1480,6 @@ void Context::updateViewportArea(void)
              (GLint) (viewportArea.position.y * height),
 	     (GLsizei) (viewportArea.size.x * width),
 	     (GLsizei) (viewportArea.size.y * height));
-}
-
-Texture* Context::getCurrentTexture(unsigned int unit) const
-{
-  return textureUnits[unit];
-}
-
-void Context::setCurrentTexture(Texture* newTexture)
-{
-  if (textureUnits[activeTextureUnit] != newTexture)
-  {
-    glBindTexture(newTexture->textureTarget, newTexture->textureID);
-    textureUnits[activeTextureUnit] = newTexture;
-  }
-}
-
-unsigned int Context::getActiveTextureUnit(void) const
-{
-  return activeTextureUnit;
-}
-
-void Context::setActiveTextureUnit(unsigned int unit)
-{
-  if (activeTextureUnit != unit)
-  {
-    glActiveTexture(unit);
-    activeTextureUnit = unit;
-  }
 }
 
 void Context::sizeCallback(int width, int height)
@@ -1509,6 +1513,7 @@ void Context::refreshCallback(void)
   instance->needsRefresh = true;
 }
 
+/*
 void Context::onStateApply(unsigned int stateID, Uniform& uniform)
 {
   switch (stateID)
@@ -1578,6 +1583,7 @@ void Context::onStateApply(unsigned int stateID, Uniform& uniform)
     }
   }
 }
+*/
 
 Context* Context::instance = NULL;
 

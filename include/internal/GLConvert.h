@@ -39,6 +39,7 @@ GLenum convertToGL(PixelFormat::Type type);
 GLenum convertToGL(const PixelFormat& format);
 GLenum convertToGL(PixelFormat::Type type);
 GLenum convertToGL(PixelFormat::Semantic semantic);
+GLenum convertToGL(TextureType type);
 
 ///////////////////////////////////////////////////////////////////////
 

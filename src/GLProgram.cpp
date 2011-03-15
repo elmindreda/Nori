@@ -59,11 +59,6 @@ unsigned int getElementCount(Uniform::Type type)
     case Uniform::FLOAT:
     case Uniform::BOOL:
     case Uniform::INT:
-    case Uniform::SAMPLER_1D:
-    case Uniform::SAMPLER_2D:
-    case Uniform::SAMPLER_3D:
-    case Uniform::SAMPLER_RECT:
-    case Uniform::SAMPLER_CUBE:
       return 1;
     case Uniform::FLOAT_VEC2:
     case Uniform::BOOL_VEC2:
@@ -84,6 +79,9 @@ unsigned int getElementCount(Uniform::Type type)
     case Uniform::FLOAT_MAT4:
       return 4 * 4;
   }
+
+  logError("Invalid GLSL uniform type %u", type);
+  return 0;
 }
 
 unsigned int getElementCount(Attribute::Type type)
@@ -98,9 +96,10 @@ unsigned int getElementCount(Attribute::Type type)
       return 3;
     case Attribute::FLOAT_VEC4:
       return 4;
-    default:
-      throw Exception("Invalid attribute type");
   }
+
+  logError("Invalid GLSL attribute type %u", type);
+  return 0;
 }
 
 GLenum getElementType(Attribute::Type type)
@@ -112,9 +111,10 @@ GLenum getElementType(Attribute::Type type)
     case Attribute::FLOAT_VEC3:
     case Attribute::FLOAT_VEC4:
       return GL_FLOAT;
-    default:
-      throw Exception("Invalid attribute type");
   }
+
+  logError("Invalid GLSL attribute type %u", type);
+  return 0;
 }
 
 bool isSupportedAttributeType(GLenum type)
@@ -126,9 +126,9 @@ bool isSupportedAttributeType(GLenum type)
     case GL_FLOAT_VEC3:
     case GL_FLOAT_VEC4:
       return true;
-    default:
-      return false;
   }
+
+  return false;
 }
 
 Attribute::Type convertAttributeType(GLenum type)
@@ -143,9 +143,42 @@ Attribute::Type convertAttributeType(GLenum type)
       return Attribute::FLOAT_VEC3;
     case GL_FLOAT_VEC4:
       return Attribute::FLOAT_VEC4;
-    default:
-      throw Exception("Unsupported GLSL attribute type");
   }
+
+  logError("Unsupported GLSL attribute type %u", type);
+  return Attribute::Type(0);
+}
+
+bool isSupportedSamplerType(GLenum type)
+{
+  switch (type)
+  {
+    case GL_SAMPLER_1D:
+    case GL_SAMPLER_2D:
+    case GL_SAMPLER_2D_RECT_ARB:
+    case GL_SAMPLER_CUBE:
+      return true;
+  }
+
+  return false;
+}
+
+Sampler::Type convertSamplerType(GLenum type)
+{
+  switch (type)
+  {
+    case GL_SAMPLER_1D:
+      return Sampler::SAMPLER_1D;
+    case GL_SAMPLER_2D:
+      return Sampler::SAMPLER_2D;
+    case GL_SAMPLER_2D_RECT_ARB:
+      return Sampler::SAMPLER_RECT;
+    case GL_SAMPLER_CUBE:
+      return Sampler::SAMPLER_CUBE;
+  }
+
+  logError("Unsupported GLSL sampler type %u", type);
+  return Sampler::Type(0);
 }
 
 bool isSupportedUniformType(GLenum type)
@@ -167,16 +200,10 @@ bool isSupportedUniformType(GLenum type)
     case GL_INT_VEC2:
     case GL_INT_VEC3:
     case GL_INT_VEC4:
-    case GL_SAMPLER_1D:
-    case GL_SAMPLER_2D:
-    case GL_SAMPLER_3D:
-    case GL_SAMPLER_2D_RECT_ARB:
-    case GL_SAMPLER_CUBE:
       return true;
-
-    default:
-      return false;
   }
+
+  return false;
 }
 
 Uniform::Type convertUniformType(GLenum type)
@@ -216,21 +243,28 @@ Uniform::Type convertUniformType(GLenum type)
       return Uniform::INT_VEC3;
     case GL_INT_VEC4:
       return Uniform::INT_VEC4;
-
-    case GL_SAMPLER_1D:
-      return Uniform::SAMPLER_1D;
-    case GL_SAMPLER_2D:
-      return Uniform::SAMPLER_2D;
-    case GL_SAMPLER_3D:
-      return Uniform::SAMPLER_3D;
-    case GL_SAMPLER_2D_RECT_ARB:
-      return Uniform::SAMPLER_RECT;
-    case GL_SAMPLER_CUBE:
-      return Uniform::SAMPLER_CUBE;
-
-    default:
-      throw Exception("Unsupported GLSL uniform type");
   }
+
+  logError("Unsupported GLSL uniform type %u", type);
+  return Uniform::Type(0);
+}
+
+const char* getTypeName(Sampler::Type type)
+{
+  switch (type)
+  {
+    case Sampler::SAMPLER_1D:
+      return "sampler1D";
+    case Sampler::SAMPLER_2D:
+      return "sampler2D";
+    case Sampler::SAMPLER_RECT:
+      return "sampler2DRect";
+    case Sampler::SAMPLER_CUBE:
+      return "samplerCube";
+  }
+
+  logError("Invalid GLSL sampler type %u", type);
+  return "INVALID";
 }
 
 const char* getTypeName(Uniform::Type type)
@@ -267,19 +301,10 @@ const char* getTypeName(Uniform::Type type)
       return "ivec3";
     case Uniform::INT_VEC4:
       return "ivec4";
-    case Uniform::SAMPLER_1D:
-      return "sampler1D";
-    case Uniform::SAMPLER_2D:
-      return "sampler2D";
-    case Uniform::SAMPLER_3D:
-      return "sampler3D";
-    case Uniform::SAMPLER_RECT:
-      return "sampler2DRect";
-    case Uniform::SAMPLER_CUBE:
-      return "samplerCube";
-    default:
-      throw Exception("Invalid uniform type");
   }
+
+  logError("Invalid GLSL uniform type %u", type);
+  return "INVALID";
 }
 
 const char* getTypeName(Attribute::Type type)
@@ -294,9 +319,10 @@ const char* getTypeName(Attribute::Type type)
       return "vec3";
     case Attribute::FLOAT_VEC4:
       return "vec4";
-    default:
-      throw Exception("Invalid attribute type");
   }
+
+  logError("Invalid GLSL attribute type %u", type);
+  return "INVALID";
 }
 
 bool readTextFile(ResourceIndex& index, String& text, const Path& path)
@@ -438,7 +464,7 @@ void Attribute::enable(size_t stride, size_t offset)
 
   glVertexAttribPointer(location,
                         getElementCount(type),
-                        getAttributeBaseType(type),
+                        getElementType(type),
                         GL_FALSE,
                         stride,
                         (const void*) offset);
@@ -488,17 +514,6 @@ bool Uniform::isMatrix(void) const
   return false;
 }
 
-bool Uniform::isSampler(void) const
-{
-  if (type == SAMPLER_1D || type == SAMPLER_2D || type == SAMPLER_3D)
-    return true;
-
-  if (type == SAMPLER_RECT || type == SAMPLER_CUBE)
-    return true;
-
-  return false;
-}
-
 Uniform::Type Uniform::getType(void) const
 {
   return type;
@@ -507,16 +522,6 @@ Uniform::Type Uniform::getType(void) const
 const String& Uniform::getName(void) const
 {
   return name;
-}
-
-Program& Uniform::getProgram(void) const
-{
-  return *program;
-}
-
-Uniform::Uniform(Program& initProgram):
-  program(&initProgram)
-{
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -691,16 +696,16 @@ bool Program::init(const Shader& vertexShader, const Shader& fragmentShader)
     return false;
   }
 
-  if (!createUniforms())
+  if (!retrieveUniforms())
     return false;
 
-  if (!createAttributes())
+  if (!retrieveAttributes())
     return false;
 
   return true;
 }
 
-bool Program::createUniforms(void)
+bool Program::retrieveUniforms(void)
 {
   GLint uniformCount;
   glGetProgramiv(programID, GL_ACTIVE_UNIFORMS, &uniformCount);
@@ -729,17 +734,22 @@ bool Program::createUniforms(void)
     if (std::strncmp(uniformName, "gl_", 3) == 0)
       continue;
 
-    if (!isSupportedUniformType(uniformType))
+    if (isSupportedUniformType(uniformType))
     {
-      logWarning("Skipping uniform \'%s\' of unsupported type", uniformName);
-      continue;
-    }
+      int location = glGetUniformLocation(programID, uniformName);
+      Uniform::Type type = convertUniformType(uniformType);
 
-    uniforms.push_back(Uniform(*this));
-    Uniform& uniform = uniforms.back();
-    uniform.name = uniformName;
-    uniform.type = convertUniformType(uniformType);
-    uniform.location = glGetUniformLocation(programID, uniformName);
+      uniforms.push_back(Uniform(uniformName, type, location));
+    }
+    else if (isSupportedSamplerType(uniformType))
+    {
+      int location = glGetUniformLocation(programID, uniformName);
+      Sampler::Type type = convertSamplerType(uniformType);
+
+      samplers.push_back(Sampler(uniformName, type, location));
+    }
+    else
+      logWarning("Skipping uniform \'%s\' of unsupported type", uniformName);
   }
 
   delete [] uniformName;
@@ -753,7 +763,7 @@ bool Program::createUniforms(void)
   return true;
 }
 
-bool Program::createAttributes(void)
+bool Program::retrieveAttributes(void)
 {
   GLint attributeCount;
   glGetProgramiv(programID, GL_ACTIVE_ATTRIBUTES, &attributeCount);

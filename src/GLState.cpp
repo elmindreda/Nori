@@ -345,21 +345,29 @@ void StencilState::Data::setDefaults(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-UniformState::UniformState(Uniform& initUniform):
-  uniform(&initUniform)
+SamplerEntry::SamplerEntry(Sampler& initSampler):
+  sampler(initSampler)
 {
 }
 
-bool UniformState::operator == (const String& name) const
+bool SamplerEntry::operator == (const String& name) const
 {
-  return uniform->getName() == name;
+  return sampler.getName() == name;
 }
 
-Uniform& UniformState::getUniform(void) const
+///////////////////////////////////////////////////////////////////////
+
+UniformEntry::UniformEntry(Uniform& initUniform):
+  uniform(initUniform)
 {
-  return *uniform;
 }
 
+bool UniformEntry::operator == (const String& name) const
+{
+  return uniform.getName() == name;
+}
+
+/*
 void UniformState::apply(void) const
 {
   if (uniform->isSampler())
@@ -422,14 +430,7 @@ void UniformState::apply(void) const
 #endif
   }
 }
-
-///////////////////////////////////////////////////////////////////////
-
-GlobalUniform::GlobalUniform(Uniform& initUniform, unsigned int initID):
-  uniform(initUniform),
-  ID(initID)
-{
-}
+*/
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -455,19 +456,37 @@ void ProgramState::apply(void) const
     return;
 
   Context& context = program->getContext();
-
   context.setCurrentProgram(program);
 
-  for (UniformList::const_iterator u = uniforms.begin();  u != uniforms.end();  u++)
-    u->uniform->copyFrom(&floats[u->index]);
+  unsigned int textureUnit = 0;
 
-  GlobalUniformState* state = context.getGlobalUniformState();
-
-  for (GlobalUniformList::const_iterator u = globalUniforms.begin();
-       u != globalUniforms.end();
-       u++)
+  for (SamplerList::const_iterator s = samplers.begin();  s != samplers.end();  s++)
   {
-    state->update(u->ID, *u->uniform);
+    context.setActiveTextureUnit(textureUnit);
+    context.setCurrentTexture(s->texture);
+    s->sampler.bind(textureUnit);
+
+    textureUnit++;
+  }
+
+  for (UniformList::const_iterator u = uniforms.begin();  u != uniforms.end();  u++)
+    u->uniform.copyFrom(u->data);
+
+  if (SharedProgramState* state = context.getSharedProgramState())
+  {
+    for (SharedSamplerList::const_iterator s = sharedSamplers.begin();
+        s != sharedSamplers.end();
+        s++)
+    {
+      state->updateSampler(s->ID, s->sampler);
+    }
+
+    for (SharedUniformList::const_iterator u = sharedUniforms.begin();
+        u != sharedUniforms.end();
+        u++)
+    {
+      state->updateUniform(u->ID, u->uniform);
+    }
   }
 }
 
@@ -598,7 +617,7 @@ Program* ProgramState::getProgram(void) const
 
 void ProgramState::setProgram(Program* newProgram)
 {
-  destroyProgramState();
+  destroyState();
 
   program = newProgram;
   if (!program)
@@ -606,7 +625,7 @@ void ProgramState::setProgram(Program* newProgram)
 
   Context& context = program->getContext();
 
-  GlobalUniformState* state = context.getGlobalUniformState();
+  SharedProgramState* state = context.getSharedProgramState();
 
   size_t floatCount = 0;
   size_t textureCount = 0;
@@ -615,10 +634,10 @@ void ProgramState::setProgram(Program* newProgram)
   {
     Uniform& uniform = program->getUniform(i);
 
-    if (state && state->isGlobalUniform(uniform.getName(), uniform.getType()))
+    if (context.isSharedUniform(uniform.getName(), uniform.getType()))
     {
-      unsigned int ID = state->getGlobalUniformID(uniform);
-      globalUniforms.push_back(GlobalUniform(uniform, ID));
+      unsigned int ID = state->getSharedUniformID(uniform);
+      sharedUniforms.push_back(SharedUniform(uniform, ID));
     }
     else
     {
@@ -645,10 +664,12 @@ void ProgramState::setDefaults(void)
   setProgram(NULL);
 }
 
-void ProgramState::destroyProgramState(void)
+void ProgramState::destroyState(void)
 {
+  samplers.clear();
   uniforms.clear();
-  globalUniforms.clear();
+  sharedSamplers.clear();
+  sharedUniforms.clear();
 }
 
 ProgramState::IDQueue ProgramState::usedIDs;

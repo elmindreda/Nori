@@ -161,26 +161,54 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief State for a single program uniform.
+/*! @brief Entry for a single sampler uniform.
  *  @ingroup opengl
  */
-class UniformState
+class SamplerEntry
 {
 public:
-  UniformState(Uniform& uniform, unsigned int index);
+  SamplerEntry(Sampler& sampler);
   bool operator == (const String& name) const;
-  Uniform uniform;
-  unsigned int index;
+  Sampler sampler;
+  TextureRef texture;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup opengl
+/*! @brief Entry for a single non-sampler uniform.
+ *  @ingroup opengl
  */
-class GlobalUniform
+class UniformEntry
 {
 public:
-  GlobalUniform(Uniform& uniform, unsigned int ID);
+  UniformEntry(Uniform& uniform);
+  bool operator == (const String& name) const;
+  Uniform uniform;
+  void* data;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Entry for a single shared sampler uniform.
+ *  @ingroup opengl
+ */
+class SharedSamplerEntry
+{
+public:
+  SharedSamplerEntry(Sampler& sampler);
+  Sampler sampler;
+  unsigned int ID;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Entry for a single shared non-sampler uniform.
+ *  @ingroup opengl
+ */
+class SharedUniformEntry
+{
+public:
+  SharedUniformEntry(Uniform& uniform);
   Uniform uniform;
   unsigned int ID;
 };
@@ -223,30 +251,32 @@ public:
   Texture* getSamplerState(const String& name) const;
   void setSamplerState(const String& name, Texture* newTexture);
   Program* getProgram(void) const;
-  /*! Sets the GPU program used by this render pass.
-   *  @param[in] newProgram The desired GPU program, or @c NULL to use the
-   *  default GPU program.
+  /*! Sets the GPU program used by this state object.
+   *  @param[in] newProgram The desired GPU program, or @c NULL to merely
+   *  detach the current program.
    */
   void setProgram(Program* newProgram);
   StateID getID(void) const;
   void setDefaults(void);
 private:
-  void destroyProgramState(void);
-  UniformState* getSamplerUniformState(const String& name);
-  const UniformState* getSamplerUniformState(const String& name, Uniform::Type type) const;
-  UniformState* getUniformState(const String& name, Uniform::Type type);
-  const UniformState* getUniformState(const String& name, Uniform::Type type) const;
-  typedef std::vector<UniformState> UniformList;
-  typedef std::vector<GlobalUniform> GlobalUniformList;
+  void destroyState(void);
+  SamplerEntry* getSamplerEntry(const String& name);
+  const SamplerEntry* getSamplerEntry(const String& name, Sampler::Type type) const;
+  UniformEntry* getUniformEntry(const String& name, Uniform::Type type);
+  const UniformEntry* getUniformEntry(const String& name, Uniform::Type type) const;
+  typedef std::vector<SamplerEntry> SamplerList;
+  typedef std::vector<UniformEntry> UniformList;
+  typedef std::vector<SharedSamplerEntry> SharedSamplerList;
+  typedef std::vector<SharedUniformEntry> SharedUniformList;
   typedef std::deque<StateID> IDQueue;
   typedef std::vector<float> FloatList;
-  typedef std::vector<TextureRef> TextureList;
   StateID ID;
   Ref<Program> program;
+  SamplerList samplers;
   UniformList uniforms;
-  GlobalUniformList globalUniforms;
-  FloatList floats;
-  TextureList textures;
+  SharedSamplerList sharedSamplers;
+  SharedUniformList sharedUniforms;
+  FloatList floatData;
   static IDQueue usedIDs;
   static StateID nextID;
 };

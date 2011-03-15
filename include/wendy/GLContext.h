@@ -377,16 +377,38 @@ private:
 /*! @brief Interface for global GPU program state requests.
  *  @ingroup opengl
  */
-class GlobalProgramState
+class SharedProgramState
 {
 public:
-  virtual ~GlobalProgramState(void);
+  virtual ~SharedProgramState(void);
   virtual void updateUniform(unsigned int ID, Uniform& uniform) = 0;
   virtual void updateSampler(unsigned int ID, Sampler& uniform) = 0;
-  virtual bool isUniformGlobal(const String& name, Uniform::Type type) = 0;
-  virtual bool isSamplerGlobal(const String& name, Sampler::Type type) = 0;
-  virtual unsigned int getGlobalID(const String& name, Uniform::Type type) = 0;
-  virtual unsigned int getGlobalID(const String& name, Sampler::Type type) = 0;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup opengl
+ */
+class SharedSampler
+{
+public:
+  SharedSampler(const String& name, Sampler::Type type, unsigned int ID);
+  String name;
+  Sampler::Type type;
+  unsigned int ID;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup opengl
+ */
+class SharedUniform
+{
+public:
+  SharedUniform(const String& name, Uniform::Type type, unsigned int ID);
+  String name;
+  Uniform::Type type;
+  unsigned int ID;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -398,8 +420,6 @@ public:
  */
 class Context : public Singleton<Context>
 {
-  friend class Texture;
-  friend class UniformState;
 public:
   /*! Refresh mode enumeration.
    */
@@ -443,8 +463,12 @@ public:
    *  Context::refresh is made.
    */
   bool update(void);
-  GlobalUniformState* getGlobalUniformState(void) const;
-  void setGlobalUniformState(GlobalUniformState* newState);
+  void createSharedSampler(const String& name, Sampler::Type type, unsigned int ID);
+  void createSharedUniform(const String& name, Uniform::Type type, unsigned int ID);
+  bool isSharedSampler(const String& name, Sampler::Type type) const;
+  bool isSharedUniform(const String& name, Uniform::Type type) const;
+  SharedProgramState* getSharedProgramState(void) const;
+  void setSharedProgramState(SharedProgramState* newState);
   /*! @return The current refresh mode.
    */
   RefreshMode getRefreshMode(void) const;
@@ -585,6 +609,8 @@ private:
   static int closeCallback(void);
   static void refreshCallback(void);
   typedef std::vector<TextureRef> TextureList;
+  typedef std::vector<SharedSampler> SamplerList;
+  typedef std::vector<SharedUniform> UniformList;
   ResourceIndex& index;
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
@@ -608,7 +634,9 @@ private:
   bool dirtyModelViewProj;
   */
   bool dirtyBinding;
-  GlobalUniformState* globalUniforms;
+  SharedProgramState* state;
+  SamplerList samplers;
+  UniformList uniforms;
   TextureList textureUnits;
   unsigned int activeTextureUnit;
   Ref<Program> currentProgram;

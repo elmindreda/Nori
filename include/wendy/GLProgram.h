@@ -45,7 +45,6 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 class Context;
-class Texture;
 class Program;
 
 ///////////////////////////////////////////////////////////////////////
@@ -95,13 +94,39 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Program uniform.
+/*! @brief Program sampler uniform.
+ *  @ingroup opengl
+ */
+class Sampler
+{
+  friend class Program;
+public:
+  enum Type
+  {
+    SAMPLER_1D,
+    SAMPLER_2D,
+    SAMPLER_RECT,
+    SAMPLER_CUBE,
+  };
+  void bind(unsigned int textureUnit);
+  bool operator == (const String& string) const;
+  Type getType(void) const;
+  const String& getName(void) const;
+private:
+  Sampler(const String& name, Type type, int location);
+  String name;
+  Type type;
+  int location;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Program non-sampler uniform.
  *  @ingroup opengl
  */
 class Uniform
 {
   friend class Program;
-  friend class UniformState;
 public:
   enum Type
   {
@@ -120,22 +145,16 @@ public:
     INT_VEC2,
     INT_VEC3,
     INT_VEC4,
-    SAMPLER_1D,
-    SAMPLER_2D,
-    SAMPLER_3D,
-    SAMPLER_RECT,
-    SAMPLER_CUBE,
   };
+  void copyFrom(const void* data);
   bool operator == (const String& string) const;
   bool isScalar(void) const;
   bool isVector(void) const;
   bool isMatrix(void) const;
-  bool isSampler(void) const;
   Type getType(void) const;
   const String& getName(void) const;
 private:
   Uniform(const String& name, Type type, int location);
-  void copyFrom(const void* data);
   String name;
   Type type;
   int location;
@@ -155,12 +174,17 @@ public:
   ~Program(void);
   Attribute* findAttribute(const String& name);
   const Attribute* findAttribute(const String& name) const;
+  Sampler* findSampler(const String& name);
+  const Sampler* findSampler(const String& name) const;
   Uniform* findUniform(const String& name);
-  bool isCurrent(void) const;
   const Uniform* findUniform(const String& name) const;
+  bool isCurrent(void) const;
   unsigned int getAttributeCount(void) const;
   Attribute& getAttribute(unsigned int index);
   const Attribute& getAttribute(unsigned int index) const;
+  unsigned int getSamplerCount(void) const;
+  Sampler& getSampler(unsigned int index);
+  const Sampler& getSampler(unsigned int index) const;
   unsigned int getUniformCount(void) const;
   Uniform& getUniform(unsigned int index);
   const Uniform& getUniform(unsigned int index) const;
@@ -173,18 +197,19 @@ public:
 private:
   Program(const ResourceInfo& info, Context& context);
   Program(const Program& source);
-  bool init(const Shader& vertexShader,
-            const Shader& fragmentShader);
-  bool createUniforms(void);
-  bool createAttributes(void);
+  bool init(const Shader& vertexShader, const Shader& fragmentShader);
+  bool retrieveUniforms(void);
+  bool retrieveAttributes(void);
   Program& operator = (const Program& source);
   typedef std::vector<Attribute> AttributeList;
+  typedef std::vector<Sampler> SamplerList;
   typedef std::vector<Uniform> UniformList;
   Context& context;
   unsigned int vertexShaderID;
   unsigned int fragmentShaderID;
   unsigned int programID;
   AttributeList attributes;
+  SamplerList samplers;
   UniformList uniforms;
 };
 
@@ -196,13 +221,16 @@ private:
 class ProgramInterface
 {
 public:
+  void addSampler(const String& name, Sampler::Type type);
   void addUniform(const String& name, Uniform::Type type);
   void addAttribute(const String& name, Attribute::Type type);
   bool matches(const Program& program, bool verbose = false) const;
   bool matches(const VertexFormat& format, bool verbose = false) const;
 private:
+  typedef std::vector<std::pair<String, Sampler::Type> > SamplerList;
   typedef std::vector<std::pair<String, Uniform::Type> > UniformList;
   typedef std::vector<std::pair<String, Attribute::Type> > AttributeList;
+  SamplerList samplers;
   UniformList uniforms;
   AttributeList attributes;
 };
