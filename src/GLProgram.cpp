@@ -239,8 +239,8 @@ GLuint createShader(GLenum type, const Shader& shader)
                infoLog.c_str());
     }
     else
-      logError("Failed to compile shader \'%s\'",
-               shader.path.asString().c_str());
+      checkGL("Failed to compile shader \'%s\'",
+              shader.path.asString().c_str());
 
     glDeleteShader(shaderID);
     return 0;

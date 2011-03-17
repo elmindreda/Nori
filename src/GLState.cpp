@@ -352,40 +352,6 @@ void StencilState::Data::setDefaults(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-/*
-void UniformState::apply(void) const
-{
-  if (uniform->isSampler())
-  {
-    if (texture)
-    {
-      glUniform1i(location, texture->textureID);
-
-#if WENDY_DEBUG
-      checkGL("Failed to set uniform \'%s\' of program \'%s\' to texture \'%s\'",
-              uniform->name.c_str(),
-              uniform->program->getPath().asString().c_str(),
-              texture->getPath().asString().c_str());
-#endif
-    }
-    else
-    {
-      // This may not be the best solution, but at least it's a solution
-      // We should probably bind a DXM-colored texture instead
-      glUniform1i(location, 0);
-
-#if WENDY_DEBUG
-      checkGL("Failed to set uniform \'%s\' of program \'%s\' to texture zero",
-              uniform->name.c_str(),
-              uniform->program->getPath().asString().c_str());
-#endif
-    }
-  }
-}
-*/
-
-///////////////////////////////////////////////////////////////////////
-
 ProgramState::ProgramState(void)
 {
   if (usedIDs.empty())

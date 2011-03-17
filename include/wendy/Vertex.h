@@ -51,15 +51,6 @@ public:
     /*! Component elements are 32-bit floating-point (float).
      */
     FLOAT32,
-    /*! Component elements are 32-bit integers (int).
-     */
-    INT32,
-    /*! Component elements are 16-bit integers (short).
-     */
-    INT16,
-    /*! Component elements are 8-bit integers (char).
-     */
-    INT8,
   };
   /*! Constructor.
    */

@@ -52,7 +52,7 @@ struct LightVertex
   static VertexFormat format;
 };
 
-VertexFormat LightVertex::format("2f:position 2f:mapping 2f:clipOverF");
+VertexFormat LightVertex::format("2f:vertex.position 2f:vertex.mapping 2f:vertex.clipOverF");
 
 } /*namespace*/
 
@@ -229,9 +229,8 @@ bool Renderer::init(const Config& config)
     GL::ProgramInterface interface;
     interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
-    interface.addAttribute("position", GL::Attribute::FLOAT_VEC2);
-    interface.addAttribute("mapping", GL::Attribute::FLOAT_VEC2);
-    interface.addAttribute("clipOverF", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("vertex.position", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("vertex.mapping", GL::Attribute::FLOAT_VEC2);
 
     if (!interface.matches(*program, true))
     {
@@ -267,9 +266,9 @@ bool Renderer::init(const Config& config)
     interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
     interface.addUniform("light.direction", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
-    interface.addAttribute("position", GL::Attribute::FLOAT_VEC2);
-    interface.addAttribute("mapping", GL::Attribute::FLOAT_VEC2);
-    interface.addAttribute("clipOverF", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("vertex.position", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("vertex.mapping", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("vertex.clipOverF", GL::Attribute::FLOAT_VEC2);
 
     if (!interface.matches(*program, true))
     {
@@ -320,9 +319,9 @@ bool Renderer::init(const Config& config)
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.radius", GL::Uniform::FLOAT);
     interface.addSampler("light.distAttTexture", GL::Sampler::SAMPLER_1D);
-    interface.addAttribute("position", GL::Attribute::FLOAT_VEC2);
-    interface.addAttribute("mapping", GL::Attribute::FLOAT_VEC2);
-    interface.addAttribute("clipOverF", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("vertex.position", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("vertex.mapping", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("vertex.clipOverF", GL::Attribute::FLOAT_VEC2);
 
     if (!interface.matches(*program, true))
     {

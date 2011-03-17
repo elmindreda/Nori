@@ -7,7 +7,7 @@ varying vec3 viewpos;
 varying vec3 normal;
 varying vec2 mapping;
 
-vec4 main()
+void main()
 {
   vec3 C = vec3(1.0, 0.3, 0.3) * texture2D(checkers, mapping).r;
 

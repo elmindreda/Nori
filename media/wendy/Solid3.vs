@@ -1,10 +1,15 @@
 
 uniform mat4 MVP;
 
-in vec3 position;
+struct Vertex
+{
+  vec3 position;
+};
+
+in Vertex vertex;
 
 void main()
 {
-  gl_Position = MVP * vec4(position, 1);
+  gl_Position = MVP * vec4(vertex.position, 1);
 }
 

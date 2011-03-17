@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <program version="3" >
-  <vertex path="wendy/DeferredSolid.vp" />
-  <fragment path="wendy/DeferredSolid.fp" />
+  <vertex path="wendy/DeferredSolid.vs" />
+  <fragment path="wendy/DeferredSolid.fs" />
 </program>

@@ -1,18 +1,23 @@
 
+struct Vertex
+{
+  vec2 position;
+  vec2 mapping;
+  vec2 clipOverF;
+};
+
 uniform mat4 P;
 
-in vec2 position;
-in vec2 mapping;
-in vec2 clipOverF;
+in Vertex vertex;
 
 varying vec2 mapping;
 varying vec2 clipOverF;
 
 void main()
 {
-  result.mapping = mapping;
-  result.clipOverF = clipOverF;
+  mapping = vertex.mapping;
+  clipOverF = vertex.clipOverF;
 
-  gl_Position = P * vec4(position, 0, 1);
+  gl_Position = P * vec4(vertex.position, 0, 1);
 }
 

@@ -36,6 +36,6 @@ void main()
     Is = pow(clamp(dot(R, E), 0, 1), 10) * NS.a;
   }
 
-  return vec4(Cs * light.color * (Id + Is), 1);
+  gl_FragColor = vec4(Cs * light.color * (Id + Is), 1);
 }
 

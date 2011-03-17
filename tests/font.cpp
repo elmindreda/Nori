@@ -65,7 +65,7 @@ bool Demo::init(void)
   state = new GL::SharedProgramState();
   context->setSharedProgramState(state);
 
-  pool = new render::GeometryPool(*context);
+  pool = new render::GeometryPool(*context, 2048);
 
   font = render::Font::read(*pool, Path("wendy/default.font"));
   if (!font)

@@ -221,6 +221,7 @@ public:
   void addSampler(const String& name, Sampler::Type type);
   void addUniform(const String& name, Uniform::Type type);
   void addAttribute(const String& name, Attribute::Type type);
+  void addAttributes(const VertexFormat& format);
   bool matches(const Program& program, bool verbose = false) const;
   bool matches(const VertexFormat& format, bool verbose = false) const;
 private:

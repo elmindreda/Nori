@@ -70,12 +70,6 @@ GLenum convertToGL(VertexComponent::Type type)
   {
     case VertexComponent::FLOAT32:
       return GL_FLOAT;
-    case VertexComponent::INT32:
-      return GL_INT;
-    case VertexComponent::INT16:
-      return GL_SHORT;
-    case VertexComponent::INT8:
-      return GL_BYTE;
   }
 
   logError("Invalid vertex component type %u", type);

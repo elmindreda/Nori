@@ -1,13 +1,13 @@
 
-uniform mat4 P;
-
 struct Vertex
 {
   vec2 position;
   vec2 mapping;
 };
 
-attribute Vertex vertex;
+uniform mat4 P;
+
+in Vertex vertex;
 
 varying vec2 mapping;
 

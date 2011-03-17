@@ -5,10 +5,10 @@ struct Light
 };
 
 uniform Light light;
-uniform sampler2DRect colorTexture,
+uniform sampler2DRect colorTexture;
 
-in vec2 mapping;
-in vec2 clipOverF;
+varying vec2 mapping;
+varying vec2 clipOverF;
 
 void main()
 {

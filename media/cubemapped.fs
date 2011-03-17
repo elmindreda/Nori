@@ -1,12 +1,12 @@
 
 uniform samplerCube cubemap;
 
-varying vec3 eyepos70;
-varying vec3 normal70;
+varying vec3 eyepos;
+varying vec3 normal;
 
 void main()
 {
-  vec3 R = normalize(reflect(-eyepos70, normal70));
+  vec3 R = normalize(reflect(-eyepos, normal));
 
   gl_FragColor = textureCube(cubemap, R);
 }
