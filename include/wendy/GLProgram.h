@@ -77,7 +77,7 @@ public:
     FLOAT_VEC3,
     FLOAT_VEC4,
   };
-  void enable(size_t stride, size_t offset);
+  void bind(size_t stride, size_t offset);
   bool operator == (const String& string) const;
   bool isScalar(void) const;
   bool isVector(void) const;
@@ -108,15 +108,17 @@ public:
     SAMPLER_RECT,
     SAMPLER_CUBE,
   };
-  void bind(unsigned int textureUnit);
+  void bind(unsigned int unit);
   bool operator == (const String& string) const;
+  bool isShared(void) const;
   Type getType(void) const;
   const String& getName(void) const;
+  int getSharedID(void) const;
 private:
-  Sampler(const String& name, Type type, int location);
   String name;
   Type type;
   int location;
+  int sharedID;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -137,27 +139,22 @@ public:
     FLOAT_MAT2,
     FLOAT_MAT3,
     FLOAT_MAT4,
-    BOOL,
-    BOOL_VEC2,
-    BOOL_VEC3,
-    BOOL_VEC4,
-    INT,
-    INT_VEC2,
-    INT_VEC3,
-    INT_VEC4,
   };
   void copyFrom(const void* data);
   bool operator == (const String& string) const;
+  bool isShared(void) const;
   bool isScalar(void) const;
   bool isVector(void) const;
   bool isMatrix(void) const;
   Type getType(void) const;
   const String& getName(void) const;
+  unsigned int getElementCount(void) const;
+  int getSharedID(void) const;
 private:
-  Uniform(const String& name, Type type, int location);
   String name;
   Type type;
   int location;
+  int sharedID;
 };
 
 ///////////////////////////////////////////////////////////////////////

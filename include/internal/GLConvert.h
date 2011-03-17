@@ -41,6 +41,10 @@ GLenum convertToGL(PixelFormat::Type type);
 GLenum convertToGL(PixelFormat::Semantic semantic);
 GLenum convertToGL(TextureType type);
 
+const char* asString(Sampler::Type type);
+const char* asString(Uniform::Type type);
+const char* asString(Attribute::Type type);
+
 ///////////////////////////////////////////////////////////////////////
 
   } /*namespace GL*/

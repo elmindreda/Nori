@@ -237,6 +237,66 @@ GLenum convertToGL(TextureType type)
   return 0;
 }
 
+const char* asString(Sampler::Type type)
+{
+  switch (type)
+  {
+    case Sampler::SAMPLER_1D:
+      return "sampler1D";
+    case Sampler::SAMPLER_2D:
+      return "sampler2D";
+    case Sampler::SAMPLER_RECT:
+      return "sampler2DRect";
+    case Sampler::SAMPLER_CUBE:
+      return "samplerCube";
+  }
+
+  logError("Invalid GLSL sampler type %u", type);
+  return "INVALID";
+}
+
+const char* asString(Uniform::Type type)
+{
+  switch (type)
+  {
+    case Uniform::FLOAT:
+      return "float";
+    case Uniform::FLOAT_VEC2:
+      return "vec2";
+    case Uniform::FLOAT_VEC3:
+      return "vec3";
+    case Uniform::FLOAT_VEC4:
+      return "vec4";
+    case Uniform::FLOAT_MAT2:
+      return "mat2";
+    case Uniform::FLOAT_MAT3:
+      return "mat3";
+    case Uniform::FLOAT_MAT4:
+      return "mat4";
+  }
+
+  logError("Invalid GLSL uniform type %u", type);
+  return "INVALID";
+}
+
+const char* asString(Attribute::Type type)
+{
+  switch (type)
+  {
+    case Attribute::FLOAT:
+      return "float";
+    case Attribute::FLOAT_VEC2:
+      return "vec2";
+    case Attribute::FLOAT_VEC3:
+      return "vec3";
+    case Attribute::FLOAT_VEC4:
+      return "vec4";
+  }
+
+  logError("Invalid GLSL attribute type %u", type);
+  return "INVALID";
+}
+
 ///////////////////////////////////////////////////////////////////////
 
   } /*namespace GL*/

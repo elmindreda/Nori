@@ -34,6 +34,7 @@ public:
   bool render(void);
 private:
   ResourceIndex index;
+  Ptr<GL::SharedProgramState> state;
   Ptr<render::GeometryPool> pool;
   Ref<render::Font> font;
 };
@@ -61,6 +62,9 @@ bool Demo::init(void)
   context->setTitle("Font Test");
   context->setRefreshMode(GL::Context::MANUAL_REFRESH);
 
+  state = new GL::SharedProgramState();
+  context->setSharedProgramState(state);
+
   pool = new render::GeometryPool(*context);
 
   font = render::Font::read(*pool, Path("wendy/default.font"));
@@ -77,7 +81,8 @@ bool Demo::render(void)
 {
   GL::Context* context = GL::Context::getSingleton();
   context->clearColorBuffer();
-  context->setOrthoProjectionMatrix(640.f, 480.f);
+
+  state->setOrthoProjectionMatrix(640.f, 480.f);
 
   const float em = font->getHeight();
 

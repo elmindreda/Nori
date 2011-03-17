@@ -138,13 +138,6 @@ public:
   /*! Destroys all render operations in this render queue.
    */
   void removeOperations(void);
-  /*! Renders the operations in this render queue.
-   *
-   *  @note This method performs no special setup of any kind.  If you need
-   *  that sort of thing, you should retrieve the operations and keys and make
-   *  your own rendering function.
-   */
-  void renderOperations(void) const;
   /*! @return The render operations in this render queue.
    */
   const OperationList& getOperations(void) const;

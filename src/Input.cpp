@@ -25,6 +25,12 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/OpenGL.h>
+#include <wendy/GLTexture.h>
+#include <wendy/GLProgram.h>
+#include <wendy/GLBuffer.h>
+#include <wendy/GLContext.h>
+
 #include <wendy/Input.h>
 
 #include <GL/glfw.h>

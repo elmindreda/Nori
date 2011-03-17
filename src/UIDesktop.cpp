@@ -64,11 +64,6 @@ void Desktop::addRootWidget(Widget& root)
 
 void Desktop::drawRootWidgets(void)
 {
-  render::GeometryPool& pool = renderer.getGeometryPool();
-
-  pool.getContext().setOrthoProjectionMatrix((float) context.getWidth(),
-                                             (float) context.getHeight());
-
   for (WidgetList::iterator i = roots.begin();  i != roots.end();  i++)
   {
     if ((*i)->isVisible())

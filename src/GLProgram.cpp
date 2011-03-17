@@ -37,6 +37,8 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
+#include <internal/GLConvert.h>
+
 #include <algorithm>
 #include <cstring>
 
@@ -51,38 +53,6 @@ namespace wendy
 
 namespace
 {
-
-unsigned int getElementCount(Uniform::Type type)
-{
-  switch (type)
-  {
-    case Uniform::FLOAT:
-    case Uniform::BOOL:
-    case Uniform::INT:
-      return 1;
-    case Uniform::FLOAT_VEC2:
-    case Uniform::BOOL_VEC2:
-    case Uniform::INT_VEC2:
-      return 2;
-    case Uniform::FLOAT_VEC3:
-    case Uniform::BOOL_VEC3:
-    case Uniform::INT_VEC3:
-      return 3;
-    case Uniform::FLOAT_VEC4:
-    case Uniform::BOOL_VEC4:
-    case Uniform::INT_VEC4:
-      return 4;
-    case Uniform::FLOAT_MAT2:
-      return 2 * 2;
-    case Uniform::FLOAT_MAT3:
-      return 3 * 3;
-    case Uniform::FLOAT_MAT4:
-      return 4 * 4;
-  }
-
-  logError("Invalid GLSL uniform type %u", type);
-  return 0;
-}
 
 unsigned int getElementCount(Attribute::Type type)
 {
@@ -192,14 +162,6 @@ bool isSupportedUniformType(GLenum type)
     case GL_FLOAT_MAT2:
     case GL_FLOAT_MAT3:
     case GL_FLOAT_MAT4:
-    case GL_BOOL:
-    case GL_BOOL_VEC2:
-    case GL_BOOL_VEC3:
-    case GL_BOOL_VEC4:
-    case GL_INT:
-    case GL_INT_VEC2:
-    case GL_INT_VEC3:
-    case GL_INT_VEC4:
       return true;
   }
 
@@ -225,104 +187,10 @@ Uniform::Type convertUniformType(GLenum type)
       return Uniform::FLOAT_MAT3;
     case GL_FLOAT_MAT4:
       return Uniform::FLOAT_MAT4;
-
-    case GL_BOOL:
-      return Uniform::BOOL;
-    case GL_BOOL_VEC2:
-      return Uniform::BOOL_VEC2;
-    case GL_BOOL_VEC3:
-      return Uniform::BOOL_VEC3;
-    case GL_BOOL_VEC4:
-      return Uniform::BOOL_VEC4;
-
-    case GL_INT:
-      return Uniform::INT;
-    case GL_INT_VEC2:
-      return Uniform::INT_VEC2;
-    case GL_INT_VEC3:
-      return Uniform::INT_VEC3;
-    case GL_INT_VEC4:
-      return Uniform::INT_VEC4;
   }
 
   logError("Unsupported GLSL uniform type %u", type);
   return Uniform::Type(0);
-}
-
-const char* getTypeName(Sampler::Type type)
-{
-  switch (type)
-  {
-    case Sampler::SAMPLER_1D:
-      return "sampler1D";
-    case Sampler::SAMPLER_2D:
-      return "sampler2D";
-    case Sampler::SAMPLER_RECT:
-      return "sampler2DRect";
-    case Sampler::SAMPLER_CUBE:
-      return "samplerCube";
-  }
-
-  logError("Invalid GLSL sampler type %u", type);
-  return "INVALID";
-}
-
-const char* getTypeName(Uniform::Type type)
-{
-  switch (type)
-  {
-    case Uniform::FLOAT:
-      return "float";
-    case Uniform::FLOAT_VEC2:
-      return "vec2";
-    case Uniform::FLOAT_VEC3:
-      return "vec3";
-    case Uniform::FLOAT_VEC4:
-      return "vec4";
-    case Uniform::FLOAT_MAT2:
-      return "mat2";
-    case Uniform::FLOAT_MAT3:
-      return "mat3";
-    case Uniform::FLOAT_MAT4:
-      return "mat4";
-    case Uniform::BOOL:
-      return "bool";
-    case Uniform::BOOL_VEC2:
-      return "bvec2";
-    case Uniform::BOOL_VEC3:
-      return "bvec3";
-    case Uniform::BOOL_VEC4:
-      return "bvec4";
-    case Uniform::INT:
-      return "int";
-    case Uniform::INT_VEC2:
-      return "ivec2";
-    case Uniform::INT_VEC3:
-      return "ivec3";
-    case Uniform::INT_VEC4:
-      return "ivec4";
-  }
-
-  logError("Invalid GLSL uniform type %u", type);
-  return "INVALID";
-}
-
-const char* getTypeName(Attribute::Type type)
-{
-  switch (type)
-  {
-    case Attribute::FLOAT:
-      return "float";
-    case Attribute::FLOAT_VEC2:
-      return "vec2";
-    case Attribute::FLOAT_VEC3:
-      return "vec3";
-    case Attribute::FLOAT_VEC4:
-      return "vec4";
-  }
-
-  logError("Invalid GLSL attribute type %u", type);
-  return "INVALID";
 }
 
 bool readTextFile(ResourceIndex& index, String& text, const Path& path)
@@ -452,7 +320,7 @@ const String& Attribute::getName(void) const
   return name;
 }
 
-void Attribute::enable(size_t stride, size_t offset)
+void Attribute::bind(size_t stride, size_t offset)
 {
   glEnableVertexAttribArray(location);
 
@@ -488,9 +356,82 @@ Attribute::Attribute(Program& initProgram):
 
 ///////////////////////////////////////////////////////////////////////
 
+void Sampler::bind(unsigned int unit)
+{
+  glUniform1i(location, unit);
+
+#if WENDY_DEBUG
+  checkGL("Failed to set sampler \'%s\'", name.c_str());
+#endif
+}
+
+bool Sampler::operator == (const String& string) const
+{
+  return name == string;
+}
+
+bool Sampler::isShared(void) const
+{
+  return sharedID != INVALID_SHARED_STATE_ID;
+}
+
+Sampler::Type Sampler::getType(void) const
+{
+  return type;
+}
+
+const String& Sampler::getName(void) const
+{
+  return name;
+}
+
+int Sampler::getSharedID(void) const
+{
+  return sharedID;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+void Uniform::copyFrom(const void* data)
+{
+  switch (type)
+  {
+    case FLOAT:
+      glUniform1fv(location, 1, (const float*) data);
+      break;
+    case FLOAT_VEC2:
+      glUniform2fv(location, 1, (const float*) data);
+      break;
+    case FLOAT_VEC3:
+      glUniform3fv(location, 1, (const float*) data);
+      break;
+    case FLOAT_VEC4:
+      glUniform4fv(location, 1, (const float*) data);
+      break;
+    case FLOAT_MAT2:
+      glUniformMatrix2fv(location, 1, GL_FALSE, (const float*) data);
+      break;
+    case FLOAT_MAT3:
+      glUniformMatrix3fv(location, 1, GL_FALSE, (const float*) data);
+      break;
+    case FLOAT_MAT4:
+      glUniformMatrix4fv(location, 1, GL_FALSE, (const float*) data);
+      break;
+  }
+
+#if WENDY_DEBUG
+  checkGL("Failed to set uniform \'%s\'", name.c_str());
+#endif
+}
+
 bool Uniform::operator == (const String& string) const
 {
   return name == string;
+}
+
+bool Uniform::isShared(void) const
+{
+  return sharedID != INVALID_SHARED_STATE_ID;
 }
 
 bool Uniform::isScalar(void) const
@@ -524,6 +465,35 @@ const String& Uniform::getName(void) const
   return name;
 }
 
+unsigned int Uniform::getElementCount(void) const
+{
+  switch (type)
+  {
+    case Uniform::FLOAT:
+      return 1;
+    case Uniform::FLOAT_VEC2:
+      return 2;
+    case Uniform::FLOAT_VEC3:
+      return 3;
+    case Uniform::FLOAT_VEC4:
+      return 4;
+    case Uniform::FLOAT_MAT2:
+      return 2 * 2;
+    case Uniform::FLOAT_MAT3:
+      return 3 * 3;
+    case Uniform::FLOAT_MAT4:
+      return 4 * 4;
+  }
+
+  logError("Invalid GLSL uniform type %u", type);
+  return 0;
+}
+
+int Uniform::getSharedID(void) const
+{
+  return sharedID;
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 Program::~Program(void)
@@ -554,6 +524,24 @@ const Attribute* Program::findAttribute(const String& name) const
     return NULL;
 
   return &(*i);
+}
+
+Sampler* Program::findSampler(const String& name)
+{
+  SamplerList::iterator s = std::find(samplers.begin(), samplers.end(), name);
+  if (s == samplers.end())
+    return NULL;
+
+  return &(*s);
+}
+
+const Sampler* Program::findSampler(const String& name) const
+{
+  SamplerList::const_iterator s = std::find(samplers.begin(), samplers.end(), name);
+  if (s == samplers.end())
+    return NULL;
+
+  return &(*s);
 }
 
 Uniform* Program::findUniform(const String& name)
@@ -592,6 +580,21 @@ Attribute& Program::getAttribute(unsigned int index)
 const Attribute& Program::getAttribute(unsigned int index) const
 {
   return attributes[index];
+}
+
+unsigned int Program::getSamplerCount(void) const
+{
+  return samplers.size();
+}
+
+Sampler& Program::getSampler(unsigned int index)
+{
+  return samplers[index];
+}
+
+const Sampler& Program::getSampler(unsigned int index) const
+{
+  return samplers[index];
 }
 
 unsigned int Program::getUniformCount(void) const
@@ -736,17 +739,21 @@ bool Program::retrieveUniforms(void)
 
     if (isSupportedUniformType(uniformType))
     {
-      int location = glGetUniformLocation(programID, uniformName);
-      Uniform::Type type = convertUniformType(uniformType);
-
-      uniforms.push_back(Uniform(uniformName, type, location));
+      uniforms.push_back(Uniform());
+      Uniform& uniform = uniforms.back();
+      uniform.name = uniformName;
+      uniform.type = convertUniformType(uniformType);
+      uniform.location = glGetUniformLocation(programID, uniformName);
+      uniform.sharedID = context.getSharedUniformID(uniform.name, uniform.type);
     }
     else if (isSupportedSamplerType(uniformType))
     {
-      int location = glGetUniformLocation(programID, uniformName);
-      Sampler::Type type = convertSamplerType(uniformType);
-
-      samplers.push_back(Sampler(uniformName, type, location));
+      samplers.push_back(Sampler());
+      Sampler& sampler = samplers.back();
+      sampler.name = uniformName;
+      sampler.type = convertSamplerType(uniformType);
+      sampler.location = glGetUniformLocation(programID, uniformName);
+      sampler.sharedID = context.getSharedSamplerID(sampler.name, sampler.type);
     }
     else
       logWarning("Skipping uniform \'%s\' of unsupported type", uniformName);
@@ -820,6 +827,11 @@ Program& Program::operator = (const Program& source)
 
 ///////////////////////////////////////////////////////////////////////
 
+void ProgramInterface::addSampler(const String& name, Sampler::Type type)
+{
+  samplers.push_back(SamplerList::value_type(name, type));
+}
+
 void ProgramInterface::addUniform(const String& name, Uniform::Type type)
 {
   uniforms.push_back(UniformList::value_type(name, type));
@@ -832,6 +844,37 @@ void ProgramInterface::addAttribute(const String& name, Attribute::Type type)
 
 bool ProgramInterface::matches(const Program& program, bool verbose) const
 {
+  for (size_t i = 0;  i < samplers.size();  i++)
+  {
+    const SamplerList::value_type& entry = samplers[i];
+
+    const Sampler* sampler = program.findSampler(entry.first);
+    if (!sampler)
+    {
+      if (verbose)
+      {
+        logError("Sampler \'%s\' missing in program \'%s\'",
+                 entry.first.c_str(),
+                 program.getPath().asString().c_str());
+      }
+
+      return false;
+    }
+
+    if (sampler->getType() != entry.second)
+    {
+      if (verbose)
+      {
+        logError("Sampler \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
+                 entry.first.c_str(),
+                 program.getPath().asString().c_str(),
+                 asString(entry.second));
+      }
+
+      return false;
+    }
+  }
+
   for (size_t i = 0;  i < uniforms.size();  i++)
   {
     const UniformList::value_type& entry = uniforms[i];
@@ -856,7 +899,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
         logError("Uniform \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
                  entry.first.c_str(),
                  program.getPath().asString().c_str(),
-                 getTypeName(entry.second));
+                 asString(entry.second));
       }
 
       return false;
@@ -887,7 +930,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
         logError("Attribute \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
                  entry.first.c_str(),
                  program.getPath().asString().c_str(),
-                 getTypeName(entry.second));
+                 asString(entry.second));
       }
 
       return false;

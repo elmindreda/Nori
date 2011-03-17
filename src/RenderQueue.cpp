@@ -119,22 +119,6 @@ void Queue::removeOperations(void)
   sorted = true;
 }
 
-void Queue::renderOperations(void) const
-{
-  GL::Context* context = GL::Context::getSingleton();
-
-  const SortKeyList& keys = getSortKeys();
-
-  for (SortKeyList::const_iterator k = keys.begin();  k != keys.end();  k++)
-  {
-    const Operation& op = operations[k->index];
-
-    context->setModelMatrix(op.transform);
-    op.state->apply();
-    context->render(op.range);
-  }
-}
-
 const OperationList& Queue::getOperations(void) const
 {
   return operations;

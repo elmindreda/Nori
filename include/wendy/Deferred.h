@@ -62,8 +62,10 @@ private:
   void renderLightQuad(const render::Camera& camera);
   void renderAmbientLight(const render::Camera& camera, const ColorRGB& color);
   void renderLight(const render::Camera& camera, const render::Light& light);
+  void renderOperations(const render::Queue& queue);
   render::GeometryPool& pool;
   Ref<GL::ImageCanvas> canvas;
+  Ptr<GL::SharedProgramState> state;
   GL::TextureRef depthTexture;
   GL::TextureRef colorTexture;
   GL::TextureRef normalTexture;

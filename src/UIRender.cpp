@@ -262,12 +262,12 @@ void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
   else
     blitPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ZERO);
 
-  blitPass.getUniformState("image").setTexture(&texture);
+  blitPass.setSamplerState("image", &texture);
   blitPass.apply();
 
   pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 
-  blitPass.getUniformState("image").setTexture(NULL);
+  blitPass.setSamplerState("image", NULL);
 }
 
 void Renderer::drawText(const Rect& area,
@@ -567,7 +567,7 @@ bool Renderer::init(void)
     }
 
     GL::ProgramInterface interface;
-    interface.addUniform("image", GL::Uniform::SAMPLER_2D);
+    interface.addSampler("image", GL::Sampler::SAMPLER_2D);
     interface.addAttribute("position", GL::Attribute::FLOAT_VEC2);
     interface.addAttribute("mapping", GL::Attribute::FLOAT_VEC2);
 
@@ -589,7 +589,7 @@ bool Renderer::init(void)
 
 void Renderer::setDrawingState(const ColorRGBA& color, bool wireframe)
 {
-  drawPass.getUniformState("color").setValue(color);
+  drawPass.setUniformState("color", color);
 
   if (color.a == 1.f)
     drawPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ZERO);

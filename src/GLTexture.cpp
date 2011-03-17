@@ -183,7 +183,7 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
       return false;
     }
 
-    context.setCurrentTexture(texture);
+    texture.context.setCurrentTexture(&texture);
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexSubImage1D(convertToGL(texture.type),
@@ -202,7 +202,7 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
       return false;
     }
 
-    context.setCurrentTexture(texture);
+    texture.context.setCurrentTexture(&texture);
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexSubImage2D(convertToGL(texture.type),
@@ -228,7 +228,7 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
 
 bool TextureImage::copyFromColorBuffer(unsigned int x, unsigned int y)
 {
-  context.setCurrentTexture(texture);
+  texture.context.setCurrentTexture(&texture);
 
   if (texture.type == TEXTURE_1D)
     glCopyTexSubImage1D(convertToGL(texture.type), level, 0, x, y, width);
@@ -251,7 +251,7 @@ bool TextureImage::copyTo(wendy::Image& result) const
 {
   result = wendy::Image(texture.getIndex(), texture.format, width, height);
 
-  context.setCurrentTexture(texture);
+  texture.context.setCurrentTexture(&texture);
 
   glPixelStorei(GL_PACK_ALIGNMENT, 1);
   glGetTexImage(convertToGL(texture.type),
@@ -404,7 +404,7 @@ void Texture::setFilterMode(FilterMode newMode)
 {
   if (newMode != filterMode)
   {
-    context.setCurrentTexture(*this);
+    context.setCurrentTexture(this);
 
     glTexParameteri(convertToGL(type),
                     GL_TEXTURE_MIN_FILTER,
@@ -431,7 +431,7 @@ void Texture::setAddressMode(AddressMode newMode)
 {
   if (newMode != addressMode)
   {
-    context.setCurrentTexture(*this);
+    context.setCurrentTexture(this);
 
     glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_S, convertToGL(newMode));
 
@@ -604,7 +604,7 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
 
   glGenTextures(1, &textureID);
 
-  context.setCurrentTexture(*this);
+  context.setCurrentTexture(this);
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -770,7 +770,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
 
   glGenTextures(1, &textureID);
 
-  context.setCurrentTexture(*this);
+  context.setCurrentTexture(this);
 
   for (unsigned int i = 0;  i < 6;  i++)
   {

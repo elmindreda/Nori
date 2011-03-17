@@ -16,6 +16,7 @@ public:
   void run(void);
 private:
   ResourceIndex index;
+  Ptr<GL::SharedProgramState> state;
   Ptr<render::GeometryPool> pool;
   Ref<render::Material> material;
   Ref<render::Camera> camera;
@@ -43,6 +44,9 @@ bool Test::init(void)
 
   GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Particles");
+
+  state = new GL::SharedProgramState();
+  context->setSharedProgramState(state);
 
   pool = new render::GeometryPool(*context);
 

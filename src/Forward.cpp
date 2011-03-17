@@ -46,15 +46,18 @@ namespace wendy
 void Renderer::render(const render::Scene& scene, const render::Camera& camera)
 {
   GL::Context& context = pool.getContext();
+  context.setSharedProgramState(state);
 
-  context.setViewMatrix(camera.getViewTransform());
-  context.setPerspectiveProjectionMatrix(camera.getFOV(),
-                                         camera.getAspectRatio(),
-                                         camera.getMinDepth(),
-                                         camera.getMaxDepth());
+  state->setViewMatrix(camera.getViewTransform());
+  state->setPerspectiveProjectionMatrix(camera.getFOV(),
+                                        camera.getAspectRatio(),
+                                        camera.getMinDepth(),
+                                        camera.getMaxDepth());
 
-  scene.getOpaqueQueue().renderOperations();
-  scene.getBlendedQueue().renderOperations();
+  renderOperations(scene.getOpaqueQueue());
+  renderOperations(scene.getBlendedQueue());
+
+  context.setSharedProgramState(NULL);
 }
 
 Renderer* Renderer::create(render::GeometryPool& pool, const Config& config)
@@ -74,8 +77,26 @@ Renderer::Renderer(render::GeometryPool& initPool):
 bool Renderer::init(const Config& initConfig)
 {
   config = initConfig;
+  state = new GL::SharedProgramState();
 
   return true;
+}
+
+void Renderer::renderOperations(const render::Queue& queue)
+{
+  GL::Context& context = pool.getContext();
+  const render::SortKeyList& keys = queue.getSortKeys();
+  const render::OperationList& operations = queue.getOperations();
+
+  for (render::SortKeyList::const_iterator k = keys.begin();  k != keys.end();  k++)
+  {
+    const render::Operation& op = operations[k->index];
+
+    state->setModelMatrix(op.transform);
+    op.state->apply();
+
+    context.render(op.range);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////

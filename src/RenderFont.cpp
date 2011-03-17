@@ -180,7 +180,7 @@ void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const Strin
   if (!count)
     return;
 
-  pass.getUniformState("color").setValue(color);
+  pass.setUniformState("color", color);
   pass.apply();
 
   pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_LIST,
@@ -409,7 +409,7 @@ bool Font::init(const FontData& data)
     }
 
     GL::ProgramInterface interface;
-    interface.addUniform("glyphs", GL::Uniform::SAMPLER_2D);
+    interface.addSampler("glyphs", GL::Sampler::SAMPLER_2D);
     interface.addUniform("color", GL::Uniform::FLOAT_VEC4);
     interface.addAttribute("position", GL::Attribute::FLOAT_VEC2);
     interface.addAttribute("mapping", GL::Attribute::FLOAT_VEC2);
@@ -426,8 +426,8 @@ bool Font::init(const FontData& data)
     pass.setDepthTesting(false);
     pass.setDepthWriting(false);
     pass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
-    pass.getUniformState("glyphs").setTexture(texture);
-    pass.getUniformState("color").setValue(Vec4(1, 1, 1, 1));
+    pass.setSamplerState("glyphs", texture);
+    pass.setUniformState("color", ColorRGBA(1, 1, 1, 1));
   }
 
   ascender = descender = 0.f;

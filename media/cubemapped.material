@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<material version="7">
+<material version="6">
   <technique type="forward" quality="1">
     <pass>
       <program path="cubemapped.program">
-        <uniform name="cubemap" texture="cubemap.texture" />
+        <sampler name="cubemap" texture="cubemap.texture" />
       </program>
     </pass>
   </technique>

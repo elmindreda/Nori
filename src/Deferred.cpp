@@ -69,6 +69,7 @@ Config::Config(unsigned int initWidth, unsigned int initHeight):
 void Renderer::render(const render::Scene& scene, const render::Camera& camera)
 {
   GL::Context& context = pool.getContext();
+  context.setSharedProgramState(state);
 
   GL::Canvas& previousCanvas = context.getCurrentCanvas();
 
@@ -76,16 +77,17 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
   context.clearDepthBuffer();
   context.clearColorBuffer(ColorRGBA::BLACK);
 
-  context.setViewMatrix(camera.getViewTransform());
-  context.setPerspectiveProjectionMatrix(camera.getFOV(),
-                                         camera.getAspectRatio(),
-                                         camera.getMinDepth(),
-                                         camera.getMaxDepth());
+  state->setViewMatrix(camera.getViewTransform());
+  state->setPerspectiveProjectionMatrix(camera.getFOV(),
+                                        camera.getAspectRatio(),
+                                        camera.getMinDepth(),
+                                        camera.getMaxDepth());
 
-  scene.getOpaqueQueue().renderOperations();
+  renderOperations(scene.getOpaqueQueue());
 
   context.setCurrentCanvas(previousCanvas);
-  context.setOrthoProjectionMatrix(1.f, 1.f);
+
+  state->setOrthoProjectionMatrix(1.f, 1.f);
 
   ColorRGB ambient = scene.getAmbientIntensity();
   if (ambient.r > 0.f || ambient.g > 0.f || ambient.b > 0.f)
@@ -93,6 +95,8 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
 
   for (unsigned int i = 0;  i < scene.getLightCount();  i++)
     renderLight(camera, scene.getLight(i));
+
+  context.setSharedProgramState(NULL);
 }
 
 GL::Texture& Renderer::getColorTexture(void) const
@@ -128,6 +132,8 @@ bool Renderer::init(const Config& config)
 {
   GL::Context& context = pool.getContext();
   ResourceIndex& index = context.getIndex();
+
+  state = new GL::SharedProgramState();
 
   // Create G-buffer color/emission texture
   {
@@ -221,7 +227,7 @@ bool Renderer::init(const Config& config)
     }
 
     GL::ProgramInterface interface;
-    interface.addUniform("colorTexture", GL::Uniform::SAMPLER_RECT);
+    interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
     interface.addAttribute("position", GL::Attribute::FLOAT_VEC2);
     interface.addAttribute("mapping", GL::Attribute::FLOAT_VEC2);
@@ -238,7 +244,7 @@ bool Renderer::init(const Config& config)
     ambientLightPass.setDepthTesting(false);
     ambientLightPass.setDepthWriting(false);
     ambientLightPass.setProgram(program);
-    ambientLightPass.getUniformState("colorTexture").setTexture(colorTexture);
+    ambientLightPass.setSamplerState("colorTexture", colorTexture);
   }
 
   // Set up directional light pass
@@ -254,9 +260,9 @@ bool Renderer::init(const Config& config)
     }
 
     GL::ProgramInterface interface;
-    interface.addUniform("colorTexture", GL::Uniform::SAMPLER_RECT);
-    interface.addUniform("normalTexture", GL::Uniform::SAMPLER_RECT);
-    interface.addUniform("depthTexture", GL::Uniform::SAMPLER_RECT);
+    interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
+    interface.addSampler("normalTexture", GL::Sampler::SAMPLER_RECT);
+    interface.addSampler("depthTexture", GL::Sampler::SAMPLER_RECT);
     interface.addUniform("nearZ", GL::Uniform::FLOAT);
     interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
     interface.addUniform("light.direction", GL::Uniform::FLOAT_VEC3);
@@ -276,9 +282,9 @@ bool Renderer::init(const Config& config)
     dirLightPass.setDepthTesting(false);
     dirLightPass.setDepthWriting(false);
     dirLightPass.setProgram(program);
-    dirLightPass.getUniformState("colorTexture").setTexture(colorTexture);
-    dirLightPass.getUniformState("normalTexture").setTexture(normalTexture);
-    dirLightPass.getUniformState("depthTexture").setTexture(depthTexture);
+    dirLightPass.setSamplerState("colorTexture", colorTexture);
+    dirLightPass.setSamplerState("normalTexture", normalTexture);
+    dirLightPass.setSamplerState("depthTexture", depthTexture);
   }
 
   // Set up point light pass
@@ -305,15 +311,15 @@ bool Renderer::init(const Config& config)
 
     GL::ProgramInterface interface;
 
-    interface.addUniform("colorTexture", GL::Uniform::SAMPLER_RECT);
-    interface.addUniform("normalTexture", GL::Uniform::SAMPLER_RECT);
-    interface.addUniform("depthTexture", GL::Uniform::SAMPLER_RECT);
+    interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
+    interface.addSampler("normalTexture", GL::Sampler::SAMPLER_RECT);
+    interface.addSampler("depthTexture", GL::Sampler::SAMPLER_RECT);
     interface.addUniform("nearZ", GL::Uniform::FLOAT);
     interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
     interface.addUniform("light.position", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.radius", GL::Uniform::FLOAT);
-    interface.addUniform("light.distAttTexture", GL::Uniform::SAMPLER_1D);
+    interface.addSampler("light.distAttTexture", GL::Sampler::SAMPLER_1D);
     interface.addAttribute("position", GL::Attribute::FLOAT_VEC2);
     interface.addAttribute("mapping", GL::Attribute::FLOAT_VEC2);
     interface.addAttribute("clipOverF", GL::Attribute::FLOAT_VEC2);
@@ -329,10 +335,10 @@ bool Renderer::init(const Config& config)
     pointLightPass.setDepthTesting(false);
     pointLightPass.setDepthWriting(false);
     pointLightPass.setProgram(program);
-    pointLightPass.getUniformState("colorTexture").setTexture(colorTexture);
-    pointLightPass.getUniformState("normalTexture").setTexture(normalTexture);
-    pointLightPass.getUniformState("depthTexture").setTexture(depthTexture);
-    pointLightPass.getUniformState("light.distAttTexture").setTexture(texture);
+    pointLightPass.setSamplerState("colorTexture", colorTexture);
+    pointLightPass.setSamplerState("normalTexture", normalTexture);
+    pointLightPass.setSamplerState("depthTexture", depthTexture);
+    pointLightPass.setSamplerState("light.distAttTexture", texture);
   }
 
   return true;
@@ -377,7 +383,7 @@ void Renderer::renderLightQuad(const render::Camera& camera)
 
 void Renderer::renderAmbientLight(const render::Camera& camera, const ColorRGB& color)
 {
-  ambientLightPass.getUniformState("light.color").setValue(color);
+  ambientLightPass.setUniformState("light.color", color);
   ambientLightPass.apply();
 
   renderLightQuad(camera);
@@ -390,28 +396,28 @@ void Renderer::renderLight(const render::Camera& camera, const render::Light& li
 
   if (light.getType() == render::Light::POINT)
   {
-    pointLightPass.getUniformState("nearZ").setValue(nearZ);
-    pointLightPass.getUniformState("nearOverFarZminusOne").setValue(nearOverFarZminusOne);
+    pointLightPass.setUniformState("nearZ", nearZ);
+    pointLightPass.setUniformState("nearOverFarZminusOne", nearOverFarZminusOne);
 
     Vec3 position = light.getPosition();
     camera.getViewTransform().transformVector(position);
-    pointLightPass.getUniformState("light.position").setValue(position);
+    pointLightPass.setUniformState("light.position", position);
 
-    pointLightPass.getUniformState("light.color").setValue(light.getColor());
-    pointLightPass.getUniformState("light.radius").setValue(light.getRadius());
+    pointLightPass.setUniformState("light.color", light.getColor());
+    pointLightPass.setUniformState("light.radius", light.getRadius());
 
     pointLightPass.apply();
   }
   else if (light.getType() == render::Light::DIRECTIONAL)
   {
-    dirLightPass.getUniformState("nearZ").setValue(nearZ);
-    dirLightPass.getUniformState("nearOverFarZminusOne").setValue(nearOverFarZminusOne);
+    dirLightPass.setUniformState("nearZ", nearZ);
+    dirLightPass.setUniformState("nearOverFarZminusOne", nearOverFarZminusOne);
 
     Vec3 direction = light.getDirection();
     camera.getViewTransform().rotation.rotateVector(direction);
-    dirLightPass.getUniformState("light.direction").setValue(direction);
+    dirLightPass.setUniformState("light.direction", direction);
 
-    dirLightPass.getUniformState("light.color").setValue(light.getColor());
+    dirLightPass.setUniformState("light.color", light.getColor());
 
     dirLightPass.apply();
   }
@@ -422,6 +428,23 @@ void Renderer::renderLight(const render::Camera& camera, const render::Light& li
   }
 
   renderLightQuad(camera);
+}
+
+void Renderer::renderOperations(const render::Queue& queue)
+{
+  GL::Context& context = pool.getContext();
+  const render::SortKeyList& keys = queue.getSortKeys();
+  const render::OperationList& operations = queue.getOperations();
+
+  for (render::SortKeyList::const_iterator k = keys.begin();  k != keys.end();  k++)
+  {
+    const render::Operation& op = operations[k->index];
+
+    state->setModelMatrix(op.transform);
+    op.state->apply();
+
+    context.render(op.range);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////

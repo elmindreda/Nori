@@ -207,18 +207,6 @@ bool isCompatible(const Attribute& attribute, const VertexComponent& component)
   return false;
 }
 
-/*
-enum
-{
-  STATE_MODEL_MATRIX,
-  STATE_VIEW_MATRIX,
-  STATE_PROJECTION_MATRIX,
-  STATE_MODELVIEW_MATRIX,
-  STATE_VIEWPROJECTION_MATRIX,
-  STATE_MODELVIEWPROJECTION_MATRIX,
-};
-*/
-
 } /*namespace (and Gandalf)*/
 
 ///////////////////////////////////////////////////////////////////////
@@ -734,7 +722,164 @@ Stats::Frame::Frame(void):
 
 ///////////////////////////////////////////////////////////////////////
 
+SharedProgramState::SharedProgramState(void):
+  dirtyModelView(true),
+  dirtyViewProj(true),
+  dirtyModelViewProj(true)
+{
+}
+
 SharedProgramState::~SharedProgramState(void)
+{
+}
+
+const Mat4& SharedProgramState::getModelMatrix(void) const
+{
+  return modelMatrix;
+}
+
+void SharedProgramState::setModelMatrix(const Mat4& newMatrix)
+{
+  modelMatrix = newMatrix;
+  dirtyModelView = dirtyModelViewProj = true;
+}
+
+const Mat4& SharedProgramState::getViewMatrix(void) const
+{
+  return viewMatrix;
+}
+
+void SharedProgramState::setViewMatrix(const Mat4& newMatrix)
+{
+  viewMatrix = newMatrix;
+  dirtyModelView = dirtyViewProj = dirtyModelViewProj = true;
+}
+
+const Mat4& SharedProgramState::getProjectionMatrix(void) const
+{
+  return projectionMatrix;
+}
+
+void SharedProgramState::setProjectionMatrix(const Mat4& newMatrix)
+{
+  projectionMatrix = newMatrix;
+  dirtyViewProj = dirtyModelViewProj = true;
+}
+
+void SharedProgramState::setOrthoProjectionMatrix(float width, float height)
+{
+  projectionMatrix.setOrthoProjection(width, height);
+  dirtyViewProj = dirtyModelViewProj = true;
+}
+
+void SharedProgramState::setOrthoProjectionMatrix(const AABB& volume)
+{
+  projectionMatrix.setOrthoProjection(volume);
+  dirtyViewProj = dirtyModelViewProj = true;
+}
+
+void SharedProgramState::setPerspectiveProjectionMatrix(float FOV,
+                                                        float aspect,
+                                                        float nearZ,
+                                                        float farZ)
+{
+  projectionMatrix.setPerspectiveProjection(FOV, aspect, nearZ, farZ);
+  dirtyViewProj = dirtyModelViewProj = true;
+}
+
+void SharedProgramState::updateTo(Sampler& sampler)
+{
+}
+
+void SharedProgramState::updateTo(Uniform& uniform)
+{
+  switch (uniform.getSharedID())
+  {
+    case SHARED_MODEL_MATRIX:
+    {
+      uniform.copyFrom(&modelMatrix);
+      break;
+    }
+
+    case SHARED_VIEW_MATRIX:
+    {
+      uniform.copyFrom(&viewMatrix);
+      break;
+    }
+
+    case SHARED_PROJECTION_MATRIX:
+    {
+      uniform.copyFrom(&projectionMatrix);
+      break;
+    }
+
+    case SHARED_MODELVIEW_MATRIX:
+    {
+      if (dirtyModelView)
+      {
+        modelViewMatrix = viewMatrix;
+        modelViewMatrix *= modelMatrix;
+        dirtyModelView = false;
+      }
+
+      uniform.copyFrom(&modelViewMatrix);
+      break;
+    }
+
+    case SHARED_VIEWPROJECTION_MATRIX:
+    {
+      if (dirtyViewProj)
+      {
+        viewProjMatrix = projectionMatrix;
+        viewProjMatrix *= viewMatrix;
+        dirtyViewProj = false;
+      }
+
+      uniform.copyFrom(&viewProjMatrix);
+      break;
+    }
+
+    case SHARED_MODELVIEWPROJECTION_MATRIX:
+    {
+      if (dirtyModelViewProj)
+      {
+        if (dirtyViewProj)
+        {
+          viewProjMatrix = projectionMatrix;
+          viewProjMatrix *= viewMatrix;
+          dirtyViewProj = false;
+        }
+
+        modelViewProjMatrix = viewProjMatrix;
+        modelViewProjMatrix *= modelMatrix;
+        dirtyModelViewProj = false;
+      }
+
+      uniform.copyFrom(&modelViewProjMatrix);
+      break;
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////
+
+SharedSampler::SharedSampler(const String& initName,
+                             Sampler::Type initType,
+                             int initID):
+  name(initName),
+  type(initType),
+  ID(initID)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
+SharedUniform::SharedUniform(const String& initName,
+                             Uniform::Type initType,
+                             int initID):
+  name(initName),
+  type(initType),
+  ID(initID)
 {
 }
 
@@ -860,7 +1005,7 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
         return;
       }
 
-      attribute.enable(format.getSize(), component->getOffset());
+      attribute.bind(format.getSize(), component->getOffset());
     }
 
     dirtyBinding = false;
@@ -907,46 +1052,54 @@ bool Context::update(void)
   return !needsClosing;
 }
 
-void Context::createSharedSampler(const String& name,
-                                  Sampler::Type type,
-                                  unsigned int ID)
+void Context::createSharedSampler(const String& name, Sampler::Type type, int ID)
 {
-  if (isSharedSampler(name, type))
+  if (ID == INVALID_SHARED_STATE_ID)
+  {
+    logError("Cannot create shared sampler with invalid ID");
+    return;
+  }
+
+  if (getSharedSamplerID(name, type) != INVALID_SHARED_STATE_ID)
     return;
 
   samplers.push_back(SharedSampler(name, type, ID));
 }
 
-void Context::createSharedUniform(const String& name,
-                                  Uniform::Type type,
-                                  unsigned int ID)
+void Context::createSharedUniform(const String& name, Uniform::Type type, int ID)
 {
-  if (isSharedUniform(name, type))
+  if (ID == INVALID_SHARED_STATE_ID)
+  {
+    logError("Cannot create shared uniform with invalid ID");
+    return;
+  }
+
+  if (getSharedUniformID(name, type) != INVALID_SHARED_STATE_ID)
     return;
 
   uniforms.push_back(SharedUniform(name, type, ID));
 }
 
-bool Context::isSharedSampler(const String& name, Sampler::Type type) const
+int Context::getSharedSamplerID(const String& name, Sampler::Type type) const
 {
   for (SamplerList::const_iterator s = samplers.begin(); s != samplers.end(); s++)
   {
     if (s->name == name && s->type == type)
-      return true;
+      return s->ID;
   }
 
-  return false;
+  return INVALID_SHARED_STATE_ID;
 }
 
-bool Context::isSharedUniform(const String& name, Uniform::Type type) const
+int Context::getSharedUniformID(const String& name, Uniform::Type type) const
 {
   for (UniformList::const_iterator u = uniforms.begin(); u != uniforms.end(); u++)
   {
     if (u->name == name && u->type == type)
-      return true;
+      return u->ID;
   }
 
-  return false;
+  return INVALID_SHARED_STATE_ID;
 }
 
 SharedProgramState* Context::getSharedProgramState(void) const
@@ -1012,9 +1165,14 @@ bool Context::setCurrentCanvas(Canvas& newCanvas)
   currentCanvas->apply();
 
 #if WENDY_DEBUG
-  GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-  if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
-    logError("Image canvas is incomplete: %s", getFramebufferStatusMessage(status));
+  if (currentCanvas != screenCanvas)
+  {
+    GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+    if (status == 0)
+      checkGL("Framebuffer status check failed");
+    else if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
+      logError("Image canvas is incomplete: %s", getFramebufferStatusMessage(status));
+  }
 #endif
 
   updateViewportArea();
@@ -1099,16 +1257,38 @@ void Context::setCurrentTexture(Texture* newTexture)
 {
   if (textureUnits[activeTextureUnit] != newTexture)
   {
-    glBindTexture(convertToGL(newTexture->type), newTexture->textureID);
-    textureUnits[activeTextureUnit] = newTexture;
+    Texture* oldTexture = textureUnits[activeTextureUnit];
+
+    if (oldTexture)
+    {
+      if (!newTexture || oldTexture->type != newTexture->type)
+      {
+        glBindTexture(convertToGL(oldTexture->type), 0);
 
 #if WENDY_DEBUG
-    if (!checkGL("Failed to bind texture \'%s\'",
-                 newTexture->getPath().asString().c_str()))
-    {
-      return;
-    }
+        if (!checkGL("Failed to unbind texture \'%s\'",
+                    oldTexture->getPath().asString().c_str()))
+        {
+          return;
+        }
 #endif
+      }
+    }
+
+    if (newTexture)
+    {
+      glBindTexture(convertToGL(newTexture->type), newTexture->textureID);
+
+#if WENDY_DEBUG
+      if (!checkGL("Failed to bind texture \'%s\'",
+                  newTexture->getPath().asString().c_str()))
+      {
+        return;
+      }
+#endif
+    }
+
+    textureUnits[activeTextureUnit] = newTexture;
   }
 }
 
@@ -1165,65 +1345,6 @@ bool Context::setClipPlanes(const PlaneList& newPlanes)
 
   return true;
 }
-
-/*
-const Mat4& Context::getModelMatrix(void) const
-{
-  return modelMatrix;
-}
-
-void Context::setModelMatrix(const Mat4& newMatrix)
-{
-  modelMatrix = newMatrix;
-  dirtyModelView = dirtyModelViewProj = true;
-}
-
-const Mat4& Context::getViewMatrix(void) const
-{
-  return viewMatrix;
-}
-
-void Context::setViewMatrix(const Mat4& newMatrix)
-{
-  viewMatrix = newMatrix;
-  dirtyModelView = dirtyViewProj = dirtyModelViewProj = true;
-}
-
-const Mat4& Context::getProjectionMatrix(void) const
-{
-  return projectionMatrix;
-}
-
-void Context::setProjectionMatrix(const Mat4& newMatrix)
-{
-  projectionMatrix = newMatrix;
-  dirtyViewProj = dirtyModelViewProj = true;
-}
-
-void Context::setOrthoProjectionMatrix(float width, float height)
-{
-  projectionMatrix.setOrthoProjection(width, height);
-  dirtyViewProj = dirtyModelViewProj = true;
-}
-
-void Context::setOrthoProjectionMatrix(const AABB& volume)
-{
-  projectionMatrix.setOrthoProjection(volume);
-  dirtyViewProj = dirtyModelViewProj = true;
-}
-
-void Context::setPerspectiveProjectionMatrix(float FOV, float aspect, float nearZ, float farZ)
-{
-  if (aspect == 0.f)
-  {
-    aspect = (currentCanvas->getWidth() * viewportArea.size.x) /
-             (currentCanvas->getHeight() * viewportArea.size.y);
-  }
-
-  projectionMatrix.setPerspectiveProjection(FOV, aspect, nearZ, farZ);
-  dirtyViewProj = dirtyModelViewProj = true;
-}
-*/
 
 Stats* Context::getStats(void) const
 {
@@ -1311,11 +1432,9 @@ Context::Context(ResourceIndex& initIndex):
   refreshMode(AUTOMATIC_REFRESH),
   needsRefresh(false),
   needsClosing(false),
-  //dirtyModelView(true),
-  //dirtyViewProj(true),
-  //dirtyModelViewProj(true),
   dirtyBinding(true),
   activeTextureUnit(0),
+  state(NULL),
   stats(NULL)
 {
   // Necessary hack in case GLFW calls a callback before
@@ -1442,14 +1561,12 @@ bool Context::init(const ContextMode& initMode)
     glfwSwapInterval(1);
   }
 
-  /*
-  createSharedUniform("M", Uniform::FLOAT_MAT4, STATE_MODEL_MATRIX).setListener(this);
-  createSharedUniform("V", Uniform::FLOAT_MAT4, STATE_VIEW_MATRIX).setListener(this);
-  createSharedUniform("P", Uniform::FLOAT_MAT4, STATE_PROJECTION_MATRIX).setListener(this);
-  createSharedUniform("MV", Uniform::FLOAT_MAT4, STATE_MODELVIEW_MATRIX).setListener(this);
-  createSharedUniform("VP", Uniform::FLOAT_MAT4, STATE_VIEWPROJECTION_MATRIX).setListener(this);
-  createSharedUniform("MVP", Uniform::FLOAT_MAT4, STATE_MODELVIEWPROJECTION_MATRIX).setListener(this);
-  */
+  createSharedUniform("M", Uniform::FLOAT_MAT4, SHARED_MODEL_MATRIX);
+  createSharedUniform("V", Uniform::FLOAT_MAT4, SHARED_VIEW_MATRIX);
+  createSharedUniform("P", Uniform::FLOAT_MAT4, SHARED_PROJECTION_MATRIX);
+  createSharedUniform("MV", Uniform::FLOAT_MAT4, SHARED_MODELVIEW_MATRIX);
+  createSharedUniform("VP", Uniform::FLOAT_MAT4, SHARED_VIEWPROJECTION_MATRIX);
+  createSharedUniform("MVP", Uniform::FLOAT_MAT4, SHARED_MODELVIEWPROJECTION_MATRIX);
 
   return true;
 }
@@ -1512,78 +1629,6 @@ void Context::refreshCallback(void)
 {
   instance->needsRefresh = true;
 }
-
-/*
-void Context::onStateApply(unsigned int stateID, Uniform& uniform)
-{
-  switch (stateID)
-  {
-    case STATE_MODEL_MATRIX:
-    {
-      uniform.setValue(modelMatrix);
-      break;
-    }
-
-    case STATE_VIEW_MATRIX:
-    {
-      uniform.setValue(viewMatrix);
-      break;
-    }
-
-    case STATE_PROJECTION_MATRIX:
-    {
-      uniform.setValue(projectionMatrix);
-      break;
-    }
-
-    case STATE_MODELVIEW_MATRIX:
-    {
-      if (dirtyModelView)
-      {
-        modelViewMatrix = viewMatrix;
-        modelViewMatrix *= modelMatrix;
-        dirtyModelView = false;
-      }
-
-      uniform.setValue(modelViewMatrix);
-      break;
-    }
-
-    case STATE_VIEWPROJECTION_MATRIX:
-    {
-      if (dirtyViewProj)
-      {
-        viewProjMatrix = projectionMatrix;
-        viewProjMatrix *= viewMatrix;
-        dirtyViewProj = false;
-      }
-
-      uniform.setValue(viewProjMatrix);
-      break;
-    }
-
-    case STATE_MODELVIEWPROJECTION_MATRIX:
-    {
-      if (dirtyModelViewProj)
-      {
-        if (dirtyViewProj)
-        {
-          viewProjMatrix = projectionMatrix;
-          viewProjMatrix *= viewMatrix;
-          dirtyViewProj = false;
-        }
-
-        modelViewProjMatrix = viewProjMatrix;
-        modelViewProjMatrix *= modelMatrix;
-        dirtyModelViewProj = false;
-      }
-
-      uniform.setValue(modelViewProjMatrix);
-      break;
-    }
-  }
-}
-*/
 
 Context* Context::instance = NULL;
 

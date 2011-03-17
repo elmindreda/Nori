@@ -52,8 +52,10 @@ public:
 private:
   Renderer(render::GeometryPool& pool);
   bool init(const Config& config);
+  void renderOperations(const render::Queue& queue);
   render::GeometryPool& pool;
   Config config;
+  Ptr<GL::SharedProgramState> state;
 };
 
 ///////////////////////////////////////////////////////////////////////

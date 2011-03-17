@@ -30,11 +30,17 @@
 #include <wendy/Vector.h>
 #include <wendy/Quaternion.h>
 #include <wendy/Transform.h>
+#include <wendy/Signal.h>
 
-#include <wendy/OpenGL.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLProgram.h>
-#include <wendy/GLContext.h>
+///////////////////////////////////////////////////////////////////////
+
+namespace wendy
+{
+  namespace GL
+  {
+    class Context;
+  }
+}
 
 ///////////////////////////////////////////////////////////////////////
 

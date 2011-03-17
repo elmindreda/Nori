@@ -161,60 +161,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Entry for a single sampler uniform.
- *  @ingroup opengl
- */
-class SamplerEntry
-{
-public:
-  SamplerEntry(Sampler& sampler);
-  bool operator == (const String& name) const;
-  Sampler sampler;
-  TextureRef texture;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Entry for a single non-sampler uniform.
- *  @ingroup opengl
- */
-class UniformEntry
-{
-public:
-  UniformEntry(Uniform& uniform);
-  bool operator == (const String& name) const;
-  Uniform uniform;
-  void* data;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Entry for a single shared sampler uniform.
- *  @ingroup opengl
- */
-class SharedSamplerEntry
-{
-public:
-  SharedSamplerEntry(Sampler& sampler);
-  Sampler sampler;
-  unsigned int ID;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Entry for a single shared non-sampler uniform.
- *  @ingroup opengl
- */
-class SharedUniformEntry
-{
-public:
-  SharedUniformEntry(Uniform& uniform);
-  Uniform uniform;
-  unsigned int ID;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief GPU program state.
  *  @ingroup opengl
  */
@@ -259,24 +205,14 @@ public:
   StateID getID(void) const;
   void setDefaults(void);
 private:
-  void destroyState(void);
-  SamplerEntry* getSamplerEntry(const String& name);
-  const SamplerEntry* getSamplerEntry(const String& name, Sampler::Type type) const;
-  UniformEntry* getUniformEntry(const String& name, Uniform::Type type);
-  const UniformEntry* getUniformEntry(const String& name, Uniform::Type type) const;
-  typedef std::vector<SamplerEntry> SamplerList;
-  typedef std::vector<UniformEntry> UniformList;
-  typedef std::vector<SharedSamplerEntry> SharedSamplerList;
-  typedef std::vector<SharedUniformEntry> SharedUniformList;
+  void* getData(const String& name, Uniform::Type type);
+  const void* getData(const String& name, Uniform::Type type) const;
   typedef std::deque<StateID> IDQueue;
   typedef std::vector<float> FloatList;
   StateID ID;
   Ref<Program> program;
-  SamplerList samplers;
-  UniformList uniforms;
-  SharedSamplerList sharedSamplers;
-  SharedUniformList sharedUniforms;
   FloatList floatData;
+  TextureList textures;
   static IDQueue usedIDs;
   static StateID nextID;
 };

@@ -16,6 +16,7 @@ public:
   void run(void);
 private:
   ResourceIndex index;
+  Ptr<GL::SharedProgramState> state;
   Ptr<render::GeometryPool> pool;
   Ref<render::Material> material;
   render::Technique* technique;
@@ -41,7 +42,10 @@ bool Test::init(void)
   }
 
   GL::Context* context = GL::Context::getSingleton();
-  context->setTitle("Particles");
+  context->setTitle("2D sprite");
+
+  state = new GL::SharedProgramState();
+  context->setSharedProgramState(state);
 
   pool = new render::GeometryPool(*context);
 
@@ -83,9 +87,9 @@ void Test::run(void)
     sprite.size.set(0.5f, 0.5f);
     sprite.angle = (float) timer.getTime();
 
-    context.setModelMatrix(Mat4::IDENTITY);
-    context.setViewMatrix(Mat4::IDENTITY);
-    context.setOrthoProjectionMatrix(4.f / 3.f, 1.f);
+    state->setModelMatrix(Mat4::IDENTITY);
+    state->setViewMatrix(Mat4::IDENTITY);
+    state->setOrthoProjectionMatrix(4.f / 3.f, 1.f);
 
     for (render::PassList::const_iterator p = passes.begin();  p != passes.end();  p++)
     {

@@ -38,6 +38,8 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
+#include <internal/GLConvert.h>
+
 #include <algorithm>
 #include <cstring>
 
@@ -167,6 +169,11 @@ GLenum convertToGL(Operation operation)
 
   logError("Invalid stencil operation %u", operation);
   return 0;
+}
+
+bool samplerTypeMatchesTextureType(Sampler::Type samplerType, TextureType textureType)
+{
+  return (int) samplerType == (int) textureType;
 }
 
 } /*namespace*/
@@ -345,28 +352,6 @@ void StencilState::Data::setDefaults(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-SamplerEntry::SamplerEntry(Sampler& initSampler):
-  sampler(initSampler)
-{
-}
-
-bool SamplerEntry::operator == (const String& name) const
-{
-  return sampler.getName() == name;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-UniformEntry::UniformEntry(Uniform& initUniform):
-  uniform(initUniform)
-{
-}
-
-bool UniformEntry::operator == (const String& name) const
-{
-  return uniform.getName() == name;
-}
-
 /*
 void UniformState::apply(void) const
 {
@@ -396,39 +381,6 @@ void UniformState::apply(void) const
 #endif
     }
   }
-  else
-  {
-    switch (uniform->getType())
-    {
-      case Uniform::FLOAT:
-        glUniform1fv(uniform->location, 1, data);
-        break;
-      case Uniform::FLOAT_VEC2:
-        glUniform2fv(uniform->location, 1, data);
-        break;
-      case Uniform::FLOAT_VEC3:
-        glUniform3fv(uniform->location, 1, data);
-        break;
-      case Uniform::FLOAT_VEC4:
-        glUniform4fv(uniform->location, 1, data);
-        break;
-      case Uniform::FLOAT_MAT2:
-        glUniformMatrix2fv(uniform->location, 1, GL_FALSE, data);
-        break;
-      case Uniform::FLOAT_MAT3:
-        glUniformMatrix3fv(uniform->location, 1, GL_FALSE, data);
-        break;
-      case Uniform::FLOAT_MAT4:
-        glUniformMatrix4fv(uniform->location, 1, GL_FALSE, data);
-        break;
-    }
-
-#if WENDY_DEBUG
-      checkGL("Failed to set uniform \'%s\' of program \'%s\'",
-              uniform->name.c_str(),
-              uniform->program->getPath().asString().c_str());
-#endif
-  }
 }
 */
 
@@ -453,161 +405,214 @@ ProgramState::~ProgramState(void)
 void ProgramState::apply(void) const
 {
   if (!program)
+  {
+    logError("Applying program state with no program set");
     return;
+  }
 
   Context& context = program->getContext();
   context.setCurrentProgram(program);
 
+  SharedProgramState* state = context.getSharedProgramState();
+
   unsigned int textureUnit = 0;
 
-  for (SamplerList::const_iterator s = samplers.begin();  s != samplers.end();  s++)
+  for (int i = 0;  i < program->getSamplerCount();  i++)
   {
-    context.setActiveTextureUnit(textureUnit);
-    context.setCurrentTexture(s->texture);
-    s->sampler.bind(textureUnit);
+    Sampler& sampler = program->getSampler(i);
+    if (sampler.isShared())
+    {
+      if (state)
+        state->updateTo(sampler);
+      else
+        logError("Applying shared sampler \'%s\' of program \'%s\' without a current shared program state",
+                 sampler.getName().c_str(),
+                 program->getPath().asString().c_str());
+    }
+    else
+    {
+      context.setActiveTextureUnit(textureUnit);
+      context.setCurrentTexture(textures[textureUnit]);
+      sampler.bind(textureUnit);
+      textureUnit++;
+    }
+  }
+
+  size_t offset = 0;
+
+  for (int i = 0;  i < program->getUniformCount();  i++)
+  {
+    Uniform& uniform = program->getUniform(i);
+    if (uniform.isShared())
+    {
+      if (state)
+        state->updateTo(uniform);
+      else
+        logError("Applying shared uniform \'%s\' of program \'%s\' without a current shared program state",
+                 uniform.getName().c_str(),
+                 program->getPath().asString().c_str());
+    }
+    else
+    {
+      uniform.copyFrom(&floatData[0] + offset);
+      offset += uniform.getElementCount();
+    }
+  }
+}
+
+void ProgramState::getUniformState(const String& name, float& result) const
+{
+  std::memcpy(&result, getData(name, Uniform::FLOAT), sizeof(result));
+}
+
+void ProgramState::getUniformState(const String& name, Vec2& result) const
+{
+  std::memcpy(&result, getData(name, Uniform::FLOAT_VEC2), sizeof(result));
+}
+
+void ProgramState::getUniformState(const String& name, Vec3& result) const
+{
+  std::memcpy(&result, getData(name, Uniform::FLOAT_VEC3), sizeof(result));
+}
+
+void ProgramState::getUniformState(const String& name, Vec4& result) const
+{
+  std::memcpy(&result, getData(name, Uniform::FLOAT_VEC4), sizeof(result));
+}
+
+void ProgramState::getUniformState(const String& name, ColorRGB& result) const
+{
+  std::memcpy(&result, getData(name, Uniform::FLOAT_VEC3), sizeof(result));
+}
+
+void ProgramState::getUniformState(const String& name, ColorRGBA& result) const
+{
+  std::memcpy(&result, getData(name, Uniform::FLOAT_VEC4), sizeof(result));
+}
+
+void ProgramState::getUniformState(const String& name, Mat2& result) const
+{
+  std::memcpy(&result, getData(name, Uniform::FLOAT_MAT2), sizeof(result));
+}
+
+void ProgramState::getUniformState(const String& name, Mat3& result) const
+{
+  std::memcpy(&result, getData(name, Uniform::FLOAT_MAT3), sizeof(result));
+}
+
+void ProgramState::getUniformState(const String& name, Mat4& result) const
+{
+  std::memcpy(&result, getData(name, Uniform::FLOAT_MAT4), sizeof(result));
+}
+
+void ProgramState::setUniformState(const String& name, float newValue)
+{
+  std::memcpy(getData(name, Uniform::FLOAT), &newValue, sizeof(newValue));
+}
+
+void ProgramState::setUniformState(const String& name, const Vec2& newValue)
+{
+  std::memcpy(getData(name, Uniform::FLOAT_VEC2), &newValue, sizeof(newValue));
+}
+
+void ProgramState::setUniformState(const String& name, const Vec3& newValue)
+{
+  std::memcpy(getData(name, Uniform::FLOAT_VEC3), &newValue, sizeof(newValue));
+}
+
+void ProgramState::setUniformState(const String& name, const Vec4& newValue)
+{
+  std::memcpy(getData(name, Uniform::FLOAT_VEC4), &newValue, sizeof(newValue));
+}
+
+void ProgramState::setUniformState(const String& name, const ColorRGB& newValue)
+{
+  std::memcpy(getData(name, Uniform::FLOAT_VEC3), &newValue, sizeof(newValue));
+}
+
+void ProgramState::setUniformState(const String& name, const ColorRGBA& newValue)
+{
+  std::memcpy(getData(name, Uniform::FLOAT_VEC4), &newValue, sizeof(newValue));
+}
+
+void ProgramState::setUniformState(const String& name, const Mat2& newValue)
+{
+  std::memcpy(getData(name, Uniform::FLOAT_MAT2), &newValue, sizeof(newValue));
+}
+
+void ProgramState::setUniformState(const String& name, const Mat3& newValue)
+{
+  std::memcpy(getData(name, Uniform::FLOAT_MAT3), &newValue, sizeof(newValue));
+}
+
+void ProgramState::setUniformState(const String& name, const Mat4& newValue)
+{
+  std::memcpy(getData(name, Uniform::FLOAT_MAT4), &newValue, sizeof(newValue));
+}
+
+Texture* ProgramState::getSamplerState(const String& name) const
+{
+  if (!program)
+  {
+    logError("Cannot retrieve sampler state on program state with no program");
+    return NULL;
+  }
+
+  unsigned int textureUnit = 0;
+
+  for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
+  {
+    const Sampler& sampler = program->getSampler(i);
+    if (sampler.isShared())
+      continue;
+
+    if (sampler.getName() == name)
+      return textures[textureUnit];
 
     textureUnit++;
   }
 
-  for (UniformList::const_iterator u = uniforms.begin();  u != uniforms.end();  u++)
-    u->uniform.copyFrom(u->data);
+  logError("Program \'%s\' has no sampler named \'%s\'",
+           program->getPath().asString().c_str(),
+           name.c_str());
+  return NULL;
+}
 
-  if (SharedProgramState* state = context.getSharedProgramState())
+void ProgramState::setSamplerState(const String& name, Texture* newTexture)
+{
+  if (!program)
   {
-    for (SharedSamplerList::const_iterator s = sharedSamplers.begin();
-        s != sharedSamplers.end();
-        s++)
-    {
-      state->updateSampler(s->ID, s->sampler);
-    }
-
-    for (SharedUniformList::const_iterator u = sharedUniforms.begin();
-        u != sharedUniforms.end();
-        u++)
-    {
-      state->updateUniform(u->ID, u->uniform);
-    }
+    logError("Cannot set sampler state on program state with no program");
+    return;
   }
-}
 
-void ProgramState::getValue(float& result) const
-{
-  const UniformState* state = getUniformState(name, UniformState::FLOAT);
-  std::memcpy(&result, &floats[state->index], sizeof(result));
-}
+  unsigned int textureUnit = 0;
 
-void ProgramState::getValue(Vec2& result) const
-{
-  const UniformState* state = getUniformState(name, UniformState::FLOAT_VEC2);
-  std::memcpy(&result, &floats[state->index], sizeof(result));
-}
+  for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
+  {
+    Sampler& sampler = program->getSampler(i);
+    if (sampler.isShared())
+      continue;
 
-void ProgramState::getValue(Vec3& result) const
-{
-  const UniformState* state = getUniformState(name, UniformState::FLOAT_VEC3);
-  std::memcpy(&result, &floats[state->index], sizeof(result));
-}
+    if (sampler.getName() == name)
+    {
+      if (newTexture)
+      {
+        if (samplerTypeMatchesTextureType(sampler.getType(), newTexture->getType()))
+          textures[textureUnit] = newTexture;
+        else
+          logError("Type mismatch between sampler \'%s\' and texture \'%s\'",
+                   sampler.getName().c_str(),
+                   newTexture->getPath().asString().c_str());
+      }
+      else
+        textures[textureUnit] = NULL;
 
-void ProgramState::getValue(Vec4& result) const
-{
-  const UniformState* state = getUniformState(name, UniformState::FLOAT_VEC4);
-  std::memcpy(&result, &floats[state->index], sizeof(result));
-}
+      return;
+    }
 
-void ProgramState::getValue(ColorRGB& result) const
-{
-  const UniformState* state = getUniformState(name, UniformState::FLOAT_VEC3);
-  std::memcpy(&result, &floats[state->index], sizeof(result));
-}
-
-void ProgramState::getValue(ColorRGBA& result) const
-{
-  const UniformState* state = getUniformState(name, UniformState::FLOAT_VEC4);
-  std::memcpy(&result, &floats[state->index], sizeof(result));
-}
-
-void ProgramState::getValue(Mat2& result) const
-{
-  const UniformState* state = getUniformState(name, UniformState::FLOAT_MAT2);
-  std::memcpy(&result, &floats[state->index], sizeof(result));
-}
-
-void ProgramState::getValue(Mat3& result) const
-{
-  const UniformState* state = getUniformState(name, UniformState::FLOAT_MAT3);
-  std::memcpy(&result, &floats[state->index], sizeof(result));
-}
-
-void ProgramState::getValue(Mat4& result) const
-{
-  const UniformState* state = getUniformState(name, UniformState::FLOAT_MAT4);
-  std::memcpy(&result, &floats[state->index], sizeof(result));
-}
-
-void ProgramState::setValue(float newValue)
-{
-  UniformState* state = getUniformState(name, UniformState::FLOAT);
-  std::memcpy(&floats[state->index], &newValue, sizeof(newValue));
-}
-
-void ProgramState::setValue(const Vec2& newValue)
-{
-  UniformState* state = getUniformState(name, UniformState::FLOAT_VEC2);
-  std::memcpy(&result, &floats[state->index], sizeof(result));
-}
-
-void ProgramState::setValue(const Vec3& newValue)
-{
-  UniformState* state = getUniformState(name, UniformState::FLOAT_VEC3);
-  std::memcpy(&floats[state->index], &newValue, sizeof(newValue));
-}
-
-void ProgramState::setValue(const Vec4& newValue)
-{
-  UniformState* state = getUniformState(name, UniformState::FLOAT_VEC4);
-  std::memcpy(&floats[state->index], &newValue, sizeof(newValue));
-}
-
-void ProgramState::setValue(const ColorRGB& newValue)
-{
-  UniformState* state = getUniformState(name, UniformState::FLOAT_VEC3);
-  std::memcpy(&floats[state->index], &newValue, sizeof(newValue));
-}
-
-void ProgramState::setValue(const ColorRGBA& newValue)
-{
-  UniformState* state = getUniformState(name, UniformState::FLOAT_VEC4);
-  std::memcpy(&floats[state->index], &newValue, sizeof(newValue));
-}
-
-void ProgramState::setValue(const Mat2& newValue)
-{
-  UniformState* state = getUniformState(name, UniformState::FLOAT_MAT2);
-  std::memcpy(&floats[state->index], &newValue, sizeof(newValue));
-}
-
-void ProgramState::setValue(const Mat3& newValue)
-{
-  UniformState* state = getUniformState(name, UniformState::FLOAT_MAT3);
-  std::memcpy(&floats[state->index], &newValue, sizeof(newValue));
-}
-
-void ProgramState::setValue(const Mat4& newValue)
-{
-  UniformState* state = getUniformState(name, UniformState::FLOAT_MAT4);
-  std::memcpy(&floats[state->index], &newValue, sizeof(newValue));
-}
-
-Texture* ProgramState::getSamplerUniformState(void) const
-{
-  UniformState* state = getSamplerUniformState(name);
-  return textures[state->index];
-}
-
-void ProgramState::setSamplerUniformState(Texture* newTexture)
-{
-  const UniformState* state = getSamplerUniformState(name);
-  textures[state->index] = newTexture;
+    textureUnit++;
+  }
 }
 
 Program* ProgramState::getProgram(void) const
@@ -617,41 +622,32 @@ Program* ProgramState::getProgram(void) const
 
 void ProgramState::setProgram(Program* newProgram)
 {
-  destroyState();
+  floatData.clear();
+  textures.clear();
 
   program = newProgram;
   if (!program)
     return;
 
-  Context& context = program->getContext();
-
-  SharedProgramState* state = context.getSharedProgramState();
-
-  size_t floatCount = 0;
-  size_t textureCount = 0;
+  unsigned int floatCount = 0;
+  unsigned int textureCount = 0;
 
   for (unsigned int i = 0;  i < program->getUniformCount();  i++)
   {
     Uniform& uniform = program->getUniform(i);
-
-    if (context.isSharedUniform(uniform.getName(), uniform.getType()))
-    {
-      unsigned int ID = state->getSharedUniformID(uniform);
-      sharedUniforms.push_back(SharedUniform(uniform, ID));
-    }
-    else
-    {
-      if (uniform.isSampler())
-        textureCount++;
-      else
-        floatCount += getElementCount(uniform.getType());
-
-      uniforms.push_back(UniformState(uniform));
-    }
+    if (!uniform.isShared())
+      floatCount += uniform.getElementCount();
   }
 
+  for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
+  {
+    Sampler& sampler = program->getSampler(i);
+    if (!sampler.isShared())
+      textureCount++;
+  }
+
+  floatData.resize(floatCount);
   textures.resize(textureCount);
-  floats.resize(floatCount);
 }
 
 StateID ProgramState::getID(void) const
@@ -664,12 +660,45 @@ void ProgramState::setDefaults(void)
   setProgram(NULL);
 }
 
-void ProgramState::destroyState(void)
+void* ProgramState::getData(const String& name, Uniform::Type type)
 {
-  samplers.clear();
-  uniforms.clear();
-  sharedSamplers.clear();
-  sharedUniforms.clear();
+  if (!program)
+  {
+    logError("Cannot set uniform state on program state with no program");
+    return NULL;
+  }
+
+  unsigned int offset = 0;
+
+  for (unsigned int i = 0;  i < program->getUniformCount();  i++)
+  {
+    Uniform& uniform = program->getUniform(i);
+    if (uniform.isShared())
+      continue;
+
+    if (uniform.getName() == name)
+    {
+      if (uniform.getType() == type)
+        return &floatData[0] + offset;
+
+      logError("Uniform \'%s\' of program \'%s\' is not of type \'%s\'",
+               uniform.getName().c_str(),
+               program->getPath().asString().c_str(),
+               asString(type));
+      return NULL;
+    }
+
+    offset += uniform.getElementCount();
+  }
+
+  logError("Program \'%s\' has no uniform named \'%s\'",
+           program->getPath().asString().c_str(),
+           name.c_str());
+  return NULL;
+}
+
+const void* ProgramState::getData(const String& name, Uniform::Type type) const
+{
 }
 
 ProgramState::IDQueue ProgramState::usedIDs;

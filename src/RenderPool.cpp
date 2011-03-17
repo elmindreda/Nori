@@ -28,6 +28,7 @@
 #include <wendy/OpenGL.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
+#include <wendy/GLTexture.h>
 #include <wendy/GLContext.h>
 
 #include <wendy/RenderPool.h>

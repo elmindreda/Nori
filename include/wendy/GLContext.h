@@ -52,13 +52,19 @@ class PrimitiveRange;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup opengl OpenGL wrapper API
- *
- *  These classes wrap parts of the OpenGL API, maintaining a rather close
- *  mapping to the underlying concepts, but providing useful services and a
- *  semblance of automatic resource management. They are used by most
- *  higher-level components such as the 3D rendering pipeline.
- */
+enum
+{
+  SHARED_MODEL_MATRIX,
+  SHARED_VIEW_MATRIX,
+  SHARED_PROJECTION_MATRIX,
+  SHARED_MODELVIEW_MATRIX,
+  SHARED_VIEWPROJECTION_MATRIX,
+  SHARED_MODELVIEWPROJECTION_MATRIX,
+
+  SHARED_STATE_CUSTOM_BASE,
+
+  INVALID_SHARED_STATE_ID = -1,
+};
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -379,10 +385,69 @@ private:
  */
 class SharedProgramState
 {
+  friend class ProgramState;
 public:
+  /*! Constructor.
+   */
+  SharedProgramState(void);
+  /*! Destructor.
+   */
   virtual ~SharedProgramState(void);
-  virtual void updateUniform(unsigned int ID, Uniform& uniform) = 0;
-  virtual void updateSampler(unsigned int ID, Sampler& uniform) = 0;
+  /*! @return The current model matrix.
+   */
+  const Mat4& getModelMatrix(void) const;
+  /*! @return The current view matrix.
+   */
+  const Mat4& getViewMatrix(void) const;
+  /*! @return The current projection matrix.
+   */
+  const Mat4& getProjectionMatrix(void) const;
+  /*! Sets the model matrix.
+   *  @param[in] newMatrix The desired model matrix.
+   */
+  virtual void setModelMatrix(const Mat4& newMatrix);
+  /*! Sets the view matrix.
+   *  @param[in] newMatrix The desired view matrix.
+   */
+  virtual void setViewMatrix(const Mat4& newMatrix);
+  /*! Sets the projection matrix.
+   *  @param[in] newMatrix The desired projection matrix.
+   */
+  virtual void setProjectionMatrix(const Mat4& newMatrix);
+  /*! Sets an orthographic projection matrix as ([0..width], [0..height],
+   *  [-1, * 1]).
+   *  @param[in] width The desired width of the clipspace volume.
+   *  @param[in] height The desired height of the clipspace volume.
+   */
+  virtual void setOrthoProjectionMatrix(float width, float height);
+  /*! Sets an orthographic projection matrix as ([minX..maxX], [minY..maxY],
+   *  [minZ, maxZ]).
+   *  @param[in] volume The desired clipspace volume.
+   */
+  virtual void setOrthoProjectionMatrix(const AABB& volume);
+  /*! Sets a perspective projection matrix.
+   *  @param[in] FOV The desired field of view of the projection.
+   *  @param[in] aspect The desired aspect ratio of the projection.
+   *  @param[in] nearZ The desired near plane distance of the projection.
+   *  @param[in] farZ The desired far plane distance of the projection.
+   */
+  virtual void setPerspectiveProjectionMatrix(float FOV,
+                                              float aspect,
+	                                      float nearZ,
+	                                      float farZ);
+protected:
+  virtual void updateTo(Uniform& uniform);
+  virtual void updateTo(Sampler& uniform);
+private:
+  Mat4 modelMatrix;
+  Mat4 viewMatrix;
+  Mat4 projectionMatrix;
+  Mat4 modelViewMatrix;
+  Mat4 viewProjMatrix;
+  Mat4 modelViewProjMatrix;
+  bool dirtyModelView;
+  bool dirtyViewProj;
+  bool dirtyModelViewProj;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -392,10 +457,10 @@ public:
 class SharedSampler
 {
 public:
-  SharedSampler(const String& name, Sampler::Type type, unsigned int ID);
+  SharedSampler(const String& name, Sampler::Type type, int ID);
   String name;
   Sampler::Type type;
-  unsigned int ID;
+  int ID;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -405,10 +470,10 @@ public:
 class SharedUniform
 {
 public:
-  SharedUniform(const String& name, Uniform::Type type, unsigned int ID);
+  SharedUniform(const String& name, Uniform::Type type, int ID);
   String name;
   Uniform::Type type;
-  unsigned int ID;
+  int ID;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -417,6 +482,8 @@ public:
  *  @ingroup opengl
  *
  *  This class encapsulates the OpenGL context and its associtated window.
+ *
+ *  @remarks Yes, it's big.
  */
 class Context : public Singleton<Context>
 {
@@ -463,10 +530,10 @@ public:
    *  Context::refresh is made.
    */
   bool update(void);
-  void createSharedSampler(const String& name, Sampler::Type type, unsigned int ID);
-  void createSharedUniform(const String& name, Uniform::Type type, unsigned int ID);
-  bool isSharedSampler(const String& name, Sampler::Type type) const;
-  bool isSharedUniform(const String& name, Uniform::Type type) const;
+  void createSharedSampler(const String& name, Sampler::Type type, int ID);
+  void createSharedUniform(const String& name, Uniform::Type type, int ID);
+  int getSharedSamplerID(const String& name, Sampler::Type type) const;
+  int getSharedUniformID(const String& name, Uniform::Type type) const;
   SharedProgramState* getSharedProgramState(void) const;
   void setSharedProgramState(SharedProgramState* newState);
   /*! @return The current refresh mode.
@@ -525,40 +592,6 @@ public:
   void setActiveTextureUnit(unsigned int unit);
   const PlaneList& getClipPlanes(void) const;
   bool setClipPlanes(const PlaneList& newPlanes);
-  /*
-  const Mat4& getModelMatrix(void) const;
-  void setModelMatrix(const Mat4& newMatrix);
-  const Mat4& getViewMatrix(void) const;
-  void setViewMatrix(const Mat4& newMatrix);
-  const Mat4& getProjectionMatrix(void) const;
-  */
-  /*! Sets the projection matrix.
-   *  @param[in] newMatrix The desired projection matrix.
-   */
-  //void setProjectionMatrix(const Mat4& newMatrix);
-  /*! Sets an orthographic projection matrix as ([0..width], [0..height], [-1, 1]).
-   *  @param[in] width The width of the clipspace volume.
-   *  @param[in] height The height of the clipspace volume.
-   */
-  //void setOrthoProjectionMatrix(float width, float height);
-  /*! Sets an orthographic projection matrix as ([minX..maxX], [minY..maxY], [minZ, maxZ]).
-   *  @param[in] volume The clipspace volume.
-   */
-  //void setOrthoProjectionMatrix(const AABB& volume);
-  /*! Sets a perspective projection matrix.
-   *  @param[in] FOV The desired field of view of the projection.
-   *  @param[in] aspect The desired aspect ratio of the projection.
-   *  @param[in] nearZ The desired near plane distance of the projection.
-   *  @param[in] farZ The desired far plane distance of the projection.
-   *  @remarks If @a aspect is set to zero, the aspect ratio is calculated from
-   *  the dimensions of the current viewport applied to the current canvas.
-   */
-  /*
-  void setPerspectiveProjectionMatrix(float FOV = 90.f,
-                                      float aspect = 0.f,
-	                              float nearZ = 0.01f,
-	                              float farZ = 1000.f);
-                                      */
   Stats* getStats(void) const;
   void setStats(Stats* newStats);
   /*! @return The title of the context window.
@@ -608,7 +641,6 @@ private:
   static void sizeCallback(int width, int height);
   static int closeCallback(void);
   static void refreshCallback(void);
-  typedef std::vector<TextureRef> TextureList;
   typedef std::vector<SharedSampler> SamplerList;
   typedef std::vector<SharedUniform> UniformList;
   ResourceIndex& index;
@@ -622,17 +654,6 @@ private:
   bool needsClosing;
   Rect scissorArea;
   Rect viewportArea;
-  /*
-  Mat4 modelMatrix;
-  Mat4 viewMatrix;
-  Mat4 projectionMatrix;
-  Mat4 modelViewMatrix;
-  Mat4 viewProjMatrix;
-  Mat4 modelViewProjMatrix;
-  bool dirtyModelView;
-  bool dirtyViewProj;
-  bool dirtyModelViewProj;
-  */
   bool dirtyBinding;
   SharedProgramState* state;
   SamplerList samplers;
