@@ -144,7 +144,9 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
 
   int indexCount = 0;
 
-  for (Mesh::GeometryList::const_iterator g = data.geometries.begin();  g != data.geometries.end();  g++)
+  for (Mesh::GeometryList::const_iterator g = data.geometries.begin();
+       g != data.geometries.end();
+       g++)
   {
     if (materials.find(g->shaderName) == materials.end())
     {
@@ -188,7 +190,9 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
 
   int indexBase = 0;
 
-  for (Mesh::GeometryList::const_iterator g = data.geometries.begin();  g != data.geometries.end();  g++)
+  for (Mesh::GeometryList::const_iterator g = data.geometries.begin();
+       g != data.geometries.end();
+       g++)
   {
     indexCount = g->triangles.size() * 3;
 
