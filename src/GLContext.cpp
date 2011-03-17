@@ -64,7 +64,7 @@ const char* getFramebufferStatusMessage(GLenum status)
   switch (status)
   {
     case GL_FRAMEBUFFER_COMPLETE_EXT:
-      return "Framebuffer is incomplete";
+      return "Framebuffer is complete";
     case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
       return "Incomplete framebuffer attachment";
     case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
