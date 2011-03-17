@@ -105,7 +105,7 @@ GLenum convertToGL(ImageCanvas::Attachment attachment)
   return 0;
 }
 
-const char* getAttachmentName(ImageCanvas::Attachment attachment)
+const char* asString(ImageCanvas::Attachment attachment)
 {
   switch (attachment)
   {
@@ -520,7 +520,7 @@ bool ImageCanvas::setBuffer(Attachment attachment, Image* newImage)
     if (newImage->getWidth() != width || newImage->getHeight() != height)
     {
       logError("Specified %s image object does not match canvas dimensions",
-               getAttachmentName(attachment));
+               asString(attachment));
       return false;
     }
   }
@@ -1523,7 +1523,7 @@ bool Context::init(const ContextMode& initMode)
     unsigned int unitCount = std::max(limits->getMaxCombinedTextureImageUnits(),
                                       limits->getMaxTextureCoords());
 
-    textureUnits.insert(textureUnits.begin(), unitCount, false);
+    textureUnits.resize(unitCount);
   }
 
   // Create and apply screen canvas
