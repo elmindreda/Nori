@@ -42,10 +42,7 @@ Wendy uses internal versions of the following libraries:
   zlib (http://zlib.net/) for compressed data streams
   GLEW (http://glew.sourceforge.net/) for managing OpenGL extensions
   GLFW (http://www.glfw.org/) for OpenGL context, input and window
-
-Wendy has the following external dependencies:
-
-  Cg Toolkit (http://developer.nvidia.com/) for compiling shader programs
+  GLM (http://glm.g-truc.net/) for vector math and explicitly sized types
 
 
 3. Using Wendy
