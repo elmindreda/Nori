@@ -6,6 +6,9 @@
 // Licence : This source is under MIT License
 // File    : glm/gtx/compatibility.inl
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// 2011-03-18  Camilla Berglund  <elmindreda@elmindreda.org>
+//  * Fixed compiler check
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace glm{
 namespace gtx{
@@ -16,7 +19,7 @@ template <typename genType>
 inline bool isfinite(
 	genType const & x)
 {
-#ifdef GLM_COMPILER_VC
+#if(defined(GLM_COMPILER) && (GLM_COMPILER & GLM_COMPILER_VC))
 	return _finite(x);
 #else//GLM_COMPILER_GCC
 	return std::isfinite(x);
