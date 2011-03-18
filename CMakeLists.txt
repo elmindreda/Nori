@@ -62,8 +62,6 @@ if(WENDY_BUILD_DOCUMENTATION)
   find_package(Doxygen)
 endif(WENDY_BUILD_DOCUMENTATION)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${wendy_SOURCE_DIR}/build/cmake)
-
 find_package(OpenGL REQUIRED)
 
 add_subdirectory(libs)
@@ -79,10 +77,6 @@ list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/include
 if(WIN32)
   list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/build/windows)
 endif(WIN32)
-
-if(MSVC)
-  list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/build/msvc)
-endif(MSVC)
 
 set(WENDY_CORE_LIBRARIES ${wendy_CORE_LIBRARIES} CACHE STRING "Libraries used by Wendy core")
 set(WENDY_LIBRARIES ${wendy_LIBRARIES} CACHE STRING "Libraries used by Wendy")

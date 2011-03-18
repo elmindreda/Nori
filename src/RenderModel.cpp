@@ -215,7 +215,7 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
 
     if (indexType == GL::IndexBuffer::UINT8)
     {
-      GL::IndexRangeLock<uint8_t> indices(range);
+      GL::IndexRangeLock<uint8> indices(range);
       if (!indices)
         return false;
 
@@ -230,7 +230,7 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
     }
     else if (indexType == GL::IndexBuffer::UINT16)
     {
-      GL::IndexRangeLock<uint16_t> indices(range);
+      GL::IndexRangeLock<uint16> indices(range);
       if (!indices)
         return false;
 
@@ -245,7 +245,7 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
     }
     else
     {
-      GL::IndexRangeLock<uint32_t> indices(range);
+      GL::IndexRangeLock<uint32> indices(range);
       if (!indices)
         return false;
 

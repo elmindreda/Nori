@@ -257,7 +257,7 @@ void SpriteCloud3::enqueue(Scene& scene,
 
   // Realize sprite indices
   {
-    GL::IndexRangeLock<uint16_t> indices(indexRange);
+    GL::IndexRangeLock<uint16> indices(indexRange);
     if (!indices)
     {
       logError("Failed to lock index range for sprite cloud");
