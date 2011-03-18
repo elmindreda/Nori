@@ -54,8 +54,8 @@ void Transform2::invert(void)
 
 void Transform2::rotateVector(vec2& vector) const
 {
-  const float sina = sinf(angle);
-  const float cosa = cosf(angle);
+  const float sina = sin(angle);
+  const float cosa = cos(angle);
 
   vec2 result;
 
@@ -77,8 +77,8 @@ void Transform2::transformVector(vec2& vector) const
 
 Transform2::operator mat3 (void) const
 {
-  const float sina = sinf(angle);
-  const float cosa = cosf(angle);
+  const float sina = sin(angle);
+  const float cosa = cos(angle);
 
   mat3 result;
   result[0][0] = cosa;

@@ -35,7 +35,6 @@
 #include <wendy/Image.h>
 
 #include <cstring>
-#include <cmath>
 
 #include <png.h>
 

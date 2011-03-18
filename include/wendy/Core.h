@@ -44,7 +44,7 @@
 #define NULL 0
 #endif
 
-///////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -63,8 +63,6 @@
 #if _MSC_VER < 1500
 #define vsnprintf _vsnprintf
 #endif
-
-float log2f(float x);
 
 #endif /*_MSC_VER*/
 

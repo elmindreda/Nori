@@ -29,23 +29,11 @@
 
 #include <algorithm>
 
-#include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
 #include <sstream>
 #include <iostream>
-
-///////////////////////////////////////////////////////////////////////
-
-#ifdef _MSC_VER
-
-float log2f(float x)
-{
-  return (float) std::log(x) / (float) std::log(2.f);
-}
-
-#endif /*_MSC_VER*/
 
 ///////////////////////////////////////////////////////////////////////
 
