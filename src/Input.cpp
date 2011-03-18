@@ -38,6 +38,8 @@
 #include <map>
 #include <algorithm>
 
+#include <glm/gtx/quaternion.hpp>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace
@@ -103,7 +105,7 @@ void Focus::onButtonClicked(Button button, bool clicked)
 {
 }
 
-void Focus::onCursorMoved(const Vec2i& position)
+void Focus::onCursorMoved(const ivec2& position)
 {
 }
 
@@ -176,14 +178,14 @@ unsigned int Context::getHeight(void) const
   return context.getScreenCanvas().getHeight();
 }
 
-const Vec2i& Context::getCursorPosition(void) const
+const ivec2& Context::getCursorPosition(void) const
 {
   glfwGetMousePos(&cursorPosition.x, &cursorPosition.y);
 
   return cursorPosition;
 }
 
-void Context::setCursorPosition(const Vec2i& newPosition)
+void Context::setCursorPosition(const ivec2& newPosition)
 {
   cursorPosition = newPosition;
   glfwSetMousePos(newPosition.x, newPosition.y);
@@ -209,7 +211,7 @@ SignalProxy2<void, Button, bool> Context::getButtonClickedSignal(void)
   return buttonClickedSignal;
 }
 
-SignalProxy1<void, const Vec2i&> Context::getCursorMovedSignal(void)
+SignalProxy1<void, const ivec2&> Context::getCursorMovedSignal(void)
 {
   return cursorMovedSignal;
 }
@@ -401,7 +403,7 @@ void Context::characterCallback(int character, int action)
 
 void Context::mousePosCallback(int x, int y)
 {
-  const Vec2i position(x, y);
+  const ivec2 position(x, y);
 
   instance->cursorMovedSignal.emit(position);
 
@@ -436,8 +438,6 @@ Context* Context::instance = NULL;
 ///////////////////////////////////////////////////////////////////////
 
 MayaCamera::MayaCamera(void):
-  lastPosition(0, 0),
-  target(Vec3::ZERO),
   angleX(0.f),
   angleY(0.f),
   distance(5.f),
@@ -479,9 +479,9 @@ void MayaCamera::onButtonClicked(Button button, bool clicked)
   }
 }
 
-void MayaCamera::onCursorMoved(const Vec2i& position)
+void MayaCamera::onCursorMoved(const ivec2& position)
 {
-  Vec2i offset = position - lastPosition;
+  ivec2 offset = position - lastPosition;
 
   if (mode == TUMBLE)
   {
@@ -491,11 +491,11 @@ void MayaCamera::onCursorMoved(const Vec2i& position)
   }
   else if (mode == TRACK)
   {
-    Vec3 axisX = Vec3::X;
-    Vec3 axisY = Vec3::Y;
+    vec3 axisX(1.f, 0.f, 0.f);
+    vec3 axisY(0.f, 1.f, 0.f);
 
-    transform.rotation.rotateVector(axisX);
-    transform.rotation.rotateVector(axisY);
+    transform.rotateVector(axisX);
+    transform.rotateVector(axisY);
 
     target -= axisX * (float) offset.x / 50.f;
     target += axisY * (float) offset.y / 50.f;
@@ -522,11 +522,10 @@ const Transform3& MayaCamera::getTransform(void) const
 
 void MayaCamera::updateTransform(void)
 {
-  Vec3 offset = Vec3::Z * distance;
+  transform.rotation = quat(vec3(angleX, angleY, 0.f));
 
-  transform.rotation.setEulerRotation(Vec3(angleX, angleY, 0.f));
-  transform.rotation.rotateVector(offset);
-
+  vec3 offset(0.f, 0.f, distance);
+  transform.rotateVector(offset);
   transform.position = target + offset;
 }
 
@@ -552,7 +551,7 @@ void SpectatorCamera::update(Time deltaTime)
   else
     multiplier = 1.f;
 
-  Vec3 direction(Vec3::ZERO);
+  vec3 direction;
 
   if (directions[UP])
     direction.y += 1.f;
@@ -567,7 +566,7 @@ void SpectatorCamera::update(Time deltaTime)
   if (directions[RIGHT])
     direction.x += 1.f;
 
-  transform.rotation.rotateVector(direction);
+  transform.rotateVector(direction);
   transform.position += direction * speed * multiplier * (float) deltaTime;
 }
 
@@ -648,9 +647,9 @@ void SpectatorCamera::onButtonClicked(Button button, bool clicked)
   }
 }
 
-void SpectatorCamera::onCursorMoved(const Vec2i& position)
+void SpectatorCamera::onCursorMoved(const ivec2& position)
 {
-  Vec2i offset = position - lastPosition;
+  ivec2 offset = position - lastPosition;
 
   angleY -= offset.x / 250.f;
   angleX = std::max(std::min(angleX - offset.y / 250.f, (float) M_PI / 2.f), (float) -M_PI / 2.f);
@@ -686,11 +685,9 @@ void SpectatorCamera::setSpeed(float newSpeed)
 
 void SpectatorCamera::updateTransform(void)
 {
-  transform.rotation.setAxisRotation(Vec3::Y, angleY);
-
-  Quat axisX;
-  axisX.setAxisRotation(Vec3::X, angleX);
-  transform.rotation *= axisX;
+  const quat axisX = angleAxis(degrees(angleX), vec3(1.f, 0.f, 0.f));
+  const quat axisY = angleAxis(degrees(angleY), vec3(0.f, 1.f, 0.f));
+  transform.rotation = axisY * axisX;
 }
 
 ///////////////////////////////////////////////////////////////////////

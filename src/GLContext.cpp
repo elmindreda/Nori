@@ -40,6 +40,9 @@
 
 #include <algorithm>
 
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -733,34 +736,34 @@ SharedProgramState::~SharedProgramState(void)
 {
 }
 
-const Mat4& SharedProgramState::getModelMatrix(void) const
+const mat4& SharedProgramState::getModelMatrix(void) const
 {
   return modelMatrix;
 }
 
-void SharedProgramState::setModelMatrix(const Mat4& newMatrix)
+void SharedProgramState::setModelMatrix(const mat4& newMatrix)
 {
   modelMatrix = newMatrix;
   dirtyModelView = dirtyModelViewProj = true;
 }
 
-const Mat4& SharedProgramState::getViewMatrix(void) const
+const mat4& SharedProgramState::getViewMatrix(void) const
 {
   return viewMatrix;
 }
 
-void SharedProgramState::setViewMatrix(const Mat4& newMatrix)
+void SharedProgramState::setViewMatrix(const mat4& newMatrix)
 {
   viewMatrix = newMatrix;
   dirtyModelView = dirtyViewProj = dirtyModelViewProj = true;
 }
 
-const Mat4& SharedProgramState::getProjectionMatrix(void) const
+const mat4& SharedProgramState::getProjectionMatrix(void) const
 {
   return projectionMatrix;
 }
 
-void SharedProgramState::setProjectionMatrix(const Mat4& newMatrix)
+void SharedProgramState::setProjectionMatrix(const mat4& newMatrix)
 {
   projectionMatrix = newMatrix;
   dirtyViewProj = dirtyModelViewProj = true;
@@ -768,13 +771,16 @@ void SharedProgramState::setProjectionMatrix(const Mat4& newMatrix)
 
 void SharedProgramState::setOrthoProjectionMatrix(float width, float height)
 {
-  projectionMatrix.setOrthoProjection(width, height);
+  projectionMatrix = ortho(0.f, width, 0.f, height);
   dirtyViewProj = dirtyModelViewProj = true;
 }
 
 void SharedProgramState::setOrthoProjectionMatrix(const AABB& volume)
 {
-  projectionMatrix.setOrthoProjection(volume);
+  float minX, minY, minZ, maxX, maxY, maxZ;
+  volume.getBounds(minX, minY, minZ, maxX, maxY, maxZ);
+
+  projectionMatrix = ortho(minX, maxX, minY, maxY, minZ, maxZ);
   dirtyViewProj = dirtyModelViewProj = true;
 }
 
@@ -783,7 +789,7 @@ void SharedProgramState::setPerspectiveProjectionMatrix(float FOV,
                                                         float nearZ,
                                                         float farZ)
 {
-  projectionMatrix.setPerspectiveProjection(FOV, aspect, nearZ, farZ);
+  projectionMatrix = perspective(FOV, aspect, nearZ, farZ);
   dirtyViewProj = dirtyModelViewProj = true;
 }
 
@@ -797,19 +803,19 @@ void SharedProgramState::updateTo(Uniform& uniform)
   {
     case SHARED_MODEL_MATRIX:
     {
-      uniform.copyFrom(&modelMatrix);
+      uniform.copyFrom(value_ptr(modelMatrix));
       break;
     }
 
     case SHARED_VIEW_MATRIX:
     {
-      uniform.copyFrom(&viewMatrix);
+      uniform.copyFrom(value_ptr(viewMatrix));
       break;
     }
 
     case SHARED_PROJECTION_MATRIX:
     {
-      uniform.copyFrom(&projectionMatrix);
+      uniform.copyFrom(value_ptr(projectionMatrix));
       break;
     }
 
@@ -822,7 +828,7 @@ void SharedProgramState::updateTo(Uniform& uniform)
         dirtyModelView = false;
       }
 
-      uniform.copyFrom(&modelViewMatrix);
+      uniform.copyFrom(value_ptr(modelViewMatrix));
       break;
     }
 
@@ -835,7 +841,7 @@ void SharedProgramState::updateTo(Uniform& uniform)
         dirtyViewProj = false;
       }
 
-      uniform.copyFrom(&viewProjMatrix);
+      uniform.copyFrom(value_ptr(viewProjMatrix));
       break;
     }
 
@@ -855,7 +861,7 @@ void SharedProgramState::updateTo(Uniform& uniform)
         dirtyModelViewProj = false;
       }
 
-      uniform.copyFrom(&modelViewProjMatrix);
+      uniform.copyFrom(value_ptr(modelViewProjMatrix));
       break;
     }
   }
@@ -905,7 +911,7 @@ Context::~Context(void)
   instance = NULL;
 }
 
-void Context::clearColorBuffer(const ColorRGBA& color)
+void Context::clearColorBuffer(const vec4& color)
 {
   glPushAttrib(GL_COLOR_BUFFER_BIT);
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);

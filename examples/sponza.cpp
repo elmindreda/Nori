@@ -113,7 +113,7 @@ bool Demo::init(void)
 void Demo::run(void)
 {
   render::Scene scene(*pool, render::Technique::DEFERRED);
-  scene.setAmbientIntensity(ColorRGB(0.2f, 0.2f, 0.2f));
+  scene.setAmbientIntensity(vec3(0.2f, 0.2f, 0.2f));
 
   GL::Context& context = pool->getContext();
 
@@ -131,7 +131,7 @@ void Demo::run(void)
     graph.enqueue(scene, *camera);
 
     context.clearDepthBuffer();
-    context.clearColorBuffer(ColorRGBA::BLACK);
+    context.clearColorBuffer();
 
     renderer->render(scene, *camera);
 

@@ -49,9 +49,9 @@ Progress::Progress(Desktop& desktop, Orientation initOrientation):
   const float em = desktop.getRenderer().getCurrentEM();
 
   if (orientation == HORIZONTAL)
-    setSize(Vec2(em * 10.f, em * 1.5f));
+    setSize(vec2(em * 10.f, em * 1.5f));
   else
-    setSize(Vec2(em * 1.5f, em * 10.f));
+    setSize(vec2(em * 1.5f, em * 10.f));
 }
 
 float Progress::getMinValue(void) const

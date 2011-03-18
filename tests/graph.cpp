@@ -3,6 +3,8 @@
 
 #include <cstdlib>
 
+#include <glm/gtx/quaternion.hpp>
+
 using namespace wendy;
 
 class Demo : public Trackable
@@ -87,13 +89,13 @@ void Demo::run(void)
   {
     currentTime = timer.getTime();
 
-    modelNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f),
-							    (float) currentTime);
+    modelNode->getLocalTransform().rotation = angleAxis(degrees(float(currentTime)),
+                                                        vec3(0.f, 1.f, 0.f));
 
     graph.update();
 
     context.clearDepthBuffer();
-    context.clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
+    context.clearColorBuffer(vec4(0.2f, 0.2f, 0.2f, 1.f));
 
     graph.enqueue(scene, *camera);
     renderer->render(scene, *camera);

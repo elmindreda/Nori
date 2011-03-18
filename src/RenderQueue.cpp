@@ -26,9 +26,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/Core.h>
-#include <wendy/Vector.h>
-#include <wendy/Matrix.h>
-#include <wendy/Quaternion.h>
 #include <wendy/Transform.h>
 
 #include <wendy/RenderPool.h>

@@ -27,7 +27,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.h>
-#include <wendy/Vector.h>
 #include <wendy/Bezier.h>
 #include <wendy/Segment.h>
 #include <wendy/Triangle.h>
@@ -141,18 +140,18 @@ public:
    *  previously current clipping area.
    */
   void popClipArea(void);
-  void drawPoint(const Vec2& point, const ColorRGBA& color);
-  void drawLine(const Segment2& segment, const ColorRGBA& color);
-  void drawTriangle(const Triangle2& triangle, const ColorRGBA& color);
-  void drawBezier(const BezierCurve2& spline, const ColorRGBA& color);
-  void drawRectangle(const Rect& rectangle, const ColorRGBA& color);
-  void fillRectangle(const Rect& rectangle, const ColorRGBA& color);
-  void fillTriangle(const Triangle2& triangle, const ColorRGBA& color);
+  void drawPoint(const vec2& point, const vec4& color);
+  void drawLine(const Segment2& segment, const vec4& color);
+  void drawTriangle(const Triangle2& triangle, const vec4& color);
+  void drawBezier(const BezierCurve2& spline, const vec4& color);
+  void drawRectangle(const Rect& rectangle, const vec4& color);
+  void fillRectangle(const Rect& rectangle, const vec4& color);
+  void fillTriangle(const Triangle2& triangle, const vec4& color);
   void blitTexture(const Rect& area, GL::Texture& texture);
   void drawText(const Rect& area,
                 const String& text,
 		const Alignment& alignment,
-		const ColorRGB& color);
+		const vec3& color);
   void drawText(const Rect& area,
                 const String& text,
 		const Alignment& alignment = Alignment(),
@@ -161,16 +160,16 @@ public:
   void drawFrame(const Rect& area, WidgetState state);
   void drawHandle(const Rect& area, WidgetState state);
   void drawButton(const Rect& area, WidgetState state, const String& text = "");
-  const ColorRGB& getWidgetColor(void);
-  void setWidgetColor(const ColorRGB& newColor);
-  const ColorRGB& getTextColor(void);
-  void setTextColor(const ColorRGB& newColor);
-  const ColorRGB& getWellColor(void);
-  void setWellColor(const ColorRGB& newColor);
-  const ColorRGB& getSelectionColor(void);
-  void setSelectionColor(const ColorRGB& newColor);
-  const ColorRGB& getSelectedTextColor(void);
-  void setSelectedTextColor(const ColorRGB& newColor);
+  const vec3& getWidgetColor(void);
+  void setWidgetColor(const vec3& newColor);
+  const vec3& getTextColor(void);
+  void setTextColor(const vec3& newColor);
+  const vec3& getWellColor(void);
+  void setWellColor(const vec3& newColor);
+  const vec3& getSelectionColor(void);
+  void setSelectionColor(const vec3& newColor);
+  const vec3& getSelectedTextColor(void);
+  void setSelectedTextColor(const vec3& newColor);
   render::Font& getDefaultFont(void);
   render::Font& getCurrentFont(void);
   void setCurrentFont(render::Font* newFont);
@@ -181,14 +180,14 @@ public:
 private:
   Renderer(render::GeometryPool& pool);
   bool init(void);
-  void setDrawingState(const ColorRGBA& color, bool wireframe);
+  void setDrawingState(const vec4& color, bool wireframe);
   render::GeometryPool& pool;
   RectClipStackf clipAreaStack;
-  ColorRGB widgetColor;
-  ColorRGB textColor;
-  ColorRGB wellColor;
-  ColorRGB selectionColor;
-  ColorRGB selectedTextColor;
+  vec3 widgetColor;
+  vec3 textColor;
+  vec3 wellColor;
+  vec3 selectionColor;
+  vec3 selectedTextColor;
   Ref<render::Font> defaultFont;
   Ref<render::Font> currentFont;
   GL::RenderState drawPass;

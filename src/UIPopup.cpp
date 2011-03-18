@@ -47,7 +47,7 @@ Popup::Popup(Desktop& desktop):
 {
   const float em = desktop.getRenderer().getCurrentEM();
 
-  setSize(Vec2(em * 10.f, em * 2.f));
+  setSize(vec2(em * 10.f, em * 2.f));
 
   getKeyPressedSignal().connect(*this, &Popup::onKeyPressed);
   getButtonClickedSignal().connect(*this, &Popup::onButtonClicked);
@@ -153,12 +153,12 @@ void Popup::display(void)
 {
   const float width = std::max(menu->getArea().size.x, getArea().size.x);
   menu->setArea(Rect(getGlobalArea().position,
-                     Vec2(width, menu->getArea().size.y)));
+                     vec2(width, menu->getArea().size.y)));
   menu->display();
 }
 
 void Popup::onButtonClicked(Widget& widget,
-		            const Vec2& position,
+		            const vec2& position,
 		            input::Button button,
 		            bool clicked)
 {

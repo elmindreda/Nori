@@ -35,22 +35,22 @@ class AABB
 {
 public:
   AABB(void);
-  AABB(const Vec3& center, const Vec3& size);
+  AABB(const vec3& center, const vec3& size);
   AABB(float width, float height, float depth);
-  bool contains(const Vec3& point) const;
+  bool contains(const vec3& point) const;
   bool contains(const AABB& other) const;
   bool intersects(const AABB& other) const;
-  void envelop(const Vec3& point);
+  void envelop(const vec3& point);
   void envelop(const AABB& other);
   void normalize(void);
   void getBounds(float& minX, float& minY, float& minZ,
                  float& maxX, float& maxY, float& maxZ) const;
   void setBounds(float minX, float minY, float minZ,
                  float maxX, float maxY, float maxZ);
-  void set(const Vec3& newCenter, const Vec3& newSize);
+  void set(const vec3& newCenter, const vec3& newSize);
   void set(float newWidth, float newHeight, float newDepth);
-  Vec3 center;
-  Vec3 size;
+  vec3 center;
+  vec3 size;
 };
 
 ///////////////////////////////////////////////////////////////////////

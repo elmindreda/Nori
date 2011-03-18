@@ -237,13 +237,13 @@ public:
   explicit SpriteNode(const String& name = "");
   render::Material* getMaterial(void) const;
   void setMaterial(render::Material* newMaterial);
-  const Vec2& getSpriteSize(void) const;
-  void setSpriteSize(const Vec2& newSize);
+  const vec2& getSpriteSize(void) const;
+  void setSpriteSize(const vec2& newSize);
 protected:
   void enqueue(render::Scene& scene, const render::Camera& camera) const;
 private:
   Ref<render::Material> material;
-  Vec2 spriteSize;
+  vec2 spriteSize;
 };
 
 ///////////////////////////////////////////////////////////////////////

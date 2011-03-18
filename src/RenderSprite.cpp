@@ -32,6 +32,10 @@
 #include <wendy/RenderQueue.h>
 #include <wendy/RenderSprite.h>
 
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/norm.hpp>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -44,94 +48,64 @@ namespace wendy
 namespace
 {
 
-void rotateByZ(Vec2& vector, float angle)
-{
-  const float sina = sinf(angle);
-  const float cosa = cosf(angle);
-
-  Vec2 result;
-
-  result.x = vector.x * cosa - vector.y * sina;
-  result.y = vector.x * sina + vector.y * cosa;
-  vector = result;
-}
-
-void rotateByZ(Vec3& vector, float angle)
-{
-  const float sina = sinf(angle);
-  const float cosa = cosf(angle);
-
-  Vec3 result;
-
-  result.x = vector.x * cosa - vector.y * sina;
-  result.y = vector.x * sina + vector.y * cosa;
-  result.z = vector.z;
-  vector = result;
-}
-
 void realizeSpriteVertices(Vertex2ft3fv* vertices,
-			   const Vec3& cameraPosition,
-                           const Vec3& spritePosition,
-		           const Vec2& size,
+			   const vec3& cameraPosition,
+                           const vec3& spritePosition,
+		           const vec2& size,
 		           float angle,
 			   SpriteType3 type)
 {
-  Vec3 axisX, axisY;
-  const Vec2 offset(size.x / 2.f, size.y / 2.f);
+  vec3 axisX, axisY;
+  const vec2 offset(size.x / 2.f, size.y / 2.f);
 
   if (type == STATIC_SPRITE)
   {
-    axisX.set(offset.x, 0.f, 0.f);
-    axisY.set(0.f, offset.y, 0.f);
+    axisX = vec3(offset.x, 0.f, 0.f);
+    axisY = vec3(0.f, offset.y, 0.f);
 
     if (angle != 0.f)
     {
-      rotateByZ(axisX, angle);
-      rotateByZ(axisY, angle);
+      axisX = rotateZ(axisX, degrees(angle));
+      axisY = rotateZ(axisY, degrees(angle));
     }
   }
   else if (type == CYLINDRIC_SPRITE || type == SPHERICAL_SPRITE)
   {
-    Vec3 axisZ(cameraPosition.x - spritePosition.x,
+    vec3 axisZ(cameraPosition.x - spritePosition.x,
                0.f,
                cameraPosition.z - spritePosition.z);
 
-    if (axisZ.lengthSquared() < 0.001f)
-      axisZ.set(0.f, 0.f, 1.f);
+    if (length2(axisZ) < 0.001f)
+      axisZ = vec3(0.f, 0.f, 1.f);
     else
-      axisZ.normalize();
+      axisZ = normalize(axisZ);
 
-    axisY.set(0.f, offset.y, 0.f);
-
-    axisX = axisY.cross(axisZ);
-    axisX.scaleTo(offset.x);
+    axisY = vec3(0.f, offset.y, 0.f);
+    axisX = normalize(cross(axisY, axisZ)) * offset.x;
 
     if (type == SPHERICAL_SPRITE)
     {
-      axisZ = (cameraPosition - spritePosition).normalized();
-
-      axisY = axisZ.cross(axisX);
-      axisY.scaleTo(offset.y);
+      axisZ = normalize(cameraPosition - spritePosition);
+      axisY = normalize(cross(axisZ, axisX)) * offset.y;
     }
 
     if (angle != 0.f)
     {
-      Quat rotZ;
-      rotZ.setAxisRotation(axisZ, angle);
-      rotZ.rotateVector(axisX);
-      rotZ.rotateVector(axisY);
+      quat rotZ = angleAxis(degrees(angle), axisZ);
+      axisX = rotate(rotZ, axisX);
+      axisY = rotate(rotZ, axisY);
     }
   }
   else
     logError("Unknown sprite type %u", type);
 
-  vertices[0].mapping.set(0.f, 0.f);
+  vertices[0].mapping = vec2(0.f, 0.f);
   vertices[0].position = spritePosition - axisX - axisY;
-  vertices[1].mapping.set(1.f, 0.f);
+  vertices[1].mapping = vec2(1.f, 0.f);
   vertices[1].position = spritePosition + axisX - axisY;
-  vertices[2].mapping.set(1.f, 1.f);
+  vertices[2].mapping = vec2(1.f, 1.f);
   vertices[2].position = spritePosition + axisX + axisY;
-  vertices[3].mapping.set(0.f, 1.f);
+  vertices[3].mapping = vec2(0.f, 1.f);
   vertices[3].position = spritePosition - axisX + axisY;
 }
 
@@ -160,30 +134,30 @@ void Sprite2::render(GeometryPool& pool) const
 
 void Sprite2::realizeVertices(Vertex2ft2fv* vertices) const
 {
-  const Vec2 offset(size.x / 2.f, size.y / 2.f);
+  const vec2 offset(size.x / 2.f, size.y / 2.f);
 
-  vertices[0].mapping.set(mapping.position.x + mapping.size.x, mapping.position.y + mapping.size.y);
-  vertices[1].mapping.set(mapping.position.x, mapping.position.y + mapping.size.y);
-  vertices[2].mapping.set(mapping.position.x, mapping.position.y);
-  vertices[3].mapping.set(mapping.position.x + mapping.size.x, mapping.position.y);
+  vertices[0].mapping = vec2(mapping.position.x + mapping.size.x, mapping.position.y + mapping.size.y);
+  vertices[1].mapping = vec2(mapping.position.x, mapping.position.y + mapping.size.y);
+  vertices[2].mapping = vec2(mapping.position.x, mapping.position.y);
+  vertices[3].mapping = vec2(mapping.position.x + mapping.size.x, mapping.position.y);
 
-  vertices[0].position.set( offset.x,  offset.y);
-  vertices[1].position.set(-offset.x,  offset.y);
-  vertices[2].position.set(-offset.x, -offset.y);
-  vertices[3].position.set( offset.x, -offset.y);
+  vertices[0].position = vec2( offset.x,  offset.y);
+  vertices[1].position = vec2(-offset.x,  offset.y);
+  vertices[2].position = vec2(-offset.x, -offset.y);
+  vertices[3].position = vec2( offset.x, -offset.y);
 
   for (unsigned int i = 0;  i < 4;  i++)
   {
-    rotateByZ(vertices[i].position, angle);
+    vertices[i].position = rotate(vertices[i].position, degrees(angle));
     vertices[i].position += position;
   }
 }
 
 void Sprite2::setDefaults(void)
 {
-  mapping.set(Vec2::ZERO, Vec2::ONE);
-  position.set(0.f, 0.f);
-  size.set(1.f, 1.f);
+  mapping.set(vec2(0.f), vec2(1.f));
+  position = vec2(0.f);
+  size = vec2(1.f);
   angle = 0.f;
 }
 
@@ -208,8 +182,8 @@ void Sprite3::enqueue(Scene& scene,
   if (!scene.getGeometryPool().allocateVertices(range, 4, Vertex2ft3fv::format))
     return;
 
-  const Vec3 cameraPos = camera.getTransform().position;
-  const Vec3 spritePos = transform.position;
+  const vec3 cameraPos = camera.getTransform().position;
+  const vec3 spritePos = transform.position;
 
   Vertex2ft3fv vertices[4];
   realizeSpriteVertices(vertices, cameraPos, spritePos, size, angle, type);
@@ -223,7 +197,7 @@ void Sprite3::enqueue(Scene& scene,
 
 void Sprite3::setDefaults(void)
 {
-  size.set(1.f, 1.f);
+  size = vec2(1.f);
   angle = 0.f;
   type = STATIC_SPRITE;
   material = NULL;
@@ -267,7 +241,7 @@ void SpriteCloud3::enqueue(Scene& scene,
     return;
   }
 
-  const Vec3 cameraPos = camera.getTransform().position;
+  const vec3 cameraPos = camera.getTransform().position;
 
   // Realize sprite vertices
   {
@@ -304,7 +278,7 @@ void SpriteCloud3::enqueue(Scene& scene,
     }
   }
 
-  Vec3 position = Vec3::ZERO;
+  vec3 position = vec3(0.f);
   transform.transformVector(position);
 
   GL::PrimitiveRange range(GL::TRIANGLE_LIST,
@@ -319,12 +293,12 @@ void SpriteCloud3::enqueue(Scene& scene,
 
 void SpriteCloud3::realizeVertices(Vertex2ft3fv* vertices,
                                    const Transform3& transform,
-                                   const Vec3& cameraPosition) const
+                                   const vec3& cameraPosition) const
 {
   Transform3 inverse = transform;
   inverse.invert();
 
-  Vec3 localCamera = cameraPosition;
+  vec3 localCamera = cameraPosition;
   inverse.transformVector(localCamera);
 
   for (unsigned int i = 0;  i < slots.size();  i++)

@@ -28,7 +28,6 @@
 
 #include <wendy/Core.h>
 #include <wendy/Block.h>
-#include <wendy/Vector.h>
 #include <wendy/Rectangle.h>
 #include <wendy/Path.h>
 #include <wendy/Resource.h>

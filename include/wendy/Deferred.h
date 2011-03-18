@@ -60,7 +60,7 @@ private:
   Renderer(render::GeometryPool& pool);
   bool init(const Config& config);
   void renderLightQuad(const render::Camera& camera);
-  void renderAmbientLight(const render::Camera& camera, const ColorRGB& color);
+  void renderAmbientLight(const render::Camera& camera, const vec3& color);
   void renderLight(const render::Camera& camera, const render::Light& light);
   void renderOperations(const render::Queue& queue);
   render::GeometryPool& pool;

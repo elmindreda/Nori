@@ -47,7 +47,7 @@ Entry::Entry(Desktop& desktop, const String& initText):
 {
   const float em = getDesktop().getRenderer().getCurrentEM();
 
-  setSize(Vec2(em * 10.f, em * 1.5f));
+  setSize(vec2(em * 10.f, em * 1.5f));
 
   getButtonClickedSignal().connect(*this, &Entry::onButtonClicked);
   getKeyPressedSignal().connect(*this, &Entry::onKeyPressed);
@@ -113,12 +113,12 @@ void Entry::draw(void) const
       }
 
       Segment2 segment;
-      segment.start.set(textArea.position.x + position,
-                        textArea.position.y);
-      segment.end.set(textArea.position.x + position,
-                      textArea.position.y + textArea.size.y);
+      segment.start = vec2(textArea.position.x + position,
+                           textArea.position.y);
+      segment.end = vec2(textArea.position.x + position,
+                         textArea.position.y + textArea.size.y);
 
-      renderer.drawLine(segment, ColorRGBA::BLACK);
+      renderer.drawLine(segment, vec4(vec3(0.f), 1.f));
     }
 
     Widget::draw();
@@ -128,7 +128,7 @@ void Entry::draw(void) const
 }
 
 void Entry::onButtonClicked(Widget& widget,
-			    const Vec2& point,
+			    const vec2& point,
 			    input::Button button,
 			    bool clicked)
 {

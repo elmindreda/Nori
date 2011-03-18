@@ -25,9 +25,6 @@
 
 #include <wendy/Config.h>
 #include <wendy/Core.h>
-#include <wendy/Vector.h>
-#include <wendy/Matrix.h>
-#include <wendy/Quaternion.h>
 #include <wendy/Transform.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -42,7 +39,7 @@ Transform2::Transform2(void)
   setIdentity();
 }
 
-Transform2::Transform2(const Vec2& initPosition, float initAngle):
+Transform2::Transform2(const vec2& initPosition, float initAngle):
   position(initPosition),
   angle(initAngle)
 {
@@ -51,45 +48,45 @@ Transform2::Transform2(const Vec2& initPosition, float initAngle):
 void Transform2::invert(void)
 {
   angle = -angle;
-  position.negate();
+  position = -position;
   rotateVector(position);
 }
 
-void Transform2::rotateVector(Vec2& vector) const
+void Transform2::rotateVector(vec2& vector) const
 {
   const float sina = sinf(angle);
   const float cosa = cosf(angle);
 
-  Vec2 result;
+  vec2 result;
 
   result.x = vector.x * cosa - vector.y * sina;
   result.y = vector.x * sina + vector.y * cosa;
   vector = result;
 }
 
-void Transform2::translateVector(Vec2& vector) const
+void Transform2::translateVector(vec2& vector) const
 {
   vector += position;
 }
 
-void Transform2::transformVector(Vec2& vector) const
+void Transform2::transformVector(vec2& vector) const
 {
   rotateVector(vector);
   vector += position;
 }
 
-Transform2::operator Mat3 (void) const
+Transform2::operator mat3 (void) const
 {
   const float sina = sinf(angle);
   const float cosa = cosf(angle);
 
-  Mat3 result;
-  result.x.x = cosa;
-  result.x.y = sina;
-  result.y.x = -sina;
-  result.y.y = cosa;
-  result.z.x = position.x;
-  result.z.y = position.y;
+  mat3 result;
+  result[0][0] = cosa;
+  result[0][1] = sina;
+  result[1][0] = -sina;
+  result[1][1] = cosa;
+  result[2][0] = position.x;
+  result[2][1] = position.y;
 
   return result;
 }
@@ -103,7 +100,7 @@ Transform2 Transform2::operator * (const Transform2& other) const
 
 Transform2& Transform2::operator *= (const Transform2& other)
 {
-  Vec2 local = other.position;
+  vec2 local = other.position;
   rotateVector(local);
   position += local;
   angle += other.angle;
@@ -112,11 +109,11 @@ Transform2& Transform2::operator *= (const Transform2& other)
 
 void Transform2::setIdentity(void)
 {
-  position = Vec2::ZERO;
+  position = vec2(0.f);
   angle = 0.f;
 }
 
-void Transform2::set(const Vec2& newPosition, float newAngle)
+void Transform2::set(const vec2& newPosition, float newAngle)
 {
   position = newPosition;
   angle = newAngle;
@@ -131,7 +128,7 @@ Transform3::Transform3(void)
   setIdentity();
 }
 
-Transform3::Transform3(const Vec3& initPosition, const Quat& initRotation):
+Transform3::Transform3(const vec3& initPosition, const quat& initRotation):
   position(initPosition),
   rotation(initRotation)
 {
@@ -139,33 +136,31 @@ Transform3::Transform3(const Vec3& initPosition, const Quat& initRotation):
 
 void Transform3::invert(void)
 {
-  rotation.invert();
-  position.negate();
-  rotation.rotateVector(position);
+  rotation = inverse(rotation);
+  position = rotation * -position;
 }
 
-void Transform3::rotateVector(Vec3& vector) const
+void Transform3::rotateVector(vec3& vector) const
 {
-  rotation.rotateVector(vector);
+  vector = rotation * vector;
 }
 
-void Transform3::translateVector(Vec3& vector) const
+void Transform3::translateVector(vec3& vector) const
 {
   vector += position;
 }
 
-void Transform3::transformVector(Vec3& vector) const
+void Transform3::transformVector(vec3& vector) const
 {
-  rotation.rotateVector(vector);
-  vector += position;
+  vector = rotation * vector + position;
 }
 
-Transform3::operator Mat4 (void) const
+Transform3::operator mat4 (void) const
 {
-  Mat4 result;
-  result.setIdentity();
-  result.setQuatRotation(rotation);
-  result.setTranslation(position);
+  mat4 result = mat4_cast(rotation);
+  result[3][0] = position.x;
+  result[3][1] = position.y;
+  result[3][2] = position.z;
   return result;
 }
 
@@ -178,20 +173,18 @@ Transform3 Transform3::operator * (const Transform3& other) const
 
 Transform3& Transform3::operator *= (const Transform3& other)
 {
-  Vec3 local = other.position;
-  rotateVector(local);
-  position += local;
-  rotation *= other.rotation;
+  position += rotation * other.position;
+  rotation = rotation * other.rotation;
   return *this;
 }
 
 void Transform3::setIdentity(void)
 {
-  rotation.setIdentity();
-  position = Vec3::ZERO;
+  rotation = quat();
+  position = vec3(0.f);
 }
 
-void Transform3::set(const Vec3& newPosition, const Quat& newRotation)
+void Transform3::set(const vec3& newPosition, const quat& newRotation)
 {
   position = newPosition;
   rotation = newRotation;

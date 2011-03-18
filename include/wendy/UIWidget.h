@@ -82,19 +82,19 @@ public:
    *  @remarks The point is in parent coordinates. If this is a top-level
    *  widget, it is in global coordinates.
    */
-  Widget* findByPoint(const Vec2& point);
+  Widget* findByPoint(const vec2& point);
   /*! Transforms the specified point from global into local (client
    *  area) coordinates.
    *  @param[in] globalPoint The global coordinate point to transform.
    *  @return The corresponding local coordinate point.
    */
-  Vec2 transformToLocal(const Vec2& globalPoint) const;
+  vec2 transformToLocal(const vec2& globalPoint) const;
   /*! Transforms the specified point from local (client area) into
    *  global coordinates.
    *  @param[in] localPoint The local coordinate point to transform.
    *  @return The corresponding global coordinate point.
    */
-  Vec2 transformToGlobal(const Vec2& localPoint) const;
+  vec2 transformToGlobal(const vec2& localPoint) const;
   /*! Enables this widget, allowing it to become active and receive input
    *  events.
    */
@@ -158,13 +158,13 @@ public:
    *
    *  @remarks This is a helper method for Widget::setArea.
    */
-  void setSize(const Vec2& newSize);
+  void setSize(const vec2& newSize);
   /*! Sets the position of this widget.
    *  @param[in] newPosition The desired position, in parent coordinates.
    *
    *  @remarks This is a helper method for Widget::setArea.
    */
-  void setPosition(const Vec2& newPosition);
+  void setPosition(const vec2& newPosition);
   /*! Sets whether this widget is visible.
    */
   void setVisible(bool newState);
@@ -176,14 +176,14 @@ public:
   SignalProxy2<void, Widget&, bool> getFocusChangedSignal(void);
   SignalProxy3<void, Widget&, input::Key, bool> getKeyPressedSignal(void);
   SignalProxy2<void, Widget&, wchar_t> getCharInputSignal(void);
-  SignalProxy2<void, Widget&, const Vec2&> getCursorMovedSignal(void);
-  SignalProxy4<void, Widget&, const Vec2&, input::Button, bool> getButtonClickedSignal(void);
+  SignalProxy2<void, Widget&, const vec2&> getCursorMovedSignal(void);
+  SignalProxy4<void, Widget&, const vec2&, input::Button, bool> getButtonClickedSignal(void);
   SignalProxy2<void, Widget&, int> getWheelTurnedSignal(void);
   SignalProxy1<void, Widget&> getCursorEnteredSignal(void);
   SignalProxy1<void, Widget&> getCursorLeftSignal(void);
-  SignalProxy2<void, Widget&, const Vec2&> getDragBegunSignal(void);
-  SignalProxy2<void, Widget&, const Vec2&> getDragMovedSignal(void);
-  SignalProxy2<void, Widget&, const Vec2&> getDragEndedSignal(void);
+  SignalProxy2<void, Widget&, const vec2&> getDragBegunSignal(void);
+  SignalProxy2<void, Widget&, const vec2&> getDragMovedSignal(void);
+  SignalProxy2<void, Widget&, const vec2&> getDragEndedSignal(void);
 protected:
   /*! Calls Widget::draw for all children of this widget.
    */
@@ -198,14 +198,14 @@ private:
   Signal2<void, Widget&, bool> focusChangedSignal;
   Signal3<void, Widget&, input::Key, bool> keyPressedSignal;
   Signal2<void, Widget&, wchar_t> charInputSignal;
-  Signal2<void, Widget&, const Vec2&> cursorMovedSignal;
-  Signal4<void, Widget&, const Vec2&, input::Button, bool> buttonClickedSignal;
+  Signal2<void, Widget&, const vec2&> cursorMovedSignal;
+  Signal4<void, Widget&, const vec2&, input::Button, bool> buttonClickedSignal;
   Signal2<void, Widget&, int> wheelTurnedSignal;
   Signal1<void, Widget&> cursorEnteredSignal;
   Signal1<void, Widget&> cursorLeftSignal;
-  Signal2<void, Widget&, const Vec2&> dragBegunSignal;
-  Signal2<void, Widget&, const Vec2&> dragMovedSignal;
-  Signal2<void, Widget&, const Vec2&> dragEndedSignal;
+  Signal2<void, Widget&, const vec2&> dragBegunSignal;
+  Signal2<void, Widget&, const vec2&> dragMovedSignal;
+  Signal2<void, Widget&, const vec2&> dragEndedSignal;
   Desktop& desktop;
   Widget* parent;
   WidgetList children;

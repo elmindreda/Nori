@@ -25,7 +25,6 @@
 
 #include <wendy/Config.h>
 #include <wendy/Core.h>
-#include <wendy/Vector.h>
 #include <wendy/AABB.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -39,19 +38,18 @@ AABB::AABB(void)
 {
 }
 
-AABB::AABB(const Vec3& initCenter, const Vec3& initSize):
+AABB::AABB(const vec3& initCenter, const vec3& initSize):
   center(initCenter),
   size(initSize)
 {
 }
 
 AABB::AABB(float width, float height, float depth):
-  center(0.f, 0.f, 0.f),
   size(width, height, depth)
 {
 }
 
-bool AABB::contains(const Vec3& point) const
+bool AABB::contains(const vec3& point) const
 {
   float minX, minY, minZ, maxX, maxY, maxZ;
   getBounds(minX, minY, minZ, maxX, maxY, maxZ);
@@ -129,7 +127,7 @@ void AABB::envelop(const AABB& other)
   setBounds(minX, minY, minZ, maxX, maxY, maxZ);
 }
 
-void AABB::envelop(const Vec3& point)
+void AABB::envelop(const vec3& point)
 {
   float minX, minY, minZ, maxX, maxY, maxZ;
   getBounds(minX, minY, minZ, maxX, maxY, maxZ);
@@ -174,10 +172,10 @@ void AABB::setBounds(float minX, float minY, float minZ,
   center.x = (minX + maxX) / 2.f;
   center.y = (minY + maxY) / 2.f;
   center.z = (minZ + maxZ) / 2.f;
-  size.set(maxX - minX, maxY - minY, maxZ - minZ);
+  size = vec3(maxX - minX, maxY - minY, maxZ - minZ);
 }
 
-void AABB::set(const Vec3& newCenter, const Vec3& newSize)
+void AABB::set(const vec3& newCenter, const vec3& newSize)
 {
   center = newCenter;
   size = newSize;
@@ -185,8 +183,8 @@ void AABB::set(const Vec3& newCenter, const Vec3& newSize)
 
 void AABB::set(float newWidth, float newHeight, float newDepth)
 {
-  center.set(0.f, 0.f, 0.f);
-  size.set(newWidth, newHeight, newDepth);
+  center = vec3(0.f);
+  size = vec3(newWidth, newHeight, newDepth);
 }
 
 ///////////////////////////////////////////////////////////////////////

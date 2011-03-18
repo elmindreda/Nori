@@ -52,18 +52,18 @@ public:
   void setType(Type newType);
   float getRadius(void) const;
   void setRadius(float newRadius);
-  const ColorRGB& getColor(void) const;
-  void setColor(const ColorRGB& newColor);
-  const Vec3& getPosition(void) const;
-  void setPosition(const Vec3& newPosition);
-  const Vec3& getDirection(void) const;
-  void setDirection(const Vec3& newDirection);
+  const vec3& getColor(void) const;
+  void setColor(const vec3& newColor);
+  const vec3& getPosition(void) const;
+  void setPosition(const vec3& newPosition);
+  const vec3& getDirection(void) const;
+  void setDirection(const vec3& newDirection);
 private:
   Type type;
   float radius;
-  ColorRGB color;
-  Vec3 position;
-  Vec3 direction;
+  vec3 color;
+  vec3 position;
+  vec3 direction;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -75,18 +75,17 @@ typedef Ref<Light> LightRef;
 class LightState
 {
 public:
-  LightState(void);
   void attachLight(Light& light);
   void detachLight(Light& light);
   void detachLights(void);
   unsigned int getLightCount(void) const;
   Light& getLight(unsigned int index) const;
-  const ColorRGB& getAmbientIntensity(void) const;
-  void setAmbientIntensity(const ColorRGB& newIntensity);
+  const vec3& getAmbientIntensity(void) const;
+  void setAmbientIntensity(const vec3& newIntensity);
 private:
   typedef std::vector<LightRef> List;
   List lights;
-  ColorRGB ambient;
+  vec3 ambient;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -105,12 +105,12 @@ void Widget::removeFromParent(void)
   }
 }
 
-Widget* Widget::findByPoint(const Vec2& point)
+Widget* Widget::findByPoint(const vec2& point)
 {
   if (!area.contains(point))
     return NULL;
 
-  const Vec2 localPoint = point - area.position;
+  const vec2 localPoint = point - area.position;
 
   for (WidgetList::const_iterator c = children.begin();  c != children.end();  c++)
   {
@@ -122,12 +122,12 @@ Widget* Widget::findByPoint(const Vec2& point)
   return this;
 }
 
-Vec2 Widget::transformToLocal(const Vec2& globalPoint) const
+vec2 Widget::transformToLocal(const vec2& globalPoint) const
 {
   return globalPoint - getGlobalArea().position;
 }
 
-Vec2 Widget::transformToGlobal(const Vec2& localPoint) const
+vec2 Widget::transformToGlobal(const vec2& localPoint) const
 {
   return localPoint + getGlobalArea().position;
 }
@@ -283,12 +283,12 @@ void Widget::setArea(const Rect& newArea)
   areaChangedSignal.emit(*this);
 }
 
-void Widget::setSize(const Vec2& newSize)
+void Widget::setSize(const vec2& newSize)
 {
   setArea(Rect(area.position, newSize));
 }
 
-void Widget::setPosition(const Vec2& newPosition)
+void Widget::setPosition(const vec2& newPosition)
 {
   setArea(Rect(newPosition, area.size));
 }
@@ -331,12 +331,12 @@ SignalProxy2<void, Widget&, wchar_t> Widget::getCharInputSignal(void)
   return charInputSignal;
 }
 
-SignalProxy2<void, Widget&, const Vec2&> Widget::getCursorMovedSignal(void)
+SignalProxy2<void, Widget&, const vec2&> Widget::getCursorMovedSignal(void)
 {
   return cursorMovedSignal;
 }
 
-SignalProxy4<void, Widget&, const Vec2&, input::Button, bool> Widget::getButtonClickedSignal(void)
+SignalProxy4<void, Widget&, const vec2&, input::Button, bool> Widget::getButtonClickedSignal(void)
 {
   return buttonClickedSignal;
 }
@@ -356,17 +356,17 @@ SignalProxy1<void, Widget&> Widget::getCursorLeftSignal(void)
   return cursorLeftSignal;
 }
 
-SignalProxy2<void, Widget&, const Vec2&> Widget::getDragBegunSignal(void)
+SignalProxy2<void, Widget&, const vec2&> Widget::getDragBegunSignal(void)
 {
   return dragBegunSignal;
 }
 
-SignalProxy2<void, Widget&, const Vec2&> Widget::getDragMovedSignal(void)
+SignalProxy2<void, Widget&, const vec2&> Widget::getDragMovedSignal(void)
 {
   return dragMovedSignal;
 }
 
-SignalProxy2<void, Widget&, const Vec2&> Widget::getDragEndedSignal(void)
+SignalProxy2<void, Widget&, const vec2&> Widget::getDragEndedSignal(void)
 {
   return dragEndedSignal;
 }

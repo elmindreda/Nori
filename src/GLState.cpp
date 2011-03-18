@@ -431,42 +431,32 @@ void ProgramState::getUniformState(const String& name, float& result) const
   std::memcpy(&result, getData(name, Uniform::FLOAT), sizeof(result));
 }
 
-void ProgramState::getUniformState(const String& name, Vec2& result) const
+void ProgramState::getUniformState(const String& name, vec2& result) const
 {
   std::memcpy(&result, getData(name, Uniform::FLOAT_VEC2), sizeof(result));
 }
 
-void ProgramState::getUniformState(const String& name, Vec3& result) const
+void ProgramState::getUniformState(const String& name, vec3& result) const
 {
   std::memcpy(&result, getData(name, Uniform::FLOAT_VEC3), sizeof(result));
 }
 
-void ProgramState::getUniformState(const String& name, Vec4& result) const
+void ProgramState::getUniformState(const String& name, vec4& result) const
 {
   std::memcpy(&result, getData(name, Uniform::FLOAT_VEC4), sizeof(result));
 }
 
-void ProgramState::getUniformState(const String& name, ColorRGB& result) const
-{
-  std::memcpy(&result, getData(name, Uniform::FLOAT_VEC3), sizeof(result));
-}
-
-void ProgramState::getUniformState(const String& name, ColorRGBA& result) const
-{
-  std::memcpy(&result, getData(name, Uniform::FLOAT_VEC4), sizeof(result));
-}
-
-void ProgramState::getUniformState(const String& name, Mat2& result) const
+void ProgramState::getUniformState(const String& name, mat2& result) const
 {
   std::memcpy(&result, getData(name, Uniform::FLOAT_MAT2), sizeof(result));
 }
 
-void ProgramState::getUniformState(const String& name, Mat3& result) const
+void ProgramState::getUniformState(const String& name, mat3& result) const
 {
   std::memcpy(&result, getData(name, Uniform::FLOAT_MAT3), sizeof(result));
 }
 
-void ProgramState::getUniformState(const String& name, Mat4& result) const
+void ProgramState::getUniformState(const String& name, mat4& result) const
 {
   std::memcpy(&result, getData(name, Uniform::FLOAT_MAT4), sizeof(result));
 }
@@ -476,42 +466,32 @@ void ProgramState::setUniformState(const String& name, float newValue)
   std::memcpy(getData(name, Uniform::FLOAT), &newValue, sizeof(newValue));
 }
 
-void ProgramState::setUniformState(const String& name, const Vec2& newValue)
+void ProgramState::setUniformState(const String& name, const vec2& newValue)
 {
   std::memcpy(getData(name, Uniform::FLOAT_VEC2), &newValue, sizeof(newValue));
 }
 
-void ProgramState::setUniformState(const String& name, const Vec3& newValue)
+void ProgramState::setUniformState(const String& name, const vec3& newValue)
 {
   std::memcpy(getData(name, Uniform::FLOAT_VEC3), &newValue, sizeof(newValue));
 }
 
-void ProgramState::setUniformState(const String& name, const Vec4& newValue)
+void ProgramState::setUniformState(const String& name, const vec4& newValue)
 {
   std::memcpy(getData(name, Uniform::FLOAT_VEC4), &newValue, sizeof(newValue));
 }
 
-void ProgramState::setUniformState(const String& name, const ColorRGB& newValue)
-{
-  std::memcpy(getData(name, Uniform::FLOAT_VEC3), &newValue, sizeof(newValue));
-}
-
-void ProgramState::setUniformState(const String& name, const ColorRGBA& newValue)
-{
-  std::memcpy(getData(name, Uniform::FLOAT_VEC4), &newValue, sizeof(newValue));
-}
-
-void ProgramState::setUniformState(const String& name, const Mat2& newValue)
+void ProgramState::setUniformState(const String& name, const mat2& newValue)
 {
   std::memcpy(getData(name, Uniform::FLOAT_MAT2), &newValue, sizeof(newValue));
 }
 
-void ProgramState::setUniformState(const String& name, const Mat3& newValue)
+void ProgramState::setUniformState(const String& name, const mat3& newValue)
 {
   std::memcpy(getData(name, Uniform::FLOAT_MAT3), &newValue, sizeof(newValue));
 }
 
-void ProgramState::setUniformState(const String& name, const Mat4& newValue)
+void ProgramState::setUniformState(const String& name, const mat4& newValue)
 {
   std::memcpy(getData(name, Uniform::FLOAT_MAT4), &newValue, sizeof(newValue));
 }

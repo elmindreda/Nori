@@ -36,7 +36,7 @@ namespace wendy
 class FontGlyphData
 {
 public:
-  Vec2 bearing;
+  vec2 bearing;
   float advance;
   Ref<Image> image;
 };
@@ -69,11 +69,11 @@ public:
   /*! Renders the specified text at the current pen position.
    *  @param text The text to render.
    */
-  void drawText(const Vec2& penPosition, const ColorRGBA& color, const String& text) const;
+  void drawText(const vec2& penPosition, const vec4& color, const String& text) const;
   /*! Renders the specified text at the current pen position.
    *  @param format The format string for the text to render.
    */
-  void drawText(const Vec2& penPosition, const ColorRGBA& color, const char* format, ...) const;
+  void drawText(const vec2& penPosition, const vec4& color, const char* format, ...) const;
   /*! @return The width, in pixels, of the character cell for this font.
    */
   float getWidth(void) const;
@@ -122,7 +122,7 @@ private:
   GeometryPool& pool;
   GlyphList glyphs;
   Glyph* characters[256];
-  Vec2 size;
+  vec2 size;
   float ascender;
   float descender;
   mutable GL::RenderState pass;
@@ -136,7 +136,7 @@ class Font::Layout
 {
 public:
   Rect area;
-  Vec2 advance;
+  vec2 advance;
   char character;
 };
 
@@ -148,8 +148,8 @@ class Font::Glyph
 {
 public:
   Rect area;
-  Vec2 bearing;
-  Vec2 size;
+  vec2 bearing;
+  vec2 size;
   float advance;
 };
 

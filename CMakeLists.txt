@@ -72,7 +72,9 @@ list(APPEND wendy_CORE_LIBRARIES expat png z pcre)
 
 list(APPEND wendy_LIBRARIES ${wendy_CORE_LIBRARIES} GLEW glfw ${GLFW_LIBRARIES})
 
-list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/include ${wendy_BINARY_DIR}/include)
+list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/include
+                               ${wendy_BINARY_DIR}/include
+                               ${glm_SOURCE_DIR})
 
 if(WIN32)
   list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/build/windows)

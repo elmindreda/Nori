@@ -499,22 +499,22 @@ bool MaterialReader::onBeginElement(const String& name)
                 currentPass->setUniformState(uniformName, readFloat("value"));
                 break;
               case GL::Uniform::FLOAT_VEC2:
-                currentPass->setUniformState(uniformName, Vec2(readString("value")));
+                currentPass->setUniformState(uniformName, vec2Cast(readString("value")));
                 break;
               case GL::Uniform::FLOAT_VEC3:
-                currentPass->setUniformState(uniformName, Vec3(readString("value")));
+                currentPass->setUniformState(uniformName, vec3Cast(readString("value")));
                 break;
               case GL::Uniform::FLOAT_VEC4:
-                currentPass->setUniformState(uniformName, Vec4(readString("value")));
+                currentPass->setUniformState(uniformName, vec4Cast(readString("value")));
                 break;
               case GL::Uniform::FLOAT_MAT2:
-                currentPass->setUniformState(uniformName, Mat2(readString("value")));
+                currentPass->setUniformState(uniformName, mat2Cast(readString("value")));
                 break;
               case GL::Uniform::FLOAT_MAT3:
-                currentPass->setUniformState(uniformName, Mat3(readString("value")));
+                currentPass->setUniformState(uniformName, mat3Cast(readString("value")));
                 break;
               case GL::Uniform::FLOAT_MAT4:
-                currentPass->setUniformState(uniformName, Mat4(readString("value")));
+                currentPass->setUniformState(uniformName, mat4Cast(readString("value")));
                 break;
             }
 
@@ -667,49 +667,49 @@ bool MaterialWriter::write(const Path& path, const Material& material)
 
               case GL::Uniform::FLOAT_VEC2:
               {
-                Vec2 value;
+                vec2 value;
                 p->getUniformState(uniform.getName(), value);
-                addAttribute("value", value.asString());
+                addAttribute("value", stringCast(value));
                 break;
               }
 
               case GL::Uniform::FLOAT_VEC3:
               {
-                Vec3 value;
+                vec3 value;
                 p->getUniformState(uniform.getName(), value);
-                addAttribute("value", value.asString());
+                addAttribute("value", stringCast(value));
                 break;
               }
 
               case GL::Uniform::FLOAT_VEC4:
               {
-                Vec4 value;
+                vec4 value;
                 p->getUniformState(uniform.getName(), value);
-                addAttribute("value", value.asString());
+                addAttribute("value", stringCast(value));
                 break;
               }
 
               case GL::Uniform::FLOAT_MAT2:
               {
-                Mat2 value;
+                mat2 value;
                 p->getUniformState(uniform.getName(), value);
-                addAttribute("value", value.asString());
+                addAttribute("value", stringCast(value));
                 break;
               }
 
               case GL::Uniform::FLOAT_MAT3:
               {
-                Mat3 value;
+                mat3 value;
                 p->getUniformState(uniform.getName(), value);
-                addAttribute("value", value.asString());
+                addAttribute("value", stringCast(value));
                 break;
               }
 
               case GL::Uniform::FLOAT_MAT4:
               {
-                Mat4 value;
+                mat4 value;
                 p->getUniformState(uniform.getName(), value);
-                addAttribute("value", value.asString());
+                addAttribute("value", stringCast(value));
                 break;
               }
             }

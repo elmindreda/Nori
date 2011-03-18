@@ -49,7 +49,7 @@ protected:
   void draw(void) const;
 private:
   void onButtonClicked(Widget& widget,
-		       const Vec2& position,
+		       const vec2& position,
 		       input::Button button,
 		       bool clicked);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);

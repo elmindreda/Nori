@@ -50,9 +50,9 @@ Slider::Slider(Desktop& desktop, Orientation initOrientation):
   const float em = desktop.getRenderer().getCurrentEM();
 
   if (orientation == HORIZONTAL)
-    setSize(Vec2(em * 10.f, em * 1.5f));
+    setSize(vec2(em * 10.f, em * 1.5f));
   else
-    setSize(Vec2(em * 1.5f, em * 10.f));
+    setSize(vec2(em * 1.5f, em * 10.f));
 
   getKeyPressedSignal().connect(*this, &Slider::onKeyPressed);
   getButtonClickedSignal().connect(*this, &Slider::onButtonClicked);
@@ -147,7 +147,7 @@ void Slider::draw(void) const
 }
 
 void Slider::onButtonClicked(Widget& widget,
-			     const Vec2& position,
+			     const vec2& position,
 			     input::Button button,
 			     bool clicked)
 {
@@ -184,12 +184,12 @@ void Slider::onWheelTurned(Widget& widget, int offset)
   setValue(value + offset * stepSize, true);
 }
 
-void Slider::onDragMoved(Widget& widget, const Vec2& position)
+void Slider::onDragMoved(Widget& widget, const vec2& position)
 {
   setValue(transformToLocal(position));
 }
 
-void Slider::setValue(const Vec2& position)
+void Slider::setValue(const vec2& position)
 {
   const float em = getDesktop().getRenderer().getCurrentEM();
 

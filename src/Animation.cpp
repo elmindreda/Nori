@@ -26,14 +26,14 @@
 #include <wendy/Config.h>
 
 #include <wendy/Core.h>
-#include <wendy/Vector.h>
 #include <wendy/Bezier.h>
-#include <wendy/Quaternion.h>
 #include <wendy/Transform.h>
 #include <wendy/Path.h>
 #include <wendy/Resource.h>
 #include <wendy/XML.h>
 #include <wendy/Animation.h>
+
+#include <glm/gtc/type_ptr.hpp>
 
 #include <algorithm>
 
@@ -80,7 +80,7 @@ const Transform3& KeyFrame3::getTransform(void) const
   return transform;
 }
 
-const Vec3& KeyFrame3::getDirection(void) const
+const vec3& KeyFrame3::getDirection(void) const
 {
   return direction;
 }
@@ -90,17 +90,17 @@ void KeyFrame3::setTransform(const Transform3& newTransform)
   transform = newTransform;
 }
 
-void KeyFrame3::setPosition(const Vec3& newPosition)
+void KeyFrame3::setPosition(const vec3& newPosition)
 {
   transform.position = newPosition;
 }
 
-void KeyFrame3::setRotation(const Quat& newRotation)
+void KeyFrame3::setRotation(const quat& newRotation)
 {
   transform.rotation = newRotation;
 }
 
-void KeyFrame3::setDirection(const Vec3& newDirection)
+void KeyFrame3::setDirection(const vec3& newDirection)
 {
   direction = newDirection;
 }
@@ -119,7 +119,7 @@ AnimTrack3::AnimTrack3(const AnimTrack3& source)
 
 void AnimTrack3::createKeyFrame(Time moment,
                                 const Transform3& transform,
-                                const Vec3& direction)
+                                const vec3& direction)
 {
   moment = std::max(moment, 0.0);
 
@@ -182,10 +182,10 @@ void AnimTrack3::evaluate(Time moment, Transform3& result) const
   const float t = (float) ((moment - startFrame.moment) /
                            (endFrame.moment - startFrame.moment));
 
-  const Quat& startRot = startFrame.transform.rotation;
-  const Quat& endRot = endFrame.transform.rotation;
+  const quat& startRot = startFrame.transform.rotation;
+  const quat& endRot = endFrame.transform.rotation;
 
-  result.rotation = startRot.interpolateTo(t, endRot);
+  result.rotation = mix(startRot, endRot, t);
 
   BezierCurve3 curve;
   curve.P[0] = startFrame.transform.position;
@@ -270,10 +270,10 @@ void AnimTrack3::flipRotations(void)
 {
   for (size_t i = 1;  i < keyframes.size();  i++)
   {
-    Quat& R0 = keyframes[i - 1].transform.rotation;
-    Quat& R1 = keyframes[i].transform.rotation;
+    quat& R0 = keyframes[i - 1].transform.rotation;
+    quat& R1 = keyframes[i].transform.rotation;
 
-    if (R0.dot(R1) < 0.f)
+    if (dot(R0, R1) < 0.f)
       R1 = -R1;
   }
 }
@@ -444,11 +444,10 @@ bool Anim3Reader::onBeginElement(const String& name)
         Time moment = readFloat("moment");
 
         Transform3 transform;
-        transform.position = Vec3(readString("position"));
-        transform.rotation = Quat(readString("rotation"));
-        transform.rotation.normalize();
+        transform.position = vec3Cast(readString("position"));
+        transform.rotation = normalize(quatCast(readString("rotation")));
 
-        Vec3 direction = Vec3(readString("direction"));
+        vec3 direction = vec3Cast(readString("direction"));
 
         currentTrack->createKeyFrame(moment, transform, direction);
         return true;
@@ -492,9 +491,9 @@ bool Anim3Writer::write(const Path& path, const Anim3& animation)
 
         beginElement("keyframe");
         addAttribute("moment", keyframe.getMoment());
-        addAttribute("position", keyframe.getTransform().position.asString());
-        addAttribute("rotation", keyframe.getTransform().rotation.asString());
-        addAttribute("direction", keyframe.getDirection().asString());
+        addAttribute("position", stringCast(keyframe.getTransform().position));
+        addAttribute("rotation", stringCast(keyframe.getTransform().rotation));
+        addAttribute("direction", stringCast(keyframe.getDirection()));
         endElement();
       }
 

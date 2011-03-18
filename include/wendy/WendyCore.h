@@ -28,16 +28,14 @@
 
 #include <wendy/Config.h>
 
+#include <glm/glm.hpp>
+
 #include <wendy/Core.h>
 #include <wendy/Block.h>
 #include <wendy/Bimap.h>
 #include <wendy/Signal.h>
 #include <wendy/Timer.h>
 
-#include <wendy/Color.h>
-#include <wendy/Vector.h>
-#include <wendy/Matrix.h>
-#include <wendy/Quaternion.h>
 #include <wendy/Transform.h>
 #include <wendy/Random.h>
 

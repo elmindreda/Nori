@@ -57,7 +57,7 @@ Label::Label(Desktop& desktop, const String& initText):
   else
     textWidth = renderer.getCurrentFont().getTextMetrics(text).size.x;
 
-  setSize(Vec2(em * 2.f + textWidth, em * 2.f));
+  setSize(vec2(em * 2.f + textWidth, em * 2.f));
 }
 
 const String& Label::getText(void) const

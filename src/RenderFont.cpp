@@ -135,7 +135,7 @@ FontData& FontData::operator = (const FontData& source)
 
 ///////////////////////////////////////////////////////////////////////
 
-void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const String& text) const
+void Font::drawText(const vec2& penPosition, const vec4& color, const String& text) const
 {
   GL::VertexRange vertexRange;
   if (!pool.allocateVertices(vertexRange, text.size() * 6, Vertex2ft2fv::format))
@@ -148,7 +148,7 @@ void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const Strin
 
   // Realize vertices for glyphs
   {
-    Vec2 roundedPen;
+    vec2 roundedPen;
     roundedPen.x = floorf(penPosition.x + 0.5f);
     roundedPen.y = floorf(penPosition.y + 0.5f);
 
@@ -189,8 +189,8 @@ void Font::drawText(const Vec2& penPosition, const ColorRGBA& color, const Strin
                                               count));
 }
 
-void Font::drawText(const Vec2& penPosition,
-                    const ColorRGBA& color,
+void Font::drawText(const vec2& penPosition,
+                    const vec4& color,
                     const char* format, ...) const
 {
   va_list vl;
@@ -231,10 +231,9 @@ float Font::getDescender(void) const
 
 Rect Font::getTextMetrics(const String& text) const
 {
-  Rect result(0.f, 0.f, 0.f, 0.f);
-
+  Rect result;
   Layout layout;
-  Vec2 penPosition(Vec2::ZERO);
+  vec2 penPosition;
 
   for (String::const_iterator c = text.begin();  c != text.end();  c++)
   {
@@ -260,7 +259,7 @@ Rect Font::getTextMetrics(const char* format, ...) const
   va_end(vl);
 
   if (result < 0)
-    return Rect(0.f, 0.f, 0.f, 0.f);
+    return Rect();
 
   Rect metrics = getTextMetrics(String(text));
 
@@ -391,7 +390,7 @@ bool Font::init(const FontData& data)
     texture->setFilterMode(GL::FILTER_NEAREST);
   }
 
-  Vec2 texelOffset;
+  vec2 texelOffset;
   texelOffset.x = 0.25f / texture->getWidth();
   texelOffset.y = 0.25f / texture->getHeight();
 
@@ -427,12 +426,12 @@ bool Font::init(const FontData& data)
     pass.setDepthWriting(false);
     pass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
     pass.setSamplerState("glyphs", texture);
-    pass.setUniformState("color", ColorRGBA(1, 1, 1, 1));
+    pass.setUniformState("color", vec4(1.f));
   }
 
   ascender = descender = 0.f;
 
-  Vec2i texelPosition(1, 1);
+  ivec2 texelPosition(1, 1);
 
   GL::TextureImage& textureImage = texture->getImage(0);
   const unsigned int textureWidth = textureImage.getWidth();
@@ -457,7 +456,7 @@ bool Font::init(const FontData& data)
 
     glyph.advance = glyphData.advance;
     glyph.bearing = glyphData.bearing;
-    glyph.size.set((float) image->getWidth(), (float) image->getHeight());
+    glyph.size = vec2((float) image->getWidth(), (float) image->getHeight());
 
     if (glyph.bearing.y > ascender)
       ascender = glyph.bearing.y;
@@ -487,15 +486,15 @@ bool Font::init(const FontData& data)
       return false;
     }
 
-    glyph.area.position.set(texelPosition.x / (float) textureWidth + texelOffset.x,
-                            texelPosition.y / (float) textureHeight + texelOffset.y);
-    glyph.area.size.set(image->getWidth() / (float) textureWidth,
-                        image->getHeight() / (float) textureHeight);
+    glyph.area.position = vec2(texelPosition.x / (float) textureWidth + texelOffset.x,
+                               texelPosition.y / (float) textureHeight + texelOffset.y);
+    glyph.area.size = vec2(image->getWidth() / (float) textureWidth,
+                           image->getHeight() / (float) textureHeight);
 
     texelPosition.x += image->getWidth() + 1;
   }
 
-  size.set((float) maxWidth, (float) maxHeight);
+  size = vec2((float) maxWidth, (float) maxHeight);
   return true;
 }
 
@@ -523,9 +522,7 @@ void Font::getGlyphLayout(Layout& layout, const Glyph& glyph, uint8_t character)
   layout.area.size.x = (float) glyph.size.x;
   layout.area.size.y = (float) glyph.size.y;
 
-  layout.advance.set(glyph.advance, 0.f);
-  layout.advance.x = floorf(layout.advance.x + 0.5f);
-  layout.advance.y = floorf(layout.advance.y + 0.5f);
+  layout.advance = floor(vec2(glyph.advance, 0.f) + vec2(0.5f));
 }
 
 void Font::realizeVertices(const Rect& pixelArea,
@@ -535,16 +532,16 @@ void Font::realizeVertices(const Rect& pixelArea,
   const Rect& pa = pixelArea;
   const Rect& ta = texelArea;
 
-  vertices[0].mapping.set(ta.position.x, ta.position.y);
-  vertices[0].position.set(pa.position.x, pa.position.y);
-  vertices[1].mapping.set(ta.position.x + ta.size.x, ta.position.y);
-  vertices[1].position.set(pa.position.x + pa.size.x, pa.position.y);
-  vertices[2].mapping.set(ta.position.x + ta.size.x, ta.position.y + ta.size.y);
-  vertices[2].position.set(pa.position.x + pa.size.x, pa.position.y + pa.size.y);
+  vertices[0].mapping = vec2(ta.position.x, ta.position.y);
+  vertices[0].position = vec2(pa.position.x, pa.position.y);
+  vertices[1].mapping = vec2(ta.position.x + ta.size.x, ta.position.y);
+  vertices[1].position = vec2(pa.position.x + pa.size.x, pa.position.y);
+  vertices[2].mapping = vec2(ta.position.x + ta.size.x, ta.position.y + ta.size.y);
+  vertices[2].position = vec2(pa.position.x + pa.size.x, pa.position.y + pa.size.y);
 
   vertices[3] = vertices[2];
-  vertices[4].mapping.set(ta.position.x, ta.position.y + ta.size.y);
-  vertices[4].position.set(pa.position.x, pa.position.y + pa.size.y);
+  vertices[4].mapping = vec2(ta.position.x, ta.position.y + ta.size.y);
+  vertices[4].position = vec2(pa.position.x, pa.position.y + pa.size.y);
   vertices[5] = vertices[0];
 }
 
@@ -679,7 +676,7 @@ bool FontReader::extractGlyphs(FontData& data,
 
     data.glyphs.push_back(FontGlyphData());
     FontGlyphData& glyph = data.glyphs.back();
-    glyph.bearing.set(0.f, glyphImage->getHeight() / 2.f);
+    glyph.bearing = vec2(0.f, glyphImage->getHeight() / 2.f);
     glyph.advance = (float) glyphImage->getWidth();
     glyph.image = glyphImage;
 
@@ -736,7 +733,7 @@ bool FontReader::extractGlyphs(FontData& data,
     data.glyphs.push_back(FontGlyphData());
     FontGlyphData& glyph = data.glyphs.back();
 
-    glyph.bearing.set(0.f, 0.f);
+    glyph.bearing = vec2(0.f);
     glyph.image = new Image(getIndex(), source.getFormat(), 1, 1);
 
     if (fixedWidth)

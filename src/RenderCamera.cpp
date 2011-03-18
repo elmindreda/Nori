@@ -124,18 +124,18 @@ const Frustum& Camera::getFrustum(void) const
   return frustum;
 }
 
-float Camera::getNormalizedDepth(const Vec3& point) const
+float Camera::getNormalizedDepth(const vec3& point) const
 {
   if (dirtyViewDir)
   {
-    direction.set(0.f, 0.f, -1.f);
+    direction = vec3(0.f, 0.f, -1.f);
     getViewTransform().rotateVector(direction);
     dirFactor = 1.f / (maxDepth - minDepth);
-    dirOffset = (direction.dot(transform.position) + minDepth) * dirFactor;
+    dirOffset = dot(direction, transform.position) + minDepth * dirFactor;
     dirtyViewDir = false;
   }
 
-  return point.dot(direction) * dirFactor + dirOffset;
+  return dot(point, direction) * dirFactor + dirOffset;
 }
 
 ///////////////////////////////////////////////////////////////////////

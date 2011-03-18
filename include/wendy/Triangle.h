@@ -47,12 +47,12 @@ class Triangle2
 {
 public:
   Triangle2(void);
-  Triangle2(const Vec2& P0, const Vec2& P1, const Vec2& P2);
-  Vec2 center(void) const;
-  bool contains(const Vec2& point) const;
-  void set(const Vec2& P0, const Vec2& P1, const Vec2& P2);
+  Triangle2(const vec2& P0, const vec2& P1, const vec2& P2);
+  vec2 center(void) const;
+  bool contains(const vec2& point) const;
+  void set(const vec2& P0, const vec2& P1, const vec2& P2);
   void setDefaults(void);
-  Vec2 P[3];
+  vec2 P[3];
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -63,14 +63,13 @@ class Triangle3
 {
 public:
   Triangle3(void);
-  Triangle3(const Vec3& P0, const Vec3& P1, const Vec3& P2);
-  Vec3 center(void) const;
+  Triangle3(const vec3& P0, const vec3& P1, const vec3& P2);
+  vec3 center(void) const;
   bool intersects(const Plane& plane) const;
   bool intersects(const Ray3& ray, float& distance) const;
-  bool intersects(const Ray3& ray, float& distance, Vec3& normal, bool& inside) const;
-  void set(const Vec3& P0, const Vec3& P1, const Vec3& P2);
-  void setDefaults(void);
-  Vec3 P[3];
+  bool intersects(const Ray3& ray, float& distance, vec3& normal, bool& inside) const;
+  void set(const vec3& P0, const vec3& P1, const vec3& P2);
+  vec3 P[3];
 };
 
 ///////////////////////////////////////////////////////////////////////

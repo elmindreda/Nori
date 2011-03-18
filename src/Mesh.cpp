@@ -26,7 +26,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/Core.h>
-#include <wendy/Vector.h>
 #include <wendy/AABB.h>
 #include <wendy/Sphere.h>
 #include <wendy/Path.h>
@@ -193,10 +192,9 @@ void Mesh::generateTriangleNormals(void)
     {
       MeshTriangle& triangle = geometries[i].triangles[j];
 
-      Vec3 one = vertices[triangle.indices[1]].position - vertices[triangle.indices[0]].position;
-      Vec3 two = vertices[triangle.indices[2]].position - vertices[triangle.indices[0]].position;
-      triangle.normal = one.cross(two);
-      triangle.normal.normalize();
+      vec3 one = vertices[triangle.indices[1]].position - vertices[triangle.indices[0]].position;
+      vec3 two = vertices[triangle.indices[2]].position - vertices[triangle.indices[0]].position;
+      triangle.normal = normalize(cross(one, two));
     }
   }
 }
@@ -241,34 +239,25 @@ void Mesh::generateBounds(AABB& bounds) const
 {
   if (vertices.empty())
   {
-    bounds.center = bounds.size = Vec3::ZERO;
+    bounds.center = bounds.size = vec3(0.f);
     return;
   }
 
   typedef std::numeric_limits<float> limits;
 
-  float minX = limits::max(), minY = limits::max(), minZ = limits::max();
-  float maxX = limits::min(), maxY = limits::min(), maxZ = limits::min();
+  vec3 minimum(limits::max());
+  vec3 maximum(limits::min());
 
   for (unsigned int i = 0;  i < vertices.size();  i++)
   {
-    const Vec3& position = vertices[i].position;
+    const vec3& position = vertices[i].position;
 
-    if (position.x < minX)
-      minX = position.x;
-    if (position.y < minY)
-      minY = position.y;
-    if (position.z < minZ)
-      minZ = position.z;
-    if (position.x > maxX)
-      maxX = position.x;
-    if (position.y > maxY)
-      maxY = position.y;
-    if (position.z > maxZ)
-      maxZ = position.z;
+    minimum = min(minimum, position);
+    maximum = max(maximum, position);
   }
 
-  bounds.setBounds(minX, minY, minZ, maxX, maxY, maxZ);
+  bounds.setBounds(minimum.x, minimum.y, minimum.z,
+                   maximum.x, maximum.y, maximum.z);
 }
 
 void Mesh::generateBounds(Sphere& bounds) const
@@ -277,7 +266,7 @@ void Mesh::generateBounds(Sphere& bounds) const
 
   if (vertices.empty())
   {
-    bounds.center = Vec3::ZERO;
+    bounds.center = vec3(0.f);
     return;
   }
 
@@ -296,14 +285,14 @@ bool Mesh::isValid(void) const
   {
     const MeshVertex& vertex = vertices[i];
 
-    if (!finitef(vertex.position.x) ||
-        !finitef(vertex.position.y) ||
-        !finitef(vertex.position.z) ||
-        !finitef(vertex.normal.x) ||
-        !finitef(vertex.normal.y) ||
-        !finitef(vertex.normal.z) ||
-        !finitef(vertex.texcoord.x) ||
-        !finitef(vertex.texcoord.y))
+    if (!isinf(vertex.position.x) ||
+        !isinf(vertex.position.y) ||
+        !isinf(vertex.position.z) ||
+        !isinf(vertex.normal.x) ||
+        !isinf(vertex.normal.y) ||
+        !isinf(vertex.normal.z) ||
+        !isinf(vertex.texcoord.x) ||
+        !isinf(vertex.texcoord.y))
     {
       return false;
     }
@@ -320,9 +309,9 @@ bool Mesh::isValid(void) const
     {
       const MeshTriangle& triangle = triangles[j];
 
-      if (!finitef(triangle.normal.x) ||
-          !finitef(triangle.normal.y) ||
-          !finitef(triangle.normal.z))
+      if (!isinf(triangle.normal.x) ||
+          !isinf(triangle.normal.y) ||
+          !isinf(triangle.normal.z))
       {
         return false;
       }
@@ -402,8 +391,8 @@ void VertexMerger::importPositions(const Mesh::VertexList& initVertices)
 }
 
 unsigned int VertexMerger::addAttributeLayer(unsigned int vertexIndex,
-                                             const Vec3& normal,
-                                             const Vec2& texcoord)
+                                             const vec3& normal,
+                                             const vec2& texcoord)
 {
   Vertex& vertex = vertices[vertexIndex];
 
@@ -411,7 +400,7 @@ unsigned int VertexMerger::addAttributeLayer(unsigned int vertexIndex,
   {
     for (Vertex::LayerList::iterator i = vertex.layers.begin();  i != vertex.layers.end();  i++)
     {
-      if (i->normal.dot(normal) > 0.95f && i->texcoord == texcoord)
+      if (dot(i->normal, normal) > 0.95f && i->texcoord == texcoord)
         return i->index;
     }
 
@@ -441,7 +430,7 @@ unsigned int VertexMerger::addAttributeLayer(unsigned int vertexIndex,
       vertex.layers.push_back(VertexLayer());
       VertexLayer& layer = vertex.layers.back();
 
-      layer.normal = Vec3::ZERO;
+      layer.normal = vec3(0.f);
       layer.normal += vertex.layers.front().normal;
       layer.texcoord = texcoord;
       layer.index = targetCount++;
@@ -500,9 +489,9 @@ Ref<Mesh> MeshReader::read(const Path& path)
 
   String line;
 
-  std::vector<Vec3> positions;
-  std::vector<Vec3> normals;
-  std::vector<Vec2> texcoords;
+  std::vector<vec3> positions;
+  std::vector<vec3> normals;
+  std::vector<vec2> texcoords;
 
   FaceGroupList groups;
   FaceGroup* group = NULL;
@@ -530,7 +519,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
     }
     else if (command == "v")
     {
-      Vec3 vertex;
+      vec3 vertex;
 
       vertex.x = parseFloat(&text);
       vertex.y = parseFloat(&text);
@@ -539,7 +528,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
     }
     else if (command == "vt")
     {
-      Vec2 texcoord;
+      vec2 texcoord;
 
       texcoord.x = parseFloat(&text);
       texcoord.y = parseFloat(&text);
@@ -547,7 +536,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
     }
     else if (command == "vn")
     {
-      Vec3 normal;
+      vec3 normal;
 
       normal.x = parseFloat(&text);
       normal.y = parseFloat(&text);
@@ -660,11 +649,11 @@ Ref<Mesh> MeshReader::read(const Path& path)
       {
         const Triplet& point = face.p[j];
 
-        Vec3 normal = Vec3::ZERO;
+        vec3 normal;
         if (point.normal)
           normal = normals[point.normal - 1];
 
-        Vec2 texcoord = Vec2::ZERO;
+        vec2 texcoord;
         if (point.texcoord)
           texcoord = texcoords[point.texcoord - 1];
 

@@ -40,17 +40,17 @@ class Transform2
 {
 public:
   Transform2(void);
-  Transform2(const Vec2& position, float angle);
+  Transform2(const vec2& position, float angle);
   void invert(void);
-  void rotateVector(Vec2& vector) const;
-  void translateVector(Vec2& vector) const;
-  void transformVector(Vec2& vector) const;
-  operator Mat3 (void) const;
+  void rotateVector(vec2& vector) const;
+  void translateVector(vec2& vector) const;
+  void transformVector(vec2& vector) const;
+  operator mat3 (void) const;
   Transform2 operator * (const Transform2& other) const;
   Transform2& operator *= (const Transform2& other);
   void setIdentity(void);
-  void set(const Vec2& newPosition, float newAngle);
-  Vec2 position;
+  void set(const vec2& newPosition, float newAngle);
+  vec2 position;
   float angle;
   static Transform2 IDENTITY;
 };
@@ -61,18 +61,18 @@ class Transform3
 {
 public:
   Transform3(void);
-  Transform3(const Vec3& position, const Quat& rotation);
+  Transform3(const vec3& position, const quat& rotation);
   void invert(void);
-  void rotateVector(Vec3& vector) const;
-  void translateVector(Vec3& vector) const;
-  void transformVector(Vec3& vector) const;
-  operator Mat4 (void) const;
+  void rotateVector(vec3& vector) const;
+  void translateVector(vec3& vector) const;
+  void transformVector(vec3& vector) const;
+  operator mat4 (void) const;
   Transform3 operator * (const Transform3& other) const;
   Transform3& operator *= (const Transform3& other);
   void setIdentity(void);
-  void set(const Vec3& newPosition, const Quat& newRotation);
-  Vec3 position;
-  Quat rotation;
+  void set(const vec3& newPosition, const quat& newRotation);
+  vec3 position;
+  quat rotation;
   static Transform3 IDENTITY;
 };
 

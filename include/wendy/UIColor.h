@@ -39,13 +39,13 @@ class ColorPickerRGB : public Widget
 {
 public:
   ColorPickerRGB(Desktop& desktop);
-  const ColorRGB& getValue(void) const;
-  void setValue(const ColorRGB& newValue);
+  const vec3& getValue(void) const;
+  void setValue(const vec3& newValue);
   SignalProxy1<void, ColorPickerRGB&> getValueChangedSignal(void);
 private:
   void draw(void) const;
   void onValueChanged(Slider& slider);
-  ColorRGB value;
+  vec3 value;
   Slider* sliders[3];
   Signal1<void, ColorPickerRGB&> valueChangedSignal;
 };

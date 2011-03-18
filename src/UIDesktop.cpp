@@ -77,7 +77,7 @@ void Desktop::destroyRootWidgets(void)
     delete roots.back();
 }
 
-Widget* Desktop::findWidgetByPoint(const Vec2& point)
+Widget* Desktop::findWidgetByPoint(const vec2& point)
 {
   for (WidgetList::reverse_iterator r = roots.rbegin();  r != roots.rend();  r++)
   {
@@ -96,10 +96,10 @@ void Desktop::cancelDragging(void)
 {
   if (dragging && draggedWidget)
   {
-    Vec2i cursorPosition = context.getCursorPosition();
+    ivec2 cursorPosition = context.getCursorPosition();
     cursorPosition.y = context.getHeight() - cursorPosition.y;
 
-    const Vec2 scaledPosition((float) cursorPosition.x,
+    const vec2 scaledPosition((float) cursorPosition.x,
                               (float) cursorPosition.y);
 
     draggedWidget->dragEndedSignal.emit(*draggedWidget, scaledPosition);
@@ -159,10 +159,10 @@ void Desktop::setActiveWidget(Widget* widget)
 
 void Desktop::updateHoveredWidget(void)
 {
-  Vec2i cursorPosition = context.getCursorPosition();
+  ivec2 cursorPosition = context.getCursorPosition();
   cursorPosition.y = context.getHeight() - cursorPosition.y;
 
-  const Vec2 scaledPosition((float) cursorPosition.x,
+  const vec2 scaledPosition((float) cursorPosition.x,
                             (float) cursorPosition.y);
 
   Widget* newWidget = findWidgetByPoint(scaledPosition);
@@ -217,14 +217,14 @@ void Desktop::onCharInput(wchar_t character)
     activeWidget->charInputSignal.emit(*activeWidget, character);
 }
 
-void Desktop::onCursorMoved(const Vec2i& position)
+void Desktop::onCursorMoved(const ivec2& position)
 {
   updateHoveredWidget();
 
-  Vec2i cursorPosition = context.getCursorPosition();
+  ivec2 cursorPosition = context.getCursorPosition();
   cursorPosition.y = context.getHeight() - cursorPosition.y;
 
-  const Vec2 scaledPosition((float) cursorPosition.x,
+  const vec2 scaledPosition((float) cursorPosition.x,
                             (float) cursorPosition.y);
 
   if (hoveredWidget)
@@ -246,10 +246,10 @@ void Desktop::onCursorMoved(const Vec2i& position)
 
 void Desktop::onButtonClicked(input::Button button, bool clicked)
 {
-  Vec2i cursorPosition = context.getCursorPosition();
+  ivec2 cursorPosition = context.getCursorPosition();
   cursorPosition.y = context.getHeight() - cursorPosition.y;
 
-  const Vec2 scaledPosition((float) cursorPosition.x,
+  const vec2 scaledPosition((float) cursorPosition.x,
                             (float) cursorPosition.y);
 
   if (clicked)

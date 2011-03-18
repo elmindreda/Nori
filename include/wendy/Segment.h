@@ -72,8 +72,8 @@ inline void Segment<T>::set(const T& newStart, const T& newEnd)
 
 ///////////////////////////////////////////////////////////////////////
 
-typedef Segment<Vec2> Segment2;
-typedef Segment<Vec3> Segment3;
+typedef Segment<vec2> Segment2;
+typedef Segment<vec3> Segment3;
 
 ///////////////////////////////////////////////////////////////////////
 

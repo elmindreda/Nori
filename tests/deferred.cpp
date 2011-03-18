@@ -3,6 +3,8 @@
 
 #include <cstdlib>
 
+#include <glm/gtx/quaternion.hpp>
+
 using namespace wendy;
 
 class Demo : public Trackable
@@ -70,16 +72,16 @@ bool Demo::init(void)
   graph.addRootNode(*rootNode);
 
   RandomRange angle(0.f, (float) M_PI * 2.f);
-  RandomVolume axis(Vec3(-1.f, -1.f, -1.f), Vec3(1.f, 1.f, 1.f));
-  RandomVolume position(Vec3(-20.f, -2.f, -20.f), Vec3(20.f, 2.f, 20.f));
+  RandomVolume axis(vec3(-1.f), vec3(1.f));
+  RandomVolume position(vec3(-20.f, -2.f, -20.f), vec3(20.f, 2.f, 20.f));
 
   for (size_t i = 0;  i < 200;  i++)
   {
     scene::ModelNode* modelNode = new scene::ModelNode();
     modelNode->setModel(model);
     modelNode->getLocalTransform().position = position.generate();
-    modelNode->getLocalTransform().rotation.setAxisRotation(axis.generate().normalized(),
-                                                            angle.generate());
+    modelNode->getLocalTransform().rotation = angleAxis(degrees(angle.generate()),
+                                                        normalize(axis.generate()));
     rootNode->addChild(*modelNode);
   }
 
@@ -97,21 +99,21 @@ bool Demo::init(void)
 
   light = new render::Light();
   light->setType(render::Light::POINT);
-  light->setColor(ColorRGB(1.f, 0.3f, 0.3f));
+  light->setColor(vec3(1.f, 0.3f, 0.3f));
   light->setRadius(10.f);
 
   lightNode = new scene::LightNode();
-  lightNode->getLocalTransform().position.set(-5.f, 4.f, 0.f);
+  lightNode->getLocalTransform().position = vec3(-5.f, 4.f, 0.f);
   lightNode->setLight(light);
   graph.addRootNode(*lightNode);
 
   light = new render::Light();
   light->setType(render::Light::POINT);
-  light->setColor(ColorRGB(0.7f, 0.2f, 0.8f));
+  light->setColor(vec3(0.7f, 0.2f, 0.8f));
   light->setRadius(10.f);
 
   lightNode = new scene::LightNode();
-  lightNode->getLocalTransform().position.set(5.f, 4.f, 0.f);
+  lightNode->getLocalTransform().position = vec3(5.f, 4.f, 0.f);
   lightNode->setLight(light);
   graph.addRootNode(*lightNode);
 
@@ -131,15 +133,14 @@ void Demo::run(void)
   {
     currentTime = timer.getTime();
 
-    rootNode->getLocalTransform().rotation.setAxisRotation(Vec3(0.f, 1.f, 0.f),
-							   (float) currentTime);
+    rootNode->getLocalTransform().rotation = angleAxis(degrees(float(currentTime)), vec3(0.f, 1.f, 0.f));
     cameraNode->getLocalTransform() = controller.getTransform();
 
     graph.update();
     graph.enqueue(scene, *camera);
 
     context.clearDepthBuffer();
-    context.clearColorBuffer(ColorRGBA::BLACK);
+    context.clearColorBuffer();
 
     renderer->render(scene, *camera);
 

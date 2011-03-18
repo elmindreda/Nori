@@ -41,19 +41,19 @@ class Sphere
 {
 public:
   Sphere(void);
-  Sphere(const Vec3& center, float radius);
+  Sphere(const vec3& center, float radius);
   void transformBy(const Transform3& transform);
-  bool contains(const Vec3& point) const;
+  bool contains(const vec3& point) const;
   bool contains(const Sphere& sphere) const;
   bool intersects(const Sphere& sphere) const;
   bool intersects(const Plane& plane, float& distance) const;
   bool intersects(const Ray3& ray, float& distance) const;
-  bool intersects(const Ray3& ray, float& distance, Vec3& normal, bool& inside) const;
-  void envelop(const Vec3& point);
+  bool intersects(const Ray3& ray, float& distance, vec3& normal, bool& inside) const;
+  void envelop(const vec3& point);
   void envelop(const Sphere& sphere);
-  void set(const Vec3& newCenter, float newRadius);
+  void set(const vec3& newCenter, float newRadius);
   void setDefaults(void);
-  Vec3 center;
+  vec3 center;
   float radius;
 };
 

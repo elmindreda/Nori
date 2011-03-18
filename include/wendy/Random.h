@@ -46,10 +46,8 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 typedef Random<float> RandomRange;
-typedef Random<Vec2> RandomArea;
-typedef Random<Vec3> RandomVolume;
-typedef Random<ColorRGB> RandomRGB;
-typedef Random<ColorRGBA> RandomRGBA;
+typedef Random<vec2> RandomArea;
+typedef Random<vec3> RandomVolume;
 
 ///////////////////////////////////////////////////////////////////////
 

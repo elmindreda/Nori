@@ -59,12 +59,12 @@ ColorPickerRGB::ColorPickerRGB(Desktop& desktop):
   // TODO: Set size.
 }
 
-const ColorRGB& ColorPickerRGB::getValue(void) const
+const vec3& ColorPickerRGB::getValue(void) const
 {
   return value;
 }
 
-void ColorPickerRGB::setValue(const ColorRGB& newValue)
+void ColorPickerRGB::setValue(const vec3& newValue)
 {
   value = newValue;
 }

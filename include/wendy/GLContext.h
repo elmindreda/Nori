@@ -27,11 +27,9 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.h>
-#include <wendy/Color.h>
-#include <wendy/Vector.h>
-#include <wendy/Matrix.h>
 #include <wendy/Plane.h>
 #include <wendy/Rectangle.h>
+#include <wendy/AABB.h>
 #include <wendy/Pixel.h>
 #include <wendy/Signal.h>
 #include <wendy/Timer.h>
@@ -395,25 +393,25 @@ public:
   virtual ~SharedProgramState(void);
   /*! @return The current model matrix.
    */
-  const Mat4& getModelMatrix(void) const;
+  const mat4& getModelMatrix(void) const;
   /*! @return The current view matrix.
    */
-  const Mat4& getViewMatrix(void) const;
+  const mat4& getViewMatrix(void) const;
   /*! @return The current projection matrix.
    */
-  const Mat4& getProjectionMatrix(void) const;
+  const mat4& getProjectionMatrix(void) const;
   /*! Sets the model matrix.
    *  @param[in] newMatrix The desired model matrix.
    */
-  virtual void setModelMatrix(const Mat4& newMatrix);
+  virtual void setModelMatrix(const mat4& newMatrix);
   /*! Sets the view matrix.
    *  @param[in] newMatrix The desired view matrix.
    */
-  virtual void setViewMatrix(const Mat4& newMatrix);
+  virtual void setViewMatrix(const mat4& newMatrix);
   /*! Sets the projection matrix.
    *  @param[in] newMatrix The desired projection matrix.
    */
-  virtual void setProjectionMatrix(const Mat4& newMatrix);
+  virtual void setProjectionMatrix(const mat4& newMatrix);
   /*! Sets an orthographic projection matrix as ([0..width], [0..height],
    *  [-1, * 1]).
    *  @param[in] width The desired width of the clipspace volume.
@@ -439,12 +437,12 @@ protected:
   virtual void updateTo(Uniform& uniform);
   virtual void updateTo(Sampler& uniform);
 private:
-  Mat4 modelMatrix;
-  Mat4 viewMatrix;
-  Mat4 projectionMatrix;
-  Mat4 modelViewMatrix;
-  Mat4 viewProjMatrix;
-  Mat4 modelViewProjMatrix;
+  mat4 modelMatrix;
+  mat4 viewMatrix;
+  mat4 projectionMatrix;
+  mat4 modelViewMatrix;
+  mat4 viewProjMatrix;
+  mat4 modelViewProjMatrix;
   bool dirtyModelView;
   bool dirtyViewProj;
   bool dirtyModelViewProj;
@@ -506,7 +504,7 @@ public:
   /*! Clears the current color buffer with the specified color.
    *  @param[in] color The color value to clear the color buffer with.
    */
-  void clearColorBuffer(const ColorRGBA& color = ColorRGBA::BLACK);
+  void clearColorBuffer(const vec4& color = vec4(0.f));
   /*! Clears the current depth buffer with the specified depth value.
    *  @param[in] depth The depth value to clear the depth buffer with.
    */

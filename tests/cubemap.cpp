@@ -3,6 +3,8 @@
 
 #include <cstdlib>
 
+#include <glm/gtx/quaternion.hpp>
+
 using namespace wendy;
 
 class Test : public Trackable
@@ -67,16 +69,16 @@ bool Test::init(void)
   }
 
   RandomRange angle(0.f, (float) M_PI * 2.f);
-  RandomVolume axis(Vec3(-1.f, -1.f, -1.f), Vec3(1.f, 1.f, 1.f));
-  RandomVolume position(Vec3(-2.f, -2.f, -2.f), Vec3(2.f, 2.f, 2.f));
+  RandomVolume axis(vec3(-1.f), vec3(1.f));
+  RandomVolume position(vec3(-2.f), vec3(2.f));
 
   for (size_t i = 0;  i < 20;  i++)
   {
     scene::ModelNode* modelNode = new scene::ModelNode();
     modelNode->setModel(model);
     modelNode->getLocalTransform().position = position.generate();
-    modelNode->getLocalTransform().rotation.setAxisRotation(axis.generate().normalized(),
-                                                            angle.generate());
+    modelNode->getLocalTransform().rotation = angleAxis(degrees(angle.generate()),
+                                                        normalize(axis.generate()));
     graph.addRootNode(*modelNode);
   }
 
@@ -102,7 +104,7 @@ void Test::run(void)
     graph.update();
 
     context.clearDepthBuffer();
-    context.clearColorBuffer(ColorRGBA::BLACK);
+    context.clearColorBuffer();
 
     graph.enqueue(scene, *camera);
     renderer->render(scene, *camera);

@@ -57,7 +57,7 @@ bool Renderer::pushClipArea(const Rect& area)
 
   GL::Canvas& canvas = context.getCurrentCanvas();
 
-  Vec2 scale;
+  vec2 scale;
   scale.x = 1.f / canvas.getWidth();
   scale.y = 1.f / canvas.getHeight();
 
@@ -83,7 +83,7 @@ void Renderer::popClipArea(void)
   context.setScissorArea(clipAreaStack.getTotal());
 }
 
-void Renderer::drawPoint(const Vec2& point, const ColorRGBA& color)
+void Renderer::drawPoint(const vec2& point, const vec4& color)
 {
   Vertex2fv vertex;
   vertex.position = point;
@@ -99,7 +99,7 @@ void Renderer::drawPoint(const Vec2& point, const ColorRGBA& color)
   pool.getContext().render(GL::PrimitiveRange(GL::POINT_LIST, range));
 }
 
-void Renderer::drawLine(const Segment2& segment, const ColorRGBA& color)
+void Renderer::drawLine(const Segment2& segment, const vec4& color)
 {
   Vertex2fv vertices[2];
   vertices[0].position = segment.start;
@@ -116,7 +116,7 @@ void Renderer::drawLine(const Segment2& segment, const ColorRGBA& color)
   pool.getContext().render(GL::PrimitiveRange(GL::LINE_LIST, range));
 }
 
-void Renderer::drawTriangle(const Triangle2& triangle, const ColorRGBA& color)
+void Renderer::drawTriangle(const Triangle2& triangle, const vec4& color)
 {
   Vertex2fv vertices[3];
   vertices[0].position = triangle.P[0];
@@ -134,7 +134,7 @@ void Renderer::drawTriangle(const Triangle2& triangle, const ColorRGBA& color)
   pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
 }
 
-void Renderer::drawBezier(const BezierCurve2& spline, const ColorRGBA& color)
+void Renderer::drawBezier(const BezierCurve2& spline, const vec4& color)
 {
   BezierCurve2::PointList points;
   spline.tessellate(points);
@@ -156,7 +156,7 @@ void Renderer::drawBezier(const BezierCurve2& spline, const ColorRGBA& color)
   pool.getContext().render(GL::PrimitiveRange(GL::LINE_STRIP, range));
 }
 
-void Renderer::drawRectangle(const Rect& rectangle, const ColorRGBA& color)
+void Renderer::drawRectangle(const Rect& rectangle, const vec4& color)
 {
   float minX, minY, maxX, maxY;
   rectangle.getBounds(minX, minY, maxX, maxY);
@@ -168,10 +168,10 @@ void Renderer::drawRectangle(const Rect& rectangle, const ColorRGBA& color)
   maxY -= 1.f;
 
   Vertex2fv vertices[4];
-  vertices[0].position.set(minX, minY);
-  vertices[1].position.set(maxX, minY);
-  vertices[2].position.set(maxX, maxY);
-  vertices[3].position.set(minX, maxY);
+  vertices[0].position = vec2(minX, minY);
+  vertices[1].position = vec2(maxX, minY);
+  vertices[2].position = vec2(maxX, maxY);
+  vertices[3].position = vec2(minX, maxY);
 
   GL::VertexRange range;
   if (!pool.allocateVertices(range, 4, Vertex2fv::format))
@@ -184,7 +184,7 @@ void Renderer::drawRectangle(const Rect& rectangle, const ColorRGBA& color)
   pool.getContext().render(GL::PrimitiveRange(GL::LINE_LOOP, range));
 }
 
-void Renderer::fillTriangle(const Triangle2& triangle, const ColorRGBA& color)
+void Renderer::fillTriangle(const Triangle2& triangle, const vec4& color)
 {
   Vertex2fv vertices[3];
   vertices[0].position = triangle.P[0];
@@ -202,7 +202,7 @@ void Renderer::fillTriangle(const Triangle2& triangle, const ColorRGBA& color)
   pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
 }
 
-void Renderer::fillRectangle(const Rect& rectangle, const ColorRGBA& color)
+void Renderer::fillRectangle(const Rect& rectangle, const vec4& color)
 {
   float minX, minY, maxX, maxY;
   rectangle.getBounds(minX, minY, maxX, maxY);
@@ -214,10 +214,10 @@ void Renderer::fillRectangle(const Rect& rectangle, const ColorRGBA& color)
   maxY -= 1.f;
 
   Vertex2fv vertices[4];
-  vertices[0].position.set(minX, minY);
-  vertices[1].position.set(maxX, minY);
-  vertices[2].position.set(maxX, maxY);
-  vertices[3].position.set(minX, maxY);
+  vertices[0].position = vec2(minX, minY);
+  vertices[1].position = vec2(maxX, minY);
+  vertices[2].position = vec2(maxX, maxY);
+  vertices[3].position = vec2(minX, maxY);
 
   GL::VertexRange range;
   if (!pool.allocateVertices(range, 4, Vertex2fv::format))
@@ -242,14 +242,14 @@ void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
   maxY -= 1.f;
 
   Vertex2ft2fv vertices[4];
-  vertices[0].mapping.set(0.f, 0.f);
-  vertices[0].position.set(minX, minY);
-  vertices[1].mapping.set(1.f, 0.f);
-  vertices[1].position.set(maxX, minY);
-  vertices[2].mapping.set(1.f, 1.f);
-  vertices[2].position.set(maxX, maxY);
-  vertices[3].mapping.set(0.f, 1.f);
-  vertices[3].position.set(minX, maxY);
+  vertices[0].mapping = vec2(0.f, 0.f);
+  vertices[0].position = vec2(minX, minY);
+  vertices[1].mapping = vec2(1.f, 0.f);
+  vertices[1].position = vec2(maxX, minY);
+  vertices[2].mapping = vec2(1.f, 1.f);
+  vertices[2].position = vec2(maxX, maxY);
+  vertices[3].mapping = vec2(0.f, 1.f);
+  vertices[3].position = vec2(minX, maxY);
 
   GL::VertexRange range;
   if (!pool.allocateVertices(range, 4, Vertex2ft2fv::format))
@@ -273,14 +273,14 @@ void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
 void Renderer::drawText(const Rect& area,
                         const String& text,
 		        const Alignment& alignment,
-		        const ColorRGB& color)
+		        const vec3& color)
 {
   if (text.empty())
     return;
 
   Rect metrics = currentFont->getTextMetrics(text);
 
-  Vec2 penPosition(0.f, 0.f);
+  vec2 penPosition;
 
   switch (alignment.horizontal)
   {
@@ -316,7 +316,7 @@ void Renderer::drawText(const Rect& area,
       return;
   }
 
-  currentFont->drawText(penPosition, ColorRGBA(color, 1.f), text);
+  currentFont->drawText(penPosition, vec4(color, 1.f), text);
 }
 
 void Renderer::drawText(const Rect& area,
@@ -350,7 +350,7 @@ void Renderer::drawText(const Rect& area,
 
 void Renderer::drawWell(const Rect& area, WidgetState state)
 {
-  ColorRGB fillColor;
+  vec3 fillColor;
 
   switch (state)
   {
@@ -365,13 +365,13 @@ void Renderer::drawWell(const Rect& area, WidgetState state)
       break;
   }
 
-  fillRectangle(area, fillColor);
-  drawRectangle(area, ColorRGBA::BLACK);
+  fillRectangle(area, vec4(fillColor, 1.f));
+  drawRectangle(area, vec4(vec3(0.f), 1.f));
 }
 
 void Renderer::drawFrame(const Rect& area, WidgetState state)
 {
-  ColorRGB fillColor;
+  vec3 fillColor;
 
   switch (state)
   {
@@ -386,8 +386,8 @@ void Renderer::drawFrame(const Rect& area, WidgetState state)
       break;
   }
 
-  fillRectangle(area, fillColor);
-  drawRectangle(area, ColorRGBA::BLACK);
+  fillRectangle(area, vec4(fillColor, 1.f));
+  drawRectangle(area, vec4(vec3(0.f), 1.f));
 }
 
 void Renderer::drawHandle(const Rect& area, WidgetState state)
@@ -403,52 +403,52 @@ void Renderer::drawButton(const Rect& area, WidgetState state, const String& tex
     drawText(area, text);
 }
 
-const ColorRGB& Renderer::getWidgetColor(void)
+const vec3& Renderer::getWidgetColor(void)
 {
   return widgetColor;
 }
 
-void Renderer::setWidgetColor(const ColorRGB& newColor)
+void Renderer::setWidgetColor(const vec3& newColor)
 {
   widgetColor = newColor;
 }
 
-const ColorRGB& Renderer::getTextColor(void)
+const vec3& Renderer::getTextColor(void)
 {
   return textColor;
 }
 
-void Renderer::setTextColor(const ColorRGB& newColor)
+void Renderer::setTextColor(const vec3& newColor)
 {
   textColor = newColor;
 }
 
-const ColorRGB& Renderer::getWellColor(void)
+const vec3& Renderer::getWellColor(void)
 {
   return wellColor;
 }
 
-void Renderer::setWellColor(const ColorRGB& newColor)
+void Renderer::setWellColor(const vec3& newColor)
 {
   wellColor = newColor;
 }
 
-const ColorRGB& Renderer::getSelectionColor(void)
+const vec3& Renderer::getSelectionColor(void)
 {
   return selectionColor;
 }
 
-void Renderer::setSelectionColor(const ColorRGB& newColor)
+void Renderer::setSelectionColor(const vec3& newColor)
 {
   selectionColor = newColor;
 }
 
-const ColorRGB& Renderer::getSelectedTextColor(void)
+const vec3& Renderer::getSelectedTextColor(void)
 {
   return selectedTextColor;
 }
 
-void Renderer::setSelectedTextColor(const ColorRGB& newColor)
+void Renderer::setSelectedTextColor(const vec3& newColor)
 {
   selectedTextColor = newColor;
 }
@@ -502,11 +502,11 @@ Renderer::Renderer(render::GeometryPool& initPool):
 
 bool Renderer::init(void)
 {
-  widgetColor.set(0.7f, 0.7f, 0.7f);
-  textColor = ColorRGB::BLACK;
+  widgetColor = vec3(0.7f);
+  textColor = vec3(0.f);
   wellColor = widgetColor * 1.2f;
-  selectionColor.set(0.3f, 0.3f, 0.3f);
-  selectedTextColor = ColorRGB::WHITE;
+  selectionColor = vec3(0.3f);
+  selectedTextColor = vec3(1.f);
 
   clipAreaStack.push(Rect(0.f, 0.f, 1.f, 1.f));
 
@@ -587,7 +587,7 @@ bool Renderer::init(void)
   return true;
 }
 
-void Renderer::setDrawingState(const ColorRGBA& color, bool wireframe)
+void Renderer::setDrawingState(const vec4& color, bool wireframe)
 {
   drawPass.setUniformState("color", color);
 

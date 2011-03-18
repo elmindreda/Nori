@@ -27,8 +27,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.h>
-#include <wendy/Vector.h>
-#include <wendy/Quaternion.h>
 #include <wendy/Transform.h>
 #include <wendy/Signal.h>
 
@@ -105,7 +103,7 @@ public:
   virtual void onKeyPressed(Key key, bool pressed);
   virtual void onCharInput(wchar_t character);
   virtual void onButtonClicked(Button button, bool clicked);
-  virtual void onCursorMoved(const Vec2i& position);
+  virtual void onCursorMoved(const ivec2& position);
   virtual void onWheelTurned(int offset);
   virtual void onFocusChanged(bool activated);
 };
@@ -142,11 +140,11 @@ public:
   unsigned int getHeight(void) const;
   /*! @return The current mouse position.
    */
-  const Vec2i& getCursorPosition(void) const;
+  const ivec2& getCursorPosition(void) const;
   /*! Places the the mouse cursor at the specified position.
    *  @param[in] newPosition The desired mouse position.
    */
-  void setCursorPosition(const Vec2i& newPosition);
+  void setCursorPosition(const ivec2& newPosition);
   /*! @return The signal for context resizing.
    */
   SignalProxy2<void, unsigned int, unsigned int> getResizedSignal(void);
@@ -161,7 +159,7 @@ public:
   SignalProxy2<void, Button, bool> getButtonClickedSignal(void);
   /*! @return The signal for mouse cursor movement events.
    */
-  SignalProxy1<void, const Vec2i&> getCursorMovedSignal(void);
+  SignalProxy1<void, const ivec2&> getCursorMovedSignal(void);
   /*! @return The signal for mouse wheel events.
     */
   SignalProxy1<void, int> getWheelTurnedSignal(void);
@@ -185,13 +183,13 @@ private:
   Signal2<void, Key, bool> keyPressedSignal;
   Signal1<void, wchar_t> charInputSignal;
   Signal2<void, Button, bool> buttonClickedSignal;
-  Signal1<void, const Vec2i&> cursorMovedSignal;
+  Signal1<void, const ivec2&> cursorMovedSignal;
   Signal1<void, int> wheelTurnedSignal;
   GL::Context& context;
   int wheelPosition;
   Focus* currentFocus;
   bool cursorCaptured;
-  mutable Vec2i cursorPosition;
+  mutable ivec2 cursorPosition;
   static Context* instance;
 };
 
@@ -205,7 +203,7 @@ public:
   MayaCamera(void);
   void onKeyPressed(Key key, bool pressed);
   void onButtonClicked(Button button, bool clicked);
-  void onCursorMoved(const Vec2i& position);
+  void onCursorMoved(const ivec2& position);
   void onWheelTurned(int offset);
   void onFocusChanged(bool activated);
   const Transform3& getTransform(void) const;
@@ -219,8 +217,8 @@ private:
   };
   void updateTransform(void);
   Transform3 transform;
-  Vec2i lastPosition;
-  Vec3 target;
+  ivec2 lastPosition;
+  vec3 target;
   float angleX;
   float angleY;
   float distance;
@@ -238,7 +236,7 @@ public:
   void update(Time deltaTime);
   void onKeyPressed(Key key, bool pressed);
   void onButtonClicked(Button button, bool clicked);
-  void onCursorMoved(const Vec2i& position);
+  void onCursorMoved(const ivec2& position);
   void onFocusChanged(bool activated);
   const Transform3& getTransform(void) const;
   float getSpeed(void) const;
@@ -255,7 +253,7 @@ private:
   };
   void updateTransform(void);
   Transform3 transform;
-  Vec2i lastPosition;
+  ivec2 lastPosition;
   float angleX;
   float angleY;
   float speed;

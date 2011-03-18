@@ -26,7 +26,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/Core.h>
-#include <wendy/Color.h>
 
 #include <wendy/RenderLight.h>
 
@@ -44,8 +43,7 @@ namespace wendy
 Light::Light(void):
   type(DIRECTIONAL),
   radius(10.f),
-  color(ColorRGB::WHITE),
-  position(Vec3::ZERO),
+  color(1.f),
   direction(0.f, 0.f, -1.f)
 {
 }
@@ -70,42 +68,37 @@ void Light::setRadius(float newRadius)
   radius = newRadius;
 }
 
-const ColorRGB& Light::getColor(void) const
+const vec3& Light::getColor(void) const
 {
   return color;
 }
 
-void Light::setColor(const ColorRGB& newColor)
+void Light::setColor(const vec3& newColor)
 {
   color = newColor;
 }
 
-const Vec3& Light::getPosition(void) const
+const vec3& Light::getPosition(void) const
 {
   return position;
 }
 
-void Light::setPosition(const Vec3& newPosition)
+void Light::setPosition(const vec3& newPosition)
 {
   position = newPosition;
 }
 
-const Vec3& Light::getDirection(void) const
+const vec3& Light::getDirection(void) const
 {
   return direction;
 }
 
-void Light::setDirection(const Vec3& newDirection)
+void Light::setDirection(const vec3& newDirection)
 {
   direction = newDirection;
 }
 
 ///////////////////////////////////////////////////////////////////////
-
-LightState::LightState(void):
-  ambient(ColorRGB::BLACK)
-{
-}
 
 void LightState::attachLight(Light& light)
 {
@@ -138,12 +131,12 @@ Light& LightState::getLight(unsigned int index) const
   return *lights[index];
 }
 
-const ColorRGB& LightState::getAmbientIntensity(void) const
+const vec3& LightState::getAmbientIntensity(void) const
 {
   return ambient;
 }
 
-void LightState::setAmbientIntensity(const ColorRGB& newIntensity)
+void LightState::setAmbientIntensity(const vec3& newIntensity)
 {
   ambient = newIntensity;
 }

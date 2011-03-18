@@ -258,14 +258,14 @@ void List::onAreaChanged(Widget& widget)
 }
 
 void List::onButtonClicked(Widget& widget,
-			   const Vec2& position,
+			   const vec2& position,
 			   input::Button button,
 			   bool clicked)
 {
   if (!clicked || button != input::Button::LEFT)
     return;
 
-  Vec2 localPosition = transformToLocal(position);
+  vec2 localPosition = transformToLocal(position);
 
   const float height = getArea().size.y;
   float itemTop = height;

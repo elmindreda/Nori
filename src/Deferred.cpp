@@ -46,9 +46,9 @@ namespace
 
 struct LightVertex
 {
-  Vec2 position;
-  Vec2 mapping;
-  Vec2 clipOverF;
+  vec2 position;
+  vec2 mapping;
+  vec2 clipOverF;
   static VertexFormat format;
 };
 
@@ -75,7 +75,7 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
 
   context.setCurrentCanvas(*canvas);
   context.clearDepthBuffer();
-  context.clearColorBuffer(ColorRGBA::BLACK);
+  context.clearColorBuffer();
 
   state->setViewMatrix(camera.getViewTransform());
   state->setPerspectiveProjectionMatrix(camera.getFOV(),
@@ -89,7 +89,7 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
 
   state->setOrthoProjectionMatrix(1.f, 1.f);
 
-  ColorRGB ambient = scene.getAmbientIntensity();
+  vec3 ambient = scene.getAmbientIntensity();
   if (ambient.r > 0.f || ambient.g > 0.f || ambient.b > 0.f)
     renderAmbientLight(camera, ambient);
 
@@ -359,28 +359,28 @@ void Renderer::renderLightQuad(const render::Camera& camera)
   const float f = tanf(radians / 2.f);
   const float aspect = camera.getAspectRatio();
 
-  vertices[0].mapping.set(0.5f, 0.5f);
-  vertices[0].position.set(0.f, 0.f);
-  vertices[0].clipOverF.set(-f * aspect, -f);
+  vertices[0].mapping = vec2(0.5f, 0.5f);
+  vertices[0].position = vec2(0.f, 0.f);
+  vertices[0].clipOverF = vec2(-f * aspect, -f);
 
-  vertices[1].mapping.set(canvas->getWidth() + 0.5f, 0.5f);
-  vertices[1].position.set(1.f, 0.f);
-  vertices[1].clipOverF.set(f * aspect, -f);
+  vertices[1].mapping = vec2(canvas->getWidth() + 0.5f, 0.5f);
+  vertices[1].position = vec2(1.f, 0.f);
+  vertices[1].clipOverF = vec2(f * aspect, -f);
 
-  vertices[2].mapping.set(canvas->getWidth() + 0.5f, canvas->getHeight() + 0.5f);
-  vertices[2].position.set(1.f, 1.f);
-  vertices[2].clipOverF.set(f * aspect, f);
+  vertices[2].mapping = vec2(canvas->getWidth() + 0.5f, canvas->getHeight() + 0.5f);
+  vertices[2].position = vec2(1.f, 1.f);
+  vertices[2].clipOverF = vec2(f * aspect, f);
 
-  vertices[3].mapping.set(0.5f, canvas->getHeight() + 0.5f);
-  vertices[3].position.set(0.f, 1.f);
-  vertices[3].clipOverF.set(-f * aspect, f);
+  vertices[3].mapping = vec2(0.5f, canvas->getHeight() + 0.5f);
+  vertices[3].position = vec2(0.f, 1.f);
+  vertices[3].clipOverF = vec2(-f * aspect, f);
 
   range.copyFrom(vertices);
 
   pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 }
 
-void Renderer::renderAmbientLight(const render::Camera& camera, const ColorRGB& color)
+void Renderer::renderAmbientLight(const render::Camera& camera, const vec3& color)
 {
   ambientLightPass.setUniformState("light.color", color);
   ambientLightPass.apply();
@@ -398,7 +398,7 @@ void Renderer::renderLight(const render::Camera& camera, const render::Light& li
     pointLightPass.setUniformState("nearZ", nearZ);
     pointLightPass.setUniformState("nearOverFarZminusOne", nearOverFarZminusOne);
 
-    Vec3 position = light.getPosition();
+    vec3 position = light.getPosition();
     camera.getViewTransform().transformVector(position);
     pointLightPass.setUniformState("light.position", position);
 
@@ -412,8 +412,8 @@ void Renderer::renderLight(const render::Camera& camera, const render::Light& li
     dirLightPass.setUniformState("nearZ", nearZ);
     dirLightPass.setUniformState("nearOverFarZminusOne", nearOverFarZminusOne);
 
-    Vec3 direction = light.getDirection();
-    camera.getViewTransform().rotation.rotateVector(direction);
+    vec3 direction = light.getDirection();
+    camera.getViewTransform().rotateVector(direction);
     dirLightPass.setUniformState("light.direction", direction);
 
     dirLightPass.setUniformState("light.color", light.getColor());

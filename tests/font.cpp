@@ -86,11 +86,11 @@ bool Demo::render(void)
 
   const float em = font->getHeight();
 
-  Vec2 pen(100.f, 400.f);
+  vec2 pen(100.f, 400.f);
 
   for (size_t i = 0;  lines[i];  i++)
   {
-    font->drawText(pen, ColorRGBA::WHITE, lines[i]);
+    font->drawText(pen, vec4(1.f), lines[i]);
     pen.y -= em * 1.5f;
   }
 

@@ -78,7 +78,7 @@ void Test::run(void)
   GL::Context& context = pool->getContext();
 
   render::Sprite3 sprite;
-  sprite.size.set(1.f, 1.f);
+  sprite.size = vec2(1.f);
   sprite.material = material;
   sprite.type = render::STATIC_SPRITE;
 
@@ -90,7 +90,7 @@ void Test::run(void)
 
   do
   {
-    context.clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
+    context.clearColorBuffer(vec4(0.2f, 0.2f, 0.2f, 1.f));
     context.clearDepthBuffer();
 
     sprite.angle = timer.getTime();

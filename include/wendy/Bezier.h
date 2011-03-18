@@ -56,8 +56,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-typedef BezierCurve<Vec2> BezierCurve2;
-typedef BezierCurve<Vec3> BezierCurve3;
+typedef BezierCurve<vec2> BezierCurve2;
+typedef BezierCurve<vec3> BezierCurve3;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -76,8 +76,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-typedef BezierPoint<Vec2> BezierPoint2;
-typedef BezierPoint<Vec3> BezierPoint3;
+typedef BezierPoint<vec2> BezierPoint2;
+typedef BezierPoint<vec3> BezierPoint3;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -97,8 +97,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-typedef BezierSpline<Vec2> BezierSpline2;
-typedef BezierSpline<Vec3> BezierSpline3;
+typedef BezierSpline<vec2> BezierSpline2;
+typedef BezierSpline<vec3> BezierSpline3;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -120,11 +120,11 @@ inline void BezierCurve<T>::evaluate(float t, T& result) const
 template <typename T>
 inline float BezierCurve<T>::length(float tolerance) const
 {
-  const float arcLength = (P[1] - P[0]).length() +
-                          (P[2] - P[1]).length() +
-                          (P[3] - P[2]).length();
+  const float arcLength = glm::length(P[1] - P[0]) +
+                          glm::length(P[2] - P[1]) +
+                          glm::length(P[3] - P[2]);
 
-  const float directLength = (P[3] - P[0]).length();
+  const float directLength = glm::length(P[3] - P[0]);
 
   if ((arcLength - directLength) / directLength > tolerance)
   {
@@ -166,11 +166,11 @@ inline void BezierCurve<T>::tessellate(PointList& result, float tolerance) const
   if (result.empty())
     result.push_back(P[0]);
 
-  const float arcLength = (P[1] - P[0]).length() +
-                          (P[2] - P[1]).length() +
-                          (P[3] - P[2]).length();
+  const float arcLength = glm::length(P[1] - P[0]) +
+                          glm::length(P[2] - P[1]) +
+                          glm::length(P[3] - P[2]);
 
-  const float directLength = (P[3] - P[0]).length();
+  const float directLength = glm::length(P[3] - P[0]);
 
   if ((arcLength - directLength) / directLength > tolerance)
   {
@@ -197,21 +197,21 @@ inline void BezierCurve<T>::setDefaults(void)
 }
 
 template <>
-inline void BezierCurve<Vec2>::setDefaults(void)
+inline void BezierCurve<vec2>::setDefaults(void)
 {
-  P[0].set(0.f, 0.f);
-  P[1].set(1.f, 0.f);
-  P[2].set(0.f, 1.f);
-  P[3].set(1.f, 1.f);
+  P[0] = vec2(0.f, 0.f);
+  P[1] = vec2(1.f, 0.f);
+  P[2] = vec2(0.f, 1.f);
+  P[3] = vec2(1.f, 1.f);
 }
 
 template <>
-inline void BezierCurve<Vec3>::setDefaults(void)
+inline void BezierCurve<vec3>::setDefaults(void)
 {
-  P[0].set(0.f, 0.f, 0.f);
-  P[1].set(1.f, 0.f, 0.f);
-  P[2].set(0.f, 1.f, 1.f);
-  P[3].set(1.f, 1.f, 1.f);
+  P[0] = vec3(0.f, 0.f, 0.f);
+  P[1] = vec3(1.f, 0.f, 0.f);
+  P[2] = vec3(0.f, 1.f, 1.f);
+  P[3] = vec3(1.f, 1.f, 1.f);
 }
 
 ///////////////////////////////////////////////////////////////////////

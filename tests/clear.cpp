@@ -44,7 +44,7 @@ int main(void)
 
   do
   {
-    context->clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
+    context->clearColorBuffer(vec4(0.2f, 0.2f, 0.2f, 1.f));
   }
   while (context->update());
 

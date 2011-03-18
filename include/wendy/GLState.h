@@ -27,8 +27,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.h>
-#include <wendy/Vector.h>
-#include <wendy/Color.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -177,23 +175,19 @@ public:
    */
   void apply(void) const;
   void getUniformState(const String& name, float& result) const;
-  void getUniformState(const String& name, Vec2& result) const;
-  void getUniformState(const String& name, Vec3& result) const;
-  void getUniformState(const String& name, Vec4& result) const;
-  void getUniformState(const String& name, ColorRGB& result) const;
-  void getUniformState(const String& name, ColorRGBA& result) const;
-  void getUniformState(const String& name, Mat2& result) const;
-  void getUniformState(const String& name, Mat3& result) const;
-  void getUniformState(const String& name, Mat4& result) const;
+  void getUniformState(const String& name, vec2& result) const;
+  void getUniformState(const String& name, vec3& result) const;
+  void getUniformState(const String& name, vec4& result) const;
+  void getUniformState(const String& name, mat2& result) const;
+  void getUniformState(const String& name, mat3& result) const;
+  void getUniformState(const String& name, mat4& result) const;
   void setUniformState(const String& name, float newValue);
-  void setUniformState(const String& name, const Vec2& newValue);
-  void setUniformState(const String& name, const Vec3& newValue);
-  void setUniformState(const String& name, const Vec4& newValue);
-  void setUniformState(const String& name, const ColorRGB& newValue);
-  void setUniformState(const String& name, const ColorRGBA& newValue);
-  void setUniformState(const String& name, const Mat2& newValue);
-  void setUniformState(const String& name, const Mat3& newValue);
-  void setUniformState(const String& name, const Mat4& newValue);
+  void setUniformState(const String& name, const vec2& newValue);
+  void setUniformState(const String& name, const vec3& newValue);
+  void setUniformState(const String& name, const vec4& newValue);
+  void setUniformState(const String& name, const mat2& newValue);
+  void setUniformState(const String& name, const mat3& newValue);
+  void setUniformState(const String& name, const mat4& newValue);
   Texture* getSamplerState(const String& name) const;
   void setSamplerState(const String& name, Texture* newTexture);
   Program* getProgram(void) const;

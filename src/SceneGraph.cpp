@@ -406,7 +406,7 @@ void LightNode::update(void)
     if (light->getType() == render::Light::DIRECTIONAL ||
         light->getType() == render::Light::SPOTLIGHT)
     {
-      Vec3 direction(0.f, 0.f, -1.f);
+      vec3 direction(0.f, 0.f, -1.f);
       world.rotateVector(direction);
       light->setDirection(direction);
     }
@@ -417,10 +417,10 @@ void LightNode::update(void)
       light->setPosition(world.position);
     }
 
-    setLocalBounds(Sphere(Vec3::ZERO, light->getRadius()));
+    setLocalBounds(Sphere(vec3(0.f), light->getRadius()));
   }
   else
-    setLocalBounds(Sphere(Vec3::ZERO, 0.f));
+    setLocalBounds(Sphere(vec3(0.f), 0.f));
 }
 
 void LightNode::enqueue(render::Scene& scene, const render::Camera& camera) const
@@ -500,7 +500,7 @@ void CameraNode::update(void)
 SpriteNode::SpriteNode(const String& name):
   Node(name)
 {
-  setSpriteSize(Vec2(1.f, 1.f));
+  setSpriteSize(vec2(1.f));
 }
 
 render::Material* SpriteNode::getMaterial(void) const
@@ -513,16 +513,16 @@ void SpriteNode::setMaterial(render::Material* newMaterial)
   material = newMaterial;
 }
 
-const Vec2& SpriteNode::getSpriteSize(void) const
+const vec2& SpriteNode::getSpriteSize(void) const
 {
   return spriteSize;
 }
 
-void SpriteNode::setSpriteSize(const Vec2& newSize)
+void SpriteNode::setSpriteSize(const vec2& newSize)
 {
   spriteSize = newSize;
 
-  setLocalBounds(Sphere(Vec3::ZERO, (newSize / 2.f).length()));
+  setLocalBounds(Sphere(vec3(0.f), length(newSize / 2.f)));
 }
 
 void SpriteNode::enqueue(render::Scene& scene, const render::Camera& camera) const

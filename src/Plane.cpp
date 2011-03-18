@@ -25,9 +25,6 @@
 
 #include <wendy/Config.h>
 #include <wendy/Core.h>
-#include <wendy/Vector.h>
-#include <wendy/Matrix.h>
-#include <wendy/Quaternion.h>
 #include <wendy/Transform.h>
 #include <wendy/Ray.h>
 #include <wendy/Sphere.h>
@@ -46,13 +43,13 @@ Plane::Plane(void):
 {
 }
 
-Plane::Plane(const Vec3& newNormal, float newDistance):
+Plane::Plane(const vec3& newNormal, float newDistance):
   normal(newNormal),
   distance(newDistance)
 {
 }
 
-Plane::Plane(const Vec3& P0, const Vec3& P1, const Vec3& P2)
+Plane::Plane(const vec3& P0, const vec3& P1, const vec3& P2)
 {
   set(P0, P1, P2);
 }
@@ -60,43 +57,43 @@ Plane::Plane(const Vec3& P0, const Vec3& P1, const Vec3& P2)
 void Plane::transformBy(const Transform3& transform)
 {
   transform.rotateVector(normal);
-  distance += normal.dot(transform.position);
+  distance += dot(normal, transform.position);
 }
 
-bool Plane::contains(const Vec3& point) const
+bool Plane::contains(const vec3& point) const
 {
-  return point.dot(normal) < distance;
+  return dot(point, normal) < distance;
 }
 
 bool Plane::contains(const Sphere& sphere) const
 {
-  return sphere.center.dot(normal) + sphere.radius < distance;
+  return dot(sphere.center, normal) + sphere.radius < distance;
 }
 
 bool Plane::intersects(const Ray3& ray, float& distance) const
 {
   // TODO: Use epsilon.
 
-  const float incidence = normal.dot(ray.direction);
+  const float incidence = dot(normal, ray.direction);
   if (incidence == 0.f)
     return false;
 
-  distance = (distance - normal.dot(ray.origin)) / incidence;
+  distance = (distance - dot(normal, ray.origin)) / incidence;
   if (distance < 0.f)
     return false;
 
   return true;
 }
 
-bool Plane::intersects(const Ray3& ray, float& distance, Vec3& normal, bool& inside) const
+bool Plane::intersects(const Ray3& ray, float& distance, vec3& normal, bool& inside) const
 {
   // TODO: Use epsilon.
 
-  const float incidence = normal.dot(ray.direction);
+  const float incidence = dot(normal, ray.direction);
   if (incidence == 0.f)
     return false;
 
-  const float difference = distance - normal.dot(ray.origin);
+  const float difference = distance - dot(normal, ray.origin);
   distance = difference / incidence;
   if (distance < 0.f)
     return false;
@@ -114,17 +111,16 @@ bool Plane::intersects(const Ray3& ray, float& distance, Vec3& normal, bool& ins
   return true;
 }
 
-void Plane::set(const Vec3& newNormal, float newDistance)
+void Plane::set(const vec3& newNormal, float newDistance)
 {
   normal = newNormal;
   distance = newDistance;
 }
 
-void Plane::set(const Vec3& P0, const Vec3& P1, const Vec3& P2)
+void Plane::set(const vec3& P0, const vec3& P1, const vec3& P2)
 {
-  normal = (P1 - P0).cross(P2 - P0).normalized();
-
-  distance = normal.dot(P0);
+  normal = normalize(cross(P1 - P0, P2 - P0));
+  distance = dot(normal, P0);
 }
 
 ///////////////////////////////////////////////////////////////////////

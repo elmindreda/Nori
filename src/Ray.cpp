@@ -25,9 +25,6 @@
 
 #include <wendy/Config.h>
 #include <wendy/Core.h>
-#include <wendy/Vector.h>
-#include <wendy/Matrix.h>
-#include <wendy/Quaternion.h>
 #include <wendy/Transform.h>
 #include <wendy/Ray.h>
 
@@ -42,7 +39,7 @@ Ray3::Ray3(void)
 {
 }
 
-Ray3::Ray3(const Vec3& initOrigin, const Vec3& initDirection):
+Ray3::Ray3(const vec3& initOrigin, const vec3& initDirection):
   origin(initOrigin),
   direction(initDirection)
 {
@@ -56,11 +53,11 @@ void Ray3::transformBy(const Transform3& transform)
 
 void Ray3::setDefaults(void)
 {
-  origin.set(0.f, 0.f, 0.f);
-  direction.set(0.f, 0.f, 1.f);
+  origin = vec3(0.f);
+  direction = vec3(0.f, 0.f, 1.f);
 }
 
-void Ray3::set(const Vec3& newOrigin, const Vec3& newDirection)
+void Ray3::set(const vec3& newOrigin, const vec3& newDirection)
 {
   origin = newOrigin;
   direction = newDirection;

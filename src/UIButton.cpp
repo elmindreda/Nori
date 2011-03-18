@@ -54,7 +54,7 @@ Button::Button(Desktop& desktop, const String& initText):
   else
     textWidth = renderer.getCurrentFont().getTextMetrics(text).size.x;
 
-  setSize(Vec2(em * 2.f + textWidth, em * 2.f));
+  setSize(vec2(em * 2.f + textWidth, em * 2.f));
 
   getButtonClickedSignal().connect(*this, &Button::onButtonClicked);
   getKeyPressedSignal().connect(*this, &Button::onKeyPressed);
@@ -91,7 +91,7 @@ void Button::draw(void) const
 }
 
 void Button::onButtonClicked(Widget& widget,
-                             const Vec2& position,
+                             const vec2& position,
 			     input::Button button,
 			     bool clicked)
 {

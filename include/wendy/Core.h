@@ -46,6 +46,11 @@
 
 ///////////////////////////////////////////////////////////////////////
 
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+
+///////////////////////////////////////////////////////////////////////
+
 #ifdef _MSC_VER
 
 // Don't consider the libc to be obsolete
@@ -103,6 +108,25 @@ typedef std::string String;
 /*! String hash type.
  */
 typedef uint32_t StringHash;
+
+///////////////////////////////////////////////////////////////////////
+
+using namespace glm;
+
+///////////////////////////////////////////////////////////////////////
+
+template <typename T>
+String stringCast(const T& value);
+
+vec2 vec2Cast(const String& string);
+vec3 vec3Cast(const String& string);
+vec4 vec4Cast(const String& string);
+
+mat2 mat2Cast(const String& string);
+mat3 mat3Cast(const String& string);
+mat4 mat4Cast(const String& string);
+
+quat quatCast(const String& string);
 
 ///////////////////////////////////////////////////////////////////////
 

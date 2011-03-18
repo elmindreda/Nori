@@ -27,7 +27,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.h>
-#include <wendy/Vector.h>
 #include <wendy/Sphere.h>
 #include <wendy/Mesh.h>
 

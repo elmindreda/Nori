@@ -25,7 +25,6 @@
 
 #include <wendy/Config.h>
 #include <wendy/Core.h>
-#include <wendy/Vector.h>
 #include <wendy/Rectangle.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -39,7 +38,7 @@ Rect::Rect(void)
 {
 }
 
-Rect::Rect(const Vec2& initPosition, const Vec2& initSize):
+Rect::Rect(const vec2& initPosition, const vec2& initSize):
   position(initPosition),
   size(initSize)
 {
@@ -51,7 +50,7 @@ Rect::Rect(float x, float y, float width, float height):
 {
 }
 
-bool Rect::contains(const Vec2& point) const
+bool Rect::contains(const vec2& point) const
 {
   float minX, minY, maxX, maxY;
   getBounds(minX, minY, maxX, maxY);
@@ -171,46 +170,46 @@ bool Rect::operator != (const Rect& other) const
   return position != other.position || size != other.size;
 }
 
-Rect Rect::operator + (const Vec2& offset) const
+Rect Rect::operator + (const vec2& offset) const
 {
   return Rect(position + offset, size);
 }
 
-Rect Rect::operator - (const Vec2& offset) const
+Rect Rect::operator - (const vec2& offset) const
 {
   return Rect(position - offset, size);
 }
 
-Rect Rect::operator * (const Vec2& scale) const
+Rect Rect::operator * (const vec2& scale) const
 {
   return Rect(position * scale, size * scale);
 }
 
-Rect& Rect::operator += (const Vec2& offset)
+Rect& Rect::operator += (const vec2& offset)
 {
   position += offset;
   return *this;
 }
 
-Rect& Rect::operator -= (const Vec2& offset)
+Rect& Rect::operator -= (const vec2& offset)
 {
   position -= offset;
   return *this;
 }
 
-Rect& Rect::operator *= (const Vec2& scale)
+Rect& Rect::operator *= (const vec2& scale)
 {
   position *= scale;
   size *= scale;
   return *this;
 }
 
-Vec2 Rect::getCenter(void) const
+vec2 Rect::getCenter(void) const
 {
   return position + size / 2.f;
 }
 
-void Rect::setCenter(const Vec2& newCenter)
+void Rect::setCenter(const vec2& newCenter)
 {
   position = newCenter - size / 2.f;
 }
@@ -240,11 +239,11 @@ void Rect::getBounds(float& minX, float& minY, float& maxX, float& maxY) const
 
 void Rect::setBounds(float minX, float minY, float maxX, float maxY)
 {
-  position.set(minX, minY);
-  size.set(maxX - minX, maxY - minY);
+  position = vec2(minX, minY);
+  size = vec2(maxX - minX, maxY - minY);
 }
 
-void Rect::set(const Vec2& newPosition, const Vec2& newSize)
+void Rect::set(const vec2& newPosition, const vec2& newSize)
 {
   position = newPosition;
   size = newSize;
@@ -252,8 +251,8 @@ void Rect::set(const Vec2& newPosition, const Vec2& newSize)
 
 void Rect::set(float x, float y, float width, float height)
 {
-  position.set(x, y);
-  size.set(width, height);
+  position = vec2(x, y);
+  size = vec2(width, height);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -262,7 +261,7 @@ Recti::Recti(void)
 {
 }
 
-Recti::Recti(const Vec2i& initPosition, const Vec2i& initSize):
+Recti::Recti(const ivec2& initPosition, const ivec2& initSize):
   position(initPosition),
   size(initSize)
 {
@@ -274,7 +273,7 @@ Recti::Recti(int x, int y, int width, int height):
 {
 }
 
-bool Recti::contains(const Vec2i& point) const
+bool Recti::contains(const ivec2& point) const
 {
   int minX, minY, maxX, maxY;
   getBounds(minX, minY, maxX, maxY);
@@ -394,46 +393,46 @@ bool Recti::operator != (const Recti& other) const
   return position != other.position || size != other.size;
 }
 
-Recti Recti::operator + (const Vec2i& offset) const
+Recti Recti::operator + (const ivec2& offset) const
 {
   return Recti(position + offset, size);
 }
 
-Recti Recti::operator - (const Vec2i& offset) const
+Recti Recti::operator - (const ivec2& offset) const
 {
   return Recti(position - offset, size);
 }
 
-Recti Recti::operator * (const Vec2i& scale) const
+Recti Recti::operator * (const ivec2& scale) const
 {
   return Recti(position * scale, size * scale);
 }
 
-Recti& Recti::operator += (const Vec2i& offset)
+Recti& Recti::operator += (const ivec2& offset)
 {
   position += offset;
   return *this;
 }
 
-Recti& Recti::operator -= (const Vec2i& offset)
+Recti& Recti::operator -= (const ivec2& offset)
 {
   position -= offset;
   return *this;
 }
 
-Recti& Recti::operator *= (const Vec2i& scale)
+Recti& Recti::operator *= (const ivec2& scale)
 {
   position *= scale;
   size *= scale;
   return *this;
 }
 
-Vec2i Recti::getCenter(void) const
+ivec2 Recti::getCenter(void) const
 {
   return position + size / 2;
 }
 
-void Recti::setCenter(const Vec2i& newCenter)
+void Recti::setCenter(const ivec2& newCenter)
 {
   position = newCenter - size / 2;
 }
@@ -463,11 +462,11 @@ void Recti::getBounds(int& minX, int& minY, int& maxX, int& maxY) const
 
 void Recti::setBounds(int minX, int minY, int maxX, int maxY)
 {
-  position.set(minX, minY);
-  size.set(maxX - minX, maxY - minY);
+  position = ivec2(minX, minY);
+  size = ivec2(maxX - minX, maxY - minY);
 }
 
-void Recti::set(const Vec2i& newPosition, const Vec2i& newSize)
+void Recti::set(const ivec2& newPosition, const ivec2& newSize)
 {
   position = newPosition;
   size = newSize;
@@ -475,8 +474,8 @@ void Recti::set(const Vec2i& newPosition, const Vec2i& newSize)
 
 void Recti::set(int x, int y, int width, int height)
 {
-  position.set(x, y);
-  size.set(width, height);
+  position = ivec2(x, y);
+  size = ivec2(width, height);
 }
 
 ///////////////////////////////////////////////////////////////////////

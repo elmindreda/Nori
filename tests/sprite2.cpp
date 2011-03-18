@@ -79,16 +79,16 @@ void Test::run(void)
 
   do
   {
-    context.clearColorBuffer(ColorRGBA(0.2f, 0.2f, 0.2f, 1.f));
+    context.clearColorBuffer(vec4(0.2f, 0.2f, 0.2f, 1.f));
     context.clearDepthBuffer();
 
     render::Sprite2 sprite;
-    sprite.position.set(4.f / 3.f / 2.f, 0.5f);
-    sprite.size.set(0.5f, 0.5f);
+    sprite.position = vec2(4.f / 3.f / 2.f, 0.5f);
+    sprite.size = vec2(0.5f, 0.5f);
     sprite.angle = (float) timer.getTime();
 
-    state->setModelMatrix(Mat4::IDENTITY);
-    state->setViewMatrix(Mat4::IDENTITY);
+    state->setModelMatrix(mat4());
+    state->setViewMatrix(mat4());
     state->setOrthoProjectionMatrix(4.f / 3.f, 1.f);
 
     for (render::PassList::const_iterator p = passes.begin();  p != passes.end();  p++)

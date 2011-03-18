@@ -198,9 +198,9 @@ void Menu::onFocusChanged(Widget& widget, bool activated)
     setVisible(false);
 }
 
-void Menu::onCursorMoved(Widget& widget, const Vec2& position)
+void Menu::onCursorMoved(Widget& widget, const vec2& position)
 {
-  Vec2 localPosition = transformToLocal(position);
+  vec2 localPosition = transformToLocal(position);
 
   unsigned int index = 0;
 
@@ -225,14 +225,14 @@ void Menu::onCursorMoved(Widget& widget, const Vec2& position)
 }
 
 void Menu::onButtonClicked(Widget& widget,
-                           const Vec2& position,
+                           const vec2& position,
 			   input::Button button,
 			   bool clicked)
 {
   if (clicked)
     return;
 
-  Vec2 localPosition = transformToLocal(position);
+  vec2 localPosition = transformToLocal(position);
 
   unsigned int index = 0;
 
@@ -290,9 +290,9 @@ void Menu::onKeyPressed(Widget& widget, input::Key key, bool pressed)
   }
 }
 
-void Menu::onDragEnded(Widget& widget, const Vec2& position)
+void Menu::onDragEnded(Widget& widget, const vec2& position)
 {
-  Vec2 localPosition = transformToLocal(position);
+  vec2 localPosition = transformToLocal(position);
 
   if (!getArea().contains(localPosition))
     setVisible(false);
@@ -300,7 +300,7 @@ void Menu::onDragEnded(Widget& widget, const Vec2& position)
 
 void Menu::sizeToFit(void)
 {
-  Vec2 size(0.f, 2.f);
+  vec2 size(0.f, 2.f);
 
   for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
   {

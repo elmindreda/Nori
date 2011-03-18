@@ -27,9 +27,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.h>
-#include <wendy/Vector.h>
-#include <wendy/Matrix.h>
-#include <wendy/Quaternion.h>
 #include <wendy/Transform.h>
 #include <wendy/Plane.h>
 #include <wendy/Frustum.h>
@@ -112,7 +109,7 @@ public:
    *  @return The normalized depth of the point in camera space, within the
    *  depth range of this camera.
    */
-  float getNormalizedDepth(const Vec3& point) const;
+  float getNormalizedDepth(const vec3& point) const;
 private:
   float FOV;
   float aspectRatio;
@@ -121,7 +118,7 @@ private:
   Transform3 transform;
   mutable Transform3 inverse;
   mutable Frustum frustum;
-  mutable Vec3 direction;
+  mutable vec3 direction;
   mutable float dirOffset;
   mutable float dirFactor;
   mutable bool dirtyFrustum;

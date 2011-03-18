@@ -45,7 +45,7 @@ class Frustum
 public:
   Frustum(void);
   Frustum(float FOV, float aspectRatio, float farZ = 1000.f);
-  bool contains(const Vec3& point) const;
+  bool contains(const vec3& point) const;
   bool contains(const Sphere& sphere) const;
   bool contains(const AABB& box) const;
   bool intersects(const Sphere& sphere) const;

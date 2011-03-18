@@ -116,7 +116,7 @@ void Layout::removedChild(Widget& child)
 void Layout::onAreaChanged(Widget& widget)
 {
   if (expanding)
-    setArea(Rect(Vec2::ZERO, widget.getArea().size));
+    setArea(Rect(vec2(0.f), widget.getArea().size));
 
   update();
 }
@@ -139,7 +139,7 @@ void Layout::removedFromParent(Widget& parent)
 void Layout::update(void)
 {
   const WidgetList& children = getChildren();
-  const Vec2& size = getArea().size;
+  const vec2& size = getArea().size;
   unsigned int flexibleCount = 0;
 
   if (orientation == VERTICAL)

@@ -103,7 +103,7 @@ void Item::draw(const Rect& area, WidgetState state) const
     textArea.size.x -= em;
 
     if (state == STATE_SELECTED)
-      renderer.fillRectangle(area, ColorRGBA(renderer.getSelectionColor(), 1.f));
+      renderer.fillRectangle(area, vec4(renderer.getSelectionColor(), 1.f));
 
     renderer.drawText(textArea, value, LEFT_ALIGNED, state);
     renderer.popClipArea();
@@ -137,10 +137,10 @@ void SeparatorItem::draw(const Rect& area, WidgetState state) const
   if (renderer.pushClipArea(area))
   {
     Segment2 segment;
-    segment.start.set(area.position.x, area.position.y + area.size.y / 2.f);
-    segment.end.set(area.position.x + area.size.x, area.position.y + area.size.y / 2.f);
+    segment.start = vec2(area.position.x, area.position.y + area.size.y / 2.f);
+    segment.end = vec2(area.position.x + area.size.x, area.position.y + area.size.y / 2.f);
 
-    renderer.drawLine(segment, ColorRGBA::BLACK);
+    renderer.drawLine(segment, vec4(vec3(0.f), 1.f));
 
     renderer.popClipArea();
   }
@@ -184,10 +184,10 @@ void TextureItem::draw(const Rect& area, WidgetState state) const
     const float em = renderer.getCurrentEM();
 
     if (state == STATE_SELECTED)
-      renderer.fillRectangle(area, ColorRGBA(renderer.getSelectionColor(), 1.f));
+      renderer.fillRectangle(area, vec4(renderer.getSelectionColor(), 1.f));
 
     Rect textureArea = area;
-    textureArea.size.set(em * 3.f, em * 3.f);
+    textureArea.size = vec2(em * 3.f, em * 3.f);
 
     renderer.blitTexture(textureArea, *texture);
 

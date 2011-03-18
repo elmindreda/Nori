@@ -33,6 +33,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
+#include <sstream>
 #include <iostream>
 
 ///////////////////////////////////////////////////////////////////////
@@ -143,6 +144,149 @@ typedef std::vector<LogConsumer*> ConsumerList;
 ConsumerList consumers;
 
 } /*namespace*/
+
+///////////////////////////////////////////////////////////////////////
+
+template <>
+String stringCast(const vec2& v)
+{
+  std::ostringstream stream;
+
+  stream << v.x << ' ' << v.y;
+  return stream.str();
+}
+
+template <>
+String stringCast(const vec3& v)
+{
+  std::ostringstream stream;
+
+  stream << v.x << ' ' << v.y << ' ' << v.z;
+  return stream.str();
+}
+
+template <>
+String stringCast(const vec4& v)
+{
+  std::ostringstream stream;
+
+  stream << v.x << ' ' << v.y << ' ' << v.z << ' ' << v.w;
+  return stream.str();
+}
+
+template <>
+String stringCast(const mat2& v)
+{
+  std::ostringstream stream;
+
+  stream << v[0][0] << ' ' << v[0][1] << ' '
+         << v[1][0] << ' ' << v[1][1];
+
+  return stream.str();
+}
+
+template <>
+String stringCast(const mat3& v)
+{
+  std::ostringstream stream;
+
+  stream << v[0][0] << ' ' << v[0][1] << ' ' << v[0][2] << ' '
+         << v[1][0] << ' ' << v[1][1] << ' ' << v[1][2] << ' '
+         << v[2][0] << ' ' << v[2][1] << ' ' << v[2][2];
+
+  return stream.str();
+}
+
+template <>
+String stringCast(const mat4& v)
+{
+  std::ostringstream stream;
+
+  stream << v[0][0] << ' ' << v[0][1] << ' ' << v[0][2] << ' ' << v[0][3] << ' '
+         << v[1][0] << ' ' << v[1][1] << ' ' << v[1][2] << ' ' << v[1][3] << ' '
+         << v[2][0] << ' ' << v[2][1] << ' ' << v[2][2] << ' ' << v[2][3] << ' '
+         << v[3][0] << ' ' << v[3][1] << ' ' << v[3][2] << ' ' << v[3][3];
+
+  return stream.str();
+}
+
+template <>
+String stringCast(const quat& v)
+{
+  std::ostringstream stream;
+
+  stream << v.x << ' ' << v.y << ' ' << v.z << ' ' << v.w;
+  return stream.str();
+}
+
+vec2 vec2Cast(const String& string)
+{
+  std::istringstream stream(string, std::ios::in);
+
+  vec2 result;
+  stream >> result.x >> result.y;
+  return result;
+}
+
+vec3 vec3Cast(const String& string)
+{
+  std::istringstream stream(string, std::ios::in);
+
+  vec3 result;
+  stream >> result.x >> result.y >> result.z;
+  return result;
+}
+
+vec4 vec4Cast(const String& string)
+{
+  std::istringstream stream(string, std::ios::in);
+
+  vec4 result;
+  stream >> result.x >> result.y >> result.z >> result.w;
+  return result;
+}
+
+mat2 mat2Cast(const String& string)
+{
+  std::istringstream stream(string, std::ios::in);
+
+  mat2 result;
+  stream >> result[0][0] >> result[0][1];
+  stream >> result[1][0] >> result[1][1];
+  return result;
+}
+
+mat3 mat3Cast(const String& string)
+{
+  std::istringstream stream(string, std::ios::in);
+
+  mat3 result;
+  stream >> result[0][0] >> result[0][1] >> result[0][2];
+  stream >> result[1][0] >> result[1][1] >> result[1][2];
+  stream >> result[2][0] >> result[2][1] >> result[2][2];
+  return result;
+}
+
+mat4 mat4Cast(const String& string)
+{
+  std::istringstream stream(string);
+
+  mat4 result;
+  stream >> result[0][0] >> result[0][1] >> result[0][2] >> result[0][3];
+  stream >> result[1][0] >> result[1][1] >> result[1][2] >> result[1][3];
+  stream >> result[2][0] >> result[2][1] >> result[2][2] >> result[2][3];
+  stream >> result[3][0] >> result[3][1] >> result[3][2] >> result[3][3];
+  return result;
+}
+
+quat quatCast(const String& string)
+{
+  std::istringstream stream(string, std::ios::in);
+
+  quat result;
+  stream >> result.x >> result.y >> result.z >> result.w;
+  return result;
+}
 
 ///////////////////////////////////////////////////////////////////////
 

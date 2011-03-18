@@ -107,7 +107,7 @@ public:
   /*! The local-to-world transformation.  Leave this set to identity if the
    *  geometry already is in world space.
    */
-  Mat4 transform;
+  mat4 transform;
 };
 
 ///////////////////////////////////////////////////////////////////////

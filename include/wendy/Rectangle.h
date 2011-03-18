@@ -39,9 +39,9 @@ class Rect
 {
 public:
   Rect(void);
-  Rect(const Vec2& position, const Vec2& size);
+  Rect(const vec2& position, const vec2& size);
   Rect(float x, float y, float width, float height);
-  bool contains(const Vec2& point) const;
+  bool contains(const vec2& point) const;
   bool contains(const Rect& other) const;
   bool intersects(const Rect& other) const;
   bool clipBy(const Rect& other);
@@ -49,20 +49,20 @@ public:
   void normalize(void);
   bool operator == (const Rect& other) const;
   bool operator != (const Rect& other) const;
-  Rect operator + (const Vec2& offset) const;
-  Rect operator - (const Vec2& offset) const;
-  Rect operator * (const Vec2& scale) const;
-  Rect& operator += (const Vec2& offset);
-  Rect& operator -= (const Vec2& offset);
-  Rect& operator *= (const Vec2& scale);
-  Vec2 getCenter(void) const;
-  void setCenter(const Vec2& newCenter);
+  Rect operator + (const vec2& offset) const;
+  Rect operator - (const vec2& offset) const;
+  Rect operator * (const vec2& scale) const;
+  Rect& operator += (const vec2& offset);
+  Rect& operator -= (const vec2& offset);
+  Rect& operator *= (const vec2& scale);
+  vec2 getCenter(void) const;
+  void setCenter(const vec2& newCenter);
   void getBounds(float& minX, float& minY, float& maxX, float& maxY) const;
   void setBounds(float minX, float minY, float maxX, float maxY);
-  void set(const Vec2& newPosition, const Vec2& newSize);
+  void set(const vec2& newPosition, const vec2& newSize);
   void set(float x, float y, float width, float height);
-  Vec2 position;
-  Vec2 size;
+  vec2 position;
+  vec2 size;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -71,9 +71,9 @@ class Recti
 {
 public:
   Recti(void);
-  Recti(const Vec2i& position, const Vec2i& size);
+  Recti(const ivec2& position, const ivec2& size);
   Recti(int x, int y, int width, int height);
-  bool contains(const Vec2i& point) const;
+  bool contains(const ivec2& point) const;
   bool contains(const Recti& other) const;
   bool intersects(const Recti& other) const;
   bool clipBy(const Recti& other);
@@ -81,20 +81,20 @@ public:
   void normalize(void);
   bool operator == (const Recti& other) const;
   bool operator != (const Recti& other) const;
-  Recti operator + (const Vec2i& offset) const;
-  Recti operator - (const Vec2i& offset) const;
-  Recti operator * (const Vec2i& scale) const;
-  Recti& operator += (const Vec2i& offset);
-  Recti& operator -= (const Vec2i& offset);
-  Recti& operator *= (const Vec2i& scale);
-  Vec2i getCenter(void) const;
-  void setCenter(const Vec2i& newCenter);
+  Recti operator + (const ivec2& offset) const;
+  Recti operator - (const ivec2& offset) const;
+  Recti operator * (const ivec2& scale) const;
+  Recti& operator += (const ivec2& offset);
+  Recti& operator -= (const ivec2& offset);
+  Recti& operator *= (const ivec2& scale);
+  ivec2 getCenter(void) const;
+  void setCenter(const ivec2& newCenter);
   void getBounds(int& minX, int& minY, int& maxX, int& maxY) const;
   void setBounds(int minX, int minY, int maxX, int maxY);
-  void set(const Vec2i& newPosition, const Vec2i& newSize);
+  void set(const ivec2& newPosition, const ivec2& newSize);
   void set(int x, int y, int width, int height);
-  Vec2i position;
-  Vec2i size;
+  ivec2 position;
+  ivec2 size;
 };
 
 ///////////////////////////////////////////////////////////////////////

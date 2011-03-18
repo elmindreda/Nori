@@ -52,13 +52,13 @@ protected:
   void draw(void) const;
 private:
   void onButtonClicked(Widget& widget,
-		       const Vec2& position,
+		       const vec2& position,
 		       input::Button button,
 		       bool clicked);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   void onWheelTurned(Widget& widget, int offset);
-  void onDragBegun(Widget& widget, const Vec2& position);
-  void onDragMoved(Widget& widget, const Vec2& position);
+  void onDragBegun(Widget& widget, const vec2& position);
+  void onDragMoved(Widget& widget, const vec2& position);
   void setValue(float newValue, bool notify);
   float getHandleSize(void) const;
   float getHandleOffset(void) const;

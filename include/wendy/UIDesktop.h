@@ -72,7 +72,7 @@ public:
    *
    *  @remarks The point is in global coordinates.
    */
-  Widget* findWidgetByPoint(const Vec2& point);
+  Widget* findWidgetByPoint(const vec2& point);
   void cancelDragging(void);
   Renderer& getRenderer(void) const;
   /*! @return The root widgets of this desktop.
@@ -90,7 +90,7 @@ private:
   void removedWidget(Widget& widget);
   void onKeyPressed(input::Key key, bool pressed);
   void onCharInput(wchar_t character);
-  void onCursorMoved(const Vec2i& position);
+  void onCursorMoved(const ivec2& position);
   void onButtonClicked(input::Button button, bool clicked);
   void onWheelTurned(int offset);
   Signal2<void, Desktop&, bool> focusChangedSignal;

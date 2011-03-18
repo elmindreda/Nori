@@ -35,14 +35,14 @@ class OBB2
 {
 public:
   OBB2(void);
-  OBB2(const Vec2& size, const Transform2& orientation);
+  OBB2(const vec2& size, const Transform2& orientation);
   OBB2(float width, float height);
-  bool contains(const Vec2& point) const;
+  bool contains(const vec2& point) const;
   bool intersects(const OBB2& other) const;
-  void getAxes(Vec2& x, Vec2& y) const;
-  void set(const Vec2& newSize, const Transform2& newOrientation);
+  void getAxes(vec2& x, vec2& y) const;
+  void set(const vec2& newSize, const Transform2& newOrientation);
   void set(float newWidth, float newHeight);
-  Vec2 size;
+  vec2 size;
   Transform2 orientation;
 };
 
@@ -52,13 +52,13 @@ class OBB3
 {
 public:
   OBB3(void);
-  OBB3(const Vec3& size, const Transform3& orientation);
+  OBB3(const vec3& size, const Transform3& orientation);
   OBB3(float width, float height, float depth);
-  bool contains(const Vec3& point) const;
+  bool contains(const vec3& point) const;
   bool intersects(const OBB3& other) const;
-  void set(const Vec3& newSize, const Transform3& orientation);
+  void set(const vec3& newSize, const Transform3& orientation);
   void set(float newWidth, float newHeight, float newDepth);
-  Vec3 size;
+  vec3 size;
   Transform3 orientation;
 };
 

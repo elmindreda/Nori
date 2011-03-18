@@ -44,15 +44,15 @@ public:
   Time getMoment(void) const;
   void setMoment(Time newMoment);
   const Transform3& getTransform(void) const;
-  const Vec3& getDirection(void) const;
+  const vec3& getDirection(void) const;
   void setTransform(const Transform3& newTransform);
-  void setPosition(const Vec3& newPosition);
-  void setRotation(const Quat& newRotation);
-  void setDirection(const Vec3& newDirection);
+  void setPosition(const vec3& newPosition);
+  void setRotation(const quat& newRotation);
+  void setDirection(const vec3& newDirection);
 private:
   AnimTrack3* track;
   Transform3 transform;
-  Vec3 direction;
+  vec3 direction;
   Time moment;
 };
 
@@ -64,7 +64,7 @@ class AnimTrack3
 public:
   AnimTrack3(const String& name);
   AnimTrack3(const AnimTrack3& source);
-  void createKeyFrame(Time moment, const Transform3& transform, const Vec3& direction);
+  void createKeyFrame(Time moment, const Transform3& transform, const vec3& direction);
   void destroyKeyFrame(KeyFrame3& frame);
   void destroyKeyFrames(void);
   void evaluate(Time moment, Transform3& result) const;

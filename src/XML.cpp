@@ -27,9 +27,6 @@
 
 #include <wendy/Core.h>
 #include <wendy/Path.h>
-#include <wendy/Vector.h>
-#include <wendy/Quaternion.h>
-#include <wendy/Color.h>
 #include <wendy/XML.h>
 
 #define XML_STATIC

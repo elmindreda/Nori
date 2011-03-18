@@ -9,11 +9,10 @@ include_directories(${libpng_SOURCE_DIR}
 set(wendy_SOURCES
     Wendy.cpp
 
-    AABB.cpp Animation.cpp Block.cpp Color.cpp Core.cpp Frustum.cpp
-    Image.cpp Matrix.cpp Mesh.cpp OBB.cpp Pattern.cpp Path.cpp Pixel.cpp
-    Plane.cpp Quaternion.cpp Random.cpp Ray.cpp Rectangle.cpp Resource.cpp
-    Signal.cpp Sphere.cpp Timer.cpp Transform.cpp Triangle.cpp Vector.cpp
-    Vertex.cpp XML.cpp
+    AABB.cpp Animation.cpp Block.cpp Core.cpp Frustum.cpp Image.cpp Mesh.cpp
+    OBB.cpp Pattern.cpp Path.cpp Pixel.cpp Plane.cpp Random.cpp Ray.cpp
+    Rectangle.cpp Resource.cpp Signal.cpp Sphere.cpp Timer.cpp Transform.cpp
+    Triangle.cpp Vertex.cpp XML.cpp
 
     OpenGL.cpp GLBuffer.cpp GLContext.cpp GLConvert.cpp GLProgram.cpp
     GLQuery.cpp GLState.cpp GLTexture.cpp

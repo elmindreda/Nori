@@ -41,16 +41,16 @@ class Plane
 {
 public:
   Plane(void);
-  Plane(const Vec3& initNormal, float initDistance);
-  Plane(const Vec3& P0, const Vec3& P1, const Vec3& P2);
+  Plane(const vec3& initNormal, float initDistance);
+  Plane(const vec3& P0, const vec3& P1, const vec3& P2);
   void transformBy(const Transform3& transform);
-  bool contains(const Vec3& point) const;
+  bool contains(const vec3& point) const;
   bool contains(const Sphere& sphere) const;
   bool intersects(const Ray3& ray, float& distance) const;
-  bool intersects(const Ray3& ray, float& distance, Vec3& normal, bool& inside) const;
-  void set(const Vec3& newPosition, float newDistance);
-  void set(const Vec3& P0, const Vec3& P1, const Vec3& P2);
-  Vec3 normal;
+  bool intersects(const Ray3& ray, float& distance, vec3& normal, bool& inside) const;
+  void set(const vec3& newPosition, float newDistance);
+  void set(const vec3& P0, const vec3& P1, const vec3& P2);
+  vec3 normal;
   float distance;
 };
 

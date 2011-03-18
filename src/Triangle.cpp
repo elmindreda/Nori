@@ -25,8 +25,6 @@
 
 #include <wendy/Config.h>
 #include <wendy/Core.h>
-#include <wendy/Vector.h>
-#include <wendy/Quaternion.h>
 #include <wendy/Transform.h>
 #include <wendy/Plane.h>
 #include <wendy/Sphere.h>
@@ -43,35 +41,28 @@ Triangle2::Triangle2(void)
 {
 }
 
-Triangle2::Triangle2(const Vec2& P0, const Vec2& P1, const Vec2& P2)
+Triangle2::Triangle2(const vec2& P0, const vec2& P1, const vec2& P2)
 {
   set(P0, P1, P2);
 }
 
-Vec2 Triangle2::center(void) const
+vec2 Triangle2::center(void) const
 {
   return (P[0] + P[1] + P[2]) / 3.f;
 }
 
-bool Triangle2::contains(const Vec2& point) const
+bool Triangle2::contains(const vec2& point) const
 {
   // TODO: Implement.
 
   return false;
 }
 
-void Triangle2::set(const Vec2& P0, const Vec2& P1, const Vec2& P2)
+void Triangle2::set(const vec2& P0, const vec2& P1, const vec2& P2)
 {
   P[0] = P0;
   P[1] = P1;
   P[2] = P2;
-}
-
-void Triangle2::setDefaults(void)
-{
-  P[0].setDefaults();
-  P[1].setDefaults();
-  P[2].setDefaults();
 }
 
 ///////////////////////////////////////////////////////////////////////

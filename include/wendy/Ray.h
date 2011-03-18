@@ -43,7 +43,7 @@ public:
    *  @param origin [in] The initial origin.
    *  @param direction [in] The initial direction.
    */
-  Ray3(const Vec3& origin, const Vec3& direction);
+  Ray3(const vec3& origin, const vec3& direction);
   /*! Transforms this ray by the specified transform.
    *  @param transform [in] The transform to use.
    */
@@ -56,13 +56,13 @@ public:
    *  @param newOrigin [in] The desired origin.
    *  @param newDirection [in] The desired direction.
    */
-  void set(const Vec3& newOrigin, const Vec3& newDirection);
+  void set(const vec3& newOrigin, const vec3& newDirection);
   /*! The origin of this ray.
    */
-  Vec3 origin;
+  vec3 origin;
   /*! The direction of this ray.
    */
-  Vec3 direction;
+  vec3 direction;
 };
 
 ///////////////////////////////////////////////////////////////////////

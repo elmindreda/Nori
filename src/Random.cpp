@@ -26,8 +26,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/Core.h>
-#include <wendy/Color.h>
-#include <wendy/Vector.h>
 #include <wendy/Random.h>
 
 #include <cstdlib>
@@ -69,30 +67,30 @@ void Random<float>::set(const float& newMin, const float& newMax)
 ///////////////////////////////////////////////////////////////////////
 
 template <>
-Random<Vec2>::Random(void):
+Random<vec2>::Random(void):
   min(0.f, 0.f),
   max(1.f, 1.f)
 {
 }
 
 template <>
-Random<Vec2>::Random(const Vec2& initMin, const Vec2& initMax):
+Random<vec2>::Random(const vec2& initMin, const vec2& initMax):
   min(initMin),
   max(initMax)
 {
 }
 
 template <>
-Vec2 Random<Vec2>::generate(void) const
+vec2 Random<vec2>::generate(void) const
 {
-  Vec2 result;
+  vec2 result;
   result.x = min.x + (max.x - min.x) * normalizedRandom();
   result.y = min.y + (max.y - min.y) * normalizedRandom();
   return result;
 }
 
 template <>
-void Random<Vec2>::set(const Vec2& newMin, const Vec2& newMax)
+void Random<vec2>::set(const vec2& newMin, const vec2& newMax)
 {
   min = newMin;
   max = newMax;
@@ -101,23 +99,23 @@ void Random<Vec2>::set(const Vec2& newMin, const Vec2& newMax)
 ///////////////////////////////////////////////////////////////////////
 
 template <>
-Random<Vec3>::Random(void):
+Random<vec3>::Random(void):
   min(0.f, 0.f, 0.f),
   max(1.f, 1.f, 1.f)
 {
 }
 
 template <>
-Random<Vec3>::Random(const Vec3& initMin, const Vec3& initMax):
+Random<vec3>::Random(const vec3& initMin, const vec3& initMax):
   min(initMin),
   max(initMax)
 {
 }
 
 template <>
-Vec3 Random<Vec3>::generate(void) const
+vec3 Random<vec3>::generate(void) const
 {
-  Vec3 result;
+  vec3 result;
   result.x = min.x + (max.x - min.x) * normalizedRandom();
   result.y = min.y + (max.y - min.y) * normalizedRandom();
   result.z = min.z + (max.z - min.z) * normalizedRandom();
@@ -125,74 +123,7 @@ Vec3 Random<Vec3>::generate(void) const
 }
 
 template <>
-void Random<Vec3>::set(const Vec3& newMin, const Vec3& newMax)
-{
-  min = newMin;
-  max = newMax;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-template <>
-Random<ColorRGB>::Random(void):
-  min(0.f, 0.f, 0.f),
-  max(1.f, 1.f, 1.f)
-{
-}
-
-template <>
-Random<ColorRGB>::Random(const ColorRGB& initMin, const ColorRGB& initMax):
-  min(initMin),
-  max(initMax)
-{
-}
-
-template <>
-ColorRGB Random<ColorRGB>::generate(void) const
-{
-  ColorRGB result;
-  result.r = min.r + (max.r - min.r) * normalizedRandom();
-  result.g = min.g + (max.g - min.g) * normalizedRandom();
-  result.b = min.b + (max.b - min.b) * normalizedRandom();
-  return result;
-}
-
-template <>
-void Random<ColorRGB>::set(const ColorRGB& newMin, const ColorRGB& newMax)
-{
-  min = newMin;
-  max = newMax;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-template <>
-Random<ColorRGBA>::Random(void):
-  min(0.f, 0.f, 0.f, 0.f),
-  max(1.f, 1.f, 1.f, 1.f)
-{
-}
-
-template <>
-Random<ColorRGBA>::Random(const ColorRGBA& initMin, const ColorRGBA& initMax):
-  min(initMin),
-  max(initMax)
-{
-}
-
-template <>
-ColorRGBA Random<ColorRGBA>::generate(void) const
-{
-  ColorRGBA result;
-  result.r = min.r + (max.r - min.r) * normalizedRandom();
-  result.g = min.g + (max.g - min.g) * normalizedRandom();
-  result.b = min.b + (max.b - min.b) * normalizedRandom();
-  result.a = min.a + (max.a - min.a) * normalizedRandom();
-  return result;
-}
-
-template <>
-void Random<ColorRGBA>::set(const ColorRGBA& newMin, const ColorRGBA& newMax)
+void Random<vec3>::set(const vec3& newMin, const vec3& newMax)
 {
   min = newMin;
   max = newMax;

@@ -47,9 +47,9 @@ class Sphere;
 class MeshVertex
 {
 public:
-  Vec3 position;
-  Vec3 normal;
-  Vec2 texcoord;
+  vec3 position;
+  vec3 normal;
+  vec2 texcoord;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ public:
   void setEdges(unsigned int a, unsigned int b, unsigned int c);
   unsigned int indices[3];
   unsigned int edges[3];
-  Vec3 normal;
+  vec3 normal;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -175,21 +175,21 @@ public:
   VertexMerger(const Mesh::VertexList& vertices);
   void importPositions(const Mesh::VertexList& vertices);
   unsigned int addAttributeLayer(unsigned int vertexIndex,
-                                 const Vec3& normal,
-			         const Vec2& texcoord = Vec2::ZERO);
+                                 const vec3& normal,
+			         const vec2& texcoord = vec2(0.f));
   void realizeVertices(Mesh::VertexList& result) const;
   void setNormalMode(NormalMode newMode);
 private:
   struct VertexLayer
   {
-    Vec3 normal;
-    Vec2 texcoord;
+    vec3 normal;
+    vec2 texcoord;
     unsigned int index;
   };
   struct Vertex
   {
     typedef std::vector<VertexLayer> LayerList;
-    Vec3 position;
+    vec3 position;
     LayerList layers;
   };
   typedef std::vector<Vertex> VertexList;
