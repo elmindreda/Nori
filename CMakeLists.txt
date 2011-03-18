@@ -62,8 +62,6 @@ if(WENDY_BUILD_DOCUMENTATION)
   find_package(Doxygen)
 endif(WENDY_BUILD_DOCUMENTATION)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${wendy_SOURCE_DIR}/build/cmake)
-
 find_package(OpenGL REQUIRED)
 
 add_subdirectory(libs)
