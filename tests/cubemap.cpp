@@ -68,7 +68,7 @@ bool Test::init(void)
     return false;
   }
 
-  RandomRange angle(0.f, (float) M_PI * 2.f);
+  RandomRange angle(0.f, float(PI) * 2.f);
   RandomVolume axis(vec3(-1.f), vec3(1.f));
   RandomVolume position(vec3(-2.f), vec3(2.f));
 

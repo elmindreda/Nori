@@ -355,7 +355,7 @@ void Renderer::renderLightQuad(const render::Camera& camera)
 
   LightVertex vertices[4];
 
-  const float radians = camera.getFOV() * (float) M_PI / 180.f;
+  const float radians = camera.getFOV() * float(PI) / 180.f;
   const float f = tan(radians / 2.f);
   const float aspect = camera.getAspectRatio();
 

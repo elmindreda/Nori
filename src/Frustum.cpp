@@ -128,7 +128,7 @@ void Frustum::set(float FOV, float aspectRatio, float farZ)
   planes.clear();
   planes.reserve(5);
 
-  const float radians = FOV * float(M_PI) / 180.f;
+  const float radians = FOV * float(PI) / 180.f;
   const float distance = 0.5f / tan(radians / 2.f);
 
   vec3 points[5];

@@ -652,7 +652,7 @@ void SpectatorCamera::onCursorMoved(const ivec2& position)
   ivec2 offset = position - lastPosition;
 
   angleY -= offset.x / 250.f;
-  angleX = std::max(std::min(angleX - offset.y / 250.f, (float) M_PI / 2.f), (float) -M_PI / 2.f);
+  angleX = std::max(std::min(angleX - offset.y / 250.f, float(PI) / 2.f), -float(PI) / 2.f);
   updateTransform();
 
   lastPosition = position;
