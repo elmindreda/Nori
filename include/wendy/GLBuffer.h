@@ -547,7 +547,7 @@ inline IndexRangeLock<T>::operator T* (void)
 }
 
 template <>
-inline IndexRangeLock<uint8_t>::IndexRangeLock(IndexRange& initRange):
+inline IndexRangeLock<uint8>::IndexRangeLock(IndexRange& initRange):
   range(initRange),
   indices(NULL)
 {
@@ -557,13 +557,13 @@ inline IndexRangeLock<uint8_t>::IndexRangeLock(IndexRange& initRange):
       throw Exception("Index buffer lock type mismatch");
   }
 
-  indices = (uint8_t*) range.lock();
+  indices = (uint8*) range.lock();
   if (!indices)
     throw Exception("Failed to lock index buffer");
 }
 
 template <>
-inline IndexRangeLock<uint16_t>::IndexRangeLock(IndexRange& initRange):
+inline IndexRangeLock<uint16>::IndexRangeLock(IndexRange& initRange):
   range(initRange),
   indices(NULL)
 {
@@ -573,13 +573,13 @@ inline IndexRangeLock<uint16_t>::IndexRangeLock(IndexRange& initRange):
       throw Exception("Index buffer lock type mismatch");
   }
 
-  indices = (uint16_t*) range.lock();
+  indices = (uint16*) range.lock();
   if (!indices)
     throw Exception("Failed to lock index buffer");
 }
 
 template <>
-inline IndexRangeLock<uint32_t>::IndexRangeLock(IndexRange& initRange):
+inline IndexRangeLock<uint32>::IndexRangeLock(IndexRange& initRange):
   range(initRange),
   indices(NULL)
 {
@@ -589,7 +589,7 @@ inline IndexRangeLock<uint32_t>::IndexRangeLock(IndexRange& initRange):
       throw Exception("Index buffer lock type mismatch");
   }
 
-  indices = (uint32_t*) range.lock();
+  indices = (uint32*) range.lock();
   if (!indices)
     throw Exception("Failed to lock index buffer");
 }

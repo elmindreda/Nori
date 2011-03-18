@@ -26,10 +26,6 @@
 #define WENDY_CORE_H
 ///////////////////////////////////////////////////////////////////////
 
-#ifdef _MSC_VER
-#define _USE_MATH_DEFINES
-#endif
-
 #include <string>
 #include <vector>
 #include <cstdarg>
@@ -37,8 +33,6 @@
 #if WENDY_HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
-
-#include <stdint.h>
 
 #ifndef NULL
 #define NULL 0
@@ -91,9 +85,27 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+typedef glm::detail::int8  int8;
+typedef glm::detail::int16 int16;
+typedef glm::detail::int32 int32;
+typedef glm::detail::int64 int64;
+
+typedef glm::detail::uint8  uint8;
+typedef glm::detail::uint16 uint16;
+typedef glm::detail::uint32 uint32;
+typedef glm::detail::uint64 uint64;
+
+typedef glm::detail::float16 float16;
+typedef glm::detail::float32 float32;
+typedef glm::detail::float64 float64;
+
+typedef unsigned int uint;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! Byte value.
  */
-typedef uint8_t Byte;
+typedef uint8 Byte;
 
 /*! Time value, in seconds.
  */
@@ -105,7 +117,7 @@ typedef std::string String;
 
 /*! String hash type.
  */
-typedef uint32_t StringHash;
+typedef uint32 StringHash;
 
 ///////////////////////////////////////////////////////////////////////
 

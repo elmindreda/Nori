@@ -60,11 +60,11 @@ class Scene;
 class SortKey
 {
 public:
-  static SortKey makeOpaqueKey(uint8_t layer, uint16_t state, float depth);
-  static SortKey makeBlendedKey(uint8_t layer, float depth);
+  static SortKey makeOpaqueKey(uint8 layer, uint16 state, float depth);
+  static SortKey makeBlendedKey(uint8 layer, float depth);
   union
   {
-    uint64_t value;
+    uint64 value;
     struct
     {
       unsigned layer : 8;
@@ -158,7 +158,7 @@ class Scene : public LightState
 {
 public:
   Scene(GeometryPool& pool, Technique::Type type);
-  void addOperation(const Operation& operation, float depth, uint16_t layer = 0);
+  void addOperation(const Operation& operation, float depth, uint16 layer = 0);
   void createOperations(const Transform3& transform,
                         const GL::PrimitiveRange& range,
                         const Material& material,

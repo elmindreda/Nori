@@ -117,14 +117,14 @@ void samplePixelsLinear1D(Byte* target,
   switch (format.getType())
   {
     case PixelFormat::UINT8:
-      samplePixelsLinear1D<uint8_t>(target, targetWidth,
-                                    source, sourceWidth,
-                                    format.getChannelCount());
+      samplePixelsLinear1D<uint8>(target, targetWidth,
+                                  source, sourceWidth,
+                                  format.getChannelCount());
       break;
     case PixelFormat::UINT16:
-      samplePixelsLinear1D<uint16_t>(target, targetWidth,
-                                     source, sourceWidth,
-                                     format.getChannelCount());
+      samplePixelsLinear1D<uint16>(target, targetWidth,
+                                   source, sourceWidth,
+                                   format.getChannelCount());
       break;
     case PixelFormat::UINT24:
       samplePixelsLinear1D_UINT24(target, targetWidth,
@@ -132,14 +132,14 @@ void samplePixelsLinear1D(Byte* target,
                                   format.getChannelCount());
       break;
     case PixelFormat::UINT32:
-      samplePixelsLinear1D<uint32_t>(target, targetWidth,
-                                     source, sourceWidth,
-                                     format.getChannelCount());
+      samplePixelsLinear1D<uint32>(target, targetWidth,
+                                   source, sourceWidth,
+                                   format.getChannelCount());
       break;
     case PixelFormat::FLOAT32:
-      samplePixelsLinear1D<float>(target, targetWidth,
-                                  source, sourceWidth,
-                                  format.getChannelCount());
+      samplePixelsLinear1D<float32>(target, targetWidth,
+                                    source, sourceWidth,
+                                    format.getChannelCount());
       break;
   }
 }
@@ -244,14 +244,14 @@ void samplePixelsLinear2D(Byte* target,
   switch (format.getType())
   {
     case PixelFormat::UINT8:
-      samplePixelsLinear2D<uint8_t>(target, targetWidth, targetHeight,
-                                    source, sourceWidth, sourceHeight,
-                                    format.getChannelCount());
+      samplePixelsLinear2D<uint8>(target, targetWidth, targetHeight,
+                                  source, sourceWidth, sourceHeight,
+                                  format.getChannelCount());
       break;
     case PixelFormat::UINT16:
-      samplePixelsLinear2D<uint16_t>(target, targetWidth, targetHeight,
-                                     source, sourceWidth, sourceHeight,
-                                     format.getChannelCount());
+      samplePixelsLinear2D<uint16>(target, targetWidth, targetHeight,
+                                   source, sourceWidth, sourceHeight,
+                                   format.getChannelCount());
       break;
     case PixelFormat::UINT24:
       samplePixelsLinear2D_UINT24(target, targetWidth, targetHeight,
@@ -259,14 +259,14 @@ void samplePixelsLinear2D(Byte* target,
                                   format.getChannelCount());
       break;
     case PixelFormat::UINT32:
-      samplePixelsLinear2D<uint32_t>(target, targetWidth, targetHeight,
-                                     source, sourceWidth, sourceHeight,
-                                     format.getChannelCount());
+      samplePixelsLinear2D<uint32>(target, targetWidth, targetHeight,
+                                   source, sourceWidth, sourceHeight,
+                                   format.getChannelCount());
       break;
     case PixelFormat::FLOAT32:
-      samplePixelsLinear2D<float>(target, targetWidth, targetHeight,
-                                  source, sourceWidth, sourceHeight,
-                                  format.getChannelCount());
+      samplePixelsLinear2D<float32>(target, targetWidth, targetHeight,
+                                    source, sourceWidth, sourceHeight,
+                                    format.getChannelCount());
       break;
   }
 }

@@ -80,10 +80,6 @@ if(WIN32)
   list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/build/windows)
 endif(WIN32)
 
-if(MSVC)
-  list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/build/msvc)
-endif(MSVC)
-
 set(WENDY_CORE_LIBRARIES ${wendy_CORE_LIBRARIES} CACHE STRING "Libraries used by Wendy core")
 set(WENDY_LIBRARIES ${wendy_LIBRARIES} CACHE STRING "Libraries used by Wendy")
 set(WENDY_INCLUDE_DIRS ${wendy_INCLUDE_DIRS} CACHE STRING "Include directories for Wendy")

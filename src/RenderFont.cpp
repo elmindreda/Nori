@@ -498,12 +498,12 @@ bool Font::init(const FontData& data)
   return true;
 }
 
-const Font::Glyph* Font::findGlyph(uint8_t character) const
+const Font::Glyph* Font::findGlyph(uint8 character) const
 {
   return characters[character];
 }
 
-bool Font::getGlyphLayout(Layout& layout, uint8_t character) const
+bool Font::getGlyphLayout(Layout& layout, uint8 character) const
 {
   const Glyph* glyph = findGlyph(character);
   if (!glyph)
@@ -513,7 +513,7 @@ bool Font::getGlyphLayout(Layout& layout, uint8_t character) const
   return true;
 }
 
-void Font::getGlyphLayout(Layout& layout, const Glyph& glyph, uint8_t character) const
+void Font::getGlyphLayout(Layout& layout, const Glyph& glyph, uint8 character) const
 {
   layout.character = character;
 

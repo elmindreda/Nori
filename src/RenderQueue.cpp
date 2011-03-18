@@ -64,7 +64,7 @@ inline float clamp(float x, float min, float max)
 
 ///////////////////////////////////////////////////////////////////////
 
-SortKey SortKey::makeOpaqueKey(uint8_t layer, uint16_t state, float depth)
+SortKey SortKey::makeOpaqueKey(uint8 layer, uint16 state, float depth)
 {
   SortKey key;
   key.value = 0;
@@ -75,7 +75,7 @@ SortKey SortKey::makeOpaqueKey(uint8_t layer, uint16_t state, float depth)
   return key;
 }
 
-SortKey SortKey::makeBlendedKey(uint8_t layer, float depth)
+SortKey SortKey::makeBlendedKey(uint8 layer, float depth)
 {
   SortKey key;
   key.value = 0;
@@ -101,7 +101,7 @@ Queue::Queue(void):
 
 void Queue::addOperation(const Operation& operation, SortKey key)
 {
-  key.index = (uint16_t) operations.size();
+  key.index = (uint16) operations.size();
   keys.push_back(key);
 
   operations.push_back(operation);
@@ -140,7 +140,7 @@ Scene::Scene(GeometryPool& initPool, Technique::Type initType):
 {
 }
 
-void Scene::addOperation(const Operation& operation, float depth, uint16_t layer)
+void Scene::addOperation(const Operation& operation, float depth, uint16 layer)
 {
   if (operation.state->isBlending())
   {
@@ -168,7 +168,7 @@ void Scene::createOperations(const Transform3& transform,
   operation.transform = transform;
 
   const PassList& passes = technique->getPasses();
-  uint16_t layer = 0;
+  uint16 layer = 0;
 
   for (PassList::const_iterator p = passes.begin();  p != passes.end();  p++)
   {
