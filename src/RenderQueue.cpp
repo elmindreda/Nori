@@ -55,11 +55,6 @@ struct SortKeyComparator
   }
 };
 
-inline float clamp(float x, float min, float max)
-{
-  return std::max(std::min(x, max), min);
-}
-
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////

@@ -37,6 +37,8 @@
 #include <fstream>
 #include <cctype>
 
+#include <glm/gtx/compatibility.hpp>
+
 ///////////////////////////////////////////////////////////////////////
 
 #ifdef _MSC_VER
@@ -284,14 +286,9 @@ bool Mesh::isValid(void) const
   {
     const MeshVertex& vertex = vertices[i];
 
-    if (!isinf(vertex.position.x) ||
-        !isinf(vertex.position.y) ||
-        !isinf(vertex.position.z) ||
-        !isinf(vertex.normal.x) ||
-        !isinf(vertex.normal.y) ||
-        !isinf(vertex.normal.z) ||
-        !isinf(vertex.texcoord.x) ||
-        !isinf(vertex.texcoord.y))
+    if (!all(isfinite(vertex.position)) ||
+        !all(isfinite(vertex.normal)) ||
+        !all(isfinite(vertex.texcoord)))
     {
       return false;
     }
@@ -308,12 +305,8 @@ bool Mesh::isValid(void) const
     {
       const MeshTriangle& triangle = triangles[j];
 
-      if (!isinf(triangle.normal.x) ||
-          !isinf(triangle.normal.y) ||
-          !isinf(triangle.normal.z))
-      {
+      if (!all(isfinite(triangle.normal)))
         return false;
-      }
 
       if (triangle.indices[0] >= vertices.size() ||
           triangle.indices[1] >= vertices.size() ||

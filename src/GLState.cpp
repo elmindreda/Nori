@@ -645,6 +645,8 @@ void* ProgramState::getData(const String& name, Uniform::Type type)
 
 const void* ProgramState::getData(const String& name, Uniform::Type type) const
 {
+  // TODO: The code.
+  return NULL;
 }
 
 ProgramState::IDQueue ProgramState::usedIDs;
