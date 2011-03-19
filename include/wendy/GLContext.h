@@ -513,11 +513,15 @@ public:
    *  @param[in] value The stencil value to clear the stencil buffer with.
    */
   void clearStencilBuffer(unsigned int value = 0);
-  /*! Renders the current primitive range to the current canvas, using the
-   *  current shader program and transforms.
-   *  @pre A shader program must be set before calling this method.
+  /*! Renders the specified primitive range to the current canvas, using the
+   *  current GPU program.
+   *  @pre A GPU program must be set before calling this method.
    */
   void render(const PrimitiveRange& range);
+  /*! Renders the specified primitive range to the current canvas, using the
+   *  current GPU program.
+   *  @pre A GPU program must be set before calling this method.
+   */
   void render(PrimitiveType type, unsigned int start, unsigned int count);
   /*! Makes Context::update to return when in manual refresh mode, forcing
    *  a new iteration of the render loop.
@@ -528,9 +532,17 @@ public:
    *  Context::refresh is made.
    */
   bool update(void);
+  /*! Reserves the specified sampler uniform signature as shared.
+   */
   void createSharedSampler(const String& name, Sampler::Type type, int ID);
+  /*! Reserves the specified non-sampler uniform signature as shared.
+   */
   void createSharedUniform(const String& name, Uniform::Type type, int ID);
+  /*! @return The shared ID of the specified sampler uniform signature.
+   */
   int getSharedSamplerID(const String& name, Sampler::Type type) const;
+  /*! @return The shared ID of the specified non-sampler uniform signature.
+   */
   int getSharedUniformID(const String& name, Uniform::Type type) const;
   SharedProgramState* getSharedProgramState(void) const;
   void setSharedProgramState(SharedProgramState* newState);
