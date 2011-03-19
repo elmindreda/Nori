@@ -381,7 +381,7 @@ private:
 /*! @brief Interface for global GPU program state requests.
  *  @ingroup opengl
  */
-class SharedProgramState
+class SharedProgramState : public RefObject
 {
   friend class ProgramState;
 public:
@@ -544,8 +544,8 @@ public:
   /*! @return The shared ID of the specified non-sampler uniform signature.
    */
   int getSharedUniformID(const String& name, Uniform::Type type) const;
-  SharedProgramState* getSharedProgramState(void) const;
-  void setSharedProgramState(SharedProgramState* newState);
+  SharedProgramState* getCurrentSharedProgramState(void) const;
+  void setCurrentSharedProgramState(SharedProgramState* newState);
   /*! @return The current refresh mode.
    */
   RefreshMode getRefreshMode(void) const;
@@ -665,18 +665,18 @@ private:
   Rect scissorArea;
   Rect viewportArea;
   bool dirtyBinding;
-  SharedProgramState* state;
   SamplerList samplers;
   UniformList uniforms;
   TextureList textureUnits;
   unsigned int activeTextureUnit;
   Ref<Program> currentProgram;
+  Ref<SharedProgramState> currentState;
   Ref<VertexBuffer> currentVertexBuffer;
   Ref<IndexBuffer> currentIndexBuffer;
-  PlaneList planes;
-  Stats* stats;
   Ref<Canvas> currentCanvas;
   Ref<ScreenCanvas> screenCanvas;
+  PlaneList planes;
+  Stats* stats;
   static Context* instance;
   static Signal0<void> createSignal;
   static Signal0<void> destroySignal;

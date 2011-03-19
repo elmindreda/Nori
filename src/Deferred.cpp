@@ -69,7 +69,7 @@ Config::Config(unsigned int initWidth, unsigned int initHeight):
 void Renderer::render(const render::Scene& scene, const render::Camera& camera)
 {
   GL::Context& context = pool.getContext();
-  context.setSharedProgramState(state);
+  context.setCurrentSharedProgramState(state);
 
   GL::Canvas& previousCanvas = context.getCurrentCanvas();
 
@@ -96,7 +96,7 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
   for (unsigned int i = 0;  i < scene.getLightCount();  i++)
     renderLight(camera, scene.getLight(i));
 
-  context.setSharedProgramState(NULL);
+  context.setCurrentSharedProgramState(NULL);
 }
 
 GL::Texture& Renderer::getColorTexture(void) const

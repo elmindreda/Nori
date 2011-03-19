@@ -46,7 +46,7 @@ namespace wendy
 void Renderer::render(const render::Scene& scene, const render::Camera& camera)
 {
   GL::Context& context = pool.getContext();
-  context.setSharedProgramState(state);
+  context.setCurrentSharedProgramState(state);
 
   state->setViewMatrix(camera.getViewTransform());
   state->setPerspectiveProjectionMatrix(camera.getFOV(),
@@ -57,7 +57,7 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
   renderOperations(scene.getOpaqueQueue());
   renderOperations(scene.getBlendedQueue());
 
-  context.setSharedProgramState(NULL);
+  context.setCurrentSharedProgramState(NULL);
 }
 
 Renderer* Renderer::create(render::GeometryPool& pool, const Config& config)

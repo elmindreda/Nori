@@ -379,7 +379,7 @@ void ProgramState::apply(void) const
   Context& context = program->getContext();
   context.setCurrentProgram(program);
 
-  SharedProgramState* state = context.getSharedProgramState();
+  SharedProgramState* state = context.getCurrentSharedProgramState();
 
   unsigned int textureUnit = 0;
 

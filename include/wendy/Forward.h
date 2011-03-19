@@ -55,7 +55,7 @@ private:
   void renderOperations(const render::Queue& queue);
   render::GeometryPool& pool;
   Config config;
-  Ptr<GL::SharedProgramState> state;
+  Ref<GL::SharedProgramState> state;
 };
 
 ///////////////////////////////////////////////////////////////////////

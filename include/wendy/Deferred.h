@@ -65,7 +65,7 @@ private:
   void renderOperations(const render::Queue& queue);
   render::GeometryPool& pool;
   Ref<GL::ImageCanvas> canvas;
-  Ptr<GL::SharedProgramState> state;
+  Ref<GL::SharedProgramState> state;
   GL::TextureRef depthTexture;
   GL::TextureRef colorTexture;
   GL::TextureRef normalTexture;

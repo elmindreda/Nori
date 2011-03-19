@@ -1108,14 +1108,14 @@ int Context::getSharedUniformID(const String& name, Uniform::Type type) const
   return INVALID_SHARED_STATE_ID;
 }
 
-SharedProgramState* Context::getSharedProgramState(void) const
+SharedProgramState* Context::getCurrentSharedProgramState(void) const
 {
-  return state;
+  return currentState;
 }
 
-void Context::setSharedProgramState(SharedProgramState* newState)
+void Context::setCurrentSharedProgramState(SharedProgramState* newState)
 {
-  state = newState;
+  currentState = newState;
 }
 
 Context::RefreshMode Context::getRefreshMode(void) const
@@ -1440,7 +1440,6 @@ Context::Context(ResourceIndex& initIndex):
   needsClosing(false),
   dirtyBinding(true),
   activeTextureUnit(0),
-  state(NULL),
   stats(NULL)
 {
   // Necessary hack in case GLFW calls a callback before

@@ -16,7 +16,7 @@ public:
   void run(void);
 private:
   ResourceIndex index;
-  Ptr<GL::SharedProgramState> state;
+  Ref<GL::SharedProgramState> state;
   Ptr<render::GeometryPool> pool;
   Ref<render::Material> material;
   render::Technique* technique;
@@ -45,7 +45,7 @@ bool Test::init(void)
   context->setTitle("2D sprite");
 
   state = new GL::SharedProgramState();
-  context->setSharedProgramState(state);
+  context->setCurrentSharedProgramState(state);
 
   pool = new render::GeometryPool(*context);
 
