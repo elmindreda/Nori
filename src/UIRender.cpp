@@ -51,6 +51,21 @@ void Alignment::set(HorzAlignment newHorizontal, VertAlignment newVertical)
 
 ///////////////////////////////////////////////////////////////////////
 
+void Renderer::begin(void)
+{
+  GL::Context& context = pool.getContext();
+  context.setCurrentSharedProgramState(state);
+
+  GL::Canvas& canvas = context.getCurrentCanvas();
+  state->setOrthoProjectionMatrix(float(canvas.getWidth()),
+                                  float(canvas.getHeight()));
+}
+
+void Renderer::end(void)
+{
+  pool.getContext().setCurrentSharedProgramState(NULL);
+}
+
 bool Renderer::pushClipArea(const Rect& area)
 {
   GL::Context& context = pool.getContext();
@@ -502,6 +517,8 @@ Renderer::Renderer(render::GeometryPool& initPool):
 
 bool Renderer::init(void)
 {
+  state = new GL::SharedProgramState();
+
   widgetColor = vec3(0.7f);
   textColor = vec3(0.f);
   wellColor = widgetColor * 1.2f;
@@ -539,7 +556,7 @@ bool Renderer::init(void)
 
     GL::ProgramInterface interface;
     interface.addUniform("color", GL::Uniform::FLOAT_VEC4);
-    interface.addAttribute("position", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("vertex.position", GL::Attribute::FLOAT_VEC2);
 
     if (!interface.matches(*program, true))
     {
@@ -568,8 +585,8 @@ bool Renderer::init(void)
 
     GL::ProgramInterface interface;
     interface.addSampler("image", GL::Sampler::SAMPLER_2D);
-    interface.addAttribute("position", GL::Attribute::FLOAT_VEC2);
-    interface.addAttribute("mapping", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("vertex.position", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("vertex.mapping", GL::Attribute::FLOAT_VEC2);
 
     if (!interface.matches(*program, true))
     {

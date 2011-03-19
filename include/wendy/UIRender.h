@@ -118,6 +118,8 @@ public:
 class Renderer
 {
 public:
+  void begin(void);
+  void end(void);
   /*! Pushes a clipping area onto the clip stack. The current
    *  clipping area then becomes the specified area as clipped by the
    *  previously current clipping area.
@@ -192,6 +194,7 @@ private:
   Ref<render::Font> currentFont;
   GL::RenderState drawPass;
   GL::RenderState blitPass;
+  Ref<GL::SharedProgramState> state;
 };
 
 ///////////////////////////////////////////////////////////////////////

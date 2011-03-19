@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <program version="3" >
-  <vertex path="wendy/UIRenderSolid.vp" />
-  <fragment path="wendy/UIRenderSolid.fp" />
+  <vertex path="wendy/UIRenderSolid.vs" />
+  <fragment path="wendy/UIRenderSolid.fs" />
 </program>

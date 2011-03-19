@@ -64,11 +64,15 @@ void Desktop::addRootWidget(Widget& root)
 
 void Desktop::drawRootWidgets(void)
 {
+  renderer.begin();
+
   for (WidgetList::iterator i = roots.begin();  i != roots.end();  i++)
   {
     if ((*i)->isVisible())
       (*i)->draw();
   }
+
+  renderer.end();
 }
 
 void Desktop::destroyRootWidgets(void)
