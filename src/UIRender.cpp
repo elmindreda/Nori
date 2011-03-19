@@ -69,12 +69,9 @@ void Renderer::end(void)
 bool Renderer::pushClipArea(const Rect& area)
 {
   GL::Context& context = pool.getContext();
-
   GL::Canvas& canvas = context.getCurrentCanvas();
 
-  vec2 scale;
-  scale.x = 1.f / canvas.getWidth();
-  scale.y = 1.f / canvas.getHeight();
+  vec2 scale(1.f / float(canvas.getWidth()), 1.f / float(canvas.getHeight()));
 
   if (!clipAreaStack.push(area * scale))
     return false;
