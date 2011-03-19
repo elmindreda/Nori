@@ -420,7 +420,7 @@ void ProgramState::apply(void) const
     }
     else
     {
-      uniform.copyFrom(&floatData[0] + offset);
+      uniform.copyFrom(&floats[0] + offset);
       offset += uniform.getElementCount();
     }
   }
@@ -568,7 +568,7 @@ Program* ProgramState::getProgram(void) const
 
 void ProgramState::setProgram(Program* newProgram)
 {
-  floatData.clear();
+  floats.clear();
   textures.clear();
 
   program = newProgram;
@@ -592,7 +592,7 @@ void ProgramState::setProgram(Program* newProgram)
       textureCount++;
   }
 
-  floatData.resize(floatCount);
+  floats.insert(floats.end(), floatCount, 0.f);
   textures.resize(textureCount);
 }
 
@@ -625,7 +625,7 @@ void* ProgramState::getData(const String& name, Uniform::Type type)
     if (uniform.getName() == name)
     {
       if (uniform.getType() == type)
-        return &floatData[0] + offset;
+        return &floats[0] + offset;
 
       logError("Uniform \'%s\' of program \'%s\' is not of type \'%s\'",
                uniform.getName().c_str(),

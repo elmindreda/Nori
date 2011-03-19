@@ -205,7 +205,7 @@ private:
   typedef std::vector<float> FloatList;
   StateID ID;
   Ref<Program> program;
-  FloatList floatData;
+  FloatList floats;
   TextureList textures;
   static IDQueue usedIDs;
   static StateID nextID;
