@@ -73,7 +73,7 @@
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
-#include <wendy/RenderQueue.h>
+#include <wendy/RenderScene.h>
 #include <wendy/RenderPool.h>
 #include <wendy/RenderSprite.h>
 #include <wendy/RenderFont.h>

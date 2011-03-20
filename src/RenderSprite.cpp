@@ -29,7 +29,7 @@
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderPool.h>
-#include <wendy/RenderQueue.h>
+#include <wendy/RenderScene.h>
 #include <wendy/RenderSprite.h>
 
 #include <glm/gtx/rotate_vector.hpp>
