@@ -99,13 +99,13 @@ void realizeSpriteVertices(Vertex2ft3fv* vertices,
   else
     logError("Unknown sprite type %u", type);
 
-  vertices[0].mapping = vec2(0.f, 0.f);
+  vertices[0].texCoord = vec2(0.f, 0.f);
   vertices[0].position = spritePosition - axisX - axisY;
-  vertices[1].mapping = vec2(1.f, 0.f);
+  vertices[1].texCoord = vec2(1.f, 0.f);
   vertices[1].position = spritePosition + axisX - axisY;
-  vertices[2].mapping = vec2(1.f, 1.f);
+  vertices[2].texCoord = vec2(1.f, 1.f);
   vertices[2].position = spritePosition + axisX + axisY;
-  vertices[3].mapping = vec2(0.f, 1.f);
+  vertices[3].texCoord = vec2(0.f, 1.f);
   vertices[3].position = spritePosition - axisX + axisY;
 }
 
@@ -136,10 +136,10 @@ void Sprite2::realizeVertices(Vertex2ft2fv* vertices) const
 {
   const vec2 offset(size.x / 2.f, size.y / 2.f);
 
-  vertices[0].mapping = vec2(mapping.position.x + mapping.size.x, mapping.position.y + mapping.size.y);
-  vertices[1].mapping = vec2(mapping.position.x, mapping.position.y + mapping.size.y);
-  vertices[2].mapping = vec2(mapping.position.x, mapping.position.y);
-  vertices[3].mapping = vec2(mapping.position.x + mapping.size.x, mapping.position.y);
+  vertices[0].texCoord = vec2(texArea.position.x + texArea.size.x, texArea.position.y + texArea.size.y);
+  vertices[1].texCoord = vec2(texArea.position.x, texArea.position.y + texArea.size.y);
+  vertices[2].texCoord = vec2(texArea.position.x, texArea.position.y);
+  vertices[3].texCoord = vec2(texArea.position.x + texArea.size.x, texArea.position.y);
 
   vertices[0].position = vec2( offset.x,  offset.y);
   vertices[1].position = vec2(-offset.x,  offset.y);
@@ -155,7 +155,7 @@ void Sprite2::realizeVertices(Vertex2ft2fv* vertices) const
 
 void Sprite2::setDefaults(void)
 {
-  mapping.set(vec2(0.f), vec2(1.f));
+  texArea.set(vec2(0.f), vec2(1.f));
   position = vec2(0.f);
   size = vec2(1.f);
   angle = 0.f;

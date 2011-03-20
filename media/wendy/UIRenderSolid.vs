@@ -1,15 +1,10 @@
 
-struct Vertex
-{
-  vec2 position;
-};
+uniform mat4 wyP;
 
-uniform mat4 P;
-
-in Vertex vertex;
+attribute vec2 wyPosition;
 
 void main()
 {
-  gl_Position = P * vec4(vertex.position, 0, 1);
+  gl_Position = wyP * vec4(wyPosition, 0, 1);
 }
 

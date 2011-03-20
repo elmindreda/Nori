@@ -3,7 +3,7 @@
 uniform sampler2D image;
 uniform vec2 scale;
 
-in vec2 mapping;
+in vec2 texCoord;
 
 vec2 gaussFilter[3];
 
@@ -17,7 +17,7 @@ void main()
   
   for (int i = 0;  i < 3;  i++)
   {
-    color += texture2D(image, vec2(mapping.s + gaussFilter[i].s * scale.s, mapping.t)) * 
+    color += texture2D(image, vec2(texCoord.s + gaussFilter[i].s * scale.s, texCoord.t)) * 
              gaussFilter[i].t;
   }
   

@@ -47,12 +47,12 @@ namespace
 struct LightVertex
 {
   vec2 position;
-  vec2 mapping;
+  vec2 texCoord;
   vec2 clipOverF;
   static VertexFormat format;
 };
 
-VertexFormat LightVertex::format("2f:vertex.position 2f:vertex.mapping 2f:vertex.clipOverF");
+VertexFormat LightVertex::format("2f:wyPosition 2f:wyTexCoord 2f:wyClipOverF");
 
 } /*namespace*/
 
@@ -229,8 +229,8 @@ bool Renderer::init(const Config& config)
     GL::ProgramInterface interface;
     interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
-    interface.addAttribute("vertex.position", GL::Attribute::FLOAT_VEC2);
-    interface.addAttribute("vertex.mapping", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("wyPosition", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("wyTexCoord", GL::Attribute::FLOAT_VEC2);
 
     if (!interface.matches(*program, true))
     {
@@ -266,9 +266,9 @@ bool Renderer::init(const Config& config)
     interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
     interface.addUniform("light.direction", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
-    interface.addAttribute("vertex.position", GL::Attribute::FLOAT_VEC2);
-    interface.addAttribute("vertex.mapping", GL::Attribute::FLOAT_VEC2);
-    interface.addAttribute("vertex.clipOverF", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("wyPosition", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("wyTexCoord", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("wyClipOverF", GL::Attribute::FLOAT_VEC2);
 
     if (!interface.matches(*program, true))
     {
@@ -319,9 +319,9 @@ bool Renderer::init(const Config& config)
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.radius", GL::Uniform::FLOAT);
     interface.addSampler("light.distAttTexture", GL::Sampler::SAMPLER_1D);
-    interface.addAttribute("vertex.position", GL::Attribute::FLOAT_VEC2);
-    interface.addAttribute("vertex.mapping", GL::Attribute::FLOAT_VEC2);
-    interface.addAttribute("vertex.clipOverF", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("wyPosition", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("wyTexCoord", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("wyClipOverF", GL::Attribute::FLOAT_VEC2);
 
     if (!interface.matches(*program, true))
     {
@@ -359,19 +359,19 @@ void Renderer::renderLightQuad(const render::Camera& camera)
   const float f = tan(radians / 2.f);
   const float aspect = camera.getAspectRatio();
 
-  vertices[0].mapping = vec2(0.5f, 0.5f);
+  vertices[0].texCoord = vec2(0.5f, 0.5f);
   vertices[0].position = vec2(0.f, 0.f);
   vertices[0].clipOverF = vec2(-f * aspect, -f);
 
-  vertices[1].mapping = vec2(canvas->getWidth() + 0.5f, 0.5f);
+  vertices[1].texCoord = vec2(canvas->getWidth() + 0.5f, 0.5f);
   vertices[1].position = vec2(1.f, 0.f);
   vertices[1].clipOverF = vec2(f * aspect, -f);
 
-  vertices[2].mapping = vec2(canvas->getWidth() + 0.5f, canvas->getHeight() + 0.5f);
+  vertices[2].texCoord = vec2(canvas->getWidth() + 0.5f, canvas->getHeight() + 0.5f);
   vertices[2].position = vec2(1.f, 1.f);
   vertices[2].clipOverF = vec2(f * aspect, f);
 
-  vertices[3].mapping = vec2(0.5f, canvas->getHeight() + 0.5f);
+  vertices[3].texCoord = vec2(0.5f, canvas->getHeight() + 0.5f);
   vertices[3].position = vec2(0.f, 1.f);
   vertices[3].clipOverF = vec2(-f * aspect, f);
 

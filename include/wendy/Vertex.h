@@ -162,7 +162,7 @@ public:
 class Vertex2ft2fv
 {
 public:
-  vec2 mapping;
+  vec2 texCoord;
   vec2 position;
   static const VertexFormat format;
 };
@@ -174,7 +174,7 @@ public:
 class Vertex2ft3fv
 {
 public:
-  vec2 mapping;
+  vec2 texCoord;
   vec3 position;
   static const VertexFormat format;
 };
@@ -187,7 +187,7 @@ class Vertex4fc2ft3fv
 {
 public:
   vec4 color;
-  vec2 mapping;
+  vec2 texCoord;
   vec3 position;
   static const VertexFormat format;
 };

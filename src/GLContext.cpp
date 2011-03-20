@@ -795,6 +795,9 @@ void SharedProgramState::setPerspectiveProjectionMatrix(float FOV,
 
 void SharedProgramState::updateTo(Sampler& sampler)
 {
+  logError("Unknown shared sampler uniform \'%s\' of type \'%s\' requested",
+           sampler.getName().c_str(),
+           asString(sampler.getType()));
 }
 
 void SharedProgramState::updateTo(Uniform& uniform)
@@ -804,19 +807,19 @@ void SharedProgramState::updateTo(Uniform& uniform)
     case SHARED_MODEL_MATRIX:
     {
       uniform.copyFrom(value_ptr(modelMatrix));
-      break;
+      return;
     }
 
     case SHARED_VIEW_MATRIX:
     {
       uniform.copyFrom(value_ptr(viewMatrix));
-      break;
+      return;
     }
 
     case SHARED_PROJECTION_MATRIX:
     {
       uniform.copyFrom(value_ptr(projectionMatrix));
-      break;
+      return;
     }
 
     case SHARED_MODELVIEW_MATRIX:
@@ -829,7 +832,7 @@ void SharedProgramState::updateTo(Uniform& uniform)
       }
 
       uniform.copyFrom(value_ptr(modelViewMatrix));
-      break;
+      return;
     }
 
     case SHARED_VIEWPROJECTION_MATRIX:
@@ -842,7 +845,7 @@ void SharedProgramState::updateTo(Uniform& uniform)
       }
 
       uniform.copyFrom(value_ptr(viewProjMatrix));
-      break;
+      return;
     }
 
     case SHARED_MODELVIEWPROJECTION_MATRIX:
@@ -862,9 +865,13 @@ void SharedProgramState::updateTo(Uniform& uniform)
       }
 
       uniform.copyFrom(value_ptr(modelViewProjMatrix));
-      break;
+      return;
     }
   }
+
+  logError("Unknown shared uniform \'%s\' of type \'%s\' requested",
+           uniform.getName().c_str(),
+           asString(uniform.getType()));
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1574,12 +1581,12 @@ bool Context::init(const ContextMode& initMode)
     glfwSwapInterval(1);
   }
 
-  createSharedUniform("M", Uniform::FLOAT_MAT4, SHARED_MODEL_MATRIX);
-  createSharedUniform("V", Uniform::FLOAT_MAT4, SHARED_VIEW_MATRIX);
-  createSharedUniform("P", Uniform::FLOAT_MAT4, SHARED_PROJECTION_MATRIX);
-  createSharedUniform("MV", Uniform::FLOAT_MAT4, SHARED_MODELVIEW_MATRIX);
-  createSharedUniform("VP", Uniform::FLOAT_MAT4, SHARED_VIEWPROJECTION_MATRIX);
-  createSharedUniform("MVP", Uniform::FLOAT_MAT4, SHARED_MODELVIEWPROJECTION_MATRIX);
+  createSharedUniform("wyM", Uniform::FLOAT_MAT4, SHARED_MODEL_MATRIX);
+  createSharedUniform("wyV", Uniform::FLOAT_MAT4, SHARED_VIEW_MATRIX);
+  createSharedUniform("wyP", Uniform::FLOAT_MAT4, SHARED_PROJECTION_MATRIX);
+  createSharedUniform("wyMV", Uniform::FLOAT_MAT4, SHARED_MODELVIEW_MATRIX);
+  createSharedUniform("wyVP", Uniform::FLOAT_MAT4, SHARED_VIEWPROJECTION_MATRIX);
+  createSharedUniform("wyMVP", Uniform::FLOAT_MAT4, SHARED_MODELVIEWPROJECTION_MATRIX);
 
   return true;
 }

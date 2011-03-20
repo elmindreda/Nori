@@ -254,13 +254,13 @@ void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
   maxY -= 1.f;
 
   Vertex2ft2fv vertices[4];
-  vertices[0].mapping = vec2(0.f, 0.f);
+  vertices[0].texCoord = vec2(0.f, 0.f);
   vertices[0].position = vec2(minX, minY);
-  vertices[1].mapping = vec2(1.f, 0.f);
+  vertices[1].texCoord = vec2(1.f, 0.f);
   vertices[1].position = vec2(maxX, minY);
-  vertices[2].mapping = vec2(1.f, 1.f);
+  vertices[2].texCoord = vec2(1.f, 1.f);
   vertices[2].position = vec2(maxX, maxY);
-  vertices[3].mapping = vec2(0.f, 1.f);
+  vertices[3].texCoord = vec2(0.f, 1.f);
   vertices[3].position = vec2(minX, maxY);
 
   GL::VertexRange range;
@@ -553,7 +553,7 @@ bool Renderer::init(void)
 
     GL::ProgramInterface interface;
     interface.addUniform("color", GL::Uniform::FLOAT_VEC4);
-    interface.addAttribute("vertex.position", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("wyPosition", GL::Attribute::FLOAT_VEC2);
 
     if (!interface.matches(*program, true))
     {
@@ -582,8 +582,8 @@ bool Renderer::init(void)
 
     GL::ProgramInterface interface;
     interface.addSampler("image", GL::Sampler::SAMPLER_2D);
-    interface.addAttribute("vertex.position", GL::Attribute::FLOAT_VEC2);
-    interface.addAttribute("vertex.mapping", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("wyPosition", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("wyTexCoord", GL::Attribute::FLOAT_VEC2);
 
     if (!interface.matches(*program, true))
     {

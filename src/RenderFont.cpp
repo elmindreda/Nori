@@ -410,8 +410,8 @@ bool Font::init(const FontData& data)
     GL::ProgramInterface interface;
     interface.addSampler("glyphs", GL::Sampler::SAMPLER_2D);
     interface.addUniform("color", GL::Uniform::FLOAT_VEC4);
-    interface.addAttribute("vertex.position", GL::Attribute::FLOAT_VEC2);
-    interface.addAttribute("vertex.mapping", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("wyPosition", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("wyTexCoord", GL::Attribute::FLOAT_VEC2);
 
     if (!interface.matches(*program, true))
     {
@@ -532,15 +532,15 @@ void Font::realizeVertices(const Rect& pixelArea,
   const Rect& pa = pixelArea;
   const Rect& ta = texelArea;
 
-  vertices[0].mapping = vec2(ta.position.x, ta.position.y);
+  vertices[0].texCoord = vec2(ta.position.x, ta.position.y);
   vertices[0].position = vec2(pa.position.x, pa.position.y);
-  vertices[1].mapping = vec2(ta.position.x + ta.size.x, ta.position.y);
+  vertices[1].texCoord = vec2(ta.position.x + ta.size.x, ta.position.y);
   vertices[1].position = vec2(pa.position.x + pa.size.x, pa.position.y);
-  vertices[2].mapping = vec2(ta.position.x + ta.size.x, ta.position.y + ta.size.y);
+  vertices[2].texCoord = vec2(ta.position.x + ta.size.x, ta.position.y + ta.size.y);
   vertices[2].position = vec2(pa.position.x + pa.size.x, pa.position.y + pa.size.y);
 
   vertices[3] = vertices[2];
-  vertices[4].mapping = vec2(ta.position.x, ta.position.y + ta.size.y);
+  vertices[4].texCoord = vec2(ta.position.x, ta.position.y + ta.size.y);
   vertices[4].position = vec2(pa.position.x, pa.position.y + pa.size.y);
   vertices[5] = vertices[0];
 }

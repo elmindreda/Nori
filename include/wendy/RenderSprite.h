@@ -55,7 +55,7 @@ public:
   void render(GeometryPool& pool) const;
   void realizeVertices(Vertex2ft2fv* vertices) const;
   void setDefaults(void);
-  Rect mapping;
+  Rect texArea;
   vec2 position;
   vec2 size;
   float angle;

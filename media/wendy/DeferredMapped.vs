@@ -1,24 +1,19 @@
 
-uniform mat4 MVP;
-uniform mat4 MV;
+uniform mat4 wyMVP;
+uniform mat4 wyMV;
 
-struct Vertex
-{
-  vec3 position;
-  vec3 normal;
-  vec2 mapping;
-};
-
-in Vertex vertex;
+attribute vec3 wyPosition;
+attribute vec3 wyNormal;
+attribute vec2 wyTexCoord;
 
 varying vec3 normal;
-varying vec2 mapping;
+varying vec2 texCoord;
 
 void main()
 {
-  normal = (MV * vec4(vertex.normal, 0)).xyz;
-  mapping = vertex.mapping;
+  normal = (wyMV * vec4(wyNormal, 0)).xyz;
+  texCoord = wyTexCoord;
 
-  gl_Position = MVP * vec4(vertex.position, 1);
+  gl_Position = wyMVP * vec4(wyPosition, 1);
 }
 

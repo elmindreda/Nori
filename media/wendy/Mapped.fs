@@ -1,7 +1,7 @@
 
 uniform sampler2D image;
 
-in vec2 texCoord;
+varying vec2 texCoord;
 
 void main()
 {

@@ -1,20 +1,15 @@
 
-struct Vertex
-{
-  vec2 position;
-  vec2 mapping;
-};
+uniform mat4 wyMVP;
 
-uniform mat4 MVP;
+attribute vec2 wyPosition;
+attribute vec2 wyTexCoord;
 
-in Vertex vertex;
-
-varying vec2 mapping;
+varying vec2 texCoord;
 
 void main()
 {
-  mapping = vertex.mapping;
+  texCoord = wyTexCoord;
 
-  gl_Position = MVP * vec4(vertex.position, 0, 1);
+  gl_Position = wyMVP * vec4(wyPosition, 0, 1);
 }
 

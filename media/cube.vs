@@ -1,23 +1,18 @@
 
-struct Vertex
-{
-  vec3 position;
-  vec3 normal;
-};
+uniform mat4 wyMVP;
+uniform mat4 wyMV;
 
-uniform mat4 MVP;
-uniform mat4 MV;
-
-in Vertex vertex;
+attribute vec3 wyPosition;
+attribute vec3 wyNormal;
 
 varying vec3 viewpos;
 varying vec3 normal;
 
 void main()
 {
-  viewpos = (MV * vec4(vertex.position, 1)).xyz;
-  normal = vertex.normal;
+  viewpos = (wyMV * vec4(wyPosition, 1)).xyz;
+  normal = wyNormal;
 
-  gl_Position = MVP * vec4(vertex.position, 1);
+  gl_Position = wyMVP * vec4(wyPosition, 1);
 }
 

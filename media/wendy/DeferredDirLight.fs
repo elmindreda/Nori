@@ -12,14 +12,14 @@ uniform float nearZ;
 uniform float nearOverFarZminusOne;
 uniform Light light;
 
-varying vec2 mapping;
+varying vec2 texCoord;
 varying vec2 clipOverF;
 
 void main()
 {
-  vec4 NS = texture2DRect(normalTexture, mapping);
-  vec3 Cs = texture2DRect(colorTexture, mapping).rgb;
-  float minusPz = nearZ / (texture2DRect(depthTexture, mapping).r * nearOverFarZminusOne + 1);
+  vec4 NS = texture2DRect(normalTexture, texCoord);
+  vec3 Cs = texture2DRect(colorTexture, texCoord).rgb;
+  float minusPz = nearZ / (texture2DRect(depthTexture, texCoord).r * nearOverFarZminusOne + 1);
 
   vec3 P = vec3(clipOverF.x, clipOverF.y, -1) * minusPz;
   vec3 N = normalize(NS.xyz - 0.5);

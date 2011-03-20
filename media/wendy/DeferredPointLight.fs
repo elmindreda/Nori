@@ -14,12 +14,12 @@ uniform float nearZ;
 uniform float nearOverFarZminusOne;
 uniform Light light;
 
-in vec2 mapping;
+in vec2 texCoord;
 in vec2 clipOverF;
 
 void main()
 {
-  float minusPz = nearZ / (texture2DRect(depthTexture, mapping).r * nearOverFarZminusOne + 1);
+  float minusPz = nearZ / (texture2DRect(depthTexture, texCoord).r * nearOverFarZminusOne + 1);
   vec3 P = vec3(clipOverF.x, clipOverF.y, -1) * minusPz;
 
   float dist = distance(P, light.position);
@@ -29,8 +29,8 @@ void main()
     return;
   }
 
-  vec4 NS = texture2DRect(normalTexture, mapping);
-  vec3 Cs = texture2DRect(colorTexture, mapping).rgb;
+  vec4 NS = texture2DRect(normalTexture, texCoord);
+  vec3 Cs = texture2DRect(colorTexture, texCoord).rgb;
 
   vec3 L = normalize(light.position - P);
   vec3 N = normalize(NS.xyz - 0.5);

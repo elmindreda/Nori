@@ -1,20 +1,15 @@
 
-uniform mat4 P;
+uniform mat4 wyP;
 
-struct Vertex
-{
-  vec2 position;
-  vec2 mapping;
-};
+attribute vec2 wyPosition;
+attribute vec2 wyTexCoord;
 
-attribute Vertex vertex;
-
-varying vec2 mapping;
+varying vec2 texCoord;
 
 void main()
 {
-  mapping = vertex.mapping;
+  texCoord = wyTexCoord;
 
-  gl_Position = P * vec4(vertex.position, 0, 1);
+  gl_Position = wyP * vec4(wyPosition, 0, 1);
 }
 

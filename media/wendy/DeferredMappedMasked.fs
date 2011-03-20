@@ -3,11 +3,11 @@ uniform sampler2D colormap;
 uniform sampler2D normalmap;
 
 in vec3 normal;
-in vec2 mapping;
+in vec2 texCoord;
 
 void main()
 {
-  vec4 color = texture2D(colormap, mapping);
+  vec4 color = texture2D(colormap, texCoord);
 
   if (color.a - 0.5 < 0)
     discard;

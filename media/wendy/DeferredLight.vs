@@ -1,23 +1,18 @@
 
-struct Vertex
-{
-  vec2 position;
-  vec2 mapping;
-  vec2 clipOverF;
-};
+uniform mat4 wyP;
 
-uniform mat4 P;
+attribute vec2 wyPosition;
+attribute vec2 wyTexCoord;
+attribute vec2 wyClipOverF;
 
-in Vertex vertex;
-
-varying vec2 mapping;
+varying vec2 texCoord;
 varying vec2 clipOverF;
 
 void main()
 {
-  mapping = vertex.mapping;
-  clipOverF = vertex.clipOverF;
+  texCoord = wyTexCoord;
+  clipOverF = wyClipOverF;
 
-  gl_Position = P * vec4(vertex.position, 0, 1);
+  gl_Position = wyP * vec4(wyPosition, 0, 1);
 }
 
