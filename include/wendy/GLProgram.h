@@ -194,7 +194,9 @@ private:
   bool init(const Shader& vertexShader, const Shader& fragmentShader);
   bool retrieveUniforms(void);
   bool retrieveAttributes(void);
+  void bind(void);
   Program& operator = (const Program& source);
+  bool isValid(void) const;
   typedef std::vector<Attribute> AttributeList;
   typedef std::vector<Sampler> SamplerList;
   typedef std::vector<Uniform> UniformList;

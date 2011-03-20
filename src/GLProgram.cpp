@@ -665,28 +665,14 @@ bool Program::init(const Shader& vertexShader, const Shader& fragmentShader)
   glAttachShader(programID, vertexShaderID);
   glAttachShader(programID, fragmentShaderID);
 
-  int status;
-
   glLinkProgram(programID);
 
+  int status;
   glGetProgramiv(programID, GL_LINK_STATUS, &status);
   if (!status)
   {
     String infoLog = getProgramInfoLog(programID);
     logError("Failed to link program \'%s\':\n%s",
-             path.asString().c_str(),
-             infoLog.c_str());
-
-    return false;
-  }
-
-  glValidateProgram(programID);
-
-  glGetProgramiv(programID, GL_VALIDATE_STATUS, &status);
-  if (!status)
-  {
-    String infoLog = getProgramInfoLog(programID);
-    logError("Failed to validate program \'%s\':\n%s",
              path.asString().c_str(),
              infoLog.c_str());
 
@@ -820,9 +806,33 @@ bool Program::retrieveAttributes(void)
   return true;
 }
 
+void Program::bind(void)
+{
+  glUseProgram(programID);
+}
+
 Program& Program::operator = (const Program& source)
 {
   return *this;
+}
+
+bool Program::isValid(void) const
+{
+  glValidateProgram(programID);
+
+  int status;
+  glGetProgramiv(programID, GL_VALIDATE_STATUS, &status);
+  if (!status)
+  {
+    String infoLog = getProgramInfoLog(programID);
+    logError("Failed to validate program \'%s\':\n%s",
+             path.asString().c_str(),
+             infoLog.c_str());
+
+    return false;
+  }
+
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////

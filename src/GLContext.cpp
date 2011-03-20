@@ -1024,6 +1024,11 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
     dirtyBinding = false;
   }
 
+#if WENDY_DEBUG
+  if (!currentProgram->isValid())
+    return;
+#endif
+
   if (currentIndexBuffer)
   {
     size_t size = IndexBuffer::getTypeSize(currentIndexBuffer->getType());
@@ -1207,7 +1212,7 @@ void Context::setCurrentProgram(Program* newProgram)
     dirtyBinding = true;
 
     if (currentProgram)
-      glUseProgram(currentProgram->programID);
+      currentProgram->bind();
     else
       glUseProgram(0);
   }
