@@ -1056,6 +1056,10 @@ bool Context::update(void)
   finishSignal.emit();
   needsRefresh = false;
 
+#if WENDY_DEBUG
+  checkGL("Uncaught OpenGL error during last frame");
+#endif
+
   if (stats)
     stats->addFrame();
 
