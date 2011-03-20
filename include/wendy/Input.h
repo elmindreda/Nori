@@ -274,10 +274,9 @@ public:
   size_t getCaretPosition(void) const;
   void setCaretPosition(size_t newPosition);
 private:
+  bool isCtrlKeyDown(void) const;
   String text;
   size_t caretPosition;
-  bool lctrl;
-  bool rctrl;
 };
 
 ///////////////////////////////////////////////////////////////////////

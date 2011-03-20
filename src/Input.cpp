@@ -693,9 +693,7 @@ void SpectatorCamera::updateTransform(void)
 ///////////////////////////////////////////////////////////////////////
 
 TextController::TextController(void):
-  caretPosition(0),
-  lctrl(false),
-  rctrl(false)
+  caretPosition(0)
 {
 }
 
@@ -765,21 +763,9 @@ void TextController::onKeyPressed(Key key, bool pressed)
       break;
     }
 
-    case input::Key::LCTRL:
-    {
-      lctrl = pressed;
-      break;
-    }
-
-    case input::Key::RCTRL:
-    {
-      rctrl = pressed;
-      break;
-    }
-
     case 'U':
     {
-      if (pressed && (lctrl || rctrl))
+      if (pressed && isCtrlKeyDown())
       {
         text.erase(0, caretPosition);
         setCaretPosition(0);
@@ -790,7 +776,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
     case 'A':
     {
-      if (pressed && (lctrl || rctrl))
+      if (pressed && isCtrlKeyDown())
         setCaretPosition(0);
 
       break;
@@ -798,7 +784,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
     case 'E':
     {
-      if (pressed && (lctrl || rctrl))
+      if (pressed && isCtrlKeyDown())
         setCaretPosition(text.length());
 
       break;
@@ -806,7 +792,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
     case 'W':
     {
-      if (pressed && (lctrl || rctrl))
+      if (pressed && isCtrlKeyDown())
       {
         size_t pos = caretPosition;
 
@@ -836,7 +822,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
 void TextController::onCharInput(wchar_t character)
 {
-  if (lctrl || rctrl)
+  if (isCtrlKeyDown())
     return;
 
   if (character < 256)
@@ -868,6 +854,13 @@ void TextController::setCaretPosition(size_t newPosition)
     caretPosition = text.length();
   else
     caretPosition = newPosition;
+}
+
+bool TextController::isCtrlKeyDown(void) const
+{
+  Context* context = Context::getSingleton();
+
+  return context->isKeyDown(Key::LCTRL) || context->isKeyDown(Key::RCTRL);
 }
 
 ///////////////////////////////////////////////////////////////////////
