@@ -45,7 +45,7 @@ Entry::Entry(Desktop& desktop, const String& initText):
   startPosition(0),
   caretPosition(0)
 {
-  const float em = getDesktop().getRenderer().getCurrentEM();
+  const float em = getDesktop().getDrawer().getCurrentEM();
 
   setSize(vec2(em * 10.f, em * 1.5f));
 
@@ -88,18 +88,18 @@ void Entry::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Renderer& renderer = getDesktop().getRenderer();
-  if (renderer.pushClipArea(area))
+  Drawer& drawer = getDesktop().getDrawer();
+  if (drawer.pushClipArea(area))
   {
-    renderer.drawWell(area, getState());
+    drawer.drawWell(area, getState());
 
-    const float em = renderer.getCurrentEM();
+    const float em = drawer.getCurrentEM();
 
     Rect textArea = area;
     textArea.position.x += em / 2.f;
     textArea.size.x -= em;
 
-    renderer.drawText(textArea, text, LEFT_ALIGNED);
+    drawer.drawText(textArea, text, LEFT_ALIGNED);
 
     if (isActive() && ((unsigned int) (Timer::getCurrentTime() * 2.f) & 1))
     {
@@ -107,7 +107,7 @@ void Entry::draw(void) const
 
       if (caretPosition > startPosition)
       {
-	render::Font& font = renderer.getCurrentFont();
+	render::Font& font = drawer.getCurrentFont();
         Rect metrics = font.getTextMetrics(text.substr(startPosition, caretPosition));
 	position = metrics.size.x;
       }
@@ -118,12 +118,12 @@ void Entry::draw(void) const
       segment.end = vec2(textArea.position.x + position,
                          textArea.position.y + textArea.size.y);
 
-      renderer.drawLine(segment, vec4(vec3(0.f), 1.f));
+      drawer.drawLine(segment, vec4(vec3(0.f), 1.f));
     }
 
     Widget::draw();
 
-    renderer.popClipArea();
+    drawer.popClipArea();
   }
 }
 
@@ -132,14 +132,14 @@ void Entry::onButtonClicked(Widget& widget,
 			    input::Button button,
 			    bool clicked)
 {
-  Renderer& renderer = getDesktop().getRenderer();
+  Drawer& drawer = getDesktop().getDrawer();
 
-  const float em = renderer.getCurrentEM();
+  const float em = drawer.getCurrentEM();
   const float offset = em / 2.f;
   float position = transformToLocal(point).x - offset;
 
   render::Font::LayoutList layouts;
-  renderer.getCurrentFont().getTextLayout(layouts, text.substr(startPosition, String::npos));
+  drawer.getCurrentFont().getTextLayout(layouts, text.substr(startPosition, String::npos));
 
   unsigned int index;
 

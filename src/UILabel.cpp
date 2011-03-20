@@ -46,16 +46,16 @@ Label::Label(Desktop& desktop, const String& initText):
   text(initText),
   textAlignment(LEFT_ALIGNED)
 {
-  Renderer& renderer = desktop.getRenderer();
+  Drawer& drawer = desktop.getDrawer();
 
-  const float em = renderer.getCurrentEM();
+  const float em = drawer.getCurrentEM();
 
   float textWidth;
 
   if (text.empty())
     textWidth = em * 3.f;
   else
-    textWidth = renderer.getCurrentFont().getTextMetrics(text).size.x;
+    textWidth = drawer.getCurrentFont().getTextMetrics(text).size.x;
 
   setSize(vec2(em * 2.f + textWidth, em * 2.f));
 }
@@ -101,14 +101,14 @@ void Label::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Renderer& renderer = getDesktop().getRenderer();
-  if (renderer.pushClipArea(area))
+  Drawer& drawer = getDesktop().getDrawer();
+  if (drawer.pushClipArea(area))
   {
-    renderer.drawText(area, text, textAlignment);
+    drawer.drawText(area, text, textAlignment);
 
     Widget::draw();
 
-    renderer.popClipArea();
+    drawer.popClipArea();
   }
 }
 

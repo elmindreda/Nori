@@ -51,7 +51,7 @@ void Alignment::set(HorzAlignment newHorizontal, VertAlignment newVertical)
 
 ///////////////////////////////////////////////////////////////////////
 
-void Renderer::begin(void)
+void Drawer::begin(void)
 {
   GL::Context& context = pool.getContext();
   context.setCurrentSharedProgramState(state);
@@ -61,12 +61,12 @@ void Renderer::begin(void)
                                   float(canvas.getHeight()));
 }
 
-void Renderer::end(void)
+void Drawer::end(void)
 {
   pool.getContext().setCurrentSharedProgramState(NULL);
 }
 
-bool Renderer::pushClipArea(const Rect& area)
+bool Drawer::pushClipArea(const Rect& area)
 {
   GL::Context& context = pool.getContext();
   GL::Canvas& canvas = context.getCurrentCanvas();
@@ -80,7 +80,7 @@ bool Renderer::pushClipArea(const Rect& area)
   return true;
 }
 
-void Renderer::popClipArea(void)
+void Drawer::popClipArea(void)
 {
   if (clipAreaStack.getCount() == 1)
   {
@@ -95,7 +95,7 @@ void Renderer::popClipArea(void)
   context.setScissorArea(clipAreaStack.getTotal());
 }
 
-void Renderer::drawPoint(const vec2& point, const vec4& color)
+void Drawer::drawPoint(const vec2& point, const vec4& color)
 {
   Vertex2fv vertex;
   vertex.position = point;
@@ -111,7 +111,7 @@ void Renderer::drawPoint(const vec2& point, const vec4& color)
   pool.getContext().render(GL::PrimitiveRange(GL::POINT_LIST, range));
 }
 
-void Renderer::drawLine(const Segment2& segment, const vec4& color)
+void Drawer::drawLine(const Segment2& segment, const vec4& color)
 {
   Vertex2fv vertices[2];
   vertices[0].position = segment.start;
@@ -128,7 +128,7 @@ void Renderer::drawLine(const Segment2& segment, const vec4& color)
   pool.getContext().render(GL::PrimitiveRange(GL::LINE_LIST, range));
 }
 
-void Renderer::drawTriangle(const Triangle2& triangle, const vec4& color)
+void Drawer::drawTriangle(const Triangle2& triangle, const vec4& color)
 {
   Vertex2fv vertices[3];
   vertices[0].position = triangle.P[0];
@@ -146,7 +146,7 @@ void Renderer::drawTriangle(const Triangle2& triangle, const vec4& color)
   pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
 }
 
-void Renderer::drawBezier(const BezierCurve2& spline, const vec4& color)
+void Drawer::drawBezier(const BezierCurve2& spline, const vec4& color)
 {
   BezierCurve2::PointList points;
   spline.tessellate(points);
@@ -168,7 +168,7 @@ void Renderer::drawBezier(const BezierCurve2& spline, const vec4& color)
   pool.getContext().render(GL::PrimitiveRange(GL::LINE_STRIP, range));
 }
 
-void Renderer::drawRectangle(const Rect& rectangle, const vec4& color)
+void Drawer::drawRectangle(const Rect& rectangle, const vec4& color)
 {
   float minX, minY, maxX, maxY;
   rectangle.getBounds(minX, minY, maxX, maxY);
@@ -196,7 +196,7 @@ void Renderer::drawRectangle(const Rect& rectangle, const vec4& color)
   pool.getContext().render(GL::PrimitiveRange(GL::LINE_LOOP, range));
 }
 
-void Renderer::fillTriangle(const Triangle2& triangle, const vec4& color)
+void Drawer::fillTriangle(const Triangle2& triangle, const vec4& color)
 {
   Vertex2fv vertices[3];
   vertices[0].position = triangle.P[0];
@@ -214,7 +214,7 @@ void Renderer::fillTriangle(const Triangle2& triangle, const vec4& color)
   pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
 }
 
-void Renderer::fillRectangle(const Rect& rectangle, const vec4& color)
+void Drawer::fillRectangle(const Rect& rectangle, const vec4& color)
 {
   float minX, minY, maxX, maxY;
   rectangle.getBounds(minX, minY, maxX, maxY);
@@ -242,7 +242,7 @@ void Renderer::fillRectangle(const Rect& rectangle, const vec4& color)
   pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 }
 
-void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
+void Drawer::blitTexture(const Rect& area, GL::Texture& texture)
 {
   float minX, minY, maxX, maxY;
   area.getBounds(minX, minY, maxX, maxY);
@@ -282,10 +282,10 @@ void Renderer::blitTexture(const Rect& area, GL::Texture& texture)
   blitPass.setSamplerState("image", NULL);
 }
 
-void Renderer::drawText(const Rect& area,
-                        const String& text,
-		        const Alignment& alignment,
-		        const vec3& color)
+void Drawer::drawText(const Rect& area,
+                      const String& text,
+		      const Alignment& alignment,
+		      const vec3& color)
 {
   if (text.empty())
     return;
@@ -331,10 +331,10 @@ void Renderer::drawText(const Rect& area,
   currentFont->drawText(penPosition, vec4(color, 1.f), text);
 }
 
-void Renderer::drawText(const Rect& area,
-                        const String& text,
-		        const Alignment& alignment,
-			WidgetState state)
+void Drawer::drawText(const Rect& area,
+                      const String& text,
+		      const Alignment& alignment,
+		      WidgetState state)
 {
   switch (state)
   {
@@ -360,7 +360,7 @@ void Renderer::drawText(const Rect& area,
   }
 }
 
-void Renderer::drawWell(const Rect& area, WidgetState state)
+void Drawer::drawWell(const Rect& area, WidgetState state)
 {
   vec3 fillColor;
 
@@ -381,7 +381,7 @@ void Renderer::drawWell(const Rect& area, WidgetState state)
   drawRectangle(area, vec4(vec3(0.f), 1.f));
 }
 
-void Renderer::drawFrame(const Rect& area, WidgetState state)
+void Drawer::drawFrame(const Rect& area, WidgetState state)
 {
   vec3 fillColor;
 
@@ -402,12 +402,12 @@ void Renderer::drawFrame(const Rect& area, WidgetState state)
   drawRectangle(area, vec4(vec3(0.f), 1.f));
 }
 
-void Renderer::drawHandle(const Rect& area, WidgetState state)
+void Drawer::drawHandle(const Rect& area, WidgetState state)
 {
   drawFrame(area, state);
 }
 
-void Renderer::drawButton(const Rect& area, WidgetState state, const String& text)
+void Drawer::drawButton(const Rect& area, WidgetState state, const String& text)
 {
   drawFrame(area, state);
 
@@ -415,77 +415,77 @@ void Renderer::drawButton(const Rect& area, WidgetState state, const String& tex
     drawText(area, text);
 }
 
-const vec3& Renderer::getWidgetColor(void)
+const vec3& Drawer::getWidgetColor(void)
 {
   return widgetColor;
 }
 
-void Renderer::setWidgetColor(const vec3& newColor)
+void Drawer::setWidgetColor(const vec3& newColor)
 {
   widgetColor = newColor;
 }
 
-const vec3& Renderer::getTextColor(void)
+const vec3& Drawer::getTextColor(void)
 {
   return textColor;
 }
 
-void Renderer::setTextColor(const vec3& newColor)
+void Drawer::setTextColor(const vec3& newColor)
 {
   textColor = newColor;
 }
 
-const vec3& Renderer::getWellColor(void)
+const vec3& Drawer::getWellColor(void)
 {
   return wellColor;
 }
 
-void Renderer::setWellColor(const vec3& newColor)
+void Drawer::setWellColor(const vec3& newColor)
 {
   wellColor = newColor;
 }
 
-const vec3& Renderer::getSelectionColor(void)
+const vec3& Drawer::getSelectionColor(void)
 {
   return selectionColor;
 }
 
-void Renderer::setSelectionColor(const vec3& newColor)
+void Drawer::setSelectionColor(const vec3& newColor)
 {
   selectionColor = newColor;
 }
 
-const vec3& Renderer::getSelectedTextColor(void)
+const vec3& Drawer::getSelectedTextColor(void)
 {
   return selectedTextColor;
 }
 
-void Renderer::setSelectedTextColor(const vec3& newColor)
+void Drawer::setSelectedTextColor(const vec3& newColor)
 {
   selectedTextColor = newColor;
 }
 
-render::Font& Renderer::getCurrentFont(void)
+render::Font& Drawer::getCurrentFont(void)
 {
   return *currentFont;
 }
 
-render::Font& Renderer::getDefaultFont(void)
+render::Font& Drawer::getDefaultFont(void)
 {
   return *defaultFont;
 }
 
-float Renderer::getDefaultEM(void) const
+float Drawer::getDefaultEM(void) const
 {
   return defaultFont->getHeight();
 }
 
-float Renderer::getCurrentEM(void) const
+float Drawer::getCurrentEM(void) const
 {
   return currentFont->getHeight();
 }
 
-void Renderer::setCurrentFont(render::Font* newFont)
+void Drawer::setCurrentFont(render::Font* newFont)
 {
   if (newFont)
     currentFont = newFont;
@@ -493,26 +493,26 @@ void Renderer::setCurrentFont(render::Font* newFont)
     currentFont = defaultFont;
 }
 
-render::GeometryPool& Renderer::getGeometryPool(void) const
+render::GeometryPool& Drawer::getGeometryPool(void) const
 {
   return pool;
 }
 
-Renderer* Renderer::create(render::GeometryPool& pool)
+Drawer* Drawer::create(render::GeometryPool& pool)
 {
-  Ptr<Renderer> renderer(new Renderer(pool));
-  if (!renderer->init())
+  Ptr<Drawer> drawer(new Drawer(pool));
+  if (!drawer->init())
     return NULL;
 
-  return renderer.detachObject();
+  return drawer.detachObject();
 }
 
-Renderer::Renderer(render::GeometryPool& initPool):
+Drawer::Drawer(render::GeometryPool& initPool):
   pool(initPool)
 {
 }
 
-bool Renderer::init(void)
+bool Drawer::init(void)
 {
   state = new GL::SharedProgramState();
 
@@ -539,9 +539,9 @@ bool Renderer::init(void)
     currentFont = defaultFont;
   }
 
-  // Set up drawing render pass
+  // Set up solid pass
   {
-    Path path("wendy/UIRenderSolid.program");
+    Path path("wendy/UIDrawSolid.program");
 
     Ref<GL::Program> program = GL::Program::read(pool.getContext(), path);
     if (!program)
@@ -568,9 +568,9 @@ bool Renderer::init(void)
     drawPass.setDepthWriting(false);
   }
 
-  // Set up blitting render pass
+  // Set up blitting pass
   {
-    Path path("wendy/UIRenderMapped.program");
+    Path path("wendy/UIDrawMapped.program");
 
     Ref<GL::Program> program = GL::Program::read(pool.getContext(), path);
     if (!program)
@@ -601,7 +601,7 @@ bool Renderer::init(void)
   return true;
 }
 
-void Renderer::setDrawingState(const vec4& color, bool wireframe)
+void Drawer::setDrawingState(const vec4& color, bool wireframe)
 {
   drawPass.setUniformState("color", color);
 

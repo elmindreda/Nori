@@ -61,8 +61,8 @@ void Page::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Renderer& renderer = getDesktop().getRenderer();
-  if (renderer.pushClipArea(area))
+  Drawer& drawer = getDesktop().getDrawer();
+  if (drawer.pushClipArea(area))
   {
     WidgetState state;
     if (isEnabled())
@@ -70,11 +70,11 @@ void Page::draw(void) const
     else
       state = STATE_DISABLED;
 
-    renderer.drawFrame(area, state);
+    drawer.drawFrame(area, state);
 
     Widget::draw();
 
-    renderer.popClipArea();
+    drawer.popClipArea();
   }
 }
 
@@ -108,15 +108,15 @@ void Book::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Renderer& renderer = getDesktop().getRenderer();
-  if (renderer.pushClipArea(area))
+  Drawer& drawer = getDesktop().getDrawer();
+  if (drawer.pushClipArea(area))
   {
     PageList pages;
     getPages(pages);
 
     if (!pages.empty())
     {
-      const float em = renderer.getCurrentEM();
+      const float em = drawer.getCurrentEM();
 
       const vec2& size = getArea().size;
 
@@ -139,13 +139,13 @@ void Book::draw(void) const
         else
           state = STATE_DISABLED;
 
-        renderer.drawButton(buttonArea, state, pages[i]->getText());
+        drawer.drawButton(buttonArea, state, pages[i]->getText());
       }
     }
 
     Widget::draw();
 
-    renderer.popClipArea();
+    drawer.popClipArea();
   }
 }
 
@@ -153,7 +153,7 @@ void Book::addedChild(Widget& child)
 {
   if (Page* page = dynamic_cast<Page*>(&child))
   {
-    const float em = getDesktop().getRenderer().getCurrentEM();
+    const float em = getDesktop().getDrawer().getCurrentEM();
 
     const vec2& size = getArea().size;
 
@@ -222,7 +222,7 @@ void Book::onAreaChanged(Widget& widget)
   PageList pages;
   getPages(pages);
 
-  const float em = getDesktop().getRenderer().getCurrentEM();
+  const float em = getDesktop().getDrawer().getCurrentEM();
 
   const vec2& size = getArea().size;
 

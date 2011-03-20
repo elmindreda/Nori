@@ -57,23 +57,23 @@ bool Item::operator < (const Item& other) const
 
 float Item::getWidth(void) const
 {
-  Renderer& renderer = desktop.getRenderer();
+  Drawer& drawer = desktop.getDrawer();
 
-  const float em = renderer.getCurrentEM();
+  const float em = drawer.getCurrentEM();
 
   float width = em * 2.f;
 
   if (value.empty())
     width += em * 3.f;
   else
-    width += renderer.getCurrentFont().getTextMetrics(value).size.x;
+    width += drawer.getCurrentFont().getTextMetrics(value).size.x;
 
   return width;
 }
 
 float Item::getHeight(void) const
 {
-  return desktop.getRenderer().getCurrentFont().getHeight() * 1.5f;
+  return desktop.getDrawer().getCurrentFont().getHeight() * 1.5f;
 }
 
 ItemID Item::getID(void) const
@@ -93,20 +93,20 @@ void Item::setStringValue(const String& newValue)
 
 void Item::draw(const Rect& area, WidgetState state) const
 {
-  Renderer& renderer = desktop.getRenderer();
-  if (renderer.pushClipArea(area))
+  Drawer& drawer = desktop.getDrawer();
+  if (drawer.pushClipArea(area))
   {
-    const float em = renderer.getCurrentEM();
+    const float em = drawer.getCurrentEM();
 
     Rect textArea = area;
     textArea.position.x += em / 2.f;
     textArea.size.x -= em;
 
     if (state == STATE_SELECTED)
-      renderer.fillRectangle(area, vec4(renderer.getSelectionColor(), 1.f));
+      drawer.fillRectangle(area, vec4(drawer.getSelectionColor(), 1.f));
 
-    renderer.drawText(textArea, value, LEFT_ALIGNED, state);
-    renderer.popClipArea();
+    drawer.drawText(textArea, value, LEFT_ALIGNED, state);
+    drawer.popClipArea();
   }
 }
 
@@ -119,30 +119,30 @@ SeparatorItem::SeparatorItem(Desktop& desktop):
 
 float SeparatorItem::getWidth(void) const
 {
-  const float em = desktop.getRenderer().getCurrentEM();
+  const float em = desktop.getDrawer().getCurrentEM();
 
   return em * 3.f;
 }
 
 float SeparatorItem::getHeight(void) const
 {
-  const float em = desktop.getRenderer().getCurrentEM();
+  const float em = desktop.getDrawer().getCurrentEM();
 
   return em / 2.f;
 }
 
 void SeparatorItem::draw(const Rect& area, WidgetState state) const
 {
-  Renderer& renderer = desktop.getRenderer();
-  if (renderer.pushClipArea(area))
+  Drawer& drawer = desktop.getDrawer();
+  if (drawer.pushClipArea(area))
   {
     Segment2 segment;
     segment.start = vec2(area.position.x, area.position.y + area.size.y / 2.f);
     segment.end = vec2(area.position.x + area.size.x, area.position.y + area.size.y / 2.f);
 
-    renderer.drawLine(segment, vec4(vec3(0.f), 1.f));
+    drawer.drawLine(segment, vec4(vec3(0.f), 1.f));
 
-    renderer.popClipArea();
+    drawer.popClipArea();
   }
 }
 
@@ -159,14 +159,14 @@ TextureItem::TextureItem(Desktop& desktop,
 
 float TextureItem::getWidth(void) const
 {
-  const float em = desktop.getRenderer().getCurrentEM();
+  const float em = desktop.getDrawer().getCurrentEM();
 
   return Item::getWidth() + em * 3.f;
 }
 
 float TextureItem::getHeight(void) const
 {
-  const float em = desktop.getRenderer().getCurrentEM();
+  const float em = desktop.getDrawer().getCurrentEM();
 
   return em * 3.f;
 }
@@ -178,26 +178,26 @@ GL::Texture& TextureItem::getTexture(void) const
 
 void TextureItem::draw(const Rect& area, WidgetState state) const
 {
-  Renderer& renderer = desktop.getRenderer();
-  if (renderer.pushClipArea(area))
+  Drawer& drawer = desktop.getDrawer();
+  if (drawer.pushClipArea(area))
   {
-    const float em = renderer.getCurrentEM();
+    const float em = drawer.getCurrentEM();
 
     if (state == STATE_SELECTED)
-      renderer.fillRectangle(area, vec4(renderer.getSelectionColor(), 1.f));
+      drawer.fillRectangle(area, vec4(drawer.getSelectionColor(), 1.f));
 
     Rect textureArea = area;
     textureArea.size = vec2(em * 3.f, em * 3.f);
 
-    renderer.blitTexture(textureArea, *texture);
+    drawer.blitTexture(textureArea, *texture);
 
     Rect textArea = area;
     textArea.position.x += em * 3.5f;
     textArea.size.x -= em;
 
-    renderer.drawText(textArea, asString(), LEFT_ALIGNED, state);
+    drawer.drawText(textArea, asString(), LEFT_ALIGNED, state);
 
-    renderer.popClipArea();
+    drawer.popClipArea();
   }
 }
 

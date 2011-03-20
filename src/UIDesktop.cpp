@@ -38,9 +38,9 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Desktop::Desktop(input::Context& initContext, UI::Renderer& initRenderer):
+Desktop::Desktop(input::Context& initContext, UI::Drawer& initDrawer):
   context(initContext),
-  renderer(initRenderer),
+  drawer(initDrawer),
   dragging(false),
   activeWidget(NULL),
   draggedWidget(NULL),
@@ -64,7 +64,7 @@ void Desktop::addRootWidget(Widget& root)
 
 void Desktop::drawRootWidgets(void)
 {
-  renderer.begin();
+  drawer.begin();
 
   for (WidgetList::iterator i = roots.begin();  i != roots.end();  i++)
   {
@@ -72,7 +72,7 @@ void Desktop::drawRootWidgets(void)
       (*i)->draw();
   }
 
-  renderer.end();
+  drawer.end();
 }
 
 void Desktop::destroyRootWidgets(void)
@@ -113,9 +113,9 @@ void Desktop::cancelDragging(void)
   }
 }
 
-Renderer& Desktop::getRenderer(void) const
+Drawer& Desktop::getDrawer(void) const
 {
-  return renderer;
+  return drawer;
 }
 
 const WidgetList& Desktop::getRootWidgets(void) const

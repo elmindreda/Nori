@@ -46,7 +46,7 @@ Progress::Progress(Desktop& desktop, Orientation initOrientation):
   value(0.f),
   orientation(initOrientation)
 {
-  const float em = desktop.getRenderer().getCurrentEM();
+  const float em = desktop.getDrawer().getCurrentEM();
 
   if (orientation == HORIZONTAL)
     setSize(vec2(em * 10.f, em * 1.5f));
@@ -99,10 +99,10 @@ void Progress::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Renderer& renderer = getDesktop().getRenderer();
-  if (renderer.pushClipArea(area))
+  Drawer& drawer = getDesktop().getDrawer();
+  if (drawer.pushClipArea(area))
   {
-    renderer.drawWell(area, getState());
+    drawer.drawWell(area, getState());
 
     const float position = (value - minValue) / (maxValue - minValue);
 
@@ -123,11 +123,11 @@ void Progress::draw(void) const
 		     10.f);
     }
 
-    renderer.drawHandle(handleArea, getState());
+    drawer.drawHandle(handleArea, getState());
 
     Widget::draw();
 
-    renderer.popClipArea();
+    drawer.popClipArea();
   }
 }
 

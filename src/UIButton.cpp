@@ -43,16 +43,16 @@ Button::Button(Desktop& desktop, const String& initText):
   Widget(desktop),
   text(initText)
 {
-  Renderer& renderer = getDesktop().getRenderer();
+  Drawer& drawer = getDesktop().getDrawer();
 
-  const float em = renderer.getCurrentEM();
+  const float em = drawer.getCurrentEM();
 
   float textWidth;
 
   if (text.empty())
     textWidth = em * 3.f;
   else
-    textWidth = renderer.getCurrentFont().getTextMetrics(text).size.x;
+    textWidth = drawer.getCurrentFont().getTextMetrics(text).size.x;
 
   setSize(vec2(em * 2.f + textWidth, em * 2.f));
 
@@ -79,14 +79,14 @@ void Button::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Renderer& renderer = getDesktop().getRenderer();
-  if (renderer.pushClipArea(area))
+  Drawer& drawer = getDesktop().getDrawer();
+  if (drawer.pushClipArea(area))
   {
-    renderer.drawButton(area, getState(), text);
+    drawer.drawButton(area, getState(), text);
 
     Widget::draw();
 
-    renderer.popClipArea();
+    drawer.popClipArea();
   }
 }
 

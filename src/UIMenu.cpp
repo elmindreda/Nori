@@ -161,10 +161,10 @@ void Menu::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Renderer& renderer = getDesktop().getRenderer();
-  if (renderer.pushClipArea(area))
+  Drawer& drawer = getDesktop().getDrawer();
+  if (drawer.pushClipArea(area))
   {
-    renderer.drawFrame(area, getState());
+    drawer.drawFrame(area, getState());
 
     float itemTop = area.size.y - 1.f;
 
@@ -188,7 +188,7 @@ void Menu::draw(void) const
 
     Widget::draw();
 
-    renderer.popClipArea();
+    drawer.popClipArea();
   }
 }
 

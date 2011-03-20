@@ -47,7 +47,7 @@ Slider::Slider(Desktop& desktop, Orientation initOrientation):
   value(0.f),
   orientation(initOrientation)
 {
-  const float em = desktop.getRenderer().getCurrentEM();
+  const float em = desktop.getDrawer().getCurrentEM();
 
   if (orientation == HORIZONTAL)
     setSize(vec2(em * 10.f, em * 1.5f));
@@ -112,14 +112,14 @@ void Slider::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Renderer& renderer = getDesktop().getRenderer();
-  if (renderer.pushClipArea(area))
+  Drawer& drawer = getDesktop().getDrawer();
+  if (drawer.pushClipArea(area))
   {
-    renderer.drawWell(area, getState());
+    drawer.drawWell(area, getState());
 
     const float position = (value - minValue) / (maxValue - minValue);
 
-    const float em = renderer.getCurrentEM();
+    const float em = drawer.getCurrentEM();
 
     Rect handleArea;
 
@@ -138,11 +138,11 @@ void Slider::draw(void) const
 		     em);
     }
 
-    renderer.drawHandle(handleArea, getState());
+    drawer.drawHandle(handleArea, getState());
 
     Widget::draw();
 
-    renderer.popClipArea();
+    drawer.popClipArea();
   }
 }
 
@@ -191,7 +191,7 @@ void Slider::onDragMoved(Widget& widget, const vec2& position)
 
 void Slider::setValue(const vec2& position)
 {
-  const float em = getDesktop().getRenderer().getCurrentEM();
+  const float em = getDesktop().getDrawer().getCurrentEM();
 
   float scale;
 

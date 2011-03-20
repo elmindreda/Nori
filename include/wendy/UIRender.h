@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_UIRENDERER_H
-#define WENDY_UIRENDERER_H
+#ifndef WENDY_UIDRAWER_H
+#define WENDY_UIDRAWER_H
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.h>
@@ -108,14 +108,14 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Widget renderer singleton.
+/*! @brief Widget drawing singleton.
  *  @ingroup ui
  *
- *  This class implements the default rendering behavior for widgets.
+ *  This class implements default drawing behavior for widgets.
  *
  *  @remarks This should probable be made overridable at some point.
  */
-class Renderer
+class Drawer
 {
 public:
   void begin(void);
@@ -130,10 +130,10 @@ public:
    *  onto the stack, so you do not need to (and should not) pop it. The
    *  recommended pattern is:
    *  @code
-   *  if (renderer.pushClipArea(childArea))
+   *  if (drawer.pushClipArea(childArea))
    *  {
    *	drawStuff();
-   *	renderer.popClipArea();
+   *	drawer.popClipArea();
    *  }
    *  @endcode
    */
@@ -178,9 +178,9 @@ public:
   float getDefaultEM(void) const;
   float getCurrentEM(void) const;
   render::GeometryPool& getGeometryPool(void) const;
-  static Renderer* create(render::GeometryPool& pool);
+  static Drawer* create(render::GeometryPool& pool);
 private:
-  Renderer(render::GeometryPool& pool);
+  Drawer(render::GeometryPool& pool);
   bool init(void);
   void setDrawingState(const vec4& color, bool wireframe);
   render::GeometryPool& pool;
@@ -203,5 +203,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_UIRENDERER_H*/
+#endif /*WENDY_UIDRAWER_H*/
 ///////////////////////////////////////////////////////////////////////

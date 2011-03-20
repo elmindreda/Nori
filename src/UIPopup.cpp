@@ -45,7 +45,7 @@ Popup::Popup(Desktop& desktop):
   Widget(desktop),
   selection(0)
 {
-  const float em = desktop.getRenderer().getCurrentEM();
+  const float em = desktop.getDrawer().getCurrentEM();
 
   setSize(vec2(em * 10.f, em * 2.f));
 
@@ -125,27 +125,27 @@ void Popup::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Renderer& renderer = getDesktop().getRenderer();
-  if (renderer.pushClipArea(area))
+  Drawer& drawer = getDesktop().getDrawer();
+  if (drawer.pushClipArea(area))
   {
-    renderer.drawFrame(area, getState());
+    drawer.drawFrame(area, getState());
 
     if (selection < menu->getItemCount())
     {
       const Item* item = menu->getItem(selection);
 
-      const float em = renderer.getCurrentEM();
+      const float em = drawer.getCurrentEM();
 
       Rect textArea = area;
       textArea.position.x += em / 2.f;
       textArea.size.x -= em;
 
-      renderer.drawText(textArea, item->asString(), LEFT_ALIGNED);
+      drawer.drawText(textArea, item->asString(), LEFT_ALIGNED);
     }
 
     Widget::draw();
 
-    renderer.popClipArea();
+    drawer.popClipArea();
   }
 }
 
