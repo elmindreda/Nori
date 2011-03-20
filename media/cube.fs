@@ -1,7 +1,7 @@
 
 uniform vec3 color;
 
-const vec3 L = normalize(vec3(1, 0, 1));
+const vec3 L = vec3(1.0, 0.0, 1.0);
 
 varying vec3 viewpos;
 varying vec3 normal;
