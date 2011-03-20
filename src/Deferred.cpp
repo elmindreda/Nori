@@ -298,10 +298,10 @@ bool Renderer::init(const Config& config)
       return false;
     }
 
-    path = "wendy/DistanceAttenuation.texture";
+    path = "wendy/DistanceRamp.texture";
 
-    Ref<GL::Texture> texture = GL::Texture::read(context, path);
-    if (!texture)
+    Ref<GL::Texture> distanceRamp = GL::Texture::read(context, path);
+    if (!distanceRamp)
     {
       logError("Failed to read attenuation texture \'%s\'",
                path.asString().c_str());
@@ -313,12 +313,12 @@ bool Renderer::init(const Config& config)
     interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
     interface.addSampler("normalTexture", GL::Sampler::SAMPLER_RECT);
     interface.addSampler("depthTexture", GL::Sampler::SAMPLER_RECT);
+    interface.addSampler("distanceRamp", GL::Sampler::SAMPLER_1D);
     interface.addUniform("nearZ", GL::Uniform::FLOAT);
     interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
     interface.addUniform("light.position", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.color", GL::Uniform::FLOAT_VEC3);
     interface.addUniform("light.radius", GL::Uniform::FLOAT);
-    interface.addSampler("light.distAttTexture", GL::Sampler::SAMPLER_1D);
     interface.addAttribute("wyPosition", GL::Attribute::FLOAT_VEC2);
     interface.addAttribute("wyTexCoord", GL::Attribute::FLOAT_VEC2);
     interface.addAttribute("wyClipOverF", GL::Attribute::FLOAT_VEC2);
@@ -337,7 +337,7 @@ bool Renderer::init(const Config& config)
     pointLightPass.setSamplerState("colorTexture", colorTexture);
     pointLightPass.setSamplerState("normalTexture", normalTexture);
     pointLightPass.setSamplerState("depthTexture", depthTexture);
-    pointLightPass.setSamplerState("light.distAttTexture", texture);
+    pointLightPass.setSamplerState("distanceRamp", distanceRamp);
   }
 
   return true;

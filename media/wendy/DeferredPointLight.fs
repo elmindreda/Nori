@@ -4,12 +4,12 @@ struct Light
   vec3 position;
   vec3 color;
   float radius;
-  sampler1D distAttTexture;
 };
 
 uniform sampler2DRect colorTexture;
 uniform sampler2DRect normalTexture;
 uniform sampler2DRect depthTexture;
+uniform sampler1D distanceRamp;
 uniform float nearZ;
 uniform float nearOverFarZminusOne;
 uniform Light light;
@@ -46,8 +46,8 @@ void main()
     Is = pow(clamp(dot(R, E), 0.0, 1.0), 10.0) * NS.a;
   }
 
-  float att = texture1D(light.distAttTexture, dist / light.radius).r;
+  float atten = texture1D(distanceRamp, dist / light.radius).r;
 
-  gl_FragColor = vec4(Cs * light.color * (Id + Is) * att, 1.0);
+  gl_FragColor = vec4(Cs * light.color * (Id + Is) * atten, 1.0);
 }
 
