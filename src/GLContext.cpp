@@ -1484,6 +1484,9 @@ bool Context::init(const ContextMode& initMode)
     if (initMode.samples)
       glfwOpenWindowHint(GLFW_FSAA_SAMPLES, initMode.samples);
 
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 2);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
+
     if (!glfwOpenWindow(initMode.width, initMode.height,
                         colorBits / 3, colorBits / 3, colorBits / 3, 0,
                         initMode.depthBits, initMode.stencilBits, mode))
@@ -1491,6 +1494,17 @@ bool Context::init(const ContextMode& initMode)
       logError("Unable to create GLFW window");
       return false;
     }
+
+    log("OpenGL context version %i.%i created",
+        glfwGetWindowParam(GLFW_OPENGL_VERSION_MAJOR),
+        glfwGetWindowParam(GLFW_OPENGL_VERSION_MINOR));
+
+    log("OpenGL context GLSL version is %s",
+        (const char*) glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+    log("OpenGL context renderer is %s by %s",
+        (const char*) glGetString(GL_RENDERER),
+        (const char*) glGetString(GL_VENDOR));
   }
 
   // Initialize GLEW and check extensions
@@ -1498,12 +1512,6 @@ bool Context::init(const ContextMode& initMode)
     if (glewInit() != GLEW_OK)
     {
       logError("Unable to initialize GLEW");
-      return false;
-    }
-
-    if (!GLEW_VERSION_2_0)
-    {
-      logError("OpenGL 2.0 is required but not supported");
       return false;
     }
 
