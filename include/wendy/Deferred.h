@@ -38,12 +38,19 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+class SharedProgramState : public GL::SharedProgramState
+{
+};
+
+///////////////////////////////////////////////////////////////////////
+
 class Config
 {
 public:
   Config(unsigned int width, unsigned int height);
   unsigned int width;
   unsigned int height;
+  Ref<SharedProgramState> state;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -65,13 +72,13 @@ private:
   void renderOperations(const render::Queue& queue);
   render::GeometryPool& pool;
   Ref<GL::ImageCanvas> canvas;
-  Ref<GL::SharedProgramState> state;
   GL::TextureRef depthTexture;
   GL::TextureRef colorTexture;
   GL::TextureRef normalTexture;
   GL::RenderState dirLightPass;
   GL::RenderState pointLightPass;
   GL::RenderState ambientLightPass;
+  Ref<SharedProgramState> state;
 };
 
 ///////////////////////////////////////////////////////////////////////

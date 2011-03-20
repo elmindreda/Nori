@@ -74,10 +74,12 @@ Renderer::Renderer(render::GeometryPool& initPool):
 {
 }
 
-bool Renderer::init(const Config& initConfig)
+bool Renderer::init(const Config& config)
 {
-  config = initConfig;
-  state = new GL::SharedProgramState();
+  if (config.state)
+    state = config.state;
+  else
+    state = new SharedProgramState();
 
   return true;
 }

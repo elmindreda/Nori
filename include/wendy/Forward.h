@@ -38,8 +38,16 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+class SharedProgramState : public GL::SharedProgramState
+{
+};
+
+///////////////////////////////////////////////////////////////////////
+
 class Config
 {
+public:
+  Ref<SharedProgramState> state;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -54,8 +62,7 @@ private:
   bool init(const Config& config);
   void renderOperations(const render::Queue& queue);
   render::GeometryPool& pool;
-  Config config;
-  Ref<GL::SharedProgramState> state;
+  Ref<SharedProgramState> state;
 };
 
 ///////////////////////////////////////////////////////////////////////

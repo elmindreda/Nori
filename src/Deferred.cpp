@@ -133,7 +133,10 @@ bool Renderer::init(const Config& config)
   GL::Context& context = pool.getContext();
   ResourceIndex& index = context.getIndex();
 
-  state = new GL::SharedProgramState();
+  if (config.state)
+    state = config.state;
+  else
+    state = new SharedProgramState();
 
   // Create G-buffer color/emission texture
   {
