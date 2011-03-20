@@ -60,6 +60,11 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
   context.setCurrentSharedProgramState(NULL);
 }
 
+SharedProgramState& Renderer::getSharedProgramState(void)
+{
+  return *state;
+}
+
 Renderer* Renderer::create(render::GeometryPool& pool, const Config& config)
 {
   Ptr<Renderer> renderer(new Renderer(pool));

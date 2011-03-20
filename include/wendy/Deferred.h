@@ -59,6 +59,7 @@ class Renderer
 {
 public:
   void render(const render::Scene& scene, const render::Camera& camera);
+  SharedProgramState& getSharedProgramState(void);
   GL::Texture& getColorTexture(void) const;
   GL::Texture& getNormalTexture(void) const;
   GL::Texture& getDepthTexture(void) const;

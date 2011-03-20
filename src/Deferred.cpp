@@ -99,6 +99,11 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
   context.setCurrentSharedProgramState(NULL);
 }
 
+SharedProgramState& Renderer::getSharedProgramState(void)
+{
+  return *state;
+}
+
 GL::Texture& Renderer::getColorTexture(void) const
 {
   return *colorTexture;

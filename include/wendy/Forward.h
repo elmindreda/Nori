@@ -56,6 +56,7 @@ class Renderer
 {
 public:
   void render(const render::Scene& scene, const render::Camera& camera);
+  SharedProgramState& getSharedProgramState(void);
   static Renderer* create(render::GeometryPool& pool, const Config& config);
 private:
   Renderer(render::GeometryPool& pool);
