@@ -498,22 +498,22 @@ bool MaterialReader::onBeginElement(const String& name)
               case GL::Uniform::FLOAT:
                 currentPass->setUniformState(uniformName, readFloat("value"));
                 break;
-              case GL::Uniform::FLOAT_VEC2:
+              case GL::Uniform::VEC2:
                 currentPass->setUniformState(uniformName, vec2Cast(readString("value")));
                 break;
-              case GL::Uniform::FLOAT_VEC3:
+              case GL::Uniform::VEC3:
                 currentPass->setUniformState(uniformName, vec3Cast(readString("value")));
                 break;
-              case GL::Uniform::FLOAT_VEC4:
+              case GL::Uniform::VEC4:
                 currentPass->setUniformState(uniformName, vec4Cast(readString("value")));
                 break;
-              case GL::Uniform::FLOAT_MAT2:
+              case GL::Uniform::MAT2:
                 currentPass->setUniformState(uniformName, mat2Cast(readString("value")));
                 break;
-              case GL::Uniform::FLOAT_MAT3:
+              case GL::Uniform::MAT3:
                 currentPass->setUniformState(uniformName, mat3Cast(readString("value")));
                 break;
-              case GL::Uniform::FLOAT_MAT4:
+              case GL::Uniform::MAT4:
                 currentPass->setUniformState(uniformName, mat4Cast(readString("value")));
                 break;
             }
@@ -665,7 +665,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
                 break;
               }
 
-              case GL::Uniform::FLOAT_VEC2:
+              case GL::Uniform::VEC2:
               {
                 vec2 value;
                 p->getUniformState(uniform.getName(), value);
@@ -673,7 +673,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
                 break;
               }
 
-              case GL::Uniform::FLOAT_VEC3:
+              case GL::Uniform::VEC3:
               {
                 vec3 value;
                 p->getUniformState(uniform.getName(), value);
@@ -681,7 +681,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
                 break;
               }
 
-              case GL::Uniform::FLOAT_VEC4:
+              case GL::Uniform::VEC4:
               {
                 vec4 value;
                 p->getUniformState(uniform.getName(), value);
@@ -689,7 +689,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
                 break;
               }
 
-              case GL::Uniform::FLOAT_MAT2:
+              case GL::Uniform::MAT2:
               {
                 mat2 value;
                 p->getUniformState(uniform.getName(), value);
@@ -697,7 +697,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
                 break;
               }
 
-              case GL::Uniform::FLOAT_MAT3:
+              case GL::Uniform::MAT3:
               {
                 mat3 value;
                 p->getUniformState(uniform.getName(), value);
@@ -705,7 +705,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
                 break;
               }
 
-              case GL::Uniform::FLOAT_MAT4:
+              case GL::Uniform::MAT4:
               {
                 mat4 value;
                 p->getUniformState(uniform.getName(), value);

@@ -255,17 +255,17 @@ const char* asString(Uniform::Type type)
   {
     case Uniform::FLOAT:
       return "float";
-    case Uniform::FLOAT_VEC2:
+    case Uniform::VEC2:
       return "vec2";
-    case Uniform::FLOAT_VEC3:
+    case Uniform::VEC3:
       return "vec3";
-    case Uniform::FLOAT_VEC4:
+    case Uniform::VEC4:
       return "vec4";
-    case Uniform::FLOAT_MAT2:
+    case Uniform::MAT2:
       return "mat2";
-    case Uniform::FLOAT_MAT3:
+    case Uniform::MAT3:
       return "mat3";
-    case Uniform::FLOAT_MAT4:
+    case Uniform::MAT4:
       return "mat4";
   }
 
@@ -279,11 +279,11 @@ const char* asString(Attribute::Type type)
   {
     case Attribute::FLOAT:
       return "float";
-    case Attribute::FLOAT_VEC2:
+    case Attribute::VEC2:
       return "vec2";
-    case Attribute::FLOAT_VEC3:
+    case Attribute::VEC3:
       return "vec3";
-    case Attribute::FLOAT_VEC4:
+    case Attribute::VEC4:
       return "vec4";
   }
 

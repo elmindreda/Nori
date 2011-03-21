@@ -60,11 +60,11 @@ unsigned int getElementCount(Attribute::Type type)
   {
     case Attribute::FLOAT:
       return 1;
-    case Attribute::FLOAT_VEC2:
+    case Attribute::VEC2:
       return 2;
-    case Attribute::FLOAT_VEC3:
+    case Attribute::VEC3:
       return 3;
-    case Attribute::FLOAT_VEC4:
+    case Attribute::VEC4:
       return 4;
   }
 
@@ -77,9 +77,9 @@ GLenum getElementType(Attribute::Type type)
   switch (type)
   {
     case Attribute::FLOAT:
-    case Attribute::FLOAT_VEC2:
-    case Attribute::FLOAT_VEC3:
-    case Attribute::FLOAT_VEC4:
+    case Attribute::VEC2:
+    case Attribute::VEC3:
+    case Attribute::VEC4:
       return GL_FLOAT;
   }
 
@@ -108,11 +108,11 @@ Attribute::Type convertAttributeType(GLenum type)
     case GL_FLOAT:
       return Attribute::FLOAT;
     case GL_FLOAT_VEC2:
-      return Attribute::FLOAT_VEC2;
+      return Attribute::VEC2;
     case GL_FLOAT_VEC3:
-      return Attribute::FLOAT_VEC3;
+      return Attribute::VEC3;
     case GL_FLOAT_VEC4:
-      return Attribute::FLOAT_VEC4;
+      return Attribute::VEC4;
   }
 
   logError("Unsupported GLSL attribute type %u", type);
@@ -175,18 +175,18 @@ Uniform::Type convertUniformType(GLenum type)
     case GL_FLOAT:
       return Uniform::FLOAT;
     case GL_FLOAT_VEC2:
-      return Uniform::FLOAT_VEC2;
+      return Uniform::VEC2;
     case GL_FLOAT_VEC3:
-      return Uniform::FLOAT_VEC3;
+      return Uniform::VEC3;
     case GL_FLOAT_VEC4:
 
-      return Uniform::FLOAT_VEC4;
+      return Uniform::VEC4;
     case GL_FLOAT_MAT2:
-      return Uniform::FLOAT_MAT2;
+      return Uniform::MAT2;
     case GL_FLOAT_MAT3:
-      return Uniform::FLOAT_MAT3;
+      return Uniform::MAT3;
     case GL_FLOAT_MAT4:
-      return Uniform::FLOAT_MAT4;
+      return Uniform::MAT4;
   }
 
   logError("Unsupported GLSL uniform type %u", type);
@@ -304,7 +304,7 @@ bool Attribute::isScalar(void) const
 
 bool Attribute::isVector(void) const
 {
-  if (type == FLOAT_VEC2 || type == FLOAT_VEC3 || type == FLOAT_VEC4)
+  if (type == VEC2 || type == VEC3 || type == VEC4)
     return true;
 
   return false;
@@ -399,22 +399,22 @@ void Uniform::copyFrom(const void* data)
     case FLOAT:
       glUniform1fv(location, 1, (const float*) data);
       break;
-    case FLOAT_VEC2:
+    case VEC2:
       glUniform2fv(location, 1, (const float*) data);
       break;
-    case FLOAT_VEC3:
+    case VEC3:
       glUniform3fv(location, 1, (const float*) data);
       break;
-    case FLOAT_VEC4:
+    case VEC4:
       glUniform4fv(location, 1, (const float*) data);
       break;
-    case FLOAT_MAT2:
+    case MAT2:
       glUniformMatrix2fv(location, 1, GL_FALSE, (const float*) data);
       break;
-    case FLOAT_MAT3:
+    case MAT3:
       glUniformMatrix3fv(location, 1, GL_FALSE, (const float*) data);
       break;
-    case FLOAT_MAT4:
+    case MAT4:
       glUniformMatrix4fv(location, 1, GL_FALSE, (const float*) data);
       break;
   }
@@ -441,7 +441,7 @@ bool Uniform::isScalar(void) const
 
 bool Uniform::isVector(void) const
 {
-  if (type == FLOAT_VEC2 || type == FLOAT_VEC3 || type == FLOAT_VEC4)
+  if (type == VEC2 || type == VEC3 || type == VEC4)
     return true;
 
   return false;
@@ -449,7 +449,7 @@ bool Uniform::isVector(void) const
 
 bool Uniform::isMatrix(void) const
 {
-  if (type == FLOAT_MAT2 || type == FLOAT_MAT3 || type == FLOAT_MAT4)
+  if (type == MAT2 || type == MAT3 || type == MAT4)
     return true;
 
   return false;
@@ -471,17 +471,17 @@ unsigned int Uniform::getElementCount(void) const
   {
     case Uniform::FLOAT:
       return 1;
-    case Uniform::FLOAT_VEC2:
+    case Uniform::VEC2:
       return 2;
-    case Uniform::FLOAT_VEC3:
+    case Uniform::VEC3:
       return 3;
-    case Uniform::FLOAT_VEC4:
+    case Uniform::VEC4:
       return 4;
-    case Uniform::FLOAT_MAT2:
+    case Uniform::MAT2:
       return 2 * 2;
-    case Uniform::FLOAT_MAT3:
+    case Uniform::MAT3:
       return 3 * 3;
-    case Uniform::FLOAT_MAT4:
+    case Uniform::MAT4:
       return 4 * 4;
   }
 
@@ -967,9 +967,9 @@ bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
       return false;
 
     if ((component->getElementCount() == 1 && entry.second != Attribute::FLOAT) ||
-        (component->getElementCount() == 2 && entry.second != Attribute::FLOAT_VEC2) ||
-        (component->getElementCount() == 3 && entry.second != Attribute::FLOAT_VEC3) ||
-        (component->getElementCount() == 4 && entry.second != Attribute::FLOAT_VEC4))
+        (component->getElementCount() == 2 && entry.second != Attribute::VEC2) ||
+        (component->getElementCount() == 3 && entry.second != Attribute::VEC3) ||
+        (component->getElementCount() == 4 && entry.second != Attribute::VEC4))
     {
       return false;
     }

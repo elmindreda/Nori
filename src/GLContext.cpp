@@ -179,7 +179,7 @@ bool isCompatible(const Attribute& attribute, const VertexComponent& component)
       break;
     }
 
-    case Attribute::FLOAT_VEC2:
+    case Attribute::VEC2:
     {
       if (component.getType() == VertexComponent::FLOAT32 &&
           component.getElementCount() == 2)
@@ -188,7 +188,7 @@ bool isCompatible(const Attribute& attribute, const VertexComponent& component)
       break;
     }
 
-    case Attribute::FLOAT_VEC3:
+    case Attribute::VEC3:
     {
       if (component.getType() == VertexComponent::FLOAT32 &&
           component.getElementCount() == 3)
@@ -197,7 +197,7 @@ bool isCompatible(const Attribute& attribute, const VertexComponent& component)
       break;
     }
 
-    case Attribute::FLOAT_VEC4:
+    case Attribute::VEC4:
     {
       if (component.getType() == VertexComponent::FLOAT32 &&
           component.getElementCount() == 4)
@@ -1590,12 +1590,12 @@ bool Context::init(const ContextMode& initMode)
     glfwSwapInterval(1);
   }
 
-  createSharedUniform("wyM", Uniform::FLOAT_MAT4, SHARED_MODEL_MATRIX);
-  createSharedUniform("wyV", Uniform::FLOAT_MAT4, SHARED_VIEW_MATRIX);
-  createSharedUniform("wyP", Uniform::FLOAT_MAT4, SHARED_PROJECTION_MATRIX);
-  createSharedUniform("wyMV", Uniform::FLOAT_MAT4, SHARED_MODELVIEW_MATRIX);
-  createSharedUniform("wyVP", Uniform::FLOAT_MAT4, SHARED_VIEWPROJECTION_MATRIX);
-  createSharedUniform("wyMVP", Uniform::FLOAT_MAT4, SHARED_MODELVIEWPROJECTION_MATRIX);
+  createSharedUniform("wyM", Uniform::MAT4, SHARED_MODEL_MATRIX);
+  createSharedUniform("wyV", Uniform::MAT4, SHARED_VIEW_MATRIX);
+  createSharedUniform("wyP", Uniform::MAT4, SHARED_PROJECTION_MATRIX);
+  createSharedUniform("wyMV", Uniform::MAT4, SHARED_MODELVIEW_MATRIX);
+  createSharedUniform("wyVP", Uniform::MAT4, SHARED_VIEWPROJECTION_MATRIX);
+  createSharedUniform("wyMVP", Uniform::MAT4, SHARED_MODELVIEWPROJECTION_MATRIX);
 
   return true;
 }

@@ -409,9 +409,9 @@ bool Font::init(const FontData& data)
 
     GL::ProgramInterface interface;
     interface.addSampler("glyphs", GL::Sampler::SAMPLER_2D);
-    interface.addUniform("color", GL::Uniform::FLOAT_VEC4);
-    interface.addAttribute("wyPosition", GL::Attribute::FLOAT_VEC2);
-    interface.addAttribute("wyTexCoord", GL::Attribute::FLOAT_VEC2);
+    interface.addUniform("color", GL::Uniform::VEC4);
+    interface.addAttribute("wyPosition", GL::Attribute::VEC2);
+    interface.addAttribute("wyTexCoord", GL::Attribute::VEC2);
 
     if (!interface.matches(*program, true))
     {

@@ -70,9 +70,9 @@ public:
   enum Type
   {
     FLOAT,
-    FLOAT_VEC2,
-    FLOAT_VEC3,
-    FLOAT_VEC4,
+    VEC2,
+    VEC3,
+    VEC4,
   };
   void bind(size_t stride, size_t offset);
   bool operator == (const String& string) const;
@@ -130,12 +130,12 @@ public:
   enum Type
   {
     FLOAT,
-    FLOAT_VEC2,
-    FLOAT_VEC3,
-    FLOAT_VEC4,
-    FLOAT_MAT2,
-    FLOAT_MAT3,
-    FLOAT_MAT4,
+    VEC2,
+    VEC3,
+    VEC4,
+    MAT2,
+    MAT3,
+    MAT4,
   };
   void copyFrom(const void* data);
   bool operator == (const String& string) const;
