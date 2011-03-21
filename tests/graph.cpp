@@ -44,7 +44,7 @@ bool Demo::init(void)
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
-  context->setTitle("Program");
+  context->setTitle("Scene Graph");
 
   pool = new render::GeometryPool(*context);
 

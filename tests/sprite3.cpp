@@ -43,7 +43,7 @@ bool Test::init(void)
   }
 
   GL::Context* context = GL::Context::getSingleton();
-  context->setTitle("Particles");
+  context->setTitle("3D Sprite");
 
   state = new GL::SharedProgramState();
   context->setCurrentSharedProgramState(state);
