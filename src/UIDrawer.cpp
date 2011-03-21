@@ -552,8 +552,8 @@ bool Drawer::init(void)
     }
 
     GL::ProgramInterface interface;
-    interface.addUniform("color", GL::Uniform::FLOAT_VEC4);
-    interface.addAttribute("wyPosition", GL::Attribute::FLOAT_VEC2);
+    interface.addUniform("color", GL::Uniform::VEC4);
+    interface.addAttribute("wyPosition", GL::Attribute::VEC2);
 
     if (!interface.matches(*program, true))
     {
@@ -582,8 +582,8 @@ bool Drawer::init(void)
 
     GL::ProgramInterface interface;
     interface.addSampler("image", GL::Sampler::SAMPLER_2D);
-    interface.addAttribute("wyPosition", GL::Attribute::FLOAT_VEC2);
-    interface.addAttribute("wyTexCoord", GL::Attribute::FLOAT_VEC2);
+    interface.addAttribute("wyPosition", GL::Attribute::VEC2);
+    interface.addAttribute("wyTexCoord", GL::Attribute::VEC2);
 
     if (!interface.matches(*program, true))
     {
