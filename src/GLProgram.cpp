@@ -201,7 +201,7 @@ bool readTextFile(ResourceIndex& index, String& text, const Path& path)
 
   stream.seekg(0, std::ios::end);
 
-  text.resize(stream.tellg());
+  text.resize((unsigned int) stream.tellg());
 
   stream.seekg(0, std::ios::beg);
   stream.read(&text[0], text.size());
