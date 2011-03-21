@@ -25,7 +25,7 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/UIRender.h>
+#include <wendy/UIDrawer.h>
 #include <wendy/UIDesktop.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UILayout.h>

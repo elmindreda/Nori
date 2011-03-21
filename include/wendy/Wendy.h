@@ -88,7 +88,7 @@
 #endif
 
 #if WENDY_INCLUDE_UI_SYSTEM
-#include <wendy/UIRender.h>
+#include <wendy/UIDrawer.h>
 #include <wendy/UIDesktop.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIScroller.h>
