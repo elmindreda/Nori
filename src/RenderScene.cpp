@@ -149,7 +149,7 @@ void Scene::addOperation(const Operation& operation, float depth, uint16 layer)
   }
 }
 
-void Scene::createOperations(const Transform3& transform,
+void Scene::createOperations(const mat4& transform,
                              const GL::PrimitiveRange& range,
                              const Material& material,
                              float depth)
