@@ -158,7 +158,7 @@ class Scene : public LightState
 {
 public:
   Scene(GeometryPool& pool, Technique::Type type);
-  void addOperation(const Operation& operation, float depth, uint16 layer = 0);
+  void addOperation(const Operation& operation, float depth, uint8 layer = 0);
   void createOperations(const mat4& transform,
                         const GL::PrimitiveRange& range,
                         const Material& material,

@@ -383,7 +383,7 @@ void ProgramState::apply(void) const
 
   unsigned int textureUnit = 0;
 
-  for (int i = 0;  i < program->getSamplerCount();  i++)
+  for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
   {
     Sampler& sampler = program->getSampler(i);
     if (sampler.isShared())
@@ -406,7 +406,7 @@ void ProgramState::apply(void) const
 
   size_t offset = 0;
 
-  for (int i = 0;  i < program->getUniformCount();  i++)
+  for (unsigned int i = 0;  i < program->getUniformCount();  i++)
   {
     Uniform& uniform = program->getUniform(i);
     if (uniform.isShared())

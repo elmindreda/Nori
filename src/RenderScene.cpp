@@ -65,7 +65,7 @@ SortKey SortKey::makeOpaqueKey(uint8 layer, uint16 state, float depth)
   key.value = 0;
   key.layer = layer;
   key.state = state;
-  key.depth = ((1 << 24) - 1) * clamp(depth, 0.f, 1.f);
+  key.depth = (unsigned) (((1 << 24) - 1) * clamp(depth, 0.f, 1.f));
 
   return key;
 }
@@ -75,7 +75,7 @@ SortKey SortKey::makeBlendedKey(uint8 layer, float depth)
   SortKey key;
   key.value = 0;
   key.layer = layer;
-  key.depth = ((1 << 24) - 1) * (1.f - clamp(depth, 0.f, 1.f));
+  key.depth = (unsigned) (((1 << 24) - 1) * (1.f - clamp(depth, 0.f, 1.f)));
 
   return key;
 }
@@ -135,7 +135,7 @@ Scene::Scene(GeometryPool& initPool, Technique::Type initType):
 {
 }
 
-void Scene::addOperation(const Operation& operation, float depth, uint16 layer)
+void Scene::addOperation(const Operation& operation, float depth, uint8 layer)
 {
   if (operation.state->isBlending())
   {
@@ -163,7 +163,7 @@ void Scene::createOperations(const mat4& transform,
   operation.transform = transform;
 
   const PassList& passes = technique->getPasses();
-  uint16 layer = 0;
+  uint8 layer = 0;
 
   for (PassList::const_iterator p = passes.begin();  p != passes.end();  p++)
   {

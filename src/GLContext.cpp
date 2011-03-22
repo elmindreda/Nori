@@ -753,7 +753,7 @@ Context::~Context(void)
   setCurrentIndexBuffer(NULL);
   setCurrentProgram(NULL);
 
-  for (int i = 0;  i < textureUnits.size();  i++)
+  for (size_t i = 0;  i < textureUnits.size();  i++)
   {
     setActiveTextureUnit(i);
     setCurrentTexture(NULL);

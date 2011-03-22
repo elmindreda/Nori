@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // 2011-03-18  Camilla Berglund  <elmindreda@elmindreda.org>
 //  * Fixed compiler check
+//  * Fixed propagation to bool
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace glm{
@@ -20,7 +21,7 @@ inline bool isfinite(
 	genType const & x)
 {
 #if(defined(GLM_COMPILER) && (GLM_COMPILER & GLM_COMPILER_VC))
-	return _finite(x);
+	return _finite(x) ? true : false;
 #else//GLM_COMPILER_GCC
 	return std::isfinite(x);
 #endif
