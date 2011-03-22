@@ -70,6 +70,7 @@
 #include <wendy/Input.h>
 
 #if WENDY_INCLUDE_RENDERER
+#include <wendy/RenderState.h>
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>

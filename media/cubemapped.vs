@@ -1,7 +1,4 @@
 
-uniform mat4 wyMVP;
-uniform mat4 wyMV;
-
 attribute vec3 wyPosition;
 attribute vec3 wyNormal;
 

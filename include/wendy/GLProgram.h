@@ -81,6 +81,7 @@ public:
   Type getType(void) const;
   const String& getName(void) const;
   Program& getProgram(void) const;
+  static const char* getTypeName(Type type);
 private:
   Attribute(Program& program);
   Program* program;
@@ -111,6 +112,7 @@ public:
   Type getType(void) const;
   const String& getName(void) const;
   int getSharedID(void) const;
+  static const char* getTypeName(Type type);
 private:
   String name;
   Type type;
@@ -147,6 +149,7 @@ public:
   const String& getName(void) const;
   unsigned int getElementCount(void) const;
   int getSharedID(void) const;
+  static const char* getTypeName(Type type);
 private:
   String name;
   Type type;

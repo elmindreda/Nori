@@ -40,9 +40,6 @@
 
 #include <algorithm>
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -725,157 +722,6 @@ Stats::Frame::Frame(void):
 
 ///////////////////////////////////////////////////////////////////////
 
-SharedProgramState::SharedProgramState(void):
-  dirtyModelView(true),
-  dirtyViewProj(true),
-  dirtyModelViewProj(true)
-{
-}
-
-SharedProgramState::~SharedProgramState(void)
-{
-}
-
-const mat4& SharedProgramState::getModelMatrix(void) const
-{
-  return modelMatrix;
-}
-
-void SharedProgramState::setModelMatrix(const mat4& newMatrix)
-{
-  modelMatrix = newMatrix;
-  dirtyModelView = dirtyModelViewProj = true;
-}
-
-const mat4& SharedProgramState::getViewMatrix(void) const
-{
-  return viewMatrix;
-}
-
-void SharedProgramState::setViewMatrix(const mat4& newMatrix)
-{
-  viewMatrix = newMatrix;
-  dirtyModelView = dirtyViewProj = dirtyModelViewProj = true;
-}
-
-const mat4& SharedProgramState::getProjectionMatrix(void) const
-{
-  return projectionMatrix;
-}
-
-void SharedProgramState::setProjectionMatrix(const mat4& newMatrix)
-{
-  projectionMatrix = newMatrix;
-  dirtyViewProj = dirtyModelViewProj = true;
-}
-
-void SharedProgramState::setOrthoProjectionMatrix(float width, float height)
-{
-  projectionMatrix = ortho(0.f, width, 0.f, height);
-  dirtyViewProj = dirtyModelViewProj = true;
-}
-
-void SharedProgramState::setOrthoProjectionMatrix(const AABB& volume)
-{
-  float minX, minY, minZ, maxX, maxY, maxZ;
-  volume.getBounds(minX, minY, minZ, maxX, maxY, maxZ);
-
-  projectionMatrix = ortho(minX, maxX, minY, maxY, minZ, maxZ);
-  dirtyViewProj = dirtyModelViewProj = true;
-}
-
-void SharedProgramState::setPerspectiveProjectionMatrix(float FOV,
-                                                        float aspect,
-                                                        float nearZ,
-                                                        float farZ)
-{
-  projectionMatrix = perspective(FOV, aspect, nearZ, farZ);
-  dirtyViewProj = dirtyModelViewProj = true;
-}
-
-void SharedProgramState::updateTo(Sampler& sampler)
-{
-  logError("Unknown shared sampler uniform \'%s\' of type \'%s\' requested",
-           sampler.getName().c_str(),
-           asString(sampler.getType()));
-}
-
-void SharedProgramState::updateTo(Uniform& uniform)
-{
-  switch (uniform.getSharedID())
-  {
-    case SHARED_MODEL_MATRIX:
-    {
-      uniform.copyFrom(value_ptr(modelMatrix));
-      return;
-    }
-
-    case SHARED_VIEW_MATRIX:
-    {
-      uniform.copyFrom(value_ptr(viewMatrix));
-      return;
-    }
-
-    case SHARED_PROJECTION_MATRIX:
-    {
-      uniform.copyFrom(value_ptr(projectionMatrix));
-      return;
-    }
-
-    case SHARED_MODELVIEW_MATRIX:
-    {
-      if (dirtyModelView)
-      {
-        modelViewMatrix = viewMatrix;
-        modelViewMatrix *= modelMatrix;
-        dirtyModelView = false;
-      }
-
-      uniform.copyFrom(value_ptr(modelViewMatrix));
-      return;
-    }
-
-    case SHARED_VIEWPROJECTION_MATRIX:
-    {
-      if (dirtyViewProj)
-      {
-        viewProjMatrix = projectionMatrix;
-        viewProjMatrix *= viewMatrix;
-        dirtyViewProj = false;
-      }
-
-      uniform.copyFrom(value_ptr(viewProjMatrix));
-      return;
-    }
-
-    case SHARED_MODELVIEWPROJECTION_MATRIX:
-    {
-      if (dirtyModelViewProj)
-      {
-        if (dirtyViewProj)
-        {
-          viewProjMatrix = projectionMatrix;
-          viewProjMatrix *= viewMatrix;
-          dirtyViewProj = false;
-        }
-
-        modelViewProjMatrix = viewProjMatrix;
-        modelViewProjMatrix *= modelMatrix;
-        dirtyModelViewProj = false;
-      }
-
-      uniform.copyFrom(value_ptr(modelViewProjMatrix));
-      return;
-    }
-  }
-
-  logError("Unknown shared uniform \'%s\' of type \'%s\' requested",
-           uniform.getName().c_str(),
-           asString(uniform.getType()));
-}
-
-///////////////////////////////////////////////////////////////////////
-
 SharedSampler::SharedSampler(const String& initName,
                              Sampler::Type initType,
                              int initID):
@@ -1085,6 +931,12 @@ void Context::createSharedSampler(const String& name, Sampler::Type type, int ID
   if (getSharedSamplerID(name, type) != INVALID_SHARED_STATE_ID)
     return;
 
+  declaration.append("uniform ");
+  declaration.append(Sampler::getTypeName(type));
+  declaration.append(" ");
+  declaration.append(name);
+  declaration.append(";\n");
+
   samplers.push_back(SharedSampler(name, type, ID));
 }
 
@@ -1098,6 +950,12 @@ void Context::createSharedUniform(const String& name, Uniform::Type type, int ID
 
   if (getSharedUniformID(name, type) != INVALID_SHARED_STATE_ID)
     return;
+
+  declaration.append("uniform ");
+  declaration.append(Uniform::getTypeName(type));
+  declaration.append(" ");
+  declaration.append(name);
+  declaration.append(";\n");
 
   uniforms.push_back(SharedUniform(name, type, ID));
 }
@@ -1132,6 +990,11 @@ SharedProgramState* Context::getCurrentSharedProgramState(void) const
 void Context::setCurrentSharedProgramState(SharedProgramState* newState)
 {
   currentState = newState;
+}
+
+const String& Context::getSharedProgramStateDeclaration(void) const
+{
+  return declaration;
 }
 
 Context::RefreshMode Context::getRefreshMode(void) const
@@ -1589,13 +1452,6 @@ bool Context::init(const ContextMode& initMode)
 
     glfwSwapInterval(1);
   }
-
-  createSharedUniform("wyM", Uniform::MAT4, SHARED_MODEL_MATRIX);
-  createSharedUniform("wyV", Uniform::MAT4, SHARED_VIEW_MATRIX);
-  createSharedUniform("wyP", Uniform::MAT4, SHARED_PROJECTION_MATRIX);
-  createSharedUniform("wyMV", Uniform::MAT4, SHARED_MODELVIEW_MATRIX);
-  createSharedUniform("wyVP", Uniform::MAT4, SHARED_VIEWPROJECTION_MATRIX);
-  createSharedUniform("wyMVP", Uniform::MAT4, SHARED_MODELVIEWPROJECTION_MATRIX);
 
   return true;
 }

@@ -143,6 +143,8 @@ bool Renderer::init(const Config& config)
   else
     state = new SharedProgramState();
 
+  state->reserveSupported(context);
+
   // Create G-buffer color/emission texture
   {
     Image image(index, PixelFormat::RGBA8, config.width, config.height);

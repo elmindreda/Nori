@@ -16,7 +16,7 @@ public:
   void run(void);
 private:
   ResourceIndex index;
-  Ref<GL::SharedProgramState> state;
+  Ref<render::SharedProgramState> state;
   Ptr<render::GeometryPool> pool;
   Ref<render::Material> material;
   render::Technique* technique;
@@ -44,7 +44,8 @@ bool Test::init(void)
   GL::Context* context = GL::Context::getSingleton();
   context->setTitle("2D sprite");
 
-  state = new GL::SharedProgramState();
+  state = new render::SharedProgramState();
+  state->reserveSupported(*context);
   context->setCurrentSharedProgramState(state);
 
   pool = new render::GeometryPool(*context);

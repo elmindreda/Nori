@@ -38,6 +38,7 @@
 #include <wendy/GLContext.h>
 #include <wendy/GLState.h>
 
+#include <wendy/RenderState.h>
 #include <wendy/RenderPool.h>
 #include <wendy/RenderFont.h>
 
@@ -194,7 +195,7 @@ private:
   Ref<render::Font> currentFont;
   GL::RenderState drawPass;
   GL::RenderState blitPass;
-  Ref<GL::SharedProgramState> state;
+  Ref<render::SharedProgramState> state;
 };
 
 ///////////////////////////////////////////////////////////////////////

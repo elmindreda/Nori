@@ -26,6 +26,7 @@
 #define WENDY_DEFERRED_H
 ///////////////////////////////////////////////////////////////////////
 
+#include <wendy/RenderState.h>
 #include <wendy/RenderScene.h>
 #include <wendy/RenderPool.h>
 
@@ -38,7 +39,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-class SharedProgramState : public GL::SharedProgramState
+class SharedProgramState : public render::SharedProgramState
 {
 };
 

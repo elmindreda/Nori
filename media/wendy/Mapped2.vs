@@ -1,6 +1,4 @@
 
-uniform mat4 wyMVP;
-
 attribute vec2 wyPosition;
 attribute vec2 wyTexCoord;
 

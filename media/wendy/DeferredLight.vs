@@ -1,6 +1,4 @@
 
-uniform mat4 wyP;
-
 attribute vec2 wyPosition;
 attribute vec2 wyTexCoord;
 attribute vec2 wyClipOverF;

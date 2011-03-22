@@ -1,6 +1,4 @@
 
-uniform mat4 wyMVP;
-
 attribute vec2 wyPosition;
 
 void main()

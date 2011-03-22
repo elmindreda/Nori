@@ -34,7 +34,7 @@ public:
   bool render(void);
 private:
   ResourceIndex index;
-  Ref<GL::SharedProgramState> state;
+  Ref<render::SharedProgramState> state;
   Ptr<render::GeometryPool> pool;
   Ref<render::Font> font;
 };
@@ -62,7 +62,8 @@ bool Demo::init(void)
   context->setTitle("Font Test");
   context->setRefreshMode(GL::Context::MANUAL_REFRESH);
 
-  state = new GL::SharedProgramState();
+  state = new render::SharedProgramState();
+  state->reserveSupported(*context);
   context->setCurrentSharedProgramState(state);
 
   pool = new render::GeometryPool(*context, 2048);

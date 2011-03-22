@@ -208,15 +208,27 @@ bool readTextFile(ResourceIndex& index, String& text, const Path& path)
   return true;
 }
 
-GLuint createShader(GLenum type, const Shader& shader)
+GLuint createShader(GL::Context& context, GLenum type, const Shader& shader)
 {
+  String decl;
+  decl.append("#line 0 0\n");
+  decl.append(context.getSharedProgramStateDeclaration());
+
+  String main;
+  decl.append("#line 0 1\n");
+  decl.append(shader.text);
+
+  GLsizei lengths[2];
+  const GLchar* strings[2];
+
+  lengths[0] = decl.length();
+  strings[0] = (const GLchar*) decl.c_str();
+
+  lengths[1] = main.length();
+  strings[1] = (const GLchar*) main.c_str();
+
   GLuint shaderID = glCreateShader(type);
-
-  GLsizei length = shader.text.length();
-  const GLchar* string = (const GLchar*) shader.text.c_str();
-
-  glShaderSource(shaderID, 1, &string, &length);
-
+  glShaderSource(shaderID, 2, strings, lengths);
   glCompileShader(shaderID);
 
   GLint status;
@@ -349,6 +361,24 @@ Program& Attribute::getProgram(void) const
   return *program;
 }
 
+const char* Attribute::getTypeName(Type type)
+{
+  switch (type)
+  {
+    case FLOAT:
+      return "float";
+    case VEC2:
+      return "vec2";
+    case VEC3:
+      return "vec3";
+    case VEC4:
+      return "vec4";
+  }
+
+  logError("Invalid GLSL attribute type %u", type);
+  return "INVALID";
+}
+
 Attribute::Attribute(Program& initProgram):
   program(&initProgram)
 {
@@ -388,6 +418,24 @@ const String& Sampler::getName(void) const
 int Sampler::getSharedID(void) const
 {
   return sharedID;
+}
+
+const char* Sampler::getTypeName(Type type)
+{
+  switch (type)
+  {
+    case SAMPLER_1D:
+      return "sampler1D";
+    case SAMPLER_2D:
+      return "sampler2D";
+    case SAMPLER_RECT:
+      return "sampler2DRect";
+    case SAMPLER_CUBE:
+      return "samplerCube";
+  }
+
+  logError("Invalid GLSL sampler type %u", type);
+  return "INVALID";
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -492,6 +540,30 @@ unsigned int Uniform::getElementCount(void) const
 int Uniform::getSharedID(void) const
 {
   return sharedID;
+}
+
+const char* Uniform::getTypeName(Type type)
+{
+  switch (type)
+  {
+    case FLOAT:
+      return "float";
+    case VEC2:
+      return "vec2";
+    case VEC3:
+      return "vec3";
+    case VEC4:
+      return "vec4";
+    case MAT2:
+      return "mat2";
+    case MAT3:
+      return "mat3";
+    case MAT4:
+      return "mat4";
+  }
+
+  logError("Invalid GLSL uniform type %u", type);
+  return "INVALID";
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -652,11 +724,11 @@ Program::Program(const Program& source):
 
 bool Program::init(const Shader& vertexShader, const Shader& fragmentShader)
 {
-  vertexShaderID = createShader(GL_VERTEX_SHADER, vertexShader);
+  vertexShaderID = createShader(context, GL_VERTEX_SHADER, vertexShader);
   if (!vertexShaderID)
     return false;
 
-  fragmentShaderID = createShader(GL_FRAGMENT_SHADER, fragmentShader);
+  fragmentShaderID = createShader(context, GL_FRAGMENT_SHADER, fragmentShader);
   if (!fragmentShaderID)
     return false;
 
@@ -878,7 +950,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
         logError("Sampler \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
                  entry.first.c_str(),
                  program.getPath().asString().c_str(),
-                 asString(entry.second));
+                 Sampler::getTypeName(entry.second));
       }
 
       return false;
@@ -909,7 +981,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
         logError("Uniform \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
                  entry.first.c_str(),
                  program.getPath().asString().c_str(),
-                 asString(entry.second));
+                 Uniform::getTypeName(entry.second));
       }
 
       return false;
@@ -940,7 +1012,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
         logError("Attribute \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
                  entry.first.c_str(),
                  program.getPath().asString().c_str(),
-                 asString(entry.second));
+                 Attribute::getTypeName(entry.second));
       }
 
       return false;
@@ -1011,7 +1083,9 @@ Ref<Program> ProgramReader::read(const Path& path)
 
   if (!program)
   {
-    logError("No shader program specification found in file");
+    logError("Failed to load program specification \'%s\'",
+             path.asString().c_str());
+
     return NULL;
   }
 

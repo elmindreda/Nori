@@ -16,7 +16,7 @@ public:
   void run(void);
 private:
   ResourceIndex index;
-  Ref<GL::SharedProgramState> state;
+  Ref<render::SharedProgramState> state;
   Ptr<render::GeometryPool> pool;
   Ref<render::Material> material;
   Ref<render::Camera> camera;
@@ -45,7 +45,8 @@ bool Test::init(void)
   GL::Context* context = GL::Context::getSingleton();
   context->setTitle("3D Sprite");
 
-  state = new GL::SharedProgramState();
+  state = new render::SharedProgramState();
+  state->reserveSupported(*context);
   context->setCurrentSharedProgramState(state);
 
   pool = new render::GeometryPool(*context);

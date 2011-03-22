@@ -23,6 +23,7 @@ if(WENDY_INCLUDE_RENDERER)
   list(APPEND wendy_SOURCES
        RenderCamera.cpp RenderFont.cpp RenderLight.cpp RenderModel.cpp
        RenderMaterial.cpp RenderPool.cpp RenderScene.cpp RenderSprite.cpp
+       RenderState.cpp
 
        Deferred.cpp Forward.cpp)
 endif(WENDY_INCLUDE_RENDERER)

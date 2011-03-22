@@ -630,7 +630,7 @@ void* ProgramState::getData(const String& name, Uniform::Type type)
       logError("Uniform \'%s\' of program \'%s\' is not of type \'%s\'",
                uniform.getName().c_str(),
                program->getPath().asString().c_str(),
-               asString(type));
+               Uniform::getTypeName(type));
       return NULL;
     }
 

@@ -514,7 +514,7 @@ Drawer::Drawer(render::GeometryPool& initPool):
 
 bool Drawer::init(void)
 {
-  state = new GL::SharedProgramState();
+  state = new render::SharedProgramState();
 
   widgetColor = vec3(0.7f);
   textColor = vec3(0.f);

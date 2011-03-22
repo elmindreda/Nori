@@ -81,10 +81,14 @@ Renderer::Renderer(render::GeometryPool& initPool):
 
 bool Renderer::init(const Config& config)
 {
+  GL::Context& context = pool.getContext();
+
   if (config.state)
     state = config.state;
   else
     state = new SharedProgramState();
+
+  state->reserveSupported(context);
 
   return true;
 }

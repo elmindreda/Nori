@@ -50,19 +50,7 @@ class PrimitiveRange;
 
 ///////////////////////////////////////////////////////////////////////
 
-enum
-{
-  SHARED_MODEL_MATRIX,
-  SHARED_VIEW_MATRIX,
-  SHARED_PROJECTION_MATRIX,
-  SHARED_MODELVIEW_MATRIX,
-  SHARED_VIEWPROJECTION_MATRIX,
-  SHARED_MODELVIEWPROJECTION_MATRIX,
-
-  SHARED_STATE_CUSTOM_BASE,
-
-  INVALID_SHARED_STATE_ID = -1,
-};
+const int INVALID_SHARED_STATE_ID = -1;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -384,68 +372,9 @@ private:
 class SharedProgramState : public RefObject
 {
   friend class ProgramState;
-public:
-  /*! Constructor.
-   */
-  SharedProgramState(void);
-  /*! Destructor.
-   */
-  virtual ~SharedProgramState(void);
-  /*! @return The current model matrix.
-   */
-  const mat4& getModelMatrix(void) const;
-  /*! @return The current view matrix.
-   */
-  const mat4& getViewMatrix(void) const;
-  /*! @return The current projection matrix.
-   */
-  const mat4& getProjectionMatrix(void) const;
-  /*! Sets the model matrix.
-   *  @param[in] newMatrix The desired model matrix.
-   */
-  virtual void setModelMatrix(const mat4& newMatrix);
-  /*! Sets the view matrix.
-   *  @param[in] newMatrix The desired view matrix.
-   */
-  virtual void setViewMatrix(const mat4& newMatrix);
-  /*! Sets the projection matrix.
-   *  @param[in] newMatrix The desired projection matrix.
-   */
-  virtual void setProjectionMatrix(const mat4& newMatrix);
-  /*! Sets an orthographic projection matrix as ([0..width], [0..height],
-   *  [-1, * 1]).
-   *  @param[in] width The desired width of the clipspace volume.
-   *  @param[in] height The desired height of the clipspace volume.
-   */
-  virtual void setOrthoProjectionMatrix(float width, float height);
-  /*! Sets an orthographic projection matrix as ([minX..maxX], [minY..maxY],
-   *  [minZ, maxZ]).
-   *  @param[in] volume The desired clipspace volume.
-   */
-  virtual void setOrthoProjectionMatrix(const AABB& volume);
-  /*! Sets a perspective projection matrix.
-   *  @param[in] FOV The desired field of view of the projection.
-   *  @param[in] aspect The desired aspect ratio of the projection.
-   *  @param[in] nearZ The desired near plane distance of the projection.
-   *  @param[in] farZ The desired far plane distance of the projection.
-   */
-  virtual void setPerspectiveProjectionMatrix(float FOV,
-                                              float aspect,
-	                                      float nearZ,
-	                                      float farZ);
 protected:
-  virtual void updateTo(Uniform& uniform);
-  virtual void updateTo(Sampler& uniform);
-private:
-  mat4 modelMatrix;
-  mat4 viewMatrix;
-  mat4 projectionMatrix;
-  mat4 modelViewMatrix;
-  mat4 viewProjMatrix;
-  mat4 modelViewProjMatrix;
-  bool dirtyModelView;
-  bool dirtyViewProj;
-  bool dirtyModelViewProj;
+  virtual void updateTo(Uniform& uniform) = 0;
+  virtual void updateTo(Sampler& uniform) = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -546,6 +475,7 @@ public:
   int getSharedUniformID(const String& name, Uniform::Type type) const;
   SharedProgramState* getCurrentSharedProgramState(void) const;
   void setCurrentSharedProgramState(SharedProgramState* newState);
+  const String& getSharedProgramStateDeclaration(void) const;
   /*! @return The current refresh mode.
    */
   RefreshMode getRefreshMode(void) const;
@@ -667,6 +597,7 @@ private:
   bool dirtyBinding;
   SamplerList samplers;
   UniformList uniforms;
+  String declaration;
   TextureList textureUnits;
   unsigned int activeTextureUnit;
   Ref<Program> currentProgram;
