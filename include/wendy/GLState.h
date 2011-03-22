@@ -192,8 +192,8 @@ public:
   void setSamplerState(const String& name, Texture* newTexture);
   Program* getProgram(void) const;
   /*! Sets the GPU program used by this state object.
-   *  @param[in] newProgram The desired GPU program, or @c NULL to merely
-   *  detach the current program.
+   *  @param[in] newProgram The desired GPU program, or @c NULL to detach
+   *  the current program.
    */
   void setProgram(Program* newProgram);
   StateID getID(void) const;

@@ -473,8 +473,16 @@ public:
   /*! @return The shared ID of the specified non-sampler uniform signature.
    */
   int getSharedUniformID(const String& name, Uniform::Type type) const;
+  /*! @return The current shared program state, or @c NULL if no shared program
+   *  state is currently set.
+   */
   SharedProgramState* getCurrentSharedProgramState(void) const;
+  /*! Sets the current shared program state.
+   *  @param[in] newState The new state object.
+   */
   void setCurrentSharedProgramState(SharedProgramState* newState);
+  /*! @return GPU declarations of all shared samplers and uniforms.
+   */
   const String& getSharedProgramStateDeclaration(void) const;
   /*! @return The current refresh mode.
    */
@@ -508,10 +516,12 @@ public:
    *  @return @c true if successful, or @c false otherwise.
    */
   bool setCurrentCanvas(Canvas& newCanvas);
+  /*! @return The currently set GPU program, or @c NULL if no program is set.
+   */
   Program* getCurrentProgram(void) const;
-  /*! Sets the current shader program for use when rendering.
-   *  @param[in] newProgram The desired shader program, or @c NULL to detach
-   *  the current shader program.
+  /*! Sets the current GPU program for use when rendering.
+   *  @param[in] newProgram The desired GPU program, or @c NULL to unbind
+   *  the current program.
    */
   void setCurrentProgram(Program* newProgram);
   VertexBuffer* getCurrentVertexBuffer(void) const;
