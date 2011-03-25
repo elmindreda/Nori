@@ -611,12 +611,7 @@ void ImageCanvas::apply(void) const
     }
 
     if (count)
-    {
-      if (GLEW_VERSION_2_0)
-        glDrawBuffers(count, enables);
-      else
-        glDrawBuffers(count, enables);
-    }
+      glDrawBuffers(count, enables);
     else
       glDrawBuffer(GL_NONE);
 
