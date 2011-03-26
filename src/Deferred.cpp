@@ -109,6 +109,11 @@ SharedProgramState& Renderer::getSharedProgramState(void)
   return *state;
 }
 
+render::GeometryPool& Renderer::getGeometryPool(void)
+{
+  return pool;
+}
+
 GL::Texture& Renderer::getColorTexture(void) const
 {
   return *colorTexture;

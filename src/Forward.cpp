@@ -70,6 +70,11 @@ SharedProgramState& Renderer::getSharedProgramState(void)
   return *state;
 }
 
+render::GeometryPool& Renderer::getGeometryPool(void)
+{
+  return pool;
+}
+
 Renderer* Renderer::create(render::GeometryPool& pool, const Config& config)
 {
   Ptr<Renderer> renderer(new Renderer(pool));
