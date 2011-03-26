@@ -1070,6 +1070,9 @@ void Context::setCurrentProgram(Program* newProgram)
 {
   if (newProgram != currentProgram)
   {
+    if (currentProgram)
+      currentProgram->unbind();
+
     currentProgram = newProgram;
     dirtyBinding = true;
 

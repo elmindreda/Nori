@@ -66,6 +66,7 @@ public:
 class Attribute
 {
   friend class Program;
+  friend class Context;
 public:
   enum Type
   {
@@ -80,11 +81,8 @@ public:
   bool isVector(void) const;
   Type getType(void) const;
   const String& getName(void) const;
-  Program& getProgram(void) const;
   static const char* getTypeName(Type type);
 private:
-  Attribute(Program& program);
-  Program* program;
   Type type;
   String name;
   int location;
@@ -198,6 +196,7 @@ private:
   bool retrieveUniforms(void);
   bool retrieveAttributes(void);
   void bind(void);
+  void unbind(void);
   Program& operator = (const Program& source);
   bool isValid(void) const;
   typedef std::vector<Attribute> AttributeList;

@@ -334,14 +334,6 @@ const String& Attribute::getName(void) const
 
 void Attribute::bind(size_t stride, size_t offset)
 {
-  glEnableVertexAttribArray(location);
-
-#if WENDY_DEBUG
-  checkGL("Failed to enable attribute \'%s\' of program \'%s\'",
-          name.c_str(),
-          program->getPath().asString().c_str());
-#endif
-
   glVertexAttribPointer(location,
                         getElementCount(type),
                         getElementType(type),
@@ -350,15 +342,8 @@ void Attribute::bind(size_t stride, size_t offset)
                         (const void*) offset);
 
 #if WENDY_DEBUG
-  checkGL("Failed to set attribute \'%s\' of program \'%s\'",
-          name.c_str(),
-          program->getPath().asString().c_str());
+  checkGL("Failed to set attribute \'%s\'", name.c_str());
 #endif
-}
-
-Program& Attribute::getProgram(void) const
-{
-  return *program;
 }
 
 const char* Attribute::getTypeName(Type type)
@@ -377,11 +362,6 @@ const char* Attribute::getTypeName(Type type)
 
   logError("Invalid GLSL attribute type %u", type);
   return "INVALID";
-}
-
-Attribute::Attribute(Program& initProgram):
-  program(&initProgram)
-{
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -860,7 +840,7 @@ bool Program::retrieveAttributes(void)
       continue;
     }
 
-    attributes.push_back(Attribute(*this));
+    attributes.push_back(Attribute());
     Attribute& attribute = attributes.back();
     attribute.name = attributeName;
     attribute.type = convertAttributeType(attributeType);
@@ -881,6 +861,19 @@ bool Program::retrieveAttributes(void)
 void Program::bind(void)
 {
   glUseProgram(programID);
+
+  typedef AttributeList::const_iterator It;
+
+  for (It a = attributes.begin();  a != attributes.end();  a++)
+    glEnableVertexAttribArray(a->location);
+}
+
+void Program::unbind(void)
+{
+  typedef AttributeList::const_iterator It;
+
+  for (It a = attributes.begin();  a != attributes.end();  a++)
+    glDisableVertexAttribArray(a->location);
 }
 
 Program& Program::operator = (const Program& source)
