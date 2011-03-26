@@ -53,6 +53,11 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
                                         camera.getAspectRatio(),
                                         camera.getMinDepth(),
                                         camera.getMaxDepth());
+  state->setCameraProperties(camera.getTransform().position,
+                             camera.getFOV(),
+                             camera.getAspectRatio(),
+                             camera.getMinDepth(),
+                             camera.getMaxDepth());
 
   renderOperations(scene.getOpaqueQueue());
   renderOperations(scene.getBlendedQueue());

@@ -52,10 +52,11 @@ enum
   SHARED_VIEWPROJECTION_MATRIX,
   SHARED_MODELVIEWPROJECTION_MATRIX,
 
-  SHARED_NEAR_Z,
-  SHARED_FAR_Z,
-  SHARED_ASPECT_RATIO,
-  SHARED_FOV,
+  SHARED_CAMERA_NEAR_Z,
+  SHARED_CAMERA_FAR_Z,
+  SHARED_CAMERA_ASPECT_RATIO,
+  SHARED_CAMERA_FOV,
+  SHARED_CAMERA_POSITION,
 
   SHARED_VIEWPORT_WIDTH,
   SHARED_VIEWPORT_HEIGHT,
@@ -76,7 +77,7 @@ public:
   /*! Reserves the supported uniform and sampler signatures as shared in the
    *  specified context.
    */
-  bool reserveSupported(GL::Context& context) const;
+  virtual bool reserveSupported(GL::Context& context) const;
   /*! @return The current model matrix.
    */
   const mat4& getModelMatrix(void) const;
@@ -86,6 +87,11 @@ public:
   /*! @return The current projection matrix.
    */
   const mat4& getProjectionMatrix(void) const;
+  void getCameraProperties(vec3& position,
+                           float& FOV,
+                           float& aspect,
+                           float& nearZ,
+                           float& farZ) const;
   /*! Sets the model matrix.
    *  @param[in] newMatrix The desired model matrix.
    */
@@ -99,7 +105,7 @@ public:
    */
   virtual void setProjectionMatrix(const mat4& newMatrix);
   /*! Sets an orthographic projection matrix as ([0..width], [0..height],
-   *  [-1, * 1]).
+   *  [-1, 1]).
    *  @param[in] width The desired width of the clipspace volume.
    *  @param[in] height The desired height of the clipspace volume.
    */
@@ -119,6 +125,11 @@ public:
                                               float aspect,
 	                                      float nearZ,
 	                                      float farZ);
+  virtual void setCameraProperties(const vec3& position,
+                                   float FOV,
+                                   float aspect,
+	                           float nearZ,
+	                           float farZ);
 protected:
   virtual void updateTo(GL::Uniform& uniform);
   virtual void updateTo(GL::Sampler& uniform);
@@ -129,6 +140,14 @@ private:
   mat4 modelViewMatrix;
   mat4 viewProjMatrix;
   mat4 modelViewProjMatrix;
+  struct
+  {
+    float nearZ;
+    float farZ;
+    float aspect;
+    float FOV;
+    vec3 position;
+  } camera;
   bool dirtyModelView;
   bool dirtyViewProj;
   bool dirtyModelViewProj;

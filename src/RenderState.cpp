@@ -48,22 +48,23 @@ SharedProgramState::SharedProgramState(void):
 
 bool SharedProgramState::reserveSupported(GL::Context& context) const
 {
-  context.createSharedUniform("wyM", GL::Uniform::MAT4, render::SHARED_MODEL_MATRIX);
-  context.createSharedUniform("wyV", GL::Uniform::MAT4, render::SHARED_VIEW_MATRIX);
-  context.createSharedUniform("wyP", GL::Uniform::MAT4, render::SHARED_PROJECTION_MATRIX);
-  context.createSharedUniform("wyMV", GL::Uniform::MAT4, render::SHARED_MODELVIEW_MATRIX);
-  context.createSharedUniform("wyVP", GL::Uniform::MAT4, render::SHARED_VIEWPROJECTION_MATRIX);
-  context.createSharedUniform("wyMVP", GL::Uniform::MAT4, render::SHARED_MODELVIEWPROJECTION_MATRIX);
+  context.createSharedUniform("wyM", GL::Uniform::MAT4, SHARED_MODEL_MATRIX);
+  context.createSharedUniform("wyV", GL::Uniform::MAT4, SHARED_VIEW_MATRIX);
+  context.createSharedUniform("wyP", GL::Uniform::MAT4, SHARED_PROJECTION_MATRIX);
+  context.createSharedUniform("wyMV", GL::Uniform::MAT4, SHARED_MODELVIEW_MATRIX);
+  context.createSharedUniform("wyVP", GL::Uniform::MAT4, SHARED_VIEWPROJECTION_MATRIX);
+  context.createSharedUniform("wyMVP", GL::Uniform::MAT4, SHARED_MODELVIEWPROJECTION_MATRIX);
 
-  context.createSharedUniform("wyNearZ", GL::Uniform::FLOAT, render::SHARED_NEAR_Z);
-  context.createSharedUniform("wyFarZ", GL::Uniform::FLOAT, render::SHARED_FAR_Z);
-  context.createSharedUniform("wyAspectRatio", GL::Uniform::FLOAT, render::SHARED_ASPECT_RATIO);
-  context.createSharedUniform("wyFOV", GL::Uniform::FLOAT, render::SHARED_FOV);
+  context.createSharedUniform("wyCameraNearZ", GL::Uniform::FLOAT, SHARED_CAMERA_NEAR_Z);
+  context.createSharedUniform("wyCameraFarZ", GL::Uniform::FLOAT, SHARED_CAMERA_FAR_Z);
+  context.createSharedUniform("wyCameraAspectRatio", GL::Uniform::FLOAT, SHARED_CAMERA_ASPECT_RATIO);
+  context.createSharedUniform("wyCameraFOV", GL::Uniform::FLOAT, SHARED_CAMERA_FOV);
+  context.createSharedUniform("wyCameraPosition", GL::Uniform::VEC3, SHARED_CAMERA_POSITION);
 
-  //context.createSharedUniform("wyViewportWidth", GL::Uniform::INT, render::SHARED_VIEWPORT_WIDTH);
-  //context.createSharedUniform("wyViewportHeight", GL::Uniform::INT, render::SHARED_VIEWPORT_HEIGHT);
+  //context.createSharedUniform("wyViewportWidth", GL::Uniform::INT, SHARED_VIEWPORT_WIDTH);
+  //context.createSharedUniform("wyViewportHeight", GL::Uniform::INT, SHARED_VIEWPORT_HEIGHT);
 
-  context.createSharedUniform("wyTime", GL::Uniform::FLOAT, render::SHARED_TIME);
+  context.createSharedUniform("wyTime", GL::Uniform::FLOAT, SHARED_TIME);
 
   return true;
 }
@@ -73,26 +74,39 @@ const mat4& SharedProgramState::getModelMatrix(void) const
   return modelMatrix;
 }
 
+const mat4& SharedProgramState::getViewMatrix(void) const
+{
+  return viewMatrix;
+}
+
+const mat4& SharedProgramState::getProjectionMatrix(void) const
+{
+  return projectionMatrix;
+}
+
+void SharedProgramState::getCameraProperties(vec3& position,
+                                             float& FOV,
+                                             float& aspect,
+                                             float& nearZ,
+                                             float& farZ) const
+{
+  position = camera.position;
+  FOV = camera.FOV;
+  aspect = camera.aspect;
+  nearZ = camera.nearZ;
+  farZ = camera.farZ;
+}
+
 void SharedProgramState::setModelMatrix(const mat4& newMatrix)
 {
   modelMatrix = newMatrix;
   dirtyModelView = dirtyModelViewProj = true;
 }
 
-const mat4& SharedProgramState::getViewMatrix(void) const
-{
-  return viewMatrix;
-}
-
 void SharedProgramState::setViewMatrix(const mat4& newMatrix)
 {
   viewMatrix = newMatrix;
   dirtyModelView = dirtyViewProj = dirtyModelViewProj = true;
-}
-
-const mat4& SharedProgramState::getProjectionMatrix(void) const
-{
-  return projectionMatrix;
 }
 
 void SharedProgramState::setProjectionMatrix(const mat4& newMatrix)
@@ -123,6 +137,19 @@ void SharedProgramState::setPerspectiveProjectionMatrix(float FOV,
 {
   projectionMatrix = perspective(FOV, aspect, nearZ, farZ);
   dirtyViewProj = dirtyModelViewProj = true;
+}
+
+void SharedProgramState::setCameraProperties(const vec3& position,
+                                             float FOV,
+                                             float aspect,
+                                             float nearZ,
+                                             float farZ)
+{
+  camera.position = position;
+  camera.FOV = FOV;
+  camera.aspect = aspect;
+  camera.nearZ = nearZ;
+  camera.farZ = farZ;
 }
 
 void SharedProgramState::updateTo(GL::Sampler& sampler)
@@ -196,6 +223,36 @@ void SharedProgramState::updateTo(GL::Uniform& uniform)
       }
 
       uniform.copyFrom(value_ptr(modelViewProjMatrix));
+      return;
+    }
+
+    case SHARED_CAMERA_POSITION:
+    {
+      uniform.copyFrom(value_ptr(camera.position));
+      return;
+    }
+
+    case SHARED_CAMERA_NEAR_Z:
+    {
+      uniform.copyFrom(&camera.nearZ);
+      return;
+    }
+
+    case SHARED_CAMERA_FAR_Z:
+    {
+      uniform.copyFrom(&camera.farZ);
+      return;
+    }
+
+    case SHARED_CAMERA_ASPECT_RATIO:
+    {
+      uniform.copyFrom(&camera.aspect);
+      return;
+    }
+
+    case SHARED_CAMERA_FOV:
+    {
+      uniform.copyFrom(&camera.FOV);
       return;
     }
   }
