@@ -87,7 +87,7 @@ public:
   /*! @return The transform for this camera.
    *
    *  @remarks This is the camera-to-world-space transform for this camera. For
-   *  the world-to-camera-space transform, see Camera::getInverseTransform.
+   *  the world-to-camera-space transform, see Camera::getViewTransform.
    */
   const Transform3& getTransform(void) const;
   /*! @return The inverse of the transform for this camera.
