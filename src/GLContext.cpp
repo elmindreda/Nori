@@ -288,7 +288,6 @@ Limits::Limits(Context& initContext):
   context(initContext),
   maxColorAttachments(0),
   maxDrawBuffers(0),
-  maxClipPlanes(0),
   maxVertexTextureImageUnits(0),
   maxFragmentTextureImageUnits(0),
   maxCombinedTextureImageUnits(0),
@@ -300,7 +299,6 @@ Limits::Limits(Context& initContext):
 {
   maxColorAttachments = getIntegerParameter(GL_MAX_COLOR_ATTACHMENTS_EXT);
   maxDrawBuffers = getIntegerParameter(GL_MAX_DRAW_BUFFERS);
-  maxClipPlanes = getIntegerParameter(GL_MAX_CLIP_PLANES);
   maxVertexTextureImageUnits = getIntegerParameter(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
   maxFragmentTextureImageUnits = getIntegerParameter(GL_MAX_TEXTURE_IMAGE_UNITS);
   maxCombinedTextureImageUnits = getIntegerParameter(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
@@ -319,11 +317,6 @@ unsigned int Limits::getMaxColorAttachments(void) const
 unsigned int Limits::getMaxDrawBuffers(void) const
 {
   return maxDrawBuffers;
-}
-
-unsigned int Limits::getMaxClipPlanes(void) const
-{
-  return maxClipPlanes;
 }
 
 unsigned int Limits::getMaxVertexTextureImageUnits(void) const
@@ -1192,41 +1185,6 @@ void Context::setActiveTextureUnit(unsigned int unit)
       return;
 #endif
   }
-}
-
-const Context::PlaneList& Context::getClipPlanes(void) const
-{
-  return planes;
-}
-
-bool Context::setClipPlanes(const PlaneList& newPlanes)
-{
-  if (planes.size() > limits->getMaxClipPlanes())
-    return false;
-
-  planes = newPlanes;
-  unsigned int index = 0;
-
-  for (PlaneList::const_iterator p = planes.begin();  p != planes.end();  p++)
-  {
-    // TODO: Verify this.
-
-    const double equation[4] = { p->normal.x, p->normal.y, p->normal.z, p->distance };
-
-    glEnable(GL_CLIP_PLANE0 + index);
-    glClipPlane(GL_CLIP_PLANE0 + index, equation);
-
-    index++;
-  }
-
-  for ( ;  index < limits->getMaxClipPlanes();  index++)
-    glDisable(GL_CLIP_PLANE0 + index);
-
-#if WENDY_DEBUG
-  checkGL("Error during user clip plane setup");
-#endif
-
-  return true;
 }
 
 Stats* Context::getStats(void) const

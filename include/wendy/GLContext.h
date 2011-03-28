@@ -173,9 +173,6 @@ public:
   /*! @return The maximum number of simultaneously active color buffers.
    */
   unsigned int getMaxDrawBuffers(void) const;
-  /*! @return The number of available clip planes.
-   */
-  unsigned int getMaxClipPlanes(void) const;
   /*! @return The number of available vertex shader texture image units.
    */
   unsigned int getMaxVertexTextureImageUnits(void) const;
@@ -204,7 +201,6 @@ private:
   Context& context;
   unsigned int maxColorAttachments;
   unsigned int maxDrawBuffers;
-  unsigned int maxClipPlanes;
   unsigned int maxVertexTextureImageUnits;
   unsigned int maxFragmentTextureImageUnits;
   unsigned int maxCombinedTextureImageUnits;
@@ -540,8 +536,6 @@ public:
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
   void setActiveTextureUnit(unsigned int unit);
-  const PlaneList& getClipPlanes(void) const;
-  bool setClipPlanes(const PlaneList& newPlanes);
   Stats* getStats(void) const;
   void setStats(Stats* newStats);
   /*! @return The title of the context window.
