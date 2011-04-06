@@ -107,6 +107,9 @@ public:
   /*! @return The local-to-parent transform of this scene node.
    */
   const Transform3& getLocalTransform(void) const;
+  /*! Sets the local-to-parent transform of this scene node.
+   */
+  void setLocalTransform(const Transform3& newTransform);
   /*! @return The local-to-world transform of this scene node.
    */
   const Transform3& getWorldTransform(void) const;

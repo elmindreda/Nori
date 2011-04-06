@@ -181,6 +181,16 @@ const Transform3& Node::getLocalTransform(void) const
   return local;
 }
 
+void Node::setLocalTransform(const Transform3& newTransform)
+{
+  local = newTransform;
+
+  if (parent)
+    parent->invalidateBounds();
+
+  dirtyWorld = true;
+}
+
 const Transform3& Node::getWorldTransform(void) const
 {
   updateWorldTransform();
