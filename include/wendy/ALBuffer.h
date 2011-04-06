@@ -41,20 +41,25 @@ namespace wendy
 
 /*! @ingroup openal
  */
+enum BufferFormat
+{
+  FORMAT_MONO8,
+  FORMAT_MONO16,
+  FORMAT_STEREO8,
+  FORMAT_STEREO16,
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup openal
+ */
 class BufferData
 {
 public:
-  enum Format
-  {
-    MONO8,
-    MONO16,
-    STEREO8,
-    STEREO16,
-  };
-  BufferData(const void* data, size_t size, Format format, float frequency);
+  BufferData(const void* data, size_t size, BufferFormat format, float frequency);
   const void* data;
   size_t size;
-  Format format;
+  BufferFormat format;
   float frequency;
 };
 
@@ -67,7 +72,10 @@ class Buffer : public Resource
   friend class Source;
 public:
   ~Buffer(void);
+  bool isMono(void) const;
+  bool isStereo(void) const;
   Time getDuration(void) const;
+  BufferFormat getFormat(void) const;
   Context& getContext(void) const;
   static Ref<Buffer> create(const ResourceInfo& info, Context& context, const BufferData& data);
   static Ref<Buffer> read(Context& context, const Path& path);
@@ -78,6 +86,8 @@ private:
   Buffer& operator = (const Buffer& source);
   Context& context;
   unsigned int bufferID;
+  BufferFormat format;
+  Time duration;
 };
 
 ///////////////////////////////////////////////////////////////////////

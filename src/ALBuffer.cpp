@@ -43,17 +43,17 @@ namespace wendy
 namespace
 {
 
-ALenum convertToAL(BufferData::Format format)
+ALenum convertToAL(BufferFormat format)
 {
   switch (format)
   {
-    case BufferData::MONO8:
+    case FORMAT_MONO8:
       return AL_FORMAT_MONO8;
-    case BufferData::MONO16:
+    case FORMAT_MONO16:
       return AL_FORMAT_MONO16;
-    case BufferData::STEREO8:
+    case FORMAT_STEREO8:
       return AL_FORMAT_STEREO8;
-    case BufferData::STEREO16:
+    case FORMAT_STEREO16:
       return AL_FORMAT_STEREO16;
   }
 
@@ -61,22 +61,39 @@ ALenum convertToAL(BufferData::Format format)
   return 0;
 }
 
-BufferData::Format convertFormat(ALenum format)
+BufferFormat convertFormat(ALenum format)
 {
   switch (format)
   {
     case AL_FORMAT_MONO8:
-      return BufferData::MONO8;
+      return FORMAT_MONO8;
     case AL_FORMAT_MONO16:
-      return BufferData::MONO16;
+      return FORMAT_MONO16;
     case AL_FORMAT_STEREO8:
-      return BufferData::STEREO8;
+      return FORMAT_STEREO8;
     case AL_FORMAT_STEREO16:
-      return BufferData::STEREO16;
+      return FORMAT_STEREO16;
   }
 
   logError("Unsupported OpenAL buffer format %u", format);
-  return BufferData::Format(0);
+  return BufferFormat(0);
+}
+
+size_t getFormatSize(BufferFormat format)
+{
+  switch (format)
+  {
+    case FORMAT_MONO8:
+      return 1;
+    case FORMAT_MONO16:
+    case FORMAT_STEREO8:
+      return 2;
+    case FORMAT_STEREO16:
+      return 4;
+  }
+
+  logError("Invalid OpenAL buffer data format %u", format);
+  return 0;
 }
 
 } /*namespace*/
@@ -87,6 +104,32 @@ Buffer::~Buffer(void)
 {
   if (bufferID)
     alDeleteBuffers(1, &bufferID);
+}
+
+bool Buffer::isMono(void) const
+{
+  if (format == FORMAT_MONO8 || format == FORMAT_MONO16)
+    return true;
+
+  return false;
+}
+
+bool Buffer::isStereo(void) const
+{
+  if (format == FORMAT_STEREO8 || format == FORMAT_STEREO16)
+    return true;
+
+  return false;
+}
+
+Time Buffer::getDuration(void) const
+{
+  return duration;
+}
+
+BufferFormat Buffer::getFormat(void) const
+{
+  return format;
 }
 
 Context& Buffer::getContext(void) const
@@ -112,7 +155,8 @@ Ref<Buffer> Buffer::read(Context& context, const Path& path)
 Buffer::Buffer(const ResourceInfo& info, Context& initContext):
   Resource(info),
   context(initContext),
-  bufferID(0)
+  bufferID(0),
+  duration(0.0)
 {
 }
 
@@ -128,12 +172,15 @@ bool Buffer::init(const BufferData& data)
   alGenBuffers(1, &bufferID);
   alBufferData(bufferID,
                convertToAL(data.format),
-               data.data,
-               data.size,
+               data.data, data.size,
                data.frequency);
 
   if (!checkAL("Error during OpenAL buffer creation"))
     return false;
+
+  format = data.format;
+
+  duration = float(data.size) / (getFormatSize(format) * data.frequency);
 
   return true;
 }

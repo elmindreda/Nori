@@ -153,6 +153,11 @@ void Source::setBuffer(Buffer* newBuffer)
     alSourcei(sourceID, AL_BUFFER, 0);
 }
 
+Context& Source::getContext(void) const
+{
+  return context;
+}
+
 Ref<Source> Source::create(Context& context)
 {
   Ref<Source> source = new Source(context);
