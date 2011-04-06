@@ -4,7 +4,8 @@ include_directories(${libpng_SOURCE_DIR}
 		    ${expat_SOURCE_DIR}
 		    ${PCRE_SOURCE_DIR}
                     ${GLEW_SOURCE_DIR}
-                    ${glfw_SOURCE_DIR})
+                    ${glfw_SOURCE_DIR}
+                    ${OPENAL_INCLUDE_DIR})
 
 set(wendy_SOURCES
     Wendy.cpp
@@ -18,6 +19,10 @@ set(wendy_SOURCES
     GLQuery.cpp GLState.cpp GLTexture.cpp
 
     Input.cpp)
+
+if(WENDY_INCLUDE_OPENAL)
+  list(APPEND wendy_SOURCES OpenAL.cpp ALBuffer.cpp ALContext.cpp ALSource.cpp)
+endif(WENDY_INCLUDE_OPENAL)
 
 if(WENDY_INCLUDE_RENDERER)
   list(APPEND wendy_SOURCES

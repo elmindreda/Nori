@@ -7,6 +7,7 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
+option(WENDY_INCLUDE_OPENAL "Include the OpenAL wrapper" ON)
 option(WENDY_INCLUDE_RENDERER "Include the renderer" ON)
 option(WENDY_INCLUDE_SCENE_GRAPH "Include the scene graph" ON)
 option(WENDY_INCLUDE_UI_SYSTEM "Include the UI library" ON)
@@ -62,6 +63,10 @@ if(WENDY_BUILD_DOCUMENTATION)
   find_package(Doxygen)
 endif(WENDY_BUILD_DOCUMENTATION)
 
+if(WENDY_INCLUDE_OPENAL)
+  find_package(OpenAL REQUIRED)
+endif(WENDY_INCLUDE_OPENAL)
+
 find_package(OpenGL REQUIRED)
 
 add_subdirectory(libs)
@@ -69,6 +74,9 @@ add_subdirectory(libs)
 list(APPEND wendy_CORE_LIBRARIES expat png z pcre)
 
 list(APPEND wendy_LIBRARIES ${wendy_CORE_LIBRARIES} GLEW glfw ${GLFW_LIBRARIES})
+if(WENDY_INCLUDE_OPENAL)
+  list(APPEND wendy_LIBRARIES ${OPENAL_LIBRARY})
+endif(WENDY_INCLUDE_OPENAL)
 
 list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/include
                                ${wendy_BINARY_DIR}/include
