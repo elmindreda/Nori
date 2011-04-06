@@ -100,6 +100,19 @@ size_t getFormatSize(BufferFormat format)
 
 ///////////////////////////////////////////////////////////////////////
 
+BufferData::BufferData(const void* initData,
+                       size_t initSize,
+                       BufferFormat initFormat,
+                       float initFrequency):
+  data(initData),
+  size(initSize),
+  format(initFormat),
+  frequency(initFrequency)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Buffer::~Buffer(void)
 {
   if (bufferID)
