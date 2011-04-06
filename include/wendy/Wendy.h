@@ -69,6 +69,13 @@
 
 #include <wendy/Input.h>
 
+#if WENDY_INCLUDE_OPENAL
+#include <wendy/OpenAL.h>
+#include <wendy/ALContext.h>
+#include <wendy/ALBuffer.h>
+#include <wendy/ALSource.h>
+#endif
+
 #if WENDY_INCLUDE_RENDERER
 #include <wendy/RenderState.h>
 #include <wendy/RenderCamera.h>

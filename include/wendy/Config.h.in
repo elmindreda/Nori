@@ -44,6 +44,8 @@
 
 #cmakedefine WENDY_INCLUDE_RENDERER 1
 
+#cmakedefine WENDY_INCLUDE_OPENAL 1
+
 #cmakedefine WENDY_INCLUDE_SCENE_GRAPH 1
 
 #cmakedefine WENDY_INCLUDE_UI_SYSTEM 1
