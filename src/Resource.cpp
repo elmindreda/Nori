@@ -168,8 +168,8 @@ const PathList& ResourceIndex::getSearchPaths(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-ResourceReader::ResourceReader(ResourceIndex& index):
-  index(index)
+ResourceReader::ResourceReader(ResourceIndex& initIndex):
+  index(initIndex)
 {
 }
 

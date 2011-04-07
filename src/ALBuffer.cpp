@@ -208,13 +208,16 @@ Buffer& Buffer::operator = (const Buffer& source)
 ///////////////////////////////////////////////////////////////////////
 
 BufferReader::BufferReader(Context& initContext):
-  ResourceReader(context.getIndex()),
+  ResourceReader(initContext.getIndex()),
   context(initContext)
 {
 }
 
 Ref<Buffer> BufferReader::read(const Path& path)
 {
+  if (Resource* cache = getIndex().findResource(path))
+    return dynamic_cast<Buffer*>(cache);
+
   ALenum format;
   ALsizei size;
   ALfloat frequency;

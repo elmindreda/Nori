@@ -150,7 +150,7 @@ void Source::setBuffer(Buffer* newBuffer)
   if (buffer)
     alSourcei(sourceID, AL_BUFFER, buffer->bufferID);
   else
-    alSourcei(sourceID, AL_BUFFER, 0);
+    alSourcei(sourceID, AL_BUFFER, AL_NONE);
 }
 
 Context& Source::getContext(void) const
