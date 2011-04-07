@@ -30,7 +30,8 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include <alut.h>
+#include <al.h>
+#include <alc.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -43,7 +44,14 @@ namespace wendy
 
 Context::~Context(void)
 {
-  alutExit();
+  if (context)
+  {
+    alcMakeContextCurrent(NULL);
+    alcDestroyContext((ALCcontext*) context);
+  }
+
+  if (device)
+    alcCloseDevice((ALCdevice*) device);
 }
 
 const vec3& Context::getListenerPosition(void) const
@@ -98,7 +106,9 @@ bool Context::createSingleton(ResourceIndex& index)
 }
 
 Context::Context(ResourceIndex& initIndex):
-  index(initIndex)
+  index(initIndex),
+  device(NULL),
+  context(NULL)
 {
 }
 
@@ -110,10 +120,23 @@ Context::Context(const Context& source):
 
 bool Context::init(void)
 {
-  if (!alutInit(NULL, NULL))
+  device = alcOpenDevice(NULL);
+  if (!device)
   {
-    logError("Failed to initialize OpenAL: %s",
-             alutGetErrorString(alutGetError()));
+    logError("Failed to open OpenAL device");
+    return false;
+  }
+
+  context = alcCreateContext((ALCdevice*) device, NULL);
+  if (!context)
+  {
+    logError("Failed to create OpenAL context");
+    return false;
+  }
+
+  if (!alcMakeContextCurrent((ALCcontext*) context))
+  {
+    logError("Failed to make OpenAL context current");
     return false;
   }
 

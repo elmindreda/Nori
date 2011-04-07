@@ -57,6 +57,8 @@ private:
   bool init(void);
   Context& operator = (const Context& source);
   ResourceIndex& index;
+  void* device;
+  void* context;
   vec3 listenerPosition;
   vec3 listenerVelocity;
 };
