@@ -28,7 +28,7 @@
 
 #include <wendy/OpenAL.h>
 
-#include <alut.h>
+#include <al.h>
 
 #include <cstdio>
 
@@ -38,6 +38,32 @@ namespace wendy
 {
   namespace AL
   {
+
+///////////////////////////////////////////////////////////////////////
+
+namespace
+{
+
+const char* getErrorString(ALenum error)
+{
+  switch (error)
+  {
+    case AL_INVALID_NAME:
+      return "Invalid name parameter";
+    case AL_INVALID_ENUM:
+      return "Invalid enum parameter";
+    case AL_INVALID_VALUE:
+      return "Invalid enum parameter value";
+    case AL_INVALID_OPERATION:
+      return "Invalid operation";
+    case AL_OUT_OF_MEMORY:
+      return "Out of memory";
+  }
+
+  return "Unknown OpenAL error";
+}
+
+} /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -61,7 +87,7 @@ bool checkAL(const char* format, ...)
     return false;
   }
 
-  logError("%s: %s", message, alutGetErrorString(error));
+  logError("%s: %s", message, getErrorString(error));
 
   std::free(message);
   return false;
