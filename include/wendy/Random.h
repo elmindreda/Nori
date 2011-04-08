@@ -37,7 +37,7 @@ class Random
 public:
   Random(void);
   Random(const T& min, const T& max);
-  T generate(void) const;
+  T operator () (void) const;
   void set(const T& newMin, const T& newMax);
   T min;
   T max;

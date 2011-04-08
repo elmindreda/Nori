@@ -52,7 +52,7 @@ Random<float>::Random(const float& initMin, const float& initMax):
 }
 
 template <>
-float Random<float>::generate(void) const
+float Random<float>::operator () (void) const
 {
   return min + (max - min) * normalizedRandom();
 }
@@ -81,7 +81,7 @@ Random<vec2>::Random(const vec2& initMin, const vec2& initMax):
 }
 
 template <>
-vec2 Random<vec2>::generate(void) const
+vec2 Random<vec2>::operator () (void) const
 {
   vec2 result;
   result.x = min.x + (max.x - min.x) * normalizedRandom();
@@ -113,7 +113,7 @@ Random<vec3>::Random(const vec3& initMin, const vec3& initMax):
 }
 
 template <>
-vec3 Random<vec3>::generate(void) const
+vec3 Random<vec3>::operator () (void) const
 {
   vec3 result;
   result.x = min.x + (max.x - min.x) * normalizedRandom();

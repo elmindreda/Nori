@@ -79,9 +79,9 @@ bool Demo::init(void)
   {
     scene::ModelNode* modelNode = new scene::ModelNode();
     modelNode->setModel(model);
-    modelNode->getLocalTransform().position = position.generate();
-    modelNode->getLocalTransform().rotation = angleAxis(degrees(angle.generate()),
-                                                        normalize(axis.generate()));
+    modelNode->getLocalTransform().position = position();
+    modelNode->getLocalTransform().rotation = angleAxis(degrees(angle()),
+                                                        normalize(axis()));
     rootNode->addChild(*modelNode);
   }
 
