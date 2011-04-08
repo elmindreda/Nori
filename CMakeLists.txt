@@ -18,6 +18,9 @@ if(UNIX AND NOT CYGWIN)
   option(WENDY_BUILD_DOCUMENTATION "Build the Doxygen documentation" OFF)
 endif(UNIX AND NOT CYGWIN)
 
+include(TestBigEndian)
+test_big_endian(WENDY_WORDS_BIGENDIAN)
+
 include(CheckFunctionExists)
 check_function_exists(strtof WENDY_HAVE_STRTOF)
 check_function_exists(strlcat WENDY_HAVE_STRLCAT)
@@ -71,7 +74,7 @@ find_package(OpenGL REQUIRED)
 
 add_subdirectory(libs)
 
-list(APPEND wendy_CORE_LIBRARIES expat png z pcre)
+list(APPEND wendy_CORE_LIBRARIES expat png z pcre vorbis ogg)
 
 list(APPEND wendy_LIBRARIES ${wendy_CORE_LIBRARIES} GLEW glfw ${GLFW_LIBRARIES})
 if(WENDY_INCLUDE_OPENAL)

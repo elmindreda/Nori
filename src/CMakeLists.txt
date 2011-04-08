@@ -5,7 +5,9 @@ include_directories(${libpng_SOURCE_DIR}
 		    ${PCRE_SOURCE_DIR}
                     ${GLEW_SOURCE_DIR}
                     ${glfw_SOURCE_DIR}
-                    ${OPENAL_INCLUDE_DIR})
+                    ${OPENAL_INCLUDE_DIR}
+                    ${libogg_SOURCE_DIR}
+                    ${libvorbis_SOURCE_DIR})
 
 set(wendy_SOURCES
     Wendy.cpp

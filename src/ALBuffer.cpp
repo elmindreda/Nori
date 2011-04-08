@@ -31,6 +31,8 @@
 
 #include <al.h>
 
+#include <vorbis/vorbisfile.h>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -61,24 +63,6 @@ ALenum convertToAL(BufferFormat format)
   return 0;
 }
 
-BufferFormat convertFormat(ALenum format)
-{
-  switch (format)
-  {
-    case AL_FORMAT_MONO8:
-      return FORMAT_MONO8;
-    case AL_FORMAT_MONO16:
-      return FORMAT_MONO16;
-    case AL_FORMAT_STEREO8:
-      return FORMAT_STEREO8;
-    case AL_FORMAT_STEREO16:
-      return FORMAT_STEREO16;
-  }
-
-  logError("Unsupported OpenAL buffer format %u", format);
-  return BufferFormat(0);
-}
-
 size_t getFormatSize(BufferFormat format)
 {
   switch (format)
@@ -94,6 +78,25 @@ size_t getFormatSize(BufferFormat format)
 
   logError("Invalid OpenAL buffer data format %u", format);
   return 0;
+}
+
+const char* getErrorString(int error)
+{
+  switch (error)
+  {
+    case OV_EREAD:
+      return "A read from media returned an error";
+    case OV_ENOTVORBIS:
+      return "Bitstream does not contain any Vorbis data";
+    case OV_EVERSION:
+      return "Vorbis version mismatch";
+    case OV_EBADHEADER:
+      return "Invalid Vorbis bitstream header";
+    case OV_EFAULT:
+      return "Internal logic fault; indicates a bug or heap/stack corruption";
+  }
+
+  return "Unknown vorbisfile error";
 }
 
 } /*namespace*/
@@ -218,33 +221,90 @@ Ref<Buffer> BufferReader::read(const Path& path)
   if (Resource* cache = getIndex().findResource(path))
     return dynamic_cast<Buffer*>(cache);
 
-  /*
-  ALenum format;
-  ALsizei size;
-  ALfloat frequency;
+  Path full = path;
 
-  void* mem = alutLoadMemoryFromFile(path.asString().c_str(),
-                                     &format,
-                                     &size,
-                                     &frequency);
-  if (!mem)
+  if (!getIndex().findFile(full))
   {
-    logError("Failed to load audio file \'%s\': %s",
-             path.asString().c_str(),
-             alutGetErrorString(alutGetError()));
-    return false;
+    logError("Could not find audio file \'%s\'", path.asString().c_str());
+    return NULL;
   }
 
-  ResourceInfo info(getIndex(), path);
-  BufferData data(mem, size, convertFormat(format), frequency);
-  Ref<Buffer> buffer = Buffer::create(info, context, data);
+  int result;
+  OggVorbis_File file;
 
-  std::free(mem);
+  result = ov_fopen(full.asString().c_str(), &file);
+  if (result)
+  {
+    logError("Failed to open audio file \'%s\': %s",
+             full.asString().c_str(),
+             getErrorString(result));
+    return NULL;
+  }
 
-  return buffer;
-  */
+  if (ov_streams(&file) > 1)
+  {
+    ov_clear(&file);
+    logError("Audio file \'%s\' has an unsupported number of bitstreams",
+             full.asString().c_str());
+    return NULL;
+  }
 
-  return NULL;
+  const vorbis_info* info = ov_info(&file, -1);
+  if (!info)
+  {
+    ov_clear(&file);
+    logError("Unable to retrieve Vorbis info for audio file \'%s\'",
+             full.asString().c_str());
+    return NULL;
+  }
+
+  if (info->channels > 2)
+  {
+    ov_clear(&file);
+    logError("Audio file \'%s\' has an unsupported number of channels",
+             full.asString().c_str());
+    return NULL;
+  }
+
+  BufferFormat format;
+  if (info->channels == 1)
+    format = FORMAT_MONO16;
+  else
+    format = FORMAT_STEREO16;
+
+  std::vector<char> samples;
+
+#if WENDY_WORDS_BIGENDIAN
+  const int endian = 1;
+#else
+  const int endian = 0;
+#endif
+
+  for (;;)
+  {
+    int bitstream;
+    char scratch[4096];
+
+    result = ov_read(&file, scratch, sizeof(scratch), endian, 2, 1, &bitstream);
+    if (result < 0)
+    {
+      ov_clear(&file);
+      logError("Error when reading audio file \'%s\': %s",
+              full.asString().c_str(),
+              getErrorString(result));
+      return NULL;
+    }
+    else if (result > 0)
+      samples.insert(samples.end(), scratch, scratch + result);
+    else
+      break;
+  }
+
+  ov_clear(&file);
+
+  BufferData data(samples.data(), samples.size(), format, float(info->rate));
+
+  return Buffer::create(ResourceInfo(getIndex(), full), context, data);
 }
 
 ///////////////////////////////////////////////////////////////////////
