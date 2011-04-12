@@ -50,7 +50,7 @@ class Context;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Texture sampler filtering mode.
+/*! @brief %Texture sampler filtering mode.
  *  @ingroup opengl
  */
 enum FilterMode
@@ -70,7 +70,7 @@ enum FilterMode
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Texture sampler address wrapping mode.
+/*! @brief %Texture sampler address wrapping mode.
  *  @ingroup opengl
  */
 enum AddressMode
@@ -89,16 +89,18 @@ enum AddressMode
  */
 enum TextureType
 {
-  /*! Texture has one-dimensional images with power-of-two dimensions.
+  /*! %Texture has one-dimensional images with power-of-two dimensions.
    */
   TEXTURE_1D,
-  /*! Texture has two-dimensional images with power-of-two dimensions.
+  /*! %Texture has two-dimensional images with power-of-two dimensions.
    */
   TEXTURE_2D,
-  /*! Texture has a single two-dimensional image without power-of-two dimension restrictions.
+  /*! %Texture has a single two-dimensional image without power-of-two
+   *  dimension restrictions.
    */
   TEXTURE_RECT,
-  /*! Texture has a cube of two-dimensional, square images with power-of-two dimensions.
+  /*! %Texture has a cube of two-dimensional, square images with power-of-two
+   *  dimensions.
    */
   TEXTURE_CUBE,
 };
