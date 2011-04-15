@@ -6,10 +6,6 @@
 // Licence : This source is under MIT License
 // File    : glm/gtx/compatibility.inl
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// 2011-03-18  Camilla Berglund  <elmindreda@elmindreda.org>
-//  * Fixed compiler check
-//  * Fixed propagation to bool
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace glm{
 namespace gtx{
@@ -20,10 +16,10 @@ template <typename genType>
 inline bool isfinite(
 	genType const & x)
 {
-#if(defined(GLM_COMPILER) && (GLM_COMPILER & GLM_COMPILER_VC))
-	return _finite(x) ? true : false;
-#else//GLM_COMPILER_GCC
-	return std::isfinite(x);
+#if(GLM_COMPILER & GLM_COMPILER_VC)
+	return _finite(x);
+#else//(GLM_COMPILER & GLM_COMPILER_GCC)
+	return std::isfinite(x) != 0;
 #endif
 }
 
@@ -62,10 +58,10 @@ template <typename genType>
 inline bool isinf(
 	genType const & x)
 {
-#if(defined(GLM_COMPILER) && (GLM_COMPILER & GLM_COMPILER_VC))
+#if(GLM_COMPILER & GLM_COMPILER_VC)
 	return _fpclass(x) == _FPCLASS_NINF || _fpclass(x) == _FPCLASS_PINF;
 #else
-	return std::isinf(x);
+	return std::isinf(x) != 0;
 #endif
 }
 
@@ -103,10 +99,10 @@ inline detail::tvec4<bool> isinf(
 template <typename genType> 
 inline bool isnan(genType const & x)
 {
-#if(defined(GLM_COMPILER) && (GLM_COMPILER & GLM_COMPILER_VC))
+#if(GLM_COMPILER & GLM_COMPILER_VC)
 	return _isnan(x);
 #else
-	return std::isnan(x);
+	return std::isnan(x) != 0;
 #endif
 }
 

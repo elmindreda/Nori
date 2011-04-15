@@ -17,7 +17,7 @@
 #define GLM_VERSION_MAJOR			0
 #define GLM_VERSION_MINOR			9
 #define GLM_VERSION_PATCH			1
-#define GLM_VERSION_REVISION		0
+#define GLM_VERSION_REVISION		2
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Compiler
@@ -37,6 +37,7 @@
 #define GLM_COMPILER_VC2005			0x01000070
 #define GLM_COMPILER_VC2008			0x01000080
 #define GLM_COMPILER_VC2010			0x01000090
+#define GLM_COMPILER_VC2011			0x010000A0
 
 // GCC defines
 #define GLM_COMPILER_GCC            0x02000000
@@ -98,6 +99,8 @@
 #		define GLM_COMPILER GLM_COMPILER_VC2008
 #	elif _MSC_VER == 1600
 #		define GLM_COMPILER GLM_COMPILER_VC2010
+#	elif _MSC_VER == 1700
+#		define GLM_COMPILER GLM_COMPILER_VC2011
 #	else//_MSC_VER
 #		define GLM_COMPILER GLM_COMPILER_VC
 #	endif//_MSC_VER
@@ -167,13 +170,13 @@
 // Report compiler detection
 #if(defined(GLM_MESSAGES) && !defined(GLM_MESSAGE_COMPILER_DISPLAYED))
 #	define GLM_MESSAGE_COMPILER_DISPLAYED
-#	if(defined(GLM_COMPILER) && GLM_COMPILER & GLM_COMPILER_VC)
+#	if(GLM_COMPILER & GLM_COMPILER_VC)
 #		pragma message("GLM: Visual C++ compiler detected")
-#	elif(defined(GLM_COMPILER) && GLM_COMPILER & GLM_COMPILER_GCC)
+#	elif(GLM_COMPILER & GLM_COMPILER_GCC)
 #		pragma message("GLM: GCC compiler detected")
-#	elif(defined(GLM_COMPILER) && GLM_COMPILER & GLM_COMPILER_BC)
+#	elif(GLM_COMPILER & GLM_COMPILER_BC)
 #		pragma message("GLM: Borland compiler detected but not supported")
-#	elif(defined(GLM_COMPILER) && GLM_COMPILER & GLM_COMPILER_CODEWARRIOR)
+#	elif(GLM_COMPILER & GLM_COMPILER_CODEWARRIOR)
 #		pragma message("GLM: Codewarrior compiler detected but not supported")
 #	else
 #		pragma message("GLM: Compiler not detected")

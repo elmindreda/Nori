@@ -1206,7 +1206,7 @@ namespace glm
 	{
 		GLM_STATIC_ASSERT(detail::type<genType>::is_float, "'mix' only accept floating-point inputs");
 
-#if(defined(GLM_COMPILER) && GLM_COMPILER & GLM_COMPILER_VC)
+#if(GLM_COMPILER & GLM_COMPILER_VC)
 		return typename genType::bool_type(_isnan(x));
 #else
 		return typename genType::bool_type(std::isnan(x));
@@ -1257,7 +1257,7 @@ namespace glm
 	{
 		GLM_STATIC_ASSERT(detail::type<genType>::is_float, "'isinf' only accept floating-point inputs");
 
-#if(defined(GLM_COMPILER) && GLM_COMPILER & GLM_COMPILER_VC)
+#if(GLM_COMPILER & GLM_COMPILER_VC)
 		return typename genType::bool_type(_fpclass(x) == _FPCLASS_NINF || _fpclass(x) == _FPCLASS_PINF);
 #else
 		return typename genType::bool_type(std::isinf(x));
@@ -1402,18 +1402,6 @@ namespace glm
 		return fi.f;
 	}
 
-	inline float intBitsToFloat(uint const & value)
-	{
-		union
-		{
-			float f;
-			uint u;
-		} fu;
-
-		fu.u = value;
-		return fu.f;
-	}
-
     template <typename T>
     inline detail::tvec2<float> intBitsToFloat
 	(
@@ -1445,6 +1433,51 @@ namespace glm
         return detail::tvec4<T>(
             intBitsToFloat(value.x),
             intBitsToFloat(value.y));
+    }
+
+    inline float uintBitsToFloat(uint const & value)
+    {
+        union
+        {
+            float f;
+            uint u;
+        } fu;
+
+        fu.u = value;
+        return fu.f;
+    }
+
+    template <typename T>
+    inline detail::tvec2<float> uintBitsToFloat
+	(
+		detail::tvec2<T> const & value
+	)
+    {
+        return detail::tvec2<T>(
+            uintBitsToFloat(value.x),
+            uintBitsToFloat(value.y));
+    }
+
+    template <typename T>
+    inline detail::tvec3<float> uintBitsToFloat
+	(
+		detail::tvec3<T> const & value
+	)
+    {
+        return detail::tvec3<T>(
+            uintBitsToFloat(value.x),
+            uintBitsToFloat(value.y));
+    }
+
+    template <typename T>
+    inline detail::tvec4<float> uintBitsToFloat
+	(
+		detail::tvec4<T> const & value
+	)
+    {
+        return detail::tvec4<T>(
+            uintBitsToFloat(value.x),
+            uintBitsToFloat(value.y));
     }
 
 	template <typename genType>
