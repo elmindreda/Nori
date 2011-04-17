@@ -22,8 +22,8 @@ Wendy resides in a public monotone repository on mtn.elmindreda.org.  The main
 
 Wendy is copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 
-Wendy is licensed under the zlib/libpng license.  See the file `COPYING' for
-license details.  The license is also included at the top of each source file.
+Wendy is licensed under the zlib/libpng license.  See `COPYING.txt' for license
+details.  The license is also included at the top of each source file.
 
 
 2. Building Wendy
