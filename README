@@ -14,13 +14,13 @@ The project website is here:
   http://www.elmindreda.org/wendy/
 
 Wendy resides in a public monotone repository on mtn.elmindreda.org.  The main
-branch is org.elmindreda.wendy .
+(and the only usable) branch is org.elmindreda.wendy .
 
 
 1. License and copyright
 ========================
 
-Wendy is copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
+Wendy is copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 
 Wendy is licensed under the zlib/libpng license.  See the file `COPYING' for
 license details.  The license is also included at the top of each source file.
@@ -34,15 +34,19 @@ operating systems, and for which there are windows binaries on their site:
 
   CMake (http://www.cmake.org/) for building Wendy and its dependencies
 
-Wendy uses internal versions of the following libraries:
+Wendy comes with internal versions of the following libraries:
 
   expat (http://expat.sourceforge.net/) for reading XML files
   libpng (http://www.libpng.org/) for reading and writing PNG files
+  libogg (http://www.xiph.org/ogg/) for reading Ogg files
+  libvorbis (http://xiph.org/vorbis/) for decoding Vorbis audio data
   PCRE (http://www.pcre.org/) for regular expression support
   zlib (http://zlib.net/) for compressed data streams
   GLEW (http://glew.sourceforge.net/) for managing OpenGL extensions
   GLFW (http://www.glfw.org/) for OpenGL context, input and window
   GLM (http://glm.g-truc.net/) for vector math and explicitly sized types
+
+Wendy depends on the availability of OpenGL and OpenAL.
 
 
 3. Using Wendy
