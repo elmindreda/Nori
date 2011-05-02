@@ -257,7 +257,7 @@ mat3 mat3Cast(const String& string)
 
 mat4 mat4Cast(const String& string)
 {
-  std::istringstream stream(string);
+  std::istringstream stream(string, std::ios::in);
 
   mat4 result;
   stream >> result[0][0] >> result[0][1] >> result[0][2] >> result[0][3];
