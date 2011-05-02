@@ -136,6 +136,9 @@ void samplePixelsLinear1D(Byte* target,
                                    source, sourceWidth,
                                    format.getChannelCount());
       break;
+    case PixelFormat::FLOAT16:
+      logError("Cannot sample 16-bit float images");
+      break;
     case PixelFormat::FLOAT32:
       samplePixelsLinear1D<float32>(target, targetWidth,
                                     source, sourceWidth,
@@ -262,6 +265,9 @@ void samplePixelsLinear2D(Byte* target,
       samplePixelsLinear2D<uint32>(target, targetWidth, targetHeight,
                                    source, sourceWidth, sourceHeight,
                                    format.getChannelCount());
+      break;
+    case PixelFormat::FLOAT16:
+      logError("Cannot sample 16-bit float images");
       break;
     case PixelFormat::FLOAT32:
       samplePixelsLinear2D<float32>(target, targetWidth, targetHeight,

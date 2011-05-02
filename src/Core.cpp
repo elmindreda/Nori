@@ -294,7 +294,7 @@ StringHash hashString(const char* string)
   {
     hash = (hash << 4) + *string++;
 
-    if (temp = hash & 0xf0000000)
+    if ((temp = hash & 0xf0000000))
       hash ^= temp >> 24;
 
     hash &= ~temp;

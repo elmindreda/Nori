@@ -65,10 +65,10 @@ GLenum convertToGL(CullMode mode)
       return GL_BACK;
     case CULL_BOTH:
       return GL_FRONT_AND_BACK;
+    default:
+      logError("Invalid cull mode %u", mode);
+      return 0;
   }
-
-  logError("Invalid cull mode %u", mode);
-  return 0;
 }
 
 CullMode invertCullMode(CullMode mode)
@@ -83,10 +83,10 @@ CullMode invertCullMode(CullMode mode)
       return CULL_FRONT;
     case CULL_BOTH:
       return CULL_NONE;
+    default:
+      logError("Invalid cull mode %u", mode);
+      return (CullMode) 0;
   }
-
-  logError("Invalid cull mode %u", mode);
-  return (CullMode) 0;
 }
 
 GLenum convertToGL(BlendFactor factor)
@@ -113,10 +113,10 @@ GLenum convertToGL(BlendFactor factor)
       return GL_ONE_MINUS_SRC_ALPHA;
     case BLEND_ONE_MINUS_DST_ALPHA:
       return GL_ONE_MINUS_DST_ALPHA;
+    default:
+      logError("Invalid blend factor %u", factor);
+      return 0;
   }
-
-  logError("Invalid blend factor %u", factor);
-  return 0;
 }
 
 GLenum convertToGL(Function function)
@@ -139,10 +139,10 @@ GLenum convertToGL(Function function)
       return GL_GREATER;
     case ALLOW_GREATER_EQUAL:
       return GL_GEQUAL;
+    default:
+      logError("Invalid comparison function %u", function);
+      return 0;
   }
-
-  logError("Invalid comparison function %u", function);
-  return 0;
 }
 
 GLenum convertToGL(Operation operation)
@@ -165,10 +165,10 @@ GLenum convertToGL(Operation operation)
       return GL_INCR_WRAP;
     case OP_DECREASE_WRAP:
       return GL_DECR_WRAP;
+    default:
+      logError("Invalid stencil operation %u", operation);
+      return 0;
   }
-
-  logError("Invalid stencil operation %u", operation);
-  return 0;
 }
 
 bool samplerTypeMatchesTextureType(Sampler::Type samplerType, TextureType textureType)

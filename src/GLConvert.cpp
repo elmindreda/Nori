@@ -58,10 +58,10 @@ GLenum convertToGL(IndexBuffer::Type type)
       return GL_UNSIGNED_SHORT;
     case IndexBuffer::UINT32:
       return GL_UNSIGNED_INT;
+    default:
+      logError("Invalid index buffer type %u", type);
+      return 0;
   }
-
-  logError("Invalid index buffer type %u", type);
-  return 0;
 }
 
 GLenum convertToGL(VertexComponent::Type type)
@@ -70,10 +70,10 @@ GLenum convertToGL(VertexComponent::Type type)
   {
     case VertexComponent::FLOAT32:
       return GL_FLOAT;
+    default:
+      logError("Invalid vertex component type %u", type);
+      return 0;
   }
-
-  logError("Invalid vertex component type %u", type);
-  return 0;
 }
 
 GLenum convertToGL(PixelFormat::Type type)
@@ -90,10 +90,10 @@ GLenum convertToGL(PixelFormat::Type type)
       return GL_HALF_FLOAT_ARB;
     case PixelFormat::FLOAT32:
       return GL_FLOAT;
+    default:
+      logError("No OpenGL equivalent for pixel format type %u", type);
+      return 0;
   }
-
-  logError("No OpenGL equivalent for pixel format type %u", type);
-  return 0;
 }
 
 GLenum convertToGL(PixelFormat::Semantic semantic)
@@ -110,10 +110,10 @@ GLenum convertToGL(PixelFormat::Semantic semantic)
       return GL_RGBA;
     case PixelFormat::DEPTH:
       return GL_DEPTH_COMPONENT;
+    default:
+      logError("No OpenGL equivalent for pixel format semantic %u", semantic);
+      return 0;
   }
-
-  logError("No OpenGL equivalent for pixel format semantic %u", semantic);
-  return 0;
 }
 
 GLenum convertToGL(const PixelFormat& format)
@@ -132,6 +132,8 @@ GLenum convertToGL(const PixelFormat& format)
           return GL_RGB8;
         case PixelFormat::RGBA:
           return GL_RGBA8;
+        default:
+          break;
       }
 
       break;
@@ -179,6 +181,8 @@ GLenum convertToGL(const PixelFormat& format)
           return GL_RGB16F_ARB;
         case PixelFormat::RGBA:
           return GL_RGBA16F_ARB;
+        default:
+          break;
       }
 
       break;
@@ -202,10 +206,15 @@ GLenum convertToGL(const PixelFormat& format)
           return GL_RGB32F_ARB;
         case PixelFormat::RGBA:
           return GL_RGBA32F_ARB;
+        default:
+          break;
       }
 
       break;
     }
+
+    default:
+      break;
   }
 
   logError("No OpenGL equivalent for pixel format \'%s\'",
@@ -225,10 +234,10 @@ GLenum convertToGL(TextureType type)
       return GL_TEXTURE_RECTANGLE_ARB;
     case TEXTURE_CUBE:
       return GL_TEXTURE_CUBE_MAP;
+    default:
+      logError("No OpenGL equivalent for texture type %u", type);
+      return 0;
   }
-
-  logError("No OpenGL equivalent for texture type %u", type);
-  return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -558,7 +558,7 @@ ImageCanvas* ImageCanvas::create(Context& context,
 {
   Ptr<ImageCanvas> canvas(new ImageCanvas(context));
   if (!canvas->init(width, height))
-    return false;
+    return NULL;
 
   return canvas.detachObject();
 }

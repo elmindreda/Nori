@@ -277,7 +277,7 @@ bool Path::getChildren(PathList& children) const
   if (!stream)
     return false;
 
-  while (entry = readdir(stream))
+  while ((entry = readdir(stream)))
     children.push_back(operator + (entry->d_name));
 
   closedir(stream);
@@ -311,7 +311,7 @@ bool Path::getChildren(PathList& children, const Pattern& pattern) const
   if (!stream)
     return false;
 
-  while (entry = readdir(stream))
+  while ((entry = readdir(stream)))
   {
     if (pattern.matches(entry->d_name))
       children.push_back(operator + (entry->d_name));
