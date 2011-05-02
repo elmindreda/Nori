@@ -47,6 +47,14 @@ else()
   check_include_file(unistd.h WENDY_HAVE_UNISTD_H)
 endif(WIN32)
 
+if(WIN32)
+  set(WENDY_SYSTEM_WIN32 1)
+elseif(APPLE)
+  set(WENDY_SYSTEM_MACOSX 1)
+else()
+  set(WENDY_SYSTEM_LINUX 1)
+endif(WIN32)
+
 if(UNIX)
   find_package(Ruby REQUIRED)
 
