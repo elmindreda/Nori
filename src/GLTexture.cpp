@@ -165,7 +165,10 @@ const unsigned int TEXTURE_XML_VERSION = 1;
 
 ///////////////////////////////////////////////////////////////////////
 
-bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned int y, unsigned int z)
+bool TextureImage::copyFrom(const wendy::Image& source,
+                            unsigned int x,
+                            unsigned int y,
+                            unsigned int z)
 {
   if (source.getFormat() != texture.format)
   {
