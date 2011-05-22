@@ -637,6 +637,7 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
 
       width = getClosestPower(sourceWidth, maxSize);
       height = getClosestPower(sourceHeight, maxSize);
+      depth = 1;
     }
 
     // Rescale source image (no-op if the sizes are equal)
