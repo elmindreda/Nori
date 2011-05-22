@@ -68,7 +68,7 @@ public:
         unsigned int width,
         unsigned int height,
         const void* data = NULL,
-        size_t pitch = 0);
+        unsigned int pitch = 0);
   /*! Copy constructor.
    */
   Image(const Image& source);

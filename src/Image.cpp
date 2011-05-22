@@ -54,7 +54,7 @@ void samplePixelsNearest1D(Byte* target,
                            unsigned int sourceWidth,
                            const PixelFormat& format)
 {
-  const size_t pixelSize = format.getSize();
+  const unsigned int pixelSize = format.getSize();
 
   const float sx = (sourceWidth - 1) / (float) (targetWidth - 1);
 
@@ -62,7 +62,7 @@ void samplePixelsNearest1D(Byte* target,
 
   for (unsigned int x = 0;  x < targetWidth;  x++)
   {
-    const Byte* sourcePixel = source + (size_t) (x * sx) * pixelSize;
+    const Byte* sourcePixel = source + (unsigned int) (x * sx) * pixelSize;
     for (unsigned int i = 0;  i < pixelSize;  i++)
       targetPixel[i] = sourcePixel[i];
 
@@ -72,26 +72,26 @@ void samplePixelsNearest1D(Byte* target,
 
 template <typename T>
 void samplePixelsLinear1D(void* target,
-                          size_t targetWidth,
+                          unsigned int targetWidth,
                           const void* source,
-                          size_t sourceWidth,
-                          size_t channelCount)
+                          unsigned int sourceWidth,
+                          unsigned int channelCount)
 {
   const float stepU = (sourceWidth - 1) / (float) (targetWidth - 1);
 
   T* targetPixel = (T*) target;
   const T* sourcePixel = (const T*) source;
 
-  for (size_t x = 0;  x < targetWidth;  x++)
+  for (unsigned int x = 0;  x < targetWidth;  x++)
   {
     const float u = x * stepU;
 
-    const size_t minU = (size_t) floorf(u);
-    const size_t maxU = (size_t) ceilf(u);
+    const unsigned int minU = (unsigned int) floorf(u);
+    const unsigned int maxU = (unsigned int) ceilf(u);
 
     const float fracU = u - (float) minU;
 
-    for (size_t i = 0;  i < channelCount;  i++)
+    for (unsigned int i = 0;  i < channelCount;  i++)
     {
       *targetPixel++ = (T) (sourcePixel[minU * channelCount + i] * (1.f - fracU) +
                             sourcePixel[maxU * channelCount + i] * fracU);
@@ -100,10 +100,10 @@ void samplePixelsLinear1D(void* target,
 }
 
 void samplePixelsLinear1D_UINT24(void* target,
-                                 size_t targetWidth,
+                                 unsigned int targetWidth,
                                  const void* source,
-                                 size_t sourceWidth,
-                                 size_t channelCount)
+                                 unsigned int sourceWidth,
+                                 unsigned int channelCount)
 {
   // TODO: The code
 }
@@ -155,7 +155,7 @@ void samplePixelsNearest2D(Byte* target,
                            unsigned int sourceHeight,
                            const PixelFormat& format)
 {
-  const size_t pixelSize = format.getSize();
+  const unsigned int pixelSize = format.getSize();
 
   const float sx = (sourceWidth - 1) / (float) (targetWidth - 1);
   const float sy = (sourceHeight - 1) / (float) (targetHeight - 1);
@@ -166,8 +166,8 @@ void samplePixelsNearest2D(Byte* target,
   {
     for (unsigned int x = 0;  x < targetWidth;  x++)
     {
-      const Byte* sourcePixel = source + ((size_t) (x * sx) +
-                                          (size_t) (y * sy) * sourceWidth) * pixelSize;
+      const Byte* sourcePixel = source + ((unsigned int) (x * sx) +
+                                          (unsigned int) (y * sy) * sourceWidth) * pixelSize;
       for (unsigned int i = 0;  i < pixelSize;  i++)
         targetPixel[i] = sourcePixel[i];
 
@@ -178,12 +178,12 @@ void samplePixelsNearest2D(Byte* target,
 
 template <typename T>
 void samplePixelsLinear2D(void* target,
-                          size_t targetWidth,
-                          size_t targetHeight,
+                          unsigned int targetWidth,
+                          unsigned int targetHeight,
                           const void* source,
-                          size_t sourceWidth,
-                          size_t sourceHeight,
-                          size_t channelCount)
+                          unsigned int sourceWidth,
+                          unsigned int sourceHeight,
+                          unsigned int channelCount)
 {
   const float stepU = (sourceWidth - 1) / (float) (targetWidth - 1);
   const float stepV = (sourceHeight - 1) / (float) (targetHeight - 1);
@@ -191,22 +191,22 @@ void samplePixelsLinear2D(void* target,
   T* targetPixel = (T*) target;
   const T* sourcePixel = (const T*) source;
 
-  for (size_t y = 0;  y < targetHeight;  y++)
+  for (unsigned int y = 0;  y < targetHeight;  y++)
   {
-    for (size_t x = 0;  x < targetWidth;  x++)
+    for (unsigned int x = 0;  x < targetWidth;  x++)
     {
       const float u = x * stepU;
       const float v = y * stepV;
 
-      const size_t minU = (size_t) floorf(u);
-      const size_t minV = (size_t) floorf(v);
-      const size_t maxU = (size_t) ceilf(u);
-      const size_t maxV = (size_t) ceilf(v);
+      const unsigned int minU = (unsigned int) floorf(u);
+      const unsigned int minV = (unsigned int) floorf(v);
+      const unsigned int maxU = (unsigned int) ceilf(u);
+      const unsigned int maxV = (unsigned int) ceilf(v);
 
       const float fracU = u - (float) minU;
       const float fracV = v - (float) minV;
 
-      for (size_t i = 0;  i < channelCount;  i++)
+      for (unsigned int i = 0;  i < channelCount;  i++)
       {
         T value = 0;
 
@@ -226,12 +226,12 @@ void samplePixelsLinear2D(void* target,
 }
 
 void samplePixelsLinear2D_UINT24(void* target,
-                                 size_t targetWidth,
-                                 size_t targetHeight,
+                                 unsigned int targetWidth,
+                                 unsigned int targetHeight,
                                  const void* source,
-                                 size_t sourceWidth,
-                                 size_t sourceHeight,
-                                 size_t channelCount)
+                                 unsigned int sourceWidth,
+                                 unsigned int sourceHeight,
+                                 unsigned int channelCount)
 {
   // TODO: The code
 }
@@ -361,7 +361,7 @@ Image::Image(const ResourceInfo& info,
              unsigned int initWidth,
              unsigned int initHeight,
              const void* initData,
-             size_t pitch):
+             unsigned int pitch):
   Resource(info),
   width(initWidth),
   height(initHeight),
@@ -384,7 +384,7 @@ Image::Image(const ResourceInfo& info,
   {
     if (pitch)
     {
-      size_t size = format.getSize();
+      unsigned int size = format.getSize();
       data.resize(width * height * size);
 
       Byte* target = data;
@@ -402,7 +402,7 @@ Image::Image(const ResourceInfo& info,
   }
   else
   {
-    const size_t size = width * height * format.getSize();
+    const unsigned int size = width * height * format.getSize();
     data.resize(size);
     std::memset(data, 0, size);
   }
@@ -424,7 +424,7 @@ bool Image::resize(unsigned int targetWidth,
   if (targetWidth == width && targetHeight == height)
     return true;
 
-  const size_t pixelSize = format.getSize();
+  const unsigned int pixelSize = format.getSize();
 
   Block scratch(targetWidth * targetHeight * pixelSize);
 
@@ -495,7 +495,7 @@ bool Image::crop(const Recti& area)
   if (area.position.y + area.size.y > (int) height)
     targetArea.size.y = (int) height - area.position.y;
 
-  const size_t pixelSize = format.getSize();
+  const unsigned int pixelSize = format.getSize();
 
   Block scratch(targetArea.size.x * targetArea.size.y * pixelSize);
 
@@ -515,7 +515,7 @@ bool Image::crop(const Recti& area)
 
 void Image::flipHorizontal(void)
 {
-  size_t pixelSize = format.getSize();
+  unsigned int pixelSize = format.getSize();
 
   Block scratch(width * height * pixelSize);
 
@@ -531,7 +531,7 @@ void Image::flipHorizontal(void)
 
 void Image::flipVertical(void)
 {
-  size_t pixelSize = format.getSize();
+  unsigned int pixelSize = format.getSize();
 
   Block scratch(width * height * pixelSize);
 
@@ -639,7 +639,7 @@ Ref<Image> Image::getArea(const Recti& area)
   if (area.position.y + area.size.y > (int) height)
     targetArea.size.y = (int) height - area.position.y;
 
-  const size_t pixelSize = format.getSize();
+  const unsigned int pixelSize = format.getSize();
 
   ImageRef result = new Image(ResourceInfo(getIndex()),
                               format,
@@ -678,7 +678,7 @@ bool ImageCube::isPOT(void) const
   if (!isComplete())
     return false;
 
-  for (size_t i = 0;  i < 6;  i++)
+  for (unsigned int i = 0;  i < 6;  i++)
   {
     if (!images[i]->isPOT())
       return false;
@@ -692,7 +692,7 @@ bool ImageCube::isSquare(void) const
   if (!isComplete())
     return false;
 
-  for (size_t i = 0;  i < 6;  i++)
+  for (unsigned int i = 0;  i < 6;  i++)
   {
     if (!images[i]->isSquare())
       return false;
@@ -703,7 +703,7 @@ bool ImageCube::isSquare(void) const
 
 bool ImageCube::isComplete(void) const
 {
-  for (size_t i = 0;  i < 6;  i++)
+  for (unsigned int i = 0;  i < 6;  i++)
   {
     if (!images[i])
       return false;
@@ -719,7 +719,7 @@ bool ImageCube::hasSameFormat(void) const
 
   PixelFormat format = images[0]->getFormat();
 
-  for (size_t i = 1;  i < 6;  i++)
+  for (unsigned int i = 1;  i < 6;  i++)
   {
     if (images[i]->getFormat() != format)
       return false;
@@ -736,7 +736,7 @@ bool ImageCube::hasSameSize(void) const
   unsigned int width = images[0]->getWidth();
   unsigned int height = images[0]->getHeight();
 
-  for (size_t i = 1;  i < 6;  i++)
+  for (unsigned int i = 1;  i < 6;  i++)
   {
     if (images[i]->getWidth() != width || images[i]->getHeight() != height)
       return false;
@@ -850,7 +850,7 @@ Ref<Image> ImageReader::read(const Path& path)
 
   // Read image data
   {
-    const size_t size = png_get_rowbytes(context, pngInfo);
+    const unsigned int size = png_get_rowbytes(context, pngInfo);
 
     png_bytepp rows = png_get_rows(context, pngInfo);
 
@@ -920,7 +920,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
 
   const Byte* data = (const Byte*) image.getPixels();
 
-  const size_t pixelSize = image.getFormat().getSize();
+  const unsigned int pixelSize = image.getFormat().getSize();
 
   const png_byte** rows = new const png_byte* [image.getHeight()];
 
