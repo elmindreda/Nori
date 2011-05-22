@@ -55,6 +55,7 @@ public:
    *  @param[in] format The desired format of the image.
    *  @param[in] width The desired width of the image. This cannot be zero.
    *  @param[in] height The desired height of the image. This cannot be zero.
+   *  @param[in] depth The desired depth of the image. This cannot be zero.
    *  @param[in] data The pixel data to initialize the image with, or @c NULL
    *  to initialize it with zeros.
    *  @param[in] pitch The pitch, in bytes, between consecutive scanlines, or
@@ -67,6 +68,7 @@ public:
         const PixelFormat& format,
         unsigned int width,
         unsigned int height,
+        unsigned int depth = 1,
         const void* data = NULL,
         unsigned int pitch = 0);
   /*! Copy constructor.
@@ -78,6 +80,7 @@ public:
    */
   bool resize(unsigned int newWidth,
               unsigned int newHeight,
+              unsigned int newDepth,
               Method method = SAMPLE_DEFAULT);
   /*! Transforms the contents of this image to the specified pixel format using
    *  the specified pixel transform.
@@ -118,6 +121,9 @@ public:
   /*! @return The height, in pixels, of this image.
    */
   unsigned int getHeight(void) const;
+  /*! @return The depth, in pixels, of this image.
+   */
+  unsigned int getDepth(void) const;
   /*! @return The base address of the pixel data for this image.
    */
   void* getPixels(void);
@@ -127,18 +133,20 @@ public:
   /*! Helper method to calculate the address of the specified pixel.
    *  @param[in] x The x coordinate of the desired pixel.
    *  @param[in] y The y coordinate of the desired pixel.
+   *  @param[in] z The z coordinate of the desired pixel.
    *
    *  @return The address of the desired pixel, or @c NULL if the specified
    *  coordinates are outside of the current image data.
    */
-  void* getPixel(unsigned int x, unsigned int y);
+  void* getPixel(unsigned int x, unsigned int y, unsigned int z = 0);
   /*! Helper method to calculate the address of the specified pixel.
    *  @param[in] x The x coordinate of the desired pixel.
    *  @param[in] y The y coordinate of the desired pixel.
+   *  @param[in] z The z coordinate of the desired pixel.
    *  @return The address of the desired pixel, or @c NULL if the specified
    *  coordinates are outside of the current image data.
    */
-  const void* getPixel(unsigned int x, unsigned int y) const;
+  const void* getPixel(unsigned int x, unsigned int y, unsigned int z = 0) const;
   /*! @return The pixel format of this image.
    */
   const PixelFormat& getFormat(void) const;
@@ -153,6 +161,7 @@ public:
 private:
   unsigned int width;
   unsigned int height;
+  unsigned int depth;
   PixelFormat format;
   Block data;
 };

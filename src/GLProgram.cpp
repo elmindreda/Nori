@@ -125,6 +125,7 @@ bool isSupportedSamplerType(GLenum type)
   {
     case GL_SAMPLER_1D:
     case GL_SAMPLER_2D:
+    case GL_SAMPLER_3D:
     case GL_SAMPLER_2D_RECT_ARB:
     case GL_SAMPLER_CUBE:
       return true;
@@ -141,6 +142,8 @@ Sampler::Type convertSamplerType(GLenum type)
       return Sampler::SAMPLER_1D;
     case GL_SAMPLER_2D:
       return Sampler::SAMPLER_2D;
+    case GL_SAMPLER_3D:
+      return Sampler::SAMPLER_3D;
     case GL_SAMPLER_2D_RECT_ARB:
       return Sampler::SAMPLER_RECT;
     case GL_SAMPLER_CUBE:
@@ -408,6 +411,8 @@ const char* Sampler::getTypeName(Type type)
       return "sampler1D";
     case SAMPLER_2D:
       return "sampler2D";
+    case SAMPLER_3D:
+      return "sampler3D";
     case SAMPLER_RECT:
       return "sampler2DRect";
     case SAMPLER_CUBE:

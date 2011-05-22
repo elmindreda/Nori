@@ -95,6 +95,9 @@ enum TextureType
   /*! %Texture has two-dimensional images with power-of-two dimensions.
    */
   TEXTURE_2D,
+  /*! %Texture has three-dimensional images with power-of-two dimensions.
+   */
+  TEXTURE_3D,
   /*! %Texture has a single two-dimensional image without power-of-two
    *  dimension restrictions.
    */
@@ -114,35 +117,41 @@ class TextureImage : public Image
 {
   friend class Texture;
 public:
-  /*! Updates the area within this texture image, at the specified coordinates
+  /*! Updates an area within this texture image, at the specified coordinates
    *  and with a size matching the specified image, with the contents of that
    *  image.
    *  @param[in] source The image to copy pixel data from.
    *  @param[in] x The x-coordinate of the area within this image to update.
    *  @param[in] y The y-coordinate of the area within this image to update.
+   *  @param[in] z The z-coordinate of the area within this image to update.
    */
-  bool copyFrom(const wendy::Image& source, unsigned int x, unsigned int y);
-  /*! Updates this texture image with the contents of the current color buffer
-   *  at the specified coordinates.
-   *  @param[in] x The x-coordinate of the desired area within the current color buffer.
-   *  @param[in] y The y-coordinate of the desired area within the current color buffer.
+  bool copyFrom(const wendy::Image& source,
+                unsigned int x,
+                unsigned int y,
+                unsigned int z = 0);
+  /*! Copies the contents of this texture image to the specified image.
    */
-  bool copyFromColorBuffer(unsigned int x, unsigned int y);
   bool copyTo(wendy::Image& result) const;
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
+  unsigned int getDepth(void) const;
   const PixelFormat& getFormat(void) const;
   /*! @return The texture containing this texture image.
    */
   Texture& getTexture(void) const;
 private:
-  TextureImage(Texture& texture, unsigned int level, unsigned int width, unsigned int height);
+  TextureImage(Texture& texture,
+               unsigned int level,
+               unsigned int width,
+               unsigned int height,
+               unsigned int depth);
   void attach(int attachment);
   void detach(int attachment);
   Texture& texture;
   unsigned int level;
   unsigned int width;
   unsigned int height;
+  unsigned int depth;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -197,12 +206,19 @@ public:
    *  @return The height, in pixels, of the specified mipmap level of this texture.
    */
   unsigned int getHeight(unsigned int level = 0);
+  /*! @param[in] level The desired mipmap level.
+   *  @return The depth, in pixels, of the specified mipmap level of this texture.
+   */
+  unsigned int getDepth(unsigned int level = 0);
   /*! @return The width, in pixels, of the source image.
    */
   unsigned int getSourceWidth(void) const;
   /*! @return The height, in pixels, of the source image.
    */
   unsigned int getSourceHeight(void) const;
+  /*! @return The depth, in pixels, of the source image.
+   */
+  unsigned int getSourceDepth(void) const;
   /*! @return The number of mipmap levels in this texture.
    */
   unsigned int getImageCount(void) const;
@@ -269,6 +285,7 @@ private:
   unsigned int textureID;
   unsigned int sourceWidth;
   unsigned int sourceHeight;
+  unsigned int sourceDepth;
   unsigned int flags;
   FilterMode filterMode;
   AddressMode addressMode;

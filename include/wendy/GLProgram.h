@@ -101,6 +101,7 @@ public:
   {
     SAMPLER_1D,
     SAMPLER_2D,
+    SAMPLER_3D,
     SAMPLER_RECT,
     SAMPLER_CUBE,
   };

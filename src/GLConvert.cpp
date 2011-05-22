@@ -230,6 +230,8 @@ GLenum convertToGL(TextureType type)
       return GL_TEXTURE_1D;
     case TEXTURE_2D:
       return GL_TEXTURE_2D;
+    case TEXTURE_3D:
+      return GL_TEXTURE_3D;
     case TEXTURE_RECT:
       return GL_TEXTURE_RECTANGLE_ARB;
     case TEXTURE_CUBE:

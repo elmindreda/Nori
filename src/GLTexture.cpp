@@ -165,7 +165,7 @@ const unsigned int TEXTURE_XML_VERSION = 1;
 
 ///////////////////////////////////////////////////////////////////////
 
-bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned int y)
+bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned int y, unsigned int z)
 {
   if (source.getFormat() != texture.format)
   {
@@ -190,6 +190,21 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
                     level,
 		    x,
 		    source.getWidth(),
+                    convertToGL(texture.format.getSemantic()),
+                    convertToGL(texture.format.getType()),
+		    source.getPixels());
+  }
+  else if (texture.type == TEXTURE_3D)
+  {
+    texture.context.setCurrentTexture(&texture);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexSubImage3D(convertToGL(texture.type),
+                    level,
+		    x, y, z,
+		    source.getWidth(),
+                    source.getHeight(),
+                    source.getDepth(),
                     convertToGL(texture.format.getSemantic()),
                     convertToGL(texture.format.getType()),
 		    source.getPixels());
@@ -226,30 +241,9 @@ bool TextureImage::copyFrom(const wendy::Image& source, unsigned int x, unsigned
   return true;
 }
 
-bool TextureImage::copyFromColorBuffer(unsigned int x, unsigned int y)
-{
-  texture.context.setCurrentTexture(&texture);
-
-  if (texture.type == TEXTURE_1D)
-    glCopyTexSubImage1D(convertToGL(texture.type), level, 0, x, y, width);
-  else
-    glCopyTexSubImage2D(convertToGL(texture.type), level, 0, 0, x, y, width, height);
-
-#if WENDY_DEBUG
-  if (!checkGL("Error during copy from color buffer to level %u of texture \'%s\'",
-               level,
-               texture.getPath().asString().c_str()))
-  {
-    return false;
-  }
-#endif
-
-  return true;
-}
-
 bool TextureImage::copyTo(wendy::Image& result) const
 {
-  result = wendy::Image(texture.getIndex(), texture.format, width, height);
+  result = wendy::Image(texture.getIndex(), texture.format, width, height, depth);
 
   texture.context.setCurrentTexture(&texture);
 
@@ -282,6 +276,11 @@ unsigned int TextureImage::getHeight(void) const
   return height;
 }
 
+unsigned int TextureImage::getDepth(void) const
+{
+  return depth;
+}
+
 const PixelFormat& TextureImage::getFormat(void) const
 {
   return texture.getFormat();
@@ -295,28 +294,43 @@ Texture& TextureImage::getTexture(void) const
 TextureImage::TextureImage(Texture& initTexture,
                            unsigned int initLevel,
                            unsigned int initWidth,
-                           unsigned int initHeight):
+                           unsigned int initHeight,
+                           unsigned int initDepth):
   texture(initTexture),
   level(initLevel),
   width(initWidth),
-  height(initHeight)
+  height(initHeight),
+  depth(initDepth)
 {
 }
 
 void TextureImage::attach(int attachment)
 {
   if (texture.type == TEXTURE_1D)
+  {
     glFramebufferTexture1DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
                               convertToGL(texture.type),
                               texture.textureID,
                               level);
+  }
+  else if (texture.type == TEXTURE_3D)
+  {
+    glFramebufferTexture3DEXT(GL_FRAMEBUFFER_EXT,
+                              attachment,
+                              convertToGL(texture.type),
+                              texture.textureID,
+                              level,
+                              0);
+  }
   else
+  {
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
                               convertToGL(texture.type),
                               texture.textureID,
                               level);
+  }
 
 #if WENDY_DEBUG
   checkGL("Error when attaching level %u of texture \'%s\' to image canvas",
@@ -328,17 +342,30 @@ void TextureImage::attach(int attachment)
 void TextureImage::detach(int attachment)
 {
   if (texture.type == TEXTURE_1D)
+  {
     glFramebufferTexture1DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
                               convertToGL(texture.type),
                               0,
                               0);
+  }
+  else if (texture.type == TEXTURE_3D)
+  {
+    glFramebufferTexture3DEXT(GL_FRAMEBUFFER_EXT,
+                              attachment,
+                              convertToGL(texture.type),
+                              0,
+                              0,
+                              0);
+  }
   else
+  {
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
                               convertToGL(texture.type),
                               0,
                               0);
+  }
 
 #if WENDY_DEBUG
   checkGL("Error when detaching level %u of texture \'%s\' from image canvas",
@@ -380,6 +407,11 @@ unsigned int Texture::getHeight(unsigned int level)
   return getImage(level).getHeight();
 }
 
+unsigned int Texture::getDepth(unsigned int level)
+{
+  return getImage(level).getDepth();
+}
+
 unsigned int Texture::getSourceWidth(void) const
 {
   return sourceWidth;
@@ -388,6 +420,11 @@ unsigned int Texture::getSourceWidth(void) const
 unsigned int Texture::getSourceHeight(void) const
 {
   return sourceHeight;
+}
+
+unsigned int Texture::getSourceDepth(void) const
+{
+  return sourceDepth;
 }
 
 unsigned int Texture::getImageCount(void) const
@@ -501,6 +538,7 @@ Texture::Texture(const ResourceInfo& info, Context& initContext):
   textureID(0),
   sourceWidth(0),
   sourceHeight(0),
+  sourceDepth(0),
   flags(0),
   filterMode(FILTER_BILINEAR),
   addressMode(ADDRESS_WRAP)
@@ -554,19 +592,15 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
     else if (final.getDimensionCount() == 2)
       type = TEXTURE_2D;
     else
-    {
-      // TODO: Support 3D textures
-
-      logError("3D POT textures not supported by Wendy yet");
-      return false;
-    }
+      type = TEXTURE_3D;
   }
 
   // Save source image dimensions
   sourceWidth = final.getWidth();
   sourceHeight = final.getHeight();
+  sourceDepth = final.getDepth();
 
-  unsigned int width, height;
+  unsigned int width, height, depth;
 
   // Adapt source image to OpenGL restrictions
   {
@@ -576,6 +610,7 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
     {
       width = sourceWidth;
       height = sourceHeight;
+      depth = 1;
 
       const unsigned int maxSize = context.getLimits().getMaxTextureRectangleSize();
 
@@ -591,10 +626,11 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
 
       width = getClosestPower(sourceWidth, maxSize);
       height = getClosestPower(sourceHeight, maxSize);
+      depth = getClosestPower(sourceDepth, maxSize);
     }
 
     // Rescale source image (no-op if the sizes are equal)
-    if (!final.resize(width, height))
+    if (!final.resize(width, height, depth))
     {
       logError("Failed to rescale image for texture \'%s\'",
                getPath().asString().c_str());
@@ -611,25 +647,38 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   if (type == TEXTURE_1D)
   {
     glTexImage1D(convertToGL(type),
-                  0,
-                  convertToGL(format),
-                  final.getWidth(),
-                  0,
-                  convertToGL(format.getSemantic()),
-                  convertToGL(format.getType()),
-                  final.getPixels());
+                 0,
+                 convertToGL(format),
+                 final.getWidth(),
+                 0,
+                 convertToGL(format.getSemantic()),
+                 convertToGL(format.getType()),
+                 final.getPixels());
+  }
+  else if (type == TEXTURE_3D)
+  {
+    glTexImage3D(convertToGL(type),
+                 0,
+                 convertToGL(format),
+                 final.getWidth(),
+                 final.getHeight(),
+                 final.getDepth(),
+                 0,
+                 convertToGL(format.getSemantic()),
+                 convertToGL(format.getType()),
+                 final.getPixels());
   }
   else
   {
     glTexImage2D(convertToGL(type),
-                  0,
-                  convertToGL(format),
-                  final.getWidth(),
-                  final.getHeight(),
-                  0,
-                  convertToGL(format.getSemantic()),
-                  convertToGL(format.getType()),
-                  final.getPixels());
+                 0,
+                 convertToGL(format),
+                 final.getWidth(),
+                 final.getHeight(),
+                 0,
+                 convertToGL(format.getSemantic()),
+                 convertToGL(format.getType()),
+                 final.getPixels());
   }
 
   if (flags & MIPMAPPED)
@@ -643,11 +692,12 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
     {
       glGetTexLevelParameteriv(convertToGL(type), level, GL_TEXTURE_WIDTH, (int*) &width);
       glGetTexLevelParameteriv(convertToGL(type), level, GL_TEXTURE_HEIGHT, (int*) &height);
+      glGetTexLevelParameteriv(convertToGL(type), level, GL_TEXTURE_DEPTH, (int*) &depth);
 
       if (width == 0)
         break;
 
-      TextureImageRef image = new TextureImage(*this, level, width, height);
+      TextureImageRef image = new TextureImage(*this, level, width, height, depth);
       images.push_back(image);
 
       level++;
@@ -657,7 +707,7 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   {
     glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    TextureImageRef image = new TextureImage(*this, 0, final.getWidth(), final.getHeight());
+    TextureImageRef image = new TextureImage(*this, 0, final.getWidth(), final.getHeight(), final.getDepth());
     images.push_back(image);
   }
 
@@ -676,6 +726,11 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
 
     if (type != TEXTURE_1D)
       glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    if (type == TEXTURE_3D)
+      glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_R, GL_REPEAT);
+
+    addressMode = ADDRESS_WRAP;
   }
 
   if (!checkGL("OpenGL error during creation of texture \'%s\' of format \'%s\'",
@@ -813,7 +868,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
         if (width == 0)
           break;
 
-        TextureImageRef image = new TextureImage(*this, level, width, height);
+        TextureImageRef image = new TextureImage(*this, level, width, height, 1);
         images.push_back(image);
 
         level++;
@@ -828,7 +883,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
       glGetTexLevelParameteriv(faceTarget, 0, GL_TEXTURE_WIDTH, (int*) &width);
       glGetTexLevelParameteriv(faceTarget, 0, GL_TEXTURE_HEIGHT, (int*) &height);
 
-      TextureImageRef image = new TextureImage(*this, 0, width, height);
+      TextureImageRef image = new TextureImage(*this, 0, width, height, 1);
       images.push_back(image);
     }
   }

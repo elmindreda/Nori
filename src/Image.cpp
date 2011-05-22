@@ -86,8 +86,8 @@ void samplePixelsLinear1D(void* target,
   {
     const float u = x * stepU;
 
-    const unsigned int minU = (unsigned int) floorf(u);
-    const unsigned int maxU = (unsigned int) ceilf(u);
+    const unsigned int minU = (unsigned int) floor(u);
+    const unsigned int maxU = (unsigned int) ceil(u);
 
     const float fracU = u - (float) minU;
 
@@ -198,10 +198,10 @@ void samplePixelsLinear2D(void* target,
       const float u = x * stepU;
       const float v = y * stepV;
 
-      const unsigned int minU = (unsigned int) floorf(u);
-      const unsigned int minV = (unsigned int) floorf(v);
-      const unsigned int maxU = (unsigned int) ceilf(u);
-      const unsigned int maxV = (unsigned int) ceilf(v);
+      const unsigned int minU = (unsigned int) floor(u);
+      const unsigned int minV = (unsigned int) floor(v);
+      const unsigned int maxU = (unsigned int) ceil(u);
+      const unsigned int maxV = (unsigned int) ceil(v);
 
       const float fracU = u - (float) minU;
       const float fracV = v - (float) minV;
@@ -272,6 +272,165 @@ void samplePixelsLinear2D(Byte* target,
     case PixelFormat::FLOAT32:
       samplePixelsLinear2D<float32>(target, targetWidth, targetHeight,
                                     source, sourceWidth, sourceHeight,
+                                    format.getChannelCount());
+      break;
+  }
+}
+
+void samplePixelsNearest3D(Byte* target,
+                           unsigned int targetWidth,
+                           unsigned int targetHeight,
+                           unsigned int targetDepth,
+                           const Byte* source,
+                           unsigned int sourceWidth,
+                           unsigned int sourceHeight,
+                           unsigned int sourceDepth,
+                           const PixelFormat& format)
+{
+  const unsigned int pixelSize = format.getSize();
+
+  const float sx = float(sourceWidth - 1) / float(targetWidth - 1);
+  const float sy = float(sourceHeight - 1) / float(targetHeight - 1);
+  const float sz = float(sourceDepth - 1) / float(targetHeight - 1);
+
+  Byte* targetPixel = target;
+
+  for (unsigned int z = 0;  z < targetDepth;  z++)
+  {
+    for (unsigned int y = 0;  y < targetHeight;  y++)
+    {
+      for (unsigned int x = 0;  x < targetWidth;  x++)
+      {
+        const Byte* sourcePixel = source + ((unsigned int) (x * sx) +
+                                            (unsigned int) (y * sy) * sourceWidth +
+                                            (unsigned int) (z * sz) * sourceWidth * sourceDepth) * pixelSize;
+        for (unsigned int i = 0;  i < pixelSize;  i++)
+          targetPixel[i] = sourcePixel[i];
+
+        targetPixel += pixelSize;
+      }
+    }
+  }
+}
+
+template <typename T>
+void samplePixelsLinear3D(void* target,
+                          unsigned int targetWidth,
+                          unsigned int targetHeight,
+                          unsigned int targetDepth,
+                          const void* source,
+                          unsigned int sourceWidth,
+                          unsigned int sourceHeight,
+                          unsigned int sourceDepth,
+                          unsigned int channelCount)
+{
+  const float stepS = float(sourceWidth - 1) / float(targetWidth - 1);
+  const float stepT = float(sourceHeight - 1) / float(targetHeight - 1);
+  const float stepP = float(sourceDepth - 1) / float(targetDepth - 1);
+
+  T* targetPixel = (T*) target;
+  const T* sourcePixel = (const T*) source;
+
+  for (unsigned int z = 0;  z < targetDepth;  z++)
+  {
+    for (unsigned int y = 0;  y < targetHeight;  y++)
+    {
+      for (unsigned int x = 0;  x < targetWidth;  x++)
+      {
+        const float s = x * stepS;
+        const float t = y * stepT;
+        const float p = z * stepP;
+
+        const unsigned int minS = (unsigned int) floor(s);
+        const unsigned int minT = (unsigned int) floor(t);
+        const unsigned int minP = (unsigned int) floor(p);
+        const unsigned int maxS = (unsigned int) ceil(s);
+        const unsigned int maxT = (unsigned int) ceil(t);
+        const unsigned int maxP = (unsigned int) ceil(p);
+
+        const float fracS = s - (float) minS;
+        const float fracT = t - (float) minT;
+        const float fracP = p - (float) minP;
+
+        for (unsigned int i = 0;  i < channelCount;  i++)
+        {
+          T value = 0;
+
+          value += (T) (sourcePixel[(minS + (minT + minP * sourceHeight) * sourceWidth) * channelCount + i] *
+                        (1.f - fracS) * (1.f - fracT) * (1.f - fracP));
+          value += (T) (sourcePixel[(maxS + (minT + minP * sourceHeight) * sourceWidth) * channelCount + i] *
+                        fracS * (1.f - fracT) * (1.f - fracP));
+          value += (T) (sourcePixel[(minS + (maxT + minP * sourceHeight) * sourceWidth) * channelCount + i] *
+                        (1.f - fracS) * fracT * (1.f - fracP));
+          value += (T) (sourcePixel[(maxS + (maxT + minP * sourceHeight) * sourceWidth) * channelCount + i] *
+                        fracS * fracT * (1.f - fracP));
+          value += (T) (sourcePixel[(minS + (minT + maxP * sourceHeight) * sourceWidth) * channelCount + i] *
+                        (1.f - fracS) * (1.f - fracT) * fracP);
+          value += (T) (sourcePixel[(maxS + (minT + maxP * sourceHeight) * sourceWidth) * channelCount + i] *
+                        fracS * (1.f - fracT) * fracP);
+          value += (T) (sourcePixel[(minS + (maxT + maxP * sourceHeight) * sourceWidth) * channelCount + i] *
+                        (1.f - fracS) * fracT * fracP);
+          value += (T) (sourcePixel[(maxS + (maxT + maxP * sourceHeight) * sourceWidth) * channelCount + i] *
+                        fracS * fracT * fracP);
+
+          *targetPixel++ = value;
+        }
+      }
+    }
+  }
+}
+
+void samplePixelsLinear3D_UINT24(void* target,
+                                 unsigned int targetWidth,
+                                 unsigned int targetHeight,
+                                 unsigned int targetDepth,
+                                 const void* source,
+                                 unsigned int sourceWidth,
+                                 unsigned int sourceHeight,
+                                 unsigned int sourceDepth,
+                                 unsigned int channelCount)
+{
+  // TODO: The code
+}
+
+void samplePixelsLinear3D(Byte* target,
+                          unsigned int targetWidth,
+                          unsigned int targetHeight,
+                          unsigned int targetDepth,
+                          const Byte* source,
+                          unsigned int sourceWidth,
+                          unsigned int sourceHeight,
+                          unsigned int sourceDepth,
+                          const PixelFormat& format)
+{
+  switch (format.getType())
+  {
+    case PixelFormat::UINT8:
+      samplePixelsLinear3D<uint8>(target, targetWidth, targetHeight, targetDepth,
+                                  source, sourceWidth, sourceHeight, sourceDepth,
+                                  format.getChannelCount());
+      break;
+    case PixelFormat::UINT16:
+      samplePixelsLinear3D<uint16>(target, targetWidth, targetHeight, targetDepth,
+                                   source, sourceWidth, sourceHeight, sourceDepth,
+                                   format.getChannelCount());
+      break;
+    case PixelFormat::UINT24:
+      samplePixelsLinear3D_UINT24(target, targetWidth, targetHeight, targetDepth,
+                                  source, sourceWidth, sourceHeight, sourceDepth,
+                                  format.getChannelCount());
+      break;
+    case PixelFormat::UINT32:
+      samplePixelsLinear3D<uint32>(target, targetWidth, targetHeight, targetDepth,
+                                   source, sourceWidth, sourceHeight, sourceDepth,
+                                   format.getChannelCount());
+      break;
+    case PixelFormat::FLOAT16:
+      logError("Cannot sample 16-bit float images");
+      break;
+    case PixelFormat::FLOAT32:
+      samplePixelsLinear3D<float32>(target, targetWidth, targetHeight, targetDepth,
+                                    source, sourceWidth, sourceHeight, sourceDepth,
                                     format.getChannelCount());
       break;
   }
@@ -360,18 +519,20 @@ Image::Image(const ResourceInfo& info,
              const PixelFormat& initFormat,
              unsigned int initWidth,
              unsigned int initHeight,
+             unsigned int initDepth,
              const void* initData,
              unsigned int pitch):
   Resource(info),
   width(initWidth),
   height(initHeight),
+  depth(initDepth),
   format(initFormat)
 {
   if (format.getSemantic() == PixelFormat::NONE ||
       format.getType() == PixelFormat::DUMMY)
     throw Exception("Invalid image format");
 
-  if (width == 0 || height == 0)
+  if (width == 0 || height == 0 || depth == 0)
     throw Exception("Invalid image size");
 
   if ((height > 1) && (width == 1))
@@ -380,29 +541,41 @@ Image::Image(const ResourceInfo& info,
     height = 1;
   }
 
+  if ((depth > 1) && (height == 1))
+  {
+    height = depth;
+    depth = 1;
+  }
+
   if (initData)
   {
     if (pitch)
     {
       unsigned int size = format.getSize();
-      data.resize(width * height * size);
+      data.resize(width * height * depth * size);
 
       Byte* target = data;
       const Byte* source = (const Byte*) initData;
 
-      for (unsigned int y = 0;  y < height;  y++)
+      for (unsigned int z = 0;  z < depth;  z++)
       {
-        std::memcpy(target, source, width * size);
-        source += pitch;
-        target += width * size;
+        for (unsigned int y = 0;  y < height;  y++)
+        {
+          std::memcpy(target, source, width * size);
+          source += pitch;
+          target += width * size;
+        }
       }
     }
     else
-      data.copyFrom((const Byte*) initData, width * height * format.getSize());
+    {
+      data.copyFrom((const Byte*) initData,
+                    width * height * depth * format.getSize());
+    }
   }
   else
   {
-    const unsigned int size = width * height * format.getSize();
+    const unsigned int size = width * height * depth * format.getSize();
     data.resize(size);
     std::memset(data, 0, size);
   }
@@ -416,36 +589,43 @@ Image::Image(const Image& source):
 
 bool Image::resize(unsigned int targetWidth,
                    unsigned int targetHeight,
+                   unsigned int targetDepth,
                    Method method)
 {
-  if (targetWidth == 0 || targetHeight == 0)
+  if (targetWidth == 0 || targetHeight == 0 || targetDepth == 0)
     throw Exception("Invalid image target size");
 
-  if (targetWidth == width && targetHeight == height)
+  if (targetWidth == width && targetHeight == height && targetDepth == depth)
     return true;
 
   const unsigned int pixelSize = format.getSize();
 
-  Block scratch(targetWidth * targetHeight * pixelSize);
+  Block scratch(targetWidth * targetHeight * targetDepth * pixelSize);
+
+  const unsigned int dimensionCount = getDimensionCount();
 
   switch (method)
   {
     case SAMPLE_NEAREST:
     {
-      if (getDimensionCount() == 1)
+      if (dimensionCount == 1)
         samplePixelsNearest1D(scratch, targetWidth, data, width, format);
-      else
+      else if (dimensionCount == 2)
         samplePixelsNearest2D(scratch, targetWidth, targetHeight, data, width, height, format);
+      else
+        samplePixelsNearest3D(scratch, targetWidth, targetHeight, targetDepth, data, width, height, depth, format);
 
       break;
     }
 
     case SAMPLE_LINEAR:
     {
-      if (getDimensionCount() == 1)
+      if (dimensionCount == 1)
         samplePixelsLinear1D(scratch, targetWidth, data, width, format);
-      else
+      else if (dimensionCount == 2)
         samplePixelsLinear2D(scratch, targetWidth, targetHeight, data, width, height, format);
+      else
+        samplePixelsLinear3D(scratch, targetWidth, targetHeight, targetDepth, data, width, height, depth, format);
 
       break;
     }
@@ -457,8 +637,9 @@ bool Image::resize(unsigned int targetWidth,
 
   width = targetWidth;
   height = targetHeight;
+  depth = targetDepth;
 
-  data.attach(scratch.detach(), width * height * pixelSize);
+  data.attach(scratch.detach(), scratch.getSize());
   return true;
 }
 
@@ -470,8 +651,8 @@ bool Image::transformTo(const PixelFormat& targetFormat, PixelTransform& transfo
   if (!transform.supports(targetFormat, format))
     return false;
 
-  Block target(width * height * targetFormat.getSize());
-  transform.convert(target, targetFormat, data, format, width * height);
+  Block target(width * height * depth * targetFormat.getSize());
+  transform.convert(target, targetFormat, data, format, width * height * depth);
   data.attach(target.detach(), target.getSize());
 
   format = targetFormat;
@@ -480,9 +661,16 @@ bool Image::transformTo(const PixelFormat& targetFormat, PixelTransform& transfo
 
 bool Image::crop(const Recti& area)
 {
+  if (getDimensionCount() > 2)
+  {
+    logError("Cannot 2D crop 3D image");
+    return false;
+  }
+
   if (area.position.x < 0 || area.position.y < 0 ||
       area.size.x < 0 || area.size.y < 0 ||
-      area.position.x >= (int) width || area.position.y >= (int) height)
+      area.position.x >= (int) width ||
+      area.position.y >= (int) height)
   {
     logError("Invalid image area dimensions");
     return false;
@@ -509,7 +697,7 @@ bool Image::crop(const Recti& area)
   width = targetArea.size.x;
   height = targetArea.size.y;
 
-  data.attach(scratch.detach(), width * height * pixelSize);
+  data.attach(scratch.detach(), scratch.getSize());
   return true;
 }
 
@@ -517,49 +705,58 @@ void Image::flipHorizontal(void)
 {
   unsigned int pixelSize = format.getSize();
 
-  Block scratch(width * height * pixelSize);
+  Block scratch(data.getSize());
 
-  for (unsigned int y = 0;  y < height;  y++)
+  for (unsigned int z = 0;  z < depth;  z++)
   {
-    scratch.copyFrom(data + y * width * pixelSize,
-                     width * pixelSize,
-                     (height - y - 1) * width * pixelSize);
+    size_t offset = z * width * height * pixelSize;
+
+    for (unsigned int y = 0;  y < height;  y++)
+    {
+      scratch.copyFrom(data + offset + y * width * pixelSize,
+                       width * pixelSize,
+                       offset + (height - y - 1) * width * pixelSize);
+    }
   }
 
-  data.attach(scratch.detach(), width * height * pixelSize);
+  data.attach(scratch.detach(), scratch.getSize());
 }
 
 void Image::flipVertical(void)
 {
   unsigned int pixelSize = format.getSize();
 
-  Block scratch(width * height * pixelSize);
+  Block scratch(data.getSize());
 
-  for (unsigned int y = 0;  y < height;  y++)
+  for (unsigned int z = 0;  z < depth;  z++)
   {
-    const Byte* source = data + y * width * pixelSize;
-    Byte* target = scratch + ((y + 1) * width - 1) * pixelSize;
-
-    for (unsigned int x = 0;  x < width;  x++)
+    for (unsigned int y = 0;  y < height;  y++)
     {
-      for (unsigned int i = 0;  i < pixelSize;  i++)
-        target[i] = source[i];
+      const Byte* source = data + (z * height + y) * width * pixelSize;
+      Byte* target = scratch + ((z * height + y + 1) * width - 1) * pixelSize;
 
-      source += pixelSize;
-      target -= pixelSize;
+      while (source < target)
+      {
+        for (unsigned int i = 0;  i < pixelSize;  i++)
+          target[i] = source[i];
+
+        source += pixelSize;
+        target -= pixelSize;
+      }
     }
   }
 
-  data.attach(scratch.detach(), width * height * pixelSize);
+  data.attach(scratch.detach(), scratch.getSize());
 }
 
 Image& Image::operator = (const Image& source)
 {
   width = source.width;
   height = source.height;
+  depth = source.depth;
   format = source.format;
-
   data = source.data;
+
   return *this;
 }
 
@@ -568,6 +765,8 @@ bool Image::isPOT(void) const
   if (width & (width - 1))
     return false;
   if (height & (height - 1))
+    return false;
+  if (depth & (depth - 1))
     return false;
 
   return true;
@@ -588,6 +787,11 @@ unsigned int Image::getHeight(void) const
   return height;
 }
 
+unsigned int Image::getDepth(void) const
+{
+  return depth;
+}
+
 void* Image::getPixels(void)
 {
   return data;
@@ -598,20 +802,20 @@ const void* Image::getPixels(void) const
   return data;
 }
 
-void* Image::getPixel(unsigned int x, unsigned int y)
+void* Image::getPixel(unsigned int x, unsigned int y, unsigned int z)
 {
-  if (x >= width || y >= height)
+  if (x >= width || y >= height || z >= depth)
     return NULL;
 
-  return data + (y * width + x) * format.getSize();
+  return data + ((z * height + y) * width + x) * format.getSize();
 }
 
-const void* Image::getPixel(unsigned int x, unsigned int y) const
+const void* Image::getPixel(unsigned int x, unsigned int y, unsigned int z) const
 {
-  if (x >= width || y >= height)
+  if (x >= width || y >= height || z >= depth)
     return NULL;
 
-  return data + (y * width + x) * format.getSize();
+  return data + ((z * height + y) * width + x) * format.getSize();
 }
 
 const PixelFormat& Image::getFormat(void) const
@@ -621,10 +825,13 @@ const PixelFormat& Image::getFormat(void) const
 
 unsigned int Image::getDimensionCount(void) const
 {
+  if (depth > 1)
+    return 3;
+
   if (height > 1)
     return 2;
-  else
-    return 1;
+
+  return 1;
 }
 
 Ref<Image> Image::getArea(const Recti& area)
@@ -870,6 +1077,12 @@ Ref<Image> ImageReader::read(const Path& path)
 
 bool ImageWriter::write(const Path& path, const Image& image)
 {
+  if (image.getDimensionCount() > 2)
+  {
+    logError("Cannot write 3D images to PNG file");
+    return false;
+  }
+
   std::ofstream stream(path.asString().c_str());
   if (!stream.is_open())
   {
