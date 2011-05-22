@@ -623,13 +623,20 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
       if (height > maxSize)
 	height = maxSize;
     }
+    else if (type == TEXTURE_3D)
+    {
+      const unsigned int maxSize = context.getLimits().getMaxTexture3DSize();
+
+      width = getClosestPower(sourceWidth, maxSize);
+      height = getClosestPower(sourceHeight, maxSize);
+      depth = getClosestPower(sourceDepth, maxSize);
+    }
     else
     {
       const unsigned int maxSize = context.getLimits().getMaxTextureSize();
 
       width = getClosestPower(sourceWidth, maxSize);
       height = getClosestPower(sourceHeight, maxSize);
-      depth = getClosestPower(sourceDepth, maxSize);
     }
 
     // Rescale source image (no-op if the sizes are equal)

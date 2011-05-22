@@ -285,17 +285,7 @@ void ContextMode::set(unsigned int width,
 ///////////////////////////////////////////////////////////////////////
 
 Limits::Limits(Context& initContext):
-  context(initContext),
-  maxColorAttachments(0),
-  maxDrawBuffers(0),
-  maxVertexTextureImageUnits(0),
-  maxFragmentTextureImageUnits(0),
-  maxCombinedTextureImageUnits(0),
-  maxTextureSize(0),
-  maxTextureCubeSize(0),
-  maxTextureRectangleSize(0),
-  maxTextureCoords(0),
-  maxVertexAttributes(0)
+  context(initContext)
 {
   maxColorAttachments = getIntegerParameter(GL_MAX_COLOR_ATTACHMENTS_EXT);
   maxDrawBuffers = getIntegerParameter(GL_MAX_DRAW_BUFFERS);
@@ -303,6 +293,7 @@ Limits::Limits(Context& initContext):
   maxFragmentTextureImageUnits = getIntegerParameter(GL_MAX_TEXTURE_IMAGE_UNITS);
   maxCombinedTextureImageUnits = getIntegerParameter(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
   maxTextureSize = getIntegerParameter(GL_MAX_TEXTURE_SIZE);
+  maxTexture3DSize = getIntegerParameter(GL_MAX_3D_TEXTURE_SIZE);
   maxTextureCubeSize = getIntegerParameter(GL_MAX_CUBE_MAP_TEXTURE_SIZE);
   maxTextureRectangleSize = getIntegerParameter(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB);
   maxTextureCoords = getIntegerParameter(GL_MAX_TEXTURE_COORDS);
@@ -337,6 +328,11 @@ unsigned int Limits::getMaxCombinedTextureImageUnits(void) const
 unsigned int Limits::getMaxTextureSize(void) const
 {
   return maxTextureSize;
+}
+
+unsigned int Limits::getMaxTexture3DSize(void) const
+{
+  return maxTexture3DSize;
 }
 
 unsigned int Limits::getMaxTextureCubeSize(void) const

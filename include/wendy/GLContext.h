@@ -185,6 +185,9 @@ public:
   /*! @return The maximum size, in pixels, of 2D POT textures.
    */
   unsigned int getMaxTextureSize(void) const;
+  /*! @return The maximum size, in pixels, of 3D POT textures.
+   */
+  unsigned int getMaxTexture3DSize(void) const;
   /*! @return The maximum size, in pixels, of cube map texture faces.
    */
   unsigned int getMaxTextureCubeSize(void) const;
@@ -205,6 +208,7 @@ private:
   unsigned int maxFragmentTextureImageUnits;
   unsigned int maxCombinedTextureImageUnits;
   unsigned int maxTextureSize;
+  unsigned int maxTexture3DSize;
   unsigned int maxTextureCubeSize;
   unsigned int maxTextureRectangleSize;
   unsigned int maxVertexAttributes;
