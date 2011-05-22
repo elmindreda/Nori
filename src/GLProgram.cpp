@@ -778,7 +778,12 @@ bool Program::retrieveUniforms(void)
                        uniformName);
 
     if (std::strncmp(uniformName, "gl_", 3) == 0)
+    {
+      logWarning("Program \'%s\' uses built-in uniform \'%s\'",
+                 getPath().asString().c_str(),
+                 uniformName);
       continue;
+    }
 
     if (isSupportedUniformType(uniformType))
     {
