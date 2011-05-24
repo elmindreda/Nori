@@ -803,7 +803,7 @@ bool RenderBuffer::init(const PixelFormat& initFormat,
   return true;
 }
 
-void RenderBuffer::attach(int attachment)
+void RenderBuffer::attach(int attachment, unsigned int z)
 {
   glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
                                attachment,

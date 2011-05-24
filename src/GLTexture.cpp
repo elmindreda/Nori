@@ -310,7 +310,7 @@ TextureImage::TextureImage(Texture& initTexture,
 {
 }
 
-void TextureImage::attach(int attachment)
+void TextureImage::attach(int attachment, unsigned int z)
 {
   if (texture.type == TEXTURE_1D)
   {
@@ -327,7 +327,7 @@ void TextureImage::attach(int attachment)
                               convertToGL(texture.type),
                               texture.textureID,
                               level,
-                              0);
+                              z);
   }
   else
   {

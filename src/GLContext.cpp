@@ -502,7 +502,7 @@ bool ImageCanvas::setColorBuffer(Image* newImage)
   return setBuffer(COLOR_BUFFER0, newImage);
 }
 
-bool ImageCanvas::setBuffer(Attachment attachment, Image* newImage)
+bool ImageCanvas::setBuffer(Attachment attachment, Image* newImage, unsigned int z)
 {
   if (newImage)
   {
@@ -542,7 +542,7 @@ bool ImageCanvas::setBuffer(Attachment attachment, Image* newImage)
   buffers[attachment] = newImage;
 
   if (buffers[attachment])
-    buffers[attachment]->attach(convertToGL(attachment));
+    buffers[attachment]->attach(convertToGL(attachment), z);
 
   previous->apply();
   return true;

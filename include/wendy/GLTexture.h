@@ -147,7 +147,7 @@ private:
                unsigned int height,
                unsigned int depth,
                CubeFace face = NO_CUBE_FACE);
-  void attach(int attachment);
+  void attach(int attachment, unsigned int z);
   void detach(int attachment);
   Texture& texture;
   unsigned int level;

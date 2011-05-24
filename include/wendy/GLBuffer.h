@@ -486,7 +486,7 @@ public:
 private:
   RenderBuffer(void);
   bool init(const PixelFormat& format, unsigned int width, unsigned int height);
-  void attach(int attachment);
+  void attach(int attachment, unsigned int z);
   void detach(int attachment);
   unsigned int bufferID;
   unsigned int width;

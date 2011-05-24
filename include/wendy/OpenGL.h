@@ -79,7 +79,7 @@ public:
   virtual unsigned int getHeight(void) const = 0;
   virtual const PixelFormat& getFormat(void) const = 0;
 protected:
-  virtual void attach(int attachment) = 0;
+  virtual void attach(int attachment, unsigned int z) = 0;
   virtual void detach(int attachment) = 0;
 };
 

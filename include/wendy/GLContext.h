@@ -314,7 +314,7 @@ public:
    */
   bool setColorBuffer(Image* newImage);
   bool setDepthBuffer(Image* newImage);
-  bool setBuffer(Attachment attachment, Image* newImage);
+  bool setBuffer(Attachment attachment, Image* newImage, unsigned int z = 0);
   /*! Creates a texture canvas for the specified texture.
    */
   static ImageCanvas* create(Context& context,
