@@ -29,10 +29,7 @@
 #include <string>
 #include <vector>
 #include <cstdarg>
-
-#if WENDY_HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
+#include <cstddef>
 
 #ifndef NULL
 #define NULL 0
