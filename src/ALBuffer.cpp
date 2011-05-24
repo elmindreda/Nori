@@ -302,7 +302,7 @@ Ref<Buffer> BufferReader::read(const Path& path)
 
   ov_clear(&file);
 
-  BufferData data(samples.data(), samples.size(), format, float(info->rate));
+  BufferData data(&samples[0], samples.size(), format, float(info->rate));
 
   return Buffer::create(ResourceInfo(getIndex(), full), context, data);
 }
