@@ -285,6 +285,7 @@ private:
   bool init(const wendy::Image& source, unsigned int flags);
   bool init(const ImageCube& source, unsigned int flags);
   unsigned int retrieveImages(unsigned int target, CubeFace face);
+  void applyDefaults(void);
   Texture& operator = (const Texture& source);
   typedef std::vector<TextureImageRef> ImageList;
   Context& context;

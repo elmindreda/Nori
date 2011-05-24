@@ -701,35 +701,7 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
                  final.getPixels());
   }
 
-  if (flags & MIPMAPPED)
-  {
-    glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-    glGenerateMipmapEXT(convertToGL(type));
-  }
-  else
-    glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-  glTexParameteri(convertToGL(type), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  if (type == TEXTURE_RECT)
-  {
-    glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    addressMode = ADDRESS_CLAMP;
-  }
-  else
-  {
-    glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_S, GL_REPEAT);
-
-    if (type != TEXTURE_1D)
-      glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    if (type == TEXTURE_3D)
-      glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_R, GL_REPEAT);
-
-    addressMode = ADDRESS_WRAP;
-  }
+  applyDefaults();
 
   levels = retrieveImages(convertToGL(type), NO_CUBE_FACE);
 
@@ -847,15 +819,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
                  image.getPixels());
   }
 
-  if (flags & MIPMAPPED)
-  {
-    glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-    glGenerateMipmapEXT(convertToGL(type));
-  }
-  else
-    glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-  glTexParameteri(convertToGL(type), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  applyDefaults();
 
   for (unsigned int i = 0;  i < 6;  i++)
     levels = retrieveImages(convertToGL(CubeFace(i)), CubeFace(i));
@@ -891,6 +855,33 @@ unsigned int Texture::retrieveImages(unsigned int target, CubeFace face)
   }
 
   return level;
+}
+
+void Texture::applyDefaults(void)
+{
+  // Set up filter modes
+  {
+    if (flags & MIPMAPPED)
+    {
+      glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+      glGenerateMipmapEXT(convertToGL(type));
+    }
+    else
+      glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    glTexParameteri(convertToGL(type), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    filterMode = FILTER_BILINEAR;
+  }
+
+  // Set up address modes
+  {
+    glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    addressMode = ADDRESS_CLAMP;
+  }
 }
 
 Texture& Texture::operator = (const Texture& source)
