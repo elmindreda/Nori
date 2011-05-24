@@ -172,20 +172,24 @@ typedef Ref<Image> ImageRef;
 
 ///////////////////////////////////////////////////////////////////////
 
+enum CubeFace
+{
+  CUBE_POSITIVE_X,
+  CUBE_NEGATIVE_X,
+  CUBE_POSITIVE_Y,
+  CUBE_NEGATIVE_Y,
+  CUBE_POSITIVE_Z,
+  CUBE_NEGATIVE_Z,
+  NO_CUBE_FACE,
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief %Image cube object.
  */
 class ImageCube : public Resource
 {
 public:
-  enum Face
-  {
-    POSITIVE_X,
-    NEGATIVE_X,
-    POSITIVE_Y,
-    NEGATIVE_Y,
-    POSITIVE_Z,
-    NEGATIVE_Z,
-  };
   ImageCube(const ResourceInfo& info);
   ImageCube(const ImageCube& source);
   /*! @return @c true if all images have power-of-two dimensions, otherwise @c false.

@@ -134,21 +134,21 @@ GLint convertToGL(FilterMode mode, bool mipmapped)
   return 0;
 }
 
-GLenum convertToGL(ImageCube::Face face)
+GLenum convertToGL(CubeFace face)
 {
   switch (face)
   {
-    case ImageCube::POSITIVE_X:
+    case CUBE_POSITIVE_X:
       return GL_TEXTURE_CUBE_MAP_POSITIVE_X;
-    case ImageCube::NEGATIVE_X:
+    case CUBE_NEGATIVE_X:
       return GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
-    case ImageCube::POSITIVE_Y:
+    case CUBE_POSITIVE_Y:
       return GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
-    case ImageCube::NEGATIVE_Y:
+    case CUBE_NEGATIVE_Y:
       return GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
-    case ImageCube::POSITIVE_Z:
+    case CUBE_POSITIVE_Z:
       return GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
-    case ImageCube::NEGATIVE_Z:
+    case CUBE_NEGATIVE_Z:
       return GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
   }
 
@@ -284,6 +284,11 @@ unsigned int TextureImage::getDepth(void) const
   return depth;
 }
 
+CubeFace TextureImage::getFace(void) const
+{
+  return face;
+}
+
 const PixelFormat& TextureImage::getFormat(void) const
 {
   return texture.getFormat();
@@ -298,12 +303,14 @@ TextureImage::TextureImage(Texture& initTexture,
                            unsigned int initLevel,
                            unsigned int initWidth,
                            unsigned int initHeight,
-                           unsigned int initDepth):
+                           unsigned int initDepth,
+                           CubeFace initFace):
   texture(initTexture),
   level(initLevel),
   width(initWidth),
   height(initHeight),
-  depth(initDepth)
+  depth(initDepth),
+  face(initFace)
 {
 }
 
@@ -400,19 +407,24 @@ TextureType Texture::getType(void) const
   return type;
 }
 
-unsigned int Texture::getWidth(unsigned int level)
+unsigned int Texture::getWidth(unsigned int level) const
 {
-  return getImage(level).getWidth();
+  return width;
 }
 
-unsigned int Texture::getHeight(unsigned int level)
+unsigned int Texture::getHeight(unsigned int level) const
 {
-  return getImage(level).getHeight();
+  return height;
 }
 
-unsigned int Texture::getDepth(unsigned int level)
+unsigned int Texture::getDepth(unsigned int level) const
 {
-  return getImage(level).getDepth();
+  return depth;
+}
+
+unsigned int Texture::getLevelCount(void) const
+{
+  return levels;
 }
 
 unsigned int Texture::getSourceWidth(void) const
@@ -428,11 +440,6 @@ unsigned int Texture::getSourceHeight(void) const
 unsigned int Texture::getSourceDepth(void) const
 {
   return sourceDepth;
-}
-
-unsigned int Texture::getImageCount(void) const
-{
-  return images.size();
 }
 
 FilterMode Texture::getFilterMode(void) const
@@ -492,12 +499,12 @@ const PixelFormat& Texture::getFormat(void) const
   return format;
 }
 
-TextureImage& Texture::getImage(unsigned int level)
+TextureImage* Texture::getImage(unsigned int level, CubeFace face)
 {
-  if (level >= images.size())
-    throw Exception("Invalid mipmap level");
-
-  return *images[level];
+  if (type == TEXTURE_CUBE)
+    return images[face * levels + level];
+  else
+    return images[level];
 }
 
 Context& Texture::getContext(void) const
@@ -543,6 +550,10 @@ Texture::Texture(const ResourceInfo& info, Context& initContext):
   sourceHeight(0),
   sourceDepth(0),
   flags(0),
+  width(0),
+  height(0),
+  depth(0),
+  levels(0),
   filterMode(FILTER_BILINEAR),
   addressMode(ADDRESS_WRAP)
 {
@@ -602,8 +613,6 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   sourceWidth = final.getWidth();
   sourceHeight = final.getHeight();
   sourceDepth = final.getDepth();
-
-  unsigned int width, height, depth;
 
   // Adapt source image to OpenGL restrictions
   {
@@ -722,7 +731,7 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
     addressMode = ADDRESS_WRAP;
   }
 
-  retrieveImages(convertToGL(type));
+  levels = retrieveImages(convertToGL(type), NO_CUBE_FACE);
 
   if (!checkGL("OpenGL error during creation of texture \'%s\' of format \'%s\'",
                getPath().asString().c_str(),
@@ -761,6 +770,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
 
     sourceWidth = source.images[0]->getWidth();
     sourceHeight = source.images[0]->getHeight();
+    sourceDepth = 1;
 
     const unsigned int maxSize = context.getLimits().getMaxTextureCubeSize();
 
@@ -771,6 +781,10 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
                maxSize, maxSize);
       return false;
     }
+
+    width = sourceWidth;
+    height = sourceHeight;
+    depth = sourceDepth;
   }
 
   // Check image formats
@@ -820,11 +834,9 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
 
   for (unsigned int i = 0;  i < 6;  i++)
   {
-    GLenum faceTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
-
     wendy::Image& image = *source.images[i];
 
-    glTexImage2D(faceTarget,
+    glTexImage2D(convertToGL(CubeFace(i)),
                  0,
                  convertToGL(image.getFormat()),
                  image.getWidth(),
@@ -846,7 +858,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
   glTexParameteri(convertToGL(type), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   for (unsigned int i = 0;  i < 6;  i++)
-    retrieveImages(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
+    levels = retrieveImages(convertToGL(CubeFace(i)), CubeFace(i));
 
   if (!checkGL("OpenGL error during creation of texture \'%s\' of format \'%s\'",
                getPath().asString().c_str(),
@@ -858,7 +870,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
   return true;
 }
 
-void Texture::retrieveImages(unsigned int target)
+unsigned int Texture::retrieveImages(unsigned int target, CubeFace face)
 {
   unsigned int level = 0;
 
@@ -873,10 +885,12 @@ void Texture::retrieveImages(unsigned int target)
     if (width == 0)
       break;
 
-    images.push_back(new TextureImage(*this, level, width, height, depth));
+    images.push_back(new TextureImage(*this, level, width, height, depth, face));
 
     level++;
   }
+
+  return level;
 }
 
 Texture& Texture::operator = (const Texture& source)

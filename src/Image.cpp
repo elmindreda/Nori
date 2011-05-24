@@ -1202,7 +1202,7 @@ bool ImageCubeReader::onBeginElement(const String& name)
     if (!image)
       return false;
 
-    cube->images[ImageCube::POSITIVE_X] = image;
+    cube->images[CUBE_POSITIVE_X] = image;
     return true;
   }
 
@@ -1213,7 +1213,7 @@ bool ImageCubeReader::onBeginElement(const String& name)
     if (!image)
       return false;
 
-    cube->images[ImageCube::NEGATIVE_X] = image;
+    cube->images[CUBE_NEGATIVE_X] = image;
     return true;
   }
 
@@ -1224,7 +1224,7 @@ bool ImageCubeReader::onBeginElement(const String& name)
     if (!image)
       return false;
 
-    cube->images[ImageCube::POSITIVE_Y] = image;
+    cube->images[CUBE_POSITIVE_Y] = image;
     return true;
   }
 
@@ -1235,7 +1235,7 @@ bool ImageCubeReader::onBeginElement(const String& name)
     if (!image)
       return false;
 
-    cube->images[ImageCube::NEGATIVE_Y] = image;
+    cube->images[CUBE_NEGATIVE_Y] = image;
     return true;
   }
 
@@ -1246,7 +1246,7 @@ bool ImageCubeReader::onBeginElement(const String& name)
     if (!image)
       return false;
 
-    cube->images[ImageCube::POSITIVE_Z] = image;
+    cube->images[CUBE_POSITIVE_Z] = image;
     return true;
   }
 
@@ -1257,7 +1257,7 @@ bool ImageCubeReader::onBeginElement(const String& name)
     if (!image)
       return false;
 
-    cube->images[ImageCube::NEGATIVE_Z] = image;
+    cube->images[CUBE_NEGATIVE_Z] = image;
     return true;
   }
 
