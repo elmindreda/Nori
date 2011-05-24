@@ -13,10 +13,7 @@ option(WENDY_INCLUDE_SCENE_GRAPH "Include the scene graph" ON)
 option(WENDY_INCLUDE_UI_SYSTEM "Include the UI library" ON)
 option(WENDY_BUILD_EXAMPLES "Build the bundled example programs" OFF)
 option(WENDY_BUILD_TESTS "Build the bundled test programs" OFF)
-
-if(UNIX AND NOT CYGWIN)
-  option(WENDY_BUILD_DOCUMENTATION "Build the Doxygen documentation" OFF)
-endif(UNIX AND NOT CYGWIN)
+option(WENDY_BUILD_DOCUMENTATION "Build the Doxygen documentation" OFF)
 
 include(TestBigEndian)
 test_big_endian(WENDY_WORDS_BIGENDIAN)
