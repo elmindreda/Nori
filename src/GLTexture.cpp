@@ -696,31 +696,9 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   {
     glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
     glGenerateMipmapEXT(convertToGL(type));
-
-    unsigned int level = 0;
-
-    for (;;)
-    {
-      glGetTexLevelParameteriv(convertToGL(type), level, GL_TEXTURE_WIDTH, (int*) &width);
-      glGetTexLevelParameteriv(convertToGL(type), level, GL_TEXTURE_HEIGHT, (int*) &height);
-      glGetTexLevelParameteriv(convertToGL(type), level, GL_TEXTURE_DEPTH, (int*) &depth);
-
-      if (width == 0)
-        break;
-
-      TextureImageRef image = new TextureImage(*this, level, width, height, depth);
-      images.push_back(image);
-
-      level++;
-    }
   }
   else
-  {
     glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    TextureImageRef image = new TextureImage(*this, 0, final.getWidth(), final.getHeight(), final.getDepth());
-    images.push_back(image);
-  }
 
   glTexParameteri(convertToGL(type), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -743,6 +721,8 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
 
     addressMode = ADDRESS_WRAP;
   }
+
+  retrieveImages(convertToGL(type));
 
   if (!checkGL("OpenGL error during creation of texture \'%s\' of format \'%s\'",
                getPath().asString().c_str(),
@@ -855,51 +835,18 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
                  image.getPixels());
   }
 
-  glGenerateMipmapEXT(convertToGL(type));
-
-  for (unsigned int i = 0;  i < 6;  i++)
+  if (flags & MIPMAPPED)
   {
-    GLenum faceTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
-
-    wendy::Image& image = *source.images[i];
-
-    if (flags & MIPMAPPED)
-    {
-      glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-
-      unsigned int level = 0;
-
-      for (;;)
-      {
-        unsigned int width, height;
-
-        glGetTexLevelParameteriv(faceTarget, level, GL_TEXTURE_WIDTH, (int*) &width);
-        glGetTexLevelParameteriv(faceTarget, level, GL_TEXTURE_HEIGHT, (int*) &height);
-
-        if (width == 0)
-          break;
-
-        TextureImageRef image = new TextureImage(*this, level, width, height, 1);
-        images.push_back(image);
-
-        level++;
-      }
-    }
-    else
-    {
-      glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-      unsigned int width, height;
-
-      glGetTexLevelParameteriv(faceTarget, 0, GL_TEXTURE_WIDTH, (int*) &width);
-      glGetTexLevelParameteriv(faceTarget, 0, GL_TEXTURE_HEIGHT, (int*) &height);
-
-      TextureImageRef image = new TextureImage(*this, 0, width, height, 1);
-      images.push_back(image);
-    }
+    glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+    glGenerateMipmapEXT(convertToGL(type));
   }
+  else
+    glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
   glTexParameteri(convertToGL(type), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  for (unsigned int i = 0;  i < 6;  i++)
+    retrieveImages(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
 
   if (!checkGL("OpenGL error during creation of texture \'%s\' of format \'%s\'",
                getPath().asString().c_str(),
@@ -909,6 +856,27 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
   }
 
   return true;
+}
+
+void Texture::retrieveImages(unsigned int target)
+{
+  unsigned int level = 0;
+
+  for (;;)
+  {
+    unsigned int width, height, depth;
+
+    glGetTexLevelParameteriv(target, level, GL_TEXTURE_WIDTH, (int*) &width);
+    glGetTexLevelParameteriv(target, level, GL_TEXTURE_HEIGHT, (int*) &height);
+    glGetTexLevelParameteriv(target, level, GL_TEXTURE_DEPTH, (int*) &depth);
+
+    if (width == 0)
+      break;
+
+    images.push_back(new TextureImage(*this, level, width, height, depth));
+
+    level++;
+  }
 }
 
 Texture& Texture::operator = (const Texture& source)
