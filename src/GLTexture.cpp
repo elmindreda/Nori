@@ -188,7 +188,6 @@ bool TextureImage::copyFrom(const wendy::Image& source,
 
     texture.context.setCurrentTexture(&texture);
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexSubImage1D(convertToGL(texture.type),
                     level,
 		    x,
@@ -201,7 +200,6 @@ bool TextureImage::copyFrom(const wendy::Image& source,
   {
     texture.context.setCurrentTexture(&texture);
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexSubImage3D(convertToGL(texture.type),
                     level,
 		    x, y, z,
@@ -222,7 +220,6 @@ bool TextureImage::copyFrom(const wendy::Image& source,
 
     texture.context.setCurrentTexture(&texture);
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexSubImage2D(convertToGL(texture.type),
                     level,
 		    x, y,
@@ -250,7 +247,6 @@ bool TextureImage::copyTo(wendy::Image& result) const
 
   texture.context.setCurrentTexture(&texture);
 
-  glPixelStorei(GL_PACK_ALIGNMENT, 1);
   glGetTexImage(convertToGL(texture.type),
                 level,
 		convertToGL(texture.format.getSemantic()),
@@ -661,8 +657,6 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   glGenTextures(1, &textureID);
 
   context.setCurrentTexture(this);
-
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   if (type == TEXTURE_1D)
   {

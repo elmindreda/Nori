@@ -1370,6 +1370,9 @@ bool Context::init(const ContextMode& initMode)
     textureUnits.resize(unitCount);
   }
 
+  // Apply default differences
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
   // Create and apply screen canvas
   {
     int width, height;
