@@ -758,6 +758,11 @@ unsigned int RenderBuffer::getHeight(void) const
   return height;
 }
 
+unsigned int RenderBuffer::getDepth(void) const
+{
+  return 1;
+}
+
 const PixelFormat& RenderBuffer::getFormat(void) const
 {
   return format;

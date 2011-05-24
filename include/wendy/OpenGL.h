@@ -77,6 +77,7 @@ public:
   virtual ~Image(void);
   virtual unsigned int getWidth(void) const = 0;
   virtual unsigned int getHeight(void) const = 0;
+  virtual unsigned int getDepth(void) const = 0;
   virtual const PixelFormat& getFormat(void) const = 0;
 protected:
   virtual void attach(int attachment, unsigned int z) = 0;

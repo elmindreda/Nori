@@ -479,6 +479,7 @@ public:
   virtual ~RenderBuffer(void);
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
+  unsigned int getDepth(void) const;
   const PixelFormat& getFormat(void) const;
   static Ref<RenderBuffer> create(const PixelFormat& format,
                                   unsigned int width,
