@@ -102,7 +102,7 @@ void Menu::addItemAt(Item& item, unsigned int index)
     return;
 
   i = items.begin();
-  std::advance(i, std::min(index, (unsigned int) items.size()));
+  std::advance(i, min(index, (unsigned int) items.size()));
   items.insert(i, &item);
 
   sizeToFit();
@@ -304,7 +304,7 @@ void Menu::sizeToFit(void)
 
   for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
   {
-    size.x = std::max((*i)->getWidth(), size.x);
+    size.x = max((*i)->getWidth(), size.x);
     size.y += (*i)->getHeight();
   }
 

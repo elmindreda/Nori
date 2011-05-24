@@ -362,14 +362,14 @@ bool Font::init(const FontData& data)
     for (size_t i = 0;  i < data.glyphs.size();  i++)
       totalWidth += data.glyphs[i].image->getWidth() + 1;
 
-    unsigned int textureWidth = std::min(getNextPower(totalWidth), maxSize);
+    unsigned int textureWidth = min(getNextPower(totalWidth), maxSize);
 
     unsigned int rows = totalWidth / textureWidth;
     if (totalWidth % textureWidth)
       rows++;
 
     unsigned int textureHeight = (maxHeight + 1) * rows + 1;
-    textureHeight = std::min(getNextPower(textureHeight), maxSize);
+    textureHeight = min(getNextPower(textureHeight), maxSize);
 
     Image image(getIndex(), PixelFormat::R8, textureWidth, textureHeight);
 
@@ -718,7 +718,7 @@ bool FontReader::extractGlyphs(FontData& data,
   {
     FontGlyphData& glyph = data.glyphs[i];
 
-    maxAdvance = std::max(maxAdvance, glyph.advance);
+    maxAdvance = max(maxAdvance, glyph.advance);
     meanAdvance += glyph.advance;
   }
 

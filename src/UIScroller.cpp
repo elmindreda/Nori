@@ -101,7 +101,7 @@ float Scroller::getPercentage(void) const
 
 void Scroller::setPercentage(float newPercentage)
 {
-  percentage = std::max(std::min(newPercentage, 1.f), 0.f);
+  percentage = max(min(newPercentage, 1.f), 0.f);
 }
 
 SignalProxy1<void, Scroller&> Scroller::getValueChangedSignal(void)
@@ -298,9 +298,9 @@ float Scroller::getHandleSize(void) const
   const float em = getDesktop().getDrawer().getCurrentEM();
 
   if (orientation == HORIZONTAL)
-    return std::max(getArea().size.x * percentage, em);
+    return max(getArea().size.x * percentage, em);
   else
-    return std::max(getArea().size.y * percentage, em);
+    return max(getArea().size.y * percentage, em);
 }
 
 float Scroller::getHandleOffset(void) const

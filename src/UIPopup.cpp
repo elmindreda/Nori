@@ -88,7 +88,7 @@ unsigned int Popup::getSelection(void) const
 void Popup::setSelection(unsigned int newIndex)
 {
   if (menu->getItemCount())
-    selection = std::min(newIndex, menu->getItemCount() - 1);
+    selection = min(newIndex, menu->getItemCount() - 1);
   else
     selection = 0;
 }
@@ -151,7 +151,7 @@ void Popup::draw(void) const
 
 void Popup::display(void)
 {
-  const float width = std::max(menu->getArea().size.x, getArea().size.x);
+  const float width = max(menu->getArea().size.x, getArea().size.x);
   menu->setArea(Rect(getGlobalArea().position,
                      vec2(width, menu->getArea().size.y)));
   menu->display();

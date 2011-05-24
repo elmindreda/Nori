@@ -121,7 +121,7 @@ void AnimTrack3::createKeyFrame(Time moment,
                                 const Transform3& transform,
                                 const vec3& direction)
 {
-  moment = std::max(moment, 0.0);
+  moment = max(moment, 0.0);
 
   keyframes.push_back(KeyFrame3(*this));
   keyframes.back().transform = transform;
@@ -154,7 +154,7 @@ void AnimTrack3::evaluate(Time moment, Transform3& result) const
     return;
   }
 
-  moment = std::max(moment, 0.0);
+  moment = max(moment, 0.0);
 
   size_t index;
 

@@ -156,7 +156,7 @@ void List::setOffset(unsigned int newOffset)
   if (items.empty())
     return;
 
-  offset = std::min(newOffset, (unsigned int) items.size() - 1);
+  offset = min(newOffset, (unsigned int) items.size() - 1);
 
   updateScroller();
 }
@@ -373,7 +373,7 @@ void List::setSelection(unsigned int newIndex, bool notify)
   if (items.empty())
     return;
 
-  selection = std::min(newIndex, (unsigned int) items.size() - 1);
+  selection = min(newIndex, (unsigned int) items.size() - 1);
 
   if (!isItemVisible(items[selection]))
     setOffset(selection);

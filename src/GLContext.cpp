@@ -1364,8 +1364,8 @@ bool Context::init(const ContextMode& initMode)
 
   // Set up texture unit cache
   {
-    unsigned int unitCount = std::max(limits->getMaxCombinedTextureImageUnits(),
-                                      limits->getMaxTextureCoords());
+    unsigned int unitCount = max(limits->getMaxCombinedTextureImageUnits(),
+                                 limits->getMaxTextureCoords());
 
     textureUnits.resize(unitCount);
   }
