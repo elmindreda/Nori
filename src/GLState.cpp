@@ -381,27 +381,30 @@ void ProgramState::apply(void) const
 
   SharedProgramState* state = context.getCurrentSharedProgramState();
 
-  unsigned int textureUnit = 0;
+  unsigned int textureIndex = 0, textureUnit = 0;
 
   for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
   {
+    context.setActiveTextureUnit(textureUnit);
+
     Sampler& sampler = program->getSampler(i);
     if (sampler.isShared())
     {
       if (state)
         state->updateTo(sampler);
       else
-        logError("Applying shared sampler \'%s\' of program \'%s\' without a current shared program state",
-                 sampler.getName().c_str(),
-                 program->getPath().asString().c_str());
+        logError("Program \'%s\' uses shared sampler \'%s\' without a current shared program state",
+                 program->getPath().asString().c_str(),
+                 sampler.getName().c_str());
     }
     else
     {
-      context.setActiveTextureUnit(textureUnit);
-      context.setCurrentTexture(textures[textureUnit]);
-      sampler.bind(textureUnit);
-      textureUnit++;
+      context.setCurrentTexture(textures[textureIndex]);
+      textureIndex++;
     }
+
+    sampler.bind(textureUnit);
+    textureUnit++;
   }
 
   size_t offset = 0;
