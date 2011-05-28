@@ -178,7 +178,7 @@ void #{@type}::run(void)
 int main()
 {
   if (!wendy::initialize())
-    exit(1);
+    std::exit(EXIT_FAILURE);
 
   Ptr<#{@name}::#{@type}> #{@type.downcase}(new #{@name}::#{@type}());
   if (!#{@type.downcase}->init())
@@ -192,7 +192,7 @@ int main()
   #{@type.downcase} = NULL;
 
   wendy::shutdown();
-  exit(EXIT_SUCCESS);
+  std::exit(EXIT_SUCCESS);
 }
 
 EOF
