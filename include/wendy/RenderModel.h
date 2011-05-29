@@ -44,7 +44,7 @@ namespace wendy
 /*! @brief Renderable mesh object.
  *  @ingroup renderer
  *
- *  This class represents a single static mesh, consisting of one or more
+ *  This class represents a single static model consisting of one or more
  *  Model::Geometry objects. Each geometry is a part of the mesh using a single
  *  %render material and primitive mode.
  */
@@ -55,40 +55,39 @@ public:
   typedef std::vector<Geometry> GeometryList;
   typedef std::map<String, Path> MaterialMap;
   void enqueue(Scene& scene, const Camera& camera, const Transform3& transform) const;
-  /*! @return The bounding sphere of this mesh.
+  /*! @return The bounding sphere of this model.
    */
   const Sphere& getBounds(void) const;
-  /*! @return The list of geometries in this mesh.
+  /*! @return The list of geometries in this model.
    */
   const GeometryList& getGeometries(void);
-  /*! @return The vertex buffer used by this mesh.
+  /*! @return The vertex buffer used by this model.
    */
   GL::VertexBuffer& getVertexBuffer(void);
-  /*! @return The vertex buffer used by this mesh.
+  /*! @return The vertex buffer used by this model.
    */
   const GL::VertexBuffer& getVertexBuffer(void) const;
-  /*! @return The index buffer used by this mesh.
+  /*! @return The index buffer used by this model.
    */
   GL::IndexBuffer& getIndexBuffer(void);
-  /*! @return The index buffer used by this mesh.
+  /*! @return The index buffer used by this model.
    */
   const GL::IndexBuffer& getIndexBuffer(void) const;
-  /*! Creates a renderable mesh from the specified mesh data.
+  /*! Creates a model from the specified mesh data.
    *  @param[in] info The resource info for the texture.
    *  @param[in] context The OpenGL context within which to create the texture.
-   *  @param[in] data The mesh data to use.
-   *  @return The newly created renderable mesh, or @c NULL if an error
+   *  @param[in] data The mesh to use.
+   *  @return The newly created model, or @c NULL if an error
    *  occurred.
    */
   static Ref<Model> create(const ResourceInfo& info,
                            GL::Context& context,
                            const Mesh& data,
                            const MaterialMap& materials);
-  /*! Creates a renderable mesh specification using the specified file.
+  /*! Creates a model specification using the specified file.
    *  @param[in] context The OpenGL context within which to create the texture.
    *  @param[in] path The path of the specification file to use.
-   *  @return The newly created renderable mesh, or @c NULL if an error
-   *  occurred.
+   *  @return The newly created model, or @c NULL if an error occurred.
    */
   static Ref<Model> read(GL::Context& context, const Path& path);
 private:
@@ -108,7 +107,7 @@ private:
 /*! @brief %Renderable model subset.
  *  @ingroup renderer
  *
- *  This class represents a subset of a mesh, using a single %render material
+ *  This class represents a subset of a model using a single %render material
  *  and a single primitive mode.
  */
 class Model::Geometry
