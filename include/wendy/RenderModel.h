@@ -41,7 +41,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Renderable mesh object.
+/*! @brief Renderable model.
  *  @ingroup renderer
  *
  *  This class represents a single static model consisting of one or more
