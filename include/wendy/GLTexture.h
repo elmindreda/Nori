@@ -216,15 +216,6 @@ public:
   /*! @return The number of mipmap levels of this texture.
    */
   unsigned int getLevelCount(void) const;
-  /*! @return The width, in pixels, of the source image.
-   */
-  unsigned int getSourceWidth(void) const;
-  /*! @return The height, in pixels, of the source image.
-   */
-  unsigned int getSourceHeight(void) const;
-  /*! @return The depth, in pixels, of the source image.
-   */
-  unsigned int getSourceDepth(void) const;
   /*! @param[in] level The desired mipmap level.
    *  @param[in] face The desired cube map face if this texture is a cubemap,
    *  or @c NO_CUBE_FACE otherwise.
@@ -284,6 +275,7 @@ private:
   Texture(const Texture& source);
   bool init(const wendy::Image& source, unsigned int flags);
   bool init(const ImageCube& source, unsigned int flags);
+  bool validateProxy(void) const;
   unsigned int retrieveImages(unsigned int target, CubeFace face);
   void applyDefaults(void);
   Texture& operator = (const Texture& source);
@@ -291,9 +283,6 @@ private:
   Context& context;
   TextureType type;
   unsigned int textureID;
-  unsigned int sourceWidth;
-  unsigned int sourceHeight;
-  unsigned int sourceDepth;
   unsigned int flags;
   unsigned int width;
   unsigned int height;

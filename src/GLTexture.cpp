@@ -38,6 +38,8 @@
 
 #include <internal/GLConvert.h>
 
+#include <glm/gtx/bit.hpp>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -49,43 +51,6 @@ namespace wendy
 
 namespace
 {
-
-unsigned int getClosestPower(unsigned int value, unsigned int maximum)
-{
-  unsigned int result;
-
-  if (value > maximum)
-    result = maximum;
-  else
-    result = value;
-
-  if (result & (result - 1))
-  {
-    // value is not power of two
-    // find largest power lesser than maximum
-
-    unsigned int i;
-
-    for (i = 0;  result & ~1;  i++)
-      result >>= 1;
-
-    result = 1 << i;
-  }
-
-  if ((result << 1) > maximum)
-  {
-    // maximum is not power of two, so we give up here
-    return result;
-  }
-
-  if (value > result)
-  {
-    // there is room to preserve all detail, so use it
-    return result << 1;
-  }
-
-  return result;
-}
 
 GLenum convertToGL(AddressMode mode)
 {
@@ -130,7 +95,27 @@ GLint convertToGL(FilterMode mode, bool mipmapped)
     }
   }
 
-  log("Invalid texture filter mode %u", mode);
+  logError("Invalid texture filter mode %u", mode);
+  return 0;
+}
+
+GLenum convertToProxyGL(TextureType type)
+{
+  switch (type)
+  {
+    case TEXTURE_1D:
+      return GL_PROXY_TEXTURE_1D;
+    case TEXTURE_2D:
+      return GL_PROXY_TEXTURE_2D;
+    case TEXTURE_3D:
+      return GL_PROXY_TEXTURE_3D;
+    case TEXTURE_RECT:
+      return GL_PROXY_TEXTURE_RECTANGLE_ARB;
+    case TEXTURE_CUBE:
+      return GL_PROXY_TEXTURE_CUBE_MAP;
+  }
+
+  logError("Invalid texture type %u", type);
   return 0;
 }
 
@@ -154,6 +139,26 @@ GLenum convertToGL(CubeFace face)
 
   logError("Invalid image cube face %u", face);
   return 0;
+}
+
+const char* asString(TextureType type)
+{
+  switch (type)
+  {
+    case TEXTURE_1D:
+      return "texture1D";
+    case TEXTURE_2D:
+      return "texture2D";
+    case TEXTURE_3D:
+      return "texture3D";
+    case TEXTURE_RECT:
+      return "textureRECT";
+    case TEXTURE_CUBE:
+      return "textureCube";
+  }
+
+  logError("Invalid texture type %u", type);
+  return "unknown texture type";
 }
 
 Bimap<String, FilterMode> filterModeMap;
@@ -423,21 +428,6 @@ unsigned int Texture::getLevelCount(void) const
   return levels;
 }
 
-unsigned int Texture::getSourceWidth(void) const
-{
-  return sourceWidth;
-}
-
-unsigned int Texture::getSourceHeight(void) const
-{
-  return sourceHeight;
-}
-
-unsigned int Texture::getSourceDepth(void) const
-{
-  return sourceDepth;
-}
-
 FilterMode Texture::getFilterMode(void) const
 {
   return filterMode;
@@ -472,6 +462,15 @@ AddressMode Texture::getAddressMode(void) const
 
 void Texture::setAddressMode(AddressMode newMode)
 {
+  if (type == TEXTURE_RECT)
+  {
+    if (newMode != ADDRESS_CLAMP)
+    {
+      logError("Rectangular textures only support ADDRESS_CLAMP");
+      return;
+    }
+  }
+
   if (newMode != addressMode)
   {
     context.setCurrentTexture(this);
@@ -542,9 +541,6 @@ Texture::Texture(const ResourceInfo& info, Context& initContext):
   Resource(info),
   context(initContext),
   textureID(0),
-  sourceWidth(0),
-  sourceHeight(0),
-  sourceDepth(0),
   flags(0),
   width(0),
   height(0),
@@ -563,9 +559,7 @@ Texture::Texture(const Texture& source):
 
 bool Texture::init(const wendy::Image& source, unsigned int initFlags)
 {
-  wendy::Image final = source;
-
-  format = final.getFormat();
+  format = source.getFormat();
 
   if (!convertToGL(format))
   {
@@ -581,9 +575,10 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
 
   if (flags & RECTANGULAR)
   {
-    if (final.getDimensionCount() > 2)
+    if (source.getDimensionCount() > 2)
     {
-      logError("Rectangular textures cannot have more than two dimensions");
+      logError("Source image for rectangular texture \'%s\' texture has more than two dimensions",
+               getPath().asString().c_str());
       return false;
     }
 
@@ -597,62 +592,64 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   }
   else
   {
-    if (final.getDimensionCount() == 1)
+    if (!source.isPOT())
+    {
+      logWarning("Texture \'%s\' does not have power-of-two dimensions; this may cause slowdown",
+                 getPath().asString().c_str());
+    }
+
+    if (source.getDimensionCount() == 1)
       type = TEXTURE_1D;
-    else if (final.getDimensionCount() == 2)
+    else if (source.getDimensionCount() == 2)
       type = TEXTURE_2D;
     else
       type = TEXTURE_3D;
   }
 
   // Save source image dimensions
-  sourceWidth = final.getWidth();
-  sourceHeight = final.getHeight();
-  sourceDepth = final.getDepth();
+  width = source.getWidth();
+  height = source.getHeight();
+  depth = source.getDepth();
 
-  // Adapt source image to OpenGL restrictions
+  if (type == TEXTURE_1D)
   {
-    // Figure out target dimensions for rescaling
-
-    if (flags & RECTANGULAR)
-    {
-      width = sourceWidth;
-      height = sourceHeight;
-      depth = 1;
-
-      const unsigned int maxSize = context.getLimits().getMaxTextureRectangleSize();
-
-      if (width > maxSize)
-	width = maxSize;
-
-      if (height > maxSize)
-	height = maxSize;
-    }
-    else if (type == TEXTURE_3D)
-    {
-      const unsigned int maxSize = context.getLimits().getMaxTexture3DSize();
-
-      width = getClosestPower(sourceWidth, maxSize);
-      height = getClosestPower(sourceHeight, maxSize);
-      depth = getClosestPower(sourceDepth, maxSize);
-    }
-    else
-    {
-      const unsigned int maxSize = context.getLimits().getMaxTextureSize();
-
-      width = getClosestPower(sourceWidth, maxSize);
-      height = getClosestPower(sourceHeight, maxSize);
-      depth = 1;
-    }
-
-    // Rescale source image (no-op if the sizes are equal)
-    if (!final.resize(width, height, depth))
-    {
-      logError("Failed to rescale image for texture \'%s\'",
-               getPath().asString().c_str());
-      return false;
-    }
+    glTexImage1D(convertToProxyGL(type),
+                 0,
+                 convertToGL(format),
+                 width,
+                 0,
+                 convertToGL(format.getSemantic()),
+                 convertToGL(format.getType()),
+                 NULL);
   }
+  else if (type == TEXTURE_3D)
+  {
+    glTexImage3D(convertToProxyGL(type),
+                 0,
+                 convertToGL(format),
+                 width,
+                 height,
+                 depth,
+                 0,
+                 convertToGL(format.getSemantic()),
+                 convertToGL(format.getType()),
+                 NULL);
+  }
+  else
+  {
+    glTexImage2D(convertToProxyGL(type),
+                 0,
+                 convertToGL(format),
+                 width,
+                 height,
+                 0,
+                 convertToGL(format.getSemantic()),
+                 convertToGL(format.getType()),
+                 NULL);
+  }
+
+  if (!validateProxy())
+    return false;
 
   glGenTextures(1, &textureID);
 
@@ -663,43 +660,43 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
     glTexImage1D(convertToGL(type),
                  0,
                  convertToGL(format),
-                 final.getWidth(),
+                 width,
                  0,
                  convertToGL(format.getSemantic()),
                  convertToGL(format.getType()),
-                 final.getPixels());
+                 source.getPixels());
   }
   else if (type == TEXTURE_3D)
   {
     glTexImage3D(convertToGL(type),
                  0,
                  convertToGL(format),
-                 final.getWidth(),
-                 final.getHeight(),
-                 final.getDepth(),
+                 width,
+                 height,
+                 depth,
                  0,
                  convertToGL(format.getSemantic()),
                  convertToGL(format.getType()),
-                 final.getPixels());
+                 source.getPixels());
   }
   else
   {
     glTexImage2D(convertToGL(type),
                  0,
                  convertToGL(format),
-                 final.getWidth(),
-                 final.getHeight(),
+                 width,
+                 height,
                  0,
                  convertToGL(format.getSemantic()),
                  convertToGL(format.getType()),
-                 final.getPixels());
+                 source.getPixels());
   }
 
   applyDefaults();
 
   levels = retrieveImages(convertToGL(type), NO_CUBE_FACE);
 
-  if (!checkGL("OpenGL error during creation of texture \'%s\' of format \'%s\'",
+  if (!checkGL("OpenGL error during creation of texture \'%s\'",
                getPath().asString().c_str(),
                format.asString().c_str()))
   {
@@ -715,9 +712,8 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
   {
     if (!source.isPOT())
     {
-      logError("Source images for texture \'%s\' do not have POT dimensions",
+      logWarning("Texture \'%s\' does not have power-of-two dimensions; this may cause slowdown",
                getPath().asString().c_str());
-      return false;
     }
 
     if (!source.isSquare())
@@ -734,23 +730,9 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
       return false;
     }
 
-    sourceWidth = source.images[0]->getWidth();
-    sourceHeight = source.images[0]->getHeight();
-    sourceDepth = 1;
-
-    const unsigned int maxSize = context.getLimits().getMaxTextureCubeSize();
-
-    if (sourceWidth > maxSize)
-    {
-      logError("Source images for texture \'%s\' are too large; maximum size is %ux%u",
-               getPath().asString().c_str(),
-               maxSize, maxSize);
-      return false;
-    }
-
-    width = sourceWidth;
-    height = sourceHeight;
-    depth = sourceDepth;
+    width = source.images[0]->getWidth();
+    height = source.images[0]->getHeight();
+    depth = 1;
   }
 
   // Check image formats
@@ -794,6 +776,19 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
 
   type = TEXTURE_CUBE;
 
+  glTexImage2D(convertToProxyGL(type),
+               0,
+               convertToGL(format),
+               width,
+               height,
+               0,
+               convertToGL(format.getSemantic()),
+               convertToGL(format.getType()),
+               NULL);
+
+  if (!validateProxy())
+    return false;
+
   glGenTextures(1, &textureID);
 
   context.setCurrentTexture(this);
@@ -818,10 +813,29 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
   for (unsigned int i = 0;  i < 6;  i++)
     levels = retrieveImages(convertToGL(CubeFace(i)), CubeFace(i));
 
-  if (!checkGL("OpenGL error during creation of texture \'%s\' of format \'%s\'",
+  if (!checkGL("OpenGL error during creation of texture \'%s\'",
                getPath().asString().c_str(),
                format.asString().c_str()))
   {
+    return false;
+  }
+
+  return true;
+}
+
+bool Texture::validateProxy(void) const
+{
+  int width;
+  glGetTexLevelParameteriv(convertToProxyGL(type), 0, GL_TEXTURE_WIDTH, &width);
+
+  if (width == 0)
+  {
+    logError("Cannot create texture \'%s\' type \'%s\' size %ux%ux%u format \'%s\'",
+              getPath().asString().c_str(),
+              asString(type),
+              width, height, depth,
+              format.asString().c_str());
+
     return false;
   }
 
