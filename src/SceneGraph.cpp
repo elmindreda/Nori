@@ -166,16 +166,6 @@ void Node::setVisible(bool enabled)
   visible = enabled;
 }
 
-Transform3& Node::getLocalTransform(void)
-{
-  dirtyWorld = true;
-
-  if (parent)
-    parent->invalidateBounds();
-
-  return local;
-}
-
 const Transform3& Node::getLocalTransform(void) const
 {
   return local;
@@ -184,6 +174,26 @@ const Transform3& Node::getLocalTransform(void) const
 void Node::setLocalTransform(const Transform3& newTransform)
 {
   local = newTransform;
+
+  if (parent)
+    parent->invalidateBounds();
+
+  dirtyWorld = true;
+}
+
+void Node::setLocalPosition(const vec3& newPosition)
+{
+  local.position = newPosition;
+
+  if (parent)
+    parent->invalidateBounds();
+
+  dirtyWorld = true;
+}
+
+void Node::setLocalRotation(const quat& newRotation)
+{
+  local.rotation = newRotation;
 
   if (parent)
     parent->invalidateBounds();

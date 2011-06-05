@@ -103,13 +103,12 @@ public:
   void setVisible(bool enabled);
   /*! @return The local-to-parent transform of this scene node.
    */
-  Transform3& getLocalTransform(void);
-  /*! @return The local-to-parent transform of this scene node.
-   */
   const Transform3& getLocalTransform(void) const;
   /*! Sets the local-to-parent transform of this scene node.
    */
   void setLocalTransform(const Transform3& newTransform);
+  void setLocalPosition(const vec3& newPosition);
+  void setLocalRotation(const quat& newRotation);
   /*! @return The local-to-world transform of this scene node.
    */
   const Transform3& getWorldTransform(void) const;
