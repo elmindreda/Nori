@@ -36,20 +36,6 @@ namespace wendy
 class Image : public Resource
 {
 public:
-  /*! Sampling method enumeration for image magnification.
-   */
-  enum Method
-  {
-    /*! Use nearest-neighbour sampling.
-     */
-    SAMPLE_NEAREST,
-    /*! Use bilinear sampling.
-     */
-    SAMPLE_LINEAR,
-    /*! Default sampling method.
-     */
-    SAMPLE_DEFAULT = SAMPLE_LINEAR,
-  };
   /*! Constructor.
    *  @param[in] info The resource information for this image.
    *  @param[in] format The desired format of the image.
@@ -74,14 +60,6 @@ public:
   /*! Copy constructor.
    */
   Image(const Image& source);
-  /*! Changes the size of this image, resampling its pixel data using the
-   *  specified filter method.
-   *  @return @c true if successful, otherwise @c false.
-   */
-  bool resize(unsigned int newWidth,
-              unsigned int newHeight,
-              unsigned int newDepth,
-              Method method = SAMPLE_DEFAULT);
   /*! Transforms the contents of this image to the specified pixel format using
    *  the specified pixel transform.
    *  @param[in] targetFormat The desired pixel format.
