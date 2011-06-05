@@ -40,6 +40,8 @@
 #include <cstdarg>
 #include <cstring>
 
+#include <glm/gtx/bit.hpp>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -96,16 +98,6 @@ unsigned int findEndY(const Image& image)
   }
 
   return endY;
-}
-
-unsigned int getNextPower(unsigned int value)
-{
-  unsigned int count = 0;
-
-  while (value >>= 1)
-    count++;
-
-  return 1 << (count + 1);
 }
 
 const unsigned int FONT_XML_VERSION = 1;
@@ -362,14 +354,14 @@ bool Font::init(const FontData& data)
     for (size_t i = 0;  i < data.glyphs.size();  i++)
       totalWidth += data.glyphs[i].image->getWidth() + 1;
 
-    unsigned int textureWidth = min(getNextPower(totalWidth), maxSize);
+    unsigned int textureWidth = min(powerOfTwoAbove(totalWidth), maxSize);
 
     unsigned int rows = totalWidth / textureWidth;
     if (totalWidth % textureWidth)
       rows++;
 
     unsigned int textureHeight = (maxHeight + 1) * rows + 1;
-    textureHeight = min(getNextPower(textureHeight), maxSize);
+    textureHeight = min(powerOfTwoAbove(textureHeight), maxSize);
 
     Image image(getIndex(), PixelFormat::R8, textureWidth, textureHeight);
 
