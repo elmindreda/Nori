@@ -140,6 +140,13 @@ bool Context::init(void)
     return false;
   }
 
+  log("OpenAL context version %s created",
+      (const char*) alGetString(AL_VERSION));
+
+  log("OpenAL context renderer is %s by %s",
+      (const char*) alGetString(AL_RENDERER),
+      (const char*) alGetString(AL_VENDOR));
+
   alListenerfv(AL_POSITION, value_ptr(listenerPosition));
   alListenerfv(AL_VELOCITY, value_ptr(listenerVelocity));
 
