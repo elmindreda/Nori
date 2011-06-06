@@ -38,6 +38,12 @@ namespace wendy
 class Source : public RefObject
 {
 public:
+  enum State
+  {
+    STARTED,
+    PAUSED,
+    STOPPED,
+  };
   ~Source(void);
   void start(void);
   void stop(void);
@@ -45,12 +51,18 @@ public:
   void resume(void);
   bool isStarted(void) const;
   bool isPaused(void) const;
+  bool isStopped(void) const;
   bool isLooping(void) const;
+  State getState(void) const;
   void setLooping(bool newState);
   const vec3& getPosition(void) const;
   void setPosition(const vec3& newPosition);
   const vec3& getVelocity(void) const;
   void setVelocity(const vec3& newVelocity);
+  float getGain(void) const;
+  void setGain(float newGain);
+  float getPitch(void) const;
+  void setPitch(float newPitch);
   Buffer* getBuffer(void) const;
   void setBuffer(Buffer* newBuffer);
   Context& getContext(void) const;
@@ -62,11 +74,11 @@ private:
   Source& operator = (const Source& source);
   Context& context;
   unsigned int sourceID;
-  bool started;
-  bool paused;
   bool looping;
   vec3 position;
   vec3 velocity;
+  float gain;
+  float pitch;
   Ref<Buffer> buffer;
 };
 

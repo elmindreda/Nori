@@ -49,6 +49,8 @@ public:
   void setListenerPosition(const vec3& newPosition);
   const vec3& getListenerVelocity(void) const;
   void setListenerVelocity(const vec3& newVelocity);
+  const quat& getListenerRotation(void) const;
+  void setListenerRotation(const quat& newRotation);
   float getListenerGain(void) const;
   void setListenerGain(float newGain);
   ResourceIndex& getIndex(void) const;
@@ -63,6 +65,7 @@ private:
   void* context;
   vec3 listenerPosition;
   vec3 listenerVelocity;
+  quat listenerRotation;
   float listenerGain;
 };
 

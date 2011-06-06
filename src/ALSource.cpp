@@ -51,49 +51,53 @@ Source::~Source(void)
 
 void Source::start(void)
 {
-  stop();
-
   alSourcePlay(sourceID);
-  started = true;
+
+#if WENDY_DEBUG
+  checkAL("Failed to start source");
+#endif
 }
 
 void Source::stop(void)
 {
-  if (started)
-  {
-    alSourceStop(sourceID);
+  alSourceStop(sourceID);
 
-    started = false;
-    paused = false;
-  }
+#if WENDY_DEBUG
+  checkAL("Failed to stop source");
+#endif
 }
 
 void Source::pause(void)
 {
-  if (!started || paused)
-    return;
-
   alSourcePause(sourceID);
-  paused = true;
+
+#if WENDY_DEBUG
+  checkAL("Failed to pause source");
+#endif
 }
 
 void Source::resume(void)
 {
-  if (!started || !paused)
-    return;
-
   alSourcePlay(sourceID);
-  paused = false;
+
+#if WENDY_DEBUG
+  checkAL("Failed to resume source");
+#endif
 }
 
 bool Source::isStarted(void) const
 {
-  return started;
+  return getState() == STARTED;
 }
 
 bool Source::isPaused(void) const
 {
-  return paused;
+  return getState() == PAUSED;
+}
+
+bool Source::isStopped(void) const
+{
+  return getState() == STOPPED;
 }
 
 bool Source::isLooping(void) const
@@ -101,12 +105,40 @@ bool Source::isLooping(void) const
   return looping;
 }
 
+Source::State Source::getState(void) const
+{
+  ALenum state;
+  alGetSourcei(sourceID, AL_SOURCE_STATE, &state);
+
+#if WENDY_DEBUG
+  checkAL("Failed to get source state");
+#endif
+
+  switch (state)
+  {
+    case AL_INITIAL:
+    case AL_STOPPED:
+      return STOPPED;
+    case AL_PLAYING:
+      return STARTED;
+    case AL_PAUSED:
+      return PAUSED;
+  }
+
+  logError("Unknown OpenAL source state %u", state);
+  return State(0);
+}
+
 void Source::setLooping(bool newState)
 {
   if (looping != newState)
   {
-    alSourcei(sourceID, AL_LOOPING, newState);
     looping = newState;
+    alSourcei(sourceID, AL_LOOPING, looping);
+
+#if WENDY_DEBUG
+    checkAL("Failed to set source looping state");
+#endif
   }
 }
 
@@ -121,6 +153,10 @@ void Source::setPosition(const vec3& newPosition)
   {
     position = newPosition;
     alSourcefv(sourceID, AL_POSITION, value_ptr(position));
+
+#if WENDY_DEBUG
+    checkAL("Failed to set source position");
+#endif
   }
 }
 
@@ -135,6 +171,10 @@ void Source::setVelocity(const vec3& newVelocity)
   {
     velocity = newVelocity;
     alSourcefv(sourceID, AL_VELOCITY, value_ptr(velocity));
+
+#if WENDY_DEBUG
+    checkAL("Failed to set source velocity");
+#endif
   }
 }
 
@@ -145,12 +185,55 @@ Buffer* Source::getBuffer(void) const
 
 void Source::setBuffer(Buffer* newBuffer)
 {
-  buffer = newBuffer;
+  if (buffer != newBuffer)
+  {
+    buffer = newBuffer;
 
-  if (buffer)
-    alSourcei(sourceID, AL_BUFFER, buffer->bufferID);
-  else
-    alSourcei(sourceID, AL_BUFFER, AL_NONE);
+    if (buffer)
+      alSourcei(sourceID, AL_BUFFER, buffer->bufferID);
+    else
+      alSourcei(sourceID, AL_BUFFER, AL_NONE);
+
+#if WENDY_DEBUG
+    checkAL("Failed to set source buffer");
+#endif
+  }
+}
+
+float Source::getGain(void) const
+{
+  return gain;
+}
+
+void Source::setGain(float newGain)
+{
+  if (gain != newGain)
+  {
+    gain = newGain;
+    alSourcefv(sourceID, AL_GAIN, &gain);
+
+#if WENDY_DEBUG
+    checkAL("Failed to set source gain");
+#endif
+  }
+}
+
+float Source::getPitch(void) const
+{
+  return pitch;
+}
+
+void Source::setPitch(float newPitch)
+{
+  if (pitch != newPitch)
+  {
+    pitch = newPitch;
+    alSourcefv(sourceID, AL_PITCH, &pitch);
+
+#if WENDY_DEBUG
+    checkAL("Failed to set source pitch");
+#endif
+  }
 }
 
 Context& Source::getContext(void) const
@@ -170,9 +253,9 @@ Ref<Source> Source::create(Context& context)
 Source::Source(Context& initContext):
   context(initContext),
   sourceID(0),
-  started(false),
-  paused(false),
-  looping(false)
+  looping(false),
+  gain(1.f),
+  pitch(1.f)
 {
 }
 
@@ -182,10 +265,6 @@ bool Source::init(void)
 
   if (!checkAL("Error during audio buffer creation"))
     return false;
-
-  alSourcei(sourceID, AL_LOOPING, looping);
-  alSourcefv(sourceID, AL_POSITION, value_ptr(position));
-  alSourcefv(sourceID, AL_VELOCITY, value_ptr(velocity));
 
   return true;
 }

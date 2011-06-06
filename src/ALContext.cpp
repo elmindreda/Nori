@@ -63,8 +63,8 @@ void Context::setListenerPosition(const vec3& newPosition)
 {
   if (listenerPosition != newPosition)
   {
-    alListenerfv(AL_POSITION, value_ptr(listenerPosition));
     listenerPosition = newPosition;
+    alListenerfv(AL_POSITION, value_ptr(listenerPosition));
 
 #if WENDY_DEBUG
     checkAL("Failed to set listener position");
@@ -81,11 +81,35 @@ void Context::setListenerVelocity(const vec3& newVelocity)
 {
   if (listenerVelocity != newVelocity)
   {
-    alListenerfv(AL_VELOCITY, value_ptr(listenerVelocity));
     listenerVelocity = newVelocity;
+    alListenerfv(AL_VELOCITY, value_ptr(listenerVelocity));
 
 #if WENDY_DEBUG
     checkAL("Failed to set listener velocity");
+#endif
+  }
+}
+
+const quat& Context::getListenerRotation(void) const
+{
+  return listenerRotation;
+}
+
+void Context::setListenerRotation(const quat& newRotation)
+{
+  if (listenerRotation != newRotation)
+  {
+    listenerRotation = newRotation;
+
+    const vec3 at = newRotation * vec3(0.f, 0.f, -1.f);
+    const vec3 up = newRotation * vec3(0.f, 1.f, 0.f);
+
+    const float orientation[] = { at.x, at.y, at.z, up.x, up.y, up.z };
+
+    alListenerfv(AL_ORIENTATION, orientation);
+
+#if WENDY_DEBUG
+    checkAL("Failed to set listener rotation");
 #endif
   }
 }
@@ -99,8 +123,8 @@ void Context::setListenerGain(float newGain)
 {
   if (listenerGain != newGain)
   {
-    alListenerfv(AL_GAIN, &listenerGain);
     listenerGain = newGain;
+    alListenerfv(AL_GAIN, &listenerGain);
 
 #if WENDY_DEBUG
     checkAL("Failed to set listener gain");
@@ -126,7 +150,8 @@ bool Context::createSingleton(ResourceIndex& index)
 Context::Context(ResourceIndex& initIndex):
   index(initIndex),
   device(NULL),
-  context(NULL)
+  context(NULL),
+  listenerGain(1.f)
 {
 }
 
@@ -164,10 +189,6 @@ bool Context::init(void)
   log("OpenAL context renderer is %s by %s",
       (const char*) alGetString(AL_RENDERER),
       (const char*) alGetString(AL_VENDOR));
-
-  alListenerfv(AL_POSITION, value_ptr(listenerPosition));
-  alListenerfv(AL_VELOCITY, value_ptr(listenerVelocity));
-  alListenerfv(AL_GAIN, &listenerGain);
 
   return true;
 }
