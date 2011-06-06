@@ -49,6 +49,8 @@ public:
   void setListenerPosition(const vec3& newPosition);
   const vec3& getListenerVelocity(void) const;
   void setListenerVelocity(const vec3& newVelocity);
+  float getListenerGain(void) const;
+  void setListenerGain(float newGain);
   ResourceIndex& getIndex(void) const;
   static bool createSingleton(ResourceIndex& index);
 private:
@@ -61,6 +63,7 @@ private:
   void* context;
   vec3 listenerPosition;
   vec3 listenerVelocity;
+  float listenerGain;
 };
 
 ///////////////////////////////////////////////////////////////////////

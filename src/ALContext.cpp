@@ -90,6 +90,24 @@ void Context::setListenerVelocity(const vec3& newVelocity)
   }
 }
 
+float Context::getListenerGain(void) const
+{
+  return listenerGain;
+}
+
+void Context::setListenerGain(float newGain)
+{
+  if (listenerGain != newGain)
+  {
+    alListenerfv(AL_GAIN, &listenerGain);
+    listenerGain = newGain;
+
+#if WENDY_DEBUG
+    checkAL("Failed to set listener gain");
+#endif
+  }
+}
+
 ResourceIndex& Context::getIndex(void) const
 {
   return index;
@@ -149,6 +167,7 @@ bool Context::init(void)
 
   alListenerfv(AL_POSITION, value_ptr(listenerPosition));
   alListenerfv(AL_VELOCITY, value_ptr(listenerVelocity));
+  alListenerfv(AL_GAIN, &listenerGain);
 
   return true;
 }
