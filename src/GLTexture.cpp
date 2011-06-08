@@ -393,6 +393,11 @@ Texture::~Texture(void)
     glDeleteTextures(1, &textureID);
 }
 
+void Texture::generateMipmaps(void)
+{
+  glGenerateMipmapEXT(convertToGL(type));
+}
+
 bool Texture::isPOT(void) const
 {
   return (flags & RECTANGULAR) ? false : true;
@@ -692,6 +697,9 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
                  source.getPixels());
   }
 
+  if (flags & MIPMAPPED)
+    generateMipmaps();
+
   applyDefaults();
 
   levels = retrieveImages(convertToGL(type), NO_CUBE_FACE);
@@ -808,6 +816,9 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
                  image.getPixels());
   }
 
+  if (flags & MIPMAPPED)
+    generateMipmaps();
+
   applyDefaults();
 
   for (unsigned int i = 0;  i < 6;  i++)
@@ -870,10 +881,7 @@ void Texture::applyDefaults(void)
   // Set up filter modes
   {
     if (flags & MIPMAPPED)
-    {
       glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-      glGenerateMipmapEXT(convertToGL(type));
-    }
     else
       glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 

@@ -191,6 +191,9 @@ public:
   /*! Destructor.
    */
   ~Texture(void);
+  /*! Generates mipmaps based on the top-level image.
+   */
+  void generateMipmaps(void);
   /*! @return @c true if this texture's dimensions are power of two, otherwise
    *  @c false.
    */
