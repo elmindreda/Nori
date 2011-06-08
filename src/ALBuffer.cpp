@@ -304,7 +304,7 @@ Ref<Buffer> BufferReader::read(const Path& path)
 
   BufferData data(&samples[0], samples.size(), format, float(info->rate));
 
-  return Buffer::create(ResourceInfo(getIndex(), full), context, data);
+  return Buffer::create(ResourceInfo(getIndex(), path), context, data);
 }
 
 ///////////////////////////////////////////////////////////////////////
