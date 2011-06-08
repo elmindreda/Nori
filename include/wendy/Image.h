@@ -53,7 +53,7 @@ public:
   Image(const ResourceInfo& info,
         const PixelFormat& format,
         unsigned int width,
-        unsigned int height,
+        unsigned int height = 1,
         unsigned int depth = 1,
         const void* data = NULL,
         unsigned int pitch = 0);

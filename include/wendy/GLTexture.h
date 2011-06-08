@@ -126,8 +126,8 @@ public:
    *  @param[in] z The z-coordinate of the area within this image to update.
    */
   bool copyFrom(const wendy::Image& source,
-                unsigned int x,
-                unsigned int y,
+                unsigned int x = 0,
+                unsigned int y = 0,
                 unsigned int z = 0);
   /*! Copies the contents of this texture image to the specified image.
    */
