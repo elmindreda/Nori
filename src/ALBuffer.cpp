@@ -106,7 +106,7 @@ const char* getErrorString(int error)
 BufferData::BufferData(const void* initData,
                        size_t initSize,
                        BufferFormat initFormat,
-                       float initFrequency):
+                       unsigned long initFrequency):
   data(initData),
   size(initSize),
   format(initFormat),
@@ -302,7 +302,7 @@ Ref<Buffer> BufferReader::read(const Path& path)
 
   ov_clear(&file);
 
-  BufferData data(&samples[0], samples.size(), format, float(info->rate));
+  BufferData data(&samples[0], samples.size(), format, info->rate);
 
   return Buffer::create(ResourceInfo(getIndex(), path), context, data);
 }

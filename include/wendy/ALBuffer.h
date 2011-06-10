@@ -56,11 +56,11 @@ enum BufferFormat
 class BufferData
 {
 public:
-  BufferData(const void* data, size_t size, BufferFormat format, float frequency);
+  BufferData(const void* data, size_t size, BufferFormat format, unsigned long frequency);
   const void* data;
   size_t size;
   BufferFormat format;
-  float frequency;
+  unsigned long frequency;
 };
 
 ///////////////////////////////////////////////////////////////////////
