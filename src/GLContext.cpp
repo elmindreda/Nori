@@ -904,6 +904,11 @@ bool Context::update(void)
   return !needsClosing;
 }
 
+void Context::requestClose(void)
+{
+  closeCallback();
+}
+
 void Context::createSharedSampler(const String& name, Sampler::Type type, int ID)
 {
   if (ID == INVALID_SHARED_STATE_ID)

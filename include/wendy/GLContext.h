@@ -461,6 +461,10 @@ public:
    *  Context::refresh is made.
    */
   bool update(void);
+  /*! Emulates a user close request, causing a close request signal to be
+   *  emitted.
+   */
+  void requestClose(void);
   /*! Reserves the specified sampler uniform signature as shared.
    */
   void createSharedSampler(const String& name, Sampler::Type type, int ID);
