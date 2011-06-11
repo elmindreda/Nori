@@ -130,6 +130,7 @@ public:
                                    float aspect,
 	                           float nearZ,
 	                           float farZ);
+  virtual void setTime(float newTime);
 protected:
   virtual void updateTo(GL::Uniform& uniform);
   virtual void updateTo(GL::Sampler& uniform);
@@ -148,6 +149,7 @@ private:
     float FOV;
     vec3 position;
   } camera;
+  float time;
   bool dirtyModelView;
   bool dirtyViewProj;
   bool dirtyModelViewProj;

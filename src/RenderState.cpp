@@ -42,7 +42,8 @@ namespace wendy
 SharedProgramState::SharedProgramState(void):
   dirtyModelView(true),
   dirtyViewProj(true),
-  dirtyModelViewProj(true)
+  dirtyModelViewProj(true),
+  time(0.f)
 {
 }
 
@@ -152,6 +153,11 @@ void SharedProgramState::setCameraProperties(const vec3& position,
   camera.farZ = farZ;
 }
 
+void SharedProgramState::setTime(float newTime)
+{
+  time = newTime;
+}
+
 void SharedProgramState::updateTo(GL::Sampler& sampler)
 {
   logError("Unknown shared sampler uniform \'%s\' requested",
@@ -253,6 +259,12 @@ void SharedProgramState::updateTo(GL::Uniform& uniform)
     case SHARED_CAMERA_FOV:
     {
       uniform.copyFrom(&camera.FOV);
+      return;
+    }
+
+    case SHARED_TIME:
+    {
+      uniform.copyFrom(&time);
       return;
     }
   }
