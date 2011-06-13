@@ -12,10 +12,6 @@
 
 namespace glm
 {
-	namespace test{
-		void main_core_func_noise();
-	}//namespace test
-
 	namespace core{
 	namespace function{
 	// Define all noise functions from Section 8.9 of GLSL 1.30.8 specification. Included in glm namespace.
@@ -24,23 +20,31 @@ namespace glm
 	/// \addtogroup core_funcs
 	///@{
 
-	// Returns a 1D noise value based on the input value x.
-	// From GLSL 1.30.08 specification, section 8.9.
+	//! Returns a 1D noise value based on the input value x.
+    //! 
+    //! \li <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/noise1.xml">GLSL noise1 man page</a>
+	//! \li GLSL 1.30.08 specification, section 8.9
 	template <typename genType>
 	typename genType::value_type noise1(genType const & x);
 
-	// Returns a 2D noise value based on the input value x.
-	// From GLSL 1.30.08 specification, section 8.9.
+	//! Returns a 2D noise value based on the input value x.
+    //! 
+    //! \li <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/noise2.xml">GLSL noise2 man page</a>
+    //! \li GLSL 1.30.08 specification, section 8.9
 	template <typename genType>
 	detail::tvec2<typename genType::value_type> noise2(genType const & x);
 
-	// Returns a 3D noise value based on the input value x.
-	// From GLSL 1.30.08 specification, section 8.9.
+	//! Returns a 3D noise value based on the input value x.
+    //! 
+    //! \li <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/noise3.xml">GLSL noise3 man page</a>
+    //! \li GLSL 1.30.08 specification, section 8.9
 	template <typename genType>
 	detail::tvec3<typename genType::value_type> noise3(genType const & x);
 
-	// Returns a 4D noise value based on the input value x.
-	// From GLSL 1.30.08 specification, section 8.9.
+	//! Returns a 4D noise value based on the input value x.
+    //! 
+    //! \li <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/noise4.xml">GLSL noise4 man page</a>
+    //! \li GLSL 1.30.08 specification, section 8.9
 	template <typename genType>
 	detail::tvec4<typename genType::value_type> noise4(genType const & x);
 

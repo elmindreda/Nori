@@ -22,8 +22,7 @@
 
 namespace glm{
 namespace gtc{
-//! GLM_GTC_matrix_inverse extension: Inverse matrix functions
-namespace matrix_inverse
+namespace matrix_inverse ///< GLM_GTC_matrix_inverse extension: Inverse matrix functions
 {
 	/// \addtogroup gtc_matrix_inverse
 	///@{
@@ -36,7 +35,7 @@ namespace matrix_inverse
 	//! Compute the inverse transpose of a matrix.
 	//! From GLM_GTC_matrix_inverse extension.
 	template <typename genType> 
-	inline typename genType::value_type inverseTranspose(
+	GLM_FUNC_QUALIFIER typename genType::value_type inverseTranspose(
 		genType const & m);
 
 	///@}

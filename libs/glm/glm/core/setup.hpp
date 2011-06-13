@@ -13,16 +13,17 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Version
 
-#define GLM_VERSION					91
+#define GLM_VERSION					92
 #define GLM_VERSION_MAJOR			0
 #define GLM_VERSION_MINOR			9
-#define GLM_VERSION_PATCH			1
-#define GLM_VERSION_REVISION		2
+#define GLM_VERSION_PATCH			2
+#define GLM_VERSION_REVISION		3
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Compiler
 
 // User defines: GLM_FORCE_COMPILER_UNKNOWN
+// TODO ? __llvm__ 
 
 #define GLM_COMPILER_UNKNOWN		0x00000000
 
@@ -41,6 +42,8 @@
 
 // GCC defines
 #define GLM_COMPILER_GCC            0x02000000
+#define GLM_COMPILER_GCC_LLVM       0x02000001
+#define GLM_COMPILER_GCC_CLANG      0x02000002
 #define GLM_COMPILER_GCC30			0x02000010
 #define GLM_COMPILER_GCC31			0x02000020
 #define GLM_COMPILER_GCC32			0x02000030
@@ -63,22 +66,45 @@
 // echo "" | g++ -E -dM -x c++ - | sort
 
 // Borland C++ defines. How to identify BC?
-#define GLM_COMPILER_BC				0x03000000
-#define GLM_COMPILER_BCB4			0x03000100
-#define GLM_COMPILER_BCB5			0x03000200
-#define GLM_COMPILER_BCB6			0x03000300
-//#define GLM_COMPILER_BCBX			0x03000400 // What's the version value?
-#define GLM_COMPILER_BCB2009		0x03000500
-
-#define GLM_MODEL_32				0x00000010
-#define GLM_MODEL_64				0x00000020
+#define GLM_COMPILER_BC				0x04000000
+#define GLM_COMPILER_BCB4			0x04000100
+#define GLM_COMPILER_BCB5			0x04000200
+#define GLM_COMPILER_BCB6			0x04000300
+//#define GLM_COMPILER_BCBX			0x04000400 // What's the version value?
+#define GLM_COMPILER_BCB2009		0x04000500
 
 // CodeWarrior
-#define GLM_COMPILER_CODEWARRIOR	0x04000000
+#define GLM_COMPILER_CODEWARRIOR	0x08000000
+
+// CUDA
+#define GLM_COMPILER_CUDA           0x10000000
+#define GLM_COMPILER_CUDA30			0x10000010
+#define GLM_COMPILER_CUDA31			0x10000020
+#define GLM_COMPILER_CUDA32			0x10000030
+#define GLM_COMPILER_CUDA40			0x10000040
+
+// Clang
+#define GLM_COMPILER_CLANG          0x20000000
+#define GLM_COMPILER_CLANG26		0x20000010
+#define GLM_COMPILER_CLANG27		0x20000020
+#define GLM_COMPILER_CLANG28		0x20000030
+#define GLM_COMPILER_CLANG29		0x20000040
+
+// LLVM GCC
+#define GLM_COMPILER_LLVM_GCC		0x40000000
+
+// Build model
+#define GLM_MODEL_32				0x00000010
+#define GLM_MODEL_64				0x00000020
 
 // Force generic C++ compiler
 #ifdef GLM_FORCE_COMPILER_UNKNOWN
 #		define GLM_COMPILER GLM_COMPILER_UNKNOWN
+
+// CUDA
+#elif defined(__CUDACC__)
+#	define GLM_COMPILER GLM_COMPILER_CUDA
+
 // Visual C++
 #elif defined(_MSC_VER)
 #	if _MSC_VER == 900
@@ -106,7 +132,15 @@
 #	endif//_MSC_VER
 
 // G++
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__llvm__) || defined(__clang__)
+#   if defined (__llvm__)
+#       define GLM_COMPILER_GCC_EXTRA GLM_COMPILER_GCC_LLVM
+#   elif defined (__clang__)
+#       define GLM_COMPILER_GCC_EXTRA GLM_COMPILER_GCC_CLANG
+#   else
+#       define GLM_COMPILER_GCC_EXTRA 0
+#   endif
+#
 #	if   (__GNUC__ == 3) && (__GNUC_MINOR__ == 2)
 #		define GLM_COMPILER GLM_COMPILER_GCC32
 #	elif (__GNUC__ == 3) && (__GNUC_MINOR__ == 3)
@@ -116,29 +150,29 @@
 #	elif (__GNUC__ == 3) && (__GNUC_MINOR__ == 5)
 #		define GLM_COMPILER GLM_COMPILER_GCC35
 #	elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 0)
-#		define GLM_COMPILER GLM_COMPILER_GCC40
+#		define GLM_COMPILER (GLM_COMPILER_GCC40 | GLM_COMPILER_GCC_EXTRA)
 #	elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 1)
-#		define GLM_COMPILER GLM_COMPILER_GCC41
+#		define GLM_COMPILER (GLM_COMPILER_GCC41 | GLM_COMPILER_GCC_EXTRA)
 #	elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 2)
-#		define GLM_COMPILER GLM_COMPILER_GCC42
+#		define GLM_COMPILER (GLM_COMPILER_GCC42 | GLM_COMPILER_GCC_EXTRA)
 #	elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 3)
-#		define GLM_COMPILER GLM_COMPILER_GCC43
+#		define GLM_COMPILER (GLM_COMPILER_GCC43 | GLM_COMPILER_GCC_EXTRA)
 #	elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 4)
-#		define GLM_COMPILER GLM_COMPILER_GCC44
+#		define GLM_COMPILER (GLM_COMPILER_GCC44 | GLM_COMPILER_GCC_EXTRA)
 #	elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 5)
-#		define GLM_COMPILER GLM_COMPILER_GCC45
+#		define GLM_COMPILER (GLM_COMPILER_GCC45 | GLM_COMPILER_GCC_EXTRA)
 #	elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 6)
-#		define GLM_COMPILER GLM_COMPILER_GCC46
+#		define GLM_COMPILER (GLM_COMPILER_GCC46 | GLM_COMPILER_GCC_EXTRA)
 #	elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 7)
-#		define GLM_COMPILER GLM_COMPILER_GCC47
+#		define GLM_COMPILER (GLM_COMPILER_GCC47 | GLM_COMPILER_GCC_EXTRA)
 #	elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 8)
-#		define GLM_COMPILER GLM_COMPILER_GCC48
+#		define GLM_COMPILER (GLM_COMPILER_GCC48 | GLM_COMPILER_GCC_EXTRA)
 #	elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 9)
-#		define GLM_COMPILER GLM_COMPILER_GCC49
+#		define GLM_COMPILER (GLM_COMPILER_GCC49 | GLM_COMPILER_GCC_EXTRA)
 #	elif (__GNUC__ == 5) && (__GNUC_MINOR__ == 0)
-#		define GLM_COMPILER GLM_COMPILER_GCC50
+#		define GLM_COMPILER (GLM_COMPILER_GCC50 | GLM_COMPILER_GCC_EXTRA)
 #	else
-#		define GLM_COMPILER GLM_COMPILER_GCC
+#		define GLM_COMPILER (GLM_COMPILER_GCC | GLM_COMPILER_GCC_EXTRA)
 #	endif
 
 // Borland C++
@@ -170,10 +204,22 @@
 // Report compiler detection
 #if(defined(GLM_MESSAGES) && !defined(GLM_MESSAGE_COMPILER_DISPLAYED))
 #	define GLM_MESSAGE_COMPILER_DISPLAYED
-#	if(GLM_COMPILER & GLM_COMPILER_VC)
+#	if(GLM_COMPILER & GLM_COMPILER_CUDA)
+#		pragma message("GLM: CUDA compiler detected")
+#	elif(GLM_COMPILER & GLM_COMPILER_VC)
 #		pragma message("GLM: Visual C++ compiler detected")
+#	elif(GLM_COMPILER & GLM_COMPILER_CLANG)
+#		pragma message("GLM: Clang compiler detected")
+#	elif(GLM_COMPILER & GLM_COMPILER_LLVM_GCC)
+#		pragma message("GLM: LLVM GCC compiler detected")
 #	elif(GLM_COMPILER & GLM_COMPILER_GCC)
-#		pragma message("GLM: GCC compiler detected")
+#       if(GLM_COMPILER == GLM_COMPILER_GCC_LLVM)
+#           pragma message("GLM: LLVM GCC compiler detected")
+#       elif(GLM_COMPILER == GLM_COMPILER_GCC_CLANG)
+#           pragma message("GLM: CLANG compiler detected")
+#       else
+#           pragma message("GLM: GCC compiler detected")
+#       endif
 #	elif(GLM_COMPILER & GLM_COMPILER_BC)
 #		pragma message("GLM: Borland compiler detected but not supported")
 #	elif(GLM_COMPILER & GLM_COMPILER_CODEWARRIOR)
@@ -283,6 +329,16 @@
 #	else
 #		define GLM_ARCH GLM_ARCH_PURE
 #	endif
+#elif(GLM_COMPILER & GLM_COMPILER_LLVM_GCC)
+#	if(defined(__AVX__))
+#		define GLM_ARCH GLM_ARCH_AVX
+#	elif(defined(__SSE3__))
+#		define GLM_ARCH GLM_ARCH_SSE3
+#	elif(defined(__SSE2__))
+#		define GLM_ARCH GLM_ARCH_SSE2
+#	else
+#		define GLM_ARCH GLM_ARCH_PURE
+#	endif
 #elif((GLM_COMPILER & GLM_COMPILER_GCC) && (defined(__i386__) || defined(__x86_64__)))
 #	if(defined(__AVX__))
 #		define GLM_ARCH GLM_ARCH_AVX
@@ -372,21 +428,38 @@
 #endif//GLM_LANG
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// inline 
+// Qualifiers 
 
-// User defines: GLM_FORCE_INLINE
+// User defines: GLM_FORCE_INLINE GLM_FORCE_CUDA
+
+#if(defined(GLM_FORCE_CUDA) || (GLM_COMPILER & GLM_COMPILER_CUDA))
+#   define GLM_CUDA_FUNC_DEF __device__ __host__ 
+#	define GLM_CUDA_FUNC_DECL __device__ __host__ 
+#else
+#   define GLM_CUDA_FUNC_DEF
+#	define GLM_CUDA_FUNC_DECL
+#endif
+
+#if GLM_COMPILER & GLM_COMPILER_GCC
+#define GLM_VAR_USED __attribute__ ((unused))
+#else
+#define GLM_VAR_USED
+#endif
 
 #if(defined(GLM_FORCE_INLINE))
-#	if((GLM_COMPILER & GLM_COMPILER_VC) && (GLM_COMPILER >= GLM_COMPILER_VC2005))
-#		define GLM_INLINE __forceinline
-#	elif((GLM_COMPILER & GLM_COMPILER_GCC) && (GLM_COMPILER >= GLM_COMPILER_VC2005))
-#		define GLM_INLINE __attribute__((always_inline))
-#	else
-#		define GLM_INLINE inline
-#	endif//GLM_COMPILER
+#   if((GLM_COMPILER & GLM_COMPILER_VC) && (GLM_COMPILER >= GLM_COMPILER_VC2005))
+#       define GLM_INLINE __forceinline
+#   elif((GLM_COMPILER & GLM_COMPILER_GCC) && (GLM_COMPILER >= GLM_COMPILER_GCC34))
+#       define GLM_INLINE __attribute__((always_inline))
+#   else
+#       define GLM_INLINE inline
+#   endif//GLM_COMPILER
 #else
-#	define GLM_INLINE inline
+#   define GLM_INLINE inline
 #endif//defined(GLM_FORCE_INLINE)
+
+#define GLM_FUNC_DECL GLM_CUDA_FUNC_DECL
+#define GLM_FUNC_QUALIFIER GLM_CUDA_FUNC_DEF GLM_INLINE
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Swizzle operators

@@ -18,32 +18,28 @@ namespace detail
 {
 	class thalf;
 
-#if(GLM_COMPILER & GLM_COMPILER_VC)
+#if(__STDC_VERSION__ >= 199901L) // C99 detected, 64 bit types available
+	typedef int64_t								sint64;
+	typedef uint64_t							uint64;
+#elif(GLM_COMPILER & GLM_COMPILER_VC)
 	typedef signed __int64						sint64;
 	typedef unsigned __int64					uint64;
-#elif(GLM_COMPILER & GLM_COMPILER_GCC)
+#elif(GLM_COMPILER & (GLM_COMPILER_GCC | GLM_COMPILER_LLVM_GCC | GLM_COMPILER_CLANG))
 	__extension__ typedef signed long long		sint64;
 	__extension__ typedef unsigned long long	uint64;
-//#	if GLM_MODEL == GLM_MODEL_64
-//		typedef signed long							highp_int_t;
-//		typedef unsigned long						highp_uint_t;
-//#   elif GLM_MODEL == GLM_MODEL_32
-//		__extension__ typedef signed long long		highp_int_t;
-//		__extension__ typedef unsigned long long	highp_uint_t;
-//#	endif//GLM_MODEL
 #elif(GLM_COMPILER & GLM_COMPILER_BC)
 	typedef Int64								sint64;
 	typedef Uint64								uint64;
 #else//unknown compiler
-	typedef signed long							sint64;
-	typedef unsigned long						uint64;
+	typedef signed long	long					sint64;
+	typedef unsigned long long					uint64;
 #endif//GLM_COMPILER
 
 	template<bool C>
 	struct If
 	{
 		template<typename F, typename T>
-		static inline T apply(F functor, const T& val)
+		static GLM_FUNC_QUALIFIER T apply(F functor, const T& val)
 		{
 			return functor(val);
 		}
@@ -53,7 +49,7 @@ namespace detail
 	struct If<false>
 	{
 		template<typename F, typename T>
-		static inline T apply(F, const T& val)
+		static GLM_FUNC_QUALIFIER T apply(F, const T& val)
 		{
 			return val;
 		}
@@ -114,15 +110,15 @@ namespace detail
 
 	union uif32
 	{
-		uif32() :
+		GLM_FUNC_QUALIFIER uif32() :
 			i(0)
 		{}
 
-		uif32(float f) :
+		GLM_FUNC_QUALIFIER uif32(float f) :
 			f(f)
 		{}
 
-		uif32(unsigned int i) :
+		GLM_FUNC_QUALIFIER uif32(unsigned int i) :
 			i(i)
 		{}
 
@@ -132,15 +128,15 @@ namespace detail
 
 	union uif64
 	{
-		uif64() :
+		GLM_FUNC_QUALIFIER uif64() :
 			i(0)
 		{}
 
-		uif64(double f) :
+		GLM_FUNC_QUALIFIER uif64(double f) :
 			f(f)
 		{}
 
-		uif64(uint64 i) :
+		GLM_FUNC_QUALIFIER uif64(uint64 i) :
 			i(i)
 		{}
 
@@ -336,7 +332,7 @@ namespace detail
 #	define GLM_ALIGNED_STRUCT(x) __declspec(align(x)) struct 
 #	define GLM_RESTRICT __declspec(restrict)
 #	define GLM_RESTRICT_VAR __restrict
-#elif((GLM_COMPILER & GLM_COMPILER_GCC) && (GLM_COMPILER >= GLM_COMPILER_GCC31))
+#elif((GLM_COMPILER & (GLM_COMPILER_GCC | GLM_COMPILER_LLVM_GCC)) && (GLM_COMPILER >= GLM_COMPILER_GCC31))
 #	define GLM_DEPRECATED __attribute__((__deprecated__))
 #	define GLM_ALIGN(x) __attribute__((aligned(x)))
 #	define GLM_ALIGNED_STRUCT(x) struct __attribute__((aligned(x)))

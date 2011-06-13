@@ -11,13 +11,13 @@ namespace glm{
 namespace detail
 {
 	template <typename T>
-	inline typename tmat2x2<T>::size_type tmat2x2<T>::col_size()
+	GLM_FUNC_QUALIFIER typename tmat2x2<T>::size_type tmat2x2<T>::col_size()
 	{
 		return 2;
 	}
 
 	template <typename T>
-	inline typename tmat2x2<T>::size_type tmat2x2<T>::row_size()
+	GLM_FUNC_QUALIFIER typename tmat2x2<T>::size_type tmat2x2<T>::row_size()
 	{
 		return 2;
 	}
@@ -26,7 +26,7 @@ namespace detail
 	// Accesses
 
 	template <typename T>
-	inline typename tmat2x2<T>::col_type &
+	GLM_FUNC_QUALIFIER typename tmat2x2<T>::col_type &
 	tmat2x2<T>::operator[]
 	(
 		size_type i
@@ -37,7 +37,7 @@ namespace detail
 	}
 
 	template <typename T>
-	inline typename tmat2x2<T>::col_type const &
+	GLM_FUNC_QUALIFIER typename tmat2x2<T>::col_type const &
 	tmat2x2<T>::operator[]
 	(
 		size_type i
@@ -51,14 +51,14 @@ namespace detail
     // Constructors
 
     template <typename T> 
-    inline tmat2x2<T>::tmat2x2()
+    GLM_FUNC_QUALIFIER tmat2x2<T>::tmat2x2()
     {
 		this->value[0] = col_type(1, 0);
         this->value[1] = col_type(0, 1);
     }
 
     template <typename T> 
-    inline tmat2x2<T>::tmat2x2
+    GLM_FUNC_QUALIFIER tmat2x2<T>::tmat2x2
 	(
 		tmat2x2<T> const & m
 	)
@@ -68,14 +68,14 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T>::tmat2x2
+    GLM_FUNC_QUALIFIER tmat2x2<T>::tmat2x2
 	(
 		ctor
 	)
     {}
 
     template <typename T> 
-	inline tmat2x2<T>::tmat2x2
+	GLM_FUNC_QUALIFIER tmat2x2<T>::tmat2x2
 	(
 		value_type const & s
 	)
@@ -86,7 +86,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T>::tmat2x2
+    GLM_FUNC_QUALIFIER tmat2x2<T>::tmat2x2
 	(
 		value_type const & x0, value_type const & y0, 
 		value_type const & x1, value_type const & y1
@@ -97,7 +97,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T>::tmat2x2
+    GLM_FUNC_QUALIFIER tmat2x2<T>::tmat2x2
 	(
 		col_type const & v0, 
 		col_type const & v1
@@ -107,12 +107,50 @@ namespace detail
         this->value[1] = v1;
     }
 
+	//////////////////////////////////////
+	// Convertion constructors
+	template <typename T> 
+	template <typename U> 
+	GLM_FUNC_DECL tmat2x2<T>::tmat2x2
+	(
+		U const & s
+	)
+	{
+		value_type const Zero(0);
+        this->value[0] = tvec2<T>(value_type(s), Zero);
+        this->value[1] = tvec2<T>(Zero, value_type(s));
+	}
+	
+	template <typename T> 
+	template <typename X1, typename Y1, typename X2, typename Y2> 
+	GLM_FUNC_DECL tmat2x2<T>::tmat2x2
+	(
+		X1 const & x1, Y1 const & y1, 
+		X2 const & x2, Y2 const & y2
+	)		
+	{
+        this->value[0] = col_type(value_type(x1), value_type(y1));
+        this->value[1] = col_type(value_type(x2), value_type(y2));
+	}
+	
+	template <typename T> 
+	template <typename V1, typename V2> 
+	GLM_FUNC_DECL tmat2x2<T>::tmat2x2
+	(
+		tvec2<V1> const & v1, 
+		tvec2<V2> const & v2
+	)		
+	{
+        this->value[0] = col_type(v1);
+        this->value[1] = col_type(v2);
+	}
+
     //////////////////////////////////////////////////////////////
-    // mat2 conversions
+    // mat2x2 matrix conversions
 
     template <typename T> 
     template <typename U> 
-    inline tmat2x2<T>::tmat2x2
+    GLM_FUNC_QUALIFIER tmat2x2<T>::tmat2x2
 	(
 		tmat2x2<U> const & m
 	)
@@ -122,7 +160,7 @@ namespace detail
 	}
 
     template <typename T> 
-    inline tmat2x2<T>::tmat2x2
+    GLM_FUNC_QUALIFIER tmat2x2<T>::tmat2x2
 	(
 		tmat3x3<T> const & m
 	)
@@ -132,7 +170,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T>::tmat2x2
+    GLM_FUNC_QUALIFIER tmat2x2<T>::tmat2x2
 	(
 		tmat4x4<T> const & m
 	)
@@ -142,7 +180,7 @@ namespace detail
     }
 
 	template <typename T> 
-    inline tmat2x2<T>::tmat2x2
+    GLM_FUNC_QUALIFIER tmat2x2<T>::tmat2x2
 	(
 		tmat2x3<T> const & m
 	)
@@ -152,7 +190,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T>::tmat2x2
+    GLM_FUNC_QUALIFIER tmat2x2<T>::tmat2x2
 	(
 		tmat3x2<T> const & m
 	)
@@ -162,7 +200,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T>::tmat2x2
+    GLM_FUNC_QUALIFIER tmat2x2<T>::tmat2x2
 	(
 		tmat2x4<T> const & m
 	)
@@ -172,7 +210,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T>::tmat2x2
+    GLM_FUNC_QUALIFIER tmat2x2<T>::tmat2x2
 	(
 		tmat4x2<T> const & m
 	)
@@ -182,7 +220,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T>::tmat2x2
+    GLM_FUNC_QUALIFIER tmat2x2<T>::tmat2x2
 	(
 		tmat3x4<T> const & m
 	)
@@ -192,7 +230,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T>::tmat2x2
+    GLM_FUNC_QUALIFIER tmat2x2<T>::tmat2x2
 	(
 		tmat4x3<T> const & m
 	)
@@ -202,7 +240,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T> tmat2x2<T>::_inverse() const
+    GLM_FUNC_QUALIFIER tmat2x2<T> tmat2x2<T>::_inverse() const
     {
         typename tmat2x2<T>::value_type Determinant = this->value[0][0] * this->value[1][1] - this->value[1][0] * this->value[0][1];
 
@@ -215,11 +253,11 @@ namespace detail
     }
 
     //////////////////////////////////////////////////////////////
-    // mat3 operators
+    // mat2x2 operators
 
     // This function shouldn't required but it seems that VC7.1 have an optimisation bug if this operator wasn't declared
     template <typename T> 
-    inline tmat2x2<T>& tmat2x2<T>::operator=
+    GLM_FUNC_QUALIFIER tmat2x2<T>& tmat2x2<T>::operator=
 	(
 		tmat2x2<T> const & m
 	)
@@ -231,7 +269,7 @@ namespace detail
 
 	template <typename T> 
 	template <typename U> 
-    inline tmat2x2<T>& tmat2x2<T>::operator=
+    GLM_FUNC_QUALIFIER tmat2x2<T>& tmat2x2<T>::operator=
 	(
 		tmat2x2<U> const & m
 	)
@@ -243,7 +281,7 @@ namespace detail
 
     template <typename T> 
 	template <typename U> 
-    inline tmat2x2<T>& tmat2x2<T>::operator+=
+    GLM_FUNC_QUALIFIER tmat2x2<T>& tmat2x2<T>::operator+=
 	(
 		U const & s
 	)
@@ -255,7 +293,7 @@ namespace detail
 
     template <typename T> 
 	template <typename U> 
-    inline tmat2x2<T>& tmat2x2<T>::operator+=
+    GLM_FUNC_QUALIFIER tmat2x2<T>& tmat2x2<T>::operator+=
 	(
 		tmat2x2<U> const & m
 	)
@@ -267,7 +305,7 @@ namespace detail
 
     template <typename T> 
 	template <typename U> 
-    inline tmat2x2<T>& tmat2x2<T>::operator-=
+    GLM_FUNC_QUALIFIER tmat2x2<T>& tmat2x2<T>::operator-=
 	(
 		U const & s
 	)
@@ -279,7 +317,7 @@ namespace detail
 
     template <typename T> 
 	template <typename U> 
-    inline tmat2x2<T>& tmat2x2<T>::operator-=
+    GLM_FUNC_QUALIFIER tmat2x2<T>& tmat2x2<T>::operator-=
 	(
 		tmat2x2<U> const & m
 	)
@@ -291,7 +329,7 @@ namespace detail
 
     template <typename T> 
 	template <typename U> 
-    inline tmat2x2<T>& tmat2x2<T>::operator*= 
+    GLM_FUNC_QUALIFIER tmat2x2<T>& tmat2x2<T>::operator*= 
 	(
 		U const & s
 	)
@@ -303,7 +341,7 @@ namespace detail
 
     template <typename T> 
 	template <typename U> 
-    inline tmat2x2<T>& tmat2x2<T>::operator*= 
+    GLM_FUNC_QUALIFIER tmat2x2<T>& tmat2x2<T>::operator*= 
 	(
 		tmat2x2<U> const & m
 	)
@@ -313,7 +351,7 @@ namespace detail
 
     template <typename T> 
 	template <typename U> 
-    inline tmat2x2<T>& tmat2x2<T>::operator/= 
+    GLM_FUNC_QUALIFIER tmat2x2<T>& tmat2x2<T>::operator/= 
 	(
 		U const & s
 	)
@@ -325,7 +363,7 @@ namespace detail
 
     template <typename T> 
 	template <typename U> 
-    inline tmat2x2<T>& tmat2x2<T>::operator/= 
+    GLM_FUNC_QUALIFIER tmat2x2<T>& tmat2x2<T>::operator/= 
 	(
 		tmat2x2<U> const & m
 	)
@@ -334,7 +372,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T>& tmat2x2<T>::operator++ ()
+    GLM_FUNC_QUALIFIER tmat2x2<T>& tmat2x2<T>::operator++ ()
     {
 	    ++this->value[0];
 	    ++this->value[1];
@@ -342,7 +380,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T>& tmat2x2<T>::operator-- ()
+    GLM_FUNC_QUALIFIER tmat2x2<T>& tmat2x2<T>::operator-- ()
     {
 	    --this->value[0];
 	    --this->value[1];
@@ -353,7 +391,7 @@ namespace detail
 	// Binary operators
 
     template <typename T> 
-    inline tmat2x2<T> operator+ 
+    GLM_FUNC_QUALIFIER tmat2x2<T> operator+ 
 	(
 		tmat2x2<T> const & m, 
 		typename tmat2x2<T>::value_type const & s
@@ -365,7 +403,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T> operator+ 
+    GLM_FUNC_QUALIFIER tmat2x2<T> operator+ 
 	(
 		typename tmat2x2<T>::value_type const & s, 
 		tmat2x2<T> const & m
@@ -377,7 +415,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T> operator+ 
+    GLM_FUNC_QUALIFIER tmat2x2<T> operator+ 
 	(
 		tmat2x2<T> const & m1, 
 		tmat2x2<T> const & m2
@@ -389,7 +427,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T> operator- 
+    GLM_FUNC_QUALIFIER tmat2x2<T> operator- 
 	(
 		tmat2x2<T> const & m, 
 		typename tmat2x2<T>::value_type const & s
@@ -401,7 +439,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T> operator- 
+    GLM_FUNC_QUALIFIER tmat2x2<T> operator- 
 	(
 		typename tmat2x2<T>::value_type const & s, 
 		tmat2x2<T> const & m
@@ -413,7 +451,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T> operator- 
+    GLM_FUNC_QUALIFIER tmat2x2<T> operator- 
 	(
 		tmat2x2<T> const & m1, 
 		tmat2x2<T> const & m2
@@ -425,7 +463,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T> operator* 
+    GLM_FUNC_QUALIFIER tmat2x2<T> operator* 
 	(
 		tmat2x2<T> const & m, 
 		typename tmat2x2<T>::value_type const & s
@@ -441,7 +479,7 @@ namespace detail
 	// X X
 	// X X
     template <typename T> 
-    inline tmat2x2<T> operator* 
+    GLM_FUNC_QUALIFIER tmat2x2<T> operator* 
 	(	
 		typename tmat2x2<T>::value_type const & s, 
 		tmat2x2<T> const & m
@@ -453,7 +491,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline typename tmat2x2<T>::col_type operator* 
+    GLM_FUNC_QUALIFIER typename tmat2x2<T>::col_type operator* 
 	(
 		tmat2x2<T> const & m, 
 		typename tmat2x2<T>::row_type const & v
@@ -468,7 +506,7 @@ namespace detail
 	//		X X
 	// X X 
     template <typename T> 
-    inline typename tmat2x2<T>::row_type operator* 
+    GLM_FUNC_QUALIFIER typename tmat2x2<T>::row_type operator* 
 	(
 		typename tmat2x2<T>::col_type const & v, 
 		tmat2x2<T> const & m
@@ -480,7 +518,7 @@ namespace detail
     }
 
 	template <typename T>
-	inline tmat2x2<T> operator* 
+	GLM_FUNC_QUALIFIER tmat2x2<T> operator* 
 	(
 		tmat2x2<T> const & m1, 
 		tmat2x2<T> const & m2
@@ -494,7 +532,7 @@ namespace detail
 	}
 
     template <typename T> 
-    inline tmat2x2<T> operator/ 
+    GLM_FUNC_QUALIFIER tmat2x2<T> operator/ 
 	(
 		tmat2x2<T> const & m, 
 		typename tmat2x2<T>::value_type const & s
@@ -506,7 +544,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T> operator/ 
+    GLM_FUNC_QUALIFIER tmat2x2<T> operator/ 
 	(
 		typename tmat2x2<T>::value_type const & s, 
 		tmat2x2<T> const & m
@@ -518,7 +556,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline typename tmat2x2<T>::col_type operator/ 
+    GLM_FUNC_QUALIFIER typename tmat2x2<T>::col_type operator/ 
 	(
 		tmat2x2<T> const & m, 
 		typename tmat2x2<T>::row_type & v
@@ -528,7 +566,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline typename tmat2x2<T>::row_type operator/ 
+    GLM_FUNC_QUALIFIER typename tmat2x2<T>::row_type operator/ 
 	(
 		typename tmat2x2<T>::col_type const & v,
 		tmat2x2<T> const & m
@@ -538,7 +576,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T> operator/ 
+    GLM_FUNC_QUALIFIER tmat2x2<T> operator/ 
 	(
 		tmat2x2<T> const & m1, 
 		tmat2x2<T> const & m2
@@ -549,7 +587,7 @@ namespace detail
 
 	// Unary constant operators
     template <typename T> 
-    inline tmat2x2<T> const operator- 
+    GLM_FUNC_QUALIFIER tmat2x2<T> const operator- 
 	(
 		tmat2x2<T> const & m
 	)
@@ -560,7 +598,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T> const operator++ 
+    GLM_FUNC_QUALIFIER tmat2x2<T> const operator++ 
 	(
 		tmat2x2<T> const & m, 
 		int
@@ -572,7 +610,7 @@ namespace detail
     }
 
     template <typename T> 
-    inline tmat2x2<T> const operator-- 
+    GLM_FUNC_QUALIFIER tmat2x2<T> const operator-- 
 	(
 		tmat2x2<T> const & m, 
 		int
@@ -587,7 +625,7 @@ namespace detail
 	// Boolean operators
 
 	template <typename T> 
-	inline bool operator==
+	GLM_FUNC_QUALIFIER bool operator==
 	(
 		tmat2x2<T> const & m1, 
 		tmat2x2<T> const & m2
@@ -597,7 +635,7 @@ namespace detail
 	}
 
 	template <typename T> 
-	inline bool operator!=
+	GLM_FUNC_QUALIFIER bool operator!=
 	(
 		tmat2x2<T> const & m1, 
 		tmat2x2<T> const & m2

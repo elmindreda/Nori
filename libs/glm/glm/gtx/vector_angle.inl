@@ -12,7 +12,7 @@ namespace gtx{
 namespace vector_angle{
 
 template <typename genType> 
-inline typename genType::value_type angle
+GLM_FUNC_QUALIFIER typename genType::value_type angle
 (
 	genType const & x, 
 	genType const & y
@@ -23,100 +23,34 @@ inline typename genType::value_type angle
 
 //! \todo epsilon is hard coded to 0.01
 template <typename valType> 
-inline valType orientedAngle
+GLM_FUNC_QUALIFIER valType orientedAngle
 (
 	detail::tvec2<valType> const & x, 
 	detail::tvec2<valType> const & y
 )
 {
-    valType Angle = acos(dot(x, y));
-    valType c = cos(Angle);
-    valType s = sin(Angle);
-    detail::tvec2<valType> TransformedVector = detail::tvec2<valType>(c * y.x - s * y.y, s * y.x + c * y.y);
-    if(all(equalEpsilon(x, TransformedVector, valType(0.01))))
-		return -glm::degrees(Angle);
+    valType Angle = glm::degrees(acos(dot(x, y)));
+	detail::tvec2<valType> TransformedVector = glm::gtx::rotate_vector::rotate(x, Angle);
+    if(all(equalEpsilon(y, TransformedVector, valType(0.01))))
+		return Angle;
     else
-        return glm::degrees(Angle);
-}
-
-//! \todo epsilon is hard coded to 0.01
-template <typename valType> 
-inline valType orientedAngle
-(
-	detail::tvec3<valType> const & x, 
-	detail::tvec3<valType> const & y
-)
-{
-    valType Angle = degrees(acos(dot(x, y)));
-	detail::tvec3<valType> TransformedVector = glm::gtx::rotate_vector::rotate(y, Angle, glm::core::function::geometric::cross(x, y));
-    if(all(equalEpsilon(x, TransformedVector, valType(0.01))))
-		return -Angle;
-    else
-	   return Angle;
-}
-
-//! \todo epsilon is hard coded to 0.01
-template <typename valType>
-inline valType orientedAngle
-(
-	detail::tvec4<valType> const & x, 
-	detail::tvec4<valType> const & y
-)
-{
-    valType Angle = degrees(acos(dot(x, y)));
-    detail::tvec4<valType> TransformedVector = glm::gtx::rotate_vector::rotate(y, Angle, glm::core::function::geometric::cross(x, y));
-    if(all(equalEpsilon(x, TransformedVector, valType(0.01))))
         return -Angle;
-    else
-        return Angle;
 }
 
 template <typename valType>
-inline valType orientedAngleFromRef
-(
-    detail::tvec2<valType> const & x,
-    detail::tvec2<valType> const & y,
-	detail::tvec3<valType> const & ref
-)
-{
-	valType Angle = glm::acos(glm::dot(x, y));
-
-	if(glm::dot(ref, detail::tvec3<valType>(glm::cross(x, y), valType(0))) < valType(0))
-		return -glm::degrees(Angle);
-	else
-		return glm::degrees(Angle);
-}
-
-template <typename valType>
-inline valType orientedAngleFromRef
+GLM_FUNC_QUALIFIER valType orientedAngle
 (
 	detail::tvec3<valType> const & x,
 	detail::tvec3<valType> const & y,
 	detail::tvec3<valType> const & ref
 )
 {
-	valType Angle = glm::acos(glm::dot(x, y));
+	valType Angle = glm::degrees(glm::acos(glm::dot(x, y)));
 
 	if(glm::dot(ref, glm::cross(x, y)) < valType(0))
-		return -glm::degrees(Angle);
+		return -Angle;
 	else
-		return glm::degrees(Angle);
-}
-
-template <typename valType>
-inline valType orientedAngleFromRef
-(
-	detail::tvec4<valType> const & x,
-	detail::tvec4<valType> const & y,
-	detail::tvec3<valType> const & ref
-)
-{
-	valType Angle = glm::acos(glm::dot(x, y));
-
-	if(glm::dot(ref, glm::cross(detail::tvec3<valType>(x), detail::tvec3<valType>(y))) < valType(0))
-		return -glm::degrees(Angle);
-	else
-		return glm::degrees(Angle);
+		return Angle;
 }
 
 }//namespace vector_angle

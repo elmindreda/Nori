@@ -14,7 +14,7 @@ namespace gtx{
 namespace quaternion
 {
     template <typename valType> 
-    inline detail::tvec3<valType> cross
+    GLM_FUNC_QUALIFIER detail::tvec3<valType> cross
 	(
 		detail::tvec3<valType> const & v, 
 		detail::tquat<valType> const & q
@@ -24,7 +24,7 @@ namespace quaternion
     }
 
 	template <typename valType> 
-    inline detail::tvec3<valType> cross
+    GLM_FUNC_QUALIFIER detail::tvec3<valType> cross
 	(
 		detail::tquat<valType> const & q, 
 		detail::tvec3<valType> const & v
@@ -34,7 +34,7 @@ namespace quaternion
     }
 
     template <typename T> 
-    inline detail::tquat<T> squad
+    GLM_FUNC_QUALIFIER detail::tquat<T> squad
 	(
 		detail::tquat<T> const & q1, 
 		detail::tquat<T> const & q2, 
@@ -46,7 +46,7 @@ namespace quaternion
     }
 
     template <typename T> 
-    inline detail::tquat<T> intermediate
+    GLM_FUNC_QUALIFIER detail::tquat<T> intermediate
 	(
 		detail::tquat<T> const & prev, 
 		detail::tquat<T> const & curr, 
@@ -58,7 +58,7 @@ namespace quaternion
     }
 
     template <typename T> 
-    inline detail::tquat<T> exp
+    GLM_FUNC_QUALIFIER detail::tquat<T> exp
 	(
 		detail::tquat<T> const & q, 
 		T const & exponent
@@ -71,7 +71,7 @@ namespace quaternion
     }
 
     template <typename T> 
-    inline detail::tquat<T> log
+    GLM_FUNC_QUALIFIER detail::tquat<T> log
 	(
 		detail::tquat<T> const & q
 	)
@@ -95,7 +95,7 @@ namespace quaternion
     }
 
     template <typename T> 
-    inline detail::tquat<T> pow
+    GLM_FUNC_QUALIFIER detail::tquat<T> pow
 	(
 		detail::tquat<T> const & x, 
 		T const & y
@@ -114,7 +114,7 @@ namespace quaternion
     }
 
 	//template <typename T> 
-	//inline detail::tquat<T> sqrt
+	//GLM_FUNC_QUALIFIER detail::tquat<T> sqrt
 	//(
 	//	detail::tquat<T> const & q
 	//)
@@ -124,7 +124,7 @@ namespace quaternion
 	//}
 
     template <typename T> 
-    inline detail::tvec3<T> rotate
+    GLM_FUNC_QUALIFIER detail::tvec3<T> rotate
 	(
 		detail::tquat<T> const & q, 
 		detail::tvec3<T> const & v
@@ -134,7 +134,7 @@ namespace quaternion
     }
 
     template <typename T> 
-    inline detail::tvec4<T> rotate
+    GLM_FUNC_QUALIFIER detail::tvec4<T> rotate
 	(
 		detail::tquat<T> const & q, 
 		detail::tvec4<T> const & v
@@ -144,16 +144,16 @@ namespace quaternion
     }
 
     template <typename T> 
-    inline T angle
+    GLM_FUNC_QUALIFIER T angle
 	(
 		detail::tquat<T> const & x
 	)
     {
-        return acos(x.w) * T(2);
+        return glm::degrees(acos(x.w) * T(2));
     }
 
     template <typename T> 
-    inline detail::tvec3<T> axis
+    GLM_FUNC_QUALIFIER detail::tvec3<T> axis
 	(
 		detail::tquat<T> const & x
 	)
@@ -166,7 +166,7 @@ namespace quaternion
     }
 
     template <typename valType> 
-    inline detail::tquat<valType> angleAxis
+    GLM_FUNC_QUALIFIER detail::tquat<valType> angleAxis
 	(
 		valType const & angle, 
 		valType const & x, 
@@ -178,14 +178,13 @@ namespace quaternion
     }
 
     template <typename valType> 
-    inline detail::tquat<valType> angleAxis
+    GLM_FUNC_QUALIFIER detail::tquat<valType> angleAxis
 	(
 		valType const & angle, 
 		detail::tvec3<valType> const & v
 	)
     {
         detail::tquat<valType> result;
-        detail::tvec3<valType> v_normalized = glm::normalize(v);
 
 		valType a = glm::radians(angle);
         valType s = glm::sin(a * valType(0.5));
@@ -198,7 +197,7 @@ namespace quaternion
     }
 
     template <typename T> 
-	inline T extractRealComponent
+	GLM_FUNC_QUALIFIER T extractRealComponent
 	(
 		detail::tquat<T> const & q
 	)
@@ -211,7 +210,7 @@ namespace quaternion
     }
 
 	template <typename valType> 
-	inline valType roll
+	GLM_FUNC_QUALIFIER valType roll
 	(
 		detail::tquat<valType> const & q
 	)
@@ -220,7 +219,7 @@ namespace quaternion
 	}
 
 	template <typename valType> 
-	inline valType pitch
+	GLM_FUNC_QUALIFIER valType pitch
 	(
 		detail::tquat<valType> const & q
 	)
@@ -229,7 +228,7 @@ namespace quaternion
 	}
 
 	template <typename valType> 
-	inline valType yaw
+	GLM_FUNC_QUALIFIER valType yaw
 	(
 		detail::tquat<valType> const & q
 	)
@@ -238,13 +237,66 @@ namespace quaternion
 	}
 
     template <typename valType> 
-    inline detail::tvec3<valType> eularAngles
+    GLM_FUNC_QUALIFIER detail::tvec3<valType> eularAngles
 	(
 		detail::tquat<valType> const & x
 	)
     {
         return detail::tvec3<valType>(pitch(x), yaw(x), roll(x));
     }
+
+    template <typename T>
+    GLM_FUNC_QUALIFIER detail::tquat<T> shortMix
+	(
+		detail::tquat<T> const & x, 
+		detail::tquat<T> const & y, 
+		T const & a
+	)
+    {
+        if(a <= typename detail::tquat<T>::value_type(0)) return x;
+        if(a >= typename detail::tquat<T>::value_type(1)) return y;
+
+		T fCos = dot(x, y);
+        detail::tquat<T> y2(y); //BUG!!! tquat<T> y2;
+		if(fCos < T(0))
+        {
+            y2 = -y;
+            fCos = -fCos;
+        }
+
+        //if(fCos > 1.0f) // problem
+		T k0, k1;
+		if(fCos > T(0.9999))
+        {
+			k0 = T(1) - a;
+			k1 = T(0) + a; //BUG!!! 1.0f + a;
+        }
+        else
+        {
+			T fSin = sqrt(T(1) - fCos * fCos);
+			T fAngle = atan(fSin, fCos);
+			T fOneOverSin = T(1) / fSin;
+			k0 = sin((T(1) - a) * fAngle) * fOneOverSin;
+			k1 = sin((T(0) + a) * fAngle) * fOneOverSin;
+        }
+
+        return detail::tquat<T>(
+            k0 * x.w + k1 * y2.w,
+            k0 * x.x + k1 * y2.x,
+            k0 * x.y + k1 * y2.y,
+            k0 * x.z + k1 * y2.z);
+	}
+
+    template <typename T>
+    GLM_FUNC_QUALIFIER detail::tquat<T> fastMix
+	(
+		detail::tquat<T> const & x, 
+		detail::tquat<T> const & y, 
+		T const & a
+	)
+    {
+		return glm::normalize(x * (T(1) - a) + (y * a));
+	}
 
 }//namespace quaternion
 }//namespace gtx
