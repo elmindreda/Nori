@@ -194,10 +194,22 @@ public:
   /*! Generates mipmaps based on the top-level image.
    */
   void generateMipmaps(void);
+  /*! @return @c true if this texture is one-dimensional, otherwise @c false.
+   */
+  bool is1D(void) const;
+  /*! @return @c true if this texture is two-dimensional, otherwise @c false.
+   */
+  bool is2D(void) const;
+  /*! @return @c true if this texture is three-dimensional, otherwise @c false.
+   */
+  bool is3D(void) const;
   /*! @return @c true if this texture's dimensions are power of two, otherwise
    *  @c false.
    */
   bool isPOT(void) const;
+  /*! @return @c true if this texture is a cubemap, otherwise @c false.
+   */
+  bool isCube(void) const;
   /*! @return @c true if this texture is mipmapped, otherwise @c false.
    */
   bool isMipmapped(void) const;

@@ -183,7 +183,7 @@ bool TextureImage::copyFrom(const wendy::Image& source,
     return false;
   }
 
-  if (texture.type == TEXTURE_1D)
+  if (texture.is1D())
   {
     if (source.getDimensionCount() > 1)
     {
@@ -201,7 +201,7 @@ bool TextureImage::copyFrom(const wendy::Image& source,
                     convertToGL(texture.format.getType()),
 		    source.getPixels());
   }
-  else if (texture.type == TEXTURE_3D)
+  else if (texture.is3D())
   {
     texture.context.setCurrentTexture(&texture);
 
@@ -317,7 +317,7 @@ TextureImage::TextureImage(Texture& initTexture,
 
 void TextureImage::attach(int attachment, unsigned int z)
 {
-  if (texture.type == TEXTURE_1D)
+  if (texture.is1D())
   {
     glFramebufferTexture1DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
@@ -325,7 +325,7 @@ void TextureImage::attach(int attachment, unsigned int z)
                               texture.textureID,
                               level);
   }
-  else if (texture.type == TEXTURE_3D)
+  else if (texture.is3D())
   {
     glFramebufferTexture3DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
@@ -352,7 +352,7 @@ void TextureImage::attach(int attachment, unsigned int z)
 
 void TextureImage::detach(int attachment)
 {
-  if (texture.type == TEXTURE_1D)
+  if (texture.is1D())
   {
     glFramebufferTexture1DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
@@ -360,7 +360,7 @@ void TextureImage::detach(int attachment)
                               0,
                               0);
   }
-  else if (texture.type == TEXTURE_3D)
+  else if (texture.is3D())
   {
     glFramebufferTexture3DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
@@ -396,6 +396,26 @@ Texture::~Texture(void)
 void Texture::generateMipmaps(void)
 {
   glGenerateMipmapEXT(convertToGL(type));
+}
+
+bool Texture::is1D(void) const
+{
+  return type == TEXTURE_1D;
+}
+
+bool Texture::is2D(void) const
+{
+  return type == TEXTURE_2D || TEXTURE_RECT;
+}
+
+bool Texture::is3D(void) const
+{
+  return type == TEXTURE_3D;
+}
+
+bool Texture::isCube(void) const
+{
+  return type == TEXTURE_CUBE;
 }
 
 bool Texture::isPOT(void) const
@@ -501,7 +521,7 @@ const PixelFormat& Texture::getFormat(void) const
 
 TextureImage* Texture::getImage(unsigned int level, CubeFace face)
 {
-  if (type == TEXTURE_CUBE)
+  if (isCube())
     return images[face * levels + level];
   else
     return images[level];
