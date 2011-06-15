@@ -77,11 +77,11 @@ bool Frustum::contains(const AABB& box) const
 
   for (PlaneList::const_iterator p = planes.begin();  p != planes.end();  p++)
   {
-    const vec3 negative(p->normal.x < 0.f ? maxX : minX,
-                        p->normal.y < 0.f ? maxY : minY,
-                        p->normal.z < 0.f ? maxZ : minZ);
+    const vec3 positive((p->normal.x < 0.f) ? minX : maxX,
+                        (p->normal.y < 0.f) ? minY : maxY,
+                        (p->normal.z < 0.f) ? minZ : maxZ);
 
-    if (!p->contains(negative))
+    if (!p->contains(positive))
       return false;
   }
 
@@ -106,11 +106,11 @@ bool Frustum::intersects(const AABB& box) const
 
   for (PlaneList::const_iterator p = planes.begin();  p != planes.end();  p++)
   {
-    const vec3 positive(p->normal.x < 0.f ? minX : maxX,
-                        p->normal.y < 0.f ? minY : maxY,
-                        p->normal.z < 0.f ? minZ : maxZ);
+    const vec3 negative(p->normal.x < 0.f ? maxX : minX,
+                        p->normal.y < 0.f ? maxY : minY,
+                        p->normal.z < 0.f ? maxZ : minZ);
 
-    if (!p->contains(positive))
+    if (!p->contains(negative))
       return false;
   }
 
