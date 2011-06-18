@@ -420,12 +420,12 @@ bool Texture::isCube(void) const
 
 bool Texture::isPOT(void) const
 {
-  return (flags & RECTANGULAR) ? false : true;
+  return isPowerOfTwo(width) && isPowerOfTwo(height) && isPowerOfTwo(depth);
 }
 
-bool Texture::isMipmapped(void) const
+bool Texture::hasMipmaps(void) const
 {
-  return (flags & MIPMAPPED) ? true : false;
+  return levels > 1;
 }
 
 TextureType Texture::getType(void) const
@@ -466,7 +466,7 @@ void Texture::setFilterMode(FilterMode newMode)
 
     glTexParameteri(convertToGL(type),
                     GL_TEXTURE_MIN_FILTER,
-		    convertToGL(newMode, isMipmapped()));
+		    convertToGL(newMode, hasMipmaps()));
     glTexParameteri(convertToGL(type),
                     GL_TEXTURE_MAG_FILTER,
 		    convertToGL(newMode, false));
@@ -566,7 +566,6 @@ Texture::Texture(const ResourceInfo& info, Context& initContext):
   Resource(info),
   context(initContext),
   textureID(0),
-  flags(0),
   width(0),
   height(0),
   depth(0),
@@ -582,7 +581,7 @@ Texture::Texture(const Texture& source):
 {
 }
 
-bool Texture::init(const wendy::Image& source, unsigned int initFlags)
+bool Texture::init(const wendy::Image& source, unsigned int flags)
 {
   format = source.getFormat();
 
@@ -593,8 +592,6 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
              format.asString().c_str());
     return false;
   }
-
-  flags = initFlags;
 
   // Figure out which texture target to use
 
@@ -720,9 +717,9 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   if (flags & MIPMAPPED)
     generateMipmaps();
 
-  applyDefaults();
-
   levels = retrieveImages(convertToGL(type), NO_CUBE_FACE);
+
+  applyDefaults();
 
   if (!checkGL("OpenGL error during creation of texture \'%s\'",
                getPath().asString().c_str(),
@@ -734,9 +731,16 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   return true;
 }
 
-bool Texture::init(const ImageCube& source, unsigned int initFlags)
+bool Texture::init(const ImageCube& source, unsigned int flags)
 {
-  // Check image dimensions
+  if (flags & RECTANGULAR)
+  {
+    logError("Invalid flags for texture \'%s\': cube maps cannot use the rectangular flag",
+              getPath().asString().c_str());
+    return false;
+  }
+
+  // Verify image
   {
     if (!source.isPOT())
     {
@@ -758,13 +762,6 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
       return false;
     }
 
-    width = source.images[0]->getWidth();
-    height = source.images[0]->getHeight();
-    depth = 1;
-  }
-
-  // Check image formats
-  {
     if (!source.hasSameFormat())
     {
       logError("Source images for texture \'%s\' do not have same format",
@@ -782,24 +779,9 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
       return false;
     }
 
-    if (!convertToGL(format.getType()))
-    {
-      logError("Source images for texture \'%s\' have unsupported component type",
-               getPath().asString().c_str());
-      return false;
-    }
-  }
-
-  // Check creation flags
-  {
-    flags = initFlags;
-
-    if (flags & RECTANGULAR)
-    {
-      logError("Invalid flags for texture \'%s\': cube maps cannot be rectangular",
-               getPath().asString().c_str());
-      return false;
-    }
+    width = source.images[0]->getWidth();
+    height = source.images[0]->getHeight();
+    depth = 1;
   }
 
   type = TEXTURE_CUBE;
@@ -839,10 +821,10 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
   if (flags & MIPMAPPED)
     generateMipmaps();
 
-  applyDefaults();
-
   for (unsigned int i = 0;  i < 6;  i++)
     levels = retrieveImages(convertToGL(CubeFace(i)), CubeFace(i));
+
+  applyDefaults();
 
   if (!checkGL("OpenGL error during creation of texture \'%s\'",
                getPath().asString().c_str(),
@@ -900,7 +882,7 @@ void Texture::applyDefaults(void)
 {
   // Set up filter modes
   {
-    if (flags & MIPMAPPED)
+    if (hasMipmaps())
       glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
     else
       glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR);

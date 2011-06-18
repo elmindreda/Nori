@@ -212,7 +212,7 @@ public:
   bool isCube(void) const;
   /*! @return @c true if this texture is mipmapped, otherwise @c false.
    */
-  bool isMipmapped(void) const;
+  bool hasMipmaps(void) const;
   /*! @return The type of this texture.
    */
   TextureType getType(void) const;
@@ -298,7 +298,6 @@ private:
   Context& context;
   TextureType type;
   unsigned int textureID;
-  unsigned int flags;
   unsigned int width;
   unsigned int height;
   unsigned int depth;
