@@ -762,6 +762,10 @@ bool Texture::init(const ImageCube& source, unsigned int flags)
       return false;
     }
 
+    width = source.images[0]->getWidth();
+    height = source.images[0]->getHeight();
+    depth = 1;
+
     if (!source.hasSameFormat())
     {
       logError("Source images for texture \'%s\' do not have same format",
@@ -778,10 +782,6 @@ bool Texture::init(const ImageCube& source, unsigned int flags)
                format.asString().c_str());
       return false;
     }
-
-    width = source.images[0]->getWidth();
-    height = source.images[0]->getHeight();
-    depth = 1;
   }
 
   type = TEXTURE_CUBE;
