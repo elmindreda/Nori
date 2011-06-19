@@ -1321,7 +1321,7 @@ bool Context::init(const ContextMode& initMode)
       glfwOpenWindowHint(GLFW_FSAA_SAMPLES, initMode.samples);
 
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 2);
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 1);
 
     if (!glfwOpenWindow(initMode.width, initMode.height,
                         colorBits / 3, colorBits / 3, colorBits / 3, 0,
