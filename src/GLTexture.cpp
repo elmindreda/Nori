@@ -183,7 +183,7 @@ bool TextureImage::copyFrom(const wendy::Image& source,
     return false;
   }
 
-  if (texture.type == TEXTURE_1D)
+  if (texture.is1D())
   {
     if (source.getDimensionCount() > 1)
     {
@@ -201,7 +201,7 @@ bool TextureImage::copyFrom(const wendy::Image& source,
                     convertToGL(texture.format.getType()),
 		    source.getPixels());
   }
-  else if (texture.type == TEXTURE_3D)
+  else if (texture.is3D())
   {
     texture.context.setCurrentTexture(&texture);
 
@@ -317,7 +317,7 @@ TextureImage::TextureImage(Texture& initTexture,
 
 void TextureImage::attach(int attachment, unsigned int z)
 {
-  if (texture.type == TEXTURE_1D)
+  if (texture.is1D())
   {
     glFramebufferTexture1DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
@@ -325,7 +325,7 @@ void TextureImage::attach(int attachment, unsigned int z)
                               texture.textureID,
                               level);
   }
-  else if (texture.type == TEXTURE_3D)
+  else if (texture.is3D())
   {
     glFramebufferTexture3DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
@@ -352,7 +352,7 @@ void TextureImage::attach(int attachment, unsigned int z)
 
 void TextureImage::detach(int attachment)
 {
-  if (texture.type == TEXTURE_1D)
+  if (texture.is1D())
   {
     glFramebufferTexture1DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
@@ -360,7 +360,7 @@ void TextureImage::detach(int attachment)
                               0,
                               0);
   }
-  else if (texture.type == TEXTURE_3D)
+  else if (texture.is3D())
   {
     glFramebufferTexture3DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
@@ -398,14 +398,34 @@ void Texture::generateMipmaps(void)
   glGenerateMipmapEXT(convertToGL(type));
 }
 
-bool Texture::isPOT(void) const
+bool Texture::is1D(void) const
 {
-  return (flags & RECTANGULAR) ? false : true;
+  return type == TEXTURE_1D;
 }
 
-bool Texture::isMipmapped(void) const
+bool Texture::is2D(void) const
 {
-  return (flags & MIPMAPPED) ? true : false;
+  return type == TEXTURE_2D || TEXTURE_RECT;
+}
+
+bool Texture::is3D(void) const
+{
+  return type == TEXTURE_3D;
+}
+
+bool Texture::isCube(void) const
+{
+  return type == TEXTURE_CUBE;
+}
+
+bool Texture::isPOT(void) const
+{
+  return isPowerOfTwo(width) && isPowerOfTwo(height) && isPowerOfTwo(depth);
+}
+
+bool Texture::hasMipmaps(void) const
+{
+  return levels > 1;
 }
 
 TextureType Texture::getType(void) const
@@ -446,7 +466,7 @@ void Texture::setFilterMode(FilterMode newMode)
 
     glTexParameteri(convertToGL(type),
                     GL_TEXTURE_MIN_FILTER,
-		    convertToGL(newMode, isMipmapped()));
+		    convertToGL(newMode, hasMipmaps()));
     glTexParameteri(convertToGL(type),
                     GL_TEXTURE_MAG_FILTER,
 		    convertToGL(newMode, false));
@@ -501,7 +521,7 @@ const PixelFormat& Texture::getFormat(void) const
 
 TextureImage* Texture::getImage(unsigned int level, CubeFace face)
 {
-  if (type == TEXTURE_CUBE)
+  if (isCube())
     return images[face * levels + level];
   else
     return images[level];
@@ -546,7 +566,6 @@ Texture::Texture(const ResourceInfo& info, Context& initContext):
   Resource(info),
   context(initContext),
   textureID(0),
-  flags(0),
   width(0),
   height(0),
   depth(0),
@@ -562,7 +581,7 @@ Texture::Texture(const Texture& source):
 {
 }
 
-bool Texture::init(const wendy::Image& source, unsigned int initFlags)
+bool Texture::init(const wendy::Image& source, unsigned int flags)
 {
   format = source.getFormat();
 
@@ -573,8 +592,6 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
              format.asString().c_str());
     return false;
   }
-
-  flags = initFlags;
 
   // Figure out which texture target to use
 
@@ -700,9 +717,9 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   if (flags & MIPMAPPED)
     generateMipmaps();
 
-  applyDefaults();
-
   levels = retrieveImages(convertToGL(type), NO_CUBE_FACE);
+
+  applyDefaults();
 
   if (!checkGL("OpenGL error during creation of texture \'%s\'",
                getPath().asString().c_str(),
@@ -714,9 +731,16 @@ bool Texture::init(const wendy::Image& source, unsigned int initFlags)
   return true;
 }
 
-bool Texture::init(const ImageCube& source, unsigned int initFlags)
+bool Texture::init(const ImageCube& source, unsigned int flags)
 {
-  // Check image dimensions
+  if (flags & RECTANGULAR)
+  {
+    logError("Invalid flags for texture \'%s\': cube maps cannot use the rectangular flag",
+              getPath().asString().c_str());
+    return false;
+  }
+
+  // Verify image
   {
     if (!source.isPOT())
     {
@@ -741,10 +765,7 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
     width = source.images[0]->getWidth();
     height = source.images[0]->getHeight();
     depth = 1;
-  }
 
-  // Check image formats
-  {
     if (!source.hasSameFormat())
     {
       logError("Source images for texture \'%s\' do not have same format",
@@ -759,25 +780,6 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
       logError("Source images for texture \'%s\' have unsupported pixel format \'%s\'",
                getPath().asString().c_str(),
                format.asString().c_str());
-      return false;
-    }
-
-    if (!convertToGL(format.getType()))
-    {
-      logError("Source images for texture \'%s\' have unsupported component type",
-               getPath().asString().c_str());
-      return false;
-    }
-  }
-
-  // Check creation flags
-  {
-    flags = initFlags;
-
-    if (flags & RECTANGULAR)
-    {
-      logError("Invalid flags for texture \'%s\': cube maps cannot be rectangular",
-               getPath().asString().c_str());
       return false;
     }
   }
@@ -819,10 +821,10 @@ bool Texture::init(const ImageCube& source, unsigned int initFlags)
   if (flags & MIPMAPPED)
     generateMipmaps();
 
-  applyDefaults();
-
   for (unsigned int i = 0;  i < 6;  i++)
     levels = retrieveImages(convertToGL(CubeFace(i)), CubeFace(i));
+
+  applyDefaults();
 
   if (!checkGL("OpenGL error during creation of texture \'%s\'",
                getPath().asString().c_str(),
@@ -880,7 +882,7 @@ void Texture::applyDefaults(void)
 {
   // Set up filter modes
   {
-    if (flags & MIPMAPPED)
+    if (hasMipmaps())
       glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
     else
       glTexParameteri(convertToGL(type), GL_TEXTURE_MIN_FILTER, GL_LINEAR);

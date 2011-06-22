@@ -4,10 +4,7 @@ Wendy library
 0. Introduction
 ===============
 
-Wendy is a C++ class library for the production of demos and small games.
-For more information about demos and the demoscene, see:
-
-  http://en.wikipedia.org/wiki/Demoscene
+Wendy is a C++ library intended to be useful for the production of small games.
 
 The project website is here:
 
@@ -24,6 +21,9 @@ Wendy is copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 
 Wendy is licensed under the zlib/libpng license.  See `COPYING.txt' for license
 details.  The license is also included at the top of each source file.
+
+Wendy comes bundled with a number of dependencies, each with its own license.
+See the respective `libs/*/COPYING.txt' file for license details.
 
 
 2. Building Wendy
@@ -46,7 +46,23 @@ Wendy comes with internal versions of the following libraries:
   GLFW (http://www.glfw.org/) for OpenGL context, input and window
   GLM (http://glm.g-truc.net/) for vector math and explicitly sized types
 
-Wendy depends on the availability of OpenGL and OpenAL.
+Wendy depends on the availability of OpenGL 2.0 and OpenAL 1.1.
+
+On Debian GNU/Linux based systems, where GLFW also needs Xlib, the following
+packages provide the necessary support:
+
+  xorg-dev
+  libopenal-dev
+  libgl1-mesa-dev
+  libglu1-mesa-dev
+
+Other Linux systems and other Unix-like systems, there will most likely be
+similarly named packages available.
+
+On Mac OS X, OpenGL and OpenAL is already built-in.
+
+On Windows, OpenGL headers and link libraries should be provided by your
+compiler.  For OpenAL, you will need to install the OpenAL SDK.
 
 
 3. Using Wendy

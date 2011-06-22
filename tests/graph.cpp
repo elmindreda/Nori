@@ -72,7 +72,7 @@ bool Demo::init(void)
 
   cameraNode = new scene::CameraNode();
   cameraNode->setCamera(camera);
-  cameraNode->getLocalTransform().position.z = model->getBounds().radius * 3.f;
+  cameraNode->setLocalPosition(vec3(0.f, 0.f, model->getBounds().radius * 3.f));
   graph.addRootNode(*cameraNode);
 
   timer.start();
@@ -89,8 +89,7 @@ void Demo::run(void)
   {
     currentTime = timer.getTime();
 
-    modelNode->getLocalTransform().rotation = angleAxis(degrees(float(currentTime)),
-                                                        vec3(0.f, 1.f, 0.f));
+    modelNode->setLocalRotation(angleAxis(degrees(float(currentTime)), vec3(0.f, 1.f, 0.f)));
 
     graph.update();
 

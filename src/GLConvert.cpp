@@ -86,10 +86,29 @@ GLenum convertToGL(PixelFormat::Type type)
       return GL_UNSIGNED_SHORT;
     case PixelFormat::UINT32:
       return GL_UNSIGNED_INT;
+
     case PixelFormat::FLOAT16:
+    {
+      if (!GLEW_ARB_texture_float || !GLEW_ARB_half_float_pixel)
+      {
+        logError("Half-precision floating point textures not supported; cannot convert pixel format type");
+        return 0;
+      }
+
       return GL_HALF_FLOAT_ARB;
+    }
+
     case PixelFormat::FLOAT32:
+    {
+      if (!GLEW_ARB_texture_float)
+      {
+        logError("Floating point textures not supported; cannot convert pixel format type");
+        return 0;
+      }
+
       return GL_FLOAT;
+    }
+
     default:
       logError("No OpenGL equivalent for pixel format type %u", type);
       return 0;
@@ -165,9 +184,9 @@ GLenum convertToGL(const PixelFormat& format)
 
     case PixelFormat::FLOAT16:
     {
-      if (!GLEW_ARB_texture_float)
+      if (!GLEW_ARB_texture_float || !GLEW_ARB_half_float_pixel)
       {
-        logError("Floating point textures (ARB_texture_float) not supported; cannot convert pixel format");
+        logError("Half-precision floating point textures not supported; cannot convert pixel format");
         return 0;
       }
 
@@ -192,7 +211,7 @@ GLenum convertToGL(const PixelFormat& format)
     {
       if (!GLEW_ARB_texture_float)
       {
-        logError("Floating point textures (ARB_texture_float) not supported; cannot convert pixel format");
+        logError("Floating point textures not supported; cannot convert pixel format");
         return 0;
       }
 

@@ -79,9 +79,8 @@ bool Demo::init(void)
   {
     scene::ModelNode* modelNode = new scene::ModelNode();
     modelNode->setModel(model);
-    modelNode->getLocalTransform().position = position();
-    modelNode->getLocalTransform().rotation = angleAxis(degrees(angle()),
-                                                        normalize(axis()));
+    modelNode->setLocalPosition(position());
+    modelNode->setLocalRotation(angleAxis(degrees(angle()), normalize(axis())));
     rootNode->addChild(*modelNode);
   }
 
@@ -103,7 +102,7 @@ bool Demo::init(void)
   light->setRadius(10.f);
 
   lightNode = new scene::LightNode();
-  lightNode->getLocalTransform().position = vec3(-5.f, 4.f, 0.f);
+  lightNode->setLocalPosition(vec3(-5.f, 4.f, 0.f));
   lightNode->setLight(light);
   graph.addRootNode(*lightNode);
 
@@ -113,7 +112,7 @@ bool Demo::init(void)
   light->setRadius(10.f);
 
   lightNode = new scene::LightNode();
-  lightNode->getLocalTransform().position = vec3(5.f, 4.f, 0.f);
+  lightNode->setLocalPosition(vec3(5.f, 4.f, 0.f));
   lightNode->setLight(light);
   graph.addRootNode(*lightNode);
 
@@ -133,8 +132,8 @@ void Demo::run(void)
   {
     currentTime = timer.getTime();
 
-    rootNode->getLocalTransform().rotation = angleAxis(degrees(float(currentTime)), vec3(0.f, 1.f, 0.f));
-    cameraNode->getLocalTransform() = controller.getTransform();
+    rootNode->setLocalRotation(angleAxis(degrees(float(currentTime)), vec3(0.f, 1.f, 0.f)));
+    cameraNode->setLocalTransform(controller.getTransform());
 
     graph.update();
     graph.enqueue(scene, *camera);
