@@ -166,7 +166,7 @@ float Reader::readFloat(const String& name, float defaultValue)
 
   errno = 0;
 
-  float value = strtof(stringValue, NULL);
+  float value = float(std::strtod(stringValue, NULL));
   if (errno == EINVAL)
     return defaultValue;
 

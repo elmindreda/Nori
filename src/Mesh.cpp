@@ -684,7 +684,7 @@ float MeshReader::parseFloat(const char** text)
 {
   char* end;
 
-  const float result = strtof(*text, &end);
+  const float result = float(std::strtod(*text, &end));
   if (end == *text)
     throw Exception("Expected but missing float value in OBJ file");
 
