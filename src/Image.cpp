@@ -663,7 +663,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
   png_infop info = png_create_info_struct(context);
   if (!info)
   {
-    png_destroy_write_struct(&context, png_infopp_NULL);
+    png_destroy_write_struct(&context, png_infopp(NULL));
     logError("Unable to create info struct");
     return false;
   }
