@@ -262,7 +262,7 @@ void List::onButtonClicked(Widget& widget,
 			   input::Button button,
 			   bool clicked)
 {
-  if (!clicked || button != input::Button::LEFT)
+  if (!clicked || button != input::BUTTON_LEFT)
     return;
 
   vec2 localPosition = transformToLocal(position);
@@ -293,26 +293,26 @@ void List::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 
   switch (key)
   {
-    case input::Key::UP:
+    case input::KEY_UP:
     {
       if (selection > 0)
 	setSelection(selection - 1, true);
       break;
     }
 
-    case input::Key::DOWN:
+    case input::KEY_DOWN:
     {
       setSelection(selection + 1, true);
       break;
     }
 
-    case input::Key::HOME:
+    case input::KEY_HOME:
     {
       setSelection(0, true);
       break;
     }
 
-    case input::Key::END:
+    case input::KEY_END:
     {
       if (!items.empty())
 	setSelection(items.size() - 1, true);

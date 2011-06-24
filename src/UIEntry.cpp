@@ -162,7 +162,7 @@ void Entry::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 
   switch (key)
   {
-    case input::Key::BACKSPACE:
+    case input::KEY_BACKSPACE:
     {
       if (!text.empty() && caretPosition > 0)
       {
@@ -174,7 +174,7 @@ void Entry::onKeyPressed(Widget& widget, input::Key key, bool pressed)
       break;
     }
 
-    case input::Key::DELETE:
+    case input::KEY_DELETE:
     {
       if (!text.empty() && caretPosition < text.length())
       {
@@ -185,26 +185,26 @@ void Entry::onKeyPressed(Widget& widget, input::Key key, bool pressed)
       break;
     }
 
-    case input::Key::LEFT:
+    case input::KEY_LEFT:
     {
       if (caretPosition > 0)
 	setCaretPosition(caretPosition - 1, true);
       break;
     }
 
-    case input::Key::RIGHT:
+    case input::KEY_RIGHT:
     {
       setCaretPosition(caretPosition + 1, true);
       break;
     }
 
-    case input::Key::HOME:
+    case input::KEY_HOME:
     {
       setCaretPosition(0, true);
       break;
     }
 
-    case input::Key::END:
+    case input::KEY_END:
     {
       setCaretPosition(text.length(), true);
       break;

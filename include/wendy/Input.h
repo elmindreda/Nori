@@ -49,46 +49,58 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Input key.
+/*! @brief Keyboard key enumeration.
  *  @ingroup input
- *
- *  Represents a single input key (from a keyboard).
  */
-class Key
+enum Key
 {
-public:
-  enum Symbol
-  {
-    SPACE = 32,
-    ESCAPE = 256, TAB, ENTER, BACKSPACE, INSERT, DELETE,
-    LSHIFT, RSHIFT, LCTRL, RCTRL, LALT, RALT, LSUPER, RSUPER,
-    UP, DOWN, LEFT, RIGHT, PAGEUP, PAGEDOWN, HOME, END,
-    F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
-  };
-  Key(unsigned int symbol);
-  operator unsigned int (void) const;
-private:
-  unsigned int symbol;
+  KEY_SPACE = 32,
+  KEY_ESCAPE = 256,
+  KEY_TAB,
+  KEY_ENTER,
+  KEY_BACKSPACE,
+  KEY_INSERT,
+  KEY_DELETE,
+  KEY_LSHIFT,
+  KEY_RSHIFT,
+  KEY_LCTRL,
+  KEY_RCTRL,
+  KEY_LALT,
+  KEY_RALT,
+  KEY_LSUPER,
+  KEY_RSUPER,
+  KEY_UP,
+  KEY_DOWN,
+  KEY_LEFT,
+  KEY_RIGHT,
+  KEY_PAGEUP,
+  KEY_PAGEDOWN,
+  KEY_HOME,
+  KEY_END,
+  KEY_F1,
+  KEY_F2,
+  KEY_F3,
+  KEY_F4,
+  KEY_F5,
+  KEY_F6,
+  KEY_F7,
+  KEY_F8,
+  KEY_F9,
+  KEY_F10,
+  KEY_F11,
+  KEY_F12,
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/* @brief Mouse button symbol.
+/* @brief Mouse button enumeration.
  * @ingroup input
  */
-class Button
+enum Button
 {
-public:
-  enum Symbol
-  {
-    LEFT,
-    RIGHT,
-    MIDDLE,
-  };
-  Button(unsigned int symbol);
-  operator unsigned int (void) const;
-private:
-  unsigned int symbol;
+  BUTTON_LEFT,
+  BUTTON_RIGHT,
+  BUTTON_MIDDLE,
 };
 
 ///////////////////////////////////////////////////////////////////////

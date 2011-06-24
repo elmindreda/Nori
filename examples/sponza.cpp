@@ -148,11 +148,11 @@ void Demo::onKeyPressed(input::Key key, bool pressed)
 
   switch (key)
   {
-    case input::Key::TAB:
+    case input::KEY_TAB:
       debugging = !debugging;
       break;
 
-    case input::Key::ESCAPE:
+    case input::KEY_ESCAPE:
       quitting = true;
       break;
   }
@@ -163,7 +163,7 @@ void Demo::onButtonClicked(input::Button button, bool clicked)
   if (!clicked)
     return;
 
-  if (button == input::Button::LEFT)
+  if (button == input::BUTTON_LEFT)
   {
     // TODO: Write screenshot to disk
   }

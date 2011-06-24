@@ -283,7 +283,7 @@ void Desktop::onButtonClicked(input::Button button, bool clicked)
 
       // TODO: Allow dragging with any button.
 
-      if (button == input::Button::LEFT && clickedWidget->isDraggable())
+      if (button == input::BUTTON_LEFT && clickedWidget->isDraggable())
 	draggedWidget = clickedWidget;
     }
   }

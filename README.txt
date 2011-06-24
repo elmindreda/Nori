@@ -46,7 +46,7 @@ Wendy comes with internal versions of the following libraries:
   GLFW (http://www.glfw.org/) for OpenGL context, input and window
   GLM (http://glm.g-truc.net/) for vector math and explicitly sized types
 
-Wendy depends on the availability of OpenGL 2.0 and OpenAL 1.1.
+Wendy depends on the availability of OpenGL 2.1 and OpenAL 1.1.
 
 On Debian GNU/Linux based systems, where GLFW also needs Xlib, the following
 packages provide the necessary support:

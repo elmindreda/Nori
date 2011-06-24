@@ -108,8 +108,8 @@ void Button::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 
   switch (key)
   {
-    case input::Key::SPACE:
-    case input::Key::ENTER:
+    case input::KEY_SPACE:
+    case input::KEY_ENTER:
     {
       pushedSignal.emit(*this);
       break;
