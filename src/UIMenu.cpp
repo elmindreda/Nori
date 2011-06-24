@@ -264,7 +264,7 @@ void Menu::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 
   switch (key)
   {
-    case input::Key::UP:
+    case input::KEY_UP:
     {
       if (selection > 0)
 	selection--;
@@ -273,7 +273,7 @@ void Menu::onKeyPressed(Widget& widget, input::Key key, bool pressed)
       break;
     }
 
-    case input::Key::DOWN:
+    case input::KEY_DOWN:
     {
       selection++;
       if (selection == items.size())
@@ -281,7 +281,7 @@ void Menu::onKeyPressed(Widget& widget, input::Key key, bool pressed)
       break;
     }
 
-    case input::Key::ENTER:
+    case input::KEY_ENTER:
     {
       itemSelectedSignal.emit(*this, selection);
       setVisible(false);

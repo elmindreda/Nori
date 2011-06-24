@@ -161,18 +161,18 @@ void Slider::onKeyPressed(Widget& widget, input::Key key, bool pressed)
   {
     switch (key)
     {
-      case input::Key::UP:
-      case input::Key::RIGHT:
+      case input::KEY_UP:
+      case input::KEY_RIGHT:
 	setValue(value + stepSize, true);
 	break;
-      case input::Key::DOWN:
-      case input::Key::LEFT:
+      case input::KEY_DOWN:
+      case input::KEY_LEFT:
 	setValue(value - stepSize, true);
 	break;
-      case input::Key::HOME:
+      case input::KEY_HOME:
 	setValue(minValue, true);
 	break;
-      case input::Key::END:
+      case input::KEY_END:
 	setValue(maxValue, true);
 	break;
     }

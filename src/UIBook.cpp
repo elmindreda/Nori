@@ -244,8 +244,8 @@ void Book::onKeyPressed(Widget& widgeth, input::Key key, bool pressed)
 
   switch (key)
   {
-    case input::Key::TAB:
-    case input::Key::RIGHT:
+    case input::KEY_TAB:
+    case input::KEY_RIGHT:
     {
       if (++i == pages.end())
 	setActivePage(pages.front(), true);
@@ -254,7 +254,7 @@ void Book::onKeyPressed(Widget& widgeth, input::Key key, bool pressed)
       break;
     }
 
-    case input::Key::LEFT:
+    case input::KEY_LEFT:
     {
       if (i == pages.begin())
 	setActivePage(pages.back(), true);

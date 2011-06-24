@@ -175,7 +175,7 @@ void Popup::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 
   switch (key)
   {
-    case input::Key::ENTER:
+    case input::KEY_ENTER:
     {
       display();
       break;

@@ -61,30 +61,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Key::Key(unsigned int initSymbol):
-  symbol(initSymbol)
-{
-}
-
-Key::operator unsigned int (void) const
-{
-  return symbol;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-Button::Button(unsigned int initSymbol):
-  symbol(initSymbol)
-{
-}
-
-Button::operator unsigned int (void) const
-{
-  return symbol;
-}
-
-///////////////////////////////////////////////////////////////////////
-
 Focus::~Focus(void)
 {
 }
@@ -261,80 +237,80 @@ Context::Context(GL::Context& initContext):
 
   if (internalMap.empty())
   {
-    internalMap[Key::SPACE] = GLFW_KEY_SPACE;
-    internalMap[Key::ESCAPE] = GLFW_KEY_ESC;
-    internalMap[Key::TAB] = GLFW_KEY_TAB;
-    internalMap[Key::ENTER] = GLFW_KEY_ENTER;
-    internalMap[Key::BACKSPACE] = GLFW_KEY_BACKSPACE;
-    internalMap[Key::INSERT] = GLFW_KEY_INSERT;
-    internalMap[Key::DELETE] = GLFW_KEY_DEL;
-    internalMap[Key::LSHIFT] = GLFW_KEY_LSHIFT;
-    internalMap[Key::RSHIFT] = GLFW_KEY_RSHIFT;
-    internalMap[Key::LCTRL] = GLFW_KEY_LCTRL;
-    internalMap[Key::RCTRL] = GLFW_KEY_RCTRL;
-    internalMap[Key::LALT] = GLFW_KEY_LALT;
-    internalMap[Key::RALT] = GLFW_KEY_RALT;
-    internalMap[Key::LSUPER] = GLFW_KEY_LSUPER;
-    internalMap[Key::RSUPER] = GLFW_KEY_RSUPER;
-    internalMap[Key::UP] = GLFW_KEY_UP;
-    internalMap[Key::DOWN] = GLFW_KEY_DOWN;
-    internalMap[Key::LEFT] = GLFW_KEY_LEFT;
-    internalMap[Key::RIGHT] = GLFW_KEY_RIGHT;
-    internalMap[Key::PAGEUP] = GLFW_KEY_PAGEUP;
-    internalMap[Key::PAGEDOWN] = GLFW_KEY_PAGEDOWN;
-    internalMap[Key::HOME] = GLFW_KEY_HOME;
-    internalMap[Key::END] = GLFW_KEY_END;
-    internalMap[Key::F1] = GLFW_KEY_F1;
-    internalMap[Key::F2] = GLFW_KEY_F2;
-    internalMap[Key::F3] = GLFW_KEY_F3;
-    internalMap[Key::F4] = GLFW_KEY_F4;
-    internalMap[Key::F5] = GLFW_KEY_F5;
-    internalMap[Key::F6] = GLFW_KEY_F6;
-    internalMap[Key::F7] = GLFW_KEY_F7;
-    internalMap[Key::F8] = GLFW_KEY_F8;
-    internalMap[Key::F9] = GLFW_KEY_F9;
-    internalMap[Key::F10] = GLFW_KEY_F10;
-    internalMap[Key::F11] = GLFW_KEY_F11;
-    internalMap[Key::F12] = GLFW_KEY_F12;
+    internalMap[KEY_SPACE] = GLFW_KEY_SPACE;
+    internalMap[KEY_ESCAPE] = GLFW_KEY_ESC;
+    internalMap[KEY_TAB] = GLFW_KEY_TAB;
+    internalMap[KEY_ENTER] = GLFW_KEY_ENTER;
+    internalMap[KEY_BACKSPACE] = GLFW_KEY_BACKSPACE;
+    internalMap[KEY_INSERT] = GLFW_KEY_INSERT;
+    internalMap[KEY_DELETE] = GLFW_KEY_DEL;
+    internalMap[KEY_LSHIFT] = GLFW_KEY_LSHIFT;
+    internalMap[KEY_RSHIFT] = GLFW_KEY_RSHIFT;
+    internalMap[KEY_LCTRL] = GLFW_KEY_LCTRL;
+    internalMap[KEY_RCTRL] = GLFW_KEY_RCTRL;
+    internalMap[KEY_LALT] = GLFW_KEY_LALT;
+    internalMap[KEY_RALT] = GLFW_KEY_RALT;
+    internalMap[KEY_LSUPER] = GLFW_KEY_LSUPER;
+    internalMap[KEY_RSUPER] = GLFW_KEY_RSUPER;
+    internalMap[KEY_UP] = GLFW_KEY_UP;
+    internalMap[KEY_DOWN] = GLFW_KEY_DOWN;
+    internalMap[KEY_LEFT] = GLFW_KEY_LEFT;
+    internalMap[KEY_RIGHT] = GLFW_KEY_RIGHT;
+    internalMap[KEY_PAGEUP] = GLFW_KEY_PAGEUP;
+    internalMap[KEY_PAGEDOWN] = GLFW_KEY_PAGEDOWN;
+    internalMap[KEY_HOME] = GLFW_KEY_HOME;
+    internalMap[KEY_END] = GLFW_KEY_END;
+    internalMap[KEY_F1] = GLFW_KEY_F1;
+    internalMap[KEY_F2] = GLFW_KEY_F2;
+    internalMap[KEY_F3] = GLFW_KEY_F3;
+    internalMap[KEY_F4] = GLFW_KEY_F4;
+    internalMap[KEY_F5] = GLFW_KEY_F5;
+    internalMap[KEY_F6] = GLFW_KEY_F6;
+    internalMap[KEY_F7] = GLFW_KEY_F7;
+    internalMap[KEY_F8] = GLFW_KEY_F8;
+    internalMap[KEY_F9] = GLFW_KEY_F9;
+    internalMap[KEY_F10] = GLFW_KEY_F10;
+    internalMap[KEY_F11] = GLFW_KEY_F11;
+    internalMap[KEY_F12] = GLFW_KEY_F12;
   }
 
   if (externalMap.empty())
   {
-    externalMap[GLFW_KEY_SPACE] = Key::SPACE;
-    externalMap[GLFW_KEY_ESC] = Key::ESCAPE;
-    externalMap[GLFW_KEY_TAB] = Key::TAB;
-    externalMap[GLFW_KEY_ENTER] = Key::ENTER;
-    externalMap[GLFW_KEY_BACKSPACE] = Key::BACKSPACE;
-    externalMap[GLFW_KEY_INSERT] = Key::INSERT;
-    externalMap[GLFW_KEY_DEL] = Key::DELETE;
-    externalMap[GLFW_KEY_LSHIFT] = Key::LSHIFT;
-    externalMap[GLFW_KEY_RSHIFT] = Key::RSHIFT;
-    externalMap[GLFW_KEY_LCTRL] = Key::LCTRL;
-    externalMap[GLFW_KEY_RCTRL] = Key::RCTRL;
-    externalMap[GLFW_KEY_LALT] = Key::LALT;
-    externalMap[GLFW_KEY_RALT] = Key::RALT;
-    externalMap[GLFW_KEY_LSUPER] = Key::LSUPER;
-    externalMap[GLFW_KEY_RSUPER] = Key::RSUPER;
-    externalMap[GLFW_KEY_UP] = Key::UP;
-    externalMap[GLFW_KEY_DOWN] = Key::DOWN;
-    externalMap[GLFW_KEY_LEFT] = Key::LEFT;
-    externalMap[GLFW_KEY_RIGHT] = Key::RIGHT;
-    externalMap[GLFW_KEY_PAGEUP] = Key::PAGEUP;
-    externalMap[GLFW_KEY_PAGEDOWN] = Key::PAGEDOWN;
-    externalMap[GLFW_KEY_HOME] = Key::HOME;
-    externalMap[GLFW_KEY_END] = Key::END;
-    externalMap[GLFW_KEY_F1] = Key::F1;
-    externalMap[GLFW_KEY_F2] = Key::F2;
-    externalMap[GLFW_KEY_F3] = Key::F3;
-    externalMap[GLFW_KEY_F4] = Key::F4;
-    externalMap[GLFW_KEY_F5] = Key::F5;
-    externalMap[GLFW_KEY_F6] = Key::F6;
-    externalMap[GLFW_KEY_F7] = Key::F7;
-    externalMap[GLFW_KEY_F8] = Key::F8;
-    externalMap[GLFW_KEY_F9] = Key::F9;
-    externalMap[GLFW_KEY_F10] = Key::F10;
-    externalMap[GLFW_KEY_F11] = Key::F11;
-    externalMap[GLFW_KEY_F12] = Key::F12;
+    externalMap[GLFW_KEY_SPACE] = KEY_SPACE;
+    externalMap[GLFW_KEY_ESC] = KEY_ESCAPE;
+    externalMap[GLFW_KEY_TAB] = KEY_TAB;
+    externalMap[GLFW_KEY_ENTER] = KEY_ENTER;
+    externalMap[GLFW_KEY_BACKSPACE] = KEY_BACKSPACE;
+    externalMap[GLFW_KEY_INSERT] = KEY_INSERT;
+    externalMap[GLFW_KEY_DEL] = KEY_DELETE;
+    externalMap[GLFW_KEY_LSHIFT] = KEY_LSHIFT;
+    externalMap[GLFW_KEY_RSHIFT] = KEY_RSHIFT;
+    externalMap[GLFW_KEY_LCTRL] = KEY_LCTRL;
+    externalMap[GLFW_KEY_RCTRL] = KEY_RCTRL;
+    externalMap[GLFW_KEY_LALT] = KEY_LALT;
+    externalMap[GLFW_KEY_RALT] = KEY_RALT;
+    externalMap[GLFW_KEY_LSUPER] = KEY_LSUPER;
+    externalMap[GLFW_KEY_RSUPER] = KEY_RSUPER;
+    externalMap[GLFW_KEY_UP] = KEY_UP;
+    externalMap[GLFW_KEY_DOWN] = KEY_DOWN;
+    externalMap[GLFW_KEY_LEFT] = KEY_LEFT;
+    externalMap[GLFW_KEY_RIGHT] = KEY_RIGHT;
+    externalMap[GLFW_KEY_PAGEUP] = KEY_PAGEUP;
+    externalMap[GLFW_KEY_PAGEDOWN] = KEY_PAGEDOWN;
+    externalMap[GLFW_KEY_HOME] = KEY_HOME;
+    externalMap[GLFW_KEY_END] = KEY_END;
+    externalMap[GLFW_KEY_F1] = KEY_F1;
+    externalMap[GLFW_KEY_F2] = KEY_F2;
+    externalMap[GLFW_KEY_F3] = KEY_F3;
+    externalMap[GLFW_KEY_F4] = KEY_F4;
+    externalMap[GLFW_KEY_F5] = KEY_F5;
+    externalMap[GLFW_KEY_F6] = KEY_F6;
+    externalMap[GLFW_KEY_F7] = KEY_F7;
+    externalMap[GLFW_KEY_F8] = KEY_F8;
+    externalMap[GLFW_KEY_F9] = KEY_F9;
+    externalMap[GLFW_KEY_F10] = KEY_F10;
+    externalMap[GLFW_KEY_F11] = KEY_F11;
+    externalMap[GLFW_KEY_F12] = KEY_F12;
   }
 
   context.getResizedSignal().connect(*this, &Context::sizeCallback);
@@ -384,10 +360,10 @@ void Context::keyboardCallback(int key, int action)
 
   const bool pressed = (action == GLFW_PRESS) ? true : false;
 
-  instance->keyPressedSignal.emit(key, pressed);
+  instance->keyPressedSignal.emit(Key(key), pressed);
 
   if (instance->currentFocus)
-    instance->currentFocus->onKeyPressed(key, pressed);
+    instance->currentFocus->onKeyPressed(Key(key), pressed);
 }
 
 void Context::characterCallback(int character, int action)
@@ -417,10 +393,10 @@ void Context::mouseButtonCallback(int button, int action)
 
   button -= GLFW_MOUSE_BUTTON_1;
 
-  instance->buttonClickedSignal.emit(button, clicked);
+  instance->buttonClickedSignal.emit(Button(button), clicked);
 
   if (instance->currentFocus)
-    instance->currentFocus->onButtonClicked(button, clicked);
+    instance->currentFocus->onButtonClicked(Button(button), clicked);
 }
 
 void Context::mouseWheelCallback(int position)
@@ -458,13 +434,13 @@ void MayaCamera::onButtonClicked(Button button, bool clicked)
   {
     switch (button)
     {
-      case Button::LEFT:
+      case BUTTON_LEFT:
         mode = TUMBLE;
         break;
-      case Button::MIDDLE:
+      case BUTTON_MIDDLE:
         mode = TRACK;
         break;
-      case Button::RIGHT:
+      case BUTTON_RIGHT:
         mode = DOLLY;
         break;
     }
@@ -575,7 +551,7 @@ void SpectatorCamera::onKeyPressed(Key key, bool pressed)
   switch (key)
   {
     case 'W':
-    case Key::UP:
+    case KEY_UP:
     {
       if (pressed)
         directions[FORWARD] = true;
@@ -585,7 +561,7 @@ void SpectatorCamera::onKeyPressed(Key key, bool pressed)
     }
 
     case 'S':
-    case Key::DOWN:
+    case KEY_DOWN:
     {
       if (pressed)
         directions[BACK] = true;
@@ -595,7 +571,7 @@ void SpectatorCamera::onKeyPressed(Key key, bool pressed)
     }
 
     case 'A':
-    case Key::LEFT:
+    case KEY_LEFT:
     {
       if (pressed)
         directions[LEFT] = true;
@@ -605,7 +581,7 @@ void SpectatorCamera::onKeyPressed(Key key, bool pressed)
     }
 
     case 'D':
-    case Key::RIGHT:
+    case KEY_RIGHT:
     {
       if (pressed)
         directions[RIGHT] = true;
@@ -614,8 +590,8 @@ void SpectatorCamera::onKeyPressed(Key key, bool pressed)
       break;
     }
 
-    case Key::LCTRL:
-    case Key::RCTRL:
+    case KEY_LCTRL:
+    case KEY_RCTRL:
     {
       if (pressed)
         directions[DOWN] = true;
@@ -624,8 +600,8 @@ void SpectatorCamera::onKeyPressed(Key key, bool pressed)
       break;
     }
 
-    case Key::LSHIFT:
-    case Key::RSHIFT:
+    case KEY_LSHIFT:
+    case KEY_RSHIFT:
     {
       if (pressed)
         turbo = true;
@@ -638,7 +614,7 @@ void SpectatorCamera::onKeyPressed(Key key, bool pressed)
 
 void SpectatorCamera::onButtonClicked(Button button, bool clicked)
 {
-  if (button == Button::RIGHT)
+  if (button == BUTTON_RIGHT)
   {
     if (clicked)
       directions[UP] = true;
@@ -701,7 +677,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
 {
   switch (key)
   {
-    case input::Key::BACKSPACE:
+    case KEY_BACKSPACE:
     {
       if (!pressed)
         break;
@@ -715,7 +691,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
       break;
     }
 
-    case input::Key::DELETE:
+    case KEY_DELETE:
     {
       if (!pressed)
         break;
@@ -726,7 +702,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
       break;
     }
 
-    case input::Key::LEFT:
+    case KEY_LEFT:
     {
       if (!pressed)
         break;
@@ -736,7 +712,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
       break;
     }
 
-    case input::Key::RIGHT:
+    case KEY_RIGHT:
     {
       if (!pressed)
         break;
@@ -745,7 +721,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
       break;
     }
 
-    case input::Key::HOME:
+    case KEY_HOME:
     {
       if (!pressed)
         break;
@@ -754,7 +730,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
       break;
     }
 
-    case input::Key::END:
+    case KEY_END:
     {
       if (!pressed)
         break;
@@ -860,7 +836,7 @@ bool TextController::isCtrlKeyDown(void) const
 {
   Context* context = Context::getSingleton();
 
-  return context->isKeyDown(Key::LCTRL) || context->isKeyDown(Key::RCTRL);
+  return context->isKeyDown(KEY_LCTRL) || context->isKeyDown(KEY_RCTRL);
 }
 
 ///////////////////////////////////////////////////////////////////////
