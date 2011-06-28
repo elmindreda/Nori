@@ -6,6 +6,13 @@ add_subdirectory(expat)
 add_subdirectory(glew)
 add_subdirectory(glfw)
 add_subdirectory(glm)
-add_subdirectory(libogg)
-add_subdirectory(libvorbis)
+
+if(WENDY_INCLUDE_OPENAL)
+  add_subdirectory(libogg)
+  add_subdirectory(libvorbis)
+endif(WENDY_INCLUDE_OPENAL)
+
+if(WENDY_INCLUDE_SQUIRREL)
+  add_subdirectory(squirrel)
+endif(WENDY_INCLUDE_SQUIRREL)
 

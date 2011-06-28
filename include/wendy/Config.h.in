@@ -60,5 +60,5 @@
 
 #cmakedefine WENDY_INCLUDE_UI_SYSTEM 1
 
-#cmakedefine WENDY_INCLUDE_DEMO_SYSTEM 1
+#cmakedefine WENDY_INCLUDE_SQUIRREL 1
 

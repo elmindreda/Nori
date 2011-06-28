@@ -7,7 +7,8 @@ include_directories(${libpng_SOURCE_DIR}
                     ${glfw_SOURCE_DIR}
                     ${OPENAL_INCLUDE_DIR}
                     ${libogg_SOURCE_DIR}
-                    ${libvorbis_SOURCE_DIR})
+                    ${libvorbis_SOURCE_DIR}
+                    ${squirrel_SOURCE_DIR})
 
 set(wendy_SOURCES
     Wendy.cpp
@@ -34,6 +35,10 @@ if(WENDY_INCLUDE_RENDERER)
 
        Deferred.cpp Forward.cpp)
 endif(WENDY_INCLUDE_RENDERER)
+
+if(WENDY_INCLUDE_SQUIRREL)
+  list(APPEND wendy_SOURCES Squirrel.cpp)
+endif(WENDY_INCLUDE_SQUIRREL)
 
 if(WENDY_INCLUDE_SCENE_GRAPH)
   list(APPEND wendy_SOURCES SceneGraph.cpp)

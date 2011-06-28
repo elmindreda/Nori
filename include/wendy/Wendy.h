@@ -115,6 +115,10 @@
 #include <wendy/UIColor.h>
 #endif
 
+#if WENDY_INCLUDE_SQUIRREL
+#include <wendy/Squirrel.h>
+#endif
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy

@@ -11,6 +11,7 @@ option(WENDY_INCLUDE_OPENAL "Include the OpenAL wrapper" ON)
 option(WENDY_INCLUDE_RENDERER "Include the renderer" ON)
 option(WENDY_INCLUDE_SCENE_GRAPH "Include the scene graph" ON)
 option(WENDY_INCLUDE_UI_SYSTEM "Include the UI library" ON)
+option(WENDY_INCLUDE_SQUIRREL "Include the Squirrel bindings" ON)
 option(WENDY_BUILD_EXAMPLES "Build the bundled example programs" OFF)
 option(WENDY_BUILD_TESTS "Build the bundled test programs" OFF)
 option(WENDY_BUILD_DOCUMENTATION "Build the Doxygen documentation" OFF)
@@ -85,6 +86,10 @@ endif(WENDY_INCLUDE_OPENAL)
 list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/include
                                ${wendy_BINARY_DIR}/include
                                ${glm_SOURCE_DIR})
+
+if(WENDY_INCLUDE_SQUIRREL)
+  list(APPEND wendy_INCLUDE_DIRS ${squirrel_SOURCE_DIR})
+endif(WENDY_INCLUDE_SQUIRREL)
 
 if(WIN32)
   list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/build/windows)
