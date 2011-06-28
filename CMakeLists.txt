@@ -28,7 +28,6 @@ check_function_exists(vasprintf WENDY_HAVE_VASPRINTF)
 include(CheckIncludeFile)
 check_include_file(sys/stat.h WENDY_HAVE_SYS_STAT_H)
 check_include_file(fcntl.h WENDY_HAVE_FCNTL_H)
-check_include_file(malloc.h WENDY_HAVE_MALLOC_H)
 
 if(WIN32)
   check_include_file(io.h WENDY_HAVE_IO_H)
