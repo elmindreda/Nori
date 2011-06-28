@@ -77,7 +77,7 @@ add_subdirectory(libs)
 
 list(APPEND wendy_CORE_LIBRARIES expat png z pcre vorbis ogg)
 
-list(APPEND wendy_LIBRARIES ${wendy_CORE_LIBRARIES} GLEW glfw ${GLFW_LIBRARIES})
+list(APPEND wendy_LIBRARIES GLEW glfw ${GLFW_LIBRARIES})
 if(WENDY_INCLUDE_OPENAL)
   list(APPEND wendy_LIBRARIES ${OPENAL_LIBRARY})
 endif(WENDY_INCLUDE_OPENAL)
@@ -87,6 +87,7 @@ list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/include
                                ${glm_SOURCE_DIR})
 
 if(WENDY_INCLUDE_SQUIRREL)
+  list(APPEND wendy_CORE_LIBRARIES squirrel)
   list(APPEND wendy_INCLUDE_DIRS ${squirrel_SOURCE_DIR})
 endif(WENDY_INCLUDE_SQUIRREL)
 
@@ -95,7 +96,7 @@ if(WIN32)
 endif(WIN32)
 
 set(WENDY_CORE_LIBRARIES ${wendy_CORE_LIBRARIES} CACHE STRING "Libraries used by Wendy core")
-set(WENDY_LIBRARIES ${wendy_LIBRARIES} CACHE STRING "Libraries used by Wendy")
+set(WENDY_LIBRARIES ${wendy_LIBRARIES} ${wendy_CORE_LIBRARIES} CACHE STRING "Libraries used by Wendy")
 set(WENDY_INCLUDE_DIRS ${wendy_INCLUDE_DIRS} CACHE STRING "Include directories for Wendy")
 
 include_directories(${wendy_INCLUDE_DIRS})
