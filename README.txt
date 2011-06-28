@@ -36,15 +36,15 @@ operating systems, and for which there are windows binaries on their site:
 
 Wendy comes with internal versions of the following libraries:
 
+  expat (http://expat.sourceforge.net/) for reading XML files
   GLEW (http://glew.sourceforge.net/) for managing OpenGL extensions
   GLFW (http://www.glfw.org/) for OpenGL context, input and window
   GLM (http://glm.g-truc.net/) for vector math and explicitly sized types
-  PCRE (http://www.pcre.org/) for regular expression support
-  Squirrel (http://squirrel-lang.org/) for embedded scripting
-  expat (http://expat.sourceforge.net/) for reading XML files
   libogg (http://www.xiph.org/ogg/) for reading Ogg files
   libpng (http://www.libpng.org/) for reading and writing PNG files
   libvorbis (http://xiph.org/vorbis/) for decoding Vorbis audio data
+  PCRE (http://www.pcre.org/) for regular expression support
+  Squirrel (http://squirrel-lang.org/) for embedded scripting
   zlib (http://zlib.net/) for compressed data streams
 
 Wendy depends on the availability of OpenGL 2.1 and OpenAL 1.1.
