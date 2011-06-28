@@ -45,6 +45,7 @@ Wendy comes with internal versions of the following libraries:
   GLEW (http://glew.sourceforge.net/) for managing OpenGL extensions
   GLFW (http://www.glfw.org/) for OpenGL context, input and window
   GLM (http://glm.g-truc.net/) for vector math and explicitly sized types
+  Squirrel (http://squirrel-lang.org/) for embedded scripting
 
 Wendy depends on the availability of OpenGL 2.1 and OpenAL 1.1.
 
