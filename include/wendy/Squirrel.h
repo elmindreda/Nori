@@ -195,6 +195,24 @@ public:
   }
 };
 
+/*! @ingroup squirrel
+ */
+template <>
+class Value<String>
+{
+public:
+  inline static String get(HSQUIRRELVM vm, SQInteger index)
+  {
+    const SQChar* value;
+    sq_getstring(vm, index, &value);
+    return String(value);
+  }
+  inline static void push(HSQUIRRELVM vm, String value)
+  {
+    sq_pushstring(vm, value.c_str(), -1);
+  }
+};
+
 ///////////////////////////////////////////////////////////////////////
 
 template <typename T>
