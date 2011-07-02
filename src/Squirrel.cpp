@@ -272,7 +272,7 @@ bool Object::setSlot(const char* name, const Object& value)
   sq_pushstring(vm, name, -1);
   sq_pushobject(vm, value.handle);
 
-  const SQRESULT result =  sq_newslot(vm, -3, false);
+  const SQRESULT result = sq_newslot(vm, -3, false);
 
   sq_poptop(vm);
   return SQ_SUCCEEDED(result);
