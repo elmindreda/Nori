@@ -81,66 +81,12 @@ private:
 
 /*! @ingroup squirrel
  */
-class Object
-{
-public:
-  Object(void);
-  Object(HSQUIRRELVM vm, SQInteger index);
-  Object(const Object& source);
-  ~Object(void);
-  bool removeSlot(const char* name);
-  template <typename T>
-  inline T cast(void) const;
-  Object& operator = (const Object& source);
-  bool isNull(void) const;
-  bool isArray(void) const;
-  bool isTable(void) const;
-  bool isClass(void) const;
-  Object getSlot(const char* name);
-  bool setSlot(const char* name, const Object& value);
-  template <typename T>
-  inline T getSlotValue(const char* name);
-  template <typename T>
-  inline bool setSlotValue(const char* name, T value);
-  HSQOBJECT getHandle(void);
-  HSQUIRRELVM getVM(void) const;
-protected:
-  Object(HSQUIRRELVM vm);
-  void setFunction(const char* name,
-                   void* pointer,
-                   size_t pointerSize,
-                   SQFUNCTION function,
-                   bool staticMember = false);
-  HSQUIRRELVM vm;
-  HSQOBJECT handle;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup squirrel
- */
 template <typename T>
 class Value
 {
 public:
   inline static T get(HSQUIRRELVM vm, SQInteger index);
   inline static void push(HSQUIRRELVM vm, T value);
-};
-
-/*! @ingroup squirrel
- */
-template <>
-class Value<Object>
-{
-public:
-  inline static Object get(HSQUIRRELVM vm, SQInteger index)
-  {
-    return Object(vm, index);
-  }
-  inline static void push(HSQUIRRELVM vm, Object value)
-  {
-    sq_pushobject(vm, value.getHandle());
-  }
 };
 
 /*! @ingroup squirrel
@@ -217,6 +163,42 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup squirrel
+ */
+class Object
+{
+public:
+  Object(void);
+  Object(HSQUIRRELVM vm, SQInteger index);
+  Object(const Object& source);
+  ~Object(void);
+  bool removeSlot(const char* name);
+  template <typename T>
+  inline T cast(void) const;
+  Object& operator = (const Object& source);
+  bool isNull(void) const;
+  bool isArray(void) const;
+  bool isTable(void) const;
+  bool isClass(void) const;
+  Object getSlot(const char* name);
+  bool setSlot(const char* name, const Object& value);
+  template <typename T>
+  inline T getSlotValue(const char* name);
+  template <typename T>
+  inline bool setSlotValue(const char* name, T value);
+  HSQOBJECT getHandle(void);
+  HSQUIRRELVM getVM(void) const;
+protected:
+  Object(HSQUIRRELVM vm);
+  void setFunction(const char* name,
+                   void* pointer,
+                   size_t pointerSize,
+                   SQFUNCTION function,
+                   bool staticMember = false);
+  HSQUIRRELVM vm;
+  HSQOBJECT handle;
+};
+
 template <typename T>
 inline T Object::cast(void) const
 {
@@ -255,6 +237,24 @@ inline bool Object::setSlotValue(const char* name, T value)
   sq_poptop(vm);
   return SQ_SUCCEEDED(result);
 }
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup squirrel
+ */
+template <>
+class Value<Object>
+{
+public:
+  inline static Object get(HSQUIRRELVM vm, SQInteger index)
+  {
+    return Object(vm, index);
+  }
+  inline static void push(HSQUIRRELVM vm, Object value)
+  {
+    sq_pushobject(vm, value.getHandle());
+  }
+};
 
 ///////////////////////////////////////////////////////////////////////
 
