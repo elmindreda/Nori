@@ -365,6 +365,31 @@ void Array::clear(void)
 
 ///////////////////////////////////////////////////////////////////////
 
+Table::Table(HSQUIRRELVM vm):
+  Object(vm)
+{
+  sq_newtable(vm);
+  sq_getstackobj(vm, -1, &handle);
+  sq_addref(vm, &handle);
+  sq_poptop(vm);
+}
+
+Table::Table(HSQUIRRELVM vm, SQInteger index):
+  Object(vm, index)
+{
+  if (!isTable())
+    throw Exception("Object is not a table");
+}
+
+void Table::clear(void)
+{
+  sq_pushobject(vm, handle);
+  sq_clear(vm, -1);
+  sq_poptop(vm);
+}
+
+///////////////////////////////////////////////////////////////////////
+
   } /*namespace sq*/
 } /*namespace wendy*/
 

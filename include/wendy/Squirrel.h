@@ -298,6 +298,18 @@ inline void Array::push(T value)
 
 /*! @ingroup squirrel
  */
+class Table : public Object
+{
+public:
+  Table(HSQUIRRELVM vm);
+  Table(HSQUIRRELVM vm, SQInteger index);
+  void clear(void);
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup squirrel
+ */
 template <typename T, typename R>
 class Method
 {
