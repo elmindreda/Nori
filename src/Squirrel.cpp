@@ -61,7 +61,7 @@ VM::VM(ResourceIndex& initIndex):
   sqstd_register_stringlib(vm);
   sq_newclosure(vm, onRuntimeError, 0);
   sq_seterrorhandler(vm);
-  sq_pop(vm, 1);
+  sq_poptop(vm);
 }
 
 VM::~VM(void)
@@ -96,7 +96,7 @@ bool VM::execute(const char* name, const char* text)
   sq_pushroottable(vm);
   if (SQ_FAILED(sq_call(vm, 1, false, true)))
     return false;
-  sq_pop(vm, 1);
+  sq_poptop(vm);
 
   return true;
 }
@@ -110,7 +110,7 @@ Object VM::getRootTable(void)
 {
   sq_pushroottable(vm);
   Object object(vm, -1);
-  sq_pop(vm, 1);
+  sq_poptop(vm);
 
   return object;
 }
@@ -119,7 +119,7 @@ Object VM::getRegistryTable(void)
 {
   sq_pushregistrytable(vm);
   Object object(vm, -1);
-  sq_pop(vm, 1);
+  sq_poptop(vm);
 
   return object;
 }
@@ -217,7 +217,7 @@ bool Object::removeSlot(const char* name)
 
   const SQRESULT result = sq_deleteslot(vm, -2, false);
 
-  sq_pop(vm, 1);
+  sq_poptop(vm);
   return SQ_SUCCEEDED(result);
 }
 
@@ -251,7 +251,7 @@ Object Object::getSlot(const char* name)
   sq_pushstring(vm, name, -1);
   if (SQ_FAILED(sq_get(vm, -2)))
   {
-    sq_pop(vm, 1);
+    sq_poptop(vm);
     return Object();
   }
 
@@ -269,7 +269,7 @@ bool Object::setSlot(const char* name, const Object& value)
 
   const SQRESULT result =  sq_newslot(vm, -3, false);
 
-  sq_pop(vm, 1);
+  sq_poptop(vm);
   return SQ_SUCCEEDED(result);
 }
 
@@ -296,7 +296,7 @@ void Object::setFunction(const char* name,
   sq_newclosure(vm, function, 1);
 
   sq_newslot(vm, -3, staticMember);
-  sq_pop(vm, 1);
+  sq_poptop(vm);
 }
 
 ///////////////////////////////////////////////////////////////////////

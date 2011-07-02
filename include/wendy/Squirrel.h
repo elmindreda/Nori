@@ -202,7 +202,7 @@ inline T Object::cast(void) const
 {
   sq_pushobject(vm, handle);
   T value = Value<T>::get(vm, -1);
-  sq_pop(vm, 1);
+  sq_poptop(vm);
   return value;
 }
 
@@ -213,7 +213,7 @@ inline T Object::getSlotValue(const char* name)
   sq_pushstring(vm, name, -1);
   if (SQ_FAILED(sq_get(vm, -2)))
   {
-    sq_pop(vm, 1);
+    sq_poptop(vm);
     return T();
   }
 
@@ -232,7 +232,7 @@ inline bool Object::setSlotValue(const char* name, T value)
 
   const SQRESULT result =  sq_newslot(vm, -3, false);
 
-  sq_pop(vm, 1);
+  sq_poptop(vm);
   return SQ_SUCCEEDED(result);
 }
 
@@ -368,7 +368,7 @@ inline Class<T>::Class(HSQUIRRELVM initVM)
     sq_newclosure(vm, &create, 0);
     sq_newslot(vm, -3, false);
 
-    sq_pop(vm, 1);
+    sq_poptop(vm);
 
     initialized = true;
   }
