@@ -47,6 +47,7 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 class Object;
+class Table;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -61,8 +62,8 @@ public:
   bool execute(const Path& path);
   bool execute(const char* name, const char* text);
   operator HSQUIRRELVM (void);
-  Object getRootTable(void);
-  Object getRegistryTable(void);
+  Table getRootTable(void);
+  Table getRegistryTable(void);
   ResourceIndex& getIndex(void) const;
 private:
   static void onLogMessage(HSQUIRRELVM vm, const SQChar* format, ...);
@@ -180,6 +181,7 @@ public:
   bool isArray(void) const;
   bool isTable(void) const;
   bool isClass(void) const;
+  String asString(void) const;
   Object getSlot(const char* name);
   bool setSlot(const char* name, const Object& value);
   template <typename T>
@@ -274,6 +276,12 @@ public:
   void resize(SQInteger newSize);
   void reverse(void);
   void clear(void);
+  Object operator [] (SQInteger index) const;
+  template <typename T>
+  inline T get(SQInteger index) const;
+  template <typename T>
+  inline void set(SQInteger index, T value);
+  SQInteger getSize(void) const;
 };
 
 template <typename T>
@@ -281,7 +289,7 @@ inline void Array::insert(T value, SQInteger index)
 {
   sq_pushobject(vm, handle);
   Value<T>::push(vm, value);
-  sq_arrayinsert(vm, -1, index);
+  sq_arrayinsert(vm, -2, index);
   sq_poptop(vm);
 }
 
@@ -290,9 +298,50 @@ inline void Array::push(T value)
 {
   sq_pushobject(vm, handle);
   Value<T>::push(vm, value);
-  sq_arrayappend(vm, -1);
+  sq_arrayappend(vm, -2);
   sq_poptop(vm);
 }
+
+template <typename T>
+inline T Array::get(SQInteger index) const
+{
+  sq_pushobject(vm, handle);
+  sq_pushinteger(vm, index);
+  if (SQ_FAILED(sq_get(vm, -2)))
+    throw Exception("No array element at index");
+  T result = Value<T>::get(vm, -1);
+  sq_pop(vm, 2);
+  return result;
+}
+
+template <typename T>
+inline void Array::set(SQInteger index, T value)
+{
+  sq_pushobject(vm, handle);
+  sq_pushinteger(vm, index);
+  Value<T>::push(vm, value);
+  if (SQ_FAILED(sq_set(vm, -3)))
+    throw Exception("No array element at index");
+  sq_poptop(vm);
+}
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup squirrel
+ */
+template <>
+class Value<Array>
+{
+public:
+  inline static Array get(HSQUIRRELVM vm, SQInteger index)
+  {
+    return Array(vm, index);
+  }
+  inline static void push(HSQUIRRELVM vm, Array value)
+  {
+    sq_pushobject(vm, value.getHandle());
+  }
+};
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -304,6 +353,7 @@ public:
   Table(HSQUIRRELVM vm);
   Table(HSQUIRRELVM vm, SQInteger index);
   void clear(void);
+  SQInteger getSize(void) const;
 };
 
 ///////////////////////////////////////////////////////////////////////

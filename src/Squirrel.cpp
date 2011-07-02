@@ -106,22 +106,22 @@ VM::operator HSQUIRRELVM (void)
   return vm;
 }
 
-Object VM::getRootTable(void)
+Table VM::getRootTable(void)
 {
   sq_pushroottable(vm);
-  Object object(vm, -1);
+  Table table(vm, -1);
   sq_poptop(vm);
 
-  return object;
+  return table;
 }
 
-Object VM::getRegistryTable(void)
+Table VM::getRegistryTable(void)
 {
   sq_pushregistrytable(vm);
-  Object object(vm, -1);
+  Table table(vm, -1);
   sq_poptop(vm);
 
-  return object;
+  return table;
 }
 
 ResourceIndex& VM::getIndex(void) const
@@ -250,6 +250,15 @@ bool Object::isClass(void) const
   return sq_isclass(handle);
 }
 
+String Object::asString(void) const
+{
+  sq_pushobject(vm, handle);
+  sq_tostring(vm, -1);
+  String result = Value<String>::get(vm, -1);
+  sq_pop(vm, 2);
+  return result;
+}
+
 Object Object::getSlot(const char* name)
 {
   sq_pushobject(vm, handle);
@@ -363,6 +372,25 @@ void Array::clear(void)
   sq_poptop(vm);
 }
 
+Object Array::operator [] (SQInteger index) const
+{
+  sq_pushobject(vm, handle);
+  sq_pushinteger(vm, index);
+  if (SQ_FAILED(sq_get(vm, -2)))
+    throw Exception("No array element at index");
+  Object result(vm, -1);
+  sq_pop(vm, 2);
+  return result;
+}
+
+SQInteger Array::getSize(void) const
+{
+  sq_pushobject(vm, handle);
+  SQInteger size = sq_getsize(vm, -1);
+  sq_poptop(vm);
+  return size;
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 Table::Table(HSQUIRRELVM vm):
@@ -386,6 +414,14 @@ void Table::clear(void)
   sq_pushobject(vm, handle);
   sq_clear(vm, -1);
   sq_poptop(vm);
+}
+
+SQInteger Table::getSize(void) const
+{
+  sq_pushobject(vm, handle);
+  SQInteger size = sq_getsize(vm, -1);
+  sq_poptop(vm);
+  return size;
 }
 
 ///////////////////////////////////////////////////////////////////////
