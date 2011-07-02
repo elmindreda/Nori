@@ -62,6 +62,7 @@ public:
   bool execute(const char* name, const char* text);
   operator HSQUIRRELVM (void);
   Object getRootTable(void);
+  Object getRegistryTable(void);
   ResourceIndex& getIndex(void) const;
 private:
   static void onLogMessage(HSQUIRRELVM vm, const SQChar* format, ...);

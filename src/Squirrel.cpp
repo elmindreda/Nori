@@ -115,6 +115,15 @@ Object VM::getRootTable(void)
   return object;
 }
 
+Object VM::getRegistryTable(void)
+{
+  sq_pushregistrytable(vm);
+  Object object(vm, -1);
+  sq_pop(vm, 1);
+
+  return object;
+}
+
 ResourceIndex& VM::getIndex(void) const
 {
   return index;
