@@ -318,14 +318,13 @@ public:
   {
     typedef R (T::*Method)();
 
-    Method* pointer;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &pointer, NULL);
-    Method method = *pointer;
+    Method* method;
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
 
     T* instance = NULL;
     sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
 
-    Value<R>::push(vm, (instance->*method)());
+    Value<R>::push(vm, (instance->**method)());
     return 1;
   }
   template <typename A1>
@@ -333,14 +332,13 @@ public:
   {
     typedef R (T::*Method)(A1);
 
-    Method* pointer;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &pointer, NULL);
-    Method method = *pointer;
+    Method* method;
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
 
     T* instance = NULL;
     sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
 
-    Value<R>::push(vm, (instance->*method)(Value<A1>::get(vm, 2)));
+    Value<R>::push(vm, (instance->**method)(Value<A1>::get(vm, 2)));
     return 1;
   }
 };
@@ -355,14 +353,13 @@ public:
   {
     typedef void (T::*Method)();
 
-    Method* pointer;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &pointer, NULL);
-    Method method = *pointer;
+    Method* method;
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
 
     T* instance = NULL;
     sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
 
-    (instance->*method)();
+    (instance->**method)();
     return 0;
   }
   template <typename A1>
@@ -370,14 +367,13 @@ public:
   {
     typedef void (T::*Method)(A1);
 
-    Method* pointer;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &pointer, NULL);
-    Method method = *pointer;
+    Method* method;
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
 
     T* instance = NULL;
     sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
 
-    (instance->*method)(Value<A1>::get(vm, 2));
+    (instance->**method)(Value<A1>::get(vm, 2));
     return 0;
   }
 };
