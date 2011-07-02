@@ -258,6 +258,8 @@ inline bool Object::setSlotValue(const char* name, T value)
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup squirrel
+ */
 class Array : public Object
 {
 public:
@@ -294,6 +296,8 @@ inline void Array::push(T value)
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup squirrel
+ */
 template <typename T, typename R>
 class Method
 {
@@ -329,6 +333,8 @@ public:
   }
 };
 
+/*! @ingroup squirrel
+ */
 template <typename T>
 class Method<T, void>
 {
@@ -404,8 +410,6 @@ private:
   static bool initialized;
   static HSQOBJECT shared;
 };
-
-///////////////////////////////////////////////////////////////////////
 
 template <typename T>
 inline Class<T>::Class(HSQUIRRELVM vm):
