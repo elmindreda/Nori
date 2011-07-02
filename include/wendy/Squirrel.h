@@ -93,6 +93,7 @@ public:
   inline T cast(void) const;
   Object& operator = (const Object& source);
   bool isNull(void) const;
+  bool isArray(void) const;
   bool isTable(void) const;
   bool isClass(void) const;
   Object getSlot(const char* name);
@@ -104,6 +105,7 @@ public:
   HSQOBJECT getHandle(void);
   HSQUIRRELVM getVM(void) const;
 protected:
+  Object(HSQUIRRELVM vm);
   void setFunction(const char* name,
                    void* pointer,
                    size_t pointerSize,
@@ -256,6 +258,42 @@ inline bool Object::setSlotValue(const char* name, T value)
 
 ///////////////////////////////////////////////////////////////////////
 
+class Array : public Object
+{
+public:
+  Array(HSQUIRRELVM vm);
+  Array(HSQUIRRELVM vm, SQInteger index);
+  template <typename T>
+  inline void insert(T value, SQInteger index);
+  void remove(SQInteger index);
+  template <typename T>
+  inline void push(T value);
+  void pop(void);
+  void resize(SQInteger newSize);
+  void reverse(void);
+  void clear(void);
+};
+
+template <typename T>
+inline void Array::insert(T value, SQInteger index)
+{
+  sq_pushobject(vm, handle);
+  Value<T>::push(vm, value);
+  sq_arrayinsert(vm, -1, index);
+  sq_poptop(vm);
+}
+
+template <typename T>
+inline void Array::push(T value)
+{
+  sq_pushobject(vm, handle);
+  Value<T>::push(vm, value);
+  sq_arrayappend(vm, -1);
+  sq_poptop(vm);
+}
+
+///////////////////////////////////////////////////////////////////////
+
 template <typename T, typename R>
 class Method
 {
@@ -370,10 +408,9 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 template <typename T>
-inline Class<T>::Class(HSQUIRRELVM initVM)
+inline Class<T>::Class(HSQUIRRELVM vm):
+  Object(vm)
 {
-  vm = initVM;
-
   if (!initialized)
   {
     sq_newclass(vm, false);

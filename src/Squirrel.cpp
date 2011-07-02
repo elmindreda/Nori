@@ -235,6 +235,11 @@ bool Object::isNull(void) const
   return sq_isnull(handle);
 }
 
+bool Object::isArray(void) const
+{
+  return sq_isarray(handle);
+}
+
 bool Object::isTable(void) const
 {
   return sq_istable(handle);
@@ -283,6 +288,12 @@ HSQUIRRELVM Object::getVM(void) const
   return vm;
 }
 
+Object::Object(HSQUIRRELVM initVM):
+  vm(initVM)
+{
+  sq_resetobject(&handle);
+}
+
 void Object::setFunction(const char* name,
                          void* pointer,
                          size_t pointerSize,
@@ -296,6 +307,59 @@ void Object::setFunction(const char* name,
   sq_newclosure(vm, function, 1);
 
   sq_newslot(vm, -3, staticMember);
+  sq_poptop(vm);
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Array::Array(HSQUIRRELVM vm):
+  Object(vm)
+{
+  sq_newarray(vm, 0);
+  sq_getstackobj(vm, -1, &handle);
+  sq_addref(vm, &handle);
+  sq_poptop(vm);
+}
+
+Array::Array(HSQUIRRELVM vm, SQInteger index):
+  Object(vm, index)
+{
+  if (!isArray())
+    throw Exception("Object is not an array");
+}
+
+void Array::remove(SQInteger index)
+{
+  sq_pushobject(vm, handle);
+  sq_arrayremove(vm, -1, index);
+  sq_poptop(vm);
+}
+
+void Array::pop(void)
+{
+  sq_pushobject(vm, handle);
+  sq_arraypop(vm, -1, false);
+  sq_poptop(vm);
+}
+
+void Array::resize(SQInteger newSize)
+{
+  sq_pushobject(vm, handle);
+  sq_arrayresize(vm, -1, newSize);
+  sq_poptop(vm);
+}
+
+void Array::reverse(void)
+{
+  sq_pushobject(vm, handle);
+  sq_arrayreverse(vm, -1);
+  sq_poptop(vm);
+}
+
+void Array::clear(void)
+{
+  sq_pushobject(vm, handle);
+  sq_clear(vm, -1);
   sq_poptop(vm);
 }
 
