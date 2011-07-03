@@ -264,6 +264,17 @@ Object::Object(HSQUIRRELVM initVM):
   sq_resetobject(&handle);
 }
 
+bool Object::removeSlot(const char* name)
+{
+  sq_pushobject(vm, handle);
+  sq_pushstring(vm, name, -1);
+
+  const SQRESULT result = sq_deleteslot(vm, -2, false);
+
+  sq_poptop(vm);
+  return SQ_SUCCEEDED(result);
+}
+
 void Object::addFunction(const char* name,
                          void* pointer,
                          size_t pointerSize,
@@ -278,6 +289,21 @@ void Object::addFunction(const char* name,
 
   sq_newslot(vm, -3, staticMember);
   sq_poptop(vm);
+}
+
+void Object::clear(void)
+{
+  sq_pushobject(vm, handle);
+  sq_clear(vm, -1);
+  sq_poptop(vm);
+}
+
+SQInteger Object::getSize(void) const
+{
+  sq_pushobject(vm, handle);
+  SQInteger size = sq_getsize(vm, -1);
+  sq_poptop(vm);
+  return size;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -326,13 +352,6 @@ void Array::reverse(void)
   sq_poptop(vm);
 }
 
-void Array::clear(void)
-{
-  sq_pushobject(vm, handle);
-  sq_clear(vm, -1);
-  sq_poptop(vm);
-}
-
 Object Array::operator [] (SQInteger index) const
 {
   sq_pushobject(vm, handle);
@@ -342,14 +361,6 @@ Object Array::operator [] (SQInteger index) const
   Object result(vm, -1);
   sq_pop(vm, 2);
   return result;
-}
-
-SQInteger Array::getSize(void) const
-{
-  sq_pushobject(vm, handle);
-  SQInteger size = sq_getsize(vm, -1);
-  sq_poptop(vm);
-  return size;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -370,32 +381,6 @@ Table::Table(HSQUIRRELVM vm, SQInteger index):
     throw Exception("Object is not a table");
 }
 
-bool Table::removeSlot(const char* name)
-{
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-
-  const SQRESULT result = sq_deleteslot(vm, -2, false);
-
-  sq_poptop(vm);
-  return SQ_SUCCEEDED(result);
-}
-
-void Table::clear(void)
-{
-  sq_pushobject(vm, handle);
-  sq_clear(vm, -1);
-  sq_poptop(vm);
-}
-
-SQInteger Table::getSize(void) const
-{
-  sq_pushobject(vm, handle);
-  SQInteger size = sq_getsize(vm, -1);
-  sq_poptop(vm);
-  return size;
-}
-
 ///////////////////////////////////////////////////////////////////////
 
 Class::Class(HSQUIRRELVM vm):
@@ -412,32 +397,6 @@ Class::Class(HSQUIRRELVM vm, SQInteger index):
 {
   if (!isClass())
     throw Exception("Object is not a class");
-}
-
-bool Class::removeSlot(const char* name)
-{
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-
-  const SQRESULT result = sq_deleteslot(vm, -2, false);
-
-  sq_poptop(vm);
-  return SQ_SUCCEEDED(result);
-}
-
-void Class::clear(void)
-{
-  sq_pushobject(vm, handle);
-  sq_clear(vm, -1);
-  sq_poptop(vm);
-}
-
-SQInteger Class::getSize(void) const
-{
-  sq_pushobject(vm, handle);
-  SQInteger size = sq_getsize(vm, -1);
-  sq_poptop(vm);
-  return size;
 }
 
 Class::Class(void)

@@ -185,11 +185,20 @@ public:
   HSQUIRRELVM getVM(void) const;
 protected:
   Object(HSQUIRRELVM vm);
+  template <typename T>
+  inline bool addSlot(const char* name, T value);
+  bool removeSlot(const char* name);
   void addFunction(const char* name,
                    void* pointer,
                    size_t pointerSize,
                    SQFUNCTION function,
                    bool staticMember = false);
+  void clear(void);
+  template <typename T>
+  inline T get(const char* name);
+  template <typename T>
+  inline void set(const char* name, T value);
+  SQInteger getSize(void) const;
   HSQUIRRELVM vm;
   HSQOBJECT handle;
 };
@@ -201,6 +210,47 @@ inline T Object::cast(void) const
   T value = Value<T>::get(vm, -1);
   sq_poptop(vm);
   return value;
+}
+
+template <typename T>
+inline bool Object::addSlot(const char* name, T value)
+{
+  sq_pushobject(vm, handle);
+  sq_pushstring(vm, name, -1);
+  Value<T>::push(vm, value);
+
+  const SQRESULT result =  sq_newslot(vm, -3, false);
+
+  sq_poptop(vm);
+  return SQ_SUCCEEDED(result);
+}
+
+template <typename T>
+inline T Object::get(const char* name)
+{
+  sq_pushobject(vm, handle);
+  sq_pushstring(vm, name, -1);
+  if (SQ_FAILED(sq_get(vm, -2)))
+  {
+    sq_poptop(vm);
+    return T();
+  }
+
+  T result = Value<T>::get(vm, -1);
+  sq_pop(vm, 2);
+
+  return result;
+}
+
+template <typename T>
+inline void Object::set(const char* name, T value)
+{
+  sq_pushobject(vm, handle);
+  sq_pushstring(vm, name, -1);
+  Value<T>::push(vm, value);
+  if (SQ_FAILED(sq_set(vm, -3)))
+    throw Exception("No such slot");
+  sq_poptop(vm);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -238,13 +288,13 @@ public:
   void pop(void);
   void resize(SQInteger newSize);
   void reverse(void);
-  void clear(void);
+  using Object::clear;
   Object operator [] (SQInteger index) const;
   template <typename T>
   inline T get(SQInteger index) const;
   template <typename T>
   inline void set(SQInteger index, T value);
-  SQInteger getSize(void) const;
+  using Object::getSize;
 };
 
 template <typename T>
@@ -315,44 +365,29 @@ class Table : public Object
 public:
   Table(HSQUIRRELVM vm);
   Table(HSQUIRRELVM vm, SQInteger index);
-  template <typename T>
-  inline bool addSlot(const char* name, T value);
-  bool removeSlot(const char* name);
-  void clear(void);
-  template <typename T>
-  inline T get(const char* name);
-  SQInteger getSize(void) const;
+  using Object::addSlot;
+  using Object::removeSlot;
+  using Object::clear;
+  using Object::getSize;
 };
 
-template <typename T>
-inline bool Table::addSlot(const char* name, T value)
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup squirrel
+ */
+template <>
+class Value<Table>
 {
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-  Value<T>::push(vm, value);
-
-  const SQRESULT result =  sq_newslot(vm, -3, false);
-
-  sq_poptop(vm);
-  return SQ_SUCCEEDED(result);
-}
-
-template <typename T>
-inline T Table::get(const char* name)
-{
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-  if (SQ_FAILED(sq_get(vm, -2)))
+public:
+  inline static Table get(HSQUIRRELVM vm, SQInteger index)
   {
-    sq_poptop(vm);
-    return T();
+    return Table(vm, index);
   }
-
-  T result = Value<T>::get(vm, -1);
-  sq_pop(vm, 2);
-
-  return result;
-}
+  inline static void push(HSQUIRRELVM vm, Table value)
+  {
+    sq_pushobject(vm, value.getHandle());
+  }
+};
 
 ///////////////////////////////////////////////////////////////////////
 
