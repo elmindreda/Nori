@@ -210,17 +210,6 @@ Object::~Object(void)
   sq_release(vm, &handle);
 }
 
-bool Object::removeSlot(const char* name)
-{
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-
-  const SQRESULT result = sq_deleteslot(vm, -2, false);
-
-  sq_poptop(vm);
-  return SQ_SUCCEEDED(result);
-}
-
 Object& Object::operator = (const Object& source)
 {
   sq_release(vm, &handle);
@@ -259,34 +248,6 @@ String Object::asString(void) const
   return result;
 }
 
-Object Object::getSlot(const char* name)
-{
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-  if (SQ_FAILED(sq_get(vm, -2)))
-  {
-    sq_poptop(vm);
-    return Object();
-  }
-
-  Object result(vm, -1);
-  sq_pop(vm, 2);
-
-  return result;
-}
-
-bool Object::setSlot(const char* name, const Object& value)
-{
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-  sq_pushobject(vm, value.handle);
-
-  const SQRESULT result = sq_newslot(vm, -3, false);
-
-  sq_poptop(vm);
-  return SQ_SUCCEEDED(result);
-}
-
 HSQOBJECT Object::getHandle(void)
 {
   return handle;
@@ -303,7 +264,7 @@ Object::Object(HSQUIRRELVM initVM):
   sq_resetobject(&handle);
 }
 
-void Object::setFunction(const char* name,
+void Object::addFunction(const char* name,
                          void* pointer,
                          size_t pointerSize,
                          SQFUNCTION function,
@@ -407,6 +368,17 @@ Table::Table(HSQUIRRELVM vm, SQInteger index):
 {
   if (!isTable())
     throw Exception("Object is not a table");
+}
+
+bool Table::removeSlot(const char* name)
+{
+  sq_pushobject(vm, handle);
+  sq_pushstring(vm, name, -1);
+
+  const SQRESULT result = sq_deleteslot(vm, -2, false);
+
+  sq_poptop(vm);
+  return SQ_SUCCEEDED(result);
 }
 
 void Table::clear(void)
