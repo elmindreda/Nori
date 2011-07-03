@@ -239,6 +239,11 @@ bool Object::isClass(void) const
   return sq_isclass(handle);
 }
 
+bool Object::isInstance(void) const
+{
+  return sq_isinstance(handle);
+}
+
 String Object::asString(void) const
 {
   sq_pushobject(vm, handle);
@@ -246,6 +251,17 @@ String Object::asString(void) const
   String result = Value<String>::get(vm, -1);
   sq_pop(vm, 2);
   return result;
+}
+
+SQObjectType Object::getType(void) const
+{
+  if (!vm)
+    return OT_NULL;
+
+  sq_pushobject(vm, handle);
+  SQObjectType type = sq_gettype(vm, -1);
+  sq_poptop(vm);
+  return type;
 }
 
 HSQOBJECT Object::getHandle(void)
@@ -399,8 +415,35 @@ Class::Class(HSQUIRRELVM vm, SQInteger index):
     throw Exception("Object is not a class");
 }
 
+Instance Class::createInstance(void) const
+{
+  sq_pushobject(vm, handle);
+  sq_createinstance(vm, -1);
+  Instance instance(vm, -1);
+  sq_pop(vm, 2);
+  return instance;
+}
+
 Class::Class(void)
 {
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Instance::Instance(HSQUIRRELVM vm, SQInteger index):
+  Object(vm, index)
+{
+  if (!isInstance())
+    throw Exception("Object is not an instance");
+}
+
+Class Instance::getClass(void) const
+{
+  sq_pushobject(vm, handle);
+  sq_getclass(vm, -1);
+  Class result(vm, -1);
+  sq_pop(vm, 2);
+  return result;
 }
 
 ///////////////////////////////////////////////////////////////////////

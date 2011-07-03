@@ -48,6 +48,7 @@ namespace wendy
 
 class Object;
 class Table;
+class Instance;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -180,7 +181,9 @@ public:
   bool isArray(void) const;
   bool isTable(void) const;
   bool isClass(void) const;
+  bool isInstance(void) const;
   String asString(void) const;
+  SQObjectType getType(void) const;
   HSQOBJECT getHandle(void);
   HSQUIRRELVM getVM(void) const;
 protected:
@@ -484,6 +487,7 @@ class Class : public Object
 public:
   Class(HSQUIRRELVM vm);
   Class(HSQUIRRELVM vm, SQInteger index);
+  Instance createInstance(void) const;
   using Object::addSlot;
   using Object::removeSlot;
   using Object::clear;
@@ -492,6 +496,53 @@ public:
   using Object::getSize;
 protected:
   Class(void);
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup squirrel
+ */
+template <>
+class Value<Class>
+{
+public:
+  inline static Class get(HSQUIRRELVM vm, SQInteger index)
+  {
+    throw Exception("You are the farthest ever in space");
+  }
+  inline static void push(HSQUIRRELVM vm, Class value)
+  {
+    sq_pushobject(vm, value.getHandle());
+  }
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class Instance : public Object
+{
+public:
+  Instance(HSQUIRRELVM vm, SQInteger index);
+  using Object::get;
+  using Object::set;
+  Class getClass(void) const;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup squirrel
+ */
+template <>
+class Value<Instance>
+{
+public:
+  inline static Instance get(HSQUIRRELVM vm, SQInteger index)
+  {
+    throw Exception("Bam, guilty, of not being in space");
+  }
+  inline static void push(HSQUIRRELVM vm, Instance value)
+  {
+    sq_pushobject(vm, value.getHandle());
+  }
 };
 
 ///////////////////////////////////////////////////////////////////////
