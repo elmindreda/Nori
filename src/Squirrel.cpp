@@ -220,6 +220,15 @@ Object::~Object(void)
   sq_release(vm, &handle);
 }
 
+Object Object::clone(void) const
+{
+  sq_pushobject(vm, handle);
+  sq_clone(vm, -1);
+  Object clone(vm, -1);
+  sq_pop(vm, 2);
+  return clone;
+}
+
 Object& Object::operator = (const Object& source)
 {
   sq_release(vm, &handle);

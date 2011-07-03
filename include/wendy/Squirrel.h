@@ -178,6 +178,7 @@ public:
   ~Object(void);
   template <typename T>
   inline T cast(void) const;
+  Object clone(void) const;
   Object& operator = (const Object& source);
   bool isNull(void) const;
   bool isArray(void) const;
