@@ -106,6 +106,16 @@ VM::operator HSQUIRRELVM (void)
   return vm;
 }
 
+void* VM::getForeignPointer(void) const
+{
+  return sq_getforeignptr(vm);
+}
+
+void VM::setForeignPointer(void* newValue)
+{
+  sq_setforeignptr(vm, newValue);
+}
+
 Table VM::getRootTable(void)
 {
   sq_pushroottable(vm);

@@ -63,6 +63,8 @@ public:
   bool execute(const Path& path);
   bool execute(const char* name, const char* text);
   operator HSQUIRRELVM (void);
+  void* getForeignPointer(void) const;
+  void setForeignPointer(void* newValue);
   Table getRootTable(void);
   Table getRegistryTable(void);
   ResourceIndex& getIndex(void) const;
@@ -468,12 +470,16 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup squirrel
+ */
 template <typename T, typename R>
 inline SQFUNCTION demarshal(R (T::*method)())
 {
   return &Method<T,R>::demarshal0;
 }
 
+/*! @ingroup squirrel
+ */
 template <typename T, typename R, typename A1>
 inline SQFUNCTION demarshal(R (T::*method)(A1))
 {
@@ -482,6 +488,8 @@ inline SQFUNCTION demarshal(R (T::*method)(A1))
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup squirrel
+ */
 class Class : public Object
 {
 public:
@@ -518,6 +526,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup squirrel
+ */
 class Instance : public Object
 {
 public:
