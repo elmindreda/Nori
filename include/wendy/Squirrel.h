@@ -417,10 +417,37 @@ public:
     Value<R>::push(vm, (instance->**method)());
     return 1;
   }
+  inline static SQInteger demarshal0C(HSQUIRRELVM vm)
+  {
+    typedef R (T::*Method)() const;
+
+    Method* method;
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
+
+    T* instance = NULL;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
+
+    Value<R>::push(vm, (instance->**method)());
+    return 1;
+  }
   template <typename A1>
   inline static SQInteger demarshal1(HSQUIRRELVM vm)
   {
     typedef R (T::*Method)(A1);
+
+    Method* method;
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
+
+    T* instance = NULL;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
+
+    Value<R>::push(vm, (instance->**method)(Value<A1>::get(vm, 2)));
+    return 1;
+  }
+  template <typename A1>
+  inline static SQInteger demarshal1C(HSQUIRRELVM vm)
+  {
+    typedef R (T::*Method)(A1) const;
 
     Method* method;
     sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
@@ -452,10 +479,37 @@ public:
     (instance->**method)();
     return 0;
   }
+  inline static SQInteger demarshal0C(HSQUIRRELVM vm)
+  {
+    typedef void (T::*Method)() const;
+
+    Method* method;
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
+
+    T* instance = NULL;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
+
+    (instance->**method)();
+    return 0;
+  }
   template <typename A1>
   inline static SQInteger demarshal1(HSQUIRRELVM vm)
   {
     typedef void (T::*Method)(A1);
+
+    Method* method;
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
+
+    T* instance = NULL;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
+
+    (instance->**method)(Value<A1>::get(vm, 2));
+    return 0;
+  }
+  template <typename A1>
+  inline static SQInteger demarshal1C(HSQUIRRELVM vm)
+  {
+    typedef void (T::*Method)(A1) const;
 
     Method* method;
     sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
@@ -480,10 +534,26 @@ inline SQFUNCTION demarshal(R (T::*method)())
 
 /*! @ingroup squirrel
  */
+template <typename T, typename R>
+inline SQFUNCTION demarshal(R (T::*method)() const)
+{
+  return &Method<T,R>::demarshal0C;
+}
+
+/*! @ingroup squirrel
+ */
 template <typename T, typename R, typename A1>
 inline SQFUNCTION demarshal(R (T::*method)(A1))
 {
   return &Method<T,R>::template demarshal1<A1>;
+}
+
+/*! @ingroup squirrel
+ */
+template <typename T, typename R, typename A1>
+inline SQFUNCTION demarshal(R (T::*method)(A1) const)
+{
+  return &Method<T,R>::template demarshal1C<A1>;
 }
 
 ///////////////////////////////////////////////////////////////////////
