@@ -150,6 +150,24 @@ public:
 /*! @ingroup squirrel
  */
 template <>
+class Value<const char*>
+{
+public:
+  inline static const char* get(HSQUIRRELVM vm, SQInteger index)
+  {
+    const SQChar* value;
+    sq_getstring(vm, index, &value);
+    return value;
+  }
+  inline static void push(HSQUIRRELVM vm, const char* value)
+  {
+    sq_pushstring(vm, value, -1);
+  }
+};
+
+/*! @ingroup squirrel
+ */
+template <>
 class Value<String>
 {
 public:
