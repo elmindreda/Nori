@@ -631,10 +631,10 @@ public:
 /*! @ingroup squirrel
  */
 template <typename T>
-class NativeClass : public Class
+class SharedClass : public Class
 {
 public:
-  inline NativeClass(HSQUIRRELVM vm);
+  inline SharedClass(HSQUIRRELVM vm);
   template <typename M>
   inline void addMethod(const char* name, M method)
   {
@@ -654,7 +654,7 @@ private:
 };
 
 template <typename T>
-inline NativeClass<T>::NativeClass(HSQUIRRELVM initVM)
+inline SharedClass<T>::SharedClass(HSQUIRRELVM initVM)
 {
   vm = initVM;
 
@@ -680,13 +680,13 @@ inline NativeClass<T>::NativeClass(HSQUIRRELVM initVM)
 }
 
 template <typename T>
-inline HSQOBJECT NativeClass<T>::getHandle(void)
+inline HSQOBJECT SharedClass<T>::getHandle(void)
 {
   return shared;
 }
 
 template <typename T>
-inline SQInteger NativeClass<T>::create(HSQUIRRELVM vm)
+inline SQInteger SharedClass<T>::create(HSQUIRRELVM vm)
 {
   T* instance = new T();
   sq_setinstanceup(vm, 1, instance);
@@ -696,7 +696,7 @@ inline SQInteger NativeClass<T>::create(HSQUIRRELVM vm)
 }
 
 template <typename T>
-inline SQInteger NativeClass<T>::destroy(SQUserPointer pointer, SQInteger size)
+inline SQInteger SharedClass<T>::destroy(SQUserPointer pointer, SQInteger size)
 {
   delete reinterpret_cast<T*>(pointer);
 
@@ -704,24 +704,24 @@ inline SQInteger NativeClass<T>::destroy(SQUserPointer pointer, SQInteger size)
 }
 
 template <typename T>
-bool NativeClass<T>::initialized = false;
+bool SharedClass<T>::initialized = false;
 
 template <typename T>
-HSQOBJECT NativeClass<T>::shared;
+HSQOBJECT SharedClass<T>::shared;
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @ingroup squirrel
  */
 template <typename T>
-class Value<NativeClass<T> >
+class Value<SharedClass<T> >
 {
 public:
-  inline static NativeClass<T> get(HSQUIRRELVM vm, SQInteger index)
+  inline static SharedClass<T> get(HSQUIRRELVM vm, SQInteger index)
   {
     throw Exception("I'm the best at space?");
   }
-  inline static void push(HSQUIRRELVM vm, NativeClass<T> value)
+  inline static void push(HSQUIRRELVM vm, SharedClass<T> value)
   {
     sq_pushobject(vm, value.getHandle());
   }
