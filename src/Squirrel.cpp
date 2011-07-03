@@ -398,6 +398,54 @@ SQInteger Table::getSize(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
+Class::Class(HSQUIRRELVM vm):
+  Object(vm)
+{
+  sq_newtable(vm);
+  sq_getstackobj(vm, -1, &handle);
+  sq_addref(vm, &handle);
+  sq_poptop(vm);
+}
+
+Class::Class(HSQUIRRELVM vm, SQInteger index):
+  Object(vm, index)
+{
+  if (!isClass())
+    throw Exception("Object is not a class");
+}
+
+bool Class::removeSlot(const char* name)
+{
+  sq_pushobject(vm, handle);
+  sq_pushstring(vm, name, -1);
+
+  const SQRESULT result = sq_deleteslot(vm, -2, false);
+
+  sq_poptop(vm);
+  return SQ_SUCCEEDED(result);
+}
+
+void Class::clear(void)
+{
+  sq_pushobject(vm, handle);
+  sq_clear(vm, -1);
+  sq_poptop(vm);
+}
+
+SQInteger Class::getSize(void) const
+{
+  sq_pushobject(vm, handle);
+  SQInteger size = sq_getsize(vm, -1);
+  sq_poptop(vm);
+  return size;
+}
+
+Class::Class(void)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
   } /*namespace sq*/
 } /*namespace wendy*/
 

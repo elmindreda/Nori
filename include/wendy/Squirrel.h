@@ -442,13 +442,61 @@ inline SQFUNCTION demarshal(R (T::*method)(A1))
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup squirrel
- */
-template <typename T>
 class Class : public Object
 {
 public:
-  inline Class(HSQUIRRELVM vm);
+  Class(HSQUIRRELVM vm);
+  Class(HSQUIRRELVM vm, SQInteger index);
+  template <typename T>
+  inline bool addSlot(const char* name, T value);
+  bool removeSlot(const char* name);
+  void clear(void);
+  template <typename T>
+  inline T get(const char* name);
+  SQInteger getSize(void) const;
+protected:
+  Class(void);
+};
+
+template <typename T>
+inline bool Class::addSlot(const char* name, T value)
+{
+  sq_pushobject(vm, handle);
+  sq_pushstring(vm, name, -1);
+  Value<T>::push(vm, value);
+
+  const SQRESULT result =  sq_newslot(vm, -3, false);
+
+  sq_poptop(vm);
+  return SQ_SUCCEEDED(result);
+}
+
+template <typename T>
+inline T Class::get(const char* name)
+{
+  sq_pushobject(vm, handle);
+  sq_pushstring(vm, name, -1);
+  if (SQ_FAILED(sq_get(vm, -2)))
+  {
+    sq_poptop(vm);
+    return T();
+  }
+
+  T result = Value<T>::get(vm, -1);
+  sq_pop(vm, 2);
+
+  return result;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup squirrel
+ */
+template <typename T>
+class NativeClass : public Class
+{
+public:
+  inline NativeClass(HSQUIRRELVM vm);
   template <typename M>
   inline void addMethod(const char* name, M method)
   {
@@ -468,9 +516,10 @@ private:
 };
 
 template <typename T>
-inline Class<T>::Class(HSQUIRRELVM vm):
-  Object(vm)
+inline NativeClass<T>::NativeClass(HSQUIRRELVM initVM)
 {
+  vm = initVM;
+
   if (!initialized)
   {
     sq_newclass(vm, false);
@@ -493,13 +542,13 @@ inline Class<T>::Class(HSQUIRRELVM vm):
 }
 
 template <typename T>
-inline HSQOBJECT Class<T>::getHandle(void)
+inline HSQOBJECT NativeClass<T>::getHandle(void)
 {
   return shared;
 }
 
 template <typename T>
-inline SQInteger Class<T>::create(HSQUIRRELVM vm)
+inline SQInteger NativeClass<T>::create(HSQUIRRELVM vm)
 {
   T* instance = new T();
   sq_setinstanceup(vm, 1, instance);
@@ -509,7 +558,7 @@ inline SQInteger Class<T>::create(HSQUIRRELVM vm)
 }
 
 template <typename T>
-inline SQInteger Class<T>::destroy(SQUserPointer pointer, SQInteger size)
+inline SQInteger NativeClass<T>::destroy(SQUserPointer pointer, SQInteger size)
 {
   delete reinterpret_cast<T*>(pointer);
 
@@ -517,24 +566,24 @@ inline SQInteger Class<T>::destroy(SQUserPointer pointer, SQInteger size)
 }
 
 template <typename T>
-bool Class<T>::initialized = false;
+bool NativeClass<T>::initialized = false;
 
 template <typename T>
-HSQOBJECT Class<T>::shared;
+HSQOBJECT NativeClass<T>::shared;
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @ingroup squirrel
  */
 template <typename T>
-class Value<Class<T> >
+class Value<NativeClass<T> >
 {
 public:
-  inline static Class<T> get(HSQUIRRELVM vm, SQInteger index)
+  inline static NativeClass<T> get(HSQUIRRELVM vm, SQInteger index)
   {
-    return Class<T>(vm);
+    throw Exception("I'm the best at space?");
   }
-  inline static void push(HSQUIRRELVM vm, Class<T> value)
+  inline static void push(HSQUIRRELVM vm, NativeClass<T> value)
   {
     sq_pushobject(vm, value.getHandle());
   }
