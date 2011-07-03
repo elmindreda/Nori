@@ -368,6 +368,8 @@ public:
   using Object::addSlot;
   using Object::removeSlot;
   using Object::clear;
+  using Object::get;
+  using Object::set;
   using Object::getSize;
 };
 
@@ -482,46 +484,15 @@ class Class : public Object
 public:
   Class(HSQUIRRELVM vm);
   Class(HSQUIRRELVM vm, SQInteger index);
-  template <typename T>
-  inline bool addSlot(const char* name, T value);
-  bool removeSlot(const char* name);
-  void clear(void);
-  template <typename T>
-  inline T get(const char* name);
-  SQInteger getSize(void) const;
+  using Object::addSlot;
+  using Object::removeSlot;
+  using Object::clear;
+  using Object::get;
+  using Object::set;
+  using Object::getSize;
 protected:
   Class(void);
 };
-
-template <typename T>
-inline bool Class::addSlot(const char* name, T value)
-{
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-  Value<T>::push(vm, value);
-
-  const SQRESULT result =  sq_newslot(vm, -3, false);
-
-  sq_poptop(vm);
-  return SQ_SUCCEEDED(result);
-}
-
-template <typename T>
-inline T Class::get(const char* name)
-{
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-  if (SQ_FAILED(sq_get(vm, -2)))
-  {
-    sq_poptop(vm);
-    return T();
-  }
-
-  T result = Value<T>::get(vm, -1);
-  sq_pop(vm, 2);
-
-  return result;
-}
 
 ///////////////////////////////////////////////////////////////////////
 
