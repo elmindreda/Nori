@@ -305,7 +305,7 @@ public:
   Array(HSQUIRRELVM vm);
   Array(HSQUIRRELVM vm, SQInteger index);
   template <typename T>
-  inline void insert(T value, SQInteger index);
+  inline void insert(SQInteger index, T value);
   void remove(SQInteger index);
   template <typename T>
   inline void push(T value);
@@ -322,7 +322,7 @@ public:
 };
 
 template <typename T>
-inline void Array::insert(T value, SQInteger index)
+inline void Array::insert(SQInteger index, T value)
 {
   sq_pushobject(vm, handle);
   Value<T>::push(vm, value);
