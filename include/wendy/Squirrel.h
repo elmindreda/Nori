@@ -756,7 +756,7 @@ public:
   inline SharedInstance(HSQUIRRELVM vm, SQInteger index);
   using Object::get;
   using Object::set;
-  inline T* getNativeInstance(void);
+  inline T* getNative(void);
   inline SharedClass<T> getClass(void) const;
 };
 
@@ -768,7 +768,7 @@ inline SharedInstance<T>::SharedInstance(HSQUIRRELVM vm, SQInteger index):
 }
 
 template <typename T>
-inline T* SharedInstance<T>::getNativeInstance(void)
+inline T* SharedInstance<T>::getNative(void)
 {
   sq_pushobject(vm, handle);
   T* result;
