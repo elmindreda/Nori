@@ -747,6 +747,48 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup squirrel
+ */
+template <typename T>
+class SharedInstance : public Instance
+{
+public:
+  inline SharedInstance(HSQUIRRELVM vm, SQInteger index);
+  using Object::get;
+  using Object::set;
+  inline T* getNativeInstance(void);
+  inline SharedClass<T> getClass(void) const;
+};
+
+template <typename T>
+inline SharedInstance<T>::SharedInstance(HSQUIRRELVM vm, SQInteger index):
+  Class(vm, index)
+{
+  // TODO: Check type tag
+}
+
+template <typename T>
+inline T* SharedInstance<T>::getNativeInstance(void)
+{
+  sq_pushobject(vm, handle);
+  T* result;
+  sq_getinstanceup(vm, -1, (SQUserPointer*) &result, NULL);
+  sq_poptop(vm);
+  return result;
+}
+
+template <typename T>
+inline SharedClass<T> SharedInstance<T>::getClass(void) const
+{
+  sq_pushobject(vm, handle);
+  sq_getclass(vm, -1);
+  SharedClass<T> result(vm, -1);
+  sq_pop(vm, 2);
+  return result;
+}
+
+///////////////////////////////////////////////////////////////////////
+
   } /*namespace sq*/
 } /*namespace wendy*/
 
