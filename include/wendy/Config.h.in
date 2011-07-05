@@ -13,10 +13,6 @@
 
 /* Define this to 1 if strtof is available */
 #cmakedefine WENDY_HAVE_STRTOF 1
-/* Define this to 1 if strlcat is available */
-#cmakedefine WENDY_HAVE_STRLCAT 1
-/* Define this to 1 if strlcpy is available */
-#cmakedefine WENDY_HAVE_STRLCPY 1
 /* Define this to 1 if vasprintf is available */
 #cmakedefine WENDY_HAVE_VASPRINTF 1
 

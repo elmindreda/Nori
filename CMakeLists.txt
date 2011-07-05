@@ -21,8 +21,6 @@ test_big_endian(WENDY_WORDS_BIGENDIAN)
 
 include(CheckFunctionExists)
 check_function_exists(strtof WENDY_HAVE_STRTOF)
-check_function_exists(strlcat WENDY_HAVE_STRLCAT)
-check_function_exists(strlcpy WENDY_HAVE_STRLCPY)
 check_function_exists(vasprintf WENDY_HAVE_VASPRINTF)
 
 include(CheckIncludeFile)

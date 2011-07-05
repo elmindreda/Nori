@@ -64,59 +64,6 @@ float strtof(const char* nptr, char** endptr)
 
 #endif /*WENDY_HAVE_STRTOF*/
 
-#if !WENDY_HAVE_STRLCAT
-
-size_t strlcat(char* target, const char* source, size_t size)
-{
-  size_t target_length, source_length, append_length;
-
-  target_length = std::strlen(target);
-  source_length = std::strlen(source);
-
-  if (target_length >= size)
-    return size;
-
-  if (source_length == 0)
-    return target_length;
-
-  append_length = size - (target_length + 1);
-  if (append_length > source_length)
-    append_length = source_length;
-
-  if (append_length > 0)
-    std::strncat(target, source, append_length);
-
-  return target_length + source_length;
-}
-
-#endif /*WENDY_HAVE_STRLCAT*/
-
-#if !WENDY_HAVE_STRLCPY
-
-size_t strlcpy(char* target, const char* source, size_t size)
-{
-  size_t source_length, copy_length;
-
-  source_length = std::strlen(source);
-
-  if (size == 0)
-    return source_length;
-
-  if (source_length < size - 1)
-    copy_length = source_length;
-  else
-    copy_length = size - 1;
-
-  std::strncpy(target, source, copy_length);
-
-  if (copy_length >= size)
-    target[size - 1] = '\0';
-
-  return source_length;
-}
-
-#endif /*WENDY_HAVE_STRLCPY*/
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy

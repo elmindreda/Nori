@@ -66,14 +66,6 @@ int vasprintf(char** result, const char* format, va_list vl);
 float strtof(const char* nptr, char** endptr);
 #endif /*WENDY_HAVE_STRTOF*/
 
-#if !WENDY_HAVE_STRLCAT
-size_t strlcat(char* target, const char* source, size_t size);
-#endif /*WENDY_HAVE_STRLCAT*/
-
-#if !WENDY_HAVE_STRLCPY
-size_t strlcpy(char* target, const char* source, size_t size);
-#endif /*WENDY_HAVE_STRLCPY*/
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
