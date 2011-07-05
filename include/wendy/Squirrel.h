@@ -664,8 +664,8 @@ public:
     addFunction(name, &method, sizeof(method), demarshal(method), true);
   }
   inline static HSQOBJECT getHandle(void);
-private:
   static inline SQInteger create(HSQUIRRELVM vm);
+private:
   static inline SQInteger destroy(SQUserPointer pointer, SQInteger size);
   static bool initialized;
   static HSQOBJECT shared;
