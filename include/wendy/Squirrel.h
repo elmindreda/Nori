@@ -605,7 +605,7 @@ class Value<Class>
 public:
   inline static Class get(HSQUIRRELVM vm, SQInteger index)
   {
-    throw Exception("You are the farthest ever in space");
+    return Class(vm, index);
   }
   inline static void push(HSQUIRRELVM vm, Class value)
   {
@@ -636,7 +636,7 @@ class Value<Instance>
 public:
   inline static Instance get(HSQUIRRELVM vm, SQInteger index)
   {
-    throw Exception("Bam, guilty, of not being in space");
+    return Instance(vm, index);
   }
   inline static void push(HSQUIRRELVM vm, Instance value)
   {
@@ -737,7 +737,7 @@ class Value<SharedClass<T> >
 public:
   inline static SharedClass<T> get(HSQUIRRELVM vm, SQInteger index)
   {
-    throw Exception("I'm the best at space?");
+    return SharedClass<T>(vm, index);
   }
   inline static void push(HSQUIRRELVM vm, SharedClass<T> value)
   {
