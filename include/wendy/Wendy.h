@@ -128,11 +128,10 @@ namespace wendy
 
 /*! @brief Initializes libraries and creates the default objects.
  *
- *  Initializes lower-level libraries and sets up the default objects,
- *  such as instances of all default resource codecs.  You must call
- *  this before creating an OpenGL context.
+ *  Initializes lower-level libraries.  You must call this before using
+ *  a Timer or GL::Context.
  *
- *  @remarks If you do call it, it's considered polite to call
+ *  @remarks If you do call this, it's considered polite to call
  *  wendy::shutdown as well.
  */
 bool initialize(void);
