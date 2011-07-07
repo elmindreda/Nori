@@ -664,9 +664,10 @@ public:
     addFunction(name, &method, sizeof(method), demarshal(method), true);
   }
   inline static HSQOBJECT getHandle(void);
-  inline static SQInteger create(HSQUIRRELVM vm);
+  inline static T* createNativeInstance(HSQUIRRELVM vm);
 private:
-  inline static SQInteger destroy(SQUserPointer pointer, SQInteger size);
+  inline static SQInteger constructor(HSQUIRRELVM vm);
+  inline static SQInteger destructor(SQUserPointer pointer, SQInteger size);
   static bool initialized;
   static HSQOBJECT shared;
 };
@@ -685,7 +686,7 @@ inline SharedClass<T>::SharedClass(HSQUIRRELVM initVM)
     sq_addref(vm, &shared);
 
     sq_pushstring(vm, "constructor", -1);
-    sq_newclosure(vm, &create, 0);
+    sq_newclosure(vm, &constructor, 0);
     sq_newslot(vm, -3, false);
 
     sq_poptop(vm);
@@ -704,17 +705,23 @@ inline HSQOBJECT SharedClass<T>::getHandle(void)
 }
 
 template <typename T>
-inline SQInteger SharedClass<T>::create(HSQUIRRELVM vm)
+inline T* SharedClass<T>::createNativeInstance(HSQUIRRELVM vm)
 {
-  T* instance = new T();
+  return new T();
+}
+
+template <typename T>
+inline SQInteger SharedClass<T>::constructor(HSQUIRRELVM vm)
+{
+  T* instance = createNativeInstance(vm);
   sq_setinstanceup(vm, 1, instance);
-  sq_setreleasehook(vm, 1, &destroy);
+  sq_setreleasehook(vm, 1, &destructor);
 
   return 0;
 }
 
 template <typename T>
-inline SQInteger SharedClass<T>::destroy(SQUserPointer pointer, SQInteger size)
+inline SQInteger SharedClass<T>::destructor(SQUserPointer pointer, SQInteger size)
 {
   delete reinterpret_cast<T*>(pointer);
 
