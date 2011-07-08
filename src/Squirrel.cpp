@@ -267,7 +267,9 @@ String Object::asString(void) const
 {
   sq_pushobject(vm, handle);
   sq_tostring(vm, -1);
+
   String result = Value<String>::get(vm, -1);
+
   sq_pop(vm, 2);
   return result;
 }
@@ -310,7 +312,7 @@ bool Object::removeSlot(const char* name)
   return SQ_SUCCEEDED(result);
 }
 
-void Object::addFunction(const char* name,
+bool Object::addFunction(const char* name,
                          void* pointer,
                          size_t pointerSize,
                          SQFUNCTION function,
@@ -322,15 +324,20 @@ void Object::addFunction(const char* name,
   std::memcpy(sq_newuserdata(vm, pointerSize), pointer, pointerSize);
   sq_newclosure(vm, function, 1);
 
-  sq_newslot(vm, -3, staticMember);
+  const SQRESULT result = sq_newslot(vm, -3, staticMember);
+
   sq_poptop(vm);
+  return SQ_SUCCEEDED(result);
 }
 
-void Object::clear(void)
+bool Object::clear(void)
 {
   sq_pushobject(vm, handle);
-  sq_clear(vm, -1);
+
+  const SQRESULT result = sq_clear(vm, -1);
+
   sq_poptop(vm);
+  return SQ_SUCCEEDED(result);
 }
 
 SQInteger Object::getSize(void) const
@@ -359,40 +366,49 @@ Array::Array(HSQUIRRELVM vm, SQInteger index):
     throw Exception("Object is not an array");
 }
 
-void Array::remove(SQInteger index)
+bool Array::remove(SQInteger index)
 {
   sq_pushobject(vm, handle);
-  sq_arrayremove(vm, -1, index);
+  const SQRESULT result = sq_arrayremove(vm, -1, index);
   sq_poptop(vm);
+  return SQ_SUCCEEDED(result);
 }
 
-void Array::pop(void)
+bool Array::pop(void)
 {
   sq_pushobject(vm, handle);
-  sq_arraypop(vm, -1, false);
+  const SQRESULT result = sq_arraypop(vm, -1, false);
   sq_poptop(vm);
+  return SQ_SUCCEEDED(result);
 }
 
-void Array::resize(SQInteger newSize)
+bool Array::resize(SQInteger newSize)
 {
   sq_pushobject(vm, handle);
-  sq_arrayresize(vm, -1, newSize);
+  const SQRESULT result = sq_arrayresize(vm, -1, newSize);
   sq_poptop(vm);
+  return SQ_SUCCEEDED(result);
 }
 
-void Array::reverse(void)
+bool Array::reverse(void)
 {
   sq_pushobject(vm, handle);
-  sq_arrayreverse(vm, -1);
+  const SQRESULT result = sq_arrayreverse(vm, -1);
   sq_poptop(vm);
+  return SQ_SUCCEEDED(result);
 }
 
 Object Array::operator [] (SQInteger index) const
 {
   sq_pushobject(vm, handle);
   sq_pushinteger(vm, index);
+
   if (SQ_FAILED(sq_get(vm, -2)))
+  {
+    sq_poptop(vm);
     throw Exception("No array element at index");
+  }
+
   Object result(vm, -1);
   sq_pop(vm, 2);
   return result;
@@ -460,7 +476,9 @@ Class Instance::getClass(void) const
 {
   sq_pushobject(vm, handle);
   sq_getclass(vm, -1);
+
   Class result(vm, -1);
+
   sq_pop(vm, 2);
   return result;
 }

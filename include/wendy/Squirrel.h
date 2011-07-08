@@ -212,16 +212,16 @@ protected:
   template <typename T>
   inline bool addSlot(const char* name, T value);
   bool removeSlot(const char* name);
-  void addFunction(const char* name,
+  bool addFunction(const char* name,
                    void* pointer,
                    size_t pointerSize,
                    SQFUNCTION function,
                    bool staticMember = false);
-  void clear(void);
+  bool clear(void);
   template <typename T>
   inline T get(const char* name);
   template <typename T>
-  inline void set(const char* name, T value);
+  inline bool set(const char* name, T value);
   SQInteger getSize(void) const;
   HSQUIRRELVM vm;
   HSQOBJECT handle;
@@ -254,10 +254,11 @@ inline T Object::get(const char* name)
 {
   sq_pushobject(vm, handle);
   sq_pushstring(vm, name, -1);
+
   if (SQ_FAILED(sq_get(vm, -2)))
   {
     sq_poptop(vm);
-    return T();
+    throw Exception("The requested slot does not exist");
   }
 
   T result = Value<T>::get(vm, -1);
@@ -267,14 +268,16 @@ inline T Object::get(const char* name)
 }
 
 template <typename T>
-inline void Object::set(const char* name, T value)
+inline bool Object::set(const char* name, T value)
 {
   sq_pushobject(vm, handle);
   sq_pushstring(vm, name, -1);
   Value<T>::push(vm, value);
-  if (SQ_FAILED(sq_set(vm, -3)))
-    throw Exception("No such slot");
+
+  const SQRESULT result = sq_set(vm, -3);
+
   sq_poptop(vm);
+  return SQ_SUCCEEDED(result);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -305,38 +308,44 @@ public:
   Array(HSQUIRRELVM vm);
   Array(HSQUIRRELVM vm, SQInteger index);
   template <typename T>
-  inline void insert(SQInteger index, T value);
-  void remove(SQInteger index);
+  inline bool insert(SQInteger index, T value);
+  bool remove(SQInteger index);
   template <typename T>
-  inline void push(T value);
-  void pop(void);
-  void resize(SQInteger newSize);
-  void reverse(void);
+  inline bool push(T value);
+  bool pop(void);
+  bool resize(SQInteger newSize);
+  bool reverse(void);
   using Object::clear;
   Object operator [] (SQInteger index) const;
   template <typename T>
   inline T get(SQInteger index) const;
   template <typename T>
-  inline void set(SQInteger index, T value);
+  inline bool set(SQInteger index, T value);
   using Object::getSize;
 };
 
 template <typename T>
-inline void Array::insert(SQInteger index, T value)
+inline bool Array::insert(SQInteger index, T value)
 {
   sq_pushobject(vm, handle);
   Value<T>::push(vm, value);
-  sq_arrayinsert(vm, -2, index);
+
+  const SQRESULT result = sq_arrayinsert(vm, -2, index);
+
   sq_poptop(vm);
+  return SQ_SUCCEEDED(result);
 }
 
 template <typename T>
-inline void Array::push(T value)
+inline bool Array::push(T value)
 {
   sq_pushobject(vm, handle);
   Value<T>::push(vm, value);
-  sq_arrayappend(vm, -2);
+
+  const SQRESULT result = sq_arrayappend(vm, -2);
+
   sq_poptop(vm);
+  return SQ_SUCCEEDED(result);
 }
 
 template <typename T>
@@ -344,22 +353,29 @@ inline T Array::get(SQInteger index) const
 {
   sq_pushobject(vm, handle);
   sq_pushinteger(vm, index);
+
   if (SQ_FAILED(sq_get(vm, -2)))
+  {
+    sq_poptop(vm);
     throw Exception("No array element at index");
+  }
+
   T result = Value<T>::get(vm, -1);
   sq_pop(vm, 2);
   return result;
 }
 
 template <typename T>
-inline void Array::set(SQInteger index, T value)
+inline bool Array::set(SQInteger index, T value)
 {
   sq_pushobject(vm, handle);
   sq_pushinteger(vm, index);
   Value<T>::push(vm, value);
-  if (SQ_FAILED(sq_set(vm, -3)))
-    throw Exception("No array element at index");
+
+  const SQRESULT result = sq_set(vm, -3);
+
   sq_poptop(vm);
+  return SQ_SUCCEEDED(result);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -654,14 +670,14 @@ class SharedClass : public Class
 public:
   inline SharedClass(HSQUIRRELVM vm);
   template <typename M>
-  inline void addMethod(const char* name, M method)
+  inline bool addMethod(const char* name, M method)
   {
-    addFunction(name, &method, sizeof(method), demarshal(method), false);
+    return addFunction(name, &method, sizeof(method), demarshal(method), false);
   }
   template <typename M>
-  inline void addStaticMethod(const char* name, M method)
+  inline bool addStaticMethod(const char* name, M method)
   {
-    addFunction(name, &method, sizeof(method), demarshal(method), true);
+    return addFunction(name, &method, sizeof(method), demarshal(method), true);
   }
   inline static HSQOBJECT getHandle(void);
   inline static T* createNativeInstance(HSQUIRRELVM vm);
@@ -778,7 +794,7 @@ template <typename T>
 inline T* SharedInstance<T>::getNative(void)
 {
   sq_pushobject(vm, handle);
-  T* result;
+  T* result = NULL;
   sq_getinstanceup(vm, -1, (SQUserPointer*) &result, NULL);
   sq_poptop(vm);
   return result;
