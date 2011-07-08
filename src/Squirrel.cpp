@@ -369,7 +369,9 @@ Array::Array(HSQUIRRELVM vm, SQInteger index):
 bool Array::remove(SQInteger index)
 {
   sq_pushobject(vm, handle);
+
   const SQRESULT result = sq_arrayremove(vm, -1, index);
+
   sq_poptop(vm);
   return SQ_SUCCEEDED(result);
 }
@@ -377,7 +379,9 @@ bool Array::remove(SQInteger index)
 bool Array::pop(void)
 {
   sq_pushobject(vm, handle);
+
   const SQRESULT result = sq_arraypop(vm, -1, false);
+
   sq_poptop(vm);
   return SQ_SUCCEEDED(result);
 }
@@ -385,7 +389,9 @@ bool Array::pop(void)
 bool Array::resize(SQInteger newSize)
 {
   sq_pushobject(vm, handle);
+
   const SQRESULT result = sq_arrayresize(vm, -1, newSize);
+
   sq_poptop(vm);
   return SQ_SUCCEEDED(result);
 }
@@ -393,7 +399,9 @@ bool Array::resize(SQInteger newSize)
 bool Array::reverse(void)
 {
   sq_pushobject(vm, handle);
+
   const SQRESULT result = sq_arrayreverse(vm, -1);
+
   sq_poptop(vm);
   return SQ_SUCCEEDED(result);
 }
