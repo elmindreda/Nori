@@ -462,9 +462,11 @@ Instance Class::createInstance(void) const
 {
   sq_pushobject(vm, handle);
   sq_createinstance(vm, -1);
-  Instance instance(vm, -1);
+
+  Instance result(vm, -1);
+
   sq_pop(vm, 2);
-  return instance;
+  return result;
 }
 
 Class::Class(void)
