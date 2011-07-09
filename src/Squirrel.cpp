@@ -359,6 +359,13 @@ Array::Array(HSQUIRRELVM vm):
   sq_poptop(vm);
 }
 
+Array::Array(const Object& source):
+  Object(source)
+{
+  if (!isArray())
+    throw Exception("Object is not an array");
+}
+
 Array::Array(HSQUIRRELVM vm, SQInteger index):
   Object(vm, index)
 {
@@ -433,6 +440,13 @@ Table::Table(HSQUIRRELVM vm):
   sq_poptop(vm);
 }
 
+Table::Table(const Object& source):
+  Object(source)
+{
+  if (!isTable())
+    throw Exception("Object is not a table");
+}
+
 Table::Table(HSQUIRRELVM vm, SQInteger index):
   Object(vm, index)
 {
@@ -449,6 +463,13 @@ Class::Class(HSQUIRRELVM vm):
   sq_getstackobj(vm, -1, &handle);
   sq_addref(vm, &handle);
   sq_poptop(vm);
+}
+
+Class::Class(const Object& source):
+  Object(source)
+{
+  if (!isClass())
+    throw Exception("Object is not a class");
 }
 
 Class::Class(HSQUIRRELVM vm, SQInteger index):
@@ -474,6 +495,13 @@ Class::Class(void)
 }
 
 ///////////////////////////////////////////////////////////////////////
+
+Instance::Instance(const Object& source):
+  Object(source)
+{
+  if (!isInstance())
+    throw Exception("Object is not an instance");
+}
 
 Instance::Instance(HSQUIRRELVM vm, SQInteger index):
   Object(vm, index)

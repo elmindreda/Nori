@@ -306,6 +306,7 @@ class Array : public Object
 {
 public:
   Array(HSQUIRRELVM vm);
+  Array(const Object& source);
   Array(HSQUIRRELVM vm, SQInteger index);
   template <typename T>
   inline bool insert(SQInteger index, T value);
@@ -404,6 +405,7 @@ class Table : public Object
 {
 public:
   Table(HSQUIRRELVM vm);
+  Table(const Object& source);
   Table(HSQUIRRELVM vm, SQInteger index);
   using Object::addSlot;
   using Object::removeSlot;
@@ -599,6 +601,7 @@ class Class : public Object
 {
 public:
   Class(HSQUIRRELVM vm);
+  Class(const Object& source);
   Class(HSQUIRRELVM vm, SQInteger index);
   Instance createInstance(void) const;
   using Object::addSlot;
@@ -636,6 +639,7 @@ public:
 class Instance : public Object
 {
 public:
+  Instance(const Object& source);
   Instance(HSQUIRRELVM vm, SQInteger index);
   using Object::get;
   using Object::set;
