@@ -350,6 +350,10 @@ SQInteger Object::getSize(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
+Array::Array(void)
+{
+}
+
 Array::Array(HSQUIRRELVM vm):
   Object(vm)
 {
@@ -362,7 +366,7 @@ Array::Array(HSQUIRRELVM vm):
 Array::Array(const Object& source):
   Object(source)
 {
-  if (!isArray())
+  if (!isNull() && !isArray())
     throw Exception("Object is not an array");
 }
 
@@ -375,6 +379,9 @@ Array::Array(HSQUIRRELVM vm, SQInteger index):
 
 bool Array::remove(SQInteger index)
 {
+  if (isNull())
+    return false;
+
   sq_pushobject(vm, handle);
 
   const SQRESULT result = sq_arrayremove(vm, -1, index);
@@ -385,6 +392,9 @@ bool Array::remove(SQInteger index)
 
 bool Array::pop(void)
 {
+  if (isNull())
+    return false;
+
   sq_pushobject(vm, handle);
 
   const SQRESULT result = sq_arraypop(vm, -1, false);
@@ -395,6 +405,9 @@ bool Array::pop(void)
 
 bool Array::resize(SQInteger newSize)
 {
+  if (isNull())
+    return false;
+
   sq_pushobject(vm, handle);
 
   const SQRESULT result = sq_arrayresize(vm, -1, newSize);
@@ -405,6 +418,9 @@ bool Array::resize(SQInteger newSize)
 
 bool Array::reverse(void)
 {
+  if (isNull())
+    return false;
+
   sq_pushobject(vm, handle);
 
   const SQRESULT result = sq_arrayreverse(vm, -1);
@@ -415,6 +431,9 @@ bool Array::reverse(void)
 
 Object Array::operator [] (SQInteger index) const
 {
+  if (isNull())
+    throw Exception("Cannot retrieve slot from null");
+
   sq_pushobject(vm, handle);
   sq_pushinteger(vm, index);
 
@@ -431,6 +450,10 @@ Object Array::operator [] (SQInteger index) const
 
 ///////////////////////////////////////////////////////////////////////
 
+Table::Table(void)
+{
+}
+
 Table::Table(HSQUIRRELVM vm):
   Object(vm)
 {
@@ -443,7 +466,7 @@ Table::Table(HSQUIRRELVM vm):
 Table::Table(const Object& source):
   Object(source)
 {
-  if (!isTable())
+  if (!isNull() && !isTable())
     throw Exception("Object is not a table");
 }
 
@@ -455,6 +478,10 @@ Table::Table(HSQUIRRELVM vm, SQInteger index):
 }
 
 ///////////////////////////////////////////////////////////////////////
+
+Class::Class(void)
+{
+}
 
 Class::Class(HSQUIRRELVM vm):
   Object(vm)
@@ -468,7 +495,7 @@ Class::Class(HSQUIRRELVM vm):
 Class::Class(const Object& source):
   Object(source)
 {
-  if (!isClass())
+  if (!isNull() && !isClass())
     throw Exception("Object is not a class");
 }
 
@@ -490,16 +517,16 @@ Instance Class::createInstance(void) const
   return result;
 }
 
-Class::Class(void)
+///////////////////////////////////////////////////////////////////////
+
+Instance::Instance(void)
 {
 }
-
-///////////////////////////////////////////////////////////////////////
 
 Instance::Instance(const Object& source):
   Object(source)
 {
-  if (!isInstance())
+  if (!isNull() && !isInstance())
     throw Exception("Object is not an instance");
 }
 

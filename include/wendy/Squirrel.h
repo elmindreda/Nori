@@ -305,6 +305,7 @@ public:
 class Array : public Object
 {
 public:
+  Array(void);
   Array(HSQUIRRELVM vm);
   Array(const Object& source);
   Array(HSQUIRRELVM vm, SQInteger index);
@@ -328,6 +329,9 @@ public:
 template <typename T>
 inline bool Array::insert(SQInteger index, T value)
 {
+  if (isNull())
+    return false;
+
   sq_pushobject(vm, handle);
   Value<T>::push(vm, value);
 
@@ -340,6 +344,9 @@ inline bool Array::insert(SQInteger index, T value)
 template <typename T>
 inline bool Array::push(T value)
 {
+  if (isNull())
+    return false;
+
   sq_pushobject(vm, handle);
   Value<T>::push(vm, value);
 
@@ -352,6 +359,9 @@ inline bool Array::push(T value)
 template <typename T>
 inline T Array::get(SQInteger index) const
 {
+  if (isNull())
+    throw Exception("Cannot retrieve slot from null");
+
   sq_pushobject(vm, handle);
   sq_pushinteger(vm, index);
 
@@ -369,6 +379,9 @@ inline T Array::get(SQInteger index) const
 template <typename T>
 inline bool Array::set(SQInteger index, T value)
 {
+  if (isNull())
+    return false;
+
   sq_pushobject(vm, handle);
   sq_pushinteger(vm, index);
   Value<T>::push(vm, value);
@@ -404,6 +417,7 @@ public:
 class Table : public Object
 {
 public:
+  Table(void);
   Table(HSQUIRRELVM vm);
   Table(const Object& source);
   Table(HSQUIRRELVM vm, SQInteger index);
@@ -600,6 +614,7 @@ inline SQFUNCTION demarshal(R (T::*method)(A1) const)
 class Class : public Object
 {
 public:
+  Class(void);
   Class(HSQUIRRELVM vm);
   Class(const Object& source);
   Class(HSQUIRRELVM vm, SQInteger index);
@@ -610,8 +625,6 @@ public:
   using Object::get;
   using Object::set;
   using Object::getSize;
-protected:
-  Class(void);
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -639,6 +652,7 @@ public:
 class Instance : public Object
 {
 public:
+  Instance(void);
   Instance(const Object& source);
   Instance(HSQUIRRELVM vm, SQInteger index);
   using Object::get;
