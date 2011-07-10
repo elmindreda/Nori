@@ -10,8 +10,9 @@ The project website is here:
 
   http://www.elmindreda.org/wendy/
 
-Wendy resides in a public monotone repository on mtn.elmindreda.org.  The main
-(and the only usable) branch is org.elmindreda.wendy .
+Wendy (for now) resides in a public GitHub repository:
+
+  https://github.com/elmindreda/Wendy
 
 
 1. License and copyright
