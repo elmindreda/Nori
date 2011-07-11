@@ -526,6 +526,36 @@ Instance Class::createInstance(void) const
   return result;
 }
 
+Table Class::getAttributes(void)
+{
+  if (isNull())
+    return Table();
+
+  sq_pushobject(vm, handle);
+  sq_pushnull(vm);
+  sq_getattributes(vm, -2);
+
+  Table result(vm, -1);
+
+  sq_pop(vm, 2);
+  return result;
+}
+
+Table Class::getMemberAttributes(const char* name)
+{
+  if (isNull())
+    return Table();
+
+  sq_pushobject(vm, handle);
+  sq_pushstring(vm, name, -1);
+  sq_getattributes(vm, -2);
+
+  Table result(vm, -1);
+
+  sq_pop(vm, 2);
+  return result;
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 Instance::Instance(void)

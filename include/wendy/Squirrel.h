@@ -626,6 +626,8 @@ public:
   using Object::get;
   using Object::set;
   using Object::getSize;
+  Table getAttributes(void);
+  Table getMemberAttributes(const char* name);
 };
 
 ///////////////////////////////////////////////////////////////////////
