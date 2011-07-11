@@ -66,6 +66,7 @@ public:
   void* getForeignPointer(void) const;
   void setForeignPointer(void* newValue);
   Table getRootTable(void);
+  Table getConstTable(void);
   Table getRegistryTable(void);
   ResourceIndex& getIndex(void) const;
 private:

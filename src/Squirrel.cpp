@@ -125,6 +125,15 @@ Table VM::getRootTable(void)
   return table;
 }
 
+Table VM::getConstTable(void)
+{
+  sq_pushconsttable(vm);
+  Table table(vm, -1);
+  sq_poptop(vm);
+
+  return table;
+}
+
 Table VM::getRegistryTable(void)
 {
   sq_pushregistrytable(vm);
