@@ -212,6 +212,9 @@ Object::Object(void):
 Object::Object(HSQUIRRELVM initVM, SQInteger index):
   vm(initVM)
 {
+  if (!vm)
+    throw Exception("VM handle cannot be NULL when constructing from stack");
+
   sq_resetobject(&handle);
   sq_getstackobj(vm, -1, &handle);
   sq_addref(vm, &handle);
@@ -231,6 +234,9 @@ Object::~Object(void)
 
 Object Object::clone(void) const
 {
+  if (!vm)
+    return Object();
+
   sq_pushobject(vm, handle);
   sq_clone(vm, -1);
   Object clone(vm, -1);
@@ -274,6 +280,9 @@ bool Object::isInstance(void) const
 
 String Object::asString(void) const
 {
+  if (!vm)
+    return String();
+
   sq_pushobject(vm, handle);
   sq_tostring(vm, -1);
 
@@ -312,6 +321,9 @@ Object::Object(HSQUIRRELVM initVM):
 
 bool Object::removeSlot(const char* name)
 {
+  if (isNull())
+    return false;
+
   sq_pushobject(vm, handle);
   sq_pushstring(vm, name, -1);
 
@@ -327,6 +339,9 @@ bool Object::addFunction(const char* name,
                          SQFUNCTION function,
                          bool staticMember)
 {
+  if (isNull())
+    return false;
+
   sq_pushobject(vm, handle);
   sq_pushstring(vm, name, -1);
 
@@ -341,6 +356,9 @@ bool Object::addFunction(const char* name,
 
 bool Object::clear(void)
 {
+  if (isNull())
+    return false;
+
   sq_pushobject(vm, handle);
 
   const SQRESULT result = sq_clear(vm, -1);
@@ -351,6 +369,9 @@ bool Object::clear(void)
 
 SQInteger Object::getSize(void) const
 {
+  if (isNull())
+    return 0;
+
   sq_pushobject(vm, handle);
   SQInteger size = sq_getsize(vm, -1);
   sq_poptop(vm);

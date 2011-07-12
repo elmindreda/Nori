@@ -240,6 +240,9 @@ inline T Object::cast(void) const
 template <typename T>
 inline bool Object::addSlot(const char* name, T value)
 {
+  if (isNull())
+    return false;
+
   sq_pushobject(vm, handle);
   sq_pushstring(vm, name, -1);
   Value<T>::push(vm, value);
@@ -271,6 +274,9 @@ inline T Object::get(const char* name)
 template <typename T>
 inline bool Object::set(const char* name, T value)
 {
+  if (isNull())
+    return false;
+
   sq_pushobject(vm, handle);
   sq_pushstring(vm, name, -1);
   Value<T>::push(vm, value);
