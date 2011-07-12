@@ -94,96 +94,6 @@ public:
   inline static void push(HSQUIRRELVM vm, T value);
 };
 
-/*! @ingroup squirrel
- */
-template <>
-class Value<bool>
-{
-public:
-  inline static bool get(HSQUIRRELVM vm, SQInteger index)
-  {
-    SQBool value;
-    sq_getbool(vm, index, &value);
-    return value ? true : false;
-  }
-  inline static void push(HSQUIRRELVM vm, bool value)
-  {
-    sq_pushbool(vm, SQBool(value));
-  }
-};
-
-/*! @ingroup squirrel
- */
-template <>
-class Value<int>
-{
-public:
-  inline static int get(HSQUIRRELVM vm, SQInteger index)
-  {
-    SQInteger value;
-    sq_getinteger(vm, index, &value);
-    return int(value);
-  }
-  inline static void push(HSQUIRRELVM vm, int value)
-  {
-    sq_pushinteger(vm, SQInteger(value));
-  }
-};
-
-/*! @ingroup squirrel
- */
-template <>
-class Value<float>
-{
-public:
-  inline static float get(HSQUIRRELVM vm, SQInteger index)
-  {
-    SQFloat value;
-    sq_getfloat(vm, index, &value);
-    return float(value);
-  }
-  inline static void push(HSQUIRRELVM vm, float value)
-  {
-    sq_pushfloat(vm, SQFloat(value));
-  }
-};
-
-/*! @ingroup squirrel
- */
-template <>
-class Value<const char*>
-{
-public:
-  inline static const char* get(HSQUIRRELVM vm, SQInteger index)
-  {
-    const SQChar* value;
-    sq_getstring(vm, index, &value);
-    return value;
-  }
-  inline static void push(HSQUIRRELVM vm, const char* value)
-  {
-    sq_pushstring(vm, value, -1);
-  }
-};
-
-/*! @ingroup squirrel
- */
-template <>
-class Value<String>
-{
-public:
-  inline static String get(HSQUIRRELVM vm, SQInteger index)
-  {
-    const SQChar* value;
-    sq_getstring(vm, index, &value);
-    return String(value);
-  }
-  inline static void push(HSQUIRRELVM vm, String value)
-  {
-    sq_pushstring(vm, value.c_str(), -1);
-  }
-};
-
 ///////////////////////////////////////////////////////////////////////
 
 /*! @ingroup squirrel
@@ -291,24 +201,6 @@ inline bool Object::set(const char* name, T value)
 
 /*! @ingroup squirrel
  */
-template <>
-class Value<Object>
-{
-public:
-  inline static Object get(HSQUIRRELVM vm, SQInteger index)
-  {
-    return Object(vm, index);
-  }
-  inline static void push(HSQUIRRELVM vm, Object value)
-  {
-    sq_pushobject(vm, value.getHandle());
-  }
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup squirrel
- */
 class Array : public Object
 {
 public:
@@ -403,24 +295,6 @@ inline bool Array::set(SQInteger index, T value)
 
 /*! @ingroup squirrel
  */
-template <>
-class Value<Array>
-{
-public:
-  inline static Array get(HSQUIRRELVM vm, SQInteger index)
-  {
-    return Array(vm, index);
-  }
-  inline static void push(HSQUIRRELVM vm, Array value)
-  {
-    sq_pushobject(vm, value.getHandle());
-  }
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup squirrel
- */
 class Table : public Object
 {
 public:
@@ -434,24 +308,6 @@ public:
   using Object::get;
   using Object::set;
   using Object::getSize;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup squirrel
- */
-template <>
-class Value<Table>
-{
-public:
-  inline static Table get(HSQUIRRELVM vm, SQInteger index)
-  {
-    return Table(vm, index);
-  }
-  inline static void push(HSQUIRRELVM vm, Table value)
-  {
-    sq_pushobject(vm, value.getHandle());
-  }
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -824,24 +680,6 @@ public:
 
 /*! @ingroup squirrel
  */
-template <>
-class Value<Class>
-{
-public:
-  inline static Class get(HSQUIRRELVM vm, SQInteger index)
-  {
-    return Class(vm, index);
-  }
-  inline static void push(HSQUIRRELVM vm, Class value)
-  {
-    sq_pushobject(vm, value.getHandle());
-  }
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup squirrel
- */
 class Instance : public Object
 {
 public:
@@ -851,24 +689,6 @@ public:
   using Object::get;
   using Object::set;
   Class getClass(void) const;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup squirrel
- */
-template <>
-class Value<Instance>
-{
-public:
-  inline static Instance get(HSQUIRRELVM vm, SQInteger index)
-  {
-    return Instance(vm, index);
-  }
-  inline static void push(HSQUIRRELVM vm, Instance value)
-  {
-    sq_pushobject(vm, value.getHandle());
-  }
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -972,24 +792,6 @@ HSQOBJECT SharedClass<T>::shared;
 /*! @ingroup squirrel
  */
 template <typename T>
-class Value<SharedClass<T> >
-{
-public:
-  inline static SharedClass<T> get(HSQUIRRELVM vm, SQInteger index)
-  {
-    return SharedClass<T>(vm, index);
-  }
-  inline static void push(HSQUIRRELVM vm, SharedClass<T> value)
-  {
-    sq_pushobject(vm, value.getHandle());
-  }
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup squirrel
- */
-template <typename T>
 class SharedInstance : public Instance
 {
 public:
@@ -1026,6 +828,194 @@ inline SharedClass<T> SharedInstance<T>::getClass(void) const
   sq_pop(vm, 2);
   return result;
 }
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup squirrel
+ */
+template <>
+class Value<bool>
+{
+public:
+  inline static bool get(HSQUIRRELVM vm, SQInteger index)
+  {
+    SQBool value;
+    sq_getbool(vm, index, &value);
+    return value ? true : false;
+  }
+  inline static void push(HSQUIRRELVM vm, bool value)
+  {
+    sq_pushbool(vm, SQBool(value));
+  }
+};
+
+/*! @ingroup squirrel
+ */
+template <>
+class Value<int>
+{
+public:
+  inline static int get(HSQUIRRELVM vm, SQInteger index)
+  {
+    SQInteger value;
+    sq_getinteger(vm, index, &value);
+    return int(value);
+  }
+  inline static void push(HSQUIRRELVM vm, int value)
+  {
+    sq_pushinteger(vm, SQInteger(value));
+  }
+};
+
+/*! @ingroup squirrel
+ */
+template <>
+class Value<float>
+{
+public:
+  inline static float get(HSQUIRRELVM vm, SQInteger index)
+  {
+    SQFloat value;
+    sq_getfloat(vm, index, &value);
+    return float(value);
+  }
+  inline static void push(HSQUIRRELVM vm, float value)
+  {
+    sq_pushfloat(vm, SQFloat(value));
+  }
+};
+
+/*! @ingroup squirrel
+ */
+template <>
+class Value<const char*>
+{
+public:
+  inline static const char* get(HSQUIRRELVM vm, SQInteger index)
+  {
+    const SQChar* value;
+    sq_getstring(vm, index, &value);
+    return value;
+  }
+  inline static void push(HSQUIRRELVM vm, const char* value)
+  {
+    sq_pushstring(vm, value, -1);
+  }
+};
+
+/*! @ingroup squirrel
+ */
+template <>
+class Value<String>
+{
+public:
+  inline static String get(HSQUIRRELVM vm, SQInteger index)
+  {
+    const SQChar* value;
+    sq_getstring(vm, index, &value);
+    return String(value);
+  }
+  inline static void push(HSQUIRRELVM vm, String value)
+  {
+    sq_pushstring(vm, value.c_str(), -1);
+  }
+};
+
+/*! @ingroup squirrel
+ */
+template <>
+class Value<Object>
+{
+public:
+  inline static Object get(HSQUIRRELVM vm, SQInteger index)
+  {
+    return Object(vm, index);
+  }
+  inline static void push(HSQUIRRELVM vm, Object value)
+  {
+    sq_pushobject(vm, value.getHandle());
+  }
+};
+
+/*! @ingroup squirrel
+ */
+template <>
+class Value<Array>
+{
+public:
+  inline static Array get(HSQUIRRELVM vm, SQInteger index)
+  {
+    return Array(vm, index);
+  }
+  inline static void push(HSQUIRRELVM vm, Array value)
+  {
+    sq_pushobject(vm, value.getHandle());
+  }
+};
+
+/*! @ingroup squirrel
+ */
+template <>
+class Value<Table>
+{
+public:
+  inline static Table get(HSQUIRRELVM vm, SQInteger index)
+  {
+    return Table(vm, index);
+  }
+  inline static void push(HSQUIRRELVM vm, Table value)
+  {
+    sq_pushobject(vm, value.getHandle());
+  }
+};
+
+/*! @ingroup squirrel
+ */
+template <>
+class Value<Class>
+{
+public:
+  inline static Class get(HSQUIRRELVM vm, SQInteger index)
+  {
+    return Class(vm, index);
+  }
+  inline static void push(HSQUIRRELVM vm, Class value)
+  {
+    sq_pushobject(vm, value.getHandle());
+  }
+};
+
+/*! @ingroup squirrel
+ */
+template <>
+class Value<Instance>
+{
+public:
+  inline static Instance get(HSQUIRRELVM vm, SQInteger index)
+  {
+    return Instance(vm, index);
+  }
+  inline static void push(HSQUIRRELVM vm, Instance value)
+  {
+    sq_pushobject(vm, value.getHandle());
+  }
+};
+
+/*! @ingroup squirrel
+ */
+template <typename T>
+class Value<SharedClass<T> >
+{
+public:
+  inline static SharedClass<T> get(HSQUIRRELVM vm, SQInteger index)
+  {
+    return SharedClass<T>(vm, index);
+  }
+  inline static void push(HSQUIRRELVM vm, SharedClass<T> value)
+  {
+    sq_pushobject(vm, value.getHandle());
+  }
+};
 
 ///////////////////////////////////////////////////////////////////////
 
