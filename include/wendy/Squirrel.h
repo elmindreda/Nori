@@ -458,6 +458,66 @@ public:
 
 /*! @ingroup squirrel
  */
+template <typename R>
+class Function
+{
+public:
+  inline static SQInteger demarshal0(HSQUIRRELVM vm)
+  {
+    typedef R (*Function)();
+
+    Function* function;
+    sq_getuserdata(vm, -1, (SQUserPointer*) &function, NULL);
+
+    Value<R>::push(vm, (**function)());
+    return 1;
+  }
+  template <typename A1>
+  inline static SQInteger demarshal1(HSQUIRRELVM vm)
+  {
+    typedef R (*Function)(A1);
+
+    Function* function;
+    sq_getuserdata(vm, -1, (SQUserPointer*) &function, NULL);
+
+    Value<R>::push(vm, (**function)(Value<A1>::get(vm, 2)));
+    return 1;
+  }
+};
+
+/*! @ingroup squirrel
+ */
+template <>
+class Function<void>
+{
+public:
+  inline static SQInteger demarshal0(HSQUIRRELVM vm)
+  {
+    typedef void (*Function)();
+
+    Function* function;
+    sq_getuserdata(vm, -1, (SQUserPointer*) &function, NULL);
+
+    (**function)();
+    return 0;
+  }
+  template <typename A1>
+  inline static SQInteger demarshal1(HSQUIRRELVM vm)
+  {
+    typedef void (*Function)(A1);
+
+    Function* function;
+    sq_getuserdata(vm, -1, (SQUserPointer*) &function, NULL);
+
+    (**function)(Value<A1>::get(vm, 2));
+    return 0;
+  }
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup squirrel
+ */
 template <typename T, typename R>
 class Method
 {
@@ -581,6 +641,22 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup squirrel
+ */
+template <typename R>
+inline SQFUNCTION demarshal(R (*function)())
+{
+  return &Function<R>::demarshal0;
+}
+
+/*! @ingroup squirrel
+ */
+template <typename R, typename A1>
+inline SQFUNCTION demarshal(R (*function)(A1))
+{
+  return &Function<R>::template demarshal1<A1>;
+}
 
 /*! @ingroup squirrel
  */
