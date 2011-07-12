@@ -784,6 +784,7 @@ public:
   }
   inline static HSQOBJECT getHandle(void);
   inline static T* createNativeInstance(HSQUIRRELVM vm);
+  inline static void destroyNativeInstance(T* instance);
 private:
   inline static SQInteger constructor(HSQUIRRELVM vm);
   inline static SQInteger destructor(SQUserPointer pointer, SQInteger size);
@@ -830,6 +831,12 @@ inline T* SharedClass<T>::createNativeInstance(HSQUIRRELVM vm)
 }
 
 template <typename T>
+inline void SharedClass<T>::destroyNativeInstance(T* instance)
+{
+  delete instance;
+}
+
+template <typename T>
 inline SQInteger SharedClass<T>::constructor(HSQUIRRELVM vm)
 {
   T* instance = createNativeInstance(vm);
@@ -842,8 +849,7 @@ inline SQInteger SharedClass<T>::constructor(HSQUIRRELVM vm)
 template <typename T>
 inline SQInteger SharedClass<T>::destructor(SQUserPointer pointer, SQInteger size)
 {
-  delete reinterpret_cast<T*>(pointer);
-
+  destroyNativeInstance(static_cast<T*>(pointer));
   return 0;
 }
 
