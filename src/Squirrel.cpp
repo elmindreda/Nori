@@ -517,6 +517,9 @@ Class::Class(HSQUIRRELVM vm, SQInteger index):
 
 Instance Class::createInstance(void) const
 {
+  if (isNull())
+    throw Exception("Cannot create instance of null");
+
   sq_pushobject(vm, handle);
   sq_createinstance(vm, -1);
 
