@@ -367,6 +367,24 @@ bool Object::clear(void)
   return SQ_SUCCEEDED(result);
 }
 
+bool Object::call(const char* name)
+{
+  sq_pushobject(vm, handle);
+  sq_pushstring(vm, name, -1);
+  if (SQ_FAILED(sq_get(vm, -2)))
+  {
+    sq_poptop(vm);
+    return false;
+  }
+
+  sq_pushobject(vm, handle);
+
+  const SQRESULT result = sq_call(vm, 1, false, true);
+
+  sq_pop(vm, 2);
+  return SQ_SUCCEEDED(result);
+}
+
 SQInteger Object::getSize(void) const
 {
   if (isNull())

@@ -129,6 +129,17 @@ protected:
                    SQFUNCTION function,
                    bool staticMember = false);
   bool clear(void);
+  bool call(const char* name);
+  template <typename A1>
+  inline bool call(const char* name, A1 a1);
+  template <typename A1, typename A2>
+  inline bool call(const char* name, A1 a1, A2 a2);
+  template <typename R>
+  inline R eval(const char* name);
+  template <typename R, typename A1>
+  inline R eval(const char* name, A1 a1);
+  template <typename R, typename A1, typename A2>
+  inline R eval(const char* name, A1 a1, A2 a2);
   template <typename T>
   inline T get(const char* name);
   template <typename T>
@@ -161,6 +172,122 @@ inline bool Object::addSlot(const char* name, T value, bool staticSlot)
 
   sq_poptop(vm);
   return SQ_SUCCEEDED(result);
+}
+
+template <typename A1>
+inline bool Object::call(const char* name, A1 a1)
+{
+  sq_pushobject(vm, handle);
+  sq_pushstring(vm, name, -1);
+  if (SQ_FAILED(sq_get(vm, -2)))
+  {
+    sq_poptop(vm);
+    return false;
+  }
+
+  sq_pushobject(vm, handle);
+  Value<A1>::push(vm, a1);
+
+  const SQRESULT result = sq_call(vm, 2, false, true);
+
+  sq_pop(vm, 2);
+  return SQ_SUCCEEDED(result);
+}
+
+template <typename A1, typename A2>
+inline bool Object::call(const char* name, A1 a1, A2 a2)
+{
+  sq_pushobject(vm, handle);
+  sq_pushstring(vm, name, -1);
+  if (SQ_FAILED(sq_get(vm, -2)))
+  {
+    sq_poptop(vm);
+    return false;
+  }
+
+  sq_pushobject(vm, handle);
+  Value<A1>::push(vm, a1);
+  Value<A2>::push(vm, a2);
+
+  const SQRESULT result = sq_call(vm, 3, false, true);
+
+  sq_pop(vm, 2);
+  return SQ_SUCCEEDED(result);
+}
+
+template <typename R>
+inline R Object::eval(const char* name)
+{
+  sq_pushobject(vm, handle);
+  sq_pushstring(vm, name, -1);
+  if (SQ_FAILED(sq_get(vm, -2)))
+  {
+    sq_poptop(vm);
+    throw Exception("Failed to retrieve closure");
+  }
+
+  sq_pushobject(vm, handle);
+
+  if (SQ_FAILED(sq_call(vm, 1, true, true)))
+  {
+    sq_pop(vm, 2);
+    throw Exception("Failed to call closure");
+  }
+
+  const R result = Value<R>::get(vm, -1);
+  sq_pop(vm, 3);
+  return result;
+}
+
+template <typename R, typename A1>
+inline R Object::eval(const char* name, A1 a1)
+{
+  sq_pushobject(vm, handle);
+  sq_pushstring(vm, name, -1);
+  if (SQ_FAILED(sq_get(vm, -2)))
+  {
+    sq_poptop(vm);
+    throw Exception("Failed to retrieve closure");
+  }
+
+  sq_pushobject(vm, handle);
+  Value<A1>::push(vm, a1);
+
+  if (SQ_FAILED(sq_call(vm, 2, true, true)))
+  {
+    sq_pop(vm, 2);
+    throw Exception("Failed to call closure");
+  }
+
+  const R result = Value<R>::get(vm, -1);
+  sq_pop(vm, 3);
+  return result;
+}
+
+template <typename R, typename A1, typename A2>
+inline R Object::eval(const char* name, A1 a1, A2 a2)
+{
+  sq_pushobject(vm, handle);
+  sq_pushstring(vm, name, -1);
+  if (SQ_FAILED(sq_get(vm, -2)))
+  {
+    sq_poptop(vm);
+    throw Exception("Failed to retrieve closure");
+  }
+
+  sq_pushobject(vm, handle);
+  Value<A1>::push(vm, a1);
+  Value<A2>::push(vm, a2);
+
+  if (SQ_FAILED(sq_call(vm, 3, true, true)))
+  {
+    sq_pop(vm, 2);
+    throw Exception("Failed to call closure");
+  }
+
+  const R result = Value<R>::get(vm, -1);
+  sq_pop(vm, 3);
+  return result;
 }
 
 template <typename T>
@@ -305,6 +432,8 @@ public:
   using Object::addSlot;
   using Object::removeSlot;
   using Object::clear;
+  using Object::call;
+  using Object::eval;
   using Object::get;
   using Object::set;
   using Object::getSize;
@@ -669,6 +798,8 @@ public:
   using Object::addSlot;
   using Object::removeSlot;
   using Object::clear;
+  using Object::call;
+  using Object::eval;
   using Object::get;
   using Object::set;
   using Object::getSize;
@@ -686,6 +817,8 @@ public:
   Instance(void);
   Instance(const Object& source);
   Instance(HSQUIRRELVM vm, SQInteger index);
+  using Object::call;
+  using Object::eval;
   using Object::get;
   using Object::set;
   Class getClass(void) const;
