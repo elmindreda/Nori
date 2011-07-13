@@ -48,7 +48,16 @@ Wendy comes with internal versions of the following libraries:
   Squirrel (http://squirrel-lang.org/) for embedded scripting
   zlib (http://zlib.net/) for compressed data streams
 
-Wendy depends on the availability of OpenGL 2.1 and OpenAL 1.1.
+Wendy depends on the availability of OpenGL 2.1 and OpenAL 1.1 and requires
+the following OpenGL extensions:
+
+  GL_ARB_texture_rectangle
+  GL_EXT_framebuffer_object
+
+Additionally, Wendy uses the following extensions where available:
+
+  GL_ARB_texture_float
+  GL_ARB_half_float_pixel
 
 On Debian GNU/Linux based systems, where GLFW also needs Xlib, the following
 packages provide the necessary support:
@@ -58,7 +67,7 @@ packages provide the necessary support:
   libgl1-mesa-dev
   libglu1-mesa-dev
 
-Other Linux systems and other Unix-like systems, there will most likely be
+On other Linux systems and other Unix-like systems, there will most likely be
 similarly named packages available.
 
 On Mac OS X, OpenGL and OpenAL is already built-in.
