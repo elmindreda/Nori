@@ -866,6 +866,8 @@ inline SharedClass<T>::SharedClass(HSQUIRRELVM initVM)
     sq_getstackobj(vm, -1, &shared);
     sq_addref(vm, &shared);
 
+    sq_settypetag(vm, -1, &shared);
+
     sq_pushstring(vm, "constructor", -1);
     sq_newclosure(vm, &constructor, 0);
     sq_newslot(vm, -3, false);
