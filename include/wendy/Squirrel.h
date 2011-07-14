@@ -939,7 +939,7 @@ public:
 
 template <typename T>
 inline SharedInstance<T>::SharedInstance(HSQUIRRELVM vm, SQInteger index):
-  Class(vm, index)
+  Instance(vm, index)
 {
   // TODO: Check type tag
 }
