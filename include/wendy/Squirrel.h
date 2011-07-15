@@ -52,7 +52,7 @@ class Instance;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Squirrel VM instance.
+/*! @brief Squirrel %VM instance.
  *  @ingroup squirrel
  */
 class VM
@@ -85,7 +85,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup squirrel
+/*! @brief Stack value helper.
+ *  @ingroup squirrel
  */
 template <typename T>
 class Value
@@ -445,7 +446,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup squirrel
+/*! @brief Native function wrapping helper.
+ *  @ingroup squirrel
  */
 template <typename R>
 class Function
@@ -486,7 +488,8 @@ public:
   }
 };
 
-/*! @ingroup squirrel
+/*! @brief Native function wrapping helper.
+ *  @ingroup squirrel
  */
 template <>
 class Function<void>
@@ -529,7 +532,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup squirrel
+/*! @brief Native class method wrapping helper.
+ *  @ingroup squirrel
  */
 template <typename T, typename R>
 class Method
@@ -621,7 +625,8 @@ public:
   }
 };
 
-/*! @ingroup squirrel
+/*! @brief Native class method wrapping helper.
+ *  @ingroup squirrel
  */
 template <typename T>
 class Method<T, void>
@@ -715,7 +720,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup squirrel
+/*! @brief Native function wrapping helper.
+ *  @ingroup squirrel
  */
 template <typename R>
 inline SQFUNCTION demarshal(R (*function)())
@@ -723,7 +729,8 @@ inline SQFUNCTION demarshal(R (*function)())
   return &Function<R>::demarshal0;
 }
 
-/*! @ingroup squirrel
+/*! @brief Native function wrapping helper.
+ *  @ingroup squirrel
  */
 template <typename R, typename A1>
 inline SQFUNCTION demarshal(R (*function)(A1))
@@ -731,7 +738,8 @@ inline SQFUNCTION demarshal(R (*function)(A1))
   return &Function<R>::template demarshal1<A1>;
 }
 
-/*! @ingroup squirrel
+/*! @brief Native function wrapping helper.
+ *  @ingroup squirrel
  */
 template <typename R, typename A1, typename A2>
 inline SQFUNCTION demarshal(R (*function)(A1,A2))
@@ -739,7 +747,8 @@ inline SQFUNCTION demarshal(R (*function)(A1,A2))
   return &Function<R>::template demarshal2<A1,A2>;
 }
 
-/*! @ingroup squirrel
+/*! @brief Native class method wrapping helper.
+ *  @ingroup squirrel
  */
 template <typename T, typename R>
 inline SQFUNCTION demarshal(R (T::*method)())
@@ -747,7 +756,8 @@ inline SQFUNCTION demarshal(R (T::*method)())
   return &Method<T,R>::demarshal0;
 }
 
-/*! @ingroup squirrel
+/*! @brief Native class method wrapping helper.
+ *  @ingroup squirrel
  */
 template <typename T, typename R>
 inline SQFUNCTION demarshal(R (T::*method)() const)
@@ -755,7 +765,8 @@ inline SQFUNCTION demarshal(R (T::*method)() const)
   return &Method<T,R>::demarshal0C;
 }
 
-/*! @ingroup squirrel
+/*! @brief Native class method wrapping helper.
+ *  @ingroup squirrel
  */
 template <typename T, typename R, typename A1>
 inline SQFUNCTION demarshal(R (T::*method)(A1))
@@ -763,7 +774,8 @@ inline SQFUNCTION demarshal(R (T::*method)(A1))
   return &Method<T,R>::template demarshal1<A1>;
 }
 
-/*! @ingroup squirrel
+/*! @brief Native class method wrapping helper.
+ *  @ingroup squirrel
  */
 template <typename T, typename R, typename A1>
 inline SQFUNCTION demarshal(R (T::*method)(A1) const)
@@ -771,7 +783,8 @@ inline SQFUNCTION demarshal(R (T::*method)(A1) const)
   return &Method<T,R>::template demarshal1C<A1>;
 }
 
-/*! @ingroup squirrel
+/*! @brief Native class method wrapping helper.
+ *  @ingroup squirrel
  */
 template <typename T, typename R, typename A1, typename A2>
 inline SQFUNCTION demarshal(R (T::*method)(A1,A2))
@@ -779,7 +792,8 @@ inline SQFUNCTION demarshal(R (T::*method)(A1,A2))
   return &Method<T,R>::template demarshal2<A1,A2>;
 }
 
-/*! @ingroup squirrel
+/*! @brief Native class method wrapping helper.
+ *  @ingroup squirrel
  */
 template <typename T, typename R, typename A1, typename A2>
 inline SQFUNCTION demarshal(R (T::*method)(A1,A2) const)
@@ -972,7 +986,8 @@ inline SharedClass<T> SharedInstance<T>::getClass(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup squirrel
+/*! @brief Stack value helper.
+ *  @ingroup squirrel
  */
 template <>
 class Value<bool>
@@ -990,7 +1005,8 @@ public:
   }
 };
 
-/*! @ingroup squirrel
+/*! @brief Stack value helper.
+ *  @ingroup squirrel
  */
 template <>
 class Value<int>
@@ -1008,7 +1024,8 @@ public:
   }
 };
 
-/*! @ingroup squirrel
+/*! @brief Stack value helper.
+ *  @ingroup squirrel
  */
 template <>
 class Value<float>
@@ -1026,7 +1043,8 @@ public:
   }
 };
 
-/*! @ingroup squirrel
+/*! @brief Stack value helper.
+ *  @ingroup squirrel
  */
 template <>
 class Value<const char*>
@@ -1044,7 +1062,8 @@ public:
   }
 };
 
-/*! @ingroup squirrel
+/*! @brief Stack value helper.
+ *  @ingroup squirrel
  */
 template <>
 class Value<String>
@@ -1062,7 +1081,8 @@ public:
   }
 };
 
-/*! @ingroup squirrel
+/*! @brief Stack value helper.
+ *  @ingroup squirrel
  */
 template <>
 class Value<Object>
@@ -1078,7 +1098,8 @@ public:
   }
 };
 
-/*! @ingroup squirrel
+/*! @brief Stack value helper.
+ *  @ingroup squirrel
  */
 template <>
 class Value<Array>
@@ -1094,7 +1115,8 @@ public:
   }
 };
 
-/*! @ingroup squirrel
+/*! @brief Stack value helper.
+ *  @ingroup squirrel
  */
 template <>
 class Value<Table>
@@ -1110,7 +1132,8 @@ public:
   }
 };
 
-/*! @ingroup squirrel
+/*! @brief Stack value helper.
+ *  @ingroup squirrel
  */
 template <>
 class Value<Class>
@@ -1126,7 +1149,8 @@ public:
   }
 };
 
-/*! @ingroup squirrel
+/*! @brief Stack value helper.
+ *  @ingroup squirrel
  */
 template <>
 class Value<Instance>
@@ -1142,7 +1166,8 @@ public:
   }
 };
 
-/*! @ingroup squirrel
+/*! @brief Stack value helper.
+ *  @ingroup squirrel
  */
 template <typename T>
 class Value<SharedClass<T> >
