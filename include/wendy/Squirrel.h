@@ -52,7 +52,8 @@ class Instance;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup squirrel
+/*! @brief Squirrel VM instance.
+ *  @ingroup squirrel
  */
 class VM
 {
@@ -96,7 +97,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup squirrel
+/*! @brief Squirrel object reference.
+ *  @ingroup squirrel
  */
 class Object
 {
@@ -326,7 +328,8 @@ inline bool Object::set(const char* name, T value)
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup squirrel
+/*! @brief Squirrel array reference.
+ *  @ingroup squirrel
  */
 class Array : public Object
 {
@@ -420,7 +423,8 @@ inline bool Array::set(SQInteger index, T value)
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup squirrel
+/*! @brief Squirrel table reference.
+ *  @ingroup squirrel
  */
 class Table : public Object
 {
@@ -785,7 +789,8 @@ inline SQFUNCTION demarshal(R (T::*method)(A1,A2) const)
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup squirrel
+/*! @brief Squirrel class reference.
+ *  @ingroup squirrel
  */
 class Class : public Object
 {
@@ -809,7 +814,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup squirrel
+/*! @brief Squirrel class instance reference.
+ *  @ingroup squirrel
  */
 class Instance : public Object
 {
