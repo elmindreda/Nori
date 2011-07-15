@@ -124,7 +124,7 @@ public:
   static Ref<VertexBuffer> create(Context& context,
                                   unsigned int count,
                                   const VertexFormat& format,
-				  Usage usage);
+                                  Usage usage);
 private:
   VertexBuffer(Context& context);
   VertexBuffer(const VertexBuffer& source);
@@ -217,8 +217,8 @@ public:
    */
   static Ref<IndexBuffer> create(Context& context,
                                  unsigned int count,
-				 Type type,
-				 Usage usage);
+                                 Type type,
+                                 Usage usage);
   /*! @return The size, in bytes, of the specified element type.
    */
   static size_t getTypeSize(Type type);
@@ -378,8 +378,8 @@ public:
    */
   PrimitiveRange(PrimitiveType type,
                  VertexBuffer& vertexBuffer,
-		 unsigned int start,
-		 unsigned int count);
+                 unsigned int start,
+                 unsigned int count);
   /*! Creates a primitive range of the specified type, using the specified
    *  range of the specified index buffer to reference vertices in the
    *  specified vertex buffer.
@@ -387,8 +387,8 @@ public:
   PrimitiveRange(PrimitiveType type,
                  VertexBuffer& vertexBuffer,
                  IndexBuffer& indexBuffer,
-	         unsigned int start,
-	         unsigned int count);
+                 unsigned int start,
+                 unsigned int count);
   /*! @return @c true if this primitive range contains zero primitives,
    *  otherwise @c false.
    */
