@@ -229,7 +229,8 @@ Object::Object(const Object& source):
 
 Object::~Object(void)
 {
-  sq_release(vm, &handle);
+  if (vm)
+    sq_release(vm, &handle);
 }
 
 Object Object::clone(void) const
