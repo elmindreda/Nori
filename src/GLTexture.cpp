@@ -977,11 +977,11 @@ bool TextureReader::onBeginElement(const String& name)
     {
       bool defaultValue;
 
-      defaultValue = (Texture::DEFAULT | Texture::MIPMAPPED) ? true : false;
+      defaultValue = (Texture::DEFAULT & Texture::MIPMAPPED) ? true : false;
       if (readBoolean("mipmapped", defaultValue) != defaultValue)
 	flags ^= Texture::MIPMAPPED;
 
-      defaultValue = (Texture::DEFAULT | Texture::RECTANGULAR) ? true : false;
+      defaultValue = (Texture::DEFAULT & Texture::RECTANGULAR) ? true : false;
       if (readBoolean("rectangular", defaultValue) != defaultValue)
 	flags ^= Texture::RECTANGULAR;
     }
