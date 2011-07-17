@@ -27,6 +27,8 @@
 #include <wendy/Core.h>
 #include <wendy/Rectangle.h>
 
+#include <sstream>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -476,6 +478,28 @@ void Recti::set(int x, int y, int width, int height)
 {
   position = ivec2(x, y);
   size = ivec2(width, height);
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Rect rectCast(const String& string)
+{
+  std::istringstream stream(string, std::ios::in);
+
+  Rect result;
+  stream >> result.position.x >> result.position.y;
+  stream >> result.size.x >> result.size.y;
+  return result;
+}
+
+Recti rectiCast(const String& string)
+{
+  std::istringstream stream(string, std::ios::in);
+
+  Recti result;
+  stream >> result.position.x >> result.position.y;
+  stream >> result.size.x >> result.size.y;
+  return result;
 }
 
 ///////////////////////////////////////////////////////////////////////
