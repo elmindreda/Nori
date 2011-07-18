@@ -41,7 +41,6 @@
 #include <internal/GLConvert.h>
 
 #include <algorithm>
-#include <cstring>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -352,6 +351,30 @@ void StencilState::Data::setDefaults(void)
 
 ///////////////////////////////////////////////////////////////////////
 
+UniformStateIndex::UniformStateIndex(void):
+  index(0xffff),
+  offset(0xffff)
+{
+}
+
+UniformStateIndex::UniformStateIndex(uint16 index, uint16 offset)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
+SamplerStateIndex::SamplerStateIndex(void):
+  index(0xffff),
+  unit(0xffff)
+{
+}
+
+SamplerStateIndex::SamplerStateIndex(uint16 index, uint16 unit)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
 ProgramState::ProgramState(void)
 {
   if (usedIDs.empty())
@@ -429,76 +452,6 @@ void ProgramState::apply(void) const
   }
 }
 
-void ProgramState::getUniformState(const String& name, float& result) const
-{
-  std::memcpy(&result, getData(name, Uniform::FLOAT), sizeof(result));
-}
-
-void ProgramState::getUniformState(const String& name, vec2& result) const
-{
-  std::memcpy(&result, getData(name, Uniform::VEC2), sizeof(result));
-}
-
-void ProgramState::getUniformState(const String& name, vec3& result) const
-{
-  std::memcpy(&result, getData(name, Uniform::VEC3), sizeof(result));
-}
-
-void ProgramState::getUniformState(const String& name, vec4& result) const
-{
-  std::memcpy(&result, getData(name, Uniform::VEC4), sizeof(result));
-}
-
-void ProgramState::getUniformState(const String& name, mat2& result) const
-{
-  std::memcpy(&result, getData(name, Uniform::MAT2), sizeof(result));
-}
-
-void ProgramState::getUniformState(const String& name, mat3& result) const
-{
-  std::memcpy(&result, getData(name, Uniform::MAT3), sizeof(result));
-}
-
-void ProgramState::getUniformState(const String& name, mat4& result) const
-{
-  std::memcpy(&result, getData(name, Uniform::MAT4), sizeof(result));
-}
-
-void ProgramState::setUniformState(const String& name, float newValue)
-{
-  std::memcpy(getData(name, Uniform::FLOAT), &newValue, sizeof(newValue));
-}
-
-void ProgramState::setUniformState(const String& name, const vec2& newValue)
-{
-  std::memcpy(getData(name, Uniform::VEC2), &newValue, sizeof(newValue));
-}
-
-void ProgramState::setUniformState(const String& name, const vec3& newValue)
-{
-  std::memcpy(getData(name, Uniform::VEC3), &newValue, sizeof(newValue));
-}
-
-void ProgramState::setUniformState(const String& name, const vec4& newValue)
-{
-  std::memcpy(getData(name, Uniform::VEC4), &newValue, sizeof(newValue));
-}
-
-void ProgramState::setUniformState(const String& name, const mat2& newValue)
-{
-  std::memcpy(getData(name, Uniform::MAT2), &newValue, sizeof(newValue));
-}
-
-void ProgramState::setUniformState(const String& name, const mat3& newValue)
-{
-  std::memcpy(getData(name, Uniform::MAT3), &newValue, sizeof(newValue));
-}
-
-void ProgramState::setUniformState(const String& name, const mat4& newValue)
-{
-  std::memcpy(getData(name, Uniform::MAT4), &newValue, sizeof(newValue));
-}
-
 Texture* ProgramState::getSamplerState(const String& name) const
 {
   if (!program)
@@ -525,6 +478,17 @@ Texture* ProgramState::getSamplerState(const String& name) const
            program->getPath().asString().c_str(),
            name.c_str());
   return NULL;
+}
+
+Texture* ProgramState::getSamplerState(SamplerStateIndex index) const
+{
+  if (!program)
+  {
+    logError("Cannot retrieve sampler state on program state with no program");
+    return NULL;
+  }
+
+  return textures[index.unit];
 }
 
 void ProgramState::setSamplerState(const String& name, Texture* newTexture)
@@ -562,6 +526,79 @@ void ProgramState::setSamplerState(const String& name, Texture* newTexture)
 
     textureUnit++;
   }
+}
+
+void ProgramState::setSamplerState(SamplerStateIndex index, Texture* newTexture)
+{
+  if (!program)
+  {
+    logError("Cannot set sampler state on program state with no program");
+    return;
+  }
+
+  Sampler& sampler = program->getSampler(index.index);
+
+  if (newTexture)
+  {
+    if (samplerTypeMatchesTextureType(sampler.getType(), newTexture->getType()))
+      textures[index.unit] = newTexture;
+    else
+      logError("Type mismatch between sampler \'%s\' and texture \'%s\'",
+                sampler.getName().c_str(),
+                newTexture->getPath().asString().c_str());
+  }
+  else
+    textures[index.unit] = NULL;
+}
+
+UniformStateIndex ProgramState::getUniformStateIndex(const String& name) const
+{
+  if (!program)
+  {
+    logError("Cannot retrieve uniform state indices with no program");
+    return UniformStateIndex();
+  }
+
+  unsigned int offset = 0;
+
+  for (unsigned int i = 0;  i < program->getUniformCount();  i++)
+  {
+    Uniform& uniform = program->getUniform(i);
+    if (uniform.isShared())
+      continue;
+
+    if (uniform.getName() == name)
+      return UniformStateIndex(i, offset);
+
+    offset += uniform.getElementCount();
+  }
+
+  return UniformStateIndex();
+}
+
+SamplerStateIndex ProgramState::getSamplerStateIndex(const String& name) const
+{
+  if (!program)
+  {
+    logError("Cannot retrieve sampler state indices with no program");
+    return SamplerStateIndex();
+  }
+
+  unsigned int textureUnit = 0;
+
+  for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
+  {
+    Sampler& sampler = program->getSampler(i);
+    if (sampler.isShared())
+      continue;
+
+    if (sampler.getName() == name)
+      return SamplerStateIndex(i, textureUnit);
+
+    textureUnit++;
+  }
+
+  return SamplerStateIndex();
 }
 
 Program* ProgramState::getProgram(void) const
@@ -648,8 +685,125 @@ void* ProgramState::getData(const String& name, Uniform::Type type)
 
 const void* ProgramState::getData(const String& name, Uniform::Type type) const
 {
-  // TODO: The code.
+  if (!program)
+  {
+    logError("Cannot set uniform state on program state with no program");
+    return NULL;
+  }
+
+  unsigned int offset = 0;
+
+  for (unsigned int i = 0;  i < program->getUniformCount();  i++)
+  {
+    Uniform& uniform = program->getUniform(i);
+    if (uniform.isShared())
+      continue;
+
+    if (uniform.getName() == name)
+    {
+      if (uniform.getType() == type)
+        return &floats[0] + offset;
+
+      logError("Uniform \'%s\' of program \'%s\' is not of type \'%s\'",
+               uniform.getName().c_str(),
+               program->getPath().asString().c_str(),
+               Uniform::getTypeName(type));
+      return NULL;
+    }
+
+    offset += uniform.getElementCount();
+  }
+
+  logError("Program \'%s\' has no uniform named \'%s\'",
+           program->getPath().asString().c_str(),
+           name.c_str());
   return NULL;
+}
+
+void* ProgramState::getData(UniformStateIndex index, Uniform::Type type)
+{
+  if (!program)
+  {
+    logError("Cannot set uniform state on program state with no program");
+    return NULL;
+  }
+
+  Uniform& uniform = program->getUniform(index.index);
+
+  if (uniform.getType() != type)
+  {
+    logError("Uniform %u of program \'%s\' is not of type \'%s\'",
+             index.index,
+             program->getPath().asString().c_str(),
+             Uniform::getTypeName(type));
+    return NULL;
+  }
+
+  return &floats[0] + index.offset;
+}
+
+const void* ProgramState::getData(UniformStateIndex index, Uniform::Type type) const
+{
+  if (!program)
+  {
+    logError("Cannot set uniform state on program state with no program");
+    return NULL;
+  }
+
+  Uniform& uniform = program->getUniform(index.index);
+
+  if (uniform.getType() != type)
+  {
+    logError("Uniform %u of program \'%s\' is not of type \'%s\'",
+             index.index,
+             program->getPath().asString().c_str(),
+             Uniform::getTypeName(type));
+    return NULL;
+  }
+
+  return &floats[0] + index.offset;
+}
+
+template <>
+Uniform::Type ProgramState::getUniformType<float>(void)
+{
+  return Uniform::FLOAT;
+}
+
+template <>
+Uniform::Type ProgramState::getUniformType<vec2>(void)
+{
+  return Uniform::VEC2;
+}
+
+template <>
+Uniform::Type ProgramState::getUniformType<vec3>(void)
+{
+  return Uniform::VEC3;
+}
+
+template <>
+Uniform::Type ProgramState::getUniformType<vec4>(void)
+{
+  return Uniform::VEC4;
+}
+
+template <>
+Uniform::Type ProgramState::getUniformType<mat2>(void)
+{
+  return Uniform::MAT2;
+}
+
+template <>
+Uniform::Type ProgramState::getUniformType<mat3>(void)
+{
+  return Uniform::MAT3;
+}
+
+template <>
+Uniform::Type ProgramState::getUniformType<mat4>(void)
+{
+  return Uniform::MAT4;
 }
 
 ProgramState::IDQueue ProgramState::usedIDs;

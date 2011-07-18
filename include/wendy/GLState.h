@@ -28,6 +28,8 @@
 
 #include <wendy/Core.h>
 
+#include <cstring>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -159,6 +161,36 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup opengl
+ */
+class UniformStateIndex
+{
+  friend class ProgramState;
+public:
+  UniformStateIndex(void);
+private:
+  UniformStateIndex(uint16 index, uint16 offset);
+  uint16 index;
+  uint16 offset;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup opengl
+ */
+class SamplerStateIndex
+{
+  friend class ProgramState;
+public:
+  SamplerStateIndex(void);
+private:
+  SamplerStateIndex(uint16 index, uint16 unit);
+  uint16 index;
+  uint16 unit;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief GPU program state.
  *  @ingroup opengl
  */
@@ -174,22 +206,20 @@ public:
   /*! Applies this GPU program state to the current context.
    */
   void apply(void) const;
-  void getUniformState(const String& name, float& result) const;
-  void getUniformState(const String& name, vec2& result) const;
-  void getUniformState(const String& name, vec3& result) const;
-  void getUniformState(const String& name, vec4& result) const;
-  void getUniformState(const String& name, mat2& result) const;
-  void getUniformState(const String& name, mat3& result) const;
-  void getUniformState(const String& name, mat4& result) const;
-  void setUniformState(const String& name, float newValue);
-  void setUniformState(const String& name, const vec2& newValue);
-  void setUniformState(const String& name, const vec3& newValue);
-  void setUniformState(const String& name, const vec4& newValue);
-  void setUniformState(const String& name, const mat2& newValue);
-  void setUniformState(const String& name, const mat3& newValue);
-  void setUniformState(const String& name, const mat4& newValue);
+  template <typename T>
+  inline void getUniformState(const String& name, T& result) const;
+  template <typename T>
+  inline void getUniformState(UniformStateIndex index, T& result) const;
+  template <typename T>
+  inline void setUniformState(const String& name, const T& newValue);
+  template <typename T>
+  inline void setUniformState(UniformStateIndex index, const T& newValue);
   Texture* getSamplerState(const String& name) const;
+  Texture* getSamplerState(SamplerStateIndex index) const;
   void setSamplerState(const String& name, Texture* newTexture);
+  void setSamplerState(SamplerStateIndex index, Texture* newTexture);
+  UniformStateIndex getUniformStateIndex(const String& name) const;
+  SamplerStateIndex getSamplerStateIndex(const String& name) const;
   Program* getProgram(void) const;
   /*! Sets the GPU program used by this state object.
    *  @param[in] newProgram The desired GPU program, or @c NULL to detach
@@ -199,8 +229,12 @@ public:
   StateID getID(void) const;
   void setDefaults(void);
 private:
+  template <typename T>
+  static Uniform::Type getUniformType(void);
   void* getData(const String& name, Uniform::Type type);
   const void* getData(const String& name, Uniform::Type type) const;
+  void* getData(UniformStateIndex index, Uniform::Type type);
+  const void* getData(UniformStateIndex index, Uniform::Type type) const;
   typedef std::deque<StateID> IDQueue;
   typedef std::vector<float> FloatList;
   StateID ID;
@@ -344,6 +378,32 @@ private:
   static Data cache;
   static bool cullingInverted;
 };
+
+///////////////////////////////////////////////////////////////////////
+
+template <typename T>
+inline void ProgramState::getUniformState(const String& name, T& result) const
+{
+  std::memcpy(&result, getData(name, getUniformType<T>()), sizeof(T));
+}
+
+template <typename T>
+inline void ProgramState::getUniformState(UniformStateIndex index, T& result) const
+{
+  std::memcpy(&result, getData(index, getUniformType<T>()), sizeof(T));
+}
+
+template <typename T>
+inline void ProgramState::setUniformState(const String& name, const T& newValue)
+{
+  std::memcpy(getData(name, getUniformType<T>()), &newValue, sizeof(T));
+}
+
+template <typename T>
+inline void ProgramState::setUniformState(UniformStateIndex index, const T& newValue)
+{
+  std::memcpy(getData(index, getUniformType<T>()), &newValue, sizeof(T));
+}
 
 ///////////////////////////////////////////////////////////////////////
 
