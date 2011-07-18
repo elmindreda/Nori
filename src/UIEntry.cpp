@@ -107,9 +107,9 @@ void Entry::draw(void) const
 
       if (caretPosition > startPosition)
       {
-	render::Font& font = drawer.getCurrentFont();
+        const render::Font& font = drawer.getCurrentFont();
         Rect metrics = font.getTextMetrics(text.substr(startPosition, caretPosition));
-	position = metrics.size.x;
+        position = metrics.size.x;
       }
 
       Segment2 segment;
@@ -128,9 +128,9 @@ void Entry::draw(void) const
 }
 
 void Entry::onButtonClicked(Widget& widget,
-			    const vec2& point,
-			    input::Button button,
-			    bool clicked)
+                            const vec2& point,
+                            input::Button button,
+                            bool clicked)
 {
   Drawer& drawer = getDesktop().getDrawer();
 
@@ -166,9 +166,9 @@ void Entry::onKeyPressed(Widget& widget, input::Key key, bool pressed)
     {
       if (!text.empty() && caretPosition > 0)
       {
-	text.erase(caretPosition - 1, 1);
-	textChangedSignal.emit(*this);
-	setCaretPosition(caretPosition - 1, true);
+        text.erase(caretPosition - 1, 1);
+        textChangedSignal.emit(*this);
+        setCaretPosition(caretPosition - 1, true);
       }
 
       break;
@@ -178,8 +178,8 @@ void Entry::onKeyPressed(Widget& widget, input::Key key, bool pressed)
     {
       if (!text.empty() && caretPosition < text.length())
       {
-	text.erase(caretPosition, 1);
-	textChangedSignal.emit(*this);
+        text.erase(caretPosition, 1);
+        textChangedSignal.emit(*this);
       }
 
       break;
@@ -188,7 +188,7 @@ void Entry::onKeyPressed(Widget& widget, input::Key key, bool pressed)
     case input::KEY_LEFT:
     {
       if (caretPosition > 0)
-	setCaretPosition(caretPosition - 1, true);
+        setCaretPosition(caretPosition - 1, true);
       break;
     }
 

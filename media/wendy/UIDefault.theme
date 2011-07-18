@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<theme version="1" font="wendy/default.font" texture="wendy/UIDefault.texture" >
+  <normal>
+    <text color="1 1 1" />
+    <button area="0 32 32 32" />
+    <handle area="0 32 32 32" />
+    <frame area="0 32 32 32" />
+    <well area="0 32 32 32" />
+  </normal>
+  <disabled>
+    <text color="0 0 0" />
+    <button area="0 0 32 32" />
+    <handle area="0 0 32 32" />
+    <frame area="0 0 32 32" />
+    <well area="0 0 32 32" />
+  </disabled>
+  <active>
+    <text color="0 0 0" />
+    <button area="32 32 32 32" />
+    <handle area="32 32 32 32" />
+    <frame area="32 32 32 32" />
+    <well area="32 32 32 32" />
+  </active>
+  <selected>
+    <text color="0 0 0" />
+    <button area="0 0 32 32" />
+    <handle area="0 0 32 32" />
+    <frame area="0 0 32 32" />
+    <well area="0 0 32 32" />
+  </selected>
+</theme>

@@ -103,7 +103,10 @@ void Item::draw(const Rect& area, WidgetState state) const
     textArea.size.x -= em;
 
     if (state == STATE_SELECTED)
-      drawer.fillRectangle(area, vec4(drawer.getSelectionColor(), 1.f));
+    {
+      const vec3 color = drawer.getTheme().textColors[STATE_SELECTED];
+      drawer.fillRectangle(area, vec4(color, 1.f));
+    }
 
     drawer.drawText(textArea, value, LEFT_ALIGNED, state);
     drawer.popClipArea();
@@ -184,7 +187,10 @@ void TextureItem::draw(const Rect& area, WidgetState state) const
     const float em = drawer.getCurrentEM();
 
     if (state == STATE_SELECTED)
-      drawer.fillRectangle(area, vec4(drawer.getSelectionColor(), 1.f));
+    {
+      const vec3 color = drawer.getTheme().textColors[STATE_SELECTED];
+      drawer.fillRectangle(area, vec4(color, 1.f));
+    }
 
     Rect textureArea = area;
     textureArea.size = vec2(em * 3.f, em * 3.f);

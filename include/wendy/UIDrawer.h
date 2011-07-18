@@ -109,6 +109,42 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup ui
+ */
+class Theme : public Resource
+{
+public:
+  Theme(const ResourceInfo& info);
+  static Ref<Theme> read(render::GeometryPool& pool, const Path& path);
+  Rect buttonElements[4];
+  Rect handleElements[4];
+  Rect frameElements[4];
+  Rect wellElements[4];
+  vec3 textColors[4];
+  Ref<GL::Texture> texture;
+  Ref<render::Font> font;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup ui
+ */
+class ThemeReader : public ResourceReader, public XML::Reader
+{
+public:
+  ThemeReader(render::GeometryPool& pool);
+  Ref<Theme> read(const Path& path);
+private:
+  bool onBeginElement(const String& name);
+  bool onEndElement(const String& name);
+  render::GeometryPool& pool;
+  Ref<Theme> theme;
+  ResourceInfo info;
+  WidgetState currentState;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Widget drawing singleton.
  *  @ingroup ui
  *
@@ -153,48 +189,37 @@ public:
   void blitTexture(const Rect& area, GL::Texture& texture);
   void drawText(const Rect& area,
                 const String& text,
-		const Alignment& alignment,
-		const vec3& color);
+                const Alignment& alignment,
+                const vec3& color);
   void drawText(const Rect& area,
                 const String& text,
-		const Alignment& alignment = Alignment(),
-		WidgetState state = STATE_NORMAL);
+                const Alignment& alignment = Alignment(),
+                WidgetState state = STATE_NORMAL);
   void drawWell(const Rect& area, WidgetState state);
   void drawFrame(const Rect& area, WidgetState state);
   void drawHandle(const Rect& area, WidgetState state);
   void drawButton(const Rect& area, WidgetState state, const String& text = "");
-  const vec3& getWidgetColor(void);
-  void setWidgetColor(const vec3& newColor);
-  const vec3& getTextColor(void);
-  void setTextColor(const vec3& newColor);
-  const vec3& getWellColor(void);
-  void setWellColor(const vec3& newColor);
-  const vec3& getSelectionColor(void);
-  void setSelectionColor(const vec3& newColor);
-  const vec3& getSelectedTextColor(void);
-  void setSelectedTextColor(const vec3& newColor);
-  render::Font& getDefaultFont(void);
-  render::Font& getCurrentFont(void);
+  const Theme& getTheme(void) const;
+  const render::Font& getCurrentFont(void);
   void setCurrentFont(render::Font* newFont);
-  float getDefaultEM(void) const;
   float getCurrentEM(void) const;
   render::GeometryPool& getGeometryPool(void) const;
   static Drawer* create(render::GeometryPool& pool);
 private:
   Drawer(render::GeometryPool& pool);
   bool init(void);
+  void drawElement(const Rect& area, const Rect& mapping);
   void setDrawingState(const vec4& color, bool wireframe);
   render::GeometryPool& pool;
   RectClipStackf clipAreaStack;
-  vec3 widgetColor;
-  vec3 textColor;
-  vec3 wellColor;
-  vec3 selectionColor;
-  vec3 selectedTextColor;
-  Ref<render::Font> defaultFont;
+  Ref<GL::VertexBuffer> vertexBuffer;
+  Ref<GL::IndexBuffer> indexBuffer;
+  GL::PrimitiveRange range;
+  Ref<Theme> theme;
   Ref<render::Font> currentFont;
   GL::RenderState drawPass;
   GL::RenderState blitPass;
+  GL::RenderState elementPass;
   Ref<render::SharedProgramState> state;
 };
 
