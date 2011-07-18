@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<theme version="1" font="wendy/default.font" texture="wendy/UIDefault.texture" >
+<theme version="1" font="wendy/UIDefault.font" texture="wendy/UIDefault.texture" >
   <normal>
     <text color="1 1 1" />
     <button area="0 32 32 32" />
