@@ -600,6 +600,7 @@ bool Drawer::init(void)
     ElementVertex* vertices = (ElementVertex*) vertexBuffer->lock();
 
     // These are scaling factors used when rendering UI widget elements
+    //
     // There are three kinds:
     //  * The size scale, which when multiplied by the screen space size
     //    of the element places vertices in the closest corner
@@ -609,6 +610,9 @@ bool Drawer::init(void)
     //  * The texture coordinate scale, which when multiplied by the texture
     //    space size of the element becomes the relative texture coordinate
     //    of that vertex
+    //
+    // This allows rendering of UI elements by changing only four uniforms: the
+    // position and size of the element in screen and texture space.
 
     vertices[0x0].set(vec2(0.f, 0.f), vec2(  0.f,   0.f), vec2( 0.f,  0.f));
     vertices[0x1].set(vec2(0.f, 0.f), vec2( 0.5f,   0.f), vec2(0.5f,  0.f));
