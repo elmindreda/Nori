@@ -512,8 +512,8 @@ void Drawer::drawText(const Rect& area,
 
 void Drawer::drawText(const Rect& area,
                       const String& text,
-		              const Alignment& alignment,
-		              WidgetState state)
+                      const Alignment& alignment,
+                      WidgetState state)
 {
   drawText(area, text, alignment, theme->textColors[state]);
 }
