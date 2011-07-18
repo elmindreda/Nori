@@ -536,7 +536,7 @@ void Drawer::drawHandle(const Rect& area, WidgetState state)
 void Drawer::drawButton(const Rect& area, WidgetState state, const String& text)
 {
   drawElement(area, theme->buttonElements[state]);
-  drawText(area, text);
+  drawText(area, text, Alignment(), state);
 }
 
 const Theme& Drawer::getTheme(void) const
