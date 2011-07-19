@@ -173,7 +173,7 @@ void Font::drawText(const vec2& penPosition, const vec4& color, const char* text
   if (!count)
     return;
 
-  pass.setUniformState("color", color);
+  pass.setUniformState(colorIndex, color);
   pass.apply();
 
   pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_LIST,
@@ -363,6 +363,8 @@ bool Font::init(const FontData& data)
     pass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
     pass.setSamplerState("glyphs", texture);
     pass.setUniformState("color", vec4(1.f));
+
+    colorIndex = pass.getUniformStateIndex("color");
   }
 
   ascender = descender = 0.f;

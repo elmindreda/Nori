@@ -113,6 +113,7 @@ private:
   vec2 size;
   float ascender;
   float descender;
+  GL::UniformStateIndex colorIndex;
   mutable GL::RenderState pass;
 };
 
