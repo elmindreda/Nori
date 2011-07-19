@@ -73,6 +73,8 @@ void Progress::setValueRange(float newMinValue, float newMaxValue)
     setValue(minValue);
   else if (value > maxValue)
     setValue(maxValue);
+  else
+    invalidate();
 }
 
 float Progress::getValue(void) const
@@ -83,6 +85,7 @@ float Progress::getValue(void) const
 void Progress::setValue(float newValue)
 {
   value = newValue;
+  invalidate();
 }
 
 Orientation Progress::getOrientation(void) const
@@ -93,6 +96,7 @@ Orientation Progress::getOrientation(void) const
 void Progress::setOrientation(Orientation newOrientation)
 {
   orientation = newOrientation;
+  invalidate();
 }
 
 void Progress::draw(void) const

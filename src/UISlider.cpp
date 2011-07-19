@@ -81,6 +81,8 @@ void Slider::setValueRange(float newMinValue, float newMaxValue)
     setValue(minValue, true);
   else if (value > maxValue)
     setValue(maxValue, true);
+  else
+    invalidate();
 }
 
 float Slider::getValue(void) const
@@ -205,11 +207,7 @@ void Slider::setValue(const vec2& position)
 
 void Slider::setValue(float newValue, bool notify)
 {
-  if (newValue < minValue)
-    newValue = minValue;
-  else if (newValue > maxValue)
-    newValue = maxValue;
-
+  newValue = clamp(newValue, minValue, maxValue);
   if (newValue == value)
     return;
 
@@ -217,6 +215,8 @@ void Slider::setValue(float newValue, bool notify)
 
   if (notify)
     valueChangedSignal.emit(*this);
+
+  invalidate();
 }
 
 ///////////////////////////////////////////////////////////////////////

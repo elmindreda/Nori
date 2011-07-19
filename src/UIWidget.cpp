@@ -71,12 +71,16 @@ void Widget::addChild(Widget& child)
   children.push_back(&child);
   addedChild(child);
   child.addedToParent(*this);
+
+  invalidate();
 }
 
 void Widget::destroyChildren(void)
 {
   while (!children.empty())
     delete children.back();
+
+  invalidate();
 }
 
 void Widget::removeFromParent(void)
@@ -135,16 +139,24 @@ vec2 Widget::transformToGlobal(const vec2& localPoint) const
 void Widget::enable(void)
 {
   enabled = true;
+  invalidate();
 }
 
 void Widget::disable(void)
 {
   enabled = false;
+  invalidate();
+}
+
+void Widget::invalidate(void)
+{
+  desktop.invalidate();
 }
 
 void Widget::activate(void)
 {
   desktop.setActiveWidget(this);
+  invalidate();
 }
 
 void Widget::bringToFront(void)
@@ -159,6 +171,8 @@ void Widget::bringToFront(void)
   WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
   siblings->erase(i);
   siblings->push_back(this);
+
+  invalidate();
 }
 
 void Widget::sendToBack(void)
@@ -173,6 +187,8 @@ void Widget::sendToBack(void)
   WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
   siblings->erase(i);
   siblings->insert(siblings->begin(), this);
+
+  invalidate();
 }
 
 void Widget::cancelDragging(void)
@@ -281,6 +297,8 @@ void Widget::setArea(const Rect& newArea)
 {
   area = newArea;
   areaChangedSignal.emit(*this);
+
+  invalidate();
 }
 
 void Widget::setSize(const vec2& newSize)
@@ -296,6 +314,7 @@ void Widget::setPosition(const vec2& newPosition)
 void Widget::setVisible(bool newState)
 {
   visible = newState;
+  invalidate();
 }
 
 void Widget::setDraggable(bool newState)

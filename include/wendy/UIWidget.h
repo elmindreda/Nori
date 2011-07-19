@@ -103,6 +103,7 @@ public:
    *  events.
    */
   void disable(void);
+  void invalidate(void);
   /*! Makes this the active widget.
    *
    *  @remarks This will fail if the widget is hidden or disabled.

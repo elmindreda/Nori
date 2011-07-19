@@ -68,6 +68,7 @@ const String& Label::getText(void) const
 void Label::setText(const String& newText)
 {
   text = newText;
+  invalidate();
 }
 
 void Label::setText(const char* format, ...)
@@ -85,6 +86,8 @@ void Label::setText(const char* format, ...)
 
   text = newText;
   std::free(newText);
+
+  invalidate();
 }
 
 const Alignment& Label::getTextAlignment(void) const
@@ -95,6 +98,7 @@ const Alignment& Label::getTextAlignment(void) const
 void Label::setTextAlignment(const Alignment& newAlignment)
 {
   textAlignment = newAlignment;
+  invalidate();
 }
 
 void Label::draw(void) const

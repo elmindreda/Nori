@@ -113,6 +113,11 @@ void Desktop::cancelDragging(void)
   }
 }
 
+void Desktop::invalidate(void)
+{
+  context.getContext().refresh();
+}
+
 Drawer& Desktop::getDrawer(void) const
 {
   return drawer;

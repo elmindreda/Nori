@@ -68,6 +68,7 @@ const String& Button::getText(void) const
 void Button::setText(const String& newText)
 {
   text = newText;
+  invalidate();
 }
 
 SignalProxy1<void, Button&> Button::getPushedSignal(void)

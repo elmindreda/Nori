@@ -82,6 +82,8 @@ void Scroller::setValueRange(float newMinValue, float newMaxValue)
     setValue(minValue, true);
   else if (value > maxValue)
     setValue(maxValue, true);
+  else
+    invalidate();
 }
 
 float Scroller::getValue(void) const
@@ -102,6 +104,7 @@ float Scroller::getPercentage(void) const
 void Scroller::setPercentage(float newPercentage)
 {
   percentage = max(min(newPercentage, 1.f), 0.f);
+  invalidate();
 }
 
 SignalProxy1<void, Scroller&> Scroller::getValueChangedSignal(void)
@@ -279,11 +282,7 @@ void Scroller::onDragMoved(Widget& widget, const vec2& point)
 
 void Scroller::setValue(float newValue, bool notify)
 {
-  if (newValue < minValue)
-    newValue = minValue;
-  else if (newValue > maxValue)
-    newValue = maxValue;
-
+  newValue = clamp(newValue, minValue, maxValue);
   if (newValue == value)
     return;
 
@@ -291,6 +290,8 @@ void Scroller::setValue(float newValue, bool notify)
 
   if (notify)
     valueChangedSignal.emit(*this);
+
+  invalidate();
 }
 
 float Scroller::getHandleSize(void) const

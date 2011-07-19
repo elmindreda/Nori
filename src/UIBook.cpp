@@ -55,6 +55,7 @@ const String& Page::getText(void) const
 void Page::setText(const String& newText)
 {
   text = newText;
+  invalidate();
 }
 
 void Page::draw(void) const
@@ -215,6 +216,8 @@ void Book::setActivePage(Page* newPage, bool notify)
 
   if (notify)
     pageChangedSignal.emit(*this);
+
+  invalidate();
 }
 
 void Book::onAreaChanged(Widget& widget)

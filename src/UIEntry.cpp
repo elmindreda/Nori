@@ -62,6 +62,7 @@ const String& Entry::getText(void) const
 void Entry::setText(const String& newText)
 {
   text = newText;
+  invalidate();
 }
 
 unsigned int Entry::getCaretPosition(void) const
@@ -231,6 +232,8 @@ void Entry::setCaretPosition(unsigned int newPosition, bool notify)
 
   if (notify)
     caretMovedSignal.emit(*this);
+
+  invalidate();
 }
 
 ///////////////////////////////////////////////////////////////////////

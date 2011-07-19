@@ -74,6 +74,7 @@ public:
    */
   Widget* findWidgetByPoint(const vec2& point);
   void cancelDragging(void);
+  void invalidate(void);
   Drawer& getDrawer(void) const;
   /*! @return The root widgets of this desktop.
    */

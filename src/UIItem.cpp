@@ -89,6 +89,7 @@ const String& Item::asString(void) const
 void Item::setStringValue(const String& newValue)
 {
   value = newValue;
+  desktop.invalidate();
 }
 
 void Item::draw(const Rect& area, WidgetState state) const
