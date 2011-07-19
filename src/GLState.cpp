@@ -357,7 +357,9 @@ UniformStateIndex::UniformStateIndex(void):
 {
 }
 
-UniformStateIndex::UniformStateIndex(uint16 index, uint16 offset)
+UniformStateIndex::UniformStateIndex(uint16 initIndex, uint16 initOffset):
+  index(initIndex),
+  offset(initOffset)
 {
 }
 
@@ -369,7 +371,9 @@ SamplerStateIndex::SamplerStateIndex(void):
 {
 }
 
-SamplerStateIndex::SamplerStateIndex(uint16 index, uint16 unit)
+SamplerStateIndex::SamplerStateIndex(uint16 initIndex, uint16 initUnit):
+  index(initIndex),
+  unit(initUnit)
 {
 }
 
