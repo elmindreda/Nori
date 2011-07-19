@@ -76,7 +76,7 @@ public:
     VEC4,
   };
   void bind(size_t stride, size_t offset);
-  bool operator == (const String& string) const;
+  bool operator == (const char* string) const;
   bool isScalar(void) const;
   bool isVector(void) const;
   Type getType(void) const;
@@ -106,7 +106,7 @@ public:
     SAMPLER_CUBE,
   };
   void bind(unsigned int unit);
-  bool operator == (const String& string) const;
+  bool operator == (const char* string) const;
   bool isShared(void) const;
   Type getType(void) const;
   const String& getName(void) const;
@@ -139,7 +139,7 @@ public:
     MAT4,
   };
   void copyFrom(const void* data);
-  bool operator == (const String& string) const;
+  bool operator == (const char* string) const;
   bool isShared(void) const;
   bool isScalar(void) const;
   bool isVector(void) const;
@@ -168,12 +168,12 @@ class Program : public Resource
   friend class Context;
 public:
   ~Program(void);
-  Attribute* findAttribute(const String& name);
-  const Attribute* findAttribute(const String& name) const;
-  Sampler* findSampler(const String& name);
-  const Sampler* findSampler(const String& name) const;
-  Uniform* findUniform(const String& name);
-  const Uniform* findUniform(const String& name) const;
+  Attribute* findAttribute(const char* name);
+  const Attribute* findAttribute(const char* name) const;
+  Sampler* findSampler(const char* name);
+  const Sampler* findSampler(const char* name) const;
+  Uniform* findUniform(const char* name);
+  const Uniform* findUniform(const char* name) const;
   bool isCurrent(void) const;
   unsigned int getAttributeCount(void) const;
   Attribute& getAttribute(unsigned int index);
@@ -220,9 +220,9 @@ private:
 class ProgramInterface
 {
 public:
-  void addSampler(const String& name, Sampler::Type type);
-  void addUniform(const String& name, Uniform::Type type);
-  void addAttribute(const String& name, Attribute::Type type);
+  void addSampler(const char* name, Sampler::Type type);
+  void addUniform(const char* name, Uniform::Type type);
+  void addAttribute(const char* name, Attribute::Type type);
   void addAttributes(const VertexFormat& format);
   bool matches(const Program& program, bool verbose = false) const;
   bool matches(const VertexFormat& format, bool verbose = false) const;

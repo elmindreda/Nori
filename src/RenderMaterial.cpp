@@ -444,7 +444,7 @@ bool MaterialReader::onBeginElement(const String& name)
               return true;
             }
 
-            if (!program->findSampler(samplerName))
+            if (!program->findSampler(samplerName.c_str()))
             {
               logWarning("Shader program \'%s\' does not have sampler uniform \'%s\'",
                          program->getPath().asString().c_str(),
@@ -470,7 +470,7 @@ bool MaterialReader::onBeginElement(const String& name)
               return false;
             }
 
-            currentPass->setSamplerState(samplerName, texture);
+            currentPass->setSamplerState(samplerName.c_str(), texture);
             return true;
           }
 
@@ -484,7 +484,7 @@ bool MaterialReader::onBeginElement(const String& name)
               return true;
             }
 
-            GL::Uniform* uniform = program->findUniform(uniformName);
+            GL::Uniform* uniform = program->findUniform(uniformName.c_str());
             if (!uniform)
             {
               logWarning("Shader program \'%s\' does not have uniform \'%s\'",
@@ -496,25 +496,25 @@ bool MaterialReader::onBeginElement(const String& name)
             switch (uniform->getType())
             {
               case GL::Uniform::FLOAT:
-                currentPass->setUniformState(uniformName, readFloat("value"));
+                currentPass->setUniformState(uniformName.c_str(), readFloat("value"));
                 break;
               case GL::Uniform::VEC2:
-                currentPass->setUniformState(uniformName, vec2Cast(readString("value")));
+                currentPass->setUniformState(uniformName.c_str(), vec2Cast(readString("value")));
                 break;
               case GL::Uniform::VEC3:
-                currentPass->setUniformState(uniformName, vec3Cast(readString("value")));
+                currentPass->setUniformState(uniformName.c_str(), vec3Cast(readString("value")));
                 break;
               case GL::Uniform::VEC4:
-                currentPass->setUniformState(uniformName, vec4Cast(readString("value")));
+                currentPass->setUniformState(uniformName.c_str(), vec4Cast(readString("value")));
                 break;
               case GL::Uniform::MAT2:
-                currentPass->setUniformState(uniformName, mat2Cast(readString("value")));
+                currentPass->setUniformState(uniformName.c_str(), mat2Cast(readString("value")));
                 break;
               case GL::Uniform::MAT3:
-                currentPass->setUniformState(uniformName, mat3Cast(readString("value")));
+                currentPass->setUniformState(uniformName.c_str(), mat3Cast(readString("value")));
                 break;
               case GL::Uniform::MAT4:
-                currentPass->setUniformState(uniformName, mat4Cast(readString("value")));
+                currentPass->setUniformState(uniformName.c_str(), mat4Cast(readString("value")));
                 break;
             }
 
@@ -638,7 +638,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
           {
             const GL::Sampler& sampler = program->getSampler(i);
 
-            Ref<GL::Texture> texture = p->getSamplerState(sampler.getName());
+            Ref<GL::Texture> texture = p->getSamplerState(sampler.getName().c_str());
             if (!texture)
               continue;
 
@@ -660,7 +660,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
               case GL::Uniform::FLOAT:
               {
                 float value;
-                p->getUniformState(uniform.getName(), value);
+                p->getUniformState(uniform.getName().c_str(), value);
                 addAttribute("value", value);
                 break;
               }
@@ -668,7 +668,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
               case GL::Uniform::VEC2:
               {
                 vec2 value;
-                p->getUniformState(uniform.getName(), value);
+                p->getUniformState(uniform.getName().c_str(), value);
                 addAttribute("value", stringCast(value));
                 break;
               }
@@ -676,7 +676,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
               case GL::Uniform::VEC3:
               {
                 vec3 value;
-                p->getUniformState(uniform.getName(), value);
+                p->getUniformState(uniform.getName().c_str(), value);
                 addAttribute("value", stringCast(value));
                 break;
               }
@@ -684,7 +684,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
               case GL::Uniform::VEC4:
               {
                 vec4 value;
-                p->getUniformState(uniform.getName(), value);
+                p->getUniformState(uniform.getName().c_str(), value);
                 addAttribute("value", stringCast(value));
                 break;
               }
@@ -692,7 +692,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
               case GL::Uniform::MAT2:
               {
                 mat2 value;
-                p->getUniformState(uniform.getName(), value);
+                p->getUniformState(uniform.getName().c_str(), value);
                 addAttribute("value", stringCast(value));
                 break;
               }
@@ -700,7 +700,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
               case GL::Uniform::MAT3:
               {
                 mat3 value;
-                p->getUniformState(uniform.getName(), value);
+                p->getUniformState(uniform.getName().c_str(), value);
                 addAttribute("value", stringCast(value));
                 break;
               }
@@ -708,7 +708,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
               case GL::Uniform::MAT4:
               {
                 mat4 value;
-                p->getUniformState(uniform.getName(), value);
+                p->getUniformState(uniform.getName().c_str(), value);
                 addAttribute("value", stringCast(value));
                 break;
               }

@@ -456,7 +456,7 @@ void ProgramState::apply(void) const
   }
 }
 
-Texture* ProgramState::getSamplerState(const String& name) const
+Texture* ProgramState::getSamplerState(const char* name) const
 {
   if (!program)
   {
@@ -480,7 +480,7 @@ Texture* ProgramState::getSamplerState(const String& name) const
 
   logError("Program \'%s\' has no sampler named \'%s\'",
            program->getPath().asString().c_str(),
-           name.c_str());
+           name);
   return NULL;
 }
 
@@ -495,7 +495,7 @@ Texture* ProgramState::getSamplerState(SamplerStateIndex index) const
   return textures[index.unit];
 }
 
-void ProgramState::setSamplerState(const String& name, Texture* newTexture)
+void ProgramState::setSamplerState(const char* name, Texture* newTexture)
 {
   if (!program)
   {
@@ -555,7 +555,7 @@ void ProgramState::setSamplerState(SamplerStateIndex index, Texture* newTexture)
     textures[index.unit] = NULL;
 }
 
-UniformStateIndex ProgramState::getUniformStateIndex(const String& name) const
+UniformStateIndex ProgramState::getUniformStateIndex(const char* name) const
 {
   if (!program)
   {
@@ -580,7 +580,7 @@ UniformStateIndex ProgramState::getUniformStateIndex(const String& name) const
   return UniformStateIndex();
 }
 
-SamplerStateIndex ProgramState::getSamplerStateIndex(const String& name) const
+SamplerStateIndex ProgramState::getSamplerStateIndex(const char* name) const
 {
   if (!program)
   {
@@ -650,7 +650,7 @@ void ProgramState::setDefaults(void)
   setProgram(NULL);
 }
 
-void* ProgramState::getData(const String& name, Uniform::Type type)
+void* ProgramState::getData(const char* name, Uniform::Type type)
 {
   if (!program)
   {
@@ -683,11 +683,11 @@ void* ProgramState::getData(const String& name, Uniform::Type type)
 
   logError("Program \'%s\' has no uniform named \'%s\'",
            program->getPath().asString().c_str(),
-           name.c_str());
+           name);
   return NULL;
 }
 
-const void* ProgramState::getData(const String& name, Uniform::Type type) const
+const void* ProgramState::getData(const char* name, Uniform::Type type) const
 {
   if (!program)
   {
@@ -720,7 +720,7 @@ const void* ProgramState::getData(const String& name, Uniform::Type type) const
 
   logError("Program \'%s\' has no uniform named \'%s\'",
            program->getPath().asString().c_str(),
-           name.c_str());
+           name);
   return NULL;
 }
 

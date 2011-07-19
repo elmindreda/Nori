@@ -207,19 +207,19 @@ public:
    */
   void apply(void) const;
   template <typename T>
-  inline void getUniformState(const String& name, T& result) const;
+  inline void getUniformState(const char* name, T& result) const;
   template <typename T>
   inline void getUniformState(UniformStateIndex index, T& result) const;
   template <typename T>
-  inline void setUniformState(const String& name, const T& newValue);
+  inline void setUniformState(const char* name, const T& newValue);
   template <typename T>
   inline void setUniformState(UniformStateIndex index, const T& newValue);
-  Texture* getSamplerState(const String& name) const;
+  Texture* getSamplerState(const char* name) const;
   Texture* getSamplerState(SamplerStateIndex index) const;
-  void setSamplerState(const String& name, Texture* newTexture);
+  void setSamplerState(const char* name, Texture* newTexture);
   void setSamplerState(SamplerStateIndex index, Texture* newTexture);
-  UniformStateIndex getUniformStateIndex(const String& name) const;
-  SamplerStateIndex getSamplerStateIndex(const String& name) const;
+  UniformStateIndex getUniformStateIndex(const char* name) const;
+  SamplerStateIndex getSamplerStateIndex(const char* name) const;
   Program* getProgram(void) const;
   /*! Sets the GPU program used by this state object.
    *  @param[in] newProgram The desired GPU program, or @c NULL to detach
@@ -231,8 +231,8 @@ public:
 private:
   template <typename T>
   static Uniform::Type getUniformType(void);
-  void* getData(const String& name, Uniform::Type type);
-  const void* getData(const String& name, Uniform::Type type) const;
+  void* getData(const char* name, Uniform::Type type);
+  const void* getData(const char* name, Uniform::Type type) const;
   void* getData(UniformStateIndex index, Uniform::Type type);
   const void* getData(UniformStateIndex index, Uniform::Type type) const;
   typedef std::deque<StateID> IDQueue;
@@ -382,7 +382,7 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 template <typename T>
-inline void ProgramState::getUniformState(const String& name, T& result) const
+inline void ProgramState::getUniformState(const char* name, T& result) const
 {
   std::memcpy(&result, getData(name, getUniformType<T>()), sizeof(T));
 }
@@ -394,7 +394,7 @@ inline void ProgramState::getUniformState(UniformStateIndex index, T& result) co
 }
 
 template <typename T>
-inline void ProgramState::setUniformState(const String& name, const T& newValue)
+inline void ProgramState::setUniformState(const char* name, const T& newValue)
 {
   std::memcpy(getData(name, getUniformType<T>()), &newValue, sizeof(T));
 }

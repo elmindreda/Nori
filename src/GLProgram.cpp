@@ -307,7 +307,7 @@ Shader::Shader(const String& initText, const Path& initPath):
 
 ///////////////////////////////////////////////////////////////////////
 
-bool Attribute::operator == (const String& string) const
+bool Attribute::operator == (const char* string) const
 {
   return name == string;
 }
@@ -378,7 +378,7 @@ void Sampler::bind(unsigned int unit)
 #endif
 }
 
-bool Sampler::operator == (const String& string) const
+bool Sampler::operator == (const char* string) const
 {
   return name == string;
 }
@@ -457,7 +457,7 @@ void Uniform::copyFrom(const void* data)
 #endif
 }
 
-bool Uniform::operator == (const String& string) const
+bool Uniform::operator == (const char* string) const
 {
   return name == string;
 }
@@ -565,7 +565,7 @@ Program::~Program(void)
     glDeleteProgram(programID);
 }
 
-Attribute* Program::findAttribute(const String& name)
+Attribute* Program::findAttribute(const char* name)
 {
   AttributeList::iterator i = std::find(attributes.begin(), attributes.end(), name);
   if (i == attributes.end())
@@ -574,7 +574,7 @@ Attribute* Program::findAttribute(const String& name)
   return &(*i);
 }
 
-const Attribute* Program::findAttribute(const String& name) const
+const Attribute* Program::findAttribute(const char* name) const
 {
   AttributeList::const_iterator i = std::find(attributes.begin(), attributes.end(), name);
   if (i == attributes.end())
@@ -583,7 +583,7 @@ const Attribute* Program::findAttribute(const String& name) const
   return &(*i);
 }
 
-Sampler* Program::findSampler(const String& name)
+Sampler* Program::findSampler(const char* name)
 {
   SamplerList::iterator s = std::find(samplers.begin(), samplers.end(), name);
   if (s == samplers.end())
@@ -592,7 +592,7 @@ Sampler* Program::findSampler(const String& name)
   return &(*s);
 }
 
-const Sampler* Program::findSampler(const String& name) const
+const Sampler* Program::findSampler(const char* name) const
 {
   SamplerList::const_iterator s = std::find(samplers.begin(), samplers.end(), name);
   if (s == samplers.end())
@@ -601,7 +601,7 @@ const Sampler* Program::findSampler(const String& name) const
   return &(*s);
 }
 
-Uniform* Program::findUniform(const String& name)
+Uniform* Program::findUniform(const char* name)
 {
   UniformList::iterator i = std::find(uniforms.begin(), uniforms.end(), name);
   if (i == uniforms.end())
@@ -610,7 +610,7 @@ Uniform* Program::findUniform(const String& name)
   return &(*i);
 }
 
-const Uniform* Program::findUniform(const String& name) const
+const Uniform* Program::findUniform(const char* name) const
 {
   UniformList::const_iterator i = std::find(uniforms.begin(), uniforms.end(), name);
   if (i == uniforms.end())
@@ -912,17 +912,17 @@ bool Program::isValid(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-void ProgramInterface::addSampler(const String& name, Sampler::Type type)
+void ProgramInterface::addSampler(const char* name, Sampler::Type type)
 {
   samplers.push_back(SamplerList::value_type(name, type));
 }
 
-void ProgramInterface::addUniform(const String& name, Uniform::Type type)
+void ProgramInterface::addUniform(const char* name, Uniform::Type type)
 {
   uniforms.push_back(UniformList::value_type(name, type));
 }
 
-void ProgramInterface::addAttribute(const String& name, Attribute::Type type)
+void ProgramInterface::addAttribute(const char* name, Attribute::Type type)
 {
   attributes.push_back(AttributeList::value_type(name, type));
 }
@@ -933,7 +933,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
   {
     const SamplerList::value_type& entry = samplers[i];
 
-    const Sampler* sampler = program.findSampler(entry.first);
+    const Sampler* sampler = program.findSampler(entry.first.c_str());
     if (!sampler)
     {
       if (verbose)
@@ -964,7 +964,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
   {
     const UniformList::value_type& entry = uniforms[i];
 
-    const Uniform* uniform = program.findUniform(entry.first);
+    const Uniform* uniform = program.findUniform(entry.first.c_str());
     if (!uniform)
     {
       if (verbose)
@@ -995,7 +995,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
   {
     const AttributeList::value_type& entry = attributes[i];
 
-    const Attribute* attribute = program.findAttribute(entry.first);
+    const Attribute* attribute = program.findAttribute(entry.first.c_str());
     if (!attribute)
     {
       if (verbose)
