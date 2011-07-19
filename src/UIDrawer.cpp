@@ -469,7 +469,7 @@ void Drawer::drawText(const Rect& area,
   if (text.empty())
     return;
 
-  Rect metrics = currentFont->getTextMetrics(text);
+  Rect metrics = currentFont->getTextMetrics(text.c_str());
 
   vec2 penPosition;
 
@@ -507,7 +507,7 @@ void Drawer::drawText(const Rect& area,
       return;
   }
 
-  currentFont->drawText(penPosition, vec4(color, 1.f), text);
+  currentFont->drawText(penPosition, vec4(color, 1.f), text.c_str());
 }
 
 void Drawer::drawText(const Rect& area,

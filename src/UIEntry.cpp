@@ -108,7 +108,7 @@ void Entry::draw(void) const
       if (caretPosition > startPosition)
       {
         const render::Font& font = drawer.getCurrentFont();
-        Rect metrics = font.getTextMetrics(text.substr(startPosition, caretPosition));
+        Rect metrics = font.getTextMetrics(text.substr(startPosition, caretPosition).c_str());
         position = metrics.size.x;
       }
 
@@ -139,7 +139,7 @@ void Entry::onButtonClicked(Widget& widget,
   float position = transformToLocal(point).x - offset;
 
   render::Font::LayoutList layouts;
-  drawer.getCurrentFont().getTextLayout(layouts, text.substr(startPosition, String::npos));
+  drawer.getCurrentFont().getTextLayout(layouts, text.substr(startPosition, String::npos).c_str());
 
   unsigned int index;
 

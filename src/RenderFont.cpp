@@ -37,7 +37,6 @@
 
 #include <cctype>
 #include <cstdlib>
-#include <cstdarg>
 #include <cstring>
 
 #include <glm/gtx/bit.hpp>
@@ -127,10 +126,12 @@ FontData& FontData::operator = (const FontData& source)
 
 ///////////////////////////////////////////////////////////////////////
 
-void Font::drawText(const vec2& penPosition, const vec4& color, const String& text) const
+void Font::drawText(const vec2& penPosition, const vec4& color, const char* text) const
 {
+  const size_t length = std::strlen(text);
+
   GL::VertexRange vertexRange;
-  if (!pool.allocateVertices(vertexRange, text.size() * 6, Vertex2ft2fv::format))
+  if (!pool.allocateVertices(vertexRange, length * 6, Vertex2ft2fv::format))
   {
     logError("Failed to allocate vertices for text drawing");
     return;
@@ -153,7 +154,7 @@ void Font::drawText(const vec2& penPosition, const vec4& color, const String& te
 
     Layout layout;
 
-    for (String::const_iterator c = text.begin();  c != text.end();  c++)
+    for (const char* c = text;  *c != '\0';  c++)
     {
       if (const Glyph* glyph = findGlyph(*c))
       {
@@ -181,26 +182,6 @@ void Font::drawText(const vec2& penPosition, const vec4& color, const String& te
                                               count));
 }
 
-void Font::drawText(const vec2& penPosition,
-                    const vec4& color,
-                    const char* format, ...) const
-{
-  va_list vl;
-  char* text;
-  int result;
-
-  va_start(vl, format);
-  result = vasprintf(&text, format, vl);
-  va_end(vl);
-
-  if (result < 0)
-    return;
-
-  drawText(penPosition, color, String(text));
-
-  std::free(text);
-}
-
 float Font::getWidth(void) const
 {
   return size.x;
@@ -221,13 +202,13 @@ float Font::getDescender(void) const
   return descender;
 }
 
-Rect Font::getTextMetrics(const String& text) const
+Rect Font::getTextMetrics(const char* text) const
 {
   Rect result;
   Layout layout;
   vec2 penPosition;
 
-  for (String::const_iterator c = text.begin();  c != text.end();  c++)
+  for (const char* c = text;  *c != '\0';  c++)
   {
     if (getGlyphLayout(layout, *c))
     {
@@ -240,52 +221,15 @@ Rect Font::getTextMetrics(const String& text) const
   return result;
 }
 
-Rect Font::getTextMetrics(const char* format, ...) const
+void Font::getTextLayout(LayoutList& result, const char* text) const
 {
-  va_list vl;
-  char* text;
-  int result;
-
-  va_start(vl, format);
-  result = vasprintf(&text, format, vl);
-  va_end(vl);
-
-  if (result < 0)
-    return Rect();
-
-  Rect metrics = getTextMetrics(String(text));
-
-  std::free(text);
-  return metrics;
-}
-
-void Font::getTextLayout(LayoutList& result, const String& text) const
-{
-  for (String::const_iterator c = text.begin();  c != text.end();  c++)
+  for (const char* c = text;  *c != '\0';  c++)
   {
     Layout layout;
 
     if (getGlyphLayout(layout, *c))
       result.push_back(layout);
   }
-}
-
-void Font::getTextLayout(LayoutList& layout, const char* format, ...) const
-{
-  va_list vl;
-  char* text;
-  int result;
-
-  va_start(vl, format);
-  result = vasprintf(&text, format, vl);
-  va_end(vl);
-
-  if (result < 0)
-    return;
-
-  getTextLayout(layout, String(text));
-
-  std::free(text);
 }
 
 Ref<Font> Font::create(const ResourceInfo& info,

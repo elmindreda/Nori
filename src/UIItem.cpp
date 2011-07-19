@@ -66,7 +66,7 @@ float Item::getWidth(void) const
   if (value.empty())
     width += em * 3.f;
   else
-    width += drawer.getCurrentFont().getTextMetrics(value).size.x;
+    width += drawer.getCurrentFont().getTextMetrics(value.c_str()).size.x;
 
   return width;
 }

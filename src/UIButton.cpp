@@ -52,7 +52,7 @@ Button::Button(Desktop& desktop, const String& initText):
   if (text.empty())
     textWidth = em * 3.f;
   else
-    textWidth = drawer.getCurrentFont().getTextMetrics(text).size.x;
+    textWidth = drawer.getCurrentFont().getTextMetrics(text.c_str()).size.x;
 
   setSize(vec2(em * 2.f + textWidth, em * 2.f));
 

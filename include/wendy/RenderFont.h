@@ -69,11 +69,7 @@ public:
   /*! Renders the specified text at the current pen position.
    *  @param text The text to render.
    */
-  void drawText(const vec2& penPosition, const vec4& color, const String& text) const;
-  /*! Renders the specified text at the current pen position.
-   *  @param format The format string for the text to render.
-   */
-  void drawText(const vec2& penPosition, const vec4& color, const char* format, ...) const;
+  void drawText(const vec2& penPosition, const vec4& color, const char* text) const;
   /*! @return The width, in pixels, of the character cell for this font.
    */
   float getWidth(void) const;
@@ -90,18 +86,10 @@ public:
    *  @return The bounding rectangle, in pixels, of the specified text as
    *  rendered by this font.
    */
-  Rect getTextMetrics(const String& text) const;
-  /*! @param format The format string for the text to measure.
-   *  @return The bounding rectangle, in pixels, of the specified text as
-   *  rendered by this font.
-   */
-  Rect getTextMetrics(const char* format, ...) const;
+  Rect getTextMetrics(const char* text) const;
   /*! Calculates the layout of glyphs for the specified text.
    */
-  void getTextLayout(LayoutList& result, const String& text) const;
-  /*! Calculates the layout of glyphs for the specified text.
-   */
-  void getTextLayout(LayoutList& result, const char* format, ...) const;
+  void getTextLayout(LayoutList& result, const char* text) const;
   static Ref<Font> create(const ResourceInfo& info,
                           GeometryPool& pool,
                           const FontData& data);
