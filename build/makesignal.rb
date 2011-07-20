@@ -206,7 +206,7 @@ protected:
    */
   SignalSlot#{index}(Trackable* object = NULL);
 private:
-  Signal#{index}<#{type}>* signal;
+  Signal* signal;
 };
 
 ////////////////////////////////////////////////////////////////////////

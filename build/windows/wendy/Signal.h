@@ -117,7 +117,7 @@ protected:
    */
   SignalSlot0(Trackable* object = NULL);
 private:
-  Signal0<R>* signal;
+  Signal* signal;
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -390,7 +390,7 @@ protected:
    */
   SignalSlot1(Trackable* object = NULL);
 private:
-  Signal1<R,A1>* signal;
+  Signal* signal;
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -663,7 +663,7 @@ protected:
    */
   SignalSlot2(Trackable* object = NULL);
 private:
-  Signal2<R,A1,A2>* signal;
+  Signal* signal;
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -936,7 +936,7 @@ protected:
    */
   SignalSlot3(Trackable* object = NULL);
 private:
-  Signal3<R,A1,A2,A3>* signal;
+  Signal* signal;
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -1209,7 +1209,7 @@ protected:
    */
   SignalSlot4(Trackable* object = NULL);
 private:
-  Signal4<R,A1,A2,A3,A4>* signal;
+  Signal* signal;
 };
 
 ////////////////////////////////////////////////////////////////////////
