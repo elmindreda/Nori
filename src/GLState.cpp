@@ -464,7 +464,7 @@ Texture* ProgramState::getSamplerState(const char* name) const
     return NULL;
   }
 
-  unsigned int textureUnit = 0;
+  unsigned int textureIndex = 0;
 
   for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
   {
@@ -473,9 +473,9 @@ Texture* ProgramState::getSamplerState(const char* name) const
       continue;
 
     if (sampler.getName() == name)
-      return textures[textureUnit];
+      return textures[textureIndex];
 
-    textureUnit++;
+    textureIndex++;
   }
 
   logError("Program \'%s\' has no sampler named \'%s\'",
@@ -503,7 +503,7 @@ void ProgramState::setSamplerState(const char* name, Texture* newTexture)
     return;
   }
 
-  unsigned int textureUnit = 0;
+  unsigned int textureIndex = 0;
 
   for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
   {
@@ -516,19 +516,19 @@ void ProgramState::setSamplerState(const char* name, Texture* newTexture)
       if (newTexture)
       {
         if (samplerTypeMatchesTextureType(sampler.getType(), newTexture->getType()))
-          textures[textureUnit] = newTexture;
+          textures[textureIndex] = newTexture;
         else
           logError("Type mismatch between sampler \'%s\' and texture \'%s\'",
                    sampler.getName().c_str(),
                    newTexture->getPath().asString().c_str());
       }
       else
-        textures[textureUnit] = NULL;
+        textures[textureIndex] = NULL;
 
       return;
     }
 
-    textureUnit++;
+    textureIndex++;
   }
 }
 
@@ -588,7 +588,7 @@ SamplerStateIndex ProgramState::getSamplerStateIndex(const char* name) const
     return SamplerStateIndex();
   }
 
-  unsigned int textureUnit = 0;
+  unsigned int textureIndex = 0;
 
   for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
   {
@@ -597,9 +597,9 @@ SamplerStateIndex ProgramState::getSamplerStateIndex(const char* name) const
       continue;
 
     if (sampler.getName() == name)
-      return SamplerStateIndex(i, textureUnit);
+      return SamplerStateIndex(i, textureIndex);
 
-    textureUnit++;
+    textureIndex++;
   }
 
   return SamplerStateIndex();
