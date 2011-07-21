@@ -4,6 +4,8 @@
 #cmakedefine HAVE_SYS_STAT_H 1
 #cmakedefine HAVE_SYS_TYPES_H 1
 #cmakedefine HAVE_UNISTD_H 1
+#cmakedefine HAVE_STDINT_H 1
+#cmakedefine HAVE_INTTYPES_H 1
 #cmakedefine HAVE_WINDOWS_H 1
 
 #cmakedefine HAVE_TYPE_TRAITS_H 1
