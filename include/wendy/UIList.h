@@ -38,7 +38,7 @@ namespace wendy
 class List : public Widget
 {
 public:
-  List(Desktop& desktop);
+  List(Module& module);
   ~List(void);
   void addItem(Item& item);
   void removeItem(Item& item);

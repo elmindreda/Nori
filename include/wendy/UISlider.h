@@ -38,7 +38,7 @@ namespace wendy
 class Slider : public Widget
 {
 public:
-  Slider(Desktop& desktop, Orientation orientation);
+  Slider(Module& module, Orientation orientation);
   Orientation getOrientation(void) const;
   float getMinValue(void) const;
   float getMaxValue(void) const;

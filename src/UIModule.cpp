@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIDesktop.h>
+#include <wendy/UIModule.h>
 #include <wendy/UIWidget.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Desktop::Desktop(input::Context& initContext, UI::Drawer& initDrawer):
+Module::Module(input::Context& initContext, UI::Drawer& initDrawer):
   context(initContext),
   drawer(initDrawer),
   dragging(false),
@@ -48,7 +48,7 @@ Desktop::Desktop(input::Context& initContext, UI::Drawer& initDrawer):
 {
 }
 
-Desktop::~Desktop(void)
+Module::~Module(void)
 {
   destroyRootWidgets();
 
@@ -56,13 +56,13 @@ Desktop::~Desktop(void)
     context.setFocus(NULL);
 }
 
-void Desktop::addRootWidget(Widget& root)
+void Module::addRootWidget(Widget& root)
 {
   root.removeFromParent();
   roots.push_back(&root);
 }
 
-void Desktop::drawRootWidgets(void)
+void Module::drawRootWidgets(void)
 {
   drawer.begin();
 
@@ -75,13 +75,13 @@ void Desktop::drawRootWidgets(void)
   drawer.end();
 }
 
-void Desktop::destroyRootWidgets(void)
+void Module::destroyRootWidgets(void)
 {
   while (!roots.empty())
     delete roots.back();
 }
 
-Widget* Desktop::findWidgetByPoint(const vec2& point)
+Widget* Module::findWidgetByPoint(const vec2& point)
 {
   for (WidgetList::reverse_iterator r = roots.rbegin();  r != roots.rend();  r++)
   {
@@ -96,7 +96,7 @@ Widget* Desktop::findWidgetByPoint(const vec2& point)
   return NULL;
 }
 
-void Desktop::cancelDragging(void)
+void Module::cancelDragging(void)
 {
   if (dragging && draggedWidget)
   {
@@ -113,45 +113,45 @@ void Desktop::cancelDragging(void)
   }
 }
 
-void Desktop::invalidate(void)
+void Module::invalidate(void)
 {
   context.getContext().refresh();
 }
 
-Drawer& Desktop::getDrawer(void) const
+Drawer& Module::getDrawer(void) const
 {
   return drawer;
 }
 
-const WidgetList& Desktop::getRootWidgets(void) const
+const WidgetList& Module::getRootWidgets(void) const
 {
   return roots;
 }
 
-Widget* Desktop::getActiveWidget(void)
+Widget* Module::getActiveWidget(void)
 {
   return activeWidget;
 }
 
-Widget* Desktop::getDraggedWidget(void)
+Widget* Module::getDraggedWidget(void)
 {
   return draggedWidget;
 }
 
-Widget* Desktop::getHoveredWidget(void)
+Widget* Module::getHoveredWidget(void)
 {
   return hoveredWidget;
 }
 
-void Desktop::setActiveWidget(Widget* widget)
+void Module::setActiveWidget(Widget* widget)
 {
   if (activeWidget == widget)
     return;
 
   if (widget)
   {
-    if (&(widget->desktop) != this)
-      throw Exception("Cannot activate widget from other desktop");
+    if (&(widget->module) != this)
+      throw Exception("Cannot activate widget from other module");
 
     if (!widget->isVisible() || !widget->isEnabled())
       return;
@@ -166,7 +166,7 @@ void Desktop::setActiveWidget(Widget* widget)
     activeWidget->focusChangedSignal.emit(*activeWidget, true);
 }
 
-void Desktop::updateHoveredWidget(void)
+void Module::updateHoveredWidget(void)
 {
   ivec2 cursorPosition = context.getCursorPosition();
   cursorPosition.y = context.getHeight() - cursorPosition.y;
@@ -190,7 +190,7 @@ void Desktop::updateHoveredWidget(void)
     hoveredWidget->cursorEnteredSignal.emit(*hoveredWidget);
 }
 
-void Desktop::removedWidget(Widget& widget)
+void Module::removedWidget(Widget& widget)
 {
   if (activeWidget)
   {
@@ -214,19 +214,19 @@ void Desktop::removedWidget(Widget& widget)
   }
 }
 
-void Desktop::onKeyPressed(input::Key key, bool pressed)
+void Module::onKeyPressed(input::Key key, bool pressed)
 {
   if (activeWidget)
     activeWidget->keyPressedSignal.emit(*activeWidget, key, pressed);
 }
 
-void Desktop::onCharInput(wchar_t character)
+void Module::onCharInput(wchar_t character)
 {
   if (activeWidget)
     activeWidget->charInputSignal.emit(*activeWidget, character);
 }
 
-void Desktop::onCursorMoved(const ivec2& position)
+void Module::onCursorMoved(const ivec2& position)
 {
   updateHoveredWidget();
 
@@ -253,7 +253,7 @@ void Desktop::onCursorMoved(const ivec2& position)
   }
 }
 
-void Desktop::onButtonClicked(input::Button button, bool clicked)
+void Module::onButtonClicked(input::Button button, bool clicked)
 {
   ivec2 cursorPosition = context.getCursorPosition();
   cursorPosition.y = context.getHeight() - cursorPosition.y;
@@ -315,7 +315,7 @@ void Desktop::onButtonClicked(input::Button button, bool clicked)
   }
 }
 
-void Desktop::onWheelTurned(int offset)
+void Module::onWheelTurned(int offset)
 {
   if (hoveredWidget)
     hoveredWidget->wheelTurnedSignal.emit(*hoveredWidget, offset);

@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIDesktop.h>
+#include <wendy/UIModule.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UILabel.h>
 
@@ -41,12 +41,12 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Label::Label(Desktop& desktop, const String& initText):
-  Widget(desktop),
+Label::Label(Module& module, const String& initText):
+  Widget(module),
   text(initText),
   textAlignment(LEFT_ALIGNED)
 {
-  Drawer& drawer = desktop.getDrawer();
+  Drawer& drawer = module.getDrawer();
 
   const float em = drawer.getCurrentEM();
 
@@ -105,7 +105,7 @@ void Label::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Drawer& drawer = getDesktop().getDrawer();
+  Drawer& drawer = getModule().getDrawer();
   if (drawer.pushClipArea(area))
   {
     drawer.drawText(area, text, textAlignment);

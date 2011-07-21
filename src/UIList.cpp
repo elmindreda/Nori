@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIDesktop.h>
+#include <wendy/UIModule.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIScroller.h>
 #include <wendy/UIItem.h>
@@ -59,8 +59,8 @@ struct ItemComparator
 
 ///////////////////////////////////////////////////////////////////////
 
-List::List(Desktop& desktop):
-  Widget(desktop),
+List::List(Module& module):
+  Widget(module),
   offset(0),
   selection(0)
 {
@@ -69,7 +69,7 @@ List::List(Desktop& desktop):
   getKeyPressedSignal().connect(*this, &List::onKeyPressed);
   getWheelTurnedSignal().connect(*this, &List::onWheelTurned);
 
-  scroller = new Scroller(desktop, VERTICAL);
+  scroller = new Scroller(module, VERTICAL);
   scroller->setValueRange(0.f, 1.f);
   scroller->setPercentage(1.f);
   scroller->getValueChangedSignal().connect(*this, &List::onValueChanged);
@@ -217,7 +217,7 @@ void List::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Drawer& drawer = getDesktop().getDrawer();
+  Drawer& drawer = getModule().getDrawer();
   if (drawer.pushClipArea(area))
   {
     drawer.drawWell(area, getState());

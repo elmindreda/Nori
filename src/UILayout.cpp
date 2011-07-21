@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIDesktop.h>
+#include <wendy/UIModule.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UILayout.h>
 
@@ -39,8 +39,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Layout::Layout(Desktop& desktop, Orientation initOrientation, bool initExpanding):
-  Widget(desktop),
+Layout::Layout(Module& module, Orientation initOrientation, bool initExpanding):
+  Widget(module),
   borderSize(1.f),
   orientation(initOrientation),
   expanding(initExpanding)

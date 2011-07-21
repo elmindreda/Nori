@@ -97,7 +97,7 @@
 
 #if WENDY_INCLUDE_UI_SYSTEM
 #include <wendy/UIDrawer.h>
-#include <wendy/UIDesktop.h>
+#include <wendy/UIModule.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIScroller.h>
 #include <wendy/UIBook.h>

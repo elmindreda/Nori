@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIDesktop.h>
+#include <wendy/UIModule.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIEntry.h>
 
@@ -39,13 +39,13 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Entry::Entry(Desktop& desktop, const String& initText):
-  Widget(desktop),
+Entry::Entry(Module& module, const String& initText):
+  Widget(module),
   text(initText),
   startPosition(0),
   caretPosition(0)
 {
-  const float em = getDesktop().getDrawer().getCurrentEM();
+  const float em = getModule().getDrawer().getCurrentEM();
 
   setSize(vec2(em * 10.f, em * 1.5f));
 
@@ -89,7 +89,7 @@ void Entry::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Drawer& drawer = getDesktop().getDrawer();
+  Drawer& drawer = getModule().getDrawer();
   if (drawer.pushClipArea(area))
   {
     drawer.drawWell(area, getState());
@@ -133,7 +133,7 @@ void Entry::onButtonClicked(Widget& widget,
                             input::Button button,
                             bool clicked)
 {
-  Drawer& drawer = getDesktop().getDrawer();
+  Drawer& drawer = getModule().getDrawer();
 
   const float em = drawer.getCurrentEM();
   const float offset = em / 2.f;

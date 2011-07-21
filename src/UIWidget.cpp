@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIDesktop.h>
+#include <wendy/UIModule.h>
 #include <wendy/UIWidget.h>
 
 #include <algorithm>
@@ -40,8 +40,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Widget::Widget(Desktop& initDesktop):
-  desktop(initDesktop),
+Widget::Widget(Module& initmodule):
+  module(initmodule),
   parent(NULL),
   enabled(true),
   visible(true),
@@ -60,8 +60,8 @@ Widget::~Widget(void)
 
 void Widget::addChild(Widget& child)
 {
-  if (&desktop != &(child.getDesktop()))
-    throw Exception("Child widget has different desktop");
+  if (&module != &(child.getModule()))
+    throw Exception("Child widget has different module");
 
   if (&child == this || isChildOf(child))
     throw Exception("Widget graph loops are not permitted");
@@ -90,13 +90,13 @@ void Widget::removeFromParent(void)
   if (parent)
     siblings = &(parent->children);
   else
-    siblings = &(desktop.roots);
+    siblings = &(module.roots);
 
   WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
   if (i != siblings->end())
   {
     siblings->erase(i);
-    desktop.removedWidget(*this);
+    module.removedWidget(*this);
 
     if (parent)
     {
@@ -150,12 +150,12 @@ void Widget::disable(void)
 
 void Widget::invalidate(void)
 {
-  desktop.invalidate();
+  module.invalidate();
 }
 
 void Widget::activate(void)
 {
-  desktop.setActiveWidget(this);
+  module.setActiveWidget(this);
   invalidate();
 }
 
@@ -166,7 +166,7 @@ void Widget::bringToFront(void)
   if (parent)
     siblings = &(parent->children);
   else
-    siblings = &(desktop.roots);
+    siblings = &(module.roots);
 
   WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
   siblings->erase(i);
@@ -182,7 +182,7 @@ void Widget::sendToBack(void)
   if (parent)
     siblings = &(parent->children);
   else
-    siblings = &(desktop.roots);
+    siblings = &(module.roots);
 
   WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
   siblings->erase(i);
@@ -194,7 +194,7 @@ void Widget::sendToBack(void)
 void Widget::cancelDragging(void)
 {
   if (isBeingDragged())
-    desktop.cancelDragging();
+    module.cancelDragging();
 }
 
 bool Widget::isEnabled(void) const
@@ -221,12 +221,12 @@ bool Widget::isVisible(void) const
 
 bool Widget::isActive(void) const
 {
-  return desktop.getActiveWidget() == this;
+  return module.getActiveWidget() == this;
 }
 
 bool Widget::isUnderCursor(void) const
 {
-  return desktop.getHoveredWidget() == this;
+  return module.getHoveredWidget() == this;
 }
 
 bool Widget::isDraggable(void) const
@@ -236,7 +236,7 @@ bool Widget::isDraggable(void) const
 
 bool Widget::isBeingDragged(void) const
 {
-  return desktop.getDraggedWidget() == this;
+  return module.getDraggedWidget() == this;
 }
 
 bool Widget::isChildOf(const Widget& widget) const
@@ -250,9 +250,9 @@ bool Widget::isChildOf(const Widget& widget) const
   return false;
 }
 
-Desktop& Widget::getDesktop(void) const
+Module& Widget::getModule(void) const
 {
-  return desktop;
+  return module;
 }
 
 Widget* Widget::getParent(void) const

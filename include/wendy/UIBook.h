@@ -42,7 +42,7 @@ class Book;
 class Page : public Widget
 {
 public:
-  Page(Desktop& desktop, const String& text);
+  Page(Module& module, const String& text);
   const String& getText(void) const;
   void setText(const String& newText);
 protected:
@@ -58,7 +58,7 @@ private:
 class Book : public Widget
 {
 public:
-  Book(Desktop& desktop);
+  Book(Module& module);
   Page* getActivePage(void) const;
   void setActivePage(Page* newPage);
   SignalProxy1<void, Book&> getPageChangedSignal(void);

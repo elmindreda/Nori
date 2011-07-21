@@ -38,7 +38,7 @@ namespace wendy
 class Scroller : public Widget
 {
 public:
-  Scroller(Desktop& desktop, Orientation orientation);
+  Scroller(Module& module, Orientation orientation);
   Orientation getOrientation(void) const;
   float getMinValue(void) const;
   float getMaxValue(void) const;

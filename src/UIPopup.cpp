@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIDesktop.h>
+#include <wendy/UIModule.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIItem.h>
 #include <wendy/UIMenu.h>
@@ -41,20 +41,20 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Popup::Popup(Desktop& desktop):
-  Widget(desktop),
+Popup::Popup(Module& module):
+  Widget(module),
   selection(0)
 {
-  const float em = desktop.getDrawer().getCurrentEM();
+  const float em = module.getDrawer().getCurrentEM();
 
   setSize(vec2(em * 10.f, em * 2.f));
 
   getKeyPressedSignal().connect(*this, &Popup::onKeyPressed);
   getButtonClickedSignal().connect(*this, &Popup::onButtonClicked);
 
-  menu = new Menu(desktop);
+  menu = new Menu(module);
   menu->getItemSelectedSignal().connect(*this, &Popup::onItemSelected);
-  desktop.addRootWidget(*menu);
+  module.addRootWidget(*menu);
 }
 
 void Popup::addItem(Item& item)
@@ -64,7 +64,7 @@ void Popup::addItem(Item& item)
 
 void Popup::addItem(const String& value, ItemID ID)
 {
-  Item* item = new Item(getDesktop(), value, ID);
+  Item* item = new Item(getModule(), value, ID);
   menu->addItem(*item);
 }
 
@@ -125,7 +125,7 @@ void Popup::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Drawer& drawer = getDesktop().getDrawer();
+  Drawer& drawer = getModule().getDrawer();
   if (drawer.pushClipArea(area))
   {
     drawer.drawFrame(area, getState());

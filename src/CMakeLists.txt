@@ -46,9 +46,9 @@ endif(WENDY_INCLUDE_SCENE_GRAPH)
 
 if(WENDY_INCLUDE_UI_SYSTEM)
   list(APPEND wendy_SOURCES
-       UIBook.cpp UIButton.cpp UICanvas.cpp UIColor.cpp UIDesktop.cpp
-       UIDrawer.cpp UIEntry.cpp UIItem.cpp UILabel.cpp UILayout.cpp UIList.cpp
-       UIMenu.cpp UIPopup.cpp UIProgress.cpp UIScroller.cpp UISlider.cpp
+       UIBook.cpp UIButton.cpp UICanvas.cpp UIColor.cpp UIDrawer.cpp
+       UIEntry.cpp UIItem.cpp UILabel.cpp UILayout.cpp UIList.cpp UIMenu.cpp
+       UIModule.cpp UIPopup.cpp UIProgress.cpp UIScroller.cpp UISlider.cpp
        UIWidget.cpp)
 endif(WENDY_INCLUDE_UI_SYSTEM)
 

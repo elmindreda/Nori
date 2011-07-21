@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_UIDESKTOP_H
-#define WENDY_UIDESKTOP_H
+#ifndef WENDY_UIMODULE_H
+#define WENDY_UIMODULE_H
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Input.h>
@@ -50,16 +50,16 @@ typedef std::vector<Widget*> WidgetList;
 /*! @brief Root object for UI objects.
  *  @ingroup ui
  */
-class Desktop : public input::Focus, public Trackable
+class Module : public input::Focus, public Trackable
 {
   friend class Widget;
 public:
   /*! Constructor.
    */
-  Desktop(input::Context& context, Drawer& drawer);
+  Module(input::Context& context, Drawer& drawer);
   /*! Destructor.
    */
-  ~Desktop(void);
+  ~Module(void);
   void addRootWidget(Widget& root);
   /*! Draws all root level widgets.
    */
@@ -76,10 +76,10 @@ public:
   void cancelDragging(void);
   void invalidate(void);
   Drawer& getDrawer(void) const;
-  /*! @return The root widgets of this desktop.
+  /*! @return The root widgets of this module.
    */
   const WidgetList& getRootWidgets(void) const;
-  SignalProxy2<void, Desktop&, bool> getFocusChangedSignal(void);
+  SignalProxy2<void, Module&, bool> getFocusChangedSignal(void);
   /*! @return The active widget, or @c NULL if no widget is active.
    */
   Widget* getActiveWidget(void);
@@ -94,7 +94,7 @@ private:
   void onCursorMoved(const ivec2& position);
   void onButtonClicked(input::Button button, bool clicked);
   void onWheelTurned(int offset);
-  Signal2<void, Desktop&, bool> focusChangedSignal;
+  Signal2<void, Module&, bool> focusChangedSignal;
   input::Context& context;
   Drawer& drawer;
   bool dragging;
@@ -110,5 +110,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_UIDESKTOP_H*/
+#endif /*WENDY_UIMODULE_H*/
 ///////////////////////////////////////////////////////////////////////

@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIDesktop.h>
+#include <wendy/UIModule.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIItem.h>
 #include <wendy/UIMenu.h>
@@ -57,8 +57,8 @@ struct ItemComparator
 
 ///////////////////////////////////////////////////////////////////////
 
-Menu::Menu(Desktop& desktop):
-  Widget(desktop),
+Menu::Menu(Module& module):
+  Widget(module),
   selection(0)
 {
   getCursorMovedSignal().connect(*this, &Menu::onCursorMoved);
@@ -161,7 +161,7 @@ void Menu::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Drawer& drawer = getDesktop().getDrawer();
+  Drawer& drawer = getModule().getDrawer();
   if (drawer.pushClipArea(area))
   {
     drawer.drawFrame(area, getState());
