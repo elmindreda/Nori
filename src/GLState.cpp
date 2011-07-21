@@ -444,9 +444,9 @@ void ProgramState::apply(void) const
       if (state)
         state->updateTo(uniform);
       else
-        logError("Applying shared uniform \'%s\' of program \'%s\' without a current shared program state",
-                 uniform.getName().c_str(),
-                 program->getPath().asString().c_str());
+        logError("Program \'%s\' uses shared uniform \'%s\' without a current shared program state",
+                 program->getPath().asString().c_str(),
+                 uniform.getName().c_str());
     }
     else
     {
