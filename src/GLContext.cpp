@@ -730,8 +730,6 @@ SharedUniform::SharedUniform(const String& initName,
 
 Context::~Context(void)
 {
-  destroySignal.emit();
-
   setScreenCanvasCurrent();
   setCurrentVertexBuffer(NULL);
   setCurrentIndexBuffer(NULL);
@@ -1241,18 +1239,7 @@ bool Context::createSingleton(ResourceIndex& index, const ContextMode& mode)
     return false;
 
   set(context.detachObject());
-  createSignal.emit();
   return true;
-}
-
-SignalProxy0<void> Context::getCreateSignal(void)
-{
-  return createSignal;
-}
-
-SignalProxy0<void> Context::getDestroySignal(void)
-{
-  return destroySignal;
 }
 
 void Context::getScreenModes(ScreenModeList& result)
@@ -1476,9 +1463,6 @@ void Context::refreshCallback(void)
 }
 
 Context* Context::instance = NULL;
-
-Signal0<void> Context::createSignal;
-Signal0<void> Context::destroySignal;
 
 ///////////////////////////////////////////////////////////////////////
 

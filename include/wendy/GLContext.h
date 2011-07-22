@@ -573,12 +573,6 @@ public:
     *  @return @c true if successful, or @c false otherwise.
     */
   static bool createSingleton(ResourceIndex& index, const ContextMode& mode = ContextMode());
-  /*! @return The signal for creation of a context object.
-   */
-  static SignalProxy0<void> getCreateSignal(void);
-  /*! @return The signal for destruction of a context object.
-   */
-  static SignalProxy0<void> getDestroySignal(void);
   /*! Retrieves the supported screen modes.
    *  @param[out] result The supported modes.
    */
@@ -621,8 +615,6 @@ private:
   PlaneList planes;
   Stats* stats;
   static Context* instance;
-  static Signal0<void> createSignal;
-  static Signal0<void> destroySignal;
 };
 
 ///////////////////////////////////////////////////////////////////////
