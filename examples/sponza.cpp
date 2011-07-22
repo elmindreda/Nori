@@ -5,7 +5,7 @@
 
 using namespace wendy;
 
-class Demo : public Trackable
+class Demo : public Trackable, public input::Hook
 {
 public:
   Demo(void);
@@ -13,8 +13,8 @@ public:
   bool init(void);
   void run(void);
 private:
-  void onKeyPressed(input::Key key, bool pressed);
-  void onButtonClicked(input::Button button, bool clicked);
+  bool onKeyPressed(input::Key key, bool pressed);
+  bool onButtonClicked(input::Button button, bool clicked);
   ResourceIndex index;
   input::SpectatorCamera controller;
   Ptr<render::GeometryPool> pool;
@@ -69,9 +69,6 @@ bool Demo::init(void)
   if (!input::Context::createSingleton(*context))
     return false;
 
-  input::Context::getSingleton()->getKeyPressedSignal().connect(*this, &Demo::onKeyPressed);
-  input::Context::getSingleton()->getButtonClickedSignal().connect(*this, &Demo::onButtonClicked);
-
   pool = new render::GeometryPool(*context);
 
   renderer = deferred::Renderer::create(*pool, deferred::Config(width, height));
@@ -105,7 +102,8 @@ bool Demo::init(void)
 
   timer.start();
 
-  input::Context::getSingleton()->setFocus(&controller);
+  input::Context::getSingleton()->setHook(this);
+  input::Context::getSingleton()->setTarget(&controller);
 
   return true;
 }
@@ -141,32 +139,36 @@ void Demo::run(void)
   while (!quitting && context.update());
 }
 
-void Demo::onKeyPressed(input::Key key, bool pressed)
+bool Demo::onKeyPressed(input::Key key, bool pressed)
 {
   if (!pressed)
-    return;
+    return false;
 
   switch (key)
   {
     case input::KEY_TAB:
       debugging = !debugging;
-      break;
+      return true;
 
     case input::KEY_ESCAPE:
       quitting = true;
-      break;
+      return true;
   }
+
+  return false;
 }
 
-void Demo::onButtonClicked(input::Button button, bool clicked)
+bool Demo::onButtonClicked(input::Button button, bool clicked)
 {
   if (!clicked)
-    return;
+    return false;
 
   if (button == input::BUTTON_LEFT)
   {
     // TODO: Write screenshot to disk
   }
+
+  return false;
 }
 
 int main()

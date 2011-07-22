@@ -61,35 +61,66 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Focus::~Focus(void)
+Hook::~Hook(void)
 {
 }
 
-void Focus::onContextResized(unsigned int width, unsigned int height)
+bool Hook::onKeyPressed(Key key, bool pressed)
+{
+  return false;
+}
+
+bool Hook::onCharInput(wchar_t character)
+{
+  return false;
+}
+
+bool Hook::onButtonClicked(Button button, bool clicked)
+{
+  return false;
+}
+
+bool Hook::onCursorMoved(const ivec2& position)
+{
+  return false;
+}
+
+bool Hook::onWheelTurned(int offset)
+{
+  return false;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Target::~Target(void)
 {
 }
 
-void Focus::onKeyPressed(Key key, bool pressed)
+void Target::onWindowResized(unsigned int width, unsigned int height)
 {
 }
 
-void Focus::onCharInput(wchar_t character)
+void Target::onKeyPressed(Key key, bool pressed)
 {
 }
 
-void Focus::onButtonClicked(Button button, bool clicked)
+void Target::onCharInput(wchar_t character)
 {
 }
 
-void Focus::onCursorMoved(const ivec2& position)
+void Target::onButtonClicked(Button button, bool clicked)
 {
 }
 
-void Focus::onWheelTurned(int offset)
+void Target::onCursorMoved(const ivec2& position)
 {
 }
 
-void Focus::onFocusChanged(bool activated)
+void Target::onWheelTurned(int offset)
+{
+}
+
+void Target::onFocusChanged(bool activated)
 {
 }
 
@@ -97,8 +128,6 @@ void Focus::onFocusChanged(bool activated)
 
 Context::~Context(void)
 {
-  setFocus(NULL);
-
   glfwSetMousePosCallback(NULL);
   glfwSetMouseButtonCallback(NULL);
   glfwSetKeyCallback(NULL);
@@ -167,53 +196,33 @@ void Context::setCursorPosition(const ivec2& newPosition)
   glfwSetMousePos(newPosition.x, newPosition.y);
 }
 
-SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal(void)
+Hook* Context::getHook(void) const
 {
-  return resizedSignal;
+  return currentHook;
 }
 
-SignalProxy2<void, Key, bool> Context::getKeyPressedSignal(void)
+void Context::setHook(Hook* newHook)
 {
-  return keyPressedSignal;
+  currentHook = newHook;
 }
 
-SignalProxy1<void, wchar_t> Context::getCharInputSignal(void)
+Target* Context::getTarget(void) const
 {
-  return charInputSignal;
+  return currentTarget;
 }
 
-SignalProxy2<void, Button, bool> Context::getButtonClickedSignal(void)
+void Context::setTarget(Target* newTarget)
 {
-  return buttonClickedSignal;
-}
-
-SignalProxy1<void, const ivec2&> Context::getCursorMovedSignal(void)
-{
-  return cursorMovedSignal;
-}
-
-SignalProxy1<void, int> Context::getWheelTurnedSignal(void)
-{
-  return wheelTurnedSignal;
-}
-
-Focus* Context::getFocus(void) const
-{
-  return currentFocus;
-}
-
-void Context::setFocus(Focus* newFocus)
-{
-  if (currentFocus == newFocus)
+  if (currentTarget == newTarget)
     return;
 
-  if (currentFocus)
-    currentFocus->onFocusChanged(false);
+  if (currentTarget)
+    currentTarget->onFocusChanged(false);
 
-  currentFocus = newFocus;
+  currentTarget = newTarget;
 
-  if (currentFocus)
-    currentFocus->onFocusChanged(true);
+  if (currentTarget)
+    currentTarget->onFocusChanged(true);
 }
 
 GL::Context& Context::getContext(void) const
@@ -229,7 +238,8 @@ bool Context::createSingleton(GL::Context& context)
 
 Context::Context(GL::Context& initContext):
   context(initContext),
-  currentFocus(NULL),
+  currentHook(NULL),
+  currentTarget(NULL),
   cursorCaptured(false)
 {
   // TODO: Remove this upon the arrival of GLFW_USER_DATA.
@@ -313,7 +323,7 @@ Context::Context(GL::Context& initContext):
     externalMap[GLFW_KEY_F12] = KEY_F12;
   }
 
-  context.getResizedSignal().connect(*this, &Context::sizeCallback);
+  context.getResizedSignal().connect(*this, &Context::onContextResized);
 
   glfwSetMousePosCallback(mousePosCallback);
   glfwSetMouseButtonCallback(mouseButtonCallback);
@@ -339,12 +349,10 @@ Context& Context::operator = (const Context& source)
   return *this;
 }
 
-void Context::sizeCallback(unsigned int width, unsigned int height)
+void Context::onContextResized(unsigned int width, unsigned int height)
 {
-  resizedSignal.emit(width, height);
-
-  if (currentFocus)
-    currentFocus->onContextResized(width, height);
+  if (currentTarget)
+    currentTarget->onWindowResized(width, height);
 }
 
 void Context::keyboardCallback(int key, int action)
@@ -360,10 +368,14 @@ void Context::keyboardCallback(int key, int action)
 
   const bool pressed = (action == GLFW_PRESS) ? true : false;
 
-  instance->keyPressedSignal.emit(Key(key), pressed);
+  if (instance->currentHook)
+  {
+    if (instance->currentHook->onKeyPressed(Key(key), pressed))
+        return;
+  }
 
-  if (instance->currentFocus)
-    instance->currentFocus->onKeyPressed(Key(key), pressed);
+  if (instance->currentTarget)
+    instance->currentTarget->onKeyPressed(Key(key), pressed);
 }
 
 void Context::characterCallback(int character, int action)
@@ -371,20 +383,28 @@ void Context::characterCallback(int character, int action)
   if (action != GLFW_PRESS)
     return;
 
-  instance->charInputSignal.emit((wchar_t) character);
+  if (instance->currentHook)
+  {
+    if (instance->currentHook->onCharInput((wchar_t) character))
+        return;
+  }
 
-  if (instance->currentFocus)
-    instance->currentFocus->onCharInput((wchar_t) character);
+  if (instance->currentTarget)
+    instance->currentTarget->onCharInput((wchar_t) character);
 }
 
 void Context::mousePosCallback(int x, int y)
 {
   const ivec2 position(x, y);
 
-  instance->cursorMovedSignal.emit(position);
+  if (instance->currentHook)
+  {
+    if (instance->currentHook->onCursorMoved(position))
+        return;
+  }
 
-  if (instance->currentFocus)
-    instance->currentFocus->onCursorMoved(position);
+  if (instance->currentTarget)
+    instance->currentTarget->onCursorMoved(position);
 }
 
 void Context::mouseButtonCallback(int button, int action)
@@ -393,18 +413,28 @@ void Context::mouseButtonCallback(int button, int action)
 
   button -= GLFW_MOUSE_BUTTON_1;
 
-  instance->buttonClickedSignal.emit(Button(button), clicked);
+  if (instance->currentHook)
+  {
+    if (instance->currentHook->onButtonClicked(Button(button), clicked))
+        return;
+  }
 
-  if (instance->currentFocus)
-    instance->currentFocus->onButtonClicked(Button(button), clicked);
+  if (instance->currentTarget)
+    instance->currentTarget->onButtonClicked(Button(button), clicked);
 }
 
 void Context::mouseWheelCallback(int position)
 {
-  instance->wheelTurnedSignal.emit(instance->wheelPosition - position);
+  const int offset = instance->wheelPosition - position;
 
-  if (instance->currentFocus)
-    instance->currentFocus->onWheelTurned(instance->wheelPosition - position);
+  if (instance->currentHook)
+  {
+    if (instance->currentHook->onWheelTurned(offset))
+        return;
+  }
+
+  if (instance->currentTarget)
+    instance->currentTarget->onWheelTurned(offset);
 
   instance->wheelPosition = position;
 }

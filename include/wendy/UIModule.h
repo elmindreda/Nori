@@ -50,7 +50,7 @@ typedef std::vector<Widget*> WidgetList;
 /*! @brief Root object for UI objects.
  *  @ingroup ui
  */
-class Module : public input::Focus, public Trackable
+class Module : public input::Target, public Trackable
 {
   friend class Widget;
 public:
@@ -60,10 +60,10 @@ public:
   /*! Destructor.
    */
   ~Module(void);
+  void draw(void);
   void addRootWidget(Widget& root);
   /*! Draws all root level widgets.
    */
-  void drawRootWidgets(void);
   void destroyRootWidgets(void);
   /*! Searches for a widget at the specified point.
    *  @param[in] point The point at which to search.
@@ -94,6 +94,7 @@ private:
   void onCursorMoved(const ivec2& position);
   void onButtonClicked(input::Button button, bool clicked);
   void onWheelTurned(int offset);
+  void onFocusChanged(bool activated);
   Signal2<void, Module&, bool> focusChangedSignal;
   input::Context& context;
   Drawer& drawer;
@@ -102,6 +103,23 @@ private:
   Widget* activeWidget;
   Widget* draggedWidget;
   Widget* hoveredWidget;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class ModuleStack
+{
+public:
+  ModuleStack(input::Context& context);
+  void draw(void) const;
+  void push(Module& module);
+  void pop(void);
+  void empty(void);
+  bool isEmpty(void) const;
+private:
+  typedef std::vector<Module*> ModuleList;
+  input::Context& context;
+  ModuleList modules;
 };
 
 ///////////////////////////////////////////////////////////////////////

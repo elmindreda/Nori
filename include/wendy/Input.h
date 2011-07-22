@@ -107,11 +107,26 @@ enum Button
 
 /*! @ingroup input
  */
-class Focus
+class Hook
 {
 public:
-  virtual ~Focus(void);
-  virtual void onContextResized(unsigned int width, unsigned int height);
+  virtual ~Hook(void);
+  virtual bool onKeyPressed(Key key, bool pressed);
+  virtual bool onCharInput(wchar_t character);
+  virtual bool onButtonClicked(Button button, bool clicked);
+  virtual bool onCursorMoved(const ivec2& position);
+  virtual bool onWheelTurned(int offset);
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup input
+ */
+class Target
+{
+public:
+  virtual ~Target(void);
+  virtual void onWindowResized(unsigned int width, unsigned int height);
   virtual void onKeyPressed(Key key, bool pressed);
   virtual void onCharInput(wchar_t character);
   virtual void onButtonClicked(Button button, bool clicked);
@@ -157,26 +172,10 @@ public:
    *  @param[in] newPosition The desired mouse position.
    */
   void setCursorPosition(const ivec2& newPosition);
-  /*! @return The signal for context resizing.
-   */
-  SignalProxy2<void, unsigned int, unsigned int> getResizedSignal(void);
-  /*! @return The signal for key press and release events.
-   */
-  SignalProxy2<void, Key, bool> getKeyPressedSignal(void);
-  /*! @return The signal for character input events.
-   */
-  SignalProxy1<void, wchar_t> getCharInputSignal(void);
-  /*! @return The signal for mouse button click and release events.
-   */
-  SignalProxy2<void, Button, bool> getButtonClickedSignal(void);
-  /*! @return The signal for mouse cursor movement events.
-   */
-  SignalProxy1<void, const ivec2&> getCursorMovedSignal(void);
-  /*! @return The signal for mouse wheel events.
-    */
-  SignalProxy1<void, int> getWheelTurnedSignal(void);
-  Focus* getFocus(void) const;
-  void setFocus(Focus* newFocus);
+  Hook* getHook(void) const;
+  void setHook(Hook* newHook);
+  Target* getTarget(void) const;
+  void setTarget(Target* newTarget);
   /*! @return The context underlying this input manager.
    */
   GL::Context& getContext(void) const;
@@ -185,21 +184,16 @@ private:
   Context(GL::Context& context);
   Context(const Context& source);
   Context& operator = (const Context& source);
-  void sizeCallback(unsigned int width, unsigned int height);
+  void onContextResized(unsigned int width, unsigned int height);
   static void keyboardCallback(int key, int action);
   static void characterCallback(int character, int action);
   static void mousePosCallback(int x, int y);
   static void mouseButtonCallback(int button, int action);
   static void mouseWheelCallback(int position);
-  Signal2<void, unsigned int, unsigned int> resizedSignal;
-  Signal2<void, Key, bool> keyPressedSignal;
-  Signal1<void, wchar_t> charInputSignal;
-  Signal2<void, Button, bool> buttonClickedSignal;
-  Signal1<void, const ivec2&> cursorMovedSignal;
-  Signal1<void, int> wheelTurnedSignal;
   GL::Context& context;
   int wheelPosition;
-  Focus* currentFocus;
+  Hook* currentHook;
+  Target* currentTarget;
   bool cursorCaptured;
   mutable ivec2 cursorPosition;
   static Context* instance;
@@ -209,7 +203,7 @@ private:
 
 /*! @ingroup input
  */
-class MayaCamera : public Focus
+class MayaCamera : public Target
 {
 public:
   MayaCamera(void);
@@ -241,7 +235,7 @@ private:
 
 /*! @ingroup input
  */
-class SpectatorCamera : public Focus
+class SpectatorCamera : public Target
 {
 public:
   SpectatorCamera(void);
@@ -275,7 +269,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class TextController : public Focus
+class TextController : public Target
 {
 public:
   TextController(void);

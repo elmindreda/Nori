@@ -51,18 +51,9 @@ Module::Module(input::Context& initContext, UI::Drawer& initDrawer):
 Module::~Module(void)
 {
   destroyRootWidgets();
-
-  if (context.getFocus() == this)
-    context.setFocus(NULL);
 }
 
-void Module::addRootWidget(Widget& root)
-{
-  root.removeFromParent();
-  roots.push_back(&root);
-}
-
-void Module::drawRootWidgets(void)
+void Module::draw(void)
 {
   drawer.begin();
 
@@ -73,6 +64,12 @@ void Module::drawRootWidgets(void)
   }
 
   drawer.end();
+}
+
+void Module::addRootWidget(Widget& root)
+{
+  root.removeFromParent();
+  roots.push_back(&root);
 }
 
 void Module::destroyRootWidgets(void)
@@ -319,6 +316,55 @@ void Module::onWheelTurned(int offset)
 {
   if (hoveredWidget)
     hoveredWidget->wheelTurnedSignal.emit(*hoveredWidget, offset);
+}
+
+void Module::onFocusChanged(bool activated)
+{
+  if (!activated)
+    cancelDragging();
+}
+
+///////////////////////////////////////////////////////////////////////
+
+ModuleStack::ModuleStack(input::Context& initContext):
+  context(initContext)
+{
+}
+
+void ModuleStack::draw(void) const
+{
+  if (modules.empty())
+    return;
+
+  modules.back()->draw();
+}
+
+void ModuleStack::push(Module& module)
+{
+  modules.push_back(&module);
+  context.setTarget(&module);
+}
+
+void ModuleStack::pop(void)
+{
+  if (!modules.empty())
+    modules.pop_back();
+
+  if (modules.empty())
+    context.setTarget(NULL);
+  else
+    context.setTarget(modules.back());
+}
+
+void ModuleStack::empty(void)
+{
+  while (!modules.empty())
+    pop();
+}
+
+bool ModuleStack::isEmpty(void) const
+{
+  return modules.empty();
 }
 
 ///////////////////////////////////////////////////////////////////////

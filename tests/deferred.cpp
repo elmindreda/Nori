@@ -116,7 +116,7 @@ bool Demo::init(void)
   lightNode->setLight(light);
   graph.addRootNode(*lightNode);
 
-  input::Context::getSingleton()->setFocus(&controller);
+  input::Context::getSingleton()->setTarget(&controller);
 
   timer.start();
 

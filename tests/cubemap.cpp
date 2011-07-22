@@ -48,7 +48,7 @@ bool Test::init(void)
   if (!input::Context::createSingleton(*context))
     return false;
 
-  input::Context::getSingleton()->setFocus(&controller);
+  input::Context::getSingleton()->setTarget(&controller);
 
   pool = new render::GeometryPool(*context);
 
