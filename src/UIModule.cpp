@@ -178,15 +178,31 @@ void Module::updateHoveredWidget(void)
   if (hoveredWidget == newWidget)
     return;
 
-  // TODO: Notify parents up to common ancestor.
+  Widget* ancestor = hoveredWidget;
 
-  if (hoveredWidget)
-    hoveredWidget->cursorLeftSignal.emit(*hoveredWidget);
+  while (ancestor)
+  {
+    // Find the common ancestor (or NULL) and notify each non-common ancestor
+
+    if (newWidget == ancestor || newWidget->isChildOf(*ancestor))
+      break;
+
+    ancestor->cursorLeftSignal.emit(*ancestor);
+    ancestor = ancestor->getParent();
+  }
 
   hoveredWidget = newWidget;
 
-  if (hoveredWidget)
-    hoveredWidget->cursorEnteredSignal.emit(*hoveredWidget);
+  while (newWidget)
+  {
+    // Notify each widget up to but not including the common ancestor
+
+    if (newWidget == ancestor)
+      break;
+
+    newWidget->cursorEnteredSignal.emit(*newWidget);
+    newWidget = newWidget->getParent();
+  }
 }
 
 void Module::removedWidget(Widget& widget)
