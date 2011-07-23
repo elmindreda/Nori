@@ -29,6 +29,8 @@
 #include <wendy/UIModule.h>
 #include <wendy/UIWidget.h>
 
+#include <algorithm>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -57,7 +59,7 @@ void Module::draw(void)
 {
   drawer.begin();
 
-  for (WidgetList::iterator i = roots.begin();  i != roots.end();  i++)
+  for (WidgetList::const_iterator i = roots.begin();  i != roots.end();  i++)
   {
     if ((*i)->isVisible())
       (*i)->draw();

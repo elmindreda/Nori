@@ -60,7 +60,7 @@ public:
   /*! Destructor.
    */
   ~Module(void);
-  void draw(void);
+  virtual void draw(void);
   void addRootWidget(Widget& root);
   /*! Draws all root level widgets.
    */
