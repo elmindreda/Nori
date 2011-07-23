@@ -95,9 +95,12 @@ bool VM::execute(const char* name, const char* text)
 
   sq_pushroottable(vm);
   if (SQ_FAILED(sq_call(vm, 1, false, true)))
+  {
+    sq_poptop(vm);
     return false;
-  sq_poptop(vm);
+  }
 
+  sq_poptop(vm);
   return true;
 }
 
