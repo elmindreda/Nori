@@ -98,6 +98,11 @@ void SharedProgramState::getCameraProperties(vec3& position,
   farZ = camera.farZ;
 }
 
+float SharedProgramState::getTime(void) const
+{
+  return time;
+}
+
 void SharedProgramState::setModelMatrix(const mat4& newMatrix)
 {
   modelMatrix = newMatrix;

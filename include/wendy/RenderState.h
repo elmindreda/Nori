@@ -92,6 +92,7 @@ public:
                            float& aspect,
                            float& nearZ,
                            float& farZ) const;
+  float getTime(void) const;
   /*! Sets the model matrix.
    *  @param[in] newMatrix The desired model matrix.
    */
