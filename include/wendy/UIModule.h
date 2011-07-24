@@ -79,7 +79,6 @@ public:
   /*! @return The root widgets of this module.
    */
   const WidgetList& getRootWidgets(void) const;
-  SignalProxy2<void, Module&, bool> getFocusChangedSignal(void);
   /*! @return The active widget, or @c NULL if no widget is active.
    */
   Widget* getActiveWidget(void);
@@ -95,7 +94,6 @@ private:
   void onButtonClicked(input::Button button, bool clicked);
   void onWheelTurned(int offset);
   void onFocusChanged(bool activated);
-  Signal2<void, Module&, bool> focusChangedSignal;
   input::Context& context;
   Drawer& drawer;
   bool dragging;
