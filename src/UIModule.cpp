@@ -184,7 +184,10 @@ void Module::updateHoveredWidget(void)
   {
     // Find the common ancestor (or NULL) and notify each non-common ancestor
 
-    if (newWidget == ancestor || newWidget->isChildOf(*ancestor))
+    if (newWidget == ancestor)
+      break;
+
+    if (newWidget && newWidget->isChildOf(*ancestor))
       break;
 
     ancestor->cursorLeftSignal.emit(*ancestor);
