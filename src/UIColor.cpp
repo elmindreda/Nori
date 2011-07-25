@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIModule.h>
+#include <wendy/UILayer.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UILayout.h>
 #include <wendy/UISlider.h>
@@ -41,16 +41,16 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-ColorPickerRGB::ColorPickerRGB(Module& module):
-  Widget(module)
+ColorPickerRGB::ColorPickerRGB(Layer& layer):
+  Widget(layer)
 {
-  Layout* sliderLayout = new Layout(module, VERTICAL);
+  Layout* sliderLayout = new Layout(layer, VERTICAL);
   sliderLayout->setBorderSize(1.f);
   addChild(*sliderLayout);
 
   for (unsigned int i = 0;  i < 3;  i++)
   {
-    sliders[i] = new Slider(module, HORIZONTAL);
+    sliders[i] = new Slider(layer, HORIZONTAL);
     sliders[i]->setValueRange(0.f, 1.f);
     sliders[i]->getValueChangedSignal().connect(*this, &ColorPickerRGB::onValueChanged);
     sliderLayout->addChild(*sliders[i]);
@@ -78,7 +78,7 @@ void ColorPickerRGB::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Drawer& drawer = getModule().getDrawer();
+  Drawer& drawer = getLayer().getDrawer();
   if (drawer.pushClipArea(area))
   {
     drawer.drawFrame(area, getState());

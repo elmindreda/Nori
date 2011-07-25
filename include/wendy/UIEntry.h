@@ -38,7 +38,7 @@ namespace wendy
 class Entry : public Widget
 {
 public:
-  Entry(Module& module, const String& text = "");
+  Entry(Layer& layer, const String& text = "");
   const String& getText(void) const;
   void setText(const String& newText);
   unsigned int getCaretPosition(void) const;

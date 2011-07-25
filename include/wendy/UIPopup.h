@@ -38,7 +38,7 @@ namespace wendy
 class Popup : public Widget
 {
 public:
-  Popup(Module& module);
+  Popup(Layer& layer);
   void addItem(Item& item);
   void addItem(const String& value, ItemID ID = 0);
   void removeItem(Item& item);

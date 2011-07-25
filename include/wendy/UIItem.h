@@ -46,7 +46,7 @@ class Item
   friend class List;
   friend class Menu;
 public:
-  Item(Module& module, const String& value = "", ItemID ID = 0);
+  Item(Layer& layer, const String& value = "", ItemID ID = 0);
   virtual ~Item(void);
   virtual bool operator < (const Item& other) const;
   virtual float getWidth(void) const;
@@ -56,7 +56,7 @@ public:
   virtual void setStringValue(const String& newValue);
 protected:
   virtual void draw(const Rect& area, WidgetState state) const;
-  Module& module;
+  Layer& layer;
 private:
   String value;
   ItemID ID;
@@ -75,7 +75,7 @@ typedef std::vector<Item*> ItemList;
 class SeparatorItem : public Item
 {
 public:
-  SeparatorItem(Module& module);
+  SeparatorItem(Layer& layer);
   float getWidth(void) const;
   float getHeight(void) const;
 protected:
@@ -89,7 +89,7 @@ protected:
 class TextureItem : public Item
 {
 public:
-  TextureItem(Module& module,
+  TextureItem(Layer& layer,
               GL::Texture& texture,
               const String& name = "",
 	      ItemID ID = 0);

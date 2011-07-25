@@ -38,7 +38,7 @@ namespace wendy
 class Button : public Widget
 {
 public:
-  Button(Module& module, const String& text = "");
+  Button(Layer& layer, const String& text = "");
   const String& getText(void) const;
   void setText(const String& newText);
   SignalProxy1<void, Button&> getPushedSignal(void);

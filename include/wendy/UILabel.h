@@ -38,7 +38,7 @@ namespace wendy
 class Label : public Widget
 {
 public:
-  Label(Module& module, const String& text = "");
+  Label(Layer& layer, const String& text = "");
   const String& getText(void) const;
   void setText(const String& newText);
   void setText(const char* format, ...);

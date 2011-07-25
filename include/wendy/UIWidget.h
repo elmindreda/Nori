@@ -48,7 +48,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-class Module;
+class Layer;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -63,11 +63,11 @@ class Module;
  */
 class Widget : public Trackable
 {
-  friend class Module;
+  friend class Layer;
 public:
   /*! Constructor.
    */
-  Widget(Module& module);
+  Widget(Layer& layer);
   /*! Destructor.
    */
   ~Widget(void);
@@ -136,7 +136,7 @@ public:
    */
   bool isBeingDragged(void) const;
   bool isChildOf(const Widget& widget) const;
-  Module& getModule(void) const;
+  Layer& getLayer(void) const;
   /*! @return The parent of this widget, or @c NULL if it has no parent.
    */
   Widget* getParent(void) const;
@@ -207,7 +207,7 @@ private:
   Signal2<void, Widget&, const vec2&> dragBegunSignal;
   Signal2<void, Widget&, const vec2&> dragMovedSignal;
   Signal2<void, Widget&, const vec2&> dragEndedSignal;
-  Module& module;
+  Layer& layer;
   Widget* parent;
   WidgetList children;
   bool enabled;

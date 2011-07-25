@@ -42,7 +42,7 @@ namespace wendy
 class Layout : public Widget
 {
 public:
-  Layout(Module& module, Orientation orientation, bool expanding = true);
+  Layout(Layer& layer, Orientation orientation, bool expanding = true);
   void addChild(Widget& child);
   void addChild(Widget& child, float size);
   bool isExpanding(void) const;

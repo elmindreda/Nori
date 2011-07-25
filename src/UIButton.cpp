@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIModule.h>
+#include <wendy/UILayer.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIButton.h>
 
@@ -39,11 +39,11 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Button::Button(Module& module, const String& initText):
-  Widget(module),
+Button::Button(Layer& layer, const String& initText):
+  Widget(layer),
   text(initText)
 {
-  Drawer& drawer = getModule().getDrawer();
+  Drawer& drawer = getLayer().getDrawer();
 
   const float em = drawer.getCurrentEM();
 
@@ -80,7 +80,7 @@ void Button::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Drawer& drawer = getModule().getDrawer();
+  Drawer& drawer = getLayer().getDrawer();
   if (drawer.pushClipArea(area))
   {
     drawer.drawButton(area, getState(), text);

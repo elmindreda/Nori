@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_UIMODULE_H
-#define WENDY_UIMODULE_H
+#ifndef WENDY_UILAYER_H
+#define WENDY_UILAYER_H
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Input.h>
@@ -50,16 +50,17 @@ typedef std::vector<Widget*> WidgetList;
 /*! @brief Root object for UI objects.
  *  @ingroup ui
  */
-class Module : public input::Target, public Trackable
+class Layer : public input::Target, public Trackable
 {
   friend class Widget;
 public:
   /*! Constructor.
    */
-  Module(input::Context& context, Drawer& drawer);
+  Layer(input::Context& context, Drawer& drawer);
   /*! Destructor.
    */
-  ~Module(void);
+  ~Layer(void);
+  virtual void update(void);
   virtual void draw(void);
   void addRootWidget(Widget& root);
   /*! Draws all root level widgets.
@@ -76,7 +77,7 @@ public:
   void cancelDragging(void);
   void invalidate(void);
   Drawer& getDrawer(void) const;
-  /*! @return The root widgets of this module.
+  /*! @return The root widgets of this layer.
    */
   const WidgetList& getRootWidgets(void) const;
   /*! @return The active widget, or @c NULL if no widget is active.
@@ -105,19 +106,20 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class ModuleStack
+class LayerStack
 {
 public:
-  ModuleStack(input::Context& context);
+  LayerStack(input::Context& context);
+  void update(void) const;
   void draw(void) const;
-  void push(Module& module);
+  void push(Layer& layer);
   void pop(void);
   void empty(void);
   bool isEmpty(void) const;
 private:
-  typedef std::vector<Module*> ModuleList;
+  typedef std::vector<Layer*> LayerList;
   input::Context& context;
-  ModuleList modules;
+  LayerList layers;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -126,5 +128,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_UIMODULE_H*/
+#endif /*WENDY_UILAYER_H*/
 ///////////////////////////////////////////////////////////////////////

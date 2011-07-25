@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIModule.h>
+#include <wendy/UILayer.h>
 #include <wendy/UIWidget.h>
 
 #include <algorithm>
@@ -40,8 +40,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Widget::Widget(Module& initmodule):
-  module(initmodule),
+Widget::Widget(Layer& initlayer):
+  layer(initlayer),
   parent(NULL),
   enabled(true),
   visible(true),
@@ -60,8 +60,8 @@ Widget::~Widget(void)
 
 void Widget::addChild(Widget& child)
 {
-  if (&module != &(child.getModule()))
-    throw Exception("Child widget has different module");
+  if (&layer != &(child.getLayer()))
+    throw Exception("Child widget has different layer");
 
   if (&child == this || isChildOf(child))
     throw Exception("Widget graph loops are not permitted");
@@ -90,13 +90,13 @@ void Widget::removeFromParent(void)
   if (parent)
     siblings = &(parent->children);
   else
-    siblings = &(module.roots);
+    siblings = &(layer.roots);
 
   WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
   if (i != siblings->end())
   {
     siblings->erase(i);
-    module.removedWidget(*this);
+    layer.removedWidget(*this);
 
     if (parent)
     {
@@ -150,12 +150,12 @@ void Widget::disable(void)
 
 void Widget::invalidate(void)
 {
-  module.invalidate();
+  layer.invalidate();
 }
 
 void Widget::activate(void)
 {
-  module.setActiveWidget(this);
+  layer.setActiveWidget(this);
   invalidate();
 }
 
@@ -166,7 +166,7 @@ void Widget::bringToFront(void)
   if (parent)
     siblings = &(parent->children);
   else
-    siblings = &(module.roots);
+    siblings = &(layer.roots);
 
   WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
   siblings->erase(i);
@@ -182,7 +182,7 @@ void Widget::sendToBack(void)
   if (parent)
     siblings = &(parent->children);
   else
-    siblings = &(module.roots);
+    siblings = &(layer.roots);
 
   WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
   siblings->erase(i);
@@ -194,7 +194,7 @@ void Widget::sendToBack(void)
 void Widget::cancelDragging(void)
 {
   if (isBeingDragged())
-    module.cancelDragging();
+    layer.cancelDragging();
 }
 
 bool Widget::isEnabled(void) const
@@ -221,12 +221,12 @@ bool Widget::isVisible(void) const
 
 bool Widget::isActive(void) const
 {
-  return module.getActiveWidget() == this;
+  return layer.getActiveWidget() == this;
 }
 
 bool Widget::isUnderCursor(void) const
 {
-  return module.getHoveredWidget() == this;
+  return layer.getHoveredWidget() == this;
 }
 
 bool Widget::isDraggable(void) const
@@ -236,7 +236,7 @@ bool Widget::isDraggable(void) const
 
 bool Widget::isBeingDragged(void) const
 {
-  return module.getDraggedWidget() == this;
+  return layer.getDraggedWidget() == this;
 }
 
 bool Widget::isChildOf(const Widget& widget) const
@@ -250,9 +250,9 @@ bool Widget::isChildOf(const Widget& widget) const
   return false;
 }
 
-Module& Widget::getModule(void) const
+Layer& Widget::getLayer(void) const
 {
-  return module;
+  return layer;
 }
 
 Widget* Widget::getParent(void) const

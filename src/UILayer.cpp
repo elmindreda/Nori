@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIModule.h>
+#include <wendy/UILayer.h>
 #include <wendy/UIWidget.h>
 
 #include <algorithm>
@@ -40,7 +40,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Module::Module(input::Context& initContext, UI::Drawer& initDrawer):
+Layer::Layer(input::Context& initContext, UI::Drawer& initDrawer):
   context(initContext),
   drawer(initDrawer),
   dragging(false),
@@ -50,12 +50,16 @@ Module::Module(input::Context& initContext, UI::Drawer& initDrawer):
 {
 }
 
-Module::~Module(void)
+Layer::~Layer(void)
 {
   destroyRootWidgets();
 }
 
-void Module::draw(void)
+void Layer::update(void)
+{
+}
+
+void Layer::draw(void)
 {
   drawer.begin();
 
@@ -68,19 +72,19 @@ void Module::draw(void)
   drawer.end();
 }
 
-void Module::addRootWidget(Widget& root)
+void Layer::addRootWidget(Widget& root)
 {
   root.removeFromParent();
   roots.push_back(&root);
 }
 
-void Module::destroyRootWidgets(void)
+void Layer::destroyRootWidgets(void)
 {
   while (!roots.empty())
     delete roots.back();
 }
 
-Widget* Module::findWidgetByPoint(const vec2& point)
+Widget* Layer::findWidgetByPoint(const vec2& point)
 {
   for (WidgetList::reverse_iterator r = roots.rbegin();  r != roots.rend();  r++)
   {
@@ -95,7 +99,7 @@ Widget* Module::findWidgetByPoint(const vec2& point)
   return NULL;
 }
 
-void Module::cancelDragging(void)
+void Layer::cancelDragging(void)
 {
   if (dragging && draggedWidget)
   {
@@ -112,45 +116,45 @@ void Module::cancelDragging(void)
   }
 }
 
-void Module::invalidate(void)
+void Layer::invalidate(void)
 {
   context.getContext().refresh();
 }
 
-Drawer& Module::getDrawer(void) const
+Drawer& Layer::getDrawer(void) const
 {
   return drawer;
 }
 
-const WidgetList& Module::getRootWidgets(void) const
+const WidgetList& Layer::getRootWidgets(void) const
 {
   return roots;
 }
 
-Widget* Module::getActiveWidget(void)
+Widget* Layer::getActiveWidget(void)
 {
   return activeWidget;
 }
 
-Widget* Module::getDraggedWidget(void)
+Widget* Layer::getDraggedWidget(void)
 {
   return draggedWidget;
 }
 
-Widget* Module::getHoveredWidget(void)
+Widget* Layer::getHoveredWidget(void)
 {
   return hoveredWidget;
 }
 
-void Module::setActiveWidget(Widget* widget)
+void Layer::setActiveWidget(Widget* widget)
 {
   if (activeWidget == widget)
     return;
 
   if (widget)
   {
-    if (&(widget->module) != this)
-      throw Exception("Cannot activate widget from other module");
+    if (&(widget->layer) != this)
+      throw Exception("Cannot activate widget from other layer");
 
     if (!widget->isVisible() || !widget->isEnabled())
       return;
@@ -165,7 +169,7 @@ void Module::setActiveWidget(Widget* widget)
     activeWidget->focusChangedSignal.emit(*activeWidget, true);
 }
 
-void Module::updateHoveredWidget(void)
+void Layer::updateHoveredWidget(void)
 {
   ivec2 cursorPosition = context.getCursorPosition();
   cursorPosition.y = context.getHeight() - cursorPosition.y;
@@ -208,7 +212,7 @@ void Module::updateHoveredWidget(void)
   }
 }
 
-void Module::removedWidget(Widget& widget)
+void Layer::removedWidget(Widget& widget)
 {
   if (activeWidget)
   {
@@ -232,19 +236,19 @@ void Module::removedWidget(Widget& widget)
   }
 }
 
-void Module::onKeyPressed(input::Key key, bool pressed)
+void Layer::onKeyPressed(input::Key key, bool pressed)
 {
   if (activeWidget)
     activeWidget->keyPressedSignal.emit(*activeWidget, key, pressed);
 }
 
-void Module::onCharInput(wchar_t character)
+void Layer::onCharInput(wchar_t character)
 {
   if (activeWidget)
     activeWidget->charInputSignal.emit(*activeWidget, character);
 }
 
-void Module::onCursorMoved(const ivec2& position)
+void Layer::onCursorMoved(const ivec2& position)
 {
   updateHoveredWidget();
 
@@ -271,7 +275,7 @@ void Module::onCursorMoved(const ivec2& position)
   }
 }
 
-void Module::onButtonClicked(input::Button button, bool clicked)
+void Layer::onButtonClicked(input::Button button, bool clicked)
 {
   ivec2 cursorPosition = context.getCursorPosition();
   cursorPosition.y = context.getHeight() - cursorPosition.y;
@@ -333,13 +337,13 @@ void Module::onButtonClicked(input::Button button, bool clicked)
   }
 }
 
-void Module::onWheelTurned(int offset)
+void Layer::onWheelTurned(int offset)
 {
   if (hoveredWidget)
     hoveredWidget->wheelTurnedSignal.emit(*hoveredWidget, offset);
 }
 
-void Module::onFocusChanged(bool activated)
+void Layer::onFocusChanged(bool activated)
 {
   if (!activated)
     cancelDragging();
@@ -347,45 +351,51 @@ void Module::onFocusChanged(bool activated)
 
 ///////////////////////////////////////////////////////////////////////
 
-ModuleStack::ModuleStack(input::Context& initContext):
+LayerStack::LayerStack(input::Context& initContext):
   context(initContext)
 {
 }
 
-void ModuleStack::draw(void) const
+void LayerStack::update(void) const
 {
-  if (modules.empty())
+  for (LayerList::const_iterator l = layers.begin();  l != layers.end();  l++)
+    (*l)->update();
+}
+
+void LayerStack::draw(void) const
+{
+  if (layers.empty())
     return;
 
-  modules.back()->draw();
+  layers.back()->draw();
 }
 
-void ModuleStack::push(Module& module)
+void LayerStack::push(Layer& layer)
 {
-  modules.push_back(&module);
-  context.setTarget(&module);
+  layers.push_back(&layer);
+  context.setTarget(&layer);
 }
 
-void ModuleStack::pop(void)
+void LayerStack::pop(void)
 {
-  if (!modules.empty())
-    modules.pop_back();
+  if (!layers.empty())
+    layers.pop_back();
 
-  if (modules.empty())
+  if (layers.empty())
     context.setTarget(NULL);
   else
-    context.setTarget(modules.back());
+    context.setTarget(layers.back());
 }
 
-void ModuleStack::empty(void)
+void LayerStack::empty(void)
 {
-  while (!modules.empty())
+  while (!layers.empty())
     pop();
 }
 
-bool ModuleStack::isEmpty(void) const
+bool LayerStack::isEmpty(void) const
 {
-  return modules.empty();
+  return layers.empty();
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIModule.h>
+#include <wendy/UILayer.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIItem.h>
 
@@ -39,8 +39,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Item::Item(Module& initModule, const String& initValue, ItemID initID):
-  module(initModule),
+Item::Item(Layer& initLayer, const String& initValue, ItemID initID):
+  layer(initLayer),
   value(initValue),
   ID(initID)
 {
@@ -57,7 +57,7 @@ bool Item::operator < (const Item& other) const
 
 float Item::getWidth(void) const
 {
-  Drawer& drawer = module.getDrawer();
+  Drawer& drawer = layer.getDrawer();
 
   const float em = drawer.getCurrentEM();
 
@@ -73,7 +73,7 @@ float Item::getWidth(void) const
 
 float Item::getHeight(void) const
 {
-  return module.getDrawer().getCurrentFont().getHeight() * 1.5f;
+  return layer.getDrawer().getCurrentFont().getHeight() * 1.5f;
 }
 
 ItemID Item::getID(void) const
@@ -89,12 +89,12 @@ const String& Item::asString(void) const
 void Item::setStringValue(const String& newValue)
 {
   value = newValue;
-  module.invalidate();
+  layer.invalidate();
 }
 
 void Item::draw(const Rect& area, WidgetState state) const
 {
-  Drawer& drawer = module.getDrawer();
+  Drawer& drawer = layer.getDrawer();
   if (drawer.pushClipArea(area))
   {
     const float em = drawer.getCurrentEM();
@@ -116,28 +116,28 @@ void Item::draw(const Rect& area, WidgetState state) const
 
 ///////////////////////////////////////////////////////////////////////
 
-SeparatorItem::SeparatorItem(Module& module):
-  Item(module)
+SeparatorItem::SeparatorItem(Layer& layer):
+  Item(layer)
 {
 }
 
 float SeparatorItem::getWidth(void) const
 {
-  const float em = module.getDrawer().getCurrentEM();
+  const float em = layer.getDrawer().getCurrentEM();
 
   return em * 3.f;
 }
 
 float SeparatorItem::getHeight(void) const
 {
-  const float em = module.getDrawer().getCurrentEM();
+  const float em = layer.getDrawer().getCurrentEM();
 
   return em / 2.f;
 }
 
 void SeparatorItem::draw(const Rect& area, WidgetState state) const
 {
-  Drawer& drawer = module.getDrawer();
+  Drawer& drawer = layer.getDrawer();
   if (drawer.pushClipArea(area))
   {
     Segment2 segment;
@@ -152,25 +152,25 @@ void SeparatorItem::draw(const Rect& area, WidgetState state) const
 
 ///////////////////////////////////////////////////////////////////////
 
-TextureItem::TextureItem(Module& module,
+TextureItem::TextureItem(Layer& layer,
                          GL::Texture& initTexture,
                          const String& name,
 			 ItemID ID):
-  Item(module, name, ID),
+  Item(layer, name, ID),
   texture(&initTexture)
 {
 }
 
 float TextureItem::getWidth(void) const
 {
-  const float em = module.getDrawer().getCurrentEM();
+  const float em = layer.getDrawer().getCurrentEM();
 
   return Item::getWidth() + em * 3.f;
 }
 
 float TextureItem::getHeight(void) const
 {
-  const float em = module.getDrawer().getCurrentEM();
+  const float em = layer.getDrawer().getCurrentEM();
 
   return em * 3.f;
 }
@@ -182,7 +182,7 @@ GL::Texture& TextureItem::getTexture(void) const
 
 void TextureItem::draw(const Rect& area, WidgetState state) const
 {
-  Drawer& drawer = module.getDrawer();
+  Drawer& drawer = layer.getDrawer();
   if (drawer.pushClipArea(area))
   {
     const float em = drawer.getCurrentEM();

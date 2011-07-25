@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIModule.h>
+#include <wendy/UILayer.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIBook.h>
 
@@ -41,8 +41,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Page::Page(Module& module, const String& initText):
-  Widget(module),
+Page::Page(Layer& layer, const String& initText):
+  Widget(layer),
   text(initText)
 {
 }
@@ -62,7 +62,7 @@ void Page::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Drawer& drawer = getModule().getDrawer();
+  Drawer& drawer = getLayer().getDrawer();
   if (drawer.pushClipArea(area))
   {
     WidgetState state;
@@ -81,8 +81,8 @@ void Page::draw(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-Book::Book(Module& module):
-  Widget(module),
+Book::Book(Layer& layer):
+  Widget(layer),
   activePage(NULL)
 {
   getKeyPressedSignal().connect(*this, &Book::onKeyPressed);
@@ -109,7 +109,7 @@ void Book::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Drawer& drawer = getModule().getDrawer();
+  Drawer& drawer = getLayer().getDrawer();
   if (drawer.pushClipArea(area))
   {
     PageList pages;
@@ -154,7 +154,7 @@ void Book::addedChild(Widget& child)
 {
   if (Page* page = dynamic_cast<Page*>(&child))
   {
-    const float em = getModule().getDrawer().getCurrentEM();
+    const float em = getLayer().getDrawer().getCurrentEM();
 
     const vec2& size = getArea().size;
 
@@ -225,7 +225,7 @@ void Book::onAreaChanged(Widget& widget)
   PageList pages;
   getPages(pages);
 
-  const float em = getModule().getDrawer().getCurrentEM();
+  const float em = getLayer().getDrawer().getCurrentEM();
 
   const vec2& size = getArea().size;
 

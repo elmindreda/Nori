@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIModule.h>
+#include <wendy/UILayer.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIProgress.h>
 
@@ -39,14 +39,14 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Progress::Progress(Module& module, Orientation initOrientation):
-  Widget(module),
+Progress::Progress(Layer& layer, Orientation initOrientation):
+  Widget(layer),
   minValue(0.f),
   maxValue(1.f),
   value(0.f),
   orientation(initOrientation)
 {
-  const float em = module.getDrawer().getCurrentEM();
+  const float em = layer.getDrawer().getCurrentEM();
 
   if (orientation == HORIZONTAL)
     setSize(vec2(em * 10.f, em * 1.5f));
@@ -103,7 +103,7 @@ void Progress::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Drawer& drawer = getModule().getDrawer();
+  Drawer& drawer = getLayer().getDrawer();
   if (drawer.pushClipArea(area))
   {
     drawer.drawWell(area, getState());

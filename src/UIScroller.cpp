@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIModule.h>
+#include <wendy/UILayer.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIScroller.h>
 
@@ -39,15 +39,15 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Scroller::Scroller(Module& module, Orientation initOrientation):
-  Widget(module),
+Scroller::Scroller(Layer& layer, Orientation initOrientation):
+  Widget(layer),
   minValue(0.f),
   maxValue(1.f),
   value(0.f),
   percentage(0.5f),
   orientation(initOrientation)
 {
-  const float em = module.getDrawer().getCurrentEM();
+  const float em = layer.getDrawer().getCurrentEM();
 
   if (orientation == HORIZONTAL)
     setSize(vec2(em * 10.f, em * 1.5f));
@@ -116,7 +116,7 @@ void Scroller::draw(void) const
 {
   const Rect& area = getGlobalArea();
 
-  Drawer& drawer = getModule().getDrawer();
+  Drawer& drawer = getLayer().getDrawer();
   if (drawer.pushClipArea(area))
   {
     drawer.drawWell(area, getState());
@@ -296,7 +296,7 @@ void Scroller::setValue(float newValue, bool notify)
 
 float Scroller::getHandleSize(void) const
 {
-  const float em = getModule().getDrawer().getCurrentEM();
+  const float em = getLayer().getDrawer().getCurrentEM();
 
   if (orientation == HORIZONTAL)
     return max(getArea().size.x * percentage, em);

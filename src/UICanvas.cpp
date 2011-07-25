@@ -26,7 +26,7 @@
 #include <wendy/Config.h>
 
 #include <wendy/UIDrawer.h>
-#include <wendy/UIModule.h>
+#include <wendy/UILayer.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UICanvas.h>
 
@@ -39,8 +39,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Canvas::Canvas(Module& module):
-  Widget(module)
+Canvas::Canvas(Layer& layer):
+  Widget(layer)
 {
 }
 
