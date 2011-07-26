@@ -48,7 +48,7 @@ typedef std::vector<Widget*> WidgetList;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Root object for UI objects.
+/*! @brief Root object for widgets.
  *  @ingroup ui
  */
 class Layer : public input::Target, public Trackable, public RefObject

@@ -52,14 +52,12 @@ class Layer;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Base class for interface widgets.
+/*! @brief Base class for widgets.
  *  @ingroup ui
  *
- *  This is the base class for all interface widgets, including windows.
- *  It also translates and dispatches user input events, with no client
- *  setup required.
+ *  This is the base class for all %UI widgets.
  *
- *  @remarks Yes, it's big. Get over it.
+ *  @remarks Yes, it's big.
  */
 class Widget : public Trackable
 {

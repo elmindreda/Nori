@@ -145,12 +145,10 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Widget drawing singleton.
+/*! @brief User interface renderer.
  *  @ingroup ui
  *
- *  This class implements default drawing behavior for widgets.
- *
- *  @remarks This should probable be made overridable at some point.
+ *  This class provides drawing for widgets.
  */
 class Drawer
 {
