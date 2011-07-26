@@ -128,6 +128,11 @@ Drawer& Layer::getDrawer(void) const
   return drawer;
 }
 
+input::Context& Layer::getInputContext(void) const
+{
+  return context;
+}
+
 const WidgetList& Layer::getRootWidgets(void) const
 {
   return roots;

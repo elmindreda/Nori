@@ -79,6 +79,7 @@ public:
   void cancelDragging(void);
   void invalidate(void);
   Drawer& getDrawer(void) const;
+  input::Context& getInputContext(void) const;
   /*! @return The root widgets of this layer.
    */
   const WidgetList& getRootWidgets(void) const;
