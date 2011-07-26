@@ -56,8 +56,8 @@ void Layout::addChild(Widget& child)
 
 void Layout::addChild(Widget& child, float size)
 {
-  Widget::addChild(child);
   sizes[&child] = size;
+  Widget::addChild(child);
 }
 
 bool Layout::isExpanding(void) const
@@ -99,10 +99,13 @@ void Layout::setChildSize(Widget& child, float newSize)
 
 void Layout::addedChild(Widget& child)
 {
-  if (orientation == VERTICAL)
-    sizes[&child] = child.getArea().size.y;
-  else
-    sizes[&child] = child.getArea().size.x;
+  if (sizes.find(&child) == sizes.end())
+  {
+    if (orientation == VERTICAL)
+      sizes[&child] = child.getArea().size.y;
+    else
+      sizes[&child] = child.getArea().size.x;
+  }
 
   update();
 }
