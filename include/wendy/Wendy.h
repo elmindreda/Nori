@@ -112,7 +112,6 @@
 #include <wendy/UIList.h>
 #include <wendy/UIMenu.h>
 #include <wendy/UIPopup.h>
-#include <wendy/UIColor.h>
 #endif
 
 #if WENDY_INCLUDE_SQUIRREL
