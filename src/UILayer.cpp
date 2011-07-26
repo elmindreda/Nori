@@ -30,6 +30,7 @@
 #include <wendy/UIWidget.h>
 
 #include <algorithm>
+#include <cassert>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -46,7 +47,8 @@ Layer::Layer(input::Context& initContext, UI::Drawer& initDrawer):
   dragging(false),
   activeWidget(NULL),
   draggedWidget(NULL),
-  hoveredWidget(NULL)
+  hoveredWidget(NULL),
+  stack(NULL)
 {
 }
 
@@ -153,8 +155,7 @@ void Layer::setActiveWidget(Widget* widget)
 
   if (widget)
   {
-    if (&(widget->layer) != this)
-      throw Exception("Cannot activate widget from other layer");
+    assert(&(widget->layer) == this);
 
     if (!widget->isVisible() || !widget->isEnabled())
       return;
@@ -167,6 +168,11 @@ void Layer::setActiveWidget(Widget* widget)
 
   if (activeWidget)
     activeWidget->focusChangedSignal.emit(*activeWidget, true);
+}
+
+LayerStack* Layer::getStack(void) const
+{
+  return stack;
 }
 
 void Layer::updateHoveredWidget(void)
@@ -372,14 +378,20 @@ void LayerStack::draw(void) const
 
 void LayerStack::push(Layer& layer)
 {
+  assert(layer.stack == NULL);
+
   layers.push_back(&layer);
+  layer.stack = this;
   context.setTarget(&layer);
 }
 
 void LayerStack::pop(void)
 {
   if (!layers.empty())
+  {
+    layers.back()->stack = NULL;
     layers.pop_back();
+  }
 
   if (layers.empty())
     context.setTarget(NULL);

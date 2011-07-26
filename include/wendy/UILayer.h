@@ -38,6 +38,7 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 class Widget;
+class LayerStack;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -50,9 +51,10 @@ typedef std::vector<Widget*> WidgetList;
 /*! @brief Root object for UI objects.
  *  @ingroup ui
  */
-class Layer : public input::Target, public Trackable
+class Layer : public input::Target, public Trackable, public RefObject
 {
   friend class Widget;
+  friend class LayerStack;
 public:
   /*! Constructor.
    */
@@ -86,6 +88,7 @@ public:
   Widget* getDraggedWidget(void);
   Widget* getHoveredWidget(void);
   void setActiveWidget(Widget* widget);
+  LayerStack* getStack(void) const;
 private:
   void updateHoveredWidget(void);
   void removedWidget(Widget& widget);
@@ -102,7 +105,12 @@ private:
   Widget* activeWidget;
   Widget* draggedWidget;
   Widget* hoveredWidget;
+  LayerStack* stack;
 };
+
+///////////////////////////////////////////////////////////////////////
+
+typedef Ref<Layer> LayerRef;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -117,7 +125,7 @@ public:
   void empty(void);
   bool isEmpty(void) const;
 private:
-  typedef std::vector<Layer*> LayerList;
+  typedef std::vector<LayerRef> LayerList;
   input::Context& context;
   LayerList layers;
 };
