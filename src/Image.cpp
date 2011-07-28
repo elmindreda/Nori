@@ -140,12 +140,11 @@ Image::Image(const ResourceInfo& info,
   depth(initDepth),
   format(initFormat)
 {
-  if (format.getSemantic() == PixelFormat::NONE ||
-      format.getType() == PixelFormat::DUMMY)
-    throw Exception("Invalid image format");
-
-  if (width == 0 || height == 0 || depth == 0)
-    throw Exception("Invalid image size");
+  assert(format.getSemantic() != PixelFormat::NONE);
+  assert(format.getType() != PixelFormat::DUMMY);
+  assert(width > 0);
+  assert(height > 0);
+  assert(depth > 0);
 
   if ((height > 1) && (width == 1))
   {

@@ -60,11 +60,9 @@ Widget::~Widget(void)
 
 void Widget::addChild(Widget& child)
 {
-  if (&layer != &(child.getLayer()))
-    throw Exception("Child widget has different layer");
-
-  if (&child == this || isChildOf(child))
-    throw Exception("Widget graph loops are not permitted");
+  assert(&layer == &(child.getLayer()));
+  assert(&child != this);
+  assert(!isChildOf(child));
 
   child.removeFromParent();
   child.parent = this;

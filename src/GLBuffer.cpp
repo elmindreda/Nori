@@ -483,8 +483,7 @@ VertexRange::VertexRange(VertexBuffer& initVertexBuffer,
   start(initStart),
   count(initCount)
 {
-  if (vertexBuffer->getCount() < start + count)
-    throw Exception("Vertex range is partially or completely outside the specified vertex buffer");
+  assert(vertexBuffer->getCount() >= start + count);
 }
 
 void* VertexRange::lock(LockType type) const
@@ -567,8 +566,7 @@ IndexRange::IndexRange(IndexBuffer& initIndexBuffer,
   start(initStart),
   count(initCount)
 {
-  if (indexBuffer->getCount() < start + count)
-    throw Exception("Index range is partially or completely outside the specified index buffer");
+  assert(indexBuffer->getCount() >= start + count);
 }
 
 void* IndexRange::lock(LockType type) const

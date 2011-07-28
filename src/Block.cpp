@@ -87,9 +87,7 @@ void Block::resize(size_t newSize)
     else
     {
       Byte* newData = (Byte*) std::realloc(data, newSize);
-      if (!newData)
-        throw Exception("Failed to reallocate memory block");
-
+      assert(newData);
       data = newData;
     }
 

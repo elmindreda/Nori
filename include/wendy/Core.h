@@ -28,8 +28,10 @@
 
 #include <string>
 #include <vector>
+
 #include <cstdarg>
 #include <cstddef>
+#include <cassert>
 
 #ifndef NULL
 #define NULL 0

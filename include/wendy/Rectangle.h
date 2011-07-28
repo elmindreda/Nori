@@ -156,9 +156,7 @@ inline bool RectClipStack<T>::push(const T& rectangle)
 template <typename T>
 inline void RectClipStack<T>::pop(void)
 {
-  if (entries.empty())
-    throw Exception("Cannot pop empty scissor area clip stack");
-
+  assert(!entries.empty());
   entries.pop();
 }
 
@@ -177,18 +175,14 @@ inline unsigned int RectClipStack<T>::getCount(void) const
 template <typename T>
 inline const T& RectClipStack<T>::getTop(void) const
 {
-  if (entries.empty())
-    throw Exception("Rect clip stack is empty");
-
+  assert(!entries.empty());
   return entries.top().local;
 }
 
 template <typename T>
 inline const T& RectClipStack<T>::getTotal(void) const
 {
-  if (entries.empty())
-    throw Exception("Rect clip stack is empty");
-
+  assert(!entries.empty());
   return entries.top().total;
 }
 
