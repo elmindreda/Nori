@@ -243,35 +243,48 @@ void Drawer::begin(void)
 void Drawer::end(void)
 {
   pool.getContext().setCurrentSharedProgramState(NULL);
+
+  while (!clipAreaStack.isEmpty())
+    clipAreaStack.pop();
 }
 
 bool Drawer::pushClipArea(const Rect& area)
 {
-  GL::Context& context = pool.getContext();
-  GL::Canvas& canvas = context.getCurrentCanvas();
-
-  vec2 scale(1.f / float(canvas.getWidth()), 1.f / float(canvas.getHeight()));
-
-  if (!clipAreaStack.push(area * scale))
+  if (!clipAreaStack.push(area))
     return false;
 
-  context.setScissorArea(clipAreaStack.getTotal());
+  const Rect& total = clipAreaStack.getTotal();
+
+  GL::Context& context = pool.getContext();
+  context.setScissorArea(Recti(int(total.position.x),
+                               int(total.position.y),
+                               int(total.size.x),
+                               int(total.size.y)));
+
   return true;
 }
 
 void Drawer::popClipArea(void)
 {
-  if (clipAreaStack.getCount() == 1)
-  {
-    logError("Cannot pop empty clip area stack");
-    return;
-  }
-
   clipAreaStack.pop();
 
   GL::Context& context = pool.getContext();
+  GL::Canvas& canvas = context.getCurrentCanvas();
 
-  context.setScissorArea(clipAreaStack.getTotal());
+  Recti area;
+
+  if (clipAreaStack.isEmpty())
+    area.set(0, 0, canvas.getWidth(), canvas.getHeight());
+  else
+  {
+    const Rect& total = clipAreaStack.getTotal();
+    area.set(int(total.position.x),
+             int(total.position.y),
+             int(total.size.x),
+             int(total.size.y));
+  }
+
+  context.setScissorArea(area);
 }
 
 void Drawer::drawPoint(const vec2& point, const vec4& color)
@@ -588,8 +601,6 @@ bool Drawer::init(void)
   state = new render::SharedProgramState();
   if (!state->reserveSupported(context))
     return false;
-
-  clipAreaStack.push(Rect(0.f, 0.f, 1.f, 1.f));
 
   // Set up element geometry
   {

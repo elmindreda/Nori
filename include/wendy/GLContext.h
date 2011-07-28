@@ -497,15 +497,15 @@ public:
   void setRefreshMode(RefreshMode newMode);
   /*! @return The current scissor rectangle.
    */
-  const Rect& getScissorArea(void) const;
-  void setScissorArea(const Rect& newArea);
+  const Recti& getScissorArea(void) const;
+  void setScissorArea(const Recti& newArea);
   /*! @return The current viewport rectangle.
    */
-  const Rect& getViewportArea(void) const;
+  const Recti& getViewportArea(void) const;
   /*! Sets the current viewport rectangle.
    *  @param[in] newArea The desired viewport rectangle.
    */
-  void setViewportArea(const Rect& newArea);
+  void setViewportArea(const Recti& newArea);
   /*! @return The current canvas.
    */
   Canvas& getCurrentCanvas(void) const;
@@ -582,8 +582,6 @@ private:
   Context(const Context& source);
   Context& operator = (const Context& source);
   bool init(const ContextMode& mode);
-  void updateScissorArea(void);
-  void updateViewportArea(void);
   static void sizeCallback(int width, int height);
   static int closeCallback(void);
   static void refreshCallback(void);
@@ -598,8 +596,8 @@ private:
   RefreshMode refreshMode;
   bool needsRefresh;
   bool needsClosing;
-  Rect scissorArea;
-  Rect viewportArea;
+  Recti scissorArea;
+  Recti viewportArea;
   bool dirtyBinding;
   SamplerList samplers;
   UniformList uniforms;

@@ -994,26 +994,43 @@ void Context::setRefreshMode(RefreshMode newMode)
   refreshMode = newMode;
 }
 
-const Rect& Context::getScissorArea(void) const
+const Recti& Context::getScissorArea(void) const
 {
   return scissorArea;
 }
 
-const Rect& Context::getViewportArea(void) const
+const Recti& Context::getViewportArea(void) const
 {
   return viewportArea;
 }
 
-void Context::setScissorArea(const Rect& newArea)
+void Context::setScissorArea(const Recti& newArea)
 {
   scissorArea = newArea;
-  updateScissorArea();
+
+  const unsigned int width = currentCanvas->getWidth();
+  const unsigned int height = currentCanvas->getHeight();
+
+  if (scissorArea == Recti(0, 0, width, height))
+    glDisable(GL_SCISSOR_TEST);
+  else
+  {
+    glEnable(GL_SCISSOR_TEST);
+    glScissor(scissorArea.position.x,
+	      scissorArea.position.y,
+	      scissorArea.size.x,
+	      scissorArea.size.y);
+  }
 }
 
-void Context::setViewportArea(const Rect& newArea)
+void Context::setViewportArea(const Recti& newArea)
 {
   viewportArea = newArea;
-  updateViewportArea();
+
+  glViewport(viewportArea.position.x,
+             viewportArea.position.y,
+	     viewportArea.size.x,
+	     viewportArea.size.y);
 }
 
 Canvas& Context::getCurrentCanvas(void) const
@@ -1046,9 +1063,6 @@ bool Context::setCurrentCanvas(Canvas& newCanvas)
       logError("Image canvas is incomplete: %s", getFramebufferStatusMessage(status));
   }
 #endif
-
-  updateViewportArea();
-  updateScissorArea();
 
   return true;
 }
@@ -1288,9 +1302,6 @@ Context& Context::operator = (const Context& source)
 
 bool Context::init(const ContextMode& initMode)
 {
-  scissorArea.set(0.f, 0.f, 1.f, 1.f);
-  viewportArea.set(0.f, 0.f, 1.f, 1.f);
-
   // Create context and window
   {
     unsigned int colorBits = initMode.colorBits;
@@ -1385,6 +1396,9 @@ bool Context::init(const ContextMode& initMode)
     screenCanvas->mode.mode = initMode.mode;
 
     setScreenCanvasCurrent();
+
+    setViewportArea(Recti(0, 0, width, height));
+    setScissorArea(Recti(0, 0, width, height));
   }
 
   // Finish GLFW init
@@ -1403,45 +1417,10 @@ bool Context::init(const ContextMode& initMode)
   return true;
 }
 
-void Context::updateScissorArea(void)
-{
-  if (scissorArea == Rect(0.f, 0.f, 1.f, 1.f))
-    glDisable(GL_SCISSOR_TEST);
-  else
-  {
-    const unsigned int width = currentCanvas->getWidth();
-    const unsigned int height = currentCanvas->getHeight();
-
-    glEnable(GL_SCISSOR_TEST);
-    glScissor((GLint) floorf(scissorArea.position.x * width),
-	      (GLint) floorf(scissorArea.position.y * height),
-	      (GLsizei) ceilf(scissorArea.size.x * width),
-	      (GLsizei) ceilf(scissorArea.size.y * height));
-  }
-}
-
-void Context::updateViewportArea(void)
-{
-  const unsigned int width = currentCanvas->getWidth();
-  const unsigned int height = currentCanvas->getHeight();
-
-  glViewport((GLint) (viewportArea.position.x * width),
-             (GLint) (viewportArea.position.y * height),
-	     (GLsizei) (viewportArea.size.x * width),
-	     (GLsizei) (viewportArea.size.y * height));
-}
-
 void Context::sizeCallback(int width, int height)
 {
   instance->screenCanvas->mode.width = width;
   instance->screenCanvas->mode.height = height;
-
-  if (instance->currentCanvas == instance->screenCanvas)
-  {
-    instance->updateViewportArea();
-    instance->updateScissorArea();
-  }
-
   instance->resizedSignal.emit(width, height);
 }
 
