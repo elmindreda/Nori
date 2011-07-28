@@ -394,13 +394,12 @@ void LayerStack::pop(void)
 {
   if (!layers.empty())
   {
+    context.setTarget(NULL);
     layers.back()->stack = NULL;
     layers.pop_back();
   }
 
-  if (layers.empty())
-    context.setTarget(NULL);
-  else
+  if (!layers.empty())
     context.setTarget(layers.back());
 }
 
