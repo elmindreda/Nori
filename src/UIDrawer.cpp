@@ -233,19 +233,21 @@ bool ThemeReader::onEndElement(const String& name)
 void Drawer::begin(void)
 {
   GL::Context& context = pool.getContext();
-  context.setCurrentSharedProgramState(state);
 
   GL::Canvas& canvas = context.getCurrentCanvas();
-  state->setOrthoProjectionMatrix(float(canvas.getWidth()),
-                                  float(canvas.getHeight()));
+  const unsigned int width = canvas.getWidth();
+  const unsigned int height = canvas.getHeight();
+
+  context.setCurrentSharedProgramState(state);
+  context.setViewportArea(Recti(0, 0, width, height));
+  context.setScissorArea(Recti(0, 0, width, height));
+
+  state->setOrthoProjectionMatrix(float(width), float(height));
 }
 
 void Drawer::end(void)
 {
   pool.getContext().setCurrentSharedProgramState(NULL);
-
-  while (!clipAreaStack.isEmpty())
-    clipAreaStack.pop();
 }
 
 bool Drawer::pushClipArea(const Rect& area)
