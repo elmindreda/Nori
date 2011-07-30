@@ -51,7 +51,23 @@ SignalProxy1<void, const Canvas&> Canvas::getDrawSignal(void)
 
 void Canvas::draw(void) const
 {
+  UI::Drawer& drawer = getLayer().getDrawer();
+  GL::Context& context = drawer.getGeometryPool().getContext();
+
+  const Recti area(0, 0, getArea().size.x, getArea().size.y);
+
+  Recti oldViewport = context.getViewportArea();
+  Recti oldScissor = context.getScissorArea();
+
+  context.setViewportArea(area);
+  context.setScissorArea(area);
+
+  drawer.end();
   drawSignal.emit(*this);
+  drawer.begin();
+
+  context.setViewportArea(oldViewport);
+  context.setScissorArea(oldScissor);
 
   Widget::draw();
 }
