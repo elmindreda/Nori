@@ -281,7 +281,7 @@ public:
    */
   unsigned int getCount(void) const;
 private:
-  Ref<VertexBuffer> vertexBuffer;
+  VertexBuffer* vertexBuffer;
   unsigned int start;
   unsigned int count;
 };
@@ -336,7 +336,7 @@ public:
    */
   unsigned int getCount(void) const;
 private:
-  Ref<IndexBuffer> indexBuffer;
+  IndexBuffer* indexBuffer;
   unsigned int start;
   unsigned int count;
 };
@@ -407,8 +407,8 @@ public:
   unsigned int getCount(void) const;
 private:
   PrimitiveType type;
-  Ref<VertexBuffer> vertexBuffer;
-  Ref<IndexBuffer> indexBuffer;
+  VertexBuffer* vertexBuffer;
+  IndexBuffer* indexBuffer;
   unsigned int start;
   unsigned int count;
 };

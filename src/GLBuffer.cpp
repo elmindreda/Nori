@@ -463,6 +463,7 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
 ///////////////////////////////////////////////////////////////////////
 
 VertexRange::VertexRange(void):
+  vertexBuffer(NULL),
   start(0),
   count(0)
 {
@@ -546,6 +547,7 @@ unsigned int VertexRange::getCount(void) const
 ///////////////////////////////////////////////////////////////////////
 
 IndexRange::IndexRange(void):
+  indexBuffer(NULL),
   start(0),
   count(0)
 {
@@ -630,6 +632,8 @@ unsigned int IndexRange::getCount(void) const
 
 PrimitiveRange::PrimitiveRange(void):
   type(TRIANGLE_LIST),
+  vertexBuffer(NULL),
+  indexBuffer(NULL),
   start(0),
   count(0)
 {
@@ -639,6 +643,7 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
 	                       VertexBuffer& initVertexBuffer):
   type(initType),
   vertexBuffer(&initVertexBuffer),
+  indexBuffer(NULL),
   start(0),
   count(0)
 {
@@ -648,6 +653,8 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
 PrimitiveRange::PrimitiveRange(PrimitiveType initType,
                                const VertexRange& vertexRange):
   type(initType),
+  vertexBuffer(NULL),
+  indexBuffer(NULL),
   start(0),
   count(0)
 {
@@ -673,6 +680,7 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
 	                       const IndexRange& indexRange):
   type(initType),
   vertexBuffer(&initVertexBuffer),
+  indexBuffer(NULL),
   start(0),
   count(0)
 {
@@ -687,6 +695,7 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
 	                       unsigned int initCount):
   type(initType),
   vertexBuffer(&initVertexBuffer),
+  indexBuffer(NULL),
   start(initStart),
   count(initCount)
 {
