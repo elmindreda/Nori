@@ -864,7 +864,7 @@ public:
     return addFunction(name, &method, sizeof(method), demarshal(method), true);
   }
   inline static HSQOBJECT getHandle(void);
-  inline static T* createNativeInstance(HSQUIRRELVM vm);
+  inline static T* createNativeInstance(HSQUIRRELVM vm, HSQOBJECT object);
   inline static void destroyNativeInstance(T* instance);
 private:
   inline static SQInteger constructor(HSQUIRRELVM vm);
@@ -908,7 +908,7 @@ inline HSQOBJECT SharedClass<T>::getHandle(void)
 }
 
 template <typename T>
-inline T* SharedClass<T>::createNativeInstance(HSQUIRRELVM vm)
+inline T* SharedClass<T>::createNativeInstance(HSQUIRRELVM vm, HSQOBJECT object)
 {
   return new T();
 }
@@ -922,7 +922,11 @@ inline void SharedClass<T>::destroyNativeInstance(T* instance)
 template <typename T>
 inline SQInteger SharedClass<T>::constructor(HSQUIRRELVM vm)
 {
-  T* instance = createNativeInstance(vm);
+  HSQOBJECT object;
+  sq_resetobject(&object);
+  sq_getstackobj(vm, 1, &object);
+
+  T* instance = createNativeInstance(vm, object);
   sq_setinstanceup(vm, 1, instance);
   sq_setreleasehook(vm, 1, &destructor);
 
