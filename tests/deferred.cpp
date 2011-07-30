@@ -49,8 +49,8 @@ bool Demo::init(void)
   GL::Context* context = GL::Context::getSingleton();
   context->setTitle("Deferred Rendering");
 
-  const unsigned int width = context->getScreenCanvas().getWidth();
-  const unsigned int height = context->getScreenCanvas().getHeight();
+  const unsigned int width = context->getDefaultFramebuffer().getWidth();
+  const unsigned int height = context->getDefaultFramebuffer().getHeight();
 
   pool = new render::GeometryPool(*context);
 
