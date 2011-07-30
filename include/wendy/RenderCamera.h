@@ -59,8 +59,8 @@ public:
   /*! @return The aspect ratio of this camera.
    *
    *  @remarks If the aspect ratio is zero, the aspect ratio will be calculated
-   *  from the physical dimensions of the current canvas when this camera is
-   *  made current.
+   *  from the physical dimensions of the current framebuffer when this camera
+   *  is made current.
    */
   float getAspectRatio(void) const;
   /*! @return The distance from the origin to the near clip plane.

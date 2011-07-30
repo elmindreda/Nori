@@ -234,9 +234,9 @@ void Drawer::begin(void)
 {
   GL::Context& context = pool.getContext();
 
-  GL::Canvas& canvas = context.getCurrentCanvas();
-  const unsigned int width = canvas.getWidth();
-  const unsigned int height = canvas.getHeight();
+  GL::Framebuffer& framebuffer = context.getCurrentFramebuffer();
+  const unsigned int width = framebuffer.getWidth();
+  const unsigned int height = framebuffer.getHeight();
 
   context.setCurrentSharedProgramState(state);
   context.setViewportArea(Recti(0, 0, width, height));
@@ -271,12 +271,12 @@ void Drawer::popClipArea(void)
   clipAreaStack.pop();
 
   GL::Context& context = pool.getContext();
-  GL::Canvas& canvas = context.getCurrentCanvas();
+  GL::Framebuffer& framebuffer = context.getCurrentFramebuffer();
 
   Recti area;
 
   if (clipAreaStack.isEmpty())
-    area.set(0, 0, canvas.getWidth(), canvas.getHeight());
+    area.set(0, 0, framebuffer.getWidth(), framebuffer.getHeight());
   else
   {
     const Rect& total = clipAreaStack.getTotal();

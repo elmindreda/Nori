@@ -85,54 +85,54 @@ const char* getFramebufferStatusMessage(GLenum status)
   return "Unknown framebuffer status";
 }
 
-GLenum convertToGL(ImageCanvas::Attachment attachment)
+GLenum convertToGL(ImageFramebuffer::Attachment attachment)
 {
   switch (attachment)
   {
-    case ImageCanvas::COLOR_BUFFER0:
+    case ImageFramebuffer::COLOR_BUFFER0:
       return GL_COLOR_ATTACHMENT0_EXT;
-    case ImageCanvas::COLOR_BUFFER1:
+    case ImageFramebuffer::COLOR_BUFFER1:
       return GL_COLOR_ATTACHMENT1_EXT;
-    case ImageCanvas::COLOR_BUFFER2:
+    case ImageFramebuffer::COLOR_BUFFER2:
       return GL_COLOR_ATTACHMENT2_EXT;
-    case ImageCanvas::COLOR_BUFFER3:
+    case ImageFramebuffer::COLOR_BUFFER3:
       return GL_COLOR_ATTACHMENT3_EXT;
-    case ImageCanvas::DEPTH_BUFFER:
+    case ImageFramebuffer::DEPTH_BUFFER:
       return GL_DEPTH_ATTACHMENT_EXT;
   }
 
-  logError("Invalid image canvas attachment %u", attachment);
+  logError("Invalid image framebuffer attachment %u", attachment);
   return 0;
 }
 
-const char* asString(ImageCanvas::Attachment attachment)
+const char* asString(ImageFramebuffer::Attachment attachment)
 {
   switch (attachment)
   {
-    case ImageCanvas::COLOR_BUFFER0:
+    case ImageFramebuffer::COLOR_BUFFER0:
       return "color buffer 0";
-    case ImageCanvas::COLOR_BUFFER1:
+    case ImageFramebuffer::COLOR_BUFFER1:
       return "color buffer 1";
-    case ImageCanvas::COLOR_BUFFER2:
+    case ImageFramebuffer::COLOR_BUFFER2:
       return "color buffer 2";
-    case ImageCanvas::COLOR_BUFFER3:
+    case ImageFramebuffer::COLOR_BUFFER3:
       return "color buffer 3";
-    case ImageCanvas::DEPTH_BUFFER:
+    case ImageFramebuffer::DEPTH_BUFFER:
       return "depth buffer";
   }
 
-  logError("Invalid image canvas attachment %u", attachment);
+  logError("Invalid image framebuffer attachment %u", attachment);
   return "unknown buffer";
 }
 
-bool isColorAttachment(ImageCanvas::Attachment attachment)
+bool isColorAttachment(ImageFramebuffer::Attachment attachment)
 {
   switch (attachment)
   {
-    case ImageCanvas::COLOR_BUFFER0:
-    case ImageCanvas::COLOR_BUFFER1:
-    case ImageCanvas::COLOR_BUFFER2:
-    case ImageCanvas::COLOR_BUFFER3:
+    case ImageFramebuffer::COLOR_BUFFER0:
+    case ImageFramebuffer::COLOR_BUFFER1:
+    case ImageFramebuffer::COLOR_BUFFER2:
+    case ImageFramebuffer::COLOR_BUFFER3:
       return true;
     default:
       return false;
@@ -357,100 +357,78 @@ unsigned int Limits::getMaxVertexAttributes(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-Canvas::~Canvas(void)
+Framebuffer::~Framebuffer(void)
 {
 }
 
-float Canvas::getAspectRatio(void) const
+float Framebuffer::getAspectRatio(void) const
 {
   return getWidth() / (float) getHeight();
 }
 
-Context& Canvas::getContext(void) const
+Context& Framebuffer::getContext(void) const
 {
   return context;
 }
 
-Canvas::Canvas(Context& initContext):
+Framebuffer::Framebuffer(Context& initContext):
   context(initContext)
 {
 }
 
-void Canvas::apply(void) const
-{
-  current = this;
-}
-
-bool Canvas::isCurrent(void) const
-{
-  return this == current;
-}
-
-const Canvas* Canvas::getCurrent(void)
-{
-  return current;
-}
-
-Canvas::Canvas(const Canvas& source):
+Framebuffer::Framebuffer(const Framebuffer& source):
   context(source.context)
 {
   // NOTE: Not implemented.
 }
 
-Canvas& Canvas::operator = (const Canvas& source)
+Framebuffer& Framebuffer::operator = (const Framebuffer& source)
 {
   // NOTE: Not implemented.
 
   return *this;
 }
 
-const Canvas* Canvas::current = NULL;
-
 ///////////////////////////////////////////////////////////////////////
 
-unsigned int ScreenCanvas::getColorBits(void) const
+unsigned int DefaultFramebuffer::getColorBits(void) const
 {
   return mode.colorBits;
 }
 
-unsigned int ScreenCanvas::getDepthBits(void) const
+unsigned int DefaultFramebuffer::getDepthBits(void) const
 {
   return mode.depthBits;
 }
 
-unsigned int ScreenCanvas::getStencilBits(void) const
+unsigned int DefaultFramebuffer::getStencilBits(void) const
 {
   return mode.stencilBits;
 }
 
-unsigned int ScreenCanvas::getWidth(void) const
+unsigned int DefaultFramebuffer::getWidth(void) const
 {
   return mode.width;
 }
 
-unsigned int ScreenCanvas::getHeight(void) const
+unsigned int DefaultFramebuffer::getHeight(void) const
 {
   return mode.height;
 }
 
-ScreenCanvas::ScreenCanvas(Context& context):
-  Canvas(context)
+DefaultFramebuffer::DefaultFramebuffer(Context& context):
+  Framebuffer(context)
 {
   // TODO: Get screen size.
 }
 
-void ScreenCanvas::apply(void) const
+void DefaultFramebuffer::apply(void) const
 {
-  if (!isCurrent())
-  {
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
 #if WENDY_DEBUG
-    checkGL("Error when applying screen canvas");
+  checkGL("Error when applying default framebuffer");
 #endif
-
-    Canvas::apply();
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -461,59 +439,75 @@ Image::~Image(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-ImageCanvas::~ImageCanvas(void)
+ImageFramebuffer::~ImageFramebuffer(void)
 {
   if (bufferID)
     glDeleteFramebuffersEXT(1, &bufferID);
 }
 
-unsigned int ImageCanvas::getWidth(void) const
+unsigned int ImageFramebuffer::getWidth(void) const
 {
+  unsigned int width = 0;
+
+  for (size_t i = 0;  i < 5;  i++)
+  {
+    if (images[i])
+    {
+      if (width && width != images[i]->getWidth())
+        return 0;
+
+      width = images[i]->getWidth();
+    }
+  }
+
   return width;
 }
 
-unsigned int ImageCanvas::getHeight(void) const
+unsigned int ImageFramebuffer::getHeight(void) const
 {
+  unsigned int height = 0;
+
+  for (size_t i = 0;  i < 5;  i++)
+  {
+    if (images[i])
+    {
+      if (height && height != images[i]->getHeight())
+        return 0;
+
+      height = images[i]->getHeight();
+    }
+  }
+
   return height;
 }
 
-Image* ImageCanvas::getColorBuffer(void) const
+Image* ImageFramebuffer::getColorBuffer(void) const
 {
-  return buffers[COLOR_BUFFER0];
+  return images[COLOR_BUFFER0];
 }
 
-Image* ImageCanvas::getDepthBuffer(void) const
+Image* ImageFramebuffer::getDepthBuffer(void) const
 {
-  return buffers[DEPTH_BUFFER];
+  return images[DEPTH_BUFFER];
 }
 
-Image* ImageCanvas::getBuffer(Attachment attachment) const
+Image* ImageFramebuffer::getBuffer(Attachment attachment) const
 {
-  return buffers[attachment];
+  return images[attachment];
 }
 
-bool ImageCanvas::setDepthBuffer(Image* newImage)
+bool ImageFramebuffer::setDepthBuffer(Image* newImage)
 {
   return setBuffer(DEPTH_BUFFER, newImage);
 }
 
-bool ImageCanvas::setColorBuffer(Image* newImage)
+bool ImageFramebuffer::setColorBuffer(Image* newImage)
 {
   return setBuffer(COLOR_BUFFER0, newImage);
 }
 
-bool ImageCanvas::setBuffer(Attachment attachment, Image* newImage, unsigned int z)
+bool ImageFramebuffer::setBuffer(Attachment attachment, Image* newImage, unsigned int z)
 {
-  if (newImage)
-  {
-    if (newImage->getWidth() != width || newImage->getHeight() != height)
-    {
-      logError("Specified %s image object does not match canvas dimensions",
-               asString(attachment));
-      return false;
-    }
-  }
-
   if (isColorAttachment(attachment))
   {
     unsigned int index = attachment - COLOR_BUFFER0;
@@ -533,83 +527,71 @@ bool ImageCanvas::setBuffer(Attachment attachment, Image* newImage, unsigned int
     }
   }
 
-  const Canvas* previous = getCurrent();
+  Framebuffer& previous = context.getCurrentFramebuffer();
   apply();
 
-  if (buffers[attachment])
-    buffers[attachment]->detach(convertToGL(attachment));
+  if (images[attachment])
+    images[attachment]->detach(convertToGL(attachment));
 
-  buffers[attachment] = newImage;
+  images[attachment] = newImage;
 
-  if (buffers[attachment])
-    buffers[attachment]->attach(convertToGL(attachment), z);
+  if (images[attachment])
+    images[attachment]->attach(convertToGL(attachment), z);
 
-  previous->apply();
+  previous.apply();
   return true;
 }
 
-ImageCanvas* ImageCanvas::create(Context& context,
-                                 unsigned int width,
-                                 unsigned int height)
+ImageFramebuffer* ImageFramebuffer::create(Context& context)
 {
-  Ptr<ImageCanvas> canvas(new ImageCanvas(context));
-  if (!canvas->init(width, height))
+  Ptr<ImageFramebuffer> framebuffer(new ImageFramebuffer(context));
+  if (!framebuffer->init())
     return NULL;
 
-  return canvas.detachObject();
+  return framebuffer.detachObject();
 }
 
-ImageCanvas::ImageCanvas(Context& context):
-  Canvas(context),
-  width(0),
-  height(0),
+ImageFramebuffer::ImageFramebuffer(Context& context):
+  Framebuffer(context),
   bufferID(0)
 {
 }
 
-bool ImageCanvas::init(unsigned int initWidth, unsigned int initHeight)
+bool ImageFramebuffer::init(void)
 {
-  width = initWidth;
-  height = initHeight;
-
   glGenFramebuffersEXT(1, &bufferID);
 
 #if WENDY_DEBUG
-  if (!checkGL("Error during image canvas creation"))
+  if (!checkGL("Error during image framebuffer creation"))
     return false;
 #endif
 
   return true;
 }
 
-void ImageCanvas::apply(void) const
+void ImageFramebuffer::apply(void) const
 {
-  if (!isCurrent())
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
+
+  GLenum enables[5];
+  size_t count = 0;
+
+  for (size_t i = 0;  i < sizeof(enables) / sizeof(enables[0]);  i++)
   {
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
+    Attachment attachment = (Attachment) i;
 
-    GLenum enables[5];
-    size_t count = 0;
+    if (images[i] && isColorAttachment(attachment))
+      enables[count++] = convertToGL(attachment);
+  }
 
-    for (size_t i = 0;  i < sizeof(enables) / sizeof(enables[0]);  i++)
-    {
-      Attachment attachment = (Attachment) i;
-
-      if (buffers[i] && isColorAttachment(attachment))
-        enables[count++] = convertToGL(attachment);
-    }
-
-    if (count)
-      glDrawBuffers(count, enables);
-    else
-      glDrawBuffer(GL_NONE);
+  if (count)
+    glDrawBuffers(count, enables);
+  else
+    glDrawBuffer(GL_NONE);
 
 #if WENDY_DEBUG
-    checkGL("Error when applying image canvas");
+  checkGL("Error when applying image framebuffer");
 #endif
-
-    Canvas::apply();
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -730,7 +712,7 @@ SharedUniform::SharedUniform(const String& initName,
 
 Context::~Context(void)
 {
-  setScreenCanvasCurrent();
+  setDefaultFramebufferCurrent();
   setCurrentVertexBuffer(NULL);
   setCurrentIndexBuffer(NULL);
   setCurrentProgram(NULL);
@@ -1008,8 +990,8 @@ void Context::setScissorArea(const Recti& newArea)
 {
   scissorArea = newArea;
 
-  const unsigned int width = currentCanvas->getWidth();
-  const unsigned int height = currentCanvas->getHeight();
+  const unsigned int width = currentFramebuffer->getWidth();
+  const unsigned int height = currentFramebuffer->getHeight();
 
   if (scissorArea == Recti(0, 0, width, height))
     glDisable(GL_SCISSOR_TEST);
@@ -1033,34 +1015,34 @@ void Context::setViewportArea(const Recti& newArea)
 	     viewportArea.size.y);
 }
 
-Canvas& Context::getCurrentCanvas(void) const
+Framebuffer& Context::getCurrentFramebuffer(void) const
 {
-  return *currentCanvas;
+  return *currentFramebuffer;
 }
 
-ScreenCanvas& Context::getScreenCanvas(void) const
+DefaultFramebuffer& Context::getDefaultFramebuffer(void) const
 {
-  return *screenCanvas;
+  return *defaultFramebuffer;
 }
 
-void Context::setScreenCanvasCurrent(void)
+void Context::setDefaultFramebufferCurrent(void)
 {
-  setCurrentCanvas(*screenCanvas);
+  setCurrentFramebuffer(*defaultFramebuffer);
 }
 
-bool Context::setCurrentCanvas(Canvas& newCanvas)
+bool Context::setCurrentFramebuffer(Framebuffer& newFramebuffer)
 {
-  currentCanvas = &newCanvas;
-  currentCanvas->apply();
+  currentFramebuffer = &newFramebuffer;
+  currentFramebuffer->apply();
 
 #if WENDY_DEBUG
-  if (currentCanvas != screenCanvas)
+  if (currentFramebuffer != defaultFramebuffer)
   {
     GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
     if (status == 0)
       checkGL("Framebuffer status check failed");
     else if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
-      logError("Image canvas is incomplete: %s", getFramebufferStatusMessage(status));
+      logError("Image framebuffer is incomplete: %s", getFramebufferStatusMessage(status));
   }
 #endif
 
@@ -1376,26 +1358,26 @@ bool Context::init(const ContextMode& initMode)
   // Apply default differences
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-  // Create and apply screen canvas
+  // Create and apply default framebuffer
   {
     int width, height;
     glfwGetWindowSize(&width, &height);
 
     // This needs to be done before setting the window size callback
-    screenCanvas = new ScreenCanvas(*this);
-    screenCanvas->mode.width = width;
-    screenCanvas->mode.height = height;
+    defaultFramebuffer = new DefaultFramebuffer(*this);
+    defaultFramebuffer->mode.width = width;
+    defaultFramebuffer->mode.height = height;
 
     // Read back actual (as opposed to desired) framebuffer properties
-    screenCanvas->mode.colorBits = glfwGetWindowParam(GLFW_RED_BITS) +
-                                   glfwGetWindowParam(GLFW_GREEN_BITS) +
-                                   glfwGetWindowParam(GLFW_BLUE_BITS);
-    screenCanvas->mode.depthBits = glfwGetWindowParam(GLFW_DEPTH_BITS);
-    screenCanvas->mode.stencilBits = glfwGetWindowParam(GLFW_STENCIL_BITS);
-    screenCanvas->mode.samples = glfwGetWindowParam(GLFW_FSAA_SAMPLES);
-    screenCanvas->mode.mode = initMode.mode;
+    defaultFramebuffer->mode.colorBits = glfwGetWindowParam(GLFW_RED_BITS) +
+                                         glfwGetWindowParam(GLFW_GREEN_BITS) +
+                                         glfwGetWindowParam(GLFW_BLUE_BITS);
+    defaultFramebuffer->mode.depthBits = glfwGetWindowParam(GLFW_DEPTH_BITS);
+    defaultFramebuffer->mode.stencilBits = glfwGetWindowParam(GLFW_STENCIL_BITS);
+    defaultFramebuffer->mode.samples = glfwGetWindowParam(GLFW_FSAA_SAMPLES);
+    defaultFramebuffer->mode.mode = initMode.mode;
 
-    setScreenCanvasCurrent();
+    setDefaultFramebufferCurrent();
 
     setViewportArea(Recti(0, 0, width, height));
     setScissorArea(Recti(0, 0, width, height));
@@ -1419,8 +1401,8 @@ bool Context::init(const ContextMode& initMode)
 
 void Context::sizeCallback(int width, int height)
 {
-  instance->screenCanvas->mode.width = width;
-  instance->screenCanvas->mode.height = height;
+  instance->defaultFramebuffer->mode.width = width;
+  instance->defaultFramebuffer->mode.height = height;
   instance->resizedSignal.emit(width, height);
 }
 

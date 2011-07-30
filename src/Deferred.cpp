@@ -71,9 +71,9 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
   GL::Context& context = pool.getContext();
   context.setCurrentSharedProgramState(state);
 
-  GL::Canvas& previousCanvas = context.getCurrentCanvas();
+  GL::Framebuffer& previousFramebuffer = context.getCurrentFramebuffer();
 
-  context.setCurrentCanvas(*canvas);
+  context.setCurrentFramebuffer(*framebuffer);
   context.clearDepthBuffer();
   context.clearColorBuffer();
 
@@ -90,7 +90,7 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
 
   renderOperations(scene.getOpaqueQueue());
 
-  context.setCurrentCanvas(previousCanvas);
+  context.setCurrentFramebuffer(previousFramebuffer);
 
   state->setOrthoProjectionMatrix(1.f, 1.f);
 
@@ -206,28 +206,28 @@ bool Renderer::init(const Config& config)
     depthTexture->setFilterMode(GL::FILTER_NEAREST);
   }
 
-  // Set up G-buffer canvas
+  // Set up G-buffer framebuffer
   {
-    canvas = GL::ImageCanvas::create(context, config.width, config.height);
-    if (!canvas)
+    framebuffer = GL::ImageFramebuffer::create(context);
+    if (!framebuffer)
     {
-      logError("Failed to create image canvas for deferred renderer");
+      logError("Failed to create G-buffer framebuffer for deferred renderer");
       return false;
     }
 
-    if (!canvas->setBuffer(GL::ImageCanvas::COLOR_BUFFER0, colorTexture->getImage(0)))
+    if (!framebuffer->setBuffer(GL::ImageFramebuffer::COLOR_BUFFER0, colorTexture->getImage(0)))
     {
       logError("Failed to attach color texture to G-buffer");
       return false;
     }
 
-    if (!canvas->setBuffer(GL::ImageCanvas::COLOR_BUFFER1, normalTexture->getImage(0)))
+    if (!framebuffer->setBuffer(GL::ImageFramebuffer::COLOR_BUFFER1, normalTexture->getImage(0)))
     {
       logError("Failed to attach normal/specularity texture to G-buffer");
       return false;
     }
 
-    if (!canvas->setBuffer(GL::ImageCanvas::DEPTH_BUFFER, depthTexture->getImage(0)))
+    if (!framebuffer->setBuffer(GL::ImageFramebuffer::DEPTH_BUFFER, depthTexture->getImage(0)))
     {
       logError("Failed to attach depth texture to G-buffer");
       return false;
@@ -383,15 +383,15 @@ void Renderer::renderLightQuad(const render::Camera& camera)
   vertices[0].position = vec2(0.f, 0.f);
   vertices[0].clipOverF = vec2(-f * aspect, -f);
 
-  vertices[1].texCoord = vec2(canvas->getWidth() + 0.5f, 0.5f);
+  vertices[1].texCoord = vec2(framebuffer->getWidth() + 0.5f, 0.5f);
   vertices[1].position = vec2(1.f, 0.f);
   vertices[1].clipOverF = vec2(f * aspect, -f);
 
-  vertices[2].texCoord = vec2(canvas->getWidth() + 0.5f, canvas->getHeight() + 0.5f);
+  vertices[2].texCoord = vec2(framebuffer->getWidth() + 0.5f, framebuffer->getHeight() + 0.5f);
   vertices[2].position = vec2(1.f, 1.f);
   vertices[2].clipOverF = vec2(f * aspect, f);
 
-  vertices[3].texCoord = vec2(0.5f, canvas->getHeight() + 0.5f);
+  vertices[3].texCoord = vec2(0.5f, framebuffer->getHeight() + 0.5f);
   vertices[3].position = vec2(0.f, 1.f);
   vertices[3].clipOverF = vec2(-f * aspect, f);
 

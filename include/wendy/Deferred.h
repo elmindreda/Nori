@@ -74,7 +74,7 @@ private:
   void renderLight(const render::Camera& camera, const render::Light& light);
   void renderOperations(const render::Queue& queue);
   render::GeometryPool& pool;
-  Ref<GL::ImageCanvas> canvas;
+  Ref<GL::ImageFramebuffer> framebuffer;
   GL::TextureRef depthTexture;
   GL::TextureRef colorTexture;
   GL::TextureRef normalTexture;

@@ -167,7 +167,7 @@ public:
    */
   Limits(Context& context);
   /*! @return The maximum number of color buffers that can be attached to to an
-   *  image canvas (FBO).
+   *  image framebuffer (FBO).
    */
   unsigned int getMaxColorAttachments(void) const;
   /*! @return The maximum number of simultaneously active color buffers.
@@ -217,53 +217,50 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Rendering canvas.
+/*! @brief Framebuffer.
  *  @ingroup opengl
  *
  *  This class represents a render target, i.e. a framebuffer.
  */
-class Canvas : public RefObject
+class Framebuffer : public RefObject
 {
   friend class Context;
-  friend class ImageCanvas;
+  friend class ImageFramebuffer;
 public:
   /*! Destructor.
    */
-  virtual ~Canvas(void);
-  /*! @return The width, in pixels, of this canvas.
+  virtual ~Framebuffer(void);
+  /*! @return The width, in pixels, of this framebuffer.
    */
   virtual unsigned int getWidth(void) const = 0;
-  /*! @return The height, in pixels, of this canvas.
+  /*! @return The height, in pixels, of this framebuffer.
    */
   virtual unsigned int getHeight(void) const = 0;
-  /*! @return The aspect ratio of the dimensions, in pixels, of this canvas.
+  /*! @return The aspect ratio of the dimensions, in pixels, of this framebuffer.
    */
   float getAspectRatio(void) const;
-  /*! @return The context this canvas was created for.
+  /*! @return The context this framebuffer was created for.
    */
   Context& getContext(void) const;
 protected:
   /*! Constructor.
    */
-  Canvas(Context& context);
-  /*! Called when this canvas is to be made current.
+  Framebuffer(Context& context);
+  /*! Called when this framebuffer is to be made current.
    */
   virtual void apply(void) const = 0;
-  bool isCurrent(void) const;
-  static const Canvas* getCurrent(void);
 private:
-  Canvas(const Canvas& source);
-  Canvas& operator = (const Canvas& source);
+  Framebuffer(const Framebuffer& source);
+  Framebuffer& operator = (const Framebuffer& source);
   Context& context;
-  static const Canvas* current;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief %Canvas for rendering to the screen.
+/*! @brief %Framebuffer for rendering to the screen.
  *  @ingroup opengl
  */
-class ScreenCanvas : public Canvas
+class DefaultFramebuffer : public Framebuffer
 {
   friend class Context;
 public:
@@ -279,17 +276,17 @@ public:
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
 private:
-  ScreenCanvas(Context& context);
+  DefaultFramebuffer(Context& context);
   void apply(void) const;
   ContextMode mode;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief %Canvas for rendering to a texture.
+/*! @brief %Framebuffer for rendering to images.
  *  @ingroup opengl
  */
-class ImageCanvas : public Canvas
+class ImageFramebuffer : public Framebuffer
 {
 public:
   enum Attachment
@@ -300,34 +297,30 @@ public:
     COLOR_BUFFER3,
     DEPTH_BUFFER,
   };
-  ~ImageCanvas(void);
+  ~ImageFramebuffer(void);
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
-  /*! @return The texture that this canvas uses as a color buffer.
+  /*! @return The image that this framebuffer uses as a color buffer.
    */
   Image* getColorBuffer(void) const;
   Image* getDepthBuffer(void) const;
   Image* getBuffer(Attachment attachment) const;
-  /*! Sets the image to use as the color buffer for this canvas.
+  /*! Sets the image to use as the color buffer for this framebuffer.
    *  @param[in] newImage The desired image, or @c NULL to detach the currently
    *  set image.
    */
   bool setColorBuffer(Image* newImage);
   bool setDepthBuffer(Image* newImage);
   bool setBuffer(Attachment attachment, Image* newImage, unsigned int z = 0);
-  /*! Creates a texture canvas for the specified texture.
+  /*! Creates an image framebuffer of the specified dimensions.
    */
-  static ImageCanvas* create(Context& context,
-                             unsigned int width,
-                             unsigned int height);
+  static ImageFramebuffer* create(Context& context);
 private:
-  ImageCanvas(Context& context);
-  bool init(unsigned int width, unsigned int height);
+  ImageFramebuffer(Context& context);
+  bool init(void);
   void apply(void) const;
-  unsigned int width;
-  unsigned int height;
   unsigned int bufferID;
-  ImageRef buffers[5];
+  ImageRef images[5];
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -442,13 +435,13 @@ public:
    *  @param[in] value The stencil value to clear the stencil buffer with.
    */
   void clearStencilBuffer(unsigned int value = 0);
-  /*! Renders the specified primitive range to the current canvas, using the
-   *  current GPU program.
+  /*! Renders the specified primitive range to the current framebuffer, using
+   *  the current GPU program.
    *  @pre A GPU program must be set before calling this method.
    */
   void render(const PrimitiveRange& range);
-  /*! Renders the specified primitive range to the current canvas, using the
-   *  current GPU program.
+  /*! Renders the specified primitive range to the current framebuffer, using
+   *  the current GPU program.
    *  @pre A GPU program must be set before calling this method.
    */
   void render(PrimitiveType type, unsigned int start, unsigned int count);
@@ -506,20 +499,20 @@ public:
    *  @param[in] newArea The desired viewport rectangle.
    */
   void setViewportArea(const Recti& newArea);
-  /*! @return The current canvas.
+  /*! @return The current framebuffer.
    */
-  Canvas& getCurrentCanvas(void) const;
-  /*! @return The screen canvas.
+  Framebuffer& getCurrentFramebuffer(void) const;
+  /*! @return The screen framebuffer.
    */
-  ScreenCanvas& getScreenCanvas(void) const;
-  /*! Sets the screen canvas as the current canvas.
+  DefaultFramebuffer& getDefaultFramebuffer(void) const;
+  /*! Makes the default framebuffer current.
    */
-  void setScreenCanvasCurrent(void);
-  /*! Makes the specified canvas the current canvas.
-   *  @param[in] newCanvas The desired canvas.
+  void setDefaultFramebufferCurrent(void);
+  /*! Makes the specified framebuffer current.
+   *  @param[in] newFramebuffer The desired framebuffer.
    *  @return @c true if successful, or @c false otherwise.
    */
-  bool setCurrentCanvas(Canvas& newCanvas);
+  bool setCurrentFramebuffer(Framebuffer& newFramebuffer);
   /*! @return The currently set GPU program, or @c NULL if no program is set.
    */
   Program* getCurrentProgram(void) const;
@@ -608,8 +601,8 @@ private:
   Ref<SharedProgramState> currentState;
   Ref<VertexBuffer> currentVertexBuffer;
   Ref<IndexBuffer> currentIndexBuffer;
-  Ref<Canvas> currentCanvas;
-  Ref<ScreenCanvas> screenCanvas;
+  Ref<Framebuffer> currentFramebuffer;
+  Ref<DefaultFramebuffer> defaultFramebuffer;
   PlaneList planes;
   Stats* stats;
   static Context* instance;

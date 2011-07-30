@@ -72,7 +72,7 @@ bool checkGL(const char* format, ...);
  */
 class Image : public RefObject
 {
-  friend class ImageCanvas;
+  friend class ImageFramebuffer;
 public:
   virtual ~Image(void);
   virtual unsigned int getWidth(void) const = 0;

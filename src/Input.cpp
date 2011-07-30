@@ -175,12 +175,12 @@ bool Context::isCursorCaptured(void) const
 
 unsigned int Context::getWidth(void) const
 {
-  return context.getScreenCanvas().getWidth();
+  return context.getDefaultFramebuffer().getWidth();
 }
 
 unsigned int Context::getHeight(void) const
 {
-  return context.getScreenCanvas().getHeight();
+  return context.getDefaultFramebuffer().getHeight();
 }
 
 const ivec2& Context::getCursorPosition(void) const

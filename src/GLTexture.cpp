@@ -344,7 +344,7 @@ void TextureImage::attach(int attachment, unsigned int z)
   }
 
 #if WENDY_DEBUG
-  checkGL("Error when attaching level %u of texture \'%s\' to image canvas",
+  checkGL("Error when attaching level %u of texture \'%s\' to framebuffer",
           level,
           texture.getPath().asString().c_str());
 #endif
@@ -379,7 +379,7 @@ void TextureImage::detach(int attachment)
   }
 
 #if WENDY_DEBUG
-  checkGL("Error when detaching level %u of texture \'%s\' from image canvas",
+  checkGL("Error when detaching level %u of texture \'%s\' from framebuffer",
           level,
           texture.getPath().asString().c_str());
 #endif
