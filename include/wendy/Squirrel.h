@@ -124,7 +124,9 @@ public:
 protected:
   Object(HSQUIRRELVM vm);
   template <typename T>
-  inline bool addSlot(const char* name, T value, bool staticSlot = false);
+  inline bool addSlot(const char* name, T value);
+  template <typename T>
+  inline bool addStaticSlot(const char* name, T value);
   bool removeSlot(const char* name);
   bool addFunction(const char* name,
                    void* pointer,
@@ -162,7 +164,7 @@ inline T Object::cast(void) const
 }
 
 template <typename T>
-inline bool Object::addSlot(const char* name, T value, bool staticSlot)
+inline bool Object::addSlot(const char* name, T value)
 {
   if (isNull())
     return false;
@@ -171,7 +173,23 @@ inline bool Object::addSlot(const char* name, T value, bool staticSlot)
   sq_pushstring(vm, name, -1);
   Value<T>::push(vm, value);
 
-  const SQRESULT result =  sq_newslot(vm, -3, staticSlot);
+  const SQRESULT result =  sq_newslot(vm, -3, false);
+
+  sq_poptop(vm);
+  return SQ_SUCCEEDED(result);
+}
+
+template <typename T>
+inline bool Object::addStaticSlot(const char* name, T value)
+{
+  if (isNull())
+    return false;
+
+  sq_pushobject(vm, handle);
+  sq_pushstring(vm, name, -1);
+  Value<T>::push(vm, value);
+
+  const SQRESULT result =  sq_newslot(vm, -3, true);
 
   sq_poptop(vm);
   return SQ_SUCCEEDED(result);
@@ -815,6 +833,7 @@ public:
   Class(HSQUIRRELVM vm, SQInteger index);
   Instance createInstance(void) const;
   using Object::addSlot;
+  using Object::addStaticSlot;
   using Object::removeSlot;
   using Object::clear;
   using Object::call;
