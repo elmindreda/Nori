@@ -35,10 +35,10 @@ template <typename T>
 class Segment
 {
 public:
-  inline Segment(void);
-  inline Segment(const T& start, const T& end);
-  inline float length(void) const;
-  inline void set(const T& newStart, const T& newEnd);
+  Segment(void);
+  Segment(const T& start, const T& end);
+  float length(void) const;
+  void set(const T& newStart, const T& newEnd);
   T start;
   T end;
 };

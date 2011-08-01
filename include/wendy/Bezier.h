@@ -35,40 +35,15 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief N-dimensional cubic Bézier curve template.
- */
-template <typename T>
-class BezierCurve
-{
-public:
-  typedef std::vector<T> PointList;
-  inline BezierCurve(void);
-  inline void evaluate(float t, T& result) const;
-  inline float length(float tolerance = 0.5f) const;
-  inline T center(void) const;
-  inline void split(BezierCurve<T>& one, BezierCurve<T>& two) const;
-  inline void tessellate(PointList& result, float tolerance = 0.5f) const;
-  inline T operator () (float t);
-  inline void setDefaults(void);
-  T P[4];
-};
-
-///////////////////////////////////////////////////////////////////////
-
-typedef BezierCurve<vec2> BezierCurve2;
-typedef BezierCurve<vec3> BezierCurve3;
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Control point template for n-dimensional cubic Bézier curve.
  */
 template <typename T>
 class BezierPoint
 {
 public:
-  inline BezierPoint(void);
-  inline BezierPoint(const T& position, const T& direction);
-  inline void set(const T& position, const T& direction);
+  BezierPoint(void);
+  BezierPoint(const T& position, const T& direction);
+  void set(const T& position, const T& direction);
   T position;
   T direction;
 };
@@ -80,16 +55,40 @@ typedef BezierPoint<vec3> BezierPoint3;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief N-dimensional cubic Bézier curve template.
+ */
+template <typename T>
+class BezierCurve
+{
+public:
+  typedef std::vector<T> PointList;
+  BezierCurve(void);
+  void evaluate(float t, T& result) const;
+  float length(float tolerance = 0.5f) const;
+  T center(void) const;
+  void split(BezierCurve<T>& one, BezierCurve<T>& two) const;
+  void tessellate(PointList& result, float tolerance = 0.5f) const;
+  T operator () (float t);
+  void setDefaults(void);
+  T P[4];
+};
+
+///////////////////////////////////////////////////////////////////////
+
+typedef BezierCurve<vec2> BezierCurve2;
+typedef BezierCurve<vec3> BezierCurve3;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief N-dimensional cubic Bézier spline with first order continuity.
  */
 template <typename T>
 class BezierSpline
 {
 public:
-  typedef std::vector<BezierPoint<T> > PointList;
+  typedef typename BezierCurve<T>::PointList PointList;
   void evaluate(float t, T& result) const;
-  inline void tessellate(typename BezierCurve<T>::PointList& result,
-                         float tolerance = 0.5f) const;
+  void tessellate(PointList& result, float tolerance = 0.5f) const;
   T operator () (float t) const;
   PointList points;
 };

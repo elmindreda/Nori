@@ -50,16 +50,16 @@ template <typename X, typename Y>
 class Bimap
 {
 public:
-  inline Bimap(void);
-  inline Bimap(const X& defaultX, const Y& defaultY);
-  inline X& operator [] (const Y& value);
-  inline const X& operator [] (const Y& value) const;
-  inline Y& operator [] (const X& value);
-  inline const Y& operator [] (const X& value) const;
-  inline bool isEmpty(void) const;
-  inline bool hasKey(const X& key) const;
-  inline bool hasKey(const Y& key) const;
-  inline void setDefaults(const X& defaultX, const Y& defaultY);
+  Bimap(void);
+  Bimap(const X& defaultX, const Y& defaultY);
+  X& operator [] (const Y& value);
+  const X& operator [] (const Y& value) const;
+  Y& operator [] (const X& value);
+  const Y& operator [] (const X& value) const;
+  bool isEmpty(void) const;
+  bool hasKey(const X& key) const;
+  bool hasKey(const Y& key) const;
+  void setDefaults(const X& defaultX, const Y& defaultY);
 private:
   struct Entry
   {

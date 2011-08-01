@@ -193,39 +193,39 @@ class Ptr
 public:
   /*! Default constructor.
    */
-  inline explicit Ptr(T* object = NULL);
+  explicit Ptr(T* object = NULL);
   /*! Destructor
    */
-  inline virtual ~Ptr(void);
+  virtual ~Ptr(void);
   /*! Detaches (orphans) the currently owned object.
    * @return The currently owned object.
    * @remarks Use with care.
    */
-  inline T* detachObject(void);
+  T* detachObject(void);
   /*! Cast operator.
    */
-  inline operator T* (void);
+  operator T* (void);
   /*! Cast operator.
    */
-  inline operator const T* (void) const;
+  operator const T* (void) const;
   /*! Member operator.
    */
-  inline T* operator -> (void);
+  T* operator -> (void);
   /*! Member operator.
    */
-  inline const T* operator -> (void) const;
+  const T* operator -> (void) const;
   /*! Object assignment operator.
    */
-  inline Ptr<T>& operator = (T* newObject);
+  Ptr<T>& operator = (T* newObject);
   /*! @return The currently owned object.
    */
-  inline T* getObject(void);
+  T* getObject(void);
   /*! @return The currently owned object.
    */
-  inline const T* getObject(void) const;
+  const T* getObject(void) const;
 private:
-  inline Ptr(const Ptr<T>& source);
-  inline Ptr<T>& operator = (const Ptr<T>& source);
+  Ptr(const Ptr<T>& source);
+  Ptr<T>& operator = (const Ptr<T>& source);
   T* object;
 };
 
@@ -253,34 +253,34 @@ class Ref : public RefBase
 public:
   /*! Default constructor.
    */
-  inline Ref(T* object = NULL);
+  Ref(T* object = NULL);
   /*! Copy constructor.
    *  @param source The pointer object to inherit from.
    */
-  inline Ref(const Ref<T>& source);
+  Ref(const Ref<T>& source);
   /*! Destructor
    */
-  inline ~Ref(void);
+  ~Ref(void);
   /*! Detaches the currently referenced object.
    * @return The currently reference object.
    * @remarks Use with care.
    */
-  inline Ref<T> detachObject(void);
+  Ref<T> detachObject(void);
   /*! Cast operator.
    */
-  inline operator T* (void) const;
+  operator T* (void) const;
   /*! Member operator.
    */
-  inline T* operator -> (void) const;
+  T* operator -> (void) const;
   /*! Object assignment operator.
    */
-  inline Ref<T>& operator = (T* newObject);
+  Ref<T>& operator = (T* newObject);
   /*! Assignment operator.
    */
-  inline Ref<T>& operator = (const Ref<T>& source);
+  Ref<T>& operator = (const Ref<T>& source);
   /*! @return The currently owned object.
    */
-  inline T* getObject(void) const;
+  T* getObject(void) const;
 private:
   T* object;
 };
@@ -327,15 +327,15 @@ public:
   virtual ~Singleton(void);
   /*! Deletes the singleton instance.
    */
-  static inline void destroySingleton(void);
+  static void destroySingleton(void);
   /*! @return The singleton instance if available, otherwise @c NULL.
    */
-  static inline T* getSingleton(void);
+  static T* getSingleton(void);
 protected:
   /*! Sets the singleton instance.
    *  @param newObject [in] The instance to set.
    */
-  static inline void set(T* newObject);
+  static void set(T* newObject);
 private:
   static Ptr<T> object;
 };

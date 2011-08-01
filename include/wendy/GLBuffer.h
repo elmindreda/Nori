@@ -427,15 +427,15 @@ public:
    *  @remarks The vertex range must not already be locked.
    *  @remarks The specified vertex range object is copied, not referenced.
    */
-  inline VertexRangeLock(VertexRange& range);
+  VertexRangeLock(VertexRange& range);
   /*! Destructor.
    *  Releases any lock held.
    */
-  inline ~VertexRangeLock(void);
+  ~VertexRangeLock(void);
   /*! @return The base address of the locked vertex range.
    *  @remarks The vertex range is locked the first time this is called.
    */
-  inline operator T* (void);
+  operator T* (void);
 private:
   VertexRange range;
   T* vertices;
@@ -455,15 +455,15 @@ public:
    *  @remarks The index range must not already be locked.
    *  @remarks The specified index range object is copied, not referenced.
    */
-  inline IndexRangeLock(IndexRange& range);
+  IndexRangeLock(IndexRange& range);
   /*! Destructor.
    *  Releases any lock held.
    */
-  inline ~IndexRangeLock(void);
+  ~IndexRangeLock(void);
   /*! @return The base address of the locked index range.
    *  @remarks The index range is locked the first time this is called.
    */
-  inline operator T* (void);
+  operator T* (void);
 private:
   IndexRange range;
   T* indices;

@@ -207,13 +207,13 @@ public:
    */
   void apply(void) const;
   template <typename T>
-  inline void getUniformState(const char* name, T& result) const;
+  void getUniformState(const char* name, T& result) const;
   template <typename T>
-  inline void getUniformState(UniformStateIndex index, T& result) const;
+  void getUniformState(UniformStateIndex index, T& result) const;
   template <typename T>
-  inline void setUniformState(const char* name, const T& newValue);
+  void setUniformState(const char* name, const T& newValue);
   template <typename T>
-  inline void setUniformState(UniformStateIndex index, const T& newValue);
+  void setUniformState(UniformStateIndex index, const T& newValue);
   Texture* getSamplerState(const char* name) const;
   Texture* getSamplerState(SamplerStateIndex index) const;
   void setSamplerState(const char* name, Texture* newTexture);

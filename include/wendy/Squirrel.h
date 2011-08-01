@@ -92,8 +92,8 @@ template <typename T>
 class Value
 {
 public:
-  inline static T get(HSQUIRRELVM vm, SQInteger index);
-  inline static void push(HSQUIRRELVM vm, T value);
+  static T get(HSQUIRRELVM vm, SQInteger index);
+  static void push(HSQUIRRELVM vm, T value);
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ public:
   Object(const Object& source);
   ~Object(void);
   template <typename T>
-  inline T cast(void) const;
+  T cast(void) const;
   Object clone(void) const;
   Object& operator = (const Object& source);
   bool isNull(void) const;
@@ -124,9 +124,9 @@ public:
 protected:
   Object(HSQUIRRELVM vm);
   template <typename T>
-  inline bool addSlot(const char* name, T value);
+  bool addSlot(const char* name, T value);
   template <typename T>
-  inline bool addStaticSlot(const char* name, T value);
+  bool addStaticSlot(const char* name, T value);
   bool removeSlot(const char* name);
   bool addFunction(const char* name,
                    void* pointer,
@@ -136,19 +136,19 @@ protected:
   bool clear(void);
   bool call(const char* name);
   template <typename A1>
-  inline bool call(const char* name, A1 a1);
+  bool call(const char* name, A1 a1);
   template <typename A1, typename A2>
-  inline bool call(const char* name, A1 a1, A2 a2);
+  bool call(const char* name, A1 a1, A2 a2);
   template <typename R>
-  inline R eval(const char* name);
+  R eval(const char* name);
   template <typename R, typename A1>
-  inline R eval(const char* name, A1 a1);
+  R eval(const char* name, A1 a1);
   template <typename R, typename A1, typename A2>
-  inline R eval(const char* name, A1 a1, A2 a2);
+  R eval(const char* name, A1 a1, A2 a2);
   template <typename T>
-  inline T get(const char* name);
+  T get(const char* name);
   template <typename T>
-  inline bool set(const char* name, T value);
+  bool set(const char* name, T value);
   SQInteger getSize(void) const;
   HSQUIRRELVM vm;
   HSQOBJECT handle;
@@ -173,7 +173,7 @@ inline bool Object::addSlot(const char* name, T value)
   sq_pushstring(vm, name, -1);
   Value<T>::push(vm, value);
 
-  const SQRESULT result =  sq_newslot(vm, -3, false);
+  const SQRESULT result = sq_newslot(vm, -3, false);
 
   sq_poptop(vm);
   return SQ_SUCCEEDED(result);
@@ -189,7 +189,7 @@ inline bool Object::addStaticSlot(const char* name, T value)
   sq_pushstring(vm, name, -1);
   Value<T>::push(vm, value);
 
-  const SQRESULT result =  sq_newslot(vm, -3, true);
+  const SQRESULT result = sq_newslot(vm, -3, true);
 
   sq_poptop(vm);
   return SQ_SUCCEEDED(result);
@@ -358,19 +358,19 @@ public:
   Array(const Object& source);
   Array(HSQUIRRELVM vm, SQInteger index);
   template <typename T>
-  inline bool insert(SQInteger index, T value);
+  bool insert(SQInteger index, T value);
   bool remove(SQInteger index);
   template <typename T>
-  inline bool push(T value);
+  bool push(T value);
   bool pop(void);
   bool resize(SQInteger newSize);
   bool reverse(void);
   using Object::clear;
   Object operator [] (SQInteger index) const;
   template <typename T>
-  inline T get(SQInteger index) const;
+  T get(SQInteger index) const;
   template <typename T>
-  inline bool set(SQInteger index, T value);
+  bool set(SQInteger index, T value);
   using Object::getSize;
 };
 
@@ -471,7 +471,7 @@ template <typename R>
 class Function
 {
 public:
-  inline static SQInteger demarshal0(HSQUIRRELVM vm)
+  static SQInteger demarshal0(HSQUIRRELVM vm)
   {
     typedef R (*Function)();
 
@@ -482,7 +482,7 @@ public:
     return 1;
   }
   template <typename A1>
-  inline static SQInteger demarshal1(HSQUIRRELVM vm)
+  static SQInteger demarshal1(HSQUIRRELVM vm)
   {
     typedef R (*Function)(A1);
 
@@ -493,7 +493,7 @@ public:
     return 1;
   }
   template <typename A1, typename A2>
-  inline static SQInteger demarshal2(HSQUIRRELVM vm)
+  static SQInteger demarshal2(HSQUIRRELVM vm)
   {
     typedef R (*Function)(A1,A2);
 
@@ -513,7 +513,7 @@ template <>
 class Function<void>
 {
 public:
-  inline static SQInteger demarshal0(HSQUIRRELVM vm)
+  static SQInteger demarshal0(HSQUIRRELVM vm)
   {
     typedef void (*Function)();
 
@@ -524,7 +524,7 @@ public:
     return 0;
   }
   template <typename A1>
-  inline static SQInteger demarshal1(HSQUIRRELVM vm)
+  static SQInteger demarshal1(HSQUIRRELVM vm)
   {
     typedef void (*Function)(A1);
 
@@ -535,7 +535,7 @@ public:
     return 0;
   }
   template <typename A1, typename A2>
-  inline static SQInteger demarshal2(HSQUIRRELVM vm)
+  static SQInteger demarshal2(HSQUIRRELVM vm)
   {
     typedef void (*Function)(A1,A2);
 
@@ -557,7 +557,7 @@ template <typename T, typename R>
 class Method
 {
 public:
-  inline static SQInteger demarshal0(HSQUIRRELVM vm)
+  static SQInteger demarshal0(HSQUIRRELVM vm)
   {
     typedef R (T::*Method)();
 
@@ -570,7 +570,7 @@ public:
     Value<R>::push(vm, (instance->**method)());
     return 1;
   }
-  inline static SQInteger demarshal0C(HSQUIRRELVM vm)
+  static SQInteger demarshal0C(HSQUIRRELVM vm)
   {
     typedef R (T::*Method)() const;
 
@@ -584,7 +584,7 @@ public:
     return 1;
   }
   template <typename A1>
-  inline static SQInteger demarshal1(HSQUIRRELVM vm)
+  static SQInteger demarshal1(HSQUIRRELVM vm)
   {
     typedef R (T::*Method)(A1);
 
@@ -598,7 +598,7 @@ public:
     return 1;
   }
   template <typename A1>
-  inline static SQInteger demarshal1C(HSQUIRRELVM vm)
+  static SQInteger demarshal1C(HSQUIRRELVM vm)
   {
     typedef R (T::*Method)(A1) const;
 
@@ -612,7 +612,7 @@ public:
     return 1;
   }
   template <typename A1, typename A2>
-  inline static SQInteger demarshal2(HSQUIRRELVM vm)
+  static SQInteger demarshal2(HSQUIRRELVM vm)
   {
     typedef R (T::*Method)(A1,A2);
 
@@ -627,7 +627,7 @@ public:
     return 1;
   }
   template <typename A1, typename A2>
-  inline static SQInteger demarshal2C(HSQUIRRELVM vm)
+  static SQInteger demarshal2C(HSQUIRRELVM vm)
   {
     typedef R (T::*Method)(A1,A2) const;
 
@@ -650,7 +650,7 @@ template <typename T>
 class Method<T, void>
 {
 public:
-  inline static SQInteger demarshal0(HSQUIRRELVM vm)
+  static SQInteger demarshal0(HSQUIRRELVM vm)
   {
     typedef void (T::*Method)();
 
@@ -663,7 +663,7 @@ public:
     (instance->**method)();
     return 0;
   }
-  inline static SQInteger demarshal0C(HSQUIRRELVM vm)
+  static SQInteger demarshal0C(HSQUIRRELVM vm)
   {
     typedef void (T::*Method)() const;
 
@@ -677,7 +677,7 @@ public:
     return 0;
   }
   template <typename A1>
-  inline static SQInteger demarshal1(HSQUIRRELVM vm)
+  static SQInteger demarshal1(HSQUIRRELVM vm)
   {
     typedef void (T::*Method)(A1);
 
@@ -691,7 +691,7 @@ public:
     return 0;
   }
   template <typename A1>
-  inline static SQInteger demarshal1C(HSQUIRRELVM vm)
+  static SQInteger demarshal1C(HSQUIRRELVM vm)
   {
     typedef void (T::*Method)(A1) const;
 
@@ -705,7 +705,7 @@ public:
     return 0;
   }
   template <typename A1, typename A2>
-  inline static SQInteger demarshal2(HSQUIRRELVM vm)
+  static SQInteger demarshal2(HSQUIRRELVM vm)
   {
     typedef void (T::*Method)(A1,A2);
 
@@ -720,7 +720,7 @@ public:
     return 0;
   }
   template <typename A1, typename A2>
-  inline static SQInteger demarshal2C(HSQUIRRELVM vm)
+  static SQInteger demarshal2C(HSQUIRRELVM vm)
   {
     typedef void (T::*Method)(A1,A2) const;
 
@@ -871,23 +871,23 @@ template <typename T>
 class SharedClass : public Class
 {
 public:
-  inline SharedClass(HSQUIRRELVM vm);
+  SharedClass(HSQUIRRELVM vm);
   template <typename M>
-  inline bool addMethod(const char* name, M method)
+  bool addMethod(const char* name, M method)
   {
     return addFunction(name, &method, sizeof(method), demarshal(method), false);
   }
   template <typename M>
-  inline bool addStaticMethod(const char* name, M method)
+  bool addStaticMethod(const char* name, M method)
   {
     return addFunction(name, &method, sizeof(method), demarshal(method), true);
   }
-  inline static HSQOBJECT getHandle(void);
-  inline static T* createNativeInstance(HSQUIRRELVM vm, HSQOBJECT object);
-  inline static void destroyNativeInstance(T* instance);
+  static HSQOBJECT getHandle(void);
+  static T* createNativeInstance(HSQUIRRELVM vm, HSQOBJECT object);
+  static void destroyNativeInstance(T* instance);
 private:
-  inline static SQInteger constructor(HSQUIRRELVM vm);
-  inline static SQInteger destructor(SQUserPointer pointer, SQInteger size);
+  static SQInteger constructor(HSQUIRRELVM vm);
+  static SQInteger destructor(SQUserPointer pointer, SQInteger size);
   static bool initialized;
   static HSQOBJECT shared;
 };
@@ -973,11 +973,11 @@ template <typename T>
 class SharedInstance : public Instance
 {
 public:
-  inline SharedInstance(HSQUIRRELVM vm, SQInteger index);
+  SharedInstance(HSQUIRRELVM vm, SQInteger index);
   using Object::get;
   using Object::set;
-  inline T* getNative(void);
-  inline SharedClass<T> getClass(void) const;
+  T* getNative(void);
+  SharedClass<T> getClass(void) const;
 };
 
 template <typename T>
@@ -1016,13 +1016,13 @@ template <>
 class Value<bool>
 {
 public:
-  inline static bool get(HSQUIRRELVM vm, SQInteger index)
+  static bool get(HSQUIRRELVM vm, SQInteger index)
   {
     SQBool value;
     sq_getbool(vm, index, &value);
     return value ? true : false;
   }
-  inline static void push(HSQUIRRELVM vm, bool value)
+  static void push(HSQUIRRELVM vm, bool value)
   {
     sq_pushbool(vm, SQBool(value));
   }
@@ -1035,13 +1035,13 @@ template <>
 class Value<int>
 {
 public:
-  inline static int get(HSQUIRRELVM vm, SQInteger index)
+  static int get(HSQUIRRELVM vm, SQInteger index)
   {
     SQInteger value;
     sq_getinteger(vm, index, &value);
     return int(value);
   }
-  inline static void push(HSQUIRRELVM vm, int value)
+  static void push(HSQUIRRELVM vm, int value)
   {
     sq_pushinteger(vm, SQInteger(value));
   }
@@ -1054,13 +1054,13 @@ template <>
 class Value<float>
 {
 public:
-  inline static float get(HSQUIRRELVM vm, SQInteger index)
+  static float get(HSQUIRRELVM vm, SQInteger index)
   {
     SQFloat value;
     sq_getfloat(vm, index, &value);
     return float(value);
   }
-  inline static void push(HSQUIRRELVM vm, float value)
+  static void push(HSQUIRRELVM vm, float value)
   {
     sq_pushfloat(vm, SQFloat(value));
   }
@@ -1073,13 +1073,13 @@ template <>
 class Value<const char*>
 {
 public:
-  inline static const char* get(HSQUIRRELVM vm, SQInteger index)
+  static const char* get(HSQUIRRELVM vm, SQInteger index)
   {
     const SQChar* value;
     sq_getstring(vm, index, &value);
     return value;
   }
-  inline static void push(HSQUIRRELVM vm, const char* value)
+  static void push(HSQUIRRELVM vm, const char* value)
   {
     sq_pushstring(vm, value, -1);
   }
@@ -1092,13 +1092,13 @@ template <>
 class Value<String>
 {
 public:
-  inline static String get(HSQUIRRELVM vm, SQInteger index)
+  static String get(HSQUIRRELVM vm, SQInteger index)
   {
     const SQChar* value;
     sq_getstring(vm, index, &value);
     return String(value);
   }
-  inline static void push(HSQUIRRELVM vm, String value)
+  static void push(HSQUIRRELVM vm, String value)
   {
     sq_pushstring(vm, value.c_str(), -1);
   }
@@ -1111,11 +1111,11 @@ template <>
 class Value<Object>
 {
 public:
-  inline static Object get(HSQUIRRELVM vm, SQInteger index)
+  static Object get(HSQUIRRELVM vm, SQInteger index)
   {
     return Object(vm, index);
   }
-  inline static void push(HSQUIRRELVM vm, Object value)
+  static void push(HSQUIRRELVM vm, Object value)
   {
     sq_pushobject(vm, value.getHandle());
   }
@@ -1128,11 +1128,11 @@ template <>
 class Value<Array>
 {
 public:
-  inline static Array get(HSQUIRRELVM vm, SQInteger index)
+  static Array get(HSQUIRRELVM vm, SQInteger index)
   {
     return Array(vm, index);
   }
-  inline static void push(HSQUIRRELVM vm, Array value)
+  static void push(HSQUIRRELVM vm, Array value)
   {
     sq_pushobject(vm, value.getHandle());
   }
@@ -1145,11 +1145,11 @@ template <>
 class Value<Table>
 {
 public:
-  inline static Table get(HSQUIRRELVM vm, SQInteger index)
+  static Table get(HSQUIRRELVM vm, SQInteger index)
   {
     return Table(vm, index);
   }
-  inline static void push(HSQUIRRELVM vm, Table value)
+  static void push(HSQUIRRELVM vm, Table value)
   {
     sq_pushobject(vm, value.getHandle());
   }
@@ -1162,11 +1162,11 @@ template <>
 class Value<Class>
 {
 public:
-  inline static Class get(HSQUIRRELVM vm, SQInteger index)
+  static Class get(HSQUIRRELVM vm, SQInteger index)
   {
     return Class(vm, index);
   }
-  inline static void push(HSQUIRRELVM vm, Class value)
+  static void push(HSQUIRRELVM vm, Class value)
   {
     sq_pushobject(vm, value.getHandle());
   }
@@ -1179,11 +1179,11 @@ template <>
 class Value<Instance>
 {
 public:
-  inline static Instance get(HSQUIRRELVM vm, SQInteger index)
+  static Instance get(HSQUIRRELVM vm, SQInteger index)
   {
     return Instance(vm, index);
   }
-  inline static void push(HSQUIRRELVM vm, Instance value)
+  static void push(HSQUIRRELVM vm, Instance value)
   {
     sq_pushobject(vm, value.getHandle());
   }
@@ -1196,11 +1196,11 @@ template <typename T>
 class Value<SharedClass<T> >
 {
 public:
-  inline static SharedClass<T> get(HSQUIRRELVM vm, SQInteger index)
+  static SharedClass<T> get(HSQUIRRELVM vm, SQInteger index)
   {
     return SharedClass<T>(vm, index);
   }
-  inline static void push(HSQUIRRELVM vm, SharedClass<T> value)
+  static void push(HSQUIRRELVM vm, SharedClass<T> value)
   {
     sq_pushobject(vm, value.getHandle());
   }

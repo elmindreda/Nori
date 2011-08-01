@@ -222,10 +222,10 @@ public:
   typedef R (*Function)(#{parameters});
   /*! Constructor.
    */
-  inline FunctionSlot#{index}(Function function);
+  FunctionSlot#{index}(Function function);
   /*! Calls the target for this slot.
    */
-  inline R emit(#{parameters});
+  R emit(#{parameters});
 private:
   Function function;
 };
@@ -243,10 +243,10 @@ public:
   typedef R (T::*Function)(#{parameters});
   /*! Constructor.
    */
-  inline MethodSlot#{index}(T& object, Function function);
+  MethodSlot#{index}(T& object, Function function);
   /*! Calls the target for this slot.
    */
-  inline R emit(#{parameters});
+  R emit(#{parameters});
 private:
   T& object;
   Function function;
@@ -266,35 +266,35 @@ public:
   typedef SignalSlot#{index}<#{type}> Slot;
   /*! Constructor.
    */
-  inline Signal#{index}(void);
+  Signal#{index}(void);
   /*! Copy contructor.
    *  @note This does not copy any existing connections to the source object.
    */
-  inline Signal#{index}(const Signal#{index}<#{type}>& source);
+  Signal#{index}(const Signal#{index}<#{type}>& source);
   /*! Destructor.
    */
-  inline ~Signal#{index}(void);
+  ~Signal#{index}(void);
   /*! Adds the specified generic slot to this signal.
    */
-  inline Slot* connect(Slot* slot);
+  Slot* connect(Slot* slot);
   /*! Connects the specified instance and member function to this signal.
    */
   template <typename T>
-  inline Slot* connect(T& object, typename MethodSlot#{index}<T,#{type}>::Function function)
+  Slot* connect(T& object, typename MethodSlot#{index}<T,#{type}>::Function function)
   { return connect(new MethodSlot#{index}<T,#{type}>(object, function)); }
   /*! Connects the specified function to this signal.
    */
-  inline Slot* connect(typename FunctionSlot#{index}<#{type}>::Function function);
+  Slot* connect(typename FunctionSlot#{index}<#{type}>::Function function);
   /*! Calls the targets for all slots in this signal.
    */
-  inline void emit(#{parameters}) const;
+  void emit(#{parameters}) const;
   /*! Calls the targets for all slots in this signal and stores the return values.
    */
-  inline void emit(std::vector<R>& results#{result_parameters}) const;
+  void emit(std::vector<R>& results#{result_parameters}) const;
   /*! Assignment operator.
    *  @note This does not copy any existing connections to the source object.
    */
-  inline Signal#{index}<#{type}>& operator = (const Signal#{index}<#{type}>& source);
+  Signal#{index}<#{type}>& operator = (const Signal#{index}<#{type}>& source);
 private:
   typedef std::vector<Slot*> SlotList;
   SlotList slots;
@@ -318,17 +318,17 @@ public:
   typedef SignalSlot#{index}<#{type}> Slot;
   /*! Constructor.
    */
-  inline SignalProxy#{index}(Signal& signal);
+  SignalProxy#{index}(Signal& signal);
   /*! Connects the specified slot to the proxied signal.
    */
-  inline Slot* connect(Slot* slot);
+  Slot* connect(Slot* slot);
   /*! Connects the specified function to the proxied signal.
    */
-  inline Slot* connect(typename FunctionSlot#{index}<#{type}>::Function function);
+  Slot* connect(typename FunctionSlot#{index}<#{type}>::Function function);
   /*! Connects the specified instance and member function to the proxied signal.
    */
   template <typename T>
-  inline Slot* connect(T& object, typename MethodSlot#{index}<T,#{type}>::Function function)
+  Slot* connect(T& object, typename MethodSlot#{index}<T,#{type}>::Function function)
   { return signal.connect(new MethodSlot#{index}<T,#{type}>(object, function)); }
 private:
   Signal& signal;

@@ -133,10 +133,10 @@ public:
   typedef R (*Function)(void);
   /*! Constructor.
    */
-  inline FunctionSlot0(Function function);
+  FunctionSlot0(Function function);
   /*! Calls the target for this slot.
    */
-  inline R emit(void);
+  R emit(void);
 private:
   Function function;
 };
@@ -154,10 +154,10 @@ public:
   typedef R (T::*Function)(void);
   /*! Constructor.
    */
-  inline MethodSlot0(T& object, Function function);
+  MethodSlot0(T& object, Function function);
   /*! Calls the target for this slot.
    */
-  inline R emit(void);
+  R emit(void);
 private:
   T& object;
   Function function;
@@ -177,35 +177,35 @@ public:
   typedef SignalSlot0<R> Slot;
   /*! Constructor.
    */
-  inline Signal0(void);
+  Signal0(void);
   /*! Copy contructor.
    *  @note This does not copy any existing connections to the source object.
    */
-  inline Signal0(const Signal0<R>& source);
+  Signal0(const Signal0<R>& source);
   /*! Destructor.
    */
-  inline ~Signal0(void);
+  ~Signal0(void);
   /*! Adds the specified generic slot to this signal.
    */
-  inline Slot* connect(Slot* slot);
+  Slot* connect(Slot* slot);
   /*! Connects the specified instance and member function to this signal.
    */
   template <typename T>
-  inline Slot* connect(T& object, typename MethodSlot0<T,R>::Function function)
+  Slot* connect(T& object, typename MethodSlot0<T,R>::Function function)
   { return connect(new MethodSlot0<T,R>(object, function)); }
   /*! Connects the specified function to this signal.
    */
-  inline Slot* connect(typename FunctionSlot0<R>::Function function);
+  Slot* connect(typename FunctionSlot0<R>::Function function);
   /*! Calls the targets for all slots in this signal.
    */
-  inline void emit(void) const;
+  void emit(void) const;
   /*! Calls the targets for all slots in this signal and stores the return values.
    */
-  inline void emit(std::vector<R>& results) const;
+  void emit(std::vector<R>& results) const;
   /*! Assignment operator.
    *  @note This does not copy any existing connections to the source object.
    */
-  inline Signal0<R>& operator = (const Signal0<R>& source);
+  Signal0<R>& operator = (const Signal0<R>& source);
 private:
   typedef std::vector<Slot*> SlotList;
   SlotList slots;
@@ -229,17 +229,17 @@ public:
   typedef SignalSlot0<R> Slot;
   /*! Constructor.
    */
-  inline SignalProxy0(Signal& signal);
+  SignalProxy0(Signal& signal);
   /*! Connects the specified slot to the proxied signal.
    */
-  inline Slot* connect(Slot* slot);
+  Slot* connect(Slot* slot);
   /*! Connects the specified function to the proxied signal.
    */
-  inline Slot* connect(typename FunctionSlot0<R>::Function function);
+  Slot* connect(typename FunctionSlot0<R>::Function function);
   /*! Connects the specified instance and member function to the proxied signal.
    */
   template <typename T>
-  inline Slot* connect(T& object, typename MethodSlot0<T,R>::Function function)
+  Slot* connect(T& object, typename MethodSlot0<T,R>::Function function)
   { return signal.connect(new MethodSlot0<T,R>(object, function)); }
 private:
   Signal& signal;
@@ -406,10 +406,10 @@ public:
   typedef R (*Function)(A1 a1);
   /*! Constructor.
    */
-  inline FunctionSlot1(Function function);
+  FunctionSlot1(Function function);
   /*! Calls the target for this slot.
    */
-  inline R emit(A1 a1);
+  R emit(A1 a1);
 private:
   Function function;
 };
@@ -427,10 +427,10 @@ public:
   typedef R (T::*Function)(A1 a1);
   /*! Constructor.
    */
-  inline MethodSlot1(T& object, Function function);
+  MethodSlot1(T& object, Function function);
   /*! Calls the target for this slot.
    */
-  inline R emit(A1 a1);
+  R emit(A1 a1);
 private:
   T& object;
   Function function;
@@ -450,35 +450,35 @@ public:
   typedef SignalSlot1<R,A1> Slot;
   /*! Constructor.
    */
-  inline Signal1(void);
+  Signal1(void);
   /*! Copy contructor.
    *  @note This does not copy any existing connections to the source object.
    */
-  inline Signal1(const Signal1<R,A1>& source);
+  Signal1(const Signal1<R,A1>& source);
   /*! Destructor.
    */
-  inline ~Signal1(void);
+  ~Signal1(void);
   /*! Adds the specified generic slot to this signal.
    */
-  inline Slot* connect(Slot* slot);
+  Slot* connect(Slot* slot);
   /*! Connects the specified instance and member function to this signal.
    */
   template <typename T>
-  inline Slot* connect(T& object, typename MethodSlot1<T,R,A1>::Function function)
+  Slot* connect(T& object, typename MethodSlot1<T,R,A1>::Function function)
   { return connect(new MethodSlot1<T,R,A1>(object, function)); }
   /*! Connects the specified function to this signal.
    */
-  inline Slot* connect(typename FunctionSlot1<R,A1>::Function function);
+  Slot* connect(typename FunctionSlot1<R,A1>::Function function);
   /*! Calls the targets for all slots in this signal.
    */
-  inline void emit(A1 a1) const;
+  void emit(A1 a1) const;
   /*! Calls the targets for all slots in this signal and stores the return values.
    */
-  inline void emit(std::vector<R>& results, A1 a1) const;
+  void emit(std::vector<R>& results, A1 a1) const;
   /*! Assignment operator.
    *  @note This does not copy any existing connections to the source object.
    */
-  inline Signal1<R,A1>& operator = (const Signal1<R,A1>& source);
+  Signal1<R,A1>& operator = (const Signal1<R,A1>& source);
 private:
   typedef std::vector<Slot*> SlotList;
   SlotList slots;
@@ -502,17 +502,17 @@ public:
   typedef SignalSlot1<R,A1> Slot;
   /*! Constructor.
    */
-  inline SignalProxy1(Signal& signal);
+  SignalProxy1(Signal& signal);
   /*! Connects the specified slot to the proxied signal.
    */
-  inline Slot* connect(Slot* slot);
+  Slot* connect(Slot* slot);
   /*! Connects the specified function to the proxied signal.
    */
-  inline Slot* connect(typename FunctionSlot1<R,A1>::Function function);
+  Slot* connect(typename FunctionSlot1<R,A1>::Function function);
   /*! Connects the specified instance and member function to the proxied signal.
    */
   template <typename T>
-  inline Slot* connect(T& object, typename MethodSlot1<T,R,A1>::Function function)
+  Slot* connect(T& object, typename MethodSlot1<T,R,A1>::Function function)
   { return signal.connect(new MethodSlot1<T,R,A1>(object, function)); }
 private:
   Signal& signal;
@@ -679,10 +679,10 @@ public:
   typedef R (*Function)(A1 a1, A2 a2);
   /*! Constructor.
    */
-  inline FunctionSlot2(Function function);
+  FunctionSlot2(Function function);
   /*! Calls the target for this slot.
    */
-  inline R emit(A1 a1, A2 a2);
+  R emit(A1 a1, A2 a2);
 private:
   Function function;
 };
@@ -700,10 +700,10 @@ public:
   typedef R (T::*Function)(A1 a1, A2 a2);
   /*! Constructor.
    */
-  inline MethodSlot2(T& object, Function function);
+  MethodSlot2(T& object, Function function);
   /*! Calls the target for this slot.
    */
-  inline R emit(A1 a1, A2 a2);
+  R emit(A1 a1, A2 a2);
 private:
   T& object;
   Function function;
@@ -723,35 +723,35 @@ public:
   typedef SignalSlot2<R,A1,A2> Slot;
   /*! Constructor.
    */
-  inline Signal2(void);
+  Signal2(void);
   /*! Copy contructor.
    *  @note This does not copy any existing connections to the source object.
    */
-  inline Signal2(const Signal2<R,A1,A2>& source);
+  Signal2(const Signal2<R,A1,A2>& source);
   /*! Destructor.
    */
-  inline ~Signal2(void);
+  ~Signal2(void);
   /*! Adds the specified generic slot to this signal.
    */
-  inline Slot* connect(Slot* slot);
+  Slot* connect(Slot* slot);
   /*! Connects the specified instance and member function to this signal.
    */
   template <typename T>
-  inline Slot* connect(T& object, typename MethodSlot2<T,R,A1,A2>::Function function)
+  Slot* connect(T& object, typename MethodSlot2<T,R,A1,A2>::Function function)
   { return connect(new MethodSlot2<T,R,A1,A2>(object, function)); }
   /*! Connects the specified function to this signal.
    */
-  inline Slot* connect(typename FunctionSlot2<R,A1,A2>::Function function);
+  Slot* connect(typename FunctionSlot2<R,A1,A2>::Function function);
   /*! Calls the targets for all slots in this signal.
    */
-  inline void emit(A1 a1, A2 a2) const;
+  void emit(A1 a1, A2 a2) const;
   /*! Calls the targets for all slots in this signal and stores the return values.
    */
-  inline void emit(std::vector<R>& results, A1 a1, A2 a2) const;
+  void emit(std::vector<R>& results, A1 a1, A2 a2) const;
   /*! Assignment operator.
    *  @note This does not copy any existing connections to the source object.
    */
-  inline Signal2<R,A1,A2>& operator = (const Signal2<R,A1,A2>& source);
+  Signal2<R,A1,A2>& operator = (const Signal2<R,A1,A2>& source);
 private:
   typedef std::vector<Slot*> SlotList;
   SlotList slots;
@@ -775,17 +775,17 @@ public:
   typedef SignalSlot2<R,A1,A2> Slot;
   /*! Constructor.
    */
-  inline SignalProxy2(Signal& signal);
+  SignalProxy2(Signal& signal);
   /*! Connects the specified slot to the proxied signal.
    */
-  inline Slot* connect(Slot* slot);
+  Slot* connect(Slot* slot);
   /*! Connects the specified function to the proxied signal.
    */
-  inline Slot* connect(typename FunctionSlot2<R,A1,A2>::Function function);
+  Slot* connect(typename FunctionSlot2<R,A1,A2>::Function function);
   /*! Connects the specified instance and member function to the proxied signal.
    */
   template <typename T>
-  inline Slot* connect(T& object, typename MethodSlot2<T,R,A1,A2>::Function function)
+  Slot* connect(T& object, typename MethodSlot2<T,R,A1,A2>::Function function)
   { return signal.connect(new MethodSlot2<T,R,A1,A2>(object, function)); }
 private:
   Signal& signal;
@@ -952,10 +952,10 @@ public:
   typedef R (*Function)(A1 a1, A2 a2, A3 a3);
   /*! Constructor.
    */
-  inline FunctionSlot3(Function function);
+  FunctionSlot3(Function function);
   /*! Calls the target for this slot.
    */
-  inline R emit(A1 a1, A2 a2, A3 a3);
+  R emit(A1 a1, A2 a2, A3 a3);
 private:
   Function function;
 };
@@ -973,10 +973,10 @@ public:
   typedef R (T::*Function)(A1 a1, A2 a2, A3 a3);
   /*! Constructor.
    */
-  inline MethodSlot3(T& object, Function function);
+  MethodSlot3(T& object, Function function);
   /*! Calls the target for this slot.
    */
-  inline R emit(A1 a1, A2 a2, A3 a3);
+  R emit(A1 a1, A2 a2, A3 a3);
 private:
   T& object;
   Function function;
@@ -996,35 +996,35 @@ public:
   typedef SignalSlot3<R,A1,A2,A3> Slot;
   /*! Constructor.
    */
-  inline Signal3(void);
+  Signal3(void);
   /*! Copy contructor.
    *  @note This does not copy any existing connections to the source object.
    */
-  inline Signal3(const Signal3<R,A1,A2,A3>& source);
+  Signal3(const Signal3<R,A1,A2,A3>& source);
   /*! Destructor.
    */
-  inline ~Signal3(void);
+  ~Signal3(void);
   /*! Adds the specified generic slot to this signal.
    */
-  inline Slot* connect(Slot* slot);
+  Slot* connect(Slot* slot);
   /*! Connects the specified instance and member function to this signal.
    */
   template <typename T>
-  inline Slot* connect(T& object, typename MethodSlot3<T,R,A1,A2,A3>::Function function)
+  Slot* connect(T& object, typename MethodSlot3<T,R,A1,A2,A3>::Function function)
   { return connect(new MethodSlot3<T,R,A1,A2,A3>(object, function)); }
   /*! Connects the specified function to this signal.
    */
-  inline Slot* connect(typename FunctionSlot3<R,A1,A2,A3>::Function function);
+  Slot* connect(typename FunctionSlot3<R,A1,A2,A3>::Function function);
   /*! Calls the targets for all slots in this signal.
    */
-  inline void emit(A1 a1, A2 a2, A3 a3) const;
+  void emit(A1 a1, A2 a2, A3 a3) const;
   /*! Calls the targets for all slots in this signal and stores the return values.
    */
-  inline void emit(std::vector<R>& results, A1 a1, A2 a2, A3 a3) const;
+  void emit(std::vector<R>& results, A1 a1, A2 a2, A3 a3) const;
   /*! Assignment operator.
    *  @note This does not copy any existing connections to the source object.
    */
-  inline Signal3<R,A1,A2,A3>& operator = (const Signal3<R,A1,A2,A3>& source);
+  Signal3<R,A1,A2,A3>& operator = (const Signal3<R,A1,A2,A3>& source);
 private:
   typedef std::vector<Slot*> SlotList;
   SlotList slots;
@@ -1048,17 +1048,17 @@ public:
   typedef SignalSlot3<R,A1,A2,A3> Slot;
   /*! Constructor.
    */
-  inline SignalProxy3(Signal& signal);
+  SignalProxy3(Signal& signal);
   /*! Connects the specified slot to the proxied signal.
    */
-  inline Slot* connect(Slot* slot);
+  Slot* connect(Slot* slot);
   /*! Connects the specified function to the proxied signal.
    */
-  inline Slot* connect(typename FunctionSlot3<R,A1,A2,A3>::Function function);
+  Slot* connect(typename FunctionSlot3<R,A1,A2,A3>::Function function);
   /*! Connects the specified instance and member function to the proxied signal.
    */
   template <typename T>
-  inline Slot* connect(T& object, typename MethodSlot3<T,R,A1,A2,A3>::Function function)
+  Slot* connect(T& object, typename MethodSlot3<T,R,A1,A2,A3>::Function function)
   { return signal.connect(new MethodSlot3<T,R,A1,A2,A3>(object, function)); }
 private:
   Signal& signal;
@@ -1225,10 +1225,10 @@ public:
   typedef R (*Function)(A1 a1, A2 a2, A3 a3, A4 a4);
   /*! Constructor.
    */
-  inline FunctionSlot4(Function function);
+  FunctionSlot4(Function function);
   /*! Calls the target for this slot.
    */
-  inline R emit(A1 a1, A2 a2, A3 a3, A4 a4);
+  R emit(A1 a1, A2 a2, A3 a3, A4 a4);
 private:
   Function function;
 };
@@ -1246,10 +1246,10 @@ public:
   typedef R (T::*Function)(A1 a1, A2 a2, A3 a3, A4 a4);
   /*! Constructor.
    */
-  inline MethodSlot4(T& object, Function function);
+  MethodSlot4(T& object, Function function);
   /*! Calls the target for this slot.
    */
-  inline R emit(A1 a1, A2 a2, A3 a3, A4 a4);
+  R emit(A1 a1, A2 a2, A3 a3, A4 a4);
 private:
   T& object;
   Function function;
@@ -1269,35 +1269,35 @@ public:
   typedef SignalSlot4<R,A1,A2,A3,A4> Slot;
   /*! Constructor.
    */
-  inline Signal4(void);
+  Signal4(void);
   /*! Copy contructor.
    *  @note This does not copy any existing connections to the source object.
    */
-  inline Signal4(const Signal4<R,A1,A2,A3,A4>& source);
+  Signal4(const Signal4<R,A1,A2,A3,A4>& source);
   /*! Destructor.
    */
-  inline ~Signal4(void);
+  ~Signal4(void);
   /*! Adds the specified generic slot to this signal.
    */
-  inline Slot* connect(Slot* slot);
+  Slot* connect(Slot* slot);
   /*! Connects the specified instance and member function to this signal.
    */
   template <typename T>
-  inline Slot* connect(T& object, typename MethodSlot4<T,R,A1,A2,A3,A4>::Function function)
+  Slot* connect(T& object, typename MethodSlot4<T,R,A1,A2,A3,A4>::Function function)
   { return connect(new MethodSlot4<T,R,A1,A2,A3,A4>(object, function)); }
   /*! Connects the specified function to this signal.
    */
-  inline Slot* connect(typename FunctionSlot4<R,A1,A2,A3,A4>::Function function);
+  Slot* connect(typename FunctionSlot4<R,A1,A2,A3,A4>::Function function);
   /*! Calls the targets for all slots in this signal.
    */
-  inline void emit(A1 a1, A2 a2, A3 a3, A4 a4) const;
+  void emit(A1 a1, A2 a2, A3 a3, A4 a4) const;
   /*! Calls the targets for all slots in this signal and stores the return values.
    */
-  inline void emit(std::vector<R>& results, A1 a1, A2 a2, A3 a3, A4 a4) const;
+  void emit(std::vector<R>& results, A1 a1, A2 a2, A3 a3, A4 a4) const;
   /*! Assignment operator.
    *  @note This does not copy any existing connections to the source object.
    */
-  inline Signal4<R,A1,A2,A3,A4>& operator = (const Signal4<R,A1,A2,A3,A4>& source);
+  Signal4<R,A1,A2,A3,A4>& operator = (const Signal4<R,A1,A2,A3,A4>& source);
 private:
   typedef std::vector<Slot*> SlotList;
   SlotList slots;
@@ -1321,17 +1321,17 @@ public:
   typedef SignalSlot4<R,A1,A2,A3,A4> Slot;
   /*! Constructor.
    */
-  inline SignalProxy4(Signal& signal);
+  SignalProxy4(Signal& signal);
   /*! Connects the specified slot to the proxied signal.
    */
-  inline Slot* connect(Slot* slot);
+  Slot* connect(Slot* slot);
   /*! Connects the specified function to the proxied signal.
    */
-  inline Slot* connect(typename FunctionSlot4<R,A1,A2,A3,A4>::Function function);
+  Slot* connect(typename FunctionSlot4<R,A1,A2,A3,A4>::Function function);
   /*! Connects the specified instance and member function to the proxied signal.
    */
   template <typename T>
-  inline Slot* connect(T& object, typename MethodSlot4<T,R,A1,A2,A3,A4>::Function function)
+  Slot* connect(T& object, typename MethodSlot4<T,R,A1,A2,A3,A4>::Function function)
   { return signal.connect(new MethodSlot4<T,R,A1,A2,A3,A4>(object, function)); }
 private:
   Signal& signal;

@@ -108,13 +108,12 @@ template<typename T>
 class RectClipStack
 {
 public:
-  inline RectClipStack(void);
-  inline bool push(const T& rectangle);
-  inline void pop(void);
-  inline bool isEmpty(void) const;
-  inline unsigned int getCount(void) const;
-  inline const T& getTop(void) const;
-  inline const T& getTotal(void) const;
+  bool push(const T& rectangle);
+  void pop(void);
+  bool isEmpty(void) const;
+  unsigned int getCount(void) const;
+  const T& getTop(void) const;
+  const T& getTotal(void) const;
 private:
   struct Entry
   {
@@ -130,11 +129,6 @@ typedef RectClipStack<Rect> RectClipStackf;
 typedef RectClipStack<Recti> RectClipStacki;
 
 ///////////////////////////////////////////////////////////////////////
-
-template <typename T>
-inline RectClipStack<T>::RectClipStack(void)
-{
-}
 
 template <typename T>
 inline bool RectClipStack<T>::push(const T& rectangle)
