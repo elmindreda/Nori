@@ -49,6 +49,8 @@ Layer::Layer(input::Context& initContext, UI::Drawer& initDrawer):
   hoveredWidget(NULL),
   stack(NULL)
 {
+  assert(&context);
+  assert(&drawer);
 }
 
 Layer::~Layer(void)
@@ -75,6 +77,8 @@ void Layer::draw(void)
 
 void Layer::addRootWidget(Widget& root)
 {
+  assert(&(root.layer) == this);
+
   root.removeFromParent();
   roots.push_back(&root);
 }

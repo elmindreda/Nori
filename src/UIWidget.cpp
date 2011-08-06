@@ -48,6 +48,7 @@ Widget::Widget(Layer& initlayer):
   draggable(false),
   area(0.f, 0.f, 0.f, 0.f)
 {
+  assert(&layer);
 }
 
 Widget::~Widget(void)
@@ -239,6 +240,8 @@ bool Widget::isBeingDragged(void) const
 
 bool Widget::isChildOf(const Widget& widget) const
 {
+  assert(&layer == &(widget.layer));
+
   for (Widget* ancestor = parent;  ancestor;  ancestor = ancestor->parent)
   {
     if (ancestor == &widget)
