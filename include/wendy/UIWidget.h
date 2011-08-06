@@ -69,15 +69,24 @@ public:
   /*! Destructor.
    */
   ~Widget(void);
+  /*! Adds the specified widget as a child of this widget.
+   *  @param[in] child The widget to add.
+   *  @remarks The specified widget must not be a parent or ancestor of this
+   *  widget.
+   */
   void addChild(Widget& child);
+  /*! Destroys all children, recursively, of this widget.
+   */
   void destroyChildren(void);
+  /*! Detaches this widget from its parent, if any.
+   */
   void removeFromParent(void);
   /*! Searches for a widget at the specified point.
    *  @param[in] point The point at which to search.
    *  @return The widget at the specified point, or @c NULL if no matching
    *  widget was found.
    *
-   *  @remarks The point is in parent coordinates. If this is a top-level
+   *  @remarks The point is in parent coordinates.  If this is a top-level
    *  widget, it is in global coordinates.
    */
   Widget* findByPoint(const vec2& point);
@@ -101,10 +110,14 @@ public:
    *  events.
    */
   void disable(void);
+  /*! Flags the layer this widget belongs to as needing to redraw itself.
+   *
+   *  @remarks This is a helper method for Layer::invalidate.
+   */
   void invalidate(void);
   /*! Makes this the active widget.
    *
-   *  @remarks This will fail if the widget is hidden or disabled.
+   *  @remarks This is ignored if the widget is hidden or disabled.
    */
   void activate(void);
   /*! Makes this the top-level widget.
@@ -113,8 +126,12 @@ public:
   /*! Makes this the bottom-most widget.
    */
   void sendToBack(void);
+  /*! Cancels any current drag operation.
+   */
   void cancelDragging(void);
   /*! @return @c true if this widget is enabled, otherwise @c false.
+   *
+   *  @remarks This is a helper method for Layer::cancelDragging.
    */
   bool isEnabled(void) const;
   /*! @return @c true if this widget is visible, otherwise @c false.
@@ -124,16 +141,22 @@ public:
    */
   bool isActive(void) const;
   /*! @return @c true if this widget is directly under the cursor, otherwise @c
-   * false.
+   *  false.
    */
   bool isUnderCursor(void) const;
   /*! @return @c true if this widget supports dragging, otherwise @c false.
    */
   bool isDraggable(void) const;
-  /*! @return @c true if this widget is currently the source of a dragging operation, otherwise @c false.
+  /*! @return @c true if this widget is currently the source of a dragging
+   *  operation, otherwise @c false.
    */
   bool isBeingDragged(void) const;
+  /*! @return @c true if the specified widget is a parent or ancestor of this
+   *  widget.
+   */
   bool isChildOf(const Widget& widget) const;
+  /*! @return The layer this widget belongs to.
+   */
   Layer& getLayer(void) const;
   /*! @return The parent of this widget, or @c NULL if it has no parent.
    */
@@ -167,7 +190,7 @@ public:
   /*! Sets whether this widget is visible.
    */
   void setVisible(bool newState);
-  /*! Sets whether this widget can be dragged.
+  /*! Sets whether this widget can be the source of drag operations.
    */
   void setDraggable(bool newState);
   SignalProxy1<void, Widget&> getDestroyedSignal(void);
