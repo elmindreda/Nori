@@ -94,7 +94,8 @@ Sorry, you're on your own for now.
 =============================
 
 Please send bug reports, feedback, patches and cookies to:
-Camilla Berglund <elmindreda@elmindreda.org>
+
+  Camilla Berglund <elmindreda@elmindreda.org>
 
 
 6. Release history

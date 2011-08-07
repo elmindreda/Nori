@@ -45,8 +45,7 @@ Widget::Widget(Layer& initlayer):
   parent(NULL),
   enabled(true),
   visible(true),
-  draggable(false),
-  area(0.f, 0.f, 0.f, 0.f)
+  draggable(false)
 {
   assert(&layer);
 }
