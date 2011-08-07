@@ -371,7 +371,7 @@ void Context::keyboardCallback(int key, int action)
   if (instance->currentHook)
   {
     if (instance->currentHook->onKeyPressed(Key(key), pressed))
-        return;
+      return;
   }
 
   if (instance->currentTarget)
@@ -386,7 +386,7 @@ void Context::characterCallback(int character, int action)
   if (instance->currentHook)
   {
     if (instance->currentHook->onCharInput((wchar_t) character))
-        return;
+      return;
   }
 
   if (instance->currentTarget)
@@ -400,7 +400,7 @@ void Context::mousePosCallback(int x, int y)
   if (instance->currentHook)
   {
     if (instance->currentHook->onCursorMoved(position))
-        return;
+      return;
   }
 
   if (instance->currentTarget)
@@ -416,7 +416,7 @@ void Context::mouseButtonCallback(int button, int action)
   if (instance->currentHook)
   {
     if (instance->currentHook->onButtonClicked(Button(button), clicked))
-        return;
+      return;
   }
 
   if (instance->currentTarget)
@@ -430,7 +430,7 @@ void Context::mouseWheelCallback(int position)
   if (instance->currentHook)
   {
     if (instance->currentHook->onWheelTurned(offset))
-        return;
+      return;
   }
 
   if (instance->currentTarget)
