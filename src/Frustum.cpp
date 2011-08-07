@@ -43,16 +43,16 @@ Frustum::Frustum()
 {
 }
 
-Frustum::Frustum(float FOV, float aspectRatio, float farZ)
+Frustum::Frustum(float FOV, float aspectRatio, float nearZ, float farZ)
 {
-  set(FOV, aspectRatio, farZ);
+  setPerspective(FOV, aspectRatio, nearZ, farZ);
 }
 
 bool Frustum::contains(const vec3& point) const
 {
-  for (PlaneList::const_iterator p = planes.begin();  p != planes.end();  p++)
+  for (size_t i = 0;  i < 6;  i++)
   {
-    if (!p->contains(point))
+    if (!planes[i].contains(point))
       return false;
   }
 
@@ -61,9 +61,9 @@ bool Frustum::contains(const vec3& point) const
 
 bool Frustum::contains(const Sphere& sphere) const
 {
-  for (PlaneList::const_iterator p = planes.begin();  p != planes.end();  p++)
+  for (size_t i = 0;  i < 6;  i++)
   {
-    if (!p->contains(sphere))
+    if (!planes[i].contains(sphere))
       return false;
   }
 
@@ -75,13 +75,13 @@ bool Frustum::contains(const AABB& box) const
   float minX, minY, minZ, maxX, maxY, maxZ;
   box.getBounds(minX, minY, minZ, maxX, maxY, maxZ);
 
-  for (PlaneList::const_iterator p = planes.begin();  p != planes.end();  p++)
+  for (size_t i = 0;  i < 6;  i++)
   {
-    const vec3 positive((p->normal.x < 0.f) ? minX : maxX,
-                        (p->normal.y < 0.f) ? minY : maxY,
-                        (p->normal.z < 0.f) ? minZ : maxZ);
+    const vec3 positive((planes[i].normal.x < 0.f) ? minX : maxX,
+                        (planes[i].normal.y < 0.f) ? minY : maxY,
+                        (planes[i].normal.z < 0.f) ? minZ : maxZ);
 
-    if (!p->contains(positive))
+    if (!planes[i].contains(positive))
       return false;
   }
 
@@ -90,9 +90,9 @@ bool Frustum::contains(const AABB& box) const
 
 bool Frustum::intersects(const Sphere& sphere) const
 {
-  for (PlaneList::const_iterator p = planes.begin();  p != planes.end();  p++)
+  for (size_t i = 0;  i < 6;  i++)
   {
-    if (dot(p->normal, sphere.center) - sphere.radius > p->distance)
+    if (dot(planes[i].normal, sphere.center) - sphere.radius > planes[i].distance)
       return false;
   }
 
@@ -104,13 +104,13 @@ bool Frustum::intersects(const AABB& box) const
   float minX, minY, minZ, maxX, maxY, maxZ;
   box.getBounds(minX, minY, minZ, maxX, maxY, maxZ);
 
-  for (PlaneList::const_iterator p = planes.begin();  p != planes.end();  p++)
+  for (size_t i = 0;  i < 6;  i++)
   {
-    const vec3 negative(p->normal.x < 0.f ? maxX : minX,
-                        p->normal.y < 0.f ? maxY : minY,
-                        p->normal.z < 0.f ? maxZ : minZ);
+    const vec3 negative(planes[i].normal.x < 0.f ? maxX : minX,
+                        planes[i].normal.y < 0.f ? maxY : minY,
+                        planes[i].normal.z < 0.f ? maxZ : minZ);
 
-    if (!p->contains(negative))
+    if (!planes[i].contains(negative))
       return false;
   }
 
@@ -119,14 +119,13 @@ bool Frustum::intersects(const AABB& box) const
 
 void Frustum::transformBy(const Transform3& transform)
 {
-  for (PlaneList::iterator p = planes.begin();  p != planes.end();  p++)
-    p->transformBy(transform);
+  for (size_t i = 0;  i < 6;  i++)
+    planes[i].transformBy(transform);
 }
 
-void Frustum::set(float FOV, float aspectRatio, float farZ)
+void Frustum::setPerspective(float FOV, float aspectRatio, float nearZ, float farZ)
 {
-  planes.clear();
-  planes.reserve(5);
+  assert(sign(nearZ) == sign(farZ));
 
   const float radians = FOV * float(PI) / 180.f;
   const float distance = 0.5f / tan(radians / 2.f);
@@ -138,10 +137,11 @@ void Frustum::set(float FOV, float aspectRatio, float farZ)
   points[3] = vec3(0.5f * aspectRatio, -0.5f, sign(farZ) * distance);
   points[4] = vec3(-0.5f * aspectRatio, -0.5f, sign(farZ) * distance);
 
-  for (unsigned int i = 0;  i < 4;  i++)
-    planes.push_back(Plane(points[0], points[(i + 1) % 4 + 1], points[i + 1]));
+  for (size_t i = 0;  i < 4;  i++)
+    planes[i].set(points[0], points[(i + 1) % 4 + 1], points[i + 1]);
 
-  planes.push_back(Plane(vec3(0.f, 0.f, sign(farZ)), -farZ));
+  planes[FRUSTUM_NEAR].set(vec3(0.f, 0.f, -sign(nearZ)), nearZ);
+  planes[FRUSTUM_FAR].set(vec3(0.f, 0.f, sign(farZ)), -farZ);
 }
 
 ///////////////////////////////////////////////////////////////////////

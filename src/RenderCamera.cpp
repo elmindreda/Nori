@@ -116,7 +116,7 @@ const Frustum& Camera::getFrustum() const
 {
   if (dirtyFrustum)
   {
-    frustum.set(FOV, aspectRatio, -maxDepth);
+    frustum.setPerspective(FOV, aspectRatio, -minDepth, -maxDepth);
     frustum.transformBy(transform);
     dirtyFrustum = false;
   }

@@ -40,6 +40,20 @@ class Sphere;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Frustum plane enumeration.
+ */
+enum FrustumPlane
+{
+  FRUSTUM_TOP,
+  FRUSTUM_RIGHT,
+  FRUSTUM_BOTTOM,
+  FRUSTUM_LEFT,
+  FRUSTUM_NEAR,
+  FRUSTUM_FAR,
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Perspective 3D view frustum.
  */
 class Frustum
@@ -50,7 +64,7 @@ public:
   Frustum();
   /*! Constructor.
    */
-  Frustum(float FOV, float aspectRatio, float farZ = 1000.f);
+  Frustum(float FOV, float aspectRatio, float nearZ, float farZ);
   /*! Checks whether this frustum contains the specified point.
    */
   bool contains(const vec3& point) const;
@@ -81,14 +95,14 @@ public:
   void transformBy(const Transform3& transform);
   /*! Sets this frustum to a non-rotated frustum with the specified properties.
    *
-   *  @remarks For left-handed coordinate systems, use positive values for @a farZ.
-   *  For right-handed systems, use negative values for @a farZ.
+   *  @remarks For left-handed coordinate systems, use positive values for @a
+   *  nearZ and @a farZ.  For right-handed systems, use negative values for @a
+   *  nearZ and @a farZ.
    */
-  void set(float FOV, float aspectRatio, float farZ = 1000.f);
-  typedef std::vector<Plane> PlaneList;
+  void setPerspective(float FOV, float aspectRatio, float nearZ, float farZ);
   /*! The planes of this frustum.
    */
-  PlaneList planes;
+  Plane planes[6];
 };
 
 ///////////////////////////////////////////////////////////////////////
