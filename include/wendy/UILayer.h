@@ -76,6 +76,8 @@ public:
    *  @remarks The point is in global coordinates.
    */
   Widget* findWidgetByPoint(const vec2& point);
+  void captureCursor(void);
+  void releaseCursor(void);
   void cancelDragging(void);
   void invalidate(void);
   Drawer& getDrawer(void) const;
@@ -106,6 +108,7 @@ private:
   Widget* activeWidget;
   Widget* draggedWidget;
   Widget* hoveredWidget;
+  Widget* captureWidget;
   LayerStack* stack;
 };
 

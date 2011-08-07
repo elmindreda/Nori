@@ -144,6 +144,7 @@ void Widget::enable(void)
 void Widget::disable(void)
 {
   enabled = false;
+  // TODO: Handle deactivation
   invalidate();
 }
 
@@ -155,7 +156,6 @@ void Widget::invalidate(void)
 void Widget::activate(void)
 {
   layer.setActiveWidget(this);
-  invalidate();
 }
 
 void Widget::bringToFront(void)
@@ -249,6 +249,11 @@ bool Widget::isChildOf(const Widget& widget) const
   }
 
   return false;
+}
+
+bool Widget::hasCapturedCursor(void) const
+{
+  return layer.captureWidget == this;
 }
 
 Layer& Widget::getLayer(void) const

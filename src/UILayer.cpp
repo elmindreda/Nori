@@ -47,6 +47,7 @@ Layer::Layer(input::Context& initContext, UI::Drawer& initDrawer):
   activeWidget(NULL),
   draggedWidget(NULL),
   hoveredWidget(NULL),
+  captureWidget(NULL),
   stack(NULL)
 {
   assert(&context);
@@ -102,6 +103,29 @@ Widget* Layer::findWidgetByPoint(const vec2& point)
   }
 
   return NULL;
+}
+
+void Layer::captureCursor(void)
+{
+  if (!activeWidget)
+    return;
+
+  releaseCursor();
+  cancelDragging();
+
+  captureWidget = activeWidget;
+  hoveredWidget = activeWidget;
+  context.captureCursor();
+}
+
+void Layer::releaseCursor(void)
+{
+  if (captureWidget)
+  {
+    context.releaseCursor();
+    captureWidget = NULL;
+    updateHoveredWidget();
+  }
 }
 
 void Layer::cancelDragging(void)
@@ -169,6 +193,9 @@ void Layer::setActiveWidget(Widget* widget)
       return;
   }
 
+  if (captureWidget)
+    releaseCursor();
+
   if (activeWidget)
     activeWidget->focusChangedSignal.emit(*activeWidget, false);
 
@@ -176,6 +203,8 @@ void Layer::setActiveWidget(Widget* widget)
 
   if (activeWidget)
     activeWidget->focusChangedSignal.emit(*activeWidget, true);
+
+  invalidate();
 }
 
 LayerStack* Layer::getStack(void) const
@@ -185,6 +214,9 @@ LayerStack* Layer::getStack(void) const
 
 void Layer::updateHoveredWidget(void)
 {
+  if (captureWidget)
+    return;
+
   ivec2 cursorPosition = context.getCursorPosition();
   cursorPosition.y = context.getHeight() - cursorPosition.y;
 
@@ -238,6 +270,12 @@ void Layer::removedWidget(Widget& widget)
   {
     if (hoveredWidget == &widget || hoveredWidget->isChildOf(widget))
       updateHoveredWidget();
+  }
+
+  if (captureWidget)
+  {
+    if (captureWidget == &widget || captureWidget->isChildOf(widget))
+      releaseCursor();
   }
 
   if (dragging)
@@ -301,13 +339,18 @@ void Layer::onButtonClicked(input::Button button, bool clicked)
   {
     Widget* clickedWidget = NULL;
 
-    for (WidgetList::reverse_iterator r = roots.rbegin();  r != roots.rend();  r++)
+    if (captureWidget)
+      clickedWidget = captureWidget;
+    else
     {
-      if ((*r)->isVisible())
+      for (WidgetList::reverse_iterator w = roots.rbegin();  w != roots.rend();  w++)
       {
-	clickedWidget = (*r)->findByPoint(scaledPosition);
-	if (clickedWidget)
-	  break;
+        if ((*w)->isVisible())
+        {
+          clickedWidget = (*w)->findByPoint(scaledPosition);
+          if (clickedWidget)
+            break;
+        }
       }
     }
 
@@ -322,9 +365,7 @@ void Layer::onButtonClicked(input::Button button, bool clicked)
 					      button,
 					      clicked);
 
-      // TODO: Allow dragging with any button.
-
-      if (button == input::BUTTON_LEFT && clickedWidget->isDraggable())
+      if (!captureWidget && clickedWidget->isDraggable())
 	draggedWidget = clickedWidget;
     }
   }
@@ -341,12 +382,15 @@ void Layer::onButtonClicked(input::Button button, bool clicked)
       draggedWidget = NULL;
     }
 
-    if (activeWidget && activeWidget->getGlobalArea().contains(scaledPosition))
+    if (activeWidget)
     {
-      activeWidget->buttonClickedSignal.emit(*activeWidget,
-					     scaledPosition,
-					     button,
-					     clicked);
+      if (captureWidget || activeWidget->getGlobalArea().contains(scaledPosition))
+      {
+        activeWidget->buttonClickedSignal.emit(*activeWidget,
+                                              scaledPosition,
+                                              button,
+                                              clicked);
+      }
     }
   }
 }
@@ -360,7 +404,10 @@ void Layer::onWheelTurned(int offset)
 void Layer::onFocusChanged(bool activated)
 {
   if (!activated)
+  {
     cancelDragging();
+    releaseCursor();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////

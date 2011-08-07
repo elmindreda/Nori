@@ -155,6 +155,10 @@ public:
    *  widget.
    */
   bool isChildOf(const Widget& widget) const;
+  /*! @return @c true if this widget has captured the cursor, otherwise @c
+   *  false.
+   */
+  bool hasCapturedCursor(void) const;
   /*! @return The layer this widget belongs to.
    */
   Layer& getLayer(void) const;
