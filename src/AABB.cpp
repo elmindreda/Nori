@@ -54,11 +54,11 @@ bool AABB::contains(const vec3& point) const
   float minX, minY, minZ, maxX, maxY, maxZ;
   getBounds(minX, minY, minZ, maxX, maxY, maxZ);
 
-  if (point.x < minX || point.y < minY || point.z < minZ)
+  if (point.x < minX || point.y < minY || point.z < minZ ||
+      point.x > maxX || point.y > maxY || point.z > maxZ)
+  {
     return false;
-
-  if (point.x > maxX || point.y > maxY || point.z > maxZ)
-    return false;
+  }
 
   return true;
 }
@@ -71,14 +71,12 @@ bool AABB::contains(const AABB& other) const
   float otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ;
   other.getBounds(otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ);
 
-  if (minX > otherMinX || maxX < otherMaxX)
+  if (minX > otherMinX || maxX < otherMaxX ||
+      minY > otherMinY || maxY < otherMaxY ||
+      minZ > otherMinZ || maxZ < otherMaxZ)
+  {
     return false;
-
-  if (minY > otherMinY || maxY < otherMaxY)
-    return false;
-
-  if (minZ > otherMinZ || maxZ < otherMaxZ)
-    return false;
+  }
 
   return true;
 }
@@ -91,14 +89,12 @@ bool AABB::intersects(const AABB& other) const
   float otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ;
   other.getBounds(otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ);
 
-  if (minX > otherMaxX || maxX < otherMinX)
+  if (minX > otherMaxX || maxX < otherMinX ||
+      minY > otherMaxY || maxY < otherMinY ||
+      minZ > otherMaxZ || maxZ < otherMinZ)
+  {
     return false;
-
-  if (minY > otherMaxY || maxY < otherMinY)
-    return false;
-
-  if (minZ > otherMaxZ || maxZ < otherMinZ)
-    return false;
+  }
 
   return true;
 }
@@ -111,18 +107,12 @@ void AABB::envelop(const AABB& other)
   float otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ;
   other.getBounds(otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ);
 
-  if (minX > otherMinX)
-    minX = otherMinX;
-  if (minY > otherMinY)
-    minY = otherMinY;
-  if (minZ > otherMinZ)
-    minZ = otherMinZ;
-  if (maxX < otherMaxX)
-    maxX = otherMaxX;
-  if (maxY < otherMaxY)
-    maxY = otherMaxY;
-  if (maxZ < otherMaxZ)
-    maxZ = otherMaxZ;
+  minX = min(minX, otherMinX);
+  minY = min(minY, otherMinY);
+  minZ = min(minZ, otherMinZ);
+  maxX = max(maxX, otherMaxX);
+  maxY = max(maxY, otherMaxY);
+  maxZ = max(maxZ, otherMaxZ);
 
   setBounds(minX, minY, minZ, maxX, maxY, maxZ);
 }
@@ -132,46 +122,38 @@ void AABB::envelop(const vec3& point)
   float minX, minY, minZ, maxX, maxY, maxZ;
   getBounds(minX, minY, minZ, maxX, maxY, maxZ);
 
-  if (minX > point.x)
-    minX = point.x;
-  if (minY > point.y)
-    minY = point.y;
-  if (minZ > point.z)
-    minZ = point.z;
-  if (maxX < point.x)
-    maxX = point.x;
-  if (maxY < point.y)
-    maxY = point.y;
-  if (maxZ < point.z)
-    maxZ = point.z;
+  minX = min(minX, point.x);
+  minY = min(minY, point.y);
+  minZ = min(minZ, point.z);
+  maxX = max(maxX, point.x);
+  maxY = max(maxY, point.y);
+  maxZ = max(maxZ, point.z);
 
   setBounds(minX, minY, minZ, maxX, maxY, maxZ);
 }
 
 void AABB::normalize(void)
 {
-  size.x = fabsf(size.x);
-  size.y = fabsf(size.y);
-  size.z = fabsf(size.z);
+  size.x = abs(size.x);
+  size.y = abs(size.y);
+  size.z = abs(size.z);
 }
 
 void AABB::getBounds(float& minX, float& minY, float& minZ,
                      float& maxX, float& maxY, float& maxZ) const
 {
-  minX = center.x - fabsf(size.x);
-  minY = center.y - fabsf(size.y);
-  minZ = center.z - fabsf(size.z);
-  maxX = center.x + fabsf(size.x);
-  maxY = center.y + fabsf(size.y);
-  maxZ = center.z + fabsf(size.z);
+  minX = center.x - abs(size.x);
+  minY = center.y - abs(size.y);
+  minZ = center.z - abs(size.z);
+  maxX = center.x + abs(size.x);
+  maxY = center.y + abs(size.y);
+  maxZ = center.z + abs(size.z);
 }
 
 void AABB::setBounds(float minX, float minY, float minZ,
                      float maxX, float maxY, float maxZ)
 {
-  center.x = (minX + maxX) / 2.f;
-  center.y = (minY + maxY) / 2.f;
-  center.z = (minZ + maxZ) / 2.f;
+  center = (vec3(minX, minY, minZ) + vec3(maxX, maxY, maxZ)) / 2.f;
   size = vec3(maxX - minX, maxY - minY, maxZ - minZ);
 }
 
