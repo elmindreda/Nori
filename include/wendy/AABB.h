@@ -31,25 +31,66 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Axis-aligned bounding box.
+ */
 class AABB
 {
 public:
+  /*! Constructor.
+   *
+   *  @remarks All values are initialized to zero.
+   */
   AABB(void);
+  /*! Constructor.
+   *  @param[in] center The center of the newly constructed bounding box.
+   *  @param[in] size The size of the newly constructed bounding box.
+   */
   AABB(const vec3& center, const vec3& size);
+  /*! Constructor.
+   *  @param[in] width The width of the newly constructed bounding box.
+   *  @param[in] height The height of the newly constructed bounding box.
+   *  @param[in] depth The depth of the newly constructed bounding box.
+   *
+   *  @remarks The center is placed at the origin.
+   */
   AABB(float width, float height, float depth);
+  /*! Checks whether this bounding box contains the specified point.
+   */
   bool contains(const vec3& point) const;
+  /*! Checks whether this bounding box contains the specified bounding box.
+   */
   bool contains(const AABB& other) const;
+  /*! Checks whether this bounding box intersects the specified bounding box.
+   */
   bool intersects(const AABB& other) const;
+  /*! Expands this bounding box so as to contain the specified point.
+   */
   void envelop(const vec3& point);
+  /*! Expands this bounding box so as to contain the specified bounding box.
+   */
   void envelop(const AABB& other);
+  /*! Ensures that the size of this bounding box uses positive values.
+   */
   void normalize(void);
+  /*! Retrieves the minimum and maxiumum bounds of this bounding box.
+   */
   void getBounds(float& minX, float& minY, float& minZ,
                  float& maxX, float& maxY, float& maxZ) const;
+  /*! Sets the minimum and maxiumum bounds of this bounding box.
+   */
   void setBounds(float minX, float minY, float minZ,
                  float maxX, float maxY, float maxZ);
+  /*! Sets the position and size of this bounding box.
+   */
   void set(const vec3& newCenter, const vec3& newSize);
+  /*! Sets the size of this bounding box.
+   */
   void set(float newWidth, float newHeight, float newDepth);
+  /*! The center of this bounding box.
+   */
   vec3 center;
+  /*! The size of this bounding box.
+   */
   vec3 size;
 };
 
