@@ -39,9 +39,9 @@ class Canvas : public Widget
 {
 public:
   Canvas(Layer& layer);
-  SignalProxy1<void, const Canvas&> getDrawSignal(void);
+  SignalProxy1<void, const Canvas&> getDrawSignal();
 protected:
-  void draw(void) const;
+  void draw() const;
   Signal1<void, const Canvas&> drawSignal;
 };
 

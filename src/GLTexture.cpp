@@ -270,32 +270,32 @@ bool TextureImage::copyTo(wendy::Image& result) const
   return true;
 }
 
-unsigned int TextureImage::getWidth(void) const
+unsigned int TextureImage::getWidth() const
 {
   return width;
 }
 
-unsigned int TextureImage::getHeight(void) const
+unsigned int TextureImage::getHeight() const
 {
   return height;
 }
 
-unsigned int TextureImage::getDepth(void) const
+unsigned int TextureImage::getDepth() const
 {
   return depth;
 }
 
-CubeFace TextureImage::getFace(void) const
+CubeFace TextureImage::getFace() const
 {
   return face;
 }
 
-const PixelFormat& TextureImage::getFormat(void) const
+const PixelFormat& TextureImage::getFormat() const
 {
   return texture.getFormat();
 }
 
-Texture& TextureImage::getTexture(void) const
+Texture& TextureImage::getTexture() const
 {
   return texture;
 }
@@ -387,48 +387,48 @@ void TextureImage::detach(int attachment)
 
 ///////////////////////////////////////////////////////////////////////
 
-Texture::~Texture(void)
+Texture::~Texture()
 {
   if (textureID)
     glDeleteTextures(1, &textureID);
 }
 
-void Texture::generateMipmaps(void)
+void Texture::generateMipmaps()
 {
   glGenerateMipmapEXT(convertToGL(type));
 }
 
-bool Texture::is1D(void) const
+bool Texture::is1D() const
 {
   return type == TEXTURE_1D;
 }
 
-bool Texture::is2D(void) const
+bool Texture::is2D() const
 {
   return type == TEXTURE_2D || TEXTURE_RECT;
 }
 
-bool Texture::is3D(void) const
+bool Texture::is3D() const
 {
   return type == TEXTURE_3D;
 }
 
-bool Texture::isCube(void) const
+bool Texture::isCube() const
 {
   return type == TEXTURE_CUBE;
 }
 
-bool Texture::isPOT(void) const
+bool Texture::isPOT() const
 {
   return isPowerOfTwo(width) && isPowerOfTwo(height) && isPowerOfTwo(depth);
 }
 
-bool Texture::hasMipmaps(void) const
+bool Texture::hasMipmaps() const
 {
   return levels > 1;
 }
 
-TextureType Texture::getType(void) const
+TextureType Texture::getType() const
 {
   return type;
 }
@@ -448,12 +448,12 @@ unsigned int Texture::getDepth(unsigned int level) const
   return depth;
 }
 
-unsigned int Texture::getLevelCount(void) const
+unsigned int Texture::getLevelCount() const
 {
   return levels;
 }
 
-FilterMode Texture::getFilterMode(void) const
+FilterMode Texture::getFilterMode() const
 {
   return filterMode;
 }
@@ -480,7 +480,7 @@ void Texture::setFilterMode(FilterMode newMode)
 #endif
 }
 
-AddressMode Texture::getAddressMode(void) const
+AddressMode Texture::getAddressMode() const
 {
   return addressMode;
 }
@@ -514,7 +514,7 @@ void Texture::setAddressMode(AddressMode newMode)
 #endif
 }
 
-const PixelFormat& Texture::getFormat(void) const
+const PixelFormat& Texture::getFormat() const
 {
   return format;
 }
@@ -527,7 +527,7 @@ TextureImage* Texture::getImage(unsigned int level, CubeFace face)
     return images[level];
 }
 
-Context& Texture::getContext(void) const
+Context& Texture::getContext() const
 {
   return context;
 }
@@ -836,7 +836,7 @@ bool Texture::init(const ImageCube& source, unsigned int flags)
   return true;
 }
 
-bool Texture::validateProxy(void) const
+bool Texture::validateProxy() const
 {
   int width;
   glGetTexLevelParameteriv(convertToProxyGL(type), 0, GL_TEXTURE_WIDTH, &width);
@@ -878,7 +878,7 @@ unsigned int Texture::retrieveImages(unsigned int target, CubeFace face)
   return level;
 }
 
-void Texture::applyDefaults(void)
+void Texture::applyDefaults()
 {
   // Set up filter modes
   {

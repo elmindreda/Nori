@@ -43,13 +43,13 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Source::~Source(void)
+Source::~Source()
 {
   if (sourceID)
     alDeleteSources(1, &sourceID);
 }
 
-void Source::start(void)
+void Source::start()
 {
   alSourcePlay(sourceID);
 
@@ -58,7 +58,7 @@ void Source::start(void)
 #endif
 }
 
-void Source::stop(void)
+void Source::stop()
 {
   alSourceStop(sourceID);
 
@@ -67,7 +67,7 @@ void Source::stop(void)
 #endif
 }
 
-void Source::pause(void)
+void Source::pause()
 {
   alSourcePause(sourceID);
 
@@ -76,7 +76,7 @@ void Source::pause(void)
 #endif
 }
 
-void Source::resume(void)
+void Source::resume()
 {
   alSourcePlay(sourceID);
 
@@ -85,27 +85,27 @@ void Source::resume(void)
 #endif
 }
 
-bool Source::isStarted(void) const
+bool Source::isStarted() const
 {
   return getState() == STARTED;
 }
 
-bool Source::isPaused(void) const
+bool Source::isPaused() const
 {
   return getState() == PAUSED;
 }
 
-bool Source::isStopped(void) const
+bool Source::isStopped() const
 {
   return getState() == STOPPED;
 }
 
-bool Source::isLooping(void) const
+bool Source::isLooping() const
 {
   return looping;
 }
 
-Source::State Source::getState(void) const
+Source::State Source::getState() const
 {
   ALenum state;
   alGetSourcei(sourceID, AL_SOURCE_STATE, &state);
@@ -142,7 +142,7 @@ void Source::setLooping(bool newState)
   }
 }
 
-const vec3& Source::getPosition(void) const
+const vec3& Source::getPosition() const
 {
   return position;
 }
@@ -160,7 +160,7 @@ void Source::setPosition(const vec3& newPosition)
   }
 }
 
-const vec3& Source::getVelocity(void) const
+const vec3& Source::getVelocity() const
 {
   return velocity;
 }
@@ -178,7 +178,7 @@ void Source::setVelocity(const vec3& newVelocity)
   }
 }
 
-Buffer* Source::getBuffer(void) const
+Buffer* Source::getBuffer() const
 {
   return buffer;
 }
@@ -200,7 +200,7 @@ void Source::setBuffer(Buffer* newBuffer)
   }
 }
 
-float Source::getGain(void) const
+float Source::getGain() const
 {
   return gain;
 }
@@ -218,7 +218,7 @@ void Source::setGain(float newGain)
   }
 }
 
-float Source::getPitch(void) const
+float Source::getPitch() const
 {
   return pitch;
 }
@@ -236,7 +236,7 @@ void Source::setPitch(float newPitch)
   }
 }
 
-Context& Source::getContext(void) const
+Context& Source::getContext() const
 {
   return context;
 }
@@ -259,7 +259,7 @@ Source::Source(Context& initContext):
 {
 }
 
-bool Source::init(void)
+bool Source::init()
 {
   alGenSources(1, &sourceID);
 

@@ -37,7 +37,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Triangle2::Triangle2(void)
+Triangle2::Triangle2()
 {
 }
 
@@ -46,7 +46,7 @@ Triangle2::Triangle2(const vec2& P0, const vec2& P1, const vec2& P2)
   set(P0, P1, P2);
 }
 
-vec2 Triangle2::center(void) const
+vec2 Triangle2::center() const
 {
   return (P[0] + P[1] + P[2]) / 3.f;
 }

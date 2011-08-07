@@ -43,10 +43,10 @@ class Page : public Widget
 {
 public:
   Page(Layer& layer, const String& text);
-  const String& getText(void) const;
+  const String& getText() const;
   void setText(const String& newText);
 protected:
-  void draw(void) const;
+  void draw() const;
 private:
   String text;
 };
@@ -59,11 +59,11 @@ class Book : public Widget
 {
 public:
   Book(Layer& layer);
-  Page* getActivePage(void) const;
+  Page* getActivePage() const;
   void setActivePage(Page* newPage);
-  SignalProxy1<void, Book&> getPageChangedSignal(void);
+  SignalProxy1<void, Book&> getPageChangedSignal();
 protected:
-  void draw(void) const;
+  void draw() const;
   void addedChild(Widget& child);
   void removedChild(Widget& child);
 private:

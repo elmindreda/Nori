@@ -68,7 +68,7 @@ public:
   Widget(Layer& layer);
   /*! Destructor.
    */
-  ~Widget(void);
+  ~Widget();
   /*! Adds the specified widget as a child of this widget.
    *  @param[in] child The widget to add.
    *  @remarks The specified widget must not be a parent or ancestor of this
@@ -77,10 +77,10 @@ public:
   void addChild(Widget& child);
   /*! Destroys all children, recursively, of this widget.
    */
-  void destroyChildren(void);
+  void destroyChildren();
   /*! Detaches this widget from its parent, if any.
    */
-  void removeFromParent(void);
+  void removeFromParent();
   /*! Searches for a widget at the specified point.
    *  @param[in] point The point at which to search.
    *  @return The widget at the specified point, or @c NULL if no matching
@@ -105,52 +105,52 @@ public:
   /*! Enables this widget, allowing it to become active and receive input
    *  events.
    */
-  void enable(void);
+  void enable();
   /*! Disables this widget, disallowing activation and reception of input
    *  events.
    */
-  void disable(void);
+  void disable();
   /*! Flags the layer this widget belongs to as needing to redraw itself.
    *
    *  @remarks This is a helper method for Layer::invalidate.
    */
-  void invalidate(void);
+  void invalidate();
   /*! Makes this the active widget.
    *
    *  @remarks This is ignored if the widget is hidden or disabled.
    */
-  void activate(void);
+  void activate();
   /*! Makes this the top-level widget.
    */
-  void bringToFront(void);
+  void bringToFront();
   /*! Makes this the bottom-most widget.
    */
-  void sendToBack(void);
+  void sendToBack();
   /*! Cancels any current drag operation.
    */
-  void cancelDragging(void);
+  void cancelDragging();
   /*! @return @c true if this widget is enabled, otherwise @c false.
    *
    *  @remarks This is a helper method for Layer::cancelDragging.
    */
-  bool isEnabled(void) const;
+  bool isEnabled() const;
   /*! @return @c true if this widget is visible, otherwise @c false.
    */
-  bool isVisible(void) const;
+  bool isVisible() const;
   /*! @return @c true if this is the active widget, otherwise @c false.
    */
-  bool isActive(void) const;
+  bool isActive() const;
   /*! @return @c true if this widget is directly under the cursor, otherwise @c
    *  false.
    */
-  bool isUnderCursor(void) const;
+  bool isUnderCursor() const;
   /*! @return @c true if this widget supports dragging, otherwise @c false.
    */
-  bool isDraggable(void) const;
+  bool isDraggable() const;
   /*! @return @c true if this widget is currently the source of a dragging
    *  operation, otherwise @c false.
    */
-  bool isBeingDragged(void) const;
+  bool isBeingDragged() const;
   /*! @return @c true if the specified widget is a parent or ancestor of this
    *  widget.
    */
@@ -158,23 +158,23 @@ public:
   /*! @return @c true if this widget has captured the cursor, otherwise @c
    *  false.
    */
-  bool hasCapturedCursor(void) const;
+  bool hasCapturedCursor() const;
   /*! @return The layer this widget belongs to.
    */
-  Layer& getLayer(void) const;
+  Layer& getLayer() const;
   /*! @return The parent of this widget, or @c NULL if it has no parent.
    */
-  Widget* getParent(void) const;
+  Widget* getParent() const;
   /*! @return The child widgets of this widget.
    */
-  const WidgetList& getChildren(void) const;
-  WidgetState getState(void) const;
+  const WidgetList& getChildren() const;
+  WidgetState getState() const;
   /*! @return The area of this widget, in parent coordinates.
    */
-  const Rect& getArea(void) const;
+  const Rect& getArea() const;
   /*! @return The area of this widget, in global coordinates.
    */
-  const Rect& getGlobalArea(void) const;
+  const Rect& getGlobalArea() const;
   /*! Sets the area of this widget.
    *  @param[in] newArea The desired area, in parent coordinates.
    */
@@ -197,23 +197,23 @@ public:
   /*! Sets whether this widget can be the source of drag operations.
    */
   void setDraggable(bool newState);
-  SignalProxy1<void, Widget&> getDestroyedSignal(void);
-  SignalProxy1<void, Widget&> getAreaChangedSignal(void);
-  SignalProxy2<void, Widget&, bool> getFocusChangedSignal(void);
-  SignalProxy3<void, Widget&, input::Key, bool> getKeyPressedSignal(void);
-  SignalProxy2<void, Widget&, wchar_t> getCharInputSignal(void);
-  SignalProxy2<void, Widget&, const vec2&> getCursorMovedSignal(void);
-  SignalProxy4<void, Widget&, const vec2&, input::Button, bool> getButtonClickedSignal(void);
-  SignalProxy2<void, Widget&, int> getWheelTurnedSignal(void);
-  SignalProxy1<void, Widget&> getCursorEnteredSignal(void);
-  SignalProxy1<void, Widget&> getCursorLeftSignal(void);
-  SignalProxy2<void, Widget&, const vec2&> getDragBegunSignal(void);
-  SignalProxy2<void, Widget&, const vec2&> getDragMovedSignal(void);
-  SignalProxy2<void, Widget&, const vec2&> getDragEndedSignal(void);
+  SignalProxy1<void, Widget&> getDestroyedSignal();
+  SignalProxy1<void, Widget&> getAreaChangedSignal();
+  SignalProxy2<void, Widget&, bool> getFocusChangedSignal();
+  SignalProxy3<void, Widget&, input::Key, bool> getKeyPressedSignal();
+  SignalProxy2<void, Widget&, wchar_t> getCharInputSignal();
+  SignalProxy2<void, Widget&, const vec2&> getCursorMovedSignal();
+  SignalProxy4<void, Widget&, const vec2&, input::Button, bool> getButtonClickedSignal();
+  SignalProxy2<void, Widget&, int> getWheelTurnedSignal();
+  SignalProxy1<void, Widget&> getCursorEnteredSignal();
+  SignalProxy1<void, Widget&> getCursorLeftSignal();
+  SignalProxy2<void, Widget&, const vec2&> getDragBegunSignal();
+  SignalProxy2<void, Widget&, const vec2&> getDragMovedSignal();
+  SignalProxy2<void, Widget&, const vec2&> getDragEndedSignal();
 protected:
   /*! Calls Widget::draw for all children of this widget.
    */
-  virtual void draw(void) const;
+  virtual void draw() const;
   virtual void addedChild(Widget& child);
   virtual void removedChild(Widget& child);
   virtual void addedToParent(Widget& parent);

@@ -60,7 +60,7 @@ Button::Button(Layer& layer, const String& initText):
   getKeyPressedSignal().connect(*this, &Button::onKeyPressed);
 }
 
-const String& Button::getText(void) const
+const String& Button::getText() const
 {
   return text;
 }
@@ -71,12 +71,12 @@ void Button::setText(const String& newText)
   invalidate();
 }
 
-SignalProxy1<void, Button&> Button::getPushedSignal(void)
+SignalProxy1<void, Button&> Button::getPushedSignal()
 {
   return pushedSignal;
 }
 
-void Button::draw(void) const
+void Button::draw() const
 {
   const Rect& area = getGlobalArea();
 

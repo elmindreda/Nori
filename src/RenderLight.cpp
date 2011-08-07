@@ -40,7 +40,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Light::Light(void):
+Light::Light():
   type(DIRECTIONAL),
   radius(10.f),
   color(1.f),
@@ -48,7 +48,7 @@ Light::Light(void):
 {
 }
 
-Light::Type Light::getType(void) const
+Light::Type Light::getType() const
 {
   return type;
 }
@@ -58,7 +58,7 @@ void Light::setType(Type newType)
   type = newType;
 }
 
-float Light::getRadius(void) const
+float Light::getRadius() const
 {
   return radius;
 }
@@ -68,7 +68,7 @@ void Light::setRadius(float newRadius)
   radius = newRadius;
 }
 
-const vec3& Light::getColor(void) const
+const vec3& Light::getColor() const
 {
   return color;
 }
@@ -78,7 +78,7 @@ void Light::setColor(const vec3& newColor)
   color = newColor;
 }
 
-const vec3& Light::getPosition(void) const
+const vec3& Light::getPosition() const
 {
   return position;
 }
@@ -88,7 +88,7 @@ void Light::setPosition(const vec3& newPosition)
   position = newPosition;
 }
 
-const vec3& Light::getDirection(void) const
+const vec3& Light::getDirection() const
 {
   return direction;
 }
@@ -116,12 +116,12 @@ void LightState::detachLight(Light& light)
     lights.erase(i);
 }
 
-void LightState::detachLights(void)
+void LightState::detachLights()
 {
   lights.clear();
 }
 
-unsigned int LightState::getLightCount(void) const
+unsigned int LightState::getLightCount() const
 {
   return lights.size();
 }
@@ -131,7 +131,7 @@ Light& LightState::getLight(unsigned int index) const
   return *lights[index];
 }
 
-const vec3& LightState::getAmbientIntensity(void) const
+const vec3& LightState::getAmbientIntensity() const
 {
   return ambient;
 }

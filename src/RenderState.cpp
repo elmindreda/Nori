@@ -39,7 +39,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-SharedProgramState::SharedProgramState(void):
+SharedProgramState::SharedProgramState():
   dirtyModelView(true),
   dirtyViewProj(true),
   dirtyModelViewProj(true),
@@ -70,17 +70,17 @@ bool SharedProgramState::reserveSupported(GL::Context& context) const
   return true;
 }
 
-const mat4& SharedProgramState::getModelMatrix(void) const
+const mat4& SharedProgramState::getModelMatrix() const
 {
   return modelMatrix;
 }
 
-const mat4& SharedProgramState::getViewMatrix(void) const
+const mat4& SharedProgramState::getViewMatrix() const
 {
   return viewMatrix;
 }
 
-const mat4& SharedProgramState::getProjectionMatrix(void) const
+const mat4& SharedProgramState::getProjectionMatrix() const
 {
   return projectionMatrix;
 }
@@ -98,7 +98,7 @@ void SharedProgramState::getCameraProperties(vec3& position,
   farZ = camera.farZ;
 }
 
-float SharedProgramState::getTime(void) const
+float SharedProgramState::getTime() const
 {
   return time;
 }

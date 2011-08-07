@@ -329,7 +329,7 @@ Exception::Exception(const char* initMessage):
 {
 }
 
-const char* Exception::what(void) const throw()
+const char* Exception::what() const throw()
 {
   return message;
 }
@@ -353,7 +353,7 @@ void RefBase::decrement(RefObject* object)
 
 ///////////////////////////////////////////////////////////////////////
 
-RefObject::RefObject(void):
+RefObject::RefObject():
   count(0)
 {
 }
@@ -363,7 +363,7 @@ RefObject::RefObject(const RefObject& source):
 {
 }
 
-RefObject::~RefObject(void)
+RefObject::~RefObject()
 {
 }
 
@@ -374,12 +374,12 @@ RefObject& RefObject::operator = (const RefObject& source)
 
 ///////////////////////////////////////////////////////////////////////
 
-LogConsumer::LogConsumer(void)
+LogConsumer::LogConsumer()
 {
   consumers.push_back(this);
 }
 
-LogConsumer::~LogConsumer(void)
+LogConsumer::~LogConsumer()
 {
   consumers.erase(std::find(consumers.begin(), consumers.end(), this));
 }

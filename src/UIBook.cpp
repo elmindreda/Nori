@@ -47,7 +47,7 @@ Page::Page(Layer& layer, const String& initText):
 {
 }
 
-const String& Page::getText(void) const
+const String& Page::getText() const
 {
   return text;
 }
@@ -58,7 +58,7 @@ void Page::setText(const String& newText)
   invalidate();
 }
 
-void Page::draw(void) const
+void Page::draw() const
 {
   const Rect& area = getGlobalArea();
 
@@ -90,7 +90,7 @@ Book::Book(Layer& layer):
   getAreaChangedSignal().connect(*this, &Book::onAreaChanged);
 }
 
-Page* Book::getActivePage(void) const
+Page* Book::getActivePage() const
 {
   return activePage;
 }
@@ -100,12 +100,12 @@ void Book::setActivePage(Page* newPage)
   setActivePage(newPage, false);
 }
 
-SignalProxy1<void, Book&> Book::getPageChangedSignal(void)
+SignalProxy1<void, Book&> Book::getPageChangedSignal()
 {
   return pageChangedSignal;
 }
 
-void Book::draw(void) const
+void Book::draw() const
 {
   const Rect& area = getGlobalArea();
 

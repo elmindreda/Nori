@@ -52,7 +52,7 @@ class Program;
 class Shader
 {
 public:
-  Shader(void);
+  Shader();
   Shader(const String& text, const Path& path = Path());
   String text;
   Path path;
@@ -85,16 +85,16 @@ public:
   bool operator == (const char* string) const;
   /*! @return @c true if the type of this attribute is a single value.
    */
-  bool isScalar(void) const;
+  bool isScalar() const;
   /*! @return @c true if the type of this attribute is a vector.
    */
-  bool isVector(void) const;
+  bool isVector() const;
   /*! @return The type of this attribute.
    */
-  Type getType(void) const;
+  Type getType() const;
   /*! @return The name of this attribute.
    */
-  const String& getName(void) const;
+  const String& getName() const;
   /*! @return The GLSL name of the specified attribute type.
    */
   static const char* getTypeName(Type type);
@@ -135,17 +135,17 @@ public:
    *  @remarks Shared samplers get their values via the currently set shared
    *  program state.
    */
-  bool isShared(void) const;
+  bool isShared() const;
   /*! @return The type of this sampler.
    */
-  Type getType(void) const;
+  Type getType() const;
   /*! @return The name of this sampler.
    */
-  const String& getName(void) const;
+  const String& getName() const;
   /*! @return The shared ID of this sampler, or INVALID_SHARED_STATE_ID if
    *  it is not shared.
    */
-  int getSharedID(void) const;
+  int getSharedID() const;
   /*! @return The GLSL name of the specified sampler type.
    */
   static const char* getTypeName(Type type);
@@ -193,29 +193,29 @@ public:
    *  @remarks Shared uniforms get their values via the currently set shared
    *  program state.
    */
-  bool isShared(void) const;
+  bool isShared() const;
   /*! @return @c true if the type of this uniform is a single value.
    */
-  bool isScalar(void) const;
+  bool isScalar() const;
   /*! @return @c true if the type of this uniform is a vector.
    */
-  bool isVector(void) const;
+  bool isVector() const;
   /*! @return @c true if the type of this uniform is a matrix.
    */
-  bool isMatrix(void) const;
+  bool isMatrix() const;
   /*! @return The type of this uniform.
    */
-  Type getType(void) const;
+  Type getType() const;
   /*! @return The name of this uniform.
    */
-  const String& getName(void) const;
+  const String& getName() const;
   /*! @return The number of elements in this uniform.
    */
-  unsigned int getElementCount(void) const;
+  unsigned int getElementCount() const;
   /*! @return The shared ID of this uniform, or INVALID_SHARED_STATE_ID if
    *  it is not shared.
    */
-  int getSharedID(void) const;
+  int getSharedID() const;
   /*! @return The GLSL name of the specified uniform type.
    */
   static const char* getTypeName(Type type);
@@ -237,24 +237,24 @@ class Program : public Resource
 {
   friend class Context;
 public:
-  ~Program(void);
+  ~Program();
   Attribute* findAttribute(const char* name);
   const Attribute* findAttribute(const char* name) const;
   Sampler* findSampler(const char* name);
   const Sampler* findSampler(const char* name) const;
   Uniform* findUniform(const char* name);
   const Uniform* findUniform(const char* name) const;
-  bool isCurrent(void) const;
-  unsigned int getAttributeCount(void) const;
+  bool isCurrent() const;
+  unsigned int getAttributeCount() const;
   Attribute& getAttribute(unsigned int index);
   const Attribute& getAttribute(unsigned int index) const;
-  unsigned int getSamplerCount(void) const;
+  unsigned int getSamplerCount() const;
   Sampler& getSampler(unsigned int index);
   const Sampler& getSampler(unsigned int index) const;
-  unsigned int getUniformCount(void) const;
+  unsigned int getUniformCount() const;
   Uniform& getUniform(unsigned int index);
   const Uniform& getUniform(unsigned int index) const;
-  Context& getContext(void) const;
+  Context& getContext() const;
   static Ref<Program> create(const ResourceInfo& info,
                              Context& context,
                              const Shader& vertexShader,
@@ -264,12 +264,12 @@ private:
   Program(const ResourceInfo& info, Context& context);
   Program(const Program& source);
   bool init(const Shader& vertexShader, const Shader& fragmentShader);
-  bool retrieveUniforms(void);
-  bool retrieveAttributes(void);
-  void bind(void);
-  void unbind(void);
+  bool retrieveUniforms();
+  bool retrieveAttributes();
+  void bind();
+  void unbind();
   Program& operator = (const Program& source);
-  bool isValid(void) const;
+  bool isValid() const;
   typedef std::vector<Attribute> AttributeList;
   typedef std::vector<Sampler> SamplerList;
   typedef std::vector<Uniform> UniformList;

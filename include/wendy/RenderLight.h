@@ -47,16 +47,16 @@ public:
     POINT,
     SPOTLIGHT,
   };
-  Light(void);
-  Type getType(void) const;
+  Light();
+  Type getType() const;
   void setType(Type newType);
-  float getRadius(void) const;
+  float getRadius() const;
   void setRadius(float newRadius);
-  const vec3& getColor(void) const;
+  const vec3& getColor() const;
   void setColor(const vec3& newColor);
-  const vec3& getPosition(void) const;
+  const vec3& getPosition() const;
   void setPosition(const vec3& newPosition);
-  const vec3& getDirection(void) const;
+  const vec3& getDirection() const;
   void setDirection(const vec3& newDirection);
 private:
   Type type;
@@ -77,10 +77,10 @@ class LightState
 public:
   void attachLight(Light& light);
   void detachLight(Light& light);
-  void detachLights(void);
-  unsigned int getLightCount(void) const;
+  void detachLights();
+  unsigned int getLightCount() const;
   Light& getLight(unsigned int index) const;
-  const vec3& getAmbientIntensity(void) const;
+  const vec3& getAmbientIntensity() const;
   void setAmbientIntensity(const vec3& newIntensity);
 private:
   typedef std::vector<LightRef> List;

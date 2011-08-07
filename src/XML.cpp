@@ -79,12 +79,12 @@ String escapeString(const String& string)
 
 ///////////////////////////////////////////////////////////////////////
 
-Reader::Reader(void):
+Reader::Reader():
   parser(NULL)
 {
 }
 
-Reader::~Reader(void)
+Reader::~Reader()
 {
 }
 
@@ -259,7 +259,7 @@ Reader& Reader::operator = (const Reader& source)
 
 ///////////////////////////////////////////////////////////////////////
 
-Writer::Writer(void):
+Writer::Writer():
   closed(true),
   simple(true)
 {
@@ -284,7 +284,7 @@ void Writer::beginElement(const String& name)
   simple = true;
 }
 
-void Writer::endElement(void)
+void Writer::endElement()
 {
   if (stack.empty())
     throw Exception("No element to end");
@@ -313,12 +313,12 @@ void Writer::endElement(void)
   stack.pop();
 }
 
-void Writer::beginCDATA(void)
+void Writer::beginCDATA()
 {
   closeElement();
 }
 
-void Writer::endCDATA(void)
+void Writer::endCDATA()
 {
 }
 
@@ -387,7 +387,7 @@ void Writer::setStream(std::ostream* newStream)
   stream = newStream;
 }
 
-std::ostream* Writer::getStream(void)
+std::ostream* Writer::getStream()
 {
   return stream;
 }
@@ -397,7 +397,7 @@ Writer::Writer(const Writer& source)
   // NOTE: Not implemented.
 }
 
-void Writer::closeElement(void)
+void Writer::closeElement()
 {
   if (!closed)
   {

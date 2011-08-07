@@ -133,13 +133,13 @@ namespace wendy
  *  @remarks If you do call this, it's considered polite to call
  *  wendy::shutdown as well.
  */
-bool initialize(void);
+bool initialize();
 
 /*! @brief Destroys the default objects.
  *
  *  Destroys all default objects created by wendy::initialize.
  */
-void shutdown(void);
+void shutdown();
 
 ///////////////////////////////////////////////////////////////////////
 

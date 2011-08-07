@@ -63,19 +63,19 @@ public:
   bool operator != (const VertexComponent& other) const;
   /*! @return The name of this component.
    */
-  const String& getName(void) const;
+  const String& getName() const;
   /*! @return The size, in bytes, of this component.
    */
-  size_t getSize(void) const;
+  size_t getSize() const;
   /*! @return The type of the elements in this component.
    */
-  Type getType(void) const;
+  Type getType() const;
   /*! @return The offset, in bytes, of this component in a vertex.
    */
-  size_t getOffset(void) const;
+  size_t getOffset() const;
   /*! @return The number of elements in this component.
    */
-  size_t getElementCount(void) const;
+  size_t getElementCount() const;
 private:
   String name;
   size_t count;
@@ -98,7 +98,7 @@ class VertexFormat
 public:
   /*! Constructor.
    */
-  VertexFormat(void);
+  VertexFormat();
   /*! Constructor. Creates components according to the specified specification.
    *  @param specification The specification of the desired format.
    *  @remarks This will throw if the specification is syntactically malformed.
@@ -108,14 +108,14 @@ public:
                        size_t count,
 		       VertexComponent::Type type);
   bool createComponents(const String& specification);
-  void destroyComponents(void);
+  void destroyComponents();
   const VertexComponent* findComponent(const String& name) const;
   const VertexComponent& operator [] (size_t index) const;
   bool operator == (const VertexFormat& other) const;
   bool operator != (const VertexFormat& other) const;
-  String asString(void) const;
-  size_t getSize(void) const;
-  size_t getComponentCount(void) const;
+  String asString() const;
+  size_t getSize() const;
+  size_t getComponentCount() const;
 private:
   typedef std::vector<VertexComponent> ComponentList;
   ComponentList components;

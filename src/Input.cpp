@@ -61,7 +61,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Hook::~Hook(void)
+Hook::~Hook()
 {
 }
 
@@ -92,7 +92,7 @@ bool Hook::onWheelTurned(int offset)
 
 ///////////////////////////////////////////////////////////////////////
 
-Target::~Target(void)
+Target::~Target()
 {
 }
 
@@ -126,7 +126,7 @@ void Target::onFocusChanged(bool activated)
 
 ///////////////////////////////////////////////////////////////////////
 
-Context::~Context(void)
+Context::~Context()
 {
   glfwSetMousePosCallback(NULL);
   glfwSetMouseButtonCallback(NULL);
@@ -137,13 +137,13 @@ Context::~Context(void)
   instance = NULL;
 }
 
-void Context::captureCursor(void)
+void Context::captureCursor()
 {
   cursorCaptured = true;
   glfwDisable(GLFW_MOUSE_CURSOR);
 }
 
-void Context::releaseCursor(void)
+void Context::releaseCursor()
 {
   cursorCaptured = false;
   glfwEnable(GLFW_MOUSE_CURSOR);
@@ -168,22 +168,22 @@ bool Context::isButtonDown(Button button) const
   return false;
 }
 
-bool Context::isCursorCaptured(void) const
+bool Context::isCursorCaptured() const
 {
   return cursorCaptured;
 }
 
-unsigned int Context::getWidth(void) const
+unsigned int Context::getWidth() const
 {
   return context.getDefaultFramebuffer().getWidth();
 }
 
-unsigned int Context::getHeight(void) const
+unsigned int Context::getHeight() const
 {
   return context.getDefaultFramebuffer().getHeight();
 }
 
-const ivec2& Context::getCursorPosition(void) const
+const ivec2& Context::getCursorPosition() const
 {
   glfwGetMousePos(&cursorPosition.x, &cursorPosition.y);
 
@@ -196,7 +196,7 @@ void Context::setCursorPosition(const ivec2& newPosition)
   glfwSetMousePos(newPosition.x, newPosition.y);
 }
 
-Hook* Context::getHook(void) const
+Hook* Context::getHook() const
 {
   return currentHook;
 }
@@ -206,7 +206,7 @@ void Context::setHook(Hook* newHook)
   currentHook = newHook;
 }
 
-Target* Context::getTarget(void) const
+Target* Context::getTarget() const
 {
   return currentTarget;
 }
@@ -225,7 +225,7 @@ void Context::setTarget(Target* newTarget)
     currentTarget->onFocusChanged(true);
 }
 
-GL::Context& Context::getContext(void) const
+GL::Context& Context::getContext() const
 {
   return context;
 }
@@ -443,7 +443,7 @@ Context* Context::instance = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 
-MayaCamera::MayaCamera(void):
+MayaCamera::MayaCamera():
   angleX(0.f),
   angleY(0.f),
   distance(5.f),
@@ -521,12 +521,12 @@ void MayaCamera::onFocusChanged(bool activated)
 {
 }
 
-const Transform3& MayaCamera::getTransform(void) const
+const Transform3& MayaCamera::getTransform() const
 {
   return transform;
 }
 
-void MayaCamera::updateTransform(void)
+void MayaCamera::updateTransform()
 {
   transform.rotation = quat(vec3(angleX, angleY, 0.f));
 
@@ -537,7 +537,7 @@ void MayaCamera::updateTransform(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-SpectatorCamera::SpectatorCamera(void):
+SpectatorCamera::SpectatorCamera():
   lastPosition(0, 0),
   speed(3.f),
   angleX(0.f),
@@ -674,12 +674,12 @@ void SpectatorCamera::onFocusChanged(bool activated)
     context->releaseCursor();
 }
 
-const Transform3& SpectatorCamera::getTransform(void) const
+const Transform3& SpectatorCamera::getTransform() const
 {
   return transform;
 }
 
-float SpectatorCamera::getSpeed(void) const
+float SpectatorCamera::getSpeed() const
 {
   return speed;
 }
@@ -689,7 +689,7 @@ void SpectatorCamera::setSpeed(float newSpeed)
   speed = newSpeed;
 }
 
-void SpectatorCamera::updateTransform(void)
+void SpectatorCamera::updateTransform()
 {
   const quat axisX = angleAxis(degrees(angleX), vec3(1.f, 0.f, 0.f));
   const quat axisY = angleAxis(degrees(angleY), vec3(0.f, 1.f, 0.f));
@@ -698,7 +698,7 @@ void SpectatorCamera::updateTransform(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-TextController::TextController(void):
+TextController::TextController():
   caretPosition(0)
 {
 }
@@ -838,7 +838,7 @@ void TextController::onCharInput(wchar_t character)
   }
 }
 
-const String& TextController::getText(void) const
+const String& TextController::getText() const
 {
   return text;
 }
@@ -849,7 +849,7 @@ void TextController::setText(const String& newText)
   setCaretPosition(caretPosition);
 }
 
-size_t TextController::getCaretPosition(void) const
+size_t TextController::getCaretPosition() const
 {
   return caretPosition;
 }
@@ -862,7 +862,7 @@ void TextController::setCaretPosition(size_t newPosition)
     caretPosition = newPosition;
 }
 
-bool TextController::isCtrlKeyDown(void) const
+bool TextController::isCtrlKeyDown() const
 {
   Context* context = Context::getSingleton();
 

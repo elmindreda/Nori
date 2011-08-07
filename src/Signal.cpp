@@ -40,7 +40,7 @@ SignalSlot::SignalSlot(Trackable* initObject):
     object->slots.push_back(this);
 }
 
-SignalSlot::~SignalSlot(void)
+SignalSlot::~SignalSlot()
 {
   if (object)
   {
@@ -51,7 +51,7 @@ SignalSlot::~SignalSlot(void)
 
 ////////////////////////////////////////////////////////////////////////
 
-Trackable::Trackable(void)
+Trackable::Trackable()
 {
 }
 
@@ -59,7 +59,7 @@ Trackable::Trackable(const Trackable& source)
 {
 }
 
-Trackable::~Trackable(void)
+Trackable::~Trackable()
 {
   while (!slots.empty())
     delete slots.back();

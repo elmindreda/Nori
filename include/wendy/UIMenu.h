@@ -39,19 +39,19 @@ class Menu : public Widget
 {
 public:
   Menu(Layer& layer);
-  ~Menu(void);
-  void display(void);
+  ~Menu();
+  void display();
   void addItem(Item& item);
   void addItemAt(Item& item, unsigned int index);
   void removeItem(Item& item);
-  void destroyItems(void);
-  void sortItems(void);
-  unsigned int getItemCount(void) const;
+  void destroyItems();
+  void sortItems();
+  unsigned int getItemCount() const;
   Item* getItem(unsigned int index);
   const Item* getItem(unsigned int index) const;
-  SignalProxy2<void, Menu&, unsigned int> getItemSelectedSignal(void);
+  SignalProxy2<void, Menu&, unsigned int> getItemSelectedSignal();
 private:
-  void draw(void) const;
+  void draw() const;
   void onFocusChanged(Widget& widget, bool activated);
   void onCursorMoved(Widget& widget, const vec2& position);
   void onButtonClicked(Widget& widget,
@@ -60,7 +60,7 @@ private:
 		       bool clicked);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   void onDragEnded(Widget& widget, const vec2& position);
-  void sizeToFit(void);
+  void sizeToFit();
   ItemList items;
   unsigned int selection;
   Signal2<void, Menu&, unsigned int> itemSelectedSignal;

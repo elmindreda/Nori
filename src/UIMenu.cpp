@@ -71,12 +71,12 @@ Menu::Menu(Layer& layer):
   setVisible(false);
 }
 
-Menu::~Menu(void)
+Menu::~Menu()
 {
   destroyItems();
 }
 
-void Menu::display(void)
+void Menu::display()
 {
   selection = 0;
   setVisible(true);
@@ -120,7 +120,7 @@ void Menu::removeItem(Item& item)
   }
 }
 
-void Menu::destroyItems(void)
+void Menu::destroyItems()
 {
   while (!items.empty())
   {
@@ -131,13 +131,13 @@ void Menu::destroyItems(void)
   sizeToFit();
 }
 
-void Menu::sortItems(void)
+void Menu::sortItems()
 {
   ItemComparator comparator;
   std::sort(items.begin(), items.end(), comparator);
 }
 
-unsigned int Menu::getItemCount(void) const
+unsigned int Menu::getItemCount() const
 {
   return (unsigned int) items.size();
 }
@@ -152,12 +152,12 @@ const Item* Menu::getItem(unsigned int index) const
   return items[index];
 }
 
-SignalProxy2<void, Menu&, unsigned int> Menu::getItemSelectedSignal(void)
+SignalProxy2<void, Menu&, unsigned int> Menu::getItemSelectedSignal()
 {
   return itemSelectedSignal;
 }
 
-void Menu::draw(void) const
+void Menu::draw() const
 {
   const Rect& area = getGlobalArea();
 
@@ -298,7 +298,7 @@ void Menu::onDragEnded(Widget& widget, const vec2& position)
     setVisible(false);
 }
 
-void Menu::sizeToFit(void)
+void Menu::sizeToFit()
 {
   vec2 size(0.f, 2.f);
 

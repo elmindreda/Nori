@@ -35,7 +35,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Ray3::Ray3(void)
+Ray3::Ray3()
 {
 }
 
@@ -51,7 +51,7 @@ void Ray3::transformBy(const Transform3& transform)
   transform.rotateVector(direction);
 }
 
-void Ray3::setDefaults(void)
+void Ray3::setDefaults()
 {
   origin = vec3(0.f);
   direction = vec3(0.f, 0.f, 1.f);

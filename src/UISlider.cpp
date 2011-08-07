@@ -62,12 +62,12 @@ Slider::Slider(Layer& layer, Orientation initOrientation):
   setDraggable(true);
 }
 
-float Slider::getMinValue(void) const
+float Slider::getMinValue() const
 {
   return minValue;
 }
 
-float Slider::getMaxValue(void) const
+float Slider::getMaxValue() const
 {
   return maxValue;
 }
@@ -85,7 +85,7 @@ void Slider::setValueRange(float newMinValue, float newMaxValue)
     invalidate();
 }
 
-float Slider::getValue(void) const
+float Slider::getValue() const
 {
   return value;
 }
@@ -95,7 +95,7 @@ void Slider::setValue(float newValue)
   setValue(newValue, false);
 }
 
-float Slider::getStepSize(void) const
+float Slider::getStepSize() const
 {
   return stepSize;
 }
@@ -105,12 +105,12 @@ void Slider::setStepSize(float newSize)
   stepSize = std::max(newSize, 0.f);
 }
 
-SignalProxy1<void, Slider&> Slider::getValueChangedSignal(void)
+SignalProxy1<void, Slider&> Slider::getValueChangedSignal()
 {
   return valueChangedSignal;
 }
 
-void Slider::draw(void) const
+void Slider::draw() const
 {
   const Rect& area = getGlobalArea();
 

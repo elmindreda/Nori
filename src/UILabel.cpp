@@ -60,7 +60,7 @@ Label::Label(Layer& layer, const String& initText):
   setSize(vec2(em * 2.f + textWidth, em * 2.f));
 }
 
-const String& Label::getText(void) const
+const String& Label::getText() const
 {
   return text;
 }
@@ -90,7 +90,7 @@ void Label::setText(const char* format, ...)
   invalidate();
 }
 
-const Alignment& Label::getTextAlignment(void) const
+const Alignment& Label::getTextAlignment() const
 {
   return textAlignment;
 }
@@ -101,7 +101,7 @@ void Label::setTextAlignment(const Alignment& newAlignment)
   invalidate();
 }
 
-void Label::draw(void) const
+void Label::draw() const
 {
   const Rect& area = getGlobalArea();
 

@@ -46,26 +46,26 @@ public:
   /*! Destructor.
    *  @note You should not destroy active queries.
    */
-  ~OcclusionQuery(void);
+  ~OcclusionQuery();
   /*! Makes this occlusion query active.  As long as it is active, it will
    *  record the number of rendered samples that pass the depth test.
    *  @note You may only have one active query at any given time.
    */
-  void begin(void);
+  void begin();
   /*! Deactivates this query object, making its result available.
    */
-  void end(void);
+  void end();
   /*! @return @c true if this query is active, otherwise @c false.
    */
-  bool isActive(void) const;
+  bool isActive() const;
   /*! @return @c true if the result of this query is available, otherwise @c
    *  false.
    */
-  bool hasResultAvailable(void) const;
+  bool hasResultAvailable() const;
   /*! @return The latest results of this query, or zero if it is active or has
    *  never been active.
    */
-  unsigned int getResult(void) const;
+  unsigned int getResult() const;
   /*! Creates an occlusion query.
    *  @param[in] context The context within which to create the query.
    *  @return The newly created query object, or @c NULL if an error occurred.
@@ -73,7 +73,7 @@ public:
   static OcclusionQuery* create(Context& context);
 private:
   OcclusionQuery(Context& context);
-  bool init(void);
+  bool init();
   Context& context;
   unsigned int queryID;
   bool active;

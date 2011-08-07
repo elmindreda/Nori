@@ -47,12 +47,12 @@ class Item
   friend class Menu;
 public:
   Item(Layer& layer, const String& value = "", ItemID ID = 0);
-  virtual ~Item(void);
+  virtual ~Item();
   virtual bool operator < (const Item& other) const;
-  virtual float getWidth(void) const;
-  virtual float getHeight(void) const;
-  virtual ItemID getID(void) const;
-  virtual const String& asString(void) const;
+  virtual float getWidth() const;
+  virtual float getHeight() const;
+  virtual ItemID getID() const;
+  virtual const String& asString() const;
   virtual void setStringValue(const String& newValue);
 protected:
   virtual void draw(const Rect& area, WidgetState state) const;
@@ -76,8 +76,8 @@ class SeparatorItem : public Item
 {
 public:
   SeparatorItem(Layer& layer);
-  float getWidth(void) const;
-  float getHeight(void) const;
+  float getWidth() const;
+  float getHeight() const;
 protected:
   void draw(const Rect& area, WidgetState state) const;
 };
@@ -93,9 +93,9 @@ public:
               GL::Texture& texture,
               const String& name = "",
 	      ItemID ID = 0);
-  float getWidth(void) const;
-  float getHeight(void) const;
-  GL::Texture& getTexture(void) const;
+  float getWidth() const;
+  float getHeight() const;
+  GL::Texture& getTexture() const;
 protected:
   void draw(const Rect& area, WidgetState state) const;
 private:

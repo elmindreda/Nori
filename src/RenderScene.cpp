@@ -82,14 +82,14 @@ SortKey SortKey::makeBlendedKey(uint8 layer, float depth)
 
 ///////////////////////////////////////////////////////////////////////
 
-Operation::Operation(void):
+Operation::Operation():
   state(NULL)
 {
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-Queue::Queue(void):
+Queue::Queue():
   sorted(false)
 {
 }
@@ -104,19 +104,19 @@ void Queue::addOperation(const Operation& operation, SortKey key)
   sorted = false;
 }
 
-void Queue::removeOperations(void)
+void Queue::removeOperations()
 {
   operations.clear();
   keys.clear();
   sorted = true;
 }
 
-const OperationList& Queue::getOperations(void) const
+const OperationList& Queue::getOperations() const
 {
   return operations;
 }
 
-const SortKeyList& Queue::getSortKeys(void) const
+const SortKeyList& Queue::getSortKeys() const
 {
   if (!sorted)
   {
@@ -172,38 +172,38 @@ void Scene::createOperations(const mat4& transform,
   }
 }
 
-void Scene::removeOperations(void)
+void Scene::removeOperations()
 {
   opaqueQueue.removeOperations();
   blendedQueue.removeOperations();
 }
 
-GeometryPool& Scene::getGeometryPool(void) const
+GeometryPool& Scene::getGeometryPool() const
 {
   return pool;
 }
 
-Queue& Scene::getOpaqueQueue(void)
+Queue& Scene::getOpaqueQueue()
 {
   return opaqueQueue;
 }
 
-const Queue& Scene::getOpaqueQueue(void) const
+const Queue& Scene::getOpaqueQueue() const
 {
   return opaqueQueue;
 }
 
-Queue& Scene::getBlendedQueue(void)
+Queue& Scene::getBlendedQueue()
 {
   return blendedQueue;
 }
 
-const Queue& Scene::getBlendedQueue(void) const
+const Queue& Scene::getBlendedQueue() const
 {
   return blendedQueue;
 }
 
-Technique::Type Scene::getTechniqueType(void) const
+Technique::Type Scene::getTechniqueType() const
 {
   return type;
 }
@@ -215,7 +215,7 @@ void Scene::setTechniqueType(Technique::Type newType)
 
 ///////////////////////////////////////////////////////////////////////
 
-Renderable::~Renderable(void)
+Renderable::~Renderable()
 {
 }
 

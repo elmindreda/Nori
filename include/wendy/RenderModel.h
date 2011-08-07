@@ -57,22 +57,22 @@ public:
   void enqueue(Scene& scene, const Camera& camera, const Transform3& transform) const;
   /*! @return The bounding sphere of this model.
    */
-  const Sphere& getBounds(void) const;
+  const Sphere& getBounds() const;
   /*! @return The list of geometries in this model.
    */
-  const GeometryList& getGeometries(void);
+  const GeometryList& getGeometries();
   /*! @return The vertex buffer used by this model.
    */
-  GL::VertexBuffer& getVertexBuffer(void);
+  GL::VertexBuffer& getVertexBuffer();
   /*! @return The vertex buffer used by this model.
    */
-  const GL::VertexBuffer& getVertexBuffer(void) const;
+  const GL::VertexBuffer& getVertexBuffer() const;
   /*! @return The index buffer used by this model.
    */
-  GL::IndexBuffer& getIndexBuffer(void);
+  GL::IndexBuffer& getIndexBuffer();
   /*! @return The index buffer used by this model.
    */
-  const GL::IndexBuffer& getIndexBuffer(void) const;
+  const GL::IndexBuffer& getIndexBuffer() const;
   /*! Creates a model from the specified mesh data.
    *  @param[in] info The resource info for the texture.
    *  @param[in] context The OpenGL context within which to create the texture.
@@ -118,10 +118,10 @@ public:
   Geometry(const GL::IndexRange& range, Material* material);
   /*! @return The range of indices used by this geometry.
    */
-  const GL::IndexRange& getIndexRange(void) const;
+  const GL::IndexRange& getIndexRange() const;
   /*! @return The %render material used by this geometry.
    */
-  Material* getMaterial(void) const;
+  Material* getMaterial() const;
   /*! Sets the material of this geometry.
    */
   void setMaterial(Material* newMaterial);

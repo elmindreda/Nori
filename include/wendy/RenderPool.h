@@ -80,7 +80,7 @@ public:
                         const VertexFormat& format);
   /*! @return The OpenGL context used by this pool.
    */
-  GL::Context& getContext(void) const;
+  GL::Context& getContext() const;
 private:
   /*! @internal
    */
@@ -96,7 +96,7 @@ private:
     Ref<GL::VertexBuffer> vertexBuffer;
     unsigned int available;
   };
-  void onContextFinish(void);
+  void onContextFinish();
   typedef std::vector<IndexBufferSlot> IndexBufferList;
   typedef std::vector<VertexBufferSlot> VertexBufferList;
   GL::Context& context;

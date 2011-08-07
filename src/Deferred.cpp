@@ -104,27 +104,27 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
   context.setCurrentSharedProgramState(NULL);
 }
 
-SharedProgramState& Renderer::getSharedProgramState(void)
+SharedProgramState& Renderer::getSharedProgramState()
 {
   return *state;
 }
 
-render::GeometryPool& Renderer::getGeometryPool(void)
+render::GeometryPool& Renderer::getGeometryPool()
 {
   return pool;
 }
 
-GL::Texture& Renderer::getColorTexture(void) const
+GL::Texture& Renderer::getColorTexture() const
 {
   return *colorTexture;
 }
 
-GL::Texture& Renderer::getNormalTexture(void) const
+GL::Texture& Renderer::getNormalTexture() const
 {
   return *normalTexture;
 }
 
-GL::Texture& Renderer::getDepthTexture(void) const
+GL::Texture& Renderer::getDepthTexture() const
 {
   return *depthTexture;
 }

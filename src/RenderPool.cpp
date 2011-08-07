@@ -153,12 +153,12 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
   return true;
 }
 
-GL::Context& GeometryPool::getContext(void) const
+GL::Context& GeometryPool::getContext() const
 {
   return context;
 }
 
-void GeometryPool::onContextFinish(void)
+void GeometryPool::onContextFinish()
 {
   for (IndexBufferList::iterator i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
     i->available = i->indexBuffer->getCount();

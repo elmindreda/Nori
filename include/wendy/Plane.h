@@ -40,7 +40,7 @@ class Transform3;
 class Plane
 {
 public:
-  Plane(void);
+  Plane();
   Plane(const vec3& initNormal, float initDistance);
   Plane(const vec3& P0, const vec3& P1, const vec3& P2);
   void transformBy(const Transform3& transform);

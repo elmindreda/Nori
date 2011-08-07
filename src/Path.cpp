@@ -102,7 +102,7 @@ Path::Path(const char* format, ...)
   }
 }
 
-bool Path::createDirectory(void) const
+bool Path::createDirectory() const
 {
 #ifdef _WIN32
   return _mkdir(path.c_str()) == 0;
@@ -111,7 +111,7 @@ bool Path::createDirectory(void) const
 #endif
 }
 
-bool Path::destroyDirectory(void) const
+bool Path::destroyDirectory() const
 {
 #ifdef _WIN32
   return _rmdir(path.c_str()) == 0;
@@ -120,7 +120,7 @@ bool Path::destroyDirectory(void) const
 #endif
 }
 
-bool Path::exists(void) const
+bool Path::exists() const
 {
 #ifdef _WIN32
   return _access(path.c_str(), F_OK) == 0;
@@ -129,7 +129,7 @@ bool Path::exists(void) const
 #endif
 }
 
-const String& Path::asString(void) const
+const String& Path::asString() const
 {
   return path;
 }
@@ -184,12 +184,12 @@ Path& Path::operator = (const String& newPath)
   return *this;
 }
 
-bool Path::isEmpty(void) const
+bool Path::isEmpty() const
 {
   return path.empty();
 }
 
-bool Path::isReadable(void) const
+bool Path::isReadable() const
 {
 #ifdef _WIN32
   return _access(path.c_str(), R_OK) == 0;
@@ -198,7 +198,7 @@ bool Path::isReadable(void) const
 #endif
 }
 
-bool Path::isWritable(void) const
+bool Path::isWritable() const
 {
 #ifdef _WIN32
   return _access(path.c_str(), W_OK) == 0;
@@ -207,7 +207,7 @@ bool Path::isWritable(void) const
 #endif
 }
 
-bool Path::isFile(void) const
+bool Path::isFile() const
 {
 #ifdef _WIN32
   struct _stati64 sb;
@@ -224,7 +224,7 @@ bool Path::isFile(void) const
   return S_ISREG(sb.st_mode) ? true : false;
 }
 
-bool Path::isDirectory(void) const
+bool Path::isDirectory() const
 {
 #ifdef _WIN32
   struct _stati64 sb;
@@ -241,7 +241,7 @@ bool Path::isDirectory(void) const
   return S_ISDIR(sb.st_mode) ? true : false;
 }
 
-Path Path::getParent(void) const
+Path Path::getParent() const
 {
   // TODO: Fix this.
 
@@ -322,7 +322,7 @@ bool Path::getChildren(PathList& children, const Pattern& pattern) const
   return true;
 }
 
-String Path::getSuffix(void) const
+String Path::getSuffix() const
 {
   String last;
 
@@ -339,7 +339,7 @@ String Path::getSuffix(void) const
   return last.substr(offset + 1, String::npos);
 }
 
-String Path::getName(void) const
+String Path::getName() const
 {
   String::size_type start = path.find_last_of('/');
   String::size_type end = path.find_last_of('.');

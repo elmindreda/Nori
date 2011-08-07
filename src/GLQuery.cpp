@@ -40,7 +40,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-OcclusionQuery::~OcclusionQuery(void)
+OcclusionQuery::~OcclusionQuery()
 {
   if (active)
     logError("Occlusion query destroyed while active");
@@ -53,7 +53,7 @@ OcclusionQuery::~OcclusionQuery(void)
 #endif
 }
 
-void OcclusionQuery::begin(void)
+void OcclusionQuery::begin()
 {
   if (active)
   {
@@ -70,7 +70,7 @@ void OcclusionQuery::begin(void)
 #endif
 }
 
-void OcclusionQuery::end(void)
+void OcclusionQuery::end()
 {
   if (!active)
   {
@@ -87,12 +87,12 @@ void OcclusionQuery::end(void)
 #endif
 }
 
-bool OcclusionQuery::isActive(void) const
+bool OcclusionQuery::isActive() const
 {
   return active;
 }
 
-bool OcclusionQuery::hasResultAvailable(void) const
+bool OcclusionQuery::hasResultAvailable() const
 {
   if (active)
     return false;
@@ -108,7 +108,7 @@ bool OcclusionQuery::hasResultAvailable(void) const
   return available ? true : false;
 }
 
-unsigned int OcclusionQuery::getResult(void) const
+unsigned int OcclusionQuery::getResult() const
 {
   if (active)
   {
@@ -143,7 +143,7 @@ OcclusionQuery::OcclusionQuery(Context& initContext):
 {
 }
 
-bool OcclusionQuery::init(void)
+bool OcclusionQuery::init()
 {
   glGenQueries(1, &queryID);
 

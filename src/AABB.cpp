@@ -34,7 +34,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-AABB::AABB(void)
+AABB::AABB()
 {
 }
 
@@ -132,7 +132,7 @@ void AABB::envelop(const vec3& point)
   setBounds(minX, minY, minZ, maxX, maxY, maxZ);
 }
 
-void AABB::normalize(void)
+void AABB::normalize()
 {
   size.x = abs(size.x);
   size.y = abs(size.y);

@@ -113,7 +113,7 @@ void realizeSpriteVertices(Vertex2ft3fv* vertices,
 
 ///////////////////////////////////////////////////////////////////////
 
-Sprite2::Sprite2(void)
+Sprite2::Sprite2()
 {
   setDefaults();
 }
@@ -153,7 +153,7 @@ void Sprite2::realizeVertices(Vertex2ft2fv* vertices) const
   }
 }
 
-void Sprite2::setDefaults(void)
+void Sprite2::setDefaults()
 {
   texArea.set(vec2(0.f), vec2(1.f));
   position = vec2(0.f);
@@ -163,7 +163,7 @@ void Sprite2::setDefaults(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-Sprite3::Sprite3(void)
+Sprite3::Sprite3()
 {
   setDefaults();
 }
@@ -195,7 +195,7 @@ void Sprite3::enqueue(Scene& scene,
                          camera.getNormalizedDepth(spritePos));
 }
 
-void Sprite3::setDefaults(void)
+void Sprite3::setDefaults()
 {
   size = vec2(1.f);
   angle = 0.f;
@@ -205,7 +205,7 @@ void Sprite3::setDefaults(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-SpriteCloud3::SpriteCloud3(void):
+SpriteCloud3::SpriteCloud3():
   type(STATIC_SPRITE)
 {
 }

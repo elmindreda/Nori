@@ -63,12 +63,12 @@ Scroller::Scroller(Layer& layer, Orientation initOrientation):
   setDraggable(true);
 }
 
-float Scroller::getMinValue(void) const
+float Scroller::getMinValue() const
 {
   return minValue;
 }
 
-float Scroller::getMaxValue(void) const
+float Scroller::getMaxValue() const
 {
   return maxValue;
 }
@@ -86,7 +86,7 @@ void Scroller::setValueRange(float newMinValue, float newMaxValue)
     invalidate();
 }
 
-float Scroller::getValue(void) const
+float Scroller::getValue() const
 {
   return value;
 }
@@ -96,7 +96,7 @@ void Scroller::setValue(float newValue)
   setValue(newValue, false);
 }
 
-float Scroller::getPercentage(void) const
+float Scroller::getPercentage() const
 {
   return percentage;
 }
@@ -107,12 +107,12 @@ void Scroller::setPercentage(float newPercentage)
   invalidate();
 }
 
-SignalProxy1<void, Scroller&> Scroller::getValueChangedSignal(void)
+SignalProxy1<void, Scroller&> Scroller::getValueChangedSignal()
 {
   return valueChangedSignal;
 }
 
-void Scroller::draw(void) const
+void Scroller::draw() const
 {
   const Rect& area = getGlobalArea();
 
@@ -294,7 +294,7 @@ void Scroller::setValue(float newValue, bool notify)
   invalidate();
 }
 
-float Scroller::getHandleSize(void) const
+float Scroller::getHandleSize() const
 {
   const float em = getLayer().getDrawer().getCurrentEM();
 
@@ -304,7 +304,7 @@ float Scroller::getHandleSize(void) const
     return max(getArea().size.y * percentage, em);
 }
 
-float Scroller::getHandleOffset(void) const
+float Scroller::getHandleOffset() const
 {
   const float scale = (value - minValue) / (maxValue - minValue);
 
@@ -314,7 +314,7 @@ float Scroller::getHandleOffset(void) const
     return (getArea().size.y - getHandleSize()) * scale;
 }
 
-float Scroller::getValueStep(void) const
+float Scroller::getValueStep() const
 {
   return (maxValue - minValue) * percentage / (1.f - percentage);
 }

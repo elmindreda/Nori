@@ -54,16 +54,16 @@ Layer::Layer(input::Context& initContext, UI::Drawer& initDrawer):
   assert(&drawer);
 }
 
-Layer::~Layer(void)
+Layer::~Layer()
 {
   destroyRootWidgets();
 }
 
-void Layer::update(void)
+void Layer::update()
 {
 }
 
-void Layer::draw(void)
+void Layer::draw()
 {
   drawer.begin();
 
@@ -84,7 +84,7 @@ void Layer::addRootWidget(Widget& root)
   roots.push_back(&root);
 }
 
-void Layer::destroyRootWidgets(void)
+void Layer::destroyRootWidgets()
 {
   while (!roots.empty())
     delete roots.back();
@@ -105,7 +105,7 @@ Widget* Layer::findWidgetByPoint(const vec2& point)
   return NULL;
 }
 
-void Layer::captureCursor(void)
+void Layer::captureCursor()
 {
   if (!activeWidget)
     return;
@@ -118,7 +118,7 @@ void Layer::captureCursor(void)
   context.captureCursor();
 }
 
-void Layer::releaseCursor(void)
+void Layer::releaseCursor()
 {
   if (captureWidget)
   {
@@ -128,7 +128,7 @@ void Layer::releaseCursor(void)
   }
 }
 
-void Layer::cancelDragging(void)
+void Layer::cancelDragging()
 {
   if (dragging && draggedWidget)
   {
@@ -145,37 +145,37 @@ void Layer::cancelDragging(void)
   }
 }
 
-void Layer::invalidate(void)
+void Layer::invalidate()
 {
   context.getContext().refresh();
 }
 
-Drawer& Layer::getDrawer(void) const
+Drawer& Layer::getDrawer() const
 {
   return drawer;
 }
 
-input::Context& Layer::getInputContext(void) const
+input::Context& Layer::getInputContext() const
 {
   return context;
 }
 
-const WidgetList& Layer::getRootWidgets(void) const
+const WidgetList& Layer::getRootWidgets() const
 {
   return roots;
 }
 
-Widget* Layer::getActiveWidget(void)
+Widget* Layer::getActiveWidget()
 {
   return activeWidget;
 }
 
-Widget* Layer::getDraggedWidget(void)
+Widget* Layer::getDraggedWidget()
 {
   return draggedWidget;
 }
 
-Widget* Layer::getHoveredWidget(void)
+Widget* Layer::getHoveredWidget()
 {
   return hoveredWidget;
 }
@@ -207,12 +207,12 @@ void Layer::setActiveWidget(Widget* widget)
   invalidate();
 }
 
-LayerStack* Layer::getStack(void) const
+LayerStack* Layer::getStack() const
 {
   return stack;
 }
 
-void Layer::updateHoveredWidget(void)
+void Layer::updateHoveredWidget()
 {
   if (captureWidget)
     return;
@@ -417,13 +417,13 @@ LayerStack::LayerStack(input::Context& initContext):
 {
 }
 
-void LayerStack::update(void) const
+void LayerStack::update() const
 {
   for (LayerList::const_iterator l = layers.begin();  l != layers.end();  l++)
     (*l)->update();
 }
 
-void LayerStack::draw(void) const
+void LayerStack::draw() const
 {
   if (layers.empty())
     return;
@@ -440,7 +440,7 @@ void LayerStack::push(Layer& layer)
   context.setTarget(&layer);
 }
 
-void LayerStack::pop(void)
+void LayerStack::pop()
 {
   if (!layers.empty())
   {
@@ -453,13 +453,13 @@ void LayerStack::pop(void)
     context.setTarget(layers.back());
 }
 
-void LayerStack::empty(void)
+void LayerStack::empty()
 {
   while (!layers.empty())
     pop();
 }
 
-bool LayerStack::isEmpty(void) const
+bool LayerStack::isEmpty() const
 {
   return layers.empty();
 }

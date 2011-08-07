@@ -51,10 +51,10 @@ enum SpriteType3
 class Sprite2
 {
 public:
-  Sprite2(void);
+  Sprite2();
   void render(GeometryPool& pool) const;
   void realizeVertices(Vertex2ft2fv* vertices) const;
-  void setDefaults(void);
+  void setDefaults();
   Rect texArea;
   vec2 position;
   vec2 size;
@@ -68,11 +68,11 @@ public:
 class Sprite3 : public Renderable
 {
 public:
-  Sprite3(void);
+  Sprite3();
   void enqueue(Scene& scene,
                const Camera& camera,
                const Transform3& transform) const;
-  void setDefaults(void);
+  void setDefaults();
   vec2 size;
   float angle;
   SpriteType3 type;
@@ -92,7 +92,7 @@ public:
     float angle;
     vec2 size;
   };
-  SpriteCloud3(void);
+  SpriteCloud3();
   void enqueue(Scene& scene,
                const Camera& camera,
                const Transform3& transform) const;

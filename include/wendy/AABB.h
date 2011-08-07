@@ -40,7 +40,7 @@ public:
    *
    *  @remarks All values are initialized to zero.
    */
-  AABB(void);
+  AABB();
   /*! Constructor.
    *  @param[in] center The center of the newly constructed bounding box.
    *  @param[in] size The size of the newly constructed bounding box.
@@ -71,7 +71,7 @@ public:
   void envelop(const AABB& other);
   /*! Ensures that the size of this bounding box uses positive values.
    */
-  void normalize(void);
+  void normalize();
   /*! Retrieves the minimum and maxiumum bounds of this bounding box.
    */
   void getBounds(float& minX, float& minY, float& minZ,

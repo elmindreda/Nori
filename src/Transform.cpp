@@ -34,7 +34,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Transform2::Transform2(void)
+Transform2::Transform2()
 {
   setIdentity();
 }
@@ -45,7 +45,7 @@ Transform2::Transform2(const vec2& initPosition, float initAngle):
 {
 }
 
-void Transform2::invert(void)
+void Transform2::invert()
 {
   angle = -angle;
   position = -position;
@@ -75,7 +75,7 @@ void Transform2::transformVector(vec2& vector) const
   vector += position;
 }
 
-Transform2::operator mat3 (void) const
+Transform2::operator mat3 () const
 {
   const float sina = sin(angle);
   const float cosa = cos(angle);
@@ -107,7 +107,7 @@ Transform2& Transform2::operator *= (const Transform2& other)
   return *this;
 }
 
-void Transform2::setIdentity(void)
+void Transform2::setIdentity()
 {
   position = vec2(0.f);
   angle = 0.f;
@@ -123,7 +123,7 @@ Transform2 Transform2::IDENTITY;
 
 ///////////////////////////////////////////////////////////////////////
 
-Transform3::Transform3(void)
+Transform3::Transform3()
 {
   setIdentity();
 }
@@ -134,7 +134,7 @@ Transform3::Transform3(const vec3& initPosition, const quat& initRotation):
 {
 }
 
-void Transform3::invert(void)
+void Transform3::invert()
 {
   rotation = inverse(rotation);
   position = rotation * -position;
@@ -155,7 +155,7 @@ void Transform3::transformVector(vec3& vector) const
   vector = rotation * vector + position;
 }
 
-Transform3::operator mat4 (void) const
+Transform3::operator mat4 () const
 {
   mat4 result = mat4_cast(rotation);
   result[3][0] = position.x;
@@ -178,7 +178,7 @@ Transform3& Transform3::operator *= (const Transform3& other)
   return *this;
 }
 
-void Transform3::setIdentity(void)
+void Transform3::setIdentity()
 {
   rotation = quat();
   position = vec3(0.f);

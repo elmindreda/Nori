@@ -54,7 +54,7 @@ Entry::Entry(Layer& layer, const String& initText):
   getCharInputSignal().connect(*this, &Entry::onCharInput);
 }
 
-const String& Entry::getText(void) const
+const String& Entry::getText() const
 {
   return text;
 }
@@ -65,7 +65,7 @@ void Entry::setText(const String& newText)
   invalidate();
 }
 
-unsigned int Entry::getCaretPosition(void) const
+unsigned int Entry::getCaretPosition() const
 {
   return caretPosition;
 }
@@ -75,17 +75,17 @@ void Entry::setCaretPosition(unsigned int newPosition)
   setCaretPosition(newPosition, false);
 }
 
-SignalProxy1<void, Entry&> Entry::getTextChangedSignal(void)
+SignalProxy1<void, Entry&> Entry::getTextChangedSignal()
 {
   return textChangedSignal;
 }
 
-SignalProxy1<void, Entry&> Entry::getCaretMovedSignal(void)
+SignalProxy1<void, Entry&> Entry::getCaretMovedSignal()
 {
   return caretMovedSignal;
 }
 
-void Entry::draw(void) const
+void Entry::draw() const
 {
   const Rect& area = getGlobalArea();
 

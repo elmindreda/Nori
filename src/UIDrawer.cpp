@@ -230,7 +230,7 @@ bool ThemeReader::onEndElement(const String& name)
 
 ///////////////////////////////////////////////////////////////////////
 
-void Drawer::begin(void)
+void Drawer::begin()
 {
   GL::Context& context = pool.getContext();
 
@@ -245,7 +245,7 @@ void Drawer::begin(void)
   state->setOrthoProjectionMatrix(float(width), float(height));
 }
 
-void Drawer::end(void)
+void Drawer::end()
 {
   pool.getContext().setCurrentSharedProgramState(NULL);
 }
@@ -266,7 +266,7 @@ bool Drawer::pushClipArea(const Rect& area)
   return true;
 }
 
-void Drawer::popClipArea(void)
+void Drawer::popClipArea()
 {
   clipAreaStack.pop();
 
@@ -554,12 +554,12 @@ void Drawer::drawButton(const Rect& area, WidgetState state, const String& text)
   drawText(area, text, Alignment(), state);
 }
 
-const Theme& Drawer::getTheme(void) const
+const Theme& Drawer::getTheme() const
 {
   return *theme;
 }
 
-const render::Font& Drawer::getCurrentFont(void)
+const render::Font& Drawer::getCurrentFont()
 {
   return *currentFont;
 }
@@ -572,12 +572,12 @@ void Drawer::setCurrentFont(render::Font* newFont)
     currentFont = theme->font;
 }
 
-float Drawer::getCurrentEM(void) const
+float Drawer::getCurrentEM() const
 {
   return currentFont->getHeight();
 }
 
-render::GeometryPool& Drawer::getGeometryPool(void) const
+render::GeometryPool& Drawer::getGeometryPool() const
 {
   return pool;
 }
@@ -596,7 +596,7 @@ Drawer::Drawer(render::GeometryPool& initPool):
 {
 }
 
-bool Drawer::init(void)
+bool Drawer::init()
 {
   GL::Context& context = pool.getContext();
 

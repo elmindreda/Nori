@@ -39,7 +39,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Sphere::Sphere(void)
+Sphere::Sphere()
 {
   setDefaults();
 }
@@ -195,7 +195,7 @@ void Sphere::set(const vec3& newCenter, float newRadius)
   radius = newRadius;
 }
 
-void Sphere::setDefaults(void)
+void Sphere::setDefaults()
 {
   center = vec3(0.f);
   radius = 0.5f;

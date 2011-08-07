@@ -102,7 +102,7 @@ GLenum convertToGL(VertexBuffer::Usage usage)
 
 ///////////////////////////////////////////////////////////////////////
 
-VertexBuffer::~VertexBuffer(void)
+VertexBuffer::~VertexBuffer()
 {
   if (locked)
     logWarning("Vertex buffer destroyed while locked");
@@ -133,7 +133,7 @@ void* VertexBuffer::lock(LockType type)
   return mapping;
 }
 
-void VertexBuffer::unlock(void)
+void VertexBuffer::unlock()
 {
   if (!locked)
   {
@@ -197,17 +197,17 @@ void VertexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int s
 #endif
 }
 
-VertexBuffer::Usage VertexBuffer::getUsage(void) const
+VertexBuffer::Usage VertexBuffer::getUsage() const
 {
   return usage;
 }
 
-const VertexFormat& VertexBuffer::getFormat(void) const
+const VertexFormat& VertexBuffer::getFormat() const
 {
   return format;
 }
 
-unsigned int VertexBuffer::getCount(void) const
+unsigned int VertexBuffer::getCount() const
 {
   return count;
 }
@@ -275,7 +275,7 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
 
 ///////////////////////////////////////////////////////////////////////
 
-IndexBuffer::~IndexBuffer(void)
+IndexBuffer::~IndexBuffer()
 {
   if (locked)
     logWarning("Index buffer destroyed while locked");
@@ -305,7 +305,7 @@ void* IndexBuffer::lock(LockType type)
   return mapping;
 }
 
-void IndexBuffer::unlock(void)
+void IndexBuffer::unlock()
 {
   if (!locked)
   {
@@ -369,17 +369,17 @@ void IndexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int st
 #endif
 }
 
-IndexBuffer::Type IndexBuffer::getType(void) const
+IndexBuffer::Type IndexBuffer::getType() const
 {
   return type;
 }
 
-IndexBuffer::Usage IndexBuffer::getUsage(void) const
+IndexBuffer::Usage IndexBuffer::getUsage() const
 {
   return usage;
 }
 
-unsigned int IndexBuffer::getCount(void) const
+unsigned int IndexBuffer::getCount() const
 {
   return count;
 }
@@ -462,7 +462,7 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
 
 ///////////////////////////////////////////////////////////////////////
 
-VertexRange::VertexRange(void):
+VertexRange::VertexRange():
   vertexBuffer(NULL),
   start(0),
   count(0)
@@ -502,7 +502,7 @@ void* VertexRange::lock(LockType type) const
   return vertices + start * vertexBuffer->getFormat().getSize();
 }
 
-void VertexRange::unlock(void) const
+void VertexRange::unlock() const
 {
   if (!vertexBuffer)
   {
@@ -529,24 +529,24 @@ void VertexRange::copyTo(void* target)
   vertexBuffer->copyTo(target, count, start);
 }
 
-VertexBuffer* VertexRange::getVertexBuffer(void) const
+VertexBuffer* VertexRange::getVertexBuffer() const
 {
   return vertexBuffer;
 }
 
-unsigned int VertexRange::getStart(void) const
+unsigned int VertexRange::getStart() const
 {
   return start;
 }
 
-unsigned int VertexRange::getCount(void) const
+unsigned int VertexRange::getCount() const
 {
   return count;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-IndexRange::IndexRange(void):
+IndexRange::IndexRange():
   indexBuffer(NULL),
   start(0),
   count(0)
@@ -586,7 +586,7 @@ void* IndexRange::lock(LockType type) const
   return indices + start * IndexBuffer::getTypeSize(indexBuffer->getType());
 }
 
-void IndexRange::unlock(void) const
+void IndexRange::unlock() const
 {
   if (!indexBuffer)
   {
@@ -613,24 +613,24 @@ void IndexRange::copyTo(void* target)
   indexBuffer->copyTo(target, count, start);
 }
 
-IndexBuffer* IndexRange::getIndexBuffer(void) const
+IndexBuffer* IndexRange::getIndexBuffer() const
 {
   return indexBuffer;
 }
 
-unsigned int IndexRange::getStart(void) const
+unsigned int IndexRange::getStart() const
 {
   return start;
 }
 
-unsigned int IndexRange::getCount(void) const
+unsigned int IndexRange::getCount() const
 {
   return count;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-PrimitiveRange::PrimitiveRange(void):
+PrimitiveRange::PrimitiveRange():
   type(TRIANGLE_LIST),
   vertexBuffer(NULL),
   indexBuffer(NULL),
@@ -714,7 +714,7 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
 {
 }
 
-bool PrimitiveRange::isEmpty(void) const
+bool PrimitiveRange::isEmpty() const
 {
   if (vertexBuffer == NULL)
     return true;
@@ -722,55 +722,55 @@ bool PrimitiveRange::isEmpty(void) const
   return count == 0;
 }
 
-PrimitiveType PrimitiveRange::getType(void) const
+PrimitiveType PrimitiveRange::getType() const
 {
   return type;
 }
 
-VertexBuffer* PrimitiveRange::getVertexBuffer(void) const
+VertexBuffer* PrimitiveRange::getVertexBuffer() const
 {
   return vertexBuffer;
 }
 
-IndexBuffer* PrimitiveRange::getIndexBuffer(void) const
+IndexBuffer* PrimitiveRange::getIndexBuffer() const
 {
   return indexBuffer;
 }
 
-unsigned int PrimitiveRange::getStart(void) const
+unsigned int PrimitiveRange::getStart() const
 {
   return start;
 }
 
-unsigned int PrimitiveRange::getCount(void) const
+unsigned int PrimitiveRange::getCount() const
 {
   return count;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-RenderBuffer::~RenderBuffer(void)
+RenderBuffer::~RenderBuffer()
 {
   if (bufferID)
     glDeleteRenderbuffersEXT(1, &bufferID);
 }
 
-unsigned int RenderBuffer::getWidth(void) const
+unsigned int RenderBuffer::getWidth() const
 {
   return width;
 }
 
-unsigned int RenderBuffer::getHeight(void) const
+unsigned int RenderBuffer::getHeight() const
 {
   return height;
 }
 
-unsigned int RenderBuffer::getDepth(void) const
+unsigned int RenderBuffer::getDepth() const
 {
   return 1;
 }
 
-const PixelFormat& RenderBuffer::getFormat(void) const
+const PixelFormat& RenderBuffer::getFormat() const
 {
   return format;
 }
@@ -786,7 +786,7 @@ Ref<RenderBuffer> RenderBuffer::create(const PixelFormat& format,
   return buffer;
 }
 
-RenderBuffer::RenderBuffer(void):
+RenderBuffer::RenderBuffer():
   bufferID(0)
 {
 }

@@ -34,7 +34,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-bool initialize(void)
+bool initialize()
 {
   if (!glfwInit())
   {
@@ -45,7 +45,7 @@ bool initialize(void)
   return true;
 }
 
-void shutdown(void)
+void shutdown()
 {
   glfwTerminate();
 }

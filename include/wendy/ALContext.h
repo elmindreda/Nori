@@ -47,10 +47,10 @@ class Context : public Singleton<Context>
 public:
   /*! Destructor.
    */
-  ~Context(void);
+  ~Context();
   /*! @return The position of the context listener.
    */
-  const vec3& getListenerPosition(void) const;
+  const vec3& getListenerPosition() const;
   /*! Sets the position of the context listener.
    */
   void setListenerPosition(const vec3& newPosition);
@@ -59,7 +59,7 @@ public:
    *  @remarks The velocity doesn't affect the position of the source, but is
    *  used in combination with the source velocity to calculate doppler shift.
    */
-  const vec3& getListenerVelocity(void) const;
+  const vec3& getListenerVelocity() const;
   /*! Sets the velocity of the context listener.
    *
    *  @remarks The velocity doesn't affect the position of the source, but is
@@ -68,19 +68,19 @@ public:
   void setListenerVelocity(const vec3& newVelocity);
   /*! @return The gain of the context listener.
    */
-  const quat& getListenerRotation(void) const;
+  const quat& getListenerRotation() const;
   /*! Sets the rotation of the context listener.
    */
   void setListenerRotation(const quat& newRotation);
   /*! @return The gain of the context listener.
    */
-  float getListenerGain(void) const;
+  float getListenerGain() const;
   /*! Sets the listener gain of this context.
    */
   void setListenerGain(float newGain);
   /*! @return The resource index used by this context.
    */
-  ResourceIndex& getIndex(void) const;
+  ResourceIndex& getIndex() const;
   /*! Creates the context singleton object.
    *  @param[in] index The resource index to use.
    *  @return @c true if successful, or @c false otherwise.
@@ -89,7 +89,7 @@ public:
 private:
   Context(ResourceIndex& index);
   Context(const Context& source);
-  bool init(void);
+  bool init();
   Context& operator = (const Context& source);
   ResourceIndex& index;
   void* device;

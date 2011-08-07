@@ -56,7 +56,7 @@ bool VertexComponent::operator != (const VertexComponent& other) const
   return name != other.name || count != other.count || type != other.type;
 }
 
-size_t VertexComponent::getSize(void) const
+size_t VertexComponent::getSize() const
 {
   switch (type)
   {
@@ -67,29 +67,29 @@ size_t VertexComponent::getSize(void) const
   }
 }
 
-const String& VertexComponent::getName(void) const
+const String& VertexComponent::getName() const
 {
   return name;
 }
 
-VertexComponent::Type VertexComponent::getType(void) const
+VertexComponent::Type VertexComponent::getType() const
 {
   return type;
 }
 
-size_t VertexComponent::getOffset(void) const
+size_t VertexComponent::getOffset() const
 {
   return offset;
 }
 
-size_t VertexComponent::getElementCount(void) const
+size_t VertexComponent::getElementCount() const
 {
   return count;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-VertexFormat::VertexFormat(void)
+VertexFormat::VertexFormat()
 {
 }
 
@@ -184,7 +184,7 @@ bool VertexFormat::createComponents(const String& specification)
   return true;
 }
 
-void VertexFormat::destroyComponents(void)
+void VertexFormat::destroyComponents()
 {
   components.clear();
 }
@@ -213,7 +213,7 @@ bool VertexFormat::operator != (const VertexFormat& other) const
   return !(components == other.components);
 }
 
-size_t VertexFormat::getSize(void) const
+size_t VertexFormat::getSize() const
 {
   size_t size = 0;
 
@@ -223,12 +223,12 @@ size_t VertexFormat::getSize(void) const
   return size;
 }
 
-size_t VertexFormat::getComponentCount(void) const
+size_t VertexFormat::getComponentCount() const
 {
   return (size_t) components.size();
 }
 
-String VertexFormat::asString(void) const
+String VertexFormat::asString() const
 {
   std::ostringstream result;
 

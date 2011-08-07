@@ -41,7 +41,7 @@ template <typename T>
 class BezierPoint
 {
 public:
-  BezierPoint(void);
+  BezierPoint();
   BezierPoint(const T& position, const T& direction);
   void set(const T& position, const T& direction);
   T position;
@@ -62,14 +62,14 @@ class BezierCurve
 {
 public:
   typedef std::vector<T> PointList;
-  BezierCurve(void);
+  BezierCurve();
   void evaluate(float t, T& result) const;
   float length(float tolerance = 0.5f) const;
-  T center(void) const;
+  T center() const;
   void split(BezierCurve<T>& one, BezierCurve<T>& two) const;
   void tessellate(PointList& result, float tolerance = 0.5f) const;
   T operator () (float t);
-  void setDefaults(void);
+  void setDefaults();
   T P[4];
 };
 
@@ -101,7 +101,7 @@ typedef BezierSpline<vec3> BezierSpline3;
 ///////////////////////////////////////////////////////////////////////
 
 template <typename T>
-inline BezierCurve<T>::BezierCurve(void)
+inline BezierCurve<T>::BezierCurve()
 {
   setDefaults();
 }
@@ -135,7 +135,7 @@ inline float BezierCurve<T>::length(float tolerance) const
 }
 
 template <typename T>
-inline T BezierCurve<T>::center(void) const
+inline T BezierCurve<T>::center() const
 {
   return (P[0] + 3.f * P[1] + 3.f * P[2] + P[3]) / 8.f;
 }
@@ -190,12 +190,12 @@ inline T BezierCurve<T>::operator () (float t)
 }
 
 template <typename T>
-inline void BezierCurve<T>::setDefaults(void)
+inline void BezierCurve<T>::setDefaults()
 {
 }
 
 template <>
-inline void BezierCurve<vec2>::setDefaults(void)
+inline void BezierCurve<vec2>::setDefaults()
 {
   P[0] = vec2(0.f, 0.f);
   P[1] = vec2(1.f, 0.f);
@@ -204,7 +204,7 @@ inline void BezierCurve<vec2>::setDefaults(void)
 }
 
 template <>
-inline void BezierCurve<vec3>::setDefaults(void)
+inline void BezierCurve<vec3>::setDefaults()
 {
   P[0] = vec3(0.f, 0.f, 0.f);
   P[1] = vec3(1.f, 0.f, 0.f);
@@ -215,7 +215,7 @@ inline void BezierCurve<vec3>::setDefaults(void)
 ///////////////////////////////////////////////////////////////////////
 
 template <typename T>
-inline BezierPoint<T>::BezierPoint(void)
+inline BezierPoint<T>::BezierPoint()
 {
 }
 

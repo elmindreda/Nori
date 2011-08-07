@@ -41,9 +41,9 @@ namespace wendy
 class Reader
 {
 public:
-  virtual ~Reader(void);
+  virtual ~Reader();
 protected:
-  Reader(void);
+  Reader();
   bool read(std::istream& stream);
   virtual bool onBeginElement(const String& name) = 0;
   virtual bool onEndElement(const String& name) = 0;
@@ -76,21 +76,21 @@ private:
 class Writer
 {
 public:
-  Writer(void);
+  Writer();
 protected:
   void beginElement(const String& name);
-  void endElement(void);
-  void beginCDATA(void);
-  void endCDATA(void);
+  void endElement();
+  void beginCDATA();
+  void endCDATA();
   template <typename T>
   void addAttribute(const String& name, const T& value);
   template <typename T>
   void addAttributes(const T& value);
   void setStream(std::ostream* newStream);
-  std::ostream* getStream(void);
+  std::ostream* getStream();
 private:
   Writer(const Writer& source);
-  void closeElement(void);
+  void closeElement();
   Writer& operator = (const Writer& source);
   typedef std::stack<String> NameStack;
   NameStack stack;

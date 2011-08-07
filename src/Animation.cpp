@@ -63,7 +63,7 @@ bool KeyFrame3::operator < (const KeyFrame3& other) const
   return moment < other.moment;
 }
 
-Time KeyFrame3::getMoment(void) const
+Time KeyFrame3::getMoment() const
 {
   return moment;
 }
@@ -75,12 +75,12 @@ void KeyFrame3::setMoment(Time newMoment)
   track->flipRotations();
 }
 
-const Transform3& KeyFrame3::getTransform(void) const
+const Transform3& KeyFrame3::getTransform() const
 {
   return transform;
 }
 
-const vec3& KeyFrame3::getDirection(void) const
+const vec3& KeyFrame3::getDirection() const
 {
   return direction;
 }
@@ -141,7 +141,7 @@ void AnimTrack3::destroyKeyFrame(KeyFrame3& frame)
   }
 }
 
-void AnimTrack3::destroyKeyFrames(void)
+void AnimTrack3::destroyKeyFrames()
 {
   keyframes.clear();
 }
@@ -212,7 +212,7 @@ AnimTrack3& AnimTrack3::operator = (const AnimTrack3& source)
   return *this;
 }
 
-size_t AnimTrack3::getKeyFrameCount(void) const
+size_t AnimTrack3::getKeyFrameCount() const
 {
   return keyframes.size();
 }
@@ -227,12 +227,12 @@ const KeyFrame3& AnimTrack3::getKeyFrame(size_t index) const
   return keyframes[index];
 }
 
-const String& AnimTrack3::getName(void) const
+const String& AnimTrack3::getName() const
 {
   return name;
 }
 
-Time AnimTrack3::getDuration(void) const
+Time AnimTrack3::getDuration() const
 {
   if (keyframes.empty())
     return 0.0;
@@ -261,12 +261,12 @@ float AnimTrack3::getLength(float tolerance) const
   return length;
 }
 
-void AnimTrack3::sortKeyFrames(void)
+void AnimTrack3::sortKeyFrames()
 {
   std::stable_sort(keyframes.begin(), keyframes.end());
 }
 
-void AnimTrack3::flipRotations(void)
+void AnimTrack3::flipRotations()
 {
   for (size_t i = 1;  i < keyframes.size();  i++)
   {
@@ -320,7 +320,7 @@ void Anim3::destroyTrack(AnimTrack3& track)
   }
 }
 
-void Anim3::destroyTracks(void)
+void Anim3::destroyTracks()
 {
   tracks.clear();
 }
@@ -347,7 +347,7 @@ const AnimTrack3* Anim3::findTrack(const String& name) const
   return NULL;
 }
 
-size_t Anim3::getTrackCount(void) const
+size_t Anim3::getTrackCount() const
 {
   return tracks.size();
 }

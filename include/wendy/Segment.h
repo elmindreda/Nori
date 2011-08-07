@@ -35,9 +35,9 @@ template <typename T>
 class Segment
 {
 public:
-  Segment(void);
+  Segment();
   Segment(const T& start, const T& end);
-  float length(void) const;
+  float length() const;
   void set(const T& newStart, const T& newEnd);
   T start;
   T end;
@@ -46,7 +46,7 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 template <typename T>
-inline Segment<T>::Segment(void)
+inline Segment<T>::Segment()
 {
 }
 
@@ -58,7 +58,7 @@ inline Segment<T>::Segment(const T& initStart, const T& initEnd):
 }
 
 template <typename T>
-inline float Segment<T>::length(void) const
+inline float Segment<T>::length() const
 {
   return (end - start).length();
 }

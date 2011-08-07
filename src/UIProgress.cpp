@@ -54,12 +54,12 @@ Progress::Progress(Layer& layer, Orientation initOrientation):
     setSize(vec2(em * 1.5f, em * 10.f));
 }
 
-float Progress::getMinValue(void) const
+float Progress::getMinValue() const
 {
   return minValue;
 }
 
-float Progress::getMaxValue(void) const
+float Progress::getMaxValue() const
 {
   return maxValue;
 }
@@ -77,7 +77,7 @@ void Progress::setValueRange(float newMinValue, float newMaxValue)
     invalidate();
 }
 
-float Progress::getValue(void) const
+float Progress::getValue() const
 {
   return value;
 }
@@ -88,7 +88,7 @@ void Progress::setValue(float newValue)
   invalidate();
 }
 
-Orientation Progress::getOrientation(void) const
+Orientation Progress::getOrientation() const
 {
   return orientation;
 }
@@ -99,7 +99,7 @@ void Progress::setOrientation(Orientation newOrientation)
   invalidate();
 }
 
-void Progress::draw(void) const
+void Progress::draw() const
 {
   const Rect& area = getGlobalArea();
 

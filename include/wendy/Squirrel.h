@@ -60,16 +60,16 @@ class VM
   friend class Object;
 public:
   VM(ResourceIndex& index);
-  ~VM(void);
+  ~VM();
   bool execute(const Path& path);
   bool execute(const char* name, const char* text);
-  operator HSQUIRRELVM (void);
-  void* getForeignPointer(void) const;
+  operator HSQUIRRELVM ();
+  void* getForeignPointer() const;
   void setForeignPointer(void* newValue);
-  Table getRootTable(void);
-  Table getConstTable(void);
-  Table getRegistryTable(void);
-  ResourceIndex& getIndex(void) const;
+  Table getRootTable();
+  Table getConstTable();
+  Table getRegistryTable();
+  ResourceIndex& getIndex() const;
 private:
   static void onLogMessage(HSQUIRRELVM vm, const SQChar* format, ...);
   static void onLogError(HSQUIRRELVM vm, const SQChar* format, ...);
@@ -104,23 +104,23 @@ public:
 class Object
 {
 public:
-  Object(void);
+  Object();
   Object(HSQUIRRELVM vm, SQInteger index);
   Object(const Object& source);
-  ~Object(void);
+  ~Object();
   template <typename T>
-  T cast(void) const;
-  Object clone(void) const;
+  T cast() const;
+  Object clone() const;
   Object& operator = (const Object& source);
-  bool isNull(void) const;
-  bool isArray(void) const;
-  bool isTable(void) const;
-  bool isClass(void) const;
-  bool isInstance(void) const;
-  String asString(void) const;
-  SQObjectType getType(void) const;
-  HSQOBJECT getHandle(void);
-  HSQUIRRELVM getVM(void) const;
+  bool isNull() const;
+  bool isArray() const;
+  bool isTable() const;
+  bool isClass() const;
+  bool isInstance() const;
+  String asString() const;
+  SQObjectType getType() const;
+  HSQOBJECT getHandle();
+  HSQUIRRELVM getVM() const;
 protected:
   Object(HSQUIRRELVM vm);
   template <typename T>
@@ -133,7 +133,7 @@ protected:
                    size_t pointerSize,
                    SQFUNCTION function,
                    bool staticMember = false);
-  bool clear(void);
+  bool clear();
   bool call(const char* name);
   template <typename A1>
   bool call(const char* name, A1 a1);
@@ -149,13 +149,13 @@ protected:
   T get(const char* name);
   template <typename T>
   bool set(const char* name, T value);
-  SQInteger getSize(void) const;
+  SQInteger getSize() const;
   HSQUIRRELVM vm;
   HSQOBJECT handle;
 };
 
 template <typename T>
-inline T Object::cast(void) const
+inline T Object::cast() const
 {
   sq_pushobject(vm, handle);
   T value = Value<T>::get(vm, -1);
@@ -353,7 +353,7 @@ inline bool Object::set(const char* name, T value)
 class Array : public Object
 {
 public:
-  Array(void);
+  Array();
   Array(HSQUIRRELVM vm);
   Array(const Object& source);
   Array(HSQUIRRELVM vm, SQInteger index);
@@ -362,9 +362,9 @@ public:
   bool remove(SQInteger index);
   template <typename T>
   bool push(T value);
-  bool pop(void);
+  bool pop();
   bool resize(SQInteger newSize);
-  bool reverse(void);
+  bool reverse();
   using Object::clear;
   Object operator [] (SQInteger index) const;
   template <typename T>
@@ -448,7 +448,7 @@ inline bool Array::set(SQInteger index, T value)
 class Table : public Object
 {
 public:
-  Table(void);
+  Table();
   Table(HSQUIRRELVM vm);
   Table(const Object& source);
   Table(HSQUIRRELVM vm, SQInteger index);
@@ -827,11 +827,11 @@ inline SQFUNCTION demarshal(R (T::*method)(A1,A2) const)
 class Class : public Object
 {
 public:
-  Class(void);
+  Class();
   Class(HSQUIRRELVM vm);
   Class(const Object& source);
   Class(HSQUIRRELVM vm, SQInteger index);
-  Instance createInstance(void) const;
+  Instance createInstance() const;
   using Object::addSlot;
   using Object::addStaticSlot;
   using Object::removeSlot;
@@ -841,7 +841,7 @@ public:
   using Object::get;
   using Object::set;
   using Object::getSize;
-  Table getAttributes(void);
+  Table getAttributes();
   Table getMemberAttributes(const char* name);
 };
 
@@ -853,14 +853,14 @@ public:
 class Instance : public Object
 {
 public:
-  Instance(void);
+  Instance();
   Instance(const Object& source);
   Instance(HSQUIRRELVM vm, SQInteger index);
   using Object::call;
   using Object::eval;
   using Object::get;
   using Object::set;
-  Class getClass(void) const;
+  Class getClass() const;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -882,7 +882,7 @@ public:
   {
     return addFunction(name, &method, sizeof(method), demarshal(method), true);
   }
-  static HSQOBJECT getHandle(void);
+  static HSQOBJECT getHandle();
   static T* connectNativeInstance(HSQUIRRELVM vm, HSQOBJECT object);
   static void destroyNativeInstance(T* instance);
 private:
@@ -921,7 +921,7 @@ inline SharedClass<T>::SharedClass(HSQUIRRELVM initVM)
 }
 
 template <typename T>
-inline HSQOBJECT SharedClass<T>::getHandle(void)
+inline HSQOBJECT SharedClass<T>::getHandle()
 {
   return shared;
 }
@@ -976,8 +976,8 @@ public:
   SharedInstance(HSQUIRRELVM vm, SQInteger index);
   using Object::get;
   using Object::set;
-  T* getNative(void);
-  SharedClass<T> getClass(void) const;
+  T* getNative();
+  SharedClass<T> getClass() const;
 };
 
 template <typename T>
@@ -988,7 +988,7 @@ inline SharedInstance<T>::SharedInstance(HSQUIRRELVM vm, SQInteger index):
 }
 
 template <typename T>
-inline T* SharedInstance<T>::getNative(void)
+inline T* SharedInstance<T>::getNative()
 {
   sq_pushobject(vm, handle);
   T* result = NULL;
@@ -998,7 +998,7 @@ inline T* SharedInstance<T>::getNative(void)
 }
 
 template <typename T>
-inline SharedClass<T> SharedInstance<T>::getClass(void) const
+inline SharedClass<T> SharedInstance<T>::getClass() const
 {
   sq_pushobject(vm, handle);
   sq_getclass(vm, -1);

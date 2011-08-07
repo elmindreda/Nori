@@ -85,22 +85,22 @@ public:
    *
    *  @remarks The passes are rendered in creation order.
    */
-  Pass& createPass(void);
+  Pass& createPass();
   /*! Removes the specified %render pass from this technique.
    */
   void destroyPass(Pass& pass);
   /*! Destroys all %render passes in this technique.
    */
-  void destroyPasses(void);
+  void destroyPasses();
   /*! @return The %render passes in this technique.
    */
-  const PassList& getPasses(void) const;
+  const PassList& getPasses() const;
   /*! @return The type of this technique.
    */
-  Type getType(void) const;
+  Type getType() const;
   /*! @return The quality of this technique.
    */
-  float getQuality(void) const;
+  float getQuality() const;
   /*! Sets the quality of this technique.
    *  @param[in] newQuality The quality to set.
    */
@@ -136,7 +136,7 @@ public:
   void destroyTechnique(Technique& technique);
   /*! Destroys all techniques in this %render material.
    */
-  void destroyTechniques(void);
+  void destroyTechniques();
   /*! Searches for the highest quality technique of the specified type.
    *  @param[in] type The desired technique type.
    *  @return The desired technique, or @c NULL if no technique exists of the
@@ -151,10 +151,10 @@ public:
   const Technique* findBestTechnique(Technique::Type type) const;
   /*! @return The techniques in this material.
    */
-  TechniqueList& getTechniques(void);
+  TechniqueList& getTechniques();
   /*! @return The techniques in this material.
    */
-  const TechniqueList& getTechniques(void) const;
+  const TechniqueList& getTechniques() const;
   /*! Loads a material from the specified path using the specified context, or
    *  returns the already loaded material if it's already present in the
    *  resource index of the context.

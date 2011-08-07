@@ -36,7 +36,7 @@ namespace wendy
 class OBB2
 {
 public:
-  OBB2(void);
+  OBB2();
   OBB2(const vec2& size, const Transform2& orientation);
   OBB2(float width, float height);
   bool contains(const vec2& point) const;
@@ -55,7 +55,7 @@ public:
 class OBB3
 {
 public:
-  OBB3(void);
+  OBB3();
   OBB3(const vec3& size, const Transform3& orientation);
   OBB3(float width, float height, float depth);
   bool contains(const vec3& point) const;

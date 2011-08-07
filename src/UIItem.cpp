@@ -46,7 +46,7 @@ Item::Item(Layer& initLayer, const String& initValue, ItemID initID):
 {
 }
 
-Item::~Item(void)
+Item::~Item()
 {
 }
 
@@ -55,7 +55,7 @@ bool Item::operator < (const Item& other) const
   return value < other.value;
 }
 
-float Item::getWidth(void) const
+float Item::getWidth() const
 {
   Drawer& drawer = layer.getDrawer();
 
@@ -71,17 +71,17 @@ float Item::getWidth(void) const
   return width;
 }
 
-float Item::getHeight(void) const
+float Item::getHeight() const
 {
   return layer.getDrawer().getCurrentFont().getHeight() * 1.5f;
 }
 
-ItemID Item::getID(void) const
+ItemID Item::getID() const
 {
   return ID;
 }
 
-const String& Item::asString(void) const
+const String& Item::asString() const
 {
   return value;
 }
@@ -121,14 +121,14 @@ SeparatorItem::SeparatorItem(Layer& layer):
 {
 }
 
-float SeparatorItem::getWidth(void) const
+float SeparatorItem::getWidth() const
 {
   const float em = layer.getDrawer().getCurrentEM();
 
   return em * 3.f;
 }
 
-float SeparatorItem::getHeight(void) const
+float SeparatorItem::getHeight() const
 {
   const float em = layer.getDrawer().getCurrentEM();
 
@@ -161,21 +161,21 @@ TextureItem::TextureItem(Layer& layer,
 {
 }
 
-float TextureItem::getWidth(void) const
+float TextureItem::getWidth() const
 {
   const float em = layer.getDrawer().getCurrentEM();
 
   return Item::getWidth() + em * 3.f;
 }
 
-float TextureItem::getHeight(void) const
+float TextureItem::getHeight() const
 {
   const float em = layer.getDrawer().getCurrentEM();
 
   return em * 3.f;
 }
 
-GL::Texture& TextureItem::getTexture(void) const
+GL::Texture& TextureItem::getTexture() const
 {
   return *texture;
 }

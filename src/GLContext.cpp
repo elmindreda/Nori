@@ -211,7 +211,7 @@ bool isCompatible(const Attribute& attribute, const VertexComponent& component)
 
 ///////////////////////////////////////////////////////////////////////
 
-ScreenMode::ScreenMode(void)
+ScreenMode::ScreenMode()
 {
   setDefaults();
 }
@@ -225,7 +225,7 @@ ScreenMode::ScreenMode(unsigned int initWidth,
 {
 }
 
-void ScreenMode::setDefaults(void)
+void ScreenMode::setDefaults()
 {
   set(640, 480, 0);
 }
@@ -241,7 +241,7 @@ void ScreenMode::set(unsigned int newWidth,
 
 ///////////////////////////////////////////////////////////////////////
 
-ContextMode::ContextMode(void)
+ContextMode::ContextMode()
 {
   setDefaults();
 }
@@ -261,7 +261,7 @@ ContextMode::ContextMode(unsigned int width,
 {
 }
 
-void ContextMode::setDefaults(void)
+void ContextMode::setDefaults()
 {
   set(640, 480, 32, 32, 0, 0, WINDOWED);
 }
@@ -300,73 +300,73 @@ Limits::Limits(Context& initContext):
   maxVertexAttributes = getIntegerParameter(GL_MAX_VERTEX_ATTRIBS);
 }
 
-unsigned int Limits::getMaxColorAttachments(void) const
+unsigned int Limits::getMaxColorAttachments() const
 {
   return maxColorAttachments;
 }
 
-unsigned int Limits::getMaxDrawBuffers(void) const
+unsigned int Limits::getMaxDrawBuffers() const
 {
   return maxDrawBuffers;
 }
 
-unsigned int Limits::getMaxVertexTextureImageUnits(void) const
+unsigned int Limits::getMaxVertexTextureImageUnits() const
 {
   return maxVertexTextureImageUnits;
 }
 
-unsigned int Limits::getMaxFragmentTextureImageUnits(void) const
+unsigned int Limits::getMaxFragmentTextureImageUnits() const
 {
   return maxFragmentTextureImageUnits;
 }
 
-unsigned int Limits::getMaxCombinedTextureImageUnits(void) const
+unsigned int Limits::getMaxCombinedTextureImageUnits() const
 {
   return maxCombinedTextureImageUnits;
 }
 
-unsigned int Limits::getMaxTextureSize(void) const
+unsigned int Limits::getMaxTextureSize() const
 {
   return maxTextureSize;
 }
 
-unsigned int Limits::getMaxTexture3DSize(void) const
+unsigned int Limits::getMaxTexture3DSize() const
 {
   return maxTexture3DSize;
 }
 
-unsigned int Limits::getMaxTextureCubeSize(void) const
+unsigned int Limits::getMaxTextureCubeSize() const
 {
   return maxTextureCubeSize;
 }
 
-unsigned int Limits::getMaxTextureRectangleSize(void) const
+unsigned int Limits::getMaxTextureRectangleSize() const
 {
   return maxTextureRectangleSize;
 }
 
-unsigned int Limits::getMaxTextureCoords(void) const
+unsigned int Limits::getMaxTextureCoords() const
 {
   return maxTextureCoords;
 }
 
-unsigned int Limits::getMaxVertexAttributes(void) const
+unsigned int Limits::getMaxVertexAttributes() const
 {
   return maxVertexAttributes;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-Framebuffer::~Framebuffer(void)
+Framebuffer::~Framebuffer()
 {
 }
 
-float Framebuffer::getAspectRatio(void) const
+float Framebuffer::getAspectRatio() const
 {
   return getWidth() / (float) getHeight();
 }
 
-Context& Framebuffer::getContext(void) const
+Context& Framebuffer::getContext() const
 {
   return context;
 }
@@ -391,27 +391,27 @@ Framebuffer& Framebuffer::operator = (const Framebuffer& source)
 
 ///////////////////////////////////////////////////////////////////////
 
-unsigned int DefaultFramebuffer::getColorBits(void) const
+unsigned int DefaultFramebuffer::getColorBits() const
 {
   return mode.colorBits;
 }
 
-unsigned int DefaultFramebuffer::getDepthBits(void) const
+unsigned int DefaultFramebuffer::getDepthBits() const
 {
   return mode.depthBits;
 }
 
-unsigned int DefaultFramebuffer::getStencilBits(void) const
+unsigned int DefaultFramebuffer::getStencilBits() const
 {
   return mode.stencilBits;
 }
 
-unsigned int DefaultFramebuffer::getWidth(void) const
+unsigned int DefaultFramebuffer::getWidth() const
 {
   return mode.width;
 }
 
-unsigned int DefaultFramebuffer::getHeight(void) const
+unsigned int DefaultFramebuffer::getHeight() const
 {
   return mode.height;
 }
@@ -422,7 +422,7 @@ DefaultFramebuffer::DefaultFramebuffer(Context& context):
   // TODO: Get screen size.
 }
 
-void DefaultFramebuffer::apply(void) const
+void DefaultFramebuffer::apply() const
 {
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
@@ -433,19 +433,19 @@ void DefaultFramebuffer::apply(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-Image::~Image(void)
+Image::~Image()
 {
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-ImageFramebuffer::~ImageFramebuffer(void)
+ImageFramebuffer::~ImageFramebuffer()
 {
   if (bufferID)
     glDeleteFramebuffersEXT(1, &bufferID);
 }
 
-unsigned int ImageFramebuffer::getWidth(void) const
+unsigned int ImageFramebuffer::getWidth() const
 {
   unsigned int width = 0;
 
@@ -463,7 +463,7 @@ unsigned int ImageFramebuffer::getWidth(void) const
   return width;
 }
 
-unsigned int ImageFramebuffer::getHeight(void) const
+unsigned int ImageFramebuffer::getHeight() const
 {
   unsigned int height = 0;
 
@@ -481,12 +481,12 @@ unsigned int ImageFramebuffer::getHeight(void) const
   return height;
 }
 
-Image* ImageFramebuffer::getColorBuffer(void) const
+Image* ImageFramebuffer::getColorBuffer() const
 {
   return images[COLOR_BUFFER0];
 }
 
-Image* ImageFramebuffer::getDepthBuffer(void) const
+Image* ImageFramebuffer::getDepthBuffer() const
 {
   return images[DEPTH_BUFFER];
 }
@@ -557,7 +557,7 @@ ImageFramebuffer::ImageFramebuffer(Context& context):
 {
 }
 
-bool ImageFramebuffer::init(void)
+bool ImageFramebuffer::init()
 {
   glGenFramebuffersEXT(1, &bufferID);
 
@@ -569,7 +569,7 @@ bool ImageFramebuffer::init(void)
   return true;
 }
 
-void ImageFramebuffer::apply(void) const
+void ImageFramebuffer::apply() const
 {
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
 
@@ -596,7 +596,7 @@ void ImageFramebuffer::apply(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-Stats::Stats(void):
+Stats::Stats():
   frameCount(0),
   frameRate(0.f)
 {
@@ -605,7 +605,7 @@ Stats::Stats(void):
   timer.start();
 }
 
-void Stats::addFrame(void)
+void Stats::addFrame()
 {
   frameCount++;
 
@@ -659,24 +659,24 @@ void Stats::addPrimitives(PrimitiveType type, unsigned int count)
   }
 }
 
-float Stats::getFrameRate(void) const
+float Stats::getFrameRate() const
 {
   return frameRate;
 }
 
-unsigned int Stats::getFrameCount(void) const
+unsigned int Stats::getFrameCount() const
 {
   return frameCount;
 }
 
-const Stats::Frame& Stats::getFrame(void) const
+const Stats::Frame& Stats::getFrame() const
 {
   return frames.front();
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-Stats::Frame::Frame(void):
+Stats::Frame::Frame():
   passCount(0),
   vertexCount(0),
   pointCount(0),
@@ -710,7 +710,7 @@ SharedUniform::SharedUniform(const String& initName,
 
 ///////////////////////////////////////////////////////////////////////
 
-Context::~Context(void)
+Context::~Context()
 {
   setDefaultFramebufferCurrent();
   setCurrentVertexBuffer(NULL);
@@ -855,12 +855,12 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
     stats->addPrimitives(type, count);
 }
 
-void Context::refresh(void)
+void Context::refresh()
 {
   needsRefresh = true;
 }
 
-bool Context::update(void)
+bool Context::update()
 {
   glfwSwapBuffers();
   finishSignal.emit();
@@ -884,7 +884,7 @@ bool Context::update(void)
   return !needsClosing;
 }
 
-void Context::requestClose(void)
+void Context::requestClose()
 {
   closeCallback();
 }
@@ -951,7 +951,7 @@ int Context::getSharedUniformID(const String& name, Uniform::Type type) const
   return INVALID_SHARED_STATE_ID;
 }
 
-SharedProgramState* Context::getCurrentSharedProgramState(void) const
+SharedProgramState* Context::getCurrentSharedProgramState() const
 {
   return currentState;
 }
@@ -961,12 +961,12 @@ void Context::setCurrentSharedProgramState(SharedProgramState* newState)
   currentState = newState;
 }
 
-const String& Context::getSharedProgramStateDeclaration(void) const
+const String& Context::getSharedProgramStateDeclaration() const
 {
   return declaration;
 }
 
-Context::RefreshMode Context::getRefreshMode(void) const
+Context::RefreshMode Context::getRefreshMode() const
 {
   return refreshMode;
 }
@@ -976,12 +976,12 @@ void Context::setRefreshMode(RefreshMode newMode)
   refreshMode = newMode;
 }
 
-const Recti& Context::getScissorArea(void) const
+const Recti& Context::getScissorArea() const
 {
   return scissorArea;
 }
 
-const Recti& Context::getViewportArea(void) const
+const Recti& Context::getViewportArea() const
 {
   return viewportArea;
 }
@@ -1015,17 +1015,17 @@ void Context::setViewportArea(const Recti& newArea)
 	     viewportArea.size.y);
 }
 
-Framebuffer& Context::getCurrentFramebuffer(void) const
+Framebuffer& Context::getCurrentFramebuffer() const
 {
   return *currentFramebuffer;
 }
 
-DefaultFramebuffer& Context::getDefaultFramebuffer(void) const
+DefaultFramebuffer& Context::getDefaultFramebuffer() const
 {
   return *defaultFramebuffer;
 }
 
-void Context::setDefaultFramebufferCurrent(void)
+void Context::setDefaultFramebufferCurrent()
 {
   setCurrentFramebuffer(*defaultFramebuffer);
 }
@@ -1049,7 +1049,7 @@ bool Context::setCurrentFramebuffer(Framebuffer& newFramebuffer)
   return true;
 }
 
-Program* Context::getCurrentProgram(void) const
+Program* Context::getCurrentProgram() const
 {
   return currentProgram;
 }
@@ -1071,7 +1071,7 @@ void Context::setCurrentProgram(Program* newProgram)
   }
 }
 
-VertexBuffer* Context::getCurrentVertexBuffer(void) const
+VertexBuffer* Context::getCurrentVertexBuffer() const
 {
   return currentVertexBuffer;
 }
@@ -1095,7 +1095,7 @@ void Context::setCurrentVertexBuffer(VertexBuffer* newVertexBuffer)
   }
 }
 
-IndexBuffer* Context::getCurrentIndexBuffer(void) const
+IndexBuffer* Context::getCurrentIndexBuffer() const
 {
   return currentIndexBuffer;
 }
@@ -1119,7 +1119,7 @@ void Context::setCurrentIndexBuffer(IndexBuffer* newIndexBuffer)
   }
 }
 
-Texture* Context::getCurrentTexture(void) const
+Texture* Context::getCurrentTexture() const
 {
   return textureUnits[activeTextureUnit];
 }
@@ -1163,7 +1163,7 @@ void Context::setCurrentTexture(Texture* newTexture)
   }
 }
 
-unsigned int Context::getActiveTextureUnit(void) const
+unsigned int Context::getActiveTextureUnit() const
 {
   return activeTextureUnit;
 }
@@ -1182,7 +1182,7 @@ void Context::setActiveTextureUnit(unsigned int unit)
   }
 }
 
-Stats* Context::getStats(void) const
+Stats* Context::getStats() const
 {
   return stats;
 }
@@ -1192,7 +1192,7 @@ void Context::setStats(Stats* newStats)
   stats = newStats;
 }
 
-const String& Context::getTitle(void) const
+const String& Context::getTitle() const
 {
   return title;
 }
@@ -1203,27 +1203,27 @@ void Context::setTitle(const String& newTitle)
   title = newTitle;
 }
 
-ResourceIndex& Context::getIndex(void) const
+ResourceIndex& Context::getIndex() const
 {
   return index;
 }
 
-const Limits& Context::getLimits(void) const
+const Limits& Context::getLimits() const
 {
   return *limits;
 }
 
-SignalProxy0<void> Context::getFinishSignal(void)
+SignalProxy0<void> Context::getFinishSignal()
 {
   return finishSignal;
 }
 
-SignalProxy0<bool> Context::getCloseRequestSignal(void)
+SignalProxy0<bool> Context::getCloseRequestSignal()
 {
   return closeRequestSignal;
 }
 
-SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal(void)
+SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal()
 {
   return resizedSignal;
 }
@@ -1406,7 +1406,7 @@ void Context::sizeCallback(int width, int height)
   instance->resizedSignal.emit(width, height);
 }
 
-int Context::closeCallback(void)
+int Context::closeCallback()
 {
   std::vector<bool> results;
 
@@ -1418,7 +1418,7 @@ int Context::closeCallback(void)
   return GL_TRUE;
 }
 
-void Context::refreshCallback(void)
+void Context::refreshCallback()
 {
   instance->needsRefresh = true;
 }

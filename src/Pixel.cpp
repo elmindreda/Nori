@@ -102,12 +102,12 @@ bool PixelFormat::operator != (const PixelFormat& other) const
   return semantic != other.semantic || type != other.type;
 }
 
-size_t PixelFormat::getSize(void) const
+size_t PixelFormat::getSize() const
 {
   return getChannelSize() * getChannelCount();
 }
 
-size_t PixelFormat::getChannelSize(void) const
+size_t PixelFormat::getChannelSize() const
 {
   switch (type)
   {
@@ -128,17 +128,17 @@ size_t PixelFormat::getChannelSize(void) const
   }
 }
 
-PixelFormat::Type PixelFormat::getType(void) const
+PixelFormat::Type PixelFormat::getType() const
 {
   return type;
 }
 
-PixelFormat::Semantic PixelFormat::getSemantic(void) const
+PixelFormat::Semantic PixelFormat::getSemantic() const
 {
   return semantic;
 }
 
-unsigned int PixelFormat::getChannelCount(void) const
+unsigned int PixelFormat::getChannelCount() const
 {
   switch (semantic)
   {
@@ -158,7 +158,7 @@ unsigned int PixelFormat::getChannelCount(void) const
   }
 }
 
-String PixelFormat::asString(void) const
+String PixelFormat::asString() const
 {
   std::ostringstream result;
 
@@ -238,7 +238,7 @@ const PixelFormat PixelFormat::DEPTH32F(PixelFormat::DEPTH, PixelFormat::FLOAT32
 
 ///////////////////////////////////////////////////////////////////////
 
-PixelTransform::~PixelTransform(void)
+PixelTransform::~PixelTransform()
 {
 }
 

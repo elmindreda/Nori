@@ -39,11 +39,11 @@ class Button : public Widget
 {
 public:
   Button(Layer& layer, const String& text = "");
-  const String& getText(void) const;
+  const String& getText() const;
   void setText(const String& newText);
-  SignalProxy1<void, Button&> getPushedSignal(void);
+  SignalProxy1<void, Button&> getPushedSignal();
 protected:
-  void draw(void) const;
+  void draw() const;
 private:
   void onButtonClicked(Widget& widget,
 		       const vec2& position,

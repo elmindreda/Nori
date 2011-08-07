@@ -64,7 +64,7 @@ public:
   Node(const Node& source);
   /*! Destructor.
    */
-  virtual ~Node(void);
+  virtual ~Node();
   /*! Attaches the specified node as a child to this node.
    *  @param[in] child The node to attach to this node.
    *  @return @c true if successful, or false if the specified node was a
@@ -74,28 +74,28 @@ public:
   /*! Removes the specified child node from this node.
    *  @param[in] child The child node to remove.
    */
-  void removeFromParent(void);
+  void removeFromParent();
   /*! Deletes all attached children.
    */
-  void destroyChildren(void);
+  void destroyChildren();
   /*! @return @c true if the specified node is a parent of this node, otherwise @c false.
    */
   bool isChildOf(const Node& node) const;
   /*! @return @c true if this scene node is visible, otherwise @c false.
    */
-  bool isVisible(void) const;
+  bool isVisible() const;
   /*! @return @c true if this node has any children, otherwise @c false.
    */
-  bool hasChildren(void) const;
-  const String& getName(void) const;
+  bool hasChildren() const;
+  const String& getName() const;
   void setName(const String& newName);
-  Graph* getGraph(void) const;
+  Graph* getGraph() const;
   /*! @return The parent of this node.
    */
-  Node* getParent(void) const;
+  Node* getParent() const;
   /*! @return The list of children of this node.
    */
-  const List& getChildren(void) const;
+  const List& getChildren() const;
   /*! Sets the visible state of this scene node.
    *  @param enabled @c true to make this scene node visible, or @c false to
    *  hide it.
@@ -103,7 +103,7 @@ public:
   void setVisible(bool enabled);
   /*! @return The local-to-parent transform of this scene node.
    */
-  const Transform3& getLocalTransform(void) const;
+  const Transform3& getLocalTransform() const;
   /*! Sets the local-to-parent transform of this scene node.
    */
   void setLocalTransform(const Transform3& newTransform);
@@ -111,10 +111,10 @@ public:
   void setLocalRotation(const quat& newRotation);
   /*! @return The local-to-world transform of this scene node.
    */
-  const Transform3& getWorldTransform(void) const;
+  const Transform3& getWorldTransform() const;
   /*! @return The local space bounds of this node.
    */
-  const Sphere& getLocalBounds(void) const;
+  const Sphere& getLocalBounds() const;
   /*! Sets the local space bounds of this node.
    *  @param[in] newBounds The desired new bounds of this node.
    */
@@ -122,14 +122,14 @@ public:
   /*! @return The local space union of the bounds of this node and all its
    *  child nodes.
    */
-  const Sphere& getTotalBounds(void) const;
+  const Sphere& getTotalBounds() const;
 protected:
   virtual void addedToParent(Node& parent);
-  virtual void removedFromParent(void);
+  virtual void removedFromParent();
   /*! Called when the scene graph is updated.  This is the correct place to put
    *  per-frame operations which affect the transform or bounds.
    */
-  virtual void update(void);
+  virtual void update();
   /*! Called when the scene graph is collecting rendering information.  All the
    *  operations required to render this scene node should be put into the
    *  specified render queue.
@@ -137,8 +137,8 @@ protected:
    */
   virtual void enqueue(render::Scene& scene, const render::Camera& camera) const;
 private:
-  void invalidateBounds(void);
-  bool updateWorldTransform(void) const;
+  void invalidateBounds();
+  bool updateWorldTransform() const;
   void setGraph(Graph* newGraph);
   String name;
   Node* parent;
@@ -165,14 +165,14 @@ class Graph
 {
   friend class Node;
 public:
-  ~Graph(void);
-  void update(void);
+  ~Graph();
+  void update();
   void enqueue(render::Scene& scene, const render::Camera& camera) const;
   void query(const Sphere& bounds, Node::List& nodes) const;
   void query(const Frustum& frustum, Node::List& nodes) const;
   void addRootNode(Node& node);
-  void destroyRootNodes(void);
-  const Node::List& getNodes(void) const;
+  void destroyRootNodes();
+  const Node::List& getNodes() const;
 private:
   Node::List roots;
 };
@@ -185,10 +185,10 @@ class LightNode : public Node
 {
 public:
   explicit LightNode(const String& name = "");
-  render::Light* getLight(void) const;
+  render::Light* getLight() const;
   void setLight(render::Light* newLight);
 protected:
-  void update(void);
+  void update();
   void enqueue(render::Scene& scene, const render::Camera& camera) const;
 private:
   Ref<render::Light> light;
@@ -202,9 +202,9 @@ class ModelNode : public Node
 {
 public:
   explicit ModelNode(const String& name = "");
-  bool isShadowCaster(void) const;
+  bool isShadowCaster() const;
   void setCastsShadows(bool enabled);
-  render::Model* getModel(void) const;
+  render::Model* getModel() const;
   void setModel(render::Model* newModel);
 protected:
   void enqueue(render::Scene& scene, const render::Camera& camera) const;
@@ -221,10 +221,10 @@ class CameraNode : public Node
 {
 public:
   explicit CameraNode(const String& name = "");
-  render::Camera* getCamera(void) const;
+  render::Camera* getCamera() const;
   void setCamera(render::Camera* newCamera);
 protected:
-  void update(void);
+  void update();
 private:
   Ref<render::Camera> camera;
 };
@@ -237,9 +237,9 @@ class SpriteNode : public Node
 {
 public:
   explicit SpriteNode(const String& name = "");
-  render::Material* getMaterial(void) const;
+  render::Material* getMaterial() const;
   void setMaterial(render::Material* newMaterial);
-  const vec2& getSpriteSize(void) const;
+  const vec2& getSpriteSize() const;
   void setSpriteSize(const vec2& newSize);
 protected:
   void enqueue(render::Scene& scene, const render::Camera& camera) const;

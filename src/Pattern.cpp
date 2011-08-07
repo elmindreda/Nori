@@ -37,7 +37,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-size_t PatternMatch::getCount(void) const
+size_t PatternMatch::getCount() const
 {
   return offsets.size();
 }
@@ -71,7 +71,7 @@ Pattern::Pattern(const String& source)
     throw Exception("Failed to compile PCRE pattern");
 }
 
-Pattern::~Pattern(void)
+Pattern::~Pattern()
 {
   if (object)
     pcre_free(object);
@@ -136,7 +136,7 @@ Pattern* Pattern::create(const String& source)
   return pattern.detachObject();
 }
 
-Pattern::Pattern(void):
+Pattern::Pattern():
   object(NULL)
 {
 }

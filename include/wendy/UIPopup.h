@@ -42,18 +42,18 @@ public:
   void addItem(Item& item);
   void addItem(const String& value, ItemID ID = 0);
   void removeItem(Item& item);
-  void destroyItems(void);
-  unsigned int getSelection(void) const;
+  void destroyItems();
+  unsigned int getSelection() const;
   void setSelection(unsigned int newIndex);
-  unsigned int getItemCount(void) const;
+  unsigned int getItemCount() const;
   Item* getItem(unsigned int index);
   const Item* getItem(unsigned int index) const;
   String getItemValue(unsigned int index) const;
-  SignalProxy2<void, Popup&, unsigned int> getItemSelectedSignal(void);
+  SignalProxy2<void, Popup&, unsigned int> getItemSelectedSignal();
 protected:
-  void draw(void) const;
+  void draw() const;
 private:
-  void display(void);
+  void display();
   void onButtonClicked(Widget& widget,
 		       const vec2& position,
 		       input::Button button,

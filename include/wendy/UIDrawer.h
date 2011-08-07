@@ -153,8 +153,8 @@ private:
 class Drawer
 {
 public:
-  void begin(void);
-  void end(void);
+  void begin();
+  void end();
   /*! Pushes a clipping area onto the clip stack. The current
    *  clipping area then becomes the specified area as clipped by the
    *  previously current clipping area.
@@ -176,7 +176,7 @@ public:
   /*! Pops the top clipping area from the clip stack, restoring the
    *  previously current clipping area.
    */
-  void popClipArea(void);
+  void popClipArea();
   void drawPoint(const vec2& point, const vec4& color);
   void drawLine(const Segment2& segment, const vec4& color);
   void drawTriangle(const Triangle2& triangle, const vec4& color);
@@ -197,15 +197,15 @@ public:
   void drawFrame(const Rect& area, WidgetState state);
   void drawHandle(const Rect& area, WidgetState state);
   void drawButton(const Rect& area, WidgetState state, const String& text = "");
-  const Theme& getTheme(void) const;
-  const render::Font& getCurrentFont(void);
+  const Theme& getTheme() const;
+  const render::Font& getCurrentFont();
   void setCurrentFont(render::Font* newFont);
-  float getCurrentEM(void) const;
-  render::GeometryPool& getGeometryPool(void) const;
+  float getCurrentEM() const;
+  render::GeometryPool& getGeometryPool() const;
   static Drawer* create(render::GeometryPool& pool);
 private:
   Drawer(render::GeometryPool& pool);
-  bool init(void);
+  bool init();
   void drawElement(const Rect& area, const Rect& mapping);
   void setDrawingState(const vec4& color, bool wireframe);
   render::GeometryPool& pool;

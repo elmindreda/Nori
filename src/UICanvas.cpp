@@ -44,12 +44,12 @@ Canvas::Canvas(Layer& layer):
 {
 }
 
-SignalProxy1<void, const Canvas&> Canvas::getDrawSignal(void)
+SignalProxy1<void, const Canvas&> Canvas::getDrawSignal()
 {
   return drawSignal;
 }
 
-void Canvas::draw(void) const
+void Canvas::draw() const
 {
   UI::Drawer& drawer = getLayer().getDrawer();
   GL::Context& context = drawer.getGeometryPool().getContext();

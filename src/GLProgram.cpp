@@ -295,7 +295,7 @@ const unsigned int PROGRAM_XML_VERSION = 3;
 
 ///////////////////////////////////////////////////////////////////////
 
-Shader::Shader(void)
+Shader::Shader()
 {
 }
 
@@ -312,12 +312,12 @@ bool Attribute::operator == (const char* string) const
   return name == string;
 }
 
-bool Attribute::isScalar(void) const
+bool Attribute::isScalar() const
 {
   return type == FLOAT;
 }
 
-bool Attribute::isVector(void) const
+bool Attribute::isVector() const
 {
   if (type == VEC2 || type == VEC3 || type == VEC4)
     return true;
@@ -325,12 +325,12 @@ bool Attribute::isVector(void) const
   return false;
 }
 
-Attribute::Type Attribute::getType(void) const
+Attribute::Type Attribute::getType() const
 {
   return type;
 }
 
-const String& Attribute::getName(void) const
+const String& Attribute::getName() const
 {
   return name;
 }
@@ -383,22 +383,22 @@ bool Sampler::operator == (const char* string) const
   return name == string;
 }
 
-bool Sampler::isShared(void) const
+bool Sampler::isShared() const
 {
   return sharedID != INVALID_SHARED_STATE_ID;
 }
 
-Sampler::Type Sampler::getType(void) const
+Sampler::Type Sampler::getType() const
 {
   return type;
 }
 
-const String& Sampler::getName(void) const
+const String& Sampler::getName() const
 {
   return name;
 }
 
-int Sampler::getSharedID(void) const
+int Sampler::getSharedID() const
 {
   return sharedID;
 }
@@ -462,17 +462,17 @@ bool Uniform::operator == (const char* string) const
   return name == string;
 }
 
-bool Uniform::isShared(void) const
+bool Uniform::isShared() const
 {
   return sharedID != INVALID_SHARED_STATE_ID;
 }
 
-bool Uniform::isScalar(void) const
+bool Uniform::isScalar() const
 {
   return type == FLOAT;
 }
 
-bool Uniform::isVector(void) const
+bool Uniform::isVector() const
 {
   if (type == VEC2 || type == VEC3 || type == VEC4)
     return true;
@@ -480,7 +480,7 @@ bool Uniform::isVector(void) const
   return false;
 }
 
-bool Uniform::isMatrix(void) const
+bool Uniform::isMatrix() const
 {
   if (type == MAT2 || type == MAT3 || type == MAT4)
     return true;
@@ -488,17 +488,17 @@ bool Uniform::isMatrix(void) const
   return false;
 }
 
-Uniform::Type Uniform::getType(void) const
+Uniform::Type Uniform::getType() const
 {
   return type;
 }
 
-const String& Uniform::getName(void) const
+const String& Uniform::getName() const
 {
   return name;
 }
 
-unsigned int Uniform::getElementCount(void) const
+unsigned int Uniform::getElementCount() const
 {
   switch (type)
   {
@@ -522,7 +522,7 @@ unsigned int Uniform::getElementCount(void) const
   return 0;
 }
 
-int Uniform::getSharedID(void) const
+int Uniform::getSharedID() const
 {
   return sharedID;
 }
@@ -553,7 +553,7 @@ const char* Uniform::getTypeName(Type type)
 
 ///////////////////////////////////////////////////////////////////////
 
-Program::~Program(void)
+Program::~Program()
 {
   if (vertexShaderID)
     glDeleteShader(vertexShaderID);
@@ -619,12 +619,12 @@ const Uniform* Program::findUniform(const char* name) const
   return &(*i);
 }
 
-bool Program::isCurrent(void) const
+bool Program::isCurrent() const
 {
   return context.getCurrentProgram() == this;
 }
 
-unsigned int Program::getAttributeCount(void) const
+unsigned int Program::getAttributeCount() const
 {
   return attributes.size();
 }
@@ -639,7 +639,7 @@ const Attribute& Program::getAttribute(unsigned int index) const
   return attributes[index];
 }
 
-unsigned int Program::getSamplerCount(void) const
+unsigned int Program::getSamplerCount() const
 {
   return samplers.size();
 }
@@ -654,7 +654,7 @@ const Sampler& Program::getSampler(unsigned int index) const
   return samplers[index];
 }
 
-unsigned int Program::getUniformCount(void) const
+unsigned int Program::getUniformCount() const
 {
   return uniforms.size();
 }
@@ -669,7 +669,7 @@ const Uniform& Program::getUniform(unsigned int index) const
   return uniforms[index];
 }
 
-Context& Program::getContext(void) const
+Context& Program::getContext() const
 {
   return context;
 }
@@ -751,7 +751,7 @@ bool Program::init(const Shader& vertexShader, const Shader& fragmentShader)
   return true;
 }
 
-bool Program::retrieveUniforms(void)
+bool Program::retrieveUniforms()
 {
   GLint uniformCount;
   glGetProgramiv(programID, GL_ACTIVE_UNIFORMS, &uniformCount);
@@ -818,7 +818,7 @@ bool Program::retrieveUniforms(void)
   return true;
 }
 
-bool Program::retrieveAttributes(void)
+bool Program::retrieveAttributes()
 {
   GLint attributeCount;
   glGetProgramiv(programID, GL_ACTIVE_ATTRIBUTES, &attributeCount);
@@ -868,7 +868,7 @@ bool Program::retrieveAttributes(void)
   return true;
 }
 
-void Program::bind(void)
+void Program::bind()
 {
   glUseProgram(programID);
 
@@ -878,7 +878,7 @@ void Program::bind(void)
     glEnableVertexAttribArray(a->location);
 }
 
-void Program::unbind(void)
+void Program::unbind()
 {
   typedef AttributeList::const_iterator It;
 
@@ -891,7 +891,7 @@ Program& Program::operator = (const Program& source)
   return *this;
 }
 
-bool Program::isValid(void) const
+bool Program::isValid() const
 {
   glValidateProgram(programID);
 

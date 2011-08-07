@@ -65,7 +65,7 @@ Technique::Technique(Type initType):
 {
 }
 
-Pass& Technique::createPass(void)
+Pass& Technique::createPass()
 {
   passes.push_back(Pass());
   return passes.back();
@@ -83,22 +83,22 @@ void Technique::destroyPass(Pass& pass)
   }
 }
 
-void Technique::destroyPasses(void)
+void Technique::destroyPasses()
 {
   passes.clear();
 }
 
-const PassList& Technique::getPasses(void) const
+const PassList& Technique::getPasses() const
 {
   return passes;
 }
 
-Technique::Type Technique::getType(void) const
+Technique::Type Technique::getType() const
 {
   return type;
 }
 
-float Technique::getQuality(void) const
+float Technique::getQuality() const
 {
   return quality;
 }
@@ -133,7 +133,7 @@ void Material::destroyTechnique(Technique& technique)
   }
 }
 
-void Material::destroyTechniques(void)
+void Material::destroyTechniques()
 {
   techniques.clear();
 }
@@ -174,12 +174,12 @@ const Technique* Material::findBestTechnique(Technique::Type type) const
   return best;
 }
 
-TechniqueList& Material::getTechniques(void)
+TechniqueList& Material::getTechniques()
 {
   return techniques;
 }
 
-const TechniqueList& Material::getTechniques(void) const
+const TechniqueList& Material::getTechniques() const
 {
   return techniques;
 }

@@ -37,7 +37,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Plane::Plane(void):
+Plane::Plane():
   normal(0.f, 1.f, 0.f),
   distance(0.f)
 {

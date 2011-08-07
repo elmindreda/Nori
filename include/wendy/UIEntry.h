@@ -39,14 +39,14 @@ class Entry : public Widget
 {
 public:
   Entry(Layer& layer, const String& text = "");
-  const String& getText(void) const;
+  const String& getText() const;
   void setText(const String& newText);
-  unsigned int getCaretPosition(void) const;
+  unsigned int getCaretPosition() const;
   void setCaretPosition(unsigned int newPosition);
-  SignalProxy1<void, Entry&> getTextChangedSignal(void);
-  SignalProxy1<void, Entry&> getCaretMovedSignal(void);
+  SignalProxy1<void, Entry&> getTextChangedSignal();
+  SignalProxy1<void, Entry&> getCaretMovedSignal();
 protected:
-  void draw(void) const;
+  void draw() const;
 private:
   void onButtonClicked(Widget& widget,
 		       const vec2& position,

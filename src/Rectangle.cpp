@@ -36,7 +36,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Rect::Rect(void)
+Rect::Rect()
 {
 }
 
@@ -147,7 +147,7 @@ void Rect::envelop(const Rect& other)
   setBounds(minX, minY, maxX, maxY);
 }
 
-void Rect::normalize(void)
+void Rect::normalize()
 {
   if (size.x < 0.f)
   {
@@ -206,7 +206,7 @@ Rect& Rect::operator *= (const vec2& scale)
   return *this;
 }
 
-vec2 Rect::getCenter(void) const
+vec2 Rect::getCenter() const
 {
   return position + size / 2.f;
 }
@@ -259,7 +259,7 @@ void Rect::set(float x, float y, float width, float height)
 
 ///////////////////////////////////////////////////////////////////////
 
-Recti::Recti(void)
+Recti::Recti()
 {
 }
 
@@ -370,7 +370,7 @@ void Recti::envelop(const Recti& other)
   setBounds(minX, minY, maxX, maxY);
 }
 
-void Recti::normalize(void)
+void Recti::normalize()
 {
   if (size.x < 0)
   {
@@ -429,7 +429,7 @@ Recti& Recti::operator *= (const ivec2& scale)
   return *this;
 }
 
-ivec2 Recti::getCenter(void) const
+ivec2 Recti::getCenter() const
 {
   return position + size / 2;
 }

@@ -50,7 +50,7 @@ Widget::Widget(Layer& initlayer):
   assert(&layer);
 }
 
-Widget::~Widget(void)
+Widget::~Widget()
 {
   destroyChildren();
   removeFromParent();
@@ -73,7 +73,7 @@ void Widget::addChild(Widget& child)
   invalidate();
 }
 
-void Widget::destroyChildren(void)
+void Widget::destroyChildren()
 {
   while (!children.empty())
     delete children.back();
@@ -81,7 +81,7 @@ void Widget::destroyChildren(void)
   invalidate();
 }
 
-void Widget::removeFromParent(void)
+void Widget::removeFromParent()
 {
   WidgetList* siblings;
 
@@ -134,30 +134,30 @@ vec2 Widget::transformToGlobal(const vec2& localPoint) const
   return localPoint + getGlobalArea().position;
 }
 
-void Widget::enable(void)
+void Widget::enable()
 {
   enabled = true;
   invalidate();
 }
 
-void Widget::disable(void)
+void Widget::disable()
 {
   enabled = false;
   // TODO: Handle deactivation
   invalidate();
 }
 
-void Widget::invalidate(void)
+void Widget::invalidate()
 {
   layer.invalidate();
 }
 
-void Widget::activate(void)
+void Widget::activate()
 {
   layer.setActiveWidget(this);
 }
 
-void Widget::bringToFront(void)
+void Widget::bringToFront()
 {
   WidgetList* siblings;
 
@@ -173,7 +173,7 @@ void Widget::bringToFront(void)
   invalidate();
 }
 
-void Widget::sendToBack(void)
+void Widget::sendToBack()
 {
   WidgetList* siblings;
 
@@ -189,13 +189,13 @@ void Widget::sendToBack(void)
   invalidate();
 }
 
-void Widget::cancelDragging(void)
+void Widget::cancelDragging()
 {
   if (isBeingDragged())
     layer.cancelDragging();
 }
 
-bool Widget::isEnabled(void) const
+bool Widget::isEnabled() const
 {
   if (!enabled)
     return false;
@@ -206,7 +206,7 @@ bool Widget::isEnabled(void) const
   return true;
 }
 
-bool Widget::isVisible(void) const
+bool Widget::isVisible() const
 {
   if (!visible)
     return false;
@@ -217,22 +217,22 @@ bool Widget::isVisible(void) const
   return true;
 }
 
-bool Widget::isActive(void) const
+bool Widget::isActive() const
 {
   return layer.getActiveWidget() == this;
 }
 
-bool Widget::isUnderCursor(void) const
+bool Widget::isUnderCursor() const
 {
   return layer.getHoveredWidget() == this;
 }
 
-bool Widget::isDraggable(void) const
+bool Widget::isDraggable() const
 {
   return draggable;
 }
 
-bool Widget::isBeingDragged(void) const
+bool Widget::isBeingDragged() const
 {
   return layer.getDraggedWidget() == this;
 }
@@ -250,27 +250,27 @@ bool Widget::isChildOf(const Widget& widget) const
   return false;
 }
 
-bool Widget::hasCapturedCursor(void) const
+bool Widget::hasCapturedCursor() const
 {
   return layer.captureWidget == this;
 }
 
-Layer& Widget::getLayer(void) const
+Layer& Widget::getLayer() const
 {
   return layer;
 }
 
-Widget* Widget::getParent(void) const
+Widget* Widget::getParent() const
 {
   return parent;
 }
 
-const WidgetList& Widget::getChildren(void) const
+const WidgetList& Widget::getChildren() const
 {
   return children;
 }
 
-WidgetState Widget::getState(void) const
+WidgetState Widget::getState() const
 {
   if (isEnabled())
   {
@@ -283,12 +283,12 @@ WidgetState Widget::getState(void) const
     return STATE_DISABLED;
 }
 
-const Rect& Widget::getArea(void) const
+const Rect& Widget::getArea() const
 {
   return area;
 }
 
-const Rect& Widget::getGlobalArea(void) const
+const Rect& Widget::getGlobalArea() const
 {
   globalArea = area;
 
@@ -330,72 +330,72 @@ void Widget::setDraggable(bool newState)
     cancelDragging();
 }
 
-SignalProxy1<void, Widget&> Widget::getDestroyedSignal(void)
+SignalProxy1<void, Widget&> Widget::getDestroyedSignal()
 {
   return destroyedSignal;
 }
 
-SignalProxy1<void, Widget&> Widget::getAreaChangedSignal(void)
+SignalProxy1<void, Widget&> Widget::getAreaChangedSignal()
 {
   return areaChangedSignal;
 }
 
-SignalProxy2<void, Widget&, bool> Widget::getFocusChangedSignal(void)
+SignalProxy2<void, Widget&, bool> Widget::getFocusChangedSignal()
 {
   return focusChangedSignal;
 }
 
-SignalProxy3<void, Widget&, input::Key, bool> Widget::getKeyPressedSignal(void)
+SignalProxy3<void, Widget&, input::Key, bool> Widget::getKeyPressedSignal()
 {
   return keyPressedSignal;
 }
 
-SignalProxy2<void, Widget&, wchar_t> Widget::getCharInputSignal(void)
+SignalProxy2<void, Widget&, wchar_t> Widget::getCharInputSignal()
 {
   return charInputSignal;
 }
 
-SignalProxy2<void, Widget&, const vec2&> Widget::getCursorMovedSignal(void)
+SignalProxy2<void, Widget&, const vec2&> Widget::getCursorMovedSignal()
 {
   return cursorMovedSignal;
 }
 
-SignalProxy4<void, Widget&, const vec2&, input::Button, bool> Widget::getButtonClickedSignal(void)
+SignalProxy4<void, Widget&, const vec2&, input::Button, bool> Widget::getButtonClickedSignal()
 {
   return buttonClickedSignal;
 }
 
-SignalProxy2<void, Widget&, int> Widget::getWheelTurnedSignal(void)
+SignalProxy2<void, Widget&, int> Widget::getWheelTurnedSignal()
 {
   return wheelTurnedSignal;
 }
 
-SignalProxy1<void, Widget&> Widget::getCursorEnteredSignal(void)
+SignalProxy1<void, Widget&> Widget::getCursorEnteredSignal()
 {
   return cursorEnteredSignal;
 }
 
-SignalProxy1<void, Widget&> Widget::getCursorLeftSignal(void)
+SignalProxy1<void, Widget&> Widget::getCursorLeftSignal()
 {
   return cursorLeftSignal;
 }
 
-SignalProxy2<void, Widget&, const vec2&> Widget::getDragBegunSignal(void)
+SignalProxy2<void, Widget&, const vec2&> Widget::getDragBegunSignal()
 {
   return dragBegunSignal;
 }
 
-SignalProxy2<void, Widget&, const vec2&> Widget::getDragMovedSignal(void)
+SignalProxy2<void, Widget&, const vec2&> Widget::getDragMovedSignal()
 {
   return dragMovedSignal;
 }
 
-SignalProxy2<void, Widget&, const vec2&> Widget::getDragEndedSignal(void)
+SignalProxy2<void, Widget&, const vec2&> Widget::getDragEndedSignal()
 {
   return dragEndedSignal;
 }
 
-void Widget::draw(void) const
+void Widget::draw() const
 {
   for (WidgetList::const_iterator i = children.begin();  i != children.end();  i++)
   {

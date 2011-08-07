@@ -60,18 +60,18 @@ public:
   /*! Creates a directory with this path.
    *  @return @c true if successful, otherwise @c false.
    */
-  bool createDirectory(void) const;
+  bool createDirectory() const;
   /*! Destroys the directory with this path.
    *  @return @c true if successful, otherwise @c false.
    */
-  bool destroyDirectory(void) const;
+  bool destroyDirectory() const;
   /*! @return @c true if a file or directory with this path exists, otherwise
    *  @c false.
    */
-  bool exists(void) const;
+  bool exists() const;
   /*! @return This path represented as a string.
    */
-  const String& asString(void) const;
+  const String& asString() const;
   /*! Append operator. Creates a path with this path as the directory part and
    *  the specified name as the leaf (file or directory) name.
    *  @param[in] child The desired leaf name.
@@ -89,28 +89,28 @@ public:
   Path& operator = (const String& newName);
   /*! @return @c true if this path is empty, otherwise @c false.
    */
-  bool isEmpty(void) const;
+  bool isEmpty() const;
   /*! @return @c true if the file or directory is readable, otherwise
    *  @c false.
    */
-  bool isReadable(void) const;
+  bool isReadable() const;
   /*! @return @c true if the file or directory is writable, otherwise
    *  @c false.
    */
-  bool isWritable(void) const;
+  bool isWritable() const;
   /*! @return @c true if the path represents a regular file, otherwise
    *  @c false.
    */
-  bool isFile(void) const;
+  bool isFile() const;
   /*! @return @c true if the path represents a directory, otherwise
    *  @c false.
    */
-  bool isDirectory(void) const;
+  bool isDirectory() const;
   /*! @return A path object representing the parent directory of this
    *  path object.
    *  @remarks The root directory is its own parent.
    */
-  Path getParent(void) const;
+  Path getParent() const;
   /*! Returns the paths of all files and directories in the directory with this
    *  path.
    *  @param[in,out] children The resulting list of paths.
@@ -127,10 +127,10 @@ public:
   /*! @return The suffix of the name of the represented path, or the empty
    *  string if no suffix is present.
    */
-  String getSuffix(void) const;
+  String getSuffix() const;
   /*! @return The name part of the filename, without the directory or suffix parts.
    */
-  String getName(void) const;
+  String getName() const;
 private:
   String path;
 };

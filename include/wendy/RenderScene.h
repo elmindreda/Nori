@@ -97,7 +97,7 @@ class Operation
 public:
   /*! Constructor.
    */
-  Operation(void);
+  Operation();
   /*! The primitive range to render.
    */
   GL::PrimitiveRange range;
@@ -131,19 +131,19 @@ class Queue
 public:
   /*! Constructor.
    */
-  Queue(void);
+  Queue();
   /*! Adds a render operation in this render queue.
    */
   void addOperation(const Operation& operation, SortKey key);
   /*! Destroys all render operations in this render queue.
    */
-  void removeOperations(void);
+  void removeOperations();
   /*! @return The render operations in this render queue.
    */
-  const OperationList& getOperations(void) const;
+  const OperationList& getOperations() const;
   /*! @return The sor keys in this render queue.
    */
-  const SortKeyList& getSortKeys(void) const;
+  const SortKeyList& getSortKeys() const;
 private:
   OperationList operations;
   mutable SortKeyList keys;
@@ -163,13 +163,13 @@ public:
                         const GL::PrimitiveRange& range,
                         const Material& material,
                         float depth);
-  void removeOperations(void);
-  GeometryPool& getGeometryPool(void) const;
-  Queue& getOpaqueQueue(void);
-  const Queue& getOpaqueQueue(void) const;
-  Queue& getBlendedQueue(void);
-  const Queue& getBlendedQueue(void) const;
-  Technique::Type getTechniqueType(void) const;
+  void removeOperations();
+  GeometryPool& getGeometryPool() const;
+  Queue& getOpaqueQueue();
+  const Queue& getOpaqueQueue() const;
+  Queue& getBlendedQueue();
+  const Queue& getBlendedQueue() const;
+  Technique::Type getTechniqueType() const;
   void setTechniqueType(Technique::Type newType);
 private:
   GeometryPool& pool;
@@ -191,7 +191,7 @@ class Renderable
 public:
   /*! Destructor.
    */
-  virtual ~Renderable(void);
+  virtual ~Renderable();
   /*! Queries this renderable for render operations.
    *  @param[in,out] scene The render scene where the operations are to
    *  be created.

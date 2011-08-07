@@ -51,7 +51,7 @@ public:
   Block(const Block& source);
   /*! Destructor.
    */
-  ~Block(void);
+  ~Block();
   /*! Copies the specified number of bytes from this block, starting
    *  at the specified offset.
    *  @param target The target buffer for the data to be copied.
@@ -73,28 +73,28 @@ public:
    */
   void resize(size_t newSize);
   void attach(Byte* newData, size_t newSize);
-  Byte* detach(void);
+  Byte* detach();
   /*! Frees the currently allocated data block.
    */
-  void destroy(void);
+  void destroy();
   /*! Cast operator.
    */
-  operator Byte* (void);
+  operator Byte* ();
   /*! Cast operator.
    */
-  operator const Byte* (void) const;
+  operator const Byte* () const;
   /*! Assignment operator.
    */
   Block& operator = (const Block& source);
   /*! @return The size, in bytes, of this data block.
    */
-  size_t getSize(void) const;
+  size_t getSize() const;
   /*! @return The data block.
    */
-  Byte* getData(void);
+  Byte* getData();
   /*! @return The first item.
    */
-  const Byte* getData(void) const;
+  const Byte* getData() const;
 private:
   size_t size;
   Byte* data;

@@ -39,16 +39,16 @@ class Mat4;
 class Transform2
 {
 public:
-  Transform2(void);
+  Transform2();
   Transform2(const vec2& position, float angle);
-  void invert(void);
+  void invert();
   void rotateVector(vec2& vector) const;
   void translateVector(vec2& vector) const;
   void transformVector(vec2& vector) const;
-  operator mat3 (void) const;
+  operator mat3 () const;
   Transform2 operator * (const Transform2& other) const;
   Transform2& operator *= (const Transform2& other);
-  void setIdentity(void);
+  void setIdentity();
   void set(const vec2& newPosition, float newAngle);
   vec2 position;
   float angle;
@@ -60,16 +60,16 @@ public:
 class Transform3
 {
 public:
-  Transform3(void);
+  Transform3();
   Transform3(const vec3& position, const quat& rotation);
-  void invert(void);
+  void invert();
   void rotateVector(vec3& vector) const;
   void translateVector(vec3& vector) const;
   void transformVector(vec3& vector) const;
-  operator mat4 (void) const;
+  operator mat4 () const;
   Transform3 operator * (const Transform3& other) const;
   Transform3& operator *= (const Transform3& other);
-  void setIdentity(void);
+  void setIdentity();
   void set(const vec3& newPosition, const quat& newRotation);
   vec3 position;
   quat rotation;

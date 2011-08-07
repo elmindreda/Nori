@@ -80,34 +80,34 @@ public:
   bool crop(const Recti& area);
   /*! Flips this image along the x axis.
    */
-  void flipHorizontal(void);
+  void flipHorizontal();
   /*! Flips this image along the y axis.
    */
-  void flipVertical(void);
+  void flipVertical();
   /*! Assignment operator.
    */
   Image& operator = (const Image& source);
   /*! @return @c true if this image has power-of-two dimensions, otherwise @c false.
    */
-  bool isPOT(void) const;
+  bool isPOT() const;
   /*! @return @c true if this image is square, otherwise @c false.
    */
-  bool isSquare(void) const;
+  bool isSquare() const;
   /*! @return The width, in pixels, of this image.
    */
-  unsigned int getWidth(void) const;
+  unsigned int getWidth() const;
   /*! @return The height, in pixels, of this image.
    */
-  unsigned int getHeight(void) const;
+  unsigned int getHeight() const;
   /*! @return The depth, in pixels, of this image.
    */
-  unsigned int getDepth(void) const;
+  unsigned int getDepth() const;
   /*! @return The base address of the pixel data for this image.
    */
-  void* getPixels(void);
+  void* getPixels();
   /*! @return The base address of the pixel data for this image.
    */
-  const void* getPixels(void) const;
+  const void* getPixels() const;
   /*! Helper method to calculate the address of the specified pixel.
    *  @param[in] x The x coordinate of the desired pixel.
    *  @param[in] y The y coordinate of the desired pixel.
@@ -127,10 +127,10 @@ public:
   const void* getPixel(unsigned int x, unsigned int y, unsigned int z = 0) const;
   /*! @return The pixel format of this image.
    */
-  const PixelFormat& getFormat(void) const;
+  const PixelFormat& getFormat() const;
   /*! @return The number of dimensions (that differ from 1) in this image.
    */
-  unsigned int getDimensionCount(void) const;
+  unsigned int getDimensionCount() const;
   /*! Returns an image containing the specified area of this image.
    *  @param area The desired area of this image.
    */
@@ -172,19 +172,19 @@ public:
   ImageCube(const ImageCube& source);
   /*! @return @c true if all images have power-of-two dimensions, otherwise @c false.
    */
-  bool isPOT(void) const;
+  bool isPOT() const;
   /*! @return @c true if all images are square, otherwise @c false.
    */
-  bool isSquare(void) const;
+  bool isSquare() const;
   /*! @return @c true if all images are present, otherwise @c false.
    */
-  bool isComplete(void) const;
+  bool isComplete() const;
   /*! @return @c true if all images have the same format, otherwise @c false.
    */
-  bool hasSameFormat(void) const;
+  bool hasSameFormat() const;
   /*! @return @c true if all images have the same size, otherwise @c false.
    */
-  bool hasSameSize(void) const;
+  bool hasSameSize() const;
   static Ref<ImageCube> read(ResourceIndex& index, const Path& path);
   /*! The array of images for the faces of the image cube.
    */

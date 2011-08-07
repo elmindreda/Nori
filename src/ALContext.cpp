@@ -42,7 +42,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Context::~Context(void)
+Context::~Context()
 {
   if (context)
   {
@@ -54,7 +54,7 @@ Context::~Context(void)
     alcCloseDevice((ALCdevice*) device);
 }
 
-const vec3& Context::getListenerPosition(void) const
+const vec3& Context::getListenerPosition() const
 {
   return listenerPosition;
 }
@@ -72,7 +72,7 @@ void Context::setListenerPosition(const vec3& newPosition)
   }
 }
 
-const vec3& Context::getListenerVelocity(void) const
+const vec3& Context::getListenerVelocity() const
 {
   return listenerVelocity;
 }
@@ -90,7 +90,7 @@ void Context::setListenerVelocity(const vec3& newVelocity)
   }
 }
 
-const quat& Context::getListenerRotation(void) const
+const quat& Context::getListenerRotation() const
 {
   return listenerRotation;
 }
@@ -114,7 +114,7 @@ void Context::setListenerRotation(const quat& newRotation)
   }
 }
 
-float Context::getListenerGain(void) const
+float Context::getListenerGain() const
 {
   return listenerGain;
 }
@@ -132,7 +132,7 @@ void Context::setListenerGain(float newGain)
   }
 }
 
-ResourceIndex& Context::getIndex(void) const
+ResourceIndex& Context::getIndex() const
 {
   return index;
 }
@@ -161,7 +161,7 @@ Context::Context(const Context& source):
   // NOTE: Not implemented.
 }
 
-bool Context::init(void)
+bool Context::init()
 {
   device = alcOpenDevice(NULL);
   if (!device)

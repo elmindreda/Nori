@@ -50,13 +50,13 @@ template <typename X, typename Y>
 class Bimap
 {
 public:
-  Bimap(void);
+  Bimap();
   Bimap(const X& defaultX, const Y& defaultY);
   X& operator [] (const Y& value);
   const X& operator [] (const Y& value) const;
   Y& operator [] (const X& value);
   const Y& operator [] (const X& value) const;
-  bool isEmpty(void) const;
+  bool isEmpty() const;
   bool hasKey(const X& key) const;
   bool hasKey(const Y& key) const;
   void setDefaults(const X& defaultX, const Y& defaultY);
@@ -74,7 +74,7 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 template <typename X, typename Y>
-inline Bimap<X,Y>::Bimap(void)
+inline Bimap<X,Y>::Bimap()
 {
 }
 
@@ -141,7 +141,7 @@ inline const Y& Bimap<X,Y>::operator [] (const X& key) const
 }
 
 template <typename X, typename Y>
-inline bool Bimap<X,Y>::isEmpty(void) const
+inline bool Bimap<X,Y>::isEmpty() const
 {
   return entries.empty();
 }

@@ -40,7 +40,7 @@ class Transform3;
 class Sphere
 {
 public:
-  Sphere(void);
+  Sphere();
   Sphere(const vec3& center, float radius);
   void transformBy(const Transform3& transform);
   bool contains(const vec3& point) const;
@@ -52,7 +52,7 @@ public:
   void envelop(const vec3& point);
   void envelop(const Sphere& sphere);
   void set(const vec3& newCenter, float newRadius);
-  void setDefaults(void);
+  void setDefaults();
   vec3 center;
   float radius;
 };

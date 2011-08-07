@@ -38,38 +38,38 @@ class Timer
 public:
   /*! Default constructor.
    */
-  Timer(void);
+  Timer();
   /*! Starts the timer.
    */
-  void start(void);
+  void start();
   /*! Stops a started timer.
    */
-  void stop(void);
+  void stop();
   /*! Pauses a running timer.
    */
-  void pause(void);
+  void pause();
   /*! Resumes a paused timer.
    */
-  void resume(void);
+  void resume();
   /*! @return @c true if the timer is started, otherwise @c false.
    */
-  bool isStarted(void) const;
+  bool isStarted() const;
   /*! @return @c true if the timer is paused, otherwise @c false.
    */
-  bool isPaused(void) const;
+  bool isPaused() const;
   /*! @return The current time, in seconds.
    */
-  Time getTime(void) const;
+  Time getTime() const;
   /*! Sets the current time of a started timer.
    *  @param newTime [in] The new time, in seconds.
    */
   void setTime(Time newTime);
   /*! @return The time, in seconds, since the last call to getDeltaTime.
    */
-  Time getDeltaTime(void);
+  Time getDeltaTime();
   /*! @return The current time, in seconds.
    */
-  static Time getCurrentTime(void);
+  static Time getCurrentTime();
 private:
   bool started;
   bool paused;

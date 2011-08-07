@@ -38,7 +38,7 @@ namespace wendy
 class Rect
 {
 public:
-  Rect(void);
+  Rect();
   Rect(const vec2& position, const vec2& size);
   Rect(float x, float y, float width, float height);
   bool contains(const vec2& point) const;
@@ -46,7 +46,7 @@ public:
   bool intersects(const Rect& other) const;
   bool clipBy(const Rect& other);
   void envelop(const Rect& other);
-  void normalize(void);
+  void normalize();
   bool operator == (const Rect& other) const;
   bool operator != (const Rect& other) const;
   Rect operator + (const vec2& offset) const;
@@ -55,7 +55,7 @@ public:
   Rect& operator += (const vec2& offset);
   Rect& operator -= (const vec2& offset);
   Rect& operator *= (const vec2& scale);
-  vec2 getCenter(void) const;
+  vec2 getCenter() const;
   void setCenter(const vec2& newCenter);
   void getBounds(float& minX, float& minY, float& maxX, float& maxY) const;
   void setBounds(float minX, float minY, float maxX, float maxY);
@@ -70,7 +70,7 @@ public:
 class Recti
 {
 public:
-  Recti(void);
+  Recti();
   Recti(const ivec2& position, const ivec2& size);
   Recti(int x, int y, int width, int height);
   bool contains(const ivec2& point) const;
@@ -78,7 +78,7 @@ public:
   bool intersects(const Recti& other) const;
   bool clipBy(const Recti& other);
   void envelop(const Recti& other);
-  void normalize(void);
+  void normalize();
   bool operator == (const Recti& other) const;
   bool operator != (const Recti& other) const;
   Recti operator + (const ivec2& offset) const;
@@ -87,7 +87,7 @@ public:
   Recti& operator += (const ivec2& offset);
   Recti& operator -= (const ivec2& offset);
   Recti& operator *= (const ivec2& scale);
-  ivec2 getCenter(void) const;
+  ivec2 getCenter() const;
   void setCenter(const ivec2& newCenter);
   void getBounds(int& minX, int& minY, int& maxX, int& maxY) const;
   void setBounds(int minX, int minY, int maxX, int maxY);
@@ -109,11 +109,11 @@ class RectClipStack
 {
 public:
   bool push(const T& rectangle);
-  void pop(void);
-  bool isEmpty(void) const;
-  unsigned int getCount(void) const;
-  const T& getTop(void) const;
-  const T& getTotal(void) const;
+  void pop();
+  bool isEmpty() const;
+  unsigned int getCount() const;
+  const T& getTop() const;
+  const T& getTotal() const;
 private:
   struct Entry
   {
@@ -148,33 +148,33 @@ inline bool RectClipStack<T>::push(const T& rectangle)
 }
 
 template <typename T>
-inline void RectClipStack<T>::pop(void)
+inline void RectClipStack<T>::pop()
 {
   assert(!entries.empty());
   entries.pop();
 }
 
 template <typename T>
-inline bool RectClipStack<T>::isEmpty(void) const
+inline bool RectClipStack<T>::isEmpty() const
 {
   return entries.empty();
 }
 
 template <typename T>
-inline unsigned int RectClipStack<T>::getCount(void) const
+inline unsigned int RectClipStack<T>::getCount() const
 {
   return (unsigned int) entries.size();
 }
 
 template <typename T>
-inline const T& RectClipStack<T>::getTop(void) const
+inline const T& RectClipStack<T>::getTop() const
 {
   assert(!entries.empty());
   return entries.top().local;
 }
 
 template <typename T>
-inline const T& RectClipStack<T>::getTotal(void) const
+inline const T& RectClipStack<T>::getTotal() const
 {
   assert(!entries.empty());
   return entries.top().total;

@@ -78,7 +78,7 @@ List::List(Layer& layer):
   onAreaChanged(*this);
 }
 
-List::~List(void)
+List::~List()
 {
   destroyItems();
 }
@@ -102,7 +102,7 @@ void List::removeItem(Item& item)
   }
 }
 
-void List::destroyItems(void)
+void List::destroyItems()
 {
   while (!items.empty())
   {
@@ -113,7 +113,7 @@ void List::destroyItems(void)
   updateScroller();
 }
 
-void List::sortItems(void)
+void List::sortItems()
 {
   ItemComparator comparator;
   std::sort(items.begin(), items.end(), comparator);
@@ -146,7 +146,7 @@ bool List::isItemVisible(const Item* item) const
   return true;
 }
 
-unsigned int List::getOffset(void) const
+unsigned int List::getOffset() const
 {
   return offset;
 }
@@ -161,7 +161,7 @@ void List::setOffset(unsigned int newOffset)
   updateScroller();
 }
 
-unsigned int List::getSelection(void) const
+unsigned int List::getSelection() const
 {
   return selection;
 }
@@ -171,7 +171,7 @@ void List::setSelection(unsigned int newIndex)
   setSelection(newIndex, false);
 }
 
-Item* List::getSelectedItem(void) const
+Item* List::getSelectedItem() const
 {
   if (items.empty())
     return NULL;
@@ -179,7 +179,7 @@ Item* List::getSelectedItem(void) const
   return items[selection];
 }
 
-unsigned int List::getItemCount(void) const
+unsigned int List::getItemCount() const
 {
   return (unsigned int) items.size();
 }
@@ -208,12 +208,12 @@ const Item* List::getItem(unsigned int index) const
   return NULL;
 }
 
-SignalProxy1<void, List&> List::getSelectionChangedSignal(void)
+SignalProxy1<void, List&> List::getSelectionChangedSignal()
 {
   return selectionChangedSignal;
 }
 
-void List::draw(void) const
+void List::draw() const
 {
   const Rect& area = getGlobalArea();
 
@@ -337,7 +337,7 @@ void List::onValueChanged(Scroller& scroller)
   setOffset((unsigned int) scroller.getValue());
 }
 
-void List::updateScroller(void)
+void List::updateScroller()
 {
   const unsigned int count = getVisibleItemCount();
 
@@ -352,7 +352,7 @@ void List::updateScroller(void)
     scroller->setVisible(false);
 }
 
-unsigned int List::getVisibleItemCount(void) const
+unsigned int List::getVisibleItemCount() const
 {
   unsigned int index;
 

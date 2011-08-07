@@ -116,13 +116,13 @@ BufferData::BufferData(const void* initData,
 
 ///////////////////////////////////////////////////////////////////////
 
-Buffer::~Buffer(void)
+Buffer::~Buffer()
 {
   if (bufferID)
     alDeleteBuffers(1, &bufferID);
 }
 
-bool Buffer::isMono(void) const
+bool Buffer::isMono() const
 {
   if (format == FORMAT_MONO8 || format == FORMAT_MONO16)
     return true;
@@ -130,7 +130,7 @@ bool Buffer::isMono(void) const
   return false;
 }
 
-bool Buffer::isStereo(void) const
+bool Buffer::isStereo() const
 {
   if (format == FORMAT_STEREO8 || format == FORMAT_STEREO16)
     return true;
@@ -138,17 +138,17 @@ bool Buffer::isStereo(void) const
   return false;
 }
 
-Time Buffer::getDuration(void) const
+Time Buffer::getDuration() const
 {
   return duration;
 }
 
-BufferFormat Buffer::getFormat(void) const
+BufferFormat Buffer::getFormat() const
 {
   return format;
 }
 
-Context& Buffer::getContext(void) const
+Context& Buffer::getContext() const
 {
   return context;
 }

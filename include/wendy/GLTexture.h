@@ -133,17 +133,17 @@ public:
   /*! Copies the contents of this texture image to the specified image.
    */
   bool copyTo(wendy::Image& result) const;
-  unsigned int getWidth(void) const;
-  unsigned int getHeight(void) const;
-  unsigned int getDepth(void) const;
+  unsigned int getWidth() const;
+  unsigned int getHeight() const;
+  unsigned int getDepth() const;
   /*! @return The cube face this image represents, or @c NO_CUBE_FACE if this
    *  image is not part of a cube map.
    */
-  CubeFace getFace(void) const;
-  const PixelFormat& getFormat(void) const;
+  CubeFace getFace() const;
+  const PixelFormat& getFormat() const;
   /*! @return The texture containing this texture image.
    */
-  Texture& getTexture(void) const;
+  Texture& getTexture() const;
 private:
   TextureImage(Texture& texture,
                unsigned int level,
@@ -194,32 +194,32 @@ public:
   };
   /*! Destructor.
    */
-  ~Texture(void);
+  ~Texture();
   /*! Generates mipmaps based on the top-level image.
    */
-  void generateMipmaps(void);
+  void generateMipmaps();
   /*! @return @c true if this texture is one-dimensional, otherwise @c false.
    */
-  bool is1D(void) const;
+  bool is1D() const;
   /*! @return @c true if this texture is two-dimensional, otherwise @c false.
    */
-  bool is2D(void) const;
+  bool is2D() const;
   /*! @return @c true if this texture is three-dimensional, otherwise @c false.
    */
-  bool is3D(void) const;
+  bool is3D() const;
   /*! @return @c true if this texture's dimensions are power of two, otherwise
    *  @c false.
    */
-  bool isPOT(void) const;
+  bool isPOT() const;
   /*! @return @c true if this texture is a cubemap, otherwise @c false.
    */
-  bool isCube(void) const;
+  bool isCube() const;
   /*! @return @c true if this texture is mipmapped, otherwise @c false.
    */
-  bool hasMipmaps(void) const;
+  bool hasMipmaps() const;
   /*! @return The type of this texture.
    */
-  TextureType getType(void) const;
+  TextureType getType() const;
   /*! @param[in] level The desired mipmap level.
    *  @return The width, in pixels, of the specified mipmap level of this texture.
    */
@@ -234,7 +234,7 @@ public:
   unsigned int getDepth(unsigned int level = 0) const;
   /*! @return The number of mipmap levels of this texture.
    */
-  unsigned int getLevelCount(void) const;
+  unsigned int getLevelCount() const;
   /*! @param[in] level The desired mipmap level.
    *  @param[in] face The desired cube map face if this texture is a cubemap,
    *  or @c NO_CUBE_FACE otherwise.
@@ -244,24 +244,24 @@ public:
   TextureImage* getImage(unsigned int level = 0, CubeFace face = NO_CUBE_FACE);
   /*! @return The sampler filter mode of this texture.
    */
-  FilterMode getFilterMode(void) const;
+  FilterMode getFilterMode() const;
   /*! Sets the sampler filter mode of this texture.
    *  @param[in] newMode The desired filter mode.
    */
   void setFilterMode(FilterMode newMode);
   /*! @return The sampler address wrapping mode of this texture.
    */
-  AddressMode getAddressMode(void) const;
+  AddressMode getAddressMode() const;
   /*! Sets the sampler address wrapping mode of this texture.
    *  @param[in] newMode The desired address wrapping mode.
    */
   void setAddressMode(AddressMode newMode);
   /*! @return The image format of this texture.
    */
-  const PixelFormat& getFormat(void) const;
+  const PixelFormat& getFormat() const;
   /*! @return The context used to create this texture.
    */
-  Context& getContext(void) const;
+  Context& getContext() const;
   /*! Creates a texture from the specified image.
    *  @param[in] info The resource info for the texture.
    *  $param[in] context The OpenGL context within which to create the
@@ -294,9 +294,9 @@ private:
   Texture(const Texture& source);
   bool init(const wendy::Image& source, unsigned int flags);
   bool init(const ImageCube& source, unsigned int flags);
-  bool validateProxy(void) const;
+  bool validateProxy() const;
   unsigned int retrieveImages(unsigned int target, CubeFace face);
-  void applyDefaults(void);
+  void applyDefaults();
   Texture& operator = (const Texture& source);
   typedef std::vector<TextureImageRef> ImageList;
   Context& context;

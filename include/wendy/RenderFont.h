@@ -47,7 +47,7 @@ class FontData
 {
 public:
   typedef std::vector<FontGlyphData> GlyphList;
-  FontData(void);
+  FontData();
   FontData(const FontData& source);
   FontData& operator = (const FontData& source);
   GlyphList glyphs;
@@ -72,16 +72,16 @@ public:
   void drawText(const vec2& penPosition, const vec4& color, const char* text) const;
   /*! @return The width, in pixels, of the character cell for this font.
    */
-  float getWidth(void) const;
+  float getWidth() const;
   /*! @return The height, in pixels, of the character cell for this font.
    */
-  float getHeight(void) const;
+  float getHeight() const;
   /*! @return The ascender for this font.
    */
-  float getAscender(void) const;
+  float getAscender() const;
   /*! @return The descender for this font.
    */
-  float getDescender(void) const;
+  float getDescender() const;
   /*! @param text The text to measure.
    *  @return The bounding rectangle, in pixels, of the specified text as
    *  rendered by this font.

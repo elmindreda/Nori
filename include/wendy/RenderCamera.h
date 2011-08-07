@@ -52,23 +52,23 @@ class Camera : public RefObject
 public:
   /*! Constructor.
    */
-  Camera(void);
+  Camera();
   /*! @return The field of view, in degrees, of this camera.
    */
-  float getFOV(void) const;
+  float getFOV() const;
   /*! @return The aspect ratio of this camera.
    *
    *  @remarks If the aspect ratio is zero, the aspect ratio will be calculated
    *  from the physical dimensions of the current framebuffer when this camera
    *  is made current.
    */
-  float getAspectRatio(void) const;
+  float getAspectRatio() const;
   /*! @return The distance from the origin to the near clip plane.
    */
-  float getMinDepth(void) const;
+  float getMinDepth() const;
   /*! @return The distance from the origin to the far clip plane.
    */
-  float getMaxDepth(void) const;
+  float getMaxDepth() const;
   /*! Sets the field of view for this camera.
    *  @param newFOV The desired field of view, in degrees.
    */
@@ -89,13 +89,13 @@ public:
    *  @remarks This is the camera-to-world-space transform for this camera. For
    *  the world-to-camera-space transform, see Camera::getViewTransform.
    */
-  const Transform3& getTransform(void) const;
+  const Transform3& getTransform() const;
   /*! @return The inverse of the transform for this camera.
    *
    *  @remarks This is the world-to-camera-space transform for this camera. For
    *  the camera-to-world-space transform, see Camera::getTransform.
    */
-  const Transform3& getViewTransform(void) const;
+  const Transform3& getViewTransform() const;
   /*! Sets the transform for this camera.
    *  @param[in] newTransform The desired new transform.
    *
@@ -104,7 +104,7 @@ public:
   void setTransform(const Transform3& newTransform);
   /*! @return The view frustum of this camera.
    */
-  const Frustum& getFrustum(void) const;
+  const Frustum& getFrustum() const;
   /*! @param[in] A point in world space.
    *  @return The normalized depth of the point in camera space, within the
    *  depth range of this camera.

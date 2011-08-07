@@ -36,7 +36,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Camera::Camera(void):
+Camera::Camera():
   FOV(90.f),
   aspectRatio(4.f / 3.f),
   minDepth(0.01f),
@@ -47,22 +47,22 @@ Camera::Camera(void):
 {
 }
 
-float Camera::getFOV(void) const
+float Camera::getFOV() const
 {
   return FOV;
 }
 
-float Camera::getAspectRatio(void) const
+float Camera::getAspectRatio() const
 {
   return aspectRatio;
 }
 
-float Camera::getMinDepth(void) const
+float Camera::getMinDepth() const
 {
   return minDepth;
 }
 
-float Camera::getMaxDepth(void) const
+float Camera::getMaxDepth() const
 {
   return maxDepth;
 }
@@ -87,12 +87,12 @@ void Camera::setDepthRange(float newMinDepth, float newMaxDepth)
   dirtyViewDir = true;
 }
 
-const Transform3& Camera::getTransform(void) const
+const Transform3& Camera::getTransform() const
 {
   return transform;
 }
 
-const Transform3& Camera::getViewTransform(void) const
+const Transform3& Camera::getViewTransform() const
 {
   if (dirtyInverse)
   {
@@ -112,7 +112,7 @@ void Camera::setTransform(const Transform3& newTransform)
   dirtyViewDir = true;
 }
 
-const Frustum& Camera::getFrustum(void) const
+const Frustum& Camera::getFrustum() const
 {
   if (dirtyFrustum)
   {

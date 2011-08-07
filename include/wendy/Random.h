@@ -35,9 +35,9 @@ template <typename T>
 class Random
 {
 public:
-  Random(void);
+  Random();
   Random(const T& min, const T& max);
-  T operator () (void) const;
+  T operator () () const;
   void set(const T& newMin, const T& newMax);
   T min;
   T max;
@@ -51,7 +51,7 @@ typedef Random<vec3> RandomVolume;
 
 ///////////////////////////////////////////////////////////////////////
 
-float normalizedRandom(void);
+float normalizedRandom();
 
 ///////////////////////////////////////////////////////////////////////
 

@@ -176,7 +176,7 @@ void Mesh::generateNormals(NormalType type)
   merger.realizeVertices(vertices);
 }
 
-void Mesh::generateTriangleNormals(void)
+void Mesh::generateTriangleNormals()
 {
   for (unsigned int i = 0;  i < geometries.size();  i++)
   {
@@ -191,7 +191,7 @@ void Mesh::generateTriangleNormals(void)
   }
 }
 
-void Mesh::generateEdges(void)
+void Mesh::generateEdges()
 {
   for (unsigned int i = 0;  i < geometries.size();  i++)
   {
@@ -268,7 +268,7 @@ void Mesh::generateBounds(Sphere& bounds) const
     bounds.envelop(vertices[i].position);
 }
 
-bool Mesh::isValid(void) const
+bool Mesh::isValid() const
 {
   if (vertices.empty())
     return false;
@@ -335,7 +335,7 @@ bool Mesh::isValid(void) const
   return true;
 }
 
-unsigned int Mesh::getTriangleCount(void) const
+unsigned int Mesh::getTriangleCount() const
 {
   unsigned int count = 0;
 
@@ -353,7 +353,7 @@ Ref<Mesh> Mesh::read(ResourceIndex& index, const Path& path)
 
 ///////////////////////////////////////////////////////////////////////
 
-VertexMerger::VertexMerger(void):
+VertexMerger::VertexMerger():
   targetCount(0),
   mode(PRESERVE_NORMALS)
 {

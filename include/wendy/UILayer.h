@@ -61,13 +61,13 @@ public:
   Layer(input::Context& context, Drawer& drawer);
   /*! Destructor.
    */
-  ~Layer(void);
-  virtual void update(void);
-  virtual void draw(void);
+  ~Layer();
+  virtual void update();
+  virtual void draw();
   void addRootWidget(Widget& root);
   /*! Draws all root level widgets.
    */
-  void destroyRootWidgets(void);
+  void destroyRootWidgets();
   /*! Searches for a widget at the specified point.
    *  @param[in] point The point at which to search.
    *  @return The widget at the specified point, or @c NULL if no matching
@@ -76,24 +76,24 @@ public:
    *  @remarks The point is in global coordinates.
    */
   Widget* findWidgetByPoint(const vec2& point);
-  void captureCursor(void);
-  void releaseCursor(void);
-  void cancelDragging(void);
-  void invalidate(void);
-  Drawer& getDrawer(void) const;
-  input::Context& getInputContext(void) const;
+  void captureCursor();
+  void releaseCursor();
+  void cancelDragging();
+  void invalidate();
+  Drawer& getDrawer() const;
+  input::Context& getInputContext() const;
   /*! @return The root widgets of this layer.
    */
-  const WidgetList& getRootWidgets(void) const;
+  const WidgetList& getRootWidgets() const;
   /*! @return The active widget, or @c NULL if no widget is active.
    */
-  Widget* getActiveWidget(void);
-  Widget* getDraggedWidget(void);
-  Widget* getHoveredWidget(void);
+  Widget* getActiveWidget();
+  Widget* getDraggedWidget();
+  Widget* getHoveredWidget();
   void setActiveWidget(Widget* widget);
-  LayerStack* getStack(void) const;
+  LayerStack* getStack() const;
 private:
-  void updateHoveredWidget(void);
+  void updateHoveredWidget();
   void removedWidget(Widget& widget);
   void onKeyPressed(input::Key key, bool pressed);
   void onCharInput(wchar_t character);
@@ -122,12 +122,12 @@ class LayerStack
 {
 public:
   LayerStack(input::Context& context);
-  void update(void) const;
-  void draw(void) const;
+  void update() const;
+  void draw() const;
   void push(Layer& layer);
-  void pop(void);
-  void empty(void);
-  bool isEmpty(void) const;
+  void pop();
+  void empty();
+  bool isEmpty() const;
 private:
   typedef std::vector<LayerRef> LayerList;
   input::Context& context;

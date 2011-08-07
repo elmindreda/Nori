@@ -39,17 +39,17 @@ class Slider : public Widget
 {
 public:
   Slider(Layer& layer, Orientation orientation);
-  Orientation getOrientation(void) const;
-  float getMinValue(void) const;
-  float getMaxValue(void) const;
+  Orientation getOrientation() const;
+  float getMinValue() const;
+  float getMaxValue() const;
   void setValueRange(float newMinValue, float newMaxValue);
-  float getStepSize(void) const;
+  float getStepSize() const;
   void setStepSize(float newSize);
-  float getValue(void) const;
+  float getValue() const;
   void setValue(float newValue);
-  SignalProxy1<void, Slider&> getValueChangedSignal(void);
+  SignalProxy1<void, Slider&> getValueChangedSignal();
 protected:
-  void draw(void) const;
+  void draw() const;
 private:
   void onButtonClicked(Widget& widget,
 		       const vec2& position,

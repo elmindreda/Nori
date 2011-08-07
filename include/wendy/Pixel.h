@@ -79,22 +79,22 @@ public:
   bool operator != (const PixelFormat& other) const;
   /*! @return The size, in bytes, of a pixel in this pixel format.
    */
-  size_t getSize(void) const;
+  size_t getSize() const;
   /*! @return The size, in bytes, of a channel of a pixel in this pixel format.
    */
-  size_t getChannelSize(void) const;
+  size_t getChannelSize() const;
   /*! @return The channel data type of this pixel format.
    */
-  Type getType(void) const;
+  Type getType() const;
   /*! @return The channel semantic of this pixel format.
    */
-  Semantic getSemantic(void) const;
+  Semantic getSemantic() const;
   /*! @return The number of components in this pixel format.
    */
-  unsigned int getChannelCount(void) const;
+  unsigned int getChannelCount() const;
   /*! @return A string representation of this pixel format.
    */
-  String asString(void) const;
+  String asString() const;
   static const PixelFormat R8;
   static const PixelFormat R16;
   static const PixelFormat R16F;
@@ -128,7 +128,7 @@ private:
 class PixelTransform
 {
 public:
-  virtual ~PixelTransform(void);
+  virtual ~PixelTransform();
   virtual bool supports(const PixelFormat& targetFormat,
                         const PixelFormat& sourceFormat) = 0;
   virtual void convert(void* target,

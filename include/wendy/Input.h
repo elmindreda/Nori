@@ -113,7 +113,7 @@ class Hook
 public:
   /*! Destructor.
    */
-  virtual ~Hook(void);
+  virtual ~Hook();
   /*! Called when a key has been pressed or released.
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
@@ -151,7 +151,7 @@ class Target
 public:
   /*! Destructor.
    */
-  virtual ~Target(void);
+  virtual ~Target();
   /*! Called when the window has been resized.
    */
   virtual void onWindowResized(unsigned int width, unsigned int height);
@@ -187,9 +187,9 @@ class Context : public Singleton<Context>
 public:
   /*! Destructor.
    */
-  virtual ~Context(void);
-  void captureCursor(void);
-  void releaseCursor(void);
+  virtual ~Context();
+  void captureCursor();
+  void releaseCursor();
   /*! @return @c true if the specified key is pressed, otherwise @c false.
    *  @param[in] key The desired key.
    */
@@ -198,27 +198,27 @@ public:
    *  @param[in] button The desired mouse button.
    */
   bool isButtonDown(Button button) const;
-  bool isCursorCaptured(void) const;
+  bool isCursorCaptured() const;
   /*! @return The width, in pixels, of the mousable screen area.
    */
-  unsigned int getWidth(void) const;
+  unsigned int getWidth() const;
   /*! @return The height, in pixels, of the mousable screen area.
    */
-  unsigned int getHeight(void) const;
+  unsigned int getHeight() const;
   /*! @return The current mouse position.
    */
-  const ivec2& getCursorPosition(void) const;
+  const ivec2& getCursorPosition() const;
   /*! Places the the mouse cursor at the specified position.
    *  @param[in] newPosition The desired mouse position.
    */
   void setCursorPosition(const ivec2& newPosition);
-  Hook* getHook(void) const;
+  Hook* getHook() const;
   void setHook(Hook* newHook);
-  Target* getTarget(void) const;
+  Target* getTarget() const;
   void setTarget(Target* newTarget);
   /*! @return The context underlying this input manager.
    */
-  GL::Context& getContext(void) const;
+  GL::Context& getContext() const;
   static bool createSingleton(GL::Context& context);
 private:
   Context(GL::Context& context);
@@ -246,13 +246,13 @@ private:
 class MayaCamera : public Target
 {
 public:
-  MayaCamera(void);
+  MayaCamera();
   void onKeyPressed(Key key, bool pressed);
   void onButtonClicked(Button button, bool clicked);
   void onCursorMoved(const ivec2& position);
   void onWheelTurned(int offset);
   void onFocusChanged(bool activated);
-  const Transform3& getTransform(void) const;
+  const Transform3& getTransform() const;
 private:
   enum Mode
   {
@@ -261,7 +261,7 @@ private:
     TRACK,
     DOLLY,
   };
-  void updateTransform(void);
+  void updateTransform();
   Transform3 transform;
   ivec2 lastPosition;
   vec3 target;
@@ -278,14 +278,14 @@ private:
 class SpectatorCamera : public Target
 {
 public:
-  SpectatorCamera(void);
+  SpectatorCamera();
   void update(Time deltaTime);
   void onKeyPressed(Key key, bool pressed);
   void onButtonClicked(Button button, bool clicked);
   void onCursorMoved(const ivec2& position);
   void onFocusChanged(bool activated);
-  const Transform3& getTransform(void) const;
-  float getSpeed(void) const;
+  const Transform3& getTransform() const;
+  float getSpeed() const;
   void setSpeed(float newSpeed);
 private:
   enum Direction
@@ -297,7 +297,7 @@ private:
     FORWARD,
     BACK,
   };
-  void updateTransform(void);
+  void updateTransform();
   Transform3 transform;
   ivec2 lastPosition;
   float angleX;
@@ -312,15 +312,15 @@ private:
 class TextController : public Target
 {
 public:
-  TextController(void);
+  TextController();
   void onKeyPressed(Key key, bool pressed);
   void onCharInput(wchar_t character);
-  const String& getText(void) const;
+  const String& getText() const;
   void setText(const String& newText);
-  size_t getCaretPosition(void) const;
+  size_t getCaretPosition() const;
   void setCaretPosition(size_t newPosition);
 private:
-  bool isCtrlKeyDown(void) const;
+  bool isCtrlKeyDown() const;
   String text;
   size_t caretPosition;
 };

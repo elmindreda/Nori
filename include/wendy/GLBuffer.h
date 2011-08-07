@@ -84,14 +84,14 @@ public:
   };
   /*! Destructor.
    */
-  ~VertexBuffer(void);
+  ~VertexBuffer();
   /*! Locks this vertex buffer for reading and writing.
    *  @return The base address of the vertices.
    */
   void* lock(LockType type = LOCK_WRITE_ONLY);
   /*! Unlocks this vertex buffer, finalizing any changes.
    */
-  void unlock(void);
+  void unlock();
   /*! Copies the specified data into this vertex buffer, starting at the
    *  specified offset.
    *  @param[in] source The base address of the source data.
@@ -108,13 +108,13 @@ public:
   void copyTo(void* target, unsigned int count, unsigned int start = 0);
   /*! @return The usage hint of this vertex buffer.
    */
-  Usage getUsage(void) const;
+  Usage getUsage() const;
   /*! @return The format of this vertex buffer.
    */
-  const VertexFormat& getFormat(void) const;
+  const VertexFormat& getFormat() const;
   /*! @return The number of vertices in this vertex buffer.
    */
-  unsigned int getCount(void) const;
+  unsigned int getCount() const;
   /*! Creates a vertex buffer with the specified properties.
    *  @param count The desired number of vertices.
    *  @param format The desired format of the vertices.
@@ -177,7 +177,7 @@ public:
   };
   /*! Destructor.
    */
-  ~IndexBuffer(void);
+  ~IndexBuffer();
   /*! Locks this index buffer for reading and writing.
    *  @param[in] type The desired type of lock.
    *  @return The base address of the index elements.
@@ -185,7 +185,7 @@ public:
   void* lock(LockType type = LOCK_WRITE_ONLY);
   /*! Unlocks this index buffer, finalizing any changes.
    */
-  void unlock(void);
+  void unlock();
   /*! Copies the specified data into this index buffer, starting at the
    *  specified offset.
    *  @param[in] source The base address of the source data.
@@ -202,13 +202,13 @@ public:
   void copyTo(void* target, unsigned int count, unsigned int start = 0);
   /*! @return The type of the index elements in this index buffer.
    */
-  Type getType(void) const;
+  Type getType() const;
   /*! @return The usage hint of this index buffer.
    */
-  Usage getUsage(void) const;
+  Usage getUsage() const;
   /*! @return The number of index elements in this index buffer.
    */
-  unsigned int getCount(void) const;
+  unsigned int getCount() const;
   /*! Creates an index buffer with the specified properties.
    *  @param count The desired number of index elements.
    *  @param type The desired type of the index elements.
@@ -249,7 +249,7 @@ class VertexRange
 public:
   /*! Constructor.
    */
-  VertexRange(void);
+  VertexRange();
   /*! Constructor.
    */
   VertexRange(VertexBuffer& vertexBuffer);
@@ -262,7 +262,7 @@ public:
   void* lock(LockType type = LOCK_WRITE_ONLY) const;
   /*! Unlocks this vertex range.
    */
-  void unlock(void) const;
+  void unlock() const;
   /*! Copies the specified data into this vertex range.
    *  @param[in] source The base address of the source data.
    */
@@ -273,13 +273,13 @@ public:
   void copyTo(void* target);
   /*! @return The vertex buffer underlying this vertex range.
    */
-  VertexBuffer* getVertexBuffer(void) const;
+  VertexBuffer* getVertexBuffer() const;
   /*! @return The index of the first vertex in this vertex range.
    */
-  unsigned int getStart(void) const;
+  unsigned int getStart() const;
   /*! @return The number of vertices in this vertex range.
    */
-  unsigned int getCount(void) const;
+  unsigned int getCount() const;
 private:
   VertexBuffer* vertexBuffer;
   unsigned int start;
@@ -300,7 +300,7 @@ class IndexRange
 public:
   /*! Creates an empty range not referencing any index buffer.
    */
-  IndexRange(void);
+  IndexRange();
   /*! Creates a range spanning the entire specified index buffer.
    *  @param[in] indexBuffer The index buffer this range will refer to.
    */
@@ -317,7 +317,7 @@ public:
   void* lock(LockType type = LOCK_WRITE_ONLY) const;
   /*! Unlocks this index range.
    */
-  void unlock(void) const;
+  void unlock() const;
   /*! Copies the specified data into this index range.
    *  @param[in] source The base address of the source data.
    */
@@ -328,13 +328,13 @@ public:
   void copyTo(void* target);
   /*! @return The index buffer underlying this index range.
    */
-  IndexBuffer* getIndexBuffer(void) const;
+  IndexBuffer* getIndexBuffer() const;
   /*! @return The index of the first index in this index range.
    */
-  unsigned int getStart(void) const;
+  unsigned int getStart() const;
   /*! @return The number of indices in this index range.
    */
-  unsigned int getCount(void) const;
+  unsigned int getCount() const;
 private:
   IndexBuffer* indexBuffer;
   unsigned int start;
@@ -351,7 +351,7 @@ class PrimitiveRange
 public:
   /*! Creates an empty primitive range not referencing any buffers.
    */
-  PrimitiveRange(void);
+  PrimitiveRange();
   /*! Creates a primitive range of the specified type, using the entire
    *  specified vertex buffer.
    */
@@ -392,19 +392,19 @@ public:
   /*! @return @c true if this primitive range contains zero primitives,
    *  otherwise @c false.
    */
-  bool isEmpty(void) const;
+  bool isEmpty() const;
   /*! @return The type of primitives in this range.
    */
-  PrimitiveType getType(void) const;
+  PrimitiveType getType() const;
   /*! @return The vertex buffer used by this primitive range.
    */
-  VertexBuffer* getVertexBuffer(void) const;
+  VertexBuffer* getVertexBuffer() const;
   /*! @return The index buffer used by this primitive range, or @c NULL if no
    *  index buffer is used.
    */
-  IndexBuffer* getIndexBuffer(void) const;
-  unsigned int getStart(void) const;
-  unsigned int getCount(void) const;
+  IndexBuffer* getIndexBuffer() const;
+  unsigned int getStart() const;
+  unsigned int getCount() const;
 private:
   PrimitiveType type;
   VertexBuffer* vertexBuffer;
@@ -431,11 +431,11 @@ public:
   /*! Destructor.
    *  Releases any lock held.
    */
-  ~VertexRangeLock(void);
+  ~VertexRangeLock();
   /*! @return The base address of the locked vertex range.
    *  @remarks The vertex range is locked the first time this is called.
    */
-  operator T* (void);
+  operator T* ();
 private:
   VertexRange range;
   T* vertices;
@@ -459,11 +459,11 @@ public:
   /*! Destructor.
    *  Releases any lock held.
    */
-  ~IndexRangeLock(void);
+  ~IndexRangeLock();
   /*! @return The base address of the locked index range.
    *  @remarks The index range is locked the first time this is called.
    */
-  operator T* (void);
+  operator T* ();
 private:
   IndexRange range;
   T* indices;
@@ -479,20 +479,20 @@ class RenderBuffer : public Image
 public:
   /*! Destructor.
    */
-  virtual ~RenderBuffer(void);
+  virtual ~RenderBuffer();
   /*! @return The width, in pixels, of this render buffer.
    */
-  unsigned int getWidth(void) const;
+  unsigned int getWidth() const;
   /*! @return The height, in pixels, of this render buffer.
    */
-  unsigned int getHeight(void) const;
+  unsigned int getHeight() const;
   /*! @return The depth, in pixels, of this render buffer.
    *  @remarks This always returns 1 (one).
    */
-  unsigned int getDepth(void) const;
+  unsigned int getDepth() const;
   /*! @return The pixel format of this render buffer.
    */
-  const PixelFormat& getFormat(void) const;
+  const PixelFormat& getFormat() const;
   /*! Creates a render buffer with the specified properties.
    *  @param[in] format The desired pixel format.
    *  @param[in] width The desired width.
@@ -503,7 +503,7 @@ public:
                                   unsigned int width,
                                   unsigned int height);
 private:
-  RenderBuffer(void);
+  RenderBuffer();
   bool init(const PixelFormat& format, unsigned int width, unsigned int height);
   void attach(int attachment, unsigned int z);
   void detach(int attachment);
@@ -532,13 +532,13 @@ inline VertexRangeLock<T>::VertexRangeLock(VertexRange& initRange):
 }
 
 template <typename T>
-inline VertexRangeLock<T>::~VertexRangeLock(void)
+inline VertexRangeLock<T>::~VertexRangeLock()
 {
   range.unlock();
 }
 
 template <typename T>
-inline VertexRangeLock<T>::operator T* (void)
+inline VertexRangeLock<T>::operator T* ()
 {
   return vertices;
 }
@@ -554,13 +554,13 @@ inline IndexRangeLock<T>::IndexRangeLock(IndexRange& initRange):
 }
 
 template <typename T>
-inline IndexRangeLock<T>::~IndexRangeLock(void)
+inline IndexRangeLock<T>::~IndexRangeLock()
 {
   range.unlock();
 }
 
 template <typename T>
-inline IndexRangeLock<T>::operator T* (void)
+inline IndexRangeLock<T>::operator T* ()
 {
   return indices;
 }

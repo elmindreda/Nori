@@ -43,10 +43,10 @@ class KeyFrame3
 public:
   KeyFrame3(AnimTrack3& track);
   bool operator < (const KeyFrame3& other) const;
-  Time getMoment(void) const;
+  Time getMoment() const;
   void setMoment(Time newMoment);
-  const Transform3& getTransform(void) const;
-  const vec3& getDirection(void) const;
+  const Transform3& getTransform() const;
+  const vec3& getDirection() const;
   void setTransform(const Transform3& newTransform);
   void setPosition(const vec3& newPosition);
   void setRotation(const quat& newRotation);
@@ -70,19 +70,19 @@ public:
   AnimTrack3(const AnimTrack3& source);
   void createKeyFrame(Time moment, const Transform3& transform, const vec3& direction);
   void destroyKeyFrame(KeyFrame3& frame);
-  void destroyKeyFrames(void);
+  void destroyKeyFrames();
   void evaluate(Time moment, Transform3& result) const;
   AnimTrack3& operator = (const AnimTrack3& source);
-  size_t getKeyFrameCount(void) const;
+  size_t getKeyFrameCount() const;
   KeyFrame3& getKeyFrame(size_t index);
   const KeyFrame3& getKeyFrame(size_t index) const;
-  const String& getName(void) const;
-  Time getDuration(void) const;
+  const String& getName() const;
+  Time getDuration() const;
   float getLength(float tolerance = 0.5f) const;
 private:
   typedef std::vector<KeyFrame3> KeyFrameList;
-  void sortKeyFrames(void);
-  void flipRotations(void);
+  void sortKeyFrames();
+  void flipRotations();
   KeyFrameList keyframes;
   String name;
 };
@@ -99,10 +99,10 @@ public:
   Anim3& operator = (const Anim3& source);
   AnimTrack3& createTrack(const String& name);
   void destroyTrack(AnimTrack3& track);
-  void destroyTracks(void);
+  void destroyTracks();
   AnimTrack3* findTrack(const String& name);
   const AnimTrack3* findTrack(const String& name) const;
-  size_t getTrackCount(void) const;
+  size_t getTrackCount() const;
   AnimTrack3& getTrack(size_t index);
   const AnimTrack3& getTrack(size_t index) const;
 private:

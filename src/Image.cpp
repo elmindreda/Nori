@@ -256,7 +256,7 @@ bool Image::crop(const Recti& area)
   return true;
 }
 
-void Image::flipHorizontal(void)
+void Image::flipHorizontal()
 {
   unsigned int pixelSize = format.getSize();
 
@@ -277,7 +277,7 @@ void Image::flipHorizontal(void)
   data.attach(scratch.detach(), scratch.getSize());
 }
 
-void Image::flipVertical(void)
+void Image::flipVertical()
 {
   unsigned int pixelSize = format.getSize();
 
@@ -315,7 +315,7 @@ Image& Image::operator = (const Image& source)
   return *this;
 }
 
-bool Image::isPOT(void) const
+bool Image::isPOT() const
 {
   if (width & (width - 1))
     return false;
@@ -327,32 +327,32 @@ bool Image::isPOT(void) const
   return true;
 }
 
-bool Image::isSquare(void) const
+bool Image::isSquare() const
 {
   return width == height;
 }
 
-unsigned int Image::getWidth(void) const
+unsigned int Image::getWidth() const
 {
   return width;
 }
 
-unsigned int Image::getHeight(void) const
+unsigned int Image::getHeight() const
 {
   return height;
 }
 
-unsigned int Image::getDepth(void) const
+unsigned int Image::getDepth() const
 {
   return depth;
 }
 
-void* Image::getPixels(void)
+void* Image::getPixels()
 {
   return data;
 }
 
-const void* Image::getPixels(void) const
+const void* Image::getPixels() const
 {
   return data;
 }
@@ -373,12 +373,12 @@ const void* Image::getPixel(unsigned int x, unsigned int y, unsigned int z) cons
   return data + ((z * height + y) * width + x) * format.getSize();
 }
 
-const PixelFormat& Image::getFormat(void) const
+const PixelFormat& Image::getFormat() const
 {
   return format;
 }
 
-unsigned int Image::getDimensionCount(void) const
+unsigned int Image::getDimensionCount() const
 {
   if (depth > 1)
     return 3;
@@ -435,7 +435,7 @@ ImageCube::ImageCube(const ImageCube& source):
 {
 }
 
-bool ImageCube::isPOT(void) const
+bool ImageCube::isPOT() const
 {
   if (!isComplete())
     return false;
@@ -449,7 +449,7 @@ bool ImageCube::isPOT(void) const
   return true;
 }
 
-bool ImageCube::isSquare(void) const
+bool ImageCube::isSquare() const
 {
   if (!isComplete())
     return false;
@@ -463,7 +463,7 @@ bool ImageCube::isSquare(void) const
   return true;
 }
 
-bool ImageCube::isComplete(void) const
+bool ImageCube::isComplete() const
 {
   for (unsigned int i = 0;  i < 6;  i++)
   {
@@ -474,7 +474,7 @@ bool ImageCube::isComplete(void) const
   return true;
 }
 
-bool ImageCube::hasSameFormat(void) const
+bool ImageCube::hasSameFormat() const
 {
   if (!isComplete())
     return false;
@@ -490,7 +490,7 @@ bool ImageCube::hasSameFormat(void) const
   return true;
 }
 
-bool ImageCube::hasSameSize(void) const
+bool ImageCube::hasSameSize() const
 {
   if (!isComplete())
     return false;

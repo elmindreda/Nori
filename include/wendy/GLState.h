@@ -123,14 +123,14 @@ enum Function
 class StencilState
 {
 public:
-  void apply(void) const;
-  bool isEnabled(void) const;
-  Function getFunction(void) const;
-  Operation getStencilFailOperation(void) const;
-  Operation getDepthFailOperation(void) const;
-  Operation getDepthPassOperation(void) const;
-  unsigned int getReference(void) const;
-  unsigned int getWriteMask(void) const;
+  void apply() const;
+  bool isEnabled() const;
+  Function getFunction() const;
+  Operation getStencilFailOperation() const;
+  Operation getDepthFailOperation() const;
+  Operation getDepthPassOperation() const;
+  unsigned int getReference() const;
+  unsigned int getWriteMask() const;
   void setEnabled(bool newState);
   void setFunction(Function newFunction);
   void setReference(unsigned int newReference);
@@ -138,13 +138,13 @@ public:
   void setOperations(Operation stencilFailed,
                      Operation depthFailed,
                      Operation depthPassed);
-  void setDefaults(void);
+  void setDefaults();
 private:
   class Data
   {
   public:
-    Data(void);
-    void setDefaults(void);
+    Data();
+    void setDefaults();
     mutable bool dirty;
     bool enabled;
     Function function;
@@ -154,7 +154,7 @@ private:
     Operation depthFailed;
     Operation depthPassed;
   };
-  void force(void) const;
+  void force() const;
   Data data;
   static Data cache;
 };
@@ -168,7 +168,7 @@ class UniformStateIndex
 {
   friend class ProgramState;
 public:
-  UniformStateIndex(void);
+  UniformStateIndex();
 private:
   UniformStateIndex(uint16 index, uint16 offset);
   uint16 index;
@@ -184,7 +184,7 @@ class SamplerStateIndex
 {
   friend class ProgramState;
 public:
-  SamplerStateIndex(void);
+  SamplerStateIndex();
 private:
   SamplerStateIndex(uint16 index, uint16 unit);
   uint16 index;
@@ -201,13 +201,13 @@ class ProgramState
 public:
   /*! Constructor.
    */
-  ProgramState(void);
+  ProgramState();
   /*! Destructor.
    */
-  ~ProgramState(void);
+  ~ProgramState();
   /*! Applies this GPU program state to the current context.
    */
-  void apply(void) const;
+  void apply() const;
   template <typename T>
   void getUniformState(const char* name, T& result) const;
   template <typename T>
@@ -222,17 +222,17 @@ public:
   void setSamplerState(SamplerStateIndex index, Texture* newTexture);
   UniformStateIndex getUniformStateIndex(const char* name) const;
   SamplerStateIndex getSamplerStateIndex(const char* name) const;
-  Program* getProgram(void) const;
+  Program* getProgram() const;
   /*! Sets the GPU program used by this state object.
    *  @param[in] newProgram The desired GPU program, or @c NULL to detach
    *  the current program.
    */
   void setProgram(Program* newProgram);
-  StateID getID(void) const;
-  void setDefaults(void);
+  StateID getID() const;
+  void setDefaults();
 private:
   template <typename T>
-  static Uniform::Type getUniformType(void);
+  static Uniform::Type getUniformType();
   void* getData(const char* name, Uniform::Type type);
   const void* getData(const char* name, Uniform::Type type) const;
   void* getData(UniformStateIndex index, Uniform::Type type);
@@ -267,49 +267,49 @@ class RenderState : public ProgramState
 public:
   /*! Applies this render state to the current context.
    */
-  void apply(void) const;
+  void apply() const;
   /*! @return @c true if this render state uses any form of culling, otherwise
    *  @c false.
    */
-  bool isCulling(void) const;
+  bool isCulling() const;
   /*! @return @c true if this render state uses any form of blending with the
    *  framebuffer, otherwise @c false.
    */
-  bool isBlending(void) const;
+  bool isBlending() const;
   /*! @return @c true if this render state uses depth buffer testing, otherwise
    *  @c false.
    */
-  bool isDepthTesting(void) const;
+  bool isDepthTesting() const;
   /*! @return @c true if this render state writes to the depth buffer, otherwise
    *  @c false.
    */
-  bool isDepthWriting(void) const;
+  bool isDepthWriting() const;
   /*! @return @c true if this render state writes to the color buffer, otherwise
    *  @c false.
    */
-  bool isColorWriting(void) const;
+  bool isColorWriting() const;
   /*! @return @c true if this render state uses wireframe rendering, otherwise
    *  @c false.
    */
-  bool isWireframe(void) const;
+  bool isWireframe() const;
   /*! @return @c true if this render state uses line smoothing, otherwise @c false.
    */
-  bool isLineSmoothing(void) const;
+  bool isLineSmoothing() const;
   /*! @return @c the width of lines, in pixels.
    */
-  float getLineWidth(void) const;
+  float getLineWidth() const;
   /*! @return The culling mode of this render state.
    */
-  CullMode getCullMode(void) const;
+  CullMode getCullMode() const;
   /*! @return The source factor for color buffer blending.
    */
-  BlendFactor getSrcFactor(void) const;
+  BlendFactor getSrcFactor() const;
   /*! @return The destination factor for color buffer blending.
    */
-  BlendFactor getDstFactor(void) const;
+  BlendFactor getDstFactor() const;
   /*! @return The depth buffer testing function used by this render state.
    */
-  Function getDepthFunction(void) const;
+  Function getDepthFunction() const;
   /*! Sets whether this render state uses depth buffer testing.
    *  @param[in] enable Set to @c true to enable depth buffer testing, or @c
    *  false to disable it.
@@ -353,15 +353,15 @@ public:
   void setBlendFactors(BlendFactor src, BlendFactor dst);
   /*! Resets all values in this render state to their defaults.
    */
-  void setDefaults(void);
-  static bool isCullingInverted(void);
+  void setDefaults();
+  static bool isCullingInverted();
   static void setCullingInversion(bool newState);
 private:
   class Data
   {
   public:
-    Data(void);
-    void setDefaults(void);
+    Data();
+    void setDefaults();
     mutable bool dirty;
     bool depthTesting;
     bool depthWriting;
@@ -374,7 +374,7 @@ private:
     BlendFactor dstFactor;
     Function depthFunction;
   };
-  void force(void) const;
+  void force() const;
   void setBooleanState(unsigned int state, bool value) const;
   Data data;
   static Data cache;

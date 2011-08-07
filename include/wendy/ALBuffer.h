@@ -76,22 +76,22 @@ class Buffer : public Resource
 public:
   /*! Destructor.
    */
-  ~Buffer(void);
+  ~Buffer();
   /*! @return @c true if this buffer contains mono data, otherwise @c false.
    */
-  bool isMono(void) const;
+  bool isMono() const;
   /*! @return @c true if this buffer contains stereo data, otherwise @c false.
    */
-  bool isStereo(void) const;
+  bool isStereo() const;
   /*! @return The duration, in seconds, of this buffer.
    */
-  Time getDuration(void) const;
+  Time getDuration() const;
   /*! @return The format of the data in this buffer.
    */
-  BufferFormat getFormat(void) const;
+  BufferFormat getFormat() const;
   /*! @return The context within which this buffer was created.
    */
-  Context& getContext(void) const;
+  Context& getContext() const;
   /*! Creates a buffer object within the specified context using the specified
    *  data.
    */

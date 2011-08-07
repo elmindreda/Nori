@@ -70,10 +70,10 @@ public:
   void render(const render::Scene& scene, const render::Camera& camera);
   /*! @return The shared program state object used by this renderer.
    */
-  SharedProgramState& getSharedProgramState(void);
+  SharedProgramState& getSharedProgramState();
   /*! @return The geometry pool used by this renderer.
    */
-  render::GeometryPool& getGeometryPool(void);
+  render::GeometryPool& getGeometryPool();
   /*! Creates a renderer object using the specified geometry pool and the
    *  specified configuration.
    *  @return The newly constructed renderer object, or @c NULL if an error

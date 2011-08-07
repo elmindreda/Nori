@@ -68,32 +68,32 @@ void Model::enqueue(Scene& scene, const Camera& camera, const Transform3& transf
   }
 }
 
-const Sphere& Model::getBounds(void) const
+const Sphere& Model::getBounds() const
 {
   return bounds;
 }
 
-const Model::GeometryList& Model::getGeometries(void)
+const Model::GeometryList& Model::getGeometries()
 {
   return geometries;
 }
 
-GL::VertexBuffer& Model::getVertexBuffer(void)
+GL::VertexBuffer& Model::getVertexBuffer()
 {
   return *vertexBuffer;
 }
 
-const GL::VertexBuffer& Model::getVertexBuffer(void) const
+const GL::VertexBuffer& Model::getVertexBuffer() const
 {
   return *vertexBuffer;
 }
 
-GL::IndexBuffer& Model::getIndexBuffer(void)
+GL::IndexBuffer& Model::getIndexBuffer()
 {
   return *indexBuffer;
 }
 
-const GL::IndexBuffer& Model::getIndexBuffer(void) const
+const GL::IndexBuffer& Model::getIndexBuffer() const
 {
   return *indexBuffer;
 }
@@ -281,12 +281,12 @@ Model::Geometry::Geometry(const GL::IndexRange& initRange,
 {
 }
 
-const GL::IndexRange& Model::Geometry::getIndexRange(void) const
+const GL::IndexRange& Model::Geometry::getIndexRange() const
 {
   return range;
 }
 
-Material* Model::Geometry::getMaterial(void) const
+Material* Model::Geometry::getMaterial() const
 {
   return material;
 }

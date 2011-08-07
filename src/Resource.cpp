@@ -65,7 +65,7 @@ Resource::Resource(const Resource& source):
 {
 }
 
-Resource::~Resource(void)
+Resource::~Resource()
 {
   if (!path.isEmpty())
   {
@@ -75,19 +75,19 @@ Resource::~Resource(void)
   }
 }
 
-const Path& Resource::getPath(void) const
+const Path& Resource::getPath() const
 {
   return path;
 }
 
-ResourceIndex& Resource::getIndex(void) const
+ResourceIndex& Resource::getIndex() const
 {
   return index;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-ResourceIndex::~ResourceIndex(void)
+ResourceIndex::~ResourceIndex()
 {
   if (!resources.empty())
     throw Exception("Resource index destroyed with attached resources");
@@ -161,7 +161,7 @@ bool ResourceIndex::findFile(Path& path) const
   return false;
 }
 
-const PathList& ResourceIndex::getSearchPaths(void) const
+const PathList& ResourceIndex::getSearchPaths() const
 {
   return paths;
 }
@@ -173,7 +173,7 @@ ResourceReader::ResourceReader(ResourceIndex& initIndex):
 {
 }
 
-ResourceIndex& ResourceReader::getIndex(void) const
+ResourceIndex& ResourceReader::getIndex() const
 {
   return index;
 }

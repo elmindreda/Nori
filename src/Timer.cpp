@@ -36,7 +36,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Timer::Timer(void):
+Timer::Timer():
   started(false),
   paused(false),
   baseTime(0.0),
@@ -44,7 +44,7 @@ Timer::Timer(void):
 {
 }
 
-void Timer::start(void)
+void Timer::start()
 {
   stop();
 
@@ -52,7 +52,7 @@ void Timer::start(void)
   started = true;
 }
 
-void Timer::stop(void)
+void Timer::stop()
 {
   started = false;
   paused = false;
@@ -60,7 +60,7 @@ void Timer::stop(void)
   prevTime = 0.0;
 }
 
-void Timer::pause(void)
+void Timer::pause()
 {
   if (!started)
     return;
@@ -70,7 +70,7 @@ void Timer::pause(void)
   paused = true;
 }
 
-void Timer::resume(void)
+void Timer::resume()
 {
   if (!started)
     return;
@@ -80,17 +80,17 @@ void Timer::resume(void)
   paused = false;
 }
 
-bool Timer::isStarted(void) const
+bool Timer::isStarted() const
 {
   return started;
 }
 
-bool Timer::isPaused(void) const
+bool Timer::isPaused() const
 {
   return paused;
 }
 
-Time Timer::getTime(void) const
+Time Timer::getTime() const
 {
   if (started)
   {
@@ -117,7 +117,7 @@ void Timer::setTime(Time time)
   }
 }
 
-Time Timer::getDeltaTime(void)
+Time Timer::getDeltaTime()
 {
   if (started)
   {
@@ -132,7 +132,7 @@ Time Timer::getDeltaTime(void)
     return 0.0;
 }
 
-Time Timer::getCurrentTime(void)
+Time Timer::getCurrentTime()
 {
   return glfwGetTime();
 }

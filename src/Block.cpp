@@ -60,7 +60,7 @@ Block::Block(const Block& source):
   operator = (source);
 }
 
-Block::~Block(void)
+Block::~Block()
 {
   destroy();
 }
@@ -103,7 +103,7 @@ void Block::attach(Byte* newData, size_t newSize)
   size = newSize;
 }
 
-Byte* Block::detach(void)
+Byte* Block::detach()
 {
   Byte* detached = data;
 
@@ -113,7 +113,7 @@ Byte* Block::detach(void)
   return detached;
 }
 
-void Block::destroy(void)
+void Block::destroy()
 {
   if (size > 0)
   {
@@ -123,12 +123,12 @@ void Block::destroy(void)
   }
 }
 
-Block::operator Byte* (void)
+Block::operator Byte* ()
 {
   return data;
 }
 
-Block::operator const Byte* (void) const
+Block::operator const Byte* () const
 {
   return data;
 }
@@ -146,17 +146,17 @@ Block& Block::operator = (const Block& source)
   return *this;
 }
 
-size_t Block::getSize(void) const
+size_t Block::getSize() const
 {
   return size;
 }
 
-Byte* Block::getData(void)
+Byte* Block::getData()
 {
   return data;
 }
 
-const Byte* Block::getData(void) const
+const Byte* Block::getData() const
 {
   return data;
 }

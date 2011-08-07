@@ -179,7 +179,7 @@ bool samplerTypeMatchesTextureType(Sampler::Type samplerType, TextureType textur
 
 ///////////////////////////////////////////////////////////////////////
 
-void StencilState::apply(void) const
+void StencilState::apply() const
 {
   if (cache.dirty)
   {
@@ -235,37 +235,37 @@ void StencilState::apply(void) const
   data.dirty = false;
 }
 
-bool StencilState::isEnabled(void) const
+bool StencilState::isEnabled() const
 {
   return data.enabled;
 }
 
-Function StencilState::getFunction(void) const
+Function StencilState::getFunction() const
 {
   return data.function;
 }
 
-Operation StencilState::getStencilFailOperation(void) const
+Operation StencilState::getStencilFailOperation() const
 {
   return data.stencilFailed;
 }
 
-Operation StencilState::getDepthFailOperation(void) const
+Operation StencilState::getDepthFailOperation() const
 {
   return data.depthFailed;
 }
 
-Operation StencilState::getDepthPassOperation(void) const
+Operation StencilState::getDepthPassOperation() const
 {
   return data.depthPassed;
 }
 
-unsigned int StencilState::getReference(void) const
+unsigned int StencilState::getReference() const
 {
   return data.reference;
 }
 
-unsigned int StencilState::getWriteMask(void) const
+unsigned int StencilState::getWriteMask() const
 {
   return data.writeMask;
 }
@@ -304,12 +304,12 @@ void StencilState::setOperations(Operation stencilFailed,
   data.dirty = true;
 }
 
-void StencilState::setDefaults(void)
+void StencilState::setDefaults()
 {
   data.setDefaults();
 }
 
-void StencilState::force(void) const
+void StencilState::force() const
 {
   cache = data;
 
@@ -332,12 +332,12 @@ StencilState::Data StencilState::cache;
 
 ///////////////////////////////////////////////////////////////////////
 
-StencilState::Data::Data(void)
+StencilState::Data::Data()
 {
   setDefaults();
 }
 
-void StencilState::Data::setDefaults(void)
+void StencilState::Data::setDefaults()
 {
   dirty = true;
   enabled = false;
@@ -351,7 +351,7 @@ void StencilState::Data::setDefaults(void)
 
 ///////////////////////////////////////////////////////////////////////
 
-UniformStateIndex::UniformStateIndex(void):
+UniformStateIndex::UniformStateIndex():
   index(0xffff),
   offset(0xffff)
 {
@@ -365,7 +365,7 @@ UniformStateIndex::UniformStateIndex(uint16 initIndex, uint16 initOffset):
 
 ///////////////////////////////////////////////////////////////////////
 
-SamplerStateIndex::SamplerStateIndex(void):
+SamplerStateIndex::SamplerStateIndex():
   index(0xffff),
   unit(0xffff)
 {
@@ -379,7 +379,7 @@ SamplerStateIndex::SamplerStateIndex(uint16 initIndex, uint16 initUnit):
 
 ///////////////////////////////////////////////////////////////////////
 
-ProgramState::ProgramState(void)
+ProgramState::ProgramState()
 {
   if (usedIDs.empty())
     ID = nextID++;
@@ -390,12 +390,12 @@ ProgramState::ProgramState(void)
   }
 }
 
-ProgramState::~ProgramState(void)
+ProgramState::~ProgramState()
 {
   usedIDs.push_front(ID);
 }
 
-void ProgramState::apply(void) const
+void ProgramState::apply() const
 {
   if (!program)
   {
@@ -605,7 +605,7 @@ SamplerStateIndex ProgramState::getSamplerStateIndex(const char* name) const
   return SamplerStateIndex();
 }
 
-Program* ProgramState::getProgram(void) const
+Program* ProgramState::getProgram() const
 {
   return program;
 }
@@ -640,12 +640,12 @@ void ProgramState::setProgram(Program* newProgram)
   textures.resize(textureCount);
 }
 
-StateID ProgramState::getID(void) const
+StateID ProgramState::getID() const
 {
   return ID;
 }
 
-void ProgramState::setDefaults(void)
+void ProgramState::setDefaults()
 {
   setProgram(NULL);
 }
@@ -769,43 +769,43 @@ const void* ProgramState::getData(UniformStateIndex index, Uniform::Type type) c
 }
 
 template <>
-Uniform::Type ProgramState::getUniformType<float>(void)
+Uniform::Type ProgramState::getUniformType<float>()
 {
   return Uniform::FLOAT;
 }
 
 template <>
-Uniform::Type ProgramState::getUniformType<vec2>(void)
+Uniform::Type ProgramState::getUniformType<vec2>()
 {
   return Uniform::VEC2;
 }
 
 template <>
-Uniform::Type ProgramState::getUniformType<vec3>(void)
+Uniform::Type ProgramState::getUniformType<vec3>()
 {
   return Uniform::VEC3;
 }
 
 template <>
-Uniform::Type ProgramState::getUniformType<vec4>(void)
+Uniform::Type ProgramState::getUniformType<vec4>()
 {
   return Uniform::VEC4;
 }
 
 template <>
-Uniform::Type ProgramState::getUniformType<mat2>(void)
+Uniform::Type ProgramState::getUniformType<mat2>()
 {
   return Uniform::MAT2;
 }
 
 template <>
-Uniform::Type ProgramState::getUniformType<mat3>(void)
+Uniform::Type ProgramState::getUniformType<mat3>()
 {
   return Uniform::MAT3;
 }
 
 template <>
-Uniform::Type ProgramState::getUniformType<mat4>(void)
+Uniform::Type ProgramState::getUniformType<mat4>()
 {
   return Uniform::MAT4;
 }
@@ -816,7 +816,7 @@ StateID ProgramState::nextID = 0;
 
 ///////////////////////////////////////////////////////////////////////
 
-void RenderState::apply(void) const
+void RenderState::apply() const
 {
   if (Context* context = Context::getSingleton())
   {
@@ -931,62 +931,62 @@ void RenderState::apply(void) const
   data.dirty = false;
 }
 
-bool RenderState::isCulling(void) const
+bool RenderState::isCulling() const
 {
   return data.cullMode != CULL_NONE;
 }
 
-bool RenderState::isBlending(void) const
+bool RenderState::isBlending() const
 {
   return data.srcFactor != BLEND_ONE || data.dstFactor != BLEND_ZERO;
 }
 
-bool RenderState::isDepthTesting(void) const
+bool RenderState::isDepthTesting() const
 {
   return data.depthTesting;
 }
 
-bool RenderState::isDepthWriting(void) const
+bool RenderState::isDepthWriting() const
 {
   return data.depthWriting;
 }
 
-bool RenderState::isColorWriting(void) const
+bool RenderState::isColorWriting() const
 {
   return data.colorWriting;
 }
 
-bool RenderState::isWireframe(void) const
+bool RenderState::isWireframe() const
 {
   return data.wireframe;
 }
 
-bool RenderState::isLineSmoothing(void) const
+bool RenderState::isLineSmoothing() const
 {
   return data.lineSmoothing;
 }
 
-float RenderState::getLineWidth(void) const
+float RenderState::getLineWidth() const
 {
   return data.lineWidth;
 }
 
-CullMode RenderState::getCullMode(void) const
+CullMode RenderState::getCullMode() const
 {
   return data.cullMode;
 }
 
-BlendFactor RenderState::getSrcFactor(void) const
+BlendFactor RenderState::getSrcFactor() const
 {
   return data.srcFactor;
 }
 
-BlendFactor RenderState::getDstFactor(void) const
+BlendFactor RenderState::getDstFactor() const
 {
   return data.dstFactor;
 }
 
-Function RenderState::getDepthFunction(void) const
+Function RenderState::getDepthFunction() const
 {
   return data.depthFunction;
 }
@@ -1046,12 +1046,12 @@ void RenderState::setLineWidth(float newWidth)
   data.dirty = true;
 }
 
-void RenderState::setDefaults(void)
+void RenderState::setDefaults()
 {
   data.setDefaults();
 }
 
-bool RenderState::isCullingInverted(void)
+bool RenderState::isCullingInverted()
 {
   return cullingInverted;
 }
@@ -1061,7 +1061,7 @@ void RenderState::setCullingInversion(bool newState)
   cullingInverted = newState;
 }
 
-void RenderState::force(void) const
+void RenderState::force() const
 {
   cache = data;
 
@@ -1120,12 +1120,12 @@ bool RenderState::cullingInverted = false;
 
 ///////////////////////////////////////////////////////////////////////
 
-RenderState::Data::Data(void)
+RenderState::Data::Data()
 {
   setDefaults();
 }
 
-void RenderState::Data::setDefaults(void)
+void RenderState::Data::setDefaults()
 {
   dirty = true;
   depthTesting = true;

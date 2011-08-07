@@ -73,26 +73,26 @@ class SharedProgramState : public GL::SharedProgramState
 public:
   /*! Constructor.
    */
-  SharedProgramState(void);
+  SharedProgramState();
   /*! Reserves the supported uniform and sampler signatures as shared in the
    *  specified context.
    */
   virtual bool reserveSupported(GL::Context& context) const;
   /*! @return The current model matrix.
    */
-  const mat4& getModelMatrix(void) const;
+  const mat4& getModelMatrix() const;
   /*! @return The current view matrix.
    */
-  const mat4& getViewMatrix(void) const;
+  const mat4& getViewMatrix() const;
   /*! @return The current projection matrix.
    */
-  const mat4& getProjectionMatrix(void) const;
+  const mat4& getProjectionMatrix() const;
   void getCameraProperties(vec3& position,
                            float& FOV,
                            float& aspect,
                            float& nearZ,
                            float& farZ) const;
-  float getTime(void) const;
+  float getTime() const;
   /*! Sets the model matrix.
    *  @param[in] newMatrix The desired model matrix.
    */

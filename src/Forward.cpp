@@ -65,12 +65,12 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
   context.setCurrentSharedProgramState(NULL);
 }
 
-SharedProgramState& Renderer::getSharedProgramState(void)
+SharedProgramState& Renderer::getSharedProgramState()
 {
   return *state;
 }
 
-render::GeometryPool& Renderer::getGeometryPool(void)
+render::GeometryPool& Renderer::getGeometryPool()
 {
   return pool;
 }

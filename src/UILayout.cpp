@@ -60,17 +60,17 @@ void Layout::addChild(Widget& child, float size)
   Widget::addChild(child);
 }
 
-bool Layout::isExpanding(void) const
+bool Layout::isExpanding() const
 {
   return expanding;
 }
 
-Orientation Layout::getOrientation(void) const
+Orientation Layout::getOrientation() const
 {
   return orientation;
 }
 
-float Layout::getBorderSize(void) const
+float Layout::getBorderSize() const
 {
   return borderSize;
 }
@@ -139,7 +139,7 @@ void Layout::removedFromParent(Widget& parent)
     parentAreaSlot = NULL;
 }
 
-void Layout::update(void)
+void Layout::update()
 {
   const WidgetList& children = getChildren();
   const vec2& size = getArea().size;

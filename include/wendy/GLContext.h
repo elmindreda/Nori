@@ -75,7 +75,7 @@ class ScreenMode
 public:
   /*! Default constructor.
    */
-  ScreenMode(void);
+  ScreenMode();
   /*! Constructor.
    *  @param[in] width The desired width.
    *  @param[in] height The desired height.
@@ -84,7 +84,7 @@ public:
   ScreenMode(unsigned int width, unsigned int height, unsigned int colorBits);
   /*! Resets all value to their defaults.
    */
-  void setDefaults(void);
+  void setDefaults();
   /*! Sets the specified values.
    *  @param[in] newWidth The desired width.
    *  @param[in] newHeight The desired height.
@@ -121,7 +121,7 @@ class ContextMode : public ScreenMode
 public:
   /*! Default constructor.
    */
-  ContextMode(void);
+  ContextMode();
   /*! Constructor.
    */
   ContextMode(unsigned int width,
@@ -133,7 +133,7 @@ public:
 	      WindowMode mode = WINDOWED);
   /*! Resets all value to their defaults.
    */
-  void setDefaults(void);
+  void setDefaults();
   /*! Sets the specified value.
    */
   void set(unsigned int newWidth,
@@ -171,37 +171,37 @@ public:
   /*! @return The maximum number of color buffers that can be attached to to an
    *  image framebuffer (FBO).
    */
-  unsigned int getMaxColorAttachments(void) const;
+  unsigned int getMaxColorAttachments() const;
   /*! @return The maximum number of simultaneously active color buffers.
    */
-  unsigned int getMaxDrawBuffers(void) const;
+  unsigned int getMaxDrawBuffers() const;
   /*! @return The number of available vertex shader texture image units.
    */
-  unsigned int getMaxVertexTextureImageUnits(void) const;
+  unsigned int getMaxVertexTextureImageUnits() const;
   /*! @return The number of available fragment shader texture image units.
    */
-  unsigned int getMaxFragmentTextureImageUnits(void) const;
+  unsigned int getMaxFragmentTextureImageUnits() const;
   /*! @return The number of available vertex and fragment shader texture image units.
    */
-  unsigned int getMaxCombinedTextureImageUnits(void) const;
+  unsigned int getMaxCombinedTextureImageUnits() const;
   /*! @return The maximum size, in pixels, of 2D POT textures.
    */
-  unsigned int getMaxTextureSize(void) const;
+  unsigned int getMaxTextureSize() const;
   /*! @return The maximum size, in pixels, of 3D POT textures.
    */
-  unsigned int getMaxTexture3DSize(void) const;
+  unsigned int getMaxTexture3DSize() const;
   /*! @return The maximum size, in pixels, of cube map texture faces.
    */
-  unsigned int getMaxTextureCubeSize(void) const;
+  unsigned int getMaxTextureCubeSize() const;
   /*! @return The maximum size, in pixels, of non-POT 2D textures.
    */
-  unsigned int getMaxTextureRectangleSize(void) const;
+  unsigned int getMaxTextureRectangleSize() const;
   /*! @return The number of available texture coordinates.
    */
-  unsigned int getMaxTextureCoords(void) const;
+  unsigned int getMaxTextureCoords() const;
   /*! @return The number of available vertex attributes.
    */
-  unsigned int getMaxVertexAttributes(void) const;
+  unsigned int getMaxVertexAttributes() const;
 private:
   Context& context;
   unsigned int maxColorAttachments;
@@ -231,26 +231,26 @@ class Framebuffer : public RefObject
 public:
   /*! Destructor.
    */
-  virtual ~Framebuffer(void);
+  virtual ~Framebuffer();
   /*! @return The width, in pixels, of this framebuffer.
    */
-  virtual unsigned int getWidth(void) const = 0;
+  virtual unsigned int getWidth() const = 0;
   /*! @return The height, in pixels, of this framebuffer.
    */
-  virtual unsigned int getHeight(void) const = 0;
+  virtual unsigned int getHeight() const = 0;
   /*! @return The aspect ratio of the dimensions, in pixels, of this framebuffer.
    */
-  float getAspectRatio(void) const;
+  float getAspectRatio() const;
   /*! @return The context within which this framebuffer was created.
    */
-  Context& getContext(void) const;
+  Context& getContext() const;
 protected:
   /*! Constructor.
    */
   Framebuffer(Context& context);
   /*! Called when this framebuffer is to be made current.
    */
-  virtual void apply(void) const = 0;
+  virtual void apply() const = 0;
 private:
   Framebuffer(const Framebuffer& source);
   Framebuffer& operator = (const Framebuffer& source);
@@ -268,18 +268,18 @@ class DefaultFramebuffer : public Framebuffer
 public:
   /*! @return The default framebuffer color depth, in bits.
    */
-  unsigned int getColorBits(void) const;
+  unsigned int getColorBits() const;
   /*! @return The default framebuffer depth-buffer depth, in bits.
    */
-  unsigned int getDepthBits(void) const;
+  unsigned int getDepthBits() const;
   /*! @return The default framebuffer stencil buffer depth, in bits.
    */
-  unsigned int getStencilBits(void) const;
-  unsigned int getWidth(void) const;
-  unsigned int getHeight(void) const;
+  unsigned int getStencilBits() const;
+  unsigned int getWidth() const;
+  unsigned int getHeight() const;
 private:
   DefaultFramebuffer(Context& context);
-  void apply(void) const;
+  void apply() const;
   ContextMode mode;
 };
 
@@ -314,21 +314,21 @@ public:
   };
   /*! Destructor.
    */
-  ~ImageFramebuffer(void);
+  ~ImageFramebuffer();
   /*! @copydoc Framebuffer::getWidth
    */
-  unsigned int getWidth(void) const;
+  unsigned int getWidth() const;
   /*! @copydoc Framebuffer::getHeight
    */
-  unsigned int getHeight(void) const;
+  unsigned int getHeight() const;
   /*! @return The image attached to the ImageFramebuffer::COLOR_BUFFER0
    *  attachment point, or @c NULL if no image is attached to it.
    */
-  Image* getColorBuffer(void) const;
+  Image* getColorBuffer() const;
   /*! @return The image attached to the ImageFramebuffer::DEPTH_BUFFER
    *  attachment point, or @c NULL if no image is attached to it.
    */
-  Image* getDepthBuffer(void) const;
+  Image* getDepthBuffer() const;
   /*! @return The image attached to the specified attachment point, or @c NULL
    *  if no image is attached to it.
    */
@@ -359,8 +359,8 @@ public:
   static ImageFramebuffer* create(Context& context);
 private:
   ImageFramebuffer(Context& context);
-  bool init(void);
-  void apply(void) const;
+  bool init();
+  void apply() const;
   unsigned int bufferID;
   ImageRef images[5];
 };
@@ -376,7 +376,7 @@ public:
   class Frame
   {
   public:
-    Frame(void);
+    Frame();
     unsigned int passCount;
     unsigned int vertexCount;
     unsigned int pointCount;
@@ -385,13 +385,13 @@ public:
     Time duration;
   };
   typedef std::deque<Frame> FrameQueue;
-  Stats(void);
-  void addFrame(void);
+  Stats();
+  void addFrame();
   void addPasses(unsigned int count);
   void addPrimitives(PrimitiveType type, unsigned int count);
-  float getFrameRate(void) const;
-  unsigned int getFrameCount(void) const;
-  const Frame& getFrame(void) const;
+  float getFrameRate() const;
+  unsigned int getFrameCount() const;
+  const Frame& getFrame() const;
 private:
   unsigned int frameCount;
   float frameRate;
@@ -464,7 +464,7 @@ public:
   typedef std::vector<Plane> PlaneList;
   /*! Destructor.
    */
-  ~Context(void);
+  ~Context();
   /*! Clears the current color buffer with the specified color.
    *  @param[in] color The color value to clear the color buffer with.
    */
@@ -490,16 +490,16 @@ public:
   /*! Makes Context::update to return when in manual refresh mode, forcing
    *  a new iteration of the render loop.
    */
-  void refresh(void);
+  void refresh();
   /*! Swaps the buffer chain, processes any queued events and, in manual
    *  refresh mode, blocks until either the window is closed or a call to
    *  Context::refresh is made.
    */
-  bool update(void);
+  bool update();
   /*! Emulates a user close request, causing a close request signal to be
    *  emitted.
    */
-  void requestClose(void);
+  void requestClose();
   /*! Reserves the specified sampler uniform signature as shared.
    */
   void createSharedSampler(const String& name, Sampler::Type type, int ID);
@@ -515,24 +515,24 @@ public:
   /*! @return The current shared program state, or @c NULL if no shared program
    *  state is currently set.
    */
-  SharedProgramState* getCurrentSharedProgramState(void) const;
+  SharedProgramState* getCurrentSharedProgramState() const;
   /*! Sets the current shared program state.
    *  @param[in] newState The new state object.
    */
   void setCurrentSharedProgramState(SharedProgramState* newState);
   /*! @return GPU declarations of all shared samplers and uniforms.
    */
-  const String& getSharedProgramStateDeclaration(void) const;
+  const String& getSharedProgramStateDeclaration() const;
   /*! @return The current refresh mode.
    */
-  RefreshMode getRefreshMode(void) const;
+  RefreshMode getRefreshMode() const;
   /*! Sets the refresh mode.
    *  @param[in] newMode The desired new refresh mode.
    */
   void setRefreshMode(RefreshMode newMode);
   /*! @return The current scissor rectangle.
    */
-  const Recti& getScissorArea(void) const;
+  const Recti& getScissorArea() const;
   /*! Sets the scissor area of this context.
    *
    *  @remarks Scissor testing is enabled if the area doesn't include the
@@ -541,20 +541,20 @@ public:
   void setScissorArea(const Recti& newArea);
   /*! @return The current viewport rectangle.
    */
-  const Recti& getViewportArea(void) const;
+  const Recti& getViewportArea() const;
   /*! Sets the current viewport rectangle.
    *  @param[in] newArea The desired viewport rectangle.
    */
   void setViewportArea(const Recti& newArea);
   /*! @return The current framebuffer.
    */
-  Framebuffer& getCurrentFramebuffer(void) const;
+  Framebuffer& getCurrentFramebuffer() const;
   /*! @return The screen framebuffer.
    */
-  DefaultFramebuffer& getDefaultFramebuffer(void) const;
+  DefaultFramebuffer& getDefaultFramebuffer() const;
   /*! Makes the default framebuffer current.
    */
-  void setDefaultFramebufferCurrent(void);
+  void setDefaultFramebufferCurrent();
   /*! Makes the specified framebuffer current.
    *  @param[in] newFramebuffer The desired framebuffer.
    *  @return @c true if successful, or @c false otherwise.
@@ -562,7 +562,7 @@ public:
   bool setCurrentFramebuffer(Framebuffer& newFramebuffer);
   /*! @return The currently set GPU program, or @c NULL if no program is set.
    */
-  Program* getCurrentProgram(void) const;
+  Program* getCurrentProgram() const;
   /*! Sets the current GPU program for use when rendering.
    *  @param[in] newProgram The desired GPU program, or @c NULL to unbind
    *  the current program.
@@ -570,52 +570,52 @@ public:
   void setCurrentProgram(Program* newProgram);
   /*! @return The currently set vertex buffer.
    */
-  VertexBuffer* getCurrentVertexBuffer(void) const;
+  VertexBuffer* getCurrentVertexBuffer() const;
   /*! Sets the current vertex buffer.
    */
   void setCurrentVertexBuffer(VertexBuffer* newVertexBuffer);
   /*! @return The currently set index buffer.
    */
-  IndexBuffer* getCurrentIndexBuffer(void) const;
+  IndexBuffer* getCurrentIndexBuffer() const;
   /*! Sets the current index buffer.
    */
   void setCurrentIndexBuffer(IndexBuffer* newIndexBuffer);
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
-  Texture* getCurrentTexture(void) const;
+  Texture* getCurrentTexture() const;
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
   void setCurrentTexture(Texture* newTexture);
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
-  unsigned int getActiveTextureUnit(void) const;
+  unsigned int getActiveTextureUnit() const;
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
   void setActiveTextureUnit(unsigned int unit);
-  Stats* getStats(void) const;
+  Stats* getStats() const;
   void setStats(Stats* newStats);
   /*! @return The title of the context window.
    */
-  const String& getTitle(void) const;
+  const String& getTitle() const;
   /*! Sets the title of the context window.
    *  @param[in] newTitle The desired title.
    */
   void setTitle(const String& newTitle);
   /*! @return The limits of this context.
    */
-  const Limits& getLimits(void) const;
+  const Limits& getLimits() const;
   /*! @return The resource index used by this context.
    */
-  ResourceIndex& getIndex(void) const;
+  ResourceIndex& getIndex() const;
   /*! @return The signal for per-frame post-render clean-up.
    */
-  SignalProxy0<void> getFinishSignal(void);
+  SignalProxy0<void> getFinishSignal();
   /*! @return The signal for user-initiated close requests.
    */
-  SignalProxy0<bool> getCloseRequestSignal(void);
+  SignalProxy0<bool> getCloseRequestSignal();
   /*! @return The signal for context resizing.
    */
-  SignalProxy2<void, unsigned int, unsigned int> getResizedSignal(void);
+  SignalProxy2<void, unsigned int, unsigned int> getResizedSignal();
   /*! Creates the context singleton object, using the specified settings.
    *  @param[in] index The resource index to use.
    *  @param[in] mode The requested context settings.
@@ -632,8 +632,8 @@ private:
   Context& operator = (const Context& source);
   bool init(const ContextMode& mode);
   static void sizeCallback(int width, int height);
-  static int closeCallback(void);
-  static void refreshCallback(void);
+  static int closeCallback();
+  static void refreshCallback();
   typedef std::vector<SharedSampler> SamplerList;
   typedef std::vector<SharedUniform> UniformList;
   ResourceIndex& index;

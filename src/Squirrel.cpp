@@ -64,7 +64,7 @@ VM::VM(ResourceIndex& initIndex):
   sq_poptop(vm);
 }
 
-VM::~VM(void)
+VM::~VM()
 {
   if (vm)
     sq_close(vm);
@@ -104,12 +104,12 @@ bool VM::execute(const char* name, const char* text)
   return true;
 }
 
-VM::operator HSQUIRRELVM (void)
+VM::operator HSQUIRRELVM ()
 {
   return vm;
 }
 
-void* VM::getForeignPointer(void) const
+void* VM::getForeignPointer() const
 {
   return sq_getforeignptr(vm);
 }
@@ -119,7 +119,7 @@ void VM::setForeignPointer(void* newValue)
   sq_setforeignptr(vm, newValue);
 }
 
-Table VM::getRootTable(void)
+Table VM::getRootTable()
 {
   sq_pushroottable(vm);
   Table table(vm, -1);
@@ -128,7 +128,7 @@ Table VM::getRootTable(void)
   return table;
 }
 
-Table VM::getConstTable(void)
+Table VM::getConstTable()
 {
   sq_pushconsttable(vm);
   Table table(vm, -1);
@@ -137,7 +137,7 @@ Table VM::getConstTable(void)
   return table;
 }
 
-Table VM::getRegistryTable(void)
+Table VM::getRegistryTable()
 {
   sq_pushregistrytable(vm);
   Table table(vm, -1);
@@ -146,7 +146,7 @@ Table VM::getRegistryTable(void)
   return table;
 }
 
-ResourceIndex& VM::getIndex(void) const
+ResourceIndex& VM::getIndex() const
 {
   return index;
 }
@@ -206,7 +206,7 @@ SQInteger VM::onRuntimeError(HSQUIRRELVM vm)
 
 ///////////////////////////////////////////////////////////////////////
 
-Object::Object(void):
+Object::Object():
   vm(NULL)
 {
   sq_resetobject(&handle);
@@ -230,13 +230,13 @@ Object::Object(const Object& source):
   sq_addref(vm, &handle);
 }
 
-Object::~Object(void)
+Object::~Object()
 {
   if (vm)
     sq_release(vm, &handle);
 }
 
-Object Object::clone(void) const
+Object Object::clone() const
 {
   if (!vm)
     return Object();
@@ -257,32 +257,32 @@ Object& Object::operator = (const Object& source)
   return *this;
 }
 
-bool Object::isNull(void) const
+bool Object::isNull() const
 {
   return sq_isnull(handle);
 }
 
-bool Object::isArray(void) const
+bool Object::isArray() const
 {
   return sq_isarray(handle);
 }
 
-bool Object::isTable(void) const
+bool Object::isTable() const
 {
   return sq_istable(handle);
 }
 
-bool Object::isClass(void) const
+bool Object::isClass() const
 {
   return sq_isclass(handle);
 }
 
-bool Object::isInstance(void) const
+bool Object::isInstance() const
 {
   return sq_isinstance(handle);
 }
 
-String Object::asString(void) const
+String Object::asString() const
 {
   if (!vm)
     return String();
@@ -296,7 +296,7 @@ String Object::asString(void) const
   return result;
 }
 
-SQObjectType Object::getType(void) const
+SQObjectType Object::getType() const
 {
   if (!vm)
     return OT_NULL;
@@ -307,12 +307,12 @@ SQObjectType Object::getType(void) const
   return type;
 }
 
-HSQOBJECT Object::getHandle(void)
+HSQOBJECT Object::getHandle()
 {
   return handle;
 }
 
-HSQUIRRELVM Object::getVM(void) const
+HSQUIRRELVM Object::getVM() const
 {
   return vm;
 }
@@ -358,7 +358,7 @@ bool Object::addFunction(const char* name,
   return SQ_SUCCEEDED(result);
 }
 
-bool Object::clear(void)
+bool Object::clear()
 {
   if (isNull())
     return false;
@@ -389,7 +389,7 @@ bool Object::call(const char* name)
   return SQ_SUCCEEDED(result);
 }
 
-SQInteger Object::getSize(void) const
+SQInteger Object::getSize() const
 {
   if (isNull())
     return 0;
@@ -402,7 +402,7 @@ SQInteger Object::getSize(void) const
 
 ///////////////////////////////////////////////////////////////////////
 
-Array::Array(void)
+Array::Array()
 {
 }
 
@@ -442,7 +442,7 @@ bool Array::remove(SQInteger index)
   return SQ_SUCCEEDED(result);
 }
 
-bool Array::pop(void)
+bool Array::pop()
 {
   if (isNull())
     return false;
@@ -468,7 +468,7 @@ bool Array::resize(SQInteger newSize)
   return SQ_SUCCEEDED(result);
 }
 
-bool Array::reverse(void)
+bool Array::reverse()
 {
   if (isNull())
     return false;
@@ -502,7 +502,7 @@ Object Array::operator [] (SQInteger index) const
 
 ///////////////////////////////////////////////////////////////////////
 
-Table::Table(void)
+Table::Table()
 {
 }
 
@@ -531,7 +531,7 @@ Table::Table(HSQUIRRELVM vm, SQInteger index):
 
 ///////////////////////////////////////////////////////////////////////
 
-Class::Class(void)
+Class::Class()
 {
 }
 
@@ -558,7 +558,7 @@ Class::Class(HSQUIRRELVM vm, SQInteger index):
     throw Exception("Object is not a class");
 }
 
-Instance Class::createInstance(void) const
+Instance Class::createInstance() const
 {
   if (isNull())
     throw Exception("Cannot create instance of null");
@@ -572,7 +572,7 @@ Instance Class::createInstance(void) const
   return result;
 }
 
-Table Class::getAttributes(void)
+Table Class::getAttributes()
 {
   if (isNull())
     return Table();
@@ -604,7 +604,7 @@ Table Class::getMemberAttributes(const char* name)
 
 ///////////////////////////////////////////////////////////////////////
 
-Instance::Instance(void)
+Instance::Instance()
 {
 }
 
@@ -622,7 +622,7 @@ Instance::Instance(HSQUIRRELVM vm, SQInteger index):
     throw Exception("Object is not an instance");
 }
 
-Class Instance::getClass(void) const
+Class Instance::getClass() const
 {
   sq_pushobject(vm, handle);
   sq_getclass(vm, -1);

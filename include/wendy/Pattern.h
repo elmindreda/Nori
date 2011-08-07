@@ -39,7 +39,7 @@ class PatternMatch
 public:
   /*! @return The number of substrings in this match descriptor.
    */
-  size_t getCount(void) const;
+  size_t getCount() const;
   /*! @param[in] index The index of the desired substring.
    *  @return The offset, in characters, of the specified substring.
    */
@@ -68,7 +68,7 @@ public:
   Pattern(const String& source);
   /*! Destructor.
    */
-  ~Pattern(void);
+  ~Pattern();
   /*! Checks whether this pattern matches the entire specified text.
    *  @param[in] text The text to match this pattern against.
    *  @return @c true if this pattern matched the entire specified text,
@@ -92,7 +92,7 @@ public:
    */
   static Pattern* create(const String& source);
 private:
-  Pattern(void);
+  Pattern();
   Pattern(const Pattern& source);
   bool init(const String& source);
   Pattern& operator = (const Pattern& source);

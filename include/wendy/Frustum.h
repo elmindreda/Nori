@@ -47,7 +47,7 @@ class Frustum
 public:
   /*! Constructor.
    */
-  Frustum(void);
+  Frustum();
   /*! Constructor.
    */
   Frustum(float FOV, float aspectRatio, float farZ = 1000.f);

@@ -39,24 +39,24 @@ class List : public Widget
 {
 public:
   List(Layer& layer);
-  ~List(void);
+  ~List();
   void addItem(Item& item);
   void removeItem(Item& item);
-  void destroyItems(void);
-  void sortItems(void);
+  void destroyItems();
+  void sortItems();
   bool isItemVisible(const Item* item) const;
-  unsigned int getOffset(void) const;
+  unsigned int getOffset() const;
   void setOffset(unsigned int newOffset);
-  unsigned int getSelection(void) const;
-  Item* getSelectedItem(void) const;
+  unsigned int getSelection() const;
+  Item* getSelectedItem() const;
   void setSelection(unsigned int newIndex);
   void setSelectedItem(Item* newItem);
-  unsigned int getItemCount(void) const;
+  unsigned int getItemCount() const;
   Item* getItem(unsigned int index);
   const Item* getItem(unsigned int index) const;
-  SignalProxy1<void, List&> getSelectionChangedSignal(void);
+  SignalProxy1<void, List&> getSelectionChangedSignal();
 protected:
-  void draw(void) const;
+  void draw() const;
 private:
   void onAreaChanged(Widget& widget);
   void onButtonClicked(Widget& widget,
@@ -66,8 +66,8 @@ private:
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   void onWheelTurned(Widget& widget, int wheelOffset);
   void onValueChanged(Scroller& scroller);
-  void updateScroller(void);
-  unsigned int getVisibleItemCount(void) const;
+  void updateScroller();
+  unsigned int getVisibleItemCount() const;
   void setSelection(unsigned int newIndex, bool notify);
   Signal1<void, List&> selectionChangedSignal;
   ItemList items;

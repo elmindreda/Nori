@@ -55,9 +55,9 @@ class Resource : public RefObject
 public:
   Resource(const ResourceInfo& info);
   Resource(const Resource& source);
-  virtual ~Resource(void);
-  const Path& getPath(void) const;
-  ResourceIndex& getIndex(void) const;
+  virtual ~Resource();
+  const Path& getPath() const;
+  ResourceIndex& getIndex() const;
 public:
   ResourceIndex& index;
   Path path;
@@ -69,13 +69,13 @@ class ResourceIndex
 {
   friend class Resource;
 public:
-  ~ResourceIndex(void);
+  ~ResourceIndex();
   bool addSearchPath(const Path& path);
   void removeSearchPath(const Path& path);
   Resource* findResource(const Path& path) const;
   bool openFile(std::ifstream& stream, const Path& path) const;
   bool findFile(Path& path) const;
-  const PathList& getSearchPaths(void) const;
+  const PathList& getSearchPaths() const;
 private:
   typedef std::vector<Resource*> List;
   PathList paths;
@@ -88,7 +88,7 @@ class ResourceReader
 {
 public:
   ResourceReader(ResourceIndex& index);
-  ResourceIndex& getIndex(void) const;
+  ResourceIndex& getIndex() const;
 private:
   ResourceIndex& index;
 };

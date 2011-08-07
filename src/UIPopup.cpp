@@ -74,13 +74,13 @@ void Popup::removeItem(Item& item)
   setSelection(selection);
 }
 
-void Popup::destroyItems(void)
+void Popup::destroyItems()
 {
   menu->destroyItems();
   selection = 0;
 }
 
-unsigned int Popup::getSelection(void) const
+unsigned int Popup::getSelection() const
 {
   return selection;
 }
@@ -93,7 +93,7 @@ void Popup::setSelection(unsigned int newIndex)
     selection = 0;
 }
 
-unsigned int Popup::getItemCount(void) const
+unsigned int Popup::getItemCount() const
 {
   return menu->getItemCount();
 }
@@ -116,12 +116,12 @@ String Popup::getItemValue(unsigned int index) const
   return String();
 }
 
-SignalProxy2<void, Popup&, unsigned int> Popup::getItemSelectedSignal(void)
+SignalProxy2<void, Popup&, unsigned int> Popup::getItemSelectedSignal()
 {
   return itemSelectedSignal;
 }
 
-void Popup::draw(void) const
+void Popup::draw() const
 {
   const Rect& area = getGlobalArea();
 
@@ -149,7 +149,7 @@ void Popup::draw(void) const
   }
 }
 
-void Popup::display(void)
+void Popup::display()
 {
   const float width = max(menu->getArea().size.x, getArea().size.x);
   menu->setArea(Rect(getGlobalArea().position,

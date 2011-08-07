@@ -105,7 +105,7 @@ const unsigned int FONT_XML_VERSION = 1;
 
 ///////////////////////////////////////////////////////////////////////
 
-FontData::FontData(void)
+FontData::FontData()
 {
   for (int i = 0;  i < 256;  i++)
     characters[i] = -1;
@@ -182,22 +182,22 @@ void Font::drawText(const vec2& penPosition, const vec4& color, const char* text
                                               count));
 }
 
-float Font::getWidth(void) const
+float Font::getWidth() const
 {
   return size.x;
 }
 
-float Font::getHeight(void) const
+float Font::getHeight() const
 {
   return size.y;
 }
 
-float Font::getAscender(void) const
+float Font::getAscender() const
 {
   return ascender;
 }
 
-float Font::getDescender(void) const
+float Font::getDescender() const
 {
   return descender;
 }

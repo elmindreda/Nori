@@ -97,9 +97,9 @@ class Trackable
 {
   friend class SignalSlot;
 public:
-  Trackable(void);
+  Trackable();
   Trackable(const Trackable& source);
-  virtual ~Trackable(void);
+  virtual ~Trackable();
   Trackable& operator = (const Trackable& source);
 private:
   typedef std::vector<SignalSlot*> SlotList;
@@ -126,7 +126,7 @@ public:
    *  If this slot is attached to a trackable object, it will sever the
    *  connection to it.
    */
-  virtual ~SignalSlot(void) = 0;
+  virtual ~SignalSlot() = 0;
 private:
   Trackable* object;
 };
@@ -150,17 +150,13 @@ end
 
 def output_number(file, count, index)
 
-  if index > 0 then
-    parameters = []
-    index.times do |i|
-      parameters << "A#{i+1} a#{i+1}"
-    end
-    parameters = parameters.join(', ')
-  else
-    parameters = 'void'
+  parameters = []
+  index.times do |i|
+    parameters << "A#{i+1} a#{i+1}"
   end
+  parameters = parameters.join(', ')
 
-  if parameters == 'void' then
+  if parameters.empty? then
     result_parameters = ''
   else
     result_parameters = ', ' + parameters
@@ -197,7 +193,7 @@ public:
   typedef Signal#{index}<#{type}> Signal;
   /*! Destructor.
    */
-  ~SignalSlot#{index}(void);
+  ~SignalSlot#{index}();
   /*! Calls the target for this slot.
    */
   virtual R emit(#{parameters}) = 0;
@@ -266,14 +262,14 @@ public:
   typedef SignalSlot#{index}<#{type}> Slot;
   /*! Constructor.
    */
-  Signal#{index}(void);
+  Signal#{index}();
   /*! Copy contructor.
    *  @note This does not copy any existing connections to the source object.
    */
   Signal#{index}(const Signal#{index}<#{type}>& source);
   /*! Destructor.
    */
-  ~Signal#{index}(void);
+  ~Signal#{index}();
   /*! Adds the specified generic slot to this signal.
    */
   Slot* connect(Slot* slot);
@@ -337,7 +333,7 @@ private:
 ////////////////////////////////////////////////////////////////////////
 
 template <#{declaration}>
-SignalSlot#{index}<#{type}>::~SignalSlot#{index}(void)
+SignalSlot#{index}<#{type}>::~SignalSlot#{index}()
 {
   if (signal)
   {
@@ -385,7 +381,7 @@ inline R MethodSlot#{index}<T,#{type}>::emit(#{parameters})
 ////////////////////////////////////////////////////////////////////////
 
 template <#{declaration}>
-inline Signal#{index}<#{type}>::Signal#{index}(void)
+inline Signal#{index}<#{type}>::Signal#{index}()
 {
 }
 
@@ -395,7 +391,7 @@ inline Signal#{index}<#{type}>::Signal#{index}(const Signal#{index}<#{type}>& so
 }
 
 template <#{declaration}>
-inline Signal#{index}<#{type}>::~Signal#{index}(void)
+inline Signal#{index}<#{type}>::~Signal#{index}()
 {
   while (!slots.empty())
     delete slots.back();

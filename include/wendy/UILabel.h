@@ -39,13 +39,13 @@ class Label : public Widget
 {
 public:
   Label(Layer& layer, const String& text = "");
-  const String& getText(void) const;
+  const String& getText() const;
   void setText(const String& newText);
   void setText(const char* format, ...);
-  const Alignment& getTextAlignment(void) const;
+  const Alignment& getTextAlignment() const;
   void setTextAlignment(const Alignment& newAlignment);
 private:
-  void draw(void) const;
+  void draw() const;
   String text;
   Alignment textAlignment;
 };

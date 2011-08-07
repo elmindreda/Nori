@@ -124,11 +124,11 @@ public:
   void generateNormals(NormalType type = SMOOTH_FACES);
   /*! Generates and stores triangle normals for this mesh.
    */
-  void generateTriangleNormals(void);
+  void generateTriangleNormals();
   /*! Generates and stores the edges in this mesh. By default, the edge
    *  list is not created.
    */
-  void generateEdges(void);
+  void generateEdges();
   /*! Generates the bounding box of this mesh.
    */
   void generateBounds(AABB& bounds) const;
@@ -137,10 +137,10 @@ public:
   void generateBounds(Sphere& bounds) const;
   /*! @return @c true if this mesh is valid, otherwise @c false.
    */
-  bool isValid(void) const;
+  bool isValid() const;
   /*! @return The number of triangles in all geometries of this mesh.
    */
-  unsigned int getTriangleCount(void) const;
+  unsigned int getTriangleCount() const;
   static Ref<Mesh> read(ResourceIndex& index, const Path& path);
   typedef std::vector<MeshGeometry> GeometryList;
   typedef std::vector<MeshVertex> VertexList;
@@ -171,7 +171,7 @@ public:
   };
   /*! Constructor.
    */
-  VertexMerger(void);
+  VertexMerger();
   VertexMerger(const Mesh::VertexList& vertices);
   void importPositions(const Mesh::VertexList& vertices);
   unsigned int addAttributeLayer(unsigned int vertexIndex,

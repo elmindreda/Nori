@@ -62,9 +62,9 @@ class Trackable
 {
   friend class SignalSlot;
 public:
-  Trackable(void);
+  Trackable();
   Trackable(const Trackable& source);
-  virtual ~Trackable(void);
+  virtual ~Trackable();
   Trackable& operator = (const Trackable& source);
 private:
   typedef std::vector<SignalSlot*> SlotList;
@@ -91,7 +91,7 @@ public:
    *  If this slot is attached to a trackable object, it will sever the
    *  connection to it.
    */
-  virtual ~SignalSlot(void) = 0;
+  virtual ~SignalSlot() = 0;
 private:
   Trackable* object;
 };
@@ -108,10 +108,10 @@ public:
   typedef Signal0<R> Signal;
   /*! Destructor.
    */
-  ~SignalSlot0(void);
+  ~SignalSlot0();
   /*! Calls the target for this slot.
    */
-  virtual R emit(void) = 0;
+  virtual R emit() = 0;
 protected:
   /*! Constructor.
    */
@@ -130,13 +130,13 @@ class FunctionSlot0 : public SignalSlot0<R>
 public:
   /*! Function pointer type for this slot.
    */
-  typedef R (*Function)(void);
+  typedef R (*Function)();
   /*! Constructor.
    */
   FunctionSlot0(Function function);
   /*! Calls the target for this slot.
    */
-  R emit(void);
+  R emit();
 private:
   Function function;
 };
@@ -151,13 +151,13 @@ class MethodSlot0 : public SignalSlot0<R>
 public:
   /*! Method pointer type for this slot.
    */
-  typedef R (T::*Function)(void);
+  typedef R (T::*Function)();
   /*! Constructor.
    */
   MethodSlot0(T& object, Function function);
   /*! Calls the target for this slot.
    */
-  R emit(void);
+  R emit();
 private:
   T& object;
   Function function;
@@ -177,14 +177,14 @@ public:
   typedef SignalSlot0<R> Slot;
   /*! Constructor.
    */
-  Signal0(void);
+  Signal0();
   /*! Copy contructor.
    *  @note This does not copy any existing connections to the source object.
    */
   Signal0(const Signal0<R>& source);
   /*! Destructor.
    */
-  ~Signal0(void);
+  ~Signal0();
   /*! Adds the specified generic slot to this signal.
    */
   Slot* connect(Slot* slot);
@@ -198,7 +198,7 @@ public:
   Slot* connect(typename FunctionSlot0<R>::Function function);
   /*! Calls the targets for all slots in this signal.
    */
-  void emit(void) const;
+  void emit() const;
   /*! Calls the targets for all slots in this signal and stores the return values.
    */
   void emit(std::vector<R>& results) const;
@@ -248,7 +248,7 @@ private:
 ////////////////////////////////////////////////////////////////////////
 
 template <typename R>
-SignalSlot0<R>::~SignalSlot0(void)
+SignalSlot0<R>::~SignalSlot0()
 {
   if (signal)
   {
@@ -272,7 +272,7 @@ inline FunctionSlot0<R>::FunctionSlot0(Function initFunction):
 }
 
 template <typename R>
-inline R FunctionSlot0<R>::emit(void)
+inline R FunctionSlot0<R>::emit()
 {
   return (*function)();
 }
@@ -288,7 +288,7 @@ inline MethodSlot0<T,R>::MethodSlot0(T& initObject, Function initFunction):
 }
 
 template <typename T, typename R>
-inline R MethodSlot0<T,R>::emit(void)
+inline R MethodSlot0<T,R>::emit()
 {
   return (object.*function)();
 }
@@ -296,7 +296,7 @@ inline R MethodSlot0<T,R>::emit(void)
 ////////////////////////////////////////////////////////////////////////
 
 template <typename R>
-inline Signal0<R>::Signal0(void)
+inline Signal0<R>::Signal0()
 {
 }
 
@@ -306,7 +306,7 @@ inline Signal0<R>::Signal0(const Signal0<R>& source)
 }
 
 template <typename R>
-inline Signal0<R>::~Signal0(void)
+inline Signal0<R>::~Signal0()
 {
   while (!slots.empty())
     delete slots.back();
@@ -327,7 +327,7 @@ inline SignalSlot0<R>* Signal0<R>::connect(typename FunctionSlot0<R>::Function f
 }
 
 template <typename R>
-inline void Signal0<R>::emit(void) const
+inline void Signal0<R>::emit() const
 {
   for (typename SlotList::const_iterator i = slots.begin();  i != slots.end();  i++)
     (*i)->emit();
@@ -381,7 +381,7 @@ public:
   typedef Signal1<R,A1> Signal;
   /*! Destructor.
    */
-  ~SignalSlot1(void);
+  ~SignalSlot1();
   /*! Calls the target for this slot.
    */
   virtual R emit(A1 a1) = 0;
@@ -450,14 +450,14 @@ public:
   typedef SignalSlot1<R,A1> Slot;
   /*! Constructor.
    */
-  Signal1(void);
+  Signal1();
   /*! Copy contructor.
    *  @note This does not copy any existing connections to the source object.
    */
   Signal1(const Signal1<R,A1>& source);
   /*! Destructor.
    */
-  ~Signal1(void);
+  ~Signal1();
   /*! Adds the specified generic slot to this signal.
    */
   Slot* connect(Slot* slot);
@@ -521,7 +521,7 @@ private:
 ////////////////////////////////////////////////////////////////////////
 
 template <typename R, typename A1>
-SignalSlot1<R,A1>::~SignalSlot1(void)
+SignalSlot1<R,A1>::~SignalSlot1()
 {
   if (signal)
   {
@@ -569,7 +569,7 @@ inline R MethodSlot1<T,R,A1>::emit(A1 a1)
 ////////////////////////////////////////////////////////////////////////
 
 template <typename R, typename A1>
-inline Signal1<R,A1>::Signal1(void)
+inline Signal1<R,A1>::Signal1()
 {
 }
 
@@ -579,7 +579,7 @@ inline Signal1<R,A1>::Signal1(const Signal1<R,A1>& source)
 }
 
 template <typename R, typename A1>
-inline Signal1<R,A1>::~Signal1(void)
+inline Signal1<R,A1>::~Signal1()
 {
   while (!slots.empty())
     delete slots.back();
@@ -654,7 +654,7 @@ public:
   typedef Signal2<R,A1,A2> Signal;
   /*! Destructor.
    */
-  ~SignalSlot2(void);
+  ~SignalSlot2();
   /*! Calls the target for this slot.
    */
   virtual R emit(A1 a1, A2 a2) = 0;
@@ -723,14 +723,14 @@ public:
   typedef SignalSlot2<R,A1,A2> Slot;
   /*! Constructor.
    */
-  Signal2(void);
+  Signal2();
   /*! Copy contructor.
    *  @note This does not copy any existing connections to the source object.
    */
   Signal2(const Signal2<R,A1,A2>& source);
   /*! Destructor.
    */
-  ~Signal2(void);
+  ~Signal2();
   /*! Adds the specified generic slot to this signal.
    */
   Slot* connect(Slot* slot);
@@ -794,7 +794,7 @@ private:
 ////////////////////////////////////////////////////////////////////////
 
 template <typename R, typename A1, typename A2>
-SignalSlot2<R,A1,A2>::~SignalSlot2(void)
+SignalSlot2<R,A1,A2>::~SignalSlot2()
 {
   if (signal)
   {
@@ -842,7 +842,7 @@ inline R MethodSlot2<T,R,A1,A2>::emit(A1 a1, A2 a2)
 ////////////////////////////////////////////////////////////////////////
 
 template <typename R, typename A1, typename A2>
-inline Signal2<R,A1,A2>::Signal2(void)
+inline Signal2<R,A1,A2>::Signal2()
 {
 }
 
@@ -852,7 +852,7 @@ inline Signal2<R,A1,A2>::Signal2(const Signal2<R,A1,A2>& source)
 }
 
 template <typename R, typename A1, typename A2>
-inline Signal2<R,A1,A2>::~Signal2(void)
+inline Signal2<R,A1,A2>::~Signal2()
 {
   while (!slots.empty())
     delete slots.back();
@@ -927,7 +927,7 @@ public:
   typedef Signal3<R,A1,A2,A3> Signal;
   /*! Destructor.
    */
-  ~SignalSlot3(void);
+  ~SignalSlot3();
   /*! Calls the target for this slot.
    */
   virtual R emit(A1 a1, A2 a2, A3 a3) = 0;
@@ -996,14 +996,14 @@ public:
   typedef SignalSlot3<R,A1,A2,A3> Slot;
   /*! Constructor.
    */
-  Signal3(void);
+  Signal3();
   /*! Copy contructor.
    *  @note This does not copy any existing connections to the source object.
    */
   Signal3(const Signal3<R,A1,A2,A3>& source);
   /*! Destructor.
    */
-  ~Signal3(void);
+  ~Signal3();
   /*! Adds the specified generic slot to this signal.
    */
   Slot* connect(Slot* slot);
@@ -1067,7 +1067,7 @@ private:
 ////////////////////////////////////////////////////////////////////////
 
 template <typename R, typename A1, typename A2, typename A3>
-SignalSlot3<R,A1,A2,A3>::~SignalSlot3(void)
+SignalSlot3<R,A1,A2,A3>::~SignalSlot3()
 {
   if (signal)
   {
@@ -1115,7 +1115,7 @@ inline R MethodSlot3<T,R,A1,A2,A3>::emit(A1 a1, A2 a2, A3 a3)
 ////////////////////////////////////////////////////////////////////////
 
 template <typename R, typename A1, typename A2, typename A3>
-inline Signal3<R,A1,A2,A3>::Signal3(void)
+inline Signal3<R,A1,A2,A3>::Signal3()
 {
 }
 
@@ -1125,7 +1125,7 @@ inline Signal3<R,A1,A2,A3>::Signal3(const Signal3<R,A1,A2,A3>& source)
 }
 
 template <typename R, typename A1, typename A2, typename A3>
-inline Signal3<R,A1,A2,A3>::~Signal3(void)
+inline Signal3<R,A1,A2,A3>::~Signal3()
 {
   while (!slots.empty())
     delete slots.back();
@@ -1200,7 +1200,7 @@ public:
   typedef Signal4<R,A1,A2,A3,A4> Signal;
   /*! Destructor.
    */
-  ~SignalSlot4(void);
+  ~SignalSlot4();
   /*! Calls the target for this slot.
    */
   virtual R emit(A1 a1, A2 a2, A3 a3, A4 a4) = 0;
@@ -1269,14 +1269,14 @@ public:
   typedef SignalSlot4<R,A1,A2,A3,A4> Slot;
   /*! Constructor.
    */
-  Signal4(void);
+  Signal4();
   /*! Copy contructor.
    *  @note This does not copy any existing connections to the source object.
    */
   Signal4(const Signal4<R,A1,A2,A3,A4>& source);
   /*! Destructor.
    */
-  ~Signal4(void);
+  ~Signal4();
   /*! Adds the specified generic slot to this signal.
    */
   Slot* connect(Slot* slot);
@@ -1340,7 +1340,7 @@ private:
 ////////////////////////////////////////////////////////////////////////
 
 template <typename R, typename A1, typename A2, typename A3, typename A4>
-SignalSlot4<R,A1,A2,A3,A4>::~SignalSlot4(void)
+SignalSlot4<R,A1,A2,A3,A4>::~SignalSlot4()
 {
   if (signal)
   {
@@ -1388,7 +1388,7 @@ inline R MethodSlot4<T,R,A1,A2,A3,A4>::emit(A1 a1, A2 a2, A3 a3, A4 a4)
 ////////////////////////////////////////////////////////////////////////
 
 template <typename R, typename A1, typename A2, typename A3, typename A4>
-inline Signal4<R,A1,A2,A3,A4>::Signal4(void)
+inline Signal4<R,A1,A2,A3,A4>::Signal4()
 {
 }
 
@@ -1398,7 +1398,7 @@ inline Signal4<R,A1,A2,A3,A4>::Signal4(const Signal4<R,A1,A2,A3,A4>& source)
 }
 
 template <typename R, typename A1, typename A2, typename A3, typename A4>
-inline Signal4<R,A1,A2,A3,A4>::~Signal4(void)
+inline Signal4<R,A1,A2,A3,A4>::~Signal4()
 {
   while (!slots.empty())
     delete slots.back();

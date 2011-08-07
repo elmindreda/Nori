@@ -62,7 +62,7 @@ Node::Node(const String& initName):
 {
 }
 
-Node::~Node(void)
+Node::~Node()
 {
   destroyChildren();
   removeFromParent();
@@ -84,7 +84,7 @@ bool Node::addChild(Node& child)
   return true;
 }
 
-void Node::removeFromParent(void)
+void Node::removeFromParent()
 {
   if (parent)
   {
@@ -107,7 +107,7 @@ void Node::removeFromParent(void)
   }
 }
 
-void Node::destroyChildren(void)
+void Node::destroyChildren()
 {
   while (!children.empty())
     delete children.back();
@@ -126,17 +126,17 @@ bool Node::isChildOf(const Node& node) const
   return false;
 }
 
-bool Node::isVisible(void) const
+bool Node::isVisible() const
 {
   return visible;
 }
 
-bool Node::hasChildren(void) const
+bool Node::hasChildren() const
 {
   return !children.empty();
 }
 
-const String& Node::getName(void) const
+const String& Node::getName() const
 {
   return name;
 }
@@ -146,17 +146,17 @@ void Node::setName(const String& newName)
   name = newName;
 }
 
-Graph* Node::getGraph(void) const
+Graph* Node::getGraph() const
 {
   return graph;
 }
 
-Node* Node::getParent(void) const
+Node* Node::getParent() const
 {
   return parent;
 }
 
-const Node::List& Node::getChildren(void) const
+const Node::List& Node::getChildren() const
 {
   return children;
 }
@@ -166,7 +166,7 @@ void Node::setVisible(bool enabled)
   visible = enabled;
 }
 
-const Transform3& Node::getLocalTransform(void) const
+const Transform3& Node::getLocalTransform() const
 {
   return local;
 }
@@ -201,13 +201,13 @@ void Node::setLocalRotation(const quat& newRotation)
   dirtyWorld = true;
 }
 
-const Transform3& Node::getWorldTransform(void) const
+const Transform3& Node::getWorldTransform() const
 {
   updateWorldTransform();
   return world;
 }
 
-const Sphere& Node::getLocalBounds(void) const
+const Sphere& Node::getLocalBounds() const
 {
   return localBounds;
 }
@@ -219,7 +219,7 @@ void Node::setLocalBounds(const Sphere& newBounds)
   invalidateBounds();
 }
 
-const Sphere& Node::getTotalBounds(void) const
+const Sphere& Node::getTotalBounds() const
 {
   if (dirtyBounds)
   {
@@ -245,12 +245,12 @@ void Node::addedToParent(Node& parent)
   dirtyWorld = true;
 }
 
-void Node::removedFromParent(void)
+void Node::removedFromParent()
 {
   dirtyWorld = true;
 }
 
-void Node::update(void)
+void Node::update()
 {
   const List& children = getChildren();
 
@@ -280,13 +280,13 @@ void Node::enqueue(render::Scene& scene, const render::Camera& camera) const
   }
 }
 
-void Node::invalidateBounds(void)
+void Node::invalidateBounds()
 {
   for (Node* parent = this;  parent;  parent = parent->getParent())
     parent->dirtyBounds = true;
 }
 
-bool Node::updateWorldTransform(void) const
+bool Node::updateWorldTransform() const
 {
   if (const Node* parent = getParent())
   {
@@ -329,12 +329,12 @@ void Node::setGraph(Graph* newGraph)
 
 ///////////////////////////////////////////////////////////////////////
 
-Graph::~Graph(void)
+Graph::~Graph()
 {
   destroyRootNodes();
 }
 
-void Graph::update(void)
+void Graph::update()
 {
   std::for_each(roots.begin(), roots.end(), std::mem_fun(&Node::update));
 }
@@ -387,13 +387,13 @@ void Graph::addRootNode(Node& node)
   node.setGraph(this);
 }
 
-void Graph::destroyRootNodes(void)
+void Graph::destroyRootNodes()
 {
   while (!roots.empty())
     delete roots.back();
 }
 
-const Node::List& Graph::getNodes(void) const
+const Node::List& Graph::getNodes() const
 {
   return roots;
 }
@@ -405,7 +405,7 @@ LightNode::LightNode(const String& name):
 {
 }
 
-render::Light* LightNode::getLight(void) const
+render::Light* LightNode::getLight() const
 {
   return light;
 }
@@ -415,7 +415,7 @@ void LightNode::setLight(render::Light* newLight)
   light = newLight;
 }
 
-void LightNode::update(void)
+void LightNode::update()
 {
   Node::update();
 
@@ -459,7 +459,7 @@ ModelNode::ModelNode(const String& name):
 {
 }
 
-bool ModelNode::isShadowCaster(void) const
+bool ModelNode::isShadowCaster() const
 {
   return shadowCaster;
 }
@@ -469,7 +469,7 @@ void ModelNode::setCastsShadows(bool enabled)
   shadowCaster = enabled;
 }
 
-render::Model* ModelNode::getModel(void) const
+render::Model* ModelNode::getModel() const
 {
   return model;
 }
@@ -495,7 +495,7 @@ CameraNode::CameraNode(const String& name):
 {
 }
 
-render::Camera* CameraNode::getCamera(void) const
+render::Camera* CameraNode::getCamera() const
 {
   return camera;
 }
@@ -505,7 +505,7 @@ void CameraNode::setCamera(render::Camera* newCamera)
   camera = newCamera;
 }
 
-void CameraNode::update(void)
+void CameraNode::update()
 {
   Node::update();
 
@@ -523,7 +523,7 @@ SpriteNode::SpriteNode(const String& name):
   setSpriteSize(vec2(1.f));
 }
 
-render::Material* SpriteNode::getMaterial(void) const
+render::Material* SpriteNode::getMaterial() const
 {
   return material;
 }
@@ -533,7 +533,7 @@ void SpriteNode::setMaterial(render::Material* newMaterial)
   material = newMaterial;
 }
 
-const vec2& SpriteNode::getSpriteSize(void) const
+const vec2& SpriteNode::getSpriteSize() const
 {
   return spriteSize;
 }

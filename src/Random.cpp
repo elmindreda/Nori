@@ -38,7 +38,7 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 template <>
-Random<float>::Random(void):
+Random<float>::Random():
   min(0.f),
   max(1.f)
 {
@@ -52,7 +52,7 @@ Random<float>::Random(const float& initMin, const float& initMax):
 }
 
 template <>
-float Random<float>::operator () (void) const
+float Random<float>::operator () () const
 {
   return min + (max - min) * normalizedRandom();
 }
@@ -67,7 +67,7 @@ void Random<float>::set(const float& newMin, const float& newMax)
 ///////////////////////////////////////////////////////////////////////
 
 template <>
-Random<vec2>::Random(void):
+Random<vec2>::Random():
   min(0.f, 0.f),
   max(1.f, 1.f)
 {
@@ -81,7 +81,7 @@ Random<vec2>::Random(const vec2& initMin, const vec2& initMax):
 }
 
 template <>
-vec2 Random<vec2>::operator () (void) const
+vec2 Random<vec2>::operator () () const
 {
   vec2 result;
   result.x = min.x + (max.x - min.x) * normalizedRandom();
@@ -99,7 +99,7 @@ void Random<vec2>::set(const vec2& newMin, const vec2& newMax)
 ///////////////////////////////////////////////////////////////////////
 
 template <>
-Random<vec3>::Random(void):
+Random<vec3>::Random():
   min(0.f, 0.f, 0.f),
   max(1.f, 1.f, 1.f)
 {
@@ -113,7 +113,7 @@ Random<vec3>::Random(const vec3& initMin, const vec3& initMax):
 }
 
 template <>
-vec3 Random<vec3>::operator () (void) const
+vec3 Random<vec3>::operator () () const
 {
   vec3 result;
   result.x = min.x + (max.x - min.x) * normalizedRandom();
@@ -131,7 +131,7 @@ void Random<vec3>::set(const vec3& newMin, const vec3& newMax)
 
 ///////////////////////////////////////////////////////////////////////
 
-float normalizedRandom(void)
+float normalizedRandom()
 {
   return std::rand() / (float) RAND_MAX;
 }

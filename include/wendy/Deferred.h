@@ -82,19 +82,19 @@ public:
   void render(const render::Scene& scene, const render::Camera& camera);
   /*! @return The shared program state object used by this renderer.
    */
-  SharedProgramState& getSharedProgramState(void);
+  SharedProgramState& getSharedProgramState();
   /*! @return The geometry pool used by this renderer.
    */
-  render::GeometryPool& getGeometryPool(void);
+  render::GeometryPool& getGeometryPool();
   /*! @return The color buffer texture of the G-buffer of this renderer.
    */
-  GL::Texture& getColorTexture(void) const;
+  GL::Texture& getColorTexture() const;
   /*! @return The normal/specular buffer texture of the G-buffer of this renderer.
    */
-  GL::Texture& getNormalTexture(void) const;
+  GL::Texture& getNormalTexture() const;
   /*! @return The depth buffer texture of the G-buffer of this renderer.
    */
-  GL::Texture& getDepthTexture(void) const;
+  GL::Texture& getDepthTexture() const;
   /*! Creates a renderer object using the specified geometry pool and the
    *  specified configuration.
    *  @return The newly constructed renderer object, or @c NULL if an error

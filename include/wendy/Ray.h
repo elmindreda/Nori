@@ -38,7 +38,7 @@ class Ray3
 public:
   /*! Default constructor.
    */
-  Ray3(void);
+  Ray3();
   /*! Constructor.
    *  @param origin [in] The initial origin.
    *  @param direction [in] The initial direction.
@@ -51,7 +51,7 @@ public:
   /*! Resets this ray to default values.
    *  The default ray is positioned at origo, and points along the positive z-axis.
    */
-  void setDefaults(void);
+  void setDefaults();
   /*! Sets the values of this ray.
    *  @param newOrigin [in] The desired origin.
    *  @param newDirection [in] The desired direction.
