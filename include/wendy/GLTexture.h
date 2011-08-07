@@ -50,7 +50,7 @@ class Context;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief %Texture sampler filtering mode.
+/*! @brief %Texture sampler filtering mode enumeration.
  *  @ingroup opengl
  */
 enum FilterMode
@@ -70,7 +70,7 @@ enum FilterMode
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief %Texture sampler address wrapping mode.
+/*! @brief %Texture sampler address wrapping mode enumeration.
  *  @ingroup opengl
  */
 enum AddressMode
@@ -85,7 +85,8 @@ enum AddressMode
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup opengl
+/*! @brief Texture type enumeration.
+ *  @ingroup opengl
  */
 enum TextureType
 {
@@ -135,6 +136,9 @@ public:
   unsigned int getWidth(void) const;
   unsigned int getHeight(void) const;
   unsigned int getDepth(void) const;
+  /*! @return The cube face this image represents, or @c NO_CUBE_FACE if this
+   *  image is not part of a cube map.
+   */
   CubeFace getFace(void) const;
   const PixelFormat& getFormat(void) const;
   /*! @return The texture containing this texture image.

@@ -161,7 +161,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup opengl
+/*! @brief Opaque program state uniform index.
+ *  @ingroup opengl
  */
 class UniformStateIndex
 {
@@ -176,7 +177,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup opengl
+/*! @brief Opaque program state sampler index.
+ *  @ingroup opengl
  */
 class SamplerStateIndex
 {

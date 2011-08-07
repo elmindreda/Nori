@@ -471,16 +471,34 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup opengl
+/*! @brief Render buffer.
+ *  @ingroup opengl
  */
 class RenderBuffer : public Image
 {
 public:
+  /*! Destructor.
+   */
   virtual ~RenderBuffer(void);
+  /*! @return The width, in pixels, of this render buffer.
+   */
   unsigned int getWidth(void) const;
+  /*! @return The height, in pixels, of this render buffer.
+   */
   unsigned int getHeight(void) const;
+  /*! @return The depth, in pixels, of this render buffer.
+   *  @remarks This always returns 1 (one).
+   */
   unsigned int getDepth(void) const;
+  /*! @return The pixel format of this render buffer.
+   */
   const PixelFormat& getFormat(void) const;
+  /*! Creates a render buffer with the specified properties.
+   *  @param[in] format The desired pixel format.
+   *  @param[in] width The desired width.
+   *  @param[in] height The desired height.
+   *  @return The newly created render buffer, or @c NULL if an error occurred.
+   */
   static Ref<RenderBuffer> create(const PixelFormat& format,
                                   unsigned int width,
                                   unsigned int height);

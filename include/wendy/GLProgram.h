@@ -75,12 +75,28 @@ public:
     VEC3,
     VEC4,
   };
+  /*! Binds this attribute to the specified stride and offset of the
+   *  current vertex buffer.
+   */
   void bind(size_t stride, size_t offset);
+  /*! @return @c true if the name of this attribute matches the specified
+   *  string, or @c false otherwise.
+   */
   bool operator == (const char* string) const;
+  /*! @return @c true if the type of this attribute is a single value.
+   */
   bool isScalar(void) const;
+  /*! @return @c true if the type of this attribute is a vector.
+   */
   bool isVector(void) const;
+  /*! @return The type of this attribute.
+   */
   Type getType(void) const;
+  /*! @return The name of this attribute.
+   */
   const String& getName(void) const;
+  /*! @return The GLSL name of the specified attribute type.
+   */
   static const char* getTypeName(Type type);
 private:
   Type type;
@@ -97,6 +113,8 @@ class Sampler
 {
   friend class Program;
 public:
+  /*! Sampler uniform type enumeration.
+   */
   enum Type
   {
     SAMPLER_1D,
@@ -105,12 +123,31 @@ public:
     SAMPLER_RECT,
     SAMPLER_CUBE,
   };
+  /*! Binds this sampler to the specified texture unit.
+   */
   void bind(unsigned int unit);
+  /*! @return @c true if the name of this sampler matches the specified string,
+   *  or @c false otherwise.
+   */
   bool operator == (const char* string) const;
+  /*! @return @c true if this sampler is shared, or @c false otherwise.
+   *
+   *  @remarks Shared samplers get their values via the currently set shared
+   *  program state.
+   */
   bool isShared(void) const;
+  /*! @return The type of this sampler.
+   */
   Type getType(void) const;
+  /*! @return The name of this sampler.
+   */
   const String& getName(void) const;
+  /*! @return The shared ID of this sampler, or INVALID_SHARED_STATE_ID if
+   *  it is not shared.
+   */
   int getSharedID(void) const;
+  /*! @return The GLSL name of the specified sampler type.
+   */
   static const char* getTypeName(Type type);
 private:
   String name;
@@ -128,6 +165,8 @@ class Uniform
 {
   friend class Program;
 public:
+  /*! Non-sampler uniform type enumeration.
+   */
   enum Type
   {
     FLOAT,
@@ -138,16 +177,47 @@ public:
     MAT3,
     MAT4,
   };
+  /*! Copies a new value for this uniform from the specified address.
+   *  @param[in] data The address of the value to use.
+   *
+   *  @remarks It is the responsibility of the caller to ensure that the source
+   *  data type matches.
+   */
   void copyFrom(const void* data);
+  /*! @return @c true if the name of this uniform matches the specified string,
+   *  or @c false otherwise.
+   */
   bool operator == (const char* string) const;
+  /*! @return @c true if this uniform is shared, or @c false otherwise.
+   *
+   *  @remarks Shared uniforms get their values via the currently set shared
+   *  program state.
+   */
   bool isShared(void) const;
+  /*! @return @c true if the type of this uniform is a single value.
+   */
   bool isScalar(void) const;
+  /*! @return @c true if the type of this uniform is a vector.
+   */
   bool isVector(void) const;
+  /*! @return @c true if the type of this uniform is a matrix.
+   */
   bool isMatrix(void) const;
+  /*! @return The type of this uniform.
+   */
   Type getType(void) const;
+  /*! @return The name of this uniform.
+   */
   const String& getName(void) const;
+  /*! @return The number of elements in this uniform.
+   */
   unsigned int getElementCount(void) const;
+  /*! @return The shared ID of this uniform, or INVALID_SHARED_STATE_ID if
+   *  it is not shared.
+   */
   int getSharedID(void) const;
+  /*! @return The GLSL name of the specified uniform type.
+   */
   static const char* getTypeName(Type type);
 private:
   String name;
@@ -220,11 +290,42 @@ private:
 class ProgramInterface
 {
 public:
+  /*! Adds a sampler to this interface.
+   *  @param[in] name The name of the sampler.
+   *  @param[in] type The type of the sampler.
+   */
   void addSampler(const char* name, Sampler::Type type);
+  /*! Adds a sampler to this interface.
+   *  @param[in] name The name of the sampler.
+   *  @param[in] type The type of the sampler.
+   */
   void addUniform(const char* name, Uniform::Type type);
+  /*! Adds a sampler to this interface.
+   *  @param[in] name The name of the sampler.
+   *  @param[in] type The type of the sampler.
+   */
   void addAttribute(const char* name, Attribute::Type type);
+  /*! Adds attributes for all components of the specified vertex format.
+   *  @param[in] format The vertex format to use.
+   */
   void addAttributes(const VertexFormat& format);
+  /*! Checks whether all samplers, uniforms and attributes of this interface
+   *  are exposed by the specified program and are of the correct types.
+   *  @param[in] program The program to match this interface against.
+   *  @param[in] verbose @c true to %log errors and warnings, or @c false for
+   *  silent matching.
+   *  @return @c true if this entire interface is exposed by the specified
+   *  program, or @c false otherwise.
+   */
   bool matches(const Program& program, bool verbose = false) const;
+  /*! Checks whether components matching all attributes of this interface are
+   *  present in the specified vertex format and are of the correct types.
+   *  @param[in] format The vertex format to match this interface against.
+   *  @param[in] verbose @c true to %log errors and warnings, or @c false for
+   *  silent matching.
+   *  @return @c true if all attributes of this interface are exposed by the
+   *  specified vertex format, or @c false otherwise.
+   */
   bool matches(const VertexFormat& format, bool verbose = false) const;
 private:
   typedef std::vector<std::pair<String, Sampler::Type> > SamplerList;

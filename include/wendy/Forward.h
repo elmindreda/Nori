@@ -39,26 +39,46 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Shared program state for the forward renderer.
+ */
 class SharedProgramState : public render::SharedProgramState
 {
 };
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Forward renderer configuration.
+ */
 class Config
 {
 public:
+  /*! The shared program state object to be used by the renderer.
+   */
   Ref<SharedProgramState> state;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Forward renderer.
+ */
 class Renderer
 {
 public:
+  /*! Renders the specified scene to the current framebuffer using the
+   *  specified camera.
+   */
   void render(const render::Scene& scene, const render::Camera& camera);
+  /*! @return The shared program state object used by this renderer.
+   */
   SharedProgramState& getSharedProgramState(void);
+  /*! @return The geometry pool used by this renderer.
+   */
   render::GeometryPool& getGeometryPool(void);
+  /*! Creates a renderer object using the specified geometry pool and the
+   *  specified configuration.
+   *  @return The newly constructed renderer object, or @c NULL if an error
+   *  occurred.
+   */
   static Renderer* create(render::GeometryPool& pool, const Config& config);
 private:
   Renderer(render::GeometryPool& pool);

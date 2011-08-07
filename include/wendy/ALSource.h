@@ -33,39 +33,107 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup openal
+/*! @brief OpenAL audio source.
+ *  @ingroup openal
  */
 class Source : public RefObject
 {
 public:
+  /*! Audio source state enumeration.
+   */
   enum State
   {
+    /*! The source is playing the currently set buffer.
+     */
     STARTED,
+    /*! The source is playing but paused.
+     */
     PAUSED,
+    /*! The source is stopped or has never been played.
+     */
     STOPPED,
   };
+  /*! Destructor.
+   */
   ~Source(void);
+  /*! Starts this source playing the currently set buffer.
+   */
   void start(void);
+  /*! Stops the playing of this source.
+   */
   void stop(void);
+  /*! Pauses the playing of this source.
+   *
+   *  @remarks This has no effect unless this source was previously playing.
+   */
   void pause(void);
+  /*! Resumes the playing of this source.
+   *
+   *  @remarks This has no effect unless this source was previously paused.
+   */
   void resume(void);
+  /*! @return @c true if this source is in the Source::STARTED state.
+   */
   bool isStarted(void) const;
+  /*! @return @c true if this source is in the Source::PAUSED state.
+   */
   bool isPaused(void) const;
+  /*! @return @c true if this source is in the Source::STOPPED state.
+   */
   bool isStopped(void) const;
+  /*! @return @c true if this source loops playback.
+   */
   bool isLooping(void) const;
+  /*! @return The state of this source.
+   */
   State getState(void) const;
+  /*! Sets whether this source loops playback.
+   */
   void setLooping(bool newState);
+  /*! @return The position of this source.
+   */
   const vec3& getPosition(void) const;
+  /*! Sets the position of this source.
+   */
   void setPosition(const vec3& newPosition);
+  /*! @return The velocity of this source.
+   *
+   *  @remarks The velocity doesn't affect the position of the source, but is
+   *  used in combination with the listener velocity to calculate doppler shift.
+   */
   const vec3& getVelocity(void) const;
+  /*! Sets the velocity of this source.
+   *
+   *  @remarks The velocity doesn't affect the position of the source, but is
+   *  used in combination with the listener velocity to calculate doppler shift.
+   */
   void setVelocity(const vec3& newVelocity);
+  /*! @return The gain of this source.
+   */
   float getGain(void) const;
+  /*! Sets the gain of this source.
+   */
   void setGain(float newGain);
+  /*! @return The pitch of this source.
+   */
   float getPitch(void) const;
+  /*! Sets the pitch of this source.
+   */
   void setPitch(float newPitch);
+  /*! @return The currently set buffer for this source, or @c NULL if no buffer
+   *  is set.
+   */
   Buffer* getBuffer(void) const;
+  /*! Sets the buffer to be used by this source.
+   *  @param[in] newBuffer The buffer to use, or @c NULL to detach the
+   *  currently used buffer.
+   */
   void setBuffer(Buffer* newBuffer);
+  /*! @return The context within which this buffer was created.
+   */
   Context& getContext(void) const;
+  /*! Creates a source object within the specified context.
+   */
   static Ref<Source> create(Context& context);
 private:
   Source(Context& context);

@@ -50,6 +50,8 @@ class PrimitiveRange;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! The invalid value for shared program state member IDs.
+ */
 const int INVALID_SHARED_STATE_ID = -1;
 
 ///////////////////////////////////////////////////////////////////////
@@ -239,7 +241,7 @@ public:
   /*! @return The aspect ratio of the dimensions, in pixels, of this framebuffer.
    */
   float getAspectRatio(void) const;
-  /*! @return The context this framebuffer was created for.
+  /*! @return The context within which this framebuffer was created.
    */
   Context& getContext(void) const;
 protected:
@@ -289,30 +291,70 @@ private:
 class ImageFramebuffer : public Framebuffer
 {
 public:
+  /*! Framebuffer image attachment point enumeration.
+   */
   enum Attachment
   {
+    /*! The first (default) color buffer, referenced by @c gl_FragColor or @c
+     *  gl_FragData[0].
+     */
     COLOR_BUFFER0,
+    /*! The second color buffer, referenced in GLSL by @c gl_FragData[1].
+     */
     COLOR_BUFFER1,
+    /*! The third color buffer, referenced in GLSL by @c gl_FragData[2].
+     */
     COLOR_BUFFER2,
+    /*! The fourth color buffer, referenced in GLSL by @c gl_FragData[3].
+     */
     COLOR_BUFFER3,
+    /*! The depth buffer, referenced in GLSL by @c gl_FragDepth.
+     */
     DEPTH_BUFFER,
   };
+  /*! Destructor.
+   */
   ~ImageFramebuffer(void);
+  /*! @copydoc Framebuffer::getWidth
+   */
   unsigned int getWidth(void) const;
+  /*! @copydoc Framebuffer::getHeight
+   */
   unsigned int getHeight(void) const;
-  /*! @return The image that this framebuffer uses as a color buffer.
+  /*! @return The image attached to the ImageFramebuffer::COLOR_BUFFER0
+   *  attachment point, or @c NULL if no image is attached to it.
    */
   Image* getColorBuffer(void) const;
+  /*! @return The image attached to the ImageFramebuffer::DEPTH_BUFFER
+   *  attachment point, or @c NULL if no image is attached to it.
+   */
   Image* getDepthBuffer(void) const;
+  /*! @return The image attached to the specified attachment point, or @c NULL
+   *  if no image is attached to it.
+   */
   Image* getBuffer(Attachment attachment) const;
-  /*! Sets the image to use as the color buffer for this framebuffer.
+  /*! Sets the image to use as the default color buffer for this framebuffer.
    *  @param[in] newImage The desired image, or @c NULL to detach the currently
    *  set image.
+   *  @return @c true if this framebuffer is complete, or @c false otherwise.
    */
   bool setColorBuffer(Image* newImage);
+  /*! sets the image to use as the depth buffer for this framebuffer.
+   *  @param[in] newImage The desired image, or @c NULL to detach the currently
+   *  set image.
+   *  @return @c true if this framebuffer is complete, or @c false otherwise.
+   */
   bool setDepthBuffer(Image* newImage);
+  /*! sets the image to use for the specified attachment point of this
+   *  framebuffer.
+   *  @param[in] newImage The desired image, or @c NULL to detach the currently
+   *  set image.
+   *  @param[in] z The desired Z slice of the specified image to use.  This
+   *  only applies to images of 3D textures.
+   *  @return @c true if this framebuffer is complete, or @c false otherwise.
+   */
   bool setBuffer(Attachment attachment, Image* newImage, unsigned int z = 0);
-  /*! Creates an image framebuffer of the specified dimensions.
+  /*! Creates an image framebuffer within the specified context.
    */
   static ImageFramebuffer* create(Context& context);
 private:
@@ -491,6 +533,11 @@ public:
   /*! @return The current scissor rectangle.
    */
   const Recti& getScissorArea(void) const;
+  /*! Sets the scissor area of this context.
+   *
+   *  @remarks Scissor testing is enabled if the area doesn't include the
+   *  entire current framebuffer.
+   */
   void setScissorArea(const Recti& newArea);
   /*! @return The current viewport rectangle.
    */
@@ -521,9 +568,17 @@ public:
    *  the current program.
    */
   void setCurrentProgram(Program* newProgram);
+  /*! @return The currently set vertex buffer.
+   */
   VertexBuffer* getCurrentVertexBuffer(void) const;
+  /*! Sets the current vertex buffer.
+   */
   void setCurrentVertexBuffer(VertexBuffer* newVertexBuffer);
+  /*! @return The currently set index buffer.
+   */
   IndexBuffer* getCurrentIndexBuffer(void) const;
+  /*! Sets the current index buffer.
+   */
   void setCurrentIndexBuffer(IndexBuffer* newIndexBuffer);
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
@@ -562,9 +617,10 @@ public:
    */
   SignalProxy2<void, unsigned int, unsigned int> getResizedSignal(void);
   /*! Creates the context singleton object, using the specified settings.
-    *  @param[in] mode The requested context settings.
-    *  @return @c true if successful, or @c false otherwise.
-    */
+   *  @param[in] index The resource index to use.
+   *  @param[in] mode The requested context settings.
+   *  @return @c true if successful, or @c false otherwise.
+   */
   static bool createSingleton(ResourceIndex& index, const ContextMode& mode = ContextMode());
   /*! Retrieves the supported screen modes.
    *  @param[out] result The supported modes.

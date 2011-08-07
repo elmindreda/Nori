@@ -39,32 +39,67 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Shared program state for the deferred renderer.
+ */
 class SharedProgramState : public render::SharedProgramState
 {
 };
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Deferred renderer configuration.
+ */
 class Config
 {
 public:
+  /*! Constructor.
+   *  @param[in] width The desired width of the G-buffer.
+   *  @param[in] height The desired height of the G-buffer.
+   */
   Config(unsigned int width, unsigned int height);
+  /*! The desired width of the G-buffer.
+   */
   unsigned int width;
+  /*! The desired height of the G-buffer.
+   */
   unsigned int height;
+  /*! The shared program state object to be used by the renderer.
+   */
   Ref<SharedProgramState> state;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Deferred renderer.
+ */
 class Renderer
 {
 public:
+  /*! Renders the specified scene to the G-buffer of this renderer using the
+   *  specified camera, then renders the lit scene to the current framebuffer
+   *  using the lights in the specified scene.
+   */
   void render(const render::Scene& scene, const render::Camera& camera);
+  /*! @return The shared program state object used by this renderer.
+   */
   SharedProgramState& getSharedProgramState(void);
+  /*! @return The geometry pool used by this renderer.
+   */
   render::GeometryPool& getGeometryPool(void);
+  /*! @return The color buffer texture of the G-buffer of this renderer.
+   */
   GL::Texture& getColorTexture(void) const;
+  /*! @return The normal/specular buffer texture of the G-buffer of this renderer.
+   */
   GL::Texture& getNormalTexture(void) const;
+  /*! @return The depth buffer texture of the G-buffer of this renderer.
+   */
   GL::Texture& getDepthTexture(void) const;
+  /*! Creates a renderer object using the specified geometry pool and the
+   *  specified configuration.
+   *  @return The newly constructed renderer object, or @c NULL if an error
+   *  occurred.
+   */
   static Renderer* create(render::GeometryPool& pool, const Config& config);
 private:
   Renderer(render::GeometryPool& pool);

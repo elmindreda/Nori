@@ -35,6 +35,8 @@ class AnimTrack3;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief 3D animation key frame.
+ */
 class KeyFrame3
 {
   friend class AnimTrack3;
@@ -58,6 +60,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief 3D animation track.
+ */
 class AnimTrack3
 {
   friend class KeyFrame3;
@@ -85,6 +89,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Multi-track 3D key frame animation.
+ */
 class Anim3 : public Resource
 {
 public:

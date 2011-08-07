@@ -78,6 +78,9 @@ public:
    *  @return The resulting path.
    */
   Path operator + (const String& child) const;
+  /*! Appends a path separator and then the specified string (relative path) to
+   *  the name of this path.
+   */
   Path& operator += (const String& child);
   bool operator == (const Path& other) const;
   bool operator != (const Path& other) const;
@@ -114,6 +117,12 @@ public:
    *  @return @c true if successful, otherwise @c false.
    */
   bool getChildren(PathList& children) const;
+  /*! Returns the paths of all files and directories in the directory with this
+   *  path whose names match the specified pattern.
+   *  @param[in,out] children The resulting list of paths.
+   *  @param[in] pattern The pattern to use.
+   *  @return @c true if successful, otherwise @c false.
+   */
   bool getChildren(PathList& children, const Pattern& pattern) const;
   /*! @return The suffix of the name of the represented path, or the empty
    *  string if no suffix is present.

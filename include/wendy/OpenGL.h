@@ -68,7 +68,8 @@ bool checkGL(const char* format, ...);
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingoup opengl
+/*! @brief Interface for images.
+ *  @ingoup opengl
  */
 class Image : public RefObject
 {

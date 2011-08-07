@@ -105,33 +105,73 @@ enum Button
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup input
+/*! @brief Input hook interface.
+ *  @ingroup input
  */
 class Hook
 {
 public:
+  /*! Destructor.
+   */
   virtual ~Hook(void);
+  /*! Called when a key has been pressed or released.
+   *  @return @c true to prevent this event from reaching the current input
+   *  target, or @c false to pass it on.
+   */
   virtual bool onKeyPressed(Key key, bool pressed);
+  /*! Called when a Unicode character has been input.
+   *  @return @c true to prevent this event from reaching the current input
+   *  target, or @c false to pass it on.
+   */
   virtual bool onCharInput(wchar_t character);
+  /*! Called when a mouse button has been clicked or released.
+   *  @return @c true to prevent this event from reaching the current input
+   *  target, or @c false to pass it on.
+   */
   virtual bool onButtonClicked(Button button, bool clicked);
+  /*! Called when the mouse cursor has been moved.
+   *  @return @c true to prevent this event from reaching the current input
+   *  target, or @c false to pass it on.
+   */
   virtual bool onCursorMoved(const ivec2& position);
+  /*! Called when the mouse wheel or other scrolling device has been moved.
+   *  @return @c true to prevent this event from reaching the current input
+   *  target, or @c false to pass it on.
+   */
   virtual bool onWheelTurned(int offset);
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup input
+/*! @brief Input target interface.
+ *  @ingroup input
  */
 class Target
 {
 public:
+  /*! Destructor.
+   */
   virtual ~Target(void);
+  /*! Called when the window has been resized.
+   */
   virtual void onWindowResized(unsigned int width, unsigned int height);
+  /*! Called when a key has been pressed or released.
+   */
   virtual void onKeyPressed(Key key, bool pressed);
+  /*! Called when a Unicode character has been input.
+   */
   virtual void onCharInput(wchar_t character);
+  /*! Called when a mouse button has been clicked or released.
+   */
   virtual void onButtonClicked(Button button, bool clicked);
+  /*! Called when the mouse cursor has been moved.
+   */
   virtual void onCursorMoved(const ivec2& position);
+  /*! Called when the mouse wheel or other scrolling device has been moved.
+   */
   virtual void onWheelTurned(int offset);
+  /*! Called when this input target has lost or gained focus.
+   */
   virtual void onFocusChanged(bool activated);
 };
 

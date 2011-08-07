@@ -39,7 +39,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup openal
+/*! @brief Audio sample data format enumeration.
+ *  @ingroup openal
  */
 enum BufferFormat
 {
@@ -51,7 +52,8 @@ enum BufferFormat
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup openal
+/*! @brief Audio sample data descriptor.
+ *  @ingroup openal
  */
 class BufferData
 {
@@ -65,19 +67,40 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup openal
+/*! @brief Audio sample data buffer.
+ *  @ingroup openal
  */
 class Buffer : public Resource
 {
   friend class Source;
 public:
+  /*! Destructor.
+   */
   ~Buffer(void);
+  /*! @return @c true if this buffer contains mono data, otherwise @c false.
+   */
   bool isMono(void) const;
+  /*! @return @c true if this buffer contains stereo data, otherwise @c false.
+   */
   bool isStereo(void) const;
+  /*! @return The duration, in seconds, of this buffer.
+   */
   Time getDuration(void) const;
+  /*! @return The format of the data in this buffer.
+   */
   BufferFormat getFormat(void) const;
+  /*! @return The context within which this buffer was created.
+   */
   Context& getContext(void) const;
-  static Ref<Buffer> create(const ResourceInfo& info, Context& context, const BufferData& data);
+  /*! Creates a buffer object within the specified context using the specified
+   *  data.
+   */
+  static Ref<Buffer> create(const ResourceInfo& info,
+                            Context& context,
+                            const BufferData& data);
+  /*! Creates a buffer object within the specified context using data from the
+   *  file at the specified path.
+   */
   static Ref<Buffer> read(Context& context, const Path& path);
 private:
   Buffer(const ResourceInfo& info, Context& context);

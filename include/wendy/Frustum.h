@@ -40,19 +40,54 @@ class Sphere;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Perspective 3D view frustum.
+ */
 class Frustum
 {
 public:
+  /*! Constructor.
+   */
   Frustum(void);
+  /*! Constructor.
+   */
   Frustum(float FOV, float aspectRatio, float farZ = 1000.f);
+  /*! Checks whether this frustum contains the specified point.
+   */
   bool contains(const vec3& point) const;
+  /*! Checks whether this frustum contains the specified sphere.
+   *
+   *  @remarks The sphere must lie entirely within this frustum for it to count
+   *  as being contained.
+   */
   bool contains(const Sphere& sphere) const;
+  /*! Checks whether this frustum contains the specified bounding box.
+   *
+   *  @remarks The bounding box must lie entirely within this frustum for it to
+   *  count as being contained.
+   */
   bool contains(const AABB& box) const;
+  /*! Checks whether this frustum intersects the specified sphere.
+   *
+   *  @remarks Even partial intersection counts.
+   */
   bool intersects(const Sphere& sphere) const;
+  /*! Checks whether this frustum intersects the specified bounding box.
+   *
+   *  @remarks Even partial intersection counts.
+   */
   bool intersects(const AABB& box) const;
+  /*! Transforms the planes of this frustum by the specified transform.
+   */
   void transformBy(const Transform3& transform);
+  /*! Sets this frustum to a non-rotated frustum with the specified properties.
+   *
+   *  @remarks For left-handed coordinate systems, use positive values for @a farZ.
+   *  For right-handed systems, use negative values for @a farZ.
+   */
   void set(float FOV, float aspectRatio, float farZ = 1000.f);
   typedef std::vector<Plane> PlaneList;
+  /*! The planes of this frustum.
+   */
   PlaneList planes;
 };
 
