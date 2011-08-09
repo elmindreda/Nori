@@ -125,6 +125,8 @@ void Frustum::transformBy(const Transform3& transform)
 
 void Frustum::setPerspective(float FOV, float aspectRatio, float nearZ, float farZ)
 {
+  assert(FOV > 0.f);
+  assert(aspectRatio > 0.f);
   assert(sign(nearZ) == sign(farZ));
 
   const float radians = FOV * float(PI) / 180.f;
@@ -154,6 +156,10 @@ void Frustum::setOrtho(const AABB& volume)
 void Frustum::setOrtho(float minX, float minY, float minZ,
                        float maxX, float maxY, float maxZ)
 {
+  assert(minX < maxX);
+  assert(minY < maxY);
+  assert(minZ < maxZ);
+
   planes[FRUSTUM_TOP].set(vec3(0.f, 1.f, 0.f), maxY);
   planes[FRUSTUM_RIGHT].set(vec3(1.f, 0.f, 0.f), maxX);
   planes[FRUSTUM_BOTTOM].set(vec3(0.f, -1.f, 0.f), minY);
