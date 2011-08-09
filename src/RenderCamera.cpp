@@ -39,7 +39,7 @@ namespace wendy
 Camera::Camera():
   FOV(90.f),
   aspectRatio(4.f / 3.f),
-  minDepth(0.01f),
+  minDepth(0.1f),
   maxDepth(1000.f),
   dirtyFrustum(true),
   dirtyInverse(true),
