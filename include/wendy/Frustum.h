@@ -54,7 +54,7 @@ enum FrustumPlane
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Perspective 3D view frustum.
+/*! @brief 3D view frustum.
  */
 class Frustum
 {
@@ -93,13 +93,23 @@ public:
   /*! Transforms the planes of this frustum by the specified transform.
    */
   void transformBy(const Transform3& transform);
-  /*! Sets this frustum to a non-rotated frustum with the specified properties.
+  /*! Sets this frustum to a non-rotated perspective frustum with the specified
+   *  properties.
    *
    *  @remarks For left-handed coordinate systems, use positive values for @a
    *  nearZ and @a farZ.  For right-handed systems, use negative values for @a
    *  nearZ and @a farZ.
    */
   void setPerspective(float FOV, float aspectRatio, float nearZ, float farZ);
+  /*! Sets this frustum to a non-rotated orthographic frustum with the specified
+   *  volume.
+   */
+  void setOrtho(const AABB& volume);
+  /*! Sets this frustum to a non-rotated orthographic frustum with the specified
+   *  volume.
+   */
+  void setOrtho(float minX, float minY, float minZ,
+                float maxX, float maxY, float maxZ);
   /*! The planes of this frustum.
    */
   Plane planes[6];

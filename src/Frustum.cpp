@@ -144,6 +144,24 @@ void Frustum::setPerspective(float FOV, float aspectRatio, float nearZ, float fa
   planes[FRUSTUM_FAR].set(vec3(0.f, 0.f, sign(farZ)), -farZ);
 }
 
+void Frustum::setOrtho(const AABB& volume)
+{
+  float minX, minY, minZ, maxX, maxY, maxZ;
+  volume.getBounds(minX, minY, minZ, maxX, maxY, maxZ);
+  setOrtho(minX, minY, minZ, maxX, maxY, maxZ);
+}
+
+void Frustum::setOrtho(float minX, float minY, float minZ,
+                       float maxX, float maxY, float maxZ)
+{
+  planes[FRUSTUM_TOP].set(vec3(0.f, 1.f, 0.f), maxY);
+  planes[FRUSTUM_RIGHT].set(vec3(1.f, 0.f, 0.f), maxX);
+  planes[FRUSTUM_BOTTOM].set(vec3(0.f, -1.f, 0.f), minY);
+  planes[FRUSTUM_LEFT].set(vec3(-1.f, 0.f, 0.f), minX);
+  planes[FRUSTUM_NEAR].set(vec3(0.f, 0.f, 1.f), maxZ);
+  planes[FRUSTUM_FAR].set(vec3(0.f, 0.f, -1.f), minZ);
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 } /*namespace wendy*/
