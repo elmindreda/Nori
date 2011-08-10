@@ -121,12 +121,8 @@ private:
   Transform3 transform;
   mutable Transform3 inverse;
   mutable Frustum frustum;
-  mutable vec3 direction;
-  mutable float dirOffset;
-  mutable float dirFactor;
   mutable bool dirtyFrustum;
   mutable bool dirtyInverse;
-  mutable bool dirtyViewDir;
 };
 
 ///////////////////////////////////////////////////////////////////////

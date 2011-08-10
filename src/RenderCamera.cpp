@@ -42,8 +42,7 @@ Camera::Camera():
   nearZ(0.1f),
   farZ(1000.f),
   dirtyFrustum(true),
-  dirtyInverse(true),
-  dirtyViewDir(true)
+  dirtyInverse(true)
 {
 }
 
@@ -83,14 +82,12 @@ void Camera::setNearZ(float newNearZ)
 {
   nearZ = newNearZ;
   dirtyFrustum = true;
-  dirtyViewDir = true;
 }
 
 void Camera::setFarZ(float newFarZ)
 {
   farZ = newFarZ;
   dirtyFrustum = true;
-  dirtyViewDir = true;
 }
 
 const Transform3& Camera::getTransform() const
@@ -115,7 +112,6 @@ void Camera::setTransform(const Transform3& newTransform)
   transform = newTransform;
   dirtyFrustum = true;
   dirtyInverse = true;
-  dirtyViewDir = true;
 }
 
 const Frustum& Camera::getFrustum() const
@@ -132,18 +128,6 @@ const Frustum& Camera::getFrustum() const
 
 float Camera::getNormalizedDepth(const vec3& point) const
 {
-  /*
-  if (dirtyViewDir)
-  {
-    direction = vec3(0.f, 0.f, -1.f);
-    transform.rotateVector(direction);
-    dirFactor = 1.f / (farZ - nearZ);
-    dirOffset = dot(direction, transform.position) + nearZ * dirFactor;
-    dirtyViewDir = false;
-  }
-
-  return dot(point, direction) * dirFactor + dirOffset;
-  */
   vec3 local = point;
   getViewTransform().transformVector(local);
   return length(local) / farZ;
