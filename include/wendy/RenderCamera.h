@@ -65,10 +65,10 @@ public:
   float getAspectRatio() const;
   /*! @return The distance from the origin to the near clip plane.
    */
-  float getMinDepth() const;
+  float getNearZ() const;
   /*! @return The distance from the origin to the far clip plane.
    */
-  float getMaxDepth() const;
+  float getFarZ() const;
   /*! Sets the field of view for this camera.
    *  @param newFOV The desired field of view, in degrees.
    */
@@ -79,11 +79,14 @@ public:
    *  the current render target each time this camera is made current.
    */
   void setAspectRatio(float newAspectRatio);
-  /*! Sets the position of the near and far clip planes.
-   *  @param[in] newMinDepth The distance to the near clip plane.
-   *  @param[in] newMaxDepth The distance to the far clip plane.
+  /*! Sets the position of the near clip plane.
+   *  @param[in] newNearZ The distance to the near clip plane.
    */
-  void setDepthRange(float newMinDepth, float newMaxDepth);
+  void setNearZ(float newNearZ);
+  /*! Sets the position of the near and far clip planes.
+   *  @param[in] newFarZ The distance to the far clip plane.
+   */
+  void setFarZ(float newFarZ);
   /*! @return The transform for this camera.
    *
    *  @remarks This is the camera-to-world-space transform for this camera. For
@@ -113,8 +116,8 @@ public:
 private:
   float FOV;
   float aspectRatio;
-  float minDepth;
-  float maxDepth;
+  float nearZ;
+  float farZ;
   Transform3 transform;
   mutable Transform3 inverse;
   mutable Frustum frustum;

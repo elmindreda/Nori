@@ -80,13 +80,13 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
   state->setViewMatrix(camera.getViewTransform());
   state->setPerspectiveProjectionMatrix(camera.getFOV(),
                                         camera.getAspectRatio(),
-                                        camera.getMinDepth(),
-                                        camera.getMaxDepth());
+                                        camera.getNearZ(),
+                                        camera.getFarZ());
   state->setCameraProperties(camera.getTransform().position,
                              camera.getFOV(),
                              camera.getAspectRatio(),
-                             camera.getMinDepth(),
-                             camera.getMaxDepth());
+                             camera.getNearZ(),
+                             camera.getFarZ());
 
   renderOperations(scene.getOpaqueQueue());
 
@@ -410,8 +410,8 @@ void Renderer::renderAmbientLight(const render::Camera& camera, const vec3& colo
 
 void Renderer::renderLight(const render::Camera& camera, const render::Light& light)
 {
-  const float nearZ = camera.getMinDepth();
-  const float nearOverFarZminusOne = nearZ / camera.getMaxDepth() - 1.f;
+  const float nearZ = camera.getNearZ();
+  const float nearOverFarZminusOne = nearZ / camera.getFarZ() - 1.f;
 
   if (light.getType() == render::Light::POINT)
   {

@@ -39,8 +39,8 @@ namespace wendy
 Camera::Camera():
   FOV(90.f),
   aspectRatio(4.f / 3.f),
-  minDepth(0.1f),
-  maxDepth(1000.f),
+  nearZ(0.1f),
+  farZ(1000.f),
   dirtyFrustum(true),
   dirtyInverse(true),
   dirtyViewDir(true)
@@ -57,14 +57,14 @@ float Camera::getAspectRatio() const
   return aspectRatio;
 }
 
-float Camera::getMinDepth() const
+float Camera::getNearZ() const
 {
-  return minDepth;
+  return nearZ;
 }
 
-float Camera::getMaxDepth() const
+float Camera::getFarZ() const
 {
-  return maxDepth;
+  return farZ;
 }
 
 void Camera::setFOV(float newFOV)
@@ -79,10 +79,16 @@ void Camera::setAspectRatio(float newAspectRatio)
   dirtyFrustum = true;
 }
 
-void Camera::setDepthRange(float newMinDepth, float newMaxDepth)
+void Camera::setNearZ(float newNearZ)
 {
-  minDepth = newMinDepth;
-  maxDepth = newMaxDepth;
+  nearZ = newNearZ;
+  dirtyFrustum = true;
+  dirtyViewDir = true;
+}
+
+void Camera::setFarZ(float newFarZ)
+{
+  farZ = newFarZ;
   dirtyFrustum = true;
   dirtyViewDir = true;
 }
@@ -116,7 +122,7 @@ const Frustum& Camera::getFrustum() const
 {
   if (dirtyFrustum)
   {
-    frustum.setPerspective(FOV, aspectRatio, -minDepth, -maxDepth);
+    frustum.setPerspective(FOV, aspectRatio, -nearZ, -farZ);
     frustum.transformBy(transform);
     dirtyFrustum = false;
   }
@@ -131,8 +137,8 @@ float Camera::getNormalizedDepth(const vec3& point) const
   {
     direction = vec3(0.f, 0.f, -1.f);
     transform.rotateVector(direction);
-    dirFactor = 1.f / (maxDepth - minDepth);
-    dirOffset = dot(direction, transform.position) + minDepth * dirFactor;
+    dirFactor = 1.f / (farZ - nearZ);
+    dirOffset = dot(direction, transform.position) + nearZ * dirFactor;
     dirtyViewDir = false;
   }
 
@@ -140,7 +146,7 @@ float Camera::getNormalizedDepth(const vec3& point) const
   */
   vec3 local = point;
   getViewTransform().transformVector(local);
-  return length(local) / maxDepth;
+  return length(local) / farZ;
 }
 
 ///////////////////////////////////////////////////////////////////////

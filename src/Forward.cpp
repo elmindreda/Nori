@@ -51,13 +51,13 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
   state->setViewMatrix(camera.getViewTransform());
   state->setPerspectiveProjectionMatrix(camera.getFOV(),
                                         camera.getAspectRatio(),
-                                        camera.getMinDepth(),
-                                        camera.getMaxDepth());
+                                        camera.getNearZ(),
+                                        camera.getFarZ());
   state->setCameraProperties(camera.getTransform().position,
                              camera.getFOV(),
                              camera.getAspectRatio(),
-                             camera.getMinDepth(),
-                             camera.getMaxDepth());
+                             camera.getNearZ(),
+                             camera.getFarZ());
 
   renderOperations(scene.getOpaqueQueue());
   renderOperations(scene.getBlendedQueue());
