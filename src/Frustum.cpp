@@ -127,23 +127,24 @@ void Frustum::setPerspective(float FOV, float aspectRatio, float nearZ, float fa
 {
   assert(FOV > 0.f);
   assert(aspectRatio > 0.f);
-  assert(sign(nearZ) == sign(farZ));
+  assert(nearZ > 0.f);
+  assert(farZ > 0.f);
 
   const float radians = FOV * float(PI) / 180.f;
   const float distance = 0.5f / tan(radians / 2.f);
 
   vec3 points[5];
   points[0] = vec3(0.f);
-  points[1] = vec3(-0.5f * aspectRatio, 0.5f, sign(farZ) * distance);
-  points[2] = vec3(0.5f * aspectRatio, 0.5f, sign(farZ) * distance);
-  points[3] = vec3(0.5f * aspectRatio, -0.5f, sign(farZ) * distance);
-  points[4] = vec3(-0.5f * aspectRatio, -0.5f, sign(farZ) * distance);
+  points[1] = vec3(-0.5f * aspectRatio,  0.5f, -distance);
+  points[2] = vec3( 0.5f * aspectRatio,  0.5f, -distance);
+  points[3] = vec3( 0.5f * aspectRatio, -0.5f, -distance);
+  points[4] = vec3(-0.5f * aspectRatio, -0.5f, -distance);
 
   for (size_t i = 0;  i < 4;  i++)
     planes[i].set(points[0], points[(i + 1) % 4 + 1], points[i + 1]);
 
-  planes[FRUSTUM_NEAR].set(vec3(0.f, 0.f, -sign(nearZ)), nearZ);
-  planes[FRUSTUM_FAR].set(vec3(0.f, 0.f, sign(farZ)), -farZ);
+  planes[FRUSTUM_NEAR].set(vec3(0.f, 0.f, 1.f), nearZ);
+  planes[FRUSTUM_FAR].set(vec3(0.f, 0.f, -1.f), -farZ);
 }
 
 void Frustum::setOrtho(const AABB& volume)

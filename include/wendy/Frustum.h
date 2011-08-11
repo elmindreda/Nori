@@ -93,12 +93,8 @@ public:
   /*! Transforms the planes of this frustum by the specified transform.
    */
   void transformBy(const Transform3& transform);
-  /*! Sets this frustum to a non-rotated perspective frustum with the specified
-   *  properties.
-   *
-   *  @remarks For left-handed coordinate systems, use positive values for @a
-   *  nearZ and @a farZ.  For right-handed systems, use negative values for @a
-   *  nearZ and @a farZ.
+  /*! Sets this frustum to a non-rotated, right-handed perspective frustum with
+   *  the specified properties.
    */
   void setPerspective(float FOV, float aspectRatio, float nearZ, float farZ);
   /*! Sets this frustum to a non-rotated orthographic frustum with the specified
