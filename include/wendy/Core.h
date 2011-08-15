@@ -252,9 +252,9 @@ private:
 class RefBase
 {
 protected:
-  bool unreferenced(RefObject* object);
-  void increment(RefObject* object);
-  void decrement(RefObject* object);
+  static bool unreferenced(RefObject* object);
+  static void increment(RefObject* object);
+  static void decrement(RefObject* object);
 };
 
 ///////////////////////////////////////////////////////////////////////
