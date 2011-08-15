@@ -173,7 +173,7 @@ void logError(const char* format, ...);
  */
 void logWarning(const char* format, ...);
 
-/*! Writes an informational  message log entry to the log consumers,
+/*! Writes an informational message log entry to the log consumers,
  *  or to stderr if there are no log consumers.
  *  @param[in] format The formatting string for the log entry.
  */
@@ -187,9 +187,9 @@ class Exception : public std::exception
 {
 public:
   /*! Constructor.
-   *  @param initMessage The message for this exception.
+   *  @param message The message for this exception.
    */
-  Exception(const char* initMessage);
+  Exception(const char* message);
   /*! @return The massage for this exception.
    */
   const char* what() const throw();
