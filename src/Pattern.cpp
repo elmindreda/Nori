@@ -63,10 +63,9 @@ PatternMatch::PatternMatch(const String& text, int* ranges, unsigned int count)
 
 ///////////////////////////////////////////////////////////////////////
 
-Pattern::Pattern(const String& source)
+Pattern::Pattern(const String& source):
+  object(NULL)
 {
-  Pattern();
-
   if (!init(source))
     throw Exception("Failed to compile PCRE pattern");
 }
