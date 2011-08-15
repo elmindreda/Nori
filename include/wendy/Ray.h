@@ -40,12 +40,12 @@ public:
    */
   Ray3();
   /*! Constructor.
-   *  @param origin [in] The initial origin.
-   *  @param direction [in] The initial direction.
+   *  @param[in] origin The initial origin.
+   *  @param[in] direction The initial direction.
    */
   Ray3(const vec3& origin, const vec3& direction);
   /*! Transforms this ray by the specified transform.
-   *  @param transform [in] The transform to use.
+   *  @param[in] transform The transform to use.
    */
   void transformBy(const Transform3& transform);
   /*! Resets this ray to default values.
@@ -53,8 +53,8 @@ public:
    */
   void setDefaults();
   /*! Sets the values of this ray.
-   *  @param newOrigin [in] The desired origin.
-   *  @param newDirection [in] The desired direction.
+   *  @param[in] newOrigin The desired origin.
+   *  @param[in] newDirection The desired direction.
    */
   void set(const vec3& newOrigin, const vec3& newDirection);
   /*! The origin of this ray.

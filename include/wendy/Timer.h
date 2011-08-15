@@ -61,7 +61,7 @@ public:
    */
   Time getTime() const;
   /*! Sets the current time of a started timer.
-   *  @param newTime [in] The new time, in seconds.
+   *  @param[in] newTime The new time, in seconds.
    */
   void setTime(Time newTime);
   /*! @return The time, in seconds, since the last call to getDeltaTime.
