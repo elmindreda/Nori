@@ -536,6 +536,7 @@ bool Object::addFunction(const char* name,
 
   std::memcpy(sq_newuserdata(vm, pointerSize), pointer, pointerSize);
   sq_newclosure(vm, function, 1);
+  sq_setnativeclosurename(vm, -1, name);
 
   const SQRESULT result = sq_newslot(vm, -3, staticMember);
 
