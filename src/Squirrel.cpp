@@ -49,6 +49,34 @@ namespace wendy
 namespace
 {
 
+String escapeString(const SQChar* string)
+{
+  String result;
+  result.reserve(std::strlen(string));
+
+  for (const SQChar* c = string;  *c;  c++)
+  {
+    if (*c == '\t')
+      result.append("\\t");
+    else if (*c == '\a')
+      result.append("\\a");
+    else if (*c == '\b')
+      result.append("\\b");
+    else if (*c == '\n')
+      result.append("\\n");
+    else if (*c == '\r')
+      result.append("\\r");
+    else if (*c == '\v')
+      result.append("\\v");
+    else if (*c == '\f')
+      result.append("\\f");
+    else
+      result.append(1, *c);
+  }
+
+  return result;
+}
+
 void logErrorCallStack(HSQUIRRELVM vm)
 {
   std::ostringstream stream;
@@ -117,7 +145,7 @@ void logErrorCallStack(HSQUIRRELVM vm)
         {
           const SQChar* value;
           sq_getstring(vm, -1, &value);
-          stream << value;
+          stream << '\"' << escapeString(value) << '\"';
           break;
         }
 
