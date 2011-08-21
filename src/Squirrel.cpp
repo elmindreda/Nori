@@ -254,14 +254,11 @@ bool VM::execute(const char* name, const char* text)
     return false;
 
   sq_pushroottable(vm);
-  if (SQ_FAILED(sq_call(vm, 1, false, true)))
-  {
-    sq_poptop(vm);
-    return false;
-  }
+
+  const SQRESULT result = sq_call(vm, 1, false, true);
 
   sq_poptop(vm);
-  return true;
+  return SQ_SUCCEEDED(result);
 }
 
 VM::operator HSQUIRRELVM ()
