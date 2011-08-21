@@ -31,10 +31,10 @@
 
 #include <wendy/Squirrel.h>
 
-#include <sqstdaux.h>
 #include <sqstdmath.h>
 #include <sqstdstring.h>
 
+#include <sstream>
 #include <cstring>
 
 ///////////////////////////////////////////////////////////////////////
@@ -43,6 +43,166 @@ namespace wendy
 {
   namespace sq
   {
+
+///////////////////////////////////////////////////////////////////////
+
+namespace
+{
+
+void logErrorCallStack(HSQUIRRELVM vm)
+{
+  std::ostringstream stream;
+
+  const SQChar* error = "Unknown error";
+
+  sq_getlasterror(vm);
+  if (sq_gettype(vm, -1) == OT_STRING)
+    sq_getstring(vm, -1, &error);
+  sq_pop(vm, 2);
+
+  stream << error;
+
+  SQInteger level = 1;
+  SQStackInfos si;
+
+  while (SQ_SUCCEEDED(sq_stackinfos(vm, level, &si)))
+  {
+    if (!si.funcname)
+      si.funcname = "UNNAMED";
+    if (!si.source)
+      si.source = "UNNAMED";
+
+    stream << '\n' << si.source << ':' << si.line << ':' << si.funcname;
+
+    SQInteger index = 0;
+    const SQChar* name;
+
+    while ((name = sq_getlocal(vm, level, index)))
+    {
+      stream << "\n  " << name << " = ";
+
+      switch (sq_gettype(vm, -1))
+      {
+        case OT_NULL:
+        {
+          stream << "null";
+          break;
+        }
+
+        case OT_INTEGER:
+        {
+          SQInteger value;
+          sq_getinteger(vm, -1, &value);
+          stream << value;
+          break;
+        }
+
+        case OT_FLOAT:
+        {
+          SQFloat value;
+          sq_getfloat(vm, -1, &value);
+          stream << value;
+          break;
+        }
+
+        case OT_BOOL:
+        {
+          SQBool value;
+          sq_getbool(vm, -1, &value);
+          stream << (value ? "true" : "false");
+          break;
+        }
+
+        case OT_STRING:
+        {
+          const SQChar* value;
+          sq_getstring(vm, -1, &value);
+          stream << value;
+          break;
+        }
+
+        case OT_TABLE:
+        {
+          stream << "{ ... }";
+          break;
+        }
+
+        case OT_ARRAY:
+        {
+          stream << "[ ... ]";
+          break;
+        }
+
+        case OT_CLOSURE:
+        case OT_NATIVECLOSURE:
+        {
+          stream << "function()";
+          break;
+        }
+
+        case OT_GENERATOR:
+        {
+          stream << "generator()";
+          break;
+        }
+
+        case OT_USERDATA:
+        case OT_USERPOINTER:
+        {
+          SQUserPointer value;
+          sq_getuserpointer(vm, -1, &value);
+          stream << value;
+          break;
+        }
+
+        case OT_THREAD:
+        {
+          stream << "thread";
+          break;
+        }
+
+        case OT_FUNCPROTO:
+        {
+          stream << "whathuh";
+          break;
+        }
+
+        case OT_CLASS:
+        {
+          stream << "class";
+          break;
+        }
+
+        case OT_INSTANCE:
+        {
+          stream << "instance";
+          break;
+        }
+
+        case OT_WEAKREF:
+        {
+          stream << "weakref";
+          break;
+        }
+
+        case OT_OUTER:
+        {
+          stream << "huhwhat";
+          break;
+        }
+      }
+
+      sq_poptop(vm);
+      index++;
+    }
+
+    level++;
+  }
+
+  logError("%s", stream.str().c_str());
+}
+
+} /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -199,7 +359,7 @@ void VM::onCompilerError(HSQUIRRELVM vm,
 SQInteger VM::onRuntimeError(HSQUIRRELVM vm)
 {
   if (sq_gettop(vm) >= 1)
-    sqstd_printcallstack(vm);
+    logErrorCallStack(vm);
 
   return 0;
 }
