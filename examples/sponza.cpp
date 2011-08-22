@@ -85,7 +85,8 @@ bool Demo::init(void)
 
   camera = new render::Camera();
   camera->setFOV(60.f);
-  camera->setDepthRange(0.9f, 500.f);
+  camera->setNearZ(0.9f);
+  camera->setFarZ(500.f);
   camera->setAspectRatio((float) width / height);
 
   cameraNode = new scene::CameraNode();
