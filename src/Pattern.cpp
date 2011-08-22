@@ -142,7 +142,7 @@ Pattern::Pattern():
 
 Pattern::Pattern(const Pattern& source)
 {
-  throw Exception("Pattern objects may not be copied");
+  panic("Pattern objects may not be copied");
 }
 
 bool Pattern::init(const String& source)
@@ -162,7 +162,7 @@ bool Pattern::init(const String& source)
 
 Pattern& Pattern::operator = (const Pattern& source)
 {
-  throw Exception("Pattern objects may not be copied");
+  panic("Pattern objects may not be copied");
 }
 
 ///////////////////////////////////////////////////////////////////////

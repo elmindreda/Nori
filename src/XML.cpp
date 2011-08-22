@@ -198,13 +198,13 @@ String Reader::readString(const String& name, const String& defaultValue)
 
 Reader::Reader(const Reader& source)
 {
-  // NOTE: Not implemented.
+  panic("XML readers may not be copied");
 }
 
 const char* Reader::findAttributeValue(const char* name)
 {
   if (attributes == NULL)
-    throw Exception("Cannot read attributes outside of an element");
+    panic("Cannot read attributes outside of an element");
 
   for (const char** a = attributes;  *a != NULL;  a += 2)
   {
@@ -252,9 +252,7 @@ void Reader::endCharacterDataHandler(void* userData)
 
 Reader& Reader::operator = (const Reader& source)
 {
-  // NOTE: Not implemented.
-
-  return *this;
+  panic("XML readers may not be assigned");
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -287,7 +285,7 @@ void Writer::beginElement(const String& name)
 void Writer::endElement()
 {
   if (stack.empty())
-    throw Exception("No element to end");
+    panic("No element to end");
 
   String& name = stack.top();
 
@@ -326,7 +324,7 @@ template <>
 void Writer::addAttribute(const String& name, const bool& value)
 {
   if (closed)
-    throw Exception("Attribute added outside element");
+    panic("Attribute added outside element");
 
   *stream << " " << name << "=\"" << (value ? 1 : 0) << "\"";
   simple = false;
@@ -336,7 +334,7 @@ template <>
 void Writer::addAttribute(const String& name, const int& value)
 {
   if (closed)
-    throw Exception("Attribute added outside element");
+    panic("Attribute added outside element");
 
   *stream << " " << name << "=\"" << value << "\"";
   simple = false;
@@ -346,7 +344,7 @@ template <>
 void Writer::addAttribute(const String& name, const unsigned int& value)
 {
   if (closed)
-    throw Exception("Attribute added outside element");
+    panic("Attribute added outside element");
 
   *stream << " " << name << "=\"" << value << "\"";
   simple = false;
@@ -356,7 +354,7 @@ template <>
 void Writer::addAttribute(const String& name, const float& value)
 {
   if (closed)
-    throw Exception("Attribute added outside element");
+    panic("Attribute added outside element");
 
   *stream << " " << name << "=\"" << value << "\"";
   simple = false;
@@ -366,7 +364,7 @@ template <>
 void Writer::addAttribute(const String& name, const Time& value)
 {
   if (closed)
-    throw Exception("Attribute added outside element");
+    panic("Attribute added outside element");
 
   *stream << " " << name << "=\"" << value << "\"";
   simple = false;
@@ -376,7 +374,7 @@ template <>
 void Writer::addAttribute(const String& name, const String& value)
 {
   if (closed)
-    throw Exception("Attribute added outside element");
+    panic("Attribute added outside element");
 
   *stream << " " << name << "=\"" << escapeString(value) << "\"";
   simple = false;
@@ -394,7 +392,7 @@ std::ostream* Writer::getStream()
 
 Writer::Writer(const Writer& source)
 {
-  // NOTE: Not implemented.
+  panic("XML writers may not be copied");
 }
 
 void Writer::closeElement()
@@ -413,9 +411,7 @@ void Writer::closeElement()
 
 Writer& Writer::operator = (const Writer& source)
 {
-  // NOTE: Not implemented.
-
-  return *this;
+  panic("XML writers may not be assigned");
 }
 
 ///////////////////////////////////////////////////////////////////////

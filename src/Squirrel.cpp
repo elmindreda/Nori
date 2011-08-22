@@ -401,7 +401,7 @@ Object::Object(HSQUIRRELVM initVM, SQInteger index):
   vm(initVM)
 {
   if (!vm)
-    throw Exception("VM handle cannot be NULL when constructing from stack");
+    panic("VM handle cannot be NULL when constructing from stack");
 
   sq_resetobject(&handle);
   sq_getstackobj(vm, -1, &handle);
@@ -605,14 +605,14 @@ Array::Array(const Object& source):
   Object(source)
 {
   if (!isNull() && !isArray())
-    throw Exception("Object is not an array");
+    panic("Object is not an array");
 }
 
 Array::Array(HSQUIRRELVM vm, SQInteger index):
   Object(vm, index)
 {
   if (!isArray())
-    throw Exception("Object is not an array");
+    panic("Object is not an array");
 }
 
 bool Array::remove(SQInteger index)
@@ -670,7 +670,7 @@ bool Array::reverse()
 Object Array::operator [] (SQInteger index) const
 {
   if (isNull())
-    throw Exception("Cannot retrieve slot from null");
+    panic("Cannot retrieve slot from null");
 
   sq_pushobject(vm, handle);
   sq_pushinteger(vm, index);
@@ -678,7 +678,7 @@ Object Array::operator [] (SQInteger index) const
   if (SQ_FAILED(sq_get(vm, -2)))
   {
     sq_poptop(vm);
-    throw Exception("No array element at index");
+    panic("No array element at index");
   }
 
   Object result(vm, -1);
@@ -705,14 +705,14 @@ Table::Table(const Object& source):
   Object(source)
 {
   if (!isNull() && !isTable())
-    throw Exception("Object is not a table");
+    panic("Object is not a table");
 }
 
 Table::Table(HSQUIRRELVM vm, SQInteger index):
   Object(vm, index)
 {
   if (!isTable())
-    throw Exception("Object is not a table");
+    panic("Object is not a table");
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -734,20 +734,20 @@ Class::Class(const Object& source):
   Object(source)
 {
   if (!isNull() && !isClass())
-    throw Exception("Object is not a class");
+    panic("Object is not a class");
 }
 
 Class::Class(HSQUIRRELVM vm, SQInteger index):
   Object(vm, index)
 {
   if (!isClass())
-    throw Exception("Object is not a class");
+    panic("Object is not a class");
 }
 
 Instance Class::createInstance() const
 {
   if (isNull())
-    throw Exception("Cannot create instance of null");
+    panic("Cannot create instance of null");
 
   sq_pushobject(vm, handle);
   sq_createinstance(vm, -1);
@@ -798,14 +798,14 @@ Instance::Instance(const Object& source):
   Object(source)
 {
   if (!isNull() && !isInstance())
-    throw Exception("Object is not an instance");
+    panic("Object is not an instance");
 }
 
 Instance::Instance(HSQUIRRELVM vm, SQInteger index):
   Object(vm, index)
 {
   if (!isInstance())
-    throw Exception("Object is not an instance");
+    panic("Object is not an instance");
 }
 
 Class Instance::getClass() const

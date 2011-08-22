@@ -339,14 +339,7 @@ Context::Context(GL::Context& initContext):
 Context::Context(const Context& source):
   context(source.context)
 {
-  // NOTE: Not implemented.
-}
-
-Context& Context::operator = (const Context& source)
-{
-  // NOTE: Not implemented.
-
-  return *this;
+  panic("Input contexts may not be copied");
 }
 
 void Context::onContextResized(unsigned int width, unsigned int height)
@@ -437,6 +430,11 @@ void Context::mouseWheelCallback(int position)
     instance->currentTarget->onWheelTurned(offset);
 
   instance->wheelPosition = position;
+}
+
+Context& Context::operator = (const Context& source)
+{
+  panic("Input contexts may not be assigned");
 }
 
 Context* Context::instance = NULL;

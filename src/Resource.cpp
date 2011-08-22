@@ -54,7 +54,7 @@ Resource::Resource(const ResourceInfo& info):
   if (!path.isEmpty())
   {
     if (index.findResource(path))
-      throw Exception("Duplicate path for resource");
+      panic("Duplicate path for resource \'%s\'", path.asString().c_str());
 
     index.resources.push_back(this);
   }
@@ -90,7 +90,7 @@ ResourceIndex& Resource::getIndex() const
 ResourceIndex::~ResourceIndex()
 {
   if (!resources.empty())
-    throw Exception("Resource index destroyed with attached resources");
+    panic("Resource index destroyed with attached resources");
 }
 
 bool ResourceIndex::addSearchPath(const Path& path)

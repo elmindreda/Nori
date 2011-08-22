@@ -236,14 +236,7 @@ VertexBuffer::VertexBuffer(Context& initContext):
 VertexBuffer::VertexBuffer(const VertexBuffer& source):
   context(source.context)
 {
-  // NOTE: Not implemented.
-}
-
-VertexBuffer& VertexBuffer::operator = (const VertexBuffer& source)
-{
-  // NOTE: Not implemented.
-
-  return *this;
+  panic("Vertex buffers may not be copied");
 }
 
 bool VertexBuffer::init(const VertexFormat& initFormat,
@@ -271,6 +264,11 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
   }
 
   return true;
+}
+
+VertexBuffer& VertexBuffer::operator = (const VertexBuffer& source)
+{
+  panic("Vertex buffers may not be assigned");
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -425,14 +423,7 @@ IndexBuffer::IndexBuffer(Context& initContext):
 IndexBuffer::IndexBuffer(const IndexBuffer& source):
   context(source.context)
 {
-  // NOTE: Not implemented.
-}
-
-IndexBuffer& IndexBuffer::operator = (const IndexBuffer& source)
-{
-  // NOTE: Not implemented.
-
-  return *this;
+  panic("Index buffers may not be copied");
 }
 
 bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
@@ -458,6 +449,11 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
   }
 
   return true;
+}
+
+IndexBuffer& IndexBuffer::operator = (const IndexBuffer& source)
+{
+  panic("Index buffers may not be assigned");
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -745,6 +741,56 @@ unsigned int PrimitiveRange::getStart() const
 unsigned int PrimitiveRange::getCount() const
 {
   return count;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+template <>
+IndexRangeLock<uint8>::IndexRangeLock(IndexRange& initRange):
+  range(initRange),
+  indices(NULL)
+{
+  if (IndexBuffer* indexBuffer = range.getIndexBuffer())
+  {
+    if (indexBuffer->getType() != IndexBuffer::UINT8)
+      panic("Index buffer is not of type UINT8");
+  }
+
+  indices = (uint8*) range.lock();
+  if (!indices)
+    panic("Failed to lock index buffer");
+}
+
+template <>
+IndexRangeLock<uint16>::IndexRangeLock(IndexRange& initRange):
+  range(initRange),
+  indices(NULL)
+{
+  if (IndexBuffer* indexBuffer = range.getIndexBuffer())
+  {
+    if (indexBuffer->getType() != IndexBuffer::UINT16)
+      panic("Index buffer is not of type UINT16");
+  }
+
+  indices = (uint16*) range.lock();
+  if (!indices)
+    panic("Failed to lock index buffer");
+}
+
+template <>
+IndexRangeLock<uint32>::IndexRangeLock(IndexRange& initRange):
+  range(initRange),
+  indices(NULL)
+{
+  if (IndexBuffer* indexBuffer = range.getIndexBuffer())
+  {
+    if (indexBuffer->getType() != IndexBuffer::UINT32)
+      panic("Index buffer is not of type UINT32");
+  }
+
+  indices = (uint32*) range.lock();
+  if (!indices)
+    panic("Failed to lock index buffer");
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -306,8 +306,6 @@ public:
    */
   IndexRange(IndexBuffer& indexBuffer);
   /*! Creates the specified range within the specified index buffer.
-   *  @throw Exception If the specified range does not fit inside the specified
-   *  index buffer.
    */
   IndexRange(IndexBuffer& indexBuffer, unsigned int start, unsigned int count);
   /*! Locks this index range into memory and returns its address.
@@ -522,13 +520,19 @@ inline VertexRangeLock<T>::VertexRangeLock(VertexRange& initRange):
 {
   if (VertexBuffer* vertexBuffer = range.getVertexBuffer())
   {
-    if (T::format != vertexBuffer->getFormat())
-      throw Exception("Vertex buffer format mismatch for vertex range lock");
+    const VertexFormat& format = vertexBuffer->getFormat();
+
+    if (T::format != format)
+    {
+      panic("Vertex buffer format \'%s\' does not match range lock format \'%s\'",
+            format.asString().c_str(),
+            T::format.asString().c_str());
+    }
   }
 
   vertices = (T*) range.lock();
   if (!vertices)
-    throw Exception("Failed to lock vertex buffer");
+    panic("Failed to lock vertex buffer");
 }
 
 template <typename T>
@@ -550,7 +554,7 @@ inline IndexRangeLock<T>::IndexRangeLock(IndexRange& initRange):
   range(initRange),
   indices(NULL)
 {
-  throw Exception("Invalid index type");
+  panic("Invalid index type");
 }
 
 template <typename T>
@@ -563,54 +567,6 @@ template <typename T>
 inline IndexRangeLock<T>::operator T* ()
 {
   return indices;
-}
-
-template <>
-inline IndexRangeLock<uint8>::IndexRangeLock(IndexRange& initRange):
-  range(initRange),
-  indices(NULL)
-{
-  if (range.getIndexBuffer())
-  {
-    if (range.getIndexBuffer()->getType() != IndexBuffer::UINT8)
-      throw Exception("Index buffer lock type mismatch");
-  }
-
-  indices = (uint8*) range.lock();
-  if (!indices)
-    throw Exception("Failed to lock index buffer");
-}
-
-template <>
-inline IndexRangeLock<uint16>::IndexRangeLock(IndexRange& initRange):
-  range(initRange),
-  indices(NULL)
-{
-  if (range.getIndexBuffer())
-  {
-    if (range.getIndexBuffer()->getType() != IndexBuffer::UINT16)
-      throw Exception("Index buffer lock type mismatch");
-  }
-
-  indices = (uint16*) range.lock();
-  if (!indices)
-    throw Exception("Failed to lock index buffer");
-}
-
-template <>
-inline IndexRangeLock<uint32>::IndexRangeLock(IndexRange& initRange):
-  range(initRange),
-  indices(NULL)
-{
-  if (range.getIndexBuffer())
-  {
-    if (range.getIndexBuffer()->getType() != IndexBuffer::UINT32)
-      throw Exception("Index buffer lock type mismatch");
-  }
-
-  indices = (uint32*) range.lock();
-  if (!indices)
-    throw Exception("Failed to lock index buffer");
 }
 
 ///////////////////////////////////////////////////////////////////////

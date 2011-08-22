@@ -120,14 +120,12 @@ Model::Model(const Model& source):
   Resource(source),
   context(source.context)
 {
-  // NOTE: Not implemented.
+  panic("Models may not be copied");
 }
 
 Model& Model::operator = (const Model& source)
 {
-  // NOTE: Not implemented.
-
-  return *this;
+  panic("Models may not be assigned");
 }
 
 bool Model::init(const Mesh& data, const MaterialMap& materials)

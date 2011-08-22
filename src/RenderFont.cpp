@@ -255,14 +255,7 @@ Font::Font(const Font& source):
   Resource(source),
   pool(source.pool)
 {
-  // NOTE: Not implemented.
-}
-
-Font& Font::operator = (const Font& source)
-{
-  // NOTE: Not implemented.
-
-  return *this;
+  panic("Fonts may not be copied");
 }
 
 bool Font::init(const FontData& data)
@@ -434,6 +427,11 @@ bool Font::init(const FontData& data)
 const Font::Glyph* Font::findGlyph(uint8 character) const
 {
   return characters[character];
+}
+
+Font& Font::operator = (const Font& source)
+{
+  panic("Fonts may not be assigned");
 }
 
 bool Font::getGlyphLayout(Layout& layout, uint8 character) const

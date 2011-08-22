@@ -408,7 +408,7 @@ template <typename T>
 inline T Array::get(SQInteger index) const
 {
   if (isNull())
-    throw Exception("Cannot retrieve slot from null");
+    panic("Cannot retrieve slot from null");
 
   sq_pushobject(vm, handle);
   sq_pushinteger(vm, index);

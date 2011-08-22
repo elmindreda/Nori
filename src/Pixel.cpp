@@ -124,7 +124,7 @@ size_t PixelFormat::getChannelSize() const
     case FLOAT32:
       return 4;
     default:
-      throw Exception("Invalid pixel format type");
+      panic("Invalid pixel format type %i", type);
   }
 }
 
@@ -154,7 +154,7 @@ unsigned int PixelFormat::getChannelCount() const
     case RGBA:
       return 4;
     default:
-      throw Exception("Invalid pixel format semantic");
+      panic("Invalid pixel format semantic %i", semantic);
   }
 }
 
@@ -180,7 +180,7 @@ String PixelFormat::asString() const
       result << "depth";
       break;
     default:
-      return "invalid";
+      panic("Invalid pixel format semantic %i", semantic);
   }
 
   switch (type)
@@ -204,7 +204,7 @@ String PixelFormat::asString() const
       result << "32f";
       break;
     default:
-      return "invalid";
+      panic("Invalid pixel format type %i", type);
   }
 
   return result.str();

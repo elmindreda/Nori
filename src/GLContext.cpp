@@ -379,14 +379,12 @@ Framebuffer::Framebuffer(Context& initContext):
 Framebuffer::Framebuffer(const Framebuffer& source):
   context(source.context)
 {
-  // NOTE: Not implemented.
+  panic("Framebuffers may not be copied");
 }
 
 Framebuffer& Framebuffer::operator = (const Framebuffer& source)
 {
-  // NOTE: Not implemented.
-
-  return *this;
+  panic("Framebuffers may not be assigned");
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1272,14 +1270,12 @@ Context::Context(ResourceIndex& initIndex):
 Context::Context(const Context& source):
   index(source.index)
 {
-  // NOTE: Not implemented.
+  panic("OpenGL contexts may not be copied");
 }
 
 Context& Context::operator = (const Context& source)
 {
-  // NOTE: Not implemented.
-
-  return *this;
+  panic("OpenGL contexts may not be assigned");
 }
 
 bool Context::init(const ContextMode& initMode)

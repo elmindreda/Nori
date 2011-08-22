@@ -180,7 +180,7 @@ Buffer::Buffer(const Buffer& source):
   Resource(source),
   context(source.context)
 {
-  // NOTE: Not implemented.
+  panic("OpenAL buffer objects may not be copied");
 }
 
 bool Buffer::init(const BufferData& data)
@@ -203,9 +203,7 @@ bool Buffer::init(const BufferData& data)
 
 Buffer& Buffer::operator = (const Buffer& source)
 {
-  // NOTE: Not implemented.
-
-  return *this;
+  panic("OpenAL buffer objects may not be assigned");
 }
 
 ///////////////////////////////////////////////////////////////////////

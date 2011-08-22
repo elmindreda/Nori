@@ -158,7 +158,7 @@ Context::Context(ResourceIndex& initIndex):
 Context::Context(const Context& source):
   index(source.index)
 {
-  // NOTE: Not implemented.
+  panic("OpenAL contexts may not be copied");
 }
 
 bool Context::init()
@@ -195,9 +195,7 @@ bool Context::init()
 
 Context& Context::operator = (const Context& source)
 {
-  // NOTE: Not implemented.
-
-  return *this;
+  panic("OpenAL contexts may not be assigned");
 }
 
 ///////////////////////////////////////////////////////////////////////
