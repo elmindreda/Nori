@@ -145,12 +145,7 @@ void Font::drawText(const vec2& penPosition, const vec4& color, const char* text
     roundedPen.x = floorf(penPosition.x + 0.5f);
     roundedPen.y = floorf(penPosition.y + 0.5f);
 
-    Vertex2ft2fv* vertices = (Vertex2ft2fv*) vertexRange.lock();
-    if (!vertices)
-    {
-      logError("Failed to lock vertices for text drawing");
-      return;
-    }
+    std::vector<Vertex2ft2fv> vertices(length * 6);
 
     Layout layout;
 
@@ -162,12 +157,12 @@ void Font::drawText(const vec2& penPosition, const vec4& color, const char* text
         layout.area.position += roundedPen;
         roundedPen += layout.advance;
 
-        realizeVertices(layout.area, glyph->area, vertices + count);
+        realizeVertices(layout.area, glyph->area, &vertices[count]);
         count += 6;
       }
     }
 
-    vertexRange.unlock();
+    vertexRange.copyFrom(&vertices[0]);
   }
 
   if (!count)
