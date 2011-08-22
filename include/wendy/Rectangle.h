@@ -26,10 +26,6 @@
 #define WENDY_RECTANGLE_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <stack>
-
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
 
@@ -120,7 +116,7 @@ private:
     T local;
     T total;
   };
-  std::stack<Entry> entries;
+  std::vector<Entry> entries;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -139,11 +135,11 @@ inline bool RectClipStack<T>::push(const T& rectangle)
 
   if (!entries.empty())
   {
-    if (!entry.total.clipBy(entries.top().total))
+    if (!entry.total.clipBy(entries.back().total))
       return false;
   }
 
-  entries.push(entry);
+  entries.push_back(entry);
   return true;
 }
 
@@ -151,7 +147,7 @@ template <typename T>
 inline void RectClipStack<T>::pop()
 {
   assert(!entries.empty());
-  entries.pop();
+  entries.pop_back();
 }
 
 template <typename T>
@@ -170,14 +166,14 @@ template <typename T>
 inline const T& RectClipStack<T>::getTop() const
 {
   assert(!entries.empty());
-  return entries.top().local;
+  return entries.back().local;
 }
 
 template <typename T>
 inline const T& RectClipStack<T>::getTotal() const
 {
   assert(!entries.empty());
-  return entries.top().total;
+  return entries.back().total;
 }
 
 ///////////////////////////////////////////////////////////////////////

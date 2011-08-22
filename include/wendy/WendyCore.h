@@ -28,8 +28,6 @@
 
 #include <wendy/Config.h>
 
-#include <glm/glm.hpp>
-
 #include <wendy/Core.h>
 #include <wendy/Block.h>
 #include <wendy/Bimap.h>
