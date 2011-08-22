@@ -142,8 +142,8 @@ void Font::drawText(const vec2& penPosition, const vec4& color, const char* text
   // Realize vertices for glyphs
   {
     vec2 roundedPen;
-    roundedPen.x = floorf(penPosition.x + 0.5f);
-    roundedPen.y = floorf(penPosition.y + 0.5f);
+    roundedPen.x = floor(penPosition.x + 0.5f);
+    roundedPen.y = floor(penPosition.y + 0.5f);
 
     std::vector<Vertex2ft2fv> vertices(length * 6);
 
