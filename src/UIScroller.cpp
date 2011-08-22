@@ -45,6 +45,7 @@ Scroller::Scroller(Layer& layer, Orientation initOrientation):
   maxValue(1.f),
   value(0.f),
   percentage(0.5f),
+  reference(0.f),
   orientation(initOrientation)
 {
   const float em = layer.getDrawer().getCurrentEM();
