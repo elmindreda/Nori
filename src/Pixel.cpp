@@ -44,19 +44,19 @@ PixelFormat::PixelFormat(Semantic initSemantic, Type initType):
 {
 }
 
-PixelFormat::PixelFormat(const String& specification):
+PixelFormat::PixelFormat(const char* specification):
   semantic(NONE),
   type(DUMMY)
 {
-  String::const_iterator command = specification.begin();
+  const char* c = specification;
 
-  while (std::isspace(*command))
-    command++;
+  while (std::isspace(*c))
+    c++;
 
   String semanticName;
 
-  while (std::isalpha(*command))
-    semanticName.append(1, std::tolower(*command++));
+  while (std::isalpha(*c))
+    semanticName.append(1, std::tolower(*c++));
 
   if (semanticName == "r")
     semantic = R;
@@ -73,8 +73,8 @@ PixelFormat::PixelFormat(const String& specification):
 
   String typeName;
 
-  while (std::isdigit(*command) || std::isalpha(*command))
-    typeName.append(1, std::tolower(*command++));
+  while (std::isdigit(*c) || std::isalpha(*c))
+    typeName.append(1, std::tolower(*c++));
 
   if (typeName == "8")
     type = UINT8;

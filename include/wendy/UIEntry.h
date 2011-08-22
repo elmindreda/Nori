@@ -38,9 +38,9 @@ namespace wendy
 class Entry : public Widget
 {
 public:
-  Entry(Layer& layer, const String& text = "");
+  Entry(Layer& layer, const char* text = "");
   const String& getText() const;
-  void setText(const String& newText);
+  void setText(const char* newText);
   unsigned int getCaretPosition() const;
   void setCaretPosition(unsigned int newPosition);
   SignalProxy1<void, Entry&> getTextChangedSignal();

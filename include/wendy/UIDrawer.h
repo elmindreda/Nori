@@ -186,17 +186,17 @@ public:
   void fillTriangle(const Triangle2& triangle, const vec4& color);
   void blitTexture(const Rect& area, GL::Texture& texture);
   void drawText(const Rect& area,
-                const String& text,
+                const char* text,
                 const Alignment& alignment,
                 const vec3& color);
   void drawText(const Rect& area,
-                const String& text,
+                const char* text,
                 const Alignment& alignment = Alignment(),
                 WidgetState state = STATE_NORMAL);
   void drawWell(const Rect& area, WidgetState state);
   void drawFrame(const Rect& area, WidgetState state);
   void drawHandle(const Rect& area, WidgetState state);
-  void drawButton(const Rect& area, WidgetState state, const String& text = "");
+  void drawButton(const Rect& area, WidgetState state, const char* text = "");
   const Theme& getTheme() const;
   const render::Font& getCurrentFont();
   void setCurrentFont(render::Font* newFont);

@@ -419,7 +419,7 @@ protected:
 class SharedSampler
 {
 public:
-  SharedSampler(const String& name, Sampler::Type type, int ID);
+  SharedSampler(const char* name, Sampler::Type type, int ID);
   String name;
   Sampler::Type type;
   int ID;
@@ -432,7 +432,7 @@ public:
 class SharedUniform
 {
 public:
-  SharedUniform(const String& name, Uniform::Type type, int ID);
+  SharedUniform(const char* name, Uniform::Type type, int ID);
   String name;
   Uniform::Type type;
   int ID;
@@ -502,16 +502,16 @@ public:
   void requestClose();
   /*! Reserves the specified sampler uniform signature as shared.
    */
-  void createSharedSampler(const String& name, Sampler::Type type, int ID);
+  void createSharedSampler(const char* name, Sampler::Type type, int ID);
   /*! Reserves the specified non-sampler uniform signature as shared.
    */
-  void createSharedUniform(const String& name, Uniform::Type type, int ID);
+  void createSharedUniform(const char* name, Uniform::Type type, int ID);
   /*! @return The shared ID of the specified sampler uniform signature.
    */
-  int getSharedSamplerID(const String& name, Sampler::Type type) const;
+  int getSharedSamplerID(const char* name, Sampler::Type type) const;
   /*! @return The shared ID of the specified non-sampler uniform signature.
    */
-  int getSharedUniformID(const String& name, Uniform::Type type) const;
+  int getSharedUniformID(const char* name, Uniform::Type type) const;
   /*! @return The current shared program state, or @c NULL if no shared program
    *  state is currently set.
    */
@@ -522,7 +522,7 @@ public:
   void setCurrentSharedProgramState(SharedProgramState* newState);
   /*! @return GPU declarations of all shared samplers and uniforms.
    */
-  const String& getSharedProgramStateDeclaration() const;
+  const char* getSharedProgramStateDeclaration() const;
   /*! @return The current refresh mode.
    */
   RefreshMode getRefreshMode() const;
@@ -600,7 +600,7 @@ public:
   /*! Sets the title of the context window.
    *  @param[in] newTitle The desired title.
    */
-  void setTitle(const String& newTitle);
+  void setTitle(const char* newTitle);
   /*! @return The limits of this context.
    */
   const Limits& getLimits() const;

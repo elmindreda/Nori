@@ -137,9 +137,9 @@ bool Reader::onCDATA(const String& data)
   return true;
 }
 
-bool Reader::readBoolean(const String& name, bool defaultValue)
+bool Reader::readBoolean(const char* name, bool defaultValue)
 {
-  const char* stringValue = findAttributeValue(name.c_str());
+  const char* stringValue = findAttributeValue(name);
   if (!stringValue)
     return defaultValue;
 
@@ -158,9 +158,9 @@ bool Reader::readBoolean(const String& name, bool defaultValue)
   return value ? true : false;
 }
 
-float Reader::readFloat(const String& name, float defaultValue)
+float Reader::readFloat(const char* name, float defaultValue)
 {
-  const char* stringValue = findAttributeValue(name.c_str());
+  const char* stringValue = findAttributeValue(name);
   if (!stringValue)
     return defaultValue;
 
@@ -173,9 +173,9 @@ float Reader::readFloat(const String& name, float defaultValue)
   return value;
 }
 
-int Reader::readInteger(const String& name, int defaultValue)
+int Reader::readInteger(const char* name, int defaultValue)
 {
-  const char* stringValue = findAttributeValue(name.c_str());
+  const char* stringValue = findAttributeValue(name);
   if (!stringValue)
     return defaultValue;
 
@@ -188,9 +188,9 @@ int Reader::readInteger(const String& name, int defaultValue)
   return value;
 }
 
-String Reader::readString(const String& name, const String& defaultValue)
+String Reader::readString(const char* name, const char* defaultValue)
 {
-  if (const char* value = findAttributeValue(name.c_str()))
+  if (const char* value = findAttributeValue(name))
     return value;
 
   return defaultValue;
@@ -321,7 +321,7 @@ void Writer::endCDATA()
 }
 
 template <>
-void Writer::addAttribute(const String& name, const bool& value)
+void Writer::addAttribute(const char* name, const bool& value)
 {
   if (closed)
     panic("Attribute added outside element");
@@ -331,7 +331,7 @@ void Writer::addAttribute(const String& name, const bool& value)
 }
 
 template <>
-void Writer::addAttribute(const String& name, const int& value)
+void Writer::addAttribute(const char* name, const int& value)
 {
   if (closed)
     panic("Attribute added outside element");
@@ -341,7 +341,7 @@ void Writer::addAttribute(const String& name, const int& value)
 }
 
 template <>
-void Writer::addAttribute(const String& name, const unsigned int& value)
+void Writer::addAttribute(const char* name, const unsigned int& value)
 {
   if (closed)
     panic("Attribute added outside element");
@@ -351,7 +351,7 @@ void Writer::addAttribute(const String& name, const unsigned int& value)
 }
 
 template <>
-void Writer::addAttribute(const String& name, const float& value)
+void Writer::addAttribute(const char* name, const float& value)
 {
   if (closed)
     panic("Attribute added outside element");
@@ -361,7 +361,7 @@ void Writer::addAttribute(const String& name, const float& value)
 }
 
 template <>
-void Writer::addAttribute(const String& name, const Time& value)
+void Writer::addAttribute(const char* name, const Time& value)
 {
   if (closed)
     panic("Attribute added outside element");
@@ -371,7 +371,7 @@ void Writer::addAttribute(const String& name, const Time& value)
 }
 
 template <>
-void Writer::addAttribute(const String& name, const String& value)
+void Writer::addAttribute(const char* name, const String& value)
 {
   if (closed)
     panic("Attribute added outside element");

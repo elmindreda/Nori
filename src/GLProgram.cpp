@@ -299,7 +299,7 @@ Shader::Shader()
 {
 }
 
-Shader::Shader(const String& initText, const Path& initPath):
+Shader::Shader(const char* initText, const Path& initPath):
   text(initText),
   path(initPath)
 {
@@ -792,7 +792,7 @@ bool Program::retrieveUniforms()
       uniform.name = uniformName;
       uniform.type = convertUniformType(uniformType);
       uniform.location = glGetUniformLocation(programID, uniformName);
-      uniform.sharedID = context.getSharedUniformID(uniform.name, uniform.type);
+      uniform.sharedID = context.getSharedUniformID(uniform.name.c_str(), uniform.type);
     }
     else if (isSupportedSamplerType(uniformType))
     {
@@ -801,7 +801,7 @@ bool Program::retrieveUniforms()
       sampler.name = uniformName;
       sampler.type = convertSamplerType(uniformType);
       sampler.location = glGetUniformLocation(programID, uniformName);
-      sampler.sharedID = context.getSharedSamplerID(sampler.name, sampler.type);
+      sampler.sharedID = context.getSharedSamplerID(sampler.name.c_str(), sampler.type);
     }
     else
       logWarning("Skipping uniform \'%s\' of unsupported type", uniformName);
@@ -1034,7 +1034,7 @@ bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
   {
     const AttributeList::value_type& entry = attributes[i];
 
-    const VertexComponent* component = format.findComponent(entry.first);
+    const VertexComponent* component = format.findComponent(entry.first.c_str());
     if (!component)
       return false;
 
@@ -1141,7 +1141,7 @@ bool ProgramReader::onBeginElement(const String& name)
       return false;
     }
 
-    vertexShader = new Shader(text, path);
+    vertexShader = new Shader(text.c_str(), path);
     return true;
   }
 
@@ -1171,7 +1171,7 @@ bool ProgramReader::onBeginElement(const String& name)
       return false;
     }
 
-    fragmentShader = new Shader(text, path);
+    fragmentShader = new Shader(text.c_str(), path);
     return true;
   }
 

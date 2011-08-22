@@ -39,7 +39,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Button::Button(Layer& layer, const String& initText):
+Button::Button(Layer& layer, const char* initText):
   Widget(layer),
   text(initText)
 {
@@ -65,7 +65,7 @@ const String& Button::getText() const
   return text;
 }
 
-void Button::setText(const String& newText)
+void Button::setText(const char* newText)
 {
   text = newText;
   invalidate();
@@ -83,7 +83,7 @@ void Button::draw() const
   Drawer& drawer = getLayer().getDrawer();
   if (drawer.pushClipArea(area))
   {
-    drawer.drawButton(area, getState(), text);
+    drawer.drawButton(area, getState(), text.c_str());
 
     Widget::draw();
 

@@ -40,7 +40,7 @@ class Popup : public Widget
 public:
   Popup(Layer& layer);
   void addItem(Item& item);
-  void addItem(const String& value, ItemID ID = 0);
+  void addItem(const char* value, ItemID ID = 0);
   void removeItem(Item& item);
   void destroyItems();
   unsigned int getSelection() const;

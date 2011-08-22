@@ -37,7 +37,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-VertexComponent::VertexComponent(const String& initName,
+VertexComponent::VertexComponent(const char* initName,
                                  size_t initCount,
 				 Type initType):
   name(initName),
@@ -93,13 +93,13 @@ VertexFormat::VertexFormat()
 {
 }
 
-VertexFormat::VertexFormat(const String& specification)
+VertexFormat::VertexFormat(const char* specification)
 {
   if (!createComponents(specification))
     throw Exception("Invalid vertex format specification");
 }
 
-bool VertexFormat::createComponent(const String& name,
+bool VertexFormat::createComponent(const char* name,
                                    size_t count,
 				   VertexComponent::Type type)
 {
@@ -111,8 +111,9 @@ bool VertexFormat::createComponent(const String& name,
 
   if (findComponent(name))
   {
-    logError("Duplicate vertex component name \'%s\' detected; vertex components must have unique names",
-             name.c_str());
+    logError("Duplicate vertex component name \'%s\' detected; vertex "
+             "components must have unique names",
+             name);
     return false;
   }
 
@@ -124,19 +125,20 @@ bool VertexFormat::createComponent(const String& name,
   return true;
 }
 
-bool VertexFormat::createComponents(const String& specification)
+bool VertexFormat::createComponents(const char* specification)
 {
-  String::const_iterator command = specification.begin();
-  while (command != specification.end())
+  const char* c = specification;
+  while (*c != '\0')
   {
-    if (*command < '1' || *command > '4')
+    if (*c < '1' || *c > '4')
     {
       logError("Invalid vertex component element count");
       return false;
     }
 
-    const size_t count = *command - '0';
-    if (++command == specification.end())
+    const size_t count = *c - '0';
+
+    if (*(++c) == '\0')
     {
       logError("Unexpected end of vertex format specification");
       return false;
@@ -144,26 +146,26 @@ bool VertexFormat::createComponents(const String& specification)
 
     VertexComponent::Type type;
 
-    switch (tolower(*command))
+    switch (std::tolower(*c))
     {
       case 'f':
 	type = VertexComponent::FLOAT32;
 	break;
       default:
-	if (std::isgraph(*command))
-	  logError("Invalid vertex component type \'%c\'", *command);
+	if (std::isgraph(*c))
+	  logError("Invalid vertex component type \'%c\'", *c);
 	else
-	  logError("Invalid vertex component type 0x%02x", *command);
+	  logError("Invalid vertex component type 0x%02x", *c);
 	return false;
     }
 
-    if (++command == specification.end())
+    if (*(++c) == '\0')
     {
       logError("Unexpected end of vertex format specification");
       return false;
     }
 
-    if (*command != ':')
+    if (*(c++) != ':')
     {
       logError("Invalid vertex component specification; expected \':\'");
       return false;
@@ -171,14 +173,14 @@ bool VertexFormat::createComponents(const String& specification)
 
     String name;
 
-    while (++command != specification.end() && *command != ' ')
-      name.append(1, *command);
+    while (*c != '\0' && *c != ' ')
+      name.append(1, *c++);
 
-    if (!createComponent(name, count, type))
+    if (!createComponent(name.c_str(), count, type))
       return false;
 
-    while (command != specification.end() && *command == ' ')
-      command++;
+    while (*c != '\0' && *c == ' ')
+      c++;
   }
 
   return true;
@@ -189,7 +191,7 @@ void VertexFormat::destroyComponents()
   components.clear();
 }
 
-const VertexComponent* VertexFormat::findComponent(const String& name) const
+const VertexComponent* VertexFormat::findComponent(const char* name) const
 {
   for (ComponentList::const_iterator i = components.begin();  i != components.end();  i++)
     if (i->getName() == name)

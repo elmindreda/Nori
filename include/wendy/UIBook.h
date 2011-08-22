@@ -42,9 +42,9 @@ class Book;
 class Page : public Widget
 {
 public:
-  Page(Layer& layer, const String& text);
+  Page(Layer& layer, const char* text);
   const String& getText() const;
-  void setText(const String& newText);
+  void setText(const char* newText);
 protected:
   void draw() const;
 private:

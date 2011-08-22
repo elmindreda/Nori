@@ -110,7 +110,7 @@ void Mesh::merge(const Mesh& other)
 
   for (GeometryList::const_iterator i = other.geometries.begin();  i != other.geometries.end();  i++)
   {
-    MeshGeometry* geometry = findGeometry(i->shaderName);
+    MeshGeometry* geometry = findGeometry(i->shaderName.c_str());
     if (!geometry)
     {
       geometries.push_back(MeshGeometry());
@@ -124,7 +124,7 @@ void Mesh::merge(const Mesh& other)
   }
 }
 
-void Mesh::collapseGeometries(const String& shaderName)
+void Mesh::collapseGeometries(const char* shaderName)
 {
   geometries[0].shaderName = shaderName;
 
@@ -138,7 +138,7 @@ void Mesh::collapseGeometries(const String& shaderName)
   geometries.resize(1);
 }
 
-MeshGeometry* Mesh::findGeometry(const String& shaderName)
+MeshGeometry* Mesh::findGeometry(const char* shaderName)
 {
   for (unsigned int i = 0;  i < geometries.size();  i++)
   {

@@ -686,7 +686,7 @@ Stats::Frame::Frame():
 
 ///////////////////////////////////////////////////////////////////////
 
-SharedSampler::SharedSampler(const String& initName,
+SharedSampler::SharedSampler(const char* initName,
                              Sampler::Type initType,
                              int initID):
   name(initName),
@@ -697,7 +697,7 @@ SharedSampler::SharedSampler(const String& initName,
 
 ///////////////////////////////////////////////////////////////////////
 
-SharedUniform::SharedUniform(const String& initName,
+SharedUniform::SharedUniform(const char* initName,
                              Uniform::Type initType,
                              int initID):
   name(initName),
@@ -809,7 +809,7 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
     {
       Attribute& attribute = currentProgram->getAttribute(i);
 
-      const VertexComponent* component = format.findComponent(attribute.getName());
+      const VertexComponent* component = format.findComponent(attribute.getName().c_str());
       if (!component)
       {
         logError("Attribute \'%s\' of program \'%s\' has no corresponding vertex format component",
@@ -887,7 +887,7 @@ void Context::requestClose()
   closeCallback();
 }
 
-void Context::createSharedSampler(const String& name, Sampler::Type type, int ID)
+void Context::createSharedSampler(const char* name, Sampler::Type type, int ID)
 {
   if (ID == INVALID_SHARED_STATE_ID)
   {
@@ -907,7 +907,7 @@ void Context::createSharedSampler(const String& name, Sampler::Type type, int ID
   samplers.push_back(SharedSampler(name, type, ID));
 }
 
-void Context::createSharedUniform(const String& name, Uniform::Type type, int ID)
+void Context::createSharedUniform(const char* name, Uniform::Type type, int ID)
 {
   if (ID == INVALID_SHARED_STATE_ID)
   {
@@ -927,7 +927,7 @@ void Context::createSharedUniform(const String& name, Uniform::Type type, int ID
   uniforms.push_back(SharedUniform(name, type, ID));
 }
 
-int Context::getSharedSamplerID(const String& name, Sampler::Type type) const
+int Context::getSharedSamplerID(const char* name, Sampler::Type type) const
 {
   for (SamplerList::const_iterator s = samplers.begin(); s != samplers.end(); s++)
   {
@@ -938,7 +938,7 @@ int Context::getSharedSamplerID(const String& name, Sampler::Type type) const
   return INVALID_SHARED_STATE_ID;
 }
 
-int Context::getSharedUniformID(const String& name, Uniform::Type type) const
+int Context::getSharedUniformID(const char* name, Uniform::Type type) const
 {
   for (UniformList::const_iterator u = uniforms.begin(); u != uniforms.end(); u++)
   {
@@ -959,9 +959,9 @@ void Context::setCurrentSharedProgramState(SharedProgramState* newState)
   currentState = newState;
 }
 
-const String& Context::getSharedProgramStateDeclaration() const
+const char* Context::getSharedProgramStateDeclaration() const
 {
-  return declaration;
+  return declaration.c_str();
 }
 
 Context::RefreshMode Context::getRefreshMode() const
@@ -1195,9 +1195,9 @@ const String& Context::getTitle() const
   return title;
 }
 
-void Context::setTitle(const String& newTitle)
+void Context::setTitle(const char* newTitle)
 {
-  glfwSetWindowTitle(newTitle.c_str());
+  glfwSetWindowTitle(newTitle);
   title = newTitle;
 }
 

@@ -52,7 +52,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Node::Node(const String& initName):
+Node::Node(const char* initName):
   name(initName),
   parent(NULL),
   graph(NULL),
@@ -141,7 +141,7 @@ const String& Node::getName() const
   return name;
 }
 
-void Node::setName(const String& newName)
+void Node::setName(const char* newName)
 {
   name = newName;
 }
@@ -400,7 +400,7 @@ const Node::List& Graph::getNodes() const
 
 ///////////////////////////////////////////////////////////////////////
 
-LightNode::LightNode(const String& name):
+LightNode::LightNode(const char* name):
   Node(name)
 {
 }
@@ -453,7 +453,7 @@ void LightNode::enqueue(render::Scene& scene, const render::Camera& camera) cons
 
 ///////////////////////////////////////////////////////////////////////
 
-ModelNode::ModelNode(const String& name):
+ModelNode::ModelNode(const char* name):
   Node(name),
   shadowCaster(true)
 {
@@ -490,7 +490,7 @@ void ModelNode::enqueue(render::Scene& scene, const render::Camera& camera) cons
 
 ///////////////////////////////////////////////////////////////////////
 
-CameraNode::CameraNode(const String& name):
+CameraNode::CameraNode(const char* name):
   Node(name)
 {
 }
@@ -517,7 +517,7 @@ void CameraNode::update()
 
 ///////////////////////////////////////////////////////////////////////
 
-SpriteNode::SpriteNode(const String& name):
+SpriteNode::SpriteNode(const char* name):
   Node(name)
 {
   setSpriteSize(vec2(1.f));

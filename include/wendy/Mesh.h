@@ -114,10 +114,10 @@ public:
    *  geometry the specified shader name.
    *  @remarks Duplicate vertices and triangles are not merged.
    */
-  void collapseGeometries(const String& shaderName);
+  void collapseGeometries(const char* shaderName);
   /*! Returns the geometry with the specified shader name.
    */
-  MeshGeometry* findGeometry(const String& shaderName);
+  MeshGeometry* findGeometry(const char* shaderName);
   /*! Generates and stores triangle and vertex normals for this
    *  mesh, according to the specified generation mode.
    */

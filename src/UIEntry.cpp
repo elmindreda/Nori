@@ -39,7 +39,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Entry::Entry(Layer& layer, const String& initText):
+Entry::Entry(Layer& layer, const char* initText):
   Widget(layer),
   text(initText),
   startPosition(0),
@@ -59,7 +59,7 @@ const String& Entry::getText() const
   return text;
 }
 
-void Entry::setText(const String& newText)
+void Entry::setText(const char* newText)
 {
   text = newText;
   invalidate();
@@ -100,7 +100,7 @@ void Entry::draw() const
     textArea.position.x += em / 2.f;
     textArea.size.x -= em;
 
-    drawer.drawText(textArea, text, LEFT_ALIGNED);
+    drawer.drawText(textArea, text.c_str(), LEFT_ALIGNED);
 
     if (isActive() && ((unsigned int) (Timer::getCurrentTime() * 2.f) & 1))
     {

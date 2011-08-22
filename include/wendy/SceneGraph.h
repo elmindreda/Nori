@@ -58,7 +58,7 @@ public:
   typedef std::vector<Node*> List;
   /*! Constructor.
    */
-  explicit Node(const String& name = "");
+  explicit Node(const char* name = "");
   /*! Copy constructor.
    */
   Node(const Node& source);
@@ -88,7 +88,7 @@ public:
    */
   bool hasChildren() const;
   const String& getName() const;
-  void setName(const String& newName);
+  void setName(const char* newName);
   Graph* getGraph() const;
   /*! @return The parent of this node.
    */
@@ -184,7 +184,7 @@ private:
 class LightNode : public Node
 {
 public:
-  explicit LightNode(const String& name = "");
+  explicit LightNode(const char* name = "");
   render::Light* getLight() const;
   void setLight(render::Light* newLight);
 protected:
@@ -201,7 +201,7 @@ private:
 class ModelNode : public Node
 {
 public:
-  explicit ModelNode(const String& name = "");
+  explicit ModelNode(const char* name = "");
   bool isShadowCaster() const;
   void setCastsShadows(bool enabled);
   render::Model* getModel() const;
@@ -220,7 +220,7 @@ private:
 class CameraNode : public Node
 {
 public:
-  explicit CameraNode(const String& name = "");
+  explicit CameraNode(const char* name = "");
   render::Camera* getCamera() const;
   void setCamera(render::Camera* newCamera);
 protected:
@@ -236,7 +236,7 @@ private:
 class SpriteNode : public Node
 {
 public:
-  explicit SpriteNode(const String& name = "");
+  explicit SpriteNode(const char* name = "");
   render::Material* getMaterial() const;
   void setMaterial(render::Material* newMaterial);
   const vec2& getSpriteSize() const;

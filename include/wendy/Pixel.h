@@ -70,7 +70,7 @@ public:
    *  @param specification The specification of the desired format.
    *  @remarks This will throw if the specification is syntactically malformed.
    */
-  explicit PixelFormat(const String& specification);
+  explicit PixelFormat(const char* specification);
   /*! @return @c true if the pixel formats are equal, @c false otherwise.
    */
   bool operator == (const PixelFormat& other) const;

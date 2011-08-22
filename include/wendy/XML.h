@@ -52,10 +52,10 @@ protected:
   void readAttributes(T& value);
   template <typename T>
   void readAttributes(T& value, const T& defaultValue);
-  bool readBoolean(const String& name, bool defaultValue = false);
-  float readFloat(const String& name, float defaultValue = 0.f);
-  int readInteger(const String& name, int defaultValue = 0);
-  String readString(const String& name, const String& defaultValue = "");
+  bool readBoolean(const char* name, bool defaultValue = false);
+  float readFloat(const char* name, float defaultValue = 0.f);
+  int readInteger(const char* name, int defaultValue = 0);
+  String readString(const char* name, const char* defaultValue = "");
 private:
   Reader(const Reader& source);
   const char* findAttributeValue(const char* name);
@@ -83,7 +83,7 @@ protected:
   void beginCDATA();
   void endCDATA();
   template <typename T>
-  void addAttribute(const String& name, const T& value);
+  void addAttribute(const char* name, const T& value);
   template <typename T>
   void addAttributes(const T& value);
   void setStream(std::ostream* newStream);

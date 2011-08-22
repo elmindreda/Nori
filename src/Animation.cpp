@@ -107,7 +107,7 @@ void KeyFrame3::setDirection(const vec3& newDirection)
 
 ///////////////////////////////////////////////////////////////////////
 
-AnimTrack3::AnimTrack3(const String& initName):
+AnimTrack3::AnimTrack3(const char* initName):
   name(initName)
 {
 }
@@ -302,7 +302,7 @@ Anim3& Anim3::operator = (const Anim3& source)
   return *this;
 }
 
-AnimTrack3& Anim3::createTrack(const String& name)
+AnimTrack3& Anim3::createTrack(const char* name)
 {
   tracks.push_back(AnimTrack3(name));
   return tracks.back();
@@ -325,7 +325,7 @@ void Anim3::destroyTracks()
   tracks.clear();
 }
 
-AnimTrack3* Anim3::findTrack(const String& name)
+AnimTrack3* Anim3::findTrack(const char* name)
 {
   for (TrackList::iterator t = tracks.begin();  t != tracks.end();  t++)
   {
@@ -336,7 +336,7 @@ AnimTrack3* Anim3::findTrack(const String& name)
   return NULL;
 }
 
-const AnimTrack3* Anim3::findTrack(const String& name) const
+const AnimTrack3* Anim3::findTrack(const char* name) const
 {
   for (TrackList::const_iterator t = tracks.begin();  t != tracks.end();  t++)
   {
@@ -434,7 +434,7 @@ bool Anim3Reader::onBeginElement(const String& name)
         return false;
       }
 
-      currentTrack = &(animation->createTrack(name));
+      currentTrack = &(animation->createTrack(name.c_str()));
       return true;
     }
 

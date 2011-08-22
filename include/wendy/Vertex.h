@@ -54,7 +54,7 @@ public:
   };
   /*! Constructor.
    */
-  VertexComponent(const String& name, size_t count, Type type);
+  VertexComponent(const char* name, size_t count, Type type);
   /*! Equality operator.
    */
   bool operator == (const VertexComponent& other) const;
@@ -103,13 +103,13 @@ public:
    *  @param specification The specification of the desired format.
    *  @remarks This will throw if the specification is syntactically malformed.
    */
-  explicit VertexFormat(const String& specification);
-  bool createComponent(const String& name,
+  explicit VertexFormat(const char* specification);
+  bool createComponent(const char* name,
                        size_t count,
 		       VertexComponent::Type type);
-  bool createComponents(const String& specification);
+  bool createComponents(const char* specification);
   void destroyComponents();
-  const VertexComponent* findComponent(const String& name) const;
+  const VertexComponent* findComponent(const char* name) const;
   const VertexComponent& operator [] (size_t index) const;
   bool operator == (const VertexFormat& other) const;
   bool operator != (const VertexFormat& other) const;

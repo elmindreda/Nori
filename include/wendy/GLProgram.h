@@ -53,7 +53,7 @@ class Shader
 {
 public:
   Shader();
-  Shader(const String& text, const Path& path = Path());
+  Shader(const char* text, const Path& path = Path());
   String text;
   Path path;
 };

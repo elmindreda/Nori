@@ -66,7 +66,7 @@ class AnimTrack3
 {
   friend class KeyFrame3;
 public:
-  AnimTrack3(const String& name);
+  AnimTrack3(const char* name);
   AnimTrack3(const AnimTrack3& source);
   void createKeyFrame(Time moment, const Transform3& transform, const vec3& direction);
   void destroyKeyFrame(KeyFrame3& frame);
@@ -97,11 +97,11 @@ public:
   Anim3(const ResourceInfo& info);
   Anim3(const Anim3& source);
   Anim3& operator = (const Anim3& source);
-  AnimTrack3& createTrack(const String& name);
+  AnimTrack3& createTrack(const char* name);
   void destroyTrack(AnimTrack3& track);
   void destroyTracks();
-  AnimTrack3* findTrack(const String& name);
-  const AnimTrack3* findTrack(const String& name) const;
+  AnimTrack3* findTrack(const char* name);
+  const AnimTrack3* findTrack(const char* name) const;
   size_t getTrackCount() const;
   AnimTrack3& getTrack(size_t index);
   const AnimTrack3& getTrack(size_t index) const;

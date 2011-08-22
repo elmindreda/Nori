@@ -41,7 +41,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Label::Label(Layer& layer, const String& initText):
+Label::Label(Layer& layer, const char* initText):
   Widget(layer),
   text(initText),
   textAlignment(LEFT_ALIGNED)
@@ -65,7 +65,7 @@ const String& Label::getText() const
   return text;
 }
 
-void Label::setText(const String& newText)
+void Label::setText(const char* newText)
 {
   text = newText;
   invalidate();
@@ -108,7 +108,7 @@ void Label::draw() const
   Drawer& drawer = getLayer().getDrawer();
   if (drawer.pushClipArea(area))
   {
-    drawer.drawText(area, text, textAlignment);
+    drawer.drawText(area, text.c_str(), textAlignment);
 
     Widget::draw();
 

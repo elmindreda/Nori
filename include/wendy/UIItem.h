@@ -46,14 +46,14 @@ class Item
   friend class List;
   friend class Menu;
 public:
-  Item(Layer& layer, const String& value = "", ItemID ID = 0);
+  Item(Layer& layer, const char* value = "", ItemID ID = 0);
   virtual ~Item();
   virtual bool operator < (const Item& other) const;
   virtual float getWidth() const;
   virtual float getHeight() const;
   virtual ItemID getID() const;
   virtual const String& asString() const;
-  virtual void setStringValue(const String& newValue);
+  virtual void setStringValue(const char* newValue);
 protected:
   virtual void draw(const Rect& area, WidgetState state) const;
   Layer& layer;
@@ -91,7 +91,7 @@ class TextureItem : public Item
 public:
   TextureItem(Layer& layer,
               GL::Texture& texture,
-              const String& name = "",
+              const char* name = "",
 	      ItemID ID = 0);
   float getWidth() const;
   float getHeight() const;

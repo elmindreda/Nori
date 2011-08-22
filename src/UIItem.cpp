@@ -39,7 +39,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Item::Item(Layer& initLayer, const String& initValue, ItemID initID):
+Item::Item(Layer& initLayer, const char* initValue, ItemID initID):
   layer(initLayer),
   value(initValue),
   ID(initID)
@@ -86,7 +86,7 @@ const String& Item::asString() const
   return value;
 }
 
-void Item::setStringValue(const String& newValue)
+void Item::setStringValue(const char* newValue)
 {
   value = newValue;
   layer.invalidate();
@@ -109,7 +109,7 @@ void Item::draw(const Rect& area, WidgetState state) const
       drawer.fillRectangle(area, vec4(color, 1.f));
     }
 
-    drawer.drawText(textArea, value, LEFT_ALIGNED, state);
+    drawer.drawText(textArea, value.c_str(), LEFT_ALIGNED, state);
     drawer.popClipArea();
   }
 }
@@ -154,7 +154,7 @@ void SeparatorItem::draw(const Rect& area, WidgetState state) const
 
 TextureItem::TextureItem(Layer& layer,
                          GL::Texture& initTexture,
-                         const String& name,
+                         const char* name,
 			 ItemID ID):
   Item(layer, name, ID),
   texture(&initTexture)
@@ -202,7 +202,7 @@ void TextureItem::draw(const Rect& area, WidgetState state) const
     textArea.position.x += em * 3.5f;
     textArea.size.x -= em;
 
-    drawer.drawText(textArea, asString(), LEFT_ALIGNED, state);
+    drawer.drawText(textArea, asString().c_str(), LEFT_ALIGNED, state);
 
     drawer.popClipArea();
   }

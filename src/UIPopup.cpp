@@ -62,7 +62,7 @@ void Popup::addItem(Item& item)
   menu->addItem(item);
 }
 
-void Popup::addItem(const String& value, ItemID ID)
+void Popup::addItem(const char* value, ItemID ID)
 {
   Item* item = new Item(getLayer(), value, ID);
   menu->addItem(*item);
@@ -140,7 +140,7 @@ void Popup::draw() const
       textArea.position.x += em / 2.f;
       textArea.size.x -= em;
 
-      drawer.drawText(textArea, item->asString(), LEFT_ALIGNED);
+      drawer.drawText(textArea, item->asString().c_str(), LEFT_ALIGNED);
     }
 
     Widget::draw();

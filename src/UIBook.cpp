@@ -41,7 +41,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Page::Page(Layer& layer, const String& initText):
+Page::Page(Layer& layer, const char* initText):
   Widget(layer),
   text(initText)
 {
@@ -52,7 +52,7 @@ const String& Page::getText() const
   return text;
 }
 
-void Page::setText(const String& newText)
+void Page::setText(const char* newText)
 {
   text = newText;
   invalidate();
@@ -140,7 +140,7 @@ void Book::draw() const
         else
           state = STATE_DISABLED;
 
-        drawer.drawButton(buttonArea, state, pages[i]->getText());
+        drawer.drawButton(buttonArea, state, pages[i]->getText().c_str());
       }
     }
 

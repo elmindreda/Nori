@@ -477,14 +477,11 @@ void Drawer::blitTexture(const Rect& area, GL::Texture& texture)
 }
 
 void Drawer::drawText(const Rect& area,
-                      const String& text,
+                      const char* text,
                       const Alignment& alignment,
                       const vec3& color)
 {
-  if (text.empty())
-    return;
-
-  Rect metrics = currentFont->getTextMetrics(text.c_str());
+  Rect metrics = currentFont->getTextMetrics(text);
 
   vec2 penPosition;
 
@@ -522,11 +519,11 @@ void Drawer::drawText(const Rect& area,
       return;
   }
 
-  currentFont->drawText(penPosition, vec4(color, 1.f), text.c_str());
+  currentFont->drawText(penPosition, vec4(color, 1.f), text);
 }
 
 void Drawer::drawText(const Rect& area,
-                      const String& text,
+                      const char* text,
                       const Alignment& alignment,
                       WidgetState state)
 {
@@ -548,7 +545,7 @@ void Drawer::drawHandle(const Rect& area, WidgetState state)
   drawElement(area, theme->handleElements[state]);
 }
 
-void Drawer::drawButton(const Rect& area, WidgetState state, const String& text)
+void Drawer::drawButton(const Rect& area, WidgetState state, const char* text)
 {
   drawElement(area, theme->buttonElements[state]);
   drawText(area, text, Alignment(), state);
