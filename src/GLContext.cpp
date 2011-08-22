@@ -52,6 +52,17 @@ namespace wendy
 namespace
 {
 
+void debugCallback(GLenum source,
+                   GLenum type,
+                   GLuint id,
+                   GLenum severity,
+                   GLsizei length,
+                   const GLchar* message,
+                   GLvoid* userParam)
+{
+  logWarning("%u %u %u %u %s", source, type, id, severity, message);
+}
+
 GLint getIntegerParameter(GLenum parameter)
 {
   GLint value;
@@ -1299,6 +1310,10 @@ bool Context::init(const ContextMode& initMode)
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 2);
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 1);
 
+#if WENDY_DEBUG
+    glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+#endif
+
     if (!glfwOpenWindow(initMode.width, initMode.height,
                         colorBits / 3, colorBits / 3, colorBits / 3, 0,
                         initMode.depthBits, initMode.stencilBits, mode))
@@ -1338,6 +1353,14 @@ bool Context::init(const ContextMode& initMode)
       logError("Framebuffer objects (EXT_framebuffer_object) are required but not supported");
       return false;
     }
+
+#if WENDY_DEBUG
+    if (GLEW_ARB_debug_output)
+    {
+      glDebugMessageCallbackARB(debugCallback, NULL);
+      glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
+    }
+#endif
   }
 
   // All extensions are there; figure out their limits
