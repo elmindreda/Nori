@@ -322,6 +322,22 @@ void log(const char* format, ...)
   std::free(message);
 }
 
+void panic(const char* format, ...)
+{
+  va_list vl;
+  char* message;
+  int result;
+
+  va_start(vl, format);
+  result = vasprintf(&message, format, vl);
+  va_end(vl);
+
+  if (result > 0)
+    std::cerr << message << std::endl;
+
+  std::exit(EXIT_FAILURE);
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 Exception::Exception(const char* initMessage):

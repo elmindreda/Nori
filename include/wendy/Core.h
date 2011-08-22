@@ -179,6 +179,14 @@ void logWarning(const char* format, ...);
  */
 void log(const char* format, ...);
 
+/*! Displays the specified message and terminates the program.
+ */
+#if _MSC_VER
+__declspec(noreturn) void panic(const char* format, ...);
+#else
+void panic(const char* format, ...) __attribute__((__noreturn__));
+#endif /*_MSC_VER*/
+
 ///////////////////////////////////////////////////////////////////////
 
 /*! Base class for exceptions.
