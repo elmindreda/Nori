@@ -195,6 +195,12 @@ bool ThemeReader::onBeginElement(const String& name)
       return true;
     }
 
+    if (name == "back")
+    {
+      theme->backColors[currentState] = vec3Cast(readString("color"));
+      return true;
+    }
+
     if (name == "button")
     {
       theme->buttonElements[currentState] = rectCast(readString("area"));

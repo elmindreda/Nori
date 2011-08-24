@@ -121,6 +121,7 @@ public:
   Rect frameElements[4];
   Rect wellElements[4];
   vec3 textColors[4];
+  vec3 backColors[4];
   Ref<GL::Texture> texture;
   Ref<render::Font> font;
 };

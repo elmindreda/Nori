@@ -2,6 +2,7 @@
 <theme version="1" font="wendy/UIDefault.font" texture="wendy/UIDefault.texture" >
   <normal>
     <text color="1 1 1" />
+    <back color="0.3 0.3 0.3" />
     <button area="0 32 32 32" />
     <handle area="0 32 32 32" />
     <frame area="0 32 32 32" />
@@ -9,6 +10,7 @@
   </normal>
   <disabled>
     <text color="0.5 0.4 0.4" />
+    <back color="0.12 0.1 0.1" />
     <button area="0 0 32 32" />
     <handle area="0 0 32 32" />
     <frame area="0 0 32 32" />
@@ -16,6 +18,7 @@
   </disabled>
   <active>
     <text color="1 1 1" />
+    <back color="0.5 0.5 0.5" />
     <button area="32 32 32 32" />
     <handle area="32 32 32 32" />
     <frame area="32 32 32 32" />
@@ -23,6 +26,7 @@
   </active>
   <selected>
     <text color="1 1 1" />
+    <back color="0.5 0.5 0.5" />
     <button area="32 0 32 32" />
     <handle area="32 0 32 32" />
     <frame area="32 0 32 32" />

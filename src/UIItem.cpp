@@ -105,7 +105,7 @@ void Item::draw(const Rect& area, WidgetState state) const
 
     if (state == STATE_SELECTED)
     {
-      const vec3 color = drawer.getTheme().textColors[STATE_SELECTED];
+      const vec3 color = drawer.getTheme().backColors[STATE_SELECTED];
       drawer.fillRectangle(area, vec4(color, 1.f));
     }
 
