@@ -133,7 +133,7 @@ float Camera::getNormalizedDepth(const vec3& point) const
   return length(local) / farZ;
 }
 
-Ray3 Camera::getCameraSpaceScreenRay(const vec2& position) const
+Ray3 Camera::getViewSpacePickingRay(const vec2& position) const
 {
   Ray3 result;
 

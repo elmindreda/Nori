@@ -114,12 +114,11 @@ public:
    *  depth range of this camera.
    */
   float getNormalizedDepth(const vec3& point) const;
-  /*! @param[in] position The position, in normalized screen coordinates, for
-   *  which to construct the ray.
-   *  @return A camera space ray corresponding to the specified screen
-   *  position.
+  /*! @param[in] position The position, in normalized screen coordinates, from
+   *  which to construct ray suitable for picking.
+   *  @return A view space ray corresponding to the specified screen position.
    */
-  Ray3 getCameraSpaceScreenRay(const vec2& position) const;
+  Ray3 getViewSpacePickingRay(const vec2& position) const;
 private:
   float FOV;
   float aspectRatio;
