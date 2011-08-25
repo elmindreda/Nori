@@ -28,6 +28,7 @@
 
 #include <wendy/Core.h>
 #include <wendy/Transform.h>
+#include <wendy/Ray.h>
 #include <wendy/Plane.h>
 #include <wendy/Frustum.h>
 
@@ -113,6 +114,12 @@ public:
    *  depth range of this camera.
    */
   float getNormalizedDepth(const vec3& point) const;
+  /*! @param[in] position The position, in normalized screen coordinates, for
+   *  which to construct the ray.
+   *  @return A camera space ray corresponding to the specified screen
+   *  position.
+   */
+  Ray3 getCameraSpaceScreenRay(const vec2& position) const;
 private:
   float FOV;
   float aspectRatio;

@@ -133,6 +133,21 @@ float Camera::getNormalizedDepth(const vec3& point) const
   return length(local) / farZ;
 }
 
+Ray3 Camera::getCameraSpaceScreenRay(const vec2& position) const
+{
+  Ray3 result;
+
+  // Figure out the camera space ray direction
+  result.direction = normalize(vec3((position.x - 0.5f) * aspectRatio,
+                                    position.y - 0.5f,
+                                    -0.5f / tan(radians(FOV) / 2.f)));
+
+  // Shift the ray origin along the ray direction to the near plane
+  result.origin += result.direction * (nearZ / -result.direction.z);
+
+  return result;
+}
+
 ///////////////////////////////////////////////////////////////////////
 
   } /*namespace render*/
