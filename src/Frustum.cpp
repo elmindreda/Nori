@@ -132,8 +132,7 @@ void Frustum::setPerspective(float FOV, float aspectRatio, float nearZ, float fa
   assert(farZ > 0.f);
   assert(farZ > nearZ);
 
-  const float radians = FOV * float(PI) / 180.f;
-  const float distance = 0.5f / tan(radians / 2.f);
+  const float distance = 0.5f / tan(radians(FOV) / 2.f);
 
   vec3 points[5];
   points[0] = vec3(0.f);
