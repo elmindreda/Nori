@@ -232,6 +232,13 @@ public:
   /*! Destructor.
    */
   virtual ~Framebuffer();
+  /*! @return @c true if this framebuffer uses sRGB encoding, or @c false
+   *  otherwise.
+   */
+  bool isSRGB() const;
+  /*! Sets whether this framebuffer uses sRGB encoding.
+   */
+  void setSRGB(bool enabled);
   /*! @return The width, in pixels, of this framebuffer.
    */
   virtual unsigned int getWidth() const = 0;
@@ -255,6 +262,7 @@ private:
   Framebuffer(const Framebuffer& source);
   Framebuffer& operator = (const Framebuffer& source);
   Context& context;
+  bool sRGB;
 };
 
 ///////////////////////////////////////////////////////////////////////

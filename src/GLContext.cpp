@@ -372,6 +372,48 @@ Framebuffer::~Framebuffer()
 {
 }
 
+bool Framebuffer::isSRGB() const
+{
+  return sRGB;
+}
+
+void Framebuffer::setSRGB(bool enabled)
+{
+  if (sRGB == enabled)
+    return;
+
+  if (!GLEW_EXT_framebuffer_sRGB)
+  {
+    logError("Cannot enable sRGB framebuffer encoding: "
+             "GL_EXT_framebuffer_sRGB is missing");
+    return;
+  }
+
+  Framebuffer& previous = context.getCurrentFramebuffer();
+  apply();
+
+  if (enabled)
+  {
+    GLboolean capable;
+    glGetBooleanv(GL_FRAMEBUFFER_SRGB_CAPABLE_EXT, &capable);
+
+    if (!capable)
+      logError("Framebuffer is not sRGB capable");
+
+    glEnable(GL_FRAMEBUFFER_SRGB_EXT);
+    checkGL("Failed to enable framebuffer sRGB encoding");
+  }
+  else
+  {
+    glDisable(GL_FRAMEBUFFER_SRGB_EXT);
+    checkGL("Failed to disable framebuffer sRGB encoding");
+  }
+
+  sRGB = enabled;
+
+  previous.apply();
+}
+
 float Framebuffer::getAspectRatio() const
 {
   return getWidth() / (float) getHeight();
@@ -383,7 +425,8 @@ Context& Framebuffer::getContext() const
 }
 
 Framebuffer::Framebuffer(Context& initContext):
-  context(initContext)
+  context(initContext),
+  sRGB(false)
 {
 }
 

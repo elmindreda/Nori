@@ -82,6 +82,8 @@ Additionally, the following OpenGL extensions are used where available:
 
   GL_ARB_texture_float
   GL_ARB_half_float_pixel                                      
+  GL_ARB_debug_output
+  GL_EXT_framebuffer_sRGB
 
 
 4. Hacking Wendy
