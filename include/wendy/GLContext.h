@@ -531,6 +531,9 @@ public:
   /*! @return GPU declarations of all shared samplers and uniforms.
    */
   const char* getSharedProgramStateDeclaration() const;
+  /*! @return The window mode of this context.
+   */
+  WindowMode getWindowMode() const;
   /*! @return The current refresh mode.
    */
   RefreshMode getRefreshMode() const;

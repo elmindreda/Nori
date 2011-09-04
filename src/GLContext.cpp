@@ -1023,6 +1023,11 @@ Context::RefreshMode Context::getRefreshMode() const
   return refreshMode;
 }
 
+WindowMode Context::getWindowMode() const
+{
+  return defaultFramebuffer->mode.mode;
+}
+
 void Context::setRefreshMode(RefreshMode newMode)
 {
   refreshMode = newMode;
