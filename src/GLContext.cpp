@@ -52,6 +52,63 @@ namespace wendy
 namespace
 {
 
+const char* getMessageSourceName(GLenum source)
+{
+  switch (source)
+  {
+    case GL_DEBUG_SOURCE_API_ARB:
+      return "API";
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
+      return "window system";
+    case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
+      return "shader compiler";
+    case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
+      return "third party";
+    case GL_DEBUG_SOURCE_APPLICATION_ARB:
+      return "application";
+    case GL_DEBUG_SOURCE_OTHER_ARB:
+      return "other";
+  }
+
+  return "UNKNOWN";
+}
+
+const char* getMessageTypeName(GLenum type)
+{
+  switch (type)
+  {
+    case GL_DEBUG_TYPE_ERROR_ARB:
+      return "error";
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
+      return "deprecated behavior";
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
+      return "undefined behavior";
+    case GL_DEBUG_TYPE_PORTABILITY_ARB:
+      return "portability issue";
+    case GL_DEBUG_TYPE_PERFORMANCE_ARB:
+      return "performance issue";
+    case GL_DEBUG_TYPE_OTHER_ARB:
+      return "issue";
+  }
+
+  return "UNKNOWN";
+}
+
+const char* getMessageSeverityName(GLenum severity)
+{
+  switch (severity)
+  {
+    case GL_DEBUG_SEVERITY_HIGH_ARB:
+      return "high";
+    case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+      return "medium";
+    case GL_DEBUG_SEVERITY_LOW_ARB:
+      return "low";
+  }
+
+  return "UNKNOWN";
+}
+
 void debugCallback(GLenum source,
                    GLenum type,
                    GLuint id,
@@ -60,7 +117,24 @@ void debugCallback(GLenum source,
                    const GLchar* message,
                    GLvoid* userParam)
 {
-  logWarning("%u %u %u %u %s", source, type, id, severity, message);
+  if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+  {
+    logError("OpenGL reported %s severity %s %s %u: %s",
+             getMessageSeverityName(severity),
+             getMessageSourceName(source),
+             getMessageTypeName(type),
+             id,
+             message);
+  }
+  else
+  {
+    logWarning("OpenGL reported %s severity %s %s %u: %s",
+               getMessageSeverityName(severity),
+               getMessageSourceName(source),
+               getMessageTypeName(type),
+               id,
+               message);
+  }
 }
 
 GLint getIntegerParameter(GLenum parameter)
