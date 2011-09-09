@@ -33,8 +33,9 @@
 
 /*! @defgroup squirrel Squirrel bindings
  *
- *  These classes provide an easy way to bind C++ to Squirrel.  They are
- *  based on Sqrat, but smaller and without some of its features.
+ *  These classes provide an easy way to bind C++ to Squirrel.  The design is
+ *  based on Sqrat and borrows many clever tricks from it, but it is smaller
+ *  and lacks some of the features of Sqrat.
  */
 
 ///////////////////////////////////////////////////////////////////////
