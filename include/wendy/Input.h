@@ -275,16 +275,18 @@ private:
 
 /*! @ingroup input
  */
-class SpectatorCamera : public Target
+class SpectatorController
 {
 public:
-  SpectatorCamera();
+  SpectatorController();
   void update(Time deltaTime);
-  void onKeyPressed(Key key, bool pressed);
-  void onButtonClicked(Button button, bool clicked);
-  void onCursorMoved(const ivec2& position);
-  void onFocusChanged(bool activated);
+  void release();
+  void inputKeyPress(Key key, bool pressed);
+  void inputButtonClick(Button button, bool clicked);
+  void inputCursorOffset(const ivec2& offset);
   const Transform3& getTransform() const;
+  void setPosition(const vec3& newPosition);
+  void setRotation(float newAngleX, float newAngleY);
   float getSpeed() const;
   void setSpeed(float newSpeed);
 private:
@@ -297,9 +299,7 @@ private:
     FORWARD,
     BACK,
   };
-  void updateTransform();
   Transform3 transform;
-  ivec2 lastPosition;
   float angleX;
   float angleY;
   float speed;

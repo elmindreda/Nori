@@ -37,8 +37,10 @@
 
 #include <map>
 #include <algorithm>
+#include <cstring>
 
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/norm.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -535,18 +537,16 @@ void MayaCamera::updateTransform()
 
 ///////////////////////////////////////////////////////////////////////
 
-SpectatorCamera::SpectatorCamera():
-  lastPosition(0, 0),
+SpectatorController::SpectatorController():
   speed(3.f),
   angleX(0.f),
   angleY(0.f),
   turbo(false)
 {
-  for (size_t i = 0;  i < sizeof(directions) / sizeof(bool);  i++)
-    directions[i] = false;
+  std::memset(directions, 0, sizeof(directions));
 }
 
-void SpectatorCamera::update(Time deltaTime)
+void SpectatorController::update(Time deltaTime)
 {
   float multiplier;
 
@@ -570,11 +570,19 @@ void SpectatorCamera::update(Time deltaTime)
   if (directions[RIGHT])
     direction.x += 1.f;
 
-  transform.rotateVector(direction);
-  transform.position += direction * speed * multiplier * (float) deltaTime;
+  if (length2(direction))
+    direction = normalize(transform.rotation * direction);
+
+  transform.position += direction * speed * multiplier * float(deltaTime);
 }
 
-void SpectatorCamera::onKeyPressed(Key key, bool pressed)
+void SpectatorController::release()
+{
+  std::memset(directions, 0, sizeof(directions));
+  turbo = false;
+}
+
+void SpectatorController::inputKeyPress(Key key, bool pressed)
 {
   switch (key)
   {
@@ -640,7 +648,7 @@ void SpectatorCamera::onKeyPressed(Key key, bool pressed)
   }
 }
 
-void SpectatorCamera::onButtonClicked(Button button, bool clicked)
+void SpectatorController::inputButtonClick(Button button, bool clicked)
 {
   if (button == BUTTON_RIGHT)
   {
@@ -651,44 +659,40 @@ void SpectatorCamera::onButtonClicked(Button button, bool clicked)
   }
 }
 
-void SpectatorCamera::onCursorMoved(const ivec2& position)
+void SpectatorController::inputCursorOffset(const ivec2& offset)
 {
-  ivec2 offset = position - lastPosition;
+  const float scale = 1.f / 250.f;
+  const float limit = float(PI) / 2.f - 0.01f;
 
-  angleY -= offset.x / 250.f;
-  angleX = max(min(angleX - offset.y / 250.f, float(PI) / 2.f), -float(PI) / 2.f);
-  updateTransform();
-
-  lastPosition = position;
+  setRotation(clamp(angleX - offset.y * scale, -limit, limit),
+              angleY - offset.x * scale);
 }
 
-void SpectatorCamera::onFocusChanged(bool activated)
-{
-  Context* context = Context::getSingleton();
-
-  if (activated)
-    context->captureCursor();
-  else
-    context->releaseCursor();
-}
-
-const Transform3& SpectatorCamera::getTransform() const
+const Transform3& SpectatorController::getTransform() const
 {
   return transform;
 }
 
-float SpectatorCamera::getSpeed() const
+float SpectatorController::getSpeed() const
 {
   return speed;
 }
 
-void SpectatorCamera::setSpeed(float newSpeed)
+void SpectatorController::setSpeed(float newSpeed)
 {
   speed = newSpeed;
 }
 
-void SpectatorCamera::updateTransform()
+void SpectatorController::setPosition(const vec3& newPosition)
 {
+  transform.position = newPosition;
+}
+
+void SpectatorController::setRotation(float newAngleX, float newAngleY)
+{
+  angleX = newAngleX;
+  angleY = newAngleY;
+
   const quat axisX = angleAxis(degrees(angleX), vec3(1.f, 0.f, 0.f));
   const quat axisY = angleAxis(degrees(angleY), vec3(0.f, 1.f, 0.f));
   transform.rotation = axisY * axisX;

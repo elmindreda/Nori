@@ -5,7 +5,7 @@
 
 using namespace wendy;
 
-class Demo : public Trackable, public input::Hook
+class Demo : public Trackable, public input::Target
 {
 public:
   Demo(void);
@@ -13,10 +13,11 @@ public:
   bool init(void);
   void run(void);
 private:
-  bool onKeyPressed(input::Key key, bool pressed);
-  bool onButtonClicked(input::Button button, bool clicked);
+  void onKeyPressed(input::Key key, bool pressed);
+  void onButtonClicked(input::Button button, bool clicked);
+  void onCursorMoved(const ivec2& position);
   ResourceIndex index;
-  input::SpectatorCamera controller;
+  input::SpectatorController controller;
   Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
   Ptr<deferred::Renderer> renderer;
@@ -25,13 +26,12 @@ private:
   scene::LightNode* lightNode;
   Timer timer;
   Time currentTime;
+  ivec2 lastPosition;
   bool quitting;
-  bool debugging;
 };
 
 Demo::Demo(void):
   quitting(false),
-  debugging(false),
   currentTime(0.0),
   cameraNode(NULL)
 {
@@ -103,8 +103,14 @@ bool Demo::init(void)
 
   timer.start();
 
-  input::Context::getSingleton()->setHook(this);
-  input::Context::getSingleton()->setTarget(&controller);
+  {
+    input::Context* context = input::Context::getSingleton();
+
+    context->setTarget(this);
+    context->captureCursor();
+
+    lastPosition =  context->getCursorPosition();
+  }
 
   return true;
 }
@@ -140,36 +146,38 @@ void Demo::run(void)
   while (!quitting && context.update());
 }
 
-bool Demo::onKeyPressed(input::Key key, bool pressed)
+void Demo::onKeyPressed(input::Key key, bool pressed)
 {
-  if (!pressed)
-    return false;
+  controller.inputKeyPress(key, pressed);
 
-  switch (key)
+  if (pressed)
   {
-    case input::KEY_TAB:
-      debugging = !debugging;
-      return true;
-
-    case input::KEY_ESCAPE:
-      quitting = true;
-      return true;
+    switch (key)
+    {
+      case input::KEY_ESCAPE:
+        quitting = true;
+        return;
+    }
   }
-
-  return false;
 }
 
-bool Demo::onButtonClicked(input::Button button, bool clicked)
+void Demo::onButtonClicked(input::Button button, bool clicked)
 {
-  if (!clicked)
-    return false;
+  controller.inputButtonClick(button, clicked);
 
-  if (button == input::BUTTON_LEFT)
+  if (clicked)
   {
-    // TODO: Write screenshot to disk
+    if (button == input::BUTTON_LEFT)
+    {
+      // TODO: Write screenshot to disk
+    }
   }
+}
 
-  return false;
+void Demo::onCursorMoved(const ivec2& position)
+{
+  controller.inputCursorOffset(position - lastPosition);
+  lastPosition = position;
 }
 
 int main()
