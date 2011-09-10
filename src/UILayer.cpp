@@ -150,6 +150,11 @@ void Layer::invalidate()
   context.getContext().refresh();
 }
 
+bool Layer::hasCapturedCursor() const
+{
+  return captureWidget != NULL;
+}
+
 Drawer& Layer::getDrawer() const
 {
   return drawer;

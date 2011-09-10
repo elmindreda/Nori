@@ -80,6 +80,7 @@ public:
   void releaseCursor();
   void cancelDragging();
   void invalidate();
+  bool hasCapturedCursor() const;
   Drawer& getDrawer() const;
   input::Context& getInputContext() const;
   /*! @return The root widgets of this layer.
