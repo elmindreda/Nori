@@ -169,6 +169,12 @@ public:
    */
   const WidgetList& getChildren() const;
   WidgetState getState() const;
+  /*! @return The width of this widget.
+   */
+  float getWidth() const;
+  /*! @return The height of this widget.
+   */
+  float getHeight() const;
   /*! @return The area of this widget, in parent coordinates.
    */
   const Rect& getArea() const;

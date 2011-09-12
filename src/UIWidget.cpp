@@ -283,6 +283,16 @@ WidgetState Widget::getState() const
     return STATE_DISABLED;
 }
 
+float Widget::getWidth() const
+{
+  return area.size.x;
+}
+
+float Widget::getHeight() const
+{
+  return area.size.y;
+}
+
 const Rect& Widget::getArea() const
 {
   return area;
