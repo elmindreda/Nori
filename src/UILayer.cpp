@@ -122,8 +122,8 @@ void Layer::releaseCursor()
 {
   if (captureWidget)
   {
-    context.releaseCursor();
     captureWidget = NULL;
+    context.releaseCursor();
     updateHoveredWidget();
   }
 }
