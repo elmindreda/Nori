@@ -132,6 +132,11 @@ Time Timer::getDeltaTime()
     return 0.0;
 }
 
+Time Timer::getDeltaQueryTime() const
+{
+  return prevTime;
+}
+
 Time Timer::getCurrentTime()
 {
   return glfwGetTime();
