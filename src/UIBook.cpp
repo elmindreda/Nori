@@ -58,27 +58,6 @@ void Page::setText(const char* newText)
   invalidate();
 }
 
-void Page::draw() const
-{
-  const Rect& area = getGlobalArea();
-
-  Drawer& drawer = getLayer().getDrawer();
-  if (drawer.pushClipArea(area))
-  {
-    WidgetState state;
-    if (isEnabled())
-      state = STATE_NORMAL;
-    else
-      state = STATE_DISABLED;
-
-    drawer.drawFrame(area, state);
-
-    Widget::draw();
-
-    drawer.popClipArea();
-  }
-}
-
 ///////////////////////////////////////////////////////////////////////
 
 Book::Book(Layer& layer):
@@ -117,18 +96,18 @@ void Book::draw() const
 
     if (!pages.empty())
     {
-      const float em = drawer.getCurrentEM();
+      const Rect& area = getArea();
 
-      const vec2& size = getArea().size;
+      const vec2 buttonSize(area.size.x / pages.size(),
+                            drawer.getCurrentEM() * 2.f);
 
-      const float width = size.x / pages.size();
-      const float height = em * 2.f;
+      Rect buttonArea(area.position.x,
+                      area.position.y + area.size.y - buttonSize.y,
+                      buttonSize.x,
+                      buttonSize.y);
 
       for (unsigned int i = 0;  i < pages.size();  i++)
       {
-        Rect buttonArea;
-        buttonArea.set(width * i, size.y - height, width, height);
-
         WidgetState state;
         if (isEnabled())
         {
@@ -141,6 +120,8 @@ void Book::draw() const
           state = STATE_DISABLED;
 
         drawer.drawButton(buttonArea, state, pages[i]->getText().c_str());
+
+        buttonArea.position.x += buttonSize.x;
       }
     }
 

@@ -45,8 +45,6 @@ public:
   Page(Layer& layer, const char* text);
   const String& getText() const;
   void setText(const char* newText);
-protected:
-  void draw() const;
 private:
   String text;
 };
