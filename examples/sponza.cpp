@@ -182,16 +182,12 @@ void Demo::onCursorMoved(const ivec2& position)
 
 int main()
 {
-  if (!wendy::initialize())
-    std::exit(EXIT_FAILURE);
-
   Ptr<Demo> demo(new Demo());
   if (demo->init())
     demo->run();
 
   demo = NULL;
 
-  wendy::shutdown();
   std::exit(EXIT_SUCCESS);
 }
 

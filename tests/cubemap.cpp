@@ -7,14 +7,16 @@
 
 using namespace wendy;
 
+namespace
+{
+
 class Test : public Trackable
 {
 public:
-  ~Test(void);
-  bool init(void);
-  void run(void);
+  ~Test();
+  bool init();
+  void run();
 private:
-  bool render(void);
   ResourceIndex index;
   input::MayaCamera controller;
   Ptr<render::GeometryPool> pool;
@@ -24,7 +26,7 @@ private:
   scene::CameraNode* cameraNode;
 };
 
-Test::~Test(void)
+Test::~Test()
 {
   graph.destroyRootNodes();
 
@@ -34,7 +36,7 @@ Test::~Test(void)
   GL::Context::destroySingleton();
 }
 
-bool Test::init(void)
+bool Test::init()
 {
   if (!index.addSearchPath(Path("../media")))
     return false;
@@ -92,7 +94,7 @@ bool Test::init(void)
   return true;
 }
 
-void Test::run(void)
+void Test::run()
 {
   render::Scene scene(*pool, render::Technique::FORWARD);
   GL::Context& context = pool->getContext();
@@ -114,18 +116,20 @@ void Test::run(void)
   while (context.update());
 }
 
+} /*namespace*/
+
 int main()
 {
-  if (!wendy::initialize())
-    std::exit(EXIT_FAILURE);
-
   Ptr<Test> test(new Test());
-  if (test->init())
-    test->run();
+  if (!test->init())
+  {
+    logError("Failed to initialize test");
+    std::exit(EXIT_FAILURE);
+  }
 
+  test->run();
   test = NULL;
 
-  wendy::shutdown();
   std::exit(EXIT_SUCCESS);
 }
 

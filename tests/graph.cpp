@@ -7,14 +7,17 @@
 
 using namespace wendy;
 
-class Demo : public Trackable
+namespace
+{
+
+class Test : public Trackable
 {
 public:
-  ~Demo(void);
-  bool init(void);
-  void run(void);
+  ~Test();
+  bool init();
+  void run();
 private:
-  bool render(void);
+  bool render();
   ResourceIndex index;
   Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
@@ -26,7 +29,7 @@ private:
   Time currentTime;
 };
 
-Demo::~Demo(void)
+Test::~Test()
 {
   graph.destroyRootNodes();
 
@@ -35,7 +38,7 @@ Demo::~Demo(void)
   GL::Context::destroySingleton();
 }
 
-bool Demo::init(void)
+bool Test::init()
 {
   if (!index.addSearchPath(Path("../media")))
     return false;
@@ -80,7 +83,7 @@ bool Demo::init(void)
   return true;
 }
 
-void Demo::run(void)
+void Test::run()
 {
   render::Scene scene(*pool, render::Technique::FORWARD);
   GL::Context& context = pool->getContext();
@@ -89,7 +92,8 @@ void Demo::run(void)
   {
     currentTime = timer.getTime();
 
-    modelNode->setLocalRotation(angleAxis(degrees(float(currentTime)), vec3(0.f, 1.f, 0.f)));
+    modelNode->setLocalRotation(angleAxis(degrees(float(currentTime)),
+                                          vec3(0.f, 1.f, 0.f)));
 
     graph.update();
 
@@ -105,18 +109,20 @@ void Demo::run(void)
   while (context.update());
 }
 
+} /*namespace*/
+
 int main()
 {
-  if (!wendy::initialize())
+  Ptr<Test> test(new Test());
+  if (!test->init())
+  {
+    logError("Failed to initialize test");
     std::exit(EXIT_FAILURE);
+  }
 
-  Ptr<Demo> demo(new Demo());
-  if (demo->init())
-    demo->run();
+  test->run();
+  test = NULL;
 
-  demo = NULL;
-
-  wendy::shutdown();
   std::exit(EXIT_SUCCESS);
 }
 

@@ -1413,6 +1413,12 @@ Context& Context::operator = (const Context& source)
 
 bool Context::init(const ContextMode& initMode)
 {
+  if (!glfwInit())
+  {
+    logError("Failed to initialize GLFW");
+    return false;
+  }
+
   // Create context and window
   {
     unsigned int colorBits = initMode.colorBits;

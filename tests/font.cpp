@@ -26,12 +26,12 @@ const char* lines[] =
   NULL
 };
 
-class Demo : public Trackable
+class Test : public Trackable
 {
 public:
-  ~Demo(void);
-  bool init(void);
-  bool render(void);
+  ~Test();
+  bool init();
+  void run();
 private:
   ResourceIndex index;
   Ref<render::SharedProgramState> state;
@@ -39,7 +39,7 @@ private:
   Ref<render::Font> font;
 };
 
-Demo::~Demo(void)
+Test::~Test()
 {
   font = NULL;
   pool = NULL;
@@ -47,7 +47,7 @@ Demo::~Demo(void)
   GL::Context::destroySingleton();
 }
 
-bool Demo::init(void)
+bool Test::init()
 {
   if (!index.addSearchPath(Path("../media")))
     return false;
@@ -68,7 +68,7 @@ bool Demo::init(void)
 
   pool = new render::GeometryPool(*context, 2048);
 
-  font = render::Font::read(*pool, Path("wendy/default.font"));
+  font = render::Font::read(*pool, Path("wendy/UIDefault.font"));
   if (!font)
   {
     logError("Failed to load font");
@@ -78,46 +78,43 @@ bool Demo::init(void)
   return true;
 }
 
-bool Demo::render(void)
+void Test::run()
 {
   GL::Context* context = GL::Context::getSingleton();
-  context->clearColorBuffer();
 
-  state->setOrthoProjectionMatrix(640.f, 480.f);
-
-  const float em = font->getHeight();
-
-  vec2 pen(100.f, 400.f);
-
-  for (size_t i = 0;  lines[i];  i++)
+  do
   {
-    font->drawText(pen, vec4(1.f), lines[i]);
-    pen.y -= em * 1.5f;
-  }
+    context->clearColorBuffer();
 
-  return true;
+    state->setOrthoProjectionMatrix(640.f, 480.f);
+
+    const float em = font->getHeight();
+
+    vec2 pen(100.f, 400.f);
+
+    for (size_t i = 0;  lines[i];  i++)
+    {
+      font->drawText(pen, vec4(1.f), lines[i]);
+      pen.y -= em * 1.5f;
+    }
+  }
+  while (context->update());
 }
 
 } /*namespace*/
 
-int main(int argc, char** argv)
+int main()
 {
-  if (!wendy::initialize())
-    std::exit(EXIT_FAILURE);
-
-  Ptr<Demo> demo(new Demo());
-  if (demo->init())
+  Ptr<Test> test(new Test());
+  if (!test->init())
   {
-    do
-    {
-      demo->render();
-    }
-    while (GL::Context::getSingleton()->update());
+    logError("Failed to initialize test");
+    std::exit(EXIT_FAILURE);
   }
 
-  demo = NULL;
+  test->run();
+  test = NULL;
 
-  wendy::shutdown();
   std::exit(EXIT_SUCCESS);
 }
 

@@ -139,6 +139,12 @@ Time Timer::getDeltaQueryTime() const
 
 Time Timer::getCurrentTime()
 {
+  if (!glfwInit())
+  {
+    logError("Failed to initialize GLFW");
+    return 0.0;
+  }
+
   return glfwGetTime();
 }
 

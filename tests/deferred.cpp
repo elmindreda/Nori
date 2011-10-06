@@ -7,10 +7,10 @@
 
 using namespace wendy;
 
-class Demo : public Trackable
+class Test : public Trackable
 {
 public:
-  ~Demo(void);
+  ~Test(void);
   bool init(void);
   void run(void);
 private:
@@ -27,7 +27,7 @@ private:
   Time currentTime;
 };
 
-Demo::~Demo(void)
+Test::~Test(void)
 {
   graph.destroyRootNodes();
 
@@ -39,7 +39,7 @@ Demo::~Demo(void)
   GL::Context::destroySingleton();
 }
 
-bool Demo::init(void)
+bool Test::init(void)
 {
   index.addSearchPath(Path("../media"));
 
@@ -124,7 +124,7 @@ bool Demo::init(void)
   return true;
 }
 
-void Demo::run(void)
+void Test::run(void)
 {
   render::Scene scene(*pool, render::Technique::DEFERRED);
   GL::Context& context = pool->getContext();
@@ -152,16 +152,16 @@ void Demo::run(void)
 
 int main()
 {
-  if (!wendy::initialize())
+  Ptr<Test> test(new Test());
+  if (!test->init())
+  {
+    logError("Failed to initialize test");
     std::exit(EXIT_FAILURE);
+  }
 
-  Ptr<Demo> demo(new Demo());
-  if (demo->init())
-    demo->run();
+  test->run();
+  test = NULL;
 
-  demo = NULL;
-
-  wendy::shutdown();
   std::exit(EXIT_SUCCESS);
 }
 

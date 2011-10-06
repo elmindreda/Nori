@@ -34,21 +34,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-bool initialize()
-{
-  if (!glfwInit())
-  {
-    logError("Failed to initialize GLFW");
-    return false;
-  }
-
-  return true;
-}
-
-void shutdown()
-{
-  glfwTerminate();
-}
+// This space intentionally left blank
 
 ///////////////////////////////////////////////////////////////////////
 

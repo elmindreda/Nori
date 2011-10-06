@@ -11,9 +11,9 @@ using namespace wendy;
 class Test
 {
 public:
-  ~Test(void);
-  bool init(void);
-  void run(void);
+  ~Test();
+  bool init();
+  void run();
 private:
   ResourceIndex index;
   Ref<render::SharedProgramState> state;
@@ -23,7 +23,7 @@ private:
   Ptr<forward::Renderer> renderer;
 };
 
-Test::~Test(void)
+Test::~Test()
 {
   material = NULL;
   pool = NULL;
@@ -31,7 +31,7 @@ Test::~Test(void)
   GL::Context::destroySingleton();
 }
 
-bool Test::init(void)
+bool Test::init()
 {
   if (!index.addSearchPath(Path("../media")))
     return false;
@@ -73,7 +73,7 @@ bool Test::init(void)
   return true;
 }
 
-void Test::run(void)
+void Test::run()
 {
   render::Scene scene(*pool, render::Technique::FORWARD);
   GL::Context& context = pool->getContext();
@@ -108,14 +108,8 @@ void Test::run(void)
 
 } /*namespace*/
 
-int main(void)
+int main()
 {
-  if (!wendy::initialize())
-  {
-    logError("Failed to initialize Wendy");
-    std::exit(EXIT_FAILURE);
-  }
-
   Ptr<Test> test(new Test());
   if (!test->init())
   {
@@ -126,7 +120,6 @@ int main(void)
   test->run();
   test = NULL;
 
-  wendy::shutdown();
   std::exit(EXIT_SUCCESS);
 }
 

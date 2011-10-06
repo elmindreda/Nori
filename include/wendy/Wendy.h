@@ -119,32 +119,5 @@
 #endif
 
 ///////////////////////////////////////////////////////////////////////
-
-namespace wendy
-{
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Initializes libraries and creates the default objects.
- *
- *  Initializes lower-level libraries.  You must call this before using
- *  a Timer or GL::Context.
- *
- *  @remarks If you do call this, it's considered polite to call
- *  wendy::shutdown as well.
- */
-bool initialize();
-
-/*! @brief Destroys the default objects.
- *
- *  Destroys all default objects created by wendy::initialize.
- */
-void shutdown();
-
-///////////////////////////////////////////////////////////////////////
-
-} /*namespace wendy*/
-
-///////////////////////////////////////////////////////////////////////
 #endif /*WENDY_WENDY_H*/
 ///////////////////////////////////////////////////////////////////////
