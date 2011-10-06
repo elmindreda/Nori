@@ -8,10 +8,10 @@ using namespace wendy;
 class Demo : public Trackable, public input::Target
 {
 public:
-  Demo(void);
-  ~Demo(void);
-  bool init(void);
-  void run(void);
+  Demo();
+  ~Demo();
+  bool init();
+  void run();
 private:
   void onKeyPressed(input::Key key, bool pressed);
   void onButtonClicked(input::Button button, bool clicked);
@@ -30,14 +30,14 @@ private:
   bool quitting;
 };
 
-Demo::Demo(void):
+Demo::Demo():
   quitting(false),
   currentTime(0.0),
   cameraNode(NULL)
 {
 }
 
-Demo::~Demo(void)
+Demo::~Demo()
 {
   graph.destroyRootNodes();
 
@@ -49,7 +49,7 @@ Demo::~Demo(void)
   GL::Context::destroySingleton();
 }
 
-bool Demo::init(void)
+bool Demo::init()
 {
   if (!index.addSearchPath(Path("../media")))
     return false;
@@ -115,7 +115,7 @@ bool Demo::init(void)
   return true;
 }
 
-void Demo::run(void)
+void Demo::run()
 {
   render::Scene scene(*pool, render::Technique::DEFERRED);
   scene.setAmbientIntensity(vec3(0.2f, 0.2f, 0.2f));

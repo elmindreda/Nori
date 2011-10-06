@@ -10,11 +10,11 @@ using namespace wendy;
 class Test : public Trackable
 {
 public:
-  ~Test(void);
-  bool init(void);
-  void run(void);
+  ~Test();
+  bool init();
+  void run();
 private:
-  bool render(void);
+  bool render();
   ResourceIndex index;
   input::MayaCamera controller;
   Ptr<render::GeometryPool> pool;
@@ -27,7 +27,7 @@ private:
   Time currentTime;
 };
 
-Test::~Test(void)
+Test::~Test()
 {
   graph.destroyRootNodes();
 
@@ -39,7 +39,7 @@ Test::~Test(void)
   GL::Context::destroySingleton();
 }
 
-bool Test::init(void)
+bool Test::init()
 {
   index.addSearchPath(Path("../media"));
 
@@ -124,7 +124,7 @@ bool Test::init(void)
   return true;
 }
 
-void Test::run(void)
+void Test::run()
 {
   render::Scene scene(*pool, render::Technique::DEFERRED);
   GL::Context& context = pool->getContext();
