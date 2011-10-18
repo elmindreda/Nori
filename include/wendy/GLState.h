@@ -145,7 +145,6 @@ private:
   public:
     Data();
     void setDefaults();
-    mutable bool dirty;
     bool enabled;
     Function function;
     unsigned int reference;
@@ -157,6 +156,7 @@ private:
   void force() const;
   Data data;
   static Data cache;
+  static bool dirty;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -362,7 +362,6 @@ private:
   public:
     Data();
     void setDefaults();
-    mutable bool dirty;
     bool depthTesting;
     bool depthWriting;
     bool colorWriting;
@@ -378,6 +377,7 @@ private:
   void setBooleanState(unsigned int state, bool value) const;
   Data data;
   static Data cache;
+  static bool dirty;
   static bool cullingInverted;
 };
 

@@ -181,7 +181,7 @@ bool samplerTypeMatchesTextureType(Sampler::Type samplerType, TextureType textur
 
 void StencilState::apply() const
 {
-  if (cache.dirty)
+  if (dirty)
   {
     force();
     return;
@@ -231,8 +231,6 @@ void StencilState::apply() const
 #if WENDY_DEBUG
   checkGL("Error when applying stencil state");
 #endif
-
-  data.dirty = false;
 }
 
 bool StencilState::isEnabled() const
@@ -273,25 +271,21 @@ unsigned int StencilState::getWriteMask() const
 void StencilState::setEnabled(bool newState)
 {
   data.enabled = newState;
-  data.dirty = true;
 }
 
 void StencilState::setFunction(Function newFunction)
 {
   data.function = newFunction;
-  data.dirty = true;
 }
 
 void StencilState::setReference(unsigned int newReference)
 {
   data.reference = newReference;
-  data.dirty = true;
 }
 
 void StencilState::setWriteMask(unsigned int newMask)
 {
   data.writeMask = newMask;
-  data.dirty = true;
 }
 
 void StencilState::setOperations(Operation stencilFailed,
@@ -301,7 +295,6 @@ void StencilState::setOperations(Operation stencilFailed,
   data.stencilFailed = stencilFailed;
   data.depthFailed = depthFailed;
   data.depthPassed = depthPassed;
-  data.dirty = true;
 }
 
 void StencilState::setDefaults()
@@ -325,10 +318,12 @@ void StencilState::force() const
   checkGL("Error when forcing stencil state");
 #endif
 
-  cache.dirty = data.dirty = false;
+  dirty = false;
 }
 
 StencilState::Data StencilState::cache;
+
+bool StencilState::dirty = true;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -339,7 +334,6 @@ StencilState::Data::Data()
 
 void StencilState::Data::setDefaults()
 {
-  dirty = true;
   enabled = false;
   function = ALLOW_ALWAYS;
   reference = 0;
@@ -824,7 +818,7 @@ void RenderState::apply() const
       stats->addPasses(1);
   }
 
-  if (cache.dirty)
+  if (dirty)
   {
     force();
     return;
@@ -927,8 +921,6 @@ void RenderState::apply() const
 #endif
 
   ProgramState::apply();
-
-  data.dirty = false;
 }
 
 bool RenderState::isCulling() const
@@ -994,56 +986,47 @@ Function RenderState::getDepthFunction() const
 void RenderState::setDepthTesting(bool enable)
 {
   data.depthTesting = enable;
-  data.dirty = true;
 }
 
 void RenderState::setDepthWriting(bool enable)
 {
   data.depthWriting = enable;
-  data.dirty = true;
 }
 
 void RenderState::setCullMode(CullMode mode)
 {
   data.cullMode = mode;
-  data.dirty = true;
 }
 
 void RenderState::setBlendFactors(BlendFactor src, BlendFactor dst)
 {
   data.srcFactor = src;
   data.dstFactor = dst;
-  data.dirty = true;
 }
 
 void RenderState::setDepthFunction(Function function)
 {
   data.depthFunction = function;
-  data.dirty = true;
 }
 
 void RenderState::setColorWriting(bool enabled)
 {
   data.colorWriting = enabled;
-  data.dirty = true;
 }
 
 void RenderState::setWireframe(bool enabled)
 {
   data.wireframe = enabled;
-  data.dirty = true;
 }
 
 void RenderState::setLineSmoothing(bool enabled)
 {
   data.lineSmoothing = enabled;
-  data.dirty = true;
 }
 
 void RenderState::setLineWidth(float newWidth)
 {
   data.lineWidth = newWidth;
-  data.dirty = true;
 }
 
 void RenderState::setDefaults()
@@ -1103,7 +1086,7 @@ void RenderState::force() const
 
   ProgramState::apply();
 
-  cache.dirty = data.dirty = false;
+  dirty = false;
 }
 
 void RenderState::setBooleanState(unsigned int state, bool value) const
@@ -1116,6 +1099,8 @@ void RenderState::setBooleanState(unsigned int state, bool value) const
 
 RenderState::Data RenderState::cache;
 
+bool RenderState::dirty = true;
+
 bool RenderState::cullingInverted = false;
 
 ///////////////////////////////////////////////////////////////////////
@@ -1127,7 +1112,6 @@ RenderState::Data::Data()
 
 void RenderState::Data::setDefaults()
 {
-  dirty = true;
   depthTesting = true;
   depthWriting = true;
   colorWriting = true;
