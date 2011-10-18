@@ -255,10 +255,9 @@ GLenum convertToGL(TextureType type)
       return GL_TEXTURE_RECTANGLE_ARB;
     case TEXTURE_CUBE:
       return GL_TEXTURE_CUBE_MAP;
-    default:
-      logError("No OpenGL equivalent for texture type %u", type);
-      return 0;
   }
+
+  panic("No OpenGL equivalent for texture type %u", type);
 }
 
 ///////////////////////////////////////////////////////////////////////

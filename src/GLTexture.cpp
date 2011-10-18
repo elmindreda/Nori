@@ -62,8 +62,7 @@ GLenum convertToGL(AddressMode mode)
       return GL_CLAMP_TO_EDGE;
   }
 
-  logError("Invalid texture address mode %u", mode);
-  return 0;
+  panic("Invalid texture address mode %u", mode);
 }
 
 GLint convertToGL(FilterMode mode, bool mipmapped)
@@ -95,8 +94,7 @@ GLint convertToGL(FilterMode mode, bool mipmapped)
     }
   }
 
-  logError("Invalid texture filter mode %u", mode);
-  return 0;
+  panic("Invalid texture filter mode %u", mode);
 }
 
 GLenum convertToProxyGL(TextureType type)
@@ -115,8 +113,7 @@ GLenum convertToProxyGL(TextureType type)
       return GL_PROXY_TEXTURE_CUBE_MAP;
   }
 
-  logError("Invalid texture type %u", type);
-  return 0;
+  panic("Invalid texture type %u", type);
 }
 
 GLenum convertToGL(CubeFace face)
@@ -137,8 +134,7 @@ GLenum convertToGL(CubeFace face)
       return GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
   }
 
-  logError("Invalid image cube face %u", face);
-  return 0;
+  panic("Invalid image cube face %u", face);
 }
 
 const char* asString(TextureType type)
@@ -157,8 +153,7 @@ const char* asString(TextureType type)
       return "textureCube";
   }
 
-  logError("Invalid texture type %u", type);
-  return "unknown texture type";
+  panic("Invalid texture type %u", type);
 }
 
 Bimap<String, FilterMode> filterModeMap;
