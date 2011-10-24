@@ -186,8 +186,7 @@ GLenum convertToGL(ImageFramebuffer::Attachment attachment)
       return GL_DEPTH_ATTACHMENT_EXT;
   }
 
-  logError("Invalid image framebuffer attachment %u", attachment);
-  return 0;
+  panic("Invalid image framebuffer attachment %u", attachment);
 }
 
 const char* asString(ImageFramebuffer::Attachment attachment)
@@ -206,8 +205,7 @@ const char* asString(ImageFramebuffer::Attachment attachment)
       return "depth buffer";
   }
 
-  logError("Invalid image framebuffer attachment %u", attachment);
-  return "unknown buffer";
+  panic("Invalid image framebuffer attachment %u", attachment);
 }
 
 bool isColorAttachment(ImageFramebuffer::Attachment attachment)
@@ -244,8 +242,7 @@ GLenum convertToGL(PrimitiveType type)
       return GL_TRIANGLE_FAN;
   }
 
-  logError("Invalid primitive type %u", type);
-  return 0;
+  panic("Invalid primitive type %u", type);
 }
 
 bool isCompatible(const Attribute& attribute, const VertexComponent& component)
