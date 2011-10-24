@@ -56,7 +56,7 @@ const int INVALID_SHARED_STATE_ID = -1;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Context window mode.
+/*! @brief Window mode enumeration.
  *  @ingroup opengl
  */
 enum WindowMode
@@ -67,82 +67,73 @@ enum WindowMode
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Screen mode.
+/*! @brief Window configuration.
  *  @ingroup opengl
  */
-class ScreenMode
+class WindowConfig
 {
 public:
   /*! Default constructor.
    */
-  ScreenMode();
+  WindowConfig();
   /*! Constructor.
-   *  @param[in] width The desired width.
-   *  @param[in] height The desired height.
-   *  @param[in] colorBits The desired number of color bits.
+   *  @param[in] width The desired width of the window.
+   *  @param[in] height The desired height of the window.
+   *  @param[in] mode The desired mode of the window.
    */
-  ScreenMode(unsigned int width, unsigned int height, unsigned int colorBits);
-  /*! Resets all value to their defaults.
+  WindowConfig(unsigned int width, unsigned int height, WindowMode mode);
+  /*! Sets all fields to their default values.
    */
   void setDefaults();
   /*! Sets the specified values.
-   *  @param[in] newWidth The desired width.
-   *  @param[in] newHeight The desired height.
-   *  @param[in] newColorBits The desired number of color bits.
+   *  @param[in] newWidth The desired width of the window.
+   *  @param[in] newHeight The desired height of the window.
+   *  @param[in] newColorBits The desired mode of the window.
    */
-  void set(unsigned int newWidth, unsigned int newHeight, unsigned int newColorBits);
+  void set(unsigned int newWidth, unsigned int newHeight, WindowMode newMode);
   /*! The desired width of the context.
    */
   unsigned int width;
   /*! The desired height of the context.
    */
   unsigned int height;
-  /*! The desired color buffer bit depth.
+  /*! The desired mode of the window.
    */
-  unsigned int colorBits;
+  WindowMode mode;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup opengl
- */
-typedef std::vector<ScreenMode> ScreenModeList;
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief %Context settings.
+/*! @brief %Context configuration.
  *  @ingroup opengl
  *
  *  This class provides the settings parameters available for OpenGL
- *  context creation, as provided through Context::create.
+ *  context creation, as provided through Context::createSingleton.
  */
-class ContextMode : public ScreenMode
+class ContextConfig
 {
 public:
   /*! Default constructor.
    */
-  ContextMode();
+  ContextConfig();
   /*! Constructor.
    */
-  ContextMode(unsigned int width,
-	      unsigned int height,
-	      unsigned int colorBits,
-	      unsigned int depthBits = 0,
-	      unsigned int stencilBits = 0,
-	      unsigned int samples = 0,
-	      WindowMode mode = WINDOWED);
+  ContextConfig(unsigned int colorBits,
+	        unsigned int depthBits = 0,
+	        unsigned int stencilBits = 0,
+	        unsigned int samples = 0);
   /*! Resets all value to their defaults.
    */
   void setDefaults();
   /*! Sets the specified value.
    */
-  void set(unsigned int newWidth,
-	   unsigned int newHeight,
-	   unsigned int newColorBits,
+  void set(unsigned int newColorBits,
 	   unsigned int newDepthBits = 0,
 	   unsigned int newStencilBits = 0,
-	   unsigned int newSamples = 0,
-	   WindowMode newFlags = WINDOWED);
+	   unsigned int newSamples = 0);
+  /*! The desired color buffer bit depth.
+   */
+  unsigned int colorBits;
   /*! The desired depth buffer bit depth.
    */
   unsigned int depthBits;
@@ -152,9 +143,6 @@ public:
   /*! The desired number of FSAA samples.
    */
   unsigned int samples;
-  /*! The desired window mode.
-   */
-  WindowMode mode;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -288,7 +276,12 @@ public:
 private:
   DefaultFramebuffer(Context& context);
   void apply() const;
-  ContextMode mode;
+  unsigned int width;
+  unsigned int height;
+  unsigned int colorBits;
+  unsigned int depthBits;
+  unsigned int stencilBits;
+  unsigned int samples;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -629,19 +622,18 @@ public:
   SignalProxy2<void, unsigned int, unsigned int> getResizedSignal();
   /*! Creates the context singleton object, using the specified settings.
    *  @param[in] index The resource index to use.
-   *  @param[in] mode The requested context settings.
+   *  @param[in] wndconfig The desired window configuration.
+   *  @param[in] ctxconfig The desired context configuration.
    *  @return @c true if successful, or @c false otherwise.
    */
-  static bool createSingleton(ResourceIndex& index, const ContextMode& mode = ContextMode());
-  /*! Retrieves the supported screen modes.
-   *  @param[out] result The supported modes.
-   */
-  static void getScreenModes(ScreenModeList& result);
+  static bool createSingleton(ResourceIndex& index,
+                              const WindowConfig& windowConfig = WindowConfig(),
+                              const ContextConfig& contextConfig = ContextConfig());
 private:
   Context(ResourceIndex& index);
   Context(const Context& source);
   Context& operator = (const Context& source);
-  bool init(const ContextMode& mode);
+  bool init(const WindowConfig& windowConfig, const ContextConfig& contextConfig);
   static void sizeCallback(int width, int height);
   static int closeCallback();
   static void refreshCallback();
@@ -653,6 +645,7 @@ private:
   Signal2<void, unsigned int, unsigned int> resizedSignal;
   String title;
   Ptr<Limits> limits;
+  WindowMode windowMode;
   RefreshMode refreshMode;
   bool needsRefresh;
   bool needsClosing;

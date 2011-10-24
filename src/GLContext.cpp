@@ -293,75 +293,66 @@ bool isCompatible(const Attribute& attribute, const VertexComponent& component)
 
 ///////////////////////////////////////////////////////////////////////
 
-ScreenMode::ScreenMode()
+WindowConfig::WindowConfig()
 {
   setDefaults();
 }
 
-ScreenMode::ScreenMode(unsigned int initWidth,
-                       unsigned int initHeight,
-		       unsigned int initColorBits):
+WindowConfig::WindowConfig(unsigned int initWidth,
+                           unsigned int initHeight,
+		           WindowMode initMode):
   width(initWidth),
   height(initHeight),
-  colorBits(initColorBits)
-{
-}
-
-void ScreenMode::setDefaults()
-{
-  set(640, 480, 0);
-}
-
-void ScreenMode::set(unsigned int newWidth,
-                     unsigned int newHeight,
-		     unsigned int newColorBits)
-{
-  width = newWidth;
-  height = newHeight;
-  colorBits = newColorBits;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-ContextMode::ContextMode()
-{
-  setDefaults();
-}
-
-ContextMode::ContextMode(unsigned int width,
-                         unsigned int height,
-			 unsigned int colorBits,
-			 unsigned int initDepthBits,
-			 unsigned int initStencilBits,
-			 unsigned int initSamples,
-			 WindowMode initMode):
-  ScreenMode(width, height, colorBits),
-  depthBits(initDepthBits),
-  stencilBits(initStencilBits),
-  samples(initSamples),
   mode(initMode)
 {
 }
 
-void ContextMode::setDefaults()
+void WindowConfig::setDefaults()
 {
-  set(640, 480, 32, 32, 0, 0, WINDOWED);
+  set(640, 480, WINDOWED);
 }
 
-void ContextMode::set(unsigned int width,
-                      unsigned int height,
-		      unsigned int colorBits,
-		      unsigned int newDepthBits,
-		      unsigned int newStencilBits,
-		      unsigned int newSamples,
-		      WindowMode newMode)
+void WindowConfig::set(unsigned int newWidth,
+                       unsigned int newHeight,
+		       WindowMode newMode)
 {
-  ScreenMode::set(width, height, colorBits);
+  width = newWidth;
+  height = newHeight;
+  mode = newMode;
+}
 
+///////////////////////////////////////////////////////////////////////
+
+ContextConfig::ContextConfig()
+{
+  setDefaults();
+}
+
+ContextConfig::ContextConfig(unsigned int initColorBits,
+			     unsigned int initDepthBits,
+			     unsigned int initStencilBits,
+			     unsigned int initSamples):
+  colorBits(initColorBits),
+  depthBits(initDepthBits),
+  stencilBits(initStencilBits),
+  samples(initSamples)
+{
+}
+
+void ContextConfig::setDefaults()
+{
+  set(32, 32, 0, 0);
+}
+
+void ContextConfig::set(unsigned int newColorBits,
+		        unsigned int newDepthBits,
+		        unsigned int newStencilBits,
+		        unsigned int newSamples)
+{
+  colorBits = newColorBits;
   depthBits = newDepthBits;
   stencilBits = newStencilBits;
   samples = newSamples;
-  mode = newMode;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -516,27 +507,27 @@ Framebuffer& Framebuffer::operator = (const Framebuffer& source)
 
 unsigned int DefaultFramebuffer::getColorBits() const
 {
-  return mode.colorBits;
+  return colorBits;
 }
 
 unsigned int DefaultFramebuffer::getDepthBits() const
 {
-  return mode.depthBits;
+  return depthBits;
 }
 
 unsigned int DefaultFramebuffer::getStencilBits() const
 {
-  return mode.stencilBits;
+  return stencilBits;
 }
 
 unsigned int DefaultFramebuffer::getWidth() const
 {
-  return mode.width;
+  return width;
 }
 
 unsigned int DefaultFramebuffer::getHeight() const
 {
-  return mode.height;
+  return height;
 }
 
 DefaultFramebuffer::DefaultFramebuffer(Context& context):
@@ -1089,14 +1080,14 @@ const char* Context::getSharedProgramStateDeclaration() const
   return declaration.c_str();
 }
 
+WindowMode Context::getWindowMode() const
+{
+  return windowMode;
+}
+
 Context::RefreshMode Context::getRefreshMode() const
 {
   return refreshMode;
-}
-
-WindowMode Context::getWindowMode() const
-{
-  return defaultFramebuffer->mode.mode;
 }
 
 void Context::setRefreshMode(RefreshMode newMode)
@@ -1356,28 +1347,16 @@ SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal()
   return resizedSignal;
 }
 
-bool Context::createSingleton(ResourceIndex& index, const ContextMode& mode)
+bool Context::createSingleton(ResourceIndex& index,
+                              const WindowConfig& windowConfig,
+                              const ContextConfig& contextConfig)
 {
   Ptr<Context> context(new Context(index));
-  if (!context->init(mode))
+  if (!context->init(windowConfig, contextConfig))
     return false;
 
   set(context.detachObject());
   return true;
-}
-
-void Context::getScreenModes(ScreenModeList& result)
-{
-  GLFWvidmode modes[256];
-
-  const size_t count = glfwGetVideoModes(modes, sizeof(modes) / sizeof(GLFWvidmode));
-
-  for (size_t i = 0;  i < count;  i++)
-  {
-    result.push_back(ScreenMode(modes[i].Width,
-                                modes[i].Height,
-				modes[i].RedBits + modes[i].GreenBits + modes[i].BlueBits));
-  }
 }
 
 Context::Context(ResourceIndex& initIndex):
@@ -1408,7 +1387,8 @@ Context& Context::operator = (const Context& source)
   panic("OpenGL contexts may not be assigned");
 }
 
-bool Context::init(const ContextMode& initMode)
+bool Context::init(const WindowConfig& windowConfig,
+                   const ContextConfig& contextConfig)
 {
   if (!glfwInit())
   {
@@ -1418,19 +1398,19 @@ bool Context::init(const ContextMode& initMode)
 
   // Create context and window
   {
-    unsigned int colorBits = initMode.colorBits;
+    unsigned int colorBits = contextConfig.colorBits;
     if (colorBits > 24)
       colorBits = 24;
 
     unsigned int mode;
 
-    if (initMode.mode == WINDOWED)
+    if (windowConfig.mode == WINDOWED)
       mode = GLFW_WINDOW;
     else
       mode = GLFW_FULLSCREEN;
 
-    if (initMode.samples)
-      glfwOpenWindowHint(GLFW_FSAA_SAMPLES, initMode.samples);
+    if (contextConfig.samples)
+      glfwOpenWindowHint(GLFW_FSAA_SAMPLES, contextConfig.samples);
 
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 2);
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 1);
@@ -1439,9 +1419,9 @@ bool Context::init(const ContextMode& initMode)
     glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #endif
 
-    if (!glfwOpenWindow(initMode.width, initMode.height,
+    if (!glfwOpenWindow(windowConfig.width, windowConfig.height,
                         colorBits / 3, colorBits / 3, colorBits / 3, 0,
-                        initMode.depthBits, initMode.stencilBits, mode))
+                        contextConfig.depthBits, contextConfig.stencilBits, mode))
     {
       logError("Unable to create GLFW window");
       return false;
@@ -1457,6 +1437,8 @@ bool Context::init(const ContextMode& initMode)
     log("OpenGL context renderer is %s by %s",
         (const char*) glGetString(GL_RENDERER),
         (const char*) glGetString(GL_VENDOR));
+
+    windowMode = windowConfig.mode;
   }
 
   // Initialize GLEW and check extensions
@@ -1504,22 +1486,21 @@ bool Context::init(const ContextMode& initMode)
 
   // Create and apply default framebuffer
   {
+    defaultFramebuffer = new DefaultFramebuffer(*this);
+
+    // Read back actual (as opposed to desired) properties
+
     int width, height;
     glfwGetWindowSize(&width, &height);
+    defaultFramebuffer->width = width;
+    defaultFramebuffer->height = height;
 
-    // This needs to be done before setting the window size callback
-    defaultFramebuffer = new DefaultFramebuffer(*this);
-    defaultFramebuffer->mode.width = width;
-    defaultFramebuffer->mode.height = height;
-
-    // Read back actual (as opposed to desired) framebuffer properties
-    defaultFramebuffer->mode.colorBits = glfwGetWindowParam(GLFW_RED_BITS) +
-                                         glfwGetWindowParam(GLFW_GREEN_BITS) +
-                                         glfwGetWindowParam(GLFW_BLUE_BITS);
-    defaultFramebuffer->mode.depthBits = glfwGetWindowParam(GLFW_DEPTH_BITS);
-    defaultFramebuffer->mode.stencilBits = glfwGetWindowParam(GLFW_STENCIL_BITS);
-    defaultFramebuffer->mode.samples = glfwGetWindowParam(GLFW_FSAA_SAMPLES);
-    defaultFramebuffer->mode.mode = initMode.mode;
+    defaultFramebuffer->colorBits = glfwGetWindowParam(GLFW_RED_BITS) +
+                                    glfwGetWindowParam(GLFW_GREEN_BITS) +
+                                    glfwGetWindowParam(GLFW_BLUE_BITS);
+    defaultFramebuffer->depthBits = glfwGetWindowParam(GLFW_DEPTH_BITS);
+    defaultFramebuffer->stencilBits = glfwGetWindowParam(GLFW_STENCIL_BITS);
+    defaultFramebuffer->samples = glfwGetWindowParam(GLFW_FSAA_SAMPLES);
 
     setDefaultFramebufferCurrent();
 
@@ -1545,8 +1526,8 @@ bool Context::init(const ContextMode& initMode)
 
 void Context::sizeCallback(int width, int height)
 {
-  instance->defaultFramebuffer->mode.width = width;
-  instance->defaultFramebuffer->mode.height = height;
+  instance->defaultFramebuffer->width = width;
+  instance->defaultFramebuffer->height = height;
   instance->resizedSignal.emit(width, height);
 }
 
