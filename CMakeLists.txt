@@ -7,6 +7,11 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
+# Avoid source tree pollution
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+	message(FATAL_ERROR "In-source builds not allowed. Create a separate folder for building:\nmkdir buildtree; cd buildtree; cmake ..\nBefore that, remove the files already created:\nrm -rf CMakeCache.txt CMakeFiles")
+endif(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+
 option(WENDY_INCLUDE_OPENAL "Include the OpenAL wrapper" ON)
 option(WENDY_INCLUDE_RENDERER "Include the renderer" ON)
 option(WENDY_INCLUDE_SCENE_GRAPH "Include the scene graph" ON)
