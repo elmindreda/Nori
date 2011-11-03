@@ -107,6 +107,9 @@ if(WENDY_BUILD_DOCUMENTATION)
                 ${wendy_BINARY_DIR}/docs/Doxyfile @ONLY)
 endif(WENDY_BUILD_DOCUMENTATION)
 
+# Output executables to build dir root for easy access
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+
 add_subdirectory(src)
 
 if(WENDY_BUILD_EXAMPLES)
