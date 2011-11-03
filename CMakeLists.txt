@@ -9,8 +9,14 @@ endif(COMMAND cmake_policy)
 
 # Avoid source tree pollution
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
-	message(FATAL_ERROR "In-source builds not allowed. Create a separate folder for building:\nmkdir buildtree; cd buildtree; cmake ..\nBefore that, remove the files already created:\nrm -rf CMakeCache.txt CMakeFiles")
+  message(FATAL_ERROR "In-source builds not allowed. Create a separate folder for building:\nmkdir buildtree; cd buildtree; cmake ..\nBefore that, remove the files already created:\nrm -rf CMakeCache.txt CMakeFiles")
 endif(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+
+# Add a sensible default build type
+if(NOT CMAKE_BUILD_TYPE)
+  message("WARNING: CMAKE_BUILD_TYPE is not defined! Defaulting to RelWithDebInfo.")
+  set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Build type: None Debug Release RelWithDebInfo MinSizeRel" FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
 
 option(WENDY_INCLUDE_OPENAL "Include the OpenAL wrapper" ON)
 option(WENDY_INCLUDE_RENDERER "Include the renderer" ON)
