@@ -31,6 +31,7 @@
 #include <wendy/Path.h>
 #include <wendy/Resource.h>
 #include <wendy/XML.h>
+#include <map>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -54,6 +55,7 @@ class Shader
 public:
   Shader();
   Shader(const char* text, const Path& path = Path());
+  bool empty() const { return text.empty(); }
   String text;
   Path path;
 };
@@ -369,11 +371,11 @@ public:
 private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
+  bool shaderElement(const String& name);
   Context& context;
   Ref<Program> program;
   ResourceInfo info;
-  Ptr<Shader> vertexShader;
-  Ptr<Shader> fragmentShader;
+  std::map<String, Shader> shaders;
 };
 
 ///////////////////////////////////////////////////////////////////////

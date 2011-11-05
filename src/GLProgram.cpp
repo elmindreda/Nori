@@ -1153,14 +1153,12 @@ Ref<Program> ProgramReader::read(const Path& path)
 
   if (!XML::Reader::read(stream))
   {
-    vertexShader = NULL;
-    fragmentShader = NULL;
+    shaders.clear();
     program = NULL;
     return NULL;
   }
 
-  vertexShader = NULL;
-  fragmentShader = NULL;
+  shaders.clear();
 
   if (!program)
   {
@@ -1193,66 +1191,45 @@ bool ProgramReader::onBeginElement(const String& name)
     return true;
   }
 
-  if (name == "vertex")
+  if (name == "vertex") return shaderElement(name);
+  if (name == "control") return shaderElement(name);
+  if (name == "evaluation") return shaderElement(name);
+  if (name == "geometry") return shaderElement(name);
+  if (name == "fragment") return shaderElement(name);
+
+  return true;
+}
+
+bool ProgramReader::shaderElement(const String& name)
+{
+  if (shaders.count(name))
   {
-    if (vertexShader)
-    {
-      logError("Program specification \'%s\' contains more than one vertex program",
-               info.path.asString().c_str());
-      return false;
-    }
+    logError("Program specification \'%s\' contains more than one %s shaders",
+             info.path.asString().c_str(),
+             name.c_str());
+    return false;
+  }
 
-    Path path(readString("path"));
-    if (path.isEmpty())
-    {
-      logError("Vertex program path in shader program \'%s\' is empty",
-               info.path.asString().c_str());
-      return true;
-    }
-
-    String text;
-    if (!readTextFile(getIndex(), text, path))
-    {
-      logError("Cannot find vertex program \'%s\' for shader program \'%s\'",
-               path.asString().c_str(),
-               info.path.asString().c_str());
-      return false;
-    }
-
-    vertexShader = new Shader(text.c_str(), path);
+  Path path(readString("path"));
+  if (path.isEmpty())
+  {
+    logError("Path in %s shader program \'%s\' is empty",
+             name.c_str(),
+             info.path.asString().c_str());
     return true;
   }
 
-  if (name == "fragment")
+  String text;
+  if (!readTextFile(getIndex(), text, path))
   {
-    if (fragmentShader)
-    {
-      logError("Program specification \'%s\' contains more than one fragment shader",
-               info.path.asString().c_str());
-      return false;
-    }
-
-    Path path(readString("path"));
-    if (path.isEmpty())
-    {
-      logError("Fragment shader path in program \'%s\' is empty",
-               info.path.asString().c_str());
-      return true;
-    }
-
-    String text;
-    if (!readTextFile(getIndex(), text, path))
-    {
-      logError("Cannot find fragment shader \'%s\' for program \'%s\'",
-               path.asString().c_str(),
-               info.path.asString().c_str());
-      return false;
-    }
-
-    fragmentShader = new Shader(text.c_str(), path);
-    return true;
+    logError("Cannot find %s shader \'%s\' for shader program \'%s\'",
+             name.c_str(),
+             path.asString().c_str(),
+             info.path.asString().c_str());
+    return false;
   }
 
+  shaders[name] = Shader(text.c_str(), path);
   return true;
 }
 
@@ -1260,26 +1237,43 @@ bool ProgramReader::onEndElement(const String& name)
 {
   if (name == "program")
   {
-    if (!vertexShader)
+    if (shaders["vertex"].empty())
     {
       logError("Vertex shader missing for program \'%s\'",
                info.path.asString().c_str());
       return false;
     }
 
-    if (!fragmentShader)
+    if (shaders["fragment"].empty())
     {
       logError("Fragment shader missing for program \'%s\'",
                info.path.asString().c_str());
       return false;
     }
 
-    program = Program::create(info, context, *vertexShader, *fragmentShader);
+    bool hasGeom = !shaders["geometry"].empty();
+    bool hasTessCtrl = !shaders["control"].empty();
+    bool hasTessEval = !shaders["evaluation"].empty();
+    if ((hasTessCtrl && !hasTessEval) || (!hasTessCtrl && hasTessEval))
+    {
+      logError("Both (or neither) tessellation control and evaluation shader are required in program \'%s\'",
+               info.path.asString().c_str());
+      return false;
+    }
+
+    if (hasGeom && hasTessCtrl && hasTessEval)
+      program = Program::create(info, context, shaders["vertex"], shaders["fragment"], shaders["geometry"], shaders["control"], shaders["evaluation"]);
+    else if (hasTessCtrl && hasTessEval)
+      program = Program::create(info, context, shaders["vertex"], shaders["fragment"], shaders["control"], shaders["evaluation"]);
+    else if (hasGeom)
+      program = Program::create(info, context, shaders["vertex"], shaders["fragment"], shaders["geometry"]);
+    else
+      program = Program::create(info, context, shaders["vertex"], shaders["fragment"]);
+
     if (!program)
       return false;
 
-    vertexShader = NULL;
-    fragmentShader = NULL;
+    shaders.clear();
 
     return true;
   }
