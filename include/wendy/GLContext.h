@@ -130,7 +130,9 @@ public:
 	      unsigned int depthBits = 0,
 	      unsigned int stencilBits = 0,
 	      unsigned int samples = 0,
-	      WindowMode mode = WINDOWED);
+	      WindowMode mode = WINDOWED,
+	      unsigned int initGLMajor = 2,
+	      unsigned int initGLMinor = 1);
   /*! Resets all value to their defaults.
    */
   void setDefaults();
@@ -142,7 +144,9 @@ public:
 	   unsigned int newDepthBits = 0,
 	   unsigned int newStencilBits = 0,
 	   unsigned int newSamples = 0,
-	   WindowMode newFlags = WINDOWED);
+	   WindowMode newFlags = WINDOWED,
+	   unsigned int newGLMajor = 2,
+	   unsigned int newGLMinor = 1);
   /*! The desired depth buffer bit depth.
    */
   unsigned int depthBits;
@@ -155,6 +159,12 @@ public:
   /*! The desired window mode.
    */
   WindowMode mode;
+  /*! OpenGL major version number.
+  */
+  unsigned int glMajor;
+  /*! OpenGL minor version number.
+  */
+  unsigned int glMinor;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -618,6 +628,12 @@ public:
   /*! @return The resource index used by this context.
    */
   ResourceIndex& getIndex() const;
+  /*! @return The OpenGL major version number.
+   */
+  unsigned int getGLVersionMajor() const;
+  /*! @return The OpenGL minor version number.
+   */
+  unsigned int getGLVersionMinor() const;
   /*! @return The signal for per-frame post-render clean-up.
    */
   SignalProxy0<void> getFinishSignal();

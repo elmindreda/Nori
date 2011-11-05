@@ -337,18 +337,22 @@ ContextMode::ContextMode(unsigned int width,
 			 unsigned int initDepthBits,
 			 unsigned int initStencilBits,
 			 unsigned int initSamples,
-			 WindowMode initMode):
+			 WindowMode initMode,
+			 unsigned int initGLMajor,
+			 unsigned int initGLMinor):
   ScreenMode(width, height, colorBits),
   depthBits(initDepthBits),
   stencilBits(initStencilBits),
   samples(initSamples),
-  mode(initMode)
+  mode(initMode),
+  glMajor(initGLMajor),
+  glMinor(initGLMinor)
 {
 }
 
 void ContextMode::setDefaults()
 {
-  set(640, 480, 32, 32, 0, 0, WINDOWED);
+  set(640, 480, 32, 32, 0, 0, WINDOWED, 2, 1);
 }
 
 void ContextMode::set(unsigned int width,
@@ -357,14 +361,17 @@ void ContextMode::set(unsigned int width,
 		      unsigned int newDepthBits,
 		      unsigned int newStencilBits,
 		      unsigned int newSamples,
-		      WindowMode newMode)
+		      WindowMode newMode,
+		      unsigned int newGLMajor,
+		      unsigned int newGLMinor)
 {
   ScreenMode::set(width, height, colorBits);
-
   depthBits = newDepthBits;
   stencilBits = newStencilBits;
   samples = newSamples;
   mode = newMode;
+  glMajor = newGLMajor;
+  glMinor = newGLMinor;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1339,6 +1346,16 @@ ResourceIndex& Context::getIndex() const
   return index;
 }
 
+unsigned int Context::getGLVersionMajor() const
+{
+  return glfwGetWindowParam(GLFW_OPENGL_VERSION_MAJOR);
+}
+
+unsigned int Context::getGLVersionMinor() const
+{
+  return glfwGetWindowParam(GLFW_OPENGL_VERSION_MINOR);
+}
+
 const Limits& Context::getLimits() const
 {
   return *limits;
@@ -1435,8 +1452,8 @@ bool Context::init(const ContextMode& initMode)
     if (initMode.samples)
       glfwOpenWindowHint(GLFW_FSAA_SAMPLES, initMode.samples);
 
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 2);
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 1);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, initMode.glMajor);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, initMode.glMinor);
 
 #if WENDY_DEBUG
     glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
