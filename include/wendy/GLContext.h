@@ -77,24 +77,26 @@ public:
    */
   WindowConfig();
   /*! Constructor.
+   *  @param[in] title The desired title of the window.
+   */
+  WindowConfig(const String& title);
+  /*! Constructor.
+   *  @param[in] title The desired title of the window.
    *  @param[in] width The desired width of the window.
    *  @param[in] height The desired height of the window.
    *  @param[in] mode The desired mode of the window.
    */
-  WindowConfig(unsigned int width, unsigned int height, WindowMode mode);
-  /*! Sets all fields to their default values.
+  WindowConfig(const String& title,
+               unsigned int width,
+               unsigned int height,
+               WindowMode mode);
+  /*! The desired window title.
    */
-  void setDefaults();
-  /*! Sets the specified values.
-   *  @param[in] newWidth The desired width of the window.
-   *  @param[in] newHeight The desired height of the window.
-   *  @param[in] newColorBits The desired mode of the window.
-   */
-  void set(unsigned int newWidth, unsigned int newHeight, WindowMode newMode);
-  /*! The desired width of the context.
+  String title;
+  /*! The desired width of the window.
    */
   unsigned int width;
-  /*! The desired height of the context.
+  /*! The desired height of the window.
    */
   unsigned int height;
   /*! The desired mode of the window.
@@ -122,15 +124,6 @@ public:
 	        unsigned int depthBits = 0,
 	        unsigned int stencilBits = 0,
 	        unsigned int samples = 0);
-  /*! Resets all value to their defaults.
-   */
-  void setDefaults();
-  /*! Sets the specified value.
-   */
-  void set(unsigned int newColorBits,
-	   unsigned int newDepthBits = 0,
-	   unsigned int newStencilBits = 0,
-	   unsigned int newSamples = 0);
   /*! The desired color buffer bit depth.
    */
   unsigned int colorBits;

@@ -293,39 +293,41 @@ bool isCompatible(const Attribute& attribute, const VertexComponent& component)
 
 ///////////////////////////////////////////////////////////////////////
 
-WindowConfig::WindowConfig()
+WindowConfig::WindowConfig():
+  title("Wendy"),
+  width(640),
+  height(480),
+  mode(WINDOWED)
 {
-  setDefaults();
 }
 
-WindowConfig::WindowConfig(unsigned int initWidth,
+WindowConfig::WindowConfig(const String& initTitle):
+  title(initTitle),
+  width(640),
+  height(480),
+  mode(WINDOWED)
+{
+}
+
+WindowConfig::WindowConfig(const String& initTitle,
+                           unsigned int initWidth,
                            unsigned int initHeight,
 		           WindowMode initMode):
+  title(initTitle),
   width(initWidth),
   height(initHeight),
   mode(initMode)
 {
 }
 
-void WindowConfig::setDefaults()
-{
-  set(640, 480, WINDOWED);
-}
-
-void WindowConfig::set(unsigned int newWidth,
-                       unsigned int newHeight,
-		       WindowMode newMode)
-{
-  width = newWidth;
-  height = newHeight;
-  mode = newMode;
-}
-
 ///////////////////////////////////////////////////////////////////////
 
-ContextConfig::ContextConfig()
+ContextConfig::ContextConfig():
+  colorBits(32),
+  depthBits(24),
+  stencilBits(0),
+  samples(0)
 {
-  setDefaults();
 }
 
 ContextConfig::ContextConfig(unsigned int initColorBits,
@@ -337,22 +339,6 @@ ContextConfig::ContextConfig(unsigned int initColorBits,
   stencilBits(initStencilBits),
   samples(initSamples)
 {
-}
-
-void ContextConfig::setDefaults()
-{
-  set(32, 32, 0, 0);
-}
-
-void ContextConfig::set(unsigned int newColorBits,
-		        unsigned int newDepthBits,
-		        unsigned int newStencilBits,
-		        unsigned int newSamples)
-{
-  colorBits = newColorBits;
-  depthBits = newDepthBits;
-  stencilBits = newStencilBits;
-  samples = newSamples;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1510,13 +1496,13 @@ bool Context::init(const WindowConfig& windowConfig,
 
   // Finish GLFW init
   {
-    setTitle("Wendy");
-    glfwPollEvents();
+    setTitle(windowConfig.title.c_str());
 
     glfwSetWindowSizeCallback(sizeCallback);
     glfwSetWindowCloseCallback(closeCallback);
     glfwSetWindowRefreshCallback(refreshCallback);
     glfwDisable(GLFW_AUTO_POLL_EVENTS);
+    glfwPollEvents();
 
     glfwSwapInterval(1);
   }

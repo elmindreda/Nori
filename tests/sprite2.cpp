@@ -35,14 +35,13 @@ bool Test::init()
   if (!index.addSearchPath(Path("../media")))
     return false;
 
-  if (!GL::Context::createSingleton(index))
+  if (!GL::Context::createSingleton(index, GL::WindowConfig("2D Sprite Test")))
   {
     logError("Failed to create OpenGL context");
     return false;
   }
 
   GL::Context* context = GL::Context::getSingleton();
-  context->setTitle("2D sprite");
 
   state = new render::SharedProgramState();
   state->reserveSupported(*context);

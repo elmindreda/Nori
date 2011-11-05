@@ -57,11 +57,10 @@ bool Demo::init()
   if (!index.addSearchPath(Path("../media/sponza")))
     return false;
 
-  if (!GL::Context::createSingleton(index))
+  if (!GL::Context::createSingleton(index, GL::WindowConfig("Sponza Atrium")))
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
-  context->setTitle("Sponza Atrium");
 
   const unsigned int width = context->getDefaultFramebuffer().getWidth();
   const unsigned int height = context->getDefaultFramebuffer().getHeight();

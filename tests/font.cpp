@@ -52,14 +52,13 @@ bool Test::init()
   if (!index.addSearchPath(Path("../media")))
     return false;
 
-  if (!GL::Context::createSingleton(index))
+  if (!GL::Context::createSingleton(index, GL::WindowConfig("Text Rendering Test")))
   {
     logError("Failed to create OpenGL context");
     return false;
   }
 
   GL::Context* context = GL::Context::getSingleton();
-  context->setTitle("Font Test");
   context->setRefreshMode(GL::Context::MANUAL_REFRESH);
 
   state = new render::SharedProgramState();
