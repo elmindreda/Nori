@@ -71,7 +71,7 @@ bool Test::init()
 
   camera = new render::Camera();
   camera->setFOV(60.f);
-  camera->setAspectRatio(0.f);
+  camera->setAspectRatio(4.f / 3.f);
 
   cameraNode = new scene::CameraNode();
   cameraNode->setCamera(camera);
