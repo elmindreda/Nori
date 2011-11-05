@@ -680,8 +680,60 @@ Ref<Program> Program::create(const ResourceInfo& info,
                              const Shader& fragmentShader)
 {
   Ref<Program> program(new Program(info, context));
-  if (!program->init(vertexShader, fragmentShader))
-    return NULL;
+  if (!program->attachShader(vertexShader, GL_VERTEX_SHADER)) return NULL;
+  if (!program->attachShader(fragmentShader, GL_FRAGMENT_SHADER)) return NULL;
+  if (!program->linkProgram()) return NULL;
+
+  return program;
+}
+
+Ref<Program> Program::create(const ResourceInfo& info,
+                             Context& context,
+                             const Shader& vertexShader,
+                             const Shader& fragmentShader,
+                             const Shader& geometryShader)
+{
+  Ref<Program> program(new Program(info, context));
+  if (!program->attachShader(vertexShader, GL_VERTEX_SHADER)) return NULL;
+  if (!program->attachShader(fragmentShader, GL_FRAGMENT_SHADER)) return NULL;
+  if (!program->attachShader(geometryShader, GL_GEOMETRY_SHADER)) return NULL;
+  if (!program->linkProgram()) return NULL;
+
+  return program;
+}
+
+Ref<Program> Program::create(const ResourceInfo& info,
+                             Context& context,
+                             const Shader& vertexShader,
+                             const Shader& fragmentShader,
+                             const Shader& tessCtrlShader,
+                             const Shader& tessEvalShader)
+{
+  Ref<Program> program(new Program(info, context));
+  if (!program->attachShader(vertexShader, GL_VERTEX_SHADER)) return NULL;
+  if (!program->attachShader(fragmentShader, GL_FRAGMENT_SHADER)) return NULL;
+  if (!program->attachShader(tessCtrlShader, GL_TESS_CONTROL_SHADER)) return NULL;
+  if (!program->attachShader(tessEvalShader, GL_TESS_EVALUATION_SHADER)) return NULL;
+  if (!program->linkProgram()) return NULL;
+
+  return program;
+}
+
+Ref<Program> Program::create(const ResourceInfo& info,
+                             Context& context,
+                             const Shader& vertexShader,
+                             const Shader& fragmentShader,
+                             const Shader& geometryShader,
+                             const Shader& tessCtrlShader,
+                             const Shader& tessEvalShader)
+{
+  Ref<Program> program(new Program(info, context));
+  if (!program->attachShader(vertexShader, GL_VERTEX_SHADER)) return NULL;
+  if (!program->attachShader(fragmentShader, GL_FRAGMENT_SHADER)) return NULL;
+  if (!program->attachShader(geometryShader, GL_GEOMETRY_SHADER)) return NULL;
+  if (!program->attachShader(tessCtrlShader, GL_TESS_CONTROL_SHADER)) return NULL;
+  if (!program->attachShader(tessEvalShader, GL_TESS_EVALUATION_SHADER)) return NULL;
+  if (!program->linkProgram()) return NULL;
 
   return program;
 }
@@ -694,7 +746,13 @@ Ref<Program> Program::read(Context& context, const Path& path)
 
 Program::Program(const ResourceInfo& info, Context& initContext):
   Resource(info),
-  context(initContext)
+  context(initContext),
+  vertexShaderID(0),
+  fragmentShaderID(0),
+  geometryShaderID(0),
+  tessCtrlShaderID(0),
+  tessEvalShaderID(0),
+  programID(0)
 {
 }
 
@@ -703,24 +761,44 @@ Program::Program(const Program& source):
   context(source.context),
   vertexShaderID(0),
   fragmentShaderID(0),
+  geometryShaderID(0),
+  tessCtrlShaderID(0),
+  tessEvalShaderID(0),
   programID(0)
 {
 }
 
-bool Program::init(const Shader& vertexShader, const Shader& fragmentShader)
+bool Program::attachShader(const Shader& shader, unsigned int type)
 {
-  vertexShaderID = createShader(context, GL_VERTEX_SHADER, vertexShader);
-  if (!vertexShaderID)
+  GLuint shaderID = createShader(context, type, shader);
+  if (!shaderID)
     return false;
 
-  fragmentShaderID = createShader(context, GL_FRAGMENT_SHADER, fragmentShader);
-  if (!fragmentShaderID)
-    return false;
+  switch(type) {
+    case GL_VERTEX_SHADER: vertexShaderID = shaderID; break;
+    case GL_TESS_CONTROL_SHADER: tessCtrlShaderID = shaderID; break;
+    case GL_TESS_EVALUATION_SHADER: tessEvalShaderID = shaderID; break;
+    case GL_GEOMETRY_SHADER: geometryShaderID = shaderID; break;
+    case GL_FRAGMENT_SHADER: fragmentShaderID = shaderID; break;
+    default: panic("Invalid shader type"); break;
+  }
 
+  return true;
+}
+
+bool Program::linkProgram()
+{
   programID = glCreateProgram();
+
+  if (!vertexShaderID || !fragmentShaderID)
+    return false;
 
   glAttachShader(programID, vertexShaderID);
   glAttachShader(programID, fragmentShaderID);
+
+  if (tessCtrlShaderID) glAttachShader(programID, tessCtrlShaderID);
+  if (tessEvalShaderID) glAttachShader(programID, tessEvalShaderID);
+  if (geometryShaderID) glAttachShader(programID, geometryShaderID);
 
   glLinkProgram(programID);
 

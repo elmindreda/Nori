@@ -259,11 +259,28 @@ public:
                              Context& context,
                              const Shader& vertexShader,
                              const Shader& fragmentShader);
+  static Ref<Program> create(const ResourceInfo &info,
+                             Context &context,
+                             const Shader& vertexShader,
+                             const Shader& fragmentShader,
+                             const Shader& geometryShader);
+  static Ref<Program> create(const ResourceInfo &info,
+                             Context &context,
+                             const Shader& vertexShader,
+                             const Shader& fragmentShader,
+                             const Shader& tessCtrlShader,
+                             const Shader& tessEvalShader);
+  static Ref<Program> create(const ResourceInfo &info,
+                             Context &context,
+                             const Shader& vertexShader,
+                             const Shader& fragmentShader,
+                             const Shader& geometryShader, const Shader &tessCtrlShader, const Shader &tessEvalShader);
   static Ref<Program> read(Context& context, const Path& path);
 private:
   Program(const ResourceInfo& info, Context& context);
   Program(const Program& source);
-  bool init(const Shader& vertexShader, const Shader& fragmentShader);
+  bool attachShader(const Shader& shader, unsigned int type);
+  bool linkProgram();
   bool retrieveUniforms();
   bool retrieveAttributes();
   void bind();
@@ -276,6 +293,9 @@ private:
   Context& context;
   unsigned int vertexShaderID;
   unsigned int fragmentShaderID;
+  unsigned int geometryShaderID;
+  unsigned int tessCtrlShaderID;
+  unsigned int tessEvalShaderID;
   unsigned int programID;
   AttributeList attributes;
   SamplerList samplers;
