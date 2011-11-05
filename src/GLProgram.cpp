@@ -289,7 +289,7 @@ String getProgramInfoLog(GLuint programID)
   return String();
 }
 
-const unsigned int PROGRAM_XML_VERSION = 3;
+const unsigned int PROGRAM_XML_VERSION = 4;
 
 } /*namespace*/
 
