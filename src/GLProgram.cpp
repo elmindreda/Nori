@@ -41,6 +41,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <sstream>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -214,6 +215,11 @@ bool readTextFile(ResourceIndex& index, String& text, const Path& path)
 GLuint createShader(GL::Context& context, GLenum type, const Shader& shader)
 {
   String decl;
+  if (shader.version > 100)
+  {
+    std::ostringstream ss; ss << shader.version;
+    decl.append("#version " + ss.str() + "\n");
+  }
   decl.append("#line 0 0\n");
   decl.append(context.getSharedProgramStateDeclaration());
 
@@ -303,9 +309,10 @@ Shader::Shader()
 {
 }
 
-Shader::Shader(const char* initText, const Path& initPath):
+Shader::Shader(const char* initText, const Path& initPath, unsigned int initVersion):
   text(initText),
-  path(initPath)
+  path(initPath),
+  version(initVersion)
 {
 }
 
@@ -1241,6 +1248,10 @@ bool ProgramReader::shaderElement(const String& name)
   }
 
   shaders[name] = Shader(text.c_str(), path);
+
+  const unsigned int version = readInteger("glsl-version");
+  if (version >= 100) shaders[name].version = version;
+
   return true;
 }
 

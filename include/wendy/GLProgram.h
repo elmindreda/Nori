@@ -54,10 +54,11 @@ class Shader
 {
 public:
   Shader();
-  Shader(const char* text, const Path& path = Path());
+  Shader(const char* text, const Path& path = Path(), unsigned int version = 120);
   bool empty() const { return text.empty(); }
   String text;
   Path path;
+  unsigned int version;
 };
 
 ///////////////////////////////////////////////////////////////////////
