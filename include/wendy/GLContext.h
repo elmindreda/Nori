@@ -170,7 +170,16 @@ public:
   /*! @return The number of available fragment shader texture image units.
    */
   unsigned int getMaxFragmentTextureImageUnits() const;
-  /*! @return The number of available vertex and fragment shader texture image units.
+  /*! @return The number of available geometry shader texture image units.
+   */
+  unsigned int getMaxGeometryTextureImageUnits() const;
+  /*! @return The number of available tessellation control shader texture image units.
+   */
+  unsigned int getMaxTessControlTextureImageUnits() const;
+  /*! @return The number of available tessellation evaluation shader texture image units.
+   */
+  unsigned int getMaxTessEvaluationTextureImageUnits() const;
+  /*! @return The total number of available shader texture image units.
    */
   unsigned int getMaxCombinedTextureImageUnits() const;
   /*! @return The maximum size, in pixels, of 2D POT textures.
@@ -197,6 +206,9 @@ private:
   unsigned int maxDrawBuffers;
   unsigned int maxVertexTextureImageUnits;
   unsigned int maxFragmentTextureImageUnits;
+  unsigned int maxGeometryTextureImageUnits;
+  unsigned int maxTessControlTextureImageUnits;
+  unsigned int maxTessEvaluationTextureImageUnits;
   unsigned int maxCombinedTextureImageUnits;
   unsigned int maxTextureSize;
   unsigned int maxTexture3DSize;

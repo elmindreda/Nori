@@ -356,6 +356,9 @@ Limits::Limits(Context& initContext):
   maxDrawBuffers = getIntegerParameter(GL_MAX_DRAW_BUFFERS);
   maxVertexTextureImageUnits = getIntegerParameter(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
   maxFragmentTextureImageUnits = getIntegerParameter(GL_MAX_TEXTURE_IMAGE_UNITS);
+  maxGeometryTextureImageUnits = getIntegerParameter(GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS);
+  maxTessControlTextureImageUnits = getIntegerParameter(GL_MAX_TESS_CONTROL_TEXTURE_IMAGE_UNITS);
+  maxTessEvaluationTextureImageUnits = getIntegerParameter(GL_MAX_TESS_EVALUATION_TEXTURE_IMAGE_UNITS);
   maxCombinedTextureImageUnits = getIntegerParameter(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
   maxTextureSize = getIntegerParameter(GL_MAX_TEXTURE_SIZE);
   maxTexture3DSize = getIntegerParameter(GL_MAX_3D_TEXTURE_SIZE);
@@ -383,6 +386,21 @@ unsigned int Limits::getMaxVertexTextureImageUnits() const
 unsigned int Limits::getMaxFragmentTextureImageUnits() const
 {
   return maxFragmentTextureImageUnits;
+}
+
+unsigned int Limits::getMaxGeometryTextureImageUnits() const
+{
+  return maxGeometryTextureImageUnits;
+}
+
+unsigned int Limits::getMaxTessControlTextureImageUnits() const
+{
+  return maxTessControlTextureImageUnits;
+}
+
+unsigned int Limits::getMaxTessEvaluationTextureImageUnits() const
+{
+  return maxTessEvaluationTextureImageUnits;
 }
 
 unsigned int Limits::getMaxCombinedTextureImageUnits() const
