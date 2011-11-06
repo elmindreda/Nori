@@ -1,5 +1,5 @@
 
-set(TESTS clear cubemap deferred font graph sprite2 sprite3)
+set(TESTS clear cubemap deferred font graph sprite2 sprite3 tessellation)
 
 foreach(test ${TESTS})
   add_executable(${test} WIN32 MACOSX_BUNDLE ${test}.cpp)
