@@ -1,3 +1,4 @@
+#extension GL_ARB_texture_rectangle : require
 
 uniform sampler2DRect image;
 
