@@ -830,6 +830,13 @@ bool Program::linkProgram()
              infoLog.c_str());
   }
 
+  /* FIXME: Gives invalid enum errors ?!
+  if (geometryShaderID) {
+    glProgramParameteri(programID, GL_GEOMETRY_VERTICES_OUT, context.getLimits().getMaxGeometryOutputVertices());
+    glProgramParameteri(programID, GL_GEOMETRY_INPUT_TYPE, GL_TRIANGLES);
+    glProgramParameteri(programID, GL_GEOMETRY_OUTPUT_TYPE, GL_TRIANGLE_STRIP);
+  }*/
+
   if (!checkGL("Failed to create object for program \'%s\'",
                getPath().asString().c_str()))
   {
