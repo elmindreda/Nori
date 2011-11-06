@@ -43,11 +43,10 @@ bool Test::init()
 {
   index.addSearchPath(Path("../media"));
 
-  if (!GL::Context::createSingleton(index))
+  if (!GL::Context::createSingleton(index, GL::WindowConfig("Deferred Rendering Test")))
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
-  context->setTitle("Deferred Rendering");
 
   const unsigned int width = context->getDefaultFramebuffer().getWidth();
   const unsigned int height = context->getDefaultFramebuffer().getHeight();

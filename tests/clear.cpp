@@ -9,14 +9,13 @@ int main()
 {
   ResourceIndex index;
 
-  if (!GL::Context::createSingleton(index))
+  if (!GL::Context::createSingleton(index, GL::WindowConfig("Clear screen")))
   {
     logError("Failed to create OpenGL context");
     std::exit(EXIT_FAILURE);
   }
 
   GL::Context* context = GL::Context::getSingleton();
-  context->setTitle("Clear screen");
 
   do
   {

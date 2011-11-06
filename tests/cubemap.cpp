@@ -41,11 +41,10 @@ bool Test::init()
   if (!index.addSearchPath(Path("../media")))
     return false;
 
-  if (!GL::Context::createSingleton(index))
+  if (!GL::Context::createSingleton(index, GL::WindowConfig("Cube Mapping Test")))
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
-  context->setTitle("Cube Map");
 
   if (!input::Context::createSingleton(*context))
     return false;

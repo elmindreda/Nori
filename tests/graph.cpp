@@ -43,11 +43,10 @@ bool Test::init()
   if (!index.addSearchPath(Path("../media")))
     return false;
 
-  if (!GL::Context::createSingleton(index))
+  if (!GL::Context::createSingleton(index, GL::WindowConfig("Scene Graph")))
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
-  context->setTitle("Scene Graph");
 
   pool = new render::GeometryPool(*context);
 
