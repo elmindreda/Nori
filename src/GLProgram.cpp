@@ -1197,6 +1197,8 @@ bool ProgramReader::onBeginElement(const String& name)
   if (name == "geometry") return shaderElement(name);
   if (name == "fragment") return shaderElement(name);
 
+  logWarning("Unknown element '%s' in program XML", name.c_str());
+
   return true;
 }
 
