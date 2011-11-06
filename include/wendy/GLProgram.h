@@ -248,6 +248,7 @@ public:
   Uniform* findUniform(const char* name);
   const Uniform* findUniform(const char* name) const;
   bool isCurrent() const;
+  bool hasTessellation() const;
   unsigned int getAttributeCount() const;
   Attribute& getAttribute(unsigned int index);
   const Attribute& getAttribute(unsigned int index) const;

@@ -635,6 +635,11 @@ bool Program::isCurrent() const
   return context.getCurrentProgram() == this;
 }
 
+bool Program::hasTessellation() const
+{
+  return tessCtrlShaderID > 0 || tessEvalShaderID > 0;
+}
+
 unsigned int Program::getAttributeCount() const
 {
   return attributes.size();
