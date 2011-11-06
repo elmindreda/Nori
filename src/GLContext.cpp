@@ -366,6 +366,7 @@ Limits::Limits(Context& initContext):
   maxTextureRectangleSize = getIntegerParameter(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB);
   maxTextureCoords = getIntegerParameter(GL_MAX_TEXTURE_COORDS);
   maxVertexAttributes = getIntegerParameter(GL_MAX_VERTEX_ATTRIBS);
+  maxGeometryOutputVertices = getIntegerParameter(GL_MAX_GEOMETRY_OUTPUT_VERTICES);
 }
 
 unsigned int Limits::getMaxColorAttachments() const
@@ -436,6 +437,11 @@ unsigned int Limits::getMaxTextureCoords() const
 unsigned int Limits::getMaxVertexAttributes() const
 {
   return maxVertexAttributes;
+}
+
+unsigned int Limits::getMaxGeometryOutputVertices() const
+{
+  return maxGeometryOutputVertices;
 }
 
 ///////////////////////////////////////////////////////////////////////

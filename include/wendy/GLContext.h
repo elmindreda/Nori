@@ -200,6 +200,9 @@ public:
   /*! @return The number of available vertex attributes.
    */
   unsigned int getMaxVertexAttributes() const;
+  /*! @return The maximum number of vertices geometry shader can emit.
+   */
+  unsigned int getMaxGeometryOutputVertices() const;
 private:
   Context& context;
   unsigned int maxColorAttachments;
@@ -216,6 +219,7 @@ private:
   unsigned int maxTextureRectangleSize;
   unsigned int maxVertexAttributes;
   unsigned int maxTextureCoords;
+  unsigned int maxGeometryOutputVertices;
 };
 
 ///////////////////////////////////////////////////////////////////////
