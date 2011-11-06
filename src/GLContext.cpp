@@ -1398,6 +1398,8 @@ bool Context::init(const WindowConfig& windowConfig,
     return false;
   }
 
+  unsigned int glMajor = 1;
+
   // Create context and window
   {
     unsigned int colorBits = contextConfig.colorBits;
@@ -1429,8 +1431,10 @@ bool Context::init(const WindowConfig& windowConfig,
       return false;
     }
 
+    glMajor = glfwGetWindowParam(GLFW_OPENGL_VERSION_MAJOR);
+
     log("OpenGL context version %i.%i created",
-        glfwGetWindowParam(GLFW_OPENGL_VERSION_MAJOR),
+        glMajor,
         glfwGetWindowParam(GLFW_OPENGL_VERSION_MINOR));
 
     log("OpenGL context GLSL version is %s",
@@ -1451,13 +1455,13 @@ bool Context::init(const WindowConfig& windowConfig,
       return false;
     }
 
-    if (!GLEW_ARB_texture_rectangle)
+    if (!GLEW_ARB_texture_rectangle && glMajor < 3)
     {
       logError("Rectangular textures (ARB_texture_rectangle) is required but not supported");
       return false;
     }
 
-    if (!GLEW_EXT_framebuffer_object)
+    if (!GLEW_EXT_framebuffer_object && glMajor < 3)
     {
       logError("Framebuffer objects (EXT_framebuffer_object) are required but not supported");
       return false;
