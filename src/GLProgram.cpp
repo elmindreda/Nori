@@ -218,8 +218,8 @@ GLuint createShader(GL::Context& context, GLenum type, const Shader& shader)
   decl.append(context.getSharedProgramStateDeclaration());
 
   String main;
-  decl.append("#line 0 1\n");
-  decl.append(shader.text);
+  main.append("#line 0 1\n");
+  main.append(shader.text);
 
   GLsizei lengths[2];
   const GLchar* strings[2];
@@ -237,28 +237,32 @@ GLuint createShader(GL::Context& context, GLenum type, const Shader& shader)
   GLint status;
   glGetShaderiv(shaderID, GL_COMPILE_STATUS, &status);
 
+  GLint length;
+  glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
+  String infoLog;
+  if (length > 0)
+  {
+    infoLog.resize(length);
+    glGetShaderInfoLog(shaderID, length, NULL, &infoLog[0]);
+  }
   if (!status)
   {
-    GLint length;
-    glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
-
     if (length > 0)
-    {
-      String infoLog;
-      infoLog.resize(length);
-
-      glGetShaderInfoLog(shaderID, length, NULL, &infoLog[0]);
-
       logError("Failed to compile shader \'%s\':\n%s",
                shader.path.asString().c_str(),
                infoLog.c_str());
-    }
     else
       checkGL("Failed to compile shader \'%s\'",
               shader.path.asString().c_str());
 
     glDeleteShader(shaderID);
     return 0;
+  }
+  else if (length > 1)
+  {
+    logWarning("Warning compiling shader \'%s\':\n%s",
+               shader.path.asString().c_str(),
+               infoLog.c_str());
   }
 
   if (!checkGL("Failed to create object for shader \'%s\'",
@@ -804,14 +808,19 @@ bool Program::linkProgram()
 
   int status;
   glGetProgramiv(programID, GL_LINK_STATUS, &status);
+  String infoLog = getProgramInfoLog(programID);
   if (!status)
   {
-    String infoLog = getProgramInfoLog(programID);
     logError("Failed to link program \'%s\':\n%s",
              path.asString().c_str(),
              infoLog.c_str());
-
     return false;
+  }
+  else if (infoLog.length() > 1)
+  {
+    logWarning("Warning when linking program \'%s\':\n%s",
+             path.asString().c_str(),
+             infoLog.c_str());
   }
 
   if (!checkGL("Failed to create object for program \'%s\'",
