@@ -69,12 +69,6 @@ if(MSVC)
     LINK_FLAGS "/ENTRY:mainCRTStartup")
 endif(MSVC)
 
-if(CYGWIN)
-  set_target_properties(#{@name} PROPERTIES
-    COMPILE_FLAGS "-mno-cygwin"
-    LINK_FLAGS "-mno-cygwin -mwindows")
-endif(CYGWIN)
-
 EOF
     end
   end
