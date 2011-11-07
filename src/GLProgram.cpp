@@ -239,28 +239,33 @@ GLuint createShader(GL::Context& context, GLenum type, const Shader& shader)
 
   GLint length;
   glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
+
   String infoLog;
+
   if (length > 0)
   {
     infoLog.resize(length);
     glGetShaderInfoLog(shaderID, length, NULL, &infoLog[0]);
   }
+
   if (!status)
   {
     if (length > 0)
+    {
       logError("Failed to compile shader \'%s\':\n%s",
                shader.path.asString().c_str(),
                infoLog.c_str());
+    }
     else
-      checkGL("Failed to compile shader \'%s\'",
-              shader.path.asString().c_str());
+      checkGL("Failed to compile shader \'%s\'", shader.path.asString().c_str());
 
     glDeleteShader(shaderID);
     return 0;
   }
-  else if (length > 1)
+
+  if (length > 1)
   {
-    logWarning("Warning compiling shader \'%s\':\n%s",
+    logWarning("Warning(s) compiling shader \'%s\':\n%s",
                shader.path.asString().c_str(),
                infoLog.c_str());
   }
@@ -728,9 +733,11 @@ bool Program::init(const Shader& vertexShader, const Shader& fragmentShader)
 
   glLinkProgram(programID);
 
+  String infoLog = getProgramInfoLog(programID);
+
   int status;
   glGetProgramiv(programID, GL_LINK_STATUS, &status);
-  String infoLog = getProgramInfoLog(programID);
+
   if (!status)
   {
     logError("Failed to link program \'%s\':\n%s",
@@ -738,9 +745,10 @@ bool Program::init(const Shader& vertexShader, const Shader& fragmentShader)
              infoLog.c_str());
     return false;
   }
-  else if (infoLog.length() > 1)
+
+  if (infoLog.length() > 1)
   {
-    logWarning("Warning when linking program \'%s\':\n%s",
+    logWarning("Warning(s) when linking program \'%s\':\n%s",
              path.asString().c_str(),
              infoLog.c_str());
   }
