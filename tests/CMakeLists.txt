@@ -23,8 +23,3 @@ if(MSVC)
   set_target_properties(${TESTS} PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup")
 endif(MSVC)
 
-if(CYGWIN)
-  # Set cross-compile and subsystem compile and link flags
-  set_target_properties(${TESTS} PROPERTIES COMPILE_FLAGS "-mno-cygwin" LINK_FLAGS "-mno-cygwin -mwindows")
-endif(CYGWIN)
-
