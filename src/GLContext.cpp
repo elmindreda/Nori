@@ -328,7 +328,8 @@ ContextConfig::ContextConfig():
   stencilBits(0),
   samples(0),
   glMajor(2),
-  glMinor(1)
+  glMinor(1),
+  glProfile(COMPAT)
 {
 }
 
@@ -337,13 +338,15 @@ ContextConfig::ContextConfig(unsigned int initColorBits,
 			     unsigned int initStencilBits,
 			     unsigned int initSamples,
 			     unsigned int initGLMajor,
-			     unsigned int initGLMinor):
+			     unsigned int initGLMinor,
+			     GLProfile initGLProfile):
   colorBits(initColorBits),
   depthBits(initDepthBits),
   stencilBits(initStencilBits),
   samples(initSamples),
   glMajor(initGLMajor),
-  glMinor(initGLMinor)
+  glMinor(initGLMinor),
+  glProfile(initGLProfile)
 {
 }
 
@@ -1465,6 +1468,15 @@ bool Context::init(const WindowConfig& windowConfig,
 
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, contextConfig.glMajor);
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, contextConfig.glMinor);
+    if (contextConfig.glMajor > 3 || (contextConfig.glMajor == 3 && contextConfig.glMinor >= 2))
+    {
+      switch (contextConfig.glProfile) {
+        case ContextConfig::CORE:
+          glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); break;
+        case ContextConfig::COMPAT:
+          glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE); break;
+      }
+    }
 
 #if WENDY_DEBUG
     glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);

@@ -43,9 +43,8 @@ bool Test::init()
   if (!index.addSearchPath(Path("../media")))
     return false;
 
-  // FIXME: OpenGL >= 3.2 crashes :/
   GL::ContextConfig cc;
-  cc.glMajor = 3;
+  cc.glMajor = 4;
   cc.glMinor = 1;
 
   if (!GL::Context::createSingleton(index, GL::WindowConfig("OpenGL 4 Hardware Tessellation"), cc))

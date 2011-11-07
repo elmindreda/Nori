@@ -115,6 +115,7 @@ public:
 class ContextConfig
 {
 public:
+  enum GLProfile { CORE, COMPAT };
   /*! Default constructor.
    */
   ContextConfig();
@@ -125,7 +126,8 @@ public:
 	        unsigned int stencilBits = 0,
 	        unsigned int samples = 0,
 	        unsigned int glMajor = 2,
-	        unsigned int glMinor = 1);
+	        unsigned int glMinor = 1,
+	        GLProfile glProfile = COMPAT);
   /*! The desired color buffer bit depth.
    */
   unsigned int colorBits;
@@ -139,11 +141,14 @@ public:
    */
   unsigned int samples;
   /*! OpenGL major version number.
-  */
+   */
   unsigned int glMajor;
   /*! OpenGL minor version number.
-  */
+   */
   unsigned int glMinor;
+  /*! OpenGL profile.
+   */
+  GLProfile glProfile;
 };
 
 ///////////////////////////////////////////////////////////////////////

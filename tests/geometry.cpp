@@ -43,7 +43,7 @@ bool Test::init()
 
   GL::ContextConfig cc;
   cc.glMajor = 3;
-  cc.glMinor = 1;
+  cc.glMinor = 3;
 
   if (!GL::Context::createSingleton(index, GL::WindowConfig("Geometry Shader Test"), cc))
     return false;
