@@ -71,6 +71,7 @@ class ResourceIndex
 public:
   ~ResourceIndex();
   bool addSearchPath(const Path& path);
+  bool addSearchPathAlt(const Path& path1, const Path& path2);
   void removeSearchPath(const Path& path);
   Resource* findResource(const Path& path) const;
   bool openFile(std::ifstream& stream, const Path& path) const;

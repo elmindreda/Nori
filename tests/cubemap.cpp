@@ -38,7 +38,7 @@ Test::~Test()
 
 bool Test::init()
 {
-  if (!index.addSearchPath(Path("media")))
+  if (!index.addSearchPathAlt(Path("media"), Path("../media")))
     return false;
 
   if (!GL::Context::createSingleton(index, GL::WindowConfig("Cube Mapping Test")))

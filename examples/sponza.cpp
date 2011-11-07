@@ -51,10 +51,10 @@ Demo::~Demo()
 
 bool Demo::init()
 {
-  if (!index.addSearchPath(Path("media")))
+  if (!index.addSearchPathAlt(Path("media"), Path("../media")))
     return false;
 
-  if (!index.addSearchPath(Path("media/sponza")))
+  if (!index.addSearchPathAlt(Path("media/sponza"), Path("../media/sponza")))
     return false;
 
   if (!GL::Context::createSingleton(index, GL::WindowConfig("Sponza Atrium")))
