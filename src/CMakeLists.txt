@@ -4,11 +4,7 @@ include_directories(${libpng_SOURCE_DIR}
 		    ${expat_SOURCE_DIR}
 		    ${PCRE_SOURCE_DIR}
                     ${GLEW_SOURCE_DIR}
-                    ${glfw_SOURCE_DIR}
-                    ${OPENAL_INCLUDE_DIR}
-                    ${libogg_SOURCE_DIR}
-                    ${libvorbis_SOURCE_DIR}
-                    ${squirrel_SOURCE_DIR})
+                    ${glfw_SOURCE_DIR})
 
 set(wendy_SOURCES
     Wendy.cpp
@@ -24,6 +20,9 @@ set(wendy_SOURCES
     Input.cpp)
 
 if(WENDY_INCLUDE_OPENAL)
+  include_directories(${OPENAL_INCLUDE_DIR}
+                      ${libogg_SOURCE_DIR}
+                      ${libvorbis_SOURCE_DIR})
   list(APPEND wendy_SOURCES OpenAL.cpp ALBuffer.cpp ALContext.cpp ALSource.cpp)
 endif(WENDY_INCLUDE_OPENAL)
 
@@ -37,6 +36,7 @@ if(WENDY_INCLUDE_RENDERER)
 endif(WENDY_INCLUDE_RENDERER)
 
 if(WENDY_INCLUDE_SQUIRREL)
+  include_directories(${squirrel_SOURCE_DIR})
   list(APPEND wendy_SOURCES Squirrel.cpp)
 endif(WENDY_INCLUDE_SQUIRREL)
 
