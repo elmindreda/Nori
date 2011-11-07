@@ -108,6 +108,32 @@ bool ResourceIndex::addSearchPath(const Path& path)
   return true;
 }
 
+bool ResourceIndex::addSearchPathAlt(const Path& path1, const Path& path2)
+{
+  bool found = false;
+  if (path1.isDirectory())
+  {
+    found = true;
+
+    if (std::find(paths.begin(), paths.end(), path1) == paths.end())
+      paths.push_back(path1);
+  }
+  else if (path2.isDirectory())
+  {
+    found = true;
+
+    if (std::find(paths.begin(), paths.end(), path2) == paths.end())
+      paths.push_back(path2);
+  }
+
+  if (!found)
+    logError("Neither \'%s\' nor \'%s\' resource search path exist",
+             path1.asString().c_str(),
+             path2.asString().c_str());
+
+  return found;
+}
+
 void ResourceIndex::removeSearchPath(const Path& path)
 {
   paths.erase(std::find(paths.begin(), paths.end(), path));
