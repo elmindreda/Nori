@@ -12,6 +12,9 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
   message(WARNING "In-source builds are not recommended. "
                   "Consider building in a separate directory, "
                   "to avoid polluting the source tree.")
+else(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+  # Output executables to build dir root for easy access
+  set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 endif(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
 
 # Add a sensible default build type
