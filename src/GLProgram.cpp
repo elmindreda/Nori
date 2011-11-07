@@ -268,12 +268,6 @@ GLuint createShader(GL::Context& context, GLenum type, const Shader& shader)
     glDeleteShader(shaderID);
     return 0;
   }
-  else if (length > 1)
-  {
-    logWarning("Warning compiling shader \'%s\':\n%s",
-               shader.path.asString().c_str(),
-               infoLog.c_str());
-  }
 
   if (length > 1)
   {
@@ -841,9 +835,10 @@ bool Program::linkProgram()
              infoLog.c_str());
     return false;
   }
-  else if (infoLog.length() > 1)
+
+  if (infoLog.length() > 1)
   {
-    logWarning("Warning when linking program \'%s\':\n%s",
+    logWarning("Warning(s) when linking program \'%s\':\n%s",
              path.asString().c_str(),
              infoLog.c_str());
   }
@@ -854,13 +849,6 @@ bool Program::linkProgram()
     glProgramParameteri(programID, GL_GEOMETRY_INPUT_TYPE, GL_TRIANGLES);
     glProgramParameteri(programID, GL_GEOMETRY_OUTPUT_TYPE, GL_TRIANGLE_STRIP);
   }*/
-
-  if (infoLog.length() > 1)
-  {
-    logWarning("Warning(s) when linking program \'%s\':\n%s",
-             path.asString().c_str(),
-             infoLog.c_str());
-  }
 
   if (!checkGL("Failed to create object for program \'%s\'",
                getPath().asString().c_str()))
