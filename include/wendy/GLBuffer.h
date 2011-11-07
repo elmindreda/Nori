@@ -576,6 +576,13 @@ inline IndexRangeLock<T>::IndexRangeLock(IndexRange& initRange):
     panic("Failed to lock index buffer");
 }
 
+template <>
+IndexRangeLock<uint8>::IndexRangeLock(IndexRange &range);
+template <>
+IndexRangeLock<uint16>::IndexRangeLock(IndexRange &range);
+template <>
+IndexRangeLock<uint32>::IndexRangeLock(IndexRange &range);
+
 template <typename T>
 inline IndexRangeLock<T>::~IndexRangeLock()
 {

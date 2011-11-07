@@ -17,11 +17,3 @@ if(MSVC)
     LINK_FLAGS "/ENTRY:mainCRTStartup")
 endif(MSVC)
 
-if(CYGWIN)
-  # Set cross-compile and subsystem compile and link flags
-
-  set_target_properties(sponza PROPERTIES
-    COMPILE_FLAGS "-mno-cygwin"
-    LINK_FLAGS "-mno-cygwin -mwindows")
-endif(CYGWIN)
-

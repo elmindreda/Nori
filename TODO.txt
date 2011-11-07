@@ -1,0 +1,132 @@
+
+Core
+====
+
+Add file change notifications
+Add resource names separate from paths
+Add explicit resource hierarchy
+Add automatic resource reloading
+
+Allow multiple source files for resources
+
+Add OBB3 implementation
+
+Add triangle intersection
+
+Replace std::string with UTF-8 string class (possibly using utf8)
+Add conversion facility UTF-8 <-> ASCII, Latin 1, UTF-16 and UTF-32
+
+Add kerning calculations at font load time
+Add unknown character glyph
+
+Replace Mesh with more flexible, DoD-friendly structures
+Add binary mesh format (possibly using OpenCTM)
+
+Add hierarchical profiling module
+
+Add resource layers or master resource stack
+
+Add functors to signal module
+
+
+OpenAL
+======
+
+Add streaming of audio files
+
+Remove ResourceIndex from Context, if possible
+
+
+OpenGL
+======
+
+Add multi-buffer clearing to Context
+
+Add binding objects connecting geometry buffers with programs
+Remove last string compares in render code
+Add ARB_vertex_array_object code path, if possible
+
+Add value cache to Uniform and Sampler
+
+Move resource part of Program into render
+Move resource part of Texture into render
+
+Require explicit type at texture creation
+
+Remove ResourceIndex from Context, if possible
+
+Move RenderState core into Context
+Move ProgramState into render
+Remove last uses of OpenGL state stack
+
+Add anisotropic filtering to Texture
+
+Move onto GLFW 3
+Make Context be a non-singleton object
+
+
+Renderer
+========
+
+Move font texture from sampler2D to samplerRECT
+Stop rendering whitespace "glyphs"
+
+Add procedural generation to TextureReader
+
+Add simple, distance-based DLOD to Model
+
+Add orthographic projection to Camera
+
+Reduce use of Ref:s during enqueue and render
+
+Add explicit Z-prepass technique type or re-use shadow mapping type
+Add optional Z-prepass to forward renderer
+
+Add names to material techniques and passes
+Add material file inheritance (i.e. partial overrides)
+
+Move deferred renderer to 16-bit G-buffer channels
+
+Add surface shaders
+Add forward renderer lighting system
+
+
+Scene
+=====
+
+Add world transform caching
+
+Add connection between animation track and scene node
+
+Add list of non-culled renderables to Scene
+
+Replace node class hierarchy with single node class
+
+Add root nodes with ivec3 coordinates scaled by per-scene vec3
+
+
+Squirrel
+========
+
+Add parameter checking
+Add collection iteration
+
+
+Input
+=====
+
+Add selection to TextController
+Make TextController capable of supporting Entry widget
+
+
+UI
+==
+
+Add check button widget
+Add radio button widget
+Add color picker widget
+
+Add tooltip system
+
+Add usable theme
+

@@ -41,7 +41,7 @@ Test::~Test()
 
 bool Test::init()
 {
-  index.addSearchPath(Path("../media"));
+  index.addSearchPath(Path("media"));
 
   if (!GL::Context::createSingleton(index, GL::WindowConfig("Deferred Rendering Test")))
     return false;
