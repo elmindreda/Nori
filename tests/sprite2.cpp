@@ -32,7 +32,7 @@ Test::~Test()
 
 bool Test::init()
 {
-  if (!index.addSearchPath(Path("../media")))
+  if (!index.addSearchPath(Path("media")))
     return false;
 
   if (!GL::Context::createSingleton(index, GL::WindowConfig("2D Sprite Test")))
