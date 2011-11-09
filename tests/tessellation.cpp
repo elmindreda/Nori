@@ -44,18 +44,12 @@ bool Test::init()
     return false;
 
   GL::ContextConfig cc;
-  cc.glMajor = 4;
-  cc.glMinor = 1;
+  cc.version = GL::Version(4,1);
 
   if (!GL::Context::createSingleton(index, GL::WindowConfig("OpenGL 4 Hardware Tessellation"), cc))
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
-
-  if (context->getGLVersionMajor() != cc.glMajor) {
-    logError("OpenGL 4 is not supported");
-    return false;
-  }
 
   if (!input::Context::createSingleton(*context))
     return false;

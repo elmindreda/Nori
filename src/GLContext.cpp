@@ -293,6 +293,42 @@ bool isCompatible(const Attribute& attribute, const VertexComponent& component)
 
 ///////////////////////////////////////////////////////////////////////
 
+Version::Version():
+  m(1),
+  n(0)
+{
+}
+
+Version::Version(unsigned int initM, unsigned int initN):
+  m(initM),
+  n(initN)
+{
+}
+
+bool Version::operator < (const Version& other) const
+{
+  if (m < other.m)
+    return true;
+
+  if (m == other.m && n < other.n)
+    return true;
+
+  return false;
+}
+
+bool Version::operator > (const Version& other) const
+{
+  if (m > other.m)
+    return true;
+
+  if (m == other.m && n > other.n)
+    return true;
+
+  return false;
+}
+
+///////////////////////////////////////////////////////////////////////
+
 WindowConfig::WindowConfig():
   title("Wendy"),
   width(640),
@@ -322,31 +358,18 @@ WindowConfig::WindowConfig(const String& initTitle,
 
 ///////////////////////////////////////////////////////////////////////
 
-ContextConfig::ContextConfig():
-  colorBits(32),
-  depthBits(24),
-  stencilBits(0),
-  samples(0),
-  glMajor(2),
-  glMinor(1),
-  glProfile(COMPAT)
-{
-}
-
 ContextConfig::ContextConfig(unsigned int initColorBits,
 			     unsigned int initDepthBits,
 			     unsigned int initStencilBits,
 			     unsigned int initSamples,
-			     unsigned int initGLMajor,
-			     unsigned int initGLMinor,
-			     GLProfile initGLProfile):
+			     Version initVersion,
+			     Profile initProfile):
   colorBits(initColorBits),
   depthBits(initDepthBits),
   stencilBits(initStencilBits),
   samples(initSamples),
-  glMajor(initGLMajor),
-  glMinor(initGLMinor),
-  glProfile(initGLProfile)
+  version(initVersion),
+  profile(initProfile)
 {
 }
 
@@ -1369,14 +1392,9 @@ ResourceIndex& Context::getIndex() const
   return index;
 }
 
-unsigned int Context::getGLVersionMajor() const
+Version Context::getVersion() const
 {
-  return glfwGetWindowParam(GLFW_OPENGL_VERSION_MAJOR);
-}
-
-unsigned int Context::getGLVersionMinor() const
-{
-  return glfwGetWindowParam(GLFW_OPENGL_VERSION_MINOR);
+  return version;
 }
 
 const Limits& Context::getLimits() const
@@ -1448,8 +1466,6 @@ bool Context::init(const WindowConfig& windowConfig,
     return false;
   }
 
-  unsigned int glMajor = 1;
-
   // Create context and window
   {
     unsigned int colorBits = contextConfig.colorBits;
@@ -1466,17 +1482,15 @@ bool Context::init(const WindowConfig& windowConfig,
     if (contextConfig.samples)
       glfwOpenWindowHint(GLFW_FSAA_SAMPLES, contextConfig.samples);
 
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, contextConfig.glMajor);
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, contextConfig.glMinor);
-    if (contextConfig.glMajor > 3 || (contextConfig.glMajor == 3 && contextConfig.glMinor >= 2))
-    {
-      switch (contextConfig.glProfile) {
-        case ContextConfig::CORE:
-          glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); break;
-        case ContextConfig::COMPAT:
-          glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE); break;
-      }
-    }
+    version = contextConfig.version;
+    if (version < Version(2,1))
+      version = Version(2,1);
+
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, version.m);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, version.n);
+
+    if (version > Version(3,1))
+      glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 
 #if WENDY_DEBUG
     glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
@@ -1490,11 +1504,10 @@ bool Context::init(const WindowConfig& windowConfig,
       return false;
     }
 
-    glMajor = glfwGetWindowParam(GLFW_OPENGL_VERSION_MAJOR);
+    version = Version(glfwGetWindowParam(GLFW_OPENGL_VERSION_MAJOR),
+                      glfwGetWindowParam(GLFW_OPENGL_VERSION_MINOR));
 
-    log("OpenGL context version %i.%i created",
-        glMajor,
-        glfwGetWindowParam(GLFW_OPENGL_VERSION_MINOR));
+    log("OpenGL context version %i.%i created", version.m, version.n);
 
     log("OpenGL context GLSL version is %s",
         (const char*) glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -1514,13 +1527,13 @@ bool Context::init(const WindowConfig& windowConfig,
       return false;
     }
 
-    if (!GLEW_ARB_texture_rectangle && glMajor < 3)
+    if (!GLEW_ARB_texture_rectangle && version.m < 3)
     {
       logError("Rectangular textures (ARB_texture_rectangle) is required but not supported");
       return false;
     }
 
-    if (!GLEW_EXT_framebuffer_object && glMajor < 3)
+    if (!GLEW_EXT_framebuffer_object && version.m < 3)
     {
       logError("Framebuffer objects (EXT_framebuffer_object) are required but not supported");
       return false;

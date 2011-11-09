@@ -67,6 +67,40 @@ enum WindowMode
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief OpenGL profile enumeration.
+ *  @ingroup opengl
+ */
+enum Profile
+{
+  /*! The default profile provided by the OpenGL implementation.
+   */
+  PROFILE_DEFAULT,
+  /*! The OpenGL core profile.
+   */
+  PROFILE_CORE,
+  /*! The OpenGL compatibility profile.
+   */
+  PROFILE_COMPAT,
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief OpenGL version descriptor.
+ *  @ingroup opengl
+ */
+class Version
+{
+public:
+  Version();
+  Version(unsigned int m, unsigned int n);
+  bool operator < (const Version& other) const;
+  bool operator > (const Version& other) const;
+  unsigned int m;
+  unsigned int n;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Window configuration.
  *  @ingroup opengl
  */
@@ -115,19 +149,14 @@ public:
 class ContextConfig
 {
 public:
-  enum GLProfile { CORE, COMPAT };
-  /*! Default constructor.
-   */
-  ContextConfig();
   /*! Constructor.
    */
-  ContextConfig(unsigned int colorBits,
-	        unsigned int depthBits = 0,
+  ContextConfig(unsigned int colorBits = 32,
+	        unsigned int depthBits = 24,
 	        unsigned int stencilBits = 0,
 	        unsigned int samples = 0,
-	        unsigned int glMajor = 2,
-	        unsigned int glMinor = 1,
-	        GLProfile glProfile = COMPAT);
+	        Version version = Version(2,1),
+	        Profile profile = PROFILE_DEFAULT);
   /*! The desired color buffer bit depth.
    */
   unsigned int colorBits;
@@ -140,15 +169,12 @@ public:
   /*! The desired number of FSAA samples.
    */
   unsigned int samples;
-  /*! OpenGL major version number.
+  /*! The minimum desired OpenGL version.
    */
-  unsigned int glMajor;
-  /*! OpenGL minor version number.
-   */
-  unsigned int glMinor;
+  Version version;
   /*! OpenGL profile.
    */
-  GLProfile glProfile;
+  Profile profile;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -633,12 +659,9 @@ public:
   /*! @return The resource index used by this context.
    */
   ResourceIndex& getIndex() const;
-  /*! @return The OpenGL major version number.
+  /*! @return The OpenGL version.
    */
-  unsigned int getGLVersionMajor() const;
-  /*! @return The OpenGL minor version number.
-   */
-  unsigned int getGLVersionMinor() const;
+  Version getVersion() const;
   /*! @return The signal for per-frame post-render clean-up.
    */
   SignalProxy0<void> getFinishSignal();
@@ -675,6 +698,7 @@ private:
   Ptr<Limits> limits;
   WindowMode windowMode;
   RefreshMode refreshMode;
+  Version version;
   bool needsRefresh;
   bool needsClosing;
   Recti scissorArea;

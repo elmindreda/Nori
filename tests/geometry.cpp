@@ -42,18 +42,12 @@ bool Test::init()
     return false;
 
   GL::ContextConfig cc;
-  cc.glMajor = 3;
-  cc.glMinor = 3;
+  cc.version = GL::Version(3,3);
 
   if (!GL::Context::createSingleton(index, GL::WindowConfig("Geometry Shader Test"), cc))
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
-
-  if (context->getGLVersionMajor() != cc.glMajor) {
-    logError("OpenGL 3 is not supported");
-    return false;
-  }
 
   if (!input::Context::createSingleton(*context))
     return false;
@@ -62,7 +56,7 @@ bool Test::init()
 
   pool = new render::GeometryPool(*context);
 
-  renderer = forward::Renderer::create(*pool, forward::Config());
+renderer = forward::Renderer::create(*pool, forward::Config());
   if (!renderer)
   {
     logError("Failed to create forward renderer");
