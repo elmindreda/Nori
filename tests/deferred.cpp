@@ -41,7 +41,11 @@ Test::~Test()
 
 bool Test::init()
 {
-  index.addSearchPath(Path("media"));
+  const char* mediaPath = std::getenv("WENDY_MEDIA_DIR");
+  if (!mediaPath)
+    mediaPath = WENDY_MEDIA_DIR;
+
+  if (!index.addSearchPath(Path(mediaPath)))
 
   if (!GL::Context::createSingleton(index, GL::WindowConfig("Deferred Rendering Test")))
     return false;

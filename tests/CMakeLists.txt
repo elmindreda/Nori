@@ -1,4 +1,6 @@
 
+add_definitions(-DWENDY_MEDIA_DIR=\"${WENDY_MEDIA_DIR}\")
+
 set(TESTS clear cubemap deferred font graph sprite2 sprite3)
 
 foreach(test ${TESTS})
