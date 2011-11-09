@@ -1510,7 +1510,10 @@ bool Context::init(const WindowConfig& windowConfig,
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, version.n);
 
     if (version > Version(3,1))
+    {
+      // Wendy still uses deprecated functionality
       glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+    }
 
 #if WENDY_DEBUG
     glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
