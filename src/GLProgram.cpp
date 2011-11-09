@@ -215,11 +215,17 @@ bool readTextFile(ResourceIndex& index, String& text, const Path& path)
 GLuint createShader(GL::Context& context, GLenum type, const Shader& shader)
 {
   String decl;
+
   if (shader.version > 100)
   {
-    std::ostringstream ss; ss << shader.version;
-    decl.append("#version " + ss.str() + "\n");
+    std::ostringstream stream;
+    stream << shader.version;
+
+    decl.append("#version ");
+    decl.append(stream.str());
+    decl.append("\n");
   }
+
   decl.append("#line 0 0\n");
   decl.append(context.getSharedProgramStateDeclaration());
 
@@ -701,9 +707,14 @@ Ref<Program> Program::create(const ResourceInfo& info,
                              const Shader& fragmentShader)
 {
   Ref<Program> program(new Program(info, context));
-  if (!program->attachShader(vertexShader, GL_VERTEX_SHADER)) return NULL;
-  if (!program->attachShader(fragmentShader, GL_FRAGMENT_SHADER)) return NULL;
-  if (!program->linkProgram()) return NULL;
+
+  if (!program->attachShader(vertexShader, GL_VERTEX_SHADER))
+    return NULL;
+  if (!program->attachShader(fragmentShader, GL_FRAGMENT_SHADER))
+    return NULL;
+
+  if (!program->linkProgram())
+    return NULL;
 
   return program;
 }
@@ -715,10 +726,16 @@ Ref<Program> Program::create(const ResourceInfo& info,
                              const Shader& geometryShader)
 {
   Ref<Program> program(new Program(info, context));
-  if (!program->attachShader(vertexShader, GL_VERTEX_SHADER)) return NULL;
-  if (!program->attachShader(fragmentShader, GL_FRAGMENT_SHADER)) return NULL;
-  if (!program->attachShader(geometryShader, GL_GEOMETRY_SHADER)) return NULL;
-  if (!program->linkProgram()) return NULL;
+
+  if (!program->attachShader(vertexShader, GL_VERTEX_SHADER))
+    return NULL;
+  if (!program->attachShader(fragmentShader, GL_FRAGMENT_SHADER))
+    return NULL;
+  if (!program->attachShader(geometryShader, GL_GEOMETRY_SHADER))
+    return NULL;
+
+  if (!program->linkProgram())
+    return NULL;
 
   return program;
 }
@@ -731,11 +748,18 @@ Ref<Program> Program::create(const ResourceInfo& info,
                              const Shader& tessEvalShader)
 {
   Ref<Program> program(new Program(info, context));
-  if (!program->attachShader(vertexShader, GL_VERTEX_SHADER)) return NULL;
-  if (!program->attachShader(fragmentShader, GL_FRAGMENT_SHADER)) return NULL;
-  if (!program->attachShader(tessCtrlShader, GL_TESS_CONTROL_SHADER)) return NULL;
-  if (!program->attachShader(tessEvalShader, GL_TESS_EVALUATION_SHADER)) return NULL;
-  if (!program->linkProgram()) return NULL;
+
+  if (!program->attachShader(vertexShader, GL_VERTEX_SHADER))
+    return NULL;
+  if (!program->attachShader(fragmentShader, GL_FRAGMENT_SHADER))
+    return NULL;
+  if (!program->attachShader(tessCtrlShader, GL_TESS_CONTROL_SHADER))
+    return NULL;
+  if (!program->attachShader(tessEvalShader, GL_TESS_EVALUATION_SHADER))
+    return NULL;
+
+  if (!program->linkProgram())
+    return NULL;
 
   return program;
 }
@@ -749,12 +773,20 @@ Ref<Program> Program::create(const ResourceInfo& info,
                              const Shader& tessEvalShader)
 {
   Ref<Program> program(new Program(info, context));
-  if (!program->attachShader(vertexShader, GL_VERTEX_SHADER)) return NULL;
-  if (!program->attachShader(fragmentShader, GL_FRAGMENT_SHADER)) return NULL;
-  if (!program->attachShader(geometryShader, GL_GEOMETRY_SHADER)) return NULL;
-  if (!program->attachShader(tessCtrlShader, GL_TESS_CONTROL_SHADER)) return NULL;
-  if (!program->attachShader(tessEvalShader, GL_TESS_EVALUATION_SHADER)) return NULL;
-  if (!program->linkProgram()) return NULL;
+
+  if (!program->attachShader(vertexShader, GL_VERTEX_SHADER))
+    return NULL;
+  if (!program->attachShader(fragmentShader, GL_FRAGMENT_SHADER))
+    return NULL;
+  if (!program->attachShader(geometryShader, GL_GEOMETRY_SHADER))
+    return NULL;
+  if (!program->attachShader(tessCtrlShader, GL_TESS_CONTROL_SHADER))
+    return NULL;
+  if (!program->attachShader(tessEvalShader, GL_TESS_EVALUATION_SHADER))
+    return NULL;
+
+  if (!program->linkProgram())
+    return NULL;
 
   return program;
 }
@@ -795,13 +827,25 @@ bool Program::attachShader(const Shader& shader, unsigned int type)
   if (!shaderID)
     return false;
 
-  switch(type) {
-    case GL_VERTEX_SHADER: vertexShaderID = shaderID; break;
-    case GL_TESS_CONTROL_SHADER: tessCtrlShaderID = shaderID; break;
-    case GL_TESS_EVALUATION_SHADER: tessEvalShaderID = shaderID; break;
-    case GL_GEOMETRY_SHADER: geometryShaderID = shaderID; break;
-    case GL_FRAGMENT_SHADER: fragmentShaderID = shaderID; break;
-    default: panic("Invalid shader type"); break;
+  switch (type)
+  {
+    case GL_VERTEX_SHADER:
+      vertexShaderID = shaderID;
+      break;
+    case GL_TESS_CONTROL_SHADER:
+      tessCtrlShaderID = shaderID;
+      break;
+    case GL_TESS_EVALUATION_SHADER:
+      tessEvalShaderID = shaderID;
+      break;
+    case GL_GEOMETRY_SHADER:
+      geometryShaderID = shaderID;
+      break;
+    case GL_FRAGMENT_SHADER:
+      fragmentShaderID = shaderID;
+      break;
+    default:
+      panic("Invalid shader type");
   }
 
   return true;
@@ -844,7 +888,8 @@ bool Program::linkProgram()
   }
 
   /* FIXME: Gives invalid enum errors ?!
-  if (geometryShaderID) {
+  if (geometryShaderID)
+  {
     glProgramParameteri(programID, GL_GEOMETRY_VERTICES_OUT, context.getLimits().getMaxGeometryOutputVertices());
     glProgramParameteri(programID, GL_GEOMETRY_INPUT_TYPE, GL_TRIANGLES);
     glProgramParameteri(programID, GL_GEOMETRY_OUTPUT_TYPE, GL_TRIANGLE_STRIP);
@@ -1227,11 +1272,16 @@ bool ProgramReader::onBeginElement(const String& name)
     return true;
   }
 
-  if (name == "vertex") return shaderElement(name);
-  if (name == "control") return shaderElement(name);
-  if (name == "evaluation") return shaderElement(name);
-  if (name == "geometry") return shaderElement(name);
-  if (name == "fragment") return shaderElement(name);
+  if (name == "vertex")
+    return shaderElement(name);
+  if (name == "control")
+    return shaderElement(name);
+  if (name == "evaluation")
+    return shaderElement(name);
+  if (name == "geometry")
+    return shaderElement(name);
+  if (name == "fragment")
+    return shaderElement(name);
 
   logWarning("Unknown element '%s' in program XML", name.c_str());
 
@@ -1270,7 +1320,8 @@ bool ProgramReader::shaderElement(const String& name)
   shaders[name] = Shader(text.c_str(), path);
 
   const unsigned int version = readInteger("glsl-version");
-  if (version >= 100) shaders[name].version = version;
+  if (version >= 100)
+    shaders[name].version = version;
 
   return true;
 }
@@ -1279,23 +1330,23 @@ bool ProgramReader::onEndElement(const String& name)
 {
   if (name == "program")
   {
-    if (shaders["vertex"].empty())
+    if (shaders["vertex"].text.empty())
     {
       logError("Vertex shader missing for program \'%s\'",
                info.path.asString().c_str());
       return false;
     }
 
-    if (shaders["fragment"].empty())
+    if (shaders["fragment"].text.empty())
     {
       logError("Fragment shader missing for program \'%s\'",
                info.path.asString().c_str());
       return false;
     }
 
-    bool hasGeom = !shaders["geometry"].empty();
-    bool hasTessCtrl = !shaders["control"].empty();
-    bool hasTessEval = !shaders["evaluation"].empty();
+    bool hasGeom = !shaders["geometry"].text.empty();
+    bool hasTessCtrl = !shaders["control"].text.empty();
+    bool hasTessEval = !shaders["evaluation"].text.empty();
     if ((hasTessCtrl && !hasTessEval) || (!hasTessCtrl && hasTessEval))
     {
       logError("Both (or neither) tessellation control and evaluation shader are required in program \'%s\'",

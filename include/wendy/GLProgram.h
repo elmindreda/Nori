@@ -55,7 +55,6 @@ class Shader
 public:
   Shader();
   Shader(const char* text, const Path& path = Path(), unsigned int version = 120);
-  bool empty() const { return text.empty(); }
   String text;
   Path path;
   unsigned int version;
@@ -278,7 +277,9 @@ public:
                              Context &context,
                              const Shader& vertexShader,
                              const Shader& fragmentShader,
-                             const Shader& geometryShader, const Shader &tessCtrlShader, const Shader &tessEvalShader);
+                             const Shader& geometryShader,
+                             const Shader& tessCtrlShader,
+                             const Shader& tessEvalShader);
   static Ref<Program> read(Context& context, const Path& path);
 private:
   Program(const ResourceInfo& info, Context& context);
