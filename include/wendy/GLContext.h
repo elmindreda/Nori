@@ -115,6 +115,7 @@ public:
 class ContextConfig
 {
 public:
+  enum GLProfile { CORE, COMPAT };
   /*! Default constructor.
    */
   ContextConfig();
@@ -123,7 +124,10 @@ public:
   ContextConfig(unsigned int colorBits,
 	        unsigned int depthBits = 0,
 	        unsigned int stencilBits = 0,
-	        unsigned int samples = 0);
+	        unsigned int samples = 0,
+	        unsigned int glMajor = 2,
+	        unsigned int glMinor = 1,
+	        GLProfile glProfile = COMPAT);
   /*! The desired color buffer bit depth.
    */
   unsigned int colorBits;
@@ -136,6 +140,15 @@ public:
   /*! The desired number of FSAA samples.
    */
   unsigned int samples;
+  /*! OpenGL major version number.
+   */
+  unsigned int glMajor;
+  /*! OpenGL minor version number.
+   */
+  unsigned int glMinor;
+  /*! OpenGL profile.
+   */
+  GLProfile glProfile;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -162,7 +175,16 @@ public:
   /*! @return The number of available fragment shader texture image units.
    */
   unsigned int getMaxFragmentTextureImageUnits() const;
-  /*! @return The number of available vertex and fragment shader texture image units.
+  /*! @return The number of available geometry shader texture image units.
+   */
+  unsigned int getMaxGeometryTextureImageUnits() const;
+  /*! @return The number of available tessellation control shader texture image units.
+   */
+  unsigned int getMaxTessControlTextureImageUnits() const;
+  /*! @return The number of available tessellation evaluation shader texture image units.
+   */
+  unsigned int getMaxTessEvaluationTextureImageUnits() const;
+  /*! @return The total number of available shader texture image units.
    */
   unsigned int getMaxCombinedTextureImageUnits() const;
   /*! @return The maximum size, in pixels, of 2D POT textures.
@@ -183,12 +205,18 @@ public:
   /*! @return The number of available vertex attributes.
    */
   unsigned int getMaxVertexAttributes() const;
+  /*! @return The maximum number of vertices geometry shader can emit.
+   */
+  unsigned int getMaxGeometryOutputVertices() const;
 private:
   Context& context;
   unsigned int maxColorAttachments;
   unsigned int maxDrawBuffers;
   unsigned int maxVertexTextureImageUnits;
   unsigned int maxFragmentTextureImageUnits;
+  unsigned int maxGeometryTextureImageUnits;
+  unsigned int maxTessControlTextureImageUnits;
+  unsigned int maxTessEvaluationTextureImageUnits;
   unsigned int maxCombinedTextureImageUnits;
   unsigned int maxTextureSize;
   unsigned int maxTexture3DSize;
@@ -196,6 +224,7 @@ private:
   unsigned int maxTextureRectangleSize;
   unsigned int maxVertexAttributes;
   unsigned int maxTextureCoords;
+  unsigned int maxGeometryOutputVertices;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -604,6 +633,12 @@ public:
   /*! @return The resource index used by this context.
    */
   ResourceIndex& getIndex() const;
+  /*! @return The OpenGL major version number.
+   */
+  unsigned int getGLVersionMajor() const;
+  /*! @return The OpenGL minor version number.
+   */
+  unsigned int getGLVersionMinor() const;
   /*! @return The signal for per-frame post-render clean-up.
    */
   SignalProxy0<void> getFinishSignal();

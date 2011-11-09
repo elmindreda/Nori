@@ -326,18 +326,27 @@ ContextConfig::ContextConfig():
   colorBits(32),
   depthBits(24),
   stencilBits(0),
-  samples(0)
+  samples(0),
+  glMajor(2),
+  glMinor(1),
+  glProfile(COMPAT)
 {
 }
 
 ContextConfig::ContextConfig(unsigned int initColorBits,
 			     unsigned int initDepthBits,
 			     unsigned int initStencilBits,
-			     unsigned int initSamples):
+			     unsigned int initSamples,
+			     unsigned int initGLMajor,
+			     unsigned int initGLMinor,
+			     GLProfile initGLProfile):
   colorBits(initColorBits),
   depthBits(initDepthBits),
   stencilBits(initStencilBits),
-  samples(initSamples)
+  samples(initSamples),
+  glMajor(initGLMajor),
+  glMinor(initGLMinor),
+  glProfile(initGLProfile)
 {
 }
 
@@ -350,6 +359,9 @@ Limits::Limits(Context& initContext):
   maxDrawBuffers = getIntegerParameter(GL_MAX_DRAW_BUFFERS);
   maxVertexTextureImageUnits = getIntegerParameter(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
   maxFragmentTextureImageUnits = getIntegerParameter(GL_MAX_TEXTURE_IMAGE_UNITS);
+  maxGeometryTextureImageUnits = getIntegerParameter(GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS);
+  maxTessControlTextureImageUnits = getIntegerParameter(GL_MAX_TESS_CONTROL_TEXTURE_IMAGE_UNITS);
+  maxTessEvaluationTextureImageUnits = getIntegerParameter(GL_MAX_TESS_EVALUATION_TEXTURE_IMAGE_UNITS);
   maxCombinedTextureImageUnits = getIntegerParameter(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
   maxTextureSize = getIntegerParameter(GL_MAX_TEXTURE_SIZE);
   maxTexture3DSize = getIntegerParameter(GL_MAX_3D_TEXTURE_SIZE);
@@ -357,6 +369,7 @@ Limits::Limits(Context& initContext):
   maxTextureRectangleSize = getIntegerParameter(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB);
   maxTextureCoords = getIntegerParameter(GL_MAX_TEXTURE_COORDS);
   maxVertexAttributes = getIntegerParameter(GL_MAX_VERTEX_ATTRIBS);
+  maxGeometryOutputVertices = getIntegerParameter(GL_MAX_GEOMETRY_OUTPUT_VERTICES);
 }
 
 unsigned int Limits::getMaxColorAttachments() const
@@ -377,6 +390,21 @@ unsigned int Limits::getMaxVertexTextureImageUnits() const
 unsigned int Limits::getMaxFragmentTextureImageUnits() const
 {
   return maxFragmentTextureImageUnits;
+}
+
+unsigned int Limits::getMaxGeometryTextureImageUnits() const
+{
+  return maxGeometryTextureImageUnits;
+}
+
+unsigned int Limits::getMaxTessControlTextureImageUnits() const
+{
+  return maxTessControlTextureImageUnits;
+}
+
+unsigned int Limits::getMaxTessEvaluationTextureImageUnits() const
+{
+  return maxTessEvaluationTextureImageUnits;
 }
 
 unsigned int Limits::getMaxCombinedTextureImageUnits() const
@@ -412,6 +440,11 @@ unsigned int Limits::getMaxTextureCoords() const
 unsigned int Limits::getMaxVertexAttributes() const
 {
   return maxVertexAttributes;
+}
+
+unsigned int Limits::getMaxGeometryOutputVertices() const
+{
+  return maxGeometryOutputVertices;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -939,17 +972,40 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
     return;
 #endif
 
+  GLenum drawType;
+  if (currentProgram->hasTessellation())
+  {
+    drawType = GL_PATCHES;
+    switch (type) {
+      case POINT_LIST:
+        glPatchParameteri(GL_PATCH_VERTICES, 1);
+        break;
+      case LINE_LIST:
+      case LINE_STRIP:
+      case LINE_LOOP:
+        glPatchParameteri(GL_PATCH_VERTICES, 2);
+        break;
+      case TRIANGLE_LIST:
+      case TRIANGLE_STRIP:
+      case TRIANGLE_FAN:
+        glPatchParameteri(GL_PATCH_VERTICES, 3);
+        break;
+    }
+  }
+  else 
+    drawType = convertToGL(type);
+
   if (currentIndexBuffer)
   {
     size_t size = IndexBuffer::getTypeSize(currentIndexBuffer->getType());
 
-    glDrawElements(convertToGL(type),
+    glDrawElements(drawType,
                    count,
-		   convertToGL(currentIndexBuffer->getType()),
-		   (GLvoid*) (size * start));
+                   convertToGL(currentIndexBuffer->getType()),
+                   (GLvoid*) (size * start));
   }
   else
-    glDrawArrays(convertToGL(type), start, count);
+    glDrawArrays(drawType, start, count);
 
   if (stats)
     stats->addPrimitives(type, count);
@@ -1313,6 +1369,16 @@ ResourceIndex& Context::getIndex() const
   return index;
 }
 
+unsigned int Context::getGLVersionMajor() const
+{
+  return glfwGetWindowParam(GLFW_OPENGL_VERSION_MAJOR);
+}
+
+unsigned int Context::getGLVersionMinor() const
+{
+  return glfwGetWindowParam(GLFW_OPENGL_VERSION_MINOR);
+}
+
 const Limits& Context::getLimits() const
 {
   return *limits;
@@ -1382,6 +1448,8 @@ bool Context::init(const WindowConfig& windowConfig,
     return false;
   }
 
+  unsigned int glMajor = 1;
+
   // Create context and window
   {
     unsigned int colorBits = contextConfig.colorBits;
@@ -1398,8 +1466,17 @@ bool Context::init(const WindowConfig& windowConfig,
     if (contextConfig.samples)
       glfwOpenWindowHint(GLFW_FSAA_SAMPLES, contextConfig.samples);
 
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 2);
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 1);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, contextConfig.glMajor);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, contextConfig.glMinor);
+    if (contextConfig.glMajor > 3 || (contextConfig.glMajor == 3 && contextConfig.glMinor >= 2))
+    {
+      switch (contextConfig.glProfile) {
+        case ContextConfig::CORE:
+          glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); break;
+        case ContextConfig::COMPAT:
+          glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE); break;
+      }
+    }
 
 #if WENDY_DEBUG
     glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
@@ -1413,8 +1490,10 @@ bool Context::init(const WindowConfig& windowConfig,
       return false;
     }
 
+    glMajor = glfwGetWindowParam(GLFW_OPENGL_VERSION_MAJOR);
+
     log("OpenGL context version %i.%i created",
-        glfwGetWindowParam(GLFW_OPENGL_VERSION_MAJOR),
+        glMajor,
         glfwGetWindowParam(GLFW_OPENGL_VERSION_MINOR));
 
     log("OpenGL context GLSL version is %s",
@@ -1435,13 +1514,13 @@ bool Context::init(const WindowConfig& windowConfig,
       return false;
     }
 
-    if (!GLEW_ARB_texture_rectangle)
+    if (!GLEW_ARB_texture_rectangle && glMajor < 3)
     {
       logError("Rectangular textures (ARB_texture_rectangle) is required but not supported");
       return false;
     }
 
-    if (!GLEW_EXT_framebuffer_object)
+    if (!GLEW_EXT_framebuffer_object && glMajor < 3)
     {
       logError("Framebuffer objects (EXT_framebuffer_object) are required but not supported");
       return false;

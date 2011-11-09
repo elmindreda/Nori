@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<material version="6">
+  <technique type="forward" quality="1">
+    <pass>
+      <program path="tessellation.program">
+        <uniform name="color" value="0.2 0.5 0.1" />
+      </program>
+    </pass>
+  </technique>
+</material>

@@ -31,6 +31,7 @@
 #include <wendy/Path.h>
 #include <wendy/Resource.h>
 #include <wendy/XML.h>
+#include <map>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -53,9 +54,11 @@ class Shader
 {
 public:
   Shader();
-  Shader(const char* text, const Path& path = Path());
+  Shader(const char* text, const Path& path = Path(), unsigned int version = 120);
+  bool empty() const { return text.empty(); }
   String text;
   Path path;
+  unsigned int version;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -245,6 +248,7 @@ public:
   Uniform* findUniform(const char* name);
   const Uniform* findUniform(const char* name) const;
   bool isCurrent() const;
+  bool hasTessellation() const;
   unsigned int getAttributeCount() const;
   Attribute& getAttribute(unsigned int index);
   const Attribute& getAttribute(unsigned int index) const;
@@ -259,11 +263,28 @@ public:
                              Context& context,
                              const Shader& vertexShader,
                              const Shader& fragmentShader);
+  static Ref<Program> create(const ResourceInfo &info,
+                             Context &context,
+                             const Shader& vertexShader,
+                             const Shader& fragmentShader,
+                             const Shader& geometryShader);
+  static Ref<Program> create(const ResourceInfo &info,
+                             Context &context,
+                             const Shader& vertexShader,
+                             const Shader& fragmentShader,
+                             const Shader& tessCtrlShader,
+                             const Shader& tessEvalShader);
+  static Ref<Program> create(const ResourceInfo &info,
+                             Context &context,
+                             const Shader& vertexShader,
+                             const Shader& fragmentShader,
+                             const Shader& geometryShader, const Shader &tessCtrlShader, const Shader &tessEvalShader);
   static Ref<Program> read(Context& context, const Path& path);
 private:
   Program(const ResourceInfo& info, Context& context);
   Program(const Program& source);
-  bool init(const Shader& vertexShader, const Shader& fragmentShader);
+  bool attachShader(const Shader& shader, unsigned int type);
+  bool linkProgram();
   bool retrieveUniforms();
   bool retrieveAttributes();
   void bind();
@@ -276,6 +297,9 @@ private:
   Context& context;
   unsigned int vertexShaderID;
   unsigned int fragmentShaderID;
+  unsigned int geometryShaderID;
+  unsigned int tessCtrlShaderID;
+  unsigned int tessEvalShaderID;
   unsigned int programID;
   AttributeList attributes;
   SamplerList samplers;
@@ -349,11 +373,11 @@ public:
 private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
+  bool shaderElement(const String& name);
   Context& context;
   Ref<Program> program;
   ResourceInfo info;
-  Ptr<Shader> vertexShader;
-  Ptr<Shader> fragmentShader;
+  std::map<String, Shader> shaders;
 };
 
 ///////////////////////////////////////////////////////////////////////
