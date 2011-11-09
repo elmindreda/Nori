@@ -46,6 +46,7 @@ bool Test::init()
     mediaPath = WENDY_MEDIA_DIR;
 
   if (!index.addSearchPath(Path(mediaPath)))
+    return false;
 
   if (!GL::Context::createSingleton(index, GL::WindowConfig("Deferred Rendering Test")))
     return false;
