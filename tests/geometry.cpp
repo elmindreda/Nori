@@ -38,7 +38,11 @@ Test::~Test()
 
 bool Test::init()
 {
-  if (!index.addSearchPath(Path("../media")))
+  const char* mediaPath = std::getenv("WENDY_MEDIA_DIR");
+  if (!mediaPath)
+    mediaPath = WENDY_MEDIA_DIR;
+
+  if (!index.addSearchPath(Path(mediaPath)))
     return false;
 
   GL::ContextConfig cc;
