@@ -52,6 +52,8 @@ Add binding objects connecting geometry buffers with programs
 Remove last string compares in render code
 Add ARB_vertex_array_object code path, if possible
 
+Add GL_ARB_framebuffer_object code path
+
 Add value cache to Uniform and Sampler
 
 Move resource part of Program into render
