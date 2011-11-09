@@ -51,10 +51,14 @@ Demo::~Demo()
 
 bool Demo::init()
 {
-  if (!index.addSearchPath(Path("media")))
+  const char* mediaPath = std::getenv("WENDY_MEDIA_DIR");
+  if (!mediaPath)
+    mediaPath = WENDY_MEDIA_DIR;
+
+  if (!index.addSearchPath(Path(mediaPath)))
     return false;
 
-  if (!index.addSearchPath(Path("media/sponza")))
+  if (!index.addSearchPath(Path(mediaPath) + "sponza"))
     return false;
 
   if (!GL::Context::createSingleton(index, GL::WindowConfig("Sponza Atrium")))

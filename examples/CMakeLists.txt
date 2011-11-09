@@ -1,4 +1,6 @@
 
+add_definitions(-DWENDY_MEDIA_DIR=\"${WENDY_MEDIA_DIR}\")
+
 add_executable(sponza WIN32 MACOSX_BUNDLE sponza.cpp)
 
 target_link_libraries(sponza wendy ${WENDY_LIBRARIES})

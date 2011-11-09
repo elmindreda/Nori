@@ -113,6 +113,12 @@ set(WENDY_INCLUDE_DIRS ${wendy_INCLUDE_DIRS} CACHE STRING "Include directories f
 
 include_directories(${wendy_INCLUDE_DIRS})
 
+if(WENDY_BUILD_EXAMPLES OR WENDY_BUILD_TESTS)
+  set(WENDY_MEDIA_DIR ${wendy_SOURCE_DIR}/media CACHE STRING
+      "Media path used by Wendy tests and examples")
+  set(EXECUTABLE_OUTPUT_PATH ${wendy_BINARY_DIR})
+endif(WENDY_BUILD_EXAMPLES OR WENDY_BUILD_TESTS)
+
 configure_file(${wendy_SOURCE_DIR}/include/wendy/Config.h.in
                ${wendy_BINARY_DIR}/include/wendy/Config.h @ONLY)
 

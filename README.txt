@@ -31,7 +31,7 @@ See the respective `libs/*/COPYING.txt' file for license details.
 =================
 
 Wendy uses the CMake build system, which is available on most Unix-like
-operating systems, and for which there are windows binaries on their site:
+operating systems, and for which there are Windows binaries on their site:
 
   CMake (http://www.cmake.org/) for building Wendy and its dependencies
 
