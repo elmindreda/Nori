@@ -382,9 +382,6 @@ Limits::Limits(Context& initContext):
   maxDrawBuffers = getIntegerParameter(GL_MAX_DRAW_BUFFERS);
   maxVertexTextureImageUnits = getIntegerParameter(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
   maxFragmentTextureImageUnits = getIntegerParameter(GL_MAX_TEXTURE_IMAGE_UNITS);
-  maxGeometryTextureImageUnits = getIntegerParameter(GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS);
-  maxTessControlTextureImageUnits = getIntegerParameter(GL_MAX_TESS_CONTROL_TEXTURE_IMAGE_UNITS);
-  maxTessEvaluationTextureImageUnits = getIntegerParameter(GL_MAX_TESS_EVALUATION_TEXTURE_IMAGE_UNITS);
   maxCombinedTextureImageUnits = getIntegerParameter(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
   maxTextureSize = getIntegerParameter(GL_MAX_TEXTURE_SIZE);
   maxTexture3DSize = getIntegerParameter(GL_MAX_3D_TEXTURE_SIZE);
@@ -392,7 +389,30 @@ Limits::Limits(Context& initContext):
   maxTextureRectangleSize = getIntegerParameter(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB);
   maxTextureCoords = getIntegerParameter(GL_MAX_TEXTURE_COORDS);
   maxVertexAttributes = getIntegerParameter(GL_MAX_VERTEX_ATTRIBS);
-  maxGeometryOutputVertices = getIntegerParameter(GL_MAX_GEOMETRY_OUTPUT_VERTICES);
+
+  Version version = context.getVersion();
+
+  if (GLEW_ARB_geometry_shader4 || version > Version(3,1))
+  {
+    maxGeometryOutputVertices = getIntegerParameter(GL_MAX_GEOMETRY_OUTPUT_VERTICES);
+    maxGeometryTextureImageUnits = getIntegerParameter(GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS);
+  }
+  else
+  {
+    maxGeometryOutputVertices = 0;
+    maxGeometryTextureImageUnits = 0;
+  }
+
+  if (GLEW_ARB_tessellation_shader || version > Version(3,3))
+  {
+    maxTessControlTextureImageUnits = getIntegerParameter(GL_MAX_TESS_CONTROL_TEXTURE_IMAGE_UNITS);
+    maxTessEvaluationTextureImageUnits = getIntegerParameter(GL_MAX_TESS_EVALUATION_TEXTURE_IMAGE_UNITS);
+  }
+  else
+  {
+    maxTessControlTextureImageUnits = 0;
+    maxTessEvaluationTextureImageUnits = 0;
+  }
 }
 
 unsigned int Limits::getMaxColorAttachments() const
@@ -1527,13 +1547,13 @@ bool Context::init(const WindowConfig& windowConfig,
       return false;
     }
 
-    if (!GLEW_ARB_texture_rectangle && version.m < 3)
+    if (!GLEW_ARB_texture_rectangle && version < Version(3,1))
     {
       logError("Rectangular textures (ARB_texture_rectangle) is required but not supported");
       return false;
     }
 
-    if (!GLEW_EXT_framebuffer_object && version.m < 3)
+    if (!GLEW_EXT_framebuffer_object)
     {
       logError("Framebuffer objects (EXT_framebuffer_object) are required but not supported");
       return false;
