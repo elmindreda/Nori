@@ -554,26 +554,7 @@ inline IndexRangeLock<T>::IndexRangeLock(IndexRange& initRange):
   range(initRange),
   indices(NULL)
 {
-  if (IndexBuffer* indexBuffer = range.getIndexBuffer())
-  {
-    size_t elemSize = 0;
-    switch (indexBuffer->getType()) {
-      case IndexBuffer::UINT8: elemSize = 1; break;
-      case IndexBuffer::UINT16: elemSize = 2; break;
-      case IndexBuffer::UINT32: elemSize = 4; break;
-    }
-
-    if (sizeof(T) != elemSize)
-    {
-      panic("Index buffer type UINT%d does not match range lock type UINT%d",
-            elemSize*8,
-            sizeof(T)*8);
-    }
-  }
-
-  indices = (T*) range.lock();
-  if (!indices)
-    panic("Failed to lock index buffer");
+  panic("Invalid index type");
 }
 
 template <>
