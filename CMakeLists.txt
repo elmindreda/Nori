@@ -113,6 +113,8 @@ set(WENDY_INCLUDE_DIRS ${wendy_INCLUDE_DIRS} CACHE STRING "Include directories f
 
 include_directories(${wendy_INCLUDE_DIRS})
 
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+
 configure_file(${wendy_SOURCE_DIR}/include/wendy/Config.h.in
                ${wendy_BINARY_DIR}/include/wendy/Config.h @ONLY)
 
