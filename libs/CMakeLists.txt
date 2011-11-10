@@ -16,3 +16,7 @@ if(WENDY_INCLUDE_SQUIRREL)
   add_subdirectory(squirrel)
 endif(WENDY_INCLUDE_SQUIRREL)
 
+if(WENDY_INCLUDE_BULLET)
+  add_subdirectory(bullet)
+endif(WENDY_INCLUDE_BULLET)
+

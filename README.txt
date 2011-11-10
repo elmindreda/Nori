@@ -37,6 +37,7 @@ operating systems, and for which there are Windows binaries on their site:
 
 Wendy comes with internal versions of the following libraries:
 
+  Bullet (http://bulletphysics.org/) for dynamics and collision
   expat (http://expat.sourceforge.net/) for reading XML files
   GLEW (http://glew.sourceforge.net/) for managing OpenGL extensions
   GLFW (http://www.glfw.org/) for OpenGL context, input and window

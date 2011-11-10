@@ -40,6 +40,11 @@ if(WENDY_INCLUDE_SQUIRREL)
   list(APPEND wendy_SOURCES Squirrel.cpp)
 endif(WENDY_INCLUDE_SQUIRREL)
 
+if(WENDY_INCLUDE_BULLET)
+  include_directories(${bullet_SOURCE_DIR})
+  list(APPEND wendy_SOURCES Bullet.cpp)
+endif(WENDY_INCLUDE_BULLET)
+
 if(WENDY_INCLUDE_SCENE_GRAPH)
   list(APPEND wendy_SOURCES SceneGraph.cpp)
 endif(WENDY_INCLUDE_SCENE_GRAPH)

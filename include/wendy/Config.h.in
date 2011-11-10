@@ -42,3 +42,5 @@
 
 #cmakedefine WENDY_INCLUDE_SQUIRREL 1
 
+#cmakedefine WENDY_INCLUDE_BULLET 1
+
