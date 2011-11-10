@@ -651,6 +651,11 @@ bool Program::isCurrent() const
   return context.getCurrentProgram() == this;
 }
 
+bool Program::hasGeometryShader() const
+{
+  return geometryShaderID != 0;
+}
+
 bool Program::hasTessellation() const
 {
   return tessCtrlShaderID && tessEvalShaderID;
