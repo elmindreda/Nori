@@ -316,10 +316,6 @@ const unsigned int PROGRAM_XML_VERSION = 4;
 
 ///////////////////////////////////////////////////////////////////////
 
-Shader::Shader()
-{
-}
-
 Shader::Shader(const char* initText, const Path& initPath, unsigned int initVersion):
   text(initText),
   path(initPath),
@@ -648,7 +644,7 @@ bool Program::isCurrent() const
 
 bool Program::hasTessellation() const
 {
-  return tessCtrlShaderID > 0 || tessEvalShaderID > 0;
+  return tessCtrlShaderID && tessEvalShaderID;
 }
 
 unsigned int Program::getAttributeCount() const
@@ -713,7 +709,7 @@ Ref<Program> Program::create(const ResourceInfo& info,
   if (!program->attachShader(fragmentShader, GL_FRAGMENT_SHADER))
     return NULL;
 
-  if (!program->linkProgram())
+  if (!program->link())
     return NULL;
 
   return program;
@@ -734,7 +730,7 @@ Ref<Program> Program::create(const ResourceInfo& info,
   if (!program->attachShader(geometryShader, GL_GEOMETRY_SHADER))
     return NULL;
 
-  if (!program->linkProgram())
+  if (!program->link())
     return NULL;
 
   return program;
@@ -758,7 +754,7 @@ Ref<Program> Program::create(const ResourceInfo& info,
   if (!program->attachShader(tessEvalShader, GL_TESS_EVALUATION_SHADER))
     return NULL;
 
-  if (!program->linkProgram())
+  if (!program->link())
     return NULL;
 
   return program;
@@ -785,7 +781,7 @@ Ref<Program> Program::create(const ResourceInfo& info,
   if (!program->attachShader(tessEvalShader, GL_TESS_EVALUATION_SHADER))
     return NULL;
 
-  if (!program->linkProgram())
+  if (!program->link())
     return NULL;
 
   return program;
@@ -851,7 +847,7 @@ bool Program::attachShader(const Shader& shader, unsigned int type)
   return true;
 }
 
-bool Program::linkProgram()
+bool Program::link()
 {
   programID = glCreateProgram();
 
@@ -861,9 +857,12 @@ bool Program::linkProgram()
   glAttachShader(programID, vertexShaderID);
   glAttachShader(programID, fragmentShaderID);
 
-  if (tessCtrlShaderID) glAttachShader(programID, tessCtrlShaderID);
-  if (tessEvalShaderID) glAttachShader(programID, tessEvalShaderID);
-  if (geometryShaderID) glAttachShader(programID, geometryShaderID);
+  if (tessCtrlShaderID)
+    glAttachShader(programID, tessCtrlShaderID);
+  if (tessEvalShaderID)
+    glAttachShader(programID, tessEvalShaderID);
+  if (geometryShaderID)
+    glAttachShader(programID, geometryShaderID);
 
   glLinkProgram(programID);
 
@@ -1272,57 +1271,46 @@ bool ProgramReader::onBeginElement(const String& name)
     return true;
   }
 
-  if (name == "vertex")
-    return shaderElement(name);
-  if (name == "control")
-    return shaderElement(name);
-  if (name == "evaluation")
-    return shaderElement(name);
-  if (name == "geometry")
-    return shaderElement(name);
-  if (name == "fragment")
-    return shaderElement(name);
-
-  logWarning("Unknown element '%s' in program XML", name.c_str());
-
-  return true;
-}
-
-bool ProgramReader::shaderElement(const String& name)
-{
-  if (shaders.count(name))
+  if (name == "vertex" ||
+      name == "fragment" ||
+      name == "geometry" ||
+      name == "control" ||
+      name == "evaluation")
   {
-    logError("Program specification \'%s\' contains more than one %s shaders",
-             info.path.asString().c_str(),
-             name.c_str());
-    return false;
-  }
+    if (shaders.count(name))
+    {
+      logError("Program specification \'%s\' contains more than one %s shaders",
+               info.path.asString().c_str(),
+               name.c_str());
+      return false;
+    }
 
-  Path path(readString("path"));
-  if (path.isEmpty())
-  {
-    logError("Path in %s shader program \'%s\' is empty",
-             name.c_str(),
-             info.path.asString().c_str());
+    Path path(readString("path"));
+    if (path.isEmpty())
+    {
+      logError("Path in %s shader program \'%s\' is empty",
+               name.c_str(),
+               info.path.asString().c_str());
+      return true;
+    }
+
+    String text;
+    if (!readTextFile(getIndex(), text, path))
+    {
+      logError("Cannot find %s shader \'%s\' for shader program \'%s\'",
+               name.c_str(),
+               path.asString().c_str(),
+               info.path.asString().c_str());
+      return false;
+    }
+
+    const unsigned int version = max(readInteger("glsl-version"), 100);
+
+    shaders[name] = Shader(text.c_str(), path, version);
     return true;
   }
 
-  String text;
-  if (!readTextFile(getIndex(), text, path))
-  {
-    logError("Cannot find %s shader \'%s\' for shader program \'%s\'",
-             name.c_str(),
-             path.asString().c_str(),
-             info.path.asString().c_str());
-    return false;
-  }
-
-  shaders[name] = Shader(text.c_str(), path);
-
-  const unsigned int version = readInteger("glsl-version");
-  if (version >= 100)
-    shaders[name].version = version;
-
+  logWarning("Unknown element '%s' in program XML", name.c_str());
   return true;
 }
 
@@ -1330,45 +1318,77 @@ bool ProgramReader::onEndElement(const String& name)
 {
   if (name == "program")
   {
-    if (shaders["vertex"].text.empty())
+    if (!shaders.count("vertex"))
     {
       logError("Vertex shader missing for program \'%s\'",
                info.path.asString().c_str());
       return false;
     }
 
-    if (shaders["fragment"].text.empty())
+    if (!shaders.count("fragment"))
     {
       logError("Fragment shader missing for program \'%s\'",
                info.path.asString().c_str());
       return false;
     }
 
-    bool hasGeom = !shaders["geometry"].text.empty();
-    bool hasTessCtrl = !shaders["control"].text.empty();
-    bool hasTessEval = !shaders["evaluation"].text.empty();
-    if ((hasTessCtrl && !hasTessEval) || (!hasTessCtrl && hasTessEval))
+    bool tessellation = false;
+
+    if (shaders.count("control"))
     {
-      logError("Both (or neither) tessellation control and evaluation shader are required in program \'%s\'",
-               info.path.asString().c_str());
-      return false;
+      if (shaders.count("evaluation"))
+        tessellation = true;
+      else
+      {
+        logError("Both tessellation control and evaluation shader (or neither) are required in program \'%s\'",
+                 info.path.asString().c_str());
+        return false;
+      }
     }
 
-    if (hasGeom && hasTessCtrl && hasTessEval)
-      program = Program::create(info, context, shaders["vertex"], shaders["fragment"], shaders["geometry"], shaders["control"], shaders["evaluation"]);
-    else if (hasTessCtrl && hasTessEval)
-      program = Program::create(info, context, shaders["vertex"], shaders["fragment"], shaders["control"], shaders["evaluation"]);
-    else if (hasGeom)
-      program = Program::create(info, context, shaders["vertex"], shaders["fragment"], shaders["geometry"]);
+    if (shaders.count("geometry"))
+    {
+      if (tessellation)
+      {
+        program = Program::create(info,
+                                  context,
+                                  shaders["vertex"],
+                                  shaders["fragment"],
+                                  shaders["geometry"],
+                                  shaders["control"],
+                                  shaders["evaluation"]);
+      }
+      else
+      {
+        program = Program::create(info,
+                                  context,
+                                  shaders["vertex"],
+                                  shaders["fragment"],
+                                  shaders["geometry"]);
+      }
+    }
     else
-      program = Program::create(info, context, shaders["vertex"], shaders["fragment"]);
+    {
+      if (tessellation)
+      {
+        program = Program::create(info,
+                                  context,
+                                  shaders["vertex"],
+                                  shaders["fragment"],
+                                  shaders["control"],
+                                  shaders["evaluation"]);
+      }
+      else
+      {
+        program = Program::create(info,
+                                  context,
+                                  shaders["vertex"],
+                                  shaders["fragment"]);
+      }
+    }
 
     if (!program)
       return false;
-
-    shaders.clear();
-
-    return true;
   }
 
   return true;

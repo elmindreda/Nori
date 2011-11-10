@@ -53,8 +53,9 @@ class Program;
 class Shader
 {
 public:
-  Shader();
-  Shader(const char* text, const Path& path = Path(), unsigned int version = 120);
+  Shader(const char* text = "",
+         const Path& path = Path(),
+         unsigned int version = 120);
   String text;
   Path path;
   unsigned int version;
@@ -285,7 +286,7 @@ private:
   Program(const ResourceInfo& info, Context& context);
   Program(const Program& source);
   bool attachShader(const Shader& shader, unsigned int type);
-  bool linkProgram();
+  bool link();
   bool retrieveUniforms();
   bool retrieveAttributes();
   void bind();
@@ -374,7 +375,6 @@ public:
 private:
   bool onBeginElement(const String& name);
   bool onEndElement(const String& name);
-  bool shaderElement(const String& name);
   Context& context;
   Ref<Program> program;
   ResourceInfo info;
