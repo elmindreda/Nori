@@ -579,6 +579,15 @@ Program::~Program()
   if (fragmentShaderID)
     glDeleteShader(fragmentShaderID);
 
+  if (geometryShaderID)
+    glDeleteShader(geometryShaderID);
+
+  if (tessCtrlShaderID)
+    glDeleteShader(tessCtrlShaderID);
+
+  if (tessEvalShaderID)
+    glDeleteShader(tessEvalShaderID);
+
   if (programID)
     glDeleteProgram(programID);
 }
