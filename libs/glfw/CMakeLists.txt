@@ -92,7 +92,7 @@ if(WIN32)
 
 endif(WIN32)
 
-include_directories(${GLFW_INCLUDE_DIRS})
+include_directories(${GLFW_INCLUDE_DIRS} ${glfw_BINARY_DIR})
 
 add_library(glfw STATIC ${glfw_SOURCES})
 
