@@ -888,7 +888,9 @@ SharedUniform::SharedUniform(const char* initName,
 
 Context::~Context()
 {
-  setDefaultFramebufferCurrent();
+  if (defaultFramebuffer)
+    setDefaultFramebufferCurrent();
+
   setCurrentVertexBuffer(NULL);
   setCurrentIndexBuffer(NULL);
   setCurrentProgram(NULL);
