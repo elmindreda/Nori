@@ -36,12 +36,11 @@
 //************************************************************************
 
 //========================================================================
-// glfwGetJoystickParam() - Determine joystick capabilities
+// Determine joystick capabilities
 //========================================================================
 
 GLFWAPI int glfwGetJoystickParam( int joy, int param )
 {
-    // Is GLFW initialized?
     if( !_glfwInitialized )
     {
         return 0;
@@ -52,14 +51,13 @@ GLFWAPI int glfwGetJoystickParam( int joy, int param )
 
 
 //========================================================================
-// glfwGetJoystickPos() - Get joystick axis positions
+// Get joystick axis positions
 //========================================================================
 
 GLFWAPI int glfwGetJoystickPos( int joy, float *pos, int numaxes )
 {
     int i;
 
-    // Is GLFW initialized?
     if( !_glfwInitialized )
     {
         return 0;
@@ -76,7 +74,7 @@ GLFWAPI int glfwGetJoystickPos( int joy, float *pos, int numaxes )
 
 
 //========================================================================
-// glfwGetJoystickButtons() - Get joystick button states
+// Get joystick button states
 //========================================================================
 
 GLFWAPI int glfwGetJoystickButtons( int joy,
@@ -85,7 +83,6 @@ GLFWAPI int glfwGetJoystickButtons( int joy,
 {
     int i;
 
-    // Is GLFW initialized?
     if( !_glfwInitialized )
     {
         return 0;

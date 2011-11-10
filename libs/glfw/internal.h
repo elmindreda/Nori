@@ -217,6 +217,7 @@ void _glfwInputMouseClick( int button, int action );
 // OpenGL extensions (glext.c)
 void _glfwParseGLVersion( int *major, int *minor, int *rev );
 int _glfwStringInExtensionString( const char *string, const GLubyte *extensions );
+void _glfwRefreshContextParams( void );
 
 // Framebuffer configs
 const _GLFWfbconfig *_glfwChooseFBConfig( const _GLFWfbconfig *desired,

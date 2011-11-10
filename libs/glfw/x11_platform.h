@@ -39,6 +39,7 @@
 // Include files
 #include <sys/time.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <signal.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
@@ -46,6 +47,7 @@
 #include <GL/glx.h>
 
 #include "GL/glfw.h"
+#include "x11_config.h"
 
 // We need declarations for GLX version 1.3 or above even if the server doesn't
 // support version 1.3
@@ -250,8 +252,6 @@ struct _GLFWwin_struct {
     int       samples;
 
     // OpenGL extensions and context attributes
-    int       has_GL_SGIS_generate_mipmap;
-    int       has_GL_ARB_texture_non_power_of_two;
     int       glMajor, glMinor, glRevision;
     int       glForward, glDebug, glProfile;
 
@@ -383,11 +383,12 @@ GLFWGLOBAL struct {
 
     // Timer data
     struct {
+        GLboolean   monotonic;
         double      resolution;
-        long long   t0;
+        long long   base;
     } Timer;
 
-#if defined(_GLFW_DLOPEN_LIBGL)
+#if defined(_GLFW_HAS_DLOPEN)
     struct {
         void       *libGL;  // dlopen handle for libGL.so
     } Libs;

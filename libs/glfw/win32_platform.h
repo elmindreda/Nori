@@ -43,7 +43,6 @@
 // Include files
 #include <windows.h>
 #include <mmsystem.h>
-
 #include "GL/glfw.h"
 
 
@@ -134,16 +133,31 @@ typedef struct tagKBDLLHOOKSTRUCT {
 #define XBUTTON2 2
 #endif
 
+#ifndef WGL_EXT_swap_control
+
+/* Entry points */
+typedef int (APIENTRY * PFNWGLSWAPINTERVALEXTPROC) (int);
+
+#endif /*WGL_EXT_swap_control*/
+
+#ifndef WGL_ARB_extensions_string
+
+/* Entry points */
+typedef const char *(APIENTRY * PFNWGLGETEXTENSIONSSTRINGARBPROC)( HDC );
+
+#endif /*WGL_ARB_extensions_string*/
+
+#ifndef WGL_EXT_extension_string
+
+/* Entry points */
+typedef const char *(APIENTRY * PFNWGLGETEXTENSIONSSTRINGEXTPROC)( void );
+
+#endif /*WGL_EXT_extension_string*/
+
 #ifndef WGL_ARB_pixel_format
 
-// wglSwapIntervalEXT typedef (Win32 buffer-swap interval control)
-typedef int (APIENTRY * WGLSWAPINTERVALEXT_T) (int);
-// wglGetPixelFormatAttribivARB typedef
-typedef BOOL (WINAPI * WGLGETPIXELFORMATATTRIBIVARB_T) (HDC, int, int, UINT, const int *, int *);
-// wglGetExtensionStringEXT typedef
-typedef const char *(APIENTRY * WGLGETEXTENSIONSSTRINGEXT_T)( void );
-// wglGetExtensionStringARB typedef
-typedef const char *(APIENTRY * WGLGETEXTENSIONSSTRINGARB_T)( HDC );
+/* Entry points */
+typedef BOOL (WINAPI * PFNWGLGETPIXELFORMATATTRIBIVARBPROC) (HDC, int, int, UINT, const int *, int *);
 
 /* Constants for wglGetPixelFormatAttribivARB */
 #define WGL_NUMBER_PIXEL_FORMATS_ARB    0x2000
@@ -183,7 +197,7 @@ typedef const char *(APIENTRY * WGLGETEXTENSIONSSTRINGARB_T)( HDC );
 
 #ifndef WGL_ARB_create_context
 
-/* wglCreateContextAttribsARB */
+/* Entry points */
 typedef HGLRC (WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC, HGLRC, const int *);
 
 /* Tokens for wglCreateContextAttribsARB attributes */
@@ -322,8 +336,6 @@ struct _GLFWwin_struct {
     int       samples;
 
     // OpenGL extensions and context attributes
-    int       has_GL_SGIS_generate_mipmap;
-    int       has_GL_ARB_texture_non_power_of_two;
     int       glMajor, glMinor, glRevision;
     int       glForward, glDebug, glProfile;
 
@@ -343,15 +355,16 @@ struct _GLFWwin_struct {
     DWORD     dwExStyle;       // --"--
 
     // Platform specific extensions (context specific)
-    WGLSWAPINTERVALEXT_T           SwapIntervalEXT;
-    WGLGETPIXELFORMATATTRIBIVARB_T GetPixelFormatAttribivARB;
-    WGLGETEXTENSIONSSTRINGEXT_T    GetExtensionsStringEXT;
-    WGLGETEXTENSIONSSTRINGARB_T    GetExtensionsStringARB;
+    PFNWGLSWAPINTERVALEXTPROC      SwapIntervalEXT;
+    PFNWGLGETPIXELFORMATATTRIBIVARBPROC GetPixelFormatAttribivARB;
+    PFNWGLGETEXTENSIONSSTRINGEXTPROC GetExtensionsStringEXT;
+    PFNWGLGETEXTENSIONSSTRINGARBPROC GetExtensionsStringARB;
     PFNWGLCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB;
     GLboolean                      has_WGL_EXT_swap_control;
     GLboolean                      has_WGL_ARB_multisample;
     GLboolean                      has_WGL_ARB_pixel_format;
     GLboolean                      has_WGL_ARB_create_context;
+    GLboolean                      has_WGL_ARB_create_context_profile;
 
     // Various platform specific internal variables
     int       oldMouseLock;    // Old mouse-lock flag (used for remembering

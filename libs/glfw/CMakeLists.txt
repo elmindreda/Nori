@@ -17,7 +17,7 @@ if(APPLE)
 
 endif(APPLE)
 
-if(UNIX AND NOT APPLE AND NOT CYGWIN)
+if(UNIX AND NOT APPLE)
 
   set(CMAKE_REQUIRED_LIBRARIES ${X11_X11_LIB} ${OPENGL_glu_LIBRARY} ${OPENGL_gl_LIBRARY})
   list(APPEND GLFW_INCLUDE_DIRS ${X11_X11_INCLUDE_PATH})
@@ -27,7 +27,7 @@ if(UNIX AND NOT APPLE AND NOT CYGWIN)
 
   include(${glfw_SOURCE_DIR}/CMake/CHECK_X11_EXTENSIONS.cmake)
 
-  CHECK_X11_XRANDR()
+  check_x11_xrandr()
   if (X11_XRANDR_FOUND)
     add_definitions(-D_GLFW_HAS_XRANDR) 
     list(APPEND GLFW_INCLUDE_DIRS ${X11_XRANDR_INCLUDE_DIR})
@@ -35,7 +35,7 @@ if(UNIX AND NOT APPLE AND NOT CYGWIN)
   endif(X11_XRANDR_FOUND)
 
   if (NOT X11_XRANDR_FOUND)
-    CHECK_X11_XF86VIDMODE()
+    check_x11_xf86vidmode()
     if (X11_XF86VIDMODE_FOUND)
       add_definitions(-D_GLFW_HAS_XF86VIDMODE)
       list(APPEND GLFW_INCLUDE_DIRS ${X11_XF86VIDMODE_INCLUDE_DIR})
@@ -45,30 +45,39 @@ if(UNIX AND NOT APPLE AND NOT CYGWIN)
 
   include(CheckFunctionExists)
 
-  check_function_exists(glXGetProcAddress GLXGETPROCADDRESS)
-  if(GLXGETPROCADDRESS)
-    add_definitions(-D_GLFW_HAS_GLXGETPROCADDRESS)
-  else()
+  if (NOT _GLFW_HAS_GLXGETPROCADDRESS)
+    check_function_exists(glXGetProcAddressARB _GLFW_HAS_GLXGETPROCADDRESSARB)
+  endif (NOT _GLFW_HAS_GLXGETPROCADDRESS)
 
-    check_function_exists(glXGetProcAddressARB GLXGETPROCADDRESSARB)
+  if (NOT _GLFW_HAS_GLXGETPROCADDRESS AND NOT _GLFW_HAS_GLXGETPROCADDRESSARB)
+    check_function_exists(glXGetProcAddressEXT _GLFW_HAS_GLXGETPROCADDRESSEXT)
+  endif (NOT _GLFW_HAS_GLXGETPROCADDRESS AND NOT _GLFW_HAS_GLXGETPROCADDRESSARB)
 
-    if(GLXGETPROCADDRESSARB)
-      add_definitions(-D_GLFW_HAS_GLXGETPROCADDRESSARB)
-    else()
-      check_function_exists(glXGetProcAddressEXT GLXGETPROCADDRESSEXT)
+  if (NOT _GLFW_HAS_GLXGETPROCADDRESS AND
+      NOT _GLFW_HAS_GLXGETPROCADDRESSARB AND
+      NOT _GLFW_HAS_GLXGETPROCADDRESSEXT)
+    message(WARNING "No glXGetProcAddressXXX variant found")
+  endif (NOT _GLFW_HAS_GLXGETPROCADDRESS AND
+          NOT _GLFW_HAS_GLXGETPROCADDRESSARB AND
+          NOT _GLFW_HAS_GLXGETPROCADDRESSEXT)
 
-      if(GLXGETPROCADDRESSEXT)
-        add_definitions(-D_GLFW_HAS_GLXGETPROCADDRESSEXT)
-      endif(GLXGETPROCADDRESSEXT)
-    endif(GLXGETPROCADDRESSARB)
+  find_library(LIBRT rt)
+  if (LIBRT)
+    list(APPEND GLFW_LIBRARIES ${LIBRT})
+  endif(LIBRT)
 
-  endif(GLXGETPROCADDRESS)
+  if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    set(_GLFW_USE_LINUX_JOYSTICKS 1)
+  endif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
   list(APPEND glfw_SOURCES x11_enable.c x11_fullscreen.c x11_glext.c x11_init.c
                            x11_joystick.c x11_keysym2unicode.c
                            x11_time.c x11_window.c)
 
-endif(UNIX AND NOT APPLE AND NOT CYGWIN)
+  configure_file(${glfw_SOURCE_DIR}/x11_config.h.cmake 
+                 ${glfw_BINARY_DIR}/x11_config.h @ONLY)
+
+endif(UNIX AND NOT APPLE)
 
 if(WIN32)
 

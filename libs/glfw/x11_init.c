@@ -178,7 +178,7 @@ int _glfwPlatformInit( void )
 
 
 //========================================================================
-// Close window and shut down library
+// Close window
 //========================================================================
 
 int _glfwPlatformTerminate( void )

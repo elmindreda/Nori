@@ -52,6 +52,17 @@
 //************************************************************************
 
 //========================================================================
+// Error handler for BadMatch errors when requesting context with
+// unavailable OpenGL versions using the GLX_ARB_create_context extension
+//========================================================================
+
+static int errorHandler( Display *display, XErrorEvent *event )
+{
+    return 0;
+}
+
+
+//========================================================================
 // Checks whether the event is a MapNotify for the specified window
 //========================================================================
 
@@ -629,11 +640,20 @@ static int createContext( const _GLFWwndconfig *wndconfig, GLXFBConfigID fbconfi
 
         setGLXattrib( attribs, index, None, None );
 
+        // This is the only place we set an Xlib error handler, and we only do
+        // it because glXCreateContextAttribsARB generates a BadMatch error if
+        // the requested OpenGL version is unavailable (instead of a civilized
+        // response like returning NULL)
+        XSetErrorHandler( errorHandler );
+
         _glfwWin.context = _glfwWin.CreateContextAttribsARB( _glfwLibrary.display,
                                                              *fbconfig,
                                                              NULL,
                                                              True,
                                                              attribs );
+
+        // We are done, so unset the error handler again (see above)
+        XSetErrorHandler( NULL );
     }
     else
     {
@@ -885,7 +905,7 @@ static GLboolean createWindow( int width, int height,
 
         hints->flags = 0;
 
-        if( wndconfig->windowNoResize )
+        if( wndconfig->windowNoResize && !_glfwWin.fullscreen )
         {
             hints->flags |= (PMinSize | PMaxSize);
             hints->min_width  = hints->max_width  = _glfwWin.width;
@@ -1406,7 +1426,6 @@ int _glfwPlatformOpenWindow( int width, int height,
         fbconfigs = getFBConfigs( &fbcount );
         if( !fbconfigs )
         {
-            _glfwPlatformCloseWindow();
             return GL_FALSE;
         }
 
@@ -1414,7 +1433,6 @@ int _glfwPlatformOpenWindow( int width, int height,
         if( !result )
         {
             free( fbconfigs );
-            _glfwPlatformCloseWindow();
             return GL_FALSE;
         }
 
@@ -1424,13 +1442,11 @@ int _glfwPlatformOpenWindow( int width, int height,
 
     if( !createContext( wndconfig, (GLXFBConfigID) closest.platformID ) )
     {
-        _glfwPlatformCloseWindow();
         return GL_FALSE;
     }
 
     if( !createWindow( width, height, wndconfig ) )
     {
-        _glfwPlatformCloseWindow();
         return GL_FALSE;
     }
 
@@ -1779,6 +1795,11 @@ void _glfwPlatformPollEvents( void )
     {
         _glfwPlatformSetMouseCursorPos( _glfwWin.width/2,
                                         _glfwWin.height/2 );
+
+        // NOTE: This is a temporary fix.  It works as long as you use offsets
+        //       accumulated over the course of a frame, instead of performing
+        //       the necessary actions per callback call.
+        XFlush( _glfwLibrary.display );
     }
 
     if( closeRequested && _glfwWin.windowCloseCallback )

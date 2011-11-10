@@ -36,7 +36,7 @@
 //************************************************************************
 
 //========================================================================
-// _glfwInitTimer() - Initialise timer
+// Initialise timer
 //========================================================================
 
 void _glfwInitTimer( void )
@@ -115,4 +115,5 @@ void _glfwPlatformSetTime( double t )
         _glfwLibrary.Timer.t0_32 = _glfw_timeGetTime() - (int)(t*1000.0);
     }
 }
+
 

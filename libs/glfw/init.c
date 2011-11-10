@@ -37,7 +37,7 @@
 //************************************************************************
 
 //========================================================================
-// glfwInit() - Initialize various GLFW state
+// Initialize various GLFW state
 //========================================================================
 
 GLFWAPI int glfwInit( void )
@@ -75,7 +75,7 @@ GLFWAPI int glfwInit( void )
 
 
 //========================================================================
-// Close window and shut down library
+// Close window
 //========================================================================
 
 GLFWAPI void glfwTerminate( void )
@@ -98,7 +98,7 @@ GLFWAPI void glfwTerminate( void )
 
 
 //========================================================================
-// glfwGetVersion() - Get GLFW version
+// Get GLFW version
 //========================================================================
 
 GLFWAPI void glfwGetVersion( int *major, int *minor, int *rev )

@@ -209,6 +209,13 @@ int _glfwPlatformInit( void )
     // Implicitly create shared NSApplication instance
     [GLFWApplication sharedApplication];
 
+    _glfwLibrary.OpenGLFramework =
+        CFBundleGetBundleWithIdentifier( CFSTR( "com.apple.opengl" ) );
+    if( _glfwLibrary.OpenGLFramework == NULL )
+    {
+        return GL_FALSE;
+    }
+
     NSString* resourcePath = [[NSBundle mainBundle] resourcePath];
 
     if( access( [resourcePath cStringUsingEncoding:NSUTF8StringEncoding], R_OK ) == 0 )

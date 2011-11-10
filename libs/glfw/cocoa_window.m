@@ -29,6 +29,8 @@
 
 #include "internal.h"
 
+#include <AvailabilityMacros.h>
+
 //========================================================================
 // Delegate for window related notifications
 // (but also used as an application delegate)
@@ -67,6 +69,27 @@
     {
         _glfwWin.windowSizeCallback( _glfwWin.width, _glfwWin.height );
     }
+}
+
+- (void)windowDidMiniaturize:(NSNotification *)notification
+{
+    _glfwWin.iconified = GL_TRUE;
+}
+
+- (void)windowDidDeminiaturize:(NSNotification *)notification
+{
+    _glfwWin.iconified = GL_FALSE;
+}
+
+- (void)windowDidBecomeKey:(NSNotification *)notification
+{
+    _glfwWin.active = GL_TRUE;
+}
+
+- (void)windowDidResignKey:(NSNotification *)notification
+{
+    _glfwWin.active = GL_FALSE;
+    _glfwInputDeactivation();
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
@@ -428,17 +451,33 @@ int  _glfwPlatformOpenWindow( int width, int height,
     _glfwWin.context = nil;
     _glfwWin.delegate = nil;
 
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
+    // Fail if any OpenGL version above 2.1 other than 3.2 was requested
+    if( wndconfig->glMajor > 3 ||
+        ( wndconfig->glMajor == 3 && wndconfig->glMinor != 2 ) )
+    {
+        return GL_FALSE;
+    }
+
+    if( wndconfig->glProfile )
+    {
+        // Fail if a profile other than core was explicitly selected
+        if( wndconfig->glProfile != GLFW_OPENGL_CORE_PROFILE )
+        {
+            return GL_FALSE;
+        }
+    }
+#else
     // Fail if OpenGL 3.0 or above was requested
     if( wndconfig->glMajor > 2 )
     {
-        _glfwPlatformCloseWindow();
         return GL_FALSE;
     }
+#endif /*MAC_OS_X_VERSION_MAX_ALLOWED*/
 
     _glfwWin.delegate = [[GLFWWindowDelegate alloc] init];
     if( _glfwWin.delegate == nil )
     {
-        _glfwPlatformCloseWindow();
         return GL_FALSE;
     }
 
@@ -456,8 +495,6 @@ int  _glfwPlatformOpenWindow( int width, int height,
     }
 
     // Ignored hints:
-    // OpenGLMajor, OpenGLMinor, OpenGLForward:
-    //     pending Mac OS X support for OpenGL 3.x
     // OpenGLDebug
     //     pending it meaning anything on Mac OS X
 
@@ -519,7 +556,7 @@ int  _glfwPlatformOpenWindow( int width, int height,
     unsigned int attribute_count = 0;
 #define ADD_ATTR(x) attributes[attribute_count++] = x
 #define ADD_ATTR2(x, y) (void)({ ADD_ATTR(x); ADD_ATTR(y); })
-#define MAX_ATTRS 24 // urgh
+#define MAX_ATTRS 64 // urrgh
     NSOpenGLPixelFormatAttribute attributes[MAX_ATTRS];
 
     ADD_ATTR( NSOpenGLPFADoubleBuffer );
@@ -531,6 +568,13 @@ int  _glfwPlatformOpenWindow( int width, int height,
         ADD_ATTR2( NSOpenGLPFAScreenMask,
                    CGDisplayIDToOpenGLDisplayMask( CGMainDisplayID() ) );
     }
+
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
+    if( wndconfig->glMajor > 2 )
+    {
+        ADD_ATTR2( NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core );
+    }
+#endif /*MAC_OS_X_VERSION_MAX_ALLOWED*/
 
     ADD_ATTR2( NSOpenGLPFAColorSize, colorBits );
 
@@ -578,7 +622,6 @@ int  _glfwPlatformOpenWindow( int width, int height,
     _glfwWin.pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
     if( _glfwWin.pixelFormat == nil )
     {
-        _glfwPlatformCloseWindow();
         return GL_FALSE;
     }
 
@@ -586,7 +629,6 @@ int  _glfwPlatformOpenWindow( int width, int height,
                                                   shareContext:nil];
     if( _glfwWin.context == nil )
     {
-        _glfwPlatformCloseWindow();
         return GL_FALSE;
     }
 
@@ -783,10 +825,7 @@ void _glfwPlatformRefreshWindowParams( void )
                    forVirtualScreen:0];
     _glfwWin.samples = value;
 
-    // These are forced to false as long as Mac OS X lacks support for OpenGL 3.0+
-    _glfwWin.glForward = GL_FALSE;
     _glfwWin.glDebug = GL_FALSE;
-    _glfwWin.glProfile = 0;
 }
 
 //========================================================================
