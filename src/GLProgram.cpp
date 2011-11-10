@@ -69,8 +69,7 @@ unsigned int getElementCount(Attribute::Type type)
       return 4;
   }
 
-  logError("Invalid GLSL attribute type %u", type);
-  return 0;
+  panic("Invalid GLSL attribute type %u", type);
 }
 
 GLenum getElementType(Attribute::Type type)
@@ -84,8 +83,7 @@ GLenum getElementType(Attribute::Type type)
       return GL_FLOAT;
   }
 
-  logError("Invalid GLSL attribute type %u", type);
-  return 0;
+  panic("Invalid GLSL attribute type %u", type);
 }
 
 bool isSupportedAttributeType(GLenum type)
