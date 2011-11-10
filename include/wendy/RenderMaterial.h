@@ -170,7 +170,7 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Codec for XML format render materials.
- *  @ingroup io
+ *  @ingroup renderer
  */
 class MaterialReader : ResourceReader, public XML::Reader
 {
@@ -190,7 +190,7 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Codec for XML format render materials.
- *  @ingroup io
+ *  @ingroup renderer
  */
 class MaterialWriter : public XML::Writer
 {

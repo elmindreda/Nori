@@ -85,7 +85,7 @@ enum AddressMode
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Texture type enumeration.
+/*! @brief %Texture type enumeration.
  *  @ingroup opengl
  */
 enum TextureType

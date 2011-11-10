@@ -366,7 +366,7 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief GPU program XML codec.
- *  @ingroup io
+ *  @ingroup opengl
  */
 class ProgramReader : public ResourceReader, public XML::Reader
 {
