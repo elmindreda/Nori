@@ -114,8 +114,7 @@ Attribute::Type convertAttributeType(GLenum type)
       return Attribute::VEC4;
   }
 
-  logError("Unsupported GLSL attribute type %u", type);
-  return Attribute::Type(0);
+  panic("Unsupported GLSL attribute type %u", type);
 }
 
 bool isSupportedSamplerType(GLenum type)
@@ -149,8 +148,7 @@ Sampler::Type convertSamplerType(GLenum type)
       return Sampler::SAMPLER_CUBE;
   }
 
-  logError("Unsupported GLSL sampler type %u", type);
-  return Sampler::Type(0);
+  panic("Unsupported GLSL sampler type %u", type);
 }
 
 bool isSupportedUniformType(GLenum type)
@@ -191,8 +189,7 @@ Uniform::Type convertUniformType(GLenum type)
       return Uniform::MAT4;
   }
 
-  logError("Unsupported GLSL uniform type %u", type);
-  return Uniform::Type(0);
+  panic("Unsupported GLSL uniform type %u", type);
 }
 
 bool readTextFile(ResourceIndex& index, String& text, const Path& path)
@@ -379,8 +376,7 @@ const char* Attribute::getTypeName(Type type)
       return "vec4";
   }
 
-  logError("Invalid GLSL attribute type %u", type);
-  return "INVALID";
+  panic("Invalid GLSL attribute type %u", type);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -435,8 +431,7 @@ const char* Sampler::getTypeName(Type type)
       return "samplerCube";
   }
 
-  logError("Invalid GLSL sampler type %u", type);
-  return "INVALID";
+  panic("Invalid GLSL sampler type %u", type);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -534,8 +529,7 @@ unsigned int Uniform::getElementCount() const
       return 4 * 4;
   }
 
-  logError("Invalid GLSL uniform type %u", type);
-  return 0;
+  panic("Invalid GLSL uniform type %u", type);
 }
 
 int Uniform::getSharedID() const
@@ -563,8 +557,7 @@ const char* Uniform::getTypeName(Type type)
       return "mat4";
   }
 
-  logError("Invalid GLSL uniform type %u", type);
-  return "INVALID";
+  panic("Invalid GLSL uniform type %u", type);
 }
 
 ///////////////////////////////////////////////////////////////////////
