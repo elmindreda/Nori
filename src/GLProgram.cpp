@@ -871,12 +871,30 @@ bool Program::link()
   glAttachShader(programID, vertexShaderID);
   glAttachShader(programID, fragmentShaderID);
 
-  if (tessCtrlShaderID)
-    glAttachShader(programID, tessCtrlShaderID);
-  if (tessEvalShaderID)
-    glAttachShader(programID, tessEvalShaderID);
   if (geometryShaderID)
+  {
+    if (!GLEW_ARB_geometry_shader4 && context.getVersion() < Version(3,2))
+    {
+      logError("Context does not support geometry shaders; cannot link program \'%s\'",
+               getPath().asString().c_str());
+      return false;
+    }
+
     glAttachShader(programID, geometryShaderID);
+  }
+
+  if (tessCtrlShaderID && tessEvalShaderID)
+  {
+    if (!GLEW_ARB_tessellation_shader && context.getVersion() < Version(4,0))
+    {
+      logError("Context does not support :essellation shaders; cannot link program \'%s\'",
+               getPath().asString().c_str());
+      return false;
+    }
+
+    glAttachShader(programID, tessCtrlShaderID);
+    glAttachShader(programID, tessEvalShaderID);
+  }
 
   glLinkProgram(programID);
 
