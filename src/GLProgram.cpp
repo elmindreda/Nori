@@ -864,9 +864,12 @@ bool Program::attachShader(const Shader& shader, unsigned int type)
 bool Program::link()
 {
   programID = glCreateProgram();
-
-  if (!vertexShaderID || !fragmentShaderID)
+  if (!programID)
+  {
+    logError("Failed to create OpenGL object for program \'%s\'",
+             getPath().asString().c_str());
     return false;
+  }
 
   glAttachShader(programID, vertexShaderID);
   glAttachShader(programID, fragmentShaderID);
