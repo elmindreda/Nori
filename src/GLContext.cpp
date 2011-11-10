@@ -1015,11 +1015,14 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
     return;
 #endif
 
-  GLenum drawType;
+  GLenum mode;
+
   if (currentProgram->hasTessellation())
   {
-    drawType = GL_PATCHES;
-    switch (type) {
+    mode = GL_PATCHES;
+
+    switch (type)
+    {
       case POINT_LIST:
         glPatchParameteri(GL_PATCH_VERTICES, 1);
         break;
@@ -1035,20 +1038,20 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
         break;
     }
   }
-  else 
-    drawType = convertToGL(type);
+  else
+    mode = convertToGL(type);
 
   if (currentIndexBuffer)
   {
-    size_t size = IndexBuffer::getTypeSize(currentIndexBuffer->getType());
+    const size_t size = IndexBuffer::getTypeSize(currentIndexBuffer->getType());
 
-    glDrawElements(drawType,
+    glDrawElements(mode,
                    count,
                    convertToGL(currentIndexBuffer->getType()),
                    (GLvoid*) (size * start));
   }
   else
-    glDrawArrays(drawType, start, count);
+    glDrawArrays(mode, start, count);
 
   if (stats)
     stats->addPrimitives(type, count);
