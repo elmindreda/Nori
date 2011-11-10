@@ -908,8 +908,8 @@ bool Program::link()
   if (infoLog.length() > 1)
   {
     logWarning("Warning(s) when linking program \'%s\':\n%s",
-             path.asString().c_str(),
-             infoLog.c_str());
+               path.asString().c_str(),
+               infoLog.c_str());
   }
 
   if (!checkGL("Failed to create object for program \'%s\'",

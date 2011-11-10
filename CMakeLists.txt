@@ -130,7 +130,7 @@ configure_file(${wendy_SOURCE_DIR}/include/wendy/Config.h.in
 
 if(WENDY_BUILD_DOCUMENTATION)
   configure_file(${wendy_SOURCE_DIR}/docs/Doxyfile.in
-                ${wendy_BINARY_DIR}/docs/Doxyfile @ONLY)
+                 ${wendy_BINARY_DIR}/docs/Doxyfile @ONLY)
 endif(WENDY_BUILD_DOCUMENTATION)
 
 add_subdirectory(src)
@@ -152,6 +152,6 @@ install(DIRECTORY ${wendy_SOURCE_DIR}/include/wendy
 
 if(WIN32)
   install(FILES ${wendy_SOURCE_DIR}/build/windows/wendy/Signal.h
-  DESTINATION include/wendy)
+          DESTINATION include/wendy)
 endif(WIN32)
 

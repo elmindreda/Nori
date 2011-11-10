@@ -31,6 +31,7 @@
 #include <wendy/Path.h>
 #include <wendy/Resource.h>
 #include <wendy/XML.h>
+
 #include <map>
 
 ///////////////////////////////////////////////////////////////////////
