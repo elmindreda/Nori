@@ -1,4 +1,4 @@
-// Shaders foro this test adapted from http://prideout.net/blog/?p=48
+// Shaders for this test adapted from http://prideout.net/blog/?p=48
 // Their original license: public domain
 
 #include <wendy/Wendy.h>
@@ -80,12 +80,16 @@ bool Test::init()
 
   RandomRange angle(0.f, float(PI) * 2.f);
   RandomVolume axis(vec3(-1.f), vec3(1.f));
+  RandomVolume position(vec3(-2.f), vec3(2.f));
 
-  scene::ModelNode* modelNode = new scene::ModelNode();
-  modelNode->setModel(model);
-  modelNode->setLocalPosition(vec3(0,0,0));
-  modelNode->setLocalRotation(angleAxis(degrees(angle()), normalize(axis())));
-  graph.addRootNode(*modelNode);
+  for (size_t i = 0;  i < 20;  i++)
+  {
+    scene::ModelNode* modelNode = new scene::ModelNode();
+    modelNode->setModel(model);
+    modelNode->setLocalPosition(position());
+    modelNode->setLocalRotation(angleAxis(degrees(angle()), normalize(axis())));
+    graph.addRootNode(*modelNode);
+  }
 
   camera = new render::Camera();
   camera->setFOV(60.f);
