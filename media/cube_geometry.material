@@ -2,9 +2,7 @@
 <material version="6">
   <technique type="forward" quality="1">
     <pass>
-      <program path="cube_geometry.program">
-        <uniform name="color" value="0 0 1" />
-      </program>
+      <program path="cube_geometry.program" />
     </pass>
   </technique>
 </material>

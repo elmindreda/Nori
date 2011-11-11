@@ -48,7 +48,7 @@ bool Test::init()
   GL::ContextConfig cc;
   cc.version = GL::Version(3,3);
 
-  if (!GL::Context::createSingleton(index, GL::WindowConfig("Geometry Shader Test"), cc))
+  if (!GL::Context::createSingleton(index, GL::WindowConfig("Geometry Shader Wireframe"), cc))
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
@@ -60,7 +60,7 @@ bool Test::init()
 
   pool = new render::GeometryPool(*context);
 
-renderer = forward::Renderer::create(*pool, forward::Config());
+  renderer = forward::Renderer::create(*pool, forward::Config());
   if (!renderer)
   {
     logError("Failed to create forward renderer");
@@ -78,12 +78,16 @@ renderer = forward::Renderer::create(*pool, forward::Config());
 
   RandomRange angle(0.f, float(PI) * 2.f);
   RandomVolume axis(vec3(-1.f), vec3(1.f));
+  RandomVolume position(vec3(-2.f), vec3(2.f));
 
-  scene::ModelNode* modelNode = new scene::ModelNode();
-  modelNode->setModel(model);
-  modelNode->setLocalPosition(vec3(0,0,0));
-  modelNode->setLocalRotation(angleAxis(degrees(angle()), normalize(axis())));
-  graph.addRootNode(*modelNode);
+  for (size_t i = 0;  i < 20;  i++)
+  {
+    scene::ModelNode* modelNode = new scene::ModelNode();
+    modelNode->setModel(model);
+    modelNode->setLocalPosition(position());
+    modelNode->setLocalRotation(angleAxis(degrees(angle()), normalize(axis())));
+    graph.addRootNode(*modelNode);
+  }
 
   camera = new render::Camera();
   camera->setFOV(60.f);

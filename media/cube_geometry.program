@@ -2,5 +2,5 @@
 <program version="4" >
   <vertex path="geom.vs" />
   <geometry path="geom.gs" glsl-version="150" />
-  <fragment path="cube.fs" />
+  <fragment path="geom.fs" />
 </program>
