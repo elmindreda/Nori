@@ -1,29 +1,29 @@
 
 uniform vec3 color;
-in vec3 gNormal;
-in vec3 gTriDistance;
-in vec3 gPatchDistance;
+in vec3 tePosition;
+in vec3 teNormal;
+in vec3 tePatchDistance;
 out vec4 FragColor;
-
-float amplify(float d, float scale, float offset)
-{
-    d = scale * d + offset;
-    d = clamp(d, 0, 1);
-    d = 1 - exp2(-2*d*d);
-    return d;
-}
 
 void main()
 {
-    const vec3 LightPosition = vec3(0, 10, 0);
+   const vec3 lightPos = vec3(0, 10, 0);
 
-    vec3 N = normalize(gNormal);
-    float df = abs(dot(N, LightPosition));
-    vec3 c = vec3(0.1, 0.1, 0.1) + df * color;
+  vec3 V = tePosition;
+  vec3 N = normalize(teNormal);
+  vec3 L = normalize(lightPos - V);
 
-    float d1 = min(min(gTriDistance.x, gTriDistance.y), gTriDistance.z);
-    float d2 = min(min(gPatchDistance.x, gPatchDistance.y), gPatchDistance.z);
-    c = amplify(d1, 40, -0.5) * amplify(d2, 60, -0.5) * c;
+  float ambient = 0.1;
+  float diffuse = clamp(dot(N, L), 0.0, 1.0);
 
-    FragColor = vec4(c, 1.0);
+  float c1 = tePatchDistance.x;
+  float c2 = tePatchDistance.y;
+  float c3 = tePatchDistance.z;
+
+  bool black = min(min(c1, c2), c3) < 0.04;
+
+  if (black)
+    FragColor = vec4(0,0,0,1);
+  else
+    FragColor = vec4(vec3(c1,c2,c3) * (ambient + diffuse), 1.0);
 }
