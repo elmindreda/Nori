@@ -1,5 +1,4 @@
 
-uniform vec3 color;
 in vec3 tePosition;
 in vec3 teNormal;
 in vec3 tePatchDistance;
