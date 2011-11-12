@@ -8,11 +8,11 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 # Avoid source tree pollution
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+if(wendy_SOURCE_DIR STREQUAL wendy_BINARY_DIR)
   message(WARNING "In-source builds are not recommended. "
                   "Consider building in a separate directory, "
                   "to avoid polluting the source tree.")
-endif(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+endif(wendy_SOURCE_DIR STREQUAL wendy_BINARY_DIR)
 
 # Add a sensible default build type
 if(NOT CMAKE_BUILD_TYPE)
