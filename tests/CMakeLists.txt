@@ -1,4 +1,8 @@
 
+if(CMAKE_COMPILER_IS_GNUCXX)
+  add_definitions(-ansi)
+endif(CMAKE_COMPILER_IS_GNUCXX)
+
 add_definitions(-DWENDY_MEDIA_DIR=\"${WENDY_MEDIA_DIR}\")
 
 set(TESTS clear cubemap deferred font geometry graph sprite2 sprite3 tessellation)

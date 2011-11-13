@@ -1,4 +1,8 @@
 
+if(CMAKE_COMPILER_IS_GNUCXX)
+  add_definitions(-ansi)
+endif(CMAKE_COMPILER_IS_GNUCXX)
+
 add_definitions(-DWENDY_MEDIA_DIR=\"${WENDY_MEDIA_DIR}\")
 
 add_executable(sponza WIN32 MACOSX_BUNDLE sponza.cpp)
