@@ -31,11 +31,6 @@ bool sq_aux_gettypedarg(HSQUIRRELVM v,SQInteger idx,SQObjectType type,SQObjectPt
 	if(sq_gettop(v) < count){ v->Raise_Error(_SC("not enough params in the stack")); return SQ_ERROR; }\
 }		
 
-SQInteger sq_aux_throwobject(HSQUIRRELVM v,SQObjectPtr &e)
-{
-	v->_lasterror = e;
-	return SQ_ERROR;
-}
 
 SQInteger sq_aux_invalidtype(HSQUIRRELVM v,SQObjectType type)
 {
@@ -157,7 +152,7 @@ void sq_addref(HSQUIRRELVM v,HSQOBJECT *po)
 #endif
 }
 
-SQBool sq_getrefcount(HSQUIRRELVM v,HSQOBJECT *po)
+SQUnsignedInteger sq_getrefcount(HSQUIRRELVM v,HSQOBJECT *po)
 {
 	if(!ISREFCOUNTED(type(*po))) return 0;
 #ifdef NO_GARBAGE_COLLECTOR
@@ -179,7 +174,7 @@ SQBool sq_release(HSQUIRRELVM v,HSQOBJECT *po)
 #endif
 }
 
-const SQChar *sq_objtostring(HSQOBJECT *o) 
+const SQChar *sq_objtostring(const HSQOBJECT *o) 
 {
 	if(sq_type(*o) == OT_STRING) {
 		return _stringval(*o);
@@ -187,7 +182,7 @@ const SQChar *sq_objtostring(HSQOBJECT *o)
 	return NULL;
 }
 
-SQInteger sq_objtointeger(HSQOBJECT *o) 
+SQInteger sq_objtointeger(const HSQOBJECT *o) 
 {
 	if(sq_isnumeric(*o)) {
 		return tointeger(*o);
@@ -195,7 +190,7 @@ SQInteger sq_objtointeger(HSQOBJECT *o)
 	return 0;
 }
 
-SQFloat sq_objtofloat(HSQOBJECT *o) 
+SQFloat sq_objtofloat(const HSQOBJECT *o) 
 {
 	if(sq_isnumeric(*o)) {
 		return tofloat(*o);
@@ -203,7 +198,7 @@ SQFloat sq_objtofloat(HSQOBJECT *o)
 	return 0;
 }
 
-SQBool sq_objtobool(HSQOBJECT *o) 
+SQBool sq_objtobool(const HSQOBJECT *o) 
 {
 	if(sq_isbool(*o)) {
 		return _integer(*o);
@@ -211,7 +206,7 @@ SQBool sq_objtobool(HSQOBJECT *o)
 	return SQFalse;
 }
 
-SQUserPointer sq_objtouserpointer(HSQOBJECT *o)
+SQUserPointer sq_objtouserpointer(const HSQOBJECT *o)
 {
 	if(sq_isuserpointer(*o)) {
 		return _userpointer(*o);
@@ -255,7 +250,7 @@ SQUserPointer sq_newuserdata(HSQUIRRELVM v,SQUnsignedInteger size)
 {
 	SQUserData *ud = SQUserData::Create(_ss(v), size);
 	v->Push(ud);
-	return ud->_val;
+	return (SQUserPointer)sq_aligning(ud + 1);
 }
 
 void sq_newtable(HSQUIRRELVM v)
@@ -373,10 +368,10 @@ SQRESULT sq_arrayinsert(HSQUIRRELVM v,SQInteger idx,SQInteger destpos)
 
 void sq_newclosure(HSQUIRRELVM v,SQFUNCTION func,SQUnsignedInteger nfreevars)
 {
-	SQNativeClosure *nc = SQNativeClosure::Create(_ss(v), func);
+	SQNativeClosure *nc = SQNativeClosure::Create(_ss(v), func,nfreevars);
 	nc->_nparamscheck = 0;
 	for(SQUnsignedInteger i = 0; i < nfreevars; i++) {
-		nc->_outervalues.push_back(v->Top());
+		nc->_outervalues[i] = v->Top();
 		v->Pop();
 	}
 	v->Push(SQObjectPtr(nc));	
@@ -396,7 +391,7 @@ SQRESULT sq_getclosureinfo(HSQUIRRELVM v,SQInteger idx,SQUnsignedInteger *nparam
 	{
 		SQNativeClosure *c = _nativeclosure(o);
 		*nparams = (SQUnsignedInteger)c->_nparamscheck;
-		*nfreevars = c->_outervalues.size();
+		*nfreevars = c->_noutervalues;
 		return SQ_OK;
 	}
 	return sq_throwerror(v,_SC("the object is not a closure"));
@@ -653,7 +648,7 @@ SQRESULT sq_settypetag(HSQUIRRELVM v,SQInteger idx,SQUserPointer typetag)
 	return SQ_OK;
 }
 
-SQRESULT sq_getobjtypetag(HSQOBJECT *o,SQUserPointer * typetag)
+SQRESULT sq_getobjtypetag(const HSQOBJECT *o,SQUserPointer * typetag)
 {
   switch(type(*o)) {
     case OT_INSTANCE: *typetag = _instance(*o)->_class->_typetag; break;
@@ -979,8 +974,16 @@ void sq_resetobject(HSQOBJECT *po)
 SQRESULT sq_throwerror(HSQUIRRELVM v,const SQChar *err)
 {
 	v->_lasterror=SQString::Create(_ss(v),err);
-	return -1;
+	return SQ_ERROR;
 }
+
+SQRESULT sq_throwobject(HSQUIRRELVM v)
+{
+	v->_lasterror = v->GetUp(-1);
+	v->Pop();
+	return SQ_ERROR;
+}
+
 
 void sq_reseterror(HSQUIRRELVM v)
 {
@@ -1055,7 +1058,8 @@ SQRESULT sq_wakeupvm(HSQUIRRELVM v,SQBool wakeupret,SQBool retval,SQBool raiseer
 		}
 		v->Pop();
 	} else if(target != -1) { v->GetAt(v->_stackbase+v->_suspended_target).Null(); }
-	if(!v->Execute(_null_,-1,-1,ret,raiseerror,throwerror?SQVM::ET_RESUME_THROW_VM : SQVM::ET_RESUME_VM)) {
+	SQObjectPtr dummy;
+	if(!v->Execute(dummy,-1,-1,ret,raiseerror,throwerror?SQVM::ET_RESUME_THROW_VM : SQVM::ET_RESUME_VM)) {
 		return SQ_ERROR;
 	}
 	if(retval)
@@ -1160,7 +1164,7 @@ const SQChar *sq_getfreevariable(HSQUIRRELVM v,SQInteger idx,SQUnsignedInteger n
 		break;
 	case OT_NATIVECLOSURE:{
 		SQNativeClosure *clo = _nativeclosure(self);
-		if(clo->_outervalues.size() > nval) {
+		if(clo->_noutervalues > nval) {
 			v->Push(clo->_outervalues[nval]);
 			name = _SC("@NATIVE");
 		}
@@ -1185,8 +1189,8 @@ SQRESULT sq_setfreevariable(HSQUIRRELVM v,SQInteger idx,SQUnsignedInteger nval)
 					}
 		break;
 	case OT_NATIVECLOSURE:
-		if(_nativeclosure(self)->_outervalues.size()>nval){
-			_nativeclosure(self)->_outervalues[nval]=stack_get(v,-1);
+		if(_nativeclosure(self)->_noutervalues > nval){
+			_nativeclosure(self)->_outervalues[nval] = stack_get(v,-1);
 		}
 		else return sq_throwerror(v,_SC("invalid free var index"));
 		break;
@@ -1244,9 +1248,9 @@ SQRESULT sq_getmemberhandle(HSQUIRRELVM v,SQInteger idx,HSQMEMBERHANDLE *handle)
 	SQObjectPtr *o = NULL;
 	_GETSAFE_OBJ(v, idx, OT_CLASS,o);
 	SQObjectPtr &key = stack_get(v,-1);
-	SQClass *c = _class(*o);
+	SQTable *m = _class(*o)->_members;
 	SQObjectPtr val;
-	if(c->Get(key,val)) {
+	if(m->Get(key,val)) {
 		handle->_static = _isfield(val) ? SQFalse : SQTrue;
 		handle->_index = _member_idx(val);
 		v->Pop();
@@ -1255,7 +1259,7 @@ SQRESULT sq_getmemberhandle(HSQUIRRELVM v,SQInteger idx,HSQMEMBERHANDLE *handle)
 	return sq_throwerror(v,_SC("wrong index"));
 }
 
-SQRESULT _getmemberbyhandle(HSQUIRRELVM v,SQObjectPtr &self,HSQMEMBERHANDLE *handle,SQObjectPtr *val)
+SQRESULT _getmemberbyhandle(HSQUIRRELVM v,SQObjectPtr &self,HSQMEMBERHANDLE *handle,SQObjectPtr *&val)
 {
 	switch(type(self)) {
 		case OT_INSTANCE: {

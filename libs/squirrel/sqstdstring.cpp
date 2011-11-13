@@ -206,55 +206,6 @@ static SQInteger _string_rstrip(HSQUIRRELVM v)
 	return 1;
 }
 
-SQChar *
-__strtok(SQChar *s, const SQChar *delim)
-{
-	register SQChar *spanp;
-	register int c, sc;
-	SQChar *tok;
-	static SQChar *last;
-
-
-	if (s == NULL && (s = last) == NULL)
-		return (NULL);
-
-	/*
-	 * Skip (span) leading delimiters (s += strspn(s, delim), sort of).
-	 */
-cont:
-	c = *s++;
-	for (spanp = (SQChar *)delim; (sc = *spanp++) != 0;) {
-		if (c == sc)
-			goto cont;
-	}
-
-	if (c == 0) {		/* no non-delimiter characters */
-		last = NULL;
-		return (NULL);
-	}
-	tok = s - 1;
-
-	/*
-	 * Scan token (scan for delimiters: s += strcspn(s, delim), sort of).
-	 * Note that delim must have one NUL; we stop if we see that, too.
-	 */
-	for (;;) {
-		c = *s++;
-		spanp = (SQChar *)delim;
-		do {
-			if ((sc = *spanp++) == c) {
-				if (c == 0)
-					s = NULL;
-				else
-					s[-1] = 0;
-				last = s;
-				return (tok);
-			}
-		} while (sc != 0);
-	}
-	/* NOTREACHED */
-}
-
 static SQInteger _string_split(HSQUIRRELVM v)
 {
 	const SQChar *str,*seps;
@@ -265,38 +216,13 @@ static SQInteger _string_split(HSQUIRRELVM v)
 	SQInteger memsize = (sq_getsize(v,2)+1)*sizeof(SQChar);
 	stemp = sq_getscratchpad(v,memsize);
 	memcpy(stemp,str,memsize);
-	tok = __strtok(stemp,seps);
+	tok = scstrtok(stemp,seps);
 	sq_newarray(v,0);
 	while( tok != NULL ) {
 		sq_pushstring(v,tok,-1);
 		sq_arrayappend(v,-2);
-		tok = __strtok( NULL, seps );
+		tok = scstrtok( NULL, seps );
 	}
-	/*sq_newarray(v,0);
-	const SQChar *curr = str;
-	const SQChar *start = str;
-	SQChar c;
-	SQInteger cnt = 0;
-	bool found = false;
-	while((c = *curr) != NULL) {
-		const SQChar *s = seps;
-		while(*s != NULL) {
-			if(*s == c) {
-				found = true;
-				sq_pushstring(v,start,cnt);
-				sq_arrayappend(v,-2);
-				cnt = -1;
-				start = curr + 1;
-			}
-			s++;
-		}
-		cnt++;
-		curr++;
-	}
-	if(*start != NULL) {
-		sq_pushstring(v,start,cnt);
-		sq_arrayappend(v,-2);
-	}*/
 	return 1;
 }
 
@@ -408,6 +334,7 @@ static SQRegFunction rexobj_funcs[]={
 	_DECL_REX_FUNC(_typeof,1,_SC("x")),
 	{0,0}
 };
+#undef _DECL_REX_FUNC
 
 #define _DECL_FUNC(name,nparams,pmask) {_SC(#name),_string_##name,nparams,pmask}
 static SQRegFunction stringlib_funcs[]={
@@ -418,6 +345,7 @@ static SQRegFunction stringlib_funcs[]={
 	_DECL_FUNC(split,3,_SC(".ss")),
 	{0,0}
 };
+#undef _DECL_FUNC
 
 
 SQInteger sqstd_register_stringlib(HSQUIRRELVM v)
@@ -431,10 +359,10 @@ SQInteger sqstd_register_stringlib(HSQUIRRELVM v)
 		sq_newclosure(v,f.f,0);
 		sq_setparamscheck(v,f.nparamscheck,f.typemask);
 		sq_setnativeclosurename(v,-1,f.name);
-		sq_createslot(v,-3);
+		sq_newslot(v,-3,SQFalse);
 		i++;
 	}
-	sq_createslot(v,-3);
+	sq_newslot(v,-3,SQFalse);
 
 	i = 0;
 	while(stringlib_funcs[i].name!=0)
@@ -443,7 +371,7 @@ SQInteger sqstd_register_stringlib(HSQUIRRELVM v)
 		sq_newclosure(v,stringlib_funcs[i].f,0);
 		sq_setparamscheck(v,stringlib_funcs[i].nparamscheck,stringlib_funcs[i].typemask);
 		sq_setnativeclosurename(v,-1,stringlib_funcs[i].name);
-		sq_createslot(v,-3);
+		sq_newslot(v,-3,SQFalse);
 		i++;
 	}
 	return 1;

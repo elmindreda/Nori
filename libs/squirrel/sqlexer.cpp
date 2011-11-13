@@ -71,6 +71,7 @@ void SQLexer::Init(SQSharedState *ss, SQLEXREADFUNC rg, SQUserPointer up,Compile
 	_lasttokenline = _currentline = 1;
 	_currentcolumn = 0;
 	_prevtoken = -1;
+	_reached_eof = SQFalse;
 	Next();
 }
 
@@ -88,6 +89,7 @@ void SQLexer::Next()
 		return;
 	}
 	_currdata = SQUIRREL_EOB;
+	_reached_eof = SQTrue;
 }
 
 const SQChar *SQLexer::Tok2Str(SQInteger tok)
@@ -114,6 +116,10 @@ void SQLexer::LexBlockComment()
 		}
 	}
 }
+void SQLexer::LexLineComment()
+{
+	do { NEXT(); } while (CUR_CHAR != _SC('\n') && (!IS_EOB()));
+}
 
 SQInteger SQLexer::Lex()
 {
@@ -128,6 +134,7 @@ SQInteger SQLexer::Lex()
 			NEXT();
 			_currentcolumn=1;
 			continue;
+		case _SC('#'): LexLineComment(); continue;
 		case _SC('/'):
 			NEXT();
 			switch(CUR_CHAR){
@@ -136,7 +143,7 @@ SQInteger SQLexer::Lex()
 				LexBlockComment();
 				continue;	
 			case _SC('/'):
-				do { NEXT(); } while (CUR_CHAR != _SC('\n') && (!IS_EOB()));
+				LexLineComment();
 				continue;
 			case _SC('='):
 				NEXT();

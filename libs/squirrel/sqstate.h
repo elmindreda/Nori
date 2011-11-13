@@ -134,11 +134,7 @@ private:
 #define rsl(l) (l)
 #endif
 
-extern SQObjectPtr _null_;
-//extern SQObjectPtr _true_;
-//extern SQObjectPtr _false_;
-//extern SQObjectPtr _one_;
-//extern SQObjectPtr _minusone_;
+//extern SQObjectPtr _null_;
 
 bool CompileTypemask(SQIntVec &res,const SQChar *typemask);
 

@@ -18,12 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
 */
-/* 2011-06-02  Camilla Berglund  <elmindreda@elmindreda.org>
- *   Added automatic detection of 64-bit systems.
- */
-
 #ifndef _SQUIRREL_H_
 #define _SQUIRREL_H_
 
@@ -36,12 +31,6 @@ extern "C" {
 #endif
 
 #if (defined(_WIN64) || defined(_LP64))
-#ifndef _SQ64
-#define _SQ64
-#endif
-#endif
-
-#if defined(__amd64__) || defined(__x86_64__)
 #ifndef _SQ64
 #define _SQ64
 #endif
@@ -87,6 +76,14 @@ typedef SQUnsignedInteger SQRawObjectVal; //is 32 bits on 32 bits builds and 64 
 #define SQ_OBJECT_RAWINIT()
 #endif
 
+#ifndef SQ_ALIGNMENT // SQ_ALIGNMENT shall be less than or equal to SQ_MALLOC alignments, and its value shall be power of 2.
+#if defined(SQUSEDOUBLE) || defined(_SQ64)
+#define SQ_ALIGNMENT 8
+#else
+#define SQ_ALIGNMENT 4
+#endif
+#endif
+
 typedef void* SQUserPointer;
 typedef SQUnsignedInteger SQBool;
 typedef SQInteger SQRESULT;
@@ -116,7 +113,7 @@ struct SQOuter;
 #ifdef SQUNICODE
 #if (defined(_MSC_VER) && _MSC_VER >= 1400) // 1400 = VS8
 
-#if defined(wchar_t) //this is if the compiler considers wchar_t as native type
+#if !defined(_NATIVE_WCHAR_T_DEFINED) //this is if the compiler considers wchar_t as native type
 #define wchar_t unsigned short
 #endif
 
@@ -184,9 +181,10 @@ typedef char SQChar;
 #define _PRINT_INT_FMT _SC("%d")
 #endif
 
-#define SQUIRREL_VERSION	_SC("Squirrel 3.0 stable")
+#define SQUIRREL_VERSION	_SC("Squirrel 3.0.1 stable")
 #define SQUIRREL_COPYRIGHT	_SC("Copyright (C) 2003-2011 Alberto Demichelis")
 #define SQUIRREL_AUTHOR		_SC("Alberto Demichelis")
+#define SQUIRREL_VERSION_NUMBER	301
 
 #define SQ_VMSTATE_IDLE			0
 #define SQ_VMSTATE_RUNNING		1
@@ -429,6 +427,7 @@ SQUIRREL_API const SQChar *sq_getlocal(HSQUIRRELVM v,SQUnsignedInteger level,SQU
 SQUIRREL_API SQRESULT sq_getcallee(HSQUIRRELVM v);
 SQUIRREL_API const SQChar *sq_getfreevariable(HSQUIRRELVM v,SQInteger idx,SQUnsignedInteger nval);
 SQUIRREL_API SQRESULT sq_throwerror(HSQUIRRELVM v,const SQChar *err);
+SQUIRREL_API SQRESULT sq_throwobject(HSQUIRRELVM v);
 SQUIRREL_API void sq_reseterror(HSQUIRRELVM v);
 SQUIRREL_API void sq_getlasterror(HSQUIRRELVM v);
 
@@ -437,14 +436,14 @@ SQUIRREL_API SQRESULT sq_getstackobj(HSQUIRRELVM v,SQInteger idx,HSQOBJECT *po);
 SQUIRREL_API void sq_pushobject(HSQUIRRELVM v,HSQOBJECT obj);
 SQUIRREL_API void sq_addref(HSQUIRRELVM v,HSQOBJECT *po);
 SQUIRREL_API SQBool sq_release(HSQUIRRELVM v,HSQOBJECT *po);
-SQUIRREL_API SQBool sq_getrefcount(HSQUIRRELVM v,HSQOBJECT *po);
+SQUIRREL_API SQUnsignedInteger sq_getrefcount(HSQUIRRELVM v,HSQOBJECT *po);
 SQUIRREL_API void sq_resetobject(HSQOBJECT *po);
-SQUIRREL_API const SQChar *sq_objtostring(HSQOBJECT *o);
-SQUIRREL_API SQBool sq_objtobool(HSQOBJECT *o);
-SQUIRREL_API SQInteger sq_objtointeger(HSQOBJECT *o);
-SQUIRREL_API SQFloat sq_objtofloat(HSQOBJECT *o);
-SQUIRREL_API SQUserPointer sq_objtouserpointer(HSQOBJECT *o);
-SQUIRREL_API SQRESULT sq_getobjtypetag(HSQOBJECT *o,SQUserPointer * typetag);
+SQUIRREL_API const SQChar *sq_objtostring(const HSQOBJECT *o);
+SQUIRREL_API SQBool sq_objtobool(const HSQOBJECT *o);
+SQUIRREL_API SQInteger sq_objtointeger(const HSQOBJECT *o);
+SQUIRREL_API SQFloat sq_objtofloat(const HSQOBJECT *o);
+SQUIRREL_API SQUserPointer sq_objtouserpointer(const HSQOBJECT *o);
+SQUIRREL_API SQRESULT sq_getobjtypetag(const HSQOBJECT *o,SQUserPointer * typetag);
 
 /*GC*/
 SQUIRREL_API SQInteger sq_collectgarbage(HSQUIRRELVM v);

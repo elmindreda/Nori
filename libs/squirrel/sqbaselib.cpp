@@ -112,24 +112,24 @@ static SQInteger __getcallstackinfos(HSQUIRRELVM v,SQInteger level)
 		sq_newtable(v);
 		sq_pushstring(v, _SC("func"), -1);
 		sq_pushstring(v, fn, -1);
-		sq_createslot(v, -3);
+		sq_newslot(v, -3, SQFalse);
 		sq_pushstring(v, _SC("src"), -1);
 		sq_pushstring(v, src, -1);
-		sq_createslot(v, -3);
+		sq_newslot(v, -3, SQFalse);
 		sq_pushstring(v, _SC("line"), -1);
 		sq_pushinteger(v, si.line);
-		sq_createslot(v, -3);
+		sq_newslot(v, -3, SQFalse);
 		sq_pushstring(v, _SC("locals"), -1);
 		sq_newtable(v);
 		seq=0;
 		while ((name = sq_getlocal(v, level, seq))) {
 			sq_pushstring(v, name, -1);
 			sq_push(v, -2);
-			sq_createslot(v, -4);
+			sq_newslot(v, -4, SQFalse);
 			sq_pop(v, 1);
 			seq++;
 		}
-		sq_createslot(v, -3);
+		sq_newslot(v, -3, SQFalse);
 		return 1;
 	}
 
@@ -288,21 +288,25 @@ void sq_base_register(HSQUIRRELVM v)
 		sq_newclosure(v,base_funcs[i].f,0);
 		sq_setnativeclosurename(v,-1,base_funcs[i].name);
 		sq_setparamscheck(v,base_funcs[i].nparamscheck,base_funcs[i].typemask);
-		sq_createslot(v,-3);
+		sq_newslot(v,-3, SQFalse);
 		i++;
 	}
+	
+	sq_pushstring(v,_SC("_versionnumber_"),-1);
+	sq_pushinteger(v,SQUIRREL_VERSION_NUMBER);
+	sq_newslot(v,-3, SQFalse);
 	sq_pushstring(v,_SC("_version_"),-1);
 	sq_pushstring(v,SQUIRREL_VERSION,-1);
-	sq_createslot(v,-3);
+	sq_newslot(v,-3, SQFalse);
 	sq_pushstring(v,_SC("_charsize_"),-1);
 	sq_pushinteger(v,sizeof(SQChar));
-	sq_createslot(v,-3);
+	sq_newslot(v,-3, SQFalse);
 	sq_pushstring(v,_SC("_intsize_"),-1);
 	sq_pushinteger(v,sizeof(SQInteger));
-	sq_createslot(v,-3);
+	sq_newslot(v,-3, SQFalse);
 	sq_pushstring(v,_SC("_floatsize_"),-1);
 	sq_pushinteger(v,sizeof(SQFloat));
-	sq_createslot(v,-3);
+	sq_newslot(v,-3, SQFalse);
 	sq_pop(v,1);
 }
 
@@ -389,6 +393,7 @@ static SQInteger number_delegate_tochar(HSQUIRRELVM v)
 }
 
 
+
 /////////////////////////////////////////////////////////////////
 //TABLE DEFAULT DELEGATE
 
@@ -410,13 +415,13 @@ static SQInteger container_rawexists(HSQUIRRELVM v)
 	return 1;
 }
 
-static SQInteger table_rawset(HSQUIRRELVM v)
+static SQInteger container_rawset(HSQUIRRELVM v)
 {
 	return sq_rawset(v,-3);
 }
 
 
-static SQInteger table_rawget(HSQUIRRELVM v)
+static SQInteger container_rawget(HSQUIRRELVM v)
 {
 	return SQ_SUCCEEDED(sq_rawget(v,-2))?1:SQ_ERROR;
 }
@@ -436,8 +441,8 @@ static SQInteger table_getdelegate(HSQUIRRELVM v)
 
 SQRegFunction SQSharedState::_table_default_delegate_funcz[]={
 	{_SC("len"),default_delegate_len,1, _SC("t")},
-	{_SC("rawget"),table_rawget,2, _SC("t")},
-	{_SC("rawset"),table_rawset,3, _SC("t")},
+	{_SC("rawget"),container_rawget,2, _SC("t")},
+	{_SC("rawset"),container_rawset,3, _SC("t")},
 	{_SC("rawdelete"),table_rawdelete,2, _SC("t")},
 	{_SC("rawin"),container_rawexists,2, _SC("t")},
 	{_SC("weakref"),obj_delegate_weakref,1, NULL },
@@ -1062,6 +1067,8 @@ static SQInteger class_getbase(HSQUIRRELVM v)
 SQRegFunction SQSharedState::_class_default_delegate_funcz[] = {
 	{_SC("getattributes"), class_getattributes, 2, _SC("y.")},
 	{_SC("setattributes"), class_setattributes, 3, _SC("y..")},
+	{_SC("rawget"),container_rawget,2, _SC("y")},
+	{_SC("rawset"),container_rawset,3, _SC("y")},
 	{_SC("rawin"),container_rawexists,2, _SC("y")},
 	{_SC("weakref"),obj_delegate_weakref,1, NULL },
 	{_SC("tostring"),default_delegate_tostring,1, _SC(".")},
@@ -1079,6 +1086,8 @@ static SQInteger instance_getclass(HSQUIRRELVM v)
 
 SQRegFunction SQSharedState::_instance_default_delegate_funcz[] = {
 	{_SC("getclass"), instance_getclass, 1, _SC("x")},
+	{_SC("rawget"),container_rawget,2, _SC("x")},
+	{_SC("rawset"),container_rawset,3, _SC("x")},
 	{_SC("rawin"),container_rawexists,2, _SC("x")},
 	{_SC("weakref"),obj_delegate_weakref,1, NULL },
 	{_SC("tostring"),default_delegate_tostring,1, _SC(".")},
@@ -1098,5 +1107,4 @@ SQRegFunction SQSharedState::_weakref_default_delegate_funcz[] = {
 	{_SC("tostring"),default_delegate_tostring,1, _SC(".")},
 	{0,0}
 };
-
 

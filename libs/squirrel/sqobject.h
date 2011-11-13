@@ -57,6 +57,31 @@ enum SQMetaMethod{
 #define MM_NEWMEMBER _SC("_newmember")
 #define MM_INHERITED _SC("_inherited")
 
+
+#define _CONSTRUCT_VECTOR(type,size,ptr) { \
+	for(SQInteger n = 0; n < ((SQInteger)size); n++) { \
+			new (&ptr[n]) type(); \
+		} \
+}
+
+#define _DESTRUCT_VECTOR(type,size,ptr) { \
+	for(SQInteger nl = 0; nl < ((SQInteger)size); nl++) { \
+			ptr[nl].~type(); \
+	} \
+}
+
+#define _COPY_VECTOR(dest,src,size) { \
+	for(SQInteger _n_ = 0; _n_ < ((SQInteger)size); _n_++) { \
+		dest[_n_] = src[_n_]; \
+	} \
+}
+
+#define _NULL_SQOBJECT_VECTOR(vec,size) { \
+	for(SQInteger _n_ = 0; _n_ < ((SQInteger)size); _n_++) { \
+		vec[_n_].Null(); \
+	} \
+}
+
 #define MINPOWER2 4
 
 struct SQRefCounted
@@ -128,7 +153,7 @@ struct SQObjectPtr;
 #define _rawval(obj) ((obj)._unVal.raw)
 
 #define _stringval(obj) (obj)._unVal.pString->_val
-#define _userdataval(obj) (obj)._unVal.pUserData->_val
+#define _userdataval(obj) ((SQUserPointer)sq_aligning((obj)._unVal.pUserData + 1))
 
 #define tofloat(num) ((type(num)==OT_INTEGER)?(SQFloat)_integer(num):_float(num))
 #define tointeger(num) ((type(num)==OT_FLOAT)?(SQInteger)_float(num):_integer(num))
@@ -266,7 +291,7 @@ struct SQObjectPtr : public SQObject
 	{
 		__Release(_type ,_unVal);
 		_type = OT_NULL;
-		_unVal.raw = SQRawObjectVal(NULL);
+		_unVal.raw = NULL;
 	}
 	private:
 		SQObjectPtr(const SQChar *){} //safety

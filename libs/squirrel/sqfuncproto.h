@@ -58,17 +58,7 @@ typedef sqvector<SQLineInfo> SQLineInfoVec;
 		+(nouters*sizeof(SQOuterVar))+(nlineinf*sizeof(SQLineInfo)) \
 		+(localinf*sizeof(SQLocalVarInfo))+(defparams*sizeof(SQInteger)))
 
-#define _CONSTRUCT_VECTOR(type,size,ptr) { \
-	for(SQInteger n = 0; n < size; n++) { \
-			new (&ptr[n]) type(); \
-		} \
-}
 
-#define _DESTRUCT_VECTOR(type,size,ptr) { \
-	for(SQInteger nl = 0; nl < size; nl++) { \
-			ptr[nl].~type(); \
-	} \
-}
 struct SQFunctionProto : public CHAINABLE_OBJ
 {
 private:
@@ -127,10 +117,7 @@ public:
 	static bool Load(SQVM *v,SQUserPointer up,SQREADFUNC read,SQObjectPtr &ret);
 #ifndef NO_GARBAGE_COLLECTOR
 	void Mark(SQCollectable **chain);
-	void Finalize(){
-		for(SQInteger i = 0; i < _nliterals; i++)
-			_literals[i].Null();
-	}
+	void Finalize(){ _NULL_SQOBJECT_VECTOR(_literals,_nliterals); }
 	SQObjectType GetType() {return OT_FUNCPROTO;}
 #endif
 	SQObjectPtr _sourcename;

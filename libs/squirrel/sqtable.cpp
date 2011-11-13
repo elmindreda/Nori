@@ -73,11 +73,33 @@ void SQTable::Rehash(bool force)
 SQTable *SQTable::Clone()
 {
 	SQTable *nt=Create(_opt_ss(this),_numofnodes);
+#ifdef _FAST_CLONE
+	_HashNode *basesrc = _nodes;
+	_HashNode *basedst = nt->_nodes;
+	_HashNode *src = _nodes;
+	_HashNode *dst = nt->_nodes;
+	SQInteger n = 0;
+	for(n = 0; n < _numofnodes; n++) {
+		dst->key = src->key;
+		dst->val = src->val;
+		if(src->next) {
+			assert(src->next > basesrc);
+			dst->next = basedst + (src->next - basesrc);
+			assert(dst != dst->next);
+		}
+		dst++;
+		src++;
+	}
+	assert(_firstfree > basesrc);
+	assert(_firstfree != NULL);
+	nt->_firstfree = basedst + (_firstfree - basesrc);
+#else
 	SQInteger ridx=0;
 	SQObjectPtr key,val;
 	while((ridx=Next(true,ridx,key,val))!=-1){
 		nt->NewSlot(key,val);
 	}
+#endif
 	nt->SetDelegate(_delegate);
 	return nt;
 }

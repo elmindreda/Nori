@@ -12,7 +12,7 @@
 #include "squserdata.h"
 #include "sqclass.h"
 
-SQObjectPtr _null_;
+//SQObjectPtr _null_;
 //SQObjectPtr _true_(true);
 //SQObjectPtr _false_(false);
 //SQObjectPtr _one_((SQInteger)1);
@@ -84,7 +84,7 @@ SQTable *CreateDefaultDelegate(SQSharedState *ss,SQRegFunction *funcz)
 	SQInteger i=0;
 	SQTable *t=SQTable::Create(ss,0);
 	while(funcz[i].name!=0){
-		SQNativeClosure *nc = SQNativeClosure::Create(ss,funcz[i].f);
+		SQNativeClosure *nc = SQNativeClosure::Create(ss,funcz[i].f,0);
 		nc->_nparamscheck = funcz[i].nparamscheck;
 		nc->_name = SQString::Create(ss,funcz[i].name);
 		if(funcz[i].typemask && !CompileTypemask(nc->_typecheck,funcz[i].typemask))

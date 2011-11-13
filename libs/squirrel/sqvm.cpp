@@ -448,7 +448,13 @@ bool SQVM::Return(SQInteger _arg0, SQInteger _arg1, SQObjectPtr &retval)
 		dest = &_stack._vals[callerbase + ci->_target];
 	}
 	if (dest) {
-		*dest = (_arg0 != 0xFF) ? _stack._vals[_stackbase+_arg1] : _null_;
+		if(_arg0 != 0xFF) {
+			*dest = _stack._vals[_stackbase+_arg1];
+		}
+		else {
+			dest->Null();
+		}
+		//*dest = (_arg0 != 0xFF) ? _stack._vals[_stackbase+_arg1] : _null_;
 	}
 	LeaveFrame();
 	return _isroot ? true : false;
@@ -556,9 +562,9 @@ bool SQVM::FOREACH_OP(SQObjectPtr &o1,SQObjectPtr &o2,SQObjectPtr
 
 #define COND_LITERAL (arg3!=0?ci->_literals[arg1]:STK(arg1))
 
-#define _GUARD(exp) { if(!exp) { Raise_Error(_lasterror); SQ_THROW();} }
-
 #define SQ_THROW() { goto exception_trap; }
+
+#define _GUARD(exp) { if(!exp) { SQ_THROW();} }
 
 bool SQVM::CLOSURE_OP(SQObjectPtr &target, SQFunctionProto *func)
 {
@@ -767,8 +773,8 @@ exception_restore:
 							break;
 						}
 									 
-						Raise_Error(_SC("attempt to call '%s'"), GetTypeName(clo));
-						SQ_THROW();
+						//Raise_Error(_SC("attempt to call '%s'"), GetTypeName(clo));
+						//SQ_THROW();
 					  }
 					default:
 						Raise_Error(_SC("attempt to call '%s'"), GetTypeName(clo));
@@ -868,6 +874,7 @@ exception_restore:
 			case _OP_APPENDARRAY: 
 				{
 					SQObject val;
+					val._unVal.raw = 0;
 				switch(arg2) {
 				case AAT_STACK:
 					val = STK(arg1); break;
@@ -1008,7 +1015,7 @@ exception_restore:
 				if(type(STK(arg1)) == OT_CLASS) {
 					if(type(_class(STK(arg1))->_metamethods[MT_NEWMEMBER]) != OT_NULL ) {
 						Push(STK(arg1)); Push(STK(arg2)); Push(STK(arg3));
-						Push((arg0&NEW_SLOT_ATTRIBUTES_FLAG) ? STK(arg2-1) : _null_);
+						Push((arg0&NEW_SLOT_ATTRIBUTES_FLAG) ? STK(arg2-1) : SQObjectPtr());
 						Push(bstatic);
 						int nparams = 5;
 						if(Call(_class(STK(arg1))->_metamethods[MT_NEWMEMBER], nparams, _top - nparams, temp_reg,SQFalse)) {
@@ -1062,6 +1069,13 @@ exception_trap:
 				_etraps.pop_back(); traps--; ci->_etraps--;
 				while(last_top >= _top) _stack._vals[last_top--].Null();
 				goto exception_restore;
+			}
+			else if (_debughook) { 
+					//notify debugger of a "return"
+					//even if it really an exception unwinding the stack
+					for(SQInteger i = 0; i < ci->_ncalls; i++) {
+						CallDebugHook(_SC('r'));
+					}
 			}
 			if(ci->_generator) ci->_generator->Kill();
 			bool mustbreak = ci && ci->_root;
@@ -1118,7 +1132,7 @@ void SQVM::CallDebugHook(SQInteger type,SQInteger forcedline)
 bool SQVM::CallNative(SQNativeClosure *nclosure, SQInteger nargs, SQInteger newbase, SQObjectPtr &retval, bool &suspend)
 {
 	SQInteger nparamscheck = nclosure->_nparamscheck;
-	SQInteger newtop = newbase + nargs + nclosure->_outervalues.size();
+	SQInteger newtop = newbase + nargs + nclosure->_noutervalues;
 	
 	if (_nnativecalls + 1 > MAX_NATIVE_CALLS) {
 		Raise_Error(_SC("Native stack overflow"));
@@ -1146,7 +1160,7 @@ bool SQVM::CallNative(SQNativeClosure *nclosure, SQInteger nargs, SQInteger newb
 	if(!EnterFrame(newbase, newtop, false)) return false;
 	ci->_closure  = nclosure;
 
-	SQInteger outers = nclosure->_outervalues.size();
+	SQInteger outers = nclosure->_noutervalues;
 	for (SQInteger i = 0; i < outers; i++) {
 		_stack._vals[newbase+nargs+i] = nclosure->_outervalues[i];
 	}
@@ -1167,7 +1181,13 @@ bool SQVM::CallNative(SQNativeClosure *nclosure, SQInteger nargs, SQInteger newb
 		Raise_Error(_lasterror);
 		return false;
 	}
-	retval = ret ? _stack._vals[_top-1] : _null_;
+	if(ret) {
+		retval = _stack._vals[_top-1];
+	}
+	else {
+		retval.Null();
+	}
+	//retval = ret ? _stack._vals[_top-1] : _null_;
 	LeaveFrame();
 	return true;
 }
