@@ -1,15 +1,40 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Created : 2005-01-27
-// Updated : 2010-02-05
-// Licence : This source is under MIT License
-// File    : glm/core/type_mat4x4.inl
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+/// OpenGL Mathematics (glm.g-truc.net)
+///
+/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+/// 
+/// The above copyright notice and this permission notice shall be included in
+/// all copies or substantial portions of the Software.
+/// 
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+/// THE SOFTWARE.
+///
+/// @ref core
+/// @file glm/core/type_mat4x4.inl
+/// @date 2005-01-27 / 2011-06-15
+/// @author Christophe Riccio
+///////////////////////////////////////////////////////////////////////////////////
 
 namespace glm{
 namespace detail
 {
+    template <typename T>
+    GLM_FUNC_QUALIFIER typename tmat4x4<T>::size_type tmat4x4<T>::length() const
+    {
+        return 4;
+    }
+
 	template <typename T>
 	GLM_FUNC_QUALIFIER typename tmat4x4<T>::size_type tmat4x4<T>::col_size()
 	{
@@ -687,6 +712,46 @@ namespace detail
             m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3] * v.w,
             m[3][0] * v.x + m[3][1] * v.y + m[3][2] * v.z + m[3][3] * v.w);
     }
+
+	template <typename T>
+	GLM_FUNC_QUALIFIER tmat2x4<T> operator* 
+	(
+		tmat4x4<T> const & m1, 
+		tmat2x4<T> const & m2
+	)
+	{
+		return tmat2x4<T>(
+			m1[0][0] * m2[0][0] + m1[1][0] * m2[0][1] + m1[2][0] * m2[0][2] + m1[3][0] * m2[0][3],
+			m1[0][1] * m2[0][0] + m1[1][1] * m2[0][1] + m1[2][1] * m2[0][2] + m1[3][1] * m2[0][3],
+			m1[0][2] * m2[0][0] + m1[1][2] * m2[0][1] + m1[2][2] * m2[0][2] + m1[3][2] * m2[0][3],
+			m1[0][3] * m2[0][0] + m1[1][3] * m2[0][1] + m1[2][3] * m2[0][2] + m1[3][3] * m2[0][3],
+			m1[0][0] * m2[1][0] + m1[1][0] * m2[1][1] + m1[2][0] * m2[1][2] + m1[3][0] * m2[1][3],
+			m1[0][1] * m2[1][0] + m1[1][1] * m2[1][1] + m1[2][1] * m2[1][2] + m1[3][1] * m2[1][3],
+			m1[0][2] * m2[1][0] + m1[1][2] * m2[1][1] + m1[2][2] * m2[1][2] + m1[3][2] * m2[1][3],
+			m1[0][3] * m2[1][0] + m1[1][3] * m2[1][1] + m1[2][3] * m2[1][2] + m1[3][3] * m2[1][3]);
+	}
+
+	template <typename T>
+	GLM_FUNC_QUALIFIER tmat3x4<T> operator* 
+	(
+		tmat4x4<T> const & m1, 
+		tmat3x4<T> const & m2
+	)
+	{
+		return tmat3x4<T>(
+			m1[0][0] * m2[0][0] + m1[1][0] * m2[0][1] + m1[2][0] * m2[0][2] + m1[3][0] * m2[0][3],
+			m1[0][1] * m2[0][0] + m1[1][1] * m2[0][1] + m1[2][1] * m2[0][2] + m1[3][1] * m2[0][3],
+			m1[0][2] * m2[0][0] + m1[1][2] * m2[0][1] + m1[2][2] * m2[0][2] + m1[3][2] * m2[0][3],
+			m1[0][3] * m2[0][0] + m1[1][3] * m2[0][1] + m1[2][3] * m2[0][2] + m1[3][3] * m2[0][3],
+			m1[0][0] * m2[1][0] + m1[1][0] * m2[1][1] + m1[2][0] * m2[1][2] + m1[3][0] * m2[1][3],
+			m1[0][1] * m2[1][0] + m1[1][1] * m2[1][1] + m1[2][1] * m2[1][2] + m1[3][1] * m2[1][3],
+			m1[0][2] * m2[1][0] + m1[1][2] * m2[1][1] + m1[2][2] * m2[1][2] + m1[3][2] * m2[1][3],
+			m1[0][3] * m2[1][0] + m1[1][3] * m2[1][1] + m1[2][3] * m2[1][2] + m1[3][3] * m2[1][3],
+			m1[0][0] * m2[2][0] + m1[1][0] * m2[2][1] + m1[2][0] * m2[2][2] + m1[3][0] * m2[2][3],
+			m1[0][1] * m2[2][0] + m1[1][1] * m2[2][1] + m1[2][1] * m2[2][2] + m1[3][1] * m2[2][3],
+			m1[0][2] * m2[2][0] + m1[1][2] * m2[2][1] + m1[2][2] * m2[2][2] + m1[3][2] * m2[2][3],
+			m1[0][3] * m2[2][0] + m1[1][3] * m2[2][1] + m1[2][3] * m2[2][2] + m1[3][3] * m2[2][3]);
+	}
 
     template <typename T> 
     GLM_FUNC_QUALIFIER tmat4x4<T> operator* 

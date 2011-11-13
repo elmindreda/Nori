@@ -10,13 +10,8 @@
 // - GLM core
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace glm{
-namespace gtx{
-namespace wrap
+namespace glm
 {
-	////////////////////////
-	// clamp
-
 	template <typename genType> 
 	GLM_FUNC_QUALIFIER genType clamp
 	(
@@ -167,7 +162,4 @@ namespace wrap
 			Result[i] = mirrorRepeat(Texcoord[i]);
 		return Result;
 	}
-
-}//namespace wrap
-}//namespace gtx
 }//namespace glm

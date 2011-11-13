@@ -1,11 +1,30 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Created : 2008-08-22
-// Updated : 2010-02-03
-// Licence : This source is under MIT License
-// File    : glm/core/type_tvec3.hpp
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+/// OpenGL Mathematics (glm.g-truc.net)
+///
+/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+/// 
+/// The above copyright notice and this permission notice shall be included in
+/// all copies or substantial portions of the Software.
+/// 
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+/// THE SOFTWARE.
+///
+/// @ref core
+/// @file glm/core/type_vec3.hpp
+/// @date 2008-08-22 / 2011-06-15
+/// @author Christophe Riccio
+///////////////////////////////////////////////////////////////////////////////////
 
 #ifndef glm_core_type_gentype3
 #define glm_core_type_gentype3
@@ -43,19 +62,43 @@ namespace detail
 		//////////////////////////////////////
 		// Data
 
-#	if(GLM_COMPONENT == GLM_COMPONENT_ONLY_XYZW)
-		value_type x, y, z;
-#	elif(GLM_COMPONENT == GLM_COMPONENT_MS_EXT)
+#	if(GLM_SUPPORT_ANONYMOUS_UNION_OF_STRUCTURE() && !defined(GLM_FORCE_ONLY_XYZW))
 		union 
 		{
-			struct{value_type x, y, z;};
+#		if(defined(GLM_SWIZZLE))
+			_GLM_SWIZZLE3_2_MEMBERS(value_type, glm::detail::tvec2<value_type>, x, y, z)
+			_GLM_SWIZZLE3_2_MEMBERS(value_type, glm::detail::tvec2<value_type>, r, g, b)
+			_GLM_SWIZZLE3_2_MEMBERS(value_type, glm::detail::tvec2<value_type>, s, t, p)
+			_GLM_SWIZZLE3_3_MEMBERS(value_type, glm::detail::tvec3<value_type>, x, y, z)
+			_GLM_SWIZZLE3_3_MEMBERS(value_type, glm::detail::tvec3<value_type>, r, g, b)
+			_GLM_SWIZZLE3_3_MEMBERS(value_type, glm::detail::tvec3<value_type>, s, t, p)
+			_GLM_SWIZZLE3_4_MEMBERS(value_type, glm::detail::tvec4<value_type>, x, y, z)
+			_GLM_SWIZZLE3_4_MEMBERS(value_type, glm::detail::tvec4<value_type>, r, g, b)
+			_GLM_SWIZZLE3_4_MEMBERS(value_type, glm::detail::tvec4<value_type>, s, t, p)
+#		endif//(defined(GLM_SWIZZLE))
+
 			struct{value_type r, g, b;};
 			struct{value_type s, t, p;};
+			struct{value_type x, y, z;};
 		};
-#	else//(GLM_COMPONENT == GLM_COMPONENT_GLSL_NAMES)
+#	elif(GLM_SUPPORT_ANONYMOUS_UNION() && !defined(GLM_FORCE_ONLY_XYZW))
 		union {value_type x, r, s;};
 		union {value_type y, g, t;};
 		union {value_type z, b, p;};
+
+#		if(defined(GLM_SWIZZLE))
+			// Defines all he swizzle operator as functions
+			GLM_SWIZZLE_GEN_REF_FROM_VEC3(T, detail::tvec3, detail::tref2, detail::tref3)
+			GLM_SWIZZLE_GEN_VEC_FROM_VEC3(T, detail::tvec3, detail::tvec2, detail::tvec3, detail::tvec4)
+#		endif//(defined(GLM_SWIZZLE))
+#	else
+		value_type x, y, z;
+
+#		if(defined(GLM_SWIZZLE))
+			// Defines all he swizzle operator as functions
+			GLM_SWIZZLE_GEN_REF_FROM_VEC3_COMP(T, detail::tvec3, detail::tref2, detail::tref3, x, y, z)
+			GLM_SWIZZLE_GEN_VEC_FROM_VEC3_COMP(T, detail::tvec3, detail::tvec2, detail::tvec3, detail::tvec4, x, y, z)
+#		endif//(defined(GLM_SWIZZLE))
 #	endif//GLM_COMPONENT
 
 		//////////////////////////////////////
@@ -81,11 +124,6 @@ namespace detail
 			value_type const & s1, 
 			value_type const & s2, 
 			value_type const & s3);
-
-		//////////////////////////////////////
-		// Swizzle constructors
-
-		GLM_FUNC_DECL tvec3(tref3<T> const & r);
 
 		//////////////////////////////////////
 		// Convertion scalar constructors
@@ -116,6 +154,35 @@ namespace detail
 		//! Explicit conversions (From section 5.4.1 Conversion and scalar constructors of GLSL 1.30.08 specification)
 		template <typename U> 
 		GLM_FUNC_DECL explicit tvec3(tvec4<U> const & v);
+
+		//////////////////////////////////////
+		// Swizzle constructors
+
+		GLM_FUNC_DECL tvec3(tref3<T> const & r);
+
+		template <typename A, typename B> 
+		GLM_FUNC_DECL explicit tvec3(tref2<A> const & v, B const & s);
+
+		template <typename A, typename B> 
+		GLM_FUNC_DECL explicit tvec3(A const & s, tref2<B> const & v);
+
+        template <int E0, int E1, int E2>
+        GLM_FUNC_DECL tvec3(glm::detail::swizzle<3, T, tvec3<T>, E0, E1, E2, -1> const & that)
+        {
+            *this = that();
+        }
+
+        template <int E0, int E1>
+        GLM_FUNC_DECL tvec3(glm::detail::swizzle<2, T, tvec2<T>, E0, E1, -1, -2> const & v, T const & s)
+        {
+            *this = tvec3<T>(v(), s);
+        }
+
+        template <int E0, int E1>
+        GLM_FUNC_DECL tvec3(T const & s, glm::detail::swizzle<2, T, tvec2<T>, E0, E1, -1, -2> const & v)
+        {
+            *this = tvec3<T>(s, v());
+        }
 
 		//////////////////////////////////////
 		// Unary arithmetic operators
@@ -178,6 +245,7 @@ namespace detail
 		GLM_FUNC_DECL tvec2<T> swizzle(comp X, comp Y) const;
 		GLM_FUNC_DECL tvec3<T> swizzle(comp X, comp Y, comp Z) const;
 		GLM_FUNC_DECL tvec4<T> swizzle(comp X, comp Y, comp Z, comp W) const;
+		GLM_FUNC_DECL tref2<T> swizzle(comp X, comp Y);
 		GLM_FUNC_DECL tref3<T> swizzle(comp X, comp Y, comp Z);
 	};
 
@@ -186,10 +254,12 @@ namespace detail
 	{
 		GLM_FUNC_DECL tref3(T & x, T & y, T & z);
 		GLM_FUNC_DECL tref3(tref3<T> const & r);
-		GLM_FUNC_DECL tref3(tvec3<T> const & v);
+		GLM_FUNC_DECL explicit tref3(tvec3<T> const & v);
 
 		GLM_FUNC_DECL tref3<T> & operator= (tref3<T> const & r);
 		GLM_FUNC_DECL tref3<T> & operator= (tvec3<T> const & v);
+
+		GLM_FUNC_DECL tvec3<T> operator() ();
 
 		T & x;
 		T & y;
@@ -199,10 +269,6 @@ namespace detail
 	GLM_DETAIL_IS_VECTOR(tvec3);
 } //namespace detail
 
-namespace core{
-namespace type{
-namespace precision
-{
 	//! 3 components vector of high precision floating-point numbers. 
 	//! There is no guarantee on the actual precision.
 	//! From GLSL 1.30.8 specification, section 4.5.2 Precision Qualifiers.
@@ -257,9 +323,6 @@ namespace precision
 	//! \ingroup core_precision
 	typedef detail::tvec3<lowp_uint>		lowp_uvec3;
 
-}//namespace precision
-}//namespace type
-}//namespace core
 }//namespace glm
 
 #ifndef GLM_EXTERNAL_TEMPLATE

@@ -1,15 +1,40 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Created : 2006-08-05
-// Updated : 2010-02-03
-// Licence : This source is under MIT License
-// File    : glm/core/type_mat2x3.inl
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+/// OpenGL Mathematics (glm.g-truc.net)
+///
+/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+/// 
+/// The above copyright notice and this permission notice shall be included in
+/// all copies or substantial portions of the Software.
+/// 
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+/// THE SOFTWARE.
+///
+/// @ref core
+/// @file glm/core/type_mat2x3.inl
+/// @date 2006-08-05 / 2011-06-15
+/// @author Christophe Riccio
+///////////////////////////////////////////////////////////////////////////////////
 
 namespace glm{
 namespace detail
 {
+    template <typename T>
+    GLM_FUNC_QUALIFIER typename tmat2x3<T>::size_type tmat2x3<T>::length() const
+    {
+        return 2;
+    }
+
 	template <typename T>
 	GLM_FUNC_QUALIFIER typename tmat2x3<T>::size_type tmat2x3<T>::col_size()
 	{
@@ -462,6 +487,22 @@ namespace detail
             v.x * m[1][0] + v.y * m[1][1] + v.z * m[1][2]);
     }
 
+	template <typename T>
+	GLM_FUNC_QUALIFIER tmat2x3<T> operator* 
+	(
+		tmat2x3<T> const & m1, 
+		tmat2x2<T> const & m2
+	)
+	{
+		return tmat2x3<T>(
+			m1[0][0] * m2[0][0] + m1[1][0] * m2[0][1],
+			m1[0][1] * m2[0][0] + m1[1][1] * m2[0][1],
+			m1[0][2] * m2[0][0] + m1[1][2] * m2[0][1],
+			m1[0][0] * m2[1][0] + m1[1][0] * m2[1][1],
+			m1[0][1] * m2[1][0] + m1[1][1] * m2[1][1],
+			m1[0][2] * m2[1][0] + m1[1][2] * m2[1][1]);
+	}
+
     template <typename T> 
     GLM_FUNC_QUALIFIER tmat3x3<T> operator* 
 	(
@@ -495,6 +536,28 @@ namespace detail
 		Result[2][2] = SrcA02 * SrcB20 + SrcA12 * SrcB21;
 		return Result;
     }
+
+	template <typename T>
+	GLM_FUNC_QUALIFIER tmat4x3<T> operator* 
+	(
+		tmat2x3<T> const & m1, 
+		tmat4x2<T> const & m2
+	)
+	{
+		return tmat4x3<T>(
+			m1[0][0] * m2[0][0] + m1[1][0] * m2[0][1],
+			m1[0][1] * m2[0][0] + m1[1][1] * m2[0][1],
+			m1[0][2] * m2[0][0] + m1[1][2] * m2[0][1],
+			m1[0][0] * m2[1][0] + m1[1][0] * m2[1][1],
+			m1[0][1] * m2[1][0] + m1[1][1] * m2[1][1],
+			m1[0][2] * m2[1][0] + m1[1][2] * m2[1][1],
+			m1[0][0] * m2[2][0] + m1[1][0] * m2[2][1],
+			m1[0][1] * m2[2][0] + m1[1][1] * m2[2][1],
+			m1[0][2] * m2[2][0] + m1[1][2] * m2[2][1],
+			m1[0][0] * m2[3][0] + m1[1][0] * m2[3][1],
+			m1[0][1] * m2[3][0] + m1[1][1] * m2[3][1],
+			m1[0][2] * m2[3][0] + m1[1][2] * m2[3][1]);
+	}
 
     template <typename T> 
     GLM_FUNC_QUALIFIER tmat2x3<T> operator/ 

@@ -1,24 +1,46 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Created : 2008-07-24
-// Updated : 2008-08-31
-// Licence : This source is under MIT License
-// File    : glm/core/_detail.hpp
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+/// OpenGL Mathematics (glm.g-truc.net)
+///
+/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+/// 
+/// The above copyright notice and this permission notice shall be included in
+/// all copies or substantial portions of the Software.
+/// 
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+/// THE SOFTWARE.
+///
+/// @ref core
+/// @file glm/core/_detail.hpp
+/// @date 2008-07-24 / 2011-06-14
+/// @author Christophe Riccio
+///////////////////////////////////////////////////////////////////////////////////
 
 #ifndef glm_core_detail
 #define glm_core_detail
 
 #include "setup.hpp"
 #include <cassert>
+#if(defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L))
+#include <cstdint>
+#endif
 
 namespace glm{
 namespace detail
 {
 	class thalf;
 
-#if(__STDC_VERSION__ >= 199901L) // C99 detected, 64 bit types available
+#if(defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) // C99 detected, 64 bit types available
 	typedef int64_t								sint64;
 	typedef uint64_t							uint64;
 #elif(GLM_COMPILER & GLM_COMPILER_VC)
@@ -305,23 +327,108 @@ namespace detail
 			is_bool = is_bool<T>::_YES
 		};
 	};
-
+	
 	//////////////////
 	// type
-
+	
 	typedef signed char							int8;
 	typedef signed short						int16;
 	typedef signed int							int32;
 	typedef detail::sint64						int64;
-
+	
 	typedef unsigned char						uint8;
 	typedef unsigned short						uint16;
 	typedef unsigned int						uint32;
 	typedef detail::uint64						uint64;
-
+	
 	typedef detail::thalf						float16;
 	typedef float								float32;
 	typedef double								float64;
+	
+	//////////////////
+	// float_or_int_trait 
+
+	struct float_or_int_value
+	{
+		enum
+		{
+			ERROR,
+			FLOAT,
+			INT
+		};
+	};
+
+	template <typename T>
+	struct float_or_int_trait
+	{
+		enum{ID = float_or_int_value::ERROR};
+	};
+
+	template <>
+	struct float_or_int_trait<int8>
+	{
+		enum{ID = float_or_int_value::INT};
+	};
+
+	template <>
+	struct float_or_int_trait<int16>
+	{
+		enum{ID = float_or_int_value::INT};
+	};
+
+	template <>
+	struct float_or_int_trait<int32>
+	{
+		enum{ID = float_or_int_value::INT};
+	};
+
+	template <>
+	struct float_or_int_trait<int64>
+	{
+		enum{ID = float_or_int_value::INT};
+	};
+
+	template <>
+	struct float_or_int_trait<uint8>
+	{
+		enum{ID = float_or_int_value::INT};
+	};
+
+	template <>
+	struct float_or_int_trait<uint16>
+	{
+		enum{ID = float_or_int_value::INT};
+	};
+
+	template <>
+	struct float_or_int_trait<uint32>
+	{
+		enum{ID = float_or_int_value::INT};
+	};
+
+	template <>
+	struct float_or_int_trait<uint64>
+	{
+		enum{ID = float_or_int_value::INT};
+	};
+
+	template <>
+	struct float_or_int_trait<float16>
+	{
+		enum{ID = float_or_int_value::FLOAT};
+	};
+
+	template <>
+	struct float_or_int_trait<float32>
+	{
+		enum{ID = float_or_int_value::FLOAT};
+	};
+
+	template <>
+	struct float_or_int_trait<float64>
+	{
+		enum{ID = float_or_int_value::FLOAT};
+	};
 
 }//namespace detail
 }//namespace glm

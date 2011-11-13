@@ -10,14 +10,13 @@
 // - GLM core
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace glm{
-namespace gtx{
-namespace matrix_query
+namespace glm
 {
 	template<typename T> 
-	GLM_FUNC_QUALIFIER bool isNull(
-		const detail::tmat2x2<T>& m, 
-		const T epsilon)
+	GLM_FUNC_QUALIFIER bool isNull
+	(
+		detail::tmat2x2<T> const & m, 
+		T const & epsilon)
 	{
 		bool result = true;
 		for(int i = 0; result && i < 2 ; ++i)
@@ -26,9 +25,11 @@ namespace matrix_query
 	}
 
 	template<typename T> 
-	GLM_FUNC_QUALIFIER bool isNull(
-		const detail::tmat3x3<T>& m, 
-		const T epsilon)
+	GLM_FUNC_QUALIFIER bool isNull
+	(
+		detail::tmat3x3<T> const & m, 
+		T const & epsilon
+	)
 	{
 		bool result = true;
 		for(int i = 0; result && i < 3 ; ++i)
@@ -37,9 +38,11 @@ namespace matrix_query
 	}
 
 	template<typename T> 
-	GLM_FUNC_QUALIFIER bool isNull(
-		const detail::tmat4x4<T>& m, 
-		const T epsilon)
+	GLM_FUNC_QUALIFIER bool isNull
+	(
+		detail::tmat4x4<T> const & m, 
+		T const & epsilon
+	)
 	{
 		bool result = true;
 		for(int i = 0; result && i < 4 ; ++i)
@@ -48,9 +51,11 @@ namespace matrix_query
 	}
 
 	template<typename genType> 
-	GLM_FUNC_QUALIFIER bool isIdentity(
-		const genType& m, 
-		const typename genType::value_type epsilon)
+	GLM_FUNC_QUALIFIER bool isIdentity
+	(
+		genType const & m, 
+		typename genType::value_type const & epsilon
+	)
 	{
 		bool result = true;
 		for(typename genType::value_type i = typename genType::value_type(0); result && i < genType::col_size(); ++i)
@@ -66,9 +71,11 @@ namespace matrix_query
 	}
 
 	template<typename T> 
-	GLM_FUNC_QUALIFIER bool isNormalized(
-		const detail::tmat2x2<T>& m, 
-		const T epsilon)
+	GLM_FUNC_QUALIFIER bool isNormalized
+	(
+		detail::tmat2x2<T> const & m, 
+		T const & epsilon
+	)
 	{
 		bool result = true;
 		for(int i = 0; result && i < 2; ++i)
@@ -84,9 +91,11 @@ namespace matrix_query
 	}
 
 	template<typename T> 
-	GLM_FUNC_QUALIFIER bool isNormalized(
-		const detail::tmat3x3<T>& m, 
-		const T epsilon)
+	GLM_FUNC_QUALIFIER bool isNormalized
+	(
+		detail::tmat3x3<T> const & m, 
+		T const & epsilon
+	)
 	{
 		bool result = true;
 		for(int i = 0; result && i < 3; ++i)
@@ -102,9 +111,11 @@ namespace matrix_query
 	}
 
 	template<typename T> 
-	GLM_FUNC_QUALIFIER bool isNormalized(
-		const detail::tmat4x4<T>& m, 
-		const T epsilon)
+	GLM_FUNC_QUALIFIER bool isNormalized
+	(
+		detail::tmat4x4<T> const & m, 
+		T const & epsilon
+	)
 	{
 		bool result = true;
 		for(int i = 0; result && i < 4; ++i)
@@ -120,9 +131,11 @@ namespace matrix_query
 	}
 
 	template<typename genType> 
-	GLM_FUNC_QUALIFIER bool isOrthogonal(
-		const genType& m, 
-		const typename genType::value_type epsilon)
+	GLM_FUNC_QUALIFIER bool isOrthogonal
+	(
+		genType const & m, 
+		typename genType::value_type const & epsilon
+	)
 	{
 		bool result = true;
 		for(int i = 0; result && i < genType::col_size() - 1; ++i)
@@ -138,7 +151,4 @@ namespace matrix_query
 		}
 		return result;
 	}
-
-}//namespace matrix_query
-}//namespace gtx
 }//namespace glm

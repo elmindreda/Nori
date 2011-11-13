@@ -1,14 +1,36 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Created : 2009-05-08
-// Updated : 2009-05-08
-// Licence : This source is under MIT License
-// File    : glm/core/intrinsic_common.inl
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+/// OpenGL Mathematics (glm.g-truc.net)
+///
+/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+/// 
+/// The above copyright notice and this permission notice shall be included in
+/// all copies or substantial portions of the Software.
+/// 
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+/// THE SOFTWARE.
+///
+/// @ref core
+/// @file glm/core/intrinsic_common.inl
+/// @date 2009-05-08 / 2011-06-15
+/// @author Christophe Riccio
+///////////////////////////////////////////////////////////////////////////////////
 
 namespace glm{
 namespace detail{
+
+#pragma warning(push)
+#pragma warning(disable : 4510 4512 4610)
 
 	union ieee754_QNAN
 	{
@@ -20,6 +42,8 @@ namespace detail{
 	   
 	   ieee754_QNAN() : f(0.0)/*, mantissa(0x7FFFFF), exp(0xFF), sign(0x0)*/ {}
 	};
+
+#pragma warning(pop)
 
 	static const __m128 GLM_VAR_USED zero = _mm_setzero_ps();
 	static const __m128 GLM_VAR_USED one = _mm_set_ps1(1.0f);
@@ -205,11 +229,13 @@ GLM_FUNC_QUALIFIER __m128 sse_mod_ps(__m128 x, __m128 y)
 }
 
 /// TODO
+/*
 GLM_FUNC_QUALIFIER __m128 sse_modf_ps(__m128 x, __m128i & i)
 {
 	__m128 empty;
     return empty;
 }
+*/
 
 //GLM_FUNC_QUALIFIER __m128 _mm_min_ps(__m128 x, __m128 y)
 
@@ -254,18 +280,18 @@ GLM_FUNC_QUALIFIER __m128 sse_ssp_ps(__m128 edge0, __m128 edge1, __m128 x)
 }
 
 /// \todo
-GLM_FUNC_QUALIFIER __m128 sse_nan_ps(__m128 x)
-{
-	__m128 empty;
-    return empty;
-}
+//GLM_FUNC_QUALIFIER __m128 sse_nan_ps(__m128 x)
+//{
+//	__m128 empty;
+//    return empty;
+//}
 
 /// \todo
-GLM_FUNC_QUALIFIER __m128 sse_inf_ps(__m128 x)
-{
-	__m128 empty;
-    return empty;
-}
+//GLM_FUNC_QUALIFIER __m128 sse_inf_ps(__m128 x)
+//{
+//	__m128 empty;
+//    return empty;
+//}
 
 // SSE scalar reciprocal sqrt using rsqrt op, plus one Newton-Rhaphson iteration
 // By Elan Ruskin, http://assemblyrequired.crashworks.org/

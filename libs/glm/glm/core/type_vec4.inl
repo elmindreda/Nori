@@ -1,11 +1,30 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Created : 2008-08-23
-// Updated : 2010-02-05
-// Licence : This source is under MIT License
-// File    : glm/core/type_tvec4.inl
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+/// OpenGL Mathematics (glm.g-truc.net)
+///
+/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+/// 
+/// The above copyright notice and this permission notice shall be included in
+/// all copies or substantial portions of the Software.
+/// 
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+/// THE SOFTWARE.
+///
+/// @ref core
+/// @file glm/core/type_tvec4.inl
+/// @date 2008-08-23 / 2011-06-15
+/// @author Christophe Riccio
+///////////////////////////////////////////////////////////////////////////////////
 
 namespace glm{
 namespace detail
@@ -116,6 +135,113 @@ namespace detail
 		y(r.y),
 		z(r.z),
 		w(r.w)
+	{}
+
+	template <typename T>
+	template <typename A, typename B, typename C> 
+	GLM_FUNC_QUALIFIER tvec4<T>::tvec4
+	(
+		tref2<A> const & v, 
+		B const & s1, 
+		C const & s2
+	) :
+		x(value_type(v.x)),
+		y(value_type(v.y)),
+		z(value_type(s1)),
+		w(value_type(s2))
+	{}
+
+	template <typename T>
+	template <typename A, typename B, typename C> 
+	GLM_FUNC_QUALIFIER tvec4<T>::tvec4
+	(
+		A const & s1, 
+		tref2<B> const & v, 
+		C const & s2
+	) :
+		x(value_type(s1)),
+		y(value_type(v.x)),
+		z(value_type(v.y)),
+		w(value_type(s2))
+	{}
+
+	template <typename T>
+	template <typename A, typename B, typename C> 
+	GLM_FUNC_QUALIFIER tvec4<T>::tvec4
+	(
+		A const & s1, 
+		B const & s2, 
+		tref2<C> const & v
+	) :
+		x(value_type(s1)),
+		y(value_type(s2)),
+		z(value_type(v.x)),
+		w(value_type(v.y))
+	{}
+
+	template <typename T>
+	template <typename A, typename B> 
+	GLM_FUNC_QUALIFIER tvec4<T>::tvec4
+	(
+		tref3<A> const & v, 
+		B const & s
+	) :
+		x(value_type(v.x)),
+		y(value_type(v.y)),
+		z(value_type(v.z)),
+		w(value_type(s))
+	{}
+
+	template <typename T>
+	template <typename A, typename B> 
+	GLM_FUNC_QUALIFIER tvec4<T>::tvec4
+	(
+		A const & s, 
+		tref3<B> const & v
+	) :
+		x(value_type(s)),
+		y(value_type(v.x)),
+		z(value_type(v.y)),
+		w(value_type(v.z))
+	{}
+
+	template <typename T>
+	template <typename A, typename B> 
+	GLM_FUNC_QUALIFIER tvec4<T>::tvec4
+	(
+		tref2<A> const & v1, 
+		tref2<B> const & v2
+	) :
+		x(value_type(v1.x)),
+		y(value_type(v1.y)),
+		z(value_type(v2.x)),
+		w(value_type(v2.y))
+	{}
+
+	template <typename T>
+	template <typename A, typename B> 
+	GLM_FUNC_QUALIFIER tvec4<T>::tvec4
+	(
+		tvec2<A> const & v1, 
+		tref2<B> const & v2
+	) :
+		x(value_type(v1.x)),
+		y(value_type(v1.y)),
+		z(value_type(v2.x)),
+		w(value_type(v2.y))
+	{}
+
+	template <typename T>
+	template <typename A, typename B> 
+	GLM_FUNC_QUALIFIER tvec4<T>::tvec4
+	(
+		tref2<A> const & v1, 
+		tvec2<B> const & v2
+	) :
+		x(value_type(v1.x)),
+		y(value_type(v1.y)),
+		z(value_type(v2.x)),
+		w(value_type(v2.y))
 	{}
 
 	//////////////////////////////////////
@@ -630,6 +756,32 @@ namespace detail
 			(*this)[y],
 			(*this)[z],
 			(*this)[w]);
+	}
+
+	template <typename T>
+	GLM_FUNC_QUALIFIER tref2<T> tvec4<T>::swizzle
+	(
+		comp x, 
+		comp y
+	)
+	{
+		return tref2<T>(
+			(*this)[x],
+			(*this)[y]);
+	}
+
+	template <typename T>
+	GLM_FUNC_QUALIFIER tref3<T> tvec4<T>::swizzle
+	(
+		comp x, 
+		comp y, 
+		comp z
+	)
+	{
+		return tref3<T>(
+			(*this)[x],
+			(*this)[y],
+			(*this)[z]);
 	}
 
 	template <typename T>
@@ -1220,6 +1372,12 @@ namespace detail
 		z = v.z;
 		w = v.w;
 		return *this;
+	}
+
+	template <typename T> 
+	GLM_FUNC_QUALIFIER tvec4<T> tref4<T>::operator() ()
+	{
+		return tvec4<T>(this->x, this->y, this->z, this->w);
 	}
 
 }//namespace detail

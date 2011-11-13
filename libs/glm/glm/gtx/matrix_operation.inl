@@ -7,9 +7,7 @@
 // File    : glm/gtx/matrix_operation.inl
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace glm{
-namespace gtx{
-namespace matrix_operation
+namespace glm
 {
 	template <typename valType> 
 	GLM_FUNC_QUALIFIER detail::tmat2x2<valType> diagonal2x2
@@ -123,7 +121,4 @@ namespace matrix_operation
 		Result[1][1] = v[1];
 		return Result;		
 	}
-
-}//namespace matrix_operation
-}//namespace gtx
 }//namespace glm

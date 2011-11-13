@@ -7,13 +7,13 @@
 // File    : glm/gtx/polar_coordinates.inl
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace glm{
-namespace gtx{
-namespace polar_coordinates
+namespace glm
 {
 	template <typename T> 
-	GLM_FUNC_QUALIFIER detail::tvec3<T> polar(
-		const detail::tvec3<T>& euclidean)
+	GLM_FUNC_QUALIFIER detail::tvec3<T> polar
+	(
+		detail::tvec3<T> const & euclidean
+	)
 	{
 		T length = length(euclidean);
 		detail::tvec3<T> tmp = euclidean / length;
@@ -26,8 +26,10 @@ namespace polar_coordinates
 	}
 
 	template <typename T> 
-	GLM_FUNC_QUALIFIER detail::tvec3<T> euclidean(
-		const detail::tvec3<T>& polar)
+	GLM_FUNC_QUALIFIER detail::tvec3<T> euclidean
+	(
+		detail::tvec3<T> const & polar
+	)
 	{
 		T latitude = radians(polar.x);
 		T longitude = radians(polar.y);
@@ -37,6 +39,4 @@ namespace polar_coordinates
 			cos(latitude) * cos(longitude));
 	}
 
-}//namespace polar_coordinates
-}//namespace gtx
 }//namespace glm

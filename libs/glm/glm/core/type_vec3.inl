@@ -1,11 +1,30 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Created : 2008-08-22
-// Updated : 2010-02-04
-// Licence : This source is under MIT License
-// File    : glm/core/type_tvec3.inl
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+/// OpenGL Mathematics (glm.g-truc.net)
+///
+/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+/// 
+/// The above copyright notice and this permission notice shall be included in
+/// all copies or substantial portions of the Software.
+/// 
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+/// THE SOFTWARE.
+///
+/// @ref core
+/// @file glm/core/type_tvec3.inl
+/// @date 2008-08-22 / 2011-06-15
+/// @author Christophe Riccio
+///////////////////////////////////////////////////////////////////////////////////
 
 namespace glm{
 namespace detail
@@ -110,6 +129,30 @@ namespace detail
 		x(r.x),
 		y(r.y),
 		z(r.z)
+	{}
+
+	template <typename T>
+	template <typename A, typename B> 
+	GLM_FUNC_QUALIFIER tvec3<T>::tvec3
+	(
+		tref2<A> const & v, 
+		B const & s
+	) : 
+		x(value_type(v.x)),
+		y(value_type(v.y)),
+		z(value_type(s))
+	{}
+
+	template <typename T>
+	template <typename A, typename B> 
+	GLM_FUNC_QUALIFIER tvec3<T>::tvec3
+	(
+		A const & s, 
+		tref2<B> const & v
+	) :
+		x(value_type(s)),
+		y(value_type(v.x)),
+		z(value_type(v.y))
 	{}
 
 	//////////////////////////////////////
@@ -573,6 +616,18 @@ namespace detail
 			(*this)[y],
 			(*this)[z],
 			(*this)[w]);
+	}
+
+	template <typename T>
+	GLM_FUNC_QUALIFIER tref2<T> tvec3<T>::swizzle
+	(
+		comp x, 
+		comp y
+	)
+	{
+		return tref2<T>(
+			(*this)[x],
+			(*this)[y]);
 	}
 
 	template <typename T>
@@ -1091,6 +1146,12 @@ namespace detail
 		y = v.y;
 		z = v.z;
 		return *this;
+	}
+
+	template <typename T> 
+	GLM_FUNC_QUALIFIER tvec3<T> tref3<T>::operator() ()
+	{
+		return tvec3<T>(this->x, this->y, this->z);
 	}
 
 }//namespace detail
