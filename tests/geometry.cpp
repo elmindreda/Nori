@@ -4,6 +4,7 @@
 #include <cstdlib>
 
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/constants.hpp>
 
 using namespace wendy;
 
@@ -76,7 +77,7 @@ bool Test::init()
     return false;
   }
 
-  RandomRange angle(0.f, float(PI) * 2.f);
+  RandomRange angle(0.f, pi<float>() * 2.f);
   RandomVolume axis(vec3(-1.f), vec3(1.f));
   RandomVolume position(vec3(-2.f), vec3(2.f));
 

@@ -41,6 +41,7 @@
 
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/norm.hpp>
+#include <glm/gtx/constants.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -662,7 +663,7 @@ void SpectatorController::inputButtonClick(Button button, bool clicked)
 void SpectatorController::inputCursorOffset(const ivec2& offset)
 {
   const float scale = 1.f / 250.f;
-  const float limit = float(PI) / 2.f - 0.01f;
+  const float limit = half_pi<float>() - 0.01f;
 
   setRotation(clamp(angleX - offset.y * scale, -limit, limit),
               angleY - offset.x * scale);
