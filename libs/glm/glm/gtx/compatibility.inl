@@ -15,7 +15,7 @@ namespace glm
 		genType const & x)
 	{
 	#if(GLM_COMPILER & GLM_COMPILER_VC)
-		return _finite(x);
+		return _finite(x) != 0;
 	#else//(GLM_COMPILER & GLM_COMPILER_GCC)
 		return std::isfinite(x) != 0;
 	#endif
