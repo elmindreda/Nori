@@ -6,6 +6,6 @@ out vec3 vNormal;
 
 void main()
 {
-  vPosition = (wyMV * vec4(wyPosition, 1.0)).xyz;
+  vPosition = wyPosition;
   vNormal = (wyMV * vec4(wyNormal, 0.0)).xyz;
 }
