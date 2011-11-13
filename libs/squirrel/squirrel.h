@@ -19,6 +19,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+/* 2011-11-13  Camilla Berglund  <elmindreda@elmindreda.org>
+ *   Added automatic detection of 64-bit systems.
+ */
+
 #ifndef _SQUIRREL_H_
 #define _SQUIRREL_H_
 
@@ -31,6 +35,12 @@ extern "C" {
 #endif
 
 #if (defined(_WIN64) || defined(_LP64))
+#ifndef _SQ64
+#define _SQ64
+#endif
+#endif
+
+#if defined(__amd64__) || defined(__x86_64__)
 #ifndef _SQ64
 #define _SQ64
 #endif
