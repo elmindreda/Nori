@@ -569,26 +569,17 @@ Ref<Mesh> MeshReader::read(const Path& path)
           Triplet& triplet = triplets.back();
 
           triplet.vertex = parseInteger(&text);
-
-          if (*text++ != '/')
-          {
-            throw Exception("Expected but missing \'/\'");
-            return NULL;
-          }
-
           triplet.texcoord = 0;
-          if (std::isdigit(*text))
-            triplet.texcoord = parseInteger(&text);
-
-          if (*text++ != '/')
-          {
-            throw Exception("Expected but missing \'/\'");
-            return NULL;
-          }
-
           triplet.normal = 0;
-          if (std::isdigit(*text))
-            triplet.normal = parseInteger(&text);
+
+          if (*text++ == '/')
+          {
+            if (std::isdigit(*text))
+              triplet.texcoord = parseInteger(&text);
+
+            if (*text++ == '/' && std::isdigit(*text))
+              triplet.normal = parseInteger(&text);
+          }
 
           while (std::isspace(*text))
             text++;
