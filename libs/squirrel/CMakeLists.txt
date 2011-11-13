@@ -3,7 +3,11 @@ project(squirrel CXX)
 
 include_directories(${squirrel_SOURCE_DIR})
 
-add_definitions(-DNO_GARBAGE_COLLECTOR -D_CRT_SECURE_NO_WARNINGS)
+add_definitions(-DNO_GARBAGE_COLLECTOR)
+
+if(MSVC)
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif(MSVC)
 
 set(squirrel_SOURCES sqapi.cpp sqbaselib.cpp sqclass.cpp sqcompiler.cpp
                      sqdebug.cpp sqfuncstate.cpp sqlexer.cpp sqmem.cpp
