@@ -509,7 +509,7 @@ bool Anim3Writer::write(const Path& path, const Anim3& animation)
   {
     logError("Failed to write 3D animation to \'%s\': %s",
              path.asString().c_str(),
-	     exception.what());
+             exception.what());
     setStream(NULL);
     return false;
   }

@@ -717,8 +717,8 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
       if (!text.empty() && caretPosition > 0)
       {
-	text.erase(caretPosition - 1, 1);
-	setCaretPosition(caretPosition - 1);
+        text.erase(caretPosition - 1, 1);
+        setCaretPosition(caretPosition - 1);
       }
 
       break;
@@ -730,7 +730,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
         break;
 
       if (!text.empty() && caretPosition < text.length())
-	text.erase(caretPosition, 1);
+        text.erase(caretPosition, 1);
 
       break;
     }
@@ -741,7 +741,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
         break;
 
       if (caretPosition > 0)
-	setCaretPosition(caretPosition - 1);
+        setCaretPosition(caretPosition - 1);
       break;
     }
 

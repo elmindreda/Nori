@@ -115,16 +115,16 @@ void Progress::draw() const
     if (orientation == HORIZONTAL)
     {
       handleArea.set(area.position.x + position * (area.size.x - 10.f) + 5.f,
-		     area.position.y,
-		     10.f,
-		     area.size.y);
+                     area.position.y,
+                     10.f,
+                     area.size.y);
     }
     else
     {
       handleArea.set(area.position.x,
-		     area.position.y + position * (area.size.y - 10.f) + 5.f,
-		     area.size.x,
-		     10.f);
+                     area.position.y + position * (area.size.y - 10.f) + 5.f,
+                     area.size.x,
+                     10.f);
     }
 
     drawer.drawHandle(handleArea, getState());

@@ -49,11 +49,11 @@ namespace
 {
 
 void realizeSpriteVertices(Vertex2ft3fv* vertices,
-			   const vec3& cameraPosition,
+                           const vec3& cameraPosition,
                            const vec3& spritePosition,
-		           const vec2& size,
-		           float angle,
-			   SpriteType3 type)
+                           const vec2& size,
+                           float angle,
+                           SpriteType3 type)
 {
   vec3 axisX, axisY;
   const vec2 offset(size.x / 2.f, size.y / 2.f);
@@ -305,10 +305,10 @@ void SpriteCloud3::realizeVertices(Vertex2ft3fv* vertices,
   {
     realizeSpriteVertices(vertices + i * 4,
                           localCamera,
-			  slots[i].position,
-			  slots[i].size,
-			  slots[i].angle,
-			  type);
+                          slots[i].position,
+                          slots[i].size,
+                          slots[i].angle,
+                          type);
   }
 }
 

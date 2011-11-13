@@ -556,8 +556,8 @@ Ref<Image> ImageReader::read(const Path& path)
   {
     context = png_create_read_struct(PNG_LIBPNG_VER_STRING,
                                      NULL,
-				     writeErrorPNG,
-				     writeWarningPNG);
+                                     writeErrorPNG,
+                                     writeWarningPNG);
     if (!context)
       return NULL;
 
@@ -648,8 +648,8 @@ bool ImageWriter::write(const Path& path, const Image& image)
 
   png_structp context = png_create_write_struct(PNG_LIBPNG_VER_STRING,
                                                 NULL,
-						writeErrorPNG,
-						writeWarningPNG);
+                                                writeErrorPNG,
+                                                writeWarningPNG);
   if (!context)
   {
     logError("Unable to create write struct");
@@ -681,10 +681,10 @@ bool ImageWriter::write(const Path& path, const Image& image)
                image.getWidth(),
                image.getHeight(),
                8,
-	       format,
-	       PNG_INTERLACE_NONE,
-	       PNG_COMPRESSION_TYPE_DEFAULT,
-	       PNG_FILTER_TYPE_DEFAULT);
+               format,
+               PNG_INTERLACE_NONE,
+               PNG_COMPRESSION_TYPE_DEFAULT,
+               PNG_FILTER_TYPE_DEFAULT);
 
   const Byte* data = (const Byte*) image.getPixels();
 

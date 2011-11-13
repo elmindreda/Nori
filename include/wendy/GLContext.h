@@ -152,11 +152,11 @@ public:
   /*! Constructor.
    */
   ContextConfig(unsigned int colorBits = 32,
-	        unsigned int depthBits = 24,
-	        unsigned int stencilBits = 0,
-	        unsigned int samples = 0,
-	        Version version = Version(2,1),
-	        Profile profile = PROFILE_DEFAULT);
+                unsigned int depthBits = 24,
+                unsigned int stencilBits = 0,
+                unsigned int samples = 0,
+                Version version = Version(2,1),
+                Profile profile = PROFILE_DEFAULT);
   /*! The desired color buffer bit depth.
    */
   unsigned int colorBits;

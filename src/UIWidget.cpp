@@ -118,7 +118,7 @@ Widget* Widget::findByPoint(const vec2& point)
   {
     if ((*c)->isVisible())
       if (Widget* result = (*c)->findByPoint(localPoint))
-	return result;
+        return result;
   }
 
   return this;

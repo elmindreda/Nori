@@ -106,7 +106,7 @@ public:
   explicit VertexFormat(const char* specification);
   bool createComponent(const char* name,
                        size_t count,
-		       VertexComponent::Type type);
+                       VertexComponent::Type type);
   bool createComponents(const char* specification);
   void destroyComponents();
   const VertexComponent* findComponent(const char* name) const;

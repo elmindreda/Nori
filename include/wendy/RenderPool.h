@@ -63,7 +63,7 @@ public:
    *  current frame.
    */
   bool allocateIndices(GL::IndexRange& range,
-		       unsigned int count,
+                       unsigned int count,
                        GL::IndexBuffer::Type type);
   /*! Allocates a range of temporary vertices of the specified format.
    *  @param[out] range The newly allocated vertex range.
@@ -76,7 +76,7 @@ public:
    *  current frame.
    */
   bool allocateVertices(GL::VertexRange& range,
-			unsigned int count,
+                        unsigned int count,
                         const VertexFormat& format);
   /*! @return The OpenGL context used by this pool.
    */

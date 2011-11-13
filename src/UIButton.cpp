@@ -93,8 +93,8 @@ void Button::draw() const
 
 void Button::onButtonClicked(Widget& widget,
                              const vec2& position,
-			     input::Button button,
-			     bool clicked)
+                             input::Button button,
+                             bool clicked)
 {
   if (clicked)
     return;

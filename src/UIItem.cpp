@@ -155,7 +155,7 @@ void SeparatorItem::draw(const Rect& area, WidgetState state) const
 TextureItem::TextureItem(Layer& layer,
                          GL::Texture& initTexture,
                          const char* name,
-			 ItemID ID):
+                         ItemID ID):
   Item(layer, name, ID),
   texture(&initTexture)
 {

@@ -174,7 +174,7 @@ void Menu::draw() const
     {
       float height = (*i)->getHeight();
       if (height + itemTop < 0.f)
-	break;
+        break;
 
       Rect itemArea = area;
       itemArea.position.y += itemTop - height;
@@ -226,8 +226,8 @@ void Menu::onCursorMoved(Widget& widget, const vec2& position)
 
 void Menu::onButtonClicked(Widget& widget,
                            const vec2& position,
-			   input::Button button,
-			   bool clicked)
+                           input::Button button,
+                           bool clicked)
 {
   if (clicked)
     return;
@@ -267,9 +267,9 @@ void Menu::onKeyPressed(Widget& widget, input::Key key, bool pressed)
     case input::KEY_UP:
     {
       if (selection > 0)
-	selection--;
+        selection--;
       else
-	selection = items.size() - 1;
+        selection = items.size() - 1;
       break;
     }
 
@@ -277,7 +277,7 @@ void Menu::onKeyPressed(Widget& widget, input::Key key, bool pressed)
     {
       selection++;
       if (selection == items.size())
-	selection = 0;
+        selection = 0;
       break;
     }
 

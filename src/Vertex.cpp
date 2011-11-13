@@ -39,7 +39,7 @@ namespace wendy
 
 VertexComponent::VertexComponent(const char* initName,
                                  size_t initCount,
-				 Type initType):
+                                 Type initType):
   name(initName),
   count(initCount),
   type(initType)
@@ -101,7 +101,7 @@ VertexFormat::VertexFormat(const char* specification)
 
 bool VertexFormat::createComponent(const char* name,
                                    size_t count,
-				   VertexComponent::Type type)
+                                   VertexComponent::Type type)
 {
   if (count < 1 || count > 4)
   {
@@ -149,14 +149,14 @@ bool VertexFormat::createComponents(const char* specification)
     switch (std::tolower(*c))
     {
       case 'f':
-	type = VertexComponent::FLOAT32;
-	break;
+        type = VertexComponent::FLOAT32;
+        break;
       default:
-	if (std::isgraph(*c))
-	  logError("Invalid vertex component type \'%c\'", *c);
-	else
-	  logError("Invalid vertex component type 0x%02x", *c);
-	return false;
+        if (std::isgraph(*c))
+          logError("Invalid vertex component type \'%c\'", *c);
+        else
+          logError("Invalid vertex component type 0x%02x", *c);
+        return false;
     }
 
     if (*(++c) == '\0')
@@ -241,8 +241,8 @@ String VertexFormat::asString() const
     switch (i->type)
     {
       case VertexComponent::FLOAT32:
-	result << 'f';
-	break;
+        result << 'f';
+        break;
       default:
         return "invalid";
     }

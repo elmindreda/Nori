@@ -83,7 +83,7 @@ bool Pattern::matches(const String& text) const
 
   int pairs = pcre_exec((pcre*) object, NULL,
                         text.c_str(), text.length(), 0, 0,
-	                results, sizeof(results) / sizeof(int));
+                        results, sizeof(results) / sizeof(int));
   if (pairs < 0)
   {
     if (pairs != PCRE_ERROR_NOMATCH)
@@ -114,7 +114,7 @@ PatternMatch* Pattern::match(const String& text) const
 
   int count = pcre_exec((pcre*) object, NULL,
                         text.c_str(), text.length(), 0, 0,
-	                ranges, sizeof(ranges) / sizeof(int));
+                        ranges, sizeof(ranges) / sizeof(int));
   if (count < 0)
   {
     if (count != PCRE_ERROR_NOMATCH)

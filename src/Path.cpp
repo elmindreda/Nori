@@ -173,7 +173,7 @@ Path& Path::operator = (const String& newPath)
     while (String::size_type end = path.length() - 1)
     {
       if (path[end] != '/')
-	break;
+        break;
 
       path.erase(end);
     }

@@ -201,7 +201,7 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
     {
       logError("Cannot find material \'%s\' for render mesh \'%s\'",
                g->shaderName.c_str(),
-	       getPath().asString().c_str());
+               getPath().asString().c_str());
       return false;
     }
 

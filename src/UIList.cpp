@@ -230,7 +230,7 @@ void List::draw() const
 
       float height = item.getHeight();
       if (height + start < 0.f)
-	break;
+        break;
 
       Rect itemArea = area;
       itemArea.position.y += start - height;
@@ -258,9 +258,9 @@ void List::onAreaChanged(Widget& widget)
 }
 
 void List::onButtonClicked(Widget& widget,
-			   const vec2& position,
-			   input::Button button,
-			   bool clicked)
+                           const vec2& position,
+                           input::Button button,
+                           bool clicked)
 {
   if (!clicked || button != input::BUTTON_LEFT)
     return;
@@ -296,7 +296,7 @@ void List::onKeyPressed(Widget& widget, input::Key key, bool pressed)
     case input::KEY_UP:
     {
       if (selection > 0)
-	setSelection(selection - 1, true);
+        setSelection(selection - 1, true);
       break;
     }
 
@@ -315,7 +315,7 @@ void List::onKeyPressed(Widget& widget, input::Key key, bool pressed)
     case input::KEY_END:
     {
       if (!items.empty())
-	setSelection(items.size() - 1, true);
+        setSelection(items.size() - 1, true);
       break;
     }
   }

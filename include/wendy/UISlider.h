@@ -52,9 +52,9 @@ protected:
   void draw() const;
 private:
   void onButtonClicked(Widget& widget,
-		       const vec2& position,
-		       input::Button button,
-		       bool clicked);
+                       const vec2& position,
+                       input::Button button,
+                       bool clicked);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   void onWheelTurned(Widget& widget, int offset);
   void onDragMoved(Widget& widget, const vec2& position);

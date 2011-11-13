@@ -232,27 +232,27 @@ void Book::onKeyPressed(Widget& widgeth, input::Key key, bool pressed)
     case input::KEY_RIGHT:
     {
       if (++i == pages.end())
-	setActivePage(pages.front(), true);
+        setActivePage(pages.front(), true);
       else
-	setActivePage(*i, true);
+        setActivePage(*i, true);
       break;
     }
 
     case input::KEY_LEFT:
     {
       if (i == pages.begin())
-	setActivePage(pages.back(), true);
+        setActivePage(pages.back(), true);
       else
-	setActivePage(*(--i), true);
+        setActivePage(*(--i), true);
       break;
     }
   }
 }
 
 void Book::onButtonClicked(Widget& widget,
-		           const vec2& point,
-		           input::Button button,
-		           bool clicked)
+                           const vec2& point,
+                           input::Button button,
+                           bool clicked)
 {
   PageList pages;
   getPages(pages);

@@ -120,8 +120,8 @@ bool Sphere::intersects(const Ray3& ray, float& distance) const
 
 bool Sphere::intersects(const Ray3& ray,
                         float& distance,
-			vec3& normal,
-			bool& inside) const
+                        vec3& normal,
+                        bool& inside) const
 {
   const vec3 difference = ray.origin - center;
   const float B = 2.f * dot(ray.direction, difference);

@@ -176,7 +176,7 @@ public:
   void importPositions(const Mesh::VertexList& vertices);
   unsigned int addAttributeLayer(unsigned int vertexIndex,
                                  const vec3& normal,
-			         const vec2& texcoord = vec2(0.f));
+                                 const vec2& texcoord = vec2(0.f));
   void realizeVertices(Mesh::VertexList& result) const;
   void setNormalMode(NormalMode newMode);
 private:

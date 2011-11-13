@@ -56,8 +56,8 @@ private:
   void onCursorMoved(Widget& widget, const vec2& position);
   void onButtonClicked(Widget& widget,
                        const vec2& position,
-		       input::Button button,
-		       bool clicked);
+                       input::Button button,
+                       bool clicked);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   void onDragEnded(Widget& widget, const vec2& position);
   void sizeToFit();

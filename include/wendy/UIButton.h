@@ -46,9 +46,9 @@ protected:
   void draw() const;
 private:
   void onButtonClicked(Widget& widget,
-		       const vec2& position,
-		       input::Button button,
-		       bool clicked);
+                       const vec2& position,
+                       input::Button button,
+                       bool clicked);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   Signal1<void, Button&> pushedSignal;
   String text;

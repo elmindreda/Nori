@@ -153,7 +153,7 @@ void Layout::update()
     {
       const float height = sizes[*i];
       if (height == 0.f)
-	flexibleCount++;
+        flexibleCount++;
 
       stackHeight += height + borderSize;
     }
@@ -170,7 +170,7 @@ void Layout::update()
     {
       float height = sizes[*i];
       if (height == 0.f)
-	height = flexibleSize;
+        height = flexibleSize;
 
       position -= height + borderSize;
       (*i)->setArea(Rect(borderSize, position, width, height));
@@ -184,7 +184,7 @@ void Layout::update()
     {
       const float width = sizes[*i];
       if (width == 0.f)
-	flexibleCount++;
+        flexibleCount++;
 
       stackWidth += width + borderSize;
     }
@@ -201,7 +201,7 @@ void Layout::update()
     {
       float width = sizes[*i];
       if (width == 0.f)
-	width = flexibleSize;
+        width = flexibleSize;
 
       position -= width + borderSize;
       (*i)->setArea(Rect(position, borderSize, width, height));

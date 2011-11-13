@@ -207,7 +207,7 @@ void StencilState::apply() const
     {
       glStencilOp(convertToGL(data.stencilFailed),
                   convertToGL(data.depthFailed),
-		  convertToGL(data.depthPassed));
+                  convertToGL(data.depthPassed));
 
       cache.stencilFailed = data.stencilFailed;
       cache.depthFailed = data.depthFailed;

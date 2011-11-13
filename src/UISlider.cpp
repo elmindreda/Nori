@@ -128,16 +128,16 @@ void Slider::draw() const
     if (orientation == HORIZONTAL)
     {
       handleArea.set(area.position.x + position * (area.size.x - em),
-		     area.position.y,
-		     em,
-		     area.size.y);
+                     area.position.y,
+                     em,
+                     area.size.y);
     }
     else
     {
       handleArea.set(area.position.x,
-		     area.position.y + position * (area.size.y - em),
-		     area.size.x,
-		     em);
+                     area.position.y + position * (area.size.y - em),
+                     area.size.x,
+                     em);
     }
 
     drawer.drawHandle(handleArea, getState());
@@ -149,9 +149,9 @@ void Slider::draw() const
 }
 
 void Slider::onButtonClicked(Widget& widget,
-			     const vec2& position,
-			     input::Button button,
-			     bool clicked)
+                             const vec2& position,
+                             input::Button button,
+                             bool clicked)
 {
   if (clicked)
     setValue(transformToLocal(position));
@@ -165,18 +165,18 @@ void Slider::onKeyPressed(Widget& widget, input::Key key, bool pressed)
     {
       case input::KEY_UP:
       case input::KEY_RIGHT:
-	setValue(value + stepSize, true);
-	break;
+        setValue(value + stepSize, true);
+        break;
       case input::KEY_DOWN:
       case input::KEY_LEFT:
-	setValue(value - stepSize, true);
-	break;
+        setValue(value - stepSize, true);
+        break;
       case input::KEY_HOME:
-	setValue(minValue, true);
-	break;
+        setValue(minValue, true);
+        break;
       case input::KEY_END:
-	setValue(maxValue, true);
-	break;
+        setValue(maxValue, true);
+       break;
     }
   }
 }

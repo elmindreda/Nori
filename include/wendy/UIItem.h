@@ -92,7 +92,7 @@ public:
   TextureItem(Layer& layer,
               GL::Texture& texture,
               const char* name = "",
-	      ItemID ID = 0);
+              ItemID ID = 0);
   float getWidth() const;
   float getHeight() const;
   GL::Texture& getTexture() const;

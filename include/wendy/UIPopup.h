@@ -55,9 +55,9 @@ protected:
 private:
   void display();
   void onButtonClicked(Widget& widget,
-		       const vec2& position,
-		       input::Button button,
-		       bool clicked);
+                       const vec2& position,
+                       input::Button button,
+                       bool clicked);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   void onItemSelected(Menu& menu, unsigned int index);
   Signal2<void, Popup&, unsigned int> itemSelectedSignal;

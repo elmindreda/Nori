@@ -158,9 +158,9 @@ void Popup::display()
 }
 
 void Popup::onButtonClicked(Widget& widget,
-		            const vec2& position,
-		            input::Button button,
-		            bool clicked)
+                            const vec2& position,
+                            input::Button button,
+                            bool clicked)
 {
   if (!clicked)
     return;

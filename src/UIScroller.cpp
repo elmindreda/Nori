@@ -131,17 +131,17 @@ void Scroller::draw() const
 
       if (orientation == HORIZONTAL)
       {
-	handleArea.set(area.position.x + offset,
-		       area.position.y,
-		       size,
-		       area.size.y);
+        handleArea.set(area.position.x + offset,
+                       area.position.y,
+                       size,
+                       area.size.y);
       }
       else
       {
-	handleArea.set(area.position.x,
-		       area.position.y + area.size.y - offset - size,
-		       area.size.x,
-		       size);
+        handleArea.set(area.position.x,
+                       area.position.y + area.size.y - offset - size,
+                       area.size.x,
+                       size);
       }
 
       drawer.drawHandle(handleArea, getState());
@@ -154,9 +154,9 @@ void Scroller::draw() const
 }
 
 void Scroller::onButtonClicked(Widget& widget,
-			       const vec2& point,
-			       input::Button button,
-			       bool clicked)
+                               const vec2& point,
+                               input::Button button,
+                               bool clicked)
 {
   if (!clicked)
     return;
@@ -197,27 +197,27 @@ void Scroller::onKeyPressed(Widget& widget, input::Key key, bool pressed)
       case input::KEY_DOWN:
       case input::KEY_RIGHT:
       {
-	setValue(value + getValueStep(), true);
-	break;
+        setValue(value + getValueStep(), true);
+        break;
       }
 
       case input::KEY_UP:
       case input::KEY_LEFT:
       {
-	setValue(value - getValueStep(), true);
-	break;
+        setValue(value - getValueStep(), true);
+        break;
       }
 
       case input::KEY_HOME:
       {
-	setValue(minValue, true);
-	break;
+        setValue(minValue, true);
+        break;
       }
 
       case input::KEY_END:
       {
-	setValue(maxValue, true);
-	break;
+        setValue(maxValue, true);
+        break;
       }
     }
   }

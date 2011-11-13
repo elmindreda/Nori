@@ -124,13 +124,13 @@ public:
    */
   virtual void setPerspectiveProjectionMatrix(float FOV,
                                               float aspect,
-	                                      float nearZ,
-	                                      float farZ);
+                                              float nearZ,
+                                              float farZ);
   virtual void setCameraProperties(const vec3& position,
                                    float FOV,
                                    float aspect,
-	                           float nearZ,
-	                           float farZ);
+                                   float nearZ,
+                                   float farZ);
   virtual void setTime(float newTime);
 protected:
   virtual void updateTo(GL::Uniform& uniform);

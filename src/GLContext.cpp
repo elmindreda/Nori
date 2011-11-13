@@ -348,7 +348,7 @@ WindowConfig::WindowConfig(const String& initTitle):
 WindowConfig::WindowConfig(const String& initTitle,
                            unsigned int initWidth,
                            unsigned int initHeight,
-		           WindowMode initMode):
+                           WindowMode initMode):
   title(initTitle),
   width(initWidth),
   height(initHeight),
@@ -359,11 +359,11 @@ WindowConfig::WindowConfig(const String& initTitle,
 ///////////////////////////////////////////////////////////////////////
 
 ContextConfig::ContextConfig(unsigned int initColorBits,
-			     unsigned int initDepthBits,
-			     unsigned int initStencilBits,
-			     unsigned int initSamples,
-			     Version initVersion,
-			     Profile initProfile):
+                             unsigned int initDepthBits,
+                             unsigned int initStencilBits,
+                             unsigned int initSamples,
+                             Version initVersion,
+                             Profile initProfile):
   colorBits(initColorBits),
   depthBits(initDepthBits),
   stencilBits(initStencilBits),
@@ -1208,9 +1208,9 @@ void Context::setScissorArea(const Recti& newArea)
   {
     glEnable(GL_SCISSOR_TEST);
     glScissor(scissorArea.position.x,
-	      scissorArea.position.y,
-	      scissorArea.size.x,
-	      scissorArea.size.y);
+              scissorArea.position.y,
+              scissorArea.size.x,
+              scissorArea.size.y);
   }
 }
 
@@ -1220,8 +1220,8 @@ void Context::setViewportArea(const Recti& newArea)
 
   glViewport(viewportArea.position.x,
              viewportArea.position.y,
-	     viewportArea.size.x,
-	     viewportArea.size.y);
+             viewportArea.size.x,
+             viewportArea.size.y);
 }
 
 Framebuffer& Context::getCurrentFramebuffer() const

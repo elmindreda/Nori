@@ -61,7 +61,7 @@ private:
   const char* findAttributeValue(const char* name);
   static void startElementHandler(void* userData,
                                   const char* name,
-				  const char** attributes);
+                                  const char** attributes);
   static void endElementHandler(void* userData, const char* name);
   static void characterDataHandler(void* userData, const char* data, int length);
   static void endCharacterDataHandler(void* userData);

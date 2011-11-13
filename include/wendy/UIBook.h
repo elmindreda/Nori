@@ -71,9 +71,9 @@ private:
   void onAreaChanged(Widget& widget);
   void onKeyPressed(Widget& widgeth, input::Key key, bool pressed);
   void onButtonClicked(Widget& widget,
-		       const vec2& position,
-		       input::Button button,
-		       bool clicked);
+                       const vec2& position,
+                       input::Button button,
+                       bool clicked);
   Signal1<void, Book&> pageChangedSignal;
   Page* activePage;
 };

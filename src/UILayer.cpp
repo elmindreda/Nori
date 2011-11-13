@@ -98,7 +98,7 @@ Widget* Layer::findWidgetByPoint(const vec2& point)
     {
       Widget* widget = (*r)->findByPoint(point);
       if (widget)
-	return widget;
+        return widget;
     }
   }
 
@@ -288,7 +288,7 @@ void Layer::removedWidget(Widget& widget)
     if (draggedWidget)
     {
       if (draggedWidget == &widget || draggedWidget->isChildOf(widget))
-	cancelDragging();
+        cancelDragging();
     }
   }
 }
@@ -367,11 +367,11 @@ void Layer::onButtonClicked(input::Button button, bool clicked)
       clickedWidget->activate();
       clickedWidget->buttonClickedSignal.emit(*clickedWidget,
                                               scaledPosition,
-					      button,
-					      clicked);
+                                              button,
+                                              clicked);
 
       if (!captureWidget && clickedWidget->isDraggable())
-	draggedWidget = clickedWidget;
+        draggedWidget = clickedWidget;
     }
   }
   else
@@ -380,8 +380,8 @@ void Layer::onButtonClicked(input::Button button, bool clicked)
     {
       if (dragging)
       {
-	draggedWidget->dragEndedSignal.emit(*draggedWidget, scaledPosition);
-	dragging = false;
+        draggedWidget->dragEndedSignal.emit(*draggedWidget, scaledPosition);
+        dragging = false;
       }
 
       draggedWidget = NULL;

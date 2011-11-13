@@ -168,8 +168,8 @@ public:
    *  @code
    *  if (drawer.pushClipArea(childArea))
    *  {
-   *	drawStuff();
-   *	drawer.popClipArea();
+   *    drawStuff();
+   *    drawer.popClipArea();
    *  }
    *  @endcode
    */

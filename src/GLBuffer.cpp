@@ -215,7 +215,7 @@ unsigned int VertexBuffer::getCount() const
 Ref<VertexBuffer> VertexBuffer::create(Context& context,
                                        unsigned int count,
                                        const VertexFormat& format,
-				       Usage usage)
+                                       Usage usage)
 {
   Ref<VertexBuffer> buffer(new VertexBuffer(context));
   if (!buffer->init(format, count, usage))
@@ -240,8 +240,8 @@ VertexBuffer::VertexBuffer(const VertexBuffer& source):
 }
 
 bool VertexBuffer::init(const VertexFormat& initFormat,
-			unsigned int initCount,
-			Usage initUsage)
+                        unsigned int initCount,
+                        Usage initUsage)
 {
   format = initFormat;
   usage = initUsage;
@@ -252,9 +252,9 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
   context.setCurrentVertexBuffer(this);
 
   glBufferData(GL_ARRAY_BUFFER,
-	       count * format.getSize(),
-	       NULL,
-	       convertToGL(usage));
+               count * format.getSize(),
+               NULL,
+               convertToGL(usage));
 
   if (!checkGL("Error during creation of vertex buffer of format \'%s\'",
                format.asString().c_str()))
@@ -384,8 +384,8 @@ unsigned int IndexBuffer::getCount() const
 
 Ref<IndexBuffer> IndexBuffer::create(Context& context,
                                      unsigned int count,
-				     Type type,
-				     Usage usage)
+                                     Type type,
+                                     Usage usage)
 {
   Ref<IndexBuffer> buffer(new IndexBuffer(context));
   if (!buffer->init(count, type, usage))
@@ -437,9 +437,9 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
   context.setCurrentIndexBuffer(this);
 
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-	       count * getTypeSize(type),
-	       NULL,
-	       convertToGL(usage));
+               count * getTypeSize(type),
+               NULL,
+               convertToGL(usage));
 
   if (!checkGL("Error during creation of index buffer of element size %u",
                getTypeSize(type)))
@@ -636,7 +636,7 @@ PrimitiveRange::PrimitiveRange():
 }
 
 PrimitiveRange::PrimitiveRange(PrimitiveType initType,
-	                       VertexBuffer& initVertexBuffer):
+                               VertexBuffer& initVertexBuffer):
   type(initType),
   vertexBuffer(&initVertexBuffer),
   indexBuffer(NULL),
@@ -660,8 +660,8 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
 }
 
 PrimitiveRange::PrimitiveRange(PrimitiveType initType,
-	                       VertexBuffer& initVertexBuffer,
-	                       IndexBuffer& initIndexBuffer):
+                               VertexBuffer& initVertexBuffer,
+                               IndexBuffer& initIndexBuffer):
   type(initType),
   vertexBuffer(&initVertexBuffer),
   indexBuffer(&initIndexBuffer),
@@ -672,8 +672,8 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
 }
 
 PrimitiveRange::PrimitiveRange(PrimitiveType initType,
-	                       VertexBuffer& initVertexBuffer,
-	                       const IndexRange& indexRange):
+                               VertexBuffer& initVertexBuffer,
+                               const IndexRange& indexRange):
   type(initType),
   vertexBuffer(&initVertexBuffer),
   indexBuffer(NULL),
@@ -686,9 +686,9 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
 }
 
 PrimitiveRange::PrimitiveRange(PrimitiveType initType,
-	                       VertexBuffer& initVertexBuffer,
-	                       unsigned int initStart,
-	                       unsigned int initCount):
+                               VertexBuffer& initVertexBuffer,
+                               unsigned int initStart,
+                               unsigned int initCount):
   type(initType),
   vertexBuffer(&initVertexBuffer),
   indexBuffer(NULL),
@@ -698,10 +698,10 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
 }
 
 PrimitiveRange::PrimitiveRange(PrimitiveType initType,
-	                       VertexBuffer& initVertexBuffer,
-			       IndexBuffer& initIndexBuffer,
-	                       unsigned int initStart,
-	                       unsigned int initCount):
+                               VertexBuffer& initVertexBuffer,
+                               IndexBuffer& initIndexBuffer,
+                               unsigned int initStart,
+                               unsigned int initCount):
   type(initType),
   vertexBuffer(&initVertexBuffer),
   indexBuffer(&initIndexBuffer),

@@ -50,7 +50,7 @@ GeometryPool::GeometryPool(GL::Context& initContext, size_t initGranularity):
 }
 
 bool GeometryPool::allocateIndices(GL::IndexRange& range,
-		                   unsigned int count,
+                                   unsigned int count,
                                    GL::IndexBuffer::Type type)
 {
   if (!count)
@@ -80,7 +80,7 @@ bool GeometryPool::allocateIndices(GL::IndexRange& range,
     slot->indexBuffer = GL::IndexBuffer::create(context,
                                                 actualCount,
                                                 type,
-					        GL::IndexBuffer::DYNAMIC);
+                                                GL::IndexBuffer::DYNAMIC);
     if (!slot->indexBuffer)
     {
       indexBufferPool.pop_back();
@@ -93,7 +93,7 @@ bool GeometryPool::allocateIndices(GL::IndexRange& range,
   }
 
   range = GL::IndexRange(*(slot->indexBuffer),
-		         slot->indexBuffer->getCount() - slot->available,
+                         slot->indexBuffer->getCount() - slot->available,
                          count);
 
   slot->available -= count;
@@ -101,8 +101,8 @@ bool GeometryPool::allocateIndices(GL::IndexRange& range,
 }
 
 bool GeometryPool::allocateVertices(GL::VertexRange& range,
-				    unsigned int count,
-				    const VertexFormat& format)
+                                    unsigned int count,
+                                    const VertexFormat& format)
 {
   if (!count)
   {
@@ -131,7 +131,7 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
     slot->vertexBuffer = GL::VertexBuffer::create(context,
                                                   actualCount,
                                                   format,
-						  GL::VertexBuffer::DYNAMIC);
+                                                  GL::VertexBuffer::DYNAMIC);
     if (!slot->vertexBuffer)
     {
       vertexBufferPool.pop_back();
@@ -140,13 +140,13 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
 
     log("Allocated vertex pool of size %u format \'%s\'",
         actualCount,
-	format.asString().c_str());
+        format.asString().c_str());
 
     slot->available = slot->vertexBuffer->getCount();
   }
 
   range = GL::VertexRange(*(slot->vertexBuffer),
-		          slot->vertexBuffer->getCount() - slot->available,
+                          slot->vertexBuffer->getCount() - slot->available,
                           count);
 
   slot->available -= count;

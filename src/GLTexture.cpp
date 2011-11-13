@@ -72,25 +72,25 @@ GLint convertToGL(FilterMode mode, bool mipmapped)
     case FILTER_NEAREST:
     {
       if (mipmapped)
-	return GL_NEAREST_MIPMAP_NEAREST;
+        return GL_NEAREST_MIPMAP_NEAREST;
       else
-	return GL_NEAREST;
+        return GL_NEAREST;
     }
 
     case FILTER_BILINEAR:
     {
       if (mipmapped)
-	return GL_LINEAR_MIPMAP_NEAREST;
+        return GL_LINEAR_MIPMAP_NEAREST;
       else
-	return GL_LINEAR;
+        return GL_LINEAR;
     }
 
     case FILTER_TRILINEAR:
     {
       if (mipmapped)
-	return GL_LINEAR_MIPMAP_LINEAR;
+        return GL_LINEAR_MIPMAP_LINEAR;
       else
-	return GL_LINEAR;
+        return GL_LINEAR;
     }
   }
 
@@ -190,11 +190,11 @@ bool TextureImage::copyFrom(const wendy::Image& source,
 
     glTexSubImage1D(convertToGL(texture.type),
                     level,
-		    x,
-		    source.getWidth(),
+                    x,
+                    source.getWidth(),
                     convertToGL(texture.format.getSemantic()),
                     convertToGL(texture.format.getType()),
-		    source.getPixels());
+                    source.getPixels());
   }
   else if (texture.is3D())
   {
@@ -202,13 +202,13 @@ bool TextureImage::copyFrom(const wendy::Image& source,
 
     glTexSubImage3D(convertToGL(texture.type),
                     level,
-		    x, y, z,
-		    source.getWidth(),
+                    x, y, z,
+                    source.getWidth(),
                     source.getHeight(),
                     source.getDepth(),
                     convertToGL(texture.format.getSemantic()),
                     convertToGL(texture.format.getType()),
-		    source.getPixels());
+                    source.getPixels());
   }
   else
   {
@@ -222,11 +222,11 @@ bool TextureImage::copyFrom(const wendy::Image& source,
 
     glTexSubImage2D(convertToGL(texture.type),
                     level,
-		    x, y,
-		    source.getWidth(), source.getHeight(),
+                    x, y,
+                    source.getWidth(), source.getHeight(),
                     convertToGL(texture.format.getSemantic()),
                     convertToGL(texture.format.getType()),
-		    source.getPixels());
+                    source.getPixels());
   }
 
 #if WENDY_DEBUG
@@ -249,9 +249,9 @@ bool TextureImage::copyTo(wendy::Image& result) const
 
   glGetTexImage(convertToGL(texture.type),
                 level,
-		convertToGL(texture.format.getSemantic()),
-		convertToGL(texture.format.getType()),
-		result.getPixels());
+                convertToGL(texture.format.getSemantic()),
+                convertToGL(texture.format.getType()),
+                result.getPixels());
 
 #if WENDY_DEBUG
   if (!checkGL("Error during copy to image from level %u of texture \'%s\'",
@@ -461,10 +461,10 @@ void Texture::setFilterMode(FilterMode newMode)
 
     glTexParameteri(convertToGL(type),
                     GL_TEXTURE_MIN_FILTER,
-		    convertToGL(newMode, hasMipmaps()));
+                    convertToGL(newMode, hasMipmaps()));
     glTexParameteri(convertToGL(type),
                     GL_TEXTURE_MAG_FILTER,
-		    convertToGL(newMode, false));
+                    convertToGL(newMode, false));
 
     filterMode = newMode;
   }
@@ -530,7 +530,7 @@ Context& Texture::getContext() const
 Ref<Texture> Texture::create(const ResourceInfo& info,
                              Context& context,
                              const wendy::Image& source,
-			     unsigned int flags)
+                             unsigned int flags)
 {
   Ref<Texture> texture(new Texture(info, context));
   if (!texture->init(source, flags))
@@ -542,7 +542,7 @@ Ref<Texture> Texture::create(const ResourceInfo& info,
 Ref<Texture> Texture::create(const ResourceInfo& info,
                              Context& context,
                              const ImageCube& source,
-			     unsigned int flags)
+                             unsigned int flags)
 {
   Ref<Texture> texture(new Texture(info, context));
   if (!texture->init(source, flags))
@@ -974,11 +974,11 @@ bool TextureReader::onBeginElement(const String& name)
 
       defaultValue = (Texture::DEFAULT & Texture::MIPMAPPED) ? true : false;
       if (readBoolean("mipmapped", defaultValue) != defaultValue)
-	flags ^= Texture::MIPMAPPED;
+        flags ^= Texture::MIPMAPPED;
 
       defaultValue = (Texture::DEFAULT & Texture::RECTANGULAR) ? true : false;
       if (readBoolean("rectangular", defaultValue) != defaultValue)
-	flags ^= Texture::RECTANGULAR;
+        flags ^= Texture::RECTANGULAR;
     }
 
     Path imagePath(readString("image"));
@@ -1025,12 +1025,12 @@ bool TextureReader::onBeginElement(const String& name)
     if (!filterModeName.empty())
     {
       if (filterModeMap.hasKey(filterModeName))
-	texture->setFilterMode(filterModeMap[filterModeName]);
+        texture->setFilterMode(filterModeMap[filterModeName]);
       else
       {
-	logError("Invalid filter mode name \'%s\'",
+        logError("Invalid filter mode name \'%s\'",
                  filterModeName.c_str());
-	return false;
+        return false;
       }
     }
 
@@ -1038,12 +1038,12 @@ bool TextureReader::onBeginElement(const String& name)
     if (!addressModeName.empty())
     {
       if (addressModeMap.hasKey(addressModeName))
-	texture->setAddressMode(addressModeMap[addressModeName]);
+        texture->setAddressMode(addressModeMap[addressModeName]);
       else
       {
-	logError("Invalid address mode name \'%s\'",
+        logError("Invalid address mode name \'%s\'",
                  addressModeName.c_str());
-	return false;
+        return false;
       }
     }
 
