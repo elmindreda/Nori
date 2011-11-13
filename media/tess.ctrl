@@ -7,8 +7,8 @@ out vec3 tcNormal[];
 
 #define ID gl_InvocationID
 
-#define TessLevelInner 3
-#define TessLevelOuter 3
+#define TessLevelInner 16
+#define TessLevelOuter 16
 
 void main()
 {

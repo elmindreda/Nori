@@ -7,5 +7,5 @@ out vec3 vNormal;
 void main()
 {
   vPosition = wyPosition;
-  vNormal = (wyMV * vec4(wyNormal, 0.0)).xyz;
+  vNormal = wyNormal;
 }
