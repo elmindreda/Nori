@@ -556,7 +556,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
       else if (command == "f")
       {
         if (!group)
-          throw Exception("Expected \'usemtl\' but found \'f\'");
+          throw Exception("Expected \'usemtl\' before \'f\'");
 
         triplets.clear();
 
