@@ -1,5 +1,6 @@
 
 layout(vertices = 3) out;
+uniform float TessLevel;
 in vec3 vPosition[];
 in vec3 vNormal[];
 out vec3 tcPosition[];
@@ -7,9 +8,6 @@ out vec3 tcNormal[];
 out float tcCurvature[];
 
 #define ID gl_InvocationID
-
-#define TessLevelInner 16
-#define TessLevelOuter 16
 
 void main()
 {
@@ -21,9 +19,9 @@ void main()
 
   if (ID == 0) {
     // Set tessellation levels
-    gl_TessLevelInner[0] = TessLevelInner;
-    gl_TessLevelOuter[0] = TessLevelOuter;
-    gl_TessLevelOuter[1] = TessLevelOuter;
-    gl_TessLevelOuter[2] = TessLevelOuter;
+    gl_TessLevelInner[0] = TessLevel;
+    gl_TessLevelOuter[0] = TessLevel;
+    gl_TessLevelOuter[1] = TessLevel;
+    gl_TessLevelOuter[2] = TessLevel;
   }
 }

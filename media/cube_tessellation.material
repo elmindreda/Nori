@@ -2,7 +2,9 @@
 <material version="6">
   <technique type="forward" quality="1">
     <pass>
-      <program path="tessellation.program" />
+      <program path="tessellation.program">
+        <uniform name="TessLevel" value="16" />
+      </program>
     </pass>
   </technique>
 </material>
