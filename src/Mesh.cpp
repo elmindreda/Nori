@@ -413,8 +413,7 @@ unsigned int VertexMerger::addAttributeLayer(unsigned int vertexIndex,
       vertex.layers.push_back(VertexLayer());
       VertexLayer& layer = vertex.layers.back();
 
-      layer.normal = vec3(0.f);
-      layer.normal += vertex.layers.front().normal;
+      layer.normal = vertex.layers.front().normal;
       layer.texcoord = texcoord;
       layer.index = targetCount++;
 
@@ -422,7 +421,7 @@ unsigned int VertexMerger::addAttributeLayer(unsigned int vertexIndex,
     }
 
     for (Vertex::LayerList::iterator i = vertex.layers.begin();  i != vertex.layers.end();  i++)
-      i->normal += normal;
+      i->normal = normalize(i->normal + normal);
 
     return vertex.layers[index].index;
   }
@@ -529,7 +528,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
         normal.x = parseFloat(&text);
         normal.y = parseFloat(&text);
         normal.z = parseFloat(&text);
-        normals.push_back(normal);
+        normals.push_back(normalize(normal));
       }
       else if (command == "usemtl")
       {
