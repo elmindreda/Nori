@@ -712,6 +712,65 @@ bool MeshReader::interesting(const char** text)
 
 ///////////////////////////////////////////////////////////////////////
 
+bool MeshWriter::write(const Path& path, const Mesh& mesh)
+{
+  std::ofstream stream(path.asString().c_str());
+  if (!stream.is_open())
+  {
+    logError("Failed to open \'%s\' for writing",
+             path.asString().c_str());
+    return false;
+  }
+
+  for (Mesh::VertexList::const_iterator v = mesh.vertices.begin();
+       v != mesh.vertices.end();
+       v++)
+  {
+    stream << "v " << v->position.x << ' ' << v->position.y << ' ' << v->position.z << '\n';
+  }
+
+  for (Mesh::VertexList::const_iterator v = mesh.vertices.begin();
+       v != mesh.vertices.end();
+       v++)
+  {
+    stream << "vn " << v->normal.x << ' ' << v->normal.y << ' ' << v->normal.z << '\n';
+  }
+
+  for (Mesh::VertexList::const_iterator v = mesh.vertices.begin();
+       v != mesh.vertices.end();
+       v++)
+  {
+    stream << "vt " << v->texcoord.x << ' ' << v->texcoord.y << '\n';
+  }
+
+  for (Mesh::GeometryList::const_iterator g = mesh.geometries.begin();
+       g != mesh.geometries.end();
+       g++)
+  {
+    stream << "usemtl " << g->shaderName << '\n';
+
+    for (MeshGeometry::TriangleList::const_iterator t = g->triangles.begin();
+         t != g->triangles.end();
+         t++)
+    {
+      stream << "f";
+
+      for (size_t i = 0;  i < 3;  i++)
+      {
+        unsigned int index = t->indices[i] + 1;
+        stream << ' ' << index << '/' << index << '/' << index;
+      }
+
+      stream << '\n';
+    }
+  }
+
+  stream.close();
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////////
+
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
