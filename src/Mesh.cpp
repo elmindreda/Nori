@@ -128,7 +128,7 @@ void Mesh::collapseGeometries(const char* shaderName)
 {
   geometries[0].shaderName = shaderName;
 
-  for (unsigned int i = 1;  i < geometries.size();  i++)
+  for (size_t i = 1;  i < geometries.size();  i++)
   {
     geometries[0].triangles.insert(geometries[0].triangles.end(),
                                    geometries[i].triangles.begin(),
@@ -140,7 +140,7 @@ void Mesh::collapseGeometries(const char* shaderName)
 
 MeshGeometry* Mesh::findGeometry(const char* shaderName)
 {
-  for (unsigned int i = 0;  i < geometries.size();  i++)
+  for (size_t i = 0;  i < geometries.size();  i++)
   {
     if (geometries[i].shaderName == shaderName)
       return &(geometries[i]);
@@ -158,13 +158,13 @@ void Mesh::generateNormals(NormalType type)
   if (type == SMOOTH_FACES)
     merger.setNormalMode(VertexMerger::MERGE_NORMALS);
 
-  for (unsigned int i = 0;  i < geometries.size();  i++)
+  for (size_t i = 0;  i < geometries.size();  i++)
   {
-    for (unsigned int j = 0;  j < geometries[i].triangles.size();  j++)
+    for (size_t j = 0;  j < geometries[i].triangles.size();  j++)
     {
       MeshTriangle& triangle = geometries[i].triangles[j];
 
-      for (unsigned int k = 0;  k < 3;  k++)
+      for (size_t k = 0;  k < 3;  k++)
       {
         triangle.indices[k] = merger.addAttributeLayer(triangle.indices[k],
                                                        triangle.normal,
@@ -178,9 +178,9 @@ void Mesh::generateNormals(NormalType type)
 
 void Mesh::generateTriangleNormals()
 {
-  for (unsigned int i = 0;  i < geometries.size();  i++)
+  for (size_t i = 0;  i < geometries.size();  i++)
   {
-    for (unsigned int j = 0;  j < geometries[i].triangles.size();  j++)
+    for (size_t j = 0;  j < geometries[i].triangles.size();  j++)
     {
       MeshTriangle& triangle = geometries[i].triangles[j];
 
@@ -193,17 +193,17 @@ void Mesh::generateTriangleNormals()
 
 void Mesh::generateEdges()
 {
-  for (unsigned int i = 0;  i < geometries.size();  i++)
+  for (size_t i = 0;  i < geometries.size();  i++)
   {
-    for (unsigned int j = 0;  j < geometries[i].triangles.size();  j++)
+    for (size_t j = 0;  j < geometries[i].triangles.size();  j++)
     {
-      for (unsigned int k = 0;  k < 3;  k++)
+      for (size_t k = 0;  k < 3;  k++)
       {
         MeshEdge edge;
         edge.setIndices(geometries[i].triangles[j].indices[k],
                         geometries[i].triangles[j].indices[(k + 1) % 3]);
 
-        unsigned int l;
+        size_t l;
 
         for (l = 0;  l < edges.size();  l++)
         {
@@ -240,7 +240,7 @@ void Mesh::generateBounds(AABB& bounds) const
   vec3 minimum(limits::max());
   vec3 maximum(limits::min());
 
-  for (unsigned int i = 0;  i < vertices.size();  i++)
+  for (size_t i = 0;  i < vertices.size();  i++)
   {
     const vec3& position = vertices[i].position;
 
@@ -264,7 +264,7 @@ void Mesh::generateBounds(Sphere& bounds) const
 
   bounds.center = vertices[0].position;
 
-  for (unsigned int i = 1;  i < vertices.size();  i++)
+  for (size_t i = 1;  i < vertices.size();  i++)
     bounds.envelop(vertices[i].position);
 }
 
@@ -273,7 +273,7 @@ bool Mesh::isValid() const
   if (vertices.empty())
     return false;
 
-  for (unsigned int i = 0;  i < vertices.size();  i++)
+  for (size_t i = 0;  i < vertices.size();  i++)
   {
     const MeshVertex& vertex = vertices[i];
 
@@ -285,14 +285,14 @@ bool Mesh::isValid() const
     }
   }
 
-  for (unsigned int i = 0;  i < geometries.size();  i++)
+  for (size_t i = 0;  i < geometries.size();  i++)
   {
     if (geometries[i].triangles.empty())
       return false;
 
     const MeshGeometry::TriangleList& triangles = geometries[i].triangles;
 
-    for (unsigned int j = 0;  j < triangles.size();  j++)
+    for (size_t j = 0;  j < triangles.size();  j++)
     {
       const MeshTriangle& triangle = triangles[j];
 
@@ -320,7 +320,7 @@ bool Mesh::isValid() const
 
   if (!edges.empty())
   {
-    for (unsigned int i = 0;  i < edges.size();  i++)
+    for (size_t i = 0;  i < edges.size();  i++)
     {
       const MeshEdge& edge = edges[i];
 
@@ -339,7 +339,7 @@ unsigned int Mesh::getTriangleCount() const
 {
   unsigned int count = 0;
 
-  for (unsigned int i = 0;  i < geometries.size();  i++)
+  for (size_t i = 0;  i < geometries.size();  i++)
     count += (unsigned int) geometries[i].triangles.size();
 
   return count;
@@ -369,7 +369,7 @@ VertexMerger::VertexMerger(const Mesh::VertexList& initVertices):
 void VertexMerger::importPositions(const Mesh::VertexList& initVertices)
 {
   vertices.resize(initVertices.size());
-  for (unsigned int i = 0;  i < vertices.size();  i++)
+  for (size_t i = 0;  i < vertices.size();  i++)
     vertices[i].position = initVertices[i].position;
 }
 
@@ -398,7 +398,7 @@ unsigned int VertexMerger::addAttributeLayer(unsigned int vertexIndex,
   }
   else
   {
-    unsigned int index = 0;
+    size_t index = 0;
 
     for (Vertex::LayerList::iterator i = vertex.layers.begin();  i != vertex.layers.end();  i++)
     {
@@ -432,11 +432,11 @@ void VertexMerger::realizeVertices(Mesh::VertexList& result) const
 {
   result.resize(targetCount);
 
-  for (unsigned int i = 0;  i < vertices.size();  i++)
+  for (size_t i = 0;  i < vertices.size();  i++)
   {
     const Vertex& vertex = vertices[i];
 
-    for (unsigned int j = 0;  j < vertex.layers.size();  j++)
+    for (size_t j = 0;  j < vertex.layers.size();  j++)
     {
       const VertexLayer& layer = vertex.layers[j];
 
@@ -586,7 +586,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
             text++;
         }
 
-        for (unsigned int i = 2;  i < triplets.size();  i++)
+        for (size_t i = 2;  i < triplets.size();  i++)
         {
           group->faces.push_back(Face());
           Face& face = group->faces.back();
@@ -639,7 +639,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
       const Face& face = faces[i];
       MeshTriangle& triangle = geometry.triangles[i];
 
-      for (int j = 0;  j < 3;  j++)
+      for (size_t j = 0;  j < 3;  j++)
       {
         const Triplet& point = face.p[j];
 
