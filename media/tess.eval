@@ -42,8 +42,7 @@ void main()
   // Displace
   tePosition += exaggeration * f * teNormal;
 
-  // Covert to model view space
-  teNormal = (wyMV * vec4(teNormal, 0.0)).xyz;
-  gl_Position = wyMVP * vec4(tePosition, 1);
+  // Project
+  gl_Position = wyP * vec4(tePosition, 1);
 }
 
