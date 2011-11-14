@@ -569,14 +569,14 @@ Ref<Mesh> MeshReader::read(const Path& path)
           triplet.texcoord = 0;
           triplet.normal = 0;
 
-          if (*text++ == '/')
+          if (*text == '/')
           {
-            if (std::isdigit(*text))
+            if (std::isdigit(*(++text)))
               triplet.texcoord = parseInteger(&text);
 
-            if (*text++ == '/')
+            if (*text == '/')
             {
-              if (std::isdigit(*text))
+              if (std::isdigit(*(++text)))
                 triplet.normal = parseInteger(&text);
             }
           }
