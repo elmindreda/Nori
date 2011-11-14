@@ -476,6 +476,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
   std::vector<vec3> positions;
   std::vector<vec3> normals;
   std::vector<vec2> texcoords;
+  std::vector<Triplet> triplets;
 
   FaceGroupList groups;
   FaceGroup* group = NULL;
@@ -488,21 +489,21 @@ Ref<Mesh> MeshReader::read(const Path& path)
     if (!interesting(&text))
       continue;
 
-    try {
-
+    try
+    {
       String command = parseName(&text);
 
       if (command == "g")
       {
-        // Nothing to do here
+        // Silently ignore group names
       }
       else if (command == "o")
       {
-        // Nothing to do here
+        // Silently ignore object names
       }
       else if (command == "s")
       {
-        // Nothing to do here
+        // Silently ignore smoothing
       }
       else if (command == "v")
       {
@@ -551,17 +552,14 @@ Ref<Mesh> MeshReader::read(const Path& path)
       }
       else if (command == "mtllib")
       {
-        // Silently ignore mtllib
+        // Silently ignore .mtl material files
       }
       else if (command == "f")
       {
         if (!group)
-        {
           throw Exception("Expected \'usemtl\' but found \'f\'");
-          return NULL;
-        }
 
-        std::vector<Triplet> triplets;
+        triplets.clear();
 
         while (*text != '\0')
         {
@@ -577,8 +575,11 @@ Ref<Mesh> MeshReader::read(const Path& path)
             if (std::isdigit(*text))
               triplet.texcoord = parseInteger(&text);
 
-            if (*text++ == '/' && std::isdigit(*text))
-              triplet.normal = parseInteger(&text);
+            if (*text++ == '/')
+            {
+              if (std::isdigit(*text))
+                triplet.normal = parseInteger(&text);
+            }
           }
 
           while (std::isspace(*text))
@@ -596,14 +597,20 @@ Ref<Mesh> MeshReader::read(const Path& path)
         }
       }
       else
-        logWarning("Unknown command \'%s\' in %s:%d",
+      {
+        logWarning("Unknown command \'%s\' in mesh \'%s\' line %d",
                    command.c_str(),
                    path.asString().c_str(),
                    lineNumber);
-    } catch (Exception& e) {
-      logError((String(e.what()) + " in %s:%d").c_str(),
+      }
+    }
+    catch (Exception& e)
+    {
+      logError("%s in mesh \'%s\' line %d",
+               e.what(),
                path.asString().c_str(),
                lineNumber);
+
       return NULL;
     }
   }
