@@ -52,7 +52,6 @@ public:
   void envelop(const vec3& point);
   void envelop(const Sphere& sphere);
   void set(const vec3& newCenter, float newRadius);
-  void setDefaults();
   vec3 center;
   float radius;
 };

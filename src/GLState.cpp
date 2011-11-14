@@ -292,11 +292,6 @@ void StencilState::setOperations(Operation stencilFailed,
   data.depthPassed = depthPassed;
 }
 
-void StencilState::setDefaults()
-{
-  data.setDefaults();
-}
-
 void StencilState::force() const
 {
   cache = data;
@@ -322,20 +317,15 @@ bool StencilState::dirty = true;
 
 ///////////////////////////////////////////////////////////////////////
 
-StencilState::Data::Data()
+StencilState::Data::Data():
+  enabled(false),
+  function(ALLOW_ALWAYS),
+  reference(0),
+  writeMask(~0),
+  stencilFailed(OP_KEEP),
+  depthFailed(OP_KEEP),
+  depthPassed(OP_KEEP)
 {
-  setDefaults();
-}
-
-void StencilState::Data::setDefaults()
-{
-  enabled = false;
-  function = ALLOW_ALWAYS;
-  reference = 0;
-  writeMask = ~0;
-  stencilFailed = OP_KEEP;
-  depthFailed = OP_KEEP;
-  depthPassed = OP_KEEP;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -632,11 +622,6 @@ void ProgramState::setProgram(Program* newProgram)
 StateID ProgramState::getID() const
 {
   return ID;
-}
-
-void ProgramState::setDefaults()
-{
-  setProgram(NULL);
 }
 
 void* ProgramState::getData(const char* name, Uniform::Type type)
@@ -1024,11 +1009,6 @@ void RenderState::setLineWidth(float newWidth)
   data.lineWidth = newWidth;
 }
 
-void RenderState::setDefaults()
-{
-  data.setDefaults();
-}
-
 bool RenderState::isCullingInverted()
 {
   return cullingInverted;
@@ -1100,23 +1080,18 @@ bool RenderState::cullingInverted = false;
 
 ///////////////////////////////////////////////////////////////////////
 
-RenderState::Data::Data()
+RenderState::Data::Data():
+  depthTesting(true),
+  depthWriting(true),
+  colorWriting(true),
+  wireframe(false),
+  lineSmoothing(false),
+  lineWidth(1.f),
+  cullMode(CULL_BACK),
+  srcFactor(BLEND_ONE),
+  dstFactor(BLEND_ZERO),
+  depthFunction(ALLOW_LESSER)
 {
-  setDefaults();
-}
-
-void RenderState::Data::setDefaults()
-{
-  depthTesting = true;
-  depthWriting = true;
-  colorWriting = true;
-  wireframe = false;
-  lineSmoothing = false;
-  lineWidth = 1.f;
-  cullMode = CULL_BACK;
-  srcFactor = BLEND_ONE;
-  dstFactor = BLEND_ZERO;
-  depthFunction = ALLOW_LESSER;
 }
 
 ///////////////////////////////////////////////////////////////////////

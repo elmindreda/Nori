@@ -138,13 +138,11 @@ public:
   void setOperations(Operation stencilFailed,
                      Operation depthFailed,
                      Operation depthPassed);
-  void setDefaults();
 private:
   class Data
   {
   public:
     Data();
-    void setDefaults();
     bool enabled;
     Function function;
     unsigned int reference;
@@ -229,7 +227,6 @@ public:
    */
   void setProgram(Program* newProgram);
   StateID getID() const;
-  void setDefaults();
 private:
   template <typename T>
   static Uniform::Type getUniformType();
@@ -351,9 +348,6 @@ public:
    *  @param[in] dst The desired destination factor.
    */
   void setBlendFactors(BlendFactor src, BlendFactor dst);
-  /*! Resets all values in this render state to their defaults.
-   */
-  void setDefaults();
   static bool isCullingInverted();
   static void setCullingInversion(bool newState);
 private:
@@ -361,7 +355,6 @@ private:
   {
   public:
     Data();
-    void setDefaults();
     bool depthTesting;
     bool depthWriting;
     bool colorWriting;

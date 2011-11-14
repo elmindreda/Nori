@@ -48,10 +48,6 @@ public:
    *  @param[in] transform The transform to use.
    */
   void transformBy(const Transform3& transform);
-  /*! Resets this ray to default values.
-   *  The default ray is positioned at origo, and points along the positive z-axis.
-   */
-  void setDefaults();
   /*! Sets the values of this ray.
    *  @param[in] newOrigin The desired origin.
    *  @param[in] newDirection The desired direction.

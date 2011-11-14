@@ -39,9 +39,10 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Sphere::Sphere()
+Sphere::Sphere():
+  center(0.f),
+  radius(0.5f)
 {
-  setDefaults();
 }
 
 Sphere::Sphere(const vec3& initCenter, float initRadius):
@@ -193,12 +194,6 @@ void Sphere::set(const vec3& newCenter, float newRadius)
 {
   center = newCenter;
   radius = newRadius;
-}
-
-void Sphere::setDefaults()
-{
-  center = vec3(0.f);
-  radius = 0.5f;
 }
 
 ///////////////////////////////////////////////////////////////////////

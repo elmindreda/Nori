@@ -62,14 +62,12 @@ class BezierCurve
 {
 public:
   typedef std::vector<T> PointList;
-  BezierCurve();
   void evaluate(float t, T& result) const;
   float length(float tolerance = 0.5f) const;
   T center() const;
   void split(BezierCurve<T>& one, BezierCurve<T>& two) const;
   void tessellate(PointList& result, float tolerance = 0.5f) const;
   T operator () (float t);
-  void setDefaults();
   T P[4];
 };
 
@@ -99,12 +97,6 @@ typedef BezierSpline<vec2> BezierSpline2;
 typedef BezierSpline<vec3> BezierSpline3;
 
 ///////////////////////////////////////////////////////////////////////
-
-template <typename T>
-inline BezierCurve<T>::BezierCurve()
-{
-  setDefaults();
-}
 
 template <typename T>
 inline void BezierCurve<T>::evaluate(float t, T& result) const
@@ -189,29 +181,6 @@ inline T BezierCurve<T>::operator () (float t)
   return result;
 }
 
-template <typename T>
-inline void BezierCurve<T>::setDefaults()
-{
-}
-
-template <>
-inline void BezierCurve<vec2>::setDefaults()
-{
-  P[0] = vec2(0.f, 0.f);
-  P[1] = vec2(1.f, 0.f);
-  P[2] = vec2(0.f, 1.f);
-  P[3] = vec2(1.f, 1.f);
-}
-
-template <>
-inline void BezierCurve<vec3>::setDefaults()
-{
-  P[0] = vec3(0.f, 0.f, 0.f);
-  P[1] = vec3(1.f, 0.f, 0.f);
-  P[2] = vec3(0.f, 1.f, 1.f);
-  P[3] = vec3(1.f, 1.f, 1.f);
-}
-
 ///////////////////////////////////////////////////////////////////////
 
 template <typename T>
@@ -241,7 +210,7 @@ inline void BezierSpline<T>::evaluate(float t, T& result) const
 {
   if (points.size() == 0)
   {
-    result.setDefaults();
+    logError("Cannot evaluate Bézier spline with no points");
     return;
   }
 

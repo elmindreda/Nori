@@ -113,9 +113,12 @@ void realizeSpriteVertices(Vertex2ft3fv* vertices,
 
 ///////////////////////////////////////////////////////////////////////
 
-Sprite2::Sprite2()
+Sprite2::Sprite2():
+  texArea(vec2(0.f), vec2(1.f)),
+  position(0.f),
+  size(1.f),
+  angle(0.f)
 {
-  setDefaults();
 }
 
 void Sprite2::render(GeometryPool& pool) const
@@ -153,19 +156,14 @@ void Sprite2::realizeVertices(Vertex2ft2fv* vertices) const
   }
 }
 
-void Sprite2::setDefaults()
-{
-  texArea.set(vec2(0.f), vec2(1.f));
-  position = vec2(0.f);
-  size = vec2(1.f);
-  angle = 0.f;
-}
-
 ///////////////////////////////////////////////////////////////////////
 
-Sprite3::Sprite3()
+Sprite3::Sprite3():
+  size(1.f),
+  angle(0.f),
+  type(STATIC_SPRITE),
+  material(NULL)
 {
-  setDefaults();
 }
 
 void Sprite3::enqueue(Scene& scene,
@@ -193,14 +191,6 @@ void Sprite3::enqueue(Scene& scene,
                          GL::PrimitiveRange(GL::TRIANGLE_FAN, range),
                          *material,
                          camera.getNormalizedDepth(spritePos));
-}
-
-void Sprite3::setDefaults()
-{
-  size = vec2(1.f);
-  angle = 0.f;
-  type = STATIC_SPRITE;
-  material = NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -51,12 +51,6 @@ void Ray3::transformBy(const Transform3& transform)
   transform.rotateVector(direction);
 }
 
-void Ray3::setDefaults()
-{
-  origin = vec3(0.f);
-  direction = vec3(0.f, 0.f, 1.f);
-}
-
 void Ray3::set(const vec3& newOrigin, const vec3& newDirection)
 {
   origin = newOrigin;

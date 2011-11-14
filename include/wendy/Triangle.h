@@ -50,7 +50,6 @@ public:
   vec2 center() const;
   bool contains(const vec2& point) const;
   void set(const vec2& P0, const vec2& P1, const vec2& P2);
-  void setDefaults();
   vec2 P[3];
 };
 
