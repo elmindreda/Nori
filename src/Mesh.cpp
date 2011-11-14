@@ -471,6 +471,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
     return NULL;
 
   String line;
+  unsigned int lineNumber = 0;
 
   std::vector<vec3> positions;
   std::vector<vec3> normals;
@@ -482,126 +483,129 @@ Ref<Mesh> MeshReader::read(const Path& path)
   while (std::getline(stream, line))
   {
     const char* text = line.c_str();
+    ++lineNumber;
 
     if (!interesting(&text))
       continue;
 
-    String command = parseName(&text);
+    try {
 
-    if (command == "g")
-    {
-      // Nothing to do here
-    }
-    else if (command == "o")
-    {
-      // Nothing to do here
-    }
-    else if (command == "s")
-    {
-      // Nothing to do here
-    }
-    else if (command == "v")
-    {
-      vec3 vertex;
+      String command = parseName(&text);
 
-      vertex.x = parseFloat(&text);
-      vertex.y = parseFloat(&text);
-      vertex.z = parseFloat(&text);
-      positions.push_back(vertex);
-    }
-    else if (command == "vt")
-    {
-      vec2 texcoord;
-
-      texcoord.x = parseFloat(&text);
-      texcoord.y = parseFloat(&text);
-      texcoords.push_back(texcoord);
-    }
-    else if (command == "vn")
-    {
-      vec3 normal;
-
-      normal.x = parseFloat(&text);
-      normal.y = parseFloat(&text);
-      normal.z = parseFloat(&text);
-      normals.push_back(normal);
-    }
-    else if (command == "usemtl")
-    {
-      String shaderName = parseName(&text);
-
-      group = NULL;
-
-      for (FaceGroupList::iterator g = groups.begin();  g != groups.end();  g++)
+      if (command == "g")
       {
-        if (g->name == shaderName)
-          group = &(*g);
+        // Nothing to do here
       }
-
-      if (!group)
+      else if (command == "o")
       {
-        groups.push_back(FaceGroup());
-        groups.back().name = shaderName;
-        group = &(groups.back());
+        // Nothing to do here
       }
-    }
-    else if (command == "mtllib")
-    {
-      // Silently ignore mtllib
-    }
-    else if (command == "f")
-    {
-      if (!group)
+      else if (command == "s")
       {
-        logError("Expected \'usemtl\' but found \'f\' in OBJ file");
-        return NULL;
+        // Nothing to do here
       }
-
-      std::vector<Triplet> triplets;
-
-      while (*text != '\0')
+      else if (command == "v")
       {
-        triplets.push_back(Triplet());
-        Triplet& triplet = triplets.back();
+        vec3 vertex;
 
-        triplet.vertex = parseInteger(&text);
+        vertex.x = parseFloat(&text);
+        vertex.y = parseFloat(&text);
+        vertex.z = parseFloat(&text);
+        positions.push_back(vertex);
+      }
+      else if (command == "vt")
+      {
+        vec2 texcoord;
 
-        if (*text++ != '/')
+        texcoord.x = parseFloat(&text);
+        texcoord.y = parseFloat(&text);
+        texcoords.push_back(texcoord);
+      }
+      else if (command == "vn")
+      {
+        vec3 normal;
+
+        normal.x = parseFloat(&text);
+        normal.y = parseFloat(&text);
+        normal.z = parseFloat(&text);
+        normals.push_back(normal);
+      }
+      else if (command == "usemtl")
+      {
+        String shaderName = parseName(&text);
+
+        group = NULL;
+
+        for (FaceGroupList::iterator g = groups.begin();  g != groups.end();  g++)
         {
-          logError("Expected but missing \'/\' in OBJ file");
+          if (g->name == shaderName)
+            group = &(*g);
+        }
+
+        if (!group)
+        {
+          groups.push_back(FaceGroup());
+          groups.back().name = shaderName;
+          group = &(groups.back());
+        }
+      }
+      else if (command == "mtllib")
+      {
+        // Silently ignore mtllib
+      }
+      else if (command == "f")
+      {
+        if (!group)
+        {
+          throw Exception("Expected \'usemtl\' but found \'f\'");
           return NULL;
         }
 
-        triplet.texcoord = 0;
-        if (std::isdigit(*text))
-          triplet.texcoord = parseInteger(&text);
+        std::vector<Triplet> triplets;
 
-        if (*text++ != '/')
+        while (*text != '\0')
         {
-          logError("Expected but missing \'/\' in OBJ file");
-          return NULL;
+          triplets.push_back(Triplet());
+          Triplet& triplet = triplets.back();
+
+          triplet.vertex = parseInteger(&text);
+          triplet.texcoord = 0;
+          triplet.normal = 0;
+
+          if (*text++ == '/')
+          {
+            if (std::isdigit(*text))
+              triplet.texcoord = parseInteger(&text);
+
+            if (*text++ == '/' && std::isdigit(*text))
+              triplet.normal = parseInteger(&text);
+          }
+
+          while (std::isspace(*text))
+            text++;
         }
 
-        triplet.normal = 0;
-        if (std::isdigit(*text))
-          triplet.normal = parseInteger(&text);
+        for (unsigned int i = 2;  i < triplets.size();  i++)
+        {
+          group->faces.push_back(Face());
+          Face& face = group->faces.back();
 
-        while (std::isspace(*text))
-          text++;
+          face.p[0] = triplets[0];
+          face.p[1] = triplets[i - 1];
+          face.p[2] = triplets[i];
+        }
       }
-
-      for (unsigned int i = 2;  i < triplets.size();  i++)
-      {
-        group->faces.push_back(Face());
-        Face& face = group->faces.back();
-
-        face.p[0] = triplets[0];
-        face.p[1] = triplets[i - 1];
-        face.p[2] = triplets[i];
-      }
+      else
+        logWarning("Unknown command \'%s\' in %s:%d",
+                   command.c_str(),
+                   path.asString().c_str(),
+                   lineNumber);
+    } catch (Exception& e) {
+      logError((String(e.what()) + " in %s:%d").c_str(),
+               path.asString().c_str(),
+               lineNumber);
+      return NULL;
     }
-    else
-      logWarning("Unknown command \'%s\' in OBJ file", command.c_str());
   }
 
   Ref<Mesh> mesh = new Mesh(info);
@@ -663,7 +667,7 @@ String MeshReader::parseName(const char** text)
   }
 
   if (!result.size())
-    throw Exception("Expected but missing name in OBJ file");
+    throw Exception("Expected but missing name");
 
   return result;
 }
@@ -674,7 +678,7 @@ int MeshReader::parseInteger(const char** text)
 
   const int result = std::strtol(*text, &end, 0);
   if (end == *text)
-    throw Exception("Expected but missing integer value in OBJ file");
+    throw Exception("Expected but missing integer value");
 
   *text = end;
   return result;
@@ -686,7 +690,7 @@ float MeshReader::parseFloat(const char** text)
 
   const float result = float(std::strtod(*text, &end));
   if (end == *text)
-    throw Exception("Expected but missing float value in OBJ file");
+    throw Exception("Expected but missing float value");
 
   *text = end;
   return result;

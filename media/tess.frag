@@ -19,10 +19,10 @@ void main()
   float c2 = tePatchDistance.y;
   float c3 = tePatchDistance.z;
 
-  bool black = min(min(c1, c2), c3) < 0.04;
+  bool edge = min(min(c1, c2), c3) < 0.02;
 
-  if (black)
-    FragColor = vec4(0,0,0,1);
+  if (edge)
+    FragColor = vec4(0.2,0.2,0.2,1.0);
   else
     FragColor = vec4(vec3(c1,c2,c3) * (ambient + diffuse), 1.0);
 }
