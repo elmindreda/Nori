@@ -1,13 +1,13 @@
 
-varying vec3 gViewpos;
+varying vec3 gPosition;
 varying vec3 gNormal;
 varying vec3 gBarycentric;
 
 void main()
 {
-  const vec3 lightPos = vec3(10, 0, 0);
+  const vec3 lightPos = vec3(0, 30, -10);
 
-  vec3 V = gViewpos;
+  vec3 V = gPosition;
   vec3 N = normalize(gNormal);
   vec3 L = normalize(lightPos - V);
 
