@@ -2,6 +2,7 @@
 #include <wendy/Wendy.h>
 
 #include <cstdlib>
+#include <sstream>
 
 using namespace wendy;
 
@@ -61,7 +62,7 @@ bool Demo::init()
   if (!index.addSearchPath(Path(mediaPath) + "sponza"))
     return false;
 
-  if (!GL::Context::createSingleton(index, GL::WindowConfig("Sponza Atrium")))
+  if (!GL::Context::createSingleton(index, GL::WindowConfig()))
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
@@ -124,6 +125,8 @@ void Demo::run()
   scene.setAmbientIntensity(vec3(0.2f, 0.2f, 0.2f));
 
   GL::Context& context = pool->getContext();
+  GL::Stats stats;
+  context.setStats(&stats);
 
   do
   {
@@ -145,6 +148,10 @@ void Demo::run()
 
     scene.removeOperations();
     scene.detachLights();
+
+    std::ostringstream oss;
+    oss << "Sponza Atrium - FPS: " << 1.0 / stats.getFrameRate();
+    context.setTitle(oss.str().c_str());
   }
   while (!quitting && context.update());
 }
