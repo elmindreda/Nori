@@ -126,7 +126,7 @@ void Test::run()
     scene.detachLights();
 
     std::ostringstream oss;
-    oss << "OpenGL 4 Hardware Tessellation - FPS: " << 1.0 / stats.getFrameRate();
+    oss << "OpenGL 4 Hardware Tessellation - FPS: " << stats.getFrameRate();
     context.setTitle(oss.str().c_str());
   }
   while (context.update());

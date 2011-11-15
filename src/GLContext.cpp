@@ -468,7 +468,7 @@ void Stats::addFrame()
     // Calculate frame rate
     for (FrameQueue::const_iterator f = frames.begin();  f != frames.end();  f++)
       frameRate += (float) f->duration;
-    frameRate /= (float) frames.size();
+    frameRate = (float) frames.size() / frameRate;
   }
 
   // Add new empty frame for recording the stats

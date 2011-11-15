@@ -150,7 +150,7 @@ void Demo::run()
     scene.detachLights();
 
     std::ostringstream oss;
-    oss << "Sponza Atrium - FPS: " << 1.0 / stats.getFrameRate();
+    oss << "Sponza Atrium - FPS: " << stats.getFrameRate();
     context.setTitle(oss.str().c_str());
   }
   while (!quitting && context.update());
