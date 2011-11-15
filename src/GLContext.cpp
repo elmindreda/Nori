@@ -458,19 +458,23 @@ Stats::Stats():
 void Stats::addFrame()
 {
   frameCount++;
+  frameRate = 0.f;
 
   if (!frames.empty())
+  {
+    // Add the previous frame duration
     frames.front().duration = timer.getDeltaTime();
 
+    // Calculate frame rate
+    for (FrameQueue::const_iterator f = frames.begin();  f != frames.end();  f++)
+      frameRate += (float) f->duration;
+    frameRate /= (float) frames.size();
+  }
+
+  // Add new empty frame for recording the stats
   frames.push_front(Frame());
   if (frames.size() > 60)
     frames.pop_back();
-
-  frameRate = 0.f;
-  const float factor = 1.f / frames.size();
-
-  for (FrameQueue::const_iterator f = frames.begin();  f != frames.end();  f++)
-    frameRate += (float) f->duration * factor;
 }
 
 void Stats::addPasses(unsigned int count)
