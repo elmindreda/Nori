@@ -459,6 +459,9 @@ void Stats::addFrame()
 {
   frameCount++;
 
+  if (!frames.empty())
+    frames.front().duration = timer.getDeltaTime();
+
   frames.push_front(Frame());
   if (frames.size() > 60)
     frames.pop_back();
