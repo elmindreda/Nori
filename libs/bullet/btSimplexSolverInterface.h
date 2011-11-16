@@ -15,10 +15,10 @@ subject to the following restrictions:
 
 
 
-#ifndef SIMPLEX_SOLVER_INTERFACE_H
-#define SIMPLEX_SOLVER_INTERFACE_H
+#ifndef BT_SIMPLEX_SOLVER_INTERFACE_H
+#define BT_SIMPLEX_SOLVER_INTERFACE_H
 
-#include "btVector3.h"
+#include "LinearMath/btVector3.h"
 
 #define NO_VIRTUAL_INTERFACE 1
 #ifdef NO_VIRTUAL_INTERFACE
@@ -59,5 +59,5 @@ class btSimplexSolverInterface
 
 };
 #endif
-#endif //SIMPLEX_SOLVER_INTERFACE_H
+#endif //BT_SIMPLEX_SOLVER_INTERFACE_H
 

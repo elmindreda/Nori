@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef __BT_ACTIVATING_COLLISION_ALGORITHM_H
 #define __BT_ACTIVATING_COLLISION_ALGORITHM_H
 
-#include "btCollisionAlgorithm.h"
+#include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
 
 ///This class is not enabled yet (work-in-progress) to more aggressively activate objects.
 class btActivatingCollisionAlgorithm : public btCollisionAlgorithm

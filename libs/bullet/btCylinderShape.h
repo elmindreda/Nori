@@ -13,12 +13,12 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef CYLINDER_MINKOWSKI_H
-#define CYLINDER_MINKOWSKI_H
+#ifndef BT_CYLINDER_MINKOWSKI_H
+#define BT_CYLINDER_MINKOWSKI_H
 
 #include "btBoxShape.h"
-#include "btBroadphaseProxy.h" // for the types
-#include "btVector3.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
+#include "LinearMath/btVector3.h"
 
 /// The btCylinderShape class implements a cylinder shape primitive, centered around the origin. Its central axis aligned with the Y axis. btCylinderShapeX is aligned with the X axis and btCylinderShapeZ around the Z axis.
 class btCylinderShape : public btConvexInternalShape
@@ -196,5 +196,5 @@ SIMD_FORCE_INLINE	const char*	btCylinderShape::serialize(void* dataBuffer, btSer
 
 
 
-#endif //CYLINDER_MINKOWSKI_H
+#endif //BT_CYLINDER_MINKOWSKI_H
 

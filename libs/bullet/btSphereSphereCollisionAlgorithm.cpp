@@ -14,9 +14,9 @@ subject to the following restrictions:
 */
 
 #include "btSphereSphereCollisionAlgorithm.h"
-#include "btCollisionDispatcher.h"
-#include "btSphereShape.h"
-#include "btCollisionObject.h"
+#include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
 btSphereSphereCollisionAlgorithm::btSphereSphereCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1)
 : btActivatingCollisionAlgorithm(ci,col0,col1),

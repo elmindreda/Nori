@@ -16,8 +16,8 @@ subject to the following restrictions:
 
 
 #include "btHinge2Constraint.h"
-#include "btRigidBody.h"
-#include "btTransformUtil.h"
+#include "BulletDynamics/Dynamics/btRigidBody.h"
+#include "LinearMath/btTransformUtil.h"
 
 
 

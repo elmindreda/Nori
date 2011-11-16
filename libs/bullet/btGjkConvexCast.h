@@ -15,12 +15,12 @@ subject to the following restrictions:
 
 
 
-#ifndef GJK_CONVEX_CAST_H
-#define GJK_CONVEX_CAST_H
+#ifndef BT_GJK_CONVEX_CAST_H
+#define BT_GJK_CONVEX_CAST_H
 
-#include "btCollisionMargin.h"
+#include "BulletCollision/CollisionShapes/btCollisionMargin.h"
 
-#include "btVector3.h"
+#include "LinearMath/btVector3.h"
 #include "btConvexCast.h"
 class btConvexShape;
 class btMinkowskiSumShape;
@@ -47,4 +47,4 @@ public:
 
 };
 
-#endif //GJK_CONVEX_CAST_H
+#endif //BT_GJK_CONVEX_CAST_H

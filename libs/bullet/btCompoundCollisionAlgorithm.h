@@ -13,18 +13,18 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef COMPOUND_COLLISION_ALGORITHM_H
-#define COMPOUND_COLLISION_ALGORITHM_H
+#ifndef BT_COMPOUND_COLLISION_ALGORITHM_H
+#define BT_COMPOUND_COLLISION_ALGORITHM_H
 
 #include "btActivatingCollisionAlgorithm.h"
-#include "btDispatcher.h"
-#include "btBroadphaseInterface.h"
+#include "BulletCollision/BroadphaseCollision/btDispatcher.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
 
-#include "btPersistentManifold.h"
+#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 class btDispatcher;
-#include "btBroadphaseProxy.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include "btCollisionCreateFunc.h"
-#include "btAlignedObjectArray.h"
+#include "LinearMath/btAlignedObjectArray.h"
 class btDispatcher;
 class btCollisionObject;
 
@@ -83,4 +83,4 @@ public:
 
 };
 
-#endif //COMPOUND_COLLISION_ALGORITHM_H
+#endif //BT_COMPOUND_COLLISION_ALGORITHM_H

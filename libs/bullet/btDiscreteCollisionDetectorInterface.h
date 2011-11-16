@@ -14,10 +14,11 @@ subject to the following restrictions:
 */
 
 
-#ifndef DISCRETE_COLLISION_DETECTOR1_INTERFACE_H
-#define DISCRETE_COLLISION_DETECTOR1_INTERFACE_H
-#include "btTransform.h"
-#include "btVector3.h"
+#ifndef BT_DISCRETE_COLLISION_DETECTOR1_INTERFACE_H
+#define BT_DISCRETE_COLLISION_DETECTOR1_INTERFACE_H
+
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btVector3.h"
 class btStackAlloc;
 
 /// This interface is made to be used by an iterative approach to do TimeOfImpact calculations
@@ -86,4 +87,5 @@ struct btStorageResult : public btDiscreteCollisionDetectorInterface::Result
 		}
 };
 
-#endif //DISCRETE_COLLISION_DETECTOR_INTERFACE1_H
+#endif //BT_DISCRETE_COLLISION_DETECTOR1_INTERFACE_H
+

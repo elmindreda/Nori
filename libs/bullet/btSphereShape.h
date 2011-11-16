@@ -12,11 +12,11 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
-#ifndef SPHERE_MINKOWSKI_H
-#define SPHERE_MINKOWSKI_H
+#ifndef BT_SPHERE_MINKOWSKI_H
+#define BT_SPHERE_MINKOWSKI_H
 
 #include "btConvexInternalShape.h"
-#include "btBroadphaseProxy.h" // for the types
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
 ///The btSphereShape implements an implicit sphere, centered around a local origin with radius.
 ATTRIBUTE_ALIGNED16(class) btSphereShape : public btConvexInternalShape
@@ -70,4 +70,4 @@ public:
 };
 
 
-#endif //SPHERE_MINKOWSKI_H
+#endif //BT_SPHERE_MINKOWSKI_H

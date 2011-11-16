@@ -13,10 +13,10 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef SPHERE_TRIANGLE_DETECTOR_H
-#define SPHERE_TRIANGLE_DETECTOR_H
+#ifndef BT_SPHERE_TRIANGLE_DETECTOR_H
+#define BT_SPHERE_TRIANGLE_DETECTOR_H
 
-#include "btDiscreteCollisionDetectorInterface.h"
+#include "BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h"
 
 
 
@@ -47,5 +47,5 @@ private:
 	btScalar	m_contactBreakingThreshold;
 	
 };
-#endif //SPHERE_TRIANGLE_DETECTOR_H
+#endif //BT_SPHERE_TRIANGLE_DETECTOR_H
 

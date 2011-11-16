@@ -14,7 +14,7 @@ subject to the following restrictions:
 */
 
 #include "btTetrahedronShape.h"
-#include "btMatrix3x3.h"
+#include "LinearMath/btMatrix3x3.h"
 
 btBU_Simplex1to4::btBU_Simplex1to4() : btPolyhedralConvexAabbCachingShape (),
 m_numVertices(0)

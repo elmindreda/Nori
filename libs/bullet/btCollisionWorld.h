@@ -62,8 +62,8 @@ subject to the following restrictions:
  
  
 
-#ifndef COLLISION_WORLD_H
-#define COLLISION_WORLD_H
+#ifndef BT_COLLISION_WORLD_H
+#define BT_COLLISION_WORLD_H
 
 class btStackAlloc;
 class btCollisionShape;
@@ -71,12 +71,12 @@ class btConvexShape;
 class btBroadphaseInterface;
 class btSerializer;
 
-#include "btVector3.h"
-#include "btTransform.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btTransform.h"
 #include "btCollisionObject.h"
 #include "btCollisionDispatcher.h"
-#include "btOverlappingPairCache.h"
-#include "btAlignedObjectArray.h"
+#include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
 ///CollisionWorld is interface and container for the collision detection
 class btCollisionWorld
@@ -506,4 +506,4 @@ public:
 };
 
 
-#endif //COLLISION_WORLD_H
+#endif //BT_COLLISION_WORLD_H

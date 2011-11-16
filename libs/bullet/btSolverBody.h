@@ -17,11 +17,11 @@ subject to the following restrictions:
 #define BT_SOLVER_BODY_H
 
 class	btRigidBody;
-#include "btVector3.h"
-#include "btMatrix3x3.h"
-#include "btRigidBody.h"
-#include "btAlignedAllocator.h"
-#include "btTransformUtil.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btMatrix3x3.h"
+#include "BulletDynamics/Dynamics/btRigidBody.h"
+#include "LinearMath/btAlignedAllocator.h"
+#include "LinearMath/btTransformUtil.h"
 
 ///Until we get other contributions, only use SIMD on Windows, when using Visual Studio 2008 or later, and not double precision
 #ifdef BT_USE_SSE

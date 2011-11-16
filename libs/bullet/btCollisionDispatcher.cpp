@@ -18,13 +18,13 @@ subject to the following restrictions:
 #include "btCollisionDispatcher.h"
 
 
-#include "btCollisionAlgorithm.h"
+#include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
 
-#include "btCollisionShape.h"
-#include "btCollisionObject.h"
-#include "btOverlappingPairCache.h"
-#include "btPoolAllocator.h"
-#include "btCollisionConfiguration.h"
+#include "BulletCollision/CollisionShapes/btCollisionShape.h"
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
+#include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
+#include "LinearMath/btPoolAllocator.h"
+#include "BulletCollision/CollisionDispatch/btCollisionConfiguration.h"
 
 int gNumManifold = 0;
 
@@ -92,8 +92,16 @@ btPersistentManifold*	btCollisionDispatcher::getNewManifold(void* b0,void* b1)
 		mem = m_persistentManifoldPoolAllocator->allocate(sizeof(btPersistentManifold));
 	} else
 	{
-		mem = btAlignedAlloc(sizeof(btPersistentManifold),16);
-
+		//we got a pool memory overflow, by default we fallback to dynamically allocate memory. If we require a contiguous contact pool then assert.
+		if ((m_dispatcherFlags&CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION)==0)
+		{
+			mem = btAlignedAlloc(sizeof(btPersistentManifold),16);
+		} else
+		{
+			btAssert(0);
+			//make sure to increase the m_defaultMaxPersistentManifoldPoolSize in the btDefaultCollisionConstructionInfo/btDefaultCollisionConfiguration
+			return 0;
+		}
 	}
 	btPersistentManifold* manifold = new(mem) btPersistentManifold (body0,body1,0,contactBreakingThreshold,contactProcessingThreshold);
 	manifold->m_index1a = m_manifoldsPtr.size();
@@ -172,8 +180,7 @@ bool	btCollisionDispatcher::needsCollision(btCollisionObject* body0,btCollisionO
 	if (!(m_dispatcherFlags & btCollisionDispatcher::CD_STATIC_STATIC_REPORTED))
 	{
 		//broadphase filtering already deals with this
-		if ((body0->isStaticObject() || body0->isKinematicObject()) &&
-			(body1->isStaticObject() || body1->isKinematicObject()))
+		if (body0->isStaticOrKinematicObject() && body1->isStaticOrKinematicObject())
 		{
 			m_dispatcherFlags |= btCollisionDispatcher::CD_STATIC_STATIC_REPORTED;
 			printf("warning btCollisionDispatcher::needsCollision: static-static collision!\n");

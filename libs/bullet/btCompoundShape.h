@@ -13,16 +13,16 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef COMPOUND_SHAPE_H
-#define COMPOUND_SHAPE_H
+#ifndef BT_COMPOUND_SHAPE_H
+#define BT_COMPOUND_SHAPE_H
 
 #include "btCollisionShape.h"
 
-#include "btVector3.h"
-#include "btTransform.h"
-#include "btMatrix3x3.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btMatrix3x3.h"
 #include "btCollisionMargin.h"
-#include "btAlignedObjectArray.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
 //class btOptimizedBvh;
 struct btDbvt;
@@ -106,7 +106,7 @@ public:
 	}
 
 	///set a new transform for a child, and update internal data structures (local aabb and dynamic tree)
-	void	updateChildTransform(int childIndex, const btTransform& newChildTransform);
+	void	updateChildTransform(int childIndex, const btTransform& newChildTransform, bool shouldRecalculateLocalAabb = true);
 
 
 	btCompoundShapeChild* getChildList()
@@ -143,8 +143,12 @@ public:
 		return "Compound";
 	}
 
-
-	btDbvt*							getDynamicAabbTree()
+	const btDbvt*	getDynamicAabbTree() const
+	{
+		return m_dynamicAabbTree;
+	}
+	
+	btDbvt*	getDynamicAabbTree()
 	{
 		return m_dynamicAabbTree;
 	}
@@ -205,4 +209,4 @@ SIMD_FORCE_INLINE	int	btCompoundShape::calculateSerializeBufferSize() const
 
 
 
-#endif //COMPOUND_SHAPE_H
+#endif //BT_COMPOUND_SHAPE_H

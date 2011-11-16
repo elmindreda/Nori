@@ -13,10 +13,10 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef COLLISION_CREATE_FUNC
-#define COLLISION_CREATE_FUNC
+#ifndef BT_COLLISION_CREATE_FUNC
+#define BT_COLLISION_CREATE_FUNC
 
-#include "btAlignedObjectArray.h"
+#include "LinearMath/btAlignedObjectArray.h"
 class btCollisionAlgorithm;
 class btCollisionObject;
 
@@ -41,5 +41,5 @@ struct btCollisionAlgorithmCreateFunc
 		return 0;
 	}
 };
-#endif //COLLISION_CREATE_FUNC
+#endif //BT_COLLISION_CREATE_FUNC
 

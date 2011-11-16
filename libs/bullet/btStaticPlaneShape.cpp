@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 #include "btStaticPlaneShape.h"
 
-#include "btTransformUtil.h"
+#include "LinearMath/btTransformUtil.h"
 
 
 btStaticPlaneShape::btStaticPlaneShape(const btVector3& planeNormal,btScalar planeConstant)

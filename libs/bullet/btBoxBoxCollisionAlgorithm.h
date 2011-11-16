@@ -13,13 +13,13 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BOX_BOX__COLLISION_ALGORITHM_H
-#define BOX_BOX__COLLISION_ALGORITHM_H
+#ifndef BT_BOX_BOX__COLLISION_ALGORITHM_H
+#define BT_BOX_BOX__COLLISION_ALGORITHM_H
 
 #include "btActivatingCollisionAlgorithm.h"
-#include "btBroadphaseProxy.h"
-#include "btDispatcher.h"
-#include "btCollisionCreateFunc.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
+#include "BulletCollision/BroadphaseCollision/btDispatcher.h"
+#include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
 
 class btPersistentManifold;
 
@@ -62,5 +62,5 @@ public:
 
 };
 
-#endif //BOX_BOX__COLLISION_ALGORITHM_H
+#endif //BT_BOX_BOX__COLLISION_ALGORITHM_H
 

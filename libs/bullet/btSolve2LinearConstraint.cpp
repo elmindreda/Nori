@@ -17,8 +17,8 @@ subject to the following restrictions:
 
 #include "btSolve2LinearConstraint.h"
 
-#include "btRigidBody.h"
-#include "btVector3.h"
+#include "BulletDynamics/Dynamics/btRigidBody.h"
+#include "LinearMath/btVector3.h"
 #include "btJacobianEntry.h"
 
 

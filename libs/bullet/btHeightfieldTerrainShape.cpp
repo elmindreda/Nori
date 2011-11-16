@@ -15,13 +15,13 @@ subject to the following restrictions:
 
 #include "btHeightfieldTerrainShape.h"
 
-#include "btTransformUtil.h"
+#include "LinearMath/btTransformUtil.h"
 
 
 
 btHeightfieldTerrainShape::btHeightfieldTerrainShape
 (
-int heightStickWidth, int heightStickLength, const void* heightfieldData,
+int heightStickWidth, int heightStickLength, void* heightfieldData,
 btScalar heightScale, btScalar minHeight, btScalar maxHeight,int upAxis,
 PHY_ScalarType hdt, bool flipQuadEdges
 )
@@ -33,7 +33,7 @@ PHY_ScalarType hdt, bool flipQuadEdges
 
 
 
-btHeightfieldTerrainShape::btHeightfieldTerrainShape(int heightStickWidth, int heightStickLength,const void* heightfieldData,btScalar maxHeight,int upAxis,bool useFloatData,bool flipQuadEdges)
+btHeightfieldTerrainShape::btHeightfieldTerrainShape(int heightStickWidth, int heightStickLength,void* heightfieldData,btScalar maxHeight,int upAxis,bool useFloatData,bool flipQuadEdges)
 {
 	// legacy constructor: support only float or unsigned char,
 	// 	and min height is zero
@@ -53,7 +53,7 @@ btHeightfieldTerrainShape::btHeightfieldTerrainShape(int heightStickWidth, int h
 
 void btHeightfieldTerrainShape::initialize
 (
-int heightStickWidth, int heightStickLength, const void* heightfieldData,
+int heightStickWidth, int heightStickLength, void* heightfieldData,
 btScalar heightScale, btScalar minHeight, btScalar maxHeight, int upAxis,
 PHY_ScalarType hdt, bool flipQuadEdges
 )

@@ -14,9 +14,9 @@ subject to the following restrictions:
 */
 
 #include "btConvexPointCloudShape.h"
-#include "btCollisionMargin.h"
+#include "BulletCollision/CollisionShapes/btCollisionMargin.h"
 
-#include "btQuaternion.h"
+#include "LinearMath/btQuaternion.h"
 
 void btConvexPointCloudShape::setLocalScaling(const btVector3& scaling)
 {

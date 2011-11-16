@@ -14,16 +14,16 @@ subject to the following restrictions:
 */
 
 
-#ifndef MANIFOLD_RESULT_H
-#define MANIFOLD_RESULT_H
+#ifndef BT_MANIFOLD_RESULT_H
+#define BT_MANIFOLD_RESULT_H
 
 class btCollisionObject;
-#include "btPersistentManifold.h"
+#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 class btManifoldPoint;
 
-#include "btDiscreteCollisionDetectorInterface.h"
+#include "BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h"
 
-#include "btTransform.h"
+#include "LinearMath/btTransform.h"
 
 typedef bool (*ContactAddedCallback)(btManifoldPoint& cp,	const btCollisionObject* colObj0,int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1);
 extern ContactAddedCallback		gContactAddedCallback;
@@ -125,4 +125,4 @@ public:
 	
 };
 
-#endif //MANIFOLD_RESULT_H
+#endif //BT_MANIFOLD_RESULT_H

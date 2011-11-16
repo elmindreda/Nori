@@ -13,10 +13,10 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef CONSTRAINT_SOLVER_H
-#define CONSTRAINT_SOLVER_H
+#ifndef BT_CONSTRAINT_SOLVER_H
+#define BT_CONSTRAINT_SOLVER_H
 
-#include "btScalar.h"
+#include "LinearMath/btScalar.h"
 
 class btPersistentManifold;
 class btRigidBody;
@@ -49,4 +49,4 @@ public:
 
 
 
-#endif //CONSTRAINT_SOLVER_H
+#endif //BT_CONSTRAINT_SOLVER_H

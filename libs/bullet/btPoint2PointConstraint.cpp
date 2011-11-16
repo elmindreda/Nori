@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 
 #include "btPoint2PointConstraint.h"
-#include "btRigidBody.h"
+#include "BulletDynamics/Dynamics/btRigidBody.h"
 #include <new>
 
 

@@ -27,7 +27,7 @@ class btTypedConstraint;
 class btActionInterface;
 
 class btIDebugDraw;
-#include "btAlignedObjectArray.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
 
 ///btDiscreteDynamicsWorld provides discrete rigid body simulation

@@ -19,7 +19,7 @@ subject to the following restrictions:
 
 #include "btDispatcher.h"
 #include "btCollisionAlgorithm.h"
-#include "btAabbUtil2.h"
+#include "LinearMath/btAabbUtil2.h"
 
 #include <stdio.h>
 

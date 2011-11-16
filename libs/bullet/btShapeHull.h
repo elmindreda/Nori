@@ -15,11 +15,11 @@ subject to the following restrictions:
 
 ///btShapeHull implemented by John McCutchan.
 
-#ifndef _SHAPE_HULL_H
-#define _SHAPE_HULL_H
+#ifndef BT_SHAPE_HULL_H
+#define BT_SHAPE_HULL_H
 
-#include "btAlignedObjectArray.h"
-#include "btConvexShape.h"
+#include "LinearMath/btAlignedObjectArray.h"
+#include "BulletCollision/CollisionShapes/btConvexShape.h"
 
 
 ///The btShapeHull class takes a btConvexShape, builds a simplified convex hull using btConvexHull and provides triangle indices and vertices.
@@ -56,4 +56,4 @@ public:
 	}
 };
 
-#endif //_SHAPE_HULL_H
+#endif //BT_SHAPE_HULL_H

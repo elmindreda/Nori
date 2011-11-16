@@ -19,49 +19,50 @@ subject to the following restrictions:
 ///Common headerfile includes for Bullet Collision Detection
 
 ///Bullet's btCollisionWorld and btCollisionObject definitions
-#include "btCollisionWorld.h"
-#include "btCollisionObject.h"
+#include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
 ///Collision Shapes
-#include "btBoxShape.h"
-#include "btSphereShape.h"
-#include "btCapsuleShape.h"
-#include "btCylinderShape.h"
-#include "btConeShape.h"
-#include "btStaticPlaneShape.h"
-#include "btConvexHullShape.h"
-#include "btTriangleMesh.h"
-#include "btConvexTriangleMeshShape.h"
-#include "btBvhTriangleMeshShape.h"
-#include "btTriangleMeshShape.h"
-#include "btTriangleIndexVertexArray.h"
-#include "btCompoundShape.h"
-#include "btTetrahedronShape.h"
-#include "btEmptyShape.h"
-#include "btMultiSphereShape.h"
-#include "btUniformScalingShape.h"
+#include "BulletCollision/CollisionShapes/btBoxShape.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
+#include "BulletCollision/CollisionShapes/btCapsuleShape.h"
+#include "BulletCollision/CollisionShapes/btCylinderShape.h"
+#include "BulletCollision/CollisionShapes/btConeShape.h"
+#include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
+#include "BulletCollision/CollisionShapes/btConvexHullShape.h"
+#include "BulletCollision/CollisionShapes/btTriangleMesh.h"
+#include "BulletCollision/CollisionShapes/btConvexTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btScaledBvhTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
+#include "BulletCollision/CollisionShapes/btCompoundShape.h"
+#include "BulletCollision/CollisionShapes/btTetrahedronShape.h"
+#include "BulletCollision/CollisionShapes/btEmptyShape.h"
+#include "BulletCollision/CollisionShapes/btMultiSphereShape.h"
+#include "BulletCollision/CollisionShapes/btUniformScalingShape.h"
 
 ///Narrowphase Collision Detector
-#include "btSphereSphereCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
 
 //btSphereBoxCollisionAlgorithm is broken, use gjk for now
 //#include "BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.h"
-#include "btDefaultCollisionConfiguration.h"
+#include "BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.h"
 
 ///Dispatching and generation of collision pairs (broadphase)
-#include "btCollisionDispatcher.h"
-#include "btSimpleBroadphase.h"
-#include "btAxisSweep3.h"
-#include "btMultiSapBroadphase.h"
-#include "btDbvtBroadphase.h"
+#include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
+#include "BulletCollision/BroadphaseCollision/btSimpleBroadphase.h"
+#include "BulletCollision/BroadphaseCollision/btAxisSweep3.h"
+#include "BulletCollision/BroadphaseCollision/btMultiSapBroadphase.h"
+#include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
 
 ///Math library & Utils
-#include "btQuaternion.h"
-#include "btTransform.h"
-#include "btDefaultMotionState.h"
-#include "btQuickprof.h"
-#include "btIDebugDraw.h"
-#include "btSerializer.h"
+#include "LinearMath/btQuaternion.h"
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btDefaultMotionState.h"
+#include "LinearMath/btQuickprof.h"
+#include "LinearMath/btIDebugDraw.h"
+#include "LinearMath/btSerializer.h"
 
 
 #endif //BULLET_COLLISION_COMMON_H

@@ -15,16 +15,16 @@ subject to the following restrictions:
 
 
 #include "btConvexConcaveCollisionAlgorithm.h"
-#include "btCollisionObject.h"
-#include "btMultiSphereShape.h"
-#include "btBroadphaseProxy.h"
-#include "btConcaveShape.h"
-#include "btManifoldResult.h"
-#include "btRaycastCallback.h"
-#include "btTriangleShape.h"
-#include "btSphereShape.h"
-#include "btIDebugDraw.h"
-#include "btSubSimplexConvexCast.h"
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
+#include "BulletCollision/CollisionShapes/btMultiSphereShape.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
+#include "BulletCollision/CollisionShapes/btConcaveShape.h"
+#include "BulletCollision/CollisionDispatch/btManifoldResult.h"
+#include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
+#include "BulletCollision/CollisionShapes/btTriangleShape.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
+#include "LinearMath/btIDebugDraw.h"
+#include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
 
 btConvexConcaveCollisionAlgorithm::btConvexConcaveCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1,bool isSwapped)
 : btActivatingCollisionAlgorithm(ci,body0,body1),
@@ -91,7 +91,7 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle,int partId, i
 	btCollisionObject* ob = static_cast<btCollisionObject*>(m_triBody);
 
 
-	
+#if 0	
 	///debug drawing of the overlapping triangles
 	if (m_dispatchInfoPtr && m_dispatchInfoPtr->m_debugDraw && (m_dispatchInfoPtr->m_debugDraw->getDebugMode() &btIDebugDraw::DBG_DrawWireframe ))
 	{
@@ -100,17 +100,8 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle,int partId, i
 		m_dispatchInfoPtr->m_debugDraw->drawLine(tr(triangle[0]),tr(triangle[1]),color);
 		m_dispatchInfoPtr->m_debugDraw->drawLine(tr(triangle[1]),tr(triangle[2]),color);
 		m_dispatchInfoPtr->m_debugDraw->drawLine(tr(triangle[2]),tr(triangle[0]),color);
-
-		//btVector3 center = triangle[0] + triangle[1]+triangle[2];
-		//center *= btScalar(0.333333);
-		//m_dispatchInfoPtr->m_debugDraw->drawLine(tr(triangle[0]),tr(center),color);
-		//m_dispatchInfoPtr->m_debugDraw->drawLine(tr(triangle[1]),tr(center),color);
-		//m_dispatchInfoPtr->m_debugDraw->drawLine(tr(triangle[2]),tr(center),color);
-
 	}
-
-
-	//btCollisionObject* colObj = static_cast<btCollisionObject*>(m_convexProxy->m_clientObject);
+#endif
 	
 	if (m_convexBody->getCollisionShape()->isConvex())
 	{
@@ -119,7 +110,7 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle,int partId, i
 		
 		btCollisionShape* tmpShape = ob->getCollisionShape();
 		ob->internalSetTemporaryCollisionShape( &tm );
-		
+
 		btCollisionAlgorithm* colAlgo = ci.m_dispatcher1->findAlgorithm(m_convexBody,m_triBody,m_manifoldPtr);
 
 		if (m_resultOut->getBody0Internal() == m_triBody)

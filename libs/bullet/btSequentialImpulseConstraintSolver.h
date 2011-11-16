@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef SEQUENTIAL_IMPULSE_CONSTRAINT_SOLVER_H
-#define SEQUENTIAL_IMPULSE_CONSTRAINT_SOLVER_H
+#ifndef BT_SEQUENTIAL_IMPULSE_CONSTRAINT_SOLVER_H
+#define BT_SEQUENTIAL_IMPULSE_CONSTRAINT_SOLVER_H
 
 #include "btConstraintSolver.h"
 class btIDebugDraw;
@@ -22,7 +22,7 @@ class btIDebugDraw;
 #include "btSolverBody.h"
 #include "btSolverConstraint.h"
 #include "btTypedConstraint.h"
-#include "btManifoldPoint.h"
+#include "BulletCollision/NarrowPhaseCollision/btManifoldPoint.h"
 
 ///The btSequentialImpulseConstraintSolver is a fast SIMD implementation of the Projected Gauss Seidel (iterative LCP) method.
 class btSequentialImpulseConstraintSolver : public btConstraintSolver
@@ -124,5 +124,5 @@ typedef btSequentialImpulseConstraintSolver btSequentialImpulseConstraintSolverP
 #endif
 
 
-#endif //SEQUENTIAL_IMPULSE_CONSTRAINT_SOLVER_H
+#endif //BT_SEQUENTIAL_IMPULSE_CONSTRAINT_SOLVER_H
 

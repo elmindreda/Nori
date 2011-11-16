@@ -19,7 +19,7 @@ subject to the following restrictions:
 ///ODE box-box collision detection is adapted to work with Bullet
 
 #include "btBoxBoxDetector.h"
-#include "btBoxShape.h"
+#include "BulletCollision/CollisionShapes/btBoxShape.h"
 
 #include <float.h>
 #include <string.h>

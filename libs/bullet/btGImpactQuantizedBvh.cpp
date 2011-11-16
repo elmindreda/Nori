@@ -22,7 +22,7 @@ subject to the following restrictions:
 */
 
 #include "btGImpactQuantizedBvh.h"
-#include "btQuickprof.h"
+#include "LinearMath/btQuickprof.h"
 
 #ifdef TRI_COLLISION_PROFILING
 btClock g_q_tree_clock;

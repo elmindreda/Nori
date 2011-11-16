@@ -21,25 +21,25 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BVH_CONCAVE_COLLISION_ALGORITHM_H
-#define BVH_CONCAVE_COLLISION_ALGORITHM_H
+#ifndef BT_GIMPACT_BVH_CONCAVE_COLLISION_ALGORITHM_H
+#define BT_GIMPACT_BVH_CONCAVE_COLLISION_ALGORITHM_H
 
-#include "btActivatingCollisionAlgorithm.h"
-#include "btDispatcher.h"
-#include "btBroadphaseInterface.h"
-#include "btPersistentManifold.h"
+#include "BulletCollision/CollisionDispatch/btActivatingCollisionAlgorithm.h"
+#include "BulletCollision/BroadphaseCollision/btDispatcher.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
+#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 class btDispatcher;
-#include "btBroadphaseProxy.h"
-#include "btCollisionCreateFunc.h"
-#include "btCollisionDispatcher.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
+#include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
+#include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
 
-#include "btAlignedObjectArray.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
 #include "btGImpactShape.h"
-#include "btStaticPlaneShape.h"
-#include "btCompoundShape.h"
-#include "btConvexConvexAlgorithm.h"
-#include "btIDebugDraw.h"
+#include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
+#include "BulletCollision/CollisionShapes/btCompoundShape.h"
+#include "BulletCollision/CollisionDispatch/btConvexConvexAlgorithm.h"
+#include "LinearMath/btIDebugDraw.h"
 
 
 
@@ -222,13 +222,13 @@ public:
 
 	//! Use this function for register the algorithm externally
 	static void registerAlgorithm(btCollisionDispatcher * dispatcher);
-
+#ifdef TRI_COLLISION_PROFILING
 	//! Gets the average time in miliseconds of tree collisions
 	static float getAverageTreeCollisionTime();
 
 	//! Gets the average time in miliseconds of triangle collisions
 	static float getAverageTriangleCollisionTime();
-
+#endif //TRI_COLLISION_PROFILING
 
 	//! Collides two gimpact shapes
 	/*!
@@ -303,4 +303,4 @@ public:
 
 
 
-#endif //BVH_CONCAVE_COLLISION_ALGORITHM_H
+#endif //BT_GIMPACT_BVH_CONCAVE_COLLISION_ALGORITHM_H

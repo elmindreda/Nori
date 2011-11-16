@@ -13,14 +13,14 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef OBB_BOX_MINKOWSKI_H
-#define OBB_BOX_MINKOWSKI_H
+#ifndef BT_OBB_BOX_MINKOWSKI_H
+#define BT_OBB_BOX_MINKOWSKI_H
 
 #include "btPolyhedralConvexShape.h"
 #include "btCollisionMargin.h"
-#include "btBroadphaseProxy.h"
-#include "btVector3.h"
-#include "btMinMax.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btMinMax.h"
 
 ///The btBoxShape is a box primitive around the origin, its sides axis aligned with length specified by half extents, in local shape coordinates. When used as part of a btCollisionObject or btRigidBody it will be an oriented box in world space.
 class btBoxShape: public btPolyhedralConvexShape
@@ -80,13 +80,7 @@ public:
 	}
 
 
-	btBoxShape( const btVector3& boxHalfExtents) 
-		: btPolyhedralConvexShape()
-	{
-		m_shapeType = BOX_SHAPE_PROXYTYPE;
-		btVector3 margin(getMargin(),getMargin(),getMargin());
-		m_implicitShapeDimensions = (boxHalfExtents * m_localScaling) - margin;
-	};
+	btBoxShape( const btVector3& boxHalfExtents);
 
 	virtual void setMargin(btScalar collisionMargin)
 	{
@@ -145,7 +139,7 @@ public:
 
 	virtual void getVertex(int i,btVector3& vtx) const
 	{
-		btVector3 halfExtents = getHalfExtentsWithoutMargin();
+		btVector3 halfExtents = getHalfExtentsWithMargin();
 
 		vtx = btVector3(
 				halfExtents.x() * (1-(i&1)) - halfExtents.x() * (i&1),
@@ -313,6 +307,6 @@ public:
 };
 
 
-#endif //OBB_BOX_MINKOWSKI_H
+#endif //BT_OBB_BOX_MINKOWSKI_H
 
 

@@ -15,8 +15,8 @@ subject to the following restrictions:
 
 #include "btCompoundShape.h"
 #include "btCollisionShape.h"
-#include "btDbvt.h"
-#include "btSerializer.h"
+#include "BulletCollision/BroadphaseCollision/btDbvt.h"
+#include "LinearMath/btSerializer.h"
 
 btCompoundShape::btCompoundShape(bool enableDynamicAabbTree)
 : m_localAabbMin(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT)),
@@ -85,7 +85,7 @@ void	btCompoundShape::addChildShape(const btTransform& localTransform,btCollisio
 
 }
 
-void	btCompoundShape::updateChildTransform(int childIndex, const btTransform& newChildTransform)
+void	btCompoundShape::updateChildTransform(int childIndex, const btTransform& newChildTransform,bool shouldRecalculateLocalAabb)
 {
 	m_children[childIndex].m_transform = newChildTransform;
 
@@ -99,7 +99,10 @@ void	btCompoundShape::updateChildTransform(int childIndex, const btTransform& ne
 		m_dynamicAabbTree->update(m_children[childIndex].m_node,bounds);
 	}
 
-	recalculateLocalAabb();
+	if (shouldRecalculateLocalAabb)
+	{
+		recalculateLocalAabb();
+	}
 }
 
 void btCompoundShape::removeChildShapeByIndex(int childShapeIndex)
@@ -283,10 +286,12 @@ void btCompoundShape::setLocalScaling(const btVector3& scaling)
 		childScale = childScale * scaling / m_localScaling;
 		m_children[i].m_childShape->setLocalScaling(childScale);
 		childTrans.setOrigin((childTrans.getOrigin())*scaling);
-		updateChildTransform(i, childTrans);
-		recalculateLocalAabb();
+		updateChildTransform(i, childTrans,false);
 	}
+	
 	m_localScaling = scaling;
+	recalculateLocalAabb();
+
 }
 
 

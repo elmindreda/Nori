@@ -32,7 +32,7 @@ email: projectileman@yahoo.com
 #include "stdlib.h"
 
 #ifdef GIM_SIMD_MEMORY
-#include "btAlignedAllocator.h"
+#include "LinearMath/btAlignedAllocator.h"
 #endif
 
 static gim_alloc_function *g_allocfn = 0;

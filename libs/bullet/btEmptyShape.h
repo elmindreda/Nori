@@ -13,14 +13,14 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef EMPTY_SHAPE_H
-#define EMPTY_SHAPE_H
+#ifndef BT_EMPTY_SHAPE_H
+#define BT_EMPTY_SHAPE_H
 
 #include "btConcaveShape.h"
 
-#include "btVector3.h"
-#include "btTransform.h"
-#include "btMatrix3x3.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btMatrix3x3.h"
 #include "btCollisionMargin.h"
 
 
@@ -67,4 +67,4 @@ protected:
 
 
 
-#endif //EMPTY_SHAPE_H
+#endif //BT_EMPTY_SHAPE_H

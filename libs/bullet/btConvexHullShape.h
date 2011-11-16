@@ -13,12 +13,12 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef CONVEX_HULL_SHAPE_H
-#define CONVEX_HULL_SHAPE_H
+#ifndef BT_CONVEX_HULL_SHAPE_H
+#define BT_CONVEX_HULL_SHAPE_H
 
 #include "btPolyhedralConvexShape.h"
-#include "btBroadphaseProxy.h" // for the types
-#include "btAlignedObjectArray.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
+#include "LinearMath/btAlignedObjectArray.h"
 
 
 ///The btConvexHullShape implements an implicit convex hull of an array of vertices.
@@ -73,6 +73,8 @@ public:
 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 	
 
+	virtual void project(const btTransform& trans, const btVector3& dir, float& min, float& max) const;
+
 
 	//debugging
 	virtual const char*	getName()const {return "Convex";}
@@ -116,5 +118,5 @@ SIMD_FORCE_INLINE	int	btConvexHullShape::calculateSerializeBufferSize() const
 }
 
 
-#endif //CONVEX_HULL_SHAPE_H
+#endif //BT_CONVEX_HULL_SHAPE_H
 

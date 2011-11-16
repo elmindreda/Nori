@@ -15,25 +15,25 @@ subject to the following restrictions:
 
 #include "btDefaultCollisionConfiguration.h"
 
-#include "btConvexConvexAlgorithm.h"
-#include "btEmptyCollisionAlgorithm.h"
-#include "btConvexConcaveCollisionAlgorithm.h"
-#include "btCompoundCollisionAlgorithm.h"
-#include "btConvexPlaneCollisionAlgorithm.h"
-#include "btBoxBoxCollisionAlgorithm.h"
-#include "btSphereSphereCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btConvexConvexAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btConvexConcaveCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btConvexPlaneCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btBoxBoxCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
 #ifdef USE_BUGGY_SPHERE_BOX_ALGORITHM
-#include "btSphereBoxCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.h"
 #endif //USE_BUGGY_SPHERE_BOX_ALGORITHM
-#include "btSphereTriangleCollisionAlgorithm.h"
-#include "btGjkEpaPenetrationDepthSolver.h"
-#include "btMinkowskiPenetrationDepthSolver.h"
-#include "btVoronoiSimplexSolver.h"
+#include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 
 
 
-#include "btStackAlloc.h"
-#include "btPoolAllocator.h"
+#include "LinearMath/btStackAlloc.h"
+#include "LinearMath/btPoolAllocator.h"
 
 
 
@@ -295,4 +295,11 @@ void btDefaultCollisionConfiguration::setConvexConvexMultipointIterations(int nu
 	btConvexConvexAlgorithm::CreateFunc* convexConvex = (btConvexConvexAlgorithm::CreateFunc*) m_convexConvexCreateFunc;
 	convexConvex->m_numPerturbationIterations = numPerturbationIterations;
 	convexConvex->m_minimumPointsPerturbationThreshold = minimumPointsPerturbationThreshold;
+}
+
+void	btDefaultCollisionConfiguration::setPlaneConvexMultipointIterations(int numPerturbationIterations, int minimumPointsPerturbationThreshold)
+{
+	btConvexPlaneCollisionAlgorithm::CreateFunc* planeCreateFunc = (btConvexPlaneCollisionAlgorithm::CreateFunc*)m_planeConvexCF;
+	planeCreateFunc->m_numPerturbationIterations = numPerturbationIterations;
+	planeCreateFunc->m_minimumPointsPerturbationThreshold = minimumPointsPerturbationThreshold;
 }

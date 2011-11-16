@@ -16,10 +16,10 @@ subject to the following restrictions:
 
 
 #include "btGjkConvexCast.h"
-#include "btSphereShape.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
 #include "btGjkPairDetector.h"
 #include "btPointCollector.h"
-#include "btTransformUtil.h"
+#include "LinearMath/btTransformUtil.h"
 
 #ifdef BT_USE_DOUBLE_PRECISION
 #define MAX_ITERATIONS 64

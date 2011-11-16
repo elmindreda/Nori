@@ -16,33 +16,33 @@ subject to the following restrictions:
 #include "btConvex2dConvex2dAlgorithm.h"
 
 //#include <stdio.h>
-#include "btDiscreteCollisionDetectorInterface.h"
-#include "btBroadphaseInterface.h"
-#include "btCollisionObject.h"
-#include "btConvexShape.h"
-#include "btCapsuleShape.h"
+#include "BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
+#include "BulletCollision/CollisionShapes/btConvexShape.h"
+#include "BulletCollision/CollisionShapes/btCapsuleShape.h"
 
 
-#include "btGjkPairDetector.h"
-#include "btBroadphaseProxy.h"
-#include "btCollisionDispatcher.h"
-#include "btBoxShape.h"
-#include "btManifoldResult.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
+#include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
+#include "BulletCollision/CollisionShapes/btBoxShape.h"
+#include "BulletCollision/CollisionDispatch/btManifoldResult.h"
 
-#include "btConvexPenetrationDepthSolver.h"
-#include "btContinuousConvexCollision.h"
-#include "btSubSimplexConvexCast.h"
-#include "btGjkConvexCast.h"
+#include "BulletCollision/NarrowPhaseCollision/btConvexPenetrationDepthSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.h"
+#include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkConvexCast.h"
 
 
 
-#include "btVoronoiSimplexSolver.h"
-#include "btSphereShape.h"
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
 
-#include "btMinkowskiPenetrationDepthSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
 
-#include "btGjkEpa2.h"
-#include "btGjkEpaPenetrationDepthSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
 
 
 btConvex2dConvex2dAlgorithm::CreateFunc::CreateFunc(btSimplexSolverInterface*			simplexSolver, btConvexPenetrationDepthSolver* pdSolver)

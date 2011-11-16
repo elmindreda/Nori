@@ -14,12 +14,12 @@ subject to the following restrictions:
 */
 
 #include "btRigidBody.h"
-#include "btConvexShape.h"
-#include "btMinMax.h"
-#include "btTransformUtil.h"
-#include "btMotionState.h"
-#include "btTypedConstraint.h"
-#include "btSerializer.h"
+#include "BulletCollision/CollisionShapes/btConvexShape.h"
+#include "LinearMath/btMinMax.h"
+#include "LinearMath/btTransformUtil.h"
+#include "LinearMath/btMotionState.h"
+#include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
+#include "LinearMath/btSerializer.h"
 
 //'temporarily' global variables
 btScalar	gDeactivationTime = btScalar(2.);
@@ -51,8 +51,8 @@ void	btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
 	m_gravity_acceleration.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
 	m_totalForce.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
 	m_totalTorque.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0)),
-	m_linearDamping = btScalar(0.);
-	m_angularDamping = btScalar(0.5);
+    setDamping(constructionInfo.m_linearDamping, constructionInfo.m_angularDamping);
+
 	m_linearSleepingThreshold = constructionInfo.m_linearSleepingThreshold;
 	m_angularSleepingThreshold = constructionInfo.m_angularSleepingThreshold;
 	m_optionalMotionState = constructionInfo.m_motionState;
@@ -84,7 +84,6 @@ void	btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
 	m_debugBodyId = uniqueId++;
 	
 	setMassProps(constructionInfo.m_mass, constructionInfo.m_localInertia);
-    setDamping(constructionInfo.m_linearDamping, constructionInfo.m_angularDamping);
 	updateInertiaTensor();
 
 	m_rigidbodyFlags = 0;

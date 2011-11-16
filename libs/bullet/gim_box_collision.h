@@ -33,7 +33,7 @@ email: projectileman@yahoo.com
 -----------------------------------------------------------------------------
 */
 #include "gim_basic_geometry_operations.h"
-#include "btTransform.h"
+#include "LinearMath/btTransform.h"
 
 
 

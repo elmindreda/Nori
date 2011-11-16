@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef QUANTIZED_BVH_H
-#define QUANTIZED_BVH_H
+#ifndef BT_QUANTIZED_BVH_H
+#define BT_QUANTIZED_BVH_H
 
 class btSerializer;
 
@@ -28,8 +28,8 @@ class btSerializer;
 #include <stdlib.h>
 #endif //DEBUG_CHECK_DEQUANTIZATION
 
-#include "btVector3.h"
-#include "btAlignedAllocator.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btAlignedAllocator.h"
 
 #ifdef BT_USE_DOUBLE_PRECISION
 #define btQuantizedBvhData btQuantizedBvhDoubleData
@@ -107,9 +107,9 @@ ATTRIBUTE_ALIGNED16 (struct) btOptimizedBvhNode
 	//for child nodes
 	int	m_subPart;
 	int	m_triangleIndex;
-	int	m_padding[5];//bad, due to alignment
 
-
+//pad the size to 64 bytes
+	char	m_padding[20];
 };
 
 
@@ -155,8 +155,8 @@ public:
 	virtual void processNode(int subPart, int triangleIndex) = 0;
 };
 
-#include "btAlignedAllocator.h"
-#include "btAlignedObjectArray.h"
+#include "LinearMath/btAlignedAllocator.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
 
 
@@ -576,4 +576,4 @@ SIMD_FORCE_INLINE	int	btQuantizedBvh::calculateSerializeBufferSizeNew() const
 
 
 
-#endif //QUANTIZED_BVH_H
+#endif //BT_QUANTIZED_BVH_H

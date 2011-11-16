@@ -13,10 +13,10 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef COLLISION_OBJECT_H
-#define COLLISION_OBJECT_H
+#ifndef BT_COLLISION_OBJECT_H
+#define BT_COLLISION_OBJECT_H
 
-#include "btTransform.h"
+#include "LinearMath/btTransform.h"
 
 //island management, m_activationState1
 #define ACTIVE_TAG 1
@@ -28,9 +28,9 @@ subject to the following restrictions:
 struct	btBroadphaseProxy;
 class	btCollisionShape;
 struct btCollisionShapeData;
-#include "btMotionState.h"
-#include "btAlignedAllocator.h"
-#include "btAlignedObjectArray.h"
+#include "LinearMath/btMotionState.h"
+#include "LinearMath/btAlignedAllocator.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
 typedef btAlignedObjectArray<class btCollisionObject*> btCollisionObjectArray;
 
@@ -521,4 +521,4 @@ SIMD_FORCE_INLINE	int	btCollisionObject::calculateSerializeBufferSize() const
 
 
 
-#endif //COLLISION_OBJECT_H
+#endif //BT_COLLISION_OBJECT_H

@@ -13,12 +13,12 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "btCompoundCollisionAlgorithm.h"
-#include "btCollisionObject.h"
-#include "btCompoundShape.h"
-#include "btDbvt.h"
-#include "btIDebugDraw.h"
-#include "btAabbUtil2.h"
+#include "BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
+#include "BulletCollision/CollisionShapes/btCompoundShape.h"
+#include "BulletCollision/BroadphaseCollision/btDbvt.h"
+#include "LinearMath/btIDebugDraw.h"
+#include "LinearMath/btAabbUtil2.h"
 #include "btManifoldResult.h"
 
 btCompoundCollisionAlgorithm::btCompoundCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1,bool isSwapped)
@@ -234,7 +234,7 @@ void btCompoundCollisionAlgorithm::processCollision (btCollisionObject* body0,bt
 						resultOut->setPersistentManifold(0);//??necessary?
 					}
 				}
-				manifoldArray.clear();
+				manifoldArray.resize(0);
 			}
 		}
 	}

@@ -13,13 +13,13 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef MULTI_SPHERE_MINKOWSKI_H
-#define MULTI_SPHERE_MINKOWSKI_H
+#ifndef BT_MULTI_SPHERE_MINKOWSKI_H
+#define BT_MULTI_SPHERE_MINKOWSKI_H
 
 #include "btConvexInternalShape.h"
-#include "btBroadphaseProxy.h" // for the types
-#include "btAlignedObjectArray.h"
-#include "btAabbUtil2.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
+#include "LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btAabbUtil2.h"
 
 
 
@@ -96,4 +96,4 @@ SIMD_FORCE_INLINE	int	btMultiSphereShape::calculateSerializeBufferSize() const
 
 
 
-#endif //MULTI_SPHERE_MINKOWSKI_H
+#endif //BT_MULTI_SPHERE_MINKOWSKI_H

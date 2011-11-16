@@ -12,12 +12,12 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
-#ifndef CONVEX_TRIANGLEMESH_SHAPE_H
-#define CONVEX_TRIANGLEMESH_SHAPE_H
+#ifndef BT_CONVEX_TRIANGLEMESH_SHAPE_H
+#define BT_CONVEX_TRIANGLEMESH_SHAPE_H
 
 
 #include "btPolyhedralConvexShape.h"
-#include "btBroadphaseProxy.h" // for the types
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
 
 /// The btConvexTriangleMeshShape is a convex hull of a triangle mesh, but the performance is not as good as btConvexHullShape.
@@ -69,7 +69,7 @@ public:
 
 
 
-#endif //CONVEX_TRIANGLEMESH_SHAPE_H
+#endif //BT_CONVEX_TRIANGLEMESH_SHAPE_H
 
 
 

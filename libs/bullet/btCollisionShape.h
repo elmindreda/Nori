@@ -13,13 +13,13 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef COLLISION_SHAPE_H
-#define COLLISION_SHAPE_H
+#ifndef BT_COLLISION_SHAPE_H
+#define BT_COLLISION_SHAPE_H
 
-#include "btTransform.h"
-#include "btVector3.h"
-#include "btMatrix3x3.h"
-#include "btBroadphaseProxy.h" //for the shape types
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btMatrix3x3.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" //for the shape types
 class btSerializer;
 
 
@@ -146,5 +146,5 @@ SIMD_FORCE_INLINE	int	btCollisionShape::calculateSerializeBufferSize() const
 
 
 
-#endif //COLLISION_SHAPE_H
+#endif //BT_COLLISION_SHAPE_H
 

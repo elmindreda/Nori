@@ -25,7 +25,7 @@ subject to the following restrictions:
 */
 
 
-#include "btAlignedObjectArray.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
 #include "btBoxCollision.h"
 #include "btTriangleShapeEx.h"
@@ -383,9 +383,9 @@ public:
 		return m_box_tree.get_node_pointer(index);
 	}
 
-
+#ifdef TRI_COLLISION_PROFILING
 	static float getAverageTreeCollisionTime();
-
+#endif //TRI_COLLISION_PROFILING
 
 	static void find_collision(btGImpactBvh * boxset1, const btTransform & trans1,
 		btGImpactBvh * boxset2, const btTransform & trans2,

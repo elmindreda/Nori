@@ -13,16 +13,16 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef CONVEX_SHAPE_INTERFACE1
-#define CONVEX_SHAPE_INTERFACE1
+#ifndef BT_CONVEX_SHAPE_INTERFACE1
+#define BT_CONVEX_SHAPE_INTERFACE1
 
 #include "btCollisionShape.h"
 
-#include "btVector3.h"
-#include "btTransform.h"
-#include "btMatrix3x3.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btMatrix3x3.h"
 #include "btCollisionMargin.h"
-#include "btAlignedAllocator.h"
+#include "LinearMath/btAlignedAllocator.h"
 
 #define MAX_PREFERRED_PENETRATION_DIRECTIONS 10
 
@@ -52,6 +52,8 @@ public:
 	btScalar getMarginNonVirtual () const;
 	void getAabbNonVirtual (const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const;
 
+	virtual void project(const btTransform& trans, const btVector3& dir, float& min, float& max) const;
+
 	
 	//notice that the vectors should be unit length
 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const= 0;
@@ -79,4 +81,4 @@ public:
 
 
 
-#endif //CONVEX_SHAPE_INTERFACE1
+#endif //BT_CONVEX_SHAPE_INTERFACE1

@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 
 #include "btCollisionObject.h"
-#include "btSerializer.h"
+#include "LinearMath/btSerializer.h"
 
 btCollisionObject::btCollisionObject()
 	:	m_anisotropicFriction(1.f,1.f,1.f),

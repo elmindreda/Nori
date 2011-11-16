@@ -13,12 +13,12 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef SPHERE_TRIANGLE_COLLISION_ALGORITHM_H
-#define SPHERE_TRIANGLE_COLLISION_ALGORITHM_H
+#ifndef BT_SPHERE_TRIANGLE_COLLISION_ALGORITHM_H
+#define BT_SPHERE_TRIANGLE_COLLISION_ALGORITHM_H
 
 #include "btActivatingCollisionAlgorithm.h"
-#include "btBroadphaseProxy.h"
-#include "btCollisionCreateFunc.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
+#include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
 class btPersistentManifold;
 #include "btCollisionDispatcher.h"
 
@@ -65,5 +65,5 @@ public:
 
 };
 
-#endif //SPHERE_TRIANGLE_COLLISION_ALGORITHM_H
+#endif //BT_SPHERE_TRIANGLE_COLLISION_ALGORITHM_H
 

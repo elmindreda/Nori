@@ -13,12 +13,12 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BVH_TRIANGLE_MESH_SHAPE_H
-#define BVH_TRIANGLE_MESH_SHAPE_H
+#ifndef BT_BVH_TRIANGLE_MESH_SHAPE_H
+#define BT_BVH_TRIANGLE_MESH_SHAPE_H
 
 #include "btTriangleMeshShape.h"
 #include "btOptimizedBvh.h"
-#include "btAlignedAllocator.h"
+#include "LinearMath/btAlignedAllocator.h"
 #include "btTriangleInfoMap.h"
 
 ///The btBvhTriangleMeshShape is a static-triangle mesh shape with several optimizations, such as bounding volume hierarchy and cache friendly traversal for PlayStation 3 Cell SPU. It is recommended to enable useQuantizedAabbCompression for better memory usage.
@@ -39,7 +39,7 @@ public:
 
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	btBvhTriangleMeshShape() : btTriangleMeshShape(0),m_bvh(0),m_triangleInfoMap(0),m_ownsBvh(false) {m_shapeType = TRIANGLE_MESH_SHAPE_PROXYTYPE;};
+	
 	btBvhTriangleMeshShape(btStridingMeshInterface* meshInterface, bool useQuantizedAabbCompression, bool buildBvh = true);
 
 	///optionally pass in a larger bvh aabb, used for quantization. This allows for deformations within this aabb
@@ -136,4 +136,4 @@ SIMD_FORCE_INLINE	int	btBvhTriangleMeshShape::calculateSerializeBufferSize() con
 
 
 
-#endif //BVH_TRIANGLE_MESH_SHAPE_H
+#endif //BT_BVH_TRIANGLE_MESH_SHAPE_H

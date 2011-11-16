@@ -13,10 +13,10 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef POINT2POINTCONSTRAINT_H
-#define POINT2POINTCONSTRAINT_H
+#ifndef BT_POINT2POINTCONSTRAINT_H
+#define BT_POINT2POINTCONSTRAINT_H
 
-#include "btVector3.h"
+#include "LinearMath/btVector3.h"
 #include "btJacobianEntry.h"
 #include "btTypedConstraint.h"
 
@@ -158,4 +158,4 @@ SIMD_FORCE_INLINE	const char*	btPoint2PointConstraint::serialize(void* dataBuffe
 	return btPoint2PointConstraintDataName;
 }
 
-#endif //POINT2POINTCONSTRAINT_H
+#endif //BT_POINT2POINTCONSTRAINT_H
