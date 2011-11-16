@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -16,13 +16,13 @@ subject to the following restrictions:
 #define BT_SPHERE_MINKOWSKI_H
 
 #include "btConvexInternalShape.h"
-#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
+#include "btBroadphaseProxy.h" // for the types
 
 ///The btSphereShape implements an implicit sphere, centered around a local origin with radius.
 ATTRIBUTE_ALIGNED16(class) btSphereShape : public btConvexInternalShape
 
 {
-	
+
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
@@ -32,7 +32,7 @@ public:
 		m_implicitShapeDimensions.setX(radius);
 		m_collisionMargin = radius;
 	}
-	
+
 	virtual btVector3	localGetSupportingVertex(const btVector3& vec)const;
 	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;
 	//notice that the vectors should be unit length

@@ -70,14 +70,14 @@ struct GIM_TRIANGLE_CONTACT_DATA
 		copy_from(other);
 	}
 
-	
-	
+
+
 
     //! classify points that are closer
     template<typename DISTANCE_FUNC,typename CLASS_PLANE>
     SIMD_FORCE_INLINE void mergepoints_generic(const CLASS_PLANE & plane,
     				GREAL margin, const btVector3 * points, GUINT point_count, DISTANCE_FUNC distance_func)
-    {	
+    {
     	m_point_count = 0;
     	m_penetration_depth= -1000.0f;
 

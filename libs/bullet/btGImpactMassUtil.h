@@ -25,7 +25,7 @@ subject to the following restrictions:
 #ifndef GIMPACT_MASS_UTIL_H
 #define GIMPACT_MASS_UTIL_H
 
-#include "LinearMath/btTransform.h"
+#include "btTransform.h"
 
 
 

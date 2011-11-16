@@ -4,15 +4,15 @@
  * Permission to use, copy, modify, distribute and sell this software
  * and its documentation for any purpose is hereby granted without fee,
  * provided that the above copyright notice appear in all copies.
- * Erwin Coumans makes no representations about the suitability 
- * of this software for any purpose.  
+ * Erwin Coumans makes no representations about the suitability
+ * of this software for any purpose.
  * It is provided "as is" without express or implied warranty.
 */
 #ifndef BT_WHEEL_INFO_H
 #define BT_WHEEL_INFO_H
 
-#include "LinearMath/btVector3.h"
-#include "LinearMath/btTransform.h"
+#include "btVector3.h"
+#include "btTransform.h"
 
 class btRigidBody;
 
@@ -24,14 +24,14 @@ struct btWheelInfoConstructionInfo
 	btScalar	m_suspensionRestLength;
 	btScalar	m_maxSuspensionTravelCm;
 	btScalar	m_wheelRadius;
-	
+
 	btScalar		m_suspensionStiffness;
 	btScalar		m_wheelsDampingCompression;
 	btScalar		m_wheelsDampingRelaxation;
 	btScalar		m_frictionSlip;
 	btScalar		m_maxSuspensionForce;
 	bool m_bIsFrontWheel;
-	
+
 };
 
 /// btWheelInfo contains information per wheel about friction and suspension.
@@ -53,7 +53,7 @@ struct btWheelInfo
 	RaycastInfo	m_raycastInfo;
 
 	btTransform	m_worldTransform;
-	
+
 	btVector3	m_chassisConnectionPointCS; //const
 	btVector3	m_wheelDirectionCS;//const
 	btVector3	m_wheelAxleCS; // const or modified by steering
@@ -74,9 +74,9 @@ struct btWheelInfo
 	btScalar	m_engineForce;
 
 	btScalar	m_brake;
-	
+
 	bool m_bIsFrontWheel;
-	
+
 	void*		m_clientInfo;//can be used to store pointer to sync transforms...
 
 	btWheelInfo(btWheelInfoConstructionInfo& ci)

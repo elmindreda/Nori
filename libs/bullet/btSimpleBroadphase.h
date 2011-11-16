@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -23,10 +23,10 @@ subject to the following restrictions:
 struct btSimpleBroadphaseProxy : public btBroadphaseProxy
 {
 	int			m_nextFree;
-	
+
 //	int			m_handleId;
 
-	
+
 	btSimpleBroadphaseProxy() {};
 
 	btSimpleBroadphaseProxy(const btVector3& minpt,const btVector3& maxpt,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask,void* multiSapProxy)
@@ -34,12 +34,12 @@ struct btSimpleBroadphaseProxy : public btBroadphaseProxy
 	{
 		(void)shapeType;
 	}
-	
-	
+
+
 	SIMD_FORCE_INLINE void SetNextFree(int next) {m_nextFree = next;}
 	SIMD_FORCE_INLINE int GetNextFree() const {return m_nextFree;}
 
-	
+
 
 
 };
@@ -53,13 +53,13 @@ protected:
 
 	int		m_numHandles;						// number of active handles
 	int		m_maxHandles;						// max number of handles
-	int		m_LastHandleIndex;							
-	
+	int		m_LastHandleIndex;
+
 	btSimpleBroadphaseProxy* m_pHandles;						// handles pool
 
 	void* m_pHandlesRawPtr;
 	int		m_firstFreeHandle;		// free handles list
-	
+
 	int allocHandle()
 	{
 		btAssert(m_numHandles < m_maxHandles);
@@ -94,8 +94,8 @@ protected:
 
 	int	m_invalidPair;
 
-	
-	
+
+
 	inline btSimpleBroadphaseProxy*	getSimpleProxyFromProxy(btBroadphaseProxy* proxy)
 	{
 		btSimpleBroadphaseProxy* proxy0 = static_cast<btSimpleBroadphaseProxy*>(proxy);
@@ -117,7 +117,7 @@ protected:
 protected:
 
 
-	
+
 
 public:
 	btSimpleBroadphase(int maxProxies=16384,btOverlappingPairCache* overlappingPairCache=0);
@@ -137,7 +137,7 @@ public:
 
 	virtual void	rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback, const btVector3& aabbMin=btVector3(0,0,0),const btVector3& aabbMax=btVector3(0,0,0));
 	virtual void	aabbTest(const btVector3& aabbMin, const btVector3& aabbMax, btBroadphaseAabbCallback& callback);
-		
+
 	btOverlappingPairCache*	getOverlappingPairCache()
 	{
 		return m_pairCache;

@@ -19,7 +19,7 @@ subject to the following restrictions:
 ///And contact clipping based on work from Simon Hobbs
 
 #include "btConvexPolyhedron.h"
-#include "LinearMath/btHashMap.h"
+#include "btHashMap.h"
 
 btConvexPolyhedron::btConvexPolyhedron()
 {

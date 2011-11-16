@@ -449,7 +449,7 @@ protected:
 
     }
 
-    
+
     ///Sorted array data management. The hash table has the indices to the corresponding m_nodes array
     inline bool _erase_sorted(GUINT index)
     {
@@ -560,7 +560,7 @@ protected:
         return GIM_INVALID_HASH;
     }
 
-    
+
 
 public:
 

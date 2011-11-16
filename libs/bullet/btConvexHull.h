@@ -5,8 +5,8 @@ Copyright (c) 2008 Stan Melax http://www.melax.com/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -118,12 +118,12 @@ class btPlane
 	btScalar	dist;   // distance below origin - the D from plane equasion Ax+By+Cz+D=0
 			btPlane(const btVector3 &n,btScalar d):normal(n),dist(d){}
 			btPlane():normal(),dist(0){}
-	
+
 };
 
 
 
-class ConvexH 
+class ConvexH
 {
   public:
 	class HalfEdge
@@ -221,7 +221,7 @@ private:
 
 	ConvexH* test_cube();
 
-	//BringOutYourDead (John Ratcliff): When you create a convex hull you hand it a large input set of vertices forming a 'point cloud'. 
+	//BringOutYourDead (John Ratcliff): When you create a convex hull you hand it a large input set of vertices forming a 'point cloud'.
 	//After the hull is generated it give you back a set of polygon faces which index the *original* point cloud.
 	//The thing is, often times, there are many 'dead vertices' in the point cloud that are on longer referenced by the hull.
 	//The routine 'BringOutYourDead' find only the referenced vertices, copies them to an new buffer, and re-indexes the hull so that it is a minimal representation.

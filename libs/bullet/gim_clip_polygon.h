@@ -96,7 +96,7 @@ SIMD_FORCE_INLINE GUINT PLANE_CLIP_POLYGON_GENERIC(
 
 	GREAL olddist = firstdist;
 	for(GUINT _i=1;_i<polygon_point_count;_i++)
-	{		
+	{
 		GREAL dist = distance_func(plane,polygon_points[_i]);
 
 		PLANE_CLIP_POLYGON_COLLECT(
@@ -107,10 +107,10 @@ SIMD_FORCE_INLINE GUINT PLANE_CLIP_POLYGON_GENERIC(
 						clipped_count);
 
 
-		olddist = dist;		
+		olddist = dist;
 	}
 
-	//RETURN TO FIRST  point	
+	//RETURN TO FIRST  point
 
 	PLANE_CLIP_POLYGON_COLLECT(
 					polygon_points[polygon_point_count-1],polygon_points[0],

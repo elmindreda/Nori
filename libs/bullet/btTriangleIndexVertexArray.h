@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -17,8 +17,8 @@ subject to the following restrictions:
 #define BT_TRIANGLE_INDEX_VERTEX_ARRAY_H
 
 #include "btStridingMeshInterface.h"
-#include "LinearMath/btAlignedObjectArray.h"
-#include "LinearMath/btScalar.h"
+#include "btAlignedObjectArray.h"
+#include "btScalar.h"
 
 
 ///The btIndexedMesh indexes a single vertex and index array. Multiple btIndexedMesh objects can be passed into a btTriangleIndexVertexArray using addIndexedMesh.
@@ -84,14 +84,14 @@ public:
 
 	//just to be backwards compatible
 	btTriangleIndexVertexArray(int numTriangles,int* triangleIndexBase,int triangleIndexStride,int numVertices,btScalar* vertexBase,int vertexStride);
-	
+
 	void	addIndexedMesh(const btIndexedMesh& mesh, PHY_ScalarType indexType = PHY_INTEGER)
 	{
 		m_indexedMeshes.push_back(mesh);
 		m_indexedMeshes[m_indexedMeshes.size()-1].m_indexType = indexType;
 	}
-	
-	
+
+
 	virtual void	getLockedVertexIndexBase(unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& vertexStride,unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart=0);
 
 	virtual void	getLockedReadOnlyVertexIndexBase(const unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& vertexStride,const unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart=0) const;
@@ -104,7 +104,7 @@ public:
 
 	/// getNumSubParts returns the number of seperate subparts
 	/// each subpart has a continuous array of vertices and indices
-	virtual int		getNumSubParts() const { 
+	virtual int		getNumSubParts() const {
 		return (int)m_indexedMeshes.size();
 	}
 

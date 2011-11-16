@@ -21,7 +21,7 @@ struct	btDefaultMotionState : public btMotionState
 	}
 
 	///synchronizes world transform from user to physics
-	virtual void	getWorldTransform(btTransform& centerOfMassWorldTrans ) const 
+	virtual void	getWorldTransform(btTransform& centerOfMassWorldTrans ) const
 	{
 			centerOfMassWorldTrans = 	m_centerOfMassOffset.inverse() * m_graphicsWorldTrans ;
 	}
@@ -33,7 +33,7 @@ struct	btDefaultMotionState : public btMotionState
 			m_graphicsWorldTrans = centerOfMassWorldTrans * m_centerOfMassOffset ;
 	}
 
-	
+
 
 };
 

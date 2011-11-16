@@ -32,7 +32,7 @@ email: projectileman@yahoo.com
 -----------------------------------------------------------------------------
 */
 
-#include "LinearMath/btScalar.h"
+#include "btScalar.h"
 
 
 

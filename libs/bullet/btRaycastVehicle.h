@@ -4,20 +4,20 @@
  * Permission to use, copy, modify, distribute and sell this software
  * and its documentation for any purpose is hereby granted without fee,
  * provided that the above copyright notice appear in all copies.
- * Erwin Coumans makes no representations about the suitability 
- * of this software for any purpose.  
+ * Erwin Coumans makes no representations about the suitability
+ * of this software for any purpose.
  * It is provided "as is" without express or implied warranty.
 */
 #ifndef BT_RAYCASTVEHICLE_H
 #define BT_RAYCASTVEHICLE_H
 
-#include "BulletDynamics/Dynamics/btRigidBody.h"
-#include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
+#include "btRigidBody.h"
+#include "btTypedConstraint.h"
 #include "btVehicleRaycaster.h"
 class btDynamicsWorld;
-#include "LinearMath/btAlignedObjectArray.h"
+#include "btAlignedObjectArray.h"
 #include "btWheelInfo.h"
-#include "BulletDynamics/Dynamics/btActionInterface.h"
+#include "btActionInterface.h"
 
 class btVehicleTuning;
 
@@ -29,7 +29,7 @@ class btRaycastVehicle : public btActionInterface
 		btAlignedObjectArray<btVector3>	m_axle;
 		btAlignedObjectArray<btScalar>	m_forwardImpulse;
 		btAlignedObjectArray<btScalar>	m_sideImpulse;
-	
+
 		///backwards compatibility
 		int	m_userConstraintType;
 		int	m_userConstraintId;
@@ -62,7 +62,7 @@ private:
 	btScalar	m_damping;
 	btVehicleRaycaster*	m_vehicleRaycaster;
 	btScalar		m_pitchControl;
-	btScalar	m_steeringValue; 
+	btScalar	m_steeringValue;
 	btScalar m_currentVehicleSpeedKmHour;
 
 	btRigidBody* m_chassisBody;
@@ -87,18 +87,18 @@ public:
         (void) collisionWorld;
 		updateVehicle(step);
 	}
-	
+
 
 	///btActionInterface interface
 	void	debugDraw(btIDebugDraw* debugDrawer);
-			
+
 	const btTransform& getChassisWorldTransform() const;
-	
+
 	btScalar rayCast(btWheelInfo& wheel);
 
 	virtual void updateVehicle(btScalar step);
-	
-	
+
+
 	void resetSuspension();
 
 	btScalar	getSteeringValue(int wheel) const;
@@ -111,7 +111,7 @@ public:
 	const btTransform&	getWheelTransformWS( int wheelIndex ) const;
 
 	void	updateWheelTransform( int wheelIndex, bool interpolatedTransform = true );
-	
+
 //	void	setRaycastWheelInfo( int wheelIndex , bool isInContact, const btVector3& hitPoint, const btVector3& hitNormal,btScalar depth);
 
 	btWheelInfo&	addWheel( const btVector3& connectionPointCS0, const btVector3& wheelDirectionCS0,const btVector3& wheelAxleCS,btScalar suspensionRestLength,btScalar wheelRadius,const btVehicleTuning& tuning, bool isFrontWheel);
@@ -119,7 +119,7 @@ public:
 	inline int		getNumWheels() const {
 		return int (m_wheelInfo.size());
 	}
-	
+
 	btAlignedObjectArray<btWheelInfo>	m_wheelInfo;
 
 
@@ -129,14 +129,14 @@ public:
 
 	void	updateWheelTransformsWS(btWheelInfo& wheel , bool interpolatedTransform = true);
 
-	
+
 	void setBrake(btScalar brake,int wheelIndex);
 
 	void	setPitchControl(btScalar pitch)
 	{
 		m_pitchControl = pitch;
 	}
-	
+
 	void	updateSuspension(btScalar deltaTime);
 
 	virtual void	updateFriction(btScalar	timeStep);
@@ -167,16 +167,16 @@ public:
 		return m_indexForwardAxis;
 	}
 
-	
+
 	///Worldspace forward vector
 	btVector3 getForwardVector() const
 	{
-		const btTransform& chassisTrans = getChassisWorldTransform(); 
+		const btTransform& chassisTrans = getChassisWorldTransform();
 
-		btVector3 forwardW ( 
-			  chassisTrans.getBasis()[0][m_indexForwardAxis], 
-			  chassisTrans.getBasis()[1][m_indexForwardAxis], 
-			  chassisTrans.getBasis()[2][m_indexForwardAxis]); 
+		btVector3 forwardW (
+			  chassisTrans.getBasis()[0][m_indexForwardAxis],
+			  chassisTrans.getBasis()[1][m_indexForwardAxis],
+			  chassisTrans.getBasis()[2][m_indexForwardAxis]);
 
 		return forwardW;
 	}

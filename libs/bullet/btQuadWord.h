@@ -3,8 +3,8 @@ Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousph
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -24,7 +24,7 @@ subject to the following restrictions:
 #include <altivec.h>
 #endif
 
-/**@brief The btQuadWord class is base class for btVector3 and btQuaternion. 
+/**@brief The btQuadWord class is base class for btVector3 and btQuaternion.
  * Some issues under PS3 Linux with IBM 2.1 SDK, gcc compiler prevent from using aligned quadword.
  */
 #ifndef USE_LIBSPE2
@@ -51,7 +51,7 @@ protected:
 #endif //__CELLOS_LV2__ __SPU__
 
 	public:
-  
+
 
   /**@brief Return the x value */
 		SIMD_FORCE_INLINE const btScalar& getX() const { return m_floats[0]; }
@@ -76,7 +76,7 @@ protected:
   /**@brief Return the w value */
 		SIMD_FORCE_INLINE const btScalar& w() const { return m_floats[3]; }
 
-	//SIMD_FORCE_INLINE btScalar&       operator[](int i)       { return (&m_floats[0])[i];	}      
+	//SIMD_FORCE_INLINE btScalar&       operator[](int i)       { return (&m_floats[0])[i];	}
 	//SIMD_FORCE_INLINE const btScalar& operator[](int i) const { return (&m_floats[0])[i]; }
 	///operator btScalar*() replaces operator[], using implicit conversion. We added operator != and operator == to avoid pointer comparisons.
 	SIMD_FORCE_INLINE	operator       btScalar *()       { return &m_floats[0]; }
@@ -92,7 +92,7 @@ protected:
 		return !(*this == other);
 	}
 
-  /**@brief Set x,y,z and zero w 
+  /**@brief Set x,y,z and zero w
    * @param x Value of x
    * @param y Value of y
    * @param z Value of z
@@ -105,14 +105,14 @@ protected:
 			m_floats[3] = 0.f;
 		}
 
-/*		void getValue(btScalar *m) const 
+/*		void getValue(btScalar *m) const
 		{
 			m[0] = m_floats[0];
 			m[1] = m_floats[1];
 			m[2] = m_floats[2];
 		}
 */
-/**@brief Set the values 
+/**@brief Set the values
    * @param x Value of x
    * @param y Value of y
    * @param z Value of z
@@ -130,13 +130,13 @@ protected:
 		//	:m_floats[0](btScalar(0.)),m_floats[1](btScalar(0.)),m_floats[2](btScalar(0.)),m_floats[3](btScalar(0.))
 		{
 		}
- 
+
   /**@brief Three argument constructor (zeros w)
    * @param x Value of x
    * @param y Value of y
    * @param z Value of z
    */
-		SIMD_FORCE_INLINE btQuadWord(const btScalar& x, const btScalar& y, const btScalar& z)		
+		SIMD_FORCE_INLINE btQuadWord(const btScalar& x, const btScalar& y, const btScalar& z)
 		{
 			m_floats[0] = x, m_floats[1] = y, m_floats[2] = z, m_floats[3] = 0.0f;
 		}
@@ -147,13 +147,13 @@ protected:
    * @param z Value of z
    * @param w Value of w
    */
-		SIMD_FORCE_INLINE btQuadWord(const btScalar& x, const btScalar& y, const btScalar& z,const btScalar& w) 
+		SIMD_FORCE_INLINE btQuadWord(const btScalar& x, const btScalar& y, const btScalar& z,const btScalar& w)
 		{
 			m_floats[0] = x, m_floats[1] = y, m_floats[2] = z, m_floats[3] = w;
 		}
 
   /**@brief Set each element to the max of the current values and the values of another btQuadWord
-   * @param other The other btQuadWord to compare with 
+   * @param other The other btQuadWord to compare with
    */
 		SIMD_FORCE_INLINE void	setMax(const btQuadWord& other)
 		{
@@ -163,7 +163,7 @@ protected:
 			btSetMax(m_floats[3], other.m_floats[3]);
 		}
   /**@brief Set each element to the min of the current values and the values of another btQuadWord
-   * @param other The other btQuadWord to compare with 
+   * @param other The other btQuadWord to compare with
    */
 		SIMD_FORCE_INLINE void	setMin(const btQuadWord& other)
 		{

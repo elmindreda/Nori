@@ -24,22 +24,22 @@ subject to the following restrictions:
 #ifndef BT_GIMPACT_BVH_CONCAVE_COLLISION_ALGORITHM_H
 #define BT_GIMPACT_BVH_CONCAVE_COLLISION_ALGORITHM_H
 
-#include "BulletCollision/CollisionDispatch/btActivatingCollisionAlgorithm.h"
-#include "BulletCollision/BroadphaseCollision/btDispatcher.h"
-#include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
-#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
+#include "btActivatingCollisionAlgorithm.h"
+#include "btDispatcher.h"
+#include "btBroadphaseInterface.h"
+#include "btPersistentManifold.h"
 class btDispatcher;
-#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
-#include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
-#include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
+#include "btBroadphaseProxy.h"
+#include "btCollisionCreateFunc.h"
+#include "btCollisionDispatcher.h"
 
-#include "LinearMath/btAlignedObjectArray.h"
+#include "btAlignedObjectArray.h"
 
 #include "btGImpactShape.h"
-#include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
-#include "BulletCollision/CollisionShapes/btCompoundShape.h"
-#include "BulletCollision/CollisionDispatch/btConvexConvexAlgorithm.h"
-#include "LinearMath/btIDebugDraw.h"
+#include "btStaticPlaneShape.h"
+#include "btCompoundShape.h"
+#include "btConvexConvexAlgorithm.h"
+#include "btIDebugDraw.h"
 
 
 
@@ -261,37 +261,37 @@ public:
 
 
 		/// Accessor/Mutator pairs for Part and triangleID
-    void 	setFace0(int value) 
-    { 
-    	m_triface0 = value; 
+    void 	setFace0(int value)
+    {
+    	m_triface0 = value;
     }
-    int getFace0() 
-    { 
-    	return m_triface0; 
+    int getFace0()
+    {
+    	return m_triface0;
     }
-    void setFace1(int value) 
-    { 
-    	m_triface1 = value; 
+    void setFace1(int value)
+    {
+    	m_triface1 = value;
     }
-    int getFace1() 
-    { 
-    	return m_triface1; 
+    int getFace1()
+    {
+    	return m_triface1;
     }
-    void setPart0(int value) 
-    { 
-    	m_part0 = value; 
+    void setPart0(int value)
+    {
+    	m_part0 = value;
     }
-    int getPart0() 
-    { 
-    	return m_part0; 
+    int getPart0()
+    {
+    	return m_part0;
     }
-    void setPart1(int value) 
-    { 
-    	m_part1 = value; 
+    void setPart1(int value)
+    {
+    	m_part1 = value;
 		}
-    int getPart1() 
-    { 
-    	return m_part1; 
+    int getPart1()
+    {
+    	return m_part1;
     }
 
 };

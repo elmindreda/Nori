@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -33,11 +33,11 @@ protected:
 	bool	m_ownsConstraintSolver;
 
 	void	predictUnconstraintMotion(btScalar timeStep);
-	
+
 	void	integrateTransforms(btScalar timeStep);
-		
+
 	btVector3	m_gravity;
-	
+
 public:
 
 
@@ -46,7 +46,7 @@ public:
 	btSimpleDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration);
 
 	virtual ~btSimpleDynamicsWorld();
-		
+
 	///maxSubSteps/fixedTimeStep for interpolation is currently ignored for btSimpleDynamicsWorld, use btDiscreteDynamicsWorld instead
 	virtual int	stepSimulation( btScalar timeStep,int maxSubSteps=1, btScalar fixedTimeStep=btScalar(1.)/btScalar(60.));
 
@@ -61,14 +61,14 @@ public:
 	virtual void	removeRigidBody(btRigidBody* body);
 
 	virtual void	debugDrawWorld();
-				
+
 	virtual void	addAction(btActionInterface* action);
 
 	virtual void	removeAction(btActionInterface* action);
 
 	///removeCollisionObject will first check if it is a rigid body, if so call removeRigidBody otherwise call btCollisionWorld::removeCollisionObject
 	virtual void	removeCollisionObject(btCollisionObject* collisionObject);
-	
+
 	virtual void	updateAabbs();
 
 	virtual void	synchronizeMotionStates();

@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -16,10 +16,10 @@ subject to the following restrictions:
 #ifndef BT_BOX_2D_BOX_2D__COLLISION_ALGORITHM_H
 #define BT_BOX_2D_BOX_2D__COLLISION_ALGORITHM_H
 
-#include "BulletCollision/CollisionDispatch/btActivatingCollisionAlgorithm.h"
-#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
-#include "BulletCollision/BroadphaseCollision/btDispatcher.h"
-#include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
+#include "btActivatingCollisionAlgorithm.h"
+#include "btBroadphaseProxy.h"
+#include "btDispatcher.h"
+#include "btCollisionCreateFunc.h"
 
 class btPersistentManifold;
 
@@ -28,7 +28,7 @@ class btBox2dBox2dCollisionAlgorithm : public btActivatingCollisionAlgorithm
 {
 	bool	m_ownManifold;
 	btPersistentManifold*	m_manifoldPtr;
-	
+
 public:
 	btBox2dBox2dCollisionAlgorithm(const btCollisionAlgorithmConstructionInfo& ci)
 		: btActivatingCollisionAlgorithm(ci) {}

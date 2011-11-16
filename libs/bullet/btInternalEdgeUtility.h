@@ -2,10 +2,10 @@
 #ifndef BT_INTERNAL_EDGE_UTILITY_H
 #define BT_INTERNAL_EDGE_UTILITY_H
 
-#include "LinearMath/btHashMap.h"
-#include "LinearMath/btVector3.h"
+#include "btHashMap.h"
+#include "btVector3.h"
 
-#include "BulletCollision/CollisionShapes/btTriangleInfoMap.h"
+#include "btTriangleInfoMap.h"
 
 ///The btInternalEdgeUtility helps to avoid or reduce artifacts due to wrong collision normals caused by internal edges.
 ///See also http://code.google.com/p/bullet/issues/detail?id=27

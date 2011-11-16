@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -16,33 +16,33 @@ subject to the following restrictions:
 #include "btConvex2dConvex2dAlgorithm.h"
 
 //#include <stdio.h>
-#include "BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h"
-#include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
-#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
-#include "BulletCollision/CollisionShapes/btConvexShape.h"
-#include "BulletCollision/CollisionShapes/btCapsuleShape.h"
+#include "btDiscreteCollisionDetectorInterface.h"
+#include "btBroadphaseInterface.h"
+#include "btCollisionObject.h"
+#include "btConvexShape.h"
+#include "btCapsuleShape.h"
 
 
-#include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
-#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
-#include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
-#include "BulletCollision/CollisionShapes/btBoxShape.h"
-#include "BulletCollision/CollisionDispatch/btManifoldResult.h"
+#include "btGjkPairDetector.h"
+#include "btBroadphaseProxy.h"
+#include "btCollisionDispatcher.h"
+#include "btBoxShape.h"
+#include "btManifoldResult.h"
 
-#include "BulletCollision/NarrowPhaseCollision/btConvexPenetrationDepthSolver.h"
-#include "BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.h"
-#include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
-#include "BulletCollision/NarrowPhaseCollision/btGjkConvexCast.h"
+#include "btConvexPenetrationDepthSolver.h"
+#include "btContinuousConvexCollision.h"
+#include "btSubSimplexConvexCast.h"
+#include "btGjkConvexCast.h"
 
 
 
-#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
-#include "BulletCollision/CollisionShapes/btSphereShape.h"
+#include "btVoronoiSimplexSolver.h"
+#include "btSphereShape.h"
 
-#include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
+#include "btMinkowskiPenetrationDepthSolver.h"
 
-#include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
-#include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
+#include "btGjkEpa2.h"
+#include "btGjkEpaPenetrationDepthSolver.h"
 
 
 btConvex2dConvex2dAlgorithm::CreateFunc::CreateFunc(btSimplexSolverInterface*			simplexSolver, btConvexPenetrationDepthSolver* pdSolver)
@@ -53,8 +53,8 @@ btConvex2dConvex2dAlgorithm::CreateFunc::CreateFunc(btSimplexSolverInterface*			
 	m_pdSolver = pdSolver;
 }
 
-btConvex2dConvex2dAlgorithm::CreateFunc::~CreateFunc() 
-{ 
+btConvex2dConvex2dAlgorithm::CreateFunc::~CreateFunc()
+{
 }
 
 btConvex2dConvex2dAlgorithm::btConvex2dConvex2dAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1,btSimplexSolverInterface* simplexSolver, btConvexPenetrationDepthSolver* pdSolver,int numPerturbationIterations, int minimumPointsPerturbationThreshold)

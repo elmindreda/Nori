@@ -3,8 +3,8 @@ Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousph
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -68,20 +68,20 @@ SIMD_FORCE_INLINE bool TestTriangleAgainstAabb2(const btVector3 *vertices,
 
 	if (btMin(btMin(p1[2], p2[2]), p3[2]) > aabbMax[2]) return false;
 	if (btMax(btMax(p1[2], p2[2]), p3[2]) < aabbMin[2]) return false;
-  
+
 	if (btMin(btMin(p1[1], p2[1]), p3[1]) > aabbMax[1]) return false;
 	if (btMax(btMax(p1[1], p2[1]), p3[1]) < aabbMin[1]) return false;
 	return true;
 }
 
 
-SIMD_FORCE_INLINE int	btOutcode(const btVector3& p,const btVector3& halfExtent) 
+SIMD_FORCE_INLINE int	btOutcode(const btVector3& p,const btVector3& halfExtent)
 {
-	return (p.getX()  < -halfExtent.getX() ? 0x01 : 0x0) |    
+	return (p.getX()  < -halfExtent.getX() ? 0x01 : 0x0) |
 		   (p.getX() >  halfExtent.getX() ? 0x08 : 0x0) |
-		   (p.getY() < -halfExtent.getY() ? 0x02 : 0x0) |    
+		   (p.getY() < -halfExtent.getY() ? 0x02 : 0x0) |
 		   (p.getY() >  halfExtent.getY() ? 0x10 : 0x0) |
-		   (p.getZ() < -halfExtent.getZ() ? 0x4 : 0x0) |    
+		   (p.getZ() < -halfExtent.getZ() ? 0x4 : 0x0) |
 		   (p.getZ() >  halfExtent.getZ() ? 0x20 : 0x0);
 }
 
@@ -122,11 +122,11 @@ SIMD_FORCE_INLINE bool btRayAabb2(const btVector3& rayFrom,
 	return ( (tmin < lambda_max) && (tmax > lambda_min) );
 }
 
-SIMD_FORCE_INLINE bool btRayAabb(const btVector3& rayFrom, 
-								 const btVector3& rayTo, 
-								 const btVector3& aabbMin, 
+SIMD_FORCE_INLINE bool btRayAabb(const btVector3& rayFrom,
+								 const btVector3& rayTo,
+								 const btVector3& aabbMin,
 								 const btVector3& aabbMax,
-					  btScalar& param, btVector3& normal) 
+					  btScalar& param, btVector3& normal)
 {
 	btVector3 aabbHalfExtent = (aabbMax-aabbMin)* btScalar(0.5);
 	btVector3 aabbCenter = (aabbMax+aabbMin)* btScalar(0.5);
@@ -158,7 +158,7 @@ SIMD_FORCE_INLINE bool btRayAabb(const btVector3& rayFrom,
 						hitNormal[i] = normSign;
 					}
 				}
-				else if (targetOutcode & bit) 
+				else if (targetOutcode & bit)
 				{
 					btScalar lambda = (-source[i] - aabbHalfExtent[i]*normSign) / r[i];
 					btSetMin(lambda_exit, lambda);
@@ -182,7 +182,7 @@ SIMD_FORCE_INLINE bool btRayAabb(const btVector3& rayFrom,
 SIMD_FORCE_INLINE	void btTransformAabb(const btVector3& halfExtents, btScalar margin,const btTransform& t,btVector3& aabbMinOut,btVector3& aabbMaxOut)
 {
 	btVector3 halfExtentsWithMargin = halfExtents+btVector3(margin,margin,margin);
-	btMatrix3x3 abs_b = t.getBasis().absolute();  
+	btMatrix3x3 abs_b = t.getBasis().absolute();
 	btVector3 center = t.getOrigin();
 	btVector3 extent = btVector3(abs_b[0].dot(halfExtentsWithMargin),
 		   abs_b[1].dot(halfExtentsWithMargin),
@@ -201,7 +201,7 @@ SIMD_FORCE_INLINE	void btTransformAabb(const btVector3& localAabbMin,const btVec
 		localHalfExtents+=btVector3(margin,margin,margin);
 
 		btVector3 localCenter = btScalar(0.5)*(localAabbMax+localAabbMin);
-		btMatrix3x3 abs_b = trans.getBasis().absolute();  
+		btMatrix3x3 abs_b = trans.getBasis().absolute();
 		btVector3 center = trans(localCenter);
 		btVector3 extent = btVector3(abs_b[0].dot(localHalfExtents),
 			   abs_b[1].dot(localHalfExtents),
@@ -214,7 +214,7 @@ SIMD_FORCE_INLINE	void btTransformAabb(const btVector3& localAabbMin,const btVec
 #ifdef USE_BANCHLESS
 	//This block replaces the block below and uses no branches, and replaces the 8 bit return with a 32 bit return for improved performance (~3x on XBox 360)
 	SIMD_FORCE_INLINE unsigned testQuantizedAabbAgainstQuantizedAabb(const unsigned short int* aabbMin1,const unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2)
-	{		
+	{
 		return static_cast<unsigned int>(btSelect((unsigned)((aabbMin1[0] <= aabbMax2[0]) & (aabbMax1[0] >= aabbMin2[0])
 			& (aabbMin1[2] <= aabbMax2[2]) & (aabbMax1[2] >= aabbMin2[2])
 			& (aabbMin1[1] <= aabbMax2[1]) & (aabbMax1[1] >= aabbMin2[1])),
