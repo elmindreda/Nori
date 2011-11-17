@@ -71,25 +71,6 @@ void Label::setText(const char* newText)
   invalidate();
 }
 
-void Label::setText(const char* format, ...)
-{
-  va_list vl;
-  char* newText;
-  int result;
-
-  va_start(vl, format);
-  result = vasprintf(&newText, format, vl);
-  va_end(vl);
-
-  if (result < 0)
-    return;
-
-  text = newText;
-  std::free(newText);
-
-  invalidate();
-}
-
 const Alignment& Label::getTextAlignment() const
 {
   return textAlignment;

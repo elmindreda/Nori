@@ -85,23 +85,6 @@ Path::Path(const String& initName)
   operator = (initName);
 }
 
-Path::Path(const char* format, ...)
-{
-  va_list vl;
-  char* message;
-  int result;
-
-  va_start(vl, format);
-  result = vasprintf(&message, format, vl);
-  va_end(vl);
-
-  if (result != -1)
-  {
-    operator = (message);
-    std::free(message);
-  }
-}
-
 bool Path::createDirectory() const
 {
 #ifdef _WIN32

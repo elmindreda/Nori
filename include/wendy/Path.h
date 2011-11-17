@@ -54,9 +54,6 @@ public:
   /*! Constructor. Creates a path object with the specified name.
    */
   explicit Path(const String& name = "");
-  /*! Constructor. Creates a path object with the specified name.
-   */
-  explicit Path(const char* format, ...);
   /*! Creates a directory with this path.
    *  @return @c true if successful, otherwise @c false.
    */

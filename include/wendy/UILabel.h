@@ -41,7 +41,6 @@ public:
   Label(Layer& layer, const char* text = "");
   const String& getText() const;
   void setText(const char* newText);
-  void setText(const char* format, ...);
   const Alignment& getTextAlignment() const;
   void setTextAlignment(const Alignment& newAlignment);
 private:
