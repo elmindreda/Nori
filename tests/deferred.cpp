@@ -8,6 +8,9 @@
 
 using namespace wendy;
 
+namespace
+{
+
 class Test : public Trackable
 {
 public:
@@ -16,6 +19,7 @@ public:
   void run();
 private:
   bool render();
+  void onContextResized(unsigned int width, unsigned int height);
   ResourceIndex index;
   input::MayaCamera controller;
   Ptr<render::GeometryPool> pool;
@@ -53,6 +57,7 @@ bool Test::init()
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
+  context->getResizedSignal().connect(*this, &Test::onContextResized);
 
   const unsigned int width = context->getDefaultFramebuffer().getWidth();
   const unsigned int height = context->getDefaultFramebuffer().getHeight();
@@ -93,7 +98,7 @@ bool Test::init()
   camera->setNearZ(0.5f);
   camera->setFarZ(500.f);
   camera->setFOV(60.f);
-  camera->setAspectRatio((float) width / height);
+  camera->setAspectRatio(float(width) / float(height));
 
   cameraNode = new scene::CameraNode();
   cameraNode->setCamera(camera);
@@ -154,6 +159,14 @@ void Test::run()
   }
   while (context.update());
 }
+
+void Test::onContextResized(unsigned int width, unsigned int height)
+{
+  GL::Context* context = GL::Context::getSingleton();
+  context->setViewportArea(Recti(0, 0, width, height));
+}
+
+} /*namespace*/
 
 int main()
 {

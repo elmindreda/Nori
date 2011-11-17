@@ -21,6 +21,7 @@ public:
   bool init();
   void run();
 private:
+  void onContextResized(unsigned int width, unsigned int height);
   ResourceIndex index;
   input::MayaCamera controller;
   Ptr<render::GeometryPool> pool;
@@ -56,6 +57,7 @@ bool Test::init()
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
+  context->getResizedSignal().connect(*this, &Test::onContextResized);
 
   if (!input::Context::createSingleton(*context))
     return false;
@@ -93,8 +95,11 @@ bool Test::init()
     graph.addRootNode(*modelNode);
   }
 
+  GL::Framebuffer& framebuffer = context->getCurrentFramebuffer();
+
   camera = new render::Camera();
   camera->setFOV(60.f);
+  camera->setAspectRatio((float) framebuffer.getWidth() / framebuffer.getHeight());
 
   cameraNode = new scene::CameraNode();
   cameraNode->setCamera(camera);
@@ -130,6 +135,14 @@ void Test::run()
     context.setTitle(oss.str().c_str());
   }
   while (context.update());
+}
+
+void Test::onContextResized(unsigned int width, unsigned int height)
+{
+  GL::Context* context = GL::Context::getSingleton();
+  context->setViewportArea(Recti(0, 0, width, height));
+
+  camera->setAspectRatio(float(width) / float(height));
 }
 
 } /*namespace*/

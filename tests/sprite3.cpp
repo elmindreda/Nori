@@ -8,13 +8,14 @@ namespace
 
 using namespace wendy;
 
-class Test
+class Test : public Trackable
 {
 public:
   ~Test();
   bool init();
   void run();
 private:
+  void onContextResized(unsigned int width, unsigned int height);
   ResourceIndex index;
   Ref<render::SharedProgramState> state;
   Ptr<render::GeometryPool> pool;
@@ -47,6 +48,7 @@ bool Test::init()
   }
 
   GL::Context* context = GL::Context::getSingleton();
+  context->getResizedSignal().connect(*this, &Test::onContextResized);
 
   state = new render::SharedProgramState();
   state->reserveSupported(*context);
@@ -71,7 +73,10 @@ bool Test::init()
     return false;
   }
 
+  GL::Framebuffer& framebuffer = context->getCurrentFramebuffer();
+
   camera = new render::Camera();
+  camera->setAspectRatio((float) framebuffer.getWidth() / framebuffer.getHeight());
 
   return true;
 }
@@ -107,6 +112,14 @@ void Test::run()
     scene.detachLights();
   }
   while (context.update());
+}
+
+void Test::onContextResized(unsigned int width, unsigned int height)
+{
+  GL::Context* context = GL::Context::getSingleton();
+  context->setViewportArea(Recti(0, 0, width, height));
+
+  camera->setAspectRatio(float(width) / float(height));
 }
 
 } /*namespace*/

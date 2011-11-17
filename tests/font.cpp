@@ -33,6 +33,7 @@ public:
   bool init();
   void run();
 private:
+  void onContextResized(unsigned int width, unsigned int height);
   ResourceIndex index;
   Ref<render::SharedProgramState> state;
   Ptr<render::GeometryPool> pool;
@@ -64,6 +65,7 @@ bool Test::init()
 
   GL::Context* context = GL::Context::getSingleton();
   context->setRefreshMode(GL::Context::MANUAL_REFRESH);
+  context->getResizedSignal().connect(*this, &Test::onContextResized);
 
   state = new render::SharedProgramState();
   state->reserveSupported(*context);
@@ -102,6 +104,12 @@ void Test::run()
     }
   }
   while (context->update());
+}
+
+void Test::onContextResized(unsigned int width, unsigned int height)
+{
+  GL::Context* context = GL::Context::getSingleton();
+  context->setViewportArea(Recti(0, 0, width, height));
 }
 
 } /*namespace*/

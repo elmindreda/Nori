@@ -18,6 +18,7 @@ public:
   void run();
 private:
   bool render();
+  void onContextResized(unsigned int width, unsigned int height);
   ResourceIndex index;
   Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
@@ -51,6 +52,7 @@ bool Test::init()
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
+  context->getResizedSignal().connect(*this, &Test::onContextResized);
 
   pool = new render::GeometryPool(*context);
 
@@ -72,9 +74,11 @@ bool Test::init()
   modelNode->setModel(model);
   graph.addRootNode(*modelNode);
 
+  GL::Framebuffer& framebuffer = context->getCurrentFramebuffer();
+
   camera = new render::Camera();
   camera->setFOV(60.f);
-  camera->setAspectRatio(4.f / 3.f);
+  camera->setAspectRatio((float) framebuffer.getWidth() / framebuffer.getHeight());
 
   cameraNode = new scene::CameraNode();
   cameraNode->setCamera(camera);
@@ -110,6 +114,14 @@ void Test::run()
     scene.detachLights();
   }
   while (context.update());
+}
+
+void Test::onContextResized(unsigned int width, unsigned int height)
+{
+  GL::Context* context = GL::Context::getSingleton();
+  context->setViewportArea(Recti(0, 0, width, height));
+
+  camera->setAspectRatio(float(width) / float(height));
 }
 
 } /*namespace*/

@@ -5,6 +5,17 @@
 
 using namespace wendy;
 
+namespace
+{
+
+void onContextResized(unsigned int width, unsigned int height)
+{
+  GL::Context* context = GL::Context::getSingleton();
+  context->setViewportArea(Recti(0, 0, width, height));
+}
+
+} /*namespace*/
+
 int main()
 {
   ResourceIndex index;
@@ -16,6 +27,7 @@ int main()
   }
 
   GL::Context* context = GL::Context::getSingleton();
+  context->getResizedSignal().connect(onContextResized);
 
   do
   {

@@ -6,6 +6,9 @@
 
 using namespace wendy;
 
+namespace
+{
+
 class Demo : public Trackable, public input::Target
 {
 public:
@@ -17,6 +20,7 @@ private:
   void onKeyPressed(input::Key key, bool pressed);
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const ivec2& position);
+  void onContextResized(unsigned int width, unsigned int height);
   ResourceIndex index;
   input::SpectatorController controller;
   Ptr<render::GeometryPool> pool;
@@ -66,6 +70,7 @@ bool Demo::init()
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
+  context->getResizedSignal().connect(*this, &Demo::onContextResized);
 
   const unsigned int width = context->getDefaultFramebuffer().getWidth();
   const unsigned int height = context->getDefaultFramebuffer().getHeight();
@@ -190,12 +195,26 @@ void Demo::onCursorMoved(const ivec2& position)
   lastPosition = position;
 }
 
+void Demo::onContextResized(unsigned int width, unsigned int height)
+{
+  GL::Context* context = GL::Context::getSingleton();
+  context->setViewportArea(Recti(0, 0, width, height));
+
+  camera->setAspectRatio(float(width) / float(height));
+}
+
+} /*namespace*/
+
 int main()
 {
   Ptr<Demo> demo(new Demo());
-  if (demo->init())
-    demo->run();
+  if (!demo->init())
+  {
+    logError("Failed to initialize demo");
+    std::exit(EXIT_FAILURE);
+  }
 
+  demo->run();
   demo = NULL;
 
   std::exit(EXIT_SUCCESS);
