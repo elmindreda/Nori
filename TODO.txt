@@ -136,5 +136,14 @@ Add color picker widget
 
 Add tooltip system
 
+Add drawTab to Drawer
+
 Add usable theme
+
+
+Bullet
+======
+
+Add BvhMeshShapeReader and BvhMeshShapeWriter
+Add Mesh to btBvhTriangleMeshShape conversion
 
