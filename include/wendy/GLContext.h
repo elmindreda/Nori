@@ -276,7 +276,7 @@ public:
   Stats();
   void addFrame();
   void addPasses(unsigned int count);
-  void addPrimitives(PrimitiveType type, unsigned int count);
+  void addPrimitives(PrimitiveType type, unsigned int vertexCount);
   float getFrameRate() const;
   unsigned int getFrameCount() const;
   const Frame& getFrame() const;

@@ -467,8 +467,9 @@ void Stats::addFrame()
 
     // Calculate frame rate
     for (FrameQueue::const_iterator f = frames.begin();  f != frames.end();  f++)
-      frameRate += (float) f->duration;
-    frameRate = (float) frames.size() / frameRate;
+      frameRate += float(f->duration);
+
+    frameRate = float(frames.size()) / frameRate;
   }
 
   // Add new empty frame for recording the stats
@@ -483,36 +484,33 @@ void Stats::addPasses(unsigned int count)
   frame.passCount += count;
 }
 
-void Stats::addPrimitives(PrimitiveType type, unsigned int count)
+void Stats::addPrimitives(PrimitiveType type, unsigned int vertexCount)
 {
-  if (!count)
-    return;
-
   Frame& frame = frames.front();
-  frame.vertexCount += count;
+  frame.vertexCount += vertexCount;
 
   switch (type)
   {
     case POINT_LIST:
-      frame.pointCount += count;
+      frame.pointCount += vertexCount;
       break;
     case LINE_LIST:
-      frame.lineCount += count / 2;
+      frame.lineCount += vertexCount / 2;
       break;
     case LINE_STRIP:
-      frame.lineCount += count - 1;
+      frame.lineCount += vertexCount - 1;
       break;
     case TRIANGLE_LIST:
-      frame.triangleCount += count / 3;
+      frame.triangleCount += vertexCount / 3;
       break;
     case TRIANGLE_STRIP:
-      frame.triangleCount += count - 2;
+      frame.triangleCount += vertexCount - 2;
       break;
     case TRIANGLE_FAN:
-      frame.triangleCount += count - 1;
+      frame.triangleCount += vertexCount - 1;
       break;
     default:
-      logError("Invalid primitive type %u", type);
+      panic("Invalid primitive type %u", type);
   }
 }
 
