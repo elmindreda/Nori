@@ -69,11 +69,16 @@ Config::Config(unsigned int initWidth, unsigned int initHeight):
 void Renderer::render(const render::Scene& scene, const render::Camera& camera)
 {
   GL::Context& context = pool.getContext();
+
+  Ref<GL::SharedProgramState> prevState = context.getCurrentSharedProgramState();
   context.setCurrentSharedProgramState(state);
 
-  GL::Framebuffer& previousFramebuffer = context.getCurrentFramebuffer();
-
+  Ref<GL::Framebuffer> prevFramebuffer = &(context.getCurrentFramebuffer());
   context.setCurrentFramebuffer(*framebuffer);
+
+  const Recti prevViewportArea = context.getViewportArea();
+  context.setViewportArea(Recti(0, 0, framebuffer->getWidth(), framebuffer->getHeight()));
+
   context.clearDepthBuffer();
   context.clearColorBuffer();
 
@@ -90,7 +95,8 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
 
   renderOperations(scene.getOpaqueQueue());
 
-  context.setCurrentFramebuffer(previousFramebuffer);
+  context.setCurrentFramebuffer(*prevFramebuffer);
+  context.setViewportArea(prevViewportArea);
 
   state->setOrthoProjectionMatrix(1.f, 1.f);
 
@@ -101,7 +107,7 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
   for (unsigned int i = 0;  i < scene.getLightCount();  i++)
     renderLight(camera, scene.getLight(i));
 
-  context.setCurrentSharedProgramState(NULL);
+  context.setCurrentSharedProgramState(prevState);
 }
 
 SharedProgramState& Renderer::getSharedProgramState()
