@@ -126,6 +126,10 @@ mat4 mat4Cast(const String& string);
  */
 quat quatCast(const String& string);
 
+/*! @brief Creates a string using printf formatting.
+ */
+String format(const char* format, ...);
+
 ///////////////////////////////////////////////////////////////////////
 
 class RefObject;

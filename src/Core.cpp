@@ -223,6 +223,27 @@ quat quatCast(const String& string)
   return result;
 }
 
+String format(const char* format, ...)
+{
+  String result;
+
+  va_list vl;
+  char* text;
+  int count;
+
+  va_start(vl, format);
+  count = vasprintf(&text, format, vl);
+  va_end(vl);
+
+  if (count < 0)
+    return String();
+
+  result = text;
+  std::free(text);
+
+  return result;
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 StringHash hashString(const String& string)
