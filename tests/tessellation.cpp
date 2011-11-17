@@ -1,5 +1,3 @@
-// Shaders for this test adapted from http://prideout.net/blog/?p=48
-// Their original license: public domain
 
 #include <wendy/Wendy.h>
 
