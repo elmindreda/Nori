@@ -20,7 +20,6 @@ private:
   void onKeyPressed(input::Key key, bool pressed);
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const ivec2& position);
-  void onContextResized(unsigned int width, unsigned int height);
   ResourceIndex index;
   input::SpectatorController controller;
   Ptr<render::GeometryPool> pool;
@@ -66,11 +65,13 @@ bool Demo::init()
   if (!index.addSearchPath(Path(mediaPath) + "sponza"))
     return false;
 
-  if (!GL::Context::createSingleton(index, GL::WindowConfig()))
+  GL::WindowConfig wc;
+  wc.resizable = false;
+
+  if (!GL::Context::createSingleton(index, wc))
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
-  context->getResizedSignal().connect(*this, &Demo::onContextResized);
 
   const unsigned int width = context->getDefaultFramebuffer().getWidth();
   const unsigned int height = context->getDefaultFramebuffer().getHeight();
@@ -193,14 +194,6 @@ void Demo::onCursorMoved(const ivec2& position)
 {
   controller.inputCursorOffset(position - lastPosition);
   lastPosition = position;
-}
-
-void Demo::onContextResized(unsigned int width, unsigned int height)
-{
-  GL::Context* context = GL::Context::getSingleton();
-  context->setViewportArea(Recti(0, 0, width, height));
-
-  camera->setAspectRatio(float(width) / float(height));
 }
 
 } /*namespace*/

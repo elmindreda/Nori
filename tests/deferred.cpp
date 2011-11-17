@@ -19,7 +19,6 @@ public:
   void run();
 private:
   bool render();
-  void onContextResized(unsigned int width, unsigned int height);
   ResourceIndex index;
   input::MayaCamera controller;
   Ptr<render::GeometryPool> pool;
@@ -53,11 +52,13 @@ bool Test::init()
   if (!index.addSearchPath(Path(mediaPath)))
     return false;
 
-  if (!GL::Context::createSingleton(index, GL::WindowConfig("Deferred Rendering Test")))
+  GL::WindowConfig wc("Deferred Rendering Test");
+  wc.resizable = false;
+
+  if (!GL::Context::createSingleton(index, wc))
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
-  context->getResizedSignal().connect(*this, &Test::onContextResized);
 
   const unsigned int width = context->getDefaultFramebuffer().getWidth();
   const unsigned int height = context->getDefaultFramebuffer().getHeight();
@@ -158,12 +159,6 @@ void Test::run()
     scene.detachLights();
   }
   while (context.update());
-}
-
-void Test::onContextResized(unsigned int width, unsigned int height)
-{
-  GL::Context* context = GL::Context::getSingleton();
-  context->setViewportArea(Recti(0, 0, width, height));
 }
 
 } /*namespace*/
