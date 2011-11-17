@@ -281,7 +281,8 @@ WindowConfig::WindowConfig():
   title("Wendy"),
   width(640),
   height(480),
-  mode(WINDOWED)
+  mode(WINDOWED),
+  resizable(true)
 {
 }
 
@@ -289,18 +290,21 @@ WindowConfig::WindowConfig(const String& initTitle):
   title(initTitle),
   width(640),
   height(480),
-  mode(WINDOWED)
+  mode(WINDOWED),
+  resizable(true)
 {
 }
 
 WindowConfig::WindowConfig(const String& initTitle,
                            unsigned int initWidth,
                            unsigned int initHeight,
-                           WindowMode initMode):
+                           WindowMode initMode,
+                           bool initResizable):
   title(initTitle),
   width(initWidth),
   height(initHeight),
-  mode(initMode)
+  mode(initMode),
+  resizable(initResizable)
 {
 }
 
@@ -1192,6 +1196,8 @@ bool Context::init(const WindowConfig& windowConfig,
 
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, version.m);
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, version.n);
+
+    glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, !windowConfig.resizable);
 
     if (version > Version(3,1))
     {

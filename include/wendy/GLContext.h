@@ -123,7 +123,8 @@ public:
   WindowConfig(const String& title,
                unsigned int width,
                unsigned int height,
-               WindowMode mode);
+               WindowMode mode,
+               bool resizable = true);
   /*! The desired window title.
    */
   String title;
@@ -136,6 +137,9 @@ public:
   /*! The desired mode of the window.
    */
   WindowMode mode;
+  /*! @c true if the window should be resizable, @c false otherwise.
+   */
+  bool resizable;
 };
 
 ///////////////////////////////////////////////////////////////////////
