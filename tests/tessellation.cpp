@@ -4,6 +4,7 @@
 #include <wendy/Wendy.h>
 
 #include <cstdlib>
+#include <sstream>
 
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/constants.hpp>
@@ -51,7 +52,7 @@ bool Test::init()
   GL::ContextConfig cc;
   cc.version = GL::Version(4,1);
 
-  if (!GL::Context::createSingleton(index, GL::WindowConfig("OpenGL 4 Hardware Tessellation"), cc))
+  if (!GL::Context::createSingleton(index, GL::WindowConfig(), cc))
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
@@ -107,6 +108,8 @@ void Test::run()
 {
   render::Scene scene(*pool, render::Technique::FORWARD);
   GL::Context& context = pool->getContext();
+  GL::Stats stats;
+  context.setStats(&stats);
 
   do
   {
@@ -121,6 +124,10 @@ void Test::run()
 
     scene.removeOperations();
     scene.detachLights();
+
+    std::ostringstream oss;
+    oss << "OpenGL 4 Hardware Tessellation - FPS: " << stats.getFrameRate();
+    context.setTitle(oss.str().c_str());
   }
   while (context.update());
 }
