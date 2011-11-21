@@ -164,6 +164,10 @@ const char* getFramebufferStatusMessage(GLenum status)
       return "Incomplete framebuffer read buffer";
     case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
       return "Framebuffer configuration is unsupported";
+    case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS_ARB:
+      return "Framebuffer layer targets incomplete";
+    case GL_FRAMEBUFFER_INCOMPLETE_LAYER_COUNT_ARB:
+      return "Framebuffer layer counts incomplete";
   }
 
   logError("Unknown OpenGL framebuffer status %u", status);
