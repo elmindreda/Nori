@@ -27,6 +27,7 @@
 #include <wendy/Core.h>
 #include <wendy/Timer.h>
 
+#define GLFW_NO_GLU
 #include <GL/glfw.h>
 
 ///////////////////////////////////////////////////////////////////////

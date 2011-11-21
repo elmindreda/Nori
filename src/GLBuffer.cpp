@@ -176,8 +176,7 @@ void* VertexBuffer::lock(LockType type)
   void* mapping = glMapBuffer(GL_ARRAY_BUFFER, convertToGL(type));
   if (mapping == NULL)
   {
-    logError("Failed to lock vertex buffer: %s",
-             gluErrorString(glGetError()));
+    checkGL("Failed to lock vertex buffer");
     return NULL;
   }
 
@@ -347,7 +346,7 @@ void* IndexBuffer::lock(LockType type)
   void* mapping = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, convertToGL(type));
   if (mapping == NULL)
   {
-    logError("Failed to lock index buffer: %s", gluErrorString(glGetError()));
+    checkGL("Failed to lock index buffer");
     return NULL;
   }
 

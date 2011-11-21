@@ -33,6 +33,7 @@
 
 #include <wendy/Input.h>
 
+#define GLFW_NO_GLU
 #include <GL/glfw.h>
 
 #include <map>

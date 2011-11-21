@@ -43,6 +43,36 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+namespace
+{
+
+const char* getErrorString(unsigned int error)
+{
+  switch (error)
+  {
+    case GL_NO_ERROR:
+      return "no error";
+    case GL_INVALID_ENUM:
+      return "invalid enum";
+    case GL_INVALID_VALUE:
+      return "invalid value";
+    case GL_INVALID_OPERATION:
+      return "invalid operation";
+    case GL_STACK_OVERFLOW:
+      return "stack overflow";
+    case GL_STACK_UNDERFLOW:
+      return "stack underflow";
+    case GL_OUT_OF_MEMORY:
+      return "out of memory";
+    case GL_INVALID_FRAMEBUFFER_OPERATION_EXT:
+      return "invalid framebuffer operation";
+  }
+}
+
+} /*namespace*/
+
+///////////////////////////////////////////////////////////////////////
+
 bool checkGL(const char* format, ...)
 {
   GLenum error = glGetError();
@@ -63,7 +93,7 @@ bool checkGL(const char* format, ...)
     return false;
   }
 
-  logError("%s: %s", message, gluErrorString(error));
+  logError("%s: %s", message, getErrorString(error));
 
   std::free(message);
   return false;

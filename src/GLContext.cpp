@@ -36,6 +36,7 @@
 
 #include <internal/GLConvert.h>
 
+#define GLFW_NO_GLU
 #include <GL/glfw.h>
 
 #include <algorithm>

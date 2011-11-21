@@ -57,7 +57,6 @@ packages provide the necessary support:
   xorg-dev
   libopenal-dev
   libgl1-mesa-dev
-  libglu1-mesa-dev
 
 On other Linux systems and other Unix-like systems, there will most likely be
 similarly named packages available.
