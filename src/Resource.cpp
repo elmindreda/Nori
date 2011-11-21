@@ -126,39 +126,35 @@ Resource* ResourceIndex::findResource(const Path& path) const
 
 bool ResourceIndex::openFile(std::ifstream& stream, const Path& path) const
 {
-  Path full = path;
+  const Path full = findFile(path);
+  if (full.isEmpty())
+    return false;
 
-  if (findFile(full))
-  {
-    stream.open(full.asString().c_str(), std::ios::in | std::ios::binary);
-    if (!stream.fail())
-      return true;
-  }
+  stream.open(full.asString().c_str(), std::ios::in | std::ios::binary);
+  if (stream.fail())
+    return false;
 
-  return false;
+  return true;
 }
 
-bool ResourceIndex::findFile(Path& path) const
+Path ResourceIndex::findFile(const Path& path) const
 {
   if (paths.empty())
   {
     if (path.isFile())
-      return true;
+      return path;
   }
   else
   {
-    for (size_t i = 0;  i < paths.size();  i++)
+    for (PathList::const_iterator p = paths.begin();  p != paths.end();  p++)
     {
-      Path full = paths[i] + path.asString();
+      Path full = *p + path.asString();
       if (full.isFile())
-      {
-        path = full;
-        return true;
-      }
+        return full;
     }
   }
 
-  return false;
+  return Path();
 }
 
 const PathList& ResourceIndex::getSearchPaths() const

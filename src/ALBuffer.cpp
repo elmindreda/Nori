@@ -219,9 +219,8 @@ Ref<Buffer> BufferReader::read(const Path& path)
   if (Resource* cache = getIndex().findResource(path))
     return dynamic_cast<Buffer*>(cache);
 
-  Path full = path;
-
-  if (!getIndex().findFile(full))
+  const Path full = getIndex().findFile(path);
+  if (full.isEmpty())
   {
     logError("Could not find audio file \'%s\'", path.asString().c_str());
     return NULL;

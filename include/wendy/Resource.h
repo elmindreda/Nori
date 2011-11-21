@@ -74,7 +74,7 @@ public:
   void removeSearchPath(const Path& path);
   Resource* findResource(const Path& path) const;
   bool openFile(std::ifstream& stream, const Path& path) const;
-  bool findFile(Path& path) const;
+  Path findFile(const Path& path) const;
   const PathList& getSearchPaths() const;
 private:
   typedef std::vector<Resource*> List;
