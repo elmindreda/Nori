@@ -216,17 +216,17 @@ GLuint createShader(GL::Context& context, GLenum type, const Shader& shader)
     std::ostringstream stream;
     stream << shader.version;
 
-    decl.append("#version ");
-    decl.append(stream.str());
-    decl.append("\n");
+    decl += "#version ";
+    decl += stream.str();
+    decl += "\n";
   }
 
-  decl.append("#line 0 0\n");
-  decl.append(context.getSharedProgramStateDeclaration());
+  decl += "#line 0 0\n";
+  decl += context.getSharedProgramStateDeclaration();
 
   String main;
-  main.append("#line 0 1\n");
-  main.append(shader.text);
+  main += "#line 0 1\n";
+  main += shader.text;
 
   GLsizei lengths[2];
   const GLchar* strings[2];

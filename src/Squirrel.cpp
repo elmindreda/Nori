@@ -57,21 +57,21 @@ String escapeString(const SQChar* string)
   for (const SQChar* c = string;  *c;  c++)
   {
     if (*c == '\t')
-      result.append("\\t");
+      result += "\\t";
     else if (*c == '\a')
-      result.append("\\a");
+      result += "\\a";
     else if (*c == '\b')
-      result.append("\\b");
+      result += "\\b";
     else if (*c == '\n')
-      result.append("\\n");
+      result += "\\n";
     else if (*c == '\r')
-      result.append("\\r");
+      result += "\\r";
     else if (*c == '\v')
-      result.append("\\v");
+      result += "\\v";
     else if (*c == '\f')
-      result.append("\\f");
+      result += "\\f";
     else
-      result.append(1, *c);
+      result += *c;
   }
 
   return result;

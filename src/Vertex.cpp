@@ -174,7 +174,7 @@ bool VertexFormat::createComponents(const char* specification)
     String name;
 
     while (*c != '\0' && *c != ' ')
-      name.append(1, *c++);
+      name += *c++;
 
     if (!createComponent(name.c_str(), count, type))
       return false;

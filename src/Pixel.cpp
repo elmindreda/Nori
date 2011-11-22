@@ -56,7 +56,7 @@ PixelFormat::PixelFormat(const char* specification):
   String semanticName;
 
   while (std::isalpha(*c))
-    semanticName.append(1, std::tolower(*c++));
+    semanticName += std::tolower(*c++);
 
   if (semanticName == "r")
     semantic = R;
@@ -74,7 +74,7 @@ PixelFormat::PixelFormat(const char* specification):
   String typeName;
 
   while (std::isdigit(*c) || std::isalpha(*c))
-    typeName.append(1, std::tolower(*c++));
+    typeName += std::tolower(*c++);
 
   if (typeName == "8")
     type = UINT8;

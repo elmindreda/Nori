@@ -58,16 +58,16 @@ String escapeString(const String& string)
     switch (*c)
     {
       case '<':
-        result.append("&lt;");
+        result += "&lt;";
         break;
       case '>':
-        result.append("&gt;");
+        result += "&gt;";
         break;
       case '&':
-        result.append("&amp;");
+        result += "&amp;";
         break;
       default:
-        result.append(1, *c);
+        result += *c;
         break;
     }
   }

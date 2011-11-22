@@ -124,11 +124,7 @@ Path Path::operator + (const String& child) const
 
 Path& Path::operator += (const String& child)
 {
-  String newPath = path;
-  newPath.append(1, '/');
-  newPath.append(child);
-
-  return operator = (newPath);
+  return operator = (path + '/' + child);
 }
 
 bool Path::operator == (const Path& other) const
