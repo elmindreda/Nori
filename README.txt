@@ -45,6 +45,7 @@ Wendy comes with internal versions of the following libraries:
   libpng (http://www.libpng.org/) for reading and writing PNG files
   libvorbis (http://xiph.org/vorbis/) for decoding Vorbis audio data
   PCRE (http://www.pcre.org/) for regular expression support
+  pugixml (http://pugixml.org/) for reading and writing XML files
   Squirrel (http://squirrel-lang.org/) for embedded scripting
   zlib (http://zlib.net/) for compressed data streams
 
