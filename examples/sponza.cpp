@@ -123,6 +123,7 @@ bool Demo::init()
   }
 
   controller.setSpeed(25.f);
+  controller.setPosition(vec3(0.f, 10.f, 0.f));
 
   return true;
 }
