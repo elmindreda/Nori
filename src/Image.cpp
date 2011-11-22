@@ -537,7 +537,7 @@ Ref<Image> ImageReader::read(const Path& path)
 
     if (!stream.read((char*) header, sizeof(header)))
     {
-      logError("Unable to read PNG file header");
+      logError("Failed to read PNG file header");
       return NULL;
     }
 
@@ -652,7 +652,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
                                                 writeWarningPNG);
   if (!context)
   {
-    logError("Unable to create write struct");
+    logError("Failed to create write struct");
     return false;
   }
 
@@ -663,7 +663,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
   if (!info)
   {
     png_destroy_write_struct(&context, png_infopp(NULL));
-    logError("Unable to create info struct");
+    logError("Failed to create info struct");
     return false;
   }
 
@@ -672,7 +672,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
   if (!getEncodeConversionFormatPNG(format, image.getFormat()))
   {
     png_destroy_write_struct(&context, &info);
-    logError("Unable to encode image format");
+    logError("Failed to encode image format");
     return false;
   }
 

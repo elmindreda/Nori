@@ -199,7 +199,7 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
     Ref<Material> material = Material::read(context, materialPath);
     if (!material)
     {
-      logError("Cannot find material \'%s\' for render mesh \'%s\'",
+      logError("Failed to find material \'%s\' for render mesh \'%s\'",
                g->shaderName.c_str(),
                getPath().asString().c_str());
       return false;

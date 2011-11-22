@@ -737,7 +737,7 @@ bool FontReader::onBeginElement(const String& name)
     Ref<Image> image = Image::read(getIndex(), imagePath);
     if (!image)
     {
-      logError("Cannot find image \'%s\' for font \'%s\'",
+      logError("Failed to find image \'%s\' for font \'%s\'",
                imagePath.asString().c_str(),
                info.path.asString().c_str());
       return false;

@@ -1315,7 +1315,7 @@ bool ProgramReader::onBeginElement(const String& name)
     String text;
     if (!readTextFile(getIndex(), text, path))
     {
-      logError("Cannot find %s shader \'%s\' for shader program \'%s\'",
+      logError("Failed to find %s shader \'%s\' for shader program \'%s\'",
                name.c_str(),
                path.asString().c_str(),
                info.path.asString().c_str());

@@ -652,13 +652,13 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
 {
   if (!currentProgram)
   {
-    logError("Unable to render without a current shader program");
+    logError("Cannot render without a current shader program");
     return;
   }
 
   if (!currentVertexBuffer)
   {
-    logError("Unable to render without a current vertex buffer");
+    logError("Cannot render without a current vertex buffer");
     return;
   }
 
@@ -1218,7 +1218,7 @@ bool Context::init(const WindowConfig& windowConfig,
                         colorBits / 3, colorBits / 3, colorBits / 3, 0,
                         contextConfig.depthBits, contextConfig.stencilBits, mode))
     {
-      logError("Unable to create GLFW window");
+      logError("Failed to create GLFW window");
       return false;
     }
 
@@ -1241,7 +1241,7 @@ bool Context::init(const WindowConfig& windowConfig,
   {
     if (glewInit() != GLEW_OK)
     {
-      logError("Unable to initialize GLEW");
+      logError("Failed to initialize GLEW");
       return false;
     }
 

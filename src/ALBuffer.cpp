@@ -250,7 +250,7 @@ Ref<Buffer> BufferReader::read(const Path& path)
   if (!info)
   {
     ov_clear(&file);
-    logError("Unable to retrieve Vorbis info for audio file \'%s\'",
+    logError("Failed to retrieve Vorbis info for audio file \'%s\'",
              full.asString().c_str());
     return NULL;
   }
