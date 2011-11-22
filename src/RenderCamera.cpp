@@ -68,24 +68,33 @@ float Camera::getFarZ() const
 
 void Camera::setFOV(float newFOV)
 {
+  assert(newFOV > 0.f);
+  assert(newFOV < 180.f);
+
   FOV = newFOV;
   dirtyFrustum = true;
 }
 
 void Camera::setAspectRatio(float newAspectRatio)
 {
+  assert(newAspectRatio > 0.f);
+
   aspectRatio = newAspectRatio;
   dirtyFrustum = true;
 }
 
 void Camera::setNearZ(float newNearZ)
 {
+  assert(newNearZ > 0.f);
+
   nearZ = newNearZ;
   dirtyFrustum = true;
 }
 
 void Camera::setFarZ(float newFarZ)
 {
+  assert(newFarZ > 0.f);
+
   farZ = newFarZ;
   dirtyFrustum = true;
 }
