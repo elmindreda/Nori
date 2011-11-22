@@ -5,8 +5,8 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 include_directories(${libpng_SOURCE_DIR}
                     ${zlib_SOURCE_DIR}
-		    ${pugixml_SOURCE_DIR}
-		    ${PCRE_SOURCE_DIR}
+                    ${pugixml_SOURCE_DIR}
+                    ${PCRE_SOURCE_DIR}
                     ${GLEW_SOURCE_DIR}
                     ${glfw_SOURCE_DIR})
 
