@@ -144,6 +144,5 @@ Add usable theme
 Bullet
 ======
 
-Add BvhMeshShapeReader and BvhMeshShapeWriter
 Add Mesh to btBvhTriangleMeshShape conversion
 

@@ -28,6 +28,8 @@
 
 #include <wendy/Core.h>
 #include <wendy/Transform.h>
+#include <wendy/Path.h>
+#include <wendy/Resource.h>
 
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
@@ -46,6 +48,23 @@ btTransform convert(const Transform3& transform);
 
 vec3 convert(const btVector3& vector);
 btVector3 convert(const vec3& vector);
+
+///////////////////////////////////////////////////////////////////////
+
+class BvhMeshShapeReader : public ResourceReader
+{
+public:
+  BvhMeshShapeReader(ResourceIndex& index);
+  btBvhTriangleMeshShape* read(const Path& path);
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class BvhMeshShapeWriter
+{
+public:
+  bool write(const Path& path, const btBvhTriangleMeshShape& shape);
+};
 
 ///////////////////////////////////////////////////////////////////////
 

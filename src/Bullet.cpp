@@ -27,6 +27,8 @@
 
 #include <wendy/Bullet.h>
 
+#include <btBulletWorldImporter.h>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -72,6 +74,69 @@ vec3 convert(const btVector3& vector)
 btVector3 convert(const vec3& vector)
 {
   return btVector3(vector.x, vector.y, vector.z);
+}
+
+///////////////////////////////////////////////////////////////////////
+
+BvhMeshShapeReader::BvhMeshShapeReader(ResourceIndex& index):
+  ResourceReader(index)
+{
+}
+
+btBvhTriangleMeshShape* BvhMeshShapeReader::read(const Path& path)
+{
+  const Path full = getIndex().findFile(path);
+  if (full.isEmpty())
+  {
+    logError("Could not find mesh shape file \'%s\'", path.asString().c_str());
+    return NULL;
+  }
+
+  btBulletWorldImporter importer;
+
+  if (!importer.loadFile(path.asString().c_str()))
+  {
+    logError("Failed to load mesh shape file \'%s\'", path.asString().c_str());
+    return NULL;
+  }
+
+  if (!importer.getNumCollisionShapes())
+  {
+    logError("Mesh shape file \'%s\' does not contain any shapes");
+    return NULL;
+  }
+
+  return reinterpret_cast<btBvhTriangleMeshShape*>(importer.getCollisionShapeByIndex(0));
+}
+
+///////////////////////////////////////////////////////////////////////
+
+bool BvhMeshShapeWriter::write(const Path& path, const btBvhTriangleMeshShape& shape)
+{
+  std::ofstream stream(path.asString().c_str());
+  if (!stream.is_open())
+  {
+    logError("Failed to open mesh shape file \'%s\' for writing", path.asString().c_str());
+    return false;
+  }
+
+  btDefaultSerializer serializer;
+
+  serializer.startSerialization();
+  shape.serializeSingleBvh(&serializer);
+  serializer.finishSerialization();
+
+  stream.write(reinterpret_cast<const char*>(serializer.getBufferPointer()),
+               serializer.getCurrentBufferSize());
+
+  if (stream.bad())
+  {
+    logError("Failed to write BVH data to \'%s\'", path.asString().c_str());
+    return false;
+  }
+
+  stream.close();
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////
