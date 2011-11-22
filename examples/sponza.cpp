@@ -122,6 +122,8 @@ bool Demo::init()
     lastPosition =  context->getCursorPosition();
   }
 
+  controller.setSpeed(25.f);
+
   return true;
 }
 
