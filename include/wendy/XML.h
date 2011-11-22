@@ -48,10 +48,6 @@ protected:
   virtual bool onBeginElement(const String& name) = 0;
   virtual bool onEndElement(const String& name) = 0;
   virtual bool onCDATA(const String& data);
-  template <typename T>
-  void readAttributes(T& value);
-  template <typename T>
-  void readAttributes(T& value, const T& defaultValue);
   bool readBoolean(const char* name, bool defaultValue = false);
   float readFloat(const char* name, float defaultValue = 0.f);
   int readInteger(const char* name, int defaultValue = 0);
