@@ -504,8 +504,7 @@ void Drawer::drawText(const Rect& area,
                       (metrics.position.x + metrics.size.x);
       break;
     default:
-      logError("Invalid horizontal alignment");
-      return;
+      panic("Invalid horizontal alignment");
   }
 
   switch (alignment.vertical)
@@ -521,8 +520,7 @@ void Drawer::drawText(const Rect& area,
                       (metrics.position.y + metrics.size.y);
       break;
     default:
-      logError("Invalid vertical alignment");
-      return;
+      panic("Invalid vertical alignment");
   }
 
   currentFont->drawText(penPosition, vec4(color, 1.f), text);

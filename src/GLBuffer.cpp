@@ -62,8 +62,7 @@ GLenum convertToGL(LockType type)
       return GL_READ_WRITE;
   }
 
-  logError("Invalid lock type %u", type);
-  return 0;
+  panic("Invalid lock type %u", type);
 }
 
 GLenum convertToGL(IndexBuffer::Usage usage)
@@ -78,8 +77,7 @@ GLenum convertToGL(IndexBuffer::Usage usage)
       return GL_DYNAMIC_DRAW;
   }
 
-  logError("Invalid index buffer usage %u", usage);
-  return 0;
+  panic("Invalid index buffer usage %u", usage);
 }
 
 GLenum convertToGL(VertexBuffer::Usage usage)
@@ -94,8 +92,7 @@ GLenum convertToGL(VertexBuffer::Usage usage)
       return GL_DYNAMIC_DRAW;
   }
 
-  logError("Invalid vertex buffer usage %u", usage);
-  return 0;
+  panic("Invalid vertex buffer usage %u", usage);
 }
 
 GLenum convertToGL(ImageFramebuffer::Attachment attachment)
@@ -455,10 +452,9 @@ size_t IndexBuffer::getTypeSize(Type type)
       return sizeof(GLushort);
     case IndexBuffer::UINT32:
       return sizeof(GLuint);
-    default:
-      logError("Invalid index buffer type %u", type);
-      return 0;
   }
+
+  panic("Invalid index buffer type %u", type);
 }
 
 IndexBuffer::IndexBuffer(Context& initContext):

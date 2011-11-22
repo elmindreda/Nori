@@ -59,8 +59,7 @@ ALenum convertToAL(BufferFormat format)
       return AL_FORMAT_STEREO16;
   }
 
-  logError("Invalid OpenAL buffer data format %u", format);
-  return 0;
+  panic("Invalid OpenAL buffer data format %u", format);
 }
 
 size_t getFormatSize(BufferFormat format)
@@ -76,8 +75,7 @@ size_t getFormatSize(BufferFormat format)
       return 4;
   }
 
-  logError("Invalid OpenAL buffer data format %u", format);
-  return 0;
+  panic("Invalid OpenAL buffer data format %u", format);
 }
 
 const char* getErrorString(int error)

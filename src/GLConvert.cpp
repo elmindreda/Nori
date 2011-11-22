@@ -58,10 +58,9 @@ GLenum convertToGL(IndexBuffer::Type type)
       return GL_UNSIGNED_SHORT;
     case IndexBuffer::UINT32:
       return GL_UNSIGNED_INT;
-    default:
-      logError("Invalid index buffer type %u", type);
-      return 0;
   }
+
+  panic("Invalid index buffer type %u", type);
 }
 
 GLenum convertToGL(VertexComponent::Type type)
@@ -70,10 +69,9 @@ GLenum convertToGL(VertexComponent::Type type)
   {
     case VertexComponent::FLOAT32:
       return GL_FLOAT;
-    default:
-      logError("Invalid vertex component type %u", type);
-      return 0;
   }
+
+  panic("Invalid vertex component type %u", type);
 }
 
 GLenum convertToGL(PixelFormat::Type type)
