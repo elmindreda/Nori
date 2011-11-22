@@ -63,7 +63,7 @@ size_t VertexComponent::getSize() const
     case FLOAT32:
       return 4 * count;
     default:
-      return 0;
+      panic("Invalid vertex component type");
   }
 }
 
@@ -244,7 +244,7 @@ String VertexFormat::asString() const
         result << 'f';
         break;
       default:
-        return "invalid";
+        panic("Invalid vertex component type");
     }
 
     result << ':' << i->name << ' ';

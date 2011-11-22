@@ -125,8 +125,7 @@ Source::State Source::getState() const
       return PAUSED;
   }
 
-  logError("Unknown OpenAL source state %u", state);
-  return State(0);
+  panic("Unknown OpenAL source state %u", state);
 }
 
 void Source::setLooping(bool newState)
