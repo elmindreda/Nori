@@ -97,7 +97,8 @@ endif(WENDY_INCLUDE_OPENAL)
 
 list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/include
                                ${wendy_BINARY_DIR}/include
-                               ${glm_SOURCE_DIR})
+                               ${glm_SOURCE_DIR}
+                               ${pugixml_SOURCE_DIR})
 
 if(WENDY_INCLUDE_SQUIRREL)
   list(APPEND wendy_CORE_LIBRARIES squirrel)
