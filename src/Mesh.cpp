@@ -476,8 +476,8 @@ MeshReader::MeshReader(ResourceIndex& index):
 
 Ref<Mesh> MeshReader::read(const Path& path)
 {
-  if (Resource* cache = getIndex().findResource(path))
-    return dynamic_cast<Mesh*>(cache);
+  if (Resource* cached = getIndex().findResource(path))
+    return dynamic_cast<Mesh*>(cached);
 
   ResourceInfo info(getIndex(), path);
 

@@ -523,8 +523,8 @@ ImageReader::ImageReader(ResourceIndex& index):
 
 Ref<Image> ImageReader::read(const Path& path)
 {
-  if (Resource* cache = getIndex().findResource(path))
-    return dynamic_cast<Image*>(cache);
+  if (Resource* cached = getIndex().findResource(path))
+    return dynamic_cast<Image*>(cached);
 
   ResourceInfo info(getIndex(), path);
 
@@ -717,8 +717,8 @@ ImageCubeReader::ImageCubeReader(ResourceIndex& index):
 
 Ref<ImageCube> ImageCubeReader::read(const Path& path)
 {
-  if (Resource* cache = getIndex().findResource(path))
-    return dynamic_cast<ImageCube*>(cache);
+  if (Resource* cached = getIndex().findResource(path))
+    return dynamic_cast<ImageCube*>(cached);
 
   std::ifstream stream;
   if (!getIndex().openFile(stream, path))

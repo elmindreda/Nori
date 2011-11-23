@@ -372,8 +372,8 @@ Anim3Reader::Anim3Reader(ResourceIndex& index):
 
 Ref<Anim3> Anim3Reader::read(const Path& path)
 {
-  if (Resource* cache = getIndex().findResource(path))
-    return dynamic_cast<Anim3*>(cache);
+  if (Resource* cached = getIndex().findResource(path))
+    return dynamic_cast<Anim3*>(cached);
 
   std::ifstream stream;
   if (!getIndex().openFile(stream, path))

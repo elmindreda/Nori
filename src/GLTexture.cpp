@@ -926,8 +926,8 @@ TextureReader::TextureReader(Context& initContext):
 
 Ref<Texture> TextureReader::read(const Path& path)
 {
-  if (Resource* cache = getIndex().findResource(path))
-    return dynamic_cast<Texture*>(cache);
+  if (Resource* cached = getIndex().findResource(path))
+    return dynamic_cast<Texture*>(cached);
 
   std::ifstream stream;
   if (!getIndex().openFile(stream, path))

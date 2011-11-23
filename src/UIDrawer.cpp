@@ -112,8 +112,8 @@ ThemeReader::ThemeReader(render::GeometryPool& initPool):
 
 Ref<Theme> ThemeReader::read(const Path& path)
 {
-  if (Resource* cache = getIndex().findResource(path))
-    return dynamic_cast<Theme*>(cache);
+  if (Resource* cached = getIndex().findResource(path))
+    return dynamic_cast<Theme*>(cached);
 
   std::ifstream stream;
   if (!getIndex().openFile(stream, path))

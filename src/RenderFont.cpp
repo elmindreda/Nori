@@ -488,8 +488,8 @@ FontReader::FontReader(GeometryPool& initPool):
 
 Ref<Font> FontReader::read(const Path& path)
 {
-  if (Resource* cache = getIndex().findResource(path))
-    return dynamic_cast<Font*>(cache);
+  if (Resource* cached = getIndex().findResource(path))
+    return dynamic_cast<Font*>(cached);
 
   std::ifstream stream;
   if (!getIndex().openFile(stream, path))

@@ -1241,8 +1241,8 @@ ProgramReader::ProgramReader(Context& initContext):
 
 Ref<Program> ProgramReader::read(const Path& path)
 {
-  if (Resource* cache = getIndex().findResource(path))
-    return dynamic_cast<Program*>(cache);
+  if (Resource* cached = getIndex().findResource(path))
+    return dynamic_cast<Program*>(cached);
 
   std::ifstream stream;
   if (!getIndex().openFile(stream, path))

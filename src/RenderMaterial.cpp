@@ -243,8 +243,8 @@ MaterialReader::MaterialReader(GL::Context& initContext):
 
 Ref<Material> MaterialReader::read(const Path& path)
 {
-  if (Resource* cache = getIndex().findResource(path))
-    return dynamic_cast<Material*>(cache);
+  if (Resource* cached = getIndex().findResource(path))
+    return dynamic_cast<Material*>(cached);
 
   std::ifstream stream;
   if (!getIndex().openFile(stream, path))

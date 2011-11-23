@@ -306,8 +306,8 @@ ModelReader::ModelReader(GL::Context& initContext):
 
 Ref<Model> ModelReader::read(const Path& path)
 {
-  if (Resource* cache = getIndex().findResource(path))
-    return dynamic_cast<Model*>(cache);
+  if (Resource* cached = getIndex().findResource(path))
+    return dynamic_cast<Model*>(cached);
 
   std::ifstream stream;
   if (!getIndex().openFile(stream, path))

@@ -215,8 +215,8 @@ BufferReader::BufferReader(Context& initContext):
 
 Ref<Buffer> BufferReader::read(const Path& path)
 {
-  if (Resource* cache = getIndex().findResource(path))
-    return dynamic_cast<Buffer*>(cache);
+  if (Resource* cached = getIndex().findResource(path))
+    return dynamic_cast<Buffer*>(cached);
 
   const Path full = getIndex().findFile(path);
   if (full.isEmpty())
