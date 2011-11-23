@@ -44,7 +44,7 @@ public:
    *  @param source The data to copy into this block.
    *  @param sourceSize The size, in bytes, of the data.
    */
-  Block(const Byte* source, size_t sourceSize);
+  Block(const uint8* source, size_t sourceSize);
   /*! Copy constructor.
    *  @remarks Performs a deep copy of data items.
    */
@@ -59,7 +59,7 @@ public:
    *  @param offset The desired offset within this data block, in bytes,
    *  from which to start.
    */
-  void copyTo(Byte* target, size_t targetSize, size_t offset = 0) const;
+  void copyTo(uint8* target, size_t targetSize, size_t offset = 0) const;
   /*! Copies the specified number of bytes into this block, starting
    *  at the specified offset.
    *  @param source The source buffer from which to copy.
@@ -67,22 +67,22 @@ public:
    *  @param offset The desired offset within this data block, in bytes,
    *  from which to start.
    */
-  void copyFrom(const Byte* source, size_t sourceSize, size_t offset = 0);
+  void copyFrom(const uint8* source, size_t sourceSize, size_t offset = 0);
   /*! Changes the number of bytes in this data block.
    *  @param newSize The new size, in bytes, of this data block.
    */
   void resize(size_t newSize);
-  void attach(Byte* newData, size_t newSize);
-  Byte* detach();
+  void attach(uint8* newData, size_t newSize);
+  uint8* detach();
   /*! Frees the currently allocated data block.
    */
   void destroy();
   /*! Cast operator.
    */
-  operator Byte* ();
+  operator uint8* ();
   /*! Cast operator.
    */
-  operator const Byte* () const;
+  operator const uint8* () const;
   /*! Assignment operator.
    */
   Block& operator = (const Block& source);
@@ -91,13 +91,13 @@ public:
   size_t getSize() const;
   /*! @return The data block.
    */
-  Byte* getData();
+  uint8* getData();
   /*! @return The first item.
    */
-  const Byte* getData() const;
+  const uint8* getData() const;
 private:
   size_t size;
-  Byte* data;
+  uint8* data;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -45,7 +45,7 @@ Block::Block(size_t initSize):
   resize(initSize);
 }
 
-Block::Block(const Byte* source, size_t sourceSize):
+Block::Block(const uint8* source, size_t sourceSize):
   size(0),
   data(NULL)
 {
@@ -65,12 +65,12 @@ Block::~Block()
   destroy();
 }
 
-void Block::copyTo(Byte* target, size_t targetSize, size_t offset) const
+void Block::copyTo(uint8* target, size_t targetSize, size_t offset) const
 {
   std::memcpy(target, data + offset, targetSize);
 }
 
-void Block::copyFrom(const Byte* source, size_t sourceSize, size_t offset)
+void Block::copyFrom(const uint8* source, size_t sourceSize, size_t offset)
 {
   resize(sourceSize + offset);
   std::memcpy(data + offset, source, sourceSize);
@@ -83,10 +83,10 @@ void Block::resize(size_t newSize)
   else
   {
     if (size == 0)
-      data = (Byte*) std::malloc(newSize);
+      data = (uint8*) std::malloc(newSize);
     else
     {
-      Byte* newData = (Byte*) std::realloc(data, newSize);
+      uint8* newData = (uint8*) std::realloc(data, newSize);
       assert(newData);
       data = newData;
     }
@@ -95,7 +95,7 @@ void Block::resize(size_t newSize)
   }
 }
 
-void Block::attach(Byte* newData, size_t newSize)
+void Block::attach(uint8* newData, size_t newSize)
 {
   destroy();
 
@@ -103,9 +103,9 @@ void Block::attach(Byte* newData, size_t newSize)
   size = newSize;
 }
 
-Byte* Block::detach()
+uint8* Block::detach()
 {
-  Byte* detached = data;
+  uint8* detached = data;
 
   data = NULL;
   size = 0;
@@ -123,12 +123,12 @@ void Block::destroy()
   }
 }
 
-Block::operator Byte* ()
+Block::operator uint8* ()
 {
   return data;
 }
 
-Block::operator const Byte* () const
+Block::operator const uint8* () const
 {
   return data;
 }
@@ -151,12 +151,12 @@ size_t Block::getSize() const
   return size;
 }
 
-Byte* Block::getData()
+uint8* Block::getData()
 {
   return data;
 }
 
-const Byte* Block::getData() const
+const uint8* Block::getData() const
 {
   return data;
 }

@@ -84,10 +84,6 @@ using namespace glm;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! Byte value.
- */
-typedef uint8 Byte;
-
 /*! Time value, in seconds.
  */
 typedef double Time;

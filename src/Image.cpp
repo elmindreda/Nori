@@ -166,8 +166,8 @@ Image::Image(const ResourceInfo& info,
       unsigned int size = format.getSize();
       data.resize(width * height * depth * size);
 
-      Byte* target = data;
-      const Byte* source = (const Byte*) initData;
+      uint8* target = data;
+      const uint8* source = (const uint8*) initData;
 
       for (unsigned int z = 0;  z < depth;  z++)
       {
@@ -181,7 +181,7 @@ Image::Image(const ResourceInfo& info,
     }
     else
     {
-      data.copyFrom((const Byte*) initData,
+      data.copyFrom((const uint8*) initData,
                     width * height * depth * format.getSize());
     }
   }
@@ -288,8 +288,8 @@ void Image::flipVertical()
   {
     for (unsigned int y = 0;  y < height;  y++)
     {
-      const Byte* source = data + (z * height + y) * width * pixelSize;
-      Byte* target = scratch + ((z * height + y + 1) * width - 1) * pixelSize;
+      const uint8* source = data + (z * height + y) * width * pixelSize;
+      uint8* target = scratch + ((z * height + y + 1) * width - 1) * pixelSize;
 
       while (source < target)
       {
@@ -410,8 +410,8 @@ Ref<Image> Image::getArea(const Recti& area)
 
   for (int y = 0;  y < targetArea.size.y;  y++)
   {
-    const Byte* source = data + ((y + targetArea.position.y) * width + targetArea.position.x) * pixelSize;
-    Byte* target = result->data + y * result->width * pixelSize;
+    const uint8* source = data + ((y + targetArea.position.y) * width + targetArea.position.x) * pixelSize;
+    uint8* target = result->data + y * result->width * pixelSize;
     memcpy(target, source, result->width * pixelSize);
   }
 
@@ -617,7 +617,7 @@ Ref<Image> ImageReader::read(const Path& path)
 
     png_bytepp rows = png_get_rows(context, pngInfo);
 
-    Byte* data = (Byte*) result->getPixels();
+    uint8* data = (uint8*) result->getPixels();
 
     for (unsigned int i = 0;  i < height;  i++)
       std::memcpy(data + (height - i - 1) * size, rows[i], size);
@@ -687,7 +687,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
                PNG_COMPRESSION_TYPE_DEFAULT,
                PNG_FILTER_TYPE_DEFAULT);
 
-  const Byte* data = (const Byte*) image.getPixels();
+  const uint8* data = (const uint8*) image.getPixels();
 
   const unsigned int pixelSize = image.getFormat().getSize();
 

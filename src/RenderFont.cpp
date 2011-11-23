@@ -57,7 +57,7 @@ namespace
 
 unsigned int findStartY(const Image& image)
 {
-  const Byte* pixels = (const Byte*) image.getPixels();
+  const uint8* pixels = (const uint8*) image.getPixels();
 
   unsigned int startY;
 
@@ -80,7 +80,7 @@ unsigned int findStartY(const Image& image)
 
 unsigned int findEndY(const Image& image)
 {
-  const Byte* pixels = (const Byte*) image.getPixels();
+  const uint8* pixels = (const uint8*) image.getPixels();
 
   unsigned int endY;
 
@@ -590,7 +590,7 @@ bool FontReader::extractGlyphs(FontData& data,
 
   data.glyphs.reserve(characters.length());
 
-  const Byte* pixels = (const Byte*) source.getPixels();
+  const uint8* pixels = (const uint8*) source.getPixels();
 
   unsigned int index = 0, startX = 0, endX;
 

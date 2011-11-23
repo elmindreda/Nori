@@ -538,7 +538,7 @@ void* VertexRange::lock(LockType type) const
     return NULL;
   }
 
-  Byte* vertices = (Byte*) vertexBuffer->lock(type);
+  uint8* vertices = (uint8*) vertexBuffer->lock(type);
   if (!vertices)
     return NULL;
 
@@ -622,7 +622,7 @@ void* IndexRange::lock(LockType type) const
     return NULL;
   }
 
-  Byte* indices = (Byte*) indexBuffer->lock(type);
+  uint8* indices = (uint8*) indexBuffer->lock(type);
   if (!indices)
     return NULL;
 
