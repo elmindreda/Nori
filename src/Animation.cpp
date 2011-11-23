@@ -30,12 +30,13 @@
 #include <wendy/Transform.h>
 #include <wendy/Path.h>
 #include <wendy/Resource.h>
-#include <wendy/XML.h>
 #include <wendy/Animation.h>
 
 #include <glm/gtc/type_ptr.hpp>
 
 #include <algorithm>
+
+#include <pugixml.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -365,9 +366,7 @@ const AnimTrack3& Anim3::getTrack(size_t index) const
 ///////////////////////////////////////////////////////////////////////
 
 Anim3Reader::Anim3Reader(ResourceIndex& index):
-  ResourceReader(index),
-  info(index),
-  currentTrack(NULL)
+  ResourceReader(index)
 {
 }
 
@@ -376,144 +375,89 @@ Ref<Anim3> Anim3Reader::read(const Path& path)
   if (Resource* cache = getIndex().findResource(path))
     return dynamic_cast<Anim3*>(cache);
 
-  info.path = path;
-  currentTrack = NULL;
-
   std::ifstream stream;
-  if (!getIndex().openFile(stream, info.path))
+  if (!getIndex().openFile(stream, path))
     return NULL;
 
-  if (!XML::Reader::read(stream))
+  pugi::xml_document document;
+
+  const pugi::xml_parse_result result = document.load(stream);
+  if (!result)
   {
-    animation = NULL;
+    logError("Failed to load 3D animation \'%s\': %s",
+             path.asString().c_str(),
+             result.description());
     return NULL;
   }
 
-  return animation.detachObject();
-}
-
-bool Anim3Reader::onBeginElement(const String& name)
-{
-  if (name == "animation")
+  pugi::xml_node root = document.child("animation");
+  if (!root || root.attribute("version").as_uint() != ANIM3_XML_VERSION)
   {
-    if (animation)
-    {
-      logError("Only one 3D animation per file allowed");
-      return false;
-    }
-
-    const unsigned int version = readInteger("version");
-    if (version != ANIM3_XML_VERSION)
-    {
-      logError("3D animation XML format version mismatch");
-      return false;
-    }
-
-    animation = new Anim3(info);
-    if (!animation)
-      return false;
-
-    return true;
+    logError("3D animation file format mismatch in \'%s\'",
+             path.asString().c_str());
+    return NULL;
   }
 
-  if (animation)
+  Ref<Anim3> animation = new Anim3(ResourceInfo(getIndex(), path));
+
+  for (pugi::xml_node t = root.child("track");  t;  t = t.next_sibling("track"))
   {
-    if (name == "track")
+    AnimTrack3& track = animation->createTrack(t.attribute("name").value());
+
+    for (pugi::xml_node k = t.child("keyframe");  k;  k = k.next_sibling("keyframe"))
     {
-      if (currentTrack)
-      {
-        logError("3D animation tracks may not be nested");
-        return false;
-      }
+      const Time moment = k.attribute("moment").as_double();
 
-      String name = readString("name");
+      const Transform3 transform(vec3Cast(k.attribute("position").value()),
+                                 quatCast(k.attribute("rotation").value()));
 
-      if (name.empty())
-      {
-        logError("3D animation track names may not be empty");
-        return false;
-      }
+      const vec3 direction = vec3Cast(k.attribute("direction").value());
 
-      currentTrack = &(animation->createTrack(name.c_str()));
-      return true;
-    }
-
-    if (currentTrack)
-    {
-      if (name == "keyframe")
-      {
-        Time moment = readFloat("moment");
-
-        Transform3 transform;
-        transform.position = vec3Cast(readString("position"));
-        transform.rotation = normalize(quatCast(readString("rotation")));
-
-        vec3 direction = vec3Cast(readString("direction"));
-
-        currentTrack->createKeyFrame(moment, transform, direction);
-        return true;
-      }
+      track.createKeyFrame(moment, transform, direction);
     }
   }
 
-  return true;
-}
-
-bool Anim3Reader::onEndElement(const String& name)
-{
-  return true;
+  return animation;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 bool Anim3Writer::write(const Path& path, const Anim3& animation)
 {
+  pugi::xml_document document;
+
+  pugi::xml_node root = document.append_child("animation");
+  root.append_attribute("version").set_value(ANIM3_XML_VERSION);
+
+  for (size_t i = 0;  i < animation.getTrackCount();  i++)
+  {
+    const AnimTrack3& track = animation.getTrack(i);
+
+    pugi::xml_node tn = root.append_child("track");
+    tn.append_attribute("name").set_value(track.getName().c_str());
+
+    for (size_t j = 0;  j < track.getKeyFrameCount();  j++)
+    {
+      const KeyFrame3& keyframe = track.getKeyFrame(i);
+      const Transform3& transform = keyframe.getTransform();
+
+      pugi::xml_node kn = tn.append_child("keyframe");
+      kn.append_attribute("moment").set_value(keyframe.getMoment());
+      kn.append_attribute("position").set_value(stringCast(transform.position).c_str());
+      kn.append_attribute("rotation").set_value(stringCast(transform.rotation).c_str());
+      kn.append_attribute("direction").set_value(stringCast(keyframe.getDirection()).c_str());
+    }
+  }
+
   std::ofstream stream(path.asString().c_str());
   if (!stream)
-    return false;
-
-  try
   {
-    setStream(&stream);
-
-    beginElement("animation");
-    addAttribute("version", ANIM3_XML_VERSION);
-
-    for (size_t i = 0;  i < animation.getTrackCount();  i++)
-    {
-      const AnimTrack3& track = animation.getTrack(i);
-
-      beginElement("track");
-      addAttribute("name", track.getName());
-
-      for (size_t j = 0;  j < track.getKeyFrameCount();  j++)
-      {
-        const KeyFrame3& keyframe = track.getKeyFrame(i);
-
-        beginElement("keyframe");
-        addAttribute("moment", keyframe.getMoment());
-        addAttribute("position", stringCast(keyframe.getTransform().position));
-        addAttribute("rotation", stringCast(keyframe.getTransform().rotation));
-        addAttribute("direction", stringCast(keyframe.getDirection()));
-        endElement();
-      }
-
-      endElement();
-    }
-
-    endElement();
-
-    setStream(NULL);
-  }
-  catch (Exception& exception)
-  {
-    logError("Failed to write 3D animation to \'%s\': %s",
-             path.asString().c_str(),
-             exception.what());
-    setStream(NULL);
+    logError("Failed to create 3D animation file \'%s\'",
+             path.asString().c_str());
     return false;
   }
 
+  document.save(stream);
   return true;
 }
 

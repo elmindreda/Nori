@@ -172,19 +172,13 @@ private:
 /*! @brief Codec for XML format render materials.
  *  @ingroup renderer
  */
-class MaterialReader : ResourceReader, public XML::Reader
+class MaterialReader : ResourceReader
 {
 public:
   MaterialReader(GL::Context& context);
   Ref<Material> read(const Path& path);
 private:
-  bool onBeginElement(const String& name);
-  bool onEndElement(const String& name);
   GL::Context& context;
-  Ref<Material> material;
-  ResourceInfo info;
-  Technique* currentTechnique;
-  Pass* currentPass;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -192,7 +186,7 @@ private:
 /*! @brief Codec for XML format render materials.
  *  @ingroup renderer
  */
-class MaterialWriter : public XML::Writer
+class MaterialWriter
 {
 public:
   bool write(const Path& path, const Material& material);

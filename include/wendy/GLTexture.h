@@ -32,7 +32,6 @@
 #include <wendy/Path.h>
 #include <wendy/Resource.h>
 #include <wendy/Pixel.h>
-#include <wendy/XML.h>
 #include <wendy/Image.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -328,17 +327,13 @@ typedef std::vector<TextureRef> TextureList;
 
 /*! @ingroup opengl
  */
-class TextureReader : public ResourceReader, public XML::Reader
+class TextureReader : public ResourceReader
 {
 public:
   TextureReader(Context& context);
   Ref<Texture> read(const Path& path);
 private:
-  bool onBeginElement(const String& name);
-  bool onEndElement(const String& name);
   Context& context;
-  Ref<Texture> texture;
-  ResourceInfo info;
 };
 
 ///////////////////////////////////////////////////////////////////////

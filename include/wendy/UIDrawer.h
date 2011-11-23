@@ -130,18 +130,13 @@ public:
 
 /*! @ingroup ui
  */
-class ThemeReader : public ResourceReader, public XML::Reader
+class ThemeReader : public ResourceReader
 {
 public:
   ThemeReader(render::GeometryPool& pool);
   Ref<Theme> read(const Path& path);
 private:
-  bool onBeginElement(const String& name);
-  bool onEndElement(const String& name);
   render::GeometryPool& pool;
-  Ref<Theme> theme;
-  ResourceInfo info;
-  WidgetState currentState;
 };
 
 ///////////////////////////////////////////////////////////////////////

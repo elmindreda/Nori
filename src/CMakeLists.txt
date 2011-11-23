@@ -16,7 +16,7 @@ set(wendy_SOURCES
     AABB.cpp Animation.cpp Block.cpp Core.cpp Frustum.cpp Image.cpp Mesh.cpp
     OBB.cpp Pattern.cpp Path.cpp Pixel.cpp Plane.cpp Random.cpp Ray.cpp
     Rectangle.cpp Resource.cpp Signal.cpp Sphere.cpp Timer.cpp Transform.cpp
-    Triangle.cpp Vertex.cpp XML.cpp
+    Triangle.cpp Vertex.cpp
 
     OpenGL.cpp GLBuffer.cpp GLContext.cpp GLConvert.cpp GLProgram.cpp
     GLQuery.cpp GLState.cpp GLTexture.cpp

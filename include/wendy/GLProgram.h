@@ -30,7 +30,6 @@
 #include <wendy/Vertex.h>
 #include <wendy/Path.h>
 #include <wendy/Resource.h>
-#include <wendy/XML.h>
 
 #include <map>
 
@@ -369,18 +368,13 @@ private:
 /*! @brief GPU program XML codec.
  *  @ingroup opengl
  */
-class ProgramReader : public ResourceReader, public XML::Reader
+class ProgramReader : public ResourceReader
 {
 public:
   ProgramReader(Context& context);
   Ref<Program> read(const Path& path);
 private:
-  bool onBeginElement(const String& name);
-  bool onEndElement(const String& name);
   Context& context;
-  Ref<Program> program;
-  ResourceInfo info;
-  std::map<String, Shader> shaders;
 };
 
 ///////////////////////////////////////////////////////////////////////

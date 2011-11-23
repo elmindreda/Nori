@@ -38,6 +38,8 @@
 #include <wendy/RenderScene.h>
 #include <wendy/RenderModel.h>
 
+#include <pugixml.hpp>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -298,8 +300,7 @@ void Model::Geometry::setMaterial(Material* newMaterial)
 
 ModelReader::ModelReader(GL::Context& initContext):
   ResourceReader(initContext.getIndex()),
-  context(initContext),
-  info(getIndex())
+  context(initContext)
 {
 }
 
@@ -308,90 +309,70 @@ Ref<Model> ModelReader::read(const Path& path)
   if (Resource* cache = getIndex().findResource(path))
     return dynamic_cast<Model*>(cache);
 
-  materials.clear();
-  info.path = path;
-
   std::ifstream stream;
-  if (!getIndex().openFile(stream, info.path))
+  if (!getIndex().openFile(stream, path))
     return NULL;
 
-  if (!XML::Reader::read(stream))
+  pugi::xml_document document;
+
+  const pugi::xml_parse_result result = document.load(stream);
+  if (!result)
   {
-    data = NULL;
+    logError("Failed to load model \'%s\': %s",
+             path.asString().c_str(),
+             result.description());
     return NULL;
   }
 
-  if (!data)
+  pugi::xml_node root = document.child("mesh");
+  if (!root || root.attribute("version").as_uint() != MODEL_XML_VERSION)
+  {
+    logError("Model file format mismatch in \'%s\'",
+             path.asString().c_str());
     return NULL;
+  }
 
-  Ref<Model> mesh = Model::create(info, context, *data, materials);
+  const Path meshPath(root.attribute("data").value());
+  if (meshPath.isEmpty())
+  {
+    logError("Mesh path for model \'%s\' is empty",
+              path.asString().c_str());
+    return NULL;
+  }
+
+  Ref<Mesh> mesh = Mesh::read(getIndex(), meshPath);
   if (!mesh)
-    return NULL;
-
-  data = NULL;
-  return mesh;
-}
-
-bool ModelReader::onBeginElement(const String& name)
-{
-  if (name == "mesh")
   {
-    const unsigned int version = readInteger("version");
-    if (version != MODEL_XML_VERSION)
-    {
-      logError("Model specification XML format version mismatch");
-      return false;
-    }
-
-    Path dataPath(readString("data"));
-    if (dataPath.isEmpty())
-    {
-      logError("Model data path for render mesh \'%s\' is empty",
-               info.path.asString().c_str());
-      return false;
-    }
-
-    data = Mesh::read(getIndex(), dataPath);
-    if (!data)
-    {
-      logError("Failed to load mesh data \'%s\' for render mesh \'%s\'",
-               dataPath.asString().c_str(),
-               info.path.asString().c_str());
-      return false;
-    }
-
-    return true;
+    logError("Failed to load mesh for model \'%s\'",
+              path.asString().c_str());
+    return NULL;
   }
 
-  if (name == "material")
+  Model::MaterialMap materials;
+
+  for (pugi::xml_node m = root.child("material");  m;  m = m.next_sibling("material"))
   {
-    String name(readString("name"));
+    const String name(m.attribute("name").value());
     if (name.empty())
     {
-      logError("Empty material name in render mesh specification \'%s\'",
-               info.path.asString().c_str());
-      return false;
+      logError("Empty material name found in model \'%s\'",
+               path.asString().c_str());
+      return NULL;
     }
 
-    Path path(readString("path"));
+    const Path path(m.attribute("path").value());
     if (path.isEmpty())
     {
-      logError("Empty path for material name \'%s\' in render mesh specification \'%s\'",
+      logError("Empty path for material \'%s\' in model \'%s\'",
                name.c_str(),
-               info.path.asString().c_str());
-      return false;
+               path.asString().c_str());
+      return NULL;
     }
 
     materials[name] = path;
-    return true;
   }
 
-  return true;
-}
-
-bool ModelReader::onEndElement(const String& name)
-{
-  return true;
+  return Model::create(ResourceInfo(getIndex(), path), context, *mesh, materials);
 }
 
 ///////////////////////////////////////////////////////////////////////

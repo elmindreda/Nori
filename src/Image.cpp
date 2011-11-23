@@ -31,10 +31,11 @@
 #include <wendy/Path.h>
 #include <wendy/Pixel.h>
 #include <wendy/Resource.h>
-#include <wendy/XML.h>
 #include <wendy/Image.h>
 
 #include <cstring>
+
+#include <pugixml.hpp>
 
 #include <png.h>
 
@@ -719,109 +720,77 @@ Ref<ImageCube> ImageCubeReader::read(const Path& path)
   if (Resource* cache = getIndex().findResource(path))
     return dynamic_cast<ImageCube*>(cache);
 
-  ResourceInfo info(getIndex(), path);
-
   std::ifstream stream;
-  if (!getIndex().openFile(stream, info.path))
+  if (!getIndex().openFile(stream, path))
     return NULL;
 
-  cube = new ImageCube(info);
+  pugi::xml_document document;
 
-  if (!XML::Reader::read(stream))
+  const pugi::xml_parse_result result = document.load(stream);
+  if (!result)
   {
-    cube = NULL;
+    logError("Failed to load image cube \'%s\': %s",
+             path.asString().c_str(),
+             result.description());
     return NULL;
   }
 
-  return cube.detachObject();
-}
-
-bool ImageCubeReader::onBeginElement(const String& name)
-{
-  if (name == "image-cube")
+  pugi::xml_node root = document.child("image-cube");
+  if (!root || root.attribute("version").as_uint() != IMAGE_CUBE_XML_VERSION)
   {
-    const unsigned int version = readInteger("version");
-    if (version != IMAGE_CUBE_XML_VERSION)
+    logError("Image cube file format mismatch in \'%s\'",
+             path.asString().c_str());
+    return NULL;
+  }
+
+  // NOTE: Keep these arrays in the same order, for added happiness
+
+  const char* names[6] =
+  {
+    "positive-x",
+    "negative-x",
+    "positive-y",
+    "negative-y",
+    "positive-z",
+    "negative-z",
+  };
+
+  const CubeFace sides[6] =
+  {
+    CUBE_POSITIVE_X,
+    CUBE_NEGATIVE_X,
+    CUBE_POSITIVE_Y,
+    CUBE_NEGATIVE_Y,
+    CUBE_POSITIVE_Z,
+    CUBE_NEGATIVE_Z,
+  };
+
+  Ref<ImageCube> cube = new ImageCube(ResourceInfo(getIndex(), path));
+
+  for (size_t i = 0;  i < 6;  i++)
+  {
+    const Path imagePath(root.child(names[i]).attribute("path").value());
+    if (imagePath.isEmpty())
     {
-      logError("Image cube specification XML format version mismatch");
-      return false;
+      logError("No path specified for %s side in image cube \'%s\'",
+               names[i],
+               path.asString().c_str());
+      return NULL;
     }
 
-    return true;
-  }
-
-  if (name == "positive-x")
-  {
-    ImageReader reader(getIndex());
-    ImageRef image = reader.read(Path(readString("path")));
+    Ref<Image> image = Image::read(getIndex(), imagePath);
     if (!image)
-      return false;
+    {
+      logError("Failed to load side %s of image cube \'%s\'",
+               names[i],
+               path.asString().c_str());
+      return NULL;
+    }
 
-    cube->images[CUBE_POSITIVE_X] = image;
-    return true;
+    cube->images[sides[i]] = image;
   }
 
-  if (name == "negative-x")
-  {
-    ImageReader reader(getIndex());
-    ImageRef image = reader.read(Path(readString("path")));
-    if (!image)
-      return false;
-
-    cube->images[CUBE_NEGATIVE_X] = image;
-    return true;
-  }
-
-  if (name == "positive-y")
-  {
-    ImageReader reader(getIndex());
-    ImageRef image = reader.read(Path(readString("path")));
-    if (!image)
-      return false;
-
-    cube->images[CUBE_POSITIVE_Y] = image;
-    return true;
-  }
-
-  if (name == "negative-y")
-  {
-    ImageReader reader(getIndex());
-    ImageRef image = reader.read(Path(readString("path")));
-    if (!image)
-      return false;
-
-    cube->images[CUBE_NEGATIVE_Y] = image;
-    return true;
-  }
-
-  if (name == "positive-z")
-  {
-    ImageReader reader(getIndex());
-    ImageRef image = reader.read(Path(readString("path")));
-    if (!image)
-      return false;
-
-    cube->images[CUBE_POSITIVE_Z] = image;
-    return true;
-  }
-
-  if (name == "negative-z")
-  {
-    ImageReader reader(getIndex());
-    ImageRef image = reader.read(Path(readString("path")));
-    if (!image)
-      return false;
-
-    cube->images[CUBE_NEGATIVE_Z] = image;
-    return true;
-  }
-
-  return true;
-}
-
-bool ImageCubeReader::onEndElement(const String& name)
-{
-  return true;
+  return cube;
 }
 
 ///////////////////////////////////////////////////////////////////////

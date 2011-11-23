@@ -40,6 +40,8 @@
 
 #include <glm/gtx/bit.hpp>
 
+#include <pugixml.hpp>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -906,8 +908,7 @@ Texture& Texture::operator = (const Texture& source)
 
 TextureReader::TextureReader(Context& initContext):
   ResourceReader(initContext.getIndex()),
-  context(initContext),
-  info(initContext.getIndex())
+  context(initContext)
 {
   if (addressModeMap.isEmpty())
   {
@@ -928,134 +929,106 @@ Ref<Texture> TextureReader::read(const Path& path)
   if (Resource* cache = getIndex().findResource(path))
     return dynamic_cast<Texture*>(cache);
 
-  info.path = path;
-
   std::ifstream stream;
-  if (!getIndex().openFile(stream, info.path))
+  if (!getIndex().openFile(stream, path))
     return NULL;
 
-  if (!XML::Reader::read(stream))
+  pugi::xml_document document;
+
+  const pugi::xml_parse_result result = document.load(stream);
+  if (!result)
   {
-    texture = NULL;
+    logError("Failed to load texture \'%s\': %s",
+             path.asString().c_str(),
+             result.description());
     return NULL;
   }
 
-  if (!texture)
+  pugi::xml_node root = document.child("texture");
+  if (!root || root.attribute("version").as_uint() != TEXTURE_XML_VERSION)
   {
-    logError("No texture specification found in file");
+    logError("Texture file format mismatch in \'%s\'",
+             path.asString().c_str());
     return NULL;
   }
 
-  return texture.detachObject();
-}
+  unsigned int flags = Texture::DEFAULT;
 
-bool TextureReader::onBeginElement(const String& name)
-{
-  if (name == "texture")
+  // Parse flags
   {
-    if (texture)
+    bool defaultValue;
+
+    defaultValue = (Texture::DEFAULT & Texture::MIPMAPPED) ? true : false;
+    if (pugi::xml_attribute a = root.attribute("mipmapped"))
     {
-      logError("Only one texture specification per file allowed");
-      return false;
-    }
-
-    const unsigned int version = readInteger("version");
-    if (version != TEXTURE_XML_VERSION)
-    {
-      logError("Texture specification XML format version mismatch");
-      return false;
-    }
-
-    unsigned int flags = Texture::DEFAULT;
-
-    // Parse flags
-    {
-      bool defaultValue;
-
-      defaultValue = (Texture::DEFAULT & Texture::MIPMAPPED) ? true : false;
-      if (readBoolean("mipmapped", defaultValue) != defaultValue)
+      if (a.as_bool() != defaultValue)
         flags ^= Texture::MIPMAPPED;
+    }
 
-      defaultValue = (Texture::DEFAULT & Texture::RECTANGULAR) ? true : false;
-      if (readBoolean("rectangular", defaultValue) != defaultValue)
+    defaultValue = (Texture::DEFAULT & Texture::RECTANGULAR) ? true : false;
+    if (pugi::xml_attribute a = root.attribute("rectangular"))
+    {
+      if (a.as_bool() != defaultValue)
         flags ^= Texture::RECTANGULAR;
     }
-
-    Path imagePath(readString("image"));
-    if (imagePath.isEmpty())
-    {
-      imagePath = readString("imagecube");
-      if (imagePath.isEmpty())
-      {
-        logError("No image specified for texture \'%s\'",
-                 info.path.asString().c_str());
-        return false;
-      }
-
-      Ref<ImageCube> source = ImageCube::read(getIndex(), imagePath);
-      if (!source)
-      {
-        logError("Failed to load image cube \'%s\' for texture \'%s\'",
-                 imagePath.asString().c_str(),
-                 info.path.asString().c_str());
-        return false;
-      }
-
-      texture = Texture::create(info, context, *source, flags);
-      if (!texture)
-        return false;
-    }
-    else
-    {
-      Ref<wendy::Image> source = wendy::Image::read(getIndex(), imagePath);
-      if (!source)
-      {
-        logError("Failed to load image \'%s\' for texture \'%s\'",
-                 imagePath.asString().c_str(),
-                 info.path.asString().c_str());
-        return false;
-      }
-
-      texture = Texture::create(info, context, *source, flags);
-      if (!texture)
-        return false;
-    }
-
-    String filterModeName = readString("filter");
-    if (!filterModeName.empty())
-    {
-      if (filterModeMap.hasKey(filterModeName))
-        texture->setFilterMode(filterModeMap[filterModeName]);
-      else
-      {
-        logError("Invalid filter mode name \'%s\'",
-                 filterModeName.c_str());
-        return false;
-      }
-    }
-
-    String addressModeName = readString("address");
-    if (!addressModeName.empty())
-    {
-      if (addressModeMap.hasKey(addressModeName))
-        texture->setAddressMode(addressModeMap[addressModeName]);
-      else
-      {
-        logError("Invalid address mode name \'%s\'",
-                 addressModeName.c_str());
-        return false;
-      }
-    }
-
-    return true;
   }
 
-  return true;
-}
+  Ref<Texture> texture;
 
-bool TextureReader::onEndElement(const String& name)
-{
-  return true;
+  if (pugi::xml_attribute a = root.attribute("image"))
+  {
+    Ref<wendy::Image> image = wendy::Image::read(getIndex(), Path(a.value()));
+    if (!image)
+    {
+      logError("Failed to load source image for texture \'%s\'",
+               path.asString().c_str());
+      return NULL;
+    }
+
+    texture = Texture::create(ResourceInfo(getIndex(), path), context, *image, flags);
+  }
+  else if (pugi::xml_attribute a = root.attribute("imagecube"))
+  {
+    Ref<ImageCube> cube = ImageCube::read(getIndex(), Path(a.value()));
+    if (!cube)
+    {
+      logError("Failed to load source image cube for texture \'%s\'",
+               path.asString().c_str());
+      return NULL;
+    }
+
+    texture = Texture::create(ResourceInfo(getIndex(), path), context, *cube, flags);
+  }
+  else
+  {
+    logError("No image specified for texture \'%s\'",
+              path.asString().c_str());
+    return NULL;
+  }
+
+  if (pugi::xml_attribute a = root.attribute("filter"))
+  {
+    if (filterModeMap.hasKey(a.value()))
+      texture->setFilterMode(filterModeMap[a.value()]);
+    else
+    {
+      logError("Invalid filter mode name \'%s\'", a.value());
+      return NULL;
+    }
+  }
+
+  if (pugi::xml_attribute a = root.attribute("address"))
+  {
+    if (addressModeMap.hasKey(a.value()))
+      texture->setAddressMode(addressModeMap[a.value()]);
+    else
+    {
+      logError("Invalid address mode name \'%s\'", a.value());
+      return NULL;
+    }
+  }
+
+  return texture;
 }
 
 ///////////////////////////////////////////////////////////////////////

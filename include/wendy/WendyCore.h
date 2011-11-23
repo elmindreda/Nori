@@ -53,7 +53,6 @@
 
 #include <wendy/Path.h>
 #include <wendy/Resource.h>
-#include <wendy/XML.h>
 
 #include <wendy/Animation.h>
 #include <wendy/Image.h>

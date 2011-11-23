@@ -210,15 +210,11 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-class ImageCubeReader : public ResourceReader, public XML::Reader
+class ImageCubeReader : public ResourceReader
 {
 public:
   ImageCubeReader(ResourceIndex& index);
   Ref<ImageCube> read(const Path& path);
-private:
-  bool onBeginElement(const String& name);
-  bool onEndElement(const String& name);
-  Ref<ImageCube> cube;
 };
 
 ///////////////////////////////////////////////////////////////////////

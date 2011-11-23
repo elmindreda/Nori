@@ -43,6 +43,8 @@
 #include <cstring>
 #include <sstream>
 
+#include <pugixml.hpp>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -1233,8 +1235,7 @@ bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
 
 ProgramReader::ProgramReader(Context& initContext):
   ResourceReader(initContext.getIndex()),
-  context(initContext),
-  info(initContext.getIndex())
+  context(initContext)
 {
 }
 
@@ -1243,173 +1244,142 @@ Ref<Program> ProgramReader::read(const Path& path)
   if (Resource* cache = getIndex().findResource(path))
     return dynamic_cast<Program*>(cache);
 
-  info.path = path;
-
   std::ifstream stream;
-  if (!getIndex().openFile(stream, info.path))
+  if (!getIndex().openFile(stream, path))
     return NULL;
 
-  if (!XML::Reader::read(stream))
+  pugi::xml_document document;
+
+  const pugi::xml_parse_result result = document.load(stream);
+  if (!result)
   {
-    shaders.clear();
-    program = NULL;
+    logError("Failed to load GLSL program \'%s\': %s",
+             path.asString().c_str(),
+             result.description());
     return NULL;
   }
 
-  shaders.clear();
-
-  if (!program)
+  pugi::xml_node root = document.child("program");
+  if (!root || root.attribute("version").as_uint() != PROGRAM_XML_VERSION)
   {
-    logError("Failed to load program specification \'%s\'",
+    logError("GLSL program file format mismatch in \'%s\'",
              path.asString().c_str());
-
     return NULL;
   }
 
-  return program.detachObject();
-}
+  std::map<String, Shader> shaders;
 
-bool ProgramReader::onBeginElement(const String& name)
-{
-  if (name == "program")
+  const char* names[] =
   {
-    if (program)
-    {
-      logError("Only one shader program per file allowed");
-      return false;
-    }
+    "vertex",
+    "fragment",
+    "geometry",
+    "control",
+    "evaluation",
+  };
 
-    const unsigned int version = readInteger("version");
-    if (version != PROGRAM_XML_VERSION)
+  for (size_t i = 0;  i < sizeof(names) / sizeof(names[0]);  i++)
+  {
+    if (pugi::xml_node s = root.child(names[i]))
     {
-      logError("Shader program XML format version mismatch");
-      return false;
-    }
+      const Path shaderPath(s.attribute("path").value());
+      if (shaderPath.isEmpty())
+      {
+        logError("Path for %s shader in GLSL program \'%s\' is empty",
+                names[i],
+                path.asString().c_str());
+        return NULL;
+      }
 
-    return true;
+      String text;
+      if (!readTextFile(getIndex(), text, shaderPath))
+      {
+        logError("Failed to load %s shader \'%s\' for GLSL program \'%s\'",
+                names[i],
+                shaderPath.asString().c_str(),
+                path.asString().c_str());
+        return NULL;
+      }
+
+      const unsigned int version = max(s.attribute("glsl-version").as_int(), 100);
+
+      shaders[names[i]] = Shader(text.c_str(), shaderPath, version);
+    }
   }
 
-  if (name == "vertex" ||
-      name == "fragment" ||
-      name == "geometry" ||
-      name == "control" ||
-      name == "evaluation")
+  if (!shaders.count("vertex"))
   {
-    if (shaders.count(name))
-    {
-      logError("Program specification \'%s\' contains more than one %s shaders",
-               info.path.asString().c_str(),
-               name.c_str());
-      return false;
-    }
-
-    Path path(readString("path"));
-    if (path.isEmpty())
-    {
-      logError("Path in %s shader program \'%s\' is empty",
-               name.c_str(),
-               info.path.asString().c_str());
-      return true;
-    }
-
-    String text;
-    if (!readTextFile(getIndex(), text, path))
-    {
-      logError("Failed to find %s shader \'%s\' for shader program \'%s\'",
-               name.c_str(),
-               path.asString().c_str(),
-               info.path.asString().c_str());
-      return false;
-    }
-
-    const unsigned int version = max(readInteger("glsl-version"), 100);
-
-    shaders[name] = Shader(text.c_str(), path, version);
-    return true;
+    logError("Vertex shader missing in GLSL program \'%s\'",
+              path.asString().c_str());
+    return NULL;
   }
 
-  logWarning("Unknown element '%s' in program XML", name.c_str());
-  return true;
-}
-
-bool ProgramReader::onEndElement(const String& name)
-{
-  if (name == "program")
+  if (!shaders.count("fragment"))
   {
-    if (!shaders.count("vertex"))
+    logError("Fragment shader missing in GLSL program \'%s\'",
+              path.asString().c_str());
+    return NULL;
+  }
+
+  bool tessellation = false;
+
+  if (shaders.count("control"))
+  {
+    if (shaders.count("evaluation"))
+      tessellation = true;
+    else
     {
-      logError("Vertex shader missing for program \'%s\'",
-               info.path.asString().c_str());
-      return false;
+      logError("Both tessellation control and evaluation shader (or neither) "
+               "are required in GLSL program \'%s\'",
+               path.asString().c_str());
+      return NULL;
     }
+  }
 
-    if (!shaders.count("fragment"))
+  Ref<Program> program;
+
+  if (shaders.count("geometry"))
+  {
+    if (tessellation)
     {
-      logError("Fragment shader missing for program \'%s\'",
-               info.path.asString().c_str());
-      return false;
-    }
-
-    bool tessellation = false;
-
-    if (shaders.count("control"))
-    {
-      if (shaders.count("evaluation"))
-        tessellation = true;
-      else
-      {
-        logError("Both tessellation control and evaluation shader (or neither) are required in program \'%s\'",
-                 info.path.asString().c_str());
-        return false;
-      }
-    }
-
-    if (shaders.count("geometry"))
-    {
-      if (tessellation)
-      {
-        program = Program::create(info,
-                                  context,
-                                  shaders["vertex"],
-                                  shaders["fragment"],
-                                  shaders["geometry"],
-                                  shaders["control"],
-                                  shaders["evaluation"]);
-      }
-      else
-      {
-        program = Program::create(info,
-                                  context,
-                                  shaders["vertex"],
-                                  shaders["fragment"],
-                                  shaders["geometry"]);
-      }
+      program = Program::create(ResourceInfo(getIndex(), path),
+                                context,
+                                shaders["vertex"],
+                                shaders["fragment"],
+                                shaders["geometry"],
+                                shaders["control"],
+                                shaders["evaluation"]);
     }
     else
     {
-      if (tessellation)
-      {
-        program = Program::create(info,
-                                  context,
-                                  shaders["vertex"],
-                                  shaders["fragment"],
-                                  shaders["control"],
-                                  shaders["evaluation"]);
-      }
-      else
-      {
-        program = Program::create(info,
-                                  context,
-                                  shaders["vertex"],
-                                  shaders["fragment"]);
-      }
+      program = Program::create(ResourceInfo(getIndex(), path),
+                                context,
+                                shaders["vertex"],
+                                shaders["fragment"],
+                                shaders["geometry"]);
     }
-
-    if (!program)
-      return false;
+  }
+  else
+  {
+    if (tessellation)
+    {
+      program = Program::create(ResourceInfo(getIndex(), path),
+                                context,
+                                shaders["vertex"],
+                                shaders["fragment"],
+                                shaders["control"],
+                                shaders["evaluation"]);
+    }
+    else
+    {
+      program = Program::create(ResourceInfo(getIndex(), path),
+                                context,
+                                shaders["vertex"],
+                                shaders["fragment"]);
+    }
   }
 
-  return true;
+  return program;
 }
 
 ///////////////////////////////////////////////////////////////////////

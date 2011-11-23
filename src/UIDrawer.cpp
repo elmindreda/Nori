@@ -30,6 +30,8 @@
 
 #include <wendy/UIDrawer.h>
 
+#include <pugixml.hpp>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -97,8 +99,7 @@ Ref<Theme> Theme::read(render::GeometryPool& pool, const Path& path)
 
 ThemeReader::ThemeReader(render::GeometryPool& initPool):
   ResourceReader(initPool.getContext().getIndex()),
-  pool(initPool),
-  info(getIndex())
+  pool(initPool)
 {
   if (widgetStateMap.isEmpty())
   {
@@ -114,124 +115,95 @@ Ref<Theme> ThemeReader::read(const Path& path)
   if (Resource* cache = getIndex().findResource(path))
     return dynamic_cast<Theme*>(cache);
 
-  info.path = path;
-
   std::ifstream stream;
   if (!getIndex().openFile(stream, path))
     return NULL;
 
-  if (!XML::Reader::read(stream))
+  pugi::xml_document document;
+
+  const pugi::xml_parse_result result = document.load(stream);
+  if (!result)
   {
-    theme = NULL;
+    logError("Failed to load UI theme \'%s\': %s",
+             path.asString().c_str(),
+             result.description());
     return NULL;
   }
 
-  return theme.detachObject();
-}
-
-bool ThemeReader::onBeginElement(const String& name)
-{
-  if (name == "theme")
+  pugi::xml_node root = document.child("theme");
+  if (!root || root.attribute("version").as_uint() != THEME_XML_VERSION)
   {
-    const unsigned int version = readInteger("version");
-    if (version != THEME_XML_VERSION)
-    {
-      logError("Theme specification XML format version mismatch");
-      return false;
-    }
-
-    theme = new Theme(info);
-
-    Path path;
-
-    path = readString("texture");
-    if (path.isEmpty())
-    {
-      logError("Texture path for theme \'%s\' is empty",
-               info.path.asString().c_str());
-      return false;
-    }
-
-    theme->texture = GL::Texture::read(pool.getContext(), path);
-    if (!theme->texture)
-    {
-      logError("Failed to load texture \'%s\' for theme \'%s\'",
-               path.asString().c_str(),
-               info.path.asString().c_str());
-      return false;
-    }
-
-    path = readString("font");
-    if (path.isEmpty())
-    {
-      logError("Font path for theme \'%s\' is empty",
-                path.asString().c_str());
-      return false;
-    }
-
-    theme->font = render::Font::read(pool, path);
-    if (!theme->font)
-    {
-      logError("Failed to load font \'%s\' for theme \'%s\'",
-                path.asString().c_str(),
-                info.path.asString().c_str());
-      return false;
-    }
-
-    return true;
+    logError("UI theme file format mismatch in \'%s\'",
+             path.asString().c_str());
+    return NULL;
   }
 
-  if (theme)
+  Ref<Theme> theme = new Theme(ResourceInfo(getIndex(), path));
+
+  const Path texturePath(root.attribute("texture").value());
+  if (texturePath.isEmpty())
   {
-    if (widgetStateMap.hasKey(name))
-    {
-      currentState = widgetStateMap[name];
-      return true;
-    }
-
-    if (name == "text")
-    {
-      theme->textColors[currentState] = vec3Cast(readString("color"));
-      return true;
-    }
-
-    if (name == "back")
-    {
-      theme->backColors[currentState] = vec3Cast(readString("color"));
-      return true;
-    }
-
-    if (name == "button")
-    {
-      theme->buttonElements[currentState] = rectCast(readString("area"));
-      return true;
-    }
-
-    if (name == "handle")
-    {
-      theme->handleElements[currentState] = rectCast(readString("area"));
-      return true;
-    }
-
-    if (name == "frame")
-    {
-      theme->frameElements[currentState] = rectCast(readString("area"));
-      return true;
-    }
-
-    if (name == "well")
-    {
-      theme->wellElements[currentState] = rectCast(readString("area"));
-      return true;
-    }
+    logError("Texture path for UI theme \'%s\' is empty",
+             path.asString().c_str());
+    return NULL;
   }
 
-  return true;
-}
+  theme->texture = GL::Texture::read(pool.getContext(), texturePath);
+  if (!theme->texture)
+  {
+    logError("Failed to load texture for UI theme \'%s\'",
+             path.asString().c_str());
+    return NULL;
+  }
 
-bool ThemeReader::onEndElement(const String& name)
-{
-  return true;
+  const Path fontPath(root.attribute("font").value());
+  if (fontPath.isEmpty())
+  {
+    logError("Font path for UI theme \'%s\' is empty",
+              path.asString().c_str());
+    return NULL;
+  }
+
+  theme->font = render::Font::read(pool, fontPath);
+  if (!theme->font)
+  {
+    logError("Failed to load font for UI theme \'%s\'",
+             path.asString().c_str());
+    return NULL;
+  }
+
+  for (pugi::xml_node sn = root.first_child();  sn;  sn = sn.next_sibling())
+  {
+    if (!widgetStateMap.hasKey(sn.name()))
+    {
+      logError("Unknown widget state \'%s\' in UI theme \'%s\'",
+               sn.name(),
+               path.asString().c_str());
+      return NULL;
+    }
+
+    WidgetState state = widgetStateMap[sn.name()];
+
+    if (pugi::xml_node node = sn.child("text"))
+      theme->textColors[state] = vec3Cast(node.attribute("color").value());
+
+    if (pugi::xml_node node = sn.child("back"))
+      theme->backColors[state] = vec3Cast(node.attribute("color").value());
+
+    if (pugi::xml_node node = sn.child("button"))
+      theme->buttonElements[state] = rectCast(node.attribute("area").value());
+
+    if (pugi::xml_node node = sn.child("handle"))
+      theme->handleElements[state] = rectCast(node.attribute("area").value());
+
+    if (pugi::xml_node node = sn.child("frame"))
+      theme->frameElements[state] = rectCast(node.attribute("area").value());
+
+    if (pugi::xml_node node = sn.child("well"))
+      theme->wellElements[state] = rectCast(node.attribute("area").value());
+  }
+
+  return theme;
 }
 
 ///////////////////////////////////////////////////////////////////////

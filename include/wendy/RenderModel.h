@@ -132,18 +132,13 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class ModelReader : public ResourceReader, public XML::Reader
+class ModelReader : public ResourceReader
 {
 public:
   ModelReader(GL::Context& context);
   Ref<Model> read(const Path& path);
 private:
-  bool onBeginElement(const String& name);
-  bool onEndElement(const String& name);
   GL::Context& context;
-  ResourceInfo info;
-  Ref<Mesh> data;
-  Model::MaterialMap materials;
 };
 
 ///////////////////////////////////////////////////////////////////////

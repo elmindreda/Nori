@@ -112,22 +112,16 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class Anim3Reader : public ResourceReader, public XML::Reader
+class Anim3Reader : public ResourceReader
 {
 public:
   Anim3Reader(ResourceIndex& index);
   Ref<Anim3> read(const Path& path);
-private:
-  bool onBeginElement(const String& name);
-  bool onEndElement(const String& name);
-  Ref<Anim3> animation;
-  ResourceInfo info;
-  AnimTrack3* currentTrack;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-class Anim3Writer : public XML::Writer
+class Anim3Writer
 {
 public:
   bool write(const Path& path, const Anim3& animation);

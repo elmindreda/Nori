@@ -41,6 +41,8 @@
 
 #include <glm/gtx/bit.hpp>
 
+#include <pugixml.hpp>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -480,8 +482,7 @@ void Font::realizeVertices(const Rect& pixelArea,
 
 FontReader::FontReader(GeometryPool& initPool):
   ResourceReader(initPool.getContext().getIndex()),
-  pool(initPool),
-  info(getIndex())
+  pool(initPool)
 {
 }
 
@@ -490,22 +491,68 @@ Ref<Font> FontReader::read(const Path& path)
   if (Resource* cache = getIndex().findResource(path))
     return dynamic_cast<Font*>(cache);
 
-  info.path = path;
-
   std::ifstream stream;
-  if (!getIndex().openFile(stream, info.path))
+  if (!getIndex().openFile(stream, path))
     return NULL;
 
-  if (!XML::Reader::read(stream))
+  pugi::xml_document document;
+
+  const pugi::xml_parse_result result = document.load(stream);
+  if (!result)
   {
-    font = NULL;
+    logError("Failed to load font \'%s\': %s",
+             path.asString().c_str(),
+             result.description());
     return NULL;
   }
 
-  return font.detachObject();
+  pugi::xml_node root = document.child("font");
+  if (!root || root.attribute("version").as_uint() != FONT_XML_VERSION)
+  {
+    logError("Font file format mismatch in \'%s\'",
+             path.asString().c_str());
+    return NULL;
+  }
+
+  const String characters(root.attribute("characters").value());
+  if (characters.empty())
+  {
+    logError("No characters specified for font \'%s\'",
+             path.asString().c_str());
+    return NULL;
+  }
+
+  const Path imagePath(root.attribute("image").value());
+  if (imagePath.isEmpty())
+  {
+    logError("Glyph image path missing for font \'%s\'",
+              path.asString().c_str());
+    return NULL;
+  }
+
+  Ref<Image> image = Image::read(getIndex(), imagePath);
+  if (!image)
+  {
+    logError("Failed to load glyph image for font \'%s\'",
+             path.asString().c_str());
+    return NULL;
+  }
+
+  bool fixedWidth = false;
+
+  if (pugi::xml_attribute a = root.attribute("fixed"))
+    fixedWidth = a.as_bool();
+
+  FontData data;
+
+  if (!extractGlyphs(data, path, *image, characters, fixedWidth))
+    return NULL;
+
+  return Font::create(ResourceInfo(getIndex(), path), pool, data);
 }
 
 bool FontReader::extractGlyphs(FontData& data,
+                               const Path& path,
                                const Image& image,
                                const String& characters,
                                bool fixedWidth)
@@ -514,7 +561,7 @@ bool FontReader::extractGlyphs(FontData& data,
   {
     logError("Image \'%s\' for font \'%s\' has invalid pixel format \'%s\'",
              image.getPath().asString().c_str(),
-             info.path.asString().c_str(),
+             path.asString().c_str(),
              image.getFormat().asString().c_str());
     return false;
   }
@@ -527,7 +574,7 @@ bool FontReader::extractGlyphs(FontData& data,
     if (startY == source.getHeight())
     {
       logError("No glyphs found in source image for font \'%s\'",
-               info.path.asString().c_str());
+               path.asString().c_str());
       return false;
     }
 
@@ -536,7 +583,7 @@ bool FontReader::extractGlyphs(FontData& data,
     if (!source.crop(Recti(0, startY, source.getWidth(), endY - startY)))
     {
       logError("Failed to crop source image for font \'%s\'",
-               info.path.asString().c_str());
+               path.asString().c_str());
       return false;
     }
   }
@@ -573,7 +620,7 @@ bool FontReader::extractGlyphs(FontData& data,
     if (index == characters.size())
     {
       logError("Font \'%s\' has less characters than glyphs",
-               info.path.asString().c_str());
+               path.asString().c_str());
       return false;
     }
 
@@ -599,7 +646,7 @@ bool FontReader::extractGlyphs(FontData& data,
     if (!glyphImage)
     {
       logError("Failed to extract glyph image for font \'%s\'",
-               info.path.asString().c_str());
+               path.asString().c_str());
       return false;
     }
 
@@ -696,72 +743,6 @@ bool FontReader::extractGlyphs(FontData& data,
       data.glyphs[i].advance += meanAdvance * 0.2f;
   }
 
-  return true;
-}
-
-bool FontReader::onBeginElement(const String& name)
-{
-  if (name == "font")
-  {
-    if (font)
-    {
-      logError("More than one font specification found in font \'%s\'",
-               info.path.asString().c_str());
-      return false;
-    }
-
-    const unsigned int version = readInteger("version");
-    if (version != FONT_XML_VERSION)
-    {
-      logError("XML format version mismatch in font \'%s\'",
-               info.path.asString().c_str());
-      return false;
-    }
-
-    String characters = readString("characters");
-    if (characters.empty())
-    {
-      logError("No characters specified for font \'%s\'",
-               info.path.asString().c_str());
-      return false;
-    }
-
-    Path imagePath(readString("image"));
-    if (imagePath.isEmpty())
-    {
-      logError("Image path missing for font \'%s\'",
-               info.path.asString().c_str());
-      return false;
-    }
-
-    Ref<Image> image = Image::read(getIndex(), imagePath);
-    if (!image)
-    {
-      logError("Failed to find image \'%s\' for font \'%s\'",
-               imagePath.asString().c_str(),
-               info.path.asString().c_str());
-      return false;
-    }
-
-    bool fixedWidth = readBoolean("fixed", false);
-
-    FontData data;
-
-    if (!extractGlyphs(data, *image, characters, fixedWidth))
-      return false;
-
-    font = Font::create(info, pool, data);
-    if (!font)
-      return false;
-
-    return true;
-  }
-
-  return true;
-}
-
-bool FontReader::onEndElement(const String& name)
-{
   return true;
 }
 

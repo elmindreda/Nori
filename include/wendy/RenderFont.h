@@ -144,21 +144,18 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-class FontReader : public ResourceReader, public XML::Reader
+class FontReader : public ResourceReader
 {
 public:
   FontReader(GeometryPool& pool);
   Ref<Font> read(const Path& path);
 private:
   bool extractGlyphs(FontData& data,
+                     const Path& path,
                      const Image& image,
                      const String& characters,
                      bool fixedWidth);
-  bool onBeginElement(const String& name);
-  bool onEndElement(const String& name);
   GeometryPool& pool;
-  Ref<Font> font;
-  ResourceInfo info;
 };
 
 ///////////////////////////////////////////////////////////////////////
