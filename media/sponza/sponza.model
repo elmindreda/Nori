@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<mesh version="1" data="sponza.obj" >
+<model version="2" mesh="sponza.obj" >
   <material name="lion" path="lion.material" />
   <material name="leaf" path="leaf.material" />
   <material name="vase" path="vase.material" />
@@ -19,4 +19,4 @@
   <material name="column_c" path="column_c.material" />
   <material name="details" path="details.material" />
   <material name="floor" path="floor.material" />
-</mesh>
+</model>

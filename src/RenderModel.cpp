@@ -52,7 +52,7 @@ namespace wendy
 namespace
 {
 
-const unsigned int MODEL_XML_VERSION = 1;
+const unsigned int MODEL_XML_VERSION = 2;
 
 } /*namespace*/
 
@@ -324,7 +324,7 @@ Ref<Model> ModelReader::read(const Path& path)
     return NULL;
   }
 
-  pugi::xml_node root = document.child("mesh");
+  pugi::xml_node root = document.child("model");
   if (!root || root.attribute("version").as_uint() != MODEL_XML_VERSION)
   {
     logError("Model file format mismatch in \'%s\'",
@@ -332,7 +332,7 @@ Ref<Model> ModelReader::read(const Path& path)
     return NULL;
   }
 
-  const Path meshPath(root.attribute("data").value());
+  const Path meshPath(root.attribute("mesh").value());
   if (meshPath.isEmpty())
   {
     logError("Mesh path for model \'%s\' is empty",

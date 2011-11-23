@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<mesh version="1" data="cube.obj" >
+<model version="2" mesh="cube.obj" >
   <material name="cube" path="cubemapped.material" />
-</mesh>
+</model>
