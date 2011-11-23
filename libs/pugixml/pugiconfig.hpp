@@ -10,6 +10,10 @@
  * This work is based on the pugxml parser, which is:
  * Copyright (C) 2003, by Kristen Wegner (kristen@tima.net)
  */
+/*
+ * 2011-11-23  Camilla Berglund  <elmindreda@elmindreda.org>
+ *   Disabled XPath and exceptions
+ */
 
 #ifndef HEADER_PUGICONFIG_HPP
 #define HEADER_PUGICONFIG_HPP
