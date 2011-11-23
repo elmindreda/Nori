@@ -236,10 +236,8 @@ void Mesh::generateBounds(AABB& bounds) const
     return;
   }
 
-  typedef std::numeric_limits<float> limits;
-
-  vec3 minimum(limits::max());
-  vec3 maximum(limits::min());
+  vec3 minimum(std::numeric_limits<float>::max());
+  vec3 maximum(std::numeric_limits<float>::min());
 
   for (size_t i = 0;  i < vertices.size();  i++)
   {
