@@ -43,6 +43,20 @@
 
 ///////////////////////////////////////////////////////////////////////
 
+#if _MSC_VER
+#define WENDY_NORETURN(x) __declspec(noreturn) x
+#elif __GNUC__
+#define WENDY_NORETURN(x) x __attribute__((noreturn))
+#else
+#define WENDY_NORETURN(x) x
+#endif
+
+#if __GNUC__
+#define WENDY_CHECKFORMAT(i, x) x __attribute__((format(printf, i, i + 1)))
+#else
+#define WENDY_CHECKFORMAT(i, x) x
+#endif
+
 #ifdef _MSC_VER
 
 // Don't consider the libc to be obsolete
@@ -57,8 +71,6 @@
 #endif
 
 #endif /*_MSC_VER*/
-
-///////////////////////////////////////////////////////////////////////
 
 #if !WENDY_HAVE_VASPRINTF
 int vasprintf(char** result, const char* format, va_list vl);
@@ -128,7 +140,7 @@ quat quatCast(const String& string);
 
 /*! @brief Creates a string using printf formatting.
  */
-String format(const char* format, ...);
+WENDY_CHECKFORMAT(1, String format(const char* format, ...));
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -165,27 +177,23 @@ StringHash hashString(const char* string);
  *  or to stderr if there are no log consumers.
  *  @param[in] format The formatting string for the log entry.
  */
-void logError(const char* format, ...);
+WENDY_CHECKFORMAT(1, void logError(const char* format, ...));
 
 /*! Writes a warning message log entry to the log consumers,
  *  or to stderr if there are no log consumers.
  *  @param[in] format The formatting string for the log entry.
  */
-void logWarning(const char* format, ...);
+WENDY_CHECKFORMAT(1, void logWarning(const char* format, ...));
 
 /*! Writes an informational message log entry to the log consumers,
  *  or to stderr if there are no log consumers.
  *  @param[in] format The formatting string for the log entry.
  */
-void log(const char* format, ...);
+WENDY_CHECKFORMAT(1, void log(const char* format, ...));
 
 /*! Displays the specified message and terminates the program.
  */
-#if _MSC_VER
-__declspec(noreturn) void panic(const char* format, ...);
-#else
-void panic(const char* format, ...) __attribute__((__noreturn__));
-#endif /*_MSC_VER*/
+WENDY_CHECKFORMAT(1, WENDY_NORETURN(void panic(const char* format, ...)));
 
 ///////////////////////////////////////////////////////////////////////
 

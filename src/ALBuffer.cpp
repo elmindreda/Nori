@@ -24,6 +24,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Config.h>
+#include <wendy/Core.h>
 
 #include <wendy/OpenAL.h>
 #include <wendy/ALContext.h>

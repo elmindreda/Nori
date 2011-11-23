@@ -72,8 +72,8 @@ public:
   Table getRegistryTable();
   ResourceIndex& getIndex() const;
 private:
-  static void onLogMessage(HSQUIRRELVM vm, const SQChar* format, ...);
-  static void onLogError(HSQUIRRELVM vm, const SQChar* format, ...);
+  WENDY_CHECKFORMAT(2, static void onLogMessage(HSQUIRRELVM vm, const SQChar* format, ...));
+  WENDY_CHECKFORMAT(2, static void onLogError(HSQUIRRELVM vm, const SQChar* format, ...));
   static void onCompilerError(HSQUIRRELVM vm,
                               const SQChar* description,
                               const SQChar* source,
