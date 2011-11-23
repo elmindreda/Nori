@@ -62,9 +62,6 @@
 // Don't consider the libc to be obsolete
 #pragma warning( disable: 4996 )
 
-#define snprintf _snprintf
-#define strcasecmp stricmp
-
 // This is only needed for versions below Visual C++ 2008
 #if _MSC_VER < 1500
 #define vsnprintf _vsnprintf
