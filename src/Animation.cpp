@@ -427,14 +427,14 @@ bool Anim3Writer::write(const Path& path, const Anim3& animation)
   pugi::xml_document document;
 
   pugi::xml_node root = document.append_child("animation");
-  root.append_attribute("version").set_value(ANIM3_XML_VERSION);
+  root.append_attribute("version") = ANIM3_XML_VERSION;
 
   for (size_t i = 0;  i < animation.getTrackCount();  i++)
   {
     const AnimTrack3& track = animation.getTrack(i);
 
     pugi::xml_node tn = root.append_child("track");
-    tn.append_attribute("name").set_value(track.getName().c_str());
+    tn.append_attribute("name") = track.getName().c_str();
 
     for (size_t j = 0;  j < track.getKeyFrameCount();  j++)
     {
@@ -442,10 +442,10 @@ bool Anim3Writer::write(const Path& path, const Anim3& animation)
       const Transform3& transform = keyframe.getTransform();
 
       pugi::xml_node kn = tn.append_child("keyframe");
-      kn.append_attribute("moment").set_value(keyframe.getMoment());
-      kn.append_attribute("position").set_value(stringCast(transform.position).c_str());
-      kn.append_attribute("rotation").set_value(stringCast(transform.rotation).c_str());
-      kn.append_attribute("direction").set_value(stringCast(keyframe.getDirection()).c_str());
+      kn.append_attribute("moment") = keyframe.getMoment();
+      kn.append_attribute("position") = stringCast(transform.position).c_str();
+      kn.append_attribute("rotation") = stringCast(transform.rotation).c_str();
+      kn.append_attribute("direction") = stringCast(keyframe.getDirection()).c_str();
     }
   }
 

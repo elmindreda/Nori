@@ -516,7 +516,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
   pugi::xml_document document;
 
   pugi::xml_node root = document.append_child("material");
-  root.append_attribute("version").set_value(MATERIAL_XML_VERSION);
+  root.append_attribute("version") = MATERIAL_XML_VERSION;
 
   GL::RenderState defaults;
 
@@ -525,8 +525,8 @@ bool MaterialWriter::write(const Path& path, const Material& material)
   for (TechniqueList::const_iterator t = techniques.begin();  t != techniques.end();  t++)
   {
     pugi::xml_node tn = root.append_child("technique");
-    tn.append_attribute("type").set_value(techniqueTypeMap[t->getType()].c_str());
-    tn.append_attribute("quality").set_value(t->getQuality());
+    tn.append_attribute("type") = techniqueTypeMap[t->getType()].c_str();
+    tn.append_attribute("quality") = t->getQuality();
 
     const PassList& passes = t->getPasses();
 
@@ -538,45 +538,45 @@ bool MaterialWriter::write(const Path& path, const Material& material)
           p->getDstFactor() != defaults.getDstFactor())
       {
         pugi::xml_node bn = pn.append_child("blending");
-        bn.append_attribute("src").set_value(blendFactorMap[p->getSrcFactor()].c_str());
-        bn.append_attribute("dst").set_value(blendFactorMap[p->getDstFactor()].c_str());
+        bn.append_attribute("src") = blendFactorMap[p->getSrcFactor()].c_str();
+        bn.append_attribute("dst") = blendFactorMap[p->getDstFactor()].c_str();
       }
 
       if (p->isColorWriting() != defaults.isColorWriting())
       {
         pugi::xml_node cn = pn.append_child("color");
-        cn.append_attribute("writing").set_value(p->isColorWriting());
+        cn.append_attribute("writing") = p->isColorWriting();
       }
 
       if (p->isDepthTesting() != defaults.isDepthTesting() ||
           p->isDepthWriting() != defaults.isDepthWriting())
       {
         pugi::xml_node dn = pn.append_child("depth");
-        dn.append_attribute("testing").set_value(p->isDepthTesting());
-        dn.append_attribute("writing").set_value(p->isDepthWriting());
-        dn.append_attribute("function").set_value(functionMap[p->getDepthFunction()].c_str());
+        dn.append_attribute("testing") = p->isDepthTesting();
+        dn.append_attribute("writing") = p->isDepthWriting();
+        dn.append_attribute("function") = functionMap[p->getDepthFunction()].c_str();
       }
 
       if (p->isWireframe() != defaults.isWireframe() ||
           p->getCullMode() != defaults.getCullMode())
       {
         pugi::xml_node pn = pn.append_child("polygon");
-        pn.append_attribute("wireframe").set_value(p->isWireframe());
-        pn.append_attribute("cull").set_value(cullModeMap[p->getCullMode()].c_str());
+        pn.append_attribute("wireframe") = p->isWireframe();
+        pn.append_attribute("cull") = cullModeMap[p->getCullMode()].c_str();
       }
 
       if (p->isLineSmoothing() != defaults.isLineSmoothing() ||
           p->getLineWidth() != defaults.getLineWidth())
       {
         pugi::xml_node ln = pn.append_child("line");
-        ln.append_attribute("smoothing").set_value(p->isLineSmoothing());
-        ln.append_attribute("width").set_value(p->getLineWidth());
+        ln.append_attribute("smoothing") = p->isLineSmoothing();
+        ln.append_attribute("width") = p->getLineWidth();
       }
 
       if (GL::Program* program = p->getProgram())
       {
         pugi::xml_node fn = pn.append_child("program");
-        fn.append_attribute("path").set_value(program->getPath().asString().c_str());
+        fn.append_attribute("path") = program->getPath().asString().c_str();
 
         for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
         {
@@ -587,8 +587,8 @@ bool MaterialWriter::write(const Path& path, const Material& material)
             continue;
 
           pugi::xml_node sn = fn.append_child("sampler");
-          sn.append_attribute("name").set_value(sampler.getName().c_str());
-          sn.append_attribute("texture").set_value(texture->getPath().asString().c_str());
+          sn.append_attribute("name") = sampler.getName().c_str();
+          sn.append_attribute("texture") = texture->getPath().asString().c_str();
         }
 
         for (unsigned int i = 0;  i < program->getUniformCount();  i++)
@@ -596,7 +596,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
           const GL::Uniform& uniform = program->getUniform(i);
 
           pugi::xml_node un = fn.append_child("uniform");
-          un.append_attribute("name").set_value(uniform.getName().c_str());
+          un.append_attribute("name") = uniform.getName().c_str();
 
           switch (uniform.getType())
           {
@@ -604,7 +604,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
             {
               float value;
               p->getUniformState(uniform.getName().c_str(), value);
-              un.append_attribute("value").set_value(value);
+              un.append_attribute("value") = value;
               break;
             }
 
@@ -612,7 +612,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
             {
               vec2 value;
               p->getUniformState(uniform.getName().c_str(), value);
-              un.append_attribute("value").set_value(stringCast(value).c_str());
+              un.append_attribute("value") = stringCast(value).c_str();
               break;
             }
 
@@ -620,7 +620,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
             {
               vec3 value;
               p->getUniformState(uniform.getName().c_str(), value);
-              un.append_attribute("value").set_value(stringCast(value).c_str());
+              un.append_attribute("value") = stringCast(value).c_str();
               break;
             }
 
@@ -628,7 +628,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
             {
               vec4 value;
               p->getUniformState(uniform.getName().c_str(), value);
-              un.append_attribute("value").set_value(stringCast(value).c_str());
+              un.append_attribute("value") = stringCast(value).c_str();
               break;
             }
 
@@ -636,7 +636,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
             {
               mat2 value;
               p->getUniformState(uniform.getName().c_str(), value);
-              un.append_attribute("value").set_value(stringCast(value).c_str());
+              un.append_attribute("value") = stringCast(value).c_str();
               break;
             }
 
@@ -644,7 +644,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
             {
               mat3 value;
               p->getUniformState(uniform.getName().c_str(), value);
-              un.append_attribute("value").set_value(stringCast(value).c_str());
+              un.append_attribute("value") = stringCast(value).c_str();
               break;
             }
 
@@ -652,7 +652,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
             {
               mat4 value;
               p->getUniformState(uniform.getName().c_str(), value);
-              un.append_attribute("value").set_value(stringCast(value).c_str());
+              un.append_attribute("value") = stringCast(value).c_str();
               break;
             }
           }
