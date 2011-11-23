@@ -104,7 +104,7 @@ float Scroller::getPercentage() const
 
 void Scroller::setPercentage(float newPercentage)
 {
-  percentage = max(min(newPercentage, 1.f), 0.f);
+  percentage = clamp(newPercentage, 0.f, 1.f);
   invalidate();
 }
 

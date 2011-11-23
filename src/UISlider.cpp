@@ -102,7 +102,7 @@ float Slider::getStepSize() const
 
 void Slider::setStepSize(float newSize)
 {
-  stepSize = std::max(newSize, 0.f);
+  stepSize = max(newSize, 0.f);
 }
 
 SignalProxy1<void, Slider&> Slider::getValueChangedSignal()
