@@ -488,7 +488,7 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
                NULL,
                convertToGL(usage));
 
-  if (!checkGL("Error during creation of index buffer of element size %u",
+  if (!checkGL("Error during creation of index buffer of element size %zu",
                getTypeSize(type)))
   {
     context.setCurrentIndexBuffer(NULL);

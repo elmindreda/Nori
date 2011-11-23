@@ -102,7 +102,8 @@ btBvhTriangleMeshShape* BvhMeshShapeReader::read(const Path& path)
 
   if (!importer.getNumCollisionShapes())
   {
-    logError("Mesh shape file \'%s\' does not contain any shapes");
+    logError("Mesh shape file \'%s\' does not contain any shapes",
+             path.asString().c_str());
     return NULL;
   }
 

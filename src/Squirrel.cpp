@@ -378,7 +378,7 @@ void VM::onCompilerError(HSQUIRRELVM vm,
                          SQInteger line,
                          SQInteger column)
 {
-  logError("%s:%i:%i: %s", source, line, column, description);
+  logError("%s:%i:%i: %s", source, int(line), int(column), description);
 }
 
 SQInteger VM::onRuntimeError(HSQUIRRELVM vm)
