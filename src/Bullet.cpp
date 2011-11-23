@@ -78,14 +78,14 @@ btVector3 convert(const vec3& vector)
 
 ///////////////////////////////////////////////////////////////////////
 
-BvhMeshShapeReader::BvhMeshShapeReader(ResourceIndex& index):
-  ResourceReader(index)
+BvhMeshShapeReader::BvhMeshShapeReader(ResourceCache& cache):
+  ResourceReader(cache)
 {
 }
 
 btBvhTriangleMeshShape* BvhMeshShapeReader::read(const Path& path)
 {
-  const Path full = getIndex().findFile(path);
+  const Path full = getCache().findFile(path);
   if (full.isEmpty())
   {
     logError("Could not find mesh shape file \'%s\'", path.asString().c_str());

@@ -365,18 +365,18 @@ const AnimTrack3& Anim3::getTrack(size_t index) const
 
 ///////////////////////////////////////////////////////////////////////
 
-Anim3Reader::Anim3Reader(ResourceIndex& index):
-  ResourceReader(index)
+Anim3Reader::Anim3Reader(ResourceCache& cache):
+  ResourceReader(cache)
 {
 }
 
 Ref<Anim3> Anim3Reader::read(const Path& path)
 {
-  if (Resource* cached = getIndex().findResource(path))
+  if (Resource* cached = getCache().findResource(path))
     return dynamic_cast<Anim3*>(cached);
 
   std::ifstream stream;
-  if (!getIndex().openFile(stream, path))
+  if (!getCache().openFile(stream, path))
     return NULL;
 
   pugi::xml_document document;
@@ -398,7 +398,7 @@ Ref<Anim3> Anim3Reader::read(const Path& path)
     return NULL;
   }
 
-  Ref<Anim3> animation = new Anim3(ResourceInfo(getIndex(), path));
+  Ref<Anim3> animation = new Anim3(ResourceInfo(getCache(), path));
 
   for (pugi::xml_node t = root.child("track");  t;  t = t.next_sibling("track"))
   {

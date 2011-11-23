@@ -1100,9 +1100,9 @@ void Context::setTitle(const char* newTitle)
   title = newTitle;
 }
 
-ResourceIndex& Context::getIndex() const
+ResourceCache& Context::getCache() const
 {
-  return index;
+  return cache;
 }
 
 Version Context::getVersion() const
@@ -1130,11 +1130,11 @@ SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal()
   return resizedSignal;
 }
 
-bool Context::createSingleton(ResourceIndex& index,
+bool Context::createSingleton(ResourceCache& cache,
                               const WindowConfig& windowConfig,
                               const ContextConfig& contextConfig)
 {
-  Ptr<Context> context(new Context(index));
+  Ptr<Context> context(new Context(cache));
   if (!context->init(windowConfig, contextConfig))
     return false;
 
@@ -1142,8 +1142,8 @@ bool Context::createSingleton(ResourceIndex& index,
   return true;
 }
 
-Context::Context(ResourceIndex& initIndex):
-  index(initIndex),
+Context::Context(ResourceCache& initCache):
+  cache(initCache),
   refreshMode(AUTOMATIC_REFRESH),
   needsRefresh(false),
   needsClosing(false),
@@ -1160,7 +1160,7 @@ Context::Context(ResourceIndex& initIndex):
 }
 
 Context::Context(const Context& source):
-  index(source.index)
+  cache(source.cache)
 {
   panic("OpenGL contexts may not be copied");
 }

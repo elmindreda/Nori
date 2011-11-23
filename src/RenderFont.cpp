@@ -297,9 +297,9 @@ bool Font::init(const FontData& data)
     unsigned int textureHeight = (maxHeight + 1) * rows + 1;
     textureHeight = min(powerOfTwoAbove(textureHeight), maxSize);
 
-    Image image(getIndex(), PixelFormat::R8, textureWidth, textureHeight);
+    Image image(getCache(), PixelFormat::R8, textureWidth, textureHeight);
 
-    texture = GL::Texture::create(getIndex(), pool.getContext(), image, 0);
+    texture = GL::Texture::create(getCache(), pool.getContext(), image, 0);
     if (!texture)
     {
       logError("Failed to create glyph texture for font \'%s\'",
@@ -481,18 +481,18 @@ void Font::realizeVertices(const Rect& pixelArea,
 ///////////////////////////////////////////////////////////////////////
 
 FontReader::FontReader(GeometryPool& initPool):
-  ResourceReader(initPool.getContext().getIndex()),
+  ResourceReader(initPool.getContext().getCache()),
   pool(initPool)
 {
 }
 
 Ref<Font> FontReader::read(const Path& path)
 {
-  if (Resource* cached = getIndex().findResource(path))
+  if (Resource* cached = getCache().findResource(path))
     return dynamic_cast<Font*>(cached);
 
   std::ifstream stream;
-  if (!getIndex().openFile(stream, path))
+  if (!getCache().openFile(stream, path))
     return NULL;
 
   pugi::xml_document document;
@@ -530,7 +530,7 @@ Ref<Font> FontReader::read(const Path& path)
     return NULL;
   }
 
-  Ref<Image> image = Image::read(getIndex(), imagePath);
+  Ref<Image> image = Image::read(getCache(), imagePath);
   if (!image)
   {
     logError("Failed to load glyph image for font \'%s\'",
@@ -548,7 +548,7 @@ Ref<Font> FontReader::read(const Path& path)
   if (!extractGlyphs(data, path, *image, characters, fixedWidth))
     return NULL;
 
-  return Font::create(ResourceInfo(getIndex(), path), pool, data);
+  return Font::create(ResourceInfo(getCache(), path), pool, data);
 }
 
 bool FontReader::extractGlyphs(FontData& data,
@@ -712,7 +712,7 @@ bool FontReader::extractGlyphs(FontData& data,
     FontGlyphData& glyph = data.glyphs.back();
 
     glyph.bearing = vec2(0.f);
-    glyph.image = new Image(getIndex(), source.getFormat(), 1, 1);
+    glyph.image = new Image(getCache(), source.getFormat(), 1, 1);
 
     if (fixedWidth)
       glyph.advance = maxAdvance;

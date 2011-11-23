@@ -196,7 +196,7 @@ Ref<Material> Material::read(GL::Context& context, const Path& path)
 ///////////////////////////////////////////////////////////////////////
 
 MaterialReader::MaterialReader(GL::Context& initContext):
-  ResourceReader(initContext.getIndex()),
+  ResourceReader(initContext.getCache()),
   context(initContext)
 {
   if (cullModeMap.isEmpty())
@@ -243,11 +243,11 @@ MaterialReader::MaterialReader(GL::Context& initContext):
 
 Ref<Material> MaterialReader::read(const Path& path)
 {
-  if (Resource* cached = getIndex().findResource(path))
+  if (Resource* cached = getCache().findResource(path))
     return dynamic_cast<Material*>(cached);
 
   std::ifstream stream;
-  if (!getIndex().openFile(stream, path))
+  if (!getCache().openFile(stream, path))
     return NULL;
 
   pugi::xml_document document;
@@ -269,7 +269,7 @@ Ref<Material> MaterialReader::read(const Path& path)
     return NULL;
   }
 
-  Ref<Material> material = new Material(ResourceInfo(getIndex(), path));
+  Ref<Material> material = new Material(ResourceInfo(getCache(), path));
 
   for (pugi::xml_node t = root.child("technique");  t;  t = t.next_sibling("technique"))
   {

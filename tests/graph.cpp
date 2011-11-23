@@ -19,7 +19,7 @@ public:
 private:
   bool render();
   void onContextResized(unsigned int width, unsigned int height);
-  ResourceIndex index;
+  ResourceCache cache;
   Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
   Ptr<forward::Renderer> renderer;
@@ -45,10 +45,10 @@ bool Test::init()
   if (!mediaPath)
     mediaPath = WENDY_MEDIA_DIR;
 
-  if (!index.addSearchPath(Path(mediaPath)))
+  if (!cache.addSearchPath(Path(mediaPath)))
     return false;
 
-  if (!GL::Context::createSingleton(index, GL::WindowConfig("Scene Graph")))
+  if (!GL::Context::createSingleton(cache, GL::WindowConfig("Scene Graph")))
     return false;
 
   GL::Context* context = GL::Context::getSingleton();

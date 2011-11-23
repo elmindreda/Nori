@@ -38,9 +38,9 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-ResourceInfo::ResourceInfo(ResourceIndex& initIndex,
+ResourceInfo::ResourceInfo(ResourceCache& initCache,
                            const Path& initPath):
-  index(initIndex),
+  cache(initCache),
   path(initPath)
 {
 }
@@ -48,20 +48,20 @@ ResourceInfo::ResourceInfo(ResourceIndex& initIndex,
 ///////////////////////////////////////////////////////////////////////
 
 Resource::Resource(const ResourceInfo& info):
-  index(info.index),
+  cache(info.cache),
   path(info.path)
 {
   if (!path.isEmpty())
   {
-    if (index.findResource(path))
+    if (cache.findResource(path))
       panic("Duplicate path for resource \'%s\'", path.asString().c_str());
 
-    index.resources.push_back(this);
+    cache.resources.push_back(this);
   }
 }
 
 Resource::Resource(const Resource& source):
-  index(source.index)
+  cache(source.cache)
 {
 }
 
@@ -69,8 +69,8 @@ Resource::~Resource()
 {
   if (!path.isEmpty())
   {
-    index.resources.erase(std::find(index.resources.begin(),
-                                    index.resources.end(),
+    cache.resources.erase(std::find(cache.resources.begin(),
+                                    cache.resources.end(),
                                     this));
   }
 }
@@ -80,20 +80,20 @@ const Path& Resource::getPath() const
   return path;
 }
 
-ResourceIndex& Resource::getIndex() const
+ResourceCache& Resource::getCache() const
 {
-  return index;
+  return cache;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-ResourceIndex::~ResourceIndex()
+ResourceCache::~ResourceCache()
 {
   if (!resources.empty())
-    panic("Resource index destroyed with attached resources");
+    panic("Resource cache destroyed with attached resources");
 }
 
-bool ResourceIndex::addSearchPath(const Path& path)
+bool ResourceCache::addSearchPath(const Path& path)
 {
   if (!path.isDirectory())
   {
@@ -108,12 +108,12 @@ bool ResourceIndex::addSearchPath(const Path& path)
   return true;
 }
 
-void ResourceIndex::removeSearchPath(const Path& path)
+void ResourceCache::removeSearchPath(const Path& path)
 {
   paths.erase(std::find(paths.begin(), paths.end(), path));
 }
 
-Resource* ResourceIndex::findResource(const Path& path) const
+Resource* ResourceCache::findResource(const Path& path) const
 {
   for (List::const_iterator i = resources.begin();  i != resources.end();  i++)
   {
@@ -124,7 +124,7 @@ Resource* ResourceIndex::findResource(const Path& path) const
   return NULL;
 }
 
-bool ResourceIndex::openFile(std::ifstream& stream, const Path& path) const
+bool ResourceCache::openFile(std::ifstream& stream, const Path& path) const
 {
   const Path full = findFile(path);
   if (full.isEmpty())
@@ -137,7 +137,7 @@ bool ResourceIndex::openFile(std::ifstream& stream, const Path& path) const
   return true;
 }
 
-Path ResourceIndex::findFile(const Path& path) const
+Path ResourceCache::findFile(const Path& path) const
 {
   if (paths.empty())
   {
@@ -157,21 +157,21 @@ Path ResourceIndex::findFile(const Path& path) const
   return Path();
 }
 
-const PathList& ResourceIndex::getSearchPaths() const
+const PathList& ResourceCache::getSearchPaths() const
 {
   return paths;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-ResourceReader::ResourceReader(ResourceIndex& initIndex):
-  index(initIndex)
+ResourceReader::ResourceReader(ResourceCache& initCache):
+  cache(initCache)
 {
 }
 
-ResourceIndex& ResourceReader::getIndex() const
+ResourceCache& ResourceReader::getCache() const
 {
-  return index;
+  return cache;
 }
 
 ///////////////////////////////////////////////////////////////////////

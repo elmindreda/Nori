@@ -19,7 +19,7 @@ public:
   void run();
 private:
   bool render();
-  ResourceIndex index;
+  ResourceCache cache;
   input::MayaCamera controller;
   Ptr<render::GeometryPool> pool;
   Ptr<deferred::Renderer> renderer;
@@ -49,13 +49,13 @@ bool Test::init()
   if (!mediaPath)
     mediaPath = WENDY_MEDIA_DIR;
 
-  if (!index.addSearchPath(Path(mediaPath)))
+  if (!cache.addSearchPath(Path(mediaPath)))
     return false;
 
   GL::WindowConfig wc("Deferred Rendering Test");
   wc.resizable = false;
 
-  if (!GL::Context::createSingleton(index, wc))
+  if (!GL::Context::createSingleton(cache, wc))
     return false;
 
   GL::Context* context = GL::Context::getSingleton();

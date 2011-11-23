@@ -344,9 +344,9 @@ unsigned int Mesh::getTriangleCount() const
   return count;
 }
 
-Ref<Mesh> Mesh::read(ResourceIndex& index, const Path& path)
+Ref<Mesh> Mesh::read(ResourceCache& cache, const Path& path)
 {
-  MeshReader reader(index);
+  MeshReader reader(cache);
   return reader.read(path);
 }
 
@@ -469,20 +469,20 @@ void VertexMerger::setNormalMode(NormalMode newMode)
 
 ///////////////////////////////////////////////////////////////////////
 
-MeshReader::MeshReader(ResourceIndex& index):
+MeshReader::MeshReader(ResourceCache& index):
   ResourceReader(index)
 {
 }
 
 Ref<Mesh> MeshReader::read(const Path& path)
 {
-  if (Resource* cached = getIndex().findResource(path))
+  if (Resource* cached = getCache().findResource(path))
     return dynamic_cast<Mesh*>(cached);
 
-  ResourceInfo info(getIndex(), path);
+  ResourceInfo info(getCache(), path);
 
   std::ifstream stream;
-  if (!getIndex().openFile(stream, info.path))
+  if (!getCache().openFile(stream, info.path))
     return NULL;
 
   String line;

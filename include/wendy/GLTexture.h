@@ -284,7 +284,7 @@ public:
                              const ImageCube& source,
                              unsigned int flags);
   /*! Creates a texture using the specified texture specification file.
-   *  @param[in] index The resource index within which to create the texture.
+   *  @param[in] context The OpenGL context within which to create the texture.
    *  @param[in] path The path of the texture specification file to use.
    */
   static Ref<Texture> read(Context& context, const Path& path);

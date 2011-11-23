@@ -20,7 +20,7 @@ public:
   void run();
 private:
   void onContextResized(unsigned int width, unsigned int height);
-  ResourceIndex index;
+  ResourceCache cache;
   input::MayaCamera controller;
   Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
@@ -45,13 +45,13 @@ bool Test::init()
   if (!mediaPath)
     mediaPath = WENDY_MEDIA_DIR;
 
-  if (!index.addSearchPath(Path(mediaPath)))
+  if (!cache.addSearchPath(Path(mediaPath)))
     return false;
 
   GL::ContextConfig cc;
   cc.version = GL::Version(4,1);
 
-  if (!GL::Context::createSingleton(index, GL::WindowConfig(), cc))
+  if (!GL::Context::createSingleton(cache, GL::WindowConfig(), cc))
     return false;
 
   GL::Context* context = GL::Context::getSingleton();

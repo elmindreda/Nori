@@ -19,7 +19,7 @@ public:
   void run();
 private:
   void onContextResized(unsigned int width, unsigned int height);
-  ResourceIndex index;
+  ResourceCache cache;
   input::MayaCamera controller;
   Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
@@ -44,10 +44,10 @@ bool Test::init()
   if (!mediaPath)
     mediaPath = WENDY_MEDIA_DIR;
 
-  if (!index.addSearchPath(Path(mediaPath)))
+  if (!cache.addSearchPath(Path(mediaPath)))
     return false;
 
-  if (!GL::Context::createSingleton(index, GL::WindowConfig("Cube Mapping Test")))
+  if (!GL::Context::createSingleton(cache, GL::WindowConfig("Cube Mapping Test")))
     return false;
 
   GL::Context* context = GL::Context::getSingleton();

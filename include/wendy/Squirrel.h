@@ -60,7 +60,7 @@ class VM
 {
   friend class Object;
 public:
-  VM(ResourceIndex& index);
+  VM(ResourceCache& cache);
   ~VM();
   bool execute(const Path& path);
   bool execute(const char* name, const char* text);
@@ -70,7 +70,7 @@ public:
   Table getRootTable();
   Table getConstTable();
   Table getRegistryTable();
-  ResourceIndex& getIndex() const;
+  ResourceCache& getCache() const;
 private:
   WENDY_CHECKFORMAT(2, static void onLogMessage(HSQUIRRELVM vm, const SQChar* format, ...));
   WENDY_CHECKFORMAT(2, static void onLogError(HSQUIRRELVM vm, const SQChar* format, ...));
@@ -80,7 +80,7 @@ private:
                               SQInteger line,
                               SQInteger column);
   static SQInteger onRuntimeError(HSQUIRRELVM vm);
-  ResourceIndex& index;
+  ResourceCache& cache;
   HSQUIRRELVM vm;
 };
 

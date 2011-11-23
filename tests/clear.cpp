@@ -18,9 +18,9 @@ void onContextResized(unsigned int width, unsigned int height)
 
 int main()
 {
-  ResourceIndex index;
+  ResourceCache cache;
 
-  if (!GL::Context::createSingleton(index, GL::WindowConfig("Clear screen")))
+  if (!GL::Context::createSingleton(cache, GL::WindowConfig("Clear screen")))
   {
     logError("Failed to create OpenGL context");
     std::exit(EXIT_FAILURE);

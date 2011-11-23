@@ -299,18 +299,18 @@ void Model::Geometry::setMaterial(Material* newMaterial)
 ///////////////////////////////////////////////////////////////////////
 
 ModelReader::ModelReader(GL::Context& initContext):
-  ResourceReader(initContext.getIndex()),
+  ResourceReader(initContext.getCache()),
   context(initContext)
 {
 }
 
 Ref<Model> ModelReader::read(const Path& path)
 {
-  if (Resource* cached = getIndex().findResource(path))
+  if (Resource* cached = getCache().findResource(path))
     return dynamic_cast<Model*>(cached);
 
   std::ifstream stream;
-  if (!getIndex().openFile(stream, path))
+  if (!getCache().openFile(stream, path))
     return NULL;
 
   pugi::xml_document document;
@@ -340,7 +340,7 @@ Ref<Model> ModelReader::read(const Path& path)
     return NULL;
   }
 
-  Ref<Mesh> mesh = Mesh::read(getIndex(), meshPath);
+  Ref<Mesh> mesh = Mesh::read(getCache(), meshPath);
   if (!mesh)
   {
     logError("Failed to load mesh for model \'%s\'",
@@ -372,7 +372,7 @@ Ref<Model> ModelReader::read(const Path& path)
     materials[name] = path;
   }
 
-  return Model::create(ResourceInfo(getIndex(), path), context, *mesh, materials);
+  return Model::create(ResourceInfo(getCache(), path), context, *mesh, materials);
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -501,9 +501,9 @@ public:
   /*! @return The limits of this context.
    */
   const Limits& getLimits() const;
-  /*! @return The resource index used by this context.
+  /*! @return The resource cache used by this context.
    */
-  ResourceIndex& getIndex() const;
+  ResourceCache& getCache() const;
   /*! @return The OpenGL version.
    */
   Version getVersion() const;
@@ -517,16 +517,16 @@ public:
    */
   SignalProxy2<void, unsigned int, unsigned int> getResizedSignal();
   /*! Creates the context singleton object, using the specified settings.
-   *  @param[in] index The resource index to use.
+   *  @param[in] cache The resource cache to use.
    *  @param[in] wndconfig The desired window configuration.
    *  @param[in] ctxconfig The desired context configuration.
    *  @return @c true if successful, or @c false otherwise.
    */
-  static bool createSingleton(ResourceIndex& index,
+  static bool createSingleton(ResourceCache& cache,
                               const WindowConfig& windowConfig = WindowConfig(),
                               const ContextConfig& contextConfig = ContextConfig());
 private:
-  Context(ResourceIndex& index);
+  Context(ResourceCache& cache);
   Context(const Context& source);
   Context& operator = (const Context& source);
   bool init(const WindowConfig& windowConfig, const ContextConfig& contextConfig);
@@ -535,7 +535,7 @@ private:
   static void refreshCallback();
   typedef std::vector<SharedSampler> SamplerList;
   typedef std::vector<SharedUniform> UniformList;
-  ResourceIndex& index;
+  ResourceCache& cache;
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
   Signal2<void, unsigned int, unsigned int> resizedSignal;

@@ -115,7 +115,7 @@ private:
 class Anim3Reader : public ResourceReader
 {
 public:
-  Anim3Reader(ResourceIndex& index);
+  Anim3Reader(ResourceCache& cache);
   Ref<Anim3> read(const Path& path);
 };
 

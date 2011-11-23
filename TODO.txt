@@ -40,7 +40,7 @@ OpenAL
 
 Add streaming of audio files
 
-Remove ResourceIndex from Context, if possible
+Remove ResourceCache from Context, if possible
 
 
 OpenGL
@@ -61,7 +61,7 @@ Move resource part of Texture into render
 
 Require explicit type at texture creation
 
-Remove ResourceIndex from Context, if possible
+Remove ResourceCache from Context, if possible
 
 Move RenderState core into Context
 Move ProgramState into render

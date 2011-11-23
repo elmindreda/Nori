@@ -245,7 +245,7 @@ bool TextureImage::copyFrom(const wendy::Image& source,
 
 bool TextureImage::copyTo(wendy::Image& result) const
 {
-  result = wendy::Image(texture.getIndex(), texture.format, width, height, depth);
+  result = wendy::Image(texture.getCache(), texture.format, width, height, depth);
 
   texture.context.setCurrentTexture(&texture);
 
@@ -907,7 +907,7 @@ Texture& Texture::operator = (const Texture& source)
 ///////////////////////////////////////////////////////////////////////
 
 TextureReader::TextureReader(Context& initContext):
-  ResourceReader(initContext.getIndex()),
+  ResourceReader(initContext.getCache()),
   context(initContext)
 {
   if (addressModeMap.isEmpty())
@@ -926,11 +926,11 @@ TextureReader::TextureReader(Context& initContext):
 
 Ref<Texture> TextureReader::read(const Path& path)
 {
-  if (Resource* cached = getIndex().findResource(path))
+  if (Resource* cached = getCache().findResource(path))
     return dynamic_cast<Texture*>(cached);
 
   std::ifstream stream;
-  if (!getIndex().openFile(stream, path))
+  if (!getCache().openFile(stream, path))
     return NULL;
 
   pugi::xml_document document;
@@ -977,7 +977,7 @@ Ref<Texture> TextureReader::read(const Path& path)
 
   if (pugi::xml_attribute a = root.attribute("image"))
   {
-    Ref<wendy::Image> image = wendy::Image::read(getIndex(), Path(a.value()));
+    Ref<wendy::Image> image = wendy::Image::read(getCache(), Path(a.value()));
     if (!image)
     {
       logError("Failed to load source image for texture \'%s\'",
@@ -985,11 +985,11 @@ Ref<Texture> TextureReader::read(const Path& path)
       return NULL;
     }
 
-    texture = Texture::create(ResourceInfo(getIndex(), path), context, *image, flags);
+    texture = Texture::create(ResourceInfo(getCache(), path), context, *image, flags);
   }
   else if (pugi::xml_attribute a = root.attribute("imagecube"))
   {
-    Ref<ImageCube> cube = ImageCube::read(getIndex(), Path(a.value()));
+    Ref<ImageCube> cube = ImageCube::read(getCache(), Path(a.value()));
     if (!cube)
     {
       logError("Failed to load source image cube for texture \'%s\'",
@@ -997,7 +997,7 @@ Ref<Texture> TextureReader::read(const Path& path)
       return NULL;
     }
 
-    texture = Texture::create(ResourceInfo(getIndex(), path), context, *cube, flags);
+    texture = Texture::create(ResourceInfo(getCache(), path), context, *cube, flags);
   }
   else
   {

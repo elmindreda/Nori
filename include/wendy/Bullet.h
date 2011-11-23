@@ -75,7 +75,7 @@ btVector3 convert(const vec3& vector);
 class BvhMeshShapeReader : public ResourceReader
 {
 public:
-  BvhMeshShapeReader(ResourceIndex& index);
+  BvhMeshShapeReader(ResourceCache& cache);
   btBvhTriangleMeshShape* read(const Path& path);
 };
 

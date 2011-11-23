@@ -157,7 +157,7 @@ public:
   const TechniqueList& getTechniques() const;
   /*! Loads a material from the specified path using the specified context, or
    *  returns the already loaded material if it's already present in the
-   *  resource index of the context.
+   *  resource cache of the context.
    *  @param[in] context The context to use.
    *  @param[in] path The path of the material.
    *  @return The loaded material, or @c NULL if an error occurred.

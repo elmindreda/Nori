@@ -152,7 +152,7 @@ Renderer::Renderer(render::GeometryPool& initPool):
 bool Renderer::init(const Config& config)
 {
   GL::Context& context = pool.getContext();
-  ResourceIndex& index = context.getIndex();
+  ResourceCache& cache = context.getCache();
 
   if (config.state)
     state = config.state;
@@ -163,9 +163,9 @@ bool Renderer::init(const Config& config)
 
   // Create G-buffer color/emission texture
   {
-    Image image(index, PixelFormat::RGBA8, config.width, config.height);
+    Image image(cache, PixelFormat::RGBA8, config.width, config.height);
 
-    colorTexture = GL::Texture::create(index,
+    colorTexture = GL::Texture::create(cache,
                                        context,
                                        image,
                                        GL::Texture::RECTANGULAR);
@@ -180,9 +180,9 @@ bool Renderer::init(const Config& config)
 
   // Create G-buffer normal/specularity texture
   {
-    Image image(index, PixelFormat::RGBA8, config.width, config.height);
+    Image image(cache, PixelFormat::RGBA8, config.width, config.height);
 
-    normalTexture = GL::Texture::create(index,
+    normalTexture = GL::Texture::create(cache,
                                         context,
                                         image,
                                         GL::Texture::RECTANGULAR);
@@ -197,9 +197,9 @@ bool Renderer::init(const Config& config)
 
   // Create G-buffer depth texture
   {
-    Image image(index, PixelFormat::DEPTH32, config.width, config.height);
+    Image image(cache, PixelFormat::DEPTH32, config.width, config.height);
 
-    depthTexture = GL::Texture::create(index,
+    depthTexture = GL::Texture::create(cache,
                                        context,
                                        image,
                                        GL::Texture::RECTANGULAR);

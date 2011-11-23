@@ -234,8 +234,8 @@ void logErrorCallStack(HSQUIRRELVM vm)
 
 ///////////////////////////////////////////////////////////////////////
 
-VM::VM(ResourceIndex& initIndex):
-  index(initIndex),
+VM::VM(ResourceCache& initCache):
+  cache(initCache),
   vm(NULL)
 {
   vm = sq_open(1024);
@@ -261,7 +261,7 @@ VM::~VM()
 bool VM::execute(const Path& path)
 {
   std::ifstream stream;
-  if (!index.openFile(stream, path))
+  if (!cache.openFile(stream, path))
     return false;
 
   stream.seekg(0, std::ios::end);
@@ -331,9 +331,9 @@ Table VM::getRegistryTable()
   return table;
 }
 
-ResourceIndex& VM::getIndex() const
+ResourceCache& VM::getCache() const
 {
-  return index;
+  return cache;
 }
 
 void VM::onLogMessage(HSQUIRRELVM vm, const SQChar* format, ...)

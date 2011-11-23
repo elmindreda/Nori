@@ -20,7 +20,7 @@ private:
   void onKeyPressed(input::Key key, bool pressed);
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const ivec2& position);
-  ResourceIndex index;
+  ResourceCache cache;
   input::SpectatorController controller;
   Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
@@ -59,16 +59,16 @@ bool Demo::init()
   if (!mediaPath)
     mediaPath = WENDY_MEDIA_DIR;
 
-  if (!index.addSearchPath(Path(mediaPath)))
+  if (!cache.addSearchPath(Path(mediaPath)))
     return false;
 
-  if (!index.addSearchPath(Path(mediaPath) + "sponza"))
+  if (!cache.addSearchPath(Path(mediaPath) + "sponza"))
     return false;
 
   GL::WindowConfig wc;
   wc.resizable = false;
 
-  if (!GL::Context::createSingleton(index, wc))
+  if (!GL::Context::createSingleton(cache, wc))
     return false;
 
   GL::Context* context = GL::Context::getSingleton();

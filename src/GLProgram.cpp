@@ -194,10 +194,10 @@ Uniform::Type convertUniformType(GLenum type)
   panic("Unsupported GLSL uniform type %u", type);
 }
 
-bool readTextFile(ResourceIndex& index, String& text, const Path& path)
+bool readTextFile(ResourceCache& cache, String& text, const Path& path)
 {
   std::ifstream stream;
-  if (!index.openFile(stream, path))
+  if (!cache.openFile(stream, path))
     return false;
 
   stream.seekg(0, std::ios::end);
@@ -1234,18 +1234,18 @@ bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
 ///////////////////////////////////////////////////////////////////////
 
 ProgramReader::ProgramReader(Context& initContext):
-  ResourceReader(initContext.getIndex()),
+  ResourceReader(initContext.getCache()),
   context(initContext)
 {
 }
 
 Ref<Program> ProgramReader::read(const Path& path)
 {
-  if (Resource* cached = getIndex().findResource(path))
+  if (Resource* cached = getCache().findResource(path))
     return dynamic_cast<Program*>(cached);
 
   std::ifstream stream;
-  if (!getIndex().openFile(stream, path))
+  if (!getCache().openFile(stream, path))
     return NULL;
 
   pugi::xml_document document;
@@ -1292,7 +1292,7 @@ Ref<Program> ProgramReader::read(const Path& path)
       }
 
       String text;
-      if (!readTextFile(getIndex(), text, shaderPath))
+      if (!readTextFile(getCache(), text, shaderPath))
       {
         logError("Failed to load %s shader \'%s\' for GLSL program \'%s\'",
                 names[i],
@@ -1342,7 +1342,7 @@ Ref<Program> ProgramReader::read(const Path& path)
   {
     if (tessellation)
     {
-      program = Program::create(ResourceInfo(getIndex(), path),
+      program = Program::create(ResourceInfo(getCache(), path),
                                 context,
                                 shaders["vertex"],
                                 shaders["fragment"],
@@ -1352,7 +1352,7 @@ Ref<Program> ProgramReader::read(const Path& path)
     }
     else
     {
-      program = Program::create(ResourceInfo(getIndex(), path),
+      program = Program::create(ResourceInfo(getCache(), path),
                                 context,
                                 shaders["vertex"],
                                 shaders["fragment"],
@@ -1363,7 +1363,7 @@ Ref<Program> ProgramReader::read(const Path& path)
   {
     if (tessellation)
     {
-      program = Program::create(ResourceInfo(getIndex(), path),
+      program = Program::create(ResourceInfo(getCache(), path),
                                 context,
                                 shaders["vertex"],
                                 shaders["fragment"],
@@ -1372,7 +1372,7 @@ Ref<Program> ProgramReader::read(const Path& path)
     }
     else
     {
-      program = Program::create(ResourceInfo(getIndex(), path),
+      program = Program::create(ResourceInfo(getCache(), path),
                                 context,
                                 shaders["vertex"],
                                 shaders["fragment"]);

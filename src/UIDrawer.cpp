@@ -98,7 +98,7 @@ Ref<Theme> Theme::read(render::GeometryPool& pool, const Path& path)
 ///////////////////////////////////////////////////////////////////////
 
 ThemeReader::ThemeReader(render::GeometryPool& initPool):
-  ResourceReader(initPool.getContext().getIndex()),
+  ResourceReader(initPool.getContext().getCache()),
   pool(initPool)
 {
   if (widgetStateMap.isEmpty())
@@ -112,11 +112,11 @@ ThemeReader::ThemeReader(render::GeometryPool& initPool):
 
 Ref<Theme> ThemeReader::read(const Path& path)
 {
-  if (Resource* cached = getIndex().findResource(path))
+  if (Resource* cached = getCache().findResource(path))
     return dynamic_cast<Theme*>(cached);
 
   std::ifstream stream;
-  if (!getIndex().openFile(stream, path))
+  if (!getCache().openFile(stream, path))
     return NULL;
 
   pugi::xml_document document;
@@ -138,7 +138,7 @@ Ref<Theme> ThemeReader::read(const Path& path)
     return NULL;
   }
 
-  Ref<Theme> theme = new Theme(ResourceInfo(getIndex(), path));
+  Ref<Theme> theme = new Theme(ResourceInfo(getCache(), path));
 
   const Path texturePath(root.attribute("texture").value());
   if (texturePath.isEmpty())

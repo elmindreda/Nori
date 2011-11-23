@@ -208,17 +208,17 @@ Buffer& Buffer::operator = (const Buffer& source)
 ///////////////////////////////////////////////////////////////////////
 
 BufferReader::BufferReader(Context& initContext):
-  ResourceReader(initContext.getIndex()),
+  ResourceReader(initContext.getCache()),
   context(initContext)
 {
 }
 
 Ref<Buffer> BufferReader::read(const Path& path)
 {
-  if (Resource* cached = getIndex().findResource(path))
+  if (Resource* cached = getCache().findResource(path))
     return dynamic_cast<Buffer*>(cached);
 
-  const Path full = getIndex().findFile(path);
+  const Path full = getCache().findFile(path);
   if (full.isEmpty())
   {
     logError("Could not find audio file \'%s\'", path.asString().c_str());
@@ -300,7 +300,7 @@ Ref<Buffer> BufferReader::read(const Path& path)
 
   BufferData data(&samples[0], samples.size(), format, info->rate);
 
-  return Buffer::create(ResourceInfo(getIndex(), path), context, data);
+  return Buffer::create(ResourceInfo(getCache(), path), context, data);
 }
 
 ///////////////////////////////////////////////////////////////////////

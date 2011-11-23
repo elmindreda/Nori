@@ -16,7 +16,7 @@ public:
   void run();
 private:
   void onContextResized(unsigned int width, unsigned int height);
-  ResourceIndex index;
+  ResourceCache cache;
   Ref<render::SharedProgramState> state;
   Ptr<render::GeometryPool> pool;
   Ref<render::Material> material;
@@ -37,10 +37,10 @@ bool Test::init()
   if (!mediaPath)
     mediaPath = WENDY_MEDIA_DIR;
 
-  if (!index.addSearchPath(Path(mediaPath)))
+  if (!cache.addSearchPath(Path(mediaPath)))
     return false;
 
-  if (!GL::Context::createSingleton(index, GL::WindowConfig("2D Sprite Test")))
+  if (!GL::Context::createSingleton(cache, GL::WindowConfig("2D Sprite Test")))
   {
     logError("Failed to create OpenGL context");
     return false;

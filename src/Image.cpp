@@ -404,7 +404,7 @@ Ref<Image> Image::getArea(const Recti& area)
 
   const unsigned int pixelSize = format.getSize();
 
-  ImageRef result = new Image(ResourceInfo(getIndex()),
+  ImageRef result = new Image(ResourceInfo(getCache()),
                               format,
                               targetArea.size.x, targetArea.size.y);
 
@@ -418,9 +418,9 @@ Ref<Image> Image::getArea(const Recti& area)
   return result;
 }
 
-Ref<Image> Image::read(ResourceIndex& index, const Path& path)
+Ref<Image> Image::read(ResourceCache& cache, const Path& path)
 {
-  ImageReader reader(index);
+  ImageReader reader(cache);
   return reader.read(path);
 }
 
@@ -508,28 +508,28 @@ bool ImageCube::hasSameSize() const
   return true;
 }
 
-Ref<ImageCube> ImageCube::read(ResourceIndex& index, const Path& path)
+Ref<ImageCube> ImageCube::read(ResourceCache& cache, const Path& path)
 {
-  ImageCubeReader reader(index);
+  ImageCubeReader reader(cache);
   return reader.read(path);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-ImageReader::ImageReader(ResourceIndex& index):
-  ResourceReader(index)
+ImageReader::ImageReader(ResourceCache& cache):
+  ResourceReader(cache)
 {
 }
 
 Ref<Image> ImageReader::read(const Path& path)
 {
-  if (Resource* cached = getIndex().findResource(path))
+  if (Resource* cached = getCache().findResource(path))
     return dynamic_cast<Image*>(cached);
 
-  ResourceInfo info(getIndex(), path);
+  ResourceInfo info(getCache(), path);
 
   std::ifstream stream;
-  if (!getIndex().openFile(stream, info.path))
+  if (!getCache().openFile(stream, info.path))
     return NULL;
 
   // Check if file is valid
@@ -710,18 +710,18 @@ bool ImageWriter::write(const Path& path, const Image& image)
 
 ///////////////////////////////////////////////////////////////////////
 
-ImageCubeReader::ImageCubeReader(ResourceIndex& index):
-  ResourceReader(index)
+ImageCubeReader::ImageCubeReader(ResourceCache& cache):
+  ResourceReader(cache)
 {
 }
 
 Ref<ImageCube> ImageCubeReader::read(const Path& path)
 {
-  if (Resource* cached = getIndex().findResource(path))
+  if (Resource* cached = getCache().findResource(path))
     return dynamic_cast<ImageCube*>(cached);
 
   std::ifstream stream;
-  if (!getIndex().openFile(stream, path))
+  if (!getCache().openFile(stream, path))
     return NULL;
 
   pugi::xml_document document;
@@ -765,7 +765,7 @@ Ref<ImageCube> ImageCubeReader::read(const Path& path)
     CUBE_NEGATIVE_Z,
   };
 
-  Ref<ImageCube> cube = new ImageCube(ResourceInfo(getIndex(), path));
+  Ref<ImageCube> cube = new ImageCube(ResourceInfo(getCache(), path));
 
   for (size_t i = 0;  i < 6;  i++)
   {
@@ -778,7 +778,7 @@ Ref<ImageCube> ImageCubeReader::read(const Path& path)
       return NULL;
     }
 
-    Ref<Image> image = Image::read(getIndex(), imagePath);
+    Ref<Image> image = Image::read(getCache(), imagePath);
     if (!image)
     {
       logError("Failed to load side %s of image cube \'%s\'",

@@ -78,20 +78,20 @@ public:
   /*! Sets the listener gain of this context.
    */
   void setListenerGain(float newGain);
-  /*! @return The resource index used by this context.
+  /*! @return The resource cache used by this context.
    */
-  ResourceIndex& getIndex() const;
+  ResourceCache& getCache() const;
   /*! Creates the context singleton object.
-   *  @param[in] index The resource index to use.
+   *  @param[in] cache The resource cache to use.
    *  @return @c true if successful, or @c false otherwise.
    */
-  static bool createSingleton(ResourceIndex& index);
+  static bool createSingleton(ResourceCache& cache);
 private:
-  Context(ResourceIndex& index);
+  Context(ResourceCache& cache);
   Context(const Context& source);
   bool init();
   Context& operator = (const Context& source);
-  ResourceIndex& index;
+  ResourceCache& cache;
   void* device;
   void* context;
   vec3 listenerPosition;
