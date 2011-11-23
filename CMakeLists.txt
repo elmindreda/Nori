@@ -35,7 +35,6 @@ include(TestBigEndian)
 test_big_endian(WENDY_WORDS_BIGENDIAN)
 
 include(CheckFunctionExists)
-check_function_exists(strtof WENDY_HAVE_STRTOF)
 check_function_exists(vasprintf WENDY_HAVE_VASPRINTF)
 
 include(CheckIncludeFile)

@@ -11,8 +11,6 @@
 /* Define this to 1 if building for Linux */
 #cmakedefine WENDY_SYSTEM_LINUX 1
 
-/* Define this to 1 if strtof is available */
-#cmakedefine WENDY_HAVE_STRTOF 1
 /* Define this to 1 if vasprintf is available */
 #cmakedefine WENDY_HAVE_VASPRINTF 1
 

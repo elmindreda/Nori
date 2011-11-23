@@ -73,10 +73,6 @@
 int vasprintf(char** result, const char* format, va_list vl);
 #endif /*WENDY_HAVE_VASPRINTF*/
 
-#if !WENDY_HAVE_STRTOF
-float strtof(const char* nptr, char** endptr);
-#endif /*WENDY_HAVE_STRTOF*/
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
