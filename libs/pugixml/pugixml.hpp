@@ -10,6 +10,10 @@
  * This work is based on the pugxml parser, which is:
  * Copyright (C) 2003, by Kristen Wegner (kristen@tima.net)
  */
+/*
+ * 2011-11-23  Camilla Berglund  <elmindreda@elmindreda.org>
+ *   Replaced stddef.h with cstddef
+ */
 
 #ifndef HEADER_PUGIXML_HPP
 #define HEADER_PUGIXML_HPP
@@ -76,7 +80,7 @@ namespace std
 #   define PUGIXML_FUNCTION PUGIXML_API
 #endif
 
-#include <stddef.h>
+#include <cstddef>
 
 // Character interface macros
 #ifdef PUGIXML_WCHAR_MODE
