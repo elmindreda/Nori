@@ -24,6 +24,11 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Config.h>
+#include <wendy/Core.h>
+#include <wendy/Transform.h>
+#include <wendy/Path.h>
+#include <wendy/Resource.h>
+#include <wendy/Mesh.h>
 
 #include <wendy/Bullet.h>
 
@@ -74,6 +79,33 @@ vec3 convert(const btVector3& vector)
 btVector3 convert(const vec3& vector)
 {
   return btVector3(vector.x, vector.y, vector.z);
+}
+
+btTriangleMesh* convert(const Mesh& data)
+{
+  btTriangleMesh* mesh;
+
+  if (data.vertices.size() > 65536)
+    btTriangleMesh* mesh = new btTriangleMesh(true);
+  else
+    btTriangleMesh* mesh = new btTriangleMesh(false);
+
+  for (Mesh::GeometryList::const_iterator g = data.geometries.begin();
+       g != data.geometries.end();
+       g++)
+  {
+    for (MeshGeometry::TriangleList::const_iterator t = g->triangles.begin();
+         t != g->triangles.end();
+         t++)
+    {
+      mesh->addTriangle(convert(data.vertices[t->indices[0]].position),
+                        convert(data.vertices[t->indices[1]].position),
+                        convert(data.vertices[t->indices[2]].position),
+                        true);
+    }
+  }
+
+  return mesh;
 }
 
 ///////////////////////////////////////////////////////////////////////

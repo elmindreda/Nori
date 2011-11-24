@@ -26,11 +26,6 @@
 #define WENDY_BULLET_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Core.h>
-#include <wendy/Transform.h>
-#include <wendy/Path.h>
-#include <wendy/Resource.h>
-
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 
@@ -67,6 +62,10 @@ vec3 convert(const btVector3& vector);
 /*! @ingroup bullet
  */
 btVector3 convert(const vec3& vector);
+
+/*! @ingroup bullet
+ */
+btTriangleMesh* convert(const Mesh& mesh);
 
 ///////////////////////////////////////////////////////////////////////
 
