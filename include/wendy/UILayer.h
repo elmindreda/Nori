@@ -63,10 +63,10 @@ public:
    */
   ~Layer();
   virtual void update();
+  /*! Draws all visible widgets in this UI layer.
+   */
   virtual void draw();
   void addRootWidget(Widget& root);
-  /*! Draws all root level widgets.
-   */
   void destroyRootWidgets();
   /*! Searches for a widget at the specified point.
    *  @param[in] point The point at which to search.
