@@ -114,6 +114,10 @@
 #include <wendy/UIPopup.h>
 #endif
 
+#if WENDY_INCLUDE_DEBUG_UI
+#include <wendy/DebugUI.h>
+#endif
+
 #if WENDY_INCLUDE_SQUIRREL
 #include <wendy/Squirrel.h>
 #endif

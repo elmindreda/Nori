@@ -60,6 +60,10 @@ if(WENDY_INCLUDE_UI_SYSTEM)
        UIProgress.cpp UIScroller.cpp UISlider.cpp UIWidget.cpp)
 endif(WENDY_INCLUDE_UI_SYSTEM)
 
+if(WENDY_INCLUDE_DEBUG_UI)
+  list(APPEND wendy_SOURCES DebugUI.cpp)
+endif(WENDY_INCLUDE_DEBUG_UI)
+
 # We add headers to list of sources so that CMake's generator
 # knows to add them to IDE project files for e.g. Qt Creator
 file(GLOB_RECURSE wendy_HEADERS ${CMAKE_SOURCE_DIR}/include/*.h)

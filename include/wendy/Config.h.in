@@ -38,6 +38,8 @@
 #cmakedefine WENDY_INCLUDE_SCENE_GRAPH 1
 /* Define this to 1 to include the UI system */
 #cmakedefine WENDY_INCLUDE_UI_SYSTEM 1
+/* Define this to 1 to include the debug interface */
+#cmakedefine WENDY_INCLUDE_DEBUG_UI 1
 /* Define this to 1 to include the Squirrel bindings */
 #cmakedefine WENDY_INCLUDE_SQUIRREL 1
 /* Define this to 1 to include the Bullet library */
