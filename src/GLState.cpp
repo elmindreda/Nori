@@ -58,6 +58,8 @@ GLenum convertToGL(CullMode mode)
 {
   switch (mode)
   {
+    case CULL_NONE:
+      break;
     case CULL_FRONT:
       return GL_FRONT;
     case CULL_BACK:

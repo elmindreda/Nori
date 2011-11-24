@@ -718,7 +718,7 @@ bool Texture::init(const wendy::Image& source, unsigned int flags)
 
   applyDefaults();
 
-  if (!checkGL("OpenGL error during creation of texture \'%s\'",
+  if (!checkGL("OpenGL error during creation of texture \'%s\' format \'%s\'",
                getPath().asString().c_str(),
                format.asString().c_str()))
   {
@@ -823,7 +823,7 @@ bool Texture::init(const ImageCube& source, unsigned int flags)
 
   applyDefaults();
 
-  if (!checkGL("OpenGL error during creation of texture \'%s\'",
+  if (!checkGL("OpenGL error during creation of texture \'%s\' format \'%s\'",
                getPath().asString().c_str(),
                format.asString().c_str()))
   {

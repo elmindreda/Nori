@@ -136,6 +136,9 @@ protected:
   virtual void updateTo(GL::Uniform& uniform);
   virtual void updateTo(GL::Sampler& uniform);
 private:
+  bool dirtyModelView;
+  bool dirtyViewProj;
+  bool dirtyModelViewProj;
   mat4 modelMatrix;
   mat4 viewMatrix;
   mat4 projectionMatrix;
@@ -151,9 +154,6 @@ private:
     vec3 position;
   } camera;
   float time;
-  bool dirtyModelView;
-  bool dirtyViewProj;
-  bool dirtyModelViewProj;
 };
 
 ///////////////////////////////////////////////////////////////////////

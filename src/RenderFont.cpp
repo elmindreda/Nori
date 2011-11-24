@@ -374,9 +374,9 @@ bool Font::init(const FontData& data)
     glyphs.push_back(Glyph());
     Glyph& glyph = glyphs.back();
 
-    for (int c = 0;  c < 256;  c++)
+    for (size_t c = 0;  c < 256;  c++)
     {
-      if (data.characters[c] == i)
+      if (data.characters[c] == int(i))
         characters[c] = &glyph;
     }
 
@@ -650,7 +650,7 @@ bool FontReader::extractGlyphs(FontData& data,
       return false;
     }
 
-    data.characters[characters[index++]] = data.glyphs.size();
+    data.characters[(unsigned char) characters[index++]] = data.glyphs.size();
 
     data.glyphs.push_back(FontGlyphData());
     FontGlyphData& glyph = data.glyphs.back();

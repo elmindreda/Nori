@@ -540,9 +540,9 @@ void MayaCamera::updateTransform()
 ///////////////////////////////////////////////////////////////////////
 
 SpectatorController::SpectatorController():
-  speed(3.f),
   angleX(0.f),
   angleY(0.f),
+  speed(3.f),
   turbo(false)
 {
   std::memset(directions, 0, sizeof(directions));

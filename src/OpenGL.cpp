@@ -67,6 +67,9 @@ const char* getErrorString(unsigned int error)
     case GL_INVALID_FRAMEBUFFER_OPERATION_EXT:
       return "invalid framebuffer operation";
   }
+
+  logError("Unknown OpenGL error %u", error);
+  return "UNKNOWN ERROR";
 }
 
 } /*namespace*/
