@@ -25,6 +25,8 @@ private:
   Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
   Ptr<deferred::Renderer> renderer;
+  Ptr<UI::Drawer> drawer;
+  Ref<debug::Interface> interface;
   scene::Graph graph;
   scene::CameraNode* cameraNode;
   scene::LightNode* lightNode;
@@ -45,6 +47,7 @@ Demo::~Demo()
 {
   graph.destroyRootNodes();
 
+  drawer = NULL;
   camera = NULL;
   renderer = NULL;
   pool = NULL;
@@ -66,6 +69,7 @@ bool Demo::init()
     return false;
 
   GL::WindowConfig wc;
+  wc.title = "Sponza Atrium";
   wc.resizable = false;
 
   if (!GL::Context::createSingleton(cache, wc))
@@ -111,10 +115,16 @@ bool Demo::init()
   lightNode->setLight(light);
   graph.addRootNode(*lightNode);
 
+  drawer = UI::Drawer::create(*pool);
+  if (!drawer)
+    return false;
+
   timer.start();
 
   {
     input::Context* context = input::Context::getSingleton();
+
+    interface = new debug::Interface(*context, *drawer);
 
     context->setTarget(this);
     context->captureCursor();
@@ -155,9 +165,8 @@ void Demo::run()
     scene.removeOperations();
     scene.detachLights();
 
-    std::ostringstream oss;
-    oss << "Sponza Atrium - FPS: " << stats.getFrameRate();
-    context.setTitle(oss.str().c_str());
+    interface->update();
+    interface->draw();
   }
   while (!quitting && context.update());
 }
