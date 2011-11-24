@@ -56,6 +56,7 @@ public:
   Resource(const ResourceInfo& info);
   Resource(const Resource& source);
   virtual ~Resource();
+  Resource& operator = (const Resource& source);
   const Path& getPath() const;
   ResourceCache& getCache() const;
 public:

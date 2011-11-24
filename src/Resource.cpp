@@ -75,6 +75,11 @@ Resource::~Resource()
   }
 }
 
+Resource& Resource::operator = (const Resource& source)
+{
+  return *this;
+}
+
 const Path& Resource::getPath() const
 {
   return path;
