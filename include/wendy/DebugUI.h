@@ -26,18 +26,20 @@
 #define WENDY_DEBUGUI_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/UIDrawer.h>
-#include <wendy/UILayer.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UILabel.h>
-#include <wendy/UILayout.h>
-
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
   namespace debug
   {
+
+///////////////////////////////////////////////////////////////////////
+
+class Panel : public UI::Widget
+{
+public:
+  Panel(UI::Layer& layer);
+private:
+  void draw() const;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -51,15 +53,15 @@ private:
   enum
   {
     LABEL_FRAMERATE,
-    LABEL_PASSES,
+    LABEL_STATECHANGES,
+    LABEL_OPERATIONS,
     LABEL_VERTICES,
     LABEL_POINTS,
     LABEL_LINES,
     LABEL_TRIANGLES,
     LABEL_COUNT,
   };
-  GL::Stats stats;
-  UI::Widget* root;
+  Panel* root;
   UI::Label* labels[LABEL_COUNT];
 };
 

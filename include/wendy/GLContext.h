@@ -271,7 +271,8 @@ public:
   {
   public:
     Frame();
-    unsigned int passCount;
+    unsigned int operationCount;
+    unsigned int stateChangeCount;
     unsigned int vertexCount;
     unsigned int pointCount;
     unsigned int lineCount;
@@ -281,7 +282,7 @@ public:
   typedef std::deque<Frame> FrameQueue;
   Stats();
   void addFrame();
-  void addPasses(unsigned int count);
+  void addStateChange();
   void addPrimitives(PrimitiveType type, unsigned int vertexCount);
   float getFrameRate() const;
   unsigned int getFrameCount() const;

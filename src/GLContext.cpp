@@ -487,16 +487,17 @@ void Stats::addFrame()
     frames.pop_back();
 }
 
-void Stats::addPasses(unsigned int count)
+void Stats::addStateChange()
 {
   Frame& frame = frames.front();
-  frame.passCount += count;
+  frame.stateChangeCount++;
 }
 
 void Stats::addPrimitives(PrimitiveType type, unsigned int vertexCount)
 {
   Frame& frame = frames.front();
   frame.vertexCount += vertexCount;
+  frame.operationCount++;
 
   switch (type)
   {
@@ -541,7 +542,8 @@ const Stats::Frame& Stats::getFrame() const
 ///////////////////////////////////////////////////////////////////////
 
 Stats::Frame::Frame():
-  passCount(0),
+  stateChangeCount(0),
+  operationCount(0),
   vertexCount(0),
   pointCount(0),
   lineCount(0),

@@ -25,6 +25,12 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/UIDrawer.h>
+#include <wendy/UILayer.h>
+#include <wendy/UIWidget.h>
+#include <wendy/UILabel.h>
+#include <wendy/UILayout.h>
+
 #include <wendy/DebugUI.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -36,12 +42,32 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+Panel::Panel(UI::Layer& layer):
+  UI::Widget(layer)
+{
+}
+
+void Panel::draw() const
+{
+  const Rect& area = getGlobalArea();
+
+  UI::Drawer& drawer = getLayer().getDrawer();
+  if (drawer.pushClipArea(area))
+  {
+    drawer.fillRectangle(area, vec4(0.5f));
+    UI::Widget::draw();
+    drawer.popClipArea();
+  }
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Interface::Interface(input::Context& context, UI::Drawer& drawer):
   UI::Layer(context, drawer),
   root(NULL)
 {
-  root = new UI::Widget(*this);
-  root->setArea(Rect(0.f, 0.f, 200.f, 400.f));
+  root = new Panel(*this);
+  root->setArea(Rect(0.f, 0.f, 150.f, 400.f));
   addRootWidget(*root);
 
   UI::Layout* layout = new UI::Layout(*this, UI::VERTICAL, true);
@@ -50,6 +76,7 @@ Interface::Interface(input::Context& context, UI::Drawer& drawer):
   for (size_t i = 0;  i < LABEL_COUNT;  i++)
   {
     labels[i] = new UI::Label(*this);
+    labels[i]->setTextAlignment(UI::RIGHT_ALIGNED);
     layout->addChild(*labels[i], 0.f);
   }
 }
@@ -60,11 +87,13 @@ void Interface::update()
 
   if (stats)
   {
-    labels[LABEL_FRAMERATE]->setText(format("%0.2f fps", stats->getFrameRate()).c_str());
+    const unsigned int rate = (unsigned int) (stats->getFrameRate() + 0.5f);
+    labels[LABEL_FRAMERATE]->setText(format("%u fps", rate).c_str());
 
     const GL::Stats::Frame& frame = stats->getFrame();
 
-    labels[LABEL_PASSES]->setText(format("%u passes", frame.passCount).c_str());
+    labels[LABEL_STATECHANGES]->setText(format("%u state changes", frame.stateChangeCount).c_str());
+    labels[LABEL_OPERATIONS]->setText(format("%u operations", frame.operationCount).c_str());
     labels[LABEL_VERTICES]->setText(format("%u vertices", frame.vertexCount).c_str());
     labels[LABEL_POINTS]->setText(format("%u points", frame.pointCount).c_str());
     labels[LABEL_LINES]->setText(format("%u lines", frame.lineCount).c_str());
@@ -84,12 +113,12 @@ void Interface::draw()
   GL::Framebuffer& framebuffer = context.getCurrentFramebuffer();
   root->setSize(vec2(root->getWidth(), float(framebuffer.getHeight())));
 
-  GL::Stats* stats = context.getStats();
+  GL::Stats* previous = context.getStats();
   context.setStats(NULL);
 
   UI::Layer::draw();
 
-  context.setStats(stats);
+  context.setStats(previous);
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -797,7 +797,7 @@ void RenderState::apply() const
   if (Context* context = Context::getSingleton())
   {
     if (Stats* stats = context->getStats())
-      stats->addPasses(1);
+      stats->addStateChange();
   }
 
   if (dirty)
