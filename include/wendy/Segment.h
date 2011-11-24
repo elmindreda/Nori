@@ -60,7 +60,7 @@ inline Segment<T>::Segment(const T& initStart, const T& initEnd):
 template <typename T>
 inline float Segment<T>::length() const
 {
-  return (end - start).length();
+  return distance(start, end);
 }
 
 template <typename T>
