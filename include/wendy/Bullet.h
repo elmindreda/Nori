@@ -91,6 +91,23 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup bullet
+ */
+class AvatarSweepCallback : public btCollisionWorld::ConvexResultCallback
+{
+public:
+  AvatarSweepCallback(const btCollisionObject* self);
+  bool needsCollision(btBroadphaseProxy* proxy) const;
+  btScalar addSingleResult(btCollisionWorld::LocalConvexResult& result,
+                           bool normalInWorldSpace);
+  btVector3 m_hitNormalWorld;
+  btCollisionObject* m_hitCollisionObject;
+private:
+  const btCollisionObject* self;
+};
+
+///////////////////////////////////////////////////////////////////////
+
   } /*namespace bullet*/
 } /*namespace wendy*/
 

@@ -142,6 +142,40 @@ bool BvhMeshShapeWriter::write(const Path& path, const btBvhTriangleMeshShape& s
 
 ///////////////////////////////////////////////////////////////////////
 
+AvatarSweepCallback::AvatarSweepCallback(const btCollisionObject* initSelf):
+  self(initSelf)
+{
+}
+
+bool AvatarSweepCallback::needsCollision(btBroadphaseProxy* proxy) const
+{
+  if (!ConvexResultCallback::needsCollision(proxy))
+    return false;
+
+  if (proxy->m_clientObject == self)
+    return false;
+
+  return true;
+}
+
+btScalar AvatarSweepCallback::addSingleResult(btCollisionWorld::LocalConvexResult& result,
+                                              bool normalInWorldSpace)
+{
+  m_hitCollisionObject = result.m_hitCollisionObject;
+
+  if (normalInWorldSpace)
+    m_hitNormalWorld = result.m_hitNormalLocal;
+  else
+  {
+    const btTransform& transform = m_hitCollisionObject->getWorldTransform();
+    m_hitNormalWorld = transform.getBasis() * result.m_hitNormalLocal;
+  }
+
+  return m_closestHitFraction = result.m_hitFraction;
+}
+
+///////////////////////////////////////////////////////////////////////
+
   } /*namespace bullet*/
 } /*namespace wendy*/
 
