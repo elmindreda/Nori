@@ -26,10 +26,6 @@
 #define WENDY_UILAYOUT_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <map>
-
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
   namespace UI
@@ -58,9 +54,10 @@ protected:
   void removedFromParent(Widget& parent);
   void onAreaChanged(Widget& parent);
 private:
-  typedef std::map<Widget*, float> SizeMap;
+  typedef std::pair<Widget*, float> Size;
+  typedef std::vector<Size> SizeList;
   void update();
-  SizeMap sizes;
+  SizeList sizes;
   float borderSize;
   Orientation orientation;
   bool expanding;
