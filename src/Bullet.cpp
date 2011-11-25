@@ -86,9 +86,9 @@ btTriangleMesh* convert(const Mesh& data)
   btTriangleMesh* mesh;
 
   if (data.vertices.size() > 65536)
-    btTriangleMesh* mesh = new btTriangleMesh(true);
+    mesh = new btTriangleMesh(true);
   else
-    btTriangleMesh* mesh = new btTriangleMesh(false);
+    mesh = new btTriangleMesh(false);
 
   for (Mesh::GeometryList::const_iterator g = data.geometries.begin();
        g != data.geometries.end();
