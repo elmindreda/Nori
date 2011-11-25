@@ -137,7 +137,7 @@ void Book::addedChild(Widget& child)
   {
     const float em = getLayer().getDrawer().getCurrentEM();
 
-    const vec2& size = getArea().size;
+    const vec2& size = getSize();
 
     page->setArea(Rect(0.f, 0.f, size.x, size.y - em * 2.f));
 
@@ -208,7 +208,7 @@ void Book::onAreaChanged(Widget& widget)
 
   const float em = getLayer().getDrawer().getCurrentEM();
 
-  const vec2& size = getArea().size;
+  const vec2& size = getSize();
 
   for (PageList::const_iterator i = pages.begin();  i != pages.end();  i++)
     (*i)->setArea(Rect(0.f, 0.f, size.x, size.y - em * 2.f));
@@ -258,7 +258,7 @@ void Book::onButtonClicked(Widget& widget,
   getPages(pages);
 
   const float position = transformToLocal(point).x;
-  const float width = getArea().size.x / pages.size();
+  const float width = getWidth() / pages.size();
 
   const unsigned int index = (unsigned int) (position / width);
 

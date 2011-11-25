@@ -178,9 +178,9 @@ void Scroller::onButtonClicked(Widget& widget,
   }
   else
   {
-    if (localPoint.y > getArea().size.y - offset)
+    if (localPoint.y > getHeight() - offset)
       setValue(value - getValueStep(), true);
-    else if (localPoint.y <= getArea().size.y - offset - size)
+    else if (localPoint.y <= getHeight() - offset - size)
       setValue(value + getValueStep(), true);
   }
 }
@@ -300,9 +300,9 @@ float Scroller::getHandleSize() const
   const float em = getLayer().getDrawer().getCurrentEM();
 
   if (orientation == HORIZONTAL)
-    return max(getArea().size.x * percentage, em);
+    return max(getWidth() * percentage, em);
   else
-    return max(getArea().size.y * percentage, em);
+    return max(getHeight() * percentage, em);
 }
 
 float Scroller::getHandleOffset() const
@@ -310,9 +310,9 @@ float Scroller::getHandleOffset() const
   const float scale = (value - minValue) / (maxValue - minValue);
 
   if (orientation == HORIZONTAL)
-    return (getArea().size.x - getHandleSize()) * scale;
+    return (getWidth() - getHandleSize()) * scale;
   else
-    return (getArea().size.y - getHandleSize()) * scale;
+    return (getHeight() - getHandleSize()) * scale;
 }
 
 float Scroller::getValueStep() const

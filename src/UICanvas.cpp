@@ -54,7 +54,7 @@ void Canvas::draw() const
   UI::Drawer& drawer = getLayer().getDrawer();
   GL::Context& context = drawer.getGeometryPool().getContext();
 
-  const Recti area(0, 0, int(getArea().size.x), int(getArea().size.y));
+  const Recti area(0, 0, int(getWidth()), int(getHeight()));
 
   Recti oldViewport = context.getViewportArea();
   Recti oldScissor = context.getScissorArea();

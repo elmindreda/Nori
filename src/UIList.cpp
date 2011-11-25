@@ -139,7 +139,7 @@ bool List::isItemVisible(const Item* item) const
   for (unsigned int i = offset;  i < index;  i++)
   {
     height += items[i]->getHeight();
-    if (height >= getArea().size.y)
+    if (height >= getHeight())
       return false;
   }
 
@@ -251,7 +251,7 @@ void List::onAreaChanged(Widget& widget)
 {
   const Rect& area = getArea();
 
-  const float width = scroller->getArea().size.x;
+  const float width = scroller->getWidth();
 
   scroller->setArea(Rect(area.size.x - width, 0.f, width, area.size.y));
   updateScroller();
@@ -267,7 +267,7 @@ void List::onButtonClicked(Widget& widget,
 
   vec2 localPosition = transformToLocal(position);
 
-  const float height = getArea().size.y;
+  const float height = getHeight();
   float itemTop = height;
 
   for (unsigned int i = offset;  i < items.size();  i++)
@@ -356,7 +356,7 @@ unsigned int List::getVisibleItemCount() const
 {
   unsigned int index;
 
-  float height = getArea().size.y;
+  float height = getHeight();
 
   for (index = offset;  index < items.size();  index++)
   {
