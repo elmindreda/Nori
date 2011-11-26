@@ -67,7 +67,7 @@ Interface::Interface(input::Context& context, UI::Drawer& drawer):
   root(NULL)
 {
   root = new Panel(*this);
-  root->setArea(Rect(0.f, 0.f, 150.f, 400.f));
+  root->setArea(Rect(0.f, 0.f, 150.f, 150.f));
   addRootWidget(*root);
 
   UI::Layout* layout = new UI::Layout(*this, UI::VERTICAL, true);
@@ -109,9 +109,6 @@ void Interface::update()
 void Interface::draw()
 {
   GL::Context& context = getInputContext().getContext();
-
-  GL::Framebuffer& framebuffer = context.getCurrentFramebuffer();
-  root->setSize(vec2(root->getWidth(), float(framebuffer.getHeight())));
 
   GL::Stats* previous = context.getStats();
   context.setStats(NULL);

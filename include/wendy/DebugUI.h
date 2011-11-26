@@ -59,7 +59,7 @@ private:
     LABEL_POINTS,
     LABEL_LINES,
     LABEL_TRIANGLES,
-    LABEL_COUNT,
+    LABEL_COUNT
   };
   Panel* root;
   UI::Label* labels[LABEL_COUNT];
