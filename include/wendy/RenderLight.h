@@ -45,7 +45,7 @@ public:
   {
     DIRECTIONAL,
     POINT,
-    SPOTLIGHT,
+    SPOTLIGHT
   };
   Light();
   Type getType() const;

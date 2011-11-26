@@ -47,7 +47,7 @@ public:
     RG,
     RGB,
     RGBA,
-    DEPTH,
+    DEPTH
   };
   /*! Pixel format component type enumeration.
    */
@@ -59,7 +59,7 @@ public:
     UINT24,
     UINT32,
     FLOAT16,
-    FLOAT32,
+    FLOAT32
   };
   /*! Default constructor.
    *  @param[in] semantic The desired semantic of this pixel format.

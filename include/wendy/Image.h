@@ -158,7 +158,7 @@ enum CubeFace
   CUBE_NEGATIVE_Y,
   CUBE_POSITIVE_Z,
   CUBE_NEGATIVE_Z,
-  NO_CUBE_FACE,
+  NO_CUBE_FACE
 };
 
 ///////////////////////////////////////////////////////////////////////

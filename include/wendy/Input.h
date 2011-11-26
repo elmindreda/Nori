@@ -88,7 +88,7 @@ enum Key
   KEY_F9,
   KEY_F10,
   KEY_F11,
-  KEY_F12,
+  KEY_F12
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ enum Button
 {
   BUTTON_LEFT,
   BUTTON_RIGHT,
-  BUTTON_MIDDLE,
+  BUTTON_MIDDLE
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -259,7 +259,7 @@ private:
     NONE,
     TUMBLE,
     TRACK,
-    DOLLY,
+    DOLLY
   };
   void updateTransform();
   Transform3 transform;
@@ -297,7 +297,7 @@ private:
     LEFT,
     RIGHT,
     FORWARD,
-    BACK,
+    BACK
   };
   Transform3 transform;
   float angleX;

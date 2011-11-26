@@ -51,7 +51,7 @@ public:
     PAUSED,
     /*! The source is stopped or has never been played.
      */
-    STOPPED,
+    STOPPED
   };
   /*! Destructor.
    */

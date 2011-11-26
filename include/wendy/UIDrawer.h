@@ -58,7 +58,7 @@ enum WidgetState
   STATE_DISABLED,
   STATE_NORMAL,
   STATE_ACTIVE,
-  STATE_SELECTED,
+  STATE_SELECTED
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ enum HorzAlignment
 {
   LEFT_ALIGNED,
   RIGHT_ALIGNED,
-  CENTERED_ON_X,
+  CENTERED_ON_X
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ enum VertAlignment
 {
   TOP_ALIGNED,
   BOTTOM_ALIGNED,
-  CENTERED_ON_Y,
+  CENTERED_ON_Y
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ enum VertAlignment
 enum Orientation
 {
   HORIZONTAL,
-  VERTICAL,
+  VERTICAL
 };
 
 ///////////////////////////////////////////////////////////////////////

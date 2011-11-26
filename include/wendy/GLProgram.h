@@ -74,7 +74,7 @@ public:
     FLOAT,
     VEC2,
     VEC3,
-    VEC4,
+    VEC4
   };
   /*! Binds this attribute to the specified stride and offset of the
    *  current vertex buffer.
@@ -122,7 +122,7 @@ public:
     SAMPLER_2D,
     SAMPLER_3D,
     SAMPLER_RECT,
-    SAMPLER_CUBE,
+    SAMPLER_CUBE
   };
   /*! Binds this sampler to the specified texture unit.
    */
@@ -176,7 +176,7 @@ public:
     VEC4,
     MAT2,
     MAT3,
-    MAT4,
+    MAT4
   };
   /*! Copies a new value for this uniform from the specified address.
    *  @param[in] data The address of the value to use.

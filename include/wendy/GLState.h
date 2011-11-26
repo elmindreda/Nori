@@ -60,7 +60,7 @@ enum CullMode
   CULL_BACK,
   /*! Cull all cullable geometry (i.e. front and back faces).
    */
-  CULL_BOTH,
+  CULL_BOTH
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ enum BlendFactor
   BLEND_ONE_MINUS_SRC_COLOR,
   BLEND_ONE_MINUS_DST_COLOR,
   BLEND_ONE_MINUS_SRC_ALPHA,
-  BLEND_ONE_MINUS_DST_ALPHA,
+  BLEND_ONE_MINUS_DST_ALPHA
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -113,7 +113,7 @@ enum Function
   ALLOW_LESSER,
   ALLOW_LESSER_EQUAL,
   ALLOW_GREATER,
-  ALLOW_GREATER_EQUAL,
+  ALLOW_GREATER_EQUAL
 };
 
 ///////////////////////////////////////////////////////////////////////

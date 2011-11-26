@@ -47,7 +47,7 @@ enum BufferFormat
   FORMAT_MONO8,
   FORMAT_MONO16,
   FORMAT_STEREO8,
-  FORMAT_STEREO16,
+  FORMAT_STEREO16
 };
 
 ///////////////////////////////////////////////////////////////////////
