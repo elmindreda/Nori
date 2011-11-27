@@ -388,6 +388,9 @@ Texture::~Texture()
 {
   if (textureID)
     glDeleteTextures(1, &textureID);
+
+  if (Stats* stats = context.getStats())
+    stats->removeTexture(getSize());
 }
 
 void Texture::generateMipmaps()
@@ -514,6 +517,16 @@ void Texture::setAddressMode(AddressMode newMode)
 const PixelFormat& Texture::getFormat() const
 {
   return format;
+}
+
+size_t Texture::getSize() const
+{
+  size_t size = 0;
+
+  for (ImageList::const_iterator i = images.begin();  i != images.end();  i++)
+    size += (*i)->getSize();
+
+  return size;
 }
 
 TextureImage* Texture::getImage(unsigned int level, CubeFace face)
@@ -725,6 +738,9 @@ bool Texture::init(const wendy::Image& source, unsigned int flags)
     return false;
   }
 
+  if (Stats* stats = context.getStats())
+    stats->addTexture(getSize());
+
   return true;
 }
 
@@ -829,6 +845,9 @@ bool Texture::init(const ImageCube& source, unsigned int flags)
   {
     return false;
   }
+
+  if (Stats* stats = context.getStats())
+    stats->addTexture(getSize());
 
   return true;
 }

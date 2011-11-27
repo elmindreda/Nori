@@ -79,6 +79,9 @@ public:
   virtual unsigned int getWidth() const = 0;
   virtual unsigned int getHeight() const = 0;
   virtual unsigned int getDepth() const = 0;
+  /*! @return The size, in bytes, of the data in this image.
+   */
+  size_t getSize() const;
   virtual const PixelFormat& getFormat() const = 0;
 protected:
   virtual void attach(int attachment, unsigned int z) = 0;

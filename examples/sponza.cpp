@@ -21,6 +21,7 @@ private:
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const ivec2& position);
   ResourceCache cache;
+  GL::Stats stats;
   input::SpectatorController controller;
   Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
@@ -49,6 +50,7 @@ Demo::~Demo()
 {
   graph.destroyRootNodes();
 
+  interface = NULL;
   drawer = NULL;
   camera = NULL;
   renderer = NULL;
@@ -78,6 +80,7 @@ bool Demo::init()
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
+  context->setStats(&stats);
 
   const unsigned int width = context->getDefaultFramebuffer().getWidth();
   const unsigned int height = context->getDefaultFramebuffer().getHeight();
@@ -146,8 +149,6 @@ void Demo::run()
   scene.setAmbientIntensity(vec3(0.2f, 0.2f, 0.2f));
 
   GL::Context& context = pool->getContext();
-  GL::Stats stats;
-  context.setStats(&stats);
 
   do
   {
