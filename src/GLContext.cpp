@@ -449,15 +449,18 @@ unsigned int Limits::getMaxGeometryOutputVertices() const
 
 ///////////////////////////////////////////////////////////////////////
 
-Image::~Image()
-{
-}
-
-///////////////////////////////////////////////////////////////////////
-
 Stats::Stats():
   frameCount(0),
-  frameRate(0.f)
+  frameRate(0.f),
+  textureCount(0),
+  textureSize(0),
+  vertexBufferCount(0),
+  vertexBufferSize(0),
+  indexBufferCount(0),
+  indexBufferSize(0),
+  renderBufferCount(0),
+  renderBufferSize(0),
+  programCount(0)
 {
   frames.push_back(Frame());
 
@@ -524,6 +527,64 @@ void Stats::addPrimitives(PrimitiveType type, unsigned int vertexCount)
   }
 }
 
+void Stats::addTexture(size_t size)
+{
+  textureCount++;
+  textureSize += size;
+}
+
+void Stats::removeTexture(size_t size)
+{
+  textureCount--;
+  textureSize -= size;
+}
+
+void Stats::addVertexBuffer(size_t size)
+{
+  vertexBufferCount++;
+  vertexBufferSize += size;
+}
+
+void Stats::removeVertexBuffer(size_t size)
+{
+  vertexBufferCount--;
+  vertexBufferSize -= size;
+}
+
+void Stats::addIndexBuffer(size_t size)
+{
+  indexBufferCount++;
+  indexBufferSize += size;
+}
+
+void Stats::removeIndexBuffer(size_t size)
+{
+  indexBufferCount--;
+  indexBufferSize -= size;
+}
+
+void Stats::addRenderBuffer(size_t size)
+{
+  renderBufferCount++;
+  renderBufferSize += size;
+}
+
+void Stats::removeRenderBuffer(size_t size)
+{
+  renderBufferCount--;
+  renderBufferSize -= size;
+}
+
+void Stats::addProgram()
+{
+  programCount++;
+}
+
+void Stats::removeProgram()
+{
+  programCount--;
+}
+
 float Stats::getFrameRate() const
 {
   return frameRate;
@@ -537,6 +598,51 @@ unsigned int Stats::getFrameCount() const
 const Stats::Frame& Stats::getFrame() const
 {
   return frames.front();
+}
+
+unsigned int Stats::getTextureCount() const
+{
+  return textureCount;
+}
+
+unsigned int Stats::getVertexBufferCount() const
+{
+  return vertexBufferCount;
+}
+
+unsigned int Stats::getIndexBufferCount() const
+{
+  return indexBufferCount;
+}
+
+unsigned int Stats::getRenderBufferCount() const
+{
+  return renderBufferCount;
+}
+
+unsigned int Stats::getProgramCount() const
+{
+  return programCount;
+}
+
+size_t Stats::getTotalTextureSize() const
+{
+  return textureSize;
+}
+
+size_t Stats::getTotalVertexBufferSize() const
+{
+  return vertexBufferSize;
+}
+
+size_t Stats::getTotalIndexBufferSize() const
+{
+  return indexBufferSize;
+}
+
+size_t Stats::getTotalRenderBufferSize() const
+{
+  return renderBufferSize;
 }
 
 ///////////////////////////////////////////////////////////////////////

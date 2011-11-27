@@ -258,6 +258,7 @@ public:
   /*! @return The image format of this texture.
    */
   const PixelFormat& getFormat() const;
+  size_t getSize() const;
   /*! @return The context used to create this texture.
    */
   Context& getContext() const;

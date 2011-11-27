@@ -584,6 +584,9 @@ Program::~Program()
 
   if (programID)
     glDeleteProgram(programID);
+
+  if (Stats* stats = context.getStats())
+    stats->removeProgram();
 }
 
 Attribute* Program::findAttribute(const char* name)
@@ -811,18 +814,15 @@ Program::Program(const ResourceInfo& info, Context& initContext):
   tessEvalShaderID(0),
   programID(0)
 {
+  if (Stats* stats = context.getStats())
+    stats->addProgram();
 }
 
 Program::Program(const Program& source):
   Resource(source),
-  context(source.context),
-  vertexShaderID(0),
-  fragmentShaderID(0),
-  geometryShaderID(0),
-  tessCtrlShaderID(0),
-  tessEvalShaderID(0),
-  programID(0)
+  context(source.context)
 {
+  panic("GLSL programs may not be copied");
 }
 
 bool Program::attachShader(const Shader& shader, unsigned int type)

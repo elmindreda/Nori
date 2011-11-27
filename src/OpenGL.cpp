@@ -104,6 +104,17 @@ bool checkGL(const char* format, ...)
 
 ///////////////////////////////////////////////////////////////////////
 
+Image::~Image()
+{
+}
+
+size_t Image::getSize() const
+{
+  return getWidth() * getHeight() * getDepth() * getFormat().getSize();
+}
+
+///////////////////////////////////////////////////////////////////////
+
   } /*namespace GL*/
 } /*namespace wendy*/
 

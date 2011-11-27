@@ -115,6 +115,9 @@ public:
   /*! @return The number of vertices in this vertex buffer.
    */
   unsigned int getCount() const;
+  /*! @return The size, in bytes, of the data in this vertex buffer.
+   */
+  size_t getSize() const;
   /*! Creates a vertex buffer with the specified properties.
    *  @param count The desired number of vertices.
    *  @param format The desired format of the vertices.
@@ -209,6 +212,9 @@ public:
   /*! @return The number of index elements in this index buffer.
    */
   unsigned int getCount() const;
+  /*! @return The size, in bytes, of the data in this index buffer.
+   */
+  size_t getSize() const;
   /*! Creates an index buffer with the specified properties.
    *  @param count The desired number of index elements.
    *  @param type The desired type of the index elements.
@@ -497,14 +503,16 @@ public:
    *  @param[in] height The desired height.
    *  @return The newly created render buffer, or @c NULL if an error occurred.
    */
-  static Ref<RenderBuffer> create(const PixelFormat& format,
+  static Ref<RenderBuffer> create(Context& context,
+                                  const PixelFormat& format,
                                   unsigned int width,
                                   unsigned int height);
 private:
-  RenderBuffer();
+  RenderBuffer(Context& context);
   bool init(const PixelFormat& format, unsigned int width, unsigned int height);
   void attach(int attachment, unsigned int z);
   void detach(int attachment);
+  Context& context;
   unsigned int bufferID;
   unsigned int width;
   unsigned int height;
