@@ -64,7 +64,7 @@ private:
     ITEM_INDEXBUFFERS,
     ITEM_RENDERBUFFERS,
     ITEM_PROGRAMS,
-    ITEM_COUNT,
+    ITEM_COUNT
   };
   void updateCountItem(Item item, const char* unit, size_t count);
   void updateCountSizeItem(Item item, const char* unit, size_t count, size_t size);

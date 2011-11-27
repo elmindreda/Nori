@@ -35,10 +35,12 @@ private:
   Time currentTime;
   ivec2 lastPosition;
   bool quitting;
+  bool drawdebug;
 };
 
 Demo::Demo():
   quitting(false),
+  drawdebug(true),
   currentTime(0.0),
   cameraNode(NULL)
 {
@@ -170,7 +172,8 @@ void Demo::run()
     scene.detachLights();
 
     interface->update();
-    interface->draw();
+    if (drawdebug)
+      interface->draw();
   }
   while (!quitting && context.update());
 }
@@ -185,6 +188,9 @@ void Demo::onKeyPressed(input::Key key, bool pressed)
     {
       case input::KEY_ESCAPE:
         quitting = true;
+        return;
+      case input::KEY_F1:
+        drawdebug = !drawdebug;
         return;
     }
   }

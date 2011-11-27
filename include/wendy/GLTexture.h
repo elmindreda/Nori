@@ -189,7 +189,7 @@ public:
     MIPMAPPED = 2,
     /*! The default texture creation flags.
      */
-    DEFAULT = MIPMAPPED,
+    DEFAULT = MIPMAPPED
   };
   /*! Destructor.
    */

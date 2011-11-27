@@ -63,7 +63,7 @@ enum
 
   SHARED_TIME,
 
-  SHARED_STATE_CUSTOM_BASE,
+  SHARED_STATE_CUSTOM_BASE
 };
 
 ///////////////////////////////////////////////////////////////////////
