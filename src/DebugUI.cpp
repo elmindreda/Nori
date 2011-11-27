@@ -70,6 +70,10 @@ const char* suffix(size_t value)
       return "GB";
     case 4:
       return "TB";
+    case 5:
+      return "PB";
+    case 6:
+      return "EB";
   }
 
   return "wow";
