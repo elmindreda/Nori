@@ -204,7 +204,7 @@ void Menu::onCursorMoved(Widget& widget, const vec2& position)
 
   unsigned int index = 0;
 
-  const float height = getArea().size.y - 2.f;
+  const float height = getHeight() - 2.f;
   float itemTop = height;
 
   for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
@@ -236,7 +236,7 @@ void Menu::onButtonClicked(Widget& widget,
 
   unsigned int index = 0;
 
-  const float height = getArea().size.y - 2.f;
+  const float height = getHeight() - 2.f;
   float itemTop = height;
 
   for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)

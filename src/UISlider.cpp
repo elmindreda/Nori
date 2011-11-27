@@ -198,9 +198,9 @@ void Slider::setValue(const vec2& position)
   float scale;
 
   if (orientation == HORIZONTAL)
-    scale = (position.x - em / 2.f) / (getArea().size.x - em);
+    scale = (position.x - em / 2.f) / (getWidth() - em);
   else
-    scale = (position.y - em / 2.f) / (getArea().size.y - em);
+    scale = (position.y - em / 2.f) / (getHeight() - em);
 
   setValue(minValue + (maxValue - minValue) * scale, true);
 }

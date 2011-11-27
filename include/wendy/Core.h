@@ -149,7 +149,7 @@ enum LogEntryType
   WARNING_LOG_ENTRY,
   /*! The log entry is an informational message.
     */
-  INFO_LOG_ENTRY,
+  INFO_LOG_ENTRY
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -316,6 +316,11 @@ void Widget::setArea(const Rect& newArea)
   invalidate();
 }
 
+const vec2& Widget::getSize() const
+{
+  return area.size;
+}
+
 void Widget::setSize(const vec2& newSize)
 {
   setArea(Rect(area.position, newSize));

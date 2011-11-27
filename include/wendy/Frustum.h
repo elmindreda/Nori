@@ -45,7 +45,7 @@ enum FrustumPlane
   FRUSTUM_BOTTOM,
   FRUSTUM_LEFT,
   FRUSTUM_NEAR,
-  FRUSTUM_FAR,
+  FRUSTUM_FAR
 };
 
 ///////////////////////////////////////////////////////////////////////

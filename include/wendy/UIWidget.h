@@ -185,6 +185,9 @@ public:
    *  @param[in] newArea The desired area, in parent coordinates.
    */
   void setArea(const Rect& newArea);
+  /*! @return The size of this widget.
+   */
+  const vec2& getSize() const;
   /*! Sets the size of this widget.
    *  @param[in] newSize The desired size, in parent coordinates.
    *

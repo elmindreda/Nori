@@ -46,7 +46,7 @@ public:
   {
     /*! Component elements are 32-bit floating-point (float).
      */
-    FLOAT32,
+    FLOAT32
   };
   /*! Constructor.
    */

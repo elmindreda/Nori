@@ -163,7 +163,7 @@ public:
   enum NormalMode
   {
     PRESERVE_NORMALS,
-    MERGE_NORMALS,
+    MERGE_NORMALS
   };
   /*! Constructor.
    */

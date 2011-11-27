@@ -74,7 +74,7 @@ public:
     DEFERRED,
     /*! This technique is intended for rendering shadow maps.
      */
-    SHADOWMAP,
+    SHADOWMAP
   };
   /*! Constructor.
    *  @param[in] type The render type of the created technique.

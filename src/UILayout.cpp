@@ -56,7 +56,7 @@ void Layout::addChild(Widget& child)
 
 void Layout::addChild(Widget& child, float size)
 {
-  sizes[&child] = size;
+  setChildSize(child, size);
   Widget::addChild(child);
 }
 
@@ -83,28 +83,45 @@ void Layout::setBorderSize(float newSize)
 
 float Layout::getChildSize(Widget& child) const
 {
-  SizeMap::const_iterator i = sizes.find(&child);
-  if (i == sizes.end())
-    return 0.f;
+  for (SizeList::const_iterator i = sizes.begin();  i != sizes.end();  i++)
+  {
+    if (i->first == &child)
+      return i->second;
+  }
 
-  return i->second;
+  panic("Unknown child widget found in layout");
 }
 
 void Layout::setChildSize(Widget& child, float newSize)
 {
-  SizeMap::iterator i = sizes.find(&child);
-  if (i != sizes.end())
-    sizes[&child] = newSize;
+  for (SizeList::iterator i = sizes.begin();  i != sizes.end();  i++)
+  {
+    if (i->first == &child)
+    {
+      i->second = newSize;
+      return;
+    }
+  }
+
+  sizes.push_back(Size(&child, newSize));
 }
 
 void Layout::addedChild(Widget& child)
 {
-  if (sizes.find(&child) == sizes.end())
+  SizeList::const_iterator i;
+
+  for (i = sizes.begin();  i != sizes.end();  i++)
+  {
+    if (i->first == &child)
+      break;
+  }
+
+  if (i == sizes.end())
   {
     if (orientation == VERTICAL)
-      sizes[&child] = child.getArea().size.y;
+      sizes.push_back(Size(&child, child.getHeight()));
     else
-      sizes[&child] = child.getArea().size.x;
+      sizes.push_back(Size(&child, child.getWidth()));
   }
 
   update();
@@ -112,14 +129,22 @@ void Layout::addedChild(Widget& child)
 
 void Layout::removedChild(Widget& child)
 {
-  sizes.erase(&child);
+  for (SizeList::iterator i = sizes.begin();  i != sizes.end();  i++)
+  {
+    if (i->first == &child)
+    {
+      sizes.erase(i);
+      break;
+    }
+  }
+
   update();
 }
 
 void Layout::onAreaChanged(Widget& widget)
 {
   if (expanding)
-    setArea(Rect(vec2(0.f), widget.getArea().size));
+    setArea(Rect(vec2(0.f), widget.getSize()));
 
   update();
 }
@@ -142,16 +167,16 @@ void Layout::removedFromParent(Widget& parent)
 void Layout::update()
 {
   const WidgetList& children = getChildren();
-  const vec2& size = getArea().size;
+  const vec2& size = getSize();
   unsigned int flexibleCount = 0;
 
   if (orientation == VERTICAL)
   {
     float stackHeight = borderSize;
 
-    for (WidgetList::const_iterator i = children.begin();  i != children.end();  i++)
+    for (SizeList::const_iterator i = sizes.begin();  i != sizes.end();  i++)
     {
-      const float height = sizes[*i];
+      const float height = i->second;
       if (height == 0.f)
         flexibleCount++;
 
@@ -168,7 +193,7 @@ void Layout::update()
 
     for (WidgetList::const_iterator i = children.begin();  i != children.end();  i++)
     {
-      float height = sizes[*i];
+      float height = getChildSize(**i);
       if (height == 0.f)
         height = flexibleSize;
 
@@ -180,9 +205,9 @@ void Layout::update()
   {
     float stackWidth = borderSize;
 
-    for (WidgetList::const_iterator i = children.begin();  i != children.end();  i++)
+    for (SizeList::const_iterator i = sizes.begin();  i != sizes.end();  i++)
     {
-      const float width = sizes[*i];
+      const float width = i->second;
       if (width == 0.f)
         flexibleCount++;
 
@@ -199,7 +224,7 @@ void Layout::update()
 
     for (WidgetList::const_iterator i = children.begin();  i != children.end();  i++)
     {
-      float width = sizes[*i];
+      float width = getChildSize(**i);
       if (width == 0.f)
         width = flexibleSize;
 

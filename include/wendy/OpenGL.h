@@ -59,7 +59,7 @@ enum PrimitiveType
   LINE_LOOP,
   TRIANGLE_LIST,
   TRIANGLE_STRIP,
-  TRIANGLE_FAN,
+  TRIANGLE_FAN
 };
 
 ///////////////////////////////////////////////////////////////////////

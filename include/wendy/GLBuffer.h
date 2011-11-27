@@ -56,7 +56,7 @@ enum LockType
   LOCK_WRITE_ONLY,
   /*! Requests read and write access.
    */
-  LOCK_READ_WRITE,
+  LOCK_READ_WRITE
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ public:
     STREAM,
     /*! Data will be repeatedly respecified and re-used.
      */
-    DYNAMIC,
+    DYNAMIC
   };
   /*! Destructor.
    */
@@ -159,7 +159,7 @@ public:
     UINT16,
     /*! Indices are 32-bit unsigned integers.
      */
-    UINT32,
+    UINT32
   };
   /*! Index buffer usage hint enumeration.
    */
@@ -173,7 +173,7 @@ public:
     STREAM,
     /*! Data will be repeatedly respecified and re-used.
      */
-    DYNAMIC,
+    DYNAMIC
   };
   /*! Destructor.
    */
@@ -617,7 +617,7 @@ public:
     COLOR_BUFFER3,
     /*! The depth buffer, referenced in GLSL by @c gl_FragDepth.
      */
-    DEPTH_BUFFER,
+    DEPTH_BUFFER
   };
   /*! Destructor.
    */

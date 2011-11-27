@@ -151,9 +151,9 @@ void Popup::draw() const
 
 void Popup::display()
 {
-  const float width = max(menu->getArea().size.x, getArea().size.x);
+  const float width = max(menu->getWidth(), getWidth());
   menu->setArea(Rect(getGlobalArea().position,
-                     vec2(width, menu->getArea().size.y)));
+                     vec2(width, menu->getHeight())));
   menu->display();
 }
 

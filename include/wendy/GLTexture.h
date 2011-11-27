@@ -64,7 +64,7 @@ enum FilterMode
   /*! Select the four nearest texels of the two nearest mipmap levels and
    *  interpolate.
    */
-  FILTER_TRILINEAR,
+  FILTER_TRILINEAR
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ enum AddressMode
   ADDRESS_WRAP,
   /*! Addresses are clamped to the edges of the texture.
    */
-  ADDRESS_CLAMP,
+  ADDRESS_CLAMP
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ enum TextureType
   /*! %Texture has a cube of two-dimensional, square images with power-of-two
    *  dimensions.
    */
-  TEXTURE_CUBE,
+  TEXTURE_CUBE
 };
 
 ///////////////////////////////////////////////////////////////////////

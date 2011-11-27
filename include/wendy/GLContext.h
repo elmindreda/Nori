@@ -64,7 +64,7 @@ const int INVALID_SHARED_STATE_ID = -1;
 enum WindowMode
 {
   WINDOWED,
-  FULLSCREEN,
+  FULLSCREEN
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ enum Profile
   PROFILE_CORE,
   /*! The OpenGL compatibility profile.
    */
-  PROFILE_COMPAT,
+  PROFILE_COMPAT
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -354,7 +354,7 @@ public:
     AUTOMATIC_REFRESH,
     /*! The Context::update method blocks until a refresh is requested.
      */
-    MANUAL_REFRESH,
+    MANUAL_REFRESH
   };
   typedef std::vector<Plane> PlaneList;
   /*! Destructor.

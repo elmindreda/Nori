@@ -41,7 +41,7 @@ enum SpriteType3
 {
   STATIC_SPRITE,
   CYLINDRIC_SPRITE,
-  SPHERICAL_SPRITE,
+  SPHERICAL_SPRITE
 };
 
 ///////////////////////////////////////////////////////////////////////
