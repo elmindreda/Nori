@@ -520,7 +520,7 @@ void Stats::addPrimitives(PrimitiveType type, unsigned int vertexCount)
       frame.triangleCount += vertexCount - 2;
       break;
     case TRIANGLE_FAN:
-      frame.triangleCount += vertexCount - 1;
+      frame.triangleCount += vertexCount - 2;
       break;
     default:
       panic("Invalid primitive type %u", type);
