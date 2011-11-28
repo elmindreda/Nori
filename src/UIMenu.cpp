@@ -243,6 +243,7 @@ void Menu::onCursorMoved(Widget& widget, const vec2& position)
     if (itemTop - itemHeight <= localPosition.y)
     {
       selection = index;
+      invalidate();
       return;
     }
 
@@ -297,6 +298,8 @@ void Menu::onKeyPressed(Widget& widget, input::Key key, bool pressed)
         selection--;
       else
         selection = items.size() - 1;
+
+      invalidate();
       break;
     }
 
@@ -305,6 +308,8 @@ void Menu::onKeyPressed(Widget& widget, input::Key key, bool pressed)
       selection++;
       if (selection == items.size())
         selection = 0;
+
+      invalidate();
       break;
     }
 

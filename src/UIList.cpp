@@ -396,7 +396,9 @@ void List::setSelection(unsigned int newIndex, bool notify)
 
   selection = min(newIndex, (unsigned int) items.size() - 1);
 
-  if (!isItemVisible(items[selection]))
+  if (isItemVisible(items[selection]))
+    invalidate();
+  else
     setOffset(selection);
 
   if (notify)
