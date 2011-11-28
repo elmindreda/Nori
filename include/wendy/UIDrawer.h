@@ -31,9 +31,8 @@
 #include <wendy/Segment.h>
 #include <wendy/Triangle.h>
 
-#include <wendy/OpenGL.h>
-#include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLState.h>

@@ -28,7 +28,6 @@
 #include <wendy/Core.h>
 #include <wendy/Block.h>
 
-#include <wendy/OpenGL.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
@@ -37,7 +36,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include <internal/GLConvert.h>
+#include <internal/GLHelper.h>
 
 #include <algorithm>
 #include <cstring>

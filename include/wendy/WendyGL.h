@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy OpenGL library
-// Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,30 +22,27 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_GLCONVERT_H
-#define WENDY_GLCONVERT_H
+#ifndef WENDY_WENDYGL_H
+#define WENDY_WENDYGL_H
 ///////////////////////////////////////////////////////////////////////
 
-namespace wendy
-{
-  namespace GL
-  {
-
-///////////////////////////////////////////////////////////////////////
-
-GLenum convertToGL(IndexBuffer::Type type);
-GLenum convertToGL(VertexComponent::Type type);
-GLenum convertToGL(PixelFormat::Type type);
-GLenum convertToGL(const PixelFormat& format);
-GLenum convertToGL(PixelFormat::Type type);
-GLenum convertToGL(PixelFormat::Semantic semantic);
-GLenum convertToGL(TextureType type);
+/*! @defgroup opengl OpenGL wrapper API
+ *
+ *  These classes wrap parts of the OpenGL API, maintaining a rather close
+ *  mapping to the underlying concepts, but providing useful services and a
+ *  semblance of automatic resource management. They are used by most
+ *  higher-level components such as the 3D rendering pipeline.
+ */
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
-} /*namespace wendy*/
+#include <wendy/GLQuery.h>
+#include <wendy/GLBuffer.h>
+#include <wendy/GLTexture.h>
+#include <wendy/GLProgram.h>
+#include <wendy/GLContext.h>
+#include <wendy/GLState.h>
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_GLCONVERT_H*/
+#endif /*WENDY_WENDYGL_H*/
 ///////////////////////////////////////////////////////////////////////

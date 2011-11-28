@@ -59,13 +59,7 @@
 
 #include <wendy/WendyCore.h>
 
-#include <wendy/OpenGL.h>
-#include <wendy/GLQuery.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLProgram.h>
-#include <wendy/GLContext.h>
-#include <wendy/GLState.h>
+#include <wendy/WendyGL.h>
 
 #include <wendy/Input.h>
 

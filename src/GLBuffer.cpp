@@ -27,7 +27,6 @@
 
 #include <wendy/Bimap.h>
 
-#include <wendy/OpenGL.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
@@ -36,7 +35,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include <internal/GLConvert.h>
+#include <internal/GLHelper.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -860,6 +859,17 @@ IndexRangeLock<uint32>::IndexRangeLock(IndexRange& initRange):
   indices = (uint32*) range.lock();
   if (!indices)
     panic("Failed to lock index buffer");
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Image::~Image()
+{
+}
+
+size_t Image::getSize() const
+{
+  return getWidth() * getHeight() * getDepth() * getFormat().getSize();
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -22,13 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_OPENGL_H
-#define WENDY_OPENGL_H
-///////////////////////////////////////////////////////////////////////
-
-#include <wendy/Core.h>
-#include <wendy/Pixel.h>
-
+#ifndef WENDY_GLHELPER_H
+#define WENDY_GLHELPER_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -38,61 +33,15 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup opengl OpenGL wrapper API
- *
- *  These classes wrap parts of the OpenGL API, maintaining a rather close
- *  mapping to the underlying concepts, but providing useful services and a
- *  semblance of automatic resource management. They are used by most
- *  higher-level components such as the 3D rendering pipeline.
- */
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Primitive type enumeration.
- *  @ingroup opengl
- */
-enum PrimitiveType
-{
-  POINT_LIST,
-  LINE_LIST,
-  LINE_STRIP,
-  LINE_LOOP,
-  TRIANGLE_LIST,
-  TRIANGLE_STRIP,
-  TRIANGLE_FAN
-};
-
-///////////////////////////////////////////////////////////////////////
-
 WENDY_CHECKFORMAT(1, bool checkGL(const char* format, ...));
 
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Interface for images.
- *  @ingoup opengl
- */
-class Image : public RefObject
-{
-  friend class ImageFramebuffer;
-public:
-  virtual ~Image();
-  virtual unsigned int getWidth() const = 0;
-  virtual unsigned int getHeight() const = 0;
-  virtual unsigned int getDepth() const = 0;
-  /*! @return The size, in bytes, of the data in this image.
-   */
-  size_t getSize() const;
-  virtual const PixelFormat& getFormat() const = 0;
-protected:
-  virtual void attach(int attachment, unsigned int z) = 0;
-  virtual void detach(int attachment) = 0;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup opengl
- */
-typedef Ref<Image> ImageRef;
+GLenum convertToGL(IndexBuffer::Type type);
+GLenum convertToGL(VertexComponent::Type type);
+GLenum convertToGL(PixelFormat::Type type);
+GLenum convertToGL(const PixelFormat& format);
+GLenum convertToGL(PixelFormat::Type type);
+GLenum convertToGL(PixelFormat::Semantic semantic);
+GLenum convertToGL(TextureType type);
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -100,5 +49,5 @@ typedef Ref<Image> ImageRef;
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_OPENGL_H*/
+#endif /*WENDY_GLHELPER_H*/
 ///////////////////////////////////////////////////////////////////////

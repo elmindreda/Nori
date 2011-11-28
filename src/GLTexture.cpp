@@ -27,7 +27,6 @@
 
 #include <wendy/Bimap.h>
 
-#include <wendy/OpenGL.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLTexture.h>
@@ -36,7 +35,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include <internal/GLConvert.h>
+#include <internal/GLHelper.h>
 
 #include <glm/gtx/bit.hpp>
 

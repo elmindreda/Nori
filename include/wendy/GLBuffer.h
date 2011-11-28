@@ -43,6 +43,22 @@ class Context;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Primitive type enumeration.
+ *  @ingroup opengl
+ */
+enum PrimitiveType
+{
+  POINT_LIST,
+  LINE_LIST,
+  LINE_STRIP,
+  LINE_LOOP,
+  TRIANGLE_LIST,
+  TRIANGLE_STRIP,
+  TRIANGLE_FAN
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Memory locking type enumeration.
  *  @ingroup opengl
  */
@@ -472,6 +488,34 @@ private:
   IndexRange range;
   T* indices;
 };
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Interface for images.
+ *  @ingoup opengl
+ */
+class Image : public RefObject
+{
+  friend class ImageFramebuffer;
+public:
+  virtual ~Image();
+  virtual unsigned int getWidth() const = 0;
+  virtual unsigned int getHeight() const = 0;
+  virtual unsigned int getDepth() const = 0;
+  /*! @return The size, in bytes, of the data in this image.
+   */
+  size_t getSize() const;
+  virtual const PixelFormat& getFormat() const = 0;
+protected:
+  virtual void attach(int attachment, unsigned int z) = 0;
+  virtual void detach(int attachment) = 0;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup opengl
+ */
+typedef Ref<Image> ImageRef;
 
 ///////////////////////////////////////////////////////////////////////
 
