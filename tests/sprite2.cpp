@@ -1,5 +1,7 @@
 
-#include <wendy/Wendy.h>
+#include <wendy/WendyCore.h>
+#include <wendy/WendyGL.h>
+#include <wendy/WendyRender.h>
 
 #include <cstdlib>
 

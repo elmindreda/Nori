@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenAL library
+// Wendy user interface library
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,80 +22,48 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
+#ifndef WENDY_WENDYUI_H
+#define WENDY_WENDYUI_H
+///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
-#include <wendy/Core.h>
-
-#include <wendy/OpenAL.h>
-
-#include <al.h>
-
-#include <cstdio>
+/*! @defgroup ui User interface API
+ *
+ *  These classes provide a simple 2D graphical user interface (GUI). The
+ *  drawing is layered on top of the OpenGL renderer and using the input
+ *  functionality of the context singleton, so the environment must be set
+ *  up before the user interface can be drawn.
+ *
+ *  The user interface classes make heavy use of signals, and its design is in
+ *  many ways similar to the gtkmm library. One notable difference is that,
+ *  since we are working on top of OpenGL, usually together with 3D rendering,
+ *  we need to redraw the entire interface each frame.
+ */
 
 ///////////////////////////////////////////////////////////////////////
 
-namespace wendy
-{
-  namespace AL
-  {
+#if WENDY_INCLUDE_UI_SYSTEM
+
+#include <wendy/UIDrawer.h>
+#include <wendy/UILayer.h>
+#include <wendy/UIWidget.h>
+#include <wendy/UIScroller.h>
+#include <wendy/UIBook.h>
+#include <wendy/UICanvas.h>
+#include <wendy/UILayout.h>
+#include <wendy/UILabel.h>
+#include <wendy/UIProgress.h>
+#include <wendy/UIButton.h>
+#include <wendy/UISlider.h>
+#include <wendy/UIEntry.h>
+#include <wendy/UIItem.h>
+#include <wendy/UIList.h>
+#include <wendy/UIMenu.h>
+#include <wendy/UIPopup.h>
+
+#else
+#error "UI module not enabled"
+#endif
 
 ///////////////////////////////////////////////////////////////////////
-
-namespace
-{
-
-const char* getErrorString(ALenum error)
-{
-  switch (error)
-  {
-    case AL_INVALID_NAME:
-      return "Invalid name parameter";
-    case AL_INVALID_ENUM:
-      return "Invalid enum parameter";
-    case AL_INVALID_VALUE:
-      return "Invalid enum parameter value";
-    case AL_INVALID_OPERATION:
-      return "Invalid operation";
-    case AL_OUT_OF_MEMORY:
-      return "Out of memory";
-  }
-
-  return "Unknown OpenAL error";
-}
-
-} /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
-
-bool checkAL(const char* format, ...)
-{
-  ALenum error = alGetError();
-  if (error == AL_NO_ERROR)
-    return true;
-
-  va_list vl;
-  char* message;
-  int result;
-
-  va_start(vl, format);
-  result = vasprintf(&message, format, vl);
-  va_end(vl);
-
-  if (result < 0)
-  {
-    logError("Error formatting error message for OpenAL error %u", error);
-    return false;
-  }
-
-  logError("%s: %s", message, getErrorString(error));
-
-  std::free(message);
-  return false;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-  } /*namespace AL*/
-} /*namespace wendy*/
-
+#endif /*WENDY_WENDYUI_H*/
 ///////////////////////////////////////////////////////////////////////

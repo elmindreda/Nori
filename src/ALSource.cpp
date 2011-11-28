@@ -26,10 +26,11 @@
 #include <wendy/Config.h>
 #include <wendy/Core.h>
 
-#include <wendy/OpenAL.h>
 #include <wendy/ALContext.h>
 #include <wendy/ALBuffer.h>
 #include <wendy/ALSource.h>
+
+#include <internal/ALHelper.h>
 
 #include <glm/gtc/type_ptr.hpp>
 

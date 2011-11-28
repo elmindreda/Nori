@@ -27,7 +27,7 @@ if(WENDY_INCLUDE_OPENAL)
   include_directories(${OPENAL_INCLUDE_DIR}
                       ${libogg_SOURCE_DIR}
                       ${libvorbis_SOURCE_DIR})
-  list(APPEND wendy_SOURCES OpenAL.cpp ALBuffer.cpp ALContext.cpp ALSource.cpp)
+  list(APPEND wendy_SOURCES ALBuffer.cpp ALContext.cpp ALHelper.cpp ALSource.cpp)
 endif(WENDY_INCLUDE_OPENAL)
 
 if(WENDY_INCLUDE_RENDERER)
