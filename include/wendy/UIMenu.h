@@ -43,7 +43,10 @@ public:
   void display();
   void addItem(Item& item);
   void addItemAt(Item& item, unsigned int index);
-  void removeItem(Item& item);
+  void createItem(const char* value, ItemID ID = 0);
+  void createSeparatorItem();
+  void destroyItem(Item& item);
+  void destroyItem(const char* value);
   void destroyItems();
   void sortItems();
   unsigned int getItemCount() const;
