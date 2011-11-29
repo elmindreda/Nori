@@ -745,7 +745,7 @@ void Context::render(const PrimitiveRange& range)
   if (range.isEmpty())
   {
     logWarning("Rendering empty primitive range with shader program \'%s\'",
-               currentProgram->getPath().asString().c_str());
+               currentProgram->getName().c_str());
     return;
   }
 
@@ -776,7 +776,7 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
     if (currentProgram->getAttributeCount() > format.getComponentCount())
     {
       logError("Shader program \'%s\' has more attributes than vertex format has components",
-               currentProgram->getPath().asString().c_str());
+               currentProgram->getName().c_str());
       return;
     }
 
@@ -789,7 +789,7 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
       {
         logError("Attribute \'%s\' of program \'%s\' has no corresponding vertex format component",
                  attribute.getName().c_str(),
-                 currentProgram->getPath().asString().c_str());
+                 currentProgram->getName().c_str());
         return;
       }
 
@@ -797,7 +797,7 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
       {
         logError("Attribute \'%s\' of shader program \'%s\' has incompatible type",
                  attribute.getName().c_str(),
-                 currentProgram->getPath().asString().c_str());
+                 currentProgram->getName().c_str());
         return;
       }
 
@@ -1142,7 +1142,7 @@ void Context::setCurrentTexture(Texture* newTexture)
 
 #if WENDY_DEBUG
         if (!checkGL("Failed to unbind texture \'%s\'",
-                    oldTexture->getPath().asString().c_str()))
+                     oldTexture->getName().c_str()))
         {
           return;
         }
@@ -1156,7 +1156,7 @@ void Context::setCurrentTexture(Texture* newTexture)
 
 #if WENDY_DEBUG
       if (!checkGL("Failed to bind texture \'%s\'",
-                  newTexture->getPath().asString().c_str()))
+                   newTexture->getName().c_str()))
       {
         return;
       }

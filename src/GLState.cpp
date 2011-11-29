@@ -401,7 +401,7 @@ void ProgramState::apply() const
         state->updateTo(sampler);
       else
         logError("Program \'%s\' uses shared sampler \'%s\' without a current shared program state",
-                 program->getPath().asString().c_str(),
+                 program->getName().c_str(),
                  sampler.getName().c_str());
     }
     else
@@ -425,7 +425,7 @@ void ProgramState::apply() const
         state->updateTo(uniform);
       else
         logError("Program \'%s\' uses shared uniform \'%s\' without a current shared program state",
-                 program->getPath().asString().c_str(),
+                 program->getName().c_str(),
                  uniform.getName().c_str());
     }
     else
@@ -459,7 +459,7 @@ Texture* ProgramState::getSamplerState(const char* name) const
   }
 
   logError("Program \'%s\' has no sampler named \'%s\'",
-           program->getPath().asString().c_str(),
+           program->getName().c_str(),
            name);
   return NULL;
 }
@@ -500,7 +500,7 @@ void ProgramState::setSamplerState(const char* name, Texture* newTexture)
         else
           logError("Type mismatch between sampler \'%s\' and texture \'%s\'",
                    sampler.getName().c_str(),
-                   newTexture->getPath().asString().c_str());
+                   newTexture->getName().c_str());
       }
       else
         textures[textureIndex] = NULL;
@@ -529,7 +529,7 @@ void ProgramState::setSamplerState(SamplerStateIndex index, Texture* newTexture)
     else
       logError("Type mismatch between sampler \'%s\' and texture \'%s\'",
                 sampler.getName().c_str(),
-                newTexture->getPath().asString().c_str());
+                newTexture->getName().c_str());
   }
   else
     textures[index.unit] = NULL;
@@ -648,7 +648,7 @@ void* ProgramState::getData(const char* name, Uniform::Type type)
 
       logError("Uniform \'%s\' of program \'%s\' is not of type \'%s\'",
                uniform.getName().c_str(),
-               program->getPath().asString().c_str(),
+               program->getName().c_str(),
                Uniform::getTypeName(type));
       return NULL;
     }
@@ -657,7 +657,7 @@ void* ProgramState::getData(const char* name, Uniform::Type type)
   }
 
   logError("Program \'%s\' has no uniform named \'%s\'",
-           program->getPath().asString().c_str(),
+           program->getName().c_str(),
            name);
   return NULL;
 }
@@ -685,7 +685,7 @@ const void* ProgramState::getData(const char* name, Uniform::Type type) const
 
       logError("Uniform \'%s\' of program \'%s\' is not of type \'%s\'",
                uniform.getName().c_str(),
-               program->getPath().asString().c_str(),
+               program->getName().c_str(),
                Uniform::getTypeName(type));
       return NULL;
     }
@@ -694,7 +694,7 @@ const void* ProgramState::getData(const char* name, Uniform::Type type) const
   }
 
   logError("Program \'%s\' has no uniform named \'%s\'",
-           program->getPath().asString().c_str(),
+           program->getName().c_str(),
            name);
   return NULL;
 }
@@ -713,7 +713,7 @@ void* ProgramState::getData(UniformStateIndex index, Uniform::Type type)
   {
     logError("Uniform %u of program \'%s\' is not of type \'%s\'",
              index.index,
-             program->getPath().asString().c_str(),
+             program->getName().c_str(),
              Uniform::getTypeName(type));
     return NULL;
   }
@@ -735,7 +735,7 @@ const void* ProgramState::getData(UniformStateIndex index, Uniform::Type type) c
   {
     logError("Uniform %u of program \'%s\' is not of type \'%s\'",
              index.index,
-             program->getPath().asString().c_str(),
+             program->getName().c_str(),
              Uniform::getTypeName(type));
     return NULL;
   }

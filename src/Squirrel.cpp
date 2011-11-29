@@ -258,11 +258,21 @@ VM::~VM()
     sq_close(vm);
 }
 
-bool VM::execute(const Path& path)
+bool VM::execute(const char* name)
 {
-  std::ifstream stream;
-  if (!cache.openFile(stream, path))
+  const Path path = cache.findFile(name);
+  if (path.isEmpty())
+  {
+    logError("Failed to find script \'%s\'", name);
     return false;
+  }
+
+  std::ifstream stream(path.asString().c_str());
+  if (stream.fail())
+  {
+    logError("Failed to open script \'%s\'", name);
+    return NULL;
+  }
 
   stream.seekg(0, std::ios::end);
 
@@ -273,7 +283,7 @@ bool VM::execute(const Path& path)
   stream.read(&text[0], text.size());
   stream.close();
 
-  return execute(path.asString().c_str(), text.c_str());
+  return execute(name, text.c_str());
 }
 
 bool VM::execute(const char* name, const char* text)

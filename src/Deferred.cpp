@@ -242,13 +242,13 @@ bool Renderer::init(const Config& config)
 
   // Set up ambient light pass
   {
-    Path path("wendy/DeferredAmbientLight.program");
+    const String programName("wendy/DeferredAmbientLight.program");
 
-    Ref<GL::Program> program = GL::Program::read(context, path);
+    Ref<GL::Program> program = GL::Program::read(context, programName);
     if (!program)
     {
       logError("Failed to read deferred ambient light program \'%s\'",
-               path.asString().c_str());
+               programName.c_str());
       return false;
     }
 
@@ -261,7 +261,7 @@ bool Renderer::init(const Config& config)
     if (!interface.matches(*program, true))
     {
       logError("Deferred ambient light program \'%s\' does not match the required interface",
-               program->getPath().asString().c_str());
+               programName.c_str());
       return false;
     }
 
@@ -274,13 +274,13 @@ bool Renderer::init(const Config& config)
 
   // Set up directional light pass
   {
-    Path path("wendy/DeferredDirLight.program");
+    const String programName("wendy/DeferredDirLight.program");
 
-    Ref<GL::Program> program = GL::Program::read(context, path);
+    Ref<GL::Program> program = GL::Program::read(context, programName);
     if (!program)
     {
       logError("Failed to read deferred directional light program \'%s\'",
-               path.asString().c_str());
+               programName.c_str());
       return false;
     }
 
@@ -299,7 +299,7 @@ bool Renderer::init(const Config& config)
     if (!interface.matches(*program, true))
     {
       logError("Deferred directional light program \'%s\' does not match the required interface",
-               program->getPath().asString().c_str());
+               programName.c_str());
       return false;
     }
 
@@ -314,23 +314,13 @@ bool Renderer::init(const Config& config)
 
   // Set up point light pass
   {
-    Path path("wendy/DeferredPointLight.program");
+    const String programName("wendy/DeferredPointLight.program");
 
-    Ref<GL::Program> program = GL::Program::read(context, path);
+    Ref<GL::Program> program = GL::Program::read(context, programName);
     if (!program)
     {
       logError("Failed to read deferred point light program \'%s\'",
-               path.asString().c_str());
-      return false;
-    }
-
-    path = "wendy/DistanceRamp.texture";
-
-    Ref<GL::Texture> distanceRamp = GL::Texture::read(context, path);
-    if (!distanceRamp)
-    {
-      logError("Failed to read attenuation texture \'%s\'",
-               path.asString().c_str());
+               programName.c_str());
       return false;
     }
 
@@ -352,7 +342,17 @@ bool Renderer::init(const Config& config)
     if (!interface.matches(*program, true))
     {
       logError("Deferred point light program \'%s\' does not match the required interface",
-               program->getPath().asString().c_str());
+               programName.c_str());
+      return false;
+    }
+
+    const String& textureName("wendy/DistanceRamp.texture");
+
+    Ref<GL::Texture> distanceRamp = GL::Texture::read(context, textureName);
+    if (!distanceRamp)
+    {
+      logError("Failed to read attenuation texture \'%s\'",
+               textureName.c_str());
       return false;
     }
 

@@ -65,13 +65,12 @@ bool Test::init()
     return false;
   }
 
-  Path path("sprite3.material");
+  const String materialName("sprite3.material");
 
-  material = render::Material::read(*context, path);
+  material = render::Material::read(*context, materialName);
   if (!material)
   {
-    logError("Failed to load material \'%s\'",
-             path.asString().c_str());
+    logError("Failed to load material \'%s\'", materialName.c_str());
     return false;
   }
 

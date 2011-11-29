@@ -67,12 +67,12 @@ bool Test::init()
     return false;
   }
 
-  Path path("cube_cubemapped.model");
+  const String modelName("cube_cubemapped.model");
 
-  Ref<render::Model> model = render::Model::read(*context, path);
+  Ref<render::Model> model = render::Model::read(*context, modelName);
   if (!model)
   {
-    logError("Failed to load model \'%s\'", path.asString().c_str());
+    logError("Failed to load model \'%s\'", modelName.c_str());
     return false;
   }
 

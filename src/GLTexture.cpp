@@ -233,7 +233,7 @@ bool TextureImage::copyFrom(const wendy::Image& source,
 #if WENDY_DEBUG
   if (!checkGL("Error during copy from image into level %u of texture \'%s\'",
                level,
-               texture.getPath().asString().c_str()))
+               texture.getName().c_str()))
   {
     return false;
   }
@@ -257,7 +257,7 @@ bool TextureImage::copyTo(wendy::Image& result) const
 #if WENDY_DEBUG
   if (!checkGL("Error during copy to image from level %u of texture \'%s\'",
                level,
-               texture.getPath().asString().c_str()))
+               texture.getName().c_str()))
   {
     return false;
   }
@@ -342,7 +342,7 @@ void TextureImage::attach(int attachment, unsigned int z)
 #if WENDY_DEBUG
   checkGL("Error when attaching level %u of texture \'%s\' to framebuffer",
           level,
-          texture.getPath().asString().c_str());
+          texture.getName().c_str());
 #endif
 }
 
@@ -377,7 +377,7 @@ void TextureImage::detach(int attachment)
 #if WENDY_DEBUG
   checkGL("Error when detaching level %u of texture \'%s\' from framebuffer",
           level,
-          texture.getPath().asString().c_str());
+          texture.getName().c_str());
 #endif
 }
 
@@ -475,7 +475,7 @@ void Texture::setFilterMode(FilterMode newMode)
 
 #if WENDY_DEBUG
   checkGL("Error when changing filter mode for texture \'%s\'",
-          getPath().asString().c_str());
+          getName().c_str());
 #endif
 }
 
@@ -509,7 +509,7 @@ void Texture::setAddressMode(AddressMode newMode)
 
 #if WENDY_DEBUG
   checkGL("Error when changing address mode for texture \'%s\'",
-          getPath().asString().c_str());
+          getName().c_str());
 #endif
 }
 
@@ -565,10 +565,10 @@ Ref<Texture> Texture::create(const ResourceInfo& info,
   return texture;
 }
 
-Ref<Texture> Texture::read(Context& context, const Path& path)
+Ref<Texture> Texture::read(Context& context, const String& name)
 {
   TextureReader reader(context);
-  return reader.read(path);
+  return reader.read(name);
 }
 
 Texture::Texture(const ResourceInfo& info, Context& initContext):
@@ -597,7 +597,7 @@ bool Texture::init(const wendy::Image& source, unsigned int flags)
   if (!convertToGL(format))
   {
     logError("Source image for texture \'%s\' has unsupported pixel format \'%s\'",
-             getPath().asString().c_str(),
+             getName().c_str(),
              format.asString().c_str());
     return false;
   }
@@ -609,7 +609,7 @@ bool Texture::init(const wendy::Image& source, unsigned int flags)
     if (source.getDimensionCount() > 2)
     {
       logError("Source image for rectangular texture \'%s\' texture has more than two dimensions",
-               getPath().asString().c_str());
+               getName().c_str());
       return false;
     }
 
@@ -626,7 +626,7 @@ bool Texture::init(const wendy::Image& source, unsigned int flags)
     if (!source.isPOT())
     {
       logWarning("Texture \'%s\' does not have power-of-two dimensions; this may cause slowdown",
-                 getPath().asString().c_str());
+                 getName().c_str());
     }
 
     if (source.getDimensionCount() == 1)
@@ -731,7 +731,7 @@ bool Texture::init(const wendy::Image& source, unsigned int flags)
   applyDefaults();
 
   if (!checkGL("OpenGL error during creation of texture \'%s\' format \'%s\'",
-               getPath().asString().c_str(),
+               getName().c_str(),
                format.asString().c_str()))
   {
     return false;
@@ -748,7 +748,7 @@ bool Texture::init(const ImageCube& source, unsigned int flags)
   if (flags & RECTANGULAR)
   {
     logError("Invalid flags for texture \'%s\': cube maps cannot use the rectangular flag",
-              getPath().asString().c_str());
+              getName().c_str());
     return false;
   }
 
@@ -757,20 +757,20 @@ bool Texture::init(const ImageCube& source, unsigned int flags)
     if (!source.isPOT())
     {
       logWarning("Texture \'%s\' does not have power-of-two dimensions; this may cause slowdown",
-               getPath().asString().c_str());
+               getName().c_str());
     }
 
     if (!source.isSquare())
     {
       logError("Source images for texture \'%s\' are not square",
-               getPath().asString().c_str());
+               getName().c_str());
       return false;
     }
 
     if (!source.hasSameSize())
     {
       logError("Source images for texture \'%s\' do not have the same size",
-               getPath().asString().c_str());
+               getName().c_str());
       return false;
     }
 
@@ -781,7 +781,7 @@ bool Texture::init(const ImageCube& source, unsigned int flags)
     if (!source.hasSameFormat())
     {
       logError("Source images for texture \'%s\' do not have same format",
-               getPath().asString().c_str());
+               getName().c_str());
       return false;
     }
 
@@ -790,7 +790,7 @@ bool Texture::init(const ImageCube& source, unsigned int flags)
     if (!convertToGL(format))
     {
       logError("Source images for texture \'%s\' have unsupported pixel format \'%s\'",
-               getPath().asString().c_str(),
+               getName().c_str(),
                format.asString().c_str());
       return false;
     }
@@ -839,7 +839,7 @@ bool Texture::init(const ImageCube& source, unsigned int flags)
   applyDefaults();
 
   if (!checkGL("OpenGL error during creation of texture \'%s\' format \'%s\'",
-               getPath().asString().c_str(),
+               getName().c_str(),
                format.asString().c_str()))
   {
     return false;
@@ -859,7 +859,7 @@ bool Texture::validateProxy() const
   if (width == 0)
   {
     logError("Cannot create texture \'%s\' type \'%s\' size %ux%ux%u format \'%s\'",
-              getPath().asString().c_str(),
+              getName().c_str(),
               asString(type),
               width, height, depth,
               format.asString().c_str());
@@ -942,14 +942,14 @@ TextureReader::TextureReader(Context& initContext):
   }
 }
 
-Ref<Texture> TextureReader::read(const Path& path)
+Ref<Texture> TextureReader::read(const String& name, const Path& path)
 {
-  if (Resource* cached = getCache().findResource(path))
-    return dynamic_cast<Texture*>(cached);
-
-  std::ifstream stream;
-  if (!getCache().openFile(stream, path))
+  std::ifstream stream(path.asString().c_str());
+  if (stream.fail())
+  {
+    logError("Failed to open texture \'%s\'", name.c_str());
     return NULL;
+  }
 
   pugi::xml_document document;
 
@@ -957,7 +957,7 @@ Ref<Texture> TextureReader::read(const Path& path)
   if (!result)
   {
     logError("Failed to load texture \'%s\': %s",
-             path.asString().c_str(),
+             name.c_str(),
              result.description());
     return NULL;
   }
@@ -965,8 +965,7 @@ Ref<Texture> TextureReader::read(const Path& path)
   pugi::xml_node root = document.child("texture");
   if (!root || root.attribute("version").as_uint() != TEXTURE_XML_VERSION)
   {
-    logError("Texture file format mismatch in \'%s\'",
-             path.asString().c_str());
+    logError("Texture file format mismatch in \'%s\'", name.c_str());
     return NULL;
   }
 
@@ -991,36 +990,36 @@ Ref<Texture> TextureReader::read(const Path& path)
     }
   }
 
+  const ResourceInfo info(cache, name, path);
+
   Ref<Texture> texture;
 
   if (pugi::xml_attribute a = root.attribute("image"))
   {
-    Ref<wendy::Image> image = wendy::Image::read(getCache(), Path(a.value()));
+    Ref<wendy::Image> image = wendy::Image::read(cache, a.value());
     if (!image)
     {
-      logError("Failed to load source image for texture \'%s\'",
-               path.asString().c_str());
+      logError("Failed to load source image for texture \'%s\'", name.c_str());
       return NULL;
     }
 
-    texture = Texture::create(ResourceInfo(getCache(), path), context, *image, flags);
+    texture = Texture::create(info, context, *image, flags);
   }
   else if (pugi::xml_attribute a = root.attribute("imagecube"))
   {
-    Ref<ImageCube> cube = ImageCube::read(getCache(), Path(a.value()));
+    Ref<ImageCube> cube = ImageCube::read(cache, a.value());
     if (!cube)
     {
       logError("Failed to load source image cube for texture \'%s\'",
-               path.asString().c_str());
+               name.c_str());
       return NULL;
     }
 
-    texture = Texture::create(ResourceInfo(getCache(), path), context, *cube, flags);
+    texture = Texture::create(info, context, *cube, flags);
   }
   else
   {
-    logError("No image specified for texture \'%s\'",
-              path.asString().c_str());
+    logError("No image specified for texture \'%s\'", name.c_str());
     return NULL;
   }
 

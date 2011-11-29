@@ -89,10 +89,10 @@ Theme::Theme(const ResourceInfo& info):
 {
 }
 
-Ref<Theme> Theme::read(render::GeometryPool& pool, const Path& path)
+Ref<Theme> Theme::read(render::GeometryPool& pool, const String& name)
 {
   ThemeReader reader(pool);
-  return reader.read(path);
+  return reader.read(name);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -110,14 +110,14 @@ ThemeReader::ThemeReader(render::GeometryPool& initPool):
   }
 }
 
-Ref<Theme> ThemeReader::read(const Path& path)
+Ref<Theme> ThemeReader::read(const String& name, const Path& path)
 {
-  if (Resource* cached = getCache().findResource(path))
-    return dynamic_cast<Theme*>(cached);
-
-  std::ifstream stream;
-  if (!getCache().openFile(stream, path))
+  std::ifstream stream(path.asString().c_str());
+  if (stream.fail())
+  {
+    logError("Failed to open animation \'%s\'", name.c_str());
     return NULL;
+  }
 
   pugi::xml_document document;
 
@@ -125,7 +125,7 @@ Ref<Theme> ThemeReader::read(const Path& path)
   if (!result)
   {
     logError("Failed to load UI theme \'%s\': %s",
-             path.asString().c_str(),
+             name.c_str(),
              result.description());
     return NULL;
   }
@@ -133,42 +133,37 @@ Ref<Theme> ThemeReader::read(const Path& path)
   pugi::xml_node root = document.child("theme");
   if (!root || root.attribute("version").as_uint() != THEME_XML_VERSION)
   {
-    logError("UI theme file format mismatch in \'%s\'",
-             path.asString().c_str());
+    logError("UI theme file format mismatch in \'%s\'", name.c_str());
     return NULL;
   }
 
-  Ref<Theme> theme = new Theme(ResourceInfo(getCache(), path));
+  Ref<Theme> theme = new Theme(ResourceInfo(cache, name, path));
 
-  const Path texturePath(root.attribute("texture").value());
-  if (texturePath.isEmpty())
+  const String textureName(root.attribute("texture").value());
+  if (textureName.empty())
   {
-    logError("Texture path for UI theme \'%s\' is empty",
-             path.asString().c_str());
+    logError("Texture for UI theme \'%s\' is empty", name.c_str());
     return NULL;
   }
 
-  theme->texture = GL::Texture::read(pool.getContext(), texturePath);
+  theme->texture = GL::Texture::read(pool.getContext(), textureName);
   if (!theme->texture)
   {
-    logError("Failed to load texture for UI theme \'%s\'",
-             path.asString().c_str());
+    logError("Failed to load texture for UI theme \'%s\'", name.c_str());
     return NULL;
   }
 
-  const Path fontPath(root.attribute("font").value());
-  if (fontPath.isEmpty())
+  const String fontName(root.attribute("font").value());
+  if (fontName.empty())
   {
-    logError("Font path for UI theme \'%s\' is empty",
-              path.asString().c_str());
+    logError("Font for UI theme \'%s\' is empty", name.c_str());
     return NULL;
   }
 
-  theme->font = render::Font::read(pool, fontPath);
+  theme->font = render::Font::read(pool, fontName);
   if (!theme->font)
   {
-    logError("Failed to load font for UI theme \'%s\'",
-             path.asString().c_str());
+    logError("Failed to load font for UI theme \'%s\'", name.c_str());
     return NULL;
   }
 
@@ -178,7 +173,7 @@ Ref<Theme> ThemeReader::read(const Path& path)
     {
       logError("Unknown widget state \'%s\' in UI theme \'%s\'",
                sn.name(),
-               path.asString().c_str());
+               name.c_str());
       return NULL;
     }
 
@@ -651,13 +646,12 @@ bool Drawer::init()
 
   // Load default theme
   {
-    Path path("wendy/UIDefault.theme");
+    const String themeName("wendy/UIDefault.theme");
 
-    theme = Theme::read(pool, path);
+    theme = Theme::read(pool, themeName);
     if (!theme)
     {
-      logError("Failed to load default UI theme \'%s\'",
-               path.asString().c_str());
+      logError("Failed to load default UI theme \'%s\'", themeName.c_str());
       return false;
     }
 
@@ -666,13 +660,13 @@ bool Drawer::init()
 
   // Set up solid pass
   {
-    Path path("wendy/UIElement.program");
+    const String programName("wendy/UIElement.program");
 
-    Ref<GL::Program> program = GL::Program::read(context, path);
+    Ref<GL::Program> program = GL::Program::read(context, programName);
     if (!program)
     {
       logError("Failed to load UI element program \'%s\'",
-               path.asString().c_str());
+               programName.c_str());
       return false;
     }
 
@@ -689,7 +683,7 @@ bool Drawer::init()
     if (!interface.matches(*program, true))
     {
       logError("UI element program \'%s\' does not conform to the required interface",
-               path.asString().c_str());
+               programName.c_str());
       return false;
     }
 
@@ -701,13 +695,13 @@ bool Drawer::init()
 
   // Set up solid pass
   {
-    Path path("wendy/UIDrawSolid.program");
+    const String programName("wendy/UIDrawSolid.program");
 
-    Ref<GL::Program> program = GL::Program::read(context, path);
+    Ref<GL::Program> program = GL::Program::read(context, programName);
     if (!program)
     {
       logError("Failed to load UI drawing shader program \'%s\'",
-               path.asString().c_str());
+               programName.c_str());
       return false;
     }
 
@@ -718,7 +712,7 @@ bool Drawer::init()
     if (!interface.matches(*program, true))
     {
       logError("UI drawing shader program \'%s\' does not conform to the required interface",
-               path.asString().c_str());
+               programName.c_str());
       return false;
     }
 
@@ -730,13 +724,13 @@ bool Drawer::init()
 
   // Set up blitting pass
   {
-    Path path("wendy/UIDrawMapped.program");
+    const String programName("wendy/UIDrawMapped.program");
 
-    Ref<GL::Program> program = GL::Program::read(context, path);
+    Ref<GL::Program> program = GL::Program::read(context, programName);
     if (!program)
     {
       logError("Failed to load UI blitting shader program \'%s\'",
-               path.asString().c_str());
+               programName.c_str());
       return false;
     }
 
@@ -748,7 +742,7 @@ bool Drawer::init()
     if (!interface.matches(*program, true))
     {
       logError("UI blitting shader program \'%s\' does not conform to the required interface",
-               path.asString().c_str());
+               programName.c_str());
       return false;
     }
 

@@ -135,7 +135,7 @@ public:
    *  @param area The desired area of this image.
    */
   Ref<Image> getArea(const Recti& area);
-  static Ref<Image> read(ResourceCache& cache, const Path& path);
+  static Ref<Image> read(ResourceCache& cache, const String& name);
 private:
   unsigned int width;
   unsigned int height;
@@ -185,7 +185,7 @@ public:
   /*! @return @c true if all images have the same size, otherwise @c false.
    */
   bool hasSameSize() const;
-  static Ref<ImageCube> read(ResourceCache& cache, const Path& path);
+  static Ref<ImageCube> read(ResourceCache& cache, const String& name);
   /*! The array of images for the faces of the image cube.
    */
   ImageRef images[6];
@@ -193,11 +193,12 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-class ImageReader : public ResourceReader
+class ImageReader : public ResourceReader<Image>
 {
 public:
   ImageReader(ResourceCache& cache);
-  Ref<Image> read(const Path& path);
+  using ResourceReader::read;
+  Ref<Image> read(const String& name, const Path& path);
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -210,11 +211,12 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-class ImageCubeReader : public ResourceReader
+class ImageCubeReader : public ResourceReader<ImageCube>
 {
 public:
   ImageCubeReader(ResourceCache& cache);
-  Ref<ImageCube> read(const Path& path);
+  using ResourceReader::read;
+  Ref<ImageCube> read(const String& name, const Path& path);
 };
 
 ///////////////////////////////////////////////////////////////////////

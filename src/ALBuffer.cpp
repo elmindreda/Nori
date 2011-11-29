@@ -162,10 +162,10 @@ Ref<Buffer> Buffer::create(const ResourceInfo& info, Context& context, const Buf
   return buffer;
 }
 
-Ref<Buffer> Buffer::read(Context& context, const Path& path)
+Ref<Buffer> Buffer::read(Context& context, const String& name)
 {
   BufferReader reader(context);
-  return reader.read(path);
+  return reader.read(name);
 }
 
 Buffer::Buffer(const ResourceInfo& info, Context& initContext):
@@ -214,26 +214,16 @@ BufferReader::BufferReader(Context& initContext):
 {
 }
 
-Ref<Buffer> BufferReader::read(const Path& path)
+Ref<Buffer> BufferReader::read(const String& name, const Path& path)
 {
-  if (Resource* cached = getCache().findResource(path))
-    return dynamic_cast<Buffer*>(cached);
-
-  const Path full = getCache().findFile(path);
-  if (full.isEmpty())
-  {
-    logError("Could not find audio file \'%s\'", path.asString().c_str());
-    return NULL;
-  }
-
   int result;
   OggVorbis_File file;
 
-  result = ov_fopen(full.asString().c_str(), &file);
+  result = ov_fopen(path.asString().c_str(), &file);
   if (result)
   {
     logError("Failed to open audio file \'%s\': %s",
-             full.asString().c_str(),
+             name.c_str(),
              getErrorString(result));
     return NULL;
   }
@@ -242,7 +232,7 @@ Ref<Buffer> BufferReader::read(const Path& path)
   {
     ov_clear(&file);
     logError("Audio file \'%s\' has an unsupported number of bitstreams",
-             full.asString().c_str());
+             name.c_str());
     return NULL;
   }
 
@@ -251,7 +241,7 @@ Ref<Buffer> BufferReader::read(const Path& path)
   {
     ov_clear(&file);
     logError("Failed to retrieve Vorbis info for audio file \'%s\'",
-             full.asString().c_str());
+             name.c_str());
     return NULL;
   }
 
@@ -259,7 +249,7 @@ Ref<Buffer> BufferReader::read(const Path& path)
   {
     ov_clear(&file);
     logError("Audio file \'%s\' has an unsupported number of channels",
-             full.asString().c_str());
+             name.c_str());
     return NULL;
   }
 
@@ -287,7 +277,7 @@ Ref<Buffer> BufferReader::read(const Path& path)
     {
       ov_clear(&file);
       logError("Error when reading audio file \'%s\': %s",
-              full.asString().c_str(),
+              name.c_str(),
               getErrorString(result));
       return NULL;
     }
@@ -299,9 +289,9 @@ Ref<Buffer> BufferReader::read(const Path& path)
 
   ov_clear(&file);
 
-  BufferData data(&samples[0], samples.size(), format, info->rate);
+  const BufferData data(&samples[0], samples.size(), format, info->rate);
 
-  return Buffer::create(ResourceInfo(getCache(), path), context, data);
+  return Buffer::create(ResourceInfo(cache, name, path), context, data);
 }
 
 ///////////////////////////////////////////////////////////////////////

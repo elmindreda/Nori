@@ -110,36 +110,54 @@ btTriangleMesh* convert(const Mesh& data)
 
 ///////////////////////////////////////////////////////////////////////
 
+BvhMeshShape::BvhMeshShape(const ResourceInfo& info):
+  Resource(info)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
 BvhMeshShapeReader::BvhMeshShapeReader(ResourceCache& cache):
   ResourceReader(cache)
 {
 }
 
-btBvhTriangleMeshShape* BvhMeshShapeReader::read(const Path& path)
+Ref<BvhMeshShape> BvhMeshShapeReader::read(const String& name, const Path& path)
 {
-  const Path full = getCache().findFile(path);
-  if (full.isEmpty())
-  {
-    logError("Could not find mesh shape file \'%s\'", path.asString().c_str());
-    return NULL;
-  }
-
   btBulletWorldImporter importer;
 
   if (!importer.loadFile(path.asString().c_str()))
   {
-    logError("Failed to load mesh shape file \'%s\'", path.asString().c_str());
+    logError("Failed to load mesh shape file \'%s\'", name.c_str());
     return NULL;
   }
 
   if (!importer.getNumCollisionShapes())
   {
-    logError("Mesh shape file \'%s\' does not contain any shapes",
-             path.asString().c_str());
+    logError("Mesh shape file \'%s\' does not contain any shapes", name.c_str());
     return NULL;
   }
 
-  return reinterpret_cast<btBvhTriangleMeshShape*>(importer.getCollisionShapeByIndex(0));
+  Ref<BvhMeshShape> result = new BvhMeshShape(ResourceInfo(cache, name, path));
+
+  result->shape = (btBvhTriangleMeshShape*) importer.getCollisionShapeByIndex(0);
+  if (!result->shape)
+  {
+    logError("No mesh shapes in \'%s\'", name.c_str());
+    return NULL;
+  }
+
+  result->mesh = (btTriangleIndexVertexArray*) result->shape->getMeshInterface();
+  result->bvh = result->shape->getOptimizedBvh();
+  result->info = result->shape->getTriangleInfoMap();
+
+  importer.detachBvhTriangleMeshShape(result->shape);
+  importer.detachMeshInterface(result->mesh);
+  importer.detachOptimizedBvh(result->bvh);
+  importer.detachTriangleInfoMap(result->info);
+  importer.deleteAllData();
+
+  return result;
 }
 
 ///////////////////////////////////////////////////////////////////////

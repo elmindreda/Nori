@@ -137,7 +137,7 @@ public:
   /*! @return The number of triangles in all geometries of this mesh.
    */
   unsigned int getTriangleCount() const;
-  static Ref<Mesh> read(ResourceCache& cache, const Path& path);
+  static Ref<Mesh> read(ResourceCache& cache, const String& name);
   typedef std::vector<MeshGeometry> GeometryList;
   typedef std::vector<MeshVertex> VertexList;
   typedef std::vector<MeshEdge> EdgeList;
@@ -196,11 +196,12 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class MeshReader : public ResourceReader
+class MeshReader : public ResourceReader<Mesh>
 {
 public:
   MeshReader(ResourceCache& cache);
-  Ref<Mesh> read(const Path& path);
+  using ResourceReader::read;
+  Ref<Mesh> read(const String& name, const Path& path);
 private:
   String parseName(const char** text);
   int parseInteger(const char** text);

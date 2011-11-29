@@ -62,7 +62,7 @@ class VM
 public:
   VM(ResourceCache& cache);
   ~VM();
-  bool execute(const Path& path);
+  bool execute(const char* name);
   bool execute(const char* name, const char* text);
   operator HSQUIRRELVM ();
   void* getForeignPointer() const;

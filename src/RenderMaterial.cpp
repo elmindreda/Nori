@@ -186,10 +186,10 @@ const TechniqueList& Material::getTechniques() const
   return techniques;
 }
 
-Ref<Material> Material::read(GL::Context& context, const Path& path)
+Ref<Material> Material::read(GL::Context& context, const String& name)
 {
   MaterialReader reader(context);
-  return reader.read(path);
+  return reader.read(name);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -240,14 +240,14 @@ MaterialReader::MaterialReader(GL::Context& initContext):
   }
 }
 
-Ref<Material> MaterialReader::read(const Path& path)
+Ref<Material> MaterialReader::read(const String& name, const Path& path)
 {
-  if (Resource* cached = getCache().findResource(path))
-    return dynamic_cast<Material*>(cached);
-
-  std::ifstream stream;
-  if (!getCache().openFile(stream, path))
+  std::ifstream stream(path.asString().c_str());
+  if (stream.fail())
+  {
+    logError("Failed to open material \'%s\'", name.c_str());
     return NULL;
+  }
 
   pugi::xml_document document;
 
@@ -255,7 +255,7 @@ Ref<Material> MaterialReader::read(const Path& path)
   if (!result)
   {
     logError("Failed to load material \'%s\': %s",
-             path.asString().c_str(),
+             name.c_str(),
              result.description());
     return NULL;
   }
@@ -263,12 +263,11 @@ Ref<Material> MaterialReader::read(const Path& path)
   pugi::xml_node root = document.child("material");
   if (!root || root.attribute("version").as_uint() != MATERIAL_XML_VERSION)
   {
-    logError("Material file format mismatch in \'%s\'",
-             path.asString().c_str());
+    logError("Material file format mismatch in \'%s\'", name.c_str());
     return NULL;
   }
 
-  Ref<Material> material = new Material(ResourceInfo(getCache(), path));
+  Ref<Material> material = new Material(ResourceInfo(cache, name, path));
 
   for (pugi::xml_node t = root.child("technique");  t;  t = t.next_sibling("technique"))
   {
@@ -277,7 +276,7 @@ Ref<Material> MaterialReader::read(const Path& path)
     {
       logError("Invalid technique type \'%s\' in material \'%s\'",
                typeName.c_str(),
-               path.asString().c_str());
+               name.c_str());
       return NULL;
     }
 
@@ -304,7 +303,7 @@ Ref<Material> MaterialReader::read(const Path& path)
           {
             logError("Invalid blend factor \'%s\' in material \'%s\'",
                      srcFactorName.c_str(),
-                     path.asString().c_str());
+                     name.c_str());
             return NULL;
           }
         }
@@ -321,7 +320,7 @@ Ref<Material> MaterialReader::read(const Path& path)
           {
             logError("Invalid blend factor \'%s\' in material \'%s\'",
                      dstFactorName.c_str(),
-                     path.asString().c_str());
+                     name.c_str());
             return NULL;
           }
         }
@@ -347,7 +346,7 @@ Ref<Material> MaterialReader::read(const Path& path)
           {
             logError("Invalid depth function \'%s\' in material \'%s\'",
                      functionName.c_str(),
-                     path.asString().c_str());
+                     name.c_str());
             return NULL;
           }
         }
@@ -367,7 +366,7 @@ Ref<Material> MaterialReader::read(const Path& path)
           {
             logError("Invalid cull mode \'%s\' in material \'%s\'",
                      cullModeName.c_str(),
-                     path.asString().c_str());
+                     name.c_str());
             return NULL;
           }
         }
@@ -384,19 +383,18 @@ Ref<Material> MaterialReader::read(const Path& path)
 
       if (pugi::xml_node node = p.child("program"))
       {
-        const Path programPath(node.attribute("path").value());
-        if (programPath.isEmpty())
+        const String programName(node.attribute("path").value());
+        if (programName.empty())
         {
-          logError("GLSL program path missing in material \'%s\'",
-                    path.asString().c_str());
+          logError("No GLSL program in material \'%s\'", name.c_str());
           return NULL;
         }
 
-        Ref<GL::Program> program = GL::Program::read(context, programPath);
+        Ref<GL::Program> program = GL::Program::read(context, programName);
         if (!program)
         {
           logError("Failed to load GLSL program in material \'%s\'",
-                   path.asString().c_str());
+                   name.c_str());
           return NULL;
         }
 
@@ -408,37 +406,38 @@ Ref<Material> MaterialReader::read(const Path& path)
           if (samplerName.empty())
           {
             logWarning("GLSL program \'%s\' in material \'%s\' lists unnamed sampler uniform",
-                       programPath.asString().c_str(),
-                       path.asString().c_str());
+                       programName.c_str(),
+                       name.c_str());
             continue;
           }
 
           if (!program->findSampler(samplerName.c_str()))
           {
-            logWarning("GLSL program \'%s\' does not have sampler uniform \'%s\'",
-                       programPath.asString().c_str(),
+            logWarning("GLSL program \'%s\' in material \'%s\' does not have sampler uniform \'%s\'",
+                       programName.c_str(),
+                       name.c_str(),
                        samplerName.c_str());
             continue;
           }
 
-          const Path texturePath(s.attribute("texture").value());
-          if (texturePath.isEmpty())
+          const String textureName(s.attribute("texture").value());
+          if (textureName.empty())
           {
             logError("Texture path missing for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",
                      samplerName.c_str(),
-                     programPath.asString().c_str(),
-                     path.asString().c_str());
+                     programName.c_str(),
+                     name.c_str());
             return NULL;
           }
 
-          Ref<GL::Texture> texture = GL::Texture::read(context, texturePath);
+          Ref<GL::Texture> texture = GL::Texture::read(context, textureName);
           if (!texture)
           {
             logError("Failed to find texture \'%s\' for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",
-                     texturePath.asString().c_str(),
+                     textureName.c_str(),
                      samplerName.c_str(),
-                     programPath.asString().c_str(),
-                     path.asString().c_str());
+                     programName.c_str(),
+                     name.c_str());
             return NULL;
           }
 
@@ -451,8 +450,8 @@ Ref<Material> MaterialReader::read(const Path& path)
           if (uniformName.empty())
           {
             logWarning("GLSL program \'%s\' in material \'%s\' lists unnamed uniform",
-                       programPath.asString().c_str(),
-                       path.asString().c_str());
+                       programName.c_str(),
+                       name.c_str());
             continue;
           }
 
@@ -460,8 +459,8 @@ Ref<Material> MaterialReader::read(const Path& path)
           if (!uniform)
           {
             logWarning("GLSL program \'%s\' in material \'%s\' does not have uniform \'%s\'",
-                       programPath.asString().c_str(),
-                       path.asString().c_str(),
+                       programName.c_str(),
+                       name.c_str(),
                        uniformName.c_str());
             continue;
           }
@@ -471,8 +470,8 @@ Ref<Material> MaterialReader::read(const Path& path)
           {
             logError("Missing value for uniform \'%s\' of GLSL program \'%s\' in material \'%s\'",
                      uniformName.c_str(),
-                     programPath.asString().c_str(),
-                     path.asString().c_str());
+                     programName.c_str(),
+                     name.c_str());
             return NULL;
           }
 
@@ -575,7 +574,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
       if (GL::Program* program = p->getProgram())
       {
         pugi::xml_node fn = pn.append_child("program");
-        fn.append_attribute("path") = program->getPath().asString().c_str();
+        fn.append_attribute("path") = program->getName().c_str();
 
         for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
         {
@@ -587,7 +586,7 @@ bool MaterialWriter::write(const Path& path, const Material& material)
 
           pugi::xml_node sn = fn.append_child("sampler");
           sn.append_attribute("name") = sampler.getName().c_str();
-          sn.append_attribute("texture") = texture->getPath().asString().c_str();
+          sn.append_attribute("texture") = texture->getName().c_str();
         }
 
         for (unsigned int i = 0;  i < program->getUniformCount();  i++)

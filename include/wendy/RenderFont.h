@@ -93,7 +93,7 @@ public:
   static Ref<Font> create(const ResourceInfo& info,
                           GeometryPool& pool,
                           const FontData& data);
-  static Ref<Font> read(GeometryPool& pool, const Path& path);
+  static Ref<Font> read(GeometryPool& pool, const String& name);
 private:
   class Glyph;
   Font(const ResourceInfo& info, GeometryPool& pool);
@@ -144,14 +144,15 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-class FontReader : public ResourceReader
+class FontReader : public ResourceReader<Font>
 {
 public:
   FontReader(GeometryPool& pool);
-  Ref<Font> read(const Path& path);
+  using ResourceReader::read;
+  Ref<Font> read(const String& name, const Path& path);
 private:
   bool extractGlyphs(FontData& data,
-                     const Path& path,
+                     const String& name,
                      const Image& image,
                      const String& characters,
                      bool fixedWidth);

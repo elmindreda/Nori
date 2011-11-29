@@ -161,7 +161,7 @@ public:
    *  @param[in] path The path of the material.
    *  @return The loaded material, or @c NULL if an error occurred.
    */
-  static Ref<Material> read(GL::Context& context, const Path& path);
+  static Ref<Material> read(GL::Context& context, const String& name);
 private:
   TechniqueList techniques;
 };
@@ -171,11 +171,12 @@ private:
 /*! @brief Codec for XML format render materials.
  *  @ingroup renderer
  */
-class MaterialReader : ResourceReader
+class MaterialReader : ResourceReader<Material>
 {
 public:
   MaterialReader(GL::Context& context);
-  Ref<Material> read(const Path& path);
+  using ResourceReader::read;
+  Ref<Material> read(const String& name, const Path& path);
 private:
   GL::Context& context;
 };

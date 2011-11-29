@@ -135,8 +135,8 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
   if (!data.isValid())
   {
     logError("Mesh \'%s\' for model \'%s\' is not valid",
-             data.getPath().asString().c_str(),
-             getPath().asString().c_str());
+             data.getName().c_str(),
+             getName().c_str());
     return false;
   }
   */
@@ -149,9 +149,9 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
   {
     if (materials.find(g->shaderName) == materials.end())
     {
-      logError("Missing path for material \'%s\' of render mesh \'%s\'",
+      logError("Missing material \'%s\' for model \'%s\'",
                g->shaderName.c_str(),
-               getPath().asString().c_str());
+               getName().c_str());
       return false;
     }
 
@@ -195,14 +195,12 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
   {
     indexCount = g->triangles.size() * 3;
 
-    Path materialPath = materials.find(g->shaderName)->second;
+    const String& materialName(materials.find(g->shaderName)->second);
 
-    Ref<Material> material = Material::read(context, materialPath);
+    Ref<Material> material = Material::read(context, materialName);
     if (!material)
     {
-      logError("Failed to find material \'%s\' for render mesh \'%s\'",
-               g->shaderName.c_str(),
-               getPath().asString().c_str());
+      logError("Failed to load material for model \'%s\'", getName().c_str());
       return false;
     }
 
@@ -265,10 +263,10 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
   return true;
 }
 
-Ref<Model> Model::read(GL::Context& context, const Path& path)
+Ref<Model> Model::read(GL::Context& context, const String& name)
 {
   ModelReader reader(context);
-  return reader.read(path);
+  return reader.read(name);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -303,14 +301,14 @@ ModelReader::ModelReader(GL::Context& initContext):
 {
 }
 
-Ref<Model> ModelReader::read(const Path& path)
+Ref<Model> ModelReader::read(const String& name, const Path& path)
 {
-  if (Resource* cached = getCache().findResource(path))
-    return dynamic_cast<Model*>(cached);
-
-  std::ifstream stream;
-  if (!getCache().openFile(stream, path))
+  std::ifstream stream(path.asString().c_str());
+  if (stream.fail())
+  {
+    logError("Failed to open model \'%s\'", name.c_str());
     return NULL;
+  }
 
   pugi::xml_document document;
 
@@ -318,7 +316,7 @@ Ref<Model> ModelReader::read(const Path& path)
   if (!result)
   {
     logError("Failed to load model \'%s\': %s",
-             path.asString().c_str(),
+             name.c_str(),
              result.description());
     return NULL;
   }
@@ -326,24 +324,21 @@ Ref<Model> ModelReader::read(const Path& path)
   pugi::xml_node root = document.child("model");
   if (!root || root.attribute("version").as_uint() != MODEL_XML_VERSION)
   {
-    logError("Model file format mismatch in \'%s\'",
-             path.asString().c_str());
+    logError("Model file format mismatch in \'%s\'", name.c_str());
     return NULL;
   }
 
-  const Path meshPath(root.attribute("mesh").value());
-  if (meshPath.isEmpty())
+  const String meshName(root.attribute("mesh").value());
+  if (meshName.empty())
   {
-    logError("Mesh path for model \'%s\' is empty",
-              path.asString().c_str());
+    logError("No mesh for model \'%s\'", name.c_str());
     return NULL;
   }
 
-  Ref<Mesh> mesh = Mesh::read(getCache(), meshPath);
+  Ref<Mesh> mesh = Mesh::read(cache, meshName);
   if (!mesh)
   {
-    logError("Failed to load mesh for model \'%s\'",
-              path.asString().c_str());
+    logError("Failed to load mesh for model \'%s\'", name.c_str());
     return NULL;
   }
 
@@ -351,27 +346,17 @@ Ref<Model> ModelReader::read(const Path& path)
 
   for (pugi::xml_node m = root.child("material");  m;  m = m.next_sibling("material"))
   {
-    const String name(m.attribute("name").value());
-    if (name.empty())
+    const String materialName(m.attribute("name").value());
+    if (materialName.empty())
     {
-      logError("Empty material name found in model \'%s\'",
-               path.asString().c_str());
+      logError("Empty material name found in model \'%s\'", name.c_str());
       return NULL;
     }
 
-    const Path path(m.attribute("path").value());
-    if (path.isEmpty())
-    {
-      logError("Empty path for material \'%s\' in model \'%s\'",
-               name.c_str(),
-               path.asString().c_str());
-      return NULL;
-    }
-
-    materials[name] = path;
+    materials[materialName] = m.attribute("path").value();
   }
 
-  return Model::create(ResourceInfo(getCache(), path), context, *mesh, materials);
+  return Model::create(ResourceInfo(cache, name, path), context, *mesh, materials);
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -94,7 +94,7 @@ bool Demo::init()
   if (!renderer)
     return false;
 
-  Ref<render::Model> model = render::Model::read(*context, Path("sponza.model"));
+  Ref<render::Model> model = render::Model::read(*context, "sponza.model");
   if (!model)
     return false;
 
