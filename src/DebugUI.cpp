@@ -180,7 +180,7 @@ void Interface::draw()
 
 void Interface::updateCountItem(Item item, const char* unit, size_t count)
 {
-  labels[item]->setText(format("%zu %s", count, unit).c_str());
+  labels[item]->setText(format("%u %s", (unsigned int) count, unit).c_str());
 }
 
 void Interface::updateCountSizeItem(Item item,
@@ -188,8 +188,8 @@ void Interface::updateCountSizeItem(Item item,
                                     size_t count,
                                     size_t size)
 {
-  labels[item]->setText(format("%zu %s (%u %s)",
-                               count,
+  labels[item]->setText(format("%u %s (%u %s)",
+                               (unsigned int) count,
                                unit,
                                reduce(size),
                                suffix(size)).c_str());
