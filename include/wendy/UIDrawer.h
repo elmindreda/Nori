@@ -31,9 +31,8 @@
 #include <wendy/Segment.h>
 #include <wendy/Triangle.h>
 
-#include <wendy/OpenGL.h>
-#include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLState.h>
@@ -115,7 +114,7 @@ class Theme : public Resource
 {
 public:
   Theme(const ResourceInfo& info);
-  static Ref<Theme> read(render::GeometryPool& pool, const Path& path);
+  static Ref<Theme> read(render::GeometryPool& pool, const String& name);
   Rect buttonElements[4];
   Rect handleElements[4];
   Rect frameElements[4];
@@ -130,11 +129,12 @@ public:
 
 /*! @ingroup ui
  */
-class ThemeReader : public ResourceReader
+class ThemeReader : public ResourceReader<Theme>
 {
 public:
   ThemeReader(render::GeometryPool& pool);
-  Ref<Theme> read(const Path& path);
+  using ResourceReader::read;
+  Ref<Theme> read(const String& name, const Path& path);
 private:
   render::GeometryPool& pool;
 };

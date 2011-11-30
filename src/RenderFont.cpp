@@ -25,10 +25,9 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/OpenGL.h>
+#include <wendy/GLBuffer.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
-#include <wendy/GLBuffer.h>
 #include <wendy/GLContext.h>
 #include <wendy/GLState.h>
 
@@ -240,10 +239,10 @@ Ref<Font> Font::create(const ResourceInfo& info,
   return font;
 }
 
-Ref<Font> Font::read(GeometryPool& pool, const Path& path)
+Ref<Font> Font::read(GeometryPool& pool, const String& name)
 {
   FontReader reader(pool);
-  return reader.read(path);
+  return reader.read(name);
 }
 
 Font::Font(const ResourceInfo& info, GeometryPool& initPool):
@@ -297,13 +296,13 @@ bool Font::init(const FontData& data)
     unsigned int textureHeight = (maxHeight + 1) * rows + 1;
     textureHeight = min(powerOfTwoAbove(textureHeight), maxSize);
 
-    Image image(getCache(), PixelFormat::R8, textureWidth, textureHeight);
+    Image image(cache, PixelFormat::R8, textureWidth, textureHeight);
 
-    texture = GL::Texture::create(getCache(), pool.getContext(), image, 0);
+    texture = GL::Texture::create(cache, pool.getContext(), image, 0);
     if (!texture)
     {
       logError("Failed to create glyph texture for font \'%s\'",
-               getPath().asString().c_str());
+               getName().c_str());
       return false;
     }
 
@@ -311,7 +310,7 @@ bool Font::init(const FontData& data)
         texture->getWidth(),
         texture->getHeight(),
         texture->getFormat().asString().c_str(),
-        getPath().asString().c_str());
+        getName().c_str());
 
     texture->setFilterMode(GL::FILTER_NEAREST);
   }
@@ -322,14 +321,14 @@ bool Font::init(const FontData& data)
 
   // Create render pass
   {
-    Path programPath("wendy/RenderFont.program");
+    String programName("wendy/RenderFont.program");
 
-    Ref<GL::Program> program = GL::Program::read(pool.getContext(), programPath);
+    Ref<GL::Program> program = GL::Program::read(pool.getContext(), programName);
     if (!program)
     {
       logError("Failed to read shader program \'%s\' for font \'%s\'",
-               programPath.asString().c_str(),
-               getPath().asString().c_str());
+               programName.c_str(),
+               getName().c_str());
       return false;
     }
 
@@ -342,8 +341,8 @@ bool Font::init(const FontData& data)
     if (!interface.matches(*program, true))
     {
       logError("Shader program \'%s\' for font \'%s\' does not conform to the required interface",
-               programPath.asString().c_str(),
-               getPath().asString().c_str());
+               programName.c_str(),
+               getName().c_str());
       return false;
     }
 
@@ -402,7 +401,7 @@ bool Font::init(const FontData& data)
         // TODO: Allocate next texture.
         // TODO: Add texture pointer to glyphs.
         logError("Not enough room in glyph texture for font \'%s\'",
-                 getPath().asString().c_str());
+                 getName().c_str());
         return false;
       }
     }
@@ -410,7 +409,7 @@ bool Font::init(const FontData& data)
     if (!textureImage->copyFrom(*image, texelPosition.x, texelPosition.y))
     {
       logError("Failed to copy glyph image data for font \'%s\'",
-               getPath().asString().c_str());
+               getName().c_str());
       return false;
     }
 
@@ -486,14 +485,14 @@ FontReader::FontReader(GeometryPool& initPool):
 {
 }
 
-Ref<Font> FontReader::read(const Path& path)
+Ref<Font> FontReader::read(const String& name, const Path& path)
 {
-  if (Resource* cached = getCache().findResource(path))
-    return dynamic_cast<Font*>(cached);
-
-  std::ifstream stream;
-  if (!getCache().openFile(stream, path))
+  std::ifstream stream(path.asString().c_str());
+  if (stream.fail())
+  {
+    logError("Failed to open font \'%s\'", name.c_str());
     return NULL;
+  }
 
   pugi::xml_document document;
 
@@ -501,7 +500,7 @@ Ref<Font> FontReader::read(const Path& path)
   if (!result)
   {
     logError("Failed to load font \'%s\': %s",
-             path.asString().c_str(),
+             name.c_str(),
              result.description());
     return NULL;
   }
@@ -509,32 +508,28 @@ Ref<Font> FontReader::read(const Path& path)
   pugi::xml_node root = document.child("font");
   if (!root || root.attribute("version").as_uint() != FONT_XML_VERSION)
   {
-    logError("Font file format mismatch in \'%s\'",
-             path.asString().c_str());
+    logError("Font file format mismatch in \'%s\'", name.c_str());
     return NULL;
   }
 
   const String characters(root.attribute("characters").value());
   if (characters.empty())
   {
-    logError("No characters specified for font \'%s\'",
-             path.asString().c_str());
+    logError("No characters specified for font \'%s\'", name.c_str());
     return NULL;
   }
 
-  const Path imagePath(root.attribute("image").value());
-  if (imagePath.isEmpty())
+  const String imageName(root.attribute("image").value());
+  if (imageName.empty())
   {
-    logError("Glyph image path missing for font \'%s\'",
-              path.asString().c_str());
+    logError("Glyph image path missing for font \'%s\'", name.c_str());
     return NULL;
   }
 
-  Ref<Image> image = Image::read(getCache(), imagePath);
+  Ref<Image> image = Image::read(cache, imageName);
   if (!image)
   {
-    logError("Failed to load glyph image for font \'%s\'",
-             path.asString().c_str());
+    logError("Failed to load glyph image for font \'%s\'", name.c_str());
     return NULL;
   }
 
@@ -545,14 +540,14 @@ Ref<Font> FontReader::read(const Path& path)
 
   FontData data;
 
-  if (!extractGlyphs(data, path, *image, characters, fixedWidth))
+  if (!extractGlyphs(data, name, *image, characters, fixedWidth))
     return NULL;
 
-  return Font::create(ResourceInfo(getCache(), path), pool, data);
+  return Font::create(ResourceInfo(cache, name, path), pool, data);
 }
 
 bool FontReader::extractGlyphs(FontData& data,
-                               const Path& path,
+                               const String& name,
                                const Image& image,
                                const String& characters,
                                bool fixedWidth)
@@ -560,8 +555,8 @@ bool FontReader::extractGlyphs(FontData& data,
   if (image.getFormat() != PixelFormat::R8)
   {
     logError("Image \'%s\' for font \'%s\' has invalid pixel format \'%s\'",
-             image.getPath().asString().c_str(),
-             path.asString().c_str(),
+             image.getName().c_str(),
+             name.c_str(),
              image.getFormat().asString().c_str());
     return false;
   }
@@ -573,8 +568,7 @@ bool FontReader::extractGlyphs(FontData& data,
     const unsigned int startY = findStartY(source);
     if (startY == source.getHeight())
     {
-      logError("No glyphs found in source image for font \'%s\'",
-               path.asString().c_str());
+      logError("No glyphs found in source image for font \'%s\'", name.c_str());
       return false;
     }
 
@@ -582,8 +576,7 @@ bool FontReader::extractGlyphs(FontData& data,
 
     if (!source.crop(Recti(0, startY, source.getWidth(), endY - startY)))
     {
-      logError("Failed to crop source image for font \'%s\'",
-               path.asString().c_str());
+      logError("Failed to crop source image for font \'%s\'", name.c_str());
       return false;
     }
   }
@@ -619,8 +612,7 @@ bool FontReader::extractGlyphs(FontData& data,
 
     if (index == characters.size())
     {
-      logError("Font \'%s\' has less characters than glyphs",
-               path.asString().c_str());
+      logError("Font \'%s\' has less characters than glyphs", name.c_str());
       return false;
     }
 
@@ -645,8 +637,7 @@ bool FontReader::extractGlyphs(FontData& data,
     Ref<Image> glyphImage = source.getArea(area);
     if (!glyphImage)
     {
-      logError("Failed to extract glyph image for font \'%s\'",
-               path.asString().c_str());
+      logError("Failed to extract glyph image for font \'%s\'", name.c_str());
       return false;
     }
 
@@ -712,7 +703,7 @@ bool FontReader::extractGlyphs(FontData& data,
     FontGlyphData& glyph = data.glyphs.back();
 
     glyph.bearing = vec2(0.f);
-    glyph.image = new Image(getCache(), source.getFormat(), 1, 1);
+    glyph.image = new Image(cache, source.getFormat(), 1, 1);
 
     if (fixedWidth)
       glyph.advance = maxAdvance;

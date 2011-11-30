@@ -404,7 +404,7 @@ Ref<Image> Image::getArea(const Recti& area)
 
   const unsigned int pixelSize = format.getSize();
 
-  ImageRef result = new Image(ResourceInfo(getCache()),
+  ImageRef result = new Image(ResourceInfo(cache),
                               format,
                               targetArea.size.x, targetArea.size.y);
 
@@ -418,10 +418,10 @@ Ref<Image> Image::getArea(const Recti& area)
   return result;
 }
 
-Ref<Image> Image::read(ResourceCache& cache, const Path& path)
+Ref<Image> Image::read(ResourceCache& cache, const String& name)
 {
   ImageReader reader(cache);
-  return reader.read(path);
+  return reader.read(name);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -508,10 +508,10 @@ bool ImageCube::hasSameSize() const
   return true;
 }
 
-Ref<ImageCube> ImageCube::read(ResourceCache& cache, const Path& path)
+Ref<ImageCube> ImageCube::read(ResourceCache& cache, const String& name)
 {
   ImageCubeReader reader(cache);
-  return reader.read(path);
+  return reader.read(name);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -521,16 +521,14 @@ ImageReader::ImageReader(ResourceCache& cache):
 {
 }
 
-Ref<Image> ImageReader::read(const Path& path)
+Ref<Image> ImageReader::read(const String& name, const Path& path)
 {
-  if (Resource* cached = getCache().findResource(path))
-    return dynamic_cast<Image*>(cached);
-
-  ResourceInfo info(getCache(), path);
-
-  std::ifstream stream;
-  if (!getCache().openFile(stream, info.path))
+  std::ifstream stream(path.asString().c_str(), std::ios::in | std::ios::binary);
+  if (stream.fail())
+  {
+    logError("Failed to open image \'%s\'", name.c_str());
     return NULL;
+  }
 
   // Check if file is valid
   {
@@ -538,13 +536,13 @@ Ref<Image> ImageReader::read(const Path& path)
 
     if (!stream.read((char*) header, sizeof(header)))
     {
-      logError("Failed to read PNG file header");
+      logError("Failed to read PNG file header in \'%s\'", name.c_str());
       return NULL;
     }
 
     if (png_sig_cmp(header, 0, sizeof(header)))
     {
-      logError("File is not a valid PNG file");
+      logError("Invalid PNG signature in \'%s\'", name.c_str());
       return NULL;
     }
   }
@@ -560,7 +558,10 @@ Ref<Image> ImageReader::read(const Path& path)
                                      writeErrorPNG,
                                      writeWarningPNG);
     if (!context)
+    {
+      logError("Failed to create PNG read struct for \'%s\'", name.c_str());
       return NULL;
+    }
 
     png_set_read_fn(context, &stream, readStreamPNG);
 
@@ -568,6 +569,8 @@ Ref<Image> ImageReader::read(const Path& path)
     if (!pngInfo)
     {
       png_destroy_read_struct(&context, NULL, NULL);
+
+      logError("Failed to create PNG info struct for \'%s\'", name.c_str());
       return NULL;
     }
 
@@ -575,6 +578,8 @@ Ref<Image> ImageReader::read(const Path& path)
     if (!pngEndInfo)
     {
       png_destroy_read_struct(&context, &pngInfo, NULL);
+
+      logError("Failed to create PNG end info struct for \'%s\'", name.c_str());
       return NULL;
     }
 
@@ -593,7 +598,7 @@ Ref<Image> ImageReader::read(const Path& path)
     {
       png_destroy_read_struct(&context, &pngInfo, &pngEndInfo);
 
-      logError("Unsupported bit depth in PNG file");
+      logError("Unsupported bit depth in \'%s\'", name.c_str());
       return NULL;
     }
 
@@ -601,13 +606,15 @@ Ref<Image> ImageReader::read(const Path& path)
     {
       png_destroy_read_struct(&context, &pngInfo, &pngEndInfo);
 
-      logError("Unsupported color type in PNG file");
+      logError("Unsupported color type in \'%s\'", name.c_str());
       return NULL;
     }
 
     width  = png_get_image_width(context, pngInfo);
     height = png_get_image_height(context, pngInfo);
   }
+
+  const ResourceInfo info(cache, name, path);
 
   Ref<Image> result(new Image(info, format, width, height));
 
@@ -715,14 +722,14 @@ ImageCubeReader::ImageCubeReader(ResourceCache& cache):
 {
 }
 
-Ref<ImageCube> ImageCubeReader::read(const Path& path)
+Ref<ImageCube> ImageCubeReader::read(const String& name, const Path& path)
 {
-  if (Resource* cached = getCache().findResource(path))
-    return dynamic_cast<ImageCube*>(cached);
-
-  std::ifstream stream;
-  if (!getCache().openFile(stream, path))
+  std::ifstream stream(path.asString().c_str());
+  if (stream.fail())
+  {
+    logError("Failed to open image cube \'%s\'", name.c_str());
     return NULL;
+  }
 
   pugi::xml_document document;
 
@@ -730,7 +737,7 @@ Ref<ImageCube> ImageCubeReader::read(const Path& path)
   if (!result)
   {
     logError("Failed to load image cube \'%s\': %s",
-             path.asString().c_str(),
+             name.c_str(),
              result.description());
     return NULL;
   }
@@ -738,8 +745,7 @@ Ref<ImageCube> ImageCubeReader::read(const Path& path)
   pugi::xml_node root = document.child("image-cube");
   if (!root || root.attribute("version").as_uint() != IMAGE_CUBE_XML_VERSION)
   {
-    logError("Image cube file format mismatch in \'%s\'",
-             path.asString().c_str());
+    logError("Image cube file format mismatch in \'%s\'", name.c_str());
     return NULL;
   }
 
@@ -765,25 +771,25 @@ Ref<ImageCube> ImageCubeReader::read(const Path& path)
     CUBE_NEGATIVE_Z,
   };
 
-  Ref<ImageCube> cube = new ImageCube(ResourceInfo(getCache(), path));
+  Ref<ImageCube> cube = new ImageCube(ResourceInfo(cache, name, path));
 
   for (size_t i = 0;  i < 6;  i++)
   {
-    const Path imagePath(root.child(names[i]).attribute("path").value());
-    if (imagePath.isEmpty())
+    const String imageName(root.child(names[i]).attribute("path").value());
+    if (imageName.empty())
     {
-      logError("No path specified for %s side in image cube \'%s\'",
+      logError("No image specified for %s side in image cube \'%s\'",
                names[i],
-               path.asString().c_str());
+               name.c_str());
       return NULL;
     }
 
-    Ref<Image> image = Image::read(getCache(), imagePath);
+    Ref<Image> image = Image::read(cache, imageName);
     if (!image)
     {
       logError("Failed to load side %s of image cube \'%s\'",
                names[i],
-               path.asString().c_str());
+               name.c_str());
       return NULL;
     }
 

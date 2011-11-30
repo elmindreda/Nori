@@ -344,10 +344,10 @@ unsigned int Mesh::getTriangleCount() const
   return count;
 }
 
-Ref<Mesh> Mesh::read(ResourceCache& cache, const Path& path)
+Ref<Mesh> Mesh::read(ResourceCache& cache, const String& name)
 {
   MeshReader reader(cache);
-  return reader.read(path);
+  return reader.read(name);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -474,16 +474,14 @@ MeshReader::MeshReader(ResourceCache& index):
 {
 }
 
-Ref<Mesh> MeshReader::read(const Path& path)
+Ref<Mesh> MeshReader::read(const String& name, const Path& path)
 {
-  if (Resource* cached = getCache().findResource(path))
-    return dynamic_cast<Mesh*>(cached);
-
-  ResourceInfo info(getCache(), path);
-
-  std::ifstream stream;
-  if (!getCache().openFile(stream, info.path))
+  std::ifstream stream(path.asString().c_str(), std::ios::in | std::ios::binary);
+  if (stream.fail())
+  {
+    logError("Failed to open mesh \'%s\'", name.c_str());
     return NULL;
+  }
 
   String line;
   unsigned int lineNumber = 0;
@@ -615,7 +613,7 @@ Ref<Mesh> MeshReader::read(const Path& path)
       {
         logWarning("Unknown command \'%s\' in mesh \'%s\' line %d",
                    command.c_str(),
-                   path.asString().c_str(),
+                   name.c_str(),
                    lineNumber);
       }
     }
@@ -623,14 +621,14 @@ Ref<Mesh> MeshReader::read(const Path& path)
     {
       logError("%s in mesh \'%s\' line %d",
                e.what(),
-               path.asString().c_str(),
+               name.c_str(),
                lineNumber);
 
       return NULL;
     }
   }
 
-  Ref<Mesh> mesh = new Mesh(info);
+  Ref<Mesh> mesh = new Mesh(ResourceInfo(cache, name, path));
 
   mesh->vertices.resize(positions.size());
 

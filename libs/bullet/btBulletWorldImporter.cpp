@@ -1480,3 +1480,29 @@ btTriangleInfoMap* btBulletWorldImporter::getTriangleInfoMapByIndex(int index) c
 	return m_allocatedTriangleInfoMaps[index];
 }
 
+void btBulletWorldImporter::detachBvhTriangleMeshShape(btBvhTriangleMeshShape* meshShape)
+{
+  m_allocatedCollisionShapes.remove(meshShape);
+
+  if (const char* name = getNameForPointer(meshShape))
+  {
+    m_nameShapeMap.remove(name);
+    m_objectNameMap.remove(meshShape);
+  }
+}
+
+void btBulletWorldImporter::detachOptimizedBvh(btOptimizedBvh* bvh)
+{
+  m_allocatedBvhs.remove(bvh);
+}
+
+void btBulletWorldImporter::detachTriangleInfoMap(btTriangleInfoMap* infoMap)
+{
+  m_allocatedTriangleInfoMaps.remove(infoMap);
+}
+
+void btBulletWorldImporter::detachMeshInterface(btTriangleIndexVertexArray* trimesh)
+{
+  m_allocatedTriangleIndexArrays.remove(trimesh);
+}
+

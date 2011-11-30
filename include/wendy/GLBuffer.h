@@ -43,6 +43,22 @@ class Context;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Primitive type enumeration.
+ *  @ingroup opengl
+ */
+enum PrimitiveType
+{
+  POINT_LIST,
+  LINE_LIST,
+  LINE_STRIP,
+  LINE_LOOP,
+  TRIANGLE_LIST,
+  TRIANGLE_STRIP,
+  TRIANGLE_FAN
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Memory locking type enumeration.
  *  @ingroup opengl
  */
@@ -115,6 +131,9 @@ public:
   /*! @return The number of vertices in this vertex buffer.
    */
   unsigned int getCount() const;
+  /*! @return The size, in bytes, of the data in this vertex buffer.
+   */
+  size_t getSize() const;
   /*! Creates a vertex buffer with the specified properties.
    *  @param count The desired number of vertices.
    *  @param format The desired format of the vertices.
@@ -209,6 +228,9 @@ public:
   /*! @return The number of index elements in this index buffer.
    */
   unsigned int getCount() const;
+  /*! @return The size, in bytes, of the data in this index buffer.
+   */
+  size_t getSize() const;
   /*! Creates an index buffer with the specified properties.
    *  @param count The desired number of index elements.
    *  @param type The desired type of the index elements.
@@ -469,6 +491,34 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Interface for images.
+ *  @ingoup opengl
+ */
+class Image : public RefObject
+{
+  friend class ImageFramebuffer;
+public:
+  virtual ~Image();
+  virtual unsigned int getWidth() const = 0;
+  virtual unsigned int getHeight() const = 0;
+  virtual unsigned int getDepth() const = 0;
+  /*! @return The size, in bytes, of the data in this image.
+   */
+  size_t getSize() const;
+  virtual const PixelFormat& getFormat() const = 0;
+protected:
+  virtual void attach(int attachment, unsigned int z) = 0;
+  virtual void detach(int attachment) = 0;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup opengl
+ */
+typedef Ref<Image> ImageRef;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Render buffer.
  *  @ingroup opengl
  */
@@ -497,14 +547,16 @@ public:
    *  @param[in] height The desired height.
    *  @return The newly created render buffer, or @c NULL if an error occurred.
    */
-  static Ref<RenderBuffer> create(const PixelFormat& format,
+  static Ref<RenderBuffer> create(Context& context,
+                                  const PixelFormat& format,
                                   unsigned int width,
                                   unsigned int height);
 private:
-  RenderBuffer();
+  RenderBuffer(Context& context);
   bool init(const PixelFormat& format, unsigned int width, unsigned int height);
   void attach(int attachment, unsigned int z);
   void detach(int attachment);
+  Context& context;
   unsigned int bufferID;
   unsigned int width;
   unsigned int height;

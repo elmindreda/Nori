@@ -42,6 +42,47 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+namespace
+{
+
+unsigned int reduce(size_t value)
+{
+  while (value >= 1024)
+    value /= 1024;
+
+  return value;
+}
+
+const char* suffix(size_t value)
+{
+  if (value)
+    value = glm::log(value) / glm::log(1024);
+
+  switch (value)
+  {
+    case 0:
+      return "bytes";
+    case 1:
+      return "KB";
+    case 2:
+      return "MB";
+    case 3:
+      return "GB";
+    case 4:
+      return "TB";
+    case 5:
+      return "PB";
+    case 6:
+      return "EB";
+  }
+
+  return "wow";
+}
+
+} /*namespace*/
+
+///////////////////////////////////////////////////////////////////////
+
 Panel::Panel(UI::Layer& layer):
   UI::Widget(layer)
 {
@@ -67,13 +108,13 @@ Interface::Interface(input::Context& context, UI::Drawer& drawer):
   root(NULL)
 {
   root = new Panel(*this);
-  root->setArea(Rect(0.f, 0.f, 150.f, 400.f));
   addRootWidget(*root);
 
   UI::Layout* layout = new UI::Layout(*this, UI::VERTICAL, true);
+  layout->setBorderSize(2.f);
   root->addChild(*layout);
 
-  for (size_t i = 0;  i < LABEL_COUNT;  i++)
+  for (size_t i = 0;  i < ITEM_COUNT;  i++)
   {
     labels[i] = new UI::Label(*this);
     labels[i]->setTextAlignment(UI::RIGHT_ALIGNED);
@@ -87,21 +128,37 @@ void Interface::update()
 
   if (stats)
   {
-    const unsigned int rate = (unsigned int) (stats->getFrameRate() + 0.5f);
-    labels[LABEL_FRAMERATE]->setText(format("%u fps", rate).c_str());
-
     const GL::Stats::Frame& frame = stats->getFrame();
 
-    labels[LABEL_STATECHANGES]->setText(format("%u state changes", frame.stateChangeCount).c_str());
-    labels[LABEL_OPERATIONS]->setText(format("%u operations", frame.operationCount).c_str());
-    labels[LABEL_VERTICES]->setText(format("%u vertices", frame.vertexCount).c_str());
-    labels[LABEL_POINTS]->setText(format("%u points", frame.pointCount).c_str());
-    labels[LABEL_LINES]->setText(format("%u lines", frame.lineCount).c_str());
-    labels[LABEL_TRIANGLES]->setText(format("%u triangles", frame.triangleCount).c_str());
+    updateCountItem(ITEM_FRAMERATE, "fps", (size_t) (stats->getFrameRate() + 0.5f));
+    updateCountItem(ITEM_STATECHANGES, "states / f", frame.stateChangeCount);
+    updateCountItem(ITEM_OPERATIONS, "operations / f", frame.operationCount);
+    updateCountItem(ITEM_VERTICES, "vertices / f", frame.vertexCount);
+    updateCountItem(ITEM_POINTS, "points / f", frame.pointCount);
+    updateCountItem(ITEM_LINES, "lines / f", frame.lineCount);
+    updateCountItem(ITEM_TRIANGLES, "triangles / f", frame.triangleCount);
+
+    updateCountItem(ITEM_PROGRAMS, "programs", stats->getProgramCount());
+    updateCountSizeItem(ITEM_TEXTURES,
+                        "textures",
+                        stats->getTextureCount(),
+                        stats->getTotalTextureSize());
+    updateCountSizeItem(ITEM_VERTEXBUFFERS,
+                        "VBs",
+                        stats->getVertexBufferCount(),
+                        stats->getTotalVertexBufferSize());
+    updateCountSizeItem(ITEM_INDEXBUFFERS,
+                        "IBs",
+                        stats->getIndexBufferCount(),
+                        stats->getTotalIndexBufferSize());
+    updateCountSizeItem(ITEM_RENDERBUFFERS,
+                        "RBs",
+                        stats->getRenderBufferCount(),
+                        stats->getTotalRenderBufferSize());
   }
   else
   {
-    for (size_t i = 0;  i < LABEL_COUNT;  i++)
+    for (size_t i = 0;  i < ITEM_COUNT;  i++)
       labels[i]->setText("No stats available");
   }
 }
@@ -111,7 +168,7 @@ void Interface::draw()
   GL::Context& context = getInputContext().getContext();
 
   GL::Framebuffer& framebuffer = context.getCurrentFramebuffer();
-  root->setSize(vec2(root->getWidth(), float(framebuffer.getHeight())));
+  root->setSize(vec2(150.f, float(framebuffer.getHeight())));
 
   GL::Stats* previous = context.getStats();
   context.setStats(NULL);
@@ -119,6 +176,23 @@ void Interface::draw()
   UI::Layer::draw();
 
   context.setStats(previous);
+}
+
+void Interface::updateCountItem(Item item, const char* unit, size_t count)
+{
+  labels[item]->setText(format("%zu %s", count, unit).c_str());
+}
+
+void Interface::updateCountSizeItem(Item item,
+                                    const char* unit,
+                                    size_t count,
+                                    size_t size)
+{
+  labels[item]->setText(format("%zu %s (%u %s)",
+                               count,
+                               unit,
+                               reduce(size),
+                               suffix(size)).c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////

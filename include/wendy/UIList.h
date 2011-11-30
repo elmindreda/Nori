@@ -41,7 +41,9 @@ public:
   List(Layer& layer);
   ~List();
   void addItem(Item& item);
-  void removeItem(Item& item);
+  void createItem(const char* value, ItemID ID = 0);
+  void destroyItem(Item& item);
+  void destroyItem(const char* value);
   void destroyItems();
   void sortItems();
   bool isItemVisible(const Item* item) const;

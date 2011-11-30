@@ -52,10 +52,10 @@ class Shader
 {
 public:
   Shader(const char* text = "",
-         const Path& path = Path(),
+         const char* name = "",
          unsigned int version = 120);
   String text;
-  Path path;
+  String name;
   unsigned int version;
 };
 
@@ -280,7 +280,7 @@ public:
                              const Shader& geometryShader,
                              const Shader& tessCtrlShader,
                              const Shader& tessEvalShader);
-  static Ref<Program> read(Context& context, const Path& path);
+  static Ref<Program> read(Context& context, const String& name);
 private:
   Program(const ResourceInfo& info, Context& context);
   Program(const Program& source);
@@ -366,11 +366,12 @@ private:
 /*! @brief GPU program XML codec.
  *  @ingroup opengl
  */
-class ProgramReader : public ResourceReader
+class ProgramReader : public ResourceReader<Program>
 {
 public:
   ProgramReader(Context& context);
-  Ref<Program> read(const Path& path);
+  using ResourceReader::read;
+  Ref<Program> read(const String& name, const Path& path);
 private:
   Context& context;
 };

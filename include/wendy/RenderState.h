@@ -28,9 +28,8 @@
 
 #include <wendy/Core.h>
 
-#include <wendy/OpenGL.h>
-#include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
+#include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLContext.h>
 
@@ -63,7 +62,7 @@ enum
 
   SHARED_TIME,
 
-  SHARED_STATE_CUSTOM_BASE,
+  SHARED_STATE_CUSTOM_BASE
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy user interface library
-// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy default renderer
+// Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,54 +22,36 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_UIPOPUP_H
-#define WENDY_UIPOPUP_H
+#ifndef WENDY_WENDYRENDER_H
+#define WENDY_WENDYRENDER_H
 ///////////////////////////////////////////////////////////////////////
 
-namespace wendy
-{
-  namespace UI
-  {
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup ui
+/*! @defgroup renderer 3D rendering pipeline
+ *
+ *  These classes make up the core 3D renderering pipeline.
  */
-class Popup : public Widget
-{
-public:
-  Popup(Layer& layer);
-  void addItem(Item& item);
-  void createItem(const char* value, ItemID ID = 0);
-  void destroyItem(Item& item);
-  void destroyItems();
-  unsigned int getSelection() const;
-  void setSelection(unsigned int newIndex);
-  unsigned int getItemCount() const;
-  Item* getItem(unsigned int index);
-  const Item* getItem(unsigned int index) const;
-  String getItemValue(unsigned int index) const;
-  SignalProxy2<void, Popup&, unsigned int> getItemSelectedSignal();
-protected:
-  void draw() const;
-private:
-  void display();
-  void onButtonClicked(Widget& widget,
-                       const vec2& position,
-                       input::Button button,
-                       bool clicked);
-  void onKeyPressed(Widget& widget, input::Key key, bool pressed);
-  void onItemSelected(Menu& menu, unsigned int index);
-  Signal2<void, Popup&, unsigned int> itemSelectedSignal;
-  unsigned int selection;
-  Ptr<Menu> menu;
-};
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace UI*/
-} /*namespace wendy*/
+#if WENDY_INCLUDE_RENDERER
+
+#include <wendy/RenderState.h>
+#include <wendy/RenderCamera.h>
+#include <wendy/RenderMaterial.h>
+#include <wendy/RenderLight.h>
+#include <wendy/RenderScene.h>
+#include <wendy/RenderPool.h>
+#include <wendy/RenderSprite.h>
+#include <wendy/RenderFont.h>
+#include <wendy/RenderModel.h>
+
+#include <wendy/Forward.h>
+#include <wendy/Deferred.h>
+
+#else
+#error "Render module not enabled"
+#endif
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_UIPOPUP_H*/
+#endif /*WENDY_WENDYRENDER_H*/
 ///////////////////////////////////////////////////////////////////////

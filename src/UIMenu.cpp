@@ -108,7 +108,19 @@ void Menu::addItemAt(Item& item, unsigned int index)
   sizeToFit();
 }
 
-void Menu::removeItem(Item& item)
+void Menu::createItem(const char* value, ItemID ID)
+{
+  Item* item = new Item(getLayer(), value, ID);
+  addItem(*item);
+}
+
+void Menu::createSeparatorItem()
+{
+  Item* item = new SeparatorItem(getLayer());
+  addItem(*item);
+}
+
+void Menu::destroyItem(Item& item)
 {
   ItemList::iterator i = std::find(items.begin(), items.end(), &item);
   if (i != items.end())
@@ -117,6 +129,21 @@ void Menu::removeItem(Item& item)
     items.erase(i);
 
     sizeToFit();
+  }
+}
+
+void Menu::destroyItem(const char* value)
+{
+  for (ItemList::iterator i = items.begin();  i != items.end();  i++)
+  {
+    if ((*i)->asString() == value)
+    {
+      delete *i;
+      items.erase(i);
+
+      sizeToFit();
+      break;
+    }
   }
 }
 
@@ -216,6 +243,7 @@ void Menu::onCursorMoved(Widget& widget, const vec2& position)
     if (itemTop - itemHeight <= localPosition.y)
     {
       selection = index;
+      invalidate();
       return;
     }
 
@@ -270,6 +298,8 @@ void Menu::onKeyPressed(Widget& widget, input::Key key, bool pressed)
         selection--;
       else
         selection = items.size() - 1;
+
+      invalidate();
       break;
     }
 
@@ -278,6 +308,8 @@ void Menu::onKeyPressed(Widget& widget, input::Key key, bool pressed)
       selection++;
       if (selection == items.size())
         selection = 0;
+
+      invalidate();
       break;
     }
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy user interface library
-// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy OpenAL library
+// Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,54 +22,29 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_UIPOPUP_H
-#define WENDY_UIPOPUP_H
+#ifndef WENDY_WENDYAL_H
+#define WENDY_WENDYAL_H
 ///////////////////////////////////////////////////////////////////////
 
-namespace wendy
-{
-  namespace UI
-  {
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup ui
+/*! @defgroup openal OpenAL wrapper API
+ *
+ *  These classes wrap parts of the OpenAL API, maintaining a rather close
+ *  mapping to the underlying concepts, but providing useful services and a
+ *  semblance of automatic resource management.
  */
-class Popup : public Widget
-{
-public:
-  Popup(Layer& layer);
-  void addItem(Item& item);
-  void createItem(const char* value, ItemID ID = 0);
-  void destroyItem(Item& item);
-  void destroyItems();
-  unsigned int getSelection() const;
-  void setSelection(unsigned int newIndex);
-  unsigned int getItemCount() const;
-  Item* getItem(unsigned int index);
-  const Item* getItem(unsigned int index) const;
-  String getItemValue(unsigned int index) const;
-  SignalProxy2<void, Popup&, unsigned int> getItemSelectedSignal();
-protected:
-  void draw() const;
-private:
-  void display();
-  void onButtonClicked(Widget& widget,
-                       const vec2& position,
-                       input::Button button,
-                       bool clicked);
-  void onKeyPressed(Widget& widget, input::Key key, bool pressed);
-  void onItemSelected(Menu& menu, unsigned int index);
-  Signal2<void, Popup&, unsigned int> itemSelectedSignal;
-  unsigned int selection;
-  Ptr<Menu> menu;
-};
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace UI*/
-} /*namespace wendy*/
+#if WENDY_INCLUDE_OPENAL
+
+#include <wendy/ALContext.h>
+#include <wendy/ALBuffer.h>
+#include <wendy/ALSource.h>
+
+#else
+#error "OpenAL module is not enabled"
+#endif
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_UIPOPUP_H*/
+#endif /*WENDY_WENDYAL_H*/
 ///////////////////////////////////////////////////////////////////////

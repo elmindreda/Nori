@@ -92,13 +92,34 @@ void List::addItem(Item& item)
   updateScroller();
 }
 
-void List::removeItem(Item& item)
+void List::createItem(const char* value, ItemID ID)
+{
+  Item* item = new Item(getLayer(), value, ID);
+  addItem(*item);
+}
+
+void List::destroyItem(Item& item)
 {
   ItemList::iterator i = std::find(items.begin(), items.end(), &item);
   if (i != items.end())
   {
+    delete *i;
     items.erase(i);
     setOffset(offset);
+  }
+}
+
+void List::destroyItem(const char* value)
+{
+  for (ItemList::iterator i = items.begin();  i != items.end();  i++)
+  {
+    if ((*i)->asString() == value)
+    {
+      delete *i;
+      items.erase(i);
+      setOffset(offset);
+      break;
+    }
   }
 }
 
@@ -375,7 +396,9 @@ void List::setSelection(unsigned int newIndex, bool notify)
 
   selection = min(newIndex, (unsigned int) items.size() - 1);
 
-  if (!isItemVisible(items[selection]))
+  if (isItemVisible(items[selection]))
+    invalidate();
+  else
     setOffset(selection);
 
   if (notify)

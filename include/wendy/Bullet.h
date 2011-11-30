@@ -69,13 +69,26 @@ btTriangleMesh* convert(const Mesh& mesh);
 
 ///////////////////////////////////////////////////////////////////////
 
+class BvhMeshShape : public Resource
+{
+public:
+  BvhMeshShape(const ResourceInfo& info);
+  Ptr<btBvhTriangleMeshShape> shape;
+  Ptr<btTriangleIndexVertexArray> mesh;
+  Ptr<btOptimizedBvh> bvh;
+  Ptr<btTriangleInfoMap> info;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @ingroup bullet
  */
-class BvhMeshShapeReader : public ResourceReader
+class BvhMeshShapeReader : public ResourceReader<BvhMeshShape>
 {
 public:
   BvhMeshShapeReader(ResourceCache& cache);
-  btBvhTriangleMeshShape* read(const Path& path);
+  using ResourceReader::read;
+  Ref<BvhMeshShape> read(const String& name, const Path& path);
 };
 
 ///////////////////////////////////////////////////////////////////////

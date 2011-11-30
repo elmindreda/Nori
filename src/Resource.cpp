@@ -39,8 +39,10 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 ResourceInfo::ResourceInfo(ResourceCache& initCache,
+                           const String& initName,
                            const Path& initPath):
   cache(initCache),
+  name(initName),
   path(initPath)
 {
 }
@@ -49,12 +51,13 @@ ResourceInfo::ResourceInfo(ResourceCache& initCache,
 
 Resource::Resource(const ResourceInfo& info):
   cache(info.cache),
+  name(info.name),
   path(info.path)
 {
-  if (!path.isEmpty())
+  if (!name.empty())
   {
-    if (cache.findResource(path))
-      panic("Duplicate path for resource \'%s\'", path.asString().c_str());
+    if (cache.findResource(name))
+      panic("Duplicate name for resource \'%s\'", name.c_str());
 
     cache.resources.push_back(this);
   }
@@ -67,7 +70,7 @@ Resource::Resource(const Resource& source):
 
 Resource::~Resource()
 {
-  if (!path.isEmpty())
+  if (!name.empty())
   {
     cache.resources.erase(std::find(cache.resources.begin(),
                                     cache.resources.end(),
@@ -80,14 +83,19 @@ Resource& Resource::operator = (const Resource& source)
   return *this;
 }
 
-const Path& Resource::getPath() const
-{
-  return path;
-}
-
 ResourceCache& Resource::getCache() const
 {
   return cache;
+}
+
+const String& Resource::getName() const
+{
+  return name;
+}
+
+const Path& Resource::getPath() const
+{
+  return path;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -118,34 +126,22 @@ void ResourceCache::removeSearchPath(const Path& path)
   paths.erase(std::find(paths.begin(), paths.end(), path));
 }
 
-Resource* ResourceCache::findResource(const Path& path) const
+Resource* ResourceCache::findResource(const String& name) const
 {
   for (List::const_iterator i = resources.begin();  i != resources.end();  i++)
   {
-    if ((*i)->getPath() == path)
+    if ((*i)->getName() == name)
       return *i;
   }
 
   return NULL;
 }
 
-bool ResourceCache::openFile(std::ifstream& stream, const Path& path) const
-{
-  const Path full = findFile(path);
-  if (full.isEmpty())
-    return false;
-
-  stream.open(full.asString().c_str(), std::ios::in | std::ios::binary);
-  if (stream.fail())
-    return false;
-
-  return true;
-}
-
-Path ResourceCache::findFile(const Path& path) const
+Path ResourceCache::findFile(const String& name) const
 {
   if (paths.empty())
   {
+    const Path path(name);
     if (path.isFile())
       return path;
   }
@@ -153,7 +149,7 @@ Path ResourceCache::findFile(const Path& path) const
   {
     for (PathList::const_iterator p = paths.begin();  p != paths.end();  p++)
     {
-      Path full = *p + path.asString();
+      const Path full(*p + name);
       if (full.isFile())
         return full;
     }
@@ -165,18 +161,6 @@ Path ResourceCache::findFile(const Path& path) const
 const PathList& ResourceCache::getSearchPaths() const
 {
   return paths;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-ResourceReader::ResourceReader(ResourceCache& initCache):
-  cache(initCache)
-{
-}
-
-ResourceCache& ResourceReader::getCache() const
-{
-  return cache;
 }
 
 ///////////////////////////////////////////////////////////////////////

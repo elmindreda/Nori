@@ -363,7 +363,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @breif Interface for receiving %log messages.
+/*! @brief Interface for receiving %log messages.
  *
  *  All instances of this class are added to an internal list of consumers and
  *  are notified of %log messages until destroyed.

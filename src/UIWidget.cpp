@@ -136,15 +136,21 @@ vec2 Widget::transformToGlobal(const vec2& localPoint) const
 
 void Widget::enable()
 {
-  enabled = true;
-  invalidate();
+  if (!enabled)
+  {
+    enabled = true;
+    invalidate();
+  }
 }
 
 void Widget::disable()
 {
-  enabled = false;
-  // TODO: Handle deactivation
-  invalidate();
+  if (enabled)
+  {
+    enabled = false;
+    // TODO: Handle deactivation
+    invalidate();
+  }
 }
 
 void Widget::invalidate()
@@ -310,10 +316,13 @@ const Rect& Widget::getGlobalArea() const
 
 void Widget::setArea(const Rect& newArea)
 {
-  area = newArea;
-  areaChangedSignal.emit(*this);
+  if (newArea != area)
+  {
+    area = newArea;
+    areaChangedSignal.emit(*this);
 
-  invalidate();
+    invalidate();
+  }
 }
 
 const vec2& Widget::getSize() const
@@ -333,8 +342,11 @@ void Widget::setPosition(const vec2& newPosition)
 
 void Widget::setVisible(bool newState)
 {
-  visible = newState;
-  invalidate();
+  if (newState != visible)
+  {
+    visible = newState;
+    invalidate();
+  }
 }
 
 void Widget::setDraggable(bool newState)

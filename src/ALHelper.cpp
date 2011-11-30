@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
-// Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy OpenAL library
+// Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -26,19 +26,17 @@
 #include <wendy/Config.h>
 #include <wendy/Core.h>
 
-#include <wendy/OpenGL.h>
+#include <internal/ALHelper.h>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
+#include <al.h>
 
-#include <cstdlib>
 #include <cstdio>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace GL
+  namespace AL
   {
 
 ///////////////////////////////////////////////////////////////////////
@@ -46,40 +44,33 @@ namespace wendy
 namespace
 {
 
-const char* getErrorString(unsigned int error)
+const char* getErrorString(ALenum error)
 {
   switch (error)
   {
-    case GL_NO_ERROR:
-      return "no error";
-    case GL_INVALID_ENUM:
-      return "invalid enum";
-    case GL_INVALID_VALUE:
-      return "invalid value";
-    case GL_INVALID_OPERATION:
-      return "invalid operation";
-    case GL_STACK_OVERFLOW:
-      return "stack overflow";
-    case GL_STACK_UNDERFLOW:
-      return "stack underflow";
-    case GL_OUT_OF_MEMORY:
-      return "out of memory";
-    case GL_INVALID_FRAMEBUFFER_OPERATION_EXT:
-      return "invalid framebuffer operation";
+    case AL_INVALID_NAME:
+      return "Invalid name parameter";
+    case AL_INVALID_ENUM:
+      return "Invalid enum parameter";
+    case AL_INVALID_VALUE:
+      return "Invalid enum parameter value";
+    case AL_INVALID_OPERATION:
+      return "Invalid operation";
+    case AL_OUT_OF_MEMORY:
+      return "Out of memory";
   }
 
-  logError("Unknown OpenGL error %u", error);
-  return "UNKNOWN ERROR";
+  return "Unknown OpenAL error";
 }
 
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
-bool checkGL(const char* format, ...)
+bool checkAL(const char* format, ...)
 {
-  GLenum error = glGetError();
-  if (error == GL_NO_ERROR)
+  ALenum error = alGetError();
+  if (error == AL_NO_ERROR)
     return true;
 
   va_list vl;
@@ -92,7 +83,7 @@ bool checkGL(const char* format, ...)
 
   if (result < 0)
   {
-    logError("Error formatting error message for OpenGL error %u", error);
+    logError("Error formatting error message for OpenAL error %u", error);
     return false;
   }
 
@@ -104,7 +95,7 @@ bool checkGL(const char* format, ...)
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
+  } /*namespace AL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

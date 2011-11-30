@@ -38,16 +38,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup renderer 3D rendering pipeline
- *
- *  These classes make up the core 3D renderering pipeline.
- *
- *  It also provides some basic high-level rendering primitives such as
- *  multi-material geometry meshes and an extensible particle system.
- */
-
-///////////////////////////////////////////////////////////////////////
-
 class Light;
 class GeometryPool;
 class Camera;

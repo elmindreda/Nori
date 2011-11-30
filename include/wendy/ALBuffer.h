@@ -101,7 +101,7 @@ public:
   /*! Creates a buffer object within the specified context using data from the
    *  file at the specified path.
    */
-  static Ref<Buffer> read(Context& context, const Path& path);
+  static Ref<Buffer> read(Context& context, const String& name);
 private:
   Buffer(const ResourceInfo& info, Context& context);
   Buffer(const Buffer& source);
@@ -117,11 +117,12 @@ private:
 
 /*! @ingroup openal
  */
-class BufferReader : public ResourceReader
+class BufferReader : public ResourceReader<Buffer>
 {
 public:
   BufferReader(Context& context);
-  Ref<Buffer> read(const Path& path);
+  using ResourceReader::read;
+  Ref<Buffer> read(const String& name, const Path& path);
 private:
   Context& context;
 };

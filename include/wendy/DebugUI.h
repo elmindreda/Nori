@@ -50,19 +50,26 @@ public:
   void update();
   void draw();
 private:
-  enum
+  enum Item
   {
-    LABEL_FRAMERATE,
-    LABEL_STATECHANGES,
-    LABEL_OPERATIONS,
-    LABEL_VERTICES,
-    LABEL_POINTS,
-    LABEL_LINES,
-    LABEL_TRIANGLES,
-    LABEL_COUNT,
+    ITEM_FRAMERATE,
+    ITEM_STATECHANGES,
+    ITEM_OPERATIONS,
+    ITEM_VERTICES,
+    ITEM_POINTS,
+    ITEM_LINES,
+    ITEM_TRIANGLES,
+    ITEM_TEXTURES,
+    ITEM_VERTEXBUFFERS,
+    ITEM_INDEXBUFFERS,
+    ITEM_RENDERBUFFERS,
+    ITEM_PROGRAMS,
+    ITEM_COUNT
   };
+  void updateCountItem(Item item, const char* unit, size_t count);
+  void updateCountSizeItem(Item item, const char* unit, size_t count, size_t size);
   Panel* root;
-  UI::Label* labels[LABEL_COUNT];
+  UI::Label* labels[ITEM_COUNT];
 };
 
 ///////////////////////////////////////////////////////////////////////

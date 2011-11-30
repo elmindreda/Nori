@@ -1,5 +1,7 @@
 
-#include <wendy/Wendy.h>
+#include <wendy/WendyCore.h>
+#include <wendy/WendyGL.h>
+#include <wendy/WendyRender.h>
 
 #include <cstdlib>
 
@@ -73,7 +75,7 @@ bool Test::init()
 
   pool = new render::GeometryPool(*context, 2048);
 
-  font = render::Font::read(*pool, Path("wendy/UIDefault.font"));
+  font = render::Font::read(*pool, "wendy/UIDefault.font");
   if (!font)
   {
     logError("Failed to load font");

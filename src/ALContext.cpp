@@ -26,8 +26,9 @@
 #include <wendy/Config.h>
 #include <wendy/Core.h>
 
-#include <wendy/OpenAL.h>
 #include <wendy/ALContext.h>
+
+#include <internal/ALHelper.h>
 
 #include <glm/gtc/type_ptr.hpp>
 

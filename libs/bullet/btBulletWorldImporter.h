@@ -196,6 +196,11 @@ public:
 	virtual btSliderConstraint* createSliderConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB ,bool useLinearReferenceFrameA);
     virtual btSliderConstraint* createSliderConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameA);
 
+    virtual void detachBvhTriangleMeshShape(btBvhTriangleMeshShape* meshShape);
+    virtual void detachOptimizedBvh(btOptimizedBvh* bvh);
+    virtual void detachTriangleInfoMap(btTriangleInfoMap* infoMap);
+    virtual void detachMeshInterface(btTriangleIndexVertexArray* trimesh);
+
 };
 
 #endif //BULLET_WORLD_IMPORTER_H

@@ -53,7 +53,7 @@ class Model : public Renderable, public Resource
 public:
   class Geometry;
   typedef std::vector<Geometry> GeometryList;
-  typedef std::map<String, Path> MaterialMap;
+  typedef std::map<String, String> MaterialMap;
   void enqueue(Scene& scene, const Camera& camera, const Transform3& transform) const;
   /*! @return The bounding sphere of this model.
    */
@@ -89,7 +89,7 @@ public:
    *  @param[in] path The path of the specification file to use.
    *  @return The newly created model, or @c NULL if an error occurred.
    */
-  static Ref<Model> read(GL::Context& context, const Path& path);
+  static Ref<Model> read(GL::Context& context, const String& name);
 private:
   Model(const ResourceInfo& info, GL::Context& context);
   Model(const Model& source);
@@ -132,11 +132,12 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class ModelReader : public ResourceReader
+class ModelReader : public ResourceReader<Model>
 {
 public:
   ModelReader(GL::Context& context);
-  Ref<Model> read(const Path& path);
+  using ResourceReader::read;
+  Ref<Model> read(const String& name, const Path& path);
 private:
   GL::Context& context;
 };

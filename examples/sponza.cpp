@@ -21,6 +21,7 @@ private:
   void onButtonClicked(input::Button button, bool clicked);
   void onCursorMoved(const ivec2& position);
   ResourceCache cache;
+  GL::Stats stats;
   input::SpectatorController controller;
   Ptr<render::GeometryPool> pool;
   Ref<render::Camera> camera;
@@ -34,10 +35,12 @@ private:
   Time currentTime;
   ivec2 lastPosition;
   bool quitting;
+  bool drawdebug;
 };
 
 Demo::Demo():
   quitting(false),
+  drawdebug(true),
   currentTime(0.0),
   cameraNode(NULL)
 {
@@ -47,6 +50,7 @@ Demo::~Demo()
 {
   graph.destroyRootNodes();
 
+  interface = NULL;
   drawer = NULL;
   camera = NULL;
   renderer = NULL;
@@ -76,6 +80,7 @@ bool Demo::init()
     return false;
 
   GL::Context* context = GL::Context::getSingleton();
+  context->setStats(&stats);
 
   const unsigned int width = context->getDefaultFramebuffer().getWidth();
   const unsigned int height = context->getDefaultFramebuffer().getHeight();
@@ -89,7 +94,7 @@ bool Demo::init()
   if (!renderer)
     return false;
 
-  Ref<render::Model> model = render::Model::read(*context, Path("sponza.model"));
+  Ref<render::Model> model = render::Model::read(*context, "sponza.model");
   if (!model)
     return false;
 
@@ -144,8 +149,6 @@ void Demo::run()
   scene.setAmbientIntensity(vec3(0.2f, 0.2f, 0.2f));
 
   GL::Context& context = pool->getContext();
-  GL::Stats stats;
-  context.setStats(&stats);
 
   do
   {
@@ -169,7 +172,8 @@ void Demo::run()
     scene.detachLights();
 
     interface->update();
-    interface->draw();
+    if (drawdebug)
+      interface->draw();
   }
   while (!quitting && context.update());
 }
@@ -184,6 +188,9 @@ void Demo::onKeyPressed(input::Key key, bool pressed)
     {
       case input::KEY_ESCAPE:
         quitting = true;
+        return;
+      case input::KEY_F1:
+        drawdebug = !drawdebug;
         return;
     }
   }

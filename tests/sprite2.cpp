@@ -1,5 +1,7 @@
 
-#include <wendy/Wendy.h>
+#include <wendy/WendyCore.h>
+#include <wendy/WendyGL.h>
+#include <wendy/WendyRender.h>
 
 #include <cstdlib>
 
@@ -55,19 +57,19 @@ bool Test::init()
 
   pool = new render::GeometryPool(*context);
 
-  Path path("sprite2.material");
+  const String materialName("sprite2.material");
 
-  material = render::Material::read(*context, path);
+  material = render::Material::read(*context, materialName);
   if (!material)
   {
-    logError("Failed to load material \'%s\'", path.asString().c_str());
+    logError("Failed to load material \'%s\'", materialName.c_str());
     return false;
   }
 
   technique = material->findBestTechnique(render::Technique::FORWARD);
   if (!technique)
   {
-    logError("Material \'%s\' has no forward technique", path.asString().c_str());
+    logError("Material \'%s\' has no forward technique", materialName.c_str());
     return false;
   }
 

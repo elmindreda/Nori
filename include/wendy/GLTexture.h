@@ -189,7 +189,7 @@ public:
     MIPMAPPED = 2,
     /*! The default texture creation flags.
      */
-    DEFAULT = MIPMAPPED,
+    DEFAULT = MIPMAPPED
   };
   /*! Destructor.
    */
@@ -258,6 +258,7 @@ public:
   /*! @return The image format of this texture.
    */
   const PixelFormat& getFormat() const;
+  size_t getSize() const;
   /*! @return The context used to create this texture.
    */
   Context& getContext() const;
@@ -287,7 +288,7 @@ public:
    *  @param[in] context The OpenGL context within which to create the texture.
    *  @param[in] path The path of the texture specification file to use.
    */
-  static Ref<Texture> read(Context& context, const Path& path);
+  static Ref<Texture> read(Context& context, const String& name);
 private:
   Texture(const ResourceInfo& info, Context& context);
   Texture(const Texture& source);
@@ -327,11 +328,12 @@ typedef std::vector<TextureRef> TextureList;
 
 /*! @ingroup opengl
  */
-class TextureReader : public ResourceReader
+class TextureReader : public ResourceReader<Texture>
 {
 public:
   TextureReader(Context& context);
-  Ref<Texture> read(const Path& path);
+  using ResourceReader::read;
+  Ref<Texture> read(const String& name, const Path& path);
 private:
   Context& context;
 };

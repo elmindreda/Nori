@@ -62,15 +62,15 @@ void Popup::addItem(Item& item)
   menu->addItem(item);
 }
 
-void Popup::addItem(const char* value, ItemID ID)
+void Popup::createItem(const char* value, ItemID ID)
 {
   Item* item = new Item(getLayer(), value, ID);
   menu->addItem(*item);
 }
 
-void Popup::removeItem(Item& item)
+void Popup::destroyItem(Item& item)
 {
-  menu->removeItem(item);
+  menu->destroyItem(item);
   setSelection(selection);
 }
 

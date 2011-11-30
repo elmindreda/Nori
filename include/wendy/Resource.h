@@ -42,8 +42,11 @@ class ResourceCache;
 class ResourceInfo
 {
 public:
-  ResourceInfo(ResourceCache& cache, const Path& path = Path());
+  ResourceInfo(ResourceCache& cache,
+               const String& name = String(),
+               const Path& path = Path());
   ResourceCache& cache;
+  String name;
   Path path;
 };
 
@@ -56,10 +59,12 @@ public:
   Resource(const Resource& source);
   virtual ~Resource();
   Resource& operator = (const Resource& source);
-  const Path& getPath() const;
   ResourceCache& getCache() const;
+  const String& getName() const;
+  const Path& getPath() const;
 public:
   ResourceCache& cache;
+  String name;
   Path path;
 };
 
@@ -72,9 +77,8 @@ public:
   ~ResourceCache();
   bool addSearchPath(const Path& path);
   void removeSearchPath(const Path& path);
-  Resource* findResource(const Path& path) const;
-  bool openFile(std::ifstream& stream, const Path& path) const;
-  Path findFile(const Path& path) const;
+  Resource* findResource(const String& name) const;
+  Path findFile(const String& name) const;
   const PathList& getSearchPaths() const;
 private:
   typedef std::vector<Resource*> List;
@@ -84,14 +88,48 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+template <typename T>
 class ResourceReader
 {
 public:
   ResourceReader(ResourceCache& cache);
-  ResourceCache& getCache() const;
-private:
+  Ref<T> read(const String& name);
+  virtual Ref<T> read(const String& name, const Path& path) = 0;
+protected:
   ResourceCache& cache;
 };
+
+///////////////////////////////////////////////////////////////////////
+
+template <typename T>
+inline ResourceReader<T>::ResourceReader(ResourceCache& initCache):
+  cache(initCache)
+{
+}
+
+template <typename T>
+inline Ref<T> ResourceReader<T>::read(const String& name)
+{
+  if (Resource* cached = cache.findResource(name))
+  {
+    if (T* cast = dynamic_cast<T*>(cached))
+      return cast;
+    else
+    {
+      logError("Resource \'%s\' exists as another type", name.c_str());
+      return NULL;
+    }
+  }
+
+  const Path path = cache.findFile(name);
+  if (path.isEmpty())
+  {
+    logError("Failed to find resource \'%s\'", name.c_str());
+    return NULL;
+  }
+
+  return read(name, path);
+}
 
 ///////////////////////////////////////////////////////////////////////
 

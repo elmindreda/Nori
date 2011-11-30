@@ -63,7 +63,7 @@ bool Test::init()
     return false;
   }
 
-  Ref<render::Model> model = render::Model::read(*context, Path("thingy.model"));
+  Ref<render::Model> model = render::Model::read(*context, "thingy.model");
   if (!model)
   {
     logError("Failed to load model");

@@ -28,7 +28,6 @@
 #include <wendy/Core.h>
 #include <wendy/Block.h>
 
-#include <wendy/OpenGL.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
@@ -37,7 +36,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include <internal/GLConvert.h>
+#include <internal/GLHelper.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -47,6 +46,65 @@ namespace wendy
   {
 
 ///////////////////////////////////////////////////////////////////////
+
+namespace
+{
+
+const char* getErrorString(unsigned int error)
+{
+  switch (error)
+  {
+    case GL_NO_ERROR:
+      return "no error";
+    case GL_INVALID_ENUM:
+      return "invalid enum";
+    case GL_INVALID_VALUE:
+      return "invalid value";
+    case GL_INVALID_OPERATION:
+      return "invalid operation";
+    case GL_STACK_OVERFLOW:
+      return "stack overflow";
+    case GL_STACK_UNDERFLOW:
+      return "stack underflow";
+    case GL_OUT_OF_MEMORY:
+      return "out of memory";
+    case GL_INVALID_FRAMEBUFFER_OPERATION_EXT:
+      return "invalid framebuffer operation";
+  }
+
+  logError("Unknown OpenGL error %u", error);
+  return "UNKNOWN ERROR";
+}
+
+} /*namespace*/
+
+///////////////////////////////////////////////////////////////////////
+
+bool checkGL(const char* format, ...)
+{
+  GLenum error = glGetError();
+  if (error == GL_NO_ERROR)
+    return true;
+
+  va_list vl;
+  char* message;
+  int result;
+
+  va_start(vl, format);
+  result = vasprintf(&message, format, vl);
+  va_end(vl);
+
+  if (result < 0)
+  {
+    logError("Error formatting error message for OpenGL error %u", error);
+    return false;
+  }
+
+  logError("%s: %s", message, getErrorString(error));
+
+  std::free(message);
+  return false;
+}
 
 GLenum convertToGL(IndexBuffer::Type type)
 {

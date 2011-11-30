@@ -29,7 +29,6 @@
 #include <wendy/Core.h>
 #include <wendy/Signal.h>
 
-#include <wendy/OpenGL.h>
 #include <wendy/GLBuffer.h>
 
 ///////////////////////////////////////////////////////////////////////

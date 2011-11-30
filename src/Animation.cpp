@@ -370,14 +370,14 @@ Anim3Reader::Anim3Reader(ResourceCache& cache):
 {
 }
 
-Ref<Anim3> Anim3Reader::read(const Path& path)
+Ref<Anim3> Anim3Reader::read(const String& name, const Path& path)
 {
-  if (Resource* cached = getCache().findResource(path))
-    return dynamic_cast<Anim3*>(cached);
-
-  std::ifstream stream;
-  if (!getCache().openFile(stream, path))
+  std::ifstream stream(path.asString().c_str());
+  if (stream.fail())
+  {
+    logError("Failed to open animation \'%s\'", name.c_str());
     return NULL;
+  }
 
   pugi::xml_document document;
 
@@ -385,7 +385,7 @@ Ref<Anim3> Anim3Reader::read(const Path& path)
   if (!result)
   {
     logError("Failed to load 3D animation \'%s\': %s",
-             path.asString().c_str(),
+             name.c_str(),
              result.description());
     return NULL;
   }
@@ -393,12 +393,11 @@ Ref<Anim3> Anim3Reader::read(const Path& path)
   pugi::xml_node root = document.child("animation");
   if (!root || root.attribute("version").as_uint() != ANIM3_XML_VERSION)
   {
-    logError("3D animation file format mismatch in \'%s\'",
-             path.asString().c_str());
+    logError("3D animation file format mismatch in \'%s\'", name.c_str());
     return NULL;
   }
 
-  Ref<Anim3> animation = new Anim3(ResourceInfo(getCache(), path));
+  Ref<Anim3> animation = new Anim3(ResourceInfo(cache, name, path));
 
   for (pugi::xml_node t = root.child("track");  t;  t = t.next_sibling("track"))
   {

@@ -18,8 +18,8 @@ set(wendy_SOURCES
     Rectangle.cpp Resource.cpp Signal.cpp Sphere.cpp Timer.cpp Transform.cpp
     Triangle.cpp Vertex.cpp
 
-    OpenGL.cpp GLBuffer.cpp GLContext.cpp GLConvert.cpp GLProgram.cpp
-    GLQuery.cpp GLState.cpp GLTexture.cpp
+    GLBuffer.cpp GLContext.cpp GLHelper.cpp GLProgram.cpp GLQuery.cpp
+    GLState.cpp GLTexture.cpp
 
     Input.cpp)
 
@@ -27,7 +27,7 @@ if(WENDY_INCLUDE_OPENAL)
   include_directories(${OPENAL_INCLUDE_DIR}
                       ${libogg_SOURCE_DIR}
                       ${libvorbis_SOURCE_DIR})
-  list(APPEND wendy_SOURCES OpenAL.cpp ALBuffer.cpp ALContext.cpp ALSource.cpp)
+  list(APPEND wendy_SOURCES ALBuffer.cpp ALContext.cpp ALHelper.cpp ALSource.cpp)
 endif(WENDY_INCLUDE_OPENAL)
 
 if(WENDY_INCLUDE_RENDERER)

@@ -112,11 +112,11 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class Anim3Reader : public ResourceReader
+class Anim3Reader : public ResourceReader<Anim3>
 {
 public:
   Anim3Reader(ResourceCache& cache);
-  Ref<Anim3> read(const Path& path);
+  Ref<Anim3> read(const String& name, const Path& path);
 };
 
 ///////////////////////////////////////////////////////////////////////

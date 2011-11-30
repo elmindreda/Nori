@@ -27,7 +27,6 @@
 
 #include <wendy/Bimap.h>
 
-#include <wendy/OpenGL.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
@@ -36,7 +35,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include <internal/GLConvert.h>
+#include <internal/GLHelper.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -158,6 +157,9 @@ VertexBuffer::~VertexBuffer()
 
   if (bufferID)
     glDeleteBuffers(1, &bufferID);
+
+  if (Stats* stats = context.getStats())
+    stats->removeVertexBuffer(getSize());
 }
 
 void* VertexBuffer::lock(LockType type)
@@ -260,6 +262,11 @@ unsigned int VertexBuffer::getCount() const
   return count;
 }
 
+size_t VertexBuffer::getSize() const
+{
+  return count * format.getSize();
+}
+
 Ref<VertexBuffer> VertexBuffer::create(Context& context,
                                        unsigned int count,
                                        const VertexFormat& format,
@@ -311,6 +318,9 @@ bool VertexBuffer::init(const VertexFormat& initFormat,
     return false;
   }
 
+  if (Stats* stats = context.getStats())
+    stats->addVertexBuffer(getSize());
+
   return true;
 }
 
@@ -328,6 +338,9 @@ IndexBuffer::~IndexBuffer()
 
   if (bufferID)
     glDeleteBuffers(1, &bufferID);
+
+  if (Stats* stats = context.getStats())
+    stats->removeIndexBuffer(getSize());
 }
 
 void* IndexBuffer::lock(LockType type)
@@ -430,6 +443,11 @@ unsigned int IndexBuffer::getCount() const
   return count;
 }
 
+size_t IndexBuffer::getSize() const
+{
+  return count * getTypeSize(type);
+}
+
 Ref<IndexBuffer> IndexBuffer::create(Context& context,
                                      unsigned int count,
                                      Type type,
@@ -494,6 +512,9 @@ bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
     context.setCurrentIndexBuffer(NULL);
     return false;
   }
+
+  if (Stats* stats = context.getStats())
+    stats->addIndexBuffer(getSize());
 
   return true;
 }
@@ -842,10 +863,24 @@ IndexRangeLock<uint32>::IndexRangeLock(IndexRange& initRange):
 
 ///////////////////////////////////////////////////////////////////////
 
+Image::~Image()
+{
+}
+
+size_t Image::getSize() const
+{
+  return getWidth() * getHeight() * getDepth() * getFormat().getSize();
+}
+
+///////////////////////////////////////////////////////////////////////
+
 RenderBuffer::~RenderBuffer()
 {
   if (bufferID)
     glDeleteRenderbuffersEXT(1, &bufferID);
+
+  if (Stats* stats = context.getStats())
+    stats->removeRenderBuffer(getSize());
 }
 
 unsigned int RenderBuffer::getWidth() const
@@ -868,18 +903,20 @@ const PixelFormat& RenderBuffer::getFormat() const
   return format;
 }
 
-Ref<RenderBuffer> RenderBuffer::create(const PixelFormat& format,
+Ref<RenderBuffer> RenderBuffer::create(Context& context,
+                                       const PixelFormat& format,
                                        unsigned int width,
                                        unsigned int height)
 {
-  Ref<RenderBuffer> buffer(new RenderBuffer());
+  Ref<RenderBuffer> buffer(new RenderBuffer(context));
   if (!buffer->init(format, width, height))
     return NULL;
 
   return buffer;
 }
 
-RenderBuffer::RenderBuffer():
+RenderBuffer::RenderBuffer(Context& initContext):
+  context(initContext),
   bufferID(0)
 {
 }
@@ -904,6 +941,9 @@ bool RenderBuffer::init(const PixelFormat& initFormat,
   {
     return false;
   }
+
+  if (Stats* stats = context.getStats())
+    stats->addRenderBuffer(getSize());
 
   return true;
 }

@@ -28,7 +28,6 @@
 #include <wendy/Core.h>
 #include <wendy/Block.h>
 
-#include <wendy/OpenGL.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
@@ -37,7 +36,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include <internal/GLConvert.h>
+#include <internal/GLHelper.h>
 
 #include <algorithm>
 #include <cstring>
@@ -195,11 +194,18 @@ Uniform::Type convertUniformType(GLenum type)
   panic("Unsupported GLSL uniform type %u", type);
 }
 
-bool readTextFile(ResourceCache& cache, String& text, const Path& path)
+bool readTextFile(ResourceCache& cache, String& text, const String& name)
 {
-  std::ifstream stream;
-  if (!cache.openFile(stream, path))
+  const Path path = cache.findFile(name);
+  if (path.isEmpty())
     return false;
+
+  std::ifstream stream(path.asString().c_str());
+  if (stream.fail())
+  {
+    logError("Failed to open shader \'%s\'", name.c_str());
+    return NULL;
+  }
 
   stream.seekg(0, std::ios::end);
 
@@ -263,11 +269,11 @@ GLuint createShader(GL::Context& context, GLenum type, const Shader& shader)
     if (length > 0)
     {
       logError("Failed to compile shader \'%s\':\n%s",
-               shader.path.asString().c_str(),
+               shader.name.c_str(),
                infoLog.c_str());
     }
     else
-      checkGL("Failed to compile shader \'%s\'", shader.path.asString().c_str());
+      checkGL("Failed to compile shader \'%s\'", shader.name.c_str());
 
     glDeleteShader(shaderID);
     return 0;
@@ -276,12 +282,12 @@ GLuint createShader(GL::Context& context, GLenum type, const Shader& shader)
   if (length > 1)
   {
     logWarning("Warning(s) compiling shader \'%s\':\n%s",
-               shader.path.asString().c_str(),
+               shader.name.c_str(),
                infoLog.c_str());
   }
 
   if (!checkGL("Failed to create object for shader \'%s\'",
-               shader.path.asString().c_str()))
+               shader.name.c_str()))
   {
     glDeleteShader(shaderID);
     return 0;
@@ -314,9 +320,9 @@ const unsigned int PROGRAM_XML_VERSION = 4;
 
 ///////////////////////////////////////////////////////////////////////
 
-Shader::Shader(const char* initText, const Path& initPath, unsigned int initVersion):
+Shader::Shader(const char* initText, const char* initName, unsigned int initVersion):
   text(initText),
-  path(initPath),
+  name(initName),
   version(initVersion)
 {
 }
@@ -584,6 +590,9 @@ Program::~Program()
 
   if (programID)
     glDeleteProgram(programID);
+
+  if (Stats* stats = context.getStats())
+    stats->removeProgram();
 }
 
 Attribute* Program::findAttribute(const char* name)
@@ -795,10 +804,10 @@ Ref<Program> Program::create(const ResourceInfo& info,
   return program;
 }
 
-Ref<Program> Program::read(Context& context, const Path& path)
+Ref<Program> Program::read(Context& context, const String& name)
 {
   ProgramReader reader(context);
-  return reader.read(path);
+  return reader.read(name);
 }
 
 Program::Program(const ResourceInfo& info, Context& initContext):
@@ -811,18 +820,15 @@ Program::Program(const ResourceInfo& info, Context& initContext):
   tessEvalShaderID(0),
   programID(0)
 {
+  if (Stats* stats = context.getStats())
+    stats->addProgram();
 }
 
 Program::Program(const Program& source):
   Resource(source),
-  context(source.context),
-  vertexShaderID(0),
-  fragmentShaderID(0),
-  geometryShaderID(0),
-  tessCtrlShaderID(0),
-  tessEvalShaderID(0),
-  programID(0)
+  context(source.context)
 {
+  panic("GLSL programs may not be copied");
 }
 
 bool Program::attachShader(const Shader& shader, unsigned int type)
@@ -861,7 +867,7 @@ bool Program::link()
   if (!programID)
   {
     logError("Failed to create OpenGL object for program \'%s\'",
-             getPath().asString().c_str());
+             getName().c_str());
     return false;
   }
 
@@ -873,7 +879,7 @@ bool Program::link()
     if (!GLEW_ARB_geometry_shader4 && context.getVersion() < Version(3,2))
     {
       logError("Context does not support geometry shaders; cannot link program \'%s\'",
-               getPath().asString().c_str());
+               getName().c_str());
       return false;
     }
 
@@ -885,7 +891,7 @@ bool Program::link()
     if (!GLEW_ARB_tessellation_shader && context.getVersion() < Version(4,0))
     {
       logError("Context does not support :essellation shaders; cannot link program \'%s\'",
-               getPath().asString().c_str());
+               getName().c_str());
       return false;
     }
 
@@ -903,7 +909,7 @@ bool Program::link()
   if (!status)
   {
     logError("Failed to link program \'%s\':\n%s",
-             path.asString().c_str(),
+             getName().c_str(),
              infoLog.c_str());
     return false;
   }
@@ -911,15 +917,12 @@ bool Program::link()
   if (infoLog.length() > 1)
   {
     logWarning("Warning(s) when linking program \'%s\':\n%s",
-               path.asString().c_str(),
+               getName().c_str(),
                infoLog.c_str());
   }
 
-  if (!checkGL("Failed to create object for program \'%s\'",
-               getPath().asString().c_str()))
-  {
+  if (!checkGL("Failed to create object for program \'%s\'", getName().c_str()))
     return false;
-  }
 
   if (!retrieveUniforms())
     return false;
@@ -959,7 +962,7 @@ bool Program::retrieveUniforms()
     if (std::strncmp(uniformName, "gl_", 3) == 0)
     {
       logWarning("Program \'%s\' uses built-in uniform \'%s\'",
-                 getPath().asString().c_str(),
+                 getName().c_str(),
                  uniformName);
       continue;
     }
@@ -989,7 +992,7 @@ bool Program::retrieveUniforms()
   delete [] uniformName;
 
   if (!checkGL("Failed to retrieve uniforms for program \'%s\'",
-               getPath().asString().c_str()))
+               getName().c_str()))
   {
     return false;
   }
@@ -1039,7 +1042,7 @@ bool Program::retrieveAttributes()
   delete [] attributeName;
 
   if (!checkGL("Failed to retrieve attributes for program \'%s\'",
-               getPath().asString().c_str()))
+               getName().c_str()))
   {
     return false;
   }
@@ -1080,7 +1083,7 @@ bool Program::isValid() const
   {
     String infoLog = getProgramInfoLog(programID);
     logError("Failed to validate program \'%s\':\n%s",
-             path.asString().c_str(),
+             getName().c_str(),
              infoLog.c_str());
 
     return false;
@@ -1119,7 +1122,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
       {
         logError("Sampler \'%s\' missing in program \'%s\'",
                  entry.first.c_str(),
-                 program.getPath().asString().c_str());
+                 program.getName().c_str());
       }
 
       return false;
@@ -1131,7 +1134,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
       {
         logError("Sampler \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
                  entry.first.c_str(),
-                 program.getPath().asString().c_str(),
+                 program.getName().c_str(),
                  Sampler::getTypeName(entry.second));
       }
 
@@ -1150,7 +1153,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
       {
         logError("Uniform \'%s\' missing in program \'%s\'",
                  entry.first.c_str(),
-                 program.getPath().asString().c_str());
+                 program.getName().c_str());
       }
 
       return false;
@@ -1162,7 +1165,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
       {
         logError("Uniform \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
                  entry.first.c_str(),
-                 program.getPath().asString().c_str(),
+                 program.getName().c_str(),
                  Uniform::getTypeName(entry.second));
       }
 
@@ -1181,7 +1184,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
       {
         logError("Attribute \'%s\' missing in program \'%s\'",
                  entry.first.c_str(),
-                 program.getPath().asString().c_str());
+                 program.getName().c_str());
       }
 
       return false;
@@ -1193,7 +1196,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
       {
         logError("Attribute \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
                  entry.first.c_str(),
-                 program.getPath().asString().c_str(),
+                 program.getName().c_str(),
                  Attribute::getTypeName(entry.second));
       }
 
@@ -1240,14 +1243,14 @@ ProgramReader::ProgramReader(Context& initContext):
 {
 }
 
-Ref<Program> ProgramReader::read(const Path& path)
+Ref<Program> ProgramReader::read(const String& name, const Path& path)
 {
-  if (Resource* cached = getCache().findResource(path))
-    return dynamic_cast<Program*>(cached);
-
-  std::ifstream stream;
-  if (!getCache().openFile(stream, path))
+  std::ifstream stream(path.asString().c_str());
+  if (stream.fail())
+  {
+    logError("Failed to open GLSL program \'%s\'", name.c_str());
     return NULL;
+  }
 
   pugi::xml_document document;
 
@@ -1255,7 +1258,7 @@ Ref<Program> ProgramReader::read(const Path& path)
   if (!result)
   {
     logError("Failed to load GLSL program \'%s\': %s",
-             path.asString().c_str(),
+             name.c_str(),
              result.description());
     return NULL;
   }
@@ -1263,8 +1266,7 @@ Ref<Program> ProgramReader::read(const Path& path)
   pugi::xml_node root = document.child("program");
   if (!root || root.attribute("version").as_uint() != PROGRAM_XML_VERSION)
   {
-    logError("GLSL program file format mismatch in \'%s\'",
-             path.asString().c_str());
+    logError("GLSL program file format mismatch in \'%s\'", name.c_str());
     return NULL;
   }
 
@@ -1283,42 +1285,40 @@ Ref<Program> ProgramReader::read(const Path& path)
   {
     if (pugi::xml_node s = root.child(names[i]))
     {
-      const Path shaderPath(s.attribute("path").value());
-      if (shaderPath.isEmpty())
+      const String shaderName(s.attribute("path").value());
+      if (shaderName.empty())
       {
-        logError("Path for %s shader in GLSL program \'%s\' is empty",
+        logError("Empty name for %s shader in GLSL program \'%s\'",
                 names[i],
-                path.asString().c_str());
+                name.c_str());
         return NULL;
       }
 
       String text;
-      if (!readTextFile(getCache(), text, shaderPath))
+      if (!readTextFile(cache, text, shaderName))
       {
         logError("Failed to load %s shader \'%s\' for GLSL program \'%s\'",
                 names[i],
-                shaderPath.asString().c_str(),
-                path.asString().c_str());
+                shaderName.c_str(),
+                name.c_str());
         return NULL;
       }
 
       const unsigned int version = max(s.attribute("glsl-version").as_int(), 100);
 
-      shaders[names[i]] = Shader(text.c_str(), shaderPath, version);
+      shaders[names[i]] = Shader(text.c_str(), shaderName.c_str(), version);
     }
   }
 
   if (!shaders.count("vertex"))
   {
-    logError("Vertex shader missing in GLSL program \'%s\'",
-              path.asString().c_str());
+    logError("Vertex shader missing in GLSL program \'%s\'", name.c_str());
     return NULL;
   }
 
   if (!shaders.count("fragment"))
   {
-    logError("Fragment shader missing in GLSL program \'%s\'",
-              path.asString().c_str());
+    logError("Fragment shader missing in GLSL program \'%s\'", name.c_str());
     return NULL;
   }
 
@@ -1332,7 +1332,7 @@ Ref<Program> ProgramReader::read(const Path& path)
     {
       logError("Both tessellation control and evaluation shader (or neither) "
                "are required in GLSL program \'%s\'",
-               path.asString().c_str());
+               name.c_str());
       return NULL;
     }
   }
@@ -1343,7 +1343,7 @@ Ref<Program> ProgramReader::read(const Path& path)
   {
     if (tessellation)
     {
-      program = Program::create(ResourceInfo(getCache(), path),
+      program = Program::create(ResourceInfo(cache, name, path),
                                 context,
                                 shaders["vertex"],
                                 shaders["fragment"],
@@ -1353,7 +1353,7 @@ Ref<Program> ProgramReader::read(const Path& path)
     }
     else
     {
-      program = Program::create(ResourceInfo(getCache(), path),
+      program = Program::create(ResourceInfo(cache, name, path),
                                 context,
                                 shaders["vertex"],
                                 shaders["fragment"],
@@ -1364,7 +1364,7 @@ Ref<Program> ProgramReader::read(const Path& path)
   {
     if (tessellation)
     {
-      program = Program::create(ResourceInfo(getCache(), path),
+      program = Program::create(ResourceInfo(cache, name, path),
                                 context,
                                 shaders["vertex"],
                                 shaders["fragment"],
@@ -1373,7 +1373,7 @@ Ref<Program> ProgramReader::read(const Path& path)
     }
     else
     {
-      program = Program::create(ResourceInfo(getCache(), path),
+      program = Program::create(ResourceInfo(cache, name, path),
                                 context,
                                 shaders["vertex"],
                                 shaders["fragment"]);

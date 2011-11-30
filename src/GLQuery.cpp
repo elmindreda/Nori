@@ -25,11 +25,14 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/OpenGL.h>
+#include <wendy/GLBuffer.h>
+#include <wendy/GLTexture.h>
 #include <wendy/GLQuery.h>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
+
+#include <internal/GLHelper.h>
 
 ///////////////////////////////////////////////////////////////////////
 

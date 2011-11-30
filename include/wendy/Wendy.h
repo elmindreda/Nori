@@ -59,60 +59,19 @@
 
 #include <wendy/WendyCore.h>
 
-#include <wendy/OpenGL.h>
-#include <wendy/GLQuery.h>
-#include <wendy/GLTexture.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLProgram.h>
-#include <wendy/GLContext.h>
-#include <wendy/GLState.h>
+#include <wendy/WendyGL.h>
 
 #include <wendy/Input.h>
 
-#if WENDY_INCLUDE_OPENAL
-#include <wendy/OpenAL.h>
-#include <wendy/ALContext.h>
-#include <wendy/ALBuffer.h>
-#include <wendy/ALSource.h>
-#endif
+#include <wendy/WendyAL.h>
 
-#if WENDY_INCLUDE_RENDERER
-#include <wendy/RenderState.h>
-#include <wendy/RenderCamera.h>
-#include <wendy/RenderMaterial.h>
-#include <wendy/RenderLight.h>
-#include <wendy/RenderScene.h>
-#include <wendy/RenderPool.h>
-#include <wendy/RenderSprite.h>
-#include <wendy/RenderFont.h>
-#include <wendy/RenderModel.h>
-
-#include <wendy/Forward.h>
-#include <wendy/Deferred.h>
-#endif
+#include <wendy/WendyRender.h>
 
 #if WENDY_INCLUDE_SCENE_GRAPH
 #include <wendy/SceneGraph.h>
 #endif
 
-#if WENDY_INCLUDE_UI_SYSTEM
-#include <wendy/UIDrawer.h>
-#include <wendy/UILayer.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UIScroller.h>
-#include <wendy/UIBook.h>
-#include <wendy/UICanvas.h>
-#include <wendy/UILayout.h>
-#include <wendy/UILabel.h>
-#include <wendy/UIProgress.h>
-#include <wendy/UIButton.h>
-#include <wendy/UISlider.h>
-#include <wendy/UIEntry.h>
-#include <wendy/UIItem.h>
-#include <wendy/UIList.h>
-#include <wendy/UIMenu.h>
-#include <wendy/UIPopup.h>
-#endif
+#include <wendy/WendyUI.h>
 
 #if WENDY_INCLUDE_DEBUG_UI
 #include <wendy/DebugUI.h>

@@ -62,7 +62,7 @@ class VM
 public:
   VM(ResourceCache& cache);
   ~VM();
-  bool execute(const Path& path);
+  bool execute(const char* name);
   bool execute(const char* name, const char* text);
   operator HSQUIRRELVM ();
   void* getForeignPointer() const;
@@ -953,6 +953,7 @@ public:
   using Object::get;
   using Object::set;
   T* getNative();
+  void setNative(T* newNative);
   SharedClass<T> getClass() const;
 };
 
@@ -971,6 +972,14 @@ inline T* SharedInstance<T>::getNative()
   sq_getinstanceup(vm, -1, (SQUserPointer*) &result, NULL);
   sq_poptop(vm);
   return result;
+}
+
+template <typename T>
+inline void SharedInstance<T>::setNative(T* newNative)
+{
+  sq_pushobject(vm, handle);
+  sq_setinstanceup(vm, 1, newNative);
+  sq_poptop(vm);
 }
 
 template <typename T>
