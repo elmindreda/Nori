@@ -56,7 +56,7 @@ unsigned int reduce(size_t value)
 const char* suffix(size_t value)
 {
   if (value)
-    value = glm::log(value) / glm::log(1024);
+    value = size_t(glm::log(float(value)) / glm::log(1024.f));
 
   switch (value)
   {
