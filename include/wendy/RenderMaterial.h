@@ -171,7 +171,7 @@ private:
 /*! @brief Codec for XML format render materials.
  *  @ingroup renderer
  */
-class MaterialReader : ResourceReader<Material>
+class MaterialReader : public ResourceReader<Material>
 {
 public:
   MaterialReader(GL::Context& context);
