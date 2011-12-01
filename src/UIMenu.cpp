@@ -275,7 +275,7 @@ void Menu::onButtonClicked(Widget& widget,
 
     if (itemTop - itemHeight <= localPosition.y)
     {
-      itemSelectedSignal.emit(*this, index);
+      itemSelectedSignal(*this, index);
       setVisible(false);
       return;
     }
@@ -315,7 +315,7 @@ void Menu::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 
     case input::KEY_ENTER:
     {
-      itemSelectedSignal.emit(*this, selection);
+      itemSelectedSignal(*this, selection);
       setVisible(false);
       break;
     }

@@ -196,7 +196,7 @@ public:
   ~SignalSlot#{index}();
   /*! Calls the target for this slot.
    */
-  virtual R emit(#{parameters}) = 0;
+  virtual R operator () (#{parameters}) = 0;
 protected:
   /*! Constructor.
    */
@@ -221,7 +221,7 @@ public:
   FunctionSlot#{index}(Function function);
   /*! Calls the target for this slot.
    */
-  R emit(#{parameters});
+  R operator () (#{parameters});
 private:
   Function function;
 };
@@ -242,7 +242,7 @@ public:
   MethodSlot#{index}(T& object, Function function);
   /*! Calls the target for this slot.
    */
-  R emit(#{parameters});
+  R operator () (#{parameters});
 private:
   T& object;
   Function function;
@@ -283,10 +283,10 @@ public:
   Slot* connect(typename FunctionSlot#{index}<#{type}>::Function function);
   /*! Calls the targets for all slots in this signal.
    */
-  void emit(#{parameters}) const;
+  void operator () (#{parameters}) const;
   /*! Calls the targets for all slots in this signal and stores the return values.
    */
-  void emit(std::vector<R>& results#{result_parameters}) const;
+  void operator () (std::vector<R>& results#{result_parameters}) const;
   /*! Assignment operator.
    *  @note This does not copy any existing connections to the source object.
    */
@@ -357,7 +357,7 @@ inline FunctionSlot#{index}<#{type}>::FunctionSlot#{index}(Function initFunction
 }
 
 template <#{declaration}>
-inline R FunctionSlot#{index}<#{type}>::emit(#{parameters})
+inline R FunctionSlot#{index}<#{type}>::operator () (#{parameters})
 {
   return (*function)(#{arguments});
 }
@@ -373,7 +373,7 @@ inline MethodSlot#{index}<T,#{type}>::MethodSlot#{index}(T& initObject, Function
 }
 
 template <typename T, #{declaration}>
-inline R MethodSlot#{index}<T,#{type}>::emit(#{parameters})
+inline R MethodSlot#{index}<T,#{type}>::operator () (#{parameters})
 {
   return (object.*function)(#{arguments});
 }
@@ -412,18 +412,18 @@ inline SignalSlot#{index}<#{type}>* Signal#{index}<#{type}>::connect(typename Fu
 }
 
 template <#{declaration}>
-inline void Signal#{index}<#{type}>::emit(#{parameters}) const
+inline void Signal#{index}<#{type}>::operator () (#{parameters}) const
 {
   for (typename SlotList::const_iterator i = slots.begin();  i != slots.end();  i++)
-    (*i)->emit(#{arguments});
+    (**i)(#{arguments});
 }
 
 template <#{declaration}>
-inline void Signal#{index}<#{type}>::emit(std::vector<R>& results#{result_parameters}) const
+inline void Signal#{index}<#{type}>::operator () (std::vector<R>& results#{result_parameters}) const
 {
   results.clear();
   for (typename SlotList::const_iterator i = slots.begin();  i != slots.end();  i++)
-    results.push_back((*i)->emit(#{arguments}));
+    results.push_back((**i)(#{arguments}));
 }
 
 template <#{declaration}>

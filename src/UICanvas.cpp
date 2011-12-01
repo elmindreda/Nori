@@ -63,7 +63,7 @@ void Canvas::draw() const
   context.setScissorArea(area);
 
   drawer.end();
-  drawSignal.emit(*this);
+  drawSignal(*this);
   drawer.begin();
 
   context.setViewportArea(oldViewport);

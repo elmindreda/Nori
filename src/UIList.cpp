@@ -402,7 +402,7 @@ void List::setSelection(unsigned int newIndex, bool notify)
     setOffset(selection);
 
   if (notify)
-    selectionChangedSignal.emit(*this);
+    selectionChangedSignal(*this);
 }
 
 ///////////////////////////////////////////////////////////////////////

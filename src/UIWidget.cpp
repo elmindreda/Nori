@@ -55,7 +55,7 @@ Widget::~Widget()
   destroyChildren();
   removeFromParent();
 
-  destroyedSignal.emit(*this);
+  destroyedSignal(*this);
 }
 
 void Widget::addChild(Widget& child)
@@ -319,7 +319,7 @@ void Widget::setArea(const Rect& newArea)
   if (newArea != area)
   {
     area = newArea;
-    areaChangedSignal.emit(*this);
+    areaChangedSignal(*this);
 
     invalidate();
   }

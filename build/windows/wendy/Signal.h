@@ -111,7 +111,7 @@ public:
   ~SignalSlot0();
   /*! Calls the target for this slot.
    */
-  virtual R emit() = 0;
+  virtual R operator () () = 0;
 protected:
   /*! Constructor.
    */
@@ -136,7 +136,7 @@ public:
   FunctionSlot0(Function function);
   /*! Calls the target for this slot.
    */
-  R emit();
+  R operator () ();
 private:
   Function function;
 };
@@ -157,7 +157,7 @@ public:
   MethodSlot0(T& object, Function function);
   /*! Calls the target for this slot.
    */
-  R emit();
+  R operator () ();
 private:
   T& object;
   Function function;
@@ -198,10 +198,10 @@ public:
   Slot* connect(typename FunctionSlot0<R>::Function function);
   /*! Calls the targets for all slots in this signal.
    */
-  void emit() const;
+  void operator () () const;
   /*! Calls the targets for all slots in this signal and stores the return values.
    */
-  void emit(std::vector<R>& results) const;
+  void operator () (std::vector<R>& results) const;
   /*! Assignment operator.
    *  @note This does not copy any existing connections to the source object.
    */
@@ -272,7 +272,7 @@ inline FunctionSlot0<R>::FunctionSlot0(Function initFunction):
 }
 
 template <typename R>
-inline R FunctionSlot0<R>::emit()
+inline R FunctionSlot0<R>::operator () ()
 {
   return (*function)();
 }
@@ -288,7 +288,7 @@ inline MethodSlot0<T,R>::MethodSlot0(T& initObject, Function initFunction):
 }
 
 template <typename T, typename R>
-inline R MethodSlot0<T,R>::emit()
+inline R MethodSlot0<T,R>::operator () ()
 {
   return (object.*function)();
 }
@@ -327,18 +327,18 @@ inline SignalSlot0<R>* Signal0<R>::connect(typename FunctionSlot0<R>::Function f
 }
 
 template <typename R>
-inline void Signal0<R>::emit() const
+inline void Signal0<R>::operator () () const
 {
   for (typename SlotList::const_iterator i = slots.begin();  i != slots.end();  i++)
-    (*i)->emit();
+    (**i)();
 }
 
 template <typename R>
-inline void Signal0<R>::emit(std::vector<R>& results) const
+inline void Signal0<R>::operator () (std::vector<R>& results) const
 {
   results.clear();
   for (typename SlotList::const_iterator i = slots.begin();  i != slots.end();  i++)
-    results.push_back((*i)->emit());
+    results.push_back((**i)());
 }
 
 template <typename R>
@@ -384,7 +384,7 @@ public:
   ~SignalSlot1();
   /*! Calls the target for this slot.
    */
-  virtual R emit(A1 a1) = 0;
+  virtual R operator () (A1 a1) = 0;
 protected:
   /*! Constructor.
    */
@@ -409,7 +409,7 @@ public:
   FunctionSlot1(Function function);
   /*! Calls the target for this slot.
    */
-  R emit(A1 a1);
+  R operator () (A1 a1);
 private:
   Function function;
 };
@@ -430,7 +430,7 @@ public:
   MethodSlot1(T& object, Function function);
   /*! Calls the target for this slot.
    */
-  R emit(A1 a1);
+  R operator () (A1 a1);
 private:
   T& object;
   Function function;
@@ -471,10 +471,10 @@ public:
   Slot* connect(typename FunctionSlot1<R,A1>::Function function);
   /*! Calls the targets for all slots in this signal.
    */
-  void emit(A1 a1) const;
+  void operator () (A1 a1) const;
   /*! Calls the targets for all slots in this signal and stores the return values.
    */
-  void emit(std::vector<R>& results, A1 a1) const;
+  void operator () (std::vector<R>& results, A1 a1) const;
   /*! Assignment operator.
    *  @note This does not copy any existing connections to the source object.
    */
@@ -545,7 +545,7 @@ inline FunctionSlot1<R,A1>::FunctionSlot1(Function initFunction):
 }
 
 template <typename R, typename A1>
-inline R FunctionSlot1<R,A1>::emit(A1 a1)
+inline R FunctionSlot1<R,A1>::operator () (A1 a1)
 {
   return (*function)(a1);
 }
@@ -561,7 +561,7 @@ inline MethodSlot1<T,R,A1>::MethodSlot1(T& initObject, Function initFunction):
 }
 
 template <typename T, typename R, typename A1>
-inline R MethodSlot1<T,R,A1>::emit(A1 a1)
+inline R MethodSlot1<T,R,A1>::operator () (A1 a1)
 {
   return (object.*function)(a1);
 }
@@ -600,18 +600,18 @@ inline SignalSlot1<R,A1>* Signal1<R,A1>::connect(typename FunctionSlot1<R,A1>::F
 }
 
 template <typename R, typename A1>
-inline void Signal1<R,A1>::emit(A1 a1) const
+inline void Signal1<R,A1>::operator () (A1 a1) const
 {
   for (typename SlotList::const_iterator i = slots.begin();  i != slots.end();  i++)
-    (*i)->emit(a1);
+    (**i)(a1);
 }
 
 template <typename R, typename A1>
-inline void Signal1<R,A1>::emit(std::vector<R>& results, A1 a1) const
+inline void Signal1<R,A1>::operator () (std::vector<R>& results, A1 a1) const
 {
   results.clear();
   for (typename SlotList::const_iterator i = slots.begin();  i != slots.end();  i++)
-    results.push_back((*i)->emit(a1));
+    results.push_back((**i)(a1));
 }
 
 template <typename R, typename A1>
@@ -657,7 +657,7 @@ public:
   ~SignalSlot2();
   /*! Calls the target for this slot.
    */
-  virtual R emit(A1 a1, A2 a2) = 0;
+  virtual R operator () (A1 a1, A2 a2) = 0;
 protected:
   /*! Constructor.
    */
@@ -682,7 +682,7 @@ public:
   FunctionSlot2(Function function);
   /*! Calls the target for this slot.
    */
-  R emit(A1 a1, A2 a2);
+  R operator () (A1 a1, A2 a2);
 private:
   Function function;
 };
@@ -703,7 +703,7 @@ public:
   MethodSlot2(T& object, Function function);
   /*! Calls the target for this slot.
    */
-  R emit(A1 a1, A2 a2);
+  R operator () (A1 a1, A2 a2);
 private:
   T& object;
   Function function;
@@ -744,10 +744,10 @@ public:
   Slot* connect(typename FunctionSlot2<R,A1,A2>::Function function);
   /*! Calls the targets for all slots in this signal.
    */
-  void emit(A1 a1, A2 a2) const;
+  void operator () (A1 a1, A2 a2) const;
   /*! Calls the targets for all slots in this signal and stores the return values.
    */
-  void emit(std::vector<R>& results, A1 a1, A2 a2) const;
+  void operator () (std::vector<R>& results, A1 a1, A2 a2) const;
   /*! Assignment operator.
    *  @note This does not copy any existing connections to the source object.
    */
@@ -818,7 +818,7 @@ inline FunctionSlot2<R,A1,A2>::FunctionSlot2(Function initFunction):
 }
 
 template <typename R, typename A1, typename A2>
-inline R FunctionSlot2<R,A1,A2>::emit(A1 a1, A2 a2)
+inline R FunctionSlot2<R,A1,A2>::operator () (A1 a1, A2 a2)
 {
   return (*function)(a1, a2);
 }
@@ -834,7 +834,7 @@ inline MethodSlot2<T,R,A1,A2>::MethodSlot2(T& initObject, Function initFunction)
 }
 
 template <typename T, typename R, typename A1, typename A2>
-inline R MethodSlot2<T,R,A1,A2>::emit(A1 a1, A2 a2)
+inline R MethodSlot2<T,R,A1,A2>::operator () (A1 a1, A2 a2)
 {
   return (object.*function)(a1, a2);
 }
@@ -873,18 +873,18 @@ inline SignalSlot2<R,A1,A2>* Signal2<R,A1,A2>::connect(typename FunctionSlot2<R,
 }
 
 template <typename R, typename A1, typename A2>
-inline void Signal2<R,A1,A2>::emit(A1 a1, A2 a2) const
+inline void Signal2<R,A1,A2>::operator () (A1 a1, A2 a2) const
 {
   for (typename SlotList::const_iterator i = slots.begin();  i != slots.end();  i++)
-    (*i)->emit(a1, a2);
+    (**i)(a1, a2);
 }
 
 template <typename R, typename A1, typename A2>
-inline void Signal2<R,A1,A2>::emit(std::vector<R>& results, A1 a1, A2 a2) const
+inline void Signal2<R,A1,A2>::operator () (std::vector<R>& results, A1 a1, A2 a2) const
 {
   results.clear();
   for (typename SlotList::const_iterator i = slots.begin();  i != slots.end();  i++)
-    results.push_back((*i)->emit(a1, a2));
+    results.push_back((**i)(a1, a2));
 }
 
 template <typename R, typename A1, typename A2>
@@ -930,7 +930,7 @@ public:
   ~SignalSlot3();
   /*! Calls the target for this slot.
    */
-  virtual R emit(A1 a1, A2 a2, A3 a3) = 0;
+  virtual R operator () (A1 a1, A2 a2, A3 a3) = 0;
 protected:
   /*! Constructor.
    */
@@ -955,7 +955,7 @@ public:
   FunctionSlot3(Function function);
   /*! Calls the target for this slot.
    */
-  R emit(A1 a1, A2 a2, A3 a3);
+  R operator () (A1 a1, A2 a2, A3 a3);
 private:
   Function function;
 };
@@ -976,7 +976,7 @@ public:
   MethodSlot3(T& object, Function function);
   /*! Calls the target for this slot.
    */
-  R emit(A1 a1, A2 a2, A3 a3);
+  R operator () (A1 a1, A2 a2, A3 a3);
 private:
   T& object;
   Function function;
@@ -1017,10 +1017,10 @@ public:
   Slot* connect(typename FunctionSlot3<R,A1,A2,A3>::Function function);
   /*! Calls the targets for all slots in this signal.
    */
-  void emit(A1 a1, A2 a2, A3 a3) const;
+  void operator () (A1 a1, A2 a2, A3 a3) const;
   /*! Calls the targets for all slots in this signal and stores the return values.
    */
-  void emit(std::vector<R>& results, A1 a1, A2 a2, A3 a3) const;
+  void operator () (std::vector<R>& results, A1 a1, A2 a2, A3 a3) const;
   /*! Assignment operator.
    *  @note This does not copy any existing connections to the source object.
    */
@@ -1091,7 +1091,7 @@ inline FunctionSlot3<R,A1,A2,A3>::FunctionSlot3(Function initFunction):
 }
 
 template <typename R, typename A1, typename A2, typename A3>
-inline R FunctionSlot3<R,A1,A2,A3>::emit(A1 a1, A2 a2, A3 a3)
+inline R FunctionSlot3<R,A1,A2,A3>::operator () (A1 a1, A2 a2, A3 a3)
 {
   return (*function)(a1, a2, a3);
 }
@@ -1107,7 +1107,7 @@ inline MethodSlot3<T,R,A1,A2,A3>::MethodSlot3(T& initObject, Function initFuncti
 }
 
 template <typename T, typename R, typename A1, typename A2, typename A3>
-inline R MethodSlot3<T,R,A1,A2,A3>::emit(A1 a1, A2 a2, A3 a3)
+inline R MethodSlot3<T,R,A1,A2,A3>::operator () (A1 a1, A2 a2, A3 a3)
 {
   return (object.*function)(a1, a2, a3);
 }
@@ -1146,18 +1146,18 @@ inline SignalSlot3<R,A1,A2,A3>* Signal3<R,A1,A2,A3>::connect(typename FunctionSl
 }
 
 template <typename R, typename A1, typename A2, typename A3>
-inline void Signal3<R,A1,A2,A3>::emit(A1 a1, A2 a2, A3 a3) const
+inline void Signal3<R,A1,A2,A3>::operator () (A1 a1, A2 a2, A3 a3) const
 {
   for (typename SlotList::const_iterator i = slots.begin();  i != slots.end();  i++)
-    (*i)->emit(a1, a2, a3);
+    (**i)(a1, a2, a3);
 }
 
 template <typename R, typename A1, typename A2, typename A3>
-inline void Signal3<R,A1,A2,A3>::emit(std::vector<R>& results, A1 a1, A2 a2, A3 a3) const
+inline void Signal3<R,A1,A2,A3>::operator () (std::vector<R>& results, A1 a1, A2 a2, A3 a3) const
 {
   results.clear();
   for (typename SlotList::const_iterator i = slots.begin();  i != slots.end();  i++)
-    results.push_back((*i)->emit(a1, a2, a3));
+    results.push_back((**i)(a1, a2, a3));
 }
 
 template <typename R, typename A1, typename A2, typename A3>
@@ -1203,7 +1203,7 @@ public:
   ~SignalSlot4();
   /*! Calls the target for this slot.
    */
-  virtual R emit(A1 a1, A2 a2, A3 a3, A4 a4) = 0;
+  virtual R operator () (A1 a1, A2 a2, A3 a3, A4 a4) = 0;
 protected:
   /*! Constructor.
    */
@@ -1228,7 +1228,7 @@ public:
   FunctionSlot4(Function function);
   /*! Calls the target for this slot.
    */
-  R emit(A1 a1, A2 a2, A3 a3, A4 a4);
+  R operator () (A1 a1, A2 a2, A3 a3, A4 a4);
 private:
   Function function;
 };
@@ -1249,7 +1249,7 @@ public:
   MethodSlot4(T& object, Function function);
   /*! Calls the target for this slot.
    */
-  R emit(A1 a1, A2 a2, A3 a3, A4 a4);
+  R operator () (A1 a1, A2 a2, A3 a3, A4 a4);
 private:
   T& object;
   Function function;
@@ -1290,10 +1290,10 @@ public:
   Slot* connect(typename FunctionSlot4<R,A1,A2,A3,A4>::Function function);
   /*! Calls the targets for all slots in this signal.
    */
-  void emit(A1 a1, A2 a2, A3 a3, A4 a4) const;
+  void operator () (A1 a1, A2 a2, A3 a3, A4 a4) const;
   /*! Calls the targets for all slots in this signal and stores the return values.
    */
-  void emit(std::vector<R>& results, A1 a1, A2 a2, A3 a3, A4 a4) const;
+  void operator () (std::vector<R>& results, A1 a1, A2 a2, A3 a3, A4 a4) const;
   /*! Assignment operator.
    *  @note This does not copy any existing connections to the source object.
    */
@@ -1364,7 +1364,7 @@ inline FunctionSlot4<R,A1,A2,A3,A4>::FunctionSlot4(Function initFunction):
 }
 
 template <typename R, typename A1, typename A2, typename A3, typename A4>
-inline R FunctionSlot4<R,A1,A2,A3,A4>::emit(A1 a1, A2 a2, A3 a3, A4 a4)
+inline R FunctionSlot4<R,A1,A2,A3,A4>::operator () (A1 a1, A2 a2, A3 a3, A4 a4)
 {
   return (*function)(a1, a2, a3, a4);
 }
@@ -1380,7 +1380,7 @@ inline MethodSlot4<T,R,A1,A2,A3,A4>::MethodSlot4(T& initObject, Function initFun
 }
 
 template <typename T, typename R, typename A1, typename A2, typename A3, typename A4>
-inline R MethodSlot4<T,R,A1,A2,A3,A4>::emit(A1 a1, A2 a2, A3 a3, A4 a4)
+inline R MethodSlot4<T,R,A1,A2,A3,A4>::operator () (A1 a1, A2 a2, A3 a3, A4 a4)
 {
   return (object.*function)(a1, a2, a3, a4);
 }
@@ -1419,18 +1419,18 @@ inline SignalSlot4<R,A1,A2,A3,A4>* Signal4<R,A1,A2,A3,A4>::connect(typename Func
 }
 
 template <typename R, typename A1, typename A2, typename A3, typename A4>
-inline void Signal4<R,A1,A2,A3,A4>::emit(A1 a1, A2 a2, A3 a3, A4 a4) const
+inline void Signal4<R,A1,A2,A3,A4>::operator () (A1 a1, A2 a2, A3 a3, A4 a4) const
 {
   for (typename SlotList::const_iterator i = slots.begin();  i != slots.end();  i++)
-    (*i)->emit(a1, a2, a3, a4);
+    (**i)(a1, a2, a3, a4);
 }
 
 template <typename R, typename A1, typename A2, typename A3, typename A4>
-inline void Signal4<R,A1,A2,A3,A4>::emit(std::vector<R>& results, A1 a1, A2 a2, A3 a3, A4 a4) const
+inline void Signal4<R,A1,A2,A3,A4>::operator () (std::vector<R>& results, A1 a1, A2 a2, A3 a3, A4 a4) const
 {
   results.clear();
   for (typename SlotList::const_iterator i = slots.begin();  i != slots.end();  i++)
-    results.push_back((*i)->emit(a1, a2, a3, a4));
+    results.push_back((**i)(a1, a2, a3, a4));
 }
 
 template <typename R, typename A1, typename A2, typename A3, typename A4>

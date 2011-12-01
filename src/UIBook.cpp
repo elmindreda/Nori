@@ -196,7 +196,7 @@ void Book::setActivePage(Page* newPage, bool notify)
   activePage->activate();
 
   if (notify)
-    pageChangedSignal.emit(*this);
+    pageChangedSignal(*this);
 
   invalidate();
 }

@@ -862,7 +862,7 @@ void Context::refresh()
 bool Context::update()
 {
   glfwSwapBuffers();
-  finishSignal.emit();
+  finishSignal();
   needsRefresh = false;
 
 #if WENDY_DEBUG
@@ -1431,14 +1431,14 @@ void Context::sizeCallback(int width, int height)
 {
   instance->defaultFramebuffer->width = width;
   instance->defaultFramebuffer->height = height;
-  instance->resizedSignal.emit(width, height);
+  instance->resizedSignal(width, height);
 }
 
 int Context::closeCallback()
 {
   std::vector<bool> results;
 
-  instance->closeRequestSignal.emit(results);
+  instance->closeRequestSignal(results);
 
   if (std::find(results.begin(), results.end(), false) == results.end())
     instance->needsClosing = true;

@@ -168,7 +168,7 @@ void Entry::onKeyPressed(Widget& widget, input::Key key, bool pressed)
       if (!text.empty() && caretPosition > 0)
       {
         text.erase(caretPosition - 1, 1);
-        textChangedSignal.emit(*this);
+        textChangedSignal(*this);
         setCaretPosition(caretPosition - 1, true);
       }
 
@@ -180,7 +180,7 @@ void Entry::onKeyPressed(Widget& widget, input::Key key, bool pressed)
       if (!text.empty() && caretPosition < text.length())
       {
         text.erase(caretPosition, 1);
-        textChangedSignal.emit(*this);
+        textChangedSignal(*this);
       }
 
       break;
@@ -216,7 +216,7 @@ void Entry::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 void Entry::onCharInput(Widget& widget, wchar_t character)
 {
   text.insert(caretPosition, 1, (char) character);
-  textChangedSignal.emit(*this);
+  textChangedSignal(*this);
   setCaretPosition(caretPosition + 1, true);
 }
 
@@ -231,7 +231,7 @@ void Entry::setCaretPosition(unsigned int newPosition, bool notify)
   caretPosition = newPosition;
 
   if (notify)
-    caretMovedSignal.emit(*this);
+    caretMovedSignal(*this);
 
   invalidate();
 }

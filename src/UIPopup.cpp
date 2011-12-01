@@ -186,7 +186,7 @@ void Popup::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 void Popup::onItemSelected(Menu& menu, unsigned int index)
 {
   selection = index;
-  itemSelectedSignal.emit(*this, selection);
+  itemSelectedSignal(*this, selection);
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -99,7 +99,7 @@ void Button::onButtonClicked(Widget& widget,
   if (clicked)
     return;
 
-  pushedSignal.emit(*this);
+  pushedSignal(*this);
 }
 
 void Button::onKeyPressed(Widget& widget, input::Key key, bool pressed)
@@ -112,7 +112,7 @@ void Button::onKeyPressed(Widget& widget, input::Key key, bool pressed)
     case input::KEY_SPACE:
     case input::KEY_ENTER:
     {
-      pushedSignal.emit(*this);
+      pushedSignal(*this);
       break;
     }
   }

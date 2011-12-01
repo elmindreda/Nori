@@ -290,7 +290,7 @@ void Scroller::setValue(float newValue, bool notify)
   value = newValue;
 
   if (notify)
-    valueChangedSignal.emit(*this);
+    valueChangedSignal(*this);
 
   invalidate();
 }

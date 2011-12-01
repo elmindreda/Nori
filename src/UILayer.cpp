@@ -138,7 +138,7 @@ void Layer::cancelDragging()
     const vec2 scaledPosition((float) cursorPosition.x,
                               (float) cursorPosition.y);
 
-    draggedWidget->dragEndedSignal.emit(*draggedWidget, scaledPosition);
+    draggedWidget->dragEndedSignal(*draggedWidget, scaledPosition);
 
     draggedWidget = NULL;
     dragging = false;
@@ -202,12 +202,12 @@ void Layer::setActiveWidget(Widget* widget)
     releaseCursor();
 
   if (activeWidget)
-    activeWidget->focusChangedSignal.emit(*activeWidget, false);
+    activeWidget->focusChangedSignal(*activeWidget, false);
 
   activeWidget = widget;
 
   if (activeWidget)
-    activeWidget->focusChangedSignal.emit(*activeWidget, true);
+    activeWidget->focusChangedSignal(*activeWidget, true);
 
   invalidate();
 }
@@ -245,7 +245,7 @@ void Layer::updateHoveredWidget()
     if (newWidget && newWidget->isChildOf(*ancestor))
       break;
 
-    ancestor->cursorLeftSignal.emit(*ancestor);
+    ancestor->cursorLeftSignal(*ancestor);
     ancestor = ancestor->getParent();
   }
 
@@ -258,7 +258,7 @@ void Layer::updateHoveredWidget()
     if (newWidget == ancestor)
       break;
 
-    newWidget->cursorEnteredSignal.emit(*newWidget);
+    newWidget->cursorEnteredSignal(*newWidget);
     newWidget = newWidget->getParent();
   }
 }
@@ -296,13 +296,13 @@ void Layer::removedWidget(Widget& widget)
 void Layer::onKeyPressed(input::Key key, bool pressed)
 {
   if (activeWidget)
-    activeWidget->keyPressedSignal.emit(*activeWidget, key, pressed);
+    activeWidget->keyPressedSignal(*activeWidget, key, pressed);
 }
 
 void Layer::onCharInput(wchar_t character)
 {
   if (activeWidget)
-    activeWidget->charInputSignal.emit(*activeWidget, character);
+    activeWidget->charInputSignal(*activeWidget, character);
 }
 
 void Layer::onCursorMoved(const ivec2& position)
@@ -316,18 +316,18 @@ void Layer::onCursorMoved(const ivec2& position)
                             (float) cursorPosition.y);
 
   if (hoveredWidget)
-    hoveredWidget->cursorMovedSignal.emit(*hoveredWidget, scaledPosition);
+    hoveredWidget->cursorMovedSignal(*hoveredWidget, scaledPosition);
 
   if (draggedWidget)
   {
     if (dragging)
-      draggedWidget->dragMovedSignal.emit(*draggedWidget, scaledPosition);
+      draggedWidget->dragMovedSignal(*draggedWidget, scaledPosition);
     else
     {
       // TODO: Add insensitivity radius.
 
       dragging = true;
-      draggedWidget->dragBegunSignal.emit(*draggedWidget, scaledPosition);
+      draggedWidget->dragBegunSignal(*draggedWidget, scaledPosition);
     }
   }
 }
@@ -365,10 +365,10 @@ void Layer::onButtonClicked(input::Button button, bool clicked)
     if (clickedWidget)
     {
       clickedWidget->activate();
-      clickedWidget->buttonClickedSignal.emit(*clickedWidget,
-                                              scaledPosition,
-                                              button,
-                                              clicked);
+      clickedWidget->buttonClickedSignal(*clickedWidget,
+                                         scaledPosition,
+                                         button,
+                                         clicked);
 
       if (!captureWidget && clickedWidget->isDraggable())
         draggedWidget = clickedWidget;
@@ -380,7 +380,7 @@ void Layer::onButtonClicked(input::Button button, bool clicked)
     {
       if (dragging)
       {
-        draggedWidget->dragEndedSignal.emit(*draggedWidget, scaledPosition);
+        draggedWidget->dragEndedSignal(*draggedWidget, scaledPosition);
         dragging = false;
       }
 
@@ -391,10 +391,10 @@ void Layer::onButtonClicked(input::Button button, bool clicked)
     {
       if (captureWidget || activeWidget->getGlobalArea().contains(scaledPosition))
       {
-        activeWidget->buttonClickedSignal.emit(*activeWidget,
-                                              scaledPosition,
-                                              button,
-                                              clicked);
+        activeWidget->buttonClickedSignal(*activeWidget,
+                                          scaledPosition,
+                                          button,
+                                          clicked);
       }
     }
   }
@@ -403,7 +403,7 @@ void Layer::onButtonClicked(input::Button button, bool clicked)
 void Layer::onWheelTurned(int offset)
 {
   if (hoveredWidget)
-    hoveredWidget->wheelTurnedSignal.emit(*hoveredWidget, offset);
+    hoveredWidget->wheelTurnedSignal(*hoveredWidget, offset);
 }
 
 void Layer::onFocusChanged(bool activated)
