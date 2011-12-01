@@ -9,7 +9,6 @@ Core
 ====
 
 Add file change notifications
-Add resource names separate from paths
 Add explicit resource hierarchy
 Add automatic resource reloading
 
@@ -34,13 +33,19 @@ Add resource layers or master resource stack
 
 Add functors to signal module
 
+Add console module from Pod
+
 
 OpenAL
 ======
 
 Add streaming of audio files
 
+Move Ogg Vorbis audio data I/O to core
+
 Remove ResourceCache from Context, if possible
+
+Make Context be a non-singleton object
 
 
 OpenGL
@@ -98,6 +103,8 @@ Move deferred renderer to 16-bit G-buffer channels
 Add surface shaders
 Add forward renderer lighting system
 
+Stop loading techniques for unused renderer types
+
 
 Scene
 =====
@@ -144,5 +151,11 @@ Add usable theme
 Bullet
 ======
 
-Add Mesh to btBvhTriangleMeshShape conversion
+Add debug drawer
+
+
+Debug
+=====
+
+Add graphs to stats items
 
