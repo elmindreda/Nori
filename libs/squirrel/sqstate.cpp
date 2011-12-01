@@ -190,13 +190,16 @@ SQSharedState::~SQSharedState()
 #ifndef NO_GARBAGE_COLLECTOR
 	SQCollectable *t = _gc_chain;
 	SQCollectable *nx = NULL;
-	while(t) {
+	if(t) {
 		t->_uiRef++;
-		t->Finalize();
-		nx = t->_next;
-		if(--t->_uiRef == 0)
-			t->Release();
-		t=nx;
+		while(t) {
+			t->Finalize();
+			nx = t->_next;
+			if(nx) nx->_uiRef++;
+			if(--t->_uiRef == 0)
+				t->Release();
+			t = nx;
+		}
 	}
 	assert(_gc_chain==NULL); //just to proove a theory
 	while(_gc_chain){
@@ -325,21 +328,24 @@ SQInteger SQSharedState::ResurrectUnreachable(SQVM *vm)
 
 SQInteger SQSharedState::CollectGarbage(SQVM *vm)
 {
-	SQInteger n=0;
-	SQCollectable *tchain=NULL;
+	SQInteger n = 0;
+	SQCollectable *tchain = NULL;
 
 	RunMark(vm,&tchain);
 
 	SQCollectable *t = _gc_chain;
 	SQCollectable *nx = NULL;
-	while(t) {
+	if(t) {
 		t->_uiRef++;
-		t->Finalize();
-		nx = t->_next;
-		if(--t->_uiRef == 0)
-			t->Release();
-		t = nx;
-		n++;
+		while(t) {
+			t->Finalize();
+			nx = t->_next;
+			if(nx) nx->_uiRef++;
+			if(--t->_uiRef == 0)
+				t->Release();
+			t = nx;
+			n++;
+		}
 	}
 
 	t = tchain;

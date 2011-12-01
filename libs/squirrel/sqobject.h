@@ -1,8 +1,4 @@
 /*	see copyright notice in squirrel.h */
-/* 2011-11-13  Camilla Berglund  <elmindreda@elmindreda.org>
- *   Fixed warning on GCC.
- */
-
 #ifndef _SQOBJECT_H_
 #define _SQOBJECT_H_
 
@@ -295,7 +291,7 @@ struct SQObjectPtr : public SQObject
 	{
 		__Release(_type ,_unVal);
 		_type = OT_NULL;
-		_unVal.raw = SQRawObjectVal(0);
+		_unVal.raw = (SQRawObjectVal)NULL;
 	}
 	private:
 		SQObjectPtr(const SQChar *){} //safety
