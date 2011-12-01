@@ -231,10 +231,7 @@ bool Drawer::pushClipArea(const Rect& area)
   const Rect& total = clipAreaStack.getTotal();
 
   GL::Context& context = pool.getContext();
-  context.setScissorArea(Recti(int(total.position.x),
-                               int(total.position.y),
-                               int(total.size.x),
-                               int(total.size.y)));
+  context.setScissorArea(Recti(ivec2(total.position), ivec2(total.size)));
 
   return true;
 }
@@ -253,10 +250,7 @@ void Drawer::popClipArea()
   else
   {
     const Rect& total = clipAreaStack.getTotal();
-    area.set(int(total.position.x),
-             int(total.position.y),
-             int(total.size.x),
-             int(total.size.y));
+    area.set(ivec2(total.position), ivec2(total.size));
   }
 
   context.setScissorArea(area);
