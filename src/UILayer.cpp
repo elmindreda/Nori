@@ -132,13 +132,10 @@ void Layer::cancelDragging()
 {
   if (dragging && draggedWidget)
   {
-    ivec2 cursorPosition = context.getCursorPosition();
+    vec2 cursorPosition = vec2(context.getCursorPosition());
     cursorPosition.y = context.getHeight() - cursorPosition.y;
 
-    const vec2 scaledPosition((float) cursorPosition.x,
-                              (float) cursorPosition.y);
-
-    draggedWidget->dragEndedSignal(*draggedWidget, scaledPosition);
+    draggedWidget->dragEndedSignal(*draggedWidget, cursorPosition);
 
     draggedWidget = NULL;
     dragging = false;
@@ -222,13 +219,10 @@ void Layer::updateHoveredWidget()
   if (captureWidget)
     return;
 
-  ivec2 cursorPosition = context.getCursorPosition();
+  vec2 cursorPosition = vec2(context.getCursorPosition());
   cursorPosition.y = context.getHeight() - cursorPosition.y;
 
-  const vec2 scaledPosition((float) cursorPosition.x,
-                            (float) cursorPosition.y);
-
-  Widget* newWidget = findWidgetByPoint(scaledPosition);
+  Widget* newWidget = findWidgetByPoint(cursorPosition);
 
   if (hoveredWidget == newWidget)
     return;
@@ -309,36 +303,30 @@ void Layer::onCursorMoved(const ivec2& position)
 {
   updateHoveredWidget();
 
-  ivec2 cursorPosition = context.getCursorPosition();
+  vec2 cursorPosition = vec2(context.getCursorPosition());
   cursorPosition.y = context.getHeight() - cursorPosition.y;
 
-  const vec2 scaledPosition((float) cursorPosition.x,
-                            (float) cursorPosition.y);
-
   if (hoveredWidget)
-    hoveredWidget->cursorMovedSignal(*hoveredWidget, scaledPosition);
+    hoveredWidget->cursorMovedSignal(*hoveredWidget, cursorPosition);
 
   if (draggedWidget)
   {
     if (dragging)
-      draggedWidget->dragMovedSignal(*draggedWidget, scaledPosition);
+      draggedWidget->dragMovedSignal(*draggedWidget, cursorPosition);
     else
     {
       // TODO: Add insensitivity radius.
 
       dragging = true;
-      draggedWidget->dragBegunSignal(*draggedWidget, scaledPosition);
+      draggedWidget->dragBegunSignal(*draggedWidget, cursorPosition);
     }
   }
 }
 
 void Layer::onButtonClicked(input::Button button, bool clicked)
 {
-  ivec2 cursorPosition = context.getCursorPosition();
+  vec2 cursorPosition = vec2(context.getCursorPosition());
   cursorPosition.y = context.getHeight() - cursorPosition.y;
-
-  const vec2 scaledPosition((float) cursorPosition.x,
-                            (float) cursorPosition.y);
 
   if (clicked)
   {
@@ -352,7 +340,7 @@ void Layer::onButtonClicked(input::Button button, bool clicked)
       {
         if ((*w)->isVisible())
         {
-          clickedWidget = (*w)->findByPoint(scaledPosition);
+          clickedWidget = (*w)->findByPoint(cursorPosition);
           if (clickedWidget)
             break;
         }
@@ -366,7 +354,7 @@ void Layer::onButtonClicked(input::Button button, bool clicked)
     {
       clickedWidget->activate();
       clickedWidget->buttonClickedSignal(*clickedWidget,
-                                         scaledPosition,
+                                         cursorPosition,
                                          button,
                                          clicked);
 
@@ -380,7 +368,7 @@ void Layer::onButtonClicked(input::Button button, bool clicked)
     {
       if (dragging)
       {
-        draggedWidget->dragEndedSignal(*draggedWidget, scaledPosition);
+        draggedWidget->dragEndedSignal(*draggedWidget, cursorPosition);
         dragging = false;
       }
 
@@ -389,10 +377,10 @@ void Layer::onButtonClicked(input::Button button, bool clicked)
 
     if (activeWidget)
     {
-      if (captureWidget || activeWidget->getGlobalArea().contains(scaledPosition))
+      if (captureWidget || activeWidget->getGlobalArea().contains(cursorPosition))
       {
         activeWidget->buttonClickedSignal(*activeWidget,
-                                          scaledPosition,
+                                          cursorPosition,
                                           button,
                                           clicked);
       }
