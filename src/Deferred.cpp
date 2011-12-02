@@ -255,13 +255,11 @@ bool Renderer::init(const Config& config)
     GL::ProgramInterface interface;
     interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
     interface.addUniform("light.color", GL::Uniform::VEC3);
-    interface.addAttribute("wyPosition", GL::Attribute::VEC2);
-    interface.addAttribute("wyTexCoord", GL::Attribute::VEC2);
+    interface.addAttributes(LightVertex::format);
 
     if (!interface.matches(*program, true))
     {
-      logError("Deferred ambient light program \'%s\' does not match the required interface",
-               programName.c_str());
+      logError("Deferred ambient light program interface mismatch");
       return false;
     }
 
@@ -292,14 +290,11 @@ bool Renderer::init(const Config& config)
     interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
     interface.addUniform("light.direction", GL::Uniform::VEC3);
     interface.addUniform("light.color", GL::Uniform::VEC3);
-    interface.addAttribute("wyPosition", GL::Attribute::VEC2);
-    interface.addAttribute("wyTexCoord", GL::Attribute::VEC2);
-    interface.addAttribute("wyClipOverF", GL::Attribute::VEC2);
+    interface.addAttributes(LightVertex::format);
 
     if (!interface.matches(*program, true))
     {
-      logError("Deferred directional light program \'%s\' does not match the required interface",
-               programName.c_str());
+      logError("Deferred directional light program interface mismatch");
       return false;
     }
 
@@ -335,14 +330,11 @@ bool Renderer::init(const Config& config)
     interface.addUniform("light.position", GL::Uniform::VEC3);
     interface.addUniform("light.color", GL::Uniform::VEC3);
     interface.addUniform("light.radius", GL::Uniform::FLOAT);
-    interface.addAttribute("wyPosition", GL::Attribute::VEC2);
-    interface.addAttribute("wyTexCoord", GL::Attribute::VEC2);
-    interface.addAttribute("wyClipOverF", GL::Attribute::VEC2);
+    interface.addAttributes(LightVertex::format);
 
     if (!interface.matches(*program, true))
     {
-      logError("Deferred point light program \'%s\' does not match the required interface",
-               programName.c_str());
+      logError("Deferred point light program interface mismatch");
       return false;
     }
 

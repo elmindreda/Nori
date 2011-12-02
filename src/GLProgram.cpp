@@ -1109,6 +1109,34 @@ void ProgramInterface::addAttribute(const char* name, Attribute::Type type)
   attributes.push_back(AttributeList::value_type(name, type));
 }
 
+void ProgramInterface::addAttributes(const VertexFormat& format)
+{
+  for (size_t i = 0;  i < format.getComponentCount();  i++)
+  {
+    Attribute::Type type;
+
+    switch (format[i].getElementCount())
+    {
+      case 1:
+        type = Attribute::FLOAT;
+        break;
+      case 2:
+        type = Attribute::VEC2;
+        break;
+      case 3:
+        type = Attribute::VEC3;
+        break;
+      case 4:
+        type = Attribute::VEC4;
+        break;
+      default:
+        panic("Invalid vertex format component element count");
+    }
+
+    addAttribute(format[i].getName().c_str(), type);
+  }
+}
+
 bool ProgramInterface::matches(const Program& program, bool verbose) const
 {
   for (size_t i = 0;  i < samplers.size();  i++)
@@ -1173,31 +1201,40 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     }
   }
 
-  for (size_t i = 0;  i < attributes.size();  i++)
+  for (size_t i = 0;  i < program.getAttributeCount();  i++)
   {
-    const AttributeList::value_type& entry = attributes[i];
+    const Attribute& attribute = program.getAttribute(i);
 
-    const Attribute* attribute = program.findAttribute(entry.first.c_str());
-    if (!attribute)
+    size_t index;
+
+    for (index = 0;  index < attributes.size();  index++)
+    {
+      if (attributes[index].first == attribute.getName())
+        break;
+    }
+
+    if (index == attributes.size())
     {
       if (verbose)
       {
-        logError("Attribute \'%s\' missing in program \'%s\'",
-                 entry.first.c_str(),
+        logError("Attribute \'%s\' is not provided to program \'%s\'",
+                 attribute.getName().c_str(),
                  program.getName().c_str());
       }
 
       return false;
     }
 
-    if (attribute->getType() != entry.second)
+    const AttributeList::value_type& entry = attributes[index];
+
+    if (attribute.getType() != entry.second)
     {
       if (verbose)
       {
         logError("Attribute \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
-                 entry.first.c_str(),
-                 program.getName().c_str(),
-                 Attribute::getTypeName(entry.second));
+                entry.first.c_str(),
+                program.getName().c_str(),
+                Attribute::getTypeName(entry.second));
       }
 
       return false;

@@ -670,9 +670,7 @@ bool Drawer::init()
     interface.addUniform("texPos", GL::Uniform::VEC2);
     interface.addUniform("texSize", GL::Uniform::VEC2);
     interface.addSampler("image", GL::Sampler::SAMPLER_RECT);
-    interface.addAttribute("sizeScale", GL::Attribute::VEC2);
-    interface.addAttribute("offsetScale", GL::Attribute::VEC2);
-    interface.addAttribute("texScale", GL::Attribute::VEC2);
+    interface.addAttributes(ElementVertex::format);
 
     if (!interface.matches(*program, true))
     {
@@ -701,7 +699,7 @@ bool Drawer::init()
 
     GL::ProgramInterface interface;
     interface.addUniform("color", GL::Uniform::VEC4);
-    interface.addAttribute("wyPosition", GL::Attribute::VEC2);
+    interface.addAttributes(Vertex2fv::format);
 
     if (!interface.matches(*program, true))
     {
@@ -730,8 +728,7 @@ bool Drawer::init()
 
     GL::ProgramInterface interface;
     interface.addSampler("image", GL::Sampler::SAMPLER_2D);
-    interface.addAttribute("wyPosition", GL::Attribute::VEC2);
-    interface.addAttribute("wyTexCoord", GL::Attribute::VEC2);
+    interface.addAttributes(Vertex2ft2fv::format);
 
     if (!interface.matches(*program, true))
     {
