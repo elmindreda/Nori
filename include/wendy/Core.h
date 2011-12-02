@@ -253,6 +253,7 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Base class for references.
+ *  @remarks Concept taken from MoSync.
  */
 class RefBase
 {
