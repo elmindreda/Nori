@@ -41,7 +41,7 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Geometry pool.
- *  @ingroup render
+ *  @ingroup renderer
  */
 class GeometryPool : public Trackable
 {
