@@ -814,7 +814,7 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
 
   GLenum mode;
 
-  if (currentProgram->hasTessellation())
+  if (currentProgram->hasTessellationShaders())
   {
     mode = GL_PATCHES;
 

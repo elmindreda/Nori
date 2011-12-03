@@ -247,7 +247,7 @@ public:
   const Uniform* findUniform(const char* name) const;
   bool isCurrent() const;
   bool hasGeometryShader() const;
-  bool hasTessellation() const;
+  bool hasTessellationShaders() const;
   unsigned int getAttributeCount() const;
   Attribute& getAttribute(unsigned int index);
   const Attribute& getAttribute(unsigned int index) const;

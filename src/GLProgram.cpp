@@ -659,7 +659,7 @@ bool Program::hasGeometryShader() const
   return geometryShaderID != 0;
 }
 
-bool Program::hasTessellation() const
+bool Program::hasTessellationShaders() const
 {
   return tessCtrlShaderID && tessEvalShaderID;
 }
