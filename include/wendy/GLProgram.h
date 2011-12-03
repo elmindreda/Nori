@@ -96,6 +96,9 @@ public:
   /*! @return The name of this attribute.
    */
   const String& getName() const;
+  /*! @return The number of elements in this attribute.
+   */
+  unsigned int getElementCount() const;
   /*! @return The GLSL name of the specified attribute type.
    */
   static const char* getTypeName(Type type);

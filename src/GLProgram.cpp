@@ -57,23 +57,6 @@ namespace wendy
 namespace
 {
 
-unsigned int getElementCount(Attribute::Type type)
-{
-  switch (type)
-  {
-    case Attribute::FLOAT:
-      return 1;
-    case Attribute::VEC2:
-      return 2;
-    case Attribute::VEC3:
-      return 3;
-    case Attribute::VEC4:
-      return 4;
-  }
-
-  panic("Invalid GLSL attribute type %u", type);
-}
-
 GLenum getElementType(Attribute::Type type)
 {
   switch (type)
@@ -357,10 +340,27 @@ const String& Attribute::getName() const
   return name;
 }
 
+unsigned int Attribute::getElementCount() const
+{
+  switch (type)
+  {
+    case FLOAT:
+      return 1;
+    case VEC2:
+      return 2;
+    case VEC3:
+      return 3;
+    case VEC4:
+      return 4;
+  }
+
+  panic("Invalid GLSL attribute type %u", type);
+}
+
 void Attribute::bind(size_t stride, size_t offset)
 {
   glVertexAttribPointer(location,
-                        getElementCount(type),
+                        getElementCount(),
                         getElementType(type),
                         GL_FALSE,
                         stride,
