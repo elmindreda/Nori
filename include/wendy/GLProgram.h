@@ -232,7 +232,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GPU program;
+/*! @brief GPU program.
  *  @ingroup opengl
  *
  *  Represents a complete set of GPU programs.
