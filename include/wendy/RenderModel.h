@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_RENDERMESH_H
-#define WENDY_RENDERMESH_H
+#ifndef WENDY_RENDERMODEL_H
+#define WENDY_RENDERMODEL_H
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.h>
@@ -45,8 +45,8 @@ namespace wendy
  *  @ingroup renderer
  *
  *  This class represents a single static model consisting of one or more
- *  Model::Geometry objects. Each geometry is a part of the mesh using a single
- *  %render material and primitive mode.
+ *  Model::Geometry objects. Each geometry is a part of the model using a
+ *  single Material and PrimitiveMode.
  */
 class Model : public Renderable, public Resource
 {
@@ -73,7 +73,7 @@ public:
   /*! @return The index buffer used by this model.
    */
   const GL::IndexBuffer& getIndexBuffer() const;
-  /*! Creates a model from the specified mesh data.
+  /*! Creates a model from the specified mesh.
    *  @param[in] info The resource info for the texture.
    *  @param[in] context The OpenGL context within which to create the texture.
    *  @param[in] data The mesh to use.
@@ -148,5 +148,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_RENDERMESH_H*/
+#endif /*WENDY_RENDERMODEL_H*/
 ///////////////////////////////////////////////////////////////////////
