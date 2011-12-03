@@ -27,7 +27,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.h>
-#include <wendy/Plane.h>
 #include <wendy/Rectangle.h>
 #include <wendy/AABB.h>
 #include <wendy/Pixel.h>
@@ -384,7 +383,6 @@ public:
      */
     MANUAL_REFRESH
   };
-  typedef std::vector<Plane> PlaneList;
   /*! Destructor.
    */
   ~Context();
@@ -589,7 +587,6 @@ private:
   Ref<IndexBuffer> currentIndexBuffer;
   Ref<Framebuffer> currentFramebuffer;
   Ref<DefaultFramebuffer> defaultFramebuffer;
-  PlaneList planes;
   Stats* stats;
   static Context* instance;
 };
