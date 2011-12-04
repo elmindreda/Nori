@@ -43,6 +43,10 @@ SharedProgramState::SharedProgramState():
   dirtyModelView(true),
   dirtyViewProj(true),
   dirtyModelViewProj(true),
+  cameraNearZ(0.f),
+  cameraFarZ(0.f),
+  cameraAspect(0.f),
+  cameraFOV(0.f),
   viewportWidth(0.f),
   viewportHeight(0.f),
   time(0.f)
@@ -93,11 +97,11 @@ void SharedProgramState::getCameraProperties(vec3& position,
                                              float& nearZ,
                                              float& farZ) const
 {
-  position = camera.position;
-  FOV = camera.FOV;
-  aspect = camera.aspect;
-  nearZ = camera.nearZ;
-  farZ = camera.farZ;
+  position = cameraPos;
+  FOV = cameraFOV;
+  aspect = cameraAspect;
+  nearZ = cameraNearZ;
+  farZ = cameraFarZ;
 }
 
 float SharedProgramState::getViewportWidth() const
@@ -163,11 +167,11 @@ void SharedProgramState::setCameraProperties(const vec3& position,
                                              float nearZ,
                                              float farZ)
 {
-  camera.position = position;
-  camera.FOV = FOV;
-  camera.aspect = aspect;
-  camera.nearZ = nearZ;
-  camera.farZ = farZ;
+  cameraPos = position;
+  cameraFOV = FOV;
+  cameraAspect = aspect;
+  cameraNearZ = nearZ;
+  cameraFarZ = farZ;
 }
 
 void SharedProgramState::setViewportSize(float newWidth, float newHeight)
@@ -257,31 +261,31 @@ void SharedProgramState::updateTo(GL::Uniform& uniform)
 
     case SHARED_CAMERA_POSITION:
     {
-      uniform.copyFrom(value_ptr(camera.position));
+      uniform.copyFrom(value_ptr(cameraPos));
       return;
     }
 
     case SHARED_CAMERA_NEAR_Z:
     {
-      uniform.copyFrom(&camera.nearZ);
+      uniform.copyFrom(&cameraNearZ);
       return;
     }
 
     case SHARED_CAMERA_FAR_Z:
     {
-      uniform.copyFrom(&camera.farZ);
+      uniform.copyFrom(&cameraFarZ);
       return;
     }
 
     case SHARED_CAMERA_ASPECT_RATIO:
     {
-      uniform.copyFrom(&camera.aspect);
+      uniform.copyFrom(&cameraAspect);
       return;
     }
 
     case SHARED_CAMERA_FOV:
     {
-      uniform.copyFrom(&camera.FOV);
+      uniform.copyFrom(&cameraFOV);
       return;
     }
 

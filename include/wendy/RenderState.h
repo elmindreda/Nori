@@ -147,14 +147,11 @@ private:
   mat4 modelViewMatrix;
   mat4 viewProjMatrix;
   mat4 modelViewProjMatrix;
-  struct
-  {
-    float nearZ;
-    float farZ;
-    float aspect;
-    float FOV;
-    vec3 position;
-  } camera;
+  float cameraNearZ;
+  float cameraFarZ;
+  float cameraAspect;
+  float cameraFOV;
+  vec3 cameraPos;
   float viewportWidth;
   float viewportHeight;
   float time;
