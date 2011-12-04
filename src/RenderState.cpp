@@ -43,6 +43,8 @@ SharedProgramState::SharedProgramState():
   dirtyModelView(true),
   dirtyViewProj(true),
   dirtyModelViewProj(true),
+  viewportWidth(0.f),
+  viewportHeight(0.f),
   time(0.f)
 {
 }
@@ -62,8 +64,8 @@ bool SharedProgramState::reserveSupported(GL::Context& context) const
   context.createSharedUniform("wyCameraFOV", GL::Uniform::FLOAT, SHARED_CAMERA_FOV);
   context.createSharedUniform("wyCameraPosition", GL::Uniform::VEC3, SHARED_CAMERA_POSITION);
 
-  //context.createSharedUniform("wyViewportWidth", GL::Uniform::INT, SHARED_VIEWPORT_WIDTH);
-  //context.createSharedUniform("wyViewportHeight", GL::Uniform::INT, SHARED_VIEWPORT_HEIGHT);
+  context.createSharedUniform("wyViewportWidth", GL::Uniform::FLOAT, SHARED_VIEWPORT_WIDTH);
+  context.createSharedUniform("wyViewportHeight", GL::Uniform::FLOAT, SHARED_VIEWPORT_HEIGHT);
 
   context.createSharedUniform("wyTime", GL::Uniform::FLOAT, SHARED_TIME);
 
@@ -96,6 +98,16 @@ void SharedProgramState::getCameraProperties(vec3& position,
   aspect = camera.aspect;
   nearZ = camera.nearZ;
   farZ = camera.farZ;
+}
+
+float SharedProgramState::getViewportWidth() const
+{
+  return viewportWidth;
+}
+
+float SharedProgramState::getViewportHeight() const
+{
+  return viewportHeight;
 }
 
 float SharedProgramState::getTime() const
@@ -156,6 +168,12 @@ void SharedProgramState::setCameraProperties(const vec3& position,
   camera.aspect = aspect;
   camera.nearZ = nearZ;
   camera.farZ = farZ;
+}
+
+void SharedProgramState::setViewportSize(float newWidth, float newHeight)
+{
+  viewportWidth = newWidth;
+  viewportHeight = newHeight;
 }
 
 void SharedProgramState::setTime(float newTime)
@@ -264,6 +282,18 @@ void SharedProgramState::updateTo(GL::Uniform& uniform)
     case SHARED_CAMERA_FOV:
     {
       uniform.copyFrom(&camera.FOV);
+      return;
+    }
+
+    case SHARED_VIEWPORT_WIDTH:
+    {
+      uniform.copyFrom(&viewportWidth);
+      return;
+    }
+
+    case SHARED_VIEWPORT_HEIGHT:
+    {
+      uniform.copyFrom(&viewportHeight);
       return;
     }
 

@@ -91,6 +91,8 @@ public:
                            float& aspect,
                            float& nearZ,
                            float& farZ) const;
+  float getViewportWidth() const;
+  float getViewportHeight() const;
   float getTime() const;
   /*! Sets the model matrix.
    *  @param[in] newMatrix The desired model matrix.
@@ -130,6 +132,7 @@ public:
                                    float aspect,
                                    float nearZ,
                                    float farZ);
+  virtual void setViewportSize(float newWidth, float newHeight);
   virtual void setTime(float newTime);
 protected:
   virtual void updateTo(GL::Uniform& uniform);
@@ -152,6 +155,8 @@ private:
     float FOV;
     vec3 position;
   } camera;
+  float viewportWidth;
+  float viewportHeight;
   float time;
 };
 

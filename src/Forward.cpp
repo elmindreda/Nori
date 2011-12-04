@@ -48,11 +48,14 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
   GL::Context& context = pool.getContext();
   context.setCurrentSharedProgramState(state);
 
+  const Recti& viewportArea = context.getViewportArea();
+
   state->setViewMatrix(camera.getViewTransform());
   state->setPerspectiveProjectionMatrix(camera.getFOV(),
                                         camera.getAspectRatio(),
                                         camera.getNearZ(),
                                         camera.getFarZ());
+  state->setViewportSize(viewportArea.size.x, viewportArea.size.y);
   state->setCameraProperties(camera.getTransform().position,
                              camera.getFOV(),
                              camera.getAspectRatio(),
