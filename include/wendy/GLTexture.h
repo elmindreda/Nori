@@ -265,6 +265,8 @@ public:
   /*! @return The image format of this texture.
    */
   const PixelFormat& getFormat() const;
+  /*! @return The size, in bytes, of the data in all images of this texture.
+   */
   size_t getSize() const;
   /*! @return The context used to create this texture.
    */
