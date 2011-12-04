@@ -40,7 +40,7 @@ private:
 
 Demo::Demo():
   quitting(false),
-  drawdebug(true),
+  drawdebug(false),
   currentTime(0.0),
   cameraNode(NULL)
 {
@@ -182,6 +182,8 @@ void Demo::onKeyPressed(input::Key key, bool pressed)
 {
   controller.inputKeyPress(key, pressed);
 
+  GL::Context& context = pool->getContext();
+
   if (pressed)
   {
     switch (key)
@@ -191,6 +193,7 @@ void Demo::onKeyPressed(input::Key key, bool pressed)
         return;
       case input::KEY_F1:
         drawdebug = !drawdebug;
+        context.setSwapInterval(drawdebug ? 0 : 1);
         return;
     }
   }

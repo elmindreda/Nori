@@ -997,6 +997,17 @@ void Context::setRefreshMode(RefreshMode newMode)
   refreshMode = newMode;
 }
 
+unsigned int Context::getSwapInterval() const
+{
+  return swapInterval;
+}
+
+void Context::setSwapInterval(unsigned int newInterval)
+{
+  glfwSwapInterval(newInterval);
+  swapInterval = newInterval;
+}
+
 const Recti& Context::getScissorArea() const
 {
   return scissorArea;
@@ -1431,14 +1442,13 @@ bool Context::init(const WindowConfig& windowConfig,
   // Finish GLFW init
   {
     setTitle(windowConfig.title.c_str());
+    setSwapInterval(1);
 
     glfwSetWindowSizeCallback(sizeCallback);
     glfwSetWindowCloseCallback(closeCallback);
     glfwSetWindowRefreshCallback(refreshCallback);
     glfwDisable(GLFW_AUTO_POLL_EVENTS);
     glfwPollEvents();
-
-    glfwSwapInterval(1);
   }
 
   return true;
