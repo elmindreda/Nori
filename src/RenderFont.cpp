@@ -298,7 +298,10 @@ bool Font::init(const FontData& data)
 
     Image image(cache, PixelFormat::R8, textureWidth, textureHeight);
 
-    texture = GL::Texture::create(cache, pool.getContext(), image, 0);
+    GL::TextureParams params(GL::TEXTURE_2D);
+    params.mipmapped = false;
+
+    texture = GL::Texture::create(cache, pool.getContext(), params, image);
     if (!texture)
     {
       logError("Failed to create glyph texture for font \'%s\'",

@@ -159,10 +159,22 @@ const char* asString(TextureType type)
 
 Bimap<String, FilterMode> filterModeMap;
 Bimap<String, AddressMode> addressModeMap;
+Bimap<String, TextureType> typeMap;
 
-const unsigned int TEXTURE_XML_VERSION = 1;
+const unsigned int TEXTURE_XML_VERSION = 2;
 
 } /*namespace*/
+
+///////////////////////////////////////////////////////////////////////
+
+TextureParams::TextureParams(TextureType initType):
+  type(initType)
+{
+  if (type == TEXTURE_RECT)
+    mipmapped = false;
+  else
+    mipmapped = true;
+}
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -572,11 +584,11 @@ Context& Texture::getContext() const
 
 Ref<Texture> Texture::create(const ResourceInfo& info,
                              Context& context,
-                             const wendy::Image& source,
-                             unsigned int flags)
+                             const TextureParams& params,
+                             const wendy::Image& source)
 {
   Ref<Texture> texture(new Texture(info, context));
-  if (!texture->init(source, flags))
+  if (!texture->init(params, source))
     return NULL;
 
   return texture;
@@ -584,11 +596,11 @@ Ref<Texture> Texture::create(const ResourceInfo& info,
 
 Ref<Texture> Texture::create(const ResourceInfo& info,
                              Context& context,
-                             const ImageCube& source,
-                             unsigned int flags)
+                             const TextureParams& params,
+                             const ImageCube& source)
 {
   Ref<Texture> texture(new Texture(info, context));
-  if (!texture->init(source, flags))
+  if (!texture->init(params, source))
     return NULL;
 
   return texture;
@@ -620,7 +632,7 @@ Texture::Texture(const Texture& source):
 {
 }
 
-bool Texture::init(const wendy::Image& source, unsigned int flags)
+bool Texture::init(const TextureParams& params, const wendy::Image& source)
 {
   format = source.getFormat();
 
@@ -634,22 +646,21 @@ bool Texture::init(const wendy::Image& source, unsigned int flags)
 
   // Figure out which texture target to use
 
-  if (flags & RECTANGULAR)
+  if (params.type == TEXTURE_RECT)
   {
     if (source.getDimensionCount() > 2)
     {
-      logError("Source image for rectangular texture \'%s\' texture has more than two dimensions",
+      logError("Source image for rectangular texture \'%s\' has more than two dimensions",
                getName().c_str());
       return false;
     }
 
-    if (flags & MIPMAPPED)
+    if (params.mipmapped)
     {
-      logError("Rectangular textures cannot be mipmapped");
+      logError("Texture \'%s\' specified as both rectangular and mipmapped",
+               getName().c_str());
       return false;
     }
-
-    type = TEXTURE_RECT;
   }
   else
   {
@@ -658,14 +669,9 @@ bool Texture::init(const wendy::Image& source, unsigned int flags)
       logWarning("Texture \'%s\' does not have power-of-two dimensions; this may cause slowdown",
                  getName().c_str());
     }
-
-    if (source.getDimensionCount() == 1)
-      type = TEXTURE_1D;
-    else if (source.getDimensionCount() == 2)
-      type = TEXTURE_2D;
-    else
-      type = TEXTURE_3D;
   }
+
+  type = params.type;
 
   // Save source image dimensions
   width = source.getWidth();
@@ -753,7 +759,7 @@ bool Texture::init(const wendy::Image& source, unsigned int flags)
                  source.getPixels());
   }
 
-  if (flags & MIPMAPPED)
+  if (params.mipmapped)
     generateMipmaps();
 
   levels = retrieveImages(convertToGL(type), NO_CUBE_FACE);
@@ -773,11 +779,11 @@ bool Texture::init(const wendy::Image& source, unsigned int flags)
   return true;
 }
 
-bool Texture::init(const ImageCube& source, unsigned int flags)
+bool Texture::init(const TextureParams& params, const ImageCube& source)
 {
-  if (flags & RECTANGULAR)
+  if (params.type != TEXTURE_CUBE)
   {
-    logError("Invalid flags for texture \'%s\': cube maps cannot use the rectangular flag",
+    logError("Invalid type for texture \'%s\' given image cube source",
               getName().c_str());
     return false;
   }
@@ -826,7 +832,7 @@ bool Texture::init(const ImageCube& source, unsigned int flags)
     }
   }
 
-  type = TEXTURE_CUBE;
+  type = params.type;
 
   glTexImage2D(convertToProxyGL(type),
                0,
@@ -860,7 +866,7 @@ bool Texture::init(const ImageCube& source, unsigned int flags)
                  image.getPixels());
   }
 
-  if (flags & MIPMAPPED)
+  if (params.mipmapped)
     generateMipmaps();
 
   for (unsigned int i = 0;  i < 6;  i++)
@@ -970,6 +976,15 @@ TextureReader::TextureReader(Context& initContext):
     filterModeMap["bilinear"] = FILTER_BILINEAR;
     filterModeMap["trilinear"] = FILTER_TRILINEAR;
   }
+
+  if (typeMap.isEmpty())
+  {
+    typeMap["1D"] = TEXTURE_1D;
+    typeMap["2D"] = TEXTURE_2D;
+    typeMap["3D"] = TEXTURE_3D;
+    typeMap["rect"] = TEXTURE_RECT;
+    typeMap["cube"] = TEXTURE_CUBE;
+  }
 }
 
 Ref<Texture> TextureReader::read(const String& name, const Path& path)
@@ -999,26 +1014,19 @@ Ref<Texture> TextureReader::read(const String& name, const Path& path)
     return NULL;
   }
 
-  unsigned int flags = Texture::DEFAULT;
-
-  // Parse flags
+  const String typeName(root.attribute("type").value());
+  if (!typeMap.hasKey(typeName))
   {
-    bool defaultValue;
-
-    defaultValue = (Texture::DEFAULT & Texture::MIPMAPPED) ? true : false;
-    if (pugi::xml_attribute a = root.attribute("mipmapped"))
-    {
-      if (a.as_bool() != defaultValue)
-        flags ^= Texture::MIPMAPPED;
-    }
-
-    defaultValue = (Texture::DEFAULT & Texture::RECTANGULAR) ? true : false;
-    if (pugi::xml_attribute a = root.attribute("rectangular"))
-    {
-      if (a.as_bool() != defaultValue)
-        flags ^= Texture::RECTANGULAR;
-    }
+    logError("Invalid texture type \'%s\' in texture \'%s\'",
+             typeName.c_str(),
+             name.c_str());
+    return NULL;
   }
+
+  TextureParams params(typeMap[typeName]);
+
+  if (pugi::xml_attribute a = root.attribute("mipmapped"))
+    params.mipmapped = a.as_bool();
 
   const ResourceInfo info(cache, name, path);
 
@@ -1033,7 +1041,7 @@ Ref<Texture> TextureReader::read(const String& name, const Path& path)
       return NULL;
     }
 
-    texture = Texture::create(info, context, *image, flags);
+    texture = Texture::create(info, context, params, *image);
   }
   else if (pugi::xml_attribute a = root.attribute("imagecube"))
   {
@@ -1045,7 +1053,7 @@ Ref<Texture> TextureReader::read(const String& name, const Path& path)
       return NULL;
     }
 
-    texture = Texture::create(info, context, *cube, flags);
+    texture = Texture::create(info, context, params, *cube);
   }
   else
   {

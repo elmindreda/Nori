@@ -1,3 +1,3 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<texture version="1" image="vase_diff.png" filter="trilinear" address="wrap" mipmapped="true" >
+<texture version="2" type="2D" image="vase_diff.png" filter="trilinear" address="wrap" mipmapped="true" >
 </texture>

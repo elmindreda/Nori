@@ -64,8 +64,6 @@ Add value cache to Uniform and Sampler
 Move resource part of Program into render
 Move resource part of Texture into render
 
-Require explicit type at texture creation
-
 Remove ResourceCache from Context, if possible
 
 Move RenderState core into Context

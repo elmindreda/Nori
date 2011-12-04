@@ -110,6 +110,19 @@ enum TextureType
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Texture creation parameters.
+ *  @ingroup opengl
+ */
+class TextureParams
+{
+public:
+  TextureParams(TextureType type);
+  TextureType type;
+  bool mipmapped;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief %Texture image object.
  *  @ingroup opengl
  */
@@ -176,21 +189,6 @@ class Texture : public Resource
   friend class Context;
   friend class TextureImage;
 public:
-  enum
-  {
-    /*! The texture may have non-POT dimensions and will be created with the
-     *  original image dimensions or as close to them as possible.  Note that
-     *  textures created with this flag have an address range of [0..w] and
-     *  [0..h], not [0..1], whether or not they have POT dimensions.
-     */
-    RECTANGULAR = 1,
-    /*! The texture will be created with a mipmap chain.
-     */
-    MIPMAPPED = 2,
-    /*! The default texture creation flags.
-     */
-    DEFAULT = MIPMAPPED
-  };
   /*! Destructor.
    */
   ~Texture();
@@ -275,24 +273,24 @@ public:
    *  @param[in] info The resource info for the texture.
    *  $param[in] context The OpenGL context within which to create the
    *  texture.
+   *  @param[in] params The creation parameters for the texture.
    *  @param[in] image The image data to use.
-   *  @param[in] flags The creation flags.
    */
   static Ref<Texture> create(const ResourceInfo& info,
                              Context& context,
-                             const wendy::Image& source,
-                             unsigned int flags);
+                             const TextureParams& params,
+                             const wendy::Image& source);
   /*! Creates a texture from the specified image cube.
    *  @param[in] info The resource info for the texture.
    *  $param[in] context The OpenGL context within which to create the
    *  texture.
+   *  @param[in] params The creation parameters for the texture.
    *  @param[in] image The image cube data to use.
-   *  @param[in] flags The creation flags.
    */
   static Ref<Texture> create(const ResourceInfo& info,
                              Context& context,
-                             const ImageCube& source,
-                             unsigned int flags);
+                             const TextureParams& params,
+                             const ImageCube& source);
   /*! Creates a texture using the specified texture specification file.
    *  @param[in] context The OpenGL context within which to create the texture.
    *  @param[in] path The path of the texture specification file to use.
@@ -301,8 +299,8 @@ public:
 private:
   Texture(const ResourceInfo& info, Context& context);
   Texture(const Texture& source);
-  bool init(const wendy::Image& source, unsigned int flags);
-  bool init(const ImageCube& source, unsigned int flags);
+  bool init(const TextureParams& params, const wendy::Image& source);
+  bool init(const TextureParams& params, const ImageCube& source);
   bool validateProxy() const;
   unsigned int retrieveImages(unsigned int target, CubeFace face);
   void applyDefaults();

@@ -166,10 +166,7 @@ bool Renderer::init(const Config& config)
   {
     Image image(cache, PixelFormat::RGBA8, config.width, config.height);
 
-    colorTexture = GL::Texture::create(cache,
-                                       context,
-                                       image,
-                                       GL::Texture::RECTANGULAR);
+    colorTexture = GL::Texture::create(cache, context, GL::TEXTURE_RECT, image);
     if (!colorTexture)
     {
       logError("Failed to create color texture for deferred renderer");
@@ -183,10 +180,7 @@ bool Renderer::init(const Config& config)
   {
     Image image(cache, PixelFormat::RGBA8, config.width, config.height);
 
-    normalTexture = GL::Texture::create(cache,
-                                        context,
-                                        image,
-                                        GL::Texture::RECTANGULAR);
+    normalTexture = GL::Texture::create(cache, context, GL::TEXTURE_RECT, image);
     if (!normalTexture)
     {
       logError("Failed to create normal/specularity texture for deferred renderer");
@@ -200,10 +194,7 @@ bool Renderer::init(const Config& config)
   {
     Image image(cache, PixelFormat::DEPTH32, config.width, config.height);
 
-    depthTexture = GL::Texture::create(cache,
-                                       context,
-                                       image,
-                                       GL::Texture::RECTANGULAR);
+    depthTexture = GL::Texture::create(cache, context, GL::TEXTURE_RECT, image);
     if (!depthTexture)
     {
       logError("Failed to create depth texture for deferred renderer");
