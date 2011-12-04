@@ -513,6 +513,35 @@ void Texture::setAddressMode(AddressMode newMode)
 #endif
 }
 
+float Texture::getMaxAnisotropy() const
+{
+  return maxAnisotropy;
+}
+
+void Texture::setMaxAnisotropy(float newMax)
+{
+  if (newMax != maxAnisotropy)
+  {
+    if (!GLEW_EXT_texture_filter_anisotropic)
+    {
+      logError("Cannot set max anisotropy: "
+               "GL_EXT_texture_filter_anisotropic is missing");
+      return;
+    }
+
+    context.setCurrentTexture(this);
+
+    glTexParameteri(convertToGL(type), GL_TEXTURE_MAX_ANISOTROPY_EXT, newMax);
+
+    maxAnisotropy = newMax;
+  }
+
+#if WENDY_DEBUG
+  checkGL("Error when changing max anisotropy for texture \'%s\'",
+          getName().c_str());
+#endif
+}
+
 const PixelFormat& Texture::getFormat() const
 {
   return format;
@@ -580,7 +609,8 @@ Texture::Texture(const ResourceInfo& info, Context& initContext):
   depth(0),
   levels(0),
   filterMode(FILTER_BILINEAR),
-  addressMode(ADDRESS_WRAP)
+  addressMode(ADDRESS_WRAP),
+  maxAnisotropy(1.f)
 {
 }
 
@@ -1044,6 +1074,9 @@ Ref<Texture> TextureReader::read(const String& name, const Path& path)
       return NULL;
     }
   }
+
+  if (pugi::xml_attribute a = root.attribute("anisotropy"))
+    texture->setMaxAnisotropy(a.as_float());
 
   return texture;
 }

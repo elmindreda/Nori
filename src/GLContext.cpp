@@ -144,6 +144,13 @@ GLint getIntegerParameter(GLenum parameter)
   return value;
 }
 
+GLfloat getFloatParameter(GLenum parameter)
+{
+  GLfloat value;
+  glGetFloatv(parameter, &value);
+  return value;
+}
+
 const char* getFramebufferStatusMessage(GLenum status)
 {
   switch (status)
@@ -348,6 +355,11 @@ Limits::Limits(Context& initContext):
 
   Version version = context.getVersion();
 
+  if (GLEW_EXT_texture_filter_anisotropic)
+    maxTextureAnisotropy = getFloatParameter(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+  else
+    maxTextureAnisotropy = 1.f;
+
   if (GLEW_ARB_geometry_shader4 || version > Version(3,1))
   {
     maxGeometryOutputVertices = getIntegerParameter(GL_MAX_GEOMETRY_OUTPUT_VERTICES);
@@ -434,6 +446,11 @@ unsigned int Limits::getMaxTextureRectangleSize() const
 unsigned int Limits::getMaxTextureCoords() const
 {
   return maxTextureCoords;
+}
+
+float Limits::getMaxTextureAnisotropy() const
+{
+  return maxTextureAnisotropy;
 }
 
 unsigned int Limits::getMaxVertexAttributes() const

@@ -72,8 +72,6 @@ Move RenderState core into Context
 Move ProgramState into render
 Remove last uses of OpenGL state stack
 
-Add anisotropic filtering to Texture
-
 Move onto GLFW 3
 Make Context be a non-singleton object
 

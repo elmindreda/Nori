@@ -255,6 +255,13 @@ public:
    *  @param[in] newMode The desired address wrapping mode.
    */
   void setAddressMode(AddressMode newMode);
+  /*! @return The maximum anisotropy of this texture.
+   */
+  float getMaxAnisotropy() const;
+  /*! Sets the maximum anisotropy of this texture.
+   *  @param[in] newMax The desired value.
+   */
+  void setMaxAnisotropy(float newMax);
   /*! @return The image format of this texture.
    */
   const PixelFormat& getFormat() const;
@@ -308,6 +315,7 @@ private:
   unsigned int levels;
   FilterMode filterMode;
   AddressMode addressMode;
+  float maxAnisotropy;
   PixelFormat format;
   ImageList images;
 };

@@ -233,6 +233,9 @@ public:
   /*! @return The number of available texture coordinates.
    */
   unsigned int getMaxTextureCoords() const;
+  /*! @return The maximum texture anisotropy.
+   */
+  float getMaxTextureAnisotropy() const;
   /*! @return The number of available vertex attributes.
    */
   unsigned int getMaxVertexAttributes() const;
@@ -253,6 +256,7 @@ private:
   unsigned int maxTexture3DSize;
   unsigned int maxTextureCubeSize;
   unsigned int maxTextureRectangleSize;
+  float maxTextureAnisotropy;
   unsigned int maxVertexAttributes;
   unsigned int maxTextureCoords;
   unsigned int maxGeometryOutputVertices;
