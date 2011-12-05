@@ -698,19 +698,16 @@ bool ImageWriter::write(const Path& path, const Image& image)
 
   const unsigned int pixelSize = image.getFormat().getSize();
 
-  const png_byte** rows = new const png_byte* [image.getHeight()];
+  std::vector<const png_byte*> rows(image.getHeight());
 
   for (unsigned int y = 0;  y < image.getHeight();  y++)
     rows[y] = data + (image.getHeight() - y - 1) * image.getWidth() * pixelSize;
 
-  png_set_rows(context, info, const_cast<png_byte**>(rows));
+  png_set_rows(context, info, const_cast<png_byte**>(&rows[0]));
 
   png_write_png(context, info, PNG_TRANSFORM_IDENTITY, NULL);
 
   png_destroy_write_struct(&context, &info);
-
-  delete [] rows;
-  rows = NULL;
 
   return true;
 }
