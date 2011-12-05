@@ -57,7 +57,7 @@ public:
   unsigned int getItemCount() const;
   Item* getItem(unsigned int index);
   const Item* getItem(unsigned int index) const;
-  SignalProxy1<void, List&> getSelectionChangedSignal();
+  SignalProxy2<void, List&, unsigned int> getItemSelectedSignal();
 protected:
   void draw() const;
 private:
@@ -72,7 +72,7 @@ private:
   void updateScroller();
   unsigned int getVisibleItemCount() const;
   void setSelection(unsigned int newIndex, bool notify);
-  Signal1<void, List&> selectionChangedSignal;
+  Signal2<void, List&, unsigned int> itemSelectedSignal;
   ItemList items;
   unsigned int offset;
   unsigned int selection;
