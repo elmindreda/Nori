@@ -208,6 +208,13 @@ Item* List::getSelectedItem() const
   return items[selection];
 }
 
+void List::setSelectedItem(Item* newItem)
+{
+  ItemList::const_iterator i = std::find(items.begin(), items.end(), newItem);
+  assert(i != items.end());
+  selection = i - items.begin();
+}
+
 unsigned int List::getItemCount() const
 {
   return (unsigned int) items.size();
