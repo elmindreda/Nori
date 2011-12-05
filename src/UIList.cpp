@@ -98,6 +98,28 @@ void List::createItem(const char* value, ItemID ID)
   addItem(*item);
 }
 
+Item* List::findItem(const char* value)
+{
+  for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
+  {
+    if ((*i)->asString() == value)
+      return *i;
+  }
+
+  return NULL;
+}
+
+const Item* List::findItem(const char* value) const
+{
+  for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
+  {
+    if ((*i)->asString() == value)
+      return *i;
+  }
+
+  return NULL;
+}
+
 void List::destroyItem(Item& item)
 {
   ItemList::iterator i = std::find(items.begin(), items.end(), &item);
@@ -106,20 +128,6 @@ void List::destroyItem(Item& item)
     delete *i;
     items.erase(i);
     setOffset(offset);
-  }
-}
-
-void List::destroyItem(const char* value)
-{
-  for (ItemList::iterator i = items.begin();  i != items.end();  i++)
-  {
-    if ((*i)->asString() == value)
-    {
-      delete *i;
-      items.erase(i);
-      setOffset(offset);
-      break;
-    }
   }
 }
 

@@ -42,8 +42,9 @@ public:
   ~List();
   void addItem(Item& item);
   void createItem(const char* value, ItemID ID = 0);
+  Item* findItem(const char* value);
+  const Item* findItem(const char* value) const;
   void destroyItem(Item& item);
-  void destroyItem(const char* value);
   void destroyItems();
   void sortItems();
   bool isItemVisible(const Item* item) const;
