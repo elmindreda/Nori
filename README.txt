@@ -86,6 +86,7 @@ Additionally, the following OpenGL extensions are used where available:
   GL_EXT_framebuffer_sRGB
   GL_ARB_geometry_shader4
   GL_ARB_tessellation_shader
+  GL_EXT_texture_filter_anisotropic
 
 
 4. Hacking Wendy
