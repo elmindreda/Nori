@@ -68,7 +68,7 @@ Menu::Menu(Layer& layer):
   getFocusChangedSignal().connect(*this, &Menu::onFocusChanged);
 
   setDraggable(true);
-  setVisible(false);
+  hide();
 }
 
 Menu::~Menu()
@@ -79,7 +79,7 @@ Menu::~Menu()
 void Menu::display()
 {
   selection = 0;
-  setVisible(true);
+  show();
   bringToFront();
   activate();
 }
@@ -222,7 +222,7 @@ void Menu::draw() const
 void Menu::onFocusChanged(Widget& widget, bool activated)
 {
   if (!activated)
-    setVisible(false);
+    hide();
 }
 
 void Menu::onCursorMoved(Widget& widget, const vec2& position)
@@ -276,7 +276,7 @@ void Menu::onButtonClicked(Widget& widget,
     if (itemTop - itemHeight <= localPosition.y)
     {
       itemSelectedSignal(*this, index);
-      setVisible(false);
+      hide();
       return;
     }
 
@@ -316,7 +316,7 @@ void Menu::onKeyPressed(Widget& widget, input::Key key, bool pressed)
     case input::KEY_ENTER:
     {
       itemSelectedSignal(*this, selection);
-      setVisible(false);
+      hide();
       break;
     }
   }
@@ -327,7 +327,7 @@ void Menu::onDragEnded(Widget& widget, const vec2& position)
   vec2 localPosition = transformToLocal(position);
 
   if (!getArea().contains(localPosition))
-    setVisible(false);
+    hide();
 }
 
 void Menu::sizeToFit()

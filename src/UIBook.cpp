@@ -142,7 +142,7 @@ void Book::addedChild(Widget& child)
     page->setArea(Rect(0.f, 0.f, size.x, size.y - em * 2.f));
 
     if (activePage)
-      page->setVisible(false);
+      page->hide();
     else
       setActivePage(page, false);
   }
@@ -189,10 +189,10 @@ void Book::setActivePage(Page* newPage, bool notify)
     return;
 
   if (activePage)
-    activePage->setVisible(false);
+    activePage->hide();
 
   activePage = newPage;
-  activePage->setVisible(true);
+  activePage->show();
   activePage->activate();
 
   if (notify)

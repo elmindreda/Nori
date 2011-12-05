@@ -134,6 +134,24 @@ vec2 Widget::transformToGlobal(const vec2& localPoint) const
   return localPoint + getGlobalArea().position;
 }
 
+void Widget::show()
+{
+  if (!visible)
+  {
+    visible = true;
+    invalidate();
+  }
+}
+
+void Widget::hide()
+{
+  if (visible)
+  {
+    visible = false;
+    invalidate();
+  }
+}
+
 void Widget::enable()
 {
   if (!enabled)
@@ -338,15 +356,6 @@ void Widget::setSize(const vec2& newSize)
 void Widget::setPosition(const vec2& newPosition)
 {
   setArea(Rect(newPosition, area.size));
-}
-
-void Widget::setVisible(bool newState)
-{
-  if (newState != visible)
-  {
-    visible = newState;
-    invalidate();
-  }
 }
 
 void Widget::setDraggable(bool newState)

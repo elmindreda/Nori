@@ -364,13 +364,13 @@ void List::updateScroller()
 
   if (count < items.size())
   {
-    scroller->setVisible(true);
+    scroller->show();
     scroller->setValue((float) offset);
     scroller->setValueRange(0.f, (float) items.size() - 1);
     scroller->setPercentage(count / (float) items.size());
   }
   else
-    scroller->setVisible(false);
+    scroller->hide();
 }
 
 unsigned int List::getVisibleItemCount() const

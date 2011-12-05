@@ -87,6 +87,12 @@ public:
    *  @return The corresponding global coordinate point.
    */
   vec2 transformToGlobal(const vec2& localPoint) const;
+  /*! Makes this widget visible.
+   */
+  void show();
+  /*! Makes this widget non-visible.
+   */
+  void hide();
   /*! Enables this widget, allowing it to become active and receive input
    *  events.
    */
@@ -185,9 +191,6 @@ public:
    *  @remarks This is a helper method for Widget::setArea.
    */
   void setPosition(const vec2& newPosition);
-  /*! Sets whether this widget is visible.
-   */
-  void setVisible(bool newState);
   /*! Sets whether this widget can be the source of drag operations.
    */
   void setDraggable(bool newState);
