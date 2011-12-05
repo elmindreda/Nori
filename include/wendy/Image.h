@@ -134,7 +134,7 @@ public:
   /*! Returns an image containing the specified area of this image.
    *  @param area The desired area of this image.
    */
-  Ref<Image> getArea(const Recti& area);
+  Ref<Image> getArea(const Recti& area) const;
   static Ref<Image> read(ResourceCache& cache, const String& name);
 private:
   unsigned int width;
@@ -147,49 +147,6 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 typedef Ref<Image> ImageRef;
-
-///////////////////////////////////////////////////////////////////////
-
-enum CubeFace
-{
-  CUBE_POSITIVE_X,
-  CUBE_NEGATIVE_X,
-  CUBE_POSITIVE_Y,
-  CUBE_NEGATIVE_Y,
-  CUBE_POSITIVE_Z,
-  CUBE_NEGATIVE_Z,
-  NO_CUBE_FACE
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief %Image cube object.
- */
-class ImageCube : public Resource
-{
-public:
-  ImageCube(const ResourceInfo& info);
-  ImageCube(const ImageCube& source);
-  /*! @return @c true if all images have power-of-two dimensions, otherwise @c false.
-   */
-  bool isPOT() const;
-  /*! @return @c true if all images are square, otherwise @c false.
-   */
-  bool isSquare() const;
-  /*! @return @c true if all images are present, otherwise @c false.
-   */
-  bool isComplete() const;
-  /*! @return @c true if all images have the same format, otherwise @c false.
-   */
-  bool hasSameFormat() const;
-  /*! @return @c true if all images have the same size, otherwise @c false.
-   */
-  bool hasSameSize() const;
-  static Ref<ImageCube> read(ResourceCache& cache, const String& name);
-  /*! The array of images for the faces of the image cube.
-   */
-  ImageRef images[6];
-};
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -207,16 +164,6 @@ class ImageWriter
 {
 public:
   bool write(const Path& path, const Image& image);
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class ImageCubeReader : public ResourceReader<ImageCube>
-{
-public:
-  ImageCubeReader(ResourceCache& cache);
-  using ResourceReader::read;
-  Ref<ImageCube> read(const String& name, const Path& path);
 };
 
 ///////////////////////////////////////////////////////////////////////

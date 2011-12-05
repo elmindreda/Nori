@@ -390,7 +390,7 @@ unsigned int Image::getDimensionCount() const
   return 1;
 }
 
-Ref<Image> Image::getArea(const Recti& area)
+Ref<Image> Image::getArea(const Recti& area) const
 {
   if (area.position.x >= (int) width || area.position.y >= (int) height)
     return NULL;
@@ -421,96 +421,6 @@ Ref<Image> Image::getArea(const Recti& area)
 Ref<Image> Image::read(ResourceCache& cache, const String& name)
 {
   ImageReader reader(cache);
-  return reader.read(name);
-}
-
-///////////////////////////////////////////////////////////////////////
-
-ImageCube::ImageCube(const ResourceInfo& info):
-  Resource(info)
-{
-}
-
-ImageCube::ImageCube(const ImageCube& source):
-  Resource(source)
-{
-}
-
-bool ImageCube::isPOT() const
-{
-  if (!isComplete())
-    return false;
-
-  for (unsigned int i = 0;  i < 6;  i++)
-  {
-    if (!images[i]->isPOT())
-      return false;
-  }
-
-  return true;
-}
-
-bool ImageCube::isSquare() const
-{
-  if (!isComplete())
-    return false;
-
-  for (unsigned int i = 0;  i < 6;  i++)
-  {
-    if (!images[i]->isSquare())
-      return false;
-  }
-
-  return true;
-}
-
-bool ImageCube::isComplete() const
-{
-  for (unsigned int i = 0;  i < 6;  i++)
-  {
-    if (!images[i])
-      return false;
-  }
-
-  return true;
-}
-
-bool ImageCube::hasSameFormat() const
-{
-  if (!isComplete())
-    return false;
-
-  PixelFormat format = images[0]->getFormat();
-
-  for (unsigned int i = 1;  i < 6;  i++)
-  {
-    if (images[i]->getFormat() != format)
-      return false;
-  }
-
-  return true;
-}
-
-bool ImageCube::hasSameSize() const
-{
-  if (!isComplete())
-    return false;
-
-  unsigned int width = images[0]->getWidth();
-  unsigned int height = images[0]->getHeight();
-
-  for (unsigned int i = 1;  i < 6;  i++)
-  {
-    if (images[i]->getWidth() != width || images[i]->getHeight() != height)
-      return false;
-  }
-
-  return true;
-}
-
-Ref<ImageCube> ImageCube::read(ResourceCache& cache, const String& name)
-{
-  ImageCubeReader reader(cache);
   return reader.read(name);
 }
 
@@ -710,90 +620,6 @@ bool ImageWriter::write(const Path& path, const Image& image)
   png_destroy_write_struct(&context, &info);
 
   return true;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-ImageCubeReader::ImageCubeReader(ResourceCache& cache):
-  ResourceReader(cache)
-{
-}
-
-Ref<ImageCube> ImageCubeReader::read(const String& name, const Path& path)
-{
-  std::ifstream stream(path.asString().c_str());
-  if (stream.fail())
-  {
-    logError("Failed to open image cube \'%s\'", name.c_str());
-    return NULL;
-  }
-
-  pugi::xml_document document;
-
-  const pugi::xml_parse_result result = document.load(stream);
-  if (!result)
-  {
-    logError("Failed to load image cube \'%s\': %s",
-             name.c_str(),
-             result.description());
-    return NULL;
-  }
-
-  pugi::xml_node root = document.child("image-cube");
-  if (!root || root.attribute("version").as_uint() != IMAGE_CUBE_XML_VERSION)
-  {
-    logError("Image cube file format mismatch in \'%s\'", name.c_str());
-    return NULL;
-  }
-
-  // NOTE: Keep these arrays in the same order, for added happiness
-
-  const char* names[6] =
-  {
-    "positive-x",
-    "negative-x",
-    "positive-y",
-    "negative-y",
-    "positive-z",
-    "negative-z",
-  };
-
-  const CubeFace sides[6] =
-  {
-    CUBE_POSITIVE_X,
-    CUBE_NEGATIVE_X,
-    CUBE_POSITIVE_Y,
-    CUBE_NEGATIVE_Y,
-    CUBE_POSITIVE_Z,
-    CUBE_NEGATIVE_Z,
-  };
-
-  Ref<ImageCube> cube = new ImageCube(ResourceInfo(cache, name, path));
-
-  for (size_t i = 0;  i < 6;  i++)
-  {
-    const String imageName(root.child(names[i]).attribute("path").value());
-    if (imageName.empty())
-    {
-      logError("No image specified for %s side in image cube \'%s\'",
-               names[i],
-               name.c_str());
-      return NULL;
-    }
-
-    Ref<Image> image = Image::read(cache, imageName);
-    if (!image)
-    {
-      logError("Failed to load side %s of image cube \'%s\'",
-               names[i],
-               name.c_str());
-      return NULL;
-    }
-
-    cube->images[sides[i]] = image;
-  }
-
-  return cube;
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -161,7 +161,7 @@ Bimap<String, FilterMode> filterModeMap;
 Bimap<String, AddressMode> addressModeMap;
 Bimap<String, TextureType> typeMap;
 
-const unsigned int TEXTURE_XML_VERSION = 2;
+const unsigned int TEXTURE_XML_VERSION = 3;
 
 } /*namespace*/
 
@@ -594,18 +594,6 @@ Ref<Texture> Texture::create(const ResourceInfo& info,
   return texture;
 }
 
-Ref<Texture> Texture::create(const ResourceInfo& info,
-                             Context& context,
-                             const TextureParams& params,
-                             const ImageCube& source)
-{
-  Ref<Texture> texture(new Texture(info, context));
-  if (!texture->init(params, source))
-    return NULL;
-
-  return texture;
-}
-
 Ref<Texture> Texture::read(Context& context, const String& name)
 {
   TextureReader reader(context);
@@ -662,6 +650,26 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
       return false;
     }
   }
+  else if (params.type == TEXTURE_CUBE)
+  {
+    if (source.getDimensionCount() > 2)
+    {
+      logError("Source image for cubemap texture \'%s\' has more than two dimensions",
+               getName().c_str());
+      return false;
+    }
+
+    const unsigned int width = source.getWidth();
+
+    if (source.getWidth() % 6 != 0 ||
+        source.getWidth() / 6 != source.getHeight() ||
+        !isPowerOfTwo(source.getHeight()))
+    {
+      logError("Source image for cubemap texture \'%s\' has invalid dimensions",
+               getName().c_str());
+      return false;
+    }
+  }
   else
   {
     if (!source.isPOT())
@@ -673,10 +681,18 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
 
   type = params.type;
 
-  // Save source image dimensions
-  width = source.getWidth();
-  height = source.getHeight();
-  depth = source.getDepth();
+  if (type == TEXTURE_CUBE)
+  {
+    width = source.getWidth() / 6;
+    height = source.getHeight();
+    depth = 1;
+  }
+  else
+  {
+    width = source.getWidth();
+    height = source.getHeight();
+    depth = source.getDepth();
+  }
 
   if (type == TEXTURE_1D)
   {
@@ -715,8 +731,22 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
                  NULL);
   }
 
-  if (!validateProxy())
+  GLint proxyWidth;
+  glGetTexLevelParameteriv(convertToProxyGL(type),
+                           0,
+                           GL_TEXTURE_WIDTH,
+                           &proxyWidth);
+
+  if (proxyWidth == 0)
+  {
+    logError("Cannot create texture \'%s\' type \'%s\' size %ux%ux%u format \'%s\'",
+              getName().c_str(),
+              asString(type),
+              width, height, depth,
+              format.asString().c_str());
+
     return false;
+  }
 
   glGenTextures(1, &textureID);
 
@@ -746,6 +776,38 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
                  convertToGL(format.getType()),
                  source.getPixels());
   }
+  else if (type == TEXTURE_CUBE)
+  {
+    const CubeFace faces[] =
+    {
+      CUBE_NEGATIVE_Z,
+      CUBE_NEGATIVE_X,
+      CUBE_POSITIVE_Z,
+      CUBE_POSITIVE_X,
+      CUBE_POSITIVE_Y,
+      CUBE_NEGATIVE_Y
+    };
+
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, source.getWidth());
+
+    for (size_t i = 0;  i < 6;  i++)
+    {
+      glPixelStorei(GL_UNPACK_SKIP_PIXELS, i * width);
+
+      glTexImage2D(convertToGL(faces[i]),
+                   0,
+                   convertToGL(source.getFormat()),
+                   width,
+                   height,
+                   0,
+                   convertToGL(source.getFormat().getSemantic()),
+                   convertToGL(source.getFormat().getType()),
+                   source.getPixels());
+    }
+
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+  }
   else
   {
     glTexImage2D(convertToGL(type),
@@ -762,7 +824,13 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
   if (params.mipmapped)
     generateMipmaps();
 
-  levels = retrieveImages(convertToGL(type), NO_CUBE_FACE);
+  if (type == TEXTURE_CUBE)
+  {
+    for (size_t i = 0;  i < 6;  i++)
+      levels = retrieveImages(convertToGL(CubeFace(i)), CubeFace(i));
+  }
+  else
+    levels = retrieveImages(convertToGL(type), NO_CUBE_FACE);
 
   applyDefaults();
 
@@ -775,133 +843,6 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
 
   if (Stats* stats = context.getStats())
     stats->addTexture(getSize());
-
-  return true;
-}
-
-bool Texture::init(const TextureParams& params, const ImageCube& source)
-{
-  if (params.type != TEXTURE_CUBE)
-  {
-    logError("Invalid type for texture \'%s\' given image cube source",
-              getName().c_str());
-    return false;
-  }
-
-  // Verify image
-  {
-    if (!source.isPOT())
-    {
-      logWarning("Texture \'%s\' does not have power-of-two dimensions; this may cause slowdown",
-               getName().c_str());
-    }
-
-    if (!source.isSquare())
-    {
-      logError("Source images for texture \'%s\' are not square",
-               getName().c_str());
-      return false;
-    }
-
-    if (!source.hasSameSize())
-    {
-      logError("Source images for texture \'%s\' do not have the same size",
-               getName().c_str());
-      return false;
-    }
-
-    width = source.images[0]->getWidth();
-    height = source.images[0]->getHeight();
-    depth = 1;
-
-    if (!source.hasSameFormat())
-    {
-      logError("Source images for texture \'%s\' do not have same format",
-               getName().c_str());
-      return false;
-    }
-
-    format = source.images[0]->getFormat();
-
-    if (!convertToGL(format))
-    {
-      logError("Source images for texture \'%s\' have unsupported pixel format \'%s\'",
-               getName().c_str(),
-               format.asString().c_str());
-      return false;
-    }
-  }
-
-  type = params.type;
-
-  glTexImage2D(convertToProxyGL(type),
-               0,
-               convertToGL(format),
-               width,
-               height,
-               0,
-               convertToGL(format.getSemantic()),
-               convertToGL(format.getType()),
-               NULL);
-
-  if (!validateProxy())
-    return false;
-
-  glGenTextures(1, &textureID);
-
-  context.setCurrentTexture(this);
-
-  for (unsigned int i = 0;  i < 6;  i++)
-  {
-    wendy::Image& image = *source.images[i];
-
-    glTexImage2D(convertToGL(CubeFace(i)),
-                 0,
-                 convertToGL(image.getFormat()),
-                 image.getWidth(),
-                 image.getHeight(),
-                 0,
-                 convertToGL(image.getFormat().getSemantic()),
-                 convertToGL(image.getFormat().getType()),
-                 image.getPixels());
-  }
-
-  if (params.mipmapped)
-    generateMipmaps();
-
-  for (unsigned int i = 0;  i < 6;  i++)
-    levels = retrieveImages(convertToGL(CubeFace(i)), CubeFace(i));
-
-  applyDefaults();
-
-  if (!checkGL("OpenGL error during creation of texture \'%s\' format \'%s\'",
-               getName().c_str(),
-               format.asString().c_str()))
-  {
-    return false;
-  }
-
-  if (Stats* stats = context.getStats())
-    stats->addTexture(getSize());
-
-  return true;
-}
-
-bool Texture::validateProxy() const
-{
-  int width;
-  glGetTexLevelParameteriv(convertToProxyGL(type), 0, GL_TEXTURE_WIDTH, &width);
-
-  if (width == 0)
-  {
-    logError("Cannot create texture \'%s\' type \'%s\' size %ux%ux%u format \'%s\'",
-              getName().c_str(),
-              asString(type),
-              width, height, depth,
-              format.asString().c_str());
-
-    return false;
-  }
 
   return true;
 }
@@ -1028,38 +969,25 @@ Ref<Texture> TextureReader::read(const String& name, const Path& path)
   if (pugi::xml_attribute a = root.attribute("mipmapped"))
     params.mipmapped = a.as_bool();
 
-  const ResourceInfo info(cache, name, path);
-
-  Ref<Texture> texture;
-
-  if (pugi::xml_attribute a = root.attribute("image"))
-  {
-    Ref<wendy::Image> image = wendy::Image::read(cache, a.value());
-    if (!image)
-    {
-      logError("Failed to load source image for texture \'%s\'", name.c_str());
-      return NULL;
-    }
-
-    texture = Texture::create(info, context, params, *image);
-  }
-  else if (pugi::xml_attribute a = root.attribute("imagecube"))
-  {
-    Ref<ImageCube> cube = ImageCube::read(cache, a.value());
-    if (!cube)
-    {
-      logError("Failed to load source image cube for texture \'%s\'",
-               name.c_str());
-      return NULL;
-    }
-
-    texture = Texture::create(info, context, params, *cube);
-  }
-  else
+  const String imageName(root.attribute("image").value());
+  if (imageName.empty())
   {
     logError("No image specified for texture \'%s\'", name.c_str());
     return NULL;
   }
+
+  Ref<wendy::Image> image = wendy::Image::read(cache, imageName);
+  if (!image)
+  {
+    logError("Failed to load source image for texture \'%s\'", name.c_str());
+    return NULL;
+  }
+
+  const ResourceInfo info(cache, name, path);
+
+  Ref<Texture> texture = Texture::create(info, context, params, *image);
+  if (!texture)
+    return NULL;
 
   if (pugi::xml_attribute a = root.attribute("filter"))
   {

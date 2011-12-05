@@ -110,6 +110,21 @@ enum TextureType
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup opengl
+ */
+enum CubeFace
+{
+  CUBE_POSITIVE_X,
+  CUBE_NEGATIVE_X,
+  CUBE_POSITIVE_Y,
+  CUBE_NEGATIVE_Y,
+  CUBE_POSITIVE_Z,
+  CUBE_NEGATIVE_Z,
+  NO_CUBE_FACE
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Texture creation parameters.
  *  @ingroup opengl
  */
@@ -280,17 +295,6 @@ public:
                              Context& context,
                              const TextureParams& params,
                              const wendy::Image& source);
-  /*! Creates a texture from the specified image cube.
-   *  @param[in] info The resource info for the texture.
-   *  $param[in] context The OpenGL context within which to create the
-   *  texture.
-   *  @param[in] params The creation parameters for the texture.
-   *  @param[in] image The image cube data to use.
-   */
-  static Ref<Texture> create(const ResourceInfo& info,
-                             Context& context,
-                             const TextureParams& params,
-                             const ImageCube& source);
   /*! Creates a texture using the specified texture specification file.
    *  @param[in] context The OpenGL context within which to create the texture.
    *  @param[in] path The path of the texture specification file to use.
@@ -300,8 +304,6 @@ private:
   Texture(const ResourceInfo& info, Context& context);
   Texture(const Texture& source);
   bool init(const TextureParams& params, const wendy::Image& source);
-  bool init(const TextureParams& params, const ImageCube& source);
-  bool validateProxy() const;
   unsigned int retrieveImages(unsigned int target, CubeFace face);
   void applyDefaults();
   Texture& operator = (const Texture& source);
