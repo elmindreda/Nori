@@ -298,7 +298,7 @@ void List::onButtonClicked(Widget& widget,
                            input::Button button,
                            bool clicked)
 {
-  if (!clicked || button != input::BUTTON_LEFT)
+  if (!clicked)
     return;
 
   vec2 localPosition = transformToLocal(position);
