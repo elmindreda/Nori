@@ -293,6 +293,9 @@ public:
   /*! @return @c true if this render state uses line smoothing, otherwise @c false.
    */
   bool isLineSmoothing() const;
+  /*! @return @c true if this render state uses multisampling, otherwise @c false.
+   */
+  bool isMultisampling() const;
   /*! @return @c the width of lines, in pixels.
    */
   float getLineWidth() const;
@@ -336,6 +339,10 @@ public:
    *  @param[in] enabled @c true to enable line smoothing, or @c false to disable it.
    */
   void setLineSmoothing(bool enabled);
+  /*! Sets whether multisampling is enabled.
+   *  @param[in] enabled @c true to enable multisampling, or @c false to disable it.
+   */
+  void setMultisampling(bool enabled);
   /*! Sets the width of lines, in pixels.
    *  @param[in] newWidth The desired new line width.
    */
@@ -361,6 +368,7 @@ private:
     bool colorWriting;
     bool wireframe;
     bool lineSmoothing;
+    bool multisampling;
     float lineWidth;
     CullMode cullMode;
     BlendFactor srcFactor;

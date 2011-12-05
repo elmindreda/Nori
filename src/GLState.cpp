@@ -891,6 +891,12 @@ void RenderState::apply() const
     cache.lineSmoothing = data.lineSmoothing;
   }
 
+  if (data.multisampling != cache.multisampling)
+  {
+    setBooleanState(GL_MULTISAMPLE, data.multisampling);
+    cache.multisampling = data.multisampling;
+  }
+
   if (data.lineWidth != cache.lineWidth)
   {
     glLineWidth(data.lineWidth);
@@ -937,6 +943,11 @@ bool RenderState::isWireframe() const
 bool RenderState::isLineSmoothing() const
 {
   return data.lineSmoothing;
+}
+
+bool RenderState::isMultisampling() const
+{
+  return data.multisampling;
 }
 
 float RenderState::getLineWidth() const
@@ -1005,6 +1016,11 @@ void RenderState::setLineSmoothing(bool enabled)
   data.lineSmoothing = enabled;
 }
 
+void RenderState::setMultisampling(bool enabled)
+{
+  data.multisampling = enabled;
+}
+
 void RenderState::setLineWidth(float newWidth)
 {
   data.lineWidth = newWidth;
@@ -1056,6 +1072,8 @@ void RenderState::force() const
   setBooleanState(GL_LINE_SMOOTH, data.lineSmoothing);
   glLineWidth(data.lineWidth);
 
+  setBooleanState(GL_MULTISAMPLE, data.multisampling);
+
 #if WENDY_DEBUG
   checkGL("Error when forcing render state");
 #endif
@@ -1087,6 +1105,7 @@ RenderState::Data::Data():
   colorWriting(true),
   wireframe(false),
   lineSmoothing(false),
+  multisampling(true),
   lineWidth(1.f),
   cullMode(CULL_BACK),
   srcFactor(BLEND_ONE),

@@ -326,8 +326,14 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
         }
       }
 
-      if (pugi::xml_attribute a = p.child("color").attribute("writing"))
-        pass.setColorWriting(a.as_bool());
+      if (pugi::xml_node node = p.child("color"))
+      {
+        if (pugi::xml_attribute a = node.attribute("writing"))
+          pass.setColorWriting(a.as_bool());
+
+        if (pugi::xml_attribute a = node.attribute("multisampling"))
+          pass.setMultisampling(a.as_bool());
+      }
 
       if (pugi::xml_node node = p.child("depth"))
       {
@@ -540,10 +546,12 @@ bool MaterialWriter::write(const Path& path, const Material& material)
         bn.append_attribute("dst") = blendFactorMap[p->getDstFactor()].c_str();
       }
 
-      if (p->isColorWriting() != defaults.isColorWriting())
+      if (p->isColorWriting() != defaults.isColorWriting() ||
+          p->isMultisampling() != defaults.isMultisampling())
       {
         pugi::xml_node cn = pn.append_child("color");
         cn.append_attribute("writing") = p->isColorWriting();
+        cn.append_attribute("multisampling") = p->isMultisampling();
       }
 
       if (p->isDepthTesting() != defaults.isDepthTesting() ||
