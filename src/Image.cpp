@@ -701,7 +701,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
   const png_byte** rows = new const png_byte* [image.getHeight()];
 
   for (unsigned int y = 0;  y < image.getHeight();  y++)
-    rows[y] = data + y * image.getWidth() * pixelSize;
+    rows[y] = data + (image.getHeight() - y - 1) * image.getWidth() * pixelSize;
 
   png_set_rows(context, info, const_cast<png_byte**>(rows));
 
