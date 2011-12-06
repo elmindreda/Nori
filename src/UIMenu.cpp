@@ -44,9 +44,10 @@ namespace wendy
 
 Menu::Menu(Layer& layer):
   Widget(layer),
-  selection(0)
+  selection(NO_ITEM)
 {
   getCursorMovedSignal().connect(*this, &Menu::onCursorMoved);
+  getCursorLeftSignal().connect(*this, &Menu::onCursorLeft);
   getButtonClickedSignal().connect(*this, &Menu::onButtonClicked);
   getKeyPressedSignal().connect(*this, &Menu::onKeyPressed);
   getDragEndedSignal().connect(*this, &Menu::onDragEnded);
@@ -63,7 +64,7 @@ Menu::~Menu()
 
 void Menu::display()
 {
-  selection = 0;
+  selection = NO_ITEM;
   show();
   bringToFront();
   activate();
@@ -235,6 +236,11 @@ void Menu::onCursorMoved(Widget& widget, const vec2& position)
     itemTop -= itemHeight;
     index++;
   }
+}
+
+void Menu::onCursorLeft(Widget& widget)
+{
+  selection = NO_ITEM;
 }
 
 void Menu::onButtonClicked(Widget& widget,

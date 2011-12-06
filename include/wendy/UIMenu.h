@@ -57,6 +57,7 @@ private:
   void draw() const;
   void onFocusChanged(Widget& widget, bool activated);
   void onCursorMoved(Widget& widget, const vec2& position);
+  void onCursorLeft(Widget& widget);
   void onButtonClicked(Widget& widget,
                        const vec2& position,
                        input::Button button,
