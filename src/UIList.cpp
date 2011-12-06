@@ -156,6 +156,7 @@ unsigned int List::getSelection() const
 
 void List::setSelection(unsigned int newSelection)
 {
+  assert(newSelection == NO_ITEM || newSelection < items.size());
   setSelection(newSelection, false);
 }
 
@@ -290,7 +291,10 @@ void List::onKeyPressed(Widget& widget, input::Key key, bool pressed)
     case input::KEY_UP:
     {
       if (selection == NO_ITEM)
-        setSelection(items.size() - 1, true);
+      {
+        if (!items.empty())
+          setSelection(items.size() - 1, true);
+      }
       else if (selection > 0)
         setSelection(selection - 1, true);
       break;
@@ -299,8 +303,11 @@ void List::onKeyPressed(Widget& widget, input::Key key, bool pressed)
     case input::KEY_DOWN:
     {
       if (selection == NO_ITEM)
-        setSelection(0, true);
-      else
+      {
+        if (!items.empty())
+          setSelection(0, true);
+      }
+      else if (selection < items.size() - 1)
         setSelection(selection + 1, true);
       break;
     }
