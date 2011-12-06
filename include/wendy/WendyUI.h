@@ -27,16 +27,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 /*! @defgroup ui User interface API
- *
- *  These classes provide a simple 2D graphical user interface (GUI). The
- *  drawing is layered on top of the OpenGL renderer and using the input
- *  functionality of the context singleton, so the environment must be set
- *  up before the user interface can be drawn.
- *
- *  The user interface classes make heavy use of signals, and its design is in
- *  many ways similar to the gtkmm library. One notable difference is that,
- *  since we are working on top of OpenGL, usually together with 3D rendering,
- *  we need to redraw the entire interface each frame.
  */
 
 ///////////////////////////////////////////////////////////////////////

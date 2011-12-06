@@ -33,9 +33,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup scene Scene management API
- *
- *  These classes make up the scene graph and scene management part of Wendy.
+/*! @defgroup scene Scene graph API
  */
 
 ///////////////////////////////////////////////////////////////////////

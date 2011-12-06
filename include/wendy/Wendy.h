@@ -30,10 +30,8 @@
  *
  *  @section intro Introduction
  *
- *  This is the reference documentation for the Wendy engine, a simple engine
- *  using OpenGL. It is the hope of the author that it also serves as a
- *  suitable introduction to engine design, due to its (relatively) small size
- *  and (hopefully) consistent design.
+ *  This is the reference documentation for the Wendy engine, a simple game
+ *  engine.
  *
  *  @section license License
  *
