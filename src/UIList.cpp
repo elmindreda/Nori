@@ -153,31 +153,6 @@ void List::sortItems()
   updateScroller();
 }
 
-bool List::isItemVisible(const Item& item) const
-{
-  unsigned int index = 0;
-
-  while (index < items.size() && items[index] != &item)
-    index++;
-
-  if (index == items.size())
-    return false;
-
-  if (index < offset)
-    return false;
-
-  float height = items[index]->getHeight();
-
-  for (unsigned int i = offset;  i < index;  i++)
-  {
-    height += items[i]->getHeight();
-    if (height >= getHeight())
-      return false;
-  }
-
-  return true;
-}
-
 unsigned int List::getOffset() const
 {
   return offset;
@@ -212,7 +187,7 @@ void List::setSelectedItem(Item& newItem)
 {
   ItemList::const_iterator i = std::find(items.begin(), items.end(), &newItem);
   assert(i != items.end());
-  selection = i - items.begin();
+  setSelection(i - items.begin(), false);
 }
 
 unsigned int List::getItemCount() const
@@ -409,22 +384,34 @@ void List::updateScroller()
   setOffset(offset);
 }
 
+bool List::isSelectionVisible() const
+{
+  if (selection == NO_ITEM)
+    return true;
+
+  if (selection < offset)
+    return false;
+
+  float visibleItemHeight = 0.f;
+
+  for (unsigned int i = offset;  i <= selection;  i++)
+  {
+    visibleItemHeight += items[i]->getHeight();
+    if (visibleItemHeight > getHeight())
+      return false;
+  }
+
+  return true;
+}
+
 void List::setSelection(unsigned int newSelection, bool notify)
 {
-  if (newSelection == NO_ITEM)
-  {
-    selection = newSelection;
-    invalidate();
-  }
-  else
-  {
-    selection = min(newSelection, (unsigned int) items.size() - 1);
+  selection = newSelection;
 
-    if (isItemVisible(*items[selection]))
-      invalidate();
-    else
-      setOffset(selection);
-  }
+  if (isSelectionVisible())
+    invalidate();
+  else
+    setOffset(selection);
 
   if (notify)
     itemSelectedSignal(*this, selection);

@@ -47,7 +47,6 @@ public:
   void destroyItem(Item& item);
   void destroyItems();
   void sortItems();
-  bool isItemVisible(const Item& item) const;
   unsigned int getOffset() const;
   void setOffset(unsigned int newOffset);
   unsigned int getSelection() const;
@@ -70,6 +69,7 @@ private:
   void onWheelTurned(Widget& widget, int wheelOffset);
   void onValueChanged(Scroller& scroller);
   void updateScroller();
+  bool isSelectionVisible() const;
   void setSelection(unsigned int newSelection, bool notify);
   Signal2<void, List&, unsigned int> itemSelectedSignal;
   ItemList items;
