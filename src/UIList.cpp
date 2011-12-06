@@ -378,40 +378,35 @@ void List::onValueChanged(Scroller& scroller)
 
 void List::updateScroller()
 {
-  if (items.empty())
-    scroller->hide();
-  else
+  maxOffset = 0;
+
+  float totalItemHeight = 0.f;
+
+  for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
+    totalItemHeight += (*i)->getHeight();
+
+  float visibleItemHeight = 0.f;
+
+  for (ItemList::const_reverse_iterator i = items.rbegin();  i != items.rend();  i++)
   {
-    maxOffset = 0;
-
-    float totalItemHeight = 0.f;
-
-    for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
-      totalItemHeight += (*i)->getHeight();
-
-    float visibleItemHeight = 0.f;
-
-    for (ItemList::const_reverse_iterator i = items.rbegin();  i != items.rend();  i++)
+    visibleItemHeight += (*i)->getHeight();
+    if (visibleItemHeight > getHeight())
     {
-      visibleItemHeight += (*i)->getHeight();
-      if (visibleItemHeight > getHeight())
-      {
-        maxOffset = items.rend() - i;
-        break;
-      }
+      maxOffset = items.rend() - i;
+      break;
     }
-
-    if (maxOffset)
-    {
-      scroller->show();
-      scroller->setValueRange(0.f, maxOffset);
-      scroller->setPercentage(getHeight() / totalItemHeight);
-    }
-    else
-      scroller->hide();
-
-    setOffset(offset);
   }
+
+  if (maxOffset)
+  {
+    scroller->show();
+    scroller->setValueRange(0.f, maxOffset);
+    scroller->setPercentage(getHeight() / totalItemHeight);
+  }
+  else
+    scroller->hide();
+
+  setOffset(offset);
 }
 
 void List::setSelection(unsigned int newSelection, bool notify)
