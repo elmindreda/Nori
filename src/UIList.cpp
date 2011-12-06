@@ -61,6 +61,7 @@ struct ItemComparator
 List::List(Layer& layer):
   Widget(layer),
   offset(0),
+  maxOffset(0),
   selection(NO_ITEM)
 {
   getAreaChangedSignal().connect(*this, &List::onAreaChanged);
@@ -129,7 +130,7 @@ void List::destroyItem(Item& item)
 
   delete *i;
   items.erase(i);
-  setOffset(offset);
+  updateScroller();
 }
 
 void List::destroyItems()
@@ -184,12 +185,8 @@ unsigned int List::getOffset() const
 
 void List::setOffset(unsigned int newOffset)
 {
-  if (items.empty())
-    return;
-
-  offset = min(newOffset, (unsigned int) items.size() - 1);
-
-  updateScroller();
+  offset = min(newOffset, maxOffset);
+  scroller->setValue(float(offset));
 }
 
 unsigned int List::getSelection() const
@@ -288,11 +285,9 @@ void List::draw() const
 
 void List::onAreaChanged(Widget& widget)
 {
-  const Rect& area = getArea();
-
   const float width = scroller->getWidth();
 
-  scroller->setArea(Rect(area.size.x - width, 0.f, width, area.size.y));
+  scroller->setArea(Rect(getWidth() - width, 0.f, width, getHeight()));
   updateScroller();
 }
 
@@ -383,33 +378,38 @@ void List::onValueChanged(Scroller& scroller)
 
 void List::updateScroller()
 {
-  const unsigned int count = getVisibleItemCount();
-
-  if (count < items.size())
-  {
-    scroller->show();
-    scroller->setValue((float) offset);
-    scroller->setValueRange(0.f, (float) items.size() - 1);
-    scroller->setPercentage(count / (float) items.size());
-  }
-  else
+  if (items.empty())
     scroller->hide();
-}
-
-unsigned int List::getVisibleItemCount() const
-{
-  unsigned int index;
-
-  float height = getHeight();
-
-  for (index = offset;  index < items.size();  index++)
+  else
   {
-    height -= items[index]->getHeight();
-    if (height < 0.f)
-      break;
-  }
+    maxOffset = 0;
 
-  return index - offset;
+    float totalItemHeight = 0.f;
+
+    for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
+      totalItemHeight += (*i)->getHeight();
+
+    float visibleItemHeight = 0.f;
+
+    for (ItemList::const_reverse_iterator i = items.rbegin();  i != items.rend();  i++)
+    {
+      visibleItemHeight += (*i)->getHeight();
+      if (visibleItemHeight > getHeight())
+      {
+        maxOffset = items.rend() - i;
+        break;
+      }
+    }
+
+    if (maxOffset)
+    {
+      scroller->show();
+      scroller->setValueRange(0.f, maxOffset);
+      scroller->setPercentage(getHeight() / totalItemHeight);
+    }
+
+    setOffset(offset);
+  }
 }
 
 void List::setSelection(unsigned int newSelection, bool notify)

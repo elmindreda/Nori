@@ -70,11 +70,11 @@ private:
   void onWheelTurned(Widget& widget, int wheelOffset);
   void onValueChanged(Scroller& scroller);
   void updateScroller();
-  unsigned int getVisibleItemCount() const;
   void setSelection(unsigned int newSelection, bool notify);
   Signal2<void, List&, unsigned int> itemSelectedSignal;
   ItemList items;
   unsigned int offset;
+  unsigned int maxOffset;
   unsigned int selection;
   Scroller* scroller;
 };
