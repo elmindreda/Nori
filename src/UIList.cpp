@@ -43,21 +43,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-namespace
-{
-
-struct ItemComparator
-{
-  inline bool operator () (const Item* x, const Item* y)
-  {
-    return *x < *y;
-  }
-};
-
-}
-
-///////////////////////////////////////////////////////////////////////
-
 List::List(Layer& layer):
   Widget(layer),
   offset(0),

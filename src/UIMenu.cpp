@@ -42,21 +42,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-namespace
-{
-
-struct ItemComparator
-{
-  inline bool operator () (const Item* x, const Item* y)
-  {
-    return *x < *y;
-  }
-};
-
-} /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
-
 Menu::Menu(Layer& layer):
   Widget(layer),
   selection(0)
