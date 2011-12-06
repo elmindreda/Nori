@@ -47,13 +47,13 @@ public:
   void destroyItem(Item& item);
   void destroyItems();
   void sortItems();
-  bool isItemVisible(const Item* item) const;
+  bool isItemVisible(const Item& item) const;
   unsigned int getOffset() const;
   void setOffset(unsigned int newOffset);
   unsigned int getSelection() const;
   Item* getSelectedItem() const;
-  void setSelection(unsigned int newIndex);
-  void setSelectedItem(Item* newItem);
+  void setSelection(unsigned int newSelection);
+  void setSelectedItem(Item& newItem);
   unsigned int getItemCount() const;
   Item* getItem(unsigned int index);
   const Item* getItem(unsigned int index) const;
@@ -71,7 +71,7 @@ private:
   void onValueChanged(Scroller& scroller);
   void updateScroller();
   unsigned int getVisibleItemCount() const;
-  void setSelection(unsigned int newIndex, bool notify);
+  void setSelection(unsigned int newSelection, bool notify);
   Signal2<void, List&, unsigned int> itemSelectedSignal;
   ItemList items;
   unsigned int offset;

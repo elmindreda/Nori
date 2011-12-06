@@ -33,7 +33,6 @@
 #include <wendy/UIList.h>
 
 #include <algorithm>
-#include <cstdlib>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -62,7 +61,7 @@ struct ItemComparator
 List::List(Layer& layer):
   Widget(layer),
   offset(0),
-  selection(0)
+  selection(NO_ITEM)
 {
   getAreaChangedSignal().connect(*this, &List::onAreaChanged);
   getButtonClickedSignal().connect(*this, &List::onButtonClicked);
@@ -123,12 +122,14 @@ const Item* List::findItem(const char* value) const
 void List::destroyItem(Item& item)
 {
   ItemList::iterator i = std::find(items.begin(), items.end(), &item);
-  if (i != items.end())
-  {
-    delete *i;
-    items.erase(i);
-    setOffset(offset);
-  }
+  assert(i != items.end());
+
+  if (selection == i - items.begin())
+    setSelection(NO_ITEM, false);
+
+  delete *i;
+  items.erase(i);
+  setOffset(offset);
 }
 
 void List::destroyItems()
@@ -139,6 +140,7 @@ void List::destroyItems()
     items.pop_back();
   }
 
+  setSelection(NO_ITEM, false);
   updateScroller();
 }
 
@@ -150,11 +152,11 @@ void List::sortItems()
   updateScroller();
 }
 
-bool List::isItemVisible(const Item* item) const
+bool List::isItemVisible(const Item& item) const
 {
   unsigned int index = 0;
 
-  while (index < items.size() && items[index] != item)
+  while (index < items.size() && items[index] != &item)
     index++;
 
   if (index == items.size())
@@ -195,22 +197,23 @@ unsigned int List::getSelection() const
   return selection;
 }
 
-void List::setSelection(unsigned int newIndex)
+void List::setSelection(unsigned int newSelection)
 {
-  setSelection(newIndex, false);
+  setSelection(newSelection, false);
 }
 
 Item* List::getSelectedItem() const
 {
-  if (items.empty())
+  if (selection == NO_ITEM)
     return NULL;
 
+  assert(selection < items.size());
   return items[selection];
 }
 
-void List::setSelectedItem(Item* newItem)
+void List::setSelectedItem(Item& newItem)
 {
-  ItemList::const_iterator i = std::find(items.begin(), items.end(), newItem);
+  ItemList::const_iterator i = std::find(items.begin(), items.end(), &newItem);
   assert(i != items.end());
   selection = i - items.begin();
 }
@@ -331,14 +334,19 @@ void List::onKeyPressed(Widget& widget, input::Key key, bool pressed)
   {
     case input::KEY_UP:
     {
-      if (selection > 0)
+      if (selection == NO_ITEM)
+        setSelection(items.size() - 1, true);
+      else if (selection > 0)
         setSelection(selection - 1, true);
       break;
     }
 
     case input::KEY_DOWN:
     {
-      setSelection(selection + 1, true);
+      if (selection == NO_ITEM)
+        setSelection(0, true);
+      else
+        setSelection(selection + 1, true);
       break;
     }
 
@@ -404,17 +412,22 @@ unsigned int List::getVisibleItemCount() const
   return index - offset;
 }
 
-void List::setSelection(unsigned int newIndex, bool notify)
+void List::setSelection(unsigned int newSelection, bool notify)
 {
-  if (items.empty())
-    return;
-
-  selection = min(newIndex, (unsigned int) items.size() - 1);
-
-  if (isItemVisible(items[selection]))
+  if (newSelection == NO_ITEM)
+  {
+    selection = newSelection;
     invalidate();
+  }
   else
-    setOffset(selection);
+  {
+    selection = min(newSelection, (unsigned int) items.size() - 1);
+
+    if (isItemVisible(*items[selection]))
+      invalidate();
+    else
+      setOffset(selection);
+  }
 
   if (notify)
     itemSelectedSignal(*this, selection);

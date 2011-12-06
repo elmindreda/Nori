@@ -41,6 +41,12 @@ typedef unsigned int ItemID;
 
 /*! @ingroup ui
  */
+const unsigned int NO_ITEM = -1;
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup ui
+ */
 class Item
 {
   friend class List;
