@@ -407,6 +407,8 @@ void List::updateScroller()
       scroller->setValueRange(0.f, maxOffset);
       scroller->setPercentage(getHeight() / totalItemHeight);
     }
+    else
+      scroller->hide();
 
     setOffset(offset);
   }
