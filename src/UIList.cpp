@@ -391,6 +391,9 @@ bool List::isSelectionVisible() const
 
 void List::setSelection(unsigned int newSelection, bool notify)
 {
+  if (selection == newSelection)
+    return;
+
   selection = newSelection;
 
   if (isSelectionVisible())
