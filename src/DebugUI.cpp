@@ -108,6 +108,7 @@ Interface::Interface(input::Context& context, UI::Drawer& drawer):
   root(NULL)
 {
   root = new Panel(*this);
+  root->setArea(Rect(0.f, 0.f, 150.f, 220.f));
   addRootWidget(*root);
 
   UI::Layout* layout = new UI::Layout(*this, UI::VERTICAL, true);
