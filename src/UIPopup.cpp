@@ -43,7 +43,8 @@ namespace wendy
 
 Popup::Popup(Layer& layer):
   Widget(layer),
-  selection(NO_ITEM)
+  selection(NO_ITEM),
+  menu(NULL)
 {
   const float em = layer.getDrawer().getCurrentEM();
 
@@ -54,7 +55,14 @@ Popup::Popup(Layer& layer):
 
   menu = new Menu(layer);
   menu->getItemSelectedSignal().connect(*this, &Popup::onItemSelected);
+  menu->getDestroyedSignal().connect(*this, &Popup::onMenuDestroyed);
   layer.addRootWidget(*menu);
+}
+
+Popup::~Popup()
+{
+  if (menu)
+    delete menu;
 }
 
 void Popup::addItem(Item& item)
@@ -213,6 +221,11 @@ void Popup::onItemSelected(Menu& menu, unsigned int index)
   selection = index;
   itemSelectedSignal(*this, selection);
   activate();
+}
+
+void Popup::onMenuDestroyed(Widget& widget)
+{
+  menu = NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////

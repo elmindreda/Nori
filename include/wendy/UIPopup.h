@@ -39,6 +39,7 @@ class Popup : public Widget
 {
 public:
   Popup(Layer& layer);
+  ~Popup();
   void addItem(Item& item);
   void addItemAt(Item& item, unsigned int index);
   void createItem(const char* value, ItemID ID = 0);
@@ -66,9 +67,10 @@ private:
                        bool clicked);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   void onItemSelected(Menu& menu, unsigned int index);
+  void onMenuDestroyed(Widget& widget);
   Signal2<void, Popup&, unsigned int> itemSelectedSignal;
   unsigned int selection;
-  Ptr<Menu> menu;
+  Menu* menu;
 };
 
 ///////////////////////////////////////////////////////////////////////
