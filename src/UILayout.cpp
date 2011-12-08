@@ -41,7 +41,7 @@ namespace wendy
 
 Layout::Layout(Layer& layer, Orientation initOrientation, bool initExpanding):
   Widget(layer),
-  borderSize(1.f),
+  borderSize(0.f),
   orientation(initOrientation),
   expanding(initExpanding)
 {
