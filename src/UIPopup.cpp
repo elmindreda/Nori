@@ -212,6 +212,7 @@ void Popup::onItemSelected(Menu& menu, unsigned int index)
 {
   selection = index;
   itemSelectedSignal(*this, selection);
+  activate();
 }
 
 ///////////////////////////////////////////////////////////////////////
