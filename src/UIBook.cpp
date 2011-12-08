@@ -119,7 +119,7 @@ void Book::draw() const
         else
           state = STATE_DISABLED;
 
-        drawer.drawButton(buttonArea, state, pages[i]->getText().c_str());
+        drawer.drawTab(buttonArea, state, pages[i]->getText().c_str());
 
         buttonArea.position.x += buttonSize.x;
       }

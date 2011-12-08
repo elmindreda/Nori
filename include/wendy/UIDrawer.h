@@ -119,6 +119,7 @@ public:
   Rect handleElements[4];
   Rect frameElements[4];
   Rect wellElements[4];
+  Rect tabElements[4];
   vec3 textColors[4];
   vec3 backColors[4];
   Ref<GL::Texture> texture;
@@ -193,6 +194,7 @@ public:
   void drawFrame(const Rect& area, WidgetState state);
   void drawHandle(const Rect& area, WidgetState state);
   void drawButton(const Rect& area, WidgetState state, const char* text = "");
+  void drawTab(const Rect& area, WidgetState state, const char* text = "");
   const Theme& getTheme() const;
   const render::Font& getCurrentFont();
   void setCurrentFont(render::Font* newFont);

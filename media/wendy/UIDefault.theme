@@ -3,33 +3,37 @@
   <normal>
     <text color="1 1 1" />
     <back color="0.3 0.3 0.3" />
-    <button area="0 32 32 32" />
-    <handle area="0 32 32 32" />
-    <frame area="0 32 32 32" />
-    <well area="0 32 32 32" />
+    <button area="0 16 16 16" />
+    <handle area="32 16 16 16" />
+    <frame area="0 48 16 16" />
+    <well area="0 48 16 16" />
+    <tab area="32 48 16 16" />
   </normal>
   <disabled>
     <text color="0.5 0.4 0.4" />
     <back color="0.12 0.1 0.1" />
-    <button area="0 0 32 32" />
-    <handle area="0 0 32 32" />
-    <frame area="0 0 32 32" />
-    <well area="0 0 32 32" />
+    <button area="0 0 16 16" />
+    <handle area="32 0 16 16" />
+    <frame area="0 32 16 16" />
+    <well area="0 32 16 16" />
+    <tab area="32 32 16 16" />
   </disabled>
   <active>
     <text color="1 1 1" />
     <back color="0.5 0.5 0.5" />
-    <button area="32 32 32 32" />
-    <handle area="32 32 32 32" />
-    <frame area="32 32 32 32" />
-    <well area="32 32 32 32" />
+    <button area="16 16 16 16" />
+    <handle area="48 16 16 16" />
+    <frame area="16 48 16 16" />
+    <well area="16 48 16 16" />
+    <tab area="48 48 16 16" />
   </active>
   <selected>
     <text color="1 1 1" />
     <back color="0.5 0.5 0.5" />
-    <button area="32 0 32 32" />
-    <handle area="32 0 32 32" />
-    <frame area="32 0 32 32" />
-    <well area="32 0 32 32" />
+    <button area="16 0 16 16" />
+    <handle area="48 0 16 16" />
+    <frame area="16 32 16 16" />
+    <well area="16 32 16 16" />
+    <tab area="48 32 16 16" />
   </selected>
 </theme>

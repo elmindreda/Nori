@@ -196,6 +196,9 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
 
     if (pugi::xml_node node = sn.child("well"))
       theme->wellElements[state] = rectCast(node.attribute("area").value());
+
+    if (pugi::xml_node node = sn.child("tab"))
+      theme->tabElements[state] = rectCast(node.attribute("area").value());
   }
 
   return theme;
@@ -516,6 +519,12 @@ void Drawer::drawButton(const Rect& area, WidgetState state, const char* text)
   drawText(area, text, Alignment(), state);
 }
 
+void Drawer::drawTab(const Rect& area, WidgetState state, const char* text)
+{
+  drawElement(area, theme->tabElements[state]);
+  drawText(area, text, Alignment(), state);
+}
+
 const Theme& Drawer::getTheme() const
 {
   return *theme;
@@ -683,6 +692,7 @@ bool Drawer::init()
     elementPass.setDepthTesting(false);
     elementPass.setDepthWriting(false);
     elementPass.setSamplerState("image", theme->texture);
+    elementPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
   }
 
   // Set up solid pass
