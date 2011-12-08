@@ -106,6 +106,28 @@ void Menu::createSeparatorItem()
   addItem(*item);
 }
 
+Item* Menu::findItem(const char* value)
+{
+  for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
+  {
+    if ((*i)->asString() == value)
+      return *i;
+  }
+
+  return NULL;
+}
+
+const Item* Menu::findItem(const char* value) const
+{
+  for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
+  {
+    if ((*i)->asString() == value)
+      return *i;
+  }
+
+  return NULL;
+}
+
 void Menu::destroyItem(Item& item)
 {
   ItemList::iterator i = std::find(items.begin(), items.end(), &item);
@@ -115,21 +137,6 @@ void Menu::destroyItem(Item& item)
     items.erase(i);
 
     sizeToFit();
-  }
-}
-
-void Menu::destroyItem(const char* value)
-{
-  for (ItemList::iterator i = items.begin();  i != items.end();  i++)
-  {
-    if ((*i)->asString() == value)
-    {
-      delete *i;
-      items.erase(i);
-
-      sizeToFit();
-      break;
-    }
   }
 }
 
@@ -163,6 +170,11 @@ Item* Menu::getItem(unsigned int index)
 const Item* Menu::getItem(unsigned int index) const
 {
   return items[index];
+}
+
+const ItemList& Menu::getItems() const
+{
+  return items;
 }
 
 SignalProxy2<void, Menu&, unsigned int> Menu::getItemSelectedSignal()

@@ -40,15 +40,21 @@ class Popup : public Widget
 public:
   Popup(Layer& layer);
   void addItem(Item& item);
+  void addItemAt(Item& item, unsigned int index);
   void createItem(const char* value, ItemID ID = 0);
+  void createSeparatorItem();
+  Item* findItem(const char* value);
+  const Item* findItem(const char* value) const;
   void destroyItem(Item& item);
   void destroyItems();
   unsigned int getSelection() const;
   void setSelection(unsigned int newIndex);
+  Item* getSelectedItem();
+  void setSelectedItem(Item& newItem);
   unsigned int getItemCount() const;
   Item* getItem(unsigned int index);
   const Item* getItem(unsigned int index) const;
-  String getItemValue(unsigned int index) const;
+  const ItemList& getItems() const;
   SignalProxy2<void, Popup&, unsigned int> getItemSelectedSignal();
 protected:
   void draw() const;

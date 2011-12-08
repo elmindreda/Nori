@@ -45,13 +45,15 @@ public:
   void addItemAt(Item& item, unsigned int index);
   void createItem(const char* value, ItemID ID = 0);
   void createSeparatorItem();
+  Item* findItem(const char* value);
+  const Item* findItem(const char* value) const;
   void destroyItem(Item& item);
-  void destroyItem(const char* value);
   void destroyItems();
   void sortItems();
   unsigned int getItemCount() const;
   Item* getItem(unsigned int index);
   const Item* getItem(unsigned int index) const;
+  const ItemList& getItems() const;
   SignalProxy2<void, Menu&, unsigned int> getItemSelectedSignal();
 private:
   void draw() const;

@@ -43,7 +43,7 @@ namespace wendy
 
 Popup::Popup(Layer& layer):
   Widget(layer),
-  selection(0)
+  selection(NO_ITEM)
 {
   const float em = layer.getDrawer().getCurrentEM();
 
@@ -68,6 +68,16 @@ void Popup::createItem(const char* value, ItemID ID)
   menu->addItem(*item);
 }
 
+Item* Popup::findItem(const char* value)
+{
+  return menu->findItem(value);
+}
+
+const Item* Popup::findItem(const char* value) const
+{
+  return menu->findItem(value);
+}
+
 void Popup::destroyItem(Item& item)
 {
   menu->destroyItem(item);
@@ -77,7 +87,7 @@ void Popup::destroyItem(Item& item)
 void Popup::destroyItems()
 {
   menu->destroyItems();
-  selection = 0;
+  selection = NO_ITEM;
 }
 
 unsigned int Popup::getSelection() const
@@ -90,7 +100,25 @@ void Popup::setSelection(unsigned int newIndex)
   if (menu->getItemCount())
     selection = min(newIndex, menu->getItemCount() - 1);
   else
-    selection = 0;
+    selection = NO_ITEM;
+}
+
+Item* Popup::getSelectedItem()
+{
+  if (selection == NO_ITEM)
+    return NULL;
+
+  return menu->getItem(selection);
+}
+
+void Popup::setSelectedItem(Item& newItem)
+{
+  const ItemList& items = menu->getItems();
+
+  ItemList::const_iterator i = std::find(items.begin(), items.end(), &newItem);
+  assert(i != items.end());
+
+  selection = i - items.begin();
 }
 
 unsigned int Popup::getItemCount() const
@@ -108,12 +136,9 @@ const Item* Popup::getItem(unsigned int index) const
   return menu->getItem(index);
 }
 
-String Popup::getItemValue(unsigned int index) const
+const ItemList& Popup::getItems() const
 {
-  if (const Item* item = menu->getItem(index))
-    return item->asString();
-
-  return String();
+  return menu->getItems();
 }
 
 SignalProxy2<void, Popup&, unsigned int> Popup::getItemSelectedSignal()
@@ -130,7 +155,7 @@ void Popup::draw() const
   {
     drawer.drawFrame(area, getState());
 
-    if (selection < menu->getItemCount())
+    if (selection != NO_ITEM)
     {
       const Item* item = menu->getItem(selection);
 

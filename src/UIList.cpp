@@ -160,7 +160,7 @@ void List::setSelection(unsigned int newSelection)
   setSelection(newSelection, false);
 }
 
-Item* List::getSelectedItem() const
+Item* List::getSelectedItem()
 {
   if (selection == NO_ITEM)
     return NULL;
@@ -203,6 +203,11 @@ const Item* List::getItem(unsigned int index) const
   }
 
   return NULL;
+}
+
+const ItemList& List::getItems() const
+{
+  return items;
 }
 
 SignalProxy2<void, List&, unsigned int> List::getItemSelectedSignal()
