@@ -65,8 +65,6 @@ protected:
   void addedChild(Widget& child);
   void removedChild(Widget& child);
 private:
-  typedef std::vector<Page*> PageList;
-  void getPages(PageList& pages) const;
   void setActivePage(Page* newPage, bool notify);
   void onAreaChanged(Widget& widget);
   void onKeyPressed(Widget& widgeth, input::Key key, bool pressed);
@@ -74,8 +72,10 @@ private:
                        const vec2& position,
                        input::Button button,
                        bool clicked);
+  typedef std::vector<Page*> PageList;
   Signal1<void, Book&> pageChangedSignal;
   Page* activePage;
+  PageList pages;
 };
 
 ///////////////////////////////////////////////////////////////////////

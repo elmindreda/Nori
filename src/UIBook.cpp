@@ -91,9 +91,6 @@ void Book::draw() const
   Drawer& drawer = getLayer().getDrawer();
   if (drawer.pushClipArea(area))
   {
-    PageList pages;
-    getPages(pages);
-
     if (!pages.empty())
     {
       const Rect& area = getArea();
@@ -145,6 +142,8 @@ void Book::addedChild(Widget& child)
       page->hide();
     else
       setActivePage(page, false);
+
+    pages.push_back(page);
   }
 }
 
@@ -154,27 +153,13 @@ void Book::removedChild(Widget& child)
   {
     if (page == activePage)
     {
-      PageList pages;
-      getPages(pages);
-
       if (pages.empty())
         setActivePage(NULL, false);
       else
         setActivePage(pages.front(), false);
     }
-  }
-}
 
-void Book::getPages(PageList& pages) const
-{
-  const WidgetList& children = getChildren();
-
-  pages.reserve(children.size());
-
-  for (WidgetList::const_iterator i = children.begin();  i != children.end();  i++)
-  {
-    if (Page* page = dynamic_cast<Page*>(*i))
-      pages.push_back(page);
+    pages.erase(std::find(pages.begin(), pages.end(), page));
   }
 }
 
@@ -203,9 +188,6 @@ void Book::setActivePage(Page* newPage, bool notify)
 
 void Book::onAreaChanged(Widget& widget)
 {
-  PageList pages;
-  getPages(pages);
-
   const float em = getLayer().getDrawer().getCurrentEM();
 
   const vec2& size = getSize();
@@ -218,9 +200,6 @@ void Book::onKeyPressed(Widget& widgeth, input::Key key, bool pressed)
 {
   if (!pressed)
     return;
-
-  PageList pages;
-  getPages(pages);
 
   PageList::const_iterator i = std::find(pages.begin(), pages.end(), activePage);
   if (i == pages.end())
@@ -254,9 +233,6 @@ void Book::onButtonClicked(Widget& widget,
                            input::Button button,
                            bool clicked)
 {
-  PageList pages;
-  getPages(pages);
-
   const float position = transformToLocal(point).x;
   const float width = getWidth() / pages.size();
 
