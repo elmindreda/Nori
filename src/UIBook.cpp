@@ -93,15 +93,13 @@ void Book::draw() const
   {
     if (!pages.empty())
     {
-      const Rect& area = getArea();
+      const vec2 tabSize(area.size.x / pages.size(),
+                         drawer.getCurrentEM() * 2.f);
 
-      const vec2 buttonSize(area.size.x / pages.size(),
-                            drawer.getCurrentEM() * 2.f);
-
-      Rect buttonArea(area.position.x,
-                      area.position.y + area.size.y - buttonSize.y,
-                      buttonSize.x,
-                      buttonSize.y);
+      Rect tabArea(area.position.x,
+                   area.position.y + area.size.y - tabSize.y,
+                   tabSize.x,
+                   tabSize.y);
 
       for (unsigned int i = 0;  i < pages.size();  i++)
       {
@@ -116,9 +114,9 @@ void Book::draw() const
         else
           state = STATE_DISABLED;
 
-        drawer.drawTab(buttonArea, state, pages[i]->getText().c_str());
+        drawer.drawTab(tabArea, state, pages[i]->getText().c_str());
 
-        buttonArea.position.x += buttonSize.x;
+        tabArea.position.x += tabSize.x;
       }
     }
 
@@ -133,7 +131,6 @@ void Book::addedChild(Widget& child)
   if (Page* page = dynamic_cast<Page*>(&child))
   {
     const float em = getLayer().getDrawer().getCurrentEM();
-
     const vec2& size = getSize();
 
     page->setArea(Rect(0.f, 0.f, size.x, size.y - em * 2.f));
@@ -189,7 +186,6 @@ void Book::setActivePage(Page* newPage, bool notify)
 void Book::onAreaChanged(Widget& widget)
 {
   const float em = getLayer().getDrawer().getCurrentEM();
-
   const vec2& size = getSize();
 
   for (PageList::const_iterator i = pages.begin();  i != pages.end();  i++)
