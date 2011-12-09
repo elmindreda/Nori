@@ -183,26 +183,14 @@ unsigned int List::getItemCount() const
 
 Item* List::getItem(unsigned int index)
 {
-  if (index < items.size())
-  {
-    ItemList::iterator i = items.begin();
-    std::advance(i, index);
-    return *i;
-  }
-
-  return NULL;
+  assert(index < items.size());
+  return items[index];
 }
 
 const Item* List::getItem(unsigned int index) const
 {
-  if (index < items.size())
-  {
-    ItemList::const_iterator i = items.begin();
-    std::advance(i, index);
-    return *i;
-  }
-
-  return NULL;
+  assert(index < items.size());
+  return items[index];
 }
 
 const ItemList& List::getItems() const
