@@ -62,6 +62,12 @@ Menu::~Menu()
   destroyItems();
 }
 
+void Menu::display(const vec2& point)
+{
+  setPosition(point + vec2(1.f));
+  display();
+}
+
 void Menu::display()
 {
   selection = NO_ITEM;

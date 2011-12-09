@@ -40,6 +40,7 @@ class Menu : public Widget
 public:
   Menu(Layer& layer);
   ~Menu();
+  void display(const vec2& point);
   void display();
   void addItem(Item& item);
   void addItemAt(Item& item, unsigned int index);
