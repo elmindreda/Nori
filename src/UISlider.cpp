@@ -120,7 +120,6 @@ void Slider::draw() const
     drawer.drawWell(area, getState());
 
     const float position = (value - minValue) / (maxValue - minValue);
-
     const float em = drawer.getCurrentEM();
 
     Rect handleArea;
