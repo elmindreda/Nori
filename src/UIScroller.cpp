@@ -161,35 +161,28 @@ void Scroller::onButtonClicked(Widget& widget,
   if (!clicked)
     return;
 
-  if (minValue == maxValue)
-    return;
-
-  vec2 localPoint = transformToLocal(point);
-
+  const vec2 local = transformToLocal(point);
   const float size = getHandleSize();
   const float offset = getHandleOffset();
 
   if (orientation == HORIZONTAL)
   {
-    if (localPoint.x < offset)
+    if (local.x < offset)
       setValue(value - getValueStep(), true);
-    else if (localPoint.x >= offset + size)
+    else if (local.x >= offset + size)
       setValue(value + getValueStep(), true);
   }
   else
   {
-    if (localPoint.y > getHeight() - offset)
+    if (local.y > getHeight() - offset)
       setValue(value - getValueStep(), true);
-    else if (localPoint.y <= getHeight() - offset - size)
+    else if (local.y <= getHeight() - offset - size)
       setValue(value + getValueStep(), true);
   }
 }
 
 void Scroller::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 {
-  if (minValue == maxValue)
-    return;
-
   if (pressed)
   {
     switch (key)
@@ -225,36 +218,26 @@ void Scroller::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 
 void Scroller::onWheelTurned(Widget& widget, int offset)
 {
-  if (minValue == maxValue)
-    return;
-
   setValue(value + offset * getValueStep(), true);
 }
 
 void Scroller::onDragBegun(Widget& widget, const vec2& point)
 {
-  if (minValue == maxValue)
-    return;
-
-  vec2 localPoint = transformToLocal(point);
-
-  const Rect& area = getArea();
-
+  const vec2 local = transformToLocal(point);
   const float size = getHandleSize();
   const float offset = getHandleOffset();
 
   if (orientation == HORIZONTAL)
   {
-    if (localPoint.x >= offset && localPoint.x < offset + size)
-      reference = localPoint.x - offset;
+    if (local.x >= offset && local.x < offset + size)
+      reference = local.x - offset;
     else
       cancelDragging();
   }
   else
   {
-    if (localPoint.y <= area.size.y - offset &&
-        localPoint.y > area.size.y - offset - size)
-      reference = area.size.y - localPoint.y - offset;
+    if (local.y <= getHeight() - offset && local.y > getHeight() - offset - size)
+      reference = getHeight() - local.y - offset;
     else
       cancelDragging();
   }
@@ -262,21 +245,15 @@ void Scroller::onDragBegun(Widget& widget, const vec2& point)
 
 void Scroller::onDragMoved(Widget& widget, const vec2& point)
 {
-  if (minValue == maxValue)
-    return;
-
-  vec2 localPoint = transformToLocal(point);
-
-  const Rect& area = getArea();
-
+  const vec2 local = transformToLocal(point);
   const float size = getHandleSize();
 
   float scale;
 
   if (orientation == HORIZONTAL)
-    scale = (localPoint.x - reference) / (area.size.x - size);
+    scale = (local.x - reference) / (getWidth() - size);
   else
-    scale = (area.size.y - localPoint.y - reference) / (area.size.y - size);
+    scale = (getHeight() - local.y - reference) / (getHeight() - size);
 
   setValue(minValue + (maxValue - minValue) * scale, true);
 }
@@ -317,7 +294,7 @@ float Scroller::getHandleOffset() const
 
 float Scroller::getValueStep() const
 {
-  return (maxValue - minValue) * percentage / (1.f - percentage);
+  return (maxValue - minValue) * percentage;
 }
 
 ///////////////////////////////////////////////////////////////////////
