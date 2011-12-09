@@ -516,7 +516,18 @@ void Drawer::drawHandle(const Rect& area, WidgetState state)
 void Drawer::drawButton(const Rect& area, WidgetState state, const char* text)
 {
   drawElement(area, theme->buttonElements[state]);
-  drawText(area, text, Alignment(), state);
+
+  if (state == STATE_SELECTED)
+  {
+    const Rect textArea(area.position.x + 2.f,
+                        area.position.y,
+                        area.size.x - 2.f,
+                        area.size.y - 2.f);
+
+    drawText(textArea, text, Alignment(), state);
+  }
+  else
+    drawText(area, text, Alignment(), state);
 }
 
 void Drawer::drawTab(const Rect& area, WidgetState state, const char* text)

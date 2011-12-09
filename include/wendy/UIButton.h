@@ -49,8 +49,10 @@ private:
                        const vec2& position,
                        input::Button button,
                        bool clicked);
+  void onDragEnded(Widget& widget, const vec2& position);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   Signal1<void, Button&> pushedSignal;
+  bool selected;
   String text;
 };
 

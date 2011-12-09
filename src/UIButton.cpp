@@ -41,6 +41,7 @@ namespace wendy
 
 Button::Button(Layer& layer, const char* initText):
   Widget(layer),
+  selected(false),
   text(initText)
 {
   Drawer& drawer = getLayer().getDrawer();
@@ -55,7 +56,9 @@ Button::Button(Layer& layer, const char* initText):
     textWidth = drawer.getCurrentFont().getTextMetrics(text.c_str()).size.x;
 
   setSize(vec2(em * 2.f + textWidth, em * 2.f));
+  setDraggable(true);
 
+  getDragEndedSignal().connect(*this, &Button::onDragEnded);
   getButtonClickedSignal().connect(*this, &Button::onButtonClicked);
   getKeyPressedSignal().connect(*this, &Button::onKeyPressed);
 }
@@ -83,7 +86,14 @@ void Button::draw() const
   Drawer& drawer = getLayer().getDrawer();
   if (drawer.pushClipArea(area))
   {
-    drawer.drawButton(area, getState(), text.c_str());
+    WidgetState state;
+
+    if (isUnderCursor() and selected)
+      state = STATE_SELECTED;
+    else
+      state = getState();
+
+    drawer.drawButton(area, state, text.c_str());
 
     Widget::draw();
 
@@ -96,23 +106,38 @@ void Button::onButtonClicked(Widget& widget,
                              input::Button button,
                              bool clicked)
 {
-  if (clicked)
-    return;
+  if (button == input::BUTTON_LEFT)
+  {
+    if (clicked)
+      selected = true;
+    else
+    {
+      selected = false;
+      pushedSignal(*this);
+    }
+  }
+}
 
-  pushedSignal(*this);
+void Button::onDragEnded(Widget& widget, const vec2& position)
+{
+  selected = false;
 }
 
 void Button::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 {
-  if (!pressed)
-    return;
-
   switch (key)
   {
     case input::KEY_SPACE:
     case input::KEY_ENTER:
     {
-      pushedSignal(*this);
+      if (pressed)
+        selected = true;
+      else
+      {
+        selected = false;
+        pushedSignal(*this);
+      }
+
       break;
     }
   }
