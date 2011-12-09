@@ -88,7 +88,7 @@ void Button::draw() const
   {
     WidgetState state;
 
-    if (isUnderCursor() and selected)
+    if (isUnderCursor() && selected)
       state = STATE_SELECTED;
     else
       state = getState();
