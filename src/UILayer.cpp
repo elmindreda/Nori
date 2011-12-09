@@ -43,6 +43,8 @@ namespace wendy
 Layer::Layer(input::Context& initContext, UI::Drawer& initDrawer):
   context(initContext),
   drawer(initDrawer),
+  width(0),
+  height(0),
   dragging(false),
   activeWidget(NULL),
   draggedWidget(NULL),
@@ -150,6 +152,22 @@ void Layer::invalidate()
 bool Layer::hasCapturedCursor() const
 {
   return captureWidget != NULL;
+}
+
+unsigned int Layer::getWidth() const
+{
+  return width;
+}
+
+unsigned int Layer::getHeight() const
+{
+  return height;
+}
+
+void Layer::setSize(unsigned int newWidth, unsigned int newHeight)
+{
+  width = newWidth;
+  height = newHeight;
 }
 
 Drawer& Layer::getDrawer() const
@@ -406,7 +424,9 @@ void Layer::onFocusChanged(bool activated)
 ///////////////////////////////////////////////////////////////////////
 
 LayerStack::LayerStack(input::Context& initContext):
-  context(initContext)
+  context(initContext),
+  width(0),
+  height(0)
 {
 }
 
@@ -430,6 +450,7 @@ void LayerStack::push(Layer& layer)
 
   layers.push_back(&layer);
   layer.stack = this;
+  layer.setSize(width, height);
   context.setTarget(&layer);
 }
 
@@ -455,6 +476,15 @@ void LayerStack::empty()
 bool LayerStack::isEmpty() const
 {
   return layers.empty();
+}
+
+void LayerStack::setSize(unsigned int newWidth, unsigned int newHeight)
+{
+  width = newWidth;
+  height = newHeight;
+
+  for (LayerList::const_iterator l = layers.begin();  l != layers.end();  l++)
+    (*l)->setSize(newWidth, newHeight);
 }
 
 ///////////////////////////////////////////////////////////////////////

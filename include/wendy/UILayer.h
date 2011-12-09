@@ -81,6 +81,9 @@ public:
   void cancelDragging();
   void invalidate();
   bool hasCapturedCursor() const;
+  unsigned int getWidth() const;
+  unsigned int getHeight() const;
+  void setSize(unsigned int newWidth, unsigned int newHeight);
   Drawer& getDrawer() const;
   input::Context& getInputContext() const;
   /*! @return The root widgets of this layer.
@@ -104,6 +107,8 @@ private:
   void onFocusChanged(bool activated);
   input::Context& context;
   Drawer& drawer;
+  unsigned int width;
+  unsigned int height;
   bool dragging;
   WidgetList roots;
   Widget* activeWidget;
@@ -129,10 +134,13 @@ public:
   void pop();
   void empty();
   bool isEmpty() const;
+  void setSize(unsigned int newWidth, unsigned int newHeight);
 private:
   typedef std::vector<LayerRef> LayerList;
   input::Context& context;
   LayerList layers;
+  unsigned int width;
+  unsigned int height;
 };
 
 ///////////////////////////////////////////////////////////////////////
