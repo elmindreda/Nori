@@ -541,7 +541,7 @@ const Theme& Drawer::getTheme() const
   return *theme;
 }
 
-const render::Font& Drawer::getCurrentFont()
+render::Font& Drawer::getCurrentFont()
 {
   return *currentFont;
 }

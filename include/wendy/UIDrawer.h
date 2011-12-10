@@ -196,7 +196,7 @@ public:
   void drawButton(const Rect& area, WidgetState state, const char* text = "");
   void drawTab(const Rect& area, WidgetState state, const char* text = "");
   const Theme& getTheme() const;
-  const render::Font& getCurrentFont();
+  render::Font& getCurrentFont();
   void setCurrentFont(render::Font* newFont);
   float getCurrentEM() const;
   render::GeometryPool& getGeometryPool() const;

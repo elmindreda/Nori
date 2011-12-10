@@ -127,7 +127,7 @@ FontData& FontData::operator = (const FontData& source)
 
 ///////////////////////////////////////////////////////////////////////
 
-void Font::drawText(const vec2& penPosition, const vec4& color, const char* text) const
+void Font::drawText(const vec2& penPosition, const vec4& color, const char* text)
 {
   const size_t length = std::strlen(text);
 
@@ -146,7 +146,7 @@ void Font::drawText(const vec2& penPosition, const vec4& color, const char* text
     roundedPen.x = floor(penPosition.x + 0.5f);
     roundedPen.y = floor(penPosition.y + 0.5f);
 
-    std::vector<Vertex2ft2fv> vertices(length * 6);
+    vertices.resize(length * 6);
 
     Layout layout;
 
@@ -158,7 +158,21 @@ void Font::drawText(const vec2& penPosition, const vec4& color, const char* text
         layout.area.position += roundedPen;
         roundedPen += layout.advance;
 
-        realizeVertices(layout.area, glyph->area, &vertices[count]);
+        const Rect& pa = layout.area;
+        const Rect& ta = glyph->area;
+
+        vertices[count + 0].texCoord = ta.position;
+        vertices[count + 0].position = pa.position;
+        vertices[count + 1].texCoord = ta.position + vec2(ta.size.x, 0.f);
+        vertices[count + 1].position = pa.position + vec2(pa.size.x, 0.f);
+        vertices[count + 2].texCoord = ta.position + ta.size;
+        vertices[count + 2].position = pa.position + pa.size;
+
+        vertices[count + 3] = vertices[count + 2];
+        vertices[count + 4].texCoord = ta.position + vec2(0.f, ta.size.y);
+        vertices[count + 4].position = pa.position + vec2(0.f, pa.size.y);
+        vertices[count + 5] = vertices[count + 0];
+
         count += 6;
       }
     }
@@ -457,26 +471,6 @@ void Font::getGlyphLayout(Layout& layout, const Glyph& glyph, uint8 character) c
   layout.area.size.y = (float) glyph.size.y;
 
   layout.advance = floor(vec2(glyph.advance, 0.f) + vec2(0.5f));
-}
-
-void Font::realizeVertices(const Rect& pixelArea,
-                           const Rect& texelArea,
-                           Vertex2ft2fv* vertices) const
-{
-  const Rect& pa = pixelArea;
-  const Rect& ta = texelArea;
-
-  vertices[0].texCoord = vec2(ta.position.x, ta.position.y);
-  vertices[0].position = vec2(pa.position.x, pa.position.y);
-  vertices[1].texCoord = vec2(ta.position.x + ta.size.x, ta.position.y);
-  vertices[1].position = vec2(pa.position.x + pa.size.x, pa.position.y);
-  vertices[2].texCoord = vec2(ta.position.x + ta.size.x, ta.position.y + ta.size.y);
-  vertices[2].position = vec2(pa.position.x + pa.size.x, pa.position.y + pa.size.y);
-
-  vertices[3] = vertices[2];
-  vertices[4].texCoord = vec2(ta.position.x, ta.position.y + ta.size.y);
-  vertices[4].position = vec2(pa.position.x, pa.position.y + pa.size.y);
-  vertices[5] = vertices[0];
 }
 
 ///////////////////////////////////////////////////////////////////////

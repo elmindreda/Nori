@@ -69,7 +69,7 @@ public:
   /*! Renders the specified text at the current pen position.
    *  @param text The text to render.
    */
-  void drawText(const vec2& penPosition, const vec4& color, const char* text) const;
+  void drawText(const vec2& penPosition, const vec4& color, const char* text);
   /*! @return The width, in pixels, of the character cell for this font.
    */
   float getWidth() const;
@@ -103,10 +103,8 @@ private:
   const Glyph* findGlyph(uint8 character) const;
   bool getGlyphLayout(Layout& layout, uint8 character) const;
   void getGlyphLayout(Layout& layout, const Glyph& glyph, uint8 character) const;
-  void realizeVertices(const Rect& pixelArea,
-                       const Rect& texelArea,
-                       Vertex2ft2fv* vertices) const;
   typedef std::vector<Glyph> GlyphList;
+  typedef std::vector<Vertex2ft2fv> VertexList;
   GeometryPool& pool;
   GlyphList glyphs;
   Glyph* characters[256];
@@ -114,7 +112,8 @@ private:
   float ascender;
   float descender;
   GL::UniformStateIndex colorIndex;
-  mutable GL::RenderState pass;
+  GL::RenderState pass;
+  VertexList vertices;
 };
 
 ///////////////////////////////////////////////////////////////////////
