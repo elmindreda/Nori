@@ -115,12 +115,15 @@ void Button::onButtonClicked(Widget& widget,
       selected = false;
       pushedSignal(*this);
     }
+
+    invalidate();
   }
 }
 
 void Button::onDragEnded(Widget& widget, const vec2& position)
 {
   selected = false;
+  invalidate();
 }
 
 void Button::onKeyPressed(Widget& widget, input::Key key, bool pressed)
@@ -136,6 +139,7 @@ void Button::onKeyPressed(Widget& widget, input::Key key, bool pressed)
       {
         selected = false;
         pushedSignal(*this);
+        invalidate();
       }
 
       break;
