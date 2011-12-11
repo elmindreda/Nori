@@ -29,6 +29,7 @@
 #include <wendy/UILayer.h>
 #include <wendy/UIWidget.h>
 #include <wendy/UIScroller.h>
+#include <wendy/UIEntry.h>
 #include <wendy/UIItem.h>
 #include <wendy/UIList.h>
 
@@ -45,9 +46,13 @@ namespace wendy
 
 List::List(Layer& layer):
   Widget(layer),
+  editable(false),
+  editing(false),
   offset(0),
   maxOffset(0),
-  selection(NO_ITEM)
+  selection(NO_ITEM),
+  scroller(NULL),
+  entry(NULL)
 {
   getAreaChangedSignal().connect(*this, &List::onAreaChanged);
   getButtonClickedSignal().connect(*this, &List::onButtonClicked);
@@ -65,6 +70,7 @@ List::List(Layer& layer):
 
 List::~List()
 {
+  delete entry;
   destroyItems();
 }
 
@@ -136,6 +142,35 @@ void List::sortItems()
   std::sort(items.begin(), items.end(), comparator);
 
   updateScroller();
+}
+
+bool List::isEditable() const
+{
+  return editable;
+}
+
+void List::setEditable(bool newState)
+{
+  if (editable == newState)
+    return;
+
+  editable = newState;
+
+  if (editable)
+  {
+    entry = new UI::Entry(getLayer());
+    entry->hide();
+    entry->getFocusChangedSignal().connect(*this, &List::onEntryFocusChanged);
+    entry->getKeyPressedSignal().connect(*this, &List::onEntryKeyPressed);
+    entry->getDestroyedSignal().connect(*this, &List::onEntryDestroyed);
+    getLayer().addRootWidget(*entry);
+  }
+  else
+  {
+    cancelEditing();
+    delete entry;
+    entry = NULL;
+  }
 }
 
 unsigned int List::getOffset() const
@@ -245,6 +280,39 @@ void List::onAreaChanged(Widget& widget)
   updateScroller();
 }
 
+void List::onEntryFocusChanged(Widget& widget, bool activated)
+{
+  if (editing)
+    applyEditing();
+}
+
+void List::onEntryKeyPressed(Widget& widget, input::Key key, bool pressed)
+{
+  if (!pressed)
+    return;
+
+  switch (key)
+  {
+    case input::KEY_ENTER:
+    {
+      applyEditing();
+      break;
+    }
+
+    case input::KEY_ESCAPE:
+    {
+      cancelEditing();
+      break;
+    }
+  }
+}
+
+void List::onEntryDestroyed(Widget& widget)
+{
+  cancelEditing();
+  entry = NULL;
+}
+
 void List::onButtonClicked(Widget& widget,
                            const vec2& position,
                            input::Button button,
@@ -266,7 +334,11 @@ void List::onButtonClicked(Widget& widget,
 
     if (itemTop - itemHeight <= localPosition.y)
     {
-      setSelection(i, true);
+      if (selection == i)
+        beginEditing();
+      else
+        setSelection(i, true);
+
       return;
     }
 
@@ -328,12 +400,56 @@ void List::onWheelTurned(Widget& widget, int wheelOffset)
   if (wheelOffset + (int) offset < 0)
     return;
 
+  if (editing)
+    return;
+
   setOffset(offset + wheelOffset);
 }
 
 void List::onValueChanged(Scroller& scroller)
 {
   setOffset((unsigned int) scroller.getValue());
+}
+
+void List::beginEditing()
+{
+  if (Item* selected = getSelectedItem())
+  {
+    const Rect& area = getGlobalArea();
+    const float selectedHeight = selected->getHeight();
+
+    Rect entryArea(vec2(0.f, area.size.y - selectedHeight),
+                   vec2(area.size.x, selectedHeight));
+
+    if (scroller->isVisible())
+      entryArea.size.x -= scroller->getWidth();
+
+    for (unsigned int i = offset;  i < selection;  i++)
+      entryArea.position.y -= items[i]->getHeight();
+
+    entryArea.position += area.position;
+
+    entry->setArea(entryArea);
+    entry->setText(selected->asString().c_str());
+    entry->show();
+    entry->activate();
+    editing = true;
+  }
+}
+
+void List::applyEditing()
+{
+  entry->hide();
+  editing = false;
+
+  if (Item* item = getSelectedItem())
+    item->setStringValue(entry->getText().c_str());
+}
+
+void List::cancelEditing()
+{
+  entry->hide();
+  editing = false;
 }
 
 void List::updateScroller()

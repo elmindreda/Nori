@@ -47,6 +47,8 @@ public:
   void destroyItem(Item& item);
   void destroyItems();
   void sortItems();
+  bool isEditable() const;
+  void setEditable(bool newState);
   unsigned int getOffset() const;
   void setOffset(unsigned int newOffset);
   unsigned int getSelection() const;
@@ -66,18 +68,27 @@ private:
                        const vec2& position,
                        input::Button button,
                        bool clicked);
+  void onEntryFocusChanged(Widget& widget, bool activated);
+  void onEntryKeyPressed(Widget& widget, input::Key key, bool pressed);
+  void onEntryDestroyed(Widget& widget);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   void onWheelTurned(Widget& widget, int wheelOffset);
   void onValueChanged(Scroller& scroller);
+  void beginEditing();
+  void applyEditing();
+  void cancelEditing();
   void updateScroller();
   bool isSelectionVisible() const;
   void setSelection(unsigned int newSelection, bool notify);
   Signal1<void, List&> itemSelectedSignal;
+  bool editable;
+  bool editing;
   ItemList items;
   unsigned int offset;
   unsigned int maxOffset;
   unsigned int selection;
   Scroller* scroller;
+  Entry* entry;
 };
 
 ///////////////////////////////////////////////////////////////////////
