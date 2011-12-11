@@ -168,6 +168,7 @@ void Layer::setSize(unsigned int newWidth, unsigned int newHeight)
 {
   width = newWidth;
   height = newHeight;
+  sizeChangedSignal(*this);
 }
 
 Drawer& Layer::getDrawer() const
@@ -230,6 +231,11 @@ void Layer::setActiveWidget(Widget* widget)
 LayerStack* Layer::getStack() const
 {
   return stack;
+}
+
+SignalProxy1<void, Layer&> Layer::getSizeChangedSignal()
+{
+  return sizeChangedSignal;
 }
 
 void Layer::updateHoveredWidget()
