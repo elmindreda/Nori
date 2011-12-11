@@ -120,16 +120,12 @@ SeparatorItem::SeparatorItem(Layer& layer):
 
 float SeparatorItem::getWidth() const
 {
-  const float em = layer.getDrawer().getCurrentEM();
-
-  return em * 3.f;
+  return layer.getDrawer().getCurrentEM() * 3.f;
 }
 
 float SeparatorItem::getHeight() const
 {
-  const float em = layer.getDrawer().getCurrentEM();
-
-  return em / 2.f;
+  return layer.getDrawer().getCurrentEM() / 2.f;
 }
 
 void SeparatorItem::draw(const Rect& area, WidgetState state) const
@@ -156,16 +152,12 @@ TextureItem::TextureItem(Layer& layer,
 
 float TextureItem::getWidth() const
 {
-  const float em = layer.getDrawer().getCurrentEM();
-
-  return Item::getWidth() + em * 3.f;
+  return Item::getHeight() + layer.getDrawer().getCurrentEM() * 3.f;
 }
 
 float TextureItem::getHeight() const
 {
-  const float em = layer.getDrawer().getCurrentEM();
-
-  return em * 3.f;
+  return layer.getDrawer().getCurrentEM() * 3.f;
 }
 
 GL::Texture& TextureItem::getTexture() const
