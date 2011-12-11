@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<theme version="1" font="wendy/UIDefault.font" texture="wendy/UIDefault.texture" >
+<theme version="2" font="wendy/UIDefault.font" texture="wendy/UIDefault.texture" >
   <normal>
-    <text color="1 1 1" />
-    <back color="0.3 0.3 0.3" />
-    <caret color="1 1 1" />
+    <text color="255 255 255" />
+    <back color="75 75 75" />
+    <caret color="255 255 255" />
     <button area="0 16 16 16" />
     <handle area="32 16 16 16" />
     <frame area="0 48 16 16" />
@@ -11,9 +11,9 @@
     <tab area="32 48 16 16" />
   </normal>
   <disabled>
-    <text color="0.5 0.4 0.4" />
-    <back color="0.12 0.1 0.1" />
-    <caret color="1 1 1" />
+    <text color="127 100 100" />
+    <back color="25 25 25" />
+    <caret color="255 255 255" />
     <button area="0 0 16 16" />
     <handle area="32 0 16 16" />
     <frame area="0 32 16 16" />
@@ -21,9 +21,9 @@
     <tab area="32 32 16 16" />
   </disabled>
   <active>
-    <text color="1 1 1" />
-    <back color="0.5 0.5 0.5" />
-    <caret color="1 1 1" />
+    <text color="255 255 255" />
+    <back color="127 127 127" />
+    <caret color="255 255 255" />
     <button area="16 16 16 16" />
     <handle area="48 16 16 16" />
     <frame area="16 48 16 16" />
@@ -31,9 +31,9 @@
     <tab area="48 48 16 16" />
   </active>
   <selected>
-    <text color="1 1 1" />
-    <back color="0.5 0.5 0.5" />
-    <caret color="1 1 1" />
+    <text color="255 255 255" />
+    <back color="127 127 127" />
+    <caret color="255 255 255" />
     <button area="16 0 16 16" />
     <handle area="48 0 16 16" />
     <frame area="16 32 16 16" />

@@ -63,7 +63,7 @@ public:
 
 VertexFormat ElementVertex::format("2f:sizeScale 2f:offsetScale 2f:texScale");
 
-const unsigned int THEME_XML_VERSION = 1;
+const unsigned int THEME_XML_VERSION = 2;
 
 } /*namespace*/
 
@@ -167,6 +167,8 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
     return NULL;
   }
 
+  const vec3 scale(1.f / 255.f);
+
   for (pugi::xml_node sn = root.first_child();  sn;  sn = sn.next_sibling())
   {
     if (!widgetStateMap.hasKey(sn.name()))
@@ -180,13 +182,13 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
     WidgetState state = widgetStateMap[sn.name()];
 
     if (pugi::xml_node node = sn.child("text"))
-      theme->textColors[state] = vec3Cast(node.attribute("color").value());
+      theme->textColors[state] = vec3Cast(node.attribute("color").value()) * scale;
 
     if (pugi::xml_node node = sn.child("back"))
-      theme->backColors[state] = vec3Cast(node.attribute("color").value());
+      theme->backColors[state] = vec3Cast(node.attribute("color").value()) * scale;
 
     if (pugi::xml_node node = sn.child("caret"))
-      theme->caretColors[state] = vec3Cast(node.attribute("color").value());
+      theme->caretColors[state] = vec3Cast(node.attribute("color").value()) * scale;
 
     if (pugi::xml_node node = sn.child("button"))
       theme->buttonElements[state] = rectCast(node.attribute("area").value());
