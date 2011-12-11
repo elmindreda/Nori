@@ -133,6 +133,9 @@ void Entry::onButtonClicked(Widget& widget,
                             input::Button button,
                             bool clicked)
 {
+  if (!clicked)
+    return;
+
   Drawer& drawer = getLayer().getDrawer();
 
   const float em = drawer.getCurrentEM();
