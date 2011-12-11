@@ -432,8 +432,11 @@ void List::beginEditing()
 
     entryArea.position += area.position;
 
+    const String& value = selected->asString();
+
     entry->setArea(entryArea);
-    entry->setText(selected->asString().c_str());
+    entry->setText(value.c_str());
+    entry->setCaretPosition(value.length());
     entry->show();
     entry->activate();
     editing = true;
