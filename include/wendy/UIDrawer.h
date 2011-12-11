@@ -189,8 +189,8 @@ public:
                 const vec3& color);
   void drawText(const Rect& area,
                 const char* text,
-                const Alignment& alignment = Alignment(),
-                WidgetState state = STATE_NORMAL);
+                const Alignment& alignment,
+                WidgetState state);
   void drawWell(const Rect& area, WidgetState state);
   void drawFrame(const Rect& area, WidgetState state);
   void drawHandle(const Rect& area, WidgetState state);

@@ -173,7 +173,7 @@ void Popup::draw() const
       textArea.position.x += em / 2.f;
       textArea.size.x -= em;
 
-      drawer.drawText(textArea, item->asString().c_str(), LEFT_ALIGNED);
+      drawer.drawText(textArea, item->asString().c_str(), LEFT_ALIGNED, getState());
     }
 
     Widget::draw();

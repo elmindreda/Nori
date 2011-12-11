@@ -89,7 +89,7 @@ void Label::draw() const
   Drawer& drawer = getLayer().getDrawer();
   if (drawer.pushClipArea(area))
   {
-    drawer.drawText(area, text.c_str(), textAlignment);
+    drawer.drawText(area, text.c_str(), textAlignment, getState());
 
     Widget::draw();
 

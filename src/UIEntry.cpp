@@ -100,7 +100,7 @@ void Entry::draw() const
     textArea.position.x += em / 2.f;
     textArea.size.x -= em;
 
-    drawer.drawText(textArea, text.c_str(), LEFT_ALIGNED);
+    drawer.drawText(textArea, text.c_str(), LEFT_ALIGNED, getState());
 
     if (isActive() && ((unsigned int) (Timer::getCurrentTime() * 2.f) & 1))
     {
