@@ -707,6 +707,7 @@ bool Drawer::init()
     elementPass.setDepthWriting(false);
     elementPass.setSamplerState("image", theme->texture);
     elementPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
+    elementPass.setMultisampling(false);
   }
 
   // Set up solid pass
@@ -736,6 +737,7 @@ bool Drawer::init()
     drawPass.setCullMode(GL::CULL_NONE);
     drawPass.setDepthTesting(false);
     drawPass.setDepthWriting(false);
+    drawPass.setMultisampling(false);
   }
 
   // Set up blitting pass
@@ -765,6 +767,7 @@ bool Drawer::init()
     blitPass.setCullMode(GL::CULL_NONE);
     blitPass.setDepthTesting(false);
     blitPass.setDepthWriting(false);
+    blitPass.setMultisampling(false);
   }
 
   return true;
