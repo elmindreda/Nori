@@ -185,6 +185,9 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
     if (pugi::xml_node node = sn.child("back"))
       theme->backColors[state] = vec3Cast(node.attribute("color").value());
 
+    if (pugi::xml_node node = sn.child("caret"))
+      theme->caretColors[state] = vec3Cast(node.attribute("color").value());
+
     if (pugi::xml_node node = sn.child("button"))
       theme->buttonElements[state] = rectCast(node.attribute("area").value());
 

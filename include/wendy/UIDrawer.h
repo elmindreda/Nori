@@ -122,6 +122,7 @@ public:
   Rect tabElements[4];
   vec3 textColors[4];
   vec3 backColors[4];
+  vec3 caretColors[4];
   Ref<GL::Texture> texture;
   Ref<render::Font> font;
 };

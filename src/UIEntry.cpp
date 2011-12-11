@@ -119,7 +119,9 @@ void Entry::draw() const
       segment.end = vec2(textArea.position.x + position,
                          textArea.position.y + textArea.size.y);
 
-      drawer.drawLine(segment, vec4(vec3(0.f), 1.f));
+      const Theme& theme = drawer.getTheme();
+
+      drawer.drawLine(segment, vec4(theme.caretColors[getState()], 1.f));
     }
 
     Widget::draw();
