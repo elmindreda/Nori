@@ -321,19 +321,20 @@ void List::onButtonClicked(Widget& widget,
   if (!clicked)
     return;
 
-  vec2 localPosition = transformToLocal(position);
+  const vec2 local = transformToLocal(position);
 
-  const float height = getHeight();
-  float itemTop = height;
+  float itemTop = getHeight();
 
   for (unsigned int i = offset;  i < items.size();  i++)
   {
     const float itemHeight = items[i]->getHeight();
-    if (itemTop - itemHeight < 0.f)
-      break;
+    const float itemBottom = itemTop - itemHeight;
 
-    if (itemTop - itemHeight <= localPosition.y)
+    if (itemBottom <= local.y)
     {
+      if (itemBottom < 0.f)
+        setOffset(offset + 1);
+
       if (selection == i)
       {
         if (editable)
@@ -345,7 +346,9 @@ void List::onButtonClicked(Widget& widget,
       return;
     }
 
-    itemTop -= itemHeight;
+    itemTop = itemBottom;
+    if (itemTop < 0.f)
+      break;
   }
 }
 
