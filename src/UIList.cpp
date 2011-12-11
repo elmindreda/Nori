@@ -198,7 +198,7 @@ const ItemList& List::getItems() const
   return items;
 }
 
-SignalProxy2<void, List&, unsigned int> List::getItemSelectedSignal()
+SignalProxy1<void, List&> List::getItemSelectedSignal()
 {
   return itemSelectedSignal;
 }
@@ -402,7 +402,7 @@ void List::setSelection(unsigned int newSelection, bool notify)
     setOffset(selection);
 
   if (notify)
-    itemSelectedSignal(*this, selection);
+    itemSelectedSignal(*this);
 }
 
 ///////////////////////////////////////////////////////////////////////
