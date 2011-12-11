@@ -95,23 +95,20 @@ void Item::setStringValue(const char* newValue)
 void Item::draw(const Rect& area, WidgetState state) const
 {
   Drawer& drawer = layer.getDrawer();
-  if (drawer.pushClipArea(area))
+
+  const float em = drawer.getCurrentEM();
+
+  Rect textArea = area;
+  textArea.position.x += em / 2.f;
+  textArea.size.x -= em;
+
+  if (state == STATE_SELECTED)
   {
-    const float em = drawer.getCurrentEM();
-
-    Rect textArea = area;
-    textArea.position.x += em / 2.f;
-    textArea.size.x -= em;
-
-    if (state == STATE_SELECTED)
-    {
-      const vec3 color = drawer.getTheme().backColors[STATE_SELECTED];
-      drawer.fillRectangle(area, vec4(color, 1.f));
-    }
-
-    drawer.drawText(textArea, value.c_str(), LEFT_ALIGNED, state);
-    drawer.popClipArea();
+    const vec3 color = drawer.getTheme().backColors[STATE_SELECTED];
+    drawer.fillRectangle(area, vec4(color, 1.f));
   }
+
+  drawer.drawText(textArea, value.c_str(), LEFT_ALIGNED, state);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -138,16 +135,12 @@ float SeparatorItem::getHeight() const
 void SeparatorItem::draw(const Rect& area, WidgetState state) const
 {
   Drawer& drawer = layer.getDrawer();
-  if (drawer.pushClipArea(area))
-  {
-    Segment2 segment;
-    segment.start = vec2(area.position.x, area.position.y + area.size.y / 2.f);
-    segment.end = vec2(area.position.x + area.size.x, area.position.y + area.size.y / 2.f);
 
-    drawer.drawLine(segment, vec4(vec3(0.f), 1.f));
+  Segment2 segment;
+  segment.start = vec2(area.position.x, area.position.y + area.size.y / 2.f);
+  segment.end = vec2(area.position.x + area.size.x, area.position.y + area.size.y / 2.f);
 
-    drawer.popClipArea();
-  }
+  drawer.drawLine(segment, vec4(vec3(0.f), 1.f));
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -183,29 +176,25 @@ GL::Texture& TextureItem::getTexture() const
 void TextureItem::draw(const Rect& area, WidgetState state) const
 {
   Drawer& drawer = layer.getDrawer();
-  if (drawer.pushClipArea(area))
+
+  const float em = drawer.getCurrentEM();
+
+  if (state == STATE_SELECTED)
   {
-    const float em = drawer.getCurrentEM();
-
-    if (state == STATE_SELECTED)
-    {
-      const vec3 color = drawer.getTheme().textColors[STATE_SELECTED];
-      drawer.fillRectangle(area, vec4(color, 1.f));
-    }
-
-    Rect textureArea = area;
-    textureArea.size = vec2(em * 3.f, em * 3.f);
-
-    drawer.blitTexture(textureArea, *texture);
-
-    Rect textArea = area;
-    textArea.position.x += em * 3.5f;
-    textArea.size.x -= em;
-
-    drawer.drawText(textArea, asString().c_str(), LEFT_ALIGNED, state);
-
-    drawer.popClipArea();
+    const vec3 color = drawer.getTheme().textColors[STATE_SELECTED];
+    drawer.fillRectangle(area, vec4(color, 1.f));
   }
+
+  Rect textureArea = area;
+  textureArea.size = vec2(em * 3.f, em * 3.f);
+
+  drawer.blitTexture(textureArea, *texture);
+
+  Rect textArea = area;
+  textArea.position.x += em * 3.5f;
+  textArea.size.x -= em;
+
+  drawer.drawText(textArea, asString().c_str(), LEFT_ALIGNED, state);
 }
 
 ///////////////////////////////////////////////////////////////////////
