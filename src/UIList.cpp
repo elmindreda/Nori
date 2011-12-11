@@ -335,7 +335,10 @@ void List::onButtonClicked(Widget& widget,
     if (itemTop - itemHeight <= localPosition.y)
     {
       if (selection == i)
-        beginEditing();
+      {
+        if (editable)
+          beginEditing();
+      }
       else
         setSelection(i, true);
 
