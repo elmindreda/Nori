@@ -378,9 +378,9 @@ bool Font::init(const FontData& data)
 
   ivec2 texelPosition(1, 1);
 
-  GL::TextureImage* textureImage = texture->getImage(0);
-  const unsigned int textureWidth = textureImage->getWidth();
-  const unsigned int textureHeight = textureImage->getHeight();
+  GL::TextureImage& textureImage = texture->getImage(0);
+  const unsigned int textureWidth = textureImage.getWidth();
+  const unsigned int textureHeight = textureImage.getHeight();
 
   glyphs.reserve(data.glyphs.size());
 
@@ -424,7 +424,7 @@ bool Font::init(const FontData& data)
       }
     }
 
-    if (!textureImage->copyFrom(*image, texelPosition.x, texelPosition.y))
+    if (!textureImage.copyFrom(*image, texelPosition.x, texelPosition.y))
     {
       logError("Failed to copy glyph image data for font \'%s\'",
                getName().c_str());

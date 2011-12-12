@@ -250,10 +250,13 @@ public:
   /*! @param[in] level The desired mipmap level.
    *  @param[in] face The desired cube map face if this texture is a cubemap,
    *  or @c NO_CUBE_FACE otherwise.
-   *  @return The specified texture image, or @c NULL if the desired image is
-   *  not available.
    */
-  TextureImage* getImage(unsigned int level = 0, CubeFace face = NO_CUBE_FACE);
+  TextureImage& getImage(unsigned int level = 0, CubeFace face = NO_CUBE_FACE);
+  /*! @param[in] level The desired mipmap level.
+   *  @param[in] face The desired cube map face if this texture is a cubemap,
+   *  or @c NO_CUBE_FACE otherwise.
+   */
+  const TextureImage& getImage(unsigned int level = 0, CubeFace face = NO_CUBE_FACE) const;
   /*! @return The sampler filter mode of this texture.
    */
   FilterMode getFilterMode() const;
@@ -311,9 +314,6 @@ private:
   Context& context;
   TextureType type;
   unsigned int textureID;
-  unsigned int width;
-  unsigned int height;
-  unsigned int depth;
   unsigned int levels;
   FilterMode filterMode;
   AddressMode addressMode;

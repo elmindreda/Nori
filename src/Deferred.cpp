@@ -215,21 +215,21 @@ bool Renderer::init(const Config& config)
     }
 
     if (!framebuffer->setBuffer(GL::ImageFramebuffer::COLOR_BUFFER0,
-                                colorTexture->getImage()))
+                                &(colorTexture->getImage())))
     {
       logError("Failed to attach color texture to G-buffer");
       return false;
     }
 
     if (!framebuffer->setBuffer(GL::ImageFramebuffer::COLOR_BUFFER1,
-                                normalTexture->getImage()))
+                                &(normalTexture->getImage())))
     {
       logError("Failed to attach normal/specularity texture to G-buffer");
       return false;
     }
 
     if (!framebuffer->setBuffer(GL::ImageFramebuffer::DEPTH_BUFFER,
-                                depthTexture->getImage()))
+                                &(depthTexture->getImage())))
     {
       logError("Failed to attach depth texture to G-buffer");
       return false;

@@ -431,7 +431,9 @@ bool Texture::isCube() const
 
 bool Texture::isPOT() const
 {
-  return isPowerOfTwo(width) && isPowerOfTwo(height) && isPowerOfTwo(depth);
+  return isPowerOfTwo(getWidth()) &&
+         isPowerOfTwo(getHeight()) &&
+         isPowerOfTwo(getDepth());
 }
 
 bool Texture::hasMipmaps() const
@@ -446,17 +448,17 @@ TextureType Texture::getType() const
 
 unsigned int Texture::getWidth(unsigned int level) const
 {
-  return width;
+  getImage(level).getWidth();
 }
 
 unsigned int Texture::getHeight(unsigned int level) const
 {
-  return height;
+  getImage(level).getHeight();
 }
 
 unsigned int Texture::getDepth(unsigned int level) const
 {
-  return depth;
+  getImage(level).getDepth();
 }
 
 unsigned int Texture::getLevelCount() const
@@ -569,12 +571,20 @@ size_t Texture::getSize() const
   return size;
 }
 
-TextureImage* Texture::getImage(unsigned int level, CubeFace face)
+TextureImage& Texture::getImage(unsigned int level, CubeFace face)
 {
   if (isCube())
-    return images[face * levels + level];
+    return *images[face * levels + level];
   else
-    return images[level];
+    return *images[level];
+}
+
+const TextureImage& Texture::getImage(unsigned int level, CubeFace face) const
+{
+  if (isCube())
+    return *images[face * levels + level];
+  else
+    return *images[level];
 }
 
 Context& Texture::getContext() const
@@ -604,9 +614,6 @@ Texture::Texture(const ResourceInfo& info, Context& initContext):
   Resource(info),
   context(initContext),
   textureID(0),
-  width(0),
-  height(0),
-  depth(0),
   levels(0),
   filterMode(FILTER_BILINEAR),
   addressMode(ADDRESS_WRAP),
@@ -680,6 +687,8 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
   }
 
   type = params.type;
+
+  unsigned int width, height, depth;
 
   if (type == TEXTURE_CUBE)
   {
