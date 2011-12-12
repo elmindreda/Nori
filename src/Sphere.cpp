@@ -41,7 +41,7 @@ namespace wendy
 
 Sphere::Sphere():
   center(0.f),
-  radius(0.5f)
+  radius(0.f)
 {
 }
 

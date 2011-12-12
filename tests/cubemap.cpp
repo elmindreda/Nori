@@ -97,7 +97,7 @@ bool Test::init()
 
   cameraNode = new scene::CameraNode();
   cameraNode->setCamera(camera);
-  cameraNode->setLocalPosition(vec3(0.f, 0.f, model->getBounds().radius * 3.f));
+  cameraNode->setLocalPosition(vec3(0.f, 0.f, model->getBoundingSphere().radius * 3.f));
   graph.addRootNode(*cameraNode);
 
   return true;

@@ -63,15 +63,20 @@ void Model::enqueue(Scene& scene, const Camera& camera, const Transform3& transf
   {
     GL::PrimitiveRange range(GL::TRIANGLE_LIST, *vertexBuffer, g->getIndexRange());
 
-    float depth = camera.getNormalizedDepth(transform.position + bounds.center);
+    float depth = camera.getNormalizedDepth(transform.position + boundingSphere.center);
 
     scene.createOperations(transform, range, *g->getMaterial(), depth);
   }
 }
 
-const Sphere& Model::getBounds() const
+const AABB& Model::getBoundingAABB() const
 {
-  return bounds;
+  return boundingAABB;
+}
+
+const Sphere& Model::getBoundingSphere() const
+{
+  return boundingSphere;
 }
 
 const Model::GeometryList& Model::getGeometries()
@@ -259,7 +264,8 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
     indexBase += indexCount;
   }
 
-  data.generateBounds(bounds);
+  boundingAABB = data.generateBoundingAABB();
+  boundingSphere = data.generateBoundingSphere();
   return true;
 }
 
