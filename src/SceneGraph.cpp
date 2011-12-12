@@ -476,7 +476,7 @@ render::Model* ModelNode::getModel() const
 void ModelNode::setModel(render::Model* newModel)
 {
   model = newModel;
-  setLocalBounds(model->getBounds());
+  setLocalBounds(model->getBoundingSphere());
 }
 
 void ModelNode::enqueue(render::Scene& scene, const render::Camera& camera) const
