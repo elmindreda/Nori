@@ -55,9 +55,12 @@ public:
   typedef std::vector<Geometry> GeometryList;
   typedef std::map<String, String> MaterialMap;
   void enqueue(Scene& scene, const Camera& camera, const Transform3& transform) const;
+  /*! @return The bounding AABB of this model.
+   */
+  const AABB& getBoundingAABB() const;
   /*! @return The bounding sphere of this model.
    */
-  const Sphere& getBounds() const;
+  const Sphere& getBoundingSphere() const;
   /*! @return The list of geometries in this model.
    */
   const GeometryList& getGeometries();
@@ -99,7 +102,8 @@ private:
   GeometryList geometries;
   Ref<GL::VertexBuffer> vertexBuffer;
   Ref<GL::IndexBuffer> indexBuffer;
-  Sphere bounds;
+  Sphere boundingSphere;
+  AABB boundingAABB;
 };
 
 ///////////////////////////////////////////////////////////////////////
