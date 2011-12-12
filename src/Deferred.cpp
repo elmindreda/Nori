@@ -87,7 +87,8 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
                                         camera.getAspectRatio(),
                                         camera.getNearZ(),
                                         camera.getFarZ());
-  state->setViewportSize(framebuffer->getWidth(), framebuffer->getHeight());
+  state->setViewportSize(float(framebuffer->getWidth()),
+                         float(framebuffer->getHeight()));
   state->setCameraProperties(camera.getTransform().position,
                              camera.getFOV(),
                              camera.getAspectRatio(),

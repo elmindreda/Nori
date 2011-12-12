@@ -485,7 +485,7 @@ void List::updateScroller()
   if (maxOffset)
   {
     scroller->show();
-    scroller->setValueRange(0.f, maxOffset);
+    scroller->setValueRange(0.f, float(maxOffset));
     scroller->setPercentage(getHeight() / totalItemHeight);
   }
   else

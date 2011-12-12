@@ -543,7 +543,7 @@ void Texture::setMaxAnisotropy(float newMax)
 
     context.setCurrentTexture(this);
 
-    glTexParameteri(convertToGL(type), GL_TEXTURE_MAX_ANISOTROPY_EXT, newMax);
+    glTexParameteri(convertToGL(type), GL_TEXTURE_MAX_ANISOTROPY_EXT, int(newMax));
 
     maxAnisotropy = newMax;
   }
