@@ -130,6 +130,8 @@ FontData& FontData::operator = (const FontData& source)
 void Font::drawText(const vec2& penPosition, const vec4& color, const char* text)
 {
   const size_t length = std::strlen(text);
+  if (!length)
+    return;
 
   GL::VertexRange vertexRange;
   if (!pool.allocateVertices(vertexRange, length * 6, Vertex2ft2fv::format))
