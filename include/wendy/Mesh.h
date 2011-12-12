@@ -127,10 +127,10 @@ public:
   void generateEdges();
   /*! Generates the bounding box of this mesh.
    */
-  void generateBounds(AABB& bounds) const;
+  AABB generateBoundingAABB() const;
   /*! Generates the bounding sphere of this mesh.
    */
-  void generateBounds(Sphere& bounds) const;
+  Sphere generateBoundingSphere() const;
   /*! @return @c true if this mesh is valid, otherwise @c false.
    */
   bool isValid() const;

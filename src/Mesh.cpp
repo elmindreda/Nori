@@ -228,13 +228,12 @@ void Mesh::generateEdges()
   }
 }
 
-void Mesh::generateBounds(AABB& bounds) const
+AABB Mesh::generateBoundingAABB() const
 {
+  AABB bounds;
+
   if (vertices.empty())
-  {
-    bounds.center = bounds.size = vec3(0.f);
-    return;
-  }
+    return bounds;
 
   vec3 minimum(std::numeric_limits<float>::max());
   vec3 maximum(std::numeric_limits<float>::min());
@@ -249,22 +248,23 @@ void Mesh::generateBounds(AABB& bounds) const
 
   bounds.setBounds(minimum.x, minimum.y, minimum.z,
                    maximum.x, maximum.y, maximum.z);
+
+  return bounds;
 }
 
-void Mesh::generateBounds(Sphere& bounds) const
+Sphere Mesh::generateBoundingSphere() const
 {
-  bounds.radius = 0.f;
+  Sphere bounds;
 
   if (vertices.empty())
-  {
-    bounds.center = vec3(0.f);
-    return;
-  }
+    return bounds;
 
   bounds.center = vertices[0].position;
 
   for (size_t i = 1;  i < vertices.size();  i++)
     bounds.envelop(vertices[i].position);
+
+  return bounds;
 }
 
 bool Mesh::isValid() const
