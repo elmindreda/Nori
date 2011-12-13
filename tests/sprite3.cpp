@@ -100,8 +100,7 @@ void Test::run()
 
   do
   {
-    context.clearColorBuffer(vec4(0.2f, 0.2f, 0.2f, 1.f));
-    context.clearDepthBuffer();
+    context.clearBuffers(vec4(0.2f, 0.2f, 0.2f, 1.f));
 
     sprite.angle = timer.getTime();
 

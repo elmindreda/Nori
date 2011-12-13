@@ -757,6 +757,27 @@ void Context::clearStencilBuffer(unsigned int value)
 #endif
 }
 
+void Context::clearBuffers(const vec4& color, float depth, unsigned int value)
+{
+  glPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glDepthMask(GL_TRUE);
+  glStencilMask(GL_TRUE);
+
+  glClearColor(color.r, color.g, color.b, color.a);
+  glClearDepth(depth);
+  glClearStencil(value);
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+  glPopAttrib();
+
+#if WENDY_DEBUG
+  checkGL("Error during buffer clearing");
+#endif
+}
+
 void Context::render(const PrimitiveRange& range)
 {
   if (range.isEmpty())

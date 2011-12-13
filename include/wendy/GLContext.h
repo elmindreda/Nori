@@ -390,18 +390,29 @@ public:
   /*! Destructor.
    */
   ~Context();
-  /*! Clears the current color buffer with the specified color.
-   *  @param[in] color The color value to clear the color buffer with.
+  /*! Clears the color buffers of the current framebuffer with the specified
+   *  color.
+   *  @param[in] color The color value to use.
    */
   void clearColorBuffer(const vec4& color = vec4(0.f));
-  /*! Clears the current depth buffer with the specified depth value.
-   *  @param[in] depth The depth value to clear the depth buffer with.
+  /*! Clears the depth buffer of the current framebuffer with the specified
+   *  depth value.
+   *  @param[in] depth The depth value to use.
    */
   void clearDepthBuffer(float depth = 1.f);
-  /*! Clears the current stencil buffer with the specified stencil value.
-   *  @param[in] value The stencil value to clear the stencil buffer with.
+  /*! Clears the stencil buffer of the current framebuffer with the specified
+   *  stencil value.
+   *  @param[in] value The stencil value to use.
    */
   void clearStencilBuffer(unsigned int value = 0);
+  /*! Clears all buffers of the current framebuffer with the specified values.
+   *  @param[in] color The color value to use.
+   *  @param[in] depth The depth value to use.
+   *  @param[in] value The stencil value to use.
+   */
+  void clearBuffers(const vec4& color = vec4(0.f),
+                    float depth = 1.f,
+                    unsigned int value = 0);
   /*! Renders the specified primitive range to the current framebuffer, using
    *  the current GPU program.
    *  @pre A GPU program must be set before calling this method.

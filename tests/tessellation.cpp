@@ -119,8 +119,7 @@ void Test::run()
     cameraNode->setLocalTransform(controller.getTransform());
     graph.update();
 
-    context.clearDepthBuffer();
-    context.clearColorBuffer();
+    context.clearBuffers();
 
     graph.enqueue(scene, *camera);
     renderer->render(scene, *camera);

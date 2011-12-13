@@ -51,8 +51,6 @@ Make Context be a non-singleton object
 OpenGL
 ======
 
-Add multi-buffer clearing to Context
-
 Separate formats from vertex and index buffer
 Add binding objects connecting geometry buffers with programs and formats
 Remove last string compares in render code

@@ -87,8 +87,7 @@ void Test::run()
 
   do
   {
-    context.clearColorBuffer(vec4(0.2f, 0.2f, 0.2f, 1.f));
-    context.clearDepthBuffer();
+    context.clearBuffers(vec4(0.2f, 0.2f, 0.2f, 1.f));
 
     render::Sprite2 sprite;
     sprite.position = vec2(4.f / 3.f / 2.f, 0.5f);

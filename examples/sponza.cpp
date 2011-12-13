@@ -163,8 +163,7 @@ void Demo::run()
     graph.update();
     graph.enqueue(scene, *camera);
 
-    context.clearDepthBuffer();
-    context.clearColorBuffer();
+    context.clearBuffers();
 
     renderer->render(scene, *camera);
 
