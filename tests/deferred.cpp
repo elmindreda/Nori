@@ -144,7 +144,7 @@ void Test::run()
   {
     currentTime = timer.getTime();
 
-    rootNode->setLocalRotation(angleAxis(degrees(float(currentTime)), vec3(0.f, 1.f, 0.f)));
+    rootNode->setLocalRotation(angleAxis(degrees(float(currentTime)), 0.f, 1.f, 0.f));
     cameraNode->setLocalTransform(controller.getTransform());
 
     graph.update();
