@@ -53,7 +53,8 @@ OpenGL
 
 Add multi-buffer clearing to Context
 
-Add binding objects connecting geometry buffers with programs
+Separate formats from vertex and index buffer
+Add binding objects connecting geometry buffers with programs and formats
 Remove last string compares in render code
 Add ARB_vertex_array_object code path, if possible
 
