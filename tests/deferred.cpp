@@ -83,6 +83,7 @@ bool Test::init()
   graph.addRootNode(*rootNode);
 
   RandomRange angle(0.f, pi<float>() * 2.f);
+  RandomRange scale(0.5f, 2.f);
   RandomVolume axis(vec3(-1.f), vec3(1.f));
   RandomVolume position(vec3(-20.f, -2.f, -20.f), vec3(20.f, 2.f, 20.f));
 
@@ -92,6 +93,7 @@ bool Test::init()
     modelNode->setModel(model);
     modelNode->setLocalPosition(position());
     modelNode->setLocalRotation(angleAxis(degrees(angle()), normalize(axis())));
+    modelNode->setLocalScale(scale());
     rootNode->addChild(*modelNode);
   }
 

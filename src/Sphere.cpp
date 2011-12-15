@@ -54,6 +54,7 @@ Sphere::Sphere(const vec3& initCenter, float initRadius):
 void Sphere::transformBy(const Transform3& transform)
 {
   transform.translateVector(center);
+  radius *= transform.scale;
 }
 
 bool Sphere::contains(const vec3& point) const

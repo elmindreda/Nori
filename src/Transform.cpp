@@ -27,6 +27,8 @@
 #include <wendy/Core.h>
 #include <wendy/Transform.h>
 
+#include <glm/gtx/transform.hpp>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -34,22 +36,30 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Transform2::Transform2()
+Transform2::Transform2():
+  angle(0.f),
+  scale(0.f)
 {
-  setIdentity();
 }
 
-Transform2::Transform2(const vec2& initPosition, float initAngle):
+Transform2::Transform2(const vec2& initPosition, float initAngle, float initScale):
   position(initPosition),
-  angle(initAngle)
+  angle(initAngle),
+  scale(initScale)
 {
 }
 
 void Transform2::invert()
 {
   angle = -angle;
+  scale = 1.f / scale;
   position = -position;
   rotateVector(position);
+}
+
+void Transform2::scaleVector(vec2& vector) const
+{
+  vector *= scale;
 }
 
 void Transform2::rotateVector(vec2& vector) const
@@ -71,14 +81,15 @@ void Transform2::translateVector(vec2& vector) const
 
 void Transform2::transformVector(vec2& vector) const
 {
+  vector *= scale;
   rotateVector(vector);
   vector += position;
 }
 
 Transform2::operator mat3 () const
 {
-  const float sina = sin(angle);
-  const float cosa = cos(angle);
+  const float sina = sin(angle) * scale;
+  const float cosa = cos(angle) * scale;
 
   mat3 result;
   result[0][0] = cosa;
@@ -104,6 +115,7 @@ Transform2& Transform2::operator *= (const Transform2& other)
   rotateVector(local);
   position += local;
   angle += other.angle;
+  scale *= other.scale;
   return *this;
 }
 
@@ -111,26 +123,31 @@ void Transform2::setIdentity()
 {
   position = vec2(0.f);
   angle = 0.f;
+  scale = 1.f;
 }
 
-void Transform2::set(const vec2& newPosition, float newAngle)
+void Transform2::set(const vec2& newPosition, float newAngle, float newScale)
 {
   position = newPosition;
   angle = newAngle;
+  scale = newScale;
 }
 
 Transform2 Transform2::IDENTITY;
 
 ///////////////////////////////////////////////////////////////////////
 
-Transform3::Transform3()
+Transform3::Transform3():
+  scale(1.f)
 {
-  setIdentity();
 }
 
-Transform3::Transform3(const vec3& initPosition, const quat& initRotation):
+Transform3::Transform3(const vec3& initPosition,
+                       const quat& initRotation,
+                       float initScale):
   position(initPosition),
-  rotation(initRotation)
+  rotation(initRotation),
+  scale(initScale)
 {
 }
 
@@ -138,6 +155,12 @@ void Transform3::invert()
 {
   rotation = inverse(rotation);
   position = rotation * -position;
+  scale = 1.f / scale;
+}
+
+void Transform3::scaleVector(vec3& vector) const
+{
+  vector *= scale;
 }
 
 void Transform3::rotateVector(vec3& vector) const
@@ -152,15 +175,23 @@ void Transform3::translateVector(vec3& vector) const
 
 void Transform3::transformVector(vec3& vector) const
 {
-  vector = rotation * vector + position;
+  vector = rotation * scale * vector + position;
 }
 
 Transform3::operator mat4 () const
 {
   mat4 result = mat4_cast(rotation);
+
+  for (size_t x = 0;  x < 3;  x++)
+  {
+    for (size_t y = 0;  y < 3;  y++)
+      result[x][y] *= scale;
+  }
+
   result[3][0] = position.x;
   result[3][1] = position.y;
   result[3][2] = position.z;
+
   return result;
 }
 
@@ -175,19 +206,24 @@ Transform3& Transform3::operator *= (const Transform3& other)
 {
   position += rotation * other.position;
   rotation = rotation * other.rotation;
+  scale *= other.scale;
   return *this;
 }
 
 void Transform3::setIdentity()
 {
   rotation = quat();
-  position = vec3(0.f);
+  position = vec3();
+  scale = 1.f;
 }
 
-void Transform3::set(const vec3& newPosition, const quat& newRotation)
+void Transform3::set(const vec3& newPosition,
+                     const quat& newRotation,
+                     float newScale)
 {
   position = newPosition;
   rotation = newRotation;
+  scale = newScale;
 }
 
 Transform3 Transform3::IDENTITY;

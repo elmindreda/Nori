@@ -43,7 +43,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Transform3 convert(const btTransform& transform)
+Transform3 convert(const btTransform& transform, float scale)
 {
   Transform3 result;
   result.position = vec3(transform.getOrigin().x(),
@@ -53,6 +53,7 @@ Transform3 convert(const btTransform& transform)
   btQuaternion rotation = transform.getRotation();
   result.rotation = quat(rotation.w(), rotation.x(), rotation.y(), rotation.z());
 
+  result.scale = scale;
   return result;
 }
 

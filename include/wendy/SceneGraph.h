@@ -107,6 +107,7 @@ public:
   void setLocalTransform(const Transform3& newTransform);
   void setLocalPosition(const vec3& newPosition);
   void setLocalRotation(const quat& newRotation);
+  void setLocalScale(float newScale);
   /*! @return The local-to-world transform of this scene node.
    */
   const Transform3& getWorldTransform() const;

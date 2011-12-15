@@ -49,7 +49,7 @@ namespace wendy
 
 /*! @ingroup bullet
  */
-Transform3 convert(const btTransform& transform);
+Transform3 convert(const btTransform& transform, float scale = 1.f);
 
 /*! @ingroup bullet
  */

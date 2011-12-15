@@ -57,7 +57,7 @@ Plane::Plane(const vec3& P0, const vec3& P1, const vec3& P2)
 void Plane::transformBy(const Transform3& transform)
 {
   transform.rotateVector(normal);
-  distance += dot(normal, transform.position);
+  distance += dot(normal, transform.position) * transform.scale;
 }
 
 bool Plane::contains(const vec3& point) const

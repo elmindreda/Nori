@@ -200,6 +200,16 @@ void Node::setLocalRotation(const quat& newRotation)
   dirtyWorld = true;
 }
 
+void Node::setLocalScale(float newScale)
+{
+  local.scale = newScale;
+
+  if (parent)
+    parent->invalidateBounds();
+
+  dirtyWorld = true;
+}
+
 const Transform3& Node::getWorldTransform() const
 {
   updateWorldTransform();
@@ -436,10 +446,10 @@ void LightNode::update()
       light->setPosition(world.position);
     }
 
-    setLocalBounds(Sphere(vec3(0.f), light->getRadius()));
+    setLocalBounds(Sphere(vec3(), light->getRadius()));
   }
   else
-    setLocalBounds(Sphere(vec3(0.f), 0.f));
+    setLocalBounds(Sphere());
 }
 
 void LightNode::enqueue(render::Scene& scene, const render::Camera& camera) const
