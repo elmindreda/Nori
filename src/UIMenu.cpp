@@ -66,15 +66,19 @@ void Menu::display(const vec2& point)
 {
   vec2 position;
 
-  if (point.x + 1.f + getWidth() < getLayer().getWidth())
+  if (point.x + getWidth() + 1.f < getLayer().getWidth())
     position.x = point.x + 1;
-  else
+  else if (point.x - getWidth() - 1.f > 0.f)
     position.x = point.x - getWidth() - 1.f;
-
-  if (point.y + 1.f + getHeight() < getLayer().getHeight())
-    position.y = point.y + 1;
   else
+    position.x = 1.f;
+
+  if (point.y + getHeight() + 1.f < getLayer().getHeight())
+    position.y = point.y + 1;
+  else if (point.y - getHeight() - 1.f > 0.f)
     position.y = point.y - getHeight() - 1.f;
+  else
+    position.y = 1.f;
 
   setPosition(position);
   display();
