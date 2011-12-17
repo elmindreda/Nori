@@ -35,7 +35,6 @@
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderScene.h>
-#include <wendy/RenderSprite.h>
 #include <wendy/RenderModel.h>
 
 #include <wendy/SceneGraph.h>
@@ -51,11 +50,9 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Node::Node(const char* initName):
-  name(initName),
+Node::Node():
   parent(NULL),
   graph(NULL),
-  visible(true),
   dirtyWorld(false),
   dirtyBounds(false)
 {
@@ -77,7 +74,7 @@ bool Node::addChild(Node& child)
   children.push_back(&child);
   child.parent = this;
   child.setGraph(graph);
-  child.addedToParent(*this);
+  child.invalidateWorldTransform();
 
   invalidateBounds();
   return true;
@@ -85,24 +82,25 @@ bool Node::addChild(Node& child)
 
 void Node::removeFromParent()
 {
-  if (parent)
+  if (parent || graph)
   {
-    List& siblings = parent->children;
-    siblings.erase(std::find(siblings.begin(), siblings.end(), this));
+    if (parent)
+    {
+      List& siblings = parent->children;
+      siblings.erase(std::find(siblings.begin(), siblings.end(), this));
 
-    parent = NULL;
+      parent->invalidateBounds();
+      parent = NULL;
+
+      invalidateWorldTransform();
+    }
+    else
+    {
+      List& roots = graph->roots;
+      roots.erase(std::find(roots.begin(), roots.end(), this));
+    }
+
     setGraph(NULL);
-
-    removedFromParent();
-  }
-  else if (graph)
-  {
-    List& roots = graph->roots;
-    roots.erase(std::find(roots.begin(), roots.end(), this));
-
-    setGraph(NULL);
-
-    removedFromParent();
   }
 }
 
@@ -114,7 +112,7 @@ void Node::destroyChildren()
 
 bool Node::isChildOf(const Node& node) const
 {
-  if (parent != NULL)
+  if (parent)
   {
     if (parent == &node)
       return true;
@@ -125,24 +123,9 @@ bool Node::isChildOf(const Node& node) const
   return false;
 }
 
-bool Node::isVisible() const
-{
-  return visible;
-}
-
 bool Node::hasChildren() const
 {
   return !children.empty();
-}
-
-const String& Node::getName() const
-{
-  return name;
-}
-
-void Node::setName(const char* newName)
-{
-  name = newName;
 }
 
 Graph* Node::getGraph() const
@@ -160,11 +143,6 @@ const Node::List& Node::getChildren() const
   return children;
 }
 
-void Node::setVisible(bool enabled)
-{
-  visible = enabled;
-}
-
 const Transform3& Node::getLocalTransform() const
 {
   return local;
@@ -177,7 +155,7 @@ void Node::setLocalTransform(const Transform3& newTransform)
   if (parent)
     parent->invalidateBounds();
 
-  dirtyWorld = true;
+  invalidateWorldTransform();
 }
 
 void Node::setLocalPosition(const vec3& newPosition)
@@ -187,7 +165,7 @@ void Node::setLocalPosition(const vec3& newPosition)
   if (parent)
     parent->invalidateBounds();
 
-  dirtyWorld = true;
+  invalidateWorldTransform();
 }
 
 void Node::setLocalRotation(const quat& newRotation)
@@ -197,7 +175,7 @@ void Node::setLocalRotation(const quat& newRotation)
   if (parent)
     parent->invalidateBounds();
 
-  dirtyWorld = true;
+  invalidateWorldTransform();
 }
 
 void Node::setLocalScale(float newScale)
@@ -207,12 +185,24 @@ void Node::setLocalScale(float newScale)
   if (parent)
     parent->invalidateBounds();
 
-  dirtyWorld = true;
+  invalidateWorldTransform();
 }
 
 const Transform3& Node::getWorldTransform() const
 {
-  updateWorldTransform();
+  if (dirtyWorld)
+  {
+    if (parent)
+    {
+      const Transform3& parentWorld = parent->getWorldTransform();
+      world = parentWorld * local;
+    }
+    else
+      world = local;
+
+    dirtyWorld = false;
+  }
+
   return world;
 }
 
@@ -224,11 +214,10 @@ const Sphere& Node::getLocalBounds() const
 void Node::setLocalBounds(const Sphere& newBounds)
 {
   localBounds = newBounds;
-
   invalidateBounds();
 }
 
-const Sphere& Node::getTotalBounds() const
+const Sphere& Node::getTotalBounds(unsigned int level) const
 {
   if (dirtyBounds)
   {
@@ -236,10 +225,10 @@ const Sphere& Node::getTotalBounds() const
 
     const List& children = getChildren();
 
-    for (List::const_iterator i = children.begin();  i != children.end();  i++)
+    for (List::const_iterator c = children.begin();  c != children.end();  c++)
     {
-      Sphere childBounds = (*i)->getTotalBounds();
-      childBounds.transformBy((*i)->getLocalTransform());
+      Sphere childBounds = (*c)->getTotalBounds(level + 1);
+      childBounds.transformBy((*c)->getLocalTransform());
       totalBounds.envelop(childBounds);
     }
 
@@ -247,16 +236,6 @@ const Sphere& Node::getTotalBounds() const
   }
 
   return totalBounds;
-}
-
-void Node::addedToParent(Node& parent)
-{
-  dirtyWorld = true;
-}
-
-void Node::removedFromParent()
-{
-  dirtyWorld = true;
 }
 
 void Node::update()
@@ -272,60 +251,37 @@ void Node::enqueue(render::Scene& scene, const render::Camera& camera) const
 
   const List& children = getChildren();
 
-  for (List::const_iterator i = children.begin();  i != children.end();  i++)
+  for (List::const_iterator c = children.begin();  c != children.end();  c++)
   {
-    Node& node = **i;
-
-    if (!node.isVisible())
-      continue;
-
-    // TODO: Make less gluäöusch.
-
-    Sphere worldBounds = node.getTotalBounds();
-    worldBounds.transformBy(node.getWorldTransform());
+    Sphere worldBounds = (*c)->getTotalBounds();
+    worldBounds.transformBy((*c)->getWorldTransform());
 
     if (frustum.intersects(worldBounds))
-      node.enqueue(scene, camera);
+      (*c)->enqueue(scene, camera);
   }
+}
+
+Node::Node(const Node& source)
+{
+  panic("Scene graph nodes may not be copied");
+}
+
+Node& Node::operator = (const Node& source)
+{
+  panic("Scene graph nodes may not be assigned");
 }
 
 void Node::invalidateBounds()
 {
-  for (Node* parent = this;  parent;  parent = parent->getParent())
-    parent->dirtyBounds = true;
+  for (Node* node = this;  node;  node = node->getParent())
+    node->dirtyBounds = true;
 }
 
-bool Node::updateWorldTransform() const
+void Node::invalidateWorldTransform()
 {
-  if (const Node* parent = getParent())
-  {
-    parent->updateWorldTransform();
-    world = parent->world * local;
-  }
-  else
-    world = local;
+  dirtyWorld = true;
 
-  /* TODO: Fix this.
-
-  const Node* parent = getParent();
-  if (parent)
-  {
-    if (parent->updateWorldTransform())
-      dirtyWorld = true;
-  }
-
-  if (dirtyWorld)
-  {
-    world = local;
-    if (parent)
-      world.concatenate(parent->world);
-
-    dirtyWorld = false;
-    return true;
-  }
-  */
-
-  return false;
+  std::for_each(children.begin(), children.end(), std::mem_fun(&Node::invalidateWorldTransform));
 }
 
 void Node::setGraph(Graph* newGraph)
@@ -350,42 +306,39 @@ void Graph::update()
 
 void Graph::enqueue(render::Scene& scene, const render::Camera& camera) const
 {
-  Node::List nodes;
-  query(camera.getFrustum(), nodes);
+  const Frustum& frustum = camera.getFrustum();
 
-  for (Node::List::const_iterator i = nodes.begin();  i != nodes.end();  i++)
-    (*i)->enqueue(scene, camera);
+  for (Node::List::const_iterator r = roots.begin();  r != roots.end();  r++)
+  {
+    Sphere worldBounds = (*r)->getTotalBounds();
+    worldBounds.transformBy((*r)->getWorldTransform());
+
+    if (frustum.intersects(worldBounds))
+      (*r)->enqueue(scene, camera);
+  }
 }
 
-void Graph::query(const Sphere& bounds, Node::List& nodes) const
+void Graph::query(const Sphere& sphere, Node::List& nodes) const
 {
-  for (Node::List::const_iterator i = roots.begin();  i != roots.end();  i++)
+  for (Node::List::const_iterator r = roots.begin();  r != roots.end();  r++)
   {
-    if ((*i)->isVisible())
-    {
-      Sphere total = (*i)->getTotalBounds();
-      total.transformBy((*i)->getWorldTransform());
+    Sphere worldBounds = (*r)->getTotalBounds();
+    worldBounds.transformBy((*r)->getWorldTransform());
 
-      if (bounds.intersects(total))
-        nodes.push_back(*i);
-    }
+    if (sphere.intersects(worldBounds))
+      nodes.push_back(*r);
   }
 }
 
 void Graph::query(const Frustum& frustum, Node::List& nodes) const
 {
-  for (Node::List::const_iterator i = roots.begin();  i != roots.end();  i++)
+  for (Node::List::const_iterator r = roots.begin();  r != roots.end();  r++)
   {
-    Node& node = **i;
+    Sphere worldBounds = (*r)->getTotalBounds();
+    worldBounds.transformBy((*r)->getWorldTransform());
 
-    if (node.isVisible())
-    {
-      Sphere total = node.getTotalBounds();
-      total.transformBy(node.getWorldTransform());
-
-      if (frustum.intersects(total))
-        nodes.push_back(&node);
-    }
+    if (frustum.intersects(worldBounds))
+      nodes.push_back(*r);
   }
 }
 
@@ -408,11 +361,6 @@ const Node::List& Graph::getNodes() const
 }
 
 ///////////////////////////////////////////////////////////////////////
-
-LightNode::LightNode(const char* name):
-  Node(name)
-{
-}
 
 render::Light* LightNode::getLight() const
 {
@@ -462,9 +410,8 @@ void LightNode::enqueue(render::Scene& scene, const render::Camera& camera) cons
 
 ///////////////////////////////////////////////////////////////////////
 
-ModelNode::ModelNode(const char* name):
-  Node(name),
-  shadowCaster(true)
+ModelNode::ModelNode():
+  shadowCaster(false)
 {
 }
 
@@ -499,11 +446,6 @@ void ModelNode::enqueue(render::Scene& scene, const render::Camera& camera) cons
 
 ///////////////////////////////////////////////////////////////////////
 
-CameraNode::CameraNode(const char* name):
-  Node(name)
-{
-}
-
 render::Camera* CameraNode::getCamera() const
 {
   return camera;
@@ -522,46 +464,6 @@ void CameraNode::update()
     return;
 
   camera->setTransform(getWorldTransform());
-}
-
-///////////////////////////////////////////////////////////////////////
-
-SpriteNode::SpriteNode(const char* name):
-  Node(name)
-{
-  setSpriteSize(vec2(1.f));
-}
-
-render::Material* SpriteNode::getMaterial() const
-{
-  return material;
-}
-
-void SpriteNode::setMaterial(render::Material* newMaterial)
-{
-  material = newMaterial;
-}
-
-const vec2& SpriteNode::getSpriteSize() const
-{
-  return spriteSize;
-}
-
-void SpriteNode::setSpriteSize(const vec2& newSize)
-{
-  spriteSize = newSize;
-
-  setLocalBounds(Sphere(vec3(0.f), length(newSize / 2.f)));
-}
-
-void SpriteNode::enqueue(render::Scene& scene, const render::Camera& camera) const
-{
-  Node::enqueue(scene, camera);
-
-  render::Sprite3 sprite;
-  sprite.size = spriteSize;
-  sprite.material = material;
-  sprite.enqueue(scene, camera, getWorldTransform());
 }
 
 ///////////////////////////////////////////////////////////////////////
