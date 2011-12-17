@@ -261,6 +261,11 @@ void Node::enqueue(render::Scene& scene, const render::Camera& camera) const
   }
 }
 
+bool Node::needsUpdate() const
+{
+  return false;
+}
+
 Node::Node(const Node& source)
 {
   panic("Scene graph nodes may not be copied");
@@ -286,7 +291,19 @@ void Node::invalidateWorldTransform()
 
 void Node::setGraph(Graph* newGraph)
 {
+  if (graph && needsUpdate())
+  {
+    List& updated = graph->updated;
+    updated.erase(std::find(updated.begin(), updated.end(), this));
+  }
+
   graph = newGraph;
+
+  if (graph && needsUpdate())
+  {
+    List& updated = graph->updated;
+    updated.push_back(this);
+  }
 
   for (List::const_iterator c = children.begin();  c != children.end();  c++)
     (*c)->setGraph(graph);
@@ -301,7 +318,7 @@ Graph::~Graph()
 
 void Graph::update()
 {
-  std::for_each(roots.begin(), roots.end(), std::mem_fun(&Node::update));
+  std::for_each(updated.begin(), updated.end(), std::mem_fun(&Node::update));
 }
 
 void Graph::enqueue(render::Scene& scene, const render::Camera& camera) const
@@ -408,6 +425,11 @@ void LightNode::enqueue(render::Scene& scene, const render::Camera& camera) cons
     scene.attachLight(*light);
 }
 
+bool LightNode::needsUpdate() const
+{
+  return true;
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 ModelNode::ModelNode():
@@ -464,6 +486,11 @@ void CameraNode::update()
     return;
 
   camera->setTransform(getWorldTransform());
+}
+
+bool CameraNode::needsUpdate() const
+{
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////

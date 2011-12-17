@@ -121,6 +121,9 @@ protected:
    *  @param[in,out] queue The render queue for collecting operations.
    */
   virtual void enqueue(render::Scene& scene, const render::Camera& camera) const;
+  /*! @return @c true if this node should receive calls to Node::update.
+   */
+  virtual bool needsUpdate() const;
 private:
   Node(const Node& source);
   Node& operator = (const Node& source);
@@ -160,6 +163,7 @@ public:
   const Node::List& getNodes() const;
 private:
   Node::List roots;
+  Node::List updated;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -174,6 +178,7 @@ public:
 protected:
   void update();
   void enqueue(render::Scene& scene, const render::Camera& camera) const;
+  bool needsUpdate() const;
 private:
   Ref<render::Light> light;
 };
@@ -208,6 +213,7 @@ public:
   void setCamera(render::Camera* newCamera);
 protected:
   void update();
+  bool needsUpdate() const;
 private:
   Ref<render::Camera> camera;
 };
