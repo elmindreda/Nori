@@ -928,11 +928,7 @@ void Context::requestClose()
 
 void Context::createSharedSampler(const char* name, Sampler::Type type, int ID)
 {
-  if (ID == INVALID_SHARED_STATE_ID)
-  {
-    logError("Cannot create shared sampler with invalid ID");
-    return;
-  }
+  assert(ID != INVALID_SHARED_STATE_ID);
 
   if (getSharedSamplerID(name, type) != INVALID_SHARED_STATE_ID)
     return;
@@ -948,11 +944,7 @@ void Context::createSharedSampler(const char* name, Sampler::Type type, int ID)
 
 void Context::createSharedUniform(const char* name, Uniform::Type type, int ID)
 {
-  if (ID == INVALID_SHARED_STATE_ID)
-  {
-    logError("Cannot create shared uniform with invalid ID");
-    return;
-  }
+  assert(ID != INVALID_SHARED_STATE_ID);
 
   if (getSharedUniformID(name, type) != INVALID_SHARED_STATE_ID)
     return;
