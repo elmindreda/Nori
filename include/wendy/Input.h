@@ -286,6 +286,8 @@ public:
   void inputCursorOffset(const ivec2& offset);
   const Transform3& getTransform() const;
   void setPosition(const vec3& newPosition);
+  float getAngleX() const;
+  float getAngleY() const;
   void setRotation(float newAngleX, float newAngleY);
   float getSpeed() const;
   void setSpeed(float newSpeed);

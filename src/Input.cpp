@@ -689,6 +689,16 @@ void SpectatorController::setPosition(const vec3& newPosition)
   transform.position = newPosition;
 }
 
+float SpectatorController::getAngleX() const
+{
+  return angleX;
+}
+
+float SpectatorController::getAngleY() const
+{
+  return angleY;
+}
+
 void SpectatorController::setRotation(float newAngleX, float newAngleY)
 {
   angleX = newAngleX;
