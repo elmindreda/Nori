@@ -33,10 +33,6 @@
 #include <cstddef>
 #include <cassert>
 
-#ifndef NULL
-#define NULL 0
-#endif
-
 //////////////////////////////////////////////////////////////////////
 
 #include <glm/gtc/type_precision.hpp>
