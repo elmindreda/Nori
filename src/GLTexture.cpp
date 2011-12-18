@@ -448,17 +448,17 @@ TextureType Texture::getType() const
 
 unsigned int Texture::getWidth(unsigned int level) const
 {
-  getImage(level).getWidth();
+  return getImage(level).getWidth();
 }
 
 unsigned int Texture::getHeight(unsigned int level) const
 {
-  getImage(level).getHeight();
+  return getImage(level).getHeight();
 }
 
 unsigned int Texture::getDepth(unsigned int level) const
 {
-  getImage(level).getDepth();
+  return getImage(level).getDepth();
 }
 
 unsigned int Texture::getLevelCount() const
