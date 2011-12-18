@@ -109,7 +109,7 @@ public:
   /*! @return The local space union of the bounds of this node and all its
    *  child nodes.
    */
-  const Sphere& getTotalBounds(unsigned int level = 0) const;
+  const Sphere& getTotalBounds() const;
 protected:
   /*! Called when the scene graph is updated.  This is the correct place to put
    *  per-frame operations which affect the transform or bounds.

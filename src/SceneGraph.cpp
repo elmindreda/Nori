@@ -217,7 +217,7 @@ void Node::setLocalBounds(const Sphere& newBounds)
   invalidateBounds();
 }
 
-const Sphere& Node::getTotalBounds(unsigned int level) const
+const Sphere& Node::getTotalBounds() const
 {
   if (dirtyBounds)
   {
@@ -227,7 +227,7 @@ const Sphere& Node::getTotalBounds(unsigned int level) const
 
     for (List::const_iterator c = children.begin();  c != children.end();  c++)
     {
-      Sphere childBounds = (*c)->getTotalBounds(level + 1);
+      Sphere childBounds = (*c)->getTotalBounds();
       childBounds.transformBy((*c)->getLocalTransform());
       totalBounds.envelop(childBounds);
     }
