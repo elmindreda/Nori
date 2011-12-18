@@ -191,7 +191,7 @@ GLenum convertToGL(PixelFormat::Semantic semantic)
   }
 }
 
-GLenum convertToGL(const PixelFormat& format)
+GLenum convertToGL(const PixelFormat& format, bool sRGB)
 {
   switch (format.getType())
   {
@@ -200,13 +200,37 @@ GLenum convertToGL(const PixelFormat& format)
       switch (format.getSemantic())
       {
         case PixelFormat::R:
-          return GL_LUMINANCE8;
+        {
+          if (sRGB)
+            return GL_SLUMINANCE8;
+          else
+            return GL_LUMINANCE8;
+        }
+
         case PixelFormat::RG:
-          return GL_LUMINANCE8_ALPHA8;
+        {
+          if (sRGB)
+            return GL_SLUMINANCE8_ALPHA8;
+          else
+            return GL_LUMINANCE8_ALPHA8;
+        }
+
         case PixelFormat::RGB:
-          return GL_RGB8;
+        {
+          if (sRGB)
+            return GL_SRGB8;
+          else
+            return GL_RGB8;
+        }
+
         case PixelFormat::RGBA:
-          return GL_RGBA8;
+        {
+          if (sRGB)
+            return GL_SRGB8_ALPHA8;
+          else
+            return GL_RGBA8;
+        }
+
         default:
           break;
       }

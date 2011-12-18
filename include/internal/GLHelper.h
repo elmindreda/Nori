@@ -38,7 +38,7 @@ WENDY_CHECKFORMAT(1, bool checkGL(const char* format, ...));
 GLenum convertToGL(IndexBuffer::Type type);
 GLenum convertToGL(VertexComponent::Type type);
 GLenum convertToGL(PixelFormat::Type type);
-GLenum convertToGL(const PixelFormat& format);
+GLenum convertToGL(const PixelFormat& format, bool sRGB);
 GLenum convertToGL(PixelFormat::Type type);
 GLenum convertToGL(PixelFormat::Semantic semantic);
 GLenum convertToGL(TextureType type);

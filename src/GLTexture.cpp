@@ -168,12 +168,12 @@ const unsigned int TEXTURE_XML_VERSION = 3;
 ///////////////////////////////////////////////////////////////////////
 
 TextureParams::TextureParams(TextureType initType):
-  type(initType)
+  type(initType),
+  mipmapped(true),
+  sRGB(false)
 {
   if (type == TEXTURE_RECT)
     mipmapped = false;
-  else
-    mipmapped = true;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -631,7 +631,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
 {
   format = source.getFormat();
 
-  if (!convertToGL(format))
+  if (!convertToGL(format, params.sRGB))
   {
     logError("Source image for texture \'%s\' has unsupported pixel format \'%s\'",
              getName().c_str(),
@@ -707,7 +707,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
   {
     glTexImage1D(convertToProxyGL(type),
                  0,
-                 convertToGL(format),
+                 convertToGL(format, params.sRGB),
                  width,
                  0,
                  convertToGL(format.getSemantic()),
@@ -718,7 +718,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
   {
     glTexImage3D(convertToProxyGL(type),
                  0,
-                 convertToGL(format),
+                 convertToGL(format, params.sRGB),
                  width,
                  height,
                  depth,
@@ -731,7 +731,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
   {
     glTexImage2D(convertToProxyGL(type),
                  0,
-                 convertToGL(format),
+                 convertToGL(format, params.sRGB),
                  width,
                  height,
                  0,
@@ -765,7 +765,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
   {
     glTexImage1D(convertToGL(type),
                  0,
-                 convertToGL(format),
+                 convertToGL(format, params.sRGB),
                  width,
                  0,
                  convertToGL(format.getSemantic()),
@@ -776,7 +776,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
   {
     glTexImage3D(convertToGL(type),
                  0,
-                 convertToGL(format),
+                 convertToGL(format, params.sRGB),
                  width,
                  height,
                  depth,
@@ -805,7 +805,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
 
       glTexImage2D(convertToGL(faces[i]),
                    0,
-                   convertToGL(source.getFormat()),
+                   convertToGL(source.getFormat(), params.sRGB),
                    width,
                    height,
                    0,
@@ -821,7 +821,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
   {
     glTexImage2D(convertToGL(type),
                  0,
-                 convertToGL(format),
+                 convertToGL(format, params.sRGB),
                  width,
                  height,
                  0,
@@ -977,6 +977,9 @@ Ref<Texture> TextureReader::read(const String& name, const Path& path)
 
   if (pugi::xml_attribute a = root.attribute("mipmapped"))
     params.mipmapped = a.as_bool();
+
+  if (pugi::xml_attribute a = root.attribute("sRGB"))
+    params.sRGB = a.as_bool();
 
   const String imageName(root.attribute("image").value());
   if (imageName.empty())

@@ -134,6 +134,7 @@ public:
   TextureParams(TextureType type);
   TextureType type;
   bool mipmapped;
+  bool sRGB;
 };
 
 ///////////////////////////////////////////////////////////////////////
