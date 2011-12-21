@@ -157,20 +157,17 @@ const char* asString(TextureType type)
   panic("Invalid texture type %u", type);
 }
 
-Bimap<String, FilterMode> filterModeMap;
-Bimap<String, AddressMode> addressModeMap;
-Bimap<String, TextureType> typeMap;
-
-const unsigned int TEXTURE_XML_VERSION = 3;
-
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
 TextureParams::TextureParams(TextureType initType):
   type(initType),
+  filterMode(FILTER_BILINEAR),
+  addressMode(ADDRESS_WRAP),
   mipmapped(true),
-  sRGB(false)
+  sRGB(false),
+  maxAnisotropy(1.0f)
 {
   if (type == TEXTURE_RECT)
     mipmapped = false;
@@ -604,12 +601,6 @@ Ref<Texture> Texture::create(const ResourceInfo& info,
   return texture;
 }
 
-Ref<Texture> Texture::read(Context& context, const String& name)
-{
-  TextureReader reader(context);
-  return reader.read(name);
-}
-
 Texture::Texture(const ResourceInfo& info, Context& initContext):
   Resource(info),
   context(initContext),
@@ -843,6 +834,10 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
 
   applyDefaults();
 
+  setFilterMode(params.filterMode);
+  setAddressMode(params.addressMode);
+  setMaxAnisotropy(params.maxAnisotropy);
+
   if (!checkGL("OpenGL error during creation of texture \'%s\' format \'%s\'",
                getName().c_str(),
                format.asString().c_str()))
@@ -906,127 +901,6 @@ void Texture::applyDefaults()
 Texture& Texture::operator = (const Texture& source)
 {
   return *this;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-TextureReader::TextureReader(Context& initContext):
-  ResourceReader(initContext.getCache()),
-  context(initContext)
-{
-  if (addressModeMap.isEmpty())
-  {
-    addressModeMap["wrap"] = ADDRESS_WRAP;
-    addressModeMap["clamp"] = ADDRESS_CLAMP;
-  }
-
-  if (filterModeMap.isEmpty())
-  {
-    filterModeMap["nearest"] = FILTER_NEAREST;
-    filterModeMap["bilinear"] = FILTER_BILINEAR;
-    filterModeMap["trilinear"] = FILTER_TRILINEAR;
-  }
-
-  if (typeMap.isEmpty())
-  {
-    typeMap["1D"] = TEXTURE_1D;
-    typeMap["2D"] = TEXTURE_2D;
-    typeMap["3D"] = TEXTURE_3D;
-    typeMap["rect"] = TEXTURE_RECT;
-    typeMap["cube"] = TEXTURE_CUBE;
-  }
-}
-
-Ref<Texture> TextureReader::read(const String& name, const Path& path)
-{
-  std::ifstream stream(path.asString().c_str());
-  if (stream.fail())
-  {
-    logError("Failed to open texture \'%s\'", name.c_str());
-    return NULL;
-  }
-
-  pugi::xml_document document;
-
-  const pugi::xml_parse_result result = document.load(stream);
-  if (!result)
-  {
-    logError("Failed to load texture \'%s\': %s",
-             name.c_str(),
-             result.description());
-    return NULL;
-  }
-
-  pugi::xml_node root = document.child("texture");
-  if (!root || root.attribute("version").as_uint() != TEXTURE_XML_VERSION)
-  {
-    logError("Texture file format mismatch in \'%s\'", name.c_str());
-    return NULL;
-  }
-
-  const String typeName(root.attribute("type").value());
-  if (!typeMap.hasKey(typeName))
-  {
-    logError("Invalid texture type \'%s\' in texture \'%s\'",
-             typeName.c_str(),
-             name.c_str());
-    return NULL;
-  }
-
-  TextureParams params(typeMap[typeName]);
-
-  if (pugi::xml_attribute a = root.attribute("mipmapped"))
-    params.mipmapped = a.as_bool();
-
-  if (pugi::xml_attribute a = root.attribute("sRGB"))
-    params.sRGB = a.as_bool();
-
-  const String imageName(root.attribute("image").value());
-  if (imageName.empty())
-  {
-    logError("No image specified for texture \'%s\'", name.c_str());
-    return NULL;
-  }
-
-  Ref<wendy::Image> image = wendy::Image::read(cache, imageName);
-  if (!image)
-  {
-    logError("Failed to load source image for texture \'%s\'", name.c_str());
-    return NULL;
-  }
-
-  const ResourceInfo info(cache, name, path);
-
-  Ref<Texture> texture = Texture::create(info, context, params, *image);
-  if (!texture)
-    return NULL;
-
-  if (pugi::xml_attribute a = root.attribute("filter"))
-  {
-    if (filterModeMap.hasKey(a.value()))
-      texture->setFilterMode(filterModeMap[a.value()]);
-    else
-    {
-      logError("Invalid filter mode name \'%s\'", a.value());
-      return NULL;
-    }
-  }
-
-  if (pugi::xml_attribute a = root.attribute("address"))
-  {
-    if (addressModeMap.hasKey(a.value()))
-      texture->setAddressMode(addressModeMap[a.value()]);
-    else
-    {
-      logError("Invalid address mode name \'%s\'", a.value());
-      return NULL;
-    }
-  }
-
-  if (pugi::xml_attribute a = root.attribute("anisotropy"))
-    texture->setMaxAnisotropy(a.as_float());
-
-  return texture;
 }
 
 ///////////////////////////////////////////////////////////////////////

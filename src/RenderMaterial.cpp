@@ -54,6 +54,9 @@ Bimap<String, GL::CullMode> cullModeMap;
 Bimap<String, GL::BlendFactor> blendFactorMap;
 Bimap<String, GL::Function> functionMap;
 Bimap<String, Technique::Type> techniqueTypeMap;
+Bimap<String, GL::FilterMode> filterModeMap;
+Bimap<String, GL::AddressMode> addressModeMap;
+Bimap<String, GL::TextureType> typeMap;
 
 const unsigned int MATERIAL_XML_VERSION = 6;
 
@@ -237,6 +240,28 @@ MaterialReader::MaterialReader(GL::Context& initContext):
     techniqueTypeMap["forward"] = Technique::FORWARD;
     techniqueTypeMap["deferred"] = Technique::DEFERRED;
     techniqueTypeMap["shadowmap"] = Technique::SHADOWMAP;
+  }
+
+  if (addressModeMap.isEmpty())
+  {
+    addressModeMap["wrap"] = GL::ADDRESS_WRAP;
+    addressModeMap["clamp"] = GL::ADDRESS_CLAMP;
+  }
+
+  if (filterModeMap.isEmpty())
+  {
+    filterModeMap["nearest"] = GL::FILTER_NEAREST;
+    filterModeMap["bilinear"] = GL::FILTER_BILINEAR;
+    filterModeMap["trilinear"] = GL::FILTER_TRILINEAR;
+  }
+
+  if (typeMap.isEmpty())
+  {
+    typeMap["1D"] = GL::TEXTURE_1D;
+    typeMap["2D"] = GL::TEXTURE_2D;
+    typeMap["3D"] = GL::TEXTURE_3D;
+    typeMap["rect"] = GL::TEXTURE_RECT;
+    typeMap["cube"] = GL::TEXTURE_CUBE;
   }
 }
 
@@ -426,7 +451,18 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
             continue;
           }
 
-          const String textureName(s.attribute("texture").value());
+          const String typeName(s.attribute("type").value());
+          if (!typeMap.hasKey(typeName))
+          {
+            logError("Invalid texture type \'%s\' in sampler \'%s\'",
+                     typeName.c_str(),
+                     name.c_str());
+            return NULL;
+          }
+
+          GL::TextureParams params(typeMap[typeName]);
+
+          const String textureName = s.attribute("texture").value();
           if (textureName.empty())
           {
             logError("Texture path missing for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",
@@ -436,7 +472,48 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
             return NULL;
           }
 
-          Ref<GL::Texture> texture = GL::Texture::read(context, textureName);
+          if (pugi::xml_attribute a = s.attribute("mipmapped"))
+            params.mipmapped = a.as_bool();
+
+          if (pugi::xml_attribute a = s.attribute("sRGB"))
+            params.sRGB = a.as_bool();
+
+          if (pugi::xml_attribute a = root.attribute("anisotropy"))
+            params.maxAnisotropy = a.as_float();
+
+          if (pugi::xml_attribute a = s.attribute("filter"))
+          {
+            if (filterModeMap.hasKey(a.value()))
+              params.filterMode = filterModeMap[a.value()];
+            else
+            {
+              logError("Invalid filter mode name \'%s\'", a.value());
+              return NULL;
+            }
+          }
+
+          if (pugi::xml_attribute a = s.attribute("address"))
+          {
+            if (addressModeMap.hasKey(a.value()))
+              params.addressMode = addressModeMap[a.value()];
+            else
+            {
+              logError("Invalid address mode name \'%s\'", a.value());
+              return NULL;
+            }
+          }
+
+          Ref<wendy::Image> image = wendy::Image::read(cache, textureName);
+          if (!image)
+          {
+            logError("Failed to load source image for texture \'%s\'", textureName.c_str());
+            return NULL;
+          }
+
+          const ResourceInfo info(cache, name, path);
+
+          // FIXME: Texture creation
+          Ref<GL::Texture> texture = NULL;//Texture::create(info, context, params, *image);
           if (!texture)
           {
             logError("Failed to find texture \'%s\' for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",

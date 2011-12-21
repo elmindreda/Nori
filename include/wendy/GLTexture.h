@@ -133,8 +133,11 @@ class TextureParams
 public:
   TextureParams(TextureType type);
   TextureType type;
+  FilterMode filterMode;
+  AddressMode addressMode;
   bool mipmapped;
   bool sRGB;
+  float maxAnisotropy;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -299,11 +302,6 @@ public:
                              Context& context,
                              const TextureParams& params,
                              const wendy::Image& source);
-  /*! Creates a texture using the specified texture specification file.
-   *  @param[in] context The OpenGL context within which to create the texture.
-   *  @param[in] path The path of the texture specification file to use.
-   */
-  static Ref<Texture> read(Context& context, const String& name);
 private:
   Texture(const ResourceInfo& info, Context& context);
   Texture(const Texture& source);
@@ -334,20 +332,6 @@ typedef Ref<Texture> TextureRef;
 /*! @ingroup opengl
  */
 typedef std::vector<TextureRef> TextureList;
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup opengl
- */
-class TextureReader : public ResourceReader<Texture>
-{
-public:
-  TextureReader(Context& context);
-  using ResourceReader::read;
-  Ref<Texture> read(const String& name, const Path& path);
-private:
-  Context& context;
-};
 
 ///////////////////////////////////////////////////////////////////////
 

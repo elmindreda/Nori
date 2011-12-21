@@ -336,7 +336,8 @@ bool Renderer::init(const Config& config)
 
     const String& textureName("wendy/DistanceRamp.texture");
 
-    Ref<GL::Texture> distanceRamp = GL::Texture::read(context, textureName);
+    // FIXME: Texture creation
+    Ref<GL::Texture> distanceRamp = NULL;//GL::Texture::read(context, textureName);
     if (!distanceRamp)
     {
       logError("Failed to read attenuation texture \'%s\'",
