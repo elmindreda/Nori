@@ -92,9 +92,6 @@ public:
    *  @param name The desired name of the mesh.
    */
   Mesh(const ResourceInfo& info);
-  /*! Merges the specified mesh with this mesh.
-   */
-  void merge(const Mesh& other);
   /*! Merges all the geometries in this mesh and assigns the resulting
    *  geometry the specified shader name.
    *  @remarks Duplicate vertices and triangles are not merged.

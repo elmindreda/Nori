@@ -240,26 +240,6 @@ Mesh::Mesh(const ResourceInfo& info):
 {
 }
 
-void Mesh::merge(const Mesh& other)
-{
-  vertices.insert(vertices.end(), other.vertices.begin(), other.vertices.end());
-
-  for (GeometryList::const_iterator i = other.geometries.begin();  i != other.geometries.end();  i++)
-  {
-    MeshGeometry* geometry = findGeometry(i->shaderName.c_str());
-    if (!geometry)
-    {
-      geometries.push_back(MeshGeometry());
-      geometry = &(geometries.back());
-      geometry->shaderName = i->shaderName;
-    }
-
-    geometry->triangles.insert(geometry->triangles.end(),
-                               i->triangles.begin(),
-                               i->triangles.end());
-  }
-}
-
 void Mesh::collapseGeometries(const char* shaderName)
 {
   geometries[0].shaderName = shaderName;
