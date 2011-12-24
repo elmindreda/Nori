@@ -12,6 +12,8 @@ Add file change notifications
 Add explicit resource hierarchy
 Add automatic resource reloading
 
+Add binary I/O helpers
+
 Allow multiple source files for resources
 
 Add OBB3 implementation
@@ -75,6 +77,8 @@ Make Context be a non-singleton object
 
 Renderer
 ========
+
+Make Renderable interface more better (cannot currently be RefObject)
 
 Move font texture from sampler2D to samplerRECT
 Stop rendering whitespace "glyphs"
@@ -149,4 +153,10 @@ Debug
 =====
 
 Add graphs to stats items
+
+
+Tools
+=====
+
+Add resource dependency checker
 
