@@ -76,26 +76,11 @@ typedef std::vector<FaceGroup> FaceGroupList;
 
 ///////////////////////////////////////////////////////////////////////
 
-void MeshEdge::setIndices(unsigned int a, unsigned int b)
-{
-  indices[0] = a;
-  indices[1] = b;
-}
-
-///////////////////////////////////////////////////////////////////////
-
 void MeshTriangle::setIndices(unsigned int a, unsigned int b, unsigned int c)
 {
   indices[0] = a;
   indices[1] = b;
   indices[2] = c;
-}
-
-void MeshTriangle::setEdges(unsigned int a, unsigned int b, unsigned int c)
-{
-  edges[0] = a;
-  edges[1] = b;
-  edges[2] = c;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -192,42 +177,6 @@ void Mesh::generateTriangleNormals()
   }
 }
 
-void Mesh::generateEdges()
-{
-  for (size_t i = 0;  i < geometries.size();  i++)
-  {
-    for (size_t j = 0;  j < geometries[i].triangles.size();  j++)
-    {
-      for (size_t k = 0;  k < 3;  k++)
-      {
-        MeshEdge edge;
-        edge.setIndices(geometries[i].triangles[j].indices[k],
-                        geometries[i].triangles[j].indices[(k + 1) % 3]);
-
-        size_t l;
-
-        for (l = 0;  l < edges.size();  l++)
-        {
-          if (edges[l].indices[0] == edge.indices[0] &&
-              edges[l].indices[1] == edge.indices[1])
-            break;
-          if (edges[l].indices[0] == edge.indices[1] &&
-              edges[l].indices[1] == edge.indices[0])
-            break;
-        }
-
-        if (l == edges.size())
-        {
-          geometries[i].triangles[j].edges[k] = edges.size();
-          edges.push_back(edge);
-        }
-        else
-          geometries[i].triangles[j].edges[k] = l;
-      }
-    }
-  }
-}
-
 AABB Mesh::generateBoundingAABB() const
 {
   AABB bounds;
@@ -301,30 +250,6 @@ bool Mesh::isValid() const
       if (triangle.indices[0] >= vertices.size() ||
           triangle.indices[1] >= vertices.size() ||
           triangle.indices[2] >= vertices.size())
-      {
-        return false;
-      }
-
-      if (!edges.empty())
-      {
-        if (triangle.edges[0] >= edges.size() ||
-            triangle.edges[1] >= edges.size() ||
-            triangle.edges[2] >= edges.size())
-        {
-          return false;
-        }
-      }
-    }
-  }
-
-  if (!edges.empty())
-  {
-    for (size_t i = 0;  i < edges.size();  i++)
-    {
-      const MeshEdge& edge = edges[i];
-
-      if (edge.indices[0] >= vertices.size() ||
-          edge.indices[1] >= vertices.size())
       {
         return false;
       }

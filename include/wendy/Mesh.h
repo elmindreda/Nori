@@ -50,22 +50,11 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-class MeshEdge
-{
-public:
-  void setIndices(unsigned int a, unsigned int b);
-  unsigned int indices[2];
-};
-
-///////////////////////////////////////////////////////////////////////
-
 class MeshTriangle
 {
 public:
   void setIndices(unsigned int a, unsigned int b, unsigned int c);
-  void setEdges(unsigned int a, unsigned int b, unsigned int c);
   unsigned int indices[3];
-  unsigned int edges[3];
   vec3 normal;
 };
 
@@ -121,10 +110,6 @@ public:
   /*! Generates and stores triangle normals for this mesh.
    */
   void generateTriangleNormals();
-  /*! Generates and stores the edges in this mesh. By default, the edge
-   *  list is not created.
-   */
-  void generateEdges();
   /*! Generates the bounding box of this mesh.
    */
   AABB generateBoundingAABB() const;
@@ -140,17 +125,12 @@ public:
   static Ref<Mesh> read(ResourceCache& cache, const String& name);
   typedef std::vector<MeshGeometry> GeometryList;
   typedef std::vector<MeshVertex> VertexList;
-  typedef std::vector<MeshEdge> EdgeList;
   /*! The list of geometries in this mesh.
    */
   GeometryList geometries;
   /*! The list of vertices in this mesh.
    */
   VertexList vertices;
-  /*! The list of edges in this mesh. By default, this is empty, but it
-   *  can be generated with Mesh::generateEdges.
-   */
-  EdgeList edges;
 };
 
 ///////////////////////////////////////////////////////////////////////
