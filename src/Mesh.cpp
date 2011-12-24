@@ -240,26 +240,26 @@ Mesh::Mesh(const ResourceInfo& info):
 {
 }
 
-void Mesh::collapseGeometries(const char* shaderName)
+void Mesh::mergeSections(const char* materialName)
 {
-  geometries[0].shaderName = shaderName;
+  sections[0].materialName = materialName;
 
-  for (size_t i = 1;  i < geometries.size();  i++)
+  for (size_t i = 1;  i < sections.size();  i++)
   {
-    geometries[0].triangles.insert(geometries[0].triangles.end(),
-                                   geometries[i].triangles.begin(),
-                                   geometries[i].triangles.end());
+    sections[0].triangles.insert(sections[0].triangles.end(),
+                                 sections[i].triangles.begin(),
+                                 sections[i].triangles.end());
   }
 
-  geometries.resize(1);
+  sections.resize(1);
 }
 
-MeshGeometry* Mesh::findGeometry(const char* shaderName)
+MeshSection* Mesh::findSection(const char* materialName)
 {
-  for (size_t i = 0;  i < geometries.size();  i++)
+  for (size_t i = 0;  i < sections.size();  i++)
   {
-    if (geometries[i].shaderName == shaderName)
-      return &(geometries[i]);
+    if (sections[i].materialName == materialName)
+      return &(sections[i]);
   }
 
   return NULL;
@@ -274,11 +274,11 @@ void Mesh::generateNormals(NormalType type)
   if (type == SMOOTH_FACES)
     tool.setNormalMode(VertexTool::MERGE_NORMALS);
 
-  for (size_t i = 0;  i < geometries.size();  i++)
+  for (size_t i = 0;  i < sections.size();  i++)
   {
-    for (size_t j = 0;  j < geometries[i].triangles.size();  j++)
+    for (size_t j = 0;  j < sections[i].triangles.size();  j++)
     {
-      MeshTriangle& triangle = geometries[i].triangles[j];
+      MeshTriangle& triangle = sections[i].triangles[j];
 
       for (size_t k = 0;  k < 3;  k++)
       {
@@ -294,11 +294,11 @@ void Mesh::generateNormals(NormalType type)
 
 void Mesh::generateTriangleNormals()
 {
-  for (size_t i = 0;  i < geometries.size();  i++)
+  for (size_t i = 0;  i < sections.size();  i++)
   {
-    for (size_t j = 0;  j < geometries[i].triangles.size();  j++)
+    for (size_t j = 0;  j < sections[i].triangles.size();  j++)
     {
-      MeshTriangle& triangle = geometries[i].triangles[j];
+      MeshTriangle& triangle = sections[i].triangles[j];
 
       vec3 one = vertices[triangle.indices[1]].position - vertices[triangle.indices[0]].position;
       vec3 two = vertices[triangle.indices[2]].position - vertices[triangle.indices[0]].position;
@@ -363,12 +363,12 @@ bool Mesh::isValid() const
     }
   }
 
-  for (size_t i = 0;  i < geometries.size();  i++)
+  for (size_t i = 0;  i < sections.size();  i++)
   {
-    if (geometries[i].triangles.empty())
+    if (sections[i].triangles.empty())
       return false;
 
-    const MeshGeometry::TriangleList& triangles = geometries[i].triangles;
+    const MeshTriangleList& triangles = sections[i].triangles;
 
     for (size_t j = 0;  j < triangles.size();  j++)
     {
@@ -393,8 +393,8 @@ unsigned int Mesh::getTriangleCount() const
 {
   unsigned int count = 0;
 
-  for (size_t i = 0;  i < geometries.size();  i++)
-    count += (unsigned int) geometries[i].triangles.size();
+  for (size_t i = 0;  i < sections.size();  i++)
+    count += (unsigned int) sections[i].triangles.size();
 
   return count;
 }
@@ -484,20 +484,20 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
       }
       else if (command == "usemtl")
       {
-        String shaderName = parseName(&text);
+        String materialName = parseName(&text);
 
         group = NULL;
 
         for (FaceGroupList::iterator g = groups.begin();  g != groups.end();  g++)
         {
-          if (g->name == shaderName)
+          if (g->name == materialName)
             group = &(*g);
         }
 
         if (!group)
         {
           groups.push_back(FaceGroup());
-          groups.back().name = shaderName;
+          groups.back().name = materialName;
           group = &(groups.back());
         }
       }
@@ -577,12 +577,12 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
 
   for (FaceGroupList::const_iterator g = groups.begin();  g != groups.end();  g++)
   {
-    mesh->geometries.push_back(MeshGeometry());
-    MeshGeometry& geometry = mesh->geometries.back();
+    mesh->sections.push_back(MeshSection());
+    MeshSection& geometry = mesh->sections.back();
 
     const FaceList& faces = g->faces;
 
-    geometry.shaderName = g->name;
+    geometry.materialName = g->name;
     geometry.triangles.resize(faces.size());
 
     for (size_t i = 0;  i < faces.size();  i++)
@@ -695,14 +695,14 @@ bool MeshWriter::write(const Path& path, const Mesh& mesh)
     stream << "vt " << v->texcoord.x << ' ' << v->texcoord.y << '\n';
   }
 
-  for (Mesh::GeometryList::const_iterator g = mesh.geometries.begin();
-       g != mesh.geometries.end();
-       g++)
+  for (MeshSectionList::const_iterator s = mesh.sections.begin();
+       s != mesh.sections.end();
+       s++)
   {
-    stream << "usemtl " << g->shaderName << '\n';
+    stream << "usemtl " << s->materialName << '\n';
 
-    for (MeshGeometry::TriangleList::const_iterator t = g->triangles.begin();
-         t != g->triangles.end();
+    for (MeshTriangleList::const_iterator t = s->triangles.begin();
+         t != s->triangles.end();
          t++)
     {
       stream << "f";

@@ -91,12 +91,12 @@ btTriangleMesh* convert(const Mesh& data)
   else
     mesh = new btTriangleMesh(false);
 
-  for (Mesh::GeometryList::const_iterator g = data.geometries.begin();
-       g != data.geometries.end();
-       g++)
+  for (MeshSectionList::const_iterator s = data.sections.begin();
+       s != data.sections.end();
+       s++)
   {
-    for (MeshGeometry::TriangleList::const_iterator t = g->triangles.begin();
-         t != g->triangles.end();
+    for (MeshTriangleList::const_iterator t = s->triangles.begin();
+         t != s->triangles.end();
          t++)
     {
       mesh->addTriangle(convert(data.vertices[t->indices[0]].position),

@@ -148,19 +148,19 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
 
   int indexCount = 0;
 
-  for (Mesh::GeometryList::const_iterator g = data.geometries.begin();
-       g != data.geometries.end();
-       g++)
+  for (MeshSectionList::const_iterator s = data.sections.begin();
+       s != data.sections.end();
+       s++)
   {
-    if (materials.find(g->shaderName) == materials.end())
+    if (materials.find(s->materialName) == materials.end())
     {
       logError("Missing material \'%s\' for model \'%s\'",
-               g->shaderName.c_str(),
+               s->materialName.c_str(),
                getName().c_str());
       return false;
     }
 
-    indexCount += g->triangles.size() * 3;
+    indexCount += s->triangles.size() * 3;
   }
 
   VertexFormat format;
@@ -194,13 +194,13 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
 
   int indexBase = 0;
 
-  for (Mesh::GeometryList::const_iterator g = data.geometries.begin();
-       g != data.geometries.end();
-       g++)
+  for (MeshSectionList::const_iterator s = data.sections.begin();
+       s != data.sections.end();
+       s++)
   {
-    indexCount = g->triangles.size() * 3;
+    indexCount = s->triangles.size() * 3;
 
-    const String& materialName(materials.find(g->shaderName)->second);
+    const String& materialName(materials.find(s->materialName)->second);
 
     Ref<Material> material = Material::read(context, materialName);
     if (!material)
@@ -221,13 +221,13 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
       if (!indices)
         return false;
 
-      for (MeshGeometry::TriangleList::const_iterator j = g->triangles.begin();
-           j != g->triangles.end();
-           j++)
+      for (MeshTriangleList::const_iterator t = s->triangles.begin();
+           t != s->triangles.end();
+           t++)
       {
-        indices[index++] = j->indices[0];
-        indices[index++] = j->indices[1];
-        indices[index++] = j->indices[2];
+        indices[index++] = t->indices[0];
+        indices[index++] = t->indices[1];
+        indices[index++] = t->indices[2];
       }
     }
     else if (indexType == GL::IndexBuffer::UINT16)
@@ -236,13 +236,13 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
       if (!indices)
         return false;
 
-      for (MeshGeometry::TriangleList::const_iterator j = g->triangles.begin();
-           j != g->triangles.end();
-           j++)
+      for (MeshTriangleList::const_iterator t = s->triangles.begin();
+           t != s->triangles.end();
+           t++)
       {
-        indices[index++] = j->indices[0];
-        indices[index++] = j->indices[1];
-        indices[index++] = j->indices[2];
+        indices[index++] = t->indices[0];
+        indices[index++] = t->indices[1];
+        indices[index++] = t->indices[2];
       }
     }
     else
@@ -251,13 +251,13 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
       if (!indices)
         return false;
 
-      for (MeshGeometry::TriangleList::const_iterator j = g->triangles.begin();
-           j != g->triangles.end();
-           j++)
+      for (MeshTriangleList::const_iterator t = s->triangles.begin();
+           t != s->triangles.end();
+           t++)
       {
-        indices[index++] = j->indices[0];
-        indices[index++] = j->indices[1];
-        indices[index++] = j->indices[2];
+        indices[index++] = t->indices[0];
+        indices[index++] = t->indices[1];
+        indices[index++] = t->indices[2];
       }
     }
 

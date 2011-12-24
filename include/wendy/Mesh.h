@@ -60,18 +60,25 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Triangle mesh geometry.
+typedef std::vector<MeshTriangle> MeshTriangleList;
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Triangle mesh section.
  *
- *  A geometry is a set of triangles plus an associated shader name.
+ *  A section is a set of triangles plus an associated material name.
  *  Each triangle contains indices into the vertex list of the mesh.
  */
-class MeshGeometry
+class MeshSection
 {
 public:
-  typedef std::vector<MeshTriangle> TriangleList;
-  TriangleList triangles;
-  String shaderName;
+  MeshTriangleList triangles;
+  String materialName;
 };
+
+///////////////////////////////////////////////////////////////////////
+
+typedef std::vector<MeshSection> MeshSectionList;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -92,14 +99,14 @@ public:
    *  @param name The desired name of the mesh.
    */
   Mesh(const ResourceInfo& info);
-  /*! Merges all the geometries in this mesh and assigns the resulting
-   *  geometry the specified shader name.
+  /*! Merges all the sections in this mesh and assigns the specified material
+   *  name to the resulting section.
    *  @remarks Duplicate vertices and triangles are not merged.
    */
-  void collapseGeometries(const char* shaderName);
-  /*! Returns the geometry with the specified shader name.
+  void mergeSections(const char* materialName);
+  /*! Returns the section with the specified material name.
    */
-  MeshGeometry* findGeometry(const char* shaderName);
+  MeshSection* findSection(const char* materialName);
   /*! Generates and stores triangle and vertex normals for this
    *  mesh, according to the specified generation mode.
    */
@@ -116,15 +123,14 @@ public:
   /*! @return @c true if this mesh is valid, otherwise @c false.
    */
   bool isValid() const;
-  /*! @return The number of triangles in all geometries of this mesh.
+  /*! @return The number of triangles in all sections of this mesh.
    */
   unsigned int getTriangleCount() const;
   static Ref<Mesh> read(ResourceCache& cache, const String& name);
-  typedef std::vector<MeshGeometry> GeometryList;
   typedef std::vector<MeshVertex> VertexList;
-  /*! The list of geometries in this mesh.
+  /*! The list of sections in this mesh.
    */
-  GeometryList geometries;
+  MeshSectionList sections;
   /*! The list of vertices in this mesh.
    */
   VertexList vertices;
