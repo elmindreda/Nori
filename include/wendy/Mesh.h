@@ -135,47 +135,6 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Mesh calculation utility class.
- */
-class VertexMerger
-{
-public:
-  enum NormalMode
-  {
-    PRESERVE_NORMALS,
-    MERGE_NORMALS
-  };
-  /*! Constructor.
-   */
-  VertexMerger();
-  VertexMerger(const Mesh::VertexList& vertices);
-  void importPositions(const Mesh::VertexList& vertices);
-  unsigned int addAttributeLayer(unsigned int vertexIndex,
-                                 const vec3& normal,
-                                 const vec2& texcoord = vec2(0.f));
-  void realizeVertices(Mesh::VertexList& result) const;
-  void setNormalMode(NormalMode newMode);
-private:
-  struct VertexLayer
-  {
-    vec3 normal;
-    vec2 texcoord;
-    unsigned int index;
-  };
-  struct Vertex
-  {
-    typedef std::vector<VertexLayer> LayerList;
-    vec3 position;
-    LayerList layers;
-  };
-  typedef std::vector<Vertex> VertexList;
-  VertexList vertices;
-  unsigned int targetCount;
-  NormalMode mode;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 class MeshReader : public ResourceReader<Mesh>
 {
 public:

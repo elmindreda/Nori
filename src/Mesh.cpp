@@ -50,6 +50,156 @@ namespace wendy
 namespace
 {
 
+class VertexTool
+{
+public:
+  enum NormalMode
+  {
+    PRESERVE_NORMALS,
+    MERGE_NORMALS
+  };
+  VertexTool();
+  VertexTool(const Mesh::VertexList& vertices);
+  void importPositions(const Mesh::VertexList& vertices);
+  unsigned int addAttributeLayer(unsigned int vertexIndex,
+                                 const vec3& normal,
+                                 const vec2& texcoord = vec2(0.f));
+  void realizeVertices(Mesh::VertexList& result) const;
+  void setNormalMode(NormalMode newMode);
+private:
+  struct VertexLayer
+  {
+    vec3 normal;
+    vec2 texcoord;
+    unsigned int index;
+  };
+  struct Vertex
+  {
+    typedef std::vector<VertexLayer> LayerList;
+    vec3 position;
+    LayerList layers;
+  };
+  typedef std::vector<Vertex> VertexList;
+  VertexList vertices;
+  unsigned int targetCount;
+  NormalMode mode;
+};
+
+VertexTool::VertexTool():
+  targetCount(0),
+  mode(PRESERVE_NORMALS)
+{
+}
+
+VertexTool::VertexTool(const Mesh::VertexList& initVertices):
+  targetCount(0),
+  mode(PRESERVE_NORMALS)
+{
+  importPositions(initVertices);
+}
+
+void VertexTool::importPositions(const Mesh::VertexList& initVertices)
+{
+  vertices.resize(initVertices.size());
+  for (size_t i = 0;  i < vertices.size();  i++)
+    vertices[i].position = initVertices[i].position;
+}
+
+unsigned int VertexTool::addAttributeLayer(unsigned int vertexIndex,
+                                           const vec3& normal,
+                                           const vec2& texcoord)
+{
+  Vertex& vertex = vertices[vertexIndex];
+
+  if (mode == PRESERVE_NORMALS)
+  {
+    for (Vertex::LayerList::iterator i = vertex.layers.begin();  i != vertex.layers.end();  i++)
+    {
+      if (all(equalEpsilon(i->normal, normal, 0.001f)) &&
+          all(equalEpsilon(i->texcoord, texcoord, 0.001f)))
+      {
+        return i->index;
+      }
+    }
+
+    vertex.layers.push_back(VertexLayer());
+    VertexLayer& layer = vertex.layers.back();
+
+    layer.normal = normal;
+    layer.texcoord = texcoord;
+    layer.index = targetCount++;
+
+    return layer.index;
+  }
+  else
+  {
+    size_t index;
+    bool discontinuous = true;
+
+    for (Vertex::LayerList::iterator i = vertex.layers.begin();  i != vertex.layers.end();  i++)
+    {
+      if (all(equalEpsilon(i->texcoord, texcoord, 0.001f)))
+      {
+        if (all(equalEpsilon(i->normal, normal, 0.001f)))
+          return i->index;
+
+        discontinuous = false;
+        index = i->index;
+      }
+    }
+
+    if (discontinuous)
+      index = targetCount++;
+
+    vertex.layers.push_back(VertexLayer());
+    VertexLayer& layer = vertex.layers.back();
+
+    layer.normal = normal;
+    layer.texcoord = texcoord;
+    layer.index = index;
+
+    return index;
+  }
+}
+
+void VertexTool::realizeVertices(Mesh::VertexList& result) const
+{
+  result.resize(targetCount);
+
+  for (size_t i = 0;  i < vertices.size();  i++)
+  {
+    const Vertex& vertex = vertices[i];
+
+    vec3 normal;
+
+    if (mode == MERGE_NORMALS)
+    {
+      for (size_t j = 0;  j < vertex.layers.size();  j++)
+        normal += vertex.layers[j].normal;
+
+      normal = normalize(normal);
+    }
+
+    for (size_t j = 0;  j < vertex.layers.size();  j++)
+    {
+      const VertexLayer& layer = vertex.layers[j];
+
+      result[layer.index].position = vertex.position;
+      result[layer.index].texcoord = layer.texcoord;
+
+      if (mode == MERGE_NORMALS)
+        result[layer.index].normal = normal;
+      else
+        result[layer.index].normal = layer.normal;
+    }
+  }
+}
+
+void VertexTool::setNormalMode(NormalMode newMode)
+{
+  mode = newMode;
+}
+
 struct Triplet
 {
   unsigned int vertex;
@@ -139,10 +289,10 @@ void Mesh::generateNormals(NormalType type)
 {
   generateTriangleNormals();
 
-  VertexMerger merger(vertices);
+  VertexTool tool(vertices);
 
   if (type == SMOOTH_FACES)
-    merger.setNormalMode(VertexMerger::MERGE_NORMALS);
+    tool.setNormalMode(VertexTool::MERGE_NORMALS);
 
   for (size_t i = 0;  i < geometries.size();  i++)
   {
@@ -152,14 +302,14 @@ void Mesh::generateNormals(NormalType type)
 
       for (size_t k = 0;  k < 3;  k++)
       {
-        triangle.indices[k] = merger.addAttributeLayer(triangle.indices[k],
-                                                       triangle.normal,
-                                                       vertices[triangle.indices[k]].texcoord);
+        triangle.indices[k] = tool.addAttributeLayer(triangle.indices[k],
+                                                     triangle.normal,
+                                                     vertices[triangle.indices[k]].texcoord);
       }
     }
   }
 
-  merger.realizeVertices(vertices);
+  tool.realizeVertices(vertices);
 }
 
 void Mesh::generateTriangleNormals()
@@ -273,123 +423,6 @@ Ref<Mesh> Mesh::read(ResourceCache& cache, const String& name)
 {
   MeshReader reader(cache);
   return reader.read(name);
-}
-
-///////////////////////////////////////////////////////////////////////
-
-VertexMerger::VertexMerger():
-  targetCount(0),
-  mode(PRESERVE_NORMALS)
-{
-}
-
-VertexMerger::VertexMerger(const Mesh::VertexList& initVertices):
-  targetCount(0),
-  mode(PRESERVE_NORMALS)
-{
-  importPositions(initVertices);
-}
-
-void VertexMerger::importPositions(const Mesh::VertexList& initVertices)
-{
-  vertices.resize(initVertices.size());
-  for (size_t i = 0;  i < vertices.size();  i++)
-    vertices[i].position = initVertices[i].position;
-}
-
-unsigned int VertexMerger::addAttributeLayer(unsigned int vertexIndex,
-                                             const vec3& normal,
-                                             const vec2& texcoord)
-{
-  Vertex& vertex = vertices[vertexIndex];
-
-  if (mode == PRESERVE_NORMALS)
-  {
-    for (Vertex::LayerList::iterator i = vertex.layers.begin();  i != vertex.layers.end();  i++)
-    {
-      if (all(equalEpsilon(i->normal, normal, 0.001f)) &&
-          all(equalEpsilon(i->texcoord, texcoord, 0.001f)))
-      {
-        return i->index;
-      }
-    }
-
-    vertex.layers.push_back(VertexLayer());
-    VertexLayer& layer = vertex.layers.back();
-
-    layer.normal = normal;
-    layer.texcoord = texcoord;
-    layer.index = targetCount++;
-
-    return layer.index;
-  }
-  else
-  {
-    size_t index;
-    bool discontinuous = true;
-
-    for (Vertex::LayerList::iterator i = vertex.layers.begin();  i != vertex.layers.end();  i++)
-    {
-      if (all(equalEpsilon(i->texcoord, texcoord, 0.001f)))
-      {
-        if (all(equalEpsilon(i->normal, normal, 0.001f)))
-          return i->index;
-
-        discontinuous = false;
-        index = i->index;
-      }
-    }
-
-    if (discontinuous)
-      index = targetCount++;
-
-    vertex.layers.push_back(VertexLayer());
-    VertexLayer& layer = vertex.layers.back();
-
-    layer.normal = normal;
-    layer.texcoord = texcoord;
-    layer.index = index;
-
-    return index;
-  }
-}
-
-void VertexMerger::realizeVertices(Mesh::VertexList& result) const
-{
-  result.resize(targetCount);
-
-  for (size_t i = 0;  i < vertices.size();  i++)
-  {
-    const Vertex& vertex = vertices[i];
-
-    vec3 normal;
-
-    if (mode == MERGE_NORMALS)
-    {
-      for (size_t j = 0;  j < vertex.layers.size();  j++)
-        normal += vertex.layers[j].normal;
-
-      normal = normalize(normal);
-    }
-
-    for (size_t j = 0;  j < vertex.layers.size();  j++)
-    {
-      const VertexLayer& layer = vertex.layers[j];
-
-      result[layer.index].position = vertex.position;
-      result[layer.index].texcoord = layer.texcoord;
-
-      if (mode == MERGE_NORMALS)
-        result[layer.index].normal = normal;
-      else
-        result[layer.index].normal = layer.normal;
-    }
-  }
-}
-
-void VertexMerger::setNormalMode(NormalMode newMode)
-{
-  mode = newMode;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -560,7 +593,7 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
   for (size_t i = 0;  i < positions.size();  i++)
     mesh->vertices[i].position = positions[i];
 
-  VertexMerger merger(mesh->vertices);
+  VertexTool tool(mesh->vertices);
 
   for (FaceGroupList::const_iterator g = groups.begin();  g != groups.end();  g++)
   {
@@ -589,12 +622,12 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
         if (point.texcoord)
           texcoord = texcoords[point.texcoord - 1];
 
-        triangle.indices[j] = merger.addAttributeLayer(point.vertex - 1, normal, texcoord);
+        triangle.indices[j] = tool.addAttributeLayer(point.vertex - 1, normal, texcoord);
       }
     }
   }
 
-  merger.realizeVertices(mesh->vertices);
+  tool.realizeVertices(mesh->vertices);
   return mesh;
 }
 
