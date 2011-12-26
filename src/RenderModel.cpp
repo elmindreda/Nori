@@ -146,7 +146,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
   }
   */
 
-  int indexCount = 0;
+  size_t indexCount = 0;
 
   for (MeshSectionList::const_iterator s = data.sections.begin();
        s != data.sections.end();
@@ -170,7 +170,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
     return false;
 
   vertexBuffer = GL::VertexBuffer::create(context,
-                                          (unsigned int) data.vertices.size(),
+                                          data.vertices.size(),
                                           format,
                                           GL::VertexBuffer::STATIC);
   if (!vertexBuffer)

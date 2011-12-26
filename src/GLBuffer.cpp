@@ -199,7 +199,7 @@ void VertexBuffer::unlock()
   locked = false;
 }
 
-void VertexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsigned int start)
+void VertexBuffer::copyFrom(const void* source, size_t sourceCount, size_t start)
 {
   if (locked)
   {
@@ -223,7 +223,7 @@ void VertexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsign
 #endif
 }
 
-void VertexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int start)
+void VertexBuffer::copyTo(void* target, size_t targetCount, size_t start)
 {
   if (locked)
   {
@@ -257,7 +257,7 @@ const VertexFormat& VertexBuffer::getFormat() const
   return format;
 }
 
-unsigned int VertexBuffer::getCount() const
+size_t VertexBuffer::getCount() const
 {
   return count;
 }
@@ -268,7 +268,7 @@ size_t VertexBuffer::getSize() const
 }
 
 Ref<VertexBuffer> VertexBuffer::create(Context& context,
-                                       unsigned int count,
+                                       size_t count,
                                        const VertexFormat& format,
                                        Usage usage)
 {
@@ -295,7 +295,7 @@ VertexBuffer::VertexBuffer(const VertexBuffer& source):
 }
 
 bool VertexBuffer::init(const VertexFormat& initFormat,
-                        unsigned int initCount,
+                        size_t initCount,
                         Usage initUsage)
 {
   format = initFormat;
@@ -380,7 +380,7 @@ void IndexBuffer::unlock()
   locked = false;
 }
 
-void IndexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsigned int start)
+void IndexBuffer::copyFrom(const void* source, size_t sourceCount, size_t start)
 {
   if (locked)
   {
@@ -404,7 +404,7 @@ void IndexBuffer::copyFrom(const void* source, unsigned int sourceCount, unsigne
 #endif
 }
 
-void IndexBuffer::copyTo(void* target, unsigned int targetCount, unsigned int start)
+void IndexBuffer::copyTo(void* target, size_t targetCount, size_t start)
 {
   if (locked)
   {
@@ -438,7 +438,7 @@ IndexBuffer::Usage IndexBuffer::getUsage() const
   return usage;
 }
 
-unsigned int IndexBuffer::getCount() const
+size_t IndexBuffer::getCount() const
 {
   return count;
 }
@@ -449,7 +449,7 @@ size_t IndexBuffer::getSize() const
 }
 
 Ref<IndexBuffer> IndexBuffer::create(Context& context,
-                                     unsigned int count,
+                                     size_t count,
                                      Type type,
                                      Usage usage)
 {
@@ -491,7 +491,7 @@ IndexBuffer::IndexBuffer(const IndexBuffer& source):
   panic("Index buffers may not be copied");
 }
 
-bool IndexBuffer::init(unsigned int initCount, Type initType, Usage initUsage)
+bool IndexBuffer::init(size_t initCount, Type initType, Usage initUsage)
 {
   type = initType;
   usage = initUsage;
@@ -542,8 +542,8 @@ VertexRange::VertexRange(VertexBuffer& initVertexBuffer):
 }
 
 VertexRange::VertexRange(VertexBuffer& initVertexBuffer,
-                         unsigned int initStart,
-                         unsigned int initCount):
+                         size_t initStart,
+                         size_t initCount):
   vertexBuffer(&initVertexBuffer),
   start(initStart),
   count(initCount)
@@ -598,12 +598,12 @@ VertexBuffer* VertexRange::getVertexBuffer() const
   return vertexBuffer;
 }
 
-unsigned int VertexRange::getStart() const
+size_t VertexRange::getStart() const
 {
   return start;
 }
 
-unsigned int VertexRange::getCount() const
+size_t VertexRange::getCount() const
 {
   return count;
 }
@@ -626,8 +626,8 @@ IndexRange::IndexRange(IndexBuffer& initIndexBuffer):
 }
 
 IndexRange::IndexRange(IndexBuffer& initIndexBuffer,
-                       unsigned int initStart,
-                       unsigned int initCount):
+                       size_t initStart,
+                       size_t initCount):
   indexBuffer(&initIndexBuffer),
   start(initStart),
   count(initCount)
@@ -682,12 +682,12 @@ IndexBuffer* IndexRange::getIndexBuffer() const
   return indexBuffer;
 }
 
-unsigned int IndexRange::getStart() const
+size_t IndexRange::getStart() const
 {
   return start;
 }
 
-unsigned int IndexRange::getCount() const
+size_t IndexRange::getCount() const
 {
   return count;
 }
@@ -755,8 +755,8 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
 
 PrimitiveRange::PrimitiveRange(PrimitiveType initType,
                                VertexBuffer& initVertexBuffer,
-                               unsigned int initStart,
-                               unsigned int initCount):
+                               size_t initStart,
+                               size_t initCount):
   type(initType),
   vertexBuffer(&initVertexBuffer),
   indexBuffer(NULL),
@@ -768,8 +768,8 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
 PrimitiveRange::PrimitiveRange(PrimitiveType initType,
                                VertexBuffer& initVertexBuffer,
                                IndexBuffer& initIndexBuffer,
-                               unsigned int initStart,
-                               unsigned int initCount):
+                               size_t initStart,
+                               size_t initCount):
   type(initType),
   vertexBuffer(&initVertexBuffer),
   indexBuffer(&initIndexBuffer),
@@ -801,12 +801,12 @@ IndexBuffer* PrimitiveRange::getIndexBuffer() const
   return indexBuffer;
 }
 
-unsigned int PrimitiveRange::getStart() const
+size_t PrimitiveRange::getStart() const
 {
   return start;
 }
 
-unsigned int PrimitiveRange::getCount() const
+size_t PrimitiveRange::getCount() const
 {
   return count;
 }

@@ -114,14 +114,14 @@ public:
    *  @param[in] count The number of vertices to copy.
    *  @param[in] start The index of the first vertex to be written to.
    */
-  void copyFrom(const void* source, unsigned int count, unsigned int start = 0);
+  void copyFrom(const void* source, size_t count, size_t start = 0);
   /*! Copies the specified number of bytes from this vertex buffer, starting
    *  at the specified offset.
    *  @param[in,out] target The base address of the destination buffer.
    *  @param[in] count The number of vertices to copy.
    *  @param[in] start The index of the first vertex to read from.
    */
-  void copyTo(void* target, unsigned int count, unsigned int start = 0);
+  void copyTo(void* target, size_t count, size_t start = 0);
   /*! @return The usage hint of this vertex buffer.
    */
   Usage getUsage() const;
@@ -130,7 +130,7 @@ public:
   const VertexFormat& getFormat() const;
   /*! @return The number of vertices in this vertex buffer.
    */
-  unsigned int getCount() const;
+  size_t getCount() const;
   /*! @return The size, in bytes, of the data in this vertex buffer.
    */
   size_t getSize() const;
@@ -141,19 +141,19 @@ public:
    *  @return The newly created vertex buffer, or @c NULL if an error occurred.
    */
   static Ref<VertexBuffer> create(Context& context,
-                                  unsigned int count,
+                                  size_t count,
                                   const VertexFormat& format,
                                   Usage usage);
 private:
   VertexBuffer(Context& context);
   VertexBuffer(const VertexBuffer& source);
   VertexBuffer& operator = (const VertexBuffer& source);
-  bool init(const VertexFormat& format, unsigned int count, Usage usage);
+  bool init(const VertexFormat& format, size_t count, Usage usage);
   Context& context;
   bool locked;
   VertexFormat format;
   unsigned int bufferID;
-  unsigned int count;
+  size_t count;
   Usage usage;
 };
 
@@ -211,14 +211,14 @@ public:
    *  @param[in] count The number of indices to copy.
    *  @param[in] start The index of the first index to be written to.
    */
-  void copyFrom(const void* source, unsigned int count, unsigned int start = 0);
+  void copyFrom(const void* source, size_t count, size_t start = 0);
   /*! Copies the specified number of bytes from this index buffer, starting
    *  at the specified offset.
    *  @param[in,out] target The base address of the destination buffer.
    *  @param[in] count The number of indices to copy.
    *  @param[in] start The index of the first index to read from.
    */
-  void copyTo(void* target, unsigned int count, unsigned int start = 0);
+  void copyTo(void* target, size_t count, size_t start = 0);
   /*! @return The type of the index elements in this index buffer.
    */
   Type getType() const;
@@ -227,7 +227,7 @@ public:
   Usage getUsage() const;
   /*! @return The number of index elements in this index buffer.
    */
-  unsigned int getCount() const;
+  size_t getCount() const;
   /*! @return The size, in bytes, of the data in this index buffer.
    */
   size_t getSize() const;
@@ -238,7 +238,7 @@ public:
    *  @return The newly created index buffer, or @c NULL if an error occurred.
    */
   static Ref<IndexBuffer> create(Context& context,
-                                 unsigned int count,
+                                 size_t count,
                                  Type type,
                                  Usage usage);
   /*! @return The size, in bytes, of the specified element type.
@@ -248,13 +248,13 @@ private:
   IndexBuffer(Context& context);
   IndexBuffer(const IndexBuffer& source);
   IndexBuffer& operator = (const IndexBuffer& source);
-  bool init(unsigned int count, Type type, Usage usage);
+  bool init(size_t count, Type type, Usage usage);
   Context& context;
   bool locked;
   Type type;
   Usage usage;
   unsigned int bufferID;
-  unsigned int count;
+  size_t count;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -277,7 +277,7 @@ public:
   VertexRange(VertexBuffer& vertexBuffer);
   /*! Constructor.
    */
-  VertexRange(VertexBuffer& vertexBuffer, unsigned int start, unsigned int count);
+  VertexRange(VertexBuffer& vertexBuffer, size_t start, size_t count);
   /*! Locks this vertex range into memory and returns its address.
    *  @return The base address of this vertex range, or @c NULL if an error occurred.
    */
@@ -298,14 +298,14 @@ public:
   VertexBuffer* getVertexBuffer() const;
   /*! @return The index of the first vertex in this vertex range.
    */
-  unsigned int getStart() const;
+  size_t getStart() const;
   /*! @return The number of vertices in this vertex range.
    */
-  unsigned int getCount() const;
+  size_t getCount() const;
 private:
   VertexBuffer* vertexBuffer;
-  unsigned int start;
-  unsigned int count;
+  size_t start;
+  size_t count;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -329,7 +329,7 @@ public:
   IndexRange(IndexBuffer& indexBuffer);
   /*! Creates the specified range within the specified index buffer.
    */
-  IndexRange(IndexBuffer& indexBuffer, unsigned int start, unsigned int count);
+  IndexRange(IndexBuffer& indexBuffer, size_t start, size_t count);
   /*! Locks this index range into memory and returns its address.
    *  @param[in] type The desired type of lock.
    *  @return The base address of this index range, or @c NULL if an error occurred.
@@ -351,14 +351,14 @@ public:
   IndexBuffer* getIndexBuffer() const;
   /*! @return The index of the first index in this index range.
    */
-  unsigned int getStart() const;
+  size_t getStart() const;
   /*! @return The number of indices in this index range.
    */
-  unsigned int getCount() const;
+  size_t getCount() const;
 private:
   IndexBuffer* indexBuffer;
-  unsigned int start;
-  unsigned int count;
+  size_t start;
+  size_t count;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -398,8 +398,8 @@ public:
    */
   PrimitiveRange(PrimitiveType type,
                  VertexBuffer& vertexBuffer,
-                 unsigned int start,
-                 unsigned int count);
+                 size_t start,
+                 size_t count);
   /*! Creates a primitive range of the specified type, using the specified
    *  range of the specified index buffer to reference vertices in the
    *  specified vertex buffer.
@@ -407,8 +407,8 @@ public:
   PrimitiveRange(PrimitiveType type,
                  VertexBuffer& vertexBuffer,
                  IndexBuffer& indexBuffer,
-                 unsigned int start,
-                 unsigned int count);
+                 size_t start,
+                 size_t count);
   /*! @return @c true if this primitive range contains zero primitives,
    *  otherwise @c false.
    */
@@ -423,14 +423,14 @@ public:
    *  index buffer is used.
    */
   IndexBuffer* getIndexBuffer() const;
-  unsigned int getStart() const;
-  unsigned int getCount() const;
+  size_t getStart() const;
+  size_t getCount() const;
 private:
   PrimitiveType type;
   VertexBuffer* vertexBuffer;
   IndexBuffer* indexBuffer;
-  unsigned int start;
-  unsigned int count;
+  size_t start;
+  size_t count;
 };
 
 ///////////////////////////////////////////////////////////////////////
