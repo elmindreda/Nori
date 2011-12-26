@@ -53,8 +53,8 @@ public:
 class MeshTriangle
 {
 public:
-  void setIndices(unsigned int a, unsigned int b, unsigned int c);
-  unsigned int indices[3];
+  void setIndices(uint32 a, uint32 b, uint32 c);
+  uint32 indices[3];
   vec3 normal;
 };
 
@@ -125,7 +125,7 @@ public:
   bool isValid() const;
   /*! @return The number of triangles in all sections of this mesh.
    */
-  unsigned int getTriangleCount() const;
+  size_t getTriangleCount() const;
   static Ref<Mesh> read(ResourceCache& cache, const String& name);
   typedef std::vector<MeshVertex> VertexList;
   /*! The list of sections in this mesh.

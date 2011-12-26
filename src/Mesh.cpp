@@ -61,9 +61,9 @@ public:
   VertexTool();
   VertexTool(const Mesh::VertexList& vertices);
   void importPositions(const Mesh::VertexList& vertices);
-  unsigned int addAttributeLayer(unsigned int vertexIndex,
-                                 const vec3& normal,
-                                 const vec2& texcoord = vec2(0.f));
+  uint32 addAttributeLayer(uint32 vertexIndex,
+                           const vec3& normal,
+                           const vec2& texcoord = vec2(0.f));
   void realizeVertices(Mesh::VertexList& result) const;
   void setNormalMode(NormalMode newMode);
 private:
@@ -71,7 +71,7 @@ private:
   {
     vec3 normal;
     vec2 texcoord;
-    unsigned int index;
+    uint32 index;
   };
   struct Vertex
   {
@@ -81,7 +81,7 @@ private:
   };
   typedef std::vector<Vertex> VertexList;
   VertexList vertices;
-  unsigned int targetCount;
+  uint32 targetCount;
   NormalMode mode;
 };
 
@@ -105,9 +105,9 @@ void VertexTool::importPositions(const Mesh::VertexList& initVertices)
     vertices[i].position = initVertices[i].position;
 }
 
-unsigned int VertexTool::addAttributeLayer(unsigned int vertexIndex,
-                                           const vec3& normal,
-                                           const vec2& texcoord)
+uint32 VertexTool::addAttributeLayer(uint32 vertexIndex,
+                                     const vec3& normal,
+                                     const vec2& texcoord)
 {
   Vertex& vertex = vertices[vertexIndex];
 
@@ -202,9 +202,9 @@ void VertexTool::setNormalMode(NormalMode newMode)
 
 struct Triplet
 {
-  unsigned int vertex;
-  unsigned int normal;
-  unsigned int texcoord;
+  uint32 vertex;
+  uint32 normal;
+  uint32 texcoord;
 };
 
 struct Face
@@ -226,7 +226,7 @@ typedef std::vector<FaceGroup> FaceGroupList;
 
 ///////////////////////////////////////////////////////////////////////
 
-void MeshTriangle::setIndices(unsigned int a, unsigned int b, unsigned int c)
+void MeshTriangle::setIndices(uint32 a, uint32 b, uint32 c)
 {
   indices[0] = a;
   indices[1] = b;
@@ -389,12 +389,12 @@ bool Mesh::isValid() const
   return true;
 }
 
-unsigned int Mesh::getTriangleCount() const
+size_t Mesh::getTriangleCount() const
 {
-  unsigned int count = 0;
+  size_t count = 0;
 
   for (size_t i = 0;  i < sections.size();  i++)
-    count += (unsigned int) sections[i].triangles.size();
+    count += sections[i].triangles.size();
 
   return count;
 }
@@ -709,7 +709,7 @@ bool MeshWriter::write(const Path& path, const Mesh& mesh)
 
       for (size_t i = 0;  i < 3;  i++)
       {
-        unsigned int index = t->indices[i] + 1;
+        uint32 index = t->indices[i] + 1;
         stream << ' ' << index << '/' << index << '/' << index;
       }
 
