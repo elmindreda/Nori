@@ -43,14 +43,9 @@ namespace wendy
 /*! @brief Geometry pool.
  *  @ingroup renderer
  */
-class GeometryPool : public Trackable
+class GeometryPool : public Trackable, public RefObject
 {
 public:
-  /*! Constructor.
-   *  @param[in] context The OpenGL context to be used by this pool.
-   *  @param[in] granularity The allocation granularity of this pool.
-   */
-  GeometryPool(GL::Context& context, size_t granularity = 1024);
   /*! Allocates a range of temporary indices of the specified type.
    *  @param[out] range The newly allocated index range.
    *  @param[in] count The number of indices to allocate.
@@ -80,7 +75,15 @@ public:
   /*! @return The OpenGL context used by this pool.
    */
   GL::Context& getContext() const;
+  /*! Creates a geometry pool.
+   *  @param[in] context The OpenGL context to be used.
+   *  @param[in] granularity The desired allocation granularity.
+   *  @return The newly created geometry pool.
+   */
+  static Ref<GeometryPool> create(GL::Context& context, size_t granularity = 1024);
 private:
+  GeometryPool(GL::Context& context);
+  bool init(size_t granularity);
   /*! @internal
    */
   struct IndexBufferSlot

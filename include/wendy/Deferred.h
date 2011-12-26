@@ -55,15 +55,19 @@ public:
   /*! Constructor.
    *  @param[in] width The desired width of the G-buffer.
    *  @param[in] height The desired height of the G-buffer.
+   *  @param[in] pool The geometry pool to use.
    */
-  Config(unsigned int width, unsigned int height);
+  Config(unsigned int width, unsigned int height, render::GeometryPool& pool);
   /*! The desired width of the G-buffer.
    */
   unsigned int width;
   /*! The desired height of the G-buffer.
    */
   unsigned int height;
-  /*! The shared program state object to be used by the renderer.
+  /*! The geometry pool to be used by the renderer.
+   */
+  Ref<render::GeometryPool> pool;
+  /*! The shared program state to be used by the renderer.
    */
   Ref<SharedProgramState> state;
 };
@@ -72,7 +76,7 @@ public:
 
 /*! @brief Deferred renderer.
  */
-class Renderer
+class Renderer : public render::System
 {
 public:
   /*! Renders the specified scene to the G-buffer of this renderer using the
@@ -83,9 +87,6 @@ public:
   /*! @return The shared program state object used by this renderer.
    */
   SharedProgramState& getSharedProgramState();
-  /*! @return The geometry pool used by this renderer.
-   */
-  render::GeometryPool& getGeometryPool();
   /*! @return The color buffer texture of the G-buffer of this renderer.
    */
   GL::Texture& getColorTexture() const;
@@ -100,7 +101,7 @@ public:
    *  @return The newly constructed renderer object, or @c NULL if an error
    *  occurred.
    */
-  static Renderer* create(render::GeometryPool& pool, const Config& config);
+  static Ref<Renderer> create(const Config& config);
 private:
   Renderer(render::GeometryPool& pool);
   bool init(const Config& config);
@@ -108,7 +109,6 @@ private:
   void renderAmbientLight(const render::Camera& camera, const vec3& color);
   void renderLight(const render::Camera& camera, const render::Light& light);
   void renderOperations(const render::Queue& queue);
-  render::GeometryPool& pool;
   Ref<GL::ImageFramebuffer> framebuffer;
   GL::TextureRef depthTexture;
   GL::TextureRef colorTexture;

@@ -84,7 +84,7 @@ public:
    *  occurred.
    */
   static Ref<Model> create(const ResourceInfo& info,
-                           GL::Context& context,
+                           System& system,
                            const Mesh& data,
                            const MaterialMap& materials);
   /*! Creates a model specification using the specified file.
@@ -92,13 +92,12 @@ public:
    *  @param[in] path The path of the specification file to use.
    *  @return The newly created model, or @c NULL if an error occurred.
    */
-  static Ref<Model> read(GL::Context& context, const String& name);
+  static Ref<Model> read(System& system, const String& name);
 private:
-  Model(const ResourceInfo& info, GL::Context& context);
+  Model(const ResourceInfo& info);
   Model(const Model& source);
   Model& operator = (const Model& source);
-  bool init(const Mesh& data, const MaterialMap& materials);
-  GL::Context& context;
+  bool init(System& system, const Mesh& data, const MaterialMap& materials);
   GeometryList geometries;
   Ref<GL::VertexBuffer> vertexBuffer;
   Ref<GL::IndexBuffer> indexBuffer;
@@ -139,11 +138,11 @@ private:
 class ModelReader : public ResourceReader<Model>
 {
 public:
-  ModelReader(GL::Context& context);
+  ModelReader(System& system);
   using ResourceReader::read;
   Ref<Model> read(const String& name, const Path& path);
 private:
-  GL::Context& context;
+  System& system;
 };
 
 ///////////////////////////////////////////////////////////////////////

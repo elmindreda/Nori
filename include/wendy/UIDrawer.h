@@ -39,6 +39,7 @@
 
 #include <wendy/RenderState.h>
 #include <wendy/RenderPool.h>
+#include <wendy/RenderSystem.h>
 #include <wendy/RenderFont.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -138,7 +139,7 @@ public:
   using ResourceReader::read;
   Ref<Theme> read(const String& name, const Path& path);
 private:
-  render::GeometryPool& pool;
+  Ref<render::GeometryPool> pool;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -148,7 +149,7 @@ private:
  *
  *  This class provides drawing for widgets.
  */
-class Drawer
+class Drawer : public render::System
 {
 public:
   void begin();
@@ -200,14 +201,12 @@ public:
   render::Font& getCurrentFont();
   void setCurrentFont(render::Font* newFont);
   float getCurrentEM() const;
-  render::GeometryPool& getGeometryPool() const;
-  static Drawer* create(render::GeometryPool& pool);
+  static Ref<Drawer> create(render::GeometryPool& pool);
 private:
   Drawer(render::GeometryPool& pool);
   bool init();
   void drawElement(const Rect& area, const Rect& mapping);
   void setDrawingState(const vec4& color, bool wireframe);
-  render::GeometryPool& pool;
   RectClipStackf clipAreaStack;
   Ref<GL::VertexBuffer> vertexBuffer;
   Ref<GL::IndexBuffer> indexBuffer;

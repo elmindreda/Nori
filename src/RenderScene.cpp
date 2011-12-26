@@ -130,7 +130,7 @@ const SortKeyList& Queue::getSortKeys() const
 ///////////////////////////////////////////////////////////////////////
 
 Scene::Scene(GeometryPool& initPool, Technique::Type initType):
-  pool(initPool),
+  pool(&initPool),
   type(initType)
 {
 }
@@ -180,7 +180,7 @@ void Scene::removeOperations()
 
 GeometryPool& Scene::getGeometryPool() const
 {
-  return pool;
+  return *pool;
 }
 
 Queue& Scene::getOpaqueQueue()

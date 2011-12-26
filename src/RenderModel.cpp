@@ -31,6 +31,8 @@
 #include <wendy/GLContext.h>
 #include <wendy/GLState.h>
 
+#include <wendy/RenderPool.h>
+#include <wendy/RenderSystem.h>
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
@@ -105,26 +107,24 @@ const GL::IndexBuffer& Model::getIndexBuffer() const
 }
 
 Ref<Model> Model::create(const ResourceInfo& info,
-                         GL::Context& context,
+                         System& system,
                          const Mesh& data,
                          const MaterialMap& materials)
 {
-  Ref<Model> model(new Model(info, context));
-  if (!model->init(data, materials))
+  Ref<Model> model(new Model(info));
+  if (!model->init(system, data, materials))
     return NULL;
 
   return model;
 }
 
-Model::Model(const ResourceInfo& info, GL::Context& initContext):
-  Resource(info),
-  context(initContext)
+Model::Model(const ResourceInfo& info):
+  Resource(info)
 {
 }
 
 Model::Model(const Model& source):
-  Resource(source),
-  context(source.context)
+  Resource(source)
 {
   panic("Models may not be copied");
 }
@@ -134,7 +134,7 @@ Model& Model::operator = (const Model& source)
   panic("Models may not be assigned");
 }
 
-bool Model::init(const Mesh& data, const MaterialMap& materials)
+bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 {
   /*
   if (!data.isValid())
@@ -162,6 +162,8 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
 
     indexCount += s->triangles.size() * 3;
   }
+
+  GL::Context& context = system.getGeometryPool().getContext();
 
   VertexFormat format;
   if (!format.createComponents("3f:wyPosition 3f:wyNormal 2f:wyTexCoord"))
@@ -202,7 +204,7 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
 
     const String& materialName(materials.find(s->materialName)->second);
 
-    Ref<Material> material = Material::read(context, materialName);
+    Ref<Material> material = Material::read(system, materialName);
     if (!material)
     {
       logError("Failed to load material for model \'%s\'", getName().c_str());
@@ -269,9 +271,9 @@ bool Model::init(const Mesh& data, const MaterialMap& materials)
   return true;
 }
 
-Ref<Model> Model::read(GL::Context& context, const String& name)
+Ref<Model> Model::read(System& system, const String& name)
 {
-  ModelReader reader(context);
+  ModelReader reader(system);
   return reader.read(name);
 }
 
@@ -301,9 +303,9 @@ void Model::Geometry::setMaterial(Material* newMaterial)
 
 ///////////////////////////////////////////////////////////////////////
 
-ModelReader::ModelReader(GL::Context& initContext):
-  ResourceReader(initContext.getCache()),
-  context(initContext)
+ModelReader::ModelReader(System& initSystem):
+  ResourceReader(initSystem.getCache()),
+  system(initSystem)
 {
 }
 
@@ -362,7 +364,7 @@ Ref<Model> ModelReader::read(const String& name, const Path& path)
     materials[materialName] = m.attribute("path").value();
   }
 
-  return Model::create(ResourceInfo(cache, name, path), context, *mesh, materials);
+  return Model::create(ResourceInfo(cache, name, path), system, *mesh, materials);
 }
 
 ///////////////////////////////////////////////////////////////////////

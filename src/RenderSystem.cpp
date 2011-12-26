@@ -22,35 +22,66 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_WENDYRENDER_H
-#define WENDY_WENDYRENDER_H
-///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup renderer 3D rendering pipeline
- */
+#include <wendy/Config.h>
 
-///////////////////////////////////////////////////////////////////////
-
-#if WENDY_INCLUDE_RENDERER
+#include <wendy/GLBuffer.h>
+#include <wendy/GLTexture.h>
+#include <wendy/GLProgram.h>
+#include <wendy/GLContext.h>
 
 #include <wendy/RenderPool.h>
-#include <wendy/RenderFont.h>
-#include <wendy/RenderLight.h>
-#include <wendy/RenderState.h>
 #include <wendy/RenderSystem.h>
-#include <wendy/RenderCamera.h>
-#include <wendy/RenderMaterial.h>
-#include <wendy/RenderScene.h>
-#include <wendy/RenderSprite.h>
-#include <wendy/RenderModel.h>
-
-#include <wendy/Forward.h>
-#include <wendy/Deferred.h>
-
-#else
-#error "Render module not enabled"
-#endif
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_WENDYRENDER_H*/
+
+namespace wendy
+{
+  namespace render
+  {
+
+///////////////////////////////////////////////////////////////////////
+
+ResourceCache& System::getCache() const
+{
+  return pool->getContext().getCache();
+}
+
+GL::Context& System::getContext() const
+{
+  return pool->getContext();
+}
+
+GeometryPool& System::getGeometryPool() const
+{
+  return *pool;
+}
+
+System::Type System::getType() const
+{
+  return type;
+}
+
+System::System(GeometryPool& initPool, Type initType):
+  pool(&initPool),
+  type(initType)
+{
+  assert(pool);
+}
+
+System::System(const System& source)
+{
+  panic("Render systems may not be copied");
+}
+
+System& System::operator = (const System& source)
+{
+  panic("Render systems may not be assigned");
+}
+
+///////////////////////////////////////////////////////////////////////
+
+  } /*namespace render*/
+} /*namespace wendy*/
+
 ///////////////////////////////////////////////////////////////////////

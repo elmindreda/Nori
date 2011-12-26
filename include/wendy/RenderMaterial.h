@@ -40,6 +40,10 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+class System;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Render pass state object.
  *  @ingroup renderer
  */
@@ -154,14 +158,14 @@ public:
   /*! @return The techniques in this material.
    */
   const TechniqueList& getTechniques() const;
-  /*! Loads a material from the specified path using the specified context, or
+  /*! Loads a material from the specified path using the specified system, or
    *  returns the already loaded material if it's already present in the
-   *  resource cache of the context.
-   *  @param[in] context The context to use.
+   *  resource cache of the system.
+   *  @param[in] system The system to use.
    *  @param[in] path The path of the material.
    *  @return The loaded material, or @c NULL if an error occurred.
    */
-  static Ref<Material> read(GL::Context& context, const String& name);
+  static Ref<Material> read(System& system, const String& name);
 private:
   TechniqueList techniques;
 };
@@ -174,11 +178,11 @@ private:
 class MaterialReader : public ResourceReader<Material>
 {
 public:
-  MaterialReader(GL::Context& context);
+  MaterialReader(System& system);
   using ResourceReader::read;
   Ref<Material> read(const String& name, const Path& path);
 private:
-  GL::Context& context;
+  System& system;
 };
 
 ///////////////////////////////////////////////////////////////////////

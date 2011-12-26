@@ -162,7 +162,7 @@ public:
   Technique::Type getTechniqueType() const;
   void setTechniqueType(Technique::Type newType);
 private:
-  GeometryPool& pool;
+  Ref<GeometryPool> pool;
   Technique::Type type;
   Queue opaqueQueue;
   Queue blendedQueue;

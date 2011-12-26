@@ -25,10 +25,11 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/RenderPool.h>
+#include <wendy/RenderSystem.h>
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
-#include <wendy/RenderPool.h>
 
 #include <wendy/Deferred.h>
 
@@ -58,9 +59,12 @@ VertexFormat LightVertex::format("2f:wyPosition 2f:wyTexCoord 2f:wyClipOverF");
 
 ///////////////////////////////////////////////////////////////////////
 
-Config::Config(unsigned int initWidth, unsigned int initHeight):
+Config::Config(unsigned int initWidth,
+               unsigned int initHeight,
+               render::GeometryPool& initPool):
   width(initWidth),
-  height(initHeight)
+  height(initHeight),
+  pool(&initPool)
 {
 }
 
@@ -68,7 +72,7 @@ Config::Config(unsigned int initWidth, unsigned int initHeight):
 
 void Renderer::render(const render::Scene& scene, const render::Camera& camera)
 {
-  GL::Context& context = pool.getContext();
+  GL::Context& context = getContext();
 
   Ref<GL::SharedProgramState> prevState = context.getCurrentSharedProgramState();
   context.setCurrentSharedProgramState(state);
@@ -117,11 +121,6 @@ SharedProgramState& Renderer::getSharedProgramState()
   return *state;
 }
 
-render::GeometryPool& Renderer::getGeometryPool()
-{
-  return pool;
-}
-
 GL::Texture& Renderer::getColorTexture() const
 {
   return *colorTexture;
@@ -137,23 +136,23 @@ GL::Texture& Renderer::getDepthTexture() const
   return *depthTexture;
 }
 
-Renderer* Renderer::create(render::GeometryPool& pool, const Config& config)
+Ref<Renderer> Renderer::create(const Config& config)
 {
-  Ptr<Renderer> renderer(new Renderer(pool));
+  Ptr<Renderer> renderer(new Renderer(*config.pool));
   if (!renderer->init(config))
     return NULL;
 
   return renderer.detachObject();
 }
 
-Renderer::Renderer(render::GeometryPool& initPool):
-  pool(initPool)
+Renderer::Renderer(render::GeometryPool& pool):
+  render::System(pool, render::System::DEFERRED)
 {
 }
 
 bool Renderer::init(const Config& config)
 {
-  GL::Context& context = pool.getContext();
+  GL::Context& context = getContext();
   ResourceCache& cache = context.getCache();
 
   if (config.state)
@@ -361,7 +360,7 @@ void Renderer::renderLightQuad(const render::Camera& camera)
 {
   GL::VertexRange range;
 
-  if (!pool.allocateVertices(range, 4, LightVertex::format))
+  if (!getGeometryPool().allocateVertices(range, 4, LightVertex::format))
   {
     logError("Failed to allocate vertices for deferred lighting");
     return;
@@ -391,7 +390,7 @@ void Renderer::renderLightQuad(const render::Camera& camera)
 
   range.copyFrom(vertices);
 
-  pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 }
 
 void Renderer::renderAmbientLight(const render::Camera& camera, const vec3& color)
@@ -445,7 +444,7 @@ void Renderer::renderLight(const render::Camera& camera, const render::Light& li
 
 void Renderer::renderOperations(const render::Queue& queue)
 {
-  GL::Context& context = pool.getContext();
+  GL::Context& context = getContext();
   const render::SortKeyList& keys = queue.getSortKeys();
   const render::OperationList& operations = queue.getOperations();
 

@@ -22,35 +22,51 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_WENDYRENDER_H
-#define WENDY_WENDYRENDER_H
+#ifndef WENDY_RENDERSYSTEM_H
+#define WENDY_RENDERSYSTEM_H
 ///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup renderer 3D rendering pipeline
- */
+#include <wendy/GLBuffer.h>
+#include <wendy/GLTexture.h>
+#include <wendy/GLProgram.h>
+#include <wendy/GLState.h>
 
 ///////////////////////////////////////////////////////////////////////
 
-#if WENDY_INCLUDE_RENDERER
-
-#include <wendy/RenderPool.h>
-#include <wendy/RenderFont.h>
-#include <wendy/RenderLight.h>
-#include <wendy/RenderState.h>
-#include <wendy/RenderSystem.h>
-#include <wendy/RenderCamera.h>
-#include <wendy/RenderMaterial.h>
-#include <wendy/RenderScene.h>
-#include <wendy/RenderSprite.h>
-#include <wendy/RenderModel.h>
-
-#include <wendy/Forward.h>
-#include <wendy/Deferred.h>
-
-#else
-#error "Render module not enabled"
-#endif
+namespace wendy
+{
+  namespace render
+  {
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_WENDYRENDER_H*/
+
+class System : public RefObject
+{
+public:
+  enum Type
+  {
+    SIMPLE,
+    FORWARD,
+    DEFERRED
+  };
+  ResourceCache& getCache() const;
+  GL::Context& getContext() const;
+  GeometryPool& getGeometryPool() const;
+  Type getType() const;
+protected:
+  System(GeometryPool& pool, Type type);
+private:
+  System(const System& source);
+  System& operator = (const System& source);
+  Ref<GeometryPool> pool;
+  Type type;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+  } /*namespace render*/
+} /*namespace wendy*/
+
+///////////////////////////////////////////////////////////////////////
+#endif /*WENDY_RENDERSYSTEM_H*/
 ///////////////////////////////////////////////////////////////////////

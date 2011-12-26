@@ -21,8 +21,8 @@ private:
   bool render();
   ResourceCache cache;
   input::MayaCamera controller;
-  Ptr<render::GeometryPool> pool;
-  Ptr<deferred::Renderer> renderer;
+  Ref<render::GeometryPool> pool;
+  Ref<deferred::Renderer> renderer;
   Ref<render::Camera> camera;
   scene::Graph graph;
   scene::Node* rootNode;
@@ -35,7 +35,6 @@ Test::~Test()
 {
   graph.destroyRootNodes();
 
-  camera = NULL;
   renderer = NULL;
   pool = NULL;
 
@@ -63,16 +62,16 @@ bool Test::init()
   const unsigned int width = context->getDefaultFramebuffer().getWidth();
   const unsigned int height = context->getDefaultFramebuffer().getHeight();
 
-  pool = new render::GeometryPool(*context);
+  pool = render::GeometryPool::create(*context);
 
-  renderer = deferred::Renderer::create(*pool, deferred::Config(width, height));
+  renderer = deferred::Renderer::create(deferred::Config(width, height, *pool));
   if (!renderer)
     return false;
 
   if (!input::Context::createSingleton(*context))
     return false;
 
-  Ref<render::Model> model = render::Model::read(*context, "cube.model");
+  Ref<render::Model> model = render::Model::read(*renderer, "cube.model");
   if (!model)
   {
     logError("Failed to read model");

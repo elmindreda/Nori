@@ -23,10 +23,10 @@ private:
   ResourceCache cache;
   GL::Stats stats;
   input::SpectatorController controller;
-  Ptr<render::GeometryPool> pool;
+  Ref<render::GeometryPool> pool;
   Ref<render::Camera> camera;
-  Ptr<deferred::Renderer> renderer;
-  Ptr<UI::Drawer> drawer;
+  Ref<deferred::Renderer> renderer;
+  Ref<UI::Drawer> drawer;
   Ref<debug::Interface> interface;
   scene::Graph graph;
   scene::CameraNode* cameraNode;
@@ -88,13 +88,13 @@ bool Demo::init()
   if (!input::Context::createSingleton(*context))
     return false;
 
-  pool = new render::GeometryPool(*context);
+  pool = render::GeometryPool::create(*context);
 
-  renderer = deferred::Renderer::create(*pool, deferred::Config(width, height));
+  renderer = deferred::Renderer::create(deferred::Config(width, height, *pool));
   if (!renderer)
     return false;
 
-  Ref<render::Model> model = render::Model::read(*context, "sponza.model");
+  Ref<render::Model> model = render::Model::read(*renderer, "sponza.model");
   if (!model)
     return false;
 
