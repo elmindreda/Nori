@@ -187,7 +187,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
     indexCount += s->triangles.size() * 3;
   }
 
-  GL::Context& context = system.getGeometryPool().getContext();
+  GL::Context& context = system.getContext();
 
   VertexFormat format;
   if (!format.createComponents("3f:wyPosition 3f:wyNormal 2f:wyTexCoord"))

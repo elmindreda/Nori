@@ -52,7 +52,7 @@ SignalProxy1<void, const Canvas&> Canvas::getDrawSignal()
 void Canvas::draw() const
 {
   UI::Drawer& drawer = getLayer().getDrawer();
-  GL::Context& context = drawer.getGeometryPool().getContext();
+  GL::Context& context = drawer.getContext();
 
   const Recti area(0, 0, int(getWidth()), int(getHeight()));
 
