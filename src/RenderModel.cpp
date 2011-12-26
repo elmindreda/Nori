@@ -59,15 +59,39 @@ const unsigned int MODEL_XML_VERSION = 2;
 
 ///////////////////////////////////////////////////////////////////////
 
+ModelSection::ModelSection(const GL::IndexRange& initRange,
+                           Material* initMaterial):
+  range(initRange),
+  material(initMaterial)
+{
+}
+
+const GL::IndexRange& ModelSection::getIndexRange() const
+{
+  return range;
+}
+
+Material* ModelSection::getMaterial() const
+{
+  return material;
+}
+
+void ModelSection::setMaterial(Material* newMaterial)
+{
+  material = newMaterial;
+}
+
+///////////////////////////////////////////////////////////////////////
+
 void Model::enqueue(Scene& scene, const Camera& camera, const Transform3& transform) const
 {
-  for (GeometryList::const_iterator g = geometries.begin();  g != geometries.end();  g++)
+  for (ModelSectionList::const_iterator s = sections.begin();  s != sections.end();  s++)
   {
-    GL::PrimitiveRange range(GL::TRIANGLE_LIST, *vertexBuffer, g->getIndexRange());
+    GL::PrimitiveRange range(GL::TRIANGLE_LIST, *vertexBuffer, s->getIndexRange());
 
     float depth = camera.getNormalizedDepth(transform.position + boundingSphere.center);
 
-    scene.createOperations(transform, range, *g->getMaterial(), depth);
+    scene.createOperations(transform, range, *s->getMaterial(), depth);
   }
 }
 
@@ -81,9 +105,9 @@ const Sphere& Model::getBoundingSphere() const
   return boundingSphere;
 }
 
-const Model::GeometryList& Model::getGeometries()
+const ModelSectionList& Model::getSections()
 {
-  return geometries;
+  return sections;
 }
 
 GL::VertexBuffer& Model::getVertexBuffer()
@@ -213,9 +237,9 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
     GL::IndexRange range(*indexBuffer, indexBase, indexCount);
 
-    geometries.push_back(Geometry(range, material));
+    sections.push_back(ModelSection(range, material));
 
-    int index = 0;
+    size_t index = 0;
 
     if (indexType == GL::IndexBuffer::UINT8)
     {
@@ -275,30 +299,6 @@ Ref<Model> Model::read(System& system, const String& name)
 {
   ModelReader reader(system);
   return reader.read(name);
-}
-
-///////////////////////////////////////////////////////////////////////
-
-Model::Geometry::Geometry(const GL::IndexRange& initRange,
-                          Material* initMaterial):
-  range(initRange),
-  material(initMaterial)
-{
-}
-
-const GL::IndexRange& Model::Geometry::getIndexRange() const
-{
-  return range;
-}
-
-Material* Model::Geometry::getMaterial() const
-{
-  return material;
-}
-
-void Model::Geometry::setMaterial(Material* newMaterial)
-{
-  material = newMaterial;
 }
 
 ///////////////////////////////////////////////////////////////////////
