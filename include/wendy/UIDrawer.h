@@ -216,6 +216,10 @@ private:
   GL::RenderState drawPass;
   GL::RenderState blitPass;
   GL::RenderState elementPass;
+  GL::UniformStateIndex elementPosIndex;
+  GL::UniformStateIndex elementSizeIndex;
+  GL::UniformStateIndex texPosIndex;
+  GL::UniformStateIndex texSizeIndex;
   Ref<render::SharedProgramState> state;
 };
 

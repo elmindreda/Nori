@@ -705,6 +705,11 @@ bool Drawer::init()
     elementPass.setSamplerState("image", theme->texture);
     elementPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
     elementPass.setMultisampling(false);
+
+    elementPosIndex = elementPass.getUniformStateIndex("elementPos");
+    elementSizeIndex = elementPass.getUniformStateIndex("elementSize");
+    texPosIndex = elementPass.getUniformStateIndex("texPos");
+    texSizeIndex = elementPass.getUniformStateIndex("texSize");
   }
 
   // Set up solid pass
@@ -772,10 +777,10 @@ bool Drawer::init()
 
 void Drawer::drawElement(const Rect& area, const Rect& mapping)
 {
-  elementPass.setUniformState("elementPos", area.position);
-  elementPass.setUniformState("elementSize", area.size);
-  elementPass.setUniformState("texPos", mapping.position);
-  elementPass.setUniformState("texSize", mapping.size);
+  elementPass.setUniformState(elementPosIndex, area.position);
+  elementPass.setUniformState(elementSizeIndex, area.size);
+  elementPass.setUniformState(texPosIndex, mapping.position);
+  elementPass.setUniformState(texSizeIndex, mapping.size);
   elementPass.apply();
 
   getContext().render(range);
