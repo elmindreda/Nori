@@ -108,8 +108,6 @@ Stop loading techniques for unused renderer types
 Scene
 =====
 
-Add world transform caching
-
 Add connection between animation track and scene node
 
 Add list of non-culled renderables to Scene
