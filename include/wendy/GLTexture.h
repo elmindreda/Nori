@@ -158,9 +158,10 @@ public:
                 unsigned int x = 0,
                 unsigned int y = 0,
                 unsigned int z = 0);
-  /*! Copies the contents of this texture image to the specified image.
+  /*! Returns a copy the contents of this texture image.
+   *  @return An image object containing the image data.
    */
-  bool copyTo(wendy::Image& result) const;
+  Ref<wendy::Image> getData() const;
   unsigned int getWidth() const;
   unsigned int getHeight() const;
   unsigned int getDepth() const;
@@ -294,6 +295,7 @@ public:
    *  texture.
    *  @param[in] params The creation parameters for the texture.
    *  @param[in] image The image data to use.
+   *  @return The newly created texture object.
    */
   static Ref<Texture> create(const ResourceInfo& info,
                              Context& context,
