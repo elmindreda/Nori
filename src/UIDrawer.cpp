@@ -146,8 +146,11 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
     return NULL;
   }
 
-  // FIXME: Texture creation
-  theme->texture = NULL; //GL::Texture::read(pool->getContext(), textureName);
+  GL::TextureParams params(GL::TEXTURE_RECT, textureName);
+  params.addressMode = GL::ADDRESS_CLAMP;
+  params.filterMode = GL::FILTER_BILINEAR;
+
+  theme->texture = GL::Texture::create(cache, pool->getContext(), params);
   if (!theme->texture)
   {
     logError("Failed to load texture for UI theme \'%s\'", name.c_str());
