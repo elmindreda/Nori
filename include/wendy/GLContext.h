@@ -193,72 +193,55 @@ public:
   /*! Constructor.
    */
   Limits(Context& context);
-  /*! @return The maximum number of color buffers that can be attached to to an
-   *  image framebuffer (FBO).
+  /*! The maximum number of color buffers that can be attached to to an image
+   *  framebuffer (FBO).
    */
-  unsigned int getMaxColorAttachments() const;
-  /*! @return The maximum number of simultaneously active color buffers.
-   */
-  unsigned int getMaxDrawBuffers() const;
-  /*! @return The number of available vertex shader texture image units.
-   */
-  unsigned int getMaxVertexTextureImageUnits() const;
-  /*! @return The number of available fragment shader texture image units.
-   */
-  unsigned int getMaxFragmentTextureImageUnits() const;
-  /*! @return The number of available geometry shader texture image units.
-   */
-  unsigned int getMaxGeometryTextureImageUnits() const;
-  /*! @return The number of available tessellation control shader texture image units.
-   */
-  unsigned int getMaxTessControlTextureImageUnits() const;
-  /*! @return The number of available tessellation evaluation shader texture image units.
-   */
-  unsigned int getMaxTessEvaluationTextureImageUnits() const;
-  /*! @return The total number of available shader texture image units.
-   */
-  unsigned int getMaxCombinedTextureImageUnits() const;
-  /*! @return The maximum size, in pixels, of 2D POT textures.
-   */
-  unsigned int getMaxTextureSize() const;
-  /*! @return The maximum size, in pixels, of 3D POT textures.
-   */
-  unsigned int getMaxTexture3DSize() const;
-  /*! @return The maximum size, in pixels, of cube map texture faces.
-   */
-  unsigned int getMaxTextureCubeSize() const;
-  /*! @return The maximum size, in pixels, of non-POT 2D textures.
-   */
-  unsigned int getMaxTextureRectangleSize() const;
-  /*! @return The number of available texture coordinates.
-   */
-  unsigned int getMaxTextureCoords() const;
-  /*! @return The maximum texture anisotropy.
-   */
-  float getMaxTextureAnisotropy() const;
-  /*! @return The number of available vertex attributes.
-   */
-  unsigned int getMaxVertexAttributes() const;
-  /*! @return The maximum number of vertices geometry shader can emit.
-   */
-  unsigned int getMaxGeometryOutputVertices() const;
-private:
-  Context& context;
   unsigned int maxColorAttachments;
+  /*! The maximum number of simultaneously active color buffers.
+   */
   unsigned int maxDrawBuffers;
+  /*! The number of available vertex shader texture image units.
+   */
   unsigned int maxVertexTextureImageUnits;
+  /*! The number of available fragment shader texture image units.
+   */
   unsigned int maxFragmentTextureImageUnits;
+  /*! The number of available geometry shader texture image units.
+   */
   unsigned int maxGeometryTextureImageUnits;
+  /*! The number of available tessellation control shader texture image units.
+   */
   unsigned int maxTessControlTextureImageUnits;
+  /*! The number of available tessellation evaluation shader texture image
+   *  units.
+   */
   unsigned int maxTessEvaluationTextureImageUnits;
+  /*! The total number of available shader texture image units.
+   */
   unsigned int maxCombinedTextureImageUnits;
+  /*! The maximum size, in pixels, of 2D POT textures.
+   */
   unsigned int maxTextureSize;
+  /*! The maximum size, in pixels, of 3D POT textures.
+   */
   unsigned int maxTexture3DSize;
+  /*! The maximum size, in pixels, of cube map texture faces.
+   */
   unsigned int maxTextureCubeSize;
+  /*! The maximum size, in pixels, of non-POT 2D textures.
+   */
   unsigned int maxTextureRectangleSize;
-  float maxTextureAnisotropy;
-  unsigned int maxVertexAttributes;
+  /*! The number of available texture coordinates.
+   */
   unsigned int maxTextureCoords;
+  /*! The maximum texture anisotropy.
+   */
+  float maxTextureAnisotropy;
+  /*! The number of available vertex attributes.
+   */
+  unsigned int maxVertexAttributes;
+  /*! The maximum number of vertices geometry shader can emit.
+   */
   unsigned int maxGeometryOutputVertices;
 };
 

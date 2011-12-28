@@ -251,9 +251,13 @@ bool TextureImage::copyFrom(const wendy::Image& source,
   return true;
 }
 
-bool TextureImage::copyTo(wendy::Image& result) const
+Ref<wendy::Image> TextureImage::getData() const
 {
-  result = wendy::Image(texture.getCache(), texture.format, width, height, depth);
+  Ref<wendy::Image> result = wendy::Image::create(texture.getCache(),
+                                                  texture.format,
+                                                  width,
+                                                  height,
+                                                  depth);
 
   texture.context.setCurrentTexture(&texture);
 
@@ -261,18 +265,18 @@ bool TextureImage::copyTo(wendy::Image& result) const
                 level,
                 convertToGL(texture.format.getSemantic()),
                 convertToGL(texture.format.getType()),
-                result.getPixels());
+                result->getPixels());
 
 #if WENDY_DEBUG
   if (!checkGL("Error during copy to image from level %u of texture \'%s\'",
                level,
                texture.getName().c_str()))
   {
-    return false;
+    return NULL;
   }
 #endif
 
-  return true;
+  return result;
 }
 
 unsigned int TextureImage::getWidth() const

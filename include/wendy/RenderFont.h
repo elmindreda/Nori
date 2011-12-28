@@ -105,7 +105,7 @@ private:
   void getGlyphLayout(Layout& layout, const Glyph& glyph, uint8 character) const;
   typedef std::vector<Glyph> GlyphList;
   typedef std::vector<Vertex2ft2fv> VertexList;
-  GeometryPool& pool;
+  Ref<GeometryPool> pool;
   GlyphList glyphs;
   Glyph* characters[256];
   vec2 size;
@@ -155,7 +155,7 @@ private:
                      const Image& image,
                      const String& characters,
                      bool fixedWidth);
-  GeometryPool& pool;
+  Ref<GeometryPool> pool;
 };
 
 ///////////////////////////////////////////////////////////////////////

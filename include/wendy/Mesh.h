@@ -50,39 +50,35 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-class MeshEdge
-{
-public:
-  void setIndices(unsigned int a, unsigned int b);
-  unsigned int indices[2];
-};
-
-///////////////////////////////////////////////////////////////////////
-
 class MeshTriangle
 {
 public:
-  void setIndices(unsigned int a, unsigned int b, unsigned int c);
-  void setEdges(unsigned int a, unsigned int b, unsigned int c);
-  unsigned int indices[3];
-  unsigned int edges[3];
+  void setIndices(uint32 a, uint32 b, uint32 c);
+  uint32 indices[3];
   vec3 normal;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Triangle mesh geometry.
+typedef std::vector<MeshTriangle> MeshTriangleList;
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Triangle mesh section.
  *
- *  A geometry is a set of triangles plus an associated shader name.
+ *  A section is a set of triangles plus an associated material name.
  *  Each triangle contains indices into the vertex list of the mesh.
  */
-class MeshGeometry
+class MeshSection
 {
 public:
-  typedef std::vector<MeshTriangle> TriangleList;
-  TriangleList triangles;
-  String shaderName;
+  MeshTriangleList triangles;
+  String materialName;
 };
+
+///////////////////////////////////////////////////////////////////////
+
+typedef std::vector<MeshSection> MeshSectionList;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -103,17 +99,14 @@ public:
    *  @param name The desired name of the mesh.
    */
   Mesh(const ResourceInfo& info);
-  /*! Merges the specified mesh with this mesh.
-   */
-  void merge(const Mesh& other);
-  /*! Merges all the geometries in this mesh and assigns the resulting
-   *  geometry the specified shader name.
+  /*! Merges all the sections in this mesh and assigns the specified material
+   *  name to the resulting section.
    *  @remarks Duplicate vertices and triangles are not merged.
    */
-  void collapseGeometries(const char* shaderName);
-  /*! Returns the geometry with the specified shader name.
+  void mergeSections(const char* materialName);
+  /*! Returns the section with the specified material name.
    */
-  MeshGeometry* findGeometry(const char* shaderName);
+  MeshSection* findSection(const char* materialName);
   /*! Generates and stores triangle and vertex normals for this
    *  mesh, according to the specified generation mode.
    */
@@ -121,10 +114,6 @@ public:
   /*! Generates and stores triangle normals for this mesh.
    */
   void generateTriangleNormals();
-  /*! Generates and stores the edges in this mesh. By default, the edge
-   *  list is not created.
-   */
-  void generateEdges();
   /*! Generates the bounding box of this mesh.
    */
   AABB generateBoundingAABB() const;
@@ -134,64 +123,17 @@ public:
   /*! @return @c true if this mesh is valid, otherwise @c false.
    */
   bool isValid() const;
-  /*! @return The number of triangles in all geometries of this mesh.
+  /*! @return The number of triangles in all sections of this mesh.
    */
-  unsigned int getTriangleCount() const;
+  size_t getTriangleCount() const;
   static Ref<Mesh> read(ResourceCache& cache, const String& name);
-  typedef std::vector<MeshGeometry> GeometryList;
   typedef std::vector<MeshVertex> VertexList;
-  typedef std::vector<MeshEdge> EdgeList;
-  /*! The list of geometries in this mesh.
+  /*! The list of sections in this mesh.
    */
-  GeometryList geometries;
+  MeshSectionList sections;
   /*! The list of vertices in this mesh.
    */
   VertexList vertices;
-  /*! The list of edges in this mesh. By default, this is empty, but it
-   *  can be generated with Mesh::generateEdges.
-   */
-  EdgeList edges;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Mesh calculation utility class.
- */
-class VertexMerger
-{
-public:
-  enum NormalMode
-  {
-    PRESERVE_NORMALS,
-    MERGE_NORMALS
-  };
-  /*! Constructor.
-   */
-  VertexMerger();
-  VertexMerger(const Mesh::VertexList& vertices);
-  void importPositions(const Mesh::VertexList& vertices);
-  unsigned int addAttributeLayer(unsigned int vertexIndex,
-                                 const vec3& normal,
-                                 const vec2& texcoord = vec2(0.f));
-  void realizeVertices(Mesh::VertexList& result) const;
-  void setNormalMode(NormalMode newMode);
-private:
-  struct VertexLayer
-  {
-    vec3 normal;
-    vec2 texcoord;
-    unsigned int index;
-  };
-  struct Vertex
-  {
-    typedef std::vector<VertexLayer> LayerList;
-    vec3 position;
-    LayerList layers;
-  };
-  typedef std::vector<Vertex> VertexList;
-  VertexList vertices;
-  unsigned int targetCount;
-  NormalMode mode;
 };
 
 ///////////////////////////////////////////////////////////////////////

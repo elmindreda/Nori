@@ -41,13 +41,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-GeometryPool::GeometryPool(GL::Context& initContext, size_t initGranularity):
-  context(initContext),
-  granularity(initGranularity)
-{
-  context.getFinishSignal().connect(*this, &GeometryPool::onContextFinish);
-}
-
 bool GeometryPool::allocateIndices(GL::IndexRange& range,
                                    unsigned int count,
                                    GL::IndexBuffer::Type type)
@@ -155,6 +148,28 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
 GL::Context& GeometryPool::getContext() const
 {
   return context;
+}
+
+Ref<GeometryPool> GeometryPool::create(GL::Context& context, size_t granularity)
+{
+  Ref<GeometryPool> pool(new GeometryPool(context));
+  if (!pool->init(granularity))
+    return NULL;
+
+  return pool;
+}
+
+GeometryPool::GeometryPool(GL::Context& initContext):
+  context(initContext),
+  granularity(0)
+{
+  context.getFinishSignal().connect(*this, &GeometryPool::onContextFinish);
+}
+
+bool GeometryPool::init(size_t initGranularity)
+{
+  granularity = initGranularity;
+  return true;
 }
 
 void GeometryPool::onContextFinish()

@@ -36,30 +36,9 @@ namespace wendy
 class Image : public Resource
 {
 public:
-  /*! Constructor.
-   *  @param[in] info The resource information for this image.
-   *  @param[in] format The desired format of the image.
-   *  @param[in] width The desired width of the image. This cannot be zero.
-   *  @param[in] height The desired height of the image. This cannot be zero.
-   *  @param[in] depth The desired depth of the image. This cannot be zero.
-   *  @param[in] data The pixel data to initialize the image with, or @c NULL
-   *  to initialize it with zeros.
-   *  @param[in] pitch The pitch, in bytes, between consecutive scanlines, or
-   *  zero if the scanlines are contiguous in memory. If @c data is @c NULL,
-   *  then this parameter is ignored.
-   *
-   *  @remarks No, you cannot create an empty image object.
+  /*! Returns a copy of this image.
    */
-  Image(const ResourceInfo& info,
-        const PixelFormat& format,
-        unsigned int width,
-        unsigned int height = 1,
-        unsigned int depth = 1,
-        const void* data = NULL,
-        unsigned int pitch = 0);
-  /*! Copy constructor.
-   */
-  Image(const Image& source);
+  Ref<Image> clone() const;
   /*! Transforms the contents of this image to the specified pixel format using
    *  the specified pixel transform.
    *  @param[in] targetFormat The desired pixel format.
@@ -84,9 +63,6 @@ public:
   /*! Flips this image along the y axis.
    */
   void flipVertical();
-  /*! Assignment operator.
-   */
-  Image& operator = (const Image& source);
   /*! @return @c true if this image has power-of-two dimensions, otherwise @c false.
    */
   bool isPOT() const;
@@ -135,8 +111,39 @@ public:
    *  @param area The desired area of this image.
    */
   Ref<Image> getArea(const Recti& area) const;
+  /*! Creates an image with the specified properties.
+   *  @param[in] info The resource information for this image.
+   *  @param[in] format The desired format of the image.
+   *  @param[in] width The desired width of the image. This cannot be zero.
+   *  @param[in] height The desired height of the image. This cannot be zero.
+   *  @param[in] depth The desired depth of the image. This cannot be zero.
+   *  @param[in] data The pixel data to initialize the image with, or @c NULL
+   *  to initialize it with zeros.
+   *  @param[in] pitch The pitch, in bytes, between consecutive scanlines, or
+   *  zero if the scanlines are contiguous in memory. If @c data is @c NULL,
+   *  then this parameter is ignored.
+   *  @return The newly created image object.
+   *
+   *  @remarks No, you cannot create an empty image object.
+   */
+  static Ref<Image> create(const ResourceInfo& info,
+                           const PixelFormat& format,
+                           unsigned int width,
+                           unsigned int height = 1,
+                           unsigned int depth = 1,
+                           const void* data = NULL,
+                           unsigned int pitch = 0);
   static Ref<Image> read(ResourceCache& cache, const String& name);
 private:
+  Image(const ResourceInfo& info);
+  Image(const Image& source);
+  bool init(const PixelFormat& format,
+            unsigned int width,
+            unsigned int height,
+            unsigned int depth,
+            const void* data,
+            unsigned int pitch);
+  Image& operator = (const Image& source);
   unsigned int width;
   unsigned int height;
   unsigned int depth;

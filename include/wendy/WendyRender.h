@@ -33,14 +33,15 @@
 
 #if WENDY_INCLUDE_RENDERER
 
+#include <wendy/RenderPool.h>
+#include <wendy/RenderFont.h>
+#include <wendy/RenderLight.h>
 #include <wendy/RenderState.h>
+#include <wendy/RenderSystem.h>
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
-#include <wendy/RenderLight.h>
 #include <wendy/RenderScene.h>
-#include <wendy/RenderPool.h>
 #include <wendy/RenderSprite.h>
-#include <wendy/RenderFont.h>
 #include <wendy/RenderModel.h>
 
 #include <wendy/Forward.h>

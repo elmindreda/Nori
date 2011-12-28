@@ -41,18 +41,49 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Renderable model.
+/*! @brief Model section.
  *  @ingroup renderer
  *
- *  This class represents a single static model consisting of one or more
- *  Model::Geometry objects. Each geometry is a part of the model using a
- *  single Material and PrimitiveMode.
+ *  This class represents a section of triangles in a model using a single
+ *  material.
+ */
+class ModelSection
+{
+public:
+  /*! Constructor.
+   */
+  ModelSection(const GL::IndexRange& range, Material* material);
+  /*! @return The range of indices used by this geometry.
+   */
+  const GL::IndexRange& getIndexRange() const;
+  /*! @return The %render material used by this geometry.
+   */
+  Material* getMaterial() const;
+  /*! Sets the material of this geometry.
+   */
+  void setMaterial(Material* newMaterial);
+private:
+  GL::IndexRange range;
+  Ref<Material> material;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup renderer
+ */
+typedef std::vector<ModelSection> ModelSectionList;
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Triangle mesh model.
+ *  @ingroup renderer
+ *
+ *  This class represents a single model consisting of one or more
+ *  sections.  Each section is a range of triangles sharing a material.
  */
 class Model : public Renderable, public Resource
 {
 public:
-  class Geometry;
-  typedef std::vector<Geometry> GeometryList;
   typedef std::map<String, String> MaterialMap;
   void enqueue(Scene& scene, const Camera& camera, const Transform3& transform) const;
   /*! @return The bounding AABB of this model.
@@ -63,7 +94,7 @@ public:
   const Sphere& getBoundingSphere() const;
   /*! @return The list of geometries in this model.
    */
-  const GeometryList& getGeometries();
+  const ModelSectionList& getSections();
   /*! @return The vertex buffer used by this model.
    */
   GL::VertexBuffer& getVertexBuffer();
@@ -84,7 +115,7 @@ public:
    *  occurred.
    */
   static Ref<Model> create(const ResourceInfo& info,
-                           GL::Context& context,
+                           System& system,
                            const Mesh& data,
                            const MaterialMap& materials);
   /*! Creates a model specification using the specified file.
@@ -92,14 +123,13 @@ public:
    *  @param[in] path The path of the specification file to use.
    *  @return The newly created model, or @c NULL if an error occurred.
    */
-  static Ref<Model> read(GL::Context& context, const String& name);
+  static Ref<Model> read(System& system, const String& name);
 private:
-  Model(const ResourceInfo& info, GL::Context& context);
+  Model(const ResourceInfo& info);
   Model(const Model& source);
   Model& operator = (const Model& source);
-  bool init(const Mesh& data, const MaterialMap& materials);
-  GL::Context& context;
-  GeometryList geometries;
+  bool init(System& system, const Mesh& data, const MaterialMap& materials);
+  ModelSectionList sections;
   Ref<GL::VertexBuffer> vertexBuffer;
   Ref<GL::IndexBuffer> indexBuffer;
   Sphere boundingSphere;
@@ -108,42 +138,14 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief %Renderable model subset.
- *  @ingroup renderer
- *
- *  This class represents a subset of a model using a single %render material
- *  and a single primitive mode.
- */
-class Model::Geometry
-{
-public:
-  /*! Constructor.
-   */
-  Geometry(const GL::IndexRange& range, Material* material);
-  /*! @return The range of indices used by this geometry.
-   */
-  const GL::IndexRange& getIndexRange() const;
-  /*! @return The %render material used by this geometry.
-   */
-  Material* getMaterial() const;
-  /*! Sets the material of this geometry.
-   */
-  void setMaterial(Material* newMaterial);
-private:
-  GL::IndexRange range;
-  Ref<Material> material;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 class ModelReader : public ResourceReader<Model>
 {
 public:
-  ModelReader(GL::Context& context);
+  ModelReader(System& system);
   using ResourceReader::read;
   Ref<Model> read(const String& name, const Path& path);
 private:
-  GL::Context& context;
+  System& system;
 };
 
 ///////////////////////////////////////////////////////////////////////

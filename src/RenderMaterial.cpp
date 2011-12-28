@@ -32,6 +32,8 @@
 #include <wendy/GLProgram.h>
 #include <wendy/GLContext.h>
 
+#include <wendy/RenderPool.h>
+#include <wendy/RenderSystem.h>
 #include <wendy/RenderMaterial.h>
 
 #include <algorithm>
@@ -49,6 +51,24 @@ namespace wendy
 
 namespace
 {
+
+bool isCompatible(System::Type systemType, Technique::Type techniqueType)
+{
+  if (systemType == System::SIMPLE)
+    return false;
+
+  switch (techniqueType)
+  {
+    case Technique::FORWARD:
+      return systemType == System::FORWARD;
+    case Technique::DEFERRED:
+      return systemType == System::DEFERRED;
+    case Technique::SHADOWMAP:
+      return true;
+  }
+
+  panic("Invalid technique type %u", techniqueType);
+}
 
 Bimap<String, GL::CullMode> cullModeMap;
 Bimap<String, GL::BlendFactor> blendFactorMap;
@@ -189,17 +209,17 @@ const TechniqueList& Material::getTechniques() const
   return techniques;
 }
 
-Ref<Material> Material::read(GL::Context& context, const String& name)
+Ref<Material> Material::read(System& system, const String& name)
 {
-  MaterialReader reader(context);
+  MaterialReader reader(system);
   return reader.read(name);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-MaterialReader::MaterialReader(GL::Context& initContext):
-  ResourceReader(initContext.getCache()),
-  context(initContext)
+MaterialReader::MaterialReader(System& initSystem):
+  ResourceReader(initSystem.getCache()),
+  system(initSystem)
 {
   if (cullModeMap.isEmpty())
   {
@@ -292,6 +312,8 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
     return NULL;
   }
 
+  GL::Context& context = system.getContext();
+
   Ref<Material> material = new Material(ResourceInfo(cache, name, path));
 
   for (pugi::xml_node t = root.child("technique");  t;  t = t.next_sibling("technique"))
@@ -305,7 +327,12 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
       return NULL;
     }
 
-    Technique& technique = material->createTechnique(techniqueTypeMap[typeName]);
+    const Technique::Type type = techniqueTypeMap[typeName];
+
+    if (!isCompatible(system.getType(), type))
+      continue;
+
+    Technique& technique = material->createTechnique(type);
 
     if (pugi::xml_attribute a = t.attribute("quality"))
       technique.setQuality(a.as_float());

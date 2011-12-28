@@ -128,75 +128,9 @@ const unsigned int IMAGE_CUBE_XML_VERSION = 2;
 
 ///////////////////////////////////////////////////////////////////////
 
-Image::Image(const ResourceInfo& info,
-             const PixelFormat& initFormat,
-             unsigned int initWidth,
-             unsigned int initHeight,
-             unsigned int initDepth,
-             const void* initData,
-             unsigned int pitch):
-  Resource(info),
-  width(initWidth),
-  height(initHeight),
-  depth(initDepth),
-  format(initFormat)
+Ref<Image> Image::clone() const
 {
-  assert(format.getSemantic() != PixelFormat::NONE);
-  assert(format.getType() != PixelFormat::DUMMY);
-  assert(width > 0);
-  assert(height > 0);
-  assert(depth > 0);
-
-  if ((height > 1) && (width == 1))
-  {
-    width = height;
-    height = 1;
-  }
-
-  if ((depth > 1) && (height == 1))
-  {
-    height = depth;
-    depth = 1;
-  }
-
-  if (initData)
-  {
-    if (pitch)
-    {
-      unsigned int size = format.getSize();
-      data.resize(width * height * depth * size);
-
-      uint8* target = data;
-      const uint8* source = (const uint8*) initData;
-
-      for (unsigned int z = 0;  z < depth;  z++)
-      {
-        for (unsigned int y = 0;  y < height;  y++)
-        {
-          std::memcpy(target, source, width * size);
-          source += pitch;
-          target += width * size;
-        }
-      }
-    }
-    else
-    {
-      data.copyFrom((const uint8*) initData,
-                    width * height * depth * format.getSize());
-    }
-  }
-  else
-  {
-    const unsigned int size = width * height * depth * format.getSize();
-    data.resize(size);
-    std::memset(data, 0, size);
-  }
-}
-
-Image::Image(const Image& source):
-  Resource(source)
-{
-  operator = (source);
+  return create(getCache(), format, width, height, depth, data);
 }
 
 bool Image::transformTo(const PixelFormat& targetFormat, PixelTransform& transform)
@@ -305,17 +239,6 @@ void Image::flipVertical()
   data.attach(scratch.detach(), scratch.getSize());
 }
 
-Image& Image::operator = (const Image& source)
-{
-  width = source.width;
-  height = source.height;
-  depth = source.depth;
-  format = source.format;
-  data = source.data;
-
-  return *this;
-}
-
 bool Image::isPOT() const
 {
   if (width & (width - 1))
@@ -404,9 +327,7 @@ Ref<Image> Image::getArea(const Recti& area) const
 
   const unsigned int pixelSize = format.getSize();
 
-  ImageRef result = new Image(ResourceInfo(cache),
-                              format,
-                              targetArea.size.x, targetArea.size.y);
+  ImageRef result = create(cache, format, targetArea.size.x, targetArea.size.y);
 
   for (int y = 0;  y < targetArea.size.y;  y++)
   {
@@ -418,10 +339,114 @@ Ref<Image> Image::getArea(const Recti& area) const
   return result;
 }
 
+Ref<Image> Image::create(const ResourceInfo& info,
+                         const PixelFormat& format,
+                         unsigned int width,
+                         unsigned int height,
+                         unsigned int depth,
+                         const void* data,
+                         unsigned int pitch)
+{
+  Ref<Image> image(new Image(info));
+  if (!image->init(format, width, height, depth, data, pitch))
+    return NULL;
+
+  return image;
+}
+
 Ref<Image> Image::read(ResourceCache& cache, const String& name)
 {
   ImageReader reader(cache);
   return reader.read(name);
+}
+
+Image::Image(const ResourceInfo& info):
+  Resource(info)
+{
+}
+
+bool Image::init(const PixelFormat& initFormat,
+                 unsigned int initWidth,
+                 unsigned int initHeight,
+                 unsigned int initDepth,
+                 const void* initData,
+                 unsigned int pitch)
+{
+  format = initFormat;
+  width = initWidth;
+  height = initHeight;
+  depth = initDepth;
+
+  if (format.getSemantic() == PixelFormat::NONE ||
+      format.getType() == PixelFormat::DUMMY)
+  {
+    logError("Cannot create image with dummy pixel format");
+    return false;
+  }
+
+  if (!width || !height || !depth)
+  {
+    logError("Cannot create image with zero size in any dimension");
+    return false;
+  }
+
+  if ((height > 1) && (width == 1))
+  {
+    width = height;
+    height = 1;
+  }
+
+  if ((depth > 1) && (height == 1))
+  {
+    height = depth;
+    depth = 1;
+  }
+
+  if (initData)
+  {
+    if (pitch)
+    {
+      unsigned int size = format.getSize();
+      data.resize(width * height * depth * size);
+
+      uint8* target = data;
+      const uint8* source = (const uint8*) initData;
+
+      for (unsigned int z = 0;  z < depth;  z++)
+      {
+        for (unsigned int y = 0;  y < height;  y++)
+        {
+          std::memcpy(target, source, width * size);
+          source += pitch;
+          target += width * size;
+        }
+      }
+    }
+    else
+    {
+      data.copyFrom((const uint8*) initData,
+                    width * height * depth * format.getSize());
+    }
+  }
+  else
+  {
+    const unsigned int size = width * height * depth * format.getSize();
+    data.resize(size);
+    std::memset(data, 0, size);
+  }
+
+  return true;
+}
+
+Image::Image(const Image& source):
+  Resource(source)
+{
+  panic("Image objects may not be copied");
+}
+
+Image& Image::operator = (const Image& source)
+{
+  panic("Image objects may not be assigned");
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -526,7 +551,7 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
 
   const ResourceInfo info(cache, name, path);
 
-  Ref<Image> result(new Image(info, format, width, height));
+  Ref<Image> result = Image::create(info, format, width, height);
 
   // Read image data
   {

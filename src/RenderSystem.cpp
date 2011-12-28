@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy user interface library
-// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy default renderer
+// Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -25,56 +25,62 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/UIDrawer.h>
-#include <wendy/UILayer.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UICanvas.h>
+#include <wendy/GLBuffer.h>
+#include <wendy/GLTexture.h>
+#include <wendy/GLProgram.h>
+#include <wendy/GLContext.h>
+
+#include <wendy/RenderPool.h>
+#include <wendy/RenderSystem.h>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace UI
+  namespace render
   {
 
 ///////////////////////////////////////////////////////////////////////
 
-Canvas::Canvas(Layer& layer):
-  Widget(layer)
+ResourceCache& System::getCache() const
+{
+  return pool->getContext().getCache();
+}
+
+GL::Context& System::getContext() const
+{
+  return pool->getContext();
+}
+
+GeometryPool& System::getGeometryPool() const
+{
+  return *pool;
+}
+
+System::Type System::getType() const
+{
+  return type;
+}
+
+System::System(GeometryPool& initPool, Type initType):
+  pool(&initPool),
+  type(initType)
 {
 }
 
-SignalProxy1<void, const Canvas&> Canvas::getDrawSignal()
+System::System(const System& source)
 {
-  return drawSignal;
+  panic("Render systems may not be copied");
 }
 
-void Canvas::draw() const
+System& System::operator = (const System& source)
 {
-  UI::Drawer& drawer = getLayer().getDrawer();
-  GL::Context& context = drawer.getContext();
-
-  const Recti area(0, 0, int(getWidth()), int(getHeight()));
-
-  Recti oldViewport = context.getViewportArea();
-  Recti oldScissor = context.getScissorArea();
-
-  context.setViewportArea(area);
-  context.setScissorArea(area);
-
-  drawer.end();
-  drawSignal(*this);
-  drawer.begin();
-
-  context.setViewportArea(oldViewport);
-  context.setScissorArea(oldScissor);
-
-  Widget::draw();
+  panic("Render systems may not be assigned");
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace UI*/
+  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

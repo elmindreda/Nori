@@ -38,7 +38,7 @@ private:
   void onContextResized(unsigned int width, unsigned int height);
   ResourceCache cache;
   Ref<render::SharedProgramState> state;
-  Ptr<render::GeometryPool> pool;
+  Ref<render::GeometryPool> pool;
   Ref<render::Font> font;
 };
 
@@ -73,7 +73,7 @@ bool Test::init()
   state->reserveSupported(*context);
   context->setCurrentSharedProgramState(state);
 
-  pool = new render::GeometryPool(*context, 2048);
+  pool = render::GeometryPool::create(*context, 2048);
 
   font = render::Font::read(*pool, "wendy/UIDefault.font");
   if (!font)

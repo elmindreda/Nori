@@ -5,7 +5,7 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 add_definitions(-DWENDY_MEDIA_DIR=\"${WENDY_MEDIA_DIR}\")
 
-set(TESTS clear cubemap deferred font geometry sprite2 sprite3 tessellation)
+set(TESTS clear cubemap deferred font geometry tessellation)
 
 foreach(test ${TESTS})
   add_executable(${test} WIN32 MACOSX_BUNDLE ${test}.cpp)

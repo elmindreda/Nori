@@ -43,9 +43,16 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+Config::Config(render::GeometryPool& initPool):
+  pool(&initPool)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
 void Renderer::render(const render::Scene& scene, const render::Camera& camera)
 {
-  GL::Context& context = pool.getContext();
+  GL::Context& context = getContext();
   context.setCurrentSharedProgramState(state);
 
   const Recti& viewportArea = context.getViewportArea();
@@ -74,28 +81,29 @@ SharedProgramState& Renderer::getSharedProgramState()
   return *state;
 }
 
-render::GeometryPool& Renderer::getGeometryPool()
+Ref<Renderer> Renderer::create(const Config& config)
 {
-  return pool;
-}
+  if (!config.pool)
+  {
+    logError("Cannot create forward renderer without a geometry pool");
+    return NULL;
+  }
 
-Renderer* Renderer::create(render::GeometryPool& pool, const Config& config)
-{
-  Ptr<Renderer> renderer(new Renderer(pool));
+  Ptr<Renderer> renderer(new Renderer(*config.pool));
   if (!renderer->init(config))
     return NULL;
 
   return renderer.detachObject();
 }
 
-Renderer::Renderer(render::GeometryPool& initPool):
-  pool(initPool)
+Renderer::Renderer(render::GeometryPool& pool):
+  render::System(pool, render::System::FORWARD)
 {
 }
 
 bool Renderer::init(const Config& config)
 {
-  GL::Context& context = pool.getContext();
+  GL::Context& context = getContext();
 
   if (config.state)
     state = config.state;
@@ -109,7 +117,7 @@ bool Renderer::init(const Config& config)
 
 void Renderer::renderOperations(const render::Queue& queue)
 {
-  GL::Context& context = pool.getContext();
+  GL::Context& context = getContext();
   const render::SortKeyList& keys = queue.getSortKeys();
   const render::OperationList& operations = queue.getOperations();
 

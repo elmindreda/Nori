@@ -134,7 +134,7 @@ void Font::drawText(const vec2& penPosition, const vec4& color, const char* text
     return;
 
   GL::VertexRange vertexRange;
-  if (!pool.allocateVertices(vertexRange, length * 6, Vertex2ft2fv::format))
+  if (!pool->allocateVertices(vertexRange, length * 6, Vertex2ft2fv::format))
   {
     logError("Failed to allocate vertices for text drawing");
     return;
@@ -188,10 +188,11 @@ void Font::drawText(const vec2& penPosition, const vec4& color, const char* text
   pass.setUniformState(colorIndex, color);
   pass.apply();
 
-  pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_LIST,
-                                              *vertexRange.getVertexBuffer(),
-                                              vertexRange.getStart(),
-                                              count));
+  GL::Context& context = pool->getContext();
+  context.render(GL::PrimitiveRange(GL::TRIANGLE_LIST,
+                                    *vertexRange.getVertexBuffer(),
+                                    vertexRange.getStart(),
+                                    count));
 }
 
 float Font::getWidth() const
@@ -263,7 +264,7 @@ Ref<Font> Font::read(GeometryPool& pool, const String& name)
 
 Font::Font(const ResourceInfo& info, GeometryPool& initPool):
   Resource(info),
-  pool(initPool)
+  pool(&initPool)
 {
   std::memset(characters, 0, sizeof(characters));
 }
@@ -293,10 +294,11 @@ bool Font::init(const FontData& data)
   }
 
   Ref<GL::Texture> texture;
+  GL::Context& context = pool->getContext();
 
   // Create glyph texture
   {
-    const unsigned int maxSize = pool.getContext().getLimits().getMaxTextureSize();
+    const unsigned int maxSize = context.getLimits().maxTextureSize;
 
     unsigned int totalWidth = 1;
 
@@ -312,12 +314,15 @@ bool Font::init(const FontData& data)
     unsigned int textureHeight = (maxHeight + 1) * rows + 1;
     textureHeight = min(powerOfTwoAbove(textureHeight), maxSize);
 
-    Image image(cache, PixelFormat::R8, textureWidth, textureHeight);
+    Ref<Image> image = Image::create(cache,
+                                     PixelFormat::R8,
+                                     textureWidth,
+                                     textureHeight);
 
     GL::TextureParams params(GL::TEXTURE_2D);
     params.mipmapped = false;
 
-    texture = GL::Texture::create(cache, pool.getContext(), params, image);
+    texture = GL::Texture::create(cache, context, params, *image);
     if (!texture)
     {
       logError("Failed to create glyph texture for font \'%s\'",
@@ -342,7 +347,7 @@ bool Font::init(const FontData& data)
   {
     String programName("wendy/RenderFont.program");
 
-    Ref<GL::Program> program = GL::Program::read(pool.getContext(), programName);
+    Ref<GL::Program> program = GL::Program::read(context, programName);
     if (!program)
     {
       logError("Failed to read shader program \'%s\' for font \'%s\'",
@@ -479,7 +484,7 @@ void Font::getGlyphLayout(Layout& layout, const Glyph& glyph, uint8 character) c
 
 FontReader::FontReader(GeometryPool& initPool):
   ResourceReader(initPool.getContext().getCache()),
-  pool(initPool)
+  pool(&initPool)
 {
 }
 
@@ -541,7 +546,7 @@ Ref<Font> FontReader::read(const String& name, const Path& path)
   if (!extractGlyphs(data, name, *image, characters, fixedWidth))
     return NULL;
 
-  return Font::create(ResourceInfo(cache, name, path), pool, data);
+  return Font::create(ResourceInfo(cache, name, path), *pool, data);
 }
 
 bool FontReader::extractGlyphs(FontData& data,
@@ -559,20 +564,20 @@ bool FontReader::extractGlyphs(FontData& data,
     return false;
   }
 
-  Image source = image;
+  Ref<Image> source = image.clone();
 
   // Crop top and bottom parts
   {
-    const unsigned int startY = findStartY(source);
-    if (startY == source.getHeight())
+    const unsigned int startY = findStartY(*source);
+    if (startY == source->getHeight())
     {
       logError("No glyphs found in source image for font \'%s\'", name.c_str());
       return false;
     }
 
-    const unsigned int endY = findEndY(source);
+    const unsigned int endY = findEndY(*source);
 
-    if (!source.crop(Recti(0, startY, source.getWidth(), endY - startY)))
+    if (!source->crop(Recti(0, startY, source->getWidth(), endY - startY)))
     {
       logError("Failed to crop source image for font \'%s\'", name.c_str());
       return false;
@@ -581,7 +586,7 @@ bool FontReader::extractGlyphs(FontData& data,
 
   data.glyphs.reserve(characters.length());
 
-  const uint8* pixels = (const uint8*) source.getPixels();
+  const uint8* pixels = (const uint8*) source->getPixels();
 
   unsigned int index = 0, startX = 0, endX;
 
@@ -589,23 +594,23 @@ bool FontReader::extractGlyphs(FontData& data,
   {
     // Find left edge of glyph, if any
 
-    while (startX < source.getWidth())
+    while (startX < source->getWidth())
     {
       unsigned int y;
 
-      for (y = 0;  y < source.getHeight();  y++)
+      for (y = 0;  y < source->getHeight();  y++)
       {
-        if (pixels[startX + y * source.getWidth()] > 0)
+        if (pixels[startX + y * source->getWidth()] > 0)
           break;
       }
 
-      if (y < source.getHeight())
+      if (y < source->getHeight())
         break;
 
       startX++;
     }
 
-    if (startX == source.getWidth())
+    if (startX == source->getWidth())
       break;
 
     if (index == characters.size())
@@ -616,23 +621,23 @@ bool FontReader::extractGlyphs(FontData& data,
 
     // Find right edge of glyph
 
-    for (endX = startX + 1;  endX < source.getWidth();  endX++)
+    for (endX = startX + 1;  endX < source->getWidth();  endX++)
     {
       unsigned int y;
 
-      for (y = 0;  y < source.getHeight();  y++)
+      for (y = 0;  y < source->getHeight();  y++)
       {
-        if (pixels[endX + y * source.getWidth()] > 0)
+        if (pixels[endX + y * source->getWidth()] > 0)
           break;
       }
 
-      if (y == source.getHeight())
+      if (y == source->getHeight())
         break;
     }
 
-    Recti area(startX, 0, endX - startX, source.getHeight());
+    Recti area(startX, 0, endX - startX, source->getHeight());
 
-    Ref<Image> glyphImage = source.getArea(area);
+    Ref<Image> glyphImage = source->getArea(area);
     if (!glyphImage)
     {
       logError("Failed to extract glyph image for font \'%s\'", name.c_str());
@@ -701,7 +706,7 @@ bool FontReader::extractGlyphs(FontData& data,
     FontGlyphData& glyph = data.glyphs.back();
 
     glyph.bearing = vec2(0.f);
-    glyph.image = new Image(cache, source.getFormat(), 1, 1);
+    glyph.image = Image::create(cache, source->getFormat(), 1, 1);
 
     if (fixedWidth)
       glyph.advance = maxAdvance;
