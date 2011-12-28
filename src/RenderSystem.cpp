@@ -66,7 +66,6 @@ System::System(GeometryPool& initPool, Type initType):
   pool(&initPool),
   type(initType)
 {
-  assert(pool);
 }
 
 System::System(const System& source)

@@ -83,6 +83,12 @@ SharedProgramState& Renderer::getSharedProgramState()
 
 Ref<Renderer> Renderer::create(const Config& config)
 {
+  if (!config.pool)
+  {
+    logError("Cannot create forward renderer without a geometry pool");
+    return NULL;
+  }
+
   Ptr<Renderer> renderer(new Renderer(*config.pool));
   if (!renderer->init(config))
     return NULL;
