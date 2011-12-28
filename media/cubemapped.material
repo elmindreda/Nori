@@ -3,7 +3,7 @@
   <technique type="forward" quality="1">
     <pass>
       <program path="cubemapped.program">
-        <sampler name="cubemap" texture="cubemap.texture" />
+        <sampler name="cubemap" type="cube" texture="cubemap.png" address="clamp" mipmapped="true" />
       </program>
     </pass>
   </technique>
