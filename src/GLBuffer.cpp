@@ -1154,19 +1154,20 @@ bool ImageFramebuffer::setBuffer(Attachment attachment, Image* newImage, unsigne
 {
   if (isColorAttachment(attachment))
   {
-    unsigned int index = attachment - COLOR_BUFFER0;
+    const Limits& limits = context.getLimits();
+    const unsigned int index = attachment - COLOR_BUFFER0;
 
-    if (index >= context.getLimits().getMaxColorAttachments())
+    if (index >= limits.maxColorAttachments)
     {
       logError("OpenGL context supports at most %u FBO color attachments",
-               context.getLimits().getMaxColorAttachments());
+               limits.maxColorAttachments);
       return false;
     }
 
-    if (index >= context.getLimits().getMaxDrawBuffers())
+    if (index >= limits.maxDrawBuffers)
     {
       logError("OpenGL context supports at most %u draw buffers",
-               context.getLimits().getMaxDrawBuffers());
+               limits.maxDrawBuffers);
       return false;
     }
   }

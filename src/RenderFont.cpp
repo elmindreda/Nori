@@ -298,7 +298,7 @@ bool Font::init(const FontData& data)
 
   // Create glyph texture
   {
-    const unsigned int maxSize = context.getLimits().getMaxTextureSize();
+    const unsigned int maxSize = context.getLimits().maxTextureSize;
 
     unsigned int totalWidth = 1;
 

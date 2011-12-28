@@ -338,8 +338,7 @@ ContextConfig::ContextConfig(unsigned int initColorBits,
 
 ///////////////////////////////////////////////////////////////////////
 
-Limits::Limits(Context& initContext):
-  context(initContext)
+Limits::Limits(Context& context)
 {
   maxColorAttachments = getIntegerParameter(GL_MAX_COLOR_ATTACHMENTS_EXT);
   maxDrawBuffers = getIntegerParameter(GL_MAX_DRAW_BUFFERS);
@@ -381,86 +380,6 @@ Limits::Limits(Context& initContext):
     maxTessControlTextureImageUnits = 0;
     maxTessEvaluationTextureImageUnits = 0;
   }
-}
-
-unsigned int Limits::getMaxColorAttachments() const
-{
-  return maxColorAttachments;
-}
-
-unsigned int Limits::getMaxDrawBuffers() const
-{
-  return maxDrawBuffers;
-}
-
-unsigned int Limits::getMaxVertexTextureImageUnits() const
-{
-  return maxVertexTextureImageUnits;
-}
-
-unsigned int Limits::getMaxFragmentTextureImageUnits() const
-{
-  return maxFragmentTextureImageUnits;
-}
-
-unsigned int Limits::getMaxGeometryTextureImageUnits() const
-{
-  return maxGeometryTextureImageUnits;
-}
-
-unsigned int Limits::getMaxTessControlTextureImageUnits() const
-{
-  return maxTessControlTextureImageUnits;
-}
-
-unsigned int Limits::getMaxTessEvaluationTextureImageUnits() const
-{
-  return maxTessEvaluationTextureImageUnits;
-}
-
-unsigned int Limits::getMaxCombinedTextureImageUnits() const
-{
-  return maxCombinedTextureImageUnits;
-}
-
-unsigned int Limits::getMaxTextureSize() const
-{
-  return maxTextureSize;
-}
-
-unsigned int Limits::getMaxTexture3DSize() const
-{
-  return maxTexture3DSize;
-}
-
-unsigned int Limits::getMaxTextureCubeSize() const
-{
-  return maxTextureCubeSize;
-}
-
-unsigned int Limits::getMaxTextureRectangleSize() const
-{
-  return maxTextureRectangleSize;
-}
-
-unsigned int Limits::getMaxTextureCoords() const
-{
-  return maxTextureCoords;
-}
-
-float Limits::getMaxTextureAnisotropy() const
-{
-  return maxTextureAnisotropy;
-}
-
-unsigned int Limits::getMaxVertexAttributes() const
-{
-  return maxVertexAttributes;
-}
-
-unsigned int Limits::getMaxGeometryOutputVertices() const
-{
-  return maxGeometryOutputVertices;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1419,8 +1338,8 @@ bool Context::init(const WindowConfig& windowConfig,
 
   // Set up texture unit cache
   {
-    unsigned int unitCount = max(limits->getMaxCombinedTextureImageUnits(),
-                                 limits->getMaxTextureCoords());
+    unsigned int unitCount = max(limits->maxCombinedTextureImageUnits,
+                                 limits->maxTextureCoords);
 
     textureUnits.resize(unitCount);
   }
