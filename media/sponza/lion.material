@@ -3,7 +3,7 @@
   <technique type="deferred" quality="1">
     <pass>
       <program path="wendy/DeferredMapped.program">
-        <sampler name="colormap" texture="lion_diff.texture" />
+        <sampler name="colormap" texture="lion_diff.png" type="2D" filter="trilinear" address="wrap" mipmapped="true" />
       </program>
     </pass>
   </technique>
