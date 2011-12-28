@@ -339,10 +339,13 @@ bool Renderer::init(const Config& config)
       return false;
     }
 
-    const String& textureName("wendy/DistanceRamp.texture");
+    const String& textureName("wendy/DistanceRamp.png");
+    GL::TextureParams rampParams(GL::TEXTURE_1D, textureName);
+    rampParams.addressMode = GL::ADDRESS_CLAMP;
+    rampParams.filterMode = GL::FILTER_BILINEAR;
+    rampParams.mipmapped = true;
 
-    // FIXME: Texture creation
-    Ref<GL::Texture> distanceRamp = NULL;//GL::Texture::read(context, textureName);
+    Ref<GL::Texture> distanceRamp = GL::Texture::create(cache, context, rampParams);
     if (!distanceRamp)
     {
       logError("Failed to read attenuation texture \'%s\'",
