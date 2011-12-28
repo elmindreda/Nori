@@ -131,7 +131,9 @@ enum CubeFace
 class TextureParams
 {
 public:
-  TextureParams(TextureType type);
+  TextureParams(TextureType type, String imageName = "");
+  String hash() const;
+  String imageName;
   TextureType type;
   FilterMode filterMode;
   AddressMode addressMode;
@@ -294,16 +296,26 @@ public:
   Context& getContext() const;
   /*! Creates a texture from the specified image.
    *  @param[in] info The resource info for the texture.
-   *  $param[in] context The OpenGL context within which to create the
+   *  @param[in] context The OpenGL context within which to create the
    *  texture.
    *  @param[in] params The creation parameters for the texture.
    *  @param[in] image The image data to use.
    *  @return The newly created texture object.
    */
-  static Ref<Texture> create(const ResourceInfo& info,
-                             Context& context,
-                             const TextureParams& params,
+  static Ref<Texture> create(const ResourceInfo &info,
+                             wendy::GL::Context &context,
+                             const TextureParams &params,
                              const wendy::Image& source);
+  /*! Creates a texture by loading the image specified in TextureParams
+   *  @param[in] info The resource info for the texture.
+   *  @param[in] context The OpenGL context within which to create the
+   *  texture.
+   *  @param[in] params The creation parameters for the texture.
+   *  @return The newly created texture object.
+   */
+  static Ref<Texture> create(const ResourceInfo &info,
+                             wendy::GL::Context &context,
+                             const TextureParams &params);
 private:
   Texture(const ResourceInfo& info, Context& context);
   Texture(const Texture& source);

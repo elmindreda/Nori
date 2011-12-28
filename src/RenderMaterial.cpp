@@ -489,8 +489,8 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
 
           GL::TextureParams params(typeMap[typeName]);
 
-          const String textureName = s.attribute("texture").value();
-          if (textureName.empty())
+          params.imageName = s.attribute("texture").value();
+          if (params.imageName.empty())
           {
             logError("Texture path missing for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",
                      samplerName.c_str(),
@@ -530,21 +530,11 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
             }
           }
 
-          Ref<wendy::Image> image = wendy::Image::read(cache, textureName);
-          if (!image)
-          {
-            logError("Failed to load source image for texture \'%s\'", textureName.c_str());
-            return NULL;
-          }
-
-          const ResourceInfo info(cache, name, path);
-
-          // FIXME: Texture creation
-          Ref<GL::Texture> texture = NULL;//Texture::create(info, context, params, *image);
+          Ref<GL::Texture> texture = GL::Texture::create(cache, context, params);
           if (!texture)
           {
             logError("Failed to find texture \'%s\' for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",
-                     textureName.c_str(),
+                     params.imageName.c_str(),
                      samplerName.c_str(),
                      programName.c_str(),
                      name.c_str());

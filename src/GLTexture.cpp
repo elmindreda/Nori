@@ -161,8 +161,9 @@ const char* asString(TextureType type)
 
 ///////////////////////////////////////////////////////////////////////
 
-TextureParams::TextureParams(TextureType initType):
+TextureParams::TextureParams(TextureType initType, String initImageName):
   type(initType),
+  imageName(initImageName),
   filterMode(FILTER_BILINEAR),
   addressMode(ADDRESS_WRAP),
   mipmapped(true),
@@ -171,6 +172,12 @@ TextureParams::TextureParams(TextureType initType):
 {
   if (type == TEXTURE_RECT)
     mipmapped = false;
+}
+
+String TextureParams::hash() const
+{
+  // TODO: Add all params
+  return imageName;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -600,6 +607,26 @@ Ref<Texture> Texture::create(const ResourceInfo& info,
 {
   Ref<Texture> texture(new Texture(info, context));
   if (!texture->init(params, source))
+    return NULL;
+
+  return texture;
+}
+
+Ref<Texture> Texture::create(const ResourceInfo& info,
+                             Context& context,
+                             const TextureParams& params)
+{
+  // TODO: Cache look-up based on TextureParams hash
+
+  Ref<wendy::Image> source = wendy::Image::read(context.getCache(), params.imageName);
+  if (!source)
+  {
+    logError("Failed to load source image for texture \'%s\'", params.imageName.c_str());
+    return NULL;
+  }
+
+  Ref<Texture> texture(new Texture(info, context));
+  if (!texture->init(params, *source))
     return NULL;
 
   return texture;
