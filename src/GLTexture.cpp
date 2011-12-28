@@ -170,8 +170,10 @@ TextureParams::TextureParams(TextureType initType, String initImageName):
   sRGB(false),
   maxAnisotropy(1.0f)
 {
-  if (type == TEXTURE_RECT)
+  if (type == TEXTURE_RECT) {
     mipmapped = false;
+    addressMode = ADDRESS_CLAMP;
+  }
 }
 
 String TextureParams::hash() const
