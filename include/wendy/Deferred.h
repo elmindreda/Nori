@@ -110,9 +110,9 @@ private:
   void renderLight(const render::Camera& camera, const render::Light& light);
   void renderOperations(const render::Queue& queue);
   Ref<GL::ImageFramebuffer> framebuffer;
-  GL::TextureRef depthTexture;
-  GL::TextureRef colorTexture;
-  GL::TextureRef normalTexture;
+  Ref<GL::Texture> depthTexture;
+  Ref<GL::Texture> colorTexture;
+  Ref<GL::Texture> normalTexture;
   GL::RenderState dirLightPass;
   GL::RenderState pointLightPass;
   GL::RenderState ambientLightPass;

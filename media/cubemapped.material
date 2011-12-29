@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<material version="6">
+<material version="7">
   <technique type="forward" quality="1">
     <pass>
       <program path="cubemapped.program">
-        <sampler name="cubemap" type="cube" texture="cubemap.png" address="clamp" mipmapped="true" />
+        <sampler name="cubemap" image="cubemap.png" />
       </program>
     </pass>
   </technique>

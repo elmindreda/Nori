@@ -63,7 +63,7 @@ public:
 
 VertexFormat ElementVertex::format("2f:sizeScale 2f:offsetScale 2f:texScale");
 
-const unsigned int THEME_XML_VERSION = 2;
+const unsigned int THEME_XML_VERSION = 3;
 
 } /*namespace*/
 
@@ -139,21 +139,29 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
 
   Ref<Theme> theme = new Theme(ResourceInfo(cache, name, path));
 
-  const String textureName(root.attribute("texture").value());
-  if (textureName.empty())
+  const String imageName(root.attribute("image").value());
+  if (imageName.empty())
   {
-    logError("Texture for UI theme \'%s\' is empty", name.c_str());
+    logError("No image specified for UI theme \'%s\'", name.c_str());
     return NULL;
   }
 
-  GL::TextureParams params(GL::TEXTURE_RECT, textureName);
-  params.addressMode = GL::ADDRESS_CLAMP;
-  params.filterMode = GL::FILTER_BILINEAR;
+  Ref<Image> data = Image::read(cache, imageName);
+  if (!data)
+  {
+    logError("Failed to load image \'%s\' for UI theme \'%s\'",
+             imageName.c_str(),
+             name.c_str());
+    return NULL;
+  }
 
-  theme->texture = GL::Texture::create(cache, pool->getContext(), params);
+  theme->texture = GL::Texture::create(cache,
+                                       pool->getContext(),
+                                       GL::TEXTURE_RECT,
+                                       *data);
   if (!theme->texture)
   {
-    logError("Failed to load texture for UI theme \'%s\'", name.c_str());
+    logError("Failed to create texture for UI theme \'%s\'", name.c_str());
     return NULL;
   }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<material version="6">
+<material version="7">
   <technique type="deferred" quality="1">
     <pass>
       <program path="wendy/DeferredSolid.program" />

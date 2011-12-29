@@ -25,8 +25,6 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/Bimap.h>
-
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLTexture.h>
@@ -38,8 +36,6 @@
 #include <internal/GLHelper.h>
 
 #include <glm/gtx/bit.hpp>
-
-#include <pugixml.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -161,25 +157,13 @@ const char* asString(TextureType type)
 
 ///////////////////////////////////////////////////////////////////////
 
-TextureParams::TextureParams(TextureType initType, String initImageName):
+TextureParams::TextureParams(TextureType initType):
   type(initType),
-  imageName(initImageName),
-  filterMode(FILTER_BILINEAR),
-  addressMode(ADDRESS_WRAP),
   mipmapped(true),
-  sRGB(false),
-  maxAnisotropy(1.0f)
+  sRGB(false)
 {
-  if (type == TEXTURE_RECT) {
+  if (type == TEXTURE_RECT)
     mipmapped = false;
-    addressMode = ADDRESS_CLAMP;
-  }
-}
-
-String TextureParams::hash() const
-{
-  // TODO: Add all params
-  return imageName;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -605,30 +589,10 @@ Context& Texture::getContext() const
 Ref<Texture> Texture::create(const ResourceInfo& info,
                              Context& context,
                              const TextureParams& params,
-                             const wendy::Image& source)
+                             const wendy::Image& data)
 {
   Ref<Texture> texture(new Texture(info, context));
-  if (!texture->init(params, source))
-    return NULL;
-
-  return texture;
-}
-
-Ref<Texture> Texture::create(const ResourceInfo& info,
-                             Context& context,
-                             const TextureParams& params)
-{
-  // TODO: Cache look-up based on TextureParams hash
-
-  Ref<wendy::Image> source = wendy::Image::read(context.getCache(), params.imageName);
-  if (!source)
-  {
-    logError("Failed to load source image for texture \'%s\'", params.imageName.c_str());
-    return NULL;
-  }
-
-  Ref<Texture> texture(new Texture(info, context));
-  if (!texture->init(params, *source))
+  if (!texture->init(params, data))
     return NULL;
 
   return texture;
@@ -651,9 +615,9 @@ Texture::Texture(const Texture& source):
 {
 }
 
-bool Texture::init(const TextureParams& params, const wendy::Image& source)
+bool Texture::init(const TextureParams& params, const wendy::Image& data)
 {
-  format = source.getFormat();
+  format = data.getFormat();
 
   if (!convertToGL(format, params.sRGB))
   {
@@ -667,7 +631,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
 
   if (params.type == TEXTURE_RECT)
   {
-    if (source.getDimensionCount() > 2)
+    if (data.getDimensionCount() > 2)
     {
       logError("Source image for rectangular texture \'%s\' has more than two dimensions",
                getName().c_str());
@@ -683,18 +647,18 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
   }
   else if (params.type == TEXTURE_CUBE)
   {
-    if (source.getDimensionCount() > 2)
+    if (data.getDimensionCount() > 2)
     {
       logError("Source image for cubemap texture \'%s\' has more than two dimensions",
                getName().c_str());
       return false;
     }
 
-    const unsigned int width = source.getWidth();
+    const unsigned int width = data.getWidth();
 
-    if (source.getWidth() % 6 != 0 ||
-        source.getWidth() / 6 != source.getHeight() ||
-        !isPowerOfTwo(source.getHeight()))
+    if (data.getWidth() % 6 != 0 ||
+        data.getWidth() / 6 != data.getHeight() ||
+        !isPowerOfTwo(data.getHeight()))
     {
       logError("Source image for cubemap texture \'%s\' has invalid dimensions",
                getName().c_str());
@@ -703,7 +667,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
   }
   else
   {
-    if (!source.isPOT())
+    if (!data.isPOT())
     {
       logWarning("Texture \'%s\' does not have power-of-two dimensions; this may cause slowdown",
                  getName().c_str());
@@ -716,15 +680,15 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
 
   if (type == TEXTURE_CUBE)
   {
-    width = source.getWidth() / 6;
-    height = source.getHeight();
+    width = data.getWidth() / 6;
+    height = data.getHeight();
     depth = 1;
   }
   else
   {
-    width = source.getWidth();
-    height = source.getHeight();
-    depth = source.getDepth();
+    width = data.getWidth();
+    height = data.getHeight();
+    depth = data.getDepth();
   }
 
   if (type == TEXTURE_1D)
@@ -794,7 +758,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
                  0,
                  convertToGL(format.getSemantic()),
                  convertToGL(format.getType()),
-                 source.getPixels());
+                 data.getPixels());
   }
   else if (type == TEXTURE_3D)
   {
@@ -807,7 +771,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
                  0,
                  convertToGL(format.getSemantic()),
                  convertToGL(format.getType()),
-                 source.getPixels());
+                 data.getPixels());
   }
   else if (type == TEXTURE_CUBE)
   {
@@ -821,7 +785,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
       CUBE_NEGATIVE_Y
     };
 
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, source.getWidth());
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, data.getWidth());
 
     for (size_t i = 0;  i < 6;  i++)
     {
@@ -829,13 +793,13 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
 
       glTexImage2D(convertToGL(faces[i]),
                    0,
-                   convertToGL(source.getFormat(), params.sRGB),
+                   convertToGL(data.getFormat(), params.sRGB),
                    width,
                    height,
                    0,
-                   convertToGL(source.getFormat().getSemantic()),
-                   convertToGL(source.getFormat().getType()),
-                   source.getPixels());
+                   convertToGL(data.getFormat().getSemantic()),
+                   convertToGL(data.getFormat().getType()),
+                   data.getPixels());
     }
 
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -851,7 +815,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
                  0,
                  convertToGL(format.getSemantic()),
                  convertToGL(format.getType()),
-                 source.getPixels());
+                 data.getPixels());
   }
 
   if (params.mipmapped)
@@ -866,10 +830,6 @@ bool Texture::init(const TextureParams& params, const wendy::Image& source)
     levels = retrieveImages(convertToGL(type), NO_CUBE_FACE);
 
   applyDefaults();
-
-  setFilterMode(params.filterMode);
-  setAddressMode(params.addressMode);
-  setMaxAnisotropy(params.maxAnisotropy);
 
   if (!checkGL("OpenGL error during creation of texture \'%s\' format \'%s\'",
                getName().c_str(),

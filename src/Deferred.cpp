@@ -339,17 +339,19 @@ bool Renderer::init(const Config& config)
       return false;
     }
 
-    const String& textureName("wendy/DistanceRamp.png");
-    GL::TextureParams rampParams(GL::TEXTURE_1D, textureName);
-    rampParams.addressMode = GL::ADDRESS_CLAMP;
-    rampParams.filterMode = GL::FILTER_BILINEAR;
-    rampParams.mipmapped = true;
+    const String& imageName("wendy/DistanceRamp.png");
 
-    Ref<GL::Texture> distanceRamp = GL::Texture::create(cache, context, rampParams);
-    if (!distanceRamp)
+    Ref<Image> data = Image::read(cache, imageName);
+    if (!data)
     {
-      logError("Failed to read attenuation texture \'%s\'",
-               textureName.c_str());
+      logError("Failed to load attenuation texture \'%s\'", imageName.c_str());
+      return false;
+    }
+
+    Ref<GL::Texture> ramp = GL::Texture::create(cache, context, GL::TEXTURE_1D, *data);
+    if (!ramp)
+    {
+      logError("Failed to create attenuation texture");
       return false;
     }
 
@@ -360,7 +362,7 @@ bool Renderer::init(const Config& config)
     pointLightPass.setSamplerState("colorTexture", colorTexture);
     pointLightPass.setSamplerState("normalTexture", normalTexture);
     pointLightPass.setSamplerState("depthTexture", depthTexture);
-    pointLightPass.setSamplerState("distanceRamp", distanceRamp);
+    pointLightPass.setSamplerState("distanceRamp", ramp);
   }
 
   return true;

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<material version="6">
+<material version="7">
   <technique type="deferred" quality="1">
     <pass>
       <program path="wendy/DeferredMappedNormalSpecular.program">
-        <sampler name="colormap" texture="floor_diff.png" type="2D" filter="trilinear" address="wrap" mipmapped="true" />
-        <sampler name="normalmap" texture="floor_ns.png" type="2D" filter="trilinear" address="wrap" mipmapped="true" />
+        <sampler name="colormap" texture="floor_diff.png" filter="trilinear" address="wrap" />
+        <sampler name="normalmap" texture="floor_ns.png" filter="trilinear" address="wrap" />
       </program>
     </pass>
   </technique>

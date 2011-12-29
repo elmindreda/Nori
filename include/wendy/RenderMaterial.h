@@ -187,17 +187,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Codec for XML format render materials.
- *  @ingroup renderer
- */
-class MaterialWriter
-{
-public:
-  bool write(const Path& path, const Material& material);
-};
-
-///////////////////////////////////////////////////////////////////////
-
   } /*namespace render*/
 } /*namespace wendy*/
 

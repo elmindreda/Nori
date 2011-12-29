@@ -131,15 +131,10 @@ enum CubeFace
 class TextureParams
 {
 public:
-  TextureParams(TextureType type, String imageName = "");
-  String hash() const;
-  String imageName;
+  TextureParams(TextureType type);
   TextureType type;
-  FilterMode filterMode;
-  AddressMode addressMode;
   bool mipmapped;
   bool sRGB;
-  float maxAnisotropy;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -194,12 +189,6 @@ private:
   unsigned int depth;
   CubeFace face;
 };
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup opengl
- */
-typedef Ref<TextureImage> TextureImageRef;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -295,35 +284,24 @@ public:
    */
   Context& getContext() const;
   /*! Creates a texture from the specified image.
-   *  @param[in] info The resource info for the texture.
    *  @param[in] context The OpenGL context within which to create the
    *  texture.
    *  @param[in] params The creation parameters for the texture.
-   *  @param[in] image The image data to use.
+   *  @param[in] data The image data to use.
    *  @return The newly created texture object.
    */
-  static Ref<Texture> create(const ResourceInfo &info,
-                             wendy::GL::Context &context,
-                             const TextureParams &params,
-                             const wendy::Image& source);
-  /*! Creates a texture by loading the image specified in TextureParams
-   *  @param[in] info The resource info for the texture.
-   *  @param[in] context The OpenGL context within which to create the
-   *  texture.
-   *  @param[in] params The creation parameters for the texture.
-   *  @return The newly created texture object.
-   */
-  static Ref<Texture> create(const ResourceInfo &info,
-                             wendy::GL::Context &context,
-                             const TextureParams &params);
+  static Ref<Texture> create(const ResourceInfo& info,
+                             Context &context,
+                             const TextureParams& params,
+                             const wendy::Image& data);
 private:
   Texture(const ResourceInfo& info, Context& context);
   Texture(const Texture& source);
-  bool init(const TextureParams& params, const wendy::Image& source);
+  bool init(const TextureParams& params, const wendy::Image& data);
   unsigned int retrieveImages(unsigned int target, CubeFace face);
   void applyDefaults();
   Texture& operator = (const Texture& source);
-  typedef std::vector<TextureImageRef> ImageList;
+  typedef std::vector<Ref<TextureImage> > ImageList;
   Context& context;
   TextureType type;
   unsigned int textureID;
@@ -339,13 +317,7 @@ private:
 
 /*! @ingroup opengl
  */
-typedef Ref<Texture> TextureRef;
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup opengl
- */
-typedef std::vector<TextureRef> TextureList;
+typedef std::vector<Ref<Texture> > TextureList;
 
 ///////////////////////////////////////////////////////////////////////
 

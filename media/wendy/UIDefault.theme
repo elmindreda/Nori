@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<theme version="2" font="wendy/UIDefault.font" texture="wendy/UIDefault.png" >
+<theme version="3" font="wendy/UIDefault.font" image="wendy/UIDefault.png" >
   <normal>
     <text color="255 255 255" />
     <back color="75 75 75" />
