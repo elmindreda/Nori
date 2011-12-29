@@ -248,7 +248,6 @@ public:
   const Sampler* findSampler(const char* name) const;
   Uniform* findUniform(const char* name);
   const Uniform* findUniform(const char* name) const;
-  bool isCurrent() const;
   bool hasGeometryShader() const;
   bool hasTessellationShaders() const;
   unsigned int getAttributeCount() const;

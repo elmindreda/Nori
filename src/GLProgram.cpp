@@ -649,11 +649,6 @@ const Uniform* Program::findUniform(const char* name) const
   return &(*i);
 }
 
-bool Program::isCurrent() const
-{
-  return context.getCurrentProgram() == this;
-}
-
 bool Program::hasGeometryShader() const
 {
   return geometryShaderID != 0;
