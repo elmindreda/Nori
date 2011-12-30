@@ -4,7 +4,7 @@
     <pass>
       <polygon cull="none" />
       <program path="wendy/DeferredMappedMasked.program">
-        <sampler name="colormap" texture="vase_plant_diff.png" filter="trilinear" address="wrap" />
+        <sampler name="colormap" image="vase_plant_diff.png" filter="trilinear" address="wrap" />
       </program>
     </pass>
   </technique>

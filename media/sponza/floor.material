@@ -3,8 +3,8 @@
   <technique type="deferred" quality="1">
     <pass>
       <program path="wendy/DeferredMappedNormalSpecular.program">
-        <sampler name="colormap" texture="floor_diff.png" filter="trilinear" address="wrap" />
-        <sampler name="normalmap" texture="floor_ns.png" filter="trilinear" address="wrap" />
+        <sampler name="colormap" image="floor_diff.png" filter="trilinear" address="wrap" />
+        <sampler name="normalmap" image="floor_ns.png" filter="trilinear" address="wrap" />
       </program>
     </pass>
   </technique>

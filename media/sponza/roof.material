@@ -3,7 +3,7 @@
   <technique type="deferred" quality="1">
     <pass>
       <program path="wendy/DeferredMapped.program">
-        <sampler name="colormap" texture="roof_diff.png" filter="trilinear" address="wrap" />
+        <sampler name="colormap" image="roof_diff.png" filter="trilinear" address="wrap" />
       </program>
     </pass>
   </technique>
