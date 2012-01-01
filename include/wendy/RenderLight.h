@@ -63,10 +63,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-typedef Ref<Light> LightRef;
-
-///////////////////////////////////////////////////////////////////////
-
 class LightState
 {
 public:
@@ -78,7 +74,7 @@ public:
   const vec3& getAmbientIntensity() const;
   void setAmbientIntensity(const vec3& newIntensity);
 private:
-  typedef std::vector<LightRef> List;
+  typedef std::vector<Ref<Light> > List;
   List lights;
   vec3 ambient;
 };

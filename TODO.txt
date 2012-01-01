@@ -2,8 +2,6 @@
 Global
 ======
 
-Ref typedefs either for all classes or none
-
 
 Core
 ====

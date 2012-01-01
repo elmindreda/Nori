@@ -122,10 +122,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-typedef Ref<Layer> LayerRef;
-
-///////////////////////////////////////////////////////////////////////
-
 class LayerStack
 {
 public:
@@ -138,7 +134,7 @@ public:
   bool isEmpty() const;
   void setSize(unsigned int newWidth, unsigned int newHeight);
 private:
-  typedef std::vector<LayerRef> LayerList;
+  typedef std::vector<Ref<Layer> > LayerList;
   input::Context& context;
   LayerList layers;
   unsigned int width;

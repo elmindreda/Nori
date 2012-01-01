@@ -327,7 +327,7 @@ Ref<Image> Image::getArea(const Recti& area) const
 
   const unsigned int pixelSize = format.getSize();
 
-  ImageRef result = create(cache, format, targetArea.size.x, targetArea.size.y);
+  Ref<Image> result = create(cache, format, targetArea.size.x, targetArea.size.y);
 
   for (int y = 0;  y < targetArea.size.y;  y++)
   {
