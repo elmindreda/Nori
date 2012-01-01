@@ -294,6 +294,12 @@ public:
                              Context &context,
                              const TextureParams& params,
                              const wendy::Image& data);
+  /*! Searches the specified resource cache for a texture matching the specified
+   *  parameters.
+   */
+  static Ref<Texture> find(ResourceCache& cache,
+                           const TextureParams& params,
+                           const String& sourceName);
 private:
   Texture(const ResourceInfo& info, Context& context);
   Texture(const Texture& source);

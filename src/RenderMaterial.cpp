@@ -498,18 +498,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
           if (pugi::xml_attribute a = s.attribute("sRGB"))
             params.sRGB = a.as_bool();
 
-          String textureName;
-
-          textureName.append("image:");
-          textureName.append(imageName);
-
-          textureName.append(" mipmapped:");
-          textureName.append(params.mipmapped ? "true" : "false");
-
-          textureName.append(" sRGB:");
-          textureName.append(params.sRGB ? "true" : "false");
-
-          Ref<GL::Texture> texture = cache.find<GL::Texture>(textureName);
+          Ref<GL::Texture> texture = GL::Texture::find(cache, params, imageName);
           if (!texture)
           {
             Ref<Image> data = Image::read(cache, imageName);
