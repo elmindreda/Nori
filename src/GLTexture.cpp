@@ -598,25 +598,6 @@ Ref<Texture> Texture::create(const ResourceInfo& info,
   return texture;
 }
 
-Ref<Texture> Texture::find(ResourceCache& cache,
-                           const TextureParams& params,
-                           const String& sourceName)
-{
-  String textureName;
-  textureName.reserve(256);
-
-  textureName.append("source:");
-  textureName.append(sourceName);
-
-  textureName.append(" mipmapped:");
-  textureName.append(params.mipmapped ? "true" : "false");
-
-  textureName.append(" sRGB:");
-  textureName.append(params.sRGB ? "true" : "false");
-
-  return cache.find<GL::Texture>(textureName);
-}
-
 Texture::Texture(const ResourceInfo& info, Context& initContext):
   Resource(info),
   context(initContext),
