@@ -459,7 +459,15 @@ void ModelNode::enqueue(render::Scene& scene, const render::Camera& camera) cons
   Node::enqueue(scene, camera);
 
   if (model)
+  {
+    if (scene.getTechniqueType() == render::Technique::SHADOWMAP)
+    {
+      if (!shadowCaster)
+        return;
+    }
+
     model->enqueue(scene, camera, getWorldTransform());
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////
