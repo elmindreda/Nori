@@ -108,7 +108,7 @@ bool Test::init()
 
 void Test::run()
 {
-  render::Scene scene(*pool, render::Technique::FORWARD);
+  render::Scene scene(*pool);
   GL::Context& context = pool->getContext();
 
   do

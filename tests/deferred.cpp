@@ -107,7 +107,7 @@ bool Test::init()
   graph.addRootNode(*cameraNode);
 
   scene::LightNode* lightNode;
-  render::LightRef light;
+  Ref<render::Light> light;
 
   light = new render::Light();
   light->setType(render::Light::POINT);
@@ -138,7 +138,7 @@ bool Test::init()
 
 void Test::run()
 {
-  render::Scene scene(*pool, render::Technique::DEFERRED);
+  render::Scene scene(*pool);
   GL::Context& context = pool->getContext();
 
   do

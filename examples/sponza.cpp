@@ -112,7 +112,7 @@ bool Demo::init()
   cameraNode->setCamera(camera);
   graph.addRootNode(*cameraNode);
 
-  render::LightRef light = new render::Light();
+  Ref<render::Light> light = new render::Light();
   light->setType(render::Light::POINT);
   light->setRadius(100.f);
 
@@ -145,7 +145,7 @@ bool Demo::init()
 
 void Demo::run()
 {
-  render::Scene scene(*pool, render::Technique::DEFERRED);
+  render::Scene scene(*pool);
   scene.setAmbientIntensity(vec3(0.2f, 0.2f, 0.2f));
 
   GL::Context& context = pool->getContext();
