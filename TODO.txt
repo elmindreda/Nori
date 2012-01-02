@@ -100,8 +100,6 @@ Move deferred renderer to 16-bit G-buffer channels
 Add surface shaders
 Add forward renderer lighting system
 
-Stop loading techniques for unused renderer types
-
 
 Scene
 =====
