@@ -254,8 +254,8 @@ bool Renderer::init(const Config& config)
     }
 
     GL::ProgramInterface interface;
-    interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
-    interface.addUniform("light.color", GL::Uniform::VEC3);
+    interface.addSampler("colorTexture", GL::SAMPLER_RECT);
+    interface.addUniform("light.color", GL::UNIFORM_VEC3);
     interface.addAttributes(LightVertex::format);
 
     if (!interface.matches(*program, true))
@@ -284,13 +284,13 @@ bool Renderer::init(const Config& config)
     }
 
     GL::ProgramInterface interface;
-    interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
-    interface.addSampler("normalTexture", GL::Sampler::SAMPLER_RECT);
-    interface.addSampler("depthTexture", GL::Sampler::SAMPLER_RECT);
-    interface.addUniform("nearZ", GL::Uniform::FLOAT);
-    interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
-    interface.addUniform("light.direction", GL::Uniform::VEC3);
-    interface.addUniform("light.color", GL::Uniform::VEC3);
+    interface.addSampler("colorTexture", GL::SAMPLER_RECT);
+    interface.addSampler("normalTexture", GL::SAMPLER_RECT);
+    interface.addSampler("depthTexture", GL::SAMPLER_RECT);
+    interface.addUniform("nearZ", GL::UNIFORM_FLOAT);
+    interface.addUniform("nearOverFarZminusOne", GL::UNIFORM_FLOAT);
+    interface.addUniform("light.direction", GL::UNIFORM_VEC3);
+    interface.addUniform("light.color", GL::UNIFORM_VEC3);
     interface.addAttributes(LightVertex::format);
 
     if (!interface.matches(*program, true))
@@ -322,15 +322,15 @@ bool Renderer::init(const Config& config)
 
     GL::ProgramInterface interface;
 
-    interface.addSampler("colorTexture", GL::Sampler::SAMPLER_RECT);
-    interface.addSampler("normalTexture", GL::Sampler::SAMPLER_RECT);
-    interface.addSampler("depthTexture", GL::Sampler::SAMPLER_RECT);
-    interface.addSampler("distanceRamp", GL::Sampler::SAMPLER_1D);
-    interface.addUniform("nearZ", GL::Uniform::FLOAT);
-    interface.addUniform("nearOverFarZminusOne", GL::Uniform::FLOAT);
-    interface.addUniform("light.position", GL::Uniform::VEC3);
-    interface.addUniform("light.color", GL::Uniform::VEC3);
-    interface.addUniform("light.radius", GL::Uniform::FLOAT);
+    interface.addSampler("colorTexture", GL::SAMPLER_RECT);
+    interface.addSampler("normalTexture", GL::SAMPLER_RECT);
+    interface.addSampler("depthTexture", GL::SAMPLER_RECT);
+    interface.addSampler("distanceRamp", GL::SAMPLER_1D);
+    interface.addUniform("nearZ", GL::UNIFORM_FLOAT);
+    interface.addUniform("nearOverFarZminusOne", GL::UNIFORM_FLOAT);
+    interface.addUniform("light.position", GL::UNIFORM_VEC3);
+    interface.addUniform("light.color", GL::UNIFORM_VEC3);
+    interface.addUniform("light.radius", GL::UNIFORM_FLOAT);
     interface.addAttributes(LightVertex::format);
 
     if (!interface.matches(*program, true))

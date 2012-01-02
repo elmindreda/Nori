@@ -357,8 +357,8 @@ bool Font::init(const FontData& data)
     }
 
     GL::ProgramInterface interface;
-    interface.addSampler("glyphs", GL::Sampler::SAMPLER_2D);
-    interface.addUniform("color", GL::Uniform::VEC4);
+    interface.addSampler("glyphs", GL::SAMPLER_2D);
+    interface.addUniform("color", GL::UNIFORM_VEC4);
     interface.addAttributes(Vertex2ft2fv::format);
 
     if (!interface.matches(*program, true))

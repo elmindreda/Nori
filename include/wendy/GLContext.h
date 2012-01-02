@@ -328,9 +328,9 @@ protected:
 class SharedSampler
 {
 public:
-  SharedSampler(const char* name, Sampler::Type type, int ID);
+  SharedSampler(const char* name, SamplerType type, int ID);
   String name;
-  Sampler::Type type;
+  SamplerType type;
   int ID;
 };
 
@@ -341,9 +341,9 @@ public:
 class SharedUniform
 {
 public:
-  SharedUniform(const char* name, Uniform::Type type, int ID);
+  SharedUniform(const char* name, UniformType type, int ID);
   String name;
-  Uniform::Type type;
+  UniformType type;
   int ID;
 };
 
@@ -421,16 +421,16 @@ public:
   void requestClose();
   /*! Reserves the specified sampler uniform signature as shared.
    */
-  void createSharedSampler(const char* name, Sampler::Type type, int ID);
+  void createSharedSampler(const char* name, SamplerType type, int ID);
   /*! Reserves the specified non-sampler uniform signature as shared.
    */
-  void createSharedUniform(const char* name, Uniform::Type type, int ID);
+  void createSharedUniform(const char* name, UniformType type, int ID);
   /*! @return The shared ID of the specified sampler uniform signature.
    */
-  int getSharedSamplerID(const char* name, Sampler::Type type) const;
+  int getSharedSamplerID(const char* name, SamplerType type) const;
   /*! @return The shared ID of the specified non-sampler uniform signature.
    */
-  int getSharedUniformID(const char* name, Uniform::Type type) const;
+  int getSharedUniformID(const char* name, UniformType type) const;
   /*! @return The current shared program state, or @c NULL if no shared program
    *  state is currently set.
    */

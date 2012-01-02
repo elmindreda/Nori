@@ -57,14 +57,14 @@ namespace wendy
 namespace
 {
 
-GLenum getElementType(Attribute::Type type)
+GLenum getElementType(AttributeType type)
 {
   switch (type)
   {
-    case Attribute::FLOAT:
-    case Attribute::VEC2:
-    case Attribute::VEC3:
-    case Attribute::VEC4:
+    case ATTRIBUTE_FLOAT:
+    case ATTRIBUTE_VEC2:
+    case ATTRIBUTE_VEC3:
+    case ATTRIBUTE_VEC4:
       return GL_FLOAT;
   }
 
@@ -85,18 +85,18 @@ bool isSupportedAttributeType(GLenum type)
   return false;
 }
 
-Attribute::Type convertAttributeType(GLenum type)
+AttributeType convertAttributeType(GLenum type)
 {
   switch (type)
   {
     case GL_FLOAT:
-      return Attribute::FLOAT;
+      return ATTRIBUTE_FLOAT;
     case GL_FLOAT_VEC2:
-      return Attribute::VEC2;
+      return ATTRIBUTE_VEC2;
     case GL_FLOAT_VEC3:
-      return Attribute::VEC3;
+      return ATTRIBUTE_VEC3;
     case GL_FLOAT_VEC4:
-      return Attribute::VEC4;
+      return ATTRIBUTE_VEC4;
   }
 
   panic("Unsupported GLSL attribute type %u", type);
@@ -117,20 +117,20 @@ bool isSupportedSamplerType(GLenum type)
   return false;
 }
 
-Sampler::Type convertSamplerType(GLenum type)
+SamplerType convertSamplerType(GLenum type)
 {
   switch (type)
   {
     case GL_SAMPLER_1D:
-      return Sampler::SAMPLER_1D;
+      return SAMPLER_1D;
     case GL_SAMPLER_2D:
-      return Sampler::SAMPLER_2D;
+      return SAMPLER_2D;
     case GL_SAMPLER_3D:
-      return Sampler::SAMPLER_3D;
+      return SAMPLER_3D;
     case GL_SAMPLER_2D_RECT_ARB:
-      return Sampler::SAMPLER_RECT;
+      return SAMPLER_RECT;
     case GL_SAMPLER_CUBE:
-      return Sampler::SAMPLER_CUBE;
+      return SAMPLER_CUBE;
   }
 
   panic("Unsupported GLSL sampler type %u", type);
@@ -153,25 +153,25 @@ bool isSupportedUniformType(GLenum type)
   return false;
 }
 
-Uniform::Type convertUniformType(GLenum type)
+UniformType convertUniformType(GLenum type)
 {
   switch (type)
   {
     case GL_FLOAT:
-      return Uniform::FLOAT;
+      return UNIFORM_FLOAT;
     case GL_FLOAT_VEC2:
-      return Uniform::VEC2;
+      return UNIFORM_VEC2;
     case GL_FLOAT_VEC3:
-      return Uniform::VEC3;
+      return UNIFORM_VEC3;
     case GL_FLOAT_VEC4:
 
-      return Uniform::VEC4;
+      return UNIFORM_VEC4;
     case GL_FLOAT_MAT2:
-      return Uniform::MAT2;
+      return UNIFORM_MAT2;
     case GL_FLOAT_MAT3:
-      return Uniform::MAT3;
+      return UNIFORM_MAT3;
     case GL_FLOAT_MAT4:
-      return Uniform::MAT4;
+      return UNIFORM_MAT4;
   }
 
   panic("Unsupported GLSL uniform type %u", type);
@@ -319,18 +319,18 @@ bool Attribute::operator == (const char* string) const
 
 bool Attribute::isScalar() const
 {
-  return type == FLOAT;
+  return type == ATTRIBUTE_FLOAT;
 }
 
 bool Attribute::isVector() const
 {
-  if (type == VEC2 || type == VEC3 || type == VEC4)
+  if (type == ATTRIBUTE_VEC2 || type == ATTRIBUTE_VEC3 || type == ATTRIBUTE_VEC4)
     return true;
 
   return false;
 }
 
-Attribute::Type Attribute::getType() const
+AttributeType Attribute::getType() const
 {
   return type;
 }
@@ -344,13 +344,13 @@ unsigned int Attribute::getElementCount() const
 {
   switch (type)
   {
-    case FLOAT:
+    case ATTRIBUTE_FLOAT:
       return 1;
-    case VEC2:
+    case ATTRIBUTE_VEC2:
       return 2;
-    case VEC3:
+    case ATTRIBUTE_VEC3:
       return 3;
-    case VEC4:
+    case ATTRIBUTE_VEC4:
       return 4;
   }
 
@@ -371,17 +371,17 @@ void Attribute::bind(size_t stride, size_t offset)
 #endif
 }
 
-const char* Attribute::getTypeName(Type type)
+const char* Attribute::getTypeName(AttributeType type)
 {
   switch (type)
   {
-    case FLOAT:
+    case ATTRIBUTE_FLOAT:
       return "float";
-    case VEC2:
+    case ATTRIBUTE_VEC2:
       return "vec2";
-    case VEC3:
+    case ATTRIBUTE_VEC3:
       return "vec3";
-    case VEC4:
+    case ATTRIBUTE_VEC4:
       return "vec4";
   }
 
@@ -409,7 +409,7 @@ bool Sampler::isShared() const
   return sharedID != INVALID_SHARED_STATE_ID;
 }
 
-Sampler::Type Sampler::getType() const
+SamplerType Sampler::getType() const
 {
   return type;
 }
@@ -424,7 +424,7 @@ int Sampler::getSharedID() const
   return sharedID;
 }
 
-const char* Sampler::getTypeName(Type type)
+const char* Sampler::getTypeName(SamplerType type)
 {
   switch (type)
   {
@@ -449,25 +449,25 @@ void Uniform::copyFrom(const void* data)
 {
   switch (type)
   {
-    case FLOAT:
+    case UNIFORM_FLOAT:
       glUniform1fv(location, 1, (const float*) data);
       break;
-    case VEC2:
+    case UNIFORM_VEC2:
       glUniform2fv(location, 1, (const float*) data);
       break;
-    case VEC3:
+    case UNIFORM_VEC3:
       glUniform3fv(location, 1, (const float*) data);
       break;
-    case VEC4:
+    case UNIFORM_VEC4:
       glUniform4fv(location, 1, (const float*) data);
       break;
-    case MAT2:
+    case UNIFORM_MAT2:
       glUniformMatrix2fv(location, 1, GL_FALSE, (const float*) data);
       break;
-    case MAT3:
+    case UNIFORM_MAT3:
       glUniformMatrix3fv(location, 1, GL_FALSE, (const float*) data);
       break;
-    case MAT4:
+    case UNIFORM_MAT4:
       glUniformMatrix4fv(location, 1, GL_FALSE, (const float*) data);
       break;
   }
@@ -489,12 +489,12 @@ bool Uniform::isShared() const
 
 bool Uniform::isScalar() const
 {
-  return type == FLOAT;
+  return type == UNIFORM_FLOAT;
 }
 
 bool Uniform::isVector() const
 {
-  if (type == VEC2 || type == VEC3 || type == VEC4)
+  if (type == UNIFORM_VEC2 || type == UNIFORM_VEC3 || type == UNIFORM_VEC4)
     return true;
 
   return false;
@@ -502,13 +502,13 @@ bool Uniform::isVector() const
 
 bool Uniform::isMatrix() const
 {
-  if (type == MAT2 || type == MAT3 || type == MAT4)
+  if (type == UNIFORM_MAT2 || type == UNIFORM_MAT3 || type == UNIFORM_MAT4)
     return true;
 
   return false;
 }
 
-Uniform::Type Uniform::getType() const
+UniformType Uniform::getType() const
 {
   return type;
 }
@@ -522,19 +522,19 @@ unsigned int Uniform::getElementCount() const
 {
   switch (type)
   {
-    case Uniform::FLOAT:
+    case UNIFORM_FLOAT:
       return 1;
-    case Uniform::VEC2:
+    case UNIFORM_VEC2:
       return 2;
-    case Uniform::VEC3:
+    case UNIFORM_VEC3:
       return 3;
-    case Uniform::VEC4:
+    case UNIFORM_VEC4:
       return 4;
-    case Uniform::MAT2:
+    case UNIFORM_MAT2:
       return 2 * 2;
-    case Uniform::MAT3:
+    case UNIFORM_MAT3:
       return 3 * 3;
-    case Uniform::MAT4:
+    case UNIFORM_MAT4:
       return 4 * 4;
   }
 
@@ -546,23 +546,23 @@ int Uniform::getSharedID() const
   return sharedID;
 }
 
-const char* Uniform::getTypeName(Type type)
+const char* Uniform::getTypeName(UniformType type)
 {
   switch (type)
   {
-    case FLOAT:
+    case UNIFORM_FLOAT:
       return "float";
-    case VEC2:
+    case UNIFORM_VEC2:
       return "vec2";
-    case VEC3:
+    case UNIFORM_VEC3:
       return "vec3";
-    case VEC4:
+    case UNIFORM_VEC4:
       return "vec4";
-    case MAT2:
+    case UNIFORM_MAT2:
       return "mat2";
-    case MAT3:
+    case UNIFORM_MAT3:
       return "mat3";
-    case MAT4:
+    case UNIFORM_MAT4:
       return "mat4";
   }
 
@@ -1089,17 +1089,17 @@ bool Program::isValid() const
 
 ///////////////////////////////////////////////////////////////////////
 
-void ProgramInterface::addSampler(const char* name, Sampler::Type type)
+void ProgramInterface::addSampler(const char* name, SamplerType type)
 {
   samplers.push_back(SamplerList::value_type(name, type));
 }
 
-void ProgramInterface::addUniform(const char* name, Uniform::Type type)
+void ProgramInterface::addUniform(const char* name, UniformType type)
 {
   uniforms.push_back(UniformList::value_type(name, type));
 }
 
-void ProgramInterface::addAttribute(const char* name, Attribute::Type type)
+void ProgramInterface::addAttribute(const char* name, AttributeType type)
 {
   attributes.push_back(AttributeList::value_type(name, type));
 }
@@ -1108,21 +1108,21 @@ void ProgramInterface::addAttributes(const VertexFormat& format)
 {
   for (size_t i = 0;  i < format.getComponentCount();  i++)
   {
-    Attribute::Type type;
+    AttributeType type;
 
     switch (format[i].getElementCount())
     {
       case 1:
-        type = Attribute::FLOAT;
+        type = ATTRIBUTE_FLOAT;
         break;
       case 2:
-        type = Attribute::VEC2;
+        type = ATTRIBUTE_VEC2;
         break;
       case 3:
-        type = Attribute::VEC3;
+        type = ATTRIBUTE_VEC3;
         break;
       case 4:
-        type = Attribute::VEC4;
+        type = ATTRIBUTE_VEC4;
         break;
       default:
         panic("Invalid vertex format component element count");
@@ -1255,10 +1255,10 @@ bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
     if (component->getType() != VertexComponent::FLOAT32)
       return false;
 
-    if ((component->getElementCount() == 1 && entry.second != Attribute::FLOAT) ||
-        (component->getElementCount() == 2 && entry.second != Attribute::VEC2) ||
-        (component->getElementCount() == 3 && entry.second != Attribute::VEC3) ||
-        (component->getElementCount() == 4 && entry.second != Attribute::VEC4))
+    if ((component->getElementCount() == 1 && entry.second != ATTRIBUTE_FLOAT) ||
+        (component->getElementCount() == 2 && entry.second != ATTRIBUTE_VEC2) ||
+        (component->getElementCount() == 3 && entry.second != ATTRIBUTE_VEC3) ||
+        (component->getElementCount() == 4 && entry.second != ATTRIBUTE_VEC4))
     {
       return false;
     }

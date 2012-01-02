@@ -230,11 +230,11 @@ public:
   StateID getID() const;
 private:
   template <typename T>
-  static Uniform::Type getUniformType();
-  void* getData(const char* name, Uniform::Type type);
-  const void* getData(const char* name, Uniform::Type type) const;
-  void* getData(UniformStateIndex index, Uniform::Type type);
-  const void* getData(UniformStateIndex index, Uniform::Type type) const;
+  static UniformType getUniformType();
+  void* getData(const char* name, UniformType type);
+  const void* getData(const char* name, UniformType type) const;
+  void* getData(UniformStateIndex index, UniformType type);
+  const void* getData(UniformStateIndex index, UniformType type) const;
   typedef std::deque<StateID> IDQueue;
   typedef std::vector<float> FloatList;
   StateID ID;

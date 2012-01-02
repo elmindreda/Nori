@@ -61,6 +61,19 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Vertex attribute type enumeration.
+ *  @ingroup opengl
+ */
+enum AttributeType
+{
+  ATTRIBUTE_FLOAT,
+  ATTRIBUTE_VEC2,
+  ATTRIBUTE_VEC3,
+  ATTRIBUTE_VEC4
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Program vertex attribute.
  *  @ingroup opengl
  */
@@ -69,13 +82,6 @@ class Attribute
   friend class Program;
   friend class Context;
 public:
-  enum Type
-  {
-    FLOAT,
-    VEC2,
-    VEC3,
-    VEC4
-  };
   /*! Binds this attribute to the specified stride and offset of the
    *  current vertex buffer.
    */
@@ -92,7 +98,7 @@ public:
   bool isVector() const;
   /*! @return The type of this attribute.
    */
-  Type getType() const;
+  AttributeType getType() const;
   /*! @return The name of this attribute.
    */
   const String& getName() const;
@@ -101,11 +107,25 @@ public:
   unsigned int getElementCount() const;
   /*! @return The GLSL name of the specified attribute type.
    */
-  static const char* getTypeName(Type type);
+  static const char* getTypeName(AttributeType type);
 private:
-  Type type;
+  AttributeType type;
   String name;
   int location;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Sampler uniform type enumeration.
+ *  @ingroup opengl
+ */
+enum SamplerType
+{
+  SAMPLER_1D,
+  SAMPLER_2D,
+  SAMPLER_3D,
+  SAMPLER_RECT,
+  SAMPLER_CUBE
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -117,16 +137,6 @@ class Sampler
 {
   friend class Program;
 public:
-  /*! Sampler uniform type enumeration.
-   */
-  enum Type
-  {
-    SAMPLER_1D,
-    SAMPLER_2D,
-    SAMPLER_3D,
-    SAMPLER_RECT,
-    SAMPLER_CUBE
-  };
   /*! Binds this sampler to the specified texture unit.
    */
   void bind(unsigned int unit);
@@ -142,7 +152,7 @@ public:
   bool isShared() const;
   /*! @return The type of this sampler.
    */
-  Type getType() const;
+  SamplerType getType() const;
   /*! @return The name of this sampler.
    */
   const String& getName() const;
@@ -152,12 +162,28 @@ public:
   int getSharedID() const;
   /*! @return The GLSL name of the specified sampler type.
    */
-  static const char* getTypeName(Type type);
+  static const char* getTypeName(SamplerType type);
 private:
   String name;
-  Type type;
+  SamplerType type;
   int location;
   int sharedID;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Non-sampler uniform type enumeration.
+ *  @ingroup opengl
+ */
+enum UniformType
+{
+  UNIFORM_FLOAT,
+  UNIFORM_VEC2,
+  UNIFORM_VEC3,
+  UNIFORM_VEC4,
+  UNIFORM_MAT2,
+  UNIFORM_MAT3,
+  UNIFORM_MAT4
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -169,18 +195,6 @@ class Uniform
 {
   friend class Program;
 public:
-  /*! Non-sampler uniform type enumeration.
-   */
-  enum Type
-  {
-    FLOAT,
-    VEC2,
-    VEC3,
-    VEC4,
-    MAT2,
-    MAT3,
-    MAT4
-  };
   /*! Copies a new value for this uniform from the specified address.
    *  @param[in] data The address of the value to use.
    *
@@ -209,7 +223,7 @@ public:
   bool isMatrix() const;
   /*! @return The type of this uniform.
    */
-  Type getType() const;
+  UniformType getType() const;
   /*! @return The name of this uniform.
    */
   const String& getName() const;
@@ -222,10 +236,10 @@ public:
   int getSharedID() const;
   /*! @return The GLSL name of the specified uniform type.
    */
-  static const char* getTypeName(Type type);
+  static const char* getTypeName(UniformType type);
 private:
   String name;
-  Type type;
+  UniformType type;
   int location;
   int sharedID;
 };
@@ -321,17 +335,17 @@ public:
    *  @param[in] name The name of the sampler.
    *  @param[in] type The type of the sampler.
    */
-  void addSampler(const char* name, Sampler::Type type);
+  void addSampler(const char* name, SamplerType type);
   /*! Adds a sampler to this interface.
    *  @param[in] name The name of the sampler.
    *  @param[in] type The type of the sampler.
    */
-  void addUniform(const char* name, Uniform::Type type);
+  void addUniform(const char* name, UniformType type);
   /*! Adds a sampler to this interface.
    *  @param[in] name The name of the sampler.
    *  @param[in] type The type of the sampler.
    */
-  void addAttribute(const char* name, Attribute::Type type);
+  void addAttribute(const char* name, AttributeType type);
   /*! Adds attributes for all components of the specified vertex format.
    *  @param[in] format The vertex format to use.
    */
@@ -355,9 +369,9 @@ public:
    */
   bool matches(const VertexFormat& format, bool verbose = false) const;
 private:
-  typedef std::vector<std::pair<String, Sampler::Type> > SamplerList;
-  typedef std::vector<std::pair<String, Uniform::Type> > UniformList;
-  typedef std::vector<std::pair<String, Attribute::Type> > AttributeList;
+  typedef std::vector<std::pair<String, SamplerType> > SamplerList;
+  typedef std::vector<std::pair<String, UniformType> > UniformList;
+  typedef std::vector<std::pair<String, AttributeType> > AttributeList;
   SamplerList samplers;
   UniformList uniforms;
   AttributeList attributes;

@@ -55,23 +55,23 @@ SharedProgramState::SharedProgramState():
 
 bool SharedProgramState::reserveSupported(GL::Context& context) const
 {
-  context.createSharedUniform("wyM", GL::Uniform::MAT4, SHARED_MODEL_MATRIX);
-  context.createSharedUniform("wyV", GL::Uniform::MAT4, SHARED_VIEW_MATRIX);
-  context.createSharedUniform("wyP", GL::Uniform::MAT4, SHARED_PROJECTION_MATRIX);
-  context.createSharedUniform("wyMV", GL::Uniform::MAT4, SHARED_MODELVIEW_MATRIX);
-  context.createSharedUniform("wyVP", GL::Uniform::MAT4, SHARED_VIEWPROJECTION_MATRIX);
-  context.createSharedUniform("wyMVP", GL::Uniform::MAT4, SHARED_MODELVIEWPROJECTION_MATRIX);
+  context.createSharedUniform("wyM", GL::UNIFORM_MAT4, SHARED_MODEL_MATRIX);
+  context.createSharedUniform("wyV", GL::UNIFORM_MAT4, SHARED_VIEW_MATRIX);
+  context.createSharedUniform("wyP", GL::UNIFORM_MAT4, SHARED_PROJECTION_MATRIX);
+  context.createSharedUniform("wyMV", GL::UNIFORM_MAT4, SHARED_MODELVIEW_MATRIX);
+  context.createSharedUniform("wyVP", GL::UNIFORM_MAT4, SHARED_VIEWPROJECTION_MATRIX);
+  context.createSharedUniform("wyMVP", GL::UNIFORM_MAT4, SHARED_MODELVIEWPROJECTION_MATRIX);
 
-  context.createSharedUniform("wyCameraNearZ", GL::Uniform::FLOAT, SHARED_CAMERA_NEAR_Z);
-  context.createSharedUniform("wyCameraFarZ", GL::Uniform::FLOAT, SHARED_CAMERA_FAR_Z);
-  context.createSharedUniform("wyCameraAspectRatio", GL::Uniform::FLOAT, SHARED_CAMERA_ASPECT_RATIO);
-  context.createSharedUniform("wyCameraFOV", GL::Uniform::FLOAT, SHARED_CAMERA_FOV);
-  context.createSharedUniform("wyCameraPosition", GL::Uniform::VEC3, SHARED_CAMERA_POSITION);
+  context.createSharedUniform("wyCameraNearZ", GL::UNIFORM_FLOAT, SHARED_CAMERA_NEAR_Z);
+  context.createSharedUniform("wyCameraFarZ", GL::UNIFORM_FLOAT, SHARED_CAMERA_FAR_Z);
+  context.createSharedUniform("wyCameraAspectRatio", GL::UNIFORM_FLOAT, SHARED_CAMERA_ASPECT_RATIO);
+  context.createSharedUniform("wyCameraFOV", GL::UNIFORM_FLOAT, SHARED_CAMERA_FOV);
+  context.createSharedUniform("wyCameraPosition", GL::UNIFORM_VEC3, SHARED_CAMERA_POSITION);
 
-  context.createSharedUniform("wyViewportWidth", GL::Uniform::FLOAT, SHARED_VIEWPORT_WIDTH);
-  context.createSharedUniform("wyViewportHeight", GL::Uniform::FLOAT, SHARED_VIEWPORT_HEIGHT);
+  context.createSharedUniform("wyViewportWidth", GL::UNIFORM_FLOAT, SHARED_VIEWPORT_WIDTH);
+  context.createSharedUniform("wyViewportHeight", GL::UNIFORM_FLOAT, SHARED_VIEWPORT_HEIGHT);
 
-  context.createSharedUniform("wyTime", GL::Uniform::FLOAT, SHARED_TIME);
+  context.createSharedUniform("wyTime", GL::UNIFORM_FLOAT, SHARED_TIME);
 
   return true;
 }

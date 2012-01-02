@@ -166,7 +166,7 @@ GLenum convertToGL(Operation operation)
   panic("Invalid stencil operation %u", operation);
 }
 
-bool samplerTypeMatchesTextureType(Sampler::Type samplerType, TextureType textureType)
+bool samplerTypeMatchesTextureType(SamplerType samplerType, TextureType textureType)
 {
   return (int) samplerType == (int) textureType;
 }
@@ -625,7 +625,7 @@ StateID ProgramState::getID() const
   return ID;
 }
 
-void* ProgramState::getData(const char* name, Uniform::Type type)
+void* ProgramState::getData(const char* name, UniformType type)
 {
   if (!program)
   {
@@ -662,7 +662,7 @@ void* ProgramState::getData(const char* name, Uniform::Type type)
   return NULL;
 }
 
-const void* ProgramState::getData(const char* name, Uniform::Type type) const
+const void* ProgramState::getData(const char* name, UniformType type) const
 {
   if (!program)
   {
@@ -699,7 +699,7 @@ const void* ProgramState::getData(const char* name, Uniform::Type type) const
   return NULL;
 }
 
-void* ProgramState::getData(UniformStateIndex index, Uniform::Type type)
+void* ProgramState::getData(UniformStateIndex index, UniformType type)
 {
   if (!program)
   {
@@ -721,7 +721,7 @@ void* ProgramState::getData(UniformStateIndex index, Uniform::Type type)
   return &floats[0] + index.offset;
 }
 
-const void* ProgramState::getData(UniformStateIndex index, Uniform::Type type) const
+const void* ProgramState::getData(UniformStateIndex index, UniformType type) const
 {
   if (!program)
   {
@@ -744,45 +744,45 @@ const void* ProgramState::getData(UniformStateIndex index, Uniform::Type type) c
 }
 
 template <>
-Uniform::Type ProgramState::getUniformType<float>()
+UniformType ProgramState::getUniformType<float>()
 {
-  return Uniform::FLOAT;
+  return UNIFORM_FLOAT;
 }
 
 template <>
-Uniform::Type ProgramState::getUniformType<vec2>()
+UniformType ProgramState::getUniformType<vec2>()
 {
-  return Uniform::VEC2;
+  return UNIFORM_VEC2;
 }
 
 template <>
-Uniform::Type ProgramState::getUniformType<vec3>()
+UniformType ProgramState::getUniformType<vec3>()
 {
-  return Uniform::VEC3;
+  return UNIFORM_VEC3;
 }
 
 template <>
-Uniform::Type ProgramState::getUniformType<vec4>()
+UniformType ProgramState::getUniformType<vec4>()
 {
-  return Uniform::VEC4;
+  return UNIFORM_VEC4;
 }
 
 template <>
-Uniform::Type ProgramState::getUniformType<mat2>()
+UniformType ProgramState::getUniformType<mat2>()
 {
-  return Uniform::MAT2;
+  return UNIFORM_MAT2;
 }
 
 template <>
-Uniform::Type ProgramState::getUniformType<mat3>()
+UniformType ProgramState::getUniformType<mat3>()
 {
-  return Uniform::MAT3;
+  return UNIFORM_MAT3;
 }
 
 template <>
-Uniform::Type ProgramState::getUniformType<mat4>()
+UniformType ProgramState::getUniformType<mat4>()
 {
-  return Uniform::MAT4;
+  return UNIFORM_MAT4;
 }
 
 ProgramState::IDQueue ProgramState::usedIDs;

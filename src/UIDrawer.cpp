@@ -697,11 +697,11 @@ bool Drawer::init()
     }
 
     GL::ProgramInterface interface;
-    interface.addUniform("elementPos", GL::Uniform::VEC2);
-    interface.addUniform("elementSize", GL::Uniform::VEC2);
-    interface.addUniform("texPos", GL::Uniform::VEC2);
-    interface.addUniform("texSize", GL::Uniform::VEC2);
-    interface.addSampler("image", GL::Sampler::SAMPLER_RECT);
+    interface.addUniform("elementPos", GL::UNIFORM_VEC2);
+    interface.addUniform("elementSize", GL::UNIFORM_VEC2);
+    interface.addUniform("texPos", GL::UNIFORM_VEC2);
+    interface.addUniform("texSize", GL::UNIFORM_VEC2);
+    interface.addSampler("image", GL::SAMPLER_RECT);
     interface.addAttributes(ElementVertex::format);
 
     if (!interface.matches(*program, true))
@@ -737,7 +737,7 @@ bool Drawer::init()
     }
 
     GL::ProgramInterface interface;
-    interface.addUniform("color", GL::Uniform::VEC4);
+    interface.addUniform("color", GL::UNIFORM_VEC4);
     interface.addAttributes(Vertex2fv::format);
 
     if (!interface.matches(*program, true))
@@ -767,7 +767,7 @@ bool Drawer::init()
     }
 
     GL::ProgramInterface interface;
-    interface.addSampler("image", GL::Sampler::SAMPLER_2D);
+    interface.addSampler("image", GL::SAMPLER_2D);
     interface.addAttributes(Vertex2ft2fv::format);
 
     if (!interface.matches(*program, true))

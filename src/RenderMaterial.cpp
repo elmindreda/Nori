@@ -60,7 +60,7 @@ Bimap<String, GL::AddressMode> addressModeMap;
 Bimap<String, System::Type> systemTypeMap;
 Bimap<String, Phase> phaseMap;
 
-Bimap<GL::Sampler::Type, GL::TextureType> textureTypeMap;
+Bimap<GL::SamplerType, GL::TextureType> textureTypeMap;
 
 const unsigned int MATERIAL_XML_VERSION = 7;
 
@@ -179,11 +179,11 @@ MaterialReader::MaterialReader(System& initSystem):
 
   if (textureTypeMap.isEmpty())
   {
-    textureTypeMap[GL::Sampler::SAMPLER_1D] = GL::TEXTURE_1D;
-    textureTypeMap[GL::Sampler::SAMPLER_2D] = GL::TEXTURE_2D;
-    textureTypeMap[GL::Sampler::SAMPLER_3D] = GL::TEXTURE_3D;
-    textureTypeMap[GL::Sampler::SAMPLER_RECT] = GL::TEXTURE_RECT;
-    textureTypeMap[GL::Sampler::SAMPLER_CUBE] = GL::TEXTURE_CUBE;
+    textureTypeMap[GL::SAMPLER_1D] = GL::TEXTURE_1D;
+    textureTypeMap[GL::SAMPLER_2D] = GL::TEXTURE_2D;
+    textureTypeMap[GL::SAMPLER_3D] = GL::TEXTURE_3D;
+    textureTypeMap[GL::SAMPLER_RECT] = GL::TEXTURE_RECT;
+    textureTypeMap[GL::SAMPLER_CUBE] = GL::TEXTURE_CUBE;
   }
 
   if (systemTypeMap.isEmpty())
@@ -531,25 +531,25 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
 
           switch (uniform->getType())
           {
-            case GL::Uniform::FLOAT:
+            case GL::UNIFORM_FLOAT:
               pass.setUniformState(uniformName.c_str(), attribute.as_float());
               break;
-            case GL::Uniform::VEC2:
+            case GL::UNIFORM_VEC2:
               pass.setUniformState(uniformName.c_str(), vec2Cast(attribute.value()));
               break;
-            case GL::Uniform::VEC3:
+            case GL::UNIFORM_VEC3:
               pass.setUniformState(uniformName.c_str(), vec3Cast(attribute.value()));
               break;
-            case GL::Uniform::VEC4:
+            case GL::UNIFORM_VEC4:
               pass.setUniformState(uniformName.c_str(), vec4Cast(attribute.value()));
               break;
-            case GL::Uniform::MAT2:
+            case GL::UNIFORM_MAT2:
               pass.setUniformState(uniformName.c_str(), mat2Cast(attribute.value()));
               break;
-            case GL::Uniform::MAT3:
+            case GL::UNIFORM_MAT3:
               pass.setUniformState(uniformName.c_str(), mat3Cast(attribute.value()));
               break;
-            case GL::Uniform::MAT4:
+            case GL::UNIFORM_MAT4:
               pass.setUniformState(uniformName.c_str(), mat4Cast(attribute.value()));
               break;
           }

@@ -208,7 +208,7 @@ bool isCompatible(const Attribute& attribute, const VertexComponent& component)
 {
   switch (attribute.getType())
   {
-    case Attribute::FLOAT:
+    case ATTRIBUTE_FLOAT:
     {
       if (component.getType() == VertexComponent::FLOAT32 &&
           component.getElementCount() == 1)
@@ -217,7 +217,7 @@ bool isCompatible(const Attribute& attribute, const VertexComponent& component)
       break;
     }
 
-    case Attribute::VEC2:
+    case ATTRIBUTE_VEC2:
     {
       if (component.getType() == VertexComponent::FLOAT32 &&
           component.getElementCount() == 2)
@@ -226,7 +226,7 @@ bool isCompatible(const Attribute& attribute, const VertexComponent& component)
       break;
     }
 
-    case Attribute::VEC3:
+    case ATTRIBUTE_VEC3:
     {
       if (component.getType() == VertexComponent::FLOAT32 &&
           component.getElementCount() == 3)
@@ -235,7 +235,7 @@ bool isCompatible(const Attribute& attribute, const VertexComponent& component)
       break;
     }
 
-    case Attribute::VEC4:
+    case ATTRIBUTE_VEC4:
     {
       if (component.getType() == VertexComponent::FLOAT32 &&
           component.getElementCount() == 4)
@@ -596,7 +596,7 @@ Stats::Frame::Frame():
 ///////////////////////////////////////////////////////////////////////
 
 SharedSampler::SharedSampler(const char* initName,
-                             Sampler::Type initType,
+                             SamplerType initType,
                              int initID):
   name(initName),
   type(initType),
@@ -607,7 +607,7 @@ SharedSampler::SharedSampler(const char* initName,
 ///////////////////////////////////////////////////////////////////////
 
 SharedUniform::SharedUniform(const char* initName,
-                             Uniform::Type initType,
+                             UniformType initType,
                              int initID):
   name(initName),
   type(initType),
@@ -845,7 +845,7 @@ void Context::requestClose()
   closeCallback();
 }
 
-void Context::createSharedSampler(const char* name, Sampler::Type type, int ID)
+void Context::createSharedSampler(const char* name, SamplerType type, int ID)
 {
   assert(ID != INVALID_SHARED_STATE_ID);
 
@@ -861,7 +861,7 @@ void Context::createSharedSampler(const char* name, Sampler::Type type, int ID)
   samplers.push_back(SharedSampler(name, type, ID));
 }
 
-void Context::createSharedUniform(const char* name, Uniform::Type type, int ID)
+void Context::createSharedUniform(const char* name, UniformType type, int ID)
 {
   assert(ID != INVALID_SHARED_STATE_ID);
 
@@ -877,7 +877,7 @@ void Context::createSharedUniform(const char* name, Uniform::Type type, int ID)
   uniforms.push_back(SharedUniform(name, type, ID));
 }
 
-int Context::getSharedSamplerID(const char* name, Sampler::Type type) const
+int Context::getSharedSamplerID(const char* name, SamplerType type) const
 {
   for (SamplerList::const_iterator s = samplers.begin(); s != samplers.end(); s++)
   {
@@ -888,7 +888,7 @@ int Context::getSharedSamplerID(const char* name, Sampler::Type type) const
   return INVALID_SHARED_STATE_ID;
 }
 
-int Context::getSharedUniformID(const char* name, Uniform::Type type) const
+int Context::getSharedUniformID(const char* name, UniformType type) const
 {
   for (UniformList::const_iterator u = uniforms.begin(); u != uniforms.end(); u++)
   {
