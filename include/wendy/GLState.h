@@ -118,48 +118,6 @@ enum Function
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Stencil buffer state.
- *  @ingroup opengl
- */
-class StencilState
-{
-public:
-  void apply() const;
-  bool isEnabled() const;
-  Function getFunction() const;
-  Operation getStencilFailOperation() const;
-  Operation getDepthFailOperation() const;
-  Operation getDepthPassOperation() const;
-  unsigned int getReference() const;
-  unsigned int getWriteMask() const;
-  void setEnabled(bool newState);
-  void setFunction(Function newFunction);
-  void setReference(unsigned int newReference);
-  void setWriteMask(unsigned int newMask);
-  void setOperations(Operation stencilFailed,
-                     Operation depthFailed,
-                     Operation depthPassed);
-private:
-  class Data
-  {
-  public:
-    Data();
-    bool enabled;
-    Function function;
-    unsigned int reference;
-    unsigned int writeMask;
-    Operation stencilFailed;
-    Operation depthFailed;
-    Operation depthPassed;
-  };
-  void force() const;
-  Data data;
-  static Data cache;
-  static bool dirty;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Opaque program state uniform index.
  *  @ingroup opengl
  */
@@ -286,6 +244,10 @@ public:
    *  @c false.
    */
   bool isColorWriting() const;
+  /*! @return @c true if this render state uses stencil buffer testing,
+   *  otherwise @c false.
+   */
+  bool isStencilTesting() const;
   /*! @return @c true if this render state uses wireframe rendering, otherwise
    *  @c false.
    */
@@ -311,6 +273,24 @@ public:
   /*! @return The depth buffer testing function used by this render state.
    */
   Function getDepthFunction() const;
+  /*! @return The stencil buffer testing function used by this render state.
+   */
+  Function getStencilFunction() const;
+  /*! @return The operation to perform when the stencil test fails.
+   */
+  Operation getStencilFailOperation() const;
+  /*! @return The operation to perform when the depth test fails.
+   */
+  Operation getDepthFailOperation() const;
+  /*! @return The operation to perform when the depth test succeeds.
+   */
+  Operation getDepthPassOperation() const;
+  /*! @return The stencil test reference value used by this render state.
+   */
+  unsigned int getStencilReference() const;
+  /*! @return The stencil buffer write mask used by this render state.
+   */
+  unsigned int getStencilWriteMask() const;
   /*! Sets whether this render state uses depth buffer testing.
    *  @param[in] enable Set to @c true to enable depth buffer testing, or @c
    *  false to disable it.
@@ -321,10 +301,36 @@ public:
    *  false to disable it.
    */
   void setDepthWriting(bool enable);
+  /*! Sets whether this render state uses stencil buffer testing.
+   *  @param[in] enable Set to @c true to enable stencil buffer testing, or @c
+   *  false to disable it.
+   */
+  void setStencilTesting(bool enable);
   /*! Sets the depth buffer testing function for this render state.
    *  @param[in] function The desired depth testing function.
    */
   void setDepthFunction(Function function);
+  /*! Sets the stencil test function for this render state.
+   *  @param[in] newFunction The desired stencil testing function.
+   */
+  void setStencilFunction(Function newFunction);
+  /*! Sets the stencil test reference value for this render state.
+   *  @param[in] newReference The desired stencil test reference value.
+   */
+  void setStencilReference(unsigned int newReference);
+  /*! Sets the stencil buffer write mask for this render state.
+   *  @param[in] newMask The desired stencil buffer write mask.
+   */
+  void setStencilWriteMask(unsigned int newMask);
+  /*! Sets the operation to perform when the stencil test fails.
+   */
+  void setStencilFailOperation(Operation newOperation);
+  /*! Sets the operation to perform when the depth test fails.
+   */
+  void setDepthFailOperation(Operation newOperation);
+  /*! Sets the operation to perform when the depth test succeeds.
+   */
+  void setDepthPassOperation(Operation newOperation);
   /*! Sets whether writing to the color buffer is enabled.
    *  @param[in] enabled @c true to enable writing to the color buffer, or @c
    *  false to disable it.
@@ -366,6 +372,7 @@ private:
     bool depthTesting;
     bool depthWriting;
     bool colorWriting;
+    bool stencilTesting;
     bool wireframe;
     bool lineSmoothing;
     bool multisampling;
@@ -374,6 +381,12 @@ private:
     BlendFactor srcFactor;
     BlendFactor dstFactor;
     Function depthFunction;
+    Function stencilFunction;
+    unsigned int stencilRef;
+    unsigned int stencilMask;
+    Operation stencilFailOp;
+    Operation depthFailOp;
+    Operation depthPassOp;
   };
   void force() const;
   void setBooleanState(unsigned int state, bool value) const;

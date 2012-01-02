@@ -175,162 +175,6 @@ bool samplerTypeMatchesTextureType(SamplerType samplerType, TextureType textureT
 
 ///////////////////////////////////////////////////////////////////////
 
-void StencilState::apply() const
-{
-  if (dirty)
-  {
-    force();
-    return;
-  }
-
-  if (data.enabled)
-  {
-    if (!cache.enabled)
-    {
-      glEnable(GL_STENCIL_TEST);
-      cache.enabled = data.enabled;
-    }
-
-    if (data.function != cache.function ||
-        data.reference != cache.reference ||
-        data.writeMask != cache.writeMask)
-    {
-      glStencilFunc(convertToGL(data.function), data.reference, data.writeMask);
-
-      cache.function = data.function;
-      cache.reference = data.reference;
-      cache.writeMask = data.writeMask;
-    }
-
-    if (data.stencilFailed != cache.stencilFailed ||
-        data.depthFailed != cache.depthFailed ||
-        data.depthPassed != cache.depthPassed)
-    {
-      glStencilOp(convertToGL(data.stencilFailed),
-                  convertToGL(data.depthFailed),
-                  convertToGL(data.depthPassed));
-
-      cache.stencilFailed = data.stencilFailed;
-      cache.depthFailed = data.depthFailed;
-      cache.depthPassed = data.depthPassed;
-    }
-  }
-  else
-  {
-    if (cache.enabled)
-    {
-      glDisable(GL_STENCIL_TEST);
-      cache.enabled = data.enabled;
-    }
-  }
-
-#if WENDY_DEBUG
-  checkGL("Error when applying stencil state");
-#endif
-}
-
-bool StencilState::isEnabled() const
-{
-  return data.enabled;
-}
-
-Function StencilState::getFunction() const
-{
-  return data.function;
-}
-
-Operation StencilState::getStencilFailOperation() const
-{
-  return data.stencilFailed;
-}
-
-Operation StencilState::getDepthFailOperation() const
-{
-  return data.depthFailed;
-}
-
-Operation StencilState::getDepthPassOperation() const
-{
-  return data.depthPassed;
-}
-
-unsigned int StencilState::getReference() const
-{
-  return data.reference;
-}
-
-unsigned int StencilState::getWriteMask() const
-{
-  return data.writeMask;
-}
-
-void StencilState::setEnabled(bool newState)
-{
-  data.enabled = newState;
-}
-
-void StencilState::setFunction(Function newFunction)
-{
-  data.function = newFunction;
-}
-
-void StencilState::setReference(unsigned int newReference)
-{
-  data.reference = newReference;
-}
-
-void StencilState::setWriteMask(unsigned int newMask)
-{
-  data.writeMask = newMask;
-}
-
-void StencilState::setOperations(Operation stencilFailed,
-                                 Operation depthFailed,
-                                 Operation depthPassed)
-{
-  data.stencilFailed = stencilFailed;
-  data.depthFailed = depthFailed;
-  data.depthPassed = depthPassed;
-}
-
-void StencilState::force() const
-{
-  cache = data;
-
-  if (data.enabled)
-    glEnable(GL_STENCIL_TEST);
-  else
-    glDisable(GL_STENCIL_TEST);
-
-  glStencilFunc(data.function, data.reference, data.writeMask);
-  glStencilOp(data.stencilFailed, data.depthFailed, data.depthPassed);
-
-#if WENDY_DEBUG
-  checkGL("Error when forcing stencil state");
-#endif
-
-  dirty = false;
-}
-
-StencilState::Data StencilState::cache;
-
-bool StencilState::dirty = true;
-
-///////////////////////////////////////////////////////////////////////
-
-StencilState::Data::Data():
-  enabled(false),
-  function(ALLOW_ALWAYS),
-  reference(0),
-  writeMask(~0),
-  stencilFailed(OP_KEEP),
-  depthFailed(OP_KEEP),
-  depthPassed(OP_KEEP)
-{
-}
-
-///////////////////////////////////////////////////////////////////////
-
 UniformStateIndex::UniformStateIndex():
   index(0xffff),
   offset(0xffff)
@@ -878,6 +722,40 @@ void RenderState::apply() const
     cache.colorWriting = data.colorWriting;
   }
 
+  if (data.stencilTesting != cache.stencilTesting)
+  {
+    setBooleanState(GL_STENCIL_TEST, data.stencilTesting);
+    cache.stencilTesting = data.stencilTesting;
+  }
+
+  if (data.stencilTesting)
+  {
+    if (data.stencilFunction != cache.stencilFunction ||
+        data.stencilRef != cache.stencilRef ||
+        data.stencilMask != cache.stencilMask)
+    {
+      glStencilFunc(convertToGL(data.stencilFunction),
+                    data.stencilRef, data.stencilMask);
+
+      cache.stencilFunction = data.stencilFunction;
+      cache.stencilRef = data.stencilRef;
+      cache.stencilMask = data.stencilMask;
+    }
+
+    if (data.stencilFailOp != cache.stencilFailOp ||
+        data.depthFailOp != cache.depthFailOp ||
+        data.depthPassOp != cache.depthPassOp)
+    {
+      glStencilOp(convertToGL(data.stencilFailOp),
+                  convertToGL(data.depthFailOp),
+                  convertToGL(data.depthPassOp));
+
+      cache.stencilFailOp = data.stencilFailOp;
+      cache.depthFailOp = data.depthFailOp;
+      cache.depthPassOp = data.depthPassOp;
+    }
+  }
+
   if (data.wireframe != cache.wireframe)
   {
     const GLenum state = data.wireframe ? GL_LINE : GL_FILL;
@@ -935,6 +813,11 @@ bool RenderState::isColorWriting() const
   return data.colorWriting;
 }
 
+bool RenderState::isStencilTesting() const
+{
+  return data.stencilTesting;
+}
+
 bool RenderState::isWireframe() const
 {
   return data.wireframe;
@@ -975,6 +858,36 @@ Function RenderState::getDepthFunction() const
   return data.depthFunction;
 }
 
+Function RenderState::getStencilFunction() const
+{
+  return data.stencilFunction;
+}
+
+Operation RenderState::getStencilFailOperation() const
+{
+  return data.stencilFailOp;
+}
+
+Operation RenderState::getDepthFailOperation() const
+{
+  return data.depthFailOp;
+}
+
+Operation RenderState::getDepthPassOperation() const
+{
+  return data.depthPassOp;
+}
+
+unsigned int RenderState::getStencilReference() const
+{
+  return data.stencilRef;
+}
+
+unsigned int RenderState::getStencilWriteMask() const
+{
+  return data.stencilMask;
+}
+
 void RenderState::setDepthTesting(bool enable)
 {
   data.depthTesting = enable;
@@ -983,6 +896,11 @@ void RenderState::setDepthTesting(bool enable)
 void RenderState::setDepthWriting(bool enable)
 {
   data.depthWriting = enable;
+}
+
+void RenderState::setStencilTesting(bool enable)
+{
+  data.stencilTesting = enable;
 }
 
 void RenderState::setCullMode(CullMode mode)
@@ -999,6 +917,36 @@ void RenderState::setBlendFactors(BlendFactor src, BlendFactor dst)
 void RenderState::setDepthFunction(Function function)
 {
   data.depthFunction = function;
+}
+
+void RenderState::setStencilFunction(Function newFunction)
+{
+  data.stencilFunction = newFunction;
+}
+
+void RenderState::setStencilReference(unsigned int newReference)
+{
+  data.stencilRef = newReference;
+}
+
+void RenderState::setStencilWriteMask(unsigned int newMask)
+{
+  data.stencilMask = newMask;
+}
+
+void RenderState::setStencilFailOperation(Operation newOperation)
+{
+  data.stencilFailOp = newOperation;
+}
+
+void RenderState::setDepthFailOperation(Operation newOperation)
+{
+  data.depthFailOp = newOperation;
+}
+
+void RenderState::setDepthPassOperation(Operation newOperation)
+{
+  data.depthPassOp = newOperation;
 }
 
 void RenderState::setColorWriting(bool enabled)
@@ -1074,6 +1022,13 @@ void RenderState::force() const
 
   setBooleanState(GL_MULTISAMPLE, data.multisampling);
 
+  setBooleanState(GL_STENCIL_TEST, data.stencilTesting);
+  glStencilFunc(convertToGL(data.stencilFunction),
+                data.stencilRef, data.stencilMask);
+  glStencilOp(convertToGL(data.stencilFailOp),
+              convertToGL(data.depthFailOp),
+              convertToGL(data.depthPassOp));
+
 #if WENDY_DEBUG
   checkGL("Error when forcing render state");
 #endif
@@ -1103,6 +1058,7 @@ RenderState::Data::Data():
   depthTesting(true),
   depthWriting(true),
   colorWriting(true),
+  stencilTesting(false),
   wireframe(false),
   lineSmoothing(false),
   multisampling(true),
@@ -1110,7 +1066,13 @@ RenderState::Data::Data():
   cullMode(CULL_BACK),
   srcFactor(BLEND_ONE),
   dstFactor(BLEND_ZERO),
-  depthFunction(ALLOW_LESSER)
+  depthFunction(ALLOW_LESSER),
+  stencilFunction(ALLOW_ALWAYS),
+  stencilRef(0),
+  stencilMask(~0),
+  stencilFailOp(OP_KEEP),
+  depthFailOp(OP_KEEP),
+  depthPassOp(OP_KEEP)
 {
 }
 
