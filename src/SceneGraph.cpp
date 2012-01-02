@@ -50,7 +50,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Node::Node():
+Node::Node(bool initNeedsUpdate):
+  needsUpdate(initNeedsUpdate),
   parent(NULL),
   graph(NULL),
   dirtyWorld(false),
@@ -261,11 +262,6 @@ void Node::enqueue(render::Scene& scene, const render::Camera& camera) const
   }
 }
 
-bool Node::needsUpdate() const
-{
-  return false;
-}
-
 Node::Node(const Node& source)
 {
   panic("Scene graph nodes may not be copied");
@@ -291,7 +287,7 @@ void Node::invalidateWorldTransform()
 
 void Node::setGraph(Graph* newGraph)
 {
-  if (graph && needsUpdate())
+  if (graph && needsUpdate)
   {
     List& updated = graph->updated;
     updated.erase(std::find(updated.begin(), updated.end(), this));
@@ -299,7 +295,7 @@ void Node::setGraph(Graph* newGraph)
 
   graph = newGraph;
 
-  if (graph && needsUpdate())
+  if (graph && needsUpdate)
   {
     List& updated = graph->updated;
     updated.push_back(this);
@@ -379,6 +375,11 @@ const Node::List& Graph::getNodes() const
 
 ///////////////////////////////////////////////////////////////////////
 
+LightNode::LightNode():
+  Node(true)
+{
+}
+
 render::Light* LightNode::getLight() const
 {
   return light;
@@ -425,11 +426,6 @@ void LightNode::enqueue(render::Scene& scene, const render::Camera& camera) cons
     scene.attachLight(*light);
 }
 
-bool LightNode::needsUpdate() const
-{
-  return true;
-}
-
 ///////////////////////////////////////////////////////////////////////
 
 ModelNode::ModelNode():
@@ -468,6 +464,11 @@ void ModelNode::enqueue(render::Scene& scene, const render::Camera& camera) cons
 
 ///////////////////////////////////////////////////////////////////////
 
+CameraNode::CameraNode():
+  Node(true)
+{
+}
+
 render::Camera* CameraNode::getCamera() const
 {
   return camera;
@@ -486,11 +487,6 @@ void CameraNode::update()
     return;
 
   camera->setTransform(getWorldTransform());
-}
-
-bool CameraNode::needsUpdate() const
-{
-  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////

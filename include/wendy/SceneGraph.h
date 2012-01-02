@@ -56,7 +56,7 @@ public:
   typedef std::vector<Node*> List;
   /*! Constructor.
    */
-  Node();
+  Node(bool needsUpdate = false);
   /*! Destructor.
    */
   virtual ~Node();
@@ -121,15 +121,13 @@ protected:
    *  @param[in,out] queue The render queue for collecting operations.
    */
   virtual void enqueue(render::Scene& scene, const render::Camera& camera) const;
-  /*! @return @c true if this node should receive calls to Node::update.
-   */
-  virtual bool needsUpdate() const;
 private:
   Node(const Node& source);
   Node& operator = (const Node& source);
   void invalidateBounds();
   void invalidateWorldTransform();
   void setGraph(Graph* newGraph);
+  bool needsUpdate;
   Node* parent;
   Graph* graph;
   List children;
@@ -173,12 +171,12 @@ private:
 class LightNode : public Node
 {
 public:
+  LightNode();
   render::Light* getLight() const;
   void setLight(render::Light* newLight);
 protected:
   void update();
   void enqueue(render::Scene& scene, const render::Camera& camera) const;
-  bool needsUpdate() const;
 private:
   Ref<render::Light> light;
 };
@@ -209,11 +207,11 @@ private:
 class CameraNode : public Node
 {
 public:
+  CameraNode();
   render::Camera* getCamera() const;
   void setCamera(render::Camera* newCamera);
 protected:
   void update();
-  bool needsUpdate() const;
 private:
   Ref<render::Camera> camera;
 };
