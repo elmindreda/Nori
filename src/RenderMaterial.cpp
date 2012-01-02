@@ -282,35 +282,27 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
 
       if (pugi::xml_node node = p.child("blending"))
       {
-        const String srcFactorName(node.attribute("src").value());
-        if (!srcFactorName.empty())
+        if (pugi::xml_attribute a = node.attribute("src"))
         {
-          if (blendFactorMap.hasKey(srcFactorName))
-          {
-            pass.setBlendFactors(blendFactorMap[srcFactorName],
-                                 pass.getDstFactor());
-          }
+          if (blendFactorMap.hasKey(a.value()))
+            pass.setBlendFactors(blendFactorMap[a.value()], pass.getDstFactor());
           else
           {
-            logError("Invalid blend factor \'%s\' in material \'%s\'",
-                     srcFactorName.c_str(),
+            logError("Invalid source blend factor \'%s\' in material \'%s\'",
+                     a.value(),
                      name.c_str());
             return NULL;
           }
         }
 
-        const String dstFactorName(node.attribute("dst").value());
-        if (!dstFactorName.empty())
+        if (pugi::xml_attribute a = node.attribute("dst"))
         {
-          if (blendFactorMap.hasKey(dstFactorName))
-          {
-            pass.setBlendFactors(pass.getSrcFactor(),
-                                 blendFactorMap[dstFactorName]);
-          }
+          if (blendFactorMap.hasKey(a.value()))
+            pass.setBlendFactors(pass.getSrcFactor(), blendFactorMap[a.value()]);
           else
           {
-            logError("Invalid blend factor \'%s\' in material \'%s\'",
-                     dstFactorName.c_str(),
+            logError("Invalid destination blend factor \'%s\' in material \'%s\'",
+                     a.value(),
                      name.c_str());
             return NULL;
           }
@@ -334,15 +326,14 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
         if (pugi::xml_attribute a = node.attribute("writing"))
           pass.setDepthWriting(a.as_bool());
 
-        const String functionName(node.attribute("function").value());
-        if (!functionName.empty())
+        if (pugi::xml_attribute a = node.attribute("function"))
         {
-          if (functionMap.hasKey(functionName))
-            pass.setDepthFunction(functionMap[functionName]);
+          if (functionMap.hasKey(a.value()))
+            pass.setDepthFunction(functionMap[a.value()]);
           else
           {
             logError("Invalid depth function \'%s\' in material \'%s\'",
-                     functionName.c_str(),
+                     a.value(),
                      name.c_str());
             return NULL;
           }
@@ -418,15 +409,14 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
         if (pugi::xml_attribute a = node.attribute("wireframe"))
           pass.setWireframe(a.as_bool());
 
-        const String cullModeName(node.attribute("cull").value());
-        if (!cullModeName.empty())
+        if (pugi::xml_attribute a = node.attribute("cull"))
         {
-          if (cullModeMap.hasKey(cullModeName))
-            pass.setCullMode(cullModeMap[cullModeName]);
+          if (cullModeMap.hasKey(a.value()))
+            pass.setCullMode(cullModeMap[a.value()]);
           else
           {
             logError("Invalid cull mode \'%s\' in material \'%s\'",
-                     cullModeName.c_str(),
+                     a.value(),
                      name.c_str());
             return NULL;
           }
