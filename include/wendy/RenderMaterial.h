@@ -49,7 +49,11 @@ class System;
  */
 enum Phase
 {
+  /*! Normal forward rendering or G-buffer filling.
+   */
   PHASE_DEFAULT,
+  /*! Shadow map rendering.
+   */
   PHASE_SHADOWMAP
 };
 
