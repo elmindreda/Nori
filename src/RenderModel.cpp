@@ -164,7 +164,6 @@ Model& Model::operator = (const Model& source)
 
 bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 {
-  /*
   if (!data.isValid())
   {
     logError("Mesh \'%s\' for model \'%s\' is not valid",
@@ -172,7 +171,6 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
              getName().c_str());
     return false;
   }
-  */
 
   for (MeshSectionList::const_iterator s = data.sections.begin();
        s != data.sections.end();
