@@ -109,8 +109,9 @@ public:
   const GL::IndexBuffer& getIndexBuffer() const;
   /*! Creates a model from the specified mesh.
    *  @param[in] info The resource info for the texture.
-   *  @param[in] context The OpenGL context within which to create the texture.
+   *  @param[in] system The render system within which to create the texture.
    *  @param[in] data The mesh to use.
+   *  @param[in] materials The materials to use.
    *  @return The newly created model, or @c NULL if an error
    *  occurred.
    */

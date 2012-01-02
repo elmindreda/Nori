@@ -136,11 +136,6 @@ void Technique::setQuality(float newQuality)
 
 ///////////////////////////////////////////////////////////////////////
 
-Material::Material(const ResourceInfo& info):
-  Resource(info)
-{
-}
-
 Technique& Material::createTechnique(Technique::Type type)
 {
   techniques.push_back(Technique(type));
@@ -210,10 +205,20 @@ const TechniqueList& Material::getTechniques() const
   return techniques;
 }
 
+Ref<Material> Material::create(const ResourceInfo& info, System& system)
+{
+  return new Material(info);
+}
+
 Ref<Material> Material::read(System& system, const String& name)
 {
   MaterialReader reader(system);
   return reader.read(name);
+}
+
+Material::Material(const ResourceInfo& info):
+  Resource(info)
+{
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -315,7 +320,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
 
   GL::Context& context = system.getContext();
 
-  Ref<Material> material = new Material(ResourceInfo(cache, name, path));
+  Ref<Material> material = Material::create(ResourceInfo(cache, name, path), system);
 
   for (pugi::xml_node t = root.child("technique");  t;  t = t.next_sibling("technique"))
   {

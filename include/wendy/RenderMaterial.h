@@ -128,9 +128,6 @@ typedef std::vector<Technique> TechniqueList;
 class Material : public Resource
 {
 public:
-  /*! Constructor.
-   */
-  Material(const ResourceInfo& info);
   /*! Creates a technique of the specified type in this %render material.
    */
   Technique& createTechnique(Technique::Type type);
@@ -158,6 +155,13 @@ public:
   /*! @return The techniques in this material.
    */
   const TechniqueList& getTechniques() const;
+  /*! Creates a material.
+   *  @param[in] info The resource info for the texture.
+   *  @param[in] system The OpenGL context within which to create the texture.
+   *  @return The newly created material, or @c NULL if an error
+   *  occurred.
+   */
+  static Ref<Material> create(const ResourceInfo& info, System& system);
   /*! Loads a material from the specified path using the specified system, or
    *  returns the already loaded material if it's already present in the
    *  resource cache of the system.
@@ -167,6 +171,7 @@ public:
    */
   static Ref<Material> read(System& system, const String& name);
 private:
+  Material(const ResourceInfo& info);
   TechniqueList techniques;
 };
 
