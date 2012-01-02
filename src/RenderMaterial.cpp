@@ -52,30 +52,13 @@ namespace wendy
 namespace
 {
 
-bool isCompatible(System::Type systemType, Technique::Type techniqueType)
-{
-  if (systemType == System::SIMPLE)
-    return false;
-
-  switch (techniqueType)
-  {
-    case Technique::FORWARD:
-      return systemType == System::FORWARD;
-    case Technique::DEFERRED:
-      return systemType == System::DEFERRED;
-    case Technique::SHADOWMAP:
-      return true;
-  }
-
-  panic("Invalid technique type %u", techniqueType);
-}
-
 Bimap<String, GL::CullMode> cullModeMap;
 Bimap<String, GL::BlendFactor> blendFactorMap;
 Bimap<String, GL::Function> functionMap;
-Bimap<String, Technique::Type> techniqueTypeMap;
 Bimap<String, GL::FilterMode> filterModeMap;
 Bimap<String, GL::AddressMode> addressModeMap;
+Bimap<String, System::Type> systemTypeMap;
+Bimap<String, Phase> phaseMap;
 
 Bimap<GL::Sampler::Type, GL::TextureType> textureTypeMap;
 
@@ -84,11 +67,6 @@ const unsigned int MATERIAL_XML_VERSION = 7;
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
-
-Technique::Technique(Type initType):
-  type(initType)
-{
-}
 
 Pass& Technique::createPass()
 {
@@ -118,66 +96,16 @@ const PassList& Technique::getPasses() const
   return passes;
 }
 
-Technique::Type Technique::getType() const
-{
-  return type;
-}
-
 ///////////////////////////////////////////////////////////////////////
 
-Technique& Material::createTechnique(Technique::Type type)
+Technique& Material::getTechnique(Phase phase)
 {
-  techniques.push_back(Technique(type));
-  return techniques.back();
+  return techniques[phase];
 }
 
-void Material::destroyTechnique(Technique& technique)
+const Technique& Material::getTechnique(Phase phase) const
 {
-  for (TechniqueList::iterator t = techniques.begin();  t != techniques.end();  t++)
-  {
-    if (&(*t) == &technique)
-    {
-      techniques.erase(t);
-      return;
-    }
-  }
-}
-
-void Material::destroyTechniques()
-{
-  techniques.clear();
-}
-
-Technique* Material::findTechnique(Technique::Type type)
-{
-  for (TechniqueList::iterator t = techniques.begin();  t != techniques.end();  t++)
-  {
-    if (t->getType() == type)
-      return &(*t);
-  }
-
-  return NULL;
-}
-
-const Technique* Material::findTechnique(Technique::Type type) const
-{
-  for (TechniqueList::const_iterator t = techniques.begin();  t != techniques.end();  t++)
-  {
-    if (t->getType() == type)
-      return &(*t);
-  }
-
-  return NULL;
-}
-
-TechniqueList& Material::getTechniques()
-{
-  return techniques;
-}
-
-const TechniqueList& Material::getTechniques() const
-{
-  return techniques;
+  return techniques[phase];
 }
 
 Ref<Material> Material::create(const ResourceInfo& info, System& system)
@@ -236,13 +164,6 @@ MaterialReader::MaterialReader(System& initSystem):
     functionMap["greater or equal"] = GL::ALLOW_GREATER_EQUAL;
   }
 
-  if (techniqueTypeMap.isEmpty())
-  {
-    techniqueTypeMap["forward"] = Technique::FORWARD;
-    techniqueTypeMap["deferred"] = Technique::DEFERRED;
-    techniqueTypeMap["shadowmap"] = Technique::SHADOWMAP;
-  }
-
   if (addressModeMap.isEmpty())
   {
     addressModeMap["wrap"] = GL::ADDRESS_WRAP;
@@ -263,6 +184,19 @@ MaterialReader::MaterialReader(System& initSystem):
     textureTypeMap[GL::Sampler::SAMPLER_3D] = GL::TEXTURE_3D;
     textureTypeMap[GL::Sampler::SAMPLER_RECT] = GL::TEXTURE_RECT;
     textureTypeMap[GL::Sampler::SAMPLER_CUBE] = GL::TEXTURE_CUBE;
+  }
+
+  if (systemTypeMap.isEmpty())
+  {
+    systemTypeMap["forward"] = System::FORWARD;
+    systemTypeMap["deferred"] = System::DEFERRED;
+  }
+
+  if (phaseMap.isEmpty())
+  {
+    phaseMap[""] = PHASE_DEFAULT;
+    phaseMap["default"] = PHASE_DEFAULT;
+    phaseMap["shadowmap"] = PHASE_SHADOWMAP;
   }
 }
 
@@ -293,30 +227,41 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
     return NULL;
   }
 
+  std::vector<bool> phases(2, false);
+
   GL::Context& context = system.getContext();
 
   Ref<Material> material = Material::create(ResourceInfo(cache, name, path), system);
 
   for (pugi::xml_node t = root.child("technique");  t;  t = t.next_sibling("technique"))
   {
-    const String typeName(t.attribute("type").value());
-    if (!techniqueTypeMap.hasKey(typeName))
+    const String phaseName(t.attribute("phase").value());
+    if (!phaseMap.hasKey(phaseName))
     {
-      logError("Invalid technique type \'%s\' in material \'%s\'",
+      logError("Invalid render phase \'%s\' in material \'%s\'",
+               phaseName.c_str(),
+               name.c_str());
+      return NULL;
+    }
+
+    const Phase phase = phaseMap[phaseName];
+    if (phases[phase])
+      continue;
+
+    const String typeName(t.attribute("type").value());
+    if (!systemTypeMap.hasKey(typeName))
+    {
+      logError("Invalid render system type \'%s\' in material \'%s\'",
                typeName.c_str(),
                name.c_str());
       return NULL;
     }
 
-    const Technique::Type type = techniqueTypeMap[typeName];
-
-    if (!isCompatible(system.getType(), type))
+    const System::Type type = systemTypeMap[typeName];
+    if (system.getType() != type)
       continue;
 
-    if (material->findTechnique(type))
-      continue;
-
-    Technique& technique = material->createTechnique(type);
+    Technique& technique = material->getTechnique(phase);
 
     for (pugi::xml_node p = t.child("pass");  p;  p = p.next_sibling("pass"))
     {
@@ -447,6 +392,8 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
             logWarning("GLSL program \'%s\' in material \'%s\' lists unnamed sampler uniform",
                        programName.c_str(),
                        name.c_str());
+
+            technique = Technique();
             continue;
           }
 
@@ -457,6 +404,8 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
                        programName.c_str(),
                        name.c_str(),
                        samplerName.c_str());
+
+            technique = Technique();
             continue;
           }
 
@@ -553,6 +502,8 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
             logWarning("GLSL program \'%s\' in material \'%s\' lists unnamed uniform",
                        programName.c_str(),
                        name.c_str());
+
+            technique = Technique();
             continue;
           }
 
@@ -563,6 +514,8 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
                        programName.c_str(),
                        name.c_str(),
                        uniformName.c_str());
+
+            technique = Technique();
             continue;
           }
 
@@ -602,6 +555,8 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
           }
         }
       }
+
+      phases[phase] = true;
     }
   }
 

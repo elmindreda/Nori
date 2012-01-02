@@ -129,9 +129,9 @@ const SortKeyList& Queue::getSortKeys() const
 
 ///////////////////////////////////////////////////////////////////////
 
-Scene::Scene(GeometryPool& initPool, Technique::Type initType):
+Scene::Scene(GeometryPool& initPool, Phase initPhase):
   pool(&initPool),
-  type(initType)
+  phase(initPhase)
 {
 }
 
@@ -154,15 +154,11 @@ void Scene::createOperations(const mat4& transform,
                              const Material& material,
                              float depth)
 {
-  const Technique* technique = material.findTechnique(type);
-  if (!technique)
-    return;
-
   Operation operation;
   operation.range = range;
   operation.transform = transform;
 
-  const PassList& passes = technique->getPasses();
+  const PassList& passes = material.getTechnique(phase).getPasses();
   uint8 layer = 0;
 
   for (PassList::const_iterator p = passes.begin();  p != passes.end();  p++)
@@ -203,14 +199,14 @@ const Queue& Scene::getBlendedQueue() const
   return blendedQueue;
 }
 
-Technique::Type Scene::getTechniqueType() const
+Phase Scene::getPhase() const
 {
-  return type;
+  return phase;
 }
 
-void Scene::setTechniqueType(Technique::Type newType)
+void Scene::setPhase(Phase newPhase)
 {
-  type = newType;
+  phase = newPhase;
 }
 
 ///////////////////////////////////////////////////////////////////////

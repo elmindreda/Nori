@@ -147,7 +147,7 @@ private:
 class Scene : public LightState
 {
 public:
-  Scene(GeometryPool& pool, Technique::Type type);
+  Scene(GeometryPool& pool, Phase phase);
   void addOperation(const Operation& operation, float depth, uint8 layer = 0);
   void createOperations(const mat4& transform,
                         const GL::PrimitiveRange& range,
@@ -159,11 +159,11 @@ public:
   const Queue& getOpaqueQueue() const;
   Queue& getBlendedQueue();
   const Queue& getBlendedQueue() const;
-  Technique::Type getTechniqueType() const;
-  void setTechniqueType(Technique::Type newType);
+  Phase getPhase() const;
+  void setPhase(Phase newPhase);
 private:
   Ref<GeometryPool> pool;
-  Technique::Type type;
+  Phase phase;
   Queue opaqueQueue;
   Queue blendedQueue;
 };
