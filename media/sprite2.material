@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <material version="7">
-  <technique type="forward" quality="1">
+  <technique type="forward">
     <pass>
       <program path="wendy/Solid2.program">
         <uniform name="color" value="1 0 0" />
