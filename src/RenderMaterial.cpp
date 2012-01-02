@@ -55,6 +55,7 @@ namespace
 Bimap<String, GL::CullMode> cullModeMap;
 Bimap<String, GL::BlendFactor> blendFactorMap;
 Bimap<String, GL::Function> functionMap;
+Bimap<String, GL::Operation> operationMap;
 Bimap<String, GL::FilterMode> filterModeMap;
 Bimap<String, GL::AddressMode> addressModeMap;
 Bimap<String, System::Type> systemTypeMap;
@@ -162,6 +163,18 @@ MaterialReader::MaterialReader(System& initSystem):
     functionMap["lesser or equal"] = GL::ALLOW_LESSER_EQUAL;
     functionMap["greater"] = GL::ALLOW_GREATER;
     functionMap["greater or equal"] = GL::ALLOW_GREATER_EQUAL;
+  }
+
+  if (operationMap.isEmpty())
+  {
+    operationMap["keep"] = GL::OP_KEEP;
+    operationMap["zero"] = GL::OP_ZERO;
+    operationMap["replace"] = GL::OP_REPLACE;
+    operationMap["increase"] = GL::OP_INCREASE;
+    operationMap["decrease"] = GL::OP_DECREASE;
+    operationMap["invert"] = GL::OP_INVERT;
+    operationMap["increase wrap"] = GL::OP_INCREASE_WRAP;
+    operationMap["decrease wrap"] = GL::OP_DECREASE_WRAP;
   }
 
   if (addressModeMap.isEmpty())
@@ -330,6 +343,70 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
           {
             logError("Invalid depth function \'%s\' in material \'%s\'",
                      functionName.c_str(),
+                     name.c_str());
+            return NULL;
+          }
+        }
+      }
+
+      if (pugi::xml_node node = p.child("stencil"))
+      {
+        if (pugi::xml_attribute a = node.attribute("testing"))
+          pass.setStencilTesting(a.as_bool());
+
+        if (pugi::xml_attribute a = node.attribute("mask"))
+          pass.setStencilWriteMask(a.as_uint());
+
+        if (pugi::xml_attribute a = node.attribute("reference"))
+          pass.setStencilReference(a.as_uint());
+
+        if (pugi::xml_attribute a = node.attribute("stencilFail"))
+        {
+          if (functionMap.hasKey(a.value()))
+            pass.setStencilFailOperation(operationMap[a.value()]);
+          else
+          {
+            logError("Invalid stencil fail operation \'%s\' in material \'%s\'",
+                     a.value(),
+                     name.c_str());
+            return NULL;
+          }
+        }
+
+        if (pugi::xml_attribute a = node.attribute("depthFail"))
+        {
+          if (functionMap.hasKey(a.value()))
+            pass.setDepthFailOperation(operationMap[a.value()]);
+          else
+          {
+            logError("Invalid depth fail operation \'%s\' in material \'%s\'",
+                     a.value(),
+                     name.c_str());
+            return NULL;
+          }
+        }
+
+        if (pugi::xml_attribute a = node.attribute("depthPass"))
+        {
+          if (functionMap.hasKey(a.value()))
+            pass.setDepthPassOperation(operationMap[a.value()]);
+          else
+          {
+            logError("Invalid depth pass operation \'%s\' in material \'%s\'",
+                     a.value(),
+                     name.c_str());
+            return NULL;
+          }
+        }
+
+        if (pugi::xml_attribute a = node.attribute("function"))
+        {
+          if (functionMap.hasKey(a.value()))
+            pass.setStencilFunction(functionMap[a.value()]);
+          else
+          {
+            logError("Invalid stencil function \'%s\' in material \'%s\'",
+                     a.value(),
                      name.c_str());
             return NULL;
           }
