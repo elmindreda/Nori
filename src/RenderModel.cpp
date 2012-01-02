@@ -87,11 +87,15 @@ void Model::enqueue(Scene& scene, const Camera& camera, const Transform3& transf
 {
   for (ModelSectionList::const_iterator s = sections.begin();  s != sections.end();  s++)
   {
+    Material* material = s->getMaterial();
+    if (!material)
+      continue;
+
     GL::PrimitiveRange range(GL::TRIANGLE_LIST, *vertexBuffer, s->getIndexRange());
 
     float depth = camera.getNormalizedDepth(transform.position + boundingSphere.center);
 
-    scene.createOperations(transform, range, *s->getMaterial(), depth);
+    scene.createOperations(transform, range, *material, depth);
   }
 }
 
