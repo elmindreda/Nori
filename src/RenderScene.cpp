@@ -154,7 +154,7 @@ void Scene::createOperations(const mat4& transform,
                              const Material& material,
                              float depth)
 {
-  const Technique* technique = material.findBestTechnique(type);
+  const Technique* technique = material.findTechnique(type);
   if (!technique)
     return;
 

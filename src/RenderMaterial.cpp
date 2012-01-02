@@ -86,8 +86,7 @@ const unsigned int MATERIAL_XML_VERSION = 7;
 ///////////////////////////////////////////////////////////////////////
 
 Technique::Technique(Type initType):
-  type(initType),
-  quality(1.f)
+  type(initType)
 {
 }
 
@@ -124,16 +123,6 @@ Technique::Type Technique::getType() const
   return type;
 }
 
-float Technique::getQuality() const
-{
-  return quality;
-}
-
-void Technique::setQuality(float newQuality)
-{
-  quality = newQuality;
-}
-
 ///////////////////////////////////////////////////////////////////////
 
 Technique& Material::createTechnique(Technique::Type type)
@@ -159,40 +148,26 @@ void Material::destroyTechniques()
   techniques.clear();
 }
 
-Technique* Material::findBestTechnique(Technique::Type type)
+Technique* Material::findTechnique(Technique::Type type)
 {
-  Technique* best = NULL;
-
   for (TechniqueList::iterator t = techniques.begin();  t != techniques.end();  t++)
   {
-    if (t->getType() != type)
-      continue;
-
-    if (best && best->getQuality() > t->getQuality())
-      continue;
-
-    best = &(*t);
+    if (t->getType() == type)
+      return &(*t);
   }
 
-  return best;
+  return NULL;
 }
 
-const Technique* Material::findBestTechnique(Technique::Type type) const
+const Technique* Material::findTechnique(Technique::Type type) const
 {
-  const Technique* best = NULL;
-
   for (TechniqueList::const_iterator t = techniques.begin();  t != techniques.end();  t++)
   {
-    if (t->getType() != type)
-      continue;
-
-    if (best && best->getQuality() > t->getQuality())
-      continue;
-
-    best = &(*t);
+    if (t->getType() == type)
+      return &(*t);
   }
 
-  return best;
+  return NULL;
 }
 
 TechniqueList& Material::getTechniques()
@@ -338,10 +313,10 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
     if (!isCompatible(system.getType(), type))
       continue;
 
-    Technique& technique = material->createTechnique(type);
+    if (material->findTechnique(type))
+      continue;
 
-    if (pugi::xml_attribute a = t.attribute("quality"))
-      technique.setQuality(a.as_float());
+    Technique& technique = material->createTechnique(type);
 
     for (pugi::xml_node p = t.child("pass");  p;  p = p.next_sibling("pass"))
     {
