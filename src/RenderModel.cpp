@@ -174,8 +174,6 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
   }
   */
 
-  size_t indexCount = 0;
-
   for (MeshSectionList::const_iterator s = data.sections.begin();
        s != data.sections.end();
        s++)
@@ -187,8 +185,6 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
                getName().c_str());
       return false;
     }
-
-    indexCount += s->triangles.size() * 3;
   }
 
   GL::Context& context = system.getContext();
@@ -206,8 +202,9 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
   vertexBuffer->copyFrom(&data.vertices[0], data.vertices.size());
 
-  GL::IndexBuffer::Type indexType;
+  const size_t indexCount = data.getTriangleCount() * 3;
 
+  GL::IndexBuffer::Type indexType;
   if (indexCount <= (1 << 8))
     indexType = GL::IndexBuffer::UINT8;
   else if (indexCount <= (1 << 16))
@@ -222,14 +219,12 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
   if (!indexBuffer)
     return false;
 
-  int indexBase = 0;
+  size_t start = 0;
 
   for (MeshSectionList::const_iterator s = data.sections.begin();
        s != data.sections.end();
        s++)
   {
-    indexCount = s->triangles.size() * 3;
-
     const String& materialName(materials.find(s->materialName)->second);
 
     Ref<Material> material = Material::read(system, materialName);
@@ -239,17 +234,18 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
       return false;
     }
 
-    GL::IndexRange range(*indexBuffer, indexBase, indexCount);
+    const size_t count = s->triangles.size() * 3;
+    GL::IndexRange range(*indexBuffer, start, count);
 
     sections.push_back(ModelSection(range, material));
-
-    size_t index = 0;
 
     if (indexType == GL::IndexBuffer::UINT8)
     {
       GL::IndexRangeLock<uint8> indices(range);
       if (!indices)
         return false;
+
+      size_t index = 0;
 
       for (MeshTriangleList::const_iterator t = s->triangles.begin();
            t != s->triangles.end();
@@ -266,6 +262,8 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
       if (!indices)
         return false;
 
+      size_t index = 0;
+
       for (MeshTriangleList::const_iterator t = s->triangles.begin();
            t != s->triangles.end();
            t++)
@@ -281,6 +279,8 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
       if (!indices)
         return false;
 
+      size_t index = 0;
+
       for (MeshTriangleList::const_iterator t = s->triangles.begin();
            t != s->triangles.end();
            t++)
@@ -291,7 +291,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
       }
     }
 
-    indexBase += indexCount;
+    start += count;
   }
 
   boundingAABB = data.generateBoundingAABB();
