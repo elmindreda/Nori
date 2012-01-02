@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<model version="2" mesh="simple_cube.obj" >
-  <material name="simple_cube" path="cube_tessellation.material" />
+<model version="3" mesh="simple_cube.obj" >
+  <material alias="simple_cube" name="cube_tessellation.material" />
 </model>

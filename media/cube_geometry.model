@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<model version="2" mesh="cube.obj" >
-  <material name="cube" path="cube_geometry.material" />
+<model version="3" mesh="cube.obj" >
+  <material alias="cube" name="cube_geometry.material" />
 </model>

@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<model version="2" mesh="sponza.obj" >
-  <material name="lion" path="lion.material" />
-  <material name="leaf" path="leaf.material" />
-  <material name="vase" path="vase.material" />
-  <material name="vase_plant" path="vase_plant.material" />
-  <material name="vase_round" path="vase_round.material" />
-  <material name="chain" path="chain.material" />
-  <material name="vase_hanging" path="vase_hanging.material" />
-  <material name="fabric" path="fabric.material" />
-  <material name="wire" path="wire.material" />
-  <material name="roof" path="roof.material" />
-  <material name="bricks" path="bricks.material" />
-  <material name="arch" path="arch.material" />
-  <material name="atrium" path="atrium.material" />
-  <material name="ceiling" path="ceiling.material" />
-  <material name="column_a" path="column_a.material" />
-  <material name="column_b" path="column_b.material" />
-  <material name="column_c" path="column_c.material" />
-  <material name="details" path="details.material" />
-  <material name="floor" path="floor.material" />
+<model version="3" mesh="sponza.obj" >
+  <material alias="lion" name="lion.material" />
+  <material alias="leaf" name="leaf.material" />
+  <material alias="vase" name="vase.material" />
+  <material alias="vase_plant" name="vase_plant.material" />
+  <material alias="vase_round" name="vase_round.material" />
+  <material alias="chain" name="chain.material" />
+  <material alias="vase_hanging" name="vase_hanging.material" />
+  <material alias="fabric" name="fabric.material" />
+  <material alias="wire" name="wire.material" />
+  <material alias="roof" name="roof.material" />
+  <material alias="bricks" name="bricks.material" />
+  <material alias="arch" name="arch.material" />
+  <material alias="atrium" name="atrium.material" />
+  <material alias="ceiling" name="ceiling.material" />
+  <material alias="column_a" name="column_a.material" />
+  <material alias="column_b" name="column_b.material" />
+  <material alias="column_c" name="column_c.material" />
+  <material alias="details" name="details.material" />
+  <material alias="floor" name="floor.material" />
 </model>

@@ -53,7 +53,7 @@ namespace wendy
 namespace
 {
 
-const unsigned int MODEL_XML_VERSION = 2;
+const unsigned int MODEL_XML_VERSION = 3;
 
 } /*namespace*/
 
@@ -225,19 +225,10 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
        s != data.sections.end();
        s++)
   {
-    const String& materialName(materials.find(s->materialName)->second);
-
-    Ref<Material> material = Material::read(system, materialName);
-    if (!material)
-    {
-      logError("Failed to load material for model \'%s\'", getName().c_str());
-      return false;
-    }
-
     const size_t count = s->triangles.size() * 3;
     GL::IndexRange range(*indexBuffer, start, count);
 
-    sections.push_back(ModelSection(range, material));
+    sections.push_back(ModelSection(range, materials.find(s->materialName)->second));
 
     if (indexType == GL::IndexBuffer::UINT8)
     {
@@ -358,14 +349,31 @@ Ref<Model> ModelReader::read(const String& name, const Path& path)
 
   for (pugi::xml_node m = root.child("material");  m;  m = m.next_sibling("material"))
   {
-    const String materialName(m.attribute("name").value());
-    if (materialName.empty())
+    const String materialAlias(m.attribute("alias").value());
+    if (materialAlias.empty())
     {
-      logError("Empty material name found in model \'%s\'", name.c_str());
+      logError("Empty material alias found in model \'%s\'", name.c_str());
       return NULL;
     }
 
-    materials[materialName] = m.attribute("path").value();
+    const String materialName(m.attribute("name").value());
+    if (materialName.empty())
+    {
+      logError("Empty material name for alias \'%s\' in model \'%s\'",
+               materialAlias.c_str(),
+               name.c_str());
+      return NULL;
+    }
+
+    Ref<Material> material = Material::read(system, materialName);
+    if (!material)
+    {
+      logError("Failed to load material for alias \'%s\' of model \'%s\'",
+               materialAlias.c_str(),
+               materialName.c_str());
+    }
+
+    materials[materialAlias] = material;
   }
 
   return Model::create(ResourceInfo(cache, name, path), system, *mesh, materials);
