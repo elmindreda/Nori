@@ -79,32 +79,6 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup renderer
- */
-class SpriteCloud3 : public Renderable
-{
-public:
-  struct Slot
-  {
-    vec3 position;
-    float angle;
-    vec2 size;
-  };
-  SpriteCloud3();
-  void enqueue(Scene& scene,
-               const Camera& camera,
-               const Transform3& transform) const;
-  void realizeVertices(Vertex2ft3fv* vertices,
-                       const Transform3& transform,
-                       const vec3& cameraPosition) const;
-  typedef std::vector<Slot> SlotList;
-  SlotList slots;
-  SpriteType3 type;
-  Ref<Material> material;
-};
-
-///////////////////////////////////////////////////////////////////////
-
   } /*namespace render*/
 } /*namespace wendy*/
 

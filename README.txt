@@ -6,10 +6,6 @@ Wendy library
 
 Wendy is a C++ library intended to be useful for the production of small games.
 
-The project website is here:
-
-  http://www.elmindreda.org/wendy/
-
 Wendy (for now) resides in a public GitHub repository:
 
   https://github.com/elmindreda/Wendy
@@ -84,8 +80,6 @@ Additionally, the following OpenGL extensions are used where available:
   GL_ARB_half_float_pixel
   GL_ARB_debug_output
   GL_EXT_framebuffer_sRGB
-  GL_ARB_geometry_shader4
-  GL_ARB_tessellation_shader
   GL_EXT_texture_filter_anisotropic
 
 
@@ -101,11 +95,5 @@ Sorry, you're on your own for now.
 Please send bug reports, feedback, patches and cookies to:
 
   Camilla Berglund <elmindreda@elmindreda.org>
-
-
-6. Release history
-==================
-
-No official releases yet.
 
 

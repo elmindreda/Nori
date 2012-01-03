@@ -51,12 +51,9 @@ class Program;
 class Shader
 {
 public:
-  Shader(const char* text = "",
-         const char* name = "",
-         unsigned int version = 120);
+  Shader(const char* text = "", const char* name = "");
   String text;
   String name;
-  unsigned int version;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -262,8 +259,6 @@ public:
   const Sampler* findSampler(const char* name) const;
   Uniform* findUniform(const char* name);
   const Uniform* findUniform(const char* name) const;
-  bool hasGeometryShader() const;
-  bool hasTessellationShaders() const;
   unsigned int getAttributeCount() const;
   Attribute& getAttribute(unsigned int index);
   const Attribute& getAttribute(unsigned int index) const;
@@ -278,24 +273,6 @@ public:
                              Context& context,
                              const Shader& vertexShader,
                              const Shader& fragmentShader);
-  static Ref<Program> create(const ResourceInfo &info,
-                             Context &context,
-                             const Shader& vertexShader,
-                             const Shader& fragmentShader,
-                             const Shader& geometryShader);
-  static Ref<Program> create(const ResourceInfo &info,
-                             Context &context,
-                             const Shader& vertexShader,
-                             const Shader& fragmentShader,
-                             const Shader& tessCtrlShader,
-                             const Shader& tessEvalShader);
-  static Ref<Program> create(const ResourceInfo &info,
-                             Context &context,
-                             const Shader& vertexShader,
-                             const Shader& fragmentShader,
-                             const Shader& geometryShader,
-                             const Shader& tessCtrlShader,
-                             const Shader& tessEvalShader);
   static Ref<Program> read(Context& context, const String& name);
 private:
   Program(const ResourceInfo& info, Context& context);
@@ -314,9 +291,6 @@ private:
   Context& context;
   unsigned int vertexShaderID;
   unsigned int fragmentShaderID;
-  unsigned int geometryShaderID;
-  unsigned int tessCtrlShaderID;
-  unsigned int tessEvalShaderID;
   unsigned int programID;
   AttributeList attributes;
   SamplerList samplers;

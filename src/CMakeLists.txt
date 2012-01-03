@@ -36,7 +36,7 @@ if(WENDY_INCLUDE_RENDERER)
        RenderMaterial.cpp RenderPool.cpp RenderScene.cpp RenderSprite.cpp
        RenderState.cpp RenderSystem.cpp
 
-       Deferred.cpp Forward.cpp)
+       Forward.cpp)
 endif(WENDY_INCLUDE_RENDERER)
 
 if(WENDY_INCLUDE_SQUIRREL)

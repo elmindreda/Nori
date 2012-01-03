@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<program version="4" >
-  <vertex path="tess.vert" glsl-version="400" />
-  <control path="tess.ctrl" glsl-version="400" />
-  <evaluation path="tess.eval" glsl-version="400" />
-  <fragment path="tess.frag" glsl-version="400" />
-</program>
