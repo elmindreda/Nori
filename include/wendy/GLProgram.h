@@ -45,7 +45,7 @@ class Program;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Vertex attribute type enumeration.
+/*! @brief GLSL shader type enumeration.
  *  @ingroup opengl
  */
 enum ShaderType
@@ -56,7 +56,7 @@ enum ShaderType
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Shader container.
+/*! @brief GLSL shader.
  *  @ingroup opengl
  */
 class Shader : public Resource
@@ -85,7 +85,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Vertex attribute type enumeration.
+/*! @brief GLSL vertex attribute type enumeration.
  *  @ingroup opengl
  */
 enum AttributeType
@@ -98,7 +98,7 @@ enum AttributeType
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Program vertex attribute.
+/*! @brief GLSL vertex attribute.
  *  @ingroup opengl
  */
 class Attribute
@@ -140,7 +140,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Sampler uniform type enumeration.
+/*! @brief GLSL sampler uniform type enumeration.
  *  @ingroup opengl
  */
 enum SamplerType
@@ -154,7 +154,7 @@ enum SamplerType
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Program sampler uniform.
+/*! @brief GLSL sampler uniform.
  *  @ingroup opengl
  */
 class Sampler
@@ -196,7 +196,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Non-sampler uniform type enumeration.
+/*! @brief GLSL non-sampler uniform type enumeration.
  *  @ingroup opengl
  */
 enum UniformType
@@ -212,7 +212,7 @@ enum UniformType
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Program non-sampler uniform.
+/*! @brief GLSL program non-sampler uniform.
  *  @ingroup opengl
  */
 class Uniform
@@ -326,7 +326,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GPU program interface validator.
+/*! @brief GLSL program interface validator.
  *  @ingroup opengl
  */
 class ProgramInterface

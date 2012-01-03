@@ -310,7 +310,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Interface for global GPU program state requests.
+/*! @brief Interface for global GLSL program state requests.
  *  @ingroup opengl
  */
 class SharedProgramState : public RefObject
@@ -397,13 +397,13 @@ public:
                     float depth = 1.f,
                     unsigned int value = 0);
   /*! Renders the specified primitive range to the current framebuffer, using
-   *  the current GPU program.
-   *  @pre A GPU program must be set before calling this method.
+   *  the current GLSL program.
+   *  @pre A GLSL program must be set before calling this method.
    */
   void render(const PrimitiveRange& range);
   /*! Renders the specified primitive range to the current framebuffer, using
-   *  the current GPU program.
-   *  @pre A GPU program must be set before calling this method.
+   *  the current GLSL program.
+   *  @pre A GLSL program must be set before calling this method.
    */
   void render(PrimitiveType type, unsigned int start, unsigned int count);
   /*! Makes Context::update to return when in manual refresh mode, forcing
@@ -439,7 +439,7 @@ public:
    *  @param[in] newState The new state object.
    */
   void setCurrentSharedProgramState(SharedProgramState* newState);
-  /*! @return GPU declarations of all shared samplers and uniforms.
+  /*! @return GLSL declarations of all shared samplers and uniforms.
    */
   const char* getSharedProgramStateDeclaration() const;
   /*! @return The window mode of this context.
@@ -489,11 +489,11 @@ public:
    *  @return @c true if successful, or @c false otherwise.
    */
   bool setCurrentFramebuffer(Framebuffer& newFramebuffer);
-  /*! @return The currently set GPU program, or @c NULL if no program is set.
+  /*! @return The currently set GLSL program, or @c NULL if no program is set.
    */
   Program* getCurrentProgram() const;
-  /*! Sets the current GPU program for use when rendering.
-   *  @param[in] newProgram The desired GPU program, or @c NULL to unbind
+  /*! Sets the current GLSL program for use when rendering.
+   *  @param[in] newProgram The desired GLSL program, or @c NULL to unbind
    *  the current program.
    */
   void setCurrentProgram(Program* newProgram);

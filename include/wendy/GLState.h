@@ -150,7 +150,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GPU program state.
+/*! @brief GLSL program state.
  *  @ingroup opengl
  */
 class ProgramState
@@ -162,7 +162,7 @@ public:
   /*! Destructor.
    */
   ~ProgramState();
-  /*! Applies this GPU program state to the current context.
+  /*! Applies this GLSL program state to the current context.
    */
   void apply() const;
   template <typename T>
@@ -180,8 +180,8 @@ public:
   UniformStateIndex getUniformStateIndex(const char* name) const;
   SamplerStateIndex getSamplerStateIndex(const char* name) const;
   Program* getProgram() const;
-  /*! Sets the GPU program used by this state object.
-   *  @param[in] newProgram The desired GPU program, or @c NULL to detach
+  /*! Sets the GLSL program used by this state object.
+   *  @param[in] newProgram The desired GLSL program, or @c NULL to detach
    *  the current program.
    */
   void setProgram(Program* newProgram);

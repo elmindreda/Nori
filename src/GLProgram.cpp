@@ -203,8 +203,6 @@ GLenum convertToGL(ShaderType type)
   panic("Invalid GLSL shader type %i", type);
 }
 
-const unsigned int PROGRAM_XML_VERSION = 4;
-
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
