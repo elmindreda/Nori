@@ -146,19 +146,9 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
     return NULL;
   }
 
-  Ref<Image> data = Image::read(cache, imageName);
-  if (!data)
-  {
-    logError("Failed to load image \'%s\' for UI theme \'%s\'",
-             imageName.c_str(),
-             name.c_str());
-    return NULL;
-  }
-
-  theme->texture = GL::Texture::create(cache,
-                                       pool->getContext(),
-                                       GL::TEXTURE_RECT,
-                                       *data);
+  theme->texture = GL::Texture::read(pool->getContext(),
+                                     GL::TEXTURE_RECT,
+                                     imageName);
   if (!theme->texture)
   {
     logError("Failed to create texture for UI theme \'%s\'", name.c_str());

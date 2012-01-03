@@ -294,6 +294,9 @@ public:
                              Context &context,
                              const TextureParams& params,
                              const wendy::Image& data);
+  static Ref<Texture> read(Context& context,
+                           const TextureParams& params,
+                           const String& imageName);
 private:
   Texture(const ResourceInfo& info, Context& context);
   Texture(const Texture& source);

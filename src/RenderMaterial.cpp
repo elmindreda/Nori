@@ -493,67 +493,38 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
           if (pugi::xml_attribute a = s.attribute("sRGB"))
             params.sRGB = a.as_bool();
 
-          String textureName;
-
-          textureName.append("source:");
-          textureName.append(imageName);
-
-          textureName.append(" mipmapped:");
-          textureName.append(params.mipmapped ? "true" : "false");
-
-          textureName.append(" sRGB:");
-          textureName.append(params.sRGB ? "true" : "false");
-
-          Ref<GL::Texture> texture = cache.find<GL::Texture>(textureName);
+          Ref<GL::Texture> texture = GL::Texture::read(context, params, imageName);
           if (!texture)
           {
-            Ref<Image> data = Image::read(cache, imageName);
-            if (!data)
+            logError("Failed to create texture for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",
+                     samplerName.c_str(),
+                     programName.c_str(),
+                     name.c_str());
+            return NULL;
+          }
+
+          if (pugi::xml_attribute a = root.attribute("anisotropy"))
+            texture->setMaxAnisotropy(a.as_float());
+
+          if (pugi::xml_attribute a = s.attribute("filter"))
+          {
+            if (filterModeMap.hasKey(a.value()))
+              texture->setFilterMode(filterModeMap[a.value()]);
+            else
             {
-              logError("Failed to load image \'%s\' for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",
-                       imageName.c_str(),
-                       samplerName.c_str(),
-                       programName.c_str(),
-                       name.c_str());
+              logError("Invalid filter mode name \'%s\'", a.value());
               return NULL;
             }
+          }
 
-            const ResourceInfo info(cache, textureName);
-
-            texture = GL::Texture::create(info, context, params, *data);
-            if (!texture)
+          if (pugi::xml_attribute a = s.attribute("address"))
+          {
+            if (addressModeMap.hasKey(a.value()))
+              texture->setAddressMode(addressModeMap[a.value()]);
+            else
             {
-              logError("Failed to create texture of image \'%s\' for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",
-                       imageName.c_str(),
-                       samplerName.c_str(),
-                       programName.c_str(),
-                       name.c_str());
+              logError("Invalid address mode name \'%s\'", a.value());
               return NULL;
-            }
-
-            if (pugi::xml_attribute a = root.attribute("anisotropy"))
-              texture->setMaxAnisotropy(a.as_float());
-
-            if (pugi::xml_attribute a = s.attribute("filter"))
-            {
-              if (filterModeMap.hasKey(a.value()))
-                texture->setFilterMode(filterModeMap[a.value()]);
-              else
-              {
-                logError("Invalid filter mode name \'%s\'", a.value());
-                return NULL;
-              }
-            }
-
-            if (pugi::xml_attribute a = s.attribute("address"))
-            {
-              if (addressModeMap.hasKey(a.value()))
-                texture->setAddressMode(addressModeMap[a.value()]);
-              else
-              {
-                logError("Invalid address mode name \'%s\'", a.value());
-                return NULL;
-              }
             }
           }
 

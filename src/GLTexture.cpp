@@ -598,6 +598,33 @@ Ref<Texture> Texture::create(const ResourceInfo& info,
   return texture;
 }
 
+Ref<Texture> Texture::read(Context& context,
+                           const TextureParams& params,
+                           const String& imageName)
+{
+  ResourceCache& cache = context.getCache();
+
+  String name;
+  name.append("source:");
+  name.append(imageName);
+  name.append(" mipmapped:");
+  name.append(params.mipmapped ? "true" : "false");
+  name.append(" sRGB:");
+  name.append(params.sRGB ? "true" : "false");
+
+  if (Ref<Texture> texture = cache.find<Texture>(name))
+    return texture;
+
+  Ref<wendy::Image> data = wendy::Image::read(cache, imageName);
+  if (!data)
+  {
+    logError("Failed to read image for texture \'%s\'", name.c_str());
+    return NULL;
+  }
+
+  return create(ResourceInfo(cache, name), context, params, *data);
+}
+
 Texture::Texture(const ResourceInfo& info, Context& initContext):
   Resource(info),
   context(initContext),
