@@ -676,13 +676,12 @@ bool Drawer::init()
 
   // Set up solid pass
   {
-    const String programName("wendy/UIElement.program");
-
-    Ref<GL::Program> program = GL::Program::read(context, programName);
+    Ref<GL::Program> program = GL::Program::read(context,
+                                                 "wendy/UIElement.vs",
+                                                 "wendy/UIElement.fs");
     if (!program)
     {
-      logError("Failed to load UI element program \'%s\'",
-               programName.c_str());
+      logError("Failed to load UI element program");
       return false;
     }
 
@@ -697,7 +696,7 @@ bool Drawer::init()
     if (!interface.matches(*program, true))
     {
       logError("UI element program \'%s\' does not conform to the required interface",
-               programName.c_str());
+               program->getName().c_str());
       return false;
     }
 
@@ -716,13 +715,12 @@ bool Drawer::init()
 
   // Set up solid pass
   {
-    const String programName("wendy/UIDrawSolid.program");
-
-    Ref<GL::Program> program = GL::Program::read(context, programName);
+    Ref<GL::Program> program = GL::Program::read(context,
+                                                 "wendy/UIDrawSolid.vs",
+                                                 "wendy/UIDrawSolid.fs");
     if (!program)
     {
-      logError("Failed to load UI drawing shader program \'%s\'",
-               programName.c_str());
+      logError("Failed to load UI drawing shader program");
       return false;
     }
 
@@ -733,7 +731,7 @@ bool Drawer::init()
     if (!interface.matches(*program, true))
     {
       logError("UI drawing shader program \'%s\' does not conform to the required interface",
-               programName.c_str());
+               program->getName().c_str());
       return false;
     }
 
@@ -746,13 +744,12 @@ bool Drawer::init()
 
   // Set up blitting pass
   {
-    const String programName("wendy/UIDrawMapped.program");
-
-    Ref<GL::Program> program = GL::Program::read(context, programName);
+    Ref<GL::Program> program = GL::Program::read(context,
+                                                 "wendy/UIDrawMapped.vs",
+                                                 "wendy/UIDrawMapped.fs");
     if (!program)
     {
-      logError("Failed to load UI blitting shader program \'%s\'",
-               programName.c_str());
+      logError("Failed to load UI blitting shader program");
       return false;
     }
 
@@ -763,7 +760,7 @@ bool Drawer::init()
     if (!interface.matches(*program, true))
     {
       logError("UI blitting shader program \'%s\' does not conform to the required interface",
-               programName.c_str());
+               program->getName().c_str());
       return false;
     }
 

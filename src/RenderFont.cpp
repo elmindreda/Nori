@@ -345,14 +345,12 @@ bool Font::init(const FontData& data)
 
   // Create render pass
   {
-    String programName("wendy/RenderFont.program");
-
-    Ref<GL::Program> program = GL::Program::read(context, programName);
+    Ref<GL::Program> program = GL::Program::read(context,
+                                                 "wendy/RenderFont.vs",
+                                                 "wendy/RenderFont.fs");
     if (!program)
     {
-      logError("Failed to read shader program \'%s\' for font \'%s\'",
-               programName.c_str(),
-               getName().c_str());
+      logError("Failed to read program for font \'%s\'", getName().c_str());
       return false;
     }
 
@@ -363,8 +361,8 @@ bool Font::init(const FontData& data)
 
     if (!interface.matches(*program, true))
     {
-      logError("Shader program \'%s\' for font \'%s\' does not conform to the required interface",
-               programName.c_str(),
+      logError("Program \'%s\' for font \'%s\' does not conform to the required interface",
+               program->getName().c_str(),
                getName().c_str());
       return false;
     }

@@ -63,7 +63,7 @@ Bimap<String, Phase> phaseMap;
 
 Bimap<GL::SamplerType, GL::TextureType> textureTypeMap;
 
-const unsigned int MATERIAL_XML_VERSION = 7;
+const unsigned int MATERIAL_XML_VERSION = 8;
 
 } /*namespace*/
 
@@ -433,17 +433,26 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
 
       if (pugi::xml_node node = p.child("program"))
       {
-        const String programName(node.attribute("path").value());
-        if (programName.empty())
+        const String vertexShaderName(node.attribute("vs").value());
+        if (vertexShaderName.empty())
         {
-          logError("No GLSL program in material \'%s\'", name.c_str());
+          logError("No vertex shader name in material \'%s\'", name.c_str());
           return NULL;
         }
 
-        Ref<GL::Program> program = GL::Program::read(context, programName);
+        const String fragmentShaderName(node.attribute("fs").value());
+        if (fragmentShaderName.empty())
+        {
+          logError("No fragment shader name in material \'%s\'", name.c_str());
+          return NULL;
+        }
+
+        Ref<GL::Program> program = GL::Program::read(context,
+                                                     vertexShaderName,
+                                                     fragmentShaderName);
         if (!program)
         {
-          logError("Failed to load GLSL program in material \'%s\'",
+          logError("Failed to load GLSL program for material \'%s\'",
                    name.c_str());
           return NULL;
         }
@@ -456,7 +465,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
           if (samplerName.empty())
           {
             logWarning("GLSL program \'%s\' in material \'%s\' lists unnamed sampler uniform",
-                       programName.c_str(),
+                       program->getName().c_str(),
                        name.c_str());
 
             technique = Technique();
@@ -467,7 +476,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
           if (!sampler)
           {
             logWarning("GLSL program \'%s\' in material \'%s\' does not have sampler uniform \'%s\'",
-                       programName.c_str(),
+                       program->getName().c_str(),
                        name.c_str(),
                        samplerName.c_str());
 
@@ -480,7 +489,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
           {
             logError("No image name specified for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",
                      samplerName.c_str(),
-                     programName.c_str(),
+                     program->getName().c_str(),
                      name.c_str());
             return NULL;
           }
@@ -498,7 +507,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
           {
             logError("Failed to create texture for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",
                      samplerName.c_str(),
-                     programName.c_str(),
+                     program->getName().c_str(),
                      name.c_str());
             return NULL;
           }
@@ -537,7 +546,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
           if (uniformName.empty())
           {
             logWarning("GLSL program \'%s\' in material \'%s\' lists unnamed uniform",
-                       programName.c_str(),
+                       program->getName().c_str(),
                        name.c_str());
 
             technique = Technique();
@@ -548,7 +557,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
           if (!uniform)
           {
             logWarning("GLSL program \'%s\' in material \'%s\' does not have uniform \'%s\'",
-                       programName.c_str(),
+                       program->getName().c_str(),
                        name.c_str(),
                        uniformName.c_str());
 
@@ -561,7 +570,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
           {
             logError("Missing value for uniform \'%s\' of GLSL program \'%s\' in material \'%s\'",
                      uniformName.c_str(),
-                     programName.c_str(),
+                     program->getName().c_str(),
                      name.c_str());
             return NULL;
           }

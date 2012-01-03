@@ -45,15 +45,42 @@ class Program;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Vertex attribute type enumeration.
+ *  @ingroup opengl
+ */
+enum ShaderType
+{
+  VERTEX_SHADER,
+  FRAGMENT_SHADER
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Shader container.
  *  @ingroup opengl
  */
-class Shader
+class Shader : public Resource
 {
+  friend class Program;
 public:
-  Shader(const char* text = "", const char* name = "");
-  String text;
-  String name;
+  ~Shader();
+  bool isVertexShader() const;
+  bool isFragmentShader() const;
+  ShaderType getType() const;
+  Context& getContext() const;
+  static Ref<Shader> create(const ResourceInfo& info,
+                            Context& context,
+                            ShaderType type,
+                            const String& text);
+  static Ref<Shader> read(Context& context,
+                          ShaderType type,
+                          const String& name);
+private:
+  Shader(const ResourceInfo& info, Context& context, ShaderType type);
+  bool init(const String& text);
+  Context& context;
+  ShaderType type;
+  unsigned int shaderID;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -243,10 +270,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GPU program.
+/*! @brief GLSL program.
  *  @ingroup opengl
- *
- *  Represents a complete set of GPU programs.
  */
 class Program : public Resource
 {
@@ -271,26 +296,28 @@ public:
   Context& getContext() const;
   static Ref<Program> create(const ResourceInfo& info,
                              Context& context,
-                             const Shader& vertexShader,
-                             const Shader& fragmentShader);
-  static Ref<Program> read(Context& context, const String& name);
+                             Shader& vertexShader,
+                             Shader& fragmentShader);
+  static Ref<Program> read(Context& context,
+                           const String& vertexShaderName,
+                           const String& fragmentShaderName);
 private:
   Program(const ResourceInfo& info, Context& context);
   Program(const Program& source);
-  bool attachShader(const Shader& shader, unsigned int type);
-  bool link();
+  bool init(Shader& vertexShader, Shader& fragmentShader);
   bool retrieveUniforms();
   bool retrieveAttributes();
   void bind();
   void unbind();
   Program& operator = (const Program& source);
   bool isValid() const;
+  String getInfoLog() const;
   typedef std::vector<Attribute> AttributeList;
   typedef std::vector<Sampler> SamplerList;
   typedef std::vector<Uniform> UniformList;
   Context& context;
-  unsigned int vertexShaderID;
-  unsigned int fragmentShaderID;
+  Ref<Shader> vertexShader;
+  Ref<Shader> fragmentShader;
   unsigned int programID;
   AttributeList attributes;
   SamplerList samplers;
@@ -349,21 +376,6 @@ private:
   SamplerList samplers;
   UniformList uniforms;
   AttributeList attributes;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief GPU program XML codec.
- *  @ingroup opengl
- */
-class ProgramReader : public ResourceReader<Program>
-{
-public:
-  ProgramReader(Context& context);
-  using ResourceReader::read;
-  Ref<Program> read(const String& name, const Path& path);
-private:
-  Context& context;
 };
 
 ///////////////////////////////////////////////////////////////////////

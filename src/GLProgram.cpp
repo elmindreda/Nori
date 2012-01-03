@@ -153,6 +153,19 @@ bool isSupportedUniformType(GLenum type)
   return false;
 }
 
+const char* getTypeName(ShaderType type)
+{
+  switch (type)
+  {
+    case VERTEX_SHADER:
+      return "vertex";
+    case FRAGMENT_SHADER:
+      return "fragment";
+  }
+
+  panic("Invalid shader type %i", type);
+}
+
 UniformType convertUniformType(GLenum type)
 {
   switch (type)
@@ -177,11 +190,78 @@ UniformType convertUniformType(GLenum type)
   panic("Unsupported GLSL uniform type %u", type);
 }
 
-bool readTextFile(ResourceCache& cache, String& text, const String& name)
+GLenum convertToGL(ShaderType type)
 {
+  switch (type)
+  {
+    case VERTEX_SHADER:
+      return GL_VERTEX_SHADER;
+    case FRAGMENT_SHADER:
+      return GL_FRAGMENT_SHADER;
+  }
+
+  panic("Invalid GLSL shader type %i", type);
+}
+
+const unsigned int PROGRAM_XML_VERSION = 4;
+
+} /*namespace*/
+
+///////////////////////////////////////////////////////////////////////
+
+Shader::~Shader()
+{
+  if (shaderID)
+    glDeleteShader(shaderID);
+}
+
+bool Shader::isVertexShader() const
+{
+  return type == VERTEX_SHADER;
+}
+
+bool Shader::isFragmentShader() const
+{
+  return type == FRAGMENT_SHADER;
+}
+
+ShaderType Shader::getType() const
+{
+  return type;
+}
+
+Context& Shader::getContext() const
+{
+  return context;
+}
+
+Ref<Shader> Shader::create(const ResourceInfo& info,
+                          Context& context,
+                          ShaderType type,
+                          const String& text)
+{
+  Ref<Shader> shader(new Shader(info, context, type));
+  if (!shader->init(text))
+    return NULL;
+
+  return shader;
+}
+
+Ref<Shader> Shader::read(Context& context,
+                        ShaderType type,
+                        const String& name)
+{
+  ResourceCache& cache = context.getCache();
+
+  if (Ref<Shader> shader = cache.find<Shader>(name))
+    return shader;
+
   const Path path = cache.findFile(name);
   if (path.isEmpty())
-    return false;
+  {
+    logError("Failed to find shader \'%s\'", name.c_str());
+    return NULL;
+  }
 
   std::ifstream stream(path.asString().c_str());
   if (stream.fail())
@@ -190,16 +270,28 @@ bool readTextFile(ResourceCache& cache, String& text, const String& name)
     return NULL;
   }
 
-  stream.seekg(0, std::ios::end);
+  String text;
 
+  stream.seekg(0, std::ios::end);
   text.resize((unsigned int) stream.tellg());
 
   stream.seekg(0, std::ios::beg);
   stream.read(&text[0], text.size());
-  return true;
+
+  return create(ResourceInfo(cache, name), context, type, text);
 }
 
-GLuint createShader(GL::Context& context, GLenum type, const Shader& shader)
+Shader::Shader(const ResourceInfo& info,
+               Context& initContext,
+               ShaderType initType):
+  Resource(info),
+  context(initContext),
+  type(initType),
+  shaderID(0)
+{
+}
+
+bool Shader::init(const String& text)
 {
   String decl;
   decl += "#line 0 0\n";
@@ -207,7 +299,7 @@ GLuint createShader(GL::Context& context, GLenum type, const Shader& shader)
 
   String main;
   main += "#line 0 1\n";
-  main += shader.text;
+  main += text;
 
   GLsizei lengths[2];
   const GLchar* strings[2];
@@ -218,84 +310,56 @@ GLuint createShader(GL::Context& context, GLenum type, const Shader& shader)
   lengths[1] = main.length();
   strings[1] = (const GLchar*) main.c_str();
 
-  GLuint shaderID = glCreateShader(type);
+  shaderID = glCreateShader(convertToGL(type));
   glShaderSource(shaderID, 2, strings, lengths);
   glCompileShader(shaderID);
 
-  GLint status;
-  glGetShaderiv(shaderID, GL_COMPILE_STATUS, &status);
-
-  GLint length;
-  glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
-
   String infoLog;
 
-  if (length > 0)
+  // Retrieve shader info log
   {
-    infoLog.resize(length);
-    glGetShaderInfoLog(shaderID, length, NULL, &infoLog[0]);
+    GLint infoLogLength;
+    glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+    if (infoLogLength > 1)
+    {
+      infoLog.resize(infoLogLength);
+      glGetShaderInfoLog(shaderID, infoLogLength, NULL, &infoLog[0]);
+    }
   }
 
-  if (!status)
+  // Check shader compilation status
   {
-    if (length > 0)
+    GLint status;
+    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &status);
+    if (status)
     {
-      logError("Failed to compile shader \'%s\':\n%s",
-               shader.name.c_str(),
-               infoLog.c_str());
+      if (!infoLog.empty())
+      {
+        logWarning("Warning(s) compiling shader \'%s\':\n%s",
+                  getName().c_str(),
+                  infoLog.c_str());
+      }
     }
     else
-      checkGL("Failed to compile shader \'%s\'", shader.name.c_str());
+    {
+      if (infoLog.empty())
+        checkGL("Failed to compile shader \'%s\'", getName().c_str());
+      else
+      {
+        logError("Failed to compile shader \'%s\':\n%s",
+                getName().c_str(),
+                infoLog.c_str());
+      }
 
-    glDeleteShader(shaderID);
-    return 0;
+      return false;
+    }
   }
 
-  if (length > 1)
-  {
-    logWarning("Warning(s) compiling shader \'%s\':\n%s",
-               shader.name.c_str(),
-               infoLog.c_str());
-  }
+  if (!checkGL("Failed to create object for shader \'%s\'", getName().c_str()))
+    return false;
 
-  if (!checkGL("Failed to create object for shader \'%s\'",
-               shader.name.c_str()))
-  {
-    glDeleteShader(shaderID);
-    return 0;
-  }
-
-  return shaderID;
-}
-
-String getProgramInfoLog(GLuint programID)
-{
-  GLint length;
-  glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &length);
-
-  if (length > 0)
-  {
-    String infoLog;
-    infoLog.resize(length);
-
-    glGetProgramInfoLog(programID, length, NULL, &infoLog[0]);
-
-    return infoLog;
-  }
-
-  return String();
-}
-
-const unsigned int PROGRAM_XML_VERSION = 4;
-
-} /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
-
-Shader::Shader(const char* initText, const char* initName):
-  text(initText),
-  name(initName)
-{
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -561,12 +625,6 @@ const char* Uniform::getTypeName(UniformType type)
 
 Program::~Program()
 {
-  if (vertexShaderID)
-    glDeleteShader(vertexShaderID);
-
-  if (fragmentShaderID)
-    glDeleteShader(fragmentShaderID);
-
   if (programID)
     glDeleteProgram(programID);
 
@@ -680,33 +738,52 @@ Context& Program::getContext() const
 
 Ref<Program> Program::create(const ResourceInfo& info,
                              Context& context,
-                             const Shader& vertexShader,
-                             const Shader& fragmentShader)
+                             Shader& vertexShader,
+                             Shader& fragmentShader)
 {
   Ref<Program> program(new Program(info, context));
-
-  if (!program->attachShader(vertexShader, GL_VERTEX_SHADER))
-    return NULL;
-  if (!program->attachShader(fragmentShader, GL_FRAGMENT_SHADER))
-    return NULL;
-
-  if (!program->link())
+  if (!program->init(vertexShader, fragmentShader))
     return NULL;
 
   return program;
 }
 
-Ref<Program> Program::read(Context& context, const String& name)
+Ref<Program> Program::read(Context& context,
+                           const String& vertexShaderName,
+                           const String& fragmentShaderName)
 {
-  ProgramReader reader(context);
-  return reader.read(name);
+  ResourceCache& cache = context.getCache();
+
+  String name;
+  name.append("vs:");
+  name.append(vertexShaderName);
+  name.append(" fs:");
+  name.append(fragmentShaderName);
+
+  if (Ref<Program> program = cache.find<Program>(name))
+    return program;
+
+  Ref<Shader> vertexShader = Shader::read(context,
+                                          VERTEX_SHADER,
+                                          vertexShaderName);
+  if (!vertexShader)
+    return NULL;
+
+  Ref<Shader> fragmentShader = Shader::read(context,
+                                            FRAGMENT_SHADER,
+                                            fragmentShaderName);
+  if (!fragmentShader)
+    return NULL;
+
+  return create(ResourceInfo(cache, name),
+                context,
+                *vertexShader,
+                *fragmentShader);
 }
 
 Program::Program(const ResourceInfo& info, Context& initContext):
   Resource(info),
   context(initContext),
-  vertexShaderID(0),
-  fragmentShaderID(0),
   programID(0)
 {
   if (Stats* stats = context.getStats())
@@ -720,29 +797,27 @@ Program::Program(const Program& source):
   panic("GLSL programs may not be copied");
 }
 
-bool Program::attachShader(const Shader& shader, unsigned int type)
+bool Program::init(Shader& initVertexShader, Shader& initFragmentShader)
 {
-  GLuint shaderID = createShader(context, type, shader);
-  if (!shaderID)
-    return false;
+  vertexShader = &initVertexShader;
+  fragmentShader = &initFragmentShader;
 
-  switch (type)
+  if (!vertexShader->isVertexShader())
   {
-    case GL_VERTEX_SHADER:
-      vertexShaderID = shaderID;
-      break;
-    case GL_FRAGMENT_SHADER:
-      fragmentShaderID = shaderID;
-      break;
-    default:
-      panic("Invalid shader type");
+    logError("Shader \'%s\' for program \'%s\' is not a vertex shader",
+             vertexShader->getName().c_str(),
+             getName().c_str());
+    return false;
   }
 
-  return true;
-}
+  if (!fragmentShader->isFragmentShader())
+  {
+    logError("Shader \'%s\' for program \'%s\' is not a fragment shader",
+             fragmentShader->getName().c_str(),
+             getName().c_str());
+    return false;
+  }
 
-bool Program::link()
-{
   programID = glCreateProgram();
   if (!programID)
   {
@@ -751,12 +826,12 @@ bool Program::link()
     return false;
   }
 
-  glAttachShader(programID, vertexShaderID);
-  glAttachShader(programID, fragmentShaderID);
+  glAttachShader(programID, vertexShader->shaderID);
+  glAttachShader(programID, fragmentShader->shaderID);
 
   glLinkProgram(programID);
 
-  String infoLog = getProgramInfoLog(programID);
+  const String infoLog = getInfoLog();
 
   int status;
   glGetProgramiv(programID, GL_LINK_STATUS, &status);
@@ -936,7 +1011,7 @@ bool Program::isValid() const
   glGetProgramiv(programID, GL_VALIDATE_STATUS, &status);
   if (!status)
   {
-    String infoLog = getProgramInfoLog(programID);
+    const String infoLog = getInfoLog();
     logError("Failed to validate program \'%s\':\n%s",
              getName().c_str(),
              infoLog.c_str());
@@ -945,6 +1020,22 @@ bool Program::isValid() const
   }
 
   return true;
+}
+
+String Program::getInfoLog() const
+{
+  String infoLog;
+
+  GLint infoLogLength;
+  glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+  if (infoLogLength > 1)
+  {
+    infoLog.resize(infoLogLength);
+    glGetProgramInfoLog(programID, infoLogLength, NULL, &infoLog[0]);
+  }
+
+  return infoLog;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1125,94 +1216,6 @@ bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
   }
 
   return true;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-ProgramReader::ProgramReader(Context& initContext):
-  ResourceReader(initContext.getCache()),
-  context(initContext)
-{
-}
-
-Ref<Program> ProgramReader::read(const String& name, const Path& path)
-{
-  std::ifstream stream(path.asString().c_str());
-  if (stream.fail())
-  {
-    logError("Failed to open GLSL program \'%s\'", name.c_str());
-    return NULL;
-  }
-
-  pugi::xml_document document;
-
-  const pugi::xml_parse_result result = document.load(stream);
-  if (!result)
-  {
-    logError("Failed to load GLSL program \'%s\': %s",
-             name.c_str(),
-             result.description());
-    return NULL;
-  }
-
-  pugi::xml_node root = document.child("program");
-  if (!root || root.attribute("version").as_uint() != PROGRAM_XML_VERSION)
-  {
-    logError("GLSL program file format mismatch in \'%s\'", name.c_str());
-    return NULL;
-  }
-
-  std::map<String, Shader> shaders;
-
-  const char* names[] =
-  {
-    "vertex",
-    "fragment",
-  };
-
-  for (size_t i = 0;  i < sizeof(names) / sizeof(names[0]);  i++)
-  {
-    if (pugi::xml_node s = root.child(names[i]))
-    {
-      const String shaderName(s.attribute("path").value());
-      if (shaderName.empty())
-      {
-        logError("Empty name for %s shader in GLSL program \'%s\'",
-                names[i],
-                name.c_str());
-        return NULL;
-      }
-
-      String text;
-      if (!readTextFile(cache, text, shaderName))
-      {
-        logError("Failed to load %s shader \'%s\' for GLSL program \'%s\'",
-                names[i],
-                shaderName.c_str(),
-                name.c_str());
-        return NULL;
-      }
-
-      shaders[names[i]] = Shader(text.c_str(), shaderName.c_str());
-    }
-  }
-
-  if (!shaders.count("vertex"))
-  {
-    logError("Vertex shader missing in GLSL program \'%s\'", name.c_str());
-    return NULL;
-  }
-
-  if (!shaders.count("fragment"))
-  {
-    logError("Fragment shader missing in GLSL program \'%s\'", name.c_str());
-    return NULL;
-  }
-
-  return Program::create(ResourceInfo(cache, name, path),
-                         context,
-                         shaders["vertex"],
-                         shaders["fragment"]);
 }
 
 ///////////////////////////////////////////////////////////////////////

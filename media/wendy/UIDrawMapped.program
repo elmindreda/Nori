@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<program version="4" >
-  <vertex path="wendy/UIDrawMapped.vs" />
-  <fragment path="wendy/UIDrawMapped.fs" />
-</program>
