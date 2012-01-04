@@ -104,7 +104,7 @@ bool PixelFormat::operator != (const PixelFormat& other) const
 
 bool PixelFormat::isValid() const
 {
-  return semantic != PixelFormat::NONE && type != DUMMY;
+  return semantic != NONE && type != DUMMY;
 }
 
 size_t PixelFormat::getSize() const
