@@ -543,31 +543,23 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
     }
 
     png_set_sig_bytes(context, 8);
-  }
 
-  PixelFormat format;
-  unsigned int width;
-  unsigned int height;
-
-  // Read image information
-  {
     png_read_png(context, pngInfo, PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND, NULL);
-
-    format = convertToPixelFormat(png_get_color_type(context, pngInfo),
-                                  png_get_bit_depth(context, pngInfo));
-
-    if (!format.isValid())
-    {
-      png_destroy_read_struct(&context, &pngInfo, &pngEndInfo);
-
-      logError("Image \'%s\' has unsupported pixel format", name.c_str());
-      return NULL;
-    }
-
-    width  = png_get_image_width(context, pngInfo);
-    height = png_get_image_height(context, pngInfo);
   }
 
+  const PixelFormat format = convertToPixelFormat(png_get_color_type(context, pngInfo),
+                                                  png_get_bit_depth(context, pngInfo));
+
+  if (!format.isValid())
+  {
+    png_destroy_read_struct(&context, &pngInfo, &pngEndInfo);
+
+    logError("Image \'%s\' has unsupported pixel format", name.c_str());
+    return NULL;
+  }
+
+  const unsigned int width  = png_get_image_width(context, pngInfo);
+  const unsigned int height = png_get_image_height(context, pngInfo);
   const ResourceInfo info(cache, name, path);
 
   Ref<Image> result = Image::create(info, format, width, height);
@@ -653,7 +645,6 @@ bool ImageWriter::write(const Path& path, const Image& image)
                PNG_FILTER_TYPE_DEFAULT);
 
   const uint8* data = (const uint8*) image.getPixels();
-
   const size_t pixelSize = format.getSize();
 
   std::vector<const png_byte*> rows(image.getHeight());
@@ -662,9 +653,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
     rows[y] = data + (image.getHeight() - y - 1) * image.getWidth() * pixelSize;
 
   png_set_rows(context, info, const_cast<png_byte**>(&rows[0]));
-
   png_write_png(context, info, PNG_TRANSFORM_IDENTITY, NULL);
-
   png_destroy_write_struct(&context, &info);
 
   return true;
