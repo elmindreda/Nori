@@ -36,9 +36,6 @@ namespace wendy
 class Image : public Resource
 {
 public:
-  /*! Returns a copy of this image.
-   */
-  Ref<Image> clone() const;
   /*! Transforms the contents of this image to the specified pixel format using
    *  the specified pixel transform.
    *  @param[in] targetFormat The desired pixel format.

@@ -152,11 +152,6 @@ const unsigned int IMAGE_CUBE_XML_VERSION = 2;
 
 ///////////////////////////////////////////////////////////////////////
 
-Ref<Image> Image::clone() const
-{
-  return create(getCache(), format, width, height, depth, data);
-}
-
 bool Image::transformTo(const PixelFormat& targetFormat, PixelTransform& transform)
 {
   if (format == targetFormat)

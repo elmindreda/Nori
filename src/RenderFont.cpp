@@ -562,20 +562,21 @@ bool FontReader::extractGlyphs(FontData& data,
     return false;
   }
 
-  Ref<Image> source = image.clone();
+  Ref<Image> source;
 
   // Crop top and bottom parts
   {
-    const unsigned int startY = findStartY(*source);
-    if (startY == source->getHeight())
+    const unsigned int startY = findStartY(image);
+    if (startY == image.getHeight())
     {
       logError("No glyphs found in source image for font \'%s\'", name.c_str());
       return false;
     }
 
-    const unsigned int endY = findEndY(*source);
+    const unsigned int endY = findEndY(image);
 
-    if (!source->crop(Recti(0, startY, source->getWidth(), endY - startY)))
+    source = image.getArea(Recti(0, startY, image.getWidth(), endY - startY));
+    if (!source)
     {
       logError("Failed to crop source image for font \'%s\'", name.c_str());
       return false;
