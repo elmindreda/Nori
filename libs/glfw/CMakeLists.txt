@@ -86,6 +86,8 @@ if(WIN32)
   list(APPEND GLFW_LIBRARIES ${OPENGL_gl_LIBRARY})
   list(APPEND GLFW_LIBRARIES winmm)
 
+  add_definitions(-D_GLFW_NO_DLOAD_GDI32 -D_GLFW_NO_DLOAD_WINMM)
+
   list(APPEND glfw_SOURCES win32_dllmain.c win32_enable.c win32_fullscreen.c
                            win32_glext.c win32_init.c win32_joystick.c
                            win32_time.c win32_window.c)
