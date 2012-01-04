@@ -401,10 +401,9 @@ bool Image::init(const PixelFormat& initFormat,
   height = initHeight;
   depth = initDepth;
 
-  if (format.getSemantic() == PixelFormat::NONE ||
-      format.getType() == PixelFormat::DUMMY)
+  if (!format.isValid())
   {
-    logError("Cannot create image with dummy pixel format");
+    logError("Cannot create image with invalid pixel format");
     return false;
   }
 
