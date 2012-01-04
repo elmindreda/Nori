@@ -49,11 +49,21 @@ namespace wendy
 namespace
 {
 
-bool getEncodeConversionFormatPNG(int& result, const PixelFormat& format)
+bool convertToBitDepth(int& result, const PixelFormat& format)
 {
-  if (format.getType() != PixelFormat::UINT8)
-    return false;
+  switch (format.getType())
+  {
+    case PixelFormat::UINT8:
+    case PixelFormat::UINT16:
+      result = format.getSize() * 8;
+      return false;
+    default:
+      return false;
+  }
+}
 
+bool convertToColorType(int& result, const PixelFormat& format)
+{
   switch (format.getSemantic())
   {
     case PixelFormat::R:
@@ -73,25 +83,39 @@ bool getEncodeConversionFormatPNG(int& result, const PixelFormat& format)
   }
 }
 
-bool getDecodeConversionFormatPNG(PixelFormat& result, int format)
+PixelFormat::Semantic convertToSemantic(int colorType)
 {
-  switch (format)
+  switch (colorType)
   {
     case PNG_COLOR_TYPE_GRAY:
-      result = PixelFormat::R8;
-      return true;
+      return PixelFormat::R;
     case PNG_COLOR_TYPE_GRAY_ALPHA:
-      result = PixelFormat::RG8;
-      return true;
+      return PixelFormat::RG;
     case PNG_COLOR_TYPE_RGB:
-      result = PixelFormat::RGB8;
-      return true;
+      return PixelFormat::RGB;
     case PNG_COLOR_TYPE_RGB_ALPHA:
-      result = PixelFormat::RGBA8;
-      return true;
+      return PixelFormat::RGBA;
   }
 
-  return false;
+  return PixelFormat::NONE;
+}
+
+PixelFormat::Type convertToType(int bitDepth)
+{
+  switch (bitDepth)
+  {
+    case 8:
+      return PixelFormat::UINT8;
+    case 16:
+      return PixelFormat::UINT16;
+  }
+
+  return PixelFormat::DUMMY;
+}
+
+PixelFormat convertToPixelFormat(int colorType, int bitDepth)
+{
+  return PixelFormat(convertToSemantic(colorType), convertToType(bitDepth));
 }
 
 void writeErrorPNG(png_structp context, png_const_charp error)
@@ -527,21 +551,16 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
 
   // Read image information
   {
-    png_read_png(context, pngInfo, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND, NULL);
+    png_read_png(context, pngInfo, PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND, NULL);
 
-    if (png_get_bit_depth(context, pngInfo) != 8)
+    format = convertToPixelFormat(png_get_color_type(context, pngInfo),
+                                  png_get_bit_depth(context, pngInfo));
+
+    if (!format.isValid())
     {
       png_destroy_read_struct(&context, &pngInfo, &pngEndInfo);
 
-      logError("Unsupported bit depth in \'%s\'", name.c_str());
-      return NULL;
-    }
-
-    if (!getDecodeConversionFormatPNG(format, png_get_color_type(context, pngInfo)))
-    {
-      png_destroy_read_struct(&context, &pngInfo, &pngEndInfo);
-
-      logError("Unsupported color type in \'%s\'", name.c_str());
+      logError("Image \'%s\' has unsupported pixel format", name.c_str());
       return NULL;
     }
 
@@ -610,12 +629,16 @@ bool ImageWriter::write(const Path& path, const Image& image)
     return false;
   }
 
-  int format;
+  const PixelFormat& format = image.getFormat();
 
-  if (!getEncodeConversionFormatPNG(format, image.getFormat()))
+  int colorType, bitDepth;
+
+  if (!convertToColorType(colorType, format) ||
+      !convertToBitDepth(bitDepth, format))
   {
     png_destroy_write_struct(&context, &info);
-    logError("Failed to encode image format");
+    logError("Pixel format \'%s\' is not supported by the PNG format",
+             format.asString().c_str());
     return false;
   }
 
@@ -623,15 +646,15 @@ bool ImageWriter::write(const Path& path, const Image& image)
                info,
                image.getWidth(),
                image.getHeight(),
-               8,
-               format,
+               bitDepth,
+               colorType,
                PNG_INTERLACE_NONE,
                PNG_COMPRESSION_TYPE_DEFAULT,
                PNG_FILTER_TYPE_DEFAULT);
 
   const uint8* data = (const uint8*) image.getPixels();
 
-  const unsigned int pixelSize = image.getFormat().getSize();
+  const unsigned int pixelSize = format.getSize();
 
   std::vector<const png_byte*> rows(image.getHeight());
 
