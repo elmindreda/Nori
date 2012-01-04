@@ -46,12 +46,8 @@ public:
    *  @param[in] area The desired area.
    *  @return @c true if successful, otherwise @c false.
    *
-   *  @remarks This method fails if the desired area is completely outside the
-   *  current image data.
-   *
-   *  @remarks If the desired area is partially outside of the current image
-   *  data, the area (and the resulting image) is cropped to fit the current
-   *  (existing) image data.
+   *  @remarks This method fails if the desired area is partially or completely
+   *  outside the current image data.
    */
   bool crop(const Recti& area);
   /*! Flips this image along the x axis.
@@ -106,6 +102,9 @@ public:
   unsigned int getDimensionCount() const;
   /*! Returns an image containing the specified area of this image.
    *  @param area The desired area of this image.
+   *
+   *  @remarks This method fails if the desired area is partially or completely
+   *  outside the current image data.
    */
   Ref<Image> getArea(const Recti& area) const;
   /*! Creates an image with the specified properties.

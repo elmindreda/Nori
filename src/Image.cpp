@@ -176,35 +176,24 @@ bool Image::crop(const Recti& area)
     return false;
   }
 
-  if (area.position.x < 0 || area.position.y < 0 ||
-      area.size.x < 0 || area.size.y < 0 ||
-      area.position.x >= (int) width ||
-      area.position.y >= (int) height)
+  if (!Recti(0, 0, width, height).contains(area))
   {
-    logError("Invalid image area dimensions");
+    logError("Cropping area must be entirely within image");
     return false;
   }
 
-  Recti targetArea = area;
-
-  if (area.position.x + area.size.x > (int) width)
-    targetArea.size.x = (int) width - area.position.x;
-  if (area.position.y + area.size.y > (int) height)
-    targetArea.size.y = (int) height - area.position.y;
-
   const size_t pixelSize = format.getSize();
+  Block scratch(area.size.x * area.size.y * pixelSize);
 
-  Block scratch(targetArea.size.x * targetArea.size.y * pixelSize);
-
-  for (size_t y = 0;  y < targetArea.size.y;  y++)
+  for (size_t y = 0;  y < area.size.y;  y++)
   {
-    scratch.copyFrom(data + ((y + targetArea.position.y) * width + targetArea.position.x) * pixelSize,
-                     targetArea.size.x * pixelSize,
-                     y * targetArea.size.x * pixelSize);
+    scratch.copyFrom(data + ((y + area.position.y) * width + area.position.x) * pixelSize,
+                     area.size.x * pixelSize,
+                     y * area.size.x * pixelSize);
   }
 
-  width = targetArea.size.x;
-  height = targetArea.size.y;
+  width = area.size.x;
+  height = area.size.y;
 
   data.attach(scratch.detach(), scratch.getSize());
   return true;
@@ -334,25 +323,26 @@ unsigned int Image::getDimensionCount() const
 
 Ref<Image> Image::getArea(const Recti& area) const
 {
-  if (area.position.x >= (int) width || area.position.y >= (int) height)
-    return NULL;
-
-  Recti targetArea = area;
-
-  if (area.position.x + area.size.x > (int) width)
-    targetArea.size.x = (int) width - area.position.x;
-  if (area.position.y + area.size.y > (int) height)
-    targetArea.size.y = (int) height - area.position.y;
-
-  const size_t pixelSize = format.getSize();
-
-  Ref<Image> result = create(cache, format, targetArea.size.x, targetArea.size.y);
-
-  for (size_t y = 0;  y < targetArea.size.y;  y++)
+  if (getDimensionCount() > 2)
   {
-    const uint8* source = data + ((y + targetArea.position.y) * width + targetArea.position.x) * pixelSize;
-    uint8* target = result->data + y * result->width * pixelSize;
-    memcpy(target, source, result->width * pixelSize);
+    logError("Cannot retrieve area of 3D image");
+    return NULL;
+  }
+
+  if (!Recti(0, 0, width, height).contains(area))
+  {
+    logError("Cannot retrieve area outside of image");
+    return NULL;
+  }
+
+  const size_t rowSize = area.size.x * format.getSize();
+  Ref<Image> result = create(cache, format, area.size.x, area.size.y);
+
+  for (size_t y = 0;  y < area.size.y;  y++)
+  {
+    std::memcpy(result->getPixel(0, y),
+                getPixel(area.position.x, area.position.y + y),
+                rowSize);
   }
 
   return result;
