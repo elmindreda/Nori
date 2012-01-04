@@ -567,13 +567,10 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
   // Read image data
   {
     const size_t rowSize = png_get_rowbytes(context, pngInfo);
-
-    png_bytepp rows = png_get_rows(context, pngInfo);
-
-    uint8* data = (uint8*) result->getPixels();
+    png_byte** rows = png_get_rows(context, pngInfo);
 
     for (size_t i = 0;  i < height;  i++)
-      std::memcpy(data + (height - i - 1) * rowSize, rows[i], rowSize);
+      std::memcpy(result->getPixel(0, height - i - 1), rows[i], rowSize);
   }
 
   // Clean up library structures
@@ -644,13 +641,10 @@ bool ImageWriter::write(const Path& path, const Image& image)
                PNG_COMPRESSION_TYPE_DEFAULT,
                PNG_FILTER_TYPE_DEFAULT);
 
-  const uint8* data = (const uint8*) image.getPixels();
-  const size_t pixelSize = format.getSize();
-
   std::vector<const png_byte*> rows(image.getHeight());
 
-  for (size_t y = 0;  y < image.getHeight();  y++)
-    rows[y] = data + (image.getHeight() - y - 1) * image.getWidth() * pixelSize;
+  for (size_t i = 0;  i < image.getHeight();  i++)
+    rows[i] = (const png_byte*) image.getPixel(0, image.getHeight() - i - 1);
 
   png_set_rows(context, info, const_cast<png_byte**>(&rows[0]));
   png_write_png(context, info, PNG_TRANSFORM_IDENTITY, NULL);
