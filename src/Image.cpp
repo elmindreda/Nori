@@ -197,11 +197,11 @@ bool Image::crop(const Recti& area)
   if (area.position.y + area.size.y > (int) height)
     targetArea.size.y = (int) height - area.position.y;
 
-  const unsigned int pixelSize = format.getSize();
+  const size_t pixelSize = format.getSize();
 
   Block scratch(targetArea.size.x * targetArea.size.y * pixelSize);
 
-  for (int y = 0;  y < targetArea.size.y;  y++)
+  for (size_t y = 0;  y < targetArea.size.y;  y++)
   {
     scratch.copyFrom(data + ((y + targetArea.position.y) * width + targetArea.position.x) * pixelSize,
                      targetArea.size.x * pixelSize,
@@ -217,15 +217,15 @@ bool Image::crop(const Recti& area)
 
 void Image::flipHorizontal()
 {
-  unsigned int pixelSize = format.getSize();
+  const size_t pixelSize = format.getSize();
 
   Block scratch(data.getSize());
 
-  for (unsigned int z = 0;  z < depth;  z++)
+  for (size_t z = 0;  z < depth;  z++)
   {
     size_t offset = z * width * height * pixelSize;
 
-    for (unsigned int y = 0;  y < height;  y++)
+    for (size_t y = 0;  y < height;  y++)
     {
       scratch.copyFrom(data + offset + y * width * pixelSize,
                        width * pixelSize,
@@ -238,20 +238,20 @@ void Image::flipHorizontal()
 
 void Image::flipVertical()
 {
-  unsigned int pixelSize = format.getSize();
+  const size_t pixelSize = format.getSize();
 
   Block scratch(data.getSize());
 
-  for (unsigned int z = 0;  z < depth;  z++)
+  for (size_t z = 0;  z < depth;  z++)
   {
-    for (unsigned int y = 0;  y < height;  y++)
+    for (size_t y = 0;  y < height;  y++)
     {
       const uint8* source = data + (z * height + y) * width * pixelSize;
       uint8* target = scratch + ((z * height + y + 1) * width - 1) * pixelSize;
 
       while (source < target)
       {
-        for (unsigned int i = 0;  i < pixelSize;  i++)
+        for (size_t i = 0;  i < pixelSize;  i++)
           target[i] = source[i];
 
         source += pixelSize;
@@ -349,11 +349,11 @@ Ref<Image> Image::getArea(const Recti& area) const
   if (area.position.y + area.size.y > (int) height)
     targetArea.size.y = (int) height - area.position.y;
 
-  const unsigned int pixelSize = format.getSize();
+  const size_t pixelSize = format.getSize();
 
   Ref<Image> result = create(cache, format, targetArea.size.x, targetArea.size.y);
 
-  for (int y = 0;  y < targetArea.size.y;  y++)
+  for (size_t y = 0;  y < targetArea.size.y;  y++)
   {
     const uint8* source = data + ((y + targetArea.position.y) * width + targetArea.position.x) * pixelSize;
     uint8* target = result->data + y * result->width * pixelSize;
@@ -430,19 +430,19 @@ bool Image::init(const PixelFormat& initFormat,
   {
     if (pitch)
     {
-      unsigned int size = format.getSize();
-      data.resize(width * height * depth * size);
+      const size_t pixelSize = format.getSize();
+      data.resize(width * height * depth * pixelSize);
 
       uint8* target = data;
       const uint8* source = (const uint8*) initData;
 
-      for (unsigned int z = 0;  z < depth;  z++)
+      for (size_t z = 0;  z < depth;  z++)
       {
-        for (unsigned int y = 0;  y < height;  y++)
+        for (size_t y = 0;  y < height;  y++)
         {
-          std::memcpy(target, source, width * size);
+          std::memcpy(target, source, width * pixelSize);
           source += pitch;
-          target += width * size;
+          target += width * pixelSize;
         }
       }
     }
@@ -454,7 +454,7 @@ bool Image::init(const PixelFormat& initFormat,
   }
   else
   {
-    const unsigned int size = width * height * depth * format.getSize();
+    const size_t size = width * height * depth * format.getSize();
     data.resize(size);
     std::memset(data, 0, size);
   }
@@ -574,14 +574,14 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
 
   // Read image data
   {
-    const unsigned int size = png_get_rowbytes(context, pngInfo);
+    const size_t rowSize = png_get_rowbytes(context, pngInfo);
 
     png_bytepp rows = png_get_rows(context, pngInfo);
 
     uint8* data = (uint8*) result->getPixels();
 
-    for (unsigned int i = 0;  i < height;  i++)
-      std::memcpy(data + (height - i - 1) * size, rows[i], size);
+    for (size_t i = 0;  i < height;  i++)
+      std::memcpy(data + (height - i - 1) * rowSize, rows[i], rowSize);
   }
 
   // Clean up library structures
@@ -654,11 +654,11 @@ bool ImageWriter::write(const Path& path, const Image& image)
 
   const uint8* data = (const uint8*) image.getPixels();
 
-  const unsigned int pixelSize = format.getSize();
+  const size_t pixelSize = format.getSize();
 
   std::vector<const png_byte*> rows(image.getHeight());
 
-  for (unsigned int y = 0;  y < image.getHeight();  y++)
+  for (size_t y = 0;  y < image.getHeight();  y++)
     rows[y] = data + (image.getHeight() - y - 1) * image.getWidth() * pixelSize;
 
   png_set_rows(context, info, const_cast<png_byte**>(&rows[0]));
