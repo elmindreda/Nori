@@ -37,6 +37,8 @@
 
 #include <pugixml.hpp>
 
+#include <glm/gtx/bit.hpp>
+
 #include <png.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -249,14 +251,7 @@ void Image::flipVertical()
 
 bool Image::isPOT() const
 {
-  if (width & (width - 1))
-    return false;
-  if (height & (height - 1))
-    return false;
-  if (depth & (depth - 1))
-    return false;
-
-  return true;
+  return isPowerOfTwo(width) && isPowerOfTwo(height) && isPowerOfTwo(depth);
 }
 
 bool Image::isSquare() const
