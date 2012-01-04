@@ -102,6 +102,11 @@ bool PixelFormat::operator != (const PixelFormat& other) const
   return semantic != other.semantic || type != other.type;
 }
 
+bool PixelFormat::isValid() const
+{
+  return semantic != PixelFormat::NONE && type != DUMMY;
+}
+
 size_t PixelFormat::getSize() const
 {
   return getChannelSize() * getChannelCount();

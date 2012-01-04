@@ -77,6 +77,10 @@ public:
   /*! @return @c true if the pixel formats are not equal, @c false otherwise.
    */
   bool operator != (const PixelFormat& other) const;
+  /*! @return @c true if this pixel format describes to a physical pixel
+   *  format.
+   */
+  bool isValid() const;
   /*! @return The size, in bytes, of a pixel in this pixel format.
    */
   size_t getSize() const;
