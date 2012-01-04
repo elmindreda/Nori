@@ -132,7 +132,7 @@ public:
                            unsigned int height = 1,
                            unsigned int depth = 1,
                            const void* data = NULL,
-                           unsigned int pitch = 0);
+                           ptrdiff_t pitch = 0);
   static Ref<Image> read(ResourceCache& cache, const String& name);
 private:
   Image(const ResourceInfo& info);
@@ -142,7 +142,7 @@ private:
             unsigned int height,
             unsigned int depth,
             const void* data,
-            unsigned int pitch);
+            ptrdiff_t pitch);
   Image& operator = (const Image& source);
   unsigned int width;
   unsigned int height;

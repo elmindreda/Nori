@@ -369,7 +369,7 @@ Ref<Image> Image::create(const ResourceInfo& info,
                          unsigned int height,
                          unsigned int depth,
                          const void* data,
-                         unsigned int pitch)
+                         ptrdiff_t pitch)
 {
   Ref<Image> image(new Image(info));
   if (!image->init(format, width, height, depth, data, pitch))
@@ -394,7 +394,7 @@ bool Image::init(const PixelFormat& initFormat,
                  unsigned int initHeight,
                  unsigned int initDepth,
                  const void* initData,
-                 unsigned int pitch)
+                 ptrdiff_t pitch)
 {
   format = initFormat;
   width = initWidth;
