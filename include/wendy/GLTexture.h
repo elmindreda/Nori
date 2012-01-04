@@ -301,7 +301,8 @@ private:
   Texture(const ResourceInfo& info, Context& context);
   Texture(const Texture& source);
   bool init(const TextureParams& params, const wendy::Image& data);
-  unsigned int retrieveImages(unsigned int target, CubeFace face);
+  void retrieveImages();
+  unsigned int retrieveTargetImages(unsigned int target, CubeFace face);
   void applyDefaults();
   Texture& operator = (const Texture& source);
   typedef std::vector<Ref<TextureImage> > ImageList;
