@@ -768,10 +768,10 @@ Ref<Program> Program::read(Context& context,
   ResourceCache& cache = context.getCache();
 
   String name;
-  name.append("vs:");
-  name.append(vertexShaderName);
-  name.append(" fs:");
-  name.append(fragmentShaderName);
+  name += "vs:";
+  name += vertexShaderName;
+  name += " fs:";
+  name += fragmentShaderName;
 
   if (Ref<Program> program = cache.find<Program>(name))
     return program;

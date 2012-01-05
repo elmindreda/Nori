@@ -613,12 +613,12 @@ Ref<Texture> Texture::read(Context& context,
   ResourceCache& cache = context.getCache();
 
   String name;
-  name.append("source:");
-  name.append(imageName);
-  name.append(" mipmapped:");
-  name.append(params.mipmapped ? "true" : "false");
-  name.append(" sRGB:");
-  name.append(params.sRGB ? "true" : "false");
+  name += "source:";
+  name += imageName;
+  name += " mipmapped:";
+  name += params.mipmapped ? "true" : "false";
+  name += " sRGB:";
+  name += params.sRGB ? "true" : "false";
 
   if (Ref<Texture> texture = cache.find<Texture>(name))
     return texture;
