@@ -153,20 +153,17 @@ const Parser::NameList& Parser::getNameList() const
 
 void Parser::addLine()
 {
-  File& file = files.back();
-  file.line++;
+  files.back().line++;
 }
 
 void Parser::advance(size_t count)
 {
-  File& file = files.back();
-  file.pos += count;
+  files.back().pos += count;
 }
 
 void Parser::discard()
 {
-  File& file = files.back();
-  file.base = file.pos;
+  files.back().base = files.back().pos;
 }
 
 void Parser::appendToOutput()
@@ -183,8 +180,7 @@ void Parser::appendToOutput(const char* text)
 
 char Parser::c(ptrdiff_t offset) const
 {
-  const File& file = files.back();
-  return file.pos[offset];
+  return files.back().pos[offset];
 }
 
 void Parser::passWhitespace()
