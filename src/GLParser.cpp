@@ -106,7 +106,9 @@ void Parser::parse(const char* name, const char* text)
   names.push_back(name);
 
   output.reserve(output.size() + std::strlen(text));
-  appendToOutput(format("#line 0 %u\n", (unsigned int) files.size()).c_str());
+  appendToOutput(format("#line 0 %u // %s\n",
+                        (unsigned int) files.size(),
+                        files.back().name).c_str());
 
   while (hasMore())
   {
@@ -132,8 +134,10 @@ void Parser::parse(const char* name, const char* text)
 
   if (!files.empty())
   {
-    const File& file = files.back();
-    appendToOutput(format("#line %u %u\n", file.line, (unsigned int) files.size()).c_str());
+    appendToOutput(format("\n#line %u %u // %s",
+                          files.back().line,
+                          (unsigned int) files.size(),
+                          files.back().name).c_str());
   }
 }
 
@@ -183,10 +187,16 @@ char Parser::c(ptrdiff_t offset) const
   return file.pos[offset];
 }
 
-void Parser::parseWhitespace()
+void Parser::passWhitespace()
 {
   while (isWhitespace())
     advance(1);
+}
+
+void Parser::parseWhitespace()
+{
+  passWhitespace();
+  appendToOutput();
 }
 
 void Parser::parseNewLine()
@@ -248,7 +258,7 @@ void Parser::parseMultiLineComment()
   appendToOutput();
 }
 
-String Parser::parseNumber()
+String Parser::passNumber()
 {
   if (!isNumeric())
   {
@@ -269,7 +279,7 @@ String Parser::parseNumber()
   return number;
 }
 
-String Parser::parseIdentifier()
+String Parser::passIdentifier()
 {
   if (!isAlpha())
   {
@@ -290,7 +300,7 @@ String Parser::parseIdentifier()
   return identifier;
 }
 
-String Parser::parseFileName()
+String Parser::passFileName()
 {
   char terminator;
   if (c(0) == '<')
@@ -342,13 +352,13 @@ void Parser::parseCommand()
   advance(1);
   setFirstOnLine(false);
 
-  parseWhitespace();
-  const String command = parseIdentifier();
-  parseWhitespace();
+  passWhitespace();
+  const String command = passIdentifier();
+  passWhitespace();
 
   if (command == "include")
   {
-    const String name = parseFileName();
+    const String name = passFileName();
     discard();
     parse(name.c_str());
   }

@@ -294,28 +294,29 @@ Shader::Shader(const ResourceInfo& info,
 bool Shader::init(const String& text)
 {
   Parser parser(getCache());
-  parser.parse(getName().c_str(), text.c_str());
 
-  String decl;
-  decl += "#line 0 0\n";
-  decl += context.getSharedProgramStateDeclaration();
+  try
+  {
+    parser.parse(getName().c_str(), text.c_str());
+  }
+  catch (Exception& e)
+  {
+    return false;
+  }
 
-  String main;
-  main += parser.getOutput();
-
-  log("%s", main.c_str());
+  String shader;
+  shader += "#line 0 0 // shared program state\n";
+  shader += context.getSharedProgramStateDeclaration();
+  shader += parser.getOutput();
 
   GLsizei lengths[2];
   const GLchar* strings[2];
 
-  lengths[0] = decl.length();
-  strings[0] = (const GLchar*) decl.c_str();
-
-  lengths[1] = main.length();
-  strings[1] = (const GLchar*) main.c_str();
+  lengths[0] = shader.length();
+  strings[0] = (const GLchar*) shader.c_str();
 
   shaderID = glCreateShader(convertToGL(type));
-  glShaderSource(shaderID, 2, strings, lengths);
+  glShaderSource(shaderID, 1, strings, lengths);
   glCompileShader(shaderID);
 
   String infoLog;

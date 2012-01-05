@@ -53,13 +53,14 @@ private:
   void appendToOutput();
   void appendToOutput(const char* text);
   char c(ptrdiff_t offset) const;
+  void passWhitespace();
   void parseWhitespace();
   void parseNewLine();
   void parseSingleLineComment();
   void parseMultiLineComment();
-  String parseNumber();
-  String parseIdentifier();
-  String parseFileName();
+  String passNumber();
+  String passIdentifier();
+  String passFileName();
   void parseCommand();
   bool hasMore() const;
   bool isNewLine() const;
