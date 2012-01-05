@@ -146,6 +146,16 @@ const String& ShaderPreprocessor::getOutput() const
   return output;
 }
 
+bool ShaderPreprocessor::hasVersion() const
+{
+  return !version.empty();
+}
+
+const String& ShaderPreprocessor::getVersion() const
+{
+  return version;
+}
+
 const ShaderNameList& ShaderPreprocessor::getNameList() const
 {
   return names;
@@ -306,11 +316,11 @@ String ShaderPreprocessor::passShaderName()
   else
   {
     const File& file = files.back();
-    logError("%s:%u: Expected \'<\' or \'\"\' after \'#include\'",
+    logError("%s:%u: Expected \'<\' or \'\"\' after #include",
              file.name,
              file.line);
 
-    throw Exception("Expected \'<\' or \'\"\' after \'#include\'");
+    throw Exception("Expected \'<\' or \'\"\' after #include");
   }
 
   advance(1);
@@ -356,6 +366,21 @@ void ShaderPreprocessor::parseCommand()
     const String name = passShaderName();
     discard();
     parse(name.c_str());
+  }
+  else if (command == "version")
+  {
+    if (!version.empty())
+    {
+      logError("%s:%u: Duplicate #version directive",
+               files.back().name,
+               files.back().line);
+
+      throw Exception("Duplicate #version directive");
+    }
+
+    passWhitespace();
+    version = passNumber();
+    discard();
   }
 
   while (hasMore())

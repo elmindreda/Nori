@@ -305,6 +305,14 @@ bool Shader::init(const String& text)
   }
 
   String shader;
+
+  if (spp.hasVersion())
+  {
+    shader += "#version ";
+    shader += spp.getVersion();
+    shader += "\n";
+  }
+
   shader += "#line 0 0 /*shared program state*/\n";
   shader += context.getSharedProgramStateDeclaration();
   shader += spp.getOutput();

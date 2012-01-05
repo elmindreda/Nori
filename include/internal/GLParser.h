@@ -44,7 +44,9 @@ public:
   ShaderPreprocessor(ResourceCache& cache);
   void parse(const char* name);
   void parse(const char* name, const char* text);
+  bool hasVersion() const;
   const String& getOutput() const;
+  const String& getVersion() const;
   const ShaderNameList& getNameList() const;
 private:
   void addLine();
@@ -79,6 +81,7 @@ private:
   FileList files;
   ShaderNameList names;
   String output;
+  String version;
 };
 
 ///////////////////////////////////////////////////////////////////////
