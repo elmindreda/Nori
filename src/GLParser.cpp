@@ -45,12 +45,12 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Parser::Parser(ResourceCache& initCache):
+ShaderPreprocessor::ShaderPreprocessor(ResourceCache& initCache):
   cache(initCache)
 {
 }
 
-void Parser::parse(const char* name)
+void ShaderPreprocessor::parse(const char* name)
 {
   const Path path = cache.findFile(name);
   if (path.isEmpty())
@@ -97,7 +97,7 @@ void Parser::parse(const char* name)
   parse(name, text.c_str());
 }
 
-void Parser::parse(const char* name, const char* text)
+void ShaderPreprocessor::parse(const char* name, const char* text)
 {
   if (std::find(names.begin(), names.end(), name) != names.end())
     return;
@@ -141,61 +141,61 @@ void Parser::parse(const char* name, const char* text)
   }
 }
 
-const String& Parser::getOutput() const
+const String& ShaderPreprocessor::getOutput() const
 {
   return output;
 }
 
-const Parser::NameList& Parser::getNameList() const
+const ShaderNameList& ShaderPreprocessor::getNameList() const
 {
   return names;
 }
 
-void Parser::addLine()
+void ShaderPreprocessor::addLine()
 {
   files.back().line++;
 }
 
-void Parser::advance(size_t count)
+void ShaderPreprocessor::advance(size_t count)
 {
   files.back().pos += count;
 }
 
-void Parser::discard()
+void ShaderPreprocessor::discard()
 {
   files.back().base = files.back().pos;
 }
 
-void Parser::appendToOutput()
+void ShaderPreprocessor::appendToOutput()
 {
   File& file = files.back();
   output.append(file.base, file.pos);
   file.base = file.pos;
 }
 
-void Parser::appendToOutput(const char* text)
+void ShaderPreprocessor::appendToOutput(const char* text)
 {
   output.append(text);
 }
 
-char Parser::c(ptrdiff_t offset) const
+char ShaderPreprocessor::c(ptrdiff_t offset) const
 {
   return files.back().pos[offset];
 }
 
-void Parser::passWhitespace()
+void ShaderPreprocessor::passWhitespace()
 {
   while (isWhitespace())
     advance(1);
 }
 
-void Parser::parseWhitespace()
+void ShaderPreprocessor::parseWhitespace()
 {
   passWhitespace();
   appendToOutput();
 }
 
-void Parser::parseNewLine()
+void ShaderPreprocessor::parseNewLine()
 {
   if (c(0) == '\r' && c(1) == '\n')
     advance(2);
@@ -207,7 +207,7 @@ void Parser::parseNewLine()
   appendToOutput();
 }
 
-void Parser::parseSingleLineComment()
+void ShaderPreprocessor::parseSingleLineComment()
 {
   advance(2);
   setFirstOnLine(false);
@@ -223,7 +223,7 @@ void Parser::parseSingleLineComment()
   appendToOutput();
 }
 
-void Parser::parseMultiLineComment()
+void ShaderPreprocessor::parseMultiLineComment()
 {
   advance(2);
   setFirstOnLine(false);
@@ -254,7 +254,7 @@ void Parser::parseMultiLineComment()
   appendToOutput();
 }
 
-String Parser::passNumber()
+String ShaderPreprocessor::passNumber()
 {
   if (!isNumeric())
   {
@@ -275,7 +275,7 @@ String Parser::passNumber()
   return number;
 }
 
-String Parser::passIdentifier()
+String ShaderPreprocessor::passIdentifier()
 {
   if (!isAlpha())
   {
@@ -296,7 +296,7 @@ String Parser::passIdentifier()
   return identifier;
 }
 
-String Parser::passShaderName()
+String ShaderPreprocessor::passShaderName()
 {
   char terminator;
   if (c(0) == '<')
@@ -343,17 +343,16 @@ String Parser::passShaderName()
   }
 }
 
-void Parser::parseCommand()
+void ShaderPreprocessor::parseCommand()
 {
   advance(1);
   setFirstOnLine(false);
-
   passWhitespace();
+
   const String command = passIdentifier();
-  passWhitespace();
-
   if (command == "include")
   {
+    passWhitespace();
     const String name = passShaderName();
     discard();
     parse(name.c_str());
@@ -370,58 +369,58 @@ void Parser::parseCommand()
   appendToOutput();
 }
 
-bool Parser::hasMore() const
+bool ShaderPreprocessor::hasMore() const
 {
   return c(0) != '\0';
 }
 
-bool Parser::isNewLine() const
+bool ShaderPreprocessor::isNewLine() const
 {
   return c(0) == '\r' || c(0) == '\n';
 }
 
-bool Parser::isMultiLineComment() const
+bool ShaderPreprocessor::isMultiLineComment() const
 {
   return c(0) == '/' && c(1) == '*';
 }
 
-bool Parser::isSingleLineComment() const
+bool ShaderPreprocessor::isSingleLineComment() const
 {
   return c(0) == '/' && c(1) == '/';
 }
 
-bool Parser::isWhitespace() const
+bool ShaderPreprocessor::isWhitespace() const
 {
   return c(0) == ' ' || c(0) == '\t';
 }
 
-bool Parser::isCommand() const
+bool ShaderPreprocessor::isCommand() const
 {
   return isFirstOnLine() && c(0) == '#';
 }
 
-bool Parser::isAlpha() const
+bool ShaderPreprocessor::isAlpha() const
 {
   return c(0) >= 'a' && c(0) <= 'z' || c(0) >= 'A' && c(0) <= 'Z';
 }
 
-bool Parser::isNumeric() const
+bool ShaderPreprocessor::isNumeric() const
 {
   return c(0) >= '0' && c(0) <= '9';
 }
 
-bool Parser::isAlphaNumeric() const
+bool ShaderPreprocessor::isAlphaNumeric() const
 {
   return isAlpha() || isNumeric();
 }
 
-bool Parser::isFirstOnLine() const
+bool ShaderPreprocessor::isFirstOnLine() const
 {
   const File& file = files.back();
   return file.first;
 }
 
-void Parser::setFirstOnLine(bool newState)
+void ShaderPreprocessor::setFirstOnLine(bool newState)
 {
   File& file = files.back();
   file.first = newState;
@@ -429,7 +428,7 @@ void Parser::setFirstOnLine(bool newState)
 
 ///////////////////////////////////////////////////////////////////////
 
-Parser::File::File(const char* name, const char* text):
+ShaderPreprocessor::File::File(const char* name, const char* text):
   name(name),
   text(text),
   base(text),

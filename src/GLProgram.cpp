@@ -293,11 +293,11 @@ Shader::Shader(const ResourceInfo& info,
 
 bool Shader::init(const String& text)
 {
-  Parser parser(getCache());
+  ShaderPreprocessor spp(getCache());
 
   try
   {
-    parser.parse(getName().c_str(), text.c_str());
+    spp.parse(getName().c_str(), text.c_str());
   }
   catch (Exception& e)
   {
@@ -307,7 +307,7 @@ bool Shader::init(const String& text)
   String shader;
   shader += "#line 0 0 /*shared program state*/\n";
   shader += context.getSharedProgramStateDeclaration();
-  shader += parser.getOutput();
+  shader += spp.getOutput();
 
   GLsizei lengths[2];
   const GLchar* strings[2];
