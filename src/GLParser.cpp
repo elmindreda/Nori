@@ -296,7 +296,7 @@ String Parser::passIdentifier()
   return identifier;
 }
 
-String Parser::passFileName()
+String Parser::passShaderName()
 {
   char terminator;
   if (c(0) == '<')
@@ -322,12 +322,12 @@ String Parser::passFileName()
     if (!hasMore() || isNewLine())
     {
       const File& file = files.back();
-      logError("%s:%u: Expected \'%c\' after filename",
+      logError("%s:%u: Expected \'%c\' after shader name",
                file.name,
                file.line,
                terminator);
 
-      throw Exception("Expected \'<\' or \'\"\' after filename");
+      throw Exception("Expected \'<\' or \'\"\' after shader name");
     }
 
     if (c(0) == terminator)
@@ -354,7 +354,7 @@ void Parser::parseCommand()
 
   if (command == "include")
   {
-    const String name = passFileName();
+    const String name = passShaderName();
     discard();
     parse(name.c_str());
   }

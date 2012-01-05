@@ -56,7 +56,7 @@ private:
   void parseMultiLineComment();
   String passNumber();
   String passIdentifier();
-  String passFileName();
+  String passShaderName();
   void parseCommand();
   bool hasMore() const;
   bool isNewLine() const;
