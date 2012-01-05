@@ -42,8 +42,8 @@ class Parser
 public:
   typedef std::vector<String> NameList;
   Parser(ResourceCache& cache);
-  bool parse(const char* name);
-  bool parse(const char* name, const char* text);
+  void parse(const char* name);
+  void parse(const char* name, const char* text);
   const String& getOutput() const;
   const NameList& getNameList() const;
 private:
@@ -51,6 +51,7 @@ private:
   void advance(size_t offset);
   void discard();
   void appendToOutput();
+  void appendToOutput(const char* text);
   char c(ptrdiff_t offset) const;
   void parseWhitespace();
   void parseNewLine();
@@ -60,6 +61,7 @@ private:
   String parseIdentifier();
   String parseFileName();
   void parseCommand();
+  bool hasMore() const;
   bool isNewLine() const;
   bool isMultiLineComment() const;
   bool isSingleLineComment() const;
@@ -88,7 +90,7 @@ public:
   const char* text;
   const char* base;
   const char* pos;
-  size_t line;
+  unsigned int line;
   bool first;
 };
 

@@ -50,18 +50,41 @@ Parser::Parser(ResourceCache& initCache):
 {
 }
 
-bool Parser::parse(const char* name)
+void Parser::parse(const char* name)
 {
   const Path path = cache.findFile(name);
   if (path.isEmpty())
   {
-    logError("Failed to find shader \'%s\'", name);
-    return false;
+    if (files.empty())
+      logError("Failed to find shader \'%s\'", name);
+    else
+    {
+      const File& file = files.back();
+      logError("%s:%u: Failed to find shader \'%s\'",
+               file.name,
+               file.line,
+               name);
+    }
+
+    throw Exception("Failed to find shader file");
   }
 
   std::ifstream stream(path.asString().c_str());
   if (stream.fail())
-    throw Exception("Failed to open file");
+  {
+    if (files.empty())
+      logError("Failed to open shader file \'%s\'", path.asString().c_str());
+    else
+    {
+      const File& file = files.back();
+      logError("%s:%u: Failed to open shader file \'%s\'",
+               file.name,
+               file.line,
+               path.asString().c_str());
+    }
+
+    throw Exception("Failed to open shader file");
+  }
 
   String text;
 
@@ -71,20 +94,21 @@ bool Parser::parse(const char* name)
   stream.read(&text[0], text.size());
   stream.close();
 
-  return parse(name, text.c_str());
+  parse(name, text.c_str());
 }
 
-bool Parser::parse(const char* name, const char* text)
+void Parser::parse(const char* name, const char* text)
 {
   if (std::find(names.begin(), names.end(), name) != names.end())
-    return true;
-
-  output.reserve(output.size() + std::strlen(text));
+    return;
 
   files.push_back(File(name, text));
   names.push_back(name);
 
-  while (c(0))
+  output.reserve(output.size() + std::strlen(text));
+  appendToOutput(format("#line 0 %u\n", (unsigned int) files.size()).c_str());
+
+  while (hasMore())
   {
     if (isMultiLineComment())
       parseMultiLineComment();
@@ -105,7 +129,12 @@ bool Parser::parse(const char* name, const char* text)
   }
 
   files.pop_back();
-  return true;
+
+  if (!files.empty())
+  {
+    const File& file = files.back();
+    appendToOutput(format("#line %u %u\n", file.line, (unsigned int) files.size()).c_str());
+  }
 }
 
 const String& Parser::getOutput() const
@@ -143,6 +172,11 @@ void Parser::appendToOutput()
   file.base = file.pos;
 }
 
+void Parser::appendToOutput(const char* text)
+{
+  output.append(text);
+}
+
 char Parser::c(ptrdiff_t offset) const
 {
   const File& file = files.back();
@@ -172,7 +206,7 @@ void Parser::parseSingleLineComment()
   advance(2);
   setFirstOnLine(false);
 
-  while (c(0))
+  while (hasMore())
   {
     if (isNewLine())
       break;
@@ -188,13 +222,22 @@ void Parser::parseMultiLineComment()
   advance(2);
   setFirstOnLine(false);
 
-  while (c(0))
+  for (;;)
   {
+    if (!hasMore())
+    {
+      const File& file = files.back();
+      logError("%s:%u: Unexpected end of file in multi-line comment",
+               file.name,
+               file.line);
+
+      throw Exception("Unexpected end of file in multi-line comment");
+    }
+
     if (c(0) == '*' && c(1) == '/')
     {
       advance(2);
-      appendToOutput();
-      return;
+      break;
     }
     else if (isNewLine())
       parseNewLine();
@@ -202,13 +245,18 @@ void Parser::parseMultiLineComment()
       advance(1);
   }
 
-  throw Exception("Expected end of comment");
+  appendToOutput();
 }
 
 String Parser::parseNumber()
 {
   if (!isNumeric())
-    throw Exception("Expected numeral");
+  {
+    const File& file = files.back();
+    logError("%s:%u: Expected number", file.name, file.line);
+
+    throw Exception("Expected number");
+  }
 
   String number;
 
@@ -224,7 +272,12 @@ String Parser::parseNumber()
 String Parser::parseIdentifier()
 {
   if (!isAlpha())
+  {
+    const File& file = files.back();
+    logError("%s:%u: Expected identifier", file.name, file.line);
+
     throw Exception("Expected identifier");
+  }
 
   String identifier;
 
@@ -245,17 +298,33 @@ String Parser::parseFileName()
   else if (c(0) == '\"')
     terminator = '\"';
   else
-    throw Exception("Expected < or \" after #include");
+  {
+    const File& file = files.back();
+    logError("%s:%u: Expected \'<\' or \'\"\' after \'#include\'",
+             file.name,
+             file.line);
+
+    throw Exception("Expected \'<\' or \'\"\' after \'#include\'");
+  }
 
   advance(1);
 
   String name;
 
-  while (c(0))
+  while (hasMore())
   {
-    if (isNewLine())
-      break;
-    else if (c(0) == terminator)
+    if (!hasMore() || isNewLine())
+    {
+      const File& file = files.back();
+      logError("%s:%u: Expected \'%c\' after filename",
+               file.name,
+               file.line,
+               terminator);
+
+      throw Exception("Expected \'<\' or \'\"\' after filename");
+    }
+
+    if (c(0) == terminator)
     {
       advance(1);
       return name;
@@ -266,8 +335,6 @@ String Parser::parseFileName()
       advance(1);
     }
   }
-
-  throw Exception("Expected terminator after filename");
 }
 
 void Parser::parseCommand()
@@ -286,7 +353,7 @@ void Parser::parseCommand()
     parse(name.c_str());
   }
 
-  while (c(0))
+  while (hasMore())
   {
     if (isNewLine() || isSingleLineComment() || isMultiLineComment())
       break;
@@ -295,6 +362,11 @@ void Parser::parseCommand()
   }
 
   appendToOutput();
+}
+
+bool Parser::hasMore() const
+{
+  return c(0) != '\0';
 }
 
 bool Parser::isNewLine() const

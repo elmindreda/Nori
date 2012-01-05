@@ -294,16 +294,16 @@ Shader::Shader(const ResourceInfo& info,
 bool Shader::init(const String& text)
 {
   Parser parser(getCache());
-  if (!parser.parse(getName().c_str(), text.c_str()))
-    return false;
+  parser.parse(getName().c_str(), text.c_str());
 
   String decl;
   decl += "#line 0 0\n";
   decl += context.getSharedProgramStateDeclaration();
 
   String main;
-  main += "#line 0 1\n";
   main += parser.getOutput();
+
+  log("%s", main.c_str());
 
   GLsizei lengths[2];
   const GLchar* strings[2];
