@@ -416,14 +416,12 @@ bool ShaderPreprocessor::isAlphaNumeric() const
 
 bool ShaderPreprocessor::isFirstOnLine() const
 {
-  const File& file = files.back();
-  return file.first;
+  return files.back().first;
 }
 
 void ShaderPreprocessor::setFirstOnLine(bool newState)
 {
-  File& file = files.back();
-  file.first = newState;
+  files.back().first = newState;
 }
 
 ///////////////////////////////////////////////////////////////////////
