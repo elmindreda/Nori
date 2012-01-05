@@ -106,7 +106,7 @@ void Parser::parse(const char* name, const char* text)
   names.push_back(name);
 
   output.reserve(output.size() + std::strlen(text));
-  appendToOutput(format("#line 0 %u // %s\n",
+  appendToOutput(format("#line 0 %u /* entering %s */\n",
                         (unsigned int) files.size(),
                         files.back().name).c_str());
 
@@ -134,7 +134,7 @@ void Parser::parse(const char* name, const char* text)
 
   if (!files.empty())
   {
-    appendToOutput(format("\n#line %u %u // %s",
+    appendToOutput(format("\n#line %u %u /* returning to %s */",
                           files.back().line,
                           (unsigned int) files.size(),
                           files.back().name).c_str());

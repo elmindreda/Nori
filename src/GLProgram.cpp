@@ -305,7 +305,7 @@ bool Shader::init(const String& text)
   }
 
   String shader;
-  shader += "#line 0 0 // shared program state\n";
+  shader += "#line 0 0 /*shared program state*/\n";
   shader += context.getSharedProgramStateDeclaration();
   shader += parser.getOutput();
 
