@@ -18,8 +18,8 @@ set(wendy_SOURCES
     Rectangle.cpp Resource.cpp Signal.cpp Sphere.cpp Timer.cpp Transform.cpp
     Triangle.cpp Vertex.cpp
 
-    GLBuffer.cpp GLContext.cpp GLHelper.cpp GLProgram.cpp GLQuery.cpp
-    GLState.cpp GLTexture.cpp
+    GLBuffer.cpp GLContext.cpp GLHelper.cpp GLParser.cpp GLProgram.cpp
+    GLQuery.cpp GLState.cpp GLTexture.cpp
 
     Input.cpp)
 

@@ -37,8 +37,10 @@
 #include <GL/glew.h>
 
 #include <internal/GLHelper.h>
+#include <internal/GLParser.h>
 
 #include <algorithm>
+
 #include <cstring>
 #include <sstream>
 #include <map>
@@ -291,13 +293,17 @@ Shader::Shader(const ResourceInfo& info,
 
 bool Shader::init(const String& text)
 {
+  Parser parser(getCache());
+  if (!parser.parse(getName().c_str(), text.c_str()))
+    return false;
+
   String decl;
   decl += "#line 0 0\n";
   decl += context.getSharedProgramStateDeclaration();
 
   String main;
   main += "#line 0 1\n";
-  main += text;
+  main += parser.getOutput();
 
   GLsizei lengths[2];
   const GLchar* strings[2];
