@@ -162,10 +162,9 @@ bool Image::transformTo(const PixelFormat& targetFormat, PixelTransform& transfo
   if (!transform.supports(targetFormat, format))
     return false;
 
-  Block target(width * height * depth * targetFormat.getSize());
-  transform.convert(target, targetFormat, data, format, width * height * depth);
-  data.attach(target.detach(), target.getSize());
-
+  Block temp(width * height * depth * targetFormat.getSize());
+  transform.convert(temp, targetFormat, data, format, width * height * depth);
+  data.attach(temp.detach(), temp.getSize());
   format = targetFormat;
   return true;
 }
@@ -185,68 +184,64 @@ bool Image::crop(const Recti& area)
   }
 
   const size_t pixelSize = format.getSize();
-  Block scratch(area.size.x * area.size.y * pixelSize);
+  Block temp(area.size.x * area.size.y * pixelSize);
 
   for (size_t y = 0;  y < area.size.y;  y++)
   {
-    scratch.copyFrom(data + ((y + area.position.y) * width + area.position.x) * pixelSize,
-                     area.size.x * pixelSize,
-                     y * area.size.x * pixelSize);
+    std::memcpy(temp + y * area.size.x * pixelSize,
+                data + ((y + area.position.y) * width + area.position.x) * pixelSize,
+                area.size.x * pixelSize);
   }
 
   width = area.size.x;
   height = area.size.y;
 
-  data.attach(scratch.detach(), scratch.getSize());
+  data.attach(temp.detach(), temp.getSize());
   return true;
 }
 
 void Image::flipHorizontal()
 {
-  const size_t pixelSize = format.getSize();
-
-  Block scratch(data.getSize());
+  const size_t rowSize = width * format.getSize();
+  Block temp(data.getSize());
 
   for (size_t z = 0;  z < depth;  z++)
   {
-    size_t offset = z * width * height * pixelSize;
+    const size_t sliceOffset = z * height * rowSize;
 
     for (size_t y = 0;  y < height;  y++)
     {
-      scratch.copyFrom(data + offset + y * width * pixelSize,
-                       width * pixelSize,
-                       offset + (height - y - 1) * width * pixelSize);
+      std::memcpy(temp + sliceOffset + rowSize * (height - y - 1),
+                  data + sliceOffset + rowSize * y,
+                  rowSize);
     }
   }
 
-  data.attach(scratch.detach(), scratch.getSize());
+  data.attach(temp.detach(), temp.getSize());
 }
 
 void Image::flipVertical()
 {
   const size_t pixelSize = format.getSize();
-
-  Block scratch(data.getSize());
+  Block temp(data.getSize());
 
   for (size_t z = 0;  z < depth;  z++)
   {
     for (size_t y = 0;  y < height;  y++)
     {
       const uint8* source = data + (z * height + y) * width * pixelSize;
-      uint8* target = scratch + ((z * height + y + 1) * width - 1) * pixelSize;
+      uint8* target = temp + ((z * height + y + 1) * width - 1) * pixelSize;
 
       while (source < target)
       {
-        for (size_t i = 0;  i < pixelSize;  i++)
-          target[i] = source[i];
-
+        std::memcpy(target, source, pixelSize);
         source += pixelSize;
         target -= pixelSize;
       }
     }
   }
 
-  data.attach(scratch.detach(), scratch.getSize());
+  data.attach(temp.detach(), temp.getSize());
 }
 
 bool Image::isPOT() const
@@ -426,10 +421,7 @@ bool Image::init(const PixelFormat& initFormat,
       }
     }
     else
-    {
-      data.copyFrom((const uint8*) initData,
-                    width * height * depth * format.getSize());
-    }
+      std::memcpy(data, initData, width * height * depth * format.getSize());
   }
   else
   {
