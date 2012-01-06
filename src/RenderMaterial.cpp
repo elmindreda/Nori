@@ -128,7 +128,7 @@ Material::Material(const ResourceInfo& info):
 ///////////////////////////////////////////////////////////////////////
 
 MaterialReader::MaterialReader(System& initSystem):
-  ResourceReader(initSystem.getCache()),
+  ResourceReader<Material>(initSystem.getCache()),
   system(initSystem)
 {
   if (cullModeMap.isEmpty())

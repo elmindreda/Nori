@@ -297,7 +297,7 @@ Ref<Model> Model::read(System& system, const String& name)
 ///////////////////////////////////////////////////////////////////////
 
 ModelReader::ModelReader(System& initSystem):
-  ResourceReader(initSystem.getCache()),
+  ResourceReader<Model>(initSystem.getCache()),
   system(initSystem)
 {
 }

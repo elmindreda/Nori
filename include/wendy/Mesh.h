@@ -142,7 +142,7 @@ class MeshReader : public ResourceReader<Mesh>
 {
 public:
   MeshReader(ResourceCache& cache);
-  using ResourceReader::read;
+  using ResourceReader<Mesh>::read;
   Ref<Mesh> read(const String& name, const Path& path);
 private:
   String parseName(const char** text);

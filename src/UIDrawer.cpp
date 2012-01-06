@@ -98,7 +98,7 @@ Ref<Theme> Theme::read(render::GeometryPool& pool, const String& name)
 ///////////////////////////////////////////////////////////////////////
 
 ThemeReader::ThemeReader(render::GeometryPool& initPool):
-  ResourceReader(initPool.getContext().getCache()),
+  ResourceReader<Theme>(initPool.getContext().getCache()),
   pool(&initPool)
 {
   if (widgetStateMap.isEmpty())

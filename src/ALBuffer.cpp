@@ -209,7 +209,7 @@ Buffer& Buffer::operator = (const Buffer& source)
 ///////////////////////////////////////////////////////////////////////
 
 BufferReader::BufferReader(Context& initContext):
-  ResourceReader(initContext.getCache()),
+  ResourceReader<Buffer>(initContext.getCache()),
   context(initContext)
 {
 }

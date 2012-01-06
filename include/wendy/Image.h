@@ -153,7 +153,7 @@ class ImageReader : public ResourceReader<Image>
 {
 public:
   ImageReader(ResourceCache& cache);
-  using ResourceReader::read;
+  using ResourceReader<Image>::read;
   Ref<Image> read(const String& name, const Path& path);
 };
 

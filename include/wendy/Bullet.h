@@ -87,7 +87,7 @@ class BvhMeshShapeReader : public ResourceReader<BvhMeshShape>
 {
 public:
   BvhMeshShapeReader(ResourceCache& cache);
-  using ResourceReader::read;
+  using ResourceReader<BvhMeshShape>::read;
   Ref<BvhMeshShape> read(const String& name, const Path& path);
 };
 

@@ -136,7 +136,7 @@ class ThemeReader : public ResourceReader<Theme>
 {
 public:
   ThemeReader(render::GeometryPool& pool);
-  using ResourceReader::read;
+  using ResourceReader<Theme>::read;
   Ref<Theme> read(const String& name, const Path& path);
 private:
   Ref<render::GeometryPool> pool;

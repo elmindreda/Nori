@@ -455,7 +455,7 @@ Image& Image::operator = (const Image& source)
 ///////////////////////////////////////////////////////////////////////
 
 ImageReader::ImageReader(ResourceCache& cache):
-  ResourceReader(cache)
+  ResourceReader<Image>(cache)
 {
 }
 

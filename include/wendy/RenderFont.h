@@ -147,7 +147,7 @@ class FontReader : public ResourceReader<Font>
 {
 public:
   FontReader(GeometryPool& pool);
-  using ResourceReader::read;
+  using ResourceReader<Font>::read;
   Ref<Font> read(const String& name, const Path& path);
 private:
   bool extractGlyphs(FontData& data,
