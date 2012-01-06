@@ -456,7 +456,7 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
   std::ifstream stream(path.asString().c_str(), std::ios::in | std::ios::binary);
   if (stream.fail())
   {
-    logError("Failed to open image \'%s\'", name.c_str());
+    logError("Failed to open image file \'%s\'", path.asString().c_str());
     return NULL;
   }
 
@@ -466,13 +466,13 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
 
     if (!stream.read((char*) header, sizeof(header)))
     {
-      logError("Failed to read PNG file header in \'%s\'", name.c_str());
+      logError("Failed to read PNG header from image \'%s\'", name.c_str());
       return NULL;
     }
 
     if (png_sig_cmp(header, 0, sizeof(header)))
     {
-      logError("Invalid PNG signature in \'%s\'", name.c_str());
+      logError("Invalid PNG signature in image \'%s\'", name.c_str());
       return NULL;
     }
   }
@@ -489,7 +489,8 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
                                      writeWarningPNG);
     if (!context)
     {
-      logError("Failed to create PNG read struct for \'%s\'", name.c_str());
+      logError("Failed to create PNG read struct for image \'%s\'",
+               name.c_str());
       return NULL;
     }
 
@@ -500,7 +501,8 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
     {
       png_destroy_read_struct(&context, NULL, NULL);
 
-      logError("Failed to create PNG info struct for \'%s\'", name.c_str());
+      logError("Failed to create PNG info struct for image \'%s\'",
+               name.c_str());
       return NULL;
     }
 
@@ -509,7 +511,8 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
     {
       png_destroy_read_struct(&context, &pngInfo, NULL);
 
-      logError("Failed to create PNG end info struct for \'%s\'", name.c_str());
+      logError("Failed to create PNG end info struct for image \'%s\'",
+               name.c_str());
       return NULL;
     }
 
@@ -563,8 +566,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
   std::ofstream stream(path.asString().c_str());
   if (!stream.is_open())
   {
-    logError("Failed to open \'%s\' for writing",
-             path.asString().c_str());
+    logError("Failed to create image file \'%s\'", path.asString().c_str());
     return false;
   }
 
@@ -574,7 +576,8 @@ bool ImageWriter::write(const Path& path, const Image& image)
                                                 writeWarningPNG);
   if (!context)
   {
-    logError("Failed to create write struct");
+    logError("Failed to create PNG write struct for image file \'%s\'",
+             path.asString().c_str());
     return false;
   }
 
@@ -585,7 +588,8 @@ bool ImageWriter::write(const Path& path, const Image& image)
   if (!info)
   {
     png_destroy_write_struct(&context, png_infopp(NULL));
-    logError("Failed to create info struct");
+    logError("Failed to create PNG info struct for image file \'%s\'",
+             path.asString().c_str());
     return false;
   }
 
@@ -597,7 +601,8 @@ bool ImageWriter::write(const Path& path, const Image& image)
       !convertToBitDepth(bitDepth, format))
   {
     png_destroy_write_struct(&context, &info);
-    logError("Pixel format \'%s\' is not supported by the PNG format",
+    logError("Failed to write image \'%s\': pixel format \'%s\' is not supported by the PNG format",
+             image.getName().c_str(),
              format.asString().c_str());
     return false;
   }
