@@ -359,25 +359,21 @@ void TextureImage::detach(int attachment)
     glFramebufferTexture1DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
                               convertToGL(texture.type),
-                              0,
-                              0);
+                              0, 0);
   }
   else if (texture.is3D())
   {
     glFramebufferTexture3DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
                               convertToGL(texture.type),
-                              0,
-                              0,
-                              0);
+                              0, 0, 0);
   }
   else
   {
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
                               attachment,
                               convertToGL(texture.type),
-                              0,
-                              0);
+                              0, 0);
   }
 
 #if WENDY_DEBUG
@@ -800,9 +796,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& data)
     glTexImage3D(convertToGL(type),
                  0,
                  convertToGL(format, params.sRGB),
-                 width,
-                 height,
-                 depth,
+                 width, height, depth,
                  0,
                  convertToGL(format.getSemantic()),
                  convertToGL(format.getType()),
@@ -829,8 +823,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& data)
       glTexImage2D(convertToGL(faces[i]),
                    0,
                    convertToGL(data.getFormat(), params.sRGB),
-                   width,
-                   height,
+                   width, height,
                    0,
                    convertToGL(data.getFormat().getSemantic()),
                    convertToGL(data.getFormat().getType()),
@@ -845,8 +838,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& data)
     glTexImage2D(convertToGL(type),
                  0,
                  convertToGL(format, params.sRGB),
-                 width,
-                 height,
+                 width, height,
                  0,
                  convertToGL(format.getSemantic()),
                  convertToGL(format.getType()),
