@@ -82,11 +82,11 @@
 #endif
 
 #if WENDY_INCLUDE_SQUIRREL
-#include <wendy/Squirrel.h>
+#include <wendy/WendySquirrel.h>
 #endif
 
 #if WENDY_INCLUDE_BULLET
-#include <wendy/Bullet.h>
+#include <wendy/WendyBullet.h>
 #endif
 
 ///////////////////////////////////////////////////////////////////////
