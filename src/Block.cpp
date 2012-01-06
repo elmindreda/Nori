@@ -65,17 +65,6 @@ Block::~Block()
   destroy();
 }
 
-void Block::copyTo(uint8* target, size_t targetSize, size_t offset) const
-{
-  std::memcpy(target, data + offset, targetSize);
-}
-
-void Block::copyFrom(const uint8* source, size_t sourceSize, size_t offset)
-{
-  resize(sourceSize + offset);
-  std::memcpy(data + offset, source, sourceSize);
-}
-
 void Block::resize(size_t newSize)
 {
   if (newSize == 0)
@@ -140,7 +129,7 @@ Block& Block::operator = (const Block& source)
   else
   {
     resize(source.size);
-    copyFrom(source.data, source.size);
+    std::memcpy(data, source.data, source.size);
   }
 
   return *this;

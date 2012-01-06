@@ -52,22 +52,6 @@ public:
   /*! Destructor.
    */
   ~Block();
-  /*! Copies the specified number of bytes from this block, starting
-   *  at the specified offset.
-   *  @param target The target buffer for the data to be copied.
-   *  @param targetSize The number of bytes to copy.
-   *  @param offset The desired offset within this data block, in bytes,
-   *  from which to start.
-   */
-  void copyTo(uint8* target, size_t targetSize, size_t offset = 0) const;
-  /*! Copies the specified number of bytes into this block, starting
-   *  at the specified offset.
-   *  @param source The source buffer from which to copy.
-   *  @param sourceSize The number of bytes to copy.
-   *  @param offset The desired offset within this data block, in bytes,
-   *  from which to start.
-   */
-  void copyFrom(const uint8* source, size_t sourceSize, size_t offset = 0);
   /*! Changes the number of bytes in this data block.
    *  @param newSize The new size, in bytes, of this data block.
    */
