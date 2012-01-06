@@ -343,7 +343,7 @@ String ShaderPreprocessor::passShaderName()
     if (c(0) == terminator)
     {
       advance(1);
-      return name;
+      break;
     }
     else
     {
@@ -351,6 +351,8 @@ String ShaderPreprocessor::passShaderName()
       advance(1);
     }
   }
+
+  return name;
 }
 
 void ShaderPreprocessor::parseCommand()
