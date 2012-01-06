@@ -60,13 +60,8 @@ Add GL_ARB_framebuffer_object code path
 
 Add value cache to Uniform and Sampler
 
-Move resource part of Program into render
-Move resource part of Texture into render
-
-Remove ResourceCache from Context, if possible
-
 Move RenderState core into Context
-Move ProgramState into render
+Move ProgramState and SharedProgramState into render
 Remove last uses of OpenGL state stack
 
 Move onto GLFW 3
@@ -81,7 +76,7 @@ Make Renderable interface more better (cannot currently be RefObject)
 Move font texture from sampler2D to samplerRECT
 Stop rendering whitespace "glyphs"
 
-Add procedural generation to TextureReader
+Add procedural generation of texture contents using fragment shader
 
 Add simple, distance-based DLOD to Model
 
