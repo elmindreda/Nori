@@ -317,8 +317,8 @@ bool Shader::init(const String& text)
   shader += context.getSharedProgramStateDeclaration();
   shader += spp.getOutput();
 
-  GLsizei lengths[2];
-  const GLchar* strings[2];
+  GLsizei lengths[1];
+  const GLchar* strings[1];
 
   lengths[0] = shader.length();
   strings[0] = (const GLchar*) shader.c_str();
