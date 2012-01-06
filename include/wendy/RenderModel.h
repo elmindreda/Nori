@@ -143,7 +143,7 @@ class ModelReader : public ResourceReader<Model>
 {
 public:
   ModelReader(System& system);
-  using ResourceReader::read;
+  using ResourceReader<Model>::read;
   Ref<Model> read(const String& name, const Path& path);
 private:
   System& system;

@@ -119,7 +119,7 @@ BvhMeshShape::BvhMeshShape(const ResourceInfo& info):
 ///////////////////////////////////////////////////////////////////////
 
 BvhMeshShapeReader::BvhMeshShapeReader(ResourceCache& cache):
-  ResourceReader(cache)
+  ResourceReader<BvhMeshShape>(cache)
 {
 }
 

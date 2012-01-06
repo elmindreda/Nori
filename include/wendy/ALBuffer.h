@@ -121,7 +121,7 @@ class BufferReader : public ResourceReader<Buffer>
 {
 public:
   BufferReader(Context& context);
-  using ResourceReader::read;
+  using ResourceReader<Buffer>::read;
   Ref<Buffer> read(const String& name, const Path& path);
 private:
   Context& context;

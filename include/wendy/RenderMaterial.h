@@ -142,7 +142,7 @@ class MaterialReader : public ResourceReader<Material>
 {
 public:
   MaterialReader(System& system);
-  using ResourceReader::read;
+  using ResourceReader<Material>::read;
   Ref<Material> read(const String& name, const Path& path);
 private:
   System& system;

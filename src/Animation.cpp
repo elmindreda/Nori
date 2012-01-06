@@ -366,7 +366,7 @@ const AnimTrack3& Anim3::getTrack(size_t index) const
 ///////////////////////////////////////////////////////////////////////
 
 Anim3Reader::Anim3Reader(ResourceCache& cache):
-  ResourceReader(cache)
+  ResourceReader<Anim3>(cache)
 {
 }
 

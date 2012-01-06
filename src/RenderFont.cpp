@@ -481,7 +481,7 @@ void Font::getGlyphLayout(Layout& layout, const Glyph& glyph, uint8 character) c
 ///////////////////////////////////////////////////////////////////////
 
 FontReader::FontReader(GeometryPool& initPool):
-  ResourceReader(initPool.getContext().getCache()),
+  ResourceReader<Font>(initPool.getContext().getCache()),
   pool(&initPool)
 {
 }
