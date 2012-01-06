@@ -59,10 +59,9 @@ void ShaderPreprocessor::parse(const char* name)
       logError("Failed to find shader \'%s\'", name);
     else
     {
-      const File& file = files.back();
       logError("%s:%u: Failed to find shader \'%s\'",
-               file.name,
-               file.line,
+               files.back().name,
+               files.back().line,
                name);
     }
 
@@ -76,10 +75,9 @@ void ShaderPreprocessor::parse(const char* name)
       logError("Failed to open shader file \'%s\'", path.asString().c_str());
     else
     {
-      const File& file = files.back();
       logError("%s:%u: Failed to open shader file \'%s\'",
-               file.name,
-               file.line,
+               files.back().name,
+               files.back().line,
                path.asString().c_str());
     }
 
@@ -242,10 +240,9 @@ void ShaderPreprocessor::parseMultiLineComment()
   {
     if (!hasMore())
     {
-      const File& file = files.back();
       logError("%s:%u: Unexpected end of file in multi-line comment",
-               file.name,
-               file.line);
+               files.back().name,
+               files.back().line);
 
       throw Exception("Unexpected end of file in multi-line comment");
     }
@@ -268,8 +265,7 @@ String ShaderPreprocessor::passNumber()
 {
   if (!isNumeric())
   {
-    const File& file = files.back();
-    logError("%s:%u: Expected number", file.name, file.line);
+    logError("%s:%u: Expected number", files.back().name, files.back().line);
 
     throw Exception("Expected number");
   }
@@ -289,8 +285,9 @@ String ShaderPreprocessor::passIdentifier()
 {
   if (!isAlpha())
   {
-    const File& file = files.back();
-    logError("%s:%u: Expected identifier", file.name, file.line);
+    logError("%s:%u: Expected identifier",
+             files.back().name,
+             files.back().line);
 
     throw Exception("Expected identifier");
   }
@@ -315,10 +312,9 @@ String ShaderPreprocessor::passShaderName()
     terminator = '\"';
   else
   {
-    const File& file = files.back();
     logError("%s:%u: Expected \'<\' or \'\"\' after #include",
-             file.name,
-             file.line);
+             files.back().name,
+             files.back().line);
 
     throw Exception("Expected \'<\' or \'\"\' after #include");
   }
@@ -331,10 +327,9 @@ String ShaderPreprocessor::passShaderName()
   {
     if (!hasMore() || isNewLine())
     {
-      const File& file = files.back();
       logError("%s:%u: Expected \'%c\' after shader name",
-               file.name,
-               file.line,
+               files.back().name,
+               files.back().line,
                terminator);
 
       throw Exception("Expected \'<\' or \'\"\' after shader name");
