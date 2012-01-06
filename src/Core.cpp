@@ -28,12 +28,13 @@
 #include <wendy/Core.h>
 
 #include <algorithm>
+#include <exception>
+#include <sstream>
+#include <iostream>
 
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
-#include <sstream>
-#include <iostream>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -347,7 +348,7 @@ void panic(const char* format, ...)
   if (result > 0)
     std::cerr << message << std::endl;
 
-  std::exit(EXIT_FAILURE);
+  std::terminate();
 }
 
 ///////////////////////////////////////////////////////////////////////
