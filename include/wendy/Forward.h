@@ -41,6 +41,7 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Shared program state for the forward renderer.
+ *  @ingroup renderer
  */
 class SharedProgramState : public render::SharedProgramState
 {
@@ -49,6 +50,7 @@ class SharedProgramState : public render::SharedProgramState
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Forward renderer configuration.
+ *  @ingroup renderer
  */
 class Config
 {
@@ -68,6 +70,7 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Forward renderer.
+ *  @ingroup renderer
  */
 class Renderer : public render::System
 {
