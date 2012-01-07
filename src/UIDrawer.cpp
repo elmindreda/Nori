@@ -548,6 +548,16 @@ const Theme& Drawer::getTheme() const
   return *theme;
 }
 
+GL::Context& Drawer::getContext()
+{
+  return pool->getContext();
+}
+
+render::GeometryPool& Drawer::getGeometryPool()
+{
+  return *pool;
+}
+
 render::Font& Drawer::getCurrentFont()
 {
   return *currentFont;
@@ -575,8 +585,8 @@ Ref<Drawer> Drawer::create(render::GeometryPool& pool)
   return drawer.detachObject();
 }
 
-Drawer::Drawer(render::GeometryPool& pool):
-  render::System(pool, render::System::SIMPLE)
+Drawer::Drawer(render::GeometryPool& initPool):
+  pool(&initPool)
 {
 }
 

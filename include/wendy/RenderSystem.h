@@ -45,7 +45,6 @@ class System : public RefObject
 public:
   enum Type
   {
-    SIMPLE,
     FORWARD
   };
   ResourceCache& getCache() const;

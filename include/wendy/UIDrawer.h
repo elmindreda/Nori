@@ -149,7 +149,7 @@ private:
  *
  *  This class provides drawing for widgets.
  */
-class Drawer : public render::System
+class Drawer : public RefObject
 {
 public:
   void begin();
@@ -198,6 +198,8 @@ public:
   void drawButton(const Rect& area, WidgetState state, const char* text = "");
   void drawTab(const Rect& area, WidgetState state, const char* text = "");
   const Theme& getTheme() const;
+  GL::Context& getContext();
+  render::GeometryPool& getGeometryPool();
   render::Font& getCurrentFont();
   void setCurrentFont(render::Font* newFont);
   float getCurrentEM() const;
@@ -212,6 +214,7 @@ private:
   Ref<GL::IndexBuffer> indexBuffer;
   GL::PrimitiveRange range;
   Ref<Theme> theme;
+  Ref<render::GeometryPool> pool;
   Ref<render::Font> currentFont;
   GL::RenderState drawPass;
   GL::RenderState blitPass;
