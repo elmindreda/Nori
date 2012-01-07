@@ -174,6 +174,34 @@ void Scene::removeOperations()
   blendedQueue.removeOperations();
 }
 
+void Scene::attachLight(Light& light)
+{
+  if (std::find(lights.begin(), lights.end(), &light) != lights.end())
+    return;
+
+  lights.push_back(&light);
+}
+
+void Scene::detachLights()
+{
+  lights.clear();
+}
+
+const LightList& Scene::getLights() const
+{
+  return lights;
+}
+
+const vec3& Scene::getAmbientIntensity() const
+{
+  return ambient;
+}
+
+void Scene::setAmbientIntensity(const vec3& newIntensity)
+{
+  ambient = newIntensity;
+}
+
 GeometryPool& Scene::getGeometryPool() const
 {
   return *pool;

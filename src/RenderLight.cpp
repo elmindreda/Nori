@@ -100,49 +100,6 @@ void Light::setDirection(const vec3& newDirection)
 
 ///////////////////////////////////////////////////////////////////////
 
-void LightState::attachLight(Light& light)
-{
-  List::const_iterator i = std::find(lights.begin(), lights.end(), &light);
-  if (i != lights.end())
-    return;
-
-  lights.push_back(&light);
-}
-
-void LightState::detachLight(Light& light)
-{
-  List::iterator i = std::find(lights.begin(), lights.end(), &light);
-  if (i != lights.end())
-    lights.erase(i);
-}
-
-void LightState::detachLights()
-{
-  lights.clear();
-}
-
-unsigned int LightState::getLightCount() const
-{
-  return lights.size();
-}
-
-Light& LightState::getLight(unsigned int index) const
-{
-  return *lights[index];
-}
-
-const vec3& LightState::getAmbientIntensity() const
-{
-  return ambient;
-}
-
-void LightState::setAmbientIntensity(const vec3& newIntensity)
-{
-  ambient = newIntensity;
-}
-
-///////////////////////////////////////////////////////////////////////
-
   } /*namespace render*/
 } /*namespace wendy*/
 

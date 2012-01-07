@@ -144,7 +144,7 @@ private:
 
 /*! @ingroup renderer
  */
-class Scene : public LightState
+class Scene
 {
 public:
   Scene(GeometryPool& pool, Phase phase = PHASE_DEFAULT);
@@ -154,6 +154,11 @@ public:
                         const Material& material,
                         float depth);
   void removeOperations();
+  void attachLight(Light& light);
+  void detachLights();
+  const LightList& getLights() const;
+  const vec3& getAmbientIntensity() const;
+  void setAmbientIntensity(const vec3& newIntensity);
   GeometryPool& getGeometryPool() const;
   Queue& getOpaqueQueue();
   const Queue& getOpaqueQueue() const;
@@ -166,6 +171,8 @@ private:
   Phase phase;
   Queue opaqueQueue;
   Queue blendedQueue;
+  LightList lights;
+  vec3 ambient;
 };
 
 ///////////////////////////////////////////////////////////////////////
