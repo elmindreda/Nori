@@ -6,44 +6,38 @@ Global
 Core
 ====
 
-Add file change notifications
-Add explicit resource hierarchy
-Add automatic resource reloading
+Add file change notifications [color]
+Add explicit resource hierarchy [color]
+Add automatic resource reloading [color]
 
 Add binary I/O helpers
 
-Allow multiple source files for resources
-
 Add OBB3 implementation
 
-Add triangle intersection
+Replace std::string with UTF-8 string class (possibly using utf8) [color]
+Add conversion facility UTF-8 <-> ASCII, Latin 1, UTF-16 and UTF-32 [color]
 
-Replace std::string with UTF-8 string class (possibly using utf8)
-Add conversion facility UTF-8 <-> ASCII, Latin 1, UTF-16 and UTF-32
-
-Add kerning calculations at font load time
-Add unknown character glyph
+Add kerning calculations at font load time [color]
+Add unknown character glyph [color]
 
 Replace Mesh with more flexible, DoD-friendly structures
 Add binary mesh format (possibly using OpenCTM)
 
-Add hierarchical profiling module
+Add hierarchical profiling module [color]
 
 Add resource layers or master resource stack
 
 Add functors to signal module
 
-Add console module from Pod
+Add console module from Pod [color]
 
 
 OpenAL
 ======
 
-Add streaming of audio files
+Add streaming of audio files [color]
 
 Move Ogg Vorbis audio data I/O to core
-
-Remove ResourceCache from Context, if possible
 
 Make Context be a non-singleton object
 
@@ -55,8 +49,6 @@ Separate formats from vertex and index buffer
 Add binding objects connecting geometry buffers with programs and formats
 Remove last string compares in render code
 Add ARB_vertex_array_object code path, if possible
-
-Add GL_ARB_framebuffer_object code path
 
 Add value cache to Uniform and Sampler
 
@@ -76,11 +68,11 @@ Make Renderable interface more better (cannot currently be RefObject)
 Move font texture from sampler2D to samplerRECT
 Stop rendering whitespace "glyphs"
 
-Add procedural generation of texture contents using fragment shader
+Add procedural generation of texture contents using fragment shader [color]
 
-Add simple, distance-based DLOD to Model
+Add simple, distance-based DLOD to Model [color]
 
-Add orthographic projection to Camera
+Add orthographic projection to Camera [color]
 
 Reduce use of Ref:s during enqueue and render
 
@@ -89,8 +81,6 @@ Add optional Z-prepass to forward renderer
 
 Add names to material techniques and passes
 Add material file inheritance (i.e. partial overrides)
-
-Move deferred renderer to 16-bit G-buffer channels
 
 Add surface shaders
 Add forward renderer lighting system
@@ -125,27 +115,27 @@ Make TextController capable of supporting Entry widget
 UI
 ==
 
-Add check button widget
+Add check button widget [color]
 Add radio button widget
-Add color picker widget
+Add color picker widget [color]
 
-Add tooltip system
+Add tooltip system [color]
 
 
 Bullet
 ======
 
-Add debug drawer
+Add debug drawer [color]
 
 
 Debug
 =====
 
-Add graphs to stats items
+Add graphs to stats items [color]
 
 
 Tools
 =====
 
-Add resource dependency checker
+Add resource dependency checker [color]
 
