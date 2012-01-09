@@ -88,8 +88,8 @@ public:
   bool init(void);
   void run(void);
 private:
-  ResourceIndex index;
-  Ptr<render::GeometryPool> pool;
+  ResourceCache cache;
+  Ref<render::GeometryPool> pool;
 };
 
 } /*namespace #{@name}*/
@@ -128,11 +128,12 @@ namespace #{@name}
 
 bool #{@type}::init(void)
 {
-  index.addSearchPath(Path("data"));
+  cache.addSearchPath(Path("data"));
 
-  GL::ContextMode mode;
+  GL::WindowConfig wc;
+  GL::ContextConfig cc;
 
-  if (!GL::Context::createSingleton(index, mode))
+  if (!GL::Context::createSingleton(cache, wc, cc))
   {
     logError("Failed to create OpenGL context");
     return false;
@@ -147,7 +148,7 @@ bool #{@type}::init(void)
     return false;
   }
 
-  pool = new render::GeometryPool(*context);
+  pool = render::GeometryPool::create(*context);
   if (!pool)
   {
     logError("Failed to create geometry pool");
@@ -163,6 +164,7 @@ void #{@type}::run(void)
 
   do
   {
+    context->clearBuffers();
   }
   while (context->update());
 }
@@ -171,21 +173,11 @@ void #{@type}::run(void)
 
 int main()
 {
-  if (!wendy::initialize())
-    std::exit(EXIT_FAILURE);
-
-  Ptr<#{@name}::#{@type}> #{@type.downcase}(new #{@name}::#{@type}());
-  if (!#{@type.downcase}->init())
-  {
-    #{@type.downcase} = NULL;
-    wendy::shutdown();
+  #{@name}::#{@type} #{@type.downcase};
+  if (!#{@type.downcase}.init())
     exit(EXIT_FAILURE);
-  }
 
-  #{@type.downcase}->run();
-  #{@type.downcase} = NULL;
-
-  wendy::shutdown();
+  #{@type.downcase}.run();
   std::exit(EXIT_SUCCESS);
 }
 
