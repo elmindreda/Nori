@@ -37,33 +37,15 @@ class OBB2
 {
 public:
   OBB2();
-  OBB2(const vec2& size, const Transform2& orientation);
-  OBB2(float width, float height);
+  OBB2(const vec2& center, const vec2& size, float angle = 0.f);
   bool contains(const vec2& point) const;
   bool intersects(const OBB2& other) const;
+  void transformBy(const Transform2& transform);
   void getAxes(vec2& x, vec2& y) const;
-  void set(const vec2& newSize, const Transform2& newOrientation);
-  void set(float newWidth, float newHeight);
+  void set(const vec2& newSize, const vec2& newCenter, float newAngle = 0.f);
   vec2 size;
-  Transform2 orientation;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief 3D oriented bounding box.
- */
-class OBB3
-{
-public:
-  OBB3();
-  OBB3(const vec3& size, const Transform3& orientation);
-  OBB3(float width, float height, float depth);
-  bool contains(const vec3& point) const;
-  bool intersects(const OBB3& other) const;
-  void set(const vec3& newSize, const Transform3& orientation);
-  void set(float newWidth, float newHeight, float newDepth);
-  vec3 size;
-  Transform3 orientation;
+  vec2 center;
+  float angle;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -39,14 +39,10 @@ OBB2::OBB2()
 {
 }
 
-OBB2::OBB2(const vec2& initSize, const Transform2& initOrientation):
+OBB2::OBB2(const vec2& initSize, const vec2& initCenter, float initAngle):
   size(initSize),
-  orientation(initOrientation)
-{
-}
-
-OBB2::OBB2(float width, float height):
-  size(width, height)
+  center(initCenter),
+  angle(initAngle)
 {
 }
 
@@ -55,7 +51,7 @@ bool OBB2::contains(const vec2& point) const
   vec2 x, y;
   getAxes(x, y);
 
-  const vec2 local = point - orientation.position;
+  const vec2 local = point - center;
 
   // NOTE: Assumes positive size.
 
@@ -75,25 +71,27 @@ bool OBB2::intersects(const OBB2& other) const
   return false;
 }
 
+void OBB2::transformBy(const Transform2& transform)
+{
+  size *= transform.scale;
+  angle += transform.angle;
+  center += transform.position;
+}
+
 void OBB2::getAxes(vec2& x, vec2& y) const
 {
-  const float sina = sin(orientation.angle);
-  const float cosa = cos(orientation.angle);
+  const float sina = sin(angle);
+  const float cosa = cos(angle);
 
   x = vec2(cosa, sina);
   y = vec2(-sina, cosa);
 }
 
-void OBB2::set(const vec2& newSize, const Transform2& newOrientation)
+void OBB2::set(const vec2& newSize, const vec2& newCenter, float newAngle)
 {
   size = newSize;
-  orientation = newOrientation;
-}
-
-void OBB2::set(float newWidth, float newHeight)
-{
-  size = vec2(newWidth, newHeight);
-  orientation.setIdentity();
+  center = newCenter;
+  angle = newAngle;
 }
 
 ///////////////////////////////////////////////////////////////////////
