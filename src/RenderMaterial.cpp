@@ -484,16 +484,6 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
             continue;
           }
 
-          const String imageName(s.attribute("image").value());
-          if (imageName.empty())
-          {
-            logError("No image name specified for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",
-                     samplerName.c_str(),
-                     program->getName().c_str(),
-                     name.c_str());
-            return NULL;
-          }
-
           GL::TextureParams params(textureTypeMap[sampler->getType()]);
 
           if (pugi::xml_attribute a = s.attribute("mipmapped"))
@@ -502,10 +492,24 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
           if (pugi::xml_attribute a = s.attribute("sRGB"))
             params.sRGB = a.as_bool();
 
-          Ref<GL::Texture> texture = GL::Texture::read(context, params, imageName);
+          Ref<GL::Texture> texture;
+
+          if (pugi::xml_attribute a = s.attribute("image"))
+            texture = GL::Texture::read(context, params, a.value());
+          else if (pugi::xml_attribute a = s.attribute("texture"))
+            texture = cache.find<GL::Texture>(a.value());
+          else
+          {
+            logError("No texture specified for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",
+                     samplerName.c_str(),
+                     program->getName().c_str(),
+                     name.c_str());
+            return NULL;
+          }
+
           if (!texture)
           {
-            logError("Failed to create texture for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",
+            logError("Failed to find texture for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",
                      samplerName.c_str(),
                      program->getName().c_str(),
                      name.c_str());
