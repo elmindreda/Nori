@@ -1172,11 +1172,11 @@ SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal()
 }
 
 bool Context::createSingleton(ResourceCache& cache,
-                              const WindowConfig& windowConfig,
-                              const ContextConfig& contextConfig)
+                              const WindowConfig& wc,
+                              const ContextConfig& cc)
 {
   Ptr<Context> context(new Context(cache));
-  if (!context->init(windowConfig, contextConfig))
+  if (!context->init(wc, cc))
     return false;
 
   set(context.detachObject());
@@ -1211,8 +1211,7 @@ Context& Context::operator = (const Context& source)
   panic("OpenGL contexts may not be assigned");
 }
 
-bool Context::init(const WindowConfig& windowConfig,
-                   const ContextConfig& contextConfig)
+bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 {
   if (!glfwInit())
   {
@@ -1222,28 +1221,28 @@ bool Context::init(const WindowConfig& windowConfig,
 
   // Create context and window
   {
-    unsigned int colorBits = contextConfig.colorBits;
+    unsigned int colorBits = cc.colorBits;
     if (colorBits > 24)
       colorBits = 24;
 
     unsigned int mode;
 
-    if (windowConfig.mode == WINDOWED)
+    if (wc.mode == WINDOWED)
       mode = GLFW_WINDOW;
     else
       mode = GLFW_FULLSCREEN;
 
-    if (contextConfig.samples)
-      glfwOpenWindowHint(GLFW_FSAA_SAMPLES, contextConfig.samples);
+    if (cc.samples)
+      glfwOpenWindowHint(GLFW_FSAA_SAMPLES, cc.samples);
 
-    version = contextConfig.version;
+    version = cc.version;
     if (version < Version(2,1))
       version = Version(2,1);
 
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, version.m);
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, version.n);
 
-    glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, !windowConfig.resizable);
+    glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, !wc.resizable);
 
     if (version > Version(3,1))
     {
@@ -1255,9 +1254,9 @@ bool Context::init(const WindowConfig& windowConfig,
     glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #endif
 
-    if (!glfwOpenWindow(windowConfig.width, windowConfig.height,
+    if (!glfwOpenWindow(wc.width, wc.height,
                         colorBits / 3, colorBits / 3, colorBits / 3, 0,
-                        contextConfig.depthBits, contextConfig.stencilBits, mode))
+                        cc.depthBits, cc.stencilBits, mode))
     {
       logError("Failed to create GLFW window");
       return false;
@@ -1275,7 +1274,7 @@ bool Context::init(const WindowConfig& windowConfig,
         (const char*) glGetString(GL_RENDERER),
         (const char*) glGetString(GL_VENDOR));
 
-    windowMode = windowConfig.mode;
+    windowMode = wc.mode;
   }
 
   // Initialize GLEW and check extensions
@@ -1347,7 +1346,7 @@ bool Context::init(const WindowConfig& windowConfig,
 
   // Finish GLFW init
   {
-    setTitle(windowConfig.title.c_str());
+    setTitle(wc.title.c_str());
     setSwapInterval(1);
 
     glfwSetWindowSizeCallback(sizeCallback);

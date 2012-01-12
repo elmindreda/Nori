@@ -555,13 +555,13 @@ public:
    *  @return @c true if successful, or @c false otherwise.
    */
   static bool createSingleton(ResourceCache& cache,
-                              const WindowConfig& windowConfig = WindowConfig(),
-                              const ContextConfig& contextConfig = ContextConfig());
+                              const WindowConfig& wc = WindowConfig(),
+                              const ContextConfig& cc = ContextConfig());
 private:
   Context(ResourceCache& cache);
   Context(const Context& source);
   Context& operator = (const Context& source);
-  bool init(const WindowConfig& windowConfig, const ContextConfig& contextConfig);
+  bool init(const WindowConfig& wc, const ContextConfig& cc);
   static void sizeCallback(int width, int height);
   static int closeCallback();
   static void refreshCallback();
