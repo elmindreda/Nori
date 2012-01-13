@@ -340,6 +340,27 @@ GLenum convertToGL(TextureType type)
   panic("No OpenGL equivalent for texture type %u", type);
 }
 
+GLboolean getBoolean(GLenum token)
+{
+  GLboolean value;
+  glGetBooleanv(token, &value);
+  return value;
+}
+
+GLint getInteger(GLenum token)
+{
+  GLint value;
+  glGetIntegerv(token, &value);
+  return value;
+}
+
+GLfloat getFloat(GLenum token)
+{
+  GLfloat value;
+  glGetFloatv(token, &value);
+  return value;
+}
+
 ///////////////////////////////////////////////////////////////////////
 
   } /*namespace GL*/

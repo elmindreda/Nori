@@ -43,6 +43,10 @@ GLenum convertToGL(PixelFormat::Type type);
 GLenum convertToGL(PixelFormat::Semantic semantic);
 GLenum convertToGL(TextureType type);
 
+GLboolean getBoolean(GLenum token);
+GLint getInteger(GLenum token);
+GLfloat getFloat(GLenum token);
+
 ///////////////////////////////////////////////////////////////////////
 
   } /*namespace GL*/

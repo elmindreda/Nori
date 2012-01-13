@@ -992,10 +992,7 @@ void Framebuffer::setSRGB(bool enabled)
 
   if (enabled)
   {
-    GLboolean capable;
-    glGetBooleanv(GL_FRAMEBUFFER_SRGB_CAPABLE_EXT, &capable);
-
-    if (!capable)
+    if (!getBoolean(GL_FRAMEBUFFER_SRGB_CAPABLE_EXT))
       logError("Framebuffer is not sRGB capable");
 
     glEnable(GL_FRAMEBUFFER_SRGB_EXT);

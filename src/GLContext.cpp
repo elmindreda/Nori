@@ -137,20 +137,6 @@ void APIENTRY debugCallback(GLenum source,
   }
 }
 
-GLint getIntegerParameter(GLenum parameter)
-{
-  GLint value;
-  glGetIntegerv(parameter, &value);
-  return value;
-}
-
-GLfloat getFloatParameter(GLenum parameter)
-{
-  GLfloat value;
-  glGetFloatv(parameter, &value);
-  return value;
-}
-
 const char* getFramebufferStatusMessage(GLenum status)
 {
   switch (status)
@@ -340,29 +326,29 @@ ContextConfig::ContextConfig(unsigned int initColorBits,
 
 Limits::Limits(Context& context)
 {
-  maxColorAttachments = getIntegerParameter(GL_MAX_COLOR_ATTACHMENTS_EXT);
-  maxDrawBuffers = getIntegerParameter(GL_MAX_DRAW_BUFFERS);
-  maxVertexTextureImageUnits = getIntegerParameter(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-  maxFragmentTextureImageUnits = getIntegerParameter(GL_MAX_TEXTURE_IMAGE_UNITS);
-  maxCombinedTextureImageUnits = getIntegerParameter(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-  maxTextureSize = getIntegerParameter(GL_MAX_TEXTURE_SIZE);
-  maxTexture3DSize = getIntegerParameter(GL_MAX_3D_TEXTURE_SIZE);
-  maxTextureCubeSize = getIntegerParameter(GL_MAX_CUBE_MAP_TEXTURE_SIZE);
-  maxTextureRectangleSize = getIntegerParameter(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB);
-  maxTextureCoords = getIntegerParameter(GL_MAX_TEXTURE_COORDS);
-  maxVertexAttributes = getIntegerParameter(GL_MAX_VERTEX_ATTRIBS);
+  maxColorAttachments = getInteger(GL_MAX_COLOR_ATTACHMENTS_EXT);
+  maxDrawBuffers = getInteger(GL_MAX_DRAW_BUFFERS);
+  maxVertexTextureImageUnits = getInteger(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+  maxFragmentTextureImageUnits = getInteger(GL_MAX_TEXTURE_IMAGE_UNITS);
+  maxCombinedTextureImageUnits = getInteger(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+  maxTextureSize = getInteger(GL_MAX_TEXTURE_SIZE);
+  maxTexture3DSize = getInteger(GL_MAX_3D_TEXTURE_SIZE);
+  maxTextureCubeSize = getInteger(GL_MAX_CUBE_MAP_TEXTURE_SIZE);
+  maxTextureRectangleSize = getInteger(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB);
+  maxTextureCoords = getInteger(GL_MAX_TEXTURE_COORDS);
+  maxVertexAttributes = getInteger(GL_MAX_VERTEX_ATTRIBS);
 
   Version version = context.getVersion();
 
   if (GLEW_EXT_texture_filter_anisotropic)
-    maxTextureAnisotropy = getFloatParameter(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+    maxTextureAnisotropy = getFloat(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
   else
     maxTextureAnisotropy = 1.f;
 
   if (GLEW_ARB_geometry_shader4 || version > Version(3,1))
   {
-    maxGeometryOutputVertices = getIntegerParameter(GL_MAX_GEOMETRY_OUTPUT_VERTICES);
-    maxGeometryTextureImageUnits = getIntegerParameter(GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS);
+    maxGeometryOutputVertices = getInteger(GL_MAX_GEOMETRY_OUTPUT_VERTICES);
+    maxGeometryTextureImageUnits = getInteger(GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS);
   }
   else
   {
@@ -372,8 +358,8 @@ Limits::Limits(Context& context)
 
   if (GLEW_ARB_tessellation_shader || version > Version(3,3))
   {
-    maxTessControlTextureImageUnits = getIntegerParameter(GL_MAX_TESS_CONTROL_TEXTURE_IMAGE_UNITS);
-    maxTessEvaluationTextureImageUnits = getIntegerParameter(GL_MAX_TESS_EVALUATION_TEXTURE_IMAGE_UNITS);
+    maxTessControlTextureImageUnits = getInteger(GL_MAX_TESS_CONTROL_TEXTURE_IMAGE_UNITS);
+    maxTessEvaluationTextureImageUnits = getInteger(GL_MAX_TESS_EVALUATION_TEXTURE_IMAGE_UNITS);
   }
   else
   {
