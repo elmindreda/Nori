@@ -315,7 +315,7 @@ bool Font::init(const FontData& data)
     textureHeight = min(powerOfTwoAbove(textureHeight), maxSize);
 
     Ref<Image> image = Image::create(cache,
-                                     PixelFormat::R8,
+                                     PixelFormat::L8,
                                      textureWidth,
                                      textureHeight);
 
@@ -553,7 +553,7 @@ bool FontReader::extractGlyphs(FontData& data,
                                const String& characters,
                                bool fixedWidth)
 {
-  if (image.getFormat() != PixelFormat::R8)
+  if (image.getFormat() != PixelFormat::L8)
   {
     logError("Image \'%s\' for font \'%s\' has invalid pixel format \'%s\'",
              image.getName().c_str(),

@@ -58,10 +58,10 @@ PixelFormat::PixelFormat(const char* specification):
   while (std::isalpha(*c))
     semanticName += std::tolower(*c++);
 
-  if (semanticName == "r")
-    semantic = R;
-  else if (semanticName == "rg")
-    semantic = RG;
+  if (semanticName == "l")
+    semantic = L;
+  else if (semanticName == "la")
+    semantic = LA;
   else if (semanticName == "rgb")
     semantic = RGB;
   else if (semanticName == "rgba")
@@ -149,10 +149,10 @@ unsigned int PixelFormat::getChannelCount() const
   {
     case NONE:
       return 0;
-    case R:
+    case L:
     case DEPTH:
       return 1;
-    case RG:
+    case LA:
       return 2;
     case RGB:
       return 3;
@@ -169,11 +169,11 @@ String PixelFormat::asString() const
 
   switch (semantic)
   {
-    case R:
-      result << "r";
+    case L:
+      result << "l";
       break;
-    case RG:
-      result << "rg";
+    case LA:
+      result << "la";
       break;
     case RGB:
       result << "rgb";
@@ -215,15 +215,15 @@ String PixelFormat::asString() const
   return result.str();
 }
 
-const PixelFormat PixelFormat::R8(PixelFormat::R, PixelFormat::UINT8);
-const PixelFormat PixelFormat::R16(PixelFormat::R, PixelFormat::UINT16);
-const PixelFormat PixelFormat::R16F(PixelFormat::R, PixelFormat::FLOAT16);
-const PixelFormat PixelFormat::R32F(PixelFormat::R, PixelFormat::FLOAT32);
+const PixelFormat PixelFormat::L8(PixelFormat::L, PixelFormat::UINT8);
+const PixelFormat PixelFormat::L16(PixelFormat::L, PixelFormat::UINT16);
+const PixelFormat PixelFormat::L16F(PixelFormat::L, PixelFormat::FLOAT16);
+const PixelFormat PixelFormat::L32F(PixelFormat::L, PixelFormat::FLOAT32);
 
-const PixelFormat PixelFormat::RG8(PixelFormat::RG, PixelFormat::UINT8);
-const PixelFormat PixelFormat::RG16(PixelFormat::RG, PixelFormat::UINT16);
-const PixelFormat PixelFormat::RG16F(PixelFormat::RG, PixelFormat::FLOAT16);
-const PixelFormat PixelFormat::RG32F(PixelFormat::RG, PixelFormat::FLOAT32);
+const PixelFormat PixelFormat::LA8(PixelFormat::LA, PixelFormat::UINT8);
+const PixelFormat PixelFormat::LA16(PixelFormat::LA, PixelFormat::UINT16);
+const PixelFormat PixelFormat::LA16F(PixelFormat::LA, PixelFormat::FLOAT16);
+const PixelFormat PixelFormat::LA32F(PixelFormat::LA, PixelFormat::FLOAT32);
 
 const PixelFormat PixelFormat::RGB8(PixelFormat::RGB, PixelFormat::UINT8);
 const PixelFormat PixelFormat::RGB16(PixelFormat::RGB, PixelFormat::UINT16);

@@ -43,8 +43,8 @@ public:
   enum Semantic
   {
     NONE,
-    R,
-    RG,
+    L,
+    LA,
     RGB,
     RGBA,
     DEPTH
@@ -99,14 +99,14 @@ public:
   /*! @return A string representation of this pixel format.
    */
   String asString() const;
-  static const PixelFormat R8;
-  static const PixelFormat R16;
-  static const PixelFormat R16F;
-  static const PixelFormat R32F;
-  static const PixelFormat RG8;
-  static const PixelFormat RG16;
-  static const PixelFormat RG16F;
-  static const PixelFormat RG32F;
+  static const PixelFormat L8;
+  static const PixelFormat L16;
+  static const PixelFormat L16F;
+  static const PixelFormat L32F;
+  static const PixelFormat LA8;
+  static const PixelFormat LA16;
+  static const PixelFormat LA16F;
+  static const PixelFormat LA32F;
   static const PixelFormat RGB8;
   static const PixelFormat RGB16;
   static const PixelFormat RGB16F;

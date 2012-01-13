@@ -68,10 +68,10 @@ bool convertToColorType(int& result, const PixelFormat& format)
 {
   switch (format.getSemantic())
   {
-    case PixelFormat::R:
+    case PixelFormat::L:
       result = PNG_COLOR_TYPE_GRAY;
       return true;
-    case PixelFormat::RG:
+    case PixelFormat::LA:
       result = PNG_COLOR_TYPE_GRAY_ALPHA;
       return true;
     case PixelFormat::RGB:
@@ -90,9 +90,9 @@ PixelFormat::Semantic convertToSemantic(int colorType)
   switch (colorType)
   {
     case PNG_COLOR_TYPE_GRAY:
-      return PixelFormat::R;
+      return PixelFormat::L;
     case PNG_COLOR_TYPE_GRAY_ALPHA:
-      return PixelFormat::RG;
+      return PixelFormat::LA;
     case PNG_COLOR_TYPE_RGB:
       return PixelFormat::RGB;
     case PNG_COLOR_TYPE_RGB_ALPHA:
