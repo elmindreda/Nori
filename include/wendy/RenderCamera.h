@@ -30,6 +30,7 @@
 #include <wendy/Transform.h>
 #include <wendy/Ray.h>
 #include <wendy/Plane.h>
+#include <wendy/AABB.h>
 #include <wendy/Frustum.h>
 
 ///////////////////////////////////////////////////////////////////////
@@ -51,9 +52,20 @@ namespace wendy
 class Camera : public RefObject
 {
 public:
+  enum Mode
+  {
+    ORTHOGRAPHIC,
+    PERSPECTIVE,
+  };
   /*! Constructor.
    */
   Camera();
+  bool isOrtho() const;
+  bool isPerspective() const;
+  Mode getMode() const;
+  void setMode(Mode newMode);
+  const AABB& getOrthoVolume() const;
+  void setOrthoVolume(const AABB& newVolume);
   /*! @return The field of view, in degrees, of this camera.
    */
   float getFOV() const;
@@ -120,10 +132,12 @@ public:
    */
   Ray3 getViewSpacePickingRay(const vec2& position) const;
 private:
+  Mode mode;
   float FOV;
   float aspectRatio;
   float nearZ;
   float farZ;
+  AABB volume;
   Transform3 transform;
   mutable Transform3 inverse;
   mutable Frustum frustum;

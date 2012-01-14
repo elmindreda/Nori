@@ -70,8 +70,6 @@ Add procedural generation of texture contents using fragment shader [color]
 
 Add simple, distance-based DLOD to Model [color]
 
-Add orthographic projection to Camera [color]
-
 Reduce use of Ref:s during enqueue and render
 
 Add explicit Z-prepass technique type or re-use shadow mapping type

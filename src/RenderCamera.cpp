@@ -37,6 +37,7 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 Camera::Camera():
+  mode(PERSPECTIVE),
   FOV(90.f),
   aspectRatio(4.f / 3.f),
   nearZ(0.1f),
@@ -44,6 +45,39 @@ Camera::Camera():
   dirtyFrustum(true),
   dirtyInverse(true)
 {
+}
+
+bool Camera::isPerspective() const
+{
+  return mode == PERSPECTIVE;
+}
+
+bool Camera::isOrtho() const
+{
+  return mode == ORTHOGRAPHIC;
+}
+
+Camera::Mode Camera::getMode() const
+{
+  return mode;
+}
+
+void Camera::setMode(Mode newMode)
+{
+  mode = newMode;
+  dirtyFrustum = true;
+}
+
+const AABB& Camera::getOrthoVolume() const
+{
+  return volume;
+}
+
+void Camera::setOrthoVolume(const AABB& newVolume)
+{
+  volume = newVolume;
+  volume.normalize();
+  dirtyFrustum = true;
 }
 
 float Camera::getFOV() const
@@ -127,7 +161,11 @@ const Frustum& Camera::getFrustum() const
 {
   if (dirtyFrustum)
   {
-    frustum.setPerspective(FOV, aspectRatio, nearZ, farZ);
+    if (mode == ORTHOGRAPHIC)
+      frustum.setOrtho(volume);
+    else
+      frustum.setPerspective(FOV, aspectRatio, nearZ, farZ);
+
     frustum.transformBy(transform);
     dirtyFrustum = false;
   }
@@ -146,13 +184,27 @@ Ray3 Camera::getViewSpacePickingRay(const vec2& position) const
 {
   Ray3 result;
 
-  // Figure out the camera space ray direction
-  result.direction = normalize(vec3((position.x - 0.5f) * aspectRatio,
-                                    position.y - 0.5f,
-                                    -0.5f / tan(radians(FOV) / 2.f)));
+  if (mode == ORTHOGRAPHIC)
+  {
+    result.direction = vec3(0.f, 0.f, -1.f);
 
-  // Shift the ray origin along the ray direction to the near plane
-  result.origin += result.direction * (nearZ / -result.direction.z);
+    float minX, minY, minZ, maxX, maxY, maxZ;
+    volume.getBounds(minX, minY, minZ, maxX, maxY, maxZ);
+
+    result.origin = vec3(minX + position.x * (maxX - minX),
+                         minY + position.y * (maxY - minY),
+                         maxZ);
+  }
+  else
+  {
+    // Figure out the camera space ray direction
+    result.direction = normalize(vec3((position.x - 0.5f) * aspectRatio,
+                                      position.y - 0.5f,
+                                      -0.5f / tan(radians(FOV) / 2.f)));
+
+    // Shift the ray origin along the ray direction to the near plane
+    result.origin = result.direction * (nearZ / -result.direction.z);
+  }
 
   return result;
 }

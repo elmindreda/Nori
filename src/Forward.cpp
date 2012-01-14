@@ -56,19 +56,25 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
   context.setCurrentSharedProgramState(state);
 
   const Recti& viewportArea = context.getViewportArea();
-
-  state->setViewMatrix(camera.getViewTransform());
-  state->setPerspectiveProjectionMatrix(camera.getFOV(),
-                                        camera.getAspectRatio(),
-                                        camera.getNearZ(),
-                                        camera.getFarZ());
   state->setViewportSize(float(viewportArea.size.x),
                          float(viewportArea.size.y));
-  state->setCameraProperties(camera.getTransform().position,
-                             camera.getFOV(),
-                             camera.getAspectRatio(),
-                             camera.getNearZ(),
-                             camera.getFarZ());
+
+  if (camera.isOrtho())
+    state->setOrthoProjectionMatrix(camera.getOrthoVolume());
+  else
+  {
+    state->setPerspectiveProjectionMatrix(camera.getFOV(),
+                                          camera.getAspectRatio(),
+                                          camera.getNearZ(),
+                                          camera.getFarZ());
+    state->setCameraProperties(camera.getTransform().position,
+                               camera.getFOV(),
+                               camera.getAspectRatio(),
+                               camera.getNearZ(),
+                               camera.getFarZ());
+  }
+
+  state->setViewMatrix(camera.getViewTransform());
 
   renderOperations(scene.getOpaqueQueue());
   renderOperations(scene.getBlendedQueue());
