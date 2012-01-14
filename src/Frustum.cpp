@@ -164,10 +164,10 @@ void Frustum::setOrtho(float minX, float minY, float minZ,
 
   planes[FRUSTUM_TOP].set(vec3(0.f, 1.f, 0.f), maxY);
   planes[FRUSTUM_RIGHT].set(vec3(1.f, 0.f, 0.f), maxX);
-  planes[FRUSTUM_BOTTOM].set(vec3(0.f, -1.f, 0.f), minY);
-  planes[FRUSTUM_LEFT].set(vec3(-1.f, 0.f, 0.f), minX);
+  planes[FRUSTUM_BOTTOM].set(vec3(0.f, -1.f, 0.f), -minY);
+  planes[FRUSTUM_LEFT].set(vec3(-1.f, 0.f, 0.f), -minX);
   planes[FRUSTUM_NEAR].set(vec3(0.f, 0.f, 1.f), maxZ);
-  planes[FRUSTUM_FAR].set(vec3(0.f, 0.f, -1.f), minZ);
+  planes[FRUSTUM_FAR].set(vec3(0.f, 0.f, -1.f), -minZ);
 }
 
 ///////////////////////////////////////////////////////////////////////
