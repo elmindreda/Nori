@@ -134,9 +134,7 @@ void AABB::envelop(const vec3& point)
 
 void AABB::normalize()
 {
-  size.x = abs(size.x);
-  size.y = abs(size.y);
-  size.z = abs(size.z);
+  size = abs(size);
 }
 
 void AABB::getBounds(float& minX, float& minY, float& minZ,
