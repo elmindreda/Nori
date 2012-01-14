@@ -33,6 +33,7 @@
 #include <wendy/Bimap.h>
 #include <wendy/Signal.h>
 #include <wendy/Timer.h>
+#include <wendy/Profile.h>
 
 #include <wendy/Transform.h>
 #include <wendy/Random.h>

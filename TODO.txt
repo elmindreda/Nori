@@ -23,8 +23,6 @@ Add unknown character glyph [color]
 Replace Mesh with more flexible, DoD-friendly structures
 Add binary mesh format (possibly using OpenCTM)
 
-Add hierarchical profiling module [color]
-
 Add resource layers or master resource stack
 
 Add functors to signal module
