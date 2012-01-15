@@ -165,6 +165,8 @@ public:
   /*! Applies this GLSL program state to the current context.
    */
   void apply() const;
+  bool hasUniformState(const char* name) const;
+  bool hasSamplerState(const char* name) const;
   template <typename T>
   void getUniformState(const char* name, T& result) const;
   template <typename T>

@@ -280,6 +280,30 @@ void ProgramState::apply() const
   }
 }
 
+bool ProgramState::hasUniformState(const char* name) const
+{
+  if (!program)
+    return false;
+
+  Uniform* uniform = program->findUniform(name);
+  if (!uniform)
+    return false;
+
+  return uniform->isShared();
+}
+
+bool ProgramState::hasSamplerState(const char* name) const
+{
+  if (!program)
+    return false;
+
+  Sampler* sampler = program->findSampler(name);
+  if (!sampler)
+    return false;
+
+  return sampler->isShared();
+}
+
 Texture* ProgramState::getSamplerState(const char* name) const
 {
   if (!program)
