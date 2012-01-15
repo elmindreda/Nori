@@ -79,6 +79,19 @@ const Technique& Material::getTechnique(Phase phase) const
   return techniques[phase];
 }
 
+void Material::setSamplers(const char* name, GL::Texture* newTexture)
+{
+  for (size_t i = 0;  i < 2;  i++)
+  {
+    PassList& passes = techniques[i].passes;
+    for (PassList::iterator p = passes.begin();  p != passes.end();  p++)
+    {
+      if (p->hasSamplerState(name))
+        p->setSamplerState(name, newTexture);
+    }
+  }
+}
+
 Ref<Material> Material::create(const ResourceInfo& info, System& system)
 {
   return new Material(info);
