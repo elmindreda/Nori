@@ -459,6 +459,26 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
 
         pass.setProgram(program);
 
+        GL::ShaderDefines defines;
+
+        for (pugi::xml_node d = node.child("define");  d;  d = d.next_sibling("define"))
+        {
+          const String defineName(d.attribute("name").value());
+          if (defineName.empty())
+          {
+            logWarning("GLSL program \'%s\' in material \'%s\' lists unnamed define",
+                       program->getName().c_str(),
+                       name.c_str());
+
+            continue;
+          }
+
+          defines.push_back(std::make_pair(defineName,
+                                           d.attribute("value").value()));
+        }
+
+        std::sort(defines.begin(), defines.end());
+
         for (pugi::xml_node s = node.child("sampler");  s;  s = s.next_sibling("sampler"))
         {
           const String samplerName(s.attribute("name").value());

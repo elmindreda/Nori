@@ -238,10 +238,11 @@ Context& Shader::getContext() const
 Ref<Shader> Shader::create(const ResourceInfo& info,
                           Context& context,
                           ShaderType type,
-                          const String& text)
+                          const String& text,
+                          const ShaderDefines& defines)
 {
   Ref<Shader> shader(new Shader(info, context, type));
-  if (!shader->init(text))
+  if (!shader->init(text, defines))
     return NULL;
 
   return shader;
@@ -249,24 +250,41 @@ Ref<Shader> Shader::create(const ResourceInfo& info,
 
 Ref<Shader> Shader::read(Context& context,
                         ShaderType type,
-                        const String& name)
+                        const String& textName,
+                        const ShaderDefines& defines)
 {
   ResourceCache& cache = context.getCache();
+
+  String name;
+  name += "source:";
+  name += textName;
+
+  for (ShaderDefines::const_iterator d = defines.begin();  d != defines.end();  d++)
+  {
+    name += " ";
+    name += d->first;
+    name += ":";
+
+    if (d->second.empty())
+      name += "1";
+    else
+      name += d->second;
+  }
 
   if (Ref<Shader> shader = cache.find<Shader>(name))
     return shader;
 
-  const Path path = cache.findFile(name);
+  const Path path = cache.findFile(textName);
   if (path.isEmpty())
   {
-    logError("Failed to find shader \'%s\'", name.c_str());
+    logError("Failed to find shader \'%s\'", textName.c_str());
     return NULL;
   }
 
   std::ifstream stream(path.asString().c_str());
   if (stream.fail())
   {
-    logError("Failed to open shader \'%s\'", name.c_str());
+    logError("Failed to open shader file \'%s\'", path.asString().c_str());
     return NULL;
   }
 
@@ -278,7 +296,7 @@ Ref<Shader> Shader::read(Context& context,
   stream.seekg(0, std::ios::beg);
   stream.read(&text[0], text.size());
 
-  return create(ResourceInfo(cache, name), context, type, text);
+  return create(ResourceInfo(cache, name), context, type, text, defines);
 }
 
 Shader::Shader(const ResourceInfo& info,
@@ -291,7 +309,7 @@ Shader::Shader(const ResourceInfo& info,
 {
 }
 
-bool Shader::init(const String& text)
+bool Shader::init(const String& text, const ShaderDefines& defines)
 {
   ShaderPreprocessor spp(getCache());
 
@@ -310,6 +328,20 @@ bool Shader::init(const String& text)
   {
     shader += "#version ";
     shader += spp.getVersion();
+    shader += "\n";
+  }
+
+  for (ShaderDefines::const_iterator d = defines.begin();  d != defines.end();  d++)
+  {
+    shader += "#define ";
+    shader += d->first;
+    shader += " ";
+
+    if (d->second.empty())
+      shader += "1";
+    else
+      shader += d->second;
+
     shader += "\n";
   }
 
