@@ -468,7 +468,6 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
                        program->getName().c_str(),
                        name.c_str());
 
-            technique = Technique();
             continue;
           }
 
@@ -480,7 +479,6 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
                        name.c_str(),
                        samplerName.c_str());
 
-            technique = Technique();
             continue;
           }
 
@@ -553,7 +551,6 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
                        program->getName().c_str(),
                        name.c_str());
 
-            technique = Technique();
             continue;
           }
 
@@ -565,7 +562,6 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
                        name.c_str(),
                        uniformName.c_str());
 
-            technique = Technique();
             continue;
           }
 
