@@ -56,7 +56,7 @@ enum ShaderType
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GLSL define key/value pair.
+/*! @brief GLSL define key/value pair set.
  *  @ingroup opengl
  */
 typedef std::vector<std::pair<String, String> > ShaderDefines;
