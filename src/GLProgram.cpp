@@ -42,8 +42,6 @@
 #include <algorithm>
 
 #include <cstring>
-#include <sstream>
-#include <map>
 
 #include <pugixml.hpp>
 
