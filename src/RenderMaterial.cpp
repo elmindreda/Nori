@@ -69,36 +69,6 @@ const unsigned int MATERIAL_XML_VERSION = 8;
 
 ///////////////////////////////////////////////////////////////////////
 
-Pass& Technique::createPass()
-{
-  passes.push_back(Pass());
-  return passes.back();
-}
-
-void Technique::destroyPass(Pass& pass)
-{
-  for (PassList::iterator i = passes.begin();  i != passes.end();  i++)
-  {
-    if (&(*i) == &pass)
-    {
-      passes.erase(i);
-      break;
-    }
-  }
-}
-
-void Technique::destroyPasses()
-{
-  passes.clear();
-}
-
-const PassList& Technique::getPasses() const
-{
-  return passes;
-}
-
-///////////////////////////////////////////////////////////////////////
-
 Technique& Material::getTechnique(Phase phase)
 {
   return techniques[phase];
@@ -277,7 +247,8 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
 
     for (pugi::xml_node p = t.child("pass");  p;  p = p.next_sibling("pass"))
     {
-      Pass& pass = technique.createPass();
+      technique.passes.push_back(Pass());
+      Pass& pass = technique.passes.back();
 
       if (pugi::xml_node node = p.child("blending"))
       {

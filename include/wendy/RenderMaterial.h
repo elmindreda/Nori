@@ -80,22 +80,8 @@ typedef std::vector<Pass> PassList;
 class Technique
 {
 public:
-  /*! Creates a new %render pass in this technique.
-   *  @return The newly created %render pass.
-   *
-   *  @remarks The passes are rendered in creation order.
+  /*! The %render passes in this technique.
    */
-  Pass& createPass();
-  /*! Removes the specified %render pass from this technique.
-   */
-  void destroyPass(Pass& pass);
-  /*! Destroys all %render passes in this technique.
-   */
-  void destroyPasses();
-  /*! @return The %render passes in this technique.
-   */
-  const PassList& getPasses() const;
-private:
   PassList passes;
 };
 
