@@ -264,11 +264,7 @@ Ref<Shader> Shader::read(Context& context,
     name += " ";
     name += d->first;
     name += ":";
-
-    if (d->second.empty())
-      name += "1";
-    else
-      name += d->second;
+    name += d->second;
   }
 
   if (Ref<Shader> shader = cache.find<Shader>(name))
@@ -336,12 +332,7 @@ bool Shader::init(const String& text, const ShaderDefines& defines)
     shader += "#define ";
     shader += d->first;
     shader += " ";
-
-    if (d->second.empty())
-      shader += "1";
-    else
-      shader += d->second;
-
+    shader += d->second;
     shader += "\n";
   }
 

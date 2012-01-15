@@ -473,8 +473,11 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
             continue;
           }
 
-          defines.push_back(std::make_pair(defineName,
-                                           d.attribute("value").value()));
+          String defineValue(d.attribute("value").value());
+          if (defineValue.empty())
+            defineValue = "1";
+
+          defines.push_back(std::make_pair(defineName, defineValue));
         }
 
         std::sort(defines.begin(), defines.end());
