@@ -289,7 +289,7 @@ bool ProgramState::hasUniformState(const char* name) const
   if (!uniform)
     return false;
 
-  return uniform->isShared();
+  return !uniform->isShared();
 }
 
 bool ProgramState::hasSamplerState(const char* name) const
@@ -301,7 +301,7 @@ bool ProgramState::hasSamplerState(const char* name) const
   if (!sampler)
     return false;
 
-  return sampler->isShared();
+  return !sampler->isShared();
 }
 
 Texture* ProgramState::getSamplerState(const char* name) const
