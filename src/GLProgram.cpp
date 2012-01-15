@@ -1087,17 +1087,17 @@ String Program::getInfoLog() const
 
 void ProgramInterface::addSampler(const char* name, SamplerType type)
 {
-  samplers.push_back(SamplerList::value_type(name, type));
+  samplers.push_back(std::make_pair(name, type));
 }
 
 void ProgramInterface::addUniform(const char* name, UniformType type)
 {
-  uniforms.push_back(UniformList::value_type(name, type));
+  uniforms.push_back(std::make_pair(name, type));
 }
 
 void ProgramInterface::addAttribute(const char* name, AttributeType type)
 {
-  attributes.push_back(AttributeList::value_type(name, type));
+  attributes.push_back(std::make_pair(name, type));
 }
 
 void ProgramInterface::addAttributes(const VertexFormat& format)
