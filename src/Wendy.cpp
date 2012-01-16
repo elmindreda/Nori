@@ -25,9 +25,6 @@
 
 #include <wendy/Wendy.h>
 
-#define GLFW_NO_GLU
-#include <GL/glfw.h>
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
