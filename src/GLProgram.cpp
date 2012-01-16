@@ -254,7 +254,6 @@ Ref<Shader> Shader::read(Context& context,
   ResourceCache& cache = context.getCache();
 
   String name;
-  name += "source:";
   name += textName;
 
   for (ShaderDefines::const_iterator d = defines.begin();  d != defines.end();  d++)
@@ -370,8 +369,9 @@ bool Shader::init(const String& text, const ShaderDefines& defines)
     {
       if (!infoLog.empty())
       {
-        logWarning("Warning(s) compiling shader \'%s\':\n%s",
+        logWarning("Warning(s) compiling shader \'%s\':\n%s%s",
                   getName().c_str(),
+                  spp.getNameList().c_str(),
                   infoLog.c_str());
       }
     }
@@ -381,8 +381,9 @@ bool Shader::init(const String& text, const ShaderDefines& defines)
         checkGL("Failed to compile shader \'%s\'", getName().c_str());
       else
       {
-        logError("Failed to compile shader \'%s\':\n%s",
+        logError("Failed to compile shader \'%s\':\n%s%s",
                 getName().c_str(),
+                spp.getNameList().c_str(),
                 infoLog.c_str());
       }
 

@@ -103,6 +103,8 @@ void ShaderPreprocessor::parse(const char* name, const char* text)
   files.push_back(File(name, text));
   names.push_back(name);
 
+  list += format("( file %u: %s )\n", (unsigned int) names.size(), name);
+
   output.reserve(output.size() + std::strlen(text));
   appendToOutput(format("#line 0 %u /* entering %s */\n",
                         (unsigned int) files.size(),
@@ -154,9 +156,9 @@ const String& ShaderPreprocessor::getVersion() const
   return version;
 }
 
-const ShaderNameList& ShaderPreprocessor::getNameList() const
+const String& ShaderPreprocessor::getNameList() const
 {
-  return names;
+  return list;
 }
 
 void ShaderPreprocessor::addLine()
