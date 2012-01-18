@@ -1227,6 +1227,8 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     return false;
   }
 
+  log("%s initialized", glfwGetVersionString());
+
   // Create context and window
   {
     unsigned int colorBits = cc.colorBits;
