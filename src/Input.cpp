@@ -55,8 +55,8 @@ namespace wendy
 namespace
 {
 
-Key externalMap[GLFW_KEY_LAST];
-int internalMap[GLFW_KEY_LAST];
+Key externalMap[GLFW_KEY_LAST + 1];
+int internalMap[GLFW_KEY_LAST + 1];
 
 } /*namespace*/
 
