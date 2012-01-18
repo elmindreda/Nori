@@ -25,6 +25,10 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/Core.h>
+#include <wendy/Timer.h>
+#include <wendy/Profile.h>
+
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
@@ -52,6 +56,8 @@ Config::Config(render::GeometryPool& initPool):
 
 void Renderer::render(const render::Scene& scene, const render::Camera& camera)
 {
+  ProfileNodeCall call("forward::Renderer::render");
+
   GL::Context& context = getContext();
   context.setCurrentSharedProgramState(state);
 

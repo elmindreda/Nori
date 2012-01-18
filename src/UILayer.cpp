@@ -25,6 +25,10 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/Core.h>
+#include <wendy/Timer.h>
+#include <wendy/Profile.h>
+
 #include <wendy/UIDrawer.h>
 #include <wendy/UILayer.h>
 #include <wendy/UIWidget.h>
@@ -67,6 +71,8 @@ void Layer::update()
 
 void Layer::draw()
 {
+  ProfileNodeCall call("UI::Layer::draw");
+
   drawer.begin();
 
   for (WidgetList::const_iterator i = roots.begin();  i != roots.end();  i++)

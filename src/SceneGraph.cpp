@@ -25,6 +25,10 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/Core.h>
+#include <wendy/Timer.h>
+#include <wendy/Profile.h>
+
 #include <wendy/GLBuffer.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
@@ -319,6 +323,8 @@ void Graph::update()
 
 void Graph::enqueue(render::Scene& scene, const render::Camera& camera) const
 {
+  ProfileNodeCall call("scene::Graph::enqueue");
+
   const Frustum& frustum = camera.getFrustum();
 
   for (Node::List::const_iterator r = roots.begin();  r != roots.end();  r++)

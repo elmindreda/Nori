@@ -25,6 +25,10 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/Core.h>
+#include <wendy/Timer.h>
+#include <wendy/Profile.h>
+
 #include <wendy/GLBuffer.h>
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
@@ -700,6 +704,8 @@ void Context::render(const PrimitiveRange& range)
 
 void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
 {
+  ProfileNodeCall call("GL::Context::render");
+
   if (!currentProgram)
   {
     logError("Cannot render without a current shader program");
@@ -778,6 +784,8 @@ void Context::refresh()
 
 bool Context::update()
 {
+  ProfileNodeCall call("GL::Context::update");
+
   glfwSwapBuffers();
   finishSignal();
   needsRefresh = false;
