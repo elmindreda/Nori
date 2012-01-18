@@ -425,7 +425,7 @@ bool ShaderPreprocessor::isCommand() const
 
 bool ShaderPreprocessor::isAlpha() const
 {
-  return c(0) >= 'a' && c(0) <= 'z' || c(0) >= 'A' && c(0) <= 'Z';
+  return (c(0) >= 'a' && c(0) <= 'z') || (c(0) >= 'A' && c(0) <= 'Z');
 }
 
 bool ShaderPreprocessor::isNumeric() const
