@@ -92,6 +92,7 @@ private:
   Renderer(render::GeometryPool& pool);
   bool init(const Config& config);
   void renderOperations(const render::Queue& queue);
+  void releaseObjects();
   Ref<SharedProgramState> state;
 };
 

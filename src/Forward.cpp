@@ -80,6 +80,8 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
   renderOperations(scene.getBlendedQueue());
 
   context.setCurrentSharedProgramState(NULL);
+
+  releaseObjects();
 }
 
 SharedProgramState& Renderer::getSharedProgramState()
@@ -135,6 +137,21 @@ void Renderer::renderOperations(const render::Queue& queue)
     op.state->apply();
 
     context.render(op.range);
+  }
+}
+
+void Renderer::releaseObjects()
+{
+  GL::Context& context = getContext();
+
+  context.setCurrentProgram(NULL);
+  context.setCurrentVertexBuffer(NULL);
+  context.setCurrentIndexBuffer(NULL);
+
+  for (size_t i = 0;  i < context.getTextureUnitCount();  i++)
+  {
+    context.setActiveTextureUnit(i);
+    context.setCurrentTexture(NULL);
   }
 }
 
