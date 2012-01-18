@@ -1,7 +1,7 @@
 //========================================================================
-// GLFW - An OpenGL framework
+// GLFW - An OpenGL library
 // Platform:    Any
-// API version: 2.7
+// API version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
@@ -31,68 +31,114 @@
 #define _init_c_
 #include "internal.h"
 
+#include <string.h>
+#include <stdlib.h>
 
-//************************************************************************
-//****                    GLFW user functions                         ****
-//************************************************************************
+
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW internal API                      //////
+//////////////////////////////////////////////////////////////////////////
+
+//========================================================================
+// Allocate memory using the allocator
+//========================================================================
+
+void* _glfwMalloc(size_t size)
+{
+    return _glfwLibrary.allocator.malloc(size);
+}
+
+
+//========================================================================
+// Free memory using the allocator
+//========================================================================
+
+void _glfwFree(void* ptr)
+{
+    _glfwLibrary.allocator.free(ptr);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//////                        GLFW public API                       //////
+//////////////////////////////////////////////////////////////////////////
 
 //========================================================================
 // Initialize various GLFW state
 //========================================================================
 
-GLFWAPI int glfwInit( void )
+GLFWAPI int glfwInit(void)
 {
-    // Is GLFW already initialized?
-    if( _glfwInitialized )
-    {
+    return glfwInitWithModels(NULL, NULL);
+}
+
+
+//========================================================================
+// Initialize various GLFW state using custom model interfaces
+//========================================================================
+
+GLFWAPI int glfwInitWithModels(GLFWthreadmodel* threading, GLFWallocator* allocator)
+{
+    if (_glfwInitialized)
         return GL_TRUE;
+
+    memset(&_glfwLibrary, 0, sizeof(_glfwLibrary));
+
+    if (threading)
+        _glfwLibrary.threading = *threading;
+
+    if (allocator)
+    {
+        // Verify that the specified model is complete
+        if (!allocator->malloc || !allocator->free)
+        {
+            _glfwSetError(GLFW_INVALID_VALUE, NULL);
+            return GL_FALSE;
+        }
+
+        _glfwLibrary.allocator = *allocator;
+    }
+    else
+    {
+        // Use the libc malloc and free
+        _glfwLibrary.allocator.malloc = malloc;
+        _glfwLibrary.allocator.free = free;
     }
 
-    memset( &_glfwLibrary, 0, sizeof( _glfwLibrary ) );
-    memset( &_glfwWin, 0, sizeof( _glfwWin ) );
+    // Not all window hints have zero as their default value, so this
+    // needs to be here despite the memset above
+    _glfwSetDefaultWindowHints();
 
-    // Window is not yet opened
-    _glfwWin.opened = GL_FALSE;
-
-    // Default enable/disable settings
-    _glfwWin.sysKeysDisabled = GL_FALSE;
-
-    // Clear window hints
-    _glfwClearWindowHints();
-
-    // Platform specific initialization
-    if( !_glfwPlatformInit() )
+    if (!_glfwPlatformInit())
     {
+        _glfwPlatformTerminate();
         return GL_FALSE;
     }
 
-    // Form now on, GLFW state is valid
+    atexit(glfwTerminate);
+
     _glfwInitialized = GL_TRUE;
 
     return GL_TRUE;
 }
 
 
-
 //========================================================================
-// Close window
+// Close window and shut down library
 //========================================================================
 
-GLFWAPI void glfwTerminate( void )
+GLFWAPI void glfwTerminate(void)
 {
-    // Is GLFW initialized?
-    if( !_glfwInitialized )
-    {
+    if (!_glfwInitialized)
         return;
-    }
 
-    // Platform specific termination
-    if( !_glfwPlatformTerminate() )
-    {
+    // Close all remaining windows
+    while (_glfwLibrary.windowListHead)
+        glfwCloseWindow(_glfwLibrary.windowListHead);
+
+    if (!_glfwPlatformTerminate())
         return;
-    }
 
-    // GLFW is no longer initialized
     _glfwInitialized = GL_FALSE;
 }
 
@@ -101,10 +147,25 @@ GLFWAPI void glfwTerminate( void )
 // Get GLFW version
 //========================================================================
 
-GLFWAPI void glfwGetVersion( int *major, int *minor, int *rev )
+GLFWAPI void glfwGetVersion(int* major, int* minor, int* rev)
 {
-    if( major != NULL ) *major = GLFW_VERSION_MAJOR;
-    if( minor != NULL ) *minor = GLFW_VERSION_MINOR;
-    if( rev   != NULL ) *rev   = GLFW_VERSION_REVISION;
+    if (major != NULL)
+        *major = GLFW_VERSION_MAJOR;
+
+    if (minor != NULL)
+        *minor = GLFW_VERSION_MINOR;
+
+    if (rev != NULL)
+        *rev = GLFW_VERSION_REVISION;
+}
+
+
+//========================================================================
+// Get the GLFW version string
+//========================================================================
+
+GLFWAPI const char* glfwGetVersionString(void)
+{
+    return _glfwPlatformGetVersionString();
 }
 

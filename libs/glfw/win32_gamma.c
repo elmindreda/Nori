@@ -1,11 +1,10 @@
 //========================================================================
-// GLFW - An OpenGL framework
+// GLFW - An OpenGL library
 // Platform:    Win32/WGL
-// API version: 2.7
+// API version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -30,53 +29,29 @@
 
 #include "internal.h"
 
+#include <limits.h>
 
-//************************************************************************
-//****               Platform implementation functions                ****
-//************************************************************************
+
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW platform API                      //////
+//////////////////////////////////////////////////////////////////////////
 
 //========================================================================
-// Check if the current context supports the specified WGL extension
+// Retrieve the currently set gamma ramp
 //========================================================================
 
-int _glfwPlatformExtensionSupported( const char *extension )
+void _glfwPlatformGetGammaRamp(GLFWgammaramp* ramp)
 {
-    const GLubyte *extensions;
-
-    if( _glfwWin.GetExtensionsStringEXT != NULL )
-    {
-        extensions = (GLubyte *) _glfwWin.GetExtensionsStringEXT();
-        if( extensions != NULL )
-        {
-            if( _glfwStringInExtensionString( extension, extensions ) )
-            {
-                return GL_TRUE;
-            }
-        }
-    }
-
-    if( _glfwWin.GetExtensionsStringARB != NULL )
-    {
-        extensions = (GLubyte *) _glfwWin.GetExtensionsStringARB( _glfwWin.DC );
-        if( extensions != NULL )
-        {
-            if( _glfwStringInExtensionString( extension, extensions ) )
-            {
-                return GL_TRUE;
-            }
-        }
-    }
-
-    return GL_FALSE;
+    _glfw_GetDeviceGammaRamp(GetDC(GetDesktopWindow()), (WORD*) ramp);
 }
 
 
 //========================================================================
-// Get the function pointer to an OpenGL function
+// Push the specified gamma ramp to the monitor
 //========================================================================
 
-void *_glfwPlatformGetProcAddress( const char *procname )
+void _glfwPlatformSetGammaRamp(const GLFWgammaramp* ramp)
 {
-    return (void *) wglGetProcAddress( procname );
+    _glfw_SetDeviceGammaRamp(GetDC(GetDesktopWindow()), (WORD*) ramp);
 }
 

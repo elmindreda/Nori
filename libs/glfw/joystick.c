@@ -1,7 +1,7 @@
 //========================================================================
-// GLFW - An OpenGL framework
+// GLFW - An OpenGL library
 // Platform:    Any
-// API version: 2.7
+// API version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
@@ -31,22 +31,23 @@
 #include "internal.h"
 
 
-//************************************************************************
-//****                    GLFW user functions                         ****
-//************************************************************************
+//////////////////////////////////////////////////////////////////////////
+//////                        GLFW public API                       //////
+//////////////////////////////////////////////////////////////////////////
 
 //========================================================================
 // Determine joystick capabilities
 //========================================================================
 
-GLFWAPI int glfwGetJoystickParam( int joy, int param )
+GLFWAPI int glfwGetJoystickParam(int joy, int param)
 {
-    if( !_glfwInitialized )
+    if (!_glfwInitialized)
     {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
         return 0;
     }
 
-    return _glfwPlatformGetJoystickParam( joy, param );
+    return _glfwPlatformGetJoystickParam(joy, param);
 }
 
 
@@ -54,22 +55,21 @@ GLFWAPI int glfwGetJoystickParam( int joy, int param )
 // Get joystick axis positions
 //========================================================================
 
-GLFWAPI int glfwGetJoystickPos( int joy, float *pos, int numaxes )
+GLFWAPI int glfwGetJoystickPos(int joy, float* pos, int numaxes)
 {
     int i;
 
-    if( !_glfwInitialized )
+    if (!_glfwInitialized)
     {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
         return 0;
     }
 
     // Clear positions
-    for( i = 0; i < numaxes; i++ )
-    {
-        pos[ i ] = 0.0f;
-    }
+    for (i = 0;  i < numaxes;  i++)
+        pos[i] = 0.0f;
 
-    return _glfwPlatformGetJoystickPos( joy, pos, numaxes );
+    return _glfwPlatformGetJoystickPos(joy, pos, numaxes);
 }
 
 
@@ -77,23 +77,22 @@ GLFWAPI int glfwGetJoystickPos( int joy, float *pos, int numaxes )
 // Get joystick button states
 //========================================================================
 
-GLFWAPI int glfwGetJoystickButtons( int joy,
-                                    unsigned char *buttons,
-                                    int numbuttons )
+GLFWAPI int glfwGetJoystickButtons(int joy,
+                                   unsigned char* buttons,
+                                   int numbuttons)
 {
     int i;
 
-    if( !_glfwInitialized )
+    if (!_glfwInitialized)
     {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
         return 0;
     }
 
     // Clear button states
-    for( i = 0; i < numbuttons; i++ )
-    {
-        buttons[ i ] = GLFW_RELEASE;
-    }
+    for (i = 0;  i < numbuttons;  i++)
+        buttons[i] = GLFW_RELEASE;
 
-    return _glfwPlatformGetJoystickButtons( joy, buttons, numbuttons );
+    return _glfwPlatformGetJoystickButtons(joy, buttons, numbuttons);
 }
 

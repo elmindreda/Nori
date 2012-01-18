@@ -1,7 +1,7 @@
 //========================================================================
-// GLFW - An OpenGL framework
+// GLFW - An OpenGL library
 // Platform:    X11/GLX
-// API version: 2.7
+// API version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
@@ -39,12 +39,12 @@
 
 static uint64_t getRawTime(void)
 {
-#if defined( _POSIX_TIMERS ) && defined( _POSIX_MONOTONIC_CLOCK )
-    if( _glfwLibrary.Timer.monotonic )
+#if defined(_POSIX_TIMERS) && defined(_POSIX_MONOTONIC_CLOCK)
+    if (_glfwLibrary.X11.timer.monotonic)
     {
         struct timespec ts;
 
-        clock_gettime( CLOCK_MONOTONIC, &ts );
+        clock_gettime(CLOCK_MONOTONIC, &ts);
         return (uint64_t) ts.tv_sec * (uint64_t) 1000000000 + (uint64_t) ts.tv_nsec;
     }
     else
@@ -52,7 +52,7 @@ static uint64_t getRawTime(void)
     {
         struct timeval tv;
 
-        gettimeofday( &tv, NULL );
+        gettimeofday(&tv, NULL);
         return (uint64_t) tv.tv_sec * (uint64_t) 1000000 + (uint64_t) tv.tv_usec;
     }
 }
@@ -62,38 +62,38 @@ static uint64_t getRawTime(void)
 // Initialise timer
 //========================================================================
 
-void _glfwInitTimer( void )
+void _glfwInitTimer(void)
 {
-#if defined( _POSIX_TIMERS ) && defined( _POSIX_MONOTONIC_CLOCK )
+#if defined(_POSIX_TIMERS) && defined(_POSIX_MONOTONIC_CLOCK)
     struct timespec ts;
 
-    if( clock_gettime( CLOCK_MONOTONIC, &ts ) == 0 )
+    if (clock_gettime(CLOCK_MONOTONIC, &ts) == 0)
     {
-        _glfwLibrary.Timer.monotonic = GL_TRUE;
-        _glfwLibrary.Timer.resolution = 1e-9;
+        _glfwLibrary.X11.timer.monotonic = GL_TRUE;
+        _glfwLibrary.X11.timer.resolution = 1e-9;
     }
     else
 #endif
     {
-        _glfwLibrary.Timer.resolution = 1e-6;
+        _glfwLibrary.X11.timer.resolution = 1e-6;
     }
 
-    _glfwLibrary.Timer.base = getRawTime();
+    _glfwLibrary.X11.timer.base = getRawTime();
 }
 
 
-//************************************************************************
-//****               Platform implementation functions                ****
-//************************************************************************
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW platform API                      //////
+//////////////////////////////////////////////////////////////////////////
 
 //========================================================================
 // Return timer value in seconds
 //========================================================================
 
-double _glfwPlatformGetTime( void )
+double _glfwPlatformGetTime(void)
 {
-    return (double) (getRawTime() - _glfwLibrary.Timer.base) *
-        _glfwLibrary.Timer.resolution;
+    return (double) (getRawTime() - _glfwLibrary.X11.timer.base) *
+        _glfwLibrary.X11.timer.resolution;
 }
 
 
@@ -101,10 +101,9 @@ double _glfwPlatformGetTime( void )
 // Set timer value in seconds
 //========================================================================
 
-void _glfwPlatformSetTime( double time )
+void _glfwPlatformSetTime(double time)
 {
-    _glfwLibrary.Timer.base = getRawTime() -
-        (uint64_t) (time / _glfwLibrary.Timer.resolution);
+    _glfwLibrary.X11.timer.base = getRawTime() -
+        (uint64_t) (time / _glfwLibrary.X11.timer.resolution);
 }
-
 

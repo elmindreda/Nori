@@ -40,7 +40,7 @@
 #include <internal/GLHelper.h>
 
 #define GLFW_NO_GLU
-#include <GL/glfw.h>
+#include <GL/glfw3.h>
 
 #include <algorithm>
 
@@ -622,7 +622,8 @@ Context::~Context()
     setCurrentTexture(NULL);
   }
 
-  glfwCloseWindow();
+  if (glfwIsWindow(window))
+    glfwCloseWindow(window);
 
   instance = NULL;
 }
@@ -810,7 +811,7 @@ bool Context::update()
 
 void Context::requestClose()
 {
-  closeCallback();
+  closeCallback(window);
 }
 
 void Context::createSharedSampler(const char* name, SamplerType type, int ID)
@@ -1136,7 +1137,7 @@ const String& Context::getTitle() const
 
 void Context::setTitle(const char* newTitle)
 {
-  glfwSetWindowTitle(newTitle);
+  glfwSetWindowTitle(window, newTitle);
   title = newTitle;
 }
 
@@ -1224,15 +1225,12 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     if (colorBits > 24)
       colorBits = 24;
 
-    unsigned int mode;
-
-    if (wc.mode == WINDOWED)
-      mode = GLFW_WINDOW;
-    else
-      mode = GLFW_FULLSCREEN;
-
-    if (cc.samples)
-      glfwOpenWindowHint(GLFW_FSAA_SAMPLES, cc.samples);
+    glfwOpenWindowHint(GLFW_RED_BITS, colorBits / 3);
+    glfwOpenWindowHint(GLFW_GREEN_BITS, colorBits / 3);
+    glfwOpenWindowHint(GLFW_BLUE_BITS, colorBits / 3);
+    glfwOpenWindowHint(GLFW_DEPTH_BITS, cc.depthBits);
+    glfwOpenWindowHint(GLFW_STENCIL_BITS, cc.stencilBits);
+    glfwOpenWindowHint(GLFW_FSAA_SAMPLES, cc.samples);
 
     version = cc.version;
     if (version < Version(2,1))
@@ -1241,7 +1239,7 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, version.m);
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, version.n);
 
-    glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, !wc.resizable);
+    glfwOpenWindowHint(GLFW_WINDOW_RESIZABLE, wc.resizable);
 
     if (version > Version(3,1))
     {
@@ -1253,16 +1251,22 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #endif
 
-    if (!glfwOpenWindow(wc.width, wc.height,
-                        colorBits / 3, colorBits / 3, colorBits / 3, 0,
-                        cc.depthBits, cc.stencilBits, mode))
+    unsigned int mode;
+
+    if (wc.mode == WINDOWED)
+      mode = GLFW_WINDOWED;
+    else
+      mode = GLFW_FULLSCREEN;
+
+    window = glfwOpenWindow(wc.width, wc.height, mode, wc.title.c_str(), NULL);
+    if (!window)
     {
       logError("Failed to create GLFW window");
       return false;
     }
 
-    version = Version(glfwGetWindowParam(GLFW_OPENGL_VERSION_MAJOR),
-                      glfwGetWindowParam(GLFW_OPENGL_VERSION_MINOR));
+    version = Version(glfwGetWindowParam(window, GLFW_OPENGL_VERSION_MAJOR),
+                      glfwGetWindowParam(window, GLFW_OPENGL_VERSION_MINOR));
 
     log("OpenGL context version %i.%i created", version.m, version.n);
 
@@ -1274,6 +1278,7 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
         (const char*) glGetString(GL_VENDOR));
 
     windowMode = wc.mode;
+    title = wc.title;
   }
 
   // Initialize GLEW and check extensions
@@ -1326,16 +1331,16 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     // Read back actual (as opposed to desired) properties
 
     int width, height;
-    glfwGetWindowSize(&width, &height);
+    glfwGetWindowSize(window, &width, &height);
     defaultFramebuffer->width = width;
     defaultFramebuffer->height = height;
 
-    defaultFramebuffer->colorBits = glfwGetWindowParam(GLFW_RED_BITS) +
-                                    glfwGetWindowParam(GLFW_GREEN_BITS) +
-                                    glfwGetWindowParam(GLFW_BLUE_BITS);
-    defaultFramebuffer->depthBits = glfwGetWindowParam(GLFW_DEPTH_BITS);
-    defaultFramebuffer->stencilBits = glfwGetWindowParam(GLFW_STENCIL_BITS);
-    defaultFramebuffer->samples = glfwGetWindowParam(GLFW_FSAA_SAMPLES);
+    defaultFramebuffer->colorBits = glfwGetWindowParam(window, GLFW_RED_BITS) +
+                                    glfwGetWindowParam(window, GLFW_GREEN_BITS) +
+                                    glfwGetWindowParam(window, GLFW_BLUE_BITS);
+    defaultFramebuffer->depthBits = glfwGetWindowParam(window, GLFW_DEPTH_BITS);
+    defaultFramebuffer->stencilBits = glfwGetWindowParam(window, GLFW_STENCIL_BITS);
+    defaultFramebuffer->samples = glfwGetWindowParam(window, GLFW_FSAA_SAMPLES);
 
     setDefaultFramebufferCurrent();
 
@@ -1345,27 +1350,25 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 
   // Finish GLFW init
   {
-    setTitle(wc.title.c_str());
     setSwapInterval(1);
 
     glfwSetWindowSizeCallback(sizeCallback);
     glfwSetWindowCloseCallback(closeCallback);
     glfwSetWindowRefreshCallback(refreshCallback);
-    glfwDisable(GLFW_AUTO_POLL_EVENTS);
     glfwPollEvents();
   }
 
   return true;
 }
 
-void Context::sizeCallback(int width, int height)
+void Context::sizeCallback(void* window, int width, int height)
 {
   instance->defaultFramebuffer->width = width;
   instance->defaultFramebuffer->height = height;
   instance->resizedSignal(width, height);
 }
 
-int Context::closeCallback()
+int Context::closeCallback(void* window)
 {
   std::vector<bool> results;
 
@@ -1377,7 +1380,7 @@ int Context::closeCallback()
   return GL_TRUE;
 }
 
-void Context::refreshCallback()
+void Context::refreshCallback(void* window)
 {
   instance->needsRefresh = true;
 }

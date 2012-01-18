@@ -4,8 +4,7 @@
 // API version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -30,32 +29,64 @@
 
 #include "internal.h"
 
+#include <math.h>
+#include <string.h>
+
 
 //////////////////////////////////////////////////////////////////////////
 //////                        GLFW public API                       //////
 //////////////////////////////////////////////////////////////////////////
 
 //========================================================================
-// Return timer value in seconds
+// Calculate a gamma ramp from the specified value and set it
 //========================================================================
 
-GLFWAPI double glfwGetTime(void)
+GLFWAPI void glfwSetGamma(float gamma)
 {
+    int i, size = GLFW_GAMMA_RAMP_SIZE;
+    GLFWgammaramp ramp;
+
     if (!_glfwInitialized)
     {
         _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
-        return 0.0;
+        return;
     }
 
-    return _glfwPlatformGetTime();
+    if (gamma <= 0.f)
+    {
+        _glfwSetError(GLFW_INVALID_VALUE,
+                      "glfwSetGamma: Gamma value must be greater than zero");
+        return;
+    }
+
+    for (i = 0;  i < size;  i++)
+    {
+        float value = (float) i / ((float) (size - 1));
+
+        // Apply gamma
+        value = (float) pow(value, 1.f / gamma) * 65535.f + 0.5f;
+
+        // Clamp values
+        if (value < 0.f)
+            value = 0.f;
+        else if (value > 65535.f)
+            value = 65535.f;
+
+        // Set the gamma ramp values
+        ramp.red[i]   = (unsigned short) value;
+        ramp.green[i] = (unsigned short) value;
+        ramp.blue[i]  = (unsigned short) value;
+    }
+
+    glfwSetGammaRamp(&ramp);
 }
 
 
 //========================================================================
-// Set timer value in seconds
+// Return the cached currently set gamma ramp
 //========================================================================
 
-GLFWAPI void glfwSetTime(double time)
+GLFWAPI void glfwGetGammaRamp(GLFWgammaramp* ramp)
 {
     if (!_glfwInitialized)
     {
@@ -63,6 +94,23 @@ GLFWAPI void glfwSetTime(double time)
         return;
     }
 
-    _glfwPlatformSetTime(time);
+    *ramp = _glfwLibrary.currentRamp;
+}
+
+
+//========================================================================
+// Make the specified gamma ramp current
+//========================================================================
+
+GLFWAPI void glfwSetGammaRamp(const GLFWgammaramp* ramp)
+{
+    if (!_glfwInitialized)
+    {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
+        return;
+    }
+
+    _glfwPlatformSetGammaRamp(ramp);
+    _glfwLibrary.currentRamp = *ramp;
 }
 

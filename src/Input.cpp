@@ -33,7 +33,7 @@
 #include <wendy/Input.h>
 
 #define GLFW_NO_GLU
-#include <GL/glfw.h>
+#include <GL/glfw3.h>
 
 #include <map>
 #include <algorithm>
@@ -45,22 +45,20 @@
 
 ///////////////////////////////////////////////////////////////////////
 
-namespace
-{
-
-typedef std::map<int, int> KeyMap;
-
-KeyMap internalMap;
-KeyMap externalMap;
-
-} /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
   namespace input
   {
+
+///////////////////////////////////////////////////////////////////////
+
+namespace
+{
+
+Key externalMap[GLFW_KEY_LAST];
+int internalMap[GLFW_KEY_LAST];
+
+} /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -135,7 +133,7 @@ Context::~Context()
   glfwSetMouseButtonCallback(NULL);
   glfwSetKeyCallback(NULL);
   glfwSetCharCallback(NULL);
-  glfwSetMouseWheelCallback(NULL);
+  glfwSetScrollCallback(NULL);
 
   instance = NULL;
 }
@@ -143,32 +141,23 @@ Context::~Context()
 void Context::captureCursor()
 {
   cursorCaptured = true;
-  glfwDisable(GLFW_MOUSE_CURSOR);
+  glfwSetCursorMode(window, GLFW_CURSOR_CAPTURED);
 }
 
 void Context::releaseCursor()
 {
   cursorCaptured = false;
-  glfwEnable(GLFW_MOUSE_CURSOR);
+  glfwSetCursorMode(window, GLFW_CURSOR_NORMAL);
 }
 
 bool Context::isKeyDown(const Key& key) const
 {
-  int externalKey = key;
-
-  KeyMap::const_iterator i = internalMap.find(externalKey);
-  if (i != internalMap.end())
-    externalKey = i->second;
-
-  return (glfwGetKey(externalKey) == GLFW_PRESS) ? true : false;
+  return glfwGetKey(window, internalMap[key]) == GLFW_PRESS;
 }
 
 bool Context::isButtonDown(Button button) const
 {
-  if (glfwGetMouseButton(button + GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
-    return true;
-
-  return false;
+  return glfwGetMouseButton(window, button + GLFW_MOUSE_BUTTON_1) == GLFW_PRESS;
 }
 
 bool Context::isCursorCaptured() const
@@ -186,17 +175,16 @@ unsigned int Context::getHeight() const
   return context.getDefaultFramebuffer().getHeight();
 }
 
-const ivec2& Context::getCursorPosition() const
+ivec2 Context::getCursorPosition() const
 {
-  glfwGetMousePos(&cursorPosition.x, &cursorPosition.y);
-
-  return cursorPosition;
+  ivec2 position;
+  glfwGetMousePos(window, &position.x, &position.y);
+  return position;
 }
 
 void Context::setCursorPosition(const ivec2& newPosition)
 {
-  cursorPosition = newPosition;
-  glfwSetMousePos(newPosition.x, newPosition.y);
+  glfwSetMousePos(window, newPosition.x, newPosition.y);
 }
 
 Hook* Context::getHook() const
@@ -248,95 +236,261 @@ Context::Context(GL::Context& initContext):
   // TODO: Remove this upon the arrival of GLFW_USER_DATA.
   instance = this;
 
-  if (internalMap.empty())
-  {
-    internalMap[KEY_SPACE] = GLFW_KEY_SPACE;
-    internalMap[KEY_ESCAPE] = GLFW_KEY_ESC;
-    internalMap[KEY_TAB] = GLFW_KEY_TAB;
-    internalMap[KEY_ENTER] = GLFW_KEY_ENTER;
-    internalMap[KEY_BACKSPACE] = GLFW_KEY_BACKSPACE;
-    internalMap[KEY_INSERT] = GLFW_KEY_INSERT;
-    internalMap[KEY_DELETE] = GLFW_KEY_DEL;
-    internalMap[KEY_LSHIFT] = GLFW_KEY_LSHIFT;
-    internalMap[KEY_RSHIFT] = GLFW_KEY_RSHIFT;
-    internalMap[KEY_LCTRL] = GLFW_KEY_LCTRL;
-    internalMap[KEY_RCTRL] = GLFW_KEY_RCTRL;
-    internalMap[KEY_LALT] = GLFW_KEY_LALT;
-    internalMap[KEY_RALT] = GLFW_KEY_RALT;
-    internalMap[KEY_LSUPER] = GLFW_KEY_LSUPER;
-    internalMap[KEY_RSUPER] = GLFW_KEY_RSUPER;
-    internalMap[KEY_UP] = GLFW_KEY_UP;
-    internalMap[KEY_DOWN] = GLFW_KEY_DOWN;
-    internalMap[KEY_LEFT] = GLFW_KEY_LEFT;
-    internalMap[KEY_RIGHT] = GLFW_KEY_RIGHT;
-    internalMap[KEY_PAGEUP] = GLFW_KEY_PAGEUP;
-    internalMap[KEY_PAGEDOWN] = GLFW_KEY_PAGEDOWN;
-    internalMap[KEY_HOME] = GLFW_KEY_HOME;
-    internalMap[KEY_END] = GLFW_KEY_END;
-    internalMap[KEY_F1] = GLFW_KEY_F1;
-    internalMap[KEY_F2] = GLFW_KEY_F2;
-    internalMap[KEY_F3] = GLFW_KEY_F3;
-    internalMap[KEY_F4] = GLFW_KEY_F4;
-    internalMap[KEY_F5] = GLFW_KEY_F5;
-    internalMap[KEY_F6] = GLFW_KEY_F6;
-    internalMap[KEY_F7] = GLFW_KEY_F7;
-    internalMap[KEY_F8] = GLFW_KEY_F8;
-    internalMap[KEY_F9] = GLFW_KEY_F9;
-    internalMap[KEY_F10] = GLFW_KEY_F10;
-    internalMap[KEY_F11] = GLFW_KEY_F11;
-    internalMap[KEY_F12] = GLFW_KEY_F12;
-  }
-
-  if (externalMap.empty())
-  {
-    externalMap[GLFW_KEY_SPACE] = KEY_SPACE;
-    externalMap[GLFW_KEY_ESC] = KEY_ESCAPE;
-    externalMap[GLFW_KEY_TAB] = KEY_TAB;
-    externalMap[GLFW_KEY_ENTER] = KEY_ENTER;
-    externalMap[GLFW_KEY_BACKSPACE] = KEY_BACKSPACE;
-    externalMap[GLFW_KEY_INSERT] = KEY_INSERT;
-    externalMap[GLFW_KEY_DEL] = KEY_DELETE;
-    externalMap[GLFW_KEY_LSHIFT] = KEY_LSHIFT;
-    externalMap[GLFW_KEY_RSHIFT] = KEY_RSHIFT;
-    externalMap[GLFW_KEY_LCTRL] = KEY_LCTRL;
-    externalMap[GLFW_KEY_RCTRL] = KEY_RCTRL;
-    externalMap[GLFW_KEY_LALT] = KEY_LALT;
-    externalMap[GLFW_KEY_RALT] = KEY_RALT;
-    externalMap[GLFW_KEY_LSUPER] = KEY_LSUPER;
-    externalMap[GLFW_KEY_RSUPER] = KEY_RSUPER;
-    externalMap[GLFW_KEY_UP] = KEY_UP;
-    externalMap[GLFW_KEY_DOWN] = KEY_DOWN;
-    externalMap[GLFW_KEY_LEFT] = KEY_LEFT;
-    externalMap[GLFW_KEY_RIGHT] = KEY_RIGHT;
-    externalMap[GLFW_KEY_PAGEUP] = KEY_PAGEUP;
-    externalMap[GLFW_KEY_PAGEDOWN] = KEY_PAGEDOWN;
-    externalMap[GLFW_KEY_HOME] = KEY_HOME;
-    externalMap[GLFW_KEY_END] = KEY_END;
-    externalMap[GLFW_KEY_F1] = KEY_F1;
-    externalMap[GLFW_KEY_F2] = KEY_F2;
-    externalMap[GLFW_KEY_F3] = KEY_F3;
-    externalMap[GLFW_KEY_F4] = KEY_F4;
-    externalMap[GLFW_KEY_F5] = KEY_F5;
-    externalMap[GLFW_KEY_F6] = KEY_F6;
-    externalMap[GLFW_KEY_F7] = KEY_F7;
-    externalMap[GLFW_KEY_F8] = KEY_F8;
-    externalMap[GLFW_KEY_F9] = KEY_F9;
-    externalMap[GLFW_KEY_F10] = KEY_F10;
-    externalMap[GLFW_KEY_F11] = KEY_F11;
-    externalMap[GLFW_KEY_F12] = KEY_F12;
-  }
-
   context.getResizedSignal().connect(*this, &Context::onContextResized);
+
+  std::memset(externalMap, 0, sizeof(externalMap));
+  externalMap[GLFW_KEY_SPACE] = KEY_SPACE;
+  externalMap[GLFW_KEY_APOSTROPHE] = KEY_APOSTROPHE;
+  externalMap[GLFW_KEY_COMMA] = KEY_COMMA;
+  externalMap[GLFW_KEY_MINUS] = KEY_MINUS;
+  externalMap[GLFW_KEY_PERIOD] = KEY_PERIOD;
+  externalMap[GLFW_KEY_SLASH] = KEY_SLASH;
+  externalMap[GLFW_KEY_0] = KEY_0;
+  externalMap[GLFW_KEY_1] = KEY_1;
+  externalMap[GLFW_KEY_2] = KEY_2;
+  externalMap[GLFW_KEY_3] = KEY_3;
+  externalMap[GLFW_KEY_4] = KEY_4;
+  externalMap[GLFW_KEY_5] = KEY_5;
+  externalMap[GLFW_KEY_6] = KEY_6;
+  externalMap[GLFW_KEY_7] = KEY_7;
+  externalMap[GLFW_KEY_8] = KEY_8;
+  externalMap[GLFW_KEY_9] = KEY_9;
+  externalMap[GLFW_KEY_SEMICOLON] = KEY_SEMICOLON;
+  externalMap[GLFW_KEY_EQUAL] = KEY_EQUAL;
+  externalMap[GLFW_KEY_A] = KEY_A;
+  externalMap[GLFW_KEY_B] = KEY_B;
+  externalMap[GLFW_KEY_C] = KEY_C;
+  externalMap[GLFW_KEY_D] = KEY_D;
+  externalMap[GLFW_KEY_E] = KEY_E;
+  externalMap[GLFW_KEY_F] = KEY_F;
+  externalMap[GLFW_KEY_G] = KEY_G;
+  externalMap[GLFW_KEY_H] = KEY_H;
+  externalMap[GLFW_KEY_I] = KEY_I;
+  externalMap[GLFW_KEY_J] = KEY_J;
+  externalMap[GLFW_KEY_K] = KEY_K;
+  externalMap[GLFW_KEY_L] = KEY_L;
+  externalMap[GLFW_KEY_M] = KEY_M;
+  externalMap[GLFW_KEY_N] = KEY_N;
+  externalMap[GLFW_KEY_O] = KEY_O;
+  externalMap[GLFW_KEY_P] = KEY_P;
+  externalMap[GLFW_KEY_Q] = KEY_Q;
+  externalMap[GLFW_KEY_R] = KEY_R;
+  externalMap[GLFW_KEY_S] = KEY_S;
+  externalMap[GLFW_KEY_T] = KEY_T;
+  externalMap[GLFW_KEY_U] = KEY_U;
+  externalMap[GLFW_KEY_V] = KEY_V;
+  externalMap[GLFW_KEY_W] = KEY_W;
+  externalMap[GLFW_KEY_X] = KEY_X;
+  externalMap[GLFW_KEY_Y] = KEY_Y;
+  externalMap[GLFW_KEY_Z] = KEY_Z;
+  externalMap[GLFW_KEY_LEFT_BRACKET] = KEY_LEFT_BRACKET;
+  externalMap[GLFW_KEY_BACKSLASH] = KEY_BACKSLASH;
+  externalMap[GLFW_KEY_RIGHT_BRACKET] = KEY_RIGHT_BRACKET;
+  externalMap[GLFW_KEY_GRAVE_ACCENT] = KEY_GRAVE_ACCENT;
+  externalMap[GLFW_KEY_WORLD_1] = KEY_WORLD_1;
+  externalMap[GLFW_KEY_WORLD_2] = KEY_WORLD_2;
+  externalMap[GLFW_KEY_ESCAPE] = KEY_ESCAPE;
+  externalMap[GLFW_KEY_ENTER] = KEY_ENTER;
+  externalMap[GLFW_KEY_TAB] = KEY_TAB;
+  externalMap[GLFW_KEY_BACKSPACE] = KEY_BACKSPACE;
+  externalMap[GLFW_KEY_INSERT] = KEY_INSERT;
+  externalMap[GLFW_KEY_DELETE] = KEY_DELETE;
+  externalMap[GLFW_KEY_RIGHT] = KEY_RIGHT;
+  externalMap[GLFW_KEY_LEFT] = KEY_LEFT;
+  externalMap[GLFW_KEY_DOWN] = KEY_DOWN;
+  externalMap[GLFW_KEY_UP] = KEY_UP;
+  externalMap[GLFW_KEY_PAGE_UP] = KEY_PAGE_UP;
+  externalMap[GLFW_KEY_PAGE_DOWN] = KEY_PAGE_DOWN;
+  externalMap[GLFW_KEY_HOME] = KEY_HOME;
+  externalMap[GLFW_KEY_END] = KEY_END;
+  externalMap[GLFW_KEY_CAPS_LOCK] = KEY_CAPS_LOCK;
+  externalMap[GLFW_KEY_SCROLL_LOCK] = KEY_SCROLL_LOCK;
+  externalMap[GLFW_KEY_NUM_LOCK] = KEY_NUM_LOCK;
+  externalMap[GLFW_KEY_PRINT_SCREEN] = KEY_PRINT_SCREEN;
+  externalMap[GLFW_KEY_PAUSE] = KEY_PAUSE;
+  externalMap[GLFW_KEY_F1] = KEY_F1;
+  externalMap[GLFW_KEY_F2] = KEY_F2;
+  externalMap[GLFW_KEY_F3] = KEY_F3;
+  externalMap[GLFW_KEY_F4] = KEY_F4;
+  externalMap[GLFW_KEY_F5] = KEY_F5;
+  externalMap[GLFW_KEY_F6] = KEY_F6;
+  externalMap[GLFW_KEY_F7] = KEY_F7;
+  externalMap[GLFW_KEY_F8] = KEY_F8;
+  externalMap[GLFW_KEY_F9] = KEY_F9;
+  externalMap[GLFW_KEY_F10] = KEY_F10;
+  externalMap[GLFW_KEY_F11] = KEY_F11;
+  externalMap[GLFW_KEY_F12] = KEY_F12;
+  externalMap[GLFW_KEY_F13] = KEY_F13;
+  externalMap[GLFW_KEY_F14] = KEY_F14;
+  externalMap[GLFW_KEY_F15] = KEY_F15;
+  externalMap[GLFW_KEY_F16] = KEY_F16;
+  externalMap[GLFW_KEY_F17] = KEY_F17;
+  externalMap[GLFW_KEY_F18] = KEY_F18;
+  externalMap[GLFW_KEY_F19] = KEY_F19;
+  externalMap[GLFW_KEY_F20] = KEY_F20;
+  externalMap[GLFW_KEY_F21] = KEY_F21;
+  externalMap[GLFW_KEY_F22] = KEY_F22;
+  externalMap[GLFW_KEY_F23] = KEY_F23;
+  externalMap[GLFW_KEY_F24] = KEY_F24;
+  externalMap[GLFW_KEY_F25] = KEY_F25;
+  externalMap[GLFW_KEY_KP_0] = KEY_KP_0;
+  externalMap[GLFW_KEY_KP_1] = KEY_KP_1;
+  externalMap[GLFW_KEY_KP_2] = KEY_KP_2;
+  externalMap[GLFW_KEY_KP_3] = KEY_KP_3;
+  externalMap[GLFW_KEY_KP_4] = KEY_KP_4;
+  externalMap[GLFW_KEY_KP_5] = KEY_KP_5;
+  externalMap[GLFW_KEY_KP_6] = KEY_KP_6;
+  externalMap[GLFW_KEY_KP_7] = KEY_KP_7;
+  externalMap[GLFW_KEY_KP_8] = KEY_KP_8;
+  externalMap[GLFW_KEY_KP_9] = KEY_KP_9;
+  externalMap[GLFW_KEY_KP_DECIMAL] = KEY_KP_DECIMAL;
+  externalMap[GLFW_KEY_KP_DIVIDE] = KEY_KP_DIVIDE;
+  externalMap[GLFW_KEY_KP_MULTIPLY] = KEY_KP_MULTIPLY;
+  externalMap[GLFW_KEY_KP_SUBTRACT] = KEY_KP_SUBTRACT;
+  externalMap[GLFW_KEY_KP_ADD] = KEY_KP_ADD;
+  externalMap[GLFW_KEY_KP_ENTER] = KEY_KP_ENTER;
+  externalMap[GLFW_KEY_KP_EQUAL] = KEY_KP_EQUAL;
+  externalMap[GLFW_KEY_LEFT_SHIFT] = KEY_LEFT_SHIFT;
+  externalMap[GLFW_KEY_LEFT_CONTROL] = KEY_LEFT_CONTROL;
+  externalMap[GLFW_KEY_LEFT_ALT] = KEY_LEFT_ALT;
+  externalMap[GLFW_KEY_LEFT_SUPER] = KEY_LEFT_SUPER;
+  externalMap[GLFW_KEY_RIGHT_SHIFT] = KEY_RIGHT_SHIFT;
+  externalMap[GLFW_KEY_RIGHT_CONTROL] = KEY_RIGHT_CONTROL;
+  externalMap[GLFW_KEY_RIGHT_ALT] = KEY_RIGHT_ALT;
+  externalMap[GLFW_KEY_RIGHT_SUPER] = KEY_RIGHT_SUPER;
+  externalMap[GLFW_KEY_MENU] = KEY_MENU;
+
+  std::memset(internalMap, 0, sizeof(internalMap));
+  internalMap[KEY_SPACE] = GLFW_KEY_SPACE;
+  internalMap[KEY_APOSTROPHE] = GLFW_KEY_APOSTROPHE;
+  internalMap[KEY_COMMA] = GLFW_KEY_COMMA;
+  internalMap[KEY_MINUS] = GLFW_KEY_MINUS;
+  internalMap[KEY_PERIOD] = GLFW_KEY_PERIOD;
+  internalMap[KEY_SLASH] = GLFW_KEY_SLASH;
+  internalMap[KEY_0] = GLFW_KEY_0;
+  internalMap[KEY_1] = GLFW_KEY_1;
+  internalMap[KEY_2] = GLFW_KEY_2;
+  internalMap[KEY_3] = GLFW_KEY_3;
+  internalMap[KEY_4] = GLFW_KEY_4;
+  internalMap[KEY_5] = GLFW_KEY_5;
+  internalMap[KEY_6] = GLFW_KEY_6;
+  internalMap[KEY_7] = GLFW_KEY_7;
+  internalMap[KEY_8] = GLFW_KEY_8;
+  internalMap[KEY_9] = GLFW_KEY_9;
+  internalMap[KEY_SEMICOLON] = GLFW_KEY_SEMICOLON;
+  internalMap[KEY_EQUAL] = GLFW_KEY_EQUAL;
+  internalMap[KEY_A] = GLFW_KEY_A;
+  internalMap[KEY_B] = GLFW_KEY_B;
+  internalMap[KEY_C] = GLFW_KEY_C;
+  internalMap[KEY_D] = GLFW_KEY_D;
+  internalMap[KEY_E] = GLFW_KEY_E;
+  internalMap[KEY_F] = GLFW_KEY_F;
+  internalMap[KEY_G] = GLFW_KEY_G;
+  internalMap[KEY_H] = GLFW_KEY_H;
+  internalMap[KEY_I] = GLFW_KEY_I;
+  internalMap[KEY_J] = GLFW_KEY_J;
+  internalMap[KEY_K] = GLFW_KEY_K;
+  internalMap[KEY_L] = GLFW_KEY_L;
+  internalMap[KEY_M] = GLFW_KEY_M;
+  internalMap[KEY_N] = GLFW_KEY_N;
+  internalMap[KEY_O] = GLFW_KEY_O;
+  internalMap[KEY_P] = GLFW_KEY_P;
+  internalMap[KEY_Q] = GLFW_KEY_Q;
+  internalMap[KEY_R] = GLFW_KEY_R;
+  internalMap[KEY_S] = GLFW_KEY_S;
+  internalMap[KEY_T] = GLFW_KEY_T;
+  internalMap[KEY_U] = GLFW_KEY_U;
+  internalMap[KEY_V] = GLFW_KEY_V;
+  internalMap[KEY_W] = GLFW_KEY_W;
+  internalMap[KEY_X] = GLFW_KEY_X;
+  internalMap[KEY_Y] = GLFW_KEY_Y;
+  internalMap[KEY_Z] = GLFW_KEY_Z;
+  internalMap[KEY_LEFT_BRACKET] = GLFW_KEY_LEFT_BRACKET;
+  internalMap[KEY_BACKSLASH] = GLFW_KEY_BACKSLASH;
+  internalMap[KEY_RIGHT_BRACKET] = GLFW_KEY_RIGHT_BRACKET;
+  internalMap[KEY_GRAVE_ACCENT] = GLFW_KEY_GRAVE_ACCENT;
+  internalMap[KEY_WORLD_1] = GLFW_KEY_WORLD_1;
+  internalMap[KEY_WORLD_2] = GLFW_KEY_WORLD_2;
+  internalMap[KEY_ESCAPE] = GLFW_KEY_ESCAPE;
+  internalMap[KEY_ENTER] = GLFW_KEY_ENTER;
+  internalMap[KEY_TAB] = GLFW_KEY_TAB;
+  internalMap[KEY_BACKSPACE] = GLFW_KEY_BACKSPACE;
+  internalMap[KEY_INSERT] = GLFW_KEY_INSERT;
+  internalMap[KEY_DELETE] = GLFW_KEY_DELETE;
+  internalMap[KEY_RIGHT] = GLFW_KEY_RIGHT;
+  internalMap[KEY_LEFT] = GLFW_KEY_LEFT;
+  internalMap[KEY_DOWN] = GLFW_KEY_DOWN;
+  internalMap[KEY_UP] = GLFW_KEY_UP;
+  internalMap[KEY_PAGE_UP] = GLFW_KEY_PAGE_UP;
+  internalMap[KEY_PAGE_DOWN] = GLFW_KEY_PAGE_DOWN;
+  internalMap[KEY_HOME] = GLFW_KEY_HOME;
+  internalMap[KEY_END] = GLFW_KEY_END;
+  internalMap[KEY_CAPS_LOCK] = GLFW_KEY_CAPS_LOCK;
+  internalMap[KEY_SCROLL_LOCK] = GLFW_KEY_SCROLL_LOCK;
+  internalMap[KEY_NUM_LOCK] = GLFW_KEY_NUM_LOCK;
+  internalMap[KEY_PRINT_SCREEN] = GLFW_KEY_PRINT_SCREEN;
+  internalMap[KEY_PAUSE] = GLFW_KEY_PAUSE;
+  internalMap[KEY_F1] = GLFW_KEY_F1;
+  internalMap[KEY_F2] = GLFW_KEY_F2;
+  internalMap[KEY_F3] = GLFW_KEY_F3;
+  internalMap[KEY_F4] = GLFW_KEY_F4;
+  internalMap[KEY_F5] = GLFW_KEY_F5;
+  internalMap[KEY_F6] = GLFW_KEY_F6;
+  internalMap[KEY_F7] = GLFW_KEY_F7;
+  internalMap[KEY_F8] = GLFW_KEY_F8;
+  internalMap[KEY_F9] = GLFW_KEY_F9;
+  internalMap[KEY_F10] = GLFW_KEY_F10;
+  internalMap[KEY_F11] = GLFW_KEY_F11;
+  internalMap[KEY_F12] = GLFW_KEY_F12;
+  internalMap[KEY_F13] = GLFW_KEY_F13;
+  internalMap[KEY_F14] = GLFW_KEY_F14;
+  internalMap[KEY_F15] = GLFW_KEY_F15;
+  internalMap[KEY_F16] = GLFW_KEY_F16;
+  internalMap[KEY_F17] = GLFW_KEY_F17;
+  internalMap[KEY_F18] = GLFW_KEY_F18;
+  internalMap[KEY_F19] = GLFW_KEY_F19;
+  internalMap[KEY_F20] = GLFW_KEY_F20;
+  internalMap[KEY_F21] = GLFW_KEY_F21;
+  internalMap[KEY_F22] = GLFW_KEY_F22;
+  internalMap[KEY_F23] = GLFW_KEY_F23;
+  internalMap[KEY_F24] = GLFW_KEY_F24;
+  internalMap[KEY_F25] = GLFW_KEY_F25;
+  internalMap[KEY_KP_0] = GLFW_KEY_KP_0;
+  internalMap[KEY_KP_1] = GLFW_KEY_KP_1;
+  internalMap[KEY_KP_2] = GLFW_KEY_KP_2;
+  internalMap[KEY_KP_3] = GLFW_KEY_KP_3;
+  internalMap[KEY_KP_4] = GLFW_KEY_KP_4;
+  internalMap[KEY_KP_5] = GLFW_KEY_KP_5;
+  internalMap[KEY_KP_6] = GLFW_KEY_KP_6;
+  internalMap[KEY_KP_7] = GLFW_KEY_KP_7;
+  internalMap[KEY_KP_8] = GLFW_KEY_KP_8;
+  internalMap[KEY_KP_9] = GLFW_KEY_KP_9;
+  internalMap[KEY_KP_DECIMAL] = GLFW_KEY_KP_DECIMAL;
+  internalMap[KEY_KP_DIVIDE] = GLFW_KEY_KP_DIVIDE;
+  internalMap[KEY_KP_MULTIPLY] = GLFW_KEY_KP_MULTIPLY;
+  internalMap[KEY_KP_SUBTRACT] = GLFW_KEY_KP_SUBTRACT;
+  internalMap[KEY_KP_ADD] = GLFW_KEY_KP_ADD;
+  internalMap[KEY_KP_ENTER] = GLFW_KEY_KP_ENTER;
+  internalMap[KEY_KP_EQUAL] = GLFW_KEY_KP_EQUAL;
+  internalMap[KEY_LEFT_SHIFT] = GLFW_KEY_LEFT_SHIFT;
+  internalMap[KEY_LEFT_CONTROL] = GLFW_KEY_LEFT_CONTROL;
+  internalMap[KEY_LEFT_ALT] = GLFW_KEY_LEFT_ALT;
+  internalMap[KEY_LEFT_SUPER] = GLFW_KEY_LEFT_SUPER;
+  internalMap[KEY_RIGHT_SHIFT] = GLFW_KEY_RIGHT_SHIFT;
+  internalMap[KEY_RIGHT_CONTROL] = GLFW_KEY_RIGHT_CONTROL;
+  internalMap[KEY_RIGHT_ALT] = GLFW_KEY_RIGHT_ALT;
+  internalMap[KEY_RIGHT_SUPER] = GLFW_KEY_RIGHT_SUPER;
+  internalMap[KEY_MENU] = GLFW_KEY_MENU;
+
+  window = glfwGetCurrentContext();
 
   glfwSetMousePosCallback(mousePosCallback);
   glfwSetMouseButtonCallback(mouseButtonCallback);
   glfwSetKeyCallback(keyboardCallback);
   glfwSetCharCallback(characterCallback);
-  glfwSetMouseWheelCallback(mouseWheelCallback);
+  glfwSetScrollCallback(scrollCallback);
 
-  wheelPosition = glfwGetMouseWheel();
-
-  glfwEnable(GLFW_MOUSE_CURSOR);
+  glfwSetCursorMode(window, GLFW_CURSOR_NORMAL);
 }
 
 Context::Context(const Context& source):
@@ -351,34 +505,22 @@ void Context::onContextResized(unsigned int width, unsigned int height)
     currentTarget->onWindowResized(width, height);
 }
 
-void Context::keyboardCallback(int key, int action)
+void Context::keyboardCallback(void* window, int key, int action)
 {
-  if (key > GLFW_KEY_SPECIAL)
-  {
-    KeyMap::const_iterator i = externalMap.find(key);
-    if (i == externalMap.end())
-      return;
-
-    key = i->second;
-  }
-
   const bool pressed = (action == GLFW_PRESS) ? true : false;
 
   if (instance->currentHook)
   {
-    if (instance->currentHook->onKeyPressed(Key(key), pressed))
+    if (instance->currentHook->onKeyPressed(externalMap[key], pressed))
       return;
   }
 
   if (instance->currentTarget)
-    instance->currentTarget->onKeyPressed(Key(key), pressed);
+    instance->currentTarget->onKeyPressed(externalMap[key], pressed);
 }
 
-void Context::characterCallback(int character, int action)
+void Context::characterCallback(void* window, int character)
 {
-  if (action != GLFW_PRESS)
-    return;
-
   if (instance->currentHook)
   {
     if (instance->currentHook->onCharInput((wchar_t) character))
@@ -389,21 +531,19 @@ void Context::characterCallback(int character, int action)
     instance->currentTarget->onCharInput((wchar_t) character);
 }
 
-void Context::mousePosCallback(int x, int y)
+void Context::mousePosCallback(void* window, int x, int y)
 {
-  const ivec2 position(x, y);
-
   if (instance->currentHook)
   {
-    if (instance->currentHook->onCursorMoved(position))
+    if (instance->currentHook->onCursorMoved(ivec2(x, y)))
       return;
   }
 
   if (instance->currentTarget)
-    instance->currentTarget->onCursorMoved(position);
+    instance->currentTarget->onCursorMoved(ivec2(x, y));
 }
 
-void Context::mouseButtonCallback(int button, int action)
+void Context::mouseButtonCallback(void* window, int button, int action)
 {
   const bool clicked = (action == GLFW_PRESS) ? true : false;
 
@@ -419,20 +559,16 @@ void Context::mouseButtonCallback(int button, int action)
     instance->currentTarget->onButtonClicked(Button(button), clicked);
 }
 
-void Context::mouseWheelCallback(int position)
+void Context::scrollCallback(void* window, int x, int y)
 {
-  const int offset = instance->wheelPosition - position;
-
   if (instance->currentHook)
   {
-    if (instance->currentHook->onWheelTurned(offset))
+    if (instance->currentHook->onWheelTurned(y))
       return;
   }
 
   if (instance->currentTarget)
-    instance->currentTarget->onWheelTurned(offset);
-
-  instance->wheelPosition = position;
+    instance->currentTarget->onWheelTurned(y);
 }
 
 Context& Context::operator = (const Context& source)
@@ -587,7 +723,7 @@ void SpectatorController::inputKeyPress(Key key, bool pressed)
 {
   switch (key)
   {
-    case 'W':
+    case KEY_W:
     case KEY_UP:
     {
       if (pressed)
@@ -597,7 +733,7 @@ void SpectatorController::inputKeyPress(Key key, bool pressed)
       break;
     }
 
-    case 'S':
+    case KEY_S:
     case KEY_DOWN:
     {
       if (pressed)
@@ -607,7 +743,7 @@ void SpectatorController::inputKeyPress(Key key, bool pressed)
       break;
     }
 
-    case 'A':
+    case KEY_A:
     case KEY_LEFT:
     {
       if (pressed)
@@ -617,7 +753,7 @@ void SpectatorController::inputKeyPress(Key key, bool pressed)
       break;
     }
 
-    case 'D':
+    case KEY_D:
     case KEY_RIGHT:
     {
       if (pressed)
@@ -627,8 +763,8 @@ void SpectatorController::inputKeyPress(Key key, bool pressed)
       break;
     }
 
-    case KEY_LCTRL:
-    case KEY_RCTRL:
+    case KEY_LEFT_CONTROL:
+    case KEY_RIGHT_CONTROL:
     {
       if (pressed)
         directions[DOWN] = true;
@@ -637,8 +773,8 @@ void SpectatorController::inputKeyPress(Key key, bool pressed)
       break;
     }
 
-    case KEY_LSHIFT:
-    case KEY_RSHIFT:
+    case KEY_LEFT_SHIFT:
+    case KEY_RIGHT_SHIFT:
     {
       if (pressed)
         turbo = true;
@@ -879,7 +1015,8 @@ bool TextController::isCtrlKeyDown() const
 {
   Context* context = Context::getSingleton();
 
-  return context->isKeyDown(KEY_LCTRL) || context->isKeyDown(KEY_RCTRL);
+  return context->isKeyDown(KEY_LEFT_CONTROL) ||
+         context->isKeyDown(KEY_RIGHT_CONTROL);
 }
 
 ///////////////////////////////////////////////////////////////////////

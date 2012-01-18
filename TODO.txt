@@ -54,7 +54,6 @@ Move RenderState core into Context
 Move ProgramState and SharedProgramState into render
 Remove last uses of OpenGL state stack
 
-Move onto GLFW 3
 Make Context be a non-singleton object
 
 

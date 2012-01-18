@@ -1,7 +1,7 @@
 //========================================================================
-// GLFW - An OpenGL framework
+// GLFW - An OpenGL library
 // Platform:    Win32/WGL
-// API version: 2.7
+// API version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
@@ -31,69 +31,55 @@
 #include "internal.h"
 
 
-//************************************************************************
-//****                  GLFW internal functions                       ****
-//************************************************************************
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW internal API                      //////
+//////////////////////////////////////////////////////////////////////////
 
 //========================================================================
 // Initialise timer
 //========================================================================
 
-void _glfwInitTimer( void )
+void _glfwInitTimer(void)
 {
     __int64 freq;
 
-    // Check if we have a performance counter
-    if( QueryPerformanceFrequency( (LARGE_INTEGER *)&freq ) )
+    if (QueryPerformanceFrequency((LARGE_INTEGER*) &freq))
     {
-        // Performance counter is available => use it!
-        _glfwLibrary.Timer.HasPerformanceCounter = GL_TRUE;
-
-        // Counter resolution is 1 / counter frequency
-        _glfwLibrary.Timer.Resolution = 1.0 / (double)freq;
-
-        // Set start time for timer
-        QueryPerformanceCounter( (LARGE_INTEGER *)&_glfwLibrary.Timer.t0_64 );
+        _glfwLibrary.Win32.timer.hasPerformanceCounter = GL_TRUE;
+        _glfwLibrary.Win32.timer.resolution = 1.0 / (double) freq;
+        QueryPerformanceCounter((LARGE_INTEGER*) &_glfwLibrary.Win32.timer.t0_64);
     }
     else
     {
-        // No performace counter available => use the tick counter
-        _glfwLibrary.Timer.HasPerformanceCounter = GL_FALSE;
-
-        // Counter resolution is 1 ms
-        _glfwLibrary.Timer.Resolution = 0.001;
-
-        // Set start time for timer
-        _glfwLibrary.Timer.t0_32 = _glfw_timeGetTime();
+        _glfwLibrary.Win32.timer.hasPerformanceCounter = GL_FALSE;
+        _glfwLibrary.Win32.timer.resolution = 0.001; // winmm resolution is 1 ms
+        _glfwLibrary.Win32.timer.t0_32 = _glfw_timeGetTime();
     }
 }
 
 
-//************************************************************************
-//****               Platform implementation functions                ****
-//************************************************************************
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW platform API                      //////
+//////////////////////////////////////////////////////////////////////////
 
 //========================================================================
 // Return timer value in seconds
 //========================================================================
 
-double _glfwPlatformGetTime( void )
+double _glfwPlatformGetTime(void)
 {
-    double  t;
+    double t;
     __int64 t_64;
 
-    if( _glfwLibrary.Timer.HasPerformanceCounter )
+    if (_glfwLibrary.Win32.timer.hasPerformanceCounter)
     {
-        QueryPerformanceCounter( (LARGE_INTEGER *)&t_64 );
-        t =  (double)(t_64 - _glfwLibrary.Timer.t0_64);
+        QueryPerformanceCounter((LARGE_INTEGER*) &t_64);
+        t =  (double)(t_64 - _glfwLibrary.Win32.timer.t0_64);
     }
     else
-    {
-        t = (double)(_glfw_timeGetTime() - _glfwLibrary.Timer.t0_32);
-    }
+        t = (double)(_glfw_timeGetTime() - _glfwLibrary.Win32.timer.t0_32);
 
-    // Calculate the current time in seconds
-    return t * _glfwLibrary.Timer.Resolution;
+    return t * _glfwLibrary.Win32.timer.resolution;
 }
 
 
@@ -101,19 +87,16 @@ double _glfwPlatformGetTime( void )
 // Set timer value in seconds
 //========================================================================
 
-void _glfwPlatformSetTime( double t )
+void _glfwPlatformSetTime(double t)
 {
     __int64 t_64;
 
-    if( _glfwLibrary.Timer.HasPerformanceCounter )
+    if (_glfwLibrary.Win32.timer.hasPerformanceCounter)
     {
-        QueryPerformanceCounter( (LARGE_INTEGER *)&t_64 );
-        _glfwLibrary.Timer.t0_64 = t_64 - (__int64)(t/_glfwLibrary.Timer.Resolution);
+        QueryPerformanceCounter((LARGE_INTEGER*) &t_64);
+        _glfwLibrary.Win32.timer.t0_64 = t_64 - (__int64) (t / _glfwLibrary.Win32.timer.resolution);
     }
     else
-    {
-        _glfwLibrary.Timer.t0_32 = _glfw_timeGetTime() - (int)(t*1000.0);
-    }
+        _glfwLibrary.Win32.timer.t0_32 = _glfw_timeGetTime() - (int)(t * 1000.0);
 }
-
 

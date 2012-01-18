@@ -1,7 +1,7 @@
 //========================================================================
-// GLFW - An OpenGL framework
+// GLFW - An OpenGL library
 // Platform:    X11 (Unix)
-// API version: 2.7
+// API version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
@@ -31,34 +31,35 @@
 #include "internal.h"
 
 
-//************************************************************************
-//****               Platform implementation functions                ****
-//************************************************************************
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW platform API                      //////
+//////////////////////////////////////////////////////////////////////////
 
 //========================================================================
 // Enable system keys
 //========================================================================
 
-void _glfwPlatformEnableSystemKeys( void )
+void _glfwPlatformEnableSystemKeys(_GLFWwindow* window)
 {
-    if( _glfwWin.keyboardGrabbed )
+    if (window->X11.keyboardGrabbed)
     {
-        XUngrabKeyboard( _glfwLibrary.display, CurrentTime );
-        _glfwWin.keyboardGrabbed = GL_FALSE;
+        XUngrabKeyboard(_glfwLibrary.X11.display, CurrentTime);
+        window->X11.keyboardGrabbed = GL_FALSE;
     }
 }
+
 
 //========================================================================
 // Disable system keys
 //========================================================================
 
-void _glfwPlatformDisableSystemKeys( void )
+void _glfwPlatformDisableSystemKeys(_GLFWwindow* window)
 {
-    if( XGrabKeyboard( _glfwLibrary.display, _glfwWin.window, True,
-                        GrabModeAsync, GrabModeAsync, CurrentTime ) ==
-        GrabSuccess )
+    if (XGrabKeyboard(_glfwLibrary.X11.display, window->X11.handle,
+                      True, GrabModeAsync, GrabModeAsync, CurrentTime)
+        == GrabSuccess)
     {
-        _glfwWin.keyboardGrabbed = GL_TRUE;
+        window->X11.keyboardGrabbed = GL_TRUE;
     }
 }
 

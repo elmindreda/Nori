@@ -1,7 +1,7 @@
 //========================================================================
-// GLFW - An OpenGL framework
+// GLFW - An OpenGL library
 // Platform:    Any
-// API version: 2.7
+// API version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
@@ -30,49 +30,104 @@
 
 #include "internal.h"
 
+#include <stdlib.h>
 
-//************************************************************************
-//****                    GLFW user functions                         ****
-//************************************************************************
+
+//========================================================================
+// Lexical comparison function for GLFW video modes, used by qsort
+//========================================================================
+
+static int compareVideoModes(const void* firstPtr, const void* secondPtr)
+{
+    int firstBPP, secondBPP, firstSize, secondSize;
+    GLFWvidmode* first = (GLFWvidmode*) firstPtr;
+    GLFWvidmode* second = (GLFWvidmode*) secondPtr;
+
+    // First sort on color bits per pixel
+
+    firstBPP = first->redBits +
+               first->greenBits +
+               first->blueBits;
+    secondBPP = second->redBits +
+                second->greenBits +
+                second->blueBits;
+
+    if (firstBPP != secondBPP)
+        return firstBPP - secondBPP;
+
+    // Then sort on screen area, in pixels
+
+    firstSize = first->width * first->height;
+    secondSize = second->width * second->height;
+
+    return firstSize - secondSize;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW internal API                      //////
+//////////////////////////////////////////////////////////////////////////
+
+//========================================================================
+// Convert BPP to RGB bits based on "best guess"
+//========================================================================
+
+void _glfwSplitBPP(int bpp, int* red, int* green, int* blue)
+{
+    int delta;
+
+    // We assume that by 32 they really meant 24
+    if (bpp == 32)
+        bpp = 24;
+
+    // Convert "bits per pixel" to red, green & blue sizes
+
+    *red = *green = *blue = bpp / 3;
+    delta = bpp - (*red * 3);
+    if (delta >= 1)
+        *green = *green + 1;
+
+    if (delta == 2)
+        *red = *red + 1;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//////                        GLFW public API                       //////
+//////////////////////////////////////////////////////////////////////////
 
 //========================================================================
 // Get a list of available video modes
 //========================================================================
 
-GLFWAPI int glfwGetVideoModes( GLFWvidmode *list, int maxcount )
+GLFWAPI int glfwGetVideoModes(GLFWvidmode* list, int maxcount)
 {
-    int         count, i, swap, res1, res2, depth1, depth2;
-    GLFWvidmode vm;
+    int count;
 
-    if( !_glfwInitialized || maxcount <= 0 || list == (GLFWvidmode*) 0 )
+    if (!_glfwInitialized)
     {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
         return 0;
     }
 
-    // Get list of video modes
-    count = _glfwPlatformGetVideoModes( list, maxcount );
-
-    // Sort list (bubble sort)
-    do
+    if (maxcount <= 0)
     {
-        swap = 0;
-        for( i = 0; i < count-1; ++ i )
-        {
-            res1   = list[i].Width*list[i].Height;
-            depth1 = list[i].RedBits+list[i].GreenBits+list[i].BlueBits;
-            res2   = list[i+1].Width*list[i+1].Height;
-            depth2 = list[i+1].RedBits+list[i+1].GreenBits+
-                     list[i+1].BlueBits;
-            if( (depth2<depth1) || ((depth2==depth1) && (res2<res1)) )
-            {
-                vm = list[i];
-                list[i] = list[i+1];
-                list[i+1] = vm;
-                swap = 1;
-            }
-        }
+        _glfwSetError(GLFW_INVALID_VALUE,
+                      "glfwGetVideoModes: Parameter 'maxcount' must be "
+                      "greater than zero");
+        return 0;
     }
-    while( swap );
+
+    if (list == NULL)
+    {
+        _glfwSetError(GLFW_INVALID_VALUE,
+                      "glfwGetVideoModes: Parameter 'list' cannot be NULL");
+        return 0;
+    }
+
+    count = _glfwPlatformGetVideoModes(list, maxcount);
+    if (count > 0)
+        qsort(list, count, sizeof(GLFWvidmode), compareVideoModes);
 
     return count;
 }
@@ -82,13 +137,21 @@ GLFWAPI int glfwGetVideoModes( GLFWvidmode *list, int maxcount )
 // Get the desktop video mode
 //========================================================================
 
-GLFWAPI void glfwGetDesktopMode( GLFWvidmode *mode )
+GLFWAPI void glfwGetDesktopMode(GLFWvidmode* mode)
 {
-    if( !_glfwInitialized || mode == (GLFWvidmode*) 0 )
+    if (!_glfwInitialized)
     {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
         return;
     }
 
-    _glfwPlatformGetDesktopMode( mode );
+    if (mode == NULL)
+    {
+        _glfwSetError(GLFW_INVALID_VALUE,
+                      "glfwGetDesktopMode: Parameter 'mode' cannot be NULL");
+        return;
+    }
+
+    _glfwPlatformGetDesktopMode(mode);
 }
 
