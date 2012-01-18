@@ -1,7 +1,7 @@
 //========================================================================
-// GLFW - An OpenGL framework
+// GLFW - An OpenGL library
 // Platform:    Cocoa/NSOpenGL
-// API Version: 2.7
+// API Version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
 // Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -29,27 +29,28 @@
 
 #include "internal.h"
 
-#include <sys/time.h>
 
-//************************************************************************
-//****               Platform implementation functions                ****
-//************************************************************************
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW platform API                      //////
+//////////////////////////////////////////////////////////////////////////
 
 //========================================================================
 // Return timer value in seconds
 //========================================================================
 
-double _glfwPlatformGetTime( void )
+double _glfwPlatformGetTime(void)
 {
-    return [NSDate timeIntervalSinceReferenceDate] - _glfwLibrary.Timer.t0;
+    return [NSDate timeIntervalSinceReferenceDate] -
+           _glfwLibrary.NS.timer.t0;
 }
 
 //========================================================================
 // Set timer value in seconds
 //========================================================================
 
-void _glfwPlatformSetTime( double time )
+void _glfwPlatformSetTime(double time)
 {
-    _glfwLibrary.Timer.t0 = [NSDate timeIntervalSinceReferenceDate] - time;
+    _glfwLibrary.NS.timer.t0 =
+        [NSDate timeIntervalSinceReferenceDate] - time;
 }
 

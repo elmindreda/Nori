@@ -620,7 +620,7 @@ int _glfwPlatformTerminate(void)
 
 const char* _glfwPlatformGetVersionString(void)
 {
-    const char* version = "GLFW " _GLFW_VERSION_FULL
+    const char* version = _GLFW_VERSION_FULL
 #if defined(_GLFW_HAS_XRANDR)
         " XRandR"
 #endif
@@ -629,6 +629,9 @@ const char* _glfwPlatformGetVersionString(void)
 #endif
 #if !defined(_GLFW_HAS_XRANDR) && !defined(_GLFW_HAS_XF86VIDMODE)
         " no-mode-switching-support"
+#endif
+#if defined(_GLFW_HAS_XKB)
+        " Xkb"
 #endif
 #if defined(_GLFW_HAS_GLXGETPROCADDRESS)
         " glXGetProcAddress"

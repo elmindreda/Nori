@@ -1,7 +1,7 @@
 //========================================================================
-// GLFW - An OpenGL framework
+// GLFW - An OpenGL library
 // Platform:    Cocoa/NSOpenGL
-// API Version: 2.7
+// API Version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
 // Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -29,11 +29,12 @@
 
 #include "internal.h"
 
+
 //========================================================================
 // Check whether the display mode should be included in enumeration
 //========================================================================
 
-static BOOL modeIsGood( NSDictionary *mode )
+static BOOL modeIsGood(NSDictionary* mode)
 {
     // This is a bit controversial, if you've got something other than an
     // LCD computer monitor as an output device you might not want these
@@ -42,50 +43,51 @@ static BOOL modeIsGood( NSDictionary *mode )
     // This seems like a decent compromise, but certain applications may
     // wish to patch this...
     return [[mode objectForKey:(id)kCGDisplayBitsPerPixel] intValue] >= 15 &&
-           [mode objectForKey:(id)kCGDisplayModeIsSafeForHardware] != nil &&
-           [mode objectForKey:(id)kCGDisplayModeIsStretched] == nil;
+            [mode objectForKey:(id)kCGDisplayModeIsSafeForHardware] != nil &&
+            [mode objectForKey:(id)kCGDisplayModeIsStretched] == nil;
 }
 
 //========================================================================
 // Convert Core Graphics display mode to GLFW video mode
 //========================================================================
 
-static GLFWvidmode vidmodeFromCGDisplayMode( NSDictionary *mode )
+static GLFWvidmode vidmodeFromCGDisplayMode(NSDictionary* mode)
 {
-    unsigned int width = [[mode objectForKey:(id)kCGDisplayWidth] unsignedIntValue];
-    unsigned int height = [[mode objectForKey:(id)kCGDisplayHeight] unsignedIntValue];
-    unsigned int bps = [[mode objectForKey:(id)kCGDisplayBitsPerSample] unsignedIntValue];
+    unsigned int width =
+        [[mode objectForKey:(id)kCGDisplayWidth] unsignedIntValue];
+    unsigned int height =
+        [[mode objectForKey:(id)kCGDisplayHeight] unsignedIntValue];
+    unsigned int bps =
+        [[mode objectForKey:(id)kCGDisplayBitsPerSample] unsignedIntValue];
 
     GLFWvidmode result;
-    result.Width = width;
-    result.Height = height;
-    result.RedBits = bps;
-    result.GreenBits = bps;
-    result.BlueBits = bps;
+    result.width = width;
+    result.height = height;
+    result.redBits = bps;
+    result.greenBits = bps;
+    result.blueBits = bps;
     return result;
 }
 
 
-//************************************************************************
-//****               Platform implementation functions                ****
-//************************************************************************
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW platform API                      //////
+//////////////////////////////////////////////////////////////////////////
 
 //========================================================================
 // Get a list of available video modes
 //========================================================================
 
-int _glfwPlatformGetVideoModes( GLFWvidmode *list, int maxcount )
+int _glfwPlatformGetVideoModes(GLFWvidmode* list, int maxcount)
 {
-    NSArray *modes = (NSArray *)CGDisplayAvailableModes( CGMainDisplayID() );
-
+    NSArray* modes = (NSArray*) CGDisplayAvailableModes(CGMainDisplayID());
     unsigned int i, j = 0, n = [modes count];
-    for( i = 0; i < n && j < (unsigned)maxcount; i++ )
+
+    for (i = 0;  i < n && j < (unsigned)maxcount;  i++)
     {
         NSDictionary *mode = [modes objectAtIndex:i];
-        if( modeIsGood( mode ) )
-        {
-            list[j++] = vidmodeFromCGDisplayMode( mode );
-        }
+        if (modeIsGood(mode))
+            list[j++] = vidmodeFromCGDisplayMode(mode);
     }
 
     return j;
@@ -95,8 +97,8 @@ int _glfwPlatformGetVideoModes( GLFWvidmode *list, int maxcount )
 // Get the desktop video mode
 //========================================================================
 
-void _glfwPlatformGetDesktopMode( GLFWvidmode *mode )
+void _glfwPlatformGetDesktopMode(GLFWvidmode *mode)
 {
-    *mode = vidmodeFromCGDisplayMode( _glfwLibrary.DesktopMode );
+    *mode = vidmodeFromCGDisplayMode(_glfwLibrary.NS.desktopMode);
 }
 

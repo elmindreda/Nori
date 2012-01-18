@@ -1,7 +1,7 @@
 //========================================================================
-// GLFW - An OpenGL framework
+// GLFW - An OpenGL library
 // Platform:    Cocoa/NSOpenGL
-// API Version: 2.7
+// API Version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
 // Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -29,20 +29,21 @@
 
 #include "internal.h"
 
-//************************************************************************
-//****               Platform implementation functions                ****
-//************************************************************************
+
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW platform API                      //////
+//////////////////////////////////////////////////////////////////////////
 
 //========================================================================
 // Enable and disable system keys
 //========================================================================
 
-void _glfwPlatformEnableSystemKeys( void )
+void _glfwPlatformEnableSystemKeys(_GLFWwindow* window)
 {
     // This is checked in macosx_window.m; we take no action here
 }
 
-void _glfwPlatformDisableSystemKeys( void )
+void _glfwPlatformDisableSystemKeys(_GLFWwindow* window)
 {
     // This is checked in macosx_window.m; we take no action here
     // I don't think it's really possible to disable stuff like Exposé

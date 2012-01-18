@@ -1,7 +1,7 @@
 //========================================================================
-// GLFW - An OpenGL framework
+// GLFW - An OpenGL library
 // Platform:    Cocoa/NSOpenGL
-// API Version: 2.7
+// API Version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
 // Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -32,6 +32,11 @@
 
 #include "internal.h"
 
+
+//========================================================================
+// GLFW application class
+//========================================================================
+
 @interface GLFWApplication : NSApplication
 @end
 
@@ -42,42 +47,40 @@
 // down the command key don't get sent to the key window.
 - (void)sendEvent:(NSEvent *)event
 {
-    if( [event type] == NSKeyUp && ( [event modifierFlags] & NSCommandKeyMask ) )
-    {
+    if ([event type] == NSKeyUp && ([event modifierFlags] & NSCommandKeyMask))
         [[self keyWindow] sendEvent:event];
-    }
     else
-    {
         [super sendEvent:event];
-    }
 }
 
 @end
+
 
 // Prior to Snow Leopard, we need to use this oddly-named semi-private API
 // to get the application menu working properly.  Need to be careful in
 // case it goes away in a future OS update.
 @interface NSApplication (NSAppleMenu)
-- (void)setAppleMenu:(NSMenu *)m;
+- (void)setAppleMenu:(NSMenu*)m;
 @end
 
 // Keys to search for as potential application names
-NSString *GLFWNameKeys[] =
+NSString* GLFWNameKeys[] =
 {
     @"CFBundleDisplayName",
     @"CFBundleName",
     @"CFBundleExecutable",
 };
 
+
 //========================================================================
 // Try to figure out what the calling application is called
 //========================================================================
-static NSString *findAppName( void )
+static NSString* findAppName(void)
 {
-    NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
-
     unsigned int i;
-    for( i = 0; i < sizeof(GLFWNameKeys) / sizeof(GLFWNameKeys[0]); i++ )
+    NSDictionary* infoDictionary = [[NSBundle mainBundle] infoDictionary];
+
+    for (i = 0;  i < sizeof(GLFWNameKeys) / sizeof(GLFWNameKeys[0]);  i++)
     {
         id name = [infoDictionary objectForKey:GLFWNameKeys[i]];
         if (name &&
@@ -89,24 +92,24 @@ static NSString *findAppName( void )
     }
 
     // If we get here, we're unbundled
-    if( !_glfwLibrary.Unbundled )
+    if (!_glfwLibrary.NS.unbundled)
     {
         // Could do this only if we discover we're unbundled, but it should
         // do no harm...
         ProcessSerialNumber psn = { 0, kCurrentProcess };
-        TransformProcessType( &psn, kProcessTransformToForegroundApplication );
+        TransformProcessType(&psn, kProcessTransformToForegroundApplication);
 
         // Having the app in front of the terminal window is also generally
         // handy.  There is an NSApplication API to do this, but...
-        SetFrontProcess( &psn );
+        SetFrontProcess(&psn);
 
-        _glfwLibrary.Unbundled = GL_TRUE;
+        _glfwLibrary.NS.unbundled = GL_TRUE;
     }
 
-    char **progname = _NSGetProgname();
-    if( progname && *progname )
+    char** progname = _NSGetProgname();
+    if (progname && *progname)
     {
-        // TODO: UTF8?
+        // TODO: UTF-8?
         return [NSString stringWithUTF8String:*progname];
     }
 
@@ -121,23 +124,23 @@ static NSString *findAppName( void )
 // localize(d|able), etc.  Loading a nib would save us this horror, but that
 // doesn't seem like a good thing to require of GLFW's clients.
 //========================================================================
-static void setUpMenuBar( void )
+static void setUpMenuBar(void)
 {
-    NSString *appName = findAppName();
+    NSString* appName = findAppName();
 
-    NSMenu *bar = [[NSMenu alloc] init];
+    NSMenu* bar = [[NSMenu alloc] init];
     [NSApp setMainMenu:bar];
 
-    NSMenuItem *appMenuItem =
+    NSMenuItem* appMenuItem =
         [bar addItemWithTitle:@"" action:NULL keyEquivalent:@""];
-    NSMenu *appMenu = [[NSMenu alloc] init];
+    NSMenu* appMenu = [[NSMenu alloc] init];
     [appMenuItem setSubmenu:appMenu];
 
     [appMenu addItemWithTitle:[NSString stringWithFormat:@"About %@", appName]
                        action:@selector(orderFrontStandardAboutPanel:)
                 keyEquivalent:@""];
     [appMenu addItem:[NSMenuItem separatorItem]];
-    NSMenu *servicesMenu = [[NSMenu alloc] init];
+    NSMenu* servicesMenu = [[NSMenu alloc] init];
     [NSApp setServicesMenu:servicesMenu];
     [[appMenu addItemWithTitle:@"Services"
                        action:NULL
@@ -158,9 +161,9 @@ static void setUpMenuBar( void )
                        action:@selector(terminate:)
                 keyEquivalent:@"q"];
 
-    NSMenuItem *windowMenuItem =
+    NSMenuItem* windowMenuItem =
         [bar addItemWithTitle:@"" action:NULL keyEquivalent:@""];
-    NSMenu *windowMenu = [[NSMenu alloc] initWithTitle:@"Window"];
+    NSMenu* windowMenu = [[NSMenu alloc] initWithTitle:@"Window"];
     [NSApp setWindowsMenu:windowMenu];
     [windowMenuItem setSubmenu:windowMenu];
 
@@ -178,63 +181,54 @@ static void setUpMenuBar( void )
     // At least guard the call to private API to avoid an exception if it
     // goes away.  Hopefully that means the worst we'll break in future is to
     // look ugly...
-    if( [NSApp respondsToSelector:@selector(setAppleMenu:)] )
-    {
+    if ([NSApp respondsToSelector:@selector(setAppleMenu:)])
         [NSApp setAppleMenu:appMenu];
-    }
-}
-
-//========================================================================
-// Terminate GLFW when exiting application
-//========================================================================
-
-static void glfw_atexit( void )
-{
-    glfwTerminate();
 }
 
 
-//************************************************************************
-//****               Platform implementation functions                ****
-//************************************************************************
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW platform API                      //////
+//////////////////////////////////////////////////////////////////////////
 
 //========================================================================
 // Initialize the GLFW library
 //========================================================================
 
-int _glfwPlatformInit( void )
+int _glfwPlatformInit(void)
 {
-    _glfwLibrary.AutoreleasePool = [[NSAutoreleasePool alloc] init];
+    _glfwLibrary.NS.autoreleasePool = [[NSAutoreleasePool alloc] init];
 
     // Implicitly create shared NSApplication instance
     [GLFWApplication sharedApplication];
 
-    _glfwLibrary.OpenGLFramework =
-        CFBundleGetBundleWithIdentifier( CFSTR( "com.apple.opengl" ) );
-    if( _glfwLibrary.OpenGLFramework == NULL )
+    _glfwLibrary.NS.OpenGLFramework =
+        CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
+    if (_glfwLibrary.NS.OpenGLFramework == NULL)
     {
+        _glfwSetError(GLFW_PLATFORM_ERROR,
+                      "glfwInit: Failed to locate OpenGL framework");
         return GL_FALSE;
     }
 
     NSString* resourcePath = [[NSBundle mainBundle] resourcePath];
 
-    if( access( [resourcePath cStringUsingEncoding:NSUTF8StringEncoding], R_OK ) == 0 )
-    {
-        chdir( [resourcePath cStringUsingEncoding:NSUTF8StringEncoding] );
-    }
+    if (access([resourcePath cStringUsingEncoding:NSUTF8StringEncoding], R_OK) == 0)
+        chdir([resourcePath cStringUsingEncoding:NSUTF8StringEncoding]);
 
     // Setting up menu bar must go exactly here else weirdness ensues
     setUpMenuBar();
 
     [NSApp finishLaunching];
 
-    // Install atexit routine
-    atexit( glfw_atexit );
+    _glfwPlatformSetTime(0.0);
 
-    _glfwPlatformSetTime( 0.0 );
+    _glfwLibrary.NS.desktopMode =
+	    (NSDictionary*) CGDisplayCurrentMode(CGMainDisplayID());
 
-    _glfwLibrary.DesktopMode =
-	(NSDictionary *)CGDisplayCurrentMode( CGMainDisplayID() );
+    // Save the original gamma ramp
+    _glfwLibrary.originalRampSize = CGDisplayGammaTableCapacity(CGMainDisplayID());
+    _glfwPlatformGetGammaRamp(&_glfwLibrary.originalRamp);
+    _glfwLibrary.currentRamp = _glfwLibrary.originalRamp;
 
     return GL_TRUE;
 }
@@ -243,15 +237,32 @@ int _glfwPlatformInit( void )
 // Close window, if open, and shut down GLFW
 //========================================================================
 
-int _glfwPlatformTerminate( void )
+int _glfwPlatformTerminate(void)
 {
-    glfwCloseWindow();
-
     // TODO: Probably other cleanup
 
-    [_glfwLibrary.AutoreleasePool release];
-    _glfwLibrary.AutoreleasePool = nil;
+    // Restore the original gamma ramp
+    _glfwPlatformSetGammaRamp(&_glfwLibrary.originalRamp);
+
+    [NSApp setDelegate:nil];
+    [_glfwLibrary.NS.delegate release];
+    _glfwLibrary.NS.delegate = nil;
+
+    [_glfwLibrary.NS.autoreleasePool release];
+    _glfwLibrary.NS.autoreleasePool = nil;
 
     return GL_TRUE;
+}
+
+
+//========================================================================
+// Get the GLFW version string
+//========================================================================
+
+const char* _glfwPlatformGetVersionString(void)
+{
+    const char* version = _GLFW_VERSION_FULL " Cocoa";
+
+    return version;
 }
 
