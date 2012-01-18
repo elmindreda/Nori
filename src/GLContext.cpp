@@ -1087,6 +1087,11 @@ void Context::setCurrentTexture(Texture* newTexture)
   }
 }
 
+unsigned int Context::getTextureUnitCount() const
+{
+  return (unsigned int) textureUnits.size();
+}
+
 unsigned int Context::getActiveTextureUnit() const
 {
   return activeTextureUnit;

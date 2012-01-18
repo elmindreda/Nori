@@ -517,6 +517,9 @@ public:
   void setCurrentTexture(Texture* newTexture);
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
+  unsigned int getTextureUnitCount() const;
+  /*! @note Unless you are Wendy, you probably don't need to call this.
+   */
   unsigned int getActiveTextureUnit() const;
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
