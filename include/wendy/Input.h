@@ -173,8 +173,7 @@ enum Key
   KEY_RIGHT_CONTROL,
   KEY_RIGHT_ALT,
   KEY_RIGHT_SUPER,
-  KEY_MENU,
-  KEY_COUNT
+  KEY_MENU
 };
 
 ///////////////////////////////////////////////////////////////////////
