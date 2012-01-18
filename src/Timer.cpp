@@ -28,7 +28,7 @@
 #include <wendy/Timer.h>
 
 #define GLFW_NO_GLU
-#include <GL/glfw.h>
+#include <GL/glfw3.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -142,7 +142,7 @@ Time Timer::getCurrentTime()
 {
   if (!glfwInit())
   {
-    logError("Failed to initialize GLFW");
+    logError("Failed to initialize GLFW: %s", glfwErrorString(glfwGetError()));
     return 0.0;
   }
 
