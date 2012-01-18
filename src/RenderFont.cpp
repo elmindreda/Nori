@@ -368,6 +368,7 @@ bool Font::init(const FontData& data)
     }
 
     pass.setProgram(program);
+    pass.setMultisampling(false);
     pass.setDepthTesting(false);
     pass.setDepthWriting(false);
     pass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
