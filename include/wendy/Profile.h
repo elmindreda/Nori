@@ -31,6 +31,10 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+class Profile;
+
+///////////////////////////////////////////////////////////////////////
+
 class ProfileNode
 {
   friend class Profile;
@@ -48,6 +52,17 @@ private:
   Time duration;
   List children;
   unsigned int calls;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class ProfileNodeCall
+{
+public:
+  ProfileNodeCall(const char* name);
+  ~ProfileNodeCall();
+private:
+  Profile* profile;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -71,6 +86,21 @@ private:
   Timer timer;
   static Profile* current;
 };
+
+///////////////////////////////////////////////////////////////////////
+
+inline ProfileNodeCall::ProfileNodeCall(const char* name):
+  profile(Profile::getCurrent())
+{
+  if (profile)
+    profile->beginNode(name);
+}
+
+inline ProfileNodeCall::~ProfileNodeCall()
+{
+  if (profile)
+    profile->endNode();
+}
 
 ///////////////////////////////////////////////////////////////////////
 
