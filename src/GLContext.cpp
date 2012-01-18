@@ -1227,7 +1227,7 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     return false;
   }
 
-  log("%s initialized", glfwGetVersionString());
+  log("GLFW version %s initialized", glfwGetVersionString());
 
   // Create context and window
   {
