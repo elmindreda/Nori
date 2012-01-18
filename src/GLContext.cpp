@@ -113,6 +113,11 @@ const char* getMessageSeverityName(GLenum severity)
   return "UNKNOWN";
 }
 
+void errorCallback(int error, const char* message)
+{
+  logError("GLFW reported error: %s", message);
+}
+
 void APIENTRY debugCallback(GLenum source,
                             GLenum type,
                             GLuint id,
@@ -622,7 +627,7 @@ Context::~Context()
     setCurrentTexture(NULL);
   }
 
-  if (glfwIsWindow(window))
+  if (window && glfwIsWindow(window))
     glfwCloseWindow(window);
 
   instance = NULL;
@@ -1185,6 +1190,7 @@ bool Context::createSingleton(ResourceCache& cache,
 
 Context::Context(ResourceCache& initCache):
   cache(initCache),
+  window(NULL),
   refreshMode(AUTOMATIC_REFRESH),
   needsRefresh(false),
   needsClosing(false),
@@ -1213,6 +1219,8 @@ Context& Context::operator = (const Context& source)
 
 bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 {
+  glfwSetErrorCallback(errorCallback);
+
   if (!glfwInit())
   {
     logError("Failed to initialize GLFW");
