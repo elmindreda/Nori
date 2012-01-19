@@ -29,6 +29,8 @@ Add functors to signal module
 
 Add console module from Pod [color]
 
+Make frustum-AABB intersection test less conservative [color]
+
 
 OpenAL
 ======
