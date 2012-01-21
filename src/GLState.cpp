@@ -203,20 +203,22 @@ SamplerStateIndex::SamplerStateIndex(uint16 initIndex, uint16 initUnit):
 
 ///////////////////////////////////////////////////////////////////////
 
-ProgramState::ProgramState()
+ProgramState::ProgramState():
+  ID(allocateID())
 {
-  if (usedIDs.empty())
-    ID = nextID++;
-  else
-  {
-    ID = usedIDs.back();
-    usedIDs.pop_back();
-  }
+}
+
+ProgramState::ProgramState(const ProgramState& source):
+  ID(allocateID()),
+  program(source.program),
+  floats(source.floats),
+  textures(source.textures)
+{
 }
 
 ProgramState::~ProgramState()
 {
-  usedIDs.push_front(ID);
+  releaseID(ID);
 }
 
 void ProgramState::apply() const
@@ -491,6 +493,21 @@ void ProgramState::setProgram(Program* newProgram)
 StateID ProgramState::getID() const
 {
   return ID;
+}
+
+StateID ProgramState::allocateID()
+{
+  if (usedIDs.empty())
+    return nextID++;
+
+  const StateID ID = usedIDs.back();
+  usedIDs.pop_back();
+  return ID;
+}
+
+void ProgramState::releaseID(StateID ID)
+{
+  usedIDs.push_front(ID);
 }
 
 void* ProgramState::getData(const char* name, UniformType type)

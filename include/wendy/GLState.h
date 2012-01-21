@@ -159,6 +159,9 @@ public:
   /*! Constructor.
    */
   ProgramState();
+  /*! Copy constructor.
+   */
+  ProgramState(const ProgramState& source);
   /*! Destructor.
    */
   ~ProgramState();
@@ -189,6 +192,8 @@ public:
   void setProgram(Program* newProgram);
   StateID getID() const;
 private:
+  static StateID allocateID();
+  static void releaseID(StateID ID);
   template <typename T>
   static UniformType getUniformType();
   void* getData(const char* name, UniformType type);

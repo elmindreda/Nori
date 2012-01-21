@@ -137,7 +137,8 @@ void Renderer::renderOperations(const render::Queue& queue)
 
   for (render::SortKeyList::const_iterator k = keys.begin();  k != keys.end();  k++)
   {
-    const render::Operation& op = operations[k->index];
+    const render::SortKey key(*k);
+    const render::Operation& op = operations[key.index];
 
     state->setModelMatrix(op.transform);
     op.state->apply();

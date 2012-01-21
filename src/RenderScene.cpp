@@ -44,21 +44,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-namespace
-{
-
-struct SortKeyComparator
-{
-  inline bool operator () (SortKey first, SortKey second)
-  {
-    return first.value < second.value;
-  }
-};
-
-} /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
-
 SortKey SortKey::makeOpaqueKey(uint8 layer, uint16 state, float depth)
 {
   SortKey key;
@@ -90,7 +75,7 @@ Operation::Operation():
 ///////////////////////////////////////////////////////////////////////
 
 Queue::Queue():
-  sorted(false)
+  sorted(true)
 {
 }
 
@@ -120,7 +105,7 @@ const SortKeyList& Queue::getSortKeys() const
 {
   if (!sorted)
   {
-    std::sort(keys.begin(), keys.end(), SortKeyComparator());
+    std::sort(keys.begin(), keys.end());
     sorted = true;
   }
 

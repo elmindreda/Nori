@@ -45,6 +45,8 @@ class Scene;
 
 ///////////////////////////////////////////////////////////////////////
 
+#pragma pack(push, 1)
+
 /*! @ingroup renderer
  */
 class SortKey
@@ -52,24 +54,29 @@ class SortKey
 public:
   static SortKey makeOpaqueKey(uint8 layer, uint16 state, float depth);
   static SortKey makeBlendedKey(uint8 layer, float depth);
+  SortKey() { }
+  SortKey(uint64 value): value(value) { }
+  operator uint64 () const { return value; }
   union
   {
     uint64 value;
     struct
     {
-      unsigned layer : 8;
-      unsigned state : 16;
-      unsigned depth : 24;
       unsigned index : 16;
+      unsigned depth : 24;
+      unsigned state : 16;
+      unsigned layer : 8;
     };
   };
 };
+
+#pragma pack(pop)
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @ingroup renderer
  */
-typedef std::vector<SortKey> SortKeyList;
+typedef std::vector<uint64> SortKeyList;
 
 ///////////////////////////////////////////////////////////////////////
 
