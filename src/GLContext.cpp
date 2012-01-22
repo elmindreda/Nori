@@ -1377,7 +1377,7 @@ int Context::closeCallback(void* window)
   if (std::find(results.begin(), results.end(), false) == results.end())
     context->needsClosing = true;
 
-  return GL_TRUE;
+  return GL_FALSE;
 }
 
 void Context::refreshCallback(void* window)
