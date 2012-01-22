@@ -598,7 +598,6 @@ private:
   Ref<Framebuffer> currentFramebuffer;
   Ref<DefaultFramebuffer> defaultFramebuffer;
   Stats* stats;
-  static Context* instance;
 };
 
 ///////////////////////////////////////////////////////////////////////

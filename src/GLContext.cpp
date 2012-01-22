@@ -632,8 +632,6 @@ Context::~Context()
     glfwCloseWindow(window);
     window = NULL;
   }
-
-  instance = NULL;
 }
 
 void Context::clearColorBuffer(const vec4& color)
@@ -1201,12 +1199,6 @@ Context::Context(ResourceCache& initCache):
   activeTextureUnit(0),
   stats(NULL)
 {
-  // Necessary hack in case GLFW calls a callback before
-  // we have had time to call Singleton::set.
-
-  // TODO: Remove this upon the arrival of GLFW user pointers.
-
-  instance = this;
 }
 
 Context::Context(const Context& source):
@@ -1365,6 +1357,7 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
   {
     setSwapInterval(1);
 
+    glfwSetWindowUserPointer(window, this);
     glfwSetWindowSizeCallback(sizeCallback);
     glfwSetWindowCloseCallback(closeCallback);
     glfwSetWindowRefreshCallback(refreshCallback);
@@ -1376,29 +1369,30 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 
 void Context::sizeCallback(void* window, int width, int height)
 {
-  instance->defaultFramebuffer->width = width;
-  instance->defaultFramebuffer->height = height;
-  instance->resizedSignal(width, height);
+  Context* context = reinterpret_cast<Context*>(glfwGetWindowUserPointer(window));
+  context->defaultFramebuffer->width = width;
+  context->defaultFramebuffer->height = height;
+  context->resizedSignal(width, height);
 }
 
 int Context::closeCallback(void* window)
 {
-  std::vector<bool> results;
+  Context* context = reinterpret_cast<Context*>(glfwGetWindowUserPointer(window));
 
-  instance->closeRequestSignal(results);
+  std::vector<bool> results;
+  context->closeRequestSignal(results);
 
   if (std::find(results.begin(), results.end(), false) == results.end())
-    instance->needsClosing = true;
+    context->needsClosing = true;
 
   return GL_TRUE;
 }
 
 void Context::refreshCallback(void* window)
 {
-  instance->needsRefresh = true;
+  Context* context = reinterpret_cast<Context*>(glfwGetWindowUserPointer(window));
+  context->needsRefresh = true;
 }
-
-Context* Context::instance = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 
