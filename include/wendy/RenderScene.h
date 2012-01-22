@@ -54,7 +54,7 @@ class SortKey
 public:
   static SortKey makeOpaqueKey(uint8 layer, uint16 state, float depth);
   static SortKey makeBlendedKey(uint8 layer, float depth);
-  SortKey() { }
+  SortKey(): value(0) { }
   SortKey(uint64 value): value(value) { }
   operator uint64 () const { return value; }
   union

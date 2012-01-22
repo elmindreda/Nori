@@ -47,7 +47,6 @@ namespace wendy
 SortKey SortKey::makeOpaqueKey(uint8 layer, uint16 state, float depth)
 {
   SortKey key;
-  key.value = 0;
   key.layer = layer;
   key.state = state;
   key.depth = (unsigned) (((1 << 24) - 1) * clamp(depth, 0.f, 1.f));
@@ -58,7 +57,6 @@ SortKey SortKey::makeOpaqueKey(uint8 layer, uint16 state, float depth)
 SortKey SortKey::makeBlendedKey(uint8 layer, float depth)
 {
   SortKey key;
-  key.value = 0;
   key.layer = layer;
   key.depth = (unsigned) (((1 << 24) - 1) * (1.f - clamp(depth, 0.f, 1.f)));
 
