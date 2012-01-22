@@ -827,11 +827,7 @@ void Context::createSharedSampler(const char* name, SamplerType type, int ID)
   if (getSharedSamplerID(name, type) != INVALID_SHARED_STATE_ID)
     return;
 
-  declaration += "uniform ";
-  declaration += Sampler::getTypeName(type);
-  declaration += " ";
-  declaration += name;
-  declaration += ";\n";
+  declaration += format("uniform %s %s;\n", Sampler::getTypeName(type), name);
 
   samplers.push_back(SharedSampler(name, type, ID));
 }
@@ -843,11 +839,7 @@ void Context::createSharedUniform(const char* name, UniformType type, int ID)
   if (getSharedUniformID(name, type) != INVALID_SHARED_STATE_ID)
     return;
 
-  declaration += "uniform ";
-  declaration += Uniform::getTypeName(type);
-  declaration += " ";
-  declaration += name;
-  declaration += ";\n";
+  declaration += format("uniform %s %s;\n", Uniform::getTypeName(type), name);
 
   uniforms.push_back(SharedUniform(name, type, ID));
 }
