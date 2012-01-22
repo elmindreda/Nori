@@ -627,8 +627,11 @@ Context::~Context()
     setCurrentTexture(NULL);
   }
 
-  if (window && glfwIsWindow(window))
+  if (window)
+  {
     glfwCloseWindow(window);
+    window = NULL;
+  }
 
   instance = NULL;
 }
