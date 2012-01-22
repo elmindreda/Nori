@@ -192,6 +192,11 @@ enum Button
 
 /*! @brief Input hook interface.
  *  @ingroup input
+ *
+ *  This is intended for hotkeys that should work regardless of which target
+ *  currently has focus, such as a key to bring down the console.  It gets first
+ *  pick of any input and can prevent it from being passed on to the current
+ *  target.
  */
 class Hook
 {
@@ -230,6 +235,9 @@ public:
 
 /*! @brief Input target interface.
  *  @ingroup input
+ *
+ *  This is intended for use by game modules such as menus, editors, the console
+ *  and the game itself.
  */
 class Target
 {
