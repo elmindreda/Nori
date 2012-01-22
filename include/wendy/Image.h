@@ -85,7 +85,7 @@ public:
    *  @return The address of the desired pixel, or @c NULL if the specified
    *  coordinates are outside of the current image data.
    */
-  void* getPixel(unsigned int x, unsigned int y, unsigned int z = 0);
+  void* getPixel(unsigned int x, unsigned int y = 0, unsigned int z = 0);
   /*! Helper method to calculate the address of the specified pixel.
    *  @param[in] x The x coordinate of the desired pixel.
    *  @param[in] y The y coordinate of the desired pixel.
@@ -93,7 +93,7 @@ public:
    *  @return The address of the desired pixel, or @c NULL if the specified
    *  coordinates are outside of the current image data.
    */
-  const void* getPixel(unsigned int x, unsigned int y, unsigned int z = 0) const;
+  const void* getPixel(unsigned int x, unsigned int y = 0, unsigned int z = 0) const;
   /*! @return The pixel format of this image.
    */
   const PixelFormat& getFormat() const;
