@@ -1218,9 +1218,7 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 
   // Create context and window
   {
-    unsigned int colorBits = cc.colorBits;
-    if (colorBits > 24)
-      colorBits = 24;
+    const unsigned int colorBits = min(cc.colorBits, 24u);
 
     glfwOpenWindowHint(GLFW_RED_BITS, colorBits / 3);
     glfwOpenWindowHint(GLFW_GREEN_BITS, colorBits / 3);
@@ -1229,9 +1227,7 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     glfwOpenWindowHint(GLFW_STENCIL_BITS, cc.stencilBits);
     glfwOpenWindowHint(GLFW_FSAA_SAMPLES, cc.samples);
 
-    version = cc.version;
-    if (version < Version(2,1))
-      version = Version(2,1);
+    version = max(cc.version, Version(2,1));
 
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, version.m);
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, version.n);
@@ -1312,8 +1308,8 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 
   // Set up texture unit cache
   {
-    unsigned int unitCount = max(limits->maxCombinedTextureImageUnits,
-                                 limits->maxTextureCoords);
+    const unsigned int unitCount = max(limits->maxCombinedTextureImageUnits,
+                                       limits->maxTextureCoords);
 
     textureUnits.resize(unitCount);
   }
@@ -1361,7 +1357,7 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 
 void Context::sizeCallback(void* window, int width, int height)
 {
-  Context* context = reinterpret_cast<Context*>(glfwGetWindowUserPointer(window));
+  Context* context = (Context*) glfwGetWindowUserPointer(window);
   context->defaultFramebuffer->width = width;
   context->defaultFramebuffer->height = height;
   context->resizedSignal(width, height);
@@ -1369,7 +1365,7 @@ void Context::sizeCallback(void* window, int width, int height)
 
 int Context::closeCallback(void* window)
 {
-  Context* context = reinterpret_cast<Context*>(glfwGetWindowUserPointer(window));
+  Context* context = (Context*) glfwGetWindowUserPointer(window);
 
   std::vector<bool> results;
   context->closeRequestSignal(results);
@@ -1382,7 +1378,7 @@ int Context::closeCallback(void* window)
 
 void Context::refreshCallback(void* window)
 {
-  Context* context = reinterpret_cast<Context*>(glfwGetWindowUserPointer(window));
+  Context* context = (Context*) glfwGetWindowUserPointer(window);
   context->needsRefresh = true;
 }
 
