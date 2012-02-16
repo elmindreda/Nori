@@ -445,10 +445,10 @@ Object Object::clone() const
 
 Object& Object::operator = (const Object& source)
 {
+  sq_addref(vm, &source.handle);
   sq_release(vm, &handle);
   handle = source.handle;
   vm = source.vm;
-  sq_addref(vm, &handle);
   return *this;
 }
 
