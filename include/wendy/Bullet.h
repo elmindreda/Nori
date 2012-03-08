@@ -60,40 +60,6 @@ btTriangleMesh* convert(const Mesh& mesh);
 
 ///////////////////////////////////////////////////////////////////////
 
-class BvhMeshShape : public Resource
-{
-public:
-  BvhMeshShape(const ResourceInfo& info);
-  Ptr<btBvhTriangleMeshShape> shape;
-  Ptr<btTriangleIndexVertexArray> mesh;
-  Ptr<btOptimizedBvh> bvh;
-  Ptr<btTriangleInfoMap> info;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup bullet
- */
-class BvhMeshShapeReader : public ResourceReader<BvhMeshShape>
-{
-public:
-  BvhMeshShapeReader(ResourceCache& cache);
-  using ResourceReader<BvhMeshShape>::read;
-  Ref<BvhMeshShape> read(const String& name, const Path& path);
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup bullet
- */
-class BvhMeshShapeWriter
-{
-public:
-  bool write(const Path& path, const btBvhTriangleMeshShape& shape);
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @ingroup bullet
  */
 class AvatarSweepCallback : public btCollisionWorld::ConvexResultCallback
