@@ -9,7 +9,7 @@ set(GLFW_VERSION "${GLFW_VERSION_MAJOR}.${GLFW_VERSION_MINOR}")
 set(GLFW_VERSION_FULL "${GLFW_VERSION}.${GLFW_VERSION_PATCH}${GLFW_VERSION_EXTRA}")
 
 set(glfw_SOURCES ${glfw_SOURCE_DIR}/GL/glfw3.h ${glfw_BINARY_DIR}/config.h
-                 internal.h enable.c error.c fullscreen.c gamma.c init.c
+                 internal.h error.c fullscreen.c gamma.c init.c
                  input.c joystick.c opengl.c time.c window.c)
 
 if(APPLE)
@@ -22,8 +22,8 @@ if(APPLE)
   find_library(COCOA_FRAMEWORK Cocoa)
   list(APPEND GLFW_LIBRARIES ${COCOA_FRAMEWORK})
 
-  list(APPEND glfw_SOURCES cocoa_platform.h cocoa_enable.m cocoa_fullscreen.m
-                           cocoa_gamma.m cocoa_init.m cocoa_joystick.m
+  list(APPEND glfw_SOURCES cocoa_platform.h cocoa_fullscreen.m cocoa_gamma.m
+                           cocoa_init.m cocoa_input.m cocoa_joystick.m
                            cocoa_opengl.m cocoa_time.m cocoa_window.m)
 
 endif(APPLE)
@@ -85,8 +85,8 @@ if(UNIX AND NOT APPLE)
     set(_GLFW_USE_LINUX_JOYSTICKS 1)
   endif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
-  list(APPEND glfw_SOURCES x11_platform.h x11_enable.c x11_fullscreen.c
-                           x11_gamma.c x11_init.c x11_joystick.c
+  list(APPEND glfw_SOURCES x11_platform.h x11_fullscreen.c x11_gamma.c
+                           x11_init.c x11_input.c x11_joystick.c
                            x11_keysym2unicode.c x11_opengl.c x11_time.c
                            x11_window.c)
 
@@ -103,8 +103,8 @@ if(WIN32)
 
   add_definitions(-D_GLFW_NO_DLOAD_GDI32 -D_GLFW_NO_DLOAD_WINMM)
 
-  list(APPEND glfw_SOURCES win32_platform.h win32_dllmain.c win32_enable.c
-                           win32_fullscreen.c win32_gamma.c win32_init.c
+  list(APPEND glfw_SOURCES win32_platform.h win32_dllmain.c win32_fullscreen.c
+                           win32_gamma.c win32_init.c win32_input.c
                            win32_joystick.c win32_opengl.c win32_time.c
                            win32_window.c)
 
