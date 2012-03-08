@@ -141,13 +141,13 @@ Context::~Context()
 void Context::captureCursor()
 {
   cursorCaptured = true;
-  glfwSetCursorMode(window, GLFW_CURSOR_CAPTURED);
+  glfwSetInputMode(window, GLFW_CURSOR_MODE, GLFW_CURSOR_CAPTURED);
 }
 
 void Context::releaseCursor()
 {
   cursorCaptured = false;
-  glfwSetCursorMode(window, GLFW_CURSOR_NORMAL);
+  glfwSetInputMode(window, GLFW_CURSOR_MODE, GLFW_CURSOR_NORMAL);
 }
 
 bool Context::isKeyDown(const Key& key) const
@@ -490,7 +490,7 @@ Context::Context(GL::Context& initContext):
   glfwSetCharCallback(characterCallback);
   glfwSetScrollCallback(scrollCallback);
 
-  glfwSetCursorMode(window, GLFW_CURSOR_NORMAL);
+  glfwSetInputMode(window, GLFW_CURSOR_MODE, GLFW_CURSOR_NORMAL);
 }
 
 Context::Context(const Context& source):

@@ -445,9 +445,10 @@ Object Object::clone() const
 
 Object& Object::operator = (const Object& source)
 {
-  sq_addref(vm, &source.handle);
+  HSQOBJECT next = source.handle;
+  sq_addref(vm, &next);
   sq_release(vm, &handle);
-  handle = source.handle;
+  handle = next;
   vm = source.vm;
   return *this;
 }
