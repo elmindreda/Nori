@@ -28,8 +28,6 @@ option(WENDY_INCLUDE_UI_SYSTEM "Include the UI library" ON)
 option(WENDY_INCLUDE_DEBUG_UI "Include the debug interface" ON)
 option(WENDY_INCLUDE_SQUIRREL "Include the Squirrel bindings" ON)
 option(WENDY_INCLUDE_BULLET "Include the Bullet library" ON)
-option(WENDY_BUILD_EXAMPLES "Build the bundled example programs" OFF)
-option(WENDY_BUILD_TESTS "Build the bundled test programs" OFF)
 option(WENDY_BUILD_DOCUMENTATION "Build the Doxygen documentation" OFF)
 
 include(TestBigEndian)
@@ -123,12 +121,6 @@ set(WENDY_INCLUDE_DIRS ${wendy_INCLUDE_DIRS} CACHE STRING
 
 include_directories(${wendy_INCLUDE_DIRS})
 
-if(WENDY_BUILD_EXAMPLES OR WENDY_BUILD_TESTS)
-  set(WENDY_MEDIA_DIR ${wendy_SOURCE_DIR}/media CACHE STRING
-      "Media path used by Wendy tests and examples")
-  set(EXECUTABLE_OUTPUT_PATH ${wendy_BINARY_DIR})
-endif(WENDY_BUILD_EXAMPLES OR WENDY_BUILD_TESTS)
-
 configure_file(${wendy_SOURCE_DIR}/include/wendy/Config.h.in
                ${wendy_BINARY_DIR}/include/wendy/Config.h @ONLY)
 
@@ -138,12 +130,4 @@ if(WENDY_BUILD_DOCUMENTATION)
 endif(WENDY_BUILD_DOCUMENTATION)
 
 add_subdirectory(src)
-
-if(WENDY_BUILD_EXAMPLES)
-  add_subdirectory(examples)
-endif(WENDY_BUILD_EXAMPLES)
-
-if(WENDY_BUILD_TESTS)
-  add_subdirectory(tests)
-endif(WENDY_BUILD_TESTS)
 
