@@ -82,15 +82,6 @@ class BezierCurve
 {
 public:
   typedef std::vector<T> PointList;
-  /*! Evaluates this Bézier curve at the specified @i t.
-   */
-  void evaluate(float t, T& result) const
-  {
-    result = P[0] * pow(1.f - t, 3.f) +
-             P[1] * 3.f * t * pow(1.f - t, 2.f) +
-             P[2] * 3.f * pow(t, 2.f) * (1.f - t) +
-             P[3] * pow(t, 3.f);
-  }
   /*! @return The length of this Bézier curve, calculated through tessellation.
    *  @param[in] tolerance The error tolerance to use.
    */
@@ -165,9 +156,10 @@ public:
    */
   T operator () (float t)
   {
-    T result;
-    evaluate(t, result);
-    return result;
+    return P[0] * pow(1.f - t, 3.f) +
+           P[1] * 3.f * t * pow(1.f - t, 2.f) +
+           P[2] * 3.f * pow(t, 2.f) * (1.f - t) +
+           P[3] * pow(t, 3.f);
   }
   /*! The control points of this Bézier curve.
    */
@@ -188,39 +180,6 @@ class BezierSpline
 {
 public:
   typedef typename BezierCurve<T>::PointList PointList;
-  /*! Evaluates this Bézier spline at the specified @i t.
-   */
-  void evaluate(float t, T& result) const
-  {
-    if (points.size() == 0)
-    {
-      logError("Cannot evaluate Bézier spline with no points");
-      return;
-    }
-
-    if (t <= 0.f || points.size() == 1)
-    {
-      result = points.front().position;
-      return;
-    }
-
-    if (t >= 1.f)
-    {
-      result = points.back().position;
-      return;
-    }
-
-    size_t source = (size_t) (t * (points.size() - 1));
-    size_t target = source + 1;
-
-    BezierCurve<T> segment;
-    segment.P[0] = points[source].position;
-    segment.P[1] = points[source].position + points[source].direction;
-    segment.P[2] = points[target].position - points[target].direction;
-    segment.P[3] = points[target].position;
-
-    segment.evaluate((t * (points.size() - 1)) - (float) source, result);
-  }
   /*! Tessellates this Bézier spline.
    *  @param[out] result The resulting list of points.
    *  @param[in] tolerance The error tolerance to use.
@@ -251,9 +210,28 @@ public:
    */
   T operator () (float t) const
   {
-    T result;
-    evaluate(t, result);
-    return result;
+    if (points.size() == 0)
+    {
+      logError("Cannot evaluate Bézier spline with no points");
+      return T();
+    }
+
+    if (t <= 0.f || points.size() == 1)
+      return points.front().position;
+
+    if (t >= 1.f)
+      return points.back().position;
+
+    size_t source = (size_t) (t * (points.size() - 1));
+    size_t target = source + 1;
+
+    BezierCurve<T> segment;
+    segment.P[0] = points[source].position;
+    segment.P[1] = points[source].position + points[source].direction;
+    segment.P[2] = points[target].position - points[target].direction;
+    segment.P[3] = points[target].position;
+
+    return segment((t * (points.size() - 1)) - (float) source);
   }
   /*! The control points of this Bézier spline.
    */
