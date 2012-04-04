@@ -333,16 +333,6 @@ public:
   {
     operator = (NULL);
   }
-  /*! Detaches the currently referenced object.
-   * @return The currently reference object.
-   * @remarks Use with care.
-   */
-  Ref<T> detachObject()
-  {
-    Ref<T> result = object;
-    operator = (NULL);
-    return result;
-  }
   /*! Cast operator.
    */
   operator T* () const
