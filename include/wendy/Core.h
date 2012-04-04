@@ -40,17 +40,17 @@
 ///////////////////////////////////////////////////////////////////////
 
 #if _MSC_VER
-#define WENDY_NORETURN(x) __declspec(noreturn) x
+ #define WENDY_NORETURN(x) __declspec(noreturn) x
 #elif __GNUC__
-#define WENDY_NORETURN(x) x __attribute__((noreturn))
+ #define WENDY_NORETURN(x) x __attribute__((noreturn))
 #else
-#define WENDY_NORETURN(x) x
+ #define WENDY_NORETURN(x) x
 #endif
 
 #if __GNUC__
-#define WENDY_CHECKFORMAT(i, x) x __attribute__((format(printf, i, i + 1)))
+ #define WENDY_CHECKFORMAT(i, x) x __attribute__((format(printf, i, i + 1)))
 #else
-#define WENDY_CHECKFORMAT(i, x) x
+ #define WENDY_CHECKFORMAT(i, x) x
 #endif
 
 #ifdef _MSC_VER
@@ -60,7 +60,7 @@
 
 // This is only needed for versions below Visual C++ 2008
 #if _MSC_VER < 1500
-#define vsnprintf _vsnprintf
+ #define vsnprintf _vsnprintf
 #endif
 
 #endif /*_MSC_VER*/
