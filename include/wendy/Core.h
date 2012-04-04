@@ -210,39 +210,82 @@ class Ptr
 public:
   /*! Default constructor.
    */
-  explicit Ptr(T* object = NULL);
+  explicit Ptr(T* initObject = NULL):
+    object(initObject)
+  {
+  }
   /*! Destructor
    */
-  virtual ~Ptr();
+  virtual ~Ptr()
+  {
+    if (object)
+      delete object;
+  }
   /*! Detaches (orphans) the currently owned object.
    * @return The currently owned object.
    * @remarks Use with care.
    */
-  T* detachObject();
+  T* detachObject()
+  {
+    T* temp = object;
+    object = NULL;
+    return temp;
+  }
   /*! Cast operator.
    */
-  operator T* ();
+  operator T* ()
+  {
+    return object;
+  }
   /*! Cast operator.
    */
-  operator const T* () const;
+  operator const T* () const
+  {
+    return object;
+  }
   /*! Member operator.
    */
-  T* operator -> ();
+  T* operator -> ()
+  {
+    return object;
+  }
   /*! Member operator.
    */
-  const T* operator -> () const;
+  const T* operator -> () const
+  {
+    return object;
+  }
   /*! Object assignment operator.
    */
-  Ptr<T>& operator = (T* newObject);
+  Ptr<T>& operator = (T* newObject)
+  {
+    if (object)
+      delete object;
+
+    object = newObject;
+    return *this;
+  }
   /*! @return The currently owned object.
    */
-  T* getObject();
+  T* getObject()
+  {
+    return object;
+  }
   /*! @return The currently owned object.
    */
-  const T* getObject() const;
+  const T* getObject() const
+  {
+    return object;
+  }
 private:
-  Ptr(const Ptr<T>& source);
-  Ptr<T>& operator = (const Ptr<T>& source);
+  Ptr(const Ptr<T>& source):
+    object(NULL)
+  {
+  }
+  Ptr<T>& operator = (const Ptr<T>& source)
+  {
+    return *this;
+  }
   T* object;
 };
 
@@ -271,34 +314,76 @@ class Ref : public RefBase
 public:
   /*! Default constructor.
    */
-  Ref(T* object = NULL);
+  Ref(T* initObject = NULL):
+    object(NULL)
+  {
+    operator = (initObject);
+  }
   /*! Copy constructor.
    *  @param source The pointer object to inherit from.
    */
-  Ref(const Ref<T>& source);
+  Ref(const Ref<T>& source):
+    object(NULL)
+  {
+    operator = (source);
+  }
   /*! Destructor
    */
-  ~Ref();
+  ~Ref()
+  {
+    operator = (NULL);
+  }
   /*! Detaches the currently referenced object.
    * @return The currently reference object.
    * @remarks Use with care.
    */
-  Ref<T> detachObject();
+  Ref<T> detachObject()
+  {
+    Ref<T> result = object;
+    operator = (NULL);
+    return result;
+  }
   /*! Cast operator.
    */
-  operator T* () const;
+  operator T* () const
+  {
+    return object;
+  }
   /*! Member operator.
    */
-  T* operator -> () const;
+  T* operator -> () const
+  {
+    return object;
+  }
   /*! Object assignment operator.
    */
-  Ref<T>& operator = (T* newObject);
+  Ref<T>& operator = (T* newObject)
+  {
+    if (newObject)
+      increment(newObject);
+
+    if (object)
+    {
+      decrement(object);
+      if (unreferenced(object))
+        delete static_cast<RefObject*>(object);
+    }
+
+    object = newObject;
+    return *this;
+  }
   /*! Assignment operator.
    */
-  Ref<T>& operator = (const Ref<T>& source);
+  Ref<T>& operator = (const Ref<T>& source)
+  {
+    return operator = (source.object);
+  }
   /*! @return The currently owned object.
    */
-  T* getObject() const;
+  T* getObject() const
+  {
+    return object;
+  }
 private:
   T* object;
 };
@@ -342,18 +427,29 @@ class Singleton
 public:
   /*! Destructor.
    */
-  virtual ~Singleton();
+  virtual ~Singleton()
+  {
+  }
   /*! Deletes the singleton instance.
    */
-  static void destroySingleton();
+  static void destroySingleton()
+  {
+    object = NULL;
+  }
   /*! @return The singleton instance if available, otherwise @c NULL.
    */
-  static T* getSingleton();
+  static T* getSingleton()
+  {
+    return object;
+  }
 protected:
   /*! Sets the singleton instance.
    *  @param[in] newObject The instance to set.
    */
-  static void set(T* newObject);
+  static void set(T* newObject)
+  {
+    object = newObject;
+  }
 private:
   static Ptr<T> object;
 };
@@ -380,183 +476,6 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////
-
-template <typename T>
-inline Ptr<T>::Ptr(T* initObject):
-  object(initObject)
-{
-}
-
-template <typename T>
-inline Ptr<T>::~Ptr()
-{
-  if (object)
-    delete object;
-}
-
-template <typename T>
-inline T* Ptr<T>::detachObject()
-{
-  T* temp = object;
-  object = NULL;
-  return temp;
-}
-
-template <typename T>
-inline Ptr<T>::operator T* ()
-{
-  return object;
-}
-
-template <typename T>
-inline Ptr<T>::operator const T* () const
-{
-  return object;
-}
-
-template <typename T>
-inline T* Ptr<T>::operator -> ()
-{
-  return object;
-}
-
-template <typename T>
-inline const T* Ptr<T>::operator -> () const
-{
-  return object;
-}
-
-template <typename T>
-inline Ptr<T>& Ptr<T>::operator = (T* newObject)
-{
-  if (object)
-    delete object;
-
-  object = newObject;
-  return *this;
-}
-
-template <typename T>
-inline T* Ptr<T>::getObject()
-{
-  return object;
-}
-
-template <typename T>
-inline const T* Ptr<T>::getObject() const
-{
-  return object;
-}
-
-template <typename T>
-inline Ptr<T>::Ptr(const Ptr<T>& source):
-  object(NULL)
-{
-}
-
-template <typename T>
-inline Ptr<T>& Ptr<T>::operator = (const Ptr<T>& source)
-{
-  operator = (source.detachObject());
-
-  return *this;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-template <typename T>
-inline Ref<T>::Ref(T* initObject):
-  object(NULL)
-{
-  operator = (initObject);
-}
-
-template <typename T>
-inline Ref<T>::Ref(const Ref<T>& source):
-  object(NULL)
-{
-  operator = (source);
-}
-
-template <typename T>
-inline Ref<T>::~Ref()
-{
-  operator = (NULL);
-}
-
-template <typename T>
-inline Ref<T> Ref<T>::detachObject()
-{
-  Ref<T> result = object;
-  operator = (NULL);
-  return result;
-}
-
-template <typename T>
-inline Ref<T>::operator T* () const
-{
-  return object;
-}
-
-template <typename T>
-inline T* Ref<T>::operator -> () const
-{
-  return object;
-}
-
-template <typename T>
-inline Ref<T>& Ref<T>::operator = (T* newObject)
-{
-  if (newObject)
-    increment(newObject);
-
-  if (object)
-  {
-    decrement(object);
-    if (unreferenced(object))
-      delete static_cast<RefObject*>(object);
-  }
-
-  object = newObject;
-  return *this;
-}
-
-template <typename T>
-inline Ref<T>& Ref<T>::operator = (const Ref<T>& source)
-{
-  return operator = (source.object);
-}
-
-template <typename T>
-inline T* Ref<T>::getObject() const
-{
-  return object;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-template <typename T>
-inline Singleton<T>::~Singleton()
-{
-}
-
-template <typename T>
-inline void Singleton<T>::destroySingleton()
-{
-  object = NULL;
-}
-
-template <typename T>
-inline T* Singleton<T>::getSingleton()
-{
-  return object;
-}
-
-template <typename T>
-inline void Singleton<T>::set(T* newObject)
-{
-  object = newObject;
-}
 
 template <typename T>
 Ptr<T> Singleton<T>::object;
