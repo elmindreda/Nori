@@ -171,13 +171,25 @@ public:
   bool hasUniformState(const char* name) const;
   bool hasSamplerState(const char* name) const;
   template <typename T>
-  void getUniformState(const char* name, T& result) const;
+  void getUniformState(const char* name, T& result) const
+  {
+    std::memcpy(&result, getData(name, getUniformType<T>()), sizeof(T));
+  }
   template <typename T>
-  void getUniformState(UniformStateIndex index, T& result) const;
+  void getUniformState(UniformStateIndex index, T& result) const
+  {
+    std::memcpy(&result, getData(index, getUniformType<T>()), sizeof(T));
+  }
   template <typename T>
-  void setUniformState(const char* name, const T& newValue);
+  void setUniformState(const char* name, const T& newValue)
+  {
+    std::memcpy(getData(name, getUniformType<T>()), &newValue, sizeof(T));
+  }
   template <typename T>
-  void setUniformState(UniformStateIndex index, const T& newValue);
+  void setUniformState(UniformStateIndex index, const T& newValue)
+  {
+    std::memcpy(getData(index, getUniformType<T>()), &newValue, sizeof(T));
+  }
   Texture* getSamplerState(const char* name) const;
   Texture* getSamplerState(SamplerStateIndex index) const;
   void setSamplerState(const char* name, Texture* newTexture);
@@ -402,32 +414,6 @@ private:
   static bool dirty;
   static bool cullingInverted;
 };
-
-///////////////////////////////////////////////////////////////////////
-
-template <typename T>
-inline void ProgramState::getUniformState(const char* name, T& result) const
-{
-  std::memcpy(&result, getData(name, getUniformType<T>()), sizeof(T));
-}
-
-template <typename T>
-inline void ProgramState::getUniformState(UniformStateIndex index, T& result) const
-{
-  std::memcpy(&result, getData(index, getUniformType<T>()), sizeof(T));
-}
-
-template <typename T>
-inline void ProgramState::setUniformState(const char* name, const T& newValue)
-{
-  std::memcpy(getData(name, getUniformType<T>()), &newValue, sizeof(T));
-}
-
-template <typename T>
-inline void ProgramState::setUniformState(UniformStateIndex index, const T& newValue)
-{
-  std::memcpy(getData(index, getUniformType<T>()), &newValue, sizeof(T));
-}
 
 ///////////////////////////////////////////////////////////////////////
 

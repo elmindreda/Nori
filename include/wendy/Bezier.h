@@ -191,7 +191,7 @@ public:
 
     if (points.size() == 1)
     {
-      result.push_back(points[0].position);
+      result.push_back(points.front().position);
       return;
     }
 
@@ -210,7 +210,7 @@ public:
    */
   T operator () (float t) const
   {
-    if (points.size() == 0)
+    if (points.empty())
     {
       logError("Cannot evaluate Bézier spline with no points");
       return T();

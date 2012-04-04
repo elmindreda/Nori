@@ -56,17 +56,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class ProfileNodeCall
-{
-public:
-  ProfileNodeCall(const char* name);
-  ~ProfileNodeCall();
-private:
-  Profile* profile;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 class Profile
 {
 public:
@@ -89,18 +78,23 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-inline ProfileNodeCall::ProfileNodeCall(const char* name):
-  profile(Profile::getCurrent())
+class ProfileNodeCall
 {
-  if (profile)
-    profile->beginNode(name);
-}
-
-inline ProfileNodeCall::~ProfileNodeCall()
-{
-  if (profile)
-    profile->endNode();
-}
+public:
+  ProfileNodeCall(const char* name):
+    profile(Profile::getCurrent())
+  {
+    if (profile)
+      profile->beginNode(name);
+  }
+  ~ProfileNodeCall()
+  {
+    if (profile)
+      profile->endNode();
+  }
+private:
+  Profile* profile;
+};
 
 ///////////////////////////////////////////////////////////////////////
 

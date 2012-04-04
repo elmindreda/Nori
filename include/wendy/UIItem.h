@@ -113,15 +113,11 @@ private:
 class ItemComparator
 {
 public:
-  bool operator () (const Item* x, const Item* y);
+  bool operator () (const Item* x, const Item* y)
+  {
+    return *x < *y;
+  }
 };
-
-///////////////////////////////////////////////////////////////////////
-
-inline bool ItemComparator::operator () (const Item* x, const Item* y)
-{
-  return *x < *y;
-}
 
 ///////////////////////////////////////////////////////////////////////
 

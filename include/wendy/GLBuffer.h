@@ -447,15 +447,40 @@ public:
    *  @remarks The vertex range must not already be locked.
    *  @remarks The specified vertex range object is copied, not referenced.
    */
-  VertexRangeLock(VertexRange& range);
+  VertexRangeLock(VertexRange& initRange):
+    range(initRange),
+    vertices(NULL)
+  {
+    if (VertexBuffer* vertexBuffer = range.getVertexBuffer())
+    {
+      const VertexFormat& format = vertexBuffer->getFormat();
+
+      if (T::format != format)
+      {
+        panic("Vertex buffer format \'%s\' does not match range lock format \'%s\'",
+              format.asString().c_str(),
+              T::format.asString().c_str());
+      }
+    }
+
+    vertices = (T*) range.lock();
+    if (!vertices)
+      panic("Failed to lock vertex buffer");
+  }
   /*! Destructor.
    *  Releases any lock held.
    */
-  ~VertexRangeLock();
+  ~VertexRangeLock()
+  {
+    range.unlock();
+  }
   /*! @return The base address of the locked vertex range.
    *  @remarks The vertex range is locked the first time this is called.
    */
-  operator T* ();
+  operator T* ()
+  {
+    return vertices;
+  }
 private:
   VertexRange range;
   T* vertices;
@@ -475,15 +500,26 @@ public:
    *  @remarks The index range must not already be locked.
    *  @remarks The specified index range object is copied, not referenced.
    */
-  IndexRangeLock(IndexRange& range);
+  IndexRangeLock(IndexRange& initRange):
+    range(initRange),
+    indices(NULL)
+  {
+    panic("Invalid index type");
+  }
   /*! Destructor.
    *  Releases any lock held.
    */
-  ~IndexRangeLock();
+  ~IndexRangeLock()
+  {
+    range.unlock();
+  }
   /*! @return The base address of the locked index range.
    *  @remarks The index range is locked the first time this is called.
    */
-  operator T* ();
+  operator T* ()
+  {
+    return indices;
+  }
 private:
   IndexRange range;
   T* indices;
@@ -720,68 +756,12 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-template <typename T>
-inline VertexRangeLock<T>::VertexRangeLock(VertexRange& initRange):
-  range(initRange),
-  vertices(NULL)
-{
-  if (VertexBuffer* vertexBuffer = range.getVertexBuffer())
-  {
-    const VertexFormat& format = vertexBuffer->getFormat();
-
-    if (T::format != format)
-    {
-      panic("Vertex buffer format \'%s\' does not match range lock format \'%s\'",
-            format.asString().c_str(),
-            T::format.asString().c_str());
-    }
-  }
-
-  vertices = (T*) range.lock();
-  if (!vertices)
-    panic("Failed to lock vertex buffer");
-}
-
-template <typename T>
-inline VertexRangeLock<T>::~VertexRangeLock()
-{
-  range.unlock();
-}
-
-template <typename T>
-inline VertexRangeLock<T>::operator T* ()
-{
-  return vertices;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-template <typename T>
-inline IndexRangeLock<T>::IndexRangeLock(IndexRange& initRange):
-  range(initRange),
-  indices(NULL)
-{
-  panic("Invalid index type");
-}
-
 template <>
 IndexRangeLock<uint8>::IndexRangeLock(IndexRange &range);
 template <>
 IndexRangeLock<uint16>::IndexRangeLock(IndexRange &range);
 template <>
 IndexRangeLock<uint32>::IndexRangeLock(IndexRange &range);
-
-template <typename T>
-inline IndexRangeLock<T>::~IndexRangeLock()
-{
-  range.unlock();
-}
-
-template <typename T>
-inline IndexRangeLock<T>::operator T* ()
-{
-  return indices;
-}
 
 ///////////////////////////////////////////////////////////////////////
 

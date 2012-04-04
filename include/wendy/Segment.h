@@ -31,44 +31,40 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! N-dimensional line segment.
+ */
 template <typename T>
 class Segment
 {
 public:
-  Segment();
-  Segment(const T& start, const T& end);
-  float length() const;
-  void set(const T& newStart, const T& newEnd);
+  /*! Constructor.
+   */
+  Segment()
+  {
+  }
+  /*! Constructor.
+   */
+  Segment(const T& initStart, const T& initEnd):
+    start(initStart),
+    end(initEnd)
+  {
+  }
+  /*! @return The length of this segment.
+   */
+  float length() const
+  {
+    return distance(start, end);
+  }
+  /*! Sets the end points of this segment.
+   */
+  void set(const T& newStart, const T& newEnd)
+  {
+    start = newStart;
+    end = newEnd;
+  }
   T start;
   T end;
 };
-
-///////////////////////////////////////////////////////////////////////
-
-template <typename T>
-inline Segment<T>::Segment()
-{
-}
-
-template <typename T>
-inline Segment<T>::Segment(const T& initStart, const T& initEnd):
-  start(initStart),
-  end(initEnd)
-{
-}
-
-template <typename T>
-inline float Segment<T>::length() const
-{
-  return distance(start, end);
-}
-
-template <typename T>
-inline void Segment<T>::set(const T& newStart, const T& newEnd)
-{
-  start = newStart;
-  end = newEnd;
-}
 
 ///////////////////////////////////////////////////////////////////////
 
