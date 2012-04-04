@@ -198,10 +198,7 @@ const Transform3& Node::getWorldTransform() const
   if (dirtyWorld)
   {
     if (parent)
-    {
-      const Transform3& parentWorld = parent->getWorldTransform();
-      world = parentWorld * local;
-    }
+      world = parent->getWorldTransform() * local;
     else
       world = local;
 
