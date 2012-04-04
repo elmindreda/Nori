@@ -101,10 +101,10 @@ typedef BezierSpline<vec3> BezierSpline3;
 template <typename T>
 inline void BezierCurve<T>::evaluate(float t, T& result) const
 {
-  result = P[0] * powf(1.f - t, 3.f) +
-           P[1] * 3.f * t * powf(1.f - t, 2.f) +
-           P[2] * 3.f * powf(t, 2.f) * (1.f - t) +
-           P[3] * powf(t, 3.f);
+  result = P[0] * pow(1.f - t, 3.f) +
+           P[1] * 3.f * t * pow(1.f - t, 2.f) +
+           P[2] * 3.f * pow(t, 2.f) * (1.f - t) +
+           P[3] * pow(t, 3.f);
 }
 
 template <typename T>
