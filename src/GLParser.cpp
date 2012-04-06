@@ -45,12 +45,12 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-ShaderPreprocessor::ShaderPreprocessor(ResourceCache& initCache):
+Preprocessor::Preprocessor(ResourceCache& initCache):
   cache(initCache)
 {
 }
 
-void ShaderPreprocessor::parse(const char* name)
+void Preprocessor::parse(const char* name)
 {
   const Path path = cache.findFile(name);
   if (path.isEmpty())
@@ -95,7 +95,7 @@ void ShaderPreprocessor::parse(const char* name)
   parse(name, text.c_str());
 }
 
-void ShaderPreprocessor::parse(const char* name, const char* text)
+void Preprocessor::parse(const char* name, const char* text)
 {
   if (std::find(names.begin(), names.end(), name) != names.end())
     return;
@@ -141,71 +141,71 @@ void ShaderPreprocessor::parse(const char* name, const char* text)
   }
 }
 
-const String& ShaderPreprocessor::getOutput() const
+const String& Preprocessor::getOutput() const
 {
   return output;
 }
 
-bool ShaderPreprocessor::hasVersion() const
+bool Preprocessor::hasVersion() const
 {
   return !version.empty();
 }
 
-const String& ShaderPreprocessor::getVersion() const
+const String& Preprocessor::getVersion() const
 {
   return version;
 }
 
-const String& ShaderPreprocessor::getNameList() const
+const String& Preprocessor::getNameList() const
 {
   return list;
 }
 
-void ShaderPreprocessor::addLine()
+void Preprocessor::addLine()
 {
   files.back().line++;
 }
 
-void ShaderPreprocessor::advance(size_t count)
+void Preprocessor::advance(size_t count)
 {
   files.back().pos += count;
 }
 
-void ShaderPreprocessor::discard()
+void Preprocessor::discard()
 {
   files.back().base = files.back().pos;
 }
 
-void ShaderPreprocessor::appendToOutput()
+void Preprocessor::appendToOutput()
 {
   File& file = files.back();
   output.append(file.base, file.pos);
   file.base = file.pos;
 }
 
-void ShaderPreprocessor::appendToOutput(const char* text)
+void Preprocessor::appendToOutput(const char* text)
 {
   output.append(text);
 }
 
-char ShaderPreprocessor::c(ptrdiff_t offset) const
+char Preprocessor::c(ptrdiff_t offset) const
 {
   return files.back().pos[offset];
 }
 
-void ShaderPreprocessor::passWhitespace()
+void Preprocessor::passWhitespace()
 {
   while (isWhitespace())
     advance(1);
 }
 
-void ShaderPreprocessor::parseWhitespace()
+void Preprocessor::parseWhitespace()
 {
   passWhitespace();
   appendToOutput();
 }
 
-void ShaderPreprocessor::parseNewLine()
+void Preprocessor::parseNewLine()
 {
   if (c(0) == '\r' && c(1) == '\n')
     advance(2);
@@ -217,7 +217,7 @@ void ShaderPreprocessor::parseNewLine()
   appendToOutput();
 }
 
-void ShaderPreprocessor::parseSingleLineComment()
+void Preprocessor::parseSingleLineComment()
 {
   advance(2);
   setFirstOnLine(false);
@@ -233,7 +233,7 @@ void ShaderPreprocessor::parseSingleLineComment()
   appendToOutput();
 }
 
-void ShaderPreprocessor::parseMultiLineComment()
+void Preprocessor::parseMultiLineComment()
 {
   advance(2);
   setFirstOnLine(false);
@@ -263,7 +263,7 @@ void ShaderPreprocessor::parseMultiLineComment()
   appendToOutput();
 }
 
-String ShaderPreprocessor::passNumber()
+String Preprocessor::passNumber()
 {
   if (!isNumeric())
   {
@@ -283,7 +283,7 @@ String ShaderPreprocessor::passNumber()
   return number;
 }
 
-String ShaderPreprocessor::passIdentifier()
+String Preprocessor::passIdentifier()
 {
   if (!isAlpha())
   {
@@ -305,7 +305,7 @@ String ShaderPreprocessor::passIdentifier()
   return identifier;
 }
 
-String ShaderPreprocessor::passShaderName()
+String Preprocessor::passShaderName()
 {
   char terminator;
   if (c(0) == '<')
@@ -352,7 +352,7 @@ String ShaderPreprocessor::passShaderName()
   return name;
 }
 
-void ShaderPreprocessor::parseCommand()
+void Preprocessor::parseCommand()
 {
   advance(1);
   setFirstOnLine(false);
@@ -393,64 +393,64 @@ void ShaderPreprocessor::parseCommand()
   appendToOutput();
 }
 
-bool ShaderPreprocessor::hasMore() const
+bool Preprocessor::hasMore() const
 {
   return c(0) != '\0';
 }
 
-bool ShaderPreprocessor::isNewLine() const
+bool Preprocessor::isNewLine() const
 {
   return c(0) == '\r' || c(0) == '\n';
 }
 
-bool ShaderPreprocessor::isMultiLineComment() const
+bool Preprocessor::isMultiLineComment() const
 {
   return c(0) == '/' && c(1) == '*';
 }
 
-bool ShaderPreprocessor::isSingleLineComment() const
+bool Preprocessor::isSingleLineComment() const
 {
   return c(0) == '/' && c(1) == '/';
 }
 
-bool ShaderPreprocessor::isWhitespace() const
+bool Preprocessor::isWhitespace() const
 {
   return c(0) == ' ' || c(0) == '\t';
 }
 
-bool ShaderPreprocessor::isCommand() const
+bool Preprocessor::isCommand() const
 {
   return isFirstOnLine() && c(0) == '#';
 }
 
-bool ShaderPreprocessor::isAlpha() const
+bool Preprocessor::isAlpha() const
 {
   return (c(0) >= 'a' && c(0) <= 'z') || (c(0) >= 'A' && c(0) <= 'Z');
 }
 
-bool ShaderPreprocessor::isNumeric() const
+bool Preprocessor::isNumeric() const
 {
   return c(0) >= '0' && c(0) <= '9';
 }
 
-bool ShaderPreprocessor::isAlphaNumeric() const
+bool Preprocessor::isAlphaNumeric() const
 {
   return isAlpha() || isNumeric();
 }
 
-bool ShaderPreprocessor::isFirstOnLine() const
+bool Preprocessor::isFirstOnLine() const
 {
   return files.back().first;
 }
 
-void ShaderPreprocessor::setFirstOnLine(bool newState)
+void Preprocessor::setFirstOnLine(bool newState)
 {
   files.back().first = newState;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-ShaderPreprocessor::File::File(const char* name, const char* text):
+Preprocessor::File::File(const char* name, const char* text):
   name(name),
   text(text),
   base(text),

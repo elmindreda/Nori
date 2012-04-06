@@ -304,7 +304,7 @@ Shader::Shader(const ResourceInfo& info,
 
 bool Shader::init(const String& text, const ShaderDefines& defines)
 {
-  ShaderPreprocessor spp(getCache());
+  Preprocessor spp(getCache());
 
   try
   {

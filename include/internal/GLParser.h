@@ -33,10 +33,10 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-class ShaderPreprocessor
+class Preprocessor
 {
 public:
-  ShaderPreprocessor(ResourceCache& cache);
+  Preprocessor(ResourceCache& cache);
   void parse(const char* name);
   void parse(const char* name, const char* text);
   bool hasVersion() const;
@@ -83,7 +83,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-class ShaderPreprocessor::File
+class Preprocessor::File
 {
 public:
   File(const char* name, const char* text);
