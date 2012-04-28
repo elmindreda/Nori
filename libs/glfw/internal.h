@@ -186,7 +186,7 @@ struct _GLFWwindow
     GLboolean systemKeys;      // system keys enabled flag
     int       cursorPosX, cursorPosY;
     int       cursorMode;
-    int       scrollX, scrollY;
+    double    scrollX, scrollY;
     char      mouseButton[GLFW_MOUSE_BUTTON_LAST + 1];
     char      key[GLFW_KEY_LAST + 1];
 
@@ -237,6 +237,7 @@ struct _GLFWlibrary
     GLFWwindowiconifyfun windowIconifyCallback;
     GLFWmousebuttonfun   mouseButtonCallback;
     GLFWmouseposfun      mousePosCallback;
+    GLFWcursorenterfun   cursorEnterCallback;
     GLFWscrollfun        scrollCallback;
     GLFWkeyfun           keyCallback;
     GLFWcharfun          charCallback;
@@ -246,7 +247,8 @@ struct _GLFWlibrary
     int           originalRampSize;
 
     // This is defined in the current port's platform.h
-    _GLFW_PLATFORM_LIBRARY_STATE;
+    _GLFW_PLATFORM_LIBRARY_WINDOW_STATE;
+    _GLFW_PLATFORM_LIBRARY_OPENGL_STATE;
 };
 
 
@@ -276,6 +278,8 @@ const char* _glfwPlatformGetVersionString(void);
 // Input
 void _glfwPlatformEnableSystemKeys(_GLFWwindow* window);
 void _glfwPlatformDisableSystemKeys(_GLFWwindow* window);
+void _glfwPlatformSetMouseCursorPos(_GLFWwindow* window, int x, int y);
+void _glfwPlatformSetCursorMode(_GLFWwindow* window, int mode);
 
 // Fullscreen
 int  _glfwPlatformGetVideoModes(GLFWvidmode* list, int maxcount);
@@ -284,6 +288,10 @@ void _glfwPlatformGetDesktopMode(GLFWvidmode* mode);
 // Gamma ramp
 void _glfwPlatformGetGammaRamp(GLFWgammaramp* ramp);
 void _glfwPlatformSetGammaRamp(const GLFWgammaramp* ramp);
+
+// Clipboard
+void _glfwPlatformSetClipboardString(_GLFWwindow* window, const char* string);
+const char* _glfwPlatformGetClipboardString(_GLFWwindow* window);
 
 // Joystick
 int _glfwPlatformGetJoystickParam(int joy, int param);
@@ -302,8 +310,6 @@ void _glfwPlatformSetWindowSize(_GLFWwindow* window, int width, int height);
 void _glfwPlatformSetWindowPos(_GLFWwindow* window, int x, int y);
 void _glfwPlatformIconifyWindow(_GLFWwindow* window);
 void _glfwPlatformRestoreWindow(_GLFWwindow* window);
-void _glfwPlatformSetMouseCursorPos(_GLFWwindow* window, int x, int y);
-void _glfwPlatformSetCursorMode(_GLFWwindow* window, int mode);
 
 // Event management
 void _glfwPlatformPollEvents(void);
@@ -342,9 +348,10 @@ void _glfwInputWindowDamage(_GLFWwindow* window);
 // Input event notification (input.c)
 void _glfwInputKey(_GLFWwindow* window, int key, int action);
 void _glfwInputChar(_GLFWwindow* window, int character);
-void _glfwInputScroll(_GLFWwindow* window, int x, int y);
+void _glfwInputScroll(_GLFWwindow* window, double x, double y);
 void _glfwInputMouseClick(_GLFWwindow* window, int button, int action);
 void _glfwInputCursorMotion(_GLFWwindow* window, int x, int y);
+void _glfwInputCursorEnter(_GLFWwindow* window, int entered);
 
 // OpenGL context helpers (opengl.c)
 int _glfwStringInExtensionString(const char* string, const GLubyte* extensions);

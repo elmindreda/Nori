@@ -1,6 +1,6 @@
 //========================================================================
 // GLFW - An OpenGL library
-// Platform:    Win32/WGL
+// Platform:    Any
 // API version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
@@ -29,29 +29,46 @@
 
 #include "internal.h"
 
-#include <limits.h>
+#include <math.h>
+#include <string.h>
 
 
 //////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
+//////                        GLFW public API                       //////
 //////////////////////////////////////////////////////////////////////////
 
 //========================================================================
-// Retrieve the currently set gamma ramp
+// Set the clipboard contents
 //========================================================================
 
-void _glfwPlatformGetGammaRamp(GLFWgammaramp* ramp)
+GLFWAPI void glfwSetClipboardString(GLFWwindow handle, const char* string)
 {
-    GetDeviceGammaRamp(GetDC(GetDesktopWindow()), (WORD*) ramp);
+    _GLFWwindow* window = (_GLFWwindow*) handle;
+
+    if (!_glfwInitialized)
+    {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
+        return;
+    }
+
+    _glfwPlatformSetClipboardString(window, string);
 }
 
 
 //========================================================================
-// Push the specified gamma ramp to the monitor
+// Return the current clipboard contents
 //========================================================================
 
-void _glfwPlatformSetGammaRamp(const GLFWgammaramp* ramp)
+GLFWAPI const char* glfwGetClipboardString(GLFWwindow handle)
 {
-    SetDeviceGammaRamp(GetDC(GetDesktopWindow()), (WORD*) ramp);
+    _GLFWwindow* window = (_GLFWwindow*) handle;
+
+    if (!_glfwInitialized)
+    {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
+        return NULL;
+    }
+
+    return _glfwPlatformGetClipboardString(window);
 }
 

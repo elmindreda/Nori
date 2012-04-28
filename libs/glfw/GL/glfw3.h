@@ -67,6 +67,12 @@ extern "C" {
  #endif
 #endif /* APIENTRY */
 
+/* TEMPORARY MinGW-w64 hacks.
+ */
+#if __MINGW64__
+ #define WINAPI
+#include <stddef.h>
+#endif
 
 /* The following three defines are here solely to make some Windows-based
  * <GL/gl.h> files happy. Theoretically we could include <windows.h>, but
@@ -113,7 +119,11 @@ extern "C" {
 
 /* ---------------- GLFW related system specific defines ----------------- */
 
-#if defined(_WIN32) && defined(GLFW_BUILD_DLL)
+#if defined(GLFW_DLL) && defined(_GLFW_BUILD_DLL)
+ #error "You must not have both GLFW_DLL and _GLFW_BUILD_DLL defined"
+#endif
+
+#if defined(_WIN32) && defined(_GLFW_BUILD_DLL)
 
  /* We are building a Win32 DLL */
  #define GLFWAPI __declspec(dllexport)
@@ -451,6 +461,7 @@ extern "C" {
 #define GLFW_VERSION_UNAVAILABLE  0x00070007
 #define GLFW_PLATFORM_ERROR       0x00070008
 #define GLFW_WINDOW_NOT_ACTIVE    0x00070009
+#define GLFW_FORMAT_UNAVAILABLE   0x0007000A
 
 /* Gamma ramps */
 #define GLFW_GAMMA_RAMP_SIZE      256
@@ -471,7 +482,8 @@ typedef void (* GLFWwindowfocusfun)(GLFWwindow,int);
 typedef void (* GLFWwindowiconifyfun)(GLFWwindow,int);
 typedef void (* GLFWmousebuttonfun)(GLFWwindow,int,int);
 typedef void (* GLFWmouseposfun)(GLFWwindow,int,int);
-typedef void (* GLFWscrollfun)(GLFWwindow,int,int);
+typedef void (* GLFWcursorenterfun)(GLFWwindow,int);
+typedef void (* GLFWscrollfun)(GLFWwindow,double,double);
 typedef void (* GLFWkeyfun)(GLFWwindow,int,int);
 typedef void (* GLFWcharfun)(GLFWwindow,int);
 
@@ -550,17 +562,22 @@ GLFWAPI int  glfwGetKey(GLFWwindow window, int key);
 GLFWAPI int  glfwGetMouseButton(GLFWwindow window, int button);
 GLFWAPI void glfwGetMousePos(GLFWwindow window, int* xpos, int* ypos);
 GLFWAPI void glfwSetMousePos(GLFWwindow window, int xpos, int ypos);
-GLFWAPI void glfwGetScrollOffset(GLFWwindow window, int* xoffset, int* yoffset);
+GLFWAPI void glfwGetScrollOffset(GLFWwindow window, double* xoffset, double* yoffset);
 GLFWAPI void glfwSetKeyCallback(GLFWkeyfun cbfun);
 GLFWAPI void glfwSetCharCallback(GLFWcharfun cbfun);
 GLFWAPI void glfwSetMouseButtonCallback(GLFWmousebuttonfun cbfun);
 GLFWAPI void glfwSetMousePosCallback(GLFWmouseposfun cbfun);
+GLFWAPI void glfwSetCursorEnterCallback(GLFWcursorenterfun cbfun);
 GLFWAPI void glfwSetScrollCallback(GLFWscrollfun cbfun);
 
 /* Joystick input */
 GLFWAPI int glfwGetJoystickParam(int joy, int param);
 GLFWAPI int glfwGetJoystickPos(int joy, float* pos, int numaxes);
 GLFWAPI int glfwGetJoystickButtons(int joy, unsigned char* buttons, int numbuttons);
+
+/* Clipboard */
+GLFWAPI void glfwSetClipboardString(GLFWwindow window, const char* string);
+GLFWAPI const char* glfwGetClipboardString(GLFWwindow window);
 
 /* Time */
 GLFWAPI double glfwGetTime(void);

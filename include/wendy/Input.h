@@ -322,7 +322,7 @@ private:
   static void characterCallback(void* window, int character);
   static void mousePosCallback(void* window, int x, int y);
   static void mouseButtonCallback(void* window, int button, int action);
-  static void scrollCallback(void* window, int x, int y);
+  static void scrollCallback(void* window, double x, double y);
   GL::Context& context;
   void* window;
   Hook* currentHook;

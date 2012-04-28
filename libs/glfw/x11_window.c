@@ -30,7 +30,6 @@
 
 #include "internal.h"
 
-#include <limits.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,8 +40,8 @@
 #define _NET_WM_STATE_TOGGLE        2
 
 // Additional mouse button names for XButtonEvent
-#define Button6			6
-#define Button7			7
+#define Button6            6
+#define Button7            7
 
 //========================================================================
 // Error handler for BadMatch errors when requesting context with
@@ -62,154 +61,6 @@ static int errorHandler(Display *display, XErrorEvent* event)
 static Bool isMapNotify(Display* d, XEvent* e, char* arg)
 {
     return (e->type == MapNotify) && (e->xmap.window == (Window)arg);
-}
-
-
-//========================================================================
-// Retrieve a single window property of the specified type
-// Inspired by fghGetWindowProperty from freeglut
-//========================================================================
-
-static unsigned long getWindowProperty(Window window,
-                                       Atom property,
-                                       Atom type,
-                                       unsigned char** value)
-{
-    Atom actualType;
-    int actualFormat;
-    unsigned long itemCount, bytesAfter;
-
-    XGetWindowProperty(_glfwLibrary.X11.display,
-                       window,
-                       property,
-                       0,
-                       LONG_MAX,
-                       False,
-                       type,
-                       &actualType,
-                       &actualFormat,
-                       &itemCount,
-                       &bytesAfter,
-                       value);
-
-    if (actualType != type)
-        return 0;
-
-    return itemCount;
-}
-
-
-//========================================================================
-// Check whether the specified atom is supported
-//========================================================================
-
-static Atom getSupportedAtom(Atom* supportedAtoms,
-                             unsigned long atomCount,
-                             const char* atomName)
-{
-    Atom atom = XInternAtom(_glfwLibrary.X11.display, atomName, True);
-    if (atom != None)
-    {
-        unsigned long i;
-
-        for (i = 0;  i < atomCount;  i++)
-        {
-            if (supportedAtoms[i] == atom)
-                return atom;
-        }
-    }
-
-    return None;
-}
-
-
-//========================================================================
-// Check whether the running window manager is EWMH-compliant
-//========================================================================
-
-static GLboolean hasEWMH(_GLFWwindow* window)
-{
-    Window* windowFromRoot = NULL;
-    Window* windowFromChild = NULL;
-
-    // Hey kids; let's see if the window manager supports EWMH!
-
-    // First we need a couple of atoms, which should already be there
-    Atom supportingWmCheck =
-        XInternAtom(_glfwLibrary.X11.display, "_NET_SUPPORTING_WM_CHECK", True);
-    Atom wmSupported =
-        XInternAtom(_glfwLibrary.X11.display, "_NET_SUPPORTED", True);
-    if (supportingWmCheck == None || wmSupported == None)
-        return GL_FALSE;
-
-    // Then we look for the _NET_SUPPORTING_WM_CHECK property of the root window
-    if (getWindowProperty(_glfwLibrary.X11.root,
-                          supportingWmCheck,
-                          XA_WINDOW,
-                          (unsigned char**) &windowFromRoot) != 1)
-    {
-        XFree(windowFromRoot);
-        return GL_FALSE;
-    }
-
-    // It should be the ID of a child window (of the root)
-    // Then we look for the same property on the child window
-    if (getWindowProperty(*windowFromRoot,
-                          supportingWmCheck,
-                          XA_WINDOW,
-                          (unsigned char**) &windowFromChild) != 1)
-    {
-        XFree(windowFromRoot);
-        XFree(windowFromChild);
-        return GL_FALSE;
-    }
-
-    // It should be the ID of that same child window
-    if (*windowFromRoot != *windowFromChild)
-    {
-        XFree(windowFromRoot);
-        XFree(windowFromChild);
-        return GL_FALSE;
-    }
-
-    XFree(windowFromRoot);
-    XFree(windowFromChild);
-
-    // We are now fairly sure that an EWMH-compliant window manager is running
-
-    Atom* supportedAtoms;
-    unsigned long atomCount;
-
-    // Now we need to check the _NET_SUPPORTED property of the root window
-    // It should be a list of supported WM protocol and state atoms
-    atomCount = getWindowProperty(_glfwLibrary.X11.root,
-                                  wmSupported,
-                                  XA_ATOM,
-                                  (unsigned char**) &supportedAtoms);
-
-    // See which of the atoms we support that are supported by the WM
-
-    window->X11.wmState =
-        getSupportedAtom(supportedAtoms, atomCount, "_NET_WM_STATE");
-
-    window->X11.wmStateFullscreen =
-        getSupportedAtom(supportedAtoms, atomCount, "_NET_WM_STATE_FULLSCREEN");
-
-    window->X11.wmName =
-        getSupportedAtom(supportedAtoms, atomCount, "_NET_WM_NAME");
-
-    window->X11.wmIconName =
-        getSupportedAtom(supportedAtoms, atomCount, "_NET_WM_ICON_NAME");
-
-    window->X11.wmPing =
-        getSupportedAtom(supportedAtoms, atomCount, "_NET_WM_PING");
-
-    window->X11.wmActiveWindow =
-        getSupportedAtom(supportedAtoms, atomCount, "_NET_ACTIVE_WINDOW");
-
-    XFree(supportedAtoms);
-
-    return GL_TRUE;
 }
 
 
@@ -280,7 +131,7 @@ static _GLFWfbconfig* getFBConfigs(_GLFWwindow* window, unsigned int* found)
 
     *found = 0;
 
-    if (_glfwLibrary.X11.glxMajor == 1 && _glfwLibrary.X11.glxMinor < 3)
+    if (_glfwLibrary.GLX.majorVersion == 1 && _glfwLibrary.GLX.minorVersion < 3)
     {
         if (!window->GLX.SGIX_fbconfig)
         {
@@ -685,7 +536,8 @@ static GLboolean createWindow(_GLFWwindow* window,
         wa.border_pixel = 0;
         wa.event_mask = StructureNotifyMask | KeyPressMask | KeyReleaseMask |
             PointerMotionMask | ButtonPressMask | ButtonReleaseMask |
-            ExposureMask | FocusChangeMask | VisibilityChangeMask;
+            ExposureMask | FocusChangeMask | VisibilityChangeMask |
+            EnterWindowMask | LeaveWindowMask;
 
         if (wndconfig->mode == GLFW_WINDOWED)
         {
@@ -720,10 +572,7 @@ static GLboolean createWindow(_GLFWwindow* window,
         }
     }
 
-    // Check whether an EWMH-compliant window manager is running
-    window->X11.hasEWMH = hasEWMH(window);
-
-    if (window->mode == GLFW_FULLSCREEN && !window->X11.hasEWMH)
+    if (window->mode == GLFW_FULLSCREEN && !_glfwLibrary.X11.hasEWMH)
     {
         // This is the butcher's way of removing window decorations
         // Setting the override-redirect attribute on a window makes the window
@@ -744,9 +593,9 @@ static GLboolean createWindow(_GLFWwindow* window,
     }
 
     // Find or create the protocol atom for window close notifications
-    window->X11.wmDeleteWindow = XInternAtom(_glfwLibrary.X11.display,
-                                             "WM_DELETE_WINDOW",
-                                             False);
+    _glfwLibrary.X11.wmDeleteWindow = XInternAtom(_glfwLibrary.X11.display,
+                                                  "WM_DELETE_WINDOW",
+                                                  False);
 
     // Declare the WM protocols we support
     {
@@ -755,14 +604,14 @@ static GLboolean createWindow(_GLFWwindow* window,
 
         // The WM_DELETE_WINDOW ICCCM protocol
         // Basic window close notification protocol
-        if (window->X11.wmDeleteWindow != None)
-            protocols[count++] = window->X11.wmDeleteWindow;
+        if (_glfwLibrary.X11.wmDeleteWindow != None)
+            protocols[count++] = _glfwLibrary.X11.wmDeleteWindow;
 
         // The _NET_WM_PING EWMH protocol
         // Tells the WM to ping our window and flag us as unresponsive if we
         // don't reply within a few seconds
-        if (window->X11.wmPing != None)
-            protocols[count++] = window->X11.wmPing;
+        if (_glfwLibrary.X11.wmPing != None)
+            protocols[count++] = _glfwLibrary.X11.wmPing;
 
         if (count > 0)
         {
@@ -907,15 +756,14 @@ static void enterFullscreenMode(_GLFWwindow* window)
         _glfwLibrary.X11.saver.changed = GL_TRUE;
     }
 
-    _glfwSetVideoMode(_glfwLibrary.X11.screen,
-                      &window->width, &window->height,
+    _glfwSetVideoMode(&window->width, &window->height,
                       &window->refreshRate);
 
-    if (window->X11.hasEWMH &&
-        window->X11.wmState != None &&
-        window->X11.wmStateFullscreen != None)
+    if (_glfwLibrary.X11.hasEWMH &&
+        _glfwLibrary.X11.wmState != None &&
+        _glfwLibrary.X11.wmStateFullscreen != None)
     {
-        if (window->X11.wmActiveWindow != None)
+        if (_glfwLibrary.X11.wmActiveWindow != None)
         {
             // Ask the window manager to raise and focus the GLFW window
             // Only focused windows with the _NET_WM_STATE_FULLSCREEN state end
@@ -927,7 +775,7 @@ static void enterFullscreenMode(_GLFWwindow* window)
             event.type = ClientMessage;
             event.xclient.window = window->X11.handle;
             event.xclient.format = 32; // Data is 32-bit longs
-            event.xclient.message_type = window->X11.wmActiveWindow;
+            event.xclient.message_type = _glfwLibrary.X11.wmActiveWindow;
             event.xclient.data.l[0] = 1; // Sender is a normal application
             event.xclient.data.l[1] = 0; // We don't really know the timestamp
 
@@ -948,9 +796,9 @@ static void enterFullscreenMode(_GLFWwindow* window)
         event.type = ClientMessage;
         event.xclient.window = window->X11.handle;
         event.xclient.format = 32; // Data is 32-bit longs
-        event.xclient.message_type = window->X11.wmState;
+        event.xclient.message_type = _glfwLibrary.X11.wmState;
         event.xclient.data.l[0] = _NET_WM_STATE_ADD;
-        event.xclient.data.l[1] = window->X11.wmStateFullscreen;
+        event.xclient.data.l[1] = _glfwLibrary.X11.wmStateFullscreen;
         event.xclient.data.l[2] = 0; // No secondary property
         event.xclient.data.l[3] = 1; // Sender is a normal application
 
@@ -988,7 +836,7 @@ static void enterFullscreenMode(_GLFWwindow* window)
 
 static void leaveFullscreenMode(_GLFWwindow* window)
 {
-    _glfwRestoreVideoMode(_glfwLibrary.X11.screen);
+    _glfwRestoreVideoMode();
 
     // Did we change the screen saver setting?
     if (_glfwLibrary.X11.saver.changed)
@@ -1003,9 +851,9 @@ static void leaveFullscreenMode(_GLFWwindow* window)
         _glfwLibrary.X11.saver.changed = GL_FALSE;
     }
 
-    if (window->X11.hasEWMH &&
-        window->X11.wmState != None &&
-        window->X11.wmStateFullscreen != None)
+    if (_glfwLibrary.X11.hasEWMH &&
+        _glfwLibrary.X11.wmState != None &&
+        _glfwLibrary.X11.wmStateFullscreen != None)
     {
         // Ask the window manager to make the GLFW window a normal window
         // Normal windows usually have frames and other decorations
@@ -1016,9 +864,9 @@ static void leaveFullscreenMode(_GLFWwindow* window)
         event.type = ClientMessage;
         event.xclient.window = window->X11.handle;
         event.xclient.format = 32; // Data is 32-bit longs
-        event.xclient.message_type = window->X11.wmState;
+        event.xclient.message_type = _glfwLibrary.X11.wmState;
         event.xclient.data.l[0] = _NET_WM_STATE_REMOVE;
-        event.xclient.data.l[1] = window->X11.wmStateFullscreen;
+        event.xclient.data.l[1] = _glfwLibrary.X11.wmStateFullscreen;
         event.xclient.data.l[2] = 0; // No secondary property
         event.xclient.data.l[3] = 1; // Sender is a normal application
 
@@ -1143,14 +991,14 @@ static void processSingleEvent(void)
             // XFree86 3.3.2 and later translates mouse wheel up/down into
             // mouse button 4 & 5 presses
             else if (event.xbutton.button == Button4)
-                _glfwInputScroll(window, 0, 1);
+                _glfwInputScroll(window, 0.0, 1.0);
             else if (event.xbutton.button == Button5)
-                _glfwInputScroll(window, 0, -1);
+                _glfwInputScroll(window, 0.0, -1.0);
 
             else if (event.xbutton.button == Button6)
-                _glfwInputScroll(window, -1, 0);
+                _glfwInputScroll(window, -1.0, 0.0);
             else if (event.xbutton.button == Button7)
-                _glfwInputScroll(window, 1, 0);
+                _glfwInputScroll(window, 1.0, 0.0);
 
             break;
         }
@@ -1183,6 +1031,40 @@ static void processSingleEvent(void)
                                      GLFW_MOUSE_BUTTON_RIGHT,
                                      GLFW_RELEASE);
             }
+            break;
+        }
+
+        case EnterNotify:
+        {
+            // The mouse cursor enters the Window
+            window = findWindow(event.xcrossing.window);
+            if (window == NULL)
+            {
+                fprintf(stderr, "Cannot find GLFW window structure for EnterNotify event\n");
+                return;
+            }
+
+            if (window->cursorMode == GLFW_CURSOR_HIDDEN)
+                hideMouseCursor(window);
+
+            _glfwInputCursorEnter(window, GL_TRUE);
+            break;
+        }
+
+        case LeaveNotify:
+        {
+            // The mouse cursor leave the Window
+            window = findWindow(event.xcrossing.window);
+            if (window == NULL)
+            {
+                fprintf(stderr, "Cannot find GLFW window structure for LeaveNotify event\n");
+                return;
+            }
+
+            if (window->cursorMode == GLFW_CURSOR_HIDDEN)
+                showMouseCursor(window);
+
+            _glfwInputCursorEnter(window, GL_FALSE);
             break;
         }
 
@@ -1257,15 +1139,15 @@ static void processSingleEvent(void)
                 return;
             }
 
-            if ((Atom) event.xclient.data.l[0] == window->X11.wmDeleteWindow)
+            if ((Atom) event.xclient.data.l[0] == _glfwLibrary.X11.wmDeleteWindow)
             {
                 // The window manager was asked to close the window, for example by
                 // the user pressing a 'close' window decoration button
 
                 window->closeRequested = GL_TRUE;
             }
-            else if (window->X11.wmPing != None &&
-                     (Atom) event.xclient.data.l[0] == window->X11.wmPing)
+            else if (_glfwLibrary.X11.wmPing != None &&
+                     (Atom) event.xclient.data.l[0] == _glfwLibrary.X11.wmPing)
             {
                 // The window manager is pinging us to make sure we are still
                 // responding to events
@@ -1359,7 +1241,52 @@ static void processSingleEvent(void)
             break;
         }
 
-        // Was the window destroyed?
+        case SelectionClear:
+        {
+            // The ownership of the selection was lost
+
+            free(_glfwLibrary.X11.selection.string);
+            _glfwLibrary.X11.selection.string = NULL;
+            break;
+        }
+
+        case SelectionNotify:
+        {
+            // The selection conversion status is available
+
+            XSelectionEvent* request = &event.xselection;
+
+            if (_glfwReadSelection(request))
+                _glfwLibrary.X11.selection.status = _GLFW_CONVERSION_SUCCEEDED;
+            else
+                _glfwLibrary.X11.selection.status = _GLFW_CONVERSION_FAILED;
+
+            break;
+        }
+
+        case SelectionRequest:
+        {
+            // The contents of the selection was requested
+
+            XSelectionRequestEvent* request = &event.xselectionrequest;
+
+            XEvent response;
+            memset(&response, 0, sizeof(response));
+
+            response.xselection.property = _glfwWriteSelection(request);
+            response.xselection.type = SelectionNotify;
+            response.xselection.display = request->display;
+            response.xselection.requestor = request->requestor;
+            response.xselection.selection = request->selection;
+            response.xselection.target = request->target;
+            response.xselection.time = request->time;
+
+            XSendEvent(_glfwLibrary.X11.display,
+                       request->requestor,
+                       False, 0, &response);
+            break;
+        }
+
         case DestroyNotify:
             return;
 
@@ -1379,6 +1306,23 @@ static void processSingleEvent(void)
             break;
         }
     }
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW internal API                      //////
+//////////////////////////////////////////////////////////////////////////
+
+//========================================================================
+// Processes all pending events
+//========================================================================
+
+void _glfwProcessPendingEvents(void)
+{
+    int i, count = XPending(_glfwLibrary.X11.display);
+
+    for (i = 0;  i < count;  i++)
+        processSingleEvent();
 }
 
 
@@ -1410,11 +1354,18 @@ int _glfwPlatformOpenWindow(_GLFWwindow* window,
 
         fbconfigs = getFBConfigs(window, &fbcount);
         if (!fbconfigs)
+        {
+            _glfwSetError(GLFW_PLATFORM_ERROR,
+                          "X11/GLX: No usable GLXFBConfigs found");
             return GL_FALSE;
+        }
 
         result = _glfwChooseFBConfig(fbconfig, fbconfigs, fbcount);
         if (!result)
         {
+            _glfwSetError(GLFW_PLATFORM_ERROR,
+                          "X11/GLX: No GLXFBConfig matched the criteria");
+
             free(fbconfigs);
             return GL_FALSE;
         }
@@ -1445,7 +1396,7 @@ int _glfwPlatformOpenWindow(_GLFWwindow* window,
     }
 
     // Process the window map event and any other that may have arrived
-    _glfwPlatformPollEvents();
+    _glfwProcessPendingEvents();
 
     // Retrieve and set initial cursor position
     {
@@ -1533,18 +1484,18 @@ void _glfwPlatformSetWindowTitle(_GLFWwindow* window, const char* title)
                        NULL, NULL, NULL);
 #endif
 
-    if (window->X11.wmName != None)
+    if (_glfwLibrary.X11.wmName != None)
     {
         XChangeProperty(_glfwLibrary.X11.display,  window->X11.handle,
-                        window->X11.wmName, type, 8,
+                        _glfwLibrary.X11.wmName, type, 8,
                         PropModeReplace,
                         (unsigned char*) title, strlen(title));
     }
 
-    if (window->X11.wmIconName != None)
+    if (_glfwLibrary.X11.wmIconName != None)
     {
         XChangeProperty(_glfwLibrary.X11.display,  window->X11.handle,
-                        window->X11.wmIconName, type, 8,
+                        _glfwLibrary.X11.wmIconName, type, 8,
                         PropModeReplace,
                         (unsigned char*) title, strlen(title));
     }
@@ -1565,8 +1516,7 @@ void _glfwPlatformSetWindowSize(_GLFWwindow* window, int width, int height)
     if (window->mode == GLFW_FULLSCREEN)
     {
         // Get the closest matching video mode for the specified window size
-        mode = _glfwGetClosestVideoMode(_glfwLibrary.X11.screen,
-                                        &width, &height, &rate);
+        mode = _glfwGetClosestVideoMode(&width, &height, &rate);
     }
 
     if (!window->resizable)
@@ -1593,7 +1543,7 @@ void _glfwPlatformSetWindowSize(_GLFWwindow* window, int width, int height)
     if (window->mode == GLFW_FULLSCREEN)
     {
         // Change video mode, keeping current refresh rate
-        _glfwSetVideoModeMODE(_glfwLibrary.X11.screen, mode, window->refreshRate);
+        _glfwSetVideoModeMODE(mode, window->refreshRate);
     }
 
     // Set window size (if not already changed)

@@ -12,7 +12,7 @@ set(glfw_SOURCES ${glfw_SOURCE_DIR}/GL/glfw3.h ${glfw_BINARY_DIR}/config.h
                  internal.h error.c fullscreen.c gamma.c init.c
                  input.c joystick.c opengl.c time.c window.c)
 
-if(APPLE)
+if (APPLE)
 
   set(_GLFW_COCOA_NSGL 1)
 
@@ -22,13 +22,14 @@ if(APPLE)
   find_library(COCOA_FRAMEWORK Cocoa)
   list(APPEND GLFW_LIBRARIES ${COCOA_FRAMEWORK})
 
-  list(APPEND glfw_SOURCES cocoa_platform.h cocoa_fullscreen.m cocoa_gamma.m
-                           cocoa_init.m cocoa_input.m cocoa_joystick.m
-                           cocoa_opengl.m cocoa_time.m cocoa_window.m)
+  list(APPEND glfw_SOURCES cocoa_platform.h cocoa_clipboard.m cocoa_fullscreen.m
+                           cocoa_gamma.m cocoa_init.m cocoa_input.m
+                           cocoa_joystick.m cocoa_opengl.m cocoa_time.m
+                           cocoa_window.m)
 
-endif(APPLE)
+endif()
 
-if(UNIX AND NOT APPLE)
+if (UNIX AND NOT APPLE)
 
   set(_GLFW_X11_GLX 1)
 
@@ -40,53 +41,88 @@ if(UNIX AND NOT APPLE)
 
   include(${glfw_SOURCE_DIR}/CMake/CHECK_X11_EXTENSIONS.cmake)
 
-  check_x11_xrandr()
-  if (X11_XRANDR_FOUND)
-    add_definitions(-D_GLFW_HAS_XRANDR) 
-    list(APPEND GLFW_INCLUDE_DIRS ${X11_XRANDR_INCLUDE_DIR})
-    list(APPEND GLFW_LIBRARIES ${X11_XRANDR_LIBRARIES})
-  endif(X11_XRANDR_FOUND)
+  if (X11_Xrandr_FOUND)
+    set(_GLFW_HAS_XRANDR 1) 
+    list(APPEND glfw_INCLUDE_DIRS ${X11_Xrandr_INCLUDE_PATH})
+    list(APPEND glfw_LIBRARIES ${X11_Xrandr_LIB})
+  endif()
 
-  check_x11_xf86vidmode()
-  if (X11_XF86VIDMODE_FOUND)
-    add_definitions(-D_GLFW_HAS_XF86VIDMODE)
-    list(APPEND GLFW_INCLUDE_DIRS ${X11_XF86VIDMODE_INCLUDE_DIR})
-    list(APPEND GLFW_LIBRARIES ${X11_XF86VIDMODE_LIBRARIES})
-  endif(X11_XF86VIDMODE_FOUND) 
+  if (X11_xf86vmode_FOUND)
+    set(_GLFW_HAS_XF86VIDMODE 1)
+    list(APPEND glfw_INCLUDE_DIRS ${X11_xf86vmode_INCLUDE_PATH})
+
+    if (X11_xf86vmode_LIB)
+      list(APPEND GLFW_LIBRARIES ${X11_xf86vmode_LIB})
+    else()
+      list(APPEND GLFW_LIBRARIES Xxf86vm)
+    endif()
+  endif() 
+
+  if (X11_Xkb_FOUND)
+    set(_GLFW_HAS_XKB 1)
+    list(APPEND GLFW_INCLUDE_DIRS ${X11_Xkb_INCLUDE_PATH})
+  endif() 
+
+  find_library(RT_LIBRARY rt)
+  mark_as_advanced(RT_LIBRARY)
+  if (RT_LIBRARY)
+    list(APPEND glfw_LIBRARIES ${RT_LIBRARY})
+  endif()
+
+  find_library(MATH_LIBRARY m)
+  mark_as_advanced(MATH_LIBRARY)
+  if (MATH_LIBRARY)
+    list(APPEND glfw_LIBRARIES ${MATH_LIBRARY})
+  endif()
 
   include(CheckFunctionExists)
-
-  check_function_exists(XkbQueryExtension _GLFW_HAS_XKB)
 
   check_function_exists(glXGetProcAddress _GLFW_HAS_GLXGETPROCADDRESS)
 
   if (NOT _GLFW_HAS_GLXGETPROCADDRESS)
     check_function_exists(glXGetProcAddressARB _GLFW_HAS_GLXGETPROCADDRESSARB)
-  endif (NOT _GLFW_HAS_GLXGETPROCADDRESS)
+  endif()
 
   if (NOT _GLFW_HAS_GLXGETPROCADDRESS AND NOT _GLFW_HAS_GLXGETPROCADDRESSARB)
     check_function_exists(glXGetProcAddressEXT _GLFW_HAS_GLXGETPROCADDRESSEXT)
-  endif (NOT _GLFW_HAS_GLXGETPROCADDRESS AND NOT _GLFW_HAS_GLXGETPROCADDRESSARB)
+  endif()
 
   if (NOT _GLFW_HAS_GLXGETPROCADDRESS AND
       NOT _GLFW_HAS_GLXGETPROCADDRESSARB AND
       NOT _GLFW_HAS_GLXGETPROCADDRESSEXT)
     message(WARNING "No glXGetProcAddressXXX variant found")
-  endif (NOT _GLFW_HAS_GLXGETPROCADDRESS AND
-          NOT _GLFW_HAS_GLXGETPROCADDRESSARB AND
-          NOT _GLFW_HAS_GLXGETPROCADDRESSEXT)
+  endif()
 
-  find_library(LIBRT rt)
-  if (LIBRT)
-    list(APPEND GLFW_LIBRARIES ${LIBRT})
-  endif(LIBRT)
+  if (NOT _GLFW_HAS_GLXGETPROCADDRESS AND
+    NOT _GLFW_HAS_GLXGETPROCADDRESSARB AND
+    NOT _GLFW_HAS_GLXGETPROCADDRESSEXT)
+    message(WARNING "No glXGetProcAddressXXX variant found")
+
+    find_library(DL_LIBRARY dl)
+    mark_as_advanced(DL_LIBRARY)
+    if (DL_LIBRARY)
+      set(CMAKE_REQUIRED_LIBRARIES ${DL_LIBRARY})
+    else()
+      set(CMAKE_REQUIRED_LIBRARIES "")
+    endif()
+
+    check_function_exists(dlopen _GLFW_HAS_DLOPEN)
+
+    if (NOT _GLFW_HAS_DLOPEN)
+      message(FATAL_ERROR "No entry point retrieval mechanism found")
+    endif()
+
+    if (DL_LIBRARY)
+      list(APPEND GLFW_LIBRARIES ${DL_LIBRARY})
+    endif()
+  endif()
 
   if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(_GLFW_USE_LINUX_JOYSTICKS 1)
-  endif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+  endif()
 
-  list(APPEND glfw_SOURCES x11_platform.h x11_fullscreen.c x11_gamma.c
-                           x11_init.c x11_input.c x11_joystick.c
+  list(APPEND glfw_SOURCES x11_platform.h x11_clipboard.c x11_fullscreen.c
+                           x11_gamma.c x11_init.c x11_input.c x11_joystick.c
                            x11_keysym2unicode.c x11_opengl.c x11_time.c
                            x11_window.c)
 
@@ -96,17 +132,17 @@ if(WIN32)
 
   set(_GLFW_WIN32_WGL 1)
 
+  set(_GLFW_NO_DLOAD_WINMM 1)
+
   set(CMAKE_REQUIRED_LIBRARIES ${OPENGL_gl_LIBRARY})
   list(APPEND GLFW_INCLUDE_DIRS ${OPENGL_INCLUDE_DIR})
   list(APPEND GLFW_LIBRARIES ${OPENGL_gl_LIBRARY})
   list(APPEND GLFW_LIBRARIES winmm)
 
-  add_definitions(-D_GLFW_NO_DLOAD_GDI32 -D_GLFW_NO_DLOAD_WINMM)
-
-  list(APPEND glfw_SOURCES win32_platform.h win32_dllmain.c win32_fullscreen.c
-                           win32_gamma.c win32_init.c win32_input.c
-                           win32_joystick.c win32_opengl.c win32_time.c
-                           win32_window.c)
+  list(APPEND glfw_SOURCES win32_platform.h win32_clipboard.c win32_dllmain.c
+                           win32_fullscreen.c win32_gamma.c win32_init.c
+                           win32_input.c win32_joystick.c win32_opengl.c
+                           win32_time.c win32_window.c)
 
 endif(WIN32)
 

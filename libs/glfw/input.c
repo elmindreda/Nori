@@ -167,7 +167,7 @@ void _glfwInputKey(_GLFWwindow* window, int key, int action)
         return;
 
     // Register key action
-    if(action == GLFW_RELEASE && window->stickyKeys)
+    if (action == GLFW_RELEASE && window->stickyKeys)
         window->key[key] = GLFW_STICK;
     else
     {
@@ -200,7 +200,7 @@ void _glfwInputChar(_GLFWwindow* window, int character)
 // Register scroll events
 //========================================================================
 
-void _glfwInputScroll(_GLFWwindow* window, int xoffset, int yoffset)
+void _glfwInputScroll(_GLFWwindow* window, double xoffset, double yoffset)
 {
     window->scrollX += xoffset;
     window->scrollY += yoffset;
@@ -259,6 +259,17 @@ void _glfwInputCursorMotion(_GLFWwindow* window, int x, int y)
                                       window->cursorPosX,
                                       window->cursorPosY);
     }
+}
+
+
+//========================================================================
+// Register cursor enter/leave events
+//========================================================================
+
+void _glfwInputCursorEnter(_GLFWwindow* window, int entered)
+{
+    if (_glfwLibrary.cursorEnterCallback)
+        _glfwLibrary.cursorEnterCallback(window, entered);
 }
 
 
@@ -465,7 +476,7 @@ GLFWAPI void glfwSetMousePos(GLFWwindow handle, int xpos, int ypos)
 // Returns the scroll offset for the specified window
 //========================================================================
 
-GLFWAPI void glfwGetScrollOffset(GLFWwindow handle, int* xoffset, int* yoffset)
+GLFWAPI void glfwGetScrollOffset(GLFWwindow handle, double* xoffset, double* yoffset)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
 
@@ -554,6 +565,22 @@ GLFWAPI void glfwSetMousePosCallback(GLFWmouseposfun cbfun)
         for (window = _glfwLibrary.windowListHead;  window;  window = window->next)
             cbfun(window, window->cursorPosX, window->cursorPosY);
     }
+}
+
+
+//========================================================================
+// Set callback function for cursor enter/leave events
+//========================================================================
+
+GLFWAPI void glfwSetCursorEnterCallback(GLFWcursorenterfun cbfun)
+{
+    if (!_glfwInitialized)
+    {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
+        return;
+    }
+
+    _glfwLibrary.cursorEnterCallback = cbfun;
 }
 
 

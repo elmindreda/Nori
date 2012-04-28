@@ -35,30 +35,6 @@
 
 
 //========================================================================
-// Convert BPP to RGB bits based on "best guess"
-//========================================================================
-
-static void bpp2rgb(int bpp, int* r, int* g, int* b)
-{
-    int delta;
-
-    // We assume that by 32 they really meant 24
-    if (bpp == 32)
-        bpp = 24;
-
-    // Convert "bits per pixel" to red, green & blue sizes
-
-    *r = *g = *b = bpp / 3;
-    delta = bpp - (*r * 3);
-    if (delta >= 1)
-        *g = *g + 1;
-
-    if (delta == 2)
-        *r = *r + 1;
-}
-
-
-//========================================================================
 // Enable/disable minimize/restore animations
 //========================================================================
 
@@ -183,10 +159,10 @@ static _GLFWfbconfig* getFBConfigs(_GLFWwindow* window, unsigned int* found)
         count = getPixelFormatAttrib(window, 1, WGL_NUMBER_PIXEL_FORMATS_ARB);
     else
     {
-        count = _glfw_DescribePixelFormat(window->WGL.DC,
-                                          1,
-                                          sizeof(PIXELFORMATDESCRIPTOR),
-                                          NULL);
+        count = DescribePixelFormat(window->WGL.DC,
+                                    1,
+                                    sizeof(PIXELFORMATDESCRIPTOR),
+                                    NULL);
     }
 
     if (!count)
@@ -267,10 +243,10 @@ static _GLFWfbconfig* getFBConfigs(_GLFWwindow* window, unsigned int* found)
         {
             // Get pixel format attributes through old-fashioned PFDs
 
-            if (!_glfw_DescribePixelFormat(window->WGL.DC,
-                                           i,
-                                           sizeof(PIXELFORMATDESCRIPTOR),
-                                           &pfd))
+            if (!DescribePixelFormat(window->WGL.DC,
+                                     i,
+                                     sizeof(PIXELFORMATDESCRIPTOR),
+                                     &pfd))
             {
                 continue;
             }
@@ -335,14 +311,14 @@ static GLboolean createContext(_GLFWwindow* window,
     if (wndconfig->share)
         share = wndconfig->share->WGL.context;
 
-    if (!_glfw_DescribePixelFormat(window->WGL.DC, pixelFormat, sizeof(pfd), &pfd))
+    if (!DescribePixelFormat(window->WGL.DC, pixelFormat, sizeof(pfd), &pfd))
     {
         _glfwSetError(GLFW_OPENGL_UNAVAILABLE,
                       "Win32/WGL: Failed to retrieve PFD for selected pixel format");
         return GL_FALSE;
     }
 
-    if (!_glfw_SetPixelFormat(window->WGL.DC, pixelFormat, &pfd))
+    if (!SetPixelFormat(window->WGL.DC, pixelFormat, &pfd))
     {
         _glfwSetError(GLFW_OPENGL_UNAVAILABLE,
                       "Win32/WGL: Failed to set selected pixel format");
@@ -1021,12 +997,32 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                 _glfwInputCursorMotion(window, x, y);
             }
 
+            if (!window->Win32.cursorInside)
+            {
+                TRACKMOUSEEVENT tme;
+                ZeroMemory(&tme, sizeof(tme));
+                tme.cbSize = sizeof(tme);
+                tme.dwFlags = TME_LEAVE;
+                tme.hwndTrack = window->Win32.handle;
+                TrackMouseEvent(&tme);
+
+                window->Win32.cursorInside = GL_TRUE;
+                _glfwInputCursorEnter(window, GL_TRUE);
+            }
+
+            return 0;
+        }
+
+        case WM_MOUSELEAVE:
+        {
+            window->Win32.cursorInside = GL_FALSE;
+            _glfwInputCursorEnter(window, GL_FALSE);
             return 0;
         }
 
         case WM_MOUSEWHEEL:
         {
-            _glfwInputScroll(window, 0, (((int) wParam) >> 16) / WHEEL_DELTA);
+            _glfwInputScroll(window, 0.0, (SHORT) HIWORD(wParam) / (double) WHEEL_DELTA);
             return 0;
         }
 
@@ -1034,7 +1030,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
         {
             // This message is only sent on Windows Vista and later
 
-            _glfwInputScroll(window, (((int) wParam) >> 16) / WHEEL_DELTA, 0);
+            _glfwInputScroll(window, (SHORT) HIWORD(wParam) / (double) WHEEL_DELTA, 0.0);
             return 0;
         }
 
@@ -1600,29 +1596,10 @@ void _glfwPlatformSetWindowTitle(_GLFWwindow* window, const char* title)
 
 void _glfwPlatformSetWindowSize(_GLFWwindow* window, int width, int height)
 {
-    //int bpp, refresh;
-    int newMode = 0;
     GLboolean sizeChanged = GL_FALSE;
 
     if (window->mode == GLFW_FULLSCREEN)
     {
-        // Get some info about the current mode
-
-        DEVMODE dm;
-
-        dm.dmSize = sizeof(DEVMODE);
-        //if (EnumDisplaySettings(NULL, window->Win32.modeID, &dm))
-        //{
-            // We need to keep BPP the same for the OpenGL context to keep working
-            //bpp = dm.dmBitsPerPel;
-
-            // Get closest match for target video mode
-            //refresh = window->Win32.desiredRefreshRate;
-            //newMode = _glfwGetClosestVideoModeBPP(&width, &height, &bpp, &refresh);
-        //}
-        //else
-            //newMode = window->Win32.modeID;
-
         if (width > window->width || height > window->height)
         {
             // The new video mode is larger than the current one, so we resize
@@ -1634,8 +1611,7 @@ void _glfwPlatformSetWindowSize(_GLFWwindow* window, int width, int height)
             sizeChanged = GL_TRUE;
         }
 
-        //if (newMode != window->Win32.modeID)
-            //_glfwSetVideoModeMODE(newMode);
+        // TODO: Change video mode
     }
     else
     {
@@ -1697,7 +1673,7 @@ void _glfwPlatformRefreshWindowParams(void)
     _GLFWwindow* window = _glfwLibrary.currentWindow;
 
     // Obtain a detailed description of current pixel format
-    pixelFormat = _glfw_GetPixelFormat(window->WGL.DC);
+    pixelFormat = GetPixelFormat(window->WGL.DC);
 
     if (window->WGL.ARB_pixel_format)
     {
@@ -1751,8 +1727,8 @@ void _glfwPlatformRefreshWindowParams(void)
     }
     else
     {
-        _glfw_DescribePixelFormat(window->WGL.DC, pixelFormat,
-                                  sizeof(PIXELFORMATDESCRIPTOR), &pfd);
+        DescribePixelFormat(window->WGL.DC, pixelFormat,
+                            sizeof(PIXELFORMATDESCRIPTOR), &pfd);
 
         // Is current OpenGL context accelerated?
         window->accelerated = (pfd.dwFlags & PFD_GENERIC_ACCELERATED) ||

@@ -559,7 +559,7 @@ void Context::mouseButtonCallback(void* window, int button, int action)
     instance->currentTarget->onButtonClicked(Button(button), clicked);
 }
 
-void Context::scrollCallback(void* window, int x, int y)
+void Context::scrollCallback(void* window, double x, double y)
 {
   if (instance->currentHook)
   {

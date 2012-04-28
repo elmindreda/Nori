@@ -69,7 +69,7 @@
     [window->NSGL.context update];
 
     NSRect contentRect =
-        [window->NS.window contentRectForFrameRect:[window->NS.window frame]];
+        [window->NS.object contentRectForFrameRect:[window->NS.object frame]];
 
     _glfwInputWindowSize(window, contentRect.size.width, contentRect.size.height);
 }
@@ -79,7 +79,7 @@
     [window->NSGL.context update];
 
     NSRect contentRect =
-        [window->NS.window contentRectForFrameRect:[window->NS.window frame]];
+        [window->NS.object contentRectForFrameRect:[window->NS.object frame]];
 
     CGPoint mainScreenOrigin = CGDisplayBounds(CGMainDisplayID()).origin;
     double mainScreenHeight = CGDisplayBounds(CGMainDisplayID()).size.height;
@@ -292,6 +292,7 @@ static int convertMacKeyCode(unsigned int macKeyCode)
 @interface GLFWContentView : NSView
 {
     _GLFWwindow* window;
+    NSTrackingArea* trackingArea;
 }
 
 - (id)initWithGlfwWindow:(_GLFWwindow *)initWindow;
@@ -304,9 +305,20 @@ static int convertMacKeyCode(unsigned int macKeyCode)
 {
     self = [super init];
     if (self != nil)
+    {
         window = initWindow;
+        trackingArea = nil;
+
+        [self updateTrackingAreas];
+    }
 
     return self;
+}
+
+-(void)dealloc
+{
+    [trackingArea release];
+    [super dealloc];
 }
 
 - (BOOL)isOpaque
@@ -348,7 +360,7 @@ static int convertMacKeyCode(unsigned int macKeyCode)
         NSPoint p = [event locationInWindow];
 
         // Cocoa coordinate system has origin at lower left
-        p.y = [[window->NS.window contentView] bounds].size.height - p.y;
+        p.y = [[window->NS.object contentView] bounds].size.height - p.y;
 
         _glfwInputCursorMotion(window, p.x, p.y);
     }
@@ -382,6 +394,36 @@ static int convertMacKeyCode(unsigned int macKeyCode)
 - (void)otherMouseUp:(NSEvent *)event
 {
     _glfwInputMouseClick(window, [event buttonNumber], GLFW_RELEASE);
+}
+
+- (void)mouseExited:(NSEvent *)event
+{
+    _glfwInputCursorEnter(window, GL_FALSE);
+}
+
+- (void)mouseEntered:(NSEvent *)event
+{
+    _glfwInputCursorEnter(window, GL_TRUE);
+}
+
+- (void)updateTrackingAreas
+{
+    if (trackingArea != nil)
+    {
+        [self removeTrackingArea:trackingArea];
+        [trackingArea release];
+    }
+
+    NSTrackingAreaOptions options = NSTrackingMouseEnteredAndExited |
+                                    NSTrackingActiveAlways |
+                                    NSTrackingInVisibleRect;
+
+    trackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds]
+                                                options:options
+                                                  owner:self
+                                               userInfo:nil];
+
+    [self addTrackingArea:trackingArea];
 }
 
 - (void)keyDown:(NSEvent *)event
@@ -437,14 +479,11 @@ static int convertMacKeyCode(unsigned int macKeyCode)
 
 - (void)scrollWheel:(NSEvent *)event
 {
-    double deltaX = window->NS.fracScrollX + [event deltaX];
-    double deltaY = window->NS.fracScrollY + [event deltaY];
+    double deltaX = [event deltaX];
+    double deltaY = [event deltaY];
 
-    if ((int) deltaX || (int) deltaY)
-        _glfwInputScroll(window, (int) deltaX, (int) deltaY);
-
-    window->NS.fracScrollX = (int) (deltaX - floor(deltaX));
-    window->NS.fracScrollY = (int) (deltaY - floor(deltaY));
+    if (fabs(deltaX) > 0.0 || fabs(deltaY) > 0.0)
+        _glfwInputScroll(window, deltaX, deltaY);
 }
 
 @end
@@ -632,25 +671,26 @@ static GLboolean createWindow(_GLFWwindow* window,
     else
         styleMask = NSBorderlessWindowMask;
 
-    window->NS.window = [[NSWindow alloc]
+    window->NS.object = [[NSWindow alloc]
         initWithContentRect:NSMakeRect(0, 0, window->width, window->height)
                   styleMask:styleMask
                     backing:NSBackingStoreBuffered
                       defer:NO];
 
-    if (window->NS.window == nil)
+    if (window->NS.object == nil)
     {
         _glfwSetError(GLFW_PLATFORM_ERROR,
                       "Cocoa/NSOpenGL: Failed to create window");
         return GL_FALSE;
     }
 
-    [window->NS.window setTitle:[NSString stringWithUTF8String:wndconfig->title]];
-    [window->NS.window setContentView:[[GLFWContentView alloc]
-                   initWithGlfwWindow:window]];
-    [window->NS.window setDelegate:window->NS.delegate];
-    [window->NS.window setAcceptsMouseMovedEvents:YES];
-    [window->NS.window center];
+    window->NS.view = [[GLFWContentView alloc] initWithGlfwWindow:window];
+
+    [window->NS.object setTitle:[NSString stringWithUTF8String:wndconfig->title]];
+    [window->NS.object setContentView:window->NS.view];
+    [window->NS.object setDelegate:window->NS.delegate];
+    [window->NS.object setAcceptsMouseMovedEvents:YES];
+    [window->NS.object center];
 
     return GL_TRUE;
 }
@@ -728,13 +768,12 @@ static GLboolean createContext(_GLFWwindow* window,
 #define ADD_ATTR2(x, y) { ADD_ATTR(x); ADD_ATTR(y); }
 
     // Arbitrary array size here
-    NSOpenGLPixelFormatAttribute attributes[24];
+    NSOpenGLPixelFormatAttribute attributes[40];
 
     ADD_ATTR(NSOpenGLPFADoubleBuffer);
 
     if (wndconfig->mode == GLFW_FULLSCREEN)
     {
-        ADD_ATTR(NSOpenGLPFAFullScreen);
         ADD_ATTR(NSOpenGLPFANoRecovery);
         ADD_ATTR2(NSOpenGLPFAScreenMask,
                   CGDisplayIDToOpenGLDisplayMask(CGMainDisplayID()));
@@ -865,8 +904,8 @@ int _glfwPlatformOpenWindow(_GLFWwindow* window,
     if (!createContext(window, wndconfig, fbconfig))
         return GL_FALSE;
 
-    [window->NS.window makeKeyAndOrderFront:nil];
-    [window->NSGL.context setView:[window->NS.window contentView]];
+    [window->NS.object makeKeyAndOrderFront:nil];
+    [window->NSGL.context setView:[window->NS.object contentView]];
 
     if (wndconfig->mode == GLFW_FULLSCREEN)
     {
@@ -880,7 +919,7 @@ int _glfwPlatformOpenWindow(_GLFWwindow* window,
             return GL_FALSE;
         }
 
-        [[window->NS.window contentView] enterFullScreenMode:[NSScreen mainScreen]
+        [[window->NS.object contentView] enterFullScreenMode:[NSScreen mainScreen]
                                                  withOptions:nil];
     }
 
@@ -902,11 +941,11 @@ int _glfwPlatformOpenWindow(_GLFWwindow* window,
 
 void _glfwPlatformCloseWindow(_GLFWwindow* window)
 {
-    [window->NS.window orderOut:nil];
+    [window->NS.object orderOut:nil];
 
     if (window->mode == GLFW_FULLSCREEN)
     {
-        [[window->NS.window contentView] exitFullScreenModeWithOptions:nil];
+        [[window->NS.object contentView] exitFullScreenModeWithOptions:nil];
 
         _glfwRestoreVideoMode();
     }
@@ -918,12 +957,15 @@ void _glfwPlatformCloseWindow(_GLFWwindow* window)
     [window->NSGL.context release];
     window->NSGL.context = nil;
 
-    [window->NS.window setDelegate:nil];
+    [window->NS.object setDelegate:nil];
     [window->NS.delegate release];
     window->NS.delegate = nil;
 
-    [window->NS.window close];
-    window->NS.window = nil;
+    [window->NS.view release];
+    window->NS.view = nil;
+
+    [window->NS.object close];
+    window->NS.object = nil;
 
     // TODO: Probably more cleanup
 }
@@ -935,7 +977,7 @@ void _glfwPlatformCloseWindow(_GLFWwindow* window)
 
 void _glfwPlatformSetWindowTitle(_GLFWwindow* window, const char *title)
 {
-    [window->NS.window setTitle:[NSString stringWithUTF8String:title]];
+    [window->NS.object setTitle:[NSString stringWithUTF8String:title]];
 }
 
 
@@ -945,7 +987,7 @@ void _glfwPlatformSetWindowTitle(_GLFWwindow* window, const char *title)
 
 void _glfwPlatformSetWindowSize(_GLFWwindow* window, int width, int height)
 {
-    [window->NS.window setContentSize:NSMakeSize(width, height)];
+    [window->NS.object setContentSize:NSMakeSize(width, height)];
 }
 
 
@@ -956,16 +998,16 @@ void _glfwPlatformSetWindowSize(_GLFWwindow* window, int width, int height)
 void _glfwPlatformSetWindowPos(_GLFWwindow* window, int x, int y)
 {
     NSRect contentRect =
-        [window->NS.window contentRectForFrameRect:[window->NS.window frame]];
+        [window->NS.object contentRectForFrameRect:[window->NS.object frame]];
 
     // We assume here that the client code wants to position the window within the
     // screen the window currently occupies
-    NSRect screenRect = [[window->NS.window screen] visibleFrame];
+    NSRect screenRect = [[window->NS.object screen] visibleFrame];
     contentRect.origin = NSMakePoint(screenRect.origin.x + x,
                                      screenRect.origin.y + screenRect.size.height -
                                          y - contentRect.size.height);
 
-    [window->NS.window setFrame:[window->NS.window frameRectForContentRect:contentRect]
+    [window->NS.object setFrame:[window->NS.object frameRectForContentRect:contentRect]
                         display:YES];
 }
 
@@ -976,7 +1018,7 @@ void _glfwPlatformSetWindowPos(_GLFWwindow* window, int x, int y)
 
 void _glfwPlatformIconifyWindow(_GLFWwindow* window)
 {
-    [window->NS.window miniaturize:nil];
+    [window->NS.object miniaturize:nil];
 }
 
 
@@ -986,7 +1028,7 @@ void _glfwPlatformIconifyWindow(_GLFWwindow* window)
 
 void _glfwPlatformRestoreWindow(_GLFWwindow* window)
 {
-    [window->NS.window deminiaturize:nil];
+    [window->NS.object deminiaturize:nil];
 }
 
 
@@ -1126,13 +1168,8 @@ void _glfwPlatformSetMouseCursorPos(_GLFWwindow* window, int x, int y)
     // calculating the maximum y coordinate of all screens, since Cocoa's
     // "global coordinates" are upside down from CG's...
 
-    // Without this (once per app run, but it's convenient to do it here)
-    // events will be suppressed for a default of 0.25 seconds after we
-    // move the cursor.
-    CGSetLocalEventsSuppressionInterval(0.0);
-
-    NSPoint localPoint = NSMakePoint(x, y);
-    NSPoint globalPoint = [window->NS.window convertBaseToScreen:localPoint];
+    NSPoint localPoint = NSMakePoint(x, window->height - y);
+    NSPoint globalPoint = [window->NS.object convertBaseToScreen:localPoint];
     CGPoint mainScreenOrigin = CGDisplayBounds(CGMainDisplayID()).origin;
     double mainScreenHeight = CGDisplayBounds(CGMainDisplayID()).size.height;
     CGPoint targetPoint = CGPointMake(globalPoint.x - mainScreenOrigin.x,

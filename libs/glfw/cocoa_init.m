@@ -28,7 +28,7 @@
 //========================================================================
 
 #include "internal.h"
-
+#include <sys/param.h> // For MAXPATHLEN
 
 //========================================================================
 // Change to our application bundle's resources directory, if present
@@ -81,9 +81,9 @@ int _glfwPlatformInit(void)
 {
     _glfwLibrary.NS.autoreleasePool = [[NSAutoreleasePool alloc] init];
 
-    _glfwLibrary.NS.OpenGLFramework =
+    _glfwLibrary.NSGL.framework =
         CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
-    if (_glfwLibrary.NS.OpenGLFramework == NULL)
+    if (_glfwLibrary.NSGL.framework == NULL)
     {
         _glfwSetError(GLFW_PLATFORM_ERROR,
                       "glfwInit: Failed to locate OpenGL framework");
@@ -103,6 +103,13 @@ int _glfwPlatformInit(void)
 
     _glfwInitJoysticks();
 
+    _glfwLibrary.NS.eventSource = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
+    if (!_glfwLibrary.NS.eventSource)
+        return GL_FALSE;
+
+    CGEventSourceSetLocalEventsSuppressionInterval(_glfwLibrary.NS.eventSource,
+                                                   0.0);
+
     return GL_TRUE;
 }
 
@@ -114,6 +121,12 @@ int _glfwPlatformInit(void)
 int _glfwPlatformTerminate(void)
 {
     // TODO: Probably other cleanup
+
+    if (_glfwLibrary.NS.eventSource)
+    {
+        CFRelease(_glfwLibrary.NS.eventSource);
+        _glfwLibrary.NS.eventSource = NULL;
+    }
 
     // Restore the original gamma ramp
     _glfwPlatformSetGammaRamp(&_glfwLibrary.originalRamp);
@@ -139,7 +152,11 @@ int _glfwPlatformTerminate(void)
 
 const char* _glfwPlatformGetVersionString(void)
 {
-    const char* version = _GLFW_VERSION_FULL " Cocoa";
+    const char* version = _GLFW_VERSION_FULL
+#if defined(_GLFW_BUILD_DLL)
+        " dynamic"
+#endif
+        ;
 
     return version;
 }

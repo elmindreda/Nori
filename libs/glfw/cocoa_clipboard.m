@@ -1,6 +1,6 @@
 //========================================================================
 // GLFW - An OpenGL library
-// Platform:    Win32/WGL
+// Platform:    Cocoa/NSOpenGL
 // API version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
@@ -30,6 +30,7 @@
 #include "internal.h"
 
 #include <limits.h>
+#include <string.h>
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -37,21 +38,45 @@
 //////////////////////////////////////////////////////////////////////////
 
 //========================================================================
-// Retrieve the currently set gamma ramp
+// Set the clipboard contents
 //========================================================================
 
-void _glfwPlatformGetGammaRamp(GLFWgammaramp* ramp)
+void _glfwPlatformSetClipboardString(_GLFWwindow* window, const char* string)
 {
-    GetDeviceGammaRamp(GetDC(GetDesktopWindow()), (WORD*) ramp);
+    NSArray* types = [NSArray arrayWithObjects:NSStringPboardType, nil];
+
+    NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
+    [pasteboard declareTypes:types owner:nil];
+    [pasteboard setString:[NSString stringWithUTF8String:string]
+                  forType:NSStringPboardType];
 }
 
 
 //========================================================================
-// Push the specified gamma ramp to the monitor
+// Return the current clipboard contents
 //========================================================================
 
-void _glfwPlatformSetGammaRamp(const GLFWgammaramp* ramp)
+const char* _glfwPlatformGetClipboardString(_GLFWwindow* window)
 {
-    SetDeviceGammaRamp(GetDC(GetDesktopWindow()), (WORD*) ramp);
+    NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
+
+    if (![[pasteboard types] containsObject:NSStringPboardType])
+    {
+        _glfwSetError(GLFW_FORMAT_UNAVAILABLE, NULL);
+        return NULL;
+    }
+
+    NSString* object = [pasteboard stringForType:NSStringPboardType];
+    if (!object)
+    {
+        _glfwSetError(GLFW_PLATFORM_ERROR,
+                      "Cocoa/NSGL: Failed to retrieve object from pasteboard");
+        return NULL;
+    }
+
+    free(_glfwLibrary.NS.clipboardString);
+    _glfwLibrary.NS.clipboardString = strdup([object UTF8String]);
+
+    return _glfwLibrary.NS.clipboardString;
 }
 
