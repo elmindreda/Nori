@@ -203,6 +203,21 @@ GLenum convertToGL(ShaderType type)
   panic("Invalid GLSL shader type %i", type);
 }
 
+String asName(const ShaderDefines& defines)
+{
+  String name;
+
+  for (ShaderDefines::const_iterator d = defines.begin();  d != defines.end();  d++)
+  {
+    name += " ";
+    name += d->first;
+    name += ":";
+    name += d->second;
+  }
+
+  return name;
+}
+
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
@@ -255,14 +270,7 @@ Ref<Shader> Shader::read(Context& context,
 
   String name;
   name += textName;
-
-  for (ShaderDefines::const_iterator d = defines.begin();  d != defines.end();  d++)
-  {
-    name += " ";
-    name += d->first;
-    name += ":";
-    name += d->second;
-  }
+  name += asName(defines);
 
   if (Ref<Shader> shader = cache.find<Shader>(name))
     return shader;
@@ -785,7 +793,8 @@ Ref<Program> Program::create(const ResourceInfo& info,
 
 Ref<Program> Program::read(Context& context,
                            const String& vertexShaderName,
-                           const String& fragmentShaderName)
+                           const String& fragmentShaderName,
+                           const ShaderDefines& defines)
 {
   ResourceCache& cache = context.getCache();
 
@@ -794,19 +803,22 @@ Ref<Program> Program::read(Context& context,
   name += vertexShaderName;
   name += " fs:";
   name += fragmentShaderName;
+  name += asName(defines);
 
   if (Ref<Program> program = cache.find<Program>(name))
     return program;
 
   Ref<Shader> vertexShader = Shader::read(context,
                                           VERTEX_SHADER,
-                                          vertexShaderName);
+                                          vertexShaderName,
+                                          defines);
   if (!vertexShader)
     return NULL;
 
   Ref<Shader> fragmentShader = Shader::read(context,
                                             FRAGMENT_SHADER,
-                                            fragmentShaderName);
+                                            fragmentShaderName,
+                                            defines);
   if (!fragmentShader)
     return NULL;
 

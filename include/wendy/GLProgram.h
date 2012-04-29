@@ -309,7 +309,8 @@ public:
                              Shader& fragmentShader);
   static Ref<Program> read(Context& context,
                            const String& vertexShaderName,
-                           const String& fragmentShaderName);
+                           const String& fragmentShaderName,
+                           const ShaderDefines& defines = ShaderDefines());
 private:
   Program(const ResourceInfo& info, Context& context);
   Program(const Program& source);

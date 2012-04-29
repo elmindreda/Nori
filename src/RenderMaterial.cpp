@@ -431,18 +431,6 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
           return NULL;
         }
 
-        Ref<GL::Program> program = GL::Program::read(context,
-                                                     vertexShaderName,
-                                                     fragmentShaderName);
-        if (!program)
-        {
-          logError("Failed to load GLSL program for material \'%s\'",
-                   name.c_str());
-          return NULL;
-        }
-
-        pass.setProgram(program);
-
         GL::ShaderDefines defines;
 
         for (pugi::xml_node d = node.child("define");  d;  d = d.next_sibling("define"))
@@ -450,8 +438,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
           const String defineName(d.attribute("name").value());
           if (defineName.empty())
           {
-            logWarning("GLSL program \'%s\' in material \'%s\' lists unnamed define",
-                       program->getName().c_str(),
+            logWarning("GLSL program in material \'%s\' lists unnamed define",
                        name.c_str());
 
             continue;
@@ -465,6 +452,19 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
         }
 
         std::sort(defines.begin(), defines.end());
+
+        Ref<GL::Program> program = GL::Program::read(context,
+                                                     vertexShaderName,
+                                                     fragmentShaderName,
+                                                     defines);
+        if (!program)
+        {
+          logError("Failed to load GLSL program for material \'%s\'",
+                   name.c_str());
+          return NULL;
+        }
+
+        pass.setProgram(program);
 
         for (pugi::xml_node s = node.child("sampler");  s;  s = s.next_sibling("sampler"))
         {
