@@ -25,6 +25,9 @@
 
 #include <wendy/Config.h>
 #include <wendy/Core.h>
+#include <wendy/Path.h>
+#include <wendy/Resource.h>
+#include <wendy/Sample.h>
 
 #include <wendy/ALContext.h>
 #include <wendy/ALBuffer.h>
@@ -32,8 +35,6 @@
 #include <internal/ALHelper.h>
 
 #include <al.h>
-
-#include <vorbis/vorbisfile.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -47,72 +48,40 @@ namespace wendy
 namespace
 {
 
-ALenum convertToAL(BufferFormat format)
+ALenum convertToAL(SampleFormat format)
 {
   switch (format)
   {
-    case FORMAT_MONO8:
+    case SAMPLE_MONO8:
       return AL_FORMAT_MONO8;
-    case FORMAT_MONO16:
+    case SAMPLE_MONO16:
       return AL_FORMAT_MONO16;
-    case FORMAT_STEREO8:
+    case SAMPLE_STEREO8:
       return AL_FORMAT_STEREO8;
-    case FORMAT_STEREO16:
+    case SAMPLE_STEREO16:
       return AL_FORMAT_STEREO16;
   }
 
   panic("Invalid OpenAL buffer data format %u", format);
 }
 
-size_t getFormatSize(BufferFormat format)
+size_t getFormatSize(SampleFormat format)
 {
   switch (format)
   {
-    case FORMAT_MONO8:
+    case SAMPLE_MONO8:
       return 1;
-    case FORMAT_MONO16:
-    case FORMAT_STEREO8:
+    case SAMPLE_MONO16:
+    case SAMPLE_STEREO8:
       return 2;
-    case FORMAT_STEREO16:
+    case SAMPLE_STEREO16:
       return 4;
   }
 
   panic("Invalid OpenAL buffer data format %u", format);
 }
 
-const char* getErrorString(int error)
-{
-  switch (error)
-  {
-    case OV_EREAD:
-      return "A read from media returned an error";
-    case OV_ENOTVORBIS:
-      return "Bitstream does not contain any Vorbis data";
-    case OV_EVERSION:
-      return "Vorbis version mismatch";
-    case OV_EBADHEADER:
-      return "Invalid Vorbis bitstream header";
-    case OV_EFAULT:
-      return "Internal logic fault; indicates a bug or heap/stack corruption";
-  }
-
-  return "Unknown vorbisfile error";
-}
-
 } /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
-
-BufferData::BufferData(const void* initData,
-                       size_t initSize,
-                       BufferFormat initFormat,
-                       unsigned long initFrequency):
-  data(initData),
-  size(initSize),
-  format(initFormat),
-  frequency(initFrequency)
-{
-}
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -124,7 +93,7 @@ Buffer::~Buffer()
 
 bool Buffer::isMono() const
 {
-  if (format == FORMAT_MONO8 || format == FORMAT_MONO16)
+  if (format == SAMPLE_MONO8 || format == SAMPLE_MONO16)
     return true;
 
   return false;
@@ -132,7 +101,7 @@ bool Buffer::isMono() const
 
 bool Buffer::isStereo() const
 {
-  if (format == FORMAT_STEREO8 || format == FORMAT_STEREO16)
+  if (format == SAMPLE_STEREO8 || format == SAMPLE_STEREO16)
     return true;
 
   return false;
@@ -143,7 +112,7 @@ Time Buffer::getDuration() const
   return duration;
 }
 
-BufferFormat Buffer::getFormat() const
+SampleFormat Buffer::getFormat() const
 {
   return format;
 }
@@ -153,7 +122,9 @@ Context& Buffer::getContext() const
   return context;
 }
 
-Ref<Buffer> Buffer::create(const ResourceInfo& info, Context& context, const BufferData& data)
+Ref<Buffer> Buffer::create(const ResourceInfo& info,
+                           Context& context,
+                           const Sample& data)
 {
   Ref<Buffer> buffer = new Buffer(info, context);
   if (!buffer->init(data))
@@ -162,10 +133,25 @@ Ref<Buffer> Buffer::create(const ResourceInfo& info, Context& context, const Buf
   return buffer;
 }
 
-Ref<Buffer> Buffer::read(Context& context, const String& name)
+Ref<Buffer> Buffer::read(Context& context, const String& sampleName)
 {
-  BufferReader reader(context);
-  return reader.read(name);
+  ResourceCache& cache = context.getCache();
+
+  String name;
+  name += "sample:";
+  name += sampleName;
+
+  if (Ref<Buffer> buffer = cache.find<Buffer>(name))
+    return buffer;
+
+  Ref<Sample> data = Sample::read(cache, sampleName);
+  if (!data)
+  {
+    logError("Failed to read sample for buffer \'%s\'", name.c_str());
+    return NULL;
+  }
+
+  return create(ResourceInfo(cache, name), context, *data);
 }
 
 Buffer::Buffer(const ResourceInfo& info, Context& initContext):
@@ -183,12 +169,12 @@ Buffer::Buffer(const Buffer& source):
   panic("OpenAL buffer objects may not be copied");
 }
 
-bool Buffer::init(const BufferData& data)
+bool Buffer::init(const Sample& data)
 {
   alGenBuffers(1, &bufferID);
   alBufferData(bufferID,
                convertToAL(data.format),
-               data.data, data.size,
+               &data.data[0], data.data.size(),
                data.frequency);
 
   if (!checkAL("Error during OpenAL buffer creation"))
@@ -196,7 +182,7 @@ bool Buffer::init(const BufferData& data)
 
   format = data.format;
 
-  duration = float(data.size) / (getFormatSize(format) * data.frequency);
+  duration = float(data.data.size()) / (getFormatSize(format) * data.frequency);
 
   return true;
 }
@@ -204,94 +190,6 @@ bool Buffer::init(const BufferData& data)
 Buffer& Buffer::operator = (const Buffer& source)
 {
   panic("OpenAL buffer objects may not be assigned");
-}
-
-///////////////////////////////////////////////////////////////////////
-
-BufferReader::BufferReader(Context& initContext):
-  ResourceReader<Buffer>(initContext.getCache()),
-  context(initContext)
-{
-}
-
-Ref<Buffer> BufferReader::read(const String& name, const Path& path)
-{
-  int result;
-  OggVorbis_File file;
-
-  result = ov_fopen(path.asString().c_str(), &file);
-  if (result)
-  {
-    logError("Failed to open audio file \'%s\': %s",
-             name.c_str(),
-             getErrorString(result));
-    return NULL;
-  }
-
-  if (ov_streams(&file) > 1)
-  {
-    ov_clear(&file);
-    logError("Audio file \'%s\' has an unsupported number of bitstreams",
-             name.c_str());
-    return NULL;
-  }
-
-  const vorbis_info* info = ov_info(&file, -1);
-  if (!info)
-  {
-    ov_clear(&file);
-    logError("Failed to retrieve Vorbis info for audio file \'%s\'",
-             name.c_str());
-    return NULL;
-  }
-
-  if (info->channels > 2)
-  {
-    ov_clear(&file);
-    logError("Audio file \'%s\' has an unsupported number of channels",
-             name.c_str());
-    return NULL;
-  }
-
-  BufferFormat format;
-  if (info->channels == 1)
-    format = FORMAT_MONO16;
-  else
-    format = FORMAT_STEREO16;
-
-  std::vector<char> samples;
-
-#if WENDY_WORDS_BIGENDIAN
-  const int endian = 1;
-#else
-  const int endian = 0;
-#endif
-
-  for (;;)
-  {
-    int bitstream;
-    char scratch[4096];
-
-    result = ov_read(&file, scratch, sizeof(scratch), endian, 2, 1, &bitstream);
-    if (result < 0)
-    {
-      ov_clear(&file);
-      logError("Error when reading audio file \'%s\': %s",
-              name.c_str(),
-              getErrorString(result));
-      return NULL;
-    }
-    else if (result > 0)
-      samples.insert(samples.end(), scratch, scratch + result);
-    else
-      break;
-  }
-
-  ov_clear(&file);
-
-  const BufferData data(&samples[0], samples.size(), format, info->rate);
-
-  return Buffer::create(ResourceInfo(cache, name, path), context, data);
 }
 
 ///////////////////////////////////////////////////////////////////////

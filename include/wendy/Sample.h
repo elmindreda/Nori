@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenAL library
-// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
+// Wendy core library
+// Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,72 +22,57 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_ALBUFFER_H
-#define WENDY_ALBUFFER_H
-///////////////////////////////////////////////////////////////////////
-
-#include <wendy/Core.h>
-#include <wendy/Path.h>
-#include <wendy/Resource.h>
-#include <wendy/Sample.h>
-
+#ifndef WENDY_SAMPLE_H
+#define WENDY_SAMPLE_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace AL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Audio sample data buffer.
- *  @ingroup openal
+/*! @brief Audio sample data format enumeration.
  */
-class Buffer : public Resource
+enum SampleFormat
 {
-  friend class Source;
-public:
-  /*! Destructor.
-   */
-  ~Buffer();
-  /*! @return @c true if this buffer contains mono data, otherwise @c false.
-   */
-  bool isMono() const;
-  /*! @return @c true if this buffer contains stereo data, otherwise @c false.
-   */
-  bool isStereo() const;
-  /*! @return The duration, in seconds, of this buffer.
-   */
-  Time getDuration() const;
-  /*! @return The format of the data in this buffer.
-   */
-  SampleFormat getFormat() const;
-  /*! @return The context within which this buffer was created.
-   */
-  Context& getContext() const;
-  /*! Creates a buffer object within the specified context using the specified
-   *  data.
-   */
-  static Ref<Buffer> create(const ResourceInfo& info,
-                            Context& context,
-                            const Sample& data);
-  static Ref<Buffer> read(Context& context, const String& sampleName);
-private:
-  Buffer(const ResourceInfo& info, Context& context);
-  Buffer(const Buffer& source);
-  bool init(const Sample& data);
-  Buffer& operator = (const Buffer& source);
-  Context& context;
-  unsigned int bufferID;
-  SampleFormat format;
-  Time duration;
+  SAMPLE_MONO8,
+  SAMPLE_MONO16,
+  SAMPLE_STEREO8,
+  SAMPLE_STEREO16,
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace AL*/
+/*! @brief Audio sample.
+ */
+class Sample : public Resource
+{
+public:
+  Sample(const ResourceInfo& info,
+         const char* data,
+         size_t size,
+         SampleFormat format,
+         unsigned long frequency);
+  static Ref<Sample> read(ResourceCache& cache, const String& name);
+  std::vector<char> data;
+  SampleFormat format;
+  unsigned long frequency;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class SampleReader : public ResourceReader<Sample>
+{
+public:
+  SampleReader(ResourceCache& cache);
+  using ResourceReader<Sample>::read;
+  Ref<Sample> read(const String& name, const Path& path);
+};
+
+///////////////////////////////////////////////////////////////////////
+
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_ALBUFFER_H*/
+#endif /*WENDY_SAMPLE_H*/
 ///////////////////////////////////////////////////////////////////////
