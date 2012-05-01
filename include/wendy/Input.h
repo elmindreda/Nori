@@ -286,7 +286,7 @@ public:
   /*! @return @c true if the specified key is pressed, otherwise @c false.
    *  @param[in] key The desired key.
    */
-  bool isKeyDown(const Key& key) const;
+  bool isKeyDown(Key key) const;
   /*! @return @c true if the specified mouse button is pressed, otherwise @c false.
    *  @param[in] button The desired mouse button.
    */

@@ -148,7 +148,7 @@ void Window::releaseCursor()
   glfwSetInputMode(handle, GLFW_CURSOR_MODE, GLFW_CURSOR_NORMAL);
 }
 
-bool Window::isKeyDown(const Key& key) const
+bool Window::isKeyDown(Key key) const
 {
   return glfwGetKey(handle, internalMap[key]) == GLFW_PRESS;
 }
