@@ -141,23 +141,23 @@ Window::~Window()
 void Window::captureCursor()
 {
   cursorCaptured = true;
-  glfwSetInputMode(window, GLFW_CURSOR_MODE, GLFW_CURSOR_CAPTURED);
+  glfwSetInputMode(handle, GLFW_CURSOR_MODE, GLFW_CURSOR_CAPTURED);
 }
 
 void Window::releaseCursor()
 {
   cursorCaptured = false;
-  glfwSetInputMode(window, GLFW_CURSOR_MODE, GLFW_CURSOR_NORMAL);
+  glfwSetInputMode(handle, GLFW_CURSOR_MODE, GLFW_CURSOR_NORMAL);
 }
 
 bool Window::isKeyDown(const Key& key) const
 {
-  return glfwGetKey(window, internalMap[key]) == GLFW_PRESS;
+  return glfwGetKey(handle, internalMap[key]) == GLFW_PRESS;
 }
 
 bool Window::isButtonDown(Button button) const
 {
-  return glfwGetMouseButton(window, button + GLFW_MOUSE_BUTTON_1) == GLFW_PRESS;
+  return glfwGetMouseButton(handle, button + GLFW_MOUSE_BUTTON_1) == GLFW_PRESS;
 }
 
 bool Window::isCursorCaptured() const
@@ -178,13 +178,13 @@ unsigned int Window::getHeight() const
 ivec2 Window::getCursorPosition() const
 {
   ivec2 position;
-  glfwGetMousePos(window, &position.x, &position.y);
+  glfwGetMousePos(handle, &position.x, &position.y);
   return position;
 }
 
 void Window::setCursorPosition(const ivec2& newPosition)
 {
-  glfwSetMousePos(window, newPosition.x, newPosition.y);
+  glfwSetMousePos(handle, newPosition.x, newPosition.y);
 }
 
 Hook* Window::getHook() const
@@ -229,6 +229,7 @@ bool Window::createSingleton(GL::Context& context)
 
 Window::Window(GL::Context& initContext):
   context(initContext),
+  handle(NULL),
   currentHook(NULL),
   currentTarget(NULL),
   cursorCaptured(false)
@@ -482,7 +483,7 @@ Window::Window(GL::Context& initContext):
   internalMap[KEY_RIGHT_SUPER] = GLFW_KEY_RIGHT_SUPER;
   internalMap[KEY_MENU] = GLFW_KEY_MENU;
 
-  window = glfwGetCurrentContext();
+  handle = glfwGetCurrentContext();
 
   glfwSetMousePosCallback(mousePosCallback);
   glfwSetMouseButtonCallback(mouseButtonCallback);
@@ -490,7 +491,7 @@ Window::Window(GL::Context& initContext):
   glfwSetCharCallback(characterCallback);
   glfwSetScrollCallback(scrollCallback);
 
-  glfwSetInputMode(window, GLFW_CURSOR_MODE, GLFW_CURSOR_NORMAL);
+  glfwSetInputMode(handle, GLFW_CURSOR_MODE, GLFW_CURSOR_NORMAL);
 }
 
 Window::Window(const Window& source):
@@ -505,7 +506,7 @@ void Window::onWindowResized(unsigned int width, unsigned int height)
     currentTarget->onWindowResized(width, height);
 }
 
-void Window::keyboardCallback(void* window, int key, int action)
+void Window::keyboardCallback(void* handle, int key, int action)
 {
   const bool pressed = (action == GLFW_PRESS) ? true : false;
 
@@ -519,7 +520,7 @@ void Window::keyboardCallback(void* window, int key, int action)
     instance->currentTarget->onKeyPressed(externalMap[key], pressed);
 }
 
-void Window::characterCallback(void* window, int character)
+void Window::characterCallback(void* handle, int character)
 {
   if (instance->currentHook)
   {
@@ -531,7 +532,7 @@ void Window::characterCallback(void* window, int character)
     instance->currentTarget->onCharInput((wchar_t) character);
 }
 
-void Window::mousePosCallback(void* window, int x, int y)
+void Window::mousePosCallback(void* handle, int x, int y)
 {
   if (instance->currentHook)
   {
@@ -543,7 +544,7 @@ void Window::mousePosCallback(void* window, int x, int y)
     instance->currentTarget->onCursorMoved(ivec2(x, y));
 }
 
-void Window::mouseButtonCallback(void* window, int button, int action)
+void Window::mouseButtonCallback(void* handle, int button, int action)
 {
   const bool clicked = (action == GLFW_PRESS) ? true : false;
 
@@ -559,7 +560,7 @@ void Window::mouseButtonCallback(void* window, int button, int action)
     instance->currentTarget->onButtonClicked(Button(button), clicked);
 }
 
-void Window::scrollCallback(void* window, double x, double y)
+void Window::scrollCallback(void* handle, double x, double y)
 {
   if (instance->currentHook)
   {

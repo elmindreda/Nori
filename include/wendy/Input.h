@@ -324,7 +324,7 @@ private:
   static void mouseButtonCallback(void* window, int button, int action);
   static void scrollCallback(void* window, double x, double y);
   GL::Context& context;
-  void* window;
+  void* handle;
   Hook* currentHook;
   Target* currentTarget;
   bool cursorCaptured;
