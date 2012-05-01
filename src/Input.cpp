@@ -86,7 +86,7 @@ bool Hook::onCursorMoved(const ivec2& position)
   return false;
 }
 
-bool Hook::onWheelTurned(int offset)
+bool Hook::onScrolled(double x, double y)
 {
   return false;
 }
@@ -117,7 +117,7 @@ void Target::onCursorMoved(const ivec2& position)
 {
 }
 
-void Target::onWheelTurned(int offset)
+void Target::onScrolled(double x, double y)
 {
 }
 
@@ -561,12 +561,12 @@ void Window::scrollCallback(void* handle, double x, double y)
 {
   if (instance->currentHook)
   {
-    if (instance->currentHook->onWheelTurned(y))
+    if (instance->currentHook->onScrolled(x, y))
       return;
   }
 
   if (instance->currentTarget)
-    instance->currentTarget->onWheelTurned(y);
+    instance->currentTarget->onScrolled(x, y);
 }
 
 Window& Window::operator = (const Window& source)
@@ -646,9 +646,9 @@ void MayaCamera::onCursorMoved(const ivec2& position)
   lastPosition = position;
 }
 
-void MayaCamera::onWheelTurned(int offset)
+void MayaCamera::onScrolled(double x, double y)
 {
-  distance += (float) offset;
+  distance += float(y);
   updateTransform();
 }
 

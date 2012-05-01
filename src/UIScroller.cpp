@@ -57,7 +57,7 @@ Scroller::Scroller(Layer& layer, Orientation initOrientation):
 
   getKeyPressedSignal().connect(*this, &Scroller::onKeyPressed);
   getButtonClickedSignal().connect(*this, &Scroller::onButtonClicked);
-  getWheelTurnedSignal().connect(*this, &Scroller::onWheelTurned);
+  getScrolledSignal().connect(*this, &Scroller::onScrolled);
   getDragBegunSignal().connect(*this, &Scroller::onDragBegun);
   getDragMovedSignal().connect(*this, &Scroller::onDragMoved);
 
@@ -216,9 +216,12 @@ void Scroller::onKeyPressed(Widget& widget, input::Key key, bool pressed)
   }
 }
 
-void Scroller::onWheelTurned(Widget& widget, int offset)
+void Scroller::onScrolled(Widget& widget, double x, double y)
 {
-  setValue(value + offset * getValueStep(), true);
+  if (orientation == HORIZONTAL)
+    setValue(value + float(x) * getValueStep(), true);
+  else
+    setValue(value + float(y) * getValueStep(), true);
 }
 
 void Scroller::onDragBegun(Widget& widget, const vec2& point)

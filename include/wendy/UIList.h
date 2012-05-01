@@ -72,7 +72,7 @@ private:
   void onEntryKeyPressed(Widget& widget, input::Key key, bool pressed);
   void onEntryDestroyed(Widget& widget);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
-  void onWheelTurned(Widget& widget, int wheelOffset);
+  void onScrolled(Widget& widget, double x, double y);
   void onValueChanged(Scroller& scroller);
   void beginEditing();
   void applyEditing();

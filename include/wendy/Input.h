@@ -224,11 +224,11 @@ public:
    *  target, or @c false to pass it on.
    */
   virtual bool onCursorMoved(const ivec2& position);
-  /*! Called when the mouse wheel or other scrolling device has been moved.
+  /*! Called when a scrolling device has been used.
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
    */
-  virtual bool onWheelTurned(int offset);
+  virtual bool onScrolled(double x, double y);
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -260,9 +260,9 @@ public:
   /*! Called when the mouse cursor has been moved.
    */
   virtual void onCursorMoved(const ivec2& position);
-  /*! Called when the mouse wheel or other scrolling device has been moved.
+  /*! Called when a scrolling device has been used.
    */
-  virtual void onWheelTurned(int offset);
+  virtual void onScrolled(double x, double y);
   /*! Called when this input target has lost or gained focus.
    */
   virtual void onFocusChanged(bool activated);
@@ -341,7 +341,7 @@ public:
   void onKeyPressed(Key key, bool pressed);
   void onButtonClicked(Button button, bool clicked);
   void onCursorMoved(const ivec2& position);
-  void onWheelTurned(int offset);
+  void onScrolled(double x, double y);
   void onFocusChanged(bool activated);
   const Transform3& getTransform() const;
 private:

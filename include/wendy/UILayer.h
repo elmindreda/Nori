@@ -104,7 +104,7 @@ private:
   void onCharInput(uint32 character);
   void onCursorMoved(const ivec2& position);
   void onButtonClicked(input::Button button, bool clicked);
-  void onWheelTurned(int offset);
+  void onScrolled(double x, double y);
   void onFocusChanged(bool activated);
   input::Window& window;
   Drawer& drawer;

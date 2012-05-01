@@ -56,7 +56,7 @@ private:
                        input::Button button,
                        bool clicked);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
-  void onWheelTurned(Widget& widget, int offset);
+  void onScrolled(Widget& widget, double x, double y);
   void onDragBegun(Widget& widget, const vec2& position);
   void onDragMoved(Widget& widget, const vec2& position);
   void setValue(float newValue, bool notify);

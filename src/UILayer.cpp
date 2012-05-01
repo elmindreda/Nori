@@ -418,10 +418,10 @@ void Layer::onButtonClicked(input::Button button, bool clicked)
   }
 }
 
-void Layer::onWheelTurned(int offset)
+void Layer::onScrolled(double x, double y)
 {
   if (hoveredWidget)
-    hoveredWidget->wheelTurnedSignal(*hoveredWidget, offset);
+    hoveredWidget->scrolledSignal(*hoveredWidget, x, y);
 }
 
 void Layer::onFocusChanged(bool activated)

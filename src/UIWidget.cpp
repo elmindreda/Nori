@@ -401,9 +401,9 @@ SignalProxy4<void, Widget&, const vec2&, input::Button, bool> Widget::getButtonC
   return buttonClickedSignal;
 }
 
-SignalProxy2<void, Widget&, int> Widget::getWheelTurnedSignal()
+SignalProxy3<void, Widget&, double, double> Widget::getScrolledSignal()
 {
-  return wheelTurnedSignal;
+  return scrolledSignal;
 }
 
 SignalProxy1<void, Widget&> Widget::getCursorEnteredSignal()

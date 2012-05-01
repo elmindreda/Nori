@@ -201,7 +201,7 @@ public:
   SignalProxy2<void, Widget&, uint32> getCharInputSignal();
   SignalProxy2<void, Widget&, const vec2&> getCursorMovedSignal();
   SignalProxy4<void, Widget&, const vec2&, input::Button, bool> getButtonClickedSignal();
-  SignalProxy2<void, Widget&, int> getWheelTurnedSignal();
+  SignalProxy3<void, Widget&, double, double> getScrolledSignal();
   SignalProxy1<void, Widget&> getCursorEnteredSignal();
   SignalProxy1<void, Widget&> getCursorLeftSignal();
   SignalProxy2<void, Widget&, const vec2&> getDragBegunSignal();
@@ -223,7 +223,7 @@ private:
   Signal2<void, Widget&, uint32> charInputSignal;
   Signal2<void, Widget&, const vec2&> cursorMovedSignal;
   Signal4<void, Widget&, const vec2&, input::Button, bool> buttonClickedSignal;
-  Signal2<void, Widget&, int> wheelTurnedSignal;
+  Signal3<void, Widget&, double, double> scrolledSignal;
   Signal1<void, Widget&> cursorEnteredSignal;
   Signal1<void, Widget&> cursorLeftSignal;
   Signal2<void, Widget&, const vec2&> dragBegunSignal;

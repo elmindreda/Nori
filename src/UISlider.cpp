@@ -56,7 +56,7 @@ Slider::Slider(Layer& layer, Orientation initOrientation):
 
   getKeyPressedSignal().connect(*this, &Slider::onKeyPressed);
   getButtonClickedSignal().connect(*this, &Slider::onButtonClicked);
-  getWheelTurnedSignal().connect(*this, &Slider::onWheelTurned);
+  getScrolledSignal().connect(*this, &Slider::onScrolled);
   getDragMovedSignal().connect(*this, &Slider::onDragMoved);
 
   setDraggable(true);
@@ -181,9 +181,12 @@ void Slider::onKeyPressed(Widget& widget, input::Key key, bool pressed)
   }
 }
 
-void Slider::onWheelTurned(Widget& widget, int offset)
+void Slider::onScrolled(Widget& widget, double x, double y)
 {
-  setValue(value + offset * stepSize, true);
+  if (orientation == HORIZONTAL)
+    setValue(value + float(x) * stepSize, true);
+  else
+    setValue(value + float(y) * stepSize, true);
 }
 
 void Slider::onDragMoved(Widget& widget, const vec2& position)

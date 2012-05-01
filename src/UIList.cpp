@@ -57,7 +57,7 @@ List::List(Layer& layer):
   getAreaChangedSignal().connect(*this, &List::onAreaChanged);
   getButtonClickedSignal().connect(*this, &List::onButtonClicked);
   getKeyPressedSignal().connect(*this, &List::onKeyPressed);
-  getWheelTurnedSignal().connect(*this, &List::onWheelTurned);
+  getScrolledSignal().connect(*this, &List::onScrolled);
 
   scroller = new Scroller(layer, VERTICAL);
   scroller->setValueRange(0.f, 1.f);
@@ -398,18 +398,18 @@ void List::onKeyPressed(Widget& widget, input::Key key, bool pressed)
   }
 }
 
-void List::onWheelTurned(Widget& widget, int wheelOffset)
+void List::onScrolled(Widget& widget, double x, double y)
 {
   if (items.empty())
     return;
 
-  if (wheelOffset + (int) offset < 0)
+  if (int(y) + (int) offset < 0)
     return;
 
   if (editing)
     return;
 
-  setOffset(offset + wheelOffset);
+  setOffset(offset + int(y));
 }
 
 void List::onValueChanged(Scroller& scroller)
