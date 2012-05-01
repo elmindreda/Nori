@@ -101,7 +101,7 @@ private:
   void updateHoveredWidget();
   void removedWidget(Widget& widget);
   void onKeyPressed(input::Key key, bool pressed);
-  void onCharInput(wchar_t character);
+  void onCharInput(uint32 character);
   void onCursorMoved(const ivec2& position);
   void onButtonClicked(input::Button button, bool clicked);
   void onWheelTurned(int offset);

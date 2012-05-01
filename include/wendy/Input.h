@@ -213,7 +213,7 @@ public:
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
    */
-  virtual bool onCharInput(wchar_t character);
+  virtual bool onCharInput(uint32 character);
   /*! Called when a mouse button has been clicked or released.
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
@@ -253,7 +253,7 @@ public:
   virtual void onKeyPressed(Key key, bool pressed);
   /*! Called when a Unicode character has been input.
    */
-  virtual void onCharInput(wchar_t character);
+  virtual void onCharInput(uint32 character);
   /*! Called when a mouse button has been clicked or released.
    */
   virtual void onButtonClicked(Button button, bool clicked);
@@ -407,7 +407,7 @@ class TextController : public Target
 public:
   TextController();
   void onKeyPressed(Key key, bool pressed);
-  void onCharInput(wchar_t character);
+  void onCharInput(uint32 character);
   const String& getText() const;
   void setText(const String& newText);
   size_t getCaretPosition() const;

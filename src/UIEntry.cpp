@@ -218,7 +218,7 @@ void Entry::onKeyPressed(Widget& widget, input::Key key, bool pressed)
   }
 }
 
-void Entry::onCharInput(Widget& widget, wchar_t character)
+void Entry::onCharInput(Widget& widget, uint32 character)
 {
   text.insert(caretPosition, 1, (char) character);
   textChangedSignal(*this);

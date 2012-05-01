@@ -53,7 +53,7 @@ private:
                        input::Button button,
                        bool clicked);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
-  void onCharInput(Widget& widget, wchar_t character);
+  void onCharInput(Widget& widget, uint32 character);
   void setText(const String& newText, bool notify);
   void setCaretPosition(unsigned int newPosition, bool notify);
   Signal1<void, Entry&> textChangedSignal;

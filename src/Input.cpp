@@ -71,7 +71,7 @@ bool Hook::onKeyPressed(Key key, bool pressed)
   return false;
 }
 
-bool Hook::onCharInput(wchar_t character)
+bool Hook::onCharInput(uint32 character)
 {
   return false;
 }
@@ -105,7 +105,7 @@ void Target::onKeyPressed(Key key, bool pressed)
 {
 }
 
-void Target::onCharInput(wchar_t character)
+void Target::onCharInput(uint32 character)
 {
 }
 
@@ -521,12 +521,12 @@ void Window::characterCallback(void* handle, int character)
 {
   if (instance->currentHook)
   {
-    if (instance->currentHook->onCharInput((wchar_t) character))
+    if (instance->currentHook->onCharInput((uint32) character))
       return;
   }
 
   if (instance->currentTarget)
-    instance->currentTarget->onCharInput((wchar_t) character);
+    instance->currentTarget->onCharInput((uint32) character);
 }
 
 void Window::mousePosCallback(void* handle, int x, int y)
@@ -973,7 +973,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
   }
 }
 
-void TextController::onCharInput(wchar_t character)
+void TextController::onCharInput(uint32 character)
 {
   if (isCtrlKeyDown())
     return;

@@ -198,7 +198,7 @@ public:
   SignalProxy1<void, Widget&> getAreaChangedSignal();
   SignalProxy2<void, Widget&, bool> getFocusChangedSignal();
   SignalProxy3<void, Widget&, input::Key, bool> getKeyPressedSignal();
-  SignalProxy2<void, Widget&, wchar_t> getCharInputSignal();
+  SignalProxy2<void, Widget&, uint32> getCharInputSignal();
   SignalProxy2<void, Widget&, const vec2&> getCursorMovedSignal();
   SignalProxy4<void, Widget&, const vec2&, input::Button, bool> getButtonClickedSignal();
   SignalProxy2<void, Widget&, int> getWheelTurnedSignal();
@@ -220,7 +220,7 @@ private:
   Signal1<void, Widget&> areaChangedSignal;
   Signal2<void, Widget&, bool> focusChangedSignal;
   Signal3<void, Widget&, input::Key, bool> keyPressedSignal;
-  Signal2<void, Widget&, wchar_t> charInputSignal;
+  Signal2<void, Widget&, uint32> charInputSignal;
   Signal2<void, Widget&, const vec2&> cursorMovedSignal;
   Signal4<void, Widget&, const vec2&, input::Button, bool> buttonClickedSignal;
   Signal2<void, Widget&, int> wheelTurnedSignal;

@@ -323,7 +323,7 @@ void Layer::onKeyPressed(input::Key key, bool pressed)
     activeWidget->keyPressedSignal(*activeWidget, key, pressed);
 }
 
-void Layer::onCharInput(wchar_t character)
+void Layer::onCharInput(uint32 character)
 {
   if (activeWidget)
     activeWidget->charInputSignal(*activeWidget, character);

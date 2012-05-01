@@ -386,7 +386,7 @@ SignalProxy3<void, Widget&, input::Key, bool> Widget::getKeyPressedSignal()
   return keyPressedSignal;
 }
 
-SignalProxy2<void, Widget&, wchar_t> Widget::getCharInputSignal()
+SignalProxy2<void, Widget&, uint32> Widget::getCharInputSignal()
 {
   return charInputSignal;
 }
