@@ -353,28 +353,6 @@ Limits::Limits(Context& context)
     maxTextureAnisotropy = getFloat(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
   else
     maxTextureAnisotropy = 1.f;
-
-  if (GLEW_ARB_geometry_shader4 || version > Version(3,1))
-  {
-    maxGeometryOutputVertices = getInteger(GL_MAX_GEOMETRY_OUTPUT_VERTICES);
-    maxGeometryTextureImageUnits = getInteger(GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS);
-  }
-  else
-  {
-    maxGeometryOutputVertices = 0;
-    maxGeometryTextureImageUnits = 0;
-  }
-
-  if (GLEW_ARB_tessellation_shader || version > Version(3,3))
-  {
-    maxTessControlTextureImageUnits = getInteger(GL_MAX_TESS_CONTROL_TEXTURE_IMAGE_UNITS);
-    maxTessEvaluationTextureImageUnits = getInteger(GL_MAX_TESS_EVALUATION_TEXTURE_IMAGE_UNITS);
-  }
-  else
-  {
-    maxTessControlTextureImageUnits = 0;
-    maxTessEvaluationTextureImageUnits = 0;
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////

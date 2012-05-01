@@ -206,16 +206,6 @@ public:
   /*! The number of available fragment shader texture image units.
    */
   unsigned int maxFragmentTextureImageUnits;
-  /*! The number of available geometry shader texture image units.
-   */
-  unsigned int maxGeometryTextureImageUnits;
-  /*! The number of available tessellation control shader texture image units.
-   */
-  unsigned int maxTessControlTextureImageUnits;
-  /*! The number of available tessellation evaluation shader texture image
-   *  units.
-   */
-  unsigned int maxTessEvaluationTextureImageUnits;
   /*! The total number of available shader texture image units.
    */
   unsigned int maxCombinedTextureImageUnits;
@@ -240,9 +230,6 @@ public:
   /*! The number of available vertex attributes.
    */
   unsigned int maxVertexAttributes;
-  /*! The maximum number of vertices geometry shader can emit.
-   */
-  unsigned int maxGeometryOutputVertices;
 };
 
 ///////////////////////////////////////////////////////////////////////
