@@ -327,7 +327,6 @@ private:
   void* handle;
   Hook* currentHook;
   Target* currentTarget;
-  bool cursorCaptured;
   static Window* instance;
 };
 

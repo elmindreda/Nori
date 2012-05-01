@@ -140,13 +140,11 @@ Window::~Window()
 
 void Window::captureCursor()
 {
-  cursorCaptured = true;
   glfwSetInputMode(handle, GLFW_CURSOR_MODE, GLFW_CURSOR_CAPTURED);
 }
 
 void Window::releaseCursor()
 {
-  cursorCaptured = false;
   glfwSetInputMode(handle, GLFW_CURSOR_MODE, GLFW_CURSOR_NORMAL);
 }
 
@@ -162,7 +160,7 @@ bool Window::isButtonDown(Button button) const
 
 bool Window::isCursorCaptured() const
 {
-  return cursorCaptured;
+  return glfwGetInputMode(handle, GLFW_CURSOR_MODE) == GLFW_CURSOR_CAPTURED;
 }
 
 unsigned int Window::getWidth() const
@@ -231,8 +229,7 @@ Window::Window(GL::Context& initContext):
   context(initContext),
   handle(NULL),
   currentHook(NULL),
-  currentTarget(NULL),
-  cursorCaptured(false)
+  currentTarget(NULL)
 {
   // TODO: Remove this upon the arrival of GLFW_USER_DATA.
   instance = this;
