@@ -103,8 +103,8 @@ void Panel::draw() const
 
 ///////////////////////////////////////////////////////////////////////
 
-Interface::Interface(input::Context& context, UI::Drawer& drawer):
-  UI::Layer(context, drawer),
+Interface::Interface(input::Window& window, UI::Drawer& drawer):
+  UI::Layer(window, drawer),
   root(NULL)
 {
   root = new Panel(*this);
@@ -125,7 +125,7 @@ Interface::Interface(input::Context& context, UI::Drawer& drawer):
 
 void Interface::update()
 {
-  GL::Stats* stats = getInputContext().getContext().getStats();
+  GL::Stats* stats = getWindow().getContext().getStats();
 
   if (stats)
   {
@@ -166,7 +166,7 @@ void Interface::update()
 
 void Interface::draw()
 {
-  GL::Context& context = getInputContext().getContext();
+  GL::Context& context = getWindow().getContext();
 
   GL::Framebuffer& framebuffer = context.getCurrentFramebuffer();
   root->setSize(vec2(150.f, float(framebuffer.getHeight())));

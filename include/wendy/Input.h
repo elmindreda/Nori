@@ -275,12 +275,12 @@ public:
  *
  *  This class provides basic HID (input) signals.
  */
-class Context : public Singleton<Context>
+class Window : public Singleton<Window>
 {
 public:
   /*! Destructor.
    */
-  virtual ~Context();
+  virtual ~Window();
   void captureCursor();
   void releaseCursor();
   /*! @return @c true if the specified key is pressed, otherwise @c false.
@@ -314,10 +314,10 @@ public:
   GL::Context& getContext() const;
   static bool createSingleton(GL::Context& context);
 private:
-  Context(GL::Context& context);
-  Context(const Context& source);
-  Context& operator = (const Context& source);
-  void onContextResized(unsigned int width, unsigned int height);
+  Window(GL::Context& context);
+  Window(const Window& source);
+  Window& operator = (const Window& source);
+  void onWindowResized(unsigned int width, unsigned int height);
   static void keyboardCallback(void* window, int key, int action);
   static void characterCallback(void* window, int character);
   static void mousePosCallback(void* window, int x, int y);
@@ -328,7 +328,7 @@ private:
   Hook* currentHook;
   Target* currentTarget;
   bool cursorCaptured;
-  static Context* instance;
+  static Window* instance;
 };
 
 ///////////////////////////////////////////////////////////////////////

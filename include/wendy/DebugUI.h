@@ -46,7 +46,7 @@ private:
 class Interface : public UI::Layer
 {
 public:
-  Interface(input::Context& context, UI::Drawer& drawer);
+  Interface(input::Window& window, UI::Drawer& drawer);
   void update();
   void draw();
 private:

@@ -58,7 +58,7 @@ class Layer : public input::Target, public Trackable, public RefObject
 public:
   /*! Constructor.
    */
-  Layer(input::Context& context, Drawer& drawer);
+  Layer(input::Window& window, Drawer& drawer);
   /*! Destructor.
    */
   ~Layer();
@@ -85,7 +85,7 @@ public:
   unsigned int getHeight() const;
   void setSize(unsigned int newWidth, unsigned int newHeight);
   Drawer& getDrawer() const;
-  input::Context& getInputContext() const;
+  input::Window& getWindow() const;
   /*! @return The root widgets of this layer.
    */
   const WidgetList& getRootWidgets() const;
@@ -106,7 +106,7 @@ private:
   void onButtonClicked(input::Button button, bool clicked);
   void onWheelTurned(int offset);
   void onFocusChanged(bool activated);
-  input::Context& context;
+  input::Window& window;
   Drawer& drawer;
   unsigned int width;
   unsigned int height;
@@ -125,7 +125,7 @@ private:
 class LayerStack
 {
 public:
-  LayerStack(input::Context& context);
+  LayerStack(input::Window& window);
   void update() const;
   void draw() const;
   void push(Layer& layer);
@@ -135,7 +135,7 @@ public:
   void setSize(unsigned int newWidth, unsigned int newHeight);
 private:
   typedef std::vector<Ref<Layer> > LayerList;
-  input::Context& context;
+  input::Window& window;
   LayerList layers;
   unsigned int width;
   unsigned int height;

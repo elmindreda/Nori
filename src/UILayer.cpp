@@ -44,8 +44,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Layer::Layer(input::Context& initContext, UI::Drawer& initDrawer):
-  context(initContext),
+Layer::Layer(input::Window& initWindow, UI::Drawer& initDrawer):
+  window(initWindow),
   drawer(initDrawer),
   width(0),
   height(0),
@@ -56,7 +56,7 @@ Layer::Layer(input::Context& initContext, UI::Drawer& initDrawer):
   captureWidget(NULL),
   stack(NULL)
 {
-  assert(&context);
+  assert(&window);
   assert(&drawer);
 }
 
@@ -123,7 +123,7 @@ void Layer::captureCursor()
 
   captureWidget = activeWidget;
   hoveredWidget = activeWidget;
-  context.captureCursor();
+  window.captureCursor();
 }
 
 void Layer::releaseCursor()
@@ -131,7 +131,7 @@ void Layer::releaseCursor()
   if (captureWidget)
   {
     captureWidget = NULL;
-    context.releaseCursor();
+    window.releaseCursor();
     updateHoveredWidget();
   }
 }
@@ -140,8 +140,8 @@ void Layer::cancelDragging()
 {
   if (dragging && draggedWidget)
   {
-    vec2 cursorPosition = vec2(context.getCursorPosition());
-    cursorPosition.y = context.getHeight() - cursorPosition.y;
+    vec2 cursorPosition = vec2(window.getCursorPosition());
+    cursorPosition.y = window.getHeight() - cursorPosition.y;
 
     draggedWidget->dragEndedSignal(*draggedWidget, cursorPosition);
 
@@ -152,7 +152,7 @@ void Layer::cancelDragging()
 
 void Layer::invalidate()
 {
-  context.getContext().refresh();
+  window.getContext().refresh();
 }
 
 bool Layer::hasCapturedCursor() const
@@ -182,9 +182,9 @@ Drawer& Layer::getDrawer() const
   return drawer;
 }
 
-input::Context& Layer::getInputContext() const
+input::Window& Layer::getWindow() const
 {
-  return context;
+  return window;
 }
 
 const WidgetList& Layer::getRootWidgets() const
@@ -249,8 +249,8 @@ void Layer::updateHoveredWidget()
   if (captureWidget)
     return;
 
-  vec2 cursorPosition = vec2(context.getCursorPosition());
-  cursorPosition.y = context.getHeight() - cursorPosition.y;
+  vec2 cursorPosition = vec2(window.getCursorPosition());
+  cursorPosition.y = window.getHeight() - cursorPosition.y;
 
   Widget* newWidget = findWidgetByPoint(cursorPosition);
 
@@ -333,8 +333,8 @@ void Layer::onCursorMoved(const ivec2& position)
 {
   updateHoveredWidget();
 
-  vec2 cursorPosition = vec2(context.getCursorPosition());
-  cursorPosition.y = context.getHeight() - cursorPosition.y;
+  vec2 cursorPosition = vec2(window.getCursorPosition());
+  cursorPosition.y = window.getHeight() - cursorPosition.y;
 
   if (hoveredWidget)
     hoveredWidget->cursorMovedSignal(*hoveredWidget, cursorPosition);
@@ -355,8 +355,8 @@ void Layer::onCursorMoved(const ivec2& position)
 
 void Layer::onButtonClicked(input::Button button, bool clicked)
 {
-  vec2 cursorPosition = vec2(context.getCursorPosition());
-  cursorPosition.y = context.getHeight() - cursorPosition.y;
+  vec2 cursorPosition = vec2(window.getCursorPosition());
+  cursorPosition.y = window.getHeight() - cursorPosition.y;
 
   if (clicked)
   {
@@ -435,8 +435,8 @@ void Layer::onFocusChanged(bool activated)
 
 ///////////////////////////////////////////////////////////////////////
 
-LayerStack::LayerStack(input::Context& initContext):
-  context(initContext),
+LayerStack::LayerStack(input::Window& initWindow):
+  window(initWindow),
   width(0),
   height(0)
 {
@@ -463,20 +463,20 @@ void LayerStack::push(Layer& layer)
   layers.push_back(&layer);
   layer.stack = this;
   layer.setSize(width, height);
-  context.setTarget(&layer);
+  window.setTarget(&layer);
 }
 
 void LayerStack::pop()
 {
   if (!layers.empty())
   {
-    context.setTarget(NULL);
+    window.setTarget(NULL);
     layers.back()->stack = NULL;
     layers.pop_back();
   }
 
   if (!layers.empty())
-    context.setTarget(layers.back());
+    window.setTarget(layers.back());
 }
 
 void LayerStack::empty()
