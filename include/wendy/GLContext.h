@@ -574,7 +574,7 @@ private:
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
   Signal2<void, unsigned int, unsigned int> resizedSignal;
-  void* window;
+  void* handle;
   String title;
   Ptr<Limits> limits;
   WindowMode windowMode;
