@@ -49,25 +49,25 @@ set(PCRE_SUPPORT_UTF8 ON CACHE BOOL
 
 set(NEWLINE "")
 
-if(PCRE_NEWLINE STREQUAL "LF")
+if (PCRE_NEWLINE STREQUAL "LF")
   set(NEWLINE "10")
-endif(PCRE_NEWLINE STREQUAL "LF")
-if(PCRE_NEWLINE STREQUAL "CR")
+endif()
+if (PCRE_NEWLINE STREQUAL "CR")
   set(NEWLINE "13")
-endif(PCRE_NEWLINE STREQUAL "CR")
-if(PCRE_NEWLINE STREQUAL "CRLF")
+endif()
+if (PCRE_NEWLINE STREQUAL "CRLF")
   set(NEWLINE "3338")
-endif(PCRE_NEWLINE STREQUAL "CRLF")
-if(PCRE_NEWLINE STREQUAL "ANY")
+endif()
+if (PCRE_NEWLINE STREQUAL "ANY")
   set(NEWLINE "-1")
-endif(PCRE_NEWLINE STREQUAL "ANY")
-if(PCRE_NEWLINE STREQUAL "ANYCRLF")
+endif()
+if (PCRE_NEWLINE STREQUAL "ANYCRLF")
   set(NEWLINE "-2")
-endif(PCRE_NEWLINE STREQUAL "ANYCRLF")
+endif()
 
-if(NEWLINE STREQUAL "")
+if (NEWLINE STREQUAL "")
   message(FATAL_ERROR "The PCRE_NEWLINE variable must be set to one of the following values: \"LF\", \"CR\", \"CRLF\", \"ANY\", \"ANYCRLF\".")
-endif(NEWLINE STREQUAL "")
+endif()
 
 configure_file(${PCRE_SOURCE_DIR}/config.h.cmake ${PCRE_BINARY_DIR}/config.h)
 
@@ -75,9 +75,9 @@ include_directories(${PCRE_BINARY_DIR})
 
 add_definitions(-DHAVE_CONFIG_H -DPCRE_STATIC)
 
-if(MSVC)
+if (MSVC)
   add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
-endif(MSVC)
+endif()
 
 add_library(pcre STATIC pcre_chartables.c pcre_compile.c pcre_config.c pcre_dfa_exec.c
                         pcre_exec.c pcre_fullinfo.c pcre_get.c pcre_globals.c

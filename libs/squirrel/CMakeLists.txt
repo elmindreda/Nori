@@ -5,9 +5,9 @@ include_directories(${squirrel_SOURCE_DIR})
 
 add_definitions(-DNO_GARBAGE_COLLECTOR)
 
-if(MSVC)
+if (MSVC)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-endif(MSVC)
+endif()
 
 set(squirrel_SOURCES sqapi.cpp sqbaselib.cpp sqclass.cpp sqcompiler.cpp
                      sqdebug.cpp sqfuncstate.cpp sqlexer.cpp sqmem.cpp

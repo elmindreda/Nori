@@ -128,7 +128,7 @@ if (UNIX AND NOT APPLE)
 
 endif(UNIX AND NOT APPLE)
 
-if(WIN32)
+if (WIN32)
 
   set(_GLFW_WIN32_WGL 1)
 
@@ -144,7 +144,7 @@ if(WIN32)
                            win32_input.c win32_joystick.c win32_opengl.c
                            win32_time.c win32_window.c)
 
-endif(WIN32)
+endif()
 
 configure_file(${glfw_SOURCE_DIR}/config.h.in 
                ${glfw_BINARY_DIR}/config.h @ONLY)

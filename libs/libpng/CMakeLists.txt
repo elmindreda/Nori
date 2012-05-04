@@ -1,9 +1,9 @@
 
 project(libpng C)
 
-if(MSVC)
+if (MSVC)
   add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
-endif(MSVC)
+endif()
 
 include_directories(${zlib_SOURCE_DIR} ${libpng_SOURCE_DIR})
 
