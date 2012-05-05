@@ -53,7 +53,7 @@ bool GeometryPool::allocateIndices(GL::IndexRange& range,
 
   IndexBufferSlot* slot = NULL;
 
-  for (IndexBufferList::iterator i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
+  for (auto i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
   {
     if (i->indexBuffer->getType() == type && i->available >= count)
     {
@@ -104,7 +104,7 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
 
   VertexBufferSlot* slot = NULL;
 
-  for (VertexBufferList::iterator i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
+  for (auto i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
   {
     if (i->vertexBuffer->getFormat() == format && i->available >= count)
     {
@@ -174,10 +174,10 @@ bool GeometryPool::init(size_t initGranularity)
 
 void GeometryPool::onContextFinish()
 {
-  for (IndexBufferList::iterator i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
+  for (auto i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
     i->available = i->indexBuffer->getCount();
 
-  for (VertexBufferList::iterator i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
+  for (auto i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
     i->available = i->vertexBuffer->getCount();
 }
 

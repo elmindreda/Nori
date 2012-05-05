@@ -72,11 +72,11 @@ ProfileNode::ProfileNode(const char* initName):
 
 ProfileNode* ProfileNode::findChild(const char* name)
 {
-  List::iterator i = std::find(children.begin(), children.end(), name);
-  if (i == children.end())
+  auto n = std::find(children.begin(), children.end(), name);
+  if (n == children.end())
     return NULL;
 
-  return &(*i);
+  return &(*n);
 }
 
 ///////////////////////////////////////////////////////////////////////

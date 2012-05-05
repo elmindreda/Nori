@@ -144,7 +144,7 @@ void Scene::createOperations(const mat4& transform,
   const PassList& passes = material.getTechnique(phase).passes;
   uint8 layer = 0;
 
-  for (PassList::const_iterator p = passes.begin();  p != passes.end();  p++)
+  for (auto p = passes.begin();  p != passes.end();  p++)
   {
     operation.state = &(*p);
     addOperation(operation, depth, layer++);

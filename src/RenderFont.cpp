@@ -280,17 +280,10 @@ bool Font::init(const FontData& data)
 {
   unsigned int maxWidth = 0, maxHeight = 0;
 
-  for (size_t i = 0;  i < data.glyphs.size();  i++)
+  for (auto g = data.glyphs.begin();  g != data.glyphs.end();  g++)
   {
-    const FontGlyphData& glyph = data.glyphs[i];
-
-    const unsigned int width = glyph.image->getWidth();
-    if (maxWidth < width)
-      maxWidth = width;
-
-    const unsigned int height = glyph.image->getHeight();
-    if (maxHeight < height)
-      maxHeight = height;
+    maxWidth = max(maxWidth, g->image->getWidth());
+    maxHeight = max(maxHeight, g->image->getHeight());
   }
 
   Ref<GL::Texture> texture;
@@ -302,8 +295,8 @@ bool Font::init(const FontData& data)
 
     unsigned int totalWidth = 1;
 
-    for (size_t i = 0;  i < data.glyphs.size();  i++)
-      totalWidth += data.glyphs[i].image->getWidth() + 1;
+    for (auto g = data.glyphs.begin();  g != data.glyphs.end();  g++)
+      totalWidth += g->image->getWidth() + 1;
 
     unsigned int textureWidth = min(powerOfTwoAbove(totalWidth), maxSize);
 
@@ -388,7 +381,7 @@ bool Font::init(const FontData& data)
 
   glyphs.reserve(data.glyphs.size());
 
-  for (size_t i = 0;  i < data.glyphs.size();  i++)
+  for (size_t i = 0;  i != data.glyphs.size();  i++)
   {
     const FontGlyphData& glyphData = data.glyphs[i];
 
@@ -657,7 +650,7 @@ bool FontReader::extractGlyphs(FontData& data,
 
   // HACK: Make digits same width
   {
-    std::vector<FontGlyphData*> digitGlyphs;
+    std::vector<FontGlyphData*> digits;
 
     float maxAdvance = 0.f;
 
@@ -671,27 +664,23 @@ bool FontReader::extractGlyphs(FontData& data,
       if (glyph.advance > maxAdvance)
         maxAdvance = glyph.advance;
 
-      digitGlyphs.push_back(&glyph);
+      digits.push_back(&glyph);
     }
 
-    for (size_t i = 0;  i < digitGlyphs.size();  i++)
+    for (auto d = digits.begin();  d != digits.end();  d++)
     {
-      FontGlyphData& glyph = *digitGlyphs[i];
-
-      glyph.bearing.x = (maxAdvance - glyph.advance) / 2.f;
-      glyph.advance = maxAdvance;
+      (*d)->bearing.x = (maxAdvance - (*d)->advance) / 2.f;
+      (*d)->advance = maxAdvance;
     }
   }
 
   float maxAdvance = 0.f;
   float meanAdvance = 0.f;
 
-  for (size_t i = 0;  i < data.glyphs.size();  i++)
+  for (auto g = data.glyphs.begin();  g != data.glyphs.end();  g++)
   {
-    FontGlyphData& glyph = data.glyphs[i];
-
-    maxAdvance = max(maxAdvance, glyph.advance);
-    meanAdvance += glyph.advance;
+    maxAdvance = max(maxAdvance, g->advance);
+    meanAdvance += g->advance;
   }
 
   meanAdvance /= (float) data.glyphs.size();
@@ -723,18 +712,16 @@ bool FontReader::extractGlyphs(FontData& data,
 
   if (fixedWidth)
   {
-    for (size_t i = 0;  i < data.glyphs.size();  i++)
+    for (auto g = data.glyphs.begin();  g != data.glyphs.end();  g++)
     {
-      FontGlyphData& glyph = data.glyphs[i];
-
-      glyph.advance = maxAdvance;
-      glyph.bearing.x = (glyph.advance - glyph.image->getWidth()) / 2.f;
+      g->advance = maxAdvance;
+      g->bearing.x = (g->advance - g->image->getWidth()) / 2.f;
     }
   }
   else
   {
-    for (size_t i = 0;  i < data.glyphs.size();  i++)
-      data.glyphs[i].advance += meanAdvance * 0.2f;
+    for (auto g = data.glyphs.begin();  g != data.glyphs.end();  g++)
+      g->advance += meanAdvance * 0.2f;
   }
 
   return true;

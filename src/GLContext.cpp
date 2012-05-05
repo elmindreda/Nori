@@ -386,7 +386,7 @@ void Stats::addFrame()
     frames.front().duration = timer.getDeltaTime();
 
     // Calculate frame rate
-    for (FrameQueue::const_iterator f = frames.begin();  f != frames.end();  f++)
+    for (auto f = frames.begin();  f != frames.end();  f++)
       frameRate += float(f->duration);
 
     frameRate = float(frames.size()) / frameRate;
@@ -824,7 +824,7 @@ void Context::createSharedUniform(const char* name, UniformType type, int ID)
 
 int Context::getSharedSamplerID(const char* name, SamplerType type) const
 {
-  for (SamplerList::const_iterator s = samplers.begin(); s != samplers.end(); s++)
+  for (auto s = samplers.begin(); s != samplers.end(); s++)
   {
     if (s->name == name && s->type == type)
       return s->ID;
@@ -835,7 +835,7 @@ int Context::getSharedSamplerID(const char* name, SamplerType type) const
 
 int Context::getSharedUniformID(const char* name, UniformType type) const
 {
-  for (UniformList::const_iterator u = uniforms.begin(); u != uniforms.end(); u++)
+  for (auto u = uniforms.begin(); u != uniforms.end(); u++)
   {
     if (u->name == name && u->type == type)
       return u->ID;

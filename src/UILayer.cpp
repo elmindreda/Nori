@@ -75,10 +75,10 @@ void Layer::draw()
 
   drawer.begin();
 
-  for (WidgetList::const_iterator i = roots.begin();  i != roots.end();  i++)
+  for (auto r = roots.begin();  r != roots.end();  r++)
   {
-    if ((*i)->isVisible())
-      (*i)->draw();
+    if ((*r)->isVisible())
+      (*r)->draw();
   }
 
   drawer.end();
@@ -100,7 +100,7 @@ void Layer::destroyRootWidgets()
 
 Widget* Layer::findWidgetByPoint(const vec2& point)
 {
-  for (WidgetList::reverse_iterator r = roots.rbegin();  r != roots.rend();  r++)
+  for (auto r = roots.rbegin();  r != roots.rend();  r++)
   {
     if ((*r)->isVisible())
     {
@@ -366,7 +366,7 @@ void Layer::onButtonClicked(input::Button button, bool clicked)
       clickedWidget = captureWidget;
     else
     {
-      for (WidgetList::reverse_iterator w = roots.rbegin();  w != roots.rend();  w++)
+      for (auto w = roots.rbegin();  w != roots.rend();  w++)
       {
         if ((*w)->isVisible())
         {
@@ -444,7 +444,7 @@ LayerStack::LayerStack(input::Window& initWindow):
 
 void LayerStack::update() const
 {
-  for (LayerList::const_iterator l = layers.begin();  l != layers.end();  l++)
+  for (auto l = layers.begin();  l != layers.end();  l++)
     (*l)->update();
 }
 
@@ -495,7 +495,7 @@ void LayerStack::setSize(unsigned int newWidth, unsigned int newHeight)
   width = newWidth;
   height = newHeight;
 
-  for (LayerList::const_iterator l = layers.begin();  l != layers.end();  l++)
+  for (auto l = layers.begin();  l != layers.end();  l++)
     (*l)->setSize(newWidth, newHeight);
 }
 

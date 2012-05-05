@@ -132,7 +132,7 @@ void AnimTrack3::createKeyFrame(Time moment,
 
 void AnimTrack3::destroyKeyFrame(KeyFrame3& frame)
 {
-  for (KeyFrameList::iterator f = keyframes.begin();  f != keyframes.end();  f++)
+  for (auto f = keyframes.begin();  f != keyframes.end();  f++)
   {
     if (&(*f) == &frame)
     {
@@ -201,7 +201,7 @@ AnimTrack3& AnimTrack3::operator = (const AnimTrack3& source)
 {
   keyframes.reserve(source.keyframes.size());
 
-  for (KeyFrameList::const_iterator f = source.keyframes.begin();  f != source.keyframes.end();  f++)
+  for (auto f = source.keyframes.begin();  f != source.keyframes.end();  f++)
   {
     keyframes.push_back(KeyFrame3(*this));
     keyframes.back().transform = f->transform;
@@ -297,7 +297,7 @@ Anim3& Anim3::operator = (const Anim3& source)
   destroyTracks();
   tracks.reserve(source.tracks.size());
 
-  for (TrackList::const_iterator t = tracks.begin();  t != tracks.end();  t++)
+  for (auto t = tracks.begin();  t != tracks.end();  t++)
     tracks.push_back(AnimTrack3(*t));
 
   return *this;
@@ -311,7 +311,7 @@ AnimTrack3& Anim3::createTrack(const char* name)
 
 void Anim3::destroyTrack(AnimTrack3& track)
 {
-  for (TrackList::iterator t = tracks.begin();  t != tracks.end();  t++)
+  for (auto t = tracks.begin();  t != tracks.end();  t++)
   {
     if (&(*t) == &track)
     {
@@ -328,7 +328,7 @@ void Anim3::destroyTracks()
 
 AnimTrack3* Anim3::findTrack(const char* name)
 {
-  for (TrackList::iterator t = tracks.begin();  t != tracks.end();  t++)
+  for (auto t = tracks.begin();  t != tracks.end();  t++)
   {
     if (t->getName() == name)
       return &(*t);
@@ -339,7 +339,7 @@ AnimTrack3* Anim3::findTrack(const char* name)
 
 const AnimTrack3* Anim3::findTrack(const char* name) const
 {
-  for (TrackList::const_iterator t = tracks.begin();  t != tracks.end();  t++)
+  for (auto t = tracks.begin();  t != tracks.end();  t++)
   {
     if (t->getName() == name)
       return &(*t);

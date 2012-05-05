@@ -123,7 +123,7 @@ void Popup::setSelectedItem(Item& newItem)
 {
   const ItemList& items = menu->getItems();
 
-  ItemList::const_iterator i = std::find(items.begin(), items.end(), &newItem);
+  auto i = std::find(items.begin(), items.end(), &newItem);
   assert(i != items.end());
 
   selection = i - items.begin();

@@ -94,7 +94,7 @@ void Menu::display()
 
 void Menu::addItem(Item& item)
 {
-  ItemList::iterator i = std::find(items.begin(), items.end(), &item);
+  auto i = std::find(items.begin(), items.end(), &item);
   if (i != items.end())
     return;
 
@@ -105,7 +105,7 @@ void Menu::addItem(Item& item)
 
 void Menu::addItemAt(Item& item, unsigned int index)
 {
-  ItemList::iterator i = std::find(items.begin(), items.end(), &item);
+  auto i = std::find(items.begin(), items.end(), &item);
   if (i != items.end())
     return;
 
@@ -130,7 +130,7 @@ void Menu::createSeparatorItem()
 
 Item* Menu::findItem(const char* value)
 {
-  for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
+  for (auto i = items.begin();  i != items.end();  i++)
   {
     if ((*i)->asString() == value)
       return *i;
@@ -141,7 +141,7 @@ Item* Menu::findItem(const char* value)
 
 const Item* Menu::findItem(const char* value) const
 {
-  for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
+  for (auto i = items.begin();  i != items.end();  i++)
   {
     if ((*i)->asString() == value)
       return *i;
@@ -152,7 +152,7 @@ const Item* Menu::findItem(const char* value) const
 
 void Menu::destroyItem(Item& item)
 {
-  ItemList::iterator i = std::find(items.begin(), items.end(), &item);
+  auto i = std::find(items.begin(), items.end(), &item);
   if (i != items.end())
   {
     delete *i;
@@ -217,7 +217,7 @@ void Menu::draw() const
 
     unsigned int index = 0;
 
-    for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
+    for (auto i = items.begin();  i != items.end();  i++)
     {
       float height = (*i)->getHeight();
       if (height + itemTop < 0.f)
@@ -254,7 +254,7 @@ void Menu::onCursorMoved(Widget& widget, const vec2& position)
   const float height = getHeight() - 2.f;
   float itemTop = height;
 
-  for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
+  for (auto i = items.begin();  i != items.end();  i++)
   {
     const float itemHeight = (*i)->getHeight();
     if (itemTop - itemHeight < 0.f)
@@ -292,7 +292,7 @@ void Menu::onButtonClicked(Widget& widget,
   const float height = getHeight() - 2.f;
   float itemTop = height;
 
-  for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
+  for (auto i = items.begin();  i != items.end();  i++)
   {
     const float itemHeight = (*i)->getHeight();
     if (itemTop - itemHeight < 0.f)
@@ -359,7 +359,7 @@ void Menu::sizeToFit()
 {
   vec2 size(0.f, 2.f);
 
-  for (ItemList::const_iterator i = items.begin();  i != items.end();  i++)
+  for (auto i = items.begin();  i != items.end();  i++)
   {
     size.x = max((*i)->getWidth(), size.x);
     size.y += (*i)->getHeight();

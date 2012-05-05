@@ -101,12 +101,12 @@ void Book::draw() const
                    tabSize.x,
                    tabSize.y);
 
-      for (unsigned int i = 0;  i < pages.size();  i++)
+      for (auto p = pages.begin();  p != pages.end();  p++)
       {
         WidgetState state;
         if (isEnabled())
         {
-          if (activePage == pages[i])
+          if (activePage == *p)
             state = STATE_ACTIVE;
           else
             state = STATE_NORMAL;
@@ -114,7 +114,7 @@ void Book::draw() const
         else
           state = STATE_DISABLED;
 
-        drawer.drawTab(tabArea, state, pages[i]->getText().c_str());
+        drawer.drawTab(tabArea, state, (*p)->getText().c_str());
 
         tabArea.position.x += tabSize.x;
       }
@@ -188,8 +188,8 @@ void Book::onAreaChanged(Widget& widget)
   const float em = getLayer().getDrawer().getCurrentEM();
   const vec2& size = getSize();
 
-  for (PageList::const_iterator i = pages.begin();  i != pages.end();  i++)
-    (*i)->setArea(Rect(0.f, 0.f, size.x, size.y - em * 2.f));
+  for (auto p = pages.begin();  p != pages.end();  p++)
+    (*p)->setArea(Rect(0.f, 0.f, size.x, size.y - em * 2.f));
 }
 
 void Book::onKeyPressed(Widget& widgeth, input::Key key, bool pressed)
@@ -197,8 +197,8 @@ void Book::onKeyPressed(Widget& widgeth, input::Key key, bool pressed)
   if (!pressed)
     return;
 
-  PageList::const_iterator i = std::find(pages.begin(), pages.end(), activePage);
-  if (i == pages.end())
+  auto p = std::find(pages.begin(), pages.end(), activePage);
+  if (p == pages.end())
     return;
 
   switch (key)
@@ -206,19 +206,19 @@ void Book::onKeyPressed(Widget& widgeth, input::Key key, bool pressed)
     case input::KEY_TAB:
     case input::KEY_RIGHT:
     {
-      if (++i == pages.end())
+      if (++p == pages.end())
         setActivePage(pages.front(), true);
       else
-        setActivePage(*i, true);
+        setActivePage(*p, true);
       break;
     }
 
     case input::KEY_LEFT:
     {
-      if (i == pages.begin())
+      if (p == pages.begin())
         setActivePage(pages.back(), true);
       else
-        setActivePage(*(--i), true);
+        setActivePage(*(--p), true);
       break;
     }
   }

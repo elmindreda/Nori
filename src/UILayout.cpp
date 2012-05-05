@@ -83,10 +83,10 @@ void Layout::setBorderSize(float newSize)
 
 float Layout::getChildSize(Widget& child) const
 {
-  for (SizeList::const_iterator i = sizes.begin();  i != sizes.end();  i++)
+  for (auto s = sizes.begin();  s != sizes.end();  s++)
   {
-    if (i->first == &child)
-      return i->second;
+    if (s->first == &child)
+      return s->second;
   }
 
   panic("Unknown child widget found in layout");
@@ -94,11 +94,11 @@ float Layout::getChildSize(Widget& child) const
 
 void Layout::setChildSize(Widget& child, float newSize)
 {
-  for (SizeList::iterator i = sizes.begin();  i != sizes.end();  i++)
+  for (auto s = sizes.begin();  s != sizes.end();  s++)
   {
-    if (i->first == &child)
+    if (s->first == &child)
     {
-      i->second = newSize;
+      s->second = newSize;
       return;
     }
   }
@@ -108,15 +108,15 @@ void Layout::setChildSize(Widget& child, float newSize)
 
 void Layout::addedChild(Widget& child)
 {
-  SizeList::const_iterator i;
+  auto s = sizes.begin();
 
-  for (i = sizes.begin();  i != sizes.end();  i++)
+  for ( ;  s != sizes.end();  s++)
   {
-    if (i->first == &child)
+    if (s->first == &child)
       break;
   }
 
-  if (i == sizes.end())
+  if (s == sizes.end())
   {
     if (orientation == VERTICAL)
       sizes.push_back(Size(&child, child.getHeight()));
@@ -129,11 +129,11 @@ void Layout::addedChild(Widget& child)
 
 void Layout::removedChild(Widget& child)
 {
-  for (SizeList::iterator i = sizes.begin();  i != sizes.end();  i++)
+  for (auto s = sizes.begin();  s != sizes.end();  s++)
   {
-    if (i->first == &child)
+    if (s->first == &child)
     {
-      sizes.erase(i);
+      sizes.erase(s);
       break;
     }
   }
@@ -174,9 +174,9 @@ void Layout::update()
   {
     float stackHeight = borderSize;
 
-    for (SizeList::const_iterator i = sizes.begin();  i != sizes.end();  i++)
+    for (auto s = sizes.begin();  s != sizes.end();  s++)
     {
-      const float height = i->second;
+      const float height = s->second;
       if (height == 0.f)
         flexibleCount++;
 
@@ -191,23 +191,23 @@ void Layout::update()
 
     float position = size.y;
 
-    for (WidgetList::const_iterator i = children.begin();  i != children.end();  i++)
+    for (auto c = children.begin();  c != children.end();  c++)
     {
-      float height = getChildSize(**i);
+      float height = getChildSize(**c);
       if (height == 0.f)
         height = flexibleSize;
 
       position -= height + borderSize;
-      (*i)->setArea(Rect(borderSize, position, width, height));
+      (*c)->setArea(Rect(borderSize, position, width, height));
     }
   }
   else
   {
     float stackWidth = borderSize;
 
-    for (SizeList::const_iterator i = sizes.begin();  i != sizes.end();  i++)
+    for (auto s = sizes.begin();  s != sizes.end();  s++)
     {
-      const float width = i->second;
+      const float width = s->second;
       if (width == 0.f)
         flexibleCount++;
 
@@ -222,14 +222,14 @@ void Layout::update()
 
     float position = size.x;
 
-    for (WidgetList::const_iterator i = children.begin();  i != children.end();  i++)
+    for (auto c = children.begin();  c != children.end();  c++)
     {
-      float width = getChildSize(**i);
+      float width = getChildSize(**c);
       if (width == 0.f)
         width = flexibleSize;
 
       position -= width + borderSize;
-      (*i)->setArea(Rect(position, borderSize, width, height));
+      (*c)->setArea(Rect(position, borderSize, width, height));
     }
   }
 }

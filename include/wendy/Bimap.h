@@ -87,7 +87,7 @@ inline Bimap<X,Y>::Bimap(const X& defaultX, const Y& defaultY)
 template <typename X, typename Y>
 inline X& Bimap<X,Y>::operator [] (const Y& key)
 {
-  for (typename EntryList::iterator i = entries.begin();  i != entries.end();  i++)
+  for (auto i = entries.begin();  i != entries.end();  i++)
   {
     if ((*i).y == key)
       return (*i).x;
@@ -103,7 +103,7 @@ inline X& Bimap<X,Y>::operator [] (const Y& key)
 template <typename X, typename Y>
 inline const X& Bimap<X,Y>::operator [] (const Y& key) const
 {
-  for (typename EntryList::const_iterator i = entries.begin();  i != entries.end();  i++)
+  for (auto i = entries.begin();  i != entries.end();  i++)
   {
     if ((*i).y == key)
       return (*i).x;
@@ -115,7 +115,7 @@ inline const X& Bimap<X,Y>::operator [] (const Y& key) const
 template <typename X, typename Y>
 inline Y& Bimap<X,Y>::operator [] (const X& key)
 {
-  for (typename EntryList::iterator i = entries.begin();  i != entries.end();  i++)
+  for (auto i = entries.begin();  i != entries.end();  i++)
   {
     if ((*i).x == key)
       return (*i).y;
@@ -131,7 +131,7 @@ inline Y& Bimap<X,Y>::operator [] (const X& key)
 template <typename X, typename Y>
 inline const Y& Bimap<X,Y>::operator [] (const X& key) const
 {
-  for (typename EntryList::const_iterator i = entries.begin();  i != entries.end();  i++)
+  for (auto i = entries.begin();  i != entries.end();  i++)
   {
     if ((*i).x == key)
       return (*i).y;
@@ -149,7 +149,7 @@ inline bool Bimap<X,Y>::isEmpty() const
 template <typename X, typename Y>
 inline bool Bimap<X,Y>::hasKey(const X& key) const
 {
-  for (typename EntryList::const_iterator i = entries.begin();  i != entries.end();  i++)
+  for (auto i = entries.begin();  i != entries.end();  i++)
   {
     if ((*i).x == key)
       return true;
@@ -161,7 +161,7 @@ inline bool Bimap<X,Y>::hasKey(const X& key) const
 template <typename X, typename Y>
 inline bool Bimap<X,Y>::hasKey(const Y& key) const
 {
-  for (typename EntryList::const_iterator i = entries.begin();  i != entries.end();  i++)
+  for (auto i = entries.begin();  i != entries.end();  i++)
   {
     if ((*i).y == key)
       return true;

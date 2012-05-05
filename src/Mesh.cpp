@@ -113,12 +113,12 @@ uint32 VertexTool::addAttributeLayer(uint32 vertexIndex,
 
   if (mode == PRESERVE_NORMALS)
   {
-    for (Vertex::LayerList::iterator i = vertex.layers.begin();  i != vertex.layers.end();  i++)
+    for (auto l = vertex.layers.begin();  l != vertex.layers.end();  l++)
     {
-      if (all(equalEpsilon(i->normal, normal, 0.001f)) &&
-          all(equalEpsilon(i->texcoord, texcoord, 0.001f)))
+      if (all(equalEpsilon(l->normal, normal, 0.001f)) &&
+          all(equalEpsilon(l->texcoord, texcoord, 0.001f)))
       {
-        return i->index;
+        return l->index;
       }
     }
 
@@ -136,15 +136,15 @@ uint32 VertexTool::addAttributeLayer(uint32 vertexIndex,
     size_t index;
     bool discontinuous = true;
 
-    for (Vertex::LayerList::iterator i = vertex.layers.begin();  i != vertex.layers.end();  i++)
+    for (auto l = vertex.layers.begin();  l != vertex.layers.end();  l++)
     {
-      if (all(equalEpsilon(i->texcoord, texcoord, 0.001f)))
+      if (all(equalEpsilon(l->texcoord, texcoord, 0.001f)))
       {
-        if (all(equalEpsilon(i->normal, normal, 0.001f)))
-          return i->index;
+        if (all(equalEpsilon(l->normal, normal, 0.001f)))
+          return l->index;
 
         discontinuous = false;
-        index = i->index;
+        index = l->index;
       }
     }
 
@@ -166,31 +166,27 @@ void VertexTool::realizeVertices(Mesh::VertexList& result) const
 {
   result.resize(targetCount);
 
-  for (size_t i = 0;  i < vertices.size();  i++)
+  for (auto v = vertices.begin();  v != vertices.end();  v++)
   {
-    const Vertex& vertex = vertices[i];
-
     vec3 normal;
 
     if (mode == MERGE_NORMALS)
     {
-      for (size_t j = 0;  j < vertex.layers.size();  j++)
-        normal += vertex.layers[j].normal;
+      for (auto l = v->layers.begin();  l != v->layers.end();  l++)
+        normal += l->normal;
 
       normal = normalize(normal);
     }
 
-    for (size_t j = 0;  j < vertex.layers.size();  j++)
+    for (auto l = v->layers.begin();  l != v->layers.end();  l++)
     {
-      const VertexLayer& layer = vertex.layers[j];
-
-      result[layer.index].position = vertex.position;
-      result[layer.index].texcoord = layer.texcoord;
+      result[l->index].position = v->position;
+      result[l->index].texcoord = l->texcoord;
 
       if (mode == MERGE_NORMALS)
-        result[layer.index].normal = normal;
+        result[l->index].normal = normal;
       else
-        result[layer.index].normal = layer.normal;
+        result[l->index].normal = l->normal;
     }
   }
 }
@@ -256,10 +252,10 @@ void Mesh::mergeSections(const char* materialName)
 
 MeshSection* Mesh::findSection(const char* materialName)
 {
-  for (size_t i = 0;  i < sections.size();  i++)
+  for (auto s = sections.begin();  s != sections.end();  s++)
   {
-    if (sections[i].materialName == materialName)
-      return &(sections[i]);
+    if (s->materialName == materialName)
+      return &(*s);
   }
 
   return NULL;
@@ -274,17 +270,15 @@ void Mesh::generateNormals(NormalType type)
   if (type == SMOOTH_FACES)
     tool.setNormalMode(VertexTool::MERGE_NORMALS);
 
-  for (size_t i = 0;  i < sections.size();  i++)
+  for (auto s = sections.begin();  s != sections.end();  s++)
   {
-    for (size_t j = 0;  j < sections[i].triangles.size();  j++)
+    for (auto t = s->triangles.begin();  t != s->triangles.end();  t++)
     {
-      MeshTriangle& triangle = sections[i].triangles[j];
-
       for (size_t k = 0;  k < 3;  k++)
       {
-        triangle.indices[k] = tool.addAttributeLayer(triangle.indices[k],
-                                                     triangle.normal,
-                                                     vertices[triangle.indices[k]].texcoord);
+        t->indices[k] = tool.addAttributeLayer(t->indices[k],
+                                               t->normal,
+                                               vertices[t->indices[k]].texcoord);
       }
     }
   }
@@ -294,15 +288,16 @@ void Mesh::generateNormals(NormalType type)
 
 void Mesh::generateTriangleNormals()
 {
-  for (size_t i = 0;  i < sections.size();  i++)
+  for (auto s = sections.begin();  s != sections.end();  s++)
   {
-    for (size_t j = 0;  j < sections[i].triangles.size();  j++)
+    for (auto t = s->triangles.begin();  t != s->triangles.end();  t++)
     {
-      MeshTriangle& triangle = sections[i].triangles[j];
+      const vec3 one = vertices[t->indices[1]].position -
+                       vertices[t->indices[0]].position;
+      const vec3 two = vertices[t->indices[2]].position -
+                       vertices[t->indices[0]].position;
 
-      vec3 one = vertices[triangle.indices[1]].position - vertices[triangle.indices[0]].position;
-      vec3 two = vertices[triangle.indices[2]].position - vertices[triangle.indices[0]].position;
-      triangle.normal = normalize(cross(one, two));
+      t->normal = normalize(cross(one, two));
     }
   }
 }
@@ -317,12 +312,10 @@ AABB Mesh::generateBoundingAABB() const
   vec3 minimum(std::numeric_limits<float>::max());
   vec3 maximum(std::numeric_limits<float>::min());
 
-  for (size_t i = 0;  i < vertices.size();  i++)
+  for (auto v = vertices.begin();  v != vertices.end();  v++)
   {
-    const vec3& position = vertices[i].position;
-
-    minimum = min(minimum, position);
-    maximum = max(maximum, position);
+    minimum = min(minimum, v->position);
+    maximum = max(maximum, v->position);
   }
 
   bounds.setBounds(minimum.x, minimum.y, minimum.z,
@@ -351,35 +344,29 @@ bool Mesh::isValid() const
   if (vertices.empty())
     return false;
 
-  for (size_t i = 0;  i < vertices.size();  i++)
+  for (auto v = vertices.begin();  v != vertices.end();  v++)
   {
-    const MeshVertex& vertex = vertices[i];
-
-    if (!all(isfinite(vertex.position)) ||
-        !all(isfinite(vertex.normal)) ||
-        !all(isfinite(vertex.texcoord)))
+    if (!all(isfinite(v->position)) ||
+        !all(isfinite(v->normal)) ||
+        !all(isfinite(v->texcoord)))
     {
       return false;
     }
   }
 
-  for (size_t i = 0;  i < sections.size();  i++)
+  for (auto s = sections.begin();  s != sections.end();  s++)
   {
-    if (sections[i].triangles.empty())
+    if (s->triangles.empty())
       return false;
 
-    const MeshTriangleList& triangles = sections[i].triangles;
-
-    for (size_t j = 0;  j < triangles.size();  j++)
+    for (auto t = s->triangles.begin();  t != s->triangles.end();  t++)
     {
-      const MeshTriangle& triangle = triangles[j];
-
-      if (!all(isfinite(triangle.normal)))
+      if (!all(isfinite(t->normal)))
         return false;
 
-      if (triangle.indices[0] >= vertices.size() ||
-          triangle.indices[1] >= vertices.size() ||
-          triangle.indices[2] >= vertices.size())
+      if (t->indices[0] >= vertices.size() ||
+          t->indices[1] >= vertices.size() ||
+          t->indices[2] >= vertices.size())
       {
         return false;
       }
@@ -393,8 +380,8 @@ size_t Mesh::getTriangleCount() const
 {
   size_t count = 0;
 
-  for (size_t i = 0;  i < sections.size();  i++)
-    count += sections[i].triangles.size();
+  for (auto s = sections.begin();  s != sections.end();  s++)
+    count += s->triangles.size();
 
   return count;
 }
@@ -488,7 +475,7 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
 
         group = NULL;
 
-        for (FaceGroupList::iterator g = groups.begin();  g != groups.end();  g++)
+        for (auto g = groups.begin();  g != groups.end();  g++)
         {
           if (g->name == materialName)
             group = &(*g);
@@ -575,7 +562,7 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
 
   VertexTool tool(mesh->vertices);
 
-  for (FaceGroupList::const_iterator g = groups.begin();  g != groups.end();  g++)
+  for (auto g = groups.begin();  g != groups.end();  g++)
   {
     mesh->sections.push_back(MeshSection());
     MeshSection& geometry = mesh->sections.back();
@@ -674,36 +661,20 @@ bool MeshWriter::write(const Path& path, const Mesh& mesh)
     return false;
   }
 
-  for (Mesh::VertexList::const_iterator v = mesh.vertices.begin();
-       v != mesh.vertices.end();
-       v++)
-  {
+  for (auto v = mesh.vertices.begin();  v != mesh.vertices.end();  v++)
     stream << "v " << v->position.x << ' ' << v->position.y << ' ' << v->position.z << '\n';
-  }
 
-  for (Mesh::VertexList::const_iterator v = mesh.vertices.begin();
-       v != mesh.vertices.end();
-       v++)
-  {
+  for (auto v = mesh.vertices.begin();  v != mesh.vertices.end();  v++)
     stream << "vn " << v->normal.x << ' ' << v->normal.y << ' ' << v->normal.z << '\n';
-  }
 
-  for (Mesh::VertexList::const_iterator v = mesh.vertices.begin();
-       v != mesh.vertices.end();
-       v++)
-  {
+  for (auto v = mesh.vertices.begin();  v != mesh.vertices.end();  v++)
     stream << "vt " << v->texcoord.x << ' ' << v->texcoord.y << '\n';
-  }
 
-  for (MeshSectionList::const_iterator s = mesh.sections.begin();
-       s != mesh.sections.end();
-       s++)
+  for (auto s = mesh.sections.begin();  s != mesh.sections.end();  s++)
   {
     stream << "usemtl " << s->materialName << '\n';
 
-    for (MeshTriangleList::const_iterator t = s->triangles.begin();
-         t != s->triangles.end();
-         t++)
+    for (auto t = s->triangles.begin();  t != s->triangles.end();  t++)
     {
       stream << "f";
 

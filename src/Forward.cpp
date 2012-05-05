@@ -135,7 +135,7 @@ void Renderer::renderOperations(const render::Queue& queue)
   const render::SortKeyList& keys = queue.getSortKeys();
   const render::OperationList& operations = queue.getOperations();
 
-  for (render::SortKeyList::const_iterator k = keys.begin();  k != keys.end();  k++)
+  for (auto k = keys.begin();  k != keys.end();  k++)
   {
     const render::SortKey key(*k);
     const render::Operation& op = operations[key.index];

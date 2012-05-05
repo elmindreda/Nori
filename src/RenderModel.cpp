@@ -85,7 +85,7 @@ void ModelSection::setMaterial(Material* newMaterial)
 
 void Model::enqueue(Scene& scene, const Camera& camera, const Transform3& transform) const
 {
-  for (ModelSectionList::const_iterator s = sections.begin();  s != sections.end();  s++)
+  for (auto s = sections.begin();  s != sections.end();  s++)
   {
     Material* material = s->getMaterial();
     if (!material)
@@ -172,9 +172,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
     return false;
   }
 
-  for (MeshSectionList::const_iterator s = data.sections.begin();
-       s != data.sections.end();
-       s++)
+  for (auto s = data.sections.begin();  s != data.sections.end();  s++)
   {
     if (materials.find(s->materialName) == materials.end())
     {
@@ -219,9 +217,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
   size_t start = 0;
 
-  for (MeshSectionList::const_iterator s = data.sections.begin();
-       s != data.sections.end();
-       s++)
+  for (auto s = data.sections.begin();  s != data.sections.end();  s++)
   {
     const size_t count = s->triangles.size() * 3;
     GL::IndexRange range(*indexBuffer, start, count);
@@ -236,9 +232,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
       size_t index = 0;
 
-      for (MeshTriangleList::const_iterator t = s->triangles.begin();
-           t != s->triangles.end();
-           t++)
+      for (auto t = s->triangles.begin();  t != s->triangles.end();  t++)
       {
         indices[index++] = t->indices[0];
         indices[index++] = t->indices[1];
@@ -253,9 +247,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
       size_t index = 0;
 
-      for (MeshTriangleList::const_iterator t = s->triangles.begin();
-           t != s->triangles.end();
-           t++)
+      for (auto t = s->triangles.begin();  t != s->triangles.end();  t++)
       {
         indices[index++] = t->indices[0];
         indices[index++] = t->indices[1];
@@ -270,9 +262,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
       size_t index = 0;
 
-      for (MeshTriangleList::const_iterator t = s->triangles.begin();
-           t != s->triangles.end();
-           t++)
+      for (auto t = s->triangles.begin();  t != s->triangles.end();  t++)
       {
         indices[index++] = t->indices[0];
         indices[index++] = t->indices[1];

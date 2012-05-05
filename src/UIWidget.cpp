@@ -90,20 +90,20 @@ void Widget::removeFromParent()
   else
     siblings = &(layer.roots);
 
-  WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
-  if (i != siblings->end())
+  auto s = std::find(siblings->begin(), siblings->end(), this);
+  if (s == siblings->end())
+    return;
+
+  siblings->erase(s);
+  layer.removedWidget(*this);
+
+  if (parent)
   {
-    siblings->erase(i);
-    layer.removedWidget(*this);
+    Widget* oldParent = parent;
+    parent = NULL;
 
-    if (parent)
-    {
-      Widget* oldParent = parent;
-      parent = NULL;
-
-      oldParent->removedChild(*this);
-      removedFromParent(*oldParent);
-    }
+    oldParent->removedChild(*this);
+    removedFromParent(*oldParent);
   }
 }
 
@@ -114,7 +114,7 @@ Widget* Widget::findByPoint(const vec2& point)
 
   const vec2 localPoint = point - area.position;
 
-  for (WidgetList::const_iterator c = children.begin();  c != children.end();  c++)
+  for (auto c = children.begin();  c != children.end();  c++)
   {
     if ((*c)->isVisible())
       if (Widget* result = (*c)->findByPoint(localPoint))
@@ -190,8 +190,7 @@ void Widget::bringToFront()
   else
     siblings = &(layer.roots);
 
-  WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
-  siblings->erase(i);
+  siblings->erase(std::find(siblings->begin(), siblings->end(), this));
   siblings->push_back(this);
 
   invalidate();
@@ -206,8 +205,7 @@ void Widget::sendToBack()
   else
     siblings = &(layer.roots);
 
-  WidgetList::iterator i = std::find(siblings->begin(), siblings->end(), this);
-  siblings->erase(i);
+  siblings->erase(std::find(siblings->begin(), siblings->end(), this));
   siblings->insert(siblings->begin(), this);
 
   invalidate();
@@ -433,10 +431,10 @@ SignalProxy2<void, Widget&, const vec2&> Widget::getDragEndedSignal()
 
 void Widget::draw() const
 {
-  for (WidgetList::const_iterator i = children.begin();  i != children.end();  i++)
+  for (auto c = children.begin();  c != children.end();  c++)
   {
-    if ((*i)->isVisible())
-      (*i)->draw();
+    if ((*c)->isVisible())
+      (*c)->draw();
   }
 }
 

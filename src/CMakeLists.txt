@@ -1,6 +1,6 @@
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-  add_definitions(-ansi)
+  add_definitions(-std=c++0x)
 endif()
 
 include_directories(${libpng_SOURCE_DIR}
