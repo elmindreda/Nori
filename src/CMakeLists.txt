@@ -57,7 +57,7 @@ if (WENDY_INCLUDE_UI_SYSTEM)
   list(APPEND wendy_SOURCES
        UIBook.cpp UIButton.cpp UICanvas.cpp UIDrawer.cpp UIEntry.cpp UIItem.cpp
        UILabel.cpp UILayer.cpp UILayout.cpp UIList.cpp UIMenu.cpp UIPopup.cpp
-       UIProgress.cpp UIScrollered.cpp UISlider.cpp UIWidget.cpp)
+       UIProgress.cpp UIScroller.cpp UISlider.cpp UIWidget.cpp)
 endif()
 
 if (WENDY_INCLUDE_DEBUG_UI)
