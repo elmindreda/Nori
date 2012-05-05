@@ -67,7 +67,7 @@ private:
 
 /*! @ingroup renderer
  */
-typedef std::vector<Ref<Light> > LightList;
+typedef std::vector<Ref<Light>> LightList;
 
 ///////////////////////////////////////////////////////////////////////
 

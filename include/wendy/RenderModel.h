@@ -84,7 +84,7 @@ typedef std::vector<ModelSection> ModelSectionList;
 class Model : public Renderable, public Resource
 {
 public:
-  typedef std::map<String, Ref<Material> > MaterialMap;
+  typedef std::map<String, Ref<Material>> MaterialMap;
   void enqueue(Scene& scene, const Camera& camera, const Transform3& transform) const;
   /*! @return The bounding AABB of this model.
    */

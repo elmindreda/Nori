@@ -59,7 +59,7 @@ enum ShaderType
 /*! @brief GLSL define key/value pair set.
  *  @ingroup opengl
  */
-typedef std::vector<std::pair<String, String> > ShaderDefines;
+typedef std::vector<std::pair<String, String>> ShaderDefines;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -380,9 +380,9 @@ public:
    */
   bool matches(const VertexFormat& format, bool verbose = false) const;
 private:
-  typedef std::vector<std::pair<String, SamplerType> > SamplerList;
-  typedef std::vector<std::pair<String, UniformType> > UniformList;
-  typedef std::vector<std::pair<String, AttributeType> > AttributeList;
+  typedef std::vector<std::pair<String, SamplerType>> SamplerList;
+  typedef std::vector<std::pair<String, UniformType>> UniformList;
+  typedef std::vector<std::pair<String, AttributeType>> AttributeList;
   SamplerList samplers;
   UniformList uniforms;
   AttributeList attributes;

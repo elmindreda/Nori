@@ -305,7 +305,7 @@ private:
   unsigned int retrieveTargetImages(unsigned int target, CubeFace face);
   void applyDefaults();
   Texture& operator = (const Texture& source);
-  typedef std::vector<Ref<TextureImage> > ImageList;
+  typedef std::vector<Ref<TextureImage>> ImageList;
   Context& context;
   TextureType type;
   unsigned int textureID;
@@ -321,7 +321,7 @@ private:
 
 /*! @ingroup opengl
  */
-typedef std::vector<Ref<Texture> > TextureList;
+typedef std::vector<Ref<Texture>> TextureList;
 
 ///////////////////////////////////////////////////////////////////////
 

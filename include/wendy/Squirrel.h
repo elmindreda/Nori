@@ -1169,7 +1169,7 @@ public:
  *  @ingroup squirrel
  */
 template <typename T>
-class Value<SharedClass<T> >
+class Value<SharedClass<T>>
 {
 public:
   static SharedClass<T> get(HSQUIRRELVM vm, SQInteger index)
