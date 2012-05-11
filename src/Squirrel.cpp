@@ -162,9 +162,14 @@ void logErrorCallStack(HSQUIRRELVM vm)
         }
 
         case OT_CLOSURE:
+        {
+          stream << "function() [Squirrel]";
+          break;
+        }
+
         case OT_NATIVECLOSURE:
         {
-          stream << "function()";
+          stream << "function() [C++]";
           break;
         }
 
