@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -33,7 +33,7 @@ class btConeShape : public btConvexInternalShape
 
 public:
 	btConeShape (btScalar radius,btScalar height);
-
+	
 	virtual btVector3	localGetSupportingVertex(const btVector3& vec) const;
 	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec) const;
 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
@@ -69,14 +69,14 @@ public:
 	}
 
 
-		virtual const char*	getName()const
+		virtual const char*	getName()const 
 		{
 			return "Cone";
 		}
-
+		
 		///choose upAxis index
 		void	setConeUpIndex(int upIndex);
-
+		
 		int	getConeUpIndex() const
 		{
 			return m_coneIndices[1];

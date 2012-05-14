@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -40,13 +40,13 @@ public:
 	//
 	// solve unilateral constraint (equality, direct method)
 	//
-	void resolveUnilateralPairConstraint(
+	void resolveUnilateralPairConstraint(		
 														   btRigidBody* body0,
 		btRigidBody* body1,
 
 		const btMatrix3x3& world2A,
 						const btMatrix3x3& world2B,
-
+						
 						const btVector3& invInertiaADiag,
 						const btScalar invMassA,
 						const btVector3& linvelA,const btVector3& angvelA,
@@ -56,9 +56,9 @@ public:
 						const btVector3& linvelB,const btVector3& angvelB,
 						const btVector3& rel_posA2,
 
-					  btScalar depthA, const btVector3& normalA,
+					  btScalar depthA, const btVector3& normalA, 
 					  const btVector3& rel_posB1,const btVector3& rel_posB2,
-					  btScalar depthB, const btVector3& normalB,
+					  btScalar depthB, const btVector3& normalB, 
 					  btScalar& imp0,btScalar& imp1);
 
 
@@ -70,7 +70,7 @@ public:
 						btRigidBody* body1,
 		const btMatrix3x3& world2A,
 						const btMatrix3x3& world2B,
-
+						
 						const btVector3& invInertiaADiag,
 						const btScalar invMassA,
 						const btVector3& linvelA,const btVector3& angvelA,
@@ -80,9 +80,9 @@ public:
 						const btVector3& linvelB,const btVector3& angvelB,
 						const btVector3& rel_posA2,
 
-					  btScalar depthA, const btVector3& normalA,
+					  btScalar depthA, const btVector3& normalA, 
 					  const btVector3& rel_posB1,const btVector3& rel_posB2,
-					  btScalar depthB, const btVector3& normalB,
+					  btScalar depthB, const btVector3& normalB, 
 					  btScalar& imp0,btScalar& imp1);
 
 /*
@@ -95,9 +95,9 @@ public:
 						const btVector3& linvelB,const btVector3& angvelB,
 						const btVector3& rel_posA2,
 
-					  btScalar depthA, const btVector3& normalA,
+					  btScalar depthA, const btVector3& normalA, 
 					  const btVector3& rel_posB1,const btVector3& rel_posB2,
-					  btScalar depthB, const btVector3& normalB,
+					  btScalar depthB, const btVector3& normalB, 
 					  btScalar& imp0,btScalar& imp1);
 
 */

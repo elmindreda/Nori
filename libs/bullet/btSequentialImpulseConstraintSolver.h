@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -33,21 +33,23 @@ protected:
 	btConstraintArray			m_tmpSolverNonContactConstraintPool;
 	btConstraintArray			m_tmpSolverContactFrictionConstraintPool;
 	btAlignedObjectArray<int>	m_orderTmpConstraintPool;
+	btAlignedObjectArray<int>	m_orderNonContactConstraintPool;
 	btAlignedObjectArray<int>	m_orderFrictionConstraintPool;
 	btAlignedObjectArray<btTypedConstraint::btConstraintInfo1> m_tmpConstraintSizesPool;
+	int							m_maxOverrideNumSolverIterations;
 
 	void setupFrictionConstraint(	btSolverConstraint& solverConstraint, const btVector3& normalAxis,btRigidBody* solverBodyA,btRigidBody* solverBodyIdB,
 									btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,
-									btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation,
+									btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, 
 									btScalar desiredVelocity=0., btScalar cfmSlip=0.);
 
 	btSolverConstraint&	addFrictionConstraint(const btVector3& normalAxis,btRigidBody* solverBodyA,btRigidBody* solverBodyB,int frictionIndex,btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, btScalar desiredVelocity=0., btScalar cfmSlip=0.);
-
-	void setupContactConstraint(btSolverConstraint& solverConstraint, btCollisionObject* colObj0, btCollisionObject* colObj1, btManifoldPoint& cp,
-								const btContactSolverInfo& infoGlobal, btVector3& vel, btScalar& rel_vel, btScalar& relaxation,
+	
+	void setupContactConstraint(btSolverConstraint& solverConstraint, btCollisionObject* colObj0, btCollisionObject* colObj1, btManifoldPoint& cp, 
+								const btContactSolverInfo& infoGlobal, btVector3& vel, btScalar& rel_vel, btScalar& relaxation, 
 								btVector3& rel_pos1, btVector3& rel_pos2);
 
-	void setFrictionConstraintImpulse( btSolverConstraint& solverConstraint, btRigidBody* rb0, btRigidBody* rb1,
+	void setFrictionConstraintImpulse( btSolverConstraint& solverConstraint, btRigidBody* rb0, btRigidBody* rb1, 
 										 btManifoldPoint& cp, const btContactSolverInfo& infoGlobal);
 
 	///m_btSeed2 is used for re-arranging the constraint rows. improves convergence/quality of friction
@@ -75,14 +77,14 @@ protected:
 	void	resolveSingleConstraintRowGeneric(btRigidBody& body1,btRigidBody& body2,const btSolverConstraint& contactConstraint);
 
 	void	resolveSingleConstraintRowGenericSIMD(btRigidBody& body1,btRigidBody& body2,const btSolverConstraint& contactConstraint);
-
+	
 	void	resolveSingleConstraintRowLowerLimit(btRigidBody& body1,btRigidBody& body2,const btSolverConstraint& contactConstraint);
-
+	
 	void	resolveSingleConstraintRowLowerLimitSIMD(btRigidBody& body1,btRigidBody& body2,const btSolverConstraint& contactConstraint);
-
+		
 protected:
 	static btRigidBody& getFixedBody();
-
+	
 	virtual void solveGroupCacheFriendlySplitImpulseIterations(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc);
 	virtual btScalar solveGroupCacheFriendlyFinish(btCollisionObject** bodies ,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc);
 	btScalar solveSingleIteration(int iteration, btCollisionObject** bodies ,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc);
@@ -93,17 +95,17 @@ protected:
 
 public:
 
-
+	
 	btSequentialImpulseConstraintSolver();
 	virtual ~btSequentialImpulseConstraintSolver();
 
 	virtual btScalar solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc,btDispatcher* dispatcher);
+	
 
-
-
+	
 	///clear internal cached data and reset random seed
 	virtual	void	reset();
-
+	
 	unsigned long btRand2();
 
 	int btRandInt2 (int n);

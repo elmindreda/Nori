@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -35,11 +35,11 @@ class btConvex2dConvex2dAlgorithm : public btActivatingCollisionAlgorithm
 	btSimplexSolverInterface*		m_simplexSolver;
 	btConvexPenetrationDepthSolver* m_pdSolver;
 
-
+	
 	bool	m_ownManifold;
 	btPersistentManifold*	m_manifoldPtr;
 	bool			m_lowLevelOfDetail;
-
+	
 	int m_numPerturbationIterations;
 	int m_minimumPointsPerturbationThreshold;
 
@@ -79,7 +79,7 @@ public:
 		int m_minimumPointsPerturbationThreshold;
 
 		CreateFunc(btSimplexSolverInterface*			simplexSolver, btConvexPenetrationDepthSolver* pdSolver);
-
+		
 		virtual ~CreateFunc();
 
 		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)

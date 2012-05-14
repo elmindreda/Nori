@@ -60,7 +60,7 @@ public:
     //! temp_variables
     //!@{
     btScalar m_currentLimitError;//!  How much is violated this limit
-    btScalar m_currentPosition;     //!  current value of angle
+    btScalar m_currentPosition;     //!  current value of angle 
     int m_currentLimit;//!< 0=free, 1=at lo limit, 2=at hi limit
     btScalar m_accumulatedImpulse;
     //!@}
@@ -163,7 +163,7 @@ public:
     	m_limitSoftness = 0.7f;
     	m_damping = btScalar(1.0f);
     	m_restitution = btScalar(0.5f);
-		for(int i=0; i < 3; i++)
+		for(int i=0; i < 3; i++) 
 		{
 			m_enableMotor[i] = false;
 			m_targetVelocity[i] = btScalar(0.f);
@@ -184,7 +184,7 @@ public:
 		m_stopERP = other.m_stopERP;
 		m_stopCFM = other.m_stopCFM;
 
-		for(int i=0; i < 3; i++)
+		for(int i=0; i < 3; i++) 
 		{
 			m_enableMotor[i] = other.m_enableMotor[i];
 			m_targetVelocity[i] = other.m_targetVelocity[i];
@@ -308,12 +308,12 @@ protected:
 	btScalar	m_factA;
 	btScalar	m_factB;
 	bool		m_hasStaticBody;
-
+    
 	btVector3 m_AnchorPos; // point betwen pivots of bodies A and B to solve linear axes
 
     bool	m_useLinearReferenceFrameA;
 	bool	m_useOffsetForConstraintFrame;
-
+    
 	int		m_flags;
 
     //!@}
@@ -351,7 +351,7 @@ public:
 
     btGeneric6DofConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB ,bool useLinearReferenceFrameA);
     btGeneric6DofConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameB);
-
+    
 	//! Calcs global transform of the offsets
 	/*!
 	Calcs the global transform for the joint offset for body A an B, and also calcs the agle differences between the bodies.
@@ -464,13 +464,13 @@ public:
 
     void	setAngularLowerLimit(const btVector3& angularLower)
     {
-		for(int i = 0; i < 3; i++)
+		for(int i = 0; i < 3; i++) 
 			m_angularLimits[i].m_loLimit = btNormalizeAngle(angularLower[i]);
     }
 
 	void	getAngularLowerLimit(btVector3& angularLower)
 	{
-		for(int i = 0; i < 3; i++)
+		for(int i = 0; i < 3; i++) 
 			angularLower[i] = m_angularLimits[i].m_loLimit;
 	}
 
@@ -542,7 +542,7 @@ public:
 	bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
 	void setUseFrameOffset(bool frameOffsetOnOff) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
 
-	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5).
+	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
 	///If no axis is provided, it uses the default axis for this constraint.
 	virtual	void setParam(int num, btScalar value, int axis = -1);
 	///return the local value of parameter
@@ -556,7 +556,7 @@ public:
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
 	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
 
-
+	
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
@@ -565,13 +565,13 @@ struct btGeneric6DofConstraintData
 	btTypedConstraintData	m_typeConstraintData;
 	btTransformFloatData m_rbAFrame; // constraint axii. Assumes z is hinge axis.
 	btTransformFloatData m_rbBFrame;
-
+	
 	btVector3FloatData	m_linearUpperLimit;
 	btVector3FloatData	m_linearLowerLimit;
 
 	btVector3FloatData	m_angularUpperLimit;
 	btVector3FloatData	m_angularLowerLimit;
-
+	
 	int	m_useLinearReferenceFrameA;
 	int m_useOffsetForConstraintFrame;
 };
@@ -591,7 +591,7 @@ SIMD_FORCE_INLINE	const char*	btGeneric6DofConstraint::serialize(void* dataBuffe
 	m_frameInA.serializeFloat(dof->m_rbAFrame);
 	m_frameInB.serializeFloat(dof->m_rbBFrame);
 
-
+		
 	int i;
 	for (i=0;i<3;i++)
 	{
@@ -600,7 +600,7 @@ SIMD_FORCE_INLINE	const char*	btGeneric6DofConstraint::serialize(void* dataBuffe
 		dof->m_linearLowerLimit.m_floats[i] = float(m_linearLimits.m_lowerLimit[i]);
 		dof->m_linearUpperLimit.m_floats[i] = float(m_linearLimits.m_upperLimit[i]);
 	}
-
+	
 	dof->m_useLinearReferenceFrameA = m_useLinearReferenceFrameA? 1 : 0;
 	dof->m_useOffsetForConstraintFrame = m_useOffsetForConstraintFrame ? 1 : 0;
 

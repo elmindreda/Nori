@@ -34,10 +34,10 @@ struct	sResults
 	{
 	enum eStatus
 		{
-		Separated,		/* Shapes doesnt penetrate												*/
-		Penetrating,	/* Shapes are penetrating												*/
-		GJK_Failed,		/* GJK phase fail, no big issue, shapes are probably just 'touching'	*/
-		EPA_Failed		/* EPA phase fail, bigger problem, need to save parameters, and debug	*/
+		Separated,		/* Shapes doesnt penetrate												*/ 
+		Penetrating,	/* Shapes are penetrating												*/ 
+		GJK_Failed,		/* GJK phase fail, no big issue, shapes are probably just 'touching'	*/ 
+		EPA_Failed		/* EPA phase fail, bigger problem, need to save parameters, and debug	*/ 
 		}		status;
 	btVector3	witnesses[2];
 	btVector3	normal;
@@ -62,7 +62,7 @@ static btScalar	SignedDistance(	const btVector3& position,
 								const btConvexShape* shape,
 								const btTransform& wtrs,
 								sResults& results);
-
+							
 static bool		SignedDistance(	const btConvexShape* shape0,const btTransform& wtrs0,
 								const btConvexShape* shape1,const btTransform& wtrs1,
 								const btVector3& guess,

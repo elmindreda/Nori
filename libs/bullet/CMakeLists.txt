@@ -2,11 +2,6 @@
 project(bullet CXX)
 
 set(bullet_HEADERS
-    bChunk.h
-    bCommon.h
-    bDefines.h
-    bDNA.h
-    bFile.h
     btAabbUtil2.h
     btActionInterface.h
     btActivatingCollisionAlgorithm.h
@@ -23,8 +18,6 @@ set(bullet_HEADERS
     btBroadphaseProxy.h
     btBulletCollisionCommon.h
     btBulletDynamicsCommon.h
-    btBulletFile.h
-    btBulletWorldImporter.h
     btBvhTriangleMeshShape.h
     btCapsuleShape.h
     btClipPolygon.h
@@ -123,7 +116,6 @@ set(bullet_HEADERS
     btQuickprof.h
     btRandom.h
     btRaycastCallback.h
-    btRaycastVehicle.h
     btRigidBody.h
     btScalar.h
     btScaledBvhTriangleMeshShape.h
@@ -163,9 +155,7 @@ set(bullet_HEADERS
     btUnionFind.h
     btUniversalConstraint.h
     btVector3.h
-    btVehicleRaycaster.h
     btVoronoiSimplexSolver.h
-    btWheelInfo.h
     gim_array.h
     gim_basic_geometry_operations.h
     gim_bitset.h
@@ -184,9 +174,6 @@ set(bullet_HEADERS
     SphereTriangleDetector.h)
 
 set(bullet_SOURCES 
-    bChunk.cpp
-    bDNA.cpp
-    bFile.cpp
     btActivatingCollisionAlgorithm.cpp
     btAlignedAllocator.cpp
     btAxisSweep3.cpp
@@ -196,8 +183,6 @@ set(bullet_SOURCES
     btBoxBoxDetector.cpp
     btBoxShape.cpp
     btBroadphaseProxy.cpp
-    btBulletFile.cpp
-    btBulletWorldImporter.cpp
     btBvhTriangleMeshShape.cpp
     btCapsuleShape.cpp
     btCollisionAlgorithm.cpp

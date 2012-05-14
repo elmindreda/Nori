@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -41,12 +41,12 @@ subject to the following restrictions:
 //
 struct btDbvtProxy : btBroadphaseProxy
 {
-	/* Fields		*/
+	/* Fields		*/ 
 	//btDbvtAabbMm	aabb;
 	btDbvtNode*		leaf;
 	btDbvtProxy*	links[2];
 	int				stage;
-	/* ctor			*/
+	/* ctor			*/ 
 	btDbvtProxy(const btVector3& aabbMin,const btVector3& aabbMax,void* userPtr,short int collisionFilterGroup, short int collisionFilterMask) :
 	btBroadphaseProxy(aabbMin,aabbMax,userPtr,collisionFilterGroup,collisionFilterMask)
 	{
@@ -61,13 +61,13 @@ typedef btAlignedObjectArray<btDbvtProxy*>	btDbvtProxyArray;
 ///This is a very fast broadphase, especially for very dynamic worlds where many objects are moving. Its insert/add and remove of objects is generally faster than the sweep and prune broadphases btAxisSweep3 and bt32BitAxisSweep3.
 struct	btDbvtBroadphase : btBroadphaseInterface
 {
-	/* Config		*/
+	/* Config		*/ 
 	enum	{
-		DYNAMIC_SET			=	0,	/* Dynamic set index	*/
-		FIXED_SET			=	1,	/* Fixed set index		*/
-		STAGECOUNT			=	2	/* Number of stages		*/
+		DYNAMIC_SET			=	0,	/* Dynamic set index	*/ 
+		FIXED_SET			=	1,	/* Fixed set index		*/ 
+		STAGECOUNT			=	2	/* Number of stages		*/ 
 	};
-	/* Fields		*/
+	/* Fields		*/ 
 	btDbvt					m_sets[2];					// Dbvt sets
 	btDbvtProxy*			m_stageRoots[STAGECOUNT+1];	// Stages list
 	btOverlappingPairCache*	m_paircache;				// Pair cache
@@ -97,12 +97,12 @@ struct	btDbvtBroadphase : btBroadphaseInterface
 		unsigned long		m_jobcount;
 	}				m_profiling;
 #endif
-	/* Methods		*/
+	/* Methods		*/ 
 	btDbvtBroadphase(btOverlappingPairCache* paircache=0);
 	~btDbvtBroadphase();
 	void							collide(btDispatcher* dispatcher);
 	void							optimize();
-
+	
 	/* btBroadphaseInterface Implementation	*/
 	btBroadphaseProxy*				createProxy(const btVector3& aabbMin,const btVector3& aabbMax,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask,btDispatcher* dispatcher,void* multiSapProxy);
 	virtual void					destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
@@ -122,7 +122,7 @@ struct	btDbvtBroadphase : btBroadphaseInterface
 	virtual void resetPool(btDispatcher* dispatcher);
 
 	void	performDeferredRemoval(btDispatcher* dispatcher);
-
+	
 	void	setVelocityPrediction(btScalar prediction)
 	{
 		m_prediction = prediction;
@@ -132,7 +132,7 @@ struct	btDbvtBroadphase : btBroadphaseInterface
 		return m_prediction;
 	}
 
-	///this setAabbForceUpdate is similar to setAabb but always forces the aabb update.
+	///this setAabbForceUpdate is similar to setAabb but always forces the aabb update. 
 	///it is not part of the btBroadphaseInterface but specific to btDbvtBroadphase.
 	///it bypasses certain optimizations that prevent aabb updates (when the aabb shrinks), see
 	///http://code.google.com/p/bullet/issues/detail?id=223

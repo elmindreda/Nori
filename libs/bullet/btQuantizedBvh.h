@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -198,14 +198,14 @@ protected:
 	NodeArray			m_contiguousNodes;
 	QuantizedNodeArray	m_quantizedLeafNodes;
 	QuantizedNodeArray	m_quantizedContiguousNodes;
-
+	
 	btTraversalMode	m_traversalMode;
 	BvhSubtreeInfoArray		m_SubtreeHeaders;
 
 	//This is only used for serialization so we don't have to add serialization directly to btAlignedObjectArray
 	mutable int m_subtreeHeaderCount;
 
-
+	
 
 
 
@@ -248,19 +248,19 @@ protected:
 		if (m_useQuantization)
 		{
 			return unQuantize(&m_quantizedLeafNodes[nodeIndex].m_quantizedAabbMax[0]);
-		}
+		} 
 		//non-quantized
 		return m_leafNodes[nodeIndex].m_aabbMaxOrg;
-
+		
 	}
 
-
+	
 	void	setInternalNodeEscapeIndex(int nodeIndex, int escapeIndex)
 	{
 		if (m_useQuantization)
 		{
 			m_quantizedContiguousNodes[nodeIndex].m_escapeIndexOrTriangleIndex = -escapeIndex;
-		}
+		} 
 		else
 		{
 			m_contiguousNodes[nodeIndex].m_escapeIndex = escapeIndex;
@@ -268,7 +268,7 @@ protected:
 
 	}
 
-	void mergeInternalNodeAabb(int nodeIndex,const btVector3& newAabbMin,const btVector3& newAabbMax)
+	void mergeInternalNodeAabb(int nodeIndex,const btVector3& newAabbMin,const btVector3& newAabbMax) 
 	{
 		if (m_useQuantization)
 		{
@@ -289,7 +289,7 @@ protected:
 		{
 			//non-quantized
 			m_contiguousNodes[nodeIndex].m_aabbMinOrg.setMin(newAabbMin);
-			m_contiguousNodes[nodeIndex].m_aabbMaxOrg.setMax(newAabbMax);
+			m_contiguousNodes[nodeIndex].m_aabbMaxOrg.setMax(newAabbMax);		
 		}
 	}
 
@@ -299,14 +299,14 @@ protected:
 
 protected:
 
-
+	
 
 	void	buildTree	(int startIndex,int endIndex);
 
 	int	calcSplittingAxis(int startIndex,int endIndex);
 
 	int	sortAndCalcSplittingIndex(int startIndex,int endIndex,int splitAxis);
-
+	
 	void	walkStacklessTree(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
 	void	walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin, const btVector3& aabbMax, int startNodeIndex,int endNodeIndex) const;
@@ -321,21 +321,21 @@ protected:
 
 	///use the 16-byte stackless 'skipindex' node tree to do a recursive traversal
 	void	walkRecursiveQuantizedTreeAgainstQuantizedTree(const btQuantizedBvhNode* treeNodeA,const btQuantizedBvhNode* treeNodeB,btNodeOverlapCallback* nodeCallback) const;
-
+	
 
 
 
 	void	updateSubtreeHeaders(int leftChildNodexIndex,int rightChildNodexIndex);
 
 public:
-
+	
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	btQuantizedBvh();
 
 	virtual ~btQuantizedBvh();
 
-
+	
 	///***************************************** expert/internal use only *************************
 	void	setQuantizationValues(const btVector3& bvhAabbMin,const btVector3& bvhAabbMax,btScalar quantizationMargin=btScalar(1.0));
 	QuantizedNodeArray&	getLeafNodeArray() {			return	m_quantizedLeafNodes;	}
@@ -426,7 +426,7 @@ public:
 		quantize(out,clampedPoint,isMax);
 
 	}
-
+	
 	SIMD_FORCE_INLINE btVector3	unQuantize(const unsigned short* vecIn) const
 	{
 			btVector3	vecOut;
@@ -446,7 +446,7 @@ public:
 
 
 	SIMD_FORCE_INLINE QuantizedNodeArray&	getQuantizedNodeArray()
-	{
+	{	
 		return	m_quantizedContiguousNodes;
 	}
 
@@ -470,7 +470,7 @@ public:
 	static unsigned int getAlignmentSerializationPadding();
 //////////////////////////////////////////////////////////////////////
 
-
+	
 	virtual	int	calculateSerializeBufferSizeNew() const;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
@@ -548,7 +548,7 @@ struct	btQuantizedBvhFloatData
 	btBvhSubtreeInfoData	*m_subTreeInfoPtr;
 	int					m_traversalMode;
 	int					m_numSubtreeHeaders;
-
+	
 };
 
 struct	btQuantizedBvhDoubleData

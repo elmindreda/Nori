@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -28,6 +28,7 @@ m_userConstraintId(-1),
 m_breakingImpulseThreshold(SIMD_INFINITY),
 m_isEnabled(true),
 m_needsFeedback(false),
+m_overrideNumSolverIterations(-1),
 m_rbA(rbA),
 m_rbB(getFixedBody()),
 m_appliedImpulse(btScalar(0.)),
@@ -43,6 +44,7 @@ m_userConstraintId(-1),
 m_breakingImpulseThreshold(SIMD_INFINITY),
 m_isEnabled(true),
 m_needsFeedback(false),
+m_overrideNumSolverIterations(-1),
 m_rbA(rbA),
 m_rbB(rbB),
 m_appliedImpulse(btScalar(0.)),
@@ -118,6 +120,10 @@ const char*	btTypedConstraint::serialize(void* dataBuffer, btSerializer* seriali
 
 	tcd->m_objectType = m_objectType;
 	tcd->m_needsFeedback = m_needsFeedback;
+	tcd->m_overrideNumSolverIterations = m_overrideNumSolverIterations;
+	tcd->m_breakingImpulseThreshold = float(m_breakingImpulseThreshold);
+	tcd->m_isEnabled = m_isEnabled? 1: 0;
+	
 	tcd->m_userConstraintId =m_userConstraintId;
 	tcd->m_userConstraintType =m_userConstraintType;
 

@@ -4,8 +4,8 @@ Copyright (c) 2003-2010 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -45,7 +45,7 @@ enum btConstraintParams
 };
 
 #if 1
-	#define btAssertConstrParams(_par) btAssert(_par)
+	#define btAssertConstrParams(_par) btAssert(_par) 
 #else
 	#define btAssertConstrParams(_par)
 #endif
@@ -64,9 +64,9 @@ class btTypedConstraint : public btTypedObject
 
 	btScalar	m_breakingImpulseThreshold;
 	bool		m_isEnabled;
+	bool		m_needsFeedback;
+	int			m_overrideNumSolverIterations;
 
-
-	bool m_needsFeedback;
 
 	btTypedConstraint&	operator=(btTypedConstraint&	other)
 	{
@@ -83,8 +83,7 @@ protected:
 
 	///internal method used by the constraint solver, don't use them directly
 	btScalar getMotorFactor(btScalar pos, btScalar lowLim, btScalar uppLim, btScalar vel, btScalar timeFact);
-
-	static btRigidBody& getFixedBody();
+	
 
 public:
 
@@ -95,6 +94,8 @@ public:
 	struct btConstraintInfo1 {
 		int m_numConstraintRows,nub;
 	};
+
+	static btRigidBody& getFixedBody();
 
 	struct btConstraintInfo2 {
 		// integrator parameters: frames per second (1/stepsize), default error
@@ -130,6 +131,18 @@ public:
 		btScalar	m_damping;
 	};
 
+	int	getOverrideNumSolverIterations() const
+	{
+		return m_overrideNumSolverIterations;
+	}
+
+	///override the number of constraint solver iterations used to solve this constraint
+	///-1 will use the default number of iterations, as specified in SolverInfo.m_numIterations
+	void setOverrideNumSolverIterations(int overideNumIterations)
+	{
+		m_overrideNumSolverIterations = overideNumIterations;
+	}
+
 	///internal method used by the constraint solver, don't use them directly
 	virtual void	buildJacobian() {};
 
@@ -141,7 +154,7 @@ public:
         (void)solverBodyB;
         (void)timeStep;
 	}
-
+	
 	///internal method used by the constraint solver, don't use them directly
 	virtual void getInfo1 (btConstraintInfo1* info)=0;
 
@@ -184,7 +197,7 @@ public:
 	///internal method used by the constraint solver, don't use them directly
 	virtual	void	solveConstraintObsolete(btRigidBody& /*bodyA*/,btRigidBody& /*bodyB*/,btScalar	/*timeStep*/) {};
 
-
+	
 	const btRigidBody& getRigidBodyA() const
 	{
 		return m_rbA;
@@ -194,7 +207,7 @@ public:
 		return m_rbB;
 	}
 
-	btRigidBody& getRigidBodyA()
+	btRigidBody& getRigidBodyA() 
 	{
 		return m_rbA;
 	}
@@ -235,8 +248,8 @@ public:
 
 	int getUid() const
 	{
-		return m_userConstraintId;
-	}
+		return m_userConstraintId;   
+	} 
 
 	bool	needsFeedback() const
 	{
@@ -250,7 +263,7 @@ public:
 		m_needsFeedback = needsFeedback;
 	}
 
-	///getAppliedImpulse is an estimated total applied impulse.
+	///getAppliedImpulse is an estimated total applied impulse. 
 	///This feedback could be used to determine breaking constraints or playing sounds.
 	btScalar	getAppliedImpulse() const
 	{
@@ -262,7 +275,7 @@ public:
 	{
 		return btTypedConstraintType(m_objectType);
 	}
-
+	
 	void setDbgDrawSize(btScalar dbgDrawSize)
 	{
 		m_dbgDrawSize = dbgDrawSize;
@@ -272,13 +285,13 @@ public:
 		return m_dbgDrawSize;
 	}
 
-	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5).
+	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
 	///If no axis is provided, it uses the default axis for this constraint.
 	virtual	void	setParam(int num, btScalar value, int axis = -1) = 0;
 
 	///return the local value of parameter
 	virtual	btScalar getParam(int num, int axis = -1) const = 0;
-
+	
 	virtual	int	calculateSerializeBufferSize() const;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
@@ -286,7 +299,7 @@ public:
 
 };
 
-// returns angle in range [-SIMD_2_PI, SIMD_2_PI], closest to one of the limits
+// returns angle in range [-SIMD_2_PI, SIMD_2_PI], closest to one of the limits 
 // all arguments should be normalized angles (i.e. in range [-SIMD_PI, SIMD_PI])
 SIMD_FORCE_INLINE btScalar btAdjustAngleToLimits(btScalar angleInRadians, btScalar angleLowerLimitInRadians, btScalar angleUpperLimitInRadians)
 {
@@ -328,8 +341,11 @@ struct	btTypedConstraintData
 	float	m_dbgDrawSize;
 
 	int	m_disableCollisionsBetweenLinkedBodies;
-	char	m_pad4[4];
+	int	m_overrideNumSolverIterations;
 
+	float	m_breakingImpulseThreshold;
+	int		m_isEnabled;
+	
 };
 
 SIMD_FORCE_INLINE	int	btTypedConstraint::calculateSerializeBufferSize() const
@@ -342,7 +358,7 @@ SIMD_FORCE_INLINE	int	btTypedConstraint::calculateSerializeBufferSize() const
 class btAngularLimit
 {
 private:
-	btScalar
+	btScalar 
 		m_center,
 		m_halfRange,
 		m_softness,
@@ -394,13 +410,13 @@ public:
 		return m_relaxationFactor;
 	}
 
-	/// Returns correction value evaluated when test() was invoked
+	/// Returns correction value evaluated when test() was invoked 
 	inline btScalar getCorrection() const
 	{
 		return m_correction;
 	}
 
-	/// Returns sign value evaluated when test() was invoked
+	/// Returns sign value evaluated when test() was invoked 
 	inline btScalar getSign() const
 	{
 		return m_sign;

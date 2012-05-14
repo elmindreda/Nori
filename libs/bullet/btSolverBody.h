@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -69,32 +69,32 @@ struct	btSimdScalar
 		m_vec128 = v128;
 	}
 
-	SIMD_FORCE_INLINE	operator       __m128()
-	{
-		return m_vec128;
+	SIMD_FORCE_INLINE	operator       __m128()       
+	{ 
+		return m_vec128; 
 	}
-	SIMD_FORCE_INLINE	operator const __m128() const
-	{
-		return m_vec128;
+	SIMD_FORCE_INLINE	operator const __m128() const 
+	{ 
+		return m_vec128; 
 	}
-
-	SIMD_FORCE_INLINE	operator float() const
-	{
-		return m_floats[0];
+	
+	SIMD_FORCE_INLINE	operator float() const 
+	{ 
+		return m_floats[0]; 
 	}
 
 };
 
 ///@brief Return the elementwise product of two btSimdScalar
-SIMD_FORCE_INLINE btSimdScalar
-operator*(const btSimdScalar& v1, const btSimdScalar& v2)
+SIMD_FORCE_INLINE btSimdScalar 
+operator*(const btSimdScalar& v1, const btSimdScalar& v2) 
 {
 	return btSimdScalar(_mm_mul_ps(v1.get128(),v2.get128()));
 }
 
 ///@brief Return the elementwise product of two btSimdScalar
-SIMD_FORCE_INLINE btSimdScalar
-operator+(const btSimdScalar& v1, const btSimdScalar& v2)
+SIMD_FORCE_INLINE btSimdScalar 
+operator+(const btSimdScalar& v1, const btSimdScalar& v2) 
 {
 	return btSimdScalar(_mm_add_ps(v1.get128(),v2.get128()));
 }
@@ -116,7 +116,7 @@ ATTRIBUTE_ALIGNED64 (struct)	btSolverBodyObsolete
 	btVector3		m_pushVelocity;
 	btVector3		m_turnVelocity;
 
-
+	
 	SIMD_FORCE_INLINE void	getVelocityInLocalPointObsolete(const btVector3& rel_pos, btVector3& velocity ) const
 	{
 		if (m_originalBody)
@@ -152,14 +152,14 @@ ATTRIBUTE_ALIGNED64 (struct)	btSolverBodyObsolete
 			m_turnVelocity += angularComponent*(impulseMagnitude*m_angularFactor);
 		}
 	}
-
+	
 	void	writebackVelocity()
 	{
 		if (m_originalBody)
 		{
 			m_originalBody->setLinearVelocity(m_originalBody->getLinearVelocity()+ m_deltaLinearVelocity);
 			m_originalBody->setAngularVelocity(m_originalBody->getAngularVelocity()+m_deltaAngularVelocity);
-
+			
 			//m_originalBody->setCompanionId(-1);
 		}
 	}
@@ -172,16 +172,16 @@ ATTRIBUTE_ALIGNED64 (struct)	btSolverBodyObsolete
 		{
 			m_originalBody->setLinearVelocity(m_originalBody->getLinearVelocity()+ m_deltaLinearVelocity);
 			m_originalBody->setAngularVelocity(m_originalBody->getAngularVelocity()+m_deltaAngularVelocity);
-
+			
 			//correct the position/orientation based on push/turn recovery
 			btTransform newTransform;
 			btTransformUtil::integrateTransform(m_originalBody->getWorldTransform(),m_pushVelocity,m_turnVelocity,timeStep,newTransform);
 			m_originalBody->setWorldTransform(newTransform);
-
+			
 			//m_originalBody->setCompanionId(-1);
 		}
 	}
-
+	
 
 
 };

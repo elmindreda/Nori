@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -27,6 +27,8 @@ class btTypedConstraint;
 class btActionInterface;
 
 class btIDebugDraw;
+struct InplaceSolverIslandCallback;
+
 #include "btAlignedObjectArray.h"
 
 
@@ -35,6 +37,9 @@ class btIDebugDraw;
 class btDiscreteDynamicsWorld : public btDynamicsWorld
 {
 protected:
+	
+    btAlignedObjectArray<btTypedConstraint*>	m_sortedConstraints;
+	InplaceSolverIslandCallback* 	m_solverIslandCallback;
 
 	btConstraintSolver*	m_constraintSolver;
 
@@ -55,17 +60,17 @@ protected:
 	bool	m_synchronizeAllMotionStates;
 
 	btAlignedObjectArray<btActionInterface*>	m_actions;
-
+	
 	int	m_profileTimings;
 
 	virtual void	predictUnconstraintMotion(btScalar timeStep);
-
+	
 	virtual void	integrateTransforms(btScalar timeStep);
-
+		
 	virtual void	calculateSimulationIslands();
 
 	virtual void	solveConstraints(btContactSolverInfo& solverInfo);
-
+	
 	void	updateActivationState(btScalar timeStep);
 
 	void	updateActions(btScalar timeStep);
@@ -103,13 +108,13 @@ public:
 	virtual void	addAction(btActionInterface*);
 
 	virtual void	removeAction(btActionInterface*);
-
+	
 	btSimulationIslandManager*	getSimulationIslandManager()
 	{
 		return m_islandManager;
 	}
 
-	const btSimulationIslandManager*	getSimulationIslandManager() const
+	const btSimulationIslandManager*	getSimulationIslandManager() const 
 	{
 		return m_islandManager;
 	}
@@ -142,19 +147,19 @@ public:
 	virtual void	setConstraintSolver(btConstraintSolver* solver);
 
 	virtual btConstraintSolver* getConstraintSolver();
-
+	
 	virtual	int		getNumConstraints() const;
 
 	virtual btTypedConstraint* getConstraint(int index)	;
 
 	virtual const btTypedConstraint* getConstraint(int index) const;
 
-
+	
 	virtual btDynamicsWorldType	getWorldType() const
 	{
 		return BT_DISCRETE_DYNAMICS_WORLD;
 	}
-
+	
 	///the forces on each rigidbody is accumulating together with gravity. clear this after each timestep.
 	virtual void	clearForces();
 

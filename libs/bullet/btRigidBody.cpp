@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -75,14 +75,14 @@ void	btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
 	m_interpolationWorldTransform = m_worldTransform;
 	m_interpolationLinearVelocity.setValue(0,0,0);
 	m_interpolationAngularVelocity.setValue(0,0,0);
-
+	
 	//moved to btCollisionObject
 	m_friction = constructionInfo.m_friction;
 	m_restitution = constructionInfo.m_restitution;
 
 	setCollisionShape( constructionInfo.m_collisionShape );
 	m_debugBodyId = uniqueId++;
-
+	
 	setMassProps(constructionInfo.m_mass, constructionInfo.m_localInertia);
 	updateInertiaTensor();
 
@@ -95,12 +95,12 @@ void	btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
 	m_pushVelocity.setZero();
 	m_turnVelocity.setZero();
 
-
+	
 
 }
 
 
-void btRigidBody::predictIntegratedTransform(btScalar timeStep,btTransform& predictedTransform)
+void btRigidBody::predictIntegratedTransform(btScalar timeStep,btTransform& predictedTransform) 
 {
 	btTransformUtil::integrateTransform(m_worldTransform,m_linearVelocity,m_angularVelocity,timeStep,predictedTransform);
 }
@@ -114,7 +114,7 @@ void			btRigidBody::saveKinematicState(btScalar timeStep)
 		if (getMotionState())
 			getMotionState()->getWorldTransform(m_worldTransform);
 		btVector3 linVel,angVel;
-
+		
 		btTransformUtil::calculateVelocity(m_interpolationWorldTransform,m_worldTransform,timeStep,m_linearVelocity,m_angularVelocity);
 		m_interpolationLinearVelocity = m_linearVelocity;
 		m_interpolationAngularVelocity = m_angularVelocity;
@@ -122,7 +122,7 @@ void			btRigidBody::saveKinematicState(btScalar timeStep)
 		//printf("angular = %f %f %f\n",m_angularVelocity.getX(),m_angularVelocity.getY(),m_angularVelocity.getZ());
 	}
 }
-
+	
 void	btRigidBody::getAabb(btVector3& aabbMin,btVector3& aabbMax) const
 {
 	getCollisionShape()->getAabb(m_worldTransform,aabbMin,aabbMax);
@@ -131,7 +131,7 @@ void	btRigidBody::getAabb(btVector3& aabbMin,btVector3& aabbMax) const
 
 
 
-void btRigidBody::setGravity(const btVector3& acceleration)
+void btRigidBody::setGravity(const btVector3& acceleration) 
 {
 	if (m_inverseMass != btScalar(0.0))
 	{
@@ -179,7 +179,7 @@ void			btRigidBody::applyDamping(btScalar timeStep)
 			m_angularVelocity *= m_additionalDampingFactor;
 			m_linearVelocity *= m_additionalDampingFactor;
 		}
-
+	
 
 		btScalar speed = m_linearVelocity.length();
 		if (speed < m_linearDamping)
@@ -216,8 +216,8 @@ void btRigidBody::applyGravity()
 {
 	if (isStaticOrKinematicObject())
 		return;
-
-	applyCentralForce(m_gravity);
+	
+	applyCentralForce(m_gravity);	
 
 }
 
@@ -225,7 +225,7 @@ void btRigidBody::proceedToTransform(const btTransform& newTrans)
 {
 	setCenterOfMassTransform( newTrans );
 }
-
+	
 
 void btRigidBody::setMassProps(btScalar mass, const btVector3& inertia)
 {
@@ -241,7 +241,7 @@ void btRigidBody::setMassProps(btScalar mass, const btVector3& inertia)
 
 	//Fg = m * a
 	m_gravity = mass * m_gravity_acceleration;
-
+	
 	m_invInertiaLocal.setValue(inertia.x() != btScalar(0.0) ? btScalar(1.0) / inertia.x(): btScalar(0.0),
 				   inertia.y() != btScalar(0.0) ? btScalar(1.0) / inertia.y(): btScalar(0.0),
 				   inertia.z() != btScalar(0.0) ? btScalar(1.0) / inertia.z(): btScalar(0.0));
@@ -249,15 +249,15 @@ void btRigidBody::setMassProps(btScalar mass, const btVector3& inertia)
 	m_invMass = m_linearFactor*m_inverseMass;
 }
 
+	
 
-
-void btRigidBody::updateInertiaTensor()
+void btRigidBody::updateInertiaTensor() 
 {
 	m_invInertiaTensorWorld = m_worldTransform.getBasis().scaled(m_invInertiaLocal) * m_worldTransform.getBasis().transpose();
 }
 
 
-void btRigidBody::integrateVelocities(btScalar step)
+void btRigidBody::integrateVelocities(btScalar step) 
 {
 	if (isStaticOrKinematicObject())
 		return;
@@ -266,7 +266,7 @@ void btRigidBody::integrateVelocities(btScalar step)
 	m_angularVelocity += m_invInertiaTensorWorld * m_totalTorque * step;
 
 #define MAX_ANGVEL SIMD_HALF_PI
-	/// clamp angular velocity. collision calculations will fail on higher angular velocities
+	/// clamp angular velocity. collision calculations will fail on higher angular velocities	
 	btScalar angvel = m_angularVelocity.length();
 	if (angvel*step > MAX_ANGVEL)
 	{
@@ -281,12 +281,12 @@ btQuaternion btRigidBody::getOrientation() const
 		m_worldTransform.getBasis().getRotation(orn);
 		return orn;
 }
-
-
+	
+	
 void btRigidBody::setCenterOfMassTransform(const btTransform& xform)
 {
 
-	if (isStaticOrKinematicObject())
+	if (isKinematicObject())
 	{
 		m_interpolationWorldTransform = m_worldTransform;
 	} else
@@ -309,8 +309,9 @@ bool btRigidBody::checkCollideWithOverride(btCollisionObject* co)
 	for (int i = 0; i < m_constraintRefs.size(); ++i)
 	{
 		btTypedConstraint* c = m_constraintRefs[i];
-		if (&c->getRigidBodyA() == otherRb || &c->getRigidBodyB() == otherRb)
-			return false;
+		if (c->isEnabled())
+			if (&c->getRigidBodyA() == otherRb || &c->getRigidBodyB() == otherRb)
+				return false;
 	}
 
 	return true;
@@ -323,7 +324,7 @@ void	btRigidBody::internalWritebackVelocity(btScalar timeStep)
 	{
 		setLinearVelocity(getLinearVelocity()+ m_deltaLinearVelocity);
 		setAngularVelocity(getAngularVelocity()+m_deltaAngularVelocity);
-
+		
 		//correct the position/orientation based on push/turn recovery
 		btTransform newTransform;
 		btTransformUtil::integrateTransform(getWorldTransform(),m_pushVelocity,m_turnVelocity,timeStep,newTransform);
@@ -342,7 +343,7 @@ void btRigidBody::addConstraintRef(btTypedConstraint* c)
 {
 	int index = m_constraintRefs.findLinearSearch(c);
 	if (index == m_constraintRefs.size())
-		m_constraintRefs.push_back(c);
+		m_constraintRefs.push_back(c); 
 
 	m_checkCollideWith = true;
 }

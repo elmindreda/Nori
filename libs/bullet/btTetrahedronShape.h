@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -37,12 +37,12 @@ public:
 	btBU_Simplex1to4(const btVector3& pt0,const btVector3& pt1,const btVector3& pt2);
 	btBU_Simplex1to4(const btVector3& pt0,const btVector3& pt1,const btVector3& pt2,const btVector3& pt3);
 
-
+    
 	void	reset()
 	{
 		m_numVertices = 0;
 	}
-
+	
 	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
 	void addVertex(const btVector3& pt);
@@ -54,7 +54,7 @@ public:
 	virtual int getNumEdges() const;
 
 	virtual void getEdge(int i,btVector3& pa,btVector3& pb) const;
-
+	
 	virtual void getVertex(int i,btVector3& vtx) const;
 
 	virtual int	getNumPlanes() const;

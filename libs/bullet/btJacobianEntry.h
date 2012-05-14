@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -38,7 +38,7 @@ public:
 		const btMatrix3x3& world2B,
 		const btVector3& rel_pos1,const btVector3& rel_pos2,
 		const btVector3& jointAxis,
-		const btVector3& inertiaInvA,
+		const btVector3& inertiaInvA, 
 		const btScalar massInvA,
 		const btVector3& inertiaInvB,
 		const btScalar massInvB)
@@ -91,7 +91,7 @@ public:
 		const btMatrix3x3& world2A,
 		const btVector3& rel_pos1,const btVector3& rel_pos2,
 		const btVector3& jointAxis,
-		const btVector3& inertiaInvA,
+		const btVector3& inertiaInvA, 
 		const btScalar massInvA)
 		:m_linearJointAxis(jointAxis)
 	{
@@ -115,7 +115,7 @@ public:
 		return lin + ang;
 	}
 
-
+	
 
 	// for two constraints on sharing two same rigidbodies (for example two contact points between two rigidbodies)
 	btScalar	getNonDiagonal(const btJacobianEntry& jacB,const btScalar massInvA,const btScalar massInvB) const

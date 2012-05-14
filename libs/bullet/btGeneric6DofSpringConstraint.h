@@ -1,11 +1,11 @@
 /*
 Bullet Continuous Collision Detection and Physics Library, http://bulletphysics.org
-Copyright (C) 2006, 2007 Sony Computer Entertainment Inc.
+Copyright (C) 2006, 2007 Sony Computer Entertainment Inc. 
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -39,9 +39,11 @@ protected:
 	btScalar	m_equilibriumPoint[6];
 	btScalar	m_springStiffness[6];
 	btScalar	m_springDamping[6]; // between 0 and 1 (1 == no damping)
+	void init();
 	void internalUpdateSprings(btConstraintInfo2* info);
-public:
+public: 
     btGeneric6DofSpringConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB ,bool useLinearReferenceFrameA);
+    btGeneric6DofSpringConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameB);
 	void enableSpring(int index, bool onOff);
 	void setStiffness(int index, btScalar stiffness);
 	void setDamping(int index, btScalar damping);
@@ -64,7 +66,7 @@ public:
 struct btGeneric6DofSpringConstraintData
 {
 	btGeneric6DofConstraintData	m_6dofData;
-
+	
 	int			m_springEnabled[6];
 	float		m_equilibriumPoint[6];
 	float		m_springStiffness[6];

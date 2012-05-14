@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -37,7 +37,7 @@ class btSimplexSolverInterface
 	virtual void reset() = 0;
 
 	virtual void addVertex(const btVector3& w, const btVector3& p, const btVector3& q) = 0;
-
+	
 	virtual bool closest(btVector3& v) = 0;
 
 	virtual btScalar maxVertex() = 0;
@@ -47,7 +47,7 @@ class btSimplexSolverInterface
 	virtual int getSimplex(btVector3 *pBuf, btVector3 *qBuf, btVector3 *yBuf) const = 0;
 
 	virtual bool inSimplex(const btVector3& w) = 0;
-
+	
 	virtual void backup_closest(btVector3& v) = 0;
 
 	virtual bool emptySimplex() const = 0;

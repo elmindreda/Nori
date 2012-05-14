@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -28,6 +28,7 @@ subject to the following restrictions:
 
 #define BT_USE_PLACEMENT_NEW 1
 //#define BT_USE_MEMCPY 1 //disable, because it is cumbersome to find out for each platform where memcpy is defined. It can be in <memory.h> or <string.h> or otherwise...
+#define BT_ALLOW_ARRAY_COPY_OPERATOR // enabling this can accidently perform deep copies of data if you are not careful
 
 #ifdef BT_USE_MEMCPY
 #include <memory.h>
@@ -41,8 +42,8 @@ subject to the following restrictions:
 
 ///The btAlignedObjectArray template class uses a subset of the stl::vector interface for its methods
 ///It is developed to replace stl::vector to avoid portability issues, including STL alignment issues to add SIMD/SSE data
-template <typename T>
-//template <class T>
+template <typename T> 
+//template <class T> 
 class btAlignedObjectArray
 {
 	btAlignedAllocator<T , 16>	m_allocator;
@@ -53,7 +54,19 @@ class btAlignedObjectArray
 	//PCK: added this line
 	bool				m_ownsMemory;
 
-	protected:
+#ifdef BT_ALLOW_ARRAY_COPY_OPERATOR
+public:
+	SIMD_FORCE_INLINE btAlignedObjectArray<T>& operator=(const btAlignedObjectArray<T> &other)
+	{
+		copyFromArray(other);
+		return *this;
+	}
+#else//BT_ALLOW_ARRAY_COPY_OPERATOR
+private:
+		SIMD_FORCE_INLINE btAlignedObjectArray<T>& operator=(const btAlignedObjectArray<T> &other);
+#endif//BT_ALLOW_ARRAY_COPY_OPERATOR
+
+protected:
 		SIMD_FORCE_INLINE	int	allocSize(int size)
 		{
 			return (size ? size*2 : 1);
@@ -105,11 +118,11 @@ class btAlignedObjectArray
 			}
 		}
 
-
+	
 
 
 	public:
-
+		
 		btAlignedObjectArray()
 		{
 			init();
@@ -130,14 +143,14 @@ class btAlignedObjectArray
 			otherArray.copy(0, otherSize, m_data);
 		}
 
-
-
+		
+		
 		/// return the number of elements in the array
 		SIMD_FORCE_INLINE	int size() const
-		{
+		{	
 			return m_size;
 		}
-
+		
 		SIMD_FORCE_INLINE const T& at(int n) const
 		{
 			btAssert(n>=0);
@@ -165,15 +178,15 @@ class btAlignedObjectArray
 			btAssert(n<size());
 			return m_data[n];
 		}
-
+		
 
 		///clear the array, deallocated memory. Generally it is better to use array.resize(0), to reduce performance overhead of run-time memory (de)allocations.
 		SIMD_FORCE_INLINE	void	clear()
 		{
 			destroy(0,size());
-
+			
 			deallocate();
-
+			
 			init();
 		}
 
@@ -213,9 +226,9 @@ class btAlignedObjectArray
 
 			m_size = newsize;
 		}
-
+	
 		SIMD_FORCE_INLINE	T&  expandNonInitializing( )
-		{
+		{	
 			int sz = size();
 			if( sz == capacity() )
 			{
@@ -223,12 +236,12 @@ class btAlignedObjectArray
 			}
 			m_size++;
 
-			return m_data[sz];
+			return m_data[sz];		
 		}
 
 
 		SIMD_FORCE_INLINE	T&  expand( const T& fillValue=T())
-		{
+		{	
 			int sz = size();
 			if( sz == capacity() )
 			{
@@ -239,34 +252,34 @@ class btAlignedObjectArray
 			new (&m_data[sz]) T(fillValue); //use the in-place new (not really allocating heap memory)
 #endif
 
-			return m_data[sz];
+			return m_data[sz];		
 		}
 
 
 		SIMD_FORCE_INLINE	void push_back(const T& _Val)
-		{
+		{	
 			int sz = size();
 			if( sz == capacity() )
 			{
 				reserve( allocSize(size()) );
 			}
-
+			
 #ifdef BT_USE_PLACEMENT_NEW
 			new ( &m_data[m_size] ) T(_Val);
 #else
-			m_data[size()] = _Val;
+			m_data[size()] = _Val;			
 #endif //BT_USE_PLACEMENT_NEW
 
 			m_size++;
 		}
 
-
+	
 		/// return the pre-allocated (reserved) elements, this is at least as large as the total number of elements,see size() and reserve()
 		SIMD_FORCE_INLINE	int capacity() const
-		{
+		{	
 			return m_capacity;
 		}
-
+		
 		SIMD_FORCE_INLINE	void reserve(int _Count)
 		{	// determine new minimum length of allocated storage
 			if (capacity() < _Count)
@@ -278,12 +291,12 @@ class btAlignedObjectArray
 				destroy(0,size());
 
 				deallocate();
-
+				
 				//PCK: added this line
 				m_ownsMemory = true;
 
 				m_data = s;
-
+				
 				m_capacity = _Count;
 
 			}
@@ -299,9 +312,10 @@ class btAlignedObjectArray
 					return ( a < b );
 				}
 		};
+	
 
 		template <typename L>
-		void quickSortInternal(L CompareFunc,int lo, int hi)
+		void quickSortInternal(const L& CompareFunc,int lo, int hi)
 		{
 		//  lo is the lower index, hi is the upper index
 		//  of the region of array a that is to be sorted
@@ -310,10 +324,10 @@ class btAlignedObjectArray
 
 			//  partition
 			do
-			{
-				while (CompareFunc(m_data[i],x))
-					i++;
-				while (CompareFunc(x,m_data[j]))
+			{    
+				while (CompareFunc(m_data[i],x)) 
+					i++; 
+				while (CompareFunc(x,m_data[j])) 
 					j--;
 				if (i<=j)
 				{
@@ -323,15 +337,15 @@ class btAlignedObjectArray
 			} while (i<=j);
 
 			//  recursion
-			if (lo<j)
+			if (lo<j) 
 				quickSortInternal( CompareFunc, lo, j);
-			if (i<hi)
+			if (i<hi) 
 				quickSortInternal( CompareFunc, i, hi);
 		}
 
 
 		template <typename L>
-		void quickSort(L CompareFunc)
+		void quickSort(const L& CompareFunc)
 		{
 			//don't sort 0 or 1 elements
 			if (size()>1)
@@ -343,17 +357,17 @@ class btAlignedObjectArray
 
 		///heap sort from http://www.csse.monash.edu.au/~lloyd/tildeAlgDS/Sort/Heap/
 		template <typename L>
-		void downHeap(T *pArr, int k, int n,L CompareFunc)
+		void downHeap(T *pArr, int k, int n, const L& CompareFunc)
 		{
 			/*  PRE: a[k+1..N] is a heap */
 			/* POST:  a[k..N]  is a heap */
-
+			
 			T temp = pArr[k - 1];
 			/* k has child(s) */
-			while (k <= n/2)
+			while (k <= n/2) 
 			{
 				int child = 2*k;
-
+				
 				if ((child < n) && CompareFunc(pArr[child - 1] , pArr[child]))
 				{
 					child++;
@@ -389,18 +403,18 @@ class btAlignedObjectArray
 		}
 
 	template <typename L>
-	void heapSort(L CompareFunc)
+	void heapSort(const L& CompareFunc)
 	{
 		/* sort a[0..N-1],  N.B. 0 to N-1 */
 		int k;
 		int n = m_size;
-		for (k = n/2; k > 0; k--)
+		for (k = n/2; k > 0; k--) 
 		{
 			downHeap(m_data, k, n, CompareFunc);
 		}
 
 		/* a[1..N] is now a heap */
-		while ( n>=1 )
+		while ( n>=1 ) 
 		{
 			swap(0,n-1); /* largest of a[0..n-1] */
 
@@ -408,7 +422,7 @@ class btAlignedObjectArray
 			n = n - 1;
 			/* restore a[1..i-1] heap */
 			downHeap(m_data, 1, n, CompareFunc);
-		}
+		} 
 	}
 
 	///non-recursive binary search, assumes sorted array
@@ -420,9 +434,9 @@ class btAlignedObjectArray
 		//assume sorted array
 		while (first <= last) {
 			int mid = (first + last) / 2;  // compute mid point.
-			if (key > m_data[mid])
+			if (key > m_data[mid]) 
 				first = mid + 1;  // repeat search in top half.
-			else if (key < m_data[mid])
+			else if (key < m_data[mid]) 
 				last = mid - 1; // repeat search in bottom half.
 			else
 				return mid;     // found it. return position /////

@@ -4,8 +4,8 @@ Copyright (c) 2003-2007 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -28,7 +28,7 @@ subject to the following restrictions:
 
 
 // Implementation profiles
-#define DBVT_IMPL_GENERIC		0	// Generic implementation
+#define DBVT_IMPL_GENERIC		0	// Generic implementation	
 #define DBVT_IMPL_SSE			1	// SSE
 
 // Template implementation of ICollide
@@ -126,7 +126,7 @@ subject to the following restrictions:
 // Defaults volumes
 //
 
-/* btDbvtAabbMm			*/
+/* btDbvtAabbMm			*/ 
 struct	btDbvtAabbMm
 {
 	DBVT_INLINE btVector3			Center() const	{ return((mi+mx)/2); }
@@ -146,7 +146,7 @@ struct	btDbvtAabbMm
 	DBVT_INLINE btScalar			ProjectMinimum(const btVector3& v,unsigned signs) const;
 	DBVT_INLINE friend bool			Intersect(	const btDbvtAabbMm& a,
 		const btDbvtAabbMm& b);
-
+	
 	DBVT_INLINE friend bool			Intersect(	const btDbvtAabbMm& a,
 		const btVector3& b);
 
@@ -166,10 +166,10 @@ private:
 	btVector3	mi,mx;
 };
 
-// Types
+// Types	
 typedef	btDbvtAabbMm	btDbvtVolume;
 
-/* btDbvtNode				*/
+/* btDbvtNode				*/ 
 struct	btDbvtNode
 {
 	btDbvtVolume	volume;
@@ -189,7 +189,7 @@ struct	btDbvtNode
 ///Unlike the btQuantizedBvh, nodes can be dynamically moved around, which allows for change in topology of the underlying data structure.
 struct	btDbvt
 {
-	/* Stack element	*/
+	/* Stack element	*/ 
 	struct	sStkNN
 	{
 		const btDbvtNode*	a;
@@ -219,9 +219,9 @@ struct	btDbvt
 	};
 	// Policies/Interfaces
 
-	/* ICollide	*/
+	/* ICollide	*/ 
 	struct	ICollide
-	{
+	{		
 		DBVT_VIRTUAL_DTOR(ICollide)
 			DBVT_VIRTUAL void	Process(const btDbvtNode*,const btDbvtNode*)		{}
 		DBVT_VIRTUAL void	Process(const btDbvtNode*)					{}
@@ -229,7 +229,7 @@ struct	btDbvt
 		DBVT_VIRTUAL bool	Descent(const btDbvtNode*)					{ return(true); }
 		DBVT_VIRTUAL bool	AllLeaves(const btDbvtNode*)					{ return(true); }
 	};
-	/* IWriter	*/
+	/* IWriter	*/ 
 	struct	IWriter
 	{
 		virtual ~IWriter() {}
@@ -237,7 +237,7 @@ struct	btDbvt
 		virtual void		WriteNode(const btDbvtNode*,int index,int parent,int child0,int child1)=0;
 		virtual void		WriteLeaf(const btDbvtNode*,int index,int parent)=0;
 	};
-	/* IClone	*/
+	/* IClone	*/ 
 	struct	IClone
 	{
 		virtual ~IClone()	{}
@@ -257,8 +257,9 @@ struct	btDbvt
 	int				m_leaves;
 	unsigned		m_opath;
 
-
+	
 	btAlignedObjectArray<sStkNN>	m_stkStack;
+	mutable btAlignedObjectArray<const btDbvtNode*>	m_rayTestStack;
 
 
 	// Methods
@@ -274,7 +275,7 @@ struct	btDbvt
 	void			update(btDbvtNode* leaf,btDbvtVolume& volume);
 	bool			update(btDbvtNode* leaf,btDbvtVolume& volume,const btVector3& velocity,btScalar margin);
 	bool			update(btDbvtNode* leaf,btDbvtVolume& volume,const btVector3& velocity);
-	bool			update(btDbvtNode* leaf,btDbvtVolume& volume,btScalar margin);
+	bool			update(btDbvtNode* leaf,btDbvtVolume& volume,btScalar margin);	
 	void			remove(btDbvtNode* leaf);
 	void			write(IWriter* iwriter) const;
 	void			clone(btDbvt& dest,IClone* iclone=0) const;
@@ -351,13 +352,13 @@ struct	btDbvt
 		const btVector3* normals,
 		const btScalar* offsets,
 		const btVector3& sortaxis,
-		int count,
+		int count,								
 		DBVT_IPOLICY,
 		bool fullsort=true);
 	DBVT_PREFIX
 		static void		collideTU(	const btDbvtNode* root,
 		DBVT_IPOLICY);
-	// Helpers
+	// Helpers	
 	static DBVT_INLINE int	nearest(const int* i,const btDbvt::sStkNPS* a,btScalar v,int l,int h)
 	{
 		int	m=0;
@@ -377,11 +378,11 @@ struct	btDbvt
 		{ i=ifree[ifree.size()-1];ifree.pop_back();stock[i]=value; }
 		else
 		{ i=stock.size();stock.push_back(value); }
-		return(i);
+		return(i); 
 	}
 	//
 private:
-	btDbvt(const btDbvt&)	{}
+	btDbvt(const btDbvt&)	{}	
 };
 
 //
@@ -525,7 +526,7 @@ DBVT_INLINE bool		Intersect(	const btDbvtAabbMm& a,
 		(a.mx.x()>=b.mi.x())&&
 		(a.mi.y()<=b.mx.y())&&
 		(a.mx.y()>=b.mi.y())&&
-		(a.mi.z()<=b.mx.z())&&
+		(a.mi.z()<=b.mx.z())&&		
 		(a.mx.z()>=b.mi.z()));
 #endif
 }
@@ -594,7 +595,7 @@ DBVT_INLINE int			Select(	const btDbvtAabbMm& o,
 	__m128 t1(_mm_movehl_ps(bmi,bmi));
 	bmi=_mm_add_ps(bmi,t1);
 	bmi=_mm_add_ss(bmi,_mm_shuffle_ps(bmi,bmi,1));
-
+	
 	btSSEUnion tmp;
 	tmp.ssereg = _mm_cmple_ss(bmi,ami);
 	return tmp.ints[0]&1;
@@ -608,7 +609,7 @@ DBVT_INLINE int			Select(	const btDbvtAabbMm& o,
 			mov		edx,b
 			movaps	xmm0,[eax]
 		movaps	xmm5,mask
-			addps	xmm0,[eax+16]
+			addps	xmm0,[eax+16]	
 		movaps	xmm1,[ecx]
 		movaps	xmm2,[edx]
 		addps	xmm1,[ecx+16]
@@ -719,7 +720,7 @@ inline void		btDbvt::collideTT(	const btDbvtNode* root0,
 			btAlignedObjectArray<sStkNN>	stkStack;
 			stkStack.resize(DOUBLE_STACKSIZE);
 			stkStack[0]=sStkNN(root0,root1);
-			do	{
+			do	{		
 				sStkNN	p=stkStack[--depth];
 				if(depth>treshold)
 				{
@@ -781,10 +782,10 @@ inline void		btDbvt::collideTTpersistentStack(	const btDbvtNode* root0,
 		{
 			int								depth=1;
 			int								treshold=DOUBLE_STACKSIZE-4;
-
+			
 			m_stkStack.resize(DOUBLE_STACKSIZE);
 			m_stkStack[0]=sStkNN(root0,root1);
-			do	{
+			do	{		
 				sStkNN	p=m_stkStack[--depth];
 				if(depth>treshold)
 				{
@@ -862,7 +863,7 @@ inline void		btDbvt::collideTT(	const btDbvtNode* root0,
 					if(p.a->isinternal())
 					{
 						if(p.b->isinternal())
-						{
+						{					
 							stkStack[depth++]=sStkNN(p.a->childs[0],p.b->childs[0]);
 							stkStack[depth++]=sStkNN(p.a->childs[1],p.b->childs[0]);
 							stkStack[depth++]=sStkNN(p.a->childs[0],p.b->childs[1]);
@@ -901,7 +902,7 @@ inline void		btDbvt::collideTT(	const btDbvtNode* root0,
 	const btTransform	xform=xform0.inverse()*xform1;
 	collideTT(root0,root1,xform,policy);
 }
-#endif
+#endif 
 
 //
 DBVT_PREFIX
@@ -955,11 +956,11 @@ inline void		btDbvt::rayTestInternal(	const btDbvtNode* root,
 
 		int								depth=1;
 		int								treshold=DOUBLE_STACKSIZE-2;
-		btAlignedObjectArray<const btDbvtNode*>	stack;
+		btAlignedObjectArray<const btDbvtNode*>&	stack = m_rayTestStack;
 		stack.resize(DOUBLE_STACKSIZE);
 		stack[0]=root;
 		btVector3 bounds[2];
-		do
+		do	
 		{
 			const btDbvtNode*	node=stack[--depth];
 			bounds[0] = node->volume.Mins()-aabbMax;
@@ -1025,7 +1026,7 @@ inline void		btDbvt::rayTest(	const btDbvtNode* root,
 
 				bounds[0] = node->volume.Mins();
 				bounds[1] = node->volume.Maxs();
-
+				
 				btScalar tmin=1.f,lambda_min=0.f;
 				unsigned int result1 = btRayAabb2(rayFrom,rayDirectionInverse,signs,bounds,tmin,lambda_min,lambda_max);
 
@@ -1172,11 +1173,11 @@ inline void		btDbvt::collideOCL(	const btDbvtNode* root,
 						const btDbvtNode* pns[]={	se.node->childs[0],se.node->childs[1]};
 						sStkNPS		nes[]={	sStkNPS(pns[0],se.mask,pns[0]->volume.ProjectMinimum(sortaxis,srtsgns)),
 							sStkNPS(pns[1],se.mask,pns[1]->volume.ProjectMinimum(sortaxis,srtsgns))};
-						const int	q=nes[0].value<nes[1].value?1:0;
+						const int	q=nes[0].value<nes[1].value?1:0;				
 						int			j=stack.size();
 						if(fsort&&(j>0))
 						{
-							/* Insert 0	*/
+							/* Insert 0	*/ 
 							j=nearest(&stack[0],&stock[0],nes[q].value,0,stack.size());
 							stack.push_back(0);
 #if DBVT_USE_MEMMOVE
@@ -1185,7 +1186,7 @@ inline void		btDbvt::collideOCL(	const btDbvtNode* root,
 							for(int k=stack.size()-1;k>j;--k) stack[k]=stack[k-1];
 #endif
 							stack[j]=allocate(ifree,stock,nes[q]);
-							/* Insert 1	*/
+							/* Insert 1	*/ 
 							j=nearest(&stack[0],&stock[0],nes[1-q].value,j,stack.size());
 							stack.push_back(0);
 #if DBVT_USE_MEMMOVE

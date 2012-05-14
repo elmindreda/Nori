@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -30,7 +30,7 @@ ATTRIBUTE_ALIGNED16(class) btConvexHullShape : public btPolyhedralConvexAabbCach
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-
+	
 	///this constructor optionally takes in a pointer to points. Each point is assumed to be 3 consecutive btScalar (x,y,z), the striding defines the number of bytes between each point, in memory.
 	///It is easier to not pass any points in the constructor, and just add one point at a time, using addPoint.
 	///btConvexHullShape make an internal copy of the points.
@@ -38,7 +38,7 @@ public:
 
 	void addPoint(const btVector3& point);
 
-
+	
 	btVector3* getUnscaledPoints()
 	{
 		return &m_unscaledPoints[0];
@@ -55,7 +55,7 @@ public:
 		return getUnscaledPoints();
 	}
 
-
+	
 
 
 	SIMD_FORCE_INLINE	btVector3 getScaledPoint(int i) const
@@ -63,7 +63,7 @@ public:
 		return m_unscaledPoints[i] * m_localScaling;
 	}
 
-	SIMD_FORCE_INLINE	int getNumPoints() const
+	SIMD_FORCE_INLINE	int getNumPoints() const 
 	{
 		return m_unscaledPoints.size();
 	}
@@ -71,15 +71,15 @@ public:
 	virtual btVector3	localGetSupportingVertex(const btVector3& vec)const;
 	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;
 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
+	
 
-
-	virtual void project(const btTransform& trans, const btVector3& dir, float& min, float& max) const;
+	virtual void project(const btTransform& trans, const btVector3& dir, btScalar& min, btScalar& max) const;
 
 
 	//debugging
 	virtual const char*	getName()const {return "Convex";}
 
-
+	
 	virtual int	getNumVertices() const;
 	virtual int getNumEdges() const;
 	virtual void getEdge(int i,btVector3& pa,btVector3& pb) const;

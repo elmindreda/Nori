@@ -4,8 +4,8 @@ Copyright (c) 2010 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -32,7 +32,7 @@ subject to the following restrictions:
 
 
 ///The btTriangleInfo structure stores information to adjust collision normals to avoid collisions against internal edges
-///it can be generated using
+///it can be generated using 
 struct	btTriangleInfo
 {
 	btTriangleInfo()
@@ -63,8 +63,8 @@ struct	btTriangleInfoMap : public btInternalTriangleInfoMap
 	btScalar	m_edgeDistanceThreshold; ///used to determine edge contacts: if the closest distance between a contact point and an edge is smaller than this distance threshold it is considered to "hit the edge"
 	btScalar	m_maxEdgeAngleThreshold; //ignore edges that connect triangles at an angle larger than this m_maxEdgeAngleThreshold
 	btScalar	m_zeroAreaThreshold; ///used to determine if a triangle is degenerate (length squared of cross product of 2 triangle edges < threshold)
-
-
+	
+	
 	btTriangleInfoMap()
 	{
 		m_convexEpsilon = 0.00f;
@@ -85,6 +85,7 @@ struct	btTriangleInfoMap : public btInternalTriangleInfoMap
 
 };
 
+///those fields have to be float and not btScalar for the serialization to work properly
 struct	btTriangleInfoData
 {
 	int			m_flags;
@@ -102,7 +103,7 @@ struct	btTriangleInfoMapData
 
 	float	m_convexEpsilon;
 	float	m_planarEpsilon;
-	float	m_equalVertexThreshold;
+	float	m_equalVertexThreshold; 
 	float	m_edgeDistanceThreshold;
 	float	m_zeroAreaThreshold;
 
@@ -127,12 +128,12 @@ SIMD_FORCE_INLINE	const char*	btTriangleInfoMap::serialize(void* dataBuffer, btS
 	tmapData->m_equalVertexThreshold = m_equalVertexThreshold;
 	tmapData->m_edgeDistanceThreshold = m_edgeDistanceThreshold;
 	tmapData->m_zeroAreaThreshold = m_zeroAreaThreshold;
-
+	
 	tmapData->m_hashTableSize = m_hashTable.size();
 
 	tmapData->m_hashTablePtr = tmapData->m_hashTableSize ? (int*)serializer->getUniquePointer((void*)&m_hashTable[0]) : 0;
 	if (tmapData->m_hashTablePtr)
-	{
+	{ 
 		//serialize an int buffer
 		int sz = sizeof(int);
 		int numElem = tmapData->m_hashTableSize;
@@ -160,7 +161,7 @@ SIMD_FORCE_INLINE	const char*	btTriangleInfoMap::serialize(void* dataBuffer, btS
 		}
 		serializer->finalizeChunk(chunk,"int",BT_ARRAY_CODE,(void*)&m_next[0]);
 	}
-
+	
 	tmapData->m_numValues = m_valueArray.size();
 	tmapData->m_valueArrayPtr = tmapData->m_numValues ? (btTriangleInfoData*)serializer->getUniquePointer((void*)&m_valueArray[0]): 0;
 	if (tmapData->m_valueArrayPtr)
@@ -178,7 +179,7 @@ SIMD_FORCE_INLINE	const char*	btTriangleInfoMap::serialize(void* dataBuffer, btS
 		}
 		serializer->finalizeChunk(chunk,"btTriangleInfoData",BT_ARRAY_CODE,(void*) &m_valueArray[0]);
 	}
-
+	
 	tmapData->m_numKeys = m_keyArray.size();
 	tmapData->m_keyArrayPtr = tmapData->m_numKeys ? (int*)serializer->getUniquePointer((void*)&m_keyArray[0]) : 0;
 	if (tmapData->m_keyArrayPtr)
@@ -228,7 +229,7 @@ SIMD_FORCE_INLINE	void	btTriangleInfoMap::deSerialize(btTriangleInfoMapData& tma
 		m_valueArray[i].m_edgeV2V0Angle = tmapData.m_valueArrayPtr[i].m_edgeV2V0Angle;
 		m_valueArray[i].m_flags = tmapData.m_valueArrayPtr[i].m_flags;
 	}
-
+	
 	m_keyArray.resize(tmapData.m_numKeys,btHashInt(0));
 	for (i=0;i<tmapData.m_numKeys;i++)
 	{

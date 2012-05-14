@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -48,7 +48,7 @@ protected:
 		btContactSolverInfo	m_solverInfo;
 
 public:
-
+		
 
 		btDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* broadphase,btCollisionConfiguration* collisionConfiguration)
 		:btCollisionWorld(dispatcher,broadphase,collisionConfiguration), m_internalTickCallback(0),m_internalPreTickCallback(0), m_worldUserInfo(0)
@@ -58,17 +58,17 @@ public:
 		virtual ~btDynamicsWorld()
 		{
 		}
-
+		
 		///stepSimulation proceeds the simulation over 'timeStep', units in preferably in seconds.
 		///By default, Bullet will subdivide the timestep in constant substeps of each 'fixedTimeStep'.
 		///in order to keep the simulation real-time, the maximum number of substeps can be clamped to 'maxSubSteps'.
 		///You can disable subdividing the timestep/substepping by passing maxSubSteps=0 as second argument to stepSimulation, but in that case you have to keep the timeStep constant.
 		virtual int		stepSimulation( btScalar timeStep,int maxSubSteps=1, btScalar fixedTimeStep=btScalar(1.)/btScalar(60.))=0;
-
+			
 		virtual void	debugDrawWorld() = 0;
-
-		virtual void	addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies=false)
-		{
+				
+		virtual void	addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies=false) 
+		{ 
 			(void)constraint; (void)disableCollisionsBetweenLinkedBodies;
 		}
 
@@ -94,11 +94,11 @@ public:
 		virtual void	setConstraintSolver(btConstraintSolver* solver) = 0;
 
 		virtual btConstraintSolver* getConstraintSolver() = 0;
-
+		
 		virtual	int		getNumConstraints() const {	return 0;		}
-
+		
 		virtual btTypedConstraint* getConstraint(int index)		{	(void)index;		return 0;		}
-
+		
 		virtual const btTypedConstraint* getConstraint(int index) const	{	(void)index;	return 0;	}
 
 		virtual btDynamicsWorldType	getWorldType() const=0;
@@ -106,14 +106,14 @@ public:
 		virtual void	clearForces() = 0;
 
 		/// Set the callback for when an internal tick (simulation substep) happens, optional user info
-		void setInternalTickCallback(btInternalTickCallback cb,	void* worldUserInfo=0,bool isPreTick=false)
-		{
+		void setInternalTickCallback(btInternalTickCallback cb,	void* worldUserInfo=0,bool isPreTick=false) 
+		{ 
 			if (isPreTick)
 			{
 				m_internalPreTickCallback = cb;
 			} else
 			{
-				m_internalTickCallback = cb;
+				m_internalTickCallback = cb; 
 			}
 			m_worldUserInfo = worldUserInfo;
 		}

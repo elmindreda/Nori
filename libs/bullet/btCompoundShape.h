@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -48,7 +48,7 @@ SIMD_FORCE_INLINE bool operator==(const btCompoundShapeChild& c1, const btCompou
 
 /// The btCompoundShape allows to store multiple other btCollisionShapes
 /// This allows for moving concave collision objects. This is more general then the static concave btBvhTriangleMeshShape.
-/// It has an (optional) dynamic aabb tree to accelerate early rejection tests.
+/// It has an (optional) dynamic aabb tree to accelerate early rejection tests. 
 /// @todo: This aabb tree can also be use to speed up ray tests on btCompoundShape, see http://code.google.com/p/bullet/issues/detail?id=25
 /// Currently, removal of child shapes is only supported when disabling the aabb tree (pass 'false' in the constructor of btCompoundShape)
 ATTRIBUTE_ALIGNED16(class) btCompoundShape	: public btCollisionShape
@@ -117,13 +117,13 @@ public:
 	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
 	virtual	void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
-	/** Re-calculate the local Aabb. Is called at the end of removeChildShapes.
+	/** Re-calculate the local Aabb. Is called at the end of removeChildShapes. 
 	Use this yourself if you modify the children or their transforms. */
-	virtual void recalculateLocalAabb();
+	virtual void recalculateLocalAabb(); 
 
 	virtual void	setLocalScaling(const btVector3& scaling);
 
-	virtual const btVector3& getLocalScaling() const
+	virtual const btVector3& getLocalScaling() const 
 	{
 		return m_localScaling;
 	}
@@ -147,7 +147,7 @@ public:
 	{
 		return m_dynamicAabbTree;
 	}
-
+	
 	btDbvt*	getDynamicAabbTree()
 	{
 		return m_dynamicAabbTree;
