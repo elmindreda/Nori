@@ -252,7 +252,6 @@ public:
     unsigned int triangleCount;
     Time duration;
   };
-  typedef std::deque<Frame> FrameQueue;
   Stats();
   void addFrame();
   void addStateChange();
@@ -280,6 +279,7 @@ public:
   size_t getTotalIndexBufferSize() const;
   size_t getTotalRenderBufferSize() const;
 private:
+  typedef std::deque<Frame> FrameQueue;
   unsigned int frameCount;
   float frameRate;
   FrameQueue frames;
