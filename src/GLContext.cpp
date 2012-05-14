@@ -503,7 +503,7 @@ unsigned int Stats::getFrameCount() const
   return frameCount;
 }
 
-const Stats::Frame& Stats::getFrame() const
+const Stats::Frame& Stats::getCurrentFrame() const
 {
   return frames.front();
 }

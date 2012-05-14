@@ -129,7 +129,7 @@ void Interface::update()
 
   if (stats)
   {
-    const GL::Stats::Frame& frame = stats->getFrame();
+    const GL::Stats::Frame& frame = stats->getCurrentFrame();
 
     updateCountItem(ITEM_FRAMERATE, "fps", (size_t) (stats->getFrameRate() + 0.5f));
     updateCountItem(ITEM_STATECHANGES, "states / f", frame.stateChangeCount);

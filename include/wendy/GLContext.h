@@ -269,7 +269,7 @@ public:
   void removeProgram();
   float getFrameRate() const;
   unsigned int getFrameCount() const;
-  const Frame& getFrame() const;
+  const Frame& getCurrentFrame() const;
   unsigned int getTextureCount() const;
   unsigned int getVertexBufferCount() const;
   unsigned int getIndexBufferCount() const;
