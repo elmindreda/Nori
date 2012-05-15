@@ -386,20 +386,23 @@ public:
    */
   PrimitiveRange(PrimitiveType type,
                  VertexBuffer& vertexBuffer,
-                 IndexBuffer& indexBuffer);
+                 IndexBuffer& indexBuffer,
+                 size_t base = 0);
   /*! Creates a primitive range of the specified type, using the specified
    *  range of indices to refer to vertices in the specified vertex buffer.
    */
   PrimitiveRange(PrimitiveType type,
                  VertexBuffer& vertexBuffer,
-                 const IndexRange& indexRange);
+                 const IndexRange& indexRange,
+                 size_t base = 0);
   /*! Creates a primitive range of the specified type, using the specified
    *  range of the specified vertex buffer.
    */
   PrimitiveRange(PrimitiveType type,
                  VertexBuffer& vertexBuffer,
                  size_t start,
-                 size_t count);
+                 size_t count,
+                 size_t base = 0);
   /*! Creates a primitive range of the specified type, using the specified
    *  range of the specified index buffer to reference vertices in the
    *  specified vertex buffer.
@@ -408,7 +411,8 @@ public:
                  VertexBuffer& vertexBuffer,
                  IndexBuffer& indexBuffer,
                  size_t start,
-                 size_t count);
+                 size_t count,
+                 size_t base = 0);
   /*! @return @c true if this primitive range contains zero primitives,
    *  otherwise @c false.
    */
@@ -425,12 +429,14 @@ public:
   IndexBuffer* getIndexBuffer() const;
   size_t getStart() const;
   size_t getCount() const;
+  size_t getBase() const;
 private:
   PrimitiveType type;
   VertexBuffer* vertexBuffer;
   IndexBuffer* indexBuffer;
   size_t start;
   size_t count;
+  size_t base;
 };
 
 ///////////////////////////////////////////////////////////////////////

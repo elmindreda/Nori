@@ -699,7 +699,8 @@ PrimitiveRange::PrimitiveRange():
   vertexBuffer(NULL),
   indexBuffer(NULL),
   start(0),
-  count(0)
+  count(0),
+  base(0)
 {
 }
 
@@ -709,7 +710,8 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
   vertexBuffer(&initVertexBuffer),
   indexBuffer(NULL),
   start(0),
-  count(0)
+  count(0),
+  base(0)
 {
   count = vertexBuffer->getCount();
 }
@@ -720,7 +722,8 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
   vertexBuffer(NULL),
   indexBuffer(NULL),
   start(0),
-  count(0)
+  count(0),
+  base(0)
 {
   vertexBuffer = vertexRange.getVertexBuffer();
   start = vertexRange.getStart();
@@ -729,24 +732,28 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
 
 PrimitiveRange::PrimitiveRange(PrimitiveType initType,
                                VertexBuffer& initVertexBuffer,
-                               IndexBuffer& initIndexBuffer):
+                               IndexBuffer& initIndexBuffer,
+                               size_t initBase):
   type(initType),
   vertexBuffer(&initVertexBuffer),
   indexBuffer(&initIndexBuffer),
   start(0),
-  count(0)
+  count(0),
+  base(initBase)
 {
   count = indexBuffer->getCount();
 }
 
 PrimitiveRange::PrimitiveRange(PrimitiveType initType,
                                VertexBuffer& initVertexBuffer,
-                               const IndexRange& indexRange):
+                               const IndexRange& indexRange,
+                               size_t initBase):
   type(initType),
   vertexBuffer(&initVertexBuffer),
   indexBuffer(NULL),
   start(0),
-  count(0)
+  count(0),
+  base(initBase)
 {
   indexBuffer = indexRange.getIndexBuffer();
   start = indexRange.getStart();
@@ -756,12 +763,14 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
 PrimitiveRange::PrimitiveRange(PrimitiveType initType,
                                VertexBuffer& initVertexBuffer,
                                size_t initStart,
-                               size_t initCount):
+                               size_t initCount,
+                               size_t initBase):
   type(initType),
   vertexBuffer(&initVertexBuffer),
   indexBuffer(NULL),
   start(initStart),
-  count(initCount)
+  count(initCount),
+  base(initBase)
 {
 }
 
@@ -769,12 +778,14 @@ PrimitiveRange::PrimitiveRange(PrimitiveType initType,
                                VertexBuffer& initVertexBuffer,
                                IndexBuffer& initIndexBuffer,
                                size_t initStart,
-                               size_t initCount):
+                               size_t initCount,
+                               size_t initBase):
   type(initType),
   vertexBuffer(&initVertexBuffer),
   indexBuffer(&initIndexBuffer),
   start(initStart),
-  count(initCount)
+  count(initCount),
+  base(initBase)
 {
 }
 
@@ -809,6 +820,11 @@ size_t PrimitiveRange::getStart() const
 size_t PrimitiveRange::getCount() const
 {
   return count;
+}
+
+size_t PrimitiveRange::getBase() const
+{
+  return base;
 }
 
 ///////////////////////////////////////////////////////////////////////

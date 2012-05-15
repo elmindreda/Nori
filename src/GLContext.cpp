@@ -850,10 +850,13 @@ void Context::render(const PrimitiveRange& range)
   setCurrentVertexBuffer(range.getVertexBuffer());
   setCurrentIndexBuffer(range.getIndexBuffer());
 
-  render(range.getType(), range.getStart(), range.getCount());
+  render(range.getType(), range.getStart(), range.getCount(), range.getBase());
 }
 
-void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
+void Context::render(PrimitiveType type,
+                     unsigned int start,
+                     unsigned int count,
+                     unsigned int base)
 {
   ProfileNodeCall call("GL::Context::render");
 
@@ -916,10 +919,11 @@ void Context::render(PrimitiveType type, unsigned int start, unsigned int count)
   {
     const size_t size = IndexBuffer::getTypeSize(currentIndexBuffer->getType());
 
-    glDrawElements(convertToGL(type),
-                   count,
-                   convertToGL(currentIndexBuffer->getType()),
-                   (GLvoid*) (size * start));
+    glDrawElementsBaseVertex(convertToGL(type),
+                             count,
+                             convertToGL(currentIndexBuffer->getType()),
+                             (GLvoid*) (size * start),
+                             base);
   }
   else
     glDrawArrays(convertToGL(type), start, count);

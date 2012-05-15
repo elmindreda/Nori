@@ -468,7 +468,10 @@ public:
    *  the current GLSL program.
    *  @pre A GLSL program must be set before calling this method.
    */
-  void render(PrimitiveType type, unsigned int start, unsigned int count);
+  void render(PrimitiveType type,
+              unsigned int start,
+              unsigned int count,
+              unsigned int base = 0);
   /*! Makes Context::update to return when in manual refresh mode, forcing
    *  a new iteration of the render loop.
    */
