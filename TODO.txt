@@ -52,10 +52,6 @@ Add ARB_vertex_array_object code path, if possible
 
 Add value cache to Uniform and Sampler
 
-Move RenderState core into Context
-Move ProgramState and SharedProgramState into render
-Remove last uses of OpenGL state stack
-
 Make Context be a non-singleton object
 
 
