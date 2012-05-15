@@ -1,10 +1,14 @@
 
+#version 150
+
 uniform sampler2D image;
 
-varying vec2 texCoord;
+in vec2 texCoord;
+
+out vec4 fragment;
 
 void main()
 {
-  gl_FragColor = texture2D(image, texCoord);
+  fragment = texture(image, texCoord);
 }
 

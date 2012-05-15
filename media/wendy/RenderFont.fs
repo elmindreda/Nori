@@ -1,11 +1,15 @@
 
+#version 150
+
 uniform sampler2D glyphs;
 uniform vec4 color;
 
-varying vec2 texCoord;
+in vec2 texCoord;
+
+out vec4 fragment;
 
 void main()
 {
-  gl_FragColor = vec4(color.rgb, color.a * texture2D(glyphs, texCoord).r);
+  fragment = vec4(color.rgb, color.a * texture(glyphs, texCoord).r);
 }
 

@@ -1,14 +1,16 @@
 
+#version 150
+
 uniform vec2 elementPos;
 uniform vec2 elementSize;
 uniform vec2 texPos;
 uniform vec2 texSize;
 
-attribute vec2 sizeScale;
-attribute vec2 offsetScale;
-attribute vec2 texScale;
+in vec2 sizeScale;
+in vec2 offsetScale;
+in vec2 texScale;
 
-varying vec2 mapping;
+out vec2 mapping;
 
 void main()
 {

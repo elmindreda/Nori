@@ -99,15 +99,15 @@ GLenum convertToGL(ImageFramebuffer::Attachment attachment)
   switch (attachment)
   {
     case ImageFramebuffer::COLOR_BUFFER0:
-      return GL_COLOR_ATTACHMENT0_EXT;
+      return GL_COLOR_ATTACHMENT0;
     case ImageFramebuffer::COLOR_BUFFER1:
-      return GL_COLOR_ATTACHMENT1_EXT;
+      return GL_COLOR_ATTACHMENT1;
     case ImageFramebuffer::COLOR_BUFFER2:
-      return GL_COLOR_ATTACHMENT2_EXT;
+      return GL_COLOR_ATTACHMENT2;
     case ImageFramebuffer::COLOR_BUFFER3:
-      return GL_COLOR_ATTACHMENT3_EXT;
+      return GL_COLOR_ATTACHMENT3;
     case ImageFramebuffer::DEPTH_BUFFER:
-      return GL_DEPTH_ATTACHMENT_EXT;
+      return GL_DEPTH_ATTACHMENT;
   }
 
   panic("Invalid image framebuffer attachment %u", attachment);
@@ -877,7 +877,7 @@ size_t Image::getSize() const
 RenderBuffer::~RenderBuffer()
 {
   if (bufferID)
-    glDeleteRenderbuffersEXT(1, &bufferID);
+    glDeleteRenderbuffers(1, &bufferID);
 
   if (Stats* stats = context.getStats())
     stats->removeRenderBuffer(getSize());
@@ -929,12 +929,12 @@ bool RenderBuffer::init(const PixelFormat& initFormat,
   width = initWidth;
   height = initHeight;
 
-  glGenRenderbuffersEXT(1, &bufferID);
-  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, bufferID);
-  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,
-                           convertToGL(format.getSemantic()),
-                           width,
-                           height);
+  glGenRenderbuffers(1, &bufferID);
+  glBindRenderbuffer(GL_RENDERBUFFER, bufferID);
+  glRenderbufferStorage(GL_RENDERBUFFER,
+                        convertToGL(format.getSemantic()),
+                        width,
+                        height);
 
   if (!checkGL("Error during creation of render buffer of format \'%s\'",
                format.asString().c_str()))
@@ -950,18 +950,18 @@ bool RenderBuffer::init(const PixelFormat& initFormat,
 
 void RenderBuffer::attach(int attachment, unsigned int z)
 {
-  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
-                               attachment,
-                               GL_RENDERBUFFER_EXT,
-                               bufferID);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                            attachment,
+                            GL_RENDERBUFFER,
+                            bufferID);
 }
 
 void RenderBuffer::detach(int attachment)
 {
-  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
-                               attachment,
-                               GL_RENDERBUFFER_EXT,
-                               0);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                            attachment,
+                            GL_RENDERBUFFER,
+                            0);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -980,27 +980,17 @@ void Framebuffer::setSRGB(bool enabled)
   if (sRGB == enabled)
     return;
 
-  if (!GLEW_EXT_framebuffer_sRGB)
-  {
-    logError("Cannot enable sRGB framebuffer encoding: "
-             "GL_EXT_framebuffer_sRGB is missing");
-    return;
-  }
-
   Framebuffer& previous = context.getCurrentFramebuffer();
   apply();
 
   if (enabled)
   {
-    if (!getBoolean(GL_FRAMEBUFFER_SRGB_CAPABLE_EXT))
-      logError("Framebuffer is not sRGB capable");
-
-    glEnable(GL_FRAMEBUFFER_SRGB_EXT);
+    glEnable(GL_FRAMEBUFFER_SRGB);
     checkGL("Failed to enable framebuffer sRGB encoding");
   }
   else
   {
-    glDisable(GL_FRAMEBUFFER_SRGB_EXT);
+    glDisable(GL_FRAMEBUFFER_SRGB);
     checkGL("Failed to disable framebuffer sRGB encoding");
   }
 
@@ -1071,7 +1061,7 @@ DefaultFramebuffer::DefaultFramebuffer(Context& context):
 
 void DefaultFramebuffer::apply() const
 {
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 #if WENDY_DEBUG
   checkGL("Error when applying default framebuffer");
@@ -1083,7 +1073,7 @@ void DefaultFramebuffer::apply() const
 ImageFramebuffer::~ImageFramebuffer()
 {
   if (bufferID)
-    glDeleteFramebuffersEXT(1, &bufferID);
+    glDeleteFramebuffers(1, &bufferID);
 }
 
 unsigned int ImageFramebuffer::getWidth() const
@@ -1201,7 +1191,7 @@ ImageFramebuffer::ImageFramebuffer(Context& context):
 
 bool ImageFramebuffer::init()
 {
-  glGenFramebuffersEXT(1, &bufferID);
+  glGenFramebuffers(1, &bufferID);
 
 #if WENDY_DEBUG
   if (!checkGL("Error during image framebuffer creation"))
@@ -1213,7 +1203,7 @@ bool ImageFramebuffer::init()
 
 void ImageFramebuffer::apply() const
 {
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferID);
+  glBindFramebuffer(GL_FRAMEBUFFER, bufferID);
 
   GLenum enables[5];
   size_t count = 0;

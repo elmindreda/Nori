@@ -150,26 +150,20 @@ const char* getFramebufferStatusMessage(GLenum status)
 {
   switch (status)
   {
-    case GL_FRAMEBUFFER_COMPLETE_EXT:
+    case GL_FRAMEBUFFER_COMPLETE:
       return "Framebuffer is complete";
-    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
       return "Incomplete framebuffer attachment";
-    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
       return "Incomplete or missing framebuffer attachment";
-    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-      return "Incomplete framebuffer dimensions";
-    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-      return "Incomplete framebuffer formats";
-    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
       return "Incomplete framebuffer draw buffer";
-    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
       return "Incomplete framebuffer read buffer";
-    case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+    case GL_FRAMEBUFFER_UNSUPPORTED:
       return "Framebuffer configuration is unsupported";
-    case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS_ARB:
+    case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
       return "Framebuffer layer targets incomplete";
-    case GL_FRAMEBUFFER_INCOMPLETE_LAYER_COUNT_ARB:
-      return "Framebuffer layer counts incomplete";
   }
 
   logError("Unknown OpenGL framebuffer status %u", status);
@@ -480,7 +474,7 @@ RenderState::RenderState():
 
 Limits::Limits(Context& context)
 {
-  maxColorAttachments = getInteger(GL_MAX_COLOR_ATTACHMENTS_EXT);
+  maxColorAttachments = getInteger(GL_MAX_COLOR_ATTACHMENTS);
   maxDrawBuffers = getInteger(GL_MAX_DRAW_BUFFERS);
   maxVertexTextureImageUnits = getInteger(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
   maxFragmentTextureImageUnits = getInteger(GL_MAX_TEXTURE_IMAGE_UNITS);
@@ -488,7 +482,7 @@ Limits::Limits(Context& context)
   maxTextureSize = getInteger(GL_MAX_TEXTURE_SIZE);
   maxTexture3DSize = getInteger(GL_MAX_3D_TEXTURE_SIZE);
   maxTextureCubeSize = getInteger(GL_MAX_CUBE_MAP_TEXTURE_SIZE);
-  maxTextureRectangleSize = getInteger(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB);
+  maxTextureRectangleSize = getInteger(GL_MAX_RECTANGLE_TEXTURE_SIZE);
   maxTextureCoords = getInteger(GL_MAX_TEXTURE_COORDS);
   maxVertexAttributes = getInteger(GL_MAX_VERTEX_ATTRIBS);
 
@@ -1119,10 +1113,10 @@ bool Context::setCurrentFramebuffer(Framebuffer& newFramebuffer)
 #if WENDY_DEBUG
   if (currentFramebuffer != defaultFramebuffer)
   {
-    GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status == 0)
       checkGL("Framebuffer status check failed");
-    else if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
+    else if (status != GL_FRAMEBUFFER_COMPLETE)
       logError("Image framebuffer is incomplete: %s", getFramebufferStatusMessage(status));
   }
 #endif
@@ -1399,18 +1393,13 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     glfwOpenWindowHint(GLFW_STENCIL_BITS, cc.stencilBits);
     glfwOpenWindowHint(GLFW_FSAA_SAMPLES, cc.samples);
 
-    version = max(cc.version, Version(2,1));
+    version = max(cc.version, Version(3,2));
 
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, version.m);
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, version.n);
+    glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 
     glfwOpenWindowHint(GLFW_WINDOW_RESIZABLE, wc.resizable);
-
-    if (version > Version(3,1))
-    {
-      // Wendy still uses deprecated functionality
-      glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-    }
 
 #if WENDY_DEBUG
     glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
@@ -1451,18 +1440,6 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     if (glewInit() != GLEW_OK)
     {
       logError("Failed to initialize GLEW");
-      return false;
-    }
-
-    if (!GLEW_ARB_texture_rectangle && version < Version(3,1))
-    {
-      logError("Rectangular textures (ARB_texture_rectangle) is required but not supported");
-      return false;
-    }
-
-    if (!GLEW_EXT_framebuffer_object)
-    {
-      logError("Framebuffer objects (EXT_framebuffer_object) are required but not supported");
       return false;
     }
 

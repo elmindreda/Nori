@@ -68,7 +68,7 @@ const char* getErrorString(unsigned int error)
       return "stack underflow";
     case GL_OUT_OF_MEMORY:
       return "out of memory";
-    case GL_INVALID_FRAMEBUFFER_OPERATION_EXT:
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
       return "invalid framebuffer operation";
   }
 
@@ -332,7 +332,7 @@ GLenum convertToGL(TextureType type)
     case TEXTURE_3D:
       return GL_TEXTURE_3D;
     case TEXTURE_RECT:
-      return GL_TEXTURE_RECTANGLE_ARB;
+      return GL_TEXTURE_RECTANGLE;
     case TEXTURE_CUBE:
       return GL_TEXTURE_CUBE_MAP;
   }

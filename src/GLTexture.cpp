@@ -105,7 +105,7 @@ GLenum convertToProxyGL(TextureType type)
     case TEXTURE_3D:
       return GL_PROXY_TEXTURE_3D;
     case TEXTURE_RECT:
-      return GL_PROXY_TEXTURE_RECTANGLE_ARB;
+      return GL_PROXY_TEXTURE_RECTANGLE;
     case TEXTURE_CUBE:
       return GL_PROXY_TEXTURE_CUBE_MAP;
   }
@@ -321,28 +321,28 @@ void TextureImage::attach(int attachment, unsigned int z)
 {
   if (texture.is1D())
   {
-    glFramebufferTexture1DEXT(GL_FRAMEBUFFER_EXT,
-                              attachment,
-                              convertToGL(texture.type),
-                              texture.textureID,
-                              level);
+    glFramebufferTexture1D(GL_FRAMEBUFFER,
+                           attachment,
+                           convertToGL(texture.type),
+                           texture.textureID,
+                           level);
   }
   else if (texture.is3D())
   {
-    glFramebufferTexture3DEXT(GL_FRAMEBUFFER_EXT,
-                              attachment,
-                              convertToGL(texture.type),
-                              texture.textureID,
-                              level,
-                              z);
+    glFramebufferTexture3D(GL_FRAMEBUFFER,
+                           attachment,
+                           convertToGL(texture.type),
+                           texture.textureID,
+                           level,
+                           z);
   }
   else
   {
-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                              attachment,
-                              convertToGL(texture.type),
-                              texture.textureID,
-                              level);
+    glFramebufferTexture2D(GL_FRAMEBUFFER,
+                           attachment,
+                           convertToGL(texture.type),
+                           texture.textureID,
+                           level);
   }
 
 #if WENDY_DEBUG
@@ -356,24 +356,24 @@ void TextureImage::detach(int attachment)
 {
   if (texture.is1D())
   {
-    glFramebufferTexture1DEXT(GL_FRAMEBUFFER_EXT,
-                              attachment,
-                              convertToGL(texture.type),
-                              0, 0);
+    glFramebufferTexture1D(GL_FRAMEBUFFER,
+                           attachment,
+                           convertToGL(texture.type),
+                           0, 0);
   }
   else if (texture.is3D())
   {
-    glFramebufferTexture3DEXT(GL_FRAMEBUFFER_EXT,
-                              attachment,
-                              convertToGL(texture.type),
-                              0, 0, 0);
+    glFramebufferTexture3D(GL_FRAMEBUFFER,
+                           attachment,
+                           convertToGL(texture.type),
+                           0, 0, 0);
   }
   else
   {
-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                              attachment,
-                              convertToGL(texture.type),
-                              0, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER,
+                           attachment,
+                           convertToGL(texture.type),
+                           0, 0);
   }
 
 #if WENDY_DEBUG
@@ -396,7 +396,7 @@ Texture::~Texture()
 
 void Texture::generateMipmaps()
 {
-  glGenerateMipmapEXT(convertToGL(type));
+  glGenerateMipmap(convertToGL(type));
 
   if (!hasMipmaps())
   {

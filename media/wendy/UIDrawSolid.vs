@@ -1,5 +1,7 @@
 
-attribute vec2 wyPosition;
+#version 150
+
+in vec2 wyPosition;
 
 void main()
 {

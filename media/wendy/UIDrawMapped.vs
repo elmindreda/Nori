@@ -1,8 +1,10 @@
 
-attribute vec2 wyPosition;
-attribute vec2 wyTexCoord;
+#version 150
 
-varying vec2 texCoord;
+in vec2 wyPosition;
+in vec2 wyTexCoord;
+
+out vec2 texCoord;
 
 void main()
 {

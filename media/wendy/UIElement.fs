@@ -1,11 +1,14 @@
-#extension GL_ARB_texture_rectangle : require
+
+#version 150
 
 uniform sampler2DRect image;
 
-varying vec2 mapping;
+in vec2 mapping;
+
+out vec4 fragment;
 
 void main()
 {
-  gl_FragColor = texture2DRect(image, mapping);
+  fragment = texture(image, mapping);
 }
 
