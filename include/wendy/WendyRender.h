@@ -34,9 +34,9 @@
 #if WENDY_INCLUDE_RENDERER
 
 #include <wendy/RenderPool.h>
+#include <wendy/RenderState.h>
 #include <wendy/RenderFont.h>
 #include <wendy/RenderLight.h>
-#include <wendy/RenderState.h>
 #include <wendy/RenderSystem.h>
 #include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>

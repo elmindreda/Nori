@@ -19,7 +19,7 @@ set(wendy_SOURCES
     Timer.cpp Transform.cpp Triangle.cpp Vertex.cpp
 
     GLBuffer.cpp GLContext.cpp GLHelper.cpp GLParser.cpp GLProgram.cpp
-    GLQuery.cpp GLState.cpp GLTexture.cpp
+    GLQuery.cpp GLTexture.cpp
 
     Input.cpp)
 

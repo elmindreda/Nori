@@ -35,10 +35,9 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLContext.h>
-#include <wendy/GLState.h>
 
-#include <wendy/RenderState.h>
 #include <wendy/RenderPool.h>
+#include <wendy/RenderState.h>
 #include <wendy/RenderSystem.h>
 #include <wendy/RenderFont.h>
 
@@ -216,13 +215,13 @@ private:
   Ref<Theme> theme;
   Ref<render::GeometryPool> pool;
   Ref<render::Font> currentFont;
-  GL::RenderState drawPass;
-  GL::RenderState blitPass;
-  GL::RenderState elementPass;
-  GL::UniformStateIndex elementPosIndex;
-  GL::UniformStateIndex elementSizeIndex;
-  GL::UniformStateIndex texPosIndex;
-  GL::UniformStateIndex texSizeIndex;
+  render::Pass drawPass;
+  render::Pass blitPass;
+  render::Pass elementPass;
+  render::UniformStateIndex elementPosIndex;
+  render::UniformStateIndex elementSizeIndex;
+  render::UniformStateIndex texPosIndex;
+  render::UniformStateIndex texSizeIndex;
   Ref<render::SharedProgramState> state;
 };
 

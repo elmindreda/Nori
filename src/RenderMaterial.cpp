@@ -33,6 +33,7 @@
 #include <wendy/GLContext.h>
 
 #include <wendy/RenderPool.h>
+#include <wendy/RenderState.h>
 #include <wendy/RenderSystem.h>
 #include <wendy/RenderMaterial.h>
 

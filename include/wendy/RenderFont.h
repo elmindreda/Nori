@@ -111,8 +111,8 @@ private:
   vec2 size;
   float ascender;
   float descender;
-  GL::UniformStateIndex colorIndex;
-  GL::RenderState pass;
+  UniformStateIndex colorIndex;
+  Pass pass;
   VertexList vertices;
 };
 

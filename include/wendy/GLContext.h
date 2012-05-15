@@ -57,6 +57,80 @@ const int INVALID_SHARED_STATE_ID = -1;
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Cull mode enumeration.
+ *  @ingroup opengl
+ */
+enum CullMode
+{
+  /*! Do not cull any geometry.
+   */
+  CULL_NONE,
+  /*! Cull front-facing geometry (i.e. render back-facing geometry).
+   */
+  CULL_FRONT,
+  /*! Cull back-facing geometry (i.e. render front-facing geometry).
+   */
+  CULL_BACK,
+  /*! Cull all cullable geometry (i.e. front and back faces).
+   */
+  CULL_BOTH
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! Blend factor enumeration.
+ *  @ingroup opengl
+ */
+enum BlendFactor
+{
+  BLEND_ZERO,
+  BLEND_ONE,
+  BLEND_SRC_COLOR,
+  BLEND_DST_COLOR,
+  BLEND_SRC_ALPHA,
+  BLEND_DST_ALPHA,
+  BLEND_ONE_MINUS_SRC_COLOR,
+  BLEND_ONE_MINUS_DST_COLOR,
+  BLEND_ONE_MINUS_SRC_ALPHA,
+  BLEND_ONE_MINUS_DST_ALPHA
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! Stencil operation enumeration.
+ *  @ingroup opengl
+ */
+enum Operation
+{
+  OP_KEEP,
+  OP_ZERO,
+  OP_REPLACE,
+  OP_INCREASE,
+  OP_DECREASE,
+  OP_INVERT,
+  OP_INCREASE_WRAP,
+  OP_DECREASE_WRAP
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! Comparison function enumeration.
+ *  @ingroup opengl
+ */
+enum Function
+{
+  ALLOW_NEVER,
+  ALLOW_ALWAYS,
+  ALLOW_EQUAL,
+  ALLOW_NOT_EQUAL,
+  ALLOW_LESSER,
+  ALLOW_LESSER_EQUAL,
+  ALLOW_GREATER,
+  ALLOW_GREATER_EQUAL
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Window mode enumeration.
  *  @ingroup opengl
  */
@@ -184,6 +258,35 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! OpenGL render state.
+ *  @ingroup opengl
+ */
+class RenderState
+{
+public:
+  RenderState();
+  bool depthTesting;
+  bool depthWriting;
+  bool colorWriting;
+  bool stencilTesting;
+  bool wireframe;
+  bool lineSmoothing;
+  bool multisampling;
+  float lineWidth;
+  CullMode cullMode;
+  BlendFactor srcFactor;
+  BlendFactor dstFactor;
+  Function depthFunction;
+  Function stencilFunction;
+  unsigned int stencilRef;
+  unsigned int stencilMask;
+  Operation stencilFailOp;
+  Operation depthFailOp;
+  Operation depthPassOp;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! OpenGL limits data.
  *  @ingroup opengl
  */
@@ -297,19 +400,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Interface for global GLSL program state requests.
- *  @ingroup opengl
- */
-class SharedProgramState : public RefObject
-{
-  friend class ProgramState;
-protected:
-  virtual void updateTo(Uniform& uniform) = 0;
-  virtual void updateTo(Sampler& uniform) = 0;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @ingroup opengl
  */
 class SharedSampler
@@ -323,7 +413,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup opengl
+/*! @ingroup renderer
  */
 class SharedUniform
 {
@@ -332,6 +422,18 @@ public:
   String name;
   UniformType type;
   int ID;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Interface for global GLSL program state requests.
+ *  @ingroup opengl
+ */
+class SharedProgramState : public RefObject
+{
+public:
+  virtual void updateTo(Uniform& uniform) = 0;
+  virtual void updateTo(Sampler& uniform) = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -511,6 +613,10 @@ public:
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
   void setActiveTextureUnit(unsigned int unit);
+  bool isCullingInverted();
+  void setCullingInversion(bool newState);
+  const RenderState& getCurrentRenderState() const;
+  void setCurrentRenderState(const RenderState& newState);
   Stats* getStats() const;
   void setStats(Stats* newStats);
   /*! @return The title of the context window.
@@ -552,11 +658,11 @@ private:
   Context(const Context& source);
   Context& operator = (const Context& source);
   bool init(const WindowConfig& wc, const ContextConfig& cc);
+  void applyState(const RenderState& newState);
+  void forceState(const RenderState& newState);
   static void sizeCallback(void* window, int width, int height);
   static int closeCallback(void* window);
   static void refreshCallback(void* window);
-  typedef std::vector<SharedSampler> SamplerList;
-  typedef std::vector<SharedUniform> UniformList;
   ResourceCache& cache;
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
@@ -573,17 +679,20 @@ private:
   Recti scissorArea;
   Recti viewportArea;
   bool dirtyBinding;
-  SamplerList samplers;
-  UniformList uniforms;
-  String declaration;
+  bool dirtyState;
+  bool cullingInverted;
   TextureList textureUnits;
   unsigned int activeTextureUnit;
+  RenderState currentState;
   Ref<Program> currentProgram;
-  Ref<SharedProgramState> currentState;
   Ref<VertexBuffer> currentVertexBuffer;
   Ref<IndexBuffer> currentIndexBuffer;
   Ref<Framebuffer> currentFramebuffer;
+  Ref<SharedProgramState> currentSharedState;
   Ref<DefaultFramebuffer> defaultFramebuffer;
+  std::vector<SharedSampler> samplers;
+  std::vector<SharedUniform> uniforms;
+  String declaration;
   Stats* stats;
 };
 

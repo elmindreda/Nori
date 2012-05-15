@@ -29,9 +29,9 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLContext.h>
-#include <wendy/GLState.h>
 
 #include <wendy/RenderPool.h>
+#include <wendy/RenderState.h>
 #include <wendy/RenderFont.h>
 
 #include <cctype>

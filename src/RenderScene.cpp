@@ -29,6 +29,7 @@
 #include <wendy/Transform.h>
 
 #include <wendy/RenderPool.h>
+#include <wendy/RenderState.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderScene.h>

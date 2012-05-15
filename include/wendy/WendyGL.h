@@ -36,7 +36,6 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLContext.h>
-#include <wendy/GLState.h>
 
 ///////////////////////////////////////////////////////////////////////
 #endif /*WENDY_WENDYGL_H*/

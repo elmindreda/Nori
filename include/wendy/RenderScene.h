@@ -100,7 +100,7 @@ public:
   GL::PrimitiveRange range;
   /*! The render technique to use.
    */
-  const GL::RenderState* state;
+  const Pass* state;
   /*! The local-to-world transformation.  Leave this set to identity if the
    *  geometry already is in world space.
    */

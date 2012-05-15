@@ -199,6 +199,119 @@ GLenum convertToGL(PrimitiveType type)
   panic("Invalid primitive type %u", type);
 }
 
+GLenum convertToGL(CullMode mode)
+{
+  switch (mode)
+  {
+    case CULL_NONE:
+      break;
+    case CULL_FRONT:
+      return GL_FRONT;
+    case CULL_BACK:
+      return GL_BACK;
+    case CULL_BOTH:
+      return GL_FRONT_AND_BACK;
+  }
+
+  panic("Invalid cull mode %u", mode);
+}
+
+CullMode invertCullMode(CullMode mode)
+{
+  switch (mode)
+  {
+    case CULL_NONE:
+      return CULL_BOTH;
+    case CULL_FRONT:
+      return CULL_BACK;
+    case CULL_BACK:
+      return CULL_FRONT;
+    case CULL_BOTH:
+      return CULL_NONE;
+  }
+
+  panic("Invalid cull mode %u", mode);
+}
+
+GLenum convertToGL(BlendFactor factor)
+{
+  switch (factor)
+  {
+    case BLEND_ZERO:
+      return GL_ZERO;
+    case BLEND_ONE:
+      return GL_ONE;
+    case BLEND_SRC_COLOR:
+      return GL_SRC_COLOR;
+    case BLEND_DST_COLOR:
+      return GL_DST_COLOR;
+    case BLEND_SRC_ALPHA:
+      return GL_SRC_ALPHA;
+    case BLEND_DST_ALPHA:
+      return GL_DST_ALPHA;
+    case BLEND_ONE_MINUS_SRC_COLOR:
+      return GL_ONE_MINUS_SRC_COLOR;
+    case BLEND_ONE_MINUS_DST_COLOR:
+      return GL_ONE_MINUS_DST_COLOR;
+    case BLEND_ONE_MINUS_SRC_ALPHA:
+      return GL_ONE_MINUS_SRC_ALPHA;
+    case BLEND_ONE_MINUS_DST_ALPHA:
+      return GL_ONE_MINUS_DST_ALPHA;
+  }
+
+  panic("Invalid blend factor %u", factor);
+}
+
+GLenum convertToGL(Function function)
+{
+  switch (function)
+  {
+    case ALLOW_NEVER:
+      return GL_NEVER;
+    case ALLOW_ALWAYS:
+      return GL_ALWAYS;
+    case ALLOW_EQUAL:
+      return GL_EQUAL;
+    case ALLOW_NOT_EQUAL:
+      return GL_NOTEQUAL;
+    case ALLOW_LESSER:
+      return GL_LESS;
+    case ALLOW_LESSER_EQUAL:
+      return GL_LEQUAL;
+    case ALLOW_GREATER:
+      return GL_GREATER;
+    case ALLOW_GREATER_EQUAL:
+      return GL_GEQUAL;
+  }
+
+  panic("Invalid comparison function %u", function);
+}
+
+GLenum convertToGL(Operation operation)
+{
+  switch (operation)
+  {
+    case OP_KEEP:
+      return GL_KEEP;
+    case OP_ZERO:
+      return GL_ZERO;
+    case OP_REPLACE:
+      return GL_REPLACE;
+    case OP_INCREASE:
+      return GL_INCR;
+    case OP_DECREASE:
+      return GL_DECR;
+    case OP_INVERT:
+      return GL_INVERT;
+    case OP_INCREASE_WRAP:
+      return GL_INCR_WRAP;
+    case OP_DECREASE_WRAP:
+      return GL_DECR_WRAP;
+  }
+
+  panic("Invalid stencil operation %u", operation);
+}
+
 bool isCompatible(const Attribute& attribute, const VertexComponent& component)
 {
   switch (attribute.getType())
@@ -241,6 +354,14 @@ bool isCompatible(const Attribute& attribute, const VertexComponent& component)
   }
 
   return false;
+}
+
+void setBooleanState(unsigned int state, bool value)
+{
+  if (value)
+    glEnable(state);
+  else
+    glDisable(state);
 }
 
 } /*namespace (and Gandalf)*/
@@ -328,6 +449,30 @@ ContextConfig::ContextConfig(unsigned int initColorBits,
   samples(initSamples),
   version(initVersion),
   profile(initProfile)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
+RenderState::RenderState():
+  depthTesting(true),
+  depthWriting(true),
+  colorWriting(true),
+  stencilTesting(false),
+  wireframe(false),
+  lineSmoothing(false),
+  multisampling(true),
+  lineWidth(1.f),
+  cullMode(CULL_BACK),
+  srcFactor(BLEND_ONE),
+  dstFactor(BLEND_ZERO),
+  depthFunction(ALLOW_LESSER),
+  stencilFunction(ALLOW_ALWAYS),
+  stencilRef(0),
+  stencilMask(~0u),
+  stencilFailOp(OP_KEEP),
+  depthFailOp(OP_KEEP),
+  depthPassOp(OP_KEEP)
 {
 }
 
@@ -568,23 +713,23 @@ Stats::Frame::Frame():
 
 ///////////////////////////////////////////////////////////////////////
 
-SharedSampler::SharedSampler(const char* initName,
-                             SamplerType initType,
-                             int initID):
-  name(initName),
-  type(initType),
-  ID(initID)
+SharedSampler::SharedSampler(const char* name,
+                             SamplerType type,
+                             int ID):
+  name(name),
+  type(type),
+  ID(ID)
 {
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-SharedUniform::SharedUniform(const char* initName,
-                             UniformType initType,
-                             int initID):
-  name(initName),
-  type(initType),
-  ID(initID)
+SharedUniform::SharedUniform(const char* name,
+                             UniformType type,
+                             int ID):
+  name(name),
+  type(type),
+  ID(ID)
 {
 }
 
@@ -614,50 +759,67 @@ Context::~Context()
 
 void Context::clearColorBuffer(const vec4& color)
 {
-  glPushAttrib(GL_COLOR_BUFFER_BIT);
-  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  const RenderState previousState = currentState;
+
+  RenderState clearState = currentState;
+  clearState.colorWriting = true;
+  applyState(clearState);
+
   glClearColor(color.r, color.g, color.b, color.a);
   glClear(GL_COLOR_BUFFER_BIT);
-  glPopAttrib();
 
 #if WENDY_DEBUG
   checkGL("Error during color buffer clearing");
 #endif
+
+  applyState(previousState);
 }
 
 void Context::clearDepthBuffer(float depth)
 {
-  glPushAttrib(GL_DEPTH_BUFFER_BIT);
-  glDepthMask(GL_TRUE);
+  const RenderState previousState = currentState;
+
+  RenderState clearState = currentState;
+  clearState.depthWriting = true;
+  applyState(clearState);
+
   glClearDepth(depth);
   glClear(GL_DEPTH_BUFFER_BIT);
-  glPopAttrib();
 
 #if WENDY_DEBUG
-  checkGL("Error during depth buffer clearing");
+  checkGL("Error during color buffer clearing");
 #endif
+
+  applyState(previousState);
 }
 
 void Context::clearStencilBuffer(unsigned int value)
 {
-  glPushAttrib(GL_STENCIL_BUFFER_BIT);
-  glStencilMask(GL_TRUE);
+  const RenderState previousState = currentState;
+
+  RenderState clearState = currentState;
+  clearState.stencilMask = ~0u;
+  applyState(clearState);
+
   glClearStencil(value);
   glClear(GL_STENCIL_BUFFER_BIT);
-  glPopAttrib();
 
 #if WENDY_DEBUG
-  checkGL("Error during stencil buffer clearing");
+  checkGL("Error during color buffer clearing");
 #endif
+
+  applyState(previousState);
 }
 
 void Context::clearBuffers(const vec4& color, float depth, unsigned int value)
 {
-  glPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  const RenderState previousState = currentState;
 
-  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  glDepthMask(GL_TRUE);
-  glStencilMask(GL_TRUE);
+  RenderState clearState = currentState;
+  clearState.colorWriting = true;
+  clearState.depthWriting = true;
+  clearState.stencilMask = ~0u;
+  applyState(clearState);
 
   glClearColor(color.r, color.g, color.b, color.a);
   glClearDepth(depth);
@@ -665,11 +827,11 @@ void Context::clearBuffers(const vec4& color, float depth, unsigned int value)
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-  glPopAttrib();
-
 #if WENDY_DEBUG
-  checkGL("Error during buffer clearing");
+  checkGL("Error during color buffer clearing");
 #endif
+
+  applyState(previousState);
 }
 
 void Context::render(const PrimitiveRange& range)
@@ -846,12 +1008,12 @@ int Context::getSharedUniformID(const char* name, UniformType type) const
 
 SharedProgramState* Context::getCurrentSharedProgramState() const
 {
-  return currentState;
+  return currentSharedState;
 }
 
 void Context::setCurrentSharedProgramState(SharedProgramState* newState)
 {
-  currentState = newState;
+  currentSharedState = newState;
 }
 
 const char* Context::getSharedProgramStateDeclaration() const
@@ -1096,6 +1258,26 @@ void Context::setActiveTextureUnit(unsigned int unit)
   }
 }
 
+bool Context::isCullingInverted()
+{
+  return cullingInverted;
+}
+
+void Context::setCullingInversion(bool newState)
+{
+  cullingInverted = newState;
+}
+
+const RenderState& Context::getCurrentRenderState() const
+{
+  return currentState;
+}
+
+void Context::setCurrentRenderState(const RenderState& newState)
+{
+  applyState(newState);
+}
+
 Stats* Context::getStats() const
 {
   return stats;
@@ -1166,6 +1348,8 @@ Context::Context(ResourceCache& initCache):
   needsRefresh(false),
   needsClosing(false),
   dirtyBinding(true),
+  dirtyState(true),
+  cullingInverted(false),
   activeTextureUnit(0),
   stats(NULL)
 {
@@ -1330,7 +1514,215 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     glfwPollEvents();
   }
 
+  forceState(currentState);
+
   return true;
+}
+
+void Context::applyState(const RenderState& newState)
+{
+  if (stats)
+    stats->addStateChange();
+
+  if (dirtyState)
+  {
+    forceState(newState);
+    return;
+  }
+
+  CullMode cullMode = newState.cullMode;
+  if (cullingInverted)
+    cullMode = invertCullMode(cullMode);
+
+  if (cullMode != currentState.cullMode)
+  {
+    if ((cullMode == CULL_NONE) != (currentState.cullMode == CULL_NONE))
+      setBooleanState(GL_CULL_FACE, cullMode != CULL_NONE);
+
+    if (cullMode != CULL_NONE)
+      glCullFace(convertToGL(cullMode));
+
+    currentState.cullMode = cullMode;
+  }
+
+  if (newState.srcFactor != currentState.srcFactor ||
+      newState.dstFactor != currentState.dstFactor)
+  {
+    setBooleanState(GL_BLEND, newState.srcFactor != BLEND_ONE ||
+                              newState.dstFactor != BLEND_ZERO);
+
+    if (newState.srcFactor != BLEND_ONE || newState.dstFactor != BLEND_ZERO)
+    {
+      glBlendFunc(convertToGL(newState.srcFactor),
+                  convertToGL(newState.dstFactor));
+    }
+
+    currentState.srcFactor = newState.srcFactor;
+    currentState.dstFactor = newState.dstFactor;
+  }
+
+  if (newState.depthTesting || newState.depthWriting)
+  {
+    // Set depth buffer writing.
+    if (newState.depthWriting != currentState.depthWriting)
+      glDepthMask(newState.depthWriting ? GL_TRUE : GL_FALSE);
+
+    if (newState.depthTesting)
+    {
+      // Set depth buffer function.
+      if (newState.depthFunction != currentState.depthFunction)
+      {
+        glDepthFunc(convertToGL(newState.depthFunction));
+        currentState.depthFunction = newState.depthFunction;
+      }
+    }
+    else if (newState.depthWriting)
+    {
+      // NOTE: Special case; depth buffer filling.
+      //       Set specific depth buffer function.
+      const Function depthFunction = ALLOW_ALWAYS;
+
+      if (currentState.depthFunction != depthFunction)
+      {
+        glDepthFunc(convertToGL(depthFunction));
+        currentState.depthFunction = depthFunction;
+      }
+    }
+
+    if (!(currentState.depthTesting || currentState.depthWriting))
+      glEnable(GL_DEPTH_TEST);
+  }
+  else
+  {
+    if (currentState.depthTesting || currentState.depthWriting)
+      glDisable(GL_DEPTH_TEST);
+  }
+
+  currentState.depthTesting = newState.depthTesting;
+  currentState.depthWriting = newState.depthWriting;
+
+  if (newState.colorWriting != currentState.colorWriting)
+  {
+    const GLboolean state = newState.colorWriting ? GL_TRUE : GL_FALSE;
+    glColorMask(state, state, state, state);
+    currentState.colorWriting = newState.colorWriting;
+  }
+
+  if (newState.stencilTesting != currentState.stencilTesting)
+  {
+    setBooleanState(GL_STENCIL_TEST, newState.stencilTesting);
+    currentState.stencilTesting = newState.stencilTesting;
+  }
+
+  if (newState.stencilTesting)
+  {
+    if (newState.stencilFunction != currentState.stencilFunction ||
+        newState.stencilRef != currentState.stencilRef ||
+        newState.stencilMask != currentState.stencilMask)
+    {
+      glStencilFunc(convertToGL(newState.stencilFunction),
+                    newState.stencilRef, newState.stencilMask);
+
+      currentState.stencilFunction = newState.stencilFunction;
+      currentState.stencilRef = newState.stencilRef;
+      currentState.stencilMask = newState.stencilMask;
+    }
+
+    if (newState.stencilFailOp != currentState.stencilFailOp ||
+        newState.depthFailOp != currentState.depthFailOp ||
+        newState.depthPassOp != currentState.depthPassOp)
+    {
+      glStencilOp(convertToGL(newState.stencilFailOp),
+                  convertToGL(newState.depthFailOp),
+                  convertToGL(newState.depthPassOp));
+
+      currentState.stencilFailOp = newState.stencilFailOp;
+      currentState.depthFailOp = newState.depthFailOp;
+      currentState.depthPassOp = newState.depthPassOp;
+    }
+  }
+
+  if (newState.wireframe != currentState.wireframe)
+  {
+    const GLenum state = newState.wireframe ? GL_LINE : GL_FILL;
+    glPolygonMode(GL_FRONT_AND_BACK, state);
+    currentState.wireframe = newState.wireframe;
+  }
+
+  if (newState.lineSmoothing != currentState.lineSmoothing)
+  {
+    setBooleanState(GL_LINE_SMOOTH, newState.lineSmoothing);
+    currentState.lineSmoothing = newState.lineSmoothing;
+  }
+
+  if (newState.multisampling != currentState.multisampling)
+  {
+    setBooleanState(GL_MULTISAMPLE, newState.multisampling);
+    currentState.multisampling = newState.multisampling;
+  }
+
+  if (newState.lineWidth != currentState.lineWidth)
+  {
+    glLineWidth(newState.lineWidth);
+    currentState.lineWidth = newState.lineWidth;
+  }
+
+#if WENDY_DEBUG
+  checkGL("Error when applying render state");
+#endif
+}
+
+void Context::forceState(const RenderState& newState)
+{
+  currentState = newState;
+
+  CullMode cullMode = newState.cullMode;
+  if (cullingInverted)
+    cullMode = invertCullMode(cullMode);
+
+  setBooleanState(GL_CULL_FACE, cullMode != CULL_NONE);
+  if (cullMode != CULL_NONE)
+    glCullFace(convertToGL(cullMode));
+
+  setBooleanState(GL_BLEND, newState.srcFactor != BLEND_ONE ||
+                            newState.dstFactor != BLEND_ZERO);
+  glBlendFunc(convertToGL(newState.srcFactor), convertToGL(newState.dstFactor));
+
+  glDepthMask(newState.depthWriting ? GL_TRUE : GL_FALSE);
+  setBooleanState(GL_DEPTH_TEST, newState.depthTesting || newState.depthWriting);
+
+  if (newState.depthWriting && !newState.depthTesting)
+  {
+    const Function depthFunction = ALLOW_ALWAYS;
+    glDepthFunc(convertToGL(depthFunction));
+    currentState.depthFunction = depthFunction;
+  }
+  else
+    glDepthFunc(convertToGL(newState.depthFunction));
+
+  const GLboolean state = newState.colorWriting ? GL_TRUE : GL_FALSE;
+  glColorMask(state, state, state, state);
+
+  const GLenum polygonMode = newState.wireframe ? GL_LINE : GL_FILL;
+  glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
+
+  setBooleanState(GL_LINE_SMOOTH, newState.lineSmoothing);
+  glLineWidth(newState.lineWidth);
+
+  setBooleanState(GL_MULTISAMPLE, newState.multisampling);
+
+  setBooleanState(GL_STENCIL_TEST, newState.stencilTesting);
+  glStencilFunc(convertToGL(newState.stencilFunction),
+                newState.stencilRef, newState.stencilMask);
+  glStencilOp(convertToGL(newState.stencilFailOp),
+              convertToGL(newState.depthFailOp),
+              convertToGL(newState.depthPassOp));
+
+#if WENDY_DEBUG
+  checkGL("Error when forcing render state");
+#endif
+
+  dirtyState = false;
 }
 
 void Context::sizeCallback(void* handle, int width, int height)
