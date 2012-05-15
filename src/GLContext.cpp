@@ -1046,12 +1046,12 @@ void Context::setRefreshMode(RefreshMode newMode)
   refreshMode = newMode;
 }
 
-unsigned int Context::getSwapInterval() const
+int Context::getSwapInterval() const
 {
   return swapInterval;
 }
 
-void Context::setSwapInterval(unsigned int newInterval)
+void Context::setSwapInterval(int newInterval)
 {
   glfwSwapInterval(newInterval);
   swapInterval = newInterval;

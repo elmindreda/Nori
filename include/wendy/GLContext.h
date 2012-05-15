@@ -517,11 +517,11 @@ public:
   void setRefreshMode(RefreshMode newMode);
   /*! @return The swap interval of this context.
    */
-  unsigned int getSwapInterval() const;
+  int getSwapInterval() const;
   /*! Sets the swap interval of this context.
    *  @param[in] newInterval The desired swap interval.
    */
-  void setSwapInterval(unsigned int newInterval);
+  void setSwapInterval(int newInterval);
   /*! @return The current scissor rectangle.
    */
   const Recti& getScissorArea() const;
@@ -649,7 +649,7 @@ private:
   WindowMode windowMode;
   RefreshMode refreshMode;
   Version version;
-  unsigned int swapInterval;
+  int swapInterval;
   bool needsRefresh;
   bool needsClosing;
   Recti scissorArea;
