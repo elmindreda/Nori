@@ -304,6 +304,33 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Super class for reference counted object.
+ *
+ *  @remarks No, there are no visible knobs on this class. Use the Ref class to
+ *  point to objects derived from RefObject to enable reference counting.
+ */
+class RefObject
+{
+  friend class RefBase;
+public:
+  /*! Constructor.
+   */
+  RefObject();
+  /*! Copy constructor.
+   */
+  RefObject(const RefObject& source);
+  /*! Destructor.
+   */
+  virtual ~RefObject();
+  /*! Assignment operator.
+   */
+  RefObject& operator = (const RefObject& source);
+private:
+  unsigned int count;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Smart reference.
  *
  *  Pointer to objects that inherit from RefObject.
@@ -376,33 +403,6 @@ public:
   }
 private:
   T* object;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Super class for reference counted object.
- *
- *  @remarks No, there are no visible knobs on this class. Use the Ref class to
- *  point to objects derived from RefObject to enable reference counting.
- */
-class RefObject
-{
-  friend class RefBase;
-public:
-  /*! Constructor.
-   */
-  RefObject();
-  /*! Copy constructor.
-   */
-  RefObject(const RefObject& source);
-  /*! Destructor.
-   */
-  virtual ~RefObject();
-  /*! Assignment operator.
-   */
-  RefObject& operator = (const RefObject& source);
-private:
-  unsigned int count;
 };
 
 ///////////////////////////////////////////////////////////////////////
