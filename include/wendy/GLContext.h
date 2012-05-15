@@ -400,32 +400,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup opengl
- */
-class SharedSampler
-{
-public:
-  SharedSampler(const char* name, SamplerType type, int ID);
-  String name;
-  SamplerType type;
-  int ID;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup renderer
- */
-class SharedUniform
-{
-public:
-  SharedUniform(const char* name, UniformType type, int ID);
-  String name;
-  UniformType type;
-  int ID;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Interface for global GLSL program state requests.
  *  @ingroup opengl
  */
@@ -663,6 +637,8 @@ private:
   static void sizeCallback(void* window, int width, int height);
   static int closeCallback(void* window);
   static void refreshCallback(void* window);
+  class SharedSampler;
+  class SharedUniform;
   ResourceCache& cache;
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;

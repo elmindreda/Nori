@@ -713,25 +713,35 @@ Stats::Frame::Frame():
 
 ///////////////////////////////////////////////////////////////////////
 
-SharedSampler::SharedSampler(const char* name,
-                             SamplerType type,
-                             int ID):
-  name(name),
-  type(type),
-  ID(ID)
+class Context::SharedSampler
 {
-}
+public:
+  SharedSampler(const char* name, SamplerType type, int ID):
+    name(name),
+    type(type),
+    ID(ID)
+  {
+  }
+  String name;
+  SamplerType type;
+  int ID;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
-SharedUniform::SharedUniform(const char* name,
-                             UniformType type,
-                             int ID):
-  name(name),
-  type(type),
-  ID(ID)
+class Context::SharedUniform
 {
-}
+public:
+  SharedUniform(const char* name, UniformType type, int ID):
+    name(name),
+    type(type),
+    ID(ID)
+  {
+  }
+  String name;
+  UniformType type;
+  int ID;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
