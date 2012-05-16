@@ -142,28 +142,10 @@ GLenum convertToGL(PixelFormat::Type type)
       return GL_UNSIGNED_SHORT;
     case PixelFormat::UINT32:
       return GL_UNSIGNED_INT;
-
     case PixelFormat::FLOAT16:
-    {
-      if (!GLEW_ARB_texture_float || !GLEW_ARB_half_float_pixel)
-      {
-        logError("Half-precision floating point textures not supported; cannot convert pixel format type");
-        return 0;
-      }
-
-      return GL_HALF_FLOAT_ARB;
-    }
-
+      return GL_HALF_FLOAT;
     case PixelFormat::FLOAT32:
-    {
-      if (!GLEW_ARB_texture_float)
-      {
-        logError("Floating point textures not supported; cannot convert pixel format type");
-        return 0;
-      }
-
       return GL_FLOAT;
-    }
 
     default:
       logError("No OpenGL equivalent for pixel format type %u", type);
@@ -264,22 +246,36 @@ GLenum convertToGL(const PixelFormat& format, bool sRGB)
 
     case PixelFormat::FLOAT16:
     {
-      if (!GLEW_ARB_texture_float || !GLEW_ARB_half_float_pixel)
-      {
-        logError("Half-precision floating point textures not supported; cannot convert pixel format");
-        return 0;
-      }
-
       switch (format.getSemantic())
       {
         case PixelFormat::L:
+        {
+          if (!GLEW_ARB_texture_float)
+          {
+            logError("Half-precision floating point textures not supported; "
+                     "cannot convert pixel format");
+            return 0;
+          }
+
           return GL_LUMINANCE16F_ARB;
+        }
+
         case PixelFormat::LA:
+        {
+          if (!GLEW_ARB_texture_float)
+          {
+            logError("Half-precision floating point textures not supported; "
+                     "cannot convert pixel format");
+            return 0;
+          }
+
           return GL_LUMINANCE_ALPHA16F_ARB;
+        }
+
         case PixelFormat::RGB:
-          return GL_RGB16F_ARB;
+          return GL_RGB16F;
         case PixelFormat::RGBA:
-          return GL_RGBA16F_ARB;
+          return GL_RGBA16F;
         default:
           break;
       }
@@ -289,22 +285,34 @@ GLenum convertToGL(const PixelFormat& format, bool sRGB)
 
     case PixelFormat::FLOAT32:
     {
-      if (!GLEW_ARB_texture_float)
-      {
-        logError("Floating point textures not supported; cannot convert pixel format");
-        return 0;
-      }
-
       switch (format.getSemantic())
       {
         case PixelFormat::L:
+        {
+          if (!GLEW_ARB_texture_float)
+          {
+            logError("Floating point textures not supported; cannot convert pixel format");
+            return 0;
+          }
+
           return GL_LUMINANCE32F_ARB;
+        }
+
         case PixelFormat::LA:
+        {
+          if (!GLEW_ARB_texture_float)
+          {
+            logError("Floating point textures not supported; cannot convert pixel format");
+            return 0;
+          }
+
           return GL_LUMINANCE_ALPHA32F_ARB;
+        }
+
         case PixelFormat::RGB:
-          return GL_RGB32F_ARB;
+          return GL_RGB32F;
         case PixelFormat::RGBA:
-          return GL_RGBA32F_ARB;
+          return GL_RGBA32F;
         default:
           break;
       }
