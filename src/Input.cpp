@@ -916,7 +916,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
       break;
     }
 
-    case 'U':
+    case KEY_U:
     {
       if (pressed && isCtrlKeyDown())
       {
@@ -927,7 +927,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
       break;
     }
 
-    case 'A':
+    case KEY_A:
     {
       if (pressed && isCtrlKeyDown())
         setCaretPosition(0);
@@ -935,7 +935,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
       break;
     }
 
-    case 'E':
+    case KEY_E:
     {
       if (pressed && isCtrlKeyDown())
         setCaretPosition(text.length());
@@ -943,7 +943,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
       break;
     }
 
-    case 'W':
+    case KEY_W:
     {
       if (pressed && isCtrlKeyDown())
       {
