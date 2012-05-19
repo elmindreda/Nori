@@ -98,7 +98,6 @@ class Peer
 {
   friend class Host;
 public:
-  Peer(void* peer, TargetID ID, const char* name);
   bool sendPacket(ChannelID channel, PacketType type, const PacketData& data);
   void disconnect(uint32 reason);
   bool isClient() const;
@@ -108,6 +107,7 @@ public:
   uint32 getAddress() const;
   Time getRoundTripTime() const;
 private:
+  Peer(void* peer, TargetID ID, const char* name);
   void* peer;
   TargetID ID;
   String name;

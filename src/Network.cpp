@@ -159,13 +159,6 @@ const void* PacketData::getData() const
 
 ///////////////////////////////////////////////////////////////////////
 
-Peer::Peer(void* peer, TargetID ID, const char* name):
-  peer(peer),
-  ID(ID),
-  name(name)
-{
-}
-
 bool Peer::sendPacket(ChannelID channel,
                       PacketType type,
                       const PacketData& data)
@@ -231,6 +224,13 @@ uint32 Peer::getAddress() const
 Time Peer::getRoundTripTime() const
 {
   return (Time) ((ENetPeer*) peer)->roundTripTime / 1000.0;
+}
+
+Peer::Peer(void* peer, TargetID ID, const char* name):
+  peer(peer),
+  ID(ID),
+  name(name)
+{
 }
 
 ///////////////////////////////////////////////////////////////////////
