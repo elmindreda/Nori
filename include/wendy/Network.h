@@ -37,35 +37,69 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! Initialize the network layer.
+ *  @ingroup net
+ */
 bool initialize();
+
+/*! Terminate the network layer.
+ *  @ingroup net
+ */
 void shutdown();
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! Network channel ID.
+ *  @ingroup net
+ */
 typedef uint8 ChannelID;
+
+/*! Network target ID.
+ *  @ingroup net
+ */
 typedef uint16 TargetID;
 
 ///////////////////////////////////////////////////////////////////////
 
 enum
 {
+  /*! Sends to the local machine.
+   */
   LOCAL,
+  /*! If on the server, sends to the local machine.
+   *  If on a client, sends to the server.
+   */
   SERVER,
+  /*! If on the server, sends to all clients.
+   *  If on a client, discards the packet.
+   */
   BROADCAST,
   FIRST_CLIENT,
 };
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! Packet transport type enumeration.
+ *  @ingroup net
+ */
 enum PacketType
 {
+  /*! Packets are sent unreliably and without any guaranteed order.
+   */
   UNSEQUENCED,
+  /*! Packets are sent unreliably but are guaranteed to arrive in order.
+   */
   SEQUENCED,
+  /*! Packets are sent reliably and are guaranteed to arrive in order.
+   */
   RELIABLE,
 };
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! Packet data descriptor.
+ *  @ingroup net
+ */
 class PacketData
 {
 public:
@@ -94,6 +128,9 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! Network peer.
+ *  @ingroup net
+ */
 class Peer
 {
   friend class Host;
@@ -115,6 +152,9 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! Network host event listener.
+ *  @ingroup net
+ */
 class HostListener
 {
   friend class Host;
@@ -128,6 +168,9 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! Network host.
+ *  @ingroup net
+ */
 class Host
 {
 public:
