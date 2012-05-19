@@ -34,6 +34,7 @@ operating systems, and for which there are Windows binaries on their site:
 Wendy comes with internal versions of the following libraries:
 
   Bullet (http://bulletphysics.org/) for dynamics and collision
+  ENet (http://enet.bespin.org/) for UDP networking
   GLEW (http://glew.sourceforge.net/) for managing OpenGL extensions
   GLFW (http://www.glfw.org/) for OpenGL context, input and window
   GLM (http://glm.g-truc.net/) for vector math and explicitly sized types
