@@ -6,6 +6,7 @@ endif()
 include_directories(${libpng_SOURCE_DIR}
                     ${zlib_SOURCE_DIR}
                     ${pugixml_SOURCE_DIR}
+                    ${enet_SOURCE_DIR}
                     ${PCRE_SOURCE_DIR}
                     ${GLEW_SOURCE_DIR}
                     ${glfw_SOURCE_DIR})
@@ -17,6 +18,8 @@ set(wendy_SOURCES
     OBB.cpp Pattern.cpp Path.cpp Pixel.cpp Plane.cpp Profile.cpp Random.cpp
     Ray.cpp Rectangle.cpp Resource.cpp Sample.cpp Signal.cpp Sphere.cpp
     Timer.cpp Transform.cpp Triangle.cpp Vertex.cpp
+
+    Network.cpp
 
     GLBuffer.cpp GLContext.cpp GLHelper.cpp GLParser.cpp GLProgram.cpp
     GLQuery.cpp GLTexture.cpp

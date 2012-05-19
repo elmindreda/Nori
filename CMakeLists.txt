@@ -86,7 +86,7 @@ find_package(OpenGL REQUIRED)
 
 add_subdirectory(libs)
 
-list(APPEND wendy_CORE_LIBRARIES pugixml png z pcre)
+list(APPEND wendy_CORE_LIBRARIES enet pugixml png z pcre)
 
 list(APPEND wendy_LIBRARIES GLEW glfw ${GLFW_LIBRARIES})
 if (WENDY_INCLUDE_OPENAL)

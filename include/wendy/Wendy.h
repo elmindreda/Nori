@@ -57,6 +57,8 @@
 
 #include <wendy/WendyCore.h>
 
+#include <wendy/WendyNetwork.h>
+
 #include <wendy/WendyGL.h>
 
 #include <wendy/Input.h>

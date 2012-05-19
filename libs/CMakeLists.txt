@@ -6,6 +6,7 @@ add_subdirectory(pugixml)
 add_subdirectory(glew)
 add_subdirectory(glfw)
 add_subdirectory(glm)
+add_subdirectory(enet)
 
 if (WENDY_INCLUDE_OPENAL)
   add_subdirectory(libogg)
