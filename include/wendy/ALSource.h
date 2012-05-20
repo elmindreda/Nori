@@ -141,7 +141,7 @@ private:
   bool init();
   Source& operator = (const Source& source);
   Context& context;
-  unsigned int sourceID;
+  uint sourceID;
   bool looping;
   vec3 position;
   vec3 velocity;

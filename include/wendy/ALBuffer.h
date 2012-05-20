@@ -78,7 +78,7 @@ private:
   bool init(const Sample& data);
   Buffer& operator = (const Buffer& source);
   Context& context;
-  unsigned int bufferID;
+  uint bufferID;
   SampleFormat format;
   Time duration;
 };

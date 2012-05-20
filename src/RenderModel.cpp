@@ -53,7 +53,7 @@ namespace wendy
 namespace
 {
 
-const unsigned int MODEL_XML_VERSION = 3;
+const uint MODEL_XML_VERSION = 3;
 
 } /*namespace*/
 

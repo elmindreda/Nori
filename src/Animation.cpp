@@ -48,7 +48,7 @@ namespace wendy
 namespace
 {
 
-const unsigned int ANIM3_XML_VERSION = 1;
+const uint ANIM3_XML_VERSION = 1;
 
 } /*namespace*/
 

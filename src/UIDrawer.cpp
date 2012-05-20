@@ -63,7 +63,7 @@ public:
 
 VertexFormat ElementVertex::format("2f:sizeScale 2f:offsetScale 2f:texScale");
 
-const unsigned int THEME_XML_VERSION = 3;
+const uint THEME_XML_VERSION = 3;
 
 } /*namespace*/
 
@@ -218,8 +218,8 @@ void Drawer::begin()
   GL::Context& context = getContext();
 
   GL::Framebuffer& framebuffer = context.getCurrentFramebuffer();
-  const unsigned int width = framebuffer.getWidth();
-  const unsigned int height = framebuffer.getHeight();
+  const uint width = framebuffer.getWidth();
+  const uint height = framebuffer.getHeight();
 
   context.setCurrentSharedProgramState(state);
   context.setViewportArea(Recti(0, 0, width, height));
@@ -330,7 +330,7 @@ void Drawer::drawBezier(const BezierCurve2& spline, const vec4& color)
   {
     GL::VertexRangeLock<Vertex2fv> vertices(range);
 
-    for (unsigned int i = 0;  i < points.size();  i++)
+    for (uint i = 0;  i < points.size();  i++)
       vertices[i].position = points[i];
   }
 

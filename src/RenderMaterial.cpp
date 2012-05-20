@@ -64,7 +64,7 @@ Bimap<String, Phase> phaseMap;
 
 Bimap<GL::SamplerType, GL::TextureType> textureTypeMap;
 
-const unsigned int MATERIAL_XML_VERSION = 8;
+const uint MATERIAL_XML_VERSION = 8;
 
 } /*namespace*/
 

@@ -150,7 +150,7 @@ void Sprite2::realizeVertices(Vertex2ft2fv* vertices) const
   vertices[2].position = vec2(-offset.x, -offset.y);
   vertices[3].position = vec2( offset.x, -offset.y);
 
-  for (unsigned int i = 0;  i < 4;  i++)
+  for (uint i = 0;  i < 4;  i++)
   {
     vertices[i].position = rotate(vertices[i].position, degrees(angle));
     vertices[i].position += position;

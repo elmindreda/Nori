@@ -232,7 +232,7 @@ void Book::onButtonClicked(Widget& widget,
   const float position = transformToLocal(point).x;
   const float width = getWidth() / pages.size();
 
-  const unsigned int index = (unsigned int) (position / width);
+  const uint index = (uint) (position / width);
 
   if (pages[index] != activePage)
     setActivePage(pages[index], true);

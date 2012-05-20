@@ -111,7 +111,7 @@ bool OcclusionQuery::hasResultAvailable() const
   return available ? true : false;
 }
 
-unsigned int OcclusionQuery::getResult() const
+uint OcclusionQuery::getResult() const
 {
   if (active)
   {
@@ -119,7 +119,7 @@ unsigned int OcclusionQuery::getResult() const
     return 0;
   }
 
-  unsigned int result;
+  uint result;
   glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &result);
 
 #if WENDY_DEBUG

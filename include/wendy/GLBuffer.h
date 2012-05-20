@@ -152,7 +152,7 @@ private:
   Context& context;
   bool locked;
   VertexFormat format;
-  unsigned int bufferID;
+  uint bufferID;
   size_t count;
   Usage usage;
 };
@@ -253,7 +253,7 @@ private:
   bool locked;
   Type type;
   Usage usage;
-  unsigned int bufferID;
+  uint bufferID;
   size_t count;
 };
 
@@ -541,9 +541,9 @@ class Image : public RefObject
   friend class ImageFramebuffer;
 public:
   virtual ~Image();
-  virtual unsigned int getWidth() const = 0;
-  virtual unsigned int getHeight() const = 0;
-  virtual unsigned int getDepth() const = 0;
+  virtual uint getWidth() const = 0;
+  virtual uint getHeight() const = 0;
+  virtual uint getDepth() const = 0;
   /*! @return The size, in bytes, of the data in this image.
    */
   size_t getSize() const;
@@ -566,14 +566,14 @@ public:
   virtual ~RenderBuffer();
   /*! @return The width, in pixels, of this render buffer.
    */
-  unsigned int getWidth() const;
+  uint getWidth() const;
   /*! @return The height, in pixels, of this render buffer.
    */
-  unsigned int getHeight() const;
+  uint getHeight() const;
   /*! @return The depth, in pixels, of this render buffer.
    *  @remarks This always returns 1 (one).
    */
-  unsigned int getDepth() const;
+  uint getDepth() const;
   /*! @return The pixel format of this render buffer.
    */
   const PixelFormat& getFormat() const;
@@ -585,17 +585,17 @@ public:
    */
   static Ref<RenderBuffer> create(Context& context,
                                   const PixelFormat& format,
-                                  unsigned int width,
-                                  unsigned int height);
+                                  uint width,
+                                  uint height);
 private:
   RenderBuffer(Context& context);
-  bool init(const PixelFormat& format, unsigned int width, unsigned int height);
-  void attach(int attachment, unsigned int z);
+  bool init(const PixelFormat& format, uint width, uint height);
+  void attach(int attachment, uint z);
   void detach(int attachment);
   Context& context;
-  unsigned int bufferID;
-  unsigned int width;
-  unsigned int height;
+  uint bufferID;
+  uint width;
+  uint height;
   PixelFormat format;
 };
 
@@ -623,10 +623,10 @@ public:
   void setSRGB(bool enabled);
   /*! @return The width, in pixels, of this framebuffer.
    */
-  virtual unsigned int getWidth() const = 0;
+  virtual uint getWidth() const = 0;
   /*! @return The height, in pixels, of this framebuffer.
    */
-  virtual unsigned int getHeight() const = 0;
+  virtual uint getHeight() const = 0;
   /*! @return The aspect ratio of the dimensions, in pixels, of this framebuffer.
    */
   float getAspectRatio() const;
@@ -658,24 +658,24 @@ class DefaultFramebuffer : public Framebuffer
 public:
   /*! @return The default framebuffer color depth, in bits.
    */
-  unsigned int getColorBits() const;
+  uint getColorBits() const;
   /*! @return The default framebuffer depth-buffer depth, in bits.
    */
-  unsigned int getDepthBits() const;
+  uint getDepthBits() const;
   /*! @return The default framebuffer stencil buffer depth, in bits.
    */
-  unsigned int getStencilBits() const;
-  unsigned int getWidth() const;
-  unsigned int getHeight() const;
+  uint getStencilBits() const;
+  uint getWidth() const;
+  uint getHeight() const;
 private:
   DefaultFramebuffer(Context& context);
   void apply() const;
-  unsigned int width;
-  unsigned int height;
-  unsigned int colorBits;
-  unsigned int depthBits;
-  unsigned int stencilBits;
-  unsigned int samples;
+  uint width;
+  uint height;
+  uint colorBits;
+  uint depthBits;
+  uint stencilBits;
+  uint samples;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -712,10 +712,10 @@ public:
   ~ImageFramebuffer();
   /*! @copydoc Framebuffer::getWidth
    */
-  unsigned int getWidth() const;
+  uint getWidth() const;
   /*! @copydoc Framebuffer::getHeight
    */
-  unsigned int getHeight() const;
+  uint getHeight() const;
   /*! @return The image attached to the ImageFramebuffer::COLOR_BUFFER0
    *  attachment point, or @c NULL if no image is attached to it.
    */
@@ -748,7 +748,7 @@ public:
    *  only applies to images of 3D textures.
    *  @return @c true if this framebuffer is complete, or @c false otherwise.
    */
-  bool setBuffer(Attachment attachment, Image* newImage, unsigned int z = 0);
+  bool setBuffer(Attachment attachment, Image* newImage, uint z = 0);
   /*! Creates an image framebuffer within the specified context.
    */
   static ImageFramebuffer* create(Context& context);
@@ -756,7 +756,7 @@ private:
   ImageFramebuffer(Context& context);
   bool init();
   void apply() const;
-  unsigned int bufferID;
+  uint bufferID;
   Ref<Image> images[5];
 };
 

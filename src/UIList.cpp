@@ -173,23 +173,23 @@ void List::setEditable(bool newState)
   }
 }
 
-unsigned int List::getOffset() const
+uint List::getOffset() const
 {
   return offset;
 }
 
-void List::setOffset(unsigned int newOffset)
+void List::setOffset(uint newOffset)
 {
   offset = min(newOffset, maxOffset);
   scroller->setValue(float(offset));
 }
 
-unsigned int List::getSelection() const
+uint List::getSelection() const
 {
   return selection;
 }
 
-void List::setSelection(unsigned int newSelection)
+void List::setSelection(uint newSelection)
 {
   assert(newSelection == NO_ITEM || newSelection < items.size());
   setSelection(newSelection, false);
@@ -211,18 +211,18 @@ void List::setSelectedItem(Item& newItem)
   setSelection(i - items.begin(), false);
 }
 
-unsigned int List::getItemCount() const
+uint List::getItemCount() const
 {
-  return (unsigned int) items.size();
+  return (uint) items.size();
 }
 
-Item* List::getItem(unsigned int index)
+Item* List::getItem(uint index)
 {
   assert(index < items.size());
   return items[index];
 }
 
-const Item* List::getItem(unsigned int index) const
+const Item* List::getItem(uint index) const
 {
   assert(index < items.size());
   return items[index];
@@ -249,7 +249,7 @@ void List::draw() const
 
     float start = area.size.y;
 
-    for (unsigned int i = offset;  i < items.size();  i++)
+    for (uint i = offset;  i < items.size();  i++)
     {
       const Item& item = *items[i];
 
@@ -325,7 +325,7 @@ void List::onButtonClicked(Widget& widget,
 
   float itemTop = getHeight();
 
-  for (unsigned int i = offset;  i < items.size();  i++)
+  for (uint i = offset;  i < items.size();  i++)
   {
     const float itemHeight = items[i]->getHeight();
     const float itemBottom = itemTop - itemHeight;
@@ -414,7 +414,7 @@ void List::onScrolled(Widget& widget, double x, double y)
 
 void List::onValueChanged(Scroller& scroller)
 {
-  setOffset((unsigned int) scroller.getValue());
+  setOffset((uint) scroller.getValue());
 }
 
 void List::beginEditing()
@@ -430,7 +430,7 @@ void List::beginEditing()
     if (scroller->isVisible())
       entryArea.size.x -= scroller->getWidth();
 
-    for (unsigned int i = offset;  i < selection;  i++)
+    for (uint i = offset;  i < selection;  i++)
       entryArea.position.y -= items[i]->getHeight();
 
     entryArea.position += area.position;
@@ -504,7 +504,7 @@ bool List::isSelectionVisible() const
 
   float visibleItemHeight = 0.f;
 
-  for (unsigned int i = offset;  i <= selection;  i++)
+  for (uint i = offset;  i <= selection;  i++)
   {
     visibleItemHeight += items[i]->getHeight();
     if (visibleItemHeight > getHeight())
@@ -514,7 +514,7 @@ bool List::isSelectionVisible() const
   return true;
 }
 
-void List::setSelection(unsigned int newSelection, bool notify)
+void List::setSelection(uint newSelection, bool notify)
 {
   if (selection == newSelection)
     return;

@@ -103,14 +103,14 @@ void Menu::addItem(Item& item)
   sizeToFit();
 }
 
-void Menu::addItemAt(Item& item, unsigned int index)
+void Menu::addItemAt(Item& item, uint index)
 {
   auto i = std::find(items.begin(), items.end(), &item);
   if (i != items.end())
     return;
 
   i = items.begin();
-  std::advance(i, min(index, (unsigned int) items.size()));
+  std::advance(i, min(index, (uint) items.size()));
   items.insert(i, &item);
 
   sizeToFit();
@@ -179,17 +179,17 @@ void Menu::sortItems()
   std::sort(items.begin(), items.end(), comparator);
 }
 
-unsigned int Menu::getItemCount() const
+uint Menu::getItemCount() const
 {
-  return (unsigned int) items.size();
+  return (uint) items.size();
 }
 
-Item* Menu::getItem(unsigned int index)
+Item* Menu::getItem(uint index)
 {
   return items[index];
 }
 
-const Item* Menu::getItem(unsigned int index) const
+const Item* Menu::getItem(uint index) const
 {
   return items[index];
 }
@@ -199,7 +199,7 @@ const ItemList& Menu::getItems() const
   return items;
 }
 
-SignalProxy2<void, Menu&, unsigned int> Menu::getItemSelectedSignal()
+SignalProxy2<void, Menu&, uint> Menu::getItemSelectedSignal()
 {
   return itemSelectedSignal;
 }
@@ -215,7 +215,7 @@ void Menu::draw() const
 
     float itemTop = area.size.y - 1.f;
 
-    unsigned int index = 0;
+    uint index = 0;
 
     for (auto i = items.begin();  i != items.end();  i++)
     {
@@ -249,7 +249,7 @@ void Menu::onCursorMoved(Widget& widget, const vec2& position)
 {
   vec2 localPosition = transformToLocal(position);
 
-  unsigned int index = 0;
+  uint index = 0;
 
   const float height = getHeight() - 2.f;
   float itemTop = height;
@@ -287,7 +287,7 @@ void Menu::onButtonClicked(Widget& widget,
 
   vec2 localPosition = transformToLocal(position);
 
-  unsigned int index = 0;
+  uint index = 0;
 
   const float height = getHeight() - 2.f;
   float itemTop = height;

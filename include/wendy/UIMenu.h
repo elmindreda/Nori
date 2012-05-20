@@ -43,7 +43,7 @@ public:
   void display(const vec2& point);
   void display();
   void addItem(Item& item);
-  void addItemAt(Item& item, unsigned int index);
+  void addItemAt(Item& item, uint index);
   void createItem(const char* value, ItemID ID = 0);
   void createSeparatorItem();
   Item* findItem(const char* value);
@@ -51,11 +51,11 @@ public:
   void destroyItem(Item& item);
   void destroyItems();
   void sortItems();
-  unsigned int getItemCount() const;
-  Item* getItem(unsigned int index);
-  const Item* getItem(unsigned int index) const;
+  uint getItemCount() const;
+  Item* getItem(uint index);
+  const Item* getItem(uint index) const;
   const ItemList& getItems() const;
-  SignalProxy2<void, Menu&, unsigned int> getItemSelectedSignal();
+  SignalProxy2<void, Menu&, uint> getItemSelectedSignal();
 private:
   void draw() const;
   void onFocusChanged(Widget& widget, bool activated);
@@ -69,8 +69,8 @@ private:
   void onDragEnded(Widget& widget, const vec2& position);
   void sizeToFit();
   ItemList items;
-  unsigned int selection;
-  Signal2<void, Menu&, unsigned int> itemSelectedSignal;
+  uint selection;
+  Signal2<void, Menu&, uint> itemSelectedSignal;
 };
 
 ///////////////////////////////////////////////////////////////////////

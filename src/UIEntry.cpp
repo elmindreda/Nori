@@ -65,12 +65,12 @@ void Entry::setText(const char* newText)
   invalidate();
 }
 
-unsigned int Entry::getCaretPosition() const
+uint Entry::getCaretPosition() const
 {
   return caretPosition;
 }
 
-void Entry::setCaretPosition(unsigned int newPosition)
+void Entry::setCaretPosition(uint newPosition)
 {
   setCaretPosition(newPosition, false);
 }
@@ -102,7 +102,7 @@ void Entry::draw() const
 
     drawer.drawText(textArea, text.c_str(), LEFT_ALIGNED, getState());
 
-    if (isActive() && ((unsigned int) (Timer::getCurrentTime() * 2.f) & 1))
+    if (isActive() && ((uint) (Timer::getCurrentTime() * 2.f) & 1))
     {
       float position = 0.f;
 
@@ -147,7 +147,7 @@ void Entry::onButtonClicked(Widget& widget,
   render::Font::LayoutList layouts;
   drawer.getCurrentFont().getTextLayout(layouts, text.substr(startPosition, String::npos).c_str());
 
-  unsigned int index;
+  uint index;
 
   // TODO: Improve this, it sucks.
 
@@ -225,7 +225,7 @@ void Entry::onCharInput(Widget& widget, uint32 character)
   setCaretPosition(caretPosition + 1, true);
 }
 
-void Entry::setCaretPosition(unsigned int newPosition, bool notify)
+void Entry::setCaretPosition(uint newPosition, bool notify)
 {
   if (newPosition > text.length())
     newPosition = text.length();

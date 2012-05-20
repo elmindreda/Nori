@@ -168,10 +168,7 @@ TextureParams::TextureParams(TextureType initType):
 
 ///////////////////////////////////////////////////////////////////////
 
-bool TextureImage::copyFrom(const wendy::Image& source,
-                            unsigned int x,
-                            unsigned int y,
-                            unsigned int z)
+bool TextureImage::copyFrom(const wendy::Image& source, uint x, uint y, uint z)
 {
   if (source.getFormat() != texture.format)
   {
@@ -272,17 +269,17 @@ Ref<wendy::Image> TextureImage::getData() const
   return result;
 }
 
-unsigned int TextureImage::getWidth() const
+uint TextureImage::getWidth() const
 {
   return width;
 }
 
-unsigned int TextureImage::getHeight() const
+uint TextureImage::getHeight() const
 {
   return height;
 }
 
-unsigned int TextureImage::getDepth() const
+uint TextureImage::getDepth() const
 {
   return depth;
 }
@@ -303,10 +300,10 @@ Texture& TextureImage::getTexture() const
 }
 
 TextureImage::TextureImage(Texture& initTexture,
-                           unsigned int initLevel,
-                           unsigned int initWidth,
-                           unsigned int initHeight,
-                           unsigned int initDepth,
+                           uint initLevel,
+                           uint initWidth,
+                           uint initHeight,
+                           uint initDepth,
                            CubeFace initFace):
   texture(initTexture),
   level(initLevel),
@@ -317,7 +314,7 @@ TextureImage::TextureImage(Texture& initTexture,
 {
 }
 
-void TextureImage::attach(int attachment, unsigned int z)
+void TextureImage::attach(int attachment, uint z)
 {
   if (texture.is1D())
   {
@@ -445,22 +442,22 @@ TextureType Texture::getType() const
   return type;
 }
 
-unsigned int Texture::getWidth(unsigned int level) const
+uint Texture::getWidth(uint level) const
 {
   return getImage(level).getWidth();
 }
 
-unsigned int Texture::getHeight(unsigned int level) const
+uint Texture::getHeight(uint level) const
 {
   return getImage(level).getHeight();
 }
 
-unsigned int Texture::getDepth(unsigned int level) const
+uint Texture::getDepth(uint level) const
 {
   return getImage(level).getDepth();
 }
 
-unsigned int Texture::getLevelCount() const
+uint Texture::getLevelCount() const
 {
   return levels;
 }
@@ -569,7 +566,7 @@ size_t Texture::getSize() const
   return size;
 }
 
-TextureImage& Texture::getImage(unsigned int level, CubeFace face)
+TextureImage& Texture::getImage(uint level, CubeFace face)
 {
   if (isCube())
     return *images[face * levels + level];
@@ -577,7 +574,7 @@ TextureImage& Texture::getImage(unsigned int level, CubeFace face)
     return *images[level];
 }
 
-const TextureImage& Texture::getImage(unsigned int level, CubeFace face) const
+const TextureImage& Texture::getImage(uint level, CubeFace face) const
 {
   if (isCube())
     return *images[face * levels + level];
@@ -685,7 +682,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& data)
       return false;
     }
 
-    const unsigned int width = data.getWidth();
+    const uint width = data.getWidth();
 
     if (data.getWidth() % 6 != 0 ||
         data.getWidth() / 6 != data.getHeight() ||
@@ -707,7 +704,7 @@ bool Texture::init(const TextureParams& params, const wendy::Image& data)
 
   type = params.type;
 
-  unsigned int width, height, depth;
+  uint width, height, depth;
 
   if (type == TEXTURE_CUBE)
   {
@@ -878,13 +875,13 @@ void Texture::retrieveImages()
     levels = retrieveTargetImages(convertToGL(type), NO_CUBE_FACE);
 }
 
-unsigned int Texture::retrieveTargetImages(unsigned int target, CubeFace face)
+uint Texture::retrieveTargetImages(uint target, CubeFace face)
 {
-  unsigned int level = 0;
+  uint level = 0;
 
   for (;;)
   {
-    unsigned int width, height, depth;
+    uint width, height, depth;
 
     glGetTexLevelParameteriv(target, level, GL_TEXTURE_WIDTH, (int*) &width);
     glGetTexLevelParameteriv(target, level, GL_TEXTURE_HEIGHT, (int*) &height);

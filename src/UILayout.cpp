@@ -168,7 +168,7 @@ void Layout::update()
 {
   const WidgetList& children = getChildren();
   const vec2& size = getSize();
-  unsigned int flexibleCount = 0;
+  uint flexibleCount = 0;
 
   if (orientation == VERTICAL)
   {

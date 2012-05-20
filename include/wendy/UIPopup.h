@@ -41,22 +41,22 @@ public:
   Popup(Layer& layer);
   ~Popup();
   void addItem(Item& item);
-  void addItemAt(Item& item, unsigned int index);
+  void addItemAt(Item& item, uint index);
   void createItem(const char* value, ItemID ID = 0);
   void createSeparatorItem();
   Item* findItem(const char* value);
   const Item* findItem(const char* value) const;
   void destroyItem(Item& item);
   void destroyItems();
-  unsigned int getSelection() const;
-  void setSelection(unsigned int newIndex);
+  uint getSelection() const;
+  void setSelection(uint newIndex);
   Item* getSelectedItem();
   void setSelectedItem(Item& newItem);
-  unsigned int getItemCount() const;
-  Item* getItem(unsigned int index);
-  const Item* getItem(unsigned int index) const;
+  uint getItemCount() const;
+  Item* getItem(uint index);
+  const Item* getItem(uint index) const;
   const ItemList& getItems() const;
-  SignalProxy2<void, Popup&, unsigned int> getItemSelectedSignal();
+  SignalProxy2<void, Popup&, uint> getItemSelectedSignal();
 protected:
   void draw() const;
 private:
@@ -66,10 +66,10 @@ private:
                        input::Button button,
                        bool clicked);
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
-  void onItemSelected(Menu& menu, unsigned int index);
+  void onItemSelected(Menu& menu, uint index);
   void onMenuDestroyed(Widget& widget);
-  Signal2<void, Popup&, unsigned int> itemSelectedSignal;
-  unsigned int selection;
+  Signal2<void, Popup&, uint> itemSelectedSignal;
+  uint selection;
   Menu* menu;
 };
 

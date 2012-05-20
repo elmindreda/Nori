@@ -247,7 +247,7 @@ public:
   virtual ~Target();
   /*! Called when the window has been resized.
    */
-  virtual void onWindowResized(unsigned int width, unsigned int height);
+  virtual void onWindowResized(uint width, uint height);
   /*! Called when a key has been pressed or released.
    */
   virtual void onKeyPressed(Key key, bool pressed);
@@ -294,10 +294,10 @@ public:
   bool isCursorCaptured() const;
   /*! @return The width, in pixels, of the mousable screen area.
    */
-  unsigned int getWidth() const;
+  uint getWidth() const;
   /*! @return The height, in pixels, of the mousable screen area.
    */
-  unsigned int getHeight() const;
+  uint getHeight() const;
   /*! @return The current mouse position.
    */
   ivec2 getCursorPosition() const;
@@ -317,7 +317,7 @@ private:
   Window(GL::Context& context);
   Window(const Window& source);
   Window& operator = (const Window& source);
-  void onWindowResized(unsigned int width, unsigned int height);
+  void onWindowResized(uint width, uint height);
   static void keyboardCallback(void* window, int key, int action);
   static void characterCallback(void* window, int character);
   static void mousePosCallback(void* window, int x, int y);

@@ -352,10 +352,10 @@ public:
   GL::Operation getDepthPassOperation() const;
   /*! @return The stencil test reference value used by this render state.
    */
-  unsigned int getStencilReference() const;
+  uint getStencilReference() const;
   /*! @return The stencil buffer write mask used by this render state.
    */
-  unsigned int getStencilWriteMask() const;
+  uint getStencilWriteMask() const;
   /*! Sets whether this render state uses depth buffer testing.
    *  @param[in] enable Set to @c true to enable depth buffer testing, or @c
    *  false to disable it.
@@ -382,11 +382,11 @@ public:
   /*! Sets the stencil test reference value for this render state.
    *  @param[in] newReference The desired stencil test reference value.
    */
-  void setStencilReference(unsigned int newReference);
+  void setStencilReference(uint newReference);
   /*! Sets the stencil buffer write mask for this render state.
    *  @param[in] newMask The desired stencil buffer write mask.
    */
-  void setStencilWriteMask(unsigned int newMask);
+  void setStencilWriteMask(uint newMask);
   /*! Sets the operation to perform when the stencil test fails.
    */
   void setStencilFailOperation(GL::Operation newOperation);

@@ -282,7 +282,7 @@ bool VM::execute(const char* name)
   stream.seekg(0, std::ios::end);
 
   String text;
-  text.resize((unsigned int) stream.tellg());
+  text.resize((uint) stream.tellg());
 
   stream.seekg(0, std::ios::beg);
   stream.read(&text[0], text.size());

@@ -350,7 +350,7 @@ bool isCompatible(const Attribute& attribute, const VertexComponent& component)
   return false;
 }
 
-void setBooleanState(unsigned int state, bool value)
+void setBooleanState(uint state, bool value)
 {
   if (value)
     glEnable(state);
@@ -368,7 +368,7 @@ Version::Version():
 {
 }
 
-Version::Version(unsigned int initM, unsigned int initN):
+Version::Version(uint initM, uint initN):
   m(initM),
   n(initN)
 {
@@ -417,8 +417,8 @@ WindowConfig::WindowConfig(const String& initTitle):
 }
 
 WindowConfig::WindowConfig(const String& initTitle,
-                           unsigned int initWidth,
-                           unsigned int initHeight,
+                           uint initWidth,
+                           uint initHeight,
                            WindowMode initMode,
                            bool initResizable):
   title(initTitle),
@@ -431,10 +431,10 @@ WindowConfig::WindowConfig(const String& initTitle,
 
 ///////////////////////////////////////////////////////////////////////
 
-ContextConfig::ContextConfig(unsigned int initColorBits,
-                             unsigned int initDepthBits,
-                             unsigned int initStencilBits,
-                             unsigned int initSamples,
+ContextConfig::ContextConfig(uint initColorBits,
+                             uint initDepthBits,
+                             uint initStencilBits,
+                             uint initSamples,
                              Version initVersion,
                              Profile initProfile):
   colorBits(initColorBits),
@@ -543,7 +543,7 @@ void Stats::addStateChange()
   frame.stateChangeCount++;
 }
 
-void Stats::addPrimitives(PrimitiveType type, unsigned int vertexCount)
+void Stats::addPrimitives(PrimitiveType type, uint vertexCount)
 {
   Frame& frame = frames.front();
   frame.vertexCount += vertexCount;
@@ -637,7 +637,7 @@ float Stats::getFrameRate() const
   return frameRate;
 }
 
-unsigned int Stats::getFrameCount() const
+uint Stats::getFrameCount() const
 {
   return frameCount;
 }
@@ -647,27 +647,27 @@ const Stats::Frame& Stats::getCurrentFrame() const
   return frames.front();
 }
 
-unsigned int Stats::getTextureCount() const
+uint Stats::getTextureCount() const
 {
   return textureCount;
 }
 
-unsigned int Stats::getVertexBufferCount() const
+uint Stats::getVertexBufferCount() const
 {
   return vertexBufferCount;
 }
 
-unsigned int Stats::getIndexBufferCount() const
+uint Stats::getIndexBufferCount() const
 {
   return indexBufferCount;
 }
 
-unsigned int Stats::getRenderBufferCount() const
+uint Stats::getRenderBufferCount() const
 {
   return renderBufferCount;
 }
 
-unsigned int Stats::getProgramCount() const
+uint Stats::getProgramCount() const
 {
   return programCount;
 }
@@ -797,7 +797,7 @@ void Context::clearDepthBuffer(float depth)
   applyState(previousState);
 }
 
-void Context::clearStencilBuffer(unsigned int value)
+void Context::clearStencilBuffer(uint value)
 {
   const RenderState previousState = currentState;
 
@@ -815,7 +815,7 @@ void Context::clearStencilBuffer(unsigned int value)
   applyState(previousState);
 }
 
-void Context::clearBuffers(const vec4& color, float depth, unsigned int value)
+void Context::clearBuffers(const vec4& color, float depth, uint value)
 {
   const RenderState previousState = currentState;
 
@@ -854,9 +854,9 @@ void Context::render(const PrimitiveRange& range)
 }
 
 void Context::render(PrimitiveType type,
-                     unsigned int start,
-                     unsigned int count,
-                     unsigned int base)
+                     uint start,
+                     uint count,
+                     uint base)
 {
   ProfileNodeCall call("GL::Context::render");
 
@@ -1069,8 +1069,8 @@ void Context::setScissorArea(const Recti& newArea)
 {
   scissorArea = newArea;
 
-  const unsigned int width = currentFramebuffer->getWidth();
-  const unsigned int height = currentFramebuffer->getHeight();
+  const uint width = currentFramebuffer->getWidth();
+  const uint height = currentFramebuffer->getHeight();
 
   if (scissorArea == Recti(0, 0, width, height))
     glDisable(GL_SCISSOR_TEST);
@@ -1242,17 +1242,17 @@ void Context::setCurrentTexture(Texture* newTexture)
   }
 }
 
-unsigned int Context::getTextureUnitCount() const
+uint Context::getTextureUnitCount() const
 {
-  return (unsigned int) textureUnits.size();
+  return (uint) textureUnits.size();
 }
 
-unsigned int Context::getActiveTextureUnit() const
+uint Context::getActiveTextureUnit() const
 {
   return activeTextureUnit;
 }
 
-void Context::setActiveTextureUnit(unsigned int unit)
+void Context::setActiveTextureUnit(uint unit)
 {
   if (activeTextureUnit != unit)
   {
@@ -1332,7 +1332,7 @@ SignalProxy0<bool> Context::getCloseRequestSignal()
   return closeRequestSignal;
 }
 
-SignalProxy2<void, unsigned int, unsigned int> Context::getResizedSignal()
+SignalProxy2<void, uint, uint> Context::getResizedSignal()
 {
   return resizedSignal;
 }
@@ -1388,7 +1388,7 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 
   // Create context and window
   {
-    const unsigned int colorBits = min(cc.colorBits, 24u);
+    const uint colorBits = min(cc.colorBits, 24u);
 
     glfwOpenWindowHint(GLFW_RED_BITS, colorBits / 3);
     glfwOpenWindowHint(GLFW_GREEN_BITS, colorBits / 3);
@@ -1409,7 +1409,7 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #endif
 
-    unsigned int mode;
+    uint mode;
 
     if (wc.mode == WINDOWED)
       mode = GLFW_WINDOWED;
@@ -1461,8 +1461,8 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 
   // Set up texture unit cache
   {
-    const unsigned int unitCount = max(limits->maxCombinedTextureImageUnits,
-                                       limits->maxTextureCoords);
+    const uint unitCount = max(limits->maxCombinedTextureImageUnits,
+                               limits->maxTextureCoords);
 
     textureUnits.resize(unitCount);
   }

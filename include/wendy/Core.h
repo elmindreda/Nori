@@ -326,7 +326,7 @@ public:
    */
   RefObject& operator = (const RefObject& source);
 private:
-  unsigned int count;
+  uint count;
 };
 
 ///////////////////////////////////////////////////////////////////////

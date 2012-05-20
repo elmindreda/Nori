@@ -167,11 +167,11 @@ class Version
 {
 public:
   Version();
-  Version(unsigned int m, unsigned int n);
+  Version(uint m, uint n);
   bool operator < (const Version& other) const;
   bool operator > (const Version& other) const;
-  unsigned int m;
-  unsigned int n;
+  uint m;
+  uint n;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -196,8 +196,8 @@ public:
    *  @param[in] mode The desired mode of the window.
    */
   WindowConfig(const String& title,
-               unsigned int width,
-               unsigned int height,
+               uint width,
+               uint height,
                WindowMode mode,
                bool resizable = true);
   /*! The desired window title.
@@ -205,10 +205,10 @@ public:
   String title;
   /*! The desired width of the window.
    */
-  unsigned int width;
+  uint width;
   /*! The desired height of the window.
    */
-  unsigned int height;
+  uint height;
   /*! The desired mode of the window.
    */
   WindowMode mode;
@@ -230,24 +230,24 @@ class ContextConfig
 public:
   /*! Constructor.
    */
-  ContextConfig(unsigned int colorBits = 32,
-                unsigned int depthBits = 24,
-                unsigned int stencilBits = 0,
-                unsigned int samples = 0,
+  ContextConfig(uint colorBits = 32,
+                uint depthBits = 24,
+                uint stencilBits = 0,
+                uint samples = 0,
                 Version version = Version(2,1),
                 Profile profile = PROFILE_DEFAULT);
   /*! The desired color buffer bit depth.
    */
-  unsigned int colorBits;
+  uint colorBits;
   /*! The desired depth buffer bit depth.
    */
-  unsigned int depthBits;
+  uint depthBits;
   /*! The desired stencil buffer bit depth.
    */
-  unsigned int stencilBits;
+  uint stencilBits;
   /*! The desired number of FSAA samples.
    */
-  unsigned int samples;
+  uint samples;
   /*! The minimum desired OpenGL version.
    */
   Version version;
@@ -278,8 +278,8 @@ public:
   BlendFactor dstFactor;
   Function depthFunction;
   Function stencilFunction;
-  unsigned int stencilRef;
-  unsigned int stencilMask;
+  uint stencilRef;
+  uint stencilMask;
   Operation stencilFailOp;
   Operation depthFailOp;
   Operation depthPassOp;
@@ -299,40 +299,40 @@ public:
   /*! The maximum number of color buffers that can be attached to to an image
    *  framebuffer (FBO).
    */
-  unsigned int maxColorAttachments;
+  uint maxColorAttachments;
   /*! The maximum number of simultaneously active color buffers.
    */
-  unsigned int maxDrawBuffers;
+  uint maxDrawBuffers;
   /*! The number of available vertex shader texture image units.
    */
-  unsigned int maxVertexTextureImageUnits;
+  uint maxVertexTextureImageUnits;
   /*! The number of available fragment shader texture image units.
    */
-  unsigned int maxFragmentTextureImageUnits;
+  uint maxFragmentTextureImageUnits;
   /*! The total number of available shader texture image units.
    */
-  unsigned int maxCombinedTextureImageUnits;
+  uint maxCombinedTextureImageUnits;
   /*! The maximum size, in pixels, of 2D POT textures.
    */
-  unsigned int maxTextureSize;
+  uint maxTextureSize;
   /*! The maximum size, in pixels, of 3D POT textures.
    */
-  unsigned int maxTexture3DSize;
+  uint maxTexture3DSize;
   /*! The maximum size, in pixels, of cube map texture faces.
    */
-  unsigned int maxTextureCubeSize;
+  uint maxTextureCubeSize;
   /*! The maximum size, in pixels, of non-POT 2D textures.
    */
-  unsigned int maxTextureRectangleSize;
+  uint maxTextureRectangleSize;
   /*! The number of available texture coordinates.
    */
-  unsigned int maxTextureCoords;
+  uint maxTextureCoords;
   /*! The maximum texture anisotropy.
    */
   float maxTextureAnisotropy;
   /*! The number of available vertex attributes.
    */
-  unsigned int maxVertexAttributes;
+  uint maxVertexAttributes;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -347,18 +347,18 @@ public:
   {
   public:
     Frame();
-    unsigned int operationCount;
-    unsigned int stateChangeCount;
-    unsigned int vertexCount;
-    unsigned int pointCount;
-    unsigned int lineCount;
-    unsigned int triangleCount;
+    uint operationCount;
+    uint stateChangeCount;
+    uint vertexCount;
+    uint pointCount;
+    uint lineCount;
+    uint triangleCount;
     Time duration;
   };
   Stats();
   void addFrame();
   void addStateChange();
-  void addPrimitives(PrimitiveType type, unsigned int vertexCount);
+  void addPrimitives(PrimitiveType type, uint vertexCount);
   void addTexture(size_t size);
   void removeTexture(size_t size);
   void addVertexBuffer(size_t size);
@@ -370,27 +370,27 @@ public:
   void addProgram();
   void removeProgram();
   float getFrameRate() const;
-  unsigned int getFrameCount() const;
+  uint getFrameCount() const;
   const Frame& getCurrentFrame() const;
-  unsigned int getTextureCount() const;
-  unsigned int getVertexBufferCount() const;
-  unsigned int getIndexBufferCount() const;
-  unsigned int getRenderBufferCount() const;
-  unsigned int getProgramCount() const;
+  uint getTextureCount() const;
+  uint getVertexBufferCount() const;
+  uint getIndexBufferCount() const;
+  uint getRenderBufferCount() const;
+  uint getProgramCount() const;
   size_t getTotalTextureSize() const;
   size_t getTotalVertexBufferSize() const;
   size_t getTotalIndexBufferSize() const;
   size_t getTotalRenderBufferSize() const;
 private:
   typedef std::deque<Frame> FrameQueue;
-  unsigned int frameCount;
+  uint frameCount;
   float frameRate;
   FrameQueue frames;
-  unsigned int textureCount;
-  unsigned int vertexBufferCount;
-  unsigned int indexBufferCount;
-  unsigned int renderBufferCount;
-  unsigned int programCount;
+  uint textureCount;
+  uint vertexBufferCount;
+  uint indexBufferCount;
+  uint renderBufferCount;
+  uint programCount;
   size_t textureSize;
   size_t vertexBufferSize;
   size_t indexBufferSize;
@@ -450,7 +450,7 @@ public:
    *  stencil value.
    *  @param[in] value The stencil value to use.
    */
-  void clearStencilBuffer(unsigned int value = 0);
+  void clearStencilBuffer(uint value = 0);
   /*! Clears all buffers of the current framebuffer with the specified values.
    *  @param[in] color The color value to use.
    *  @param[in] depth The depth value to use.
@@ -458,7 +458,7 @@ public:
    */
   void clearBuffers(const vec4& color = vec4(0.f),
                     float depth = 1.f,
-                    unsigned int value = 0);
+                    uint value = 0);
   /*! Renders the specified primitive range to the current framebuffer, using
    *  the current GLSL program.
    *  @pre A GLSL program must be set before calling this method.
@@ -469,9 +469,9 @@ public:
    *  @pre A GLSL program must be set before calling this method.
    */
   void render(PrimitiveType type,
-              unsigned int start,
-              unsigned int count,
-              unsigned int base = 0);
+              uint start,
+              uint count,
+              uint base = 0);
   /*! Makes Context::update to return when in manual refresh mode, forcing
    *  a new iteration of the render loop.
    */
@@ -583,13 +583,13 @@ public:
   void setCurrentTexture(Texture* newTexture);
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
-  unsigned int getTextureUnitCount() const;
+  uint getTextureUnitCount() const;
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
-  unsigned int getActiveTextureUnit() const;
+  uint getActiveTextureUnit() const;
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
-  void setActiveTextureUnit(unsigned int unit);
+  void setActiveTextureUnit(uint unit);
   bool isCullingInverted();
   void setCullingInversion(bool newState);
   const RenderState& getCurrentRenderState() const;
@@ -620,7 +620,7 @@ public:
   SignalProxy0<bool> getCloseRequestSignal();
   /*! @return The signal for context resizing.
    */
-  SignalProxy2<void, unsigned int, unsigned int> getResizedSignal();
+  SignalProxy2<void, uint, uint> getResizedSignal();
   /*! Creates the context singleton object, using the specified settings.
    *  @param[in] cache The resource cache to use.
    *  @param[in] wndconfig The desired window configuration.
@@ -645,7 +645,7 @@ private:
   ResourceCache& cache;
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
-  Signal2<void, unsigned int, unsigned int> resizedSignal;
+  Signal2<void, uint, uint> resizedSignal;
   void* handle;
   String title;
   Ptr<Limits> limits;
@@ -661,7 +661,7 @@ private:
   bool dirtyState;
   bool cullingInverted;
   TextureList textureUnits;
-  unsigned int activeTextureUnit;
+  uint activeTextureUnit;
   RenderState currentState;
   Ref<Program> currentProgram;
   Ref<VertexBuffer> currentVertexBuffer;

@@ -98,12 +98,12 @@ void Popup::destroyItems()
   selection = NO_ITEM;
 }
 
-unsigned int Popup::getSelection() const
+uint Popup::getSelection() const
 {
   return selection;
 }
 
-void Popup::setSelection(unsigned int newIndex)
+void Popup::setSelection(uint newIndex)
 {
   if (menu->getItemCount())
     selection = min(newIndex, menu->getItemCount() - 1);
@@ -129,17 +129,17 @@ void Popup::setSelectedItem(Item& newItem)
   selection = i - items.begin();
 }
 
-unsigned int Popup::getItemCount() const
+uint Popup::getItemCount() const
 {
   return menu->getItemCount();
 }
 
-Item* Popup::getItem(unsigned int index)
+Item* Popup::getItem(uint index)
 {
   return menu->getItem(index);
 }
 
-const Item* Popup::getItem(unsigned int index) const
+const Item* Popup::getItem(uint index) const
 {
   return menu->getItem(index);
 }
@@ -149,7 +149,7 @@ const ItemList& Popup::getItems() const
   return menu->getItems();
 }
 
-SignalProxy2<void, Popup&, unsigned int> Popup::getItemSelectedSignal()
+SignalProxy2<void, Popup&, uint> Popup::getItemSelectedSignal()
 {
   return itemSelectedSignal;
 }
@@ -216,7 +216,7 @@ void Popup::onKeyPressed(Widget& widget, input::Key key, bool pressed)
   }
 }
 
-void Popup::onItemSelected(Menu& menu, unsigned int index)
+void Popup::onItemSelected(Menu& menu, uint index)
 {
   selection = index;
   itemSelectedSignal(*this, selection);

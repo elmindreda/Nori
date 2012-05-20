@@ -54,15 +54,15 @@ namespace wendy
 namespace
 {
 
-unsigned int findStartY(const Image& image)
+uint findStartY(const Image& image)
 {
   const uint8* pixels = (const uint8*) image.getPixels();
 
-  unsigned int startY;
+  uint startY;
 
   for (startY = 0;  startY < image.getHeight();  startY++)
   {
-    unsigned int x;
+    uint x;
 
     for (x = 0;  x < image.getWidth();  x++)
     {
@@ -77,15 +77,15 @@ unsigned int findStartY(const Image& image)
   return startY;
 }
 
-unsigned int findEndY(const Image& image)
+uint findEndY(const Image& image)
 {
   const uint8* pixels = (const uint8*) image.getPixels();
 
-  unsigned int endY;
+  uint endY;
 
   for (endY = image.getHeight();  endY > 0;  endY--)
   {
-    unsigned int x;
+    uint x;
 
     for (x = 0;  x < image.getWidth();  x++)
     {
@@ -100,7 +100,7 @@ unsigned int findEndY(const Image& image)
   return endY;
 }
 
-const unsigned int FONT_XML_VERSION = 1;
+const uint FONT_XML_VERSION = 1;
 
 } /*namespace*/
 
@@ -140,7 +140,7 @@ void Font::drawText(const vec2& penPosition, const vec4& color, const char* text
     return;
   }
 
-  unsigned int count = 0;
+  uint count = 0;
 
   // Realize vertices for glyphs
   {
@@ -278,7 +278,7 @@ Font::Font(const Font& source):
 
 bool Font::init(const FontData& data)
 {
-  unsigned int maxWidth = 0, maxHeight = 0;
+  uint maxWidth = 0, maxHeight = 0;
 
   for (auto g = data.glyphs.begin();  g != data.glyphs.end();  g++)
   {
@@ -291,20 +291,20 @@ bool Font::init(const FontData& data)
 
   // Create glyph texture
   {
-    const unsigned int maxSize = context.getLimits().maxTextureSize;
+    const uint maxSize = context.getLimits().maxTextureSize;
 
-    unsigned int totalWidth = 1;
+    uint totalWidth = 1;
 
     for (auto g = data.glyphs.begin();  g != data.glyphs.end();  g++)
       totalWidth += g->image->getWidth() + 1;
 
-    unsigned int textureWidth = min(powerOfTwoAbove(totalWidth), maxSize);
+    uint textureWidth = min(powerOfTwoAbove(totalWidth), maxSize);
 
-    unsigned int rows = totalWidth / textureWidth;
+    uint rows = totalWidth / textureWidth;
     if (totalWidth % textureWidth)
       rows++;
 
-    unsigned int textureHeight = (maxHeight + 1) * rows + 1;
+    uint textureHeight = (maxHeight + 1) * rows + 1;
     textureHeight = min(powerOfTwoAbove(textureHeight), maxSize);
 
     Ref<Image> image = Image::create(cache,
@@ -376,8 +376,8 @@ bool Font::init(const FontData& data)
   ivec2 texelPosition(1, 1);
 
   GL::TextureImage& textureImage = texture->getImage(0);
-  const unsigned int textureWidth = textureImage.getWidth();
-  const unsigned int textureHeight = textureImage.getHeight();
+  const uint textureWidth = textureImage.getWidth();
+  const uint textureHeight = textureImage.getHeight();
 
   glyphs.reserve(data.glyphs.size());
 
@@ -560,14 +560,14 @@ bool FontReader::extractGlyphs(FontData& data,
 
   // Crop top and bottom parts
   {
-    const unsigned int startY = findStartY(image);
+    const uint startY = findStartY(image);
     if (startY == image.getHeight())
     {
       logError("No glyphs found in source image for font \'%s\'", name.c_str());
       return false;
     }
 
-    const unsigned int endY = findEndY(image);
+    const uint endY = findEndY(image);
 
     source = image.getArea(Recti(0, startY, image.getWidth(), endY - startY));
     if (!source)
@@ -581,7 +581,7 @@ bool FontReader::extractGlyphs(FontData& data,
 
   const uint8* pixels = (const uint8*) source->getPixels();
 
-  unsigned int index = 0, startX = 0, endX;
+  uint index = 0, startX = 0, endX;
 
   for (;;)
   {
@@ -589,7 +589,7 @@ bool FontReader::extractGlyphs(FontData& data,
 
     while (startX < source->getWidth())
     {
-      unsigned int y;
+      uint y;
 
       for (y = 0;  y < source->getHeight();  y++)
       {
@@ -616,7 +616,7 @@ bool FontReader::extractGlyphs(FontData& data,
 
     for (endX = startX + 1;  endX < source->getWidth();  endX++)
     {
-      unsigned int y;
+      uint y;
 
       for (y = 0;  y < source->getHeight();  y++)
       {

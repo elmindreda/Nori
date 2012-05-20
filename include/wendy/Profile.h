@@ -42,7 +42,7 @@ public:
   typedef std::vector<ProfileNode> List;
   bool operator == (const char* string) const;
   Time getDuration() const;
-  unsigned int getCallCount() const;
+  uint getCallCount() const;
   const char* getName() const;
   const List& getChildren() const;
 private:
@@ -51,7 +51,7 @@ private:
   String name;
   Time duration;
   List children;
-  unsigned int calls;
+  uint calls;
 };
 
 ///////////////////////////////////////////////////////////////////////

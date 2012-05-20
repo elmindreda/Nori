@@ -89,7 +89,7 @@ private:
   bool init(const String& text, const ShaderDefines& defines);
   Context& context;
   ShaderType type;
-  unsigned int shaderID;
+  uint shaderID;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -137,7 +137,7 @@ public:
   const String& getName() const;
   /*! @return The number of elements in this attribute.
    */
-  unsigned int getElementCount() const;
+  uint getElementCount() const;
   /*! @return The GLSL name of the specified attribute type.
    */
   static const char* getTypeName(AttributeType type);
@@ -172,7 +172,7 @@ class Sampler
 public:
   /*! Binds this sampler to the specified texture unit.
    */
-  void bind(unsigned int unit);
+  void bind(uint unit);
   /*! @return @c true if the name of this sampler matches the specified string,
    *  or @c false otherwise.
    */
@@ -262,7 +262,7 @@ public:
   const String& getName() const;
   /*! @return The number of elements in this uniform.
    */
-  unsigned int getElementCount() const;
+  uint getElementCount() const;
   /*! @return The shared ID of this uniform, or INVALID_SHARED_STATE_ID if
    *  it is not shared.
    */
@@ -293,15 +293,15 @@ public:
   const Sampler* findSampler(const char* name) const;
   Uniform* findUniform(const char* name);
   const Uniform* findUniform(const char* name) const;
-  unsigned int getAttributeCount() const;
-  Attribute& getAttribute(unsigned int index);
-  const Attribute& getAttribute(unsigned int index) const;
-  unsigned int getSamplerCount() const;
-  Sampler& getSampler(unsigned int index);
-  const Sampler& getSampler(unsigned int index) const;
-  unsigned int getUniformCount() const;
-  Uniform& getUniform(unsigned int index);
-  const Uniform& getUniform(unsigned int index) const;
+  uint getAttributeCount() const;
+  Attribute& getAttribute(uint index);
+  const Attribute& getAttribute(uint index) const;
+  uint getSamplerCount() const;
+  Sampler& getSampler(uint index);
+  const Sampler& getSampler(uint index) const;
+  uint getUniformCount() const;
+  Uniform& getUniform(uint index);
+  const Uniform& getUniform(uint index) const;
   Context& getContext() const;
   static Ref<Program> create(const ResourceInfo& info,
                              Context& context,
@@ -328,7 +328,7 @@ private:
   Context& context;
   Ref<Shader> vertexShader;
   Ref<Shader> fragmentShader;
-  unsigned int programID;
+  uint programID;
   AttributeList attributes;
   SamplerList samplers;
   UniformList uniforms;

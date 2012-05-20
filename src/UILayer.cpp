@@ -160,17 +160,17 @@ bool Layer::hasCapturedCursor() const
   return captureWidget != NULL;
 }
 
-unsigned int Layer::getWidth() const
+uint Layer::getWidth() const
 {
   return width;
 }
 
-unsigned int Layer::getHeight() const
+uint Layer::getHeight() const
 {
   return height;
 }
 
-void Layer::setSize(unsigned int newWidth, unsigned int newHeight)
+void Layer::setSize(uint newWidth, uint newHeight)
 {
   width = newWidth;
   height = newHeight;
@@ -490,7 +490,7 @@ bool LayerStack::isEmpty() const
   return layers.empty();
 }
 
-void LayerStack::setSize(unsigned int newWidth, unsigned int newHeight)
+void LayerStack::setSize(uint newWidth, uint newHeight)
 {
   width = newWidth;
   height = newHeight;

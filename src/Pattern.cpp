@@ -42,19 +42,19 @@ size_t PatternMatch::getCount() const
   return offsets.size();
 }
 
-size_t PatternMatch::getOffset(unsigned int index) const
+size_t PatternMatch::getOffset(uint index) const
 {
   return offsets[index];
 }
 
-const String& PatternMatch::asString(unsigned int index) const
+const String& PatternMatch::asString(uint index) const
 {
   return strings[index];
 }
 
-PatternMatch::PatternMatch(const String& text, int* ranges, unsigned int count)
+PatternMatch::PatternMatch(const String& text, int* ranges, uint count)
 {
-  for (unsigned int i = 0;  i < count;  i++)
+  for (uint i = 0;  i < count;  i++)
   {
     strings.push_back(text.substr(ranges[i * 2], ranges[i * 2 + 1]));
     offsets.push_back(ranges[i * 2]);

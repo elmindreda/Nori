@@ -50,7 +50,7 @@ namespace wendy
 namespace
 {
 
-const char* getErrorString(unsigned int error)
+const char* getErrorString(uint error)
 {
   switch (error)
   {

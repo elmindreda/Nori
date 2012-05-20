@@ -64,13 +64,13 @@ public:
   bool isSquare() const;
   /*! @return The width, in pixels, of this image.
    */
-  unsigned int getWidth() const;
+  uint getWidth() const;
   /*! @return The height, in pixels, of this image.
    */
-  unsigned int getHeight() const;
+  uint getHeight() const;
   /*! @return The depth, in pixels, of this image.
    */
-  unsigned int getDepth() const;
+  uint getDepth() const;
   /*! @return The base address of the pixel data for this image.
    */
   void* getPixels();
@@ -85,7 +85,7 @@ public:
    *  @return The address of the desired pixel, or @c NULL if the specified
    *  coordinates are outside of the current image data.
    */
-  void* getPixel(unsigned int x, unsigned int y = 0, unsigned int z = 0);
+  void* getPixel(uint x, uint y = 0, uint z = 0);
   /*! Helper method to calculate the address of the specified pixel.
    *  @param[in] x The x coordinate of the desired pixel.
    *  @param[in] y The y coordinate of the desired pixel.
@@ -93,13 +93,13 @@ public:
    *  @return The address of the desired pixel, or @c NULL if the specified
    *  coordinates are outside of the current image data.
    */
-  const void* getPixel(unsigned int x, unsigned int y = 0, unsigned int z = 0) const;
+  const void* getPixel(uint x, uint y = 0, uint z = 0) const;
   /*! @return The pixel format of this image.
    */
   const PixelFormat& getFormat() const;
   /*! @return The number of dimensions (that differ from 1) in this image.
    */
-  unsigned int getDimensionCount() const;
+  uint getDimensionCount() const;
   /*! Returns an image containing the specified area of this image.
    *  @param area The desired area of this image.
    *
@@ -124,9 +124,9 @@ public:
    */
   static Ref<Image> create(const ResourceInfo& info,
                            const PixelFormat& format,
-                           unsigned int width,
-                           unsigned int height = 1,
-                           unsigned int depth = 1,
+                           uint width,
+                           uint height = 1,
+                           uint depth = 1,
                            const void* data = NULL,
                            ptrdiff_t pitch = 0);
   static Ref<Image> read(ResourceCache& cache, const String& name);
@@ -134,15 +134,15 @@ private:
   Image(const ResourceInfo& info);
   Image(const Image& source);
   bool init(const PixelFormat& format,
-            unsigned int width,
-            unsigned int height,
-            unsigned int depth,
+            uint width,
+            uint height,
+            uint depth,
             const void* data,
             ptrdiff_t pitch);
   Image& operator = (const Image& source);
-  unsigned int width;
-  unsigned int height;
-  unsigned int depth;
+  uint width;
+  uint height;
+  uint depth;
   PixelFormat format;
   Block data;
 };

@@ -507,7 +507,7 @@ bool IndexBuffer::init(size_t initCount, Type initType, Usage initUsage)
                convertToGL(usage));
 
   if (!checkGL("Error during creation of index buffer of element size %u",
-               (unsigned int) getTypeSize(type)))
+               (uint) getTypeSize(type)))
   {
     context.setCurrentIndexBuffer(NULL);
     return false;
@@ -899,17 +899,17 @@ RenderBuffer::~RenderBuffer()
     stats->removeRenderBuffer(getSize());
 }
 
-unsigned int RenderBuffer::getWidth() const
+uint RenderBuffer::getWidth() const
 {
   return width;
 }
 
-unsigned int RenderBuffer::getHeight() const
+uint RenderBuffer::getHeight() const
 {
   return height;
 }
 
-unsigned int RenderBuffer::getDepth() const
+uint RenderBuffer::getDepth() const
 {
   return 1;
 }
@@ -921,8 +921,8 @@ const PixelFormat& RenderBuffer::getFormat() const
 
 Ref<RenderBuffer> RenderBuffer::create(Context& context,
                                        const PixelFormat& format,
-                                       unsigned int width,
-                                       unsigned int height)
+                                       uint width,
+                                       uint height)
 {
   Ref<RenderBuffer> buffer(new RenderBuffer(context));
   if (!buffer->init(format, width, height))
@@ -938,8 +938,8 @@ RenderBuffer::RenderBuffer(Context& initContext):
 }
 
 bool RenderBuffer::init(const PixelFormat& initFormat,
-                        unsigned int initWidth,
-                        unsigned int initHeight)
+                        uint initWidth,
+                        uint initHeight)
 {
   format = initFormat;
   width = initWidth;
@@ -964,7 +964,7 @@ bool RenderBuffer::init(const PixelFormat& initFormat,
   return true;
 }
 
-void RenderBuffer::attach(int attachment, unsigned int z)
+void RenderBuffer::attach(int attachment, uint z)
 {
   glFramebufferRenderbuffer(GL_FRAMEBUFFER,
                             attachment,
@@ -1044,27 +1044,27 @@ Framebuffer& Framebuffer::operator = (const Framebuffer& source)
 
 ///////////////////////////////////////////////////////////////////////
 
-unsigned int DefaultFramebuffer::getColorBits() const
+uint DefaultFramebuffer::getColorBits() const
 {
   return colorBits;
 }
 
-unsigned int DefaultFramebuffer::getDepthBits() const
+uint DefaultFramebuffer::getDepthBits() const
 {
   return depthBits;
 }
 
-unsigned int DefaultFramebuffer::getStencilBits() const
+uint DefaultFramebuffer::getStencilBits() const
 {
   return stencilBits;
 }
 
-unsigned int DefaultFramebuffer::getWidth() const
+uint DefaultFramebuffer::getWidth() const
 {
   return width;
 }
 
-unsigned int DefaultFramebuffer::getHeight() const
+uint DefaultFramebuffer::getHeight() const
 {
   return height;
 }
@@ -1092,9 +1092,9 @@ ImageFramebuffer::~ImageFramebuffer()
     glDeleteFramebuffers(1, &bufferID);
 }
 
-unsigned int ImageFramebuffer::getWidth() const
+uint ImageFramebuffer::getWidth() const
 {
-  unsigned int width = 0;
+  uint width = 0;
 
   for (size_t i = 0;  i < 5;  i++)
   {
@@ -1110,9 +1110,9 @@ unsigned int ImageFramebuffer::getWidth() const
   return width;
 }
 
-unsigned int ImageFramebuffer::getHeight() const
+uint ImageFramebuffer::getHeight() const
 {
-  unsigned int height = 0;
+  uint height = 0;
 
   for (size_t i = 0;  i < 5;  i++)
   {
@@ -1153,12 +1153,12 @@ bool ImageFramebuffer::setColorBuffer(Image* newImage)
   return setBuffer(COLOR_BUFFER0, newImage);
 }
 
-bool ImageFramebuffer::setBuffer(Attachment attachment, Image* newImage, unsigned int z)
+bool ImageFramebuffer::setBuffer(Attachment attachment, Image* newImage, uint z)
 {
   if (isColorAttachment(attachment))
   {
     const Limits& limits = context.getLimits();
-    const unsigned int index = attachment - COLOR_BUFFER0;
+    const uint index = attachment - COLOR_BUFFER0;
 
     if (index >= limits.maxColorAttachments)
     {

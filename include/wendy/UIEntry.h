@@ -41,8 +41,8 @@ public:
   Entry(Layer& layer, const char* text = "");
   const String& getText() const;
   void setText(const char* newText);
-  unsigned int getCaretPosition() const;
-  void setCaretPosition(unsigned int newPosition);
+  uint getCaretPosition() const;
+  void setCaretPosition(uint newPosition);
   SignalProxy1<void, Entry&> getTextChangedSignal();
   SignalProxy1<void, Entry&> getCaretMovedSignal();
 protected:
@@ -55,12 +55,12 @@ private:
   void onKeyPressed(Widget& widget, input::Key key, bool pressed);
   void onCharInput(Widget& widget, uint32 character);
   void setText(const String& newText, bool notify);
-  void setCaretPosition(unsigned int newPosition, bool notify);
+  void setCaretPosition(uint newPosition, bool notify);
   Signal1<void, Entry&> textChangedSignal;
   Signal1<void, Entry&> caretMovedSignal;
   String text;
-  unsigned int startPosition;
-  unsigned int caretPosition;
+  uint startPosition;
+  uint caretPosition;
 };
 
 ///////////////////////////////////////////////////////////////////////

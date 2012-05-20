@@ -97,7 +97,7 @@ Target::~Target()
 {
 }
 
-void Target::onWindowResized(unsigned int width, unsigned int height)
+void Target::onWindowResized(uint width, uint height)
 {
 }
 
@@ -163,12 +163,12 @@ bool Window::isCursorCaptured() const
   return glfwGetInputMode(handle, GLFW_CURSOR_MODE) == GLFW_CURSOR_CAPTURED;
 }
 
-unsigned int Window::getWidth() const
+uint Window::getWidth() const
 {
   return context.getDefaultFramebuffer().getWidth();
 }
 
-unsigned int Window::getHeight() const
+uint Window::getHeight() const
 {
   return context.getDefaultFramebuffer().getHeight();
 }
@@ -497,7 +497,7 @@ Window::Window(const Window& source):
   panic("Input windows may not be copied");
 }
 
-void Window::onWindowResized(unsigned int width, unsigned int height)
+void Window::onWindowResized(uint width, uint height)
 {
   if (currentTarget)
     currentTarget->onWindowResized(width, height);

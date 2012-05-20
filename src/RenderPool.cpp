@@ -42,7 +42,7 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 bool GeometryPool::allocateIndices(GL::IndexRange& range,
-                                   unsigned int count,
+                                   uint count,
                                    GL::IndexBuffer::Type type)
 {
   if (!count)
@@ -67,7 +67,7 @@ bool GeometryPool::allocateIndices(GL::IndexRange& range,
     indexBufferPool.push_back(IndexBufferSlot());
     slot = &(indexBufferPool.back());
 
-    const unsigned int actualCount = granularity * ((count + granularity - 1) / granularity);
+    const uint actualCount = granularity * ((count + granularity - 1) / granularity);
 
     slot->indexBuffer = GL::IndexBuffer::create(context,
                                                 actualCount,
@@ -93,7 +93,7 @@ bool GeometryPool::allocateIndices(GL::IndexRange& range,
 }
 
 bool GeometryPool::allocateVertices(GL::VertexRange& range,
-                                    unsigned int count,
+                                    uint count,
                                     const VertexFormat& format)
 {
   if (!count)
@@ -118,7 +118,7 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
     vertexBufferPool.push_back(VertexBufferSlot());
     slot = &(vertexBufferPool.back());
 
-    const unsigned int actualCount = granularity * ((count + granularity - 1) / granularity);
+    const uint actualCount = granularity * ((count + granularity - 1) / granularity);
 
     slot->vertexBuffer = GL::VertexBuffer::create(context,
                                                   actualCount,

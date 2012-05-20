@@ -292,7 +292,7 @@ Ref<Shader> Shader::read(Context& context,
   String text;
 
   stream.seekg(0, std::ios::end);
-  text.resize((unsigned int) stream.tellg());
+  text.resize((uint) stream.tellg());
 
   stream.seekg(0, std::ios::beg);
   stream.read(&text[0], text.size());
@@ -435,7 +435,7 @@ const String& Attribute::getName() const
   return name;
 }
 
-unsigned int Attribute::getElementCount() const
+uint Attribute::getElementCount() const
 {
   switch (type)
   {
@@ -485,7 +485,7 @@ const char* Attribute::getTypeName(AttributeType type)
 
 ///////////////////////////////////////////////////////////////////////
 
-void Sampler::bind(unsigned int unit)
+void Sampler::bind(uint unit)
 {
   glUniform1i(location, unit);
 
@@ -613,7 +613,7 @@ const String& Uniform::getName() const
   return name;
 }
 
-unsigned int Uniform::getElementCount() const
+uint Uniform::getElementCount() const
 {
   switch (type)
   {
@@ -729,47 +729,47 @@ const Uniform* Program::findUniform(const char* name) const
   return &(*u);
 }
 
-unsigned int Program::getAttributeCount() const
+uint Program::getAttributeCount() const
 {
   return attributes.size();
 }
 
-Attribute& Program::getAttribute(unsigned int index)
+Attribute& Program::getAttribute(uint index)
 {
   return attributes[index];
 }
 
-const Attribute& Program::getAttribute(unsigned int index) const
+const Attribute& Program::getAttribute(uint index) const
 {
   return attributes[index];
 }
 
-unsigned int Program::getSamplerCount() const
+uint Program::getSamplerCount() const
 {
   return samplers.size();
 }
 
-Sampler& Program::getSampler(unsigned int index)
+Sampler& Program::getSampler(uint index)
 {
   return samplers[index];
 }
 
-const Sampler& Program::getSampler(unsigned int index) const
+const Sampler& Program::getSampler(uint index) const
 {
   return samplers[index];
 }
 
-unsigned int Program::getUniformCount() const
+uint Program::getUniformCount() const
 {
   return uniforms.size();
 }
 
-Uniform& Program::getUniform(unsigned int index)
+Uniform& Program::getUniform(uint index)
 {
   return uniforms[index];
 }
 
-const Uniform& Program::getUniform(unsigned int index) const
+const Uniform& Program::getUniform(uint index) const
 {
   return uniforms[index];
 }

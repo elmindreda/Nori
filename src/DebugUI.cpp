@@ -45,7 +45,7 @@ namespace wendy
 namespace
 {
 
-unsigned int reduce(size_t value)
+uint reduce(size_t value)
 {
   while (value >= 1024)
     value /= 1024;
@@ -181,7 +181,7 @@ void Interface::draw()
 
 void Interface::updateCountItem(Item item, const char* unit, size_t count)
 {
-  labels[item]->setText(format("%u %s", (unsigned int) count, unit).c_str());
+  labels[item]->setText(format("%u %s", (uint) count, unit).c_str());
 }
 
 void Interface::updateCountSizeItem(Item item,
@@ -190,7 +190,7 @@ void Interface::updateCountSizeItem(Item item,
                                     size_t size)
 {
   labels[item]->setText(format("%u %s (%u %s)",
-                               (unsigned int) count,
+                               (uint) count,
                                unit,
                                reduce(size),
                                suffix(size)).c_str());

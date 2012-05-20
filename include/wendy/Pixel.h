@@ -95,7 +95,7 @@ public:
   Semantic getSemantic() const;
   /*! @return The number of components in this pixel format.
    */
-  unsigned int getChannelCount() const;
+  uint getChannelCount() const;
   /*! @return A string representation of this pixel format.
    */
   String asString() const;

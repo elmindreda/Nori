@@ -65,7 +65,7 @@ public:
   /*! @return The latest results of this query, or zero if it is active or has
    *  never been active.
    */
-  unsigned int getResult() const;
+  uint getResult() const;
   /*! Creates an occlusion query.
    *  @param[in] context The context within which to create the query.
    *  @return The newly created query object, or @c NULL if an error occurred.
@@ -75,7 +75,7 @@ private:
   OcclusionQuery(Context& context);
   bool init();
   Context& context;
-  unsigned int queryID;
+  uint queryID;
   bool active;
 };
 

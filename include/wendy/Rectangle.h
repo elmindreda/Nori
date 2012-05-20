@@ -107,7 +107,7 @@ public:
   bool push(const T& rectangle);
   void pop();
   bool isEmpty() const;
-  unsigned int getCount() const;
+  uint getCount() const;
   const T& getTop() const;
   const T& getTotal() const;
 private:
@@ -157,9 +157,9 @@ inline bool RectClipStack<T>::isEmpty() const
 }
 
 template <typename T>
-inline unsigned int RectClipStack<T>::getCount() const
+inline uint RectClipStack<T>::getCount() const
 {
-  return (unsigned int) entries.size();
+  return (uint) entries.size();
 }
 
 template <typename T>

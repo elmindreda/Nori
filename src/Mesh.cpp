@@ -409,7 +409,7 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
   }
 
   String line;
-  unsigned int lineNumber = 0;
+  uint lineNumber = 0;
 
   std::vector<vec3> positions;
   std::vector<vec3> normals;

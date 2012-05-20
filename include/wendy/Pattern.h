@@ -43,13 +43,13 @@ public:
   /*! @param[in] index The index of the desired substring.
    *  @return The offset, in characters, of the specified substring.
    */
-  size_t getOffset(unsigned int index = 0) const;
+  size_t getOffset(uint index = 0) const;
   /*! @param[in] index The index of the desired substring.
    *  @return The desired substring.
    */
-  const String& asString(unsigned int index = 0) const;
+  const String& asString(uint index = 0) const;
 private:
-  PatternMatch(const String& text, int* ranges, unsigned int count);
+  PatternMatch(const String& text, int* ranges, uint count);
   std::vector<int> offsets;
   std::vector<String> strings;
 };

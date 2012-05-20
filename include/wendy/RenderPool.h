@@ -57,7 +57,7 @@ public:
    *  current frame.
    */
   bool allocateIndices(GL::IndexRange& range,
-                       unsigned int count,
+                       uint count,
                        GL::IndexBuffer::Type type);
   /*! Allocates a range of temporary vertices of the specified format.
    *  @param[out] range The newly allocated vertex range.
@@ -70,7 +70,7 @@ public:
    *  current frame.
    */
   bool allocateVertices(GL::VertexRange& range,
-                        unsigned int count,
+                        uint count,
                         const VertexFormat& format);
   /*! @return The OpenGL context used by this pool.
    */
@@ -89,14 +89,14 @@ private:
   struct IndexBufferSlot
   {
     Ref<GL::IndexBuffer> indexBuffer;
-    unsigned int available;
+    uint available;
   };
   /*! @internal
    */
   struct VertexBufferSlot
   {
     Ref<GL::VertexBuffer> vertexBuffer;
-    unsigned int available;
+    uint available;
   };
   void onContextFinish();
   typedef std::vector<IndexBufferSlot> IndexBufferList;

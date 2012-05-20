@@ -148,7 +148,7 @@ void flushStreamPNG(png_structp context)
   stream->flush();
 }
 
-const unsigned int IMAGE_CUBE_XML_VERSION = 2;
+const uint IMAGE_CUBE_XML_VERSION = 2;
 
 } /*namespace*/
 
@@ -254,17 +254,17 @@ bool Image::isSquare() const
   return width == height;
 }
 
-unsigned int Image::getWidth() const
+uint Image::getWidth() const
 {
   return width;
 }
 
-unsigned int Image::getHeight() const
+uint Image::getHeight() const
 {
   return height;
 }
 
-unsigned int Image::getDepth() const
+uint Image::getDepth() const
 {
   return depth;
 }
@@ -279,7 +279,7 @@ const void* Image::getPixels() const
   return data;
 }
 
-void* Image::getPixel(unsigned int x, unsigned int y, unsigned int z)
+void* Image::getPixel(uint x, uint y, uint z)
 {
   if (x >= width || y >= height || z >= depth)
     return NULL;
@@ -287,7 +287,7 @@ void* Image::getPixel(unsigned int x, unsigned int y, unsigned int z)
   return data + ((z * height + y) * width + x) * format.getSize();
 }
 
-const void* Image::getPixel(unsigned int x, unsigned int y, unsigned int z) const
+const void* Image::getPixel(uint x, uint y, uint z) const
 {
   if (x >= width || y >= height || z >= depth)
     return NULL;
@@ -300,7 +300,7 @@ const PixelFormat& Image::getFormat() const
   return format;
 }
 
-unsigned int Image::getDimensionCount() const
+uint Image::getDimensionCount() const
 {
   if (depth > 1)
     return 3;
@@ -340,9 +340,9 @@ Ref<Image> Image::getArea(const Recti& area) const
 
 Ref<Image> Image::create(const ResourceInfo& info,
                          const PixelFormat& format,
-                         unsigned int width,
-                         unsigned int height,
-                         unsigned int depth,
+                         uint width,
+                         uint height,
+                         uint depth,
                          const void* data,
                          ptrdiff_t pitch)
 {
@@ -365,9 +365,9 @@ Image::Image(const ResourceInfo& info):
 }
 
 bool Image::init(const PixelFormat& initFormat,
-                 unsigned int initWidth,
-                 unsigned int initHeight,
-                 unsigned int initDepth,
+                 uint initWidth,
+                 uint initHeight,
+                 uint initDepth,
                  const void* initData,
                  ptrdiff_t pitch)
 {
@@ -532,8 +532,8 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
     return NULL;
   }
 
-  const unsigned int width  = png_get_image_width(context, pngInfo);
-  const unsigned int height = png_get_image_height(context, pngInfo);
+  const uint width  = png_get_image_width(context, pngInfo);
+  const uint height = png_get_image_height(context, pngInfo);
   const ResourceInfo info(cache, name, path);
 
   Ref<Image> result = Image::create(info, format, width, height);

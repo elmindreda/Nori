@@ -143,7 +143,7 @@ PixelFormat::Semantic PixelFormat::getSemantic() const
   return semantic;
 }
 
-unsigned int PixelFormat::getChannelCount() const
+uint PixelFormat::getChannelCount() const
 {
   switch (semantic)
   {

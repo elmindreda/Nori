@@ -48,7 +48,7 @@ Time ProfileNode::getDuration() const
   return duration;
 }
 
-unsigned int ProfileNode::getCallCount() const
+uint ProfileNode::getCallCount() const
 {
   return calls;
 }

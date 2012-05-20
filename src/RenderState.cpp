@@ -386,9 +386,9 @@ void ProgramState::apply() const
 
   GL::SharedProgramState* state = context.getCurrentSharedProgramState();
 
-  unsigned int textureIndex = 0, textureUnit = 0;
+  uint textureIndex = 0, textureUnit = 0;
 
-  for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
+  for (uint i = 0;  i < program->getSamplerCount();  i++)
   {
     context.setActiveTextureUnit(textureUnit);
 
@@ -414,7 +414,7 @@ void ProgramState::apply() const
 
   size_t offset = 0;
 
-  for (unsigned int i = 0;  i < program->getUniformCount();  i++)
+  for (uint i = 0;  i < program->getUniformCount();  i++)
   {
     GL::Uniform& uniform = program->getUniform(i);
     if (uniform.isShared())
@@ -466,9 +466,9 @@ GL::Texture* ProgramState::getSamplerState(const char* name) const
     return NULL;
   }
 
-  unsigned int textureIndex = 0;
+  uint textureIndex = 0;
 
-  for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
+  for (uint i = 0;  i < program->getSamplerCount();  i++)
   {
     const GL::Sampler& sampler = program->getSampler(i);
     if (sampler.isShared())
@@ -505,9 +505,9 @@ void ProgramState::setSamplerState(const char* name, GL::Texture* newTexture)
     return;
   }
 
-  unsigned int textureIndex = 0;
+  uint textureIndex = 0;
 
-  for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
+  for (uint i = 0;  i < program->getSamplerCount();  i++)
   {
     GL::Sampler& sampler = program->getSampler(i);
     if (sampler.isShared())
@@ -565,9 +565,9 @@ UniformStateIndex ProgramState::getUniformStateIndex(const char* name) const
     return UniformStateIndex();
   }
 
-  unsigned int offset = 0;
+  uint offset = 0;
 
-  for (unsigned int i = 0;  i < program->getUniformCount();  i++)
+  for (uint i = 0;  i < program->getUniformCount();  i++)
   {
     GL::Uniform& uniform = program->getUniform(i);
     if (uniform.isShared())
@@ -590,9 +590,9 @@ SamplerStateIndex ProgramState::getSamplerStateIndex(const char* name) const
     return SamplerStateIndex();
   }
 
-  unsigned int textureIndex = 0;
+  uint textureIndex = 0;
 
-  for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
+  for (uint i = 0;  i < program->getSamplerCount();  i++)
   {
     GL::Sampler& sampler = program->getSampler(i);
     if (sampler.isShared())
@@ -621,17 +621,17 @@ void ProgramState::setProgram(GL::Program* newProgram)
   if (!program)
     return;
 
-  unsigned int floatCount = 0;
-  unsigned int textureCount = 0;
+  uint floatCount = 0;
+  uint textureCount = 0;
 
-  for (unsigned int i = 0;  i < program->getUniformCount();  i++)
+  for (uint i = 0;  i < program->getUniformCount();  i++)
   {
     GL::Uniform& uniform = program->getUniform(i);
     if (!uniform.isShared())
       floatCount += uniform.getElementCount();
   }
 
-  for (unsigned int i = 0;  i < program->getSamplerCount();  i++)
+  for (uint i = 0;  i < program->getSamplerCount();  i++)
   {
     GL::Sampler& sampler = program->getSampler(i);
     if (!sampler.isShared())
@@ -670,9 +670,9 @@ void* ProgramState::getData(const char* name, GL::UniformType type)
     return NULL;
   }
 
-  unsigned int offset = 0;
+  uint offset = 0;
 
-  for (unsigned int i = 0;  i < program->getUniformCount();  i++)
+  for (uint i = 0;  i < program->getUniformCount();  i++)
   {
     GL::Uniform& uniform = program->getUniform(i);
     if (uniform.isShared())
@@ -707,9 +707,9 @@ const void* ProgramState::getData(const char* name, GL::UniformType type) const
     return NULL;
   }
 
-  unsigned int offset = 0;
+  uint offset = 0;
 
-  for (unsigned int i = 0;  i < program->getUniformCount();  i++)
+  for (uint i = 0;  i < program->getUniformCount();  i++)
   {
     GL::Uniform& uniform = program->getUniform(i);
     if (uniform.isShared())
@@ -933,12 +933,12 @@ GL::Operation Pass::getDepthPassOperation() const
   return data.depthPassOp;
 }
 
-unsigned int Pass::getStencilReference() const
+uint Pass::getStencilReference() const
 {
   return data.stencilRef;
 }
 
-unsigned int Pass::getStencilWriteMask() const
+uint Pass::getStencilWriteMask() const
 {
   return data.stencilMask;
 }
@@ -979,12 +979,12 @@ void Pass::setStencilFunction(GL::Function newFunction)
   data.stencilFunction = newFunction;
 }
 
-void Pass::setStencilReference(unsigned int newReference)
+void Pass::setStencilReference(uint newReference)
 {
   data.stencilRef = newReference;
 }
 
-void Pass::setStencilWriteMask(unsigned int newMask)
+void Pass::setStencilWriteMask(uint newMask)
 {
   data.stencilMask = newMask;
 }
