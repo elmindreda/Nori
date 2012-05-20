@@ -37,18 +37,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! Initialize the network layer.
- *  @ingroup net
- */
-bool initialize();
-
-/*! Terminate the network layer.
- *  @ingroup net
- */
-void shutdown();
-
-///////////////////////////////////////////////////////////////////////
-
 /*! Network channel ID.
  *  @ingroup net
  */
@@ -94,6 +82,18 @@ enum PacketType
    */
   RELIABLE,
 };
+
+///////////////////////////////////////////////////////////////////////
+
+/*! Initialize the network layer.
+ *  @ingroup net
+ */
+bool initialize();
+
+/*! Terminate the network layer.
+ *  @ingroup net
+ */
+void shutdown();
 
 ///////////////////////////////////////////////////////////////////////
 
