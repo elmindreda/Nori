@@ -89,7 +89,7 @@ uint32 PacketData::read32()
 
 float PacketData::read32f()
 {
-  return intBitsToFloat(read32());
+  return uintBitsToFloat(read32());
 }
 
 template <>
@@ -130,7 +130,7 @@ void PacketData::write32(uint32 value)
 
 void PacketData::write32f(float value)
 {
-  write32(floatBitsToInt(value));
+  write32(floatBitsToUint(value));
 }
 
 template <>
