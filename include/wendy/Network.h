@@ -184,10 +184,10 @@ public:
   Peer* findPeer(TargetID targetID);
   bool isClient() const;
   bool isServer() const;
-  uint32 getTotalIncomingBytes() const;
-  uint32 getTotalOutgoingBytes() const;
-  uint32 getIncomingBytesPerSecond() const;
-  uint32 getOutgoingBytesPerSecond() const;
+  uint getTotalIncomingBytes() const;
+  uint getTotalOutgoingBytes() const;
+  uint getIncomingBytesPerSecond() const;
+  uint getOutgoingBytesPerSecond() const;
   void setListener(HostListener* newListener);
   static Host* create(uint16 port, size_t maxClientCount, uint8 maxChannelCount = 0);
   static Host* connect(const String& name, uint16 port, uint8 maxChannelCount = 0);

@@ -417,22 +417,22 @@ bool Host::isServer() const
   return server;
 }
 
-uint32 Host::getTotalIncomingBytes() const
+uint Host::getTotalIncomingBytes() const
 {
   return ((ENetHost*) host)->totalReceivedData;
 }
 
-uint32 Host::getTotalOutgoingBytes() const
+uint Host::getTotalOutgoingBytes() const
 {
   return ((ENetHost*) host)->totalSentData;
 }
 
-uint32 Host::getIncomingBytesPerSecond() const
+uint Host::getIncomingBytesPerSecond() const
 {
   return ((ENetHost*) host)->incomingBandwidth;
 }
 
-uint32 Host::getOutgoingBytesPerSecond() const
+uint Host::getOutgoingBytesPerSecond() const
 {
   return ((ENetHost*) host)->outgoingBandwidth;
 }
