@@ -101,7 +101,7 @@ public:
   Object(const Object& source);
   ~Object();
   template <typename T>
-  T cast() const;
+  T as() const;
   Object clone() const;
   Object& operator = (const Object& source);
   bool isNull() const;
@@ -147,7 +147,7 @@ protected:
 };
 
 template <typename T>
-inline T Object::cast() const
+inline T Object::as() const
 {
   sq_pushobject(vm, handle);
   T value = Value<T>::get(vm, -1);
