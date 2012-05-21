@@ -30,6 +30,8 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
 
+#include <array>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -104,7 +106,7 @@ public:
   static Ref<Material> read(System& system, const String& name);
 private:
   Material(const ResourceInfo& info);
-  Technique techniques[2];
+  std::array<Technique, 2> techniques;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -26,6 +26,7 @@
 #define WENDY_NETWORK_H
 ///////////////////////////////////////////////////////////////////////
 
+#include <array>
 #include <list>
 
 //////////////////////////////////////////////////////////////////////
@@ -200,8 +201,8 @@ private:
   std::list<Peer> peers;
   HostListener* listener;
   TargetID nextClientID;
-  uint8 buffer[65536];
   size_t allocated;
+  std::array<uint8, 65536> buffer;
   bool server;
 };
 

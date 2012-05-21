@@ -243,8 +243,8 @@ HostListener::~HostListener()
 
 Host::~Host()
 {
-  for (auto p = peers.begin();  p != peers.end();  p++)
-    enet_peer_disconnect_now((ENetPeer*) p->peer, 0);
+  for (Peer& peer : peers)
+    enet_peer_disconnect_now((ENetPeer*) peer.peer, 0);
 
   peers.clear();
 
@@ -387,10 +387,10 @@ void* Host::allocatePacketData(size_t size)
   if (!size)
     return NULL;
 
-  if (size + allocated > sizeof(buffer))
+  if (size + allocated > buffer.size())
     panic("Out of packet data memory");
 
-  uint8* data = buffer + allocated;
+  uint8* data = &buffer[allocated];
   allocated += size;
 
   return data;
@@ -398,10 +398,10 @@ void* Host::allocatePacketData(size_t size)
 
 Peer* Host::findPeer(TargetID targetID)
 {
-  for (auto p = peers.begin();  p != peers.end();  p++)
+  for (Peer& peer : peers)
   {
-    if (p->getTargetID() == targetID)
-      return &(*p);
+    if (peer.getTargetID() == targetID)
+      return &peer;
   }
 
   return NULL;

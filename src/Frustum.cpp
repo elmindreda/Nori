@@ -50,9 +50,9 @@ Frustum::Frustum(float FOV, float aspectRatio, float nearZ, float farZ)
 
 bool Frustum::contains(const vec3& point) const
 {
-  for (size_t i = 0;  i < 6;  i++)
+  for (const Plane& plane : planes)
   {
-    if (!planes[i].contains(point))
+    if (!plane.contains(point))
       return false;
   }
 
@@ -61,9 +61,9 @@ bool Frustum::contains(const vec3& point) const
 
 bool Frustum::contains(const Sphere& sphere) const
 {
-  for (size_t i = 0;  i < 6;  i++)
+  for (const Plane& plane : planes)
   {
-    if (!planes[i].contains(sphere))
+    if (!plane.contains(sphere))
       return false;
   }
 
@@ -75,13 +75,13 @@ bool Frustum::contains(const AABB& box) const
   float minX, minY, minZ, maxX, maxY, maxZ;
   box.getBounds(minX, minY, minZ, maxX, maxY, maxZ);
 
-  for (size_t i = 0;  i < 6;  i++)
+  for (const Plane& plane : planes)
   {
-    const vec3 positive((planes[i].normal.x < 0.f) ? minX : maxX,
-                        (planes[i].normal.y < 0.f) ? minY : maxY,
-                        (planes[i].normal.z < 0.f) ? minZ : maxZ);
+    const vec3 positive((plane.normal.x < 0.f) ? minX : maxX,
+                        (plane.normal.y < 0.f) ? minY : maxY,
+                        (plane.normal.z < 0.f) ? minZ : maxZ);
 
-    if (!planes[i].contains(positive))
+    if (!plane.contains(positive))
       return false;
   }
 
@@ -90,9 +90,9 @@ bool Frustum::contains(const AABB& box) const
 
 bool Frustum::intersects(const Sphere& sphere) const
 {
-  for (size_t i = 0;  i < 6;  i++)
+  for (const Plane& plane : planes)
   {
-    if (dot(planes[i].normal, sphere.center) - sphere.radius > planes[i].distance)
+    if (dot(plane.normal, sphere.center) - sphere.radius > plane.distance)
       return false;
   }
 
@@ -104,13 +104,13 @@ bool Frustum::intersects(const AABB& box) const
   float minX, minY, minZ, maxX, maxY, maxZ;
   box.getBounds(minX, minY, minZ, maxX, maxY, maxZ);
 
-  for (size_t i = 0;  i < 6;  i++)
+  for (const Plane& plane : planes)
   {
-    const vec3 negative(planes[i].normal.x < 0.f ? maxX : minX,
-                        planes[i].normal.y < 0.f ? maxY : minY,
-                        planes[i].normal.z < 0.f ? maxZ : minZ);
+    const vec3 negative(plane.normal.x < 0.f ? maxX : minX,
+                        plane.normal.y < 0.f ? maxY : minY,
+                        plane.normal.z < 0.f ? maxZ : minZ);
 
-    if (!planes[i].contains(negative))
+    if (!plane.contains(negative))
       return false;
   }
 
@@ -119,8 +119,8 @@ bool Frustum::intersects(const AABB& box) const
 
 void Frustum::transformBy(const Transform3& transform)
 {
-  for (size_t i = 0;  i < 6;  i++)
-    planes[i].transformBy(transform);
+  for (Plane& plane : planes)
+    plane.transformBy(transform);
 }
 
 void Frustum::setPerspective(float FOV, float aspectRatio, float nearZ, float farZ)
