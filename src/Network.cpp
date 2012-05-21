@@ -136,8 +136,8 @@ void PacketData::write32f(float value)
 template <>
 void PacketData::write(const String& value)
 {
-  for (auto c = value.begin();  c != value.end();  c++)
-    write8(*c);
+  for (char c : value)
+    write8(c);
 
   write8('\0');
 }

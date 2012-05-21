@@ -130,10 +130,10 @@ void Menu::createSeparatorItem()
 
 Item* Menu::findItem(const char* value)
 {
-  for (auto i = items.begin();  i != items.end();  i++)
+  for (Item* item : items)
   {
-    if ((*i)->asString() == value)
-      return *i;
+    if (item->asString() == value)
+      return item;
   }
 
   return NULL;
@@ -141,10 +141,10 @@ Item* Menu::findItem(const char* value)
 
 const Item* Menu::findItem(const char* value) const
 {
-  for (auto i = items.begin();  i != items.end();  i++)
+  for (const Item* item : items)
   {
-    if ((*i)->asString() == value)
-      return *i;
+    if (item->asString() == value)
+      return item;
   }
 
   return NULL;
@@ -217,9 +217,9 @@ void Menu::draw() const
 
     uint index = 0;
 
-    for (auto i = items.begin();  i != items.end();  i++)
+    for (const Item* item : items)
     {
-      float height = (*i)->getHeight();
+      float height = item->getHeight();
       if (height + itemTop < 0.f)
         break;
 
@@ -227,7 +227,7 @@ void Menu::draw() const
       itemArea.position.y += itemTop - height;
       itemArea.size.y = height;
 
-      (*i)->draw(itemArea, index == selection ? STATE_SELECTED : STATE_NORMAL);
+      item->draw(itemArea, index == selection ? STATE_SELECTED : STATE_NORMAL);
 
       itemTop -= height;
       index++;
@@ -254,9 +254,9 @@ void Menu::onCursorMoved(Widget& widget, const vec2& position)
   const float height = getHeight() - 2.f;
   float itemTop = height;
 
-  for (auto i = items.begin();  i != items.end();  i++)
+  for (const Item* item : items)
   {
-    const float itemHeight = (*i)->getHeight();
+    const float itemHeight = item->getHeight();
     if (itemTop - itemHeight < 0.f)
       break;
 
@@ -292,9 +292,9 @@ void Menu::onButtonClicked(Widget& widget,
   const float height = getHeight() - 2.f;
   float itemTop = height;
 
-  for (auto i = items.begin();  i != items.end();  i++)
+  for (const Item* item : items)
   {
-    const float itemHeight = (*i)->getHeight();
+    const float itemHeight = item->getHeight();
     if (itemTop - itemHeight < 0.f)
       break;
 
@@ -359,10 +359,10 @@ void Menu::sizeToFit()
 {
   vec2 size(0.f, 2.f);
 
-  for (auto i = items.begin();  i != items.end();  i++)
+  for (const Item* item : items)
   {
-    size.x = max((*i)->getWidth(), size.x);
-    size.y += (*i)->getHeight();
+    size.x = max(item->getWidth(), size.x);
+    size.y += item->getHeight();
   }
 
   setSize(size);

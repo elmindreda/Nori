@@ -201,12 +201,12 @@ AnimTrack3& AnimTrack3::operator = (const AnimTrack3& source)
 {
   keyframes.reserve(source.keyframes.size());
 
-  for (auto f = source.keyframes.begin();  f != source.keyframes.end();  f++)
+  for (const KeyFrame3& k : source.keyframes)
   {
     keyframes.push_back(KeyFrame3(*this));
-    keyframes.back().transform = f->transform;
-    keyframes.back().direction = f->direction;
-    keyframes.back().moment = f->moment;
+    keyframes.back().transform = k.transform;
+    keyframes.back().direction = k.direction;
+    keyframes.back().moment = k.moment;
   }
 
   name = source.name;
@@ -297,8 +297,8 @@ Anim3& Anim3::operator = (const Anim3& source)
   destroyTracks();
   tracks.reserve(source.tracks.size());
 
-  for (auto t = tracks.begin();  t != tracks.end();  t++)
-    tracks.push_back(AnimTrack3(*t));
+  for (const AnimTrack3& track : source.tracks)
+    tracks.push_back(AnimTrack3(track));
 
   return *this;
 }
@@ -328,10 +328,10 @@ void Anim3::destroyTracks()
 
 AnimTrack3* Anim3::findTrack(const char* name)
 {
-  for (auto t = tracks.begin();  t != tracks.end();  t++)
+  for (AnimTrack3& track : tracks)
   {
-    if (t->getName() == name)
-      return &(*t);
+    if (track.getName() == name)
+      return &track;
   }
 
   return NULL;
@@ -339,10 +339,10 @@ AnimTrack3* Anim3::findTrack(const char* name)
 
 const AnimTrack3* Anim3::findTrack(const char* name) const
 {
-  for (auto t = tracks.begin();  t != tracks.end();  t++)
+  for (const AnimTrack3& track : tracks)
   {
-    if (t->getName() == name)
-      return &(*t);
+    if (track.getName() == name)
+      return &track;
   }
 
   return NULL;

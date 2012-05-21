@@ -560,8 +560,8 @@ size_t Texture::getSize() const
 {
   size_t size = 0;
 
-  for (auto i = images.begin();  i != images.end();  i++)
-    size += (*i)->getSize();
+  for (const TextureImage* image : images)
+    size += image->getSize();
 
   return size;
 }

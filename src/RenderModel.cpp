@@ -85,13 +85,13 @@ void ModelSection::setMaterial(Material* newMaterial)
 
 void Model::enqueue(Scene& scene, const Camera& camera, const Transform3& transform) const
 {
-  for (auto s = sections.begin();  s != sections.end();  s++)
+  for (const ModelSection& section : sections)
   {
-    Material* material = s->getMaterial();
+    Material* material = section.getMaterial();
     if (!material)
       continue;
 
-    GL::PrimitiveRange range(GL::TRIANGLE_LIST, *vertexBuffer, s->getIndexRange());
+    GL::PrimitiveRange range(GL::TRIANGLE_LIST, *vertexBuffer, section.getIndexRange());
 
     float depth = camera.getNormalizedDepth(transform.position + boundingSphere.center);
 
@@ -172,17 +172,6 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
     return false;
   }
 
-  for (auto s = data.sections.begin();  s != data.sections.end();  s++)
-  {
-    if (materials.find(s->materialName) == materials.end())
-    {
-      logError("Missing material \'%s\' for model \'%s\'",
-               s->materialName.c_str(),
-               getName().c_str());
-      return false;
-    }
-  }
-
   GL::Context& context = system.getContext();
 
   VertexFormat format;
@@ -217,12 +206,21 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
   size_t start = 0;
 
-  for (auto s = data.sections.begin();  s != data.sections.end();  s++)
+  for (const MeshSection& section : data.sections)
   {
-    const size_t count = s->triangles.size() * 3;
+    const size_t count = section.triangles.size() * 3;
     GL::IndexRange range(*indexBuffer, start, count);
 
-    sections.push_back(ModelSection(range, materials.find(s->materialName)->second));
+    Ref<Material> material = materials.find(section.materialName)->second;
+    if (!material)
+    {
+      logError("Missing material \'%s\' for model \'%s\'",
+               section.materialName.c_str(),
+               getName().c_str());
+      return false;
+    }
+
+    sections.push_back(ModelSection(range, material));
 
     if (indexType == GL::IndexBuffer::UINT8)
     {
@@ -232,11 +230,11 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
       size_t index = 0;
 
-      for (auto t = s->triangles.begin();  t != s->triangles.end();  t++)
+      for (const MeshTriangle& triangle : section.triangles)
       {
-        indices[index++] = t->indices[0];
-        indices[index++] = t->indices[1];
-        indices[index++] = t->indices[2];
+        indices[index++] = triangle.indices[0];
+        indices[index++] = triangle.indices[1];
+        indices[index++] = triangle.indices[2];
       }
     }
     else if (indexType == GL::IndexBuffer::UINT16)
@@ -247,11 +245,11 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
       size_t index = 0;
 
-      for (auto t = s->triangles.begin();  t != s->triangles.end();  t++)
+      for (const MeshTriangle& triangle : section.triangles)
       {
-        indices[index++] = t->indices[0];
-        indices[index++] = t->indices[1];
-        indices[index++] = t->indices[2];
+        indices[index++] = triangle.indices[0];
+        indices[index++] = triangle.indices[1];
+        indices[index++] = triangle.indices[2];
       }
     }
     else
@@ -262,11 +260,11 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
       size_t index = 0;
 
-      for (auto t = s->triangles.begin();  t != s->triangles.end();  t++)
+      for (const MeshTriangle& triangle : section.triangles)
       {
-        indices[index++] = t->indices[0];
-        indices[index++] = t->indices[1];
-        indices[index++] = t->indices[2];
+        indices[index++] = triangle.indices[0];
+        indices[index++] = triangle.indices[1];
+        indices[index++] = triangle.indices[2];
       }
     }
 

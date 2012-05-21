@@ -84,11 +84,10 @@ void Material::setSamplers(const char* name, GL::Texture* newTexture)
 {
   for (size_t i = 0;  i < 2;  i++)
   {
-    PassList& passes = techniques[i].passes;
-    for (auto p = passes.begin();  p != passes.end();  p++)
+    for (Pass& pass : techniques[i].passes)
     {
-      if (p->hasSamplerState(name))
-        p->setSamplerState(name, newTexture);
+      if (pass.hasSamplerState(name))
+        pass.setSamplerState(name, newTexture);
     }
   }
 }

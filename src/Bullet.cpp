@@ -89,13 +89,13 @@ btTriangleMesh* convert(const Mesh& data)
   else
     mesh = new btTriangleMesh(false);
 
-  for (auto s = data.sections.begin();  s != data.sections.end();  s++)
+  for (const MeshSection& s : data.sections)
   {
-    for (auto t = s->triangles.begin();  t != s->triangles.end();  t++)
+    for (const MeshTriangle& t : s.triangles)
     {
-      mesh->addTriangle(convert(data.vertices[t->indices[0]].position),
-                        convert(data.vertices[t->indices[1]].position),
-                        convert(data.vertices[t->indices[2]].position),
+      mesh->addTriangle(convert(data.vertices[t.indices[0]].position),
+                        convert(data.vertices[t.indices[1]].position),
+                        convert(data.vertices[t.indices[2]].position),
                         true);
     }
   }
