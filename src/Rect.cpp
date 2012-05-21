@@ -25,7 +25,7 @@
 
 #include <wendy/Config.h>
 #include <wendy/Core.h>
-#include <wendy/Rectangle.h>
+#include <wendy/Rect.h>
 
 #include <sstream>
 

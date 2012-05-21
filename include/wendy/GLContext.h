@@ -27,7 +27,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.h>
-#include <wendy/Rectangle.h>
+#include <wendy/Rect.h>
 #include <wendy/AABB.h>
 #include <wendy/Pixel.h>
 #include <wendy/Signal.h>

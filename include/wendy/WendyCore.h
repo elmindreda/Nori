@@ -40,7 +40,7 @@
 
 #include <wendy/AABB.h>
 #include <wendy/Segment.h>
-#include <wendy/Rectangle.h>
+#include <wendy/Rect.h>
 #include <wendy/Plane.h>
 #include <wendy/Ray.h>
 #include <wendy/Sphere.h>
