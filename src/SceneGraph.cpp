@@ -228,10 +228,10 @@ const Sphere& Node::getTotalBounds() const
 
     const List& children = getChildren();
 
-    for (auto c = children.begin();  c != children.end();  c++)
+    for (const Node* child : children)
     {
-      Sphere childBounds = (*c)->getTotalBounds();
-      childBounds.transformBy((*c)->getLocalTransform());
+      Sphere childBounds = child->getTotalBounds();
+      childBounds.transformBy(child->getLocalTransform());
       totalBounds.envelop(childBounds);
     }
 
@@ -254,13 +254,13 @@ void Node::enqueue(render::Scene& scene, const render::Camera& camera) const
 
   const List& children = getChildren();
 
-  for (auto c = children.begin();  c != children.end();  c++)
+  for (const Node* child : children)
   {
-    Sphere worldBounds = (*c)->getTotalBounds();
-    worldBounds.transformBy((*c)->getWorldTransform());
+    Sphere worldBounds = child->getTotalBounds();
+    worldBounds.transformBy(child->getWorldTransform());
 
     if (frustum.intersects(worldBounds))
-      (*c)->enqueue(scene, camera);
+      child->enqueue(scene, camera);
   }
 }
 
@@ -303,8 +303,8 @@ void Node::setGraph(Graph* newGraph)
     updated.push_back(this);
   }
 
-  for (auto c = children.begin();  c != children.end();  c++)
-    (*c)->setGraph(graph);
+  for (Node* child : children)
+    child->setGraph(graph);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -325,37 +325,37 @@ void Graph::enqueue(render::Scene& scene, const render::Camera& camera) const
 
   const Frustum& frustum = camera.getFrustum();
 
-  for (auto r = roots.begin();  r != roots.end();  r++)
+  for (const Node* root : roots)
   {
-    Sphere worldBounds = (*r)->getTotalBounds();
-    worldBounds.transformBy((*r)->getWorldTransform());
+    Sphere worldBounds = root->getTotalBounds();
+    worldBounds.transformBy(root->getWorldTransform());
 
     if (frustum.intersects(worldBounds))
-      (*r)->enqueue(scene, camera);
+      root->enqueue(scene, camera);
   }
 }
 
 void Graph::query(const Sphere& sphere, Node::List& nodes) const
 {
-  for (auto r = roots.begin();  r != roots.end();  r++)
+  for (Node* root : roots)
   {
-    Sphere worldBounds = (*r)->getTotalBounds();
-    worldBounds.transformBy((*r)->getWorldTransform());
+    Sphere worldBounds = root->getTotalBounds();
+    worldBounds.transformBy(root->getWorldTransform());
 
     if (sphere.intersects(worldBounds))
-      nodes.push_back(*r);
+      nodes.push_back(root);
   }
 }
 
 void Graph::query(const Frustum& frustum, Node::List& nodes) const
 {
-  for (auto r = roots.begin();  r != roots.end();  r++)
+  for (Node* root : roots)
   {
-    Sphere worldBounds = (*r)->getTotalBounds();
-    worldBounds.transformBy((*r)->getWorldTransform());
+    Sphere worldBounds = root->getTotalBounds();
+    worldBounds.transformBy(root->getWorldTransform());
 
     if (frustum.intersects(worldBounds))
-      nodes.push_back(*r);
+      nodes.push_back(root);
   }
 }
 
