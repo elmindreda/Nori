@@ -23,8 +23,8 @@ if (APPLE)
   list(APPEND glfw_LIBRARIES ${COCOA_FRAMEWORK})
 
   list(APPEND glfw_SOURCES cocoa_platform.h cocoa_clipboard.m cocoa_fullscreen.m
-                           cocoa_gamma.m cocoa_init.m cocoa_input.m
-                           cocoa_joystick.m cocoa_opengl.m cocoa_time.m
+                           cocoa_gamma.c cocoa_init.m cocoa_input.m
+                           cocoa_joystick.m cocoa_opengl.m cocoa_time.c
                            cocoa_window.m)
 
 endif()
