@@ -52,8 +52,8 @@ public:
   void setIdentity();
   void set(const vec2& newPosition, float newAngle, float newScale = 1.f);
   vec2 position;
-  float scale;
   float angle;
+  float scale;
   static Transform2 IDENTITY;
 };
 

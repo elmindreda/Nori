@@ -486,8 +486,6 @@ Limits::Limits(Context& context)
   maxTextureCoords = getInteger(GL_MAX_TEXTURE_COORDS);
   maxVertexAttributes = getInteger(GL_MAX_VERTEX_ATTRIBS);
 
-  Version version = context.getVersion();
-
   if (GLEW_EXT_texture_filter_anisotropic)
     maxTextureAnisotropy = getFloat(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
   else
@@ -500,14 +498,14 @@ Stats::Stats():
   frameCount(0),
   frameRate(0.f),
   textureCount(0),
-  textureSize(0),
   vertexBufferCount(0),
-  vertexBufferSize(0),
   indexBufferCount(0),
-  indexBufferSize(0),
   renderBufferCount(0),
-  renderBufferSize(0),
-  programCount(0)
+  programCount(0),
+  textureSize(0),
+  vertexBufferSize(0),
+  indexBufferSize(0),
+  renderBufferSize(0)
 {
   frames.push_back(Frame());
 

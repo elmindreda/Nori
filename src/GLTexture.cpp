@@ -683,10 +683,9 @@ bool Texture::init(const TextureParams& params, const wendy::Image& data)
     }
 
     const uint width = data.getWidth();
+    const uint height = data.getHeight();
 
-    if (data.getWidth() % 6 != 0 ||
-        data.getWidth() / 6 != data.getHeight() ||
-        !isPowerOfTwo(data.getHeight()))
+    if ((width % 6 != 0) || (width / 6 != height) || !isPowerOfTwo(height))
     {
       logError("Source image for cubemap texture \'%s\' has invalid dimensions",
                getName().c_str());

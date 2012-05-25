@@ -186,7 +186,7 @@ bool Image::crop(const Recti& area)
   const size_t pixelSize = format.getSize();
   Block temp(area.size.x * area.size.y * pixelSize);
 
-  for (size_t y = 0;  y < area.size.y;  y++)
+  for (size_t y = 0;  y < (size_t) area.size.y;  y++)
   {
     std::memcpy(temp + y * area.size.x * pixelSize,
                 data + ((y + area.position.y) * width + area.position.x) * pixelSize,
@@ -328,7 +328,7 @@ Ref<Image> Image::getArea(const Recti& area) const
   const size_t rowSize = area.size.x * format.getSize();
   Ref<Image> result = create(cache, format, area.size.x, area.size.y);
 
-  for (size_t y = 0;  y < area.size.y;  y++)
+  for (size_t y = 0;  y < (size_t) area.size.y;  y++)
   {
     std::memcpy(result->getPixel(0, y),
                 getPixel(area.position.x, area.position.y + y),
