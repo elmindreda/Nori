@@ -190,7 +190,8 @@ int _glfwPlatformInit(void)
 int _glfwPlatformTerminate(void)
 {
     // Restore the original gamma ramp
-    _glfwPlatformSetGammaRamp(&_glfwLibrary.originalRamp);
+    if (_glfwLibrary.rampChanged)
+        _glfwPlatformSetGammaRamp(&_glfwLibrary.originalRamp);
 
     if (_glfwLibrary.Win32.classAtom)
     {
@@ -220,8 +221,6 @@ const char* _glfwPlatformGetVersionString(void)
     const char* version = _GLFW_VERSION_FULL
 #if defined(__MINGW32__)
         " MinGW"
-#elif defined(__CYGWIN__)
-        " Cygwin"
 #elif defined(_MSC_VER)
         " Visual C++ "
 #elif defined(__BORLANDC__)
