@@ -155,6 +155,11 @@ void Layer::invalidate()
   window.getContext().refresh();
 }
 
+bool Layer::isOpaque() const
+{
+  return true;
+}
+
 bool Layer::hasCapturedCursor() const
 {
   return captureWidget != NULL;
@@ -450,10 +455,12 @@ void LayerStack::update() const
 
 void LayerStack::draw() const
 {
-  if (layers.empty())
-    return;
-
-  layers.back()->draw();
+  for (auto l = layers.rbegin();  l != layers.rend();  l++)
+  {
+    (*l)->draw();
+    if ((*l)->isOpaque())
+      break;
+  }
 }
 
 void LayerStack::push(Layer& layer)

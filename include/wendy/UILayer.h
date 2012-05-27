@@ -80,6 +80,7 @@ public:
   void releaseCursor();
   void cancelDragging();
   void invalidate();
+  virtual bool isOpaque() const;
   bool hasCapturedCursor() const;
   uint getWidth() const;
   uint getHeight() const;
