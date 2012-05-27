@@ -34,6 +34,7 @@
 #include <wendy/UIWidget.h>
 
 #include <algorithm>
+#include <stack>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -455,11 +456,19 @@ void LayerStack::update() const
 
 void LayerStack::draw() const
 {
+  std::stack<Layer*> visible;
+
   for (auto l = layers.rbegin();  l != layers.rend();  l++)
   {
-    (*l)->draw();
+    visible.push(*l);
     if ((*l)->isOpaque())
       break;
+  }
+
+  while (!visible.empty())
+  {
+    visible.top()->draw();
+    visible.pop();
   }
 }
 
