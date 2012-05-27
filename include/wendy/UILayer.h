@@ -133,6 +133,7 @@ public:
   void pop();
   void empty();
   bool isEmpty() const;
+  Layer* getTop() const;
   void setSize(uint newWidth, uint newHeight);
 private:
   input::Window& window;

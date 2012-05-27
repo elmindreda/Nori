@@ -498,6 +498,14 @@ bool LayerStack::isEmpty() const
   return layers.empty();
 }
 
+Layer* LayerStack::getTop() const
+{
+  if (layers.empty())
+    return NULL;
+
+  return layers.back();
+}
+
 void LayerStack::setSize(uint newWidth, uint newHeight)
 {
   width = newWidth;
