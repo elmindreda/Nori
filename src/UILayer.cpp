@@ -466,6 +466,7 @@ void LayerStack::draw() const
 void LayerStack::push(Layer& layer)
 {
   assert(layer.stack == NULL);
+  assert(&layer.window == &window);
 
   layers.push_back(&layer);
   layer.stack = this;
