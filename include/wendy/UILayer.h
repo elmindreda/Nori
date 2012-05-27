@@ -135,9 +135,8 @@ public:
   bool isEmpty() const;
   void setSize(uint newWidth, uint newHeight);
 private:
-  typedef std::vector<Ref<Layer>> LayerList;
   input::Window& window;
-  LayerList layers;
+  std::vector<Ref<Layer>> layers;
   uint width;
   uint height;
 };
