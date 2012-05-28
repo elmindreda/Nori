@@ -66,53 +66,7 @@ Bimap<GL::SamplerType, GL::TextureType> textureTypeMap;
 
 const uint MATERIAL_XML_VERSION = 8;
 
-} /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
-
-Technique& Material::getTechnique(Phase phase)
-{
-  return techniques[phase];
-}
-
-const Technique& Material::getTechnique(Phase phase) const
-{
-  return techniques[phase];
-}
-
-void Material::setSamplers(const char* name, GL::Texture* newTexture)
-{
-  for (Technique& technique : techniques)
-  {
-    for (Pass& pass : technique.passes)
-    {
-      if (pass.hasSamplerState(name))
-        pass.setSamplerState(name, newTexture);
-    }
-  }
-}
-
-Ref<Material> Material::create(const ResourceInfo& info, System& system)
-{
-  return new Material(info);
-}
-
-Ref<Material> Material::read(System& system, const String& name)
-{
-  MaterialReader reader(system);
-  return reader.read(name);
-}
-
-Material::Material(const ResourceInfo& info):
-  Resource(info)
-{
-}
-
-///////////////////////////////////////////////////////////////////////
-
-MaterialReader::MaterialReader(System& initSystem):
-  ResourceReader<Material>(initSystem.getCache()),
-  system(initSystem)
+void initializeMaps()
 {
   if (cullModeMap.isEmpty())
   {
@@ -195,6 +149,392 @@ MaterialReader::MaterialReader(System& initSystem):
   }
 }
 
+} /*namespace*/
+
+///////////////////////////////////////////////////////////////////////
+
+bool parsePass(System& system, Pass& pass, pugi::xml_node root)
+{
+  initializeMaps();
+
+  GL::Context& context = system.getContext();
+  ResourceCache& cache = system.getCache();
+
+  if (pugi::xml_node node = root.child("blending"))
+  {
+    if (pugi::xml_attribute a = node.attribute("src"))
+    {
+      if (blendFactorMap.hasKey(a.value()))
+        pass.setBlendFactors(blendFactorMap[a.value()], pass.getDstFactor());
+      else
+      {
+        logError("Invalid source blend factor \'%s\'", a.value());
+        return false;
+      }
+    }
+
+    if (pugi::xml_attribute a = node.attribute("dst"))
+    {
+      if (blendFactorMap.hasKey(a.value()))
+        pass.setBlendFactors(pass.getSrcFactor(), blendFactorMap[a.value()]);
+      else
+      {
+        logError("Invalid destination blend factor \'%s\'", a.value());
+        return false;
+      }
+    }
+  }
+
+  if (pugi::xml_node node = root.child("color"))
+  {
+    if (pugi::xml_attribute a = node.attribute("writing"))
+      pass.setColorWriting(a.as_bool());
+
+    if (pugi::xml_attribute a = node.attribute("multisampling"))
+      pass.setMultisampling(a.as_bool());
+  }
+
+  if (pugi::xml_node node = root.child("depth"))
+  {
+    if (pugi::xml_attribute a = node.attribute("testing"))
+      pass.setDepthTesting(a.as_bool());
+
+    if (pugi::xml_attribute a = node.attribute("writing"))
+      pass.setDepthWriting(a.as_bool());
+
+    if (pugi::xml_attribute a = node.attribute("function"))
+    {
+      if (functionMap.hasKey(a.value()))
+        pass.setDepthFunction(functionMap[a.value()]);
+      else
+      {
+        logError("Invalid depth function \'%s\'", a.value());
+        return false;
+      }
+    }
+  }
+
+  if (pugi::xml_node node = root.child("stencil"))
+  {
+    if (pugi::xml_attribute a = node.attribute("testing"))
+      pass.setStencilTesting(a.as_bool());
+
+    if (pugi::xml_attribute a = node.attribute("mask"))
+      pass.setStencilWriteMask(a.as_uint());
+
+    if (pugi::xml_attribute a = node.attribute("reference"))
+      pass.setStencilReference(a.as_uint());
+
+    if (pugi::xml_attribute a = node.attribute("stencilFail"))
+    {
+      if (functionMap.hasKey(a.value()))
+        pass.setStencilFailOperation(operationMap[a.value()]);
+      else
+      {
+        logError("Invalid stencil fail operation \'%s\'", a.value());
+        return false;
+      }
+    }
+
+    if (pugi::xml_attribute a = node.attribute("depthFail"))
+    {
+      if (functionMap.hasKey(a.value()))
+        pass.setDepthFailOperation(operationMap[a.value()]);
+      else
+      {
+        logError("Invalid depth fail operation \'%s\'", a.value());
+        return false;
+      }
+    }
+
+    if (pugi::xml_attribute a = node.attribute("depthPass"))
+    {
+      if (functionMap.hasKey(a.value()))
+        pass.setDepthPassOperation(operationMap[a.value()]);
+      else
+      {
+        logError("Invalid depth pass operation \'%s\'", a.value());
+        return false;
+      }
+    }
+
+    if (pugi::xml_attribute a = node.attribute("function"))
+    {
+      if (functionMap.hasKey(a.value()))
+        pass.setStencilFunction(functionMap[a.value()]);
+      else
+      {
+        logError("Invalid stencil function \'%s\'", a.value());
+        return false;
+      }
+    }
+  }
+
+  if (pugi::xml_node node = root.child("polygon"))
+  {
+    if (pugi::xml_attribute a = node.attribute("wireframe"))
+      pass.setWireframe(a.as_bool());
+
+    if (pugi::xml_attribute a = node.attribute("cull"))
+    {
+      if (cullModeMap.hasKey(a.value()))
+        pass.setCullMode(cullModeMap[a.value()]);
+      else
+      {
+        logError("Invalid cull mode \'%s\'", a.value());
+        return false;
+      }
+    }
+  }
+
+  if (pugi::xml_node node = root.child("line"))
+  {
+    if (pugi::xml_attribute a = node.attribute("smoothing"))
+      pass.setLineSmoothing(a.as_bool());
+
+    if (pugi::xml_attribute a = node.attribute("width"))
+      pass.setLineWidth(a.as_float());
+  }
+
+  if (pugi::xml_node node = root.child("program"))
+  {
+    const String vertexShaderName(node.attribute("vs").value());
+    if (vertexShaderName.empty())
+    {
+      logError("No vertex shader specified");
+      return false;
+    }
+
+    const String fragmentShaderName(node.attribute("fs").value());
+    if (fragmentShaderName.empty())
+    {
+      logError("No fragment shader specified");
+      return false;
+    }
+
+    GL::ShaderDefines defines;
+
+    for (pugi::xml_node d = node.child("define");  d;  d = d.next_sibling("define"))
+    {
+      const String defineName(d.attribute("name").value());
+      if (defineName.empty())
+      {
+        logWarning("Name missing for define");
+        continue;
+      }
+
+      String defineValue(d.attribute("value").value());
+      if (defineValue.empty())
+        defineValue = "1";
+
+      defines.push_back(std::make_pair(defineName, defineValue));
+    }
+
+    std::sort(defines.begin(), defines.end());
+
+    Ref<GL::Program> program = GL::Program::read(context,
+                                                 vertexShaderName,
+                                                 fragmentShaderName,
+                                                 defines);
+    if (!program)
+    {
+      logError("Failed to load program");
+      return false;
+    }
+
+    pass.setProgram(program);
+
+    for (pugi::xml_node s = node.child("sampler");  s;  s = s.next_sibling("sampler"))
+    {
+      const String samplerName(s.attribute("name").value());
+      if (samplerName.empty())
+      {
+        logWarning("Program \'%s\' lists unnamed sampler uniform",
+                   program->getName().c_str());
+
+        continue;
+      }
+
+      GL::Sampler* sampler = program->findSampler(samplerName.c_str());
+      if (!sampler)
+      {
+        logWarning("Program \'%s\' does not have sampler uniform \'%s\'",
+                   program->getName().c_str(),
+                   samplerName.c_str());
+
+        continue;
+      }
+
+      GL::TextureParams params(textureTypeMap[sampler->getType()]);
+
+      if (pugi::xml_attribute a = s.attribute("mipmapped"))
+        params.mipmapped = a.as_bool();
+
+      if (pugi::xml_attribute a = s.attribute("sRGB"))
+        params.sRGB = a.as_bool();
+
+      Ref<GL::Texture> texture;
+
+      if (pugi::xml_attribute a = s.attribute("image"))
+        texture = GL::Texture::read(context, params, a.value());
+      else if (pugi::xml_attribute a = s.attribute("texture"))
+        texture = cache.find<GL::Texture>(a.value());
+      else
+      {
+        logError("No texture specified for sampler \'%s\' of program \'%s\'",
+                  samplerName.c_str(),
+                  program->getName().c_str());
+
+        return false;
+      }
+
+      if (!texture)
+      {
+        logError("Failed to find texture for sampler \'%s\' of program \'%s\'",
+                  samplerName.c_str(),
+                  program->getName().c_str());
+
+        return false;
+      }
+
+      if (pugi::xml_attribute a = root.attribute("anisotropy"))
+        texture->setMaxAnisotropy(a.as_float());
+
+      if (pugi::xml_attribute a = s.attribute("filter"))
+      {
+        if (filterModeMap.hasKey(a.value()))
+          texture->setFilterMode(filterModeMap[a.value()]);
+        else
+        {
+          logError("Invalid filter mode name \'%s\'", a.value());
+          return false;
+        }
+      }
+
+      if (pugi::xml_attribute a = s.attribute("address"))
+      {
+        if (addressModeMap.hasKey(a.value()))
+          texture->setAddressMode(addressModeMap[a.value()]);
+        else
+        {
+          logError("Invalid address mode name \'%s\'", a.value());
+          return false;
+        }
+      }
+
+      pass.setSamplerState(samplerName.c_str(), texture);
+    }
+
+    for (pugi::xml_node u = node.child("uniform");  u;  u = u.next_sibling("uniform"))
+    {
+      const String uniformName(u.attribute("name").value());
+      if (uniformName.empty())
+      {
+        logWarning("Program \'%s\' lists unnamed uniform",
+                   program->getName().c_str());
+
+        continue;
+      }
+
+      const GL::Uniform* uniform = program->findUniform(uniformName.c_str());
+      if (!uniform)
+      {
+        logWarning("Program \'%s\' does not have uniform \'%s\'",
+                   program->getName().c_str(),
+                   uniformName.c_str());
+
+        continue;
+      }
+
+      pugi::xml_attribute attribute = u.attribute("value");
+      if (!attribute)
+      {
+        logError("Missing value for uniform \'%s\' of program \'%s\'",
+                 uniformName.c_str(),
+                 program->getName().c_str());
+
+        return false;
+      }
+
+      switch (uniform->getType())
+      {
+        case GL::UNIFORM_FLOAT:
+          pass.setUniformState(uniformName.c_str(), attribute.as_float());
+          break;
+        case GL::UNIFORM_VEC2:
+          pass.setUniformState(uniformName.c_str(), vec2Cast(attribute.value()));
+          break;
+        case GL::UNIFORM_VEC3:
+          pass.setUniformState(uniformName.c_str(), vec3Cast(attribute.value()));
+          break;
+        case GL::UNIFORM_VEC4:
+          pass.setUniformState(uniformName.c_str(), vec4Cast(attribute.value()));
+          break;
+        case GL::UNIFORM_MAT2:
+          pass.setUniformState(uniformName.c_str(), mat2Cast(attribute.value()));
+          break;
+        case GL::UNIFORM_MAT3:
+          pass.setUniformState(uniformName.c_str(), mat3Cast(attribute.value()));
+          break;
+        case GL::UNIFORM_MAT4:
+          pass.setUniformState(uniformName.c_str(), mat4Cast(attribute.value()));
+          break;
+      }
+    }
+  }
+
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Technique& Material::getTechnique(Phase phase)
+{
+  return techniques[phase];
+}
+
+const Technique& Material::getTechnique(Phase phase) const
+{
+  return techniques[phase];
+}
+
+void Material::setSamplers(const char* name, GL::Texture* newTexture)
+{
+  for (Technique& technique : techniques)
+  {
+    for (Pass& pass : technique.passes)
+    {
+      if (pass.hasSamplerState(name))
+        pass.setSamplerState(name, newTexture);
+    }
+  }
+}
+
+Ref<Material> Material::create(const ResourceInfo& info, System& system)
+{
+  return new Material(info);
+}
+
+Ref<Material> Material::read(System& system, const String& name)
+{
+  MaterialReader reader(system);
+  return reader.read(name);
+}
+
+Material::Material(const ResourceInfo& info):
+  Resource(info)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
+MaterialReader::MaterialReader(System& initSystem):
+  ResourceReader<Material>(initSystem.getCache()),
+  system(initSystem)
+{
+  initializeMaps();
+}
+
 Ref<Material> MaterialReader::read(const String& name, const Path& path)
 {
   std::ifstream stream(path.asString().c_str());
@@ -263,350 +603,10 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
       technique.passes.push_back(Pass());
       Pass& pass = technique.passes.back();
 
-      if (pugi::xml_node node = p.child("blending"))
+      if (!parsePass(system, pass, p))
       {
-        if (pugi::xml_attribute a = node.attribute("src"))
-        {
-          if (blendFactorMap.hasKey(a.value()))
-            pass.setBlendFactors(blendFactorMap[a.value()], pass.getDstFactor());
-          else
-          {
-            logError("Invalid source blend factor \'%s\' in material \'%s\'",
-                     a.value(),
-                     name.c_str());
-            return NULL;
-          }
-        }
-
-        if (pugi::xml_attribute a = node.attribute("dst"))
-        {
-          if (blendFactorMap.hasKey(a.value()))
-            pass.setBlendFactors(pass.getSrcFactor(), blendFactorMap[a.value()]);
-          else
-          {
-            logError("Invalid destination blend factor \'%s\' in material \'%s\'",
-                     a.value(),
-                     name.c_str());
-            return NULL;
-          }
-        }
-      }
-
-      if (pugi::xml_node node = p.child("color"))
-      {
-        if (pugi::xml_attribute a = node.attribute("writing"))
-          pass.setColorWriting(a.as_bool());
-
-        if (pugi::xml_attribute a = node.attribute("multisampling"))
-          pass.setMultisampling(a.as_bool());
-      }
-
-      if (pugi::xml_node node = p.child("depth"))
-      {
-        if (pugi::xml_attribute a = node.attribute("testing"))
-          pass.setDepthTesting(a.as_bool());
-
-        if (pugi::xml_attribute a = node.attribute("writing"))
-          pass.setDepthWriting(a.as_bool());
-
-        if (pugi::xml_attribute a = node.attribute("function"))
-        {
-          if (functionMap.hasKey(a.value()))
-            pass.setDepthFunction(functionMap[a.value()]);
-          else
-          {
-            logError("Invalid depth function \'%s\' in material \'%s\'",
-                     a.value(),
-                     name.c_str());
-            return NULL;
-          }
-        }
-      }
-
-      if (pugi::xml_node node = p.child("stencil"))
-      {
-        if (pugi::xml_attribute a = node.attribute("testing"))
-          pass.setStencilTesting(a.as_bool());
-
-        if (pugi::xml_attribute a = node.attribute("mask"))
-          pass.setStencilWriteMask(a.as_uint());
-
-        if (pugi::xml_attribute a = node.attribute("reference"))
-          pass.setStencilReference(a.as_uint());
-
-        if (pugi::xml_attribute a = node.attribute("stencilFail"))
-        {
-          if (functionMap.hasKey(a.value()))
-            pass.setStencilFailOperation(operationMap[a.value()]);
-          else
-          {
-            logError("Invalid stencil fail operation \'%s\' in material \'%s\'",
-                     a.value(),
-                     name.c_str());
-            return NULL;
-          }
-        }
-
-        if (pugi::xml_attribute a = node.attribute("depthFail"))
-        {
-          if (functionMap.hasKey(a.value()))
-            pass.setDepthFailOperation(operationMap[a.value()]);
-          else
-          {
-            logError("Invalid depth fail operation \'%s\' in material \'%s\'",
-                     a.value(),
-                     name.c_str());
-            return NULL;
-          }
-        }
-
-        if (pugi::xml_attribute a = node.attribute("depthPass"))
-        {
-          if (functionMap.hasKey(a.value()))
-            pass.setDepthPassOperation(operationMap[a.value()]);
-          else
-          {
-            logError("Invalid depth pass operation \'%s\' in material \'%s\'",
-                     a.value(),
-                     name.c_str());
-            return NULL;
-          }
-        }
-
-        if (pugi::xml_attribute a = node.attribute("function"))
-        {
-          if (functionMap.hasKey(a.value()))
-            pass.setStencilFunction(functionMap[a.value()]);
-          else
-          {
-            logError("Invalid stencil function \'%s\' in material \'%s\'",
-                     a.value(),
-                     name.c_str());
-            return NULL;
-          }
-        }
-      }
-
-      if (pugi::xml_node node = p.child("polygon"))
-      {
-        if (pugi::xml_attribute a = node.attribute("wireframe"))
-          pass.setWireframe(a.as_bool());
-
-        if (pugi::xml_attribute a = node.attribute("cull"))
-        {
-          if (cullModeMap.hasKey(a.value()))
-            pass.setCullMode(cullModeMap[a.value()]);
-          else
-          {
-            logError("Invalid cull mode \'%s\' in material \'%s\'",
-                     a.value(),
-                     name.c_str());
-            return NULL;
-          }
-        }
-      }
-
-      if (pugi::xml_node node = p.child("line"))
-      {
-        if (pugi::xml_attribute a = node.attribute("smoothing"))
-          pass.setLineSmoothing(a.as_bool());
-
-        if (pugi::xml_attribute a = node.attribute("width"))
-          pass.setLineWidth(a.as_float());
-      }
-
-      if (pugi::xml_node node = p.child("program"))
-      {
-        const String vertexShaderName(node.attribute("vs").value());
-        if (vertexShaderName.empty())
-        {
-          logError("No vertex shader name in material \'%s\'", name.c_str());
-          return NULL;
-        }
-
-        const String fragmentShaderName(node.attribute("fs").value());
-        if (fragmentShaderName.empty())
-        {
-          logError("No fragment shader name in material \'%s\'", name.c_str());
-          return NULL;
-        }
-
-        GL::ShaderDefines defines;
-
-        for (pugi::xml_node d = node.child("define");  d;  d = d.next_sibling("define"))
-        {
-          const String defineName(d.attribute("name").value());
-          if (defineName.empty())
-          {
-            logWarning("GLSL program in material \'%s\' lists unnamed define",
-                       name.c_str());
-
-            continue;
-          }
-
-          String defineValue(d.attribute("value").value());
-          if (defineValue.empty())
-            defineValue = "1";
-
-          defines.push_back(std::make_pair(defineName, defineValue));
-        }
-
-        std::sort(defines.begin(), defines.end());
-
-        Ref<GL::Program> program = GL::Program::read(context,
-                                                     vertexShaderName,
-                                                     fragmentShaderName,
-                                                     defines);
-        if (!program)
-        {
-          logError("Failed to load GLSL program for material \'%s\'",
-                   name.c_str());
-          return NULL;
-        }
-
-        pass.setProgram(program);
-
-        for (pugi::xml_node s = node.child("sampler");  s;  s = s.next_sibling("sampler"))
-        {
-          const String samplerName(s.attribute("name").value());
-          if (samplerName.empty())
-          {
-            logWarning("GLSL program \'%s\' in material \'%s\' lists unnamed sampler uniform",
-                       program->getName().c_str(),
-                       name.c_str());
-
-            continue;
-          }
-
-          GL::Sampler* sampler = program->findSampler(samplerName.c_str());
-          if (!sampler)
-          {
-            logWarning("GLSL program \'%s\' in material \'%s\' does not have sampler uniform \'%s\'",
-                       program->getName().c_str(),
-                       name.c_str(),
-                       samplerName.c_str());
-
-            continue;
-          }
-
-          GL::TextureParams params(textureTypeMap[sampler->getType()]);
-
-          if (pugi::xml_attribute a = s.attribute("mipmapped"))
-            params.mipmapped = a.as_bool();
-
-          if (pugi::xml_attribute a = s.attribute("sRGB"))
-            params.sRGB = a.as_bool();
-
-          Ref<GL::Texture> texture;
-
-          if (pugi::xml_attribute a = s.attribute("image"))
-            texture = GL::Texture::read(context, params, a.value());
-          else if (pugi::xml_attribute a = s.attribute("texture"))
-            texture = cache.find<GL::Texture>(a.value());
-          else
-          {
-            logError("No texture specified for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",
-                     samplerName.c_str(),
-                     program->getName().c_str(),
-                     name.c_str());
-            return NULL;
-          }
-
-          if (!texture)
-          {
-            logError("Failed to find texture for sampler \'%s\' of GLSL program \'%s\' in material \'%s\'",
-                     samplerName.c_str(),
-                     program->getName().c_str(),
-                     name.c_str());
-            return NULL;
-          }
-
-          if (pugi::xml_attribute a = root.attribute("anisotropy"))
-            texture->setMaxAnisotropy(a.as_float());
-
-          if (pugi::xml_attribute a = s.attribute("filter"))
-          {
-            if (filterModeMap.hasKey(a.value()))
-              texture->setFilterMode(filterModeMap[a.value()]);
-            else
-            {
-              logError("Invalid filter mode name \'%s\'", a.value());
-              return NULL;
-            }
-          }
-
-          if (pugi::xml_attribute a = s.attribute("address"))
-          {
-            if (addressModeMap.hasKey(a.value()))
-              texture->setAddressMode(addressModeMap[a.value()]);
-            else
-            {
-              logError("Invalid address mode name \'%s\'", a.value());
-              return NULL;
-            }
-          }
-
-          pass.setSamplerState(samplerName.c_str(), texture);
-        }
-
-        for (pugi::xml_node u = node.child("uniform");  u;  u = u.next_sibling("uniform"))
-        {
-          const String uniformName(u.attribute("name").value());
-          if (uniformName.empty())
-          {
-            logWarning("GLSL program \'%s\' in material \'%s\' lists unnamed uniform",
-                       program->getName().c_str(),
-                       name.c_str());
-
-            continue;
-          }
-
-          const GL::Uniform* uniform = program->findUniform(uniformName.c_str());
-          if (!uniform)
-          {
-            logWarning("GLSL program \'%s\' in material \'%s\' does not have uniform \'%s\'",
-                       program->getName().c_str(),
-                       name.c_str(),
-                       uniformName.c_str());
-
-            continue;
-          }
-
-          pugi::xml_attribute attribute = u.attribute("value");
-          if (!attribute)
-          {
-            logError("Missing value for uniform \'%s\' of GLSL program \'%s\' in material \'%s\'",
-                     uniformName.c_str(),
-                     program->getName().c_str(),
-                     name.c_str());
-            return NULL;
-          }
-
-          switch (uniform->getType())
-          {
-            case GL::UNIFORM_FLOAT:
-              pass.setUniformState(uniformName.c_str(), attribute.as_float());
-              break;
-            case GL::UNIFORM_VEC2:
-              pass.setUniformState(uniformName.c_str(), vec2Cast(attribute.value()));
-              break;
-            case GL::UNIFORM_VEC3:
-              pass.setUniformState(uniformName.c_str(), vec3Cast(attribute.value()));
-              break;
-            case GL::UNIFORM_VEC4:
-              pass.setUniformState(uniformName.c_str(), vec4Cast(attribute.value()));
-              break;
-            case GL::UNIFORM_MAT2:
-              pass.setUniformState(uniformName.c_str(), mat2Cast(attribute.value()));
-              break;
-            case GL::UNIFORM_MAT3:
-              pass.setUniformState(uniformName.c_str(), mat3Cast(attribute.value()));
-              break;
-            case GL::UNIFORM_MAT4:
-              pass.setUniformState(uniformName.c_str(), mat4Cast(attribute.value()));
-              break;
-          }
-        }
+        logError("Failed to parse pass for material \'%s\'", name.c_str());
+        return NULL;
       }
 
       phases[phase] = true;
