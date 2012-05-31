@@ -30,6 +30,8 @@
 /* Define this to 1 if windows.h is available */
 #cmakedefine WENDY_HAVE_WINDOWS_H 1
 
+/* Define this to 1 to include the networking API */
+#cmakedefine WENDY_INCLUDE_NETWORK 1
 /* Define this to 1 to include the renderers */
 #cmakedefine WENDY_INCLUDE_RENDERER 1
 /* Define this to 1 to include the OpenAL wrapper */
