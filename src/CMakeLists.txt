@@ -19,12 +19,14 @@ set(wendy_SOURCES
     Ray.cpp Rect.cpp Resource.cpp Sample.cpp Signal.cpp Sphere.cpp Timer.cpp
     Transform.cpp Triangle.cpp Vertex.cpp
 
-    Network.cpp
-
     GLBuffer.cpp GLContext.cpp GLHelper.cpp GLParser.cpp GLProgram.cpp
     GLQuery.cpp GLTexture.cpp
 
     Input.cpp)
+
+if (WENDY_INCLUDE_NETWORK)
+  list(APPEND wendy_SOURCES Network.cpp)
+endif()
 
 if (WENDY_INCLUDE_OPENAL)
   include_directories(${OPENAL_INCLUDE_DIR}

@@ -21,6 +21,7 @@ if (NOT CMAKE_BUILD_TYPE)
       "Build type: None Debug Release RelWithDebInfo MinSizeRel" FORCE)
 endif()
 
+option(WENDY_INCLUDE_NETWORK "Include the networking API" ON)
 option(WENDY_INCLUDE_OPENAL "Include the OpenAL wrapper" ON)
 option(WENDY_INCLUDE_RENDERER "Include the renderer" ON)
 option(WENDY_INCLUDE_SCENE_GRAPH "Include the scene graph" ON)

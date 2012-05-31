@@ -57,11 +57,13 @@
 
 #include <wendy/WendyCore.h>
 
-#include <wendy/WendyNetwork.h>
-
 #include <wendy/WendyGL.h>
 
 #include <wendy/Input.h>
+
+#if WENDY_INCLUDE_NETWORK
+#include <wendy/WendyNetwork.h>
+#endif
 
 #if WENDY_INCLUDE_OPENAL
 #include <wendy/WendyAL.h>
