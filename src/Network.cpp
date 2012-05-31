@@ -72,7 +72,7 @@ uint16 PacketData::read16()
   if (offset + 2 > size)
     panic("Packet data buffer underflow");
 
-  uint16 value = ntohs(*(uint16*) (data + offset));
+  const uint16 value = ntohs(*(uint16*) (data + offset));
   offset += 2;
   return value;
 }
@@ -82,7 +82,7 @@ uint32 PacketData::read32()
   if (offset + 4 > size)
     panic("Packet data buffer underflow");
 
-  uint32 value = ntohl(*(uint32*) (data + offset));
+  const uint32 value = ntohl(*(uint32*) (data + offset));
   offset += 4;
   return value;
 }
@@ -345,7 +345,7 @@ bool Host::update(Time timeout)
 
       case ENET_EVENT_TYPE_DISCONNECT:
       {
-        Peer* peer = static_cast<Peer*>(event.peer->data);
+        const Peer* peer = static_cast<Peer*>(event.peer->data);
 
         for (auto p = peers.begin();  p != peers.end();  p++)
         {
@@ -373,8 +373,8 @@ bool Host::update(Time timeout)
           if (Peer* peer = static_cast<Peer*>(event.peer->data))
           {
             PacketData data(event.packet->data,
-                        event.packet->dataLength,
-                        event.packet->dataLength);
+                            event.packet->dataLength,
+                            event.packet->dataLength);
 
             listener->onPacketReceived(peer->getTargetID(), data);
           }
