@@ -87,6 +87,12 @@ uint32 PacketData::read32()
   return value;
 }
 
+half PacketData::read16f()
+{
+  const uint16 value = read16();
+  return *((half*) &value);
+}
+
 float PacketData::read32f()
 {
   return uintBitsToFloat(read32());
@@ -117,6 +123,11 @@ void PacketData::write16(uint16 value)
 
   *((uint16*) (data + size)) = htons(value);
   size += 2;
+}
+
+void PacketData::write16f(half value)
+{
+  write16(*((uint16*) &value));
 }
 
 void PacketData::write32(uint32 value)
