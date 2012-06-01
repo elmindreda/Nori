@@ -6,7 +6,6 @@ endif()
 include_directories(${libpng_SOURCE_DIR}
                     ${zlib_SOURCE_DIR}
                     ${pugixml_SOURCE_DIR}
-                    ${enet_SOURCE_DIR}
                     ${PCRE_SOURCE_DIR}
                     ${GLEW_SOURCE_DIR}
                     ${glfw_SOURCE_DIR})
@@ -25,6 +24,7 @@ set(wendy_SOURCES
     Input.cpp)
 
 if (WENDY_INCLUDE_NETWORK)
+  include_directories(${enet_SOURCE_DIR})
   list(APPEND wendy_SOURCES Network.cpp)
 endif()
 
