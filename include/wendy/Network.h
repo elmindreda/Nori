@@ -46,7 +46,7 @@ typedef uint8 ChannelID;
 /*! Network target ID.
  *  @ingroup net
  */
-typedef uint16 TargetID;
+typedef uint8 TargetID;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -95,6 +95,39 @@ bool initialize();
  *  @ingroup net
  */
 void shutdown();
+
+///////////////////////////////////////////////////////////////////////
+
+/*! Generic ID pool.
+ *  @ingroup net
+ */
+template <typename T, uint margin = 100>
+class IDPool
+{
+public:
+  IDPool(T first = 0):
+    next(first)
+  {
+  }
+  T allocateID()
+  {
+    if (released.size() > margin)
+    {
+      const T ID = released.back();
+      released.pop_back();
+      return ID;
+    }
+
+    return next++;
+  }
+  void releaseID(T ID)
+  {
+    released.insert(released.begin(), ID);
+  }
+private:
+  std::vector<T> released;
+  T next;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -202,7 +235,7 @@ private:
   void* host;
   std::list<Peer> peers;
   HostListener* listener;
-  TargetID nextClientID;
+  IDPool<TargetID> pool;
   size_t allocated;
   std::array<uint8, 65536> buffer;
   bool server;

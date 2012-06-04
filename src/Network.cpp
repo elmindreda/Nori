@@ -332,7 +332,7 @@ bool Host::update(Time timeout)
         if (isClient())
           peerID = SERVER;
         else
-          peerID = nextClientID++;
+          peerID = pool.allocateID();
 
         peers.push_back(Peer(event.peer, peerID, name));
         event.peer->data = &(peers.back());
@@ -353,6 +353,8 @@ bool Host::update(Time timeout)
           {
             if (listener)
               listener->onPeerDisconnected(*p, event.data);
+
+            pool.releaseID(p->ID);
 
             peers.erase(p);
             break;
@@ -474,7 +476,7 @@ Host* Host::connect(const String& name, uint16 port, uint8 maxChannelCount)
 Host::Host():
   host(NULL),
   listener(NULL),
-  nextClientID(FIRST_CLIENT),
+  pool(FIRST_CLIENT),
   allocated(0)
 {
 }
