@@ -3,6 +3,7 @@
  @brief ENet host management functions
 */
 #define ENET_BUILDING_LIB 1
+#define __MINGW_USE_VC2005_COMPAT 1
 #include <string.h>
 #include <time.h>
 #include "enet/enet.h"
@@ -38,6 +39,7 @@ enet_host_create (const ENetAddress * address, size_t peerCount, size_t channelL
     host = (ENetHost *) enet_malloc (sizeof (ENetHost));
     if (host == NULL)
       return NULL;
+    memset (host, 0, sizeof (ENetHost));
 
     host -> peers = (ENetPeer *) enet_malloc (peerCount * sizeof (ENetPeer));
     if (host -> peers == NULL)
