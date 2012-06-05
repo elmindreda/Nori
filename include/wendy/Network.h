@@ -232,10 +232,10 @@ private:
   bool init(uint16 port, size_t maxClientCount, uint8 maxChannelCount);
   bool init(const String& name, uint16 port, uint8 maxChannelCount);
   bool broadcast(ChannelID channel, PacketType type, const PacketData& data);
-  void* host;
+  void* object;
   std::list<Peer> peers;
   HostListener* listener;
-  IDPool<TargetID> pool;
+  IDPool<TargetID> clientIDs;
   size_t allocated;
   std::array<uint8, 65536> buffer;
   bool server;

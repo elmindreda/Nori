@@ -259,11 +259,11 @@ Host::~Host()
 
   peers.clear();
 
-  if (host)
+  if (object)
   {
-    enet_host_flush((ENetHost*) host);
-    enet_host_destroy((ENetHost*) host);
-    host = NULL;
+    enet_host_flush((ENetHost*) object);
+    enet_host_destroy((ENetHost*) object);
+    object = NULL;
   }
 }
 
@@ -316,7 +316,7 @@ bool Host::update(Time timeout)
   bool status = true;
   enet_uint32 ms = (enet_uint32) (timeout * 1000.0);
 
-  while (enet_host_service((ENetHost*) host, &event, ms) > 0)
+  while (enet_host_service((ENetHost*) object, &event, ms) > 0)
   {
     switch (event.type)
     {
@@ -332,7 +332,7 @@ bool Host::update(Time timeout)
         if (isClient())
           peerID = SERVER;
         else
-          peerID = pool.allocateID();
+          peerID = clientIDs.allocateID();
 
         peers.push_back(Peer(event.peer, peerID, name));
         event.peer->data = &(peers.back());
@@ -354,7 +354,7 @@ bool Host::update(Time timeout)
             if (listener)
               listener->onPeerDisconnected(*p, event.data);
 
-            pool.releaseID(p->ID);
+            clientIDs.releaseID(p->ID);
 
             peers.erase(p);
             break;
@@ -388,7 +388,7 @@ bool Host::update(Time timeout)
     }
   }
 
-  enet_host_flush((ENetHost*) host);
+  enet_host_flush((ENetHost*) object);
 
   allocated = 0;
 
@@ -432,22 +432,22 @@ bool Host::isServer() const
 
 uint Host::getTotalIncomingBytes() const
 {
-  return ((ENetHost*) host)->totalReceivedData;
+  return ((ENetHost*) object)->totalReceivedData;
 }
 
 uint Host::getTotalOutgoingBytes() const
 {
-  return ((ENetHost*) host)->totalSentData;
+  return ((ENetHost*) object)->totalSentData;
 }
 
 uint Host::getIncomingBytesPerSecond() const
 {
-  return ((ENetHost*) host)->incomingBandwidth;
+  return ((ENetHost*) object)->incomingBandwidth;
 }
 
 uint Host::getOutgoingBytesPerSecond() const
 {
-  return ((ENetHost*) host)->outgoingBandwidth;
+  return ((ENetHost*) object)->outgoingBandwidth;
 }
 
 void Host::setListener(HostListener* newListener)
@@ -474,9 +474,9 @@ Host* Host::connect(const String& name, uint16 port, uint8 maxChannelCount)
 }
 
 Host::Host():
-  host(NULL),
+  object(NULL),
   listener(NULL),
-  pool(FIRST_CLIENT),
+  clientIDs(FIRST_CLIENT),
   allocated(0)
 {
 }
@@ -489,14 +489,14 @@ bool Host::init(uint16 port, size_t maxClientCount, uint8 maxChannelCount)
   address.host = ENET_HOST_ANY;
   address.port = port;
 
-  host = enet_host_create(&address, maxClientCount, maxChannelCount, 0, 0);
-  if (!host)
+  object = enet_host_create(&address, maxClientCount, maxChannelCount, 0, 0);
+  if (!object)
   {
     logError("Failed to create ENet server host");
     return false;
   }
 
-  if (enet_host_compress_with_range_coder((ENetHost*) host) < 0)
+  if (enet_host_compress_with_range_coder((ENetHost*) object) < 0)
   {
     logError("Failed to create ENet range compressor");
     return false;
@@ -509,14 +509,14 @@ bool Host::init(const String& name, uint16 port, uint8 maxChannelCount)
 {
   server = false;
 
-  host = enet_host_create(NULL, 1, maxChannelCount, 0, 0);
-  if (!host)
+  object = enet_host_create(NULL, 1, maxChannelCount, 0, 0);
+  if (!object)
   {
     logError("Failed to create ENet client host");
     return false;
   }
 
-  if (enet_host_compress_with_range_coder((ENetHost*) host) < 0)
+  if (enet_host_compress_with_range_coder((ENetHost*) object) < 0)
   {
     logError("Failed to create ENet range compressor");
     return false;
@@ -531,7 +531,7 @@ bool Host::init(const String& name, uint16 port, uint8 maxChannelCount)
     return false;
   }
 
-  ENetPeer* peer = enet_host_connect((ENetHost*) host, &address, ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT, 0);
+  ENetPeer* peer = enet_host_connect((ENetHost*) object, &address, ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT, 0);
   if (!peer)
   {
     logError("Failed to connect to server \'%s:%u\'", name.c_str(), port);
@@ -568,7 +568,7 @@ bool Host::broadcast(ChannelID channel, PacketType type, const PacketData& data)
     return false;
   }
 
-  enet_host_broadcast((ENetHost*) host, channel, packet);
+  enet_host_broadcast((ENetHost*) object, channel, packet);
   return true;
 }
 
