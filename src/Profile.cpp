@@ -144,7 +144,8 @@ void Profile::resetNode(ProfileNode& node)
   node.calls = 0;
   node.duration = 0.0;
 
-  std::for_each(node.children.begin(), node.children.end(), resetNode);
+  for (ProfileNode& node : node.children)
+    resetNode(node);
 }
 
 Profile* Profile::current = NULL;

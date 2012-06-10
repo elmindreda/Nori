@@ -243,9 +243,8 @@ const Sphere& Node::getTotalBounds() const
 
 void Node::update()
 {
-  const List& children = getChildren();
-
-  std::for_each(children.begin(), children.end(), std::mem_fun(&Node::update));
+  for (Node* child : children)
+    child->update();
 }
 
 void Node::enqueue(render::Scene& scene, const render::Camera& camera) const
@@ -284,7 +283,8 @@ void Node::invalidateWorldTransform()
 {
   dirtyWorld = true;
 
-  std::for_each(children.begin(), children.end(), std::mem_fun(&Node::invalidateWorldTransform));
+  for (Node* child : children)
+    child->invalidateWorldTransform();
 }
 
 void Node::setGraph(Graph* newGraph)
@@ -316,7 +316,8 @@ Graph::~Graph()
 
 void Graph::update()
 {
-  std::for_each(updated.begin(), updated.end(), std::mem_fun(&Node::update));
+  for (Node* node : updated)
+    node->update();
 }
 
 void Graph::enqueue(render::Scene& scene, const render::Camera& camera) const
