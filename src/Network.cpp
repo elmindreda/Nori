@@ -246,7 +246,7 @@ Peer::Peer(void* peer, TargetID ID, const char* name):
 
 ///////////////////////////////////////////////////////////////////////
 
-HostListener::~HostListener()
+Observer::~Observer()
 {
 }
 
@@ -276,10 +276,10 @@ bool Host::sendPacketTo(TargetID targetID,
   {
     case LOCAL:
     {
-      if (listener)
+      if (observer)
       {
         PacketData copy = data;
-        listener->onPacketReceived(targetID, copy);
+        observer->onPacketReceived(targetID, copy);
       }
 
       return true;
@@ -337,8 +337,8 @@ bool Host::update(Time timeout)
         peers.push_back(Peer(event.peer, peerID, name));
         event.peer->data = &(peers.back());
 
-        if (listener)
-          listener->onPeerConnected(peers.back());
+        if (observer)
+          observer->onPeerConnected(peers.back());
 
         break;
       }
@@ -351,8 +351,8 @@ bool Host::update(Time timeout)
         {
           if (&(*p) == peer)
           {
-            if (listener)
-              listener->onPeerDisconnected(*p, event.data);
+            if (observer)
+              observer->onPeerDisconnected(*p, event.data);
 
             clientIDs.releaseID(p->ID);
 
@@ -370,7 +370,7 @@ bool Host::update(Time timeout)
 
       case ENET_EVENT_TYPE_RECEIVE:
       {
-        if (listener)
+        if (observer)
         {
           if (Peer* peer = static_cast<Peer*>(event.peer->data))
           {
@@ -378,7 +378,7 @@ bool Host::update(Time timeout)
                             event.packet->dataLength,
                             event.packet->dataLength);
 
-            listener->onPacketReceived(peer->getTargetID(), data);
+            observer->onPacketReceived(peer->getTargetID(), data);
           }
         }
 
@@ -450,9 +450,9 @@ uint Host::getOutgoingBytesPerSecond() const
   return ((ENetHost*) object)->outgoingBandwidth;
 }
 
-void Host::setListener(HostListener* newListener)
+void Host::setObserver(Observer* newObserver)
 {
-  listener = newListener;
+  observer = newObserver;
 }
 
 Host* Host::create(uint16 port, size_t maxClientCount, uint8 maxChannelCount)
@@ -475,7 +475,7 @@ Host* Host::connect(const String& name, uint16 port, uint8 maxChannelCount)
 
 Host::Host():
   object(NULL),
-  listener(NULL),
+  observer(NULL),
   clientIDs(FIRST_CLIENT),
   allocated(0)
 {

@@ -191,11 +191,11 @@ private:
 /*! Network host event listener.
  *  @ingroup net
  */
-class HostListener
+class Observer
 {
   friend class Host;
 public:
-  virtual ~HostListener();
+  virtual ~Observer();
 protected:
   virtual void onPeerConnected(Peer& client) = 0;
   virtual void onPeerDisconnected(Peer& client, uint32 reason) = 0;
@@ -224,7 +224,7 @@ public:
   uint getTotalOutgoingBytes() const;
   uint getIncomingBytesPerSecond() const;
   uint getOutgoingBytesPerSecond() const;
-  void setListener(HostListener* newListener);
+  void setObserver(Observer* newObserver);
   static Host* create(uint16 port, size_t maxClientCount, uint8 maxChannelCount = 0);
   static Host* connect(const String& name, uint16 port, uint8 maxChannelCount = 0);
 private:
@@ -234,7 +234,7 @@ private:
   bool broadcast(ChannelID channel, PacketType type, const PacketData& data);
   void* object;
   std::list<Peer> peers;
-  HostListener* listener;
+  Observer* observer;
   IDPool<TargetID> clientIDs;
   size_t allocated;
   std::array<uint8, 65536> buffer;
