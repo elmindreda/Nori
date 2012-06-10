@@ -184,6 +184,8 @@ private:
   void* peer;
   TargetID ID;
   String name;
+  bool disconnecting;
+  uint32 disconnectReason;
 };
 
 ///////////////////////////////////////////////////////////////////////

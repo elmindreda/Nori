@@ -204,6 +204,8 @@ bool Peer::sendPacket(ChannelID channel,
 
 void Peer::disconnect(uint32 reason)
 {
+  disconnecting = true;
+  disconnectReason = reason;
   enet_peer_disconnect((ENetPeer*) peer, reason);
 }
 
@@ -240,7 +242,9 @@ Time Peer::getRoundTripTime() const
 Peer::Peer(void* peer, TargetID ID, const char* name):
   peer(peer),
   ID(ID),
-  name(name)
+  name(name),
+  disconnecting(false),
+  disconnectReason(0)
 {
 }
 
@@ -351,8 +355,15 @@ bool Host::update(Time timeout)
         {
           if (&(*p) == peer)
           {
+            uint32 reason;
+
+            if (peer->disconnecting)
+              reason = peer->disconnectReason;
+            else
+              reason = event.data;
+
             if (observer)
-              observer->onPeerDisconnected(*p, event.data);
+              observer->onPeerDisconnected(*p, reason);
 
             clientIDs.releaseID(p->ID);
 
