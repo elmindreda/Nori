@@ -137,6 +137,7 @@ private:
 class PacketData
 {
 public:
+  PacketData();
   PacketData(void* data, size_t capacity, size_t size = 0);
   uint8 read8();
   uint16 read16();

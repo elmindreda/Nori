@@ -51,6 +51,14 @@ void shutdown()
 
 ///////////////////////////////////////////////////////////////////////
 
+PacketData::PacketData():
+  data(NULL),
+  capacity(0),
+  size(0),
+  offset(0)
+{
+}
+
 PacketData::PacketData(void* data, size_t capacity, size_t size):
   data(static_cast<uint8*>(data)),
   capacity(capacity),
