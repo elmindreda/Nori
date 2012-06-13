@@ -66,22 +66,17 @@ void Renderer::render(const render::Scene& scene, const render::Camera& camera)
   state->setViewportSize(float(viewportArea.size.x),
                          float(viewportArea.size.y));
 
-  if (camera.isOrtho())
-    state->setOrthoProjectionMatrix(camera.getOrthoVolume());
-  else
+  state->setProjectionMatrix(camera.getProjectionMatrix());
+  state->setViewMatrix(camera.getViewTransform());
+
+  if (camera.isPerspective())
   {
-    state->setPerspectiveProjectionMatrix(camera.getFOV(),
-                                          camera.getAspectRatio(),
-                                          camera.getNearZ(),
-                                          camera.getFarZ());
     state->setCameraProperties(camera.getTransform().position,
                                camera.getFOV(),
                                camera.getAspectRatio(),
                                camera.getNearZ(),
                                camera.getFarZ());
   }
-
-  state->setViewMatrix(camera.getViewTransform());
 
   renderOperations(scene.getOpaqueQueue());
   renderOperations(scene.getBlendedQueue());

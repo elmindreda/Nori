@@ -27,6 +27,8 @@
 
 #include <wendy/RenderCamera.h>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -148,6 +150,18 @@ const Transform3& Camera::getViewTransform() const
   }
 
   return inverse;
+}
+
+mat4 Camera::getProjectionMatrix() const
+{
+  if (mode == PERSPECTIVE)
+    return perspective(FOV, aspectRatio, nearZ, farZ);
+  else
+  {
+    float minX, minY, minZ, maxX, maxY, maxZ;
+    volume.getBounds(minX, minY, minZ, maxX, maxY, maxZ);
+    return ortho(minX, maxX, minY, maxY, minZ, maxZ);
+  }
 }
 
 void Camera::setTransform(const Transform3& newTransform)

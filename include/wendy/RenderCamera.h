@@ -112,6 +112,11 @@ public:
    *  the camera-to-world-space transform, see Camera::getTransform.
    */
   const Transform3& getViewTransform() const;
+  /*! @return The projection matrix for this camera.
+   *
+   *  @remarks This is calculated on every call.
+   */
+  mat4 getProjectionMatrix() const;
   /*! Sets the transform for this camera.
    *  @param[in] newTransform The desired new transform.
    *
