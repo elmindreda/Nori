@@ -127,6 +127,19 @@ bool Rect::clipBy(const Rect& other)
   return true;
 }
 
+void Rect::envelop(const vec2& other)
+{
+  float minX, minY, maxX, maxY;
+  getBounds(minX, minY, maxX, maxY);
+
+  minX = min(minX, other.x);
+  minY = min(minY, other.y);
+  maxX = max(maxX, other.x);
+  maxY = max(maxY, other.y);
+
+  setBounds(minX, minY, maxX, maxY);
+}
+
 void Rect::envelop(const Rect& other)
 {
   float minX, minY, maxX, maxY;

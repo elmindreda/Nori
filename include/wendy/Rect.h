@@ -41,6 +41,7 @@ public:
   bool contains(const Rect& other) const;
   bool intersects(const Rect& other) const;
   bool clipBy(const Rect& other);
+  void envelop(const vec2& other);
   void envelop(const Rect& other);
   void normalize();
   bool operator == (const Rect& other) const;
