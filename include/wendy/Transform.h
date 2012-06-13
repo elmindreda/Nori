@@ -70,6 +70,7 @@ public:
   void translateVector(vec3& vector) const;
   void transformVector(vec3& vector) const;
   operator mat4 () const;
+  vec3 operator * (const vec3& point) const;
   Transform3 operator * (const Transform3& other) const;
   Transform3& operator *= (const Transform3& other);
   void setIdentity();

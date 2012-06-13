@@ -195,6 +195,11 @@ Transform3::operator mat4 () const
   return result;
 }
 
+vec3 Transform3::operator * (const vec3& point) const
+{
+  return rotation * scale * point + position;
+}
+
 Transform3 Transform3::operator * (const Transform3& other) const
 {
   Transform3 result(*this);
