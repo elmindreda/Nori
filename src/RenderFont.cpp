@@ -231,6 +231,7 @@ Rect Font::getTextMetrics(const char* text) const
     }
   }
 
+  result.envelop(penPosition);
   return result;
 }
 
