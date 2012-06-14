@@ -62,6 +62,26 @@ btTriangleMesh* convert(const Mesh& mesh);
 
 /*! @ingroup bullet
  */
+class BvhTriangleMeshShape : public Resource
+{
+public:
+  btTriangleMesh& getMesh();
+  btBvhTriangleMeshShape& getShape();
+  static Ref<BvhTriangleMeshShape> create(const ResourceInfo& info,
+                                          const Mesh& data);
+  static Ref<BvhTriangleMeshShape> read(ResourceCache& cache,
+                                        const String& meshName);
+private:
+  BvhTriangleMeshShape(const ResourceInfo& info);
+  bool init(const Mesh& data);
+  Ptr<btTriangleMesh> mesh;
+  Ptr<btBvhTriangleMeshShape> shape;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup bullet
+ */
 class AvatarSweepCallback : public btCollisionWorld::ConvexResultCallback
 {
 public:

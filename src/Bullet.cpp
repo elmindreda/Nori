@@ -105,6 +105,61 @@ btTriangleMesh* convert(const Mesh& data)
 
 ///////////////////////////////////////////////////////////////////////
 
+btTriangleMesh& BvhTriangleMeshShape::getMesh()
+{
+  return *mesh;
+}
+
+btBvhTriangleMeshShape& BvhTriangleMeshShape::getShape()
+{
+  return *shape;
+}
+
+Ref<BvhTriangleMeshShape> BvhTriangleMeshShape::create(const ResourceInfo& info,
+                                                       const Mesh& data)
+{
+  Ref<BvhTriangleMeshShape> shape(new BvhTriangleMeshShape(info));
+  if (!shape->init(data))
+    return NULL;
+
+  return shape;
+}
+
+Ref<BvhTriangleMeshShape> BvhTriangleMeshShape::read(ResourceCache& cache,
+                                                     const String& meshName)
+{
+  String name;
+
+  name += "source:";
+  name += meshName;
+
+  if (Ref<BvhTriangleMeshShape> shape = cache.find<BvhTriangleMeshShape>(name))
+    return shape;
+
+  Ref<Mesh> data = Mesh::read(cache, meshName);
+  if (!data)
+  {
+    logError("Failed to read mesh for mesh shape \'%s\'", name.c_str());
+    return NULL;
+  }
+
+  return create(ResourceInfo(cache, name), *data);
+}
+
+BvhTriangleMeshShape::BvhTriangleMeshShape(const ResourceInfo& info):
+  Resource(info)
+{
+}
+
+bool BvhTriangleMeshShape::init(const Mesh& data)
+{
+  mesh = convert(data);
+  shape = new btBvhTriangleMeshShape(mesh, true, true);
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////////
+
 AvatarSweepCallback::AvatarSweepCallback(const btCollisionObject* initSelf):
   self(initSelf)
 {
