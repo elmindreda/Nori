@@ -86,6 +86,17 @@ enum PacketType
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @ingroup net
+ */
+enum IDBucket
+{
+  ID_BUCKET_ALLOCATED,
+  ID_BUCKET_RELEASED,
+  ID_BUCKET_UNUSED
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! Initialize the network layer.
  *  @ingroup net
  */
@@ -123,6 +134,19 @@ public:
   void releaseID(T ID)
   {
     released.insert(released.begin(), ID);
+  }
+  IDBucket bucketOf(T ID)
+  {
+    if (ID >= next)
+      return ID_BUCKET_UNUSED;
+
+    for (T r : released)
+    {
+      if (ID == r)
+        return ID_BUCKET_RELEASED;
+    }
+
+    return ID_BUCKET_ALLOCATED;
   }
 private:
   std::vector<T> released;
