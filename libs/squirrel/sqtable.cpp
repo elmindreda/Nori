@@ -93,6 +93,7 @@ SQTable *SQTable::Clone()
 	assert(_firstfree > basesrc);
 	assert(_firstfree != NULL);
 	nt->_firstfree = basedst + (_firstfree - basesrc);
+	nt->_usednodes = _usednodes;
 #else
 	SQInteger ridx=0;
 	SQObjectPtr key,val;

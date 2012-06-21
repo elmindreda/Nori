@@ -589,20 +589,21 @@ SQString *SQStringTable::Add(const SQChar *news,SQInteger len)
 {
 	if(len<0)
 		len = (SQInteger)scstrlen(news);
-	SQHash h = ::_hashstr(news,len)&(_numofslots-1);
+	SQHash newhash = ::_hashstr(news,len);
+	SQHash h = newhash&(_numofslots-1);
 	SQString *s;
 	for (s = _strings[h]; s; s = s->_next){
 		if(s->_len == len && (!memcmp(news,s->_val,rsl(len))))
 			return s; //found
 	}
 
-	SQString *t=(SQString *)SQ_MALLOC(rsl(len)+sizeof(SQString));
+	SQString *t = (SQString *)SQ_MALLOC(rsl(len)+sizeof(SQString));
 	new (t) SQString;
 	t->_sharedstate = _sharedstate;
 	memcpy(t->_val,news,rsl(len));
 	t->_val[len] = _SC('\0');
 	t->_len = len;
-	t->_hash = ::_hashstr(news,len);
+	t->_hash = newhash;
 	t->_next = _strings[h];
 	_strings[h] = t;
 	_slotused++;

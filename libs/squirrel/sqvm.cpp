@@ -201,14 +201,14 @@ bool SQVM::NEG_OP(SQObjectPtr &trg,const SQObjectPtr &o)
 bool SQVM::ObjCmp(const SQObjectPtr &o1,const SQObjectPtr &o2,SQInteger &result)
 {
 	SQObjectType t1 = type(o1), t2 = type(o2);
-	if(t1 == t2){
-		if(_rawval(o1)==_rawval(o2))_RET_SUCCEED(0);
+	if(t1 == t2) {
+		if(_rawval(o1) == _rawval(o2))_RET_SUCCEED(0);
 		SQObjectPtr res;
 		switch(t1){
 		case OT_STRING:
 			_RET_SUCCEED(scstrcmp(_stringval(o1),_stringval(o2)));
 		case OT_INTEGER:
-			_RET_SUCCEED(_integer(o1)-_integer(o2));
+			_RET_SUCCEED((_integer(o1)<_integer(o2))?-1:1);
 		case OT_FLOAT:
 			_RET_SUCCEED((_float(o1)<_float(o2))?-1:1);
 		case OT_TABLE:
@@ -218,16 +218,23 @@ bool SQVM::ObjCmp(const SQObjectPtr &o1,const SQObjectPtr &o2,SQInteger &result)
 				SQObjectPtr closure;
 				if(_delegable(o1)->GetMetaMethod(this, MT_CMP, closure)) {
 					Push(o1);Push(o2);
-					if(!CallMetaMethod(closure,MT_CMP,2,res)) return false;
+					if(CallMetaMethod(closure,MT_CMP,2,res)) {
+						if(type(res) != OT_INTEGER) {
+							Raise_Error(_SC("_cmp must return an integer"));
+							return false;
+						}
+						_RET_SUCCEED(_integer(res))
+					}
+					return false;
 				}
-				break;
 			}
 			//continues through (no break needed)
 		default: 
 			_RET_SUCCEED( _userpointer(o1) < _userpointer(o2)?-1:1 );
 		}
-		if(type(res)!=OT_INTEGER) { Raise_CompareError(o1,o2); return false; }
-			_RET_SUCCEED(_integer(res));
+		assert(0);
+		//if(type(res)!=OT_INTEGER) { Raise_CompareError(o1,o2); return false; }
+		//	_RET_SUCCEED(_integer(res));
 		
 	}
 	else{
@@ -1010,28 +1017,8 @@ exception_restore:
 							  }
 				continue;
 			case _OP_THROW:	Raise_Error(TARGET); SQ_THROW(); continue;
-			case _OP_NEWSLOTA: {
-				bool bstatic = (arg0&NEW_SLOT_STATIC_FLAG)?true:false;
-				if(type(STK(arg1)) == OT_CLASS) {
-					if(type(_class(STK(arg1))->_metamethods[MT_NEWMEMBER]) != OT_NULL ) {
-						Push(STK(arg1)); Push(STK(arg2)); Push(STK(arg3));
-						Push((arg0&NEW_SLOT_ATTRIBUTES_FLAG) ? STK(arg2-1) : SQObjectPtr());
-						Push(bstatic);
-						int nparams = 5;
-						if(Call(_class(STK(arg1))->_metamethods[MT_NEWMEMBER], nparams, _top - nparams, temp_reg,SQFalse)) {
-							Pop(nparams);
-							continue;
-						}
-						else {
-							SQ_THROW();
-						}
-					}
-				}
-				_GUARD(NewSlot(STK(arg1), STK(arg2), STK(arg3),bstatic));
-				if((arg0&NEW_SLOT_ATTRIBUTES_FLAG)) {
-					_class(STK(arg1))->SetAttributes(STK(arg2),STK(arg2-1));
-				}
-							   }
+			case _OP_NEWSLOTA:
+				_GUARD(NewSlotA(STK(arg1),STK(arg2),STK(arg3),(arg0&NEW_SLOT_ATTRIBUTES_FLAG) ? STK(arg2-1) : SQObjectPtr(),(arg0&NEW_SLOT_STATIC_FLAG)?true:false,false));
 				continue;
 			case _OP_GETBASE:{
 				SQClosure *clo = _closure(ci->_closure);
@@ -1401,6 +1388,30 @@ cloned_mt:
 		Raise_Error(_SC("cloning a %s"), GetTypeName(self));
 		return false;
 	}
+}
+
+bool SQVM::NewSlotA(const SQObjectPtr &self,const SQObjectPtr &key,const SQObjectPtr &val,const SQObjectPtr &attrs,bool bstatic,bool raw)
+{
+	if(type(self) != OT_CLASS) {
+		Raise_Error(_SC("object must be a class"));
+		return false;
+	}
+	SQClass *c = _class(self);
+	if(!raw) {
+		SQObjectPtr &mm = c->_metamethods[MT_NEWMEMBER];
+		if(type(mm) != OT_NULL ) {
+			Push(self); Push(key); Push(val);
+			Push(attrs);
+			Push(bstatic);
+			return CallMetaMethod(mm,MT_NEWMEMBER,5,temp_reg);
+		}
+	}
+	if(!NewSlot(self, key, val,bstatic))
+		return false;
+	if(type(attrs) != OT_NULL) {
+		c->SetAttributes(key,attrs);
+	}
+	return true;
 }
 
 bool SQVM::NewSlot(const SQObjectPtr &self,const SQObjectPtr &key,const SQObjectPtr &val,bool bstatic)

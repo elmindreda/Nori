@@ -213,16 +213,14 @@ struct SQObjectPtr : public SQObject
 	}
 	SQObjectPtr(const SQObjectPtr &o)
 	{
-		//SQ_OBJECT_RAWINIT()
-		_type=o._type;
-		_unVal=o._unVal;
+		_type = o._type;
+		_unVal = o._unVal;
 		__AddRef(_type,_unVal);
 	}
 	SQObjectPtr(const SQObject &o)
 	{
-		//SQ_OBJECT_RAWINIT()
-		_type=o._type;
-		_unVal=o._unVal;
+		_type = o._type;
+		_unVal = o._unVal;
 		__AddRef(_type,_unVal);
 	}
 	_REF_TYPE_DECL(OT_TABLE,SQTable,pTable)
@@ -289,9 +287,11 @@ struct SQObjectPtr : public SQObject
 	}
 	inline void Null()
 	{
-		__Release(_type ,_unVal);
+		SQObjectType tOldType = _type;
+		SQObjectValue unOldVal = _unVal;
 		_type = OT_NULL;
 		_unVal.raw = (SQRawObjectVal)NULL;
+		__Release(tOldType ,unOldVal);
 	}
 	private:
 		SQObjectPtr(const SQChar *){} //safety

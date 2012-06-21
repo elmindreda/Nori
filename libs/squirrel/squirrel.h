@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2011 Alberto Demichelis
+Copyright (c) 2003-2012 Alberto Demichelis
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,10 +19,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-/* 2011-12-01  Camilla Berglund  <elmindreda@elmindreda.org>
- *   Added automatic detection of 64-bit systems.
- */
-
 #ifndef _SQUIRREL_H_
 #define _SQUIRREL_H_
 
@@ -35,12 +31,6 @@ extern "C" {
 #endif
 
 #if (defined(_WIN64) || defined(_LP64))
-#ifndef _SQ64
-#define _SQ64
-#endif
-#endif
-
-#if defined(__amd64__) || defined(__x86_64__)
 #ifndef _SQ64
 #define _SQ64
 #endif
@@ -191,10 +181,10 @@ typedef char SQChar;
 #define _PRINT_INT_FMT _SC("%d")
 #endif
 
-#define SQUIRREL_VERSION	_SC("Squirrel 3.0.2 stable")
-#define SQUIRREL_COPYRIGHT	_SC("Copyright (C) 2003-2011 Alberto Demichelis")
+#define SQUIRREL_VERSION	_SC("Squirrel 3.0.3 stable")
+#define SQUIRREL_COPYRIGHT	_SC("Copyright (C) 2003-2012 Alberto Demichelis")
 #define SQUIRREL_AUTHOR		_SC("Alberto Demichelis")
-#define SQUIRREL_VERSION_NUMBER	302
+#define SQUIRREL_VERSION_NUMBER	303
 
 #define SQ_VMSTATE_IDLE			0
 #define SQ_VMSTATE_RUNNING		1
@@ -336,6 +326,7 @@ SQUIRREL_API SQPRINTFUNCTION sq_geterrorfunc(HSQUIRRELVM v);
 SQUIRREL_API SQRESULT sq_suspendvm(HSQUIRRELVM v);
 SQUIRREL_API SQRESULT sq_wakeupvm(HSQUIRRELVM v,SQBool resumedret,SQBool retval,SQBool raiseerror,SQBool throwerror);
 SQUIRREL_API SQInteger sq_getvmstate(HSQUIRRELVM v);
+SQUIRREL_API SQInteger sq_getversion();
 
 /*compiler*/
 SQUIRREL_API SQRESULT sq_compile(HSQUIRRELVM v,SQLEXREADFUNC read,SQUserPointer p,const SQChar *sourcename,SQBool raiseerror);
@@ -370,6 +361,7 @@ SQUIRREL_API void sq_pushbool(HSQUIRRELVM v,SQBool b);
 SQUIRREL_API void sq_pushuserpointer(HSQUIRRELVM v,SQUserPointer p);
 SQUIRREL_API void sq_pushnull(HSQUIRRELVM v);
 SQUIRREL_API SQObjectType sq_gettype(HSQUIRRELVM v,SQInteger idx);
+SQUIRREL_API SQRESULT sq_typeof(HSQUIRRELVM v,SQInteger idx);
 SQUIRREL_API SQInteger sq_getsize(HSQUIRRELVM v,SQInteger idx);
 SQUIRREL_API SQHash sq_gethash(HSQUIRRELVM v, SQInteger idx);
 SQUIRREL_API SQRESULT sq_getbase(HSQUIRRELVM v,SQInteger idx);
@@ -387,8 +379,9 @@ SQUIRREL_API SQRESULT sq_settypetag(HSQUIRRELVM v,SQInteger idx,SQUserPointer ty
 SQUIRREL_API SQRESULT sq_gettypetag(HSQUIRRELVM v,SQInteger idx,SQUserPointer *typetag);
 SQUIRREL_API void sq_setreleasehook(HSQUIRRELVM v,SQInteger idx,SQRELEASEHOOK hook);
 SQUIRREL_API SQChar *sq_getscratchpad(HSQUIRRELVM v,SQInteger minsize);
-SQUIRREL_API SQRESULT sq_getfunctioninfo(HSQUIRRELVM v,SQInteger idx,SQFunctionInfo *fi);
+SQUIRREL_API SQRESULT sq_getfunctioninfo(HSQUIRRELVM v,SQInteger level,SQFunctionInfo *fi);
 SQUIRREL_API SQRESULT sq_getclosureinfo(HSQUIRRELVM v,SQInteger idx,SQUnsignedInteger *nparams,SQUnsignedInteger *nfreevars);
+SQUIRREL_API SQRESULT sq_getclosurename(HSQUIRRELVM v,SQInteger idx);
 SQUIRREL_API SQRESULT sq_setnativeclosurename(HSQUIRRELVM v,SQInteger idx,const SQChar *name);
 SQUIRREL_API SQRESULT sq_setinstanceup(HSQUIRRELVM v, SQInteger idx, SQUserPointer p);
 SQUIRREL_API SQRESULT sq_getinstanceup(HSQUIRRELVM v, SQInteger idx, SQUserPointer *p,SQUserPointer typetag);
@@ -401,8 +394,8 @@ SQUIRREL_API SQRESULT sq_getclass(HSQUIRRELVM v,SQInteger idx);
 SQUIRREL_API void sq_weakref(HSQUIRRELVM v,SQInteger idx);
 SQUIRREL_API SQRESULT sq_getdefaultdelegate(HSQUIRRELVM v,SQObjectType t);
 SQUIRREL_API SQRESULT sq_getmemberhandle(HSQUIRRELVM v,SQInteger idx,HSQMEMBERHANDLE *handle);
-SQUIRREL_API SQRESULT sq_getbyhandle(HSQUIRRELVM v,SQInteger idx,HSQMEMBERHANDLE *handle);
-SQUIRREL_API SQRESULT sq_setbyhandle(HSQUIRRELVM v,SQInteger idx,HSQMEMBERHANDLE *handle);
+SQUIRREL_API SQRESULT sq_getbyhandle(HSQUIRRELVM v,SQInteger idx,const HSQMEMBERHANDLE *handle);
+SQUIRREL_API SQRESULT sq_setbyhandle(HSQUIRRELVM v,SQInteger idx,const HSQMEMBERHANDLE *handle);
 
 /*object manipulation*/
 SQUIRREL_API void sq_pushroottable(HSQUIRRELVM v);
@@ -417,6 +410,8 @@ SQUIRREL_API SQRESULT sq_get(HSQUIRRELVM v,SQInteger idx);
 SQUIRREL_API SQRESULT sq_rawget(HSQUIRRELVM v,SQInteger idx);
 SQUIRREL_API SQRESULT sq_rawset(HSQUIRRELVM v,SQInteger idx);
 SQUIRREL_API SQRESULT sq_rawdeleteslot(HSQUIRRELVM v,SQInteger idx,SQBool pushval);
+SQUIRREL_API SQRESULT sq_newmember(HSQUIRRELVM v,SQInteger idx,SQBool bstatic);
+SQUIRREL_API SQRESULT sq_rawnewmember(HSQUIRRELVM v,SQInteger idx,SQBool bstatic);
 SQUIRREL_API SQRESULT sq_arrayappend(HSQUIRRELVM v,SQInteger idx);
 SQUIRREL_API SQRESULT sq_arraypop(HSQUIRRELVM v,SQInteger idx,SQBool pushval); 
 SQUIRREL_API SQRESULT sq_arrayresize(HSQUIRRELVM v,SQInteger idx,SQInteger newsize); 

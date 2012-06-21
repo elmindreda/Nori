@@ -1147,6 +1147,7 @@ public:
 		_fs->SetIntructionParam(foreachpos + 1, 1, _fs->GetCurrentPos() - foreachpos);
 		END_BREAKBLE_BLOCK(foreachpos - 1);
 		//restore the local variable stack(remove index,val and ref idx)
+		_fs->PopTarget();
 		END_SCOPE();
 	}
 	void SwitchStatement()

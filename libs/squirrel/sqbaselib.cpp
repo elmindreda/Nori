@@ -16,18 +16,28 @@
 bool str2num(const SQChar *s,SQObjectPtr &res)
 {
 	SQChar *end;
-	if(scstrstr(s,_SC("."))){
+	const SQChar *e = s;
+	SQBool isfloat = SQFalse;
+	SQChar c;
+	while((c = *e) != _SC('\0'))
+	{
+		if(c == _SC('.') || c == _SC('E')|| c == _SC('e')) { //e and E is for scientific notation
+			isfloat = SQTrue;
+			break;
+		}
+		e++;
+	}
+	if(isfloat){
 		SQFloat r = SQFloat(scstrtod(s,&end));
 		if(s == end) return false;
 		res = r;
-		return true;
 	}
 	else{
 		SQInteger r = SQInteger(scstrtol(s,&end,10));
 		if(s == end) return false;
 		res = r;
-		return true;
 	}
+	return true;
 }
 
 static SQInteger base_dummy(HSQUIRRELVM v)
@@ -656,7 +666,7 @@ bool _sort_compare(HSQUIRRELVM v,SQObjectPtr &a,SQObjectPtr &b,SQInteger func,SQ
 	return true;
 }
 
-bool _hsort_sift_down(HSQUIRRELVM v,SQArray *arr, int root, int bottom, SQInteger func)
+bool _hsort_sift_down(HSQUIRRELVM v,SQArray *arr, SQInteger root, SQInteger bottom, SQInteger func)
 {
 	SQInteger maxChild;
 	SQInteger done = 0;
@@ -681,6 +691,11 @@ bool _hsort_sift_down(HSQUIRRELVM v,SQArray *arr, int root, int bottom, SQIntege
 		if(!_sort_compare(v,arr->_values[root],arr->_values[maxChild],func,ret))
 			return false;
 		if (ret < 0) {
+			if (root == maxChild) {
+                v->Raise_Error(_SC("inconsistent compare function"));
+                return false; // We'd be swapping ourselve. The compare function is incorrect
+            }
+
 			_Swap(arr->_values[root],arr->_values[maxChild]);
 			root = maxChild;
 		}
@@ -882,8 +897,12 @@ static SQInteger closure_getinfos(HSQUIRRELVM v) {
 		SQFunctionProto *f = _closure(o)->_function;
 		SQInteger nparams = f->_nparameters + (f->_varparams?1:0);
 		SQObjectPtr params = SQArray::Create(_ss(v),nparams);
+    SQObjectPtr defparams = SQArray::Create(_ss(v),f->_ndefaultparams);
 		for(SQInteger n = 0; n<f->_nparameters; n++) {
 			_array(params)->Set((SQInteger)n,f->_parameters[n]);
+		}
+    for(SQInteger j = 0; j<f->_ndefaultparams; j++) {
+			_array(defparams)->Set((SQInteger)j,_closure(o)->_defaultparams[j]);
 		}
 		if(f->_varparams) {
 			_array(params)->Set(nparams-1,SQString::Create(_ss(v),_SC("..."),-1));
@@ -893,6 +912,7 @@ static SQInteger closure_getinfos(HSQUIRRELVM v) {
 		res->NewSlot(SQString::Create(_ss(v),_SC("src"),-1),f->_sourcename);
 		res->NewSlot(SQString::Create(_ss(v),_SC("parameters"),-1),params);
 		res->NewSlot(SQString::Create(_ss(v),_SC("varargs"),-1),f->_varparams);
+    res->NewSlot(SQString::Create(_ss(v),_SC("defparams"),-1),defparams);
 	}
 	else { //OT_NATIVECLOSURE 
 		SQNativeClosure *nc = _nativeclosure(o);
@@ -912,6 +932,7 @@ static SQInteger closure_getinfos(HSQUIRRELVM v) {
 	v->Push(res);
 	return 1;
 }
+
 
 
 SQRegFunction SQSharedState::_closure_default_delegate_funcz[]={
@@ -1083,6 +1104,38 @@ static SQInteger class_getbase(HSQUIRRELVM v)
 	return SQ_SUCCEEDED(sq_getbase(v,-1))?1:SQ_ERROR;
 }
 
+static SQInteger class_newmember(HSQUIRRELVM v)
+{
+	SQInteger top = sq_gettop(v);
+	SQBool bstatic = SQFalse;
+	if(top == 5)
+	{
+		sq_tobool(v,-1,&bstatic);
+		sq_pop(v,1);
+	}
+
+	if(top < 4) {
+		sq_pushnull(v);
+	}
+	return SQ_SUCCEEDED(sq_newmember(v,-4,bstatic))?1:SQ_ERROR;
+}
+
+static SQInteger class_rawnewmember(HSQUIRRELVM v)
+{
+	SQInteger top = sq_gettop(v);
+	SQBool bstatic = SQFalse;
+	if(top == 5)
+	{
+		sq_tobool(v,-1,&bstatic);
+		sq_pop(v,1);
+	}
+
+	if(top < 4) {
+		sq_pushnull(v);
+	}
+	return SQ_SUCCEEDED(sq_rawnewmember(v,-4,bstatic))?1:SQ_ERROR;
+}
+
 SQRegFunction SQSharedState::_class_default_delegate_funcz[] = {
 	{_SC("getattributes"), class_getattributes, 2, _SC("y.")},
 	{_SC("setattributes"), class_setattributes, 3, _SC("y..")},
@@ -1093,8 +1146,11 @@ SQRegFunction SQSharedState::_class_default_delegate_funcz[] = {
 	{_SC("tostring"),default_delegate_tostring,1, _SC(".")},
 	{_SC("instance"),class_instance,1, _SC("y")},
 	{_SC("getbase"),class_getbase,1, _SC("y")},
+	{_SC("newmember"),class_newmember,-3, _SC("y")},
+	{_SC("rawnewmember"),class_rawnewmember,-3, _SC("y")},
 	{0,0}
 };
+
 
 static SQInteger instance_getclass(HSQUIRRELVM v)
 {
