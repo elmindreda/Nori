@@ -26,7 +26,6 @@
 #define WENDY_NETWORK_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <array>
 #include <list>
 
 //////////////////////////////////////////////////////////////////////
@@ -140,9 +139,9 @@ public:
     if (ID >= next)
       return ID_BUCKET_UNUSED;
 
-    for (T r : released)
+    for (auto r = released.begin();  r != released.end();  r++)
     {
-      if (ID == r)
+      if (ID == *r)
         return ID_BUCKET_RELEASED;
     }
 
@@ -264,7 +263,7 @@ private:
   Observer* observer;
   IDPool<TargetID> clientIDs;
   size_t allocated;
-  std::array<uint8, 65536> buffer;
+  uint8 buffer[65536];
   bool server;
 };
 

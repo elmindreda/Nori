@@ -523,8 +523,8 @@ void Stats::addFrame()
     frames.front().duration = timer.getDeltaTime();
 
     // Calculate frame rate
-    for (const Frame& frame : frames)
-      frameRate += float(frame.duration);
+    for (auto f = frames.begin();  f != frames.end();  f++)
+      frameRate += float(f->duration);
 
     frameRate = float(frames.size()) / frameRate;
   }
@@ -992,10 +992,10 @@ void Context::createSharedUniform(const char* name, UniformType type, int ID)
 
 int Context::getSharedSamplerID(const char* name, SamplerType type) const
 {
-  for (const SharedSampler& sampler : samplers)
+  for (auto s = samplers.begin(); s != samplers.end(); s++)
   {
-    if (sampler.name == name && sampler.type == type)
-      return sampler.ID;
+    if (s->name == name && s->type == type)
+      return s->ID;
   }
 
   return INVALID_SHARED_STATE_ID;
@@ -1003,10 +1003,10 @@ int Context::getSharedSamplerID(const char* name, SamplerType type) const
 
 int Context::getSharedUniformID(const char* name, UniformType type) const
 {
-  for (const SharedUniform& uniform : uniforms)
+  for (auto u = uniforms.begin(); u != uniforms.end(); u++)
   {
-    if (uniform.name == name && uniform.type == type)
-      return uniform.ID;
+    if (u->name == name && u->type == type)
+      return u->ID;
   }
 
   return INVALID_SHARED_STATE_ID;

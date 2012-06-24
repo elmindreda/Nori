@@ -280,8 +280,8 @@ void logError(const char* format, ...)
     std::cerr << "Error: " << message << std::endl;
   else
   {
-    for (LogConsumer* consumer : consumers)
-      consumer->onLogEntry(ERROR_LOG_ENTRY, message);
+    for (auto c = consumers.begin();  c != consumers.end();  c++)
+      (*c)->onLogEntry(ERROR_LOG_ENTRY, message);
   }
 
   std::free(message);
@@ -304,8 +304,8 @@ void logWarning(const char* format, ...)
     std::cerr << "Warning: " << message << std::endl;
   else
   {
-    for (LogConsumer* consumer : consumers)
-      consumer->onLogEntry(WARNING_LOG_ENTRY, message);
+    for (auto c = consumers.begin();  c != consumers.end();  c++)
+      (*c)->onLogEntry(WARNING_LOG_ENTRY, message);
   }
 
   std::free(message);
@@ -328,8 +328,8 @@ void log(const char* format, ...)
     std::cerr << message << std::endl;
   else
   {
-    for (LogConsumer* consumer : consumers)
-      consumer->onLogEntry(INFO_LOG_ENTRY, message);
+    for (auto c = consumers.begin();  c != consumers.end();  c++)
+      (*c)->onLogEntry(INFO_LOG_ENTRY, message);
   }
 
   std::free(message);

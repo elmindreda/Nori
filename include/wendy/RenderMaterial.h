@@ -30,8 +30,6 @@
 #include <wendy/GLTexture.h>
 #include <wendy/GLProgram.h>
 
-#include <array>
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace pugi { class xml_node; }
@@ -114,7 +112,7 @@ public:
   static Ref<Material> read(System& system, const String& name);
 private:
   Material(const ResourceInfo& info);
-  std::array<Technique, 2> techniques;
+  Technique techniques[2];
 };
 
 ///////////////////////////////////////////////////////////////////////

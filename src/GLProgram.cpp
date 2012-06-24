@@ -1031,14 +1031,14 @@ void Program::bind()
 {
   glUseProgram(programID);
 
-  for (const Attribute& attribute : attributes)
-    glEnableVertexAttribArray(attribute.location);
+  for (auto a = attributes.begin();  a != attributes.end();  a++)
+    glEnableVertexAttribArray(a->location);
 }
 
 void Program::unbind()
 {
-  for (const Attribute& attribute : attributes)
-    glDisableVertexAttribArray(attribute.location);
+  for (auto a = attributes.begin();  a != attributes.end();  a++)
+    glDisableVertexAttribArray(a->location);
 }
 
 Program& Program::operator = (const Program& source)

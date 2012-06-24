@@ -155,8 +155,8 @@ void PacketData::write32f(float value)
 template <>
 void PacketData::write(const String& value)
 {
-  for (char c : value)
-    write8(c);
+  for (auto c = value.begin();  c != value.end();  c++)
+    write8(*c);
 
   write8('\0');
 }
@@ -266,8 +266,8 @@ Observer::~Observer()
 
 Host::~Host()
 {
-  for (Peer& peer : peers)
-    enet_peer_disconnect_now((ENetPeer*) peer.peer, 0);
+  for (auto p = peers.begin();  p != peers.end();  p++)
+    enet_peer_disconnect_now((ENetPeer*) p->peer, 0);
 
   peers.clear();
 
@@ -419,7 +419,7 @@ void* Host::allocatePacketData(size_t size)
   if (!size)
     return NULL;
 
-  if (size + allocated > buffer.size())
+  if (size + allocated > sizeof(buffer))
     panic("Out of packet data memory");
 
   uint8* data = &buffer[allocated];
@@ -430,10 +430,10 @@ void* Host::allocatePacketData(size_t size)
 
 Peer* Host::findPeer(TargetID targetID)
 {
-  for (Peer& peer : peers)
+  for (auto p = peers.begin();  p != peers.end();  p++)
   {
-    if (peer.getTargetID() == targetID)
-      return &peer;
+    if (p->getTargetID() == targetID)
+      return &(*p);
   }
 
   return NULL;

@@ -75,10 +75,10 @@ void Layer::draw()
 
   drawer.begin();
 
-  for (const Widget* root : roots)
+  for (auto r = roots.begin();  r != roots.end();  r++)
   {
-    if (root->isVisible())
-      root->draw();
+    if ((*r)->isVisible())
+      (*r)->draw();
   }
 
   drawer.end();
@@ -449,8 +449,8 @@ LayerStack::LayerStack(input::Window& initWindow):
 
 void LayerStack::update() const
 {
-  for (Layer* layer : layers)
-    layer->update();
+  for (auto l = layers.begin();  l != layers.end();  l++)
+    (*l)->update();
 }
 
 void LayerStack::draw() const
@@ -521,8 +521,8 @@ void LayerStack::setSize(uint newWidth, uint newHeight)
   width = newWidth;
   height = newHeight;
 
-  for (Layer* layer : layers)
-    layer->setSize(newWidth, newHeight);
+  for (auto l = layers.begin();  l != layers.end();  l++)
+    (*l)->setSize(newWidth, newHeight);
 }
 
 ///////////////////////////////////////////////////////////////////////

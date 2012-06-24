@@ -101,12 +101,12 @@ void Book::draw() const
                    tabSize.x,
                    tabSize.y);
 
-      for (const Page* page : pages)
+      for (auto p = pages.begin();  p != pages.end();  p++)
       {
         WidgetState state;
         if (isEnabled())
         {
-          if (page == activePage)
+          if (activePage == *p)
             state = STATE_ACTIVE;
           else
             state = STATE_NORMAL;
@@ -114,7 +114,7 @@ void Book::draw() const
         else
           state = STATE_DISABLED;
 
-        drawer.drawTab(tabArea, state, page->getText().c_str());
+        drawer.drawTab(tabArea, state, (*p)->getText().c_str());
 
         tabArea.position.x += tabSize.x;
       }
@@ -188,8 +188,8 @@ void Book::onAreaChanged(Widget& widget)
   const float em = getLayer().getDrawer().getCurrentEM();
   const vec2& size = getSize();
 
-  for (Page* page : pages)
-    page->setArea(Rect(0.f, 0.f, size.x, size.y - em * 2.f));
+  for (auto p = pages.begin();  p != pages.end();  p++)
+    (*p)->setArea(Rect(0.f, 0.f, size.x, size.y - em * 2.f));
 }
 
 void Book::onKeyPressed(Widget& widgeth, input::Key key, bool pressed)

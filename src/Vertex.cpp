@@ -193,11 +193,9 @@ void VertexFormat::destroyComponents()
 
 const VertexComponent* VertexFormat::findComponent(const char* name) const
 {
-  for (const VertexComponent& component : components)
-  {
-    if (component.getName() == name)
-      return &component;
-  }
+  for (auto c = components.begin();  c != components.end();  c++)
+    if (c->getName() == name)
+      return &(*c);
 
   return NULL;
 }
@@ -221,8 +219,8 @@ size_t VertexFormat::getSize() const
 {
   size_t size = 0;
 
-  for (const VertexComponent& component : components)
-    size += component.getSize();
+  for (auto c = components.begin();  c != components.end();  c++)
+    size += c->getSize();
 
   return size;
 }
@@ -236,11 +234,11 @@ String VertexFormat::asString() const
 {
   std::ostringstream result;
 
-  for (const VertexComponent& component : components)
+  for (auto c = components.begin();  c != components.end();  c++)
   {
-    result << component.count;
+    result << c->count;
 
-    switch (component.type)
+    switch (c->type)
     {
       case VertexComponent::FLOAT32:
         result << 'f';
@@ -249,7 +247,7 @@ String VertexFormat::asString() const
         panic("Invalid vertex component type");
     }
 
-    result << ':' << component.name << ' ';
+    result << ':' << c->name << ' ';
   }
 
   return result.str();

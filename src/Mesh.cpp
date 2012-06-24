@@ -252,10 +252,10 @@ void Mesh::mergeSections(const char* materialName)
 
 MeshSection* Mesh::findSection(const char* materialName)
 {
-  for (MeshSection& section : sections)
+  for (auto s = sections.begin();  s != sections.end();  s++)
   {
-    if (section.materialName == materialName)
-      return &section;
+    if (s->materialName == materialName)
+      return &(*s);
   }
 
   return NULL;
@@ -270,15 +270,15 @@ void Mesh::generateNormals(NormalType type)
   if (type == SMOOTH_FACES)
     tool.setNormalMode(VertexTool::MERGE_NORMALS);
 
-  for (MeshSection& section : sections)
+  for (auto s = sections.begin();  s != sections.end();  s++)
   {
-    for (MeshTriangle& t : section.triangles)
+    for (auto t = s->triangles.begin();  t != s->triangles.end();  t++)
     {
       for (size_t k = 0;  k < 3;  k++)
       {
-        t.indices[k] = tool.addAttributeLayer(t.indices[k],
-                                              t.normal,
-                                              vertices[t.indices[k]].texcoord);
+        t->indices[k] = tool.addAttributeLayer(t->indices[k],
+                                               t->normal,
+                                               vertices[t->indices[k]].texcoord);
       }
     }
   }
@@ -288,16 +288,16 @@ void Mesh::generateNormals(NormalType type)
 
 void Mesh::generateTriangleNormals()
 {
-  for (MeshSection& section : sections)
+  for (auto s = sections.begin();  s != sections.end();  s++)
   {
-    for (MeshTriangle& t : section.triangles)
+    for (auto t = s->triangles.begin();  t != s->triangles.end();  t++)
     {
-      const vec3 one = vertices[t.indices[1]].position -
-                       vertices[t.indices[0]].position;
-      const vec3 two = vertices[t.indices[2]].position -
-                       vertices[t.indices[0]].position;
+      const vec3 one = vertices[t->indices[1]].position -
+                       vertices[t->indices[0]].position;
+      const vec3 two = vertices[t->indices[2]].position -
+                       vertices[t->indices[0]].position;
 
-      t.normal = normalize(cross(one, two));
+      t->normal = normalize(cross(one, two));
     }
   }
 }
@@ -312,10 +312,10 @@ AABB Mesh::generateBoundingAABB() const
   vec3 minimum(std::numeric_limits<float>::max());
   vec3 maximum(std::numeric_limits<float>::min());
 
-  for (const MeshVertex& vertex : vertices)
+  for (auto v = vertices.begin();  v != vertices.end();  v++)
   {
-    minimum = min(minimum, vertex.position);
-    maximum = max(maximum, vertex.position);
+    minimum = min(minimum, v->position);
+    maximum = max(maximum, v->position);
   }
 
   bounds.setBounds(minimum.x, minimum.y, minimum.z,
@@ -344,29 +344,29 @@ bool Mesh::isValid() const
   if (vertices.empty())
     return false;
 
-  for (const MeshVertex& vertex : vertices)
+  for (auto v = vertices.begin();  v != vertices.end();  v++)
   {
-    if (!all(isfinite(vertex.position)) ||
-        !all(isfinite(vertex.normal)) ||
-        !all(isfinite(vertex.texcoord)))
+    if (!all(isfinite(v->position)) ||
+        !all(isfinite(v->normal)) ||
+        !all(isfinite(v->texcoord)))
     {
       return false;
     }
   }
 
-  for (const MeshSection& section : sections)
+  for (auto s = sections.begin();  s != sections.end();  s++)
   {
-    if (section.triangles.empty())
+    if (s->triangles.empty())
       return false;
 
-    for (const MeshTriangle& t : section.triangles)
+    for (auto t = s->triangles.begin();  t != s->triangles.end();  t++)
     {
-      if (!all(isfinite(t.normal)))
+      if (!all(isfinite(t->normal)))
         return false;
 
-      if (t.indices[0] >= vertices.size() ||
-          t.indices[1] >= vertices.size() ||
-          t.indices[2] >= vertices.size())
+      if (t->indices[0] >= vertices.size() ||
+          t->indices[1] >= vertices.size() ||
+          t->indices[2] >= vertices.size())
       {
         return false;
       }
@@ -380,8 +380,8 @@ size_t Mesh::getTriangleCount() const
 {
   size_t count = 0;
 
-  for (const MeshSection& section : sections)
-    count += section.triangles.size();
+  for (auto s = sections.begin();  s != sections.end();  s++)
+    count += s->triangles.size();
 
   return count;
 }
@@ -661,26 +661,26 @@ bool MeshWriter::write(const Path& path, const Mesh& mesh)
     return false;
   }
 
-  for (const MeshVertex& v : mesh.vertices)
-    stream << "v " << v.position.x << ' ' << v.position.y << ' ' << v.position.z << '\n';
+  for (auto v = mesh.vertices.begin();  v != mesh.vertices.end();  v++)
+    stream << "v " << v->position.x << ' ' << v->position.y << ' ' << v->position.z << '\n';
 
-  for (const MeshVertex& v : mesh.vertices)
-    stream << "vn " << v.normal.x << ' ' << v.normal.y << ' ' << v.normal.z << '\n';
+  for (auto v = mesh.vertices.begin();  v != mesh.vertices.end();  v++)
+    stream << "vn " << v->normal.x << ' ' << v->normal.y << ' ' << v->normal.z << '\n';
 
-  for (const MeshVertex& v : mesh.vertices)
-    stream << "vt " << v.texcoord.x << ' ' << v.texcoord.y << '\n';
+  for (auto v = mesh.vertices.begin();  v != mesh.vertices.end();  v++)
+    stream << "vt " << v->texcoord.x << ' ' << v->texcoord.y << '\n';
 
-  for (const MeshSection& section : mesh.sections)
+  for (auto s = mesh.sections.begin();  s != mesh.sections.end();  s++)
   {
-    stream << "usemtl " << section.materialName << '\n';
+    stream << "usemtl " << s->materialName << '\n';
 
-    for (const MeshTriangle& t : section.triangles)
+    for (auto t = s->triangles.begin();  t != s->triangles.end();  t++)
     {
       stream << "f";
 
       for (size_t i = 0;  i < 3;  i++)
       {
-        uint32 index = t.indices[i] + 1;
+        uint32 index = t->indices[i] + 1;
         stream << ' ' << index << '/' << index << '/' << index;
       }
 

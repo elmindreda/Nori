@@ -128,10 +128,10 @@ void ResourceCache::removeSearchPath(const Path& path)
 
 Resource* ResourceCache::findResource(const String& name) const
 {
-  for (Resource* resource : resources)
+  for (auto r = resources.begin();  r != resources.end();  r++)
   {
-    if (resource->getName() == name)
-      return resource;
+    if ((*r)->getName() == name)
+      return *r;
   }
 
   return NULL;
@@ -147,9 +147,9 @@ Path ResourceCache::findFile(const String& name) const
   }
   else
   {
-    for (const Path& path : paths)
+    for (auto p = paths.begin();  p != paths.end();  p++)
     {
-      const Path full(path + name);
+      const Path full(*p + name);
       if (full.isFile())
         return full;
     }

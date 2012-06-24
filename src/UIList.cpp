@@ -91,10 +91,10 @@ void List::createItem(const char* value, ItemID ID)
 
 Item* List::findItem(const char* value)
 {
-  for (Item* item : items)
+  for (auto i = items.begin();  i != items.end();  i++)
   {
-    if (item->asString() == value)
-      return item;
+    if ((*i)->asString() == value)
+      return *i;
   }
 
   return NULL;
@@ -102,10 +102,10 @@ Item* List::findItem(const char* value)
 
 const Item* List::findItem(const char* value) const
 {
-  for (const Item* item : items)
+  for (auto i = items.begin();  i != items.end();  i++)
   {
-    if (item->asString() == value)
-      return item;
+    if ((*i)->asString() == value)
+      return *i;
   }
 
   return NULL;
@@ -467,8 +467,8 @@ void List::updateScroller()
 
   float totalItemHeight = 0.f;
 
-  for (const Item* item : items)
-    totalItemHeight += item->getHeight();
+  for (auto i = items.begin();  i != items.end();  i++)
+    totalItemHeight += (*i)->getHeight();
 
   float visibleItemHeight = 0.f;
 

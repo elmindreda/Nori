@@ -500,12 +500,14 @@ const Technique& Material::getTechnique(Phase phase) const
 
 void Material::setSamplers(const char* name, GL::Texture* newTexture)
 {
-  for (Technique& technique : techniques)
+  for (size_t i = 0;  i < 2;  i++)
   {
-    for (Pass& pass : technique.passes)
+    PassList& passes = techniques[i].passes;
+
+    for (auto p = passes.begin();  p != passes.end();  p++)
     {
-      if (pass.hasSamplerState(name))
-        pass.setSamplerState(name, newTexture);
+      if (p->hasSamplerState(name))
+        p->setSamplerState(name, newTexture);
     }
   }
 }
