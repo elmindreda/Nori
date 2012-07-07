@@ -87,7 +87,7 @@ Path::Path(const String& initName)
 
 bool Path::createDirectory() const
 {
-#ifdef _WIN32
+#if WENDY_SYSTEM_WIN32
   return _mkdir(path.c_str()) == 0;
 #else
   return mkdir(path.c_str(), 0777) == 0;
@@ -96,7 +96,7 @@ bool Path::createDirectory() const
 
 bool Path::destroyDirectory() const
 {
-#ifdef _WIN32
+#if WENDY_SYSTEM_WIN32
   return _rmdir(path.c_str()) == 0;
 #else
   return rmdir(path.c_str()) == 0;
@@ -105,7 +105,7 @@ bool Path::destroyDirectory() const
 
 bool Path::exists() const
 {
-#ifdef _WIN32
+#if WENDY_SYSTEM_WIN32
   return _access(path.c_str(), F_OK) == 0;
 #else
   return access(path.c_str(), F_OK) == 0;
@@ -170,7 +170,7 @@ bool Path::isEmpty() const
 
 bool Path::isReadable() const
 {
-#ifdef _WIN32
+#if WENDY_SYSTEM_WIN32
   return _access(path.c_str(), R_OK) == 0;
 #else
   return access(path.c_str(), R_OK) == 0;
@@ -179,7 +179,7 @@ bool Path::isReadable() const
 
 bool Path::isWritable() const
 {
-#ifdef _WIN32
+#if WENDY_SYSTEM_WIN32
   return _access(path.c_str(), W_OK) == 0;
 #else
   return access(path.c_str(), W_OK) == 0;
@@ -188,7 +188,7 @@ bool Path::isWritable() const
 
 bool Path::isFile() const
 {
-#ifdef _WIN32
+#if WENDY_SYSTEM_WIN32
   struct _stati64 sb;
 
   if (_stati64(path.c_str(), &sb) != 0)
@@ -205,7 +205,7 @@ bool Path::isFile() const
 
 bool Path::isDirectory() const
 {
-#ifdef _WIN32
+#if WENDY_SYSTEM_WIN32
   struct _stati64 sb;
 
   if (_stati64(path.c_str(), &sb) != 0)
@@ -233,7 +233,7 @@ Path Path::getParent() const
 
 bool Path::getChildren(PathList& children) const
 {
-#if _WIN32
+#if WENDY_SYSTEM_WIN32
   WIN32_FIND_DATA data;
   HANDLE search;
 
@@ -266,7 +266,7 @@ bool Path::getChildren(PathList& children) const
 
 bool Path::getChildren(PathList& children, const Pattern& pattern) const
 {
-#if _WIN32
+#if WENDY_SYSTEM_WIN32
   WIN32_FIND_DATA data;
   HANDLE search;
 
