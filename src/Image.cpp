@@ -326,7 +326,7 @@ Ref<Image> Image::getArea(const Recti& area) const
   }
 
   const size_t rowSize = area.size.x * format.getSize();
-  Ref<Image> result = create(cache, format, area.size.x, area.size.y);
+  Ref<Image> result = create(getCache(), format, area.size.x, area.size.y);
 
   for (size_t y = 0;  y < (size_t) area.size.y;  y++)
   {
