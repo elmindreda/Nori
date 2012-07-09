@@ -84,6 +84,8 @@ void Preprocessor::parse(const char* name)
     throw Exception("Failed to open shader file");
   }
 
+  paths.push_back(path);
+
   String text;
 
   stream.seekg(0, std::ios::end);
@@ -159,6 +161,11 @@ const String& Preprocessor::getVersion() const
 const String& Preprocessor::getNameList() const
 {
   return list;
+}
+
+const PathList& Preprocessor::getPaths() const
+{
+  return paths;
 }
 
 void Preprocessor::addLine()

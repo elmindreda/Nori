@@ -43,6 +43,7 @@ public:
   const String& getOutput() const;
   const String& getVersion() const;
   const String& getNameList() const;
+  const PathList& getPaths() const;
 private:
   void addLine();
   void advance(size_t offset);
@@ -76,6 +77,7 @@ private:
   ResourceCache& cache;
   FileList files;
   NameList names;
+  PathList paths;
   String output;
   String version;
   String list;
