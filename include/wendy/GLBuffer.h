@@ -506,12 +506,7 @@ public:
    *  @remarks The index range must not already be locked.
    *  @remarks The specified index range object is copied, not referenced.
    */
-  IndexRangeLock(IndexRange& initRange):
-    range(initRange),
-    indices(NULL)
-  {
-    panic("Invalid index type");
-  }
+  IndexRangeLock(IndexRange& range);
   /*! Destructor.
    *  Releases any lock held.
    */

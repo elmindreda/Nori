@@ -1395,7 +1395,10 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     glfwOpenWindowHint(GLFW_STENCIL_BITS, cc.stencilBits);
     glfwOpenWindowHint(GLFW_FSAA_SAMPLES, cc.samples);
 
-    version = max(cc.version, Version(3,2));
+    if (cc.version > Version(3,2))
+      version = cc.version;
+    else
+      version = Version(3,2);
 
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, version.m);
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, version.n);
