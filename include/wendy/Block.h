@@ -36,6 +36,15 @@ namespace wendy
 class Block
 {
 public:
+  /*! Swaps the specified blocks.
+   */
+  friend void swap(Block& first, Block& second)
+  {
+    using std::swap;
+
+    swap(first.size, second.size);
+    swap(first.data, second.data);
+  }
   /*! Default constructor.
    *  @param size The initial size, in bytes, of this data block.
    */
@@ -56,8 +65,6 @@ public:
    *  @param newSize The new size, in bytes, of this data block.
    */
   void resize(size_t newSize);
-  void attach(uint8* newData, size_t newSize);
-  uint8* detach();
   /*! Frees the currently allocated data block.
    */
   void destroy();

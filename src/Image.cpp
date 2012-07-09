@@ -164,7 +164,8 @@ bool Image::transformTo(const PixelFormat& targetFormat, PixelTransform& transfo
 
   Block temp(width * height * depth * targetFormat.getSize());
   transform.convert(temp, targetFormat, data, format, width * height * depth);
-  data.attach(temp.detach(), temp.getSize());
+  swap(data, temp);
+
   format = targetFormat;
   return true;
 }
@@ -196,7 +197,7 @@ bool Image::crop(const Recti& area)
   width = area.size.x;
   height = area.size.y;
 
-  data.attach(temp.detach(), temp.getSize());
+  swap(data, temp);
   return true;
 }
 
@@ -217,7 +218,7 @@ void Image::flipHorizontal()
     }
   }
 
-  data.attach(temp.detach(), temp.getSize());
+  swap(data, temp);
 }
 
 void Image::flipVertical()
@@ -241,7 +242,7 @@ void Image::flipVertical()
     }
   }
 
-  data.attach(temp.detach(), temp.getSize());
+  swap(data, temp);
 }
 
 bool Image::isPOT() const

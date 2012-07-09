@@ -84,24 +84,6 @@ void Block::resize(size_t newSize)
   }
 }
 
-void Block::attach(uint8* newData, size_t newSize)
-{
-  destroy();
-
-  data = newData;
-  size = newSize;
-}
-
-uint8* Block::detach()
-{
-  uint8* detached = data;
-
-  data = NULL;
-  size = 0;
-
-  return detached;
-}
-
 void Block::destroy()
 {
   if (size > 0)
