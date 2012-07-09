@@ -208,6 +208,14 @@ template <typename T>
 class Ptr
 {
 public:
+  /*! Swaps the specified pointers.
+   */
+  friend void swap(Ptr<T>& first, Ptr<T> second)
+  {
+    using std::swap;
+
+    swap(first.object, second.object);
+  }
   /*! Default constructor.
    */
   explicit Ptr(T* initObject = NULL):
@@ -339,6 +347,14 @@ template <typename T>
 class Ref : public RefBase
 {
 public:
+  /*! Swaps the specified references.
+   */
+  friend void swap(Ref<T>& first, Ref<T> second)
+  {
+    using std::swap;
+
+    swap(first.object, second.object);
+  }
   /*! Default constructor.
    */
   Ref(T* initObject = NULL):
