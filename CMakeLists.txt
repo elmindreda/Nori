@@ -71,8 +71,6 @@ if (UNIX)
                      VERBATIM)
    
   add_custom_target(signal ALL DEPENDS ${SIGNAL_OUTPUT})
-
-  check_include_file(sys/inotify.h WENDY_HAVE_SYS_INOTIFY_H)
 endif()
 
 if (WENDY_BUILD_DOCUMENTATION)
