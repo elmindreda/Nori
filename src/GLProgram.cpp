@@ -297,7 +297,7 @@ Ref<Shader> Shader::read(Context& context,
   stream.seekg(0, std::ios::beg);
   stream.read(&text[0], text.size());
 
-  return create(ResourceInfo(cache, name), context, type, text, defines);
+  return create(ResourceInfo(cache, name, path), context, type, text, defines);
 }
 
 Shader::Shader(const ResourceInfo& info,
