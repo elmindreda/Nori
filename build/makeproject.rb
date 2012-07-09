@@ -36,6 +36,8 @@ private
 
       FileUtils.mkdir_p(path)
     end
+
+    FileUtils.ln_s("../../wendy/media/wendy", @path + '/data/')
   end
 
   def build_cmake()
@@ -49,10 +51,14 @@ set(VERSION 0.1)
 
 include(FindPkgConfig)
 
-add_subdirectory(${#{@name}_SOURCE_DIR}/../../wendy ${#{@name}_BINARY_DIR}/wendy)
+add_subdirectory(${#{@name}_SOURCE_DIR}/../wendy ${#{@name}_BINARY_DIR}/wendy)
 
 include_directories(${WENDY_INCLUDE_DIRS})
 list(APPEND #{@name}_LIBRARIES ${WENDY_LIBRARIES})
+
+if (CMAKE_COMPILER_IS_GNUCXX)
+  add_definitions(-std=c++0x)
+endif()
 
 set(#{@name}_SOURCES #{@type}.cpp)
 
@@ -79,6 +85,8 @@ EOF
 
 namespace #{@name}
 {
+
+using namespace wendy;
 
 class #{@type} : public Trackable
 {
@@ -107,12 +115,12 @@ EOF
 
 #include <cstdlib>
 
-using namespace wendy;
-
 #include "#{@type}.h"
 
 namespace #{@name}
 {
+
+using namespace wendy;
 
 #{@type}::#{@type}(void)
 {
@@ -122,15 +130,22 @@ namespace #{@name}
 {
   pool = NULL;
 
-  input::Context::destroySingleton();
+  input::Window::destroySingleton();
   GL::Context::destroySingleton();
+  AL::Context::destroySingleton();
 }
 
 bool #{@type}::init(void)
 {
   cache.addSearchPath(Path("data"));
 
-  GL::WindowConfig wc;
+  if (!AL::Context::createSingleton(cache))
+  {
+    logError("Failed to create OpenAL context");
+    return false;
+  }
+
+  GL::WindowConfig wc("#{@name.capitalize}");
   GL::ContextConfig cc;
 
   if (!GL::Context::createSingleton(cache, wc, cc))
@@ -140,11 +155,10 @@ bool #{@type}::init(void)
   }
 
   GL::Context* context = GL::Context::getSingleton();
-  context->setTitle("#{@name.capitalize}");
 
-  if (!input::Context::createSingleton(*context))
+  if (!input::Window::createSingleton(*context))
   {
-    logError("Failed to create input context");
+    logError("Failed to create input window");
     return false;
   }
 
@@ -173,11 +187,13 @@ void #{@type}::run(void)
 
 int main()
 {
-  #{@name}::#{@type} #{@type.downcase};
-  if (!#{@type.downcase}.init())
-    exit(EXIT_FAILURE);
+  wendy::Ptr<#{@name}::#{@type}> #{@type.downcase}(new #{@name}::#{@type}());
+  if (!#{@type.downcase}->init())
+    std::exit(EXIT_FAILURE);
 
-  #{@type.downcase}.run();
+  #{@type.downcase}->run();
+  #{@type.downcase} = NULL;
+
   std::exit(EXIT_SUCCESS);
 }
 
@@ -218,6 +234,7 @@ path = ARGV[2].to_s
 project = Project.new(type, name, path)
 
 project.data_paths << 'data/fonts'
+project.data_paths << 'data/sounds'
 project.data_paths << 'data/shaders'
 project.data_paths << 'data/models'
 project.data_paths << 'data/textures'
