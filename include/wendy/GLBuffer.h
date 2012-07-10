@@ -544,7 +544,7 @@ public:
   size_t getSize() const;
   virtual const PixelFormat& getFormat() const = 0;
 protected:
-  virtual void attach(int attachment, unsigned int z) = 0;
+  virtual void attach(int attachment, uint z) = 0;
   virtual void detach(int attachment) = 0;
 };
 

@@ -154,17 +154,14 @@ public:
    *  @param[in] y The y-coordinate of the area within this image to update.
    *  @param[in] z The z-coordinate of the area within this image to update.
    */
-  bool copyFrom(const wendy::Image& source,
-                uint x = 0,
-                uint y = 0,
-                uint z = 0);
+  bool copyFrom(const wendy::Image& source, uint x = 0, uint y = 0, uint z = 0);
   /*! Returns a copy the contents of this texture image.
    *  @return An image object containing the image data.
    */
   Ref<wendy::Image> getData() const;
-  unsigned int getWidth() const;
-  unsigned int getHeight() const;
-  unsigned int getDepth() const;
+  uint getWidth() const;
+  uint getHeight() const;
+  uint getDepth() const;
   /*! @return The cube face this image represents, or @c NO_CUBE_FACE if this
    *  image is not part of a cube map.
    */
@@ -175,18 +172,18 @@ public:
   Texture& getTexture() const;
 private:
   TextureImage(Texture& texture,
-               unsigned int level,
-               unsigned int width,
-               unsigned int height,
-               unsigned int depth,
+               uint level,
+               uint width,
+               uint height,
+               uint depth,
                CubeFace face = NO_CUBE_FACE);
-  void attach(int attachment, unsigned int z);
+  void attach(int attachment, uint z);
   void detach(int attachment);
   Texture& texture;
-  unsigned int level;
-  unsigned int width;
-  unsigned int height;
-  unsigned int depth;
+  uint level;
+  uint width;
+  uint height;
+  uint depth;
   CubeFace face;
 };
 
@@ -231,28 +228,28 @@ public:
   /*! @param[in] level The desired mipmap level.
    *  @return The width, in pixels, of the specified mipmap level of this texture.
    */
-  unsigned int getWidth(unsigned int level = 0) const;
+  uint getWidth(uint level = 0) const;
   /*! @param[in] level The desired mipmap level.
    *  @return The height, in pixels, of the specified mipmap level of this texture.
    */
-  unsigned int getHeight(unsigned int level = 0) const;
+  uint getHeight(uint level = 0) const;
   /*! @param[in] level The desired mipmap level.
    *  @return The depth, in pixels, of the specified mipmap level of this texture.
    */
-  unsigned int getDepth(unsigned int level = 0) const;
+  uint getDepth(uint level = 0) const;
   /*! @return The number of mipmap levels of this texture.
    */
-  unsigned int getLevelCount() const;
+  uint getLevelCount() const;
   /*! @param[in] level The desired mipmap level.
    *  @param[in] face The desired cube map face if this texture is a cubemap,
    *  or @c NO_CUBE_FACE otherwise.
    */
-  TextureImage& getImage(unsigned int level = 0, CubeFace face = NO_CUBE_FACE);
+  TextureImage& getImage(uint level = 0, CubeFace face = NO_CUBE_FACE);
   /*! @param[in] level The desired mipmap level.
    *  @param[in] face The desired cube map face if this texture is a cubemap,
    *  or @c NO_CUBE_FACE otherwise.
    */
-  const TextureImage& getImage(unsigned int level = 0, CubeFace face = NO_CUBE_FACE) const;
+  const TextureImage& getImage(uint level = 0, CubeFace face = NO_CUBE_FACE) const;
   /*! @return The sampler filter mode of this texture.
    */
   FilterMode getFilterMode() const;
@@ -302,14 +299,14 @@ private:
   Texture(const Texture& source);
   bool init(const TextureParams& params, const wendy::Image& data);
   void retrieveImages();
-  unsigned int retrieveTargetImages(unsigned int target, CubeFace face);
+  uint retrieveTargetImages(uint target, CubeFace face);
   void applyDefaults();
   Texture& operator = (const Texture& source);
   typedef std::vector<Ref<TextureImage>> ImageList;
   Context& context;
   TextureType type;
-  unsigned int textureID;
-  unsigned int levels;
+  uint textureID;
+  uint levels;
   FilterMode filterMode;
   AddressMode addressMode;
   float maxAnisotropy;
