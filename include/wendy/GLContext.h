@@ -365,8 +365,6 @@ public:
   void removeVertexBuffer(size_t size);
   void addIndexBuffer(size_t size);
   void removeIndexBuffer(size_t size);
-  void addRenderBuffer(size_t size);
-  void removeRenderBuffer(size_t size);
   void addProgram();
   void removeProgram();
   float getFrameRate() const;
@@ -375,12 +373,10 @@ public:
   uint getTextureCount() const;
   uint getVertexBufferCount() const;
   uint getIndexBufferCount() const;
-  uint getRenderBufferCount() const;
   uint getProgramCount() const;
   size_t getTotalTextureSize() const;
   size_t getTotalVertexBufferSize() const;
   size_t getTotalIndexBufferSize() const;
-  size_t getTotalRenderBufferSize() const;
 private:
   typedef std::deque<Frame> FrameQueue;
   uint frameCount;
@@ -389,12 +385,10 @@ private:
   uint textureCount;
   uint vertexBufferCount;
   uint indexBufferCount;
-  uint renderBufferCount;
   uint programCount;
   size_t textureSize;
   size_t vertexBufferSize;
   size_t indexBufferSize;
-  size_t renderBufferSize;
   Timer timer;
 };
 

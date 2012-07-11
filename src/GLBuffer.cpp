@@ -27,8 +27,8 @@
 
 #include <wendy/Bimap.h>
 
-#include <wendy/GLBuffer.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLContext.h>
 
@@ -94,52 +94,52 @@ GLenum convertToGL(VertexBuffer::Usage usage)
   panic("Invalid vertex buffer usage %u", usage);
 }
 
-GLenum convertToGL(ImageFramebuffer::Attachment attachment)
+GLenum convertToGL(TextureFramebuffer::Attachment attachment)
 {
   switch (attachment)
   {
-    case ImageFramebuffer::COLOR_BUFFER0:
+    case TextureFramebuffer::COLOR_BUFFER0:
       return GL_COLOR_ATTACHMENT0;
-    case ImageFramebuffer::COLOR_BUFFER1:
+    case TextureFramebuffer::COLOR_BUFFER1:
       return GL_COLOR_ATTACHMENT1;
-    case ImageFramebuffer::COLOR_BUFFER2:
+    case TextureFramebuffer::COLOR_BUFFER2:
       return GL_COLOR_ATTACHMENT2;
-    case ImageFramebuffer::COLOR_BUFFER3:
+    case TextureFramebuffer::COLOR_BUFFER3:
       return GL_COLOR_ATTACHMENT3;
-    case ImageFramebuffer::DEPTH_BUFFER:
+    case TextureFramebuffer::DEPTH_BUFFER:
       return GL_DEPTH_ATTACHMENT;
   }
 
-  panic("Invalid image framebuffer attachment %u", attachment);
+  panic("Invalid framebuffer attachment %u", attachment);
 }
 
-const char* asString(ImageFramebuffer::Attachment attachment)
+const char* asString(TextureFramebuffer::Attachment attachment)
 {
   switch (attachment)
   {
-    case ImageFramebuffer::COLOR_BUFFER0:
+    case TextureFramebuffer::COLOR_BUFFER0:
       return "color buffer 0";
-    case ImageFramebuffer::COLOR_BUFFER1:
+    case TextureFramebuffer::COLOR_BUFFER1:
       return "color buffer 1";
-    case ImageFramebuffer::COLOR_BUFFER2:
+    case TextureFramebuffer::COLOR_BUFFER2:
       return "color buffer 2";
-    case ImageFramebuffer::COLOR_BUFFER3:
+    case TextureFramebuffer::COLOR_BUFFER3:
       return "color buffer 3";
-    case ImageFramebuffer::DEPTH_BUFFER:
+    case TextureFramebuffer::DEPTH_BUFFER:
       return "depth buffer";
   }
 
-  panic("Invalid image framebuffer attachment %u", attachment);
+  panic("Invalid framebuffer attachment %u", attachment);
 }
 
-bool isColorAttachment(ImageFramebuffer::Attachment attachment)
+bool isColorAttachment(TextureFramebuffer::Attachment attachment)
 {
   switch (attachment)
   {
-    case ImageFramebuffer::COLOR_BUFFER0:
-    case ImageFramebuffer::COLOR_BUFFER1:
-    case ImageFramebuffer::COLOR_BUFFER2:
-    case ImageFramebuffer::COLOR_BUFFER3:
+    case TextureFramebuffer::COLOR_BUFFER0:
+    case TextureFramebuffer::COLOR_BUFFER1:
+    case TextureFramebuffer::COLOR_BUFFER2:
+    case TextureFramebuffer::COLOR_BUFFER3:
       return true;
     default:
       return false;
@@ -879,109 +879,6 @@ IndexRangeLock<uint32>::IndexRangeLock(IndexRange& initRange):
 
 ///////////////////////////////////////////////////////////////////////
 
-Image::~Image()
-{
-}
-
-size_t Image::getSize() const
-{
-  return getWidth() * getHeight() * getDepth() * getFormat().getSize();
-}
-
-///////////////////////////////////////////////////////////////////////
-
-RenderBuffer::~RenderBuffer()
-{
-  if (bufferID)
-    glDeleteRenderbuffers(1, &bufferID);
-
-  if (Stats* stats = context.getStats())
-    stats->removeRenderBuffer(getSize());
-}
-
-uint RenderBuffer::getWidth() const
-{
-  return width;
-}
-
-uint RenderBuffer::getHeight() const
-{
-  return height;
-}
-
-uint RenderBuffer::getDepth() const
-{
-  return 1;
-}
-
-const PixelFormat& RenderBuffer::getFormat() const
-{
-  return format;
-}
-
-Ref<RenderBuffer> RenderBuffer::create(Context& context,
-                                       const PixelFormat& format,
-                                       uint width,
-                                       uint height)
-{
-  Ref<RenderBuffer> buffer(new RenderBuffer(context));
-  if (!buffer->init(format, width, height))
-    return NULL;
-
-  return buffer;
-}
-
-RenderBuffer::RenderBuffer(Context& initContext):
-  context(initContext),
-  bufferID(0)
-{
-}
-
-bool RenderBuffer::init(const PixelFormat& initFormat,
-                        uint initWidth,
-                        uint initHeight)
-{
-  format = initFormat;
-  width = initWidth;
-  height = initHeight;
-
-  glGenRenderbuffers(1, &bufferID);
-  glBindRenderbuffer(GL_RENDERBUFFER, bufferID);
-  glRenderbufferStorage(GL_RENDERBUFFER,
-                        convertToGL(format.getSemantic()),
-                        width,
-                        height);
-
-  if (!checkGL("Error during creation of render buffer of format \'%s\'",
-               format.asString().c_str()))
-  {
-    return false;
-  }
-
-  if (Stats* stats = context.getStats())
-    stats->addRenderBuffer(getSize());
-
-  return true;
-}
-
-void RenderBuffer::attach(int attachment, uint z)
-{
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER,
-                            attachment,
-                            GL_RENDERBUFFER,
-                            bufferID);
-}
-
-void RenderBuffer::detach(int attachment)
-{
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER,
-                            attachment,
-                            GL_RENDERBUFFER,
-                            0);
-}
-
-///////////////////////////////////////////////////////////////////////
-
 Framebuffer::~Framebuffer()
 {
 }
@@ -1086,13 +983,13 @@ void DefaultFramebuffer::apply() const
 
 ///////////////////////////////////////////////////////////////////////
 
-ImageFramebuffer::~ImageFramebuffer()
+TextureFramebuffer::~TextureFramebuffer()
 {
   if (bufferID)
     glDeleteFramebuffers(1, &bufferID);
 }
 
-uint ImageFramebuffer::getWidth() const
+uint TextureFramebuffer::getWidth() const
 {
   uint width = 0;
 
@@ -1110,7 +1007,7 @@ uint ImageFramebuffer::getWidth() const
   return width;
 }
 
-uint ImageFramebuffer::getHeight() const
+uint TextureFramebuffer::getHeight() const
 {
   uint height = 0;
 
@@ -1128,32 +1025,32 @@ uint ImageFramebuffer::getHeight() const
   return height;
 }
 
-Image* ImageFramebuffer::getColorBuffer() const
+TextureImage* TextureFramebuffer::getColorBuffer() const
 {
   return images[COLOR_BUFFER0];
 }
 
-Image* ImageFramebuffer::getDepthBuffer() const
+TextureImage* TextureFramebuffer::getDepthBuffer() const
 {
   return images[DEPTH_BUFFER];
 }
 
-Image* ImageFramebuffer::getBuffer(Attachment attachment) const
+TextureImage* TextureFramebuffer::getBuffer(Attachment attachment) const
 {
   return images[attachment];
 }
 
-bool ImageFramebuffer::setDepthBuffer(Image* newImage)
+bool TextureFramebuffer::setDepthBuffer(TextureImage* newImage)
 {
   return setBuffer(DEPTH_BUFFER, newImage);
 }
 
-bool ImageFramebuffer::setColorBuffer(Image* newImage)
+bool TextureFramebuffer::setColorBuffer(TextureImage* newImage)
 {
   return setBuffer(COLOR_BUFFER0, newImage);
 }
 
-bool ImageFramebuffer::setBuffer(Attachment attachment, Image* newImage, uint z)
+bool TextureFramebuffer::setBuffer(Attachment attachment, TextureImage* newImage, uint z)
 {
   if (isColorAttachment(attachment))
   {
@@ -1190,22 +1087,22 @@ bool ImageFramebuffer::setBuffer(Attachment attachment, Image* newImage, uint z)
   return true;
 }
 
-ImageFramebuffer* ImageFramebuffer::create(Context& context)
+TextureFramebuffer* TextureFramebuffer::create(Context& context)
 {
-  Ptr<ImageFramebuffer> framebuffer(new ImageFramebuffer(context));
+  Ptr<TextureFramebuffer> framebuffer(new TextureFramebuffer(context));
   if (!framebuffer->init())
     return NULL;
 
   return framebuffer.detachObject();
 }
 
-ImageFramebuffer::ImageFramebuffer(Context& context):
+TextureFramebuffer::TextureFramebuffer(Context& context):
   Framebuffer(context),
   bufferID(0)
 {
 }
 
-bool ImageFramebuffer::init()
+bool TextureFramebuffer::init()
 {
   glGenFramebuffers(1, &bufferID);
 
@@ -1217,7 +1114,7 @@ bool ImageFramebuffer::init()
   return true;
 }
 
-void ImageFramebuffer::apply() const
+void TextureFramebuffer::apply() const
 {
   glBindFramebuffer(GL_FRAMEBUFFER, bufferID);
 

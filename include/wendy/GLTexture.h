@@ -43,7 +43,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-class Image;
 class Texture;
 class Context;
 
@@ -142,9 +141,10 @@ public:
 /*! @brief %Texture image object.
  *  @ingroup opengl
  */
-class TextureImage : public Image
+class TextureImage : public RefObject
 {
   friend class Texture;
+  friend class TextureFramebuffer;
 public:
   /*! Updates an area within this texture image, at the specified coordinates
    *  and with a size matching the specified image, with the contents of that
@@ -154,19 +154,21 @@ public:
    *  @param[in] y The y-coordinate of the area within this image to update.
    *  @param[in] z The z-coordinate of the area within this image to update.
    */
-  bool copyFrom(const wendy::Image& source, uint x = 0, uint y = 0, uint z = 0);
+  bool copyFrom(const Image& source, uint x = 0, uint y = 0, uint z = 0);
   /*! Returns a copy the contents of this texture image.
    *  @return An image object containing the image data.
    */
-  Ref<wendy::Image> getData() const;
+  Ref<Image> getData() const;
   uint getWidth() const;
   uint getHeight() const;
   uint getDepth() const;
+  /*! @return The size, in bytes, of the data in this image.
+   */
+  size_t getSize() const;
   /*! @return The cube face this image represents, or @c NO_CUBE_FACE if this
    *  image is not part of a cube map.
    */
   CubeFace getFace() const;
-  const PixelFormat& getFormat() const;
   /*! @return The texture containing this texture image.
    */
   Texture& getTexture() const;
@@ -290,14 +292,14 @@ public:
   static Ref<Texture> create(const ResourceInfo& info,
                              Context &context,
                              const TextureParams& params,
-                             const wendy::Image& data);
+                             const Image& data);
   static Ref<Texture> read(Context& context,
                            const TextureParams& params,
                            const String& imageName);
 private:
   Texture(const ResourceInfo& info, Context& context);
   Texture(const Texture& source);
-  bool init(const TextureParams& params, const wendy::Image& data);
+  bool init(const TextureParams& params, const Image& data);
   void retrieveImages();
   uint retrieveTargetImages(uint target, CubeFace face);
   void applyDefaults();

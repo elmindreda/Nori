@@ -152,10 +152,6 @@ void Interface::update()
                         "IBs",
                         stats->getIndexBufferCount(),
                         stats->getTotalIndexBufferSize());
-    updateCountSizeItem(ITEM_RENDERBUFFERS,
-                        "RBs",
-                        stats->getRenderBufferCount(),
-                        stats->getTotalRenderBufferSize());
   }
   else
   {

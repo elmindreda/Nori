@@ -27,8 +27,8 @@
 
 #include <wendy/Bimap.h>
 
-#include <wendy/GLBuffer.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLContext.h>
 

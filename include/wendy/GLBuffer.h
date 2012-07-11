@@ -528,74 +528,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Interface for images.
- *  @ingoup opengl
- */
-class Image : public RefObject
-{
-  friend class ImageFramebuffer;
-public:
-  virtual ~Image();
-  virtual uint getWidth() const = 0;
-  virtual uint getHeight() const = 0;
-  virtual uint getDepth() const = 0;
-  /*! @return The size, in bytes, of the data in this image.
-   */
-  size_t getSize() const;
-  virtual const PixelFormat& getFormat() const = 0;
-protected:
-  virtual void attach(int attachment, uint z) = 0;
-  virtual void detach(int attachment) = 0;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Render buffer.
- *  @ingroup opengl
- */
-class RenderBuffer : public Image
-{
-public:
-  /*! Destructor.
-   */
-  virtual ~RenderBuffer();
-  /*! @return The width, in pixels, of this render buffer.
-   */
-  uint getWidth() const;
-  /*! @return The height, in pixels, of this render buffer.
-   */
-  uint getHeight() const;
-  /*! @return The depth, in pixels, of this render buffer.
-   *  @remarks This always returns 1 (one).
-   */
-  uint getDepth() const;
-  /*! @return The pixel format of this render buffer.
-   */
-  const PixelFormat& getFormat() const;
-  /*! Creates a render buffer with the specified properties.
-   *  @param[in] format The desired pixel format.
-   *  @param[in] width The desired width.
-   *  @param[in] height The desired height.
-   *  @return The newly created render buffer, or @c NULL if an error occurred.
-   */
-  static Ref<RenderBuffer> create(Context& context,
-                                  const PixelFormat& format,
-                                  uint width,
-                                  uint height);
-private:
-  RenderBuffer(Context& context);
-  bool init(const PixelFormat& format, uint width, uint height);
-  void attach(int attachment, uint z);
-  void detach(int attachment);
-  Context& context;
-  uint bufferID;
-  uint width;
-  uint height;
-  PixelFormat format;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Framebuffer.
  *  @ingroup opengl
  *
@@ -604,7 +536,7 @@ private:
 class Framebuffer : public RefObject
 {
   friend class Context;
-  friend class ImageFramebuffer;
+  friend class TextureFramebuffer;
 public:
   /*! Destructor.
    */
@@ -678,7 +610,7 @@ private:
 /*! @brief %Framebuffer for rendering to images.
  *  @ingroup opengl
  */
-class ImageFramebuffer : public Framebuffer
+class TextureFramebuffer : public Framebuffer
 {
 public:
   /*! Framebuffer image attachment point enumeration.
@@ -704,37 +636,37 @@ public:
   };
   /*! Destructor.
    */
-  ~ImageFramebuffer();
+  ~TextureFramebuffer();
   /*! @copydoc Framebuffer::getWidth
    */
   uint getWidth() const;
   /*! @copydoc Framebuffer::getHeight
    */
   uint getHeight() const;
-  /*! @return The image attached to the ImageFramebuffer::COLOR_BUFFER0
+  /*! @return The image attached to the TextureFramebuffer::COLOR_BUFFER0
    *  attachment point, or @c NULL if no image is attached to it.
    */
-  Image* getColorBuffer() const;
-  /*! @return The image attached to the ImageFramebuffer::DEPTH_BUFFER
+  TextureImage* getColorBuffer() const;
+  /*! @return The image attached to the TextureFramebuffer::DEPTH_BUFFER
    *  attachment point, or @c NULL if no image is attached to it.
    */
-  Image* getDepthBuffer() const;
+  TextureImage* getDepthBuffer() const;
   /*! @return The image attached to the specified attachment point, or @c NULL
    *  if no image is attached to it.
    */
-  Image* getBuffer(Attachment attachment) const;
+  TextureImage* getBuffer(Attachment attachment) const;
   /*! Sets the image to use as the default color buffer for this framebuffer.
    *  @param[in] newImage The desired image, or @c NULL to detach the currently
    *  set image.
    *  @return @c true if this framebuffer is complete, or @c false otherwise.
    */
-  bool setColorBuffer(Image* newImage);
+  bool setColorBuffer(TextureImage* newImage);
   /*! sets the image to use as the depth buffer for this framebuffer.
    *  @param[in] newImage The desired image, or @c NULL to detach the currently
    *  set image.
    *  @return @c true if this framebuffer is complete, or @c false otherwise.
    */
-  bool setDepthBuffer(Image* newImage);
+  bool setDepthBuffer(TextureImage* newImage);
   /*! sets the image to use for the specified attachment point of this
    *  framebuffer.
    *  @param[in] newImage The desired image, or @c NULL to detach the currently
@@ -743,16 +675,16 @@ public:
    *  only applies to images of 3D textures.
    *  @return @c true if this framebuffer is complete, or @c false otherwise.
    */
-  bool setBuffer(Attachment attachment, Image* newImage, uint z = 0);
+  bool setBuffer(Attachment attachment, TextureImage* newImage, uint z = 0);
   /*! Creates an image framebuffer within the specified context.
    */
-  static ImageFramebuffer* create(Context& context);
+  static TextureFramebuffer* create(Context& context);
 private:
-  ImageFramebuffer(Context& context);
+  TextureFramebuffer(Context& context);
   bool init();
   void apply() const;
   uint bufferID;
-  Ref<Image> images[5];
+  Ref<TextureImage> images[5];
 };
 
 ///////////////////////////////////////////////////////////////////////

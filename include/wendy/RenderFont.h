@@ -58,8 +58,7 @@ public:
 
 /*! @brief %Font layout and rendering object.
  *
- *  This class provides layout and rendering of a single font, using data
- *  from a wendy::Font object.
+ *  This class provides layout and rendering of a single font.
  */
 class Font : public Resource
 {

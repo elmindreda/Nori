@@ -29,8 +29,8 @@
 #include <wendy/Timer.h>
 #include <wendy/Profile.h>
 
-#include <wendy/GLBuffer.h>
 #include <wendy/GLTexture.h>
+#include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
 #include <wendy/GLContext.h>
 
@@ -500,12 +500,10 @@ Stats::Stats():
   textureCount(0),
   vertexBufferCount(0),
   indexBufferCount(0),
-  renderBufferCount(0),
   programCount(0),
   textureSize(0),
   vertexBufferSize(0),
-  indexBufferSize(0),
-  renderBufferSize(0)
+  indexBufferSize(0)
 {
   frames.push_back(Frame());
 
@@ -608,18 +606,6 @@ void Stats::removeIndexBuffer(size_t size)
   indexBufferSize -= size;
 }
 
-void Stats::addRenderBuffer(size_t size)
-{
-  renderBufferCount++;
-  renderBufferSize += size;
-}
-
-void Stats::removeRenderBuffer(size_t size)
-{
-  renderBufferCount--;
-  renderBufferSize -= size;
-}
-
 void Stats::addProgram()
 {
   programCount++;
@@ -660,11 +646,6 @@ uint Stats::getIndexBufferCount() const
   return indexBufferCount;
 }
 
-uint Stats::getRenderBufferCount() const
-{
-  return renderBufferCount;
-}
-
 uint Stats::getProgramCount() const
 {
   return programCount;
@@ -683,11 +664,6 @@ size_t Stats::getTotalVertexBufferSize() const
 size_t Stats::getTotalIndexBufferSize() const
 {
   return indexBufferSize;
-}
-
-size_t Stats::getTotalRenderBufferSize() const
-{
-  return renderBufferSize;
 }
 
 ///////////////////////////////////////////////////////////////////////

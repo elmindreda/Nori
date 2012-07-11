@@ -25,9 +25,9 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
-#include <wendy/GLTexture.h>
 #include <wendy/GLContext.h>
 
 #define GLEW_STATIC
@@ -168,7 +168,7 @@ TextureParams::TextureParams(TextureType initType):
 
 ///////////////////////////////////////////////////////////////////////
 
-bool TextureImage::copyFrom(const wendy::Image& source, uint x, uint y, uint z)
+bool TextureImage::copyFrom(const Image& source, uint x, uint y, uint z)
 {
   if (source.getFormat() != texture.format)
   {
@@ -241,13 +241,13 @@ bool TextureImage::copyFrom(const wendy::Image& source, uint x, uint y, uint z)
   return true;
 }
 
-Ref<wendy::Image> TextureImage::getData() const
+Ref<Image> TextureImage::getData() const
 {
-  Ref<wendy::Image> result = wendy::Image::create(texture.getCache(),
-                                                  texture.format,
-                                                  width,
-                                                  height,
-                                                  depth);
+  Ref<Image> result = Image::create(texture.getCache(),
+                                    texture.format,
+                                    width,
+                                    height,
+                                    depth);
 
   texture.context.setCurrentTexture(&texture);
 
@@ -284,14 +284,14 @@ uint TextureImage::getDepth() const
   return depth;
 }
 
+size_t TextureImage::getSize() const
+{
+  return width * height * depth * texture.getFormat().getSize();
+}
+
 CubeFace TextureImage::getFace() const
 {
   return face;
-}
-
-const PixelFormat& TextureImage::getFormat() const
-{
-  return texture.getFormat();
 }
 
 Texture& TextureImage::getTexture() const
@@ -590,7 +590,7 @@ Context& Texture::getContext() const
 Ref<Texture> Texture::create(const ResourceInfo& info,
                              Context& context,
                              const TextureParams& params,
-                             const wendy::Image& data)
+                             const Image& data)
 {
   Ref<Texture> texture(new Texture(info, context));
   if (!texture->init(params, data))
@@ -616,7 +616,7 @@ Ref<Texture> Texture::read(Context& context,
   if (Ref<Texture> texture = cache.find<Texture>(name))
     return texture;
 
-  Ref<wendy::Image> data = wendy::Image::read(cache, imageName);
+  Ref<Image> data = Image::read(cache, imageName);
   if (!data)
   {
     logError("Failed to read image for texture \'%s\'", name.c_str());
@@ -643,7 +643,7 @@ Texture::Texture(const Texture& source):
 {
 }
 
-bool Texture::init(const TextureParams& params, const wendy::Image& data)
+bool Texture::init(const TextureParams& params, const Image& data)
 {
   format = data.getFormat();
 

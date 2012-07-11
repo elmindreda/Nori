@@ -29,6 +29,7 @@
 #include <wendy/Core.h>
 #include <wendy/Signal.h>
 
+#include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
 
 ///////////////////////////////////////////////////////////////////////
