@@ -235,7 +235,8 @@ public:
                 uint stencilBits = 0,
                 uint samples = 0,
                 Version version = Version(2,1),
-                Profile profile = PROFILE_DEFAULT);
+                Profile profile = PROFILE_DEFAULT,
+                bool debug = false);
   /*! The desired color buffer bit depth.
    */
   uint colorBits;
@@ -251,9 +252,12 @@ public:
   /*! The minimum desired OpenGL version.
    */
   Version version;
-  /*! OpenGL profile.
+  /*! The OpenGL context profile.
    */
   Profile profile;
+  /*! The OpenGL debug context flag.
+   */
+  bool debug;
 };
 
 ///////////////////////////////////////////////////////////////////////

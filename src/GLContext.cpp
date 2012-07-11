@@ -436,13 +436,15 @@ ContextConfig::ContextConfig(uint initColorBits,
                              uint initStencilBits,
                              uint initSamples,
                              Version initVersion,
-                             Profile initProfile):
+                             Profile initProfile,
+                             bool initDebug):
   colorBits(initColorBits),
   depthBits(initDepthBits),
   stencilBits(initStencilBits),
   samples(initSamples),
   version(initVersion),
-  profile(initProfile)
+  profile(initProfile),
+  debug(initDebug)
 {
 }
 
@@ -1379,12 +1381,9 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, version.m);
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, version.n);
     glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+    glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, cc.debug);
 
     glfwOpenWindowHint(GLFW_WINDOW_RESIZABLE, wc.resizable);
-
-#if WENDY_DEBUG
-    glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-#endif
 
     uint mode;
 
@@ -1424,13 +1423,11 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
       return false;
     }
 
-#if WENDY_DEBUG
-    if (GLEW_ARB_debug_output)
+    if (cc.debug && GLEW_ARB_debug_output)
     {
       glDebugMessageCallbackARB(debugCallback, NULL);
       glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
     }
-#endif
   }
 
   // All extensions are there; figure out their limits
