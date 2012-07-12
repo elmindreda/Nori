@@ -347,9 +347,6 @@ void Drawer::drawRectangle(const Rect& rectangle, const vec4& color)
   if (maxX - minX < 1.f || maxY - minY < 1.f)
     return;
 
-  maxX -= 1.f;
-  maxY -= 1.f;
-
   Vertex2fv vertices[4];
   vertices[0].position = vec2(minX, minY);
   vertices[1].position = vec2(maxX, minY);
@@ -393,9 +390,6 @@ void Drawer::fillRectangle(const Rect& rectangle, const vec4& color)
   if (maxX - minX < 1.f || maxY - minY < 1.f)
     return;
 
-  maxX -= 1.f;
-  maxY -= 1.f;
-
   Vertex2fv vertices[4];
   vertices[0].position = vec2(minX, minY);
   vertices[1].position = vec2(maxX, minY);
@@ -420,9 +414,6 @@ void Drawer::blitTexture(const Rect& area, GL::Texture& texture)
 
   if (maxX - minX < 1.f || maxY - minY < 1.f)
     return;
-
-  maxX -= 1.f;
-  maxY -= 1.f;
 
   Vertex2ft2fv vertices[4];
   vertices[0].texCoord = vec2(0.f, 0.f);
