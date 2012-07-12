@@ -49,8 +49,6 @@ cmake_minimum_required(VERSION 2.6)
 project(#{@name} C CXX)
 set(VERSION 0.1)
 
-include(FindPkgConfig)
-
 add_subdirectory(${#{@name}_SOURCE_DIR}/../wendy ${#{@name}_BINARY_DIR}/wendy)
 
 include_directories(${WENDY_INCLUDE_DIRS})
