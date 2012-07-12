@@ -128,6 +128,8 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
     return NULL;
   }
 
+  const unsigned long frequency = info->rate;
+
   SampleFormat format;
   if (info->channels == 1)
     format = SAMPLE_MONO16;
@@ -168,7 +170,7 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
                     &samples[0],
                     samples.size(),
                     format,
-                    info->rate);
+                    frequency);
 }
 
 ///////////////////////////////////////////////////////////////////////
