@@ -168,20 +168,20 @@ bool Context::init()
   device = alcOpenDevice(NULL);
   if (!device)
   {
-    logError("Failed to open OpenAL device");
+    checkALC("Failed to open OpenAL device");
     return false;
   }
 
   context = alcCreateContext((ALCdevice*) device, NULL);
   if (!context)
   {
-    logError("Failed to create OpenAL context");
+    checkALC("Failed to create OpenAL context");
     return false;
   }
 
   if (!alcMakeContextCurrent((ALCcontext*) context))
   {
-    logError("Failed to make OpenAL context current");
+    checkALC("Failed to make OpenAL context current");
     return false;
   }
 
@@ -191,6 +191,9 @@ bool Context::init()
   log("OpenAL context renderer is %s by %s",
       (const char*) alGetString(AL_RENDERER),
       (const char*) alGetString(AL_VENDOR));
+
+  log("OpenAL context uses device %s",
+      (const char*) alcGetString((ALCdevice*) device, ALC_DEVICE_SPECIFIER));
 
   return true;
 }

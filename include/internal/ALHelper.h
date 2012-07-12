@@ -44,6 +44,8 @@ namespace wendy
 
 WENDY_CHECKFORMAT(1, bool checkAL(const char* format, ...));
 
+WENDY_CHECKFORMAT(1, bool checkALC(const char* format, ...));
+
 ///////////////////////////////////////////////////////////////////////
 
   } /*namespace AL*/

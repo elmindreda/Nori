@@ -29,6 +29,7 @@
 #include <internal/ALHelper.h>
 
 #include <al.h>
+#include <alc.h>
 
 #include <cstdio>
 
@@ -44,7 +45,7 @@ namespace wendy
 namespace
 {
 
-const char* getErrorString(ALenum error)
+const char* getErrorStringAL(ALenum error)
 {
   switch (error)
   {
@@ -57,6 +58,25 @@ const char* getErrorString(ALenum error)
     case AL_INVALID_OPERATION:
       return "Invalid operation";
     case AL_OUT_OF_MEMORY:
+      return "Out of memory";
+  }
+
+  return "Unknown OpenAL error";
+}
+
+const char* getErrorStringALC(ALCenum error)
+{
+  switch (error)
+  {
+    case ALC_INVALID_DEVICE:
+      return "Invalid device";
+    case ALC_INVALID_CONTEXT:
+      return "Invalid context";
+    case ALC_INVALID_ENUM:
+      return "Invalid enum parameter";
+    case ALC_INVALID_VALUE:
+      return "Invalid enum parameter value";
+    case ALC_OUT_OF_MEMORY:
       return "Out of memory";
   }
 
@@ -87,7 +107,33 @@ bool checkAL(const char* format, ...)
     return false;
   }
 
-  logError("%s: %s", message, getErrorString(error));
+  logError("%s: %s", message, getErrorStringAL(error));
+
+  std::free(message);
+  return false;
+}
+
+bool checkALC(const char* format, ...)
+{
+  ALCenum error = alcGetError(alcGetContextsDevice(alcGetCurrentContext()));
+  if (error == ALC_NO_ERROR)
+    return true;
+
+  va_list vl;
+  char* message;
+  int result;
+
+  va_start(vl, format);
+  result = vasprintf(&message, format, vl);
+  va_end(vl);
+
+  if (result < 0)
+  {
+    logError("Error formatting error message for ALC error %u", error);
+    return false;
+  }
+
+  logError("%s: %s", message, getErrorStringALC(error));
 
   std::free(message);
   return false;
