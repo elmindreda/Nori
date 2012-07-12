@@ -46,11 +46,10 @@ public:
 class FontData
 {
 public:
-  typedef std::vector<FontGlyphData> GlyphList;
   FontData();
   FontData(const FontData& source);
   FontData& operator = (const FontData& source);
-  GlyphList glyphs;
+  std::vector<FontGlyphData> glyphs;
   int characters[256];
 };
 
@@ -102,17 +101,15 @@ private:
   const Glyph* findGlyph(uint8 character) const;
   bool getGlyphLayout(Layout& layout, uint8 character) const;
   void getGlyphLayout(Layout& layout, const Glyph& glyph, uint8 character) const;
-  typedef std::vector<Glyph> GlyphList;
-  typedef std::vector<Vertex2ft2fv> VertexList;
   Ref<GeometryPool> pool;
-  GlyphList glyphs;
+  std::vector<Glyph> glyphs;
   Glyph* characters[256];
   vec2 size;
   float ascender;
   float descender;
   UniformStateIndex colorIndex;
   Pass pass;
-  VertexList vertices;
+  std::vector<Vertex2ft2fv> vertices;
 };
 
 ///////////////////////////////////////////////////////////////////////

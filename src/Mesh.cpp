@@ -75,9 +75,8 @@ private:
   };
   struct Vertex
   {
-    typedef std::vector<VertexLayer> LayerList;
     vec3 position;
-    LayerList layers;
+    std::vector<VertexLayer> layers;
   };
   typedef std::vector<Vertex> VertexList;
   VertexList vertices;
@@ -215,8 +214,6 @@ struct FaceGroup
   FaceList faces;
   String name;
 };
-
-typedef std::vector<FaceGroup> FaceGroupList;
 
 } /*namespace*/
 
@@ -416,7 +413,7 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
   std::vector<vec2> texcoords;
   std::vector<Triplet> triplets;
 
-  FaceGroupList groups;
+  std::vector<FaceGroup> groups;
   FaceGroup* group = NULL;
 
   while (std::getline(stream, line))

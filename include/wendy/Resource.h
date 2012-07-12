@@ -97,9 +97,8 @@ public:
   Path findFile(const String& name) const;
   const PathList& getSearchPaths() const;
 private:
-  typedef std::vector<Resource*> List;
   PathList paths;
-  List resources;
+  std::vector<Resource*> resources;
 };
 
 ///////////////////////////////////////////////////////////////////////

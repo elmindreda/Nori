@@ -322,16 +322,13 @@ private:
   Program& operator = (const Program& source);
   bool isValid() const;
   String getInfoLog() const;
-  typedef std::vector<Attribute> AttributeList;
-  typedef std::vector<Sampler> SamplerList;
-  typedef std::vector<Uniform> UniformList;
   Context& context;
   Ref<Shader> vertexShader;
   Ref<Shader> fragmentShader;
   uint programID;
-  AttributeList attributes;
-  SamplerList samplers;
-  UniformList uniforms;
+  std::vector<Attribute> attributes;
+  std::vector<Sampler> samplers;
+  std::vector<Uniform> uniforms;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -380,12 +377,9 @@ public:
    */
   bool matches(const VertexFormat& format, bool verbose = false) const;
 private:
-  typedef std::vector<std::pair<String, SamplerType>> SamplerList;
-  typedef std::vector<std::pair<String, UniformType>> UniformList;
-  typedef std::vector<std::pair<String, AttributeType>> AttributeList;
-  SamplerList samplers;
-  UniformList uniforms;
-  AttributeList attributes;
+  std::vector<std::pair<String, SamplerType>> samplers;
+  std::vector<std::pair<String, UniformType>> uniforms;
+  std::vector<std::pair<String, AttributeType>> attributes;
 };
 
 ///////////////////////////////////////////////////////////////////////

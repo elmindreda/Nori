@@ -72,10 +72,9 @@ private:
                        const vec2& position,
                        input::Button button,
                        bool clicked);
-  typedef std::vector<Page*> PageList;
   Signal1<void, Book&> pageChangedSignal;
   Page* activePage;
-  PageList pages;
+  std::vector<Page*> pages;
 };
 
 ///////////////////////////////////////////////////////////////////////

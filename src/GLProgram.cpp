@@ -1210,16 +1210,14 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
       return false;
     }
 
-    const AttributeList::value_type& entry = attributes[index];
-
-    if (attribute.getType() != entry.second)
+    if (attribute.getType() != attributes[index].second)
     {
       if (verbose)
       {
         logError("Attribute \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
-                entry.first.c_str(),
+                attributes[index].first.c_str(),
                 program.getName().c_str(),
-                Attribute::getTypeName(entry.second));
+                Attribute::getTypeName(attributes[index].second));
       }
 
       return false;

@@ -66,9 +66,7 @@ namespace wendy
 namespace
 {
 
-typedef std::vector<LogConsumer*> ConsumerList;
-
-ConsumerList consumers;
+std::vector<LogConsumer*> consumers;
 
 } /*namespace*/
 

@@ -60,10 +60,6 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-typedef std::vector<MeshTriangle> MeshTriangleList;
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Triangle mesh section.
  *
  *  A section is a set of triangles plus an associated material name.
@@ -72,13 +68,9 @@ typedef std::vector<MeshTriangle> MeshTriangleList;
 class MeshSection
 {
 public:
-  MeshTriangleList triangles;
+  std::vector<MeshTriangle> triangles;
   String materialName;
 };
-
-///////////////////////////////////////////////////////////////////////
-
-typedef std::vector<MeshSection> MeshSectionList;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -130,7 +122,7 @@ public:
   typedef std::vector<MeshVertex> VertexList;
   /*! The list of sections in this mesh.
    */
-  MeshSectionList sections;
+  std::vector<MeshSection> sections;
   /*! The list of vertices in this mesh.
    */
   VertexList vertices;

@@ -113,8 +113,7 @@ public:
   size_t getSize() const;
   size_t getComponentCount() const;
 private:
-  typedef std::vector<VertexComponent> ComponentList;
-  ComponentList components;
+  std::vector<VertexComponent> components;
 };
 
 ///////////////////////////////////////////////////////////////////////

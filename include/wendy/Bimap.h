@@ -66,8 +66,7 @@ private:
     X x;
     Y y;
   };
-  typedef std::vector<Entry> EntryList;
-  EntryList entries;
+  std::vector<Entry> entries;
   Entry defaults;
 };
 

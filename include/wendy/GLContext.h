@@ -382,10 +382,9 @@ public:
   size_t getTotalVertexBufferSize() const;
   size_t getTotalIndexBufferSize() const;
 private:
-  typedef std::deque<Frame> FrameQueue;
   uint frameCount;
   float frameRate;
-  FrameQueue frames;
+  std::deque<Frame> frames;
   uint textureCount;
   uint vertexBufferCount;
   uint indexBufferCount;

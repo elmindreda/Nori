@@ -100,12 +100,10 @@ private:
     uint available;
   };
   void onContextFinish();
-  typedef std::vector<IndexBufferSlot> IndexBufferList;
-  typedef std::vector<VertexBufferSlot> VertexBufferList;
   GL::Context& context;
   size_t granularity;
-  IndexBufferList indexBufferPool;
-  VertexBufferList vertexBufferPool;
+  std::vector<IndexBufferSlot> indexBufferPool;
+  std::vector<VertexBufferSlot> vertexBufferPool;
 };
 
 ///////////////////////////////////////////////////////////////////////

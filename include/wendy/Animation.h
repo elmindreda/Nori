@@ -80,11 +80,10 @@ public:
   Time getDuration() const;
   float getLength(float tolerance = 0.5f) const;
 private:
-  typedef std::vector<KeyFrame3> KeyFrameList;
   void sortKeyFrames();
   void flipRotations();
-  KeyFrameList keyframes;
   String name;
+  std::vector<KeyFrame3> keyframes;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -106,8 +105,7 @@ public:
   AnimTrack3& getTrack(size_t index);
   const AnimTrack3& getTrack(size_t index) const;
 private:
-  typedef std::vector<AnimTrack3> TrackList;
-  TrackList tracks;
+  std::vector<AnimTrack3> tracks;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -304,7 +304,6 @@ private:
   uint retrieveTargetImages(uint target, CubeFace face);
   void applyDefaults();
   Texture& operator = (const Texture& source);
-  typedef std::vector<Ref<TextureImage>> ImageList;
   Context& context;
   TextureType type;
   uint textureID;
@@ -313,7 +312,7 @@ private:
   AddressMode addressMode;
   float maxAnisotropy;
   PixelFormat format;
-  ImageList images;
+  std::vector<Ref<TextureImage>> images;
 };
 
 ///////////////////////////////////////////////////////////////////////

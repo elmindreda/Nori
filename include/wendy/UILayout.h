@@ -55,9 +55,8 @@ protected:
   void onAreaChanged(Widget& parent);
 private:
   typedef std::pair<Widget*, float> Size;
-  typedef std::vector<Size> SizeList;
   void update();
-  SizeList sizes;
+  std::vector<Size> sizes;
   float borderSize;
   Orientation orientation;
   bool expanding;
