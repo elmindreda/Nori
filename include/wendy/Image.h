@@ -127,7 +127,7 @@ public:
                            uint width,
                            uint height = 1,
                            uint depth = 1,
-                           const void* data = NULL,
+                           const void* pixels = NULL,
                            ptrdiff_t pitch = 0);
   static Ref<Image> read(ResourceCache& cache, const String& name);
 private:
@@ -137,14 +137,14 @@ private:
             uint width,
             uint height,
             uint depth,
-            const void* data,
+            const char* pixels,
             ptrdiff_t pitch);
   Image& operator = (const Image& source);
   uint width;
   uint height;
   uint depth;
   PixelFormat format;
-  Block data;
+  std::vector<char> data;
 };
 
 ///////////////////////////////////////////////////////////////////////

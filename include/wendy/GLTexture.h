@@ -27,7 +27,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.h>
-#include <wendy/Block.h>
 #include <wendy/Rect.h>
 #include <wendy/Path.h>
 #include <wendy/Resource.h>

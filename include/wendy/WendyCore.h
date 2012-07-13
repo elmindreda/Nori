@@ -29,7 +29,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/Core.h>
-#include <wendy/Block.h>
 #include <wendy/Bimap.h>
 #include <wendy/Signal.h>
 #include <wendy/Timer.h>
