@@ -54,7 +54,6 @@
 #include <wendy/Path.h>
 #include <wendy/Resource.h>
 
-#include <wendy/Animation.h>
 #include <wendy/Image.h>
 #include <wendy/Mesh.h>
 
