@@ -14,8 +14,8 @@ set(wendy_SOURCES
     Wendy.cpp
 
     AABB.cpp Animation.cpp Block.cpp Core.cpp Frustum.cpp Image.cpp Mesh.cpp
-    OBB.cpp Pattern.cpp Path.cpp Pixel.cpp Plane.cpp Profile.cpp Random.cpp
-    Ray.cpp Rect.cpp Resource.cpp Sample.cpp Signal.cpp Sphere.cpp Timer.cpp
+    OBB.cpp Pattern.cpp Path.cpp Pixel.cpp Plane.cpp Profile.cpp Ray.cpp
+    Rect.cpp Resource.cpp Sample.cpp Signal.cpp Sphere.cpp Timer.cpp
     Transform.cpp Triangle.cpp Vertex.cpp
 
     GLBuffer.cpp GLContext.cpp GLHelper.cpp GLParser.cpp GLProgram.cpp

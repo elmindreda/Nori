@@ -36,7 +36,6 @@
 #include <wendy/Profile.h>
 
 #include <wendy/Transform.h>
-#include <wendy/Random.h>
 
 #include <wendy/AABB.h>
 #include <wendy/Segment.h>
