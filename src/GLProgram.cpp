@@ -376,9 +376,9 @@ bool Shader::init(const String& text, const ShaderDefines& defines)
       if (!infoLog.empty())
       {
         logWarning("Warning(s) compiling shader \'%s\':\n%s%s",
-                  getName().c_str(),
-                  spp.getNameList().c_str(),
-                  infoLog.c_str());
+                   getName().c_str(),
+                   spp.getNameList().c_str(),
+                   infoLog.c_str());
       }
     }
     else
@@ -388,9 +388,9 @@ bool Shader::init(const String& text, const ShaderDefines& defines)
       else
       {
         logError("Failed to compile shader \'%s\':\n%s%s",
-                getName().c_str(),
-                spp.getNameList().c_str(),
-                infoLog.c_str());
+                 getName().c_str(),
+                 spp.getNameList().c_str(),
+                 infoLog.c_str());
       }
 
       return false;
