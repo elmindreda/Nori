@@ -78,6 +78,8 @@ if (WENDY_BUILD_DOCUMENTATION)
 endif()
 
 if (WENDY_INCLUDE_OPENAL)
+  set(CMAKE_INCLUDE_PATH "C:\\Program\ Files\\OpenAL\ 1.1\ SDK\\include;C:\\Program\ Files\ (x86)\\OpenAL\ 1.1\ SDK\\include")
+  set(CMAKE_LIBRARY_PATH "C:\\Program\ Files\\OpenAL\ 1.1\ SDK\\libs\\Win32;C:\\Program\ Files\ (x86)\\OpenAL\ 1.1\ SDK\\libs\\Win32")
   find_package(OpenAL REQUIRED)
 endif()
 
