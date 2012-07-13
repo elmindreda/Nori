@@ -317,6 +317,7 @@ bool Shader::init(const String& text, const ShaderDefines& defines)
   }
   catch (Exception& e)
   {
+    logError("Failed to preprocess shader: %s", e.what());
     return false;
   }
 
