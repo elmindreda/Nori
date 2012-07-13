@@ -29,14 +29,12 @@
 #include <wendy/Config.h>
 
 #include <wendy/Core.h>
-#include <wendy/Block.h>
 #include <wendy/Bimap.h>
 #include <wendy/Signal.h>
 #include <wendy/Timer.h>
 #include <wendy/Profile.h>
 
 #include <wendy/Transform.h>
-#include <wendy/Random.h>
 
 #include <wendy/AABB.h>
 #include <wendy/Segment.h>
@@ -55,7 +53,6 @@
 #include <wendy/Path.h>
 #include <wendy/Resource.h>
 
-#include <wendy/Animation.h>
 #include <wendy/Image.h>
 #include <wendy/Mesh.h>
 

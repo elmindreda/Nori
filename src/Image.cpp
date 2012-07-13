@@ -26,7 +26,6 @@
 #include <wendy/Config.h>
 
 #include <wendy/Core.h>
-#include <wendy/Block.h>
 #include <wendy/Rect.h>
 #include <wendy/Path.h>
 #include <wendy/Pixel.h>
@@ -162,9 +161,9 @@ bool Image::transformTo(const PixelFormat& targetFormat, PixelTransform& transfo
   if (!transform.supports(targetFormat, format))
     return false;
 
-  Block temp(width * height * depth * targetFormat.getSize());
-  transform.convert(temp, targetFormat, data, format, width * height * depth);
-  swap(data, temp);
+  std::vector<char> temp(width * height * depth * targetFormat.getSize());
+  transform.convert(&temp[0], targetFormat, &data[0], format, width * height * depth);
+  std::swap(data, temp);
 
   format = targetFormat;
   return true;
@@ -185,26 +184,26 @@ bool Image::crop(const Recti& area)
   }
 
   const size_t pixelSize = format.getSize();
-  Block temp(area.size.x * area.size.y * pixelSize);
+  std::vector<char> temp(area.size.x * area.size.y * pixelSize);
 
   for (size_t y = 0;  y < (size_t) area.size.y;  y++)
   {
-    std::memcpy(temp + y * area.size.x * pixelSize,
-                data + ((y + area.position.y) * width + area.position.x) * pixelSize,
+    std::memcpy(&temp[0] + y * area.size.x * pixelSize,
+                &data[0] + ((y + area.position.y) * width + area.position.x) * pixelSize,
                 area.size.x * pixelSize);
   }
 
   width = area.size.x;
   height = area.size.y;
 
-  swap(data, temp);
+  std::swap(data, temp);
   return true;
 }
 
 void Image::flipHorizontal()
 {
   const size_t rowSize = width * format.getSize();
-  Block temp(data.getSize());
+  std::vector<char> temp(data.size());
 
   for (size_t z = 0;  z < depth;  z++)
   {
@@ -212,26 +211,26 @@ void Image::flipHorizontal()
 
     for (size_t y = 0;  y < height;  y++)
     {
-      std::memcpy(temp + sliceOffset + rowSize * (height - y - 1),
-                  data + sliceOffset + rowSize * y,
+      std::memcpy(&temp[0] + sliceOffset + rowSize * (height - y - 1),
+                  &data[0] + sliceOffset + rowSize * y,
                   rowSize);
     }
   }
 
-  swap(data, temp);
+  std::swap(data, temp);
 }
 
 void Image::flipVertical()
 {
   const size_t pixelSize = format.getSize();
-  Block temp(data.getSize());
+  std::vector<char> temp(data.size());
 
   for (size_t z = 0;  z < depth;  z++)
   {
     for (size_t y = 0;  y < height;  y++)
     {
-      const uint8* source = data + (z * height + y) * width * pixelSize;
-      uint8* target = temp + ((z * height + y + 1) * width - 1) * pixelSize;
+      const char* source = &data[0] + (z * height + y) * width * pixelSize;
+      char* target = &temp[0] + ((z * height + y + 1) * width - 1) * pixelSize;
 
       while (source < target)
       {
@@ -242,7 +241,7 @@ void Image::flipVertical()
     }
   }
 
-  swap(data, temp);
+  std::swap(data, temp);
 }
 
 bool Image::isPOT() const
@@ -272,12 +271,12 @@ uint Image::getDepth() const
 
 void* Image::getPixels()
 {
-  return data;
+  return &data[0];
 }
 
 const void* Image::getPixels() const
 {
-  return data;
+  return &data[0];
 }
 
 void* Image::getPixel(uint x, uint y, uint z)
@@ -285,7 +284,7 @@ void* Image::getPixel(uint x, uint y, uint z)
   if (x >= width || y >= height || z >= depth)
     return NULL;
 
-  return data + ((z * height + y) * width + x) * format.getSize();
+  return &data[0] + ((z * height + y) * width + x) * format.getSize();
 }
 
 const void* Image::getPixel(uint x, uint y, uint z) const
@@ -293,7 +292,7 @@ const void* Image::getPixel(uint x, uint y, uint z) const
   if (x >= width || y >= height || z >= depth)
     return NULL;
 
-  return data + ((z * height + y) * width + x) * format.getSize();
+  return &data[0] + ((z * height + y) * width + x) * format.getSize();
 }
 
 const PixelFormat& Image::getFormat() const
@@ -344,11 +343,11 @@ Ref<Image> Image::create(const ResourceInfo& info,
                          uint width,
                          uint height,
                          uint depth,
-                         const void* data,
+                         const void* pixels,
                          ptrdiff_t pitch)
 {
   Ref<Image> image(new Image(info));
-  if (!image->init(format, width, height, depth, data, pitch))
+  if (!image->init(format, width, height, depth, (const char*) pixels, pitch))
     return NULL;
 
   return image;
@@ -369,7 +368,7 @@ bool Image::init(const PixelFormat& initFormat,
                  uint initWidth,
                  uint initHeight,
                  uint initDepth,
-                 const void* initData,
+                 const char* pixels,
                  ptrdiff_t pitch)
 {
   format = initFormat;
@@ -401,15 +400,15 @@ bool Image::init(const PixelFormat& initFormat,
     depth = 1;
   }
 
-  if (initData)
+  if (pixels)
   {
     if (pitch)
     {
       const size_t pixelSize = format.getSize();
       data.resize(width * height * depth * pixelSize);
 
-      uint8* target = data;
-      const uint8* source = (const uint8*) initData;
+      char* target = &data[0];
+      const char* source = pixels;
 
       for (size_t z = 0;  z < depth;  z++)
       {
@@ -422,14 +421,10 @@ bool Image::init(const PixelFormat& initFormat,
       }
     }
     else
-      std::memcpy(data, initData, width * height * depth * format.getSize());
+      data.assign(pixels, pixels + width * height * depth * format.getSize());
   }
   else
-  {
-    const size_t size = width * height * depth * format.getSize();
-    data.resize(size);
-    std::memset(data, 0, size);
-  }
+    data.resize(width * height * depth * format.getSize(), 0);
 
   return true;
 }
