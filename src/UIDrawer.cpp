@@ -61,7 +61,7 @@ public:
   static VertexFormat format;
 };
 
-VertexFormat ElementVertex::format("2f:sizeScale 2f:offsetScale 2f:texScale");
+VertexFormat ElementVertex::format("2f:vSizeScale 2f:vOffsetScale 2f:vTexScale");
 
 const uint THEME_XML_VERSION = 3;
 

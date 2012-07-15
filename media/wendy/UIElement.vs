@@ -6,20 +6,20 @@ uniform vec2 elementSize;
 uniform vec2 texPos;
 uniform vec2 texSize;
 
-in vec2 sizeScale;
-in vec2 offsetScale;
-in vec2 texScale;
+in vec2 vSizeScale;
+in vec2 vOffsetScale;
+in vec2 vTexScale;
 
-out vec2 mapping;
+out vec2 texCoord;
 
 void main()
 {
   vec2 position = elementPos +
-                  elementSize * sizeScale +
-                  texSize * offsetScale;
+                  elementSize * vSizeScale +
+                  texSize * vOffsetScale;
 
-  mapping = texPos + texSize * texScale;
+  texCoord = texPos + texSize * vTexScale;
 
-  gl_Position = wyMVP * vec4(position, 0, 1);
+  gl_Position = wyMVP * vec4(position, 0.0, 1.0);
 }
 

@@ -255,31 +255,31 @@ String VertexFormat::asString() const
 
 ///////////////////////////////////////////////////////////////////////
 
-const VertexFormat Vertex3fv::format("3f:wyPosition");
+const VertexFormat Vertex3fv::format("3f:vPosition");
 
 ///////////////////////////////////////////////////////////////////////
 
-const VertexFormat Vertex3fn3fv::format("3f:wyNormal 3f:wyPosition");
+const VertexFormat Vertex3fn3fv::format("3f:vNormal 3f:vPosition");
 
 ///////////////////////////////////////////////////////////////////////
 
-const VertexFormat Vertex2fv::format("2f:wyPosition");
+const VertexFormat Vertex2fv::format("2f:vPosition");
 
 ///////////////////////////////////////////////////////////////////////
 
-const VertexFormat Vertex2ft2fv::format("2f:wyTexCoord 2f:wyPosition");
+const VertexFormat Vertex2ft2fv::format("2f:vTexCoord 2f:vPosition");
 
 ///////////////////////////////////////////////////////////////////////
 
-const VertexFormat Vertex2ft3fv::format("2f:wyTexCoord 3f:wyPosition");
+const VertexFormat Vertex2ft3fv::format("2f:vTexCoord 3f:vPosition");
 
 ///////////////////////////////////////////////////////////////////////
 
-const VertexFormat Vertex4fc2ft3fv::format("4f:wyColor 2f:wyTexCoord 3f:wyPosition");
+const VertexFormat Vertex4fc2ft3fv::format("4f:vColor 2f:vTexCoord 3f:vPosition");
 
 ///////////////////////////////////////////////////////////////////////
 
-const VertexFormat Vertex3fn2ft3fv::format("3f:wyNormal 2f:wyTexCoord 3f:wyPosition");
+const VertexFormat Vertex3fn2ft3fv::format("3f:vNormal 2f:vTexCoord 3f:vPosition");
 
 ///////////////////////////////////////////////////////////////////////
 

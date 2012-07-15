@@ -1,10 +1,10 @@
 
 #version 150
 
-in vec2 wyPosition;
+in vec2 vPosition;
 
 void main()
 {
-  gl_Position = wyP * vec4(wyPosition, 0.0, 1.0);
+  gl_Position = wyP * vec4(vPosition, 0.0, 1.0);
 }
 
