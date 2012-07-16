@@ -62,7 +62,7 @@ public:
   ResourceCache& getCache() const;
   const String& getName() const;
   const Path& getPath() const;
-public:
+private:
   ResourceCache& cache;
   String name;
   Path path;
