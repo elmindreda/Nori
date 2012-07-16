@@ -37,8 +37,6 @@ OpenAL
 
 Add streaming of audio files [color]
 
-Move Ogg Vorbis audio data I/O to core
-
 Make Context be a non-singleton object
 
 
