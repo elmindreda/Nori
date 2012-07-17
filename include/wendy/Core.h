@@ -96,8 +96,13 @@ typedef uint32 StringHash;
 
 /*! @brief Converts the specified value to a string.
  */
-template <typename T>
-String stringCast(const T& value);
+String stringCast(const vec2& v);
+String stringCast(const vec3& v);
+String stringCast(const vec4& v);
+String stringCast(const mat2& v);
+String stringCast(const mat3& v);
+String stringCast(const mat4& v);
+String stringCast(const quat& v);
 
 /*! @brief Converts the specified string to a vec2.
  */

@@ -72,7 +72,6 @@ std::vector<LogConsumer*> consumers;
 
 ///////////////////////////////////////////////////////////////////////
 
-template <>
 String stringCast(const vec2& v)
 {
   std::ostringstream stream;
@@ -81,7 +80,6 @@ String stringCast(const vec2& v)
   return stream.str();
 }
 
-template <>
 String stringCast(const vec3& v)
 {
   std::ostringstream stream;
@@ -90,7 +88,6 @@ String stringCast(const vec3& v)
   return stream.str();
 }
 
-template <>
 String stringCast(const vec4& v)
 {
   std::ostringstream stream;
@@ -99,7 +96,6 @@ String stringCast(const vec4& v)
   return stream.str();
 }
 
-template <>
 String stringCast(const mat2& v)
 {
   std::ostringstream stream;
@@ -110,7 +106,6 @@ String stringCast(const mat2& v)
   return stream.str();
 }
 
-template <>
 String stringCast(const mat3& v)
 {
   std::ostringstream stream;
@@ -122,7 +117,6 @@ String stringCast(const mat3& v)
   return stream.str();
 }
 
-template <>
 String stringCast(const mat4& v)
 {
   std::ostringstream stream;
@@ -135,7 +129,6 @@ String stringCast(const mat4& v)
   return stream.str();
 }
 
-template <>
 String stringCast(const quat& v)
 {
   std::ostringstream stream;
