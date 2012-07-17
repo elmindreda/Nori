@@ -64,7 +64,7 @@ Bimap<String, Phase> phaseMap;
 
 Bimap<GL::SamplerType, GL::TextureType> textureTypeMap;
 
-const uint MATERIAL_XML_VERSION = 8;
+const uint MATERIAL_XML_VERSION = 9;
 
 void initializeMaps()
 {
@@ -312,30 +312,9 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
       return false;
     }
 
-    GL::ShaderDefines defines;
-
-    for (pugi::xml_node d = node.child("define");  d;  d = d.next_sibling("define"))
-    {
-      const String defineName(d.attribute("name").value());
-      if (defineName.empty())
-      {
-        logWarning("Name missing for define");
-        continue;
-      }
-
-      String defineValue(d.attribute("value").value());
-      if (defineValue.empty())
-        defineValue = "1";
-
-      defines.push_back(std::make_pair(defineName, defineValue));
-    }
-
-    std::sort(defines.begin(), defines.end());
-
     Ref<GL::Program> program = GL::Program::read(context,
                                                  vertexShaderName,
-                                                 fragmentShaderName,
-                                                 defines);
+                                                 fragmentShaderName);
     if (!program)
     {
       logError("Failed to load program");

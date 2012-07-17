@@ -56,13 +56,6 @@ enum ShaderType
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GLSL define key/value pair set.
- *  @ingroup opengl
- */
-typedef std::vector<std::pair<String, String>> ShaderDefines;
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief GLSL shader.
  *  @ingroup opengl
  */
@@ -78,15 +71,13 @@ public:
   static Ref<Shader> create(const ResourceInfo& info,
                             Context& context,
                             ShaderType type,
-                            const String& text,
-                            const ShaderDefines& defines = ShaderDefines());
+                            const String& text);
   static Ref<Shader> read(Context& context,
                           ShaderType type,
-                          const String& textName,
-                          const ShaderDefines& defines = ShaderDefines());
+                          const String& name);
 private:
   Shader(const ResourceInfo& info, Context& context, ShaderType type);
-  bool init(const String& text, const ShaderDefines& defines);
+  bool init(const String& text);
   Context& context;
   ShaderType type;
   uint shaderID;
@@ -309,8 +300,7 @@ public:
                              Shader& fragmentShader);
   static Ref<Program> read(Context& context,
                            const String& vertexShaderName,
-                           const String& fragmentShaderName,
-                           const ShaderDefines& defines = ShaderDefines());
+                           const String& fragmentShaderName);
 private:
   Program(const ResourceInfo& info, Context& context);
   Program(const Program& source);

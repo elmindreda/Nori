@@ -200,21 +200,6 @@ GLenum convertToGL(ShaderType type)
   panic("Invalid GLSL shader type %i", type);
 }
 
-String asName(const ShaderDefines& defines)
-{
-  String name;
-
-  for (auto d = defines.begin();  d != defines.end();  d++)
-  {
-    name += " ";
-    name += d->first;
-    name += ":";
-    name += d->second;
-  }
-
-  return name;
-}
-
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
@@ -248,11 +233,10 @@ Context& Shader::getContext() const
 Ref<Shader> Shader::create(const ResourceInfo& info,
                           Context& context,
                           ShaderType type,
-                          const String& text,
-                          const ShaderDefines& defines)
+                          const String& text)
 {
   Ref<Shader> shader(new Shader(info, context, type));
-  if (!shader->init(text, defines))
+  if (!shader->init(text))
     return NULL;
 
   return shader;
@@ -260,22 +244,17 @@ Ref<Shader> Shader::create(const ResourceInfo& info,
 
 Ref<Shader> Shader::read(Context& context,
                         ShaderType type,
-                        const String& textName,
-                        const ShaderDefines& defines)
+                        const String& name)
 {
   ResourceCache& cache = context.getCache();
-
-  String name;
-  name += textName;
-  name += asName(defines);
 
   if (Ref<Shader> shader = cache.find<Shader>(name))
     return shader;
 
-  const Path path = cache.findFile(textName);
+  const Path path = cache.findFile(name);
   if (path.isEmpty())
   {
-    logError("Failed to find shader \'%s\'", textName.c_str());
+    logError("Failed to find shader \'%s\'", name.c_str());
     return NULL;
   }
 
@@ -294,7 +273,7 @@ Ref<Shader> Shader::read(Context& context,
   stream.seekg(0, std::ios::beg);
   stream.read(&text[0], text.size());
 
-  return create(ResourceInfo(cache, name, path), context, type, text, defines);
+  return create(ResourceInfo(cache, name, path), context, type, text);
 }
 
 Shader::Shader(const ResourceInfo& info,
@@ -307,7 +286,7 @@ Shader::Shader(const ResourceInfo& info,
 {
 }
 
-bool Shader::init(const String& text, const ShaderDefines& defines)
+bool Shader::init(const String& text)
 {
   Preprocessor spp(getCache());
 
@@ -327,15 +306,6 @@ bool Shader::init(const String& text, const ShaderDefines& defines)
   {
     shader += "#version ";
     shader += spp.getVersion();
-    shader += "\n";
-  }
-
-  for (auto d = defines.begin();  d != defines.end();  d++)
-  {
-    shader += "#define ";
-    shader += d->first;
-    shader += " ";
-    shader += d->second;
     shader += "\n";
   }
 
@@ -791,8 +761,7 @@ Ref<Program> Program::create(const ResourceInfo& info,
 
 Ref<Program> Program::read(Context& context,
                            const String& vertexShaderName,
-                           const String& fragmentShaderName,
-                           const ShaderDefines& defines)
+                           const String& fragmentShaderName)
 {
   ResourceCache& cache = context.getCache();
 
@@ -801,22 +770,19 @@ Ref<Program> Program::read(Context& context,
   name += vertexShaderName;
   name += " fs:";
   name += fragmentShaderName;
-  name += asName(defines);
 
   if (Ref<Program> program = cache.find<Program>(name))
     return program;
 
   Ref<Shader> vertexShader = Shader::read(context,
                                           VERTEX_SHADER,
-                                          vertexShaderName,
-                                          defines);
+                                          vertexShaderName);
   if (!vertexShader)
     return NULL;
 
   Ref<Shader> fragmentShader = Shader::read(context,
                                             FRAGMENT_SHADER,
-                                            fragmentShaderName,
-                                            defines);
+                                            fragmentShaderName);
   if (!fragmentShader)
     return NULL;
 
