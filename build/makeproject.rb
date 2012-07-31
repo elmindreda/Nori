@@ -135,7 +135,11 @@ using namespace wendy;
 
 bool #{@type}::init(void)
 {
-  cache.addSearchPath(Path("data"));
+  if (!cache.addSearchPath(Path("data")))
+  {
+    logError("Failed to locate data directory");
+    return false;
+  }
 
   if (!AL::Context::createSingleton(cache))
   {
