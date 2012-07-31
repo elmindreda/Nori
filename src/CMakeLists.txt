@@ -8,7 +8,9 @@ include_directories(${libpng_SOURCE_DIR}
                     ${pugixml_SOURCE_DIR}
                     ${PCRE_SOURCE_DIR}
                     ${GLEW_SOURCE_DIR}
-                    ${glfw_SOURCE_DIR})
+                    ${glfw_SOURCE_DIR}
+                    ${libogg_SOURCE_DIR}
+                    ${libvorbis_SOURCE_DIR})
 
 set(wendy_SOURCES
     Wendy.cpp
@@ -29,9 +31,7 @@ if (WENDY_INCLUDE_NETWORK)
 endif()
 
 if (WENDY_INCLUDE_OPENAL)
-  include_directories(${OPENAL_INCLUDE_DIR}
-                      ${libogg_SOURCE_DIR}
-                      ${libvorbis_SOURCE_DIR})
+  include_directories(${OPENAL_INCLUDE_DIR})
   list(APPEND wendy_SOURCES ALBuffer.cpp ALContext.cpp ALHelper.cpp ALSource.cpp)
 endif()
 

@@ -6,14 +6,11 @@ add_subdirectory(pugixml)
 add_subdirectory(glew)
 add_subdirectory(glfw)
 add_subdirectory(glm)
+add_subdirectory(libogg)
+add_subdirectory(libvorbis)
 
 if (WENDY_INCLUDE_NETWORK)
   add_subdirectory(enet)
-endif()
-
-if (WENDY_INCLUDE_OPENAL)
-  add_subdirectory(libogg)
-  add_subdirectory(libvorbis)
 endif()
 
 if (WENDY_INCLUDE_SQUIRREL)
