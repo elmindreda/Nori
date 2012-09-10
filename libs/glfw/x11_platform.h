@@ -42,20 +42,21 @@
 #include <GL/glx.h>
 
 // This path may need to be changed if you build GLFW using your own setup
-// We ship and use our own copy of glxext.h since GLFW uses fairly new
+// GLFW comes with its own copy of glxext.h since it uses some fairly new
 // extensions and not all operating systems come with an up-to-date version
 #include "GL/glxext.h"
 
-// With XFree86, we can use the XF86VidMode extension
+// The XF86VidMode extension provides mode setting and gamma control
 #if defined(_GLFW_HAS_XF86VIDMODE)
  #include <X11/extensions/xf86vmode.h>
 #endif
 
+// The XRandR extension provides mode setting and gamma control
 #if defined(_GLFW_HAS_XRANDR)
  #include <X11/extensions/Xrandr.h>
 #endif
 
-// Do we have support for dlopen/dlsym?
+// dlopen is used as a fallback function retrieval mechanism
 #if defined(_GLFW_HAS_DLOPEN)
  #include <dlfcn.h>
 #endif
@@ -65,7 +66,7 @@
  #include <X11/XKBlib.h>
 #endif
 
-// We support four different ways for getting addresses for GL/GLX
+// GLFW supports four different ways for getting addresses for GL/GLX
 // extension functions: glXGetProcAddress, glXGetProcAddressARB,
 // glXGetProcAddressEXT, and dlsym
 #if defined(_GLFW_HAS_GLXGETPROCADDRESSARB)
@@ -97,6 +98,10 @@
 #define _GLFW_CONVERSION_SUCCEEDED      1
 #define _GLFW_CONVERSION_FAILED         2
 
+#ifndef GLX_MESA_swap_control
+typedef int (*PFNGLXSWAPINTERVALMESAPROC)(int);
+#endif
+
 
 //========================================================================
 // GLFW platform specific types
@@ -113,26 +118,8 @@ typedef intptr_t GLFWintptr;
 //------------------------------------------------------------------------
 typedef struct _GLFWcontextGLX
 {
-    GLXFBConfigID fbconfigID;        // ID of selected GLXFBConfig
     GLXContext    context;           // OpenGL rendering context
     XVisualInfo*  visual;            // Visual for selected GLXFBConfig
-
-    // GLX extensions
-    PFNGLXSWAPINTERVALSGIPROC             SwapIntervalSGI;
-    PFNGLXSWAPINTERVALEXTPROC             SwapIntervalEXT;
-    PFNGLXGETFBCONFIGATTRIBSGIXPROC       GetFBConfigAttribSGIX;
-    PFNGLXCHOOSEFBCONFIGSGIXPROC          ChooseFBConfigSGIX;
-    PFNGLXCREATECONTEXTWITHCONFIGSGIXPROC CreateContextWithConfigSGIX;
-    PFNGLXGETVISUALFROMFBCONFIGSGIXPROC   GetVisualFromFBConfigSGIX;
-    PFNGLXCREATECONTEXTATTRIBSARBPROC     CreateContextAttribsARB;
-    GLboolean   SGIX_fbconfig;
-    GLboolean   SGI_swap_control;
-    GLboolean   EXT_swap_control;
-    GLboolean   ARB_multisample;
-    GLboolean   ARB_create_context;
-    GLboolean   ARB_create_context_profile;
-    GLboolean   ARB_create_context_robustness;
-    GLboolean   EXT_create_context_es2_profile;
 
 } _GLFWcontextGLX;
 
@@ -246,6 +233,15 @@ typedef struct _GLFWlibraryX11
         int status;
     } selection;
 
+    struct {
+        int             present;
+        int             fd;
+        int             numAxes;
+        int             numButtons;
+        float*          axis;
+        unsigned char*  button;
+    } joystick[GLFW_JOYSTICK_LAST + 1];
+
 } _GLFWlibraryX11;
 
 
@@ -257,23 +253,29 @@ typedef struct _GLFWlibraryGLX
     // Server-side GLX version
     int             majorVersion, minorVersion;
 
+    // GLX extensions
+    PFNGLXSWAPINTERVALSGIPROC             SwapIntervalSGI;
+    PFNGLXSWAPINTERVALEXTPROC             SwapIntervalEXT;
+    PFNGLXSWAPINTERVALMESAPROC            SwapIntervalMESA;
+    PFNGLXGETFBCONFIGATTRIBSGIXPROC       GetFBConfigAttribSGIX;
+    PFNGLXCHOOSEFBCONFIGSGIXPROC          ChooseFBConfigSGIX;
+    PFNGLXCREATECONTEXTWITHCONFIGSGIXPROC CreateContextWithConfigSGIX;
+    PFNGLXGETVISUALFROMFBCONFIGSGIXPROC   GetVisualFromFBConfigSGIX;
+    PFNGLXCREATECONTEXTATTRIBSARBPROC     CreateContextAttribsARB;
+    GLboolean   SGIX_fbconfig;
+    GLboolean   SGI_swap_control;
+    GLboolean   EXT_swap_control;
+    GLboolean   MESA_swap_control;
+    GLboolean   ARB_multisample;
+    GLboolean   ARB_create_context;
+    GLboolean   ARB_create_context_profile;
+    GLboolean   ARB_create_context_robustness;
+    GLboolean   EXT_create_context_es2_profile;
+
 #if defined(_GLFW_DLOPEN_LIBGL)
     void*           libGL;  // dlopen handle for libGL.so
 #endif
 } _GLFWlibraryGLX;
-
-
-//------------------------------------------------------------------------
-// Joystick information & state
-//------------------------------------------------------------------------
-GLFWGLOBAL struct {
-    int           Present;
-    int           fd;
-    int           NumAxes;
-    int           NumButtons;
-    float*        Axis;
-    unsigned char* Button;
-} _glfwJoy[GLFW_JOYSTICK_LAST + 1];
 
 
 //========================================================================
@@ -285,6 +287,16 @@ void _glfwInitTimer(void);
 
 // Gamma
 void _glfwInitGammaRamp(void);
+void _glfwTerminateGammaRamp(void);
+
+// OpenGL support
+int _glfwInitOpenGL(void);
+void _glfwTerminateOpenGL(void);
+int _glfwCreateContext(_GLFWwindow* window,
+                       const _GLFWwndconfig* wndconfig,
+                       const _GLFWfbconfig* fbconfig);
+void _glfwDestroyContext(_GLFWwindow* window);
+XVisualInfo* _glfwGetContextVisual(_GLFWwindow* window);
 
 // Fullscreen support
 int  _glfwGetClosestVideoMode(int* width, int* height, int* rate);
@@ -293,7 +305,7 @@ void _glfwSetVideoMode(int* width, int* height, int* rate);
 void _glfwRestoreVideoMode(void);
 
 // Joystick input
-void _glfwInitJoysticks(void);
+int  _glfwInitJoysticks(void);
 void _glfwTerminateJoysticks(void);
 
 // Unicode support

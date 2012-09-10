@@ -165,7 +165,7 @@ typedef struct _GLFWwindowWin32
     int       desiredRefreshRate; // Desired vertical monitor refresh rate
     GLboolean cursorCentered;
     GLboolean cursorInside;
-    int       oldMouseX, oldMouseY;
+    int       oldCursorX, oldCursorY;
 } _GLFWwindowWin32;
 
 
@@ -191,7 +191,7 @@ typedef struct _GLFWlibraryWin32
 
     // Timer data
     struct {
-        GLboolean             hasPerformanceCounter;
+        GLboolean             hasPC;
         double                resolution;
         unsigned int          t0_32;
         __int64               t0_64;
@@ -231,6 +231,12 @@ char* _glfwCreateUTF8FromWideString(const WCHAR* source);
 
 // Time
 void _glfwInitTimer(void);
+
+// OpenGL support
+int _glfwCreateContext(_GLFWwindow* window,
+                       const _GLFWwndconfig* wndconfig,
+                       const _GLFWfbconfig* fbconfig);
+void _glfwDestroyContext(_GLFWwindow* window);
 
 // Fullscreen support
 void _glfwSetVideoMode(int* width, int* height,

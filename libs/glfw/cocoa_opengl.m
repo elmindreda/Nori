@@ -29,10 +29,45 @@
 
 #include "internal.h"
 
+#include <pthread.h>
+
+
+//========================================================================
+// The per-thread current context/window pointer
+//========================================================================
+static pthread_key_t _glfwCurrentTLS;
+
 
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
+
+//========================================================================
+// Initialize OpenGL support
+//========================================================================
+
+int _glfwInitOpenGL(void)
+{
+    if (pthread_key_create(&_glfwCurrentTLS, NULL) != 0)
+    {
+        _glfwSetError(GLFW_PLATFORM_ERROR,
+                      "Cocoa/NSGL: Failed to create context TLS");
+        return GL_FALSE;
+    }
+
+    return GL_TRUE;
+}
+
+
+//========================================================================
+// Terminate OpenGL support
+//========================================================================
+
+void _glfwTerminateOpenGL(void)
+{
+    pthread_key_delete(_glfwCurrentTLS);
+}
+
 
 //========================================================================
 // Make the OpenGL context associated with the specified window current
@@ -44,6 +79,18 @@ void _glfwPlatformMakeContextCurrent(_GLFWwindow* window)
         [window->NSGL.context makeCurrentContext];
     else
         [NSOpenGLContext clearCurrentContext];
+
+    pthread_setspecific(_glfwCurrentTLS, window);
+}
+
+
+//========================================================================
+// Return the window object whose context is current
+//========================================================================
+
+_GLFWwindow* _glfwPlatformGetCurrentContext(void)
+{
+    return (_GLFWwindow*) pthread_getspecific(_glfwCurrentTLS);
 }
 
 
@@ -51,10 +98,8 @@ void _glfwPlatformMakeContextCurrent(_GLFWwindow* window)
 // Swap buffers
 //========================================================================
 
-void _glfwPlatformSwapBuffers(void)
+void _glfwPlatformSwapBuffers(_GLFWwindow* window)
 {
-    _GLFWwindow* window = _glfwLibrary.currentWindow;
-
     // ARP appears to be unnecessary, but this is future-proof
     [window->NSGL.context flushBuffer];
 }
@@ -66,7 +111,7 @@ void _glfwPlatformSwapBuffers(void)
 
 void _glfwPlatformSwapInterval(int interval)
 {
-    _GLFWwindow* window = _glfwLibrary.currentWindow;
+    _GLFWwindow* window = _glfwPlatformGetCurrentContext();
 
     GLint sync = interval;
     [window->NSGL.context setValues:&sync forParameter:NSOpenGLCPSwapInterval];
@@ -88,14 +133,14 @@ int _glfwPlatformExtensionSupported(const char* extension)
 // Get the function pointer to an OpenGL function
 //========================================================================
 
-void* _glfwPlatformGetProcAddress(const char* procname)
+GLFWglproc _glfwPlatformGetProcAddress(const char* procname)
 {
     CFStringRef symbolName = CFStringCreateWithCString(kCFAllocatorDefault,
                                                        procname,
                                                        kCFStringEncodingASCII);
 
-    void* symbol = CFBundleGetFunctionPointerForName(_glfwLibrary.NSGL.framework,
-                                                     symbolName);
+    GLFWglproc symbol = CFBundleGetFunctionPointerForName(_glfwLibrary.NSGL.framework,
+                                                          symbolName);
 
     CFRelease(symbolName);
 

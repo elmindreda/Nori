@@ -732,7 +732,7 @@ Context::~Context()
 
   if (handle)
   {
-    glfwCloseWindow(handle);
+    glfwDestroyWindow(handle);
     handle = NULL;
   }
 }
@@ -917,7 +917,7 @@ bool Context::update()
 {
   ProfileNodeCall call("GL::Context::update");
 
-  glfwSwapBuffers();
+  glfwSwapBuffers(handle);
   finishSignal();
   needsRefresh = false;
 
@@ -1366,24 +1366,24 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
   {
     const uint colorBits = min(cc.colorBits, 24u);
 
-    glfwOpenWindowHint(GLFW_RED_BITS, colorBits / 3);
-    glfwOpenWindowHint(GLFW_GREEN_BITS, colorBits / 3);
-    glfwOpenWindowHint(GLFW_BLUE_BITS, colorBits / 3);
-    glfwOpenWindowHint(GLFW_DEPTH_BITS, cc.depthBits);
-    glfwOpenWindowHint(GLFW_STENCIL_BITS, cc.stencilBits);
-    glfwOpenWindowHint(GLFW_FSAA_SAMPLES, cc.samples);
+    glfwWindowHint(GLFW_RED_BITS, colorBits / 3);
+    glfwWindowHint(GLFW_GREEN_BITS, colorBits / 3);
+    glfwWindowHint(GLFW_BLUE_BITS, colorBits / 3);
+    glfwWindowHint(GLFW_DEPTH_BITS, cc.depthBits);
+    glfwWindowHint(GLFW_STENCIL_BITS, cc.stencilBits);
+    glfwWindowHint(GLFW_FSAA_SAMPLES, cc.samples);
 
     if (cc.version > Version(3,2))
       version = cc.version;
     else
       version = Version(3,2);
 
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, version.m);
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, version.n);
-    glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-    glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, cc.debug);
+    glfwWindowHint(GLFW_OPENGL_VERSION_MAJOR, version.m);
+    glfwWindowHint(GLFW_OPENGL_VERSION_MINOR, version.n);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, cc.debug);
 
-    glfwOpenWindowHint(GLFW_WINDOW_RESIZABLE, wc.resizable);
+    glfwWindowHint(GLFW_WINDOW_RESIZABLE, wc.resizable);
 
     uint mode;
 
@@ -1392,12 +1392,14 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     else
       mode = GLFW_FULLSCREEN;
 
-    handle = glfwOpenWindow(wc.width, wc.height, mode, wc.title.c_str(), NULL);
+    handle = glfwCreateWindow(wc.width, wc.height, mode, wc.title.c_str(), NULL);
     if (!handle)
     {
       logError("Failed to create GLFW window");
       return false;
     }
+
+    glfwMakeContextCurrent(handle);
 
     version = Version(glfwGetWindowParam(handle, GLFW_OPENGL_VERSION_MAJOR),
                       glfwGetWindowParam(handle, GLFW_OPENGL_VERSION_MINOR));

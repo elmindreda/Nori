@@ -9,8 +9,8 @@ set(GLFW_VERSION "${GLFW_VERSION_MAJOR}.${GLFW_VERSION_MINOR}")
 set(GLFW_VERSION_FULL "${GLFW_VERSION}.${GLFW_VERSION_PATCH}${GLFW_VERSION_EXTRA}")
 
 set(glfw_SOURCES ${glfw_SOURCE_DIR}/GL/glfw3.h ${glfw_BINARY_DIR}/config.h
-                 internal.h error.c fullscreen.c gamma.c init.c
-                 input.c joystick.c opengl.c time.c window.c)
+                 internal.h fullscreen.c gamma.c init.c input.c joystick.c
+                 opengl.c time.c window.c)
 
 if (APPLE)
 
@@ -24,7 +24,7 @@ if (APPLE)
 
   list(APPEND glfw_SOURCES cocoa_platform.h cocoa_clipboard.m cocoa_fullscreen.m
                            cocoa_gamma.c cocoa_init.m cocoa_input.m
-                           cocoa_joystick.m cocoa_opengl.m cocoa_time.c
+                           cocoa_joystick.m cocoa_native.m cocoa_opengl.m cocoa_time.c
                            cocoa_window.m)
 
 endif()

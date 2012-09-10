@@ -36,33 +36,6 @@
 
 
 //========================================================================
-// Dynamically load libraries
-//========================================================================
-
-static void initLibraries(void)
-{
-#ifdef _GLFW_DLOPEN_LIBGL
-    int i;
-    char* libGL_names[ ] =
-    {
-        "libGL.so",
-        "libGL.so.1",
-        "/usr/lib/libGL.so",
-        "/usr/lib/libGL.so.1",
-        NULL
-    };
-
-    for (i = 0;  libGL_names[i] != NULL;  i++)
-    {
-        _glfwLibrary.GLX.libGL = dlopen(libGL_names[i], RTLD_LAZY | RTLD_GLOBAL);
-        if (_glfwLibrary.GLX.libGL)
-            break;
-    }
-#endif
-}
-
-
-//========================================================================
 // Translate an X11 key code to a GLFW key code.
 //========================================================================
 
@@ -518,7 +491,7 @@ static GLboolean initDisplay(void)
     _glfwLibrary.X11.display = XOpenDisplay(NULL);
     if (!_glfwLibrary.X11.display)
     {
-        _glfwSetError(GLFW_OPENGL_UNAVAILABLE, "X11/GLX: Failed to open X display");
+        _glfwSetError(GLFW_OPENGL_UNAVAILABLE, "X11: Failed to open X display");
         return GL_FALSE;
     }
 
@@ -552,29 +525,13 @@ static GLboolean initDisplay(void)
                              &_glfwLibrary.X11.RandR.minorVersion))
         {
             _glfwSetError(GLFW_PLATFORM_ERROR,
-                          "X11/GLX: Failed to query RandR version");
+                          "X11: Failed to query RandR version");
             return GL_FALSE;
         }
     }
 #else
     _glfwLibrary.X11.RandR.available = GL_FALSE;
 #endif /*_GLFW_HAS_XRANDR*/
-
-    // Check if GLX is supported on this display
-    if (!glXQueryExtension(_glfwLibrary.X11.display, NULL, NULL))
-    {
-        _glfwSetError(GLFW_OPENGL_UNAVAILABLE, "X11/GLX: GLX supported not found");
-        return GL_FALSE;
-    }
-
-    if (!glXQueryVersion(_glfwLibrary.X11.display,
-                         &_glfwLibrary.GLX.majorVersion,
-                         &_glfwLibrary.GLX.minorVersion))
-    {
-        _glfwSetError(GLFW_OPENGL_UNAVAILABLE,
-                      "X11/GLX: Failed to query GLX version");
-        return GL_FALSE;
-    }
 
     // Check if Xkb is supported on this display
 #if defined(_GLFW_HAS_XKB)
@@ -659,9 +616,6 @@ static Cursor createNULLCursor(void)
 
 static void terminateDisplay(void)
 {
-    if (_glfwLibrary.originalRampSize && _glfwLibrary.rampChanged)
-        _glfwPlatformSetGammaRamp(&_glfwLibrary.originalRamp);
-
     if (_glfwLibrary.X11.display)
     {
         XCloseDisplay(_glfwLibrary.X11.display);
@@ -680,19 +634,22 @@ static void terminateDisplay(void)
 
 int _glfwPlatformInit(void)
 {
+    XInitThreads();
+
     if (!initDisplay())
         return GL_FALSE;
 
     _glfwInitGammaRamp();
 
+    if (!_glfwInitOpenGL())
+        return GL_FALSE;
+
     initEWMH();
 
     _glfwLibrary.X11.cursor = createNULLCursor();
 
-    // Try to load libGL.so if necessary
-    initLibraries();
-
-    _glfwInitJoysticks();
+    if (!_glfwInitJoysticks())
+        return GL_FALSE;
 
     // Start the timer
     _glfwInitTimer();
@@ -713,18 +670,13 @@ int _glfwPlatformTerminate(void)
         _glfwLibrary.X11.cursor = (Cursor) 0;
     }
 
+    _glfwTerminateGammaRamp();
+
     terminateDisplay();
 
     _glfwTerminateJoysticks();
 
-    // Unload libGL.so if necessary
-#ifdef _GLFW_DLOPEN_LIBGL
-    if (_glfwLibrary.GLX.libGL != NULL)
-    {
-        dlclose(_glfwLibrary.GLX.libGL);
-        _glfwLibrary.GLX.libGL = NULL;
-    }
-#endif
+    _glfwTerminateOpenGL();
 
     // Free clipboard memory
     if (_glfwLibrary.X11.selection.string)

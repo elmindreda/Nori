@@ -129,7 +129,7 @@ void Target::onFocusChanged(bool activated)
 
 Window::~Window()
 {
-  glfwSetMousePosCallback(NULL);
+  glfwSetCursorPosCallback(NULL);
   glfwSetMouseButtonCallback(NULL);
   glfwSetKeyCallback(NULL);
   glfwSetCharCallback(NULL);
@@ -176,13 +176,13 @@ uint Window::getHeight() const
 ivec2 Window::getCursorPosition() const
 {
   ivec2 position;
-  glfwGetMousePos(handle, &position.x, &position.y);
+  glfwGetCursorPos(handle, &position.x, &position.y);
   return position;
 }
 
 void Window::setCursorPosition(const ivec2& newPosition)
 {
-  glfwSetMousePos(handle, newPosition.x, newPosition.y);
+  glfwSetCursorPos(handle, newPosition.x, newPosition.y);
 }
 
 Hook* Window::getHook() const
@@ -482,7 +482,7 @@ Window::Window(GL::Context& initContext):
 
   handle = glfwGetCurrentContext();
 
-  glfwSetMousePosCallback(mousePosCallback);
+  glfwSetCursorPosCallback(mousePosCallback);
   glfwSetMouseButtonCallback(mouseButtonCallback);
   glfwSetKeyCallback(keyboardCallback);
   glfwSetCharCallback(characterCallback);

@@ -31,17 +31,6 @@
 #ifndef _internal_h_
 #define _internal_h_
 
-//========================================================================
-// GLFWGLOBAL is a macro that places all global variables in the init.c
-// module (all other modules reference global variables as 'extern')
-//========================================================================
-
-#if defined(_init_c_)
- #define GLFWGLOBAL
-#else
- #define GLFWGLOBAL extern
-#endif
-
 
 //========================================================================
 // Input handling definitions
@@ -49,6 +38,17 @@
 
 // Internal key and button state/action definitions
 #define GLFW_STICK 2
+
+
+//========================================================================
+// Internal type declarations
+//========================================================================
+
+typedef struct _GLFWhints       _GLFWhints;
+typedef struct _GLFWwndconfig   _GLFWwndconfig;
+typedef struct _GLFWfbconfig    _GLFWfbconfig;
+typedef struct _GLFWwindow      _GLFWwindow;
+typedef struct _GLFWlibrary     _GLFWlibrary;
 
 
 //------------------------------------------------------------------------
@@ -75,18 +75,12 @@
  #error "No supported platform selected"
 #endif
 
-typedef struct _GLFWhints _GLFWhints;
-typedef struct _GLFWwndconfig _GLFWwndconfig;
-typedef struct _GLFWfbconfig _GLFWfbconfig;
-typedef struct _GLFWwindow _GLFWwindow;
-typedef struct _GLFWlibrary _GLFWlibrary;
-
 
 //------------------------------------------------------------------------
-// Window hints, set by glfwOpenWindowHint and consumed by glfwOpenWindow
+// Window hints, set by glfwWindowHint and consumed by glfwCreateWindow
 // A bucket of semi-random stuff lumped together for historical reasons
 // This is used only by the platform independent code and only to store
-// parameters passed to us by glfwOpenWindowHint
+// parameters passed to us by glfwWindowHint
 //------------------------------------------------------------------------
 struct _GLFWhints
 {
@@ -190,23 +184,7 @@ struct _GLFWwindow
     char      mouseButton[GLFW_MOUSE_BUTTON_LAST + 1];
     char      key[GLFW_KEY_LAST + 1];
 
-    // Framebuffer attributes
-    int       redBits;
-    int       greenBits;
-    int       blueBits;
-    int       alphaBits;
-    int       depthBits;
-    int       stencilBits;
-    int       accumRedBits;
-    int       accumGreenBits;
-    int       accumBlueBits;
-    int       accumAlphaBits;
-    int       auxBuffers;
-    GLboolean stereo;
-    int       samples;
-
     // OpenGL extensions and context attributes
-    GLboolean accelerated;     // GL_TRUE if OpenGL context is "accelerated"
     int       glMajor, glMinor, glRevision;
     GLboolean glForward, glDebug;
     int       glProfile;
@@ -227,7 +205,6 @@ struct _GLFWlibrary
     _GLFWhints    hints;
 
     _GLFWwindow*  windowListHead;
-    _GLFWwindow*  currentWindow;
     _GLFWwindow*  activeWindow;
 
     GLFWwindowsizefun    windowSizeCallback;
@@ -236,7 +213,7 @@ struct _GLFWlibrary
     GLFWwindowfocusfun   windowFocusCallback;
     GLFWwindowiconifyfun windowIconifyCallback;
     GLFWmousebuttonfun   mouseButtonCallback;
-    GLFWmouseposfun      mousePosCallback;
+    GLFWcursorposfun     cursorPosCallback;
     GLFWcursorenterfun   cursorEnterCallback;
     GLFWscrollfun        scrollCallback;
     GLFWkeyfun           keyCallback;
@@ -247,97 +224,91 @@ struct _GLFWlibrary
     int           originalRampSize;
     GLboolean     rampChanged;
 
+    GLFWvidmode*  modes;
+
     // This is defined in the current port's platform.h
     _GLFW_PLATFORM_LIBRARY_WINDOW_STATE;
     _GLFW_PLATFORM_LIBRARY_OPENGL_STATE;
 };
 
 
-//========================================================================
-// System independent global variables (GLFW internals)
-//========================================================================
-
-// Flag indicating if GLFW has been initialized
-#if defined(_init_c_)
-GLboolean _glfwInitialized = GL_FALSE;
-#else
-GLFWGLOBAL GLboolean _glfwInitialized;
-#endif
-
-GLFWGLOBAL _GLFWlibrary _glfwLibrary;
+//------------------------------------------------------------------------
+// Global state shared between compilation units of GLFW
+// These are exported from and documented in init.c
+//------------------------------------------------------------------------
+extern GLboolean _glfwInitialized;
+extern _GLFWlibrary _glfwLibrary;
 
 
 //========================================================================
-// Prototypes for platform specific implementation functions
+// Prototypes for the platform API
+// This is the interface exposed by the platform-specific code for each
+// platform and is called by the shared code of the public API
+// It mirrors the public API except it uses objects instead of handles
 //========================================================================
 
-// Init/terminate
+// Platform init and version
 int _glfwPlatformInit(void);
 int _glfwPlatformTerminate(void);
 const char* _glfwPlatformGetVersionString(void);
 
-// Input
+// Input mode support
 void _glfwPlatformEnableSystemKeys(_GLFWwindow* window);
 void _glfwPlatformDisableSystemKeys(_GLFWwindow* window);
-void _glfwPlatformSetMouseCursorPos(_GLFWwindow* window, int x, int y);
+void _glfwPlatformSetCursorPos(_GLFWwindow* window, int x, int y);
 void _glfwPlatformSetCursorMode(_GLFWwindow* window, int mode);
 
-// Fullscreen
-int  _glfwPlatformGetVideoModes(GLFWvidmode* list, int maxcount);
+// Video mode support
+GLFWvidmode* _glfwPlatformGetVideoModes(int* count);
 void _glfwPlatformGetDesktopMode(GLFWvidmode* mode);
 
-// Gamma ramp
+// Gamma ramp support
 void _glfwPlatformGetGammaRamp(GLFWgammaramp* ramp);
 void _glfwPlatformSetGammaRamp(const GLFWgammaramp* ramp);
 
-// Clipboard
+// Clipboard support
 void _glfwPlatformSetClipboardString(_GLFWwindow* window, const char* string);
 const char* _glfwPlatformGetClipboardString(_GLFWwindow* window);
 
-// Joystick
+// Joystick input
 int _glfwPlatformGetJoystickParam(int joy, int param);
-int _glfwPlatformGetJoystickPos(int joy, float* pos, int numaxes);
+int _glfwPlatformGetJoystickAxes(int joy, float* axes, int numaxes);
 int _glfwPlatformGetJoystickButtons(int joy, unsigned char* buttons, int numbuttons);
 
-// Time
+// Time input
 double _glfwPlatformGetTime(void);
 void _glfwPlatformSetTime(double time);
 
 // Window management
-int  _glfwPlatformOpenWindow(_GLFWwindow* window, const _GLFWwndconfig* wndconfig, const _GLFWfbconfig* fbconfig);
-void _glfwPlatformCloseWindow(_GLFWwindow* window);
+int  _glfwPlatformCreateWindow(_GLFWwindow* window, const _GLFWwndconfig* wndconfig, const _GLFWfbconfig* fbconfig);
+void _glfwPlatformDestroyWindow(_GLFWwindow* window);
 void _glfwPlatformSetWindowTitle(_GLFWwindow* window, const char* title);
 void _glfwPlatformSetWindowSize(_GLFWwindow* window, int width, int height);
 void _glfwPlatformSetWindowPos(_GLFWwindow* window, int x, int y);
 void _glfwPlatformIconifyWindow(_GLFWwindow* window);
 void _glfwPlatformRestoreWindow(_GLFWwindow* window);
 
-// Event management
+// Event processing
 void _glfwPlatformPollEvents(void);
 void _glfwPlatformWaitEvents(void);
 
 // OpenGL context management
 void _glfwPlatformMakeContextCurrent(_GLFWwindow* window);
-void _glfwPlatformSwapBuffers(void);
+_GLFWwindow* _glfwPlatformGetCurrentContext(void);
+void _glfwPlatformSwapBuffers(_GLFWwindow* window);
 void _glfwPlatformSwapInterval(int interval);
-void _glfwPlatformRefreshWindowParams(void);
+void _glfwPlatformRefreshWindowParams(_GLFWwindow* window);
 int  _glfwPlatformExtensionSupported(const char* extension);
-void* _glfwPlatformGetProcAddress(const char* procname);
+GLFWglproc _glfwPlatformGetProcAddress(const char* procname);
 void _glfwPlatformCopyContext(_GLFWwindow* src, _GLFWwindow* dst, unsigned long mask);
 
 
 //========================================================================
-// Prototypes for platform independent internal functions
+// Prototypes for the event API
+// This is used by the platform-specific code to notify the shared code of
+// events that can be translated into state changes and/or callback calls,
+// instead of directly calling callbacks or modifying shared state
 //========================================================================
-
-// Fullscren management (fullscreen.c)
-void _glfwSplitBPP(int bpp, int* red, int* green, int* blue);
-
-// Error handling (error.c)
-void _glfwSetError(int error, const char* description);
-
-// Window management (window.c)
-void _glfwSetDefaultWindowHints(void);
 
 // Window event notification (window.c)
 void _glfwInputWindowFocus(_GLFWwindow* window, GLboolean activated);
@@ -345,6 +316,7 @@ void _glfwInputWindowPos(_GLFWwindow* window, int x, int y);
 void _glfwInputWindowSize(_GLFWwindow* window, int width, int height);
 void _glfwInputWindowIconify(_GLFWwindow* window, int iconified);
 void _glfwInputWindowDamage(_GLFWwindow* window);
+void _glfwInputWindowCloseRequest(_GLFWwindow* window);
 
 // Input event notification (input.c)
 void _glfwInputKey(_GLFWwindow* window, int key, int action);
@@ -354,13 +326,32 @@ void _glfwInputMouseClick(_GLFWwindow* window, int button, int action);
 void _glfwInputCursorMotion(_GLFWwindow* window, int x, int y);
 void _glfwInputCursorEnter(_GLFWwindow* window, int entered);
 
+
+//========================================================================
+// Prototypes for internal utility functions
+// These functions are shared code and may be used by any part of GLFW
+// Each platform may add its own utility functions, but those may only be
+// called by the platform-specific code
+//========================================================================
+
+// Fullscren management (fullscreen.c)
+int _glfwCompareVideoModes(const GLFWvidmode* first, const GLFWvidmode* second);
+void _glfwSplitBPP(int bpp, int* red, int* green, int* blue);
+
+// Error handling (init.c)
+void _glfwSetError(int error, const char* format, ...);
+
+// Window management (window.c)
+void _glfwSetDefaultWindowHints(void);
+
 // OpenGL context helpers (opengl.c)
 int _glfwStringInExtensionString(const char* string, const GLubyte* extensions);
 const _GLFWfbconfig* _glfwChooseFBConfig(const _GLFWfbconfig* desired,
                                          const _GLFWfbconfig* alternatives,
                                          unsigned int count);
+GLboolean _glfwRefreshContextParams(void);
 GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig);
-GLboolean _glfwIsValidContext(_GLFWwindow* window, _GLFWwndconfig* wndconfig);
+GLboolean _glfwIsValidContext(_GLFWwndconfig* wndconfig);
 
 
 #endif // _internal_h_

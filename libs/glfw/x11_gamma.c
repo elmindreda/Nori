@@ -1,6 +1,6 @@
 //========================================================================
 // GLFW - An OpenGL library
-// Platform:    X11/GLX
+// Platform:    X11
 // API version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
@@ -90,6 +90,17 @@ void _glfwInitGammaRamp(void)
 }
 
 
+//========================================================================
+// Restore original gamma ramp if necessary
+//========================================================================
+
+void _glfwTerminateGammaRamp(void)
+{
+    if (_glfwLibrary.originalRampSize && _glfwLibrary.rampChanged)
+        _glfwPlatformSetGammaRamp(&_glfwLibrary.originalRamp);
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
@@ -100,6 +111,15 @@ void _glfwInitGammaRamp(void)
 
 void _glfwPlatformGetGammaRamp(GLFWgammaramp* ramp)
 {
+    // For now, don't support anything that is not GLFW_GAMMA_RAMP_SIZE
+    if (_glfwLibrary.originalRampSize != GLFW_GAMMA_RAMP_SIZE)
+    {
+        _glfwSetError(GLFW_PLATFORM_ERROR,
+                      "X11: Failed to get gamma ramp due to size "
+                      "incompatibility");
+        return;
+    }
+
     if (_glfwLibrary.X11.RandR.available &&
         !_glfwLibrary.X11.RandR.gammaBroken)
     {
@@ -142,6 +162,15 @@ void _glfwPlatformGetGammaRamp(GLFWgammaramp* ramp)
 
 void _glfwPlatformSetGammaRamp(const GLFWgammaramp* ramp)
 {
+    // For now, don't support anything that is not GLFW_GAMMA_RAMP_SIZE
+    if (_glfwLibrary.originalRampSize != GLFW_GAMMA_RAMP_SIZE)
+    {
+        _glfwSetError(GLFW_PLATFORM_ERROR,
+                      "X11: Failed to set gamma ramp due to size "
+                      "incompatibility");
+        return;
+    }
+
     if (_glfwLibrary.X11.RandR.available &&
         !_glfwLibrary.X11.RandR.gammaBroken)
     {
