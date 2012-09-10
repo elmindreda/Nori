@@ -8,8 +8,9 @@ set(GLFW_VERSION_EXTRA "")
 set(GLFW_VERSION "${GLFW_VERSION_MAJOR}.${GLFW_VERSION_MINOR}")
 set(GLFW_VERSION_FULL "${GLFW_VERSION}.${GLFW_VERSION_PATCH}${GLFW_VERSION_EXTRA}")
 
-set(glfw_SOURCES ${glfw_SOURCE_DIR}/GL/glfw3.h ${glfw_BINARY_DIR}/config.h
-                 internal.h error.c fullscreen.c gamma.c init.c
+set(glfw_HEADERS ${glfw_SOURCE_DIR}/GL/glfw3.h ${glfw_BINARY_DIR}/config.h
+                 internal.h)
+set(glfw_SOURCES error.c fullscreen.c gamma.c init.c
                  input.c joystick.c opengl.c time.c window.c)
 
 if (APPLE)
@@ -22,11 +23,16 @@ if (APPLE)
   find_library(COCOA_FRAMEWORK Cocoa)
   list(APPEND glfw_LIBRARIES ${COCOA_FRAMEWORK})
 
-  list(APPEND glfw_SOURCES cocoa_platform.h cocoa_clipboard.m cocoa_fullscreen.m
-                           cocoa_gamma.c cocoa_init.m cocoa_input.m
-                           cocoa_joystick.m cocoa_opengl.m cocoa_time.c
-                           cocoa_window.m)
+  find_library(IOKIT_FRAMEWORK IOKit)
+  list(APPEND glfw_LIBRARIES ${IOKIT_FRAMEWORK})
 
+  list(APPEND glfw_HEADERS cocoa_platform.h)
+  list(APPEND glfw_SOURCES cocoa_clipboard.m cocoa_fullscreen.m cocoa_gamma.c
+                           cocoa_init.m cocoa_input.m cocoa_joystick.m
+                           cocoa_opengl.m cocoa_time.c cocoa_window.m)
+
+  # For some reason, CMake doesn't know about .m
+  set_source_files_properties(${glfw_SOURCES} PROPERTIES LANGUAGE C)
 endif()
 
 if (UNIX AND NOT APPLE)
@@ -121,8 +127,9 @@ if (UNIX AND NOT APPLE)
     set(_GLFW_USE_LINUX_JOYSTICKS 1)
   endif()
 
-  list(APPEND glfw_SOURCES x11_platform.h x11_clipboard.c x11_fullscreen.c
-                           x11_gamma.c x11_init.c x11_input.c x11_joystick.c
+  list(APPEND glfw_HEADERS x11_platform.h)
+  list(APPEND glfw_SOURCES x11_clipboard.c x11_fullscreen.c x11_gamma.c
+                           x11_init.c x11_input.c x11_joystick.c
                            x11_keysym2unicode.c x11_opengl.c x11_time.c
                            x11_window.c)
 
@@ -139,10 +146,11 @@ if (WIN32)
   list(APPEND glfw_LIBRARIES ${OPENGL_gl_LIBRARY})
   list(APPEND glfw_LIBRARIES winmm)
 
-  list(APPEND glfw_SOURCES win32_platform.h win32_clipboard.c win32_dllmain.c
-                           win32_fullscreen.c win32_gamma.c win32_init.c
-                           win32_input.c win32_joystick.c win32_opengl.c
-                           win32_time.c win32_window.c)
+  list(APPEND glfw_HEADERS win32_platform.h)
+  list(APPEND glfw_SOURCES win32_clipboard.c win32_dllmain.c win32_fullscreen.c
+                           win32_gamma.c win32_init.c win32_input.c
+                           win32_joystick.c win32_opengl.c win32_time.c
+                           win32_window.c)
 
 endif()
 
@@ -151,7 +159,7 @@ configure_file(${glfw_SOURCE_DIR}/config.h.in
 
 include_directories(${glfw_INCLUDE_DIRS} ${glfw_BINARY_DIR})
 
-add_library(glfw STATIC ${glfw_SOURCES})
+add_library(glfw STATIC ${glfw_HEADERS} ${glfw_SOURCES})
 
 set(GLFW_INCLUDE_DIRS ${glfw_INCLUDE_DIRS} CACHE STRING "GLFW include directories")
 set(GLFW_LIBRARIES ${glfw_LIBRARIES} CACHE STRING "GLFW libraries")
