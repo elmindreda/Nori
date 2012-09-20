@@ -334,38 +334,6 @@ private:
 
 /*! @ingroup input
  */
-class MayaCamera : public Target
-{
-public:
-  MayaCamera();
-  void onKeyPressed(Key key, bool pressed);
-  void onButtonClicked(Button button, bool clicked);
-  void onCursorMoved(const ivec2& position);
-  void onScrolled(double x, double y);
-  void onFocusChanged(bool activated);
-  const Transform3& getTransform() const;
-private:
-  enum Mode
-  {
-    NONE,
-    TUMBLE,
-    TRACK,
-    DOLLY
-  };
-  void updateTransform();
-  Transform3 transform;
-  ivec2 lastPosition;
-  vec3 target;
-  float angleX;
-  float angleY;
-  float distance;
-  Mode mode;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup input
- */
 class SpectatorController
 {
 public:
