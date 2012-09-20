@@ -215,6 +215,9 @@ void Entry::onKeyPressed(Widget& widget, input::Key key, bool pressed)
       setCaretPosition(text.length(), true);
       break;
     }
+
+    default:
+      break;
   }
 }
 

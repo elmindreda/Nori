@@ -212,6 +212,9 @@ void Scroller::onKeyPressed(Widget& widget, input::Key key, bool pressed)
         setValue(maxValue, true);
         break;
       }
+
+      default:
+        break;
     }
   }
 }

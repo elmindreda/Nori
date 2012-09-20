@@ -176,7 +176,9 @@ void Slider::onKeyPressed(Widget& widget, input::Key key, bool pressed)
         break;
       case input::KEY_END:
         setValue(maxValue, true);
-       break;
+        break;
+      default:
+        break;
     }
   }
 }

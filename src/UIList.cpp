@@ -304,6 +304,9 @@ void List::onEntryKeyPressed(Widget& widget, input::Key key, bool pressed)
       cancelEditing();
       break;
     }
+
+    default:
+      break;
   }
 }
 
@@ -395,6 +398,9 @@ void List::onKeyPressed(Widget& widget, input::Key key, bool pressed)
         setSelection(items.size() - 1, true);
       break;
     }
+
+    default:
+      break;
   }
 }
 

@@ -144,6 +144,9 @@ void Button::onKeyPressed(Widget& widget, input::Key key, bool pressed)
 
       break;
     }
+
+    default:
+      break;
   }
 }
 

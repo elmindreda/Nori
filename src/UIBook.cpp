@@ -221,6 +221,9 @@ void Book::onKeyPressed(Widget& widgeth, input::Key key, bool pressed)
         setActivePage(*(--p), true);
       break;
     }
+
+    default:
+      break;
   }
 }
 

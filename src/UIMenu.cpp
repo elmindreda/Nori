@@ -344,6 +344,9 @@ void Menu::onKeyPressed(Widget& widget, input::Key key, bool pressed)
       hide();
       break;
     }
+
+    default:
+      break;
   }
 }
 

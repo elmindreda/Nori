@@ -213,6 +213,9 @@ void Popup::onKeyPressed(Widget& widget, input::Key key, bool pressed)
       display();
       break;
     }
+
+    default:
+      break;
   }
 }
 

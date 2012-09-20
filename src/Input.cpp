@@ -686,6 +686,9 @@ void SpectatorController::inputKeyPress(Key key, bool pressed)
         turbo = false;
       break;
     }
+
+    default:
+      break;
   }
 }
 
@@ -876,6 +879,9 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
       break;
     }
+
+    default:
+      break;
   }
 }
 
