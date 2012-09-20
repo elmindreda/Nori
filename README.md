@@ -19,7 +19,8 @@ License and copyright
 ---------------------
 
 Copyright (c) Camilla Löwy Berglund <elmindreda@elmindreda.org>
-Copyright (c) Tapio Vierros <tapiovierros@gmail.com>
+
+Some parts copyright (c) Tapio Vierros <tapiovierros@gmail.com>
 
 Wendy is licensed under the
 [zlib/libpng license](http://opensource.org/licenses/Zlib), which can be found
