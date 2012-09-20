@@ -12,6 +12,10 @@ Unlike most of my projects, I write Wendy primarily for own use, so while other
 people may find it useful, it comes with no support and far too little
 documentation.
 
+If you like Wendy and would like to use it for your game, you should instead
+most likely use [gameplay](http://www.gameplay3d.org/), which is eerily similar,
+more complete _and_ actually supported.
+
 Wendy currently lives on [GitHub](https://github.com/elmindreda/Wendy).
 
 
