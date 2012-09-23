@@ -52,6 +52,8 @@ namespace wendy
 class Camera : public RefObject
 {
 public:
+  /*! Projection mode enumeration.
+   */
   enum Mode
   {
     ORTHOGRAPHIC,
@@ -60,11 +62,27 @@ public:
   /*! Constructor.
    */
   Camera();
+  /*! @return @c true if this camera uses orthographic projection, or @c false
+   *  otherwise.
+   */
   bool isOrtho() const;
+  /*! @return @c true if this camera uses perspective projection, or @c false
+   *  otherwise.
+   */
   bool isPerspective() const;
+  /*! @return The projection mode used by this camera.
+   */
   Mode getMode() const;
+  /*! Sets the projection mode of this camera.
+   *  @param[in] newMode The projection mode to use.
+   */
   void setMode(Mode newMode);
+  /*! @return The volume used by orthographic projection.
+   */
   const AABB& getOrthoVolume() const;
+  /*! Sets the volume used by orthographic projection.
+   *  @param[in] newVolume The volume to use.
+   */
   void setOrthoVolume(const AABB& newVolume);
   /*! @return The field of view, in degrees, of this camera.
    */
