@@ -6,94 +6,74 @@ Global
 Core
 ====
 
-Add file change notifications [color]
-Add explicit resource hierarchy [color]
-Add automatic resource reloading [color]
+Add file change notifications [Pod]
+Add explicit resource hierarchy [Pod]
+Add automatic resource reloading [Pod]
 
-Add binary I/O helpers
+Replace std::string with UTF-8 string class (possibly using utf8) [Pod]
 
-Add OBB3 implementation
+Add kerning calculations at font load time [Pod]
+Add unknown character glyph [Pod]
 
-Replace std::string with UTF-8 string class (possibly using utf8) [color]
-Add conversion facility UTF-8 <-> ASCII, Latin 1, UTF-16 and UTF-32 [color]
+Replace Mesh with more flexible, DoD-friendly structures [opt]
+Add binary mesh format (possibly using OpenCTM) [opt]
 
-Add kerning calculations at font load time [color]
-Add unknown character glyph [color]
-
-Replace Mesh with more flexible, DoD-friendly structures
-Add binary mesh format (possibly using OpenCTM)
-
-Add resource layers or master resource stack
+Add resource layers or master resource stack [Pod]
 
 Add functors to signal module
 
-Add console module from Pod [color]
+Add console module from Pod [Pod]
 
-Make frustum-AABB intersection test less conservative [color]
+Make frustum-AABB intersection test less conservative [Pod]
 
 
 OpenAL
 ======
 
-Add streaming of audio files [color]
-
-Make Context be a non-singleton object
+Add streaming of audio files [pod]
 
 
 OpenGL
 ======
 
-Separate formats from vertex and index buffer
-Add binding objects connecting geometry buffers with programs and formats
-Remove last string compares in render code
-Add ARB_vertex_array_object code path, if possible
+Separate formats from vertex and index buffer [Pod]
+Add binding objects connecting a VAO with a program using a vertex format [Mac]
+Remove last string compares in render code [opt]
 
-Add value cache to Uniform and Sampler
-
-Make Context be a non-singleton object
+Add value cache to Uniform and Sampler [opt]
 
 
 Renderer
 ========
 
-Make Renderable interface more better (cannot currently be RefObject)
+Move font texture from sampler2D to samplerRECT [opt]
+Stop rendering whitespace "glyphs" [opt]
 
-Move font texture from sampler2D to samplerRECT
-Stop rendering whitespace "glyphs"
+Add procedural generation of texture contents using fragment shader [Pod]
 
-Add procedural generation of texture contents using fragment shader [color]
+Add simple, distance-based DLOD to Model [Pod]
 
-Add simple, distance-based DLOD to Model [color]
+Reduce use of Ref:s during enqueue and render [opt]
 
-Reduce use of Ref:s during enqueue and render
-
-Add explicit Z-prepass technique type or re-use shadow mapping type
-Add optional Z-prepass to forward renderer
-
-Add names to material techniques and passes
-Add material file inheritance (i.e. partial overrides)
-
-Add surface shaders
-Add forward renderer lighting system
+Add surface shaders [Pod]
+Add forward renderer lighting system [Pod]
 
 
 Scene
 =====
 
-Add connection between animation track and scene node
+Add list of non-culled renderables to Scene [Pod]
 
-Add list of non-culled renderables to Scene
+Replace node class hierarchy with single node class [opt]
 
-Replace node class hierarchy with single node class
-
-Add root nodes with ivec3 coordinates scaled by per-scene vec3
+Add root nodes with ivec3 coordinates scaled by per-scene vec3 [Pod]
 
 
 Squirrel
 ========
 
 Add parameter checking
-Add collection iteration
+Add collection iteration [Pod]
 
 
 Input
@@ -106,28 +86,27 @@ Make TextController capable of supporting Entry widget
 UI
 ==
 
-Add check button widget [color]
-Add radio button widget
-Add color picker widget [color]
+Add check button widget [Pod]
+Add color picker widget [Pod]
 
-Add tooltip system [color]
+Add tooltip system [Pod]
 
 
 Bullet
 ======
 
-Add debug drawer [color]
+Add debug drawer [Pod]
 
 
 Debug
 =====
 
-Add graphs to stats items [color]
-Add drawing of profiling graph [color]
+Add graphs to stats items [Pod]
+Add drawing of profiling graph [Pod]
 
 
 Tools
 =====
 
-Add resource dependency checker [color]
+Add resource dependency checker [Pod]
 
