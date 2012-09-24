@@ -4,13 +4,11 @@ Wendy library
 Introduction
 ------------
 
-Wendy is a "game engine".  More specifically, it's a static C++ library intended
-to be useful for the production of small games.  It is written and maintained by
-me, elmindreda, to serve as a basis for the games I write.
+Wendy is a small and still incomplete game engine written for my own use.
 
 Unlike most of my projects, I write Wendy primarily for own use, so while other
 people may find it useful, it comes with no support and far too little
-documentation.
+documentation.  Its API may also change at any time.
 
 If you like Wendy and would like to use it for your game, you should instead
 most likely use [gameplay](http://www.gameplay3d.org/), which is eerily similar,
