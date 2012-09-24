@@ -678,7 +678,7 @@ public:
   bool setBuffer(Attachment attachment, TextureImage* newImage, uint z = 0);
   /*! Creates an image framebuffer within the specified context.
    */
-  static TextureFramebuffer* create(Context& context);
+  static Ref<TextureFramebuffer> create(Context& context);
 private:
   TextureFramebuffer(Context& context);
   bool init();

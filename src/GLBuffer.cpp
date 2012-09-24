@@ -1087,13 +1087,13 @@ bool TextureFramebuffer::setBuffer(Attachment attachment, TextureImage* newImage
   return true;
 }
 
-TextureFramebuffer* TextureFramebuffer::create(Context& context)
+Ref<TextureFramebuffer> TextureFramebuffer::create(Context& context)
 {
-  Ptr<TextureFramebuffer> framebuffer(new TextureFramebuffer(context));
+  Ref<TextureFramebuffer> framebuffer(new TextureFramebuffer(context));
   if (!framebuffer->init())
     return NULL;
 
-  return framebuffer.detachObject();
+  return framebuffer;
 }
 
 TextureFramebuffer::TextureFramebuffer(Context& context):
