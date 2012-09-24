@@ -28,6 +28,11 @@
 #include <wendy/Core.h>
 #include <wendy/Timer.h>
 #include <wendy/Profile.h>
+#include <wendy/Transform.h>
+#include <wendy/AABB.h>
+#include <wendy/Plane.h>
+#include <wendy/Frustum.h>
+#include <wendy/Camera.h>
 
 #include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
@@ -36,7 +41,6 @@
 
 #include <wendy/RenderPool.h>
 #include <wendy/RenderState.h>
-#include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderScene.h>
@@ -247,7 +251,7 @@ void Node::update()
     (*c)->update();
 }
 
-void Node::enqueue(render::Scene& scene, const render::Camera& camera) const
+void Node::enqueue(render::Scene& scene, const Camera& camera) const
 {
   const Frustum& frustum = camera.getFrustum();
 
@@ -320,7 +324,7 @@ void Graph::update()
     (*n)->update();
 }
 
-void Graph::enqueue(render::Scene& scene, const render::Camera& camera) const
+void Graph::enqueue(render::Scene& scene, const Camera& camera) const
 {
   ProfileNodeCall call("scene::Graph::enqueue");
 
@@ -423,7 +427,7 @@ void LightNode::update()
     setLocalBounds(Sphere());
 }
 
-void LightNode::enqueue(render::Scene& scene, const render::Camera& camera) const
+void LightNode::enqueue(render::Scene& scene, const Camera& camera) const
 {
   Node::enqueue(scene, camera);
 
@@ -463,7 +467,7 @@ void ModelNode::setModel(render::Model* newModel)
     setLocalBounds(Sphere());
 }
 
-void ModelNode::enqueue(render::Scene& scene, const render::Camera& camera) const
+void ModelNode::enqueue(render::Scene& scene, const Camera& camera) const
 {
   Node::enqueue(scene, camera);
 
@@ -483,12 +487,12 @@ CameraNode::CameraNode():
 {
 }
 
-render::Camera* CameraNode::getCamera() const
+Camera* CameraNode::getCamera() const
 {
   return camera;
 }
 
-void CameraNode::setCamera(render::Camera* newCamera)
+void CameraNode::setCamera(Camera* newCamera)
 {
   camera = newCamera;
 }

@@ -28,10 +28,14 @@
 #include <wendy/Core.h>
 #include <wendy/Timer.h>
 #include <wendy/Profile.h>
+#include <wendy/Transform.h>
+#include <wendy/AABB.h>
+#include <wendy/Plane.h>
+#include <wendy/Frustum.h>
+#include <wendy/Camera.h>
 
 #include <wendy/RenderPool.h>
 #include <wendy/RenderState.h>
-#include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderScene.h>
@@ -55,7 +59,7 @@ Config::Config(render::GeometryPool& initPool):
 
 ///////////////////////////////////////////////////////////////////////
 
-void Renderer::render(const render::Scene& scene, const render::Camera& camera)
+void Renderer::render(const render::Scene& scene, const Camera& camera)
 {
   ProfileNodeCall call("forward::Renderer::render");
 

@@ -120,7 +120,7 @@ protected:
    *  specified render queue.
    *  @param[in,out] queue The render queue for collecting operations.
    */
-  virtual void enqueue(render::Scene& scene, const render::Camera& camera) const;
+  virtual void enqueue(render::Scene& scene, const Camera& camera) const;
 private:
   Node(const Node& source);
   Node& operator = (const Node& source);
@@ -153,7 +153,7 @@ class Graph
 public:
   ~Graph();
   void update();
-  void enqueue(render::Scene& scene, const render::Camera& camera) const;
+  void enqueue(render::Scene& scene, const Camera& camera) const;
   void query(const Sphere& sphere, Node::List& nodes) const;
   void query(const Frustum& frustum, Node::List& nodes) const;
   void addRootNode(Node& node);
@@ -176,7 +176,7 @@ public:
   void setLight(render::Light* newLight);
 protected:
   void update();
-  void enqueue(render::Scene& scene, const render::Camera& camera) const;
+  void enqueue(render::Scene& scene, const Camera& camera) const;
 private:
   Ref<render::Light> light;
 };
@@ -194,7 +194,7 @@ public:
   render::Model* getModel() const;
   void setModel(render::Model* newModel);
 protected:
-  void enqueue(render::Scene& scene, const render::Camera& camera) const;
+  void enqueue(render::Scene& scene, const Camera& camera) const;
 private:
   Ref<render::Model> model;
   bool shadowCaster;
@@ -208,12 +208,12 @@ class CameraNode : public Node
 {
 public:
   CameraNode();
-  render::Camera* getCamera() const;
-  void setCamera(render::Camera* newCamera);
+  Camera* getCamera() const;
+  void setCamera(Camera* newCamera);
 protected:
   void update();
 private:
-  Ref<render::Camera> camera;
+  Ref<Camera> camera;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy default renderer
+// Wendy core library
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,32 +22,20 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_RENDERCAMERA_H
-#define WENDY_RENDERCAMERA_H
-///////////////////////////////////////////////////////////////////////
-
-#include <wendy/Core.h>
-#include <wendy/Transform.h>
-#include <wendy/Ray.h>
-#include <wendy/Plane.h>
-#include <wendy/AABB.h>
-#include <wendy/Frustum.h>
-
+#ifndef WENDY_CAMERA_H
+#define WENDY_CAMERA_H
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace render
-  {
+
+///////////////////////////////////////////////////////////////////////
+
+class Ray3;
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Basic 3D camera.
- *  @ingroup renderer
- *
- *  This class is most often used together with the scene graph, but can
- *  also be used standalone if you wish to render without using a scene
- *  graph but still wish to model a movable camera.
  */
 class Camera : public RefObject
 {
@@ -170,9 +158,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_RENDERCAMERA_H*/
+#endif /*WENDY_CAMERA_H*/
 ///////////////////////////////////////////////////////////////////////

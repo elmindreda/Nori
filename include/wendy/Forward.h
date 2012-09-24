@@ -78,7 +78,7 @@ public:
   /*! Renders the specified scene to the current framebuffer using the
    *  specified camera.
    */
-  void render(const render::Scene& scene, const render::Camera& camera);
+  void render(const render::Scene& scene, const Camera& camera);
   /*! @return The shared program state object used by this renderer.
    */
   SharedProgramState& getSharedProgramState();

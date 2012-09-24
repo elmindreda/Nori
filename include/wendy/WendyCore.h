@@ -44,6 +44,7 @@
 #include <wendy/Sphere.h>
 #include <wendy/Triangle.h>
 #include <wendy/Frustum.h>
+#include <wendy/Camera.h>
 #include <wendy/Bezier.h>
 
 #include <wendy/Pattern.h>

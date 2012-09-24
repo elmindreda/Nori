@@ -38,7 +38,6 @@
 #include <wendy/RenderFont.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderSystem.h>
-#include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderScene.h>
 #include <wendy/RenderSprite.h>

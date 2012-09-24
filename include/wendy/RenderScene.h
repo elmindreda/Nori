@@ -41,7 +41,6 @@ namespace wendy
 
 class Light;
 class GeometryPool;
-class Camera;
 class Scene;
 
 ///////////////////////////////////////////////////////////////////////

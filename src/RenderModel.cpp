@@ -25,6 +25,13 @@
 
 #include <wendy/Config.h>
 
+#include <wendy/Core.h>
+#include <wendy/Transform.h>
+#include <wendy/AABB.h>
+#include <wendy/Plane.h>
+#include <wendy/Frustum.h>
+#include <wendy/Camera.h>
+
 #include <wendy/GLTexture.h>
 #include <wendy/GLBuffer.h>
 #include <wendy/GLProgram.h>
@@ -33,7 +40,6 @@
 #include <wendy/RenderPool.h>
 #include <wendy/RenderState.h>
 #include <wendy/RenderSystem.h>
-#include <wendy/RenderCamera.h>
 #include <wendy/RenderMaterial.h>
 #include <wendy/RenderLight.h>
 #include <wendy/RenderScene.h>

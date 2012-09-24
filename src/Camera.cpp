@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy default renderer
+// Wendy core library
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -25,7 +25,13 @@
 
 #include <wendy/Config.h>
 
-#include <wendy/RenderCamera.h>
+#include <wendy/Core.h>
+#include <wendy/Transform.h>
+#include <wendy/Ray.h>
+#include <wendy/Plane.h>
+#include <wendy/AABB.h>
+#include <wendy/Frustum.h>
+#include <wendy/Camera.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -33,8 +39,6 @@
 
 namespace wendy
 {
-  namespace render
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -225,7 +229,6 @@ Ray3 Camera::getViewSpacePickingRay(const vec2& position) const
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
