@@ -129,6 +129,8 @@ GLenum convertToGL(CubeFace face)
       return GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
     case CUBE_NEGATIVE_Z:
       return GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+    default:
+      break;
   }
 
   panic("Invalid image cube face %u", face);
