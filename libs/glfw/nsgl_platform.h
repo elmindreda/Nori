@@ -1,11 +1,10 @@
 //========================================================================
 // GLFW - An OpenGL library
-// Platform:    Win32
-// API version: 3.0
+// Platform:    NSOpenGL
+// API Version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -28,22 +27,36 @@
 //
 //========================================================================
 
-#include "internal.h"
+#ifndef _nsgl_platform_h_
+#define _nsgl_platform_h_
 
 
-#if defined(_GLFW_BUILD_DLL)
+#define _GLFW_PLATFORM_CONTEXT_STATE        _GLFWcontextNSGL nsgl
+#define _GLFW_PLATFORM_LIBRARY_OPENGL_STATE _GLFWlibraryNSGL nsgl
+
 
 //========================================================================
-// GLFW DLL entry point
+// GLFW platform specific types
 //========================================================================
 
-BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
+//------------------------------------------------------------------------
+// Platform-specific OpenGL context structure
+//------------------------------------------------------------------------
+typedef struct _GLFWcontextNSGL
 {
-    // NOTE: Some compilers complains about instance and x never being used -
-    // never mind that (we don't want to use them)!
+    id           pixelFormat;
+    id	         context;
+} _GLFWcontextNSGL;
 
-    return TRUE;
-}
 
-#endif // _GLFW_BUILD_DLL
+//------------------------------------------------------------------------
+// Platform-specific library global data for NSGL
+//------------------------------------------------------------------------
+typedef struct _GLFWlibraryNSGL
+{
+    // dlopen handle for dynamically loading OpenGL extension entry points
+    void*            framework;
+} _GLFWlibraryNSGL;
 
+
+#endif // _nsgl_platform_h_

@@ -62,21 +62,21 @@ const char* _glfwPlatformGetClipboardString(_GLFWwindow* window)
 
     if (![[pasteboard types] containsObject:NSStringPboardType])
     {
-        _glfwSetError(GLFW_FORMAT_UNAVAILABLE, NULL);
+        _glfwInputError(GLFW_FORMAT_UNAVAILABLE, NULL);
         return NULL;
     }
 
     NSString* object = [pasteboard stringForType:NSStringPboardType];
     if (!object)
     {
-        _glfwSetError(GLFW_PLATFORM_ERROR,
-                      "Cocoa: Failed to retrieve object from pasteboard");
+        _glfwInputError(GLFW_PLATFORM_ERROR,
+                        "Cocoa: Failed to retrieve object from pasteboard");
         return NULL;
     }
 
-    free(_glfwLibrary.NS.clipboardString);
-    _glfwLibrary.NS.clipboardString = strdup([object UTF8String]);
+    free(_glfw.ns.clipboardString);
+    _glfw.ns.clipboardString = strdup([object UTF8String]);
 
-    return _glfwLibrary.NS.clipboardString;
+    return _glfw.ns.clipboardString;
 }
 

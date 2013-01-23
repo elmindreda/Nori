@@ -48,31 +48,32 @@ GLFWAPI void glfwSetGamma(float gamma)
 
     if (!_glfwInitialized)
     {
-        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
+        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
         return;
     }
 
     if (gamma <= 0.f)
     {
-        _glfwSetError(GLFW_INVALID_VALUE,
-                      "glfwSetGamma: Gamma value must be greater than zero");
+        _glfwInputError(GLFW_INVALID_VALUE,
+                        "Gamma value must be greater than zero");
         return;
     }
 
     for (i = 0;  i < size;  i++)
     {
-        float value = (float) i / ((float) (size - 1));
+        float value;
 
-        // Apply gamma
+        // Calculate intensity
+        value = (float) i / (float) (size - 1);
+        // Apply gamma curve
         value = (float) pow(value, 1.f / gamma) * 65535.f + 0.5f;
 
-        // Clamp values
+        // Clamp to value range
         if (value < 0.f)
             value = 0.f;
         else if (value > 65535.f)
             value = 65535.f;
 
-        // Set the gamma ramp values
         ramp.red[i]   = (unsigned short) value;
         ramp.green[i] = (unsigned short) value;
         ramp.blue[i]  = (unsigned short) value;
@@ -83,18 +84,18 @@ GLFWAPI void glfwSetGamma(float gamma)
 
 
 //========================================================================
-// Return the cached currently set gamma ramp
+// Return the currently set gamma ramp
 //========================================================================
 
 GLFWAPI void glfwGetGammaRamp(GLFWgammaramp* ramp)
 {
     if (!_glfwInitialized)
     {
-        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
+        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
         return;
     }
 
-    *ramp = _glfwLibrary.currentRamp;
+    _glfwPlatformGetGammaRamp(ramp);
 }
 
 
@@ -106,12 +107,11 @@ GLFWAPI void glfwSetGammaRamp(const GLFWgammaramp* ramp)
 {
     if (!_glfwInitialized)
     {
-        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
+        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
         return;
     }
 
     _glfwPlatformSetGammaRamp(ramp);
-    _glfwLibrary.currentRamp = *ramp;
-    _glfwLibrary.rampChanged = GL_TRUE;
+    _glfw.rampChanged = GL_TRUE;
 }
 

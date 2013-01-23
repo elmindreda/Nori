@@ -1,6 +1,6 @@
 //========================================================================
 // GLFW - An OpenGL library
-// Platform:    X11/GLX
+// Platform:    X11
 // API version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
@@ -28,8 +28,8 @@
 //
 //========================================================================
 
-#ifndef _platform_h_
-#define _platform_h_
+#ifndef _x11_platform_h_
+#define _x11_platform_h_
 
 #include <unistd.h>
 #include <signal.h>
@@ -38,54 +38,30 @@
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
 
-#define GLX_GLXEXT_LEGACY
-#include <GL/glx.h>
-
-// This path may need to be changed if you build GLFW using your own setup
-// GLFW comes with its own copy of glxext.h since it uses some fairly new
-// extensions and not all operating systems come with an up-to-date version
-#include "GL/glxext.h"
-
-// The XF86VidMode extension provides mode setting and gamma control
-#if defined(_GLFW_HAS_XF86VIDMODE)
- #include <X11/extensions/xf86vmode.h>
-#endif
+// The Xf86VidMode extension provides fallback gamma control
+#include <X11/extensions/xf86vmode.h>
 
 // The XRandR extension provides mode setting and gamma control
-#if defined(_GLFW_HAS_XRANDR)
- #include <X11/extensions/Xrandr.h>
-#endif
-
-// dlopen is used as a fallback function retrieval mechanism
-#if defined(_GLFW_HAS_DLOPEN)
- #include <dlfcn.h>
-#endif
+#include <X11/extensions/Xrandr.h>
 
 // The Xkb extension provides improved keyboard support
-#if defined(_GLFW_HAS_XKB)
- #include <X11/XKBlib.h>
-#endif
+#include <X11/XKBlib.h>
 
-// GLFW supports four different ways for getting addresses for GL/GLX
-// extension functions: glXGetProcAddress, glXGetProcAddressARB,
-// glXGetProcAddressEXT, and dlsym
-#if defined(_GLFW_HAS_GLXGETPROCADDRESSARB)
- #define _glfw_glXGetProcAddress(x) glXGetProcAddressARB(x)
-#elif defined(_GLFW_HAS_GLXGETPROCADDRESS)
- #define _glfw_glXGetProcAddress(x) glXGetProcAddress(x)
-#elif defined(_GLFW_HAS_GLXGETPROCADDRESSEXT)
- #define _glfw_glXGetProcAddress(x) glXGetProcAddressEXT(x)
-#elif defined(_GLFW_HAS_DLOPEN)
- #define _glfw_glXGetProcAddress(x) dlsym(_glfwLibrary.GLX.libGL, x)
- #define _GLFW_DLOPEN_LIBGL
+#if defined(_GLFW_GLX)
+ #define _GLFW_X11_CONTEXT_VISUAL window->glx.visual
+ #include "glx_platform.h"
+#elif defined(_GLFW_EGL)
+ #define _GLFW_X11_CONTEXT_VISUAL window->egl.visual
+ #define _GLFW_EGL_NATIVE_WINDOW  window->x11.handle
+ #define _GLFW_EGL_NATIVE_DISPLAY _glfw.x11.display
+ #include "egl_platform.h"
 #else
- #error "No OpenGL entry point retrieval mechanism was enabled"
+ #error "No supported context creation API selected"
 #endif
 
-#define _GLFW_PLATFORM_WINDOW_STATE  _GLFWwindowX11 X11
-#define _GLFW_PLATFORM_CONTEXT_STATE _GLFWcontextGLX GLX
-#define _GLFW_PLATFORM_LIBRARY_WINDOW_STATE _GLFWlibraryX11 X11
-#define _GLFW_PLATFORM_LIBRARY_OPENGL_STATE _GLFWlibraryGLX GLX
+#define _GLFW_PLATFORM_WINDOW_STATE         _GLFWwindowX11  x11
+#define _GLFW_PLATFORM_LIBRARY_WINDOW_STATE _GLFWlibraryX11 x11
+#define _GLFW_PLATFORM_MONITOR_STATE        _GLFWmonitorX11 x11
 
 // Clipboard format atom indices
 #define _GLFW_CLIPBOARD_FORMAT_UTF8     0
@@ -97,10 +73,6 @@
 #define _GLFW_CONVERSION_INACTIVE       0
 #define _GLFW_CONVERSION_SUCCEEDED      1
 #define _GLFW_CONVERSION_FAILED         2
-
-#ifndef GLX_MESA_swap_control
-typedef int (*PFNGLXSWAPINTERVALMESAPROC)(int);
-#endif
 
 
 //========================================================================
@@ -114,32 +86,26 @@ typedef intptr_t GLFWintptr;
 
 
 //------------------------------------------------------------------------
-// Platform-specific OpenGL context structure
-//------------------------------------------------------------------------
-typedef struct _GLFWcontextGLX
-{
-    GLXContext    context;           // OpenGL rendering context
-    XVisualInfo*  visual;            // Visual for selected GLXFBConfig
-
-} _GLFWcontextGLX;
-
-
-//------------------------------------------------------------------------
 // Platform-specific window structure
 //------------------------------------------------------------------------
 typedef struct _GLFWwindowX11
 {
     // Platform specific window resources
-    Colormap      colormap;          // Window colormap
-    Window        handle;            // Window handle
+    Colormap        colormap;          // Window colormap
+    Window          handle;            // Window handle
 
     // Various platform specific internal variables
-    GLboolean     overrideRedirect; // True if window is OverrideRedirect
-    GLboolean     keyboardGrabbed;  // True if keyboard is currently grabbed
-    GLboolean     cursorGrabbed;    // True if cursor is currently grabbed
-    GLboolean     cursorHidden;     // True if cursor is currently hidden
-    GLboolean     cursorCentered;   // True if cursor was moved since last poll
-    int           cursorPosX, cursorPosY;
+    GLboolean       overrideRedirect; // True if window is OverrideRedirect
+    GLboolean       cursorGrabbed;    // True if cursor is currently grabbed
+    GLboolean       cursorHidden;     // True if cursor is currently hidden
+    GLboolean       cursorCentered;   // True if cursor was moved since last poll
+    int             cursorPosX, cursorPosY;
+
+    // Window position hint (commited the first time the window is shown)
+    GLboolean       windowPosSet;     // False until the window position has
+                                      // been set
+    int             positionX;        // The window position to be set the
+    int             positionY;        // first time the window is shown
 
 } _GLFWwindowX11;
 
@@ -152,15 +118,19 @@ typedef struct _GLFWlibraryX11
     Display*        display;
     int             screen;
     Window          root;
-    Cursor          cursor;   // Invisible cursor for hidden cursor
 
-    Atom            wmDeleteWindow;    // WM_DELETE_WINDOW atom
-    Atom            wmName;            // _NET_WM_NAME atom
-    Atom            wmIconName;        // _NET_WM_ICON_NAME atom
-    Atom            wmPing;            // _NET_WM_PING atom
-    Atom            wmState;           // _NET_WM_STATE atom
-    Atom            wmStateFullscreen; // _NET_WM_STATE_FULLSCREEN atom
-    Atom            wmActiveWindow;    // _NET_ACTIVE_WINDOW atom
+    // Invisible cursor for hidden cursor mode
+    Cursor          cursor;
+
+    // Window manager atoms
+    Atom            WM_STATE;
+    Atom            WM_DELETE_WINDOW;
+    Atom            NET_WM_NAME;
+    Atom            NET_WM_ICON_NAME;
+    Atom            NET_WM_PING;
+    Atom            NET_WM_STATE;
+    Atom            NET_WM_STATE_FULLSCREEN;
+    Atom            NET_ACTIVE_WINDOW;
 
     // True if window manager supports EWMH
     GLboolean       hasEWMH;
@@ -169,30 +139,28 @@ typedef struct _GLFWlibraryX11
         GLboolean   available;
         int         eventBase;
         int         errorBase;
-    } VidMode;
+    } vidmode;
 
     struct {
         GLboolean   available;
         int         eventBase;
         int         errorBase;
-        int         majorVersion;
-        int         minorVersion;
+        int         versionMajor;
+        int         versionMinor;
         GLboolean   gammaBroken;
-    } RandR;
+    } randr;
 
     struct {
-        GLboolean   available;
         int         majorOpcode;
         int         eventBase;
         int         errorBase;
-        int         majorVersion;
-        int         minorVersion;
-    } Xkb;
+        int         versionMajor;
+        int         versionMinor;
+    } xkb;
 
-    // Key code LUT (mapping X11 key codes to GLFW key codes)
+    // LUT for mapping X11 key codes to GLFW key codes
     int             keyCodeLUT[256];
 
-    // Screensaver data
     struct {
         GLboolean   changed;
         int         timeout;
@@ -201,81 +169,49 @@ typedef struct _GLFWlibraryX11
         int         exposure;
     } saver;
 
-    // Fullscreen data
-    struct {
-        GLboolean   modeChanged;
-#if defined(_GLFW_HAS_XRANDR)
-        SizeID      oldSizeID;
-        int         oldWidth;
-        int         oldHeight;
-        Rotation    oldRotation;
-#endif /*_GLFW_HAS_XRANDR*/
-#if defined(_GLFW_HAS_XF86VIDMODE)
-        XF86VidModeModeInfo oldMode;
-#endif /*_GLFW_HAS_XF86VIDMODE*/
-    } FS;
-
-    // Timer data
     struct {
         GLboolean   monotonic;
         double      resolution;
         uint64_t    base;
     } timer;
 
-    // Selection data
     struct {
-        Atom atom;
-        Atom formats[_GLFW_CLIPBOARD_FORMAT_COUNT];
-        char* string;
-        Atom target;
-        Atom targets;
-        Atom property;
-        int status;
+        Atom        atom;
+        Atom        formats[_GLFW_CLIPBOARD_FORMAT_COUNT];
+        char*       string;
+        Atom        target;
+        Atom        targets;
+        Atom        property;
+        int         status;
     } selection;
 
     struct {
-        int             present;
-        int             fd;
-        int             numAxes;
-        int             numButtons;
-        float*          axis;
-        unsigned char*  button;
+        int         present;
+        int         fd;
+        int         numAxes;
+        int         numButtons;
+        float*      axis;
+        unsigned char* button;
+        char*       name;
     } joystick[GLFW_JOYSTICK_LAST + 1];
 
 } _GLFWlibraryX11;
 
 
 //------------------------------------------------------------------------
-// Platform-specific library global data for GLX
+// Platform-specific monitor structure
 //------------------------------------------------------------------------
-typedef struct _GLFWlibraryGLX
+typedef struct _GLFWmonitorX11
 {
-    // Server-side GLX version
-    int             majorVersion, minorVersion;
+    GLboolean       modeChanged;
 
-    // GLX extensions
-    PFNGLXSWAPINTERVALSGIPROC             SwapIntervalSGI;
-    PFNGLXSWAPINTERVALEXTPROC             SwapIntervalEXT;
-    PFNGLXSWAPINTERVALMESAPROC            SwapIntervalMESA;
-    PFNGLXGETFBCONFIGATTRIBSGIXPROC       GetFBConfigAttribSGIX;
-    PFNGLXCHOOSEFBCONFIGSGIXPROC          ChooseFBConfigSGIX;
-    PFNGLXCREATECONTEXTWITHCONFIGSGIXPROC CreateContextWithConfigSGIX;
-    PFNGLXGETVISUALFROMFBCONFIGSGIXPROC   GetVisualFromFBConfigSGIX;
-    PFNGLXCREATECONTEXTATTRIBSARBPROC     CreateContextAttribsARB;
-    GLboolean   SGIX_fbconfig;
-    GLboolean   SGI_swap_control;
-    GLboolean   EXT_swap_control;
-    GLboolean   MESA_swap_control;
-    GLboolean   ARB_multisample;
-    GLboolean   ARB_create_context;
-    GLboolean   ARB_create_context_profile;
-    GLboolean   ARB_create_context_robustness;
-    GLboolean   EXT_create_context_es2_profile;
+    XRROutputInfo*  output;
+    SizeID          oldSizeID;
+    int             oldWidth;
+    int             oldHeight;
+    Rotation        oldRotation;
 
-#if defined(_GLFW_DLOPEN_LIBGL)
-    void*           libGL;  // dlopen handle for libGL.so
-#endif
-} _GLFWlibraryGLX;
+} _GLFWmonitorX11;
 
 
 //========================================================================
@@ -290,19 +226,18 @@ void _glfwInitGammaRamp(void);
 void _glfwTerminateGammaRamp(void);
 
 // OpenGL support
-int _glfwInitOpenGL(void);
-void _glfwTerminateOpenGL(void);
+int _glfwInitContextAPI(void);
+void _glfwTerminateContextAPI(void);
 int _glfwCreateContext(_GLFWwindow* window,
                        const _GLFWwndconfig* wndconfig,
                        const _GLFWfbconfig* fbconfig);
 void _glfwDestroyContext(_GLFWwindow* window);
-XVisualInfo* _glfwGetContextVisual(_GLFWwindow* window);
 
 // Fullscreen support
-int  _glfwGetClosestVideoMode(int* width, int* height, int* rate);
-void _glfwSetVideoModeMODE(int mode, int rate);
-void _glfwSetVideoMode(int* width, int* height, int* rate);
-void _glfwRestoreVideoMode(void);
+int  _glfwGetClosestVideoMode(_GLFWmonitor* monitor, int* width, int* height);
+void _glfwSetVideoModeMODE(_GLFWmonitor* monitor, int mode);
+void _glfwSetVideoMode(_GLFWmonitor* monitor, int* width, int* height);
+void _glfwRestoreVideoMode(_GLFWmonitor* monitor);
 
 // Joystick input
 int  _glfwInitJoysticks(void);
@@ -318,4 +253,10 @@ Atom _glfwWriteSelection(XSelectionRequestEvent* request);
 // Event processing
 void _glfwProcessPendingEvents(void);
 
-#endif // _platform_h_
+// Window support
+unsigned long _glfwGetWindowProperty(Window window,
+                                     Atom property,
+                                     Atom type,
+                                     unsigned char** value);
+
+#endif // _x11_platform_h_

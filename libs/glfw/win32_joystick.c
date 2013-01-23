@@ -30,6 +30,8 @@
 
 #include "internal.h"
 
+#include <stdlib.h>
+
 
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW internal API                      //////
@@ -66,6 +68,32 @@ static float calcJoystickPos(DWORD pos, DWORD min, DWORD max)
     float fmax = (float) max;
 
     return (2.f * (fpos - fmin) / (fmax - fmin)) - 1.f;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW internal API                      //////
+//////////////////////////////////////////////////////////////////////////
+
+//========================================================================
+// Initialize joystick interface
+//========================================================================
+
+void _glfwInitJoysticks(void)
+{
+}
+
+
+//========================================================================
+// Close all opened joystick handles
+//========================================================================
+
+void _glfwTerminateJoysticks(void)
+{
+    int i;
+
+    for (i = 0;  i < GLFW_JOYSTICK_LAST;  i++)
+        free(_glfw.win32.joystick[i].name);
 }
 
 
@@ -199,15 +227,43 @@ int _glfwPlatformGetJoystickButtons(int joy, unsigned char* buttons,
 
     if (hats > 0)
     {
-        int j;
-        int value = ji.dwPOV / 100 / 45;
-        if (value < 0 || value > 8) value = 8;
+        int j, value = ji.dwPOV / 100 / 45;
+
+        if (value < 0 || value > 8)
+            value = 8;
 
         for (j = 0; j < 4 && button < numbuttons; j++)
         {
-            buttons[button++] = directions[value] & (1 << j) ? GLFW_PRESS : GLFW_RELEASE;
+            if (directions[value] & (1 << j))
+                buttons[button] = GLFW_PRESS;
+            else
+                buttons[button] = GLFW_RELEASE;
+
+            button++;
         }
     }
 
     return button;
 }
+
+
+//========================================================================
+// Get joystick name
+//========================================================================
+
+const char* _glfwPlatformGetJoystickName(int joy)
+{
+    JOYCAPS jc;
+    const int i = joy - GLFW_JOYSTICK_1;
+
+    if (!isJoystickPresent(joy))
+        return NULL;
+
+    _glfw_joyGetDevCaps(i, &jc, sizeof(JOYCAPS));
+
+    free(_glfw.win32.joystick[i].name);
+    _glfw.win32.joystick[i].name = _glfwCreateUTF8FromWideString(jc.szPname);
+
+    return _glfw.win32.joystick[i].name;
+}
+

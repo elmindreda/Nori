@@ -37,34 +37,53 @@
 
 
 //------------------------------------------------------------------------
-// Flag indicating whether GLFW has been successfully initialized
+// Global state shared between compilation units of GLFW
+// These are documented in internal.h
 //------------------------------------------------------------------------
 GLboolean _glfwInitialized = GL_FALSE;
-
-
-//------------------------------------------------------------------------
-// All shared and API-specific global data protected by _glfwInitialized
-// This should only be touched after a call to glfwInit that has not been
-// followed by a call to glfwTerminate
-//------------------------------------------------------------------------
-_GLFWlibrary _glfwLibrary;
-
-
-//------------------------------------------------------------------------
-// The current GLFW error code
-// This is outside of _glfwLibrary so it can be initialized and usable
-// before glfwInit is called, which lets that function report errors
-// TODO: Make this thread-local
-//------------------------------------------------------------------------
-static int _glfwError = GLFW_NO_ERROR;
+_GLFWlibrary _glfw;
 
 
 //------------------------------------------------------------------------
 // The current error callback
-// This is outside of _glfwLibrary so it can be initialized and usable
-// before glfwInit is called, which lets that function report errors
+// This is outside of _glfw so it can be initialized and usable before
+// glfwInit is called, which lets that function report errors
 //------------------------------------------------------------------------
 static GLFWerrorfun _glfwErrorCallback = NULL;
+
+
+//========================================================================
+// Returns a generic string representation of the specified error
+//========================================================================
+
+static const char* getErrorString(int error)
+{
+    switch (error)
+    {
+        case GLFW_NO_ERROR:
+            return "No error";
+        case GLFW_NOT_INITIALIZED:
+            return "The GLFW library is not initialized";
+        case GLFW_NO_CURRENT_CONTEXT:
+            return "There is no current context";
+        case GLFW_INVALID_ENUM:
+            return "Invalid argument for enum parameter";
+        case GLFW_INVALID_VALUE:
+            return "Invalid value for parameter";
+        case GLFW_OUT_OF_MEMORY:
+            return "Out of memory";
+        case GLFW_API_UNAVAILABLE:
+            return "The requested client API is unavailable";
+        case GLFW_VERSION_UNAVAILABLE:
+            return "The requested client API version is unavailable";
+        case GLFW_PLATFORM_ERROR:
+            return "A platform-specific error occurred";
+        case GLFW_FORMAT_UNAVAILABLE:
+            return "The requested format is unavailable";
+    }
+
+    return "ERROR: UNKNOWN ERROR TOKEN PASSED TO glfwErrorString";
+}
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -72,10 +91,10 @@ static GLFWerrorfun _glfwErrorCallback = NULL;
 //////////////////////////////////////////////////////////////////////////
 
 //========================================================================
-// Sets the current error value
+// Register error
 //========================================================================
 
-void _glfwSetError(int error, const char* format, ...)
+void _glfwInputError(int error, const char* format, ...)
 {
     if (_glfwErrorCallback)
     {
@@ -97,12 +116,10 @@ void _glfwSetError(int error, const char* format, ...)
             description = buffer;
         }
         else
-            description = glfwErrorString(error);
+            description = getErrorString(error);
 
         _glfwErrorCallback(error, description);
     }
-    else
-        _glfwError = error;
 }
 
 
@@ -119,10 +136,7 @@ GLFWAPI int glfwInit(void)
     if (_glfwInitialized)
         return GL_TRUE;
 
-    memset(&_glfwLibrary, 0, sizeof(_glfwLibrary));
-
-    // Not all window hints have zero as their default value
-    _glfwSetDefaultWindowHints();
+    memset(&_glfw, 0, sizeof(_glfw));
 
     if (!_glfwPlatformInit())
     {
@@ -130,9 +144,18 @@ GLFWAPI int glfwInit(void)
         return GL_FALSE;
     }
 
-    atexit(glfwTerminate);
+    _glfw.monitors = _glfwPlatformGetMonitors(&_glfw.monitorCount);
+    if (!_glfw.monitors)
+    {
+        _glfwErrorCallback(GLFW_PLATFORM_ERROR, "No monitors found");
+        _glfwPlatformTerminate();
+        return GL_FALSE;
+    }
 
     _glfwInitialized = GL_TRUE;
+
+    // Not all window hints have zero as their default value
+    glfwDefaultWindowHints();
 
     return GL_TRUE;
 }
@@ -148,14 +171,12 @@ GLFWAPI void glfwTerminate(void)
         return;
 
     // Close all remaining windows
-    while (_glfwLibrary.windowListHead)
-        glfwDestroyWindow(_glfwLibrary.windowListHead);
+    while (_glfw.windowListHead)
+        glfwDestroyWindow((GLFWwindow*) _glfw.windowListHead);
 
-    if (!_glfwPlatformTerminate())
-        return;
+    _glfwDestroyMonitors();
 
-    if (_glfwLibrary.modes)
-        free(_glfwLibrary.modes);
+    _glfwPlatformTerminate();
 
     _glfwInitialized = GL_FALSE;
 }
@@ -187,56 +208,6 @@ GLFWAPI void glfwGetVersion(int* major, int* minor, int* rev)
 GLFWAPI const char* glfwGetVersionString(void)
 {
     return _glfwPlatformGetVersionString();
-}
-
-
-//========================================================================
-// Returns the current error value
-// This function may be called without GLFW having been initialized
-//========================================================================
-
-GLFWAPI int glfwGetError(void)
-{
-    int error = _glfwError;
-    _glfwError = GLFW_NO_ERROR;
-    return error;
-}
-
-
-//========================================================================
-// Returns a string representation of the specified error value
-// This function may be called without GLFW having been initialized
-//========================================================================
-
-GLFWAPI const char* glfwErrorString(int error)
-{
-    switch (error)
-    {
-        case GLFW_NO_ERROR:
-            return "No error";
-        case GLFW_NOT_INITIALIZED:
-            return "The GLFW library is not initialized";
-        case GLFW_NO_CURRENT_CONTEXT:
-            return "There is no current OpenGL context";
-        case GLFW_INVALID_ENUM:
-            return "Invalid argument for enum parameter";
-        case GLFW_INVALID_VALUE:
-            return "Invalid value for parameter";
-        case GLFW_OUT_OF_MEMORY:
-            return "Out of memory";
-        case GLFW_OPENGL_UNAVAILABLE:
-            return "OpenGL is not available on this machine";
-        case GLFW_VERSION_UNAVAILABLE:
-            return "The requested OpenGL version is unavailable";
-        case GLFW_PLATFORM_ERROR:
-            return "A platform-specific error occurred";
-        case GLFW_WINDOW_NOT_ACTIVE:
-            return "The specified window is not active";
-        case GLFW_FORMAT_UNAVAILABLE:
-            return "The requested format is unavailable";
-    }
-
-    return "ERROR: UNKNOWN ERROR TOKEN PASSED TO glfwErrorString";
 }
 
 

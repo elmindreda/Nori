@@ -1,6 +1,6 @@
 //========================================================================
 // GLFW - An OpenGL library
-// Platform:    Cocoa/NSOpenGL
+// Platform:    Cocoa
 // API Version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
@@ -27,12 +27,11 @@
 //
 //========================================================================
 
-#ifndef _platform_h_
-#define _platform_h_
+#ifndef _cocoa_platform_h_
+#define _cocoa_platform_h_
 
 
 #include <stdint.h>
-
 
 #if defined(__OBJC__)
 #import <Cocoa/Cocoa.h>
@@ -41,11 +40,15 @@
 typedef void* id;
 #endif
 
+#if defined(_GLFW_NSGL)
+ #include "nsgl_platform.h"
+#else
+ #error "No supported context creation API selected"
+#endif
 
-#define _GLFW_PLATFORM_WINDOW_STATE  _GLFWwindowNS NS
-#define _GLFW_PLATFORM_CONTEXT_STATE _GLFWcontextNSGL NSGL
-#define _GLFW_PLATFORM_LIBRARY_WINDOW_STATE _GLFWlibraryNS NS
-#define _GLFW_PLATFORM_LIBRARY_OPENGL_STATE _GLFWlibraryNSGL NSGL
+#define _GLFW_PLATFORM_WINDOW_STATE         _GLFWwindowNS  ns
+#define _GLFW_PLATFORM_LIBRARY_WINDOW_STATE _GLFWlibraryNS ns
+#define _GLFW_PLATFORM_MONITOR_STATE        _GLFWmonitorNS ns
 
 
 //========================================================================
@@ -59,24 +62,14 @@ typedef intptr_t GLFWintptr;
 
 
 //------------------------------------------------------------------------
-// Platform-specific OpenGL context structure
-//------------------------------------------------------------------------
-typedef struct _GLFWcontextNSGL
-{
-    id           pixelFormat;
-    id	         context;
-} _GLFWcontextNSGL;
-
-
-//------------------------------------------------------------------------
 // Platform-specific window structure
 //------------------------------------------------------------------------
 typedef struct _GLFWwindowNS
 {
-    id           object;
-    id	         delegate;
-    id           view;
-    unsigned int modifierFlags;
+    id              object;
+    id	            delegate;
+    id              view;
+    unsigned int    modifierFlags;
 } _GLFWwindowNS;
 
 
@@ -86,27 +79,27 @@ typedef struct _GLFWwindowNS
 typedef struct _GLFWlibraryNS
 {
     struct {
-        double base;
-        double resolution;
+        double      base;
+        double      resolution;
     } timer;
 
-    CGDisplayModeRef desktopMode;
     CGEventSourceRef eventSource;
-    id               delegate;
-    id               autoreleasePool;
+    id              delegate;
+    id              autoreleasePool;
 
-    char*            clipboardString;
+    char*           clipboardString;
 } _GLFWlibraryNS;
 
 
 //------------------------------------------------------------------------
-// Platform-specific library global data for NSGL
+// Platform-specific monitor structure
 //------------------------------------------------------------------------
-typedef struct _GLFWlibraryNSGL
+typedef struct _GLFWmonitorNS
 {
-    // dlopen handle for dynamically loading OpenGL extension entry points
-    void*            framework;
-} _GLFWlibraryNSGL;
+    CGDirectDisplayID displayID;
+    CGDisplayModeRef previousMode;
+
+} _GLFWmonitorNS;
 
 
 //========================================================================
@@ -121,11 +114,15 @@ void _glfwInitJoysticks(void);
 void _glfwTerminateJoysticks(void);
 
 // Fullscreen
-GLboolean _glfwSetVideoMode(int* width, int* height, int* bpp, int* refreshRate);
-void _glfwRestoreVideoMode(void);
+GLboolean _glfwSetVideoMode(_GLFWmonitor* monitor, int* width, int* height, int* bpp);
+void _glfwRestoreVideoMode(_GLFWmonitor* monitor);
 
 // OpenGL support
-int _glfwInitOpenGL(void);
-void _glfwTerminateOpenGL(void);
+int _glfwInitContextAPI(void);
+void _glfwTerminateContextAPI(void);
+int _glfwCreateContext(_GLFWwindow* window,
+                       const _GLFWwndconfig* wndconfig,
+                       const _GLFWfbconfig* fbconfig);
+void _glfwDestroyContext(_GLFWwindow* window);
 
-#endif // _platform_h_
+#endif // _cocoa_platform_h_

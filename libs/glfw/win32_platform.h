@@ -1,6 +1,6 @@
 //========================================================================
 // GLFW - An OpenGL library
-// Platform:    Win32/WGL
+// Platform:    Win32
 // API version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
@@ -28,8 +28,8 @@
 //
 //========================================================================
 
-#ifndef _platform_h_
-#define _platform_h_
+#ifndef _win32_platform_h_
+#define _win32_platform_h_
 
 
 // We don't need all the fancy stuff
@@ -62,11 +62,7 @@
 
 #include <windows.h>
 #include <mmsystem.h>
-
-// This path may need to be changed if you build GLFW using your own setup
-// We ship and use our own copy of wglext.h since GLFW uses fairly new
-// extensions and not all operating systems come with an up-to-date version
-#include "GL/wglext.h"
+#include <dbt.h>
 
 
 //========================================================================
@@ -93,10 +89,10 @@ typedef DWORD (WINAPI * TIMEGETTIME_T) (void);
 
 // winmm.dll shortcuts
 #ifndef _GLFW_NO_DLOAD_WINMM
- #define _glfw_joyGetDevCaps _glfwLibrary.Win32.winmm.joyGetDevCaps
- #define _glfw_joyGetPos     _glfwLibrary.Win32.winmm.joyGetPos
- #define _glfw_joyGetPosEx   _glfwLibrary.Win32.winmm.joyGetPosEx
- #define _glfw_timeGetTime   _glfwLibrary.Win32.winmm.timeGetTime
+ #define _glfw_joyGetDevCaps _glfw.win32.winmm.joyGetDevCaps
+ #define _glfw_joyGetPos     _glfw.win32.winmm.joyGetPos
+ #define _glfw_joyGetPosEx   _glfw.win32.winmm.joyGetPosEx
+ #define _glfw_timeGetTime   _glfw.win32.winmm.timeGetTime
 #else
  #define _glfw_joyGetDevCaps joyGetDevCaps
  #define _glfw_joyGetPos     joyGetPos
@@ -109,11 +105,24 @@ typedef DWORD (WINAPI * TIMEGETTIME_T) (void);
 // between applications using different versions of GLFW
 #define _GLFW_WNDCLASSNAME L"GLFW30"
 
+#define _GLFW_RECREATION_NOT_NEEDED 0
+#define _GLFW_RECREATION_REQUIRED   1
+#define _GLFW_RECREATION_IMPOSSIBLE 2
 
-#define _GLFW_PLATFORM_WINDOW_STATE  _GLFWwindowWin32 Win32
-#define _GLFW_PLATFORM_CONTEXT_STATE _GLFWcontextWGL WGL
-#define _GLFW_PLATFORM_LIBRARY_WINDOW_STATE _GLFWlibraryWin32 Win32
-#define _GLFW_PLATFORM_LIBRARY_OPENGL_STATE _GLFWlibraryWGL WGL
+
+#if defined(_GLFW_WGL)
+ #include "wgl_platform.h"
+#elif defined(_GLFW_EGL)
+ #define _GLFW_EGL_NATIVE_WINDOW  window->win32.handle
+ #define _GLFW_EGL_NATIVE_DISPLAY NULL
+ #include "egl_platform.h"
+#else
+ #error "No supported context creation API selected"
+#endif
+
+#define _GLFW_PLATFORM_WINDOW_STATE         _GLFWwindowWin32  win32
+#define _GLFW_PLATFORM_LIBRARY_WINDOW_STATE _GLFWlibraryWin32 win32
+#define _GLFW_PLATFORM_MONITOR_STATE        _GLFWmonitorWin32 win32
 
 
 //========================================================================
@@ -127,45 +136,19 @@ typedef INT_PTR GLFWintptr;
 
 
 //------------------------------------------------------------------------
-// Platform-specific OpenGL context structure
-//------------------------------------------------------------------------
-typedef struct _GLFWcontextWGL
-{
-    // Platform specific window resources
-    HDC       DC;              // Private GDI device context
-    HGLRC     context;         // Permanent rendering context
-
-    // Platform specific extensions (context specific)
-    PFNWGLSWAPINTERVALEXTPROC           SwapIntervalEXT;
-    PFNWGLGETPIXELFORMATATTRIBIVARBPROC GetPixelFormatAttribivARB;
-    PFNWGLGETEXTENSIONSSTRINGEXTPROC    GetExtensionsStringEXT;
-    PFNWGLGETEXTENSIONSSTRINGARBPROC    GetExtensionsStringARB;
-    PFNWGLCREATECONTEXTATTRIBSARBPROC   CreateContextAttribsARB;
-    GLboolean                           EXT_swap_control;
-    GLboolean                           ARB_multisample;
-    GLboolean                           ARB_pixel_format;
-    GLboolean                           ARB_create_context;
-    GLboolean                           ARB_create_context_profile;
-    GLboolean                           EXT_create_context_es2_profile;
-    GLboolean                           ARB_create_context_robustness;
-} _GLFWcontextWGL;
-
-
-//------------------------------------------------------------------------
 // Platform-specific window structure
 //------------------------------------------------------------------------
 typedef struct _GLFWwindowWin32
 {
     // Platform specific window resources
-    HWND      handle;          // Window handle
-    DWORD     dwStyle;         // Window styles used for window creation
-    DWORD     dwExStyle;       // --"--
+    HWND                handle;    // Window handle
+    DWORD               dwStyle;   // Window styles used for window creation
+    DWORD               dwExStyle; // --"--
 
     // Various platform specific internal variables
-    int       desiredRefreshRate; // Desired vertical monitor refresh rate
-    GLboolean cursorCentered;
-    GLboolean cursorInside;
-    int       oldCursorX, oldCursorY;
+    GLboolean           cursorCentered;
+    GLboolean           cursorInside;
+    int                 oldCursorX, oldCursorY;
 } _GLFWwindowWin32;
 
 
@@ -174,51 +157,45 @@ typedef struct _GLFWwindowWin32
 //------------------------------------------------------------------------
 typedef struct _GLFWlibraryWin32
 {
-    HINSTANCE                 instance;     // Instance of the application
-    ATOM                      classAtom;    // Window class atom
-    HHOOK                     keyboardHook; // Keyboard hook handle
-    DWORD                     foregroundLockTimeout;
-    char*                     clipboardString;
-
-    // Default monitor
-    struct {
-        GLboolean             modeChanged;
-        int                   width;
-        int                   height;
-        int                   bitsPerPixel;
-        int                   refreshRate;
-    } monitor;
+    HINSTANCE           instance;
+    ATOM                classAtom;
+    DWORD               foregroundLockTimeout;
+    char*               clipboardString;
 
     // Timer data
     struct {
-        GLboolean             hasPC;
-        double                resolution;
-        unsigned int          t0_32;
-        __int64               t0_64;
+        GLboolean       hasPC;
+        double          resolution;
+        unsigned int    t0_32;
+        __int64         t0_64;
     } timer;
 
 #ifndef _GLFW_NO_DLOAD_WINMM
     // winmm.dll
     struct {
-        HINSTANCE             instance;
-        JOYGETDEVCAPS_T       joyGetDevCaps;
-        JOYGETPOS_T           joyGetPos;
-        JOYGETPOSEX_T         joyGetPosEx;
-        TIMEGETTIME_T         timeGetTime;
+        HINSTANCE       instance;
+        JOYGETDEVCAPS_T joyGetDevCaps;
+        JOYGETPOS_T     joyGetPos;
+        JOYGETPOSEX_T   joyGetPosEx;
+        TIMEGETTIME_T   timeGetTime;
     } winmm;
 #endif // _GLFW_NO_DLOAD_WINMM
+
+    struct {
+        char*           name;
+    } joystick[GLFW_JOYSTICK_LAST + 1];
 
 } _GLFWlibraryWin32;
 
 
 //------------------------------------------------------------------------
-// Platform-specific library global data for WGL
+// Platform-specific monitor structure
 //------------------------------------------------------------------------
-typedef struct _GLFWlibraryWGL
+typedef struct _GLFWmonitorWin32
 {
-    int dummy;
+    WCHAR*              name;
 
-} _GLFWlibraryWGL;
+} _GLFWmonitorWin32;
 
 
 //========================================================================
@@ -232,17 +209,24 @@ char* _glfwCreateUTF8FromWideString(const WCHAR* source);
 // Time
 void _glfwInitTimer(void);
 
+// Joystick input
+void _glfwInitJoysticks(void);
+void _glfwTerminateJoysticks(void);
+
 // OpenGL support
+int _glfwInitOpenGL(void);
+void _glfwTerminateOpenGL(void);
 int _glfwCreateContext(_GLFWwindow* window,
                        const _GLFWwndconfig* wndconfig,
                        const _GLFWfbconfig* fbconfig);
 void _glfwDestroyContext(_GLFWwindow* window);
+int _glfwAnalyzeContext(const _GLFWwindow* window,
+                        const _GLFWwndconfig* wndconfig,
+                        const _GLFWfbconfig* fbconfig);
 
 // Fullscreen support
-void _glfwSetVideoMode(int* width, int* height,
-                       int* bpp, int* refreshRate,
-                       GLboolean exactBPP);
-void _glfwRestoreVideoMode(void);
+int _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* mode);
+void _glfwRestoreVideoMode(_GLFWmonitor* monitor);
 
 
-#endif // _platform_h_
+#endif // _win32_platform_h_

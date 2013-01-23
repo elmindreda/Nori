@@ -40,6 +40,18 @@
 
 
 //========================================================================
+// GLFW DLL entry point
+//========================================================================
+
+#if defined(_GLFW_BUILD_DLL)
+BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
+{
+    return TRUE;
+}
+#endif // _GLFW_BUILD_DLL
+
+
+//========================================================================
 // Load necessary libraries (DLLs)
 //========================================================================
 
@@ -48,23 +60,23 @@ static GLboolean initLibraries(void)
 #ifndef _GLFW_NO_DLOAD_WINMM
     // winmm.dll (for joystick and timer support)
 
-    _glfwLibrary.Win32.winmm.instance = LoadLibrary(L"winmm.dll");
-    if (!_glfwLibrary.Win32.winmm.instance)
+    _glfw.win32.winmm.instance = LoadLibrary(L"winmm.dll");
+    if (!_glfw.win32.winmm.instance)
         return GL_FALSE;
 
-    _glfwLibrary.Win32.winmm.joyGetDevCaps = (JOYGETDEVCAPS_T)
-        GetProcAddress(_glfwLibrary.Win32.winmm.instance, "joyGetDevCapsW");
-    _glfwLibrary.Win32.winmm.joyGetPos = (JOYGETPOS_T)
-        GetProcAddress(_glfwLibrary.Win32.winmm.instance, "joyGetPos");
-    _glfwLibrary.Win32.winmm.joyGetPosEx = (JOYGETPOSEX_T)
-        GetProcAddress(_glfwLibrary.Win32.winmm.instance, "joyGetPosEx");
-    _glfwLibrary.Win32.winmm.timeGetTime = (TIMEGETTIME_T)
-        GetProcAddress(_glfwLibrary.Win32.winmm.instance, "timeGetTime");
+    _glfw.win32.winmm.joyGetDevCaps = (JOYGETDEVCAPS_T)
+        GetProcAddress(_glfw.win32.winmm.instance, "joyGetDevCapsW");
+    _glfw.win32.winmm.joyGetPos = (JOYGETPOS_T)
+        GetProcAddress(_glfw.win32.winmm.instance, "joyGetPos");
+    _glfw.win32.winmm.joyGetPosEx = (JOYGETPOSEX_T)
+        GetProcAddress(_glfw.win32.winmm.instance, "joyGetPosEx");
+    _glfw.win32.winmm.timeGetTime = (TIMEGETTIME_T)
+        GetProcAddress(_glfw.win32.winmm.instance, "timeGetTime");
 
-    if (!_glfwLibrary.Win32.winmm.joyGetDevCaps ||
-        !_glfwLibrary.Win32.winmm.joyGetPos ||
-        !_glfwLibrary.Win32.winmm.joyGetPosEx ||
-        !_glfwLibrary.Win32.winmm.timeGetTime)
+    if (!_glfw.win32.winmm.joyGetDevCaps ||
+        !_glfw.win32.winmm.joyGetPos ||
+        !_glfw.win32.winmm.joyGetPosEx ||
+        !_glfw.win32.winmm.timeGetTime)
     {
         return GL_FALSE;
     }
@@ -81,10 +93,10 @@ static GLboolean initLibraries(void)
 static void freeLibraries(void)
 {
 #ifndef _GLFW_NO_DLOAD_WINMM
-    if (_glfwLibrary.Win32.winmm.instance != NULL)
+    if (_glfw.win32.winmm.instance != NULL)
     {
-        FreeLibrary(_glfwLibrary.Win32.winmm.instance);
-        _glfwLibrary.Win32.winmm.instance = NULL;
+        FreeLibrary(_glfw.win32.winmm.instance);
+        _glfw.win32.winmm.instance = NULL;
     }
 #endif // _GLFW_NO_DLOAD_WINMM
 }
@@ -158,7 +170,7 @@ int _glfwPlatformInit(void)
     // with the FOREGROUNDLOCKTIMEOUT system setting (we do this as early
     // as possible in the hope of still being the foreground process)
     SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0,
-                         &_glfwLibrary.Win32.foregroundLockTimeout, 0);
+                         &_glfw.win32.foregroundLockTimeout, 0);
     SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, UIntToPtr(0),
                          SPIF_SENDCHANGE);
 
@@ -171,14 +183,18 @@ int _glfwPlatformInit(void)
     _control87(MCW_EM, MCW_EM);
 #endif
 
-    _glfwLibrary.Win32.instance = GetModuleHandle(NULL);
+    _glfw.win32.instance = GetModuleHandle(NULL);
 
     // Save the original gamma ramp
-    _glfwLibrary.originalRampSize = 256;
-    _glfwPlatformGetGammaRamp(&_glfwLibrary.originalRamp);
-    _glfwLibrary.currentRamp = _glfwLibrary.originalRamp;
+    _glfw.originalRampSize = 256;
+    _glfwPlatformGetGammaRamp(&_glfw.originalRamp);
+
+    if (!_glfwInitOpenGL())
+        return GL_FALSE;
 
     _glfwInitTimer();
+
+    _glfwInitJoysticks();
 
     return GL_TRUE;
 }
@@ -188,28 +204,28 @@ int _glfwPlatformInit(void)
 // Close window and shut down library
 //========================================================================
 
-int _glfwPlatformTerminate(void)
+void _glfwPlatformTerminate(void)
 {
     // Restore the original gamma ramp
-    if (_glfwLibrary.rampChanged)
-        _glfwPlatformSetGammaRamp(&_glfwLibrary.originalRamp);
+    if (_glfw.rampChanged)
+        _glfwPlatformSetGammaRamp(&_glfw.originalRamp);
 
-    if (_glfwLibrary.Win32.classAtom)
+    if (_glfw.win32.classAtom)
     {
-        UnregisterClass(_GLFW_WNDCLASSNAME, _glfwLibrary.Win32.instance);
-        _glfwLibrary.Win32.classAtom = 0;
+        UnregisterClass(_GLFW_WNDCLASSNAME, _glfw.win32.instance);
+        _glfw.win32.classAtom = 0;
     }
 
-    // TODO: Remove keyboard hook
+    _glfwTerminateOpenGL();
+
+    _glfwTerminateJoysticks();
 
     freeLibraries();
 
     // Restore previous FOREGROUNDLOCKTIMEOUT system setting
     SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0,
-                         UIntToPtr(_glfwLibrary.Win32.foregroundLockTimeout),
+                         UIntToPtr(_glfw.win32.foregroundLockTimeout),
                          SPIF_SENDCHANGE);
-
-    return GL_TRUE;
 }
 
 
@@ -220,6 +236,11 @@ int _glfwPlatformTerminate(void)
 const char* _glfwPlatformGetVersionString(void)
 {
     const char* version = _GLFW_VERSION_FULL
+#if defined(_GLFW_WGL)
+        " WGL"
+#elif defined(_GLFW_EGL)
+        " EGL"
+#endif
 #if defined(__MINGW32__)
         " MinGW"
 #elif defined(_MSC_VER)
