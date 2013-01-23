@@ -142,7 +142,7 @@ Time Timer::getCurrentTime()
 {
   if (!glfwInit())
   {
-    logError("Failed to initialize GLFW: %s", glfwErrorString(glfwGetError()));
+    logError("Failed to initialize GLFW");
     return 0.0;
   }
 

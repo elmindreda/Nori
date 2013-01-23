@@ -129,12 +129,6 @@ void Target::onFocusChanged(bool activated)
 
 Window::~Window()
 {
-  glfwSetCursorPosCallback(NULL);
-  glfwSetMouseButtonCallback(NULL);
-  glfwSetKeyCallback(NULL);
-  glfwSetCharCallback(NULL);
-  glfwSetScrollCallback(NULL);
-
   instance = NULL;
 }
 
@@ -482,11 +476,11 @@ Window::Window(GL::Context& initContext):
 
   handle = glfwGetCurrentContext();
 
-  glfwSetCursorPosCallback(mousePosCallback);
-  glfwSetMouseButtonCallback(mouseButtonCallback);
-  glfwSetKeyCallback(keyboardCallback);
-  glfwSetCharCallback(characterCallback);
-  glfwSetScrollCallback(scrollCallback);
+  glfwSetCursorPosCallback(handle, mousePosCallback);
+  glfwSetMouseButtonCallback(handle, mouseButtonCallback);
+  glfwSetKeyCallback(handle, keyboardCallback);
+  glfwSetCharCallback(handle, characterCallback);
+  glfwSetScrollCallback(handle, scrollCallback);
 
   glfwSetInputMode(handle, GLFW_CURSOR_MODE, GLFW_CURSOR_NORMAL);
 }
@@ -503,7 +497,7 @@ void Window::onWindowResized(uint width, uint height)
     currentTarget->onWindowResized(width, height);
 }
 
-void Window::keyboardCallback(void* handle, int key, int action)
+void Window::keyboardCallback(GLFWwindow* handle, int key, int action)
 {
   const bool pressed = (action == GLFW_PRESS) ? true : false;
 
@@ -517,7 +511,7 @@ void Window::keyboardCallback(void* handle, int key, int action)
     instance->currentTarget->onKeyPressed(externalMap[key], pressed);
 }
 
-void Window::characterCallback(void* handle, int character)
+void Window::characterCallback(GLFWwindow* handle, int character)
 {
   if (instance->currentHook)
   {
@@ -529,7 +523,7 @@ void Window::characterCallback(void* handle, int character)
     instance->currentTarget->onCharInput((uint32) character);
 }
 
-void Window::mousePosCallback(void* handle, int x, int y)
+void Window::mousePosCallback(GLFWwindow* handle, int x, int y)
 {
   if (instance->currentHook)
   {
@@ -541,7 +535,7 @@ void Window::mousePosCallback(void* handle, int x, int y)
     instance->currentTarget->onCursorMoved(ivec2(x, y));
 }
 
-void Window::mouseButtonCallback(void* handle, int button, int action)
+void Window::mouseButtonCallback(GLFWwindow* handle, int button, int action)
 {
   const bool clicked = (action == GLFW_PRESS) ? true : false;
 
@@ -557,7 +551,7 @@ void Window::mouseButtonCallback(void* handle, int button, int action)
     instance->currentTarget->onButtonClicked(Button(button), clicked);
 }
 
-void Window::scrollCallback(void* handle, double x, double y)
+void Window::scrollCallback(GLFWwindow* handle, double x, double y)
 {
   if (instance->currentHook)
   {

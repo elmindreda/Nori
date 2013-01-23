@@ -1371,28 +1371,26 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     glfwWindowHint(GLFW_BLUE_BITS, colorBits / 3);
     glfwWindowHint(GLFW_DEPTH_BITS, cc.depthBits);
     glfwWindowHint(GLFW_STENCIL_BITS, cc.stencilBits);
-    glfwWindowHint(GLFW_FSAA_SAMPLES, cc.samples);
+    glfwWindowHint(GLFW_SAMPLES, cc.samples);
 
     if (cc.version > Version(3,2))
       version = cc.version;
     else
       version = Version(3,2);
 
-    glfwWindowHint(GLFW_OPENGL_VERSION_MAJOR, version.m);
-    glfwWindowHint(GLFW_OPENGL_VERSION_MINOR, version.n);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, version.m);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, version.n);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, cc.debug);
 
-    glfwWindowHint(GLFW_WINDOW_RESIZABLE, wc.resizable);
+    glfwWindowHint(GLFW_RESIZABLE, wc.resizable);
 
-    uint mode;
+    GLFWmonitor* monitor = NULL;
 
-    if (wc.mode == WINDOWED)
-      mode = GLFW_WINDOWED;
-    else
-      mode = GLFW_FULLSCREEN;
+    if (wc.mode == FULLSCREEN)
+      monitor = glfwGetPrimaryMonitor();
 
-    handle = glfwCreateWindow(wc.width, wc.height, mode, wc.title.c_str(), NULL);
+    handle = glfwCreateWindow(wc.width, wc.height, wc.title.c_str(), monitor, NULL);
     if (!handle)
     {
       logError("Failed to create GLFW window");
@@ -1401,8 +1399,8 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 
     glfwMakeContextCurrent(handle);
 
-    version = Version(glfwGetWindowParam(handle, GLFW_OPENGL_VERSION_MAJOR),
-                      glfwGetWindowParam(handle, GLFW_OPENGL_VERSION_MINOR));
+    version = Version(glfwGetWindowParam(handle, GLFW_CONTEXT_VERSION_MAJOR),
+                      glfwGetWindowParam(handle, GLFW_CONTEXT_VERSION_MINOR));
 
     log("OpenGL context version %i.%i created", version.m, version.n);
 
@@ -1457,12 +1455,12 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     defaultFramebuffer->width = width;
     defaultFramebuffer->height = height;
 
-    defaultFramebuffer->colorBits = glfwGetWindowParam(handle, GLFW_RED_BITS) +
-                                    glfwGetWindowParam(handle, GLFW_GREEN_BITS) +
-                                    glfwGetWindowParam(handle, GLFW_BLUE_BITS);
-    defaultFramebuffer->depthBits = glfwGetWindowParam(handle, GLFW_DEPTH_BITS);
-    defaultFramebuffer->stencilBits = glfwGetWindowParam(handle, GLFW_STENCIL_BITS);
-    defaultFramebuffer->samples = glfwGetWindowParam(handle, GLFW_FSAA_SAMPLES);
+    defaultFramebuffer->colorBits = getInteger(GL_RED_BITS) +
+                                    getInteger(GL_GREEN_BITS) +
+                                    getInteger(GL_BLUE_BITS);
+    defaultFramebuffer->depthBits = getInteger(GL_DEPTH_BITS);
+    defaultFramebuffer->stencilBits = getInteger(GL_STENCIL_BITS);
+    defaultFramebuffer->samples = getInteger(GL_SAMPLES);
 
     setDefaultFramebufferCurrent();
 
@@ -1475,9 +1473,9 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     setSwapInterval(1);
 
     glfwSetWindowUserPointer(handle, this);
-    glfwSetWindowSizeCallback(sizeCallback);
-    glfwSetWindowCloseCallback(closeCallback);
-    glfwSetWindowRefreshCallback(refreshCallback);
+    glfwSetWindowSizeCallback(handle, sizeCallback);
+    glfwSetWindowCloseCallback(handle, closeCallback);
+    glfwSetWindowRefreshCallback(handle, refreshCallback);
     glfwPollEvents();
   }
 
@@ -1692,7 +1690,7 @@ void Context::forceState(const RenderState& newState)
   dirtyState = false;
 }
 
-void Context::sizeCallback(void* handle, int width, int height)
+void Context::sizeCallback(GLFWwindow* handle, int width, int height)
 {
   Context* context = (Context*) glfwGetWindowUserPointer(handle);
   context->defaultFramebuffer->width = width;
@@ -1700,7 +1698,7 @@ void Context::sizeCallback(void* handle, int width, int height)
   context->resizedSignal(width, height);
 }
 
-int Context::closeCallback(void* handle)
+int Context::closeCallback(GLFWwindow* handle)
 {
   Context* context = (Context*) glfwGetWindowUserPointer(handle);
 
@@ -1713,7 +1711,7 @@ int Context::closeCallback(void* handle)
   return GL_FALSE;
 }
 
-void Context::refreshCallback(void* handle)
+void Context::refreshCallback(GLFWwindow* handle)
 {
   Context* context = (Context*) glfwGetWindowUserPointer(handle);
   context->needsRefresh = true;

@@ -37,6 +37,10 @@
 
 ///////////////////////////////////////////////////////////////////////
 
+typedef struct GLFWwindow GLFWwindow;
+
+///////////////////////////////////////////////////////////////////////
+
 namespace wendy
 {
   namespace GL
@@ -634,16 +638,16 @@ private:
   bool init(const WindowConfig& wc, const ContextConfig& cc);
   void applyState(const RenderState& newState);
   void forceState(const RenderState& newState);
-  static void sizeCallback(void* window, int width, int height);
-  static int closeCallback(void* window);
-  static void refreshCallback(void* window);
+  static void sizeCallback(GLFWwindow* window, int width, int height);
+  static int closeCallback(GLFWwindow* window);
+  static void refreshCallback(GLFWwindow* window);
   class SharedSampler;
   class SharedUniform;
   ResourceCache& cache;
   Signal0<void> finishSignal;
   Signal0<bool> closeRequestSignal;
   Signal2<void, uint, uint> resizedSignal;
-  void* handle;
+  GLFWwindow* handle;
   String title;
   Ptr<Limits> limits;
   WindowMode windowMode;
