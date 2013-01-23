@@ -172,8 +172,8 @@ static void __strip_r(const SQChar *str,SQInteger len,const SQChar **end)
 		return;
 	}
 	const SQChar *t = &str[len-1];
-	while(t != str && scisspace(*t)) { t--; }
-	*end = t+1;
+	while(t >= str && scisspace(*t)) { t--; }
+	*end = t + 1;
 }
 
 static SQInteger _string_strip(HSQUIRRELVM v)
