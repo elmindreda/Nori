@@ -36,10 +36,8 @@
 #include <IOKit/graphics/IOGraphicsLib.h>
 
 
-//========================================================================
 // Get the name of the specified display
-//========================================================================
-
+//
 const char* getDisplayName(CGDirectDisplayID displayID)
 {
     char* name;
@@ -68,11 +66,8 @@ const char* getDisplayName(CGDirectDisplayID displayID)
     return name;
 }
 
-
-//========================================================================
 // Check whether the display mode should be included in enumeration
-//========================================================================
-
+//
 static GLboolean modeIsGood(CGDisplayModeRef mode)
 {
     uint32_t flags = CGDisplayModeGetIOFlags(mode);
@@ -100,11 +95,8 @@ static GLboolean modeIsGood(CGDisplayModeRef mode)
     return GL_TRUE;
 }
 
-
-//========================================================================
 // Convert Core Graphics display mode to GLFW video mode
-//========================================================================
-
+//
 static GLFWvidmode vidmodeFromCGDisplayMode(CGDisplayModeRef mode)
 {
     GLFWvidmode result;
@@ -130,15 +122,36 @@ static GLFWvidmode vidmodeFromCGDisplayMode(CGDisplayModeRef mode)
     return result;
 }
 
+// Starts reservation for display fading
+//
+static CGDisplayFadeReservationToken beginFadeReservation(void)
+{
+    CGDisplayFadeReservationToken token = kCGDisplayFadeReservationInvalidToken;
+
+    if (CGAcquireDisplayFadeReservation(5, &token) == kCGErrorSuccess)
+        CGDisplayFade(token, 0.3, kCGDisplayBlendNormal, kCGDisplayBlendSolidColor, 0.0, 0.0, 0.0, TRUE);
+
+    return token;
+}
+
+// Ends reservation for display fading
+//
+static void endFadeReservation(CGDisplayFadeReservationToken token)
+{
+    if (token != kCGDisplayFadeReservationInvalidToken)
+    {
+        CGDisplayFade(token, 0.5, kCGDisplayBlendSolidColor, kCGDisplayBlendNormal, 0.0, 0.0, 0.0, FALSE);
+        CGReleaseDisplayFadeReservation(token);
+    }
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
 // Change the current video mode
-//========================================================================
-
+//
 GLboolean _glfwSetVideoMode(_GLFWmonitor* monitor, int* width, int* height, int* bpp)
 {
     CGDisplayModeRef bestMode = NULL;
@@ -192,32 +205,33 @@ GLboolean _glfwSetVideoMode(_GLFWmonitor* monitor, int* width, int* height, int*
 
     monitor->ns.previousMode = CGDisplayCopyDisplayMode(monitor->ns.displayID);
 
+    CGDisplayFadeReservationToken token = beginFadeReservation();
+
     CGDisplayCapture(monitor->ns.displayID);
     CGDisplaySetDisplayMode(monitor->ns.displayID, bestMode, NULL);
+
+    endFadeReservation(token);
 
     CFRelease(modes);
     return GL_TRUE;
 }
 
-
-//========================================================================
 // Restore the previously saved (original) video mode
-//========================================================================
-
+//
 void _glfwRestoreVideoMode(_GLFWmonitor* monitor)
 {
+    CGDisplayFadeReservationToken token = beginFadeReservation();
+
     CGDisplaySetDisplayMode(monitor->ns.displayID, monitor->ns.previousMode, NULL);
     CGDisplayRelease(monitor->ns.displayID);
+
+    endFadeReservation(token);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
-
-//========================================================================
-// Return a list of available monitors
-//========================================================================
 
 _GLFWmonitor** _glfwPlatformGetMonitors(int* count)
 {
@@ -248,12 +262,9 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* count)
     for (i = 0;  i < monitorCount;  i++)
     {
         const CGSize size = CGDisplayScreenSize(displays[i]);
-        const CGRect bounds = CGDisplayBounds(displays[i]);
 
         monitors[found] = _glfwCreateMonitor(getDisplayName(displays[i]),
-                                             CGDisplayIsMain(displays[i]),
-                                             size.width, size.height,
-                                             bounds.origin.x, bounds.origin.y);
+                                             size.width, size.height);
 
         monitors[found]->ns.displayID = displays[i];
         found++;
@@ -261,23 +272,30 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* count)
 
     free(displays);
 
+    for (i = 0;  i < monitorCount;  i++)
+    {
+        if (CGDisplayIsMain(monitors[i]->ns.displayID))
+        {
+            _GLFWmonitor* temp = monitors[0];
+            monitors[0] = monitors[i];
+            monitors[i] = temp;
+            break;
+        }
+    }
+
     *count = monitorCount;
     return monitors;
 }
 
-
-//========================================================================
-// Destroy a monitor struct
-//========================================================================
-
-void _glfwPlatformDestroyMonitor(_GLFWmonitor* monitor)
+void _glfwPlatformGetMonitorPos(_GLFWmonitor* monitor, int* xpos, int* ypos)
 {
+    const CGRect bounds = CGDisplayBounds(monitor->ns.displayID);
+
+    if (xpos)
+        *xpos = (int) bounds.origin.x;
+    if (ypos)
+        *ypos = (int) bounds.origin.y;
 }
-
-
-//========================================================================
-// Get a list of available video modes
-//========================================================================
 
 GLFWvidmode* _glfwPlatformGetVideoModes(_GLFWmonitor* monitor, int* found)
 {
@@ -306,11 +324,6 @@ GLFWvidmode* _glfwPlatformGetVideoModes(_GLFWmonitor* monitor, int* found)
     CFRelease(modes);
     return result;
 }
-
-
-//========================================================================
-// Get the current video mode for the specified monitor
-//========================================================================
 
 void _glfwPlatformGetVideoMode(_GLFWmonitor* monitor, GLFWvidmode *mode)
 {

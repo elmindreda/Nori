@@ -8,7 +8,7 @@ include_directories(${libpng_SOURCE_DIR}
                     ${pugixml_SOURCE_DIR}
                     ${PCRE_SOURCE_DIR}
                     ${GLEW_SOURCE_DIR}
-                    ${glfw_SOURCE_DIR}
+                    ${GLFW_SOURCE_DIR}
                     ${libogg_SOURCE_DIR}
                     ${libvorbis_SOURCE_DIR})
 

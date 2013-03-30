@@ -30,12 +30,11 @@
 #include "internal.h"
 #include <sys/param.h> // For MAXPATHLEN
 
-//========================================================================
+
+#if defined(_GLFW_USE_CHDIR)
+
 // Change to our application bundle's resources directory, if present
-//========================================================================
-
-#if defined(_GLFW_CD_RESOURCES)
-
+//
 static void changeToResourcesDirectory(void)
 {
     char resourcesPath[MAXPATHLEN];
@@ -70,16 +69,12 @@ static void changeToResourcesDirectory(void)
     chdir(resourcesPath);
 }
 
-#endif /* _GLFW_CD_RESOURCES */
+#endif /* _GLFW_USE_CHDIR */
 
 
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
-
-//========================================================================
-// Initialize the GLFW library
-//========================================================================
 
 int _glfwPlatformInit(void)
 {
@@ -94,13 +89,9 @@ int _glfwPlatformInit(void)
         return GL_FALSE;
     }
 
-#if defined(_GLFW_CD_RESOURCES)
+#if defined(_GLFW_USE_CHDIR)
     changeToResourcesDirectory();
 #endif
-
-    // Save the original gamma ramp
-    _glfw.originalRampSize = CGDisplayGammaTableCapacity(CGMainDisplayID());
-    _glfwPlatformGetGammaRamp(&_glfw.originalRamp);
 
     _glfwInitTimer();
 
@@ -118,11 +109,6 @@ int _glfwPlatformInit(void)
     return GL_TRUE;
 }
 
-
-//========================================================================
-// Close window, if open, and shut down GLFW
-//========================================================================
-
 void _glfwPlatformTerminate(void)
 {
     // TODO: Probably other cleanup
@@ -132,10 +118,6 @@ void _glfwPlatformTerminate(void)
         CFRelease(_glfw.ns.eventSource);
         _glfw.ns.eventSource = NULL;
     }
-
-    // Restore the original gamma ramp
-    if (_glfw.rampChanged)
-        _glfwPlatformSetGammaRamp(&_glfw.originalRamp);
 
     [NSApp setDelegate:nil];
     [_glfw.ns.delegate release];
@@ -149,14 +131,18 @@ void _glfwPlatformTerminate(void)
     _glfwTerminateContextAPI();
 }
 
-
-//========================================================================
-// Get the GLFW version string
-//========================================================================
-
 const char* _glfwPlatformGetVersionString(void)
 {
-    const char* version = _GLFW_VERSION_FULL
+    const char* version = _GLFW_VERSION_FULL " Cocoa"
+#if defined(_GLFW_NSGL)
+        " NSGL"
+#endif
+#if defined(_GLFW_USE_CHDIR)
+        " chdir"
+#endif
+#if defined(_GLFW_USE_MENUBAR)
+        " menubar"
+#endif
 #if defined(_GLFW_BUILD_DLL)
         " dynamic"
 #endif

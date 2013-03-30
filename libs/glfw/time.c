@@ -35,34 +35,15 @@
 //////                        GLFW public API                       //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
-// Return timer value in seconds
-//========================================================================
-
 GLFWAPI double glfwGetTime(void)
 {
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return 0.0;
-    }
-
+    _GLFW_REQUIRE_INIT_OR_RETURN(0.0);
     return _glfwPlatformGetTime();
 }
 
-
-//========================================================================
-// Set timer value in seconds
-//========================================================================
-
 GLFWAPI void glfwSetTime(double time)
 {
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return;
-    }
-
+    _GLFW_REQUIRE_INIT();
     _glfwPlatformSetTime(time);
 }
 

@@ -67,11 +67,11 @@ private:
   void onButtonClicked(Widget& widget,
                        const vec2& position,
                        input::Button button,
-                       bool clicked);
+                       input::Action action);
   void onEntryFocusChanged(Widget& widget, bool activated);
-  void onEntryKeyPressed(Widget& widget, input::Key key, bool pressed);
+  void onEntryKeyPressed(Widget& widget, input::Key key, input::Action action);
   void onEntryDestroyed(Widget& widget);
-  void onKeyPressed(Widget& widget, input::Key key, bool pressed);
+  void onKeyPressed(Widget& widget, input::Key key, input::Action action);
   void onScrolled(Widget& widget, double x, double y);
   void onValueChanged(Scroller& scroller);
   void beginEditing();

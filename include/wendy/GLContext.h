@@ -639,7 +639,7 @@ private:
   void applyState(const RenderState& newState);
   void forceState(const RenderState& newState);
   static void sizeCallback(GLFWwindow* window, int width, int height);
-  static int closeCallback(GLFWwindow* window);
+  static void closeCallback(GLFWwindow* window);
   static void refreshCallback(GLFWwindow* window);
   class SharedSampler;
   class SharedUniform;
@@ -655,7 +655,6 @@ private:
   Version version;
   int swapInterval;
   bool needsRefresh;
-  bool needsClosing;
   Recti scissorArea;
   Recti viewportArea;
   bool dirtyBinding;

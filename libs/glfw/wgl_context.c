@@ -35,9 +35,8 @@
 #include <assert.h>
 
 
-//========================================================================
 // Thread local storage attribute macro
-//========================================================================
+//
 #if defined(_MSC_VER)
  #define _GLFW_TLS __declspec(thread)
 #elif defined(__GNUC__)
@@ -47,20 +46,17 @@
 #endif
 
 
-//========================================================================
 // The per-thread current context/window pointer
-//========================================================================
+//
 static _GLFW_TLS _GLFWwindow* _glfwCurrentWindow = NULL;
 
 
-//========================================================================
 // Initialize WGL-specific extensions
 // This function is called once before initial context creation, i.e. before
 // any WGL extensions could be present.  This is done in order to have both
 // extension variable clearing and loading in the same place, hopefully
 // decreasing the possibility of forgetting to add one without the other.
-//========================================================================
-
+//
 static void initWGLExtensions(_GLFWwindow* window)
 {
     // This needs to include every function pointer loaded below
@@ -149,28 +145,18 @@ static void initWGLExtensions(_GLFWwindow* window)
 //////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
 // Initialize WGL
-//========================================================================
-
-int _glfwInitOpenGL(void)
+//
+int _glfwInitContextAPI(void)
 {
     return GL_TRUE;
 }
 
-
-//========================================================================
 // Terminate WGL
-//========================================================================
-
-void _glfwTerminateOpenGL(void)
+//
+void _glfwTerminateContextAPI(void)
 {
 }
-
-
-//========================================================================
-// Prepare for creation of the OpenGL context
-//========================================================================
 
 #define setWGLattrib(attribName, attribValue) \
 { \
@@ -179,6 +165,8 @@ void _glfwTerminateOpenGL(void)
     assert(index < sizeof(attribs) / sizeof(attribs[0])); \
 }
 
+// Prepare for creation of the OpenGL context
+//
 int _glfwCreateContext(_GLFWwindow* window,
                        const _GLFWwndconfig* wndconfig,
                        const _GLFWfbconfig* fbconfig)
@@ -417,11 +405,8 @@ int _glfwCreateContext(_GLFWwindow* window,
 
 #undef setWGLattrib
 
-
-//========================================================================
 // Destroy the OpenGL context
-//========================================================================
-
+//
 void _glfwDestroyContext(_GLFWwindow* window)
 {
     if (window->wgl.context)
@@ -437,11 +422,8 @@ void _glfwDestroyContext(_GLFWwindow* window)
     }
 }
 
-
-//========================================================================
 // Analyzes the specified context for possible recreation
-//========================================================================
-
+//
 int _glfwAnalyzeContext(const _GLFWwindow* window,
                         const _GLFWwndconfig* wndconfig,
                         const _GLFWfbconfig* fbconfig)
@@ -527,10 +509,6 @@ int _glfwAnalyzeContext(const _GLFWwindow* window,
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
-// Make the OpenGL context associated with the specified window current
-//========================================================================
-
 void _glfwPlatformMakeContextCurrent(_GLFWwindow* window)
 {
     if (window)
@@ -541,43 +519,30 @@ void _glfwPlatformMakeContextCurrent(_GLFWwindow* window)
     _glfwCurrentWindow = window;
 }
 
-
-//========================================================================
-// Return the window object whose context is current
-//========================================================================
-
 _GLFWwindow* _glfwPlatformGetCurrentContext(void)
 {
     return _glfwCurrentWindow;
 }
-
-
-//========================================================================
-// Swap buffers (double-buffering)
-//========================================================================
 
 void _glfwPlatformSwapBuffers(_GLFWwindow* window)
 {
     SwapBuffers(window->wgl.dc);
 }
 
-
-//========================================================================
-// Set double buffering swap interval
-//========================================================================
-
 void _glfwPlatformSwapInterval(int interval)
 {
     _GLFWwindow* window = _glfwCurrentWindow;
 
+    if (_glfwIsCompositionEnabled())
+    {
+        // Don't enabled vsync when desktop compositing is enabled, as it leads
+        // to frame jitter
+        return;
+    }
+
     if (window->wgl.EXT_swap_control)
         window->wgl.SwapIntervalEXT(interval);
 }
-
-
-//========================================================================
-// Check if the current context supports the specified WGL extension
-//========================================================================
 
 int _glfwPlatformExtensionSupported(const char* extension)
 {
@@ -608,11 +573,6 @@ int _glfwPlatformExtensionSupported(const char* extension)
     return GL_FALSE;
 }
 
-
-//========================================================================
-// Get the function pointer to an OpenGL function
-//========================================================================
-
 GLFWglproc _glfwPlatformGetProcAddress(const char* procname)
 {
     return (GLFWglproc) wglGetProcAddress(procname);
@@ -623,20 +583,10 @@ GLFWglproc _glfwPlatformGetProcAddress(const char* procname)
 //////                        GLFW native API                       //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
-// Return the WGL context of the specified window
-//========================================================================
-
 GLFWAPI HGLRC glfwGetWGLContext(GLFWwindow* handle)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return NULL;
-    }
-
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
     return window->wgl.context;
 }
 

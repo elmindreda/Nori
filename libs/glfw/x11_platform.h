@@ -63,16 +63,11 @@
 #define _GLFW_PLATFORM_LIBRARY_WINDOW_STATE _GLFWlibraryX11 x11
 #define _GLFW_PLATFORM_MONITOR_STATE        _GLFWmonitorX11 x11
 
-// Clipboard format atom indices
+// Clipboard format atom indices (in order of preference)
 #define _GLFW_CLIPBOARD_FORMAT_UTF8     0
 #define _GLFW_CLIPBOARD_FORMAT_COMPOUND 1
 #define _GLFW_CLIPBOARD_FORMAT_STRING   2
 #define _GLFW_CLIPBOARD_FORMAT_COUNT    3
-
-// Clipboard conversion status tokens
-#define _GLFW_CONVERSION_INACTIVE       0
-#define _GLFW_CONVERSION_SUCCEEDED      1
-#define _GLFW_CONVERSION_FAILED         2
 
 
 //========================================================================
@@ -101,12 +96,6 @@ typedef struct _GLFWwindowX11
     GLboolean       cursorCentered;   // True if cursor was moved since last poll
     int             cursorPosX, cursorPosY;
 
-    // Window position hint (commited the first time the window is shown)
-    GLboolean       windowPosSet;     // False until the window position has
-                                      // been set
-    int             positionX;        // The window position to be set the
-    int             positionY;        // first time the window is shown
-
 } _GLFWwindowX11;
 
 
@@ -131,6 +120,12 @@ typedef struct _GLFWlibraryX11
     Atom            NET_WM_STATE;
     Atom            NET_WM_STATE_FULLSCREEN;
     Atom            NET_ACTIVE_WINDOW;
+
+    // Selection atoms
+    Atom            TARGETS;
+    Atom            CLIPBOARD;
+    Atom            UTF8_STRING;
+    Atom            COMPOUND_STRING;
 
     // True if window manager supports EWMH
     GLboolean       hasEWMH;
@@ -176,13 +171,9 @@ typedef struct _GLFWlibraryX11
     } timer;
 
     struct {
-        Atom        atom;
         Atom        formats[_GLFW_CLIPBOARD_FORMAT_COUNT];
         char*       string;
-        Atom        target;
-        Atom        targets;
         Atom        property;
-        int         status;
     } selection;
 
     struct {
@@ -203,13 +194,9 @@ typedef struct _GLFWlibraryX11
 //------------------------------------------------------------------------
 typedef struct _GLFWmonitorX11
 {
-    GLboolean       modeChanged;
-
-    XRROutputInfo*  output;
-    SizeID          oldSizeID;
-    int             oldWidth;
-    int             oldHeight;
-    Rotation        oldRotation;
+    RROutput        output;
+    RRCrtc          crtc;
+    RRMode          oldMode;
 
 } _GLFWmonitorX11;
 
@@ -223,7 +210,6 @@ void _glfwInitTimer(void);
 
 // Gamma
 void _glfwInitGammaRamp(void);
-void _glfwTerminateGammaRamp(void);
 
 // OpenGL support
 int _glfwInitContextAPI(void);
@@ -234,9 +220,7 @@ int _glfwCreateContext(_GLFWwindow* window,
 void _glfwDestroyContext(_GLFWwindow* window);
 
 // Fullscreen support
-int  _glfwGetClosestVideoMode(_GLFWmonitor* monitor, int* width, int* height);
-void _glfwSetVideoModeMODE(_GLFWmonitor* monitor, int mode);
-void _glfwSetVideoMode(_GLFWmonitor* monitor, int* width, int* height);
+void _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* mode);
 void _glfwRestoreVideoMode(_GLFWmonitor* monitor);
 
 // Joystick input
@@ -247,13 +231,10 @@ void _glfwTerminateJoysticks(void);
 long _glfwKeySym2Unicode(KeySym keysym);
 
 // Clipboard handling
-GLboolean _glfwReadSelection(XSelectionEvent* request);
 Atom _glfwWriteSelection(XSelectionRequestEvent* request);
 
-// Event processing
-void _glfwProcessPendingEvents(void);
-
 // Window support
+_GLFWwindow* _glfwFindWindowByHandle(Window handle);
 unsigned long _glfwGetWindowProperty(Window window,
                                      Atom property,
                                      Atom type,

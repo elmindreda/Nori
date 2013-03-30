@@ -35,17 +35,9 @@
 //////                        GLFW public API                       //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
-// Determine joystick capabilities
-//========================================================================
-
 GLFWAPI int glfwGetJoystickParam(int joy, int param)
 {
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return 0;
-    }
+    _GLFW_REQUIRE_INIT_OR_RETURN(0);
 
     if (joy < 0 || joy > GLFW_JOYSTICK_LAST)
     {
@@ -56,20 +48,11 @@ GLFWAPI int glfwGetJoystickParam(int joy, int param)
     return _glfwPlatformGetJoystickParam(joy, param);
 }
 
-
-//========================================================================
-// Get joystick axis positions
-//========================================================================
-
 GLFWAPI int glfwGetJoystickAxes(int joy, float* axes, int numaxes)
 {
     int i;
 
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return 0;
-    }
+    _GLFW_REQUIRE_INIT_OR_RETURN(0);
 
     if (joy < 0 || joy > GLFW_JOYSTICK_LAST)
     {
@@ -90,22 +73,13 @@ GLFWAPI int glfwGetJoystickAxes(int joy, float* axes, int numaxes)
     return _glfwPlatformGetJoystickAxes(joy, axes, numaxes);
 }
 
-
-//========================================================================
-// Get joystick button states
-//========================================================================
-
 GLFWAPI int glfwGetJoystickButtons(int joy,
                                    unsigned char* buttons,
                                    int numbuttons)
 {
     int i;
 
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return 0;
-    }
+    _GLFW_REQUIRE_INIT_OR_RETURN(0);
 
     if (joy < 0 || joy > GLFW_JOYSTICK_LAST)
     {
@@ -126,18 +100,9 @@ GLFWAPI int glfwGetJoystickButtons(int joy,
     return _glfwPlatformGetJoystickButtons(joy, buttons, numbuttons);
 }
 
-
-//========================================================================
-// Get joystick name
-//========================================================================
-
 GLFWAPI const char* glfwGetJoystickName(int joy)
 {
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return NULL;
-    }
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
 
     if (joy < 0 || joy > GLFW_JOYSTICK_LAST)
     {

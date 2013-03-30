@@ -32,9 +32,8 @@
 #include <pthread.h>
 
 
-//========================================================================
 // The per-thread current context/window pointer
-//========================================================================
+//
 static pthread_key_t _glfwCurrentTLS;
 
 
@@ -42,10 +41,8 @@ static pthread_key_t _glfwCurrentTLS;
 //////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
 // Initialize OpenGL support
-//========================================================================
-
+//
 int _glfwInitContextAPI(void)
 {
     if (pthread_key_create(&_glfwCurrentTLS, NULL) != 0)
@@ -58,21 +55,15 @@ int _glfwInitContextAPI(void)
     return GL_TRUE;
 }
 
-
-//========================================================================
 // Terminate OpenGL support
-//========================================================================
-
+//
 void _glfwTerminateContextAPI(void)
 {
     pthread_key_delete(_glfwCurrentTLS);
 }
 
-
-//========================================================================
 // Create the OpenGL context
-//========================================================================
-
+//
 int _glfwCreateContext(_GLFWwindow* window,
                        const _GLFWwndconfig* wndconfig,
                        const _GLFWfbconfig* fbconfig)
@@ -228,11 +219,8 @@ int _glfwCreateContext(_GLFWwindow* window,
     return GL_TRUE;
 }
 
-
-//========================================================================
 // Destroy the OpenGL context
-//========================================================================
-
+//
 void _glfwDestroyContext(_GLFWwindow* window)
 {
     [window->nsgl.pixelFormat release];
@@ -247,10 +235,6 @@ void _glfwDestroyContext(_GLFWwindow* window)
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
-// Make the OpenGL context associated with the specified window current
-//========================================================================
-
 void _glfwPlatformMakeContextCurrent(_GLFWwindow* window)
 {
     if (window)
@@ -261,31 +245,16 @@ void _glfwPlatformMakeContextCurrent(_GLFWwindow* window)
     pthread_setspecific(_glfwCurrentTLS, window);
 }
 
-
-//========================================================================
-// Return the window object whose context is current
-//========================================================================
-
 _GLFWwindow* _glfwPlatformGetCurrentContext(void)
 {
     return (_GLFWwindow*) pthread_getspecific(_glfwCurrentTLS);
 }
-
-
-//========================================================================
-// Swap buffers
-//========================================================================
 
 void _glfwPlatformSwapBuffers(_GLFWwindow* window)
 {
     // ARP appears to be unnecessary, but this is future-proof
     [window->nsgl.context flushBuffer];
 }
-
-
-//========================================================================
-// Set double buffering swap interval
-//========================================================================
 
 void _glfwPlatformSwapInterval(int interval)
 {
@@ -295,21 +264,11 @@ void _glfwPlatformSwapInterval(int interval)
     [window->nsgl.context setValues:&sync forParameter:NSOpenGLCPSwapInterval];
 }
 
-
-//========================================================================
-// Check if an OpenGL extension is available at runtime
-//========================================================================
-
 int _glfwPlatformExtensionSupported(const char* extension)
 {
     // There are no NSGL extensions
     return GL_FALSE;
 }
-
-
-//========================================================================
-// Get the function pointer to an OpenGL function
-//========================================================================
 
 GLFWglproc _glfwPlatformGetProcAddress(const char* procname)
 {
@@ -330,20 +289,10 @@ GLFWglproc _glfwPlatformGetProcAddress(const char* procname)
 //////                        GLFW native API                       //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
-// Return the NSGL context of the specified window
-//========================================================================
-
 GLFWAPI id glfwGetNSGLContext(GLFWwindow* handle)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return NULL;
-    }
-
+    _GLFW_REQUIRE_INIT_OR_RETURN(nil);
     return window->nsgl.context;
 }
 

@@ -45,10 +45,8 @@
 #endif // __linux__
 
 
-//========================================================================
 // Attempt to open the specified joystick device
-//========================================================================
-
+//
 static int openJoystickDevice(int joy, const char* path)
 {
 #ifdef __linux__
@@ -83,23 +81,7 @@ static int openJoystickDevice(int joy, const char* path)
     _glfw.x11.joystick[joy].numButtons = (int) numButtons;
 
     _glfw.x11.joystick[joy].axis = (float*) malloc(sizeof(float) * numAxes);
-    if (_glfw.x11.joystick[joy].axis == NULL)
-    {
-        close(fd);
-
-        _glfwInputError(GLFW_OUT_OF_MEMORY, NULL);
-        return GL_FALSE;
-    }
-
     _glfw.x11.joystick[joy].button = (unsigned char*) malloc(numButtons);
-    if (_glfw.x11.joystick[joy].button == NULL)
-    {
-        free(_glfw.x11.joystick[joy].axis);
-        close(fd);
-
-        _glfwInputError(GLFW_OUT_OF_MEMORY, NULL);
-        return GL_FALSE;
-    }
 
     _glfw.x11.joystick[joy].present = GL_TRUE;
 #endif // __linux__
@@ -107,11 +89,8 @@ static int openJoystickDevice(int joy, const char* path)
     return GL_TRUE;
 }
 
-
-//========================================================================
 // Polls for and processes events for all present joysticks
-//========================================================================
-
+//
 static void pollJoystickEvents(void)
 {
 #ifdef __linux__
@@ -173,10 +152,8 @@ static void pollJoystickEvents(void)
 //////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
 // Initialize joystick interface
-//========================================================================
-
+//
 int _glfwInitJoysticks(void)
 {
 #ifdef __linux__
@@ -225,11 +202,8 @@ int _glfwInitJoysticks(void)
     return GL_TRUE;
 }
 
-
-//========================================================================
 // Close all opened joystick handles
-//========================================================================
-
+//
 void _glfwTerminateJoysticks(void)
 {
 #ifdef __linux__
@@ -254,10 +228,6 @@ void _glfwTerminateJoysticks(void)
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
-
-//========================================================================
-// Determine joystick capabilities
-//========================================================================
 
 int _glfwPlatformGetJoystickParam(int joy, int param)
 {
@@ -284,11 +254,6 @@ int _glfwPlatformGetJoystickParam(int joy, int param)
     return 0;
 }
 
-
-//========================================================================
-// Get joystick axis positions
-//========================================================================
-
 int _glfwPlatformGetJoystickAxes(int joy, float* axes, int numAxes)
 {
     int i;
@@ -306,11 +271,6 @@ int _glfwPlatformGetJoystickAxes(int joy, float* axes, int numAxes)
 
     return numAxes;
 }
-
-
-//========================================================================
-// Get joystick button states
-//========================================================================
 
 int _glfwPlatformGetJoystickButtons(int joy, unsigned char* buttons,
                                     int numButtons)
@@ -330,11 +290,6 @@ int _glfwPlatformGetJoystickButtons(int joy, unsigned char* buttons,
 
     return numButtons;
 }
-
-
-//========================================================================
-// Get joystick name
-//========================================================================
 
 const char* _glfwPlatformGetJoystickName(int joy)
 {

@@ -30,11 +30,12 @@
 
 #include "internal.h"
 
+// Internal key state used for sticky keys
+#define _GLFW_STICK 3
 
-//========================================================================
+
 // Sets the cursor mode for the specified window
-//========================================================================
-
+//
 static void setCursorMode(_GLFWwindow* window, int newMode)
 {
     int width, height, oldMode, centerPosX, centerPosY;
@@ -66,11 +67,8 @@ static void setCursorMode(_GLFWwindow* window, int newMode)
         _glfwInputCursorMotion(window, window->cursorPosX, window->cursorPosY);
 }
 
-
-//========================================================================
 // Set sticky keys mode for the specified window
-//========================================================================
-
+//
 static void setStickyKeys(_GLFWwindow* window, int enabled)
 {
     if (window->stickyKeys == enabled)
@@ -91,11 +89,8 @@ static void setStickyKeys(_GLFWwindow* window, int enabled)
     window->stickyKeys = enabled;
 }
 
-
-//========================================================================
 // Set sticky mouse buttons mode for the specified window
-//========================================================================
-
+//
 static void setStickyMouseButtons(_GLFWwindow* window, int enabled)
 {
     if (window->stickyMouseButtons == enabled)
@@ -118,12 +113,8 @@ static void setStickyMouseButtons(_GLFWwindow* window, int enabled)
 
 
 //////////////////////////////////////////////////////////////////////////
-//////                       GLFW internal API                      //////
+//////                         GLFW event API                       //////
 //////////////////////////////////////////////////////////////////////////
-
-//========================================================================
-// Register keyboard activity
-//========================================================================
 
 void _glfwInputKey(_GLFWwindow* window, int key, int action)
 {
@@ -132,56 +123,38 @@ void _glfwInputKey(_GLFWwindow* window, int key, int action)
     if (key < 0 || key > GLFW_KEY_LAST)
         return;
 
-    // Are we trying to release an already released key?
-    if (action == GLFW_RELEASE && window->key[key] != GLFW_PRESS)
-        return;
+    if (action == GLFW_PRESS && window->key[key] == GLFW_PRESS)
+        repeated = GL_TRUE;
 
-    // Register key action
     if (action == GLFW_RELEASE && window->stickyKeys)
         window->key[key] = _GLFW_STICK;
     else
-    {
-        if (action == GLFW_PRESS && window->key[key] == GLFW_PRESS)
-            repeated = GL_TRUE;
-
         window->key[key] = (char) action;
-    }
 
-    // Call user callback function
-    if (window->callbacks.key && !repeated)
+    if (repeated)
+        action = GLFW_REPEAT;
+
+    if (window->callbacks.key)
         window->callbacks.key((GLFWwindow*) window, key, action);
 }
 
-
-//========================================================================
-// Register (keyboard) character activity
-//========================================================================
-
-void _glfwInputChar(_GLFWwindow* window, int character)
+void _glfwInputChar(_GLFWwindow* window, unsigned int character)
 {
-    // Valid Unicode (ISO 10646) character?
-    if (!((character >= 32 && character <= 126) || character >= 160))
+    if (character == -1)
+        return;
+
+    if (character < 32 || (character > 126 && character < 160))
         return;
 
     if (window->callbacks.character)
         window->callbacks.character((GLFWwindow*) window, character);
 }
 
-
-//========================================================================
-// Register scroll events
-//========================================================================
-
 void _glfwInputScroll(_GLFWwindow* window, double xoffset, double yoffset)
 {
     if (window->callbacks.scroll)
         window->callbacks.scroll((GLFWwindow*) window, xoffset, yoffset);
 }
-
-
-//========================================================================
-// Register mouse button clicks
-//========================================================================
 
 void _glfwInputMouseClick(_GLFWwindow* window, int button, int action)
 {
@@ -197,11 +170,6 @@ void _glfwInputMouseClick(_GLFWwindow* window, int button, int action)
     if (window->callbacks.mouseButton)
         window->callbacks.mouseButton((GLFWwindow*) window, button, action);
 }
-
-
-//========================================================================
-// Register cursor moves
-//========================================================================
 
 void _glfwInputCursorMotion(_GLFWwindow* window, int x, int y)
 {
@@ -230,11 +198,6 @@ void _glfwInputCursorMotion(_GLFWwindow* window, int x, int y)
     }
 }
 
-
-//========================================================================
-// Register cursor enter/leave events
-//========================================================================
-
 void _glfwInputCursorEnter(_GLFWwindow* window, int entered)
 {
     if (window->callbacks.cursorEnter)
@@ -246,19 +209,11 @@ void _glfwInputCursorEnter(_GLFWwindow* window, int entered)
 //////                        GLFW public API                       //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
-// Returns the specified input mode of the specified window
-//========================================================================
-
 GLFWAPI int glfwGetInputMode(GLFWwindow* handle, int mode)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
 
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return 0;
-    }
+    _GLFW_REQUIRE_INIT_OR_RETURN(0);
 
     switch (mode)
     {
@@ -274,20 +229,11 @@ GLFWAPI int glfwGetInputMode(GLFWwindow* handle, int mode)
     }
 }
 
-
-//========================================================================
-// Sets the specified input mode of the specified window
-//========================================================================
-
 GLFWAPI void glfwSetInputMode(GLFWwindow* handle, int mode, int value)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
 
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return;
-    }
+    _GLFW_REQUIRE_INIT();
 
     switch (mode)
     {
@@ -306,20 +252,11 @@ GLFWAPI void glfwSetInputMode(GLFWwindow* handle, int mode, int value)
     }
 }
 
-
-//========================================================================
-// Returns the state of the specified key for the specified window
-//========================================================================
-
 GLFWAPI int glfwGetKey(GLFWwindow* handle, int key)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
 
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return GLFW_RELEASE;
-    }
+    _GLFW_REQUIRE_INIT_OR_RETURN(GLFW_RELEASE);
 
     if (key < 0 || key > GLFW_KEY_LAST)
     {
@@ -337,20 +274,11 @@ GLFWAPI int glfwGetKey(GLFWwindow* handle, int key)
     return (int) window->key[key];
 }
 
-
-//========================================================================
-// Returns the state of the specified mouse button for the specified window
-//========================================================================
-
 GLFWAPI int glfwGetMouseButton(GLFWwindow* handle, int button)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
 
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return GLFW_RELEASE;
-    }
+    _GLFW_REQUIRE_INIT_OR_RETURN(GLFW_RELEASE);
 
     if (button < 0 || button > GLFW_MOUSE_BUTTON_LAST)
     {
@@ -369,43 +297,24 @@ GLFWAPI int glfwGetMouseButton(GLFWwindow* handle, int button)
     return (int) window->mouseButton[button];
 }
 
-
-//========================================================================
-// Returns the last reported cursor position for the specified window
-//========================================================================
-
 GLFWAPI void glfwGetCursorPos(GLFWwindow* handle, int* xpos, int* ypos)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
 
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return;
-    }
+    _GLFW_REQUIRE_INIT();
 
-    if (xpos != NULL)
+    if (xpos)
         *xpos = window->cursorPosX;
 
-    if (ypos != NULL)
+    if (ypos)
         *ypos = window->cursorPosY;
 }
-
-
-//========================================================================
-// Sets the cursor position relative to the position of the client area of
-// the specified window
-//========================================================================
 
 GLFWAPI void glfwSetCursorPos(GLFWwindow* handle, int xpos, int ypos)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
 
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return;
-    }
+    _GLFW_REQUIRE_INIT();
 
     if (_glfw.focusedWindow != window)
         return;
@@ -426,111 +335,45 @@ GLFWAPI void glfwSetCursorPos(GLFWwindow* handle, int xpos, int ypos)
     _glfwPlatformSetCursorPos(window, xpos, ypos);
 }
 
-
-//========================================================================
-// Set callback function for keyboard input
-//========================================================================
-
 GLFWAPI void glfwSetKeyCallback(GLFWwindow* handle, GLFWkeyfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return;
-    }
-
+    _GLFW_REQUIRE_INIT();
     window->callbacks.key = cbfun;
 }
-
-
-//========================================================================
-// Set callback function for character input
-//========================================================================
 
 GLFWAPI void glfwSetCharCallback(GLFWwindow* handle, GLFWcharfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return;
-    }
-
+    _GLFW_REQUIRE_INIT();
     window->callbacks.character = cbfun;
 }
-
-
-//========================================================================
-// Set callback function for mouse clicks
-//========================================================================
 
 GLFWAPI void glfwSetMouseButtonCallback(GLFWwindow* handle, GLFWmousebuttonfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return;
-    }
-
+    _GLFW_REQUIRE_INIT();
     window->callbacks.mouseButton = cbfun;
 }
-
-
-//========================================================================
-// Set callback function for mouse moves
-//========================================================================
 
 GLFWAPI void glfwSetCursorPosCallback(GLFWwindow* handle, GLFWcursorposfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return;
-    }
-
+    _GLFW_REQUIRE_INIT();
     window->callbacks.cursorPos = cbfun;
 }
-
-
-//========================================================================
-// Set callback function for cursor enter/leave events
-//========================================================================
 
 GLFWAPI void glfwSetCursorEnterCallback(GLFWwindow* handle, GLFWcursorenterfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return;
-    }
-
+    _GLFW_REQUIRE_INIT();
     window->callbacks.cursorEnter = cbfun;
 }
-
-
-//========================================================================
-// Set callback function for scroll events
-//========================================================================
 
 GLFWAPI void glfwSetScrollCallback(GLFWwindow* handle, GLFWscrollfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return;
-    }
-
+    _GLFW_REQUIRE_INIT();
     window->callbacks.scroll = cbfun;
 }
 

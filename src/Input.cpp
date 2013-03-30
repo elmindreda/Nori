@@ -66,7 +66,7 @@ Hook::~Hook()
 {
 }
 
-bool Hook::onKeyPressed(Key key, bool pressed)
+bool Hook::onKeyPressed(Key key, Action action)
 {
   return false;
 }
@@ -76,7 +76,7 @@ bool Hook::onCharInput(uint32 character)
   return false;
 }
 
-bool Hook::onButtonClicked(Button button, bool clicked)
+bool Hook::onButtonClicked(Button button, Action action)
 {
   return false;
 }
@@ -101,7 +101,7 @@ void Target::onWindowResized(uint width, uint height)
 {
 }
 
-void Target::onKeyPressed(Key key, bool pressed)
+void Target::onKeyPressed(Key key, Action action)
 {
 }
 
@@ -109,7 +109,7 @@ void Target::onCharInput(uint32 character)
 {
 }
 
-void Target::onButtonClicked(Button button, bool clicked)
+void Target::onButtonClicked(Button button, Action action)
 {
 }
 
@@ -499,28 +499,26 @@ void Window::onWindowResized(uint width, uint height)
 
 void Window::keyboardCallback(GLFWwindow* handle, int key, int action)
 {
-  const bool pressed = (action == GLFW_PRESS) ? true : false;
-
   if (instance->currentHook)
   {
-    if (instance->currentHook->onKeyPressed(externalMap[key], pressed))
+    if (instance->currentHook->onKeyPressed(externalMap[key], Action(action)))
       return;
   }
 
   if (instance->currentTarget)
-    instance->currentTarget->onKeyPressed(externalMap[key], pressed);
+    instance->currentTarget->onKeyPressed(externalMap[key], Action(action));
 }
 
-void Window::characterCallback(GLFWwindow* handle, int character)
+void Window::characterCallback(GLFWwindow* handle, uint character)
 {
   if (instance->currentHook)
   {
-    if (instance->currentHook->onCharInput((uint32) character))
+    if (instance->currentHook->onCharInput(character))
       return;
   }
 
   if (instance->currentTarget)
-    instance->currentTarget->onCharInput((uint32) character);
+    instance->currentTarget->onCharInput(character);
 }
 
 void Window::mousePosCallback(GLFWwindow* handle, int x, int y)
@@ -537,18 +535,16 @@ void Window::mousePosCallback(GLFWwindow* handle, int x, int y)
 
 void Window::mouseButtonCallback(GLFWwindow* handle, int button, int action)
 {
-  const bool clicked = (action == GLFW_PRESS) ? true : false;
-
   button -= GLFW_MOUSE_BUTTON_1;
 
   if (instance->currentHook)
   {
-    if (instance->currentHook->onButtonClicked(Button(button), clicked))
+    if (instance->currentHook->onButtonClicked(Button(button), Action(action)))
       return;
   }
 
   if (instance->currentTarget)
-    instance->currentTarget->onButtonClicked(Button(button), clicked);
+    instance->currentTarget->onButtonClicked(Button(button), Action(action));
 }
 
 void Window::scrollCallback(GLFWwindow* handle, double x, double y)
@@ -617,16 +613,16 @@ void SpectatorController::release()
   turbo = false;
 }
 
-void SpectatorController::inputKeyPress(Key key, bool pressed)
+void SpectatorController::inputKeyPress(Key key, Action action)
 {
   switch (key)
   {
     case KEY_W:
     case KEY_UP:
     {
-      if (pressed)
+      if (action == PRESSED)
         directions[FORWARD] = true;
-      else
+      else if (action == RELEASED)
         directions[FORWARD] = false;
       break;
     }
@@ -634,9 +630,9 @@ void SpectatorController::inputKeyPress(Key key, bool pressed)
     case KEY_S:
     case KEY_DOWN:
     {
-      if (pressed)
+      if (action == PRESSED)
         directions[BACK] = true;
-      else
+      else if (action == RELEASED)
         directions[BACK] = false;
       break;
     }
@@ -644,9 +640,9 @@ void SpectatorController::inputKeyPress(Key key, bool pressed)
     case KEY_A:
     case KEY_LEFT:
     {
-      if (pressed)
+      if (action == PRESSED)
         directions[LEFT] = true;
-      else
+      else if (action == RELEASED)
         directions[LEFT] = false;
       break;
     }
@@ -654,9 +650,9 @@ void SpectatorController::inputKeyPress(Key key, bool pressed)
     case KEY_D:
     case KEY_RIGHT:
     {
-      if (pressed)
+      if (action == PRESSED)
         directions[RIGHT] = true;
-      else
+      else if (action == RELEASED)
         directions[RIGHT] = false;
       break;
     }
@@ -664,9 +660,9 @@ void SpectatorController::inputKeyPress(Key key, bool pressed)
     case KEY_LEFT_CONTROL:
     case KEY_RIGHT_CONTROL:
     {
-      if (pressed)
+      if (action == PRESSED)
         directions[DOWN] = true;
-      else
+      else if (action == RELEASED)
         directions[DOWN] = false;
       break;
     }
@@ -674,9 +670,9 @@ void SpectatorController::inputKeyPress(Key key, bool pressed)
     case KEY_LEFT_SHIFT:
     case KEY_RIGHT_SHIFT:
     {
-      if (pressed)
+      if (action == PRESSED)
         turbo = true;
-      else
+      else if (action == RELEASED)
         turbo = false;
       break;
     }
@@ -686,13 +682,13 @@ void SpectatorController::inputKeyPress(Key key, bool pressed)
   }
 }
 
-void SpectatorController::inputButtonClick(Button button, bool clicked)
+void SpectatorController::inputButtonClick(Button button, Action action)
 {
   if (button == BUTTON_RIGHT)
   {
-    if (clicked)
+    if (action == PRESSED)
       directions[UP] = true;
-    else
+    else if (action == RELEASED)
       directions[UP] = false;
   }
 }
@@ -753,13 +749,13 @@ TextController::TextController():
 {
 }
 
-void TextController::onKeyPressed(Key key, bool pressed)
+void TextController::onKeyPressed(Key key, Action action)
 {
   switch (key)
   {
     case KEY_BACKSPACE:
     {
-      if (!pressed)
+      if (action == RELEASED)
         break;
 
       if (!text.empty() && caretPosition > 0)
@@ -773,7 +769,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
     case KEY_DELETE:
     {
-      if (!pressed)
+      if (action == RELEASED)
         break;
 
       if (!text.empty() && caretPosition < text.length())
@@ -784,7 +780,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
     case KEY_LEFT:
     {
-      if (!pressed)
+      if (action == RELEASED)
         break;
 
       if (caretPosition > 0)
@@ -794,7 +790,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
     case KEY_RIGHT:
     {
-      if (!pressed)
+      if (action == RELEASED)
         break;
 
       setCaretPosition(caretPosition + 1);
@@ -803,7 +799,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
     case KEY_HOME:
     {
-      if (!pressed)
+      if (action == RELEASED)
         break;
 
       setCaretPosition(0);
@@ -812,7 +808,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
     case KEY_END:
     {
-      if (!pressed)
+      if (action == RELEASED)
         break;
 
       setCaretPosition(text.length());
@@ -821,7 +817,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
     case KEY_U:
     {
-      if (pressed && isCtrlKeyDown())
+      if (action != RELEASED && isCtrlKeyDown())
       {
         text.erase(0, caretPosition);
         setCaretPosition(0);
@@ -832,7 +828,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
     case KEY_A:
     {
-      if (pressed && isCtrlKeyDown())
+      if (action != RELEASED && isCtrlKeyDown())
         setCaretPosition(0);
 
       break;
@@ -840,7 +836,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
     case KEY_E:
     {
-      if (pressed && isCtrlKeyDown())
+      if (action != RELEASED && isCtrlKeyDown())
         setCaretPosition(text.length());
 
       break;
@@ -848,7 +844,7 @@ void TextController::onKeyPressed(Key key, bool pressed)
 
     case KEY_W:
     {
-      if (pressed && isCtrlKeyDown())
+      if (action != RELEASED && isCtrlKeyDown())
       {
         size_t pos = caretPosition;
 

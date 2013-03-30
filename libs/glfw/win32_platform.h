@@ -72,6 +72,9 @@
 #ifndef WM_MOUSEHWHEEL
  #define WM_MOUSEHWHEEL 0x020E
 #endif
+#ifndef WM_DWMCOMPOSITIONCHANGED
+ #define WM_DWMCOMPOSITIONCHANGED 0x031E
+#endif
 
 
 //========================================================================
@@ -99,6 +102,14 @@ typedef DWORD (WINAPI * TIMEGETTIME_T) (void);
  #define _glfw_joyGetPosEx   joyGetPosEx
  #define _glfw_timeGetTime   timeGetTime
 #endif // _GLFW_NO_DLOAD_WINMM
+
+// user32.dll function pointer typedefs
+typedef BOOL (WINAPI * SETPROCESSDPIAWARE_T)(void);
+#define _glfw_SetProcessDPIAware _glfw.win32.user32.SetProcessDPIAware
+
+// dwmapi.dll function pointer typedefs
+typedef HRESULT (WINAPI * DWMISCOMPOSITIONENABLED_T)(BOOL*);
+#define _glfw_DwmIsCompositionEnabled _glfw.win32.dwmapi.DwmIsCompositionEnabled
 
 
 // We use versioned window class names in order not to cause conflicts
@@ -157,7 +168,6 @@ typedef struct _GLFWwindowWin32
 //------------------------------------------------------------------------
 typedef struct _GLFWlibraryWin32
 {
-    HINSTANCE           instance;
     ATOM                classAtom;
     DWORD               foregroundLockTimeout;
     char*               clipboardString;
@@ -181,6 +191,18 @@ typedef struct _GLFWlibraryWin32
     } winmm;
 #endif // _GLFW_NO_DLOAD_WINMM
 
+    // user32.dll
+    struct {
+        HINSTANCE       instance;
+        SETPROCESSDPIAWARE_T SetProcessDPIAware;
+    } user32;
+
+    // dwmapi.dll
+    struct {
+        HINSTANCE       instance;
+        DWMISCOMPOSITIONENABLED_T DwmIsCompositionEnabled;
+    } dwmapi;
+
     struct {
         char*           name;
     } joystick[GLFW_JOYSTICK_LAST + 1];
@@ -193,7 +215,8 @@ typedef struct _GLFWlibraryWin32
 //------------------------------------------------------------------------
 typedef struct _GLFWmonitorWin32
 {
-    WCHAR*              name;
+    // This size matches the static size of DISPLAY_DEVICE.DeviceName
+    WCHAR               name[32];
 
 } _GLFWmonitorWin32;
 
@@ -201,6 +224,9 @@ typedef struct _GLFWmonitorWin32
 //========================================================================
 // Prototypes for platform specific internal functions
 //========================================================================
+
+// Desktop compositing
+BOOL _glfwIsCompositionEnabled(void);
 
 // Wide strings
 WCHAR* _glfwCreateWideStringFromUTF8(const char* source);
@@ -214,8 +240,8 @@ void _glfwInitJoysticks(void);
 void _glfwTerminateJoysticks(void);
 
 // OpenGL support
-int _glfwInitOpenGL(void);
-void _glfwTerminateOpenGL(void);
+int _glfwInitContextAPI(void);
+void _glfwTerminateContextAPI(void);
 int _glfwCreateContext(_GLFWwindow* window,
                        const _GLFWwndconfig* wndconfig,
                        const _GLFWfbconfig* fbconfig);

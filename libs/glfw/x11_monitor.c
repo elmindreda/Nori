@@ -39,152 +39,107 @@
 //////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
-// Finds the video mode closest in size to the specified desired size
-//========================================================================
-
-int _glfwGetClosestVideoMode(_GLFWmonitor* monitor, int* width, int* height)
+// Set the current video mode for the specified monitor
+//
+void _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* mode)
 {
-    int i, match, bestmatch;
-
     if (_glfw.x11.randr.available)
     {
-        int sizecount, bestsize;
-        XRRScreenConfiguration* sc;
-        XRRScreenSize* sizelist;
+        int i, j, k;
+        XRRScreenResources* sr;
+        XRRCrtcInfo* ci;
+        RRMode bestMode = 0;
+        unsigned int leastSizeDiff = UINT_MAX;
 
-        sc = XRRGetScreenInfo(_glfw.x11.display, _glfw.x11.root);
+        sr = XRRGetScreenResources(_glfw.x11.display, _glfw.x11.root);
+        ci = XRRGetCrtcInfo(_glfw.x11.display, sr, monitor->x11.crtc);
 
-        sizelist = XRRConfigSizes(sc, &sizecount);
-
-        // Find the best matching mode
-        bestsize  = -1;
-        bestmatch = INT_MAX;
-        for (i = 0;  i < sizecount;  i++)
+        for (i = 0;  i < sr->nmode;  i++)
         {
-            match = (*width - sizelist[i].width) *
-                    (*width - sizelist[i].width) +
-                    (*height - sizelist[i].height) *
-                    (*height - sizelist[i].height);
-            if (match < bestmatch)
+            GLboolean usable = GL_TRUE;
+            XRRModeInfo* mi = sr->modes + i;
+
+            for (j = 0;  j < ci->noutput;  j++)
             {
-                bestmatch = match;
-                bestsize  = i;
+                XRROutputInfo* oi = XRRGetOutputInfo(_glfw.x11.display,
+                                                     sr, ci->outputs[j]);
+
+                for (k = 0;  k < oi->nmode;  k++)
+                {
+                    if (oi->modes[k] == mi->id)
+                        break;
+                }
+
+                if (k == oi->nmode)
+                    usable = GL_FALSE;
+
+                XRRFreeOutputInfo(oi);
+            }
+
+            if (!usable)
+                continue;
+
+            if (mi->modeFlags & RR_Interlace)
+                continue;
+
+            unsigned int sizeDiff = (mi->width - mode->width) *
+                                    (mi->width - mode->width) +
+                                    (mi->height - mode->height) *
+                                    (mi->height - mode->height);
+
+            if (sizeDiff < leastSizeDiff)
+            {
+                bestMode = mi->id;
+                leastSizeDiff = sizeDiff;
             }
         }
 
-        if (bestsize != -1)
-        {
-            // Report width & height of best matching mode
-            *width = sizelist[bestsize].width;
-            *height = sizelist[bestsize].height;
-        }
+        monitor->x11.oldMode = ci->mode;
 
-        XRRFreeScreenConfigInfo(sc);
+        XRRSetCrtcConfig(_glfw.x11.display,
+                         sr, monitor->x11.crtc,
+                         CurrentTime,
+                         ci->x, ci->y,
+                         bestMode,
+                         ci->rotation,
+                         ci->outputs,
+                         ci->noutput);
 
-        if (bestsize != -1)
-            return bestsize;
-    }
-
-    // Default: Simply use the screen resolution
-    *width = DisplayWidth(_glfw.x11.display, _glfw.x11.screen);
-    *height = DisplayHeight(_glfw.x11.display, _glfw.x11.screen);
-
-    return 0;
-}
-
-
-//========================================================================
-// Change the current video mode
-//========================================================================
-
-void _glfwSetVideoModeMODE(_GLFWmonitor* monitor, int mode)
-{
-    if (_glfw.x11.randr.available)
-    {
-        XRRScreenConfiguration* sc;
-        Window root;
-
-        root = _glfw.x11.root;
-        sc   = XRRGetScreenInfo(_glfw.x11.display, root);
-
-        // Remember old size and flag that we have changed the mode
-        if (!monitor->x11.modeChanged)
-        {
-            monitor->x11.oldSizeID = XRRConfigCurrentConfiguration(sc, &monitor->x11.oldRotation);
-            monitor->x11.oldWidth  = DisplayWidth(_glfw.x11.display,
-                                                  _glfw.x11.screen);
-            monitor->x11.oldHeight = DisplayHeight(_glfw.x11.display,
-                                                   _glfw.x11.screen);
-
-            monitor->x11.modeChanged = GL_TRUE;
-        }
-
-        XRRSetScreenConfig(_glfw.x11.display,
-                           sc,
-                           root,
-                           mode,
-                           RR_Rotate_0,
-                           CurrentTime);
-
-        XRRFreeScreenConfigInfo(sc);
+        XRRFreeCrtcInfo(ci);
+        XRRFreeScreenResources(sr);
     }
 }
 
-
-//========================================================================
-// Change the current video mode
-//========================================================================
-
-void _glfwSetVideoMode(_GLFWmonitor* monitor, int* width, int* height)
-{
-    int bestmode;
-
-    // Find a best match mode
-    bestmode = _glfwGetClosestVideoMode(monitor, width, height);
-
-    // Change mode
-    _glfwSetVideoModeMODE(monitor, bestmode);
-}
-
-
-//========================================================================
-// Restore the previously saved (original) video mode
-//========================================================================
-
+// Restore the saved (original) video mode for the specified monitor
+//
 void _glfwRestoreVideoMode(_GLFWmonitor* monitor)
 {
-    if (!monitor->x11.modeChanged)
-        return;
-
     if (_glfw.x11.randr.available)
     {
-        XRRScreenConfiguration* sc;
+        XRRScreenResources* sr;
+        XRRCrtcInfo* ci;
 
-        sc = XRRGetScreenInfo(_glfw.x11.display, _glfw.x11.root);
+        sr = XRRGetScreenResources(_glfw.x11.display, _glfw.x11.root);
+        ci = XRRGetCrtcInfo(_glfw.x11.display, sr, monitor->x11.crtc);
 
-        XRRSetScreenConfig(_glfw.x11.display,
-                           sc,
-                           _glfw.x11.root,
-                           monitor->x11.oldSizeID,
-                           monitor->x11.oldRotation,
-                           CurrentTime);
+        XRRSetCrtcConfig(_glfw.x11.display,
+                         sr, monitor->x11.crtc,
+                         CurrentTime,
+                         ci->x, ci->y,
+                         monitor->x11.oldMode,
+                         ci->rotation,
+                         ci->outputs,
+                         ci->noutput);
 
-        XRRFreeScreenConfigInfo(sc);
+        XRRFreeCrtcInfo(ci);
+        XRRFreeScreenResources(sr);
     }
-
-    monitor->x11.modeChanged = GL_FALSE;
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
-
-
-//========================================================================
-// Return a list of available monitors
-//========================================================================
 
 _GLFWmonitor** _glfwPlatformGetMonitors(int* found)
 {
@@ -199,7 +154,6 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* found)
         XRRScreenResources* sr;
 
         sr = XRRGetScreenResources(_glfw.x11.display, _glfw.x11.root);
-
         primary = XRRGetOutputPrimary(_glfw.x11.display, _glfw.x11.root);
 
         monitors = (_GLFWmonitor**) calloc(sr->noutput, sizeof(_GLFWmonitor*));
@@ -211,42 +165,60 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* found)
             return NULL;
         }
 
-        for (i = 0;  i < sr->noutput;  i++)
+        for (i = 0;  i < sr->ncrtc;  i++)
         {
+            int j;
             XRROutputInfo* oi;
             XRRCrtcInfo* ci;
+            RROutput output;
 
-            oi = XRRGetOutputInfo(_glfw.x11.display, sr, sr->outputs[i]);
+            ci = XRRGetCrtcInfo(_glfw.x11.display, sr, sr->crtcs[i]);
+            output = ci->outputs[0];
+
+            for (j = 0;  j < ci->noutput;  j++)
+            {
+                if (ci->outputs[j] == primary)
+                {
+                    output = primary;
+                    break;
+                }
+            }
+
+            oi = XRRGetOutputInfo(_glfw.x11.display, sr, output);
             if (oi->connection != RR_Connected)
             {
                 XRRFreeOutputInfo(oi);
+                XRRFreeCrtcInfo(ci);
                 continue;
             }
 
-            ci = XRRGetCrtcInfo(_glfw.x11.display, sr, oi->crtc);
-
             monitors[*found] = _glfwCreateMonitor(oi->name,
-                                                  sr->outputs[i] == primary,
-                                                  oi->mm_width, oi->mm_height,
-                                                  ci->x, ci->y);
+                                                  oi->mm_width, oi->mm_height);
 
+            monitors[*found]->x11.output = output;
+            monitors[*found]->x11.crtc   = oi->crtc;
+
+            XRRFreeOutputInfo(oi);
             XRRFreeCrtcInfo(ci);
 
-            if (!monitors[*found])
-            {
-                // TODO: wat
-                return NULL;
-            }
-
-            // This is retained until the monitor object is destroyed
-            monitors[*found]->x11.output = oi;
             (*found)++;
+        }
+
+        XRRFreeScreenResources(sr);
+
+        for (i = 0;  i < *found;  i++)
+        {
+            if (monitors[i]->x11.output == primary)
+            {
+                _GLFWmonitor* temp = monitors[0];
+                monitors[0] = monitors[i];
+                monitors[i] = temp;
+                break;
+            }
         }
     }
     else
     {
-        int widthMM, heightMM;
-
         monitors = (_GLFWmonitor**) calloc(1, sizeof(_GLFWmonitor*));
         if (!monitors)
         {
@@ -254,35 +226,43 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* found)
             return NULL;
         }
 
-        widthMM  = DisplayWidthMM(_glfw.x11.display, _glfw.x11.screen);
-        heightMM = DisplayHeightMM(_glfw.x11.display, _glfw.x11.screen);
-
         monitors[0] = _glfwCreateMonitor("Display",
-                                         GL_TRUE,
-                                         widthMM, heightMM,
-                                         0, 0);
-
+                                         DisplayWidthMM(_glfw.x11.display,
+                                                        _glfw.x11.screen),
+                                         DisplayHeightMM(_glfw.x11.display,
+                                                         _glfw.x11.screen));
         *found = 1;
     }
 
     return monitors;
 }
 
-
-//========================================================================
-// Destroy a monitor struct
-//========================================================================
-
-void _glfwPlatformDestroyMonitor(_GLFWmonitor* monitor)
+void _glfwPlatformGetMonitorPos(_GLFWmonitor* monitor, int* xpos, int* ypos)
 {
     if (_glfw.x11.randr.available)
-        XRRFreeOutputInfo(monitor->x11.output);
+    {
+        XRRScreenResources* sr;
+        XRRCrtcInfo* ci;
+
+        sr = XRRGetScreenResources(_glfw.x11.display, _glfw.x11.root);
+        ci = XRRGetCrtcInfo(_glfw.x11.display, sr, monitor->x11.crtc);
+
+        if (xpos)
+            *xpos = ci->x;
+        if (ypos)
+            *ypos = ci->y;
+
+        XRRFreeCrtcInfo(ci);
+        XRRFreeScreenResources(sr);
+    }
+    else
+    {
+        if (xpos)
+            *xpos = 0;
+        if (ypos)
+            *ypos = 0;
+    }
 }
-
-
-//========================================================================
-// List available video modes
-//========================================================================
 
 GLFWvidmode* _glfwPlatformGetVideoModes(_GLFWmonitor* monitor, int* found)
 {
@@ -298,25 +278,22 @@ GLFWvidmode* _glfwPlatformGetVideoModes(_GLFWmonitor* monitor, int* found)
 
     if (_glfw.x11.randr.available)
     {
+        int i, j;
         XRRScreenResources* sr;
-        int i, j, count = monitor->x11.output->nmode;
+        XRROutputInfo* oi;
 
         sr = XRRGetScreenResources(_glfw.x11.display, _glfw.x11.root);
+        oi = XRRGetOutputInfo(_glfw.x11.display, sr, monitor->x11.output);
 
-        result = (GLFWvidmode*) malloc(sizeof(GLFWvidmode) * count);
-        if (!result)
-        {
-            _glfwInputError(GLFW_OUT_OF_MEMORY, NULL);
-            return NULL;
-        }
+        result = (GLFWvidmode*) malloc(sizeof(GLFWvidmode) * oi->nmode);
 
-        for (i = 0;  i < count;  i++)
+        for (i = 0;  i < oi->nmode;  i++)
         {
             GLFWvidmode mode;
 
             for (j = 0;  j < sr->nmode;  j++)
             {
-                if (sr->modes[j].id == monitor->x11.output->modes[i])
+                if (sr->modes[j].id == oi->modes[i])
                     break;
             }
 
@@ -349,6 +326,7 @@ GLFWvidmode* _glfwPlatformGetVideoModes(_GLFWmonitor* monitor, int* found)
             (*found)++;
         }
 
+        XRRFreeOutputInfo(oi);
         XRRFreeScreenResources(sr);
     }
     else
@@ -356,11 +334,6 @@ GLFWvidmode* _glfwPlatformGetVideoModes(_GLFWmonitor* monitor, int* found)
         *found = 1;
 
         result = (GLFWvidmode*) malloc(sizeof(GLFWvidmode));
-        if (!result)
-        {
-            _glfwInputError(GLFW_OUT_OF_MEMORY, NULL);
-            return NULL;
-        }
 
         result[0].width = DisplayWidth(_glfw.x11.display, _glfw.x11.screen);
         result[0].height = DisplayHeight(_glfw.x11.display, _glfw.x11.screen);
@@ -372,11 +345,6 @@ GLFWvidmode* _glfwPlatformGetVideoModes(_GLFWmonitor* monitor, int* found)
     return result;
 }
 
-
-//========================================================================
-// Get the current video mode for the specified monitor
-//========================================================================
-
 void _glfwPlatformGetVideoMode(_GLFWmonitor* monitor, GLFWvidmode* mode)
 {
     if (_glfw.x11.randr.available)
@@ -385,22 +353,7 @@ void _glfwPlatformGetVideoMode(_GLFWmonitor* monitor, GLFWvidmode* mode)
         XRRCrtcInfo* ci;
 
         sr = XRRGetScreenResources(_glfw.x11.display, _glfw.x11.root);
-        if (!sr)
-        {
-            _glfwInputError(GLFW_PLATFORM_ERROR,
-                            "X11: Failed to retrieve RandR screen resources");
-            return;
-        }
-
-        ci = XRRGetCrtcInfo(_glfw.x11.display, sr, monitor->x11.output->crtc);
-        if (!ci)
-        {
-            XRRFreeScreenResources(sr);
-
-            _glfwInputError(GLFW_PLATFORM_ERROR,
-                            "X11: Failed to retrieve RandR crtc info");
-            return;
-        }
+        ci = XRRGetCrtcInfo(_glfw.x11.display, sr, monitor->x11.crtc);
 
         mode->width = ci->width;
         mode->height = ci->height;

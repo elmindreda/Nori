@@ -193,17 +193,17 @@ void Popup::display()
 void Popup::onButtonClicked(Widget& widget,
                             const vec2& position,
                             input::Button button,
-                            bool clicked)
+                            input::Action action)
 {
-  if (!clicked)
+  if (action != input::PRESSED)
     return;
 
   display();
 }
 
-void Popup::onKeyPressed(Widget& widget, input::Key key, bool pressed)
+void Popup::onKeyPressed(Widget& widget, input::Key key, input::Action action)
 {
-  if (!pressed)
+  if (action != input::PRESSED)
     return;
 
   switch (key)

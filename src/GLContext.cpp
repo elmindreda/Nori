@@ -930,13 +930,13 @@ bool Context::update()
 
   if (refreshMode == MANUAL_REFRESH)
   {
-    while (!needsRefresh && !needsClosing)
+    while (!needsRefresh && !glfwWindowShouldClose(handle))
       glfwWaitEvents();
   }
   else
     glfwPollEvents();
 
-  return !needsClosing;
+  return !glfwWindowShouldClose(handle);
 }
 
 void Context::requestClose()
@@ -1330,7 +1330,6 @@ Context::Context(ResourceCache& initCache):
   handle(NULL),
   refreshMode(AUTOMATIC_REFRESH),
   needsRefresh(false),
-  needsClosing(false),
   dirtyBinding(true),
   dirtyState(true),
   cullingInverted(false),
@@ -1698,17 +1697,15 @@ void Context::sizeCallback(GLFWwindow* handle, int width, int height)
   context->resizedSignal(width, height);
 }
 
-int Context::closeCallback(GLFWwindow* handle)
+void Context::closeCallback(GLFWwindow* handle)
 {
   Context* context = (Context*) glfwGetWindowUserPointer(handle);
 
   std::vector<bool> results;
   context->closeRequestSignal(results);
 
-  if (std::find(results.begin(), results.end(), false) == results.end())
-    context->needsClosing = true;
-
-  return GL_FALSE;
+  if (std::find(results.begin(), results.end(), false) != results.end())
+    glfwSetWindowShouldClose(handle, false);
 }
 
 void Context::refreshCallback(GLFWwindow* handle)

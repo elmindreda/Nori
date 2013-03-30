@@ -133,9 +133,9 @@ void Entry::draw() const
 void Entry::onButtonClicked(Widget& widget,
                             const vec2& point,
                             input::Button button,
-                            bool clicked)
+                            input::Action action)
 {
-  if (!clicked)
+  if (action != input::PRESSED)
     return;
 
   Drawer& drawer = getLayer().getDrawer();
@@ -161,9 +161,9 @@ void Entry::onButtonClicked(Widget& widget,
   setCaretPosition(startPosition + index, true);
 }
 
-void Entry::onKeyPressed(Widget& widget, input::Key key, bool pressed)
+void Entry::onKeyPressed(Widget& widget, input::Key key, input::Action action)
 {
-  if (!pressed)
+  if (action != input::PRESSED)
     return;
 
   switch (key)

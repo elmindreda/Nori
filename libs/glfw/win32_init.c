@@ -39,22 +39,19 @@
 #endif // __BORLANDC__
 
 
-//========================================================================
-// GLFW DLL entry point
-//========================================================================
-
 #if defined(_GLFW_BUILD_DLL)
+
+// GLFW DLL entry point
+//
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
     return TRUE;
 }
+
 #endif // _GLFW_BUILD_DLL
 
-
-//========================================================================
 // Load necessary libraries (DLLs)
-//========================================================================
-
+//
 static GLboolean initLibraries(void)
 {
 #ifndef _GLFW_NO_DLOAD_WINMM
@@ -82,14 +79,25 @@ static GLboolean initLibraries(void)
     }
 #endif // _GLFW_NO_DLOAD_WINMM
 
+    _glfw.win32.user32.instance = LoadLibrary(L"user32.dll");
+    if (_glfw.win32.user32.instance)
+    {
+        _glfw.win32.user32.SetProcessDPIAware = (SETPROCESSDPIAWARE_T)
+            GetProcAddress(_glfw.win32.user32.instance, "SetProcessDPIAware");
+    }
+
+    _glfw.win32.dwmapi.instance = LoadLibrary(L"dwmapi.dll");
+    if (_glfw.win32.dwmapi.instance)
+    {
+        _glfw.win32.dwmapi.DwmIsCompositionEnabled = (DWMISCOMPOSITIONENABLED_T)
+            GetProcAddress(_glfw.win32.dwmapi.instance, "DwmIsCompositionEnabled");
+    }
+
     return GL_TRUE;
 }
 
-
-//========================================================================
 // Unload used libraries (DLLs)
-//========================================================================
-
+//
 static void freeLibraries(void)
 {
 #ifndef _GLFW_NO_DLOAD_WINMM
@@ -106,10 +114,23 @@ static void freeLibraries(void)
 //////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
-// Returns a wide string version of the specified UTF-8 string
-//========================================================================
+// Returns whether desktop compositing is enabled
+//
+BOOL _glfwIsCompositionEnabled(void)
+{
+    BOOL enabled;
 
+    if (!_glfw_DwmIsCompositionEnabled)
+        return FALSE;
+
+    if (_glfw_DwmIsCompositionEnabled(&enabled) != S_OK)
+        return FALSE;
+
+    return enabled;
+}
+
+// Returns a wide string version of the specified UTF-8 string
+//
 WCHAR* _glfwCreateWideStringFromUTF8(const char* source)
 {
     WCHAR* target;
@@ -130,11 +151,8 @@ WCHAR* _glfwCreateWideStringFromUTF8(const char* source)
     return target;
 }
 
-
-//========================================================================
 // Returns a UTF-8 string version of the specified wide string
-//========================================================================
-
+//
 char* _glfwCreateUTF8FromWideString(const WCHAR* source)
 {
     char* target;
@@ -160,10 +178,6 @@ char* _glfwCreateUTF8FromWideString(const WCHAR* source)
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
-// Initialize various GLFW state
-//========================================================================
-
 int _glfwPlatformInit(void)
 {
     // To make SetForegroundWindow work as we want, we need to fiddle
@@ -177,19 +191,16 @@ int _glfwPlatformInit(void)
     if (!initLibraries())
         return GL_FALSE;
 
+    if (_glfw_SetProcessDPIAware)
+        _glfw_SetProcessDPIAware();
+
 #ifdef __BORLANDC__
     // With the Borland C++ compiler, we want to disable FPU exceptions
     // (this is recommended for OpenGL applications under Windows)
     _control87(MCW_EM, MCW_EM);
 #endif
 
-    _glfw.win32.instance = GetModuleHandle(NULL);
-
-    // Save the original gamma ramp
-    _glfw.originalRampSize = 256;
-    _glfwPlatformGetGammaRamp(&_glfw.originalRamp);
-
-    if (!_glfwInitOpenGL())
+    if (!_glfwInitContextAPI())
         return GL_FALSE;
 
     _glfwInitTimer();
@@ -199,24 +210,15 @@ int _glfwPlatformInit(void)
     return GL_TRUE;
 }
 
-
-//========================================================================
-// Close window and shut down library
-//========================================================================
-
 void _glfwPlatformTerminate(void)
 {
-    // Restore the original gamma ramp
-    if (_glfw.rampChanged)
-        _glfwPlatformSetGammaRamp(&_glfw.originalRamp);
-
     if (_glfw.win32.classAtom)
     {
-        UnregisterClass(_GLFW_WNDCLASSNAME, _glfw.win32.instance);
+        UnregisterClass(_GLFW_WNDCLASSNAME, GetModuleHandle(NULL));
         _glfw.win32.classAtom = 0;
     }
 
-    _glfwTerminateOpenGL();
+    _glfwTerminateContextAPI();
 
     _glfwTerminateJoysticks();
 
@@ -228,14 +230,9 @@ void _glfwPlatformTerminate(void)
                          SPIF_SENDCHANGE);
 }
 
-
-//========================================================================
-// Get the GLFW version string
-//========================================================================
-
 const char* _glfwPlatformGetVersionString(void)
 {
-    const char* version = _GLFW_VERSION_FULL
+    const char* version = _GLFW_VERSION_FULL " Win32"
 #if defined(_GLFW_WGL)
         " WGL"
 #elif defined(_GLFW_EGL)
@@ -244,17 +241,15 @@ const char* _glfwPlatformGetVersionString(void)
 #if defined(__MINGW32__)
         " MinGW"
 #elif defined(_MSC_VER)
-        " Visual C++ "
+        " VisualC "
 #elif defined(__BORLANDC__)
-        " Borland C"
-#else
-        " (unknown compiler)"
+        " BorlandC"
+#endif
+#if !defined(_GLFW_NO_DLOAD_WINMM)
+        " LoadLibrary(winmm)"
 #endif
 #if defined(_GLFW_BUILD_DLL)
         " DLL"
-#endif
-#if !defined(_GLFW_NO_DLOAD_WINMM)
-        " load(winmm)"
 #endif
         ;
 

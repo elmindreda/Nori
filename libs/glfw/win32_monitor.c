@@ -48,10 +48,8 @@
 //////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
 // Change the current video mode
-//========================================================================
-
+//
 int _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* mode)
 {
     GLFWvidmode current;
@@ -86,11 +84,8 @@ int _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* mode)
     return GL_TRUE;
 }
 
-
-//========================================================================
 // Restore the previously saved (original) video mode
-//========================================================================
-
+//
 void _glfwRestoreVideoMode(_GLFWmonitor* monitor)
 {
     ChangeDisplaySettingsEx(monitor->win32.name,
@@ -102,25 +97,20 @@ void _glfwRestoreVideoMode(_GLFWmonitor* monitor)
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
-// Return a list of available monitors
-//========================================================================
-
 _GLFWmonitor** _glfwPlatformGetMonitors(int* count)
 {
     int size = 0, found = 0;
     _GLFWmonitor** monitors = NULL;
     DWORD adapterIndex = 0;
+    int primaryIndex = 0;
 
     for (;;)
     {
         // Enumerate display adapters
 
-        DISPLAY_DEVICE adapter, monitor;
-        DEVMODE settings;
+        DISPLAY_DEVICE adapter, display;
         char* name;
         HDC dc;
-        GLboolean primary;
 
         ZeroMemory(&adapter, sizeof(DISPLAY_DEVICE));
         adapter.cb = sizeof(DISPLAY_DEVICE);
@@ -136,21 +126,6 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* count)
             continue;
         }
 
-        ZeroMemory(&settings, sizeof(DEVMODE));
-        settings.dmSize = sizeof(DEVMODE);
-
-        EnumDisplaySettingsEx(adapter.DeviceName,
-                              ENUM_CURRENT_SETTINGS,
-                              &settings,
-                              EDS_ROTATEDMODE);
-
-        name = _glfwCreateUTF8FromWideString(adapter.DeviceName);
-        if (!name)
-        {
-            // TODO: wat
-            return NULL;
-        }
-
         if (found == size)
         {
             if (size)
@@ -159,26 +134,27 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* count)
                 size = 4;
 
             monitors = (_GLFWmonitor**) realloc(monitors, sizeof(_GLFWmonitor*) * size);
-            if (!monitors)
-            {
-                // TODO: wat
-                return NULL;
-            }
         }
 
-        ZeroMemory(&monitor, sizeof(DISPLAY_DEVICE));
-        monitor.cb = sizeof(DISPLAY_DEVICE);
+        ZeroMemory(&display, sizeof(DISPLAY_DEVICE));
+        display.cb = sizeof(DISPLAY_DEVICE);
 
-        EnumDisplayDevices(adapter.DeviceName, 0, &monitor, 0);
-        dc = CreateDC(L"DISPLAY", monitor.DeviceString, NULL, NULL);
+        EnumDisplayDevices(adapter.DeviceName, 0, &display, 0);
+        dc = CreateDC(L"DISPLAY", display.DeviceString, NULL, NULL);
 
-        primary = adapter.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE;
+        if (adapter.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)
+            primaryIndex = found;
 
-        monitors[found] = _glfwCreateMonitor(name, primary,
+        name = _glfwCreateUTF8FromWideString(display.DeviceString);
+        if (!name)
+        {
+            // TODO: wat
+            return NULL;
+        }
+
+        monitors[found] = _glfwCreateMonitor(name,
                                              GetDeviceCaps(dc, HORZSIZE),
-                                             GetDeviceCaps(dc, VERTSIZE),
-                                             settings.dmPosition.x,
-                                             settings.dmPosition.y);
+                                             GetDeviceCaps(dc, VERTSIZE));
 
         free(name);
         DeleteDC(dc);
@@ -189,28 +165,37 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* count)
             return NULL;
         }
 
-        monitors[found]->win32.name = _wcsdup(adapter.DeviceName);
+        wcscpy(monitors[found]->win32.name, adapter.DeviceName);
         found++;
+    }
+
+    if (primaryIndex > 0)
+    {
+        _GLFWmonitor* temp = monitors[0];
+        monitors[0] = monitors[primaryIndex];
+        monitors[primaryIndex] = temp;
     }
 
     *count = found;
     return monitors;
 }
 
-
-//========================================================================
-// Destroy a monitor struct
-//========================================================================
-
-void _glfwPlatformDestroyMonitor(_GLFWmonitor* monitor)
+void _glfwPlatformGetMonitorPos(_GLFWmonitor* monitor, int* xpos, int* ypos)
 {
-    free(monitor->win32.name);
+    DEVMODE settings;
+    ZeroMemory(&settings, sizeof(DEVMODE));
+    settings.dmSize = sizeof(DEVMODE);
+
+    EnumDisplaySettingsEx(monitor->win32.name,
+                          ENUM_CURRENT_SETTINGS,
+                          &settings,
+                          EDS_ROTATEDMODE);
+
+    if (xpos)
+        *xpos = settings.dmPosition.x;
+    if (ypos)
+        *ypos = settings.dmPosition.y;
 }
-
-
-//========================================================================
-// Get a list of available video modes
-//========================================================================
 
 GLFWvidmode* _glfwPlatformGetVideoModes(_GLFWmonitor* monitor, int* found)
 {
@@ -260,23 +245,12 @@ GLFWvidmode* _glfwPlatformGetVideoModes(_GLFWmonitor* monitor, int* found)
 
         if (*found == count)
         {
-            void* larger;
-
             if (count)
                 count *= 2;
             else
                 count = 128;
 
-            larger = realloc(result, count * sizeof(GLFWvidmode));
-            if (!larger)
-            {
-                free(result);
-
-                _glfwInputError(GLFW_OUT_OF_MEMORY, NULL);
-                return NULL;
-            }
-
-            result = (GLFWvidmode*) larger;
+            result = (GLFWvidmode*) realloc(result, count * sizeof(GLFWvidmode));
         }
 
         result[*found] = mode;
@@ -285,11 +259,6 @@ GLFWvidmode* _glfwPlatformGetVideoModes(_GLFWmonitor* monitor, int* found)
 
     return result;
 }
-
-
-//========================================================================
-// Get the current video mode for the specified monitor
-//========================================================================
 
 void _glfwPlatformGetVideoMode(_GLFWmonitor* monitor, GLFWvidmode* mode)
 {

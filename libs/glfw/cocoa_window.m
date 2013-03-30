@@ -33,9 +33,9 @@
 #include <crt_externs.h>
 
 
-//========================================================================
+//------------------------------------------------------------------------
 // Delegate for window related notifications
-//========================================================================
+//------------------------------------------------------------------------
 
 @interface GLFWWindowDelegate : NSObject
 {
@@ -67,26 +67,18 @@
 {
     [window->nsgl.context update];
 
-    NSRect contentRect =
-        [window->ns.object contentRectForFrameRect:[window->ns.object frame]];
-
-    _glfwInputWindowSize(window, contentRect.size.width, contentRect.size.height);
+    int width, height;
+    _glfwPlatformGetWindowSize(window, &width, &height);
+    _glfwInputWindowSize(window, width, height);
 }
 
 - (void)windowDidMove:(NSNotification *)notification
 {
     [window->nsgl.context update];
 
-    NSRect contentRect =
-        [window->ns.object contentRectForFrameRect:[window->ns.object frame]];
-
-    CGPoint mainScreenOrigin = CGDisplayBounds(CGMainDisplayID()).origin;
-    double mainScreenHeight = CGDisplayBounds(CGMainDisplayID()).size.height;
-    CGPoint flippedPos = CGPointMake(contentRect.origin.x - mainScreenOrigin.x,
-                                      mainScreenHeight - contentRect.origin.y -
-                                          mainScreenOrigin.y - window->height);
-
-    _glfwInputWindowPos(window, flippedPos.x, flippedPos.y);
+    int x, y;
+    _glfwPlatformGetWindowPos(window, &x, &y);
+    _glfwInputWindowPos(window, x, y);
 }
 
 - (void)windowDidMiniaturize:(NSNotification *)notification
@@ -112,9 +104,9 @@
 @end
 
 
-//========================================================================
+//------------------------------------------------------------------------
 // Delegate for application related notifications
-//========================================================================
+//------------------------------------------------------------------------
 
 @interface GLFWApplicationDelegate : NSObject
 @end
@@ -152,11 +144,8 @@
 
 @end
 
-
-//========================================================================
 // Converts a Mac OS X keycode to a GLFW keycode
-//========================================================================
-
+//
 static int convertMacKeyCode(unsigned int macKeyCode)
 {
     // Keyboard symbol translation table
@@ -268,7 +257,7 @@ static int convertMacKeyCode(unsigned int macKeyCode)
         /* 66 */ -1,
         /* 67 */ GLFW_KEY_F11,
         /* 68 */ -1,
-        /* 69 */ GLFW_KEY_F13,
+        /* 69 */ GLFW_KEY_PRINT_SCREEN,
         /* 6a */ GLFW_KEY_F16,
         /* 6b */ GLFW_KEY_F14,
         /* 6c */ -1,
@@ -300,9 +289,9 @@ static int convertMacKeyCode(unsigned int macKeyCode)
 }
 
 
-//========================================================================
+//------------------------------------------------------------------------
 // Content view class for the GLFW window
-//========================================================================
+//------------------------------------------------------------------------
 
 @interface GLFWContentView : NSView
 {
@@ -372,11 +361,13 @@ static int convertMacKeyCode(unsigned int macKeyCode)
         _glfwInputCursorMotion(window, [event deltaX], [event deltaY]);
     else
     {
+        const NSRect contentRect =
+            [window->ns.object contentRectForFrameRect:[window->ns.object frame]];
         const NSPoint p = [event locationInWindow];
 
         // Cocoa coordinate system has origin at lower left
         const int x = lround(floor(p.x));
-        const int y = window->height - lround(ceil(p.y));
+        const int y = contentRect.size.height - lround(ceil(p.y));
 
         _glfwInputCursorMotion(window, x, y);
     }
@@ -445,26 +436,17 @@ static int convertMacKeyCode(unsigned int macKeyCode)
 
 - (void)keyDown:(NSEvent *)event
 {
-    NSUInteger i, length;
-    NSString* characters;
-    int key = convertMacKeyCode([event keyCode]);
+    _glfwInputKey(window, convertMacKeyCode([event keyCode]), GLFW_PRESS);
 
-    if (key != -1)
+    if ([event modifierFlags] & NSCommandKeyMask)
+        [super keyDown:event];
+    else
     {
-        _glfwInputKey(window, key, GLFW_PRESS);
+        NSString* characters = [event characters];
+        NSUInteger i, length = [characters length];
 
-        if ([event modifierFlags] & NSCommandKeyMask)
-        {
-            [super keyDown:event];
-        }
-        else
-        {
-            characters = [event characters];
-            length = [characters length];
-
-            for (i = 0;  i < length;  i++)
-                _glfwInputChar(window, [characters characterAtIndex:i]);
-        }
+        for (i = 0;  i < length;  i++)
+            _glfwInputChar(window, [characters characterAtIndex:i]);
     }
 }
 
@@ -488,9 +470,7 @@ static int convertMacKeyCode(unsigned int macKeyCode)
 
 - (void)keyUp:(NSEvent *)event
 {
-    int key = convertMacKeyCode([event keyCode]);
-    if (key != -1)
-        _glfwInputKey(window, key, GLFW_RELEASE);
+    _glfwInputKey(window, convertMacKeyCode([event keyCode]), GLFW_RELEASE);
 }
 
 - (void)scrollWheel:(NSEvent *)event
@@ -505,9 +485,9 @@ static int convertMacKeyCode(unsigned int macKeyCode)
 @end
 
 
-//========================================================================
+//------------------------------------------------------------------------
 // GLFW application class
-//========================================================================
+//------------------------------------------------------------------------
 
 @interface GLFWApplication : NSApplication
 @end
@@ -527,11 +507,10 @@ static int convertMacKeyCode(unsigned int macKeyCode)
 
 @end
 
+#if defined(_GLFW_USE_MENUBAR)
 
-//========================================================================
 // Try to figure out what the calling application is called
-//========================================================================
-
+//
 static NSString* findAppName(void)
 {
     unsigned int i;
@@ -572,15 +551,12 @@ static NSString* findAppName(void)
     return @"GLFW Application";
 }
 
-
-//========================================================================
 // Set up the menu bar (manually)
 // This is nasty, nasty stuff -- calls to undocumented semi-private APIs that
 // could go away at any moment, lots of stuff that really should be
 // localize(d|able), etc.  Loading a nib would save us this horror, but that
 // doesn't seem like a good thing to require of GLFW's clients.
-//========================================================================
-
+//
 static void createMenuBar(void)
 {
     NSString* appName = findAppName();
@@ -640,11 +616,10 @@ static void createMenuBar(void)
     [NSApp performSelector:@selector(setAppleMenu:) withObject:appMenu];
 }
 
+#endif /* _GLFW_USE_MENUBAR */
 
-//========================================================================
 // Initialize the Cocoa Application Kit
-//========================================================================
-
+//
 static GLboolean initializeAppKit(void)
 {
     if (NSApp)
@@ -653,21 +628,20 @@ static GLboolean initializeAppKit(void)
     // Implicitly create shared NSApplication instance
     [GLFWApplication sharedApplication];
 
+#if defined(_GLFW_USE_MENUBAR)
     // Menu bar setup must go between sharedApplication above and
     // finishLaunching below, in order to properly emulate the behavior
     // of NSApplicationMain
     createMenuBar();
+#endif
 
     [NSApp finishLaunching];
 
     return GL_TRUE;
 }
 
-
-//========================================================================
 // Create the Cocoa window
-//========================================================================
-
+//
 static GLboolean createWindow(_GLFWwindow* window,
                               const _GLFWwndconfig* wndconfig)
 {
@@ -684,11 +658,8 @@ static GLboolean createWindow(_GLFWwindow* window,
             styleMask |= NSResizableWindowMask;
     }
 
-    NSRect contentRect = NSMakeRect(wndconfig->positionX, wndconfig->positionY,
-                                    wndconfig->width, wndconfig->height);
-
     window->ns.object = [[NSWindow alloc]
-        initWithContentRect:contentRect
+        initWithContentRect:NSMakeRect(0, 0, wndconfig->width, wndconfig->height)
                   styleMask:styleMask
                     backing:NSBackingStoreBuffered
                       defer:NO];
@@ -717,11 +688,6 @@ static GLboolean createWindow(_GLFWwindow* window,
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
-
-//========================================================================
-// Here is where the window is created, and the OpenGL rendering context is
-// created
-//========================================================================
 
 int _glfwPlatformCreateWindow(_GLFWwindow* window,
                               const _GLFWwndconfig* wndconfig,
@@ -790,20 +756,17 @@ int _glfwPlatformCreateWindow(_GLFWwindow* window,
     return GL_TRUE;
 }
 
-
-//========================================================================
-// Properly kill the window / video display
-//========================================================================
-
 void _glfwPlatformDestroyWindow(_GLFWwindow* window)
 {
     [window->ns.object orderOut:nil];
 
     if (window->monitor)
     {
-        [[window->ns.object contentView] exitFullScreenModeWithOptions:nil];
-
         _glfwRestoreVideoMode(window->monitor);
+
+        // Exit full screen after the video restore to avoid a nasty display
+        // flickering during the fade.
+        [[window->ns.object contentView] exitFullScreenModeWithOptions:nil];
     }
 
     _glfwDestroyContext(window);
@@ -821,24 +784,32 @@ void _glfwPlatformDestroyWindow(_GLFWwindow* window)
     // TODO: Probably more cleanup
 }
 
-
-//========================================================================
-// Set the window title
-//========================================================================
-
 void _glfwPlatformSetWindowTitle(_GLFWwindow* window, const char *title)
 {
     [window->ns.object setTitle:[NSString stringWithUTF8String:title]];
 }
 
+void _glfwPlatformGetWindowPos(_GLFWwindow* window, int* xpos, int* ypos)
+{
+    const NSRect contentRect =
+        [window->ns.object contentRectForFrameRect:[window->ns.object frame]];
 
-//========================================================================
-// Get the window size
-//========================================================================
+    if (xpos)
+        *xpos = contentRect.origin.x;
+    if (ypos)
+        *ypos = contentRect.origin.y;
+}
+
+void _glfwPlatformSetWindowPos(_GLFWwindow* window, int x, int y)
+{
+    const NSRect frameRect =
+        [window->ns.object frameRectForContentRect:NSMakeRect(x, y, 0, 0)];
+    [window->ns.object setFrameOrigin:frameRect.origin];
+}
 
 void _glfwPlatformGetWindowSize(_GLFWwindow* window, int* width, int* height)
 {
-    NSRect contentRect =
+    const NSRect contentRect =
         [window->ns.object contentRectForFrameRect:[window->ns.object frame]];
 
     if (width)
@@ -847,40 +818,20 @@ void _glfwPlatformGetWindowSize(_GLFWwindow* window, int* width, int* height)
         *height = contentRect.size.height;
 }
 
-
-//========================================================================
-// Set the window size
-//========================================================================
-
 void _glfwPlatformSetWindowSize(_GLFWwindow* window, int width, int height)
 {
     [window->ns.object setContentSize:NSMakeSize(width, height)];
 }
-
-
-//========================================================================
-// Iconify the window
-//========================================================================
 
 void _glfwPlatformIconifyWindow(_GLFWwindow* window)
 {
     [window->ns.object miniaturize:nil];
 }
 
-
-//========================================================================
-// Restore (un-iconify) the window
-//========================================================================
-
 void _glfwPlatformRestoreWindow(_GLFWwindow* window)
 {
     [window->ns.object deminiaturize:nil];
 }
-
-
-//========================================================================
-// Show window
-//========================================================================
 
 void _glfwPlatformShowWindow(_GLFWwindow* window)
 {
@@ -888,21 +839,11 @@ void _glfwPlatformShowWindow(_GLFWwindow* window)
     _glfwInputWindowVisibility(window, GL_TRUE);
 }
 
-
-//========================================================================
-// Hide window
-//========================================================================
-
 void _glfwPlatformHideWindow(_GLFWwindow* window)
 {
     [window->ns.object orderOut:nil];
     _glfwInputWindowVisibility(window, GL_FALSE);
 }
-
-
-//========================================================================
-// Poll for new window and input events
-//========================================================================
 
 void _glfwPlatformPollEvents(void)
 {
@@ -922,11 +863,6 @@ void _glfwPlatformPollEvents(void)
     _glfw.ns.autoreleasePool = [[NSAutoreleasePool alloc] init];
 }
 
-
-//========================================================================
-// Wait for new window and input events
-//========================================================================
-
 void _glfwPlatformWaitEvents(void)
 {
     // I wanted to pass NO to dequeue:, and rely on PollEvents to
@@ -941,11 +877,6 @@ void _glfwPlatformWaitEvents(void)
     _glfwPlatformPollEvents();
 }
 
-
-//========================================================================
-// Set physical cursor position
-//========================================================================
-
 void _glfwPlatformSetCursorPos(_GLFWwindow* window, int x, int y)
 {
     if (window->monitor)
@@ -955,7 +886,9 @@ void _glfwPlatformSetCursorPos(_GLFWwindow* window, int x, int y)
     }
     else
     {
-        NSPoint localPoint = NSMakePoint(x, window->height - y - 1);
+        const NSRect contentRect =
+            [window->ns.object contentRectForFrameRect:[window->ns.object frame]];
+        NSPoint localPoint = NSMakePoint(x, contentRect.size.height - y - 1);
         NSPoint globalPoint = [window->ns.object convertBaseToScreen:localPoint];
         CGPoint mainScreenOrigin = CGDisplayBounds(CGMainDisplayID()).origin;
         double mainScreenHeight = CGDisplayBounds(CGMainDisplayID()).size.height;
@@ -965,11 +898,6 @@ void _glfwPlatformSetCursorPos(_GLFWwindow* window, int x, int y)
         CGDisplayMoveCursorToPoint(CGMainDisplayID(), targetPoint);
     }
 }
-
-
-//========================================================================
-// Set physical mouse cursor mode
-//========================================================================
 
 void _glfwPlatformSetCursorMode(_GLFWwindow* window, int mode)
 {
@@ -993,20 +921,10 @@ void _glfwPlatformSetCursorMode(_GLFWwindow* window, int mode)
 //////                        GLFW native API                       //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
-// Returns the Cocoa object of the specified window
-//========================================================================
-
 GLFWAPI id glfwGetCocoaWindow(GLFWwindow* handle)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return 0;
-    }
-
+    _GLFW_REQUIRE_INIT_OR_RETURN(nil);
     return window->ns.object;
 }
 

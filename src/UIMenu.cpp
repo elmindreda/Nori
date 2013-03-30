@@ -280,9 +280,9 @@ void Menu::onCursorLeft(Widget& widget)
 void Menu::onButtonClicked(Widget& widget,
                            const vec2& position,
                            input::Button button,
-                           bool clicked)
+                           input::Action action)
 {
-  if (clicked)
+  if (action != input::RELEASED)
     return;
 
   vec2 localPosition = transformToLocal(position);
@@ -310,9 +310,9 @@ void Menu::onButtonClicked(Widget& widget,
   }
 }
 
-void Menu::onKeyPressed(Widget& widget, input::Key key, bool pressed)
+void Menu::onKeyPressed(Widget& widget, input::Key key, input::Action action)
 {
-  if (!pressed)
+  if (action != input::PRESSED)
     return;
 
   switch (key)

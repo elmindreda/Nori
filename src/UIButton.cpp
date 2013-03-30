@@ -104,13 +104,13 @@ void Button::draw() const
 void Button::onButtonClicked(Widget& widget,
                              const vec2& position,
                              input::Button button,
-                             bool clicked)
+                             input::Action action)
 {
   if (button == input::BUTTON_LEFT)
   {
-    if (clicked)
+    if (action == input::PRESSED)
       selected = true;
-    else
+    else if (action == input::RELEASED)
     {
       selected = false;
       pushedSignal(*this);
@@ -126,16 +126,16 @@ void Button::onDragEnded(Widget& widget, const vec2& position)
   invalidate();
 }
 
-void Button::onKeyPressed(Widget& widget, input::Key key, bool pressed)
+void Button::onKeyPressed(Widget& widget, input::Key key, input::Action action)
 {
   switch (key)
   {
     case input::KEY_SPACE:
     case input::KEY_ENTER:
     {
-      if (pressed)
+      if (action == input::PRESSED)
         selected = true;
-      else
+      else if (action == input::RELEASED)
       {
         selected = false;
         pushedSignal(*this);

@@ -286,9 +286,9 @@ void List::onEntryFocusChanged(Widget& widget, bool activated)
     applyEditing();
 }
 
-void List::onEntryKeyPressed(Widget& widget, input::Key key, bool pressed)
+void List::onEntryKeyPressed(Widget& widget, input::Key key, input::Action action)
 {
-  if (!pressed)
+  if (action != input::PRESSED)
     return;
 
   switch (key)
@@ -319,9 +319,9 @@ void List::onEntryDestroyed(Widget& widget)
 void List::onButtonClicked(Widget& widget,
                            const vec2& position,
                            input::Button button,
-                           bool clicked)
+                           input::Action action)
 {
-  if (!clicked)
+  if (action != input::PRESSED)
     return;
 
   const vec2 local = transformToLocal(position);
@@ -355,9 +355,9 @@ void List::onButtonClicked(Widget& widget,
   }
 }
 
-void List::onKeyPressed(Widget& widget, input::Key key, bool pressed)
+void List::onKeyPressed(Widget& widget, input::Key key, input::Action action)
 {
-  if (!pressed)
+  if (action != input::PRESSED)
     return;
 
   switch (key)

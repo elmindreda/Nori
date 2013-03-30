@@ -34,10 +34,8 @@
 #include <time.h>
 
 
-//========================================================================
 // Return raw time
-//========================================================================
-
+//
 static uint64_t getRawTime(void)
 {
 #if defined(CLOCK_MONOTONIC)
@@ -58,11 +56,8 @@ static uint64_t getRawTime(void)
     }
 }
 
-
-//========================================================================
 // Initialise timer
-//========================================================================
-
+//
 void _glfwInitTimer(void)
 {
 #if defined(CLOCK_MONOTONIC)
@@ -87,20 +82,11 @@ void _glfwInitTimer(void)
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
-// Return timer value in seconds
-//========================================================================
-
 double _glfwPlatformGetTime(void)
 {
     return (double) (getRawTime() - _glfw.x11.timer.base) *
         _glfw.x11.timer.resolution;
 }
-
-
-//========================================================================
-// Set timer value in seconds
-//========================================================================
 
 void _glfwPlatformSetTime(double time)
 {

@@ -156,9 +156,9 @@ void Scroller::draw() const
 void Scroller::onButtonClicked(Widget& widget,
                                const vec2& point,
                                input::Button button,
-                               bool clicked)
+                               input::Action action)
 {
-  if (!clicked)
+  if (action != input::PRESSED)
     return;
 
   const vec2 local = transformToLocal(point);
@@ -181,9 +181,9 @@ void Scroller::onButtonClicked(Widget& widget,
   }
 }
 
-void Scroller::onKeyPressed(Widget& widget, input::Key key, bool pressed)
+void Scroller::onKeyPressed(Widget& widget, input::Key key, input::Action action)
 {
-  if (pressed)
+  if (action != input::PRESSED)
   {
     switch (key)
     {

@@ -190,6 +190,18 @@ enum Button
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Input action enumeration.
+ *  @ingroup input
+ */
+enum Action
+{
+  RELEASED,
+  PRESSED,
+  REPEATED
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Input hook interface.
  *  @ingroup input
  *
@@ -208,7 +220,7 @@ public:
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
    */
-  virtual bool onKeyPressed(Key key, bool pressed);
+  virtual bool onKeyPressed(Key key, Action action);
   /*! Called when a Unicode character has been input.
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
@@ -218,7 +230,7 @@ public:
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
    */
-  virtual bool onButtonClicked(Button button, bool clicked);
+  virtual bool onButtonClicked(Button button, Action action);
   /*! Called when the mouse cursor has been moved.
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
@@ -250,13 +262,13 @@ public:
   virtual void onWindowResized(uint width, uint height);
   /*! Called when a key has been pressed or released.
    */
-  virtual void onKeyPressed(Key key, bool pressed);
+  virtual void onKeyPressed(Key key, Action action);
   /*! Called when a Unicode character has been input.
    */
   virtual void onCharInput(uint32 character);
   /*! Called when a mouse button has been clicked or released.
    */
-  virtual void onButtonClicked(Button button, bool clicked);
+  virtual void onButtonClicked(Button button, Action action);
   /*! Called when the mouse cursor has been moved.
    */
   virtual void onCursorMoved(const ivec2& position);
@@ -319,7 +331,7 @@ private:
   Window& operator = (const Window& source);
   void onWindowResized(uint width, uint height);
   static void keyboardCallback(GLFWwindow* window, int key, int action);
-  static void characterCallback(GLFWwindow* window, int character);
+  static void characterCallback(GLFWwindow* window, uint character);
   static void mousePosCallback(GLFWwindow* window, int x, int y);
   static void mouseButtonCallback(GLFWwindow* window, int button, int action);
   static void scrollCallback(GLFWwindow* window, double x, double y);
@@ -340,8 +352,8 @@ public:
   SpectatorController();
   void update(Time deltaTime);
   void release();
-  void inputKeyPress(Key key, bool pressed);
-  void inputButtonClick(Button button, bool clicked);
+  void inputKeyPress(Key key, Action action);
+  void inputButtonClick(Button button, Action action);
   void inputCursorOffset(const ivec2& offset);
   const Transform3& getTransform() const;
   void setPosition(const vec3& newPosition);
@@ -374,7 +386,7 @@ class TextController : public Target
 {
 public:
   TextController();
-  void onKeyPressed(Key key, bool pressed);
+  void onKeyPressed(Key key, Action action);
   void onCharInput(uint32 character);
   const String& getText() const;
   void setText(const String& newText);

@@ -151,35 +151,35 @@ void Slider::draw() const
 void Slider::onButtonClicked(Widget& widget,
                              const vec2& position,
                              input::Button button,
-                             bool clicked)
+                             input::Action action)
 {
-  if (clicked)
+  if (action == input::PRESSED)
     setValue(transformToLocal(position));
 }
 
-void Slider::onKeyPressed(Widget& widget, input::Key key, bool pressed)
+void Slider::onKeyPressed(Widget& widget, input::Key key, input::Action action)
 {
-  if (pressed)
+  if (action != input::PRESSED)
+    return;
+
+  switch (key)
   {
-    switch (key)
-    {
-      case input::KEY_UP:
-      case input::KEY_RIGHT:
-        setValue(value + stepSize, true);
-        break;
-      case input::KEY_DOWN:
-      case input::KEY_LEFT:
-        setValue(value - stepSize, true);
-        break;
-      case input::KEY_HOME:
-        setValue(minValue, true);
-        break;
-      case input::KEY_END:
-        setValue(maxValue, true);
-        break;
-      default:
-        break;
-    }
+    case input::KEY_UP:
+    case input::KEY_RIGHT:
+      setValue(value + stepSize, true);
+      break;
+    case input::KEY_DOWN:
+    case input::KEY_LEFT:
+      setValue(value - stepSize, true);
+      break;
+    case input::KEY_HOME:
+      setValue(minValue, true);
+      break;
+    case input::KEY_END:
+      setValue(maxValue, true);
+      break;
+    default:
+      break;
   }
 }
 

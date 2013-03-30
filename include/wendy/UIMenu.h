@@ -64,8 +64,8 @@ private:
   void onButtonClicked(Widget& widget,
                        const vec2& position,
                        input::Button button,
-                       bool clicked);
-  void onKeyPressed(Widget& widget, input::Key key, bool pressed);
+                       input::Action action);
+  void onKeyPressed(Widget& widget, input::Key key, input::Action action);
   void onDragEnded(Widget& widget, const vec2& position);
   void sizeToFit();
   ItemList items;

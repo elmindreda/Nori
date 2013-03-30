@@ -54,8 +54,8 @@ private:
   void onButtonClicked(Widget& widget,
                        const vec2& position,
                        input::Button button,
-                       bool clicked);
-  void onKeyPressed(Widget& widget, input::Key key, bool pressed);
+                       input::Action action);
+  void onKeyPressed(Widget& widget, input::Key key, input::Action action);
   void onScrolled(Widget& widget, double x, double y);
   void onDragMoved(Widget& widget, const vec2& position);
   void setValue(const vec2& position);

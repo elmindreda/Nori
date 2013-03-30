@@ -44,9 +44,8 @@ void (*glXGetProcAddressEXT(const GLubyte* procName))();
 #endif
 
 
-//========================================================================
 // Thread local storage attribute macro
-//========================================================================
+//
 #if defined(__GNUC__)
  #define _GLFW_TLS __thread
 #else
@@ -54,33 +53,25 @@ void (*glXGetProcAddressEXT(const GLubyte* procName))();
 #endif
 
 
-//========================================================================
 // The X error code as provided to the X error handler
-//========================================================================
+//
 static unsigned long _glfwErrorCode = Success;
 
-
-//========================================================================
 // The per-thread current context/window pointer
-//========================================================================
+//
 static _GLFW_TLS _GLFWwindow* _glfwCurrentWindow = NULL;
 
 
-//========================================================================
 // Error handler used when creating a context
-//========================================================================
-
+//
 static int errorHandler(Display *display, XErrorEvent* event)
 {
     _glfwErrorCode = event->error_code;
     return 0;
 }
 
-
-//========================================================================
 // Create the OpenGL context using legacy API
-//========================================================================
-
+//
 static GLXContext createLegacyContext(_GLFWwindow* window,
                                       GLXFBConfig fbconfig,
                                       GLXContext share)
@@ -108,10 +99,8 @@ static GLXContext createLegacyContext(_GLFWwindow* window,
 //////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
 // Initialize GLX
-//========================================================================
-
+//
 int _glfwInitContextAPI(void)
 {
 #ifdef _GLFW_DLOPEN_LIBGL
@@ -231,11 +220,8 @@ int _glfwInitContextAPI(void)
     return GL_TRUE;
 }
 
-
-//========================================================================
 // Terminate GLX
-//========================================================================
-
+//
 void _glfwTerminateContextAPI(void)
 {
     // Unload libGL.so if necessary
@@ -248,11 +234,6 @@ void _glfwTerminateContextAPI(void)
 #endif
 }
 
-
-//========================================================================
-// Prepare for creation of the OpenGL context
-//========================================================================
-
 #define setGLXattrib(attribName, attribValue) \
 { \
     attribs[index++] = attribName; \
@@ -260,6 +241,8 @@ void _glfwTerminateContextAPI(void)
     assert(index < sizeof(attribs) / sizeof(attribs[0])); \
 }
 
+// Prepare for creation of the OpenGL context
+//
 int _glfwCreateContext(_GLFWwindow* window,
                        const _GLFWwndconfig* wndconfig,
                        const _GLFWfbconfig* fbconfig)
@@ -517,11 +500,8 @@ int _glfwCreateContext(_GLFWwindow* window,
 
 #undef setGLXattrib
 
-
-//========================================================================
 // Destroy the OpenGL context
-//========================================================================
-
+//
 void _glfwDestroyContext(_GLFWwindow* window)
 {
     if (window->glx.visual)
@@ -542,10 +522,6 @@ void _glfwDestroyContext(_GLFWwindow* window)
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
-// Make the OpenGL context associated with the specified window current
-//========================================================================
-
 void _glfwPlatformMakeContextCurrent(_GLFWwindow* window)
 {
     if (window)
@@ -560,30 +536,15 @@ void _glfwPlatformMakeContextCurrent(_GLFWwindow* window)
     _glfwCurrentWindow = window;
 }
 
-
-//========================================================================
-// Return the window object whose context is current
-//========================================================================
-
 _GLFWwindow* _glfwPlatformGetCurrentContext(void)
 {
     return _glfwCurrentWindow;
 }
 
-
-//========================================================================
-// Swap OpenGL buffers
-//========================================================================
-
 void _glfwPlatformSwapBuffers(_GLFWwindow* window)
 {
     glXSwapBuffers(_glfw.x11.display, window->x11.handle);
 }
-
-
-//========================================================================
-// Set double buffering swap interval
-//========================================================================
 
 void _glfwPlatformSwapInterval(int interval)
 {
@@ -604,11 +565,6 @@ void _glfwPlatformSwapInterval(int interval)
     }
 }
 
-
-//========================================================================
-// Check if an OpenGL extension is available at runtime
-//========================================================================
-
 int _glfwPlatformExtensionSupported(const char* extension)
 {
     const GLubyte* extensions;
@@ -625,11 +581,6 @@ int _glfwPlatformExtensionSupported(const char* extension)
     return GL_FALSE;
 }
 
-
-//========================================================================
-// Get the function pointer to an OpenGL function
-//========================================================================
-
 GLFWglproc _glfwPlatformGetProcAddress(const char* procname)
 {
     return _glfw_glXGetProcAddress((const GLubyte*) procname);
@@ -640,20 +591,10 @@ GLFWglproc _glfwPlatformGetProcAddress(const char* procname)
 //////                        GLFW native API                       //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
-// Return the GLX context of the specified window
-//========================================================================
-
 GLFWAPI GLXContext glfwGetGLXContext(GLFWwindow* handle)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return NULL;
-    }
-
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
     return window->glx.context;
 }
 

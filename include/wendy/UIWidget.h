@@ -197,10 +197,10 @@ public:
   SignalProxy1<void, Widget&> getDestroyedSignal();
   SignalProxy1<void, Widget&> getAreaChangedSignal();
   SignalProxy2<void, Widget&, bool> getFocusChangedSignal();
-  SignalProxy3<void, Widget&, input::Key, bool> getKeyPressedSignal();
+  SignalProxy3<void, Widget&, input::Key, input::Action> getKeyPressedSignal();
   SignalProxy2<void, Widget&, uint32> getCharInputSignal();
   SignalProxy2<void, Widget&, const vec2&> getCursorMovedSignal();
-  SignalProxy4<void, Widget&, const vec2&, input::Button, bool> getButtonClickedSignal();
+  SignalProxy4<void, Widget&, const vec2&, input::Button, input::Action> getButtonClickedSignal();
   SignalProxy3<void, Widget&, double, double> getScrolledSignal();
   SignalProxy1<void, Widget&> getCursorEnteredSignal();
   SignalProxy1<void, Widget&> getCursorLeftSignal();
@@ -219,10 +219,10 @@ private:
   Signal1<void, Widget&> destroyedSignal;
   Signal1<void, Widget&> areaChangedSignal;
   Signal2<void, Widget&, bool> focusChangedSignal;
-  Signal3<void, Widget&, input::Key, bool> keyPressedSignal;
+  Signal3<void, Widget&, input::Key, input::Action> keyPressedSignal;
   Signal2<void, Widget&, uint32> charInputSignal;
   Signal2<void, Widget&, const vec2&> cursorMovedSignal;
-  Signal4<void, Widget&, const vec2&, input::Button, bool> buttonClickedSignal;
+  Signal4<void, Widget&, const vec2&, input::Button, input::Action> buttonClickedSignal;
   Signal3<void, Widget&, double, double> scrolledSignal;
   Signal1<void, Widget&> cursorEnteredSignal;
   Signal1<void, Widget&> cursorLeftSignal;

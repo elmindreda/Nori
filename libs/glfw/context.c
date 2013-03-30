@@ -36,10 +36,8 @@
 #include <stdio.h>
 
 
-//========================================================================
 // Parses the client API version string and extracts the version number
-//========================================================================
-
+//
 static GLboolean parseGLVersion(int* api, int* major, int* minor, int* rev)
 {
     int i, _api = GLFW_OPENGL_API, _major, _minor = 0, _rev = 0;
@@ -91,10 +89,6 @@ static GLboolean parseGLVersion(int* api, int* major, int* minor, int* rev)
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
-
-//========================================================================
-// Checks whether the client API part of the window config is sane
-//========================================================================
 
 GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
 {
@@ -210,11 +204,6 @@ GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
     return GL_TRUE;
 }
 
-
-//========================================================================
-// Reads back context properties
-//========================================================================
-
 GLboolean _glfwRefreshContextParams(void)
 {
     _GLFWwindow* window = _glfwPlatformGetCurrentContext();
@@ -315,11 +304,6 @@ GLboolean _glfwRefreshContextParams(void)
     return GL_TRUE;
 }
 
-
-//========================================================================
-// Checks whether the current context fulfils the specified requirements
-//========================================================================
-
 GLboolean _glfwIsValidContext(_GLFWwndconfig* wndconfig)
 {
     _GLFWwindow* window = _glfwPlatformGetCurrentContext();
@@ -342,13 +326,7 @@ GLboolean _glfwIsValidContext(_GLFWwndconfig* wndconfig)
     return GL_TRUE;
 }
 
-
-//========================================================================
-// Check if a string can be found in a client API extension string
-//========================================================================
-
-int _glfwStringInExtensionString(const char* string,
-                                 const GLubyte* extensions)
+int _glfwStringInExtensionString(const char* string, const GLubyte* extensions)
 {
     const GLubyte* start;
     GLubyte* where;
@@ -382,19 +360,11 @@ int _glfwStringInExtensionString(const char* string,
 //////                        GLFW public API                       //////
 //////////////////////////////////////////////////////////////////////////
 
-//========================================================================
-// Make the context associated with the specified window current
-//========================================================================
-
 GLFWAPI void glfwMakeContextCurrent(GLFWwindow* handle)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
 
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return;
-    }
+    _GLFW_REQUIRE_INIT();
 
     if (_glfwPlatformGetCurrentContext() == window)
         return;
@@ -402,52 +372,22 @@ GLFWAPI void glfwMakeContextCurrent(GLFWwindow* handle)
     _glfwPlatformMakeContextCurrent(window);
 }
 
-
-//========================================================================
-// Returns the window whose context is current
-//========================================================================
-
 GLFWAPI GLFWwindow* glfwGetCurrentContext(void)
 {
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return NULL;
-    }
-
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
     return (GLFWwindow*) _glfwPlatformGetCurrentContext();
 }
-
-
-//========================================================================
-// Swap buffers (double-buffering)
-//========================================================================
 
 GLFWAPI void glfwSwapBuffers(GLFWwindow* handle)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return;
-    }
-
+    _GLFW_REQUIRE_INIT();
     _glfwPlatformSwapBuffers(window);
 }
 
-
-//========================================================================
-// Set double buffering swap interval (0 = vsync off)
-//========================================================================
-
 GLFWAPI void glfwSwapInterval(int interval)
 {
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return;
-    }
+    _GLFW_REQUIRE_INIT();
 
     if (!_glfwPlatformGetCurrentContext())
     {
@@ -458,21 +398,12 @@ GLFWAPI void glfwSwapInterval(int interval)
     _glfwPlatformSwapInterval(interval);
 }
 
-
-//========================================================================
-// Check if a client API extension is available at runtime
-//========================================================================
-
 GLFWAPI int glfwExtensionSupported(const char* extension)
 {
     const GLubyte* extensions;
     _GLFWwindow* window;
 
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return GL_FALSE;
-    }
+    _GLFW_REQUIRE_INIT_OR_RETURN(GL_FALSE);
 
     window = _glfwPlatformGetCurrentContext();
     if (!window)
@@ -523,19 +454,9 @@ GLFWAPI int glfwExtensionSupported(const char* extension)
     return _glfwPlatformExtensionSupported(extension);
 }
 
-
-//========================================================================
-// Get the function pointer to a client API function
-// This can be used to get access to client API extension functions
-//========================================================================
-
 GLFWAPI GLFWglproc glfwGetProcAddress(const char* procname)
 {
-    if (!_glfwInitialized)
-    {
-        _glfwInputError(GLFW_NOT_INITIALIZED, NULL);
-        return NULL;
-    }
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
 
     if (!_glfwPlatformGetCurrentContext())
     {

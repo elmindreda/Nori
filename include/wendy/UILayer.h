@@ -101,10 +101,10 @@ public:
 private:
   void updateHoveredWidget();
   void removedWidget(Widget& widget);
-  void onKeyPressed(input::Key key, bool pressed);
+  void onKeyPressed(input::Key key, input::Action action);
   void onCharInput(uint32 character);
   void onCursorMoved(const ivec2& position);
-  void onButtonClicked(input::Button button, bool clicked);
+  void onButtonClicked(input::Button button, input::Action action);
   void onScrolled(double x, double y);
   void onFocusChanged(bool activated);
   input::Window& window;

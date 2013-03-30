@@ -35,10 +35,8 @@
 #include <limits.h>
 
 
-//========================================================================
 // Translate an X11 key code to a GLFW key code.
-//========================================================================
-
+//
 static int keyCodeToGLFWKeyCode(int keyCode)
 {
     int keySym;
@@ -94,6 +92,7 @@ static int keyCodeToGLFWKeyCode(int keyCode)
         case XK_Menu:           return GLFW_KEY_MENU;
         case XK_Num_Lock:       return GLFW_KEY_NUM_LOCK;
         case XK_Caps_Lock:      return GLFW_KEY_CAPS_LOCK;
+        case XK_Print:          return GLFW_KEY_PRINT_SCREEN;
         case XK_Scroll_Lock:    return GLFW_KEY_SCROLL_LOCK;
         case XK_Pause:          return GLFW_KEY_PAUSE;
         case XK_Delete:         return GLFW_KEY_DELETE;
@@ -214,11 +213,8 @@ static int keyCodeToGLFWKeyCode(int keyCode)
     return -1;
 }
 
-
-//========================================================================
 // Update the key code LUT
-//========================================================================
-
+//
 static void updateKeyCodeLUT(void)
 {
     int i, keyCode, keyCodeGLFW;
@@ -317,11 +313,8 @@ static void updateKeyCodeLUT(void)
     }
 }
 
-
-//========================================================================
 // Check whether the specified atom is supported
-//========================================================================
-
+//
 static Atom getSupportedAtom(Atom* supportedAtoms,
                              unsigned long atomCount,
                              const char* atomName)
@@ -341,11 +334,8 @@ static Atom getSupportedAtom(Atom* supportedAtoms,
     return None;
 }
 
-
-//========================================================================
 // Check whether the running window manager is EWMH-compliant
-//========================================================================
-
+//
 static void detectEWMH(void)
 {
     Window* windowFromRoot = NULL;
@@ -429,11 +419,8 @@ static void detectEWMH(void)
     _glfw.x11.hasEWMH = GL_TRUE;
 }
 
-
-//========================================================================
 // Initialize X11 display and look for supported X11 extensions
-//========================================================================
-
+//
 static GLboolean initDisplay(void)
 {
     Bool supported;
@@ -502,11 +489,17 @@ static GLboolean initDisplay(void)
         return GL_FALSE;
     }
 
-    XkbSetDetectableAutoRepeat(_glfw.x11.display, True, &supported);
+    if (!XkbSetDetectableAutoRepeat(_glfw.x11.display, True, &supported))
+    {
+        _glfwInputError(GLFW_PLATFORM_ERROR,
+                        "X11: Failed to set detectable key repeat");
+        return GL_FALSE;
+    }
+
     if (!supported)
     {
         _glfwInputError(GLFW_PLATFORM_ERROR,
-                        "X11: Detectable key repeat is not available");
+                        "X11: Detectable key repeat is not supported");
         return GL_FALSE;
     }
 
@@ -518,34 +511,33 @@ static GLboolean initDisplay(void)
     // Detect whether an EWMH-conformant window manager is running
     detectEWMH();
 
+    // Find or create string format atoms
+    _glfw.x11.UTF8_STRING =
+        XInternAtom(_glfw.x11.display, "UTF8_STRING", False);
+    _glfw.x11.COMPOUND_STRING =
+        XInternAtom(_glfw.x11.display, "COMPOUND_STRING", False);
+
     // Find or create selection property atom
     _glfw.x11.selection.property =
         XInternAtom(_glfw.x11.display, "GLFW_SELECTION", False);
 
-    // Find or create clipboard atom
-    _glfw.x11.selection.atom =
-        XInternAtom(_glfw.x11.display, "CLIPBOARD", False);
+    // Find or create standard clipboard atoms
+    _glfw.x11.TARGETS = XInternAtom(_glfw.x11.display, "TARGETS", False);
+    _glfw.x11.CLIPBOARD = XInternAtom(_glfw.x11.display, "CLIPBOARD", False);
 
     // Find or create selection target atoms
     _glfw.x11.selection.formats[_GLFW_CLIPBOARD_FORMAT_UTF8] =
-        XInternAtom(_glfw.x11.display, "UTF8_STRING", False);
+        _glfw.x11.UTF8_STRING;
     _glfw.x11.selection.formats[_GLFW_CLIPBOARD_FORMAT_COMPOUND] =
-        XInternAtom(_glfw.x11.display, "COMPOUND_STRING", False);
+        _glfw.x11.COMPOUND_STRING;
     _glfw.x11.selection.formats[_GLFW_CLIPBOARD_FORMAT_STRING] =
         XA_STRING;
-
-    _glfw.x11.selection.targets = XInternAtom(_glfw.x11.display,
-                                              "TARGETS",
-                                              False);
 
     return GL_TRUE;
 }
 
-
-//========================================================================
 // Create a blank cursor (for locked mouse mode)
-//========================================================================
-
+//
 static Cursor createNULLCursor(void)
 {
     Pixmap cursormask;
@@ -572,11 +564,8 @@ static Cursor createNULLCursor(void)
     return cursor;
 }
 
-
-//========================================================================
 // Terminate X11 display
-//========================================================================
-
+//
 static void terminateDisplay(void)
 {
     if (_glfw.x11.display)
@@ -590,10 +579,6 @@ static void terminateDisplay(void)
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
-
-//========================================================================
-// Initialize various GLFW state
-//========================================================================
 
 int _glfwPlatformInit(void)
 {
@@ -617,11 +602,6 @@ int _glfwPlatformInit(void)
     return GL_TRUE;
 }
 
-
-//========================================================================
-// Close window and shut down library
-//========================================================================
-
 void _glfwPlatformTerminate(void)
 {
     if (_glfw.x11.cursor)
@@ -629,8 +609,6 @@ void _glfwPlatformTerminate(void)
         XFreeCursor(_glfw.x11.display, _glfw.x11.cursor);
         _glfw.x11.cursor = (Cursor) 0;
     }
-
-    _glfwTerminateGammaRamp();
 
     _glfwTerminateJoysticks();
 
@@ -642,14 +620,9 @@ void _glfwPlatformTerminate(void)
         free(_glfw.x11.selection.string);
 }
 
-
-//========================================================================
-// Get the GLFW version string
-//========================================================================
-
 const char* _glfwPlatformGetVersionString(void)
 {
-    const char* version = _GLFW_VERSION_FULL
+    const char* version = _GLFW_VERSION_FULL " X11"
 #if defined(_GLFW_GLX)
         " GLX"
 #elif defined(_GLFW_EGL)
@@ -663,16 +636,12 @@ const char* _glfwPlatformGetVersionString(void)
         " glXGetProcAddressEXT"
 #elif defined(_GLFW_DLOPEN_LIBGL)
         " dlsym(libGL)"
-#else
-        " no-extension-support"
 #endif
 #if defined(_POSIX_TIMERS) && defined(_POSIX_MONOTONIC_CLOCK)
         " clock_gettime"
 #endif
 #if defined(__linux__)
-        " Linux-joystick-API"
-#else
-        " no-joystick-support"
+        " /dev/js"
 #endif
 #if defined(_GLFW_BUILD_DLL)
         " shared"
