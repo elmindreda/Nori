@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -28,7 +28,7 @@
 /// @see core (dependence)
 /// @see gtx_extented_min_max (dependence)
 ///
-/// @defgroup gtx_std_based_type GLM_GTX_std_based_type: Add types based on STL
+/// @defgroup gtx_std_based_type GLM_GTX_std_based_type
 /// @ingroup gtx
 /// 
 /// @brief Adds vector types based on STL value types.
@@ -52,27 +52,27 @@ namespace glm
 	/// @{
 	
 	/// Vector type based of two std::size_t components.
-	/// @see - GLM_GTX_std_based_type
+	/// @see GLM_GTX_std_based_type
 	typedef detail::tvec2<std::size_t>		size2;
 	
 	/// Vector type based of three std::size_t components.
-	/// @see - GLM_GTX_std_based_type
+	/// @see GLM_GTX_std_based_type
 	typedef detail::tvec3<std::size_t>		size3;
 
 	/// Vector type based of four std::size_t components.
-	/// @see - GLM_GTX_std_based_type
+	/// @see GLM_GTX_std_based_type
 	typedef detail::tvec4<std::size_t>		size4;
 
 	/// Vector type based of two std::size_t components.
-	/// @see - GLM_GTX_std_based_type
+	/// @see GLM_GTX_std_based_type
 	typedef detail::tvec2<std::size_t>		size2_t;
 	
 	/// Vector type based of three std::size_t components.
-	/// @see - GLM_GTX_std_based_type
+	/// @see GLM_GTX_std_based_type
 	typedef detail::tvec3<std::size_t>		size3_t;
 	
 	/// Vector type based of four std::size_t components.
-	/// @see - GLM_GTX_std_based_type
+	/// @see GLM_GTX_std_based_type
 	typedef detail::tvec4<std::size_t>		size4_t;
 
 	/// @}

@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -28,7 +28,7 @@
 /// @see core (dependence)
 /// @see gtx_extented_min_max (dependence)
 ///
-/// @defgroup gtx_associated_min_max GLM_GTX_associated_min_max: Associated Min/Max
+/// @defgroup gtx_associated_min_max GLM_GTX_associated_min_max
 /// @ingroup gtx
 /// 
 /// @brief Min and max functions that return associated values not the compared onces.
@@ -50,20 +50,23 @@ namespace glm
 	/// @addtogroup gtx_associated_min_max
 	/// @{
 
-	//! \brief Min comparison between 2 variables
+	/// Min comparison between 2 variables
+	/// @see gtx_associated_min_max
 	template<typename genTypeT, typename genTypeU>
 	genTypeU associatedMin(
 		const genTypeT& x, const genTypeU& a, 
 		const genTypeT& y, const genTypeU& b);
 
-	//! \brief Min comparison between 3 variables
+	/// Min comparison between 3 variables
+	/// @see gtx_associated_min_max
 	template<typename genTypeT, typename genTypeU>
 	genTypeU associatedMin(
 		const genTypeT& x, const genTypeU& a, 
 		const genTypeT& y, const genTypeU& b, 
 		const genTypeT& z, const genTypeU& c);
 
-	//! \brief Min comparison between 4 variables
+	/// Min comparison between 4 variables
+	/// @see gtx_associated_min_max
 	template<typename genTypeT, typename genTypeU>
 	genTypeU associatedMin(
 		const genTypeT& x, const genTypeU& a, 
@@ -71,20 +74,23 @@ namespace glm
 		const genTypeT& z, const genTypeU& c, 
 		const genTypeT& w, const genTypeU& d);
 
-	//! \brief Max comparison between 2 variables
+	/// Max comparison between 2 variables
+	/// @see gtx_associated_min_max
 	template<typename genTypeT, typename genTypeU>
 	genTypeU associatedMax(
 		const genTypeT& x, const genTypeU& a, 
 		const genTypeT& y, const genTypeU& b);
 
-	//! \brief Max comparison between 3 variables
+	/// Max comparison between 3 variables
+	/// @see gtx_associated_min_max
 	template<typename genTypeT, typename genTypeU>
 	genTypeU associatedMax(
 		const genTypeT& x, const genTypeU& a, 
 		const genTypeT& y, const genTypeU& b, 
 		const genTypeT& z, const genTypeU& c);
 
-	//! \brief Max comparison between 4 variables
+	/// Max comparison between 4 variables
+	/// @see gtx_associated_min_max
 	template<typename genTypeT, typename genTypeU>
 	genTypeU associatedMax(
 		const genTypeT& x, const genTypeU& a, 

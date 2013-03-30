@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+// OpenGL Mathematics Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Created : 2005-12-24
 // Updated : 2011-10-13
@@ -38,7 +38,7 @@ namespace glm
 	}
 
 // Henry Gordon Dietz: http://aggregate.org/MAGIC/
-namespace detail
+namespace _detail
 {
 	GLM_FUNC_QUALIFIER unsigned int ones32(unsigned int x)
 	{
@@ -55,10 +55,10 @@ namespace detail
 	}
 
 	template <>
-	struct compute_log2<float_or_int_value::INT>
+	struct _compute_log2<detail::float_or_int_value::GLM_INT>
 	{
 		template <typename T>
-		T operator() (T const & Value) const
+		GLM_FUNC_QUALIFIER T operator() (T const & Value) const
 		{
 #if(GLM_COMPILER & (GLM_COMPILER_VC | GLM_COMPILER_GCC))
 			return Value <= T(1) ? T(0) : T(32) - nlz(Value - T(1));
@@ -67,10 +67,12 @@ namespace detail
 #endif
 		}
 	};
-}//namespace detail
+
+}//namespace _detail
 
 	// Henry Gordon Dietz: http://aggregate.org/MAGIC/
-	unsigned int floor_log2(unsigned int x)
+/*
+	GLM_FUNC_QUALIFIER unsigned int floor_log2(unsigned int x)
 	{
 		x |= (x >> 1);
 		x |= (x >> 2);
@@ -78,9 +80,9 @@ namespace detail
 		x |= (x >> 8);
 		x |= (x >> 16);
 
-		return(detail::ones32(x) - 1);
+		return _detail::ones32(x) >> 1;
 	}
-
+*/
 	// mod
 	GLM_FUNC_QUALIFIER int mod(int x, int y)
 	{

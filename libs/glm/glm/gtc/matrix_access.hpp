@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -27,7 +27,7 @@
 /// 
 /// @see core (dependence)
 /// 
-/// @defgroup gtc_matrix_access GLM_GTC_matrix_access: Access matrix rows and columns
+/// @defgroup gtc_matrix_access GLM_GTC_matrix_access
 /// @ingroup gtc
 /// 
 /// Defines functions to access rows or columns of a matrix easily.
@@ -50,29 +50,29 @@ namespace glm
 	/// @{
 
 	/// Get a specific row of a matrix.
-	/// @see - gtc_matrix_access
+	/// @see gtc_matrix_access
 	template <typename genType> 
 	typename genType::row_type row(
 		genType const & m, 
 		int index);
 
 	/// Set a specific row to a matrix.
-	/// @see - gtc_matrix_access
-    template <typename genType> 
+	/// @see gtc_matrix_access
+	template <typename genType> 
 	genType row(
 		genType const & m, 
 		int index, 
 		typename genType::row_type const & x);
 
 	/// Get a specific column of a matrix.
-	/// @see - gtc_matrix_access
+	/// @see gtc_matrix_access
 	template <typename genType> 
 	typename genType::col_type column(
 		genType const & m, 
 		int index);
 
 	 /// Set a specific column to a matrix.
-	 /// @see - gtc_matrix_access
+	 /// @see gtc_matrix_access
 	template <typename genType> 
 	genType column(
 		genType const & m, 

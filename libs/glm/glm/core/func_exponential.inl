@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -26,128 +26,129 @@
 /// @author Christophe Riccio
 ///////////////////////////////////////////////////////////////////////////////////
 
-#include "_vectorize.hpp"
-
 namespace glm
 {
-    // pow
-    template <typename genType>
-    GLM_FUNC_QUALIFIER genType pow
+	// pow
+	template <typename genType>
+	GLM_FUNC_QUALIFIER genType pow
 	(
 		genType const & x, 
 		genType const & y
 	)
-    {
+	{
 		GLM_STATIC_ASSERT(detail::type<genType>::is_float, "'pow' only accept floating-point input");
 
-        return ::std::pow(x, y);
-    }
+		return genType(::std::pow(x, y));
+	}
 
 	VECTORIZE_VEC_VEC(pow)
 
-    // exp
-    template <typename genType>
-    GLM_FUNC_QUALIFIER genType exp
+	// exp
+	template <typename genType>
+	GLM_FUNC_QUALIFIER genType exp
 	(
 		genType const & x
 	)
-    {
+	{
 		GLM_STATIC_ASSERT(detail::type<genType>::is_float, "'exp' only accept floating-point input");
 
-        return ::std::exp(x);
-    }
+		return genType(::std::exp(x));
+	}
 
 	VECTORIZE_VEC(exp)
 
-    // log
-    template <typename genType>
-    GLM_FUNC_QUALIFIER genType log
+	// log
+	template <typename genType>
+	GLM_FUNC_QUALIFIER genType log
 	(
 		genType const & x
 	)
-    {
+	{
 		GLM_STATIC_ASSERT(detail::type<genType>::is_float, "'log' only accept floating-point input");
 
-        return ::std::log(x);
-    }
+		return genType(::std::log(x));
+	}
 
 	VECTORIZE_VEC(log)
 
-    //exp2, ln2 = 0.69314718055994530941723212145818f
-    template <typename genType>
-    GLM_FUNC_QUALIFIER genType exp2
+	//exp2, ln2 = 0.69314718055994530941723212145818f
+	template <typename genType>
+	GLM_FUNC_QUALIFIER genType exp2
 	(
 		genType const & x
 	)
-    {
+	{
 		GLM_STATIC_ASSERT(detail::type<genType>::is_float, "'exp2' only accept floating-point input");
 
-        return ::std::exp(genType(0.69314718055994530941723212145818) * x);
-    }
+		return genType(::std::exp(genType(0.69314718055994530941723212145818) * x));
+	}
 
 	VECTORIZE_VEC(exp2)
 
-namespace detail
+namespace _detail
 {
-	template <int PATH = float_or_int_value::ERROR>
-	struct compute_log2
+	template <int _PATH = detail::float_or_int_value::GLM_ERROR>
+	struct _compute_log2
 	{
 		template <typename T>
-		T operator() (T const & Value) const
+		T operator() (T const & Value) const;
+/*
 		{
 			GLM_STATIC_ASSERT(0, "'log2' parameter has an invalid template parameter type. GLM core features only supports floating-point types, include <glm/gtx/integer.hpp> for integer types support. Others types are not supported.");
 			return Value;
 		}
+*/
 	};
 
 	template <>
-	struct compute_log2<float_or_int_value::FLOAT>
+	struct _compute_log2<detail::float_or_int_value::GLM_FLOAT>
 	{
 		template <typename T>
 		T operator() (T const & Value) const
 		{
-			return ::std::log(Value) / T(0.69314718055994530941723212145818);
+			return T(::std::log(Value)) / T(0.69314718055994530941723212145818);
 		}
 	};
-}//namespace detail
 
-    // log2, ln2 = 0.69314718055994530941723212145818f
-    template <typename genType>
-    GLM_FUNC_QUALIFIER genType log2
+}//namespace _detail
+
+	// log2, ln2 = 0.69314718055994530941723212145818f
+	template <typename genType>
+	GLM_FUNC_QUALIFIER genType log2
 	(
 		genType const & x
 	)
-    {
+	{
 		assert(x > genType(0)); // log2 is only defined on the range (0, inf]
-		return detail::compute_log2<detail::float_or_int_trait<genType>::ID>()(x);
-    }
+		return _detail::_compute_log2<detail::float_or_int_trait<genType>::ID>()(x);
+	}
 
 	VECTORIZE_VEC(log2)
 
-    // sqrt
-    template <typename genType>
-    GLM_FUNC_QUALIFIER genType sqrt
+	// sqrt
+	template <typename genType>
+	GLM_FUNC_QUALIFIER genType sqrt
 	(
 		genType const & x
 	)
-    {
+	{
 		GLM_STATIC_ASSERT(detail::type<genType>::is_float, "'sqrt' only accept floating-point input");
 
-        return genType(::std::sqrt(x));
-    }
+		return genType(::std::sqrt(x));
+	}
 
 	VECTORIZE_VEC(sqrt)
 
-    template <typename genType>
-    GLM_FUNC_QUALIFIER genType inversesqrt
+	template <typename genType>
+	GLM_FUNC_QUALIFIER genType inversesqrt
 	(
 		genType const & x
 	)
-    {
+	{
 		GLM_STATIC_ASSERT(detail::type<genType>::is_float, "'inversesqrt' only accept floating-point input");
 
-        return genType(1) / ::std::sqrt(x);
-    }
+		return genType(1) / ::std::sqrt(x);
+	}
 
 	VECTORIZE_VEC(inversesqrt)
 

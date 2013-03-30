@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -27,7 +27,7 @@
 ///
 /// @see core (dependence)
 ///
-/// @defgroup gtx_wrap GLM_GTX_wrap: Texture coordinate wrap modes
+/// @defgroup gtx_wrap GLM_GTX_wrap
 /// @ingroup gtx
 /// 
 /// @brief Wrapping mode of texture coordinates.

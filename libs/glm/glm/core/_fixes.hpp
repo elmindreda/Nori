@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -22,9 +22,11 @@
 ///
 /// @ref core
 /// @file glm/core/_fixes.hpp
-/// @date 2011-02-21 / 2011-02-16
+/// @date 2011-02-21 / 2011-11-22
 /// @author Christophe Riccio
 ///////////////////////////////////////////////////////////////////////////////////
+
+#include <cmath>
 
 //! Workaround for compatibility with other libraries
 #ifdef max
@@ -44,5 +46,10 @@
 //! Workaround for Android
 #ifdef isinf
 #undef isinf
+#endif
+
+//! Workaround for Chrone Native Client
+#ifdef log2
+#undef log2
 #endif
 

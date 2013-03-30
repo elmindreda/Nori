@@ -1,28 +1,45 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Created : 2011-03-07
-// Updated : 2011-04-26
-// Licence : This source is under MIT License
-// File    : glm/gtx/ulp.inl
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+/// OpenGL Mathematics (glm.g-truc.net)
+///
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+/// 
+/// The above copyright notice and this permission notice shall be included in
+/// all copies or substantial portions of the Software.
+/// 
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+/// THE SOFTWARE.
+///
+/// @ref gtc_ulp
+/// @file glm/gtc/ulp.inl
+/// @date 2011-03-07 / 2012-04-07
+/// @author Christophe Riccio
+///////////////////////////////////////////////////////////////////////////////////
+/// Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+///
+/// Developed at SunPro, a Sun Microsystems, Inc. business.
+/// Permission to use, copy, modify, and distribute this
+/// software is freely granted, provided that this notice
+/// is preserved.
+///////////////////////////////////////////////////////////////////////////////////
 
 #include <cmath>
 #include <cfloat>
 
-/*
- * ====================================================
- * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
- *
- * Developed at SunPro, a Sun Microsystems, Inc. business.
- * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice
- * is preserved.
- * ====================================================
- */
-
-#pragma warning(push)
-#pragma warning(disable : 4127)
+#if(GLM_COMPILER & GLM_COMPILER_VC)
+#	pragma warning(push)
+#	pragma warning(disable : 4127)
+#endif
 
 typedef union
 {
@@ -171,14 +188,16 @@ namespace detail
 }//namespace detail
 }//namespace glm
 
-#pragma warning(pop)
-
 #if(GLM_COMPILER & GLM_COMPILER_VC)
+#	pragma warning(pop)
+#endif
+
+#if((GLM_COMPILER & GLM_COMPILER_VC) || ((GLM_COMPILER & GLM_COMPILER_INTEL) && (GLM_PLATFORM & GLM_PLATFORM_WINDOWS)))
 #	define GLM_NEXT_AFTER_FLT(x, toward) glm::detail::nextafterf((x), (toward))
-#   define GLM_NEXT_AFTER_DBL(x, toward) _nextafter((x), (toward))
+#	define GLM_NEXT_AFTER_DBL(x, toward) _nextafter((x), (toward))
 #else
-#   define GLM_NEXT_AFTER_FLT(x, toward) nextafterf((x), (toward))
-#   define GLM_NEXT_AFTER_DBL(x, toward) nextafter((x), (toward))
+#	define GLM_NEXT_AFTER_FLT(x, toward) nextafterf((x), (toward))
+#	define GLM_NEXT_AFTER_DBL(x, toward) nextafter((x), (toward))
 #endif
 
 namespace glm

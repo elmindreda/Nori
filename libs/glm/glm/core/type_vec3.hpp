@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -44,8 +44,6 @@ namespace detail
 	template <typename T> struct tvec2;
 	template <typename T> struct tvec4;
 
-	//! Basic 3D vector type.
-	//! \ingroup core_template
 	template <typename T>
 	struct tvec3
 	{	
@@ -53,16 +51,15 @@ namespace detail
 
 		typedef T value_type;
 		typedef std::size_t size_type;
-		GLM_FUNC_DECL size_type length() const;
-		static GLM_FUNC_DECL size_type value_size();
-
 		typedef tvec3<T> type;
 		typedef tvec3<bool> bool_type;
+
+		GLM_FUNC_DECL GLM_CONSTEXPR size_type length() const;
 
 		//////////////////////////////////////
 		// Data
 
-#	if(GLM_SUPPORT_ANONYMOUS_UNION_OF_STRUCTURE() && !defined(GLM_FORCE_ONLY_XYZW))
+#	if(GLM_COMPONENT == GLM_COMPONENT_CXX11)
 		union 
 		{
 #		if(defined(GLM_SWIZZLE))
@@ -81,7 +78,7 @@ namespace detail
 			struct{value_type s, t, p;};
 			struct{value_type x, y, z;};
 		};
-#	elif(GLM_SUPPORT_ANONYMOUS_UNION() && !defined(GLM_FORCE_ONLY_XYZW))
+#	elif(GLM_COMPONENT == GLM_COMPONENT_CXX98)
 		union {value_type x, r, s;};
 		union {value_type y, g, t;};
 		union {value_type z, b, p;};
@@ -91,7 +88,7 @@ namespace detail
 			GLM_SWIZZLE_GEN_REF_FROM_VEC3(T, detail::tvec3, detail::tref2, detail::tref3)
 			GLM_SWIZZLE_GEN_VEC_FROM_VEC3(T, detail::tvec3, detail::tvec2, detail::tvec3, detail::tvec4)
 #		endif//(defined(GLM_SWIZZLE))
-#	else
+#	else //(GLM_COMPONENT == GLM_COMPONENT_ONLY_XYZW)
 		value_type x, y, z;
 
 #		if(defined(GLM_SWIZZLE))
@@ -166,23 +163,23 @@ namespace detail
 		template <typename A, typename B> 
 		GLM_FUNC_DECL explicit tvec3(A const & s, tref2<B> const & v);
 
-        template <int E0, int E1, int E2>
-        GLM_FUNC_DECL tvec3(glm::detail::swizzle<3, T, tvec3<T>, E0, E1, E2, -1> const & that)
-        {
-            *this = that();
-        }
+		template <int E0, int E1, int E2>
+		GLM_FUNC_DECL tvec3(glm::detail::swizzle<3, T, tvec3<T>, E0, E1, E2, -1> const & that)
+		{
+			*this = that();
+		}
 
-        template <int E0, int E1>
-        GLM_FUNC_DECL tvec3(glm::detail::swizzle<2, T, tvec2<T>, E0, E1, -1, -2> const & v, T const & s)
-        {
-            *this = tvec3<T>(v(), s);
-        }
+		template <int E0, int E1>
+		GLM_FUNC_DECL tvec3(glm::detail::swizzle<2, T, tvec2<T>, E0, E1, -1, -2> const & v, T const & s)
+		{
+			*this = tvec3<T>(v(), s);
+		}
 
-        template <int E0, int E1>
-        GLM_FUNC_DECL tvec3(T const & s, glm::detail::swizzle<2, T, tvec2<T>, E0, E1, -1, -2> const & v)
-        {
-            *this = tvec3<T>(s, v());
-        }
+		template <int E0, int E1>
+		GLM_FUNC_DECL tvec3(T const & s, glm::detail::swizzle<2, T, tvec2<T>, E0, E1, -1, -2> const & v)
+		{
+			*this = tvec3<T>(s, v());
+		}
 
 		//////////////////////////////////////
 		// Unary arithmetic operators
@@ -269,60 +266,73 @@ namespace detail
 	GLM_DETAIL_IS_VECTOR(tvec3);
 } //namespace detail
 
-	//! 3 components vector of high precision floating-point numbers. 
-	//! There is no guarantee on the actual precision.
-	//! From GLSL 1.30.8 specification, section 4.5.2 Precision Qualifiers.
-	//! \ingroup core_precision
+	/// @addtogroup core_precision
+	/// @{
+
+	/// 3 components vector of high precision floating-point numbers. 
+	/// There is no guarantee on the actual precision.
+	/// 
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.1.5 Vectors</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.7.2 Precision Qualifier</a>
 	typedef detail::tvec3<highp_float>		highp_vec3;
 
-	//! 3 components vector of medium precision floating-point numbers. 
-	//! There is no guarantee on the actual precision.
-	//! From GLSL 1.30.8 specification, section 4.5.2 Precision Qualifiers.
-	//! \ingroup core_precision
+	/// 3 components vector of medium precision floating-point numbers. 
+	/// There is no guarantee on the actual precision.
+	/// 
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.1.5 Vectors</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.7.2 Precision Qualifier</a>
 	typedef detail::tvec3<mediump_float>	mediump_vec3;
 
-	//! 3 components vector of low precision floating-point numbers. 
-	//! There is no guarantee on the actual precision.
-	//! From GLSL 1.30.8 specification, section 4.5.2 Precision Qualifiers.
-	//! \ingroup core_precision
+	/// 3 components vector of low precision floating-point numbers. 
+	/// There is no guarantee on the actual precision.
+	/// 
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.1.5 Vectors</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.7.2 Precision Qualifier</a>
 	typedef detail::tvec3<lowp_float>		lowp_vec3;
 
-	//! 3 components vector of high precision signed integer numbers. 
-	//! There is no guarantee on the actual precision.
-	//! From GLSL 1.30.8 specification, section 4.1.5 Precision Qualifiers.
-	//! \ingroup core_precision
+	/// 3 components vector of high precision signed integer numbers. 
+	/// There is no guarantee on the actual precision.
+	/// 
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.1.5 Vectors</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.7.2 Precision Qualifier</a>
 	typedef detail::tvec3<highp_int>		highp_ivec3;
 
-	//! 3 components vector of medium precision signed integer numbers. 
-	//! There is no guarantee on the actual precision.
-	//! From GLSL 1.30.8 specification, section 4.1.5 Precision Qualifiers.
-	//! \ingroup core_precision
+	/// 3 components vector of medium precision signed integer numbers. 
+	/// There is no guarantee on the actual precision.
+	/// 
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.1.5 Vectors</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.7.2 Precision Qualifier</a>
 	typedef detail::tvec3<mediump_int>		mediump_ivec3;
 
-	//! 3 components vector of low precision signed integer numbers. 
-	//! There is no guarantee on the actual precision.
-	//! From GLSL 1.30.8 specification, section 4.1.5 Precision Qualifiers.
-	//! \ingroup core_precision
+	/// 3 components vector of low precision signed integer numbers. 
+	/// There is no guarantee on the actual precision.
+	/// 
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.1.5 Vectors</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.7.2 Precision Qualifier</a>
 	typedef detail::tvec3<lowp_int>			lowp_ivec3;
 
-	//! 3 components vector of high precision unsigned integer numbers. 
-	//! There is no guarantee on the actual precision.
-	//! From GLSL 1.30.8 specification, section 4.1.5 Precision Qualifiers.
-	//! \ingroup core_precision
+	/// 3 components vector of high precision unsigned integer numbers. 
+	/// There is no guarantee on the actual precision.
+	/// 
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.1.5 Vectors</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.7.2 Precision Qualifier</a>
 	typedef detail::tvec3<highp_uint>		highp_uvec3;
 
-	//! 3 components vector of medium precision unsigned integer numbers. 
-	//! There is no guarantee on the actual precision.
-	//! From GLSL 1.30.8 specification, section 4.1.5 Precision Qualifiers.
-	//! \ingroup core_precision
+	/// 3 components vector of medium precision unsigned integer numbers. 
+	/// There is no guarantee on the actual precision.
+	/// 
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.1.5 Vectors</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.7.2 Precision Qualifier</a>
 	typedef detail::tvec3<mediump_uint>		mediump_uvec3;
 
-	//! 3 components vector of low precision unsigned integer numbers. 
-	//! There is no guarantee on the actual precision.
-	//! From GLSL 1.30.8 specification, section 4.1.5 Precision Qualifiers.
-	//! \ingroup core_precision
+	/// 3 components vector of low precision unsigned integer numbers. 
+	/// There is no guarantee on the actual precision.
+	/// 
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.1.5 Vectors</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.7.2 Precision Qualifier</a>
 	typedef detail::tvec3<lowp_uint>		lowp_uvec3;
 
+	/// @}
 }//namespace glm
 
 #ifndef GLM_EXTERNAL_TEMPLATE

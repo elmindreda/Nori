@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+// OpenGL Mathematics Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Created : 2009-10-26
 // Updated : 2011-06-07
@@ -9,8 +9,6 @@
 // Dependency:
 // - GLM core
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "../core/_vectorize.hpp"
 
 namespace glm
 {
@@ -29,17 +27,17 @@ namespace glm
 	}
 
 	template <> 
-	GLM_FUNC_QUALIFIER detail::thalf higherMultiple
+	GLM_FUNC_QUALIFIER detail::half higherMultiple
 	(
-		detail::thalf const & SourceH, 
-		detail::thalf const & MultipleH
+		detail::half const & SourceH, 
+		detail::half const & MultipleH
 	)
 	{
 		float Source = SourceH.toFloat();
 		float Multiple = MultipleH.toFloat();
 
 		int Tmp = int(float(Source)) % int(Multiple);
-		return detail::thalf(Tmp ? Source + Multiple - float(Tmp) : Source);
+		return detail::half(Tmp ? Source + Multiple - float(Tmp) : Source);
 	}
 
 	template <> 
@@ -81,17 +79,17 @@ namespace glm
 	}
 
 	template <> 
-	GLM_FUNC_QUALIFIER detail::thalf lowerMultiple
+	GLM_FUNC_QUALIFIER detail::half lowerMultiple
 	(
-		detail::thalf const & SourceH, 
-		detail::thalf const & MultipleH
+		detail::half const & SourceH, 
+		detail::half const & MultipleH
 	)
 	{
 		float Source = SourceH.toFloat();
 		float Multiple = MultipleH.toFloat();
 
 		int Tmp = int(float(Source)) % int(float(Multiple));
-		return detail::thalf(Tmp ? Source - float(Tmp) : Source);
+		return detail::half(Tmp ? Source - float(Tmp) : Source);
 	}
 
 	template <> 

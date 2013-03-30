@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -25,7 +25,7 @@
 /// @date 2010-03-17 / 2011-06-18
 /// @author Christophe Riccio
 ///
-/// @see - <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8</a>
+/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8 Integer Functions</a>
 /// 
 /// @defgroup core_func_integer Integer functions
 /// @ingroup core
@@ -49,8 +49,8 @@ namespace glm
 	///
 	/// @tparam genUType Unsigned integer scalar or vector types.
 	/// 
-    /// @see - <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/uaddCarry.xml">GLSL uaddCarry man page</a>
-    /// @see - <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8</a>
+	/// @see <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/uaddCarry.xml">GLSL uaddCarry man page</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8 Integer Functions</a>
 	template <typename genUType>
 	genUType uaddCarry(
 		genUType const & x, 
@@ -63,8 +63,8 @@ namespace glm
 	///
 	/// @tparam genUType Unsigned integer scalar or vector types.
 	/// 
-    /// @see - <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/usubBorrow.xml">GLSL usubBorrow man page</a>
-    /// @see - <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8</a>
+	/// @see <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/usubBorrow.xml">GLSL usubBorrow man page</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8 Integer Functions</a>
 	template <typename genUType>
 	genUType usubBorrow(
 		genUType const & x, 
@@ -77,8 +77,8 @@ namespace glm
 	///
 	/// @tparam genUType Unsigned integer scalar or vector types.
 	/// 
-    /// @see - <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/umulExtended.xml">GLSL umulExtended man page</a>
-    /// @see - <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8</a>
+	/// @see <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/umulExtended.xml">GLSL umulExtended man page</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8 Integer Functions</a>
 	template <typename genUType>
 	void umulExtended(
 		genUType const & x, 
@@ -92,8 +92,8 @@ namespace glm
 	/// 
 	/// @tparam genIType Signed integer scalar or vector types.
 	///
-    /// @see - <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/imulExtended.xml">GLSL imulExtended man page</a>
-    /// @see - <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8</a>
+	/// @see <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/imulExtended.xml">GLSL imulExtended man page</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8 Integer Functions</a>
 	template <typename genIType>
 	void imulExtended(
 		genIType const & x, 
@@ -105,7 +105,7 @@ namespace glm
 	/// returning them in the least significant bits of the result.
 	/// For unsigned data types, the most significant bits of the
 	/// result will be set to zero. For signed data types, the
-	/// most significant bits will be set to the value of bit offset + base – 1.
+	/// most significant bits will be set to the value of bit offset + base - 1.
 	///
 	/// If bits is zero, the result will be zero. The result will be
 	/// undefined if offset or bits is negative, or if the sum of
@@ -114,8 +114,8 @@ namespace glm
 	///
 	/// @tparam genIUType Signed or unsigned integer scalar or vector types.
 	/// 
-    /// @see - <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/bitfieldExtract.xml">GLSL bitfieldExtract man page</a>
-    /// @see - <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8</a>
+	/// @see <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/bitfieldExtract.xml">GLSL bitfieldExtract man page</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8 Integer Functions</a>
 	template <typename genIUType>
 	genIUType bitfieldExtract(
 		genIUType const & Value, 
@@ -125,7 +125,7 @@ namespace glm
 	/// Returns the insertion the bits least-significant bits of insert into base.
 	///
 	/// The result will have bits [offset, offset + bits - 1] taken
-	/// from bits [0, bits – 1] of insert, and all other bits taken
+	/// from bits [0, bits - 1] of insert, and all other bits taken
 	/// directly from the corresponding bits of base. If bits is
 	/// zero, the result will simply be base. The result will be
 	/// undefined if offset or bits is negative, or if the sum of
@@ -134,8 +134,8 @@ namespace glm
 	///
 	/// @tparam genIUType Signed or unsigned integer scalar or vector types.
 	///
-    /// @see - <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/bitfieldInsert.xml">GLSL bitfieldInsert man page</a>
-	/// @see - <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8</a>
+	/// @see <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/bitfieldInsert.xml">GLSL bitfieldInsert man page</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8 Integer Functions</a>
 	template <typename genIUType>
 	genIUType bitfieldInsert(
 		genIUType const & Base, 
@@ -149,17 +149,17 @@ namespace glm
 	///
 	/// @tparam genIUType Signed or unsigned integer scalar or vector types.
 	///
-    /// @see - <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/bitfieldReverse.xml">GLSL bitfieldReverse man page</a>
-    /// @see - <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8</a>
+	/// @see <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/bitfieldReverse.xml">GLSL bitfieldReverse man page</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8 Integer Functions</a>
 	template <typename genIUType>
-	genIUType bitfieldReverse(genIUType const & value);
+	genIUType bitfieldReverse(genIUType const & Value);
 		
 	/// Returns the number of bits set to 1 in the binary representation of value.
 	///
 	/// @tparam genIUType Signed or unsigned integer scalar or vector types.
 	///
-    /// @see - <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/bitCount.xml">GLSL bitCount man page</a>
-    /// @see - <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8</a>
+	/// @see <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/bitCount.xml">GLSL bitCount man page</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8 Integer Functions</a>
 	///
 	/// @todo Clarify the declaration to specify that scalars are suported.
 	template <typename T, template <typename> class genIUType>
@@ -171,8 +171,8 @@ namespace glm
 	///
 	/// @tparam genIUType Signed or unsigned integer scalar or vector types.
 	///
-    /// @see - <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/findLSB.xml">GLSL findLSB man page</a>
-    /// @see - <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8</a>
+	/// @see <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/findLSB.xml">GLSL findLSB man page</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8 Integer Functions</a>
 	///
 	/// @todo Clarify the declaration to specify that scalars are suported.
 	template <typename T, template <typename> class genIUType>
@@ -185,8 +185,8 @@ namespace glm
 	///
 	/// @tparam genIUType Signed or unsigned integer scalar or vector types.
 	///
-    /// @see - <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/findMSB.xml">GLSL findMSB man page</a>
-    /// @see - <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8</a>
+	/// @see <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/findMSB.xml">GLSL findMSB man page</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.8 Integer Functions</a>
 	///
 	/// @todo Clarify the declaration to specify that scalars are suported.
 	template <typename T, template <typename> class genIUType>

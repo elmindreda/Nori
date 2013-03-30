@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -30,7 +30,7 @@
 /// @see gtx_integer (dependence)
 /// @see gtx_quaternion (dependence)
 ///
-/// @defgroup gtx_string_cast GLM_GTX_string_cast: String cast
+/// @defgroup gtx_string_cast GLM_GTX_string_cast
 /// @ingroup gtx
 /// 
 /// @brief Setup strings for GLM type values

@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -27,7 +27,7 @@
 ///
 /// @see core (dependence)
 ///
-/// @defgroup gtx_handed_coordinate_space GLM_GTX_handed_coordinate_space: Space Handedness
+/// @defgroup gtx_handed_coordinate_space GLM_GTX_handed_coordinate_space
 /// @ingroup gtx
 /// 
 /// @brief To know if a set of three basis vectors defines a right or left-handed coordinate system.

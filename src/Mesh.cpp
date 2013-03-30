@@ -38,7 +38,7 @@
 #include <cctype>
 
 #include <glm/gtx/compatibility.hpp>
-#include <glm/gtx/epsilon.hpp>
+#include <glm/gtc/epsilon.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -114,8 +114,8 @@ uint32 VertexTool::addAttributeLayer(uint32 vertexIndex,
   {
     for (auto l = vertex.layers.begin();  l != vertex.layers.end();  l++)
     {
-      if (all(equalEpsilon(l->normal, normal, 0.001f)) &&
-          all(equalEpsilon(l->texcoord, texcoord, 0.001f)))
+      if (all(epsilonEqual(l->normal, normal, 0.001f)) &&
+          all(epsilonEqual(l->texcoord, texcoord, 0.001f)))
       {
         return l->index;
       }
@@ -137,9 +137,9 @@ uint32 VertexTool::addAttributeLayer(uint32 vertexIndex,
 
     for (auto l = vertex.layers.begin();  l != vertex.layers.end();  l++)
     {
-      if (all(equalEpsilon(l->texcoord, texcoord, 0.001f)))
+      if (all(epsilonEqual(l->texcoord, texcoord, 0.001f)))
       {
-        if (all(equalEpsilon(l->normal, normal, 0.001f)))
+        if (all(epsilonEqual(l->normal, normal, 0.001f)))
           return l->index;
 
         discontinuous = false;

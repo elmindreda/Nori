@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -38,7 +38,7 @@
 namespace glm{
 namespace detail
 {
-	class thalf;
+	class half;
 
 #if(defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) // C99 detected, 64 bit types available
 	typedef int64_t								sint64;
@@ -242,6 +242,11 @@ namespace detail
 		};						\
 	}
 
+	GLM_DETAIL_IS_FLOAT(detail::half);
+	GLM_DETAIL_IS_FLOAT(float);
+	GLM_DETAIL_IS_FLOAT(double);
+	GLM_DETAIL_IS_FLOAT(long double);
+
 	//////////////////
 	// bool
 
@@ -341,7 +346,7 @@ namespace detail
 	typedef unsigned int						uint32;
 	typedef detail::uint64						uint64;
 	
-	typedef detail::thalf						float16;
+	typedef detail::half						float16;
 	typedef float								float32;
 	typedef double								float64;
 	
@@ -352,82 +357,82 @@ namespace detail
 	{
 		enum
 		{
-			ERROR,
-			FLOAT,
-			INT
+			GLM_ERROR,
+			GLM_FLOAT,
+			GLM_INT
 		};
 	};
 
 	template <typename T>
 	struct float_or_int_trait
 	{
-		enum{ID = float_or_int_value::ERROR};
+		enum{ID = float_or_int_value::GLM_ERROR};
 	};
 
 	template <>
 	struct float_or_int_trait<int8>
 	{
-		enum{ID = float_or_int_value::INT};
+		enum{ID = float_or_int_value::GLM_INT};
 	};
 
 	template <>
 	struct float_or_int_trait<int16>
 	{
-		enum{ID = float_or_int_value::INT};
+		enum{ID = float_or_int_value::GLM_INT};
 	};
 
 	template <>
 	struct float_or_int_trait<int32>
 	{
-		enum{ID = float_or_int_value::INT};
+		enum{ID = float_or_int_value::GLM_INT};
 	};
 
 	template <>
 	struct float_or_int_trait<int64>
 	{
-		enum{ID = float_or_int_value::INT};
+		enum{ID = float_or_int_value::GLM_INT};
 	};
 
 	template <>
 	struct float_or_int_trait<uint8>
 	{
-		enum{ID = float_or_int_value::INT};
+		enum{ID = float_or_int_value::GLM_INT};
 	};
 
 	template <>
 	struct float_or_int_trait<uint16>
 	{
-		enum{ID = float_or_int_value::INT};
+		enum{ID = float_or_int_value::GLM_INT};
 	};
 
 	template <>
 	struct float_or_int_trait<uint32>
 	{
-		enum{ID = float_or_int_value::INT};
+		enum{ID = float_or_int_value::GLM_INT};
 	};
 
 	template <>
 	struct float_or_int_trait<uint64>
 	{
-		enum{ID = float_or_int_value::INT};
+		enum{ID = float_or_int_value::GLM_INT};
 	};
 
 	template <>
 	struct float_or_int_trait<float16>
 	{
-		enum{ID = float_or_int_value::FLOAT};
+		enum{ID = float_or_int_value::GLM_FLOAT};
 	};
 
 	template <>
 	struct float_or_int_trait<float32>
 	{
-		enum{ID = float_or_int_value::FLOAT};
+		enum{ID = float_or_int_value::GLM_FLOAT};
 	};
 
 	template <>
 	struct float_or_int_trait<float64>
 	{
-		enum{ID = float_or_int_value::FLOAT};
+		enum{ID = float_or_int_value::GLM_FLOAT};
 	};
 
 }//namespace detail
@@ -439,7 +444,15 @@ namespace detail
 #	define GLM_ALIGNED_STRUCT(x) __declspec(align(x)) struct 
 #	define GLM_RESTRICT __declspec(restrict)
 #	define GLM_RESTRICT_VAR __restrict
-#elif((GLM_COMPILER & (GLM_COMPILER_GCC | GLM_COMPILER_LLVM_GCC)) && (GLM_COMPILER >= GLM_COMPILER_GCC31))
+#	define GLM_CONSTEXPR 
+#elif(GLM_COMPILER & GLM_COMPILER_INTEL)
+#	define GLM_DEPRECATED
+#	define GLM_ALIGN(x) __declspec(align(x))
+#	define GLM_ALIGNED_STRUCT(x) __declspec(align(x)) struct
+#	define GLM_RESTRICT
+#	define GLM_RESTRICT_VAR __restrict
+#	define GLM_CONSTEXPR
+#elif(((GLM_COMPILER & (GLM_COMPILER_GCC | GLM_COMPILER_LLVM_GCC)) && (GLM_COMPILER >= GLM_COMPILER_GCC31)) || (GLM_COMPILER & GLM_COMPILER_CLANG))
 #	define GLM_DEPRECATED __attribute__((__deprecated__))
 #	define GLM_ALIGN(x) __attribute__((aligned(x)))
 #	define GLM_ALIGNED_STRUCT(x) struct __attribute__((aligned(x)))
@@ -452,12 +465,18 @@ namespace detail
 #	endif
 #	define GLM_RESTRICT __restrict__
 #	define GLM_RESTRICT_VAR __restrict__
+#	if((GLM_COMPILER >= GLM_COMPILER_GCC47) && ((GLM_LANG & GLM_LANG_CXX0X) == GLM_LANG_CXX0X))
+#		define GLM_CONSTEXPR constexpr 
+#	else
+#		define GLM_CONSTEXPR 
+#	endif
 #else
 #	define GLM_DEPRECATED
 #	define GLM_ALIGN
 #	define GLM_ALIGNED_STRUCT(x) 
 #	define GLM_RESTRICT
 #	define GLM_RESTRICT_VAR
+#	define GLM_CONSTEXPR 
 #endif//GLM_COMPILER
 
 #endif//glm_core_detail

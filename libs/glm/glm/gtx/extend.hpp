@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -27,7 +27,7 @@
 ///
 /// @see core (dependence)
 ///
-/// @defgroup gtx_extend GLM_GTX_extend: Position extending 
+/// @defgroup gtx_extend GLM_GTX_extend
 /// @ingroup gtx
 /// 
 /// @brief Extend a position from a source to a position at a defined length.
@@ -50,8 +50,8 @@ namespace glm
 	/// @addtogroup gtx_extend
 	/// @{
 
-	//! Extends of Length the Origin position using the (Source - Origin) direction.
-	//! From GLM_GTX_extend extension.
+	/// Extends of Length the Origin position using the (Source - Origin) direction.
+	/// @see gtx_extend
 	template <typename genType> 
 	genType extend(
 		genType const & Origin, 

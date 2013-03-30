@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -84,6 +84,7 @@
 #include <climits>
 #include <cfloat>
 #include <limits>
+#include <cstdio>
 //#include <type_traits>
 #include "core/setup.hpp"
 
@@ -93,6 +94,7 @@
 #endif//GLM_MESSAGE
 
 #include "./core/_detail.hpp"
+#include "./core/_vectorize.hpp"
 #include "./core/type.hpp"
 
 #include "./core/func_trigonometric.hpp"

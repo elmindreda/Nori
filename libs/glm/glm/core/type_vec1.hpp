@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -54,11 +54,10 @@ namespace detail
 
 		typedef T value_type;
 		typedef std::size_t size_type;
-		GLM_FUNC_DECL size_type length() const;
-		static GLM_FUNC_DECL size_type value_size();
-
 		typedef tvec1<T> type;
 		typedef tvec1<bool> bool_type;
+
+		GLM_FUNC_DECL GLM_CONSTEXPR size_type length() const;
 
 		//////////////////////////////////////
 		// Data

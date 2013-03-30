@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -34,40 +34,37 @@
 
 namespace glm
 {
-	namespace detail
-	{
-		GLM_DETAIL_IS_FLOAT(detail::thalf);
-		GLM_DETAIL_IS_FLOAT(float);
-		GLM_DETAIL_IS_FLOAT(double);
-		GLM_DETAIL_IS_FLOAT(long double);
-	}
-	//namespace detail
-
 #ifdef GLM_USE_HALF_SCALAR
-    typedef detail::thalf		lowp_float_t;
+	typedef detail::half		lowp_float_t;
 #else//GLM_USE_HALF_SCALAR
-    typedef float				lowp_float_t;
+	typedef float				lowp_float_t;
 #endif//GLM_USE_HALF_SCALAR
-    typedef float				mediump_float_t;
-    typedef double				highp_float_t;
+	typedef float				mediump_float_t;
+	typedef double				highp_float_t;
 
-    //! Low precision floating-point numbers. 
-    //! There is no guarantee on the actual precision.
-    //! From GLSL 1.30.8 specification
-    //! \ingroup core_precision
-    typedef lowp_float_t		lowp_float;
-    
-    //! Medium precision floating-point numbers.
-    //! There is no guarantee on the actual precision.
-    //! From GLSL 1.30.8 specification
-    //! \ingroup core_precision
-    typedef mediump_float_t     mediump_float;
-    
-    //! High precision floating-point numbers.
-    //! There is no guarantee on the actual precision.
-    //! From GLSL 1.30.8 specification
-    //! \ingroup core_precision
-    typedef highp_float_t		highp_float;
+	/// @addtogroup core_precision
+	/// @{
+
+	/// Low precision floating-point numbers. 
+	/// There is no guarantee on the actual precision.
+	/// 
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.1.4 Floats</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.7.2 Precision Qualifier</a>
+	typedef lowp_float_t		lowp_float;
+
+	/// Medium precision floating-point numbers.
+	/// There is no guarantee on the actual precision.
+	/// 
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.1.4 Floats</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.7.2 Precision Qualifier</a>
+	typedef mediump_float_t     mediump_float;
+
+	/// High precision floating-point numbers.
+	/// There is no guarantee on the actual precision.
+	/// 
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.1.4 Floats</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 4.7.2 Precision Qualifier</a>
+	typedef highp_float_t		highp_float;
 
 #if(!defined(GLM_PRECISION_HIGHP_FLOAT) && !defined(GLM_PRECISION_MEDIUMP_FLOAT) && !defined(GLM_PRECISION_LOWP_FLOAT))
 	typedef mediump_float				float_t;
@@ -81,6 +78,7 @@ namespace glm
 #	error "GLM error: multiple default precision requested for floating-point types"
 #endif
 
+	/// @}
 }//namespace glm
 
 #endif//glm_core_type_float

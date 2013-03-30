@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -28,7 +28,7 @@
 /// @see core (dependence)
 /// @see gtx_fast_square_root (dependence)
 ///
-/// @defgroup gtx_normalize_dot GLM_GTX_normalize_dot: Normalize dot product
+/// @defgroup gtx_normalize_dot GLM_GTX_normalize_dot
 /// @ingroup gtx
 /// 
 /// @brief Dot product of vectors that need to be normalize with a single square root.

@@ -1,15 +1,33 @@
-//////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
-//////////////////////////////////////////////////////////////////////////////////
-// Created : 2011-09-19
-// Updated : 2011-09-19
-// Licence : This source is under MIT License
-// File    : glm/gtc/random.inl
-//////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+/// OpenGL Mathematics (glm.g-truc.net)
+///
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+/// 
+/// The above copyright notice and this permission notice shall be included in
+/// all copies or substantial portions of the Software.
+/// 
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+/// THE SOFTWARE.
+///
+/// @ref gtc_random
+/// @file glm/gtc/random.inl
+/// @date 2011-09-19 / 2012-04-07
+/// @author Christophe Riccio
+///////////////////////////////////////////////////////////////////////////////////
 
 #include <ctime>
 #include <cassert>
-#include "../core/_vectorize.hpp"
 
 namespace glm{
 namespace detail
@@ -17,13 +35,15 @@ namespace detail
 	struct compute_linearRand
 	{
 		template <typename T>
-		GLM_FUNC_QUALIFIER T operator() (T const & Min, T const & Max) const
+		GLM_FUNC_QUALIFIER T operator() (T const & Min, T const & Max) const;
+/*
 		{
 			GLM_STATIC_ASSERT(0, "'linearRand' invalid template parameter type. GLM_GTC_random only supports floating-point template types.");
 			return Min;
 		}
+*/
 	};
-
+    
 	template <>
 	GLM_FUNC_QUALIFIER half compute_linearRand::operator()<half> (half const & Min, half const & Max) const
 	{
@@ -40,6 +60,12 @@ namespace detail
 	GLM_FUNC_QUALIFIER double compute_linearRand::operator()<double> (double const & Min, double const & Max) const
 	{
 		return double(std::rand()) / double(RAND_MAX) * (Max - Min) + Min;
+	}
+    
+	template <>
+	GLM_FUNC_QUALIFIER long double compute_linearRand::operator()<long double> (long double const & Min, long double const & Max) const
+	{
+		return (long double)(std::rand()) / (long double)(RAND_MAX) * (Max - Min) + Min;
 	}
 }//namespace detail
 

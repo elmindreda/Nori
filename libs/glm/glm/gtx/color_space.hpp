@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -27,7 +27,7 @@
 ///
 /// @see core (dependence)
 ///
-/// @defgroup gtx_color_space GLM_GTX_color_space: RGB to HSV conversion
+/// @defgroup gtx_color_space GLM_GTX_color_space
 /// @ingroup gtx
 /// 
 /// @brief Related to RGB to HSV conversions and operations.
@@ -50,40 +50,40 @@ namespace glm
 	/// @addtogroup gtx_color_space
 	/// @{
 
-	//! Converts a color from HSV color space to its color in RGB color space.
-	//! From GLM_GTX_color_space extension.
+	/// Converts a color from HSV color space to its color in RGB color space.
+	/// @see gtx_color_space
     template <typename valType> 
 	detail::tvec3<valType> rgbColor(
 		detail::tvec3<valType> const & hsvValue);
 
-	//! Converts a color from RGB color space to its color in HSV color space.
-	//! From GLM_GTX_color_space extension.
+	/// Converts a color from RGB color space to its color in HSV color space.
+	/// @see gtx_color_space
     template <typename valType> 
 	detail::tvec3<valType> hsvColor(
 		detail::tvec3<valType> const & rgbValue);
 		
-	//! Build a saturation matrix.
-	//! From GLM_GTX_color_space extension
+	/// Build a saturation matrix.
+	/// @see gtx_color_space
     template <typename valType> 
 	detail::tmat4x4<valType> saturation(
 		valType const s);
 
-    //! Modify the saturation of a color.
-	//! From GLM_GTX_color_space extension.
+    /// Modify the saturation of a color.
+	/// @see gtx_color_space
 	template <typename valType> 
 	detail::tvec3<valType> saturation(
 		valType const s, 
 		detail::tvec3<valType> const & color);
 		
-	//! Modify the saturation of a color.
-	//! From GLM_GTX_color_space extension.
+	/// Modify the saturation of a color.
+	/// @see gtx_color_space
     template <typename valType> 
 	detail::tvec4<valType> saturation(
 		valType const s, 
 		detail::tvec4<valType> const & color);
 		
-	//! Compute color luminosity associating ratios (0.33, 0.59, 0.11) to RGB canals.
-	//! From GLM_GTX_color_space extension.
+	/// Compute color luminosity associating ratios (0.33, 0.59, 0.11) to RGB canals.
+	/// @see gtx_color_space
 	template <typename valType> 
 	valType luminosity(
 		detail::tvec3<valType> const & color);

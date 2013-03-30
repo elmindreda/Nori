@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -25,7 +25,7 @@
 /// @date 2008-08-01 / 2011-06-18
 /// @author Christophe Riccio
 ///
-/// @see - <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.13</a>
+/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.13 Noise Functions</a>
 /// 
 /// @defgroup core_func_noise Noise functions
 /// @ingroup core
@@ -46,36 +46,36 @@ namespace glm
 	/// Returns a 1D noise value based on the input value x.
 	///
 	/// @tparam genType Floating-point scalar or vector types.
-    /// 
-    /// @see - <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/noise1.xml">GLSL noise1 man page</a>
-	/// @see - <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.13</a>
+	/// 
+	/// @see <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/noise1.xml">GLSL noise1 man page</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.13 Noise Functions</a>
 	template <typename genType>
 	typename genType::value_type noise1(genType const & x);
 
 	/// Returns a 2D noise value based on the input value x.
 	///
 	/// @tparam genType Floating-point scalar or vector types.
-    /// 
-    /// @see - <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/noise2.xml">GLSL noise2 man page</a>
-    /// @see - <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.13</a>
+	/// 
+	/// @see <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/noise2.xml">GLSL noise2 man page</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.13 Noise Functions</a>
 	template <typename genType>
 	detail::tvec2<typename genType::value_type> noise2(genType const & x);
 
 	/// Returns a 3D noise value based on the input value x.
 	///
 	/// @tparam genType Floating-point scalar or vector types.
-    /// 
-    /// @see - <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/noise3.xml">GLSL noise3 man page</a>
-    /// @see - <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.13</a>
+	/// 
+	/// @see <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/noise3.xml">GLSL noise3 man page</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.13 Noise Functions</a>
 	template <typename genType>
 	detail::tvec3<typename genType::value_type> noise3(genType const & x);
 
 	/// Returns a 4D noise value based on the input value x.
 	///
 	/// @tparam genType Floating-point scalar or vector types.
-    /// 
-    /// @see - <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/noise4.xml">GLSL noise4 man page</a>
-    /// @see - <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.13</a>
+	/// 
+	/// @see <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/noise4.xml">GLSL noise4 man page</a>
+	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.13 Noise Functions</a>
 	template <typename genType>
 	detail::tvec4<typename genType::value_type> noise4(genType const & x);
 

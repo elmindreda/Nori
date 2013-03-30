@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -29,8 +29,10 @@
 namespace glm{
 namespace detail{
 
+#if(GLM_COMPILER & GLM_COMPILER_VC)
 #pragma warning(push)
 #pragma warning(disable : 4510 4512 4610)
+#endif
 
 	union ieee754_QNAN
 	{
@@ -43,7 +45,9 @@ namespace detail{
 	   ieee754_QNAN() : f(0.0)/*, mantissa(0x7FFFFF), exp(0xFF), sign(0x0)*/ {}
 	};
 
+#if(GLM_COMPILER & GLM_COMPILER_VC)
 #pragma warning(pop)
+#endif
 
 	static const __m128 GLM_VAR_USED zero = _mm_setzero_ps();
 	static const __m128 GLM_VAR_USED one = _mm_set_ps1(1.0f);
@@ -58,7 +62,7 @@ namespace detail{
 	static const ieee754_QNAN absMask;
 	static const __m128 GLM_VAR_USED abs4Mask = _mm_set_ps1(absMask.f);
 
-	static const __m128 GLM_VAR_USED _epi32_sign_mask = _mm_castsi128_ps(_mm_set1_epi32(0x80000000));
+	static const __m128 GLM_VAR_USED _epi32_sign_mask = _mm_castsi128_ps(_mm_set1_epi32(static_cast<int>(0x80000000)));
         //static const __m128 GLM_VAR_USED _epi32_inv_sign_mask = _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF));
         //static const __m128 GLM_VAR_USED _epi32_mant_mask = _mm_castsi128_ps(_mm_set1_epi32(0x7F800000));
         //static const __m128 GLM_VAR_USED _epi32_inv_mant_mask = _mm_castsi128_ps(_mm_set1_epi32(0x807FFFFF));

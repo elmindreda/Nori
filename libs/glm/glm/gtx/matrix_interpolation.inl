@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+// OpenGL Mathematics Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Created : 2011-03-05
 // Updated : 2011-03-05
@@ -98,6 +98,18 @@ namespace glm
 	}
 
 	template <typename T>
+	GLM_FUNC_QUALIFIER detail::tmat4x4<T> extractMatrixRotation(
+		detail::tmat4x4<T> const & mat)
+	{
+		return detail::tmat4x4<T>(
+			mat[0][0], mat[0][1], mat[0][2], 0.0,
+			mat[1][0], mat[1][1], mat[1][2], 0.0,
+			mat[2][0], mat[2][1], mat[2][2], 0.0,
+			0.0,       0.0,       0.0,       1.0
+		);
+	}
+
+	template <typename T>
 	GLM_FUNC_QUALIFIER detail::tmat4x4<T> interpolate
 	(
 		detail::tmat4x4<T> const & m1,
@@ -105,11 +117,12 @@ namespace glm
 		T const delta
 	)
 	{
-		detail::tmat4x4<T> dltRotation = m2 * transpose(m1);
+		detail::tmat4x4<T> m1rot = extractMatrixRotation(m1);
+		detail::tmat4x4<T> dltRotation = m2 * transpose(m1rot);
 		detail::tvec3<T> dltAxis;
 		T dltAngle;
 		axisAngle(dltRotation, dltAxis, dltAngle);
-		detail::tmat4x4<T> out = axisAngleMatrix(dltAxis, dltAngle * delta) * rotationMatrix(m1);
+		detail::tmat4x4<T> out = axisAngleMatrix(dltAxis, dltAngle * delta) * m1rot;
 		out[3][0] = m1[3][0] + delta * (m2[3][0] - m1[3][0]);
 		out[3][1] = m1[3][1] + delta * (m2[3][1] - m1[3][1]);
 		out[3][2] = m1[3][2] + delta * (m2[3][2] - m1[3][2]);

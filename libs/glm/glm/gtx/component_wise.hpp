@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -27,7 +27,7 @@
 /// 
 /// @see core (dependence)
 ///
-/// @defgroup gtx_component_wise GLM_GTX_component_wise: Component wise
+/// @defgroup gtx_component_wise GLM_GTX_component_wise
 /// @ingroup gtx
 /// 
 /// @brief Operations between components of a type
@@ -50,26 +50,26 @@ namespace glm
 	/// @addtogroup gtx_component_wise
 	/// @{
 
-	//! Add all vector components together. 
-	//! From GLM_GTX_component_wise extension.
+	/// Add all vector components together. 
+	/// @see gtx_component_wise
 	template <typename genType> 
 	typename genType::value_type compAdd(
 		genType const & v);
 
-	//! Multiply all vector components together. 
-	//! From GLM_GTX_component_wise extension.
+	/// Multiply all vector components together. 
+	/// @see gtx_component_wise
 	template <typename genType> 
 	typename genType::value_type compMul(
 		genType const & v);
 
-	//! Find the minimum value between single vector components.
-	//! From GLM_GTX_component_wise extension.
+	/// Find the minimum value between single vector components.
+	/// @see gtx_component_wise
 	template <typename genType> 
 	typename genType::value_type compMin(
 		genType const & v);
 
-	//! Find the maximum value between single vector components.
-	//! From GLM_GTX_component_wise extension.
+	/// Find the maximum value between single vector components.
+	/// @see gtx_component_wise
 	template <typename genType> 
 	typename genType::value_type compMax(
 		genType const & v);

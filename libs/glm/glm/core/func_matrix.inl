@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -26,8 +26,6 @@
 /// @author Christophe Riccio
 ///////////////////////////////////////////////////////////////////////////////////
 
-#include "_vectorize.hpp"
-
 namespace glm
 {
 	// matrixCompMult
@@ -41,7 +39,7 @@ namespace glm
 		GLM_STATIC_ASSERT(detail::type<typename matType::value_type>::is_float, "'matrixCompMult' only accept floating-point inputs");
 
 		matType result(matType::null);
-		for(typename matType::size_type i = 0; i < matType::col_size(); ++i)
+		for(typename matType::size_type i = 0; i < matType::row_size(); ++i)
 			result[i] = x[i] * y[i];
 		return result;
 	}
@@ -74,7 +72,7 @@ namespace glm
 		GLM_STATIC_ASSERT(detail::type<T>::is_float, "'outerProduct' only accept floating-point inputs");
 
 		detail::tmat3x3<T> m(detail::tmat3x3<T>::null);
-		for(typename detail::tmat3x3<T>::size_type i = 0; i < detail::tmat3x3<T>::col_size(); ++i)
+		for(typename detail::tmat3x3<T>::size_type i(0); i < m.length(); ++i)
 			m[i] = c * r[i];
 		return m;
 	}
@@ -89,7 +87,7 @@ namespace glm
 		GLM_STATIC_ASSERT(detail::type<T>::is_float, "'outerProduct' only accept floating-point inputs");
 
 		detail::tmat4x4<T> m(detail::tmat4x4<T>::null);
-		for(typename detail::tmat4x4<T>::size_type i = 0; i < detail::tmat4x4<T>::col_size(); ++i)
+		for(typename detail::tmat4x4<T>::size_type i(0); i < m.length(); ++i)
 			m[i] = c * r[i];
 		return m;
 	}
@@ -135,8 +133,8 @@ namespace glm
 	template <typename T>
 	GLM_FUNC_QUALIFIER detail::tmat2x4<T> outerProduct
 	(
-		detail::tvec2<T> const & c, 
-		detail::tvec4<T> const & r
+		detail::tvec4<T> const & c, 
+		detail::tvec2<T> const & r
 	)
 	{
 		GLM_STATIC_ASSERT(detail::type<T>::is_float, "'outerProduct' only accept floating-point inputs");
@@ -156,8 +154,8 @@ namespace glm
 	template <typename T>
 	GLM_FUNC_QUALIFIER detail::tmat4x2<T> outerProduct
 	(
-		detail::tvec4<T> const & c, 
-		detail::tvec2<T> const & r
+		detail::tvec2<T> const & c, 
+		detail::tvec4<T> const & r
 	)
 	{
 		GLM_STATIC_ASSERT(detail::type<T>::is_float, "'outerProduct' only accept floating-point inputs");
@@ -578,7 +576,7 @@ namespace glm
 		T Determinant = glm::dot(m[0], Row0);
 
 		Inverse /= Determinant;
-	    
+
 		return Inverse;
 	}
 }//namespace glm

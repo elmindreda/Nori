@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -27,7 +27,7 @@
 ///
 /// @see core (dependence)
 ///
-/// @defgroup gtx_color_space_YCoCg GLM_GTX_color_space_YCoCg: RGB to YCoCg conversion
+/// @defgroup gtx_color_space_YCoCg GLM_GTX_color_space_YCoCg
 /// @ingroup gtx
 ///
 /// @brief RGB to YCoCg conversions and operations
@@ -50,28 +50,28 @@ namespace glm
 	/// @addtogroup gtx_color_space_YCoCg
 	/// @{
 
-    //! Convert a color from RGB color space to YCoCg color space.
-	//! From GLM_GTX_color_space_YCoCg extension.
+    /// Convert a color from RGB color space to YCoCg color space.
+	/// @see gtx_color_space_YCoCg
 	template <typename valType> 
 	detail::tvec3<valType> rgb2YCoCg(
 		detail::tvec3<valType> const & rgbColor);
 
-    //! Convert a color from YCoCg color space to RGB color space.
-	//! From GLM_GTX_color_space_YCoCg extension.
+    /// Convert a color from YCoCg color space to RGB color space.
+	/// @see gtx_color_space_YCoCg
     template <typename valType> 
 	detail::tvec3<valType> YCoCg2rgb(
 		detail::tvec3<valType> const & YCoCgColor);
 
-    //! Convert a color from RGB color space to YCoCgR color space.
-	//! \see "YCoCg-R: A Color Space with RGB Reversibility and Low Dynamic Range"
-	//! From GLM_GTX_color_space_YCoCg extension.
+    /// Convert a color from RGB color space to YCoCgR color space.
+	/// @see "YCoCg-R: A Color Space with RGB Reversibility and Low Dynamic Range"
+	/// @see gtx_color_space_YCoCg
 	template <typename valType> 
 	detail::tvec3<valType> rgb2YCoCgR(
 		detail::tvec3<valType> const & rgbColor);
 
-    //! Convert a color from YCoCgR color space to RGB color space.
-	//! \see "YCoCg-R: A Color Space with RGB Reversibility and Low Dynamic Range"
-	//! From GLM_GTX_color_space_YCoCg extension.
+    /// Convert a color from YCoCgR color space to RGB color space.
+	/// @see "YCoCg-R: A Color Space with RGB Reversibility and Low Dynamic Range"
+	/// @see gtx_color_space_YCoCg
     template <typename valType> 
 	detail::tvec3<valType> YCoCgR2rgb(
 		detail::tvec3<valType> const & YCoCgColor);

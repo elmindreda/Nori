@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+// OpenGL Mathematics Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Created : 2007-05-21
 // Updated : 2010-02-12
@@ -12,8 +12,8 @@ namespace glm
 	template <typename genType>
 	GLM_FUNC_QUALIFIER typename genType::value_type compAdd(genType const & v)
 	{
-		typename genType::size_type result = typename genType::value_type(0);
-		for(typename genType::size_type i = 0; i < genType::value_size(); ++i)
+		typename genType::value_type result = typename genType::value_type(0);
+		for(typename genType::size_type i = 0; i < v.length(); ++i)
 			result += v[i];
 		return result;
 	}
@@ -22,7 +22,7 @@ namespace glm
 	GLM_FUNC_QUALIFIER typename genType::value_type compMul(genType const & v)
 	{
 		typename genType::value_type result = typename genType::value_type(1);
-		for(typename genType::size_type i = 0; i < genType::value_size(); ++i)
+		for(typename genType::size_type i = 0; i < v.length(); ++i)
 			result *= v[i];
 		return result;
 	}
@@ -31,7 +31,7 @@ namespace glm
 	GLM_FUNC_QUALIFIER typename genType::value_type compMin(genType const & v)
 	{
 		typename genType::value_type result = typename genType::value_type(v[0]);
-		for(typename genType::size_type i = 1; i < genType::value_size(); ++i)
+		for(typename genType::size_type i = 1; i < v.length(); ++i)
 			result = min(result, v[i]);
 		return result;
 	}
@@ -40,7 +40,7 @@ namespace glm
 	GLM_FUNC_QUALIFIER typename genType::value_type compMax(genType const & v)
 	{
 		typename genType::value_type result = typename genType::value_type(v[0]);
-		for(typename genType::size_type i = 1; i < genType::value_size(); ++i)
+		for(typename genType::size_type i = 1; i < v.length(); ++i)
 			result = max(result, v[i]);
 		return result;
 	}

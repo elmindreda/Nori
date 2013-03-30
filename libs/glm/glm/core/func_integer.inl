@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
-/// Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -26,7 +26,6 @@
 /// @author Christophe Riccio
 ///////////////////////////////////////////////////////////////////////////////////
 
-#include "_vectorize.hpp"
 #if(GLM_COMPILER & GLM_COMPILER_VC)
 #include <intrin.h>
 #pragma intrinsic(_BitScanReverse)
@@ -104,7 +103,7 @@ namespace glm
 		if(x > y)
 			return genUType(detail::highp_int_t(x) - detail::highp_int_t(y));
 		else
-			return genUType(detail::highp_int_t(1) << detail::highp_int_t(32) + detail::highp_int_t(x) - detail::highp_int_t(y));
+			return genUType((detail::highp_int_t(1) << detail::highp_int_t(32)) + detail::highp_int_t(x) - detail::highp_int_t(y));
 	}
 
 	template <typename T>
@@ -301,8 +300,8 @@ namespace glm
 	)
 	{
 		return detail::tvec2<T>(
-			bitfieldExtract(Value[0]),
-			bitfieldExtract(Value[1]));
+			bitfieldExtract(Value[0], Offset, Bits),
+			bitfieldExtract(Value[1], Offset, Bits));
 	}
 
 	template <typename T>
@@ -314,9 +313,9 @@ namespace glm
 	)
 	{
 		return detail::tvec3<T>(
-			bitfieldExtract(Value[0]),
-			bitfieldExtract(Value[1]),
-			bitfieldExtract(Value[2]));
+			bitfieldExtract(Value[0], Offset, Bits),
+			bitfieldExtract(Value[1], Offset, Bits),
+			bitfieldExtract(Value[2], Offset, Bits));
 	}
 
 	template <typename T>
@@ -328,10 +327,10 @@ namespace glm
 	)
 	{
 		return detail::tvec4<T>(
-			bitfieldExtract(Value[0]),
-			bitfieldExtract(Value[1]),
-			bitfieldExtract(Value[2]),
-			bitfieldExtract(Value[3]));
+			bitfieldExtract(Value[0], Offset, Bits),
+			bitfieldExtract(Value[1], Offset, Bits),
+			bitfieldExtract(Value[2], Offset, Bits),
+			bitfieldExtract(Value[3], Offset, Bits));
 	}
 
 	// bitfieldInsert
@@ -522,31 +521,8 @@ namespace glm
 	}
 
 	// findMSB
+/*
 #if((GLM_ARCH != GLM_ARCH_PURE) && (GLM_COMPILER & GLM_COMPILER_VC))
-
-	template <typename genIUType>
-	GLM_FUNC_QUALIFIER int findMSB
-	(
-		genIUType const & Value
-	)
-	{
-		unsigned long Result(0);
-		_BitScanReverse(&Result, Value); 
-		return int(Result);
-	}
-
-#elif((GLM_ARCH != GLM_ARCH_PURE) && (GLM_COMPILER & GLM_COMPILER_GCC) && (GLM_COMPILER >= GLM_COMPILER_GCC40))
-
-	template <typename genIUType>
-	GLM_FUNC_QUALIFIER int findMSB
-	(
-		genIUType const & Value
-	)
-	{
-		return __builtin_clz(Value);
-	}
-
-#else
 
 	template <typename genIUType>
 	GLM_FUNC_QUALIFIER int findMSB
@@ -558,11 +534,79 @@ namespace glm
 		if(Value == 0)
 			return -1;
 
-		genIUType bit = genIUType(-1);
-		for(genIUType tmp = Value; tmp; tmp >>= 1, ++bit){}
-		return bit;
+		unsigned long Result(0);
+		_BitScanReverse(&Result, Value); 
+		return int(Result);
 	}
-#endif//(GLM_COMPILER)
+
+// __builtin_clz seems to be buggy as it crasks for some values, from 0x00200000 to 80000000
+#elif((GLM_ARCH != GLM_ARCH_PURE) && (GLM_COMPILER & GLM_COMPILER_GCC) && (GLM_COMPILER >= GLM_COMPILER_GCC40))
+
+	template <typename genIUType>
+	GLM_FUNC_QUALIFIER int findMSB
+	(
+		genIUType const & Value
+	)
+	{
+		GLM_STATIC_ASSERT(std::numeric_limits<genIUType>::is_integer, "'findMSB' only accept integer values");
+		if(Value == 0)
+			return -1;
+
+		// clz returns the number or trailing 0-bits; see
+		// http://gcc.gnu.org/onlinedocs/gcc-4.7.1/gcc/Other-Builtins.html
+		//
+		// NoteBecause __builtin_clz only works for unsigned ints, this
+		// implementation will not work for 64-bit integers.
+		//
+		return 31 - __builtin_clzl(Value);
+	}
+#else
+*/
+/* SSE implementation idea
+
+		__m128i const Zero = _mm_set_epi32( 0,  0,  0,  0);
+		__m128i const One = _mm_set_epi32( 1,  1,  1,  1);
+		__m128i Bit = _mm_set_epi32(-1, -1, -1, -1);
+		__m128i Tmp = _mm_set_epi32(Value, Value, Value, Value);
+		__m128i Mmi = Zero;
+		for(int i = 0; i < 32; ++i)
+		{
+			__m128i Shilt = _mm_and_si128(_mm_cmpgt_epi32(Tmp, One), One);
+			Tmp = _mm_srai_epi32(Tmp, One);
+			Bit = _mm_add_epi32(Bit, _mm_and_si128(Shilt, i));
+			Mmi = _mm_and_si128(Mmi, One);
+		}
+		return Bit;
+
+*/
+
+	template <typename genIUType>
+	GLM_FUNC_QUALIFIER int findMSB
+	(
+		genIUType const & Value
+	)
+	{
+		GLM_STATIC_ASSERT(std::numeric_limits<genIUType>::is_integer, "'findMSB' only accept integer values");
+		
+		if(Value == genIUType(0) || Value == genIUType(-1))
+			return -1;
+		else if(Value > 0)
+		{
+			genIUType Bit = genIUType(-1);
+			for(genIUType tmp = Value; tmp > 0; tmp >>= 1, ++Bit){}
+			return Bit;
+		}
+		else //if(Value < 0)
+		{
+			int const BitCount(sizeof(genIUType) * 8);
+			int MostSignificantBit(-1);
+			for(int BitIndex(0); BitIndex < BitCount; ++BitIndex)
+				MostSignificantBit = (Value & (1 << BitIndex)) ? MostSignificantBit : BitIndex;
+			assert(MostSignificantBit >= 0);
+			return MostSignificantBit;
+		}
+	}
+//#endif//(GLM_COMPILER)
 
 	template <typename T>
 	GLM_FUNC_QUALIFIER detail::tvec2<int> findMSB
