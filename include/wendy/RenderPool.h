@@ -89,14 +89,14 @@ private:
    */
   struct IndexBufferSlot
   {
-    Ref<GL::IndexBuffer> indexBuffer;
+    Ref<GL::IndexBuffer> buffer;
     uint available;
   };
   /*! @internal
    */
   struct VertexBufferSlot
   {
-    Ref<GL::VertexBuffer> vertexBuffer;
+    Ref<GL::VertexBuffer> buffer;
     uint available;
   };
   void onContextFinish();

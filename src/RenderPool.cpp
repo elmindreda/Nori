@@ -55,7 +55,7 @@ bool GeometryPool::allocateIndices(GL::IndexRange& range,
 
   for (auto i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
   {
-    if (i->indexBuffer->getType() == type && i->available >= count)
+    if (i->buffer->getType() == type && i->available >= count)
     {
       slot = &(*i);
       break;
@@ -69,11 +69,11 @@ bool GeometryPool::allocateIndices(GL::IndexRange& range,
 
     const uint actualCount = granularity * ((count + granularity - 1) / granularity);
 
-    slot->indexBuffer = GL::IndexBuffer::create(context,
-                                                actualCount,
-                                                type,
-                                                GL::IndexBuffer::DYNAMIC);
-    if (!slot->indexBuffer)
+    slot->buffer = GL::IndexBuffer::create(context,
+                                           actualCount,
+                                           type,
+                                           GL::IndexBuffer::DYNAMIC);
+    if (!slot->buffer)
     {
       indexBufferPool.pop_back();
       return false;
@@ -81,11 +81,11 @@ bool GeometryPool::allocateIndices(GL::IndexRange& range,
 
     log("Allocated index pool of size %u", actualCount);
 
-    slot->available = slot->indexBuffer->getCount();
+    slot->available = slot->buffer->getCount();
   }
 
-  range = GL::IndexRange(*(slot->indexBuffer),
-                         slot->indexBuffer->getCount() - slot->available,
+  range = GL::IndexRange(*(slot->buffer),
+                         slot->buffer->getCount() - slot->available,
                          count);
 
   slot->available -= count;
@@ -106,7 +106,7 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
 
   for (auto i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
   {
-    if (i->vertexBuffer->getFormat() == format && i->available >= count)
+    if (i->buffer->getFormat() == format && i->available >= count)
     {
       slot = &(*i);
       break;
@@ -120,11 +120,11 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
 
     const uint actualCount = granularity * ((count + granularity - 1) / granularity);
 
-    slot->vertexBuffer = GL::VertexBuffer::create(context,
-                                                  actualCount,
-                                                  format,
-                                                  GL::VertexBuffer::DYNAMIC);
-    if (!slot->vertexBuffer)
+    slot->buffer = GL::VertexBuffer::create(context,
+                                            actualCount,
+                                            format,
+                                            GL::VertexBuffer::DYNAMIC);
+    if (!slot->buffer)
     {
       vertexBufferPool.pop_back();
       return false;
@@ -134,11 +134,11 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
         actualCount,
         format.asString().c_str());
 
-    slot->available = slot->vertexBuffer->getCount();
+    slot->available = slot->buffer->getCount();
   }
 
-  range = GL::VertexRange(*(slot->vertexBuffer),
-                          slot->vertexBuffer->getCount() - slot->available,
+  range = GL::VertexRange(*(slot->buffer),
+                          slot->buffer->getCount() - slot->available,
                           count);
 
   slot->available -= count;
@@ -175,10 +175,10 @@ bool GeometryPool::init(size_t initGranularity)
 void GeometryPool::onContextFinish()
 {
   for (auto i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
-    i->available = i->indexBuffer->getCount();
+    i->available = i->buffer->getCount();
 
   for (auto i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
-    i->available = i->vertexBuffer->getCount();
+    i->available = i->buffer->getCount();
 }
 
 ///////////////////////////////////////////////////////////////////////
