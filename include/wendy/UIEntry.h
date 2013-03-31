@@ -48,12 +48,12 @@ public:
 protected:
   void draw() const;
 private:
-  void onButtonClicked(Widget& widget,
-                       const vec2& position,
-                       MouseButton button,
-                       Action action);
-  void onKeyPressed(Widget& widget, Key key, Action action);
-  void onCharInput(Widget& widget, uint32 character);
+  void onMouseButton(Widget& widget,
+                     vec2 position,
+                     MouseButton button,
+                     Action action);
+  void onKey(Widget& widget, Key key, Action action);
+  void onCharacter(Widget& widget, uint32 character);
   void setText(const String& newText, bool notify);
   void setCaretPosition(uint newPosition, bool notify);
   Signal1<void, Entry&> textChangedSignal;

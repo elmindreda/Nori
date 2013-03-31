@@ -64,8 +64,8 @@ Book::Book(Layer& layer):
   Widget(layer),
   activePage(NULL)
 {
-  getKeyPressedSignal().connect(*this, &Book::onKeyPressed);
-  getButtonClickedSignal().connect(*this, &Book::onButtonClicked);
+  getKeyPressedSignal().connect(*this, &Book::onKey);
+  getButtonClickedSignal().connect(*this, &Book::onMouseButton);
   getAreaChangedSignal().connect(*this, &Book::onAreaChanged);
 }
 
@@ -192,7 +192,7 @@ void Book::onAreaChanged(Widget& widget)
     (*p)->setArea(Rect(0.f, 0.f, size.x, size.y - em * 2.f));
 }
 
-void Book::onKeyPressed(Widget& widgeth, Key key, Action action)
+void Book::onKey(Widget& widget, Key key, Action action)
 {
   if (action != PRESSED)
     return;
@@ -227,10 +227,10 @@ void Book::onKeyPressed(Widget& widgeth, Key key, Action action)
   }
 }
 
-void Book::onButtonClicked(Widget& widget,
-                           const vec2& point,
-                           MouseButton button,
-                           Action action)
+void Book::onMouseButton(Widget& widget,
+                         vec2 point,
+                         MouseButton button,
+                         Action action)
 {
   if (action != PRESSED)
     return;

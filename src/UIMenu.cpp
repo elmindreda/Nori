@@ -46,10 +46,10 @@ Menu::Menu(Layer& layer):
   Widget(layer),
   selection(NO_ITEM)
 {
-  getCursorMovedSignal().connect(*this, &Menu::onCursorMoved);
+  getCursorMovedSignal().connect(*this, &Menu::onCursorPos);
   getCursorLeftSignal().connect(*this, &Menu::onCursorLeft);
-  getButtonClickedSignal().connect(*this, &Menu::onButtonClicked);
-  getKeyPressedSignal().connect(*this, &Menu::onKeyPressed);
+  getButtonClickedSignal().connect(*this, &Menu::onMouseButton);
+  getKeyPressedSignal().connect(*this, &Menu::onKey);
   getDragEndedSignal().connect(*this, &Menu::onDragEnded);
   getFocusChangedSignal().connect(*this, &Menu::onFocusChanged);
 
@@ -245,7 +245,7 @@ void Menu::onFocusChanged(Widget& widget, bool activated)
     hide();
 }
 
-void Menu::onCursorMoved(Widget& widget, const vec2& position)
+void Menu::onCursorPos(Widget& widget, vec2 position)
 {
   vec2 localPosition = transformToLocal(position);
 
@@ -277,10 +277,10 @@ void Menu::onCursorLeft(Widget& widget)
   selection = NO_ITEM;
 }
 
-void Menu::onButtonClicked(Widget& widget,
-                           const vec2& position,
-                           MouseButton button,
-                           Action action)
+void Menu::onMouseButton(Widget& widget,
+                         vec2 position,
+                         MouseButton button,
+                         Action action)
 {
   if (action != RELEASED)
     return;
@@ -310,7 +310,7 @@ void Menu::onButtonClicked(Widget& widget,
   }
 }
 
-void Menu::onKeyPressed(Widget& widget, Key key, Action action)
+void Menu::onKey(Widget& widget, Key key, Action action)
 {
   if (action != PRESSED)
     return;
@@ -350,7 +350,7 @@ void Menu::onKeyPressed(Widget& widget, Key key, Action action)
   }
 }
 
-void Menu::onDragEnded(Widget& widget, const vec2& position)
+void Menu::onDragEnded(Widget& widget, vec2 position)
 {
   vec2 localPosition = transformToLocal(position);
 

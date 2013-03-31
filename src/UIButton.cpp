@@ -59,8 +59,8 @@ Button::Button(Layer& layer, const char* initText):
   setDraggable(true);
 
   getDragEndedSignal().connect(*this, &Button::onDragEnded);
-  getButtonClickedSignal().connect(*this, &Button::onButtonClicked);
-  getKeyPressedSignal().connect(*this, &Button::onKeyPressed);
+  getButtonClickedSignal().connect(*this, &Button::onMouseButton);
+  getKeyPressedSignal().connect(*this, &Button::onKey);
 }
 
 const String& Button::getText() const
@@ -101,10 +101,10 @@ void Button::draw() const
   }
 }
 
-void Button::onButtonClicked(Widget& widget,
-                             const vec2& position,
-                             MouseButton button,
-                             Action action)
+void Button::onMouseButton(Widget& widget,
+                           vec2 position,
+                           MouseButton button,
+                           Action action)
 {
   if (button == MOUSE_BUTTON_LEFT)
   {
@@ -120,13 +120,13 @@ void Button::onButtonClicked(Widget& widget,
   }
 }
 
-void Button::onDragEnded(Widget& widget, const vec2& position)
+void Button::onDragEnded(Widget& widget, vec2 position)
 {
   selected = false;
   invalidate();
 }
 
-void Button::onKeyPressed(Widget& widget, Key key, Action action)
+void Button::onKey(Widget& widget, Key key, Action action)
 {
   switch (key)
   {

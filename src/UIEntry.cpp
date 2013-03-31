@@ -49,9 +49,9 @@ Entry::Entry(Layer& layer, const char* initText):
 
   setSize(vec2(em * 10.f, em * 1.5f));
 
-  getButtonClickedSignal().connect(*this, &Entry::onButtonClicked);
-  getKeyPressedSignal().connect(*this, &Entry::onKeyPressed);
-  getCharInputSignal().connect(*this, &Entry::onCharInput);
+  getButtonClickedSignal().connect(*this, &Entry::onMouseButton);
+  getKeyPressedSignal().connect(*this, &Entry::onKey);
+  getCharInputSignal().connect(*this, &Entry::onCharacter);
 }
 
 const String& Entry::getText() const
@@ -130,10 +130,10 @@ void Entry::draw() const
   }
 }
 
-void Entry::onButtonClicked(Widget& widget,
-                            const vec2& point,
-                            MouseButton button,
-                            Action action)
+void Entry::onMouseButton(Widget& widget,
+                          vec2 point,
+                          MouseButton button,
+                          Action action)
 {
   if (action != PRESSED)
     return;
@@ -161,7 +161,7 @@ void Entry::onButtonClicked(Widget& widget,
   setCaretPosition(startPosition + index, true);
 }
 
-void Entry::onKeyPressed(Widget& widget, Key key, Action action)
+void Entry::onKey(Widget& widget, Key key, Action action)
 {
   if (action != PRESSED)
     return;
@@ -221,7 +221,7 @@ void Entry::onKeyPressed(Widget& widget, Key key, Action action)
   }
 }
 
-void Entry::onCharInput(Widget& widget, uint32 character)
+void Entry::onCharacter(Widget& widget, uint32 character)
 {
   text.insert(caretPosition, 1, (char) character);
   textChangedSignal(*this);

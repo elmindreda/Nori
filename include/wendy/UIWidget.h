@@ -199,14 +199,14 @@ public:
   SignalProxy2<void, Widget&, bool> getFocusChangedSignal();
   SignalProxy3<void, Widget&, Key, Action> getKeyPressedSignal();
   SignalProxy2<void, Widget&, uint32> getCharInputSignal();
-  SignalProxy2<void, Widget&, const vec2&> getCursorMovedSignal();
-  SignalProxy4<void, Widget&, const vec2&, MouseButton, Action> getButtonClickedSignal();
-  SignalProxy3<void, Widget&, double, double> getScrolledSignal();
+  SignalProxy2<void, Widget&, vec2> getCursorMovedSignal();
+  SignalProxy4<void, Widget&, vec2, MouseButton, Action> getButtonClickedSignal();
+  SignalProxy2<void, Widget&, vec2> getScrolledSignal();
   SignalProxy1<void, Widget&> getCursorEnteredSignal();
   SignalProxy1<void, Widget&> getCursorLeftSignal();
-  SignalProxy2<void, Widget&, const vec2&> getDragBegunSignal();
-  SignalProxy2<void, Widget&, const vec2&> getDragMovedSignal();
-  SignalProxy2<void, Widget&, const vec2&> getDragEndedSignal();
+  SignalProxy2<void, Widget&, vec2> getDragBegunSignal();
+  SignalProxy2<void, Widget&, vec2> getDragMovedSignal();
+  SignalProxy2<void, Widget&, vec2> getDragEndedSignal();
 protected:
   /*! Calls Widget::draw for all children of this widget.
    */
@@ -221,14 +221,14 @@ private:
   Signal2<void, Widget&, bool> focusChangedSignal;
   Signal3<void, Widget&, Key, Action> keyPressedSignal;
   Signal2<void, Widget&, uint32> charInputSignal;
-  Signal2<void, Widget&, const vec2&> cursorMovedSignal;
-  Signal4<void, Widget&, const vec2&, MouseButton, Action> buttonClickedSignal;
-  Signal3<void, Widget&, double, double> scrolledSignal;
+  Signal2<void, Widget&, vec2> cursorMovedSignal;
+  Signal4<void, Widget&, vec2, MouseButton, Action> buttonClickedSignal;
+  Signal2<void, Widget&, vec2> scrolledSignal;
   Signal1<void, Widget&> cursorEnteredSignal;
   Signal1<void, Widget&> cursorLeftSignal;
-  Signal2<void, Widget&, const vec2&> dragBegunSignal;
-  Signal2<void, Widget&, const vec2&> dragMovedSignal;
-  Signal2<void, Widget&, const vec2&> dragEndedSignal;
+  Signal2<void, Widget&, vec2> dragBegunSignal;
+  Signal2<void, Widget&, vec2> dragMovedSignal;
+  Signal2<void, Widget&, vec2> dragEndedSignal;
   Layer& layer;
   Widget* parent;
   WidgetList children;

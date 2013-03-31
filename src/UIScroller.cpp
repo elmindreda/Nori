@@ -55,9 +55,9 @@ Scroller::Scroller(Layer& layer, Orientation initOrientation):
   else
     setSize(vec2(em * 1.5f, em * 10.f));
 
-  getKeyPressedSignal().connect(*this, &Scroller::onKeyPressed);
-  getButtonClickedSignal().connect(*this, &Scroller::onButtonClicked);
-  getScrolledSignal().connect(*this, &Scroller::onScrolled);
+  getKeyPressedSignal().connect(*this, &Scroller::onKey);
+  getButtonClickedSignal().connect(*this, &Scroller::onMouseButton);
+  getScrolledSignal().connect(*this, &Scroller::onScroll);
   getDragBegunSignal().connect(*this, &Scroller::onDragBegun);
   getDragMovedSignal().connect(*this, &Scroller::onDragMoved);
 
@@ -153,10 +153,10 @@ void Scroller::draw() const
   }
 }
 
-void Scroller::onButtonClicked(Widget& widget,
-                               const vec2& point,
-                               MouseButton button,
-                               Action action)
+void Scroller::onMouseButton(Widget& widget,
+                             vec2 point,
+                             MouseButton button,
+                             Action action)
 {
   if (action != PRESSED)
     return;
@@ -181,7 +181,7 @@ void Scroller::onButtonClicked(Widget& widget,
   }
 }
 
-void Scroller::onKeyPressed(Widget& widget, Key key, Action action)
+void Scroller::onKey(Widget& widget, Key key, Action action)
 {
   if (action != PRESSED)
   {
@@ -219,15 +219,15 @@ void Scroller::onKeyPressed(Widget& widget, Key key, Action action)
   }
 }
 
-void Scroller::onScrolled(Widget& widget, double x, double y)
+void Scroller::onScroll(Widget& widget, vec2 offset)
 {
   if (orientation == HORIZONTAL)
-    setValue(value + float(x) * getValueStep(), true);
+    setValue(value + float(offset.x) * getValueStep(), true);
   else
-    setValue(value + float(y) * getValueStep(), true);
+    setValue(value + float(offset.y) * getValueStep(), true);
 }
 
-void Scroller::onDragBegun(Widget& widget, const vec2& point)
+void Scroller::onDragBegun(Widget& widget, vec2 point)
 {
   const vec2 local = transformToLocal(point);
   const float size = getHandleSize();
@@ -249,7 +249,7 @@ void Scroller::onDragBegun(Widget& widget, const vec2& point)
   }
 }
 
-void Scroller::onDragMoved(Widget& widget, const vec2& point)
+void Scroller::onDragMoved(Widget& widget, vec2 point)
 {
   const vec2 local = transformToLocal(point);
   const float size = getHandleSize();

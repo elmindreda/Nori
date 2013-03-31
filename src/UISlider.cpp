@@ -54,9 +54,9 @@ Slider::Slider(Layer& layer, Orientation initOrientation):
   else
     setSize(vec2(em * 1.5f, em * 10.f));
 
-  getKeyPressedSignal().connect(*this, &Slider::onKeyPressed);
-  getButtonClickedSignal().connect(*this, &Slider::onButtonClicked);
-  getScrolledSignal().connect(*this, &Slider::onScrolled);
+  getKeyPressedSignal().connect(*this, &Slider::onKey);
+  getButtonClickedSignal().connect(*this, &Slider::onMouseButton);
+  getScrolledSignal().connect(*this, &Slider::onScroll);
   getDragMovedSignal().connect(*this, &Slider::onDragMoved);
 
   setDraggable(true);
@@ -148,16 +148,16 @@ void Slider::draw() const
   }
 }
 
-void Slider::onButtonClicked(Widget& widget,
-                             const vec2& position,
-                             MouseButton button,
-                             Action action)
+void Slider::onMouseButton(Widget& widget,
+                           vec2 position,
+                           MouseButton button,
+                           Action action)
 {
   if (action == PRESSED)
     setValue(transformToLocal(position));
 }
 
-void Slider::onKeyPressed(Widget& widget, Key key, Action action)
+void Slider::onKey(Widget& widget, Key key, Action action)
 {
   if (action != PRESSED)
     return;
@@ -183,15 +183,15 @@ void Slider::onKeyPressed(Widget& widget, Key key, Action action)
   }
 }
 
-void Slider::onScrolled(Widget& widget, double x, double y)
+void Slider::onScroll(Widget& widget, vec2 offset)
 {
   if (orientation == HORIZONTAL)
-    setValue(value + float(x) * stepSize, true);
+    setValue(value + float(offset.x) * stepSize, true);
   else
-    setValue(value + float(y) * stepSize, true);
+    setValue(value + float(offset.y) * stepSize, true);
 }
 
-void Slider::onDragMoved(Widget& widget, const vec2& position)
+void Slider::onDragMoved(Widget& widget, vec2 position)
 {
   setValue(transformToLocal(position));
 }

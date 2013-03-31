@@ -55,9 +55,9 @@ List::List(Layer& layer):
   entry(NULL)
 {
   getAreaChangedSignal().connect(*this, &List::onAreaChanged);
-  getButtonClickedSignal().connect(*this, &List::onButtonClicked);
-  getKeyPressedSignal().connect(*this, &List::onKeyPressed);
-  getScrolledSignal().connect(*this, &List::onScrolled);
+  getButtonClickedSignal().connect(*this, &List::onMouseButton);
+  getKeyPressedSignal().connect(*this, &List::onKey);
+  getScrolledSignal().connect(*this, &List::onScroll);
 
   scroller = new Scroller(layer, VERTICAL);
   scroller->setValueRange(0.f, 1.f);
@@ -316,10 +316,10 @@ void List::onEntryDestroyed(Widget& widget)
   entry = NULL;
 }
 
-void List::onButtonClicked(Widget& widget,
-                           const vec2& position,
-                           MouseButton button,
-                           Action action)
+void List::onMouseButton(Widget& widget,
+                         vec2 position,
+                         MouseButton button,
+                         Action action)
 {
   if (action != PRESSED)
     return;
@@ -355,7 +355,7 @@ void List::onButtonClicked(Widget& widget,
   }
 }
 
-void List::onKeyPressed(Widget& widget, Key key, Action action)
+void List::onKey(Widget& widget, Key key, Action action)
 {
   if (action != PRESSED)
     return;
@@ -404,18 +404,18 @@ void List::onKeyPressed(Widget& widget, Key key, Action action)
   }
 }
 
-void List::onScrolled(Widget& widget, double x, double y)
+void List::onScroll(Widget& widget, vec2 so)
 {
   if (items.empty())
     return;
 
-  if (int(y) + (int) offset < 0)
+  if (int(so.y) + (int) offset < 0)
     return;
 
   if (editing)
     return;
 
-  setOffset(offset + int(y));
+  setOffset(offset + int(so.y));
 }
 
 void List::onValueChanged(Scroller& scroller)

@@ -45,12 +45,12 @@ public:
 protected:
   void draw() const;
 private:
-  void onButtonClicked(Widget& widget,
-                       const vec2& position,
-                       MouseButton button,
-                       Action action);
-  void onDragEnded(Widget& widget, const vec2& position);
-  void onKeyPressed(Widget& widget, Key key, Action action);
+  void onMouseButton(Widget& widget,
+                     vec2 position,
+                     MouseButton button,
+                     Action action);
+  void onDragEnded(Widget& widget, vec2 position);
+  void onKey(Widget& widget, Key key, Action action);
   Signal1<void, Button&> pushedSignal;
   bool selected;
   String text;

@@ -389,17 +389,17 @@ SignalProxy2<void, Widget&, uint32> Widget::getCharInputSignal()
   return charInputSignal;
 }
 
-SignalProxy2<void, Widget&, const vec2&> Widget::getCursorMovedSignal()
+SignalProxy2<void, Widget&, vec2> Widget::getCursorMovedSignal()
 {
   return cursorMovedSignal;
 }
 
-SignalProxy4<void, Widget&, const vec2&, MouseButton, Action> Widget::getButtonClickedSignal()
+SignalProxy4<void, Widget&, vec2, MouseButton, Action> Widget::getButtonClickedSignal()
 {
   return buttonClickedSignal;
 }
 
-SignalProxy3<void, Widget&, double, double> Widget::getScrolledSignal()
+SignalProxy2<void, Widget&, vec2> Widget::getScrolledSignal()
 {
   return scrolledSignal;
 }
@@ -414,17 +414,17 @@ SignalProxy1<void, Widget&> Widget::getCursorLeftSignal()
   return cursorLeftSignal;
 }
 
-SignalProxy2<void, Widget&, const vec2&> Widget::getDragBegunSignal()
+SignalProxy2<void, Widget&, vec2> Widget::getDragBegunSignal()
 {
   return dragBegunSignal;
 }
 
-SignalProxy2<void, Widget&, const vec2&> Widget::getDragMovedSignal()
+SignalProxy2<void, Widget&, vec2> Widget::getDragMovedSignal()
 {
   return dragMovedSignal;
 }
 
-SignalProxy2<void, Widget&, const vec2&> Widget::getDragEndedSignal()
+SignalProxy2<void, Widget&, vec2> Widget::getDragEndedSignal()
 {
   return dragEndedSignal;
 }

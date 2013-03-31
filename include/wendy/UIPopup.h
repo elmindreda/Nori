@@ -61,11 +61,11 @@ protected:
   void draw() const;
 private:
   void display();
-  void onButtonClicked(Widget& widget,
-                       const vec2& position,
-                       MouseButton button,
-                       Action action);
-  void onKeyPressed(Widget& widget, Key key, Action action);
+  void onMouseButton(Widget& widget,
+                     vec2 position,
+                     MouseButton button,
+                     Action action);
+  void onKey(Widget& widget, Key key, Action action);
   void onItemSelected(Menu& menu, uint index);
   void onMenuDestroyed(Widget& widget);
   Signal2<void, Popup&, uint> itemSelectedSignal;

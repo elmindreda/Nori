@@ -64,15 +64,15 @@ protected:
   void draw() const;
 private:
   void onAreaChanged(Widget& widget);
-  void onButtonClicked(Widget& widget,
-                       const vec2& position,
-                       MouseButton button,
-                       Action action);
+  void onMouseButton(Widget& widget,
+                     vec2 position,
+                     MouseButton button,
+                     Action action);
   void onEntryFocusChanged(Widget& widget, bool activated);
   void onEntryKeyPressed(Widget& widget, Key key, Action action);
   void onEntryDestroyed(Widget& widget);
-  void onKeyPressed(Widget& widget, Key key, Action action);
-  void onScrolled(Widget& widget, double x, double y);
+  void onKey(Widget& widget, Key key, Action action);
+  void onScroll(Widget& widget, vec2);
   void onValueChanged(Scroller& scroller);
   void beginEditing();
   void applyEditing();

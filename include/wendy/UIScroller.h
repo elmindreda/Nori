@@ -51,14 +51,14 @@ public:
 protected:
   void draw() const;
 private:
-  void onButtonClicked(Widget& widget,
-                       const vec2& position,
-                       MouseButton button,
-                       Action action);
-  void onKeyPressed(Widget& widget, Key key, Action action);
-  void onScrolled(Widget& widget, double x, double y);
-  void onDragBegun(Widget& widget, const vec2& position);
-  void onDragMoved(Widget& widget, const vec2& position);
+  void onMouseButton(Widget& widget,
+                     vec2 position,
+                     MouseButton button,
+                     Action action);
+  void onKey(Widget& widget, Key key, Action action);
+  void onScroll(Widget& widget, vec2 offset);
+  void onDragBegun(Widget& widget, vec2 position);
+  void onDragMoved(Widget& widget, vec2 position);
   void setValue(float newValue, bool notify);
   float getHandleSize() const;
   float getHandleOffset() const;

@@ -422,7 +422,7 @@ void Layer::onMouseButton(MouseButton button, Action action)
 void Layer::onScroll(vec2 offset)
 {
   if (hoveredWidget)
-    hoveredWidget->scrolledSignal(*hoveredWidget, offset.x, offset.y);
+    hoveredWidget->scrolledSignal(*hoveredWidget, offset);
 }
 
 void Layer::onFocus(bool activated)

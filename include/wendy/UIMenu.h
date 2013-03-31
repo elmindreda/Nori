@@ -59,14 +59,14 @@ public:
 private:
   void draw() const;
   void onFocusChanged(Widget& widget, bool activated);
-  void onCursorMoved(Widget& widget, const vec2& position);
+  void onCursorPos(Widget& widget, vec2 position);
   void onCursorLeft(Widget& widget);
-  void onButtonClicked(Widget& widget,
-                       const vec2& position,
-                       MouseButton button,
-                       Action action);
-  void onKeyPressed(Widget& widget, Key key, Action action);
-  void onDragEnded(Widget& widget, const vec2& position);
+  void onMouseButton(Widget& widget,
+                     vec2 position,
+                     MouseButton button,
+                     Action action);
+  void onKey(Widget& widget, Key key, Action action);
+  void onDragEnded(Widget& widget, vec2 position);
   void sizeToFit();
   ItemList items;
   uint selection;
