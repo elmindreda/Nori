@@ -362,55 +362,15 @@ void setBooleanState(uint state, bool value)
 
 ///////////////////////////////////////////////////////////////////////
 
-Version::Version():
-  m(1),
-  n(0)
-{
-}
-
-Version::Version(uint initM, uint initN):
-  m(initM),
-  n(initN)
-{
-}
-
-bool Version::operator < (const Version& other) const
-{
-  if (m < other.m)
-    return true;
-
-  if (m == other.m && n < other.n)
-    return true;
-
-  return false;
-}
-
-bool Version::operator > (const Version& other) const
-{
-  if (m > other.m)
-    return true;
-
-  if (m == other.m && n > other.n)
-    return true;
-
-  return false;
-}
-
-///////////////////////////////////////////////////////////////////////
-
 ContextConfig::ContextConfig(uint initColorBits,
                              uint initDepthBits,
                              uint initStencilBits,
                              uint initSamples,
-                             Version initVersion,
-                             Profile initProfile,
                              bool initDebug):
   colorBits(initColorBits),
   depthBits(initDepthBits),
   stencilBits(initStencilBits),
   samples(initSamples),
-  version(initVersion),
-  profile(initProfile),
   debug(initDebug)
 {
 }
@@ -1198,11 +1158,6 @@ Window& Context::getWindow()
   return window;
 }
 
-Version Context::getVersion() const
-{
-  return version;
-}
-
 const Limits& Context::getLimits() const
 {
   return *limits;
@@ -1264,13 +1219,8 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     glfwWindowHint(GLFW_STENCIL_BITS, cc.stencilBits);
     glfwWindowHint(GLFW_SAMPLES, cc.samples);
 
-    if (cc.version > Version(3,2))
-      version = cc.version;
-    else
-      version = Version(3,2);
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, version.m);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, version.n);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, cc.debug);
 
@@ -1290,10 +1240,9 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 
     glfwMakeContextCurrent(handle);
 
-    version = Version(glfwGetWindowParam(handle, GLFW_CONTEXT_VERSION_MAJOR),
-                      glfwGetWindowParam(handle, GLFW_CONTEXT_VERSION_MINOR));
-
-    log("OpenGL context version %i.%i created", version.m, version.n);
+    log("OpenGL context version %i.%i created",
+        glfwGetWindowParam(handle, GLFW_CONTEXT_VERSION_MAJOR),
+        glfwGetWindowParam(handle, GLFW_CONTEXT_VERSION_MINOR));
 
     log("OpenGL context GLSL version is %s",
         (const char*) glGetString(GL_SHADING_LANGUAGE_VERSION));

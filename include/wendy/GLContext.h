@@ -132,40 +132,6 @@ enum Function
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief OpenGL profile enumeration.
- *  @ingroup opengl
- */
-enum Profile
-{
-  /*! The default profile provided by the OpenGL implementation.
-   */
-  PROFILE_DEFAULT,
-  /*! The OpenGL core profile.
-   */
-  PROFILE_CORE,
-  /*! The OpenGL compatibility profile.
-   */
-  PROFILE_COMPAT
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief OpenGL version descriptor.
- *  @ingroup opengl
- */
-class Version
-{
-public:
-  Version();
-  Version(uint m, uint n);
-  bool operator < (const Version& other) const;
-  bool operator > (const Version& other) const;
-  uint m;
-  uint n;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief %Context configuration.
  *  @ingroup opengl
  *
@@ -181,8 +147,6 @@ public:
                 uint depthBits = 24,
                 uint stencilBits = 0,
                 uint samples = 0,
-                Version version = Version(2,1),
-                Profile profile = PROFILE_DEFAULT,
                 bool debug = false);
   /*! The desired color buffer bit depth.
    */
@@ -196,12 +160,6 @@ public:
   /*! The desired number of FSAA samples.
    */
   uint samples;
-  /*! The minimum desired OpenGL version.
-   */
-  Version version;
-  /*! The OpenGL context profile.
-   */
-  Profile profile;
   /*! The OpenGL debug context flag.
    */
   bool debug;
@@ -512,9 +470,6 @@ public:
   /*! @return The window of this context.
    */
   Window& getWindow();
-  /*! @return The OpenGL version.
-   */
-  Version getVersion() const;
   /*! Creates the context singleton object, using the specified settings.
    *  @param[in] cache The resource cache to use.
    *  @param[in] wndconfig The desired window configuration.
@@ -538,7 +493,6 @@ private:
   Window window;
   GLFWwindow* handle;
   Ptr<Limits> limits;
-  Version version;
   int swapInterval;
   Recti scissorArea;
   Recti viewportArea;
