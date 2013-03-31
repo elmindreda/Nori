@@ -1238,6 +1238,7 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
       return false;
     }
 
+    glfwSetWindowUserPointer(handle, this);
     glfwMakeContextCurrent(handle);
 
     log("OpenGL context version %i.%i created",
@@ -1250,10 +1251,10 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     log("OpenGL context renderer is %s by %s",
         (const char*) glGetString(GL_RENDERER),
         (const char*) glGetString(GL_VENDOR));
-  }
 
-  window.init(handle);
-  window.getFrameSignal().connect(*this, &Context::onFrame);
+    window.init(handle);
+    window.getFrameSignal().connect(*this, &Context::onFrame);
+  }
 
   // Initialize GLEW and check extensions
   {
@@ -1270,19 +1271,15 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     }
   }
 
-  // All extensions are there; figure out their limits
-  limits = new Limits(*this);
-
-  // Set up texture unit cache
+  // Retrieve context limits and set up dependent caches
   {
+    limits = new Limits(*this);
+
     const uint unitCount = max(limits->maxCombinedTextureImageUnits,
                                limits->maxTextureCoords);
 
     textureUnits.resize(unitCount);
   }
-
-  // Apply default differences
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   // Create and apply default framebuffer
   {
@@ -1297,21 +1294,21 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     defaultFramebuffer->samples = getInteger(GL_SAMPLES);
 
     setDefaultFramebufferCurrent();
+  }
 
+  // Force a known GL state
+  {
     int width, height;
     glfwGetWindowSize(handle, &width, &height);
 
     setViewportArea(Recti(0, 0, width, height));
     setScissorArea(Recti(0, 0, width, height));
-  }
 
-  // Finish GLFW init
-  {
     setSwapInterval(1);
-    glfwSetWindowUserPointer(handle, this);
-  }
+    forceState(currentState);
 
-  forceState(currentState);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  }
 
   return true;
 }
