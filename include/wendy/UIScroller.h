@@ -53,9 +53,9 @@ protected:
 private:
   void onButtonClicked(Widget& widget,
                        const vec2& position,
-                       input::Button button,
-                       input::Action action);
-  void onKeyPressed(Widget& widget, input::Key key, input::Action action);
+                       MouseButton button,
+                       Action action);
+  void onKeyPressed(Widget& widget, Key key, Action action);
   void onScrolled(Widget& widget, double x, double y);
   void onDragBegun(Widget& widget, const vec2& position);
   void onDragMoved(Widget& widget, const vec2& position);

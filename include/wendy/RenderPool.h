@@ -99,7 +99,7 @@ private:
     Ref<GL::VertexBuffer> buffer;
     uint available;
   };
-  void onContextFinish();
+  void onFrame();
   GL::Context& context;
   size_t granularity;
   std::vector<IndexBufferSlot> indexBufferPool;

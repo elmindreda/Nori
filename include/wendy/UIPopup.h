@@ -63,9 +63,9 @@ private:
   void display();
   void onButtonClicked(Widget& widget,
                        const vec2& position,
-                       input::Button button,
-                       input::Action action);
-  void onKeyPressed(Widget& widget, input::Key key, input::Action action);
+                       MouseButton button,
+                       Action action);
+  void onKeyPressed(Widget& widget, Key key, Action action);
   void onItemSelected(Menu& menu, uint index);
   void onMenuDestroyed(Widget& widget);
   Signal2<void, Popup&, uint> itemSelectedSignal;

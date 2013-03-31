@@ -23,7 +23,7 @@ set(wendy_SOURCES
     GLBuffer.cpp GLContext.cpp GLHelper.cpp GLParser.cpp GLProgram.cpp
     GLQuery.cpp GLTexture.cpp
 
-    Input.cpp)
+    Window.cpp)
 
 if (WENDY_INCLUDE_NETWORK)
   include_directories(${enet_SOURCE_DIR})

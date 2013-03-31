@@ -163,7 +163,7 @@ GeometryPool::GeometryPool(GL::Context& initContext):
   context(initContext),
   granularity(0)
 {
-  context.getFinishSignal().connect(*this, &GeometryPool::onContextFinish);
+  context.getWindow().getFrameSignal().connect(*this, &GeometryPool::onFrame);
 }
 
 bool GeometryPool::init(size_t initGranularity)
@@ -172,7 +172,7 @@ bool GeometryPool::init(size_t initGranularity)
   return true;
 }
 
-void GeometryPool::onContextFinish()
+void GeometryPool::onFrame()
 {
   for (auto i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
     i->available = i->buffer->getCount();

@@ -279,10 +279,10 @@ void Menu::onCursorLeft(Widget& widget)
 
 void Menu::onButtonClicked(Widget& widget,
                            const vec2& position,
-                           input::Button button,
-                           input::Action action)
+                           MouseButton button,
+                           Action action)
 {
-  if (action != input::RELEASED)
+  if (action != RELEASED)
     return;
 
   vec2 localPosition = transformToLocal(position);
@@ -310,14 +310,14 @@ void Menu::onButtonClicked(Widget& widget,
   }
 }
 
-void Menu::onKeyPressed(Widget& widget, input::Key key, input::Action action)
+void Menu::onKeyPressed(Widget& widget, Key key, Action action)
 {
-  if (action != input::PRESSED)
+  if (action != PRESSED)
     return;
 
   switch (key)
   {
-    case input::KEY_UP:
+    case KEY_UP:
     {
       if (selection > 0)
         selection--;
@@ -328,7 +328,7 @@ void Menu::onKeyPressed(Widget& widget, input::Key key, input::Action action)
       break;
     }
 
-    case input::KEY_DOWN:
+    case KEY_DOWN:
     {
       selection++;
       if (selection == items.size())
@@ -338,7 +338,7 @@ void Menu::onKeyPressed(Widget& widget, input::Key key, input::Action action)
       break;
     }
 
-    case input::KEY_ENTER:
+    case KEY_ENTER:
     {
       itemSelectedSignal(*this, selection);
       hide();

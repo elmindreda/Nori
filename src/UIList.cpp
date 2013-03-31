@@ -286,20 +286,20 @@ void List::onEntryFocusChanged(Widget& widget, bool activated)
     applyEditing();
 }
 
-void List::onEntryKeyPressed(Widget& widget, input::Key key, input::Action action)
+void List::onEntryKeyPressed(Widget& widget, Key key, Action action)
 {
-  if (action != input::PRESSED)
+  if (action != PRESSED)
     return;
 
   switch (key)
   {
-    case input::KEY_ENTER:
+    case KEY_ENTER:
     {
       applyEditing();
       break;
     }
 
-    case input::KEY_ESCAPE:
+    case KEY_ESCAPE:
     {
       cancelEditing();
       break;
@@ -318,10 +318,10 @@ void List::onEntryDestroyed(Widget& widget)
 
 void List::onButtonClicked(Widget& widget,
                            const vec2& position,
-                           input::Button button,
-                           input::Action action)
+                           MouseButton button,
+                           Action action)
 {
-  if (action != input::PRESSED)
+  if (action != PRESSED)
     return;
 
   const vec2 local = transformToLocal(position);
@@ -355,14 +355,14 @@ void List::onButtonClicked(Widget& widget,
   }
 }
 
-void List::onKeyPressed(Widget& widget, input::Key key, input::Action action)
+void List::onKeyPressed(Widget& widget, Key key, Action action)
 {
-  if (action != input::PRESSED)
+  if (action != PRESSED)
     return;
 
   switch (key)
   {
-    case input::KEY_UP:
+    case KEY_UP:
     {
       if (selection == NO_ITEM)
       {
@@ -374,7 +374,7 @@ void List::onKeyPressed(Widget& widget, input::Key key, input::Action action)
       break;
     }
 
-    case input::KEY_DOWN:
+    case KEY_DOWN:
     {
       if (selection == NO_ITEM)
       {
@@ -386,13 +386,13 @@ void List::onKeyPressed(Widget& widget, input::Key key, input::Action action)
       break;
     }
 
-    case input::KEY_HOME:
+    case KEY_HOME:
     {
       setSelection(0, true);
       break;
     }
 
-    case input::KEY_END:
+    case KEY_END:
     {
       if (!items.empty())
         setSelection(items.size() - 1, true);

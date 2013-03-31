@@ -958,18 +958,17 @@ uint DefaultFramebuffer::getStencilBits() const
 
 uint DefaultFramebuffer::getWidth() const
 {
-  return width;
+  return getContext().getWindow().getWidth();
 }
 
 uint DefaultFramebuffer::getHeight() const
 {
-  return height;
+  return getContext().getWindow().getHeight();
 }
 
 DefaultFramebuffer::DefaultFramebuffer(Context& context):
   Framebuffer(context)
 {
-  // TODO: Get screen size.
 }
 
 void DefaultFramebuffer::apply() const

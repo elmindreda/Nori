@@ -597,8 +597,6 @@ public:
 private:
   DefaultFramebuffer(Context& context);
   void apply() const;
-  uint width;
-  uint height;
   uint colorBits;
   uint depthBits;
   uint stencilBits;

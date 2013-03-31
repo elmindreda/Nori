@@ -59,7 +59,7 @@
 
 #include <wendy/WendyGL.h>
 
-#include <wendy/Input.h>
+#include <wendy/Window.h>
 
 #if WENDY_INCLUDE_NETWORK
 #include <wendy/WendyNetwork.h>

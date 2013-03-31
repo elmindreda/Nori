@@ -47,10 +47,10 @@ protected:
 private:
   void onButtonClicked(Widget& widget,
                        const vec2& position,
-                       input::Button button,
-                       input::Action action);
+                       MouseButton button,
+                       Action action);
   void onDragEnded(Widget& widget, const vec2& position);
-  void onKeyPressed(Widget& widget, input::Key key, input::Action action);
+  void onKeyPressed(Widget& widget, Key key, Action action);
   Signal1<void, Button&> pushedSignal;
   bool selected;
   String text;

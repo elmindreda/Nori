@@ -26,7 +26,7 @@
 #define WENDY_UILAYER_H
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Input.h>
+#include <wendy/Window.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -51,14 +51,14 @@ typedef std::vector<Widget*> WidgetList;
 /*! @brief Root object for widgets.
  *  @ingroup ui
  */
-class Layer : public input::Target, public Trackable, public RefObject
+class Layer : public EventTarget, public Trackable, public RefObject
 {
   friend class Widget;
   friend class LayerStack;
 public:
   /*! Constructor.
    */
-  Layer(input::Window& window, Drawer& drawer);
+  Layer(Window& window, Drawer& drawer);
   /*! Destructor.
    */
   ~Layer();
@@ -84,9 +84,8 @@ public:
   bool hasCapturedCursor() const;
   uint getWidth() const;
   uint getHeight() const;
-  void setSize(uint newWidth, uint newHeight);
   Drawer& getDrawer() const;
-  input::Window& getWindow() const;
+  Window& getWindow() const;
   /*! @return The root widgets of this layer.
    */
   const WidgetList& getRootWidgets() const;
@@ -101,16 +100,15 @@ public:
 private:
   void updateHoveredWidget();
   void removedWidget(Widget& widget);
-  void onKeyPressed(input::Key key, input::Action action);
-  void onCharInput(uint32 character);
-  void onCursorMoved(const ivec2& position);
-  void onButtonClicked(input::Button button, input::Action action);
-  void onScrolled(double x, double y);
-  void onFocusChanged(bool activated);
-  input::Window& window;
+  void onWindowSize(uint width, uint height);
+  void onKey(Key key, Action action);
+  void onCharacter(uint32 character);
+  void onCursorPos(ivec2 position);
+  void onMouseButton(MouseButton button, Action action);
+  void onScroll(vec2 offset);
+  void onFocus(bool activated);
+  Window& window;
   Drawer& drawer;
-  uint width;
-  uint height;
   bool dragging;
   WidgetList roots;
   Widget* activeWidget;
@@ -126,7 +124,7 @@ private:
 class LayerStack
 {
 public:
-  LayerStack(input::Window& window);
+  LayerStack(Window& window);
   void update() const;
   void draw() const;
   void push(Layer& layer);
@@ -134,12 +132,9 @@ public:
   void empty();
   bool isEmpty() const;
   Layer* getTop() const;
-  void setSize(uint newWidth, uint newHeight);
 private:
-  input::Window& window;
+  Window& window;
   std::vector<Ref<Layer>> layers;
-  uint width;
-  uint height;
 };
 
 ///////////////////////////////////////////////////////////////////////

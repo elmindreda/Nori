@@ -155,10 +155,10 @@ void Scroller::draw() const
 
 void Scroller::onButtonClicked(Widget& widget,
                                const vec2& point,
-                               input::Button button,
-                               input::Action action)
+                               MouseButton button,
+                               Action action)
 {
-  if (action != input::PRESSED)
+  if (action != PRESSED)
     return;
 
   const vec2 local = transformToLocal(point);
@@ -181,33 +181,33 @@ void Scroller::onButtonClicked(Widget& widget,
   }
 }
 
-void Scroller::onKeyPressed(Widget& widget, input::Key key, input::Action action)
+void Scroller::onKeyPressed(Widget& widget, Key key, Action action)
 {
-  if (action != input::PRESSED)
+  if (action != PRESSED)
   {
     switch (key)
     {
-      case input::KEY_DOWN:
-      case input::KEY_RIGHT:
+      case KEY_DOWN:
+      case KEY_RIGHT:
       {
         setValue(value + getValueStep(), true);
         break;
       }
 
-      case input::KEY_UP:
-      case input::KEY_LEFT:
+      case KEY_UP:
+      case KEY_LEFT:
       {
         setValue(value - getValueStep(), true);
         break;
       }
 
-      case input::KEY_HOME:
+      case KEY_HOME:
       {
         setValue(minValue, true);
         break;
       }
 
-      case input::KEY_END:
+      case KEY_END:
       {
         setValue(maxValue, true);
         break;

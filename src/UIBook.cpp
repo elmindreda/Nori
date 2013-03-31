@@ -192,9 +192,9 @@ void Book::onAreaChanged(Widget& widget)
     (*p)->setArea(Rect(0.f, 0.f, size.x, size.y - em * 2.f));
 }
 
-void Book::onKeyPressed(Widget& widgeth, input::Key key, input::Action action)
+void Book::onKeyPressed(Widget& widgeth, Key key, Action action)
 {
-  if (action != input::PRESSED)
+  if (action != PRESSED)
     return;
 
   auto p = std::find(pages.begin(), pages.end(), activePage);
@@ -203,8 +203,8 @@ void Book::onKeyPressed(Widget& widgeth, input::Key key, input::Action action)
 
   switch (key)
   {
-    case input::KEY_TAB:
-    case input::KEY_RIGHT:
+    case KEY_TAB:
+    case KEY_RIGHT:
     {
       if (++p == pages.end())
         setActivePage(pages.front(), true);
@@ -213,7 +213,7 @@ void Book::onKeyPressed(Widget& widgeth, input::Key key, input::Action action)
       break;
     }
 
-    case input::KEY_LEFT:
+    case KEY_LEFT:
     {
       if (p == pages.begin())
         setActivePage(pages.back(), true);
@@ -229,10 +229,10 @@ void Book::onKeyPressed(Widget& widgeth, input::Key key, input::Action action)
 
 void Book::onButtonClicked(Widget& widget,
                            const vec2& point,
-                           input::Button button,
-                           input::Action action)
+                           MouseButton button,
+                           Action action)
 {
-  if (action != input::PRESSED)
+  if (action != PRESSED)
     return;
 
   const float position = transformToLocal(point).x;

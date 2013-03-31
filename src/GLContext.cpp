@@ -398,39 +398,6 @@ bool Version::operator > (const Version& other) const
 
 ///////////////////////////////////////////////////////////////////////
 
-WindowConfig::WindowConfig():
-  title("Wendy"),
-  width(640),
-  height(480),
-  mode(WINDOWED),
-  resizable(true)
-{
-}
-
-WindowConfig::WindowConfig(const String& initTitle):
-  title(initTitle),
-  width(640),
-  height(480),
-  mode(WINDOWED),
-  resizable(true)
-{
-}
-
-WindowConfig::WindowConfig(const String& initTitle,
-                           uint initWidth,
-                           uint initHeight,
-                           WindowMode initMode,
-                           bool initResizable):
-  title(initTitle),
-  width(initWidth),
-  height(initHeight),
-  mode(initMode),
-  resizable(initResizable)
-{
-}
-
-///////////////////////////////////////////////////////////////////////
-
 ContextConfig::ContextConfig(uint initColorBits,
                              uint initDepthBits,
                              uint initStencilBits,
@@ -908,42 +875,6 @@ void Context::render(PrimitiveType type,
     stats->addPrimitives(type, count);
 }
 
-void Context::refresh()
-{
-  needsRefresh = true;
-}
-
-bool Context::update()
-{
-  ProfileNodeCall call("GL::Context::update");
-
-  glfwSwapBuffers(handle);
-  finishSignal();
-  needsRefresh = false;
-
-#if WENDY_DEBUG
-  checkGL("Uncaught OpenGL error during last frame");
-#endif
-
-  if (stats)
-    stats->addFrame();
-
-  if (refreshMode == MANUAL_REFRESH)
-  {
-    while (!needsRefresh && !glfwWindowShouldClose(handle))
-      glfwWaitEvents();
-  }
-  else
-    glfwPollEvents();
-
-  return !glfwWindowShouldClose(handle);
-}
-
-void Context::requestClose()
-{
-  closeCallback(handle);
-}
-
 void Context::createSharedSampler(const char* name, SamplerType type, int ID)
 {
   assert(ID != INVALID_SHARED_STATE_ID);
@@ -1003,21 +934,6 @@ void Context::setCurrentSharedProgramState(SharedProgramState* newState)
 const char* Context::getSharedProgramStateDeclaration() const
 {
   return declaration.c_str();
-}
-
-WindowMode Context::getWindowMode() const
-{
-  return windowMode;
-}
-
-Context::RefreshMode Context::getRefreshMode() const
-{
-  return refreshMode;
-}
-
-void Context::setRefreshMode(RefreshMode newMode)
-{
-  refreshMode = newMode;
 }
 
 int Context::getSwapInterval() const
@@ -1272,20 +1188,14 @@ void Context::setStats(Stats* newStats)
   stats = newStats;
 }
 
-const String& Context::getTitle() const
-{
-  return title;
-}
-
-void Context::setTitle(const char* newTitle)
-{
-  glfwSetWindowTitle(handle, newTitle);
-  title = newTitle;
-}
-
 ResourceCache& Context::getCache() const
 {
   return cache;
+}
+
+Window& Context::getWindow()
+{
+  return window;
 }
 
 Version Context::getVersion() const
@@ -1298,38 +1208,20 @@ const Limits& Context::getLimits() const
   return *limits;
 }
 
-SignalProxy0<void> Context::getFinishSignal()
-{
-  return finishSignal;
-}
-
-SignalProxy0<bool> Context::getCloseRequestSignal()
-{
-  return closeRequestSignal;
-}
-
-SignalProxy2<void, uint, uint> Context::getResizedSignal()
-{
-  return resizedSignal;
-}
-
-bool Context::createSingleton(ResourceCache& cache,
-                              const WindowConfig& wc,
-                              const ContextConfig& cc)
+Context* Context::create(ResourceCache& cache,
+                         const WindowConfig& wc,
+                         const ContextConfig& cc)
 {
   Ptr<Context> context(new Context(cache));
   if (!context->init(wc, cc))
-    return false;
+    return NULL;
 
-  set(context.detachObject());
-  return true;
+  return context.detachObject();
 }
 
 Context::Context(ResourceCache& initCache):
   cache(initCache),
   handle(NULL),
-  refreshMode(AUTOMATIC_REFRESH),
-  needsRefresh(false),
   dirtyBinding(true),
   dirtyState(true),
   cullingInverted(false),
@@ -1409,10 +1301,10 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     log("OpenGL context renderer is %s by %s",
         (const char*) glGetString(GL_RENDERER),
         (const char*) glGetString(GL_VENDOR));
-
-    windowMode = wc.mode;
-    title = wc.title;
   }
+
+  window.init(handle);
+  window.getFrameSignal().connect(*this, &Context::onFrame);
 
   // Initialize GLEW and check extensions
   {
@@ -1448,12 +1340,6 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     defaultFramebuffer = new DefaultFramebuffer(*this);
 
     // Read back actual (as opposed to desired) properties
-
-    int width, height;
-    glfwGetWindowSize(handle, &width, &height);
-    defaultFramebuffer->width = width;
-    defaultFramebuffer->height = height;
-
     defaultFramebuffer->colorBits = getInteger(GL_RED_BITS) +
                                     getInteger(GL_GREEN_BITS) +
                                     getInteger(GL_BLUE_BITS);
@@ -1463,6 +1349,9 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 
     setDefaultFramebufferCurrent();
 
+    int width, height;
+    glfwGetWindowSize(handle, &width, &height);
+
     setViewportArea(Recti(0, 0, width, height));
     setScissorArea(Recti(0, 0, width, height));
   }
@@ -1470,12 +1359,7 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
   // Finish GLFW init
   {
     setSwapInterval(1);
-
     glfwSetWindowUserPointer(handle, this);
-    glfwSetWindowSizeCallback(handle, sizeCallback);
-    glfwSetWindowCloseCallback(handle, closeCallback);
-    glfwSetWindowRefreshCallback(handle, refreshCallback);
-    glfwPollEvents();
   }
 
   forceState(currentState);
@@ -1689,29 +1573,14 @@ void Context::forceState(const RenderState& newState)
   dirtyState = false;
 }
 
-void Context::sizeCallback(GLFWwindow* handle, int width, int height)
+void Context::onFrame()
 {
-  Context* context = (Context*) glfwGetWindowUserPointer(handle);
-  context->defaultFramebuffer->width = width;
-  context->defaultFramebuffer->height = height;
-  context->resizedSignal(width, height);
-}
+#if WENDY_DEBUG
+  checkGL("Uncaught OpenGL error during last frame");
+#endif
 
-void Context::closeCallback(GLFWwindow* handle)
-{
-  Context* context = (Context*) glfwGetWindowUserPointer(handle);
-
-  std::vector<bool> results;
-  context->closeRequestSignal(results);
-
-  if (std::find(results.begin(), results.end(), false) != results.end())
-    glfwSetWindowShouldClose(handle, false);
-}
-
-void Context::refreshCallback(GLFWwindow* handle)
-{
-  Context* context = (Context*) glfwGetWindowUserPointer(handle);
-  context->needsRefresh = true;
+  if (stats)
+    stats->addFrame();
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -44,11 +44,9 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Layer::Layer(input::Window& initWindow, UI::Drawer& initDrawer):
+Layer::Layer(Window& initWindow, UI::Drawer& initDrawer):
   window(initWindow),
   drawer(initDrawer),
-  width(0),
-  height(0),
   dragging(false),
   activeWidget(NULL),
   draggedWidget(NULL),
@@ -152,7 +150,7 @@ void Layer::cancelDragging()
 
 void Layer::invalidate()
 {
-  window.getContext().refresh();
+  window.invalidate();
 }
 
 bool Layer::isOpaque() const
@@ -167,19 +165,12 @@ bool Layer::hasCapturedCursor() const
 
 uint Layer::getWidth() const
 {
-  return width;
+  return window.getWidth();
 }
 
 uint Layer::getHeight() const
 {
-  return height;
-}
-
-void Layer::setSize(uint newWidth, uint newHeight)
-{
-  width = newWidth;
-  height = newHeight;
-  sizeChangedSignal(*this);
+  return window.getHeight();
 }
 
 Drawer& Layer::getDrawer() const
@@ -187,7 +178,7 @@ Drawer& Layer::getDrawer() const
   return drawer;
 }
 
-input::Window& Layer::getWindow() const
+Window& Layer::getWindow() const
 {
   return window;
 }
@@ -322,19 +313,24 @@ void Layer::removedWidget(Widget& widget)
   }
 }
 
-void Layer::onKeyPressed(input::Key key, input::Action action)
+void Layer::onWindowSize(uint width, uint height)
+{
+  sizeChangedSignal(*this);
+}
+
+void Layer::onKey(Key key, Action action)
 {
   if (activeWidget)
     activeWidget->keyPressedSignal(*activeWidget, key, action);
 }
 
-void Layer::onCharInput(uint32 character)
+void Layer::onCharacter(uint32 character)
 {
   if (activeWidget)
     activeWidget->charInputSignal(*activeWidget, character);
 }
 
-void Layer::onCursorMoved(const ivec2& position)
+void Layer::onCursorPos(ivec2 position)
 {
   updateHoveredWidget();
 
@@ -358,12 +354,12 @@ void Layer::onCursorMoved(const ivec2& position)
   }
 }
 
-void Layer::onButtonClicked(input::Button button, input::Action action)
+void Layer::onMouseButton(MouseButton button, Action action)
 {
   vec2 cursorPosition = vec2(window.getCursorPosition());
   cursorPosition.y = window.getHeight() - cursorPosition.y;
 
-  if (action == input::PRESSED)
+  if (action == PRESSED)
   {
     Widget* clickedWidget = NULL;
 
@@ -397,7 +393,7 @@ void Layer::onButtonClicked(input::Button button, input::Action action)
         draggedWidget = clickedWidget;
     }
   }
-  else if (action == input::RELEASED)
+  else if (action == RELEASED)
   {
     if (draggedWidget)
     {
@@ -423,13 +419,13 @@ void Layer::onButtonClicked(input::Button button, input::Action action)
   }
 }
 
-void Layer::onScrolled(double x, double y)
+void Layer::onScroll(vec2 offset)
 {
   if (hoveredWidget)
-    hoveredWidget->scrolledSignal(*hoveredWidget, x, y);
+    hoveredWidget->scrolledSignal(*hoveredWidget, offset.x, offset.y);
 }
 
-void Layer::onFocusChanged(bool activated)
+void Layer::onFocus(bool activated)
 {
   if (!activated)
   {
@@ -440,10 +436,8 @@ void Layer::onFocusChanged(bool activated)
 
 ///////////////////////////////////////////////////////////////////////
 
-LayerStack::LayerStack(input::Window& initWindow):
-  window(initWindow),
-  width(0),
-  height(0)
+LayerStack::LayerStack(Window& initWindow):
+  window(initWindow)
 {
 }
 
@@ -480,7 +474,6 @@ void LayerStack::push(Layer& layer)
 
   layers.push_back(&layer);
   layer.stack = this;
-  layer.setSize(width, height);
   window.setTarget(&layer);
 }
 
@@ -514,15 +507,6 @@ Layer* LayerStack::getTop() const
     return NULL;
 
   return layers.back();
-}
-
-void LayerStack::setSize(uint newWidth, uint newHeight)
-{
-  width = newWidth;
-  height = newHeight;
-
-  for (auto l = layers.begin();  l != layers.end();  l++)
-    (*l)->setSize(newWidth, newHeight);
 }
 
 ///////////////////////////////////////////////////////////////////////

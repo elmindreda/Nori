@@ -32,12 +32,9 @@
 #include <wendy/Pixel.h>
 #include <wendy/Signal.h>
 #include <wendy/Timer.h>
+#include <wendy/Window.h>
 
 #include <deque>
-
-///////////////////////////////////////////////////////////////////////
-
-typedef struct GLFWwindow GLFWwindow;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -135,17 +132,6 @@ enum Function
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Window mode enumeration.
- *  @ingroup opengl
- */
-enum WindowMode
-{
-  WINDOWED,
-  FULLSCREEN
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief OpenGL profile enumeration.
  *  @ingroup opengl
  */
@@ -176,49 +162,6 @@ public:
   bool operator > (const Version& other) const;
   uint m;
   uint n;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Window configuration.
- *  @ingroup opengl
- */
-class WindowConfig
-{
-public:
-  /*! Default constructor.
-   */
-  WindowConfig();
-  /*! Constructor.
-   *  @param[in] title The desired title of the window.
-   */
-  WindowConfig(const String& title);
-  /*! Constructor.
-   *  @param[in] title The desired title of the window.
-   *  @param[in] width The desired width of the window.
-   *  @param[in] height The desired height of the window.
-   *  @param[in] mode The desired mode of the window.
-   */
-  WindowConfig(const String& title,
-               uint width,
-               uint height,
-               WindowMode mode,
-               bool resizable = true);
-  /*! The desired window title.
-   */
-  String title;
-  /*! The desired width of the window.
-   */
-  uint width;
-  /*! The desired height of the window.
-   */
-  uint height;
-  /*! The desired mode of the window.
-   */
-  WindowMode mode;
-  /*! @c true if the window should be resizable, @c false otherwise.
-   */
-  bool resizable;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -420,20 +363,9 @@ public:
  *
  *  @remarks Yes, it's big.
  */
-class Context : public Singleton<Context>
+class Context : public Trackable
 {
 public:
-  /*! Refresh mode enumeration.
-   */
-  enum RefreshMode
-  {
-    /*! The Context::update method does not block.
-     */
-    AUTOMATIC_REFRESH,
-    /*! The Context::update method blocks until a refresh is requested.
-     */
-    MANUAL_REFRESH
-  };
   /*! Destructor.
    */
   ~Context();
@@ -469,23 +401,7 @@ public:
    *  the current GLSL program.
    *  @pre A GLSL program must be set before calling this method.
    */
-  void render(PrimitiveType type,
-              uint start,
-              uint count,
-              uint base = 0);
-  /*! Makes Context::update to return when in manual refresh mode, forcing
-   *  a new iteration of the render loop.
-   */
-  void refresh();
-  /*! Swaps the buffer chain, processes any queued events and, in manual
-   *  refresh mode, blocks until either the window is closed or a call to
-   *  Context::refresh is made.
-   */
-  bool update();
-  /*! Emulates a user close request, causing a close request signal to be
-   *  emitted.
-   */
-  void requestClose();
+  void render(PrimitiveType type, uint start, uint count, uint base = 0);
   /*! Reserves the specified sampler uniform signature as shared.
    */
   void createSharedSampler(const char* name, SamplerType type, int ID);
@@ -509,16 +425,6 @@ public:
   /*! @return GLSL declarations of all shared samplers and uniforms.
    */
   const char* getSharedProgramStateDeclaration() const;
-  /*! @return The window mode of this context.
-   */
-  WindowMode getWindowMode() const;
-  /*! @return The current refresh mode.
-   */
-  RefreshMode getRefreshMode() const;
-  /*! Sets the refresh mode.
-   *  @param[in] newMode The desired new refresh mode.
-   */
-  void setRefreshMode(RefreshMode newMode);
   /*! @return The swap interval of this context.
    */
   int getSwapInterval() const;
@@ -597,40 +503,27 @@ public:
   void setCurrentRenderState(const RenderState& newState);
   Stats* getStats() const;
   void setStats(Stats* newStats);
-  /*! @return The title of the context window.
-   */
-  const String& getTitle() const;
-  /*! Sets the title of the context window.
-   *  @param[in] newTitle The desired title.
-   */
-  void setTitle(const char* newTitle);
   /*! @return The limits of this context.
    */
   const Limits& getLimits() const;
   /*! @return The resource cache used by this context.
    */
   ResourceCache& getCache() const;
+  /*! @return The window of this context.
+   */
+  Window& getWindow();
   /*! @return The OpenGL version.
    */
   Version getVersion() const;
-  /*! @return The signal for per-frame post-render clean-up.
-   */
-  SignalProxy0<void> getFinishSignal();
-  /*! @return The signal for user-initiated close requests.
-   */
-  SignalProxy0<bool> getCloseRequestSignal();
-  /*! @return The signal for context resizing.
-   */
-  SignalProxy2<void, uint, uint> getResizedSignal();
   /*! Creates the context singleton object, using the specified settings.
    *  @param[in] cache The resource cache to use.
    *  @param[in] wndconfig The desired window configuration.
    *  @param[in] ctxconfig The desired context configuration.
    *  @return @c true if successful, or @c false otherwise.
    */
-  static bool createSingleton(ResourceCache& cache,
-                              const WindowConfig& wc = WindowConfig(),
-                              const ContextConfig& cc = ContextConfig());
+  static Context* create(ResourceCache& cache,
+                         const WindowConfig& wc = WindowConfig(),
+                         const ContextConfig& cc = ContextConfig());
 private:
   Context(ResourceCache& cache);
   Context(const Context& source);
@@ -638,23 +531,15 @@ private:
   bool init(const WindowConfig& wc, const ContextConfig& cc);
   void applyState(const RenderState& newState);
   void forceState(const RenderState& newState);
-  static void sizeCallback(GLFWwindow* window, int width, int height);
-  static void closeCallback(GLFWwindow* window);
-  static void refreshCallback(GLFWwindow* window);
+  void onFrame();
   class SharedSampler;
   class SharedUniform;
   ResourceCache& cache;
-  Signal0<void> finishSignal;
-  Signal0<bool> closeRequestSignal;
-  Signal2<void, uint, uint> resizedSignal;
+  Window window;
   GLFWwindow* handle;
-  String title;
   Ptr<Limits> limits;
-  WindowMode windowMode;
-  RefreshMode refreshMode;
   Version version;
   int swapInterval;
-  bool needsRefresh;
   Recti scissorArea;
   Recti viewportArea;
   bool dirtyBinding;

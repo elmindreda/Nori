@@ -132,10 +132,10 @@ void Entry::draw() const
 
 void Entry::onButtonClicked(Widget& widget,
                             const vec2& point,
-                            input::Button button,
-                            input::Action action)
+                            MouseButton button,
+                            Action action)
 {
-  if (action != input::PRESSED)
+  if (action != PRESSED)
     return;
 
   Drawer& drawer = getLayer().getDrawer();
@@ -161,14 +161,14 @@ void Entry::onButtonClicked(Widget& widget,
   setCaretPosition(startPosition + index, true);
 }
 
-void Entry::onKeyPressed(Widget& widget, input::Key key, input::Action action)
+void Entry::onKeyPressed(Widget& widget, Key key, Action action)
 {
-  if (action != input::PRESSED)
+  if (action != PRESSED)
     return;
 
   switch (key)
   {
-    case input::KEY_BACKSPACE:
+    case KEY_BACKSPACE:
     {
       if (!text.empty() && caretPosition > 0)
       {
@@ -180,7 +180,7 @@ void Entry::onKeyPressed(Widget& widget, input::Key key, input::Action action)
       break;
     }
 
-    case input::KEY_DELETE:
+    case KEY_DELETE:
     {
       if (!text.empty() && caretPosition < text.length())
       {
@@ -191,26 +191,26 @@ void Entry::onKeyPressed(Widget& widget, input::Key key, input::Action action)
       break;
     }
 
-    case input::KEY_LEFT:
+    case KEY_LEFT:
     {
       if (caretPosition > 0)
         setCaretPosition(caretPosition - 1, true);
       break;
     }
 
-    case input::KEY_RIGHT:
+    case KEY_RIGHT:
     {
       setCaretPosition(caretPosition + 1, true);
       break;
     }
 
-    case input::KEY_HOME:
+    case KEY_HOME:
     {
       setCaretPosition(0, true);
       break;
     }
 
-    case input::KEY_END:
+    case KEY_END:
     {
       setCaretPosition(text.length(), true);
       break;

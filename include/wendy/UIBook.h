@@ -67,11 +67,11 @@ protected:
 private:
   void setActivePage(Page* newPage, bool notify);
   void onAreaChanged(Widget& widget);
-  void onKeyPressed(Widget& widget, input::Key key, input::Action action);
+  void onKeyPressed(Widget& widget, Key key, Action action);
   void onButtonClicked(Widget& widget,
                        const vec2& position,
-                       input::Button button,
-                       input::Action action);
+                       MouseButton button,
+                       Action action);
   Signal1<void, Book&> pageChangedSignal;
   Page* activePage;
   std::vector<Page*> pages;
