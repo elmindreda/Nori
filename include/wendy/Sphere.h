@@ -48,7 +48,6 @@ public:
   bool intersects(const Sphere& sphere) const;
   bool intersects(const Plane& plane, float& distance) const;
   bool intersects(const Ray3& ray, float& distance) const;
-  bool intersects(const Ray3& ray, float& distance, vec3& normal, bool& inside) const;
   void envelop(const vec3& point);
   void envelop(const Sphere& sphere);
   void set(const vec3& newCenter, float newRadius);

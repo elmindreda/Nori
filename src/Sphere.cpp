@@ -31,6 +31,7 @@
 #include <wendy/Sphere.h>
 
 #include <glm/gtx/norm.hpp>
+#include <glm/gtx/intersect.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -99,59 +100,9 @@ bool Sphere::intersects(const Plane& plane, float& distance) const
 
 bool Sphere::intersects(const Ray3& ray, float& distance) const
 {
-  const vec3 difference = ray.origin - center;
-  const float B = 2.f * dot(ray.direction, difference);
-  const float C = length2(difference) - radius * radius;
-  const float D = B * B - 4.f * C;
-
-  if (D < 0.f)
-    return false;
-
-  const float E = sqrtf(D) / 2.f;
-
-  distance = -B / 2.f - E;
-  if (distance < 0.f)
-  {
-    distance = -B / 2.f + E;
-    if (distance < 0.f)
-      return false;
-  }
-
-  return true;
-}
-
-bool Sphere::intersects(const Ray3& ray,
-                        float& distance,
-                        vec3& normal,
-                        bool& inside) const
-{
-  const vec3 difference = ray.origin - center;
-  const float B = 2.f * dot(ray.direction, difference);
-  const float C = length2(difference) - radius * radius;
-  const float D = B * B - 4.f * C;
-
-  if (D < 0.f)
-    return false;
-
-  const float E = sqrtf(D) / 2.f;
-
-  distance = -B / 2.f - E;
-  if (distance < 0.f)
-  {
-    distance = -B / 2.f + E;
-    if (distance < 0.f)
-      return false;
-
-    normal = (center - ray.origin - ray.direction * distance) / radius;
-    inside = true;
-  }
-  else
-  {
-    normal = (ray.origin + ray.direction * distance - center) / radius;
-    inside = false;
-  }
-
-  return true;
+  return intersectRaySphere(ray.origin, ray.direction,
+                            center, radius * radius,
+                            distance);
 }
 
 void Sphere::envelop(const vec3& point)
