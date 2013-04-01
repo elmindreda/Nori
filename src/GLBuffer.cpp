@@ -64,34 +64,19 @@ GLenum convertToGL(LockType type)
   panic("Invalid lock type %u", type);
 }
 
-GLenum convertToGL(IndexBuffer::Usage usage)
+GLenum convertToGL(Usage usage)
 {
   switch (usage)
   {
-    case IndexBuffer::STATIC:
+    case USAGE_STATIC:
       return GL_STATIC_DRAW;
-    case IndexBuffer::STREAM:
+    case USAGE_STREAM:
       return GL_STREAM_DRAW;
-    case IndexBuffer::DYNAMIC:
+    case USAGE_DYNAMIC:
       return GL_DYNAMIC_DRAW;
   }
 
-  panic("Invalid index buffer usage %u", usage);
-}
-
-GLenum convertToGL(VertexBuffer::Usage usage)
-{
-  switch (usage)
-  {
-    case VertexBuffer::STATIC:
-      return GL_STATIC_DRAW;
-    case VertexBuffer::STREAM:
-      return GL_STREAM_DRAW;
-    case VertexBuffer::DYNAMIC:
-      return GL_DYNAMIC_DRAW;
-  }
-
-  panic("Invalid vertex buffer usage %u", usage);
+  panic("Invalid buffer usage %u", usage);
 }
 
 GLenum convertToGL(TextureFramebuffer::Attachment attachment)
@@ -247,7 +232,7 @@ void VertexBuffer::copyTo(void* target, size_t targetCount, size_t start)
 #endif
 }
 
-VertexBuffer::Usage VertexBuffer::getUsage() const
+Usage VertexBuffer::getUsage() const
 {
   return usage;
 }
@@ -284,7 +269,7 @@ VertexBuffer::VertexBuffer(Context& initContext):
   locked(false),
   bufferID(0),
   count(0),
-  usage(STATIC)
+  usage(USAGE_STATIC)
 {
 }
 
@@ -428,12 +413,12 @@ void IndexBuffer::copyTo(void* target, size_t targetCount, size_t start)
 #endif
 }
 
-IndexBuffer::Type IndexBuffer::getType() const
+IndexType IndexBuffer::getType() const
 {
   return type;
 }
 
-IndexBuffer::Usage IndexBuffer::getUsage() const
+Usage IndexBuffer::getUsage() const
 {
   return usage;
 }
@@ -450,7 +435,7 @@ size_t IndexBuffer::getSize() const
 
 Ref<IndexBuffer> IndexBuffer::create(Context& context,
                                      size_t count,
-                                     Type type,
+                                     IndexType type,
                                      Usage usage)
 {
   Ref<IndexBuffer> buffer(new IndexBuffer(context));
@@ -460,15 +445,15 @@ Ref<IndexBuffer> IndexBuffer::create(Context& context,
   return buffer;
 }
 
-size_t IndexBuffer::getTypeSize(Type type)
+size_t IndexBuffer::getTypeSize(IndexType type)
 {
   switch (type)
   {
-    case IndexBuffer::UINT8:
+    case INDEX_UINT8:
       return sizeof(GLubyte);
-    case IndexBuffer::UINT16:
+    case INDEX_UINT16:
       return sizeof(GLushort);
-    case IndexBuffer::UINT32:
+    case INDEX_UINT32:
       return sizeof(GLuint);
   }
 
@@ -478,8 +463,8 @@ size_t IndexBuffer::getTypeSize(Type type)
 IndexBuffer::IndexBuffer(Context& initContext):
   context(initContext),
   locked(false),
-  type(UINT32),
-  usage(STATIC),
+  type(INDEX_UINT8),
+  usage(USAGE_STATIC),
   bufferID(0),
   count(0)
 {
@@ -491,7 +476,7 @@ IndexBuffer::IndexBuffer(const IndexBuffer& source):
   panic("Index buffers may not be copied");
 }
 
-bool IndexBuffer::init(size_t initCount, Type initType, Usage initUsage)
+bool IndexBuffer::init(size_t initCount, IndexType initType, Usage initUsage)
 {
   type = initType;
   usage = initUsage;
@@ -836,7 +821,7 @@ IndexRangeLock<uint8>::IndexRangeLock(IndexRange& initRange):
 {
   if (IndexBuffer* indexBuffer = range.getIndexBuffer())
   {
-    if (indexBuffer->getType() != IndexBuffer::UINT8)
+    if (indexBuffer->getType() != INDEX_UINT8)
       panic("Index buffer is not of type UINT8");
   }
 
@@ -852,7 +837,7 @@ IndexRangeLock<uint16>::IndexRangeLock(IndexRange& initRange):
 {
   if (IndexBuffer* indexBuffer = range.getIndexBuffer())
   {
-    if (indexBuffer->getType() != IndexBuffer::UINT16)
+    if (indexBuffer->getType() != INDEX_UINT16)
       panic("Index buffer is not of type UINT16");
   }
 
@@ -868,7 +853,7 @@ IndexRangeLock<uint32>::IndexRangeLock(IndexRange& initRange):
 {
   if (IndexBuffer* indexBuffer = range.getIndexBuffer())
   {
-    if (indexBuffer->getType() != IndexBuffer::UINT32)
+    if (indexBuffer->getType() != INDEX_UINT32)
       panic("Index buffer is not of type UINT32");
   }
 

@@ -103,15 +103,15 @@ bool checkGL(const char* format, ...)
   return false;
 }
 
-GLenum convertToGL(IndexBuffer::Type type)
+GLenum convertToGL(IndexType type)
 {
   switch (type)
   {
-    case IndexBuffer::UINT8:
+    case INDEX_UINT8:
       return GL_UNSIGNED_BYTE;
-    case IndexBuffer::UINT16:
+    case INDEX_UINT16:
       return GL_UNSIGNED_SHORT;
-    case IndexBuffer::UINT32:
+    case INDEX_UINT32:
       return GL_UNSIGNED_INT;
   }
 

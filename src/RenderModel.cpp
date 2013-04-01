@@ -198,7 +198,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
   vertexBuffer = GL::VertexBuffer::create(context,
                                           data.vertices.size(),
                                           format,
-                                          GL::VertexBuffer::STATIC);
+                                          GL::USAGE_STATIC);
   if (!vertexBuffer)
     return false;
 
@@ -206,18 +206,18 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
   const size_t indexCount = data.getTriangleCount() * 3;
 
-  GL::IndexBuffer::Type indexType;
+  GL::IndexType indexType;
   if (indexCount <= (1 << 8))
-    indexType = GL::IndexBuffer::UINT8;
+    indexType = GL::INDEX_UINT8;
   else if (indexCount <= (1 << 16))
-    indexType = GL::IndexBuffer::UINT16;
+    indexType = GL::INDEX_UINT16;
   else
-    indexType = GL::IndexBuffer::UINT32;
+    indexType = GL::INDEX_UINT32;
 
   indexBuffer = GL::IndexBuffer::create(context,
                                         indexCount,
                                         indexType,
-                                        GL::IndexBuffer::STATIC);
+                                        GL::USAGE_STATIC);
   if (!indexBuffer)
     return false;
 
@@ -230,7 +230,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
     sections.push_back(ModelSection(range, materials.find(s->materialName)->second));
 
-    if (indexType == GL::IndexBuffer::UINT8)
+    if (indexType == GL::INDEX_UINT8)
     {
       GL::IndexRangeLock<uint8> indices(range);
       if (!indices)
@@ -245,7 +245,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
         indices[index++] = t->indices[2];
       }
     }
-    else if (indexType == GL::IndexBuffer::UINT16)
+    else if (indexType == GL::INDEX_UINT16)
     {
       GL::IndexRangeLock<uint16> indices(range);
       if (!indices)

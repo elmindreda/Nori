@@ -77,6 +77,40 @@ enum LockType
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! Index buffer element type enumeration.
+ */
+enum IndexType
+{
+  /*! Indices are 8-bit unsigned integers.
+   */
+  INDEX_UINT8,
+  /*! Indices are 16-bit unsigned integers.
+   */
+  INDEX_UINT16,
+  /*! Indices are 32-bit unsigned integers.
+   */
+  INDEX_UINT32
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! Index buffer usage hint enumeration.
+ */
+enum Usage
+{
+  /*! Data will be specified once and used many times.
+   */
+  USAGE_STATIC,
+  /*! Data will be specified once and used a few times.
+   */
+  USAGE_STREAM,
+  /*! Data will be repeatedly respecified and re-used.
+   */
+  USAGE_DYNAMIC
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Vertex buffer.
  *  @ingroup opengl
  */
@@ -84,20 +118,6 @@ class VertexBuffer : public RefObject
 {
   friend class Context;
 public:
-  /*! Vertex buffer usage hint enumeration.
-   */
-  enum Usage
-  {
-    /*! Data will be specified once and used many times.
-     */
-    STATIC,
-    /*! Data will be specified once and used a few times.
-     */
-    STREAM,
-    /*! Data will be repeatedly respecified and re-used.
-     */
-    DYNAMIC
-  };
   /*! Destructor.
    */
   ~VertexBuffer();
@@ -166,34 +186,6 @@ class IndexBuffer : public RefObject
 {
   friend class Context;
 public:
-  /*! Index buffer element type enumeration.
-   */
-  enum Type
-  {
-    /*! Indices are 8-bit unsigned integers.
-     */
-    UINT8,
-    /*! Indices are 16-bit unsigned integers.
-     */
-    UINT16,
-    /*! Indices are 32-bit unsigned integers.
-     */
-    UINT32
-  };
-  /*! Index buffer usage hint enumeration.
-   */
-  enum Usage
-  {
-    /*! Data will be specified once and used many times.
-     */
-    STATIC,
-    /*! Data will be specified once and used a few times.
-     */
-    STREAM,
-    /*! Data will be repeatedly respecified and re-used.
-     */
-    DYNAMIC
-  };
   /*! Destructor.
    */
   ~IndexBuffer();
@@ -221,7 +213,7 @@ public:
   void copyTo(void* target, size_t count, size_t start = 0);
   /*! @return The type of the index elements in this index buffer.
    */
-  Type getType() const;
+  IndexType getType() const;
   /*! @return The usage hint of this index buffer.
    */
   Usage getUsage() const;
@@ -239,19 +231,19 @@ public:
    */
   static Ref<IndexBuffer> create(Context& context,
                                  size_t count,
-                                 Type type,
+                                 IndexType type,
                                  Usage usage);
   /*! @return The size, in bytes, of the specified element type.
    */
-  static size_t getTypeSize(Type type);
+  static size_t getTypeSize(IndexType type);
 private:
   IndexBuffer(Context& context);
   IndexBuffer(const IndexBuffer& source);
   IndexBuffer& operator = (const IndexBuffer& source);
-  bool init(size_t count, Type type, Usage usage);
+  bool init(size_t count, IndexType type, Usage usage);
   Context& context;
   bool locked;
-  Type type;
+  IndexType type;
   Usage usage;
   uint bufferID;
   size_t count;

@@ -591,7 +591,7 @@ bool Drawer::init()
 
   // Set up element geometry
   {
-    vertexBuffer = GL::VertexBuffer::create(context, 16, ElementVertex::format, GL::VertexBuffer::STATIC);
+    vertexBuffer = GL::VertexBuffer::create(context, 16, ElementVertex::format, GL::USAGE_STATIC);
     if (!vertexBuffer)
       return false;
 
@@ -634,7 +634,7 @@ bool Drawer::init()
 
     vertexBuffer->unlock();
 
-    indexBuffer = GL::IndexBuffer::create(context, 54, GL::IndexBuffer::UINT8, GL::IndexBuffer::STATIC);
+    indexBuffer = GL::IndexBuffer::create(context, 54, GL::INDEX_UINT8, GL::USAGE_STATIC);
     if (!indexBuffer)
       return false;
 

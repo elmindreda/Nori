@@ -43,7 +43,7 @@ namespace wendy
 
 bool GeometryPool::allocateIndices(GL::IndexRange& range,
                                    uint count,
-                                   GL::IndexBuffer::Type type)
+                                   GL::IndexType type)
 {
   if (!count)
   {
@@ -72,7 +72,7 @@ bool GeometryPool::allocateIndices(GL::IndexRange& range,
     slot->buffer = GL::IndexBuffer::create(context,
                                            actualCount,
                                            type,
-                                           GL::IndexBuffer::DYNAMIC);
+                                           GL::USAGE_DYNAMIC);
     if (!slot->buffer)
     {
       indexBufferPool.pop_back();
@@ -123,7 +123,7 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
     slot->buffer = GL::VertexBuffer::create(context,
                                             actualCount,
                                             format,
-                                            GL::VertexBuffer::DYNAMIC);
+                                            GL::USAGE_DYNAMIC);
     if (!slot->buffer)
     {
       vertexBufferPool.pop_back();

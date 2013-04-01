@@ -57,9 +57,7 @@ public:
    *  @remarks The allocated index range is only valid until the end of the
    *  current frame.
    */
-  bool allocateIndices(GL::IndexRange& range,
-                       uint count,
-                       GL::IndexBuffer::Type type);
+  bool allocateIndices(GL::IndexRange& range, uint count, GL::IndexType type);
   /*! Allocates a range of temporary vertices of the specified format.
    *  @param[out] range The newly allocated vertex range.
    *  @param[in] count The number of vertices to allocate.
