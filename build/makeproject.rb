@@ -95,6 +95,7 @@ public:
   void run(void);
 private:
   ResourceCache cache;
+  Ptr<GL::Context> context;
   Ref<render::GeometryPool> pool;
 };
 
@@ -127,9 +128,8 @@ using namespace wendy;
 #{@type}::~#{@type}(void)
 {
   pool = NULL;
+  context = NULL;
 
-  input::Window::destroySingleton();
-  GL::Context::destroySingleton();
   AL::Context::destroySingleton();
 }
 
@@ -147,20 +147,13 @@ bool #{@type}::init(void)
     return false;
   }
 
-  GL::WindowConfig wc("#{@name.capitalize}");
+  WindowConfig wc("#{@name.capitalize}");
   GL::ContextConfig cc;
 
-  if (!GL::Context::createSingleton(cache, wc, cc))
+  context = GL::Context::create(cache, wc, cc);
+  if (!context)
   {
     logError("Failed to create OpenGL context");
-    return false;
-  }
-
-  GL::Context* context = GL::Context::getSingleton();
-
-  if (!input::Window::createSingleton(*context))
-  {
-    logError("Failed to create input window");
     return false;
   }
 
@@ -176,13 +169,13 @@ bool #{@type}::init(void)
 
 void #{@type}::run(void)
 {
-  GL::Context* context = GL::Context::getSingleton();
+  Window& window = context->getWindow();
 
   do
   {
     context->clearBuffers();
   }
-  while (context->update());
+  while (window.update());
 }
 
 } /*namespace #{@name}*/
@@ -206,11 +199,10 @@ EOF
 end # class Project
 
 def usage()
-  puts "usage: #{__FILE__} {Demo|Game|Test} <name> <path>"
+  puts "Usage: #{File.basename __FILE__} {Demo|Game|Test} <name> <path>"
 end
 
 unless ARGV.size == 3
-  $stderr.puts 'Invalid user'
   usage()
   exit 1
 end
