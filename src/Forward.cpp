@@ -52,7 +52,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Config::Config(render::GeometryPool& initPool):
+Config::Config(render::VertexPool& initPool):
   pool(&initPool)
 {
 }
@@ -110,7 +110,7 @@ Ref<Renderer> Renderer::create(const Config& config)
   return renderer.detachObject();
 }
 
-Renderer::Renderer(render::GeometryPool& pool):
+Renderer::Renderer(render::VertexPool& pool):
   render::System(pool, render::System::FORWARD)
 {
 }

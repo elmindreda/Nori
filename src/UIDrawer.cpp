@@ -89,7 +89,7 @@ Theme::Theme(const ResourceInfo& info):
 {
 }
 
-Ref<Theme> Theme::read(render::GeometryPool& pool, const String& name)
+Ref<Theme> Theme::read(render::VertexPool& pool, const String& name)
 {
   ThemeReader reader(pool);
   return reader.read(name);
@@ -97,7 +97,7 @@ Ref<Theme> Theme::read(render::GeometryPool& pool, const String& name)
 
 ///////////////////////////////////////////////////////////////////////
 
-ThemeReader::ThemeReader(render::GeometryPool& initPool):
+ThemeReader::ThemeReader(render::VertexPool& initPool):
   ResourceReader<Theme>(initPool.getContext().getCache()),
   pool(&initPool)
 {
@@ -272,7 +272,7 @@ void Drawer::drawPoint(const vec2& point, const vec4& color)
   vertex.position = point;
 
   GL::VertexRange range;
-  if (!getGeometryPool().allocateVertices(range, 1, Vertex2fv::format))
+  if (!getVertexPool().allocateVertices(range, 1, Vertex2fv::format))
     return;
 
   range.copyFrom(&vertex);
@@ -289,7 +289,7 @@ void Drawer::drawLine(const Segment2& segment, const vec4& color)
   vertices[1].position = segment.end;
 
   GL::VertexRange range;
-  if (!getGeometryPool().allocateVertices(range, 2, Vertex2fv::format))
+  if (!getVertexPool().allocateVertices(range, 2, Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -307,7 +307,7 @@ void Drawer::drawTriangle(const Triangle2& triangle, const vec4& color)
   vertices[2].position = triangle.P[2];
 
   GL::VertexRange range;
-  if (!getGeometryPool().allocateVertices(range, 3, Vertex2fv::format))
+  if (!getVertexPool().allocateVertices(range, 3, Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -323,7 +323,7 @@ void Drawer::drawBezier(const BezierCurve2& spline, const vec4& color)
   spline.tessellate(points);
 
   GL::VertexRange range;
-  if (!getGeometryPool().allocateVertices(range, points.size(), Vertex2fv::format))
+  if (!getVertexPool().allocateVertices(range, points.size(), Vertex2fv::format))
     return;
 
   // Realize vertices
@@ -354,7 +354,7 @@ void Drawer::drawRectangle(const Rect& rectangle, const vec4& color)
   vertices[3].position = vec2(minX, maxY);
 
   GL::VertexRange range;
-  if (!getGeometryPool().allocateVertices(range, 4, Vertex2fv::format))
+  if (!getVertexPool().allocateVertices(range, 4, Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -372,7 +372,7 @@ void Drawer::fillTriangle(const Triangle2& triangle, const vec4& color)
   vertices[2].position = triangle.P[2];
 
   GL::VertexRange range;
-  if (!getGeometryPool().allocateVertices(range, 3, Vertex2fv::format))
+  if (!getVertexPool().allocateVertices(range, 3, Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -397,7 +397,7 @@ void Drawer::fillRectangle(const Rect& rectangle, const vec4& color)
   vertices[3].position = vec2(minX, maxY);
 
   GL::VertexRange range;
-  if (!getGeometryPool().allocateVertices(range, 4, Vertex2fv::format))
+  if (!getVertexPool().allocateVertices(range, 4, Vertex2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -426,7 +426,7 @@ void Drawer::blitTexture(const Rect& area, GL::Texture& texture)
   vertices[3].position = vec2(minX, maxY);
 
   GL::VertexRange range;
-  if (!getGeometryPool().allocateVertices(range, 4, Vertex2ft2fv::format))
+  if (!getVertexPool().allocateVertices(range, 4, Vertex2ft2fv::format))
     return;
 
   range.copyFrom(vertices);
@@ -544,7 +544,7 @@ GL::Context& Drawer::getContext()
   return pool->getContext();
 }
 
-render::GeometryPool& Drawer::getGeometryPool()
+render::VertexPool& Drawer::getVertexPool()
 {
   return *pool;
 }
@@ -567,7 +567,7 @@ float Drawer::getCurrentEM() const
   return currentFont->getHeight();
 }
 
-Ref<Drawer> Drawer::create(render::GeometryPool& pool)
+Ref<Drawer> Drawer::create(render::VertexPool& pool)
 {
   Ptr<Drawer> drawer(new Drawer(pool));
   if (!drawer->init())
@@ -576,7 +576,7 @@ Ref<Drawer> Drawer::create(render::GeometryPool& pool)
   return drawer.detachObject();
 }
 
-Drawer::Drawer(render::GeometryPool& initPool):
+Drawer::Drawer(render::VertexPool& initPool):
   pool(&initPool)
 {
 }
@@ -665,7 +665,7 @@ bool Drawer::init()
   {
     const String themeName("wendy/UIDefault.theme");
 
-    theme = Theme::read(getGeometryPool(), themeName);
+    theme = Theme::read(getVertexPool(), themeName);
     if (!theme)
     {
       logError("Failed to load default UI theme \'%s\'", themeName.c_str());

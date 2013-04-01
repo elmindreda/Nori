@@ -40,7 +40,7 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 class Light;
-class GeometryPool;
+class VertexPool;
 class Scene;
 
 ///////////////////////////////////////////////////////////////////////
@@ -154,7 +154,7 @@ private:
 class Scene
 {
 public:
-  Scene(GeometryPool& pool, Phase phase = PHASE_DEFAULT);
+  Scene(VertexPool& pool, Phase phase = PHASE_DEFAULT);
   void addOperation(const Operation& operation, float depth, uint8 layer = 0);
   void createOperations(const mat4& transform,
                         const GL::PrimitiveRange& range,
@@ -166,7 +166,7 @@ public:
   const LightList& getLights() const;
   const vec3& getAmbientIntensity() const;
   void setAmbientIntensity(const vec3& newIntensity);
-  GeometryPool& getGeometryPool() const;
+  VertexPool& getVertexPool() const;
   Queue& getOpaqueQueue();
   const Queue& getOpaqueQueue() const;
   Queue& getBlendedQueue();
@@ -174,7 +174,7 @@ public:
   Phase getPhase() const;
   void setPhase(Phase newPhase);
 private:
-  Ref<GeometryPool> pool;
+  Ref<VertexPool> pool;
   Phase phase;
   Queue opaqueQueue;
   Queue blendedQueue;

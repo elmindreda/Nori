@@ -247,7 +247,7 @@ void Font::getTextLayout(LayoutList& result, const char* text) const
 }
 
 Ref<Font> Font::create(const ResourceInfo& info,
-                       GeometryPool& pool,
+                       VertexPool& pool,
                        const FontData& data)
 {
   Ref<Font> font(new Font(info, pool));
@@ -257,13 +257,13 @@ Ref<Font> Font::create(const ResourceInfo& info,
   return font;
 }
 
-Ref<Font> Font::read(GeometryPool& pool, const String& name)
+Ref<Font> Font::read(VertexPool& pool, const String& name)
 {
   FontReader reader(pool);
   return reader.read(name);
 }
 
-Font::Font(const ResourceInfo& info, GeometryPool& initPool):
+Font::Font(const ResourceInfo& info, VertexPool& initPool):
   Resource(info),
   pool(&initPool)
 {
@@ -475,7 +475,7 @@ void Font::getGlyphLayout(Layout& layout, const Glyph& glyph, uint8 character) c
 
 ///////////////////////////////////////////////////////////////////////
 
-FontReader::FontReader(GeometryPool& initPool):
+FontReader::FontReader(VertexPool& initPool):
   ResourceReader<Font>(initPool.getContext().getCache()),
   pool(&initPool)
 {

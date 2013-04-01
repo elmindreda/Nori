@@ -128,7 +128,7 @@ Sprite2::Sprite2():
 {
 }
 
-void Sprite2::render(GeometryPool& pool) const
+void Sprite2::render(VertexPool& pool) const
 {
   Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
@@ -184,7 +184,7 @@ void Sprite3::enqueue(Scene& scene,
   }
 
   GL::VertexRange range;
-  if (!scene.getGeometryPool().allocateVertices(range, 4, Vertex2ft3fv::format))
+  if (!scene.getVertexPool().allocateVertices(range, 4, Vertex2ft3fv::format))
     return;
 
   const vec3 cameraPos = camera.getTransform().position;

@@ -50,14 +50,14 @@ public:
   };
   ResourceCache& getCache() const;
   GL::Context& getContext() const;
-  GeometryPool& getGeometryPool() const;
+  VertexPool& getVertexPool() const;
   Type getType() const;
 protected:
-  System(GeometryPool& pool, Type type);
+  System(VertexPool& pool, Type type);
 private:
   System(const System& source);
   System& operator = (const System& source);
-  Ref<GeometryPool> pool;
+  Ref<VertexPool> pool;
   Type type;
 };
 

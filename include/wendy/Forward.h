@@ -58,10 +58,10 @@ public:
   /*! Constructor.
    *  @param[in] pool The geometry pool to use.
    */
-  Config(render::GeometryPool& pool);
+  Config(render::VertexPool& pool);
   /*! The geometry pool to be used by the renderer.
    */
-  Ref<render::GeometryPool> pool;
+  Ref<render::VertexPool> pool;
   /*! The shared program state to be used by the renderer.
    */
   Ref<SharedProgramState> state;
@@ -89,7 +89,7 @@ public:
    */
   static Ref<Renderer> create(const Config& config);
 private:
-  Renderer(render::GeometryPool& pool);
+  Renderer(render::VertexPool& pool);
   bool init(const Config& config);
   void renderOperations(const render::Queue& queue);
   void releaseObjects();

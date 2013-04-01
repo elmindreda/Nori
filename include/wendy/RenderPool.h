@@ -41,23 +41,12 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Geometry pool.
+/*! @brief Vertex pool.
  *  @ingroup renderer
  */
-class GeometryPool : public Trackable, public RefObject
+class VertexPool : public Trackable, public RefObject
 {
 public:
-  /*! Allocates a range of temporary indices of the specified type.
-   *  @param[out] range The newly allocated index range.
-   *  @param[in] count The number of indices to allocate.
-   *  @param[in] type The type of indices to allocate.
-   *  @return @c true if the allocation succeeded, or @c false if an
-   *  error occurred.
-   *
-   *  @remarks The allocated index range is only valid until the end of the
-   *  current frame.
-   */
-  bool allocateIndices(GL::IndexRange& range, uint count, GL::IndexType type);
   /*! Allocates a range of temporary vertices of the specified format.
    *  @param[out] range The newly allocated vertex range.
    *  @param[in] count The number of vertices to allocate.
@@ -74,25 +63,18 @@ public:
   /*! @return The OpenGL context used by this pool.
    */
   GL::Context& getContext() const;
-  /*! Creates a geometry pool.
+  /*! Creates a vertex pool.
    *  @param[in] context The OpenGL context to be used.
    *  @param[in] granularity The desired allocation granularity.
-   *  @return The newly created geometry pool.
+   *  @return The newly created vertex pool.
    */
-  static Ref<GeometryPool> create(GL::Context& context, size_t granularity = 1024);
+  static Ref<VertexPool> create(GL::Context& context, size_t granularity = 1024);
 private:
-  GeometryPool(GL::Context& context);
+  VertexPool(GL::Context& context);
   bool init(size_t granularity);
   /*! @internal
    */
-  struct IndexBufferSlot
-  {
-    Ref<GL::IndexBuffer> buffer;
-    uint available;
-  };
-  /*! @internal
-   */
-  struct VertexBufferSlot
+  struct Slot
   {
     Ref<GL::VertexBuffer> buffer;
     uint available;
@@ -100,8 +82,7 @@ private:
   void onFrame();
   GL::Context& context;
   size_t granularity;
-  std::vector<IndexBufferSlot> indexBufferPool;
-  std::vector<VertexBufferSlot> vertexBufferPool;
+  std::vector<Slot> slots;
 };
 
 ///////////////////////////////////////////////////////////////////////

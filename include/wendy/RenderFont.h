@@ -89,19 +89,19 @@ public:
    */
   void getTextLayout(LayoutList& result, const char* text) const;
   static Ref<Font> create(const ResourceInfo& info,
-                          GeometryPool& pool,
+                          VertexPool& pool,
                           const FontData& data);
-  static Ref<Font> read(GeometryPool& pool, const String& name);
+  static Ref<Font> read(VertexPool& pool, const String& name);
 private:
   class Glyph;
-  Font(const ResourceInfo& info, GeometryPool& pool);
+  Font(const ResourceInfo& info, VertexPool& pool);
   Font(const Font& source);
   Font& operator = (const Font& source);
   bool init(const FontData& font);
   const Glyph* findGlyph(uint8 character) const;
   bool getGlyphLayout(Layout& layout, uint8 character) const;
   void getGlyphLayout(Layout& layout, const Glyph& glyph, uint8 character) const;
-  Ref<GeometryPool> pool;
+  Ref<VertexPool> pool;
   std::vector<Glyph> glyphs;
   Glyph* characters[256];
   vec2 size;
@@ -142,7 +142,7 @@ public:
 class FontReader : public ResourceReader<Font>
 {
 public:
-  FontReader(GeometryPool& pool);
+  FontReader(VertexPool& pool);
   using ResourceReader<Font>::read;
   Ref<Font> read(const String& name, const Path& path);
 private:
@@ -151,7 +151,7 @@ private:
                      const Image& image,
                      const String& characters,
                      bool fixedWidth);
-  Ref<GeometryPool> pool;
+  Ref<VertexPool> pool;
 };
 
 ///////////////////////////////////////////////////////////////////////

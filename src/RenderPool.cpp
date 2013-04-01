@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy default renderer
 // Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -41,60 +41,9 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-bool GeometryPool::allocateIndices(GL::IndexRange& range,
-                                   uint count,
-                                   GL::IndexType type)
-{
-  if (!count)
-  {
-    range = GL::IndexRange();
-    return true;
-  }
-
-  IndexBufferSlot* slot = NULL;
-
-  for (auto i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
-  {
-    if (i->buffer->getType() == type && i->available >= count)
-    {
-      slot = &(*i);
-      break;
-    }
-  }
-
-  if (!slot)
-  {
-    indexBufferPool.push_back(IndexBufferSlot());
-    slot = &(indexBufferPool.back());
-
-    const uint actualCount = granularity * ((count + granularity - 1) / granularity);
-
-    slot->buffer = GL::IndexBuffer::create(context,
-                                           actualCount,
-                                           type,
-                                           GL::USAGE_DYNAMIC);
-    if (!slot->buffer)
-    {
-      indexBufferPool.pop_back();
-      return false;
-    }
-
-    log("Allocated index pool of size %u", actualCount);
-
-    slot->available = slot->buffer->getCount();
-  }
-
-  range = GL::IndexRange(*(slot->buffer),
-                         slot->buffer->getCount() - slot->available,
-                         count);
-
-  slot->available -= count;
-  return true;
-}
-
-bool GeometryPool::allocateVertices(GL::VertexRange& range,
-                                    uint count,
-                                    const VertexFormat& format)
+bool VertexPool::allocateVertices(GL::VertexRange& range,
+                                  uint count,
+                                  const VertexFormat& format)
 {
   if (!count)
   {
@@ -102,21 +51,21 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
     return true;
   }
 
-  VertexBufferSlot* slot = NULL;
+  Slot* slot = NULL;
 
-  for (auto i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
+  for (auto s = slots.begin();  s != slots.end();  s++)
   {
-    if (i->buffer->getFormat() == format && i->available >= count)
+    if (s->buffer->getFormat() == format && s->available >= count)
     {
-      slot = &(*i);
+      slot = &(*s);
       break;
     }
   }
 
   if (!slot)
   {
-    vertexBufferPool.push_back(VertexBufferSlot());
-    slot = &(vertexBufferPool.back());
+    slots.push_back(Slot());
+    slot = &(slots.back());
 
     const uint actualCount = granularity * ((count + granularity - 1) / granularity);
 
@@ -126,7 +75,7 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
                                             GL::USAGE_DYNAMIC);
     if (!slot->buffer)
     {
-      vertexBufferPool.pop_back();
+      slots.pop_back();
       return false;
     }
 
@@ -145,40 +94,37 @@ bool GeometryPool::allocateVertices(GL::VertexRange& range,
   return true;
 }
 
-GL::Context& GeometryPool::getContext() const
+GL::Context& VertexPool::getContext() const
 {
   return context;
 }
 
-Ref<GeometryPool> GeometryPool::create(GL::Context& context, size_t granularity)
+Ref<VertexPool> VertexPool::create(GL::Context& context, size_t granularity)
 {
-  Ref<GeometryPool> pool(new GeometryPool(context));
+  Ref<VertexPool> pool(new VertexPool(context));
   if (!pool->init(granularity))
     return NULL;
 
   return pool;
 }
 
-GeometryPool::GeometryPool(GL::Context& initContext):
+VertexPool::VertexPool(GL::Context& initContext):
   context(initContext),
   granularity(0)
 {
-  context.getWindow().getFrameSignal().connect(*this, &GeometryPool::onFrame);
+  context.getWindow().getFrameSignal().connect(*this, &VertexPool::onFrame);
 }
 
-bool GeometryPool::init(size_t initGranularity)
+bool VertexPool::init(size_t initGranularity)
 {
   granularity = initGranularity;
   return true;
 }
 
-void GeometryPool::onFrame()
+void VertexPool::onFrame()
 {
-  for (auto i = indexBufferPool.begin();  i != indexBufferPool.end();  i++)
-    i->available = i->buffer->getCount();
-
-  for (auto i = vertexBufferPool.begin();  i != vertexBufferPool.end();  i++)
-    i->available = i->buffer->getCount();
+  for (auto s = slots.begin();  s != slots.end();  s++)
+    s->available = s->buffer->getCount();
 }
 
 ///////////////////////////////////////////////////////////////////////

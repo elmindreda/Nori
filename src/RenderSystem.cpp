@@ -52,7 +52,7 @@ GL::Context& System::getContext() const
   return pool->getContext();
 }
 
-GeometryPool& System::getGeometryPool() const
+VertexPool& System::getVertexPool() const
 {
   return *pool;
 }
@@ -62,7 +62,7 @@ System::Type System::getType() const
   return type;
 }
 
-System::System(GeometryPool& initPool, Type initType):
+System::System(VertexPool& initPool, Type initType):
   pool(&initPool),
   type(initType)
 {

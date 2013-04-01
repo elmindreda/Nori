@@ -33,7 +33,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-class GeometryPool;
+class VertexPool;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -52,7 +52,7 @@ class Sprite2
 {
 public:
   Sprite2();
-  void render(GeometryPool& pool) const;
+  void render(VertexPool& pool) const;
   void realizeVertices(Vertex2ft2fv* vertices) const;
   Rect texArea;
   vec2 position;

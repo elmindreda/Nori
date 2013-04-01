@@ -114,7 +114,7 @@ class Theme : public Resource
 {
 public:
   Theme(const ResourceInfo& info);
-  static Ref<Theme> read(render::GeometryPool& pool, const String& name);
+  static Ref<Theme> read(render::VertexPool& pool, const String& name);
   Rect buttonElements[4];
   Rect handleElements[4];
   Rect frameElements[4];
@@ -134,11 +134,11 @@ public:
 class ThemeReader : public ResourceReader<Theme>
 {
 public:
-  ThemeReader(render::GeometryPool& pool);
+  ThemeReader(render::VertexPool& pool);
   using ResourceReader<Theme>::read;
   Ref<Theme> read(const String& name, const Path& path);
 private:
-  Ref<render::GeometryPool> pool;
+  Ref<render::VertexPool> pool;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -198,13 +198,13 @@ public:
   void drawTab(const Rect& area, WidgetState state, const char* text = "");
   const Theme& getTheme() const;
   GL::Context& getContext();
-  render::GeometryPool& getGeometryPool();
+  render::VertexPool& getVertexPool();
   render::Font& getCurrentFont();
   void setCurrentFont(render::Font* newFont);
   float getCurrentEM() const;
-  static Ref<Drawer> create(render::GeometryPool& pool);
+  static Ref<Drawer> create(render::VertexPool& pool);
 private:
-  Drawer(render::GeometryPool& pool);
+  Drawer(render::VertexPool& pool);
   bool init();
   void drawElement(const Rect& area, const Rect& mapping);
   void setDrawingState(const vec4& color, bool wireframe);
@@ -213,7 +213,7 @@ private:
   Ref<GL::IndexBuffer> indexBuffer;
   GL::PrimitiveRange range;
   Ref<Theme> theme;
-  Ref<render::GeometryPool> pool;
+  Ref<render::VertexPool> pool;
   Ref<render::Font> currentFont;
   render::Pass drawPass;
   render::Pass blitPass;

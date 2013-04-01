@@ -119,7 +119,7 @@ const SortKeyList& Queue::getSortKeys() const
 
 ///////////////////////////////////////////////////////////////////////
 
-Scene::Scene(GeometryPool& initPool, Phase initPhase):
+Scene::Scene(VertexPool& initPool, Phase initPhase):
   pool(&initPool),
   phase(initPhase)
 {
@@ -192,7 +192,7 @@ void Scene::setAmbientIntensity(const vec3& newIntensity)
   ambient = newIntensity;
 }
 
-GeometryPool& Scene::getGeometryPool() const
+VertexPool& Scene::getVertexPool() const
 {
   return *pool;
 }
