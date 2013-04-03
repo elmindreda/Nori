@@ -58,6 +58,13 @@ enum
   SHARED_VIEWPROJECTION_MATRIX,
   SHARED_MODELVIEWPROJECTION_MATRIX,
 
+  SHARED_INVERSE_MODEL_MATRIX,
+  SHARED_INVERSE_VIEW_MATRIX,
+  SHARED_INVERSE_PROJECTION_MATRIX,
+  SHARED_INVERSE_MODELVIEW_MATRIX,
+  SHARED_INVERSE_VIEWPROJECTION_MATRIX,
+  SHARED_INVERSE_MODELVIEWPROJECTION_MATRIX,
+
   SHARED_CAMERA_NEAR_Z,
   SHARED_CAMERA_FAR_Z,
   SHARED_CAMERA_ASPECT_RATIO,
@@ -152,12 +159,24 @@ private:
   bool dirtyModelView;
   bool dirtyViewProj;
   bool dirtyModelViewProj;
+  bool dirtyInvModel;
+  bool dirtyInvView;
+  bool dirtyInvProj;
+  bool dirtyInvModelView;
+  bool dirtyInvViewProj;
+  bool dirtyInvModelViewProj;
   mat4 modelMatrix;
   mat4 viewMatrix;
   mat4 projectionMatrix;
   mat4 modelViewMatrix;
   mat4 viewProjMatrix;
   mat4 modelViewProjMatrix;
+  mat4 invModelMatrix;
+  mat4 invViewMatrix;
+  mat4 invProjMatrix;
+  mat4 invModelViewMatrix;
+  mat4 invViewProjMatrix;
+  mat4 invModelViewProjMatrix;
   float cameraNearZ;
   float cameraFarZ;
   float cameraAspect;

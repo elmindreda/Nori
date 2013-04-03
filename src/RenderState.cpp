@@ -56,6 +56,12 @@ SharedProgramState::SharedProgramState():
   dirtyModelView(true),
   dirtyViewProj(true),
   dirtyModelViewProj(true),
+  dirtyInvModel(true),
+  dirtyInvView(true),
+  dirtyInvProj(true),
+  dirtyInvModelView(true),
+  dirtyInvViewProj(true),
+  dirtyInvModelViewProj(true),
   cameraNearZ(0.f),
   cameraFarZ(0.f),
   cameraAspect(0.f),
@@ -74,6 +80,13 @@ bool SharedProgramState::reserveSupported(GL::Context& context) const
   context.createSharedUniform("wyMV", GL::UNIFORM_MAT4, SHARED_MODELVIEW_MATRIX);
   context.createSharedUniform("wyVP", GL::UNIFORM_MAT4, SHARED_VIEWPROJECTION_MATRIX);
   context.createSharedUniform("wyMVP", GL::UNIFORM_MAT4, SHARED_MODELVIEWPROJECTION_MATRIX);
+
+  context.createSharedUniform("wyInvM", GL::UNIFORM_MAT4, SHARED_INVERSE_MODEL_MATRIX);
+  context.createSharedUniform("wyInvV", GL::UNIFORM_MAT4, SHARED_INVERSE_VIEW_MATRIX);
+  context.createSharedUniform("wyInvP", GL::UNIFORM_MAT4, SHARED_INVERSE_PROJECTION_MATRIX);
+  context.createSharedUniform("wyInvMV", GL::UNIFORM_MAT4, SHARED_INVERSE_MODELVIEW_MATRIX);
+  context.createSharedUniform("wyInvVP", GL::UNIFORM_MAT4, SHARED_INVERSE_VIEWPROJECTION_MATRIX);
+  context.createSharedUniform("wyInvMVP", GL::UNIFORM_MAT4, SHARED_INVERSE_MODELVIEWPROJECTION_MATRIX);
 
   context.createSharedUniform("wyCameraNearZ", GL::UNIFORM_FLOAT, SHARED_CAMERA_NEAR_Z);
   context.createSharedUniform("wyCameraFarZ", GL::UNIFORM_FLOAT, SHARED_CAMERA_FAR_Z);
@@ -136,24 +149,26 @@ void SharedProgramState::setModelMatrix(const mat4& newMatrix)
 {
   modelMatrix = newMatrix;
   dirtyModelView = dirtyModelViewProj = true;
+  dirtyInvModel = dirtyInvModelView = dirtyInvModelViewProj = true;
 }
 
 void SharedProgramState::setViewMatrix(const mat4& newMatrix)
 {
   viewMatrix = newMatrix;
   dirtyModelView = dirtyViewProj = dirtyModelViewProj = true;
+  dirtyInvView = dirtyInvModelView = dirtyInvViewProj = dirtyInvModelViewProj = true;
 }
 
 void SharedProgramState::setProjectionMatrix(const mat4& newMatrix)
 {
   projectionMatrix = newMatrix;
   dirtyViewProj = dirtyModelViewProj = true;
+  dirtyInvProj = dirtyInvViewProj = dirtyInvModelViewProj = true;
 }
 
 void SharedProgramState::setOrthoProjectionMatrix(float width, float height)
 {
-  projectionMatrix = ortho(0.f, width, 0.f, height);
-  dirtyViewProj = dirtyModelViewProj = true;
+  setProjectionMatrix(ortho(0.f, width, 0.f, height));
 }
 
 void SharedProgramState::setOrthoProjectionMatrix(const AABB& volume)
@@ -161,8 +176,7 @@ void SharedProgramState::setOrthoProjectionMatrix(const AABB& volume)
   float minX, minY, minZ, maxX, maxY, maxZ;
   volume.getBounds(minX, minY, minZ, maxX, maxY, maxZ);
 
-  projectionMatrix = ortho(minX, maxX, minY, maxY, minZ, maxZ);
-  dirtyViewProj = dirtyModelViewProj = true;
+  setProjectionMatrix(ortho(minX, maxX, minY, maxY, minZ, maxZ));
 }
 
 void SharedProgramState::setPerspectiveProjectionMatrix(float FOV,
@@ -170,8 +184,7 @@ void SharedProgramState::setPerspectiveProjectionMatrix(float FOV,
                                                         float nearZ,
                                                         float farZ)
 {
-  projectionMatrix = perspective(FOV, aspect, nearZ, farZ);
-  dirtyViewProj = dirtyModelViewProj = true;
+  setProjectionMatrix(perspective(FOV, aspect, nearZ, farZ));
 }
 
 void SharedProgramState::setCameraProperties(const vec3& position,
@@ -269,6 +282,106 @@ void SharedProgramState::updateTo(GL::Uniform& uniform)
       }
 
       uniform.copyFrom(value_ptr(modelViewProjMatrix));
+      return;
+    }
+
+    case SHARED_INVERSE_MODEL_MATRIX:
+    {
+      if (dirtyInvModel)
+      {
+        invModelMatrix = inverse(modelMatrix);
+        dirtyInvModel = false;
+      }
+
+      uniform.copyFrom(value_ptr(invModelMatrix));
+      return;
+    }
+
+    case SHARED_INVERSE_VIEW_MATRIX:
+    {
+      if (dirtyInvView)
+      {
+        invViewMatrix = inverse(viewMatrix);
+        dirtyInvView = false;
+      }
+
+      uniform.copyFrom(value_ptr(invViewMatrix));
+      return;
+    }
+
+    case SHARED_INVERSE_PROJECTION_MATRIX:
+    {
+      if (dirtyInvProj)
+      {
+        invProjMatrix = inverse(projectionMatrix);
+        dirtyInvProj = false;
+      }
+
+      uniform.copyFrom(value_ptr(invProjMatrix));
+      return;
+    }
+
+    case SHARED_INVERSE_MODELVIEW_MATRIX:
+    {
+      if (dirtyInvModelView)
+      {
+        if (dirtyModelView)
+        {
+          modelViewMatrix = viewMatrix;
+          modelViewMatrix *= modelMatrix;
+          dirtyModelView = false;
+        }
+
+        invModelViewMatrix = inverse(modelViewMatrix);
+        dirtyInvModelView = false;
+      }
+
+      uniform.copyFrom(value_ptr(invModelViewMatrix));
+      return;
+    }
+
+    case SHARED_INVERSE_VIEWPROJECTION_MATRIX:
+    {
+      if (dirtyInvViewProj)
+      {
+        if (dirtyViewProj)
+        {
+          viewProjMatrix = projectionMatrix;
+          viewProjMatrix *= viewMatrix;
+          dirtyViewProj = false;
+        }
+
+        invViewProjMatrix = inverse(viewProjMatrix);
+        dirtyInvViewProj = false;
+      }
+
+      uniform.copyFrom(value_ptr(invViewProjMatrix));
+      return;
+    }
+
+    case SHARED_INVERSE_MODELVIEWPROJECTION_MATRIX:
+    {
+      if (dirtyInvModelViewProj)
+      {
+        if (dirtyModelViewProj)
+        {
+          if (dirtyViewProj)
+          {
+            viewProjMatrix = projectionMatrix;
+            viewProjMatrix *= viewMatrix;
+            dirtyViewProj = false;
+          }
+
+          modelViewProjMatrix = viewProjMatrix;
+          modelViewProjMatrix *= modelMatrix;
+          dirtyModelViewProj = false;
+        }
+
+        invModelViewProjMatrix = inverse(modelViewProjMatrix);
+        dirtyInvModelViewProj = false;
+      }
+
+      uniform.copyFrom(value_ptr(invModelViewProjMatrix));
       return;
     }
 
