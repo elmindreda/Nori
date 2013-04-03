@@ -294,6 +294,16 @@ void Window::setCursorPosition(ivec2 newPosition)
   glfwSetCursorPos(handle, newPosition.x, newPosition.y);
 }
 
+String Window::getClipboardText() const
+{
+  return glfwGetClipboardString(handle);
+}
+
+void Window::setClipboardText(const String& newText)
+{
+  glfwSetClipboardString(handle, newText.c_str());
+}
+
 SignalProxy0<void> Window::getFrameSignal()
 {
   return frameSignal;

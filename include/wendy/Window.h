@@ -422,6 +422,8 @@ public:
    *  @param[in] newPosition The desired mouse position.
    */
   void setCursorPosition(ivec2 newPosition);
+  String getClipboardText() const;
+  void setClipboardText(const String& newText);
   /*! @return The signal for per-frame post-render clean-up.
    */
   SignalProxy0<void> getFrameSignal();
