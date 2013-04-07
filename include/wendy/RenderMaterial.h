@@ -91,10 +91,30 @@ public:
   /*! @return The technique for the specified phase.
    */
   const Technique& getTechnique(Phase phase) const;
+  template <typename T>
+  void setUniformStates(const char* name, const T& newValue)
+  {
+    for (uint i = 0;  i < 2;  i++)
+    {
+      PassList& passes = techniques[i].passes;
+      for (auto p = passes.begin();  p != passes.end();  p++)
+        p->setUniformState(name, newValue);
+    }
+  }
+  template <typename T>
+  void setUniformStates(UniformStateIndex index, const T& newValue)
+  {
+    for (uint i = 0;  i < 2;  i++)
+    {
+      PassList& passes = techniques[i].passes;
+      for (auto p = passes.begin();  p != passes.end();  p++)
+        p->setUniformState(name, newValue);
+    }
+  }
   /*! Sets all samplers in all passes in all techniques in this material
    *  matching the specified name to the specified texture.
    */
-  void setSamplers(const char* name, GL::Texture* newTexture);
+  void setSamplerStates(const char* name, GL::Texture* newTexture);
   /*! Creates a material.
    *  @param[in] info The resource info for the texture.
    *  @param[in] system The OpenGL context within which to create the texture.

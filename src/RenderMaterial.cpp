@@ -477,7 +477,7 @@ const Technique& Material::getTechnique(Phase phase) const
   return techniques[phase];
 }
 
-void Material::setSamplers(const char* name, GL::Texture* newTexture)
+void Material::setSamplerStates(const char* name, GL::Texture* newTexture)
 {
   for (size_t i = 0;  i < 2;  i++)
   {
