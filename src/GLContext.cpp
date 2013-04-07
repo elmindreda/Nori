@@ -1525,6 +1525,19 @@ void Context::onFrame()
   checkGL("Uncaught OpenGL error during last frame");
 #endif
 
+  setCurrentProgram(NULL);
+  setCurrentVertexBuffer(NULL);
+  setCurrentIndexBuffer(NULL);
+
+  for (size_t i = 0;  i < textureUnits.size();  i++)
+  {
+    if (textureUnits[i])
+    {
+      setActiveTextureUnit(i);
+      setCurrentTexture(NULL);
+    }
+  }
+
   if (stats)
     stats->addFrame();
 }

@@ -92,7 +92,6 @@ private:
   Renderer(render::VertexPool& pool);
   bool init(const Config& config);
   void renderOperations(const render::Queue& queue);
-  void releaseObjects();
   Ref<SharedProgramState> state;
 };
 
