@@ -60,6 +60,13 @@ if (_GLFW_X11)
     list(APPEND glfw_LIBRARIES Xxf86vm)
   endif()
 
+  if (NOT X11_Xi_FOUND)
+    message(FATAL_ERROR "The Xinput library and headers were not found")
+  endif()
+
+  list(APPEND glfw_INCLUDE_DIRS ${X11_Xi_INCLUDE_PATH})
+  list(APPEND glfw_LIBRARIES ${X11_Xi_LIB})
+
   if (NOT X11_Xkb_FOUND)
     message(FATAL_ERROR "The X keyboard extension headers were not found")
   endif() 

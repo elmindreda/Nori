@@ -60,11 +60,6 @@ typedef void* id;
 // GLFW platform specific types
 //========================================================================
 
-//------------------------------------------------------------------------
-// Pointer length integer
-//------------------------------------------------------------------------
-typedef intptr_t GLFWintptr;
-
 
 //------------------------------------------------------------------------
 // Platform-specific window structure
@@ -112,6 +107,9 @@ typedef struct _GLFWlibraryNS
     CGEventSourceRef eventSource;
     id              delegate;
     id              autoreleasePool;
+    id              cursor;
+
+    GLboolean       cursorHidden;
 
     char*           clipboardString;
 
@@ -124,8 +122,9 @@ typedef struct _GLFWlibraryNS
 //------------------------------------------------------------------------
 typedef struct _GLFWmonitorNS
 {
-    CGDirectDisplayID displayID;
-    CGDisplayModeRef previousMode;
+    CGDirectDisplayID   displayID;
+    CGDisplayModeRef    previousMode;
+    id                  screen;
 
 } _GLFWmonitorNS;
 
@@ -142,7 +141,7 @@ void _glfwInitJoysticks(void);
 void _glfwTerminateJoysticks(void);
 
 // Fullscreen
-GLboolean _glfwSetVideoMode(_GLFWmonitor* monitor, int* width, int* height, int* bpp);
+GLboolean _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* desired);
 void _glfwRestoreVideoMode(_GLFWmonitor* monitor);
 
 // OpenGL support

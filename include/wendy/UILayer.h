@@ -103,7 +103,7 @@ private:
   void onWindowSize(uint width, uint height);
   void onKey(Key key, Action action);
   void onCharacter(uint32 character);
-  void onCursorPos(ivec2 position);
+  void onCursorPos(vec2 position);
   void onMouseButton(MouseButton button, Action action);
   void onScroll(vec2 offset);
   void onFocus(bool activated);

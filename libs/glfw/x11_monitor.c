@@ -41,7 +41,7 @@
 
 // Set the current video mode for the specified monitor
 //
-void _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* mode)
+void _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* desired)
 {
     if (_glfw.x11.randr.available)
     {
@@ -82,10 +82,10 @@ void _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* mode)
             if (mi->modeFlags & RR_Interlace)
                 continue;
 
-            unsigned int sizeDiff = (mi->width - mode->width) *
-                                    (mi->width - mode->width) +
-                                    (mi->height - mode->height) *
-                                    (mi->height - mode->height);
+            unsigned int sizeDiff = (mi->width - desired->width) *
+                                    (mi->width - desired->width) +
+                                    (mi->height - desired->height) *
+                                    (mi->height - desired->height);
 
             if (sizeDiff < leastSizeDiff)
             {
@@ -157,13 +157,6 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* found)
         primary = XRRGetOutputPrimary(_glfw.x11.display, _glfw.x11.root);
 
         monitors = (_GLFWmonitor**) calloc(sr->noutput, sizeof(_GLFWmonitor*));
-        if (!monitors)
-        {
-            XRRFreeScreenResources(sr);
-
-            _glfwInputError(GLFW_OUT_OF_MEMORY, NULL);
-            return NULL;
-        }
 
         for (i = 0;  i < sr->ncrtc;  i++)
         {
@@ -220,12 +213,6 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* found)
     else
     {
         monitors = (_GLFWmonitor**) calloc(1, sizeof(_GLFWmonitor*));
-        if (!monitors)
-        {
-            _glfwInputError(GLFW_OUT_OF_MEMORY, NULL);
-            return NULL;
-        }
-
         monitors[0] = _glfwCreateMonitor("Display",
                                          DisplayWidthMM(_glfw.x11.display,
                                                         _glfw.x11.screen),
@@ -235,6 +222,11 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* found)
     }
 
     return monitors;
+}
+
+GLboolean _glfwPlatformIsSameMonitor(_GLFWmonitor* first, _GLFWmonitor* second)
+{
+    return first->x11.crtc == second->x11.crtc;
 }
 
 void _glfwPlatformGetMonitorPos(_GLFWmonitor* monitor, int* xpos, int* ypos)

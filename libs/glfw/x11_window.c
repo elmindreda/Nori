@@ -46,6 +46,17 @@
 #define Button6            6
 #define Button7            7
 
+typedef struct
+{
+	unsigned long flags;
+	unsigned long functions;
+	unsigned long decorations;
+	long input_mode;
+	unsigned long status;
+} MotifWmHints;
+
+#define MWM_HINTS_DECORATIONS (1L << 1)
+
 
 // Translates an X Window key to internal coding
 //
@@ -129,6 +140,25 @@ static GLboolean createWindow(_GLFWwindow* window,
             _glfwInputError(GLFW_PLATFORM_ERROR, "X11: Failed to create window");
             return GL_FALSE;
         }
+
+        if (!wndconfig->decorated)
+        {
+            MotifWmHints hints;
+            hints.flags = MWM_HINTS_DECORATIONS;
+            hints.decorations = 0;
+
+            XChangeProperty(_glfw.x11.display, window->x11.handle,
+                            _glfw.x11.MOTIF_WM_HINTS,
+                            _glfw.x11.MOTIF_WM_HINTS, 32,
+                            PropModeReplace,
+                            (unsigned char*) &hints,
+                            sizeof(MotifWmHints) / sizeof(long));
+        }
+
+        XSaveContext(_glfw.x11.display,
+                     window->x11.handle,
+                     _glfw.x11.context,
+                     (XPointer) window);
     }
 
     if (window->monitor && !_glfw.x11.hasEWMH)
@@ -213,6 +243,21 @@ static GLboolean createWindow(_GLFWwindow* window,
         XFree(hints);
     }
 
+    if (_glfw.x11.xi.available)
+    {
+        // Select for XInput2 events
+
+        XIEventMask eventmask;
+        unsigned char mask[] = { 0 };
+
+        eventmask.deviceid = 2;
+        eventmask.mask_len = sizeof(mask);
+        eventmask.mask = mask;
+        XISetMask(mask, XI_Motion);
+
+        XISelectEvents(_glfw.x11.display, window->x11.handle, &eventmask, 1);
+    }
+
     _glfwPlatformSetWindowTitle(window, wndconfig->title);
 
     XRRSelectInput(_glfw.x11.display, window->x11.handle,
@@ -256,7 +301,6 @@ static void captureCursor(_GLFWwindow* window)
             GrabSuccess)
         {
             window->x11.cursorGrabbed = GL_TRUE;
-            window->x11.cursorCentered = GL_FALSE;
         }
     }
 }
@@ -421,13 +465,15 @@ _GLFWwindow* _glfwFindWindowByHandle(Window handle)
 {
     _GLFWwindow* window;
 
-    for (window = _glfw.windowListHead;  window;  window = window->next)
+    if (XFindContext(_glfw.x11.display,
+                     handle,
+                     _glfw.x11.context,
+                     (XPointer*) &window) != 0)
     {
-        if (window->x11.handle == handle)
-            return window;
+        return NULL;
     }
 
-    return NULL;
+    return window;
 }
 
 // Process the specified X event
@@ -452,7 +498,13 @@ static void processEvent(XEvent *event)
         case KeyPress:
         {
             _glfwInputKey(window, translateKey(event->xkey.keycode), GLFW_PRESS);
+
+            if (!(event->xkey.state & ControlMask) &&
+                !(event->xkey.state & Mod1Mask /*Alt*/))
+            {
             _glfwInputChar(window, translateChar(&event->xkey));
+            }
+
             break;
         }
 
@@ -527,8 +579,8 @@ static void processEvent(XEvent *event)
 
         case MotionNotify:
         {
-            if (event->xmotion.x != window->x11.cursorPosX ||
-                event->xmotion.y != window->x11.cursorPosY)
+            if (event->xmotion.x != window->x11.warpPosX ||
+                event->xmotion.y != window->x11.warpPosY)
             {
                 // The cursor was moved by something other than GLFW
 
@@ -548,13 +600,11 @@ static void processEvent(XEvent *event)
                     y = event->xmotion.y;
                 }
 
-                window->x11.cursorPosX = event->xmotion.x;
-                window->x11.cursorPosY = event->xmotion.y;
-                window->x11.cursorCentered = GL_FALSE;
-
                 _glfwInputCursorMotion(window, x, y);
             }
 
+            window->x11.cursorPosX = event->xmotion.x;
+            window->x11.cursorPosY = event->xmotion.y;
             break;
         }
 
@@ -666,38 +716,64 @@ static void processEvent(XEvent *event)
 
         case SelectionClear:
         {
-            // The ownership of the clipboard selection was lost
-
-            free(_glfw.x11.selection.string);
-            _glfw.x11.selection.string = NULL;
+            _glfwHandleSelectionClear(event);
             break;
         }
 
         case SelectionRequest:
         {
-            // The contents of the clipboard selection was requested
-
-            XSelectionRequestEvent* request = &event->xselectionrequest;
-
-            XEvent response;
-            memset(&response, 0, sizeof(response));
-
-            response.xselection.property = _glfwWriteSelection(request);
-            response.xselection.type = SelectionNotify;
-            response.xselection.display = request->display;
-            response.xselection.requestor = request->requestor;
-            response.xselection.selection = request->selection;
-            response.xselection.target = request->target;
-            response.xselection.time = request->time;
-
-            XSendEvent(_glfw.x11.display,
-                       request->requestor,
-                       False, 0, &response);
+            _glfwHandleSelectionRequest(event);
             break;
         }
 
         case DestroyNotify:
             return;
+
+        case GenericEvent:
+        {
+            if (event->xcookie.extension == _glfw.x11.xi.majorOpcode &&
+                XGetEventData(_glfw.x11.display, &event->xcookie))
+            {
+                if (event->xcookie.evtype == XI_Motion)
+                {
+                    XIDeviceEvent* data = (XIDeviceEvent*) event->xcookie.data;
+
+                    window = _glfwFindWindowByHandle(data->event);
+                    if (window)
+                    {
+                        if (data->event_x != window->x11.warpPosX ||
+                            data->event_y != window->x11.warpPosY)
+                        {
+                            // The cursor was moved by something other than GLFW
+
+                            double x, y;
+
+                            if (window->cursorMode == GLFW_CURSOR_CAPTURED)
+                            {
+                                if (_glfw.focusedWindow != window)
+                                    break;
+
+                                x = data->event_x - window->x11.cursorPosX;
+                                y = data->event_y - window->x11.cursorPosY;
+                            }
+                            else
+                            {
+                                x = data->event_x;
+                                y = data->event_y;
+                            }
+
+                            _glfwInputCursorMotion(window, x, y);
+                        }
+
+                        window->x11.cursorPosX = data->event_x;
+                        window->x11.cursorPosY = data->event_y;
+                    }
+                }
+            }
+
+            XFreeEventData(_glfw.x11.display, &event->xcookie);
+            break;
+        }
 
         default:
         {
@@ -804,6 +880,13 @@ void _glfwPlatformDestroyWindow(_GLFWwindow* window)
 
     if (window->x11.handle)
     {
+        if (window->x11.handle ==
+            XGetSelectionOwner(_glfw.x11.display, _glfw.x11.CLIPBOARD))
+        {
+            _glfwPushSelectionToManager(window);
+        }
+
+        XDeleteContext(_glfw.x11.display, window->x11.handle, _glfw.x11.context);
         XUnmapWindow(_glfw.x11.display, window->x11.handle);
         XDestroyWindow(_glfw.x11.display, window->x11.handle);
         window->x11.handle = (Window) 0;
@@ -966,13 +1049,11 @@ void _glfwPlatformPollEvents(void)
     window = _glfw.focusedWindow;
     if (window)
     {
-        if (window->cursorMode == GLFW_CURSOR_CAPTURED &&
-            !window->x11.cursorCentered)
+        if (window->cursorMode == GLFW_CURSOR_CAPTURED)
         {
             int width, height;
             _glfwPlatformGetWindowSize(window, &width, &height);
             _glfwPlatformSetCursorPos(window, width / 2, height / 2);
-            window->x11.cursorCentered = GL_TRUE;
 
             // NOTE: This is a temporary fix.  It works as long as you use
             //       offsets accumulated over the course of a frame, instead of
@@ -1004,13 +1085,14 @@ void _glfwPlatformWaitEvents(void)
     _glfwPlatformPollEvents();
 }
 
-void _glfwPlatformSetCursorPos(_GLFWwindow* window, int x, int y)
+void _glfwPlatformSetCursorPos(_GLFWwindow* window, double x, double y)
 {
     // Store the new position so it can be recognized later
-    window->x11.cursorPosX = x;
-    window->x11.cursorPosY = y;
+    window->x11.warpPosX = (int) x;
+    window->x11.warpPosY = (int) y;
 
-    XWarpPointer(_glfw.x11.display, None, window->x11.handle, 0,0,0,0, x, y);
+    XWarpPointer(_glfw.x11.display, None, window->x11.handle,
+                 0,0,0,0, (int) x, (int) y);
 }
 
 void _glfwPlatformSetCursorMode(_GLFWwindow* window, int mode)

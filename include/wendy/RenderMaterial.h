@@ -108,7 +108,7 @@ public:
     {
       PassList& passes = techniques[i].passes;
       for (auto p = passes.begin();  p != passes.end();  p++)
-        p->setUniformState(name, newValue);
+        p->setUniformState(index, newValue);
     }
   }
   /*! Sets all samplers in all passes in all techniques in this material

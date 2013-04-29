@@ -125,39 +125,6 @@ typedef struct _GLFWmonitor     _GLFWmonitor;
 // Internal types
 //========================================================================
 
-/*! @brief Window, framebuffer and context hints.
- *
- *  It is used only by shared code and only to store parameters passed to us by
- *  @ref glfwWindowHint for use by @ref glfwCreateWindow.
- */
-struct _GLFWhints
-{
-    int         redBits;
-    int         greenBits;
-    int         blueBits;
-    int         alphaBits;
-    int         depthBits;
-    int         stencilBits;
-    int         accumRedBits;
-    int         accumGreenBits;
-    int         accumBlueBits;
-    int         accumAlphaBits;
-    int         auxBuffers;
-    GLboolean   stereo;
-    GLboolean   resizable;
-    GLboolean   visible;
-    int         samples;
-    GLboolean   sRGB;
-    int         clientAPI;
-    int         glMajor;
-    int         glMinor;
-    GLboolean   glForward;
-    GLboolean   glDebug;
-    int         glProfile;
-    int         glRobustness;
-};
-
-
 /*! @brief Window and context configuration.
  *
  *  Parameters relating to the creation of the context and window but not
@@ -171,6 +138,7 @@ struct _GLFWwndconfig
     const char*   title;
     GLboolean     resizable;
     GLboolean     visible;
+    GLboolean     decorated;
     int           clientAPI;
     int           glMajor;
     int           glMinor;
@@ -216,6 +184,7 @@ struct _GLFWwindow
     // Window settings and state
     GLboolean           iconified;
     GLboolean           resizable;
+    GLboolean           decorated;
     GLboolean           visible;
     GLboolean           closed;
     void*               userPointer;
@@ -225,7 +194,7 @@ struct _GLFWwindow
     // Window input state
     GLboolean           stickyKeys;
     GLboolean           stickyMouseButtons;
-    int                 cursorPosX, cursorPosY;
+    double              cursorPosX, cursorPosY;
     int                 cursorMode;
     char                mouseButton[GLFW_MOUSE_BUTTON_LAST + 1];
     char                key[GLFW_KEY_LAST + 1];
@@ -286,7 +255,34 @@ struct _GLFWmonitor
  */
 struct _GLFWlibrary
 {
-    _GLFWhints      hints;
+    struct {
+        int         redBits;
+        int         greenBits;
+        int         blueBits;
+        int         alphaBits;
+        int         depthBits;
+        int         stencilBits;
+        int         accumRedBits;
+        int         accumGreenBits;
+        int         accumBlueBits;
+        int         accumAlphaBits;
+        int         auxBuffers;
+        GLboolean   stereo;
+        GLboolean   resizable;
+        GLboolean   visible;
+        GLboolean   decorated;
+        int         samples;
+        GLboolean   sRGB;
+        int         clientAPI;
+        int         glMajor;
+        int         glMinor;
+        GLboolean   glForward;
+        GLboolean   glDebug;
+        int         glProfile;
+        int         glRobustness;
+    } hints;
+
+    double          cursorPosX, cursorPosY;
 
     _GLFWwindow*    windowListHead;
     _GLFWwindow*    focusedWindow;
@@ -344,7 +340,7 @@ const char* _glfwPlatformGetVersionString(void);
 /*! @copydoc glfwSetCursorPos
  *  @ingroup platform
  */
-void _glfwPlatformSetCursorPos(_GLFWwindow* window, int xpos, int ypos);
+void _glfwPlatformSetCursorPos(_GLFWwindow* window, double xpos, double ypos);
 
 /*! @brief Sets up the specified cursor mode for the specified window.
  *  @param[in] window The window whose cursor mode to change.
@@ -357,6 +353,16 @@ void _glfwPlatformSetCursorMode(_GLFWwindow* window, int mode);
  *  @ingroup platform
  */
 _GLFWmonitor** _glfwPlatformGetMonitors(int* count);
+
+/*! @brief Checks whether two monitor objects represent the same monitor.
+ *
+ *  @param[in] first The first monitor.
+ *  @param[in] second The second monitor.
+ *  @return @c GL_TRUE if the monitor objects represent the same monitor, or @c
+ *  GL_FALSE otherwise.
+ *  @ingroup platform
+ */
+GLboolean _glfwPlatformIsSameMonitor(_GLFWmonitor* first, _GLFWmonitor* second);
 
 /*! @copydoc glfwGetMonitorPos
  *  @ingroup platform
@@ -614,7 +620,7 @@ void _glfwInputMouseClick(_GLFWwindow* window, int button, int action);
  *  of the client area of the window.
  *  @ingroup event
  */
-void _glfwInputCursorMotion(_GLFWwindow* window, int x, int y);
+void _glfwInputCursorMotion(_GLFWwindow* window, double x, double y);
 
 /*! @brief Notifies shared code of a cursor enter/leave event.
  *  @param[in] window The window that received the event.
@@ -701,6 +707,6 @@ void _glfwDestroyMonitor(_GLFWmonitor* monitor);
 
 /*! @ingroup utility
   */
-void _glfwDestroyMonitors(void);
+void _glfwDestroyMonitors(_GLFWmonitor** monitors, int count);
 
 #endif // _internal_h_

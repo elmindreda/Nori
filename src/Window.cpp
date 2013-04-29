@@ -95,7 +95,7 @@ bool EventHook::onMouseButton(MouseButton button, Action action)
   return false;
 }
 
-bool EventHook::onCursorPos(ivec2 position)
+bool EventHook::onCursorPos(vec2 position)
 {
   return false;
 }
@@ -135,7 +135,7 @@ void EventTarget::onMouseButton(MouseButton button, Action action)
 {
 }
 
-void EventTarget::onCursorPos(ivec2 position)
+void EventTarget::onCursorPos(vec2 position)
 {
 }
 
@@ -282,14 +282,14 @@ void Window::setRefreshMode(RefreshMode newMode)
   refreshMode = newMode;
 }
 
-ivec2 Window::getCursorPosition() const
+vec2 Window::getCursorPosition() const
 {
-  ivec2 position;
-  glfwGetCursorPos(handle, &position.x, &position.y);
-  return position;
+  double x, y;
+  glfwGetCursorPos(handle, &x, &y);
+  return vec2(float(x), float(y));
 }
 
-void Window::setCursorPosition(ivec2 newPosition)
+void Window::setCursorPosition(vec2 newPosition)
 {
   glfwSetCursorPos(handle, newPosition.x, newPosition.y);
 }
@@ -431,18 +431,18 @@ void Window::characterCallback(GLFWwindow* handle, uint character)
     window.currentTarget->onCharacter(character);
 }
 
-void Window::cursorPosCallback(GLFWwindow* handle, int x, int y)
+void Window::cursorPosCallback(GLFWwindow* handle, double x, double y)
 {
   Window& window = windowFromHandle(handle);
 
   if (window.currentHook)
   {
-    if (window.currentHook->onCursorPos(ivec2(x, y)))
+    if (window.currentHook->onCursorPos(vec2(x, y)))
       return;
   }
 
   if (window.currentTarget)
-    window.currentTarget->onCursorPos(ivec2(x, y));
+    window.currentTarget->onCursorPos(vec2(x, y));
 }
 
 void Window::mouseButtonCallback(GLFWwindow* handle, int button, int action)
@@ -607,7 +607,7 @@ void SpectatorController::inputMouseButton(MouseButton button, Action action)
   }
 }
 
-void SpectatorController::inputCursorOffset(ivec2 offset)
+void SpectatorController::inputCursorOffset(vec2 offset)
 {
   const float scale = 1.f / 250.f;
   const float limit = half_pi<float>() - 0.01f;

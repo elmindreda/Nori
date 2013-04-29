@@ -44,6 +44,9 @@
 // The XRandR extension provides mode setting and gamma control
 #include <X11/extensions/Xrandr.h>
 
+// The XInput2 extension provides improved input events
+#include <X11/extensions/XInput2.h>
+
 // The Xkb extension provides improved keyboard support
 #include <X11/XKBlib.h>
 
@@ -63,21 +66,10 @@
 #define _GLFW_PLATFORM_LIBRARY_WINDOW_STATE _GLFWlibraryX11 x11
 #define _GLFW_PLATFORM_MONITOR_STATE        _GLFWmonitorX11 x11
 
-// Clipboard format atom indices (in order of preference)
-#define _GLFW_CLIPBOARD_FORMAT_UTF8     0
-#define _GLFW_CLIPBOARD_FORMAT_COMPOUND 1
-#define _GLFW_CLIPBOARD_FORMAT_STRING   2
-#define _GLFW_CLIPBOARD_FORMAT_COUNT    3
-
 
 //========================================================================
 // GLFW platform specific types
 //========================================================================
-
-//------------------------------------------------------------------------
-// Pointer length integer
-//------------------------------------------------------------------------
-typedef intptr_t GLFWintptr;
 
 
 //------------------------------------------------------------------------
@@ -93,8 +85,11 @@ typedef struct _GLFWwindowX11
     GLboolean       overrideRedirect; // True if window is OverrideRedirect
     GLboolean       cursorGrabbed;    // True if cursor is currently grabbed
     GLboolean       cursorHidden;     // True if cursor is currently hidden
-    GLboolean       cursorCentered;   // True if cursor was moved since last poll
-    int             cursorPosX, cursorPosY;
+
+    // The last received cursor position, regardless of source
+    double          cursorPosX, cursorPosY;
+    // The last position the cursor was warped to by GLFW
+    int             warpPosX, warpPosY;
 
 } _GLFWwindowX11;
 
@@ -110,6 +105,7 @@ typedef struct _GLFWlibraryX11
 
     // Invisible cursor for hidden cursor mode
     Cursor          cursor;
+    XContext        context;
 
     // Window manager atoms
     Atom            WM_STATE;
@@ -120,12 +116,18 @@ typedef struct _GLFWlibraryX11
     Atom            NET_WM_STATE;
     Atom            NET_WM_STATE_FULLSCREEN;
     Atom            NET_ACTIVE_WINDOW;
+    Atom            MOTIF_WM_HINTS;
 
     // Selection atoms
     Atom            TARGETS;
+    Atom            MULTIPLE;
     Atom            CLIPBOARD;
+    Atom            CLIPBOARD_MANAGER;
+    Atom            SAVE_TARGETS;
     Atom            UTF8_STRING;
     Atom            COMPOUND_STRING;
+    Atom            ATOM_PAIR;
+    Atom            GLFW_SELECTION;
 
     // True if window manager supports EWMH
     GLboolean       hasEWMH;
@@ -153,6 +155,15 @@ typedef struct _GLFWlibraryX11
         int         versionMinor;
     } xkb;
 
+    struct {
+        GLboolean   available;
+        int         majorOpcode;
+        int         eventBase;
+        int         errorBase;
+        int         versionMajor;
+        int         versionMinor;
+    } xi;
+
     // LUT for mapping X11 key codes to GLFW key codes
     int             keyCodeLUT[256];
 
@@ -171,9 +182,7 @@ typedef struct _GLFWlibraryX11
     } timer;
 
     struct {
-        Atom        formats[_GLFW_CLIPBOARD_FORMAT_COUNT];
         char*       string;
-        Atom        property;
     } selection;
 
     struct {
@@ -220,7 +229,7 @@ int _glfwCreateContext(_GLFWwindow* window,
 void _glfwDestroyContext(_GLFWwindow* window);
 
 // Fullscreen support
-void _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* mode);
+void _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* desired);
 void _glfwRestoreVideoMode(_GLFWmonitor* monitor);
 
 // Joystick input
@@ -231,7 +240,9 @@ void _glfwTerminateJoysticks(void);
 long _glfwKeySym2Unicode(KeySym keysym);
 
 // Clipboard handling
-Atom _glfwWriteSelection(XSelectionRequestEvent* request);
+void _glfwHandleSelectionClear(XEvent* event);
+void _glfwHandleSelectionRequest(XEvent* event);
+void _glfwPushSelectionToManager(_GLFWwindow* window);
 
 // Window support
 _GLFWwindow* _glfwFindWindowByHandle(Window handle);

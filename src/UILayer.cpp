@@ -330,26 +330,25 @@ void Layer::onCharacter(uint32 character)
     activeWidget->charInputSignal(*activeWidget, character);
 }
 
-void Layer::onCursorPos(ivec2 position)
+void Layer::onCursorPos(vec2 position)
 {
   updateHoveredWidget();
 
-  vec2 cursorPosition = vec2(window.getCursorPosition());
-  cursorPosition.y = window.getHeight() - cursorPosition.y;
+  position.y = window.getHeight() - position.y;
 
   if (hoveredWidget)
-    hoveredWidget->cursorMovedSignal(*hoveredWidget, cursorPosition);
+    hoveredWidget->cursorMovedSignal(*hoveredWidget, position);
 
   if (draggedWidget)
   {
     if (dragging)
-      draggedWidget->dragMovedSignal(*draggedWidget, cursorPosition);
+      draggedWidget->dragMovedSignal(*draggedWidget, position);
     else
     {
       // TODO: Add insensitivity radius.
 
       dragging = true;
-      draggedWidget->dragBegunSignal(*draggedWidget, cursorPosition);
+      draggedWidget->dragBegunSignal(*draggedWidget, position);
     }
   }
 }

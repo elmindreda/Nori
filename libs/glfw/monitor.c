@@ -106,12 +106,10 @@ void _glfwInputMonitorChange(void)
             if (_glfw.monitors[j] == NULL)
                 continue;
 
-            if (strcmp(monitors[i]->name, _glfw.monitors[j]->name) == 0)
+            if (_glfwPlatformIsSameMonitor(monitors[i], _glfw.monitors[j]))
             {
                 // This monitor was connected before, so re-use the existing
                 // monitor object to preserve its address and user pointer
-
-                // TODO: Transfer monitor properties
 
                 _glfwDestroyMonitor(monitors[i]);
                 monitors[i] = _glfw.monitors[j];
@@ -144,7 +142,7 @@ void _glfwInputMonitorChange(void)
         }
     }
 
-    _glfwDestroyMonitors();
+    _glfwDestroyMonitors(_glfw.monitors, _glfw.monitorCount);
 
     _glfw.monitors = monitors;
     _glfw.monitorCount = monitorCount;
@@ -158,12 +156,6 @@ void _glfwInputMonitorChange(void)
 _GLFWmonitor* _glfwCreateMonitor(const char* name, int widthMM, int heightMM)
 {
     _GLFWmonitor* monitor = (_GLFWmonitor*) calloc(1, sizeof(_GLFWmonitor));
-    if (!monitor)
-    {
-        _glfwInputError(GLFW_OUT_OF_MEMORY, NULL);
-        return NULL;
-    }
-
     monitor->name = strdup(name);
     monitor->widthMM = widthMM;
     monitor->heightMM = heightMM;
@@ -181,16 +173,14 @@ void _glfwDestroyMonitor(_GLFWmonitor* monitor)
     free(monitor);
 }
 
-void _glfwDestroyMonitors(void)
+void _glfwDestroyMonitors(_GLFWmonitor** monitors, int count)
 {
     int i;
 
-    for (i = 0;  i < _glfw.monitorCount;  i++)
-        _glfwDestroyMonitor(_glfw.monitors[i]);
+    for (i = 0;  i < count;  i++)
+        _glfwDestroyMonitor(monitors[i]);
 
-    free(_glfw.monitors);
-    _glfw.monitors = NULL;
-    _glfw.monitorCount = 0;
+    free(monitors);
 }
 
 const GLFWvidmode* _glfwChooseVideoMode(_GLFWmonitor* monitor,
@@ -297,10 +287,14 @@ GLFWAPI const char* glfwGetMonitorName(GLFWmonitor* handle)
     return monitor->name;
 }
 
-GLFWAPI void glfwSetMonitorCallback(GLFWmonitorfun cbfun)
+GLFWAPI GLFWmonitorfun glfwSetMonitorCallback(GLFWmonitorfun cbfun)
 {
-    _GLFW_REQUIRE_INIT();
+    GLFWmonitorfun previous;
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
+
+    previous = _glfw.monitorCallback;
     _glfw.monitorCallback = cbfun;
+    return previous;
 }
 
 GLFWAPI const GLFWvidmode* glfwGetVideoModes(GLFWmonitor* handle, int* count)

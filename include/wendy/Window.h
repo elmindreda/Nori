@@ -252,7 +252,7 @@ public:
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
    */
-  virtual bool onCursorPos(ivec2 position);
+  virtual bool onCursorPos(vec2 position);
   /*! Called when a scrolling device has been used.
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
@@ -293,7 +293,7 @@ public:
   virtual void onMouseButton(MouseButton button, Action action);
   /*! Called when the mouse cursor has been moved.
    */
-  virtual void onCursorPos(ivec2 position);
+  virtual void onCursorPos(vec2 position);
   /*! Called when a scrolling device has been used.
    */
   virtual void onScroll(vec2 offset);
@@ -417,11 +417,11 @@ public:
   void setRefreshMode(RefreshMode newMode);
   /*! @return The current mouse position.
    */
-  ivec2 getCursorPosition() const;
+  vec2 getCursorPosition() const;
   /*! Places the the mouse cursor at the specified position.
    *  @param[in] newPosition The desired mouse position.
    */
-  void setCursorPosition(ivec2 newPosition);
+  void setCursorPosition(vec2 newPosition);
   String getClipboardText() const;
   void setClipboardText(const String& newText);
   /*! @return The signal for per-frame post-render clean-up.
@@ -441,7 +441,7 @@ private:
   static void closeCallback(GLFWwindow* handle);
   static void keyCallback(GLFWwindow* handle, int key, int action);
   static void characterCallback(GLFWwindow* handle, uint character);
-  static void cursorPosCallback(GLFWwindow* handle, int x, int y);
+  static void cursorPosCallback(GLFWwindow* handle, double x, double y);
   static void mouseButtonCallback(GLFWwindow* handle, int button, int action);
   static void scrollCallback(GLFWwindow* handle, double x, double y);
   GLFWwindow* handle;
@@ -462,7 +462,7 @@ public:
   void release();
   void inputKey(Key key, Action action);
   void inputMouseButton(MouseButton button, Action action);
-  void inputCursorOffset(ivec2 offset);
+  void inputCursorOffset(vec2 offset);
   const Transform3& getTransform() const;
   void setPosition(vec3 newPosition);
   float getAngleX() const;

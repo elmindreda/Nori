@@ -30,6 +30,8 @@
 
 #include "internal.h"
 
+#include <X11/Xresource.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
@@ -432,16 +434,18 @@ static GLboolean initDisplay(void)
         return GL_FALSE;
     }
 
-    // As the API currently doesn't understand multiple display devices, we hard-code
-    // this choice and hope for the best
     _glfw.x11.screen = DefaultScreen(_glfw.x11.display);
     _glfw.x11.root = RootWindow(_glfw.x11.display, _glfw.x11.screen);
+    _glfw.x11.context = XUniqueContext();
 
     // Find or create window manager atoms
     _glfw.x11.WM_STATE = XInternAtom(_glfw.x11.display, "WM_STATE", False);
     _glfw.x11.WM_DELETE_WINDOW = XInternAtom(_glfw.x11.display,
                                              "WM_DELETE_WINDOW",
                                              False);
+    _glfw.x11.MOTIF_WM_HINTS = XInternAtom(_glfw.x11.display,
+                                           "_MOTIF_WM_HINTS",
+                                           False);
 
     // Check for XF86VidMode extension
     _glfw.x11.vidmode.available =
@@ -471,6 +475,23 @@ static GLboolean initDisplay(void)
             _glfw.x11.randr.versionMinor < 3)
         {
             _glfw.x11.randr.available = GL_FALSE;
+        }
+    }
+
+    if (XQueryExtension(_glfw.x11.display,
+                        "XInputExtension",
+                        &_glfw.x11.xi.majorOpcode,
+                        &_glfw.x11.xi.eventBase,
+                        &_glfw.x11.xi.errorBase))
+    {
+        _glfw.x11.xi.versionMajor = 2;
+        _glfw.x11.xi.versionMinor = 0;
+
+        if (XIQueryVersion(_glfw.x11.display,
+                           &_glfw.x11.xi.versionMajor,
+                           &_glfw.x11.xi.versionMinor) != BadRequest)
+        {
+            _glfw.x11.xi.available = GL_TRUE;
         }
     }
 
@@ -516,22 +537,22 @@ static GLboolean initDisplay(void)
         XInternAtom(_glfw.x11.display, "UTF8_STRING", False);
     _glfw.x11.COMPOUND_STRING =
         XInternAtom(_glfw.x11.display, "COMPOUND_STRING", False);
+    _glfw.x11.ATOM_PAIR = XInternAtom(_glfw.x11.display, "ATOM_PAIR", False);
 
     // Find or create selection property atom
-    _glfw.x11.selection.property =
+    _glfw.x11.GLFW_SELECTION =
         XInternAtom(_glfw.x11.display, "GLFW_SELECTION", False);
 
     // Find or create standard clipboard atoms
     _glfw.x11.TARGETS = XInternAtom(_glfw.x11.display, "TARGETS", False);
+    _glfw.x11.MULTIPLE = XInternAtom(_glfw.x11.display, "MULTIPLE", False);
     _glfw.x11.CLIPBOARD = XInternAtom(_glfw.x11.display, "CLIPBOARD", False);
 
-    // Find or create selection target atoms
-    _glfw.x11.selection.formats[_GLFW_CLIPBOARD_FORMAT_UTF8] =
-        _glfw.x11.UTF8_STRING;
-    _glfw.x11.selection.formats[_GLFW_CLIPBOARD_FORMAT_COMPOUND] =
-        _glfw.x11.COMPOUND_STRING;
-    _glfw.x11.selection.formats[_GLFW_CLIPBOARD_FORMAT_STRING] =
-        XA_STRING;
+    // Find or create clipboard manager atoms
+    _glfw.x11.CLIPBOARD_MANAGER =
+        XInternAtom(_glfw.x11.display, "CLIPBOARD_MANAGER", False);
+    _glfw.x11.SAVE_TARGETS =
+        XInternAtom(_glfw.x11.display, "SAVE_TARGETS", False);
 
     return GL_TRUE;
 }

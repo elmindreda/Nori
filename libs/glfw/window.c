@@ -68,6 +68,11 @@ void _glfwInputWindowFocus(_GLFWwindow* window, GLboolean focused)
         {
             int i;
 
+            _glfw.focusedWindow = NULL;
+
+            if (window->callbacks.focus)
+                window->callbacks.focus((GLFWwindow*) window, focused);
+
             // Release all pressed keyboard keys
             for (i = 0;  i <= GLFW_KEY_LAST;  i++)
             {
@@ -81,11 +86,6 @@ void _glfwInputWindowFocus(_GLFWwindow* window, GLboolean focused)
                 if (window->mouseButton[i] == GLFW_PRESS)
                     _glfwInputMouseClick(window, i, GLFW_RELEASE);
             }
-
-            _glfw.focusedWindow = NULL;
-
-            if (window->callbacks.focus)
-                window->callbacks.focus((GLFWwindow*) window, focused);
         }
     }
 }
@@ -126,7 +126,7 @@ void _glfwInputWindowDamage(_GLFWwindow* window)
 
 void _glfwInputWindowCloseRequest(_GLFWwindow* window)
 {
-    window->closed = GL_TRUE;
+        window->closed = GL_TRUE;
 
     if (window->callbacks.close)
         window->callbacks.close((GLFWwindow*) window);
@@ -177,6 +177,7 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
     wndconfig.title         = title;
     wndconfig.resizable     = _glfw.hints.resizable ? GL_TRUE : GL_FALSE;
     wndconfig.visible       = _glfw.hints.visible ? GL_TRUE : GL_FALSE;
+    wndconfig.decorated     = _glfw.hints.decorated ? GL_TRUE : GL_FALSE;
     wndconfig.clientAPI     = _glfw.hints.clientAPI;
     wndconfig.glMajor       = _glfw.hints.glMajor;
     wndconfig.glMinor       = _glfw.hints.glMinor;
@@ -192,12 +193,6 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
         return GL_FALSE;
 
     window = (_GLFWwindow*) calloc(1, sizeof(_GLFWwindow));
-    if (!window)
-    {
-        _glfwInputError(GLFW_OUT_OF_MEMORY, NULL);
-        return NULL;
-    }
-
     window->next = _glfw.windowListHead;
     _glfw.windowListHead = window;
 
@@ -213,9 +208,10 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
         window->videoMode.blueBits  = fbconfig.blueBits;
     }
 
-    window->monitor    = wndconfig.monitor;
-    window->resizable  = wndconfig.resizable;
-    window->cursorMode = GLFW_CURSOR_NORMAL;
+    window->monitor     = wndconfig.monitor;
+    window->resizable   = wndconfig.resizable;
+    window->decorated   = wndconfig.decorated;
+    window->cursorMode  = GLFW_CURSOR_NORMAL;
 
     // Save the currently current context so it can be restored later
     previous = (_GLFWwindow*) glfwGetCurrentContext();
@@ -254,11 +250,6 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
     // Restore the previously current context (or NULL)
     glfwMakeContextCurrent((GLFWwindow*) previous);
 
-    // The GLFW specification states that fullscreen windows have the cursor
-    // captured by default
-    if (wndconfig.monitor)
-        glfwSetInputMode((GLFWwindow*) window, GLFW_CURSOR_MODE, GLFW_CURSOR_CAPTURED);
-
     if (wndconfig.monitor == NULL && wndconfig.visible)
         glfwShowWindow((GLFWwindow*) window);
 
@@ -276,9 +267,10 @@ void glfwDefaultWindowHints(void)
     _glfw.hints.glMajor = 1;
     _glfw.hints.glMinor = 0;
 
-    // The default is to show the window and allow window resizing
+    // The default is a visible, resizable window with decorations
     _glfw.hints.resizable = GL_TRUE;
     _glfw.hints.visible   = GL_TRUE;
+    _glfw.hints.decorated = GL_TRUE;
 
     // The default is 24 bits of color, 24 bits of depth and 8 bits of stencil
     _glfw.hints.redBits     = 8;
@@ -332,6 +324,9 @@ GLFWAPI void glfwWindowHint(int target, int hint)
             break;
         case GLFW_RESIZABLE:
             _glfw.hints.resizable = hint;
+            break;
+        case GLFW_DECORATED:
+            _glfw.hints.decorated = hint;
             break;
         case GLFW_VISIBLE:
             _glfw.hints.visible = hint;
@@ -540,6 +535,8 @@ GLFWAPI int glfwGetWindowParam(GLFWwindow* handle, int param)
             return window->iconified;
         case GLFW_RESIZABLE:
             return window->resizable;
+        case GLFW_DECORATED:
+            return window->decorated;
         case GLFW_VISIBLE:
             return window->visible;
         case GLFW_CLIENT_API:
@@ -585,46 +582,82 @@ GLFWAPI void* glfwGetWindowUserPointer(GLFWwindow* handle)
     return window->userPointer;
 }
 
-GLFWAPI void glfwSetWindowPosCallback(GLFWwindow* handle, GLFWwindowposfun cbfun)
+GLFWAPI GLFWwindowposfun glfwSetWindowPosCallback(GLFWwindow* handle,
+                                                  GLFWwindowposfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-    _GLFW_REQUIRE_INIT();
+    GLFWwindowposfun previous;
+
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
+
+    previous = window->callbacks.pos;
     window->callbacks.pos = cbfun;
+    return previous;
 }
 
-GLFWAPI void glfwSetWindowSizeCallback(GLFWwindow* handle, GLFWwindowsizefun cbfun)
+GLFWAPI GLFWwindowsizefun glfwSetWindowSizeCallback(GLFWwindow* handle,
+                                                    GLFWwindowsizefun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-    _GLFW_REQUIRE_INIT();
+    GLFWwindowsizefun previous;
+
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
+
+    previous = window->callbacks.size;
     window->callbacks.size = cbfun;
+    return previous;
 }
 
-GLFWAPI void glfwSetWindowCloseCallback(GLFWwindow* handle, GLFWwindowclosefun cbfun)
+GLFWAPI GLFWwindowclosefun glfwSetWindowCloseCallback(GLFWwindow* handle,
+                                                      GLFWwindowclosefun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-    _GLFW_REQUIRE_INIT();
+    GLFWwindowclosefun previous;
+
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
+
+    previous = window->callbacks.close;
     window->callbacks.close = cbfun;
+    return previous;
 }
 
-GLFWAPI void glfwSetWindowRefreshCallback(GLFWwindow* handle, GLFWwindowrefreshfun cbfun)
+GLFWAPI GLFWwindowrefreshfun glfwSetWindowRefreshCallback(GLFWwindow* handle,
+                                                          GLFWwindowrefreshfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-    _GLFW_REQUIRE_INIT();
+    GLFWwindowrefreshfun previous;
+
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
+
+    previous = window->callbacks.refresh;
     window->callbacks.refresh = cbfun;
+    return previous;
 }
 
-GLFWAPI void glfwSetWindowFocusCallback(GLFWwindow* handle, GLFWwindowfocusfun cbfun)
+GLFWAPI GLFWwindowfocusfun glfwSetWindowFocusCallback(GLFWwindow* handle,
+                                                      GLFWwindowfocusfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-    _GLFW_REQUIRE_INIT();
+    GLFWwindowfocusfun previous;
+
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
+
+    previous = window->callbacks.focus;
     window->callbacks.focus = cbfun;
+    return previous;
 }
 
-GLFWAPI void glfwSetWindowIconifyCallback(GLFWwindow* handle, GLFWwindowiconifyfun cbfun)
+GLFWAPI GLFWwindowiconifyfun glfwSetWindowIconifyCallback(GLFWwindow* handle,
+                                                          GLFWwindowiconifyfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-    _GLFW_REQUIRE_INIT();
+    GLFWwindowiconifyfun previous;
+
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
+
+    previous = window->callbacks.iconify;
     window->callbacks.iconify = cbfun;
+    return previous;
 }
 
 GLFWAPI void glfwPollEvents(void)
