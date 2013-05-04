@@ -96,7 +96,7 @@ public:
 private:
   ResourceCache cache;
   Ptr<GL::Context> context;
-  Ref<render::GeometryPool> pool;
+  Ref<render::VertexPool> pool;
 };
 
 } /*namespace #{@name}*/
@@ -157,10 +157,10 @@ bool #{@type}::init(void)
     return false;
   }
 
-  pool = render::GeometryPool::create(*context);
+  pool = render::VertexPool::create(*context);
   if (!pool)
   {
-    logError("Failed to create geometry pool");
+    logError("Failed to create vertex pool");
     return false;
   }
 
