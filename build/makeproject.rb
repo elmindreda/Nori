@@ -4,11 +4,11 @@ require 'fileutils'
 
 class Project
 
-  attr_reader :type, :name, :path, :data_paths
+  attr_reader :type, :name, :path, :paths
 
   def initialize(type, name, path)
     @type, @name, @path = type, name, path
-    @data_paths = []
+    @paths = []
   end
 
   def build()
@@ -21,7 +21,7 @@ class Project
 private
 
   def build_directory_tree()
-    paths = @data_paths.sort.uniq.collect do |path|
+    paths = @paths.sort.uniq.collect do |path|
       @path + '/' + path
     end
 
@@ -44,7 +44,7 @@ private
     File.open(@path + '/CMakeLists.txt', 'wb') do |file|
       file.print <<EOF
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 
 project(#{@name} C CXX)
 set(VERSION 0.1)
@@ -53,6 +53,14 @@ add_subdirectory(${#{@name}_SOURCE_DIR}/../wendy ${#{@name}_BINARY_DIR}/wendy)
 
 include_directories(${WENDY_INCLUDE_DIRS})
 list(APPEND #{@name}_LIBRARIES ${WENDY_LIBRARIES})
+
+add_subdirectory(src)
+
+EOF
+    end
+
+    File.open(@path + '/src/CMakeLists.txt', 'wb') do |file|
+      file.print <<EOF
 
 if (CMAKE_COMPILER_IS_GNUCXX)
   add_definitions(-std=c++0x)
@@ -68,17 +76,16 @@ set_target_properties(#{@name} PROPERTIES
   MACOSX_BUNDLE_GUI_IDENTIFIER org.elmindreda.#{@type.downcase}s.#{@name}
   DEBUG_POSTFIX "_debug")
 
-if(MSVC)
-  set_target_properties(#{@name} PROPERTIES
-    LINK_FLAGS "/ENTRY:mainCRTStartup")
-endif(MSVC)
+if (MSVC)
+  set_target_properties(#{@name} PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup")
+endif()
 
 EOF
     end
   end
 
   def build_header()
-    File.open(@path + "/#{@type}.h", 'wb') do |file|
+    File.open(@path + "/src/#{@type}.h", 'wb') do |file|
       file.print <<EOF
 
 namespace #{@name}
@@ -86,7 +93,7 @@ namespace #{@name}
 
 using namespace wendy;
 
-class #{@type} : public Trackable
+class #{@type} : public EventHook
 {
 public:
   #{@type}();
@@ -107,7 +114,7 @@ EOF
 
   def build_source()
 
-    File.open(@path + "/#{@type}.cpp", 'wb') do |file|
+    File.open(@path + "/src/#{@type}.cpp", 'wb') do |file|
       file.print <<EOF
 
 #include <wendy/Wendy.h>
@@ -199,10 +206,10 @@ EOF
 end # class Project
 
 def usage()
-  puts "Usage: #{File.basename __FILE__} {Demo|Game|Test} <name> <path>"
+  puts "Usage: #{File.basename __FILE__} {Demo|Game|Test} <name> [<path>]"
 end
 
-unless ARGV.size == 3
+unless (2..3).cover? ARGV.size
   usage()
   exit 1
 end
@@ -223,15 +230,20 @@ unless name =~ /^[A-Za-z]\w*$/
   exit 1
 end
 
-path = ARGV[2].to_s
+if ARGV.size == 3
+  path = ARGV[2].to_s
+else
+  path = ARGV[1].to_s.downcase
+end
 
 project = Project.new(type, name, path)
 
-project.data_paths << 'data/fonts'
-project.data_paths << 'data/sounds'
-project.data_paths << 'data/shaders'
-project.data_paths << 'data/models'
-project.data_paths << 'data/textures'
+project.paths << 'src'
+project.paths << 'data/fonts'
+project.paths << 'data/sounds'
+project.paths << 'data/shaders'
+project.paths << 'data/models'
+project.paths << 'data/textures'
 
 project.build()
 
