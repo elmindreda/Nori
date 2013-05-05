@@ -85,7 +85,7 @@ endif()
 
 find_package(OpenGL REQUIRED)
 
-add_subdirectory(libs)
+add_subdirectory(deps)
 
 list(APPEND wendy_CORE_LIBRARIES pugixml png z pcre vorbis ogg)
 
