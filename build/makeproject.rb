@@ -89,10 +89,10 @@ using namespace wendy;
 class #{@type} : public Trackable
 {
 public:
-  #{@type}(void);
-  ~#{@type}(void);
-  bool init(void);
-  void run(void);
+  #{@type}();
+  ~#{@type}();
+  bool init();
+  void run();
 private:
   ResourceCache cache;
   Ptr<GL::Context> context;
@@ -121,11 +121,11 @@ namespace #{@name}
 
 using namespace wendy;
 
-#{@type}::#{@type}(void)
+#{@type}::#{@type}()
 {
 }
 
-#{@type}::~#{@type}(void)
+#{@type}::~#{@type}()
 {
   pool = NULL;
   context = NULL;
@@ -133,7 +133,7 @@ using namespace wendy;
   AL::Context::destroySingleton();
 }
 
-bool #{@type}::init(void)
+bool #{@type}::init()
 {
   if (!cache.addSearchPath(Path("data")))
   {
@@ -167,7 +167,7 @@ bool #{@type}::init(void)
   return true;
 }
 
-void #{@type}::run(void)
+void #{@type}::run()
 {
   Window& window = context->getWindow();
 
