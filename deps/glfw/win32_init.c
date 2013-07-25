@@ -98,7 +98,7 @@ static GLboolean initLibraries(void)
 
 // Unload used libraries (DLLs)
 //
-static void freeLibraries(void)
+static void terminateLibraries(void)
 {
 #ifndef _GLFW_NO_DLOAD_WINMM
     if (_glfw.win32.winmm.instance != NULL)
@@ -107,6 +107,12 @@ static void freeLibraries(void)
         _glfw.win32.winmm.instance = NULL;
     }
 #endif // _GLFW_NO_DLOAD_WINMM
+
+    if (_glfw.win32.user32.instance)
+        FreeLibrary(_glfw.win32.user32.instance);
+
+    if (_glfw.win32.dwmapi.instance)
+        FreeLibrary(_glfw.win32.dwmapi.instance);
 }
 
 
@@ -140,7 +146,7 @@ WCHAR* _glfwCreateWideStringFromUTF8(const char* source)
     if (!length)
         return NULL;
 
-    target = (WCHAR*) malloc(sizeof(WCHAR) * (length + 1));
+    target = calloc(length + 1, sizeof(WCHAR));
 
     if (!MultiByteToWideChar(CP_UTF8, 0, source, -1, target, length + 1))
     {
@@ -162,7 +168,7 @@ char* _glfwCreateUTF8FromWideString(const WCHAR* source)
     if (!length)
         return NULL;
 
-    target = (char*) malloc(length + 1);
+    target = calloc(length + 1, sizeof(char));
 
     if (!WideCharToMultiByte(CP_UTF8, 0, source, -1, target, length + 1, NULL, NULL))
     {
@@ -204,7 +210,6 @@ int _glfwPlatformInit(void)
         return GL_FALSE;
 
     _glfwInitTimer();
-
     _glfwInitJoysticks();
 
     return GL_TRUE;
@@ -218,16 +223,16 @@ void _glfwPlatformTerminate(void)
         _glfw.win32.classAtom = 0;
     }
 
-    _glfwTerminateContextAPI();
-
-    _glfwTerminateJoysticks();
-
-    freeLibraries();
-
-    // Restore previous FOREGROUNDLOCKTIMEOUT system setting
+    // Restore previous foreground lock timeout system setting
     SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0,
                          UIntToPtr(_glfw.win32.foregroundLockTimeout),
                          SPIF_SENDCHANGE);
+
+    free(_glfw.win32.clipboardString);
+
+    _glfwTerminateJoysticks();
+    _glfwTerminateContextAPI();
+    terminateLibraries();
 }
 
 const char* _glfwPlatformGetVersionString(void)

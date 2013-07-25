@@ -37,6 +37,7 @@
 #include "GL/wglext.h"
 
 
+#define _GLFW_PLATFORM_FBCONFIG             int             wgl
 #define _GLFW_PLATFORM_CONTEXT_STATE        _GLFWcontextWGL wgl
 #define _GLFW_PLATFORM_LIBRARY_OPENGL_STATE _GLFWlibraryWGL wgl
 
@@ -56,7 +57,7 @@ typedef struct _GLFWcontextWGL
 
     // Platform specific extensions (context specific)
     PFNWGLSWAPINTERVALEXTPROC           SwapIntervalEXT;
-    PFNWGLCHOOSEPIXELFORMATARBPROC      ChoosePixelFormatARB;
+    PFNWGLGETPIXELFORMATATTRIBIVARBPROC GetPixelFormatAttribivARB;
     PFNWGLGETEXTENSIONSSTRINGEXTPROC    GetExtensionsStringEXT;
     PFNWGLGETEXTENSIONSSTRINGARBPROC    GetExtensionsStringARB;
     PFNWGLCREATECONTEXTATTRIBSARBPROC   CreateContextAttribsARB;
@@ -76,8 +77,13 @@ typedef struct _GLFWcontextWGL
 //------------------------------------------------------------------------
 typedef struct _GLFWlibraryWGL
 {
-    GLboolean   hasTLS;
-    DWORD       tls;
+    GLboolean       hasTLS;
+    DWORD           current;
+
+    // opengl32.dll
+    struct {
+        HINSTANCE   instance;
+    } opengl32;
 
 } _GLFWlibraryWGL;
 

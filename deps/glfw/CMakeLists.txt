@@ -124,7 +124,7 @@ if (MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
-set(common_HEADERS ${GLFW_SOURCE_DIR}/GL/glfw3.h internal.h)
+set(common_HEADERS GLFW/glfw3.h GLFW/glfw3native.h internal.h)
 set(common_SOURCES clipboard.c context.c gamma.c init.c input.c joystick.c
                    monitor.c time.c window.c)
 

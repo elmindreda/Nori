@@ -41,7 +41,7 @@ extern "C" {
 
 /*! @defgroup native Native access
  *
- *  **By using the native API, you assert that you know what you are doing and
+ *  **By using the native API, you assert that you know what you're doing and
  *  how to fix problems caused by using it.  If you don't, you shouldn't be
  *  using it.**
  *
@@ -60,8 +60,8 @@ extern "C" {
  *  * `GLFW_EXPOSE_NATIVE_GLX`
  *  * `GLFW_EXPOSE_NATIVE_EGL`
  *
- *  These macros select which of the native access functions are declared and
- *  which platform-specific headers to include.  It is then up your (by
+ *  These macros select which of the native access functions that are declared
+ *  and which platform-specific headers to include.  It is then up your (by
  *  definition platform-specific) code to handle which of these should be
  *  defined.
  */

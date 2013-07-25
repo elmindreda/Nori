@@ -439,10 +439,10 @@ private:
   static void sizeCallback(GLFWwindow* handle, int width, int height);
   static void damageCallback(GLFWwindow* handle);
   static void closeCallback(GLFWwindow* handle);
-  static void keyCallback(GLFWwindow* handle, int key, int action);
+  static void keyCallback(GLFWwindow* handle, int key, int scancode, int action, int mods);
   static void characterCallback(GLFWwindow* handle, uint character);
   static void cursorPosCallback(GLFWwindow* handle, double x, double y);
-  static void mouseButtonCallback(GLFWwindow* handle, int button, int action);
+  static void mouseButtonCallback(GLFWwindow* handle, int button, int action, int mods);
   static void scrollCallback(GLFWwindow* handle, double x, double y);
   GLFWwindow* handle;
   bool needsRefresh;

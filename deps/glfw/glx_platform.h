@@ -1,5 +1,3 @@
-//========================================================================
-// GLFW - An OpenGL library
 // Platform:    X11/GLX
 // API version: 3.0
 // WWW:         http://www.glfw.org/
@@ -60,6 +58,7 @@
  #error "No OpenGL entry point retrieval mechanism was enabled"
 #endif
 
+#define _GLFW_PLATFORM_FBCONFIG             GLXFBConfig     glx
 #define _GLFW_PLATFORM_CONTEXT_STATE        _GLFWcontextGLX glx
 #define _GLFW_PLATFORM_LIBRARY_OPENGL_STATE _GLFWlibraryGLX glx
 
@@ -92,6 +91,9 @@ typedef struct _GLFWlibraryGLX
     int             versionMajor, versionMinor;
     int             eventBase;
     int             errorBase;
+
+    // TLS key for per-thread current context/window
+    pthread_key_t   current;
 
     // GLX extensions
     PFNGLXSWAPINTERVALSGIPROC             SwapIntervalSGI;

@@ -32,11 +32,6 @@
 #include <pthread.h>
 
 
-// The per-thread current context/window pointer
-//
-static pthread_key_t _glfwCurrentTLS;
-
-
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
@@ -45,10 +40,19 @@ static pthread_key_t _glfwCurrentTLS;
 //
 int _glfwInitContextAPI(void)
 {
-    if (pthread_key_create(&_glfwCurrentTLS, NULL) != 0)
+    if (pthread_key_create(&_glfw.nsgl.current, NULL) != 0)
     {
         _glfwInputError(GLFW_PLATFORM_ERROR,
                         "NSOpenGL: Failed to create context TLS");
+        return GL_FALSE;
+    }
+
+    _glfw.nsgl.framework =
+        CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
+    if (_glfw.nsgl.framework == NULL)
+    {
+        _glfwInputError(GLFW_PLATFORM_ERROR,
+                        "NSGL: Failed to locate OpenGL framework");
         return GL_FALSE;
     }
 
@@ -59,7 +63,7 @@ int _glfwInitContextAPI(void)
 //
 void _glfwTerminateContextAPI(void)
 {
-    pthread_key_delete(_glfwCurrentTLS);
+    pthread_key_delete(_glfw.nsgl.current);
 }
 
 // Create the OpenGL context
@@ -70,7 +74,7 @@ int _glfwCreateContext(_GLFWwindow* window,
 {
     unsigned int attributeCount = 0;
 
-    // Mac OS X needs non-zero color size, so set resonable values
+    // OS X needs non-zero color size, so set resonable values
     int colorBits = fbconfig->redBits + fbconfig->greenBits + fbconfig->blueBits;
     if (colorBits == 0)
         colorBits = 24;
@@ -86,12 +90,11 @@ int _glfwCreateContext(_GLFWwindow* window,
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
     // Fail if any OpenGL version above 2.1 other than 3.2 was requested
-    if (wndconfig->glMajor > 3 ||
-        (wndconfig->glMajor == 3 && wndconfig->glMinor != 2))
+    if (wndconfig->glMajor == 3 && wndconfig->glMinor < 2)
     {
         _glfwInputError(GLFW_VERSION_UNAVAILABLE,
-                        "NSOpenGL: The targeted version of Mac OS X does not "
-                        "support any OpenGL version above 2.1 except 3.2");
+                        "NSOpenGL: The targeted version of OS X does not "
+                        "support OpenGL 3.0 or 3.1");
         return GL_FALSE;
     }
 
@@ -100,18 +103,18 @@ int _glfwCreateContext(_GLFWwindow* window,
         if (!wndconfig->glForward)
         {
             _glfwInputError(GLFW_VERSION_UNAVAILABLE,
-                            "NSOpenGL: The targeted version of Mac OS X only "
-                            "supports OpenGL 3.2 contexts if they are "
-                            "forward-compatible");
+                            "NSOpenGL: The targeted version of OS X only "
+                            "supports OpenGL 3.2 and later versions if they "
+                            "are forward-compatible");
             return GL_FALSE;
         }
 
         if (wndconfig->glProfile != GLFW_OPENGL_CORE_PROFILE)
         {
             _glfwInputError(GLFW_VERSION_UNAVAILABLE,
-                            "NSOpenGL: The targeted version of Mac OS X only "
-                            "supports OpenGL 3.2 contexts if they use the "
-                            "core profile");
+                            "NSOpenGL: The targeted version of OS X only "
+                            "supports OpenGL 3.2 and later versions if they "
+                            "use the core profile");
             return GL_FALSE;
         }
     }
@@ -120,7 +123,7 @@ int _glfwCreateContext(_GLFWwindow* window,
     if (wndconfig->glMajor > 2)
     {
         _glfwInputError(GLFW_VERSION_UNAVAILABLE,
-                        "NSOpenGL: The targeted version of Mac OS X does not "
+                        "NSOpenGL: The targeted version of OS X does not "
                         "support OpenGL version 3.0 or above");
         return GL_FALSE;
     }
@@ -130,7 +133,7 @@ int _glfwCreateContext(_GLFWwindow* window,
     if (wndconfig->glRobustness)
     {
         _glfwInputError(GLFW_VERSION_UNAVAILABLE,
-                        "NSOpenGL: Mac OS X does not support OpenGL robustness "
+                        "NSOpenGL: OS X does not support OpenGL robustness "
                         "strategies");
         return GL_FALSE;
     }
@@ -142,13 +145,7 @@ int _glfwCreateContext(_GLFWwindow* window,
     NSOpenGLPixelFormatAttribute attributes[40];
 
     ADD_ATTR(NSOpenGLPFADoubleBuffer);
-
-    if (wndconfig->monitor)
-    {
-        ADD_ATTR(NSOpenGLPFANoRecovery);
-        ADD_ATTR2(NSOpenGLPFAScreenMask,
-                  CGDisplayIDToOpenGLDisplayMask(wndconfig->monitor->ns.displayID));
-    }
+    ADD_ATTR(NSOpenGLPFAClosestPolicy);
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
     if (wndconfig->glMajor > 2)
@@ -242,12 +239,12 @@ void _glfwPlatformMakeContextCurrent(_GLFWwindow* window)
     else
         [NSOpenGLContext clearCurrentContext];
 
-    pthread_setspecific(_glfwCurrentTLS, window);
+    pthread_setspecific(_glfw.nsgl.current, window);
 }
 
 _GLFWwindow* _glfwPlatformGetCurrentContext(void)
 {
-    return (_GLFWwindow*) pthread_getspecific(_glfwCurrentTLS);
+    return (_GLFWwindow*) pthread_getspecific(_glfw.nsgl.current);
 }
 
 void _glfwPlatformSwapBuffers(_GLFWwindow* window)

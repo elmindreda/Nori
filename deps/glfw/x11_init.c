@@ -39,13 +39,13 @@
 
 // Translate an X11 key code to a GLFW key code.
 //
-static int keyCodeToGLFWKeyCode(int keyCode)
+static int translateKey(int keyCode)
 {
     int keySym;
 
     // Valid key code range is  [8,255], according to the XLib manual
     if (keyCode < 8 || keyCode > 255)
-        return -1;
+        return GLFW_KEY_UNKNOWN;
 
     // Try secondary keysym, for numeric keypad keys
     // Note: This way we always force "NumLock = ON", which is intentional
@@ -211,8 +211,8 @@ static int keyCodeToGLFWKeyCode(int keyCode)
         default:                break;
     }
 
-    // No matching translation was found, so return -1
-    return -1;
+    // No matching translation was found
+    return GLFW_KEY_UNKNOWN;
 }
 
 // Update the key code LUT
@@ -225,7 +225,7 @@ static void updateKeyCodeLUT(void)
 
     // Clear the LUT
     for (keyCode = 0;  keyCode < 256;  keyCode++)
-        _glfw.x11.keyCodeLUT[keyCode] = -1;
+        _glfw.x11.keyCodeLUT[keyCode] = GLFW_KEY_UNKNOWN;
 
     // Use XKB to determine physical key locations independently of the current
     // keyboard layout
@@ -296,7 +296,7 @@ static void updateKeyCodeLUT(void)
         else if (strcmp(name, "AB10") == 0) keyCodeGLFW = GLFW_KEY_SLASH;
         else if (strcmp(name, "BKSL") == 0) keyCodeGLFW = GLFW_KEY_BACKSLASH;
         else if (strcmp(name, "LSGT") == 0) keyCodeGLFW = GLFW_KEY_WORLD_1;
-        else keyCodeGLFW = -1;
+        else keyCodeGLFW = GLFW_KEY_UNKNOWN;
 
         // Update the key code LUT
         if ((keyCode >= 0) && (keyCode < 256))
@@ -311,7 +311,7 @@ static void updateKeyCodeLUT(void)
     for (keyCode = 0;  keyCode < 256;  keyCode++)
     {
         if (_glfw.x11.keyCodeLUT[keyCode] < 0)
-            _glfw.x11.keyCodeLUT[keyCode] = keyCodeToGLFWKeyCode(keyCode);
+            _glfw.x11.keyCodeLUT[keyCode] = translateKey(keyCode);
     }
 }
 
@@ -400,19 +400,16 @@ static void detectEWMH(void)
 
     _glfw.x11.NET_WM_STATE =
         getSupportedAtom(supportedAtoms, atomCount, "_NET_WM_STATE");
-
     _glfw.x11.NET_WM_STATE_FULLSCREEN =
         getSupportedAtom(supportedAtoms, atomCount, "_NET_WM_STATE_FULLSCREEN");
-
     _glfw.x11.NET_WM_NAME =
         getSupportedAtom(supportedAtoms, atomCount, "_NET_WM_NAME");
-
     _glfw.x11.NET_WM_ICON_NAME =
         getSupportedAtom(supportedAtoms, atomCount, "_NET_WM_ICON_NAME");
-
+    _glfw.x11.NET_WM_PID =
+        getSupportedAtom(supportedAtoms, atomCount, "_NET_WM_PID");
     _glfw.x11.NET_WM_PING =
         getSupportedAtom(supportedAtoms, atomCount, "_NET_WM_PING");
-
     _glfw.x11.NET_ACTIVE_WINDOW =
         getSupportedAtom(supportedAtoms, atomCount, "_NET_ACTIVE_WINDOW");
 
@@ -423,20 +420,9 @@ static void detectEWMH(void)
 
 // Initialize X11 display and look for supported X11 extensions
 //
-static GLboolean initDisplay(void)
+static GLboolean initExtensions(void)
 {
     Bool supported;
-
-    _glfw.x11.display = XOpenDisplay(NULL);
-    if (!_glfw.x11.display)
-    {
-        _glfwInputError(GLFW_API_UNAVAILABLE, "X11: Failed to open X display");
-        return GL_FALSE;
-    }
-
-    _glfw.x11.screen = DefaultScreen(_glfw.x11.display);
-    _glfw.x11.root = RootWindow(_glfw.x11.display, _glfw.x11.screen);
-    _glfw.x11.context = XUniqueContext();
 
     // Find or create window manager atoms
     _glfw.x11.WM_STATE = XInternAtom(_glfw.x11.display, "WM_STATE", False);
@@ -567,7 +553,7 @@ static Cursor createNULLCursor(void)
     XColor col;
     Cursor cursor;
 
-    // TODO: Add error checks
+    _glfwGrabXErrorHandler();
 
     cursormask = XCreatePixmap(_glfw.x11.display, _glfw.x11.root, 1, 1, 1);
     xgc.function = GXclear;
@@ -581,6 +567,14 @@ static Cursor createNULLCursor(void)
                                  &col, &col, 0, 0);
     XFreePixmap(_glfw.x11.display, cursormask);
     XFreeGC(_glfw.x11.display, gc);
+
+    _glfwReleaseXErrorHandler();
+
+    if (cursor == None)
+    {
+        _glfwInputXError(GLFW_PLATFORM_ERROR,
+                         "X11: Failed to create null cursor");
+    }
 
     return cursor;
 }
@@ -596,6 +590,47 @@ static void terminateDisplay(void)
     }
 }
 
+// X error handler
+//
+static int errorHandler(Display *display, XErrorEvent* event)
+{
+    _glfw.x11.errorCode = event->error_code;
+    return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW internal API                      //////
+//////////////////////////////////////////////////////////////////////////
+
+// Install the X error handler
+//
+void _glfwGrabXErrorHandler(void)
+{
+    _glfw.x11.errorCode = Success;
+    XSetErrorHandler(errorHandler);
+}
+
+// Remove the X error handler
+//
+void _glfwReleaseXErrorHandler(void)
+{
+    // Synchronize to make sure all commands are processed
+    XSync(_glfw.x11.display, False);
+    XSetErrorHandler(NULL);
+}
+
+// Report X error
+//
+void _glfwInputXError(int error, const char* message)
+{
+    char buffer[8192];
+    XGetErrorText(_glfw.x11.display, _glfw.x11.errorCode,
+                  buffer, sizeof(buffer));
+
+    _glfwInputError(error, "%s: %s", message, buffer);
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW platform API                      //////
@@ -605,20 +640,28 @@ int _glfwPlatformInit(void)
 {
     XInitThreads();
 
-    if (!initDisplay())
+    _glfw.x11.display = XOpenDisplay(NULL);
+    if (!_glfw.x11.display)
+    {
+        _glfwInputError(GLFW_API_UNAVAILABLE, "X11: Failed to open X display");
         return GL_FALSE;
+    }
 
-    _glfwInitGammaRamp();
+    _glfw.x11.screen = DefaultScreen(_glfw.x11.display);
+    _glfw.x11.root = RootWindow(_glfw.x11.display, _glfw.x11.screen);
+    _glfw.x11.context = XUniqueContext();
 
-    if (!_glfwInitContextAPI())
+    if (!initExtensions())
         return GL_FALSE;
 
     _glfw.x11.cursor = createNULLCursor();
 
-    if (!_glfwInitJoysticks())
+    if (!_glfwInitContextAPI())
         return GL_FALSE;
 
     _glfwInitTimer();
+    _glfwInitJoysticks();
+    _glfwInitGammaRamp();
 
     return GL_TRUE;
 }
@@ -631,14 +674,11 @@ void _glfwPlatformTerminate(void)
         _glfw.x11.cursor = (Cursor) 0;
     }
 
+    free(_glfw.x11.selection.string);
+
     _glfwTerminateJoysticks();
-
     _glfwTerminateContextAPI();
-
     terminateDisplay();
-
-    if (_glfw.x11.selection.string)
-        free(_glfw.x11.selection.string);
 }
 
 const char* _glfwPlatformGetVersionString(void)

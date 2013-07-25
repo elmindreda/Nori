@@ -36,7 +36,7 @@
 #include <wendy/GLContext.h>
 
 #define GLFW_INCLUDE_NONE
-#include <GL/glfw3.h>
+#include <GLFW/glfw3.h>
 
 #include <algorithm>
 #include <cstring>
@@ -212,12 +212,12 @@ void Window::invalidate()
 
 void Window::captureCursor()
 {
-  glfwSetInputMode(handle, GLFW_CURSOR_MODE, GLFW_CURSOR_CAPTURED);
+  glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 void Window::releaseCursor()
 {
-  glfwSetInputMode(handle, GLFW_CURSOR_MODE, GLFW_CURSOR_NORMAL);
+  glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
 bool Window::isKeyDown(Key key) const
@@ -232,7 +232,7 @@ bool Window::isButtonDown(MouseButton button) const
 
 bool Window::isCursorCaptured() const
 {
-  return glfwGetInputMode(handle, GLFW_CURSOR_MODE) == GLFW_CURSOR_CAPTURED;
+  return glfwGetInputMode(handle, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
 }
 
 bool Window::shouldClose() const
@@ -360,7 +360,7 @@ void Window::init(GLFWwindow* initHandle)
   glfwSetCharCallback(handle, characterCallback);
   glfwSetScrollCallback(handle, scrollCallback);
 
-  glfwSetInputMode(handle, GLFW_CURSOR_MODE, GLFW_CURSOR_NORMAL);
+  glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
 Window::Window(const Window& source)
@@ -403,7 +403,7 @@ void Window::closeCallback(GLFWwindow* handle)
     window.currentTarget->onWindowCloseRequest();
 }
 
-void Window::keyCallback(GLFWwindow* handle, int key, int action)
+void Window::keyCallback(GLFWwindow* handle, int key, int scancode, int action, int mods)
 {
   Window& window = windowFromHandle(handle);
 
@@ -445,7 +445,7 @@ void Window::cursorPosCallback(GLFWwindow* handle, double x, double y)
     window.currentTarget->onCursorPos(vec2(x, y));
 }
 
-void Window::mouseButtonCallback(GLFWwindow* handle, int button, int action)
+void Window::mouseButtonCallback(GLFWwindow* handle, int button, int action, int mods)
 {
   Window& window = windowFromHandle(handle);
 

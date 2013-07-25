@@ -42,7 +42,7 @@ static void setCursorMode(_GLFWwindow* window, int newMode)
 
     if (newMode != GLFW_CURSOR_NORMAL &&
         newMode != GLFW_CURSOR_HIDDEN &&
-        newMode != GLFW_CURSOR_CAPTURED)
+        newMode != GLFW_CURSOR_DISABLED)
     {
         _glfwInputError(GLFW_INVALID_ENUM, NULL);
         return;
@@ -54,9 +54,14 @@ static void setCursorMode(_GLFWwindow* window, int newMode)
 
     if (window == _glfw.focusedWindow)
     {
-        if (oldMode == GLFW_CURSOR_CAPTURED)
+        if (oldMode == GLFW_CURSOR_DISABLED)
+        {
+            window->cursorPosX = _glfw.cursorPosX;
+            window->cursorPosY = _glfw.cursorPosY;
+
             _glfwPlatformSetCursorPos(window, _glfw.cursorPosX, _glfw.cursorPosY);
-        else if (newMode == GLFW_CURSOR_CAPTURED)
+        }
+        else if (newMode == GLFW_CURSOR_DISABLED)
         {
             int width, height;
 
@@ -122,33 +127,33 @@ static void setStickyMouseButtons(_GLFWwindow* window, int enabled)
 //////                         GLFW event API                       //////
 //////////////////////////////////////////////////////////////////////////
 
-void _glfwInputKey(_GLFWwindow* window, int key, int action)
+void _glfwInputKey(_GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     GLboolean repeated = GL_FALSE;
 
-    if (key < 0 || key > GLFW_KEY_LAST)
+    if (action == GLFW_RELEASE && window->key[key] == GLFW_RELEASE)
         return;
 
-    if (action == GLFW_PRESS && window->key[key] == GLFW_PRESS)
-        repeated = GL_TRUE;
+    if (key >= 0 && key <= GLFW_KEY_LAST)
+    {
+        if (action == GLFW_PRESS && window->key[key] == GLFW_PRESS)
+            repeated = GL_TRUE;
 
-    if (action == GLFW_RELEASE && window->stickyKeys)
-        window->key[key] = _GLFW_STICK;
-    else
-        window->key[key] = (char) action;
+        if (action == GLFW_RELEASE && window->stickyKeys)
+            window->key[key] = _GLFW_STICK;
+        else
+            window->key[key] = (char) action;
+    }
 
     if (repeated)
         action = GLFW_REPEAT;
 
     if (window->callbacks.key)
-        window->callbacks.key((GLFWwindow*) window, key, action);
+        window->callbacks.key((GLFWwindow*) window, key, scancode, action, mods);
 }
 
 void _glfwInputChar(_GLFWwindow* window, unsigned int character)
 {
-    if (character == -1)
-        return;
-
     if (character < 32 || (character > 126 && character < 160))
         return;
 
@@ -162,7 +167,7 @@ void _glfwInputScroll(_GLFWwindow* window, double xoffset, double yoffset)
         window->callbacks.scroll((GLFWwindow*) window, xoffset, yoffset);
 }
 
-void _glfwInputMouseClick(_GLFWwindow* window, int button, int action)
+void _glfwInputMouseClick(_GLFWwindow* window, int button, int action, int mods)
 {
     if (button < 0 || button > GLFW_MOUSE_BUTTON_LAST)
         return;
@@ -174,12 +179,12 @@ void _glfwInputMouseClick(_GLFWwindow* window, int button, int action)
         window->mouseButton[button] = (char) action;
 
     if (window->callbacks.mouseButton)
-        window->callbacks.mouseButton((GLFWwindow*) window, button, action);
+        window->callbacks.mouseButton((GLFWwindow*) window, button, action, mods);
 }
 
 void _glfwInputCursorMotion(_GLFWwindow* window, double x, double y)
 {
-    if (window->cursorMode == GLFW_CURSOR_CAPTURED)
+    if (window->cursorMode == GLFW_CURSOR_DISABLED)
     {
         if (x == 0.0 && y == 0.0)
             return;
@@ -223,7 +228,7 @@ GLFWAPI int glfwGetInputMode(GLFWwindow* handle, int mode)
 
     switch (mode)
     {
-        case GLFW_CURSOR_MODE:
+        case GLFW_CURSOR:
             return window->cursorMode;
         case GLFW_STICKY_KEYS:
             return window->stickyKeys;
@@ -243,7 +248,7 @@ GLFWAPI void glfwSetInputMode(GLFWwindow* handle, int mode, int value)
 
     switch (mode)
     {
-        case GLFW_CURSOR_MODE:
+        case GLFW_CURSOR:
             setCursorMode(window, value);
             break;
         case GLFW_STICKY_KEYS:
@@ -333,8 +338,8 @@ GLFWAPI void glfwSetCursorPos(GLFWwindow* handle, double xpos, double ypos)
     window->cursorPosX = xpos;
     window->cursorPosY = ypos;
 
-    // Do not move physical cursor in locked cursor mode
-    if (window->cursorMode == GLFW_CURSOR_CAPTURED)
+    // Do not move physical cursor if it is disabled
+    if (window->cursorMode == GLFW_CURSOR_DISABLED)
         return;
 
     // Update physical cursor position

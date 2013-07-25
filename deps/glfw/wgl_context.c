@@ -45,7 +45,7 @@ static void initWGLExtensions(_GLFWwindow* window)
 {
     // This needs to include every function pointer loaded below
     window->wgl.SwapIntervalEXT = NULL;
-    window->wgl.ChoosePixelFormatARB = NULL;
+    window->wgl.GetPixelFormatAttribivARB = NULL;
     window->wgl.GetExtensionsStringARB = NULL;
     window->wgl.GetExtensionsStringEXT = NULL;
     window->wgl.CreateContextAttribsARB = NULL;
@@ -116,12 +116,176 @@ static void initWGLExtensions(_GLFWwindow* window)
 
     if (_glfwPlatformExtensionSupported("WGL_ARB_pixel_format"))
     {
-        window->wgl.ChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)
-            wglGetProcAddress("wglChoosePixelFormatARB");
+        window->wgl.GetPixelFormatAttribivARB = (PFNWGLGETPIXELFORMATATTRIBIVARBPROC)
+            wglGetProcAddress("wglGetPixelFormatAttribivARB");
 
-        if (window->wgl.ChoosePixelFormatARB)
+        if (window->wgl.GetPixelFormatAttribivARB)
             window->wgl.ARB_pixel_format = GL_TRUE;
     }
+}
+
+// Returns the specified attribute of the specified pixel format
+// NOTE: Do not call this unless we have found WGL_ARB_pixel_format
+//
+static int getPixelFormatAttrib(_GLFWwindow* window, int pixelFormat, int attrib)
+{
+    int value = 0;
+
+    if (!window->wgl.GetPixelFormatAttribivARB(window->wgl.dc,
+                                               pixelFormat,
+                                               0, 1, &attrib, &value))
+    {
+        // NOTE: We should probably handle this error somehow
+        return 0;
+    }
+
+    return value;
+}
+
+// Return a list of available and usable framebuffer configs
+//
+static GLboolean choosePixelFormat(_GLFWwindow* window,
+                                   const _GLFWfbconfig* desired,
+                                   int* result)
+{
+    _GLFWfbconfig* usableConfigs;
+    const _GLFWfbconfig* closest;
+    int i, nativeCount, usableCount;
+
+    if (window->wgl.ARB_pixel_format)
+    {
+        nativeCount = getPixelFormatAttrib(window,
+                                         1,
+                                         WGL_NUMBER_PIXEL_FORMATS_ARB);
+    }
+    else
+    {
+        nativeCount = DescribePixelFormat(window->wgl.dc,
+                                          1,
+                                          sizeof(PIXELFORMATDESCRIPTOR),
+                                          NULL);
+    }
+
+    if (!nativeCount)
+    {
+        _glfwInputError(GLFW_API_UNAVAILABLE, "WGL: No pixel formats found");
+        return GL_FALSE;
+    }
+
+    usableConfigs = calloc(nativeCount, sizeof(_GLFWfbconfig));
+    usableCount = 0;
+
+    for (i = 0;  i < nativeCount;  i++)
+    {
+        const int n = i + 1;
+        _GLFWfbconfig* u = usableConfigs + usableCount;
+
+        if (window->wgl.ARB_pixel_format)
+        {
+            // Get pixel format attributes through WGL_ARB_pixel_format
+            if (!getPixelFormatAttrib(window, n, WGL_SUPPORT_OPENGL_ARB) ||
+                !getPixelFormatAttrib(window, n, WGL_DRAW_TO_WINDOW_ARB) ||
+                !getPixelFormatAttrib(window, n, WGL_DOUBLE_BUFFER_ARB))
+            {
+                continue;
+            }
+
+            if (getPixelFormatAttrib(window, n, WGL_PIXEL_TYPE_ARB) !=
+                WGL_TYPE_RGBA_ARB)
+            {
+                continue;
+            }
+
+            if (getPixelFormatAttrib(window, n, WGL_ACCELERATION_ARB) ==
+                 WGL_NO_ACCELERATION_ARB)
+            {
+                continue;
+            }
+
+            u->redBits = getPixelFormatAttrib(window, n, WGL_RED_BITS_ARB);
+            u->greenBits = getPixelFormatAttrib(window, n, WGL_GREEN_BITS_ARB);
+            u->blueBits = getPixelFormatAttrib(window, n, WGL_BLUE_BITS_ARB);
+            u->alphaBits = getPixelFormatAttrib(window, n, WGL_ALPHA_BITS_ARB);
+
+            u->depthBits = getPixelFormatAttrib(window, n, WGL_DEPTH_BITS_ARB);
+            u->stencilBits = getPixelFormatAttrib(window, n, WGL_STENCIL_BITS_ARB);
+
+            u->accumRedBits = getPixelFormatAttrib(window, n, WGL_ACCUM_RED_BITS_ARB);
+            u->accumGreenBits = getPixelFormatAttrib(window, n, WGL_ACCUM_GREEN_BITS_ARB);
+            u->accumBlueBits = getPixelFormatAttrib(window, n, WGL_ACCUM_BLUE_BITS_ARB);
+            u->accumAlphaBits = getPixelFormatAttrib(window, n, WGL_ACCUM_ALPHA_BITS_ARB);
+
+            u->auxBuffers = getPixelFormatAttrib(window, n, WGL_AUX_BUFFERS_ARB);
+            u->stereo = getPixelFormatAttrib(window, n, WGL_STEREO_ARB);
+
+            if (window->wgl.ARB_multisample)
+                u->samples = getPixelFormatAttrib(window, n, WGL_SAMPLES_ARB);
+
+            if (window->wgl.ARB_framebuffer_sRGB)
+                u->sRGB = getPixelFormatAttrib(window, n, WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB);
+        }
+        else
+        {
+            PIXELFORMATDESCRIPTOR pfd;
+
+            // Get pixel format attributes through old-fashioned PFDs
+
+            if (!DescribePixelFormat(window->wgl.dc,
+                                     n,
+                                     sizeof(PIXELFORMATDESCRIPTOR),
+                                     &pfd))
+            {
+                continue;
+            }
+
+            if (!(pfd.dwFlags & PFD_DRAW_TO_WINDOW) ||
+                !(pfd.dwFlags & PFD_SUPPORT_OPENGL) ||
+                !(pfd.dwFlags & PFD_DOUBLEBUFFER))
+            {
+                continue;
+            }
+
+            if (!(pfd.dwFlags & PFD_GENERIC_ACCELERATED) &&
+                (pfd.dwFlags & PFD_GENERIC_FORMAT))
+            {
+                continue;
+            }
+
+            if (pfd.iPixelType != PFD_TYPE_RGBA)
+                continue;
+
+            u->redBits = pfd.cRedBits;
+            u->greenBits = pfd.cGreenBits;
+            u->blueBits = pfd.cBlueBits;
+            u->alphaBits = pfd.cAlphaBits;
+
+            u->depthBits = pfd.cDepthBits;
+            u->stencilBits = pfd.cStencilBits;
+
+            u->accumRedBits = pfd.cAccumRedBits;
+            u->accumGreenBits = pfd.cAccumGreenBits;
+            u->accumBlueBits = pfd.cAccumBlueBits;
+            u->accumAlphaBits = pfd.cAccumAlphaBits;
+
+            u->auxBuffers = pfd.cAuxBuffers;
+            u->stereo = (pfd.dwFlags & PFD_STEREO) ? GL_TRUE : GL_FALSE;
+        }
+
+        u->wgl = n;
+        usableCount++;
+    }
+
+    closest = _glfwChooseFBConfig(desired, usableConfigs, usableCount);
+    if (!closest)
+    {
+        free(usableConfigs);
+        return GL_FALSE;
+    }
+
+    *result = closest->wgl;
+    free(usableConfigs);
+
+    return GL_TRUE;
 }
 
 
@@ -133,8 +297,15 @@ static void initWGLExtensions(_GLFWwindow* window)
 //
 int _glfwInitContextAPI(void)
 {
-    _glfw.wgl.tls = TlsAlloc();
-    if (_glfw.wgl.tls == TLS_OUT_OF_INDEXES)
+    _glfw.wgl.opengl32.instance = LoadLibrary(L"opengl32.dll");
+    if (!_glfw.wgl.opengl32.instance)
+    {
+        _glfwInputError(GLFW_PLATFORM_ERROR, "Failed to load opengl32.dll");
+        return GL_FALSE;
+    }
+
+    _glfw.wgl.current = TlsAlloc();
+    if (_glfw.wgl.current == TLS_OUT_OF_INDEXES)
     {
         _glfwInputError(GLFW_PLATFORM_ERROR,
                         "WGL: Failed to allocate TLS index");
@@ -151,14 +322,17 @@ int _glfwInitContextAPI(void)
 void _glfwTerminateContextAPI(void)
 {
     if (_glfw.wgl.hasTLS)
-        TlsFree(_glfw.wgl.tls);
+        TlsFree(_glfw.wgl.current);
+
+    if (_glfw.wgl.opengl32.instance)
+        FreeLibrary(_glfw.wgl.opengl32.instance);
 }
 
 #define setWGLattrib(attribName, attribValue) \
 { \
     attribs[index++] = attribName; \
     attribs[index++] = attribValue; \
-    assert(index < sizeof(attribs) / sizeof(attribs[0])); \
+    assert((size_t) index < sizeof(attribs) / sizeof(attribs[0])); \
 }
 
 // Prepare for creation of the OpenGL context
@@ -168,7 +342,7 @@ int _glfwCreateContext(_GLFWwindow* window,
                        const _GLFWfbconfig* fbconfig)
 {
     int attribs[40];
-    int pixelFormat;
+    int pixelFormat = 0;
     PIXELFORMATDESCRIPTOR pfd;
     HGLRC share = NULL;
 
@@ -183,106 +357,11 @@ int _glfwCreateContext(_GLFWwindow* window,
         return GL_FALSE;
     }
 
-    if (window->wgl.ARB_pixel_format)
+    if (!choosePixelFormat(window, fbconfig, &pixelFormat))
     {
-        int index = 0;
-        UINT count;
-
-        setWGLattrib(WGL_SUPPORT_OPENGL_ARB, TRUE);
-        setWGLattrib(WGL_DRAW_TO_WINDOW_ARB, TRUE);
-        setWGLattrib(WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB);
-        setWGLattrib(WGL_DOUBLE_BUFFER_ARB, TRUE);
-
-        if (fbconfig->redBits)
-            setWGLattrib(WGL_RED_BITS_ARB, fbconfig->redBits);
-        if (fbconfig->greenBits)
-            setWGLattrib(WGL_GREEN_BITS_ARB, fbconfig->greenBits);
-        if (fbconfig->blueBits)
-            setWGLattrib(WGL_BLUE_BITS_ARB, fbconfig->blueBits);
-        if (fbconfig->alphaBits)
-            setWGLattrib(WGL_ALPHA_BITS_ARB, fbconfig->alphaBits);
-
-        if (fbconfig->depthBits)
-            setWGLattrib(WGL_DEPTH_BITS_ARB, fbconfig->depthBits);
-        if (fbconfig->stencilBits)
-            setWGLattrib(WGL_STENCIL_BITS_ARB, fbconfig->stencilBits);
-
-        if (fbconfig->auxBuffers)
-            setWGLattrib(WGL_AUX_BUFFERS_ARB, fbconfig->auxBuffers);
-
-        if (fbconfig->accumRedBits)
-            setWGLattrib(WGL_ACCUM_RED_BITS_ARB, fbconfig->accumRedBits);
-        if (fbconfig->accumGreenBits)
-            setWGLattrib(WGL_ACCUM_GREEN_BITS_ARB, fbconfig->accumGreenBits);
-        if (fbconfig->accumBlueBits)
-            setWGLattrib(WGL_ACCUM_BLUE_BITS_ARB, fbconfig->accumBlueBits);
-        if (fbconfig->accumAlphaBits)
-            setWGLattrib(WGL_ACCUM_BLUE_BITS_ARB, fbconfig->accumAlphaBits);
-
-        if (fbconfig->stereo)
-            setWGLattrib(WGL_STEREO_ARB, TRUE);
-
-        if (window->wgl.ARB_multisample)
-        {
-            if (fbconfig->samples)
-            {
-                setWGLattrib(WGL_SAMPLE_BUFFERS_ARB, 1);
-                setWGLattrib(WGL_SAMPLES_ARB, fbconfig->samples);
-            }
-        }
-
-        if (window->wgl.ARB_framebuffer_sRGB)
-        {
-            if (fbconfig->sRGB)
-                setWGLattrib(WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB, TRUE);
-        }
-
-        setWGLattrib(0, 0);
-
-        if (!window->wgl.ChoosePixelFormatARB(window->wgl.dc,
-                                              attribs,
-                                              NULL,
-                                              1,
-                                              &pixelFormat,
-                                              &count))
-        {
-            _glfwInputError(GLFW_PLATFORM_ERROR,
-                            "WGL: Failed to find a suitable pixel format");
-            return GL_FALSE;
-        }
-    }
-    else
-    {
-        ZeroMemory(&pfd, sizeof(pfd));
-        pfd.nSize = sizeof(pfd);
-        pfd.nVersion = 1;
-
-        pfd.dwFlags |= PFD_DRAW_TO_WINDOW |
-                       PFD_SUPPORT_OPENGL |
-                       PFD_DOUBLEBUFFER;
-
-        if (fbconfig->stereo)
-            pfd.dwFlags |= PFD_STEREO;
-
-        pfd.iPixelType = PFD_TYPE_RGBA;
-        pfd.cColorBits = fbconfig->redBits +
-                         fbconfig->greenBits +
-                         fbconfig->blueBits;
-        pfd.cAlphaBits = fbconfig->alphaBits;
-        pfd.cAccumBits = fbconfig->accumRedBits +
-                         fbconfig->accumGreenBits +
-                         fbconfig->accumBlueBits;
-        pfd.cDepthBits = fbconfig->depthBits;
-        pfd.cStencilBits = fbconfig->stencilBits;
-        pfd.cAuxBuffers = fbconfig->auxBuffers;
-
-        pixelFormat = ChoosePixelFormat(window->wgl.dc, &pfd);
-        if (!pixelFormat)
-        {
-            _glfwInputError(GLFW_PLATFORM_ERROR,
-                            "WGL: Failed to find a suitable pixel format");
-            return GL_FALSE;
-        }
+        _glfwInputError(GLFW_PLATFORM_ERROR,
+                        "WGL: Failed to find a suitable pixel format");
+        return GL_FALSE;
     }
 
     if (!DescribePixelFormat(window->wgl.dc, pixelFormat, sizeof(pfd), &pfd))
@@ -290,14 +369,6 @@ int _glfwCreateContext(_GLFWwindow* window,
         _glfwInputError(GLFW_PLATFORM_ERROR,
                         "Win32: Failed to retrieve PFD for selected pixel "
                         "format");
-        return GL_FALSE;
-    }
-
-    if (!(pfd.dwFlags & PFD_GENERIC_ACCELERATED) &&
-        (pfd.dwFlags & PFD_GENERIC_FORMAT))
-    {
-        _glfwInputError(GLFW_PLATFORM_ERROR,
-                        "Win32: Failed to find an accelerated pixel format");
         return GL_FALSE;
     }
 
@@ -512,12 +583,12 @@ void _glfwPlatformMakeContextCurrent(_GLFWwindow* window)
     else
         wglMakeCurrent(NULL, NULL);
 
-    TlsSetValue(_glfw.wgl.tls, window);
+    TlsSetValue(_glfw.wgl.current, window);
 }
 
 _GLFWwindow* _glfwPlatformGetCurrentContext(void)
 {
-    return TlsGetValue(_glfw.wgl.tls);
+    return TlsGetValue(_glfw.wgl.current);
 }
 
 void _glfwPlatformSwapBuffers(_GLFWwindow* window)
@@ -529,12 +600,14 @@ void _glfwPlatformSwapInterval(int interval)
 {
     _GLFWwindow* window = _glfwPlatformGetCurrentContext();
 
+#if !defined(_GLFW_USE_DWM_SWAP_INTERVAL)
     if (_glfwIsCompositionEnabled())
     {
         // Don't enabled vsync when desktop compositing is enabled, as it leads
         // to frame jitter
         return;
     }
+#endif
 
     if (window->wgl.EXT_swap_control)
         window->wgl.SwapIntervalEXT(interval);
@@ -571,7 +644,11 @@ int _glfwPlatformExtensionSupported(const char* extension)
 
 GLFWglproc _glfwPlatformGetProcAddress(const char* procname)
 {
-    return (GLFWglproc) wglGetProcAddress(procname);
+    const GLFWglproc proc = (GLFWglproc) wglGetProcAddress(procname);
+    if (proc)
+        return proc;
+
+    return (GLFWglproc) GetProcAddress(_glfw.wgl.opengl32.instance, procname);
 }
 
 

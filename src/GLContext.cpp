@@ -40,7 +40,7 @@
 #include <internal/GLHelper.h>
 
 #define GLFW_NO_GLU
-#include <GL/glfw3.h>
+#include <GLFW/glfw3.h>
 
 #include <algorithm>
 
@@ -1242,8 +1242,8 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     glfwMakeContextCurrent(handle);
 
     log("OpenGL context version %i.%i created",
-        glfwGetWindowParam(handle, GLFW_CONTEXT_VERSION_MAJOR),
-        glfwGetWindowParam(handle, GLFW_CONTEXT_VERSION_MINOR));
+        glfwGetWindowAttrib(handle, GLFW_CONTEXT_VERSION_MAJOR),
+        glfwGetWindowAttrib(handle, GLFW_CONTEXT_VERSION_MINOR));
 
     log("OpenGL context GLSL version is %s",
         (const char*) glGetString(GL_SHADING_LANGUAGE_VERSION));
