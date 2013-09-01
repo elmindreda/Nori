@@ -41,17 +41,17 @@ class ProfileNode
 public:
   typedef std::vector<ProfileNode> List;
   bool operator == (const char* string) const;
-  Time getDuration() const;
-  uint getCallCount() const;
-  const char* getName() const;
-  const List& getChildren() const;
+  Time duration() const { return m_duration; }
+  uint callCount() const { return m_calls; }
+  const String& name() const { return m_name; }
+  const List& children() const { return m_children; }
 private:
   explicit ProfileNode(const char* name);
   ProfileNode* findChild(const char* name);
-  String name;
-  Time duration;
-  List children;
-  uint calls;
+  String m_name;
+  Time m_duration;
+  List m_children;
+  uint m_calls;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -63,17 +63,16 @@ public:
   void endFrame();
   void beginNode(const char* name);
   void endNode();
-  const ProfileNode& getRootNode() const;
-  static Profile* getCurrent();
-  static void setCurrent(Profile* newProfile);
+  const ProfileNode& rootNode() const { return m_root; }
+  static Profile* currentNode() { return m_current; }
 private:
   void beginNode(ProfileNode& node);
   static void resetNode(ProfileNode& node);
   typedef std::vector<ProfileNode*> Stack;
-  ProfileNode root;
-  Stack stack;
-  Timer timer;
-  static Profile* current;
+  ProfileNode m_root;
+  Stack m_stack;
+  Timer m_timer;
+  static Profile* m_current;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -82,18 +81,18 @@ class ProfileNodeCall
 {
 public:
   ProfileNodeCall(const char* name):
-    profile(Profile::getCurrent())
+    m_profile(Profile::currentNode())
   {
-    if (profile)
-      profile->beginNode(name);
+    if (m_profile)
+      m_profile->beginNode(name);
   }
   ~ProfileNodeCall()
   {
-    if (profile)
-      profile->endNode();
+    if (m_profile)
+      m_profile->endNode();
   }
 private:
-  Profile* profile;
+  Profile* m_profile;
 };
 
 ///////////////////////////////////////////////////////////////////////

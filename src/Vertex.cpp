@@ -37,54 +37,10 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-VertexComponent::VertexComponent(const char* initName,
-                                 size_t initCount,
-                                 Type initType):
-  name(initName),
-  count(initCount),
-  type(initType)
+VertexComponent::VertexComponent(const char* name, size_t count):
+  m_name(name),
+  m_count(count)
 {
-}
-
-bool VertexComponent::operator == (const VertexComponent& other) const
-{
-  return name == other.name && count == other.count && type == other.type;
-}
-
-bool VertexComponent::operator != (const VertexComponent& other) const
-{
-  return name != other.name || count != other.count || type != other.type;
-}
-
-size_t VertexComponent::getSize() const
-{
-  switch (type)
-  {
-    case FLOAT32:
-      return 4 * count;
-    default:
-      panic("Invalid vertex component type");
-  }
-}
-
-const String& VertexComponent::getName() const
-{
-  return name;
-}
-
-VertexComponent::Type VertexComponent::getType() const
-{
-  return type;
-}
-
-size_t VertexComponent::getOffset() const
-{
-  return offset;
-}
-
-size_t VertexComponent::getElementCount() const
-{
-  return count;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -99,9 +55,7 @@ VertexFormat::VertexFormat(const char* specification)
     throw Exception("Invalid vertex format specification");
 }
 
-bool VertexFormat::createComponent(const char* name,
-                                   size_t count,
-                                   VertexComponent::Type type)
+bool VertexFormat::createComponent(const char* name, size_t count)
 {
   if (count < 1 || count > 4)
   {
@@ -111,17 +65,17 @@ bool VertexFormat::createComponent(const char* name,
 
   if (findComponent(name))
   {
-    logError("Duplicate vertex component name \'%s\' detected; vertex "
+    logError("Duplicate vertex component name %s detected; vertex "
              "components must have unique names",
              name);
     return false;
   }
 
-  const size_t size = getSize();
+  const size_t offset = size();
 
-  components.push_back(VertexComponent(name, count, type));
-  VertexComponent& component = components.back();
-  component.offset = size;
+  m_components.push_back(VertexComponent(name, count));
+  VertexComponent& component = m_components.back();
+  component.m_offset = offset;
   return true;
 }
 
@@ -144,19 +98,14 @@ bool VertexFormat::createComponents(const char* specification)
       return false;
     }
 
-    VertexComponent::Type type;
-
-    switch (std::tolower(*c))
+    if (std::tolower(*c) != 'f')
     {
-      case 'f':
-        type = VertexComponent::FLOAT32;
-        break;
-      default:
-        if (std::isgraph(*c))
-          logError("Invalid vertex component type \'%c\'", *c);
-        else
-          logError("Invalid vertex component type 0x%02x", *c);
-        return false;
+      if (std::isgraph(*c))
+        logError("Invalid vertex component type %c", *c);
+      else
+        logError("Invalid vertex component type 0x%02x", *c);
+
+      return false;
     }
 
     if (*(++c) == '\0')
@@ -167,7 +116,7 @@ bool VertexFormat::createComponents(const char* specification)
 
     if (*(c++) != ':')
     {
-      logError("Invalid vertex component specification; expected \':\'");
+      logError("Invalid vertex component specification; expected :");
       return false;
     }
 
@@ -176,7 +125,7 @@ bool VertexFormat::createComponents(const char* specification)
     while (*c != '\0' && *c != ' ')
       name += *c++;
 
-    if (!createComponent(name.c_str(), count, type))
+    if (!createComponent(name.c_str(), count))
       return false;
 
     while (*c != '\0' && *c == ' ')
@@ -188,67 +137,46 @@ bool VertexFormat::createComponents(const char* specification)
 
 void VertexFormat::destroyComponents()
 {
-  components.clear();
+  m_components.clear();
 }
 
 const VertexComponent* VertexFormat::findComponent(const char* name) const
 {
-  for (auto c = components.begin();  c != components.end();  c++)
-    if (c->getName() == name)
-      return &(*c);
+  for (auto& c : m_components)
+  {
+    if (c.name() == name)
+      return &c;
+  }
 
   return NULL;
 }
 
-const VertexComponent& VertexFormat::operator [] (size_t index) const
-{
-  return components[index];
-}
-
 bool VertexFormat::operator == (const VertexFormat& other) const
 {
-  return components == other.components;
+  return m_components == other.m_components;
 }
 
 bool VertexFormat::operator != (const VertexFormat& other) const
 {
-  return !(components == other.components);
+  return !(m_components == other.m_components);
 }
 
-size_t VertexFormat::getSize() const
+size_t VertexFormat::size() const
 {
   size_t size = 0;
 
-  for (auto c = components.begin();  c != components.end();  c++)
-    size += c->getSize();
+  for (const VertexComponent& c : m_components)
+    size += c.size();
 
   return size;
-}
-
-size_t VertexFormat::getComponentCount() const
-{
-  return (size_t) components.size();
 }
 
 String VertexFormat::asString() const
 {
   std::ostringstream result;
 
-  for (auto c = components.begin();  c != components.end();  c++)
-  {
-    result << c->count;
-
-    switch (c->type)
-    {
-      case VertexComponent::FLOAT32:
-        result << 'f';
-        break;
-      default:
-        panic("Invalid vertex component type");
-    }
-
-    result << ':' << c->name << ' ';
-  }
+  for (auto& c : m_components)
+    result << c.elementCount() << 'f' << ':' << c.name() << ' ';
 
   return result.str();
 }

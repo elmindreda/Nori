@@ -60,11 +60,11 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 Node::Node(bool initNeedsUpdate):
-  needsUpdate(initNeedsUpdate),
-  parent(NULL),
-  graph(NULL),
-  dirtyWorld(false),
-  dirtyBounds(false)
+  m_needsUpdate(initNeedsUpdate),
+  m_parent(NULL),
+  m_graph(NULL),
+  m_dirtyWorld(false),
+  m_dirtyBounds(false)
 {
 }
 
@@ -81,9 +81,9 @@ bool Node::addChild(Node& child)
 
   child.removeFromParent();
 
-  children.push_back(&child);
-  child.parent = this;
-  child.setGraph(graph);
+  m_children.push_back(&child);
+  child.m_parent = this;
+  child.setGraph(m_graph);
   child.invalidateWorldTransform();
 
   invalidateBounds();
@@ -92,21 +92,21 @@ bool Node::addChild(Node& child)
 
 void Node::removeFromParent()
 {
-  if (parent || graph)
+  if (m_parent || m_graph)
   {
-    if (parent)
+    if (m_parent)
     {
-      List& siblings = parent->children;
+      List& siblings = m_parent->m_children;
       siblings.erase(std::find(siblings.begin(), siblings.end(), this));
 
-      parent->invalidateBounds();
-      parent = NULL;
+      m_parent->invalidateBounds();
+      m_parent = NULL;
 
       invalidateWorldTransform();
     }
     else
     {
-      List& roots = graph->roots;
+      List& roots = m_graph->m_roots;
       roots.erase(std::find(roots.begin(), roots.end(), this));
     }
 
@@ -116,154 +116,125 @@ void Node::removeFromParent()
 
 void Node::destroyChildren()
 {
-  while (!children.empty())
-    delete children.back();
+  while (!m_children.empty())
+    delete m_children.back();
 }
 
 bool Node::isChildOf(const Node& node) const
 {
-  if (parent)
+  if (m_parent)
   {
-    if (parent == &node)
+    if (m_parent == &node)
       return true;
 
-    return parent->isChildOf(node);
+    return m_parent->isChildOf(node);
   }
 
   return false;
 }
 
-bool Node::hasChildren() const
-{
-  return !children.empty();
-}
-
-Graph* Node::getGraph() const
-{
-  return graph;
-}
-
-Node* Node::getParent() const
-{
-  return parent;
-}
-
-const Node::List& Node::getChildren() const
-{
-  return children;
-}
-
-const Transform3& Node::getLocalTransform() const
-{
-  return local;
-}
-
 void Node::setLocalTransform(const Transform3& newTransform)
 {
-  local = newTransform;
+  m_local = newTransform;
 
-  if (parent)
-    parent->invalidateBounds();
+  if (m_parent)
+    m_parent->invalidateBounds();
 
   invalidateWorldTransform();
 }
 
 void Node::setLocalPosition(const vec3& newPosition)
 {
-  local.position = newPosition;
+  m_local.position = newPosition;
 
-  if (parent)
-    parent->invalidateBounds();
+  if (m_parent)
+    m_parent->invalidateBounds();
 
   invalidateWorldTransform();
 }
 
 void Node::setLocalRotation(const quat& newRotation)
 {
-  local.rotation = newRotation;
+  m_local.rotation = newRotation;
 
-  if (parent)
-    parent->invalidateBounds();
+  if (m_parent)
+    m_parent->invalidateBounds();
 
   invalidateWorldTransform();
 }
 
 void Node::setLocalScale(float newScale)
 {
-  local.scale = newScale;
+  m_local.scale = newScale;
 
-  if (parent)
-    parent->invalidateBounds();
+  if (m_parent)
+    m_parent->invalidateBounds();
 
   invalidateWorldTransform();
 }
 
-const Transform3& Node::getWorldTransform() const
+const Transform3& Node::worldTransform() const
 {
-  if (dirtyWorld)
+  if (m_dirtyWorld)
   {
-    if (parent)
-      world = parent->getWorldTransform() * local;
+    if (m_parent)
+      m_world = m_parent->worldTransform() * m_local;
     else
-      world = local;
+      m_world = m_local;
 
-    dirtyWorld = false;
+    m_dirtyWorld = false;
   }
 
-  return world;
+  return m_world;
 }
 
-const Sphere& Node::getLocalBounds() const
+const Sphere& Node::localBounds() const
 {
-  return localBounds;
+  return m_localBounds;
 }
 
 void Node::setLocalBounds(const Sphere& newBounds)
 {
-  localBounds = newBounds;
+  m_localBounds = newBounds;
   invalidateBounds();
 }
 
-const Sphere& Node::getTotalBounds() const
+const Sphere& Node::totalBounds() const
 {
-  if (dirtyBounds)
+  if (m_dirtyBounds)
   {
-    totalBounds = localBounds;
+    m_totalBounds = m_localBounds;
 
-    const List& children = getChildren();
-
-    for (auto c = children.begin();  c != children.end();  c++)
+    for (auto c : m_children)
     {
-      Sphere childBounds = (*c)->getTotalBounds();
-      childBounds.transformBy((*c)->getLocalTransform());
-      totalBounds.envelop(childBounds);
+      Sphere childBounds = c->totalBounds();
+      childBounds.transformBy(c->localTransform());
+      m_totalBounds.envelop(childBounds);
     }
 
-    dirtyBounds = false;
+    m_dirtyBounds = false;
   }
 
-  return totalBounds;
+  return m_totalBounds;
 }
 
 void Node::update()
 {
-  for (auto c = children.begin();  c != children.end();  c++)
-    (*c)->update();
+  for (auto c : m_children)
+    c->update();
 }
 
 void Node::enqueue(render::Scene& scene, const Camera& camera) const
 {
-  const Frustum& frustum = camera.getFrustum();
+  const Frustum& frustum = camera.frustum();
 
-  const List& children = getChildren();
-
-  for (auto c = children.begin();  c != children.end();  c++)
+  for (auto c : m_children)
   {
-    Sphere worldBounds = (*c)->getTotalBounds();
-    worldBounds.transformBy((*c)->getWorldTransform());
+    Sphere worldBounds = c->totalBounds();
+    worldBounds.transformBy(c->worldTransform());
 
     if (frustum.intersects(worldBounds))
-      (*c)->enqueue(scene, camera);
+      c->enqueue(scene, camera);
   }
 }
 
@@ -279,36 +250,36 @@ Node& Node::operator = (const Node& source)
 
 void Node::invalidateBounds()
 {
-  for (Node* node = this;  node;  node = node->getParent())
-    node->dirtyBounds = true;
+  for (Node* node = this;  node;  node = node->parent())
+    node->m_dirtyBounds = true;
 }
 
 void Node::invalidateWorldTransform()
 {
-  dirtyWorld = true;
+  m_dirtyWorld = true;
 
-  for (auto c = children.begin();  c != children.end();  c++)
-    (*c)->invalidateWorldTransform();
+  for (auto c : m_children)
+    c->invalidateWorldTransform();
 }
 
 void Node::setGraph(Graph* newGraph)
 {
-  if (graph && needsUpdate)
+  if (m_graph && m_needsUpdate)
   {
-    List& updated = graph->updated;
+    List& updated = m_graph->m_updated;
     updated.erase(std::find(updated.begin(), updated.end(), this));
   }
 
-  graph = newGraph;
+  m_graph = newGraph;
 
-  if (graph && needsUpdate)
+  if (m_graph && m_needsUpdate)
   {
-    List& updated = graph->updated;
+    List& updated = m_graph->m_updated;
     updated.push_back(this);
   }
 
-  for (auto c = children.begin();  c != children.end();  c++)
-    (*c)->setGraph(graph);
+  for (auto c : m_children)
+    c->setGraph(m_graph);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -320,66 +291,61 @@ Graph::~Graph()
 
 void Graph::update()
 {
-  for (auto n = updated.begin();  n != updated.end();  n++)
-    (*n)->update();
+  for (auto n : m_updated)
+    n->update();
 }
 
 void Graph::enqueue(render::Scene& scene, const Camera& camera) const
 {
   ProfileNodeCall call("scene::Graph::enqueue");
 
-  const Frustum& frustum = camera.getFrustum();
+  const Frustum& frustum = camera.frustum();
 
-  for (auto r = roots.begin();  r != roots.end();  r++)
+  for (auto r : m_roots)
   {
-    Sphere worldBounds = (*r)->getTotalBounds();
-    worldBounds.transformBy((*r)->getWorldTransform());
+    Sphere worldBounds = r->totalBounds();
+    worldBounds.transformBy(r->worldTransform());
 
     if (frustum.intersects(worldBounds))
-      (*r)->enqueue(scene, camera);
+      r->enqueue(scene, camera);
   }
 }
 
 void Graph::query(const Sphere& sphere, Node::List& nodes) const
 {
-  for (auto r = roots.begin();  r != roots.end();  r++)
+  for (auto r : m_roots)
   {
-    Sphere worldBounds = (*r)->getTotalBounds();
-    worldBounds.transformBy((*r)->getWorldTransform());
+    Sphere worldBounds = r->totalBounds();
+    worldBounds.transformBy(r->worldTransform());
 
     if (sphere.intersects(worldBounds))
-      nodes.push_back(*r);
+      nodes.push_back(r);
   }
 }
 
 void Graph::query(const Frustum& frustum, Node::List& nodes) const
 {
-  for (auto r = roots.begin();  r != roots.end();  r++)
+  for (auto r : m_roots)
   {
-    Sphere worldBounds = (*r)->getTotalBounds();
-    worldBounds.transformBy((*r)->getWorldTransform());
+    Sphere worldBounds = r->totalBounds();
+    worldBounds.transformBy(r->worldTransform());
 
     if (frustum.intersects(worldBounds))
-      nodes.push_back(*r);
+      nodes.push_back(r);
   }
 }
 
 void Graph::addRootNode(Node& node)
 {
   node.removeFromParent();
-  roots.push_back(&node);
+  m_roots.push_back(&node);
   node.setGraph(this);
 }
 
 void Graph::destroyRootNodes()
 {
-  while (!roots.empty())
-    delete roots.back();
-}
-
-const Node::List& Graph::getNodes() const
-{
-  return roots;
+  while (!m_roots.empty())
+    delete m_roots.back();
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -389,39 +355,37 @@ LightNode::LightNode():
 {
 }
 
-render::Light* LightNode::getLight() const
+render::Light* LightNode::light() const
 {
-  return light;
+  return m_light;
 }
 
 void LightNode::setLight(render::Light* newLight)
 {
-  light = newLight;
+  m_light = newLight;
 }
 
 void LightNode::update()
 {
   Node::update();
 
-  if (light)
+  if (m_light)
   {
-    const Transform3& world = getWorldTransform();
+    const Transform3& world = worldTransform();
 
-    if (light->getType() == render::Light::DIRECTIONAL ||
-        light->getType() == render::Light::SPOTLIGHT)
+    if (m_light->type() == render::Light::DIRECTIONAL ||
+        m_light->type() == render::Light::SPOTLIGHT)
     {
-      vec3 direction(0.f, 0.f, -1.f);
-      world.rotateVector(direction);
-      light->setDirection(direction);
+      m_light->setDirection(world.rotation * vec3(0.f, 0.f, -1.f));
     }
 
-    if (light->getType() == render::Light::POINT ||
-        light->getType() == render::Light::SPOTLIGHT)
+    if (m_light->type() == render::Light::POINT ||
+        m_light->type() == render::Light::SPOTLIGHT)
     {
-      light->setPosition(world.position);
+      m_light->setPosition(world.position);
     }
 
-    setLocalBounds(Sphere(vec3(), light->getRadius()));
+    setLocalBounds(Sphere(vec3(), m_light->radius()));
   }
   else
     setLocalBounds(Sphere());
@@ -431,38 +395,38 @@ void LightNode::enqueue(render::Scene& scene, const Camera& camera) const
 {
   Node::enqueue(scene, camera);
 
-  if (light)
-    scene.attachLight(*light);
+  if (m_light)
+    scene.attachLight(*m_light);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 ModelNode::ModelNode():
-  shadowCaster(false)
+  m_shadowCaster(false)
 {
 }
 
 bool ModelNode::isShadowCaster() const
 {
-  return shadowCaster;
+  return m_shadowCaster;
 }
 
 void ModelNode::setCastsShadows(bool enabled)
 {
-  shadowCaster = enabled;
+  m_shadowCaster = enabled;
 }
 
-render::Model* ModelNode::getModel() const
+render::Model* ModelNode::model() const
 {
-  return model;
+  return m_model;
 }
 
 void ModelNode::setModel(render::Model* newModel)
 {
-  model = newModel;
+  m_model = newModel;
 
-  if (model)
-    setLocalBounds(model->getBoundingSphere());
+  if (m_model)
+    setLocalBounds(m_model->boundingSphere());
   else
     setLocalBounds(Sphere());
 }
@@ -471,12 +435,12 @@ void ModelNode::enqueue(render::Scene& scene, const Camera& camera) const
 {
   Node::enqueue(scene, camera);
 
-  if (model)
+  if (m_model)
   {
-    if (scene.getPhase() == render::PHASE_SHADOWMAP && !shadowCaster)
+    if (scene.phase() == render::PHASE_SHADOWMAP && !m_shadowCaster)
       return;
 
-    model->enqueue(scene, camera, getWorldTransform());
+    m_model->enqueue(scene, camera, worldTransform());
   }
 }
 
@@ -487,24 +451,24 @@ CameraNode::CameraNode():
 {
 }
 
-Camera* CameraNode::getCamera() const
+Camera* CameraNode::camera() const
 {
-  return camera;
+  return m_camera;
 }
 
 void CameraNode::setCamera(Camera* newCamera)
 {
-  camera = newCamera;
+  m_camera = newCamera;
 }
 
 void CameraNode::update()
 {
   Node::update();
 
-  if (!camera)
+  if (!m_camera)
     return;
 
-  camera->setTransform(getWorldTransform());
+  m_camera->setTransform(worldTransform());
 }
 
 ///////////////////////////////////////////////////////////////////////

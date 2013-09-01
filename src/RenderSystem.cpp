@@ -42,29 +42,29 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-ResourceCache& System::getCache() const
+ResourceCache& System::cache() const
 {
-  return pool->getContext().getCache();
+  return m_pool->context().cache();
 }
 
-GL::Context& System::getContext() const
+GL::Context& System::context() const
 {
-  return pool->getContext();
+  return m_pool->context();
 }
 
-VertexPool& System::getVertexPool() const
+VertexPool& System::vertexPool() const
 {
-  return *pool;
+  return *m_pool;
 }
 
-System::Type System::getType() const
+System::Type System::type() const
 {
-  return type;
+  return m_type;
 }
 
-System::System(VertexPool& initPool, Type initType):
-  pool(&initPool),
-  type(initType)
+System::System(VertexPool& pool, Type type):
+  m_pool(&pool),
+  m_type(type)
 {
 }
 

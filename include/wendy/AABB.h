@@ -40,7 +40,7 @@ public:
    *
    *  @remarks All values are initialized to zero.
    */
-  AABB();
+  AABB() { }
   /*! Constructor.
    *  @param[in] center The center of the newly constructed bounding box.
    *  @param[in] size The size of the newly constructed bounding box.
@@ -74,8 +74,8 @@ public:
   void normalize();
   /*! Retrieves the minimum and maxiumum bounds of this bounding box.
    */
-  void getBounds(float& minX, float& minY, float& minZ,
-                 float& maxX, float& maxY, float& maxZ) const;
+  void bounds(float& minX, float& minY, float& minZ,
+              float& maxX, float& maxY, float& maxZ) const;
   /*! Sets the minimum and maxiumum bounds of this bounding box.
    */
   void setBounds(float minX, float minY, float minZ,

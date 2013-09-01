@@ -81,7 +81,7 @@ public:
   void render(const render::Scene& scene, const Camera& camera);
   /*! @return The shared program state object used by this renderer.
    */
-  SharedProgramState& getSharedProgramState();
+  SharedProgramState& sharedProgramState() { return *m_state; }
   /*! Creates a renderer object using the specified geometry pool and the
    *  specified configuration.
    *  @return The newly constructed renderer object, or @c NULL if an error
@@ -92,7 +92,7 @@ private:
   Renderer(render::VertexPool& pool);
   bool init(const Config& config);
   void renderOperations(const render::Queue& queue);
-  Ref<SharedProgramState> state;
+  Ref<SharedProgramState> m_state;
 };
 
 ///////////////////////////////////////////////////////////////////////

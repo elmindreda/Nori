@@ -157,18 +157,18 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
 {
   initializeMaps();
 
-  GL::Context& context = system.getContext();
-  ResourceCache& cache = system.getCache();
+  GL::Context& context = system.context();
+  ResourceCache& cache = system.cache();
 
   if (pugi::xml_node node = root.child("blending"))
   {
     if (pugi::xml_attribute a = node.attribute("src"))
     {
       if (blendFactorMap.hasKey(a.value()))
-        pass.setBlendFactors(blendFactorMap[a.value()], pass.getDstFactor());
+        pass.setBlendFactors(blendFactorMap[a.value()], pass.dstFactor());
       else
       {
-        logError("Invalid source blend factor \'%s\'", a.value());
+        logError("Invalid source blend factor %s", a.value());
         return false;
       }
     }
@@ -176,10 +176,10 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
     if (pugi::xml_attribute a = node.attribute("dst"))
     {
       if (blendFactorMap.hasKey(a.value()))
-        pass.setBlendFactors(pass.getSrcFactor(), blendFactorMap[a.value()]);
+        pass.setBlendFactors(pass.srcFactor(), blendFactorMap[a.value()]);
       else
       {
-        logError("Invalid destination blend factor \'%s\'", a.value());
+        logError("Invalid destination blend factor %s", a.value());
         return false;
       }
     }
@@ -208,7 +208,7 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
         pass.setDepthFunction(functionMap[a.value()]);
       else
       {
-        logError("Invalid depth function \'%s\'", a.value());
+        logError("Invalid depth function %s", a.value());
         return false;
       }
     }
@@ -231,7 +231,7 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
         pass.setStencilFailOperation(operationMap[a.value()]);
       else
       {
-        logError("Invalid stencil fail operation \'%s\'", a.value());
+        logError("Invalid stencil fail operation %s", a.value());
         return false;
       }
     }
@@ -242,7 +242,7 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
         pass.setDepthFailOperation(operationMap[a.value()]);
       else
       {
-        logError("Invalid depth fail operation \'%s\'", a.value());
+        logError("Invalid depth fail operation %s", a.value());
         return false;
       }
     }
@@ -253,7 +253,7 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
         pass.setDepthPassOperation(operationMap[a.value()]);
       else
       {
-        logError("Invalid depth pass operation \'%s\'", a.value());
+        logError("Invalid depth pass operation %s", a.value());
         return false;
       }
     }
@@ -264,7 +264,7 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
         pass.setStencilFunction(functionMap[a.value()]);
       else
       {
-        logError("Invalid stencil function \'%s\'", a.value());
+        logError("Invalid stencil function %s", a.value());
         return false;
       }
     }
@@ -281,7 +281,7 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
         pass.setCullMode(cullModeMap[a.value()]);
       else
       {
-        logError("Invalid cull mode \'%s\'", a.value());
+        logError("Invalid cull mode %s", a.value());
         return false;
       }
     }
@@ -323,13 +323,13 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
 
     pass.setProgram(program);
 
-    for (pugi::xml_node s = node.child("sampler");  s;  s = s.next_sibling("sampler"))
+    for (auto s : node.children("sampler"))
     {
       const String samplerName(s.attribute("name").value());
       if (samplerName.empty())
       {
-        logWarning("Program \'%s\' lists unnamed sampler uniform",
-                   program->getName().c_str());
+        logWarning("Program %s lists unnamed sampler uniform",
+                   program->name().c_str());
 
         continue;
       }
@@ -337,14 +337,14 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
       GL::Sampler* sampler = program->findSampler(samplerName.c_str());
       if (!sampler)
       {
-        logWarning("Program \'%s\' does not have sampler uniform \'%s\'",
-                   program->getName().c_str(),
+        logWarning("Program %s does not have sampler uniform %s",
+                   program->name().c_str(),
                    samplerName.c_str());
 
         continue;
       }
 
-      GL::TextureParams params(textureTypeMap[sampler->getType()]);
+      GL::TextureParams params(textureTypeMap[sampler->type()]);
 
       if (pugi::xml_attribute a = s.attribute("mipmapped"))
         params.mipmapped = a.as_bool();
@@ -360,18 +360,18 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
         texture = cache.find<GL::Texture>(a.value());
       else
       {
-        logError("No texture specified for sampler \'%s\' of program \'%s\'",
+        logError("No texture specified for sampler %s of program %s",
                   samplerName.c_str(),
-                  program->getName().c_str());
+                  program->name().c_str());
 
         return false;
       }
 
       if (!texture)
       {
-        logError("Failed to find texture for sampler \'%s\' of program \'%s\'",
+        logError("Failed to find texture for sampler %s of program %s",
                   samplerName.c_str(),
-                  program->getName().c_str());
+                  program->name().c_str());
 
         return false;
       }
@@ -385,7 +385,7 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
           texture->setFilterMode(filterModeMap[a.value()]);
         else
         {
-          logError("Invalid filter mode name \'%s\'", a.value());
+          logError("Invalid filter mode name %s", a.value());
           return false;
         }
       }
@@ -396,7 +396,7 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
           texture->setAddressMode(addressModeMap[a.value()]);
         else
         {
-          logError("Invalid address mode name \'%s\'", a.value());
+          logError("Invalid address mode name %s", a.value());
           return false;
         }
       }
@@ -404,13 +404,13 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
       pass.setSamplerState(samplerName.c_str(), texture);
     }
 
-    for (pugi::xml_node u = node.child("uniform");  u;  u = u.next_sibling("uniform"))
+    for (auto u : node.children("uniform"))
     {
       const String uniformName(u.attribute("name").value());
       if (uniformName.empty())
       {
-        logWarning("Program \'%s\' lists unnamed uniform",
-                   program->getName().c_str());
+        logWarning("Program %s lists unnamed uniform",
+                   program->name().c_str());
 
         continue;
       }
@@ -418,8 +418,8 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
       const GL::Uniform* uniform = program->findUniform(uniformName.c_str());
       if (!uniform)
       {
-        logWarning("Program \'%s\' does not have uniform \'%s\'",
-                   program->getName().c_str(),
+        logWarning("Program %s does not have uniform %s",
+                   program->name().c_str(),
                    uniformName.c_str());
 
         continue;
@@ -428,14 +428,14 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
       pugi::xml_attribute attribute = u.attribute("value");
       if (!attribute)
       {
-        logError("Missing value for uniform \'%s\' of program \'%s\'",
+        logError("Missing value for uniform %s of program %s",
                  uniformName.c_str(),
-                 program->getName().c_str());
+                 program->name().c_str());
 
         return false;
       }
 
-      switch (uniform->getType())
+      switch (uniform->type())
       {
         case GL::UNIFORM_FLOAT:
           pass.setUniformState(uniformName.c_str(), attribute.as_float());
@@ -467,26 +467,14 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
 
 ///////////////////////////////////////////////////////////////////////
 
-Technique& Material::getTechnique(Phase phase)
-{
-  return techniques[phase];
-}
-
-const Technique& Material::getTechnique(Phase phase) const
-{
-  return techniques[phase];
-}
-
 void Material::setSamplerStates(const char* name, GL::Texture* newTexture)
 {
-  for (size_t i = 0;  i < 2;  i++)
+  for (uint i = 0;  i < 2;  i++)
   {
-    PassList& passes = techniques[i].passes;
-
-    for (auto p = passes.begin();  p != passes.end();  p++)
+    for (auto& p : m_techniques[i].passes)
     {
-      if (p->hasSamplerState(name))
-        p->setSamplerState(name, newTexture);
+      if (p.hasSamplerState(name))
+        p.setSamplerState(name, newTexture);
     }
   }
 }
@@ -510,7 +498,7 @@ Material::Material(const ResourceInfo& info):
 ///////////////////////////////////////////////////////////////////////
 
 MaterialReader::MaterialReader(System& initSystem):
-  ResourceReader<Material>(initSystem.getCache()),
+  ResourceReader<Material>(initSystem.cache()),
   system(initSystem)
 {
   initializeMaps();
@@ -521,7 +509,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
   std::ifstream stream(path.asString().c_str());
   if (stream.fail())
   {
-    logError("Failed to open material \'%s\'", name.c_str());
+    logError("Failed to open material %s", name.c_str());
     return NULL;
   }
 
@@ -530,7 +518,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
   const pugi::xml_parse_result result = document.load(stream);
   if (!result)
   {
-    logError("Failed to load material \'%s\': %s",
+    logError("Failed to load material %s: %s",
              name.c_str(),
              result.description());
     return NULL;
@@ -539,22 +527,22 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
   pugi::xml_node root = document.child("material");
   if (!root || root.attribute("version").as_uint() != MATERIAL_XML_VERSION)
   {
-    logError("Material file format mismatch in \'%s\'", name.c_str());
+    logError("Material file format mismatch in %s", name.c_str());
     return NULL;
   }
 
   std::vector<bool> phases(2, false);
 
-  GL::Context& context = system.getContext();
+  GL::Context& context = system.context();
 
   Ref<Material> material = Material::create(ResourceInfo(cache, name, path), system);
 
-  for (pugi::xml_node t = root.child("technique");  t;  t = t.next_sibling("technique"))
+  for (auto t : root.children("technique"))
   {
     const String phaseName(t.attribute("phase").value());
     if (!phaseMap.hasKey(phaseName))
     {
-      logError("Invalid render phase \'%s\' in material \'%s\'",
+      logError("Invalid render phase %s in material %s",
                phaseName.c_str(),
                name.c_str());
       return NULL;
@@ -567,26 +555,26 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
     const String typeName(t.attribute("type").value());
     if (!systemTypeMap.hasKey(typeName))
     {
-      logError("Invalid render system type \'%s\' in material \'%s\'",
+      logError("Invalid render system type %s in material %s",
                typeName.c_str(),
                name.c_str());
       return NULL;
     }
 
     const System::Type type = systemTypeMap[typeName];
-    if (system.getType() != type)
+    if (system.type() != type)
       continue;
 
-    Technique& technique = material->getTechnique(phase);
+    Technique& technique = material->technique(phase);
 
-    for (pugi::xml_node p = t.child("pass");  p;  p = p.next_sibling("pass"))
+    for (auto p : t.children("pass"))
     {
       technique.passes.push_back(Pass());
       Pass& pass = technique.passes.back();
 
       if (!parsePass(system, pass, p))
       {
-        logError("Failed to parse pass for material \'%s\'", name.c_str());
+        logError("Failed to parse pass for material %s", name.c_str());
         return NULL;
       }
 

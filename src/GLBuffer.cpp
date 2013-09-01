@@ -137,25 +137,25 @@ bool isColorAttachment(TextureFramebuffer::Attachment attachment)
 
 VertexBuffer::~VertexBuffer()
 {
-  if (locked)
+  if (m_locked)
     logWarning("Vertex buffer destroyed while locked");
 
-  if (bufferID)
-    glDeleteBuffers(1, &bufferID);
+  if (m_bufferID)
+    glDeleteBuffers(1, &m_bufferID);
 
-  if (Stats* stats = context.getStats())
-    stats->removeVertexBuffer(getSize());
+  if (Stats* stats = m_context.stats())
+    stats->removeVertexBuffer(size());
 }
 
 void* VertexBuffer::lock(LockType type)
 {
-  if (locked)
+  if (m_locked)
   {
     logError("Vertex buffer already locked");
     return NULL;
   }
 
-  context.setCurrentVertexBuffer(this);
+  m_context.setCurrentVertexBuffer(this);
 
   void* mapping = glMapBuffer(GL_ARRAY_BUFFER, convertToGL(type));
   if (mapping == NULL)
@@ -164,43 +164,43 @@ void* VertexBuffer::lock(LockType type)
     return NULL;
   }
 
-  locked = true;
+  m_locked = true;
   return mapping;
 }
 
 void VertexBuffer::unlock()
 {
-  if (!locked)
+  if (!m_locked)
   {
     logWarning("Cannot unlock non-locked vertex buffer");
     return;
   }
 
-  context.setCurrentVertexBuffer(this);
+  m_context.setCurrentVertexBuffer(this);
 
   if (!glUnmapBuffer(GL_ARRAY_BUFFER))
     logWarning("Data for vertex buffer was corrupted");
 
-  locked = false;
+  m_locked = false;
 }
 
 void VertexBuffer::copyFrom(const void* source, size_t sourceCount, size_t start)
 {
-  if (locked)
+  if (m_locked)
   {
     logError("Cannot copy data into locked vertex buffer");
     return;
   }
 
-  if (start + sourceCount > count)
+  if (start + sourceCount > m_count)
   {
     logError("Too many vertices submitted to vertex buffer");
     return;
   }
 
-  context.setCurrentVertexBuffer(this);
+  m_context.setCurrentVertexBuffer(this);
 
-  const size_t size = format.getSize();
+  const size_t size = m_format.size();
   glBufferSubData(GL_ARRAY_BUFFER, start * size, sourceCount * size, source);
 
 #if WENDY_DEBUG
@@ -210,46 +210,26 @@ void VertexBuffer::copyFrom(const void* source, size_t sourceCount, size_t start
 
 void VertexBuffer::copyTo(void* target, size_t targetCount, size_t start)
 {
-  if (locked)
+  if (m_locked)
   {
     logError("Cannot copy data from locked vertex buffer");
     return;
   }
 
-  if (start + targetCount > count)
+  if (start + targetCount > m_count)
   {
     logError("Too many vertices requested from vertex buffer");
     return;
   }
 
-  context.setCurrentVertexBuffer(this);
+  m_context.setCurrentVertexBuffer(this);
 
-  const size_t size = format.getSize();
+  const size_t size = m_format.size();
   glGetBufferSubData(GL_ARRAY_BUFFER, start * size, targetCount * size, target);
 
 #if WENDY_DEBUG
   checkGL("Error during copy from vertex buffer");
 #endif
-}
-
-Usage VertexBuffer::getUsage() const
-{
-  return usage;
-}
-
-const VertexFormat& VertexBuffer::getFormat() const
-{
-  return format;
-}
-
-size_t VertexBuffer::getCount() const
-{
-  return count;
-}
-
-size_t VertexBuffer::getSize() const
-{
-  return count * format.getSize();
 }
 
 Ref<VertexBuffer> VertexBuffer::create(Context& context,
@@ -264,47 +244,45 @@ Ref<VertexBuffer> VertexBuffer::create(Context& context,
   return buffer;
 }
 
-VertexBuffer::VertexBuffer(Context& initContext):
-  context(initContext),
-  locked(false),
-  bufferID(0),
-  count(0),
-  usage(USAGE_STATIC)
+VertexBuffer::VertexBuffer(Context& context):
+  m_context(context),
+  m_locked(false),
+  m_bufferID(0),
+  m_count(0),
+  m_usage(USAGE_STATIC)
 {
 }
 
 VertexBuffer::VertexBuffer(const VertexBuffer& source):
-  context(source.context)
+  m_context(source.m_context)
 {
   panic("Vertex buffers may not be copied");
 }
 
-bool VertexBuffer::init(const VertexFormat& initFormat,
-                        size_t initCount,
-                        Usage initUsage)
+bool VertexBuffer::init(const VertexFormat& format, size_t count, Usage usage)
 {
-  format = initFormat;
-  usage = initUsage;
-  count = initCount;
+  m_format = format;
+  m_usage = usage;
+  m_count = count;
 
-  glGenBuffers(1, &bufferID);
+  glGenBuffers(1, &m_bufferID);
 
-  context.setCurrentVertexBuffer(this);
+  m_context.setCurrentVertexBuffer(this);
 
   glBufferData(GL_ARRAY_BUFFER,
-               count * format.getSize(),
+               m_count * m_format.size(),
                NULL,
-               convertToGL(usage));
+               convertToGL(m_usage));
 
-  if (!checkGL("Error during creation of vertex buffer of format \'%s\'",
-               format.asString().c_str()))
+  if (!checkGL("Error during creation of vertex buffer of format %s",
+               m_format.asString().c_str()))
   {
-    context.setCurrentVertexBuffer(NULL);
+    m_context.setCurrentVertexBuffer(NULL);
     return false;
   }
 
-  if (Stats* stats = context.getStats())
-    stats->addVertexBuffer(getSize());
+  if (Stats* stats = m_context.stats())
+    stats->addVertexBuffer(size());
 
   return true;
 }
@@ -318,25 +296,25 @@ VertexBuffer& VertexBuffer::operator = (const VertexBuffer& source)
 
 IndexBuffer::~IndexBuffer()
 {
-  if (locked)
+  if (m_locked)
     logWarning("Index buffer destroyed while locked");
 
-  if (bufferID)
-    glDeleteBuffers(1, &bufferID);
+  if (m_bufferID)
+    glDeleteBuffers(1, &m_bufferID);
 
-  if (Stats* stats = context.getStats())
-    stats->removeIndexBuffer(getSize());
+  if (Stats* stats = m_context.stats())
+    stats->removeIndexBuffer(size());
 }
 
 void* IndexBuffer::lock(LockType type)
 {
-  if (locked)
+  if (m_locked)
   {
     logError("Index buffer already locked");
     return NULL;
   }
 
-  context.setCurrentIndexBuffer(this);
+  m_context.setCurrentIndexBuffer(this);
 
   void* mapping = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, convertToGL(type));
   if (mapping == NULL)
@@ -345,43 +323,43 @@ void* IndexBuffer::lock(LockType type)
     return NULL;
   }
 
-  locked = true;
+  m_locked = true;
   return mapping;
 }
 
 void IndexBuffer::unlock()
 {
-  if (!locked)
+  if (!m_locked)
   {
     logWarning("Cannot unlock non-locked index buffer");
     return;
   }
 
-  context.setCurrentIndexBuffer(this);
+  m_context.setCurrentIndexBuffer(this);
 
   if (!glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER))
     logWarning("Data for index buffer was corrupted");
 
-  locked = false;
+  m_locked = false;
 }
 
 void IndexBuffer::copyFrom(const void* source, size_t sourceCount, size_t start)
 {
-  if (locked)
+  if (m_locked)
   {
     logError("Cannot copy data into locked index buffer");
     return;
   }
 
-  if (start + sourceCount > count)
+  if (start + sourceCount > m_count)
   {
     logError("Too many indices submitted to index buffer");
     return;
   }
 
-  context.setCurrentIndexBuffer(this);
+  m_context.setCurrentIndexBuffer(this);
 
-  const size_t size = getTypeSize(type);
+  const size_t size = typeSize(m_type);
   glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, start * size, sourceCount * size, source);
 
 #if WENDY_DEBUG
@@ -391,21 +369,21 @@ void IndexBuffer::copyFrom(const void* source, size_t sourceCount, size_t start)
 
 void IndexBuffer::copyTo(void* target, size_t targetCount, size_t start)
 {
-  if (locked)
+  if (m_locked)
   {
     logError("Cannot copy data from locked index buffer");
     return;
   }
 
-  if (start + targetCount > count)
+  if (start + targetCount > m_count)
   {
     logError("Too many indices requested from index buffer");
     return;
   }
 
-  context.setCurrentIndexBuffer(this);
+  m_context.setCurrentIndexBuffer(this);
 
-  const size_t size = getTypeSize(type);
+  const size_t size = typeSize(m_type);
   glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, start * size, targetCount * size, target);
 
 #if WENDY_DEBUG
@@ -413,24 +391,9 @@ void IndexBuffer::copyTo(void* target, size_t targetCount, size_t start)
 #endif
 }
 
-IndexType IndexBuffer::getType() const
+size_t IndexBuffer::size() const
 {
-  return type;
-}
-
-Usage IndexBuffer::getUsage() const
-{
-  return usage;
-}
-
-size_t IndexBuffer::getCount() const
-{
-  return count;
-}
-
-size_t IndexBuffer::getSize() const
-{
-  return count * getTypeSize(type);
+  return m_count * typeSize(m_type);
 }
 
 Ref<IndexBuffer> IndexBuffer::create(Context& context,
@@ -445,7 +408,7 @@ Ref<IndexBuffer> IndexBuffer::create(Context& context,
   return buffer;
 }
 
-size_t IndexBuffer::getTypeSize(IndexType type)
+size_t IndexBuffer::typeSize(IndexType type)
 {
   switch (type)
   {
@@ -460,46 +423,46 @@ size_t IndexBuffer::getTypeSize(IndexType type)
   panic("Invalid index buffer type %u", type);
 }
 
-IndexBuffer::IndexBuffer(Context& initContext):
-  context(initContext),
-  locked(false),
-  type(INDEX_UINT8),
-  usage(USAGE_STATIC),
-  bufferID(0),
-  count(0)
+IndexBuffer::IndexBuffer(Context& context):
+  m_context(context),
+  m_locked(false),
+  m_type(INDEX_UINT8),
+  m_usage(USAGE_STATIC),
+  m_bufferID(0),
+  m_count(0)
 {
 }
 
 IndexBuffer::IndexBuffer(const IndexBuffer& source):
-  context(source.context)
+  m_context(source.m_context)
 {
   panic("Index buffers may not be copied");
 }
 
-bool IndexBuffer::init(size_t initCount, IndexType initType, Usage initUsage)
+bool IndexBuffer::init(size_t count, IndexType type, Usage usage)
 {
-  type = initType;
-  usage = initUsage;
-  count = initCount;
+  m_type = type;
+  m_usage = usage;
+  m_count = count;
 
-  glGenBuffers(1, &bufferID);
+  glGenBuffers(1, &m_bufferID);
 
-  context.setCurrentIndexBuffer(this);
+  m_context.setCurrentIndexBuffer(this);
 
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-               count * getTypeSize(type),
+               m_count * typeSize(m_type),
                NULL,
-               convertToGL(usage));
+               convertToGL(m_usage));
 
   if (!checkGL("Error during creation of index buffer of element size %u",
-               (uint) getTypeSize(type)))
+               (uint) typeSize(m_type)))
   {
-    context.setCurrentIndexBuffer(NULL);
+    m_context.setCurrentIndexBuffer(NULL);
     return false;
   }
 
-  if (Stats* stats = context.getStats())
-    stats->addIndexBuffer(getSize());
+  if (Stats* stats = m_context.stats())
+    stats->addIndexBuffer(size());
 
   return true;
 }
@@ -512,304 +475,244 @@ IndexBuffer& IndexBuffer::operator = (const IndexBuffer& source)
 ///////////////////////////////////////////////////////////////////////
 
 VertexRange::VertexRange():
-  vertexBuffer(NULL),
-  start(0),
-  count(0)
+  m_vertexBuffer(NULL),
+  m_start(0),
+  m_count(0)
 {
 }
 
-VertexRange::VertexRange(VertexBuffer& initVertexBuffer):
-  vertexBuffer(&initVertexBuffer),
-  start(0),
-  count(0)
+VertexRange::VertexRange(VertexBuffer& vertexBuffer):
+  m_vertexBuffer(&vertexBuffer),
+  m_start(0),
+  m_count(0)
 {
-  count = vertexBuffer->getCount();
+  m_count = m_vertexBuffer->count();
 }
 
-VertexRange::VertexRange(VertexBuffer& initVertexBuffer,
-                         size_t initStart,
-                         size_t initCount):
-  vertexBuffer(&initVertexBuffer),
-  start(initStart),
-  count(initCount)
+VertexRange::VertexRange(VertexBuffer& vertexBuffer,
+                         size_t start,
+                         size_t count):
+  m_vertexBuffer(&vertexBuffer),
+  m_start(start),
+  m_count(count)
 {
-  assert(vertexBuffer->getCount() >= start + count);
+  assert(m_vertexBuffer->count() >= m_start + m_count);
 }
 
 void* VertexRange::lock(LockType type) const
 {
-  if (!vertexBuffer || count == 0)
+  if (!m_vertexBuffer || m_count == 0)
   {
     logError("Cannot lock empty vertex buffer range");
     return NULL;
   }
 
-  uint8* vertices = (uint8*) vertexBuffer->lock(type);
+  uint8* vertices = (uint8*) m_vertexBuffer->lock(type);
   if (!vertices)
     return NULL;
 
-  return vertices + start * vertexBuffer->getFormat().getSize();
+  return vertices + m_start * m_vertexBuffer->format().size();
 }
 
 void VertexRange::unlock() const
 {
-  if (!vertexBuffer)
+  if (!m_vertexBuffer)
   {
     logError("Cannot unlock non-locked vertex buffer");
     return;
   }
 
-  vertexBuffer->unlock();
+  m_vertexBuffer->unlock();
 }
 
 void VertexRange::copyFrom(const void* source)
 {
-  if (!vertexBuffer)
+  if (!m_vertexBuffer)
     return;
 
-  vertexBuffer->copyFrom(source, count, start);
+  m_vertexBuffer->copyFrom(source, m_count, m_start);
 }
 
 void VertexRange::copyTo(void* target)
 {
-  if (!vertexBuffer)
+  if (!m_vertexBuffer)
     return;
 
-  vertexBuffer->copyTo(target, count, start);
-}
-
-VertexBuffer* VertexRange::getVertexBuffer() const
-{
-  return vertexBuffer;
-}
-
-size_t VertexRange::getStart() const
-{
-  return start;
-}
-
-size_t VertexRange::getCount() const
-{
-  return count;
+  m_vertexBuffer->copyTo(target, m_count, m_start);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 IndexRange::IndexRange():
-  indexBuffer(NULL),
-  start(0),
-  count(0)
+  m_indexBuffer(NULL),
+  m_start(0),
+  m_count(0)
 {
 }
 
-IndexRange::IndexRange(IndexBuffer& initIndexBuffer):
-  indexBuffer(&initIndexBuffer),
-  start(0),
-  count(0)
+IndexRange::IndexRange(IndexBuffer& indexBuffer):
+  m_indexBuffer(&indexBuffer),
+  m_start(0),
+  m_count(0)
 {
-  count = indexBuffer->getCount();
+  m_count = m_indexBuffer->count();
 }
 
-IndexRange::IndexRange(IndexBuffer& initIndexBuffer,
-                       size_t initStart,
-                       size_t initCount):
-  indexBuffer(&initIndexBuffer),
-  start(initStart),
-  count(initCount)
+IndexRange::IndexRange(IndexBuffer& indexBuffer,
+                       size_t start,
+                       size_t count):
+  m_indexBuffer(&indexBuffer),
+  m_start(start),
+  m_count(count)
 {
-  assert(indexBuffer->getCount() >= start + count);
+  assert(m_indexBuffer->count() >= m_start + m_count);
 }
 
 void* IndexRange::lock(LockType type) const
 {
-  if (!indexBuffer || count == 0)
+  if (!m_indexBuffer || m_count == 0)
   {
     logError("Cannot lock empty index buffer range");
     return NULL;
   }
 
-  uint8* indices = (uint8*) indexBuffer->lock(type);
+  uint8* indices = (uint8*) m_indexBuffer->lock(type);
   if (!indices)
     return NULL;
 
-  return indices + start * IndexBuffer::getTypeSize(indexBuffer->getType());
+  return indices + m_start * IndexBuffer::typeSize(m_indexBuffer->type());
 }
 
 void IndexRange::unlock() const
 {
-  if (!indexBuffer)
+  if (!m_indexBuffer)
   {
     logError("Cannot unlock non-locked index buffer");
     return;
   }
 
-  indexBuffer->unlock();
+  m_indexBuffer->unlock();
 }
 
 void IndexRange::copyFrom(const void* source)
 {
-  if (!indexBuffer)
+  if (!m_indexBuffer)
     return;
 
-  indexBuffer->copyFrom(source, count, start);
+  m_indexBuffer->copyFrom(source, m_count, m_start);
 }
 
 void IndexRange::copyTo(void* target)
 {
-  if (!indexBuffer)
+  if (!m_indexBuffer)
     return;
 
-  indexBuffer->copyTo(target, count, start);
-}
-
-IndexBuffer* IndexRange::getIndexBuffer() const
-{
-  return indexBuffer;
-}
-
-size_t IndexRange::getStart() const
-{
-  return start;
-}
-
-size_t IndexRange::getCount() const
-{
-  return count;
+  m_indexBuffer->copyTo(target, m_count, m_start);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 PrimitiveRange::PrimitiveRange():
-  type(TRIANGLE_LIST),
-  vertexBuffer(NULL),
-  indexBuffer(NULL),
-  start(0),
-  count(0),
-  base(0)
+  m_type(TRIANGLE_LIST),
+  m_vertexBuffer(NULL),
+  m_indexBuffer(NULL),
+  m_start(0),
+  m_count(0),
+  m_base(0)
 {
 }
 
-PrimitiveRange::PrimitiveRange(PrimitiveType initType,
-                               VertexBuffer& initVertexBuffer):
-  type(initType),
-  vertexBuffer(&initVertexBuffer),
-  indexBuffer(NULL),
-  start(0),
-  count(0),
-  base(0)
+PrimitiveRange::PrimitiveRange(PrimitiveType type,
+                               VertexBuffer& vertexBuffer):
+  m_type(type),
+  m_vertexBuffer(&vertexBuffer),
+  m_indexBuffer(NULL),
+  m_start(0),
+  m_count(0),
+  m_base(0)
 {
-  count = vertexBuffer->getCount();
+  m_count = vertexBuffer.count();
 }
 
-PrimitiveRange::PrimitiveRange(PrimitiveType initType,
+PrimitiveRange::PrimitiveRange(PrimitiveType type,
                                const VertexRange& vertexRange):
-  type(initType),
-  vertexBuffer(NULL),
-  indexBuffer(NULL),
-  start(0),
-  count(0),
-  base(0)
+  m_type(type),
+  m_vertexBuffer(NULL),
+  m_indexBuffer(NULL),
+  m_start(0),
+  m_count(0),
+  m_base(0)
 {
-  vertexBuffer = vertexRange.getVertexBuffer();
-  start = vertexRange.getStart();
-  count = vertexRange.getCount();
+  m_vertexBuffer = vertexRange.vertexBuffer();
+  m_start = vertexRange.start();
+  m_count = vertexRange.count();
 }
 
-PrimitiveRange::PrimitiveRange(PrimitiveType initType,
-                               VertexBuffer& initVertexBuffer,
-                               IndexBuffer& initIndexBuffer,
-                               size_t initBase):
-  type(initType),
-  vertexBuffer(&initVertexBuffer),
-  indexBuffer(&initIndexBuffer),
-  start(0),
-  count(0),
-  base(initBase)
+PrimitiveRange::PrimitiveRange(PrimitiveType type,
+                               VertexBuffer& vertexBuffer,
+                               IndexBuffer& indexBuffer,
+                               size_t base):
+  m_type(type),
+  m_vertexBuffer(&vertexBuffer),
+  m_indexBuffer(&indexBuffer),
+  m_start(0),
+  m_count(0),
+  m_base(base)
 {
-  count = indexBuffer->getCount();
+  m_count = indexBuffer.count();
 }
 
-PrimitiveRange::PrimitiveRange(PrimitiveType initType,
-                               VertexBuffer& initVertexBuffer,
+PrimitiveRange::PrimitiveRange(PrimitiveType type,
+                               VertexBuffer& vertexBuffer,
                                const IndexRange& indexRange,
-                               size_t initBase):
-  type(initType),
-  vertexBuffer(&initVertexBuffer),
-  indexBuffer(NULL),
-  start(0),
-  count(0),
-  base(initBase)
+                               size_t base):
+  m_type(type),
+  m_vertexBuffer(&vertexBuffer),
+  m_indexBuffer(NULL),
+  m_start(0),
+  m_count(0),
+  m_base(base)
 {
-  indexBuffer = indexRange.getIndexBuffer();
-  start = indexRange.getStart();
-  count = indexRange.getCount();
+  m_indexBuffer = indexRange.indexBuffer();
+  m_start = indexRange.start();
+  m_count = indexRange.count();
 }
 
-PrimitiveRange::PrimitiveRange(PrimitiveType initType,
-                               VertexBuffer& initVertexBuffer,
-                               size_t initStart,
-                               size_t initCount,
-                               size_t initBase):
-  type(initType),
-  vertexBuffer(&initVertexBuffer),
-  indexBuffer(NULL),
-  start(initStart),
-  count(initCount),
-  base(initBase)
+PrimitiveRange::PrimitiveRange(PrimitiveType type,
+                               VertexBuffer& vertexBuffer,
+                               size_t start,
+                               size_t count,
+                               size_t base):
+  m_type(type),
+  m_vertexBuffer(&vertexBuffer),
+  m_indexBuffer(NULL),
+  m_start(start),
+  m_count(count),
+  m_base(base)
 {
 }
 
-PrimitiveRange::PrimitiveRange(PrimitiveType initType,
-                               VertexBuffer& initVertexBuffer,
-                               IndexBuffer& initIndexBuffer,
-                               size_t initStart,
-                               size_t initCount,
-                               size_t initBase):
-  type(initType),
-  vertexBuffer(&initVertexBuffer),
-  indexBuffer(&initIndexBuffer),
-  start(initStart),
-  count(initCount),
-  base(initBase)
+PrimitiveRange::PrimitiveRange(PrimitiveType type,
+                               VertexBuffer& vertexBuffer,
+                               IndexBuffer& indexBuffer,
+                               size_t start,
+                               size_t count,
+                               size_t base):
+  m_type(type),
+  m_vertexBuffer(&vertexBuffer),
+  m_indexBuffer(&indexBuffer),
+  m_start(start),
+  m_count(count),
+  m_base(base)
 {
 }
 
 bool PrimitiveRange::isEmpty() const
 {
-  if (vertexBuffer == NULL)
+  if (m_vertexBuffer == NULL)
     return true;
 
-  return count == 0;
-}
-
-PrimitiveType PrimitiveRange::getType() const
-{
-  return type;
-}
-
-VertexBuffer* PrimitiveRange::getVertexBuffer() const
-{
-  return vertexBuffer;
-}
-
-IndexBuffer* PrimitiveRange::getIndexBuffer() const
-{
-  return indexBuffer;
-}
-
-size_t PrimitiveRange::getStart() const
-{
-  return start;
-}
-
-size_t PrimitiveRange::getCount() const
-{
-  return count;
-}
-
-size_t PrimitiveRange::getBase() const
-{
-  return base;
+  return m_count == 0;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -819,9 +722,9 @@ IndexRangeLock<uint8>::IndexRangeLock(IndexRange& initRange):
   range(initRange),
   indices(NULL)
 {
-  if (IndexBuffer* indexBuffer = range.getIndexBuffer())
+  if (IndexBuffer* indexBuffer = range.indexBuffer())
   {
-    if (indexBuffer->getType() != INDEX_UINT8)
+    if (indexBuffer->type() != INDEX_UINT8)
       panic("Index buffer is not of type UINT8");
   }
 
@@ -835,9 +738,9 @@ IndexRangeLock<uint16>::IndexRangeLock(IndexRange& initRange):
   range(initRange),
   indices(NULL)
 {
-  if (IndexBuffer* indexBuffer = range.getIndexBuffer())
+  if (IndexBuffer* indexBuffer = range.indexBuffer())
   {
-    if (indexBuffer->getType() != INDEX_UINT16)
+    if (indexBuffer->type() != INDEX_UINT16)
       panic("Index buffer is not of type UINT16");
   }
 
@@ -851,9 +754,9 @@ IndexRangeLock<uint32>::IndexRangeLock(IndexRange& initRange):
   range(initRange),
   indices(NULL)
 {
-  if (IndexBuffer* indexBuffer = range.getIndexBuffer())
+  if (IndexBuffer* indexBuffer = range.indexBuffer())
   {
-    if (indexBuffer->getType() != INDEX_UINT32)
+    if (indexBuffer->type() != INDEX_UINT32)
       panic("Index buffer is not of type UINT32");
   }
 
@@ -868,17 +771,12 @@ Framebuffer::~Framebuffer()
 {
 }
 
-bool Framebuffer::isSRGB() const
-{
-  return sRGB;
-}
-
 void Framebuffer::setSRGB(bool enabled)
 {
-  if (sRGB == enabled)
+  if (m_sRGB == enabled)
     return;
 
-  Framebuffer& previous = context.getCurrentFramebuffer();
+  Framebuffer& previous = m_context.currentFramebuffer();
   apply();
 
   if (enabled)
@@ -892,29 +790,19 @@ void Framebuffer::setSRGB(bool enabled)
     checkGL("Failed to disable framebuffer sRGB encoding");
   }
 
-  sRGB = enabled;
+  m_sRGB = enabled;
 
   previous.apply();
 }
 
-float Framebuffer::getAspectRatio() const
-{
-  return getWidth() / (float) getHeight();
-}
-
-Context& Framebuffer::getContext() const
-{
-  return context;
-}
-
-Framebuffer::Framebuffer(Context& initContext):
-  context(initContext),
-  sRGB(false)
+Framebuffer::Framebuffer(Context& context):
+  m_context(context),
+  m_sRGB(false)
 {
 }
 
 Framebuffer::Framebuffer(const Framebuffer& source):
-  context(source.context)
+  m_context(source.m_context)
 {
   panic("Framebuffers may not be copied");
 }
@@ -925,31 +813,6 @@ Framebuffer& Framebuffer::operator = (const Framebuffer& source)
 }
 
 ///////////////////////////////////////////////////////////////////////
-
-uint DefaultFramebuffer::getColorBits() const
-{
-  return colorBits;
-}
-
-uint DefaultFramebuffer::getDepthBits() const
-{
-  return depthBits;
-}
-
-uint DefaultFramebuffer::getStencilBits() const
-{
-  return stencilBits;
-}
-
-uint DefaultFramebuffer::getWidth() const
-{
-  return getContext().getWindow().getWidth();
-}
-
-uint DefaultFramebuffer::getHeight() const
-{
-  return getContext().getWindow().getHeight();
-}
 
 DefaultFramebuffer::DefaultFramebuffer(Context& context):
   Framebuffer(context)
@@ -965,63 +828,63 @@ void DefaultFramebuffer::apply() const
 #endif
 }
 
+uint DefaultFramebuffer::width() const
+{
+  return context().window().width();
+}
+
+uint DefaultFramebuffer::height() const
+{
+  context().window().height();
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 TextureFramebuffer::~TextureFramebuffer()
 {
-  if (bufferID)
-    glDeleteFramebuffers(1, &bufferID);
+  if (m_bufferID)
+    glDeleteFramebuffers(1, &m_bufferID);
 }
 
-uint TextureFramebuffer::getWidth() const
+uint TextureFramebuffer::width() const
 {
   uint width = 0;
 
   for (size_t i = 0;  i < 5;  i++)
   {
-    if (images[i])
+    if (m_images[i])
     {
-      if (width && width != images[i]->getWidth())
+      if (width && width != m_images[i]->width())
         return 0;
 
-      width = images[i]->getWidth();
+      width = m_images[i]->width();
     }
   }
 
   return width;
 }
 
-uint TextureFramebuffer::getHeight() const
+uint TextureFramebuffer::height() const
 {
   uint height = 0;
 
   for (size_t i = 0;  i < 5;  i++)
   {
-    if (images[i])
+    if (m_images[i])
     {
-      if (height && height != images[i]->getHeight())
+      if (height && height != m_images[i]->height())
         return 0;
 
-      height = images[i]->getHeight();
+      height = m_images[i]->height();
     }
   }
 
   return height;
 }
 
-TextureImage* TextureFramebuffer::getColorBuffer() const
+TextureImage* TextureFramebuffer::buffer(Attachment attachment) const
 {
-  return images[COLOR_BUFFER0];
-}
-
-TextureImage* TextureFramebuffer::getDepthBuffer() const
-{
-  return images[DEPTH_BUFFER];
-}
-
-TextureImage* TextureFramebuffer::getBuffer(Attachment attachment) const
-{
-  return images[attachment];
+  return m_images[attachment];
 }
 
 bool TextureFramebuffer::setDepthBuffer(TextureImage* newImage)
@@ -1038,7 +901,7 @@ bool TextureFramebuffer::setBuffer(Attachment attachment, TextureImage* newImage
 {
   if (isColorAttachment(attachment))
   {
-    const Limits& limits = context.getLimits();
+    const Limits& limits = m_context.limits();
     const uint index = attachment - COLOR_BUFFER0;
 
     if (index >= limits.maxColorAttachments)
@@ -1056,16 +919,16 @@ bool TextureFramebuffer::setBuffer(Attachment attachment, TextureImage* newImage
     }
   }
 
-  Framebuffer& previous = context.getCurrentFramebuffer();
+  Framebuffer& previous = m_context.currentFramebuffer();
   apply();
 
-  if (images[attachment])
-    images[attachment]->detach(convertToGL(attachment));
+  if (m_images[attachment])
+    m_images[attachment]->detach(convertToGL(attachment));
 
-  images[attachment] = newImage;
+  m_images[attachment] = newImage;
 
-  if (images[attachment])
-    images[attachment]->attach(convertToGL(attachment), z);
+  if (m_images[attachment])
+    m_images[attachment]->attach(convertToGL(attachment), z);
 
   previous.apply();
   return true;
@@ -1082,13 +945,13 @@ Ref<TextureFramebuffer> TextureFramebuffer::create(Context& context)
 
 TextureFramebuffer::TextureFramebuffer(Context& context):
   Framebuffer(context),
-  bufferID(0)
+  m_bufferID(0)
 {
 }
 
 bool TextureFramebuffer::init()
 {
-  glGenFramebuffers(1, &bufferID);
+  glGenFramebuffers(1, &m_bufferID);
 
 #if WENDY_DEBUG
   if (!checkGL("Error during image framebuffer creation"))
@@ -1100,7 +963,7 @@ bool TextureFramebuffer::init()
 
 void TextureFramebuffer::apply() const
 {
-  glBindFramebuffer(GL_FRAMEBUFFER, bufferID);
+  glBindFramebuffer(GL_FRAMEBUFFER, m_bufferID);
 
   GLenum enables[5];
   size_t count = 0;
@@ -1109,7 +972,7 @@ void TextureFramebuffer::apply() const
   {
     Attachment attachment = (Attachment) i;
 
-    if (images[i] && isColorAttachment(attachment))
+    if (m_images[i] && isColorAttachment(attachment))
       enables[count++] = convertToGL(attachment);
   }
 

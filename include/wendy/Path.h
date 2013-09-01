@@ -64,7 +64,7 @@ public:
   bool exists() const;
   /*! @return This path represented as a string.
    */
-  const String& asString() const;
+  const String& asString() const { return m_string; }
   /*! Append operator. Creates a path with this path as the directory part and
    *  the specified name as the leaf (file or directory) name.
    *  @param[in] child The desired leaf name.
@@ -82,7 +82,7 @@ public:
   Path& operator = (const String& newName);
   /*! @return @c true if this path is empty, otherwise @c false.
    */
-  bool isEmpty() const;
+  bool isEmpty() const { return m_string.empty(); }
   /*! @return @c true if the file or directory is readable, otherwise
    *  @c false.
    */
@@ -103,29 +103,29 @@ public:
    *  path object.
    *  @remarks The root directory is its own parent.
    */
-  Path getParent() const;
+  Path parent() const;
   /*! Returns the paths of all files and directories in the directory with this
    *  path.
    *  @param[in,out] children The resulting list of paths.
    *  @return @c true if successful, otherwise @c false.
    */
-  bool getChildren(PathList& children) const;
+  PathList children() const;
   /*! Returns the paths of all files and directories in the directory with this
    *  path whose names match the specified pattern.
    *  @param[in,out] children The resulting list of paths.
    *  @param[in] pattern The pattern to use.
    *  @return @c true if successful, otherwise @c false.
    */
-  bool getChildren(PathList& children, const Pattern& pattern) const;
+  PathList childrenMatching(const Pattern& pattern) const;
   /*! @return The suffix of the name of the represented path, or the empty
    *  string if no suffix is present.
    */
-  String getSuffix() const;
+  String suffix() const;
   /*! @return The name part of the filename, without the directory or suffix parts.
    */
-  String getName() const;
+  String name() const;
 private:
-  String path;
+  String m_string;
 };
 
 ///////////////////////////////////////////////////////////////////////

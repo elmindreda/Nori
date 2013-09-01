@@ -52,11 +52,11 @@ namespace
 
 bool convertToBitDepth(int& result, const PixelFormat& format)
 {
-  switch (format.getType())
+  switch (format.type())
   {
     case PixelFormat::UINT8:
     case PixelFormat::UINT16:
-      result = format.getSize() * 8;
+      result = format.size() * 8;
       return false;
     default:
       return false;
@@ -65,7 +65,7 @@ bool convertToBitDepth(int& result, const PixelFormat& format)
 
 bool convertToColorType(int& result, const PixelFormat& format)
 {
-  switch (format.getSemantic())
+  switch (format.semantic())
   {
     case PixelFormat::L:
       result = PNG_COLOR_TYPE_GRAY;
@@ -153,84 +153,84 @@ const uint IMAGE_CUBE_XML_VERSION = 2;
 
 ///////////////////////////////////////////////////////////////////////
 
-bool Image::transformTo(const PixelFormat& targetFormat, PixelTransform& transform)
+bool Image::transformTo(const PixelFormat& format, PixelTransform& transform)
 {
-  if (format == targetFormat)
+  if (m_format == format)
     return true;
 
-  if (!transform.supports(targetFormat, format))
+  if (!transform.supports(format, m_format))
     return false;
 
-  std::vector<char> temp(width * height * depth * targetFormat.getSize());
-  transform.convert(&temp[0], targetFormat, &data[0], format, width * height * depth);
-  std::swap(data, temp);
+  std::vector<char> temp(m_width * m_height * m_depth * format.size());
+  transform.convert(&temp[0], format, &m_data[0], m_format, m_width * m_height * m_depth);
+  std::swap(m_data, temp);
 
-  format = targetFormat;
+  m_format = format;
   return true;
 }
 
 bool Image::crop(const Recti& area)
 {
-  if (getDimensionCount() > 2)
+  if (dimensionCount() > 2)
   {
     logError("Cannot 2D crop 3D image");
     return false;
   }
 
-  if (!Recti(0, 0, width, height).contains(area))
+  if (!Recti(0, 0, m_width, m_height).contains(area))
   {
     logError("Cropping area must be entirely within image");
     return false;
   }
 
-  const size_t pixelSize = format.getSize();
+  const size_t pixelSize = m_format.size();
   std::vector<char> temp(area.size.x * area.size.y * pixelSize);
 
   for (size_t y = 0;  y < (size_t) area.size.y;  y++)
   {
     std::memcpy(&temp[0] + y * area.size.x * pixelSize,
-                &data[0] + ((y + area.position.y) * width + area.position.x) * pixelSize,
+                &m_data[0] + ((y + area.position.y) * m_width + area.position.x) * pixelSize,
                 area.size.x * pixelSize);
   }
 
-  width = area.size.x;
-  height = area.size.y;
+  m_width = area.size.x;
+  m_height = area.size.y;
 
-  std::swap(data, temp);
+  std::swap(m_data, temp);
   return true;
 }
 
 void Image::flipHorizontal()
 {
-  const size_t rowSize = width * format.getSize();
-  std::vector<char> temp(data.size());
+  const size_t rowSize = m_width * m_format.size();
+  std::vector<char> temp(m_data.size());
 
-  for (size_t z = 0;  z < depth;  z++)
+  for (size_t z = 0;  z < m_depth;  z++)
   {
-    const size_t sliceOffset = z * height * rowSize;
+    const size_t sliceOffset = z * m_height * rowSize;
 
-    for (size_t y = 0;  y < height;  y++)
+    for (size_t y = 0;  y < m_height;  y++)
     {
-      std::memcpy(&temp[0] + sliceOffset + rowSize * (height - y - 1),
-                  &data[0] + sliceOffset + rowSize * y,
+      std::memcpy(&temp[0] + sliceOffset + rowSize * (m_height - y - 1),
+                  &m_data[0] + sliceOffset + rowSize * y,
                   rowSize);
     }
   }
 
-  std::swap(data, temp);
+  std::swap(m_data, temp);
 }
 
 void Image::flipVertical()
 {
-  const size_t pixelSize = format.getSize();
-  std::vector<char> temp(data.size());
+  const size_t pixelSize = m_format.size();
+  std::vector<char> temp(m_data.size());
 
-  for (size_t z = 0;  z < depth;  z++)
+  for (size_t z = 0;  z < m_depth;  z++)
   {
-    for (size_t y = 0;  y < height;  y++)
+    for (size_t y = 0;  y < m_height;  y++)
     {
-      const char* source = &data[0] + (z * height + y) * width * pixelSize;
-      char* target = &temp[0] + ((z * height + y + 1) * width - 1) * pixelSize;
+      const char* source = &m_data[0] + (z * m_height + y) * m_width * pixelSize;
+      char* target = &temp[0] + ((z * m_height + y + 1) * m_width - 1) * pixelSize;
 
       while (source < target)
       {
@@ -241,97 +241,62 @@ void Image::flipVertical()
     }
   }
 
-  std::swap(data, temp);
+  std::swap(m_data, temp);
 }
 
 bool Image::isPOT() const
 {
-  return isPowerOfTwo(width) && isPowerOfTwo(height) && isPowerOfTwo(depth);
+  return isPowerOfTwo(m_width) && isPowerOfTwo(m_height) && isPowerOfTwo(m_depth);
 }
 
-bool Image::isSquare() const
+void* Image::pixel(uint x, uint y, uint z)
 {
-  return width == height;
-}
-
-uint Image::getWidth() const
-{
-  return width;
-}
-
-uint Image::getHeight() const
-{
-  return height;
-}
-
-uint Image::getDepth() const
-{
-  return depth;
-}
-
-void* Image::getPixels()
-{
-  return &data[0];
-}
-
-const void* Image::getPixels() const
-{
-  return &data[0];
-}
-
-void* Image::getPixel(uint x, uint y, uint z)
-{
-  if (x >= width || y >= height || z >= depth)
+  if (x >= m_width || y >= m_height || z >= m_depth)
     return NULL;
 
-  return &data[0] + ((z * height + y) * width + x) * format.getSize();
+  return &m_data[0] + ((z * m_height + y) * m_width + x) * m_format.size();
 }
 
-const void* Image::getPixel(uint x, uint y, uint z) const
+const void* Image::pixel(uint x, uint y, uint z) const
 {
-  if (x >= width || y >= height || z >= depth)
+  if (x >= m_width || y >= m_height || z >= m_depth)
     return NULL;
 
-  return &data[0] + ((z * height + y) * width + x) * format.getSize();
+  return &m_data[0] + ((z * m_height + y) * m_width + x) * m_format.size();
 }
 
-const PixelFormat& Image::getFormat() const
+uint Image::dimensionCount() const
 {
-  return format;
-}
-
-uint Image::getDimensionCount() const
-{
-  if (depth > 1)
+  if (m_depth > 1)
     return 3;
 
-  if (height > 1)
+  if (m_height > 1)
     return 2;
 
   return 1;
 }
 
-Ref<Image> Image::getArea(const Recti& area) const
+Ref<Image> Image::area(const Recti& area) const
 {
-  if (getDimensionCount() > 2)
+  if (dimensionCount() > 2)
   {
     logError("Cannot retrieve area of 3D image");
     return NULL;
   }
 
-  if (!Recti(0, 0, width, height).contains(area))
+  if (!Recti(0, 0, m_width, m_height).contains(area))
   {
     logError("Cannot retrieve area outside of image");
     return NULL;
   }
 
-  const size_t rowSize = area.size.x * format.getSize();
-  Ref<Image> result = create(getCache(), format, area.size.x, area.size.y);
+  const size_t rowSize = area.size.x * m_format.size();
+  Ref<Image> result = create(cache(), m_format, area.size.x, area.size.y);
 
   for (size_t y = 0;  y < (size_t) area.size.y;  y++)
   {
-    std::memcpy(result->getPixel(0, y),
-                getPixel(area.position.x, area.position.y + y),
+    std::memcpy(result->pixel(0, y),
+                pixel(area.position.x, area.position.y + y),
                 rowSize);
   }
 
@@ -364,67 +329,67 @@ Image::Image(const ResourceInfo& info):
 {
 }
 
-bool Image::init(const PixelFormat& initFormat,
-                 uint initWidth,
-                 uint initHeight,
-                 uint initDepth,
+bool Image::init(const PixelFormat& format,
+                 uint width,
+                 uint height,
+                 uint depth,
                  const char* pixels,
                  ptrdiff_t pitch)
 {
-  format = initFormat;
-  width = initWidth;
-  height = initHeight;
-  depth = initDepth;
+  m_format = format;
+  m_width = width;
+  m_height = height;
+  m_depth = depth;
 
-  if (!format.isValid())
+  if (!m_format.isValid())
   {
     logError("Cannot create image with invalid pixel format");
     return false;
   }
 
-  if (!width || !height || !depth)
+  if (!m_width || !m_height || !m_depth)
   {
     logError("Cannot create image with zero size in any dimension");
     return false;
   }
 
-  if ((height > 1) && (width == 1))
+  if ((m_height > 1) && (m_width == 1))
   {
-    width = height;
-    height = 1;
+    m_width = m_height;
+    m_height = 1;
   }
 
-  if ((depth > 1) && (height == 1))
+  if ((m_depth > 1) && (m_height == 1))
   {
-    height = depth;
-    depth = 1;
+    m_height = m_depth;
+    m_depth = 1;
   }
 
   if (pixels)
   {
     if (pitch)
     {
-      const size_t pixelSize = format.getSize();
-      data.resize(width * height * depth * pixelSize);
+      const size_t pixelSize = m_format.size();
+      m_data.resize(m_width * m_height * m_depth * pixelSize);
 
-      char* target = &data[0];
+      char* target = &m_data[0];
       const char* source = pixels;
 
-      for (size_t z = 0;  z < depth;  z++)
+      for (size_t z = 0;  z < m_depth;  z++)
       {
-        for (size_t y = 0;  y < height;  y++)
+        for (size_t y = 0;  y < m_height;  y++)
         {
-          std::memcpy(target, source, width * pixelSize);
+          std::memcpy(target, source, m_width * pixelSize);
           source += pitch;
-          target += width * pixelSize;
+          target += m_width * pixelSize;
         }
       }
     }
     else
-      data.assign(pixels, pixels + width * height * depth * format.getSize());
+      m_data.assign(pixels, pixels + m_width * m_height * m_depth * m_format.size());
   }
   else
-    data.resize(width * height * depth * format.getSize(), 0);
+    m_data.resize(m_width * m_height * m_depth * m_format.size(), 0);
 
   return true;
 }
@@ -452,7 +417,7 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
   std::ifstream stream(path.asString().c_str(), std::ios::in | std::ios::binary);
   if (stream.fail())
   {
-    logError("Failed to open image file \'%s\'", path.asString().c_str());
+    logError("Failed to open image file %s", path.asString().c_str());
     return NULL;
   }
 
@@ -462,13 +427,13 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
 
     if (!stream.read((char*) header, sizeof(header)))
     {
-      logError("Failed to read PNG header from image \'%s\'", name.c_str());
+      logError("Failed to read PNG header from image %s", name.c_str());
       return NULL;
     }
 
     if (png_sig_cmp(header, 0, sizeof(header)))
     {
-      logError("Invalid PNG signature in image \'%s\'", name.c_str());
+      logError("Invalid PNG signature in image %s", name.c_str());
       return NULL;
     }
   }
@@ -485,7 +450,7 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
                                      writeWarningPNG);
     if (!context)
     {
-      logError("Failed to create PNG read struct for image \'%s\'",
+      logError("Failed to create PNG read struct for image %s",
                name.c_str());
       return NULL;
     }
@@ -497,7 +462,7 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
     {
       png_destroy_read_struct(&context, NULL, NULL);
 
-      logError("Failed to create PNG info struct for image \'%s\'",
+      logError("Failed to create PNG info struct for image %s",
                name.c_str());
       return NULL;
     }
@@ -507,7 +472,7 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
     {
       png_destroy_read_struct(&context, &pngInfo, NULL);
 
-      logError("Failed to create PNG end info struct for image \'%s\'",
+      logError("Failed to create PNG end info struct for image %s",
                name.c_str());
       return NULL;
     }
@@ -524,7 +489,7 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
   {
     png_destroy_read_struct(&context, &pngInfo, &pngEndInfo);
 
-    logError("Image \'%s\' has unsupported pixel format", name.c_str());
+    logError("Image %s has unsupported pixel format", name.c_str());
     return NULL;
   }
 
@@ -540,7 +505,7 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
     png_byte** rows = png_get_rows(context, pngInfo);
 
     for (size_t i = 0;  i < height;  i++)
-      std::memcpy(result->getPixel(0, height - i - 1), rows[i], rowSize);
+      std::memcpy(result->pixel(0, height - i - 1), rows[i], rowSize);
   }
 
   // Clean up library structures
@@ -553,7 +518,7 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
 
 bool ImageWriter::write(const Path& path, const Image& image)
 {
-  if (image.getDimensionCount() > 2)
+  if (image.dimensionCount() > 2)
   {
     logError("Cannot write 3D images to PNG file");
     return false;
@@ -562,7 +527,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
   std::ofstream stream(path.asString().c_str());
   if (!stream.is_open())
   {
-    logError("Failed to create image file \'%s\'", path.asString().c_str());
+    logError("Failed to create image file %s", path.asString().c_str());
     return false;
   }
 
@@ -572,7 +537,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
                                                 writeWarningPNG);
   if (!context)
   {
-    logError("Failed to create PNG write struct for image file \'%s\'",
+    logError("Failed to create PNG write struct for image file %s",
              path.asString().c_str());
     return false;
   }
@@ -584,12 +549,12 @@ bool ImageWriter::write(const Path& path, const Image& image)
   if (!info)
   {
     png_destroy_write_struct(&context, png_infopp(NULL));
-    logError("Failed to create PNG info struct for image file \'%s\'",
+    logError("Failed to create PNG info struct for image file %s",
              path.asString().c_str());
     return false;
   }
 
-  const PixelFormat& format = image.getFormat();
+  const PixelFormat& format = image.format();
 
   int colorType, bitDepth;
 
@@ -597,26 +562,26 @@ bool ImageWriter::write(const Path& path, const Image& image)
       !convertToBitDepth(bitDepth, format))
   {
     png_destroy_write_struct(&context, &info);
-    logError("Failed to write image \'%s\': pixel format \'%s\' is not supported by the PNG format",
-             image.getName().c_str(),
+    logError("Failed to write image %s: pixel format %s is not supported by the PNG format",
+             image.name().c_str(),
              format.asString().c_str());
     return false;
   }
 
   png_set_IHDR(context,
                info,
-               image.getWidth(),
-               image.getHeight(),
+               image.width(),
+               image.height(),
                bitDepth,
                colorType,
                PNG_INTERLACE_NONE,
                PNG_COMPRESSION_TYPE_DEFAULT,
                PNG_FILTER_TYPE_DEFAULT);
 
-  std::vector<const png_byte*> rows(image.getHeight());
+  std::vector<const png_byte*> rows(image.height());
 
-  for (size_t i = 0;  i < image.getHeight();  i++)
-    rows[i] = (const png_byte*) image.getPixel(0, image.getHeight() - i - 1);
+  for (size_t i = 0;  i < image.height();  i++)
+    rows[i] = (const png_byte*) image.pixel(0, image.height() - i - 1);
 
   png_set_rows(context, info, const_cast<png_byte**>(&rows[0]));
   png_write_png(context, info, PNG_TRANSFORM_IDENTITY, NULL);

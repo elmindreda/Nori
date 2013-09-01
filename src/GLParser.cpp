@@ -56,10 +56,10 @@ void Preprocessor::parse(const char* name)
   if (path.isEmpty())
   {
     if (files.empty())
-      logError("Failed to find shader \'%s\'", name);
+      logError("Failed to find shader %s", name);
     else
     {
-      logError("%s:%u: Failed to find shader \'%s\'",
+      logError("%s:%u: Failed to find shader %s",
                files.back().name,
                files.back().line,
                name);
@@ -72,10 +72,10 @@ void Preprocessor::parse(const char* name)
   if (stream.fail())
   {
     if (files.empty())
-      logError("Failed to open shader file \'%s\'", path.asString().c_str());
+      logError("Failed to open shader file %s", path.asString().c_str());
     else
     {
-      logError("%s:%u: Failed to open shader file \'%s\'",
+      logError("%s:%u: Failed to open shader file %s",
                files.back().name,
                files.back().line,
                path.asString().c_str());
@@ -321,11 +321,11 @@ String Preprocessor::passShaderName()
     terminator = '\"';
   else
   {
-    logError("%s:%u: Expected \'<\' or \'\"\' after #include",
+    logError("%s:%u: Expected < or \" after #include",
              files.back().name,
              files.back().line);
 
-    throw Exception("Expected \'<\' or \'\"\' after #include");
+    throw Exception("Expected < or \" after #include");
   }
 
   advance(1);
@@ -336,12 +336,12 @@ String Preprocessor::passShaderName()
   {
     if (!hasMore() || isNewLine())
     {
-      logError("%s:%u: Expected \'%c\' after shader name",
+      logError("%s:%u: Expected %c after shader name",
                files.back().name,
                files.back().line,
                terminator);
 
-      throw Exception("Expected \'<\' or \'\"\' after shader name");
+      throw Exception("Expected < or \" after shader name");
     }
 
     if (c(0) == terminator)

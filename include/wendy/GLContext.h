@@ -136,7 +136,7 @@ enum Function
  *  @ingroup opengl
  *
  *  This class provides the settings parameters available for OpenGL
- *  context creation, as provided through Context::createSingleton.
+ *  context creation, as provided through Context::create.
  */
 class ContextConfig
 {
@@ -276,28 +276,28 @@ public:
   void removeIndexBuffer(size_t size);
   void addProgram();
   void removeProgram();
-  float getFrameRate() const;
-  uint getFrameCount() const;
-  const Frame& getCurrentFrame() const;
-  uint getTextureCount() const;
-  uint getVertexBufferCount() const;
-  uint getIndexBufferCount() const;
-  uint getProgramCount() const;
-  size_t getTotalTextureSize() const;
-  size_t getTotalVertexBufferSize() const;
-  size_t getTotalIndexBufferSize() const;
+  float frameRate() const { return m_frameRate; }
+  uint frameCount() const { return m_frameCount; }
+  const Frame& currentFrame() const { return m_frames.front(); }
+  uint textureCount() const { return m_textureCount; }
+  uint vertexBufferCount() const { return m_vertexBufferCount; }
+  uint indexBufferCount() const { return m_indexBufferCount; }
+  uint programCount() const { return m_programCount; }
+  size_t totalTextureSize() const { return m_textureSize; }
+  size_t totalVertexBufferSize() const { return m_vertexBufferSize; }
+  size_t totalIndexBufferSize() const { return m_indexBufferSize; }
 private:
-  uint frameCount;
-  float frameRate;
-  std::deque<Frame> frames;
-  uint textureCount;
-  uint vertexBufferCount;
-  uint indexBufferCount;
-  uint programCount;
-  size_t textureSize;
-  size_t vertexBufferSize;
-  size_t indexBufferSize;
-  Timer timer;
+  uint m_frameCount;
+  float m_frameRate;
+  std::deque<Frame> m_frames;
+  uint m_textureCount;
+  uint m_vertexBufferCount;
+  uint m_indexBufferCount;
+  uint m_programCount;
+  size_t m_textureSize;
+  size_t m_vertexBufferSize;
+  size_t m_indexBufferSize;
+  Timer m_timer;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -314,7 +314,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief OpenGL context singleton.
+/*! @brief OpenGL context.
  *  @ingroup opengl
  *
  *  This class encapsulates the OpenGL context and its associtated window.
@@ -368,31 +368,31 @@ public:
   void createSharedUniform(const char* name, UniformType type, int ID);
   /*! @return The shared ID of the specified sampler uniform signature.
    */
-  int getSharedSamplerID(const char* name, SamplerType type) const;
+  int sharedSamplerID(const char* name, SamplerType type) const;
   /*! @return The shared ID of the specified non-sampler uniform signature.
    */
-  int getSharedUniformID(const char* name, UniformType type) const;
+  int sharedUniformID(const char* name, UniformType type) const;
   /*! @return The current shared program state, or @c NULL if no shared program
    *  state is currently set.
    */
-  SharedProgramState* getCurrentSharedProgramState() const;
+  SharedProgramState* currentSharedProgramState() const;
   /*! Sets the current shared program state.
    *  @param[in] newState The new state object.
    */
   void setCurrentSharedProgramState(SharedProgramState* newState);
   /*! @return GLSL declarations of all shared samplers and uniforms.
    */
-  const char* getSharedProgramStateDeclaration() const;
+  const char* sharedProgramStateDeclaration() const;
   /*! @return The swap interval of this context.
    */
-  int getSwapInterval() const;
+  int swapInterval() const;
   /*! Sets the swap interval of this context.
    *  @param[in] newInterval The desired swap interval.
    */
   void setSwapInterval(int newInterval);
   /*! @return The current scissor rectangle.
    */
-  const Recti& getScissorArea() const;
+  const Recti& scissorArea() const;
   /*! Sets the scissor area of this context.
    *
    *  @remarks Scissor testing is enabled if the area doesn't include the
@@ -401,17 +401,17 @@ public:
   void setScissorArea(const Recti& newArea);
   /*! @return The current viewport rectangle.
    */
-  const Recti& getViewportArea() const;
+  const Recti& viewportArea() const;
   /*! Sets the current viewport rectangle.
    *  @param[in] newArea The desired viewport rectangle.
    */
   void setViewportArea(const Recti& newArea);
   /*! @return The current framebuffer.
    */
-  Framebuffer& getCurrentFramebuffer() const;
+  Framebuffer& currentFramebuffer() const;
   /*! @return The screen framebuffer.
    */
-  DefaultFramebuffer& getDefaultFramebuffer() const;
+  DefaultFramebuffer& defaultFramebuffer() const;
   /*! Makes the default framebuffer current.
    */
   void setDefaultFramebufferCurrent();
@@ -422,7 +422,7 @@ public:
   bool setCurrentFramebuffer(Framebuffer& newFramebuffer);
   /*! @return The currently set GLSL program, or @c NULL if no program is set.
    */
-  Program* getCurrentProgram() const;
+  Program* currentProgram() const;
   /*! Sets the current GLSL program for use when rendering.
    *  @param[in] newProgram The desired GLSL program, or @c NULL to unbind
    *  the current program.
@@ -430,47 +430,47 @@ public:
   void setCurrentProgram(Program* newProgram);
   /*! @return The currently set vertex buffer.
    */
-  VertexBuffer* getCurrentVertexBuffer() const;
+  VertexBuffer* currentVertexBuffer() const;
   /*! Sets the current vertex buffer.
    */
   void setCurrentVertexBuffer(VertexBuffer* newVertexBuffer);
   /*! @return The currently set index buffer.
    */
-  IndexBuffer* getCurrentIndexBuffer() const;
+  IndexBuffer* currentIndexBuffer() const;
   /*! Sets the current index buffer.
    */
   void setCurrentIndexBuffer(IndexBuffer* newIndexBuffer);
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
-  Texture* getCurrentTexture() const;
+  Texture* currentTexture() const;
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
   void setCurrentTexture(Texture* newTexture);
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
-  uint getTextureUnitCount() const;
+  uint textureUnitCount() const;
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
-  uint getActiveTextureUnit() const;
+  uint activeTextureUnit() const;
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
   void setActiveTextureUnit(uint unit);
   bool isCullingInverted();
   void setCullingInversion(bool newState);
-  const RenderState& getCurrentRenderState() const;
+  const RenderState& currentRenderState() const;
   void setCurrentRenderState(const RenderState& newState);
-  Stats* getStats() const;
+  Stats* stats() const;
   void setStats(Stats* newStats);
   /*! @return The limits of this context.
    */
-  const Limits& getLimits() const;
+  const Limits& limits() const;
   /*! @return The resource cache used by this context.
    */
-  ResourceCache& getCache() const;
+  ResourceCache& cache() const;
   /*! @return The window of this context.
    */
-  Window& getWindow();
-  /*! Creates the context singleton object, using the specified settings.
+  Window& window();
+  /*! Creates the context object, using the specified settings.
    *  @param[in] cache The resource cache to use.
    *  @param[in] wndconfig The desired window configuration.
    *  @param[in] ctxconfig The desired context configuration.
@@ -489,29 +489,29 @@ private:
   void onFrame();
   class SharedSampler;
   class SharedUniform;
-  ResourceCache& cache;
-  Window window;
-  GLFWwindow* handle;
-  Ptr<Limits> limits;
-  int swapInterval;
-  Recti scissorArea;
-  Recti viewportArea;
-  bool dirtyBinding;
-  bool dirtyState;
-  bool cullingInverted;
-  TextureList textureUnits;
-  uint activeTextureUnit;
-  RenderState currentState;
-  Ref<Program> currentProgram;
-  Ref<VertexBuffer> currentVertexBuffer;
-  Ref<IndexBuffer> currentIndexBuffer;
-  Ref<Framebuffer> currentFramebuffer;
-  Ref<SharedProgramState> currentSharedState;
-  Ref<DefaultFramebuffer> defaultFramebuffer;
-  std::vector<SharedSampler> samplers;
-  std::vector<SharedUniform> uniforms;
-  String declaration;
-  Stats* stats;
+  ResourceCache& m_cache;
+  Window m_window;
+  GLFWwindow* m_handle;
+  Ptr<Limits> m_limits;
+  int m_swapInterval;
+  Recti m_scissorArea;
+  Recti m_viewportArea;
+  bool m_dirtyBinding;
+  bool m_dirtyState;
+  bool m_cullingInverted;
+  TextureList m_textureUnits;
+  uint m_activeTextureUnit;
+  RenderState m_currentState;
+  Ref<Program> m_currentProgram;
+  Ref<VertexBuffer> m_currentVertexBuffer;
+  Ref<IndexBuffer> m_currentIndexBuffer;
+  Ref<Framebuffer> m_currentFramebuffer;
+  Ref<SharedProgramState> m_currentSharedState;
+  Ref<DefaultFramebuffer> m_defaultFramebuffer;
+  std::vector<SharedSampler> m_samplers;
+  std::vector<SharedUniform> m_uniforms;
+  String m_declaration;
+  Stats* m_stats;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -38,15 +38,15 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-PixelFormat::PixelFormat(Semantic initSemantic, Type initType):
-  semantic(initSemantic),
-  type(initType)
+PixelFormat::PixelFormat(Semantic semantic, Type type):
+  m_semantic(semantic),
+  m_type(type)
 {
 }
 
 PixelFormat::PixelFormat(const char* specification):
-  semantic(NONE),
-  type(DUMMY)
+  m_semantic(NONE),
+  m_type(DUMMY)
 {
   const char* c = specification;
 
@@ -59,15 +59,15 @@ PixelFormat::PixelFormat(const char* specification):
     semanticName += std::tolower(*c++);
 
   if (semanticName == "l")
-    semantic = L;
+    m_semantic = L;
   else if (semanticName == "la")
-    semantic = LA;
+    m_semantic = LA;
   else if (semanticName == "rgb")
-    semantic = RGB;
+    m_semantic = RGB;
   else if (semanticName == "rgba")
-    semantic = RGBA;
+    m_semantic = RGBA;
   else if (semanticName == "depth")
-    semantic = DEPTH;
+    m_semantic = DEPTH;
   else
     throw Exception("Invalid pixel format semantic name");
 
@@ -77,44 +77,34 @@ PixelFormat::PixelFormat(const char* specification):
     typeName += std::tolower(*c++);
 
   if (typeName == "8")
-    type = UINT8;
+    m_type = UINT8;
   else if (typeName == "16")
-    type = UINT16;
+    m_type = UINT16;
   else if (typeName == "24")
-    type = UINT24;
+    m_type = UINT24;
   else if (typeName == "32")
-    type = UINT32;
+    m_type = UINT32;
   else if (typeName == "16f")
-    type = FLOAT16;
+    m_type = FLOAT16;
   else if (typeName == "32f")
-    type = FLOAT32;
+    m_type = FLOAT32;
   else
     throw Exception("Invalid pixel format type name");
 }
 
 bool PixelFormat::operator == (const PixelFormat& other) const
 {
-  return semantic == other.semantic && type == other.type;
+  return m_semantic == other.m_semantic && m_type == other.m_type;
 }
 
 bool PixelFormat::operator != (const PixelFormat& other) const
 {
-  return semantic != other.semantic || type != other.type;
+  return m_semantic != other.m_semantic || m_type != other.m_type;
 }
 
-bool PixelFormat::isValid() const
+size_t PixelFormat::channelSize() const
 {
-  return semantic != NONE && type != DUMMY;
-}
-
-size_t PixelFormat::getSize() const
-{
-  return getChannelSize() * getChannelCount();
-}
-
-size_t PixelFormat::getChannelSize() const
-{
-  switch (type)
+  switch (m_type)
   {
     case DUMMY:
       return 0;
@@ -129,23 +119,13 @@ size_t PixelFormat::getChannelSize() const
     case FLOAT32:
       return 4;
     default:
-      panic("Invalid pixel format type %i", type);
+      panic("Invalid pixel format type %i", m_type);
   }
 }
 
-PixelFormat::Type PixelFormat::getType() const
+uint PixelFormat::channelCount() const
 {
-  return type;
-}
-
-PixelFormat::Semantic PixelFormat::getSemantic() const
-{
-  return semantic;
-}
-
-uint PixelFormat::getChannelCount() const
-{
-  switch (semantic)
+  switch (m_semantic)
   {
     case NONE:
       return 0;
@@ -159,7 +139,7 @@ uint PixelFormat::getChannelCount() const
     case RGBA:
       return 4;
     default:
-      panic("Invalid pixel format semantic %i", semantic);
+      panic("Invalid pixel format semantic %i", m_semantic);
   }
 }
 
@@ -167,7 +147,7 @@ String PixelFormat::asString() const
 {
   std::ostringstream result;
 
-  switch (semantic)
+  switch (m_semantic)
   {
     case L:
       result << "l";
@@ -185,10 +165,10 @@ String PixelFormat::asString() const
       result << "depth";
       break;
     default:
-      panic("Invalid pixel format semantic %i", semantic);
+      panic("Invalid pixel format semantic %i", m_semantic);
   }
 
-  switch (type)
+  switch (m_type)
   {
     case UINT8:
       result << "8";
@@ -209,7 +189,7 @@ String PixelFormat::asString() const
       result << "32f";
       break;
     default:
-      panic("Invalid pixel format type %i", type);
+      panic("Invalid pixel format type %i", m_type);
   }
 
   return result.str();
@@ -252,11 +232,11 @@ PixelTransform::~PixelTransform()
 bool RGBtoRGBA::supports(const PixelFormat& targetFormat,
                          const PixelFormat& sourceFormat)
 {
-  if (targetFormat.getType() != sourceFormat.getType())
+  if (targetFormat.type() != sourceFormat.type())
     return false;
 
-  if (targetFormat.getSemantic() != PixelFormat::RGBA ||
-      sourceFormat.getSemantic() != PixelFormat::RGB)
+  if (targetFormat.semantic() != PixelFormat::RGBA ||
+      sourceFormat.semantic() != PixelFormat::RGB)
   {
     return false;
   }
@@ -270,9 +250,9 @@ void RGBtoRGBA::convert(void* target,
                         const PixelFormat& sourceFormat,
                         size_t count)
 {
-  size_t channelSize = targetFormat.getChannelSize();
-  size_t targetSize = targetFormat.getSize();
-  size_t sourceSize = sourceFormat.getSize();
+  size_t channelSize = targetFormat.channelSize();
+  size_t targetSize = targetFormat.size();
+  size_t sourceSize = sourceFormat.size();
 
   while (count--)
   {

@@ -55,7 +55,7 @@ Rect::Rect(float x, float y, float width, float height):
 bool Rect::contains(const vec2& point) const
 {
   float minX, minY, maxX, maxY;
-  getBounds(minX, minY, maxX, maxY);
+  bounds(minX, minY, maxX, maxY);
 
   if (point.x < minX || point.x > maxX)
     return false;
@@ -69,10 +69,10 @@ bool Rect::contains(const vec2& point) const
 bool Rect::contains(const Rect& other) const
 {
   float minX, minY, maxX, maxY;
-  getBounds(minX, minY, maxX, maxY);
+  bounds(minX, minY, maxX, maxY);
 
   float otherMinX, otherMinY, otherMaxX, otherMaxY;
-  other.getBounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
+  other.bounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
 
   if (minX > otherMinX || maxX < otherMaxX)
     return false;
@@ -86,10 +86,10 @@ bool Rect::contains(const Rect& other) const
 bool Rect::intersects(const Rect& other) const
 {
   float minX, minY, maxX, maxY;
-  getBounds(minX, minY, maxX, maxY);
+  bounds(minX, minY, maxX, maxY);
 
   float otherMinX, otherMinY, otherMaxX, otherMaxY;
-  other.getBounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
+  other.bounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
 
   if (minX > otherMaxX || maxX < otherMinX)
     return false;
@@ -103,10 +103,10 @@ bool Rect::intersects(const Rect& other) const
 bool Rect::clipBy(const Rect& other)
 {
   float minX, minY, maxX, maxY;
-  getBounds(minX, minY, maxX, maxY);
+  bounds(minX, minY, maxX, maxY);
 
   float otherMinX, otherMinY, otherMaxX, otherMaxY;
-  other.getBounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
+  other.bounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
 
   if (minX > otherMaxX || maxX < otherMinX)
     return false;
@@ -130,7 +130,7 @@ bool Rect::clipBy(const Rect& other)
 void Rect::envelop(const vec2& other)
 {
   float minX, minY, maxX, maxY;
-  getBounds(minX, minY, maxX, maxY);
+  bounds(minX, minY, maxX, maxY);
 
   minX = min(minX, other.x);
   minY = min(minY, other.y);
@@ -143,10 +143,10 @@ void Rect::envelop(const vec2& other)
 void Rect::envelop(const Rect& other)
 {
   float minX, minY, maxX, maxY;
-  getBounds(minX, minY, maxX, maxY);
+  bounds(minX, minY, maxX, maxY);
 
   float otherMinX, otherMinY, otherMaxX, otherMaxY;
-  other.getBounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
+  other.bounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
 
   if (minX > otherMinX)
     minX = otherMinX;
@@ -219,7 +219,7 @@ Rect& Rect::operator *= (const vec2& scale)
   return *this;
 }
 
-vec2 Rect::getCenter() const
+vec2 Rect::center() const
 {
   return position + size / 2.f;
 }
@@ -229,7 +229,7 @@ void Rect::setCenter(const vec2& newCenter)
   position = newCenter - size / 2.f;
 }
 
-void Rect::getBounds(float& minX, float& minY, float& maxX, float& maxY) const
+void Rect::bounds(float& minX, float& minY, float& maxX, float& maxY) const
 {
   minX = position.x;
   minY = position.y;
@@ -291,7 +291,7 @@ Recti::Recti(int x, int y, int width, int height):
 bool Recti::contains(const ivec2& point) const
 {
   int minX, minY, maxX, maxY;
-  getBounds(minX, minY, maxX, maxY);
+  bounds(minX, minY, maxX, maxY);
 
   if (point.x < minX || point.x > maxX)
     return false;
@@ -305,10 +305,10 @@ bool Recti::contains(const ivec2& point) const
 bool Recti::contains(const Recti& other) const
 {
   int minX, minY, maxX, maxY;
-  getBounds(minX, minY, maxX, maxY);
+  bounds(minX, minY, maxX, maxY);
 
   int otherMinX, otherMinY, otherMaxX, otherMaxY;
-  other.getBounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
+  other.bounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
 
   if (minX > otherMinX || maxX < otherMaxX)
     return false;
@@ -322,10 +322,10 @@ bool Recti::contains(const Recti& other) const
 bool Recti::intersects(const Recti& other) const
 {
   int minX, minY, maxX, maxY;
-  getBounds(minX, minY, maxX, maxY);
+  bounds(minX, minY, maxX, maxY);
 
   int otherMinX, otherMinY, otherMaxX, otherMaxY;
-  other.getBounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
+  other.bounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
 
   if (minX > otherMaxX || maxX < otherMinX)
     return false;
@@ -339,10 +339,10 @@ bool Recti::intersects(const Recti& other) const
 bool Recti::clipBy(const Recti& other)
 {
   int minX, minY, maxX, maxY;
-  getBounds(minX, minY, maxX, maxY);
+  bounds(minX, minY, maxX, maxY);
 
   int otherMinX, otherMinY, otherMaxX, otherMaxY;
-  other.getBounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
+  other.bounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
 
   if (minX > otherMaxX || maxX < otherMinX)
     return false;
@@ -366,10 +366,10 @@ bool Recti::clipBy(const Recti& other)
 void Recti::envelop(const Recti& other)
 {
   int minX, minY, maxX, maxY;
-  getBounds(minX, minY, maxX, maxY);
+  bounds(minX, minY, maxX, maxY);
 
   int otherMinX, otherMinY, otherMaxX, otherMaxY;
-  other.getBounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
+  other.bounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
 
   if (minX > otherMinX)
     minX = otherMinX;
@@ -442,7 +442,7 @@ Recti& Recti::operator *= (const ivec2& scale)
   return *this;
 }
 
-ivec2 Recti::getCenter() const
+ivec2 Recti::center() const
 {
   return position + size / 2;
 }
@@ -452,7 +452,7 @@ void Recti::setCenter(const ivec2& newCenter)
   position = newCenter - size / 2;
 }
 
-void Recti::getBounds(int& minX, int& minY, int& maxX, int& maxY) const
+void Recti::bounds(int& minX, int& minY, int& maxX, int& maxY) const
 {
   minX = position.x;
   minY = position.y;

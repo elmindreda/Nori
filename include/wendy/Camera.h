@@ -53,41 +53,41 @@ public:
   /*! @return @c true if this camera uses orthographic projection, or @c false
    *  otherwise.
    */
-  bool isOrtho() const;
+  bool isOrtho() const { return m_mode == ORTHOGRAPHIC; }
   /*! @return @c true if this camera uses perspective projection, or @c false
    *  otherwise.
    */
-  bool isPerspective() const;
+  bool isPerspective() const { return m_mode == PERSPECTIVE; }
   /*! @return The projection mode used by this camera.
    */
-  Mode getMode() const;
+  Mode mode() const { return m_mode; }
   /*! Sets the projection mode of this camera.
    *  @param[in] newMode The projection mode to use.
    */
   void setMode(Mode newMode);
   /*! @return The volume used by orthographic projection.
    */
-  const AABB& getOrthoVolume() const;
+  const AABB& orthoVolume() const { return m_volume; }
   /*! Sets the volume used by orthographic projection.
    *  @param[in] newVolume The volume to use.
    */
   void setOrthoVolume(const AABB& newVolume);
   /*! @return The field of view, in degrees, of this camera.
    */
-  float getFOV() const;
+  float FOV() const { return m_FOV; }
   /*! @return The aspect ratio of this camera.
    *
    *  @remarks If the aspect ratio is zero, the aspect ratio will be calculated
    *  from the physical dimensions of the current framebuffer when this camera
    *  is made current.
    */
-  float getAspectRatio() const;
+  float aspectRatio() const { return m_aspectRatio; }
   /*! @return The distance from the origin to the near clip plane.
    */
-  float getNearZ() const;
+  float nearZ() const { return m_nearZ; }
   /*! @return The distance from the origin to the far clip plane.
    */
-  float getFarZ() const;
+  float farZ() const { return m_farZ; }
   /*! Sets the field of view for this camera.
    *  @param newFOV The desired field of view, in degrees.
    */
@@ -109,20 +109,20 @@ public:
   /*! @return The transform for this camera.
    *
    *  @remarks This is the camera-to-world-space transform for this camera. For
-   *  the world-to-camera-space transform, see Camera::getViewTransform.
+   *  the world-to-camera-space transform, see Camera::viewTransform.
    */
-  const Transform3& getTransform() const;
+  const Transform3& transform() const { return m_transform; }
   /*! @return The inverse of the transform for this camera.
    *
    *  @remarks This is the world-to-camera-space transform for this camera. For
-   *  the camera-to-world-space transform, see Camera::getTransform.
+   *  the camera-to-world-space transform, see Camera::transform.
    */
-  const Transform3& getViewTransform() const;
+  const Transform3& viewTransform() const;
   /*! @return The projection matrix for this camera.
    *
    *  @remarks This is calculated on every call.
    */
-  mat4 getProjectionMatrix() const;
+  mat4 projectionMatrix() const;
   /*! Sets the transform for this camera.
    *  @param[in] newTransform The desired new transform.
    *
@@ -131,29 +131,29 @@ public:
   void setTransform(const Transform3& newTransform);
   /*! @return The view frustum of this camera.
    */
-  const Frustum& getFrustum() const;
+  const Frustum& frustum() const;
   /*! @param[in] A point in world space.
    *  @return The normalized depth of the point in camera space, within the
    *  depth range of this camera.
    */
-  float getNormalizedDepth(const vec3& point) const;
+  float normalizedDepth(const vec3& point) const;
   /*! @param[in] position The position, in normalized screen coordinates, from
    *  which to construct ray suitable for picking.
    *  @return A view space ray corresponding to the specified screen position.
    */
-  Ray3 getViewSpacePickingRay(const vec2& position) const;
+  Ray3 viewSpacePickingRay(const vec2& position) const;
 private:
-  Mode mode;
-  float FOV;
-  float aspectRatio;
-  float nearZ;
-  float farZ;
-  AABB volume;
-  Transform3 transform;
-  mutable Transform3 inverse;
-  mutable Frustum frustum;
-  mutable bool dirtyFrustum;
-  mutable bool dirtyInverse;
+  Mode m_mode;
+  float m_FOV;
+  float m_aspectRatio;
+  float m_nearZ;
+  float m_farZ;
+  AABB m_volume;
+  Transform3 m_transform;
+  mutable Transform3 m_inverse;
+  mutable Frustum m_frustum;
+  mutable bool m_dirtyFrustum;
+  mutable bool m_dirtyInverse;
 };
 
 ///////////////////////////////////////////////////////////////////////

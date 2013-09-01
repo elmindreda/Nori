@@ -57,7 +57,7 @@ public:
   void end();
   /*! @return @c true if this query is active, otherwise @c false.
    */
-  bool isActive() const;
+  bool isActive() const { return m_active; }
   /*! @return @c true if the result of this query is available, otherwise @c
    *  false.
    */
@@ -65,7 +65,10 @@ public:
   /*! @return The latest results of this query, or zero if it is active or has
    *  never been active.
    */
-  uint getResult() const;
+  uint result() const;
+  /*! @return The context within which this query was created.
+   */
+  Context& context() const { return m_context; }
   /*! Creates an occlusion query.
    *  @param[in] context The context within which to create the query.
    *  @return The newly created query object, or @c NULL if an error occurred.
@@ -74,9 +77,9 @@ public:
 private:
   OcclusionQuery(Context& context);
   bool init();
-  Context& context;
-  uint queryID;
-  bool active;
+  Context& m_context;
+  uint m_queryID;
+  bool m_active;
 };
 
 ///////////////////////////////////////////////////////////////////////

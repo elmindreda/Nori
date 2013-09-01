@@ -55,16 +55,16 @@ public:
   ModelSection(const GL::IndexRange& range, Material* material);
   /*! @return The range of indices used by this geometry.
    */
-  const GL::IndexRange& getIndexRange() const;
+  const GL::IndexRange& indexRange() const { return m_range; }
   /*! @return The %render material used by this geometry.
    */
-  Material* getMaterial() const;
+  Material* material() const { return m_material; }
   /*! Sets the material of this geometry.
    */
   void setMaterial(Material* newMaterial);
 private:
-  GL::IndexRange range;
-  Ref<Material> material;
+  GL::IndexRange m_range;
+  Ref<Material> m_material;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -88,25 +88,25 @@ public:
   void enqueue(Scene& scene, const Camera& camera, const Transform3& transform) const;
   /*! @return The bounding AABB of this model.
    */
-  const AABB& getBoundingAABB() const;
+  const AABB& boundingAABB() const { return m_boundingAABB; }
   /*! @return The bounding sphere of this model.
    */
-  const Sphere& getBoundingSphere() const;
+  const Sphere& boundingSphere() const { return m_boundingSphere; }
   /*! @return The list of geometries in this model.
    */
-  const ModelSectionList& getSections();
+  const ModelSectionList& sections() { return m_sections; }
   /*! @return The vertex buffer used by this model.
    */
-  GL::VertexBuffer& getVertexBuffer();
+  GL::VertexBuffer& vertexBuffer() { return *m_vertexBuffer; }
   /*! @return The vertex buffer used by this model.
    */
-  const GL::VertexBuffer& getVertexBuffer() const;
+  const GL::VertexBuffer& vertexBuffer() const { return *m_vertexBuffer; }
   /*! @return The index buffer used by this model.
    */
-  GL::IndexBuffer& getIndexBuffer();
+  GL::IndexBuffer& indexBuffer() { return *m_indexBuffer; }
   /*! @return The index buffer used by this model.
    */
-  const GL::IndexBuffer& getIndexBuffer() const;
+  const GL::IndexBuffer& indexBuffer() const { return *m_indexBuffer; }
   /*! Creates a model from the specified mesh.
    *  @param[in] info The resource info for the texture.
    *  @param[in] system The render system within which to create the texture.
@@ -130,11 +130,11 @@ private:
   Model(const Model& source);
   Model& operator = (const Model& source);
   bool init(System& system, const Mesh& data, const MaterialMap& materials);
-  ModelSectionList sections;
-  Ref<GL::VertexBuffer> vertexBuffer;
-  Ref<GL::IndexBuffer> indexBuffer;
-  Sphere boundingSphere;
-  AABB boundingAABB;
+  ModelSectionList m_sections;
+  Ref<GL::VertexBuffer> m_vertexBuffer;
+  Ref<GL::IndexBuffer> m_indexBuffer;
+  Sphere m_boundingSphere;
+  AABB m_boundingAABB;
 };
 
 ///////////////////////////////////////////////////////////////////////

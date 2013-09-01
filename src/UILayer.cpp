@@ -73,10 +73,10 @@ void Layer::draw()
 
   drawer.begin();
 
-  for (auto r = roots.begin();  r != roots.end();  r++)
+  for (auto r : roots)
   {
-    if ((*r)->isVisible())
-      (*r)->draw();
+    if (r->isVisible())
+      r->draw();
   }
 
   drawer.end();
@@ -138,8 +138,8 @@ void Layer::cancelDragging()
 {
   if (dragging && draggedWidget)
   {
-    vec2 cursorPosition = vec2(window.getCursorPosition());
-    cursorPosition.y = window.getHeight() - cursorPosition.y;
+    vec2 cursorPosition = vec2(window.cursorPosition());
+    cursorPosition.y = window.height() - cursorPosition.y;
 
     draggedWidget->dragEndedSignal(*draggedWidget, cursorPosition);
 
@@ -165,12 +165,12 @@ bool Layer::hasCapturedCursor() const
 
 uint Layer::getWidth() const
 {
-  return window.getWidth();
+  return window.width();
 }
 
 uint Layer::getHeight() const
 {
-  return window.getHeight();
+  return window.height();
 }
 
 Drawer& Layer::getDrawer() const
@@ -245,8 +245,8 @@ void Layer::updateHoveredWidget()
   if (captureWidget)
     return;
 
-  vec2 cursorPosition = vec2(window.getCursorPosition());
-  cursorPosition.y = window.getHeight() - cursorPosition.y;
+  vec2 cursorPosition = vec2(window.cursorPosition());
+  cursorPosition.y = window.height() - cursorPosition.y;
 
   Widget* newWidget = findWidgetByPoint(cursorPosition);
 
@@ -334,7 +334,7 @@ void Layer::onCursorPos(vec2 position)
 {
   updateHoveredWidget();
 
-  position.y = window.getHeight() - position.y;
+  position.y = window.height() - position.y;
 
   if (hoveredWidget)
     hoveredWidget->cursorMovedSignal(*hoveredWidget, position);
@@ -355,8 +355,8 @@ void Layer::onCursorPos(vec2 position)
 
 void Layer::onMouseButton(MouseButton button, Action action)
 {
-  vec2 cursorPosition = vec2(window.getCursorPosition());
-  cursorPosition.y = window.getHeight() - cursorPosition.y;
+  vec2 cursorPosition = vec2(window.cursorPosition());
+  cursorPosition.y = window.height() - cursorPosition.y;
 
   if (action == PRESSED)
   {
@@ -442,8 +442,8 @@ LayerStack::LayerStack(Window& initWindow):
 
 void LayerStack::update() const
 {
-  for (auto l = layers.begin();  l != layers.end();  l++)
-    (*l)->update();
+  for (auto l : layers)
+    l->update();
 }
 
 void LayerStack::draw() const

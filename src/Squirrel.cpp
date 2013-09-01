@@ -239,43 +239,43 @@ void logErrorCallStack(HSQUIRRELVM vm)
 
 ///////////////////////////////////////////////////////////////////////
 
-VM::VM(ResourceCache& initCache):
-  cache(initCache),
-  vm(NULL)
+VM::VM(ResourceCache& cache):
+  m_cache(cache),
+  m_vm(NULL)
 {
-  vm = sq_open(1024);
+  m_vm = sq_open(1024);
 
-  sq_setforeignptr(vm, this);
-  sq_setprintfunc(vm, onLogMessage, onLogError);
-  sq_setcompilererrorhandler(vm, onCompilerError);
+  sq_setforeignptr(m_vm, this);
+  sq_setprintfunc(m_vm, onLogMessage, onLogError);
+  sq_setcompilererrorhandler(m_vm, onCompilerError);
 
-  sq_pushroottable(vm);
-  sqstd_register_mathlib(vm);
-  sqstd_register_stringlib(vm);
-  sq_newclosure(vm, onRuntimeError, 0);
-  sq_seterrorhandler(vm);
-  sq_poptop(vm);
+  sq_pushroottable(m_vm);
+  sqstd_register_mathlib(m_vm);
+  sqstd_register_stringlib(m_vm);
+  sq_newclosure(m_vm, onRuntimeError, 0);
+  sq_seterrorhandler(m_vm);
+  sq_poptop(m_vm);
 }
 
 VM::~VM()
 {
-  if (vm)
-    sq_close(vm);
+  if (m_vm)
+    sq_close(m_vm);
 }
 
 bool VM::execute(const char* name)
 {
-  const Path path = cache.findFile(name);
+  const Path path = m_cache.findFile(name);
   if (path.isEmpty())
   {
-    logError("Failed to find script \'%s\'", name);
+    logError("Failed to find script %s", name);
     return false;
   }
 
   std::ifstream stream(path.asString().c_str());
   if (stream.fail())
   {
-    logError("Failed to open script \'%s\'", name);
+    logError("Failed to open script %s", name);
     return NULL;
   }
 
@@ -293,62 +293,62 @@ bool VM::execute(const char* name)
 
 bool VM::execute(const char* name, const char* text)
 {
-  if (SQ_FAILED(sq_compilebuffer(vm, text, std::strlen(text), name, true)))
+  if (SQ_FAILED(sq_compilebuffer(m_vm, text, std::strlen(text), name, true)))
     return false;
 
-  sq_pushroottable(vm);
+  sq_pushroottable(m_vm);
 
-  const SQRESULT result = sq_call(vm, 1, false, true);
+  const SQRESULT result = sq_call(m_vm, 1, false, true);
 
-  sq_poptop(vm);
+  sq_poptop(m_vm);
   return SQ_SUCCEEDED(result);
 }
 
 VM::operator HSQUIRRELVM ()
 {
-  return vm;
+  return m_vm;
 }
 
-void* VM::getForeignPointer() const
+void* VM::foreignPointer() const
 {
-  return sq_getforeignptr(vm);
+  return sq_getforeignptr(m_vm);
 }
 
 void VM::setForeignPointer(void* newValue)
 {
-  sq_setforeignptr(vm, newValue);
+  sq_setforeignptr(m_vm, newValue);
 }
 
-Table VM::getRootTable()
+Table VM::rootTable()
 {
-  sq_pushroottable(vm);
-  Table table(vm, -1);
-  sq_poptop(vm);
+  sq_pushroottable(m_vm);
+  Table table(m_vm, -1);
+  sq_poptop(m_vm);
 
   return table;
 }
 
-Table VM::getConstTable()
+Table VM::constTable()
 {
-  sq_pushconsttable(vm);
-  Table table(vm, -1);
-  sq_poptop(vm);
+  sq_pushconsttable(m_vm);
+  Table table(m_vm, -1);
+  sq_poptop(m_vm);
 
   return table;
 }
 
-Table VM::getRegistryTable()
+Table VM::registryTable()
 {
-  sq_pushregistrytable(vm);
-  Table table(vm, -1);
-  sq_poptop(vm);
+  sq_pushregistrytable(m_vm);
+  Table table(m_vm, -1);
+  sq_poptop(m_vm);
 
   return table;
 }
 
-ResourceCache& VM::getCache() const
+ResourceCache& VM::cache() const
 {
-  return cache;
+  return m_cache;
 }
 
 void VM::onLogMessage(HSQUIRRELVM vm, const SQChar* format, ...)
@@ -407,121 +407,121 @@ SQInteger VM::onRuntimeError(HSQUIRRELVM vm)
 ///////////////////////////////////////////////////////////////////////
 
 Object::Object():
-  vm(NULL)
+  m_vm(NULL)
 {
-  sq_resetobject(&handle);
+  sq_resetobject(&m_handle);
 }
 
-Object::Object(HSQUIRRELVM initVM, SQInteger index):
-  vm(initVM)
+Object::Object(HSQUIRRELVM vm, SQInteger index):
+  m_vm(vm)
 {
-  if (!vm)
+  if (!m_vm)
     panic("VM handle cannot be NULL when constructing from stack");
 
-  sq_resetobject(&handle);
-  sq_getstackobj(vm, -1, &handle);
-  sq_addref(vm, &handle);
+  sq_resetobject(&m_handle);
+  sq_getstackobj(m_vm, -1, &m_handle);
+  sq_addref(m_vm, &m_handle);
 }
 
 Object::Object(const Object& source):
-  vm(source.vm),
-  handle(source.handle)
+  m_vm(source.m_vm),
+  m_handle(source.m_handle)
 {
-  sq_addref(vm, &handle);
+  sq_addref(m_vm, &m_handle);
 }
 
 Object::~Object()
 {
-  if (vm)
-    sq_release(vm, &handle);
+  if (m_vm)
+    sq_release(m_vm, &m_handle);
 }
 
 Object Object::clone() const
 {
-  if (!vm)
+  if (!m_vm)
     return Object();
 
-  sq_pushobject(vm, handle);
-  sq_clone(vm, -1);
-  Object clone(vm, -1);
-  sq_pop(vm, 2);
+  sq_pushobject(m_vm, m_handle);
+  sq_clone(m_vm, -1);
+  Object clone(m_vm, -1);
+  sq_pop(m_vm, 2);
   return clone;
 }
 
 Object& Object::operator = (const Object& source)
 {
-  HSQOBJECT next = source.handle;
-  sq_addref(vm, &next);
-  sq_release(vm, &handle);
-  handle = next;
-  vm = source.vm;
+  HSQOBJECT next = source.m_handle;
+  sq_addref(m_vm, &next);
+  sq_release(m_vm, &m_handle);
+  m_handle = next;
+  m_vm = source.m_vm;
   return *this;
 }
 
 bool Object::isNull() const
 {
-  return sq_isnull(handle);
+  return sq_isnull(m_handle);
 }
 
 bool Object::isArray() const
 {
-  return sq_isarray(handle);
+  return sq_isarray(m_handle);
 }
 
 bool Object::isTable() const
 {
-  return sq_istable(handle);
+  return sq_istable(m_handle);
 }
 
 bool Object::isClass() const
 {
-  return sq_isclass(handle);
+  return sq_isclass(m_handle);
 }
 
 bool Object::isInstance() const
 {
-  return sq_isinstance(handle);
+  return sq_isinstance(m_handle);
 }
 
 String Object::asString() const
 {
-  if (!vm)
+  if (!m_vm)
     return String();
 
-  sq_pushobject(vm, handle);
-  sq_tostring(vm, -1);
+  sq_pushobject(m_vm, m_handle);
+  sq_tostring(m_vm, -1);
 
-  String result = Value<String>::get(vm, -1);
+  String result = Value<String>::get(m_vm, -1);
 
-  sq_pop(vm, 2);
+  sq_pop(m_vm, 2);
   return result;
 }
 
-SQObjectType Object::getType() const
+SQObjectType Object::type() const
 {
-  if (!vm)
+  if (!m_vm)
     return OT_NULL;
 
-  sq_pushobject(vm, handle);
-  SQObjectType type = sq_gettype(vm, -1);
-  sq_poptop(vm);
+  sq_pushobject(m_vm, m_handle);
+  SQObjectType type = sq_gettype(m_vm, -1);
+  sq_poptop(m_vm);
   return type;
 }
 
-HSQOBJECT Object::getHandle()
+HSQOBJECT Object::handle()
 {
-  return handle;
+  return m_handle;
 }
 
-HSQUIRRELVM Object::getVM() const
+HSQUIRRELVM Object::VM() const
 {
-  return vm;
+  return m_vm;
 }
 
-Object::Object(HSQUIRRELVM initVM):
-  vm(initVM)
+Object::Object(HSQUIRRELVM vm):
+  m_vm(vm)
 {
-  sq_resetobject(&handle);
+  sq_resetobject(&m_handle);
 }
 
 bool Object::removeSlot(const char* name)
@@ -529,12 +529,12 @@ bool Object::removeSlot(const char* name)
   if (isNull())
     return false;
 
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
+  sq_pushobject(m_vm, m_handle);
+  sq_pushstring(m_vm, name, -1);
 
-  const SQRESULT result = sq_deleteslot(vm, -2, false);
+  const SQRESULT result = sq_deleteslot(m_vm, -2, false);
 
-  sq_poptop(vm);
+  sq_poptop(m_vm);
   return SQ_SUCCEEDED(result);
 }
 
@@ -547,16 +547,16 @@ bool Object::addFunction(const char* name,
   if (isNull())
     return false;
 
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
+  sq_pushobject(m_vm, m_handle);
+  sq_pushstring(m_vm, name, -1);
 
-  std::memcpy(sq_newuserdata(vm, pointerSize), pointer, pointerSize);
-  sq_newclosure(vm, function, 1);
-  sq_setnativeclosurename(vm, -1, name);
+  std::memcpy(sq_newuserdata(m_vm, pointerSize), pointer, pointerSize);
+  sq_newclosure(m_vm, function, 1);
+  sq_setnativeclosurename(m_vm, -1, name);
 
-  const SQRESULT result = sq_newslot(vm, -3, staticMember);
+  const SQRESULT result = sq_newslot(m_vm, -3, staticMember);
 
-  sq_poptop(vm);
+  sq_poptop(m_vm);
   return SQ_SUCCEEDED(result);
 }
 
@@ -565,40 +565,40 @@ bool Object::clear()
   if (isNull())
     return false;
 
-  sq_pushobject(vm, handle);
+  sq_pushobject(m_vm, m_handle);
 
-  const SQRESULT result = sq_clear(vm, -1);
+  const SQRESULT result = sq_clear(m_vm, -1);
 
-  sq_poptop(vm);
+  sq_poptop(m_vm);
   return SQ_SUCCEEDED(result);
 }
 
 bool Object::call(const char* name)
 {
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-  if (SQ_FAILED(sq_get(vm, -2)))
+  sq_pushobject(m_vm, m_handle);
+  sq_pushstring(m_vm, name, -1);
+  if (SQ_FAILED(sq_get(m_vm, -2)))
   {
-    sq_poptop(vm);
+    sq_poptop(m_vm);
     return false;
   }
 
-  sq_pushobject(vm, handle);
+  sq_pushobject(m_vm, m_handle);
 
-  const SQRESULT result = sq_call(vm, 1, false, true);
+  const SQRESULT result = sq_call(m_vm, 1, false, true);
 
-  sq_pop(vm, 2);
+  sq_pop(m_vm, 2);
   return SQ_SUCCEEDED(result);
 }
 
-SQInteger Object::getSize() const
+SQInteger Object::size() const
 {
   if (isNull())
     return 0;
 
-  sq_pushobject(vm, handle);
-  SQInteger size = sq_getsize(vm, -1);
-  sq_poptop(vm);
+  sq_pushobject(m_vm, m_handle);
+  SQInteger size = sq_getsize(m_vm, -1);
+  sq_poptop(m_vm);
   return size;
 }
 
@@ -611,10 +611,10 @@ Array::Array()
 Array::Array(HSQUIRRELVM vm):
   Object(vm)
 {
-  sq_newarray(vm, 0);
-  sq_getstackobj(vm, -1, &handle);
-  sq_addref(vm, &handle);
-  sq_poptop(vm);
+  sq_newarray(m_vm, 0);
+  sq_getstackobj(m_vm, -1, &m_handle);
+  sq_addref(m_vm, &m_handle);
+  sq_poptop(m_vm);
 }
 
 Array::Array(const Object& source):
@@ -636,11 +636,11 @@ bool Array::remove(SQInteger index)
   if (isNull())
     return false;
 
-  sq_pushobject(vm, handle);
+  sq_pushobject(m_vm, m_handle);
 
-  const SQRESULT result = sq_arrayremove(vm, -1, index);
+  const SQRESULT result = sq_arrayremove(m_vm, -1, index);
 
-  sq_poptop(vm);
+  sq_poptop(m_vm);
   return SQ_SUCCEEDED(result);
 }
 
@@ -649,11 +649,11 @@ bool Array::pop()
   if (isNull())
     return false;
 
-  sq_pushobject(vm, handle);
+  sq_pushobject(m_vm, m_handle);
 
-  const SQRESULT result = sq_arraypop(vm, -1, false);
+  const SQRESULT result = sq_arraypop(m_vm, -1, false);
 
-  sq_poptop(vm);
+  sq_poptop(m_vm);
   return SQ_SUCCEEDED(result);
 }
 
@@ -662,11 +662,11 @@ bool Array::resize(SQInteger newSize)
   if (isNull())
     return false;
 
-  sq_pushobject(vm, handle);
+  sq_pushobject(m_vm, m_handle);
 
-  const SQRESULT result = sq_arrayresize(vm, -1, newSize);
+  const SQRESULT result = sq_arrayresize(m_vm, -1, newSize);
 
-  sq_poptop(vm);
+  sq_poptop(m_vm);
   return SQ_SUCCEEDED(result);
 }
 
@@ -675,11 +675,11 @@ bool Array::reverse()
   if (isNull())
     return false;
 
-  sq_pushobject(vm, handle);
+  sq_pushobject(m_vm, m_handle);
 
-  const SQRESULT result = sq_arrayreverse(vm, -1);
+  const SQRESULT result = sq_arrayreverse(m_vm, -1);
 
-  sq_poptop(vm);
+  sq_poptop(m_vm);
   return SQ_SUCCEEDED(result);
 }
 
@@ -688,17 +688,17 @@ Object Array::operator [] (SQInteger index) const
   if (isNull())
     panic("Cannot retrieve slot from null");
 
-  sq_pushobject(vm, handle);
-  sq_pushinteger(vm, index);
+  sq_pushobject(m_vm, m_handle);
+  sq_pushinteger(m_vm, index);
 
-  if (SQ_FAILED(sq_get(vm, -2)))
+  if (SQ_FAILED(sq_get(m_vm, -2)))
   {
-    sq_poptop(vm);
+    sq_poptop(m_vm);
     panic("No array element at index");
   }
 
-  Object result(vm, -1);
-  sq_pop(vm, 2);
+  Object result(m_vm, -1);
+  sq_pop(m_vm, 2);
   return result;
 }
 
@@ -711,10 +711,10 @@ Table::Table()
 Table::Table(HSQUIRRELVM vm):
   Object(vm)
 {
-  sq_newtable(vm);
-  sq_getstackobj(vm, -1, &handle);
-  sq_addref(vm, &handle);
-  sq_poptop(vm);
+  sq_newtable(m_vm);
+  sq_getstackobj(m_vm, -1, &m_handle);
+  sq_addref(m_vm, &m_handle);
+  sq_poptop(m_vm);
 }
 
 Table::Table(const Object& source):
@@ -740,10 +740,10 @@ Class::Class()
 Class::Class(HSQUIRRELVM vm):
   Object(vm)
 {
-  sq_newtable(vm);
-  sq_getstackobj(vm, -1, &handle);
-  sq_addref(vm, &handle);
-  sq_poptop(vm);
+  sq_newtable(m_vm);
+  sq_getstackobj(m_vm, -1, &m_handle);
+  sq_addref(m_vm, &m_handle);
+  sq_poptop(m_vm);
 }
 
 Class::Class(const Object& source):
@@ -765,42 +765,42 @@ Instance Class::createInstance() const
   if (isNull())
     panic("Cannot create instance of null");
 
-  sq_pushobject(vm, handle);
-  sq_createinstance(vm, -1);
+  sq_pushobject(m_vm, m_handle);
+  sq_createinstance(m_vm, -1);
 
-  Instance result(vm, -1);
+  Instance result(m_vm, -1);
 
-  sq_pop(vm, 2);
+  sq_pop(m_vm, 2);
   return result;
 }
 
-Table Class::getAttributes()
+Table Class::attributes()
 {
   if (isNull())
     return Table();
 
-  sq_pushobject(vm, handle);
-  sq_pushnull(vm);
-  sq_getattributes(vm, -2);
+  sq_pushobject(m_vm, m_handle);
+  sq_pushnull(m_vm);
+  sq_getattributes(m_vm, -2);
 
-  Table result(vm, -1);
+  Table result(m_vm, -1);
 
-  sq_pop(vm, 2);
+  sq_pop(m_vm, 2);
   return result;
 }
 
-Table Class::getMemberAttributes(const char* name)
+Table Class::memberAttributes(const char* name)
 {
   if (isNull())
     return Table();
 
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-  sq_getattributes(vm, -2);
+  sq_pushobject(m_vm, m_handle);
+  sq_pushstring(m_vm, name, -1);
+  sq_getattributes(m_vm, -2);
 
-  Table result(vm, -1);
+  Table result(m_vm, -1);
 
-  sq_pop(vm, 2);
+  sq_pop(m_vm, 2);
   return result;
 }
 
@@ -824,14 +824,14 @@ Instance::Instance(HSQUIRRELVM vm, SQInteger index):
     panic("Object is not an instance");
 }
 
-Class Instance::getClass() const
+Class Instance::class_() const
 {
-  sq_pushobject(vm, handle);
-  sq_getclass(vm, -1);
+  sq_pushobject(m_vm, m_handle);
+  sq_getclass(m_vm, -1);
 
-  Class result(vm, -1);
+  Class result(m_vm, -1);
 
-  sq_pop(vm, 2);
+  sq_pop(m_vm, 2);
   return result;
 }
 

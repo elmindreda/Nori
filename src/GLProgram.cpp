@@ -54,7 +54,7 @@ namespace wendy
 namespace
 {
 
-GLenum getElementType(AttributeType type)
+GLenum elementTypeOf(AttributeType type)
 {
   switch (type)
   {
@@ -150,19 +150,6 @@ bool isSupportedUniformType(GLenum type)
   return false;
 }
 
-const char* getTypeName(ShaderType type)
-{
-  switch (type)
-  {
-    case VERTEX_SHADER:
-      return "vertex";
-    case FRAGMENT_SHADER:
-      return "fragment";
-  }
-
-  panic("Invalid shader type %i", type);
-}
-
 UniformType convertUniformType(GLenum type)
 {
   switch (type)
@@ -206,28 +193,8 @@ GLenum convertToGL(ShaderType type)
 
 Shader::~Shader()
 {
-  if (shaderID)
-    glDeleteShader(shaderID);
-}
-
-bool Shader::isVertexShader() const
-{
-  return type == VERTEX_SHADER;
-}
-
-bool Shader::isFragmentShader() const
-{
-  return type == FRAGMENT_SHADER;
-}
-
-ShaderType Shader::getType() const
-{
-  return type;
-}
-
-Context& Shader::getContext() const
-{
-  return context;
+  if (m_shaderID)
+    glDeleteShader(m_shaderID);
 }
 
 Ref<Shader> Shader::create(const ResourceInfo& info,
@@ -246,7 +213,7 @@ Ref<Shader> Shader::read(Context& context,
                         ShaderType type,
                         const String& name)
 {
-  ResourceCache& cache = context.getCache();
+  ResourceCache& cache = context.cache();
 
   if (Ref<Shader> shader = cache.find<Shader>(name))
     return shader;
@@ -254,14 +221,14 @@ Ref<Shader> Shader::read(Context& context,
   const Path path = cache.findFile(name);
   if (path.isEmpty())
   {
-    logError("Failed to find shader \'%s\'", name.c_str());
+    logError("Failed to find shader %s", name.c_str());
     return NULL;
   }
 
   std::ifstream stream(path.asString().c_str());
   if (stream.fail())
   {
-    logError("Failed to open shader file \'%s\'", path.asString().c_str());
+    logError("Failed to open shader file %s", path.asString().c_str());
     return NULL;
   }
 
@@ -277,22 +244,22 @@ Ref<Shader> Shader::read(Context& context,
 }
 
 Shader::Shader(const ResourceInfo& info,
-               Context& initContext,
-               ShaderType initType):
+               Context& context,
+               ShaderType type):
   Resource(info),
-  context(initContext),
-  type(initType),
-  shaderID(0)
+  m_context(context),
+  m_type(type),
+  m_shaderID(0)
 {
 }
 
 bool Shader::init(const String& text)
 {
-  Preprocessor spp(getCache());
+  Preprocessor spp(cache());
 
   try
   {
-    spp.parse(getName().c_str(), text.c_str());
+    spp.parse(name().c_str(), text.c_str());
   }
   catch (Exception& e)
   {
@@ -310,7 +277,7 @@ bool Shader::init(const String& text)
   }
 
   shader += "#line 0 0 /*shared program state*/\n";
-  shader += context.getSharedProgramStateDeclaration();
+  shader += m_context.sharedProgramStateDeclaration();
   shader += spp.getOutput();
 
   GLsizei lengths[1];
@@ -319,34 +286,34 @@ bool Shader::init(const String& text)
   lengths[0] = shader.length();
   strings[0] = (const GLchar*) shader.c_str();
 
-  shaderID = glCreateShader(convertToGL(type));
-  glShaderSource(shaderID, 1, strings, lengths);
-  glCompileShader(shaderID);
+  m_shaderID = glCreateShader(convertToGL(m_type));
+  glShaderSource(m_shaderID, 1, strings, lengths);
+  glCompileShader(m_shaderID);
 
   String infoLog;
 
   // Retrieve shader info log
   {
     GLint infoLogLength;
-    glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
+    glGetShaderiv(m_shaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
 
     if (infoLogLength > 1)
     {
       infoLog.resize(infoLogLength);
-      glGetShaderInfoLog(shaderID, infoLogLength, NULL, &infoLog[0]);
+      glGetShaderInfoLog(m_shaderID, infoLogLength, NULL, &infoLog[0]);
     }
   }
 
   // Check shader compilation status
   {
     GLint status;
-    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &status);
+    glGetShaderiv(m_shaderID, GL_COMPILE_STATUS, &status);
     if (status)
     {
       if (!infoLog.empty())
       {
-        logWarning("Warning(s) compiling shader \'%s\':\n%s%s",
-                   getName().c_str(),
+        logWarning("Warning(s) compiling shader %s:\n%s%s",
+                   name().c_str(),
                    spp.getNameList().c_str(),
                    infoLog.c_str());
       }
@@ -354,11 +321,11 @@ bool Shader::init(const String& text)
     else
     {
       if (infoLog.empty())
-        checkGL("Failed to compile shader \'%s\'", getName().c_str());
+        checkGL("Failed to compile shader %s", name().c_str());
       else
       {
-        logError("Failed to compile shader \'%s\':\n%s%s",
-                 getName().c_str(),
+        logError("Failed to compile shader %s:\n%s%s",
+                 name().c_str(),
                  spp.getNameList().c_str(),
                  infoLog.c_str());
       }
@@ -367,7 +334,7 @@ bool Shader::init(const String& text)
     }
   }
 
-  if (!checkGL("Failed to create object for shader \'%s\'", getName().c_str()))
+  if (!checkGL("Failed to create object for shader %s", name().c_str()))
     return false;
 
   return true;
@@ -375,37 +342,16 @@ bool Shader::init(const String& text)
 
 ///////////////////////////////////////////////////////////////////////
 
-bool Attribute::operator == (const char* string) const
-{
-  return name == string;
-}
-
-bool Attribute::isScalar() const
-{
-  return type == ATTRIBUTE_FLOAT;
-}
-
 bool Attribute::isVector() const
 {
-  if (type == ATTRIBUTE_VEC2 || type == ATTRIBUTE_VEC3 || type == ATTRIBUTE_VEC4)
-    return true;
-
-  return false;
+  return m_type == ATTRIBUTE_VEC2 ||
+         m_type == ATTRIBUTE_VEC3 ||
+         m_type == ATTRIBUTE_VEC4;
 }
 
-AttributeType Attribute::getType() const
+uint Attribute::elementCount() const
 {
-  return type;
-}
-
-const String& Attribute::getName() const
-{
-  return name;
-}
-
-uint Attribute::getElementCount() const
-{
-  switch (type)
+  switch (m_type)
   {
     case ATTRIBUTE_FLOAT:
       return 1;
@@ -417,24 +363,24 @@ uint Attribute::getElementCount() const
       return 4;
   }
 
-  panic("Invalid GLSL attribute type %u", type);
+  panic("Invalid GLSL attribute type %u", m_type);
 }
 
 void Attribute::bind(size_t stride, size_t offset)
 {
-  glVertexAttribPointer(location,
-                        getElementCount(),
-                        getElementType(type),
+  glVertexAttribPointer(m_location,
+                        elementCount(),
+                        elementTypeOf(m_type),
                         GL_FALSE,
                         stride,
                         (const void*) offset);
 
 #if WENDY_DEBUG
-  checkGL("Failed to set attribute \'%s\'", name.c_str());
+  checkGL("Failed to set attribute %s", m_name.c_str());
 #endif
 }
 
-const char* Attribute::getTypeName(AttributeType type)
+const char* Attribute::typeName(AttributeType type)
 {
   switch (type)
   {
@@ -455,39 +401,19 @@ const char* Attribute::getTypeName(AttributeType type)
 
 void Sampler::bind(uint unit)
 {
-  glUniform1i(location, unit);
+  glUniform1i(m_location, unit);
 
 #if WENDY_DEBUG
-  checkGL("Failed to set sampler \'%s\'", name.c_str());
+  checkGL("Failed to set sampler %s", m_name.c_str());
 #endif
-}
-
-bool Sampler::operator == (const char* string) const
-{
-  return name == string;
 }
 
 bool Sampler::isShared() const
 {
-  return sharedID != INVALID_SHARED_STATE_ID;
+  return m_sharedID != INVALID_SHARED_STATE_ID;
 }
 
-SamplerType Sampler::getType() const
-{
-  return type;
-}
-
-const String& Sampler::getName() const
-{
-  return name;
-}
-
-int Sampler::getSharedID() const
-{
-  return sharedID;
-}
-
-const char* Sampler::getTypeName(SamplerType type)
+const char* Sampler::typeName(SamplerType type)
 {
   switch (type)
   {
@@ -510,80 +436,58 @@ const char* Sampler::getTypeName(SamplerType type)
 
 void Uniform::copyFrom(const void* data)
 {
-  switch (type)
+  switch (m_type)
   {
     case UNIFORM_FLOAT:
-      glUniform1fv(location, 1, (const float*) data);
+      glUniform1fv(m_location, 1, (const float*) data);
       break;
     case UNIFORM_VEC2:
-      glUniform2fv(location, 1, (const float*) data);
+      glUniform2fv(m_location, 1, (const float*) data);
       break;
     case UNIFORM_VEC3:
-      glUniform3fv(location, 1, (const float*) data);
+      glUniform3fv(m_location, 1, (const float*) data);
       break;
     case UNIFORM_VEC4:
-      glUniform4fv(location, 1, (const float*) data);
+      glUniform4fv(m_location, 1, (const float*) data);
       break;
     case UNIFORM_MAT2:
-      glUniformMatrix2fv(location, 1, GL_FALSE, (const float*) data);
+      glUniformMatrix2fv(m_location, 1, GL_FALSE, (const float*) data);
       break;
     case UNIFORM_MAT3:
-      glUniformMatrix3fv(location, 1, GL_FALSE, (const float*) data);
+      glUniformMatrix3fv(m_location, 1, GL_FALSE, (const float*) data);
       break;
     case UNIFORM_MAT4:
-      glUniformMatrix4fv(location, 1, GL_FALSE, (const float*) data);
+      glUniformMatrix4fv(m_location, 1, GL_FALSE, (const float*) data);
       break;
   }
 
 #if WENDY_DEBUG
-  checkGL("Failed to set uniform \'%s\'", name.c_str());
+  checkGL("Failed to set uniform %s", m_name.c_str());
 #endif
-}
-
-bool Uniform::operator == (const char* string) const
-{
-  return name == string;
 }
 
 bool Uniform::isShared() const
 {
-  return sharedID != INVALID_SHARED_STATE_ID;
-}
-
-bool Uniform::isScalar() const
-{
-  return type == UNIFORM_FLOAT;
+  return m_sharedID != INVALID_SHARED_STATE_ID;
 }
 
 bool Uniform::isVector() const
 {
-  if (type == UNIFORM_VEC2 || type == UNIFORM_VEC3 || type == UNIFORM_VEC4)
-    return true;
-
-  return false;
+  return m_type == UNIFORM_VEC2 ||
+         m_type == UNIFORM_VEC3 ||
+         m_type == UNIFORM_VEC4;
 }
 
 bool Uniform::isMatrix() const
 {
-  if (type == UNIFORM_MAT2 || type == UNIFORM_MAT3 || type == UNIFORM_MAT4)
-    return true;
-
-  return false;
+  return m_type == UNIFORM_MAT2 ||
+         m_type == UNIFORM_MAT3 ||
+         m_type == UNIFORM_MAT4;
 }
 
-UniformType Uniform::getType() const
+uint Uniform::elementCount() const
 {
-  return type;
-}
-
-const String& Uniform::getName() const
-{
-  return name;
-}
-
-uint Uniform::getElementCount() const
-{
-  switch (type)
+  switch (m_type)
   {
     case UNIFORM_FLOAT:
       return 1;
@@ -601,15 +505,10 @@ uint Uniform::getElementCount() const
       return 4 * 4;
   }
 
-  panic("Invalid GLSL uniform type %u", type);
+  panic("Invalid GLSL uniform type %u", m_type);
 }
 
-int Uniform::getSharedID() const
-{
-  return sharedID;
-}
-
-const char* Uniform::getTypeName(UniformType type)
+const char* Uniform::typeName(UniformType type)
 {
   switch (type)
   {
@@ -636,17 +535,17 @@ const char* Uniform::getTypeName(UniformType type)
 
 Program::~Program()
 {
-  if (programID)
-    glDeleteProgram(programID);
+  if (m_programID)
+    glDeleteProgram(m_programID);
 
-  if (Stats* stats = context.getStats())
+  if (Stats* stats = m_context.stats())
     stats->removeProgram();
 }
 
 Attribute* Program::findAttribute(const char* name)
 {
-  auto a = std::find(attributes.begin(), attributes.end(), name);
-  if (a == attributes.end())
+  auto a = std::find(m_attributes.begin(), m_attributes.end(), name);
+  if (a == m_attributes.end())
     return NULL;
 
   return &(*a);
@@ -654,8 +553,8 @@ Attribute* Program::findAttribute(const char* name)
 
 const Attribute* Program::findAttribute(const char* name) const
 {
-  auto a = std::find(attributes.begin(), attributes.end(), name);
-  if (a == attributes.end())
+  auto a = std::find(m_attributes.begin(), m_attributes.end(), name);
+  if (a == m_attributes.end())
     return NULL;
 
   return &(*a);
@@ -663,8 +562,8 @@ const Attribute* Program::findAttribute(const char* name) const
 
 Sampler* Program::findSampler(const char* name)
 {
-  auto s = std::find(samplers.begin(), samplers.end(), name);
-  if (s == samplers.end())
+  auto s = std::find(m_samplers.begin(), m_samplers.end(), name);
+  if (s == m_samplers.end())
     return NULL;
 
   return &(*s);
@@ -672,8 +571,8 @@ Sampler* Program::findSampler(const char* name)
 
 const Sampler* Program::findSampler(const char* name) const
 {
-  auto s = std::find(samplers.begin(), samplers.end(), name);
-  if (s == samplers.end())
+  auto s = std::find(m_samplers.begin(), m_samplers.end(), name);
+  if (s == m_samplers.end())
     return NULL;
 
   return &(*s);
@@ -681,8 +580,8 @@ const Sampler* Program::findSampler(const char* name) const
 
 Uniform* Program::findUniform(const char* name)
 {
-  auto u = std::find(uniforms.begin(), uniforms.end(), name);
-  if (u == uniforms.end())
+  auto u = std::find(m_uniforms.begin(), m_uniforms.end(), name);
+  if (u == m_uniforms.end())
     return NULL;
 
   return &(*u);
@@ -690,61 +589,61 @@ Uniform* Program::findUniform(const char* name)
 
 const Uniform* Program::findUniform(const char* name) const
 {
-  auto u = std::find(uniforms.begin(), uniforms.end(), name);
-  if (u == uniforms.end())
+  auto u = std::find(m_uniforms.begin(), m_uniforms.end(), name);
+  if (u == m_uniforms.end())
     return NULL;
 
   return &(*u);
 }
 
-uint Program::getAttributeCount() const
+uint Program::attributeCount() const
 {
-  return attributes.size();
+  return m_attributes.size();
 }
 
-Attribute& Program::getAttribute(uint index)
+Attribute& Program::attribute(uint index)
 {
-  return attributes[index];
+  return m_attributes[index];
 }
 
-const Attribute& Program::getAttribute(uint index) const
+const Attribute& Program::attribute(uint index) const
 {
-  return attributes[index];
+  return m_attributes[index];
 }
 
-uint Program::getSamplerCount() const
+uint Program::samplerCount() const
 {
-  return samplers.size();
+  return m_samplers.size();
 }
 
-Sampler& Program::getSampler(uint index)
+Sampler& Program::sampler(uint index)
 {
-  return samplers[index];
+  return m_samplers[index];
 }
 
-const Sampler& Program::getSampler(uint index) const
+const Sampler& Program::sampler(uint index) const
 {
-  return samplers[index];
+  return m_samplers[index];
 }
 
-uint Program::getUniformCount() const
+uint Program::uniformCount() const
 {
-  return uniforms.size();
+  return m_uniforms.size();
 }
 
-Uniform& Program::getUniform(uint index)
+Uniform& Program::uniform(uint index)
 {
-  return uniforms[index];
+  return m_uniforms[index];
 }
 
-const Uniform& Program::getUniform(uint index) const
+const Uniform& Program::uniform(uint index) const
 {
-  return uniforms[index];
+  return m_uniforms[index];
 }
 
-Context& Program::getContext() const
+Context& Program::context() const
 {
-  return context;
+  return m_context;
 }
 
 Ref<Program> Program::create(const ResourceInfo& info,
@@ -763,7 +662,7 @@ Ref<Program> Program::read(Context& context,
                            const String& vertexShaderName,
                            const String& fragmentShaderName)
 {
-  ResourceCache& cache = context.getCache();
+  ResourceCache& cache = context.cache();
 
   String name;
   name += "vs:";
@@ -792,77 +691,74 @@ Ref<Program> Program::read(Context& context,
                 *fragmentShader);
 }
 
-Program::Program(const ResourceInfo& info, Context& initContext):
+Program::Program(const ResourceInfo& info, Context& context):
   Resource(info),
-  context(initContext),
-  programID(0)
+  m_context(context),
+  m_programID(0)
 {
-  if (Stats* stats = context.getStats())
+  if (Stats* stats = m_context.stats())
     stats->addProgram();
 }
 
 Program::Program(const Program& source):
   Resource(source),
-  context(source.context)
+  m_context(source.m_context)
 {
   panic("GLSL programs may not be copied");
 }
 
-bool Program::init(Shader& initVertexShader, Shader& initFragmentShader)
+bool Program::init(Shader& vertexShader, Shader& fragmentShader)
 {
-  vertexShader = &initVertexShader;
-  fragmentShader = &initFragmentShader;
+  m_vertexShader = &vertexShader;
+  m_fragmentShader = &fragmentShader;
 
-  if (!vertexShader->isVertexShader())
+  if (!m_vertexShader->isVertexShader())
   {
-    logError("Shader \'%s\' for program \'%s\' is not a vertex shader",
-             vertexShader->getName().c_str(),
-             getName().c_str());
+    logError("Shader %s for program %s is not a vertex shader",
+             m_vertexShader->name().c_str(),
+             name().c_str());
     return false;
   }
 
-  if (!fragmentShader->isFragmentShader())
+  if (!m_fragmentShader->isFragmentShader())
   {
-    logError("Shader \'%s\' for program \'%s\' is not a fragment shader",
-             fragmentShader->getName().c_str(),
-             getName().c_str());
+    logError("Shader %s for program %s is not a fragment shader",
+             m_fragmentShader->name().c_str(),
+             name().c_str());
     return false;
   }
 
-  programID = glCreateProgram();
-  if (!programID)
+  m_programID = glCreateProgram();
+  if (!m_programID)
   {
-    logError("Failed to create OpenGL object for program \'%s\'",
-             getName().c_str());
+    logError("Failed to create OpenGL object for program %s", name().c_str());
     return false;
   }
 
-  glAttachShader(programID, vertexShader->shaderID);
-  glAttachShader(programID, fragmentShader->shaderID);
+  glAttachShader(m_programID, m_vertexShader->m_shaderID);
+  glAttachShader(m_programID, m_fragmentShader->m_shaderID);
 
-  glLinkProgram(programID);
+  glLinkProgram(m_programID);
 
-  const String infoLog = getInfoLog();
+  const String info = infoLog();
 
   int status;
-  glGetProgramiv(programID, GL_LINK_STATUS, &status);
+  glGetProgramiv(m_programID, GL_LINK_STATUS, &status);
 
   if (!status)
   {
-    logError("Failed to link program \'%s\':\n%s",
-             getName().c_str(),
-             infoLog.c_str());
+    logError("Failed to link program %s:\n%s", name().c_str(), info.c_str());
     return false;
   }
 
-  if (infoLog.length() > 1)
+  if (info.length() > 1)
   {
-    logWarning("Warning(s) when linking program \'%s\':\n%s",
-               getName().c_str(),
-               infoLog.c_str());
+    logWarning("Warning(s) when linking program %s:\n%s",
+               name().c_str(),
+               info.c_str());
   }
 
-  if (!checkGL("Failed to create object for program \'%s\'", getName().c_str()))
+  if (!checkGL("Failed to create object for program %s", name().c_str()))
     return false;
 
   if (!retrieveUniforms())
@@ -877,12 +773,12 @@ bool Program::init(Shader& initVertexShader, Shader& initFragmentShader)
 bool Program::retrieveUniforms()
 {
   GLint uniformCount;
-  glGetProgramiv(programID, GL_ACTIVE_UNIFORMS, &uniformCount);
+  glGetProgramiv(m_programID, GL_ACTIVE_UNIFORMS, &uniformCount);
 
-  uniforms.reserve(uniformCount);
+  m_uniforms.reserve(uniformCount);
 
   GLint maxNameLength;
-  glGetProgramiv(programID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
+  glGetProgramiv(m_programID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
 
   char* uniformName = new char [maxNameLength + 1];
 
@@ -892,7 +788,7 @@ bool Program::retrieveUniforms()
     GLint uniformSize;
     GLenum uniformType;
 
-    glGetActiveUniform(programID,
+    glGetActiveUniform(m_programID,
                        i,
                        maxNameLength + 1,
                        &nameLength,
@@ -902,41 +798,38 @@ bool Program::retrieveUniforms()
 
     if (std::strncmp(uniformName, "gl_", 3) == 0)
     {
-      logWarning("Program \'%s\' uses built-in uniform \'%s\'",
-                 getName().c_str(),
+      logWarning("Program %s uses built-in uniform %s",
+                 name().c_str(),
                  uniformName);
       continue;
     }
 
     if (isSupportedUniformType(uniformType))
     {
-      uniforms.push_back(Uniform());
-      Uniform& uniform = uniforms.back();
-      uniform.name = uniformName;
-      uniform.type = convertUniformType(uniformType);
-      uniform.location = glGetUniformLocation(programID, uniformName);
-      uniform.sharedID = context.getSharedUniformID(uniform.name.c_str(), uniform.type);
+      m_uniforms.push_back(Uniform());
+      Uniform& uniform = m_uniforms.back();
+      uniform.m_name = uniformName;
+      uniform.m_type = convertUniformType(uniformType);
+      uniform.m_location = glGetUniformLocation(m_programID, uniformName);
+      uniform.m_sharedID = m_context.sharedUniformID(uniformName, uniform.type());
     }
     else if (isSupportedSamplerType(uniformType))
     {
-      samplers.push_back(Sampler());
-      Sampler& sampler = samplers.back();
-      sampler.name = uniformName;
-      sampler.type = convertSamplerType(uniformType);
-      sampler.location = glGetUniformLocation(programID, uniformName);
-      sampler.sharedID = context.getSharedSamplerID(sampler.name.c_str(), sampler.type);
+      m_samplers.push_back(Sampler());
+      Sampler& sampler = m_samplers.back();
+      sampler.m_name = uniformName;
+      sampler.m_type = convertSamplerType(uniformType);
+      sampler.m_location = glGetUniformLocation(m_programID, uniformName);
+      sampler.m_sharedID = m_context.sharedSamplerID(uniformName, sampler.type());
     }
     else
-      logWarning("Skipping uniform \'%s\' of unsupported type", uniformName);
+      logWarning("Skipping uniform %s of unsupported type", uniformName);
   }
 
   delete [] uniformName;
 
-  if (!checkGL("Failed to retrieve uniforms for program \'%s\'",
-               getName().c_str()))
-  {
+  if (!checkGL("Failed to retrieve uniforms for program %s", name().c_str()))
     return false;
-  }
 
   return true;
 }
@@ -944,12 +837,12 @@ bool Program::retrieveUniforms()
 bool Program::retrieveAttributes()
 {
   GLint attributeCount;
-  glGetProgramiv(programID, GL_ACTIVE_ATTRIBUTES, &attributeCount);
+  glGetProgramiv(m_programID, GL_ACTIVE_ATTRIBUTES, &attributeCount);
 
-  attributes.reserve(attributeCount);
+  m_attributes.reserve(attributeCount);
 
   GLint maxNameLength;
-  glGetProgramiv(programID, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxNameLength);
+  glGetProgramiv(m_programID, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxNameLength);
 
   char* attributeName = new char [maxNameLength + 1];
 
@@ -959,7 +852,7 @@ bool Program::retrieveAttributes()
     GLint attributeSize;
     GLenum attributeType;
 
-    glGetActiveAttrib(programID,
+    glGetActiveAttrib(m_programID,
                       i,
                       maxNameLength + 1,
                       &nameLength,
@@ -969,40 +862,37 @@ bool Program::retrieveAttributes()
 
     if (!isSupportedAttributeType(attributeType))
     {
-      logWarning("Skipping attribute \'%s\' of unsupported type", attributeName);
+      logWarning("Skipping attribute %s of unsupported type", attributeName);
       continue;
     }
 
-    attributes.push_back(Attribute());
-    Attribute& attribute = attributes.back();
-    attribute.name = attributeName;
-    attribute.type = convertAttributeType(attributeType);
-    attribute.location = glGetAttribLocation(programID, attributeName);
+    m_attributes.push_back(Attribute());
+    Attribute& attribute = m_attributes.back();
+    attribute.m_name = attributeName;
+    attribute.m_type = convertAttributeType(attributeType);
+    attribute.m_location = glGetAttribLocation(m_programID, attributeName);
   }
 
   delete [] attributeName;
 
-  if (!checkGL("Failed to retrieve attributes for program \'%s\'",
-               getName().c_str()))
-  {
+  if (!checkGL("Failed to retrieve attributes for program %s", name().c_str()))
     return false;
-  }
 
   return true;
 }
 
 void Program::bind()
 {
-  glUseProgram(programID);
+  glUseProgram(m_programID);
 
-  for (auto a = attributes.begin();  a != attributes.end();  a++)
-    glEnableVertexAttribArray(a->location);
+  for (auto& a : m_attributes)
+    glEnableVertexAttribArray(a.m_location);
 }
 
 void Program::unbind()
 {
-  for (auto a = attributes.begin();  a != attributes.end();  a++)
-    glDisableVertexAttribArray(a->location);
+  for (auto& a : m_attributes)
+    glDisableVertexAttribArray(a.m_location);
 }
 
 Program& Program::operator = (const Program& source)
@@ -1012,16 +902,15 @@ Program& Program::operator = (const Program& source)
 
 bool Program::isValid() const
 {
-  glValidateProgram(programID);
+  glValidateProgram(m_programID);
 
   int status;
-  glGetProgramiv(programID, GL_VALIDATE_STATUS, &status);
+  glGetProgramiv(m_programID, GL_VALIDATE_STATUS, &status);
   if (!status)
   {
-    const String infoLog = getInfoLog();
-    logError("Failed to validate program \'%s\':\n%s",
-             getName().c_str(),
-             infoLog.c_str());
+    logError("Failed to validate program %s:\n%s",
+             name().c_str(),
+             infoLog().c_str());
 
     return false;
   }
@@ -1029,20 +918,19 @@ bool Program::isValid() const
   return true;
 }
 
-String Program::getInfoLog() const
+String Program::infoLog() const
 {
-  String infoLog;
+  String result;
+  GLint length;
 
-  GLint infoLogLength;
-  glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &infoLogLength);
-
-  if (infoLogLength > 1)
+  glGetProgramiv(m_programID, GL_INFO_LOG_LENGTH, &length);
+  if (length > 1)
   {
-    infoLog.resize(infoLogLength);
-    glGetProgramInfoLog(programID, infoLogLength, NULL, &infoLog[0]);
+    result.resize(length);
+    glGetProgramInfoLog(m_programID, length, NULL, &result[0]);
   }
 
-  return infoLog;
+  return result;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1064,11 +952,11 @@ void ProgramInterface::addAttribute(const char* name, AttributeType type)
 
 void ProgramInterface::addAttributes(const VertexFormat& format)
 {
-  for (size_t i = 0;  i < format.getComponentCount();  i++)
+  for (auto& c : format.components())
   {
     AttributeType type;
 
-    switch (format[i].getElementCount())
+    switch (c.elementCount())
     {
       case 1:
         type = ATTRIBUTE_FLOAT;
@@ -1086,79 +974,79 @@ void ProgramInterface::addAttributes(const VertexFormat& format)
         panic("Invalid vertex format component element count");
     }
 
-    addAttribute(format[i].getName().c_str(), type);
+    addAttribute(c.name().c_str(), type);
   }
 }
 
 bool ProgramInterface::matches(const Program& program, bool verbose) const
 {
-  for (auto s = samplers.begin();  s != samplers.end();  s++)
+  for (auto& s : samplers)
   {
-    const Sampler* sampler = program.findSampler(s->first.c_str());
+    const Sampler* sampler = program.findSampler(s.first.c_str());
     if (!sampler)
     {
       if (verbose)
       {
-        logError("Sampler \'%s\' missing in program \'%s\'",
-                 s->first.c_str(),
-                 program.getName().c_str());
+        logError("Sampler %s missing in program %s",
+                 s.first.c_str(),
+                 program.name().c_str());
       }
 
       return false;
     }
 
-    if (sampler->getType() != s->second)
+    if (sampler->type() != s.second)
     {
       if (verbose)
       {
-        logError("Sampler \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
-                 s->first.c_str(),
-                 program.getName().c_str(),
-                 Sampler::getTypeName(s->second));
+        logError("Sampler %s in program %s has incorrect type; should be %s",
+                 s.first.c_str(),
+                 program.name().c_str(),
+                 Sampler::typeName(s.second));
       }
 
       return false;
     }
   }
 
-  for (auto u = uniforms.begin();  u != uniforms.end();  u++)
+  for (auto& u : uniforms)
   {
-    const Uniform* uniform = program.findUniform(u->first.c_str());
+    const Uniform* uniform = program.findUniform(u.first.c_str());
     if (!uniform)
     {
       if (verbose)
       {
-        logError("Uniform \'%s\' missing in program \'%s\'",
-                 u->first.c_str(),
-                 program.getName().c_str());
+        logError("Uniform %s missing in program %s",
+                 u.first.c_str(),
+                 program.name().c_str());
       }
 
       return false;
     }
 
-    if (uniform->getType() != u->second)
+    if (uniform->type() != u.second)
     {
       if (verbose)
       {
-        logError("Uniform \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
-                 u->first.c_str(),
-                 program.getName().c_str(),
-                 Uniform::getTypeName(u->second));
+        logError("Uniform %s in program %s has incorrect type; should be %s",
+                 u.first.c_str(),
+                 program.name().c_str(),
+                 Uniform::typeName(u.second));
       }
 
       return false;
     }
   }
 
-  for (size_t i = 0;  i < program.getAttributeCount();  i++)
+  for (size_t i = 0;  i < program.attributeCount();  i++)
   {
-    const Attribute& attribute = program.getAttribute(i);
+    const Attribute& attribute = program.attribute(i);
 
     size_t index;
 
     for (index = 0;  index < attributes.size();  index++)
     {
-      if (attributes[index].first == attribute.getName())
+      if (attributes[index].first == attribute.name())
         break;
     }
 
@@ -1166,22 +1054,22 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     {
       if (verbose)
       {
-        logError("Attribute \'%s\' is not provided to program \'%s\'",
-                 attribute.getName().c_str(),
-                 program.getName().c_str());
+        logError("Attribute %s is not provided to program %s",
+                 attribute.name().c_str(),
+                 program.name().c_str());
       }
 
       return false;
     }
 
-    if (attribute.getType() != attributes[index].second)
+    if (attribute.type() != attributes[index].second)
     {
       if (verbose)
       {
-        logError("Attribute \'%s\' in program \'%s\' has incorrect type; should be \'%s\'",
+        logError("Attribute %s in program %s has incorrect type; should be %s",
                 attributes[index].first.c_str(),
-                program.getName().c_str(),
-                Attribute::getTypeName(attributes[index].second));
+                program.name().c_str(),
+                Attribute::typeName(attributes[index].second));
       }
 
       return false;
@@ -1193,22 +1081,19 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
 
 bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
 {
-  if (format.getComponentCount() != attributes.size())
+  if (format.components().size() != attributes.size())
     return false;
 
-  for (auto a = attributes.begin();  a != attributes.end();  a++)
+  for (auto& a : attributes)
   {
-    const VertexComponent* component = format.findComponent(a->first.c_str());
+    const VertexComponent* component = format.findComponent(a.first.c_str());
     if (!component)
       return false;
 
-    if (component->getType() != VertexComponent::FLOAT32)
-      return false;
-
-    if ((component->getElementCount() == 1 && a->second != ATTRIBUTE_FLOAT) ||
-        (component->getElementCount() == 2 && a->second != ATTRIBUTE_VEC2) ||
-        (component->getElementCount() == 3 && a->second != ATTRIBUTE_VEC3) ||
-        (component->getElementCount() == 4 && a->second != ATTRIBUTE_VEC4))
+    if ((component->elementCount() == 1 && a.second != ATTRIBUTE_FLOAT) ||
+        (component->elementCount() == 2 && a.second != ATTRIBUTE_VEC2) ||
+        (component->elementCount() == 3 && a.second != ATTRIBUTE_VEC3) ||
+        (component->elementCount() == 4 && a.second != ATTRIBUTE_VEC4))
     {
       return false;
     }

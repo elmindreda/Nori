@@ -73,7 +73,7 @@ bool Frustum::contains(const Sphere& sphere) const
 bool Frustum::contains(const AABB& box) const
 {
   float minX, minY, minZ, maxX, maxY, maxZ;
-  box.getBounds(minX, minY, minZ, maxX, maxY, maxZ);
+  box.bounds(minX, minY, minZ, maxX, maxY, maxZ);
 
   for (size_t i = 0;  i < 6;  i++)
   {
@@ -102,7 +102,7 @@ bool Frustum::intersects(const Sphere& sphere) const
 bool Frustum::intersects(const AABB& box) const
 {
   float minX, minY, minZ, maxX, maxY, maxZ;
-  box.getBounds(minX, minY, minZ, maxX, maxY, maxZ);
+  box.bounds(minX, minY, minZ, maxX, maxY, maxZ);
 
   for (size_t i = 0;  i < 6;  i++)
   {
@@ -151,7 +151,7 @@ void Frustum::setPerspective(float FOV, float aspectRatio, float nearZ, float fa
 void Frustum::setOrtho(const AABB& volume)
 {
   float minX, minY, minZ, maxX, maxY, maxZ;
-  volume.getBounds(minX, minY, minZ, maxX, maxY, maxZ);
+  volume.bounds(minX, minY, minZ, maxX, maxY, maxZ);
   setOrtho(minX, minY, minZ, maxX, maxY, maxZ);
 }
 

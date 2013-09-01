@@ -50,31 +50,31 @@ ResourceInfo::ResourceInfo(ResourceCache& initCache,
 ///////////////////////////////////////////////////////////////////////
 
 Resource::Resource(const ResourceInfo& info):
-  cache(info.cache),
-  name(info.name),
-  path(info.path)
+  m_cache(info.cache),
+  m_name(info.name),
+  m_path(info.path)
 {
-  if (!name.empty())
+  if (!m_name.empty())
   {
-    if (cache.findResource(name))
-      panic("Duplicate name for resource \'%s\'", name.c_str());
+    if (m_cache.findResource(m_name))
+      panic("Duplicate name for resource %s", m_name.c_str());
 
-    cache.resources.push_back(this);
+    m_cache.m_resources.push_back(this);
   }
 }
 
 Resource::Resource(const Resource& source):
-  cache(source.cache)
+  m_cache(source.m_cache)
 {
 }
 
 Resource::~Resource()
 {
-  if (!name.empty())
+  if (!m_name.empty())
   {
-    cache.resources.erase(std::find(cache.resources.begin(),
-                                    cache.resources.end(),
-                                    this));
+    m_cache.m_resources.erase(std::find(m_cache.m_resources.begin(),
+                                        m_cache.m_resources.end(),
+                                        this));
   }
 }
 
@@ -83,26 +83,11 @@ Resource& Resource::operator = (const Resource& source)
   return *this;
 }
 
-ResourceCache& Resource::getCache() const
-{
-  return cache;
-}
-
-const String& Resource::getName() const
-{
-  return name;
-}
-
-const Path& Resource::getPath() const
-{
-  return path;
-}
-
 ///////////////////////////////////////////////////////////////////////
 
 ResourceCache::~ResourceCache()
 {
-  if (!resources.empty())
+  if (!m_resources.empty())
     panic("Resource cache destroyed with attached resources");
 }
 
@@ -110,28 +95,26 @@ bool ResourceCache::addSearchPath(const Path& path)
 {
   if (!path.isDirectory())
   {
-    logError("Resource search path \'%s\' does not exist",
+    logError("Resource search path %s does not exist",
              path.asString().c_str());
     return false;
   }
 
-  if (std::find(paths.begin(), paths.end(), path) == paths.end())
-    paths.push_back(path);
-
+  m_paths.push_back(path);
   return true;
 }
 
 void ResourceCache::removeSearchPath(const Path& path)
 {
-  paths.erase(std::find(paths.begin(), paths.end(), path));
+  m_paths.erase(std::find(m_paths.begin(), m_paths.end(), path));
 }
 
 Resource* ResourceCache::findResource(const String& name) const
 {
-  for (auto r = resources.begin();  r != resources.end();  r++)
+  for (auto& r : m_resources)
   {
-    if ((*r)->getName() == name)
-      return *r;
+    if (r->name() == name)
+      return r;
   }
 
   return NULL;
@@ -139,7 +122,7 @@ Resource* ResourceCache::findResource(const String& name) const
 
 Path ResourceCache::findFile(const String& name) const
 {
-  if (paths.empty())
+  if (m_paths.empty())
   {
     const Path path(name);
     if (path.isFile())
@@ -147,20 +130,15 @@ Path ResourceCache::findFile(const String& name) const
   }
   else
   {
-    for (auto p = paths.begin();  p != paths.end();  p++)
+    for (auto& path : m_paths)
     {
-      const Path full(*p + name);
+      const Path full(path + name);
       if (full.isFile())
         return full;
     }
   }
 
   return Path();
-}
-
-const PathList& ResourceCache::getSearchPaths() const
-{
-  return paths;
 }
 
 ///////////////////////////////////////////////////////////////////////

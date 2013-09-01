@@ -45,22 +45,22 @@ public:
     SPOTLIGHT
   };
   Light();
-  Type getType() const;
+  Type type() const { return m_type; }
   void setType(Type newType);
-  float getRadius() const;
+  float radius() const { return m_radius; }
   void setRadius(float newRadius);
-  const vec3& getColor() const;
+  const vec3& color() const { return m_color; }
   void setColor(const vec3& newColor);
-  const vec3& getPosition() const;
+  const vec3& position() const { return m_position; }
   void setPosition(const vec3& newPosition);
-  const vec3& getDirection() const;
+  const vec3& direction() const { return m_direction; }
   void setDirection(const vec3& newDirection);
 private:
-  Type type;
-  float radius;
-  vec3 color;
-  vec3 position;
-  vec3 direction;
+  Type m_type;
+  float m_radius;
+  vec3 m_color;
+  vec3 m_position;
+  vec3 m_direction;
 };
 
 ///////////////////////////////////////////////////////////////////////

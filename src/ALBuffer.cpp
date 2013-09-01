@@ -87,39 +87,18 @@ size_t getFormatSize(SampleFormat format)
 
 Buffer::~Buffer()
 {
-  if (bufferID)
-    alDeleteBuffers(1, &bufferID);
+  if (m_bufferID)
+    alDeleteBuffers(1, &m_bufferID);
 }
 
 bool Buffer::isMono() const
 {
-  if (format == SAMPLE_MONO8 || format == SAMPLE_MONO16)
-    return true;
-
-  return false;
+  return m_format == SAMPLE_MONO8 || m_format == SAMPLE_MONO16;
 }
 
 bool Buffer::isStereo() const
 {
-  if (format == SAMPLE_STEREO8 || format == SAMPLE_STEREO16)
-    return true;
-
-  return false;
-}
-
-Time Buffer::getDuration() const
-{
-  return duration;
-}
-
-SampleFormat Buffer::getFormat() const
-{
-  return format;
-}
-
-Context& Buffer::getContext() const
-{
-  return context;
+  return m_format == SAMPLE_STEREO8 || m_format == SAMPLE_STEREO16;
 }
 
 Ref<Buffer> Buffer::create(const ResourceInfo& info,
@@ -135,7 +114,7 @@ Ref<Buffer> Buffer::create(const ResourceInfo& info,
 
 Ref<Buffer> Buffer::read(Context& context, const String& sampleName)
 {
-  ResourceCache& cache = context.getCache();
+  ResourceCache& cache = context.cache();
 
   String name;
   name += "sample:";
@@ -147,32 +126,32 @@ Ref<Buffer> Buffer::read(Context& context, const String& sampleName)
   Ref<Sample> data = Sample::read(cache, sampleName);
   if (!data)
   {
-    logError("Failed to read sample for buffer \'%s\'", name.c_str());
+    logError("Failed to read sample for buffer %s", name.c_str());
     return NULL;
   }
 
   return create(ResourceInfo(cache, name), context, *data);
 }
 
-Buffer::Buffer(const ResourceInfo& info, Context& initContext):
+Buffer::Buffer(const ResourceInfo& info, Context& context):
   Resource(info),
-  context(initContext),
-  bufferID(0),
-  duration(0.0)
+  m_context(context),
+  m_bufferID(0),
+  m_duration(0.0)
 {
 }
 
 Buffer::Buffer(const Buffer& source):
   Resource(source),
-  context(source.context)
+  m_context(source.m_context)
 {
   panic("OpenAL buffer objects may not be copied");
 }
 
 bool Buffer::init(const Sample& data)
 {
-  alGenBuffers(1, &bufferID);
-  alBufferData(bufferID,
+  alGenBuffers(1, &m_bufferID);
+  alBufferData(m_bufferID,
                convertToAL(data.format),
                &data.data[0], data.data.size(),
                data.frequency);
@@ -180,9 +159,8 @@ bool Buffer::init(const Sample& data)
   if (!checkAL("Error during OpenAL buffer creation"))
     return false;
 
-  format = data.format;
-
-  duration = float(data.data.size()) / (getFormatSize(format) * data.frequency);
+  m_format = data.format;
+  m_duration = Time(data.data.size()) / (getFormatSize(m_format) * data.frequency);
 
   return true;
 }

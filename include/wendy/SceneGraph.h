@@ -79,17 +79,17 @@ public:
   bool isChildOf(const Node& node) const;
   /*! @return @c true if this node has any children, otherwise @c false.
    */
-  bool hasChildren() const;
-  Graph* getGraph() const;
+  bool hasChildren() const { return !m_children.empty(); }
+  Graph* graph() const { return m_graph; }
   /*! @return The parent of this node.
    */
-  Node* getParent() const;
+  Node* parent() const { return m_parent; }
   /*! @return The list of children of this node.
    */
-  const List& getChildren() const;
+  const List& children() const { return m_children; }
   /*! @return The local-to-parent transform of this scene node.
    */
-  const Transform3& getLocalTransform() const;
+  const Transform3& localTransform() const { return m_local; }
   /*! Sets the local-to-parent transform of this scene node.
    */
   void setLocalTransform(const Transform3& newTransform);
@@ -98,10 +98,10 @@ public:
   void setLocalScale(float newScale);
   /*! @return The local-to-world transform of this scene node.
    */
-  const Transform3& getWorldTransform() const;
+  const Transform3& worldTransform() const;
   /*! @return The local space bounds of this node.
    */
-  const Sphere& getLocalBounds() const;
+  const Sphere& localBounds() const;
   /*! Sets the local space bounds of this node.
    *  @param[in] newBounds The desired new bounds of this node.
    */
@@ -109,7 +109,7 @@ public:
   /*! @return The local space union of the bounds of this node and all its
    *  child nodes.
    */
-  const Sphere& getTotalBounds() const;
+  const Sphere& totalBounds() const;
 protected:
   /*! Called when the scene graph is updated.  This is the correct place to put
    *  per-frame operations which affect the transform or bounds.
@@ -127,16 +127,16 @@ private:
   void invalidateBounds();
   void invalidateWorldTransform();
   void setGraph(Graph* newGraph);
-  bool needsUpdate;
-  Node* parent;
-  Graph* graph;
-  List children;
-  Transform3 local;
-  mutable Transform3 world;
-  mutable bool dirtyWorld;
-  Sphere localBounds;
-  mutable Sphere totalBounds;
-  mutable bool dirtyBounds;
+  bool m_needsUpdate;
+  Node* m_parent;
+  Graph* m_graph;
+  List m_children;
+  Transform3 m_local;
+  mutable Transform3 m_world;
+  mutable bool m_dirtyWorld;
+  Sphere m_localBounds;
+  mutable Sphere m_totalBounds;
+  mutable bool m_dirtyBounds;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -158,10 +158,10 @@ public:
   void query(const Frustum& frustum, Node::List& nodes) const;
   void addRootNode(Node& node);
   void destroyRootNodes();
-  const Node::List& getNodes() const;
+  const Node::List& roots() const { return m_roots; }
 private:
-  Node::List roots;
-  Node::List updated;
+  Node::List m_roots;
+  Node::List m_updated;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -172,13 +172,13 @@ class LightNode : public Node
 {
 public:
   LightNode();
-  render::Light* getLight() const;
+  render::Light* light() const;
   void setLight(render::Light* newLight);
 protected:
   void update();
   void enqueue(render::Scene& scene, const Camera& camera) const;
 private:
-  Ref<render::Light> light;
+  Ref<render::Light> m_light;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -191,13 +191,13 @@ public:
   ModelNode();
   bool isShadowCaster() const;
   void setCastsShadows(bool enabled);
-  render::Model* getModel() const;
+  render::Model* model() const;
   void setModel(render::Model* newModel);
 protected:
   void enqueue(render::Scene& scene, const Camera& camera) const;
 private:
-  Ref<render::Model> model;
-  bool shadowCaster;
+  Ref<render::Model> m_model;
+  bool m_shadowCaster;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -208,12 +208,12 @@ class CameraNode : public Node
 {
 public:
   CameraNode();
-  Camera* getCamera() const;
+  Camera* camera() const;
   void setCamera(Camera* newCamera);
 protected:
   void update();
 private:
-  Ref<Camera> camera;
+  Ref<Camera> m_camera;
 };
 
 ///////////////////////////////////////////////////////////////////////

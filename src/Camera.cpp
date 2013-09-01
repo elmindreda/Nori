@@ -43,67 +43,27 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 Camera::Camera():
-  mode(PERSPECTIVE),
-  FOV(90.f),
-  aspectRatio(4.f / 3.f),
-  nearZ(0.1f),
-  farZ(1000.f),
-  dirtyFrustum(true),
-  dirtyInverse(true)
+  m_mode(PERSPECTIVE),
+  m_FOV(90.f),
+  m_aspectRatio(4.f / 3.f),
+  m_nearZ(0.1f),
+  m_farZ(1000.f),
+  m_dirtyFrustum(true),
+  m_dirtyInverse(true)
 {
-}
-
-bool Camera::isPerspective() const
-{
-  return mode == PERSPECTIVE;
-}
-
-bool Camera::isOrtho() const
-{
-  return mode == ORTHOGRAPHIC;
-}
-
-Camera::Mode Camera::getMode() const
-{
-  return mode;
 }
 
 void Camera::setMode(Mode newMode)
 {
-  mode = newMode;
-  dirtyFrustum = true;
-}
-
-const AABB& Camera::getOrthoVolume() const
-{
-  return volume;
+  m_mode = newMode;
+  m_dirtyFrustum = true;
 }
 
 void Camera::setOrthoVolume(const AABB& newVolume)
 {
-  volume = newVolume;
-  volume.normalize();
-  dirtyFrustum = true;
-}
-
-float Camera::getFOV() const
-{
-  return FOV;
-}
-
-float Camera::getAspectRatio() const
-{
-  return aspectRatio;
-}
-
-float Camera::getNearZ() const
-{
-  return nearZ;
-}
-
-float Camera::getFarZ() const
-{
-  return farZ;
+  m_volume = newVolume;
+  m_volume.normalize();
+  m_dirtyFrustum = true;
 }
 
 void Camera::setFOV(float newFOV)
@@ -111,103 +71,98 @@ void Camera::setFOV(float newFOV)
   assert(newFOV > 0.f);
   assert(newFOV < 180.f);
 
-  FOV = newFOV;
-  dirtyFrustum = true;
+  m_FOV = newFOV;
+  m_dirtyFrustum = true;
 }
 
 void Camera::setAspectRatio(float newAspectRatio)
 {
   assert(newAspectRatio > 0.f);
 
-  aspectRatio = newAspectRatio;
-  dirtyFrustum = true;
+  m_aspectRatio = newAspectRatio;
+  m_dirtyFrustum = true;
 }
 
 void Camera::setNearZ(float newNearZ)
 {
   assert(newNearZ > 0.f);
 
-  nearZ = newNearZ;
-  dirtyFrustum = true;
+  m_nearZ = newNearZ;
+  m_dirtyFrustum = true;
 }
 
 void Camera::setFarZ(float newFarZ)
 {
   assert(newFarZ > 0.f);
 
-  farZ = newFarZ;
-  dirtyFrustum = true;
+  m_farZ = newFarZ;
+  m_dirtyFrustum = true;
 }
 
-const Transform3& Camera::getTransform() const
+const Transform3& Camera::viewTransform() const
 {
-  return transform;
-}
-
-const Transform3& Camera::getViewTransform() const
-{
-  if (dirtyInverse)
+  if (m_dirtyInverse)
   {
-    inverse = transform;
-    inverse.invert();
-    dirtyInverse = false;
+    m_inverse = m_transform;
+    m_inverse.invert();
+    m_dirtyInverse = false;
   }
 
-  return inverse;
+  return m_inverse;
 }
 
-mat4 Camera::getProjectionMatrix() const
+mat4 Camera::projectionMatrix() const
 {
-  if (mode == PERSPECTIVE)
-    return perspective(FOV, aspectRatio, nearZ, farZ);
+  if (m_mode == PERSPECTIVE)
+    return perspective(m_FOV, m_aspectRatio, m_nearZ, m_farZ);
   else
   {
     float minX, minY, minZ, maxX, maxY, maxZ;
-    volume.getBounds(minX, minY, minZ, maxX, maxY, maxZ);
+    m_volume.bounds(minX, minY, minZ, maxX, maxY, maxZ);
     return ortho(minX, maxX, minY, maxY, minZ, maxZ);
   }
 }
 
 void Camera::setTransform(const Transform3& newTransform)
 {
-  transform = newTransform;
-  dirtyFrustum = true;
-  dirtyInverse = true;
+  m_transform = newTransform;
+  m_dirtyFrustum = true;
+  m_dirtyInverse = true;
 }
 
-const Frustum& Camera::getFrustum() const
+const Frustum& Camera::frustum() const
 {
-  if (dirtyFrustum)
+  if (m_dirtyFrustum)
   {
-    if (mode == ORTHOGRAPHIC)
-      frustum.setOrtho(volume);
+    if (m_mode == ORTHOGRAPHIC)
+      m_frustum.setOrtho(m_volume);
     else
-      frustum.setPerspective(FOV, aspectRatio, nearZ, farZ);
+      m_frustum.setPerspective(m_FOV, m_aspectRatio, m_nearZ, m_farZ);
 
-    frustum.transformBy(transform);
-    dirtyFrustum = false;
+    m_frustum.transformBy(m_transform);
+    m_dirtyFrustum = false;
   }
 
-  return frustum;
+  return m_frustum;
 }
 
-float Camera::getNormalizedDepth(const vec3& point) const
+float Camera::normalizedDepth(const vec3& point) const
 {
   vec3 local = point;
-  getViewTransform().transformVector(local);
-  return length(local) / farZ;
+  viewTransform().transformVector(local);
+  return length(local) / m_farZ;
 }
 
-Ray3 Camera::getViewSpacePickingRay(const vec2& position) const
+Ray3 Camera::viewSpacePickingRay(const vec2& position) const
 {
   Ray3 result;
 
-  if (mode == ORTHOGRAPHIC)
+  if (m_mode == ORTHOGRAPHIC)
   {
     result.direction = vec3(0.f, 0.f, -1.f);
 
     float minX, minY, minZ, maxX, maxY, maxZ;
-    volume.getBounds(minX, minY, minZ, maxX, maxY, maxZ);
+    m_volume.bounds(minX, minY, minZ, maxX, maxY, maxZ);
 
     result.origin = vec3(minX + position.x * (maxX - minX),
                          minY + position.y * (maxY - minY),
@@ -216,12 +171,12 @@ Ray3 Camera::getViewSpacePickingRay(const vec2& position) const
   else
   {
     // Figure out the camera space ray direction
-    result.direction = normalize(vec3((position.x - 0.5f) * aspectRatio,
+    result.direction = normalize(vec3((position.x - 0.5f) * m_aspectRatio,
                                       position.y - 0.5f,
-                                      -0.5f / tan(radians(FOV) / 2.f)));
+                                      -0.5f / tan(radians(m_FOV) / 2.f)));
 
     // Shift the ray origin along the ray direction to the near plane
-    result.origin = result.direction * (nearZ / -result.direction.z);
+    result.origin = result.direction * (m_nearZ / -result.direction.z);
   }
 
   return result;

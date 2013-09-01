@@ -53,32 +53,32 @@ public:
   void resume();
   /*! @return @c true if the timer is started, otherwise @c false.
    */
-  bool isStarted() const;
+  bool isStarted() const { return m_started; }
   /*! @return @c true if the timer is paused, otherwise @c false.
    */
-  bool isPaused() const;
+  bool isPaused() const { return m_paused; }
   /*! @return The current time, in seconds.
    */
-  Time getTime() const;
+  Time time() const;
   /*! Sets the current time of a started timer.
    *  @param[in] newTime The new time, in seconds.
    */
   void setTime(Time newTime);
-  /*! @return The time, in seconds, since the last call to getDeltaTime.
+  /*! @return The time, in seconds, since the last call to deltaTime.
    */
-  Time getDeltaTime();
+  Time deltaTime();
   /*! @return The time, in seconds, between when this timer was started and
-   *  getDeltaTime was last called.
+   *  deltaTime was last called.
    */
-  Time getDeltaQueryTime() const;
+  Time deltaQueryTime() const { return m_prevTime; }
   /*! @return The current time, in seconds.
    */
-  static Time getCurrentTime();
+  static Time currentTime();
 private:
-  bool started;
-  bool paused;
-  Time baseTime;
-  Time prevTime;
+  bool m_started;
+  bool m_paused;
+  Time m_baseTime;
+  Time m_prevTime;
 };
 
 ///////////////////////////////////////////////////////////////////////

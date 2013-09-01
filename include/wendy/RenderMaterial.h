@@ -87,18 +87,17 @@ class Material : public Resource
 public:
   /*! @return The technique for the specified phase.
    */
-  Technique& getTechnique(Phase phase);
+  Technique& technique(Phase phase) { return m_techniques[phase]; }
   /*! @return The technique for the specified phase.
    */
-  const Technique& getTechnique(Phase phase) const;
+  const Technique& technique(Phase phase) const { return m_techniques[phase]; }
   template <typename T>
   void setUniformStates(const char* name, const T& newValue)
   {
     for (uint i = 0;  i < 2;  i++)
     {
-      PassList& passes = techniques[i].passes;
-      for (auto p = passes.begin();  p != passes.end();  p++)
-        p->setUniformState(name, newValue);
+      for (auto& p : m_techniques[i].passes)
+        p.setUniformState(name, newValue);
     }
   }
   template <typename T>
@@ -106,9 +105,8 @@ public:
   {
     for (uint i = 0;  i < 2;  i++)
     {
-      PassList& passes = techniques[i].passes;
-      for (auto p = passes.begin();  p != passes.end();  p++)
-        p->setUniformState(index, newValue);
+      for (auto& p : m_techniques[i].passes)
+        p.setUniformState(index, newValue);
     }
   }
   /*! Sets all samplers in all passes in all techniques in this material
@@ -132,7 +130,7 @@ public:
   static Ref<Material> read(System& system, const String& name);
 private:
   Material(const ResourceInfo& info);
-  Technique techniques[2];
+  Technique m_techniques[2];
 };
 
 ///////////////////////////////////////////////////////////////////////

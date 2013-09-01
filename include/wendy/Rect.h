@@ -52,9 +52,9 @@ public:
   Rect& operator += (const vec2& offset);
   Rect& operator -= (const vec2& offset);
   Rect& operator *= (const vec2& scale);
-  vec2 getCenter() const;
+  vec2 center() const;
   void setCenter(const vec2& newCenter);
-  void getBounds(float& minX, float& minY, float& maxX, float& maxY) const;
+  void bounds(float& minX, float& minY, float& maxX, float& maxY) const;
   void setBounds(float minX, float minY, float maxX, float maxY);
   void set(const vec2& newPosition, const vec2& newSize);
   void set(float x, float y, float width, float height);
@@ -84,9 +84,9 @@ public:
   Recti& operator += (const ivec2& offset);
   Recti& operator -= (const ivec2& offset);
   Recti& operator *= (const ivec2& scale);
-  ivec2 getCenter() const;
+  ivec2 center() const;
   void setCenter(const ivec2& newCenter);
-  void getBounds(int& minX, int& minY, int& maxX, int& maxY) const;
+  void bounds(int& minX, int& minY, int& maxX, int& maxY) const;
   void setBounds(int minX, int minY, int maxX, int maxY);
   void set(const ivec2& newPosition, const ivec2& newSize);
   void set(int x, int y, int width, int height);
@@ -108,9 +108,9 @@ public:
   bool push(const T& rectangle);
   void pop();
   bool isEmpty() const;
-  uint getCount() const;
-  const T& getTop() const;
-  const T& getTotal() const;
+  uint count() const;
+  const T& top() const;
+  const T& total() const;
 private:
   struct Entry
   {
@@ -158,20 +158,20 @@ inline bool RectClipStack<T>::isEmpty() const
 }
 
 template <typename T>
-inline uint RectClipStack<T>::getCount() const
+inline uint RectClipStack<T>::count() const
 {
   return (uint) entries.size();
 }
 
 template <typename T>
-inline const T& RectClipStack<T>::getTop() const
+inline const T& RectClipStack<T>::top() const
 {
   assert(!entries.empty());
   return entries.back().local;
 }
 
 template <typename T>
-inline const T& RectClipStack<T>::getTotal() const
+inline const T& RectClipStack<T>::total() const
 {
   assert(!entries.empty());
   return entries.back().total;

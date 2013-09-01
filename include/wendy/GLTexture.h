@@ -157,20 +157,20 @@ public:
   /*! Returns a copy the contents of this texture image.
    *  @return An image object containing the image data.
    */
-  Ref<Image> getData() const;
-  uint getWidth() const;
-  uint getHeight() const;
-  uint getDepth() const;
+  Ref<Image> data() const;
+  uint width() const { return m_width; }
+  uint height() const { return m_height; }
+  uint depth() const { return m_depth; }
   /*! @return The size, in bytes, of the data in this image.
    */
-  size_t getSize() const;
+  size_t size() const;
   /*! @return The cube face this image represents, or @c NO_CUBE_FACE if this
    *  image is not part of a cube map.
    */
-  CubeFace getFace() const;
+  CubeFace face() const { return m_face; }
   /*! @return The texture containing this texture image.
    */
-  Texture& getTexture() const;
+  Texture& texture() const { return m_texture; }
 private:
   TextureImage(Texture& texture,
                uint level,
@@ -180,12 +180,12 @@ private:
                CubeFace face = NO_CUBE_FACE);
   void attach(int attachment, uint z);
   void detach(int attachment);
-  Texture& texture;
-  uint level;
-  uint width;
-  uint height;
-  uint depth;
-  CubeFace face;
+  Texture& m_texture;
+  uint m_level;
+  uint m_width;
+  uint m_height;
+  uint m_depth;
+  CubeFace m_face;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -222,65 +222,65 @@ public:
   bool isCube() const;
   /*! @return @c true if this texture is mipmapped, otherwise @c false.
    */
-  bool hasMipmaps() const;
+  bool hasMipmaps() const { return m_levels > 1; }
   /*! @return The type of this texture.
    */
-  TextureType getType() const;
+  TextureType type() const { return m_type; }
   /*! @param[in] level The desired mipmap level.
    *  @return The width, in pixels, of the specified mipmap level of this texture.
    */
-  uint getWidth(uint level = 0) const;
+  uint width(uint level = 0) const { return image(level).width(); }
   /*! @param[in] level The desired mipmap level.
    *  @return The height, in pixels, of the specified mipmap level of this texture.
    */
-  uint getHeight(uint level = 0) const;
+  uint height(uint level = 0) const { return image(level).height(); }
   /*! @param[in] level The desired mipmap level.
    *  @return The depth, in pixels, of the specified mipmap level of this texture.
    */
-  uint getDepth(uint level = 0) const;
+  uint depth(uint level = 0) const { return image(level).depth(); }
   /*! @return The number of mipmap levels of this texture.
    */
-  uint getLevelCount() const;
+  uint levelCount() const { return m_levels; }
   /*! @param[in] level The desired mipmap level.
    *  @param[in] face The desired cube map face if this texture is a cubemap,
    *  or @c NO_CUBE_FACE otherwise.
    */
-  TextureImage& getImage(uint level = 0, CubeFace face = NO_CUBE_FACE);
+  TextureImage& image(uint level = 0, CubeFace face = NO_CUBE_FACE);
   /*! @param[in] level The desired mipmap level.
    *  @param[in] face The desired cube map face if this texture is a cubemap,
    *  or @c NO_CUBE_FACE otherwise.
    */
-  const TextureImage& getImage(uint level = 0, CubeFace face = NO_CUBE_FACE) const;
+  const TextureImage& image(uint level = 0, CubeFace face = NO_CUBE_FACE) const;
   /*! @return The sampler filter mode of this texture.
    */
-  FilterMode getFilterMode() const;
+  FilterMode filterMode() const { return m_filterMode; }
   /*! Sets the sampler filter mode of this texture.
    *  @param[in] newMode The desired filter mode.
    */
   void setFilterMode(FilterMode newMode);
   /*! @return The sampler address wrapping mode of this texture.
    */
-  AddressMode getAddressMode() const;
+  AddressMode addressMode() const { return m_addressMode; }
   /*! Sets the sampler address wrapping mode of this texture.
    *  @param[in] newMode The desired address wrapping mode.
    */
   void setAddressMode(AddressMode newMode);
   /*! @return The maximum anisotropy of this texture.
    */
-  float getMaxAnisotropy() const;
+  float maxAnisotropy() const { return m_maxAnisotropy; }
   /*! Sets the maximum anisotropy of this texture.
    *  @param[in] newMax The desired value.
    */
   void setMaxAnisotropy(float newMax);
   /*! @return The image format of this texture.
    */
-  const PixelFormat& getFormat() const;
+  const PixelFormat& format() const { return m_format; }
   /*! @return The size, in bytes, of the data in all images of this texture.
    */
-  size_t getSize() const;
+  size_t size() const;
   /*! @return The context used to create this texture.
    */
-  Context& getContext() const;
+  Context& context() const { return m_context; }
   /*! Creates a texture from the specified image.
    *  @param[in] context The OpenGL context within which to create the
    *  texture.
@@ -303,15 +303,15 @@ private:
   uint retrieveTargetImages(uint target, CubeFace face);
   void applyDefaults();
   Texture& operator = (const Texture& source);
-  Context& context;
-  TextureType type;
-  uint textureID;
-  uint levels;
-  FilterMode filterMode;
-  AddressMode addressMode;
-  float maxAnisotropy;
-  PixelFormat format;
-  std::vector<Ref<TextureImage>> images;
+  Context& m_context;
+  TextureType m_type;
+  uint m_textureID;
+  uint m_levels;
+  FilterMode m_filterMode;
+  AddressMode m_addressMode;
+  float m_maxAnisotropy;
+  PixelFormat m_format;
+  std::vector<Ref<TextureImage>> m_images;
 };
 
 ///////////////////////////////////////////////////////////////////////

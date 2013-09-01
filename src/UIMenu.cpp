@@ -130,10 +130,10 @@ void Menu::createSeparatorItem()
 
 Item* Menu::findItem(const char* value)
 {
-  for (auto i = items.begin();  i != items.end();  i++)
+  for (auto i : items)
   {
-    if ((*i)->asString() == value)
-      return *i;
+    if (i->asString() == value)
+      return i;
   }
 
   return NULL;
@@ -141,10 +141,10 @@ Item* Menu::findItem(const char* value)
 
 const Item* Menu::findItem(const char* value) const
 {
-  for (auto i = items.begin();  i != items.end();  i++)
+  for (auto i : items)
   {
-    if ((*i)->asString() == value)
-      return *i;
+    if (i->asString() == value)
+      return i;
   }
 
   return NULL;
@@ -217,9 +217,9 @@ void Menu::draw() const
 
     uint index = 0;
 
-    for (auto i = items.begin();  i != items.end();  i++)
+    for (auto i : items)
     {
-      float height = (*i)->getHeight();
+      float height = i->getHeight();
       if (height + itemTop < 0.f)
         break;
 
@@ -227,7 +227,7 @@ void Menu::draw() const
       itemArea.position.y += itemTop - height;
       itemArea.size.y = height;
 
-      (*i)->draw(itemArea, index == selection ? STATE_SELECTED : STATE_NORMAL);
+      i->draw(itemArea, index == selection ? STATE_SELECTED : STATE_NORMAL);
 
       itemTop -= height;
       index++;
@@ -254,9 +254,9 @@ void Menu::onCursorPos(Widget& widget, vec2 position)
   const float height = getHeight() - 2.f;
   float itemTop = height;
 
-  for (auto i = items.begin();  i != items.end();  i++)
+  for (auto i : items)
   {
-    const float itemHeight = (*i)->getHeight();
+    const float itemHeight = i->getHeight();
     if (itemTop - itemHeight < 0.f)
       break;
 
@@ -292,9 +292,9 @@ void Menu::onMouseButton(Widget& widget,
   const float height = getHeight() - 2.f;
   float itemTop = height;
 
-  for (auto i = items.begin();  i != items.end();  i++)
+  for (auto i : items)
   {
-    const float itemHeight = (*i)->getHeight();
+    const float itemHeight = i->getHeight();
     if (itemTop - itemHeight < 0.f)
       break;
 
@@ -362,10 +362,10 @@ void Menu::sizeToFit()
 {
   vec2 size(0.f, 2.f);
 
-  for (auto i = items.begin();  i != items.end();  i++)
+  for (auto i : items)
   {
-    size.x = max((*i)->getWidth(), size.x);
-    size.y += (*i)->getHeight();
+    size.x = max(i->getWidth(), size.x);
+    size.y += i->getHeight();
   }
 
   setSize(size);

@@ -53,50 +53,45 @@ bool VertexPool::allocateVertices(GL::VertexRange& range,
 
   Slot* slot = NULL;
 
-  for (auto s = slots.begin();  s != slots.end();  s++)
+  for (auto& s : m_slots)
   {
-    if (s->buffer->getFormat() == format && s->available >= count)
+    if (s.buffer->format() == format && s.available >= count)
     {
-      slot = &(*s);
+      slot = &s;
       break;
     }
   }
 
   if (!slot)
   {
-    slots.push_back(Slot());
-    slot = &(slots.back());
+    m_slots.push_back(Slot());
+    slot = &(m_slots.back());
 
-    const uint actualCount = granularity * ((count + granularity - 1) / granularity);
+    const uint actualCount = m_granularity * ((count + m_granularity - 1) / m_granularity);
 
-    slot->buffer = GL::VertexBuffer::create(context,
+    slot->buffer = GL::VertexBuffer::create(m_context,
                                             actualCount,
                                             format,
                                             GL::USAGE_DYNAMIC);
     if (!slot->buffer)
     {
-      slots.pop_back();
+      m_slots.pop_back();
       return false;
     }
 
-    log("Allocated vertex pool of size %u format \'%s\'",
+    log("Allocated vertex pool of size %u format %s",
         actualCount,
         format.asString().c_str());
 
-    slot->available = slot->buffer->getCount();
+    slot->available = slot->buffer->count();
   }
 
   range = GL::VertexRange(*(slot->buffer),
-                          slot->buffer->getCount() - slot->available,
+                          slot->buffer->count() - slot->available,
                           count);
 
   slot->available -= count;
   return true;
-}
-
-GL::Context& VertexPool::getContext() const
-{
-  return context;
 }
 
 Ref<VertexPool> VertexPool::create(GL::Context& context, size_t granularity)
@@ -108,23 +103,23 @@ Ref<VertexPool> VertexPool::create(GL::Context& context, size_t granularity)
   return pool;
 }
 
-VertexPool::VertexPool(GL::Context& initContext):
-  context(initContext),
-  granularity(0)
+VertexPool::VertexPool(GL::Context& context):
+  m_context(context),
+  m_granularity(0)
 {
-  context.getWindow().getFrameSignal().connect(*this, &VertexPool::onFrame);
+  context.window().frameSignal().connect(*this, &VertexPool::onFrame);
 }
 
-bool VertexPool::init(size_t initGranularity)
+bool VertexPool::init(size_t granularity)
 {
-  granularity = initGranularity;
+  m_granularity = granularity;
   return true;
 }
 
 void VertexPool::onFrame()
 {
-  for (auto s = slots.begin();  s != slots.end();  s++)
-    s->available = s->buffer->getCount();
+  for (auto& s : m_slots)
+    s.available = s.buffer->count();
 }
 
 ///////////////////////////////////////////////////////////////////////

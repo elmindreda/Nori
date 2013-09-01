@@ -89,13 +89,13 @@ btTriangleMesh* convert(const Mesh& data)
   else
     mesh = new btTriangleMesh(false);
 
-  for (auto s = data.sections.begin();  s != data.sections.end();  s++)
+  for (auto& s : data.sections)
   {
-    for (auto t = s->triangles.begin();  t != s->triangles.end();  t++)
+    for (auto& t : s.triangles)
     {
-      mesh->addTriangle(convert(data.vertices[t->indices[0]].position),
-                        convert(data.vertices[t->indices[1]].position),
-                        convert(data.vertices[t->indices[2]].position),
+      mesh->addTriangle(convert(data.vertices[t.indices[0]].position),
+                        convert(data.vertices[t.indices[1]].position),
+                        convert(data.vertices[t.indices[2]].position),
                         true);
     }
   }
@@ -104,16 +104,6 @@ btTriangleMesh* convert(const Mesh& data)
 }
 
 ///////////////////////////////////////////////////////////////////////
-
-btTriangleMesh& BvhTriangleMeshShape::getMesh()
-{
-  return *mesh;
-}
-
-btBvhTriangleMeshShape& BvhTriangleMeshShape::getShape()
-{
-  return *shape;
-}
 
 Ref<BvhTriangleMeshShape> BvhTriangleMeshShape::create(const ResourceInfo& info,
                                                        const Mesh& data)
@@ -139,7 +129,7 @@ Ref<BvhTriangleMeshShape> BvhTriangleMeshShape::read(ResourceCache& cache,
   Ref<Mesh> data = Mesh::read(cache, meshName);
   if (!data)
   {
-    logError("Failed to read mesh for mesh shape \'%s\'", name.c_str());
+    logError("Failed to read mesh for mesh shape %s", name.c_str());
     return NULL;
   }
 
@@ -153,8 +143,8 @@ BvhTriangleMeshShape::BvhTriangleMeshShape(const ResourceInfo& info):
 
 bool BvhTriangleMeshShape::init(const Mesh& data)
 {
-  mesh = convert(data);
-  shape = new btBvhTriangleMeshShape(mesh, true, true);
+  m_mesh = convert(data);
+  m_shape = new btBvhTriangleMeshShape(m_mesh, true, true);
   return true;
 }
 

@@ -45,11 +45,11 @@ namespace wendy
 
 OcclusionQuery::~OcclusionQuery()
 {
-  if (active)
+  if (m_active)
     logError("Occlusion query destroyed while active");
 
-  if (queryID)
-    glDeleteQueries(1, &queryID);
+  if (m_queryID)
+    glDeleteQueries(1, &m_queryID);
 
 #if WENDY_DEBUG
   checkGL("OpenGL error during occlusion query deletion");
@@ -58,15 +58,15 @@ OcclusionQuery::~OcclusionQuery()
 
 void OcclusionQuery::begin()
 {
-  if (active)
+  if (m_active)
   {
     logError("Cannot begin already active occlusion query");
     return;
   }
 
-  glBeginQuery(GL_SAMPLES_PASSED, queryID);
+  glBeginQuery(GL_SAMPLES_PASSED, m_queryID);
 
-  active = true;
+  m_active = true;
 
 #if WENDY_DEBUG
   checkGL("OpenGL error during occlusion query begin");
@@ -75,7 +75,7 @@ void OcclusionQuery::begin()
 
 void OcclusionQuery::end()
 {
-  if (!active)
+  if (!m_active)
   {
     logError("Cannot end non-active occlusion query");
     return;
@@ -83,25 +83,20 @@ void OcclusionQuery::end()
 
   glEndQuery(GL_SAMPLES_PASSED);
 
-  active = false;
+  m_active = false;
 
 #if WENDY_DEBUG
   checkGL("OpenGL error during occlusion query end");
 #endif
 }
 
-bool OcclusionQuery::isActive() const
-{
-  return active;
-}
-
 bool OcclusionQuery::hasResultAvailable() const
 {
-  if (active)
+  if (m_active)
     return false;
 
   int available;
-  glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &available);
+  glGetQueryObjectiv(m_queryID, GL_QUERY_RESULT_AVAILABLE, &available);
 
 #if WENDY_DEBUG
   if (!checkGL("OpenGL error during occlusion query result availability check"))
@@ -111,16 +106,16 @@ bool OcclusionQuery::hasResultAvailable() const
   return available ? true : false;
 }
 
-uint OcclusionQuery::getResult() const
+uint OcclusionQuery::result() const
 {
-  if (active)
+  if (m_active)
   {
     logError("Cannot retrieve result of active occlusion query");
     return 0;
   }
 
   uint result;
-  glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &result);
+  glGetQueryObjectuiv(m_queryID, GL_QUERY_RESULT, &result);
 
 #if WENDY_DEBUG
   if (!checkGL("OpenGL error during occlusion query result retrieval"))
@@ -139,16 +134,16 @@ OcclusionQuery* OcclusionQuery::create(Context& context)
   return query.detachObject();
 }
 
-OcclusionQuery::OcclusionQuery(Context& initContext):
-  context(initContext),
-  queryID(0),
-  active(false)
+OcclusionQuery::OcclusionQuery(Context& context):
+  m_context(context),
+  m_queryID(0),
+  m_active(false)
 {
 }
 
 bool OcclusionQuery::init()
 {
-  glGenQueries(1, &queryID);
+  glGenQueries(1, &m_queryID);
 
   if (!checkGL("OpenGL error during creation of occlusion query object"))
     return false;

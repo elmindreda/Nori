@@ -47,13 +47,13 @@ namespace wendy
 
 Source::~Source()
 {
-  if (sourceID)
-    alDeleteSources(1, &sourceID);
+  if (m_sourceID)
+    alDeleteSources(1, &m_sourceID);
 }
 
 void Source::start()
 {
-  alSourcePlay(sourceID);
+  alSourcePlay(m_sourceID);
 
 #if WENDY_DEBUG
   checkAL("Failed to start source");
@@ -62,7 +62,7 @@ void Source::start()
 
 void Source::stop()
 {
-  alSourceStop(sourceID);
+  alSourceStop(m_sourceID);
 
 #if WENDY_DEBUG
   checkAL("Failed to stop source");
@@ -71,7 +71,7 @@ void Source::stop()
 
 void Source::pause()
 {
-  alSourcePause(sourceID);
+  alSourcePause(m_sourceID);
 
 #if WENDY_DEBUG
   checkAL("Failed to pause source");
@@ -80,37 +80,17 @@ void Source::pause()
 
 void Source::resume()
 {
-  alSourcePlay(sourceID);
+  alSourcePlay(m_sourceID);
 
 #if WENDY_DEBUG
   checkAL("Failed to resume source");
 #endif
 }
 
-bool Source::isStarted() const
-{
-  return getState() == STARTED;
-}
-
-bool Source::isPaused() const
-{
-  return getState() == PAUSED;
-}
-
-bool Source::isStopped() const
-{
-  return getState() == STOPPED;
-}
-
-bool Source::isLooping() const
-{
-  return looping;
-}
-
-Source::State Source::getState() const
+Source::State Source::state() const
 {
   ALenum state;
-  alGetSourcei(sourceID, AL_SOURCE_STATE, &state);
+  alGetSourcei(m_sourceID, AL_SOURCE_STATE, &state);
 
 #if WENDY_DEBUG
   checkAL("Failed to get source state");
@@ -132,10 +112,10 @@ Source::State Source::getState() const
 
 void Source::setLooping(bool newState)
 {
-  if (looping != newState)
+  if (m_looping != newState)
   {
-    looping = newState;
-    alSourcei(sourceID, AL_LOOPING, looping);
+    m_looping = newState;
+    alSourcei(m_sourceID, AL_LOOPING, m_looping);
 
 #if WENDY_DEBUG
     checkAL("Failed to set source looping state");
@@ -143,17 +123,12 @@ void Source::setLooping(bool newState)
   }
 }
 
-const vec3& Source::getPosition() const
-{
-  return position;
-}
-
 void Source::setPosition(const vec3& newPosition)
 {
-  if (position != newPosition)
+  if (m_position != newPosition)
   {
-    position = newPosition;
-    alSourcefv(sourceID, AL_POSITION, value_ptr(position));
+    m_position = newPosition;
+    alSourcefv(m_sourceID, AL_POSITION, value_ptr(m_position));
 
 #if WENDY_DEBUG
     checkAL("Failed to set source position");
@@ -161,17 +136,12 @@ void Source::setPosition(const vec3& newPosition)
   }
 }
 
-const vec3& Source::getVelocity() const
-{
-  return velocity;
-}
-
 void Source::setVelocity(const vec3& newVelocity)
 {
-  if (velocity != newVelocity)
+  if (m_velocity != newVelocity)
   {
-    velocity = newVelocity;
-    alSourcefv(sourceID, AL_VELOCITY, value_ptr(velocity));
+    m_velocity = newVelocity;
+    alSourcefv(m_sourceID, AL_VELOCITY, value_ptr(m_velocity));
 
 #if WENDY_DEBUG
     checkAL("Failed to set source velocity");
@@ -179,21 +149,16 @@ void Source::setVelocity(const vec3& newVelocity)
   }
 }
 
-Buffer* Source::getBuffer() const
-{
-  return buffer;
-}
-
 void Source::setBuffer(Buffer* newBuffer)
 {
-  if (buffer != newBuffer)
+  if (m_buffer != newBuffer)
   {
-    buffer = newBuffer;
+    m_buffer = newBuffer;
 
-    if (buffer)
-      alSourcei(sourceID, AL_BUFFER, buffer->bufferID);
+    if (m_buffer)
+      alSourcei(m_sourceID, AL_BUFFER, m_buffer->m_bufferID);
     else
-      alSourcei(sourceID, AL_BUFFER, AL_NONE);
+      alSourcei(m_sourceID, AL_BUFFER, AL_NONE);
 
 #if WENDY_DEBUG
     checkAL("Failed to set source buffer");
@@ -201,17 +166,12 @@ void Source::setBuffer(Buffer* newBuffer)
   }
 }
 
-float Source::getGain() const
-{
-  return gain;
-}
-
 void Source::setGain(float newGain)
 {
-  if (gain != newGain)
+  if (m_gain != newGain)
   {
-    gain = newGain;
-    alSourcefv(sourceID, AL_GAIN, &gain);
+    m_gain = newGain;
+    alSourcefv(m_sourceID, AL_GAIN, &m_gain);
 
 #if WENDY_DEBUG
     checkAL("Failed to set source gain");
@@ -219,27 +179,17 @@ void Source::setGain(float newGain)
   }
 }
 
-float Source::getPitch() const
-{
-  return pitch;
-}
-
 void Source::setPitch(float newPitch)
 {
-  if (pitch != newPitch)
+  if (m_pitch != newPitch)
   {
-    pitch = newPitch;
-    alSourcefv(sourceID, AL_PITCH, &pitch);
+    m_pitch = newPitch;
+    alSourcefv(m_sourceID, AL_PITCH, &m_pitch);
 
 #if WENDY_DEBUG
     checkAL("Failed to set source pitch");
 #endif
   }
-}
-
-Context& Source::getContext() const
-{
-  return context;
 }
 
 Ref<Source> Source::create(Context& context)
@@ -251,18 +201,18 @@ Ref<Source> Source::create(Context& context)
   return source;
 }
 
-Source::Source(Context& initContext):
-  context(initContext),
-  sourceID(0),
-  looping(false),
-  gain(1.f),
-  pitch(1.f)
+Source::Source(Context& context):
+  m_context(context),
+  m_sourceID(0),
+  m_looping(false),
+  m_gain(1.f),
+  m_pitch(1.f)
 {
 }
 
 bool Source::init()
 {
-  alGenSources(1, &sourceID);
+  alGenSources(1, &m_sourceID);
 
   if (!checkAL("Error during audio buffer creation"))
     return false;

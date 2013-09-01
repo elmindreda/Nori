@@ -70,24 +70,24 @@ public:
   void drawText(const vec2& penPosition, const vec4& color, const char* text);
   /*! @return The width, in pixels, of the character cell for this font.
    */
-  float getWidth() const;
+  float width() const { return m_size.x; }
   /*! @return The height, in pixels, of the character cell for this font.
    */
-  float getHeight() const;
+  float height() const { return m_size.y; }
   /*! @return The ascender for this font.
    */
-  float getAscender() const;
+  float ascender() const { return m_ascender; }
   /*! @return The descender for this font.
    */
-  float getDescender() const;
+  float descender() const { return m_descender; }
   /*! @param text The text to measure.
    *  @return The bounding rectangle, in pixels, of the specified text as
    *  rendered by this font.
    */
-  Rect getTextMetrics(const char* text) const;
+  Rect metricsOf(const char* text) const;
   /*! Calculates the layout of glyphs for the specified text.
    */
-  void getTextLayout(LayoutList& result, const char* text) const;
+  LayoutList layoutOf(const char* text) const;
   static Ref<Font> create(const ResourceInfo& info,
                           VertexPool& pool,
                           const FontData& data);
@@ -101,15 +101,15 @@ private:
   const Glyph* findGlyph(uint8 character) const;
   bool getGlyphLayout(Layout& layout, uint8 character) const;
   void getGlyphLayout(Layout& layout, const Glyph& glyph, uint8 character) const;
-  Ref<VertexPool> pool;
-  std::vector<Glyph> glyphs;
-  Glyph* characters[256];
-  vec2 size;
-  float ascender;
-  float descender;
-  UniformStateIndex colorIndex;
-  Pass pass;
-  std::vector<Vertex2ft2fv> vertices;
+  Ref<VertexPool> m_pool;
+  std::vector<Glyph> m_glyphs;
+  Glyph* m_characters[256];
+  vec2 m_size;
+  float m_ascender;
+  float m_descender;
+  UniformStateIndex m_colorIndex;
+  Pass m_pass;
+  std::vector<Vertex2ft2fv> m_vertices;
 };
 
 ///////////////////////////////////////////////////////////////////////

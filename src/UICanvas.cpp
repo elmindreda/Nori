@@ -56,8 +56,8 @@ void Canvas::draw() const
 
   const Recti area(0, 0, int(getWidth()), int(getHeight()));
 
-  Recti oldViewport = context.getViewportArea();
-  Recti oldScissor = context.getScissorArea();
+  Recti oldViewport = context.viewportArea();
+  Recti oldScissor = context.scissorArea();
 
   context.setViewportArea(area);
   context.setScissorArea(area);

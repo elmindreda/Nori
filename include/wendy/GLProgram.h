@@ -64,10 +64,10 @@ class Shader : public Resource
   friend class Program;
 public:
   ~Shader();
-  bool isVertexShader() const;
-  bool isFragmentShader() const;
-  ShaderType getType() const;
-  Context& getContext() const;
+  bool isVertexShader() const { return m_type == VERTEX_SHADER; }
+  bool isFragmentShader() const { return m_type == FRAGMENT_SHADER; }
+  ShaderType type() const { return m_type; }
+  Context& context() const { return m_context; }
   static Ref<Shader> create(const ResourceInfo& info,
                             Context& context,
                             ShaderType type,
@@ -78,9 +78,9 @@ public:
 private:
   Shader(const ResourceInfo& info, Context& context, ShaderType type);
   bool init(const String& text);
-  Context& context;
-  ShaderType type;
-  uint shaderID;
+  Context& m_context;
+  ShaderType m_type;
+  uint m_shaderID;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -113,29 +113,29 @@ public:
   /*! @return @c true if the name of this attribute matches the specified
    *  string, or @c false otherwise.
    */
-  bool operator == (const char* string) const;
+  bool operator == (const char* string) const { return m_name == string; }
   /*! @return @c true if the type of this attribute is a single value.
    */
-  bool isScalar() const;
+  bool isScalar() const { return m_type == ATTRIBUTE_FLOAT; }
   /*! @return @c true if the type of this attribute is a vector.
    */
   bool isVector() const;
   /*! @return The type of this attribute.
    */
-  AttributeType getType() const;
+  AttributeType type() const { return m_type; }
   /*! @return The name of this attribute.
    */
-  const String& getName() const;
+  const String& name() const { return m_name; }
   /*! @return The number of elements in this attribute.
    */
-  uint getElementCount() const;
+  uint elementCount() const;
   /*! @return The GLSL name of the specified attribute type.
    */
-  static const char* getTypeName(AttributeType type);
+  static const char* typeName(AttributeType type);
 private:
-  AttributeType type;
-  String name;
-  int location;
+  AttributeType m_type;
+  String m_name;
+  int m_location;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -167,7 +167,7 @@ public:
   /*! @return @c true if the name of this sampler matches the specified string,
    *  or @c false otherwise.
    */
-  bool operator == (const char* string) const;
+  bool operator == (const char* string) const { return m_name == string; }
   /*! @return @c true if this sampler is shared, or @c false otherwise.
    *
    *  @remarks Shared samplers get their values via the currently set shared
@@ -176,22 +176,22 @@ public:
   bool isShared() const;
   /*! @return The type of this sampler.
    */
-  SamplerType getType() const;
+  SamplerType type() const { return m_type; }
   /*! @return The name of this sampler.
    */
-  const String& getName() const;
+  const String& name() const { return m_name; }
   /*! @return The shared ID of this sampler, or INVALID_SHARED_STATE_ID if
    *  it is not shared.
    */
-  int getSharedID() const;
+  int sharedID() const { return m_sharedID; }
   /*! @return The GLSL name of the specified sampler type.
    */
-  static const char* getTypeName(SamplerType type);
+  static const char* typeName(SamplerType type);
 private:
-  String name;
-  SamplerType type;
-  int location;
-  int sharedID;
+  String m_name;
+  SamplerType m_type;
+  int m_location;
+  int m_sharedID;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -229,7 +229,7 @@ public:
   /*! @return @c true if the name of this uniform matches the specified string,
    *  or @c false otherwise.
    */
-  bool operator == (const char* string) const;
+  bool operator == (const char* string) const { return m_name == string; }
   /*! @return @c true if this uniform is shared, or @c false otherwise.
    *
    *  @remarks Shared uniforms get their values via the currently set shared
@@ -238,7 +238,7 @@ public:
   bool isShared() const;
   /*! @return @c true if the type of this uniform is a single value.
    */
-  bool isScalar() const;
+  bool isScalar() const { return m_type == UNIFORM_FLOAT; }
   /*! @return @c true if the type of this uniform is a vector.
    */
   bool isVector() const;
@@ -247,25 +247,25 @@ public:
   bool isMatrix() const;
   /*! @return The type of this uniform.
    */
-  UniformType getType() const;
+  UniformType type() const { return m_type; }
   /*! @return The name of this uniform.
    */
-  const String& getName() const;
+  const String& name() const { return m_name; }
   /*! @return The number of elements in this uniform.
    */
-  uint getElementCount() const;
+  uint elementCount() const;
   /*! @return The shared ID of this uniform, or INVALID_SHARED_STATE_ID if
    *  it is not shared.
    */
-  int getSharedID() const;
+  int sharedID() const { return m_sharedID; }
   /*! @return The GLSL name of the specified uniform type.
    */
-  static const char* getTypeName(UniformType type);
+  static const char* typeName(UniformType type);
 private:
-  String name;
-  UniformType type;
-  int location;
-  int sharedID;
+  String m_name;
+  UniformType m_type;
+  int m_location;
+  int m_sharedID;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -284,16 +284,16 @@ public:
   const Sampler* findSampler(const char* name) const;
   Uniform* findUniform(const char* name);
   const Uniform* findUniform(const char* name) const;
-  uint getAttributeCount() const;
-  Attribute& getAttribute(uint index);
-  const Attribute& getAttribute(uint index) const;
-  uint getSamplerCount() const;
-  Sampler& getSampler(uint index);
-  const Sampler& getSampler(uint index) const;
-  uint getUniformCount() const;
-  Uniform& getUniform(uint index);
-  const Uniform& getUniform(uint index) const;
-  Context& getContext() const;
+  uint attributeCount() const;
+  Attribute& attribute(uint index);
+  const Attribute& attribute(uint index) const;
+  uint samplerCount() const;
+  Sampler& sampler(uint index);
+  const Sampler& sampler(uint index) const;
+  uint uniformCount() const;
+  Uniform& uniform(uint index);
+  const Uniform& uniform(uint index) const;
+  Context& context() const;
   static Ref<Program> create(const ResourceInfo& info,
                              Context& context,
                              Shader& vertexShader,
@@ -311,14 +311,14 @@ private:
   void unbind();
   Program& operator = (const Program& source);
   bool isValid() const;
-  String getInfoLog() const;
-  Context& context;
-  Ref<Shader> vertexShader;
-  Ref<Shader> fragmentShader;
-  uint programID;
-  std::vector<Attribute> attributes;
-  std::vector<Sampler> samplers;
-  std::vector<Uniform> uniforms;
+  String infoLog() const;
+  Context& m_context;
+  Ref<Shader> m_vertexShader;
+  Ref<Shader> m_fragmentShader;
+  uint m_programID;
+  std::vector<Attribute> m_attributes;
+  std::vector<Sampler> m_samplers;
+  std::vector<Uniform> m_uniforms;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -80,22 +80,22 @@ public:
   /*! @return @c true if this pixel format describes to a physical pixel
    *  format.
    */
-  bool isValid() const;
+  bool isValid() const { return m_semantic != NONE && m_type != DUMMY; }
   /*! @return The size, in bytes, of a pixel in this pixel format.
    */
-  size_t getSize() const;
+  size_t size() const { return channelSize() * channelCount(); }
   /*! @return The size, in bytes, of a channel of a pixel in this pixel format.
    */
-  size_t getChannelSize() const;
+  size_t channelSize() const;
   /*! @return The channel data type of this pixel format.
    */
-  Type getType() const;
+  Type type() const { return m_type; }
   /*! @return The channel semantic of this pixel format.
    */
-  Semantic getSemantic() const;
+  Semantic semantic() const { return m_semantic; }
   /*! @return The number of components in this pixel format.
    */
-  uint getChannelCount() const;
+  uint channelCount() const;
   /*! @return A string representation of this pixel format.
    */
   String asString() const;
@@ -121,8 +121,8 @@ public:
   static const PixelFormat DEPTH16F;
   static const PixelFormat DEPTH32F;
 private:
-  Semantic semantic;
-  Type type;
+  Semantic m_semantic;
+  Type m_type;
 };
 
 ///////////////////////////////////////////////////////////////////////

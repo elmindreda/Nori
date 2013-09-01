@@ -98,7 +98,7 @@ Ref<Theme> Theme::read(render::VertexPool& pool, const String& name)
 ///////////////////////////////////////////////////////////////////////
 
 ThemeReader::ThemeReader(render::VertexPool& initPool):
-  ResourceReader<Theme>(initPool.getContext().getCache()),
+  ResourceReader<Theme>(initPool.context().cache()),
   pool(&initPool)
 {
   if (widgetStateMap.isEmpty())
@@ -115,7 +115,7 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
   std::ifstream stream(path.asString().c_str());
   if (stream.fail())
   {
-    logError("Failed to open animation \'%s\'", name.c_str());
+    logError("Failed to open animation %s", name.c_str());
     return NULL;
   }
 
@@ -124,7 +124,7 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
   const pugi::xml_parse_result result = document.load(stream);
   if (!result)
   {
-    logError("Failed to load UI theme \'%s\': %s",
+    logError("Failed to load UI theme %s: %s",
              name.c_str(),
              result.description());
     return NULL;
@@ -133,7 +133,7 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
   pugi::xml_node root = document.child("theme");
   if (!root || root.attribute("version").as_uint() != THEME_XML_VERSION)
   {
-    logError("UI theme file format mismatch in \'%s\'", name.c_str());
+    logError("UI theme file format mismatch in %s", name.c_str());
     return NULL;
   }
 
@@ -142,40 +142,40 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
   const String imageName(root.attribute("image").value());
   if (imageName.empty())
   {
-    logError("No image specified for UI theme \'%s\'", name.c_str());
+    logError("No image specified for UI theme %s", name.c_str());
     return NULL;
   }
 
-  theme->texture = GL::Texture::read(pool->getContext(),
+  theme->texture = GL::Texture::read(pool->context(),
                                      GL::TEXTURE_RECT,
                                      imageName);
   if (!theme->texture)
   {
-    logError("Failed to create texture for UI theme \'%s\'", name.c_str());
+    logError("Failed to create texture for UI theme %s", name.c_str());
     return NULL;
   }
 
   const String fontName(root.attribute("font").value());
   if (fontName.empty())
   {
-    logError("Font for UI theme \'%s\' is empty", name.c_str());
+    logError("Font for UI theme %s is empty", name.c_str());
     return NULL;
   }
 
   theme->font = render::Font::read(*pool, fontName);
   if (!theme->font)
   {
-    logError("Failed to load font for UI theme \'%s\'", name.c_str());
+    logError("Failed to load font for UI theme %s", name.c_str());
     return NULL;
   }
 
   const vec3 scale(1.f / 255.f);
 
-  for (pugi::xml_node sn = root.first_child();  sn;  sn = sn.next_sibling())
+  for (auto sn : root.children())
   {
     if (!widgetStateMap.hasKey(sn.name()))
     {
-      logError("Unknown widget state \'%s\' in UI theme \'%s\'",
+      logError("Unknown widget state %s in UI theme %s",
                sn.name(),
                name.c_str());
       return NULL;
@@ -217,9 +217,9 @@ void Drawer::begin()
 {
   GL::Context& context = getContext();
 
-  GL::Framebuffer& framebuffer = context.getCurrentFramebuffer();
-  const uint width = framebuffer.getWidth();
-  const uint height = framebuffer.getHeight();
+  GL::Framebuffer& framebuffer = context.currentFramebuffer();
+  const uint width = framebuffer.width();
+  const uint height = framebuffer.height();
 
   context.setCurrentSharedProgramState(state);
   context.setViewportArea(Recti(0, 0, width, height));
@@ -238,7 +238,7 @@ bool Drawer::pushClipArea(const Rect& area)
   if (!clipAreaStack.push(area))
     return false;
 
-  const Rect& total = clipAreaStack.getTotal();
+  const Rect& total = clipAreaStack.total();
 
   GL::Context& context = getContext();
   context.setScissorArea(Recti(ivec2(total.position), ivec2(total.size)));
@@ -251,15 +251,15 @@ void Drawer::popClipArea()
   clipAreaStack.pop();
 
   GL::Context& context = getContext();
-  GL::Framebuffer& framebuffer = context.getCurrentFramebuffer();
+  GL::Framebuffer& framebuffer = context.currentFramebuffer();
 
   Recti area;
 
   if (clipAreaStack.isEmpty())
-    area.set(0, 0, framebuffer.getWidth(), framebuffer.getHeight());
+    area.set(0, 0, framebuffer.width(), framebuffer.height());
   else
   {
-    const Rect& total = clipAreaStack.getTotal();
+    const Rect& total = clipAreaStack.total();
     area.set(ivec2(total.position), ivec2(total.size));
   }
 
@@ -342,7 +342,7 @@ void Drawer::drawBezier(const BezierCurve2& spline, const vec4& color)
 void Drawer::drawRectangle(const Rect& rectangle, const vec4& color)
 {
   float minX, minY, maxX, maxY;
-  rectangle.getBounds(minX, minY, maxX, maxY);
+  rectangle.bounds(minX, minY, maxX, maxY);
 
   if (maxX - minX < 1.f || maxY - minY < 1.f)
     return;
@@ -385,7 +385,7 @@ void Drawer::fillTriangle(const Triangle2& triangle, const vec4& color)
 void Drawer::fillRectangle(const Rect& rectangle, const vec4& color)
 {
   float minX, minY, maxX, maxY;
-  rectangle.getBounds(minX, minY, maxX, maxY);
+  rectangle.bounds(minX, minY, maxX, maxY);
 
   if (maxX - minX < 1.f || maxY - minY < 1.f)
     return;
@@ -410,19 +410,19 @@ void Drawer::fillRectangle(const Rect& rectangle, const vec4& color)
 void Drawer::blitTexture(const Rect& area, GL::Texture& texture)
 {
   float minX, minY, maxX, maxY;
-  area.getBounds(minX, minY, maxX, maxY);
+  area.bounds(minX, minY, maxX, maxY);
 
   if (maxX - minX < 1.f || maxY - minY < 1.f)
     return;
 
   Vertex2ft2fv vertices[4];
-  vertices[0].texCoord = vec2(0.f, 0.f);
+  vertices[0].texcoord = vec2(0.f, 0.f);
   vertices[0].position = vec2(minX, minY);
-  vertices[1].texCoord = vec2(1.f, 0.f);
+  vertices[1].texcoord = vec2(1.f, 0.f);
   vertices[1].position = vec2(maxX, minY);
-  vertices[2].texCoord = vec2(1.f, 1.f);
+  vertices[2].texcoord = vec2(1.f, 1.f);
   vertices[2].position = vec2(maxX, maxY);
-  vertices[3].texCoord = vec2(0.f, 1.f);
+  vertices[3].texcoord = vec2(0.f, 1.f);
   vertices[3].position = vec2(minX, maxY);
 
   GL::VertexRange range;
@@ -431,7 +431,7 @@ void Drawer::blitTexture(const Rect& area, GL::Texture& texture)
 
   range.copyFrom(vertices);
 
-  if (texture.getFormat().getSemantic() == PixelFormat::RGBA)
+  if (texture.format().semantic() == PixelFormat::RGBA)
     blitPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
   else
     blitPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ZERO);
@@ -449,7 +449,7 @@ void Drawer::drawText(const Rect& area,
                       const Alignment& alignment,
                       const vec3& color)
 {
-  Rect metrics = currentFont->getTextMetrics(text);
+  const Rect metrics = currentFont->metricsOf(text);
 
   vec2 penPosition;
 
@@ -459,7 +459,7 @@ void Drawer::drawText(const Rect& area,
       penPosition.x = area.position.x - metrics.position.x;
       break;
     case CENTERED_ON_X:
-      penPosition.x = area.getCenter().x - metrics.getCenter().x;
+      penPosition.x = area.center().x - metrics.center().x;
       break;
     case RIGHT_ALIGNED:
       penPosition.x = (area.position.x + area.size.x) -
@@ -475,7 +475,7 @@ void Drawer::drawText(const Rect& area,
       penPosition.y = area.position.y - metrics.position.y;
       break;
     case CENTERED_ON_Y:
-      penPosition.y = area.getCenter().y - metrics.getCenter().y;
+      penPosition.y = area.center().y - metrics.center().y;
       break;
     case TOP_ALIGNED:
       penPosition.y = (area.position.y + area.size.y) -
@@ -541,7 +541,7 @@ const Theme& Drawer::getTheme() const
 
 GL::Context& Drawer::getContext()
 {
-  return pool->getContext();
+  return pool->context();
 }
 
 render::VertexPool& Drawer::getVertexPool()
@@ -564,7 +564,7 @@ void Drawer::setCurrentFont(render::Font* newFont)
 
 float Drawer::getCurrentEM() const
 {
-  return currentFont->getHeight();
+  return currentFont->height();
 }
 
 Ref<Drawer> Drawer::create(render::VertexPool& pool)
@@ -668,7 +668,7 @@ bool Drawer::init()
     theme = Theme::read(getVertexPool(), themeName);
     if (!theme)
     {
-      logError("Failed to load default UI theme \'%s\'", themeName.c_str());
+      logError("Failed to load default UI theme %s", themeName.c_str());
       return false;
     }
 
@@ -696,8 +696,8 @@ bool Drawer::init()
 
     if (!interface.matches(*program, true))
     {
-      logError("UI element program \'%s\' does not conform to the required interface",
-               program->getName().c_str());
+      logError("UI element program %s does not conform to the required interface",
+               program->name().c_str());
       return false;
     }
 
@@ -708,10 +708,10 @@ bool Drawer::init()
     elementPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
     elementPass.setMultisampling(false);
 
-    elementPosIndex = elementPass.getUniformStateIndex("elementPos");
-    elementSizeIndex = elementPass.getUniformStateIndex("elementSize");
-    texPosIndex = elementPass.getUniformStateIndex("texPos");
-    texSizeIndex = elementPass.getUniformStateIndex("texSize");
+    elementPosIndex = elementPass.uniformStateIndex("elementPos");
+    elementSizeIndex = elementPass.uniformStateIndex("elementSize");
+    texPosIndex = elementPass.uniformStateIndex("texPos");
+    texSizeIndex = elementPass.uniformStateIndex("texSize");
   }
 
   // Set up solid pass
@@ -731,8 +731,8 @@ bool Drawer::init()
 
     if (!interface.matches(*program, true))
     {
-      logError("UI drawing shader program \'%s\' does not conform to the required interface",
-               program->getName().c_str());
+      logError("UI drawing shader program %s does not conform to the required interface",
+               program->name().c_str());
       return false;
     }
 
@@ -760,8 +760,8 @@ bool Drawer::init()
 
     if (!interface.matches(*program, true))
     {
-      logError("UI blitting shader program \'%s\' does not conform to the required interface",
-               program->getName().c_str());
+      logError("UI blitting shader program %s does not conform to the required interface",
+               program->name().c_str());
       return false;
     }
 

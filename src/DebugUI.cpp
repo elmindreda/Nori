@@ -125,13 +125,13 @@ Interface::Interface(Window& window, UI::Drawer& drawer):
 
 void Interface::update()
 {
-  GL::Stats* stats = getDrawer().getContext().getStats();
+  GL::Stats* stats = getDrawer().getContext().stats();
 
   if (stats)
   {
-    const GL::Stats::Frame& frame = stats->getCurrentFrame();
+    const GL::Stats::Frame& frame = stats->currentFrame();
 
-    updateCountItem(ITEM_FRAMERATE, "fps", (size_t) (stats->getFrameRate() + 0.5f));
+    updateCountItem(ITEM_FRAMERATE, "fps", (size_t) (stats->frameRate() + 0.5f));
     updateCountItem(ITEM_STATECHANGES, "states / f", frame.stateChangeCount);
     updateCountItem(ITEM_OPERATIONS, "operations / f", frame.operationCount);
     updateCountItem(ITEM_VERTICES, "vertices / f", frame.vertexCount);
@@ -139,19 +139,19 @@ void Interface::update()
     updateCountItem(ITEM_LINES, "lines / f", frame.lineCount);
     updateCountItem(ITEM_TRIANGLES, "triangles / f", frame.triangleCount);
 
-    updateCountItem(ITEM_PROGRAMS, "programs", stats->getProgramCount());
+    updateCountItem(ITEM_PROGRAMS, "programs", stats->programCount());
     updateCountSizeItem(ITEM_TEXTURES,
                         "textures",
-                        stats->getTextureCount(),
-                        stats->getTotalTextureSize());
+                        stats->textureCount(),
+                        stats->totalTextureSize());
     updateCountSizeItem(ITEM_VERTEXBUFFERS,
                         "VBs",
-                        stats->getVertexBufferCount(),
-                        stats->getTotalVertexBufferSize());
+                        stats->vertexBufferCount(),
+                        stats->totalVertexBufferSize());
     updateCountSizeItem(ITEM_INDEXBUFFERS,
                         "IBs",
-                        stats->getIndexBufferCount(),
-                        stats->getTotalIndexBufferSize());
+                        stats->indexBufferCount(),
+                        stats->totalIndexBufferSize());
   }
   else
   {
@@ -164,10 +164,10 @@ void Interface::draw()
 {
   GL::Context& context = getDrawer().getContext();
 
-  GL::Framebuffer& framebuffer = context.getCurrentFramebuffer();
-  root->setSize(vec2(150.f, float(framebuffer.getHeight())));
+  GL::Framebuffer& framebuffer = context.currentFramebuffer();
+  root->setSize(vec2(150.f, float(framebuffer.height())));
 
-  GL::Stats* previous = context.getStats();
+  GL::Stats* previous = context.stats();
   context.setStats(NULL);
 
   UI::Layer::draw();

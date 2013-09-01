@@ -172,7 +172,7 @@ TextureParams::TextureParams(TextureType initType):
 
 bool TextureImage::copyFrom(const Image& source, uint x, uint y, uint z)
 {
-  if (source.getFormat() != texture.format)
+  if (source.format() != m_texture.format())
   {
     // TODO: Convert to compatible pixel format
 
@@ -180,61 +180,61 @@ bool TextureImage::copyFrom(const Image& source, uint x, uint y, uint z)
     return false;
   }
 
-  if (texture.is1D())
+  if (m_texture.is1D())
   {
-    if (source.getDimensionCount() > 1)
+    if (source.dimensionCount() > 1)
     {
       logError("Cannot blt to texture; source image has too many dimensions");
       return false;
     }
 
-    texture.context.setCurrentTexture(&texture);
+    m_texture.context().setCurrentTexture(&m_texture);
 
-    glTexSubImage1D(convertToGL(texture.type),
-                    level,
+    glTexSubImage1D(convertToGL(m_texture.type()),
+                    m_level,
                     x,
-                    source.getWidth(),
-                    convertToGL(texture.format.getSemantic()),
-                    convertToGL(texture.format.getType()),
-                    source.getPixels());
+                    source.width(),
+                    convertToGL(m_texture.format().semantic()),
+                    convertToGL(m_texture.format().type()),
+                    source.pixels());
   }
-  else if (texture.is3D())
+  else if (m_texture.is3D())
   {
-    texture.context.setCurrentTexture(&texture);
+    m_texture.context().setCurrentTexture(&m_texture);
 
-    glTexSubImage3D(convertToGL(texture.type),
-                    level,
+    glTexSubImage3D(convertToGL(m_texture.type()),
+                    m_level,
                     x, y, z,
-                    source.getWidth(),
-                    source.getHeight(),
-                    source.getDepth(),
-                    convertToGL(texture.format.getSemantic()),
-                    convertToGL(texture.format.getType()),
-                    source.getPixels());
+                    source.width(),
+                    source.height(),
+                    source.depth(),
+                    convertToGL(m_texture.format().semantic()),
+                    convertToGL(m_texture.format().type()),
+                    source.pixels());
   }
   else
   {
-    if (source.getDimensionCount() > 2)
+    if (source.dimensionCount() > 2)
     {
       logError("Cannot blt to texture; source image has too many dimensions");
       return false;
     }
 
-    texture.context.setCurrentTexture(&texture);
+    m_texture.context().setCurrentTexture(&m_texture);
 
-    glTexSubImage2D(convertToGL(texture.type),
-                    level,
+    glTexSubImage2D(convertToGL(m_texture.type()),
+                    m_level,
                     x, y,
-                    source.getWidth(), source.getHeight(),
-                    convertToGL(texture.format.getSemantic()),
-                    convertToGL(texture.format.getType()),
-                    source.getPixels());
+                    source.width(), source.height(),
+                    convertToGL(m_texture.format().semantic()),
+                    convertToGL(m_texture.format().type()),
+                    source.pixels());
   }
 
 #if WENDY_DEBUG
-  if (!checkGL("Error during copy from image into level %u of texture \'%s\'",
-               level,
-               texture.getName().c_str()))
+  if (!checkGL("Error during copy from image into level %u of texture %s",
+               m_level,
+               m_texture.name().c_str()))
   {
     return false;
   }
@@ -243,26 +243,26 @@ bool TextureImage::copyFrom(const Image& source, uint x, uint y, uint z)
   return true;
 }
 
-Ref<Image> TextureImage::getData() const
+Ref<Image> TextureImage::data() const
 {
-  Ref<Image> result = Image::create(texture.getCache(),
-                                    texture.format,
-                                    width,
-                                    height,
-                                    depth);
+  Ref<Image> result = Image::create(m_texture.cache(),
+                                    m_texture.format(),
+                                    m_width,
+                                    m_height,
+                                    m_depth);
 
-  texture.context.setCurrentTexture(&texture);
+  m_texture.context().setCurrentTexture(&m_texture);
 
-  glGetTexImage(convertToGL(texture.type),
-                level,
-                convertToGL(texture.format.getSemantic()),
-                convertToGL(texture.format.getType()),
-                result->getPixels());
+  glGetTexImage(convertToGL(m_texture.type()),
+                m_level,
+                convertToGL(m_texture.format().semantic()),
+                convertToGL(m_texture.format().type()),
+                result->pixels());
 
 #if WENDY_DEBUG
-  if (!checkGL("Error during copy to image from level %u of texture \'%s\'",
-               level,
-               texture.getName().c_str()))
+  if (!checkGL("Error during copy to image from level %u of texture %s",
+               m_level,
+               m_texture.name().c_str()))
   {
     return NULL;
   }
@@ -271,114 +271,89 @@ Ref<Image> TextureImage::getData() const
   return result;
 }
 
-uint TextureImage::getWidth() const
+size_t TextureImage::size() const
 {
-  return width;
+  return m_width * m_height * m_depth * m_texture.format().size();
 }
 
-uint TextureImage::getHeight() const
-{
-  return height;
-}
-
-uint TextureImage::getDepth() const
-{
-  return depth;
-}
-
-size_t TextureImage::getSize() const
-{
-  return width * height * depth * texture.getFormat().getSize();
-}
-
-CubeFace TextureImage::getFace() const
-{
-  return face;
-}
-
-Texture& TextureImage::getTexture() const
-{
-  return texture;
-}
-
-TextureImage::TextureImage(Texture& initTexture,
-                           uint initLevel,
-                           uint initWidth,
-                           uint initHeight,
-                           uint initDepth,
-                           CubeFace initFace):
-  texture(initTexture),
-  level(initLevel),
-  width(initWidth),
-  height(initHeight),
-  depth(initDepth),
-  face(initFace)
+TextureImage::TextureImage(Texture& texture,
+                           uint level,
+                           uint width,
+                           uint height,
+                           uint depth,
+                           CubeFace face):
+  m_texture(texture),
+  m_level(level),
+  m_width(width),
+  m_height(height),
+  m_depth(depth),
+  m_face(face)
 {
 }
 
 void TextureImage::attach(int attachment, uint z)
 {
-  if (texture.is1D())
+  if (m_texture.is1D())
   {
     glFramebufferTexture1D(GL_FRAMEBUFFER,
                            attachment,
-                           convertToGL(texture.type),
-                           texture.textureID,
-                           level);
+                           convertToGL(m_texture.type()),
+                           m_texture.m_textureID,
+                           m_level);
   }
-  else if (texture.is3D())
+  else if (m_texture.is3D())
   {
     glFramebufferTexture3D(GL_FRAMEBUFFER,
                            attachment,
-                           convertToGL(texture.type),
-                           texture.textureID,
-                           level,
+                           convertToGL(m_texture.type()),
+                           m_texture.m_textureID,
+                           m_level,
                            z);
   }
   else
   {
     glFramebufferTexture2D(GL_FRAMEBUFFER,
                            attachment,
-                           convertToGL(texture.type),
-                           texture.textureID,
-                           level);
+                           convertToGL(m_texture.type()),
+                           m_texture.m_textureID,
+                           m_level);
   }
 
 #if WENDY_DEBUG
-  checkGL("Error when attaching level %u of texture \'%s\' to framebuffer",
-          level,
-          texture.getName().c_str());
+  checkGL("Error when attaching level %u of texture %s to framebuffer",
+          m_level,
+          m_texture.name().c_str());
 #endif
 }
 
 void TextureImage::detach(int attachment)
 {
-  if (texture.is1D())
+  if (m_texture.is1D())
   {
     glFramebufferTexture1D(GL_FRAMEBUFFER,
                            attachment,
-                           convertToGL(texture.type),
+                           convertToGL(m_texture.type()),
                            0, 0);
   }
-  else if (texture.is3D())
+  else if (m_texture.is3D())
   {
     glFramebufferTexture3D(GL_FRAMEBUFFER,
                            attachment,
-                           convertToGL(texture.type),
+                           convertToGL(m_texture.type()),
                            0, 0, 0);
   }
   else
   {
     glFramebufferTexture2D(GL_FRAMEBUFFER,
                            attachment,
-                           convertToGL(texture.type),
+                           convertToGL(m_texture.type()),
                            0, 0);
   }
 
 #if WENDY_DEBUG
-  checkGL("Error when detaching level %u of texture \'%s\' from framebuffer",
-          level,
-          texture.getName().c_str());
+  checkGL("Error when detaching level %u of texture %s from framebuffer",
+          m_level,
+          m_texture.name().c_str());
 #endif
 }
 
@@ -386,119 +361,79 @@ void TextureImage::detach(int attachment)
 
 Texture::~Texture()
 {
-  if (textureID)
-    glDeleteTextures(1, &textureID);
+  if (m_textureID)
+    glDeleteTextures(1, &m_textureID);
 
-  if (Stats* stats = context.getStats())
-    stats->removeTexture(getSize());
+  if (Stats* stats = m_context.stats())
+    stats->removeTexture(size());
 }
 
 void Texture::generateMipmaps()
 {
-  glGenerateMipmap(convertToGL(type));
+  glGenerateMipmap(convertToGL(m_type));
 
   if (!hasMipmaps())
   {
     retrieveImages();
 
-    glTexParameteri(convertToGL(type),
+    glTexParameteri(convertToGL(m_type),
                     GL_TEXTURE_MIN_FILTER,
-                    convertToGL(filterMode, true));
+                    convertToGL(m_filterMode, true));
   }
 }
 
 bool Texture::is1D() const
 {
-  return type == TEXTURE_1D;
+  return m_type == TEXTURE_1D;
 }
 
 bool Texture::is2D() const
 {
-  return type == TEXTURE_2D || TEXTURE_RECT;
+  return m_type == TEXTURE_2D || TEXTURE_RECT;
 }
 
 bool Texture::is3D() const
 {
-  return type == TEXTURE_3D;
+  return m_type == TEXTURE_3D;
 }
 
 bool Texture::isCube() const
 {
-  return type == TEXTURE_CUBE;
+  return m_type == TEXTURE_CUBE;
 }
 
 bool Texture::isPOT() const
 {
-  return isPowerOfTwo(getWidth()) &&
-         isPowerOfTwo(getHeight()) &&
-         isPowerOfTwo(getDepth());
-}
-
-bool Texture::hasMipmaps() const
-{
-  return levels > 1;
-}
-
-TextureType Texture::getType() const
-{
-  return type;
-}
-
-uint Texture::getWidth(uint level) const
-{
-  return getImage(level).getWidth();
-}
-
-uint Texture::getHeight(uint level) const
-{
-  return getImage(level).getHeight();
-}
-
-uint Texture::getDepth(uint level) const
-{
-  return getImage(level).getDepth();
-}
-
-uint Texture::getLevelCount() const
-{
-  return levels;
-}
-
-FilterMode Texture::getFilterMode() const
-{
-  return filterMode;
+  return isPowerOfTwo(width()) &&
+         isPowerOfTwo(height()) &&
+         isPowerOfTwo(depth());
 }
 
 void Texture::setFilterMode(FilterMode newMode)
 {
-  if (newMode != filterMode)
+  if (newMode != m_filterMode)
   {
-    context.setCurrentTexture(this);
+    m_context.setCurrentTexture(this);
 
-    glTexParameteri(convertToGL(type),
+    glTexParameteri(convertToGL(m_type),
                     GL_TEXTURE_MIN_FILTER,
                     convertToGL(newMode, hasMipmaps()));
-    glTexParameteri(convertToGL(type),
+    glTexParameteri(convertToGL(m_type),
                     GL_TEXTURE_MAG_FILTER,
                     convertToGL(newMode, false));
 
-    filterMode = newMode;
+    m_filterMode = newMode;
   }
 
 #if WENDY_DEBUG
-  checkGL("Error when changing filter mode for texture \'%s\'",
-          getName().c_str());
+  checkGL("Error when changing filter mode for texture %s",
+          name().c_str());
 #endif
-}
-
-AddressMode Texture::getAddressMode() const
-{
-  return addressMode;
 }
 
 void Texture::setAddressMode(AddressMode newMode)
 {
-  if (type == TEXTURE_RECT)
+  if (m_type == TEXTURE_RECT)
   {
     if (newMode != ADDRESS_CLAMP)
     {
@@ -507,31 +442,26 @@ void Texture::setAddressMode(AddressMode newMode)
     }
   }
 
-  if (newMode != addressMode)
+  if (newMode != m_addressMode)
   {
-    context.setCurrentTexture(this);
+    m_context.setCurrentTexture(this);
 
-    glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_S, convertToGL(newMode));
-    glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_T, convertToGL(newMode));
-    glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_R, convertToGL(newMode));
+    glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_S, convertToGL(newMode));
+    glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_T, convertToGL(newMode));
+    glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_R, convertToGL(newMode));
 
-    addressMode = newMode;
+    m_addressMode = newMode;
   }
 
 #if WENDY_DEBUG
-  checkGL("Error when changing address mode for texture \'%s\'",
-          getName().c_str());
+  checkGL("Error when changing address mode for texture %s",
+          name().c_str());
 #endif
-}
-
-float Texture::getMaxAnisotropy() const
-{
-  return maxAnisotropy;
 }
 
 void Texture::setMaxAnisotropy(float newMax)
 {
-  if (newMax != maxAnisotropy)
+  if (newMax != m_maxAnisotropy)
   {
     if (!GLEW_EXT_texture_filter_anisotropic)
     {
@@ -540,53 +470,43 @@ void Texture::setMaxAnisotropy(float newMax)
       return;
     }
 
-    context.setCurrentTexture(this);
+    m_context.setCurrentTexture(this);
 
-    glTexParameteri(convertToGL(type), GL_TEXTURE_MAX_ANISOTROPY_EXT, int(newMax));
+    glTexParameteri(convertToGL(m_type), GL_TEXTURE_MAX_ANISOTROPY_EXT, int(newMax));
 
-    maxAnisotropy = newMax;
+    m_maxAnisotropy = newMax;
   }
 
 #if WENDY_DEBUG
-  checkGL("Error when changing max anisotropy for texture \'%s\'",
-          getName().c_str());
+  checkGL("Error when changing max anisotropy for texture %s",
+          name().c_str());
 #endif
 }
 
-const PixelFormat& Texture::getFormat() const
-{
-  return format;
-}
-
-size_t Texture::getSize() const
+size_t Texture::size() const
 {
   size_t size = 0;
 
-  for (auto i = images.begin();  i != images.end();  i++)
-    size += (*i)->getSize();
+  for (auto& i : m_images)
+    size += i->size();
 
   return size;
 }
 
-TextureImage& Texture::getImage(uint level, CubeFace face)
+TextureImage& Texture::image(uint level, CubeFace face)
 {
   if (isCube())
-    return *images[face * levels + level];
+    return *m_images[face * m_levels + level];
   else
-    return *images[level];
+    return *m_images[level];
 }
 
-const TextureImage& Texture::getImage(uint level, CubeFace face) const
+const TextureImage& Texture::image(uint level, CubeFace face) const
 {
   if (isCube())
-    return *images[face * levels + level];
+    return *m_images[face * m_levels + level];
   else
-    return *images[level];
-}
-
-Context& Texture::getContext() const
-{
-  return context;
+    return *m_images[level];
 }
 
 Ref<Texture> Texture::create(const ResourceInfo& info,
@@ -605,7 +525,7 @@ Ref<Texture> Texture::read(Context& context,
                            const TextureParams& params,
                            const String& imageName)
 {
-  ResourceCache& cache = context.getCache();
+  ResourceCache& cache = context.cache();
 
   String name;
   name += "source:";
@@ -621,39 +541,39 @@ Ref<Texture> Texture::read(Context& context,
   Ref<Image> data = Image::read(cache, imageName);
   if (!data)
   {
-    logError("Failed to read image for texture \'%s\'", name.c_str());
+    logError("Failed to read image for texture %s", name.c_str());
     return NULL;
   }
 
   return create(ResourceInfo(cache, name), context, params, *data);
 }
 
-Texture::Texture(const ResourceInfo& info, Context& initContext):
+Texture::Texture(const ResourceInfo& info, Context& context):
   Resource(info),
-  context(initContext),
-  textureID(0),
-  levels(0),
-  filterMode(FILTER_BILINEAR),
-  addressMode(ADDRESS_WRAP),
-  maxAnisotropy(1.f)
+  m_context(context),
+  m_textureID(0),
+  m_levels(0),
+  m_filterMode(FILTER_BILINEAR),
+  m_addressMode(ADDRESS_WRAP),
+  m_maxAnisotropy(1.f)
 {
 }
 
 Texture::Texture(const Texture& source):
   Resource(source),
-  context(source.context)
+  m_context(source.m_context)
 {
 }
 
 bool Texture::init(const TextureParams& params, const Image& data)
 {
-  format = data.getFormat();
+  m_format = data.format();
 
-  if (!convertToGL(format, params.sRGB))
+  if (!convertToGL(m_format, params.sRGB))
   {
-    logError("Source image for texture \'%s\' has unsupported pixel format \'%s\'",
-             getName().c_str(),
-             format.asString().c_str());
+    logError("Source image for texture %s has unsupported pixel format %s",
+             name().c_str(),
+             m_format.asString().c_str());
     return false;
   }
 
@@ -661,36 +581,36 @@ bool Texture::init(const TextureParams& params, const Image& data)
 
   if (params.type == TEXTURE_RECT)
   {
-    if (data.getDimensionCount() > 2)
+    if (data.dimensionCount() > 2)
     {
-      logError("Source image for rectangular texture \'%s\' has more than two dimensions",
-               getName().c_str());
+      logError("Source image for rectangular texture %s has more than two dimensions",
+               name().c_str());
       return false;
     }
 
     if (params.mipmapped)
     {
-      logError("Texture \'%s\' specified as both rectangular and mipmapped",
-               getName().c_str());
+      logError("Texture %s specified as both rectangular and mipmapped",
+               name().c_str());
       return false;
     }
   }
   else if (params.type == TEXTURE_CUBE)
   {
-    if (data.getDimensionCount() > 2)
+    if (data.dimensionCount() > 2)
     {
-      logError("Source image for cubemap texture \'%s\' has more than two dimensions",
-               getName().c_str());
+      logError("Source image for cubemap texture %s has more than two dimensions",
+               name().c_str());
       return false;
     }
 
-    const uint width = data.getWidth();
-    const uint height = data.getHeight();
+    const uint width = data.width();
+    const uint height = data.height();
 
     if ((width % 6 != 0) || (width / 6 != height) || !isPowerOfTwo(height))
     {
-      logError("Source image for cubemap texture \'%s\' has invalid dimensions",
-               getName().c_str());
+      logError("Source image for cubemap texture %s has invalid dimensions",
+               name().c_str());
       return false;
     }
   }
@@ -698,109 +618,109 @@ bool Texture::init(const TextureParams& params, const Image& data)
   {
     if (!data.isPOT())
     {
-      logWarning("Texture \'%s\' does not have power-of-two dimensions; this may cause slowdown",
-                 getName().c_str());
+      logWarning("Texture %s does not have power-of-two dimensions; this may cause slowdown",
+                 name().c_str());
     }
   }
 
-  type = params.type;
+  m_type = params.type;
 
   uint width, height, depth;
 
-  if (type == TEXTURE_CUBE)
+  if (m_type == TEXTURE_CUBE)
   {
-    width = data.getWidth() / 6;
-    height = data.getHeight();
+    width = data.width() / 6;
+    height = data.height();
     depth = 1;
   }
   else
   {
-    width = data.getWidth();
-    height = data.getHeight();
-    depth = data.getDepth();
+    width = data.width();
+    height = data.height();
+    depth = data.depth();
   }
 
-  if (type == TEXTURE_1D)
+  if (m_type == TEXTURE_1D)
   {
-    glTexImage1D(convertToProxyGL(type),
+    glTexImage1D(convertToProxyGL(m_type),
                  0,
-                 convertToGL(format, params.sRGB),
+                 convertToGL(m_format, params.sRGB),
                  width,
                  0,
-                 convertToGL(format.getSemantic()),
-                 convertToGL(format.getType()),
+                 convertToGL(m_format.semantic()),
+                 convertToGL(m_format.type()),
                  NULL);
   }
-  else if (type == TEXTURE_3D)
+  else if (m_type == TEXTURE_3D)
   {
-    glTexImage3D(convertToProxyGL(type),
+    glTexImage3D(convertToProxyGL(m_type),
                  0,
-                 convertToGL(format, params.sRGB),
+                 convertToGL(m_format, params.sRGB),
                  width,
                  height,
                  depth,
                  0,
-                 convertToGL(format.getSemantic()),
-                 convertToGL(format.getType()),
+                 convertToGL(m_format.semantic()),
+                 convertToGL(m_format.type()),
                  NULL);
   }
   else
   {
-    glTexImage2D(convertToProxyGL(type),
+    glTexImage2D(convertToProxyGL(m_type),
                  0,
-                 convertToGL(format, params.sRGB),
+                 convertToGL(m_format, params.sRGB),
                  width,
                  height,
                  0,
-                 convertToGL(format.getSemantic()),
-                 convertToGL(format.getType()),
+                 convertToGL(m_format.semantic()),
+                 convertToGL(m_format.type()),
                  NULL);
   }
 
   GLint proxyWidth;
-  glGetTexLevelParameteriv(convertToProxyGL(type),
+  glGetTexLevelParameteriv(convertToProxyGL(m_type),
                            0,
                            GL_TEXTURE_WIDTH,
                            &proxyWidth);
 
   if (proxyWidth == 0)
   {
-    logError("Cannot create texture \'%s\' type \'%s\' size %ux%ux%u format \'%s\'",
-              getName().c_str(),
-              asString(type),
+    logError("Cannot create texture %s type %s size %ux%ux%u format %s",
+              name().c_str(),
+              asString(m_type),
               width, height, depth,
-              format.asString().c_str());
+              m_format.asString().c_str());
 
     return false;
   }
 
-  glGenTextures(1, &textureID);
+  glGenTextures(1, &m_textureID);
 
-  context.setCurrentTexture(this);
+  m_context.setCurrentTexture(this);
 
-  if (type == TEXTURE_1D)
+  if (m_type == TEXTURE_1D)
   {
-    glTexImage1D(convertToGL(type),
+    glTexImage1D(convertToGL(m_type),
                  0,
-                 convertToGL(format, params.sRGB),
+                 convertToGL(m_format, params.sRGB),
                  width,
                  0,
-                 convertToGL(format.getSemantic()),
-                 convertToGL(format.getType()),
-                 data.getPixels());
+                 convertToGL(m_format.semantic()),
+                 convertToGL(m_format.type()),
+                 data.pixels());
   }
-  else if (type == TEXTURE_3D)
+  else if (m_type == TEXTURE_3D)
   {
-    glTexImage3D(convertToGL(type),
+    glTexImage3D(convertToGL(m_type),
                  0,
-                 convertToGL(format, params.sRGB),
+                 convertToGL(m_format, params.sRGB),
                  width, height, depth,
                  0,
-                 convertToGL(format.getSemantic()),
-                 convertToGL(format.getType()),
-                 data.getPixels());
+                 convertToGL(m_format.semantic()),
+                 convertToGL(m_format.type()),
+                 data.pixels());
   }
-  else if (type == TEXTURE_CUBE)
+  else if (m_type == TEXTURE_CUBE)
   {
     const CubeFace faces[] =
     {
@@ -812,7 +732,7 @@ bool Texture::init(const TextureParams& params, const Image& data)
       CUBE_NEGATIVE_Y
     };
 
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, data.getWidth());
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, data.width());
 
     for (size_t i = 0;  i < 6;  i++)
     {
@@ -820,12 +740,12 @@ bool Texture::init(const TextureParams& params, const Image& data)
 
       glTexImage2D(convertToGL(faces[i]),
                    0,
-                   convertToGL(data.getFormat(), params.sRGB),
+                   convertToGL(data.format(), params.sRGB),
                    width, height,
                    0,
-                   convertToGL(data.getFormat().getSemantic()),
-                   convertToGL(data.getFormat().getType()),
-                   data.getPixels());
+                   convertToGL(data.format().semantic()),
+                   convertToGL(data.format().type()),
+                   data.pixels());
     }
 
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -833,14 +753,14 @@ bool Texture::init(const TextureParams& params, const Image& data)
   }
   else
   {
-    glTexImage2D(convertToGL(type),
+    glTexImage2D(convertToGL(m_type),
                  0,
-                 convertToGL(format, params.sRGB),
+                 convertToGL(m_format, params.sRGB),
                  width, height,
                  0,
-                 convertToGL(format.getSemantic()),
-                 convertToGL(format.getType()),
-                 data.getPixels());
+                 convertToGL(m_format.semantic()),
+                 convertToGL(m_format.type()),
+                 data.pixels());
   }
 
   if (params.mipmapped)
@@ -850,30 +770,30 @@ bool Texture::init(const TextureParams& params, const Image& data)
 
   applyDefaults();
 
-  if (!checkGL("OpenGL error during creation of texture \'%s\' format \'%s\'",
-               getName().c_str(),
-               format.asString().c_str()))
+  if (!checkGL("OpenGL error during creation of texture %s format %s",
+               name().c_str(),
+               m_format.asString().c_str()))
   {
     return false;
   }
 
-  if (Stats* stats = context.getStats())
-    stats->addTexture(getSize());
+  if (Stats* stats = m_context.stats())
+    stats->addTexture(size());
 
   return true;
 }
 
 void Texture::retrieveImages()
 {
-  images.clear();
+  m_images.clear();
 
-  if (type == TEXTURE_CUBE)
+  if (m_type == TEXTURE_CUBE)
   {
     for (size_t i = 0;  i < 6;  i++)
-      levels = retrieveTargetImages(convertToGL(CubeFace(i)), CubeFace(i));
+      m_levels = retrieveTargetImages(convertToGL(CubeFace(i)), CubeFace(i));
   }
   else
-    levels = retrieveTargetImages(convertToGL(type), NO_CUBE_FACE);
+    m_levels = retrieveTargetImages(convertToGL(m_type), NO_CUBE_FACE);
 }
 
 uint Texture::retrieveTargetImages(uint target, CubeFace face)
@@ -891,7 +811,7 @@ uint Texture::retrieveTargetImages(uint target, CubeFace face)
     if (width == 0)
       break;
 
-    images.push_back(new TextureImage(*this, level, width, height, depth, face));
+    m_images.push_back(new TextureImage(*this, level, width, height, depth, face));
 
     level++;
   }
@@ -901,20 +821,20 @@ uint Texture::retrieveTargetImages(uint target, CubeFace face)
 
 void Texture::applyDefaults()
 {
-  filterMode = FILTER_BILINEAR;
+  m_filterMode = FILTER_BILINEAR;
 
-  glTexParameteri(convertToGL(type),
+  glTexParameteri(convertToGL(m_type),
                   GL_TEXTURE_MIN_FILTER,
-                  convertToGL(filterMode, hasMipmaps()));
-  glTexParameteri(convertToGL(type),
+                  convertToGL(m_filterMode, hasMipmaps()));
+  glTexParameteri(convertToGL(m_type),
                   GL_TEXTURE_MAG_FILTER,
-                  convertToGL(filterMode, false));
+                  convertToGL(m_filterMode, false));
 
-  addressMode = ADDRESS_CLAMP;
+  m_addressMode = ADDRESS_CLAMP;
 
-  glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_S, convertToGL(addressMode));
-  glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_T, convertToGL(addressMode));
-  glTexParameteri(convertToGL(type), GL_TEXTURE_WRAP_R, convertToGL(addressMode));
+  glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_S, convertToGL(m_addressMode));
+  glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_T, convertToGL(m_addressMode));
+  glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_R, convertToGL(m_addressMode));
 }
 
 Texture& Texture::operator = (const Texture& source)

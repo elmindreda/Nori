@@ -137,14 +137,14 @@ public:
   void removeOperations();
   /*! @return The render operations in this render queue.
    */
-  const OperationList& getOperations() const;
+  const OperationList& operations() const { return m_operations; }
   /*! @return The sor keys in this render queue.
    */
-  const SortKeyList& getSortKeys() const;
+  const SortKeyList& keys() const;
 private:
-  OperationList operations;
-  mutable SortKeyList keys;
-  mutable bool sorted;
+  OperationList m_operations;
+  mutable SortKeyList m_keys;
+  mutable bool m_sorted;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -163,23 +163,23 @@ public:
   void removeOperations();
   void attachLight(Light& light);
   void detachLights();
-  const LightList& getLights() const;
-  const vec3& getAmbientIntensity() const;
+  const LightList& lights() const { return m_lights; }
+  const vec3& ambientIntensity() const { return m_ambient; }
   void setAmbientIntensity(const vec3& newIntensity);
-  VertexPool& getVertexPool() const;
-  Queue& getOpaqueQueue();
-  const Queue& getOpaqueQueue() const;
-  Queue& getBlendedQueue();
-  const Queue& getBlendedQueue() const;
-  Phase getPhase() const;
+  VertexPool& vertexPool() const { return *m_pool; }
+  Queue& opaqueQueue() { return m_opaqueQueue; }
+  const Queue& opaqueQueue() const { return m_opaqueQueue; }
+  Queue& blendedQueue() { return m_blendedQueue; }
+  const Queue& blendedQueue() const { return m_blendedQueue; }
+  Phase phase() const { return m_phase; }
   void setPhase(Phase newPhase);
 private:
-  Ref<VertexPool> pool;
-  Phase phase;
-  Queue opaqueQueue;
-  Queue blendedQueue;
-  LightList lights;
-  vec3 ambient;
+  Ref<VertexPool> m_pool;
+  Phase m_phase;
+  Queue m_opaqueQueue;
+  Queue m_blendedQueue;
+  LightList m_lights;
+  vec3 m_ambient;
 };
 
 ///////////////////////////////////////////////////////////////////////

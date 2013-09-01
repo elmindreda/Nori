@@ -59,13 +59,13 @@ public:
   Resource(const Resource& source);
   virtual ~Resource();
   Resource& operator = (const Resource& source);
-  ResourceCache& getCache() const;
-  const String& getName() const;
-  const Path& getPath() const;
+  ResourceCache& cache() const { return m_cache; }
+  const String& name() const { return m_name; }
+  const Path& path() const { return m_path; }
 private:
-  ResourceCache& cache;
-  String name;
-  Path path;
+  ResourceCache& m_cache;
+  String m_name;
+  Path m_path;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -95,10 +95,10 @@ public:
     return cast;
   }
   Path findFile(const String& name) const;
-  const PathList& getSearchPaths() const;
+  const PathList& searchPaths() const { return m_paths; }
 private:
-  PathList paths;
-  std::vector<Resource*> resources;
+  PathList m_paths;
+  std::vector<Resource*> m_resources;
 };
 
 ///////////////////////////////////////////////////////////////////////

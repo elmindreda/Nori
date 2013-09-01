@@ -39,19 +39,19 @@ class PatternMatch
 public:
   /*! @return The number of substrings in this match descriptor.
    */
-  size_t getCount() const;
+  size_t count() const { return m_offsets.size(); }
   /*! @param[in] index The index of the desired substring.
    *  @return The offset, in characters, of the specified substring.
    */
-  size_t getOffset(uint index = 0) const;
+  size_t offset(uint index = 0) const { return m_offsets[index]; }
   /*! @param[in] index The index of the desired substring.
    *  @return The desired substring.
    */
-  const String& asString(uint index = 0) const;
+  const String& asString(uint index = 0) const { return m_strings[index]; }
 private:
   PatternMatch(const String& text, int* ranges, uint count);
-  std::vector<int> offsets;
-  std::vector<String> strings;
+  std::vector<int> m_offsets;
+  std::vector<String> m_strings;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -96,7 +96,7 @@ private:
   Pattern(const Pattern& source);
   bool init(const String& source);
   Pattern& operator = (const Pattern& source);
-  void* object;
+  void* m_object;
 };
 
 ///////////////////////////////////////////////////////////////////////

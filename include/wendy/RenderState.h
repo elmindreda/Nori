@@ -97,21 +97,21 @@ public:
   virtual bool reserveSupported(GL::Context& context) const;
   /*! @return The current model matrix.
    */
-  const mat4& getModelMatrix() const;
+  const mat4& modelMatrix() const { return m_modelMatrix; }
   /*! @return The current view matrix.
    */
-  const mat4& getViewMatrix() const;
+  const mat4& viewMatrix() const { return m_viewMatrix; }
   /*! @return The current projection matrix.
    */
-  const mat4& getProjectionMatrix() const;
-  void getCameraProperties(vec3& position,
-                           float& FOV,
-                           float& aspect,
-                           float& nearZ,
-                           float& farZ) const;
-  float getViewportWidth() const;
-  float getViewportHeight() const;
-  float getTime() const;
+  const mat4& projectionMatrix() const { return m_projectionMatrix; }
+  void cameraProperties(vec3& position,
+                        float& FOV,
+                        float& aspect,
+                        float& nearZ,
+                        float& farZ) const;
+  float viewportWidth() const { return m_viewportWidth; }
+  float viewportHeight() const { return m_viewportHeight; }
+  float time() const { return m_time; }
   /*! Sets the model matrix.
    *  @param[in] newMatrix The desired model matrix.
    */
@@ -156,35 +156,35 @@ protected:
   virtual void updateTo(GL::Uniform& uniform);
   virtual void updateTo(GL::Sampler& uniform);
 private:
-  bool dirtyModelView;
-  bool dirtyViewProj;
-  bool dirtyModelViewProj;
-  bool dirtyInvModel;
-  bool dirtyInvView;
-  bool dirtyInvProj;
-  bool dirtyInvModelView;
-  bool dirtyInvViewProj;
-  bool dirtyInvModelViewProj;
-  mat4 modelMatrix;
-  mat4 viewMatrix;
-  mat4 projectionMatrix;
-  mat4 modelViewMatrix;
-  mat4 viewProjMatrix;
-  mat4 modelViewProjMatrix;
-  mat4 invModelMatrix;
-  mat4 invViewMatrix;
-  mat4 invProjMatrix;
-  mat4 invModelViewMatrix;
-  mat4 invViewProjMatrix;
-  mat4 invModelViewProjMatrix;
-  float cameraNearZ;
-  float cameraFarZ;
-  float cameraAspect;
-  float cameraFOV;
-  vec3 cameraPos;
-  float viewportWidth;
-  float viewportHeight;
-  float time;
+  bool m_dirtyModelView;
+  bool m_dirtyViewProj;
+  bool m_dirtyModelViewProj;
+  bool m_dirtyInvModel;
+  bool m_dirtyInvView;
+  bool m_dirtyInvProj;
+  bool m_dirtyInvModelView;
+  bool m_dirtyInvViewProj;
+  bool m_dirtyInvModelViewProj;
+  mat4 m_modelMatrix;
+  mat4 m_viewMatrix;
+  mat4 m_projectionMatrix;
+  mat4 m_modelViewMatrix;
+  mat4 m_viewProjMatrix;
+  mat4 m_modelViewProjMatrix;
+  mat4 m_invModelMatrix;
+  mat4 m_invViewMatrix;
+  mat4 m_invProjMatrix;
+  mat4 m_invModelViewMatrix;
+  mat4 m_invViewProjMatrix;
+  mat4 m_invModelViewProjMatrix;
+  float m_cameraNearZ;
+  float m_cameraFarZ;
+  float m_cameraAspect;
+  float m_cameraFOV;
+  vec3 m_cameraPos;
+  float m_viewportWidth;
+  float m_viewportHeight;
+  float m_time;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -242,54 +242,54 @@ public:
   bool hasUniformState(const char* name) const;
   bool hasSamplerState(const char* name) const;
   template <typename T>
-  void getUniformState(const char* name, T& result) const
+  void uniformState(const char* name, T& result) const
   {
-    std::memcpy(&result, getData(name, getUniformType<T>()), sizeof(T));
+    std::memcpy(&result, data(name, uniformType<T>()), sizeof(T));
   }
   template <typename T>
-  void getUniformState(UniformStateIndex index, T& result) const
+  void uniformState(UniformStateIndex index, T& result) const
   {
-    std::memcpy(&result, getData(index, getUniformType<T>()), sizeof(T));
+    std::memcpy(&result, data(index, uniformType<T>()), sizeof(T));
   }
   template <typename T>
   void setUniformState(const char* name, const T& newValue)
   {
-    std::memcpy(getData(name, getUniformType<T>()), &newValue, sizeof(T));
+    std::memcpy(data(name, uniformType<T>()), &newValue, sizeof(T));
   }
   template <typename T>
   void setUniformState(UniformStateIndex index, const T& newValue)
   {
-    std::memcpy(getData(index, getUniformType<T>()), &newValue, sizeof(T));
+    std::memcpy(data(index, uniformType<T>()), &newValue, sizeof(T));
   }
-  GL::Texture* getSamplerState(const char* name) const;
-  GL::Texture* getSamplerState(SamplerStateIndex index) const;
+  GL::Texture* samplerState(const char* name) const;
+  GL::Texture* samplerState(SamplerStateIndex index) const;
   void setSamplerState(const char* name, GL::Texture* newTexture);
   void setSamplerState(SamplerStateIndex index, GL::Texture* newTexture);
-  UniformStateIndex getUniformStateIndex(const char* name) const;
-  SamplerStateIndex getSamplerStateIndex(const char* name) const;
-  GL::Program* getProgram() const;
+  UniformStateIndex uniformStateIndex(const char* name) const;
+  SamplerStateIndex samplerStateIndex(const char* name) const;
+  GL::Program* program() const { return m_program; }
   /*! Sets the GLSL program used by this state object.
    *  @param[in] newProgram The desired GLSL program, or @c NULL to detach
    *  the current program.
    */
   void setProgram(GL::Program* newProgram);
-  StateID getID() const;
+  StateID ID() const { return m_ID; }
 private:
   static StateID allocateID();
   static void releaseID(StateID ID);
   template <typename T>
-  static GL::UniformType getUniformType();
-  void* getData(const char* name, GL::UniformType type);
-  const void* getData(const char* name, GL::UniformType type) const;
-  void* getData(UniformStateIndex index, GL::UniformType type);
-  const void* getData(UniformStateIndex index, GL::UniformType type) const;
+  static GL::UniformType uniformType();
+  void* data(const char* name, GL::UniformType type);
+  const void* data(const char* name, GL::UniformType type) const;
+  void* data(UniformStateIndex index, GL::UniformType type);
+  const void* data(UniformStateIndex index, GL::UniformType type) const;
   typedef std::deque<StateID> IDQueue;
-  StateID ID;
-  Ref<GL::Program> program;
-  std::vector<float> floats;
-  GL::TextureList textures;
-  static IDQueue usedIDs;
-  static StateID nextID;
+  StateID m_ID;
+  Ref<GL::Program> m_program;
+  std::vector<float> m_floats;
+  GL::TextureList m_textures;
+  static IDQueue m_usedIDs;
+  static StateID m_nextID;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -344,37 +344,37 @@ public:
   bool isMultisampling() const;
   /*! @return @c the width of lines, in pixels.
    */
-  float getLineWidth() const;
+  float lineWidth() const;
   /*! @return The culling mode of this render state.
    */
-  GL::CullMode getCullMode() const;
+  GL::CullMode cullMode() const;
   /*! @return The source factor for color buffer blending.
    */
-  GL::BlendFactor getSrcFactor() const;
+  GL::BlendFactor srcFactor() const;
   /*! @return The destination factor for color buffer blending.
    */
-  GL::BlendFactor getDstFactor() const;
+  GL::BlendFactor dstFactor() const;
   /*! @return The depth buffer testing function used by this render state.
    */
-  GL::Function getDepthFunction() const;
+  GL::Function depthFunction() const;
   /*! @return The stencil buffer testing function used by this render state.
    */
-  GL::Function getStencilFunction() const;
+  GL::Function stencilFunction() const;
   /*! @return The operation to perform when the stencil test fails.
    */
-  GL::Operation getStencilFailOperation() const;
+  GL::Operation stencilFailOperation() const;
   /*! @return The operation to perform when the depth test fails.
    */
-  GL::Operation getDepthFailOperation() const;
+  GL::Operation depthFailOperation() const;
   /*! @return The operation to perform when the depth test succeeds.
    */
-  GL::Operation getDepthPassOperation() const;
+  GL::Operation depthPassOperation() const;
   /*! @return The stencil test reference value used by this render state.
    */
-  uint getStencilReference() const;
+  uint stencilReference() const;
   /*! @return The stencil buffer write mask used by this render state.
    */
-  uint getStencilWriteMask() const;
+  uint stencilWriteMask() const;
   /*! Sets whether this render state uses depth buffer testing.
    *  @param[in] enable Set to @c true to enable depth buffer testing, or @c
    *  false to disable it.
@@ -447,7 +447,7 @@ public:
    */
   void setBlendFactors(GL::BlendFactor src, GL::BlendFactor dst);
 private:
-  GL::RenderState data;
+  GL::RenderState m_data;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -41,7 +41,7 @@ public:
    *  @param[in] targetFormat The desired pixel format.
    *  @param[in] transform The pixel transform to use.
    */
-  bool transformTo(const PixelFormat& targetFormat, PixelTransform& transform);
+  bool transformTo(const PixelFormat& format, PixelTransform& transform);
   /*! Sets this image to the specified area of the current image data.
    *  @param[in] area The desired area.
    *  @return @c true if successful, otherwise @c false.
@@ -61,22 +61,22 @@ public:
   bool isPOT() const;
   /*! @return @c true if this image is square, otherwise @c false.
    */
-  bool isSquare() const;
+  bool isSquare() const { return m_width == m_height; }
   /*! @return The width, in pixels, of this image.
    */
-  uint getWidth() const;
+  uint width() const { return m_width; }
   /*! @return The height, in pixels, of this image.
    */
-  uint getHeight() const;
+  uint height() const { return m_height; }
   /*! @return The depth, in pixels, of this image.
    */
-  uint getDepth() const;
+  uint depth() const { return m_depth; }
   /*! @return The base address of the pixel data for this image.
    */
-  void* getPixels();
+  void* pixels() { return &m_data[0]; }
   /*! @return The base address of the pixel data for this image.
    */
-  const void* getPixels() const;
+  const void* pixels() const { return &m_data[0]; }
   /*! Helper method to calculate the address of the specified pixel.
    *  @param[in] x The x coordinate of the desired pixel.
    *  @param[in] y The y coordinate of the desired pixel.
@@ -85,7 +85,7 @@ public:
    *  @return The address of the desired pixel, or @c NULL if the specified
    *  coordinates are outside of the current image data.
    */
-  void* getPixel(uint x, uint y = 0, uint z = 0);
+  void* pixel(uint x, uint y = 0, uint z = 0);
   /*! Helper method to calculate the address of the specified pixel.
    *  @param[in] x The x coordinate of the desired pixel.
    *  @param[in] y The y coordinate of the desired pixel.
@@ -93,20 +93,20 @@ public:
    *  @return The address of the desired pixel, or @c NULL if the specified
    *  coordinates are outside of the current image data.
    */
-  const void* getPixel(uint x, uint y = 0, uint z = 0) const;
+  const void* pixel(uint x, uint y = 0, uint z = 0) const;
   /*! @return The pixel format of this image.
    */
-  const PixelFormat& getFormat() const;
+  const PixelFormat& format() const { return m_format; }
   /*! @return The number of dimensions (that differ from 1) in this image.
    */
-  uint getDimensionCount() const;
+  uint dimensionCount() const;
   /*! Returns an image containing the specified area of this image.
    *  @param area The desired area of this image.
    *
    *  @remarks This method fails if the desired area is partially or completely
    *  outside the current image data.
    */
-  Ref<Image> getArea(const Recti& area) const;
+  Ref<Image> area(const Recti& area) const;
   /*! Creates an image with the specified properties.
    *  @param[in] info The resource information for this image.
    *  @param[in] format The desired format of the image.
@@ -140,11 +140,11 @@ private:
             const char* pixels,
             ptrdiff_t pitch);
   Image& operator = (const Image& source);
-  uint width;
-  uint height;
-  uint depth;
-  PixelFormat format;
-  std::vector<char> data;
+  uint m_width;
+  uint m_height;
+  uint m_depth;
+  PixelFormat m_format;
+  std::vector<char> m_data;
 };
 
 ///////////////////////////////////////////////////////////////////////

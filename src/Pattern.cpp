@@ -37,34 +37,19 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-size_t PatternMatch::getCount() const
-{
-  return offsets.size();
-}
-
-size_t PatternMatch::getOffset(uint index) const
-{
-  return offsets[index];
-}
-
-const String& PatternMatch::asString(uint index) const
-{
-  return strings[index];
-}
-
 PatternMatch::PatternMatch(const String& text, int* ranges, uint count)
 {
   for (uint i = 0;  i < count;  i++)
   {
-    strings.push_back(text.substr(ranges[i * 2], ranges[i * 2 + 1]));
-    offsets.push_back(ranges[i * 2]);
+    m_strings.push_back(text.substr(ranges[i * 2], ranges[i * 2 + 1]));
+    m_offsets.push_back(ranges[i * 2]);
   }
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 Pattern::Pattern(const String& source):
-  object(NULL)
+  m_object(NULL)
 {
   if (!init(source))
     throw Exception("Failed to compile PCRE pattern");
@@ -72,8 +57,8 @@ Pattern::Pattern(const String& source):
 
 Pattern::~Pattern()
 {
-  if (object)
-    pcre_free(object);
+  if (m_object)
+    pcre_free(m_object);
 }
 
 bool Pattern::matches(const String& text) const
@@ -81,7 +66,7 @@ bool Pattern::matches(const String& text) const
   // NOTE: Static sizes are bad, but what is one to do?
   int results[300];
 
-  int pairs = pcre_exec((pcre*) object, NULL,
+  int pairs = pcre_exec((pcre*) m_object, NULL,
                         text.c_str(), text.length(), 0, 0,
                         results, sizeof(results) / sizeof(int));
   if (pairs < 0)
@@ -101,7 +86,7 @@ bool Pattern::matches(const String& text) const
 
 bool Pattern::contains(const String& text) const
 {
-  if (!pcre_exec((pcre*) object, NULL, text.c_str(), text.length(), 0, 0, NULL, 0))
+  if (!pcre_exec((pcre*) m_object, NULL, text.c_str(), text.length(), 0, 0, NULL, 0))
     return false;
 
   return true;
@@ -112,7 +97,7 @@ PatternMatch* Pattern::match(const String& text) const
   // NOTE: Static sizes are bad, but what is one to do?
   int ranges[300];
 
-  int count = pcre_exec((pcre*) object, NULL,
+  int count = pcre_exec((pcre*) m_object, NULL,
                         text.c_str(), text.length(), 0, 0,
                         ranges, sizeof(ranges) / sizeof(int));
   if (count < 0)
@@ -136,7 +121,7 @@ Pattern* Pattern::create(const String& source)
 }
 
 Pattern::Pattern():
-  object(NULL)
+  m_object(NULL)
 {
 }
 
@@ -150,8 +135,8 @@ bool Pattern::init(const String& source)
   const char* message = NULL;
   int offset = 0;
 
-  object = pcre_compile(source.c_str(), 0, &message, &offset, NULL);
-  if (!object)
+  m_object = pcre_compile(source.c_str(), 0, &message, &offset, NULL);
+  if (!m_object)
   {
     logError("Failed to compile PCRE pattern: %s", message);
     return false;

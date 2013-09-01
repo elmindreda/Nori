@@ -50,7 +50,7 @@ public:
   ~Context();
   /*! @return The position of the context listener.
    */
-  const vec3& getListenerPosition() const;
+  const vec3& listenerPosition() const { return m_listenerPosition; }
   /*! Sets the position of the context listener.
    */
   void setListenerPosition(const vec3& newPosition);
@@ -59,7 +59,7 @@ public:
    *  @remarks The velocity doesn't affect the position of the source, but is
    *  used in combination with the source velocity to calculate doppler shift.
    */
-  const vec3& getListenerVelocity() const;
+  const vec3& listenerVelocity() const { return m_listenerVelocity; }
   /*! Sets the velocity of the context listener.
    *
    *  @remarks The velocity doesn't affect the position of the source, but is
@@ -68,19 +68,19 @@ public:
   void setListenerVelocity(const vec3& newVelocity);
   /*! @return The gain of the context listener.
    */
-  const quat& getListenerRotation() const;
+  const quat& listenerRotation() const { return m_listenerRotation; }
   /*! Sets the rotation of the context listener.
    */
   void setListenerRotation(const quat& newRotation);
   /*! @return The gain of the context listener.
    */
-  float getListenerGain() const;
+  float listenerGain() const { return m_listenerGain; }
   /*! Sets the listener gain of this context.
    */
   void setListenerGain(float newGain);
   /*! @return The resource cache used by this context.
    */
-  ResourceCache& getCache() const;
+  ResourceCache& cache() const { return m_cache; }
   /*! Creates the context singleton object.
    *  @param[in] cache The resource cache to use.
    *  @return @c true if successful, or @c false otherwise.
@@ -91,13 +91,13 @@ private:
   Context(const Context& source);
   bool init();
   Context& operator = (const Context& source);
-  ResourceCache& cache;
-  void* device;
-  void* context;
-  vec3 listenerPosition;
-  vec3 listenerVelocity;
-  quat listenerRotation;
-  float listenerGain;
+  ResourceCache& m_cache;
+  void* m_device;
+  void* m_handle;
+  vec3 m_listenerPosition;
+  vec3 m_listenerVelocity;
+  quat m_listenerRotation;
+  float m_listenerGain;
 };
 
 ///////////////////////////////////////////////////////////////////////

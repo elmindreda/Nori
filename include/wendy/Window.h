@@ -397,39 +397,39 @@ public:
   void setShouldClose(bool newValue);
   /*! @return The mode of this window.
    */
-  WindowMode getMode() const;
+  WindowMode mode() const;
   /*! Sets the title of the context window.
    *  @param[in] newTitle The desired title.
    */
   void setTitle(const char* newTitle);
   /*! @return The width, in pixels, of the mousable screen area.
    */
-  uint getWidth() const;
+  uint width() const;
   /*! @return The height, in pixels, of the mousable screen area.
    */
-  uint getHeight() const;
+  uint height() const;
   /*! @return The current refresh mode.
    */
-  RefreshMode getRefreshMode() const;
+  RefreshMode refreshMode() const { return m_refreshMode; }
   /*! Sets the refresh mode.
    *  @param[in] newMode The desired new refresh mode.
    */
   void setRefreshMode(RefreshMode newMode);
   /*! @return The current mouse position.
    */
-  vec2 getCursorPosition() const;
+  vec2 cursorPosition() const;
   /*! Places the the mouse cursor at the specified position.
    *  @param[in] newPosition The desired mouse position.
    */
   void setCursorPosition(vec2 newPosition);
-  String getClipboardText() const;
+  String clipboardText() const;
   void setClipboardText(const String& newText);
   /*! @return The signal for per-frame post-render clean-up.
    */
-  SignalProxy0<void> getFrameSignal();
-  EventHook* getHook() const;
+  SignalProxy0<void> frameSignal();
+  EventHook* hook() const { return m_hook; }
   void setHook(EventHook* newHook);
-  EventTarget* getTarget() const;
+  EventTarget* target() const { return m_target; }
   void setTarget(EventTarget* newTarget);
 private:
   Window();
@@ -444,12 +444,12 @@ private:
   static void cursorPosCallback(GLFWwindow* handle, double x, double y);
   static void mouseButtonCallback(GLFWwindow* handle, int button, int action, int mods);
   static void scrollCallback(GLFWwindow* handle, double x, double y);
-  GLFWwindow* handle;
-  bool needsRefresh;
-  EventHook* currentHook;
-  RefreshMode refreshMode;
-  EventTarget* currentTarget;
-  Signal0<void> frameSignal;
+  GLFWwindow* m_handle;
+  bool m_needsRefresh;
+  RefreshMode m_refreshMode;
+  EventHook* m_hook;
+  EventTarget* m_target;
+  Signal0<void> m_frameSignal;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -40,40 +40,20 @@ namespace wendy
 
 bool ProfileNode::operator == (const char* string) const
 {
-  return name == string;
+  return m_name == string;
 }
 
-Time ProfileNode::getDuration() const
-{
-  return duration;
-}
-
-uint ProfileNode::getCallCount() const
-{
-  return calls;
-}
-
-const char* ProfileNode::getName() const
-{
-  return name.c_str();
-}
-
-const ProfileNode::List& ProfileNode::getChildren() const
-{
-  return children;
-}
-
-ProfileNode::ProfileNode(const char* initName):
-  name(initName),
-  duration(0.0),
-  calls(0)
+ProfileNode::ProfileNode(const char* name):
+  m_name(name),
+  m_duration(0.0),
+  m_calls(0)
 {
 }
 
 ProfileNode* ProfileNode::findChild(const char* name)
 {
-  auto n = std::find(children.begin(), children.end(), name);
-  if (n == children.end())
+  auto n = std::find(m_children.begin(), m_children.end(), name);
+  if (n == m_children.end())
     return NULL;
 
   return &(*n);
@@ -83,26 +63,26 @@ ProfileNode* ProfileNode::findChild(const char* name)
 
 void Profile::beginFrame()
 {
-  resetNode(root);
-  beginNode(root);
-  timer.start();
+  resetNode(m_root);
+  beginNode(m_root);
+  m_timer.start();
 }
 
 void Profile::endFrame()
 {
   endNode();
-  timer.stop();
+  m_timer.stop();
 }
 
 void Profile::beginNode(const char* name)
 {
-  ProfileNode* parent = stack.back();
+  ProfileNode* parent = m_stack.back();
 
   ProfileNode* node = parent->findChild(name);
   if (!node)
   {
-    parent->children.push_back(ProfileNode(name));
-    node = &(parent->children.back());
+    parent->m_children.push_back(ProfileNode(name));
+    node = &(parent->m_children.back());
   }
 
   beginNode(*node);
@@ -110,45 +90,30 @@ void Profile::beginNode(const char* name)
 
 void Profile::endNode()
 {
-  ProfileNode* node = stack.back();
-  node->duration = timer.getTime() - node->duration;
+  ProfileNode* node = m_stack.back();
+  node->m_duration = m_timer.time() - node->m_duration;
 
-  stack.pop_back();
-}
-
-const ProfileNode& Profile::getRootNode() const
-{
-  return root;
-}
-
-Profile* Profile::getCurrent()
-{
-  return current;
-}
-
-void Profile::setCurrent(Profile* newProfile)
-{
-  current = newProfile;
+  m_stack.pop_back();
 }
 
 void Profile::beginNode(ProfileNode& node)
 {
-  node.calls++;
-  node.duration = timer.getTime() - node.duration;
+  node.m_calls++;
+  node.m_duration = m_timer.time() - node.m_duration;
 
-  stack.push_back(&node);
+  m_stack.push_back(&node);
 }
 
 void Profile::resetNode(ProfileNode& node)
 {
-  node.calls = 0;
-  node.duration = 0.0;
+  node.m_calls = 0;
+  node.m_duration = 0.0;
 
-  for (auto c = node.children.begin();  c != node.children.end();  c++)
-    resetNode(*c);
+  for (auto& c : node.m_children)
+    resetNode(c);
 }
 
-Profile* Profile::current = NULL;
+Profile* Profile::m_current = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 

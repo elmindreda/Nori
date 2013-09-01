@@ -41,61 +41,36 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 Light::Light():
-  type(DIRECTIONAL),
-  radius(10.f),
-  color(1.f),
-  direction(0.f, 0.f, -1.f)
+  m_type(DIRECTIONAL),
+  m_radius(10.f),
+  m_color(1.f),
+  m_direction(0.f, 0.f, -1.f)
 {
-}
-
-Light::Type Light::getType() const
-{
-  return type;
 }
 
 void Light::setType(Type newType)
 {
-  type = newType;
-}
-
-float Light::getRadius() const
-{
-  return radius;
+  m_type = newType;
 }
 
 void Light::setRadius(float newRadius)
 {
-  radius = newRadius;
-}
-
-const vec3& Light::getColor() const
-{
-  return color;
+  m_radius = newRadius;
 }
 
 void Light::setColor(const vec3& newColor)
 {
-  color = newColor;
-}
-
-const vec3& Light::getPosition() const
-{
-  return position;
+  m_color = newColor;
 }
 
 void Light::setPosition(const vec3& newPosition)
 {
-  position = newPosition;
-}
-
-const vec3& Light::getDirection() const
-{
-  return direction;
+  m_position = newPosition;
 }
 
 void Light::setDirection(const vec3& newDirection)
 {
-  direction = newDirection;
+  m_direction = newDirection;
 }
 
 ///////////////////////////////////////////////////////////////////////

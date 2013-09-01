@@ -118,17 +118,6 @@ GLenum convertToGL(IndexType type)
   panic("Invalid index buffer type %u", type);
 }
 
-GLenum convertToGL(VertexComponent::Type type)
-{
-  switch (type)
-  {
-    case VertexComponent::FLOAT32:
-      return GL_FLOAT;
-  }
-
-  panic("Invalid vertex component type %u", type);
-}
-
 GLenum convertToGL(PixelFormat::Type type)
 {
   switch (type)
@@ -172,11 +161,11 @@ GLenum convertToGL(PixelFormat::Semantic semantic)
 
 GLenum convertToGL(const PixelFormat& format, bool sRGB)
 {
-  switch (format.getType())
+  switch (format.type())
   {
     case PixelFormat::UINT8:
     {
-      switch (format.getSemantic())
+      switch (format.semantic())
       {
         case PixelFormat::L:
         {
@@ -219,7 +208,7 @@ GLenum convertToGL(const PixelFormat& format, bool sRGB)
 
     case PixelFormat::UINT16:
     {
-      if (format.getSemantic() == PixelFormat::DEPTH)
+      if (format.semantic() == PixelFormat::DEPTH)
         return GL_DEPTH_COMPONENT16;
 
       break;
@@ -227,7 +216,7 @@ GLenum convertToGL(const PixelFormat& format, bool sRGB)
 
     case PixelFormat::UINT24:
     {
-      if (format.getSemantic() == PixelFormat::DEPTH)
+      if (format.semantic() == PixelFormat::DEPTH)
         return GL_DEPTH_COMPONENT24;
 
       break;
@@ -235,7 +224,7 @@ GLenum convertToGL(const PixelFormat& format, bool sRGB)
 
     case PixelFormat::UINT32:
     {
-      if (format.getSemantic() == PixelFormat::DEPTH)
+      if (format.semantic() == PixelFormat::DEPTH)
         return GL_DEPTH_COMPONENT32;
 
       break;
@@ -243,7 +232,7 @@ GLenum convertToGL(const PixelFormat& format, bool sRGB)
 
     case PixelFormat::FLOAT16:
     {
-      switch (format.getSemantic())
+      switch (format.semantic())
       {
         case PixelFormat::L:
         {
@@ -282,7 +271,7 @@ GLenum convertToGL(const PixelFormat& format, bool sRGB)
 
     case PixelFormat::FLOAT32:
     {
-      switch (format.getSemantic())
+      switch (format.semantic())
       {
         case PixelFormat::L:
         {
@@ -321,7 +310,7 @@ GLenum convertToGL(const PixelFormat& format, bool sRGB)
       break;
   }
 
-  logError("No OpenGL equivalent for pixel format \'%s\'",
+  logError("No OpenGL equivalent for pixel format %s",
            format.asString().c_str());
   return 0;
 }

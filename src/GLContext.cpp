@@ -308,43 +308,16 @@ GLenum convertToGL(Operation operation)
 
 bool isCompatible(const Attribute& attribute, const VertexComponent& component)
 {
-  switch (attribute.getType())
+  switch (attribute.type())
   {
     case ATTRIBUTE_FLOAT:
-    {
-      if (component.getType() == VertexComponent::FLOAT32 &&
-          component.getElementCount() == 1)
-        return true;
-
-      break;
-    }
-
+      return component.elementCount() == 1;
     case ATTRIBUTE_VEC2:
-    {
-      if (component.getType() == VertexComponent::FLOAT32 &&
-          component.getElementCount() == 2)
-        return true;
-
-      break;
-    }
-
+      return component.elementCount() == 2;
     case ATTRIBUTE_VEC3:
-    {
-      if (component.getType() == VertexComponent::FLOAT32 &&
-          component.getElementCount() == 3)
-        return true;
-
-      break;
-    }
-
+      return component.elementCount() == 3;
     case ATTRIBUTE_VEC4:
-    {
-      if (component.getType() == VertexComponent::FLOAT32 &&
-          component.getElementCount() == 4)
-        return true;
-
-      break;
-    }
+      return component.elementCount() == 4;
   }
 
   return false;
@@ -424,53 +397,52 @@ Limits::Limits(Context& context)
 ///////////////////////////////////////////////////////////////////////
 
 Stats::Stats():
-  frameCount(0),
-  frameRate(0.f),
-  textureCount(0),
-  vertexBufferCount(0),
-  indexBufferCount(0),
-  programCount(0),
-  textureSize(0),
-  vertexBufferSize(0),
-  indexBufferSize(0)
+  m_frameCount(0),
+  m_frameRate(0.f),
+  m_textureCount(0),
+  m_vertexBufferCount(0),
+  m_indexBufferCount(0),
+  m_programCount(0),
+  m_textureSize(0),
+  m_vertexBufferSize(0),
+  m_indexBufferSize(0)
 {
-  frames.push_back(Frame());
-
-  timer.start();
+  m_frames.push_back(Frame());
+  m_timer.start();
 }
 
 void Stats::addFrame()
 {
-  frameCount++;
-  frameRate = 0.f;
+  m_frameCount++;
+  m_frameRate = 0.f;
 
-  if (!frames.empty())
+  if (!m_frames.empty())
   {
     // Add the previous frame duration
-    frames.front().duration = timer.getDeltaTime();
+    m_frames.front().duration = m_timer.deltaTime();
 
     // Calculate frame rate
-    for (auto f = frames.begin();  f != frames.end();  f++)
-      frameRate += float(f->duration);
+    for (auto& f : m_frames)
+      m_frameRate += float(f.duration);
 
-    frameRate = float(frames.size()) / frameRate;
+    m_frameRate = float(m_frames.size()) / m_frameRate;
   }
 
   // Add new empty frame for recording the stats
-  frames.push_front(Frame());
-  if (frames.size() > 60)
-    frames.pop_back();
+  m_frames.push_front(Frame());
+  if (m_frames.size() > 60)
+    m_frames.pop_back();
 }
 
 void Stats::addStateChange()
 {
-  Frame& frame = frames.front();
+  Frame& frame = m_frames.front();
   frame.stateChangeCount++;
 }
 
 void Stats::addPrimitives(PrimitiveType type, uint vertexCount)
 {
-  Frame& frame = frames.front();
+  Frame& frame = m_frames.front();
   frame.vertexCount += vertexCount;
   frame.operationCount++;
 
@@ -501,98 +473,48 @@ void Stats::addPrimitives(PrimitiveType type, uint vertexCount)
 
 void Stats::addTexture(size_t size)
 {
-  textureCount++;
-  textureSize += size;
+  m_textureCount++;
+  m_textureSize += size;
 }
 
 void Stats::removeTexture(size_t size)
 {
-  textureCount--;
-  textureSize -= size;
+  m_textureCount--;
+  m_textureSize -= size;
 }
 
 void Stats::addVertexBuffer(size_t size)
 {
-  vertexBufferCount++;
-  vertexBufferSize += size;
+  m_vertexBufferCount++;
+  m_vertexBufferSize += size;
 }
 
 void Stats::removeVertexBuffer(size_t size)
 {
-  vertexBufferCount--;
-  vertexBufferSize -= size;
+  m_vertexBufferCount--;
+  m_vertexBufferSize -= size;
 }
 
 void Stats::addIndexBuffer(size_t size)
 {
-  indexBufferCount++;
-  indexBufferSize += size;
+  m_indexBufferCount++;
+  m_indexBufferSize += size;
 }
 
 void Stats::removeIndexBuffer(size_t size)
 {
-  indexBufferCount--;
-  indexBufferSize -= size;
+  m_indexBufferCount--;
+  m_indexBufferSize -= size;
 }
 
 void Stats::addProgram()
 {
-  programCount++;
+  m_programCount++;
 }
 
 void Stats::removeProgram()
 {
-  programCount--;
-}
-
-float Stats::getFrameRate() const
-{
-  return frameRate;
-}
-
-uint Stats::getFrameCount() const
-{
-  return frameCount;
-}
-
-const Stats::Frame& Stats::getCurrentFrame() const
-{
-  return frames.front();
-}
-
-uint Stats::getTextureCount() const
-{
-  return textureCount;
-}
-
-uint Stats::getVertexBufferCount() const
-{
-  return vertexBufferCount;
-}
-
-uint Stats::getIndexBufferCount() const
-{
-  return indexBufferCount;
-}
-
-uint Stats::getProgramCount() const
-{
-  return programCount;
-}
-
-size_t Stats::getTotalTextureSize() const
-{
-  return textureSize;
-}
-
-size_t Stats::getTotalVertexBufferSize() const
-{
-  return vertexBufferSize;
-}
-
-size_t Stats::getTotalIndexBufferSize() const
-{
-  return indexBufferSize;
+  m_programCount--;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -644,31 +566,31 @@ public:
 
 Context::~Context()
 {
-  if (defaultFramebuffer)
+  if (m_defaultFramebuffer)
     setDefaultFramebufferCurrent();
 
   setCurrentVertexBuffer(NULL);
   setCurrentIndexBuffer(NULL);
   setCurrentProgram(NULL);
 
-  for (size_t i = 0;  i < textureUnits.size();  i++)
+  for (size_t i = 0;  i < m_textureUnits.size();  i++)
   {
     setActiveTextureUnit(i);
     setCurrentTexture(NULL);
   }
 
-  if (handle)
+  if (m_handle)
   {
-    glfwDestroyWindow(handle);
-    handle = NULL;
+    glfwDestroyWindow(m_handle);
+    m_handle = NULL;
   }
 }
 
 void Context::clearColorBuffer(const vec4& color)
 {
-  const RenderState previousState = currentState;
+  const RenderState previousState = m_currentState;
 
-  RenderState clearState = currentState;
+  RenderState clearState = m_currentState;
   clearState.colorWriting = true;
   applyState(clearState);
 
@@ -684,9 +606,9 @@ void Context::clearColorBuffer(const vec4& color)
 
 void Context::clearDepthBuffer(float depth)
 {
-  const RenderState previousState = currentState;
+  const RenderState previousState = m_currentState;
 
-  RenderState clearState = currentState;
+  RenderState clearState = m_currentState;
   clearState.depthWriting = true;
   applyState(clearState);
 
@@ -702,9 +624,9 @@ void Context::clearDepthBuffer(float depth)
 
 void Context::clearStencilBuffer(uint value)
 {
-  const RenderState previousState = currentState;
+  const RenderState previousState = m_currentState;
 
-  RenderState clearState = currentState;
+  RenderState clearState = m_currentState;
   clearState.stencilMask = ~0u;
   applyState(clearState);
 
@@ -720,9 +642,9 @@ void Context::clearStencilBuffer(uint value)
 
 void Context::clearBuffers(const vec4& color, float depth, uint value)
 {
-  const RenderState previousState = currentState;
+  const RenderState previousState = m_currentState;
 
-  RenderState clearState = currentState;
+  RenderState clearState = m_currentState;
   clearState.colorWriting = true;
   clearState.depthWriting = true;
   clearState.stencilMask = ~0u;
@@ -745,229 +667,226 @@ void Context::render(const PrimitiveRange& range)
 {
   if (range.isEmpty())
   {
-    logWarning("Rendering empty primitive range with shader program \'%s\'",
-               currentProgram->getName().c_str());
+    logWarning("Rendering empty primitive range with shader program %s",
+               m_currentProgram->name().c_str());
     return;
   }
 
-  setCurrentVertexBuffer(range.getVertexBuffer());
-  setCurrentIndexBuffer(range.getIndexBuffer());
+  setCurrentVertexBuffer(range.vertexBuffer());
+  setCurrentIndexBuffer(range.indexBuffer());
 
-  render(range.getType(), range.getStart(), range.getCount(), range.getBase());
+  render(range.type(), range.start(), range.count(), range.base());
 }
 
-void Context::render(PrimitiveType type,
-                     uint start,
-                     uint count,
-                     uint base)
+void Context::render(PrimitiveType type, uint start, uint count, uint base)
 {
   ProfileNodeCall call("GL::Context::render");
 
-  if (!currentProgram)
+  if (!m_currentProgram)
   {
     logError("Cannot render without a current shader program");
     return;
   }
 
-  if (!currentVertexBuffer)
+  if (!m_currentVertexBuffer)
   {
     logError("Cannot render without a current vertex buffer");
     return;
   }
 
-  if (dirtyBinding)
+  if (m_dirtyBinding)
   {
-    const VertexFormat& format = currentVertexBuffer->getFormat();
+    const VertexFormat& format = m_currentVertexBuffer->format();
 
-    if (currentProgram->getAttributeCount() > format.getComponentCount())
+    if (m_currentProgram->attributeCount() > format.components().size())
     {
-      logError("Shader program \'%s\' has more attributes than vertex format has components",
-               currentProgram->getName().c_str());
+      logError("Shader program %s has more attributes than vertex format has components",
+               m_currentProgram->name().c_str());
       return;
     }
 
-    for (size_t i = 0;  i < currentProgram->getAttributeCount();  i++)
+    for (size_t i = 0;  i < m_currentProgram->attributeCount();  i++)
     {
-      Attribute& attribute = currentProgram->getAttribute(i);
+      Attribute& attribute = m_currentProgram->attribute(i);
 
-      const VertexComponent* component = format.findComponent(attribute.getName().c_str());
+      const VertexComponent* component = format.findComponent(attribute.name().c_str());
       if (!component)
       {
-        logError("Attribute \'%s\' of program \'%s\' has no corresponding vertex format component",
-                 attribute.getName().c_str(),
-                 currentProgram->getName().c_str());
+        logError("Attribute %s of program %s has no corresponding vertex format component",
+                 attribute.name().c_str(),
+                 m_currentProgram->name().c_str());
         return;
       }
 
       if (!isCompatible(attribute, *component))
       {
-        logError("Attribute \'%s\' of shader program \'%s\' has incompatible type",
-                 attribute.getName().c_str(),
-                 currentProgram->getName().c_str());
+        logError("Attribute %s of shader program %s has incompatible type",
+                 attribute.name().c_str(),
+                 m_currentProgram->name().c_str());
         return;
       }
 
-      attribute.bind(format.getSize(), component->getOffset());
+      attribute.bind(format.size(), component->offset());
     }
 
-    dirtyBinding = false;
+    m_dirtyBinding = false;
   }
 
 #if WENDY_DEBUG
-  if (!currentProgram->isValid())
+  if (!m_currentProgram->isValid())
     return;
 #endif
 
-  if (currentIndexBuffer)
+  if (m_currentIndexBuffer)
   {
-    const size_t size = IndexBuffer::getTypeSize(currentIndexBuffer->getType());
+    const size_t size = IndexBuffer::typeSize(m_currentIndexBuffer->type());
 
     glDrawElementsBaseVertex(convertToGL(type),
                              count,
-                             convertToGL(currentIndexBuffer->getType()),
+                             convertToGL(m_currentIndexBuffer->type()),
                              (GLvoid*) (size * start),
                              base);
   }
   else
     glDrawArrays(convertToGL(type), start, count);
 
-  if (stats)
-    stats->addPrimitives(type, count);
+  if (m_stats)
+    m_stats->addPrimitives(type, count);
 }
 
 void Context::createSharedSampler(const char* name, SamplerType type, int ID)
 {
   assert(ID != INVALID_SHARED_STATE_ID);
 
-  if (getSharedSamplerID(name, type) != INVALID_SHARED_STATE_ID)
+  if (sharedSamplerID(name, type) != INVALID_SHARED_STATE_ID)
     return;
 
-  declaration += format("uniform %s %s;\n", Sampler::getTypeName(type), name);
+  m_declaration += format("uniform %s %s;\n", Sampler::typeName(type), name);
 
-  samplers.push_back(SharedSampler(name, type, ID));
+  m_samplers.push_back(SharedSampler(name, type, ID));
 }
 
 void Context::createSharedUniform(const char* name, UniformType type, int ID)
 {
   assert(ID != INVALID_SHARED_STATE_ID);
 
-  if (getSharedUniformID(name, type) != INVALID_SHARED_STATE_ID)
+  if (sharedUniformID(name, type) != INVALID_SHARED_STATE_ID)
     return;
 
-  declaration += format("uniform %s %s;\n", Uniform::getTypeName(type), name);
+  m_declaration += format("uniform %s %s;\n", Uniform::typeName(type), name);
 
-  uniforms.push_back(SharedUniform(name, type, ID));
+  m_uniforms.push_back(SharedUniform(name, type, ID));
 }
 
-int Context::getSharedSamplerID(const char* name, SamplerType type) const
+int Context::sharedSamplerID(const char* name, SamplerType type) const
 {
-  for (auto s = samplers.begin(); s != samplers.end(); s++)
+  for (auto& s : m_samplers)
   {
-    if (s->name == name && s->type == type)
-      return s->ID;
+    if (s.name == name && s.type == type)
+      return s.ID;
   }
 
   return INVALID_SHARED_STATE_ID;
 }
 
-int Context::getSharedUniformID(const char* name, UniformType type) const
+int Context::sharedUniformID(const char* name, UniformType type) const
 {
-  for (auto u = uniforms.begin(); u != uniforms.end(); u++)
+  for (auto& u : m_uniforms)
   {
-    if (u->name == name && u->type == type)
-      return u->ID;
+    if (u.name == name && u.type == type)
+      return u.ID;
   }
 
   return INVALID_SHARED_STATE_ID;
 }
 
-SharedProgramState* Context::getCurrentSharedProgramState() const
+SharedProgramState* Context::currentSharedProgramState() const
 {
-  return currentSharedState;
+  return m_currentSharedState;
 }
 
 void Context::setCurrentSharedProgramState(SharedProgramState* newState)
 {
-  currentSharedState = newState;
+  m_currentSharedState = newState;
 }
 
-const char* Context::getSharedProgramStateDeclaration() const
+const char* Context::sharedProgramStateDeclaration() const
 {
-  return declaration.c_str();
+  return m_declaration.c_str();
 }
 
-int Context::getSwapInterval() const
+int Context::swapInterval() const
 {
-  return swapInterval;
+  return m_swapInterval;
 }
 
 void Context::setSwapInterval(int newInterval)
 {
   glfwSwapInterval(newInterval);
-  swapInterval = newInterval;
+  m_swapInterval = newInterval;
 }
 
-const Recti& Context::getScissorArea() const
+const Recti& Context::scissorArea() const
 {
-  return scissorArea;
+  return m_scissorArea;
 }
 
-const Recti& Context::getViewportArea() const
+const Recti& Context::viewportArea() const
 {
-  return viewportArea;
+  return m_viewportArea;
 }
 
 void Context::setScissorArea(const Recti& newArea)
 {
-  scissorArea = newArea;
+  m_scissorArea = newArea;
 
-  const uint width = currentFramebuffer->getWidth();
-  const uint height = currentFramebuffer->getHeight();
+  const uint width = m_currentFramebuffer->width();
+  const uint height = m_currentFramebuffer->height();
 
-  if (scissorArea == Recti(0, 0, width, height))
+  if (m_scissorArea == Recti(0, 0, width, height))
     glDisable(GL_SCISSOR_TEST);
   else
   {
     glEnable(GL_SCISSOR_TEST);
-    glScissor(scissorArea.position.x,
-              scissorArea.position.y,
-              scissorArea.size.x,
-              scissorArea.size.y);
+    glScissor(m_scissorArea.position.x,
+              m_scissorArea.position.y,
+              m_scissorArea.size.x,
+              m_scissorArea.size.y);
   }
 }
 
 void Context::setViewportArea(const Recti& newArea)
 {
-  viewportArea = newArea;
+  m_viewportArea = newArea;
 
-  glViewport(viewportArea.position.x,
-             viewportArea.position.y,
-             viewportArea.size.x,
-             viewportArea.size.y);
+  glViewport(m_viewportArea.position.x,
+             m_viewportArea.position.y,
+             m_viewportArea.size.x,
+             m_viewportArea.size.y);
 }
 
-Framebuffer& Context::getCurrentFramebuffer() const
+Framebuffer& Context::currentFramebuffer() const
 {
-  return *currentFramebuffer;
+  return *m_currentFramebuffer;
 }
 
-DefaultFramebuffer& Context::getDefaultFramebuffer() const
+DefaultFramebuffer& Context::defaultFramebuffer() const
 {
-  return *defaultFramebuffer;
+  return *m_defaultFramebuffer;
 }
 
 void Context::setDefaultFramebufferCurrent()
 {
-  setCurrentFramebuffer(*defaultFramebuffer);
+  setCurrentFramebuffer(*m_defaultFramebuffer);
 }
 
 bool Context::setCurrentFramebuffer(Framebuffer& newFramebuffer)
 {
-  currentFramebuffer = &newFramebuffer;
-  currentFramebuffer->apply();
+  m_currentFramebuffer = &newFramebuffer;
+  m_currentFramebuffer->apply();
 
 #if WENDY_DEBUG
-  if (currentFramebuffer != defaultFramebuffer)
+  if (m_currentFramebuffer != m_defaultFramebuffer)
   {
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status == 0)
@@ -980,42 +899,42 @@ bool Context::setCurrentFramebuffer(Framebuffer& newFramebuffer)
   return true;
 }
 
-Program* Context::getCurrentProgram() const
+Program* Context::currentProgram() const
 {
-  return currentProgram;
+  return m_currentProgram;
 }
 
 void Context::setCurrentProgram(Program* newProgram)
 {
-  if (newProgram != currentProgram)
+  if (newProgram != m_currentProgram)
   {
-    if (currentProgram)
-      currentProgram->unbind();
+    if (m_currentProgram)
+      m_currentProgram->unbind();
 
-    currentProgram = newProgram;
-    dirtyBinding = true;
+    m_currentProgram = newProgram;
+    m_dirtyBinding = true;
 
-    if (currentProgram)
-      currentProgram->bind();
+    if (m_currentProgram)
+      m_currentProgram->bind();
     else
       glUseProgram(0);
   }
 }
 
-VertexBuffer* Context::getCurrentVertexBuffer() const
+VertexBuffer* Context::currentVertexBuffer() const
 {
-  return currentVertexBuffer;
+  return m_currentVertexBuffer;
 }
 
 void Context::setCurrentVertexBuffer(VertexBuffer* newVertexBuffer)
 {
-  if (newVertexBuffer != currentVertexBuffer)
+  if (newVertexBuffer != m_currentVertexBuffer)
   {
-    currentVertexBuffer = newVertexBuffer;
-    dirtyBinding = true;
+    m_currentVertexBuffer = newVertexBuffer;
+    m_dirtyBinding = true;
 
-    if (currentVertexBuffer)
-      glBindBuffer(GL_ARRAY_BUFFER, currentVertexBuffer->bufferID);
+    if (m_currentVertexBuffer)
+      glBindBuffer(GL_ARRAY_BUFFER, m_currentVertexBuffer->m_bufferID);
     else
       glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -1026,20 +945,20 @@ void Context::setCurrentVertexBuffer(VertexBuffer* newVertexBuffer)
   }
 }
 
-IndexBuffer* Context::getCurrentIndexBuffer() const
+IndexBuffer* Context::currentIndexBuffer() const
 {
-  return currentIndexBuffer;
+  return m_currentIndexBuffer;
 }
 
 void Context::setCurrentIndexBuffer(IndexBuffer* newIndexBuffer)
 {
-  if (newIndexBuffer != currentIndexBuffer)
+  if (newIndexBuffer != m_currentIndexBuffer)
   {
-    currentIndexBuffer = newIndexBuffer;
-    dirtyBinding = true;
+    m_currentIndexBuffer = newIndexBuffer;
+    m_dirtyBinding = true;
 
-    if (currentIndexBuffer)
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, currentIndexBuffer->bufferID);
+    if (m_currentIndexBuffer)
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_currentIndexBuffer->m_bufferID);
     else
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -1050,26 +969,26 @@ void Context::setCurrentIndexBuffer(IndexBuffer* newIndexBuffer)
   }
 }
 
-Texture* Context::getCurrentTexture() const
+Texture* Context::currentTexture() const
 {
-  return textureUnits[activeTextureUnit];
+  return m_textureUnits[m_activeTextureUnit];
 }
 
 void Context::setCurrentTexture(Texture* newTexture)
 {
-  if (textureUnits[activeTextureUnit] != newTexture)
+  if (m_textureUnits[m_activeTextureUnit] != newTexture)
   {
-    Texture* oldTexture = textureUnits[activeTextureUnit];
+    Texture* oldTexture = m_textureUnits[m_activeTextureUnit];
 
     if (oldTexture)
     {
-      if (!newTexture || oldTexture->type != newTexture->type)
+      if (!newTexture || oldTexture->type() != newTexture->type())
       {
-        glBindTexture(convertToGL(oldTexture->type), 0);
+        glBindTexture(convertToGL(oldTexture->type()), 0);
 
 #if WENDY_DEBUG
-        if (!checkGL("Failed to unbind texture \'%s\'",
-                     oldTexture->getName().c_str()))
+        if (!checkGL("Failed to unbind texture %s",
+                     oldTexture->name().c_str()))
         {
           return;
         }
@@ -1079,37 +998,37 @@ void Context::setCurrentTexture(Texture* newTexture)
 
     if (newTexture)
     {
-      glBindTexture(convertToGL(newTexture->type), newTexture->textureID);
+      glBindTexture(convertToGL(newTexture->type()), newTexture->m_textureID);
 
 #if WENDY_DEBUG
-      if (!checkGL("Failed to bind texture \'%s\'",
-                   newTexture->getName().c_str()))
+      if (!checkGL("Failed to bind texture %s",
+                   newTexture->name().c_str()))
       {
         return;
       }
 #endif
     }
 
-    textureUnits[activeTextureUnit] = newTexture;
+    m_textureUnits[m_activeTextureUnit] = newTexture;
   }
 }
 
-uint Context::getTextureUnitCount() const
+uint Context::textureUnitCount() const
 {
-  return (uint) textureUnits.size();
+  return (uint) m_textureUnits.size();
 }
 
-uint Context::getActiveTextureUnit() const
+uint Context::activeTextureUnit() const
 {
-  return activeTextureUnit;
+  return m_activeTextureUnit;
 }
 
 void Context::setActiveTextureUnit(uint unit)
 {
-  if (activeTextureUnit != unit)
+  if (m_activeTextureUnit != unit)
   {
     glActiveTexture(GL_TEXTURE0 + unit);
-    activeTextureUnit = unit;
+    m_activeTextureUnit = unit;
 
 #if WENDY_DEBUG
     if (!checkGL("Failed to activate texture unit %u", unit))
@@ -1120,17 +1039,17 @@ void Context::setActiveTextureUnit(uint unit)
 
 bool Context::isCullingInverted()
 {
-  return cullingInverted;
+  return m_cullingInverted;
 }
 
 void Context::setCullingInversion(bool newState)
 {
-  cullingInverted = newState;
+  m_cullingInverted = newState;
 }
 
-const RenderState& Context::getCurrentRenderState() const
+const RenderState& Context::currentRenderState() const
 {
-  return currentState;
+  return m_currentState;
 }
 
 void Context::setCurrentRenderState(const RenderState& newState)
@@ -1138,29 +1057,29 @@ void Context::setCurrentRenderState(const RenderState& newState)
   applyState(newState);
 }
 
-Stats* Context::getStats() const
+Stats* Context::stats() const
 {
-  return stats;
+  return m_stats;
 }
 
 void Context::setStats(Stats* newStats)
 {
-  stats = newStats;
+  m_stats = newStats;
 }
 
-ResourceCache& Context::getCache() const
+ResourceCache& Context::cache() const
 {
-  return cache;
+  return m_cache;
 }
 
-Window& Context::getWindow()
+Window& Context::window()
 {
-  return window;
+  return m_window;
 }
 
-const Limits& Context::getLimits() const
+const Limits& Context::limits() const
 {
-  return *limits;
+  return *m_limits;
 }
 
 Context* Context::create(ResourceCache& cache,
@@ -1174,19 +1093,19 @@ Context* Context::create(ResourceCache& cache,
   return context.detachObject();
 }
 
-Context::Context(ResourceCache& initCache):
-  cache(initCache),
-  handle(NULL),
-  dirtyBinding(true),
-  dirtyState(true),
-  cullingInverted(false),
-  activeTextureUnit(0),
-  stats(NULL)
+Context::Context(ResourceCache& cache):
+  m_cache(cache),
+  m_handle(NULL),
+  m_dirtyBinding(true),
+  m_dirtyState(true),
+  m_cullingInverted(false),
+  m_activeTextureUnit(0),
+  m_stats(NULL)
 {
 }
 
 Context::Context(const Context& source):
-  cache(source.cache)
+  m_cache(source.m_cache)
 {
   panic("OpenGL contexts may not be copied");
 }
@@ -1231,19 +1150,19 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     if (wc.mode == FULLSCREEN)
       monitor = glfwGetPrimaryMonitor();
 
-    handle = glfwCreateWindow(wc.width, wc.height, wc.title.c_str(), monitor, NULL);
-    if (!handle)
+    m_handle = glfwCreateWindow(wc.width, wc.height, wc.title.c_str(), monitor, NULL);
+    if (!m_handle)
     {
       logError("Failed to create GLFW window");
       return false;
     }
 
-    glfwSetWindowUserPointer(handle, this);
-    glfwMakeContextCurrent(handle);
+    glfwSetWindowUserPointer(m_handle, this);
+    glfwMakeContextCurrent(m_handle);
 
     log("OpenGL context version %i.%i created",
-        glfwGetWindowAttrib(handle, GLFW_CONTEXT_VERSION_MAJOR),
-        glfwGetWindowAttrib(handle, GLFW_CONTEXT_VERSION_MINOR));
+        glfwGetWindowAttrib(m_handle, GLFW_CONTEXT_VERSION_MAJOR),
+        glfwGetWindowAttrib(m_handle, GLFW_CONTEXT_VERSION_MINOR));
 
     log("OpenGL context GLSL version is %s",
         (const char*) glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -1252,8 +1171,8 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
         (const char*) glGetString(GL_RENDERER),
         (const char*) glGetString(GL_VENDOR));
 
-    window.init(handle);
-    window.getFrameSignal().connect(*this, &Context::onFrame);
+    m_window.init(m_handle);
+    m_window.frameSignal().connect(*this, &Context::onFrame);
   }
 
   // Initialize GLEW and check extensions
@@ -1273,25 +1192,25 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 
   // Retrieve context limits and set up dependent caches
   {
-    limits = new Limits(*this);
+    m_limits = new Limits(*this);
 
-    const uint unitCount = max(limits->maxCombinedTextureImageUnits,
-                               limits->maxTextureCoords);
+    const uint unitCount = max(m_limits->maxCombinedTextureImageUnits,
+                               m_limits->maxTextureCoords);
 
-    textureUnits.resize(unitCount);
+    m_textureUnits.resize(unitCount);
   }
 
   // Create and apply default framebuffer
   {
-    defaultFramebuffer = new DefaultFramebuffer(*this);
+    m_defaultFramebuffer = new DefaultFramebuffer(*this);
 
     // Read back actual (as opposed to desired) properties
-    defaultFramebuffer->colorBits = getInteger(GL_RED_BITS) +
-                                    getInteger(GL_GREEN_BITS) +
-                                    getInteger(GL_BLUE_BITS);
-    defaultFramebuffer->depthBits = getInteger(GL_DEPTH_BITS);
-    defaultFramebuffer->stencilBits = getInteger(GL_STENCIL_BITS);
-    defaultFramebuffer->samples = getInteger(GL_SAMPLES);
+    m_defaultFramebuffer->m_colorBits = getInteger(GL_RED_BITS) +
+                                        getInteger(GL_GREEN_BITS) +
+                                        getInteger(GL_BLUE_BITS);
+    m_defaultFramebuffer->m_depthBits = getInteger(GL_DEPTH_BITS);
+    m_defaultFramebuffer->m_stencilBits = getInteger(GL_STENCIL_BITS);
+    m_defaultFramebuffer->m_samples = getInteger(GL_SAMPLES);
 
     setDefaultFramebufferCurrent();
   }
@@ -1299,13 +1218,13 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
   // Force a known GL state
   {
     int width, height;
-    glfwGetWindowSize(handle, &width, &height);
+    glfwGetWindowSize(m_handle, &width, &height);
 
     setViewportArea(Recti(0, 0, width, height));
     setScissorArea(Recti(0, 0, width, height));
 
     setSwapInterval(1);
-    forceState(currentState);
+    forceState(m_currentState);
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   }
@@ -1315,32 +1234,32 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 
 void Context::applyState(const RenderState& newState)
 {
-  if (stats)
-    stats->addStateChange();
+  if (m_stats)
+    m_stats->addStateChange();
 
-  if (dirtyState)
+  if (m_dirtyState)
   {
     forceState(newState);
     return;
   }
 
   CullMode cullMode = newState.cullMode;
-  if (cullingInverted)
+  if (m_cullingInverted)
     cullMode = invertCullMode(cullMode);
 
-  if (cullMode != currentState.cullMode)
+  if (cullMode != m_currentState.cullMode)
   {
-    if ((cullMode == CULL_NONE) != (currentState.cullMode == CULL_NONE))
+    if ((cullMode == CULL_NONE) != (m_currentState.cullMode == CULL_NONE))
       setBooleanState(GL_CULL_FACE, cullMode != CULL_NONE);
 
     if (cullMode != CULL_NONE)
       glCullFace(convertToGL(cullMode));
 
-    currentState.cullMode = cullMode;
+    m_currentState.cullMode = cullMode;
   }
 
-  if (newState.srcFactor != currentState.srcFactor ||
-      newState.dstFactor != currentState.dstFactor)
+  if (newState.srcFactor != m_currentState.srcFactor ||
+      newState.dstFactor != m_currentState.dstFactor)
   {
     setBooleanState(GL_BLEND, newState.srcFactor != BLEND_ONE ||
                               newState.dstFactor != BLEND_ZERO);
@@ -1351,23 +1270,23 @@ void Context::applyState(const RenderState& newState)
                   convertToGL(newState.dstFactor));
     }
 
-    currentState.srcFactor = newState.srcFactor;
-    currentState.dstFactor = newState.dstFactor;
+    m_currentState.srcFactor = newState.srcFactor;
+    m_currentState.dstFactor = newState.dstFactor;
   }
 
   if (newState.depthTesting || newState.depthWriting)
   {
     // Set depth buffer writing.
-    if (newState.depthWriting != currentState.depthWriting)
+    if (newState.depthWriting != m_currentState.depthWriting)
       glDepthMask(newState.depthWriting ? GL_TRUE : GL_FALSE);
 
     if (newState.depthTesting)
     {
       // Set depth buffer function.
-      if (newState.depthFunction != currentState.depthFunction)
+      if (newState.depthFunction != m_currentState.depthFunction)
       {
         glDepthFunc(convertToGL(newState.depthFunction));
-        currentState.depthFunction = newState.depthFunction;
+        m_currentState.depthFunction = newState.depthFunction;
       }
     }
     else if (newState.depthWriting)
@@ -1376,89 +1295,89 @@ void Context::applyState(const RenderState& newState)
       //       Set specific depth buffer function.
       const Function depthFunction = ALLOW_ALWAYS;
 
-      if (currentState.depthFunction != depthFunction)
+      if (m_currentState.depthFunction != depthFunction)
       {
         glDepthFunc(convertToGL(depthFunction));
-        currentState.depthFunction = depthFunction;
+        m_currentState.depthFunction = depthFunction;
       }
     }
 
-    if (!(currentState.depthTesting || currentState.depthWriting))
+    if (!(m_currentState.depthTesting || m_currentState.depthWriting))
       glEnable(GL_DEPTH_TEST);
   }
   else
   {
-    if (currentState.depthTesting || currentState.depthWriting)
+    if (m_currentState.depthTesting || m_currentState.depthWriting)
       glDisable(GL_DEPTH_TEST);
   }
 
-  currentState.depthTesting = newState.depthTesting;
-  currentState.depthWriting = newState.depthWriting;
+  m_currentState.depthTesting = newState.depthTesting;
+  m_currentState.depthWriting = newState.depthWriting;
 
-  if (newState.colorWriting != currentState.colorWriting)
+  if (newState.colorWriting != m_currentState.colorWriting)
   {
     const GLboolean state = newState.colorWriting ? GL_TRUE : GL_FALSE;
     glColorMask(state, state, state, state);
-    currentState.colorWriting = newState.colorWriting;
+    m_currentState.colorWriting = newState.colorWriting;
   }
 
-  if (newState.stencilTesting != currentState.stencilTesting)
+  if (newState.stencilTesting != m_currentState.stencilTesting)
   {
     setBooleanState(GL_STENCIL_TEST, newState.stencilTesting);
-    currentState.stencilTesting = newState.stencilTesting;
+    m_currentState.stencilTesting = newState.stencilTesting;
   }
 
   if (newState.stencilTesting)
   {
-    if (newState.stencilFunction != currentState.stencilFunction ||
-        newState.stencilRef != currentState.stencilRef ||
-        newState.stencilMask != currentState.stencilMask)
+    if (newState.stencilFunction != m_currentState.stencilFunction ||
+        newState.stencilRef != m_currentState.stencilRef ||
+        newState.stencilMask != m_currentState.stencilMask)
     {
       glStencilFunc(convertToGL(newState.stencilFunction),
                     newState.stencilRef, newState.stencilMask);
 
-      currentState.stencilFunction = newState.stencilFunction;
-      currentState.stencilRef = newState.stencilRef;
-      currentState.stencilMask = newState.stencilMask;
+      m_currentState.stencilFunction = newState.stencilFunction;
+      m_currentState.stencilRef = newState.stencilRef;
+      m_currentState.stencilMask = newState.stencilMask;
     }
 
-    if (newState.stencilFailOp != currentState.stencilFailOp ||
-        newState.depthFailOp != currentState.depthFailOp ||
-        newState.depthPassOp != currentState.depthPassOp)
+    if (newState.stencilFailOp != m_currentState.stencilFailOp ||
+        newState.depthFailOp != m_currentState.depthFailOp ||
+        newState.depthPassOp != m_currentState.depthPassOp)
     {
       glStencilOp(convertToGL(newState.stencilFailOp),
                   convertToGL(newState.depthFailOp),
                   convertToGL(newState.depthPassOp));
 
-      currentState.stencilFailOp = newState.stencilFailOp;
-      currentState.depthFailOp = newState.depthFailOp;
-      currentState.depthPassOp = newState.depthPassOp;
+      m_currentState.stencilFailOp = newState.stencilFailOp;
+      m_currentState.depthFailOp = newState.depthFailOp;
+      m_currentState.depthPassOp = newState.depthPassOp;
     }
   }
 
-  if (newState.wireframe != currentState.wireframe)
+  if (newState.wireframe != m_currentState.wireframe)
   {
     const GLenum state = newState.wireframe ? GL_LINE : GL_FILL;
     glPolygonMode(GL_FRONT_AND_BACK, state);
-    currentState.wireframe = newState.wireframe;
+    m_currentState.wireframe = newState.wireframe;
   }
 
-  if (newState.lineSmoothing != currentState.lineSmoothing)
+  if (newState.lineSmoothing != m_currentState.lineSmoothing)
   {
     setBooleanState(GL_LINE_SMOOTH, newState.lineSmoothing);
-    currentState.lineSmoothing = newState.lineSmoothing;
+    m_currentState.lineSmoothing = newState.lineSmoothing;
   }
 
-  if (newState.multisampling != currentState.multisampling)
+  if (newState.multisampling != m_currentState.multisampling)
   {
     setBooleanState(GL_MULTISAMPLE, newState.multisampling);
-    currentState.multisampling = newState.multisampling;
+    m_currentState.multisampling = newState.multisampling;
   }
 
-  if (newState.lineWidth != currentState.lineWidth)
+  if (newState.lineWidth != m_currentState.lineWidth)
   {
     glLineWidth(newState.lineWidth);
-    currentState.lineWidth = newState.lineWidth;
+    m_currentState.lineWidth = newState.lineWidth;
   }
 
 #if WENDY_DEBUG
@@ -1468,10 +1387,10 @@ void Context::applyState(const RenderState& newState)
 
 void Context::forceState(const RenderState& newState)
 {
-  currentState = newState;
+  m_currentState = newState;
 
   CullMode cullMode = newState.cullMode;
-  if (cullingInverted)
+  if (m_cullingInverted)
     cullMode = invertCullMode(cullMode);
 
   setBooleanState(GL_CULL_FACE, cullMode != CULL_NONE);
@@ -1489,7 +1408,7 @@ void Context::forceState(const RenderState& newState)
   {
     const Function depthFunction = ALLOW_ALWAYS;
     glDepthFunc(convertToGL(depthFunction));
-    currentState.depthFunction = depthFunction;
+    m_currentState.depthFunction = depthFunction;
   }
   else
     glDepthFunc(convertToGL(newState.depthFunction));
@@ -1516,7 +1435,7 @@ void Context::forceState(const RenderState& newState)
   checkGL("Error when forcing render state");
 #endif
 
-  dirtyState = false;
+  m_dirtyState = false;
 }
 
 void Context::onFrame()
@@ -1529,17 +1448,17 @@ void Context::onFrame()
   setCurrentVertexBuffer(NULL);
   setCurrentIndexBuffer(NULL);
 
-  for (size_t i = 0;  i < textureUnits.size();  i++)
+  for (size_t i = 0;  i < m_textureUnits.size();  i++)
   {
-    if (textureUnits[i])
+    if (m_textureUnits[i])
     {
       setActiveTextureUnit(i);
       setCurrentTexture(NULL);
     }
   }
 
-  if (stats)
-    stats->addFrame();
+  if (m_stats)
+    m_stats->addFrame();
 }
 
 ///////////////////////////////////////////////////////////////////////

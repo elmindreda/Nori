@@ -177,13 +177,13 @@ public:
   template <typename T>
   void write(const T& value);
   bool isEmpty();
-  size_t getSize() const;
-  const void* getData() const;
+  size_t size() const;
+  const void* data() const;
 private:
-  uint8* data;
-  size_t capacity;
-  size_t size;
-  size_t offset;
+  uint8* m_data;
+  size_t m_capacity;
+  size_t m_size;
+  size_t m_offset;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -197,19 +197,19 @@ class Peer
 public:
   bool sendPacket(ChannelID channel, PacketType type, const PacketData& data);
   void disconnect(uint32 reason);
-  bool isClient() const;
-  bool isServer() const;
-  TargetID getTargetID() const;
-  const String& getName() const;
-  uint32 getAddress() const;
-  Time getRoundTripTime() const;
+  bool isClient() const { return m_ID != SERVER; }
+  bool isServer() const { return m_ID == SERVER; }
+  TargetID targetID() const { return m_ID; }
+  const String& name() const { return m_name; }
+  uint32 address() const;
+  Time roundTripTime() const;
 private:
   Peer(void* peer, TargetID ID, const char* name);
-  void* peer;
-  TargetID ID;
-  String name;
-  bool disconnecting;
-  uint32 disconnectReason;
+  void* m_peer;
+  TargetID m_ID;
+  String m_name;
+  bool m_disconnecting;
+  uint32 m_reason;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -246,10 +246,10 @@ public:
   Peer* findPeer(TargetID targetID);
   bool isClient() const;
   bool isServer() const;
-  uint getTotalIncomingBytes() const;
-  uint getTotalOutgoingBytes() const;
-  uint getIncomingBytesPerSecond() const;
-  uint getOutgoingBytesPerSecond() const;
+  uint totalIncomingBytes() const;
+  uint totalOutgoingBytes() const;
+  uint incomingBytesPerSecond() const;
+  uint outgoingBytesPerSecond() const;
   void setObserver(Observer* newObserver);
   static Host* create(uint16 port, size_t maxClientCount, uint8 maxChannelCount = 0);
   static Host* connect(const String& name, uint16 port, uint8 maxChannelCount = 0);
@@ -258,13 +258,13 @@ private:
   bool init(uint16 port, size_t maxClientCount, uint8 maxChannelCount);
   bool init(const String& name, uint16 port, uint8 maxChannelCount);
   bool broadcast(ChannelID channel, PacketType type, const PacketData& data);
-  void* object;
-  std::list<Peer> peers;
-  Observer* observer;
-  IDPool<TargetID> clientIDs;
-  size_t allocated;
-  uint8 buffer[65536];
-  bool server;
+  void* m_object;
+  std::list<Peer> m_peers;
+  Observer* m_observer;
+  IDPool<TargetID> m_clientIDs;
+  size_t m_allocated;
+  uint8 m_buffer[65536];
+  bool m_server;
 };
 
 ///////////////////////////////////////////////////////////////////////

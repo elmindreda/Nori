@@ -97,7 +97,7 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
   result = ov_fopen(path.asString().c_str(), &file);
   if (result)
   {
-    logError("Failed to open audio file \'%s\': %s",
+    logError("Failed to open audio file %s: %s",
              path.asString().c_str(),
              getErrorString(result));
     return NULL;
@@ -106,7 +106,7 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
   if (ov_streams(&file) > 1)
   {
     ov_clear(&file);
-    logError("Audio file \'%s\' has an unsupported number of bitstreams",
+    logError("Audio file %s has an unsupported number of bitstreams",
              path.asString().c_str());
     return NULL;
   }
@@ -115,7 +115,7 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
   if (!info)
   {
     ov_clear(&file);
-    logError("Failed to retrieve Vorbis info for audio file \'%s\'",
+    logError("Failed to retrieve Vorbis info for audio file %s",
              path.asString().c_str());
     return NULL;
   }
@@ -123,7 +123,7 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
   if (info->channels > 2)
   {
     ov_clear(&file);
-    logError("Audio file \'%s\' has an unsupported number of channels",
+    logError("Audio file %s has an unsupported number of channels",
              path.asString().c_str());
     return NULL;
   }
@@ -153,7 +153,7 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
     if (result < 0)
     {
       ov_clear(&file);
-      logError("Error when reading audio file \'%s\': %s",
+      logError("Error when reading audio file %s: %s",
               path.asString().c_str(),
               getErrorString(result));
       return NULL;

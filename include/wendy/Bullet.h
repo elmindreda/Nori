@@ -65,8 +65,8 @@ btTriangleMesh* convert(const Mesh& mesh);
 class BvhTriangleMeshShape : public Resource
 {
 public:
-  btTriangleMesh& getMesh();
-  btBvhTriangleMeshShape& getShape();
+  btTriangleMesh& mesh() { return *m_mesh; }
+  btBvhTriangleMeshShape& shape() { return *m_shape; }
   static Ref<BvhTriangleMeshShape> create(const ResourceInfo& info,
                                           const Mesh& data);
   static Ref<BvhTriangleMeshShape> read(ResourceCache& cache,
@@ -74,8 +74,8 @@ public:
 private:
   BvhTriangleMeshShape(const ResourceInfo& info);
   bool init(const Mesh& data);
-  Ptr<btTriangleMesh> mesh;
-  Ptr<btBvhTriangleMeshShape> shape;
+  Ptr<btTriangleMesh> m_mesh;
+  Ptr<btBvhTriangleMeshShape> m_shape;
 };
 
 ///////////////////////////////////////////////////////////////////////

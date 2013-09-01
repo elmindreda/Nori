@@ -48,17 +48,17 @@ public:
   {
     FORWARD
   };
-  ResourceCache& getCache() const;
-  GL::Context& getContext() const;
-  VertexPool& getVertexPool() const;
-  Type getType() const;
+  ResourceCache& cache() const;
+  GL::Context& context() const;
+  VertexPool& vertexPool() const;
+  Type type() const;
 protected:
   System(VertexPool& pool, Type type);
 private:
   System(const System& source);
   System& operator = (const System& source);
-  Ref<VertexPool> pool;
-  Type type;
+  Ref<VertexPool> m_pool;
+  Type m_type;
 };
 
 ///////////////////////////////////////////////////////////////////////

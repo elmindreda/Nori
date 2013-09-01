@@ -66,14 +66,14 @@ float Item::getWidth() const
   if (value.empty())
     width += em * 3.f;
   else
-    width += drawer.getCurrentFont().getTextMetrics(value.c_str()).size.x;
+    width += drawer.getCurrentFont().metricsOf(value.c_str()).size.x;
 
   return width;
 }
 
 float Item::getHeight() const
 {
-  return layer.getDrawer().getCurrentFont().getHeight() * 1.5f;
+  return layer.getDrawer().getCurrentFont().height() * 1.5f;
 }
 
 ItemID Item::getID() const

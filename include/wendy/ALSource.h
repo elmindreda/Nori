@@ -74,25 +74,25 @@ public:
   void resume();
   /*! @return @c true if this source is in the Source::STARTED state.
    */
-  bool isStarted() const;
+  bool isStarted() const { return state() == STARTED; }
   /*! @return @c true if this source is in the Source::PAUSED state.
    */
-  bool isPaused() const;
+  bool isPaused() const { return state() == PAUSED; }
   /*! @return @c true if this source is in the Source::STOPPED state.
    */
-  bool isStopped() const;
+  bool isStopped() const { return state() == STOPPED; }
   /*! @return @c true if this source loops playback.
    */
-  bool isLooping() const;
+  bool isLooping() const { return m_looping; }
   /*! @return The state of this source.
    */
-  State getState() const;
+  State state() const;
   /*! Sets whether this source loops playback.
    */
   void setLooping(bool newState);
   /*! @return The position of this source.
    */
-  const vec3& getPosition() const;
+  const vec3& position() const { return m_position; }
   /*! Sets the position of this source.
    */
   void setPosition(const vec3& newPosition);
@@ -101,7 +101,7 @@ public:
    *  @remarks The velocity doesn't affect the position of the source, but is
    *  used in combination with the listener velocity to calculate doppler shift.
    */
-  const vec3& getVelocity() const;
+  const vec3& velocity() const { return m_velocity; }
   /*! Sets the velocity of this source.
    *
    *  @remarks The velocity doesn't affect the position of the source, but is
@@ -110,20 +110,20 @@ public:
   void setVelocity(const vec3& newVelocity);
   /*! @return The gain of this source.
    */
-  float getGain() const;
+  float gain() const { return m_gain; }
   /*! Sets the gain of this source.
    */
   void setGain(float newGain);
   /*! @return The pitch of this source.
    */
-  float getPitch() const;
+  float pitch() const { return m_pitch; }
   /*! Sets the pitch of this source.
    */
   void setPitch(float newPitch);
   /*! @return The currently set buffer for this source, or @c NULL if no buffer
    *  is set.
    */
-  Buffer* getBuffer() const;
+  Buffer* buffer() const { return m_buffer; }
   /*! Sets the buffer to be used by this source.
    *  @param[in] newBuffer The buffer to use, or @c NULL to detach the
    *  currently used buffer.
@@ -131,7 +131,7 @@ public:
   void setBuffer(Buffer* newBuffer);
   /*! @return The context within which this buffer was created.
    */
-  Context& getContext() const;
+  Context& context() const { return m_context; }
   /*! Creates a source object within the specified context.
    */
   static Ref<Source> create(Context& context);
@@ -140,14 +140,14 @@ private:
   Source(const Source& source);
   bool init();
   Source& operator = (const Source& source);
-  Context& context;
-  uint sourceID;
-  bool looping;
-  vec3 position;
-  vec3 velocity;
-  float gain;
-  float pitch;
-  Ref<Buffer> buffer;
+  Context& m_context;
+  uint m_sourceID;
+  bool m_looping;
+  vec3 m_position;
+  vec3 m_velocity;
+  float m_gain;
+  float m_pitch;
+  Ref<Buffer> m_buffer;
 };
 
 ///////////////////////////////////////////////////////////////////////

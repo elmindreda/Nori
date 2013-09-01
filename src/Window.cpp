@@ -57,7 +57,7 @@ namespace
 
 Window& windowFromHandle(GLFWwindow* handle)
 {
-  return ((GL::Context*) glfwGetWindowUserPointer(handle))->getWindow();
+  return ((GL::Context*) glfwGetWindowUserPointer(handle))->window();
 }
 
 } /*namespace*/
@@ -190,13 +190,13 @@ bool Window::update()
 {
   ProfileNodeCall call("Window::update");
 
-  glfwSwapBuffers(handle);
-  needsRefresh = false;
-  frameSignal();
+  glfwSwapBuffers(m_handle);
+  m_needsRefresh = false;
+  m_frameSignal();
 
-  if (refreshMode == MANUAL_REFRESH)
+  if (m_refreshMode == MANUAL_REFRESH)
   {
-    while (!needsRefresh && !glfwWindowShouldClose(handle))
+    while (!m_needsRefresh && !glfwWindowShouldClose(m_handle))
       glfwWaitEvents();
   }
   else
@@ -207,47 +207,47 @@ bool Window::update()
 
 void Window::invalidate()
 {
-  needsRefresh = true;
+  m_needsRefresh = true;
 }
 
 void Window::captureCursor()
 {
-  glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  glfwSetInputMode(m_handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 void Window::releaseCursor()
 {
-  glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+  glfwSetInputMode(m_handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
 bool Window::isKeyDown(Key key) const
 {
-  return glfwGetKey(handle, key) == GLFW_PRESS;
+  return glfwGetKey(m_handle, key) == GLFW_PRESS;
 }
 
 bool Window::isButtonDown(MouseButton button) const
 {
-  return glfwGetMouseButton(handle, button + GLFW_MOUSE_BUTTON_1) == GLFW_PRESS;
+  return glfwGetMouseButton(m_handle, button + GLFW_MOUSE_BUTTON_1) == GLFW_PRESS;
 }
 
 bool Window::isCursorCaptured() const
 {
-  return glfwGetInputMode(handle, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
+  return glfwGetInputMode(m_handle, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
 }
 
 bool Window::shouldClose() const
 {
-  return glfwWindowShouldClose(handle);
+  return glfwWindowShouldClose(m_handle);
 }
 
 void Window::setShouldClose(bool newValue)
 {
-  glfwSetWindowShouldClose(handle, newValue);
+  glfwSetWindowShouldClose(m_handle, newValue);
 }
 
-WindowMode Window::getMode() const
+WindowMode Window::mode() const
 {
-  if (glfwGetWindowMonitor(handle))
+  if (glfwGetWindowMonitor(m_handle))
     return FULLSCREEN;
   else
     return WINDOWED;
@@ -255,112 +255,97 @@ WindowMode Window::getMode() const
 
 void Window::setTitle(const char* newTitle)
 {
-  glfwSetWindowTitle(handle, newTitle);
+  glfwSetWindowTitle(m_handle, newTitle);
 }
 
-uint Window::getWidth() const
+uint Window::width() const
 {
   int width;
-  glfwGetWindowSize(handle, &width, NULL);
+  glfwGetWindowSize(m_handle, &width, NULL);
   return uint(width);
 }
 
-uint Window::getHeight() const
+uint Window::height() const
 {
   int height;
-  glfwGetWindowSize(handle, NULL, &height);
+  glfwGetWindowSize(m_handle, NULL, &height);
   return uint(height);
-}
-
-RefreshMode Window::getRefreshMode() const
-{
-  return refreshMode;
 }
 
 void Window::setRefreshMode(RefreshMode newMode)
 {
-  refreshMode = newMode;
+  m_refreshMode = newMode;
 }
 
-vec2 Window::getCursorPosition() const
+vec2 Window::cursorPosition() const
 {
   double x, y;
-  glfwGetCursorPos(handle, &x, &y);
+  glfwGetCursorPos(m_handle, &x, &y);
   return vec2(float(x), float(y));
 }
 
 void Window::setCursorPosition(vec2 newPosition)
 {
-  glfwSetCursorPos(handle, newPosition.x, newPosition.y);
+  glfwSetCursorPos(m_handle, newPosition.x, newPosition.y);
 }
 
-String Window::getClipboardText() const
+String Window::clipboardText() const
 {
-  return glfwGetClipboardString(handle);
+  return glfwGetClipboardString(m_handle);
 }
 
 void Window::setClipboardText(const String& newText)
 {
-  glfwSetClipboardString(handle, newText.c_str());
+  glfwSetClipboardString(m_handle, newText.c_str());
 }
 
-SignalProxy0<void> Window::getFrameSignal()
+SignalProxy0<void> Window::frameSignal()
 {
-  return frameSignal;
-}
-
-EventHook* Window::getHook() const
-{
-  return currentHook;
+  return m_frameSignal;
 }
 
 void Window::setHook(EventHook* newHook)
 {
-  currentHook = newHook;
-}
-
-EventTarget* Window::getTarget() const
-{
-  return currentTarget;
+  m_hook = newHook;
 }
 
 void Window::setTarget(EventTarget* newTarget)
 {
-  if (currentTarget == newTarget)
+  if (m_target == newTarget)
     return;
 
-  if (currentTarget)
-    currentTarget->onFocus(false);
+  if (m_target)
+    m_target->onFocus(false);
 
-  currentTarget = newTarget;
+  m_target = newTarget;
 
-  if (currentTarget)
-    currentTarget->onFocus(true);
+  if (m_target)
+    m_target->onFocus(true);
 }
 
 Window::Window():
-  handle(NULL),
-  currentHook(NULL),
-  currentTarget(NULL),
-  needsRefresh(false),
-  refreshMode(AUTOMATIC_REFRESH)
+  m_handle(NULL),
+  m_hook(NULL),
+  m_target(NULL),
+  m_needsRefresh(false),
+  m_refreshMode(AUTOMATIC_REFRESH)
 {
 }
 
-void Window::init(GLFWwindow* initHandle)
+void Window::init(GLFWwindow* handle)
 {
-  handle = initHandle;
+  m_handle = handle;
 
-  glfwSetWindowSizeCallback(handle, sizeCallback);
-  glfwSetWindowRefreshCallback(handle, damageCallback);
-  glfwSetWindowCloseCallback(handle, closeCallback);
-  glfwSetCursorPosCallback(handle, cursorPosCallback);
-  glfwSetMouseButtonCallback(handle, mouseButtonCallback);
-  glfwSetKeyCallback(handle, keyCallback);
-  glfwSetCharCallback(handle, characterCallback);
-  glfwSetScrollCallback(handle, scrollCallback);
+  glfwSetWindowSizeCallback(m_handle, sizeCallback);
+  glfwSetWindowRefreshCallback(m_handle, damageCallback);
+  glfwSetWindowCloseCallback(m_handle, closeCallback);
+  glfwSetCursorPosCallback(m_handle, cursorPosCallback);
+  glfwSetMouseButtonCallback(m_handle, mouseButtonCallback);
+  glfwSetKeyCallback(m_handle, keyCallback);
+  glfwSetCharCallback(m_handle, characterCallback);
+  glfwSetScrollCallback(m_handle, scrollCallback);
 
-  glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+  glfwSetInputMode(m_handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
 Window::Window(const Window& source)
@@ -372,77 +357,77 @@ void Window::sizeCallback(GLFWwindow* handle, int width, int height)
 {
   Window& window = windowFromHandle(handle);
 
-  if (window.currentHook)
-    window.currentHook->onWindowSize(width, height);
+  if (window.m_hook)
+    window.m_hook->onWindowSize(width, height);
 
-  if (window.currentTarget)
-    window.currentTarget->onWindowSize(width, height);
+  if (window.m_target)
+    window.m_target->onWindowSize(width, height);
 }
 
 void Window::damageCallback(GLFWwindow* handle)
 {
   Window& window = windowFromHandle(handle);
 
-  if (window.currentHook)
-    window.currentHook->onWindowDamage();
+  if (window.m_hook)
+    window.m_hook->onWindowDamage();
 
-  if (window.currentTarget)
-    window.currentTarget->onWindowDamage();
+  if (window.m_target)
+    window.m_target->onWindowDamage();
 
-  window.needsRefresh = true;
+  window.m_needsRefresh = true;
 }
 
 void Window::closeCallback(GLFWwindow* handle)
 {
   Window& window = windowFromHandle(handle);
 
-  if (window.currentHook)
-    window.currentHook->onWindowCloseRequest();
+  if (window.m_hook)
+    window.m_hook->onWindowCloseRequest();
 
-  if (window.currentTarget)
-    window.currentTarget->onWindowCloseRequest();
+  if (window.m_target)
+    window.m_target->onWindowCloseRequest();
 }
 
 void Window::keyCallback(GLFWwindow* handle, int key, int scancode, int action, int mods)
 {
   Window& window = windowFromHandle(handle);
 
-  if (window.currentHook)
+  if (window.m_hook)
   {
-    if (window.currentHook->onKey(Key(key), Action(action)))
+    if (window.m_hook->onKey(Key(key), Action(action)))
       return;
   }
 
-  if (window.currentTarget)
-    window.currentTarget->onKey(Key(key), Action(action));
+  if (window.m_target)
+    window.m_target->onKey(Key(key), Action(action));
 }
 
 void Window::characterCallback(GLFWwindow* handle, uint character)
 {
   Window& window = windowFromHandle(handle);
 
-  if (window.currentHook)
+  if (window.m_hook)
   {
-    if (window.currentHook->onCharacter(character))
+    if (window.m_hook->onCharacter(character))
       return;
   }
 
-  if (window.currentTarget)
-    window.currentTarget->onCharacter(character);
+  if (window.m_target)
+    window.m_target->onCharacter(character);
 }
 
 void Window::cursorPosCallback(GLFWwindow* handle, double x, double y)
 {
   Window& window = windowFromHandle(handle);
 
-  if (window.currentHook)
+  if (window.m_hook)
   {
-    if (window.currentHook->onCursorPos(vec2(x, y)))
+    if (window.m_hook->onCursorPos(vec2(x, y)))
       return;
   }
 
-  if (window.currentTarget)
-    window.currentTarget->onCursorPos(vec2(x, y));
+  if (window.m_target)
+    window.m_target->onCursorPos(vec2(x, y));
 }
 
 void Window::mouseButtonCallback(GLFWwindow* handle, int button, int action, int mods)
@@ -451,28 +436,28 @@ void Window::mouseButtonCallback(GLFWwindow* handle, int button, int action, int
 
   button -= GLFW_MOUSE_BUTTON_1;
 
-  if (window.currentHook)
+  if (window.m_hook)
   {
-    if (window.currentHook->onMouseButton(MouseButton(button), Action(action)))
+    if (window.m_hook->onMouseButton(MouseButton(button), Action(action)))
       return;
   }
 
-  if (window.currentTarget)
-    window.currentTarget->onMouseButton(MouseButton(button), Action(action));
+  if (window.m_target)
+    window.m_target->onMouseButton(MouseButton(button), Action(action));
 }
 
 void Window::scrollCallback(GLFWwindow* handle, double x, double y)
 {
   Window& window = windowFromHandle(handle);
 
-  if (window.currentHook)
+  if (window.m_hook)
   {
-    if (window.currentHook->onScroll(vec2(x, y)))
+    if (window.m_hook->onScroll(vec2(x, y)))
       return;
   }
 
-  if (window.currentTarget)
-    window.currentTarget->onScroll(vec2(x, y));
+  if (window.m_target)
+    window.m_target->onScroll(vec2(x, y));
 }
 
 Window& Window::operator = (const Window& source)

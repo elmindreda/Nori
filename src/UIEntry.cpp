@@ -102,14 +102,14 @@ void Entry::draw() const
 
     drawer.drawText(textArea, text.c_str(), LEFT_ALIGNED, getState());
 
-    if (isActive() && ((uint) (Timer::getCurrentTime() * 2.f) & 1))
+    if (isActive() && ((uint) (Timer::currentTime() * 2.f) & 1))
     {
       float position = 0.f;
 
       if (caretPosition > startPosition)
       {
         const render::Font& font = drawer.getCurrentFont();
-        Rect metrics = font.getTextMetrics(text.substr(startPosition, caretPosition).c_str());
+        const Rect metrics = font.metricsOf(text.substr(startPosition, caretPosition).c_str());
         position = metrics.size.x;
       }
 
@@ -144,8 +144,7 @@ void Entry::onMouseButton(Widget& widget,
   const float offset = em / 2.f;
   float position = transformToLocal(point).x - offset;
 
-  render::Font::LayoutList layouts;
-  drawer.getCurrentFont().getTextLayout(layouts, text.substr(startPosition, String::npos).c_str());
+  render::Font::LayoutList layouts = drawer.getCurrentFont().layoutOf(text.substr(startPosition, String::npos).c_str());
 
   uint index;
 

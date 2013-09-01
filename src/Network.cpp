@@ -52,46 +52,46 @@ void shutdown()
 ///////////////////////////////////////////////////////////////////////
 
 PacketData::PacketData():
-  data(NULL),
-  capacity(0),
-  size(0),
-  offset(0)
+  m_data(NULL),
+  m_capacity(0),
+  m_size(0),
+  m_offset(0)
 {
 }
 
 PacketData::PacketData(void* data, size_t capacity, size_t size):
-  data(static_cast<uint8*>(data)),
-  capacity(capacity),
-  size(size),
-  offset(0)
+  m_data(static_cast<uint8*>(data)),
+  m_capacity(capacity),
+  m_size(size),
+  m_offset(0)
 {
 }
 
 uint8 PacketData::read8()
 {
-  if (offset + 1 > size)
+  if (m_offset + 1 > m_size)
     panic("Packet data buffer underflow");
 
-  return data[offset++];
+  return m_data[m_offset++];
 }
 
 uint16 PacketData::read16()
 {
-  if (offset + 2 > size)
+  if (m_offset + 2 > m_size)
     panic("Packet data buffer underflow");
 
-  const uint16 value = ntohs(*(uint16*) (data + offset));
-  offset += 2;
+  const uint16 value = ntohs(*(uint16*) (m_data + m_offset));
+  m_offset += 2;
   return value;
 }
 
 uint32 PacketData::read32()
 {
-  if (offset + 4 > size)
+  if (m_offset + 4 > m_size)
     panic("Packet data buffer underflow");
 
-  const uint32 value = ntohl(*(uint32*) (data + offset));
-  offset += 4;
+  const uint32 value = ntohl(*(uint32*) (m_data + m_offset));
+  m_offset += 4;
   return value;
 }
 
@@ -109,28 +109,28 @@ float PacketData::read32f()
 template <>
 void PacketData::read(String& value)
 {
-  if (!std::memchr(data + offset, '\0', size - offset))
+  if (!std::memchr(m_data + m_offset, '\0', m_size - m_offset))
     panic("Missing null character in packet data");
 
-  value.assign((char*) (data + offset));
-  offset += value.length() + 1;
+  value.assign((char*) (m_data + m_offset));
+  m_offset += value.length() + 1;
 }
 
 void PacketData::write8(uint8 value)
 {
-  if (size + 1 > capacity)
+  if (m_size + 1 > m_capacity)
     panic("Packet data buffer overflow");
 
-  data[size++] = value;
+  m_data[m_size++] = value;
 }
 
 void PacketData::write16(uint16 value)
 {
-  if (size + 2 > capacity)
+  if (m_size + 2 > m_capacity)
     panic("Packet data buffer overflow");
 
-  *((uint16*) (data + size)) = htons(value);
-  size += 2;
+  *((uint16*) (m_data + m_size)) = htons(value);
+  m_size += 2;
 }
 
 void PacketData::write16f(half value)
@@ -140,11 +140,11 @@ void PacketData::write16f(half value)
 
 void PacketData::write32(uint32 value)
 {
-  if (size + 4 > capacity)
+  if (m_size + 4 > m_capacity)
     panic("Packet data buffer overflow");
 
-  *((uint32*) (data + size)) = htonl(value);
-  size += 4;
+  *((uint32*) (m_data + m_size)) = htonl(value);
+  m_size += 4;
 }
 
 void PacketData::write32f(float value)
@@ -155,25 +155,25 @@ void PacketData::write32f(float value)
 template <>
 void PacketData::write(const String& value)
 {
-  for (auto c = value.begin();  c != value.end();  c++)
-    write8(*c);
+  for (auto c : value)
+    write8(c);
 
   write8('\0');
 }
 
 bool PacketData::isEmpty()
 {
-  return offset == size;
+  return m_offset == m_size;
 }
 
-size_t PacketData::getSize() const
+size_t PacketData::size() const
 {
-  return size;
+  return m_size;
 }
 
-const void* PacketData::getData() const
+const void* PacketData::data() const
 {
-  return data;
+  return m_data;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -194,16 +194,16 @@ bool Peer::sendPacket(ChannelID channel,
     flags |= ENET_PACKET_FLAG_NO_ALLOCATE;
   }
 
-  ENetPacket* packet = enet_packet_create(data.getData(), data.getSize(), flags);
+  ENetPacket* packet = enet_packet_create(data.data(), data.size(), flags);
   if (!packet)
   {
     logError("Failed to create ENet packet");
     return false;
   }
 
-  if (enet_peer_send((ENetPeer*) peer, channel, packet) < 0)
+  if (enet_peer_send((ENetPeer*) m_peer, channel, packet) < 0)
   {
-    logError("Failed to send ENet packet to peer %s", name.c_str());
+    logError("Failed to send ENet packet to peer %s", m_name.c_str());
     return false;
   }
 
@@ -212,47 +212,27 @@ bool Peer::sendPacket(ChannelID channel,
 
 void Peer::disconnect(uint32 reason)
 {
-  disconnecting = true;
-  disconnectReason = reason;
-  enet_peer_disconnect((ENetPeer*) peer, reason);
+  m_disconnecting = true;
+  m_reason = reason;
+  enet_peer_disconnect((ENetPeer*) m_peer, reason);
 }
 
-bool Peer::isClient() const
+uint32 Peer::address() const
 {
-  return ID != SERVER;
+  return ((ENetPeer*) m_peer)->address.host;
 }
 
-bool Peer::isServer() const
+Time Peer::roundTripTime() const
 {
-  return ID == SERVER;
-}
-
-TargetID Peer::getTargetID() const
-{
-  return ID;
-}
-
-const String& Peer::getName() const
-{
-  return name;
-}
-
-uint32 Peer::getAddress() const
-{
-  return ((ENetPeer*) peer)->address.host;
-}
-
-Time Peer::getRoundTripTime() const
-{
-  return (Time) ((ENetPeer*) peer)->roundTripTime / 1000.0;
+  return (Time) ((ENetPeer*) m_peer)->roundTripTime / 1000.0;
 }
 
 Peer::Peer(void* peer, TargetID ID, const char* name):
-  peer(peer),
-  ID(ID),
-  name(name),
-  disconnecting(false),
-  disconnectReason(0)
+  m_peer(peer),
+  m_ID(ID),
+  m_name(name),
+  m_disconnecting(false),
+  m_reason(0)
 {
 }
 
@@ -266,16 +246,16 @@ Observer::~Observer()
 
 Host::~Host()
 {
-  for (auto p = peers.begin();  p != peers.end();  p++)
-    enet_peer_disconnect_now((ENetPeer*) p->peer, 0);
+  for (auto& p : m_peers)
+    enet_peer_disconnect_now((ENetPeer*) p.m_peer, 0);
 
-  peers.clear();
+  m_peers.clear();
 
-  if (object)
+  if (m_object)
   {
-    enet_host_flush((ENetHost*) object);
-    enet_host_destroy((ENetHost*) object);
-    object = NULL;
+    enet_host_flush((ENetHost*) m_object);
+    enet_host_destroy((ENetHost*) m_object);
+    m_object = NULL;
   }
 }
 
@@ -288,10 +268,10 @@ bool Host::sendPacketTo(TargetID targetID,
   {
     case LOCAL:
     {
-      if (observer)
+      if (m_observer)
       {
         PacketData copy = data;
-        observer->onPacketReceived(targetID, copy);
+        m_observer->onPacketReceived(targetID, copy);
       }
 
       return true;
@@ -328,7 +308,7 @@ bool Host::update(Time timeout)
   bool status = true;
   enet_uint32 ms = (enet_uint32) (timeout * 1000.0);
 
-  while (enet_host_service((ENetHost*) object, &event, ms) > 0)
+  while (enet_host_service((ENetHost*) m_object, &event, ms) > 0)
   {
     switch (event.type)
     {
@@ -344,13 +324,13 @@ bool Host::update(Time timeout)
         if (isClient())
           peerID = SERVER;
         else
-          peerID = clientIDs.allocateID();
+          peerID = m_clientIDs.allocateID();
 
-        peers.push_back(Peer(event.peer, peerID, name));
-        event.peer->data = &(peers.back());
+        m_peers.push_back(Peer(event.peer, peerID, name));
+        event.peer->data = &(m_peers.back());
 
-        if (observer)
-          observer->onPeerConnected(peers.back());
+        if (m_observer)
+          m_observer->onPeerConnected(m_peers.back());
 
         break;
       }
@@ -359,23 +339,23 @@ bool Host::update(Time timeout)
       {
         const Peer* peer = static_cast<Peer*>(event.peer->data);
 
-        for (auto p = peers.begin();  p != peers.end();  p++)
+        for (auto p = m_peers.begin();  p != m_peers.end();  p++)
         {
           if (&(*p) == peer)
           {
             uint32 reason;
 
-            if (peer->disconnecting)
-              reason = peer->disconnectReason;
+            if (peer->m_disconnecting)
+              reason = peer->m_reason;
             else
               reason = event.data;
 
-            if (observer)
-              observer->onPeerDisconnected(*p, reason);
+            if (m_observer)
+              m_observer->onPeerDisconnected(*p, reason);
 
-            clientIDs.releaseID(p->ID);
+            m_clientIDs.releaseID(p->targetID());
 
-            peers.erase(p);
+            m_peers.erase(p);
             break;
           }
         }
@@ -389,7 +369,7 @@ bool Host::update(Time timeout)
 
       case ENET_EVENT_TYPE_RECEIVE:
       {
-        if (observer)
+        if (m_observer)
         {
           if (Peer* peer = static_cast<Peer*>(event.peer->data))
           {
@@ -397,7 +377,7 @@ bool Host::update(Time timeout)
                             event.packet->dataLength,
                             event.packet->dataLength);
 
-            observer->onPacketReceived(peer->getTargetID(), data);
+            m_observer->onPacketReceived(peer->targetID(), data);
           }
         }
 
@@ -407,9 +387,9 @@ bool Host::update(Time timeout)
     }
   }
 
-  enet_host_flush((ENetHost*) object);
+  enet_host_flush((ENetHost*) m_object);
 
-  allocated = 0;
+  m_allocated = 0;
 
   return status;
 }
@@ -419,21 +399,21 @@ void* Host::allocatePacketData(size_t size)
   if (!size)
     return NULL;
 
-  if (size + allocated > sizeof(buffer))
+  if (size + m_allocated > sizeof(m_buffer))
     panic("Out of packet data memory");
 
-  uint8* data = &buffer[allocated];
-  allocated += size;
+  uint8* data = &m_buffer[m_allocated];
+  m_allocated += size;
 
   return data;
 }
 
 Peer* Host::findPeer(TargetID targetID)
 {
-  for (auto p = peers.begin();  p != peers.end();  p++)
+  for (auto& p : m_peers)
   {
-    if (p->getTargetID() == targetID)
-      return &(*p);
+    if (p.targetID() == targetID)
+      return &p;
   }
 
   return NULL;
@@ -441,37 +421,37 @@ Peer* Host::findPeer(TargetID targetID)
 
 bool Host::isClient() const
 {
-  return !server;
+  return !m_server;
 }
 
 bool Host::isServer() const
 {
-  return server;
+  return m_server;
 }
 
-uint Host::getTotalIncomingBytes() const
+uint Host::totalIncomingBytes() const
 {
-  return ((ENetHost*) object)->totalReceivedData;
+  return ((ENetHost*) m_object)->totalReceivedData;
 }
 
-uint Host::getTotalOutgoingBytes() const
+uint Host::totalOutgoingBytes() const
 {
-  return ((ENetHost*) object)->totalSentData;
+  return ((ENetHost*) m_object)->totalSentData;
 }
 
-uint Host::getIncomingBytesPerSecond() const
+uint Host::incomingBytesPerSecond() const
 {
-  return ((ENetHost*) object)->incomingBandwidth;
+  return ((ENetHost*) m_object)->incomingBandwidth;
 }
 
-uint Host::getOutgoingBytesPerSecond() const
+uint Host::outgoingBytesPerSecond() const
 {
-  return ((ENetHost*) object)->outgoingBandwidth;
+  return ((ENetHost*) m_object)->outgoingBandwidth;
 }
 
 void Host::setObserver(Observer* newObserver)
 {
-  observer = newObserver;
+  m_observer = newObserver;
 }
 
 Host* Host::create(uint16 port, size_t maxClientCount, uint8 maxChannelCount)
@@ -493,29 +473,29 @@ Host* Host::connect(const String& name, uint16 port, uint8 maxChannelCount)
 }
 
 Host::Host():
-  object(NULL),
-  observer(NULL),
-  clientIDs(FIRST_CLIENT),
-  allocated(0)
+  m_object(NULL),
+  m_observer(NULL),
+  m_clientIDs(FIRST_CLIENT),
+  m_allocated(0)
 {
 }
 
 bool Host::init(uint16 port, size_t maxClientCount, uint8 maxChannelCount)
 {
-  server = true;
+  m_server = true;
 
   ENetAddress address;
   address.host = ENET_HOST_ANY;
   address.port = port;
 
-  object = enet_host_create(&address, maxClientCount, maxChannelCount, 0, 0);
-  if (!object)
+  m_object = enet_host_create(&address, maxClientCount, maxChannelCount, 0, 0);
+  if (!m_object)
   {
     logError("Failed to create ENet server host");
     return false;
   }
 
-  if (enet_host_compress_with_range_coder((ENetHost*) object) < 0)
+  if (enet_host_compress_with_range_coder((ENetHost*) m_object) < 0)
   {
     logError("Failed to create ENet range compressor");
     return false;
@@ -526,16 +506,16 @@ bool Host::init(uint16 port, size_t maxClientCount, uint8 maxChannelCount)
 
 bool Host::init(const String& name, uint16 port, uint8 maxChannelCount)
 {
-  server = false;
+  m_server = false;
 
-  object = enet_host_create(NULL, 1, maxChannelCount, 0, 0);
-  if (!object)
+  m_object = enet_host_create(NULL, 1, maxChannelCount, 0, 0);
+  if (!m_object)
   {
     logError("Failed to create ENet client host");
     return false;
   }
 
-  if (enet_host_compress_with_range_coder((ENetHost*) object) < 0)
+  if (enet_host_compress_with_range_coder((ENetHost*) m_object) < 0)
   {
     logError("Failed to create ENet range compressor");
     return false;
@@ -546,14 +526,17 @@ bool Host::init(const String& name, uint16 port, uint8 maxChannelCount)
 
   if (enet_address_set_host(&address, name.c_str()) < 0)
   {
-    logError("Failed to resolve server name \'%s\'", name.c_str());
+    logError("Failed to resolve server name %s", name.c_str());
     return false;
   }
 
-  ENetPeer* peer = enet_host_connect((ENetHost*) object, &address, ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT, 0);
+  ENetPeer* peer = enet_host_connect((ENetHost*) m_object,
+                                     &address,
+                                     ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT,
+                                     0);
   if (!peer)
   {
-    logError("Failed to connect to server \'%s:%u\'", name.c_str(), port);
+    logError("Failed to connect to server %s:%u", name.c_str(), port);
     return false;
   }
 
@@ -580,14 +563,14 @@ bool Host::broadcast(ChannelID channel, PacketType type, const PacketData& data)
     flags |= ENET_PACKET_FLAG_NO_ALLOCATE;
   }
 
-  ENetPacket* packet = enet_packet_create(data.getData(), data.getSize(), flags);
+  ENetPacket* packet = enet_packet_create(data.data(), data.size(), flags);
   if (!packet)
   {
     logError("Failed to create ENet packet");
     return false;
   }
 
-  enet_host_broadcast((ENetHost*) object, channel, packet);
+  enet_host_broadcast((ENetHost*) m_object, channel, packet);
   return true;
 }
 

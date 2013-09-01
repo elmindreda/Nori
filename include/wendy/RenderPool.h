@@ -62,7 +62,7 @@ public:
                         const VertexFormat& format);
   /*! @return The OpenGL context used by this pool.
    */
-  GL::Context& getContext() const;
+  GL::Context& context() const { return m_context; }
   /*! Creates a vertex pool.
    *  @param[in] context The OpenGL context to be used.
    *  @param[in] granularity The desired allocation granularity.
@@ -80,9 +80,9 @@ private:
     uint available;
   };
   void onFrame();
-  GL::Context& context;
-  size_t granularity;
-  std::vector<Slot> slots;
+  GL::Context& m_context;
+  size_t m_granularity;
+  std::vector<Slot> m_slots;
 };
 
 ///////////////////////////////////////////////////////////////////////

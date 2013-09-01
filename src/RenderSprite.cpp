@@ -106,13 +106,13 @@ void realizeSpriteVertices(Vertex2ft3fv* vertices,
   else
     logError("Unknown sprite type %u", type);
 
-  vertices[0].texCoord = vec2(0.f, 0.f);
+  vertices[0].texcoord = vec2(0.f, 0.f);
   vertices[0].position = spritePosition - axisX - axisY;
-  vertices[1].texCoord = vec2(1.f, 0.f);
+  vertices[1].texcoord = vec2(1.f, 0.f);
   vertices[1].position = spritePosition + axisX - axisY;
-  vertices[2].texCoord = vec2(1.f, 1.f);
+  vertices[2].texcoord = vec2(1.f, 1.f);
   vertices[2].position = spritePosition + axisX + axisY;
-  vertices[3].texCoord = vec2(0.f, 1.f);
+  vertices[3].texcoord = vec2(0.f, 1.f);
   vertices[3].position = spritePosition - axisX + axisY;
 }
 
@@ -139,17 +139,17 @@ void Sprite2::render(VertexPool& pool) const
 
   range.copyFrom(vertices);
 
-  pool.getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  pool.context().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 }
 
 void Sprite2::realizeVertices(Vertex2ft2fv* vertices) const
 {
   const vec2 offset(size.x / 2.f, size.y / 2.f);
 
-  vertices[0].texCoord = vec2(texArea.position.x + texArea.size.x, texArea.position.y + texArea.size.y);
-  vertices[1].texCoord = vec2(texArea.position.x, texArea.position.y + texArea.size.y);
-  vertices[2].texCoord = vec2(texArea.position.x, texArea.position.y);
-  vertices[3].texCoord = vec2(texArea.position.x + texArea.size.x, texArea.position.y);
+  vertices[0].texcoord = vec2(texArea.position.x + texArea.size.x, texArea.position.y + texArea.size.y);
+  vertices[1].texcoord = vec2(texArea.position.x, texArea.position.y + texArea.size.y);
+  vertices[2].texcoord = vec2(texArea.position.x, texArea.position.y);
+  vertices[3].texcoord = vec2(texArea.position.x + texArea.size.x, texArea.position.y);
 
   vertices[0].position = vec2( offset.x,  offset.y);
   vertices[1].position = vec2(-offset.x,  offset.y);
@@ -184,10 +184,10 @@ void Sprite3::enqueue(Scene& scene,
   }
 
   GL::VertexRange range;
-  if (!scene.getVertexPool().allocateVertices(range, 4, Vertex2ft3fv::format))
+  if (!scene.vertexPool().allocateVertices(range, 4, Vertex2ft3fv::format))
     return;
 
-  const vec3 cameraPos = camera.getTransform().position;
+  const vec3 cameraPos = camera.transform().position;
   const vec3 spritePos = transform.position;
 
   Vertex2ft3fv vertices[4];
@@ -197,7 +197,7 @@ void Sprite3::enqueue(Scene& scene,
   scene.createOperations(Transform3::IDENTITY,
                          GL::PrimitiveRange(GL::TRIANGLE_FAN, range),
                          *material,
-                         camera.getNormalizedDepth(spritePos));
+                         camera.normalizedDepth(spritePos));
 }
 
 ///////////////////////////////////////////////////////////////////////

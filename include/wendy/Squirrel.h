@@ -56,12 +56,12 @@ public:
   bool execute(const char* name);
   bool execute(const char* name, const char* text);
   operator HSQUIRRELVM ();
-  void* getForeignPointer() const;
+  void* foreignPointer() const;
   void setForeignPointer(void* newValue);
-  Table getRootTable();
-  Table getConstTable();
-  Table getRegistryTable();
-  ResourceCache& getCache() const;
+  Table rootTable();
+  Table constTable();
+  Table registryTable();
+  ResourceCache& cache() const;
 private:
   WENDY_CHECKFORMAT(2, static void onLogMessage(HSQUIRRELVM vm, const SQChar* format, ...));
   WENDY_CHECKFORMAT(2, static void onLogError(HSQUIRRELVM vm, const SQChar* format, ...));
@@ -71,8 +71,8 @@ private:
                               SQInteger line,
                               SQInteger column);
   static SQInteger onRuntimeError(HSQUIRRELVM vm);
-  ResourceCache& cache;
-  HSQUIRRELVM vm;
+  ResourceCache& m_cache;
+  HSQUIRRELVM m_vm;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -110,9 +110,9 @@ public:
   bool isClass() const;
   bool isInstance() const;
   String asString() const;
-  SQObjectType getType() const;
-  HSQOBJECT getHandle();
-  HSQUIRRELVM getVM() const;
+  SQObjectType type() const;
+  HSQOBJECT handle();
+  HSQUIRRELVM VM() const;
 protected:
   Object(HSQUIRRELVM vm);
   template <typename T>
@@ -141,17 +141,17 @@ protected:
   T get(const char* name);
   template <typename T>
   bool set(const char* name, T value);
-  SQInteger getSize() const;
-  HSQUIRRELVM vm;
-  HSQOBJECT handle;
+  SQInteger size() const;
+  HSQUIRRELVM m_vm;
+  HSQOBJECT m_handle;
 };
 
 template <typename T>
 inline T Object::as() const
 {
-  sq_pushobject(vm, handle);
-  T value = Value<T>::get(vm, -1);
-  sq_poptop(vm);
+  sq_pushobject(m_vm, m_handle);
+  T value = Value<T>::get(m_vm, -1);
+  sq_poptop(m_vm);
   return value;
 }
 
@@ -161,13 +161,13 @@ inline bool Object::addSlot(const char* name, T value)
   if (isNull())
     return false;
 
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-  Value<T>::push(vm, value);
+  sq_pushobject(m_vm, m_handle);
+  sq_pushstring(m_vm, name, -1);
+  Value<T>::push(m_vm, value);
 
-  const SQRESULT result = sq_newslot(vm, -3, false);
+  const SQRESULT result = sq_newslot(m_vm, -3, false);
 
-  sq_poptop(vm);
+  sq_poptop(m_vm);
   return SQ_SUCCEEDED(result);
 }
 
@@ -177,146 +177,146 @@ inline bool Object::addStaticSlot(const char* name, T value)
   if (isNull())
     return false;
 
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-  Value<T>::push(vm, value);
+  sq_pushobject(m_vm, m_handle);
+  sq_pushstring(m_vm, name, -1);
+  Value<T>::push(m_vm, value);
 
-  const SQRESULT result = sq_newslot(vm, -3, true);
+  const SQRESULT result = sq_newslot(m_vm, -3, true);
 
-  sq_poptop(vm);
+  sq_poptop(m_vm);
   return SQ_SUCCEEDED(result);
 }
 
 template <typename A1>
 inline bool Object::call(const char* name, A1 a1)
 {
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-  if (SQ_FAILED(sq_get(vm, -2)))
+  sq_pushobject(m_vm, m_handle);
+  sq_pushstring(m_vm, name, -1);
+  if (SQ_FAILED(sq_get(m_vm, -2)))
   {
-    sq_poptop(vm);
+    sq_poptop(m_vm);
     return false;
   }
 
-  sq_pushobject(vm, handle);
-  Value<A1>::push(vm, a1);
+  sq_pushobject(m_vm, m_handle);
+  Value<A1>::push(m_vm, a1);
 
-  const SQRESULT result = sq_call(vm, 2, false, true);
+  const SQRESULT result = sq_call(m_vm, 2, false, true);
 
-  sq_pop(vm, 2);
+  sq_pop(m_vm, 2);
   return SQ_SUCCEEDED(result);
 }
 
 template <typename A1, typename A2>
 inline bool Object::call(const char* name, A1 a1, A2 a2)
 {
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-  if (SQ_FAILED(sq_get(vm, -2)))
+  sq_pushobject(m_vm, m_handle);
+  sq_pushstring(m_vm, name, -1);
+  if (SQ_FAILED(sq_get(m_vm, -2)))
   {
-    sq_poptop(vm);
+    sq_poptop(m_vm);
     return false;
   }
 
-  sq_pushobject(vm, handle);
-  Value<A1>::push(vm, a1);
-  Value<A2>::push(vm, a2);
+  sq_pushobject(m_vm, m_handle);
+  Value<A1>::push(m_vm, a1);
+  Value<A2>::push(m_vm, a2);
 
-  const SQRESULT result = sq_call(vm, 3, false, true);
+  const SQRESULT result = sq_call(m_vm, 3, false, true);
 
-  sq_pop(vm, 2);
+  sq_pop(m_vm, 2);
   return SQ_SUCCEEDED(result);
 }
 
 template <typename R>
 inline R Object::eval(const char* name)
 {
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-  if (SQ_FAILED(sq_get(vm, -2)))
+  sq_pushobject(m_vm, m_handle);
+  sq_pushstring(m_vm, name, -1);
+  if (SQ_FAILED(sq_get(m_vm, -2)))
   {
-    sq_poptop(vm);
+    sq_poptop(m_vm);
     throw Exception("Failed to retrieve closure");
   }
 
-  sq_pushobject(vm, handle);
+  sq_pushobject(m_vm, m_handle);
 
-  if (SQ_FAILED(sq_call(vm, 1, true, true)))
+  if (SQ_FAILED(sq_call(m_vm, 1, true, true)))
   {
-    sq_pop(vm, 2);
+    sq_pop(m_vm, 2);
     throw Exception("Failed to call closure");
   }
 
-  const R result = Value<R>::get(vm, -1);
-  sq_pop(vm, 3);
+  const R result = Value<R>::get(m_vm, -1);
+  sq_pop(m_vm, 3);
   return result;
 }
 
 template <typename R, typename A1>
 inline R Object::eval(const char* name, A1 a1)
 {
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-  if (SQ_FAILED(sq_get(vm, -2)))
+  sq_pushobject(m_vm, m_handle);
+  sq_pushstring(m_vm, name, -1);
+  if (SQ_FAILED(sq_get(m_vm, -2)))
   {
-    sq_poptop(vm);
+    sq_poptop(m_vm);
     throw Exception("Failed to retrieve closure");
   }
 
-  sq_pushobject(vm, handle);
-  Value<A1>::push(vm, a1);
+  sq_pushobject(m_vm, m_handle);
+  Value<A1>::push(m_vm, a1);
 
-  if (SQ_FAILED(sq_call(vm, 2, true, true)))
+  if (SQ_FAILED(sq_call(m_vm, 2, true, true)))
   {
-    sq_pop(vm, 2);
+    sq_pop(m_vm, 2);
     throw Exception("Failed to call closure");
   }
 
-  const R result = Value<R>::get(vm, -1);
-  sq_pop(vm, 3);
+  const R result = Value<R>::get(m_vm, -1);
+  sq_pop(m_vm, 3);
   return result;
 }
 
 template <typename R, typename A1, typename A2>
 inline R Object::eval(const char* name, A1 a1, A2 a2)
 {
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-  if (SQ_FAILED(sq_get(vm, -2)))
+  sq_pushobject(m_vm, m_handle);
+  sq_pushstring(m_vm, name, -1);
+  if (SQ_FAILED(sq_get(m_vm, -2)))
   {
-    sq_poptop(vm);
+    sq_poptop(m_vm);
     throw Exception("Failed to retrieve closure");
   }
 
-  sq_pushobject(vm, handle);
-  Value<A1>::push(vm, a1);
-  Value<A2>::push(vm, a2);
+  sq_pushobject(m_vm, m_handle);
+  Value<A1>::push(m_vm, a1);
+  Value<A2>::push(m_vm, a2);
 
-  if (SQ_FAILED(sq_call(vm, 3, true, true)))
+  if (SQ_FAILED(sq_call(m_vm, 3, true, true)))
   {
-    sq_pop(vm, 2);
+    sq_pop(m_vm, 2);
     throw Exception("Failed to call closure");
   }
 
-  const R result = Value<R>::get(vm, -1);
-  sq_pop(vm, 3);
+  const R result = Value<R>::get(m_vm, -1);
+  sq_pop(m_vm, 3);
   return result;
 }
 
 template <typename T>
 inline T Object::get(const char* name)
 {
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
+  sq_pushobject(m_vm, m_handle);
+  sq_pushstring(m_vm, name, -1);
 
-  if (SQ_FAILED(sq_get(vm, -2)))
+  if (SQ_FAILED(sq_get(m_vm, -2)))
   {
-    sq_poptop(vm);
+    sq_poptop(m_vm);
     throw Exception("The requested slot does not exist");
   }
 
-  T result = Value<T>::get(vm, -1);
-  sq_pop(vm, 2);
+  T result = Value<T>::get(m_vm, -1);
+  sq_pop(m_vm, 2);
 
   return result;
 }
@@ -327,13 +327,13 @@ inline bool Object::set(const char* name, T value)
   if (isNull())
     return false;
 
-  sq_pushobject(vm, handle);
-  sq_pushstring(vm, name, -1);
-  Value<T>::push(vm, value);
+  sq_pushobject(m_vm, m_handle);
+  sq_pushstring(m_vm, name, -1);
+  Value<T>::push(m_vm, value);
 
-  const SQRESULT result = sq_set(vm, -3);
+  const SQRESULT result = sq_set(m_vm, -3);
 
-  sq_poptop(vm);
+  sq_poptop(m_vm);
   return SQ_SUCCEEDED(result);
 }
 
@@ -363,7 +363,7 @@ public:
   T get(SQInteger index) const;
   template <typename T>
   bool set(SQInteger index, T value);
-  using Object::getSize;
+  using Object::size;
 };
 
 template <typename T>
@@ -372,12 +372,12 @@ inline bool Array::insert(SQInteger index, T value)
   if (isNull())
     return false;
 
-  sq_pushobject(vm, handle);
-  Value<T>::push(vm, value);
+  sq_pushobject(m_vm, m_handle);
+  Value<T>::push(m_vm, value);
 
-  const SQRESULT result = sq_arrayinsert(vm, -2, index);
+  const SQRESULT result = sq_arrayinsert(m_vm, -2, index);
 
-  sq_poptop(vm);
+  sq_poptop(m_vm);
   return SQ_SUCCEEDED(result);
 }
 
@@ -387,12 +387,12 @@ inline bool Array::push(T value)
   if (isNull())
     return false;
 
-  sq_pushobject(vm, handle);
-  Value<T>::push(vm, value);
+  sq_pushobject(m_vm, m_handle);
+  Value<T>::push(m_vm, value);
 
-  const SQRESULT result = sq_arrayappend(vm, -2);
+  const SQRESULT result = sq_arrayappend(m_vm, -2);
 
-  sq_poptop(vm);
+  sq_poptop(m_vm);
   return SQ_SUCCEEDED(result);
 }
 
@@ -402,17 +402,17 @@ inline T Array::get(SQInteger index) const
   if (isNull())
     panic("Cannot retrieve slot from null");
 
-  sq_pushobject(vm, handle);
-  sq_pushinteger(vm, index);
+  sq_pushobject(m_vm, m_handle);
+  sq_pushinteger(m_vm, index);
 
-  if (SQ_FAILED(sq_get(vm, -2)))
+  if (SQ_FAILED(sq_get(m_vm, -2)))
   {
-    sq_poptop(vm);
+    sq_poptop(m_vm);
     throw Exception("No array element at index");
   }
 
-  T result = Value<T>::get(vm, -1);
-  sq_pop(vm, 2);
+  T result = Value<T>::get(m_vm, -1);
+  sq_pop(m_vm, 2);
   return result;
 }
 
@@ -422,13 +422,13 @@ inline bool Array::set(SQInteger index, T value)
   if (isNull())
     return false;
 
-  sq_pushobject(vm, handle);
-  sq_pushinteger(vm, index);
-  Value<T>::push(vm, value);
+  sq_pushobject(m_vm, m_handle);
+  sq_pushinteger(m_vm, index);
+  Value<T>::push(m_vm, value);
 
-  const SQRESULT result = sq_set(vm, -3);
+  const SQRESULT result = sq_set(m_vm, -3);
 
-  sq_poptop(vm);
+  sq_poptop(m_vm);
   return SQ_SUCCEEDED(result);
 }
 
@@ -451,7 +451,7 @@ public:
   using Object::eval;
   using Object::get;
   using Object::set;
-  using Object::getSize;
+  using Object::size;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -832,9 +832,9 @@ public:
   using Object::eval;
   using Object::get;
   using Object::set;
-  using Object::getSize;
-  Table getAttributes();
-  Table getMemberAttributes(const char* name);
+  using Object::size;
+  Table attributes();
+  Table memberAttributes(const char* name);
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -852,7 +852,7 @@ public:
   using Object::eval;
   using Object::get;
   using Object::set;
-  Class getClass() const;
+  Class class_() const;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -882,21 +882,21 @@ private:
 };
 
 template <typename T>
-inline SharedClass<T>::SharedClass(HSQUIRRELVM initVM)
+inline SharedClass<T>::SharedClass(HSQUIRRELVM vm)
 {
-  vm = initVM;
+  m_vm = vm;
 
-  sq_newclass(vm, false);
+  sq_newclass(m_vm, false);
 
-  sq_resetobject(&handle);
-  sq_getstackobj(vm, -1, &handle);
-  sq_addref(vm, &handle);
+  sq_resetobject(&m_handle);
+  sq_getstackobj(m_vm, -1, &m_handle);
+  sq_addref(m_vm, &m_handle);
 
-  sq_pushstring(vm, "constructor", -1);
-  sq_newclosure(vm, &constructor, 0);
-  sq_newslot(vm, -3, false);
+  sq_pushstring(m_vm, "constructor", -1);
+  sq_newclosure(m_vm, &constructor, 0);
+  sq_newslot(m_vm, -3, false);
 
-  sq_poptop(vm);
+  sq_poptop(m_vm);
 }
 
 template <typename T>
@@ -943,9 +943,9 @@ public:
   SharedInstance(HSQUIRRELVM vm, SQInteger index);
   using Object::get;
   using Object::set;
-  T* getNative();
+  T* native();
   void setNative(T* newNative);
-  SharedClass<T> getClass() const;
+  SharedClass<T> class_() const;
 };
 
 template <typename T>
@@ -956,30 +956,30 @@ inline SharedInstance<T>::SharedInstance(HSQUIRRELVM vm, SQInteger index):
 }
 
 template <typename T>
-inline T* SharedInstance<T>::getNative()
+inline T* SharedInstance<T>::native()
 {
-  sq_pushobject(vm, handle);
+  sq_pushobject(m_vm, m_handle);
   T* result = NULL;
-  sq_getinstanceup(vm, -1, (SQUserPointer*) &result, NULL);
-  sq_poptop(vm);
+  sq_getinstanceup(m_vm, -1, (SQUserPointer*) &result, NULL);
+  sq_poptop(m_vm);
   return result;
 }
 
 template <typename T>
 inline void SharedInstance<T>::setNative(T* newNative)
 {
-  sq_pushobject(vm, handle);
-  sq_setinstanceup(vm, 1, newNative);
-  sq_poptop(vm);
+  sq_pushobject(m_vm, m_handle);
+  sq_setinstanceup(m_vm, 1, newNative);
+  sq_poptop(m_vm);
 }
 
 template <typename T>
-inline SharedClass<T> SharedInstance<T>::getClass() const
+inline SharedClass<T> SharedInstance<T>::class_() const
 {
-  sq_pushobject(vm, handle);
-  sq_getclass(vm, -1);
-  SharedClass<T> result(vm, -1);
-  sq_pop(vm, 2);
+  sq_pushobject(m_vm, m_handle);
+  sq_getclass(m_vm, -1);
+  SharedClass<T> result(m_vm, -1);
+  sq_pop(m_vm, 2);
   return result;
 }
 
@@ -1093,7 +1093,7 @@ public:
   }
   static void push(HSQUIRRELVM vm, Object value)
   {
-    sq_pushobject(vm, value.getHandle());
+    sq_pushobject(vm, value.handle());
   }
 };
 
@@ -1110,7 +1110,7 @@ public:
   }
   static void push(HSQUIRRELVM vm, Array value)
   {
-    sq_pushobject(vm, value.getHandle());
+    sq_pushobject(vm, value.handle());
   }
 };
 
@@ -1127,7 +1127,7 @@ public:
   }
   static void push(HSQUIRRELVM vm, Table value)
   {
-    sq_pushobject(vm, value.getHandle());
+    sq_pushobject(vm, value.handle());
   }
 };
 
@@ -1144,7 +1144,7 @@ public:
   }
   static void push(HSQUIRRELVM vm, Class value)
   {
-    sq_pushobject(vm, value.getHandle());
+    sq_pushobject(vm, value.handle());
   }
 };
 
@@ -1161,7 +1161,7 @@ public:
   }
   static void push(HSQUIRRELVM vm, Instance value)
   {
-    sq_pushobject(vm, value.getHandle());
+    sq_pushobject(vm, value.handle());
   }
 };
 
@@ -1178,7 +1178,7 @@ public:
   }
   static void push(HSQUIRRELVM vm, SharedClass<T> value)
   {
-    sq_pushobject(vm, value.getHandle());
+    sq_pushobject(vm, value.handle());
   }
 };
 

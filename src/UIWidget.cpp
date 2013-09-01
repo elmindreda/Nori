@@ -114,10 +114,10 @@ Widget* Widget::findByPoint(const vec2& point)
 
   const vec2 localPoint = point - area.position;
 
-  for (auto c = children.begin();  c != children.end();  c++)
+  for (auto c : children)
   {
-    if ((*c)->isVisible())
-      if (Widget* result = (*c)->findByPoint(localPoint))
+    if (c->isVisible())
+      if (Widget* result = c->findByPoint(localPoint))
         return result;
   }
 
@@ -431,10 +431,10 @@ SignalProxy2<void, Widget&, vec2> Widget::getDragEndedSignal()
 
 void Widget::draw() const
 {
-  for (auto c = children.begin();  c != children.end();  c++)
+  for (auto c : children)
   {
-    if ((*c)->isVisible())
-      (*c)->draw();
+    if (c->isVisible())
+      c->draw();
   }
 }
 

@@ -80,48 +80,41 @@ Operation::Operation():
 ///////////////////////////////////////////////////////////////////////
 
 Queue::Queue():
-  sorted(true)
+  m_sorted(true)
 {
 }
 
 void Queue::addOperation(const Operation& operation, SortKey key)
 {
-  key.index = (uint16) operations.size();
-  keys.push_back(key);
-
-  operations.push_back(operation);
-
-  sorted = false;
+  key.index = (uint16) m_operations.size();
+  m_keys.push_back(key);
+  m_operations.push_back(operation);
+  m_sorted = false;
 }
 
 void Queue::removeOperations()
 {
-  operations.clear();
-  keys.clear();
-  sorted = true;
+  m_operations.clear();
+  m_keys.clear();
+  m_sorted = true;
 }
 
-const OperationList& Queue::getOperations() const
+const SortKeyList& Queue::keys() const
 {
-  return operations;
-}
-
-const SortKeyList& Queue::getSortKeys() const
-{
-  if (!sorted)
+  if (!m_sorted)
   {
-    std::sort(keys.begin(), keys.end());
-    sorted = true;
+    std::sort(m_keys.begin(), m_keys.end());
+    m_sorted = true;
   }
 
-  return keys;
+  return m_keys;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-Scene::Scene(VertexPool& initPool, Phase initPhase):
-  pool(&initPool),
-  phase(initPhase)
+Scene::Scene(VertexPool& pool, Phase phase):
+  m_pool(&pool),
+  m_phase(phase)
 {
 }
 
@@ -130,12 +123,12 @@ void Scene::addOperation(const Operation& operation, float depth, uint8 layer)
   if (operation.state->isBlending())
   {
     SortKey key = SortKey::makeBlendedKey(layer, depth);
-    blendedQueue.addOperation(operation, key);
+    m_blendedQueue.addOperation(operation, key);
   }
   else
   {
-    SortKey key = SortKey::makeOpaqueKey(layer, operation.state->getID(), depth);
-    opaqueQueue.addOperation(operation, key);
+    SortKey key = SortKey::makeOpaqueKey(layer, operation.state->ID(), depth);
+    m_opaqueQueue.addOperation(operation, key);
   }
 }
 
@@ -148,83 +141,42 @@ void Scene::createOperations(const mat4& transform,
   operation.range = range;
   operation.transform = transform;
 
-  const PassList& passes = material.getTechnique(phase).passes;
   uint8 layer = 0;
 
-  for (auto p = passes.begin();  p != passes.end();  p++)
+  for (auto& p : material.technique(m_phase).passes)
   {
-    operation.state = &(*p);
+    operation.state = &p;
     addOperation(operation, depth, layer++);
   }
 }
 
 void Scene::removeOperations()
 {
-  opaqueQueue.removeOperations();
-  blendedQueue.removeOperations();
+  m_opaqueQueue.removeOperations();
+  m_blendedQueue.removeOperations();
 }
 
 void Scene::attachLight(Light& light)
 {
-  if (std::find(lights.begin(), lights.end(), &light) != lights.end())
+  if (std::find(m_lights.begin(), m_lights.end(), &light) != m_lights.end())
     return;
 
-  lights.push_back(&light);
+  m_lights.push_back(&light);
 }
 
 void Scene::detachLights()
 {
-  lights.clear();
-}
-
-const LightList& Scene::getLights() const
-{
-  return lights;
-}
-
-const vec3& Scene::getAmbientIntensity() const
-{
-  return ambient;
+  m_lights.clear();
 }
 
 void Scene::setAmbientIntensity(const vec3& newIntensity)
 {
-  ambient = newIntensity;
-}
-
-VertexPool& Scene::getVertexPool() const
-{
-  return *pool;
-}
-
-Queue& Scene::getOpaqueQueue()
-{
-  return opaqueQueue;
-}
-
-const Queue& Scene::getOpaqueQueue() const
-{
-  return opaqueQueue;
-}
-
-Queue& Scene::getBlendedQueue()
-{
-  return blendedQueue;
-}
-
-const Queue& Scene::getBlendedQueue() const
-{
-  return blendedQueue;
-}
-
-Phase Scene::getPhase() const
-{
-  return phase;
+  m_ambient = newIntensity;
 }
 
 void Scene::setPhase(Phase newPhase)
 {
-  phase = newPhase;
+  m_phase = newPhase;
 }
 
 ///////////////////////////////////////////////////////////////////////

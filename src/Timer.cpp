@@ -38,10 +38,10 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 Timer::Timer():
-  started(false),
-  paused(false),
-  baseTime(0.0),
-  prevTime(0.0)
+  m_started(false),
+  m_paused(false),
+  m_baseTime(0.0),
+  m_prevTime(0.0)
 {
 }
 
@@ -49,96 +49,81 @@ void Timer::start()
 {
   stop();
 
-  baseTime = getCurrentTime();
-  started = true;
+  m_baseTime = currentTime();
+  m_started = true;
 }
 
 void Timer::stop()
 {
-  started = false;
-  paused = false;
-  baseTime = 0.0;
-  prevTime = 0.0;
+  m_started = false;
+  m_paused = false;
+  m_baseTime = 0.0;
+  m_prevTime = 0.0;
 }
 
 void Timer::pause()
 {
-  if (!started)
+  if (!m_started)
     return;
 
   // Store expired seconds until resume.
-  baseTime = getCurrentTime() - baseTime;
-  paused = true;
+  m_baseTime = currentTime() - m_baseTime;
+  m_paused = true;
 }
 
 void Timer::resume()
 {
-  if (!started)
+  if (!m_started)
     return;
 
   // Restore base time after pause.
-  baseTime = getCurrentTime() - baseTime;
-  paused = false;
+  m_baseTime = currentTime() - m_baseTime;
+  m_paused = false;
 }
 
-bool Timer::isStarted() const
+Time Timer::time() const
 {
-  return started;
-}
-
-bool Timer::isPaused() const
-{
-  return paused;
-}
-
-Time Timer::getTime() const
-{
-  if (started)
+  if (m_started)
   {
-    if (paused)
-      return baseTime;
+    if (m_paused)
+      return m_baseTime;
     else
-      return getCurrentTime() - baseTime;
+      return currentTime() - m_baseTime;
   }
   else
     return 0.0;
 }
 
-void Timer::setTime(Time time)
+void Timer::setTime(Time newTime)
 {
-  if (started)
+  if (m_started)
   {
-    if (time < 0.0)
-      time = 0.0;
+    if (newTime < 0.0)
+      newTime = 0.0;
 
-    if (paused)
-      baseTime = time;
+    if (m_paused)
+      m_baseTime = newTime;
     else
-      baseTime += getTime() - time;
+      m_baseTime += time() - newTime;
   }
 }
 
-Time Timer::getDeltaTime()
+Time Timer::deltaTime()
 {
-  if (started)
+  if (m_started)
   {
     // Since this uses base-relative time, it doesn't need special
     // cases for the paused state (I hope)
 
-    Time deltaTime = getTime() - prevTime;
-    prevTime += deltaTime;
+    const Time deltaTime = time() - m_prevTime;
+    m_prevTime += deltaTime;
     return deltaTime;
   }
   else
     return 0.0;
 }
 
-Time Timer::getDeltaQueryTime() const
-{
-  return prevTime;
-}
-
-Time Timer::getCurrentTime()
+Time Timer::currentTime()
 {
   if (!glfwInit())
   {

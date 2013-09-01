@@ -46,27 +46,22 @@ namespace wendy
 
 Context::~Context()
 {
-  if (context)
+  if (m_handle)
   {
     alcMakeContextCurrent(NULL);
-    alcDestroyContext((ALCcontext*) context);
+    alcDestroyContext((ALCcontext*) m_handle);
   }
 
-  if (device)
-    alcCloseDevice((ALCdevice*) device);
-}
-
-const vec3& Context::getListenerPosition() const
-{
-  return listenerPosition;
+  if (m_device)
+    alcCloseDevice((ALCdevice*) m_device);
 }
 
 void Context::setListenerPosition(const vec3& newPosition)
 {
-  if (listenerPosition != newPosition)
+  if (m_listenerPosition != newPosition)
   {
-    listenerPosition = newPosition;
-    alListenerfv(AL_POSITION, value_ptr(listenerPosition));
+    m_listenerPosition = newPosition;
+    alListenerfv(AL_POSITION, value_ptr(m_listenerPosition));
 
 #if WENDY_DEBUG
     checkAL("Failed to set listener position");
@@ -74,17 +69,12 @@ void Context::setListenerPosition(const vec3& newPosition)
   }
 }
 
-const vec3& Context::getListenerVelocity() const
-{
-  return listenerVelocity;
-}
-
 void Context::setListenerVelocity(const vec3& newVelocity)
 {
-  if (listenerVelocity != newVelocity)
+  if (m_listenerVelocity != newVelocity)
   {
-    listenerVelocity = newVelocity;
-    alListenerfv(AL_VELOCITY, value_ptr(listenerVelocity));
+    m_listenerVelocity = newVelocity;
+    alListenerfv(AL_VELOCITY, value_ptr(m_listenerVelocity));
 
 #if WENDY_DEBUG
     checkAL("Failed to set listener velocity");
@@ -92,16 +82,11 @@ void Context::setListenerVelocity(const vec3& newVelocity)
   }
 }
 
-const quat& Context::getListenerRotation() const
-{
-  return listenerRotation;
-}
-
 void Context::setListenerRotation(const quat& newRotation)
 {
-  if (listenerRotation != newRotation)
+  if (m_listenerRotation != newRotation)
   {
-    listenerRotation = newRotation;
+    m_listenerRotation = newRotation;
 
     const vec3 at = newRotation * vec3(0.f, 0.f, -1.f);
     const vec3 up = newRotation * vec3(0.f, 1.f, 0.f);
@@ -116,27 +101,17 @@ void Context::setListenerRotation(const quat& newRotation)
   }
 }
 
-float Context::getListenerGain() const
-{
-  return listenerGain;
-}
-
 void Context::setListenerGain(float newGain)
 {
-  if (listenerGain != newGain)
+  if (m_listenerGain != newGain)
   {
-    listenerGain = newGain;
-    alListenerfv(AL_GAIN, &listenerGain);
+    m_listenerGain = newGain;
+    alListenerfv(AL_GAIN, &m_listenerGain);
 
 #if WENDY_DEBUG
     checkAL("Failed to set listener gain");
 #endif
   }
-}
-
-ResourceCache& Context::getCache() const
-{
-  return cache;
 }
 
 bool Context::createSingleton(ResourceCache& cache)
@@ -149,37 +124,37 @@ bool Context::createSingleton(ResourceCache& cache)
   return true;
 }
 
-Context::Context(ResourceCache& initCache):
-  cache(initCache),
-  device(NULL),
-  context(NULL),
-  listenerGain(1.f)
+Context::Context(ResourceCache& cache):
+  m_cache(cache),
+  m_device(NULL),
+  m_handle(NULL),
+  m_listenerGain(1.f)
 {
 }
 
 Context::Context(const Context& source):
-  cache(source.cache)
+  m_cache(source.m_cache)
 {
   panic("OpenAL contexts may not be copied");
 }
 
 bool Context::init()
 {
-  device = alcOpenDevice(NULL);
-  if (!device)
+  m_device = alcOpenDevice(NULL);
+  if (!m_device)
   {
     checkALC("Failed to open OpenAL device");
     return false;
   }
 
-  context = alcCreateContext((ALCdevice*) device, NULL);
-  if (!context)
+  m_handle = alcCreateContext((ALCdevice*) m_device, NULL);
+  if (!m_handle)
   {
     checkALC("Failed to create OpenAL context");
     return false;
   }
 
-  if (!alcMakeContextCurrent((ALCcontext*) context))
+  if (!alcMakeContextCurrent((ALCcontext*) m_handle))
   {
     checkALC("Failed to make OpenAL context current");
     return false;
@@ -193,7 +168,7 @@ bool Context::init()
       (const char*) alGetString(AL_VENDOR));
 
   log("OpenAL context uses device %s",
-      (const char*) alcGetString((ALCdevice*) device, ALC_DEVICE_SPECIFIER));
+      (const char*) alcGetString((ALCdevice*) m_device, ALC_DEVICE_SPECIFIER));
 
   return true;
 }

@@ -63,34 +63,28 @@ void Renderer::render(const render::Scene& scene, const Camera& camera)
 {
   ProfileNodeCall call("forward::Renderer::render");
 
-  GL::Context& context = getContext();
-  context.setCurrentSharedProgramState(state);
+  context().setCurrentSharedProgramState(m_state);
 
-  const Recti& viewportArea = context.getViewportArea();
-  state->setViewportSize(float(viewportArea.size.x),
-                         float(viewportArea.size.y));
+  const Recti& viewportArea = context().viewportArea();
+  m_state->setViewportSize(float(viewportArea.size.x),
+                           float(viewportArea.size.y));
 
-  state->setProjectionMatrix(camera.getProjectionMatrix());
-  state->setViewMatrix(camera.getViewTransform());
+  m_state->setProjectionMatrix(camera.projectionMatrix());
+  m_state->setViewMatrix(camera.viewTransform());
 
   if (camera.isPerspective())
   {
-    state->setCameraProperties(camera.getTransform().position,
-                               camera.getFOV(),
-                               camera.getAspectRatio(),
-                               camera.getNearZ(),
-                               camera.getFarZ());
+    m_state->setCameraProperties(camera.transform().position,
+                                 camera.FOV(),
+                                 camera.aspectRatio(),
+                                 camera.nearZ(),
+                                 camera.farZ());
   }
 
-  renderOperations(scene.getOpaqueQueue());
-  renderOperations(scene.getBlendedQueue());
+  renderOperations(scene.opaqueQueue());
+  renderOperations(scene.blendedQueue());
 
-  context.setCurrentSharedProgramState(NULL);
-}
-
-SharedProgramState& Renderer::getSharedProgramState()
-{
-  return *state;
+  context().setCurrentSharedProgramState(NULL);
 }
 
 Ref<Renderer> Renderer::create(const Config& config)
@@ -115,33 +109,28 @@ Renderer::Renderer(render::VertexPool& pool):
 
 bool Renderer::init(const Config& config)
 {
-  GL::Context& context = getContext();
-
   if (config.state)
-    state = config.state;
+    m_state = config.state;
   else
-    state = new SharedProgramState();
+    m_state = new SharedProgramState();
 
-  state->reserveSupported(context);
-
+  m_state->reserveSupported(context());
   return true;
 }
 
 void Renderer::renderOperations(const render::Queue& queue)
 {
-  GL::Context& context = getContext();
-  const render::SortKeyList& keys = queue.getSortKeys();
-  const render::OperationList& operations = queue.getOperations();
+  const render::OperationList& operations = queue.operations();
 
-  for (auto k = keys.begin();  k != keys.end();  k++)
+  for (auto k : queue.keys())
   {
-    const render::SortKey key(*k);
+    const render::SortKey key(k);
     const render::Operation& op = operations[key.index];
 
-    state->setModelMatrix(op.transform);
+    m_state->setModelMatrix(op.transform);
     op.state->apply();
 
-    context.render(op.range);
+    context().render(op.range);
   }
 }
 

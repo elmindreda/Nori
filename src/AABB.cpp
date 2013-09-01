@@ -34,10 +34,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-AABB::AABB()
-{
-}
-
 AABB::AABB(const vec3& initCenter, const vec3& initSize):
   center(initCenter),
   size(initSize)
@@ -52,7 +48,7 @@ AABB::AABB(float width, float height, float depth):
 bool AABB::contains(const vec3& point) const
 {
   float minX, minY, minZ, maxX, maxY, maxZ;
-  getBounds(minX, minY, minZ, maxX, maxY, maxZ);
+  bounds(minX, minY, minZ, maxX, maxY, maxZ);
 
   if (point.x < minX || point.y < minY || point.z < minZ ||
       point.x > maxX || point.y > maxY || point.z > maxZ)
@@ -66,10 +62,10 @@ bool AABB::contains(const vec3& point) const
 bool AABB::contains(const AABB& other) const
 {
   float minX, minY, minZ, maxX, maxY, maxZ;
-  getBounds(minX, minY, minZ, maxX, maxY, maxZ);
+  bounds(minX, minY, minZ, maxX, maxY, maxZ);
 
   float otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ;
-  other.getBounds(otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ);
+  other.bounds(otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ);
 
   if (minX > otherMinX || maxX < otherMaxX ||
       minY > otherMinY || maxY < otherMaxY ||
@@ -84,10 +80,10 @@ bool AABB::contains(const AABB& other) const
 bool AABB::intersects(const AABB& other) const
 {
   float minX, minY, minZ, maxX, maxY, maxZ;
-  getBounds(minX, minY, minZ, maxX, maxY, maxZ);
+  bounds(minX, minY, minZ, maxX, maxY, maxZ);
 
   float otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ;
-  other.getBounds(otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ);
+  other.bounds(otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ);
 
   if (minX > otherMaxX || maxX < otherMinX ||
       minY > otherMaxY || maxY < otherMinY ||
@@ -102,10 +98,10 @@ bool AABB::intersects(const AABB& other) const
 void AABB::envelop(const AABB& other)
 {
   float minX, minY, minZ, maxX, maxY, maxZ;
-  getBounds(minX, minY, minZ, maxX, maxY, maxZ);
+  bounds(minX, minY, minZ, maxX, maxY, maxZ);
 
   float otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ;
-  other.getBounds(otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ);
+  other.bounds(otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ);
 
   minX = min(minX, otherMinX);
   minY = min(minY, otherMinY);
@@ -120,7 +116,7 @@ void AABB::envelop(const AABB& other)
 void AABB::envelop(const vec3& point)
 {
   float minX, minY, minZ, maxX, maxY, maxZ;
-  getBounds(minX, minY, minZ, maxX, maxY, maxZ);
+  bounds(minX, minY, minZ, maxX, maxY, maxZ);
 
   minX = min(minX, point.x);
   minY = min(minY, point.y);
@@ -137,8 +133,8 @@ void AABB::normalize()
   size = abs(size);
 }
 
-void AABB::getBounds(float& minX, float& minY, float& minZ,
-                     float& maxX, float& maxY, float& maxZ) const
+void AABB::bounds(float& minX, float& minY, float& minZ,
+                  float& maxX, float& maxY, float& maxZ) const
 {
   minX = center.x - abs(size.x);
   minY = center.y - abs(size.y);

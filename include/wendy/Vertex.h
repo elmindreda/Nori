@@ -40,43 +40,37 @@ class VertexComponent
 {
   friend class VertexFormat;
 public:
-  /*! Vertex format element type enumeration.
-   */
-  enum Type
-  {
-    /*! Component elements are 32-bit floating-point (float).
-     */
-    FLOAT32
-  };
   /*! Constructor.
    */
-  VertexComponent(const char* name, size_t count, Type type);
+  VertexComponent(const char* name, size_t count);
   /*! Equality operator.
    */
-  bool operator == (const VertexComponent& other) const;
+  bool operator == (const VertexComponent& other) const
+  {
+    return m_name == other.m_name && m_count == other.m_count;
+  }
   /*! Inequality operator.
    */
-  bool operator != (const VertexComponent& other) const;
-  /*! @return The name of this component.
-   */
-  const String& getName() const;
+  bool operator != (const VertexComponent& other) const
+  {
+    return m_name != other.m_name || m_count != other.m_count;
+  }
   /*! @return The size, in bytes, of this component.
    */
-  size_t getSize() const;
-  /*! @return The type of the elements in this component.
+  size_t size() const { return m_count * sizeof(float); }
+  /*! @return The name of this component.
    */
-  Type getType() const;
+  const String& name() const { return m_name; }
   /*! @return The offset, in bytes, of this component in a vertex.
    */
-  size_t getOffset() const;
+  size_t offset() const { return m_offset; }
   /*! @return The number of elements in this component.
    */
-  size_t getElementCount() const;
+  size_t elementCount() const { return m_count; }
 private:
-  String name;
-  size_t count;
-  Type type;
-  size_t offset;
+  String m_name;
+  size_t m_count;
+  size_t m_offset;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -100,20 +94,17 @@ public:
    *  @remarks This will throw if the specification is syntactically malformed.
    */
   explicit VertexFormat(const char* specification);
-  bool createComponent(const char* name,
-                       size_t count,
-                       VertexComponent::Type type);
+  bool createComponent(const char* name, size_t count);
   bool createComponents(const char* specification);
   void destroyComponents();
   const VertexComponent* findComponent(const char* name) const;
-  const VertexComponent& operator [] (size_t index) const;
+  const std::vector<VertexComponent>& components() const { return m_components; }
   bool operator == (const VertexFormat& other) const;
   bool operator != (const VertexFormat& other) const;
   String asString() const;
-  size_t getSize() const;
-  size_t getComponentCount() const;
+  size_t size() const;
 private:
-  std::vector<VertexComponent> components;
+  std::vector<VertexComponent> m_components;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -157,7 +148,7 @@ public:
 class Vertex2ft2fv
 {
 public:
-  vec2 texCoord;
+  vec2 texcoord;
   vec2 position;
   static const VertexFormat format;
 };
@@ -169,7 +160,7 @@ public:
 class Vertex2ft3fv
 {
 public:
-  vec2 texCoord;
+  vec2 texcoord;
   vec3 position;
   static const VertexFormat format;
 };
@@ -182,7 +173,7 @@ class Vertex4fc2ft3fv
 {
 public:
   vec4 color;
-  vec2 texCoord;
+  vec2 texcoord;
   vec3 position;
   static const VertexFormat format;
 };
@@ -195,7 +186,7 @@ class Vertex3fn2ft3fv
 {
 public:
   vec3 normal;
-  vec2 texCoord;
+  vec2 texcoord;
   vec3 position;
   static const VertexFormat format;
 };

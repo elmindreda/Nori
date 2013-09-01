@@ -58,13 +58,13 @@ public:
   bool isStereo() const;
   /*! @return The duration, in seconds, of this buffer.
    */
-  Time getDuration() const;
+  Time duration() const { return m_duration; }
   /*! @return The format of the data in this buffer.
    */
-  SampleFormat getFormat() const;
+  SampleFormat format() const { return m_format; }
   /*! @return The context within which this buffer was created.
    */
-  Context& getContext() const;
+  Context& context() const { return m_context; }
   /*! Creates a buffer object within the specified context using the specified
    *  data.
    */
@@ -77,10 +77,10 @@ private:
   Buffer(const Buffer& source);
   bool init(const Sample& data);
   Buffer& operator = (const Buffer& source);
-  Context& context;
-  uint bufferID;
-  SampleFormat format;
-  Time duration;
+  Context& m_context;
+  uint m_bufferID;
+  SampleFormat m_format;
+  Time m_duration;
 };
 
 ///////////////////////////////////////////////////////////////////////

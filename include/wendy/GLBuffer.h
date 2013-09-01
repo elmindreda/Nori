@@ -144,16 +144,16 @@ public:
   void copyTo(void* target, size_t count, size_t start = 0);
   /*! @return The usage hint of this vertex buffer.
    */
-  Usage getUsage() const;
+  Usage usage() const;
   /*! @return The format of this vertex buffer.
    */
-  const VertexFormat& getFormat() const;
+  const VertexFormat& format() const { return m_format; }
   /*! @return The number of vertices in this vertex buffer.
    */
-  size_t getCount() const;
+  size_t count() const { return m_count; }
   /*! @return The size, in bytes, of the data in this vertex buffer.
    */
-  size_t getSize() const;
+  size_t size() const { return m_count * m_format.size(); }
   /*! Creates a vertex buffer with the specified properties.
    *  @param count The desired number of vertices.
    *  @param format The desired format of the vertices.
@@ -169,12 +169,12 @@ private:
   VertexBuffer(const VertexBuffer& source);
   VertexBuffer& operator = (const VertexBuffer& source);
   bool init(const VertexFormat& format, size_t count, Usage usage);
-  Context& context;
-  bool locked;
-  VertexFormat format;
-  uint bufferID;
-  size_t count;
-  Usage usage;
+  Context& m_context;
+  bool m_locked;
+  VertexFormat m_format;
+  uint m_bufferID;
+  size_t m_count;
+  Usage m_usage;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -213,16 +213,16 @@ public:
   void copyTo(void* target, size_t count, size_t start = 0);
   /*! @return The type of the index elements in this index buffer.
    */
-  IndexType getType() const;
+  IndexType type() const { return m_type; }
   /*! @return The usage hint of this index buffer.
    */
-  Usage getUsage() const;
+  Usage usage() const { return m_usage; }
   /*! @return The number of index elements in this index buffer.
    */
-  size_t getCount() const;
+  size_t count() const { return m_count; }
   /*! @return The size, in bytes, of the data in this index buffer.
    */
-  size_t getSize() const;
+  size_t size() const;
   /*! Creates an index buffer with the specified properties.
    *  @param count The desired number of index elements.
    *  @param type The desired type of the index elements.
@@ -235,18 +235,18 @@ public:
                                  Usage usage);
   /*! @return The size, in bytes, of the specified element type.
    */
-  static size_t getTypeSize(IndexType type);
+  static size_t typeSize(IndexType type);
 private:
   IndexBuffer(Context& context);
   IndexBuffer(const IndexBuffer& source);
   IndexBuffer& operator = (const IndexBuffer& source);
   bool init(size_t count, IndexType type, Usage usage);
-  Context& context;
-  bool locked;
-  IndexType type;
-  Usage usage;
-  uint bufferID;
-  size_t count;
+  Context& m_context;
+  bool m_locked;
+  IndexType m_type;
+  Usage m_usage;
+  uint m_bufferID;
+  size_t m_count;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -287,17 +287,17 @@ public:
   void copyTo(void* target);
   /*! @return The vertex buffer underlying this vertex range.
    */
-  VertexBuffer* getVertexBuffer() const;
+  VertexBuffer* vertexBuffer() const { return m_vertexBuffer; }
   /*! @return The index of the first vertex in this vertex range.
    */
-  size_t getStart() const;
+  size_t start() const { return m_start; }
   /*! @return The number of vertices in this vertex range.
    */
-  size_t getCount() const;
+  size_t count() const { return m_count; }
 private:
-  VertexBuffer* vertexBuffer;
-  size_t start;
-  size_t count;
+  VertexBuffer* m_vertexBuffer;
+  size_t m_start;
+  size_t m_count;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -340,17 +340,17 @@ public:
   void copyTo(void* target);
   /*! @return The index buffer underlying this index range.
    */
-  IndexBuffer* getIndexBuffer() const;
+  IndexBuffer* indexBuffer() const { return m_indexBuffer; }
   /*! @return The index of the first index in this index range.
    */
-  size_t getStart() const;
+  size_t start() const { return m_start; }
   /*! @return The number of indices in this index range.
    */
-  size_t getCount() const;
+  size_t count() const { return m_count; }
 private:
-  IndexBuffer* indexBuffer;
-  size_t start;
-  size_t count;
+  IndexBuffer* m_indexBuffer;
+  size_t m_start;
+  size_t m_count;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -411,24 +411,24 @@ public:
   bool isEmpty() const;
   /*! @return The type of primitives in this range.
    */
-  PrimitiveType getType() const;
+  PrimitiveType type() const { return m_type; }
   /*! @return The vertex buffer used by this primitive range.
    */
-  VertexBuffer* getVertexBuffer() const;
+  VertexBuffer* vertexBuffer() const { return m_vertexBuffer; }
   /*! @return The index buffer used by this primitive range, or @c NULL if no
    *  index buffer is used.
    */
-  IndexBuffer* getIndexBuffer() const;
-  size_t getStart() const;
-  size_t getCount() const;
-  size_t getBase() const;
+  IndexBuffer* indexBuffer() const { return m_indexBuffer; }
+  size_t start() const { return m_start; }
+  size_t count() const { return m_count; }
+  size_t base() const { return m_base; }
 private:
-  PrimitiveType type;
-  VertexBuffer* vertexBuffer;
-  IndexBuffer* indexBuffer;
-  size_t start;
-  size_t count;
-  size_t base;
+  PrimitiveType m_type;
+  VertexBuffer* m_vertexBuffer;
+  IndexBuffer* m_indexBuffer;
+  size_t m_start;
+  size_t m_count;
+  size_t m_base;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -449,9 +449,9 @@ public:
     range(initRange),
     vertices(NULL)
   {
-    if (VertexBuffer* vertexBuffer = range.getVertexBuffer())
+    if (VertexBuffer* vertexBuffer = range.vertexBuffer())
     {
-      const VertexFormat& format = vertexBuffer->getFormat();
+      const VertexFormat& format = vertexBuffer->format();
 
       if (T::format != format)
       {
@@ -536,22 +536,22 @@ public:
   /*! @return @c true if this framebuffer uses sRGB encoding, or @c false
    *  otherwise.
    */
-  bool isSRGB() const;
+  bool isSRGB() const { return m_sRGB; }
   /*! Sets whether this framebuffer uses sRGB encoding.
    */
   void setSRGB(bool enabled);
   /*! @return The width, in pixels, of this framebuffer.
    */
-  virtual uint getWidth() const = 0;
+  virtual uint width() const = 0;
   /*! @return The height, in pixels, of this framebuffer.
    */
-  virtual uint getHeight() const = 0;
+  virtual uint height() const = 0;
   /*! @return The aspect ratio of the dimensions, in pixels, of this framebuffer.
    */
-  float getAspectRatio() const;
+  float aspectRatio() const { return width() / (float) height(); }
   /*! @return The context within which this framebuffer was created.
    */
-  Context& getContext() const;
+  Context& context() const { return m_context; }
 protected:
   /*! Constructor.
    */
@@ -562,8 +562,8 @@ protected:
 private:
   Framebuffer(const Framebuffer& source);
   Framebuffer& operator = (const Framebuffer& source);
-  Context& context;
-  bool sRGB;
+  Context& m_context;
+  bool m_sRGB;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -577,22 +577,23 @@ class DefaultFramebuffer : public Framebuffer
 public:
   /*! @return The default framebuffer color depth, in bits.
    */
-  uint getColorBits() const;
+  uint colorBits() const { return m_colorBits; }
   /*! @return The default framebuffer depth-buffer depth, in bits.
    */
-  uint getDepthBits() const;
+  uint depthBits() const { return m_depthBits; }
   /*! @return The default framebuffer stencil buffer depth, in bits.
    */
-  uint getStencilBits() const;
-  uint getWidth() const;
-  uint getHeight() const;
+  uint stencilBits() const { return m_stencilBits; }
+  uint samples() const { return m_samples; }
+  uint width() const;
+  uint height() const;
 private:
   DefaultFramebuffer(Context& context);
   void apply() const;
-  uint colorBits;
-  uint depthBits;
-  uint stencilBits;
-  uint samples;
+  uint m_colorBits;
+  uint m_depthBits;
+  uint m_stencilBits;
+  uint m_samples;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -627,24 +628,24 @@ public:
   /*! Destructor.
    */
   ~TextureFramebuffer();
-  /*! @copydoc Framebuffer::getWidth
+  /*! @copydoc Framebuffer::width
    */
-  uint getWidth() const;
-  /*! @copydoc Framebuffer::getHeight
+  uint width() const;
+  /*! @copydoc Framebuffer::height
    */
-  uint getHeight() const;
+  uint height() const;
   /*! @return The image attached to the TextureFramebuffer::COLOR_BUFFER0
    *  attachment point, or @c NULL if no image is attached to it.
    */
-  TextureImage* getColorBuffer() const;
+  TextureImage* colorBuffer() const { return m_images[COLOR_BUFFER0]; }
   /*! @return The image attached to the TextureFramebuffer::DEPTH_BUFFER
    *  attachment point, or @c NULL if no image is attached to it.
    */
-  TextureImage* getDepthBuffer() const;
+  TextureImage* depthBuffer() const { return m_images[DEPTH_BUFFER]; }
   /*! @return The image attached to the specified attachment point, or @c NULL
    *  if no image is attached to it.
    */
-  TextureImage* getBuffer(Attachment attachment) const;
+  TextureImage* buffer(Attachment attachment) const;
   /*! Sets the image to use as the default color buffer for this framebuffer.
    *  @param[in] newImage The desired image, or @c NULL to detach the currently
    *  set image.
@@ -673,8 +674,8 @@ private:
   TextureFramebuffer(Context& context);
   bool init();
   void apply() const;
-  uint bufferID;
-  Ref<TextureImage> images[5];
+  uint m_bufferID;
+  Ref<TextureImage> m_images[5];
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -88,73 +88,68 @@ Path::Path(const String& initName)
 bool Path::createDirectory() const
 {
 #if WENDY_SYSTEM_WIN32
-  return _mkdir(path.c_str()) == 0;
+  return _mkdir(m_string.c_str()) == 0;
 #else
-  return mkdir(path.c_str(), 0777) == 0;
+  return mkdir(m_string.c_str(), 0777) == 0;
 #endif
 }
 
 bool Path::destroyDirectory() const
 {
 #if WENDY_SYSTEM_WIN32
-  return _rmdir(path.c_str()) == 0;
+  return _rmdir(m_string.c_str()) == 0;
 #else
-  return rmdir(path.c_str()) == 0;
+  return rmdir(m_string.c_str()) == 0;
 #endif
 }
 
 bool Path::exists() const
 {
 #if WENDY_SYSTEM_WIN32
-  return _access(path.c_str(), F_OK) == 0;
+  return _access(m_string.c_str(), F_OK) == 0;
 #else
-  return access(path.c_str(), F_OK) == 0;
+  return access(m_string.c_str(), F_OK) == 0;
 #endif
-}
-
-const String& Path::asString() const
-{
-  return path;
 }
 
 Path Path::operator + (const String& child) const
 {
-  return Path(path + '/' + child);
+  return Path(m_string + '/' + child);
 }
 
 Path& Path::operator += (const String& child)
 {
-  return operator = (path + '/' + child);
+  return operator = (m_string + '/' + child);
 }
 
 bool Path::operator == (const Path& other) const
 {
   // TODO: Implement sane code.
 
-  return path == other.path;
+  return m_string == other.m_string;
 }
 
 bool Path::operator != (const Path& other) const
 {
   // TODO: Implement sane code.
 
-  return path != other.path;
+  return m_string != other.m_string;
 }
 
 Path& Path::operator = (const String& newPath)
 {
-  path = newPath;
+  m_string = newPath;
 
-  if (!path.empty())
+  if (!m_string.empty())
   {
     // Remove extraneous trailing slashes
 
-    while (String::size_type end = path.length() - 1)
+    while (String::size_type end = m_string.length() - 1)
     {
-      if (path[end] != '/')
+      if (m_string[end] != '/')
         break;
 
-      path.erase(end);
+      m_string.erase(end);
     }
 
     // TODO: Compact repeated slashes.
@@ -163,26 +158,21 @@ Path& Path::operator = (const String& newPath)
   return *this;
 }
 
-bool Path::isEmpty() const
-{
-  return path.empty();
-}
-
 bool Path::isReadable() const
 {
 #if WENDY_SYSTEM_WIN32
-  return _access(path.c_str(), R_OK) == 0;
+  return _access(m_string.c_str(), R_OK) == 0;
 #else
-  return access(path.c_str(), R_OK) == 0;
+  return access(m_string.c_str(), R_OK) == 0;
 #endif
 }
 
 bool Path::isWritable() const
 {
 #if WENDY_SYSTEM_WIN32
-  return _access(path.c_str(), W_OK) == 0;
+  return _access(m_string.c_str(), W_OK) == 0;
 #else
-  return access(path.c_str(), W_OK) == 0;
+  return access(m_string.c_str(), W_OK) == 0;
 #endif
 }
 
@@ -191,12 +181,12 @@ bool Path::isFile() const
 #if WENDY_SYSTEM_WIN32
   struct _stati64 sb;
 
-  if (_stati64(path.c_str(), &sb) != 0)
+  if (_stati64(m_string.c_str(), &sb) != 0)
     return false;
 #else
   struct stat64 sb;
 
-  if (stat64(path.c_str(), &sb) != 0)
+  if (stat64(m_string.c_str(), &sb) != 0)
     return false;
 #endif
 
@@ -208,38 +198,40 @@ bool Path::isDirectory() const
 #if WENDY_SYSTEM_WIN32
   struct _stati64 sb;
 
-  if (_stati64(path.c_str(), &sb) != 0)
+  if (_stati64(m_string.c_str(), &sb) != 0)
     return false;
 #else
   struct stat64 sb;
 
-  if (stat64(path.c_str(), &sb) != 0)
+  if (stat64(m_string.c_str(), &sb) != 0)
     return false;
 #endif
 
   return S_ISDIR(sb.st_mode) ? true : false;
 }
 
-Path Path::getParent() const
+Path Path::parent() const
 {
   // TODO: Fix this.
 
-  String::size_type offset = path.find_last_of('/');
+  String::size_type offset = m_string.find_last_of('/');
   if (offset == String::npos)
     return Path(".");
 
-  return Path(path.substr(0, offset + 1));
+  return Path(m_string.substr(0, offset + 1));
 }
 
-bool Path::getChildren(PathList& children) const
+PathList Path::children() const
 {
+  PathList children;
+
 #if WENDY_SYSTEM_WIN32
   WIN32_FIND_DATA data;
   HANDLE search;
 
-  search = FindFirstFile(path.c_str(), &data);
+  search = FindFirstFile(m_string.c_str(), &data);
   if (search == INVALID_HANDLE_VALUE)
-    return false;
+    return PathList();
 
   do
   {
@@ -252,27 +244,30 @@ bool Path::getChildren(PathList& children) const
   DIR* stream;
   dirent* entry;
 
-  stream = opendir(path.c_str());
+  stream = opendir(m_string.c_str());
   if (!stream)
-    return false;
+    return PathList();
 
   while ((entry = readdir(stream)))
     children.push_back(operator + (entry->d_name));
 
   closedir(stream);
 #endif
-  return true;
+
+  return children;
 }
 
-bool Path::getChildren(PathList& children, const Pattern& pattern) const
+PathList Path::childrenMatching(const Pattern& pattern) const
 {
+  PathList children;
+
 #if WENDY_SYSTEM_WIN32
   WIN32_FIND_DATA data;
   HANDLE search;
 
-  search = FindFirstFile(path.c_str(), &data);
+  search = FindFirstFile(m_string.c_str(), &data);
   if (search == INVALID_HANDLE_VALUE)
-    return false;
+    return PathList();
 
   do
   {
@@ -286,9 +281,9 @@ bool Path::getChildren(PathList& children, const Pattern& pattern) const
   DIR* stream;
   dirent* entry;
 
-  stream = opendir(path.c_str());
+  stream = opendir(m_string.c_str());
   if (!stream)
-    return false;
+    return PathList();
 
   while ((entry = readdir(stream)))
   {
@@ -298,18 +293,19 @@ bool Path::getChildren(PathList& children, const Pattern& pattern) const
 
   closedir(stream);
 #endif
-  return true;
+
+  return children;
 }
 
-String Path::getSuffix() const
+String Path::suffix() const
 {
   String last;
 
-  String::size_type start = path.find_last_of('/');
+  String::size_type start = m_string.find_last_of('/');
   if (start == String::npos)
-    last = path;
+    last = m_string;
   else
-    last = path.substr(start, String::npos);
+    last = m_string.substr(start, String::npos);
 
   String::size_type offset = last.find_last_of('.');
   if (offset == String::npos)
@@ -318,10 +314,10 @@ String Path::getSuffix() const
   return last.substr(offset + 1, String::npos);
 }
 
-String Path::getName() const
+String Path::name() const
 {
-  String::size_type start = path.find_last_of('/');
-  String::size_type end = path.find_last_of('.');
+  String::size_type start = m_string.find_last_of('/');
+  String::size_type end = m_string.find_last_of('.');
 
   if (start == String::npos)
     start = 0;
@@ -331,7 +327,7 @@ String Path::getName() const
   if (end != String::npos && end < start)
     end = String::npos;
 
-  return path.substr(start, end - start);
+  return m_string.substr(start, end - start);
 }
 
 ///////////////////////////////////////////////////////////////////////
