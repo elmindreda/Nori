@@ -1,8 +1,5 @@
 //========================================================================
-// GLFW - An OpenGL library
-// Platform:    Any
-// API version: 3.0
-// WWW:         http://www.glfw.org/
+// GLFW 3.0 - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
 // Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -118,6 +115,15 @@ typedef struct _GLFWmonitor     _GLFWmonitor;
     {                                                \
         _glfwInputError(GLFW_NOT_INITIALIZED, NULL); \
         return x;                                    \
+    }
+
+// Swaps the provided pointers
+#define _GLFW_SWAP_POINTERS(x, y) \
+    {                             \
+        void* t;                  \
+        t = x;                    \
+        x = y;                    \
+        y = t;                    \
     }
 
 
@@ -298,7 +304,10 @@ struct _GLFWlibrary
 
     _GLFWmonitor**  monitors;
     int             monitorCount;
-    GLFWmonitorfun  monitorCallback;
+
+    struct {
+        GLFWmonitorfun  monitor;
+    } callbacks;
 
     // This is defined in the window API's platform.h
     _GLFW_PLATFORM_LIBRARY_WINDOW_STATE;

@@ -1,8 +1,5 @@
 //========================================================================
-// GLFW - An OpenGL library
-// Platform:    Any
-// API version: 3.0
-// WWW:         http://www.glfw.org/
+// GLFW 3.0 - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
 // Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -349,76 +346,52 @@ GLFWAPI void glfwSetCursorPos(GLFWwindow* handle, double xpos, double ypos)
 GLFWAPI GLFWkeyfun glfwSetKeyCallback(GLFWwindow* handle, GLFWkeyfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-    GLFWkeyfun previous;
-
     _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
-
-    previous = window->callbacks.key;
-    window->callbacks.key = cbfun;
-    return previous;
+    _GLFW_SWAP_POINTERS(window->callbacks.key, cbfun);
+    return cbfun;
 }
 
 GLFWAPI GLFWcharfun glfwSetCharCallback(GLFWwindow* handle, GLFWcharfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-    GLFWcharfun previous;
-
     _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
-
-    previous = window->callbacks.character;
-    window->callbacks.character = cbfun;
-    return previous;
+    _GLFW_SWAP_POINTERS(window->callbacks.character, cbfun);
+    return cbfun;
 }
 
 GLFWAPI GLFWmousebuttonfun glfwSetMouseButtonCallback(GLFWwindow* handle,
                                                       GLFWmousebuttonfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-    GLFWmousebuttonfun previous;
-
     _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
-
-    previous = window->callbacks.mouseButton;
-    window->callbacks.mouseButton = cbfun;
-    return previous;
+    _GLFW_SWAP_POINTERS(window->callbacks.mouseButton, cbfun);
+    return cbfun;
 }
 
 GLFWAPI GLFWcursorposfun glfwSetCursorPosCallback(GLFWwindow* handle,
                                                   GLFWcursorposfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-    GLFWcursorposfun previous;
-
     _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
-
-    previous = window->callbacks.cursorPos;
-    window->callbacks.cursorPos = cbfun;
-    return previous;
+    _GLFW_SWAP_POINTERS(window->callbacks.cursorPos, cbfun);
+    return cbfun;
 }
 
 GLFWAPI GLFWcursorenterfun glfwSetCursorEnterCallback(GLFWwindow* handle,
                                                       GLFWcursorenterfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-    GLFWcursorenterfun previous;
-
     _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
-
-    previous = window->callbacks.cursorEnter;
-    window->callbacks.cursorEnter = cbfun;
-    return previous;
+    _GLFW_SWAP_POINTERS(window->callbacks.cursorEnter, cbfun);
+    return cbfun;
 }
 
 GLFWAPI GLFWscrollfun glfwSetScrollCallback(GLFWwindow* handle,
                                             GLFWscrollfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-    GLFWscrollfun previous;
-
     _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
-
-    previous = window->callbacks.scroll;
-    window->callbacks.scroll = cbfun;
-    return previous;
+    _GLFW_SWAP_POINTERS(window->callbacks.scroll, cbfun);
+    return cbfun;
 }
 

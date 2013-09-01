@@ -1,8 +1,5 @@
 //========================================================================
-// GLFW - An OpenGL library
-// Platform:    X11
-// API version: 3.0
-// WWW:         http://www.glfw.org/
+// GLFW 3.0 X11 - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
 // Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -516,15 +513,12 @@ static void processEvent(XEvent *event)
         {
             const int key = translateKey(event->xkey.keycode);
             const int mods = translateState(event->xkey.state);
+            const int character = translateChar(&event->xkey);
 
             _glfwInputKey(window, key, event->xkey.keycode, GLFW_PRESS, mods);
 
-            if (!(mods & GLFW_MOD_CONTROL) && !(mods & GLFW_MOD_ALT))
-            {
-                const int character = translateChar(&event->xkey);
-                if (character != -1)
-                    _glfwInputChar(window, character);
-            }
+            if (character != -1)
+                _glfwInputChar(window, character);
 
             break;
         }
@@ -988,6 +982,17 @@ void _glfwPlatformGetWindowPos(_GLFWwindow* window, int* xpos, int* ypos)
     XTranslateCoordinates(_glfw.x11.display, window->x11.handle, _glfw.x11.root,
                           0, 0, &x, &y, &child);
 
+    if (child != None)
+    {
+        int left, top;
+
+        XTranslateCoordinates(_glfw.x11.display, window->x11.handle, child,
+                              0, 0, &left, &top, &child);
+
+        x -= left;
+        y -= top;
+    }
+
     if (xpos)
         *xpos = x;
     if (ypos)
@@ -1098,24 +1103,12 @@ void _glfwPlatformPollEvents(void)
         processEvent(&event);
     }
 
-    // Check whether the cursor has moved inside an focused window that has
-    // captured the cursor (because then it needs to be re-centered)
-
-    _GLFWwindow* window;
-    window = _glfw.focusedWindow;
-    if (window)
+    _GLFWwindow* window = _glfw.focusedWindow;
+    if (window && window->cursorMode == GLFW_CURSOR_DISABLED)
     {
-        if (window->cursorMode == GLFW_CURSOR_DISABLED)
-        {
-            int width, height;
-            _glfwPlatformGetWindowSize(window, &width, &height);
-            _glfwPlatformSetCursorPos(window, width / 2, height / 2);
-
-            // NOTE: This is a temporary fix.  It works as long as you use
-            //       offsets accumulated over the course of a frame, instead of
-            //       performing the necessary actions per callback call.
-            XFlush(_glfw.x11.display);
-        }
+        int width, height;
+        _glfwPlatformGetWindowSize(window, &width, &height);
+        _glfwPlatformSetCursorPos(window, width / 2, height / 2);
     }
 }
 

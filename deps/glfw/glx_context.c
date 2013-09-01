@@ -1,8 +1,5 @@
 //========================================================================
-// GLFW - An OpenGL library
-// Platform:    X11/GLX
-// API version: 3.0
-// WWW:         http://www.glfw.org/
+// GLFW 3.0 GLX - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
 // Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -389,7 +386,7 @@ int _glfwCreateContext(_GLFWwindow* window,
             !_glfw.glx.ARB_create_context_profile ||
             !_glfw.glx.EXT_create_context_es2_profile)
         {
-            _glfwInputError(GLFW_VERSION_UNAVAILABLE,
+            _glfwInputError(GLFW_API_UNAVAILABLE,
                             "GLX: OpenGL ES requested but "
                             "GLX_EXT_create_context_es2_profile is unavailable");
             return GL_FALSE;

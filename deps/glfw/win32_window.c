@@ -1,8 +1,5 @@
 //========================================================================
-// GLFW - An OpenGL library
-// Platform:    Win32/WGL
-// API version: 3.0
-// WWW:         http://www.glfw.org/
+// GLFW 3.0 Win32 - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
 // Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -483,6 +480,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
         }
 
         case WM_CHAR:
+        case WM_SYSCHAR:
         {
             _glfwInputChar(window, (unsigned int) wParam);
             return 0;

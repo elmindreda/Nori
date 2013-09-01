@@ -1,8 +1,5 @@
 //========================================================================
-// GLFW - An OpenGL library
-// Platform:    Win32/WGL
-// API version: 3.0
-// WWW:         http://www.glfw.org/
+// GLFW 3.0 WGL - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
 // Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -532,7 +529,7 @@ int _glfwAnalyzeContext(const _GLFWwindow* window,
             !window->wgl.ARB_create_context_profile ||
             !window->wgl.EXT_create_context_es2_profile)
         {
-            _glfwInputError(GLFW_VERSION_UNAVAILABLE,
+            _glfwInputError(GLFW_API_UNAVAILABLE,
                             "WGL: OpenGL ES requested but "
                             "WGL_ARB_create_context_es2_profile is unavailable");
             return _GLFW_RECREATION_IMPOSSIBLE;
