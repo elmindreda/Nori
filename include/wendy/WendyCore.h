@@ -37,6 +37,7 @@
 #include <wendy/Transform.h>
 
 #include <wendy/AABB.h>
+#include <wendy/OBB.h>
 #include <wendy/Segment.h>
 #include <wendy/Rect.h>
 #include <wendy/Plane.h>
