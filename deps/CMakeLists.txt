@@ -8,6 +8,7 @@ add_subdirectory(glfw)
 add_subdirectory(glm)
 add_subdirectory(libogg)
 add_subdirectory(libvorbis)
+add_subdirectory(stb)
 
 if (WENDY_INCLUDE_NETWORK)
   add_subdirectory(enet)

@@ -449,7 +449,7 @@ void Drawer::drawText(const Rect& area,
                       const Alignment& alignment,
                       const vec3& color)
 {
-  const Rect metrics = currentFont->metricsOf(text);
+  const Rect metrics = currentFont->boundsOf(text);
 
   vec2 penPosition;
 
@@ -472,14 +472,13 @@ void Drawer::drawText(const Rect& area,
   switch (alignment.vertical)
   {
     case BOTTOM_ALIGNED:
-      penPosition.y = area.position.y - metrics.position.y;
+      penPosition.y = area.position.y - currentFont->descender();
       break;
     case CENTERED_ON_Y:
-      penPosition.y = area.center().y - metrics.center().y;
+      penPosition.y = area.center().y - currentFont->descender() - currentFont->height() / 2.f;
       break;
     case TOP_ALIGNED:
-      penPosition.y = (area.position.y + area.size.y) -
-                      (metrics.position.y + metrics.size.y);
+      penPosition.y = area.position.y + area.size.y - currentFont->ascender();
       break;
     default:
       panic("Invalid vertical alignment");

@@ -108,8 +108,8 @@ void Entry::draw() const
 
       if (caretPosition > startPosition)
       {
-        const render::Font& font = drawer.getCurrentFont();
-        const Rect metrics = font.metricsOf(text.substr(startPosition, caretPosition).c_str());
+        render::Font& font = drawer.getCurrentFont();
+        const Rect metrics = font.boundsOf(text.substr(startPosition, caretPosition).c_str());
         position = metrics.size.x;
       }
 

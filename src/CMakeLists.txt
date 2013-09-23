@@ -10,12 +10,13 @@ include_directories(${libpng_SOURCE_DIR}
                     ${GLEW_SOURCE_DIR}
                     ${GLFW_SOURCE_DIR}
                     ${libogg_SOURCE_DIR}
-                    ${libvorbis_SOURCE_DIR})
+                    ${libvorbis_SOURCE_DIR}
+                    ${stb_SOURCE_DIR})
 
 set(wendy_SOURCES
     Wendy.cpp
 
-    AABB.cpp Core.cpp Camera.cpp Frustum.cpp Image.cpp Mesh.cpp OBB.cpp
+    AABB.cpp Core.cpp Camera.cpp Face.cpp Frustum.cpp Image.cpp Mesh.cpp OBB.cpp
     Pattern.cpp Path.cpp Pixel.cpp Plane.cpp Profile.cpp Ray.cpp Rect.cpp
     Resource.cpp Sample.cpp Signal.cpp Sphere.cpp Timer.cpp Transform.cpp
     Triangle.cpp Vertex.cpp

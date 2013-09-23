@@ -26,32 +26,20 @@
 #define WENDY_RENDERFONT_HPP
 ///////////////////////////////////////////////////////////////////////
 
+#include <wendy/Core.hpp>
+#include <wendy/Rect.hpp>
+#include <wendy/Path.hpp>
+#include <wendy/Pixel.hpp>
+#include <wendy/Resource.hpp>
+#include <wendy/Image.hpp>
+#include <wendy/Face.hpp>
+
+///////////////////////////////////////////////////////////////////////
+
 namespace wendy
 {
   namespace render
   {
-
-///////////////////////////////////////////////////////////////////////
-
-class FontGlyphData
-{
-public:
-  vec2 bearing;
-  float advance;
-  Ref<Image> image;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class FontData
-{
-public:
-  FontData();
-  FontData(const FontData& source);
-  FontData& operator = (const FontData& source);
-  std::vector<FontGlyphData> glyphs;
-  int characters[256];
-};
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -67,48 +55,59 @@ public:
   /*! Renders the specified text at the current pen position.
    *  @param text The text to render.
    */
-  void drawText(const vec2& penPosition, const vec4& color, const char* text);
-  /*! @return The width, in pixels, of the character cell for this font.
-   */
-  float width() const { return m_size.x; }
-  /*! @return The height, in pixels, of the character cell for this font.
-   */
-  float height() const { return m_size.y; }
+  void drawText(vec2 pen, vec4 color, const char* text);
   /*! @return The ascender for this font.
    */
   float ascender() const { return m_ascender; }
   /*! @return The descender for this font.
    */
   float descender() const { return m_descender; }
+  /*! @return The leader for this font.
+   */
+  float leading() const { return m_leading; }
+  /*! @return The width, in pixels, of the character cell for this font.
+   */
+  float width() const { return m_width; }
+  /*! @return The height, in pixels, of the character cell for this font.
+   */
+  float height() const { return m_height; }
   /*! @param text The text to measure.
    *  @return The bounding rectangle, in pixels, of the specified text as
    *  rendered by this font.
    */
-  Rect metricsOf(const char* text) const;
+  Rect boundsOf(const char* text);
   /*! Calculates the layout of glyphs for the specified text.
    */
-  LayoutList layoutOf(const char* text) const;
+  LayoutList layoutOf(const char* text);
   static Ref<Font> create(const ResourceInfo& info,
                           VertexPool& pool,
-                          const FontData& data);
+                          Face& face,
+                          uint height);
   static Ref<Font> read(VertexPool& pool, const String& name);
 private:
   class Glyph;
   Font(const ResourceInfo& info, VertexPool& pool);
   Font(const Font&) = delete;
-  bool init(const FontData& font);
-  const Glyph* findGlyph(uint8 character) const;
-  bool getGlyphLayout(Layout& layout, uint8 character) const;
-  void getGlyphLayout(Layout& layout, const Glyph& glyph, uint8 character) const;
+  bool init(Face& font, uint height);
+  const Glyph* addGlyph(uint32 codepoint);
+  const Glyph* findGlyph(uint32 codepoint);
+  bool addGlyphTextureRow();
+  bool getGlyphLayout(Layout& layout, uint32 codepoint);
+  void getGlyphLayout(Layout& layout, const Glyph& glyph);
   Font& operator = (const Font&) = delete;
   Ref<VertexPool> m_pool;
+  Ref<Face> m_face;
   std::vector<Glyph> m_glyphs;
-  Glyph* m_characters[256];
-  vec2 m_size;
+  float m_scale;
   float m_ascender;
   float m_descender;
-  UniformStateIndex m_colorIndex;
+  float m_leading;
+  float m_width;
+  float m_height;
+  ivec2 m_position;
+  Ref<GL::Texture> m_texture;
   Pass m_pass;
+  UniformStateIndex m_colorIndex;
   std::vector<Vertex2ft2fv> m_vertices;
 };
 
@@ -121,7 +120,7 @@ class Font::Layout
 public:
   Rect area;
   vec2 advance;
-  char character;
+  uint32 codepoint;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -131,10 +130,18 @@ public:
 class Font::Glyph
 {
 public:
+  bool operator < (const Glyph& other) const
+  {
+    return codepoint < other.codepoint;
+  }
+  bool operator == (uint32 desired) const
+  {
+    return codepoint == desired;
+  }
   Rect area;
   vec2 bearing;
-  vec2 size;
   float advance;
+  uint32 codepoint;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -146,12 +153,7 @@ public:
   using ResourceReader<Font>::read;
   Ref<Font> read(const String& name, const Path& path);
 private:
-  bool extractGlyphs(FontData& data,
-                     const String& name,
-                     const Image& image,
-                     const String& characters,
-                     bool fixedWidth);
-  Ref<VertexPool> pool;
+  Ref<VertexPool> m_pool;
 };
 
 ///////////////////////////////////////////////////////////////////////

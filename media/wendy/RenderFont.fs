@@ -1,7 +1,7 @@
 
 #version 150
 
-uniform sampler2D glyphs;
+uniform sampler2DRect glyphs;
 uniform vec4 color;
 
 in vec2 texCoord;

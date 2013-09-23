@@ -34,12 +34,6 @@
 #include <wendy/RenderState.hpp>
 #include <wendy/RenderFont.hpp>
 
-#include <cctype>
-#include <cstdlib>
-#include <cstring>
-
-#include <glm/gtx/bit.hpp>
-
 #include <pugixml.hpp>
 
 ///////////////////////////////////////////////////////////////////////
@@ -54,175 +48,97 @@ namespace wendy
 namespace
 {
 
-uint findStartY(const Image& image)
-{
-  const uint8* pixels = (const uint8*) image.pixels();
-
-  uint startY;
-
-  for (startY = 0;  startY < image.height();  startY++)
-  {
-    uint x;
-
-    for (x = 0;  x < image.width();  x++)
-    {
-      if (pixels[x + startY * image.width()] > 0)
-        break;
-    }
-
-    if (x < image.width())
-      break;
-  }
-
-  return startY;
-}
-
-uint findEndY(const Image& image)
-{
-  const uint8* pixels = (const uint8*) image.pixels();
-
-  uint endY;
-
-  for (endY = image.height();  endY > 0;  endY--)
-  {
-    uint x;
-
-    for (x = 0;  x < image.width();  x++)
-    {
-      if (pixels[x + (endY - 1) * image.width()] > 0)
-        break;
-    }
-
-    if (x < image.width())
-      break;
-  }
-
-  return endY;
-}
-
-const uint FONT_XML_VERSION = 1;
+const uint FONT_XML_VERSION = 2;
 
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
-FontData::FontData()
+void Font::drawText(vec2 pen, vec4 color, const char* text)
 {
-  for (int i = 0;  i < 256;  i++)
-    characters[i] = -1;
-}
+  uint vertexCount = 0;
 
-FontData::FontData(const FontData& source)
-{
-  operator = (source);
-}
+  // Realize vertices for glyphs
+  {
+    m_vertices.resize(std::strlen(text) * 6);
 
-FontData& FontData::operator = (const FontData& source)
-{
-  glyphs = source.glyphs;
+    for (const char* c = text;  *c != '\0';  c++)
+    {
+      const Glyph* glyph = findGlyph(uint8(*c));
+      if (!glyph)
+        continue;
 
-  std::memcpy(characters, source.characters, sizeof(characters));
-  return *this;
-}
+      pen = round(pen);
 
-///////////////////////////////////////////////////////////////////////
+      if (all(greaterThan(glyph->area.size, vec2(0.f))))
+      {
+        const Rect pa(pen + glyph->bearing, glyph->area.size);
+        const Rect ta(glyph->area);
 
-void Font::drawText(const vec2& penPosition, const vec4& color, const char* text)
-{
-  const size_t length = std::strlen(text);
-  if (!length)
+        m_vertices[vertexCount + 0].texcoord = ta.position;
+        m_vertices[vertexCount + 0].position = pa.position;
+        m_vertices[vertexCount + 1].texcoord = ta.position + vec2(ta.size.x, 0.f);
+        m_vertices[vertexCount + 1].position = pa.position + vec2(pa.size.x, 0.f);
+        m_vertices[vertexCount + 2].texcoord = ta.position + ta.size;
+        m_vertices[vertexCount + 2].position = pa.position + pa.size;
+
+        m_vertices[vertexCount + 3] = m_vertices[vertexCount + 2];
+        m_vertices[vertexCount + 4].texcoord = ta.position + vec2(0.f, ta.size.y);
+        m_vertices[vertexCount + 4].position = pa.position + vec2(0.f, pa.size.y);
+        m_vertices[vertexCount + 5] = m_vertices[vertexCount + 0];
+
+        vertexCount += 6;
+      }
+
+      pen += vec2(glyph->advance, 0.f);
+    }
+  }
+
+  if (!vertexCount)
     return;
 
-  GL::VertexRange range = m_pool->allocate(length * 6, Vertex2ft2fv::format);
+  GL::VertexRange range = m_pool->allocate(vertexCount, Vertex2ft2fv::format);
   if (range.isEmpty())
   {
     logError("Failed to allocate vertices for text drawing");
     return;
   }
 
-  uint count = 0;
-
-  // Realize vertices for glyphs
-  {
-    vec2 roundedPen;
-    roundedPen.x = floor(penPosition.x + 0.5f);
-    roundedPen.y = floor(penPosition.y + 0.5f);
-
-    m_vertices.resize(length * 6);
-
-    Layout layout;
-
-    for (const char* c = text;  *c != '\0';  c++)
-    {
-      if (const Glyph* glyph = findGlyph(*c))
-      {
-        getGlyphLayout(layout, *glyph, *c);
-        layout.area.position += roundedPen;
-        roundedPen += layout.advance;
-
-        const Rect& pa = layout.area;
-        const Rect& ta = glyph->area;
-
-        m_vertices[count + 0].texcoord = ta.position;
-        m_vertices[count + 0].position = pa.position;
-        m_vertices[count + 1].texcoord = ta.position + vec2(ta.size.x, 0.f);
-        m_vertices[count + 1].position = pa.position + vec2(pa.size.x, 0.f);
-        m_vertices[count + 2].texcoord = ta.position + ta.size;
-        m_vertices[count + 2].position = pa.position + pa.size;
-
-        m_vertices[count + 3] = m_vertices[count + 2];
-        m_vertices[count + 4].texcoord = ta.position + vec2(0.f, ta.size.y);
-        m_vertices[count + 4].position = pa.position + vec2(0.f, pa.size.y);
-        m_vertices[count + 5] = m_vertices[count + 0];
-
-        count += 6;
-      }
-    }
-
-    range.copyFrom(&m_vertices[0]);
-  }
-
-  if (!count)
-    return;
+  range.copyFrom(&m_vertices[0]);
 
   m_pass.setUniformState(m_colorIndex, color);
   m_pass.apply();
 
-  GL::Context& context = m_pool->context();
-  context.render(GL::PrimitiveRange(GL::TRIANGLE_LIST,
-                                    *range.vertexBuffer(),
-                                    range.start(),
-                                    count));
+  m_pool->context().render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
 }
 
-Rect Font::metricsOf(const char* text) const
+Rect Font::boundsOf(const char* text)
 {
-  Rect result;
+  Rect bounds;
   Layout layout;
-  vec2 penPosition;
+  vec2 pen(0.5f);
 
   for (const char* c = text;  *c != '\0';  c++)
   {
-    if (getGlyphLayout(layout, *c))
-    {
-      layout.area.position += penPosition;
-      result.envelop(layout.area);
-      penPosition += layout.advance;
-    }
+    if (!getGlyphLayout(layout, *c))
+      continue;
+
+    layout.area.position += pen;
+    bounds.envelop(layout.area);
+    pen += layout.advance;
   }
 
-  result.envelop(penPosition);
-  return result;
+  bounds.envelop(pen);
+  return bounds;
 }
 
-Font::LayoutList Font::layoutOf(const char* text) const
+Font::LayoutList Font::layoutOf(const char* text)
 {
+  Layout layout;
   LayoutList result;
 
   for (const char* c = text;  *c != '\0';  c++)
   {
-    Layout layout;
-
     if (getGlyphLayout(layout, *c))
       result.push_back(layout);
   }
@@ -232,10 +148,11 @@ Font::LayoutList Font::layoutOf(const char* text) const
 
 Ref<Font> Font::create(const ResourceInfo& info,
                        VertexPool& pool,
-                       const FontData& data)
+                       Face& face,
+                       uint height)
 {
   Ref<Font> font(new Font(info, pool));
-  if (!font->init(data))
+  if (!font->init(face, height))
     return nullptr;
 
   return font;
@@ -251,64 +168,30 @@ Font::Font(const ResourceInfo& info, VertexPool& pool):
   Resource(info),
   m_pool(&pool)
 {
-  std::memset(m_characters, 0, sizeof(m_characters));
 }
 
-bool Font::init(const FontData& data)
+bool Font::init(Face& face, uint height)
 {
-  uint maxWidth = 0, maxHeight = 0;
-
-  for (auto& g : data.glyphs)
-  {
-    maxWidth = max(maxWidth, g.image->width());
-    maxHeight = max(maxHeight, g.image->height());
-  }
-
-  Ref<GL::Texture> texture;
   GL::Context& context = m_pool->context();
 
-  // Create glyph texture
+  m_face = &face;
+
+  m_scale = face.scale(height);
+
+  m_width  = ceil(face.width(m_scale));
+  m_height = ceil(face.height(m_scale));
+
+  m_leading = ceil(face.leading(m_scale));
+
+  m_ascender  = ceil(face.ascender(m_scale));
+  m_descender = ceil(face.descender(m_scale));
+
+  if (uint(m_width) + 1 > context.limits().maxTextureSize ||
+      uint(m_height) + 1 > context.limits().maxTextureSize)
   {
-    const uint maxSize = context.limits().maxTextureSize;
-
-    uint totalWidth = 1;
-
-    for (auto& g : data.glyphs)
-      totalWidth += g.image->width() + 1;
-
-    uint textureWidth = min(powerOfTwoAbove(totalWidth), maxSize);
-
-    uint rows = totalWidth / textureWidth;
-    if (totalWidth % textureWidth)
-      rows++;
-
-    uint textureHeight = (maxHeight + 1) * rows + 1;
-    textureHeight = min(powerOfTwoAbove(textureHeight), maxSize);
-
-    GL::TextureData data(PixelFormat::L8, textureWidth, textureHeight);
-    GL::TextureParams params(GL::TEXTURE_2D);
-    params.mipmapped = false;
-
-    texture = GL::Texture::create(cache(), context, params, data);
-    if (!texture)
-    {
-      logError("Failed to create glyph texture for font %s",
-               name().c_str());
-      return false;
-    }
-
-    log("Allocated texture of size %ux%u format %s for font %s",
-        texture->width(),
-        texture->height(),
-        texture->format().asString().c_str(),
-        name().c_str());
-
-    texture->setFilterMode(GL::FILTER_NEAREST);
+    logError("Font %s is too large for texture size limits", name().c_str());
+    return false;
   }
-
-  vec2 texelOffset;
-  texelOffset.x = 0.25f / texture->width();
-  texelOffset.y = 0.25f / texture->height();
 
   // Create render pass
   {
@@ -322,7 +205,7 @@ bool Font::init(const FontData& data)
     }
 
     GL::ProgramInterface interface;
-    interface.addSampler("glyphs", GL::SAMPLER_2D);
+    interface.addSampler("glyphs", GL::SAMPLER_RECT);
     interface.addUniform("color", GL::UNIFORM_VEC4);
     interface.addAttributes(Vertex2ft2fv::format);
 
@@ -339,113 +222,135 @@ bool Font::init(const FontData& data)
     m_pass.setDepthTesting(false);
     m_pass.setDepthWriting(false);
     m_pass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
-    m_pass.setSamplerState("glyphs", texture);
     m_pass.setUniformState("color", vec4(1.f));
 
     m_colorIndex = m_pass.uniformStateIndex("color");
   }
 
-  m_ascender = m_descender = 0.f;
+  m_position = ivec2(1);
 
-  ivec2 texelPosition(1, 1);
+  if (!addGlyphTextureRow())
+    return false;
 
-  GL::TextureImage& textureImage = texture->image(0);
-  const uint textureWidth = textureImage.width();
-  const uint textureHeight = textureImage.height();
+  return true;
+}
 
-  m_glyphs.reserve(data.glyphs.size());
+const Font::Glyph* Font::addGlyph(uint32 codepoint)
+{
+  const int index = m_face->indexForCodePoint(codepoint);
+  if (!index)
+    return nullptr;
 
-  for (size_t i = 0;  i != data.glyphs.size();  i++)
+  m_glyphs.push_back(Glyph());
+  Glyph& glyph = m_glyphs.back();
+
+  glyph.codepoint = codepoint;
+  glyph.advance = ceil(m_face->advance(index, m_scale));
+  glyph.bearing = ceil(m_face->bearing(index, m_scale));
+
+  if (Ref<Image> image = m_face->glyph(index, m_scale))
   {
-    const FontGlyphData& glyphData = data.glyphs[i];
-
-    m_glyphs.push_back(Glyph());
-    Glyph& glyph = m_glyphs.back();
-
-    for (size_t c = 0;  c < 256;  c++)
+    if (m_position.x + image->width() + 2 > m_texture->width())
     {
-      if (data.characters[c] == int(i))
-        m_characters[c] = &glyph;
-    }
+      m_position.x = 1;
+      m_position.y += int(m_height);
 
-    Ref<Image> image = glyphData.image;
-
-    glyph.advance = glyphData.advance;
-    glyph.bearing = glyphData.bearing;
-    glyph.size = vec2(float(image->width()), float(image->height()));
-
-    if (glyph.bearing.y > m_ascender)
-      m_ascender = glyph.bearing.y;
-
-    if (glyph.size.y - glyph.bearing.y > m_descender)
-      m_descender = glyph.size.y - glyph.bearing.y;
-
-    if (texelPosition.x + image->width() + 2 > textureWidth)
-    {
-      texelPosition.x = 1;
-      texelPosition.y += int(maxHeight);
-
-      if (texelPosition.y + image->height() + 2 > textureHeight)
+      if (m_position.y + image->height() + 2 > m_texture->height())
       {
-        // TODO: Allocate next texture.
-        // TODO: Add texture pointer to glyphs.
-        logError("Not enough room in glyph texture for font %s",
-                 name().c_str());
-        return false;
+        if (!addGlyphTextureRow())
+          return nullptr;
       }
     }
 
-    if (!textureImage.copyFrom(*image, texelPosition.x, texelPosition.y))
+    if (!m_texture->image(0).copyFrom(*image, m_position.x, m_position.y))
     {
       logError("Failed to copy glyph image data for font %s",
-               name().c_str());
-      return false;
+                name().c_str());
+      return nullptr;
     }
 
-    glyph.area.position = vec2(texelPosition.x / float(textureWidth + texelOffset.x),
-                               texelPosition.y / float(textureHeight + texelOffset.y));
-    glyph.area.size = vec2(image->width() / float(textureWidth),
-                           image->height() / float(textureHeight));
+    glyph.area.position = vec2(m_position);
+    glyph.area.size = vec2(image->width(), image->height());
 
-    texelPosition.x += image->width() + 1;
+    m_position.x += image->width() + 1;
   }
 
-  m_size = vec2(float(maxWidth), float(maxHeight));
+  return &glyph;
+}
+
+const Font::Glyph* Font::findGlyph(uint32 codepoint)
+{
+  auto glyph = std::find(m_glyphs.begin(), m_glyphs.end(), codepoint);
+  if (glyph == m_glyphs.end())
+    return addGlyph(codepoint);
+
+  return &(*glyph);
+}
+
+bool Font::addGlyphTextureRow()
+{
+  GL::Context& context = m_pool->context();
+
+  Ref<Image> glyphs;
+  uint textureWidth = context.limits().maxTextureSize;
+  uint textureHeight = 0;
+
+  if (m_texture)
+  {
+    textureHeight = m_texture->height();
+    glyphs = m_texture->image(0).data();
+  }
+
+  textureHeight += uint(m_height) + 1;
+
+  if (textureHeight > context.limits().maxTextureSize)
+  {
+    logError("Glyph texture for font %s is full", name().c_str());
+    return false;
+  }
+
+  GL::TextureData data(PixelFormat::L8, textureWidth, textureHeight);
+  GL::TextureParams params(GL::TEXTURE_RECT);
+  params.mipmapped = false;
+
+  m_texture = GL::Texture::create(cache(), context, params, data);
+  if (!m_texture)
+  {
+    logError("Failed to create glyph texture for font %s", name().c_str());
+    return false;
+  }
+
+  if (glyphs)
+    m_texture->image(0).copyFrom(*glyphs);
+
+  m_texture->setFilterMode(GL::FILTER_NEAREST);
+
+  m_pass.setSamplerState("glyphs", m_texture);
   return true;
 }
 
-const Font::Glyph* Font::findGlyph(uint8 character) const
+bool Font::getGlyphLayout(Layout& layout, uint32 codepoint)
 {
-  return m_characters[character];
-}
-
-bool Font::getGlyphLayout(Layout& layout, uint8 character) const
-{
-  const Glyph* glyph = findGlyph(character);
+  const Glyph* glyph = findGlyph(codepoint);
   if (!glyph)
     return false;
 
-  getGlyphLayout(layout, *glyph, character);
+  getGlyphLayout(layout, *glyph);
   return true;
 }
 
-void Font::getGlyphLayout(Layout& layout, const Glyph& glyph, uint8 character) const
+void Font::getGlyphLayout(Layout& layout, const Glyph& glyph)
 {
-  layout.character = character;
-
-  layout.area.position.x = glyph.bearing.x;
-  layout.area.position.y = glyph.bearing.y - glyph.size.y;
-  layout.area.size.x = float(glyph.size.x);
-  layout.area.size.y = float(glyph.size.y);
-
-  layout.advance = floor(vec2(glyph.advance, 0.f) + vec2(0.5f));
+  layout.codepoint = glyph.codepoint;
+  layout.area = Rect(glyph.bearing, glyph.area.size);
+  layout.advance = vec2(round(glyph.advance), 0.f);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-FontReader::FontReader(VertexPool& initPool):
-  ResourceReader<Font>(initPool.context().cache()),
-  pool(&initPool)
+FontReader::FontReader(VertexPool& pool):
+  ResourceReader<Font>(pool.context().cache()),
+  m_pool(&pool)
 {
 }
 
@@ -476,224 +381,20 @@ Ref<Font> FontReader::read(const String& name, const Path& path)
     return nullptr;
   }
 
-  const String characters(root.attribute("characters").value());
-  if (characters.empty())
+  const String faceName(root.attribute("face").value());
+  if (faceName.empty())
   {
-    logError("No characters specified for font %s", name.c_str());
+    logError("No typeface specified for font %s", faceName.c_str());
     return nullptr;
   }
 
-  const String imageName(root.attribute("image").value());
-  if (imageName.empty())
-  {
-    logError("Glyph image path missing for font %s", name.c_str());
-    return nullptr;
-  }
+  const uint height = root.attribute("height").as_uint();
 
-  Ref<Image> image = Image::read(cache, imageName);
-  if (!image)
-  {
-    logError("Failed to load glyph image for font %s", name.c_str());
-    return nullptr;
-  }
-
-  bool fixedWidth = false;
-
-  if (pugi::xml_attribute a = root.attribute("fixed"))
-    fixedWidth = a.as_bool();
-
-  FontData data;
-
-  if (!extractGlyphs(data, name, *image, characters, fixedWidth))
+  Ref<Face> face = Face::read(cache, faceName);
+  if (!face)
     return nullptr;
 
-  return Font::create(ResourceInfo(cache, name, path), *pool, data);
-}
-
-bool FontReader::extractGlyphs(FontData& data,
-                               const String& name,
-                               const Image& image,
-                               const String& characters,
-                               bool fixedWidth)
-{
-  if (image.format() != PixelFormat::L8)
-  {
-    logError("Image %s for font %s has invalid pixel format %s",
-             image.name().c_str(),
-             name.c_str(),
-             image.format().asString().c_str());
-    return false;
-  }
-
-  Ref<Image> source;
-
-  // Crop top and bottom parts
-  {
-    const uint startY = findStartY(image);
-    if (startY == image.height())
-    {
-      logError("No glyphs found in source image for font %s", name.c_str());
-      return false;
-    }
-
-    const uint endY = findEndY(image);
-
-    source = image.area(Recti(0, startY, image.width(), endY - startY));
-    if (!source)
-    {
-      logError("Failed to crop source image for font %s", name.c_str());
-      return false;
-    }
-  }
-
-  data.glyphs.reserve(characters.length());
-
-  const uint8* pixels = (const uint8*) source->pixels();
-
-  uint index = 0, startX = 0, endX;
-
-  for (;;)
-  {
-    // Find left edge of glyph, if any
-
-    while (startX < source->width())
-    {
-      uint y;
-
-      for (y = 0;  y < source->height();  y++)
-      {
-        if (pixels[startX + y * source->width()] > 0)
-          break;
-      }
-
-      if (y < source->height())
-        break;
-
-      startX++;
-    }
-
-    if (startX == source->width())
-      break;
-
-    if (index == characters.size())
-    {
-      logError("Font %s has less characters than glyphs", name.c_str());
-      return false;
-    }
-
-    // Find right edge of glyph
-
-    for (endX = startX + 1;  endX < source->width();  endX++)
-    {
-      uint y;
-
-      for (y = 0;  y < source->height();  y++)
-      {
-        if (pixels[endX + y * source->width()] > 0)
-          break;
-      }
-
-      if (y == source->height())
-        break;
-    }
-
-    Recti area(startX, 0, endX - startX, source->height());
-
-    Ref<Image> glyphImage = source->area(area);
-    if (!glyphImage)
-    {
-      logError("Failed to extract glyph image for font %s", name.c_str());
-      return false;
-    }
-
-    data.characters[(unsigned char) characters[index++]] = data.glyphs.size();
-
-    data.glyphs.push_back(FontGlyphData());
-    FontGlyphData& glyph = data.glyphs.back();
-    glyph.bearing = vec2(0.f, glyphImage->height() / 2.f);
-    glyph.advance = float(glyphImage->width());
-    glyph.image = glyphImage;
-
-    startX = endX;
-  }
-
-  // HACK: Make digits same width
-  {
-    std::vector<FontGlyphData*> digits;
-
-    float maxAdvance = 0.f;
-
-    for (int c = '0';  c <= '9';  c++)
-    {
-      const int index = data.characters[c];
-      if (index == -1)
-        continue;
-
-      FontGlyphData& glyph = data.glyphs[index];
-      if (glyph.advance > maxAdvance)
-        maxAdvance = glyph.advance;
-
-      digits.push_back(&glyph);
-    }
-
-    for (auto d : digits)
-    {
-      d->bearing.x = (maxAdvance - d->advance) / 2.f;
-      d->advance = maxAdvance;
-    }
-  }
-
-  float maxAdvance = 0.f;
-  float meanAdvance = 0.f;
-
-  for (auto& g : data.glyphs)
-  {
-    maxAdvance = max(maxAdvance, g.advance);
-    meanAdvance += g.advance;
-  }
-
-  meanAdvance /= float(data.glyphs.size());
-
-  // HACK: Create space glyph if not already present
-
-  if (data.characters[' '] == -1)
-  {
-    data.characters[' '] = data.glyphs.size();
-
-    data.glyphs.push_back(FontGlyphData());
-    FontGlyphData& glyph = data.glyphs.back();
-
-    glyph.bearing = vec2(0.f);
-    glyph.image = Image::create(cache, source->format(), 1, 1);
-
-    if (fixedWidth)
-      glyph.advance = maxAdvance;
-    else
-      glyph.advance = meanAdvance * 0.6f;
-  }
-
-  // HACK: Create tab glyph if not already present
-
-  if (data.characters['\t'] == -1)
-    data.characters['\t'] = data.characters[' '];
-
-  // HACK: Introduce 'tasteful' spacing
-
-  if (fixedWidth)
-  {
-    for (auto& g : data.glyphs)
-    {
-      g.advance = maxAdvance;
-      g.bearing.x = (g.advance - g.image->width()) / 2.f;
-    }
-  }
-  else
-  {
-    for (auto& g : data.glyphs)
-      g.advance += meanAdvance * 0.2f;
-  }
-
-  return true;
+  return Font::create(ResourceInfo(cache, name, path), *m_pool, *face, height);
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -57,6 +57,7 @@
 
 #include <wendy/Image.hpp>
 #include <wendy/Mesh.hpp>
+#include <wendy/Face.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 #endif /*WENDY_WENDYCORE_HPP*/
