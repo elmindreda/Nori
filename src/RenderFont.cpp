@@ -133,8 +133,8 @@ void Font::drawText(const vec2& penPosition, const vec4& color, const char* text
   if (!length)
     return;
 
-  GL::VertexRange vertexRange;
-  if (!m_pool->allocateVertices(vertexRange, length * 6, Vertex2ft2fv::format))
+  GL::VertexRange range = m_pool->allocate(length * 6, Vertex2ft2fv::format);
+  if (range.isEmpty())
   {
     logError("Failed to allocate vertices for text drawing");
     return;
@@ -179,7 +179,7 @@ void Font::drawText(const vec2& penPosition, const vec4& color, const char* text
       }
     }
 
-    vertexRange.copyFrom(&m_vertices[0]);
+    range.copyFrom(&m_vertices[0]);
   }
 
   if (!count)
@@ -190,8 +190,8 @@ void Font::drawText(const vec2& penPosition, const vec4& color, const char* text
 
   GL::Context& context = m_pool->context();
   context.render(GL::PrimitiveRange(GL::TRIANGLE_LIST,
-                                    *vertexRange.vertexBuffer(),
-                                    vertexRange.start(),
+                                    *range.vertexBuffer(),
+                                    range.start(),
                                     count));
 }
 

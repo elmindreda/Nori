@@ -133,8 +133,8 @@ void Sprite2::render(VertexPool& pool) const
   Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
-  GL::VertexRange range;
-  if (!pool.allocateVertices(range, 4, Vertex2ft2fv::format))
+  GL::VertexRange range = pool.allocate(4, Vertex2ft2fv::format);
+  if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
@@ -183,8 +183,8 @@ void Sprite3::enqueue(Scene& scene,
     return;
   }
 
-  GL::VertexRange range;
-  if (!scene.vertexPool().allocateVertices(range, 4, Vertex2ft3fv::format))
+  GL::VertexRange range = scene.vertexPool().allocate(4, Vertex2ft3fv::format);
+  if (range.isEmpty())
     return;
 
   const vec3 cameraPos = camera.transform().position;

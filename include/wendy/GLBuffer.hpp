@@ -287,9 +287,12 @@ public:
    *  @param[in,out] target The base address of the destination buffer.
    */
   void copyTo(void* target);
+  /*! @return @c true if this vertex range is empty, or @c false otherwise.
+   */
+  bool isEmpty() const { return m_count == 0; }
   /*! @return The vertex buffer underlying this vertex range.
    */
-  VertexBuffer* vertexBuffer() const { return m_vertexBuffer; }
+  VertexBuffer* vertexBuffer() const { return m_buffer; }
   /*! @return The index of the first vertex in this vertex range.
    */
   size_t start() const { return m_start; }
@@ -297,7 +300,7 @@ public:
    */
   size_t count() const { return m_count; }
 private:
-  VertexBuffer* m_vertexBuffer;
+  VertexBuffer* m_buffer;
   size_t m_start;
   size_t m_count;
 };
@@ -320,10 +323,10 @@ public:
   /*! Creates a range spanning the entire specified index buffer.
    *  @param[in] indexBuffer The index buffer this range will refer to.
    */
-  IndexRange(IndexBuffer& indexBuffer);
+  IndexRange(IndexBuffer& buffer);
   /*! Creates the specified range within the specified index buffer.
    */
-  IndexRange(IndexBuffer& indexBuffer, size_t start, size_t count);
+  IndexRange(IndexBuffer& buffer, size_t start, size_t count);
   /*! Locks this index range into memory and returns its address.
    *  @param[in] type The desired type of lock.
    *  @return The base address of this index range, or @c nullptr if an error
@@ -343,7 +346,7 @@ public:
   void copyTo(void* target);
   /*! @return The index buffer underlying this index range.
    */
-  IndexBuffer* indexBuffer() const { return m_indexBuffer; }
+  IndexBuffer* indexBuffer() const { return m_buffer; }
   /*! @return The index of the first index in this index range.
    */
   size_t start() const { return m_start; }
@@ -351,7 +354,7 @@ public:
    */
   size_t count() const { return m_count; }
 private:
-  IndexBuffer* m_indexBuffer;
+  IndexBuffer* m_buffer;
   size_t m_start;
   size_t m_count;
 };

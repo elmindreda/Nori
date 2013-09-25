@@ -48,18 +48,14 @@ class VertexPool : public Trackable, public RefObject
 {
 public:
   /*! Allocates a range of temporary vertices of the specified format.
-   *  @param[out] range The newly allocated vertex range.
    *  @param[in] count The number of vertices to allocate.
    *  @param[in] format The format of vertices to allocate.
-   *  @return @c true if the allocation succeeded, or @c false if an
-   *  error occurred.
+   *  @return @c The newly allocated vertex range.
    *
    *  @remarks The allocated vertex range is only valid until the end of the
    *  current frame.
    */
-  bool allocateVertices(GL::VertexRange& range,
-                        uint count,
-                        const VertexFormat& format);
+  GL::VertexRange allocate(uint count, const VertexFormat& format);
   /*! @return The OpenGL context used by this pool.
    */
   GL::Context& context() const { return m_context; }

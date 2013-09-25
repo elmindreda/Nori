@@ -271,8 +271,8 @@ void Drawer::drawPoint(const vec2& point, const vec4& color)
   Vertex2fv vertex;
   vertex.position = point;
 
-  GL::VertexRange range;
-  if (!getVertexPool().allocateVertices(range, 1, Vertex2fv::format))
+  GL::VertexRange range = getVertexPool().allocate(1, Vertex2fv::format);
+  if (range.isEmpty())
     return;
 
   range.copyFrom(&vertex);
@@ -288,8 +288,8 @@ void Drawer::drawLine(const Segment2& segment, const vec4& color)
   vertices[0].position = segment.start;
   vertices[1].position = segment.end;
 
-  GL::VertexRange range;
-  if (!getVertexPool().allocateVertices(range, 2, Vertex2fv::format))
+  GL::VertexRange range = getVertexPool().allocate(2, Vertex2fv::format);
+  if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
@@ -306,8 +306,8 @@ void Drawer::drawTriangle(const Triangle2& triangle, const vec4& color)
   vertices[1].position = triangle.P[1];
   vertices[2].position = triangle.P[2];
 
-  GL::VertexRange range;
-  if (!getVertexPool().allocateVertices(range, 3, Vertex2fv::format))
+  GL::VertexRange range = getVertexPool().allocate(3, Vertex2fv::format);
+  if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
@@ -322,8 +322,8 @@ void Drawer::drawBezier(const BezierCurve2& spline, const vec4& color)
   BezierCurve2::PointList points;
   spline.tessellate(points);
 
-  GL::VertexRange range;
-  if (!getVertexPool().allocateVertices(range, points.size(), Vertex2fv::format))
+  GL::VertexRange range = getVertexPool().allocate(points.size(), Vertex2fv::format);
+  if (range.isEmpty())
     return;
 
   // Realize vertices
@@ -353,8 +353,8 @@ void Drawer::drawRectangle(const Rect& rectangle, const vec4& color)
   vertices[2].position = vec2(maxX, maxY);
   vertices[3].position = vec2(minX, maxY);
 
-  GL::VertexRange range;
-  if (!getVertexPool().allocateVertices(range, 4, Vertex2fv::format))
+  GL::VertexRange range = getVertexPool().allocate(4, Vertex2fv::format);
+  if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
@@ -371,8 +371,8 @@ void Drawer::fillTriangle(const Triangle2& triangle, const vec4& color)
   vertices[1].position = triangle.P[1];
   vertices[2].position = triangle.P[2];
 
-  GL::VertexRange range;
-  if (!getVertexPool().allocateVertices(range, 3, Vertex2fv::format))
+  GL::VertexRange range = getVertexPool().allocate(3, Vertex2fv::format);
+  if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
@@ -396,8 +396,8 @@ void Drawer::fillRectangle(const Rect& rectangle, const vec4& color)
   vertices[2].position = vec2(maxX, maxY);
   vertices[3].position = vec2(minX, maxY);
 
-  GL::VertexRange range;
-  if (!getVertexPool().allocateVertices(range, 4, Vertex2fv::format))
+  GL::VertexRange range = getVertexPool().allocate(4, Vertex2fv::format);
+  if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
@@ -425,8 +425,8 @@ void Drawer::blitTexture(const Rect& area, GL::Texture& texture)
   vertices[3].texcoord = vec2(0.f, 1.f);
   vertices[3].position = vec2(minX, maxY);
 
-  GL::VertexRange range;
-  if (!getVertexPool().allocateVertices(range, 4, Vertex2ft2fv::format))
+  GL::VertexRange range = getVertexPool().allocate(4, Vertex2ft2fv::format);
+  if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);

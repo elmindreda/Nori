@@ -475,139 +475,139 @@ IndexBuffer& IndexBuffer::operator = (const IndexBuffer& source)
 ///////////////////////////////////////////////////////////////////////
 
 VertexRange::VertexRange():
-  m_vertexBuffer(nullptr),
+  m_buffer(nullptr),
   m_start(0),
   m_count(0)
 {
 }
 
 VertexRange::VertexRange(VertexBuffer& vertexBuffer):
-  m_vertexBuffer(&vertexBuffer),
+  m_buffer(&vertexBuffer),
   m_start(0),
   m_count(0)
 {
-  m_count = m_vertexBuffer->count();
+  m_count = m_buffer->count();
 }
 
 VertexRange::VertexRange(VertexBuffer& vertexBuffer,
                          size_t start,
                          size_t count):
-  m_vertexBuffer(&vertexBuffer),
+  m_buffer(&vertexBuffer),
   m_start(start),
   m_count(count)
 {
-  assert(m_vertexBuffer->count() >= m_start + m_count);
+  assert(m_buffer->count() >= m_start + m_count);
 }
 
 void* VertexRange::lock(LockType type) const
 {
-  if (!m_vertexBuffer || m_count == 0)
+  if (!m_buffer || m_count == 0)
   {
     logError("Cannot lock empty vertex buffer range");
     return nullptr;
   }
 
-  uint8* vertices = (uint8*) m_vertexBuffer->lock(type);
+  uint8* vertices = (uint8*) m_buffer->lock(type);
   if (!vertices)
     return nullptr;
 
-  return vertices + m_start * m_vertexBuffer->format().size();
+  return vertices + m_start * m_buffer->format().size();
 }
 
 void VertexRange::unlock() const
 {
-  if (!m_vertexBuffer)
+  if (!m_buffer)
   {
     logError("Cannot unlock non-locked vertex buffer");
     return;
   }
 
-  m_vertexBuffer->unlock();
+  m_buffer->unlock();
 }
 
 void VertexRange::copyFrom(const void* source)
 {
-  if (!m_vertexBuffer)
+  if (!m_buffer)
     return;
 
-  m_vertexBuffer->copyFrom(source, m_count, m_start);
+  m_buffer->copyFrom(source, m_count, m_start);
 }
 
 void VertexRange::copyTo(void* target)
 {
-  if (!m_vertexBuffer)
+  if (!m_buffer)
     return;
 
-  m_vertexBuffer->copyTo(target, m_count, m_start);
+  m_buffer->copyTo(target, m_count, m_start);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 IndexRange::IndexRange():
-  m_indexBuffer(nullptr),
+  m_buffer(nullptr),
   m_start(0),
   m_count(0)
 {
 }
 
-IndexRange::IndexRange(IndexBuffer& indexBuffer):
-  m_indexBuffer(&indexBuffer),
+IndexRange::IndexRange(IndexBuffer& buffer):
+  m_buffer(&buffer),
   m_start(0),
   m_count(0)
 {
-  m_count = m_indexBuffer->count();
+  m_count = m_buffer->count();
 }
 
-IndexRange::IndexRange(IndexBuffer& indexBuffer,
+IndexRange::IndexRange(IndexBuffer& buffer,
                        size_t start,
                        size_t count):
-  m_indexBuffer(&indexBuffer),
+  m_buffer(&buffer),
   m_start(start),
   m_count(count)
 {
-  assert(m_indexBuffer->count() >= m_start + m_count);
+  assert(m_buffer->count() >= m_start + m_count);
 }
 
 void* IndexRange::lock(LockType type) const
 {
-  if (!m_indexBuffer || m_count == 0)
+  if (!m_buffer || m_count == 0)
   {
     logError("Cannot lock empty index buffer range");
     return nullptr;
   }
 
-  uint8* indices = (uint8*) m_indexBuffer->lock(type);
+  uint8* indices = (uint8*) m_buffer->lock(type);
   if (!indices)
     return nullptr;
 
-  return indices + m_start * IndexBuffer::typeSize(m_indexBuffer->type());
+  return indices + m_start * IndexBuffer::typeSize(m_buffer->type());
 }
 
 void IndexRange::unlock() const
 {
-  if (!m_indexBuffer)
+  if (!m_buffer)
   {
     logError("Cannot unlock non-locked index buffer");
     return;
   }
 
-  m_indexBuffer->unlock();
+  m_buffer->unlock();
 }
 
 void IndexRange::copyFrom(const void* source)
 {
-  if (!m_indexBuffer)
+  if (!m_buffer)
     return;
 
-  m_indexBuffer->copyFrom(source, m_count, m_start);
+  m_buffer->copyFrom(source, m_count, m_start);
 }
 
 void IndexRange::copyTo(void* target)
 {
-  if (!m_indexBuffer)
+  if (!m_buffer)
     return;
 
-  m_indexBuffer->copyTo(target, m_count, m_start);
+  m_buffer->copyTo(target, m_count, m_start);
 }
 
 ///////////////////////////////////////////////////////////////////////

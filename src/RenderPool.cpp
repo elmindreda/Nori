@@ -41,15 +41,10 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-bool VertexPool::allocateVertices(GL::VertexRange& range,
-                                  uint count,
-                                  const VertexFormat& format)
+GL::VertexRange VertexPool::allocate(uint count, const VertexFormat& format)
 {
   if (!count)
-  {
-    range = GL::VertexRange();
-    return true;
-  }
+    return GL::VertexRange();
 
   Slot* slot = nullptr;
 
@@ -76,7 +71,7 @@ bool VertexPool::allocateVertices(GL::VertexRange& range,
     if (!slot->buffer)
     {
       m_slots.pop_back();
-      return false;
+      return GL::VertexRange();
     }
 
     log("Allocated vertex pool of size %u format %s",
@@ -86,12 +81,11 @@ bool VertexPool::allocateVertices(GL::VertexRange& range,
     slot->available = slot->buffer->count();
   }
 
-  range = GL::VertexRange(*(slot->buffer),
-                          slot->buffer->count() - slot->available,
-                          count);
+  const uint start = slot->buffer->count() - slot->available;
 
   slot->available -= count;
-  return true;
+
+  return GL::VertexRange(*(slot->buffer), start, count);
 }
 
 Ref<VertexPool> VertexPool::create(GL::Context& context, size_t granularity)
