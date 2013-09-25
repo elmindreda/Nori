@@ -152,16 +152,16 @@ void* VertexBuffer::lock(LockType type)
   if (m_locked)
   {
     logError("Vertex buffer already locked");
-    return NULL;
+    return nullptr;
   }
 
   m_context.setCurrentVertexBuffer(this);
 
   void* mapping = glMapBuffer(GL_ARRAY_BUFFER, convertToGL(type));
-  if (mapping == NULL)
+  if (mapping == nullptr)
   {
     checkGL("Failed to lock vertex buffer");
-    return NULL;
+    return nullptr;
   }
 
   m_locked = true;
@@ -239,7 +239,7 @@ Ref<VertexBuffer> VertexBuffer::create(Context& context,
 {
   Ref<VertexBuffer> buffer(new VertexBuffer(context));
   if (!buffer->init(format, count, usage))
-    return NULL;
+    return nullptr;
 
   return buffer;
 }
@@ -271,13 +271,13 @@ bool VertexBuffer::init(const VertexFormat& format, size_t count, Usage usage)
 
   glBufferData(GL_ARRAY_BUFFER,
                m_count * m_format.size(),
-               NULL,
+               nullptr,
                convertToGL(m_usage));
 
   if (!checkGL("Error during creation of vertex buffer of format %s",
                m_format.asString().c_str()))
   {
-    m_context.setCurrentVertexBuffer(NULL);
+    m_context.setCurrentVertexBuffer(nullptr);
     return false;
   }
 
@@ -311,16 +311,16 @@ void* IndexBuffer::lock(LockType type)
   if (m_locked)
   {
     logError("Index buffer already locked");
-    return NULL;
+    return nullptr;
   }
 
   m_context.setCurrentIndexBuffer(this);
 
   void* mapping = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, convertToGL(type));
-  if (mapping == NULL)
+  if (mapping == nullptr)
   {
     checkGL("Failed to lock index buffer");
-    return NULL;
+    return nullptr;
   }
 
   m_locked = true;
@@ -403,7 +403,7 @@ Ref<IndexBuffer> IndexBuffer::create(Context& context,
 {
   Ref<IndexBuffer> buffer(new IndexBuffer(context));
   if (!buffer->init(count, type, usage))
-    return NULL;
+    return nullptr;
 
   return buffer;
 }
@@ -451,13 +451,13 @@ bool IndexBuffer::init(size_t count, IndexType type, Usage usage)
 
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                m_count * typeSize(m_type),
-               NULL,
+               nullptr,
                convertToGL(m_usage));
 
   if (!checkGL("Error during creation of index buffer of element size %u",
                (uint) typeSize(m_type)))
   {
-    m_context.setCurrentIndexBuffer(NULL);
+    m_context.setCurrentIndexBuffer(nullptr);
     return false;
   }
 
@@ -475,7 +475,7 @@ IndexBuffer& IndexBuffer::operator = (const IndexBuffer& source)
 ///////////////////////////////////////////////////////////////////////
 
 VertexRange::VertexRange():
-  m_vertexBuffer(NULL),
+  m_vertexBuffer(nullptr),
   m_start(0),
   m_count(0)
 {
@@ -504,12 +504,12 @@ void* VertexRange::lock(LockType type) const
   if (!m_vertexBuffer || m_count == 0)
   {
     logError("Cannot lock empty vertex buffer range");
-    return NULL;
+    return nullptr;
   }
 
   uint8* vertices = (uint8*) m_vertexBuffer->lock(type);
   if (!vertices)
-    return NULL;
+    return nullptr;
 
   return vertices + m_start * m_vertexBuffer->format().size();
 }
@@ -544,7 +544,7 @@ void VertexRange::copyTo(void* target)
 ///////////////////////////////////////////////////////////////////////
 
 IndexRange::IndexRange():
-  m_indexBuffer(NULL),
+  m_indexBuffer(nullptr),
   m_start(0),
   m_count(0)
 {
@@ -573,12 +573,12 @@ void* IndexRange::lock(LockType type) const
   if (!m_indexBuffer || m_count == 0)
   {
     logError("Cannot lock empty index buffer range");
-    return NULL;
+    return nullptr;
   }
 
   uint8* indices = (uint8*) m_indexBuffer->lock(type);
   if (!indices)
-    return NULL;
+    return nullptr;
 
   return indices + m_start * IndexBuffer::typeSize(m_indexBuffer->type());
 }
@@ -614,8 +614,8 @@ void IndexRange::copyTo(void* target)
 
 PrimitiveRange::PrimitiveRange():
   m_type(TRIANGLE_LIST),
-  m_vertexBuffer(NULL),
-  m_indexBuffer(NULL),
+  m_vertexBuffer(nullptr),
+  m_indexBuffer(nullptr),
   m_start(0),
   m_count(0),
   m_base(0)
@@ -626,7 +626,7 @@ PrimitiveRange::PrimitiveRange(PrimitiveType type,
                                VertexBuffer& vertexBuffer):
   m_type(type),
   m_vertexBuffer(&vertexBuffer),
-  m_indexBuffer(NULL),
+  m_indexBuffer(nullptr),
   m_start(0),
   m_count(0),
   m_base(0)
@@ -637,8 +637,8 @@ PrimitiveRange::PrimitiveRange(PrimitiveType type,
 PrimitiveRange::PrimitiveRange(PrimitiveType type,
                                const VertexRange& vertexRange):
   m_type(type),
-  m_vertexBuffer(NULL),
-  m_indexBuffer(NULL),
+  m_vertexBuffer(nullptr),
+  m_indexBuffer(nullptr),
   m_start(0),
   m_count(0),
   m_base(0)
@@ -668,7 +668,7 @@ PrimitiveRange::PrimitiveRange(PrimitiveType type,
                                size_t base):
   m_type(type),
   m_vertexBuffer(&vertexBuffer),
-  m_indexBuffer(NULL),
+  m_indexBuffer(nullptr),
   m_start(0),
   m_count(0),
   m_base(base)
@@ -685,7 +685,7 @@ PrimitiveRange::PrimitiveRange(PrimitiveType type,
                                size_t base):
   m_type(type),
   m_vertexBuffer(&vertexBuffer),
-  m_indexBuffer(NULL),
+  m_indexBuffer(nullptr),
   m_start(start),
   m_count(count),
   m_base(base)
@@ -709,7 +709,7 @@ PrimitiveRange::PrimitiveRange(PrimitiveType type,
 
 bool PrimitiveRange::isEmpty() const
 {
-  if (m_vertexBuffer == NULL)
+  if (m_vertexBuffer == nullptr)
     return true;
 
   return m_count == 0;
@@ -720,7 +720,7 @@ bool PrimitiveRange::isEmpty() const
 template <>
 IndexRangeLock<uint8>::IndexRangeLock(IndexRange& initRange):
   range(initRange),
-  indices(NULL)
+  indices(nullptr)
 {
   if (IndexBuffer* indexBuffer = range.indexBuffer())
   {
@@ -736,7 +736,7 @@ IndexRangeLock<uint8>::IndexRangeLock(IndexRange& initRange):
 template <>
 IndexRangeLock<uint16>::IndexRangeLock(IndexRange& initRange):
   range(initRange),
-  indices(NULL)
+  indices(nullptr)
 {
   if (IndexBuffer* indexBuffer = range.indexBuffer())
   {
@@ -752,7 +752,7 @@ IndexRangeLock<uint16>::IndexRangeLock(IndexRange& initRange):
 template <>
 IndexRangeLock<uint32>::IndexRangeLock(IndexRange& initRange):
   range(initRange),
-  indices(NULL)
+  indices(nullptr)
 {
   if (IndexBuffer* indexBuffer = range.indexBuffer())
   {
@@ -938,7 +938,7 @@ Ref<TextureFramebuffer> TextureFramebuffer::create(Context& context)
 {
   Ref<TextureFramebuffer> framebuffer(new TextureFramebuffer(context));
   if (!framebuffer->init())
-    return NULL;
+    return nullptr;
 
   return framebuffer;
 }

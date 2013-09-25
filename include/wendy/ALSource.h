@@ -120,12 +120,12 @@ public:
   /*! Sets the pitch of this source.
    */
   void setPitch(float newPitch);
-  /*! @return The currently set buffer for this source, or @c NULL if no buffer
-   *  is set.
+  /*! @return The currently set buffer for this source, or @c nullptr if no
+   *  buffer is set.
    */
   Buffer* buffer() const { return m_buffer; }
   /*! Sets the buffer to be used by this source.
-   *  @param[in] newBuffer The buffer to use, or @c NULL to detach the
+   *  @param[in] newBuffer The buffer to use, or @c nullptr to detach the
    *  currently used buffer.
    */
   void setBuffer(Buffer* newBuffer);

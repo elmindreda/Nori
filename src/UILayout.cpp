@@ -161,7 +161,7 @@ void Layout::addedToParent(Widget& parent)
 void Layout::removedFromParent(Widget& parent)
 {
   if (expanding)
-    parentAreaSlot = NULL;
+    parentAreaSlot = nullptr;
 }
 
 void Layout::update()

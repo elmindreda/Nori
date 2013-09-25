@@ -42,7 +42,7 @@ namespace wendy
 
 Widget::Widget(Layer& initlayer):
   layer(initlayer),
-  parent(NULL),
+  parent(nullptr),
   enabled(true),
   visible(true),
   draggable(false)
@@ -100,7 +100,7 @@ void Widget::removeFromParent()
   if (parent)
   {
     Widget* oldParent = parent;
-    parent = NULL;
+    parent = nullptr;
 
     oldParent->removedChild(*this);
     removedFromParent(*oldParent);
@@ -110,7 +110,7 @@ void Widget::removeFromParent()
 Widget* Widget::findByPoint(const vec2& point)
 {
   if (!area.contains(point))
-    return NULL;
+    return nullptr;
 
   const vec2 localPoint = point - area.position;
 

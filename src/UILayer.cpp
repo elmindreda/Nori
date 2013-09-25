@@ -48,11 +48,11 @@ Layer::Layer(Window& initWindow, UI::Drawer& initDrawer):
   window(initWindow),
   drawer(initDrawer),
   dragging(false),
-  activeWidget(NULL),
-  draggedWidget(NULL),
-  hoveredWidget(NULL),
-  captureWidget(NULL),
-  stack(NULL)
+  activeWidget(nullptr),
+  draggedWidget(nullptr),
+  hoveredWidget(nullptr),
+  captureWidget(nullptr),
+  stack(nullptr)
 {
   assert(&window);
   assert(&drawer);
@@ -108,7 +108,7 @@ Widget* Layer::findWidgetByPoint(const vec2& point)
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void Layer::captureCursor()
@@ -128,7 +128,7 @@ void Layer::releaseCursor()
 {
   if (captureWidget)
   {
-    captureWidget = NULL;
+    captureWidget = nullptr;
     window.releaseCursor();
     updateHoveredWidget();
   }
@@ -143,7 +143,7 @@ void Layer::cancelDragging()
 
     draggedWidget->dragEndedSignal(*draggedWidget, cursorPosition);
 
-    draggedWidget = NULL;
+    draggedWidget = nullptr;
     dragging = false;
   }
 }
@@ -160,7 +160,7 @@ bool Layer::isOpaque() const
 
 bool Layer::hasCapturedCursor() const
 {
-  return captureWidget != NULL;
+  return captureWidget != nullptr;
 }
 
 uint Layer::getWidth() const
@@ -360,7 +360,7 @@ void Layer::onMouseButton(MouseButton button, Action action)
 
   if (action == PRESSED)
   {
-    Widget* clickedWidget = NULL;
+    Widget* clickedWidget = nullptr;
 
     if (captureWidget)
       clickedWidget = captureWidget;
@@ -402,7 +402,7 @@ void Layer::onMouseButton(MouseButton button, Action action)
         dragging = false;
       }
 
-      draggedWidget = NULL;
+      draggedWidget = nullptr;
     }
 
     if (activeWidget)
@@ -468,7 +468,7 @@ void LayerStack::draw() const
 
 void LayerStack::push(Layer& layer)
 {
-  assert(layer.stack == NULL);
+  assert(layer.stack == nullptr);
   assert(&layer.window == &window);
 
   layers.push_back(&layer);
@@ -480,8 +480,8 @@ void LayerStack::pop()
 {
   if (!layers.empty())
   {
-    window.setTarget(NULL);
-    layers.back()->stack = NULL;
+    window.setTarget(nullptr);
+    layers.back()->stack = nullptr;
     layers.pop_back();
   }
 
@@ -503,7 +503,7 @@ bool LayerStack::isEmpty() const
 Layer* LayerStack::getTop() const
 {
   if (layers.empty())
-    return NULL;
+    return nullptr;
 
   return layers.back();
 }

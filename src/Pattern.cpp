@@ -49,7 +49,7 @@ PatternMatch::PatternMatch(const String& text, int* ranges, uint count)
 ///////////////////////////////////////////////////////////////////////
 
 Pattern::Pattern(const String& source):
-  m_object(NULL)
+  m_object(nullptr)
 {
   if (!init(source))
     throw Exception("Failed to compile PCRE pattern");
@@ -66,7 +66,7 @@ bool Pattern::matches(const String& text) const
   // NOTE: Static sizes are bad, but what is one to do?
   int results[300];
 
-  int pairs = pcre_exec((pcre*) m_object, NULL,
+  int pairs = pcre_exec((pcre*) m_object, nullptr,
                         text.c_str(), text.length(), 0, 0,
                         results, sizeof(results) / sizeof(int));
   if (pairs < 0)
@@ -86,7 +86,7 @@ bool Pattern::matches(const String& text) const
 
 bool Pattern::contains(const String& text) const
 {
-  if (!pcre_exec((pcre*) m_object, NULL, text.c_str(), text.length(), 0, 0, NULL, 0))
+  if (!pcre_exec((pcre*) m_object, nullptr, text.c_str(), text.length(), 0, 0, nullptr, 0))
     return false;
 
   return true;
@@ -97,7 +97,7 @@ PatternMatch* Pattern::match(const String& text) const
   // NOTE: Static sizes are bad, but what is one to do?
   int ranges[300];
 
-  int count = pcre_exec((pcre*) m_object, NULL,
+  int count = pcre_exec((pcre*) m_object, nullptr,
                         text.c_str(), text.length(), 0, 0,
                         ranges, sizeof(ranges) / sizeof(int));
   if (count < 0)
@@ -105,7 +105,7 @@ PatternMatch* Pattern::match(const String& text) const
     if (count != PCRE_ERROR_NOMATCH)
       logError("Error when matching pattern");
 
-    return NULL;
+    return nullptr;
   }
 
   return new PatternMatch(text, ranges, count);
@@ -115,13 +115,13 @@ Pattern* Pattern::create(const String& source)
 {
   Ptr<Pattern> pattern(new Pattern());
   if (!pattern->init(source))
-    return NULL;
+    return nullptr;
 
   return pattern.detachObject();
 }
 
 Pattern::Pattern():
-  m_object(NULL)
+  m_object(nullptr)
 {
 }
 
@@ -132,10 +132,10 @@ Pattern::Pattern(const Pattern& source)
 
 bool Pattern::init(const String& source)
 {
-  const char* message = NULL;
+  const char* message = nullptr;
   int offset = 0;
 
-  m_object = pcre_compile(source.c_str(), 0, &message, &offset, NULL);
+  m_object = pcre_compile(source.c_str(), 0, &message, &offset, nullptr);
   if (!m_object)
   {
     logError("Failed to compile PCRE pattern: %s", message);

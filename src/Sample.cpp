@@ -100,7 +100,7 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
     logError("Failed to open audio file %s: %s",
              path.asString().c_str(),
              getErrorString(result));
-    return NULL;
+    return nullptr;
   }
 
   if (ov_streams(&file) > 1)
@@ -108,7 +108,7 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
     ov_clear(&file);
     logError("Audio file %s has an unsupported number of bitstreams",
              path.asString().c_str());
-    return NULL;
+    return nullptr;
   }
 
   const vorbis_info* info = ov_info(&file, -1);
@@ -117,7 +117,7 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
     ov_clear(&file);
     logError("Failed to retrieve Vorbis info for audio file %s",
              path.asString().c_str());
-    return NULL;
+    return nullptr;
   }
 
   if (info->channels > 2)
@@ -125,7 +125,7 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
     ov_clear(&file);
     logError("Audio file %s has an unsupported number of channels",
              path.asString().c_str());
-    return NULL;
+    return nullptr;
   }
 
   const unsigned long frequency = info->rate;
@@ -156,7 +156,7 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
       logError("Error when reading audio file %s: %s",
               path.asString().c_str(),
               getErrorString(result));
-      return NULL;
+      return nullptr;
     }
     else if (result > 0)
       samples.insert(samples.end(), scratch, scratch + result);

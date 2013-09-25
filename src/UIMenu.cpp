@@ -136,7 +136,7 @@ Item* Menu::findItem(const char* value)
       return i;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 const Item* Menu::findItem(const char* value) const
@@ -147,7 +147,7 @@ const Item* Menu::findItem(const char* value) const
       return i;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void Menu::destroyItem(Item& item)

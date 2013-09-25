@@ -252,7 +252,7 @@ bool Image::isPOT() const
 void* Image::pixel(uint x, uint y, uint z)
 {
   if (x >= m_width || y >= m_height || z >= m_depth)
-    return NULL;
+    return nullptr;
 
   return &m_data[0] + ((z * m_height + y) * m_width + x) * m_format.size();
 }
@@ -260,7 +260,7 @@ void* Image::pixel(uint x, uint y, uint z)
 const void* Image::pixel(uint x, uint y, uint z) const
 {
   if (x >= m_width || y >= m_height || z >= m_depth)
-    return NULL;
+    return nullptr;
 
   return &m_data[0] + ((z * m_height + y) * m_width + x) * m_format.size();
 }
@@ -281,13 +281,13 @@ Ref<Image> Image::area(const Recti& area) const
   if (dimensionCount() > 2)
   {
     logError("Cannot retrieve area of 3D image");
-    return NULL;
+    return nullptr;
   }
 
   if (!Recti(0, 0, m_width, m_height).contains(area))
   {
     logError("Cannot retrieve area outside of image");
-    return NULL;
+    return nullptr;
   }
 
   const size_t rowSize = area.size.x * m_format.size();
@@ -313,7 +313,7 @@ Ref<Image> Image::create(const ResourceInfo& info,
 {
   Ref<Image> image(new Image(info));
   if (!image->init(format, width, height, depth, (const char*) pixels, pitch))
-    return NULL;
+    return nullptr;
 
   return image;
 }
@@ -418,7 +418,7 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
   if (stream.fail())
   {
     logError("Failed to open image file %s", path.asString().c_str());
-    return NULL;
+    return nullptr;
   }
 
   // Check if file is valid
@@ -428,13 +428,13 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
     if (!stream.read((char*) header, sizeof(header)))
     {
       logError("Failed to read PNG header from image %s", name.c_str());
-      return NULL;
+      return nullptr;
     }
 
     if (png_sig_cmp(header, 0, sizeof(header)))
     {
       logError("Invalid PNG signature in image %s", name.c_str());
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -445,14 +445,14 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
   // Set up for image reading
   {
     context = png_create_read_struct(PNG_LIBPNG_VER_STRING,
-                                     NULL,
+                                     nullptr,
                                      writeErrorPNG,
                                      writeWarningPNG);
     if (!context)
     {
       logError("Failed to create PNG read struct for image %s",
                name.c_str());
-      return NULL;
+      return nullptr;
     }
 
     png_set_read_fn(context, &stream, readStreamPNG);
@@ -460,26 +460,26 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
     pngInfo = png_create_info_struct(context);
     if (!pngInfo)
     {
-      png_destroy_read_struct(&context, NULL, NULL);
+      png_destroy_read_struct(&context, nullptr, nullptr);
 
       logError("Failed to create PNG info struct for image %s",
                name.c_str());
-      return NULL;
+      return nullptr;
     }
 
     pngEndInfo = png_create_info_struct(context);
     if (!pngEndInfo)
     {
-      png_destroy_read_struct(&context, &pngInfo, NULL);
+      png_destroy_read_struct(&context, &pngInfo, nullptr);
 
       logError("Failed to create PNG end info struct for image %s",
                name.c_str());
-      return NULL;
+      return nullptr;
     }
 
     png_set_sig_bytes(context, 8);
 
-    png_read_png(context, pngInfo, PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND, NULL);
+    png_read_png(context, pngInfo, PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND, nullptr);
   }
 
   const PixelFormat format = convertToPixelFormat(png_get_color_type(context, pngInfo),
@@ -490,7 +490,7 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
     png_destroy_read_struct(&context, &pngInfo, &pngEndInfo);
 
     logError("Image %s has unsupported pixel format", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   const uint width  = png_get_image_width(context, pngInfo);
@@ -532,7 +532,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
   }
 
   png_structp context = png_create_write_struct(PNG_LIBPNG_VER_STRING,
-                                                NULL,
+                                                nullptr,
                                                 writeErrorPNG,
                                                 writeWarningPNG);
   if (!context)
@@ -548,7 +548,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
   png_infop info = png_create_info_struct(context);
   if (!info)
   {
-    png_destroy_write_struct(&context, png_infopp(NULL));
+    png_destroy_write_struct(&context, png_infopp(nullptr));
     logError("Failed to create PNG info struct for image file %s",
              path.asString().c_str());
     return false;
@@ -584,7 +584,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
     rows[i] = (const png_byte*) image.pixel(0, image.height() - i - 1);
 
   png_set_rows(context, info, const_cast<png_byte**>(&rows[0]));
-  png_write_png(context, info, PNG_TRANSFORM_IDENTITY, NULL);
+  png_write_png(context, info, PNG_TRANSFORM_IDENTITY, nullptr);
   png_destroy_write_struct(&context, &info);
 
   return true;

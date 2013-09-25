@@ -372,8 +372,8 @@ public:
   /*! @return The shared ID of the specified non-sampler uniform signature.
    */
   int sharedUniformID(const char* name, UniformType type) const;
-  /*! @return The current shared program state, or @c NULL if no shared program
-   *  state is currently set.
+  /*! @return The current shared program state, or @c nullptr if no shared
+   *  program state is currently set.
    */
   SharedProgramState* currentSharedProgramState() const;
   /*! Sets the current shared program state.
@@ -420,11 +420,12 @@ public:
    *  @return @c true if successful, or @c false otherwise.
    */
   bool setCurrentFramebuffer(Framebuffer& newFramebuffer);
-  /*! @return The currently set GLSL program, or @c NULL if no program is set.
+  /*! @return The currently set GLSL program, or @c nullptr if no program is
+   *  set.
    */
   Program* currentProgram() const;
   /*! Sets the current GLSL program for use when rendering.
-   *  @param[in] newProgram The desired GLSL program, or @c NULL to unbind
+   *  @param[in] newProgram The desired GLSL program, or @c nullptr to unbind
    *  the current program.
    */
   void setCurrentProgram(Program* newProgram);

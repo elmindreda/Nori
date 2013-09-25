@@ -546,7 +546,7 @@ GL::Texture* ProgramState::samplerState(const char* name) const
   if (!m_program)
   {
     logError("Cannot retrieve sampler state on program state with no program");
-    return NULL;
+    return nullptr;
   }
 
   uint textureIndex = 0;
@@ -566,7 +566,7 @@ GL::Texture* ProgramState::samplerState(const char* name) const
   logError("Program %s has no sampler named %s",
            m_program->name().c_str(),
            name);
-  return NULL;
+  return nullptr;
 }
 
 GL::Texture* ProgramState::samplerState(SamplerStateIndex index) const
@@ -574,7 +574,7 @@ GL::Texture* ProgramState::samplerState(SamplerStateIndex index) const
   if (!m_program)
   {
     logError("Cannot retrieve sampler state on program state with no program");
-    return NULL;
+    return nullptr;
   }
 
   return m_textures[index.unit];
@@ -608,7 +608,7 @@ void ProgramState::setSamplerState(const char* name, GL::Texture* newTexture)
                    newTexture->name().c_str());
       }
       else
-        m_textures[textureIndex] = NULL;
+        m_textures[textureIndex] = nullptr;
 
       return;
     }
@@ -637,7 +637,7 @@ void ProgramState::setSamplerState(SamplerStateIndex index, GL::Texture* newText
                 newTexture->name().c_str());
   }
   else
-    m_textures[index.unit] = NULL;
+    m_textures[index.unit] = nullptr;
 }
 
 UniformStateIndex ProgramState::uniformStateIndex(const char* name) const
@@ -740,7 +740,7 @@ void* ProgramState::data(const char* name, GL::UniformType type)
   if (!m_program)
   {
     logError("Cannot set uniform state on program state with no program");
-    return NULL;
+    return nullptr;
   }
 
   uint offset = 0;
@@ -760,7 +760,7 @@ void* ProgramState::data(const char* name, GL::UniformType type)
                uniform.name().c_str(),
                m_program->name().c_str(),
                GL::Uniform::typeName(type));
-      return NULL;
+      return nullptr;
     }
 
     offset += uniform.elementCount();
@@ -769,7 +769,7 @@ void* ProgramState::data(const char* name, GL::UniformType type)
   logError("Program %s has no uniform named %s",
            m_program->name().c_str(),
            name);
-  return NULL;
+  return nullptr;
 }
 
 const void* ProgramState::data(const char* name, GL::UniformType type) const
@@ -777,7 +777,7 @@ const void* ProgramState::data(const char* name, GL::UniformType type) const
   if (!m_program)
   {
     logError("Cannot set uniform state on program state with no program");
-    return NULL;
+    return nullptr;
   }
 
   uint offset = 0;
@@ -797,7 +797,7 @@ const void* ProgramState::data(const char* name, GL::UniformType type) const
                uniform.name().c_str(),
                m_program->name().c_str(),
                GL::Uniform::typeName(type));
-      return NULL;
+      return nullptr;
     }
 
     offset += uniform.elementCount();
@@ -806,7 +806,7 @@ const void* ProgramState::data(const char* name, GL::UniformType type) const
   logError("Program %s has no uniform named %s",
            m_program->name().c_str(),
            name);
-  return NULL;
+  return nullptr;
 }
 
 void* ProgramState::data(UniformStateIndex index, GL::UniformType type)
@@ -814,7 +814,7 @@ void* ProgramState::data(UniformStateIndex index, GL::UniformType type)
   if (!m_program)
   {
     logError("Cannot set uniform state on program state with no program");
-    return NULL;
+    return nullptr;
   }
 
   GL::Uniform& uniform = m_program->uniform(index.index);
@@ -825,7 +825,7 @@ void* ProgramState::data(UniformStateIndex index, GL::UniformType type)
              index.index,
              m_program->name().c_str(),
              GL::Uniform::typeName(type));
-    return NULL;
+    return nullptr;
   }
 
   return &m_floats[0] + index.offset;
@@ -836,7 +836,7 @@ const void* ProgramState::data(UniformStateIndex index, GL::UniformType type) co
   if (!m_program)
   {
     logError("Cannot set uniform state on program state with no program");
-    return NULL;
+    return nullptr;
   }
 
   GL::Uniform& uniform = m_program->uniform(index.index);
@@ -847,7 +847,7 @@ const void* ProgramState::data(UniformStateIndex index, GL::UniformType type) co
              index.index,
              m_program->name().c_str(),
              GL::Uniform::typeName(type));
-    return NULL;
+    return nullptr;
   }
 
   return &m_floats[0] + index.offset;

@@ -569,20 +569,20 @@ Context::~Context()
   if (m_defaultFramebuffer)
     setDefaultFramebufferCurrent();
 
-  setCurrentVertexBuffer(NULL);
-  setCurrentIndexBuffer(NULL);
-  setCurrentProgram(NULL);
+  setCurrentVertexBuffer(nullptr);
+  setCurrentIndexBuffer(nullptr);
+  setCurrentProgram(nullptr);
 
   for (size_t i = 0;  i < m_textureUnits.size();  i++)
   {
     setActiveTextureUnit(i);
-    setCurrentTexture(NULL);
+    setCurrentTexture(nullptr);
   }
 
   if (m_handle)
   {
     glfwDestroyWindow(m_handle);
-    m_handle = NULL;
+    m_handle = nullptr;
   }
 }
 
@@ -1088,19 +1088,19 @@ Context* Context::create(ResourceCache& cache,
 {
   Ptr<Context> context(new Context(cache));
   if (!context->init(wc, cc))
-    return NULL;
+    return nullptr;
 
   return context.detachObject();
 }
 
 Context::Context(ResourceCache& cache):
   m_cache(cache),
-  m_handle(NULL),
+  m_handle(nullptr),
   m_dirtyBinding(true),
   m_dirtyState(true),
   m_cullingInverted(false),
   m_activeTextureUnit(0),
-  m_stats(NULL)
+  m_stats(nullptr)
 {
 }
 
@@ -1145,12 +1145,12 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 
     glfwWindowHint(GLFW_RESIZABLE, wc.resizable);
 
-    GLFWmonitor* monitor = NULL;
+    GLFWmonitor* monitor = nullptr;
 
     if (wc.mode == FULLSCREEN)
       monitor = glfwGetPrimaryMonitor();
 
-    m_handle = glfwCreateWindow(wc.width, wc.height, wc.title.c_str(), monitor, NULL);
+    m_handle = glfwCreateWindow(wc.width, wc.height, wc.title.c_str(), monitor, nullptr);
     if (!m_handle)
     {
       logError("Failed to create GLFW window");
@@ -1185,8 +1185,8 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 
     if (cc.debug && GLEW_ARB_debug_output)
     {
-      glDebugMessageCallbackARB(debugCallback, NULL);
-      glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
+      glDebugMessageCallbackARB(debugCallback, nullptr);
+      glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
     }
   }
 
@@ -1444,16 +1444,16 @@ void Context::onFrame()
   checkGL("Uncaught OpenGL error during last frame");
 #endif
 
-  setCurrentProgram(NULL);
-  setCurrentVertexBuffer(NULL);
-  setCurrentIndexBuffer(NULL);
+  setCurrentProgram(nullptr);
+  setCurrentVertexBuffer(nullptr);
+  setCurrentIndexBuffer(nullptr);
 
   for (size_t i = 0;  i < m_textureUnits.size();  i++)
   {
     if (m_textureUnits[i])
     {
       setActiveTextureUnit(i);
-      setCurrentTexture(NULL);
+      setCurrentTexture(nullptr);
     }
   }
 

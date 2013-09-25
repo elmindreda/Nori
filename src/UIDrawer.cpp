@@ -116,7 +116,7 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
   if (stream.fail())
   {
     logError("Failed to open animation %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   pugi::xml_document document;
@@ -127,14 +127,14 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
     logError("Failed to load UI theme %s: %s",
              name.c_str(),
              result.description());
-    return NULL;
+    return nullptr;
   }
 
   pugi::xml_node root = document.child("theme");
   if (!root || root.attribute("version").as_uint() != THEME_XML_VERSION)
   {
     logError("UI theme file format mismatch in %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   Ref<Theme> theme = new Theme(ResourceInfo(cache, name, path));
@@ -143,7 +143,7 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
   if (imageName.empty())
   {
     logError("No image specified for UI theme %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   theme->texture = GL::Texture::read(pool->context(),
@@ -152,21 +152,21 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
   if (!theme->texture)
   {
     logError("Failed to create texture for UI theme %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   const String fontName(root.attribute("font").value());
   if (fontName.empty())
   {
     logError("Font for UI theme %s is empty", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   theme->font = render::Font::read(*pool, fontName);
   if (!theme->font)
   {
     logError("Failed to load font for UI theme %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   const vec3 scale(1.f / 255.f);
@@ -178,7 +178,7 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
       logError("Unknown widget state %s in UI theme %s",
                sn.name(),
                name.c_str());
-      return NULL;
+      return nullptr;
     }
 
     WidgetState state = widgetStateMap[sn.name()];
@@ -230,7 +230,7 @@ void Drawer::begin()
 
 void Drawer::end()
 {
-  getContext().setCurrentSharedProgramState(NULL);
+  getContext().setCurrentSharedProgramState(nullptr);
 }
 
 bool Drawer::pushClipArea(const Rect& area)
@@ -441,7 +441,7 @@ void Drawer::blitTexture(const Rect& area, GL::Texture& texture)
 
   getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 
-  blitPass.setSamplerState("image", NULL);
+  blitPass.setSamplerState("image", nullptr);
 }
 
 void Drawer::drawText(const Rect& area,
@@ -571,7 +571,7 @@ Ref<Drawer> Drawer::create(render::VertexPool& pool)
 {
   Ptr<Drawer> drawer(new Drawer(pool));
   if (!drawer->init())
-    return NULL;
+    return nullptr;
 
   return drawer.detachObject();
 }

@@ -73,7 +73,7 @@ SortKey SortKey::makeBlendedKey(uint8 layer, float depth)
 ///////////////////////////////////////////////////////////////////////
 
 Operation::Operation():
-  state(NULL)
+  state(nullptr)
 {
 }
 

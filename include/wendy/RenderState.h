@@ -269,7 +269,7 @@ public:
   SamplerStateIndex samplerStateIndex(const char* name) const;
   GL::Program* program() const { return m_program; }
   /*! Sets the GLSL program used by this state object.
-   *  @param[in] newProgram The desired GLSL program, or @c NULL to detach
+   *  @param[in] newProgram The desired GLSL program, or @c nullptr to detach
    *  the current program.
    */
   void setProgram(GL::Program* newProgram);

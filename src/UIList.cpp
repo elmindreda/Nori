@@ -51,8 +51,8 @@ List::List(Layer& layer):
   offset(0),
   maxOffset(0),
   selection(NO_ITEM),
-  scroller(NULL),
-  entry(NULL)
+  scroller(nullptr),
+  entry(nullptr)
 {
   getAreaChangedSignal().connect(*this, &List::onAreaChanged);
   getButtonClickedSignal().connect(*this, &List::onMouseButton);
@@ -97,7 +97,7 @@ Item* List::findItem(const char* value)
       return i;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 const Item* List::findItem(const char* value) const
@@ -108,7 +108,7 @@ const Item* List::findItem(const char* value) const
       return i;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void List::destroyItem(Item& item)
@@ -169,7 +169,7 @@ void List::setEditable(bool newState)
   {
     cancelEditing();
     delete entry;
-    entry = NULL;
+    entry = nullptr;
   }
 }
 
@@ -198,7 +198,7 @@ void List::setSelection(uint newSelection)
 Item* List::getSelectedItem()
 {
   if (selection == NO_ITEM)
-    return NULL;
+    return nullptr;
 
   assert(selection < items.size());
   return items[selection];
@@ -313,7 +313,7 @@ void List::onEntryKeyPressed(Widget& widget, Key key, Action action)
 void List::onEntryDestroyed(Widget& widget)
 {
   cancelEditing();
-  entry = NULL;
+  entry = nullptr;
 }
 
 void List::onMouseButton(Widget& widget,

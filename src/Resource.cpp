@@ -117,7 +117,7 @@ Resource* ResourceCache::findResource(const String& name) const
       return r;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 Path ResourceCache::findFile(const String& name) const

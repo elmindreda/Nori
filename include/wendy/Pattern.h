@@ -83,7 +83,7 @@ public:
   bool contains(const String& text) const;
   /*! Checks whether this pattern matches any part of the specified text.
    *  @param[in] text The text to match this pattern against.
-   *  @return A match descriptor, or @c NULL if no match was found.
+   *  @return A match descriptor, or @c nullptr if no match was found.
    */
   PatternMatch* match(const String& text) const;
   /*! Creates a pattern object with the specified pattern expression.

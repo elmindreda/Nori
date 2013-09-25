@@ -468,7 +468,7 @@ public:
     typedef R (*Function)();
 
     Function* function;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &function, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &function, nullptr);
 
     Value<R>::push(vm, (**function)());
     return 1;
@@ -479,7 +479,7 @@ public:
     typedef R (*Function)(A1);
 
     Function* function;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &function, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &function, nullptr);
 
     Value<R>::push(vm, (**function)(Value<A1>::get(vm, 2)));
     return 1;
@@ -490,7 +490,7 @@ public:
     typedef R (*Function)(A1,A2);
 
     Function* function;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &function, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &function, nullptr);
 
     Value<R>::push(vm, (**function)(Value<A1>::get(vm, 2),
                                     Value<A2>::get(vm, 3)));
@@ -510,7 +510,7 @@ public:
     typedef void (*Function)();
 
     Function* function;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &function, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &function, nullptr);
 
     (**function)();
     return 0;
@@ -521,7 +521,7 @@ public:
     typedef void (*Function)(A1);
 
     Function* function;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &function, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &function, nullptr);
 
     (**function)(Value<A1>::get(vm, 2));
     return 0;
@@ -532,7 +532,7 @@ public:
     typedef void (*Function)(A1,A2);
 
     Function* function;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &function, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &function, nullptr);
 
     (**function)(Value<A1>::get(vm, 2),
                  Value<A2>::get(vm, 3));
@@ -554,10 +554,10 @@ public:
     typedef R (T::*Method)();
 
     Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
 
-    T* instance = NULL;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
+    T* instance = nullptr;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
 
     Value<R>::push(vm, (instance->**method)());
     return 1;
@@ -567,10 +567,10 @@ public:
     typedef R (T::*Method)() const;
 
     Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
 
-    T* instance = NULL;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
+    T* instance = nullptr;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
 
     Value<R>::push(vm, (instance->**method)());
     return 1;
@@ -581,10 +581,10 @@ public:
     typedef R (T::*Method)(A1);
 
     Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
 
-    T* instance = NULL;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
+    T* instance = nullptr;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
 
     Value<R>::push(vm, (instance->**method)(Value<A1>::get(vm, 2)));
     return 1;
@@ -595,10 +595,10 @@ public:
     typedef R (T::*Method)(A1) const;
 
     Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
 
-    T* instance = NULL;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
+    T* instance = nullptr;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
 
     Value<R>::push(vm, (instance->**method)(Value<A1>::get(vm, 2)));
     return 1;
@@ -609,10 +609,10 @@ public:
     typedef R (T::*Method)(A1,A2);
 
     Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
 
-    T* instance = NULL;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
+    T* instance = nullptr;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
 
     Value<R>::push(vm, (instance->**method)(Value<A1>::get(vm, 2),
                                             Value<A2>::get(vm, 3)));
@@ -624,10 +624,10 @@ public:
     typedef R (T::*Method)(A1,A2) const;
 
     Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
 
-    T* instance = NULL;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
+    T* instance = nullptr;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
 
     Value<R>::push(vm, (instance->**method)(Value<A1>::get(vm, 2),
                                             Value<A2>::get(vm, 3)));
@@ -647,10 +647,10 @@ public:
     typedef void (T::*Method)();
 
     Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
 
-    T* instance = NULL;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
+    T* instance = nullptr;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
 
     (instance->**method)();
     return 0;
@@ -660,10 +660,10 @@ public:
     typedef void (T::*Method)() const;
 
     Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
 
-    T* instance = NULL;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
+    T* instance = nullptr;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
 
     (instance->**method)();
     return 0;
@@ -674,10 +674,10 @@ public:
     typedef void (T::*Method)(A1);
 
     Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
 
-    T* instance = NULL;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
+    T* instance = nullptr;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
 
     (instance->**method)(Value<A1>::get(vm, 2));
     return 0;
@@ -688,10 +688,10 @@ public:
     typedef void (T::*Method)(A1) const;
 
     Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
 
-    T* instance = NULL;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
+    T* instance = nullptr;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
 
     (instance->**method)(Value<A1>::get(vm, 2));
     return 0;
@@ -702,10 +702,10 @@ public:
     typedef void (T::*Method)(A1,A2);
 
     Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
 
-    T* instance = NULL;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
+    T* instance = nullptr;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
 
     (instance->**method)(Value<A1>::get(vm, 2),
                          Value<A2>::get(vm, 3));
@@ -717,10 +717,10 @@ public:
     typedef void (T::*Method)(A1,A2) const;
 
     Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, NULL);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
 
-    T* instance = NULL;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, NULL);
+    T* instance = nullptr;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
 
     (instance->**method)(Value<A1>::get(vm, 2),
                          Value<A2>::get(vm, 3));
@@ -959,8 +959,8 @@ template <typename T>
 inline T* SharedInstance<T>::native()
 {
   sq_pushobject(m_vm, m_handle);
-  T* result = NULL;
-  sq_getinstanceup(m_vm, -1, (SQUserPointer*) &result, NULL);
+  T* result = nullptr;
+  sq_getinstanceup(m_vm, -1, (SQUserPointer*) &result, nullptr);
   sq_poptop(m_vm);
   return result;
 }

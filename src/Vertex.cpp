@@ -148,7 +148,7 @@ const VertexComponent* VertexFormat::findComponent(const char* name) const
       return &c;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 bool VertexFormat::operator == (const VertexFormat& other) const

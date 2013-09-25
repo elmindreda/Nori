@@ -71,7 +71,8 @@ public:
   Context& context() const { return m_context; }
   /*! Creates an occlusion query.
    *  @param[in] context The context within which to create the query.
-   *  @return The newly created query object, or @c NULL if an error occurred.
+   *  @return The newly created query object, or @c nullptr if an error
+   *  occurred.
    */
   static OcclusionQuery* create(Context& context);
 private:

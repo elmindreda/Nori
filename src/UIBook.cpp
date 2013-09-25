@@ -62,7 +62,7 @@ void Page::setText(const char* newText)
 
 Book::Book(Layer& layer):
   Widget(layer),
-  activePage(NULL)
+  activePage(nullptr)
 {
   getKeyPressedSignal().connect(*this, &Book::onKey);
   getButtonClickedSignal().connect(*this, &Book::onMouseButton);
@@ -151,7 +151,7 @@ void Book::removedChild(Widget& child)
     if (page == activePage)
     {
       if (pages.empty())
-        setActivePage(NULL, false);
+        setActivePage(nullptr, false);
       else
         setActivePage(pages.front(), false);
     }

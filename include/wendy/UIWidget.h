@@ -68,7 +68,7 @@ public:
   void removeFromParent();
   /*! Searches for a widget at the specified point.
    *  @param[in] point The point at which to search.
-   *  @return The widget at the specified point, or @c NULL if no matching
+   *  @return The widget at the specified point, or @c nullptr if no matching
    *  widget was found.
    *
    *  @remarks The point is in parent coordinates.  If this is a top-level
@@ -153,7 +153,7 @@ public:
   /*! @return The layer this widget belongs to.
    */
   Layer& getLayer() const;
-  /*! @return The parent of this widget, or @c NULL if it has no parent.
+  /*! @return The parent of this widget, or @c nullptr if it has no parent.
    */
   Widget* getParent() const;
   /*! @return The child widgets of this widget.

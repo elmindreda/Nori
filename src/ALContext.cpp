@@ -48,7 +48,7 @@ Context::~Context()
 {
   if (m_handle)
   {
-    alcMakeContextCurrent(NULL);
+    alcMakeContextCurrent(nullptr);
     alcDestroyContext((ALCcontext*) m_handle);
   }
 
@@ -126,8 +126,8 @@ bool Context::createSingleton(ResourceCache& cache)
 
 Context::Context(ResourceCache& cache):
   m_cache(cache),
-  m_device(NULL),
-  m_handle(NULL),
+  m_device(nullptr),
+  m_handle(nullptr),
   m_listenerGain(1.f)
 {
 }
@@ -140,14 +140,14 @@ Context::Context(const Context& source):
 
 bool Context::init()
 {
-  m_device = alcOpenDevice(NULL);
+  m_device = alcOpenDevice(nullptr);
   if (!m_device)
   {
     checkALC("Failed to open OpenAL device");
     return false;
   }
 
-  m_handle = alcCreateContext((ALCdevice*) m_device, NULL);
+  m_handle = alcCreateContext((ALCdevice*) m_device, nullptr);
   if (!m_handle)
   {
     checkALC("Failed to create OpenAL context");

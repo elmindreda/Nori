@@ -70,7 +70,7 @@ public:
   void destroyRootWidgets();
   /*! Searches for a widget at the specified point.
    *  @param[in] point The point at which to search.
-   *  @return The widget at the specified point, or @c NULL if no matching
+   *  @return The widget at the specified point, or @c nullptr if no matching
    *  widget was found.
    *
    *  @remarks The point is in global coordinates.
@@ -89,7 +89,7 @@ public:
   /*! @return The root widgets of this layer.
    */
   const WidgetList& getRootWidgets() const;
-  /*! @return The active widget, or @c NULL if no widget is active.
+  /*! @return The active widget, or @c nullptr if no widget is active.
    */
   Widget* getActiveWidget();
   Widget* getDraggedWidget();

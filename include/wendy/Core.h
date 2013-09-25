@@ -223,7 +223,7 @@ public:
   }
   /*! Default constructor.
    */
-  explicit Ptr(T* initObject = NULL):
+  explicit Ptr(T* initObject = nullptr):
     object(initObject)
   {
   }
@@ -241,7 +241,7 @@ public:
   T* detachObject()
   {
     T* temp = object;
-    object = NULL;
+    object = nullptr;
     return temp;
   }
   /*! Cast operator.
@@ -292,7 +292,7 @@ public:
   }
 private:
   Ptr(const Ptr<T>& source):
-    object(NULL)
+    object(nullptr)
   {
   }
   Ptr<T>& operator = (const Ptr<T>& source)
@@ -362,8 +362,8 @@ public:
   }
   /*! Default constructor.
    */
-  Ref(T* initObject = NULL):
-    object(NULL)
+  Ref(T* initObject = nullptr):
+    object(nullptr)
   {
     operator = (initObject);
   }
@@ -371,7 +371,7 @@ public:
    *  @param source The pointer object to inherit from.
    */
   Ref(const Ref<T>& source):
-    object(NULL)
+    object(nullptr)
   {
     operator = (source);
   }
@@ -379,7 +379,7 @@ public:
    */
   ~Ref()
   {
-    operator = (NULL);
+    operator = (nullptr);
   }
   /*! Cast operator.
    */
@@ -445,9 +445,9 @@ public:
    */
   static void destroySingleton()
   {
-    object = NULL;
+    object = nullptr;
   }
-  /*! @return The singleton instance if available, otherwise @c NULL.
+  /*! @return The singleton instance if available, otherwise @c nullptr.
    */
   static T* getSingleton()
   {

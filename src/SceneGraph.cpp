@@ -61,8 +61,8 @@ namespace wendy
 
 Node::Node(bool initNeedsUpdate):
   m_needsUpdate(initNeedsUpdate),
-  m_parent(NULL),
-  m_graph(NULL),
+  m_parent(nullptr),
+  m_graph(nullptr),
   m_dirtyWorld(false),
   m_dirtyBounds(false)
 {
@@ -100,7 +100,7 @@ void Node::removeFromParent()
       siblings.erase(std::find(siblings.begin(), siblings.end(), this));
 
       m_parent->invalidateBounds();
-      m_parent = NULL;
+      m_parent = nullptr;
 
       invalidateWorldTransform();
     }
@@ -110,7 +110,7 @@ void Node::removeFromParent()
       roots.erase(std::find(roots.begin(), roots.end(), this));
     }
 
-    setGraph(NULL);
+    setGraph(nullptr);
   }
 }
 

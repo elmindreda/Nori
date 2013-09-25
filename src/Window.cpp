@@ -261,14 +261,14 @@ void Window::setTitle(const char* newTitle)
 uint Window::width() const
 {
   int width;
-  glfwGetWindowSize(m_handle, &width, NULL);
+  glfwGetWindowSize(m_handle, &width, nullptr);
   return uint(width);
 }
 
 uint Window::height() const
 {
   int height;
-  glfwGetWindowSize(m_handle, NULL, &height);
+  glfwGetWindowSize(m_handle, nullptr, &height);
   return uint(height);
 }
 
@@ -324,9 +324,9 @@ void Window::setTarget(EventTarget* newTarget)
 }
 
 Window::Window():
-  m_handle(NULL),
-  m_hook(NULL),
-  m_target(NULL),
+  m_handle(nullptr),
+  m_hook(nullptr),
+  m_target(nullptr),
   m_needsRefresh(false),
   m_refreshMode(AUTOMATIC_REFRESH)
 {

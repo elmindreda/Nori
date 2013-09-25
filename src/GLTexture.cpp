@@ -264,7 +264,7 @@ Ref<Image> TextureImage::data() const
                m_level,
                m_texture.name().c_str()))
   {
-    return NULL;
+    return nullptr;
   }
 #endif
 
@@ -516,7 +516,7 @@ Ref<Texture> Texture::create(const ResourceInfo& info,
 {
   Ref<Texture> texture(new Texture(info, context));
   if (!texture->init(params, data))
-    return NULL;
+    return nullptr;
 
   return texture;
 }
@@ -542,7 +542,7 @@ Ref<Texture> Texture::read(Context& context,
   if (!data)
   {
     logError("Failed to read image for texture %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   return create(ResourceInfo(cache, name), context, params, *data);
@@ -649,7 +649,7 @@ bool Texture::init(const TextureParams& params, const Image& data)
                  0,
                  convertToGL(m_format.semantic()),
                  convertToGL(m_format.type()),
-                 NULL);
+                 nullptr);
   }
   else if (m_type == TEXTURE_3D)
   {
@@ -662,7 +662,7 @@ bool Texture::init(const TextureParams& params, const Image& data)
                  0,
                  convertToGL(m_format.semantic()),
                  convertToGL(m_format.type()),
-                 NULL);
+                 nullptr);
   }
   else
   {
@@ -674,7 +674,7 @@ bool Texture::init(const TextureParams& params, const Image& data)
                  0,
                  convertToGL(m_format.semantic()),
                  convertToGL(m_format.type()),
-                 NULL);
+                 nullptr);
   }
 
   GLint proxyWidth;

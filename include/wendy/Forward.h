@@ -84,7 +84,7 @@ public:
   SharedProgramState& sharedProgramState() { return *m_state; }
   /*! Creates a renderer object using the specified geometry pool and the
    *  specified configuration.
-   *  @return The newly constructed renderer object, or @c NULL if an error
+   *  @return The newly constructed renderer object, or @c nullptr if an error
    *  occurred.
    */
   static Ref<Renderer> create(const Config& config);

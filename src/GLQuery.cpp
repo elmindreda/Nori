@@ -129,7 +129,7 @@ OcclusionQuery* OcclusionQuery::create(Context& context)
 {
   Ptr<OcclusionQuery> query(new OcclusionQuery(context));
   if (!query->init())
-    return NULL;
+    return nullptr;
 
   return query.detachObject();
 }

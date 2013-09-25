@@ -84,7 +84,7 @@ void Renderer::render(const render::Scene& scene, const Camera& camera)
   renderOperations(scene.opaqueQueue());
   renderOperations(scene.blendedQueue());
 
-  context().setCurrentSharedProgramState(NULL);
+  context().setCurrentSharedProgramState(nullptr);
 }
 
 Ref<Renderer> Renderer::create(const Config& config)
@@ -92,12 +92,12 @@ Ref<Renderer> Renderer::create(const Config& config)
   if (!config.pool)
   {
     logError("Cannot create forward renderer without a geometry pool");
-    return NULL;
+    return nullptr;
   }
 
   Ptr<Renderer> renderer(new Renderer(*config.pool));
   if (!renderer->init(config))
-    return NULL;
+    return nullptr;
 
   return renderer.detachObject();
 }

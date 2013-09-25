@@ -169,7 +169,7 @@ Sprite3::Sprite3():
   size(1.f),
   angle(0.f),
   type(STATIC_SPRITE),
-  material(NULL)
+  material(nullptr)
 {
 }
 

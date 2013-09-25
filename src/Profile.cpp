@@ -54,7 +54,7 @@ ProfileNode* ProfileNode::findChild(const char* name)
 {
   auto n = std::find(m_children.begin(), m_children.end(), name);
   if (n == m_children.end())
-    return NULL;
+    return nullptr;
 
   return &(*n);
 }
@@ -113,7 +113,7 @@ void Profile::resetNode(ProfileNode& node)
     resetNode(c);
 }
 
-Profile* Profile::m_current = NULL;
+Profile* Profile::m_current = nullptr;
 
 ///////////////////////////////////////////////////////////////////////
 

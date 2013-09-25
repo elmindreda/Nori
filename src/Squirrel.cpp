@@ -241,7 +241,7 @@ void logErrorCallStack(HSQUIRRELVM vm)
 
 VM::VM(ResourceCache& cache):
   m_cache(cache),
-  m_vm(NULL)
+  m_vm(nullptr)
 {
   m_vm = sq_open(1024);
 
@@ -276,7 +276,7 @@ bool VM::execute(const char* name)
   if (stream.fail())
   {
     logError("Failed to open script %s", name);
-    return NULL;
+    return nullptr;
   }
 
   stream.seekg(0, std::ios::end);
@@ -407,7 +407,7 @@ SQInteger VM::onRuntimeError(HSQUIRRELVM vm)
 ///////////////////////////////////////////////////////////////////////
 
 Object::Object():
-  m_vm(NULL)
+  m_vm(nullptr)
 {
   sq_resetobject(&m_handle);
 }

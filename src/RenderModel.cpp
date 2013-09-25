@@ -102,7 +102,7 @@ Ref<Model> Model::create(const ResourceInfo& info,
 {
   Ref<Model> model(new Model(info));
   if (!model->init(system, data, materials))
-    return NULL;
+    return nullptr;
 
   return model;
 }
@@ -259,7 +259,7 @@ Ref<Model> ModelReader::read(const String& name, const Path& path)
   if (stream.fail())
   {
     logError("Failed to open model %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   pugi::xml_document document;
@@ -270,28 +270,28 @@ Ref<Model> ModelReader::read(const String& name, const Path& path)
     logError("Failed to load model %s: %s",
              name.c_str(),
              result.description());
-    return NULL;
+    return nullptr;
   }
 
   pugi::xml_node root = document.child("model");
   if (!root || root.attribute("version").as_uint() != MODEL_XML_VERSION)
   {
     logError("Model file format mismatch in %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   const String meshName(root.attribute("mesh").value());
   if (meshName.empty())
   {
     logError("No mesh for model %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   Ref<Mesh> mesh = Mesh::read(cache, meshName);
   if (!mesh)
   {
     logError("Failed to load mesh for model %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   Model::MaterialMap materials;
@@ -302,7 +302,7 @@ Ref<Model> ModelReader::read(const String& name, const Path& path)
     if (materialAlias.empty())
     {
       logError("Empty material alias found in model %s", name.c_str());
-      return NULL;
+      return nullptr;
     }
 
     const String materialName(m.attribute("name").value());
@@ -311,7 +311,7 @@ Ref<Model> ModelReader::read(const String& name, const Path& path)
       logError("Empty material name for alias %s in model %s",
                materialAlias.c_str(),
                name.c_str());
-      return NULL;
+      return nullptr;
     }
 
     Ref<Material> material = Material::read(system, materialName);

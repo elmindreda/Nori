@@ -83,13 +83,13 @@ public:
   {
     Resource* cached = findResource(name);
     if (!cached)
-      return NULL;
+      return nullptr;
 
     T* cast = dynamic_cast<T*>(cached);
     if (!cast)
     {
       logError("Resource \'%s\' exists as another type", name.c_str());
-      return NULL;
+      return nullptr;
     }
 
     return cast;
@@ -120,7 +120,7 @@ public:
     if (path.isEmpty())
     {
       logError("Failed to find resource \'%s\'", name.c_str());
-      return NULL;
+      return nullptr;
     }
 
     return read(name, path);

@@ -52,7 +52,7 @@ void shutdown()
 ///////////////////////////////////////////////////////////////////////
 
 PacketData::PacketData():
-  m_data(NULL),
+  m_data(nullptr),
   m_capacity(0),
   m_size(0),
   m_offset(0)
@@ -255,7 +255,7 @@ Host::~Host()
   {
     enet_host_flush((ENetHost*) m_object);
     enet_host_destroy((ENetHost*) m_object);
-    m_object = NULL;
+    m_object = nullptr;
   }
 }
 
@@ -363,7 +363,7 @@ bool Host::update(Time timeout)
         if (isClient())
           status = false;
 
-        event.peer->data = NULL;
+        event.peer->data = nullptr;
         break;
       }
 
@@ -397,7 +397,7 @@ bool Host::update(Time timeout)
 void* Host::allocatePacketData(size_t size)
 {
   if (!size)
-    return NULL;
+    return nullptr;
 
   if (size + m_allocated > sizeof(m_buffer))
     panic("Out of packet data memory");
@@ -416,7 +416,7 @@ Peer* Host::findPeer(TargetID targetID)
       return &p;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 bool Host::isClient() const
@@ -458,7 +458,7 @@ Host* Host::create(uint16 port, size_t maxClientCount, uint8 maxChannelCount)
 {
   Ptr<Host> host(new Host());
   if (!host->init(port, maxClientCount, maxChannelCount))
-    return NULL;
+    return nullptr;
 
   return host.detachObject();
 }
@@ -467,14 +467,14 @@ Host* Host::connect(const String& name, uint16 port, uint8 maxChannelCount)
 {
   Ptr<Host> host(new Host());
   if (!host->init(name, port, maxChannelCount))
-    return NULL;
+    return nullptr;
 
   return host.detachObject();
 }
 
 Host::Host():
-  m_object(NULL),
-  m_observer(NULL),
+  m_object(nullptr),
+  m_observer(nullptr),
   m_clientIDs(FIRST_CLIENT),
   m_allocated(0)
 {
@@ -508,7 +508,7 @@ bool Host::init(const String& name, uint16 port, uint8 maxChannelCount)
 {
   m_server = false;
 
-  m_object = enet_host_create(NULL, 1, maxChannelCount, 0, 0);
+  m_object = enet_host_create(nullptr, 1, maxChannelCount, 0, 0);
   if (!m_object)
   {
     logError("Failed to create ENet client host");

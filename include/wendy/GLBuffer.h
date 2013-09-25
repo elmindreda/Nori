@@ -158,7 +158,7 @@ public:
    *  @param count The desired number of vertices.
    *  @param format The desired format of the vertices.
    *  @param usage The desired usage hint.
-   *  @return The newly created vertex buffer, or @c NULL if an error occurred.
+   *  @return The newly created vertex buffer, or @c nullptr if an error occurred.
    */
   static Ref<VertexBuffer> create(Context& context,
                                   size_t count,
@@ -227,7 +227,8 @@ public:
    *  @param count The desired number of index elements.
    *  @param type The desired type of the index elements.
    *  @param usage The desired usage hint.
-   *  @return The newly created index buffer, or @c NULL if an error occurred.
+   *  @return The newly created index buffer, or @c nullptr if an error
+   *  occurred.
    */
   static Ref<IndexBuffer> create(Context& context,
                                  size_t count,
@@ -271,7 +272,8 @@ public:
    */
   VertexRange(VertexBuffer& vertexBuffer, size_t start, size_t count);
   /*! Locks this vertex range into memory and returns its address.
-   *  @return The base address of this vertex range, or @c NULL if an error occurred.
+   *  @return The base address of this vertex range, or @c nullptr if an error
+   *  occurred.
    */
   void* lock(LockType type = LOCK_WRITE_ONLY) const;
   /*! Unlocks this vertex range.
@@ -324,7 +326,8 @@ public:
   IndexRange(IndexBuffer& indexBuffer, size_t start, size_t count);
   /*! Locks this index range into memory and returns its address.
    *  @param[in] type The desired type of lock.
-   *  @return The base address of this index range, or @c NULL if an error occurred.
+   *  @return The base address of this index range, or @c nullptr if an error
+   *  occurred.
    */
   void* lock(LockType type = LOCK_WRITE_ONLY) const;
   /*! Unlocks this index range.
@@ -415,7 +418,7 @@ public:
   /*! @return The vertex buffer used by this primitive range.
    */
   VertexBuffer* vertexBuffer() const { return m_vertexBuffer; }
-  /*! @return The index buffer used by this primitive range, or @c NULL if no
+  /*! @return The index buffer used by this primitive range, or @c nullptr if no
    *  index buffer is used.
    */
   IndexBuffer* indexBuffer() const { return m_indexBuffer; }
@@ -447,7 +450,7 @@ public:
    */
   VertexRangeLock(VertexRange& initRange):
     range(initRange),
-    vertices(NULL)
+    vertices(nullptr)
   {
     if (VertexBuffer* vertexBuffer = range.vertexBuffer())
     {
@@ -635,33 +638,33 @@ public:
    */
   uint height() const;
   /*! @return The image attached to the TextureFramebuffer::COLOR_BUFFER0
-   *  attachment point, or @c NULL if no image is attached to it.
+   *  attachment point, or @c nullptr if no image is attached to it.
    */
   TextureImage* colorBuffer() const { return m_images[COLOR_BUFFER0]; }
   /*! @return The image attached to the TextureFramebuffer::DEPTH_BUFFER
-   *  attachment point, or @c NULL if no image is attached to it.
+   *  attachment point, or @c nullptr if no image is attached to it.
    */
   TextureImage* depthBuffer() const { return m_images[DEPTH_BUFFER]; }
-  /*! @return The image attached to the specified attachment point, or @c NULL
-   *  if no image is attached to it.
+  /*! @return The image attached to the specified attachment point, or @c
+   *  nullptr if no image is attached to it.
    */
   TextureImage* buffer(Attachment attachment) const;
   /*! Sets the image to use as the default color buffer for this framebuffer.
-   *  @param[in] newImage The desired image, or @c NULL to detach the currently
-   *  set image.
+   *  @param[in] newImage The desired image, or @c nullptr to detach the
+   *  currently set image.
    *  @return @c true if this framebuffer is complete, or @c false otherwise.
    */
   bool setColorBuffer(TextureImage* newImage);
   /*! sets the image to use as the depth buffer for this framebuffer.
-   *  @param[in] newImage The desired image, or @c NULL to detach the currently
-   *  set image.
+   *  @param[in] newImage The desired image, or @c nullptr to detach the
+   *  currently set image.
    *  @return @c true if this framebuffer is complete, or @c false otherwise.
    */
   bool setDepthBuffer(TextureImage* newImage);
   /*! sets the image to use for the specified attachment point of this
    *  framebuffer.
-   *  @param[in] newImage The desired image, or @c NULL to detach the currently
-   *  set image.
+   *  @param[in] newImage The desired image, or @c nullptr to detach the
+   *  currently set image.
    *  @param[in] z The desired Z slice of the specified image to use.  This
    *  only applies to images of 3D textures.
    *  @return @c true if this framebuffer is complete, or @c false otherwise.

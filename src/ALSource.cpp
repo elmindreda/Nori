@@ -196,7 +196,7 @@ Ref<Source> Source::create(Context& context)
 {
   Ref<Source> source = new Source(context);
   if (!source->init())
-    return NULL;
+    return nullptr;
 
   return source;
 }

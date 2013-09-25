@@ -116,7 +116,7 @@ public:
   /*! Creates a material.
    *  @param[in] info The resource info for the texture.
    *  @param[in] system The OpenGL context within which to create the texture.
-   *  @return The newly created material, or @c NULL if an error
+   *  @return The newly created material, or @c nullptr if an error
    *  occurred.
    */
   static Ref<Material> create(const ResourceInfo& info, System& system);
@@ -125,7 +125,7 @@ public:
    *  resource cache of the system.
    *  @param[in] system The system to use.
    *  @param[in] path The path of the material.
-   *  @return The loaded material, or @c NULL if an error occurred.
+   *  @return The loaded material, or @c nullptr if an error occurred.
    */
   static Ref<Material> read(System& system, const String& name);
 private:

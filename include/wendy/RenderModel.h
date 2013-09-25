@@ -112,7 +112,7 @@ public:
    *  @param[in] system The render system within which to create the texture.
    *  @param[in] data The mesh to use.
    *  @param[in] materials The materials to use.
-   *  @return The newly created model, or @c NULL if an error
+   *  @return The newly created model, or @c nullptr if an error
    *  occurred.
    */
   static Ref<Model> create(const ResourceInfo& info,
@@ -122,7 +122,7 @@ public:
   /*! Creates a model specification using the specified file.
    *  @param[in] context The OpenGL context within which to create the texture.
    *  @param[in] path The path of the specification file to use.
-   *  @return The newly created model, or @c NULL if an error occurred.
+   *  @return The newly created model, or @c nullptr if an error occurred.
    */
   static Ref<Model> read(System& system, const String& name);
 private:

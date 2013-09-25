@@ -51,7 +51,7 @@ bool VertexPool::allocateVertices(GL::VertexRange& range,
     return true;
   }
 
-  Slot* slot = NULL;
+  Slot* slot = nullptr;
 
   for (auto& s : m_slots)
   {
@@ -98,7 +98,7 @@ Ref<VertexPool> VertexPool::create(GL::Context& context, size_t granularity)
 {
   Ref<VertexPool> pool(new VertexPool(context));
   if (!pool->init(granularity))
-    return NULL;
+    return nullptr;
 
   return pool;
 }

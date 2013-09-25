@@ -236,7 +236,7 @@ Ref<Font> Font::create(const ResourceInfo& info,
 {
   Ref<Font> font(new Font(info, pool));
   if (!font->init(data))
-    return NULL;
+    return nullptr;
 
   return font;
 }
@@ -471,7 +471,7 @@ Ref<Font> FontReader::read(const String& name, const Path& path)
   if (stream.fail())
   {
     logError("Failed to open font %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   pugi::xml_document document;
@@ -482,35 +482,35 @@ Ref<Font> FontReader::read(const String& name, const Path& path)
     logError("Failed to load font %s: %s",
              name.c_str(),
              result.description());
-    return NULL;
+    return nullptr;
   }
 
   pugi::xml_node root = document.child("font");
   if (!root || root.attribute("version").as_uint() != FONT_XML_VERSION)
   {
     logError("Font file format mismatch in %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   const String characters(root.attribute("characters").value());
   if (characters.empty())
   {
     logError("No characters specified for font %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   const String imageName(root.attribute("image").value());
   if (imageName.empty())
   {
     logError("Glyph image path missing for font %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   Ref<Image> image = Image::read(cache, imageName);
   if (!image)
   {
     logError("Failed to load glyph image for font %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   bool fixedWidth = false;
@@ -521,7 +521,7 @@ Ref<Font> FontReader::read(const String& name, const Path& path)
   FontData data;
 
   if (!extractGlyphs(data, name, *image, characters, fixedWidth))
-    return NULL;
+    return nullptr;
 
   return Font::create(ResourceInfo(cache, name, path), *pool, data);
 }

@@ -510,7 +510,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
   if (stream.fail())
   {
     logError("Failed to open material %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   pugi::xml_document document;
@@ -521,14 +521,14 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
     logError("Failed to load material %s: %s",
              name.c_str(),
              result.description());
-    return NULL;
+    return nullptr;
   }
 
   pugi::xml_node root = document.child("material");
   if (!root || root.attribute("version").as_uint() != MATERIAL_XML_VERSION)
   {
     logError("Material file format mismatch in %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   std::vector<bool> phases(2, false);
@@ -545,7 +545,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
       logError("Invalid render phase %s in material %s",
                phaseName.c_str(),
                name.c_str());
-      return NULL;
+      return nullptr;
     }
 
     const Phase phase = phaseMap[phaseName];
@@ -558,7 +558,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
       logError("Invalid render system type %s in material %s",
                typeName.c_str(),
                name.c_str());
-      return NULL;
+      return nullptr;
     }
 
     const System::Type type = systemTypeMap[typeName];
@@ -575,7 +575,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
       if (!parsePass(system, pass, p))
       {
         logError("Failed to parse pass for material %s", name.c_str());
-        return NULL;
+        return nullptr;
       }
 
       phases[phase] = true;

@@ -110,7 +110,7 @@ Ref<BvhTriangleMeshShape> BvhTriangleMeshShape::create(const ResourceInfo& info,
 {
   Ref<BvhTriangleMeshShape> shape(new BvhTriangleMeshShape(info));
   if (!shape->init(data))
-    return NULL;
+    return nullptr;
 
   return shape;
 }
@@ -130,7 +130,7 @@ Ref<BvhTriangleMeshShape> BvhTriangleMeshShape::read(ResourceCache& cache,
   if (!data)
   {
     logError("Failed to read mesh for mesh shape %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   return create(ResourceInfo(cache, name), *data);

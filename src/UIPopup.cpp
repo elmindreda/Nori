@@ -44,7 +44,7 @@ namespace wendy
 Popup::Popup(Layer& layer):
   Widget(layer),
   selection(NO_ITEM),
-  menu(NULL)
+  menu(nullptr)
 {
   const float em = layer.getDrawer().getCurrentEM();
 
@@ -114,7 +114,7 @@ void Popup::setSelection(uint newIndex)
 Item* Popup::getSelectedItem()
 {
   if (selection == NO_ITEM)
-    return NULL;
+    return nullptr;
 
   return menu->getItem(selection);
 }
@@ -228,7 +228,7 @@ void Popup::onItemSelected(Menu& menu, uint index)
 
 void Popup::onMenuDestroyed(Widget& widget)
 {
-  menu = NULL;
+  menu = nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////

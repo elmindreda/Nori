@@ -204,7 +204,7 @@ Ref<Shader> Shader::create(const ResourceInfo& info,
 {
   Ref<Shader> shader(new Shader(info, context, type));
   if (!shader->init(text))
-    return NULL;
+    return nullptr;
 
   return shader;
 }
@@ -222,14 +222,14 @@ Ref<Shader> Shader::read(Context& context,
   if (path.isEmpty())
   {
     logError("Failed to find shader %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   std::ifstream stream(path.asString().c_str());
   if (stream.fail())
   {
     logError("Failed to open shader file %s", path.asString().c_str());
-    return NULL;
+    return nullptr;
   }
 
   String text;
@@ -300,7 +300,7 @@ bool Shader::init(const String& text)
     if (infoLogLength > 1)
     {
       infoLog.resize(infoLogLength);
-      glGetShaderInfoLog(m_shaderID, infoLogLength, NULL, &infoLog[0]);
+      glGetShaderInfoLog(m_shaderID, infoLogLength, nullptr, &infoLog[0]);
     }
   }
 
@@ -546,7 +546,7 @@ Attribute* Program::findAttribute(const char* name)
 {
   auto a = std::find(m_attributes.begin(), m_attributes.end(), name);
   if (a == m_attributes.end())
-    return NULL;
+    return nullptr;
 
   return &(*a);
 }
@@ -555,7 +555,7 @@ const Attribute* Program::findAttribute(const char* name) const
 {
   auto a = std::find(m_attributes.begin(), m_attributes.end(), name);
   if (a == m_attributes.end())
-    return NULL;
+    return nullptr;
 
   return &(*a);
 }
@@ -564,7 +564,7 @@ Sampler* Program::findSampler(const char* name)
 {
   auto s = std::find(m_samplers.begin(), m_samplers.end(), name);
   if (s == m_samplers.end())
-    return NULL;
+    return nullptr;
 
   return &(*s);
 }
@@ -573,7 +573,7 @@ const Sampler* Program::findSampler(const char* name) const
 {
   auto s = std::find(m_samplers.begin(), m_samplers.end(), name);
   if (s == m_samplers.end())
-    return NULL;
+    return nullptr;
 
   return &(*s);
 }
@@ -582,7 +582,7 @@ Uniform* Program::findUniform(const char* name)
 {
   auto u = std::find(m_uniforms.begin(), m_uniforms.end(), name);
   if (u == m_uniforms.end())
-    return NULL;
+    return nullptr;
 
   return &(*u);
 }
@@ -591,7 +591,7 @@ const Uniform* Program::findUniform(const char* name) const
 {
   auto u = std::find(m_uniforms.begin(), m_uniforms.end(), name);
   if (u == m_uniforms.end())
-    return NULL;
+    return nullptr;
 
   return &(*u);
 }
@@ -653,7 +653,7 @@ Ref<Program> Program::create(const ResourceInfo& info,
 {
   Ref<Program> program(new Program(info, context));
   if (!program->init(vertexShader, fragmentShader))
-    return NULL;
+    return nullptr;
 
   return program;
 }
@@ -677,13 +677,13 @@ Ref<Program> Program::read(Context& context,
                                           VERTEX_SHADER,
                                           vertexShaderName);
   if (!vertexShader)
-    return NULL;
+    return nullptr;
 
   Ref<Shader> fragmentShader = Shader::read(context,
                                             FRAGMENT_SHADER,
                                             fragmentShaderName);
   if (!fragmentShader)
-    return NULL;
+    return nullptr;
 
   return create(ResourceInfo(cache, name),
                 context,
@@ -927,7 +927,7 @@ String Program::infoLog() const
   if (length > 1)
   {
     result.resize(length);
-    glGetProgramInfoLog(m_programID, length, NULL, &result[0]);
+    glGetProgramInfoLog(m_programID, length, nullptr, &result[0]);
   }
 
   return result;

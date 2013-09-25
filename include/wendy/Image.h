@@ -82,7 +82,7 @@ public:
    *  @param[in] y The y coordinate of the desired pixel.
    *  @param[in] z The z coordinate of the desired pixel.
    *
-   *  @return The address of the desired pixel, or @c NULL if the specified
+   *  @return The address of the desired pixel, or @c nullptr if the specified
    *  coordinates are outside of the current image data.
    */
   void* pixel(uint x, uint y = 0, uint z = 0);
@@ -90,7 +90,7 @@ public:
    *  @param[in] x The x coordinate of the desired pixel.
    *  @param[in] y The y coordinate of the desired pixel.
    *  @param[in] z The z coordinate of the desired pixel.
-   *  @return The address of the desired pixel, or @c NULL if the specified
+   *  @return The address of the desired pixel, or @c nullptr if the specified
    *  coordinates are outside of the current image data.
    */
   const void* pixel(uint x, uint y = 0, uint z = 0) const;
@@ -113,10 +113,10 @@ public:
    *  @param[in] width The desired width of the image. This cannot be zero.
    *  @param[in] height The desired height of the image. This cannot be zero.
    *  @param[in] depth The desired depth of the image. This cannot be zero.
-   *  @param[in] data The pixel data to initialize the image with, or @c NULL
+   *  @param[in] data The pixel data to initialize the image with, or @c nullptr
    *  to initialize it with zeros.
    *  @param[in] pitch The pitch, in bytes, between consecutive scanlines, or
-   *  zero if the scanlines are contiguous in memory. If @c data is @c NULL,
+   *  zero if the scanlines are contiguous in memory. If @c data is @c nullptr,
    *  then this parameter is ignored.
    *  @return The newly created image object.
    *
@@ -127,7 +127,7 @@ public:
                            uint width,
                            uint height = 1,
                            uint depth = 1,
-                           const void* pixels = NULL,
+                           const void* pixels = nullptr,
                            ptrdiff_t pitch = 0);
   static Ref<Image> read(ResourceCache& cache, const String& name);
 private:

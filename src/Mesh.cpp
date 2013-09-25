@@ -255,7 +255,7 @@ MeshSection* Mesh::findSection(const char* materialName)
       return &s;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void Mesh::generateNormals(NormalType type)
@@ -402,7 +402,7 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
   if (stream.fail())
   {
     logError("Failed to open mesh %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   String line;
@@ -414,7 +414,7 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
   std::vector<Triplet> triplets;
 
   std::vector<FaceGroup> groups;
-  FaceGroup* group = NULL;
+  FaceGroup* group = nullptr;
 
   while (std::getline(stream, line))
   {
@@ -470,7 +470,7 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
       {
         String materialName = parseName(&text);
 
-        group = NULL;
+        group = nullptr;
 
         for (auto& g : groups)
         {
@@ -546,7 +546,7 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
                name.c_str(),
                lineNumber);
 
-      return NULL;
+      return nullptr;
     }
   }
 

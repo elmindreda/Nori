@@ -105,7 +105,7 @@ void Panel::draw() const
 
 Interface::Interface(Window& window, UI::Drawer& drawer):
   UI::Layer(window, drawer),
-  root(NULL)
+  root(nullptr)
 {
   root = new Panel(*this);
   root->setArea(Rect(0.f, 0.f, 150.f, 220.f));
@@ -168,7 +168,7 @@ void Interface::draw()
   root->setSize(vec2(150.f, float(framebuffer.height())));
 
   GL::Stats* previous = context.stats();
-  context.setStats(NULL);
+  context.setStats(nullptr);
 
   UI::Layer::draw();
 
