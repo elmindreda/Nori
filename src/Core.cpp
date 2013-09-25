@@ -23,9 +23,9 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/Core.h>
+#include <wendy/Core.hpp>
 
 #include <algorithm>
 #include <exception>

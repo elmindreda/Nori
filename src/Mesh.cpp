@@ -23,14 +23,14 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/Core.h>
-#include <wendy/AABB.h>
-#include <wendy/Sphere.h>
-#include <wendy/Path.h>
-#include <wendy/Resource.h>
-#include <wendy/Mesh.h>
+#include <wendy/Core.hpp>
+#include <wendy/AABB.hpp>
+#include <wendy/Sphere.hpp>
+#include <wendy/Path.hpp>
+#include <wendy/Resource.hpp>
+#include <wendy/Mesh.hpp>
 
 #include <limits>
 #include <cstdlib>

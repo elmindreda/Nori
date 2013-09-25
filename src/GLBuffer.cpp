@@ -23,19 +23,19 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/Bimap.h>
+#include <wendy/Bimap.hpp>
 
-#include <wendy/GLTexture.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLProgram.h>
-#include <wendy/GLContext.h>
+#include <wendy/GLTexture.hpp>
+#include <wendy/GLBuffer.hpp>
+#include <wendy/GLProgram.hpp>
+#include <wendy/GLContext.hpp>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include <internal/GLHelper.h>
+#include <internal/GLHelper.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 

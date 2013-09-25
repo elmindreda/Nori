@@ -23,9 +23,9 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
-#include <wendy/Core.h>
-#include <wendy/Vertex.h>
+#include <wendy/Config.hpp>
+#include <wendy/Core.hpp>
+#include <wendy/Vertex.hpp>
 
 #include <cctype>
 #include <sstream>

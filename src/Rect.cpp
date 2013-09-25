@@ -23,9 +23,9 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
-#include <wendy/Core.h>
-#include <wendy/Rect.h>
+#include <wendy/Config.hpp>
+#include <wendy/Core.hpp>
+#include <wendy/Rect.hpp>
 
 #include <sstream>
 

@@ -23,13 +23,13 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/Core.h>
-#include <wendy/Path.h>
-#include <wendy/Resource.h>
+#include <wendy/Core.hpp>
+#include <wendy/Path.hpp>
+#include <wendy/Resource.hpp>
 
-#include <internal/GLParser.h>
+#include <internal/GLParser.hpp>
 
 #include <algorithm>
 #include <fstream>

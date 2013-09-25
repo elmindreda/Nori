@@ -23,8 +23,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Core.h>
-#include <wendy/Network.h>
+#include <wendy/Core.hpp>
+#include <wendy/Network.hpp>
 
 #include <enet/enet.h>
 

@@ -23,21 +23,21 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/Core.h>
-#include <wendy/Timer.h>
-#include <wendy/Profile.h>
+#include <wendy/Core.hpp>
+#include <wendy/Timer.hpp>
+#include <wendy/Profile.hpp>
 
-#include <wendy/GLTexture.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLProgram.h>
-#include <wendy/GLContext.h>
+#include <wendy/GLTexture.hpp>
+#include <wendy/GLBuffer.hpp>
+#include <wendy/GLProgram.hpp>
+#include <wendy/GLContext.hpp>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include <internal/GLHelper.h>
+#include <internal/GLHelper.hpp>
 
 #define GLFW_NO_GLU
 #include <GLFW/glfw3.h>

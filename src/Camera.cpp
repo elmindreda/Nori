@@ -23,15 +23,15 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/Core.h>
-#include <wendy/Transform.h>
-#include <wendy/Ray.h>
-#include <wendy/Plane.h>
-#include <wendy/AABB.h>
-#include <wendy/Frustum.h>
-#include <wendy/Camera.h>
+#include <wendy/Core.hpp>
+#include <wendy/Transform.hpp>
+#include <wendy/Ray.hpp>
+#include <wendy/Plane.hpp>
+#include <wendy/AABB.hpp>
+#include <wendy/Frustum.hpp>
+#include <wendy/Camera.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 

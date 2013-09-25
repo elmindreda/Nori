@@ -23,10 +23,10 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
-#include <wendy/Core.h>
-#include <wendy/Transform.h>
-#include <wendy/OBB.h>
+#include <wendy/Config.hpp>
+#include <wendy/Core.hpp>
+#include <wendy/Transform.hpp>
+#include <wendy/OBB.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 

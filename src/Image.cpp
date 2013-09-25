@@ -23,14 +23,14 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/Core.h>
-#include <wendy/Rect.h>
-#include <wendy/Path.h>
-#include <wendy/Pixel.h>
-#include <wendy/Resource.h>
-#include <wendy/Image.h>
+#include <wendy/Core.hpp>
+#include <wendy/Rect.hpp>
+#include <wendy/Path.hpp>
+#include <wendy/Pixel.hpp>
+#include <wendy/Resource.hpp>
+#include <wendy/Image.hpp>
 
 #include <cstring>
 

@@ -23,9 +23,9 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
-#include <wendy/Core.h>
-#include <wendy/Pattern.h>
+#include <wendy/Config.hpp>
+#include <wendy/Core.hpp>
+#include <wendy/Pattern.hpp>
 
 #define PCRE_STATIC
 #include <pcre.h>

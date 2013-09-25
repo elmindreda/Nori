@@ -23,13 +23,13 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/UIDrawer.h>
-#include <wendy/UILayer.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UIItem.h>
-#include <wendy/UIMenu.h>
+#include <wendy/UIDrawer.hpp>
+#include <wendy/UILayer.hpp>
+#include <wendy/UIWidget.hpp>
+#include <wendy/UIItem.hpp>
+#include <wendy/UIMenu.hpp>
 
 #include <algorithm>
 

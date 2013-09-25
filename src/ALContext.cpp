@@ -23,12 +23,12 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
-#include <wendy/Core.h>
+#include <wendy/Config.hpp>
+#include <wendy/Core.hpp>
 
-#include <wendy/ALContext.h>
+#include <wendy/ALContext.hpp>
 
-#include <internal/ALHelper.h>
+#include <internal/ALHelper.hpp>
 
 #include <glm/gtc/type_ptr.hpp>
 

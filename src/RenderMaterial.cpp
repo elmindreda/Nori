@@ -23,19 +23,19 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/Bimap.h>
+#include <wendy/Bimap.hpp>
 
-#include <wendy/GLTexture.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLProgram.h>
-#include <wendy/GLContext.h>
+#include <wendy/GLTexture.hpp>
+#include <wendy/GLBuffer.hpp>
+#include <wendy/GLProgram.hpp>
+#include <wendy/GLContext.hpp>
 
-#include <wendy/RenderPool.h>
-#include <wendy/RenderState.h>
-#include <wendy/RenderSystem.h>
-#include <wendy/RenderMaterial.h>
+#include <wendy/RenderPool.hpp>
+#include <wendy/RenderState.hpp>
+#include <wendy/RenderSystem.hpp>
+#include <wendy/RenderMaterial.hpp>
 
 #include <algorithm>
 

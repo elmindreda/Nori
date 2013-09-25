@@ -62,7 +62,7 @@ if (UNIX)
   find_package(Ruby REQUIRED)
 
   set(SIGNAL_INPUT ${wendy_SOURCE_DIR}/build/makesignal.rb)
-  set(SIGNAL_OUTPUT ${wendy_BINARY_DIR}/include/wendy/Signal.h)
+  set(SIGNAL_OUTPUT ${wendy_BINARY_DIR}/include/wendy/Signal.hpp)
 
   add_custom_command(OUTPUT ${SIGNAL_OUTPUT}
                      COMMAND ${RUBY_EXECUTABLE} ${SIGNAL_INPUT} ${SIGNAL_OUTPUT} 4
@@ -126,8 +126,8 @@ set(WENDY_INCLUDE_DIRS ${wendy_INCLUDE_DIRS} CACHE STRING
 
 include_directories(${wendy_INCLUDE_DIRS})
 
-configure_file(${wendy_SOURCE_DIR}/include/wendy/Config.h.in
-               ${wendy_BINARY_DIR}/include/wendy/Config.h @ONLY)
+configure_file(${wendy_SOURCE_DIR}/include/wendy/Config.hpp.in
+               ${wendy_BINARY_DIR}/include/wendy/Config.hpp @ONLY)
 
 if (WENDY_BUILD_DOCUMENTATION)
   configure_file(${wendy_SOURCE_DIR}/docs/Doxyfile.in

@@ -23,12 +23,12 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/Core.h>
-#include <wendy/Bimap.h>
+#include <wendy/Core.hpp>
+#include <wendy/Bimap.hpp>
 
-#include <wendy/UIDrawer.h>
+#include <wendy/UIDrawer.hpp>
 
 #include <pugixml.hpp>
 

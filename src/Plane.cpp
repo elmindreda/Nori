@@ -23,12 +23,12 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
-#include <wendy/Core.h>
-#include <wendy/Transform.h>
-#include <wendy/Ray.h>
-#include <wendy/Sphere.h>
-#include <wendy/Plane.h>
+#include <wendy/Config.hpp>
+#include <wendy/Core.hpp>
+#include <wendy/Transform.hpp>
+#include <wendy/Ray.hpp>
+#include <wendy/Sphere.hpp>
+#include <wendy/Plane.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 

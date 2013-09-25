@@ -23,12 +23,12 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/UIDrawer.h>
-#include <wendy/UILayer.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UIProgress.h>
+#include <wendy/UIDrawer.hpp>
+#include <wendy/UILayer.hpp>
+#include <wendy/UIWidget.hpp>
+#include <wendy/UIProgress.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 

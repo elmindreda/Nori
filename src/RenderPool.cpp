@@ -23,14 +23,14 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/GLTexture.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLProgram.h>
-#include <wendy/GLContext.h>
+#include <wendy/GLTexture.hpp>
+#include <wendy/GLBuffer.hpp>
+#include <wendy/GLProgram.hpp>
+#include <wendy/GLContext.hpp>
 
-#include <wendy/RenderPool.h>
+#include <wendy/RenderPool.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 

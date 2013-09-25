@@ -23,30 +23,30 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/Core.h>
-#include <wendy/Timer.h>
-#include <wendy/Profile.h>
-#include <wendy/Transform.h>
-#include <wendy/AABB.h>
-#include <wendy/Plane.h>
-#include <wendy/Frustum.h>
-#include <wendy/Camera.h>
+#include <wendy/Core.hpp>
+#include <wendy/Timer.hpp>
+#include <wendy/Profile.hpp>
+#include <wendy/Transform.hpp>
+#include <wendy/AABB.hpp>
+#include <wendy/Plane.hpp>
+#include <wendy/Frustum.hpp>
+#include <wendy/Camera.hpp>
 
-#include <wendy/GLTexture.h>
-#include <wendy/GLBuffer.h>
-#include <wendy/GLProgram.h>
-#include <wendy/GLContext.h>
+#include <wendy/GLTexture.hpp>
+#include <wendy/GLBuffer.hpp>
+#include <wendy/GLProgram.hpp>
+#include <wendy/GLContext.hpp>
 
-#include <wendy/RenderPool.h>
-#include <wendy/RenderState.h>
-#include <wendy/RenderMaterial.h>
-#include <wendy/RenderLight.h>
-#include <wendy/RenderScene.h>
-#include <wendy/RenderModel.h>
+#include <wendy/RenderPool.hpp>
+#include <wendy/RenderState.hpp>
+#include <wendy/RenderMaterial.hpp>
+#include <wendy/RenderLight.hpp>
+#include <wendy/RenderScene.hpp>
+#include <wendy/RenderModel.hpp>
 
-#include <wendy/SceneGraph.h>
+#include <wendy/SceneGraph.hpp>
 
 #include <algorithm>
 

@@ -23,10 +23,10 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
-#include <wendy/Core.h>
+#include <wendy/Config.hpp>
+#include <wendy/Core.hpp>
 
-#include <internal/ALHelper.h>
+#include <internal/ALHelper.hpp>
 
 #include <al.h>
 #include <alc.h>

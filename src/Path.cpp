@@ -23,11 +23,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/Core.h>
-#include <wendy/Pattern.h>
-#include <wendy/Path.h>
+#include <wendy/Core.hpp>
+#include <wendy/Pattern.hpp>
+#include <wendy/Path.hpp>
 
 #if WENDY_HAVE_SYS_STAT_H
 #include <sys/stat.h>

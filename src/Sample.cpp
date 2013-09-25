@@ -23,11 +23,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
-#include <wendy/Core.h>
-#include <wendy/Path.h>
-#include <wendy/Resource.h>
-#include <wendy/Sample.h>
+#include <wendy/Config.hpp>
+#include <wendy/Core.hpp>
+#include <wendy/Path.hpp>
+#include <wendy/Resource.hpp>
+#include <wendy/Sample.hpp>
 
 #include <vorbis/vorbisfile.h>
 

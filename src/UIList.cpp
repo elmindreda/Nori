@@ -23,15 +23,15 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/UIDrawer.h>
-#include <wendy/UILayer.h>
-#include <wendy/UIWidget.h>
-#include <wendy/UIScroller.h>
-#include <wendy/UIEntry.h>
-#include <wendy/UIItem.h>
-#include <wendy/UIList.h>
+#include <wendy/UIDrawer.hpp>
+#include <wendy/UILayer.hpp>
+#include <wendy/UIWidget.hpp>
+#include <wendy/UIScroller.hpp>
+#include <wendy/UIEntry.hpp>
+#include <wendy/UIItem.hpp>
+#include <wendy/UIList.hpp>
 
 #include <algorithm>
 

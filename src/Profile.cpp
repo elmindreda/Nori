@@ -23,11 +23,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/Core.h>
-#include <wendy/Timer.h>
-#include <wendy/Profile.h>
+#include <wendy/Core.hpp>
+#include <wendy/Timer.hpp>
+#include <wendy/Profile.hpp>
 
 #include <algorithm>
 

@@ -23,15 +23,15 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
+#include <wendy/Config.hpp>
 
-#include <wendy/Core.h>
-#include <wendy/Timer.h>
-#include <wendy/Profile.h>
+#include <wendy/Core.hpp>
+#include <wendy/Timer.hpp>
+#include <wendy/Profile.hpp>
 
-#include <wendy/UIDrawer.h>
-#include <wendy/UILayer.h>
-#include <wendy/UIWidget.h>
+#include <wendy/UIDrawer.hpp>
+#include <wendy/UILayer.hpp>
+#include <wendy/UIWidget.hpp>
 
 #include <algorithm>
 

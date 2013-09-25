@@ -23,14 +23,14 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.h>
-#include <wendy/Core.h>
-#include <wendy/Transform.h>
-#include <wendy/Path.h>
-#include <wendy/Resource.h>
-#include <wendy/Mesh.h>
+#include <wendy/Config.hpp>
+#include <wendy/Core.hpp>
+#include <wendy/Transform.hpp>
+#include <wendy/Path.hpp>
+#include <wendy/Resource.hpp>
+#include <wendy/Mesh.hpp>
 
-#include <wendy/Bullet.h>
+#include <wendy/Bullet.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 
