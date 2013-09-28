@@ -109,7 +109,7 @@ namespace detail
 	{
 		value_type const Zero(0);
 		this->value[0] = col_type(s, Zero, Zero, Zero);
-		this->value[1] = col_type(Zero, Zero, Zero, Zero);
+		this->value[1] = col_type(Zero, s, Zero, Zero);
 	}
 
 	template <typename T> 
@@ -296,10 +296,7 @@ namespace detail
 
 	template <typename T> 
 	template <typename U> 
-	GLM_FUNC_QUALIFIER tmat2x4<T>& tmat2x4<T>::operator+= 
-	(
-		U const & s
-	)
+	GLM_FUNC_QUALIFIER tmat2x4<T>& tmat2x4<T>::operator+= (U s)
 	{
 		this->value[0] += s;
 		this->value[1] += s;
@@ -320,10 +317,7 @@ namespace detail
 
 	template <typename T> 
 	template <typename U> 
-	GLM_FUNC_QUALIFIER tmat2x4<T>& tmat2x4<T>::operator-= 
-	(
-		U const & s
-	)
+	GLM_FUNC_QUALIFIER tmat2x4<T>& tmat2x4<T>::operator-= (U s)
 	{
 		this->value[0] -= s;
 		this->value[1] -= s;
@@ -344,10 +338,7 @@ namespace detail
 
 	template <typename T> 
 	template <typename U> 
-	GLM_FUNC_QUALIFIER tmat2x4<T>& tmat2x4<T>::operator*= 
-	(
-		U const & s
-	)
+	GLM_FUNC_QUALIFIER tmat2x4<T>& tmat2x4<T>::operator*= (U s)
 	{
 		this->value[0] *= s;
 		this->value[1] *= s;
@@ -366,10 +357,7 @@ namespace detail
 
 	template <typename T> 
 	template <typename U> 
-	GLM_FUNC_QUALIFIER tmat2x4<T> & tmat2x4<T>::operator/= 
-	(
-		U const & s
-	)
+	GLM_FUNC_QUALIFIER tmat2x4<T> & tmat2x4<T>::operator/= (U s)
 	{
 		this->value[0] /= s;
 		this->value[1] /= s;
