@@ -114,14 +114,13 @@ void Context::setListenerGain(float newGain)
   }
 }
 
-bool Context::createSingleton(ResourceCache& cache)
+Context* Context::create(ResourceCache& cache)
 {
   Ptr<Context> context(new Context(cache));
   if (!context->init())
-    return false;
+    return nullptr;
 
-  set(context.detachObject());
-  return true;
+  return context.detachObject();
 }
 
 Context::Context(ResourceCache& cache):

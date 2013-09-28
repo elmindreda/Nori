@@ -42,7 +42,7 @@ namespace wendy
 /*! @brief OpenAL context singleton.
  *  @ingroup openal
  */
-class Context : public Singleton<Context>
+class Context
 {
 public:
   /*! Destructor.
@@ -85,7 +85,7 @@ public:
    *  @param[in] cache The resource cache to use.
    *  @return @c true if successful, or @c false otherwise.
    */
-  static bool createSingleton(ResourceCache& cache);
+  static Context* create(ResourceCache& cache);
 private:
   Context(ResourceCache& cache);
   Context(const Context& source);
