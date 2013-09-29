@@ -348,11 +348,6 @@ void Window::init(GLFWwindow* handle)
   glfwSetInputMode(m_handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
-Window::Window(const Window& source)
-{
-  panic("Input windows may not be copied");
-}
-
 void Window::sizeCallback(GLFWwindow* handle, int width, int height)
 {
   Window& window = windowFromHandle(handle);
@@ -458,11 +453,6 @@ void Window::scrollCallback(GLFWwindow* handle, double x, double y)
 
   if (window.m_target)
     window.m_target->onScroll(vec2(x, y));
-}
-
-Window& Window::operator = (const Window& source)
-{
-  panic("Input windows may not be assigned");
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -178,8 +178,10 @@ private:
                uint height,
                uint depth,
                CubeFace face = NO_CUBE_FACE);
+  TextureImage(const TextureImage&) = delete;
   void attach(int attachment, uint z);
   void detach(int attachment);
+  TextureImage& operator = (const TextureImage&) = delete;
   Texture& m_texture;
   uint m_level;
   uint m_width;
@@ -297,12 +299,12 @@ public:
                            const String& imageName);
 private:
   Texture(const ResourceInfo& info, Context& context);
-  Texture(const Texture& source);
+  Texture(const Texture&) = delete;
   bool init(const TextureParams& params, const Image& data);
   void retrieveImages();
   uint retrieveTargetImages(uint target, CubeFace face);
   void applyDefaults();
-  Texture& operator = (const Texture& source);
+  Texture& operator = (const Texture&) = delete;
   Context& m_context;
   TextureType m_type;
   uint m_textureID;

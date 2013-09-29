@@ -559,12 +559,6 @@ Texture::Texture(const ResourceInfo& info, Context& context):
 {
 }
 
-Texture::Texture(const Texture& source):
-  Resource(source),
-  m_context(source.m_context)
-{
-}
-
 bool Texture::init(const TextureParams& params, const Image& data)
 {
   m_format = data.format();
@@ -835,11 +829,6 @@ void Texture::applyDefaults()
   glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_S, convertToGL(m_addressMode));
   glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_T, convertToGL(m_addressMode));
   glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_R, convertToGL(m_addressMode));
-}
-
-Texture& Texture::operator = (const Texture& source)
-{
-  return *this;
 }
 
 ///////////////////////////////////////////////////////////////////////

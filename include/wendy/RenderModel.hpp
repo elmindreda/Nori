@@ -127,9 +127,9 @@ public:
   static Ref<Model> read(System& system, const String& name);
 private:
   Model(const ResourceInfo& info);
-  Model(const Model& source);
-  Model& operator = (const Model& source);
+  Model(const Model&) = delete;
   bool init(System& system, const Mesh& data, const MaterialMap& materials);
+  Model& operator = (const Model&) = delete;
   ModelSectionList m_sections;
   Ref<GL::VertexBuffer> m_vertexBuffer;
   Ref<GL::IndexBuffer> m_indexBuffer;

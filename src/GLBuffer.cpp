@@ -253,12 +253,6 @@ VertexBuffer::VertexBuffer(Context& context):
 {
 }
 
-VertexBuffer::VertexBuffer(const VertexBuffer& source):
-  m_context(source.m_context)
-{
-  panic("Vertex buffers may not be copied");
-}
-
 bool VertexBuffer::init(const VertexFormat& format, size_t count, Usage usage)
 {
   m_format = format;
@@ -285,11 +279,6 @@ bool VertexBuffer::init(const VertexFormat& format, size_t count, Usage usage)
     stats->addVertexBuffer(size());
 
   return true;
-}
-
-VertexBuffer& VertexBuffer::operator = (const VertexBuffer& source)
-{
-  panic("Vertex buffers may not be assigned");
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -433,12 +422,6 @@ IndexBuffer::IndexBuffer(Context& context):
 {
 }
 
-IndexBuffer::IndexBuffer(const IndexBuffer& source):
-  m_context(source.m_context)
-{
-  panic("Index buffers may not be copied");
-}
-
 bool IndexBuffer::init(size_t count, IndexType type, Usage usage)
 {
   m_type = type;
@@ -465,11 +448,6 @@ bool IndexBuffer::init(size_t count, IndexType type, Usage usage)
     stats->addIndexBuffer(size());
 
   return true;
-}
-
-IndexBuffer& IndexBuffer::operator = (const IndexBuffer& source)
-{
-  panic("Index buffers may not be assigned");
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -799,17 +777,6 @@ Framebuffer::Framebuffer(Context& context):
   m_context(context),
   m_sRGB(false)
 {
-}
-
-Framebuffer::Framebuffer(const Framebuffer& source):
-  m_context(source.m_context)
-{
-  panic("Framebuffers may not be copied");
-}
-
-Framebuffer& Framebuffer::operator = (const Framebuffer& source)
-{
-  panic("Framebuffers may not be assigned");
 }
 
 ///////////////////////////////////////////////////////////////////////

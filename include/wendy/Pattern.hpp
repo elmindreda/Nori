@@ -93,9 +93,9 @@ public:
   static Pattern* create(const String& source);
 private:
   Pattern();
-  Pattern(const Pattern& source);
+  Pattern(const Pattern&) = delete;
   bool init(const String& source);
-  Pattern& operator = (const Pattern& source);
+  Pattern& operator = (const Pattern&) = delete;
   void* m_object;
 };
 

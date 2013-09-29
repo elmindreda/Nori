@@ -77,7 +77,9 @@ public:
   static OcclusionQuery* create(Context& context);
 private:
   OcclusionQuery(Context& context);
+  OcclusionQuery(const OcclusionQuery&) = delete;
   bool init();
+  OcclusionQuery& operator = (const OcclusionQuery&) = delete;
   Context& m_context;
   uint m_queryID;
   bool m_active;

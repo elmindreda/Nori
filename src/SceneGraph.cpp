@@ -238,16 +238,6 @@ void Node::enqueue(render::Scene& scene, const Camera& camera) const
   }
 }
 
-Node::Node(const Node& source)
-{
-  panic("Scene graph nodes may not be copied");
-}
-
-Node& Node::operator = (const Node& source)
-{
-  panic("Scene graph nodes may not be assigned");
-}
-
 void Node::invalidateBounds()
 {
   for (Node* node = this;  node;  node = node->parent())

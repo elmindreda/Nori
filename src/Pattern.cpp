@@ -125,11 +125,6 @@ Pattern::Pattern():
 {
 }
 
-Pattern::Pattern(const Pattern& source)
-{
-  panic("Pattern objects may not be copied");
-}
-
 bool Pattern::init(const String& source)
 {
   const char* message = nullptr;
@@ -143,11 +138,6 @@ bool Pattern::init(const String& source)
   }
 
   return true;
-}
-
-Pattern& Pattern::operator = (const Pattern& source)
-{
-  panic("Pattern objects may not be copied");
 }
 
 ///////////////////////////////////////////////////////////////////////

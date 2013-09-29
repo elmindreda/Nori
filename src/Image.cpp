@@ -394,17 +394,6 @@ bool Image::init(const PixelFormat& format,
   return true;
 }
 
-Image::Image(const Image& source):
-  Resource(source)
-{
-  panic("Image objects may not be copied");
-}
-
-Image& Image::operator = (const Image& source)
-{
-  panic("Image objects may not be assigned");
-}
-
 ///////////////////////////////////////////////////////////////////////
 
 ImageReader::ImageReader(ResourceCache& cache):

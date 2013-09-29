@@ -68,16 +68,6 @@ System::System(VertexPool& pool, Type type):
 {
 }
 
-System::System(const System& source)
-{
-  panic("Render systems may not be copied");
-}
-
-System& System::operator = (const System& source)
-{
-  panic("Render systems may not be assigned");
-}
-
 ///////////////////////////////////////////////////////////////////////
 
   } /*namespace render*/

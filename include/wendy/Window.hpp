@@ -433,9 +433,9 @@ public:
   void setTarget(EventTarget* newTarget);
 private:
   Window();
-  Window(const Window& source);
-  Window& operator = (const Window& source);
+  Window(const Window&) = delete;
   void init(GLFWwindow* handle);
+  Window& operator = (const Window&) = delete;
   static void sizeCallback(GLFWwindow* handle, int width, int height);
   static void damageCallback(GLFWwindow* handle);
   static void closeCallback(GLFWwindow* handle);

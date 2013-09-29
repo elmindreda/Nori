@@ -112,17 +112,6 @@ Model::Model(const ResourceInfo& info):
 {
 }
 
-Model::Model(const Model& source):
-  Resource(source)
-{
-  panic("Models may not be copied");
-}
-
-Model& Model::operator = (const Model& source)
-{
-  panic("Models may not be assigned");
-}
-
 bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 {
   if (!data.isValid())

@@ -95,12 +95,12 @@ public:
 private:
   class Glyph;
   Font(const ResourceInfo& info, VertexPool& pool);
-  Font(const Font& source);
-  Font& operator = (const Font& source);
+  Font(const Font&) = delete;
   bool init(const FontData& font);
   const Glyph* findGlyph(uint8 character) const;
   bool getGlyphLayout(Layout& layout, uint8 character) const;
   void getGlyphLayout(Layout& layout, const Glyph& glyph, uint8 character) const;
+  Font& operator = (const Font&) = delete;
   Ref<VertexPool> m_pool;
   std::vector<Glyph> m_glyphs;
   Glyph* m_characters[256];

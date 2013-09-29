@@ -700,13 +700,6 @@ Program::Program(const ResourceInfo& info, Context& context):
     stats->addProgram();
 }
 
-Program::Program(const Program& source):
-  Resource(source),
-  m_context(source.m_context)
-{
-  panic("GLSL programs may not be copied");
-}
-
 bool Program::init(Shader& vertexShader, Shader& fragmentShader)
 {
   m_vertexShader = &vertexShader;
@@ -893,11 +886,6 @@ void Program::unbind()
 {
   for (auto& a : m_attributes)
     glDisableVertexAttribArray(a.m_location);
-}
-
-Program& Program::operator = (const Program& source)
-{
-  return *this;
 }
 
 bool Program::isValid() const

@@ -1104,17 +1104,6 @@ Context::Context(ResourceCache& cache):
 {
 }
 
-Context::Context(const Context& source):
-  m_cache(source.m_cache)
-{
-  panic("OpenGL contexts may not be copied");
-}
-
-Context& Context::operator = (const Context& source)
-{
-  panic("OpenGL contexts may not be assigned");
-}
-
 bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 {
   glfwSetErrorCallback(errorCallback);

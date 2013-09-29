@@ -74,9 +74,9 @@ public:
   static Ref<Buffer> read(Context& context, const String& sampleName);
 private:
   Buffer(const ResourceInfo& info, Context& context);
-  Buffer(const Buffer& source);
+  Buffer(const Buffer&) = delete;
   bool init(const Sample& data);
-  Buffer& operator = (const Buffer& source);
+  Buffer& operator = (const Buffer&) = delete;
   Context& m_context;
   uint m_bufferID;
   SampleFormat m_format;

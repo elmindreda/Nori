@@ -67,7 +67,9 @@ public:
   static Ref<VertexPool> create(GL::Context& context, size_t granularity = 1024);
 private:
   VertexPool(GL::Context& context);
+  VertexPool(const VertexPool&) = delete;
   bool init(size_t granularity);
+  VertexPool& operator = (const VertexPool&) = delete;
   /*! @internal
    */
   struct Slot

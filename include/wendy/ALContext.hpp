@@ -88,9 +88,9 @@ public:
   static Context* create(ResourceCache& cache);
 private:
   Context(ResourceCache& cache);
-  Context(const Context& source);
+  Context(const Context&) = delete;
   bool init();
-  Context& operator = (const Context& source);
+  Context& operator = (const Context&) = delete;
   ResourceCache& m_cache;
   void* m_device;
   void* m_handle;

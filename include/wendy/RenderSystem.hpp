@@ -55,8 +55,8 @@ public:
 protected:
   System(VertexPool& pool, Type type);
 private:
-  System(const System& source);
-  System& operator = (const System& source);
+  System(const System&) = delete;
+  System& operator = (const System&) = delete;
   Ref<VertexPool> m_pool;
   Type m_type;
 };

@@ -122,10 +122,10 @@ protected:
    */
   virtual void enqueue(render::Scene& scene, const Camera& camera) const;
 private:
-  Node(const Node& source);
-  Node& operator = (const Node& source);
+  Node(const Node&) = delete;
   void invalidateBounds();
   void invalidateWorldTransform();
+  Node& operator = (const Node&) = delete;
   void setGraph(Graph* newGraph);
   bool m_needsUpdate;
   Node* m_parent;

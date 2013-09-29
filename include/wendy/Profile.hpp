@@ -66,7 +66,9 @@ public:
   const ProfileNode& rootNode() const { return m_root; }
   static Profile* currentNode() { return m_current; }
 private:
+  Profile(const Profile&) = delete;
   void beginNode(ProfileNode& node);
+  Profile& operator = (const Profile&) = delete;
   static void resetNode(ProfileNode& node);
   typedef std::vector<ProfileNode*> Stack;
   ProfileNode m_root;

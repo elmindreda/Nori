@@ -255,9 +255,11 @@ public:
   static Host* connect(const String& name, uint16 port, uint8 maxChannelCount = 0);
 private:
   Host();
+  Host(const Host&) = delete;
   bool init(uint16 port, size_t maxClientCount, uint8 maxChannelCount);
   bool init(const String& name, uint16 port, uint8 maxChannelCount);
   bool broadcast(ChannelID channel, PacketType type, const PacketData& data);
+  Host& operator = (const Host&) = delete;
   void* m_object;
   std::list<Peer> m_peers;
   Observer* m_observer;

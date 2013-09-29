@@ -137,9 +137,9 @@ public:
   static Ref<Source> create(Context& context);
 private:
   Source(Context& context);
-  Source(const Source& source);
+  Source(const Source&) = delete;
   bool init();
-  Source& operator = (const Source& source);
+  Source& operator = (const Source&) = delete;
   Context& m_context;
   uint m_sourceID;
   bool m_looping;

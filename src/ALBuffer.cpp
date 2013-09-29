@@ -141,13 +141,6 @@ Buffer::Buffer(const ResourceInfo& info, Context& context):
 {
 }
 
-Buffer::Buffer(const Buffer& source):
-  Resource(source),
-  m_context(source.m_context)
-{
-  panic("OpenAL buffer objects may not be copied");
-}
-
 bool Buffer::init(const Sample& data)
 {
   alGenBuffers(1, &m_bufferID);
@@ -163,11 +156,6 @@ bool Buffer::init(const Sample& data)
   m_duration = Time(data.data.size()) / (getFormatSize(m_format) * data.frequency);
 
   return true;
-}
-
-Buffer& Buffer::operator = (const Buffer& source)
-{
-  panic("OpenAL buffer objects may not be assigned");
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -166,9 +166,9 @@ public:
                                   Usage usage);
 private:
   VertexBuffer(Context& context);
-  VertexBuffer(const VertexBuffer& source);
-  VertexBuffer& operator = (const VertexBuffer& source);
+  VertexBuffer(const VertexBuffer&) = delete;
   bool init(const VertexFormat& format, size_t count, Usage usage);
+  VertexBuffer& operator = (const VertexBuffer&) = delete;
   Context& m_context;
   bool m_locked;
   VertexFormat m_format;
@@ -239,9 +239,9 @@ public:
   static size_t typeSize(IndexType type);
 private:
   IndexBuffer(Context& context);
-  IndexBuffer(const IndexBuffer& source);
-  IndexBuffer& operator = (const IndexBuffer& source);
+  IndexBuffer(const IndexBuffer&) = delete;
   bool init(size_t count, IndexType type, Usage usage);
+  IndexBuffer& operator = (const IndexBuffer&) = delete;
   Context& m_context;
   bool m_locked;
   IndexType m_type;
@@ -566,8 +566,8 @@ protected:
    */
   virtual void apply() const = 0;
 private:
-  Framebuffer(const Framebuffer& source);
-  Framebuffer& operator = (const Framebuffer& source);
+  Framebuffer(const Framebuffer&) = delete;
+  Framebuffer& operator = (const Framebuffer&) = delete;
   Context& m_context;
   bool m_sRGB;
 };

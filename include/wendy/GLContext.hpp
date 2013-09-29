@@ -482,11 +482,11 @@ public:
                          const ContextConfig& cc = ContextConfig());
 private:
   Context(ResourceCache& cache);
-  Context(const Context& source);
-  Context& operator = (const Context& source);
+  Context(const Context&) = delete;
   bool init(const WindowConfig& wc, const ContextConfig& cc);
   void applyState(const RenderState& newState);
   void forceState(const RenderState& newState);
+  Context& operator = (const Context&) = delete;
   void onFrame();
   class SharedSampler;
   class SharedUniform;

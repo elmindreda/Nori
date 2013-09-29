@@ -131,12 +131,6 @@ Context::Context(ResourceCache& cache):
 {
 }
 
-Context::Context(const Context& source):
-  m_cache(source.m_cache)
-{
-  panic("OpenAL contexts may not be copied");
-}
-
 bool Context::init()
 {
   m_device = alcOpenDevice(nullptr);
@@ -170,11 +164,6 @@ bool Context::init()
       (const char*) alcGetString((ALCdevice*) m_device, ALC_DEVICE_SPECIFIER));
 
   return true;
-}
-
-Context& Context::operator = (const Context& source)
-{
-  panic("OpenAL contexts may not be assigned");
 }
 
 ///////////////////////////////////////////////////////////////////////

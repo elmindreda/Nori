@@ -132,14 +132,14 @@ public:
   static Ref<Image> read(ResourceCache& cache, const String& name);
 private:
   Image(const ResourceInfo& info);
-  Image(const Image& source);
+  Image(const Image&) = delete;
   bool init(const PixelFormat& format,
             uint width,
             uint height,
             uint depth,
             const char* pixels,
             ptrdiff_t pitch);
-  Image& operator = (const Image& source);
+  Image& operator = (const Image&) = delete;
   uint m_width;
   uint m_height;
   uint m_depth;

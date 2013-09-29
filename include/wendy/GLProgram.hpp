@@ -303,13 +303,13 @@ public:
                            const String& fragmentShaderName);
 private:
   Program(const ResourceInfo& info, Context& context);
-  Program(const Program& source);
+  Program(const Program&) = delete;
   bool init(Shader& vertexShader, Shader& fragmentShader);
   bool retrieveUniforms();
   bool retrieveAttributes();
   void bind();
   void unbind();
-  Program& operator = (const Program& source);
+  Program& operator = (const Program&) = delete;
   bool isValid() const;
   String infoLog() const;
   Context& m_context;

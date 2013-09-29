@@ -254,13 +254,6 @@ Font::Font(const ResourceInfo& info, VertexPool& pool):
   std::memset(m_characters, 0, sizeof(m_characters));
 }
 
-Font::Font(const Font& source):
-  Resource(source),
-  m_pool(source.m_pool)
-{
-  panic("Fonts may not be copied");
-}
-
 bool Font::init(const FontData& data)
 {
   uint maxWidth = 0, maxHeight = 0;
@@ -428,11 +421,6 @@ bool Font::init(const FontData& data)
 const Font::Glyph* Font::findGlyph(uint8 character) const
 {
   return m_characters[character];
-}
-
-Font& Font::operator = (const Font& source)
-{
-  panic("Fonts may not be assigned");
 }
 
 bool Font::getGlyphLayout(Layout& layout, uint8 character) const
