@@ -285,15 +285,11 @@ bool Font::init(const FontData& data)
     uint textureHeight = (maxHeight + 1) * rows + 1;
     textureHeight = min(powerOfTwoAbove(textureHeight), maxSize);
 
-    Ref<Image> image = Image::create(cache(),
-                                     PixelFormat::L8,
-                                     textureWidth,
-                                     textureHeight);
-
+    GL::TextureData data(PixelFormat::L8, textureWidth, textureHeight);
     GL::TextureParams params(GL::TEXTURE_2D);
     params.mipmapped = false;
 
-    texture = GL::Texture::create(cache(), context, params, *image);
+    texture = GL::Texture::create(cache(), context, params, data);
     if (!texture)
     {
       logError("Failed to create glyph texture for font %s",

@@ -123,6 +123,29 @@ enum CubeFace
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Texture creation data.
+ *  @ingroup opengl
+ */
+class TextureData
+{
+public:
+  TextureData(const Image& image);
+  TextureData(PixelFormat format,
+              uint width,
+              uint height = 1,
+              uint depth = 1,
+              const void* texels = nullptr);
+  bool isPOT() const;
+  uint dimensionCount() const;
+  PixelFormat format;
+  uint width;
+  uint height;
+  uint depth;
+  const void* texels;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Texture creation parameters.
  *  @ingroup opengl
  */
@@ -293,14 +316,14 @@ public:
   static Ref<Texture> create(const ResourceInfo& info,
                              Context &context,
                              const TextureParams& params,
-                             const Image& data);
+                             const TextureData& data);
   static Ref<Texture> read(Context& context,
                            const TextureParams& params,
                            const String& imageName);
 private:
   Texture(const ResourceInfo& info, Context& context);
   Texture(const Texture&) = delete;
-  bool init(const TextureParams& params, const Image& data);
+  bool init(const TextureParams& params, const TextureData& data);
   void retrieveImages();
   uint retrieveTargetImages(uint target, CubeFace face);
   void applyDefaults();

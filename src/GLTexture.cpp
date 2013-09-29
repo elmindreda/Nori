@@ -159,6 +159,46 @@ const char* asString(TextureType type)
 
 ///////////////////////////////////////////////////////////////////////
 
+TextureData::TextureData(const Image& image):
+  format(image.format()),
+  width(image.width()),
+  height(image.height()),
+  depth(image.depth()),
+  texels(image.pixels())
+{
+}
+
+TextureData::TextureData(PixelFormat initFormat,
+                         uint initWidth,
+                         uint initHeight,
+                         uint initDepth,
+                         const void* initTexels):
+  format(initFormat),
+  width(initWidth),
+  height(initHeight),
+  depth(initDepth),
+  texels(initTexels)
+{
+}
+
+bool TextureData::isPOT() const
+{
+  return isPowerOfTwo(width) && isPowerOfTwo(height) && isPowerOfTwo(depth);
+}
+
+uint TextureData::dimensionCount() const
+{
+  if (depth > 1)
+    return 3;
+
+  if (height > 1)
+    return 2;
+
+  return 1;
+}
+
+///////////////////////////////////////////////////////////////////////
+
 TextureParams::TextureParams(TextureType initType):
   type(initType),
   mipmapped(true),
@@ -512,7 +552,7 @@ const TextureImage& Texture::image(uint level, CubeFace face) const
 Ref<Texture> Texture::create(const ResourceInfo& info,
                              Context& context,
                              const TextureParams& params,
-                             const Image& data)
+                             const TextureData& data)
 {
   Ref<Texture> texture(new Texture(info, context));
   if (!texture->init(params, data))
@@ -559,9 +599,10 @@ Texture::Texture(const ResourceInfo& info, Context& context):
 {
 }
 
-bool Texture::init(const TextureParams& params, const Image& data)
+bool Texture::init(const TextureParams& params, const TextureData& data)
 {
-  m_format = data.format();
+  m_type = params.type;
+  m_format = data.format;
 
   if (!convertToGL(m_format, params.sRGB))
   {
@@ -573,7 +614,7 @@ bool Texture::init(const TextureParams& params, const Image& data)
 
   // Figure out which texture target to use
 
-  if (params.type == TEXTURE_RECT)
+  if (m_type == TEXTURE_RECT)
   {
     if (data.dimensionCount() > 2)
     {
@@ -589,7 +630,7 @@ bool Texture::init(const TextureParams& params, const Image& data)
       return false;
     }
   }
-  else if (params.type == TEXTURE_CUBE)
+  else if (m_type == TEXTURE_CUBE)
   {
     if (data.dimensionCount() > 2)
     {
@@ -598,8 +639,8 @@ bool Texture::init(const TextureParams& params, const Image& data)
       return false;
     }
 
-    const uint width = data.width();
-    const uint height = data.height();
+    const uint width = data.width;
+    const uint height = data.height;
 
     if ((width % 6 != 0) || (width / 6 != height) || !isPowerOfTwo(height))
     {
@@ -617,21 +658,19 @@ bool Texture::init(const TextureParams& params, const Image& data)
     }
   }
 
-  m_type = params.type;
-
   uint width, height, depth;
 
   if (m_type == TEXTURE_CUBE)
   {
-    width = data.width() / 6;
-    height = data.height();
+    width = data.width / 6;
+    height = data.height;
     depth = 1;
   }
   else
   {
-    width = data.width();
-    height = data.height();
-    depth = data.depth();
+    width = data.width;
+    height = data.height;
+    depth = data.depth;
   }
 
   if (m_type == TEXTURE_1D)
@@ -680,10 +719,10 @@ bool Texture::init(const TextureParams& params, const Image& data)
   if (proxyWidth == 0)
   {
     logError("Cannot create texture %s type %s size %ux%ux%u format %s",
-              name().c_str(),
-              asString(m_type),
-              width, height, depth,
-              m_format.asString().c_str());
+             name().c_str(),
+             asString(m_type),
+             width, height, depth,
+             m_format.asString().c_str());
 
     return false;
   }
@@ -701,7 +740,7 @@ bool Texture::init(const TextureParams& params, const Image& data)
                  0,
                  convertToGL(m_format.semantic()),
                  convertToGL(m_format.type()),
-                 data.pixels());
+                 data.texels);
   }
   else if (m_type == TEXTURE_3D)
   {
@@ -712,7 +751,7 @@ bool Texture::init(const TextureParams& params, const Image& data)
                  0,
                  convertToGL(m_format.semantic()),
                  convertToGL(m_format.type()),
-                 data.pixels());
+                 data.texels);
   }
   else if (m_type == TEXTURE_CUBE)
   {
@@ -726,7 +765,7 @@ bool Texture::init(const TextureParams& params, const Image& data)
       CUBE_NEGATIVE_Y
     };
 
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, data.width());
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, data.width);
 
     for (size_t i = 0;  i < 6;  i++)
     {
@@ -734,12 +773,12 @@ bool Texture::init(const TextureParams& params, const Image& data)
 
       glTexImage2D(convertToGL(faces[i]),
                    0,
-                   convertToGL(data.format(), params.sRGB),
+                   convertToGL(m_format, params.sRGB),
                    width, height,
                    0,
-                   convertToGL(data.format().semantic()),
-                   convertToGL(data.format().type()),
-                   data.pixels());
+                   convertToGL(m_format.semantic()),
+                   convertToGL(m_format.type()),
+                   data.texels);
     }
 
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -754,7 +793,7 @@ bool Texture::init(const TextureParams& params, const Image& data)
                  0,
                  convertToGL(m_format.semantic()),
                  convertToGL(m_format.type()),
-                 data.pixels());
+                 data.texels);
   }
 
   if (params.mipmapped)
