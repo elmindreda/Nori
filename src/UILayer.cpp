@@ -318,13 +318,13 @@ void Layer::onWindowSize(uint width, uint height)
   sizeChangedSignal(*this);
 }
 
-void Layer::onKey(Key key, Action action)
+void Layer::onKey(Key key, Action action, uint mods)
 {
   if (activeWidget)
     activeWidget->keyPressedSignal(*activeWidget, key, action);
 }
 
-void Layer::onCharacter(uint32 character)
+void Layer::onCharacter(uint32 character, uint mods)
 {
   if (activeWidget)
     activeWidget->charInputSignal(*activeWidget, character);
@@ -353,7 +353,7 @@ void Layer::onCursorPos(vec2 position)
   }
 }
 
-void Layer::onMouseButton(MouseButton button, Action action)
+void Layer::onMouseButton(MouseButton button, Action action, uint mods)
 {
   vec2 cursorPosition = vec2(window.cursorPosition());
   cursorPosition.y = window.height() - cursorPosition.y;

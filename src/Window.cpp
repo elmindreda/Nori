@@ -80,17 +80,17 @@ void EventHook::onWindowCloseRequest()
 {
 }
 
-bool EventHook::onKey(Key key, Action action)
+bool EventHook::onKey(Key key, Action action, uint mods)
 {
   return false;
 }
 
-bool EventHook::onCharacter(uint32 character)
+bool EventHook::onCharacter(uint32 character, uint mods)
 {
   return false;
 }
 
-bool EventHook::onMouseButton(MouseButton button, Action action)
+bool EventHook::onMouseButton(MouseButton button, Action action, uint mods)
 {
   return false;
 }
@@ -123,15 +123,15 @@ void EventTarget::onWindowCloseRequest()
 {
 }
 
-void EventTarget::onKey(Key key, Action action)
+void EventTarget::onKey(Key key, Action action, uint mods)
 {
 }
 
-void EventTarget::onCharacter(uint32 character)
+void EventTarget::onCharacter(uint32 character, uint mods)
 {
 }
 
-void EventTarget::onMouseButton(MouseButton button, Action action)
+void EventTarget::onMouseButton(MouseButton button, Action action, uint mods)
 {
 }
 
@@ -389,26 +389,37 @@ void Window::keyCallback(GLFWwindow* handle, int key, int scancode, int action, 
 
   if (window.m_hook)
   {
-    if (window.m_hook->onKey(Key(key), Action(action)))
+    if (window.m_hook->onKey(Key(key), Action(action), mods))
       return;
   }
 
   if (window.m_target)
-    window.m_target->onKey(Key(key), Action(action));
+    window.m_target->onKey(Key(key), Action(action), mods);
 }
 
 void Window::characterCallback(GLFWwindow* handle, uint character)
 {
   Window& window = windowFromHandle(handle);
 
+  uint mods = 0;
+
+  if (window.isKeyDown(KEY_LEFT_SHIFT) || window.isKeyDown(KEY_RIGHT_SHIFT))
+    mods |= MOD_SHIFT;
+  if (window.isKeyDown(KEY_LEFT_CONTROL) || window.isKeyDown(KEY_RIGHT_CONTROL))
+    mods |= MOD_CONTROL;
+  if (window.isKeyDown(KEY_LEFT_ALT) || window.isKeyDown(KEY_RIGHT_ALT))
+    mods |= MOD_ALT;
+  if (window.isKeyDown(KEY_LEFT_SUPER) || window.isKeyDown(KEY_RIGHT_SUPER))
+    mods |= MOD_SUPER;
+
   if (window.m_hook)
   {
-    if (window.m_hook->onCharacter(character))
+    if (window.m_hook->onCharacter(character, mods))
       return;
   }
 
   if (window.m_target)
-    window.m_target->onCharacter(character);
+    window.m_target->onCharacter(character, mods);
 }
 
 void Window::cursorPosCallback(GLFWwindow* handle, double x, double y)
@@ -433,12 +444,12 @@ void Window::mouseButtonCallback(GLFWwindow* handle, int button, int action, int
 
   if (window.m_hook)
   {
-    if (window.m_hook->onMouseButton(MouseButton(button), Action(action)))
+    if (window.m_hook->onMouseButton(MouseButton(button), Action(action), mods))
       return;
   }
 
   if (window.m_target)
-    window.m_target->onMouseButton(MouseButton(button), Action(action));
+    window.m_target->onMouseButton(MouseButton(button), Action(action), mods);
 }
 
 void Window::scrollCallback(GLFWwindow* handle, double x, double y)
@@ -502,7 +513,7 @@ void SpectatorController::release()
   turbo = false;
 }
 
-void SpectatorController::inputKey(Key key, Action action)
+void SpectatorController::inputKey(Key key, Action action, uint mods)
 {
   switch (key)
   {
@@ -571,7 +582,9 @@ void SpectatorController::inputKey(Key key, Action action)
   }
 }
 
-void SpectatorController::inputMouseButton(MouseButton button, Action action)
+void SpectatorController::inputMouseButton(MouseButton button,
+                                           Action action,
+                                           uint mods)
 {
   if (button == MOUSE_BUTTON_RIGHT)
   {
@@ -638,7 +651,7 @@ TextController::TextController():
 {
 }
 
-void TextController::inputKey(Key key, Action action)
+void TextController::inputKey(Key key, Action action, uint mods)
 {
   switch (key)
   {
@@ -706,7 +719,7 @@ void TextController::inputKey(Key key, Action action)
 
     case KEY_U:
     {
-      if (action != RELEASED && isCtrlKeyDown())
+      if (action != RELEASED && (mods & MOD_CONTROL))
       {
         text.erase(0, caretPosition);
         setCaretPosition(0);
@@ -717,7 +730,7 @@ void TextController::inputKey(Key key, Action action)
 
     case KEY_A:
     {
-      if (action != RELEASED && isCtrlKeyDown())
+      if (action != RELEASED && (mods & MOD_CONTROL))
         setCaretPosition(0);
 
       break;
@@ -725,7 +738,7 @@ void TextController::inputKey(Key key, Action action)
 
     case KEY_E:
     {
-      if (action != RELEASED && isCtrlKeyDown())
+      if (action != RELEASED && (mods & MOD_CONTROL))
         setCaretPosition(text.length());
 
       break;
@@ -733,7 +746,7 @@ void TextController::inputKey(Key key, Action action)
 
     case KEY_W:
     {
-      if (action != RELEASED && isCtrlKeyDown())
+      if (action != RELEASED && (mods & MOD_CONTROL))
       {
         size_t pos = caretPosition;
 
@@ -764,9 +777,9 @@ void TextController::inputKey(Key key, Action action)
   }
 }
 
-void TextController::inputCharacter(uint32 character)
+void TextController::inputCharacter(uint32 character, uint mods)
 {
-  if (isCtrlKeyDown())
+  if (mods & MOD_CONTROL)
     return;
 
   if (character < 256)
@@ -795,11 +808,6 @@ size_t TextController::getCaretPosition() const
 void TextController::setCaretPosition(size_t newPosition)
 {
   caretPosition = min(text.length(), newPosition);
-}
-
-bool TextController::isCtrlKeyDown() const
-{
-  return false;
 }
 
 ///////////////////////////////////////////////////////////////////////

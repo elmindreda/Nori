@@ -100,13 +100,13 @@ public:
 private:
   void updateHoveredWidget();
   void removedWidget(Widget& widget);
-  void onWindowSize(uint width, uint height);
-  void onKey(Key key, Action action);
-  void onCharacter(uint32 character);
-  void onCursorPos(vec2 position);
-  void onMouseButton(MouseButton button, Action action);
-  void onScroll(vec2 offset);
-  void onFocus(bool activated);
+  void onWindowSize(uint width, uint height) override;
+  void onKey(Key key, Action action, uint mods) override;
+  void onCharacter(uint32 character, uint mods) override;
+  void onCursorPos(vec2 position) override;
+  void onMouseButton(MouseButton button, Action action, uint mods) override;
+  void onScroll(vec2 offset) override;
+  void onFocus(bool activated) override;
   Window& window;
   Drawer& drawer;
   bool dragging;

@@ -189,6 +189,18 @@ enum Key
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Key modifier bits.
+ */
+enum Modifier
+{
+  MOD_SHIFT   = 0x01,
+  MOD_CONTROL = 0x02,
+  MOD_ALT     = 0x04,
+  MOD_SUPER   = 0x08
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /* @brief Mouse button enumeration.
  */
 enum MouseButton
@@ -237,17 +249,17 @@ public:
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
    */
-  virtual bool onKey(Key key, Action action);
+  virtual bool onKey(Key key, Action action, uint mods);
   /*! Called when a Unicode character has been input.
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
    */
-  virtual bool onCharacter(uint32 character);
+  virtual bool onCharacter(uint32 character, uint mods);
   /*! Called when a mouse button has been clicked or released.
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
    */
-  virtual bool onMouseButton(MouseButton button, Action action);
+  virtual bool onMouseButton(MouseButton button, Action action, uint mods);
   /*! Called when the mouse cursor has been moved.
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
@@ -284,13 +296,13 @@ public:
   virtual void onWindowCloseRequest();
   /*! Called when a key has been pressed or released.
    */
-  virtual void onKey(Key key, Action action);
+  virtual void onKey(Key key, Action action, uint mods);
   /*! Called when a Unicode character has been input.
    */
-  virtual void onCharacter(uint32 character);
+  virtual void onCharacter(uint32 character, uint mods);
   /*! Called when a mouse button has been clicked or released.
    */
-  virtual void onMouseButton(MouseButton button, Action action);
+  virtual void onMouseButton(MouseButton button, Action action, uint mods);
   /*! Called when the mouse cursor has been moved.
    */
   virtual void onCursorPos(vec2 position);
@@ -460,8 +472,8 @@ public:
   SpectatorController();
   void update(Time deltaTime);
   void release();
-  void inputKey(Key key, Action action);
-  void inputMouseButton(MouseButton button, Action action);
+  void inputKey(Key key, Action action, uint mods);
+  void inputMouseButton(MouseButton button, Action action, uint mods);
   void inputCursorOffset(vec2 offset);
   const Transform3& getTransform() const;
   void setPosition(vec3 newPosition);
@@ -494,14 +506,13 @@ class TextController
 {
 public:
   TextController();
-  void inputKey(Key key, Action action);
-  void inputCharacter(uint32 character);
+  void inputKey(Key key, Action action, uint mods);
+  void inputCharacter(uint32 character, uint mods);
   const String& getText() const;
   void setText(const String& newText);
   size_t getCaretPosition() const;
   void setCaretPosition(size_t newPosition);
 private:
-  bool isCtrlKeyDown() const;
   String text;
   size_t caretPosition;
 };
