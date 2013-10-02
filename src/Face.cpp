@@ -98,7 +98,8 @@ float Face::advance(int index, float scale) const
 vec2 Face::bearing(int index, float scale) const
 {
   int left, top, right, bottom;
-  stbtt_GetGlyphBitmapBox(m_info, index, scale, scale, &left, &top, &right, &bottom);
+  stbtt_GetGlyphBitmapBox(m_info, index, scale, scale,
+                          &left, &top, &right, &bottom);
   return vec2(left, -bottom);
 }
 
@@ -110,16 +111,16 @@ float Face::advance(int first, int second, float scale) const
 float Face::width(int index, float scale) const
 {
   int left, top, right, bottom;
-  stbtt_GetGlyphBitmapBox(m_info, index,
-                          scale, scale, &left, &top, &right, &bottom);
+  stbtt_GetGlyphBitmapBox(m_info, index, scale, scale,
+                          &left, &top, &right, &bottom);
   return right - left + 1;
 }
 
 float Face::height(int index, float scale) const
 {
   int left, top, right, bottom;
-  stbtt_GetGlyphBitmapBox(m_info, index,
-                          scale, scale, &left, &top, &right, &bottom);
+  stbtt_GetGlyphBitmapBox(m_info, index, scale, scale,
+                          &left, &top, &right, &bottom);
   return bottom - top + 1;
 }
 
