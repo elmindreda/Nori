@@ -11,7 +11,8 @@ include_directories(${libpng_SOURCE_DIR}
                     ${GLFW_SOURCE_DIR}
                     ${libogg_SOURCE_DIR}
                     ${libvorbis_SOURCE_DIR}
-                    ${stb_SOURCE_DIR})
+                    ${stb_SOURCE_DIR}
+                    ${utf8cpp_SOURCE_DIR})
 
 set(wendy_SOURCES
     Wendy.cpp

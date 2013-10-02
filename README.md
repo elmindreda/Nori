@@ -52,6 +52,7 @@ Wendy comes with internal versions of the following libraries:
 *   [PCRE](http://www.pcre.org/) for regular expression support
 *   [pugixml](http://pugixml.org/) for reading and writing XML files
 *   [Squirrel](http://squirrel-lang.org/) for embedded scripting
+*   [utf8cpp](http://utfcpp.sourceforge.net/) for UTF-8 text support
 *   [zlib](http://zlib.net/) for compressed data streams
 
 Wendy requires that OpenGL and OpenAL headers and link libraries are present in
