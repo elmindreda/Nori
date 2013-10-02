@@ -52,6 +52,7 @@ Wendy comes with internal versions of the following libraries:
 *   [PCRE](http://www.pcre.org/) for regular expression support
 *   [pugixml](http://pugixml.org/) for reading and writing XML files
 *   [Squirrel](http://squirrel-lang.org/) for embedded scripting
+*   [stb\_truetype](http://nothings.org/) for TrueType typeface support
 *   [utf8cpp](http://utfcpp.sourceforge.net/) for UTF-8 text support
 *   [zlib](http://zlib.net/) for compressed data streams
 
