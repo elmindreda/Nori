@@ -73,7 +73,7 @@ void Font::drawText(vec2 pen, vec4 color, const char* text)
       if (all(greaterThan(glyph->area.size, vec2(0.f))))
       {
         const Rect pa(pen + glyph->bearing, glyph->area.size);
-        const Rect ta(glyph->area);
+        const Rect ta(glyph->area.position + vec2(0.25f), glyph->area.size);
 
         m_vertices[vertexCount + 0].texcoord = ta.position;
         m_vertices[vertexCount + 0].position = pa.position;
@@ -250,12 +250,12 @@ const Font::Glyph* Font::addGlyph(uint32 codepoint)
 
   if (Ref<Image> image = m_face->glyph(index, m_scale))
   {
-    if (m_position.x + image->width() + 2 > m_texture->width())
+    if (m_position.x + image->width() + 1 > m_texture->width())
     {
       m_position.x = 1;
-      m_position.y += int(m_height);
+      m_position.y += int(m_height) + 1;
 
-      if (m_position.y + image->height() + 2 > m_texture->height())
+      if (m_position.y + image->height() + 1 > m_texture->height())
       {
         if (!addGlyphTextureRow())
           return nullptr;
