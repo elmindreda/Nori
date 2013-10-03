@@ -94,22 +94,12 @@ bool checkAL(const char* format, ...)
     return true;
 
   va_list vl;
-  char* message;
-  int result;
 
   va_start(vl, format);
-  result = vasprintf(&message, format, vl);
+  String message = vlformat(format, vl);
   va_end(vl);
 
-  if (result < 0)
-  {
-    logError("Error formatting error message for OpenAL error %u", error);
-    return false;
-  }
-
-  logError("%s: %s", message, getErrorStringAL(error));
-
-  std::free(message);
+  logError("%s: %s", message.c_str(), getErrorStringAL(error));
   return false;
 }
 
@@ -120,22 +110,12 @@ bool checkALC(const char* format, ...)
     return true;
 
   va_list vl;
-  char* message;
-  int result;
 
   va_start(vl, format);
-  result = vasprintf(&message, format, vl);
+  String message = vlformat(format, vl);
   va_end(vl);
 
-  if (result < 0)
-  {
-    logError("Error formatting error message for ALC error %u", error);
-    return false;
-  }
-
-  logError("%s: %s", message, getErrorStringALC(error));
-
-  std::free(message);
+  logError("%s: %s", message.c_str(), getErrorStringALC(error));
   return false;
 }
 

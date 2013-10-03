@@ -38,26 +38,6 @@
 
 ///////////////////////////////////////////////////////////////////////
 
-#if !WENDY_HAVE_VASPRINTF
-
-int vasprintf(char** result, const char* format, va_list vl)
-{
-  char buffer[65536];
-
-  if (vsnprintf(buffer, sizeof(buffer), format, vl) < 0)
-    buffer[sizeof(buffer) - 1] = '\0';
-
-  size_t length = std::strlen(buffer);
-  *result = (char*) std::malloc(length + 1);
-  std::strcpy(*result, buffer);
-
-  return (int) length;
-}
-
-#endif /*WENDY_HAVE_VASPRINTF*/
-
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
 
@@ -208,23 +188,23 @@ quat quatCast(const String& string)
 
 String format(const char* format, ...)
 {
-  String result;
-
   va_list vl;
-  char* text;
-  int count;
 
   va_start(vl, format);
-  count = vasprintf(&text, format, vl);
+  String result = vlformat(format, vl);
   va_end(vl);
 
-  if (count < 0)
-    return String();
-
-  result = text;
-  std::free(text);
-
   return result;
+}
+
+String vlformat(const char* format, va_list vl)
+{
+  char buffer[65536];
+
+  if (vsnprintf(buffer, sizeof(buffer), format, vl) < 0)
+    buffer[sizeof(buffer) - 1] = '\0';
+
+  return String(buffer);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -257,88 +237,63 @@ StringHash hashString(const char* string)
 void logError(const char* format, ...)
 {
   va_list vl;
-  char* message;
-  int result;
 
   va_start(vl, format);
-  result = vasprintf(&message, format, vl);
+  String message = vlformat(format, vl);
   va_end(vl);
-
-  if (result < 0)
-    return;
 
   if (consumers.empty())
     std::cerr << "Error: " << message << std::endl;
   else
   {
     for (auto& c : consumers)
-      c->onLogEntry(ERROR_LOG_ENTRY, message);
+      c->onLogEntry(ERROR_LOG_ENTRY, message.c_str());
   }
-
-  std::free(message);
 }
 
 void logWarning(const char* format, ...)
 {
   va_list vl;
-  char* message;
-  int result;
 
   va_start(vl, format);
-  result = vasprintf(&message, format, vl);
+  String message = vlformat(format, vl);
   va_end(vl);
-
-  if (result < 0)
-    return;
 
   if (consumers.empty())
     std::cerr << "Warning: " << message << std::endl;
   else
   {
     for (auto& c : consumers)
-      c->onLogEntry(WARNING_LOG_ENTRY, message);
+      c->onLogEntry(WARNING_LOG_ENTRY, message.c_str());
   }
-
-  std::free(message);
 }
 
 void log(const char* format, ...)
 {
   va_list vl;
-  char* message;
-  int result;
 
   va_start(vl, format);
-  result = vasprintf(&message, format, vl);
+  String message = vlformat(format, vl);
   va_end(vl);
-
-  if (result < 0)
-    return;
 
   if (consumers.empty())
     std::cerr << message << std::endl;
   else
   {
     for (auto& c : consumers)
-      c->onLogEntry(INFO_LOG_ENTRY, message);
+      c->onLogEntry(INFO_LOG_ENTRY, message.c_str());
   }
-
-  std::free(message);
 }
 
 void panic(const char* format, ...)
 {
   va_list vl;
-  char* message;
-  int result;
 
   va_start(vl, format);
-  result = vasprintf(&message, format, vl);
+  String message = vlformat(format, vl);
   va_end(vl);
 
-  if (result > 0)
-    std::cerr << message << std::endl;
-
+  std::cerr << message << std::endl;
   std::terminate();
 }
 

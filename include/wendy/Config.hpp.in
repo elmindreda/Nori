@@ -11,9 +11,6 @@
 /* Define this to 1 if building for Linux */
 #cmakedefine WENDY_SYSTEM_LINUX 1
 
-/* Define this to 1 if vasprintf is available */
-#cmakedefine WENDY_HAVE_VASPRINTF 1
-
 /* Define this to 1 if sys/stat.h is available */
 #cmakedefine WENDY_HAVE_SYS_STAT_H 1
 /* Define this to 1 if fcntl.h is available */

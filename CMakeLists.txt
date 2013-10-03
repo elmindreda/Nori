@@ -34,9 +34,6 @@ option(WENDY_BUILD_DOCUMENTATION "Build the Doxygen documentation" OFF)
 include(TestBigEndian)
 test_big_endian(WENDY_WORDS_BIGENDIAN)
 
-include(CheckFunctionExists)
-check_function_exists(vasprintf WENDY_HAVE_VASPRINTF)
-
 include(CheckIncludeFile)
 check_include_file(sys/stat.h WENDY_HAVE_SYS_STAT_H)
 check_include_file(fcntl.h WENDY_HAVE_FCNTL_H)

@@ -84,22 +84,12 @@ bool checkGL(const char* format, ...)
     return true;
 
   va_list vl;
-  char* message;
-  int result;
 
   va_start(vl, format);
-  result = vasprintf(&message, format, vl);
+  String message = vlformat(format, vl);
   va_end(vl);
 
-  if (result < 0)
-  {
-    logError("Error formatting error message for OpenGL error %u", error);
-    return false;
-  }
-
-  logError("%s: %s", message, getErrorString(error));
-
-  std::free(message);
+  logError("%s: %s", message.c_str(), getErrorString(error));
   return false;
 }
 

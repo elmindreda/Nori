@@ -58,16 +58,7 @@
 // Don't consider the libc to be obsolete
 #pragma warning( disable: 4996 )
 
-// This is only needed for versions below Visual C++ 2008
-#if _MSC_VER < 1500
- #define vsnprintf _vsnprintf
-#endif
-
 #endif /*_MSC_VER*/
-
-#if !WENDY_HAVE_VASPRINTF
-int vasprintf(char** result, const char* format, va_list vl);
-#endif /*WENDY_HAVE_VASPRINTF*/
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -131,6 +122,8 @@ quat quatCast(const String& string);
 /*! @brief Creates a string using printf formatting.
  */
 WENDY_CHECKFORMAT(1, String format(const char* format, ...));
+
+String vlformat(const char* format, va_list vl);
 
 ///////////////////////////////////////////////////////////////////////
 

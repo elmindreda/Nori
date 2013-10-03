@@ -354,37 +354,23 @@ ResourceCache& VM::cache() const
 void VM::onLogMessage(HSQUIRRELVM vm, const SQChar* format, ...)
 {
   va_list vl;
-  char* message;
-  int result;
 
   va_start(vl, format);
-  result = vasprintf(&message, format, vl);
+  String message = vlformat(format, vl);
   va_end(vl);
 
-  if (result < 0)
-    return;
-
-  log("%s", message);
-
-  std::free(message);
+  log("%s", message.c_str());
 }
 
 void VM::onLogError(HSQUIRRELVM vm, const SQChar* format, ...)
 {
   va_list vl;
-  char* message;
-  int result;
 
   va_start(vl, format);
-  result = vasprintf(&message, format, vl);
+  String message = vlformat(format, vl);
   va_end(vl);
 
-  if (result < 0)
-    return;
-
-  logError("%s", message);
-
-  std::free(message);
+  logError("%s", message.c_str());
 }
 
 void VM::onCompilerError(HSQUIRRELVM vm,
