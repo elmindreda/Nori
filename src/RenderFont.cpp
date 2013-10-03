@@ -120,7 +120,7 @@ Rect Font::boundsOf(const char* text)
 
   for (const char* c = text;  *c != '\0';  c++)
   {
-    if (!getGlyphLayout(layout, *c))
+    if (!getGlyphLayout(layout, uint8(*c)))
       continue;
 
     layout.area.position += pen;
@@ -139,7 +139,7 @@ Font::LayoutList Font::layoutOf(const char* text)
 
   for (const char* c = text;  *c != '\0';  c++)
   {
-    if (getGlyphLayout(layout, *c))
+    if (getGlyphLayout(layout, uint8(*c)))
       result.push_back(layout);
   }
 
