@@ -12,7 +12,6 @@ Add automatic resource reloading [Pod]
 
 Replace std::string with UTF-8 string class (possibly using utf8) [Pod]
 
-Add kerning calculations at font load time [Pod]
 Add unknown character glyph [Pod]
 
 Replace Mesh with more flexible, DoD-friendly structures [opt]
@@ -46,14 +45,9 @@ Add value cache to Uniform and Sampler [opt]
 Renderer
 ========
 
-Move font texture from sampler2D to samplerRECT [opt]
-Stop rendering whitespace "glyphs" [opt]
-
 Add procedural generation of texture contents using fragment shader [Pod]
 
 Add simple, distance-based DLOD to Model [Pod]
-
-Reduce use of Ref:s during enqueue and render [opt]
 
 Add surface shaders [Pod]
 Add forward renderer lighting system [Pod]
