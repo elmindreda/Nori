@@ -341,6 +341,19 @@ enum WindowMode
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Monitor resolution.
+ */
+class Resolution
+{
+public:
+  Resolution();
+  Resolution(uint width, uint height);
+  uint width;
+  uint height;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Window configuration.
  */
 class WindowConfig
@@ -443,6 +456,7 @@ public:
   void setHook(EventHook* newHook);
   EventTarget* target() const { return m_target; }
   void setTarget(EventTarget* newTarget);
+  static std::vector<Resolution> resolutions();
 private:
   Window();
   Window(const Window&) = delete;

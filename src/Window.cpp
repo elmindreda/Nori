@@ -149,6 +149,20 @@ void EventTarget::onFocus(bool activated)
 
 ///////////////////////////////////////////////////////////////////////
 
+Resolution::Resolution():
+  width(0),
+  height(0)
+{
+}
+
+Resolution::Resolution(uint initWidth, uint initHeight):
+  width(initWidth),
+  height(initHeight)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+
 WindowConfig::WindowConfig():
   title("Wendy"),
   width(640),
@@ -464,6 +478,28 @@ void Window::scrollCallback(GLFWwindow* handle, double x, double y)
 
   if (window.m_target)
     window.m_target->onScroll(vec2(x, y));
+}
+
+std::vector<Resolution> Window::resolutions()
+{
+  std::vector<Resolution> resolutions;
+
+  int count;
+  const GLFWvidmode* modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
+
+  for (int i = 0;  i < count;  i++)
+  {
+    if (modes[i].redBits != 8 ||
+        modes[i].greenBits != 8 ||
+        modes[i].blueBits != 8)
+    {
+      continue;
+    }
+
+    resolutions.push_back(Resolution(modes[i].width, modes[i].height));
+  }
+
+  return resolutions;
 }
 
 ///////////////////////////////////////////////////////////////////////
