@@ -144,15 +144,15 @@ void Entry::onMouseButton(Widget& widget,
   const float offset = em / 2.f;
   float position = transformToLocal(point).x - offset;
 
-  render::Font::LayoutList layouts = drawer.getCurrentFont().layoutOf(text.substr(startPosition, String::npos).c_str());
+  std::vector<Rect> layout = drawer.getCurrentFont().layoutOf(text.substr(startPosition, String::npos).c_str());
 
   uint index;
 
   // TODO: Improve this, it sucks.
 
-  for (index = 0;  index < layouts.size();  index++)
+  for (index = 0;  index < layout.size();  index++)
   {
-    position -= layouts[index].advance.x;
+    position -= layout[index].position.x;
     if (position < 0.f)
       break;
   }

@@ -50,8 +50,6 @@ namespace wendy
 class Font : public Resource
 {
 public:
-  class Layout;
-  typedef std::vector<Layout> LayoutList;
   /*! Renders the specified text at the current pen position.
    *  @param text The text to render.
    */
@@ -78,7 +76,7 @@ public:
   Rect boundsOf(const char* text);
   /*! Calculates the layout of glyphs for the specified text.
    */
-  LayoutList layoutOf(const char* text);
+  std::vector<Rect> layoutOf(const char* text);
   static Ref<Font> create(const ResourceInfo& info,
                           VertexPool& pool,
                           Face& face,
@@ -92,8 +90,6 @@ private:
   const Glyph* addGlyph(uint32 codepoint);
   const Glyph* findGlyph(uint32 codepoint);
   bool addGlyphTextureRow();
-  bool getGlyphLayout(Layout& layout, uint32 codepoint);
-  void getGlyphLayout(Layout& layout, const Glyph& glyph);
   Font& operator = (const Font&) = delete;
   Ref<VertexPool> m_pool;
   Ref<Face> m_face;
@@ -113,18 +109,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Glyph layout descriptor.
- */
-class Font::Layout
-{
-public:
-  Rect area;
-  vec2 advance;
-  uint32 codepoint;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @internal
  */
 class Font::Glyph
@@ -138,7 +122,8 @@ public:
   {
     return codepoint == desired;
   }
-  Rect area;
+  vec2 offset;
+  vec2 size;
   vec2 bearing;
   float advance;
   uint32 codepoint;

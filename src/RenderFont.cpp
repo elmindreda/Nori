@@ -70,10 +70,10 @@ void Font::drawText(vec2 pen, vec4 color, const char* text)
 
       pen = round(pen);
 
-      if (all(greaterThan(glyph->area.size, vec2(0.f))))
+      if (all(greaterThan(glyph->size, vec2(0.f))))
       {
-        const Rect pa(pen + glyph->bearing, glyph->area.size);
-        const Rect ta(glyph->area.position + vec2(0.25f), glyph->area.size);
+        const Rect pa(pen + glyph->bearing - vec2(0.5f), glyph->size);
+        const Rect ta(glyph->offset + vec2(0.5f), glyph->size);
 
         m_vertices[vertexCount + 0].texcoord = ta.position;
         m_vertices[vertexCount + 0].position = pa.position;
@@ -114,36 +114,38 @@ void Font::drawText(vec2 pen, vec4 color, const char* text)
 
 Rect Font::boundsOf(const char* text)
 {
+  vec2 pen;
   Rect bounds;
-  Layout layout;
-  vec2 pen(0.5f);
 
   for (const char* c = text;  *c != '\0';  c++)
   {
-    if (!getGlyphLayout(layout, uint8(*c)))
-      continue;
-
-    layout.area.position += pen;
-    bounds.envelop(layout.area);
-    pen += layout.advance;
+    if (const Glyph* glyph = findGlyph(uint8(*c)))
+    {
+      bounds.envelop(Rect(glyph->bearing + pen, glyph->size));
+      pen = round(pen + vec2(glyph->advance, 0.f));
+    }
   }
 
   bounds.envelop(pen);
   return bounds;
 }
 
-Font::LayoutList Font::layoutOf(const char* text)
+std::vector<Rect> Font::layoutOf(const char* text)
 {
-  Layout layout;
-  LayoutList result;
+  vec2 pen;
+  std::vector<Rect> layout;
+  layout.reserve(std::strlen(text));
 
   for (const char* c = text;  *c != '\0';  c++)
   {
-    if (getGlyphLayout(layout, uint8(*c)))
-      result.push_back(layout);
+    if (const Glyph* glyph = findGlyph(uint8(*c)))
+    {
+      layout.push_back(Rect(glyph->bearing + pen, glyph->size));
+      pen = round(pen + vec2(glyph->advance, 0.f));
+    }
   }
 
-  return result;
+  return layout;
 }
 
 Ref<Font> Font::create(const ResourceInfo& info,
@@ -269,8 +271,8 @@ const Font::Glyph* Font::addGlyph(uint32 codepoint)
       return nullptr;
     }
 
-    glyph.area.position = vec2(m_position);
-    glyph.area.size = vec2(image->width(), image->height());
+    glyph.offset = vec2(m_position);
+    glyph.size = vec2(image->width(), image->height());
 
     m_position.x += image->width() + 1;
   }
@@ -327,23 +329,6 @@ bool Font::addGlyphTextureRow()
 
   m_pass.setSamplerState("glyphs", m_texture);
   return true;
-}
-
-bool Font::getGlyphLayout(Layout& layout, uint32 codepoint)
-{
-  const Glyph* glyph = findGlyph(codepoint);
-  if (!glyph)
-    return false;
-
-  getGlyphLayout(layout, *glyph);
-  return true;
-}
-
-void Font::getGlyphLayout(Layout& layout, const Glyph& glyph)
-{
-  layout.codepoint = glyph.codepoint;
-  layout.area = Rect(glyph.bearing, glyph.area.size);
-  layout.advance = vec2(round(glyph.advance), 0.f);
 }
 
 ///////////////////////////////////////////////////////////////////////
