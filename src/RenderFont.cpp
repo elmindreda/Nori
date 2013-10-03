@@ -264,7 +264,7 @@ const Font::Glyph* Font::addGlyph(uint32 codepoint)
       }
     }
 
-    if (!m_texture->image(0).copyFrom(*image, m_position.x, m_position.y))
+    if (!m_texture->image().copyFrom(*image, m_position.x, m_position.y))
     {
       logError("Failed to copy glyph image data for font %s",
                 name().c_str());
@@ -300,7 +300,7 @@ bool Font::addGlyphTextureRow()
   if (m_texture)
   {
     textureHeight = m_texture->height();
-    glyphs = m_texture->image(0).data();
+    glyphs = m_texture->image().data();
   }
 
   textureHeight += uint(m_height) + 1;
@@ -323,7 +323,7 @@ bool Font::addGlyphTextureRow()
   }
 
   if (glyphs)
-    m_texture->image(0).copyFrom(*glyphs);
+    m_texture->image().copyFrom(*glyphs);
 
   m_texture->setFilterMode(GL::FILTER_NEAREST);
 
