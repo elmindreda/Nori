@@ -128,6 +128,9 @@ public:
   /*! Unlocks this vertex buffer, finalizing any changes.
    */
   void unlock();
+  /*! Discards the current data.
+   */
+  void discard();
   /*! Copies the specified data into this vertex buffer, starting at the
    *  specified offset.
    *  @param[in] source The base address of the source data.

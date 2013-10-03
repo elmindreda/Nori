@@ -184,6 +184,20 @@ void VertexBuffer::unlock()
   m_locked = false;
 }
 
+void VertexBuffer::discard()
+{
+  m_context.setCurrentVertexBuffer(this);
+
+  glBufferData(GL_ARRAY_BUFFER,
+               m_count * m_format.size(),
+               nullptr,
+               convertToGL(m_usage));
+
+#if WENDY_DEBUG
+  checkGL("Error during vertex buffer discard");
+#endif
+}
+
 void VertexBuffer::copyFrom(const void* source, size_t sourceCount, size_t start)
 {
   if (m_locked)

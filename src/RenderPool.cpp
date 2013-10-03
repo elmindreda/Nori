@@ -113,7 +113,10 @@ bool VertexPool::init(size_t granularity)
 void VertexPool::onFrame()
 {
   for (auto& s : m_slots)
+  {
     s.available = s.buffer->count();
+    s.buffer->discard();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////
