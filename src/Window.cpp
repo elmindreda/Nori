@@ -689,6 +689,12 @@ TextController::TextController():
 {
 }
 
+TextController::TextController(const String& initText):
+  text(initText),
+  caretPosition(0)
+{
+}
+
 void TextController::inputKey(Key key, Action action, uint mods)
 {
   switch (key)
@@ -705,6 +711,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
         String::iterator e = s;
         utf8::next(e, text.end());
         text.erase(s, e);
+        textChangedSignal();
         setCaretPosition(caretPosition - 1);
       }
 
@@ -723,6 +730,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
         String::iterator e = s;
         utf8::next(e, text.end());
         text.erase(s, e);
+        textChangedSignal();
       }
 
       break;
@@ -734,7 +742,10 @@ void TextController::inputKey(Key key, Action action, uint mods)
         break;
 
       if (caretPosition > 0)
+      {
         setCaretPosition(caretPosition - 1);
+        caretMovedSignal();
+      }
 
       break;
     }
@@ -745,6 +756,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
         break;
 
       setCaretPosition(caretPosition + 1);
+      caretMovedSignal();
       break;
     }
 
@@ -754,6 +766,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
         break;
 
       setCaretPosition(0);
+      caretMovedSignal();
       break;
     }
 
@@ -763,6 +776,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
         break;
 
       setCaretPosition(utf8::distance(text.begin(), text.end()));
+      caretMovedSignal();
       break;
     }
 
@@ -774,6 +788,8 @@ void TextController::inputKey(Key key, Action action, uint mods)
         utf8::advance(e, caretPosition, text.end());
         text.erase(text.begin(), e);
         setCaretPosition(0);
+        textChangedSignal();
+        caretMovedSignal();
       }
 
       break;
@@ -782,7 +798,10 @@ void TextController::inputKey(Key key, Action action, uint mods)
     case KEY_A:
     {
       if (action != RELEASED && (mods & MOD_CONTROL))
+      {
         setCaretPosition(0);
+        caretMovedSignal();
+      }
 
       break;
     }
@@ -790,7 +809,10 @@ void TextController::inputKey(Key key, Action action, uint mods)
     case KEY_E:
     {
       if (action != RELEASED && (mods & MOD_CONTROL))
+      {
         setCaretPosition(utf8::distance(text.begin(), text.end()));
+        caretMovedSignal();
+      }
 
       break;
     }
@@ -818,9 +840,10 @@ void TextController::inputKey(Key key, Action action, uint mods)
           }
         }
 
-        const size_t pos = s - text.begin();
+        setCaretPosition(s - text.begin());
         text.erase(s, e);
-        setCaretPosition(pos);
+        textChangedSignal();
+        caretMovedSignal();
       }
 
       break;
@@ -840,6 +863,8 @@ void TextController::inputCharacter(uint32 codepoint, uint mods)
   utf8::advance(i, caretPosition, text.end());
   utf8::append(codepoint, std::inserter(text, i));
   setCaretPosition(caretPosition + 1);
+  textChangedSignal();
+  caretMovedSignal();
 }
 
 const String& TextController::getText() const
@@ -851,6 +876,8 @@ void TextController::setText(const String& newText)
 {
   text = newText;
   setCaretPosition(caretPosition);
+  textChangedSignal();
+  caretMovedSignal();
 }
 
 size_t TextController::getCaretPosition() const
@@ -862,6 +889,16 @@ void TextController::setCaretPosition(size_t newPosition)
 {
   const size_t length = utf8::distance(text.begin(), text.end());
   caretPosition = min(length, newPosition);
+}
+
+SignalProxy0<void> TextController::getTextChangedSignal()
+{
+  return textChangedSignal;
+}
+
+SignalProxy0<void> TextController::getCaretMovedSignal()
+{
+  return caretMovedSignal;
 }
 
 ///////////////////////////////////////////////////////////////////////

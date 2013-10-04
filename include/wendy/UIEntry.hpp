@@ -55,13 +55,14 @@ private:
                      uint mods);
   void onKey(Widget& widget, Key key, Action action, uint mods);
   void onCharacter(Widget& widget, uint32 character, uint mods);
-  void setText(const String& newText, bool notify);
+  void onKey(Widget& widget, Key key, Action action);
+  void onCharacter(Widget& widget, uint32 character);
+  void onTextChanged();
+  void onCaretMoved();
   void setCaretPosition(uint newPosition, bool notify);
   Signal1<void, Entry&> textChangedSignal;
   Signal1<void, Entry&> caretMovedSignal;
-  String text;
-  uint startPosition;
-  uint caretPosition;
+  TextController controller;
 };
 
 ///////////////////////////////////////////////////////////////////////

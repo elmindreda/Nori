@@ -520,15 +520,20 @@ class TextController
 {
 public:
   TextController();
+  TextController(const String& text);
   void inputKey(Key key, Action action, uint mods);
   void inputCharacter(uint32 character, uint mods);
   const String& getText() const;
   void setText(const String& newText);
   size_t getCaretPosition() const;
   void setCaretPosition(size_t newPosition);
+  SignalProxy0<void> getCaretMovedSignal();
+  SignalProxy0<void> getTextChangedSignal();
 private:
   String text;
   size_t caretPosition;
+  Signal0<void> textChangedSignal;
+  Signal0<void> caretMovedSignal;
 };
 
 ///////////////////////////////////////////////////////////////////////

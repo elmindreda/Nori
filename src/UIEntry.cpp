@@ -39,11 +39,9 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Entry::Entry(Layer& layer, const char* initText):
+Entry::Entry(Layer& layer, const char* text):
   Widget(layer),
-  text(initText),
-  startPosition(0),
-  caretPosition(0)
+  controller(text)
 {
   const float em = getLayer().getDrawer().getCurrentEM();
 
@@ -52,27 +50,30 @@ Entry::Entry(Layer& layer, const char* initText):
   getButtonClickedSignal().connect(*this, &Entry::onMouseButton);
   getKeyPressedSignal().connect(*this, &Entry::onKey);
   getCharInputSignal().connect(*this, &Entry::onCharacter);
+
+  controller.getTextChangedSignal().connect(*this, &Entry::onTextChanged);
+  controller.getCaretMovedSignal().connect(*this, &Entry::onCaretMoved);
 }
 
 const String& Entry::getText() const
 {
-  return text;
+  return controller.getText();
 }
 
 void Entry::setText(const char* newText)
 {
-  text = newText;
+  controller.setText(newText);
   invalidate();
 }
 
 uint Entry::getCaretPosition() const
 {
-  return caretPosition;
+  return controller.getCaretPosition();
 }
 
 void Entry::setCaretPosition(uint newPosition)
 {
-  setCaretPosition(newPosition, false);
+  controller.setCaretPosition(newPosition);
 }
 
 SignalProxy1<void, Entry&> Entry::getTextChangedSignal()
@@ -100,18 +101,17 @@ void Entry::draw() const
     textArea.position.x += em / 2.f;
     textArea.size.x -= em;
 
+    const String& text = controller.getText();
+
     drawer.drawText(textArea, text.c_str(), LEFT_ALIGNED, getState());
 
     if (isActive() && ((uint) (Timer::currentTime() * 2.f) & 1))
     {
       float position = 0.f;
 
-      if (caretPosition > startPosition)
-      {
-        render::Font& font = drawer.getCurrentFont();
-        const Rect metrics = font.boundsOf(text.substr(startPosition, caretPosition).c_str());
-        position = metrics.size.x;
-      }
+      render::Font& font = drawer.getCurrentFont();
+      const Rect bounds = font.boundsOf(text.substr(0, controller.getCaretPosition()).c_str());
+      position = bounds.size.x;
 
       Segment2 segment;
       segment.start = vec2(textArea.position.x + position,
@@ -145,7 +145,7 @@ void Entry::onMouseButton(Widget& widget,
   const float offset = em / 2.f;
   float position = transformToLocal(point).x - offset;
 
-  std::vector<Rect> layout = drawer.getCurrentFont().layoutOf(text.substr(startPosition, String::npos).c_str());
+  std::vector<Rect> layout = drawer.getCurrentFont().layoutOf(controller.getText().c_str());
 
   uint index;
 
@@ -158,90 +158,28 @@ void Entry::onMouseButton(Widget& widget,
       break;
   }
 
-  setCaretPosition(startPosition + index, true);
+  controller.setCaretPosition(index);
+  caretMovedSignal(*this);
 }
 
 void Entry::onKey(Widget& widget, Key key, Action action, uint mods)
 {
-  if (action != PRESSED)
-    return;
-
-  switch (key)
-  {
-    case KEY_BACKSPACE:
-    {
-      if (!text.empty() && caretPosition > 0)
-      {
-        text.erase(caretPosition - 1, 1);
-        textChangedSignal(*this);
-        setCaretPosition(caretPosition - 1, true);
-      }
-
-      break;
-    }
-
-    case KEY_DELETE:
-    {
-      if (!text.empty() && caretPosition < text.length())
-      {
-        text.erase(caretPosition, 1);
-        textChangedSignal(*this);
-      }
-
-      break;
-    }
-
-    case KEY_LEFT:
-    {
-      if (caretPosition > 0)
-        setCaretPosition(caretPosition - 1, true);
-      break;
-    }
-
-    case KEY_RIGHT:
-    {
-      setCaretPosition(caretPosition + 1, true);
-      break;
-    }
-
-    case KEY_HOME:
-    {
-      setCaretPosition(0, true);
-      break;
-    }
-
-    case KEY_END:
-    {
-      setCaretPosition(text.length(), true);
-      break;
-    }
-
-    default:
-      break;
-  }
+  controller.inputKey(key, action, mods);
 }
 
 void Entry::onCharacter(Widget& widget, uint32 character, uint mods)
 {
-  text.insert(caretPosition, 1, (char) character);
-  textChangedSignal(*this);
-  setCaretPosition(caretPosition + 1, true);
+  controller.inputCharacter(character, mods);
 }
 
-void Entry::setCaretPosition(uint newPosition, bool notify)
+void Entry::onTextChanged()
 {
-  if (newPosition > text.length())
-    newPosition = text.length();
+  textChangedSignal(*this);
+}
 
-  if (newPosition == caretPosition)
-    return;
-
-  caretPosition = newPosition;
-
-  if (notify)
-    caretMovedSignal(*this);
-
-  invalidate();
+void Entry::onCaretMoved()
+{
+  caretMovedSignal(*this);
 }
 
 ///////////////////////////////////////////////////////////////////////
