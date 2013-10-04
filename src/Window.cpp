@@ -38,6 +38,8 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include <utf8.h>
+
 #include <algorithm>
 #include <cstring>
 
@@ -696,9 +698,13 @@ void TextController::inputKey(Key key, Action action, uint mods)
       if (action == RELEASED)
         break;
 
-      if (!text.empty() && caretPosition > 0)
+      if (caretPosition > 0)
       {
-        text.erase(caretPosition - 1, 1);
+        String::iterator s = text.begin();
+        utf8::advance(s, caretPosition - 1, text.end());
+        String::iterator e = s;
+        utf8::next(e, text.end());
+        text.erase(s, e);
         setCaretPosition(caretPosition - 1);
       }
 
@@ -710,8 +716,14 @@ void TextController::inputKey(Key key, Action action, uint mods)
       if (action == RELEASED)
         break;
 
-      if (!text.empty() && caretPosition < text.length())
-        text.erase(caretPosition, 1);
+      if (caretPosition < utf8::distance(text.begin(), text.end()))
+      {
+        String::iterator s = text.begin();
+        utf8::advance(s, caretPosition, text.end());
+        String::iterator e = s;
+        utf8::next(e, text.end());
+        text.erase(s, e);
+      }
 
       break;
     }
@@ -723,6 +735,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
 
       if (caretPosition > 0)
         setCaretPosition(caretPosition - 1);
+
       break;
     }
 
@@ -749,7 +762,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
       if (action == RELEASED)
         break;
 
-      setCaretPosition(text.length());
+      setCaretPosition(utf8::distance(text.begin(), text.end()));
       break;
     }
 
@@ -757,7 +770,9 @@ void TextController::inputKey(Key key, Action action, uint mods)
     {
       if (action != RELEASED && (mods & MOD_CONTROL))
       {
-        text.erase(0, caretPosition);
+        String::iterator e = text.begin();
+        utf8::advance(e, caretPosition, text.end());
+        text.erase(text.begin(), e);
         setCaretPosition(0);
       }
 
@@ -775,7 +790,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
     case KEY_E:
     {
       if (action != RELEASED && (mods & MOD_CONTROL))
-        setCaretPosition(text.length());
+        setCaretPosition(utf8::distance(text.begin(), text.end()));
 
       break;
     }
@@ -784,24 +799,27 @@ void TextController::inputKey(Key key, Action action, uint mods)
     {
       if (action != RELEASED && (mods & MOD_CONTROL))
       {
-        size_t pos = caretPosition;
+        String::iterator e = text.begin();
+        utf8::advance(e, caretPosition, text.end());
+        String::iterator s = e;
 
-        if (pos == text.length())
-          pos--;
-
-        while (pos > 0 && text[pos] == ' ')
-          pos--;
-
-        if (pos > 0)
+        while (s != text.begin())
         {
-          pos = text.rfind(' ', pos);
-          if (pos == String::npos)
-            pos = 0;
-          else
-            pos++;
+          if (utf8::prior(s, text.begin()) != ' ')
+            break;
         }
 
-        text.erase(pos, caretPosition - pos);
+        while (s != text.begin())
+        {
+          if (utf8::prior(s, text.begin()) == ' ')
+          {
+            s++;
+            break;
+          }
+        }
+
+        const size_t pos = s - text.begin();
+        text.erase(s, e);
         setCaretPosition(pos);
       }
 
@@ -813,16 +831,15 @@ void TextController::inputKey(Key key, Action action, uint mods)
   }
 }
 
-void TextController::inputCharacter(uint32 character, uint mods)
+void TextController::inputCharacter(uint32 codepoint, uint mods)
 {
   if (mods & MOD_CONTROL)
     return;
 
-  if (character < 256)
-  {
-    text.insert(caretPosition, 1, (char) character);
-    setCaretPosition(caretPosition + 1);
-  }
+  String::iterator i = text.begin();
+  utf8::advance(i, caretPosition, text.end());
+  utf8::append(codepoint, std::inserter(text, i));
+  setCaretPosition(caretPosition + 1);
 }
 
 const String& TextController::getText() const
@@ -843,7 +860,8 @@ size_t TextController::getCaretPosition() const
 
 void TextController::setCaretPosition(size_t newPosition)
 {
-  caretPosition = min(text.length(), newPosition);
+  const size_t length = utf8::distance(text.begin(), text.end());
+  caretPosition = min(length, newPosition);
 }
 
 ///////////////////////////////////////////////////////////////////////

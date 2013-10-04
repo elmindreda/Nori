@@ -36,6 +36,8 @@
 
 #include <pugixml.hpp>
 
+#include <utf8.h>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -60,11 +62,13 @@ void Font::drawText(vec2 pen, vec4 color, const char* text)
 
   // Realize vertices for glyphs
   {
-    m_vertices.resize(std::strlen(text) * 6);
+    const size_t length = std::strlen(text);
+    m_vertices.resize(length * 6);
 
-    for (const char* c = text;  *c != '\0';  c++)
+    for (const char* c = text;  *c != '\0'; )
     {
-      const Glyph* glyph = findGlyph(uint8(*c));
+      const uint32 codepoint = utf8::next<const char*>(c, text + length);
+      const Glyph* glyph = findGlyph(codepoint);
       if (!glyph)
         continue;
 
