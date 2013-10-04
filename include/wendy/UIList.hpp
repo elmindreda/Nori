@@ -67,11 +67,12 @@ private:
   void onMouseButton(Widget& widget,
                      vec2 position,
                      MouseButton button,
-                     Action action);
+                     Action action,
+                     uint mods);
   void onEntryFocusChanged(Widget& widget, bool activated);
-  void onEntryKeyPressed(Widget& widget, Key key, Action action);
+  void onEntryKeyPressed(Widget& widget, Key key, Action action, uint mods);
   void onEntryDestroyed(Widget& widget);
-  void onKey(Widget& widget, Key key, Action action);
+  void onKey(Widget& widget, Key key, Action action, uint mods);
   void onScroll(Widget& widget, vec2);
   void onValueChanged(Scroller& scroller);
   void beginEditing();

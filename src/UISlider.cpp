@@ -151,13 +151,14 @@ void Slider::draw() const
 void Slider::onMouseButton(Widget& widget,
                            vec2 position,
                            MouseButton button,
-                           Action action)
+                           Action action,
+                           uint mods)
 {
   if (action == PRESSED)
     setValue(transformToLocal(position));
 }
 
-void Slider::onKey(Widget& widget, Key key, Action action)
+void Slider::onKey(Widget& widget, Key key, Action action, uint mods)
 {
   if (action != PRESSED)
     return;

@@ -54,8 +54,9 @@ private:
   void onMouseButton(Widget& widget,
                      vec2 position,
                      MouseButton button,
-                     Action action);
-  void onKey(Widget& widget, Key key, Action action);
+                     Action action,
+                     uint mods);
+  void onKey(Widget& widget, Key key, Action action, uint mods);
   void onScroll(Widget& widget, vec2 offset);
   void onDragMoved(Widget& widget, vec2 position);
   void setValue(const vec2& position);

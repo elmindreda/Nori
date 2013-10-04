@@ -104,7 +104,8 @@ void Button::draw() const
 void Button::onMouseButton(Widget& widget,
                            vec2 position,
                            MouseButton button,
-                           Action action)
+                           Action action,
+                           uint mods)
 {
   if (button == MOUSE_BUTTON_LEFT)
   {
@@ -126,7 +127,7 @@ void Button::onDragEnded(Widget& widget, vec2 position)
   invalidate();
 }
 
-void Button::onKey(Widget& widget, Key key, Action action)
+void Button::onKey(Widget& widget, Key key, Action action, uint mods)
 {
   switch (key)
   {

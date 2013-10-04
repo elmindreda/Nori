@@ -133,7 +133,8 @@ void Entry::draw() const
 void Entry::onMouseButton(Widget& widget,
                           vec2 point,
                           MouseButton button,
-                          Action action)
+                          Action action,
+                          uint mods)
 {
   if (action != PRESSED)
     return;
@@ -160,7 +161,7 @@ void Entry::onMouseButton(Widget& widget,
   setCaretPosition(startPosition + index, true);
 }
 
-void Entry::onKey(Widget& widget, Key key, Action action)
+void Entry::onKey(Widget& widget, Key key, Action action, uint mods)
 {
   if (action != PRESSED)
     return;
@@ -220,7 +221,7 @@ void Entry::onKey(Widget& widget, Key key, Action action)
   }
 }
 
-void Entry::onCharacter(Widget& widget, uint32 character)
+void Entry::onCharacter(Widget& widget, uint32 character, uint mods)
 {
   text.insert(caretPosition, 1, (char) character);
   textChangedSignal(*this);

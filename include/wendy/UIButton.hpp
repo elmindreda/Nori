@@ -48,9 +48,10 @@ private:
   void onMouseButton(Widget& widget,
                      vec2 position,
                      MouseButton button,
-                     Action action);
+                     Action action,
+                     uint mods);
   void onDragEnded(Widget& widget, vec2 position);
-  void onKey(Widget& widget, Key key, Action action);
+  void onKey(Widget& widget, Key key, Action action, uint mods);
   Signal1<void, Button&> pushedSignal;
   bool selected;
   String text;

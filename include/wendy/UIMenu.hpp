@@ -64,8 +64,9 @@ private:
   void onMouseButton(Widget& widget,
                      vec2 position,
                      MouseButton button,
-                     Action action);
-  void onKey(Widget& widget, Key key, Action action);
+                     Action action,
+                     uint mods);
+  void onKey(Widget& widget, Key key, Action action, uint mods);
   void onDragEnded(Widget& widget, vec2 position);
   void sizeToFit();
   ItemList items;

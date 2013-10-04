@@ -286,7 +286,7 @@ void List::onEntryFocusChanged(Widget& widget, bool activated)
     applyEditing();
 }
 
-void List::onEntryKeyPressed(Widget& widget, Key key, Action action)
+void List::onEntryKeyPressed(Widget& widget, Key key, Action action, uint mods)
 {
   if (action != PRESSED)
     return;
@@ -319,7 +319,8 @@ void List::onEntryDestroyed(Widget& widget)
 void List::onMouseButton(Widget& widget,
                          vec2 position,
                          MouseButton button,
-                         Action action)
+                         Action action,
+                         uint mods)
 {
   if (action != PRESSED)
     return;
@@ -355,7 +356,7 @@ void List::onMouseButton(Widget& widget,
   }
 }
 
-void List::onKey(Widget& widget, Key key, Action action)
+void List::onKey(Widget& widget, Key key, Action action, uint mods)
 {
   if (action != PRESSED)
     return;

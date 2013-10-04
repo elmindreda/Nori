@@ -193,7 +193,8 @@ void Popup::display()
 void Popup::onMouseButton(Widget& widget,
                           vec2 position,
                           MouseButton button,
-                          Action action)
+                          Action action,
+                          uint mods)
 {
   if (action != PRESSED)
     return;
@@ -201,7 +202,7 @@ void Popup::onMouseButton(Widget& widget,
   display();
 }
 
-void Popup::onKey(Widget& widget, Key key, Action action)
+void Popup::onKey(Widget& widget, Key key, Action action, uint mods)
 {
   if (action != PRESSED)
     return;

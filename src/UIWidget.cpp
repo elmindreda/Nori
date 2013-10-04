@@ -379,12 +379,12 @@ SignalProxy2<void, Widget&, bool> Widget::getFocusChangedSignal()
   return focusChangedSignal;
 }
 
-SignalProxy3<void, Widget&, Key, Action> Widget::getKeyPressedSignal()
+SignalProxy4<void, Widget&, Key, Action, uint> Widget::getKeyPressedSignal()
 {
   return keyPressedSignal;
 }
 
-SignalProxy2<void, Widget&, uint32> Widget::getCharInputSignal()
+SignalProxy3<void, Widget&, uint32, uint> Widget::getCharInputSignal()
 {
   return charInputSignal;
 }
@@ -394,7 +394,7 @@ SignalProxy2<void, Widget&, vec2> Widget::getCursorMovedSignal()
   return cursorMovedSignal;
 }
 
-SignalProxy4<void, Widget&, vec2, MouseButton, Action> Widget::getButtonClickedSignal()
+SignalProxy5<void, Widget&, vec2, MouseButton, Action, uint> Widget::getButtonClickedSignal()
 {
   return buttonClickedSignal;
 }

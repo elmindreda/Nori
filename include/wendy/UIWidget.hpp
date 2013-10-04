@@ -197,10 +197,10 @@ public:
   SignalProxy1<void, Widget&> getDestroyedSignal();
   SignalProxy1<void, Widget&> getAreaChangedSignal();
   SignalProxy2<void, Widget&, bool> getFocusChangedSignal();
-  SignalProxy3<void, Widget&, Key, Action> getKeyPressedSignal();
-  SignalProxy2<void, Widget&, uint32> getCharInputSignal();
+  SignalProxy4<void, Widget&, Key, Action, uint> getKeyPressedSignal();
+  SignalProxy3<void, Widget&, uint32, uint> getCharInputSignal();
   SignalProxy2<void, Widget&, vec2> getCursorMovedSignal();
-  SignalProxy4<void, Widget&, vec2, MouseButton, Action> getButtonClickedSignal();
+  SignalProxy5<void, Widget&, vec2, MouseButton, Action, uint> getButtonClickedSignal();
   SignalProxy2<void, Widget&, vec2> getScrolledSignal();
   SignalProxy1<void, Widget&> getCursorEnteredSignal();
   SignalProxy1<void, Widget&> getCursorLeftSignal();
@@ -219,10 +219,10 @@ private:
   Signal1<void, Widget&> destroyedSignal;
   Signal1<void, Widget&> areaChangedSignal;
   Signal2<void, Widget&, bool> focusChangedSignal;
-  Signal3<void, Widget&, Key, Action> keyPressedSignal;
-  Signal2<void, Widget&, uint32> charInputSignal;
+  Signal4<void, Widget&, Key, Action, uint> keyPressedSignal;
+  Signal3<void, Widget&, uint32, uint> charInputSignal;
   Signal2<void, Widget&, vec2> cursorMovedSignal;
-  Signal4<void, Widget&, vec2, MouseButton, Action> buttonClickedSignal;
+  Signal5<void, Widget&, vec2, MouseButton, Action, uint> buttonClickedSignal;
   Signal2<void, Widget&, vec2> scrolledSignal;
   Signal1<void, Widget&> cursorEnteredSignal;
   Signal1<void, Widget&> cursorLeftSignal;

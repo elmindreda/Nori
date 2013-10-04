@@ -321,13 +321,13 @@ void Layer::onWindowSize(uint width, uint height)
 void Layer::onKey(Key key, Action action, uint mods)
 {
   if (activeWidget)
-    activeWidget->keyPressedSignal(*activeWidget, key, action);
+    activeWidget->keyPressedSignal(*activeWidget, key, action, mods);
 }
 
 void Layer::onCharacter(uint32 character, uint mods)
 {
   if (activeWidget)
-    activeWidget->charInputSignal(*activeWidget, character);
+    activeWidget->charInputSignal(*activeWidget, character, mods);
 }
 
 void Layer::onCursorPos(vec2 position)
@@ -386,7 +386,8 @@ void Layer::onMouseButton(MouseButton button, Action action, uint mods)
       clickedWidget->buttonClickedSignal(*clickedWidget,
                                          cursorPosition,
                                          button,
-                                         action);
+                                         action,
+                                         mods);
 
       if (!captureWidget && clickedWidget->isDraggable())
         draggedWidget = clickedWidget;
@@ -412,7 +413,8 @@ void Layer::onMouseButton(MouseButton button, Action action, uint mods)
         activeWidget->buttonClickedSignal(*activeWidget,
                                           cursorPosition,
                                           button,
-                                          action);
+                                          action,
+                                          mods);
       }
     }
   }

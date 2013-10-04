@@ -156,7 +156,8 @@ void Scroller::draw() const
 void Scroller::onMouseButton(Widget& widget,
                              vec2 point,
                              MouseButton button,
-                             Action action)
+                             Action action,
+                             uint mods)
 {
   if (action != PRESSED)
     return;
@@ -181,7 +182,7 @@ void Scroller::onMouseButton(Widget& widget,
   }
 }
 
-void Scroller::onKey(Widget& widget, Key key, Action action)
+void Scroller::onKey(Widget& widget, Key key, Action action, uint mods)
 {
   if (action != PRESSED)
   {

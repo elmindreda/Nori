@@ -280,7 +280,8 @@ void Menu::onCursorLeft(Widget& widget)
 void Menu::onMouseButton(Widget& widget,
                          vec2 position,
                          MouseButton button,
-                         Action action)
+                         Action action,
+                         uint mods)
 {
   if (action != RELEASED)
     return;
@@ -310,7 +311,7 @@ void Menu::onMouseButton(Widget& widget,
   }
 }
 
-void Menu::onKey(Widget& widget, Key key, Action action)
+void Menu::onKey(Widget& widget, Key key, Action action, uint mods)
 {
   if (action != PRESSED)
     return;

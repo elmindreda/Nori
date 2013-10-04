@@ -64,8 +64,9 @@ private:
   void onMouseButton(Widget& widget,
                      vec2 position,
                      MouseButton button,
-                     Action action);
-  void onKey(Widget& widget, Key key, Action action);
+                     Action action,
+                     uint mods);
+  void onKey(Widget& widget, Key key, Action action, uint mods);
   void onItemSelected(Menu& menu, uint index);
   void onMenuDestroyed(Widget& widget);
   Signal2<void, Popup&, uint> itemSelectedSignal;
