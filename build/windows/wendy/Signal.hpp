@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_SIGNAL_H
-#define WENDY_SIGNAL_H
+#ifndef WENDY_SIGNAL_HPP
+#define WENDY_SIGNAL_HPP
 ///////////////////////////////////////////////////////////////////////
 
 #include <vector>
@@ -50,6 +50,8 @@ template <typename R, typename A1, typename A2, typename A3>
 class Signal3;
 template <typename R, typename A1, typename A2, typename A3, typename A4>
 class Signal4;
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+class Signal5;
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -1461,10 +1463,283 @@ SignalProxy4<R,A1,A2,A3,A4>::connect(typename FunctionSlot4<R,A1,A2,A3,A4>::Func
   return signal.connect(function);
 }
 
+////////////////////////////////////////////////////////////////////////
+
+/*! @brief Base class for typed signal slots.
+ */
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+class SignalSlot5 : public SignalSlot
+{
+  friend class Signal5<R,A1,A2,A3,A4,A5>;
+public:
+  typedef Signal5<R,A1,A2,A3,A4,A5> Signal;
+  /*! Destructor.
+   */
+  ~SignalSlot5();
+  /*! Calls the target for this slot.
+   */
+  virtual R operator () (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) = 0;
+protected:
+  /*! Constructor.
+   */
+  SignalSlot5(Trackable* object = NULL);
+private:
+  Signal* signal;
+};
+
+////////////////////////////////////////////////////////////////////////
+
+/*! @brief Typed signal slot for functions and static methods.
+ */
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+class FunctionSlot5 : public SignalSlot5<R,A1,A2,A3,A4,A5>
+{
+public:
+  /*! Function pointer type for this slot.
+   */
+  typedef R (*Function)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5);
+  /*! Constructor.
+   */
+  FunctionSlot5(Function function);
+  /*! Calls the target for this slot.
+   */
+  R operator () (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5);
+private:
+  Function function;
+};
+
+////////////////////////////////////////////////////////////////////////
+
+/*! @brief Typed signal slot for member functions.
+ */
+template <typename T, typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+class MethodSlot5 : public SignalSlot5<R,A1,A2,A3,A4,A5>
+{
+public:
+  /*! Method pointer type for this slot.
+   */
+  typedef R (T::*Function)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5);
+  /*! Constructor.
+   */
+  MethodSlot5(T& object, Function function);
+  /*! Calls the target for this slot.
+   */
+  R operator () (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5);
+private:
+  T& object;
+  Function function;
+};
+
+////////////////////////////////////////////////////////////////////////
+
+/*! @brief Typed signal object.
+ */
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+class Signal5
+{
+  friend class SignalSlot5<R,A1,A2,A3,A4,A5>;
+public:
+  /*! Slot base class for this signal.
+   */
+  typedef SignalSlot5<R,A1,A2,A3,A4,A5> Slot;
+  /*! Constructor.
+   */
+  Signal5();
+  /*! Copy contructor.
+   *  @note This does not copy any existing connections to the source object.
+   */
+  Signal5(const Signal5<R,A1,A2,A3,A4,A5>& source);
+  /*! Destructor.
+   */
+  ~Signal5();
+  /*! Adds the specified generic slot to this signal.
+   */
+  Slot* connect(Slot* slot);
+  /*! Connects the specified instance and member function to this signal.
+   */
+  template <typename T>
+  Slot* connect(T& object, typename MethodSlot5<T,R,A1,A2,A3,A4,A5>::Function function)
+  { return connect(new MethodSlot5<T,R,A1,A2,A3,A4,A5>(object, function)); }
+  /*! Connects the specified function to this signal.
+   */
+  Slot* connect(typename FunctionSlot5<R,A1,A2,A3,A4,A5>::Function function);
+  /*! Calls the targets for all slots in this signal.
+   */
+  void operator () (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const;
+  /*! Calls the targets for all slots in this signal and stores the return values.
+   */
+  void operator () (std::vector<R>& results, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const;
+  /*! Assignment operator.
+   *  @note This does not copy any existing connections to the source object.
+   */
+  Signal5<R,A1,A2,A3,A4,A5>& operator = (const Signal5<R,A1,A2,A3,A4,A5>& source);
+private:
+  typedef std::vector<Slot*> SlotList;
+  SlotList slots;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! Proxy object for signal objects.
+ *  Allows public connections to private signal objects.
+ *  Concept taken from gtkmm.
+ */
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+class SignalProxy5
+{
+public:
+  /*! Signal type.
+   */
+  typedef Signal5<R,A1,A2,A3,A4,A5> Signal;
+  /*! Slot type.
+   */
+  typedef SignalSlot5<R,A1,A2,A3,A4,A5> Slot;
+  /*! Constructor.
+   */
+  SignalProxy5(Signal& signal);
+  /*! Connects the specified slot to the proxied signal.
+   */
+  Slot* connect(Slot* slot);
+  /*! Connects the specified function to the proxied signal.
+   */
+  Slot* connect(typename FunctionSlot5<R,A1,A2,A3,A4,A5>::Function function);
+  /*! Connects the specified instance and member function to the proxied signal.
+   */
+  template <typename T>
+  Slot* connect(T& object, typename MethodSlot5<T,R,A1,A2,A3,A4,A5>::Function function)
+  { return signal.connect(new MethodSlot5<T,R,A1,A2,A3,A4,A5>(object, function)); }
+private:
+  Signal& signal;
+};
+
+////////////////////////////////////////////////////////////////////////
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+SignalSlot5<R,A1,A2,A3,A4,A5>::~SignalSlot5()
+{
+  if (signal)
+  {
+    typename Signal::SlotList& slots = signal->slots;
+    slots.erase(std::find(slots.begin(), slots.end(), this));
+  }
+}
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+SignalSlot5<R,A1,A2,A3,A4,A5>::SignalSlot5(Trackable* object):
+  SignalSlot(object)
+{
+}
+
+////////////////////////////////////////////////////////////////////////
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+inline FunctionSlot5<R,A1,A2,A3,A4,A5>::FunctionSlot5(Function initFunction):
+  function(initFunction)
+{
+}
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+inline R FunctionSlot5<R,A1,A2,A3,A4,A5>::operator () (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
+{
+  return (*function)(a1, a2, a3, a4, a5);
+}
+
+////////////////////////////////////////////////////////////////////////
+
+template <typename T, typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+inline MethodSlot5<T,R,A1,A2,A3,A4,A5>::MethodSlot5(T& initObject, Function initFunction):
+  SignalSlot5<R,A1,A2,A3,A4,A5>(dynamic_cast<Trackable*>(&initObject)),
+  object(initObject),
+  function(initFunction)
+{
+}
+
+template <typename T, typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+inline R MethodSlot5<T,R,A1,A2,A3,A4,A5>::operator () (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
+{
+  return (object.*function)(a1, a2, a3, a4, a5);
+}
+
+////////////////////////////////////////////////////////////////////////
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+inline Signal5<R,A1,A2,A3,A4,A5>::Signal5()
+{
+}
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+inline Signal5<R,A1,A2,A3,A4,A5>::Signal5(const Signal5<R,A1,A2,A3,A4,A5>& source)
+{
+}
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+inline Signal5<R,A1,A2,A3,A4,A5>::~Signal5()
+{
+  while (!slots.empty())
+    delete slots.back();
+}
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+inline SignalSlot5<R,A1,A2,A3,A4,A5>* Signal5<R,A1,A2,A3,A4,A5>::connect(Slot* slot)
+{
+  slots.push_back(slot);
+  slot->signal = this;
+  return slot;
+}
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+inline SignalSlot5<R,A1,A2,A3,A4,A5>* Signal5<R,A1,A2,A3,A4,A5>::connect(typename FunctionSlot5<R,A1,A2,A3,A4,A5>::Function function)
+{
+  return connect(new FunctionSlot5<R,A1,A2,A3,A4,A5>(function));
+}
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+inline void Signal5<R,A1,A2,A3,A4,A5>::operator () (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const
+{
+  for (typename SlotList::const_iterator i = slots.begin();  i != slots.end();  i++)
+    (**i)(a1, a2, a3, a4, a5);
+}
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+inline void Signal5<R,A1,A2,A3,A4,A5>::operator () (std::vector<R>& results, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const
+{
+  results.clear();
+  for (typename SlotList::const_iterator i = slots.begin();  i != slots.end();  i++)
+    results.push_back((**i)(a1, a2, a3, a4, a5));
+}
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+inline Signal5<R,A1,A2,A3,A4,A5>& Signal5<R,A1,A2,A3,A4,A5>::operator = (const Signal5<R,A1,A2,A3,A4,A5>& source)
+{
+  return *this;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+inline SignalProxy5<R,A1,A2,A3,A4,A5>::SignalProxy5(Signal& initSignal):
+  signal(initSignal)
+{
+}
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+inline SignalSlot5<R,A1,A2,A3,A4,A5>*
+SignalProxy5<R,A1,A2,A3,A4,A5>::connect(Slot* slot)
+{
+  return signal.connect(slot);
+}
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+inline SignalSlot5<R,A1,A2,A3,A4,A5>*
+SignalProxy5<R,A1,A2,A3,A4,A5>::connect(typename FunctionSlot5<R,A1,A2,A3,A4,A5>::Function function)
+{
+  return signal.connect(function);
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_SIGNAL_H*/
+#endif /*WENDY_SIGNAL_HPP*/
 ///////////////////////////////////////////////////////////////////////

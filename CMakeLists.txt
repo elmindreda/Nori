@@ -62,7 +62,7 @@ if (UNIX)
   set(SIGNAL_OUTPUT ${wendy_BINARY_DIR}/include/wendy/Signal.hpp)
 
   add_custom_command(OUTPUT ${SIGNAL_OUTPUT}
-                     COMMAND ${RUBY_EXECUTABLE} ${SIGNAL_INPUT} ${SIGNAL_OUTPUT} 4
+                     COMMAND ${RUBY_EXECUTABLE} ${SIGNAL_INPUT} ${SIGNAL_OUTPUT} 5
                      MAIN_DEPENDENCY ${SIGNAL_INPUT}
                      COMMENT "Creating ${SIGNAL_OUTPUT}"
                      VERBATIM)
