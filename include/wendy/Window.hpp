@@ -254,7 +254,7 @@ public:
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
    */
-  virtual bool onCharacter(uint32 character, uint mods);
+  virtual bool onCharacter(uint32 codepoint, uint mods);
   /*! Called when a mouse button has been clicked or released.
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
@@ -299,7 +299,7 @@ public:
   virtual void onKey(Key key, Action action, uint mods);
   /*! Called when a Unicode character has been input.
    */
-  virtual void onCharacter(uint32 character, uint mods);
+  virtual void onCharacter(uint32 codepoint, uint mods);
   /*! Called when a mouse button has been clicked or released.
    */
   virtual void onMouseButton(MouseButton button, Action action, uint mods);
@@ -466,7 +466,7 @@ private:
   static void damageCallback(GLFWwindow* handle);
   static void closeCallback(GLFWwindow* handle);
   static void keyCallback(GLFWwindow* handle, int key, int scancode, int action, int mods);
-  static void characterCallback(GLFWwindow* handle, uint character);
+  static void characterCallback(GLFWwindow* handle, uint codepoint);
   static void cursorPosCallback(GLFWwindow* handle, double x, double y);
   static void mouseButtonCallback(GLFWwindow* handle, int button, int action, int mods);
   static void scrollCallback(GLFWwindow* handle, double x, double y);
@@ -522,7 +522,7 @@ public:
   TextController();
   TextController(const String& text);
   void inputKey(Key key, Action action, uint mods);
-  void inputCharacter(uint32 character, uint mods);
+  void inputCharacter(uint32 codepoint, uint mods);
   const String& getText() const;
   void setText(const String& newText);
   size_t getCaretPosition() const;

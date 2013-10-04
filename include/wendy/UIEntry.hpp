@@ -54,9 +54,7 @@ private:
                      Action action,
                      uint mods);
   void onKey(Widget& widget, Key key, Action action, uint mods);
-  void onCharacter(Widget& widget, uint32 character, uint mods);
-  void onKey(Widget& widget, Key key, Action action);
-  void onCharacter(Widget& widget, uint32 character);
+  void onCharacter(Widget& widget, uint32 codepoint, uint mods);
   void onTextChanged();
   void onCaretMoved();
   void setCaretPosition(uint newPosition, bool notify);

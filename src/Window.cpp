@@ -87,7 +87,7 @@ bool EventHook::onKey(Key key, Action action, uint mods)
   return false;
 }
 
-bool EventHook::onCharacter(uint32 character, uint mods)
+bool EventHook::onCharacter(uint32 codepoint, uint mods)
 {
   return false;
 }
@@ -129,7 +129,7 @@ void EventTarget::onKey(Key key, Action action, uint mods)
 {
 }
 
-void EventTarget::onCharacter(uint32 character, uint mods)
+void EventTarget::onCharacter(uint32 codepoint, uint mods)
 {
 }
 
@@ -413,7 +413,7 @@ void Window::keyCallback(GLFWwindow* handle, int key, int scancode, int action, 
     window.m_target->onKey(Key(key), Action(action), mods);
 }
 
-void Window::characterCallback(GLFWwindow* handle, uint character)
+void Window::characterCallback(GLFWwindow* handle, uint codepoint)
 {
   Window& window = windowFromHandle(handle);
 
@@ -430,12 +430,12 @@ void Window::characterCallback(GLFWwindow* handle, uint character)
 
   if (window.m_hook)
   {
-    if (window.m_hook->onCharacter(character, mods))
+    if (window.m_hook->onCharacter(codepoint, mods))
       return;
   }
 
   if (window.m_target)
-    window.m_target->onCharacter(character, mods);
+    window.m_target->onCharacter(codepoint, mods);
 }
 
 void Window::cursorPosCallback(GLFWwindow* handle, double x, double y)

@@ -102,7 +102,7 @@ private:
   void removedWidget(Widget& widget);
   void onWindowSize(uint width, uint height) override;
   void onKey(Key key, Action action, uint mods) override;
-  void onCharacter(uint32 character, uint mods) override;
+  void onCharacter(uint32 codepoint, uint mods) override;
   void onCursorPos(vec2 position) override;
   void onMouseButton(MouseButton button, Action action, uint mods) override;
   void onScroll(vec2 offset) override;

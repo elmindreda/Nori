@@ -167,9 +167,9 @@ void Entry::onKey(Widget& widget, Key key, Action action, uint mods)
   controller.inputKey(key, action, mods);
 }
 
-void Entry::onCharacter(Widget& widget, uint32 character, uint mods)
+void Entry::onCharacter(Widget& widget, uint32 codepoint, uint mods)
 {
-  controller.inputCharacter(character, mods);
+  controller.inputCharacter(codepoint, mods);
 }
 
 void Entry::onTextChanged()

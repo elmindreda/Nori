@@ -324,10 +324,10 @@ void Layer::onKey(Key key, Action action, uint mods)
     activeWidget->keyPressedSignal(*activeWidget, key, action, mods);
 }
 
-void Layer::onCharacter(uint32 character, uint mods)
+void Layer::onCharacter(uint32 codepoint, uint mods)
 {
   if (activeWidget)
-    activeWidget->charInputSignal(*activeWidget, character, mods);
+    activeWidget->charInputSignal(*activeWidget, codepoint, mods);
 }
 
 void Layer::onCursorPos(vec2 position)
