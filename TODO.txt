@@ -10,10 +10,6 @@ Add file change notifications [Pod]
 Add explicit resource hierarchy [Pod]
 Add automatic resource reloading [Pod]
 
-Replace std::string with UTF-8 string class (possibly using utf8) [Pod]
-
-Add unknown character glyph [Pod]
-
 Replace Mesh with more flexible, DoD-friendly structures [opt]
 Add binary mesh format (possibly using OpenCTM) [opt]
 
@@ -74,7 +70,6 @@ Input
 =====
 
 Add selection to TextController
-Make TextController capable of supporting Entry widget
 
 
 UI

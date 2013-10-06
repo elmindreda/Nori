@@ -70,7 +70,11 @@ void Font::drawText(vec2 pen, vec4 color, const char* text)
       const uint32 codepoint = utf8::next<const char*>(c, text + length);
       const Glyph* glyph = findGlyph(codepoint);
       if (!glyph)
-        continue;
+      {
+        glyph = findGlyph(0xfffd);
+        if (!glyph)
+          continue;
+      }
 
       pen = round(pen);
 
