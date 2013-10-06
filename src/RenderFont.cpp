@@ -124,10 +124,12 @@ Rect Font::boundsOf(const char* text)
 {
   vec2 pen;
   Rect bounds;
+  const size_t length = std::strlen(text);
 
-  for (const char* c = text;  *c != '\0';  c++)
+  for (const char* c = text;  *c != '\0'; )
   {
-    if (const Glyph* glyph = findGlyph(uint8(*c)))
+    const uint32 codepoint = utf8::next<const char*>(c, text + length);
+    if (const Glyph* glyph = findGlyph(codepoint))
     {
       bounds.envelop(Rect(glyph->bearing + pen, glyph->size));
       pen = round(pen + vec2(glyph->advance, 0.f));
@@ -141,12 +143,15 @@ Rect Font::boundsOf(const char* text)
 std::vector<Rect> Font::layoutOf(const char* text)
 {
   vec2 pen;
-  std::vector<Rect> layout;
-  layout.reserve(std::strlen(text));
+  const size_t length = std::strlen(text);
 
-  for (const char* c = text;  *c != '\0';  c++)
+  std::vector<Rect> layout;
+  layout.reserve(length);
+
+  for (const char* c = text;  *c != '\0'; )
   {
-    if (const Glyph* glyph = findGlyph(uint8(*c)))
+    const uint32 codepoint = utf8::next<const char*>(c, text + length);
+    if (const Glyph* glyph = findGlyph(codepoint))
     {
       layout.push_back(Rect(glyph->bearing + pen, glyph->size));
       pen = round(pen + vec2(glyph->advance, 0.f));
