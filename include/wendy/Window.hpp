@@ -523,17 +523,18 @@ public:
   TextController(const String& text);
   void inputKey(Key key, Action action, uint mods);
   void inputCharacter(uint32 codepoint, uint mods);
-  const String& getText() const;
+  const String& text() const { return m_text; }
   void setText(const String& newText);
-  size_t getCaretPosition() const;
+  size_t length() const;
+  size_t caretPosition() const { return m_caretPosition; }
   void setCaretPosition(size_t newPosition);
-  SignalProxy0<void> getCaretMovedSignal();
-  SignalProxy0<void> getTextChangedSignal();
+  SignalProxy0<void> caretMovedSignal() { return m_caretMovedSignal; }
+  SignalProxy0<void> textChangedSignal() { return m_textChangedSignal; }
 private:
-  String text;
-  size_t caretPosition;
-  Signal0<void> textChangedSignal;
-  Signal0<void> caretMovedSignal;
+  String m_text;
+  size_t m_caretPosition;
+  Signal0<void> m_textChangedSignal;
+  Signal0<void> m_caretMovedSignal;
 };
 
 ///////////////////////////////////////////////////////////////////////

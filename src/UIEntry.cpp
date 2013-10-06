@@ -51,13 +51,13 @@ Entry::Entry(Layer& layer, const char* text):
   getKeyPressedSignal().connect(*this, &Entry::onKey);
   getCharInputSignal().connect(*this, &Entry::onCharacter);
 
-  controller.getTextChangedSignal().connect(*this, &Entry::onTextChanged);
-  controller.getCaretMovedSignal().connect(*this, &Entry::onCaretMoved);
+  controller.textChangedSignal().connect(*this, &Entry::onTextChanged);
+  controller.caretMovedSignal().connect(*this, &Entry::onCaretMoved);
 }
 
 const String& Entry::getText() const
 {
-  return controller.getText();
+  return controller.text();
 }
 
 void Entry::setText(const char* newText)
@@ -68,7 +68,7 @@ void Entry::setText(const char* newText)
 
 uint Entry::getCaretPosition() const
 {
-  return controller.getCaretPosition();
+  return controller.caretPosition();
 }
 
 void Entry::setCaretPosition(uint newPosition)
@@ -101,7 +101,7 @@ void Entry::draw() const
     textArea.position.x += em / 2.f;
     textArea.size.x -= em;
 
-    const String& text = controller.getText();
+    const String& text = controller.text();
 
     drawer.drawText(textArea, text.c_str(), LEFT_ALIGNED, getState());
 
@@ -110,7 +110,7 @@ void Entry::draw() const
       float position = 0.f;
 
       render::Font& font = drawer.getCurrentFont();
-      const Rect bounds = font.boundsOf(text.substr(0, controller.getCaretPosition()).c_str());
+      const Rect bounds = font.boundsOf(text.substr(0, controller.caretPosition()).c_str());
       position = bounds.size.x;
 
       Segment2 segment;
@@ -145,7 +145,7 @@ void Entry::onMouseButton(Widget& widget,
   const float offset = em / 2.f;
   float position = transformToLocal(point).x - offset;
 
-  std::vector<Rect> layout = drawer.getCurrentFont().layoutOf(controller.getText().c_str());
+  std::vector<Rect> layout = drawer.getCurrentFont().layoutOf(controller.text().c_str());
 
   uint index;
 
