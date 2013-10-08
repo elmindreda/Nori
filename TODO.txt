@@ -9,13 +9,10 @@ Core
 Add file change notifications [Pod]
 Add explicit resource hierarchy [Pod]
 Add automatic resource reloading [Pod]
+Add resource layers or master resource stack [Pod]
 
 Replace Mesh with more flexible, DoD-friendly structures [opt]
 Add binary mesh format (possibly using OpenCTM) [opt]
-
-Add resource layers or master resource stack [Pod]
-
-Add functors to signal module
 
 Add console module from Pod [Pod]
 
