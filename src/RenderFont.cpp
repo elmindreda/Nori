@@ -325,8 +325,7 @@ bool Font::addGlyphTextureRow()
   }
 
   GL::TextureData data(PixelFormat::L8, textureWidth, textureHeight);
-  GL::TextureParams params(GL::TEXTURE_RECT);
-  params.mipmapped = false;
+  GL::TextureParams params(GL::TEXTURE_RECT, GL::TF_NONE);
 
   m_texture = GL::Texture::create(cache(), context, params, data);
   if (!m_texture)

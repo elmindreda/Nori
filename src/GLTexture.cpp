@@ -199,13 +199,12 @@ uint TextureData::dimensionCount() const
 
 ///////////////////////////////////////////////////////////////////////
 
-TextureParams::TextureParams(TextureType initType):
+TextureParams::TextureParams(TextureType initType, uint initFlags):
   type(initType),
-  mipmapped(true),
-  sRGB(false)
+  flags(initFlags)
 {
   if (type == TEXTURE_RECT)
-    mipmapped = false;
+    flags &= ~TF_MIPMAPPED;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -571,9 +570,9 @@ Ref<Texture> Texture::read(Context& context,
   name += "source:";
   name += imageName;
   name += " mipmapped:";
-  name += params.mipmapped ? "true" : "false";
+  name += (params.flags & TF_MIPMAPPED) ? "true" : "false";
   name += " sRGB:";
-  name += params.sRGB ? "true" : "false";
+  name += (params.flags & TF_SRGB) ? "true" : "false";
 
   if (Ref<Texture> texture = cache.find<Texture>(name))
     return texture;
@@ -604,7 +603,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
   m_type = params.type;
   m_format = data.format;
 
-  if (!convertToGL(m_format, params.sRGB))
+  if (!convertToGL(m_format, params.flags & TF_SRGB))
   {
     logError("Source image for texture %s has unsupported pixel format %s",
              name().c_str(),
@@ -623,7 +622,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
       return false;
     }
 
-    if (params.mipmapped)
+    if (params.flags & TF_MIPMAPPED)
     {
       logError("Texture %s specified as both rectangular and mipmapped",
                name().c_str());
@@ -677,7 +676,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
   {
     glTexImage1D(convertToProxyGL(m_type),
                  0,
-                 convertToGL(m_format, params.sRGB),
+                 convertToGL(m_format, params.flags & TF_SRGB),
                  width,
                  0,
                  convertToGL(m_format.semantic()),
@@ -688,7 +687,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
   {
     glTexImage3D(convertToProxyGL(m_type),
                  0,
-                 convertToGL(m_format, params.sRGB),
+                 convertToGL(m_format, params.flags & TF_SRGB),
                  width,
                  height,
                  depth,
@@ -701,7 +700,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
   {
     glTexImage2D(convertToProxyGL(m_type),
                  0,
-                 convertToGL(m_format, params.sRGB),
+                 convertToGL(m_format, params.flags & TF_SRGB),
                  width,
                  height,
                  0,
@@ -735,7 +734,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
   {
     glTexImage1D(convertToGL(m_type),
                  0,
-                 convertToGL(m_format, params.sRGB),
+                 convertToGL(m_format, params.flags & TF_SRGB),
                  width,
                  0,
                  convertToGL(m_format.semantic()),
@@ -746,7 +745,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
   {
     glTexImage3D(convertToGL(m_type),
                  0,
-                 convertToGL(m_format, params.sRGB),
+                 convertToGL(m_format, params.flags & TF_SRGB),
                  width, height, depth,
                  0,
                  convertToGL(m_format.semantic()),
@@ -773,7 +772,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
 
       glTexImage2D(convertToGL(faces[i]),
                    0,
-                   convertToGL(m_format, params.sRGB),
+                   convertToGL(m_format, params.flags & TF_SRGB),
                    width, height,
                    0,
                    convertToGL(m_format.semantic()),
@@ -788,7 +787,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
   {
     glTexImage2D(convertToGL(m_type),
                  0,
-                 convertToGL(m_format, params.sRGB),
+                 convertToGL(m_format, params.flags & TF_SRGB),
                  width, height,
                  0,
                  convertToGL(m_format.semantic()),
@@ -796,7 +795,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
                  data.texels);
   }
 
-  if (params.mipmapped)
+  if (params.flags & TF_MIPMAPPED)
     generateMipmaps();
   else
     retrieveImages();

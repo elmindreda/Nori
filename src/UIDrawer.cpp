@@ -146,9 +146,9 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
     return nullptr;
   }
 
-  theme->texture = GL::Texture::read(pool->context(),
-                                     GL::TEXTURE_RECT,
-                                     imageName);
+  const GL::TextureParams params(GL::TEXTURE_RECT, GL::TF_NONE);
+
+  theme->texture = GL::Texture::read(pool->context(), params, imageName);
   if (!theme->texture)
   {
     logError("Failed to create texture for UI theme %s", name.c_str());

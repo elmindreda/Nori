@@ -344,18 +344,20 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
         continue;
       }
 
-      GL::TextureParams params(textureTypeMap[sampler->type()]);
-
-      if (pugi::xml_attribute a = s.attribute("mipmapped"))
-        params.mipmapped = a.as_bool();
-
-      if (pugi::xml_attribute a = s.attribute("sRGB"))
-        params.sRGB = a.as_bool();
-
       Ref<GL::Texture> texture;
 
       if (pugi::xml_attribute a = s.attribute("image"))
+      {
+        GL::TextureParams params(textureTypeMap[sampler->type()], GL::TF_NONE);
+
+        if (s.attribute("mipmapped").as_bool())
+          params.flags |= GL::TF_MIPMAPPED;
+
+        if (s.attribute("sRGB").as_bool())
+          params.flags |= GL::TF_SRGB;
+
         texture = GL::Texture::read(context, params, a.value());
+      }
       else if (pugi::xml_attribute a = s.attribute("texture"))
         texture = cache.find<GL::Texture>(a.value());
       else

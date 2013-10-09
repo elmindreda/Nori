@@ -108,6 +108,18 @@ enum TextureType
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief %Texture creation flags.
+ *  @ingroup opengl
+ */
+enum TextureFlags
+{
+  TF_NONE      = 0x00,
+  TF_MIPMAPPED = 0x01,
+  TF_SRGB      = 0x02
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @ingroup opengl
  */
 enum CubeFace
@@ -123,7 +135,7 @@ enum CubeFace
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Texture creation data.
+/*! @brief %Texture creation data.
  *  @ingroup opengl
  */
 class TextureData
@@ -146,16 +158,15 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Texture creation parameters.
+/*! @brief %Texture creation parameters.
  *  @ingroup opengl
  */
 class TextureParams
 {
 public:
-  TextureParams(TextureType type);
+  TextureParams(TextureType type, uint flags);
   TextureType type;
-  bool mipmapped;
-  bool sRGB;
+  uint flags;
 };
 
 ///////////////////////////////////////////////////////////////////////
