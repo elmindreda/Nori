@@ -44,18 +44,18 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Layer::Layer(Window& initWindow, UI::Drawer& initDrawer):
-  window(initWindow),
-  drawer(initDrawer),
-  dragging(false),
-  activeWidget(nullptr),
-  draggedWidget(nullptr),
-  hoveredWidget(nullptr),
-  captureWidget(nullptr),
-  stack(nullptr)
+Layer::Layer(Window& window, UI::Drawer& drawer):
+  m_window(window),
+  m_drawer(drawer),
+  m_dragging(false),
+  m_activeWidget(nullptr),
+  m_draggedWidget(nullptr),
+  m_hoveredWidget(nullptr),
+  m_captureWidget(nullptr),
+  m_stack(nullptr)
 {
-  assert(&window);
-  assert(&drawer);
+  assert(&m_window);
+  assert(&m_drawer);
 }
 
 Layer::~Layer()
@@ -71,39 +71,38 @@ void Layer::draw()
 {
   ProfileNodeCall call("UI::Layer::draw");
 
-  drawer.begin();
+  m_drawer.begin();
 
-  for (auto r : roots)
+  for (auto r : m_roots)
   {
     if (r->isVisible())
       r->draw();
   }
 
-  drawer.end();
+  m_drawer.end();
 }
 
 void Layer::addRootWidget(Widget& root)
 {
-  assert(&(root.layer) == this);
+  assert(&(root.m_layer) == this);
 
   root.removeFromParent();
-  roots.push_back(&root);
+  m_roots.push_back(&root);
 }
 
 void Layer::destroyRootWidgets()
 {
-  while (!roots.empty())
-    delete roots.back();
+  while (!m_roots.empty())
+    delete m_roots.back();
 }
 
-Widget* Layer::findWidgetByPoint(const vec2& point)
+Widget* Layer::findWidgetByPoint(vec2 point)
 {
-  for (auto r = roots.rbegin();  r != roots.rend();  r++)
+  for (auto r : m_roots)
   {
-    if ((*r)->isVisible())
+    if (r->isVisible())
     {
-      Widget* widget = (*r)->findByPoint(point);
-      if (widget)
+      if (Widget* widget = r->findByPoint(point))
         return widget;
     }
   }
@@ -113,44 +112,44 @@ Widget* Layer::findWidgetByPoint(const vec2& point)
 
 void Layer::captureCursor()
 {
-  if (!activeWidget)
+  if (!m_activeWidget)
     return;
 
   releaseCursor();
   cancelDragging();
 
-  captureWidget = activeWidget;
-  hoveredWidget = activeWidget;
-  window.captureCursor();
+  m_captureWidget = m_activeWidget;
+  m_hoveredWidget = m_activeWidget;
+  m_window.captureCursor();
 }
 
 void Layer::releaseCursor()
 {
-  if (captureWidget)
+  if (m_captureWidget)
   {
-    captureWidget = nullptr;
-    window.releaseCursor();
+    m_captureWidget = nullptr;
+    m_window.releaseCursor();
     updateHoveredWidget();
   }
 }
 
 void Layer::cancelDragging()
 {
-  if (dragging && draggedWidget)
+  if (m_dragging && m_draggedWidget)
   {
-    vec2 cursorPosition = vec2(window.cursorPosition());
-    cursorPosition.y = window.height() - cursorPosition.y;
+    vec2 cursorPosition = vec2(m_window.cursorPosition());
+    cursorPosition.y = m_window.height() - cursorPosition.y;
 
-    draggedWidget->dragEndedSignal(*draggedWidget, cursorPosition);
+    m_draggedWidget->m_dragEndedSignal(*m_draggedWidget, cursorPosition);
 
-    draggedWidget = nullptr;
-    dragging = false;
+    m_draggedWidget = nullptr;
+    m_dragging = false;
   }
 }
 
 void Layer::invalidate()
 {
-  window.invalidate();
+  m_window.invalidate();
 }
 
 bool Layer::isOpaque() const
@@ -160,100 +159,55 @@ bool Layer::isOpaque() const
 
 bool Layer::hasCapturedCursor() const
 {
-  return captureWidget != nullptr;
-}
-
-uint Layer::getWidth() const
-{
-  return window.width();
-}
-
-uint Layer::getHeight() const
-{
-  return window.height();
-}
-
-Drawer& Layer::getDrawer() const
-{
-  return drawer;
-}
-
-Window& Layer::getWindow() const
-{
-  return window;
-}
-
-const WidgetList& Layer::getRootWidgets() const
-{
-  return roots;
-}
-
-Widget* Layer::getActiveWidget()
-{
-  return activeWidget;
-}
-
-Widget* Layer::getDraggedWidget()
-{
-  return draggedWidget;
-}
-
-Widget* Layer::getHoveredWidget()
-{
-  return hoveredWidget;
+  return m_captureWidget != nullptr;
 }
 
 void Layer::setActiveWidget(Widget* widget)
 {
-  if (activeWidget == widget)
+  if (m_activeWidget == widget)
     return;
 
   if (widget)
   {
-    assert(&(widget->layer) == this);
+    assert(&(widget->m_layer) == this);
 
     if (!widget->isVisible() || !widget->isEnabled())
       return;
   }
 
-  if (captureWidget)
+  if (m_captureWidget)
     releaseCursor();
 
-  if (activeWidget)
-    activeWidget->focusChangedSignal(*activeWidget, false);
+  if (m_activeWidget)
+    m_activeWidget->m_focusChangedSignal(*m_activeWidget, false);
 
-  activeWidget = widget;
+  m_activeWidget = widget;
 
-  if (activeWidget)
-    activeWidget->focusChangedSignal(*activeWidget, true);
+  if (m_activeWidget)
+    m_activeWidget->m_focusChangedSignal(*m_activeWidget, true);
 
   invalidate();
 }
 
-LayerStack* Layer::getStack() const
+SignalProxy1<void, Layer&> Layer::sizeChangedSignal()
 {
-  return stack;
-}
-
-SignalProxy1<void, Layer&> Layer::getSizeChangedSignal()
-{
-  return sizeChangedSignal;
+  return m_sizeChangedSignal;
 }
 
 void Layer::updateHoveredWidget()
 {
-  if (captureWidget)
+  if (m_captureWidget)
     return;
 
-  vec2 cursorPosition = vec2(window.cursorPosition());
-  cursorPosition.y = window.height() - cursorPosition.y;
+  vec2 cursorPosition = vec2(m_window.cursorPosition());
+  cursorPosition.y = m_window.height() - cursorPosition.y;
 
   Widget* newWidget = findWidgetByPoint(cursorPosition);
 
-  if (hoveredWidget == newWidget)
+  if (m_hoveredWidget == newWidget)
     return;
 
-  Widget* ancestor = hoveredWidget;
+  Widget* ancestor = m_hoveredWidget;
 
   while (ancestor)
   {
@@ -265,11 +219,11 @@ void Layer::updateHoveredWidget()
     if (newWidget && newWidget->isChildOf(*ancestor))
       break;
 
-    ancestor->cursorLeftSignal(*ancestor);
-    ancestor = ancestor->getParent();
+    ancestor->m_cursorLeftSignal(*ancestor);
+    ancestor = ancestor->parent();
   }
 
-  hoveredWidget = newWidget;
+  m_hoveredWidget = newWidget;
 
   while (newWidget)
   {
@@ -278,36 +232,36 @@ void Layer::updateHoveredWidget()
     if (newWidget == ancestor)
       break;
 
-    newWidget->cursorEnteredSignal(*newWidget);
-    newWidget = newWidget->getParent();
+    newWidget->m_cursorEnteredSignal(*newWidget);
+    newWidget = newWidget->parent();
   }
 }
 
 void Layer::removedWidget(Widget& widget)
 {
-  if (activeWidget)
+  if (m_activeWidget)
   {
-    if (activeWidget == &widget || activeWidget->isChildOf(widget))
-      setActiveWidget(widget.parent);
+    if (m_activeWidget == &widget || m_activeWidget->isChildOf(widget))
+      setActiveWidget(widget.parent());
   }
 
-  if (hoveredWidget)
+  if (m_hoveredWidget)
   {
-    if (hoveredWidget == &widget || hoveredWidget->isChildOf(widget))
+    if (m_hoveredWidget == &widget || m_hoveredWidget->isChildOf(widget))
       updateHoveredWidget();
   }
 
-  if (captureWidget)
+  if (m_captureWidget)
   {
-    if (captureWidget == &widget || captureWidget->isChildOf(widget))
+    if (m_captureWidget == &widget || m_captureWidget->isChildOf(widget))
       releaseCursor();
   }
 
-  if (dragging)
+  if (m_dragging)
   {
-    if (draggedWidget)
+    if (m_draggedWidget)
     {
-      if (draggedWidget == &widget || draggedWidget->isChildOf(widget))
+      if (m_draggedWidget == &widget || m_draggedWidget->isChildOf(widget))
         cancelDragging();
     }
   }
@@ -315,62 +269,62 @@ void Layer::removedWidget(Widget& widget)
 
 void Layer::onWindowSize(uint width, uint height)
 {
-  sizeChangedSignal(*this);
+  m_sizeChangedSignal(*this);
 }
 
 void Layer::onKey(Key key, Action action, uint mods)
 {
-  if (activeWidget)
-    activeWidget->keyPressedSignal(*activeWidget, key, action, mods);
+  if (m_activeWidget)
+    m_activeWidget->m_keyPressedSignal(*m_activeWidget, key, action, mods);
 }
 
 void Layer::onCharacter(uint32 codepoint, uint mods)
 {
-  if (activeWidget)
-    activeWidget->charInputSignal(*activeWidget, codepoint, mods);
+  if (m_activeWidget)
+    m_activeWidget->m_charInputSignal(*m_activeWidget, codepoint, mods);
 }
 
 void Layer::onCursorPos(vec2 position)
 {
   updateHoveredWidget();
 
-  position.y = window.height() - position.y;
+  position.y = m_window.height() - position.y;
 
-  if (hoveredWidget)
-    hoveredWidget->cursorMovedSignal(*hoveredWidget, position);
+  if (m_hoveredWidget)
+    m_hoveredWidget->m_cursorMovedSignal(*m_hoveredWidget, position);
 
-  if (draggedWidget)
+  if (m_draggedWidget)
   {
-    if (dragging)
-      draggedWidget->dragMovedSignal(*draggedWidget, position);
+    if (m_dragging)
+      m_draggedWidget->m_dragMovedSignal(*m_draggedWidget, position);
     else
     {
       // TODO: Add insensitivity radius.
 
-      dragging = true;
-      draggedWidget->dragBegunSignal(*draggedWidget, position);
+      m_dragging = true;
+      m_draggedWidget->m_dragBegunSignal(*m_draggedWidget, position);
     }
   }
 }
 
 void Layer::onMouseButton(MouseButton button, Action action, uint mods)
 {
-  vec2 cursorPosition = vec2(window.cursorPosition());
-  cursorPosition.y = window.height() - cursorPosition.y;
+  vec2 cursorPosition = vec2(m_window.cursorPosition());
+  cursorPosition.y = m_window.height() - cursorPosition.y;
 
   if (action == PRESSED)
   {
     Widget* clickedWidget = nullptr;
 
-    if (captureWidget)
-      clickedWidget = captureWidget;
+    if (m_captureWidget)
+      clickedWidget = m_captureWidget;
     else
     {
-      for (auto w = roots.rbegin();  w != roots.rend();  w++)
+      for (auto r : m_roots)
       {
-        if ((*w)->isVisible())
+        if (r->isVisible())
         {
-          clickedWidget = (*w)->findByPoint(cursorPosition);
+          clickedWidget = r->findByPoint(cursorPosition);
           if (clickedWidget)
             break;
         }
@@ -378,43 +332,43 @@ void Layer::onMouseButton(MouseButton button, Action action, uint mods)
     }
 
     while (clickedWidget && !clickedWidget->isEnabled())
-      clickedWidget = clickedWidget->getParent();
+      clickedWidget = clickedWidget->parent();
 
     if (clickedWidget)
     {
       clickedWidget->activate();
-      clickedWidget->buttonClickedSignal(*clickedWidget,
-                                         cursorPosition,
-                                         button,
-                                         action,
-                                         mods);
+      clickedWidget->m_buttonClickedSignal(*clickedWidget,
+                                           cursorPosition,
+                                           button,
+                                           action,
+                                           mods);
 
-      if (!captureWidget && clickedWidget->isDraggable())
-        draggedWidget = clickedWidget;
+      if (!m_captureWidget && clickedWidget->isDraggable())
+        m_draggedWidget = clickedWidget;
     }
   }
   else if (action == RELEASED)
   {
-    if (draggedWidget)
+    if (m_draggedWidget)
     {
-      if (dragging)
+      if (m_dragging)
       {
-        draggedWidget->dragEndedSignal(*draggedWidget, cursorPosition);
-        dragging = false;
+        m_draggedWidget->m_dragEndedSignal(*m_draggedWidget, cursorPosition);
+        m_dragging = false;
       }
 
-      draggedWidget = nullptr;
+      m_draggedWidget = nullptr;
     }
 
-    if (activeWidget)
+    if (m_activeWidget)
     {
-      if (captureWidget || activeWidget->getGlobalArea().contains(cursorPosition))
+      if (m_captureWidget || m_activeWidget->globalArea().contains(cursorPosition))
       {
-        activeWidget->buttonClickedSignal(*activeWidget,
-                                          cursorPosition,
-                                          button,
-                                          action,
-                                          mods);
+        m_activeWidget->m_buttonClickedSignal(*m_activeWidget,
+                                              cursorPosition,
+                                              button,
+                                              action,
+                                              mods);
       }
     }
   }
@@ -422,8 +376,8 @@ void Layer::onMouseButton(MouseButton button, Action action, uint mods)
 
 void Layer::onScroll(vec2 offset)
 {
-  if (hoveredWidget)
-    hoveredWidget->scrolledSignal(*hoveredWidget, offset);
+  if (m_hoveredWidget)
+    m_hoveredWidget->m_scrolledSignal(*m_hoveredWidget, offset);
 }
 
 void Layer::onFocus(bool activated)
@@ -437,14 +391,14 @@ void Layer::onFocus(bool activated)
 
 ///////////////////////////////////////////////////////////////////////
 
-LayerStack::LayerStack(Window& initWindow):
-  window(initWindow)
+LayerStack::LayerStack(Window& window):
+  m_window(window)
 {
 }
 
 void LayerStack::update() const
 {
-  for (auto l : layers)
+  for (auto l : m_layers)
     l->update();
 }
 
@@ -452,62 +406,61 @@ void LayerStack::draw() const
 {
   size_t count = 0;
 
-  while (count < layers.size())
+  while (count < m_layers.size())
   {
     count++;
 
-    if (layers[layers.size() - count]->isOpaque())
+    if (m_layers[m_layers.size() - count]->isOpaque())
       break;
   }
 
   while (count)
   {
-    layers[layers.size() - count]->draw();
-
+    m_layers[m_layers.size() - count]->draw();
     count--;
   }
 }
 
 void LayerStack::push(Layer& layer)
 {
-  assert(layer.stack == nullptr);
-  assert(&layer.window == &window);
+  assert(layer.m_stack == nullptr);
+  assert(&layer.m_window == &m_window);
 
-  layers.push_back(&layer);
-  layer.stack = this;
-  window.setTarget(&layer);
+  m_layers.push_back(&layer);
+  layer.m_stack = this;
+  m_window.setTarget(&layer);
 }
 
 void LayerStack::pop()
 {
-  if (!layers.empty())
+  if (!m_layers.empty())
   {
-    window.setTarget(nullptr);
-    layers.back()->stack = nullptr;
-    layers.pop_back();
+    m_window.setTarget(nullptr);
+    m_layers.back()->m_stack = nullptr;
+    m_layers.pop_back();
   }
 
-  if (!layers.empty())
-    window.setTarget(layers.back());
+  if (!m_layers.empty())
+    m_window.setTarget(m_layers.back());
 }
 
 void LayerStack::empty()
 {
-  while (!layers.empty())
+  while (!m_layers.empty())
     pop();
 }
 
 bool LayerStack::isEmpty() const
 {
-  return layers.empty();
+  return m_layers.empty();
 }
 
-Layer* LayerStack::getTop() const
+Layer* LayerStack::top() const
 {
-  if (layers.empty())
+  if (m_layers.empty())
     return nullptr;
 
-  return layers.back();
+  return m_layers.back();
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -46,16 +46,16 @@ Popup::Popup(Layer& layer):
   selection(NO_ITEM),
   menu(nullptr)
 {
-  const float em = layer.getDrawer().getCurrentEM();
+  const float em = layer.drawer().currentEM();
 
   setSize(vec2(em * 10.f, em * 2.f));
 
-  getKeyPressedSignal().connect(*this, &Popup::onKey);
-  getButtonClickedSignal().connect(*this, &Popup::onMouseButton);
+  keyPressedSignal().connect(*this, &Popup::onKey);
+  buttonClickedSignal().connect(*this, &Popup::onMouseButton);
 
   menu = new Menu(layer);
   menu->getItemSelectedSignal().connect(*this, &Popup::onItemSelected);
-  menu->getDestroyedSignal().connect(*this, &Popup::onMenuDestroyed);
+  menu->destroyedSignal().connect(*this, &Popup::onMenuDestroyed);
   layer.addRootWidget(*menu);
 }
 
@@ -72,7 +72,7 @@ void Popup::addItem(Item& item)
 
 void Popup::createItem(const char* value, ItemID ID)
 {
-  Item* item = new Item(getLayer(), value, ID);
+  Item* item = new Item(layer(), value, ID);
   menu->addItem(*item);
 }
 
@@ -156,24 +156,24 @@ SignalProxy2<void, Popup&, uint> Popup::getItemSelectedSignal()
 
 void Popup::draw() const
 {
-  const Rect& area = getGlobalArea();
+  Drawer& drawer = layer().drawer();
 
-  Drawer& drawer = getLayer().getDrawer();
+  const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
-    drawer.drawFrame(area, getState());
+    drawer.drawFrame(area, state());
 
     if (selection != NO_ITEM)
     {
       const Item* item = menu->getItem(selection);
 
-      const float em = drawer.getCurrentEM();
+      const float em = drawer.currentEM();
 
       Rect textArea = area;
       textArea.position.x += em / 2.f;
       textArea.size.x -= em;
 
-      drawer.drawText(textArea, item->asString().c_str(), LEFT_ALIGNED, getState());
+      drawer.drawText(textArea, item->asString().c_str(), LEFT_ALIGNED, state());
     }
 
     Widget::draw();
@@ -184,9 +184,8 @@ void Popup::draw() const
 
 void Popup::display()
 {
-  const float width = max(menu->getWidth(), getWidth());
-  menu->setArea(Rect(getGlobalArea().position,
-                     vec2(width, menu->getHeight())));
+  menu->setArea(Rect(globalPos(),
+                     vec2(max(menu->width(), width()), menu->height())));
   menu->display();
 }
 

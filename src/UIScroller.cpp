@@ -48,18 +48,18 @@ Scroller::Scroller(Layer& layer, Orientation initOrientation):
   reference(0.f),
   orientation(initOrientation)
 {
-  const float em = layer.getDrawer().getCurrentEM();
+  const float em = layer.drawer().currentEM();
 
   if (orientation == HORIZONTAL)
     setSize(vec2(em * 10.f, em * 1.5f));
   else
     setSize(vec2(em * 1.5f, em * 10.f));
 
-  getKeyPressedSignal().connect(*this, &Scroller::onKey);
-  getButtonClickedSignal().connect(*this, &Scroller::onMouseButton);
-  getScrolledSignal().connect(*this, &Scroller::onScroll);
-  getDragBegunSignal().connect(*this, &Scroller::onDragBegun);
-  getDragMovedSignal().connect(*this, &Scroller::onDragMoved);
+  keyPressedSignal().connect(*this, &Scroller::onKey);
+  buttonClickedSignal().connect(*this, &Scroller::onMouseButton);
+  scrolledSignal().connect(*this, &Scroller::onScroll);
+  dragBegunSignal().connect(*this, &Scroller::onDragBegun);
+  dragMovedSignal().connect(*this, &Scroller::onDragMoved);
 
   setDraggable(true);
 }
@@ -115,12 +115,12 @@ SignalProxy1<void, Scroller&> Scroller::getValueChangedSignal()
 
 void Scroller::draw() const
 {
-  const Rect& area = getGlobalArea();
+  Drawer& drawer = layer().drawer();
 
-  Drawer& drawer = getLayer().getDrawer();
+  const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
-    drawer.drawWell(area, getState());
+    drawer.drawWell(area, state());
 
     if (minValue != maxValue)
     {
@@ -144,7 +144,7 @@ void Scroller::draw() const
                        size);
       }
 
-      drawer.drawHandle(handleArea, getState());
+      drawer.drawHandle(handleArea, state());
     }
 
     Widget::draw();
@@ -175,9 +175,9 @@ void Scroller::onMouseButton(Widget& widget,
   }
   else
   {
-    if (local.y > getHeight() - offset)
+    if (local.y > height() - offset)
       setValue(value - getValueStep(), true);
-    else if (local.y <= getHeight() - offset - size)
+    else if (local.y <= height() - offset - size)
       setValue(value + getValueStep(), true);
   }
 }
@@ -243,8 +243,8 @@ void Scroller::onDragBegun(Widget& widget, vec2 point)
   }
   else
   {
-    if (local.y <= getHeight() - offset && local.y > getHeight() - offset - size)
-      reference = getHeight() - local.y - offset;
+    if (local.y <= height() - offset && local.y > height() - offset - size)
+      reference = height() - local.y - offset;
     else
       cancelDragging();
   }
@@ -258,9 +258,9 @@ void Scroller::onDragMoved(Widget& widget, vec2 point)
   float scale;
 
   if (orientation == HORIZONTAL)
-    scale = (local.x - reference) / (getWidth() - size);
+    scale = (local.x - reference) / (width() - size);
   else
-    scale = (getHeight() - local.y - reference) / (getHeight() - size);
+    scale = (height() - local.y - reference) / (height() - size);
 
   setValue(minValue + (maxValue - minValue) * scale, true);
 }
@@ -281,12 +281,12 @@ void Scroller::setValue(float newValue, bool notify)
 
 float Scroller::getHandleSize() const
 {
-  const float em = getLayer().getDrawer().getCurrentEM();
+  const float em = layer().drawer().currentEM();
 
   if (orientation == HORIZONTAL)
-    return max(getWidth() * percentage, em);
+    return max(width() * percentage, em);
   else
-    return max(getHeight() * percentage, em);
+    return max(height() * percentage, em);
 }
 
 float Scroller::getHandleOffset() const
@@ -294,9 +294,9 @@ float Scroller::getHandleOffset() const
   const float scale = (value - minValue) / (maxValue - minValue);
 
   if (orientation == HORIZONTAL)
-    return (getWidth() - getHandleSize()) * scale;
+    return (width() - getHandleSize()) * scale;
   else
-    return (getHeight() - getHandleSize()) * scale;
+    return (height() - getHandleSize()) * scale;
 }
 
 float Scroller::getValueStep() const

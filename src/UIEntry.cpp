@@ -43,13 +43,13 @@ Entry::Entry(Layer& layer, const char* text):
   Widget(layer),
   controller(text)
 {
-  const float em = getLayer().getDrawer().getCurrentEM();
+  const float em = layer.drawer().currentEM();
 
   setSize(vec2(em * 10.f, em * 1.5f));
 
-  getButtonClickedSignal().connect(*this, &Entry::onMouseButton);
-  getKeyPressedSignal().connect(*this, &Entry::onKey);
-  getCharInputSignal().connect(*this, &Entry::onCharacter);
+  buttonClickedSignal().connect(*this, &Entry::onMouseButton);
+  keyPressedSignal().connect(*this, &Entry::onKey);
+  charInputSignal().connect(*this, &Entry::onCharacter);
 
   controller.textChangedSignal().connect(*this, &Entry::onTextChanged);
   controller.caretMovedSignal().connect(*this, &Entry::onCaretMoved);
@@ -88,28 +88,25 @@ SignalProxy1<void, Entry&> Entry::getCaretMovedSignal()
 
 void Entry::draw() const
 {
-  const Rect& area = getGlobalArea();
+  Drawer& drawer = layer().drawer();
 
-  Drawer& drawer = getLayer().getDrawer();
+  const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
-    drawer.drawWell(area, getState());
+    drawer.drawWell(area, state());
 
-    const float em = drawer.getCurrentEM();
-
-    Rect textArea = area;
-    textArea.position.x += em / 2.f;
-    textArea.size.x -= em;
-
+    const float em = drawer.currentEM();
+    const Rect textArea(area.position + vec2(em / 2.f, 0.f),
+                        area.size + vec2(em, 0.f));
     const String& text = controller.text();
 
-    drawer.drawText(textArea, text.c_str(), LEFT_ALIGNED, getState());
+    drawer.drawText(textArea, text.c_str(), LEFT_ALIGNED, state());
 
     if (isActive() && ((uint) (Timer::currentTime() * 2.f) & 1))
     {
       float position = 0.f;
 
-      render::Font& font = drawer.getCurrentFont();
+      render::Font& font = drawer.currentFont();
       const Rect bounds = font.boundsOf(text.substr(0, controller.caretPosition()).c_str());
       position = bounds.size.x;
 
@@ -119,9 +116,7 @@ void Entry::draw() const
       segment.end = vec2(textArea.position.x + position,
                          textArea.position.y + textArea.size.y);
 
-      const Theme& theme = drawer.getTheme();
-
-      drawer.drawLine(segment, vec4(theme.caretColors[getState()], 1.f));
+      drawer.drawLine(segment, vec4(drawer.theme().caretColors[state()], 1.f));
     }
 
     Widget::draw();
@@ -139,13 +134,13 @@ void Entry::onMouseButton(Widget& widget,
   if (action != PRESSED)
     return;
 
-  Drawer& drawer = getLayer().getDrawer();
+  Drawer& drawer = layer().drawer();
 
-  const float em = drawer.getCurrentEM();
+  const float em = drawer.currentEM();
   const float offset = em / 2.f;
   float position = transformToLocal(point).x - offset;
 
-  std::vector<Rect> layout = drawer.getCurrentFont().layoutOf(controller.text().c_str());
+  std::vector<Rect> layout = drawer.currentFont().layoutOf(controller.text().c_str());
 
   uint index;
 

@@ -69,10 +69,9 @@ const uint THEME_XML_VERSION = 3;
 
 ///////////////////////////////////////////////////////////////////////
 
-Alignment::Alignment(HorzAlignment initHorizontal,
-                     VertAlignment initVertical):
-  horizontal(initHorizontal),
-  vertical(initVertical)
+Alignment::Alignment(HorzAlignment horizontal, VertAlignment vertical):
+  horizontal(horizontal),
+  vertical(vertical)
 {
 }
 
@@ -215,55 +214,50 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
 
 void Drawer::begin()
 {
-  GL::Context& context = getContext();
-
-  GL::Framebuffer& framebuffer = context.currentFramebuffer();
+  GL::Framebuffer& framebuffer = m_context.currentFramebuffer();
   const uint width = framebuffer.width();
   const uint height = framebuffer.height();
 
-  context.setCurrentSharedProgramState(state);
-  context.setViewportArea(Recti(0, 0, width, height));
-  context.setScissorArea(Recti(0, 0, width, height));
+  m_context.setCurrentSharedProgramState(m_state);
+  m_context.setViewportArea(Recti(0, 0, width, height));
+  m_context.setScissorArea(Recti(0, 0, width, height));
 
-  state->setOrthoProjectionMatrix(float(width), float(height));
+  m_state->setOrthoProjectionMatrix(float(width), float(height));
 }
 
 void Drawer::end()
 {
-  getContext().setCurrentSharedProgramState(nullptr);
+  m_context.setCurrentSharedProgramState(nullptr);
 }
 
 bool Drawer::pushClipArea(const Rect& area)
 {
-  if (!clipAreaStack.push(area))
+  if (!m_clipAreaStack.push(area))
     return false;
 
-  const Rect& total = clipAreaStack.total();
+  const Rect& total = m_clipAreaStack.total();
 
-  GL::Context& context = getContext();
-  context.setScissorArea(Recti(ivec2(total.position), ivec2(total.size)));
-
+  m_context.setScissorArea(Recti(ivec2(total.position), ivec2(total.size)));
   return true;
 }
 
 void Drawer::popClipArea()
 {
-  clipAreaStack.pop();
+  m_clipAreaStack.pop();
 
-  GL::Context& context = getContext();
-  GL::Framebuffer& framebuffer = context.currentFramebuffer();
+  GL::Framebuffer& framebuffer = m_context.currentFramebuffer();
 
   Recti area;
 
-  if (clipAreaStack.isEmpty())
+  if (m_clipAreaStack.isEmpty())
     area.set(0, 0, framebuffer.width(), framebuffer.height());
   else
   {
-    const Rect& total = clipAreaStack.total();
+    const Rect& total = m_clipAreaStack.total();
     area.set(ivec2(total.position), ivec2(total.size));
   }
 
-  context.setScissorArea(area);
+  m_context.setScissorArea(area);
 }
 
 void Drawer::drawPoint(const vec2& point, const vec4& color)
@@ -271,15 +265,13 @@ void Drawer::drawPoint(const vec2& point, const vec4& color)
   Vertex2fv vertex;
   vertex.position = point;
 
-  GL::VertexRange range = getVertexPool().allocate(1, Vertex2fv::format);
+  GL::VertexRange range = m_pool->allocate(1, Vertex2fv::format);
   if (range.isEmpty())
     return;
 
   range.copyFrom(&vertex);
-
   setDrawingState(color, true);
-
-  getContext().render(GL::PrimitiveRange(GL::POINT_LIST, range));
+  m_context.render(GL::PrimitiveRange(GL::POINT_LIST, range));
 }
 
 void Drawer::drawLine(const Segment2& segment, const vec4& color)
@@ -288,15 +280,13 @@ void Drawer::drawLine(const Segment2& segment, const vec4& color)
   vertices[0].position = segment.start;
   vertices[1].position = segment.end;
 
-  GL::VertexRange range = getVertexPool().allocate(2, Vertex2fv::format);
+  GL::VertexRange range = m_pool->allocate(2, Vertex2fv::format);
   if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
-
   setDrawingState(color, true);
-
-  getContext().render(GL::PrimitiveRange(GL::LINE_LIST, range));
+  m_context.render(GL::PrimitiveRange(GL::LINE_LIST, range));
 }
 
 void Drawer::drawTriangle(const Triangle2& triangle, const vec4& color)
@@ -306,15 +296,13 @@ void Drawer::drawTriangle(const Triangle2& triangle, const vec4& color)
   vertices[1].position = triangle.P[1];
   vertices[2].position = triangle.P[2];
 
-  GL::VertexRange range = getVertexPool().allocate(3, Vertex2fv::format);
+  GL::VertexRange range = m_pool->allocate(3, Vertex2fv::format);
   if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
-
   setDrawingState(color, true);
-
-  getContext().render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
+  m_context.render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
 }
 
 void Drawer::drawBezier(const BezierCurve2& spline, const vec4& color)
@@ -322,7 +310,7 @@ void Drawer::drawBezier(const BezierCurve2& spline, const vec4& color)
   BezierCurve2::PointList points;
   spline.tessellate(points);
 
-  GL::VertexRange range = getVertexPool().allocate(points.size(), Vertex2fv::format);
+  GL::VertexRange range = m_pool->allocate(points.size(), Vertex2fv::format);
   if (range.isEmpty())
     return;
 
@@ -335,8 +323,7 @@ void Drawer::drawBezier(const BezierCurve2& spline, const vec4& color)
   }
 
   setDrawingState(color, true);
-
-  getContext().render(GL::PrimitiveRange(GL::LINE_STRIP, range));
+  m_context.render(GL::PrimitiveRange(GL::LINE_STRIP, range));
 }
 
 void Drawer::drawRectangle(const Rect& rectangle, const vec4& color)
@@ -353,15 +340,13 @@ void Drawer::drawRectangle(const Rect& rectangle, const vec4& color)
   vertices[2].position = vec2(maxX, maxY);
   vertices[3].position = vec2(minX, maxY);
 
-  GL::VertexRange range = getVertexPool().allocate(4, Vertex2fv::format);
+  GL::VertexRange range = m_pool->allocate(4, Vertex2fv::format);
   if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
-
   setDrawingState(color, true);
-
-  getContext().render(GL::PrimitiveRange(GL::LINE_LOOP, range));
+  m_context.render(GL::PrimitiveRange(GL::LINE_LOOP, range));
 }
 
 void Drawer::fillTriangle(const Triangle2& triangle, const vec4& color)
@@ -371,15 +356,13 @@ void Drawer::fillTriangle(const Triangle2& triangle, const vec4& color)
   vertices[1].position = triangle.P[1];
   vertices[2].position = triangle.P[2];
 
-  GL::VertexRange range = getVertexPool().allocate(3, Vertex2fv::format);
+  GL::VertexRange range = m_pool->allocate(3, Vertex2fv::format);
   if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
-
   setDrawingState(color, false);
-
-  getContext().render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
+  m_context.render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
 }
 
 void Drawer::fillRectangle(const Rect& rectangle, const vec4& color)
@@ -396,15 +379,13 @@ void Drawer::fillRectangle(const Rect& rectangle, const vec4& color)
   vertices[2].position = vec2(maxX, maxY);
   vertices[3].position = vec2(minX, maxY);
 
-  GL::VertexRange range = getVertexPool().allocate(4, Vertex2fv::format);
+  GL::VertexRange range = m_pool->allocate(4, Vertex2fv::format);
   if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
-
   setDrawingState(color, false);
-
-  getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  m_context.render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 }
 
 void Drawer::blitTexture(const Rect& area, GL::Texture& texture)
@@ -425,45 +406,45 @@ void Drawer::blitTexture(const Rect& area, GL::Texture& texture)
   vertices[3].texcoord = vec2(0.f, 1.f);
   vertices[3].position = vec2(minX, maxY);
 
-  GL::VertexRange range = getVertexPool().allocate(4, Vertex2ft2fv::format);
+  GL::VertexRange range = m_pool->allocate(4, Vertex2ft2fv::format);
   if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
 
   if (texture.format().semantic() == PixelFormat::RGBA)
-    blitPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
+    m_blitPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
   else
-    blitPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ZERO);
+    m_blitPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ZERO);
 
-  blitPass.setSamplerState("image", &texture);
-  blitPass.apply();
+  m_blitPass.setSamplerState("image", &texture);
+  m_blitPass.apply();
 
-  getContext().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  m_context.render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
 
-  blitPass.setSamplerState("image", nullptr);
+  m_blitPass.setSamplerState("image", nullptr);
 }
 
 void Drawer::drawText(const Rect& area,
                       const char* text,
-                      const Alignment& alignment,
-                      const vec3& color)
+                      Alignment alignment,
+                      vec3 color)
 {
-  const Rect metrics = currentFont->boundsOf(text);
+  const Rect bounds = m_font->boundsOf(text);
 
-  vec2 penPosition;
+  vec2 pen;
 
   switch (alignment.horizontal)
   {
     case LEFT_ALIGNED:
-      penPosition.x = area.position.x - metrics.position.x;
+      pen.x = area.position.x - bounds.position.x;
       break;
     case CENTERED_ON_X:
-      penPosition.x = area.center().x - metrics.center().x;
+      pen.x = area.center().x - bounds.center().x;
       break;
     case RIGHT_ALIGNED:
-      penPosition.x = (area.position.x + area.size.x) -
-                      (metrics.position.x + metrics.size.x);
+      pen.x = (area.position.x + area.size.x) -
+              (bounds.position.x + bounds.size.x);
       break;
     default:
       panic("Invalid horizontal alignment");
@@ -472,47 +453,47 @@ void Drawer::drawText(const Rect& area,
   switch (alignment.vertical)
   {
     case BOTTOM_ALIGNED:
-      penPosition.y = area.position.y - currentFont->descender();
+      pen.y = area.position.y - m_font->descender();
       break;
     case CENTERED_ON_Y:
-      penPosition.y = area.center().y - currentFont->descender() - currentFont->height() / 2.f;
+      pen.y = area.center().y - m_font->descender() - m_font->height() / 2.f;
       break;
     case TOP_ALIGNED:
-      penPosition.y = area.position.y + area.size.y - currentFont->ascender();
+      pen.y = area.position.y + area.size.y - m_font->ascender();
       break;
     default:
       panic("Invalid vertical alignment");
   }
 
-  currentFont->drawText(penPosition, vec4(color, 1.f), text);
+  m_font->drawText(pen, vec4(color, 1.f), text);
 }
 
 void Drawer::drawText(const Rect& area,
                       const char* text,
-                      const Alignment& alignment,
+                      Alignment alignment,
                       WidgetState state)
 {
-  drawText(area, text, alignment, theme->textColors[state]);
+  drawText(area, text, alignment, m_theme->textColors[state]);
 }
 
 void Drawer::drawWell(const Rect& area, WidgetState state)
 {
-  drawElement(area, theme->wellElements[state]);
+  drawElement(area, m_theme->wellElements[state]);
 }
 
 void Drawer::drawFrame(const Rect& area, WidgetState state)
 {
-  drawElement(area, theme->frameElements[state]);
+  drawElement(area, m_theme->frameElements[state]);
 }
 
 void Drawer::drawHandle(const Rect& area, WidgetState state)
 {
-  drawElement(area, theme->handleElements[state]);
+  drawElement(area, m_theme->handleElements[state]);
 }
 
 void Drawer::drawButton(const Rect& area, WidgetState state, const char* text)
 {
-  drawElement(area, theme->buttonElements[state]);
+  drawElement(area, m_theme->buttonElements[state]);
 
   if (state == STATE_SELECTED)
   {
@@ -529,41 +510,41 @@ void Drawer::drawButton(const Rect& area, WidgetState state, const char* text)
 
 void Drawer::drawTab(const Rect& area, WidgetState state, const char* text)
 {
-  drawElement(area, theme->tabElements[state]);
+  drawElement(area, m_theme->tabElements[state]);
   drawText(area, text, Alignment(), state);
 }
 
-const Theme& Drawer::getTheme() const
+const Theme& Drawer::theme() const
 {
-  return *theme;
+  return *m_theme;
 }
 
-GL::Context& Drawer::getContext()
+GL::Context& Drawer::context()
 {
-  return pool->context();
+  return m_context;
 }
 
-render::VertexPool& Drawer::getVertexPool()
+render::VertexPool& Drawer::vertexPool()
 {
-  return *pool;
+  return *m_pool;
 }
 
-render::Font& Drawer::getCurrentFont()
+render::Font& Drawer::currentFont()
 {
-  return *currentFont;
+  return *m_font;
 }
 
 void Drawer::setCurrentFont(render::Font* newFont)
 {
   if (newFont)
-    currentFont = newFont;
+    m_font = newFont;
   else
-    currentFont = theme->font;
+    m_font = m_theme->font;
 }
 
-float Drawer::getCurrentEM() const
+float Drawer::currentEM() const
 {
-  return currentFont->height();
+  return m_font->height();
 }
 
 Ref<Drawer> Drawer::create(render::VertexPool& pool)
@@ -575,26 +556,25 @@ Ref<Drawer> Drawer::create(render::VertexPool& pool)
   return drawer.detachObject();
 }
 
-Drawer::Drawer(render::VertexPool& initPool):
-  pool(&initPool)
+Drawer::Drawer(render::VertexPool& pool):
+  m_context(pool.context()),
+  m_pool(&pool)
 {
 }
 
 bool Drawer::init()
 {
-  GL::Context& context = getContext();
-
-  state = new render::SharedProgramState();
-  if (!state->reserveSupported(context))
+  m_state = new render::SharedProgramState();
+  if (!m_state->reserveSupported(m_context))
     return false;
 
   // Set up element geometry
   {
-    vertexBuffer = GL::VertexBuffer::create(context, 16, ElementVertex::format, GL::USAGE_STATIC);
-    if (!vertexBuffer)
+    m_vertexBuffer = GL::VertexBuffer::create(m_context, 16, ElementVertex::format, GL::USAGE_STATIC);
+    if (!m_vertexBuffer)
       return false;
 
-    ElementVertex* vertices = (ElementVertex*) vertexBuffer->lock();
+    ElementVertex* vertices = (ElementVertex*) m_vertexBuffer->lock();
 
     // These are scaling factors used when rendering UI widget elements
     //
@@ -631,13 +611,13 @@ bool Drawer::init()
     vertices[0xe].set(vec2(1.f, 1.f), vec2(-0.5f,   0.f), vec2(0.5f,  1.f));
     vertices[0xf].set(vec2(1.f, 1.f), vec2(  0.f,   0.f), vec2( 1.f,  1.f));
 
-    vertexBuffer->unlock();
+    m_vertexBuffer->unlock();
 
-    indexBuffer = GL::IndexBuffer::create(context, 54, GL::INDEX_UINT8, GL::USAGE_STATIC);
-    if (!indexBuffer)
+    m_indexBuffer = GL::IndexBuffer::create(m_context, 54, GL::INDEX_UINT8, GL::USAGE_STATIC);
+    if (!m_indexBuffer)
       return false;
 
-    uint8* indices = (uint8*) indexBuffer->lock();
+    uint8* indices = (uint8*) m_indexBuffer->lock();
 
     // This is a perfectly normal indexed triangle list using the vertices above
 
@@ -655,28 +635,30 @@ bool Drawer::init()
       }
     }
 
-    indexBuffer->unlock();
+    m_indexBuffer->unlock();
 
-    range = GL::PrimitiveRange(GL::TRIANGLE_LIST, *vertexBuffer, *indexBuffer);
+    m_range = GL::PrimitiveRange(GL::TRIANGLE_LIST,
+                                 *m_vertexBuffer,
+                                 *m_indexBuffer);
   }
 
   // Load default theme
   {
     const String themeName("wendy/UIDefault.theme");
 
-    theme = Theme::read(getVertexPool(), themeName);
-    if (!theme)
+    m_theme = Theme::read(*m_pool, themeName);
+    if (!m_theme)
     {
       logError("Failed to load default UI theme %s", themeName.c_str());
       return false;
     }
 
-    currentFont = theme->font;
+    m_font = m_theme->font;
   }
 
   // Set up solid pass
   {
-    Ref<GL::Program> program = GL::Program::read(context,
+    Ref<GL::Program> program = GL::Program::read(m_context,
                                                  "wendy/UIElement.vs",
                                                  "wendy/UIElement.fs");
     if (!program)
@@ -700,22 +682,22 @@ bool Drawer::init()
       return false;
     }
 
-    elementPass.setProgram(program);
-    elementPass.setDepthTesting(false);
-    elementPass.setDepthWriting(false);
-    elementPass.setSamplerState("image", theme->texture);
-    elementPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
-    elementPass.setMultisampling(false);
+    m_elementPass.setProgram(program);
+    m_elementPass.setDepthTesting(false);
+    m_elementPass.setDepthWriting(false);
+    m_elementPass.setSamplerState("image", m_theme->texture);
+    m_elementPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
+    m_elementPass.setMultisampling(false);
 
-    elementPosIndex = elementPass.uniformStateIndex("elementPos");
-    elementSizeIndex = elementPass.uniformStateIndex("elementSize");
-    texPosIndex = elementPass.uniformStateIndex("texPos");
-    texSizeIndex = elementPass.uniformStateIndex("texSize");
+    m_elementPosIndex = m_elementPass.uniformStateIndex("elementPos");
+    m_elementSizeIndex = m_elementPass.uniformStateIndex("elementSize");
+    m_texPosIndex = m_elementPass.uniformStateIndex("texPos");
+    m_texSizeIndex = m_elementPass.uniformStateIndex("texSize");
   }
 
   // Set up solid pass
   {
-    Ref<GL::Program> program = GL::Program::read(context,
+    Ref<GL::Program> program = GL::Program::read(m_context,
                                                  "wendy/UIDrawSolid.vs",
                                                  "wendy/UIDrawSolid.fs");
     if (!program)
@@ -735,16 +717,16 @@ bool Drawer::init()
       return false;
     }
 
-    drawPass.setProgram(program);
-    drawPass.setCullMode(GL::CULL_NONE);
-    drawPass.setDepthTesting(false);
-    drawPass.setDepthWriting(false);
-    drawPass.setMultisampling(false);
+    m_drawPass.setProgram(program);
+    m_drawPass.setCullMode(GL::CULL_NONE);
+    m_drawPass.setDepthTesting(false);
+    m_drawPass.setDepthWriting(false);
+    m_drawPass.setMultisampling(false);
   }
 
   // Set up blitting pass
   {
-    Ref<GL::Program> program = GL::Program::read(context,
+    Ref<GL::Program> program = GL::Program::read(m_context,
                                                  "wendy/UIDrawMapped.vs",
                                                  "wendy/UIDrawMapped.fs");
     if (!program)
@@ -764,11 +746,11 @@ bool Drawer::init()
       return false;
     }
 
-    blitPass.setProgram(program);
-    blitPass.setCullMode(GL::CULL_NONE);
-    blitPass.setDepthTesting(false);
-    blitPass.setDepthWriting(false);
-    blitPass.setMultisampling(false);
+    m_blitPass.setProgram(program);
+    m_blitPass.setCullMode(GL::CULL_NONE);
+    m_blitPass.setDepthTesting(false);
+    m_blitPass.setDepthWriting(false);
+    m_blitPass.setMultisampling(false);
   }
 
   return true;
@@ -776,26 +758,26 @@ bool Drawer::init()
 
 void Drawer::drawElement(const Rect& area, const Rect& mapping)
 {
-  elementPass.setUniformState(elementPosIndex, area.position);
-  elementPass.setUniformState(elementSizeIndex, area.size);
-  elementPass.setUniformState(texPosIndex, mapping.position);
-  elementPass.setUniformState(texSizeIndex, mapping.size);
-  elementPass.apply();
+  m_elementPass.setUniformState(m_elementPosIndex, area.position);
+  m_elementPass.setUniformState(m_elementSizeIndex, area.size);
+  m_elementPass.setUniformState(m_texPosIndex, mapping.position);
+  m_elementPass.setUniformState(m_texSizeIndex, mapping.size);
+  m_elementPass.apply();
 
-  getContext().render(range);
+  m_context.render(m_range);
 }
 
 void Drawer::setDrawingState(const vec4& color, bool wireframe)
 {
-  drawPass.setUniformState("color", color);
+  m_drawPass.setUniformState("color", color);
 
   if (color.a == 1.f)
-    drawPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ZERO);
+    m_drawPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ZERO);
   else
-    drawPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
+    m_drawPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
 
-  drawPass.setWireframe(wireframe);
-  drawPass.apply();
+  m_drawPass.setWireframe(wireframe);
+  m_drawPass.apply();
 }
 
 ///////////////////////////////////////////////////////////////////////

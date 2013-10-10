@@ -44,23 +44,21 @@ Button::Button(Layer& layer, const char* initText):
   selected(false),
   text(initText)
 {
-  Drawer& drawer = getLayer().getDrawer();
-
-  const float em = drawer.getCurrentEM();
+  const float em = layer.drawer().currentEM();
 
   float textWidth;
 
   if (text.empty())
     textWidth = em * 3.f;
   else
-    textWidth = drawer.getCurrentFont().boundsOf(text.c_str()).size.x;
+    textWidth = layer.drawer().currentFont().boundsOf(text.c_str()).size.x;
 
   setSize(vec2(em * 2.f + textWidth, em * 2.f));
   setDraggable(true);
 
-  getDragEndedSignal().connect(*this, &Button::onDragEnded);
-  getButtonClickedSignal().connect(*this, &Button::onMouseButton);
-  getKeyPressedSignal().connect(*this, &Button::onKey);
+  dragEndedSignal().connect(*this, &Button::onDragEnded);
+  buttonClickedSignal().connect(*this, &Button::onMouseButton);
+  keyPressedSignal().connect(*this, &Button::onKey);
 }
 
 const String& Button::getText() const
@@ -81,19 +79,19 @@ SignalProxy1<void, Button&> Button::getPushedSignal()
 
 void Button::draw() const
 {
-  const Rect& area = getGlobalArea();
+  Drawer& drawer = layer().drawer();
 
-  Drawer& drawer = getLayer().getDrawer();
+  const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
-    WidgetState state;
+    WidgetState hoverState;
 
     if (isUnderCursor() && selected)
-      state = STATE_SELECTED;
+      hoverState = STATE_SELECTED;
     else
-      state = getState();
+      hoverState = state();
 
-    drawer.drawButton(area, state, text.c_str());
+    drawer.drawButton(area, hoverState, text.c_str());
 
     Widget::draw();
 

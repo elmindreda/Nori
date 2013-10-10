@@ -64,9 +64,9 @@ Book::Book(Layer& layer):
   Widget(layer),
   activePage(nullptr)
 {
-  getKeyPressedSignal().connect(*this, &Book::onKey);
-  getButtonClickedSignal().connect(*this, &Book::onMouseButton);
-  getAreaChangedSignal().connect(*this, &Book::onAreaChanged);
+  keyPressedSignal().connect(*this, &Book::onKey);
+  buttonClickedSignal().connect(*this, &Book::onMouseButton);
+  areaChangedSignal().connect(*this, &Book::onAreaChanged);
 }
 
 Page* Book::getActivePage() const
@@ -86,15 +86,15 @@ SignalProxy1<void, Book&> Book::getPageChangedSignal()
 
 void Book::draw() const
 {
-  const Rect& area = getGlobalArea();
+  Drawer& drawer = layer().drawer();
 
-  Drawer& drawer = getLayer().getDrawer();
+  const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
     if (!pages.empty())
     {
       const vec2 tabSize(area.size.x / pages.size(),
-                         drawer.getCurrentEM() * 2.f);
+                         drawer.currentEM() * 2.f);
 
       Rect tabArea(area.position.x,
                    area.position.y + area.size.y - tabSize.y,
@@ -130,10 +130,9 @@ void Book::addedChild(Widget& child)
 {
   if (Page* page = dynamic_cast<Page*>(&child))
   {
-    const float em = getLayer().getDrawer().getCurrentEM();
-    const vec2& size = getSize();
+    const float em = layer().drawer().currentEM();
 
-    page->setArea(Rect(0.f, 0.f, size.x, size.y - em * 2.f));
+    page->setArea(Rect(0.f, 0.f, size().x, size().y - em * 2.f));
 
     if (activePage)
       page->hide();
@@ -165,9 +164,7 @@ void Book::setActivePage(Page* newPage, bool notify)
   if (newPage == activePage)
     return;
 
-  const WidgetList& children = getChildren();
-
-  if (std::find(children.begin(), children.end(), newPage) == children.end())
+  if (std::find(children().begin(), children().end(), newPage) == children().end())
     return;
 
   if (activePage)
@@ -185,11 +182,10 @@ void Book::setActivePage(Page* newPage, bool notify)
 
 void Book::onAreaChanged(Widget& widget)
 {
-  const float em = getLayer().getDrawer().getCurrentEM();
-  const vec2& size = getSize();
+  const float em = layer().drawer().currentEM();
 
-  for (auto p = pages.begin();  p != pages.end();  p++)
-    (*p)->setArea(Rect(0.f, 0.f, size.x, size.y - em * 2.f));
+  for (auto p : pages)
+    p->setArea(Rect(0.f, 0.f, size().x, size().y - em * 2.f));
 }
 
 void Book::onKey(Widget& widget, Key key, Action action, uint mods)
@@ -237,9 +233,9 @@ void Book::onMouseButton(Widget& widget,
     return;
 
   const float position = transformToLocal(point).x;
-  const float width = getWidth() / pages.size();
+  const float tabWidth = width() / pages.size();
 
-  const uint index = (uint) (position / width);
+  const uint index = (uint) (position / tabWidth);
 
   if (pages[index] != activePage)
     setActivePage(pages[index], true);

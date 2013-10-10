@@ -57,23 +57,23 @@ bool Item::operator < (const Item& other) const
 
 float Item::getWidth() const
 {
-  Drawer& drawer = layer.getDrawer();
+  Drawer& drawer = layer.drawer();
 
-  const float em = drawer.getCurrentEM();
+  const float em = drawer.currentEM();
 
   float width = em * 2.f;
 
   if (value.empty())
     width += em * 3.f;
   else
-    width += drawer.getCurrentFont().boundsOf(value.c_str()).size.x;
+    width += drawer.currentFont().boundsOf(value.c_str()).size.x;
 
   return width;
 }
 
 float Item::getHeight() const
 {
-  return layer.getDrawer().getCurrentFont().height() * 1.5f;
+  return layer.drawer().currentFont().height() * 1.5f;
 }
 
 ItemID Item::getID() const
@@ -94,9 +94,9 @@ void Item::setStringValue(const char* newValue)
 
 void Item::draw(const Rect& area, WidgetState state) const
 {
-  Drawer& drawer = layer.getDrawer();
+  Drawer& drawer = layer.drawer();
 
-  const float em = drawer.getCurrentEM();
+  const float em = drawer.currentEM();
 
   Rect textArea = area;
   textArea.position.x += em / 2.f;
@@ -104,7 +104,7 @@ void Item::draw(const Rect& area, WidgetState state) const
 
   if (state == STATE_SELECTED)
   {
-    const vec3 color = drawer.getTheme().backColors[STATE_SELECTED];
+    const vec3 color = drawer.theme().backColors[STATE_SELECTED];
     drawer.fillRectangle(area, vec4(color, 1.f));
   }
 
@@ -120,17 +120,17 @@ SeparatorItem::SeparatorItem(Layer& layer):
 
 float SeparatorItem::getWidth() const
 {
-  return layer.getDrawer().getCurrentEM() * 3.f;
+  return layer.drawer().currentEM() * 3.f;
 }
 
 float SeparatorItem::getHeight() const
 {
-  return layer.getDrawer().getCurrentEM() / 2.f;
+  return layer.drawer().currentEM() / 2.f;
 }
 
 void SeparatorItem::draw(const Rect& area, WidgetState state) const
 {
-  Drawer& drawer = layer.getDrawer();
+  Drawer& drawer = layer.drawer();
 
   Segment2 segment;
   segment.start = vec2(area.position.x, area.position.y + area.size.y / 2.f);
@@ -152,12 +152,12 @@ TextureItem::TextureItem(Layer& layer,
 
 float TextureItem::getWidth() const
 {
-  return Item::getHeight() + layer.getDrawer().getCurrentEM() * 3.f;
+  return Item::getHeight() + layer.drawer().currentEM() * 3.f;
 }
 
 float TextureItem::getHeight() const
 {
-  return layer.getDrawer().getCurrentEM() * 3.f;
+  return layer.drawer().currentEM() * 3.f;
 }
 
 GL::Texture& TextureItem::getTexture() const
@@ -167,13 +167,13 @@ GL::Texture& TextureItem::getTexture() const
 
 void TextureItem::draw(const Rect& area, WidgetState state) const
 {
-  Drawer& drawer = layer.getDrawer();
+  Drawer& drawer = layer.drawer();
 
-  const float em = drawer.getCurrentEM();
+  const float em = drawer.currentEM();
 
   if (state == STATE_SELECTED)
   {
-    const vec3 color = drawer.getTheme().textColors[STATE_SELECTED];
+    const vec3 color = drawer.theme().textColors[STATE_SELECTED];
     drawer.fillRectangle(area, vec4(color, 1.f));
   }
 

@@ -74,19 +74,19 @@ public:
    *  @remarks The point is in parent coordinates.  If this is a top-level
    *  widget, it is in global coordinates.
    */
-  Widget* findByPoint(const vec2& point);
+  Widget* findByPoint(vec2 point);
   /*! Transforms the specified point from global into local (client
    *  area) coordinates.
    *  @param[in] globalPoint The global coordinate point to transform.
    *  @return The corresponding local coordinate point.
    */
-  vec2 transformToLocal(const vec2& globalPoint) const;
+  vec2 transformToLocal(vec2 globalPoint) const;
   /*! Transforms the specified point from local (client area) into
    *  global coordinates.
    *  @param[in] localPoint The local coordinate point to transform.
    *  @return The corresponding global coordinate point.
    */
-  vec2 transformToGlobal(const vec2& localPoint) const;
+  vec2 transformToGlobal(vec2 localPoint) const;
   /*! Makes this widget visible.
    */
   void show();
@@ -137,7 +137,7 @@ public:
   bool isUnderCursor() const;
   /*! @return @c true if this widget supports dragging, otherwise @c false.
    */
-  bool isDraggable() const;
+  bool isDraggable() const { return m_draggable; }
   /*! @return @c true if this widget is currently the source of a dragging
    *  operation, otherwise @c false.
    */
@@ -152,61 +152,64 @@ public:
   bool hasCapturedCursor() const;
   /*! @return The layer this widget belongs to.
    */
-  Layer& getLayer() const;
+  Layer& layer() const { return m_layer; }
   /*! @return The parent of this widget, or @c nullptr if it has no parent.
    */
-  Widget* getParent() const;
+  Widget* parent() const { return m_parent; }
   /*! @return The child widgets of this widget.
    */
-  const WidgetList& getChildren() const;
-  WidgetState getState() const;
+  const WidgetList& children() const { return m_children; }
+  WidgetState state() const;
   /*! @return The width of this widget.
    */
-  float getWidth() const;
+  float width() const { return m_area.size.x; }
   /*! @return The height of this widget.
    */
-  float getHeight() const;
+  float height() const { return m_area.size.y; }
   /*! @return The area of this widget, in parent coordinates.
    */
-  const Rect& getArea() const;
+  Rect area() const { return m_area; }
   /*! @return The area of this widget, in global coordinates.
    */
-  const Rect& getGlobalArea() const;
+  Rect globalArea() const;
+  /*! @return The position of this widget, in global coordinates.
+   */
+  vec2 globalPos() const;
   /*! Sets the area of this widget.
    *  @param[in] newArea The desired area, in parent coordinates.
    */
   void setArea(const Rect& newArea);
   /*! @return The size of this widget.
    */
-  const vec2& getSize() const;
+  vec2 size() const { return m_area.size; }
   /*! Sets the size of this widget.
    *  @param[in] newSize The desired size, in parent coordinates.
    *
    *  @remarks This is a helper method for Widget::setArea.
    */
-  void setSize(const vec2& newSize);
+  void setSize(vec2 newSize);
   /*! Sets the position of this widget.
    *  @param[in] newPosition The desired position, in parent coordinates.
    *
    *  @remarks This is a helper method for Widget::setArea.
    */
-  void setPosition(const vec2& newPosition);
+  void setPosition(vec2 newPosition);
   /*! Sets whether this widget can be the source of drag operations.
    */
   void setDraggable(bool newState);
-  SignalProxy1<void, Widget&> getDestroyedSignal();
-  SignalProxy1<void, Widget&> getAreaChangedSignal();
-  SignalProxy2<void, Widget&, bool> getFocusChangedSignal();
-  SignalProxy4<void, Widget&, Key, Action, uint> getKeyPressedSignal();
-  SignalProxy3<void, Widget&, uint32, uint> getCharInputSignal();
-  SignalProxy2<void, Widget&, vec2> getCursorMovedSignal();
-  SignalProxy5<void, Widget&, vec2, MouseButton, Action, uint> getButtonClickedSignal();
-  SignalProxy2<void, Widget&, vec2> getScrolledSignal();
-  SignalProxy1<void, Widget&> getCursorEnteredSignal();
-  SignalProxy1<void, Widget&> getCursorLeftSignal();
-  SignalProxy2<void, Widget&, vec2> getDragBegunSignal();
-  SignalProxy2<void, Widget&, vec2> getDragMovedSignal();
-  SignalProxy2<void, Widget&, vec2> getDragEndedSignal();
+  SignalProxy1<void, Widget&> destroyedSignal();
+  SignalProxy1<void, Widget&> areaChangedSignal();
+  SignalProxy2<void, Widget&, bool> focusChangedSignal();
+  SignalProxy4<void, Widget&, Key, Action, uint> keyPressedSignal();
+  SignalProxy3<void, Widget&, uint32, uint> charInputSignal();
+  SignalProxy2<void, Widget&, vec2> cursorMovedSignal();
+  SignalProxy5<void, Widget&, vec2, MouseButton, Action, uint> buttonClickedSignal();
+  SignalProxy2<void, Widget&, vec2> scrolledSignal();
+  SignalProxy1<void, Widget&> cursorEnteredSignal();
+  SignalProxy1<void, Widget&> cursorLeftSignal();
+  SignalProxy2<void, Widget&, vec2> dragBegunSignal();
+  SignalProxy2<void, Widget&, vec2> dragMovedSignal();
+  SignalProxy2<void, Widget&, vec2> dragEndedSignal();
 protected:
   /*! Calls Widget::draw for all children of this widget.
    */
@@ -216,27 +219,26 @@ protected:
   virtual void addedToParent(Widget& parent);
   virtual void removedFromParent(Widget& parent);
 private:
-  Signal1<void, Widget&> destroyedSignal;
-  Signal1<void, Widget&> areaChangedSignal;
-  Signal2<void, Widget&, bool> focusChangedSignal;
-  Signal4<void, Widget&, Key, Action, uint> keyPressedSignal;
-  Signal3<void, Widget&, uint32, uint> charInputSignal;
-  Signal2<void, Widget&, vec2> cursorMovedSignal;
-  Signal5<void, Widget&, vec2, MouseButton, Action, uint> buttonClickedSignal;
-  Signal2<void, Widget&, vec2> scrolledSignal;
-  Signal1<void, Widget&> cursorEnteredSignal;
-  Signal1<void, Widget&> cursorLeftSignal;
-  Signal2<void, Widget&, vec2> dragBegunSignal;
-  Signal2<void, Widget&, vec2> dragMovedSignal;
-  Signal2<void, Widget&, vec2> dragEndedSignal;
-  Layer& layer;
-  Widget* parent;
-  WidgetList children;
-  bool enabled;
-  bool visible;
-  bool draggable;
-  Rect area;
-  mutable Rect globalArea;
+  Signal1<void, Widget&> m_destroyedSignal;
+  Signal1<void, Widget&> m_areaChangedSignal;
+  Signal2<void, Widget&, bool> m_focusChangedSignal;
+  Signal4<void, Widget&, Key, Action, uint> m_keyPressedSignal;
+  Signal3<void, Widget&, uint32, uint> m_charInputSignal;
+  Signal2<void, Widget&, vec2> m_cursorMovedSignal;
+  Signal5<void, Widget&, vec2, MouseButton, Action, uint> m_buttonClickedSignal;
+  Signal2<void, Widget&, vec2> m_scrolledSignal;
+  Signal1<void, Widget&> m_cursorEnteredSignal;
+  Signal1<void, Widget&> m_cursorLeftSignal;
+  Signal2<void, Widget&, vec2> m_dragBegunSignal;
+  Signal2<void, Widget&, vec2> m_dragMovedSignal;
+  Signal2<void, Widget&, vec2> m_dragEndedSignal;
+  Layer& m_layer;
+  Widget* m_parent;
+  WidgetList m_children;
+  bool m_enabled;
+  bool m_visible;
+  bool m_draggable;
+  Rect m_area;
 };
 
 ///////////////////////////////////////////////////////////////////////

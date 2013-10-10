@@ -185,44 +185,45 @@ public:
   void blitTexture(const Rect& area, GL::Texture& texture);
   void drawText(const Rect& area,
                 const char* text,
-                const Alignment& alignment,
-                const vec3& color);
+                Alignment alignment,
+                vec3 color);
   void drawText(const Rect& area,
                 const char* text,
-                const Alignment& alignment,
+                Alignment alignment,
                 WidgetState state);
   void drawWell(const Rect& area, WidgetState state);
   void drawFrame(const Rect& area, WidgetState state);
   void drawHandle(const Rect& area, WidgetState state);
   void drawButton(const Rect& area, WidgetState state, const char* text = "");
   void drawTab(const Rect& area, WidgetState state, const char* text = "");
-  const Theme& getTheme() const;
-  GL::Context& getContext();
-  render::VertexPool& getVertexPool();
-  render::Font& getCurrentFont();
+  const Theme& theme() const;
+  GL::Context& context();
+  render::VertexPool& vertexPool();
+  render::Font& currentFont();
   void setCurrentFont(render::Font* newFont);
-  float getCurrentEM() const;
+  float currentEM() const;
   static Ref<Drawer> create(render::VertexPool& pool);
 private:
   Drawer(render::VertexPool& pool);
   bool init();
   void drawElement(const Rect& area, const Rect& mapping);
   void setDrawingState(const vec4& color, bool wireframe);
-  RectClipStackf clipAreaStack;
-  Ref<GL::VertexBuffer> vertexBuffer;
-  Ref<GL::IndexBuffer> indexBuffer;
-  GL::PrimitiveRange range;
-  Ref<Theme> theme;
-  Ref<render::VertexPool> pool;
-  Ref<render::Font> currentFont;
-  render::Pass drawPass;
-  render::Pass blitPass;
-  render::Pass elementPass;
-  render::UniformStateIndex elementPosIndex;
-  render::UniformStateIndex elementSizeIndex;
-  render::UniformStateIndex texPosIndex;
-  render::UniformStateIndex texSizeIndex;
-  Ref<render::SharedProgramState> state;
+  RectClipStackf m_clipAreaStack;
+  Ref<GL::VertexBuffer> m_vertexBuffer;
+  Ref<GL::IndexBuffer> m_indexBuffer;
+  GL::PrimitiveRange m_range;
+  Ref<Theme> m_theme;
+  GL::Context& m_context;
+  Ref<render::VertexPool> m_pool;
+  Ref<render::Font> m_font;
+  render::Pass m_drawPass;
+  render::Pass m_blitPass;
+  render::Pass m_elementPass;
+  render::UniformStateIndex m_elementPosIndex;
+  render::UniformStateIndex m_elementSizeIndex;
+  render::UniformStateIndex m_texPosIndex;
+  render::UniformStateIndex m_texSizeIndex;
+  Ref<render::SharedProgramState> m_state;
 };
 
 ///////////////////////////////////////////////////////////////////////

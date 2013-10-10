@@ -90,9 +90,9 @@ Panel::Panel(UI::Layer& layer):
 
 void Panel::draw() const
 {
-  const Rect& area = getGlobalArea();
+  UI::Drawer& drawer = layer().drawer();
 
-  UI::Drawer& drawer = getLayer().getDrawer();
+  const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
     drawer.fillRectangle(area, vec4(0.5f));
@@ -125,7 +125,7 @@ Interface::Interface(Window& window, UI::Drawer& drawer):
 
 void Interface::update()
 {
-  GL::Stats* stats = getDrawer().getContext().stats();
+  GL::Stats* stats = drawer().context().stats();
 
   if (stats)
   {
@@ -162,7 +162,7 @@ void Interface::update()
 
 void Interface::draw()
 {
-  GL::Context& context = getDrawer().getContext();
+  GL::Context& context = drawer().context();
 
   GL::Framebuffer& framebuffer = context.currentFramebuffer();
   root->setSize(vec2(150.f, float(framebuffer.height())));

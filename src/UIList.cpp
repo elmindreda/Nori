@@ -54,10 +54,10 @@ List::List(Layer& layer):
   scroller(nullptr),
   entry(nullptr)
 {
-  getAreaChangedSignal().connect(*this, &List::onAreaChanged);
-  getButtonClickedSignal().connect(*this, &List::onMouseButton);
-  getKeyPressedSignal().connect(*this, &List::onKey);
-  getScrolledSignal().connect(*this, &List::onScroll);
+  areaChangedSignal().connect(*this, &List::onAreaChanged);
+  buttonClickedSignal().connect(*this, &List::onMouseButton);
+  keyPressedSignal().connect(*this, &List::onKey);
+  scrolledSignal().connect(*this, &List::onScroll);
 
   scroller = new Scroller(layer, VERTICAL);
   scroller->setValueRange(0.f, 1.f);
@@ -85,7 +85,7 @@ void List::addItem(Item& item)
 
 void List::createItem(const char* value, ItemID ID)
 {
-  Item* item = new Item(getLayer(), value, ID);
+  Item* item = new Item(layer(), value, ID);
   addItem(*item);
 }
 
@@ -158,12 +158,12 @@ void List::setEditable(bool newState)
 
   if (editable)
   {
-    entry = new UI::Entry(getLayer());
+    entry = new UI::Entry(layer());
     entry->hide();
-    entry->getFocusChangedSignal().connect(*this, &List::onEntryFocusChanged);
-    entry->getKeyPressedSignal().connect(*this, &List::onEntryKeyPressed);
-    entry->getDestroyedSignal().connect(*this, &List::onEntryDestroyed);
-    getLayer().addRootWidget(*entry);
+    entry->focusChangedSignal().connect(*this, &List::onEntryFocusChanged);
+    entry->keyPressedSignal().connect(*this, &List::onEntryKeyPressed);
+    entry->destroyedSignal().connect(*this, &List::onEntryDestroyed);
+    layer().addRootWidget(*entry);
   }
   else
   {
@@ -240,12 +240,12 @@ SignalProxy1<void, List&> List::getItemSelectedSignal()
 
 void List::draw() const
 {
-  const Rect& area = getGlobalArea();
+  Drawer& drawer = layer().drawer();
 
-  Drawer& drawer = getLayer().getDrawer();
+  const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
-    drawer.drawWell(area, getState());
+    drawer.drawWell(area, state());
 
     float start = area.size.y;
 
@@ -274,9 +274,8 @@ void List::draw() const
 
 void List::onAreaChanged(Widget& widget)
 {
-  const float width = scroller->getWidth();
-
-  scroller->setArea(Rect(getWidth() - width, 0.f, width, getHeight()));
+  scroller->setArea(Rect(width() - scroller->width(), 0.f,
+                         scroller->width(), height()));
   updateScroller();
 }
 
@@ -327,7 +326,7 @@ void List::onMouseButton(Widget& widget,
 
   const vec2 local = transformToLocal(position);
 
-  float itemTop = getHeight();
+  float itemTop = height();
 
   for (uint i = offset;  i < items.size();  i++)
   {
@@ -428,14 +427,14 @@ void List::beginEditing()
 {
   if (Item* selected = getSelectedItem())
   {
-    const Rect& area = getGlobalArea();
+    const Rect area = globalArea();
     const float selectedHeight = selected->getHeight();
 
     Rect entryArea(vec2(0.f, area.size.y - selectedHeight),
                    vec2(area.size.x, selectedHeight));
 
     if (scroller->isVisible())
-      entryArea.size.x -= scroller->getWidth();
+      entryArea.size.x -= scroller->width();
 
     for (uint i = offset;  i < selection;  i++)
       entryArea.position.y -= items[i]->getHeight();
@@ -482,7 +481,7 @@ void List::updateScroller()
   for (auto i = items.rbegin();  i != items.rend();  i++)
   {
     visibleItemHeight += (*i)->getHeight();
-    if (visibleItemHeight > getHeight())
+    if (visibleItemHeight > height())
     {
       maxOffset = items.rend() - i;
       break;
@@ -493,7 +492,7 @@ void List::updateScroller()
   {
     scroller->show();
     scroller->setValueRange(0.f, float(maxOffset));
-    scroller->setPercentage(getHeight() / totalItemHeight);
+    scroller->setPercentage(height() / totalItemHeight);
   }
   else
     scroller->hide();
@@ -514,7 +513,7 @@ bool List::isSelectionVisible() const
   for (uint i = offset;  i <= selection;  i++)
   {
     visibleItemHeight += items[i]->getHeight();
-    if (visibleItemHeight > getHeight())
+    if (visibleItemHeight > height())
       return false;
   }
 

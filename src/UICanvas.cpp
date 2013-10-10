@@ -51,10 +51,10 @@ SignalProxy1<void, const Canvas&> Canvas::getDrawSignal()
 
 void Canvas::draw() const
 {
-  UI::Drawer& drawer = getLayer().getDrawer();
-  GL::Context& context = drawer.getContext();
+  UI::Drawer& drawer = layer().drawer();
+  GL::Context& context = drawer.context();
 
-  const Recti area(0, 0, int(getWidth()), int(getHeight()));
+  const Recti area(0, 0, int(width()), int(height()));
 
   Recti oldViewport = context.viewportArea();
   Recti oldScissor = context.scissorArea();

@@ -75,28 +75,26 @@ public:
    *
    *  @remarks The point is in global coordinates.
    */
-  Widget* findWidgetByPoint(const vec2& point);
+  Widget* findWidgetByPoint(vec2 point);
   void captureCursor();
   void releaseCursor();
   void cancelDragging();
   void invalidate();
   virtual bool isOpaque() const;
   bool hasCapturedCursor() const;
-  uint getWidth() const;
-  uint getHeight() const;
-  Drawer& getDrawer() const;
-  Window& getWindow() const;
+  Drawer& drawer() const { return m_drawer; }
+  Window& window() const { return m_window; }
   /*! @return The root widgets of this layer.
    */
-  const WidgetList& getRootWidgets() const;
+  const WidgetList& roots() const { return m_roots; }
   /*! @return The active widget, or @c nullptr if no widget is active.
    */
-  Widget* getActiveWidget();
-  Widget* getDraggedWidget();
-  Widget* getHoveredWidget();
+  Widget* activeWidget() { return m_activeWidget; }
+  Widget* draggedWidget() { return m_draggedWidget; }
+  Widget* hoveredWidget() { return m_hoveredWidget; }
   void setActiveWidget(Widget* widget);
-  LayerStack* getStack() const;
-  SignalProxy1<void, Layer&> getSizeChangedSignal();
+  LayerStack* stack() const { return m_stack; }
+  SignalProxy1<void, Layer&> sizeChangedSignal();
 private:
   void updateHoveredWidget();
   void removedWidget(Widget& widget);
@@ -107,16 +105,16 @@ private:
   void onMouseButton(MouseButton button, Action action, uint mods) override;
   void onScroll(vec2 offset) override;
   void onFocus(bool activated) override;
-  Window& window;
-  Drawer& drawer;
-  bool dragging;
-  WidgetList roots;
-  Widget* activeWidget;
-  Widget* draggedWidget;
-  Widget* hoveredWidget;
-  Widget* captureWidget;
-  LayerStack* stack;
-  Signal1<void, Layer&> sizeChangedSignal;
+  Window& m_window;
+  Drawer& m_drawer;
+  bool m_dragging;
+  WidgetList m_roots;
+  Widget* m_activeWidget;
+  Widget* m_draggedWidget;
+  Widget* m_hoveredWidget;
+  Widget* m_captureWidget;
+  LayerStack* m_stack;
+  Signal1<void, Layer&> m_sizeChangedSignal;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -131,10 +129,10 @@ public:
   void pop();
   void empty();
   bool isEmpty() const;
-  Layer* getTop() const;
+  Layer* top() const;
 private:
-  Window& window;
-  std::vector<Ref<Layer>> layers;
+  Window& m_window;
+  std::vector<Ref<Layer>> m_layers;
 };
 
 ///////////////////////////////////////////////////////////////////////

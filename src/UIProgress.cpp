@@ -46,7 +46,7 @@ Progress::Progress(Layer& layer, Orientation initOrientation):
   value(0.f),
   orientation(initOrientation)
 {
-  const float em = layer.getDrawer().getCurrentEM();
+  const float em = layer.drawer().currentEM();
 
   if (orientation == HORIZONTAL)
     setSize(vec2(em * 10.f, em * 1.5f));
@@ -101,12 +101,12 @@ void Progress::setOrientation(Orientation newOrientation)
 
 void Progress::draw() const
 {
-  const Rect& area = getGlobalArea();
+  Drawer& drawer = layer().drawer();
 
-  Drawer& drawer = getLayer().getDrawer();
+  const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
-    drawer.drawWell(area, getState());
+    drawer.drawWell(area, state());
 
     const float position = (value - minValue) / (maxValue - minValue);
 
@@ -127,7 +127,7 @@ void Progress::draw() const
                      10.f);
     }
 
-    drawer.drawHandle(handleArea, getState());
+    drawer.drawHandle(handleArea, state());
 
     Widget::draw();
 

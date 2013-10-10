@@ -40,14 +40,14 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Widget::Widget(Layer& initlayer):
-  layer(initlayer),
-  parent(nullptr),
-  enabled(true),
-  visible(true),
-  draggable(false)
+Widget::Widget(Layer& layer):
+  m_layer(layer),
+  m_parent(nullptr),
+  m_enabled(true),
+  m_visible(true),
+  m_draggable(false)
 {
-  assert(&layer);
+  assert(&m_layer);
 }
 
 Widget::~Widget()
@@ -55,18 +55,18 @@ Widget::~Widget()
   destroyChildren();
   removeFromParent();
 
-  destroyedSignal(*this);
+  m_destroyedSignal(*this);
 }
 
 void Widget::addChild(Widget& child)
 {
-  assert(&layer == &(child.getLayer()));
+  assert(&m_layer == &(child.layer()));
   assert(&child != this);
   assert(!isChildOf(child));
 
   child.removeFromParent();
-  child.parent = this;
-  children.push_back(&child);
+  child.m_parent = this;
+  m_children.push_back(&child);
   addedChild(child);
   child.addedToParent(*this);
 
@@ -75,8 +75,8 @@ void Widget::addChild(Widget& child)
 
 void Widget::destroyChildren()
 {
-  while (!children.empty())
-    delete children.back();
+  while (!m_children.empty())
+    delete m_children.back();
 
   invalidate();
 }
@@ -85,87 +85,89 @@ void Widget::removeFromParent()
 {
   WidgetList* siblings;
 
-  if (parent)
-    siblings = &(parent->children);
+  if (m_parent)
+    siblings = &(m_parent->m_children);
   else
-    siblings = &(layer.roots);
+    siblings = &(m_layer.m_roots);
 
   auto s = std::find(siblings->begin(), siblings->end(), this);
   if (s == siblings->end())
     return;
 
   siblings->erase(s);
-  layer.removedWidget(*this);
+  m_layer.removedWidget(*this);
 
-  if (parent)
+  if (m_parent)
   {
-    Widget* oldParent = parent;
-    parent = nullptr;
+    Widget* oldParent = m_parent;
+    m_parent = nullptr;
 
     oldParent->removedChild(*this);
     removedFromParent(*oldParent);
   }
 }
 
-Widget* Widget::findByPoint(const vec2& point)
+Widget* Widget::findByPoint(vec2 point)
 {
-  if (!area.contains(point))
+  if (!m_area.contains(point))
     return nullptr;
 
-  const vec2 localPoint = point - area.position;
+  const vec2 localPoint = point - m_area.position;
 
-  for (auto c : children)
+  for (auto c : m_children)
   {
     if (c->isVisible())
+    {
       if (Widget* result = c->findByPoint(localPoint))
         return result;
+    }
   }
 
   return this;
 }
 
-vec2 Widget::transformToLocal(const vec2& globalPoint) const
+vec2 Widget::transformToLocal(vec2 globalPoint) const
 {
-  return globalPoint - getGlobalArea().position;
+  return globalPoint - globalPos();
 }
 
-vec2 Widget::transformToGlobal(const vec2& localPoint) const
+vec2 Widget::transformToGlobal(vec2 localPoint) const
 {
-  return localPoint + getGlobalArea().position;
+  return localPoint + globalPos();
 }
 
 void Widget::show()
 {
-  if (!visible)
+  if (!m_visible)
   {
-    visible = true;
+    m_visible = true;
     invalidate();
   }
 }
 
 void Widget::hide()
 {
-  if (visible)
+  if (m_visible)
   {
-    visible = false;
+    m_visible = false;
     invalidate();
   }
 }
 
 void Widget::enable()
 {
-  if (!enabled)
+  if (!m_enabled)
   {
-    enabled = true;
+    m_enabled = true;
     invalidate();
   }
 }
 
 void Widget::disable()
 {
-  if (enabled)
+  if (m_enabled)
   {
-    enabled = false;
+    m_enabled = false;
     // TODO: Handle deactivation
     invalidate();
   }
@@ -173,22 +175,22 @@ void Widget::disable()
 
 void Widget::invalidate()
 {
-  layer.invalidate();
+  m_layer.invalidate();
 }
 
 void Widget::activate()
 {
-  layer.setActiveWidget(this);
+  m_layer.setActiveWidget(this);
 }
 
 void Widget::bringToFront()
 {
   WidgetList* siblings;
 
-  if (parent)
-    siblings = &(parent->children);
+  if (m_parent)
+    siblings = &(m_parent->m_children);
   else
-    siblings = &(layer.roots);
+    siblings = &(m_layer.m_roots);
 
   siblings->erase(std::find(siblings->begin(), siblings->end(), this));
   siblings->push_back(this);
@@ -200,10 +202,10 @@ void Widget::sendToBack()
 {
   WidgetList* siblings;
 
-  if (parent)
-    siblings = &(parent->children);
+  if (m_parent)
+    siblings = &(m_parent->m_children);
   else
-    siblings = &(layer.roots);
+    siblings = &(m_layer.m_roots);
 
   siblings->erase(std::find(siblings->begin(), siblings->end(), this));
   siblings->insert(siblings->begin(), this);
@@ -214,56 +216,51 @@ void Widget::sendToBack()
 void Widget::cancelDragging()
 {
   if (isBeingDragged())
-    layer.cancelDragging();
+    m_layer.cancelDragging();
 }
 
 bool Widget::isEnabled() const
 {
-  if (!enabled)
+  if (!m_enabled)
     return false;
 
-  if (parent)
-    return parent->isEnabled();
+  if (m_parent)
+    return m_parent->isEnabled();
 
   return true;
 }
 
 bool Widget::isVisible() const
 {
-  if (!visible)
+  if (!m_visible)
     return false;
 
-  if (parent)
-    return parent->isVisible();
+  if (m_parent)
+    return m_parent->isVisible();
 
   return true;
 }
 
 bool Widget::isActive() const
 {
-  return layer.getActiveWidget() == this;
+  return m_layer.activeWidget() == this;
 }
 
 bool Widget::isUnderCursor() const
 {
-  return layer.getHoveredWidget() == this;
-}
-
-bool Widget::isDraggable() const
-{
-  return draggable;
+  return m_layer.hoveredWidget() == this;
 }
 
 bool Widget::isBeingDragged() const
 {
-  return layer.getDraggedWidget() == this;
+  return m_layer.draggedWidget() == this;
 }
 
 bool Widget::isChildOf(const Widget& widget) const
 {
-  assert(&layer == &(widget.layer));
+  assert(&m_layer == &(widget.m_layer));
 
-  for (Widget* ancestor = parent;  ancestor;  ancestor = ancestor->parent)
+  for (Widget* ancestor = m_parent;  ancestor;  ancestor = ancestor->m_parent)
   {
     if (ancestor == &widget)
       return true;
@@ -274,25 +271,10 @@ bool Widget::isChildOf(const Widget& widget) const
 
 bool Widget::hasCapturedCursor() const
 {
-  return layer.captureWidget == this;
+  return m_layer.m_captureWidget == this;
 }
 
-Layer& Widget::getLayer() const
-{
-  return layer;
-}
-
-Widget* Widget::getParent() const
-{
-  return parent;
-}
-
-const WidgetList& Widget::getChildren() const
-{
-  return children;
-}
-
-WidgetState Widget::getState() const
+WidgetState Widget::state() const
 {
   if (isEnabled())
   {
@@ -305,133 +287,119 @@ WidgetState Widget::getState() const
     return STATE_DISABLED;
 }
 
-float Widget::getWidth() const
+vec2 Widget::globalPos() const
 {
-  return area.size.x;
+  if (m_parent)
+    return m_area.position + m_parent->globalPos();
+
+  return m_area.position;
 }
 
-float Widget::getHeight() const
+Rect Widget::globalArea() const
 {
-  return area.size.y;
-}
+  if (m_parent)
+    return Rect(m_area.position + m_parent->globalPos(), m_area.size);
 
-const Rect& Widget::getArea() const
-{
-  return area;
-}
-
-const Rect& Widget::getGlobalArea() const
-{
-  globalArea = area;
-
-  if (parent)
-    globalArea.position += parent->getGlobalArea().position;
-
-  return globalArea;
+  return m_area;
 }
 
 void Widget::setArea(const Rect& newArea)
 {
-  if (newArea != area)
+  if (newArea != m_area)
   {
-    area = newArea;
-    areaChangedSignal(*this);
+    m_area = newArea;
+    m_areaChangedSignal(*this);
 
     invalidate();
   }
 }
 
-const vec2& Widget::getSize() const
+void Widget::setSize(vec2 newSize)
 {
-  return area.size;
+  setArea(Rect(m_area.position, newSize));
 }
 
-void Widget::setSize(const vec2& newSize)
+void Widget::setPosition(vec2 newPosition)
 {
-  setArea(Rect(area.position, newSize));
-}
-
-void Widget::setPosition(const vec2& newPosition)
-{
-  setArea(Rect(newPosition, area.size));
+  setArea(Rect(newPosition, m_area.size));
 }
 
 void Widget::setDraggable(bool newState)
 {
-  draggable = newState;
+  m_draggable = newState;
 
-  if (!draggable)
+  if (!m_draggable)
     cancelDragging();
 }
 
-SignalProxy1<void, Widget&> Widget::getDestroyedSignal()
+SignalProxy1<void, Widget&> Widget::destroyedSignal()
 {
-  return destroyedSignal;
+  return m_destroyedSignal;
 }
 
-SignalProxy1<void, Widget&> Widget::getAreaChangedSignal()
+SignalProxy1<void, Widget&> Widget::areaChangedSignal()
 {
-  return areaChangedSignal;
+  return m_areaChangedSignal;
 }
 
-SignalProxy2<void, Widget&, bool> Widget::getFocusChangedSignal()
+SignalProxy2<void, Widget&, bool> Widget::focusChangedSignal()
 {
-  return focusChangedSignal;
+  return m_focusChangedSignal;
 }
 
-SignalProxy4<void, Widget&, Key, Action, uint> Widget::getKeyPressedSignal()
+SignalProxy4<void, Widget&, Key, Action, uint> Widget::keyPressedSignal()
 {
-  return keyPressedSignal;
+  return m_keyPressedSignal;
 }
 
-SignalProxy3<void, Widget&, uint32, uint> Widget::getCharInputSignal()
+SignalProxy3<void, Widget&, uint32, uint> Widget::charInputSignal()
 {
-  return charInputSignal;
+  return m_charInputSignal;
 }
 
-SignalProxy2<void, Widget&, vec2> Widget::getCursorMovedSignal()
+SignalProxy2<void, Widget&, vec2> Widget::cursorMovedSignal()
 {
-  return cursorMovedSignal;
+  return m_cursorMovedSignal;
 }
 
-SignalProxy5<void, Widget&, vec2, MouseButton, Action, uint> Widget::getButtonClickedSignal()
+SignalProxy5<void, Widget&, vec2, MouseButton, Action, uint> Widget::buttonClickedSignal()
 {
-  return buttonClickedSignal;
+  return m_buttonClickedSignal;
 }
 
-SignalProxy2<void, Widget&, vec2> Widget::getScrolledSignal()
+SignalProxy2<void, Widget&, vec2> Widget::scrolledSignal()
 {
-  return scrolledSignal;
+  return m_scrolledSignal;
 }
 
-SignalProxy1<void, Widget&> Widget::getCursorEnteredSignal()
+SignalProxy1<void, Widget&> Widget::cursorEnteredSignal()
 {
-  return cursorEnteredSignal;
+  return m_cursorEnteredSignal;
 }
 
-SignalProxy1<void, Widget&> Widget::getCursorLeftSignal()
+SignalProxy1<void, Widget&> Widget::cursorLeftSignal()
 {
-  return cursorLeftSignal;
+  return m_cursorLeftSignal;
 }
 
-SignalProxy2<void, Widget&, vec2> Widget::getDragBegunSignal()
+SignalProxy2<void, Widget&, vec2> Widget::dragBegunSignal()
 {
-  return dragBegunSignal;
+  return m_dragBegunSignal;
 }
 
-SignalProxy2<void, Widget&, vec2> Widget::getDragMovedSignal()
+SignalProxy2<void, Widget&, vec2> Widget::dragMovedSignal()
 {
-  return dragMovedSignal;
+  return m_dragMovedSignal;
 }
 
-SignalProxy2<void, Widget&, vec2> Widget::getDragEndedSignal()
+SignalProxy2<void, Widget&, vec2> Widget::dragEndedSignal()
 {
-  return dragEndedSignal;
+  return m_dragEndedSignal;
 }
 
 void Widget::draw() const
 {
-  for (auto c : children)
+  for (auto c : m_children)
   {
     if (c->isVisible())
       c->draw();

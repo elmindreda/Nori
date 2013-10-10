@@ -47,17 +47,17 @@ Slider::Slider(Layer& layer, Orientation initOrientation):
   value(0.f),
   orientation(initOrientation)
 {
-  const float em = layer.getDrawer().getCurrentEM();
+  const float em = layer.drawer().currentEM();
 
   if (orientation == HORIZONTAL)
     setSize(vec2(em * 10.f, em * 1.5f));
   else
     setSize(vec2(em * 1.5f, em * 10.f));
 
-  getKeyPressedSignal().connect(*this, &Slider::onKey);
-  getButtonClickedSignal().connect(*this, &Slider::onMouseButton);
-  getScrolledSignal().connect(*this, &Slider::onScroll);
-  getDragMovedSignal().connect(*this, &Slider::onDragMoved);
+  keyPressedSignal().connect(*this, &Slider::onKey);
+  buttonClickedSignal().connect(*this, &Slider::onMouseButton);
+  scrolledSignal().connect(*this, &Slider::onScroll);
+  dragMovedSignal().connect(*this, &Slider::onDragMoved);
 
   setDraggable(true);
 }
@@ -112,35 +112,33 @@ SignalProxy1<void, Slider&> Slider::getValueChangedSignal()
 
 void Slider::draw() const
 {
-  const Rect& area = getGlobalArea();
+  Drawer& drawer = layer().drawer();
 
-  Drawer& drawer = getLayer().getDrawer();
+  const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
-    drawer.drawWell(area, getState());
+    drawer.drawWell(area, state());
 
     const float fraction = (value - minValue) / (maxValue - minValue);
-    const float width = getWidth();
-    const float height = getHeight();
 
     Rect handleArea;
 
     if (orientation == HORIZONTAL)
     {
-      handleArea.set(area.position.x + fraction * (width - height),
+      handleArea.set(area.position.x + fraction * (area.size.x - area.size.y),
                      area.position.y,
-                     height,
-                     height);
+                     area.size.y,
+                     area.size.y);
     }
     else
     {
       handleArea.set(area.position.x,
-                     area.position.y + fraction * (height - width),
-                     width,
-                     width);
+                     area.position.y + fraction * (area.size.y - area.size.x),
+                     area.size.x,
+                     area.size.x);
     }
 
-    drawer.drawHandle(handleArea, getState());
+    drawer.drawHandle(handleArea, state());
 
     Widget::draw();
 
@@ -199,15 +197,12 @@ void Slider::onDragMoved(Widget& widget, vec2 position)
 
 void Slider::setValue(const vec2& position)
 {
-  const float width = getWidth();
-  const float height = getHeight();
-
   float fraction;
 
   if (orientation == HORIZONTAL)
-    fraction = clamp((position.x - height / 2.f) / (width - height), 0.f, 1.f);
+    fraction = clamp((position.x - height() / 2.f) / (width() - height()), 0.f, 1.f);
   else
-    fraction = clamp((position.y - width / 2.f) / (height - width), 0.f, 1.f);
+    fraction = clamp((position.y - width() / 2.f) / (height() - width()), 0.f, 1.f);
 
   setValue(minValue + (maxValue - minValue) * fraction, true);
 }

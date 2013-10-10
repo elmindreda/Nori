@@ -46,12 +46,12 @@ Menu::Menu(Layer& layer):
   Widget(layer),
   selection(NO_ITEM)
 {
-  getCursorMovedSignal().connect(*this, &Menu::onCursorPos);
-  getCursorLeftSignal().connect(*this, &Menu::onCursorLeft);
-  getButtonClickedSignal().connect(*this, &Menu::onMouseButton);
-  getKeyPressedSignal().connect(*this, &Menu::onKey);
-  getDragEndedSignal().connect(*this, &Menu::onDragEnded);
-  getFocusChangedSignal().connect(*this, &Menu::onFocusChanged);
+  cursorMovedSignal().connect(*this, &Menu::onCursorPos);
+  cursorLeftSignal().connect(*this, &Menu::onCursorLeft);
+  buttonClickedSignal().connect(*this, &Menu::onMouseButton);
+  keyPressedSignal().connect(*this, &Menu::onKey);
+  dragEndedSignal().connect(*this, &Menu::onDragEnded);
+  focusChangedSignal().connect(*this, &Menu::onFocusChanged);
 
   setDraggable(true);
   hide();
@@ -66,17 +66,17 @@ void Menu::display(const vec2& point)
 {
   vec2 position;
 
-  if (point.x + getWidth() + 1.f < getLayer().getWidth())
+  if (point.x + width() + 1.f < layer().window().width())
     position.x = point.x + 1;
-  else if (point.x - getWidth() - 1.f > 0.f)
-    position.x = point.x - getWidth() - 1.f;
+  else if (point.x - width() - 1.f > 0.f)
+    position.x = point.x - width() - 1.f;
   else
     position.x = 1.f;
 
-  if (point.y + getHeight() + 1.f < getLayer().getHeight())
+  if (point.y + height() + 1.f < layer().window().height())
     position.y = point.y + 1;
-  else if (point.y - getHeight() - 1.f > 0.f)
-    position.y = point.y - getHeight() - 1.f;
+  else if (point.y - height() - 1.f > 0.f)
+    position.y = point.y - height() - 1.f;
   else
     position.y = 1.f;
 
@@ -118,13 +118,13 @@ void Menu::addItemAt(Item& item, uint index)
 
 void Menu::createItem(const char* value, ItemID ID)
 {
-  Item* item = new Item(getLayer(), value, ID);
+  Item* item = new Item(layer(), value, ID);
   addItem(*item);
 }
 
 void Menu::createSeparatorItem()
 {
-  Item* item = new SeparatorItem(getLayer());
+  Item* item = new SeparatorItem(layer());
   addItem(*item);
 }
 
@@ -206,12 +206,12 @@ SignalProxy2<void, Menu&, uint> Menu::getItemSelectedSignal()
 
 void Menu::draw() const
 {
-  const Rect& area = getGlobalArea();
+  Drawer& drawer = layer().drawer();
 
-  Drawer& drawer = getLayer().getDrawer();
+  const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
-    drawer.drawFrame(area, getState());
+    drawer.drawFrame(area, state());
 
     float itemTop = area.size.y - 1.f;
 
@@ -251,8 +251,7 @@ void Menu::onCursorPos(Widget& widget, vec2 position)
 
   uint index = 0;
 
-  const float height = getHeight() - 2.f;
-  float itemTop = height;
+  float itemTop = height() - 2.f;
 
   for (auto i : items)
   {
@@ -290,8 +289,7 @@ void Menu::onMouseButton(Widget& widget,
 
   uint index = 0;
 
-  const float height = getHeight() - 2.f;
-  float itemTop = height;
+  float itemTop = height() - 2.f;
 
   for (auto i : items)
   {
@@ -355,7 +353,7 @@ void Menu::onDragEnded(Widget& widget, vec2 position)
 {
   vec2 localPosition = transformToLocal(position);
 
-  if (!getArea().contains(localPosition))
+  if (!area().contains(localPosition))
     hide();
 }
 

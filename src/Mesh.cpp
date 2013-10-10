@@ -373,7 +373,7 @@ bool Mesh::isValid() const
   return true;
 }
 
-size_t Mesh::getTriangleCount() const
+size_t Mesh::triangleCount() const
 {
   size_t count = 0;
 

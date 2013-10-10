@@ -46,16 +46,16 @@ Label::Label(Layer& layer, const char* initText):
   text(initText),
   textAlignment(LEFT_ALIGNED)
 {
-  Drawer& drawer = layer.getDrawer();
+  Drawer& drawer = layer.drawer();
 
-  const float em = drawer.getCurrentEM();
+  const float em = drawer.currentEM();
 
   float textWidth;
 
   if (text.empty())
     textWidth = em * 3.f;
   else
-    textWidth = drawer.getCurrentFont().boundsOf(text.c_str()).size.x;
+    textWidth = drawer.currentFont().boundsOf(text.c_str()).size.x;
 
   setSize(vec2(em * 2.f + textWidth, em * 2.f));
 }
@@ -84,15 +84,13 @@ void Label::setTextAlignment(const Alignment& newAlignment)
 
 void Label::draw() const
 {
-  const Rect& area = getGlobalArea();
+  Drawer& drawer = layer().drawer();
 
-  Drawer& drawer = getLayer().getDrawer();
+  const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
-    drawer.drawText(area, text.c_str(), textAlignment, getState());
-
+    drawer.drawText(area, text.c_str(), textAlignment, state());
     Widget::draw();
-
     drawer.popClipArea();
   }
 }

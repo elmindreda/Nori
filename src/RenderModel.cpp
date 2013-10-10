@@ -148,7 +148,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
   m_vertexBuffer->copyFrom(&data.vertices[0], data.vertices.size());
 
-  const size_t indexCount = data.getTriangleCount() * 3;
+  const size_t indexCount = data.triangleCount() * 3;
 
   GL::IndexType indexType;
   if (indexCount <= (1 << 8))

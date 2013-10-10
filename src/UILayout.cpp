@@ -46,7 +46,7 @@ Layout::Layout(Layer& layer, Orientation initOrientation, bool initExpanding):
   expanding(initExpanding)
 {
   if (!expanding)
-    getAreaChangedSignal().connect(*this, &Layout::onAreaChanged);
+    areaChangedSignal().connect(*this, &Layout::onAreaChanged);
 }
 
 void Layout::addChild(Widget& child)
@@ -83,10 +83,10 @@ void Layout::setBorderSize(float newSize)
 
 float Layout::getChildSize(Widget& child) const
 {
-  for (auto s = sizes.begin();  s != sizes.end();  s++)
+  for (auto& s : sizes)
   {
-    if (s->first == &child)
-      return s->second;
+    if (s.first == &child)
+      return s.second;
   }
 
   panic("Unknown child widget found in layout");
@@ -94,11 +94,11 @@ float Layout::getChildSize(Widget& child) const
 
 void Layout::setChildSize(Widget& child, float newSize)
 {
-  for (auto s = sizes.begin();  s != sizes.end();  s++)
+  for (auto& s : sizes)
   {
-    if (s->first == &child)
+    if (s.first == &child)
     {
-      s->second = newSize;
+      s.second = newSize;
       return;
     }
   }
@@ -119,9 +119,9 @@ void Layout::addedChild(Widget& child)
   if (s == sizes.end())
   {
     if (orientation == VERTICAL)
-      sizes.push_back(Size(&child, child.getHeight()));
+      sizes.push_back(Size(&child, child.height()));
     else
-      sizes.push_back(Size(&child, child.getWidth()));
+      sizes.push_back(Size(&child, child.width()));
   }
 
   update();
@@ -144,7 +144,7 @@ void Layout::removedChild(Widget& child)
 void Layout::onAreaChanged(Widget& widget)
 {
   if (expanding)
-    setArea(Rect(vec2(0.f), widget.getSize()));
+    setArea(Rect(vec2(0.f), widget.size()));
 
   update();
 }
@@ -153,7 +153,7 @@ void Layout::addedToParent(Widget& parent)
 {
   if (expanding)
   {
-    parentAreaSlot = parent.getAreaChangedSignal().connect(*this, &Layout::onAreaChanged);
+    parentAreaSlot = parent.areaChangedSignal().connect(*this, &Layout::onAreaChanged);
     onAreaChanged(parent);
   }
 }
@@ -166,70 +166,51 @@ void Layout::removedFromParent(Widget& parent)
 
 void Layout::update()
 {
-  const WidgetList& children = getChildren();
-  const vec2& size = getSize();
   uint flexibleCount = 0;
+  float stackSize = borderSize;
+
+  for (auto& s : sizes)
+  {
+    if (s.second == 0.f)
+      flexibleCount++;
+
+    stackSize += s.second + borderSize;
+  }
 
   if (orientation == VERTICAL)
   {
-    float stackHeight = borderSize;
+    const float childWidth = width() - borderSize * 2.f;
+    float flexibleHeight, positionY = height();
 
-    for (auto s = sizes.begin();  s != sizes.end();  s++)
-    {
-      const float height = s->second;
-      if (height == 0.f)
-        flexibleCount++;
-
-      stackHeight += height + borderSize;
-    }
-
-    float width = size.x - borderSize * 2.f;
-
-    float flexibleSize;
     if (flexibleCount)
-      flexibleSize = (size.y - stackHeight) / flexibleCount;
+      flexibleHeight = (height() - stackSize) / flexibleCount;
 
-    float position = size.y;
-
-    for (auto c = children.begin();  c != children.end();  c++)
+    for (auto c : children())
     {
-      float height = getChildSize(**c);
-      if (height == 0.f)
-        height = flexibleSize;
+      float childHeight = getChildSize(*c);
+      if (childHeight == 0.f)
+        childHeight = flexibleHeight;
 
-      position -= height + borderSize;
-      (*c)->setArea(Rect(borderSize, position, width, height));
+      positionY -= childHeight + borderSize;
+      c->setArea(Rect(borderSize, positionY, childWidth, childHeight));
     }
   }
   else
   {
-    float stackWidth = borderSize;
+    const float childHeight = height() - borderSize * 2.f;
+    float flexibleWidth, positionX = width();
 
-    for (auto s = sizes.begin();  s != sizes.end();  s++)
-    {
-      const float width = s->second;
-      if (width == 0.f)
-        flexibleCount++;
-
-      stackWidth += width + borderSize;
-    }
-
-    float height = size.y - borderSize * 2.f;
-
-    float flexibleSize;
     if (flexibleCount)
-      flexibleSize = (size.x - stackWidth) / flexibleCount;
+      flexibleWidth = (width() - stackSize) / flexibleCount;
 
-    float position = size.x;
-
-    for (auto c = children.begin();  c != children.end();  c++)
+    for (auto c : children())
     {
-      float width = getChildSize(**c);
-      if (width == 0.f)
-        width = flexibleSize;
+      float childWidth = getChildSize(*c);
+      if (childWidth == 0.f)
+        childWidth = flexibleWidth;
 
-      position -= width + borderSize;
-      (*c)->setArea(Rect(position, borderSize, width, height));
+      positionX -= childWidth + borderSize;
+      c->setArea(Rect(positionX, borderSize, childWidth, childHeight));
     }
   }
 }

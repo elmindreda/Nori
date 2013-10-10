@@ -117,7 +117,7 @@ public:
   bool isValid() const;
   /*! @return The number of triangles in all sections of this mesh.
    */
-  size_t getTriangleCount() const;
+  size_t triangleCount() const;
   static Ref<Mesh> read(ResourceCache& cache, const String& name);
   typedef std::vector<MeshVertex> VertexList;
   /*! The list of sections in this mesh.
