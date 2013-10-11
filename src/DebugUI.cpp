@@ -55,28 +55,12 @@ uint reduce(size_t value)
 
 const char* suffix(size_t value)
 {
-  if (value)
-    value = size_t(glm::log(float(value)) / glm::log(1024.f));
+  const char* suffixes[] = { "bytes", "KB", "MB", "GB", "TB", "PB", "EB" };
 
-  switch (value)
-  {
-    case 0:
-      return "bytes";
-    case 1:
-      return "KB";
-    case 2:
-      return "MB";
-    case 3:
-      return "GB";
-    case 4:
-      return "TB";
-    case 5:
-      return "PB";
-    case 6:
-      return "EB";
-  }
+  if (value == 0)
+    return suffixes[0];
 
-  return "wow";
+  return suffixes[uint(glm::log(double(value)) / glm::log(1024.0))];
 }
 
 } /*namespace*/
