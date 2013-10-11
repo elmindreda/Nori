@@ -119,7 +119,7 @@ Interface::Interface(Window& window, UI::Drawer& drawer):
   {
     labels[i] = new UI::Label(*this);
     labels[i]->setTextAlignment(UI::RIGHT_ALIGNED);
-    layout->addChild(*labels[i], 0.f);
+    layout->addChild(*labels[i]);
   }
 }
 
