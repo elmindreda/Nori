@@ -1,6 +1,8 @@
 
-if (CMAKE_COMPILER_IS_GNUCXX)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_definitions(-std=c++0x)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  add_definitions(-std=c++11)
 endif()
 
 include_directories(${libpng_SOURCE_DIR}
