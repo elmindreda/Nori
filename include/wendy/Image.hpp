@@ -33,7 +33,7 @@ namespace wendy
 
 /*! @brief Container for one- or two-dimensional pixel data.
  */
-class Image : public Resource
+class Image : public Resource, public RefObject
 {
 public:
   /*! Transforms the contents of this image to the specified pixel format using

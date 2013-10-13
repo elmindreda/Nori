@@ -43,7 +43,7 @@ namespace wendy
 /*! @brief Audio sample data buffer.
  *  @ingroup openal
  */
-class Buffer : public Resource
+class Buffer : public Resource, public RefObject
 {
   friend class Source;
 public:

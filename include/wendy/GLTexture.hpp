@@ -229,7 +229,7 @@ private:
 /*! @brief %Texture object.
  *  @ingroup opengl
  */
-class Texture : public Resource
+class Texture : public Resource, public RefObject
 {
   friend class Context;
   friend class TextureImage;

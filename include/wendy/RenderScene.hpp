@@ -190,7 +190,7 @@ private:
  *  This is the interface for objects able to be rendered through render
  *  operations.
  */
-class Renderable
+class Renderable : public RefObject
 {
 public:
   /*! Destructor.

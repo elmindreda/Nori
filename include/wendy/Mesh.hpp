@@ -79,7 +79,7 @@ public:
  *  This is an ideal mesh representation intended for ease of use
  *  during calculations.  It is not intended for real-time use.
  */
-class Mesh : public Resource
+class Mesh : public Resource, public RefObject
 {
 public:
   enum NormalType

@@ -62,7 +62,7 @@ btTriangleMesh* convert(const Mesh& mesh);
 
 /*! @ingroup bullet
  */
-class BvhTriangleMeshShape : public Resource
+class BvhTriangleMeshShape : public Resource, public RefObject
 {
 public:
   btTriangleMesh& mesh() { return *m_mesh; }

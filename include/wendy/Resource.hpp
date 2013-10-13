@@ -52,7 +52,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-class Resource : public RefObject
+class Resource
 {
 public:
   Resource(const ResourceInfo& info);

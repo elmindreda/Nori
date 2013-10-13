@@ -82,7 +82,7 @@ public:
 /*! @brief Multi-technique material descriptor.
  *  @ingroup renderer
  */
-class Material : public Resource
+class Material : public Resource, public RefObject
 {
 public:
   /*! @return The technique for the specified phase.

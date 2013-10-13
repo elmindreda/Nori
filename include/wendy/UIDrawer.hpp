@@ -110,7 +110,7 @@ public:
 
 /*! @ingroup ui
  */
-class Theme : public Resource
+class Theme : public Resource, public RefObject
 {
 public:
   Theme(const ResourceInfo& info);

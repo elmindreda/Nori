@@ -37,7 +37,7 @@ namespace wendy
 
 /*! @brief TrueType typeface.
  */
-class Face : public Resource
+class Face : public Resource, public RefObject
 {
 public:
   float scale(uint height) const;

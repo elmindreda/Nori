@@ -59,7 +59,7 @@ enum ShaderType
 /*! @brief GLSL shader.
  *  @ingroup opengl
  */
-class Shader : public Resource
+class Shader : public Resource, public RefObject
 {
   friend class Program;
 public:
@@ -273,7 +273,7 @@ private:
 /*! @brief GLSL program.
  *  @ingroup opengl
  */
-class Program : public Resource
+class Program : public Resource, public RefObject
 {
   friend class Context;
 public:

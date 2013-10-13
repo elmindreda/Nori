@@ -45,7 +45,7 @@ enum SampleFormat
 
 /*! @brief Audio sample.
  */
-class Sample : public Resource
+class Sample : public Resource, public RefObject
 {
 public:
   Sample(const ResourceInfo& info,

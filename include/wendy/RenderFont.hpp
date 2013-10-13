@@ -47,7 +47,7 @@ namespace wendy
  *
  *  This class provides layout and rendering of a single font.
  */
-class Font : public Resource
+class Font : public Resource, public RefObject
 {
 public:
   /*! Renders the specified text at the current pen position.
