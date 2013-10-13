@@ -42,7 +42,6 @@
 #include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
 #include <wendy/RenderMaterial.hpp>
-#include <wendy/RenderLight.hpp>
 #include <wendy/RenderScene.hpp>
 #include <wendy/RenderModel.hpp>
 
@@ -353,30 +352,9 @@ render::Light* LightNode::light() const
 void LightNode::setLight(render::Light* newLight)
 {
   m_light = newLight;
-}
-
-void LightNode::update()
-{
-  Node::update();
 
   if (m_light)
-  {
-    const Transform3& world = worldTransform();
-
-    if (m_light->type() == render::Light::DIRECTIONAL ||
-        m_light->type() == render::Light::SPOTLIGHT)
-    {
-      m_light->setDirection(world.rotation * vec3(0.f, 0.f, -1.f));
-    }
-
-    if (m_light->type() == render::Light::POINT ||
-        m_light->type() == render::Light::SPOTLIGHT)
-    {
-      m_light->setPosition(world.position);
-    }
-
-    setLocalBounds(Sphere(vec3(), m_light->radius()));
-  }
+    setLocalBounds(Sphere(vec3(0.f), m_light->radius()));
   else
     setLocalBounds(Sphere());
 }
@@ -386,7 +364,7 @@ void LightNode::enqueue(render::Scene& scene, const Camera& camera) const
   Node::enqueue(scene, camera);
 
   if (m_light)
-    scene.attachLight(*m_light);
+    m_light->enqueue(scene, camera, worldTransform());
 }
 
 ///////////////////////////////////////////////////////////////////////

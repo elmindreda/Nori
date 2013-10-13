@@ -175,7 +175,6 @@ public:
   render::Light* light() const;
   void setLight(render::Light* newLight);
 protected:
-  void update();
   void enqueue(render::Scene& scene, const Camera& camera) const;
 private:
   Ref<render::Light> m_light;

@@ -39,9 +39,80 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-class Light;
 class VertexPool;
 class Scene;
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Abstract renderable object.
+ *  @ingroup renderer
+ *
+ *  This is the interface for objects able to be rendered through render
+ *  operations.
+ */
+class Renderable : public RefObject
+{
+public:
+  /*! Destructor.
+   */
+  virtual ~Renderable();
+  /*! Queries this renderable for render operations.
+   *  @param[in,out] scene The render scene where the operations are to
+   *  be created.
+   *  @param[in] camera The camera for which operations are requested.
+   *  @param[in] transform The local-to-world transform.
+   */
+  virtual void enqueue(Scene& scene,
+                       const Camera& camera,
+                       const Transform3& transform) const = 0;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup renderer
+ */
+enum LightType
+{
+  DIRECTIONAL,
+  POINT,
+  SPOTLIGHT
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup renderer
+ */
+struct LightData
+{
+  LightType type;
+  float radius;
+  vec3 color;
+  vec3 position;
+  vec3 direction;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup renderer
+ */
+class Light : public Renderable
+{
+public:
+  Light();
+  void enqueue(Scene& scene,
+               const Camera& camera,
+               const Transform3& transform) const override;
+  LightType type() const { return m_type; }
+  void setType(LightType newType);
+  float radius() const { return m_radius; }
+  void setRadius(float newRadius);
+  const vec3& color() const { return m_color; }
+  void setColor(const vec3& newColor);
+private:
+  LightType m_type;
+  float m_radius;
+  vec3 m_color;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -161,9 +232,9 @@ public:
                         const Material& material,
                         float depth);
   void removeOperations();
-  void attachLight(Light& light);
-  void detachLights();
-  const LightList& lights() const { return m_lights; }
+  void addLight(const LightData& light);
+  void removeLights();
+  const std::vector<LightData>& lights() const { return m_lights; }
   const vec3& ambientIntensity() const { return m_ambient; }
   void setAmbientIntensity(const vec3& newIntensity);
   VertexPool& vertexPool() const { return *m_pool; }
@@ -178,33 +249,8 @@ private:
   Phase m_phase;
   Queue m_opaqueQueue;
   Queue m_blendedQueue;
-  LightList m_lights;
+  std::vector<LightData> m_lights;
   vec3 m_ambient;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Abstract renderable object.
- *  @ingroup renderer
- *
- *  This is the interface for objects able to be rendered through render
- *  operations.
- */
-class Renderable : public RefObject
-{
-public:
-  /*! Destructor.
-   */
-  virtual ~Renderable();
-  /*! Queries this renderable for render operations.
-   *  @param[in,out] scene The render scene where the operations are to
-   *  be created.
-   *  @param[in] camera The camera for which operations are requested.
-   *  @param[in] transform The local-to-world transform.
-   */
-  virtual void enqueue(Scene& scene,
-                       const Camera& camera,
-                       const Transform3& transform) const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -41,7 +41,6 @@
 #include <wendy/RenderState.hpp>
 #include <wendy/RenderSystem.hpp>
 #include <wendy/RenderMaterial.hpp>
-#include <wendy/RenderLight.hpp>
 #include <wendy/RenderScene.hpp>
 #include <wendy/RenderModel.hpp>
 

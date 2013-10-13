@@ -37,7 +37,6 @@
 #include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
 #include <wendy/RenderMaterial.hpp>
-#include <wendy/RenderLight.hpp>
 #include <wendy/RenderScene.hpp>
 
 #include <algorithm>
@@ -48,6 +47,45 @@ namespace wendy
 {
   namespace render
   {
+
+///////////////////////////////////////////////////////////////////////
+
+Light::Light():
+  m_type(DIRECTIONAL),
+  m_radius(1.f),
+  m_color(1.f)
+{
+}
+
+void Light::enqueue(Scene& scene,
+                    const Camera& camera,
+                    const Transform3& transform) const
+{
+  LightData data;
+
+  data.type = m_type;
+  data.radius = m_radius;
+  data.color = m_color;
+  data.direction = transform.rotation * vec3(0.f, 0.f, -1.f);
+  data.position = transform.position;
+
+  scene.addLight(data);
+}
+
+void Light::setType(LightType newType)
+{
+  m_type = newType;
+}
+
+void Light::setRadius(float newRadius)
+{
+  m_radius = newRadius;
+}
+
+void Light::setColor(const vec3& newColor)
+{
+  m_color = newColor;
+}
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -156,15 +194,12 @@ void Scene::removeOperations()
   m_blendedQueue.removeOperations();
 }
 
-void Scene::attachLight(Light& light)
+void Scene::addLight(const LightData& light)
 {
-  if (std::find(m_lights.begin(), m_lights.end(), &light) != m_lights.end())
-    return;
-
-  m_lights.push_back(&light);
+  m_lights.push_back(light);
 }
 
-void Scene::detachLights()
+void Scene::removeLights()
 {
   m_lights.clear();
 }

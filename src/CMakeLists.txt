@@ -39,9 +39,8 @@ endif()
 
 if (WENDY_INCLUDE_RENDERER)
   list(APPEND wendy_SOURCES
-       RenderFont.cpp RenderLight.cpp RenderModel.cpp RenderMaterial.cpp
-       RenderPool.cpp RenderScene.cpp RenderSprite.cpp RenderState.cpp
-       RenderSystem.cpp
+       RenderFont.cpp RenderModel.cpp RenderMaterial.cpp RenderPool.cpp
+       RenderScene.cpp RenderSprite.cpp RenderState.cpp RenderSystem.cpp
 
        Forward.cpp)
 endif()
