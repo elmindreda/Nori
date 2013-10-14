@@ -62,7 +62,7 @@ enum PrimitiveType
 /*! @brief Memory locking type enumeration.
  *  @ingroup opengl
  */
-enum LockType
+enum BufferLockType
 {
   /*! Requests read-only access.
    */
@@ -79,7 +79,7 @@ enum LockType
 
 /*! Index buffer element type enumeration.
  */
-enum IndexType
+enum IndexBufferType
 {
   /*! Indices are 8-bit unsigned integers.
    */
@@ -96,7 +96,7 @@ enum IndexType
 
 /*! Index buffer usage hint enumeration.
  */
-enum Usage
+enum BufferUsage
 {
   /*! Data will be specified once and used many times.
    */
@@ -124,7 +124,7 @@ public:
   /*! Locks this vertex buffer for reading and writing.
    *  @return The base address of the vertices.
    */
-  void* lock(LockType type = LOCK_WRITE_ONLY);
+  void* lock(BufferLockType type = LOCK_WRITE_ONLY);
   /*! Unlocks this vertex buffer, finalizing any changes.
    */
   void unlock();
@@ -147,7 +147,7 @@ public:
   void copyTo(void* target, size_t count, size_t start = 0);
   /*! @return The usage hint of this vertex buffer.
    */
-  Usage usage() const;
+  BufferUsage usage() const;
   /*! @return The format of this vertex buffer.
    */
   const VertexFormat& format() const { return m_format; }
@@ -166,18 +166,18 @@ public:
   static Ref<VertexBuffer> create(Context& context,
                                   size_t count,
                                   const VertexFormat& format,
-                                  Usage usage);
+                                  BufferUsage usage);
 private:
   VertexBuffer(Context& context);
   VertexBuffer(const VertexBuffer&) = delete;
-  bool init(const VertexFormat& format, size_t count, Usage usage);
+  bool init(const VertexFormat& format, size_t count, BufferUsage usage);
   VertexBuffer& operator = (const VertexBuffer&) = delete;
   Context& m_context;
   bool m_locked;
   VertexFormat m_format;
   uint m_bufferID;
   size_t m_count;
-  Usage m_usage;
+  BufferUsage m_usage;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -196,7 +196,7 @@ public:
    *  @param[in] type The desired type of lock.
    *  @return The base address of the index elements.
    */
-  void* lock(LockType type = LOCK_WRITE_ONLY);
+  void* lock(BufferLockType type = LOCK_WRITE_ONLY);
   /*! Unlocks this index buffer, finalizing any changes.
    */
   void unlock();
@@ -216,10 +216,10 @@ public:
   void copyTo(void* target, size_t count, size_t start = 0);
   /*! @return The type of the index elements in this index buffer.
    */
-  IndexType type() const { return m_type; }
+  IndexBufferType type() const { return m_type; }
   /*! @return The usage hint of this index buffer.
    */
-  Usage usage() const { return m_usage; }
+  BufferUsage usage() const { return m_usage; }
   /*! @return The number of index elements in this index buffer.
    */
   size_t count() const { return m_count; }
@@ -235,20 +235,20 @@ public:
    */
   static Ref<IndexBuffer> create(Context& context,
                                  size_t count,
-                                 IndexType type,
-                                 Usage usage);
+                                 IndexBufferType type,
+                                 BufferUsage usage);
   /*! @return The size, in bytes, of the specified element type.
    */
-  static size_t typeSize(IndexType type);
+  static size_t typeSize(IndexBufferType type);
 private:
   IndexBuffer(Context& context);
   IndexBuffer(const IndexBuffer&) = delete;
-  bool init(size_t count, IndexType type, Usage usage);
+  bool init(size_t count, IndexBufferType type, BufferUsage usage);
   IndexBuffer& operator = (const IndexBuffer&) = delete;
   Context& m_context;
   bool m_locked;
-  IndexType m_type;
-  Usage m_usage;
+  IndexBufferType m_type;
+  BufferUsage m_usage;
   uint m_bufferID;
   size_t m_count;
 };
@@ -278,7 +278,7 @@ public:
    *  @return The base address of this vertex range, or @c nullptr if an error
    *  occurred.
    */
-  void* lock(LockType type = LOCK_WRITE_ONLY) const;
+  void* lock(BufferLockType type = LOCK_WRITE_ONLY) const;
   /*! Unlocks this vertex range.
    */
   void unlock() const;
@@ -335,7 +335,7 @@ public:
    *  @return The base address of this index range, or @c nullptr if an error
    *  occurred.
    */
-  void* lock(LockType type = LOCK_WRITE_ONLY) const;
+  void* lock(BufferLockType type = LOCK_WRITE_ONLY) const;
   /*! Unlocks this index range.
    */
   void unlock() const;

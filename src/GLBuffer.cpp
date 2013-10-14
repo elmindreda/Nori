@@ -49,7 +49,7 @@ namespace wendy
 namespace
 {
 
-GLenum convertToGL(LockType type)
+GLenum convertToGL(BufferLockType type)
 {
   switch (type)
   {
@@ -64,7 +64,7 @@ GLenum convertToGL(LockType type)
   panic("Invalid lock type %u", type);
 }
 
-GLenum convertToGL(Usage usage)
+GLenum convertToGL(BufferUsage usage)
 {
   switch (usage)
   {
@@ -147,7 +147,7 @@ VertexBuffer::~VertexBuffer()
     stats->removeVertexBuffer(size());
 }
 
-void* VertexBuffer::lock(LockType type)
+void* VertexBuffer::lock(BufferLockType type)
 {
   if (m_locked)
   {
@@ -249,7 +249,7 @@ void VertexBuffer::copyTo(void* target, size_t targetCount, size_t start)
 Ref<VertexBuffer> VertexBuffer::create(Context& context,
                                        size_t count,
                                        const VertexFormat& format,
-                                       Usage usage)
+                                       BufferUsage usage)
 {
   Ref<VertexBuffer> buffer(new VertexBuffer(context));
   if (!buffer->init(format, count, usage))
@@ -267,7 +267,7 @@ VertexBuffer::VertexBuffer(Context& context):
 {
 }
 
-bool VertexBuffer::init(const VertexFormat& format, size_t count, Usage usage)
+bool VertexBuffer::init(const VertexFormat& format, size_t count, BufferUsage usage)
 {
   m_format = format;
   m_usage = usage;
@@ -309,7 +309,7 @@ IndexBuffer::~IndexBuffer()
     stats->removeIndexBuffer(size());
 }
 
-void* IndexBuffer::lock(LockType type)
+void* IndexBuffer::lock(BufferLockType type)
 {
   if (m_locked)
   {
@@ -401,8 +401,8 @@ size_t IndexBuffer::size() const
 
 Ref<IndexBuffer> IndexBuffer::create(Context& context,
                                      size_t count,
-                                     IndexType type,
-                                     Usage usage)
+                                     IndexBufferType type,
+                                     BufferUsage usage)
 {
   Ref<IndexBuffer> buffer(new IndexBuffer(context));
   if (!buffer->init(count, type, usage))
@@ -411,7 +411,7 @@ Ref<IndexBuffer> IndexBuffer::create(Context& context,
   return buffer;
 }
 
-size_t IndexBuffer::typeSize(IndexType type)
+size_t IndexBuffer::typeSize(IndexBufferType type)
 {
   switch (type)
   {
@@ -436,7 +436,7 @@ IndexBuffer::IndexBuffer(Context& context):
 {
 }
 
-bool IndexBuffer::init(size_t count, IndexType type, Usage usage)
+bool IndexBuffer::init(size_t count, IndexBufferType type, BufferUsage usage)
 {
   m_type = type;
   m_usage = usage;
@@ -491,7 +491,7 @@ VertexRange::VertexRange(VertexBuffer& vertexBuffer,
   assert(m_buffer->count() >= m_start + m_count);
 }
 
-void* VertexRange::lock(LockType type) const
+void* VertexRange::lock(BufferLockType type) const
 {
   if (!m_buffer || m_count == 0)
   {
@@ -560,7 +560,7 @@ IndexRange::IndexRange(IndexBuffer& buffer,
   assert(m_buffer->count() >= m_start + m_count);
 }
 
-void* IndexRange::lock(LockType type) const
+void* IndexRange::lock(BufferLockType type) const
 {
   if (!m_buffer || m_count == 0)
   {

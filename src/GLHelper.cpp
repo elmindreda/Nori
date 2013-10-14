@@ -93,7 +93,7 @@ bool checkGL(const char* format, ...)
   return false;
 }
 
-GLenum convertToGL(IndexType type)
+GLenum convertToGL(IndexBufferType type)
 {
   switch (type)
   {

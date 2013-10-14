@@ -154,7 +154,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
   const size_t indexCount = data.triangleCount() * 3;
 
-  GL::IndexType indexType;
+  GL::IndexBufferType indexType;
   if (indexCount <= (1 << 8))
     indexType = GL::INDEX_UINT8;
   else if (indexCount <= (1 << 16))

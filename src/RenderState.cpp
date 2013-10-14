@@ -990,17 +990,17 @@ GL::Function Pass::stencilFunction() const
   return m_data.stencilFunction;
 }
 
-GL::Operation Pass::stencilFailOperation() const
+GL::StencilOp Pass::stencilFailOperation() const
 {
   return m_data.stencilFailOp;
 }
 
-GL::Operation Pass::depthFailOperation() const
+GL::StencilOp Pass::depthFailOperation() const
 {
   return m_data.depthFailOp;
 }
 
-GL::Operation Pass::depthPassOperation() const
+GL::StencilOp Pass::depthPassOperation() const
 {
   return m_data.depthPassOp;
 }
@@ -1061,17 +1061,17 @@ void Pass::setStencilWriteMask(uint newMask)
   m_data.stencilMask = newMask;
 }
 
-void Pass::setStencilFailOperation(GL::Operation newOperation)
+void Pass::setStencilFailOperation(GL::StencilOp newOperation)
 {
   m_data.stencilFailOp = newOperation;
 }
 
-void Pass::setDepthFailOperation(GL::Operation newOperation)
+void Pass::setDepthFailOperation(GL::StencilOp newOperation)
 {
   m_data.depthFailOp = newOperation;
 }
 
-void Pass::setDepthPassOperation(GL::Operation newOperation)
+void Pass::setDepthPassOperation(GL::StencilOp newOperation)
 {
   m_data.depthPassOp = newOperation;
 }

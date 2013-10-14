@@ -191,7 +191,7 @@ enum Key
 
 /*! @brief Key modifier bits.
  */
-enum Modifier
+enum KeyModifier
 {
   MOD_SHIFT   = 0x01,
   MOD_CONTROL = 0x02,

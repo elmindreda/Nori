@@ -362,13 +362,13 @@ public:
   GL::Function stencilFunction() const;
   /*! @return The operation to perform when the stencil test fails.
    */
-  GL::Operation stencilFailOperation() const;
+  GL::StencilOp stencilFailOperation() const;
   /*! @return The operation to perform when the depth test fails.
    */
-  GL::Operation depthFailOperation() const;
+  GL::StencilOp depthFailOperation() const;
   /*! @return The operation to perform when the depth test succeeds.
    */
-  GL::Operation depthPassOperation() const;
+  GL::StencilOp depthPassOperation() const;
   /*! @return The stencil test reference value used by this render state.
    */
   uint stencilReference() const;
@@ -408,13 +408,13 @@ public:
   void setStencilWriteMask(uint newMask);
   /*! Sets the operation to perform when the stencil test fails.
    */
-  void setStencilFailOperation(GL::Operation newOperation);
+  void setStencilFailOperation(GL::StencilOp newOperation);
   /*! Sets the operation to perform when the depth test fails.
    */
-  void setDepthFailOperation(GL::Operation newOperation);
+  void setDepthFailOperation(GL::StencilOp newOperation);
   /*! Sets the operation to perform when the depth test succeeds.
    */
-  void setDepthPassOperation(GL::Operation newOperation);
+  void setDepthPassOperation(GL::StencilOp newOperation);
   /*! Sets whether writing to the color buffer is enabled.
    *  @param[in] enabled @c true to enable writing to the color buffer, or @c
    *  false to disable it.

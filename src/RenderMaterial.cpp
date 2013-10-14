@@ -56,7 +56,7 @@ namespace
 Bimap<String, GL::CullMode> cullModeMap;
 Bimap<String, GL::BlendFactor> blendFactorMap;
 Bimap<String, GL::Function> functionMap;
-Bimap<String, GL::Operation> operationMap;
+Bimap<String, GL::StencilOp> operationMap;
 Bimap<String, GL::FilterMode> filterModeMap;
 Bimap<String, GL::AddressMode> addressModeMap;
 Bimap<String, System::Type> systemTypeMap;

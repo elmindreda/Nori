@@ -281,7 +281,7 @@ GLenum convertToGL(Function function)
   panic("Invalid comparison function %u", function);
 }
 
-GLenum convertToGL(Operation operation)
+GLenum convertToGL(StencilOp operation)
 {
   switch (operation)
   {

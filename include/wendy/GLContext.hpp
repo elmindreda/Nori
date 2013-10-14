@@ -101,7 +101,7 @@ enum BlendFactor
 /*! Stencil operation enumeration.
  *  @ingroup opengl
  */
-enum Operation
+enum StencilOp
 {
   OP_KEEP,
   OP_ZERO,
@@ -189,9 +189,9 @@ public:
   Function stencilFunction;
   uint stencilRef;
   uint stencilMask;
-  Operation stencilFailOp;
-  Operation depthFailOp;
-  Operation depthPassOp;
+  StencilOp stencilFailOp;
+  StencilOp depthFailOp;
+  StencilOp depthPassOp;
 };
 
 ///////////////////////////////////////////////////////////////////////
