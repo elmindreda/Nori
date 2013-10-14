@@ -85,7 +85,10 @@ class Model : public Renderable, public Resource
 {
 public:
   typedef std::map<String, Ref<Material>> MaterialMap;
-  void enqueue(Scene& scene, const Camera& camera, const Transform3& transform) const;
+  void enqueue(Scene& scene,
+               const Camera& camera,
+               const Transform3& transform) const override;
+  Sphere bounds() const override;
   /*! @return The bounding AABB of this model.
    */
   const AABB& boundingAABB() const { return m_boundingAABB; }

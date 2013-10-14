@@ -70,7 +70,8 @@ public:
   Sprite3();
   void enqueue(Scene& scene,
                const Camera& camera,
-               const Transform3& transform) const;
+               const Transform3& transform) const override;
+  Sphere bounds() const override;
   vec2 size;
   float angle;
   SpriteType3 type;

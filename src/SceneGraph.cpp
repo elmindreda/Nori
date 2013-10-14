@@ -58,8 +58,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Node::Node(bool initNeedsUpdate):
-  m_needsUpdate(initNeedsUpdate),
+Node::Node():
   m_parent(nullptr),
   m_graph(nullptr),
   m_dirtyWorld(false),
@@ -95,7 +94,7 @@ void Node::removeFromParent()
   {
     if (m_parent)
     {
-      List& siblings = m_parent->m_children;
+      auto& siblings = m_parent->m_children;
       siblings.erase(std::find(siblings.begin(), siblings.end(), this));
 
       m_parent->invalidateBounds();
@@ -105,7 +104,7 @@ void Node::removeFromParent()
     }
     else
     {
-      List& roots = m_graph->m_roots;
+      auto& roots = m_graph->m_roots;
       roots.erase(std::find(roots.begin(), roots.end(), this));
     }
 
@@ -217,24 +216,45 @@ const Sphere& Node::totalBounds() const
   return m_totalBounds;
 }
 
+void Node::setRenderable(render::Renderable* newRenderable)
+{
+  m_renderable = newRenderable;
+
+  if (m_renderable)
+    setLocalBounds(m_renderable->bounds());
+  else
+    setLocalBounds(Sphere());
+}
+
+void Node::setCamera(Camera* newCamera)
+{
+  if (m_graph)
+  {
+    if (m_camera)
+    {
+      auto& updated = m_graph->m_updated;
+      updated.erase(std::find(updated.begin(), updated.end(), this));
+    }
+    else if (newCamera)
+      m_graph->m_updated.push_back(this);
+  }
+
+  m_camera = newCamera;
+}
+
 void Node::update()
 {
-  for (auto c : m_children)
-    c->update();
+  if (m_camera)
+    m_camera->setTransform(worldTransform());
 }
 
 void Node::enqueue(render::Scene& scene, const Camera& camera) const
 {
-  const Frustum& frustum = camera.frustum();
+  if (m_renderable)
+    m_renderable->enqueue(scene, camera, worldTransform());
 
   for (auto c : m_children)
-  {
-    Sphere worldBounds = c->totalBounds();
-    worldBounds.transformBy(c->worldTransform());
-
-    if (frustum.intersects(worldBounds))
-      c->enqueue(scene, camera);
-  }
+    c->enqueue(scene, camera);
 }
 
 void Node::invalidateBounds()
@@ -253,19 +273,16 @@ void Node::invalidateWorldTransform()
 
 void Node::setGraph(Graph* newGraph)
 {
-  if (m_graph && m_needsUpdate)
+  if (m_graph && m_camera)
   {
-    List& updated = m_graph->m_updated;
+    auto& updated = m_graph->m_updated;
     updated.erase(std::find(updated.begin(), updated.end(), this));
   }
 
   m_graph = newGraph;
 
-  if (m_graph && m_needsUpdate)
-  {
-    List& updated = m_graph->m_updated;
-    updated.push_back(this);
-  }
+  if (m_graph && m_camera)
+    m_graph->m_updated.push_back(this);
 
   for (auto c : m_children)
     c->setGraph(m_graph);
@@ -300,7 +317,7 @@ void Graph::enqueue(render::Scene& scene, const Camera& camera) const
   }
 }
 
-void Graph::query(const Sphere& sphere, Node::List& nodes) const
+void Graph::query(const Sphere& sphere, std::vector<Node*>& nodes) const
 {
   for (auto r : m_roots)
   {
@@ -312,7 +329,7 @@ void Graph::query(const Sphere& sphere, Node::List& nodes) const
   }
 }
 
-void Graph::query(const Frustum& frustum, Node::List& nodes) const
+void Graph::query(const Frustum& frustum, std::vector<Node*>& nodes) const
 {
   for (auto r : m_roots)
   {
@@ -335,108 +352,6 @@ void Graph::destroyRootNodes()
 {
   while (!m_roots.empty())
     delete m_roots.back();
-}
-
-///////////////////////////////////////////////////////////////////////
-
-LightNode::LightNode():
-  Node(true)
-{
-}
-
-render::Light* LightNode::light() const
-{
-  return m_light;
-}
-
-void LightNode::setLight(render::Light* newLight)
-{
-  m_light = newLight;
-
-  if (m_light)
-    setLocalBounds(Sphere(vec3(0.f), m_light->radius()));
-  else
-    setLocalBounds(Sphere());
-}
-
-void LightNode::enqueue(render::Scene& scene, const Camera& camera) const
-{
-  Node::enqueue(scene, camera);
-
-  if (m_light)
-    m_light->enqueue(scene, camera, worldTransform());
-}
-
-///////////////////////////////////////////////////////////////////////
-
-ModelNode::ModelNode():
-  m_shadowCaster(false)
-{
-}
-
-bool ModelNode::isShadowCaster() const
-{
-  return m_shadowCaster;
-}
-
-void ModelNode::setCastsShadows(bool enabled)
-{
-  m_shadowCaster = enabled;
-}
-
-render::Model* ModelNode::model() const
-{
-  return m_model;
-}
-
-void ModelNode::setModel(render::Model* newModel)
-{
-  m_model = newModel;
-
-  if (m_model)
-    setLocalBounds(m_model->boundingSphere());
-  else
-    setLocalBounds(Sphere());
-}
-
-void ModelNode::enqueue(render::Scene& scene, const Camera& camera) const
-{
-  Node::enqueue(scene, camera);
-
-  if (m_model)
-  {
-    if (scene.phase() == render::PHASE_SHADOWMAP && !m_shadowCaster)
-      return;
-
-    m_model->enqueue(scene, camera, worldTransform());
-  }
-}
-
-///////////////////////////////////////////////////////////////////////
-
-CameraNode::CameraNode():
-  Node(true)
-{
-}
-
-Camera* CameraNode::camera() const
-{
-  return m_camera;
-}
-
-void CameraNode::setCamera(Camera* newCamera)
-{
-  m_camera = newCamera;
-}
-
-void CameraNode::update()
-{
-  Node::update();
-
-  if (!m_camera)
-    return;
-
-  m_camera->setTransform(worldTransform());
 }
 
 ///////////////////////////////////////////////////////////////////////

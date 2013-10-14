@@ -65,6 +65,9 @@ public:
   virtual void enqueue(Scene& scene,
                        const Camera& camera,
                        const Transform3& transform) const = 0;
+  /*! Returns the local space bounds of this renderable.
+   */
+  virtual Sphere bounds() const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -102,6 +105,7 @@ public:
   void enqueue(Scene& scene,
                const Camera& camera,
                const Transform3& transform) const override;
+  Sphere bounds() const override;
   LightType type() const { return m_type; }
   void setType(LightType newType);
   float radius() const { return m_radius; }

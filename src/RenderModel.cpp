@@ -94,6 +94,11 @@ void Model::enqueue(Scene& scene, const Camera& camera, const Transform3& transf
   }
 }
 
+Sphere Model::bounds() const
+{
+  return m_boundingSphere;
+}
+
 Ref<Model> Model::create(const ResourceInfo& info,
                          System& system,
                          const Mesh& data,

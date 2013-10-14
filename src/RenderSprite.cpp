@@ -29,6 +29,7 @@
 #include <wendy/Transform.hpp>
 #include <wendy/AABB.hpp>
 #include <wendy/Plane.hpp>
+#include <wendy/Sphere.hpp>
 #include <wendy/Frustum.hpp>
 #include <wendy/Camera.hpp>
 
@@ -197,6 +198,11 @@ void Sprite3::enqueue(Scene& scene,
                          GL::PrimitiveRange(GL::TRIANGLE_FAN, range),
                          *material,
                          camera.normalizedDepth(spritePos));
+}
+
+Sphere Sprite3::bounds() const
+{
+  return Sphere(vec3(0.f), length(size) / 2.f);
 }
 
 ///////////////////////////////////////////////////////////////////////

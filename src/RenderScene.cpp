@@ -31,6 +31,7 @@
 #include <wendy/Transform.hpp>
 #include <wendy/AABB.hpp>
 #include <wendy/Plane.hpp>
+#include <wendy/Sphere.hpp>
 #include <wendy/Frustum.hpp>
 #include <wendy/Camera.hpp>
 
@@ -70,6 +71,11 @@ void Light::enqueue(Scene& scene,
   data.position = transform.position;
 
   scene.addLight(data);
+}
+
+Sphere Light::bounds() const
+{
+  return Sphere(vec3(0.f), m_radius);
 }
 
 void Light::setType(LightType newType)

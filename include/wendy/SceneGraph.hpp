@@ -38,7 +38,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-class Node;
 class Graph;
 
 ///////////////////////////////////////////////////////////////////////
@@ -53,13 +52,12 @@ class Node
 {
   friend class Graph;
 public:
-  typedef std::vector<Node*> List;
   /*! Constructor.
    */
-  Node(bool needsUpdate = false);
+  Node();
   /*! Destructor.
    */
-  virtual ~Node();
+  ~Node();
   /*! Attaches the specified node as a child to this node.
    *  @param[in] child The node to attach to this node.
    *  @return @c true if successful, or false if the specified node was a
@@ -86,7 +84,7 @@ public:
   Node* parent() const { return m_parent; }
   /*! @return The list of children of this node.
    */
-  const List& children() const { return m_children; }
+  const std::vector<Node*>& children() const { return m_children; }
   /*! @return The local-to-parent transform of this scene node.
    */
   const Transform3& localTransform() const { return m_local; }
@@ -110,33 +108,38 @@ public:
    *  child nodes.
    */
   const Sphere& totalBounds() const;
+  render::Renderable* renderable() const { return m_renderable; }
+  void setRenderable(render::Renderable* newRenderable);
+  Camera* camera() const { return m_camera; }
+  void setCamera(Camera* newCamera);
 protected:
   /*! Called when the scene graph is updated.  This is the correct place to put
    *  per-frame operations which affect the transform or bounds.
    */
-  virtual void update();
+  void update();
   /*! Called when the scene graph is collecting rendering information.  All the
    *  operations required to render this scene node should be put into the
    *  specified render queue.
    *  @param[in,out] queue The render queue for collecting operations.
    */
-  virtual void enqueue(render::Scene& scene, const Camera& camera) const;
+  void enqueue(render::Scene& scene, const Camera& camera) const;
 private:
   Node(const Node&) = delete;
   void invalidateBounds();
   void invalidateWorldTransform();
   Node& operator = (const Node&) = delete;
   void setGraph(Graph* newGraph);
-  bool m_needsUpdate;
   Node* m_parent;
   Graph* m_graph;
-  List m_children;
+  std::vector<Node*> m_children;
   Transform3 m_local;
   mutable Transform3 m_world;
   mutable bool m_dirtyWorld;
   Sphere m_localBounds;
   mutable Sphere m_totalBounds;
   mutable bool m_dirtyBounds;
+  Ref<render::Renderable> m_renderable;
+  Ref<Camera> m_camera;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -154,65 +157,14 @@ public:
   ~Graph();
   void update();
   void enqueue(render::Scene& scene, const Camera& camera) const;
-  void query(const Sphere& sphere, Node::List& nodes) const;
-  void query(const Frustum& frustum, Node::List& nodes) const;
+  void query(const Sphere& sphere, std::vector<Node*>& nodes) const;
+  void query(const Frustum& frustum, std::vector<Node*>& nodes) const;
   void addRootNode(Node& node);
   void destroyRootNodes();
-  const Node::List& roots() const { return m_roots; }
+  const std::vector<Node*>& roots() const { return m_roots; }
 private:
-  Node::List m_roots;
-  Node::List m_updated;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup scene
- */
-class LightNode : public Node
-{
-public:
-  LightNode();
-  render::Light* light() const;
-  void setLight(render::Light* newLight);
-protected:
-  void enqueue(render::Scene& scene, const Camera& camera) const;
-private:
-  Ref<render::Light> m_light;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup scene
- */
-class ModelNode : public Node
-{
-public:
-  ModelNode();
-  bool isShadowCaster() const;
-  void setCastsShadows(bool enabled);
-  render::Model* model() const;
-  void setModel(render::Model* newModel);
-protected:
-  void enqueue(render::Scene& scene, const Camera& camera) const;
-private:
-  Ref<render::Model> m_model;
-  bool m_shadowCaster;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup scene
- */
-class CameraNode : public Node
-{
-public:
-  CameraNode();
-  Camera* camera() const;
-  void setCamera(Camera* newCamera);
-protected:
-  void update();
-private:
-  Ref<Camera> m_camera;
+  std::vector<Node*> m_roots;
+  std::vector<Node*> m_updated;
 };
 
 ///////////////////////////////////////////////////////////////////////
