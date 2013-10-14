@@ -39,12 +39,10 @@
 
 namespace wendy
 {
-  namespace AL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
-Context::~Context()
+AudioContext::~AudioContext()
 {
   if (m_handle)
   {
@@ -56,7 +54,7 @@ Context::~Context()
     alcCloseDevice((ALCdevice*) m_device);
 }
 
-void Context::setListenerPosition(const vec3& newPosition)
+void AudioContext::setListenerPosition(const vec3& newPosition)
 {
   if (m_listenerPosition != newPosition)
   {
@@ -69,7 +67,7 @@ void Context::setListenerPosition(const vec3& newPosition)
   }
 }
 
-void Context::setListenerVelocity(const vec3& newVelocity)
+void AudioContext::setListenerVelocity(const vec3& newVelocity)
 {
   if (m_listenerVelocity != newVelocity)
   {
@@ -82,7 +80,7 @@ void Context::setListenerVelocity(const vec3& newVelocity)
   }
 }
 
-void Context::setListenerRotation(const quat& newRotation)
+void AudioContext::setListenerRotation(const quat& newRotation)
 {
   if (m_listenerRotation != newRotation)
   {
@@ -101,7 +99,7 @@ void Context::setListenerRotation(const quat& newRotation)
   }
 }
 
-void Context::setListenerGain(float newGain)
+void AudioContext::setListenerGain(float newGain)
 {
   if (m_listenerGain != newGain)
   {
@@ -114,16 +112,16 @@ void Context::setListenerGain(float newGain)
   }
 }
 
-Context* Context::create(ResourceCache& cache)
+AudioContext* AudioContext::create(ResourceCache& cache)
 {
-  Ptr<Context> context(new Context(cache));
+  Ptr<AudioContext> context(new AudioContext(cache));
   if (!context->init())
     return nullptr;
 
   return context.detachObject();
 }
 
-Context::Context(ResourceCache& cache):
+AudioContext::AudioContext(ResourceCache& cache):
   m_cache(cache),
   m_device(nullptr),
   m_handle(nullptr),
@@ -131,7 +129,7 @@ Context::Context(ResourceCache& cache):
 {
 }
 
-bool Context::init()
+bool AudioContext::init()
 {
   m_device = alcOpenDevice(nullptr);
   if (!m_device)
@@ -168,7 +166,6 @@ bool Context::init()
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace AL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

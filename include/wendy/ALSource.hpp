@@ -28,15 +28,13 @@
 
 namespace wendy
 {
-  namespace AL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief OpenAL audio source.
  *  @ingroup openal
  */
-class Source : public RefObject
+class AudioSource : public RefObject
 {
 public:
   /*! Audio source state enumeration.
@@ -55,7 +53,7 @@ public:
   };
   /*! Destructor.
    */
-  ~Source();
+  ~AudioSource();
   /*! Starts this source playing the currently set buffer.
    */
   void start();
@@ -123,36 +121,35 @@ public:
   /*! @return The currently set buffer for this source, or @c nullptr if no
    *  buffer is set.
    */
-  Buffer* buffer() const { return m_buffer; }
+  AudioBuffer* buffer() const { return m_buffer; }
   /*! Sets the buffer to be used by this source.
    *  @param[in] newBuffer The buffer to use, or @c nullptr to detach the
    *  currently used buffer.
    */
-  void setBuffer(Buffer* newBuffer);
+  void setBuffer(AudioBuffer* newBuffer);
   /*! @return The context within which this buffer was created.
    */
-  Context& context() const { return m_context; }
+  AudioContext& context() const { return m_context; }
   /*! Creates a source object within the specified context.
    */
-  static Ref<Source> create(Context& context);
+  static Ref<AudioSource> create(AudioContext& context);
 private:
-  Source(Context& context);
-  Source(const Source&) = delete;
+  AudioSource(AudioContext& context);
+  AudioSource(const AudioSource&) = delete;
   bool init();
-  Source& operator = (const Source&) = delete;
-  Context& m_context;
+  AudioSource& operator = (const AudioSource&) = delete;
+  AudioContext& m_context;
   uint m_sourceID;
   bool m_looping;
   vec3 m_position;
   vec3 m_velocity;
   float m_gain;
   float m_pitch;
-  Ref<Buffer> m_buffer;
+  Ref<AudioBuffer> m_buffer;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace AL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

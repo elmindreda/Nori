@@ -35,21 +35,19 @@
 
 namespace wendy
 {
-  namespace AL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Audio sample data buffer.
  *  @ingroup openal
  */
-class Buffer : public Resource, public RefObject
+class AudioBuffer : public Resource, public RefObject
 {
-  friend class Source;
+  friend class AudioSource;
 public:
   /*! Destructor.
    */
-  ~Buffer();
+  ~AudioBuffer();
   /*! @return @c true if this buffer contains mono data, otherwise @c false.
    */
   bool isMono() const;
@@ -64,20 +62,20 @@ public:
   SampleFormat format() const { return m_format; }
   /*! @return The context within which this buffer was created.
    */
-  Context& context() const { return m_context; }
+  AudioContext& context() const { return m_context; }
   /*! Creates a buffer object within the specified context using the specified
    *  data.
    */
-  static Ref<Buffer> create(const ResourceInfo& info,
-                            Context& context,
-                            const Sample& data);
-  static Ref<Buffer> read(Context& context, const String& sampleName);
+  static Ref<AudioBuffer> create(const ResourceInfo& info,
+                                 AudioContext& context,
+                                 const Sample& data);
+  static Ref<AudioBuffer> read(AudioContext& context, const String& sampleName);
 private:
-  Buffer(const ResourceInfo& info, Context& context);
-  Buffer(const Buffer&) = delete;
+  AudioBuffer(const ResourceInfo& info, AudioContext& context);
+  AudioBuffer(const AudioBuffer&) = delete;
   bool init(const Sample& data);
-  Buffer& operator = (const Buffer&) = delete;
-  Context& m_context;
+  AudioBuffer& operator = (const AudioBuffer&) = delete;
+  AudioContext& m_context;
   uint m_bufferID;
   SampleFormat m_format;
   Time m_duration;
@@ -85,7 +83,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace AL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

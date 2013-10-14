@@ -34,20 +34,18 @@
 
 namespace wendy
 {
-  namespace AL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief OpenAL context singleton.
  *  @ingroup openal
  */
-class Context
+class AudioContext
 {
 public:
   /*! Destructor.
    */
-  ~Context();
+  ~AudioContext();
   /*! @return The position of the context listener.
    */
   const vec3& listenerPosition() const { return m_listenerPosition; }
@@ -85,12 +83,12 @@ public:
    *  @param[in] cache The resource cache to use.
    *  @return @c true if successful, or @c false otherwise.
    */
-  static Context* create(ResourceCache& cache);
+  static AudioContext* create(ResourceCache& cache);
 private:
-  Context(ResourceCache& cache);
-  Context(const Context&) = delete;
+  AudioContext(ResourceCache& cache);
+  AudioContext(const AudioContext&) = delete;
   bool init();
-  Context& operator = (const Context&) = delete;
+  AudioContext& operator = (const AudioContext&) = delete;
   ResourceCache& m_cache;
   void* m_device;
   void* m_handle;
@@ -102,7 +100,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace AL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

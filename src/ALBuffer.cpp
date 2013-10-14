@@ -40,8 +40,6 @@
 
 namespace wendy
 {
-  namespace AL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -85,34 +83,34 @@ size_t getFormatSize(SampleFormat format)
 
 ///////////////////////////////////////////////////////////////////////
 
-Buffer::~Buffer()
+AudioBuffer::~AudioBuffer()
 {
   if (m_bufferID)
     alDeleteBuffers(1, &m_bufferID);
 }
 
-bool Buffer::isMono() const
+bool AudioBuffer::isMono() const
 {
   return m_format == SAMPLE_MONO8 || m_format == SAMPLE_MONO16;
 }
 
-bool Buffer::isStereo() const
+bool AudioBuffer::isStereo() const
 {
   return m_format == SAMPLE_STEREO8 || m_format == SAMPLE_STEREO16;
 }
 
-Ref<Buffer> Buffer::create(const ResourceInfo& info,
-                           Context& context,
-                           const Sample& data)
+Ref<AudioBuffer> AudioBuffer::create(const ResourceInfo& info,
+                                     AudioContext& context,
+                                     const Sample& data)
 {
-  Ref<Buffer> buffer = new Buffer(info, context);
+  Ref<AudioBuffer> buffer = new AudioBuffer(info, context);
   if (!buffer->init(data))
     return NULL;
 
   return buffer;
 }
 
-Ref<Buffer> Buffer::read(Context& context, const String& sampleName)
+Ref<AudioBuffer> AudioBuffer::read(AudioContext& context, const String& sampleName)
 {
   ResourceCache& cache = context.cache();
 
@@ -120,7 +118,7 @@ Ref<Buffer> Buffer::read(Context& context, const String& sampleName)
   name += "sample:";
   name += sampleName;
 
-  if (Ref<Buffer> buffer = cache.find<Buffer>(name))
+  if (Ref<AudioBuffer> buffer = cache.find<AudioBuffer>(name))
     return buffer;
 
   Ref<Sample> data = Sample::read(cache, sampleName);
@@ -133,7 +131,7 @@ Ref<Buffer> Buffer::read(Context& context, const String& sampleName)
   return create(ResourceInfo(cache, name), context, *data);
 }
 
-Buffer::Buffer(const ResourceInfo& info, Context& context):
+AudioBuffer::AudioBuffer(const ResourceInfo& info, AudioContext& context):
   Resource(info),
   m_context(context),
   m_bufferID(0),
@@ -141,7 +139,7 @@ Buffer::Buffer(const ResourceInfo& info, Context& context):
 {
 }
 
-bool Buffer::init(const Sample& data)
+bool AudioBuffer::init(const Sample& data)
 {
   alGenBuffers(1, &m_bufferID);
   alBufferData(m_bufferID,
@@ -160,7 +158,6 @@ bool Buffer::init(const Sample& data)
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace AL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

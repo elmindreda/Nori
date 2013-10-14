@@ -40,18 +40,16 @@
 
 namespace wendy
 {
-  namespace AL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
-Source::~Source()
+AudioSource::~AudioSource()
 {
   if (m_sourceID)
     alDeleteSources(1, &m_sourceID);
 }
 
-void Source::start()
+void AudioSource::start()
 {
   alSourcePlay(m_sourceID);
 
@@ -60,7 +58,7 @@ void Source::start()
 #endif
 }
 
-void Source::stop()
+void AudioSource::stop()
 {
   alSourceStop(m_sourceID);
 
@@ -69,7 +67,7 @@ void Source::stop()
 #endif
 }
 
-void Source::pause()
+void AudioSource::pause()
 {
   alSourcePause(m_sourceID);
 
@@ -78,7 +76,7 @@ void Source::pause()
 #endif
 }
 
-void Source::resume()
+void AudioSource::resume()
 {
   alSourcePlay(m_sourceID);
 
@@ -87,7 +85,7 @@ void Source::resume()
 #endif
 }
 
-Source::State Source::state() const
+AudioSource::State AudioSource::state() const
 {
   ALenum state;
   alGetSourcei(m_sourceID, AL_SOURCE_STATE, &state);
@@ -110,7 +108,7 @@ Source::State Source::state() const
   panic("Unknown OpenAL source state %u", state);
 }
 
-void Source::setLooping(bool newState)
+void AudioSource::setLooping(bool newState)
 {
   if (m_looping != newState)
   {
@@ -123,7 +121,7 @@ void Source::setLooping(bool newState)
   }
 }
 
-void Source::setPosition(const vec3& newPosition)
+void AudioSource::setPosition(const vec3& newPosition)
 {
   if (m_position != newPosition)
   {
@@ -136,7 +134,7 @@ void Source::setPosition(const vec3& newPosition)
   }
 }
 
-void Source::setVelocity(const vec3& newVelocity)
+void AudioSource::setVelocity(const vec3& newVelocity)
 {
   if (m_velocity != newVelocity)
   {
@@ -149,7 +147,7 @@ void Source::setVelocity(const vec3& newVelocity)
   }
 }
 
-void Source::setBuffer(Buffer* newBuffer)
+void AudioSource::setBuffer(AudioBuffer* newBuffer)
 {
   if (m_buffer != newBuffer)
   {
@@ -166,7 +164,7 @@ void Source::setBuffer(Buffer* newBuffer)
   }
 }
 
-void Source::setGain(float newGain)
+void AudioSource::setGain(float newGain)
 {
   if (m_gain != newGain)
   {
@@ -179,7 +177,7 @@ void Source::setGain(float newGain)
   }
 }
 
-void Source::setPitch(float newPitch)
+void AudioSource::setPitch(float newPitch)
 {
   if (m_pitch != newPitch)
   {
@@ -192,16 +190,16 @@ void Source::setPitch(float newPitch)
   }
 }
 
-Ref<Source> Source::create(Context& context)
+Ref<AudioSource> AudioSource::create(AudioContext& context)
 {
-  Ref<Source> source = new Source(context);
+  Ref<AudioSource> source = new AudioSource(context);
   if (!source->init())
     return nullptr;
 
   return source;
 }
 
-Source::Source(Context& context):
+AudioSource::AudioSource(AudioContext& context):
   m_context(context),
   m_sourceID(0),
   m_looping(false),
@@ -210,7 +208,7 @@ Source::Source(Context& context):
 {
 }
 
-bool Source::init()
+bool AudioSource::init()
 {
   alGenSources(1, &m_sourceID);
 
@@ -222,7 +220,6 @@ bool Source::init()
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace AL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
