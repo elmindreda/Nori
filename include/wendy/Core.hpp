@@ -212,20 +212,20 @@ public:
   {
     using std::swap;
 
-    swap(first.object, second.object);
+    swap(first.m_object, second.m_object);
   }
   /*! Default constructor.
    */
-  explicit Ptr(T* initObject = nullptr):
-    object(initObject)
+  explicit Ptr(T* object = nullptr):
+    m_object(object)
   {
   }
   /*! Destructor
    */
   virtual ~Ptr()
   {
-    if (object)
-      delete object;
+    if (m_object)
+      delete m_object;
   }
   /*! Detaches (orphans) the currently owned object.
    * @return The currently owned object.
@@ -233,66 +233,60 @@ public:
    */
   T* detachObject()
   {
-    T* temp = object;
-    object = nullptr;
+    T* temp = m_object;
+    m_object = nullptr;
     return temp;
   }
   /*! Cast operator.
    */
   operator T* ()
   {
-    return object;
+    return m_object;
   }
   /*! Cast operator.
    */
   operator const T* () const
   {
-    return object;
+    return m_object;
   }
   /*! Member operator.
    */
   T* operator -> ()
   {
-    return object;
+    return m_object;
   }
   /*! Member operator.
    */
   const T* operator -> () const
   {
-    return object;
+    return m_object;
   }
   /*! Object assignment operator.
    */
   Ptr<T>& operator = (T* newObject)
   {
-    if (object)
-      delete object;
+    if (m_object)
+      delete m_object;
 
-    object = newObject;
+    m_object = newObject;
     return *this;
   }
   /*! @return The currently owned object.
    */
-  T* getObject()
+  T* object()
   {
-    return object;
+    return m_object;
   }
   /*! @return The currently owned object.
    */
-  const T* getObject() const
+  const T* object() const
   {
-    return object;
+    return m_object;
   }
 private:
-  Ptr(const Ptr<T>& source):
-    object(nullptr)
-  {
-  }
-  Ptr<T>& operator = (const Ptr<T>& source)
-  {
-    return *this;
-  }
-  T* object;
+  Ptr(const Ptr<T>&) = delete;
+  Ptr<T>& operator = (const Ptr<T>&) = delete;
+  T* m_object;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -351,20 +345,20 @@ public:
   {
     using std::swap;
 
-    swap(first.object, second.object);
+    swap(first.m_object, second.m_object);
   }
   /*! Default constructor.
    */
-  Ref(T* initObject = nullptr):
-    object(nullptr)
+  Ref(T* object = nullptr):
+    m_object(nullptr)
   {
-    operator = (initObject);
+    operator = (object);
   }
   /*! Copy constructor.
    *  @param source The pointer object to inherit from.
    */
   Ref(const Ref<T>& source):
-    object(nullptr)
+    m_object(nullptr)
   {
     operator = (source);
   }
@@ -378,13 +372,13 @@ public:
    */
   operator T* () const
   {
-    return object;
+    return m_object;
   }
   /*! Member operator.
    */
   T* operator -> () const
   {
-    return object;
+    return m_object;
   }
   /*! Object assignment operator.
    */
@@ -393,30 +387,30 @@ public:
     if (newObject)
       increment(newObject);
 
-    if (object)
+    if (m_object)
     {
-      decrement(object);
-      if (unreferenced(object))
-        delete static_cast<RefObject*>(object);
+      decrement(m_object);
+      if (unreferenced(m_object))
+        delete static_cast<RefObject*>(m_object);
     }
 
-    object = newObject;
+    m_object = newObject;
     return *this;
   }
   /*! Assignment operator.
    */
   Ref<T>& operator = (const Ref<T>& source)
   {
-    return operator = (source.object);
+    return operator = (source.m_object);
   }
   /*! @return The currently owned object.
    */
-  T* getObject() const
+  T* object() const
   {
-    return object;
+    return m_object;
   }
 private:
-  T* object;
+  T* m_object;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -438,24 +432,24 @@ public:
    */
   static void destroySingleton()
   {
-    object = nullptr;
+    m_object = nullptr;
   }
   /*! @return The singleton instance if available, otherwise @c nullptr.
    */
-  static T* getSingleton()
+  static T* singleton()
   {
-    return object;
+    return m_object;
   }
 protected:
   /*! Sets the singleton instance.
    *  @param[in] newObject The instance to set.
    */
-  static void set(T* newObject)
+  static void setSingleton(T* newObject)
   {
-    object = newObject;
+    m_object = newObject;
   }
 private:
-  static Ptr<T> object;
+  static Ptr<T> m_object;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -482,7 +476,7 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 template <typename T>
-Ptr<T> Singleton<T>::object;
+Ptr<T> Singleton<T>::m_object;
 
 ///////////////////////////////////////////////////////////////////////
 
