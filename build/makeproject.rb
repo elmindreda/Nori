@@ -103,6 +103,7 @@ public:
 private:
   ResourceCache cache;
   Ptr<GL::Context> context;
+  Ptr<AudioContext> audioContext;
   Ref<render::VertexPool> pool;
 };
 
@@ -134,10 +135,9 @@ using namespace wendy;
 
 #{@type}::~#{@type}()
 {
-  pool = NULL;
-  context = NULL;
-
-  AL::Context::destroySingleton();
+  pool = nullptr;
+  context = nullptr;
+  audioContext = nullptr;
 }
 
 bool #{@type}::init()
@@ -148,9 +148,10 @@ bool #{@type}::init()
     return false;
   }
 
-  if (!AL::Context::createSingleton(cache))
+  audioContext = AudioContext::create(cache);
+  if (!audioContext)
   {
-    logError("Failed to create OpenAL context");
+    logError("Failed to create audio context");
     return false;
   }
 
@@ -176,7 +177,7 @@ bool #{@type}::init()
 
 void #{@type}::run()
 {
-  Window& window = context->getWindow();
+  Window& window = context->window();
 
   do
   {
@@ -194,7 +195,7 @@ int main()
     std::exit(EXIT_FAILURE);
 
   #{@type.downcase}->run();
-  #{@type.downcase} = NULL;
+  #{@type.downcase} = nullptr;
 
   std::exit(EXIT_SUCCESS);
 }
