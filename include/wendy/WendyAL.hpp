@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenAL library
+// Wendy audio library
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,25 +22,23 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_WENDYAL_HPP
-#define WENDY_WENDYAL_HPP
+#ifndef WENDY_WENDYAUDIO_HPP
+#define WENDY_WENDYAUDIO_HPP
 ///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup openal OpenAL wrapper API
+/*! @defgroup audio Audio API
  */
 
 ///////////////////////////////////////////////////////////////////////
 
-#if WENDY_INCLUDE_OPENAL
+#if WENDY_INCLUDE_AUDIO
 
-#include <wendy/ALContext.hpp>
-#include <wendy/ALBuffer.hpp>
-#include <wendy/ALSource.hpp>
+#include <wendy/Audio.hpp>
 
 #else
-#error "OpenAL module is not enabled"
+#error "Audio module is not enabled"
 #endif
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_WENDYAL_HPP*/
+#endif /*WENDY_WENDYAUDIO_HPP*/
 ///////////////////////////////////////////////////////////////////////

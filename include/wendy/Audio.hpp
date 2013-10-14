@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenAL library
+// Wendy audio library
 // Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -22,8 +22,15 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_ALSOURCE_HPP
-#define WENDY_ALSOURCE_HPP
+#ifndef WENDY_AUDIO_HPP
+#define WENDY_AUDIO_HPP
+///////////////////////////////////////////////////////////////////////
+
+#include <wendy/Core.hpp>
+#include <wendy/Path.hpp>
+#include <wendy/Resource.hpp>
+#include <wendy/Sample.hpp>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -31,8 +38,57 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief OpenAL audio source.
- *  @ingroup openal
+class AudioContext;
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Audio sample data buffer.
+ *  @ingroup audio
+ */
+class AudioBuffer : public Resource, public RefObject
+{
+  friend class AudioSource;
+public:
+  /*! Destructor.
+   */
+  ~AudioBuffer();
+  /*! @return @c true if this buffer contains mono data, otherwise @c false.
+   */
+  bool isMono() const;
+  /*! @return @c true if this buffer contains stereo data, otherwise @c false.
+   */
+  bool isStereo() const;
+  /*! @return The duration, in seconds, of this buffer.
+   */
+  Time duration() const { return m_duration; }
+  /*! @return The format of the data in this buffer.
+   */
+  SampleFormat format() const { return m_format; }
+  /*! @return The context within which this buffer was created.
+   */
+  AudioContext& context() const { return m_context; }
+  /*! Creates a buffer object within the specified context using the specified
+   *  data.
+   */
+  static Ref<AudioBuffer> create(const ResourceInfo& info,
+                                 AudioContext& context,
+                                 const Sample& data);
+  static Ref<AudioBuffer> read(AudioContext& context, const String& sampleName);
+private:
+  AudioBuffer(const ResourceInfo& info, AudioContext& context);
+  AudioBuffer(const AudioBuffer&) = delete;
+  bool init(const Sample& data);
+  AudioBuffer& operator = (const AudioBuffer&) = delete;
+  AudioContext& m_context;
+  uint m_bufferID;
+  SampleFormat m_format;
+  Time m_duration;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Audio source.
+ *  @ingroup audio
  */
 class AudioSource : public RefObject
 {
@@ -150,8 +206,71 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Audio context.
+ *  @ingroup audio
+ */
+class AudioContext
+{
+public:
+  /*! Destructor.
+   */
+  ~AudioContext();
+  /*! @return The position of the context listener.
+   */
+  const vec3& listenerPosition() const { return m_listenerPosition; }
+  /*! Sets the position of the context listener.
+   */
+  void setListenerPosition(const vec3& newPosition);
+  /*! @return The velocity of the context listener.
+   *
+   *  @remarks The velocity doesn't affect the position of the source, but is
+   *  used in combination with the source velocity to calculate doppler shift.
+   */
+  const vec3& listenerVelocity() const { return m_listenerVelocity; }
+  /*! Sets the velocity of the context listener.
+   *
+   *  @remarks The velocity doesn't affect the position of the source, but is
+   *  used in combination with the source velocity to calculate doppler shift.
+   */
+  void setListenerVelocity(const vec3& newVelocity);
+  /*! @return The gain of the context listener.
+   */
+  const quat& listenerRotation() const { return m_listenerRotation; }
+  /*! Sets the rotation of the context listener.
+   */
+  void setListenerRotation(const quat& newRotation);
+  /*! @return The gain of the context listener.
+   */
+  float listenerGain() const { return m_listenerGain; }
+  /*! Sets the listener gain of this context.
+   */
+  void setListenerGain(float newGain);
+  /*! @return The resource cache used by this context.
+   */
+  ResourceCache& cache() const { return m_cache; }
+  /*! Creates the context singleton object.
+   *  @param[in] cache The resource cache to use.
+   *  @return @c true if successful, or @c false otherwise.
+   */
+  static AudioContext* create(ResourceCache& cache);
+private:
+  AudioContext(ResourceCache& cache);
+  AudioContext(const AudioContext&) = delete;
+  bool init();
+  AudioContext& operator = (const AudioContext&) = delete;
+  ResourceCache& m_cache;
+  void* m_device;
+  void* m_handle;
+  vec3 m_listenerPosition;
+  vec3 m_listenerVelocity;
+  quat m_listenerRotation;
+  float m_listenerGain;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_ALSOURCE_HPP*/
+#endif /*WENDY_AUDIO_HPP*/
 ///////////////////////////////////////////////////////////////////////

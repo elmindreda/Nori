@@ -31,8 +31,8 @@
 #cmakedefine WENDY_INCLUDE_NETWORK 1
 /* Define this to 1 to include the renderers */
 #cmakedefine WENDY_INCLUDE_RENDERER 1
-/* Define this to 1 to include the OpenAL wrapper */
-#cmakedefine WENDY_INCLUDE_OPENAL 1
+/* Define this to 1 to include the audio wrapper */
+#cmakedefine WENDY_INCLUDE_AUDIO 1
 /* Define this to 1 to include the scene graph */
 #cmakedefine WENDY_INCLUDE_SCENE_GRAPH 1
 /* Define this to 1 to include the UI system */

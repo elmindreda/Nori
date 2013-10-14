@@ -65,7 +65,7 @@
 #include <wendy/WendyNetwork.hpp>
 #endif
 
-#if WENDY_INCLUDE_OPENAL
+#if WENDY_INCLUDE_AUDIO
 #include <wendy/WendyAL.hpp>
 #endif
 

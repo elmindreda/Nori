@@ -34,9 +34,9 @@ if (WENDY_INCLUDE_NETWORK)
   list(APPEND wendy_SOURCES Network.cpp)
 endif()
 
-if (WENDY_INCLUDE_OPENAL)
+if (WENDY_INCLUDE_AUDIO)
   include_directories(${OPENAL_INCLUDE_DIR})
-  list(APPEND wendy_SOURCES ALBuffer.cpp ALContext.cpp ALHelper.cpp ALSource.cpp)
+  list(APPEND wendy_SOURCES Audio.cpp)
 endif()
 
 if (WENDY_INCLUDE_RENDERER)
