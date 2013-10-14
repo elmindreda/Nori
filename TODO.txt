@@ -51,8 +51,6 @@ Scene
 
 Add list of non-culled renderables to Scene [Pod]
 
-Replace node class hierarchy with single node class [opt]
-
 Add root nodes with ivec3 coordinates scaled by per-scene vec3 [Pod]
 
 
